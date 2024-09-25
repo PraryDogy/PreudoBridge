@@ -81,28 +81,19 @@ class ImgUtils:
         image = cv2.imread(path, cv2.IMREAD_UNCHANGED)  # Чтение с альфа-каналом
 
         if image is None:
-            print("Ошибка загрузки изображения")
             return None
 
-        # Если изображение имеет альфа-канал
         if image.shape[2] == 4:
             alpha_channel = image[:, :, 3] / 255.0
             rgb_channels = image[:, :, :3]
-
-            # Создание белого фона
             background_color = np.array([255, 255, 255], dtype=np.uint8)
             background = np.full(rgb_channels.shape, background_color, dtype=np.uint8)
-
-            # Комбинация RGB и фона с учетом альфа-канала
             converted = (rgb_channels * alpha_channel[:, :, np.newaxis] + background * (1 - alpha_channel[:, :, np.newaxis])).astype(np.uint8)
         else:
-            # Если альфа-канала нет, просто используем изображение как есть
             converted = image
 
-        # Преобразование в Pillow Image
         pil_image = Image.fromarray(converted)
         return pil_image
-
 
 
 class LoadImagesThread(QThread):
@@ -117,42 +108,14 @@ class LoadImagesThread(QThread):
         root = os.path.dirname(any_src_image)
 
         self.db_images = self.get_db_images(root)
-        self.db_images = {
-            images_data: bytearray_image
-            for images_data, bytearray_image in self.db_images
-            if images_data in self.finder_images
-            }
+        self.filtered_images = {}
         
-
-
         self.thumb_size = thumb_size
         self.flag = True
         self.stop_thread.connect(self.stop_thread_cmd)
 
     def run(self):
         quit()
-
-    def compare_images(self, db_images: dict, finder_images: dict):
-        compared_images: dict = {
-            "already": {},
-            "new": {},
-            "del": {}
-            }
-
-        for image_data, bytearray_img in db_images.items():
-            if image_data in finder_images:
-                compared_images["already"][image_data] = bytearray
-            else:
-                ...
-
-    def get_finder_images(self):
-        return {
-            (data["path"], data["size"], data["modified"]): data["widget"]
-            for data in self.finder_images
-            }
-
-    # def is_image(self, src: str):
-    #     return bool(src.lower().endswith((".jpg", "jpeg", ".tif", ".tiff", ".psd", ".psb", ".png")))
 
     def create_new_images(self, new_images):
         for image_data in new_images:
@@ -185,12 +148,23 @@ class LoadImagesThread(QThread):
                 img = None
             
             try:
-                self.set_image(image_data["widget"], img)
+                self.set_new_image(image_data["widget"], img)
             except AttributeError as e:
                 self.set_default_image(image_data["widget"], "images/file_210.png")
 
         self.finished_thread.emit()
         print("load images finished")
+
+    def filter_images(self, db_images: dict, finder_images: dict):
+        filtered_images = {
+            "new": [],
+            "del": [],
+            "already": []
+            }
+        
+        for (src, size, modified), bytearray_image in self.db_images.items():
+            if (src, size, modified) not in self.finder_images:
+                filtered_images["del"].append((src, size, modified))
 
     def get_db_images(self, root: str):
         session = Dbase.get_session()
@@ -206,7 +180,7 @@ class LoadImagesThread(QThread):
     def stop_thread_cmd(self):
         self.flag = False
 
-    def set_image(self, widget: QLabel, image: Image.Image):
+    def set_new_image(self, widget: QLabel, image: Image.Image):
         image = FitImg.fit(image, self.thumb_size, self.thumb_size)
         image = image.convert('RGBA')  # Преобразуем в RGBA
 
