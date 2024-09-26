@@ -231,7 +231,6 @@ class SimpleFileExplorer(QWidget):
         splitter_wid = QWidget()
         v_lay.addWidget(splitter_wid)
         splitter_lay = QHBoxLayout()
-        # splitter_lay.setContentsMargins(10, 10, 10, 10)
         splitter_wid.setLayout(splitter_lay)
 
         self.splitter = QSplitter(Qt.Horizontal)
@@ -241,7 +240,7 @@ class SimpleFileExplorer(QWidget):
         left_lay.setContentsMargins(0, 0, 0, 0)
         left_wid.setLayout(left_lay)
         self.splitter.addWidget(left_wid)
-
+        
         self.model = QFileSystemModel()
         if Storage.json_data["hidden_dirs"]:
             self.model.setFilter(QDir.AllDirs | QDir.Files | QDir.NoDotAndDotDot | QDir.Hidden)
