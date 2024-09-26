@@ -23,8 +23,8 @@ class PixmapFromBytes(QPixmap):
         self.loadFromData(ba, "JPEG")
 
 
-class PillowToBytes(io.BytesIO):
-    def __init__(self, image: Image.Image) -> io.BytesIO:
+class DbImage(io.BytesIO):
+    def __init__(self, image: np.ndarray) -> io.BytesIO:
         super().__init__()
         img = np.array(image)
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
@@ -35,30 +35,26 @@ class PillowToBytes(io.BytesIO):
 class ImgUtils:
 
     @staticmethod
-    def convert_tiff(src: str) -> Image.Image:
+    def read_tiff(src: str) -> np.ndarray:
         try:
             img = tifffile.imread(files=src)[:,:,:3]
             if str(object=img.dtype) != "uint8":
                 img = (img/256).astype(dtype="uint8")
-            img = Image.fromarray(obj=img.astype("uint8"), mode="RGB")
-
-            if img.mode == 'RGBA':
-                img = img.convert('RGB')
-
             return img
-
         except Exception as e:
             print("tifffle error:", e, src)
             return None
 
     @staticmethod
-    def convert_psd(src: str) -> Image.Image:
+    def read_psd(src: str) -> np.ndarray:
         try:
-            img = psd_tools.PSDImage.open(fp=src).composite(ignore_preview=True)
+            img = psd_tools.PSDImage.open(fp=src)
+            img = img.composite(ignore_preview=True)
 
             if img.mode == 'RGBA':
                 img = img.convert('RGB')
             
+            img = np.array(img)
             return img
 
         except Exception as e:
@@ -66,15 +62,15 @@ class ImgUtils:
             return None
             
     @staticmethod
-    def read_jpg(path: str) -> Image.Image:
+    def read_jpg(path: str) -> np.ndarray:
         image = cv2.imread(path, cv2.IMREAD_UNCHANGED)  # Чтение с альфа-каналом
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         if image is None:
             print("Ошибка загрузки изображения")
             return None
 
-        image = cv2.cvtColor(image, cv2.COLOR_BGRA2RGB)
-        return Image.fromarray(image)
+        return image
         
     @staticmethod
     def read_png(path: str) -> Image.Image:
@@ -92,84 +88,108 @@ class ImgUtils:
         else:
             converted = image
 
-        pil_image = Image.fromarray(converted)
-        return pil_image
+        return converted
 
 
 class LoadImagesThread(QThread):
     stop_thread = pyqtSignal()
     finished_thread = pyqtSignal()
     
-    def __init__(self, finder_images: list[dict], thumb_size: int):
+    def __init__(self, finder_images: dict[tuple: QLabel], thumb_size: int):
         super().__init__()
 
-        self.finder_images: list = finder_images # (src, size, modified): QLabel
-        any_src_image = next(iter(self.finder_images))[0]
-        root = os.path.dirname(any_src_image)
-
-        self.db_images = self.get_db_images(root)
-        self.filtered_images = {}
+        self.finder_images: dict[tuple: QLabel] = finder_images # (src, size, modified): QLabel
+        self.remove_db_images: dict[tuple: str] = {}
+        first_img = next(iter(self.finder_images))[0]
+        self.root = os.path.dirname(first_img)
         
         self.thumb_size = thumb_size
         self.flag = True
         self.stop_thread.connect(self.stop_thread_cmd)
 
     def run(self):
-        quit()
+        self.db_images = self.get_db_images()
+        self.load_already_images()
+        self.create_new_images()
+        self.finished_thread.emit()
 
-    def create_new_images(self, new_images):
-        for image_data in new_images:
+    def create_new_images(self):
+        session = Dbase.get_session()
 
-            image_data: dict
-            src_lower: str = image_data["path"].lower()
-            src: str = image_data["path"]
+        for (src, size, modified), widget in self.finder_images.items():
+
             img = None
+            src_lower: str = src.lower()
 
             if not self.flag:
                 break
 
             if os.path.isdir(src):
-                self.set_default_image(image_data["widget"], "images/folder_210.png")
+                self.set_default_image(widget, "images/folder_210.png")
                 continue
 
             elif src_lower.endswith((".tiff", ".tif")):
-                img = ImgUtils.convert_tiff(image_data["path"])
+                img = ImgUtils.read_tiff(src)
+                img = FitImg.start(img, self.thumb_size)
 
             elif src_lower.endswith((".psd", ".psb")):
-                img = ImgUtils.convert_psd(image_data["path"])
+                img = ImgUtils.read_psd(src)
+                img = FitImg.start(img, self.thumb_size)
 
             elif src_lower.endswith((".jpg", ".jpeg")):
-                img = ImgUtils.read_jpg(image_data["path"])
+                img = ImgUtils.read_jpg(src)
+                img = FitImg.start(img, self.thumb_size)
 
             elif src_lower.endswith((".png")):
-                img = ImgUtils.read_png(image_data["path"])
+                img = ImgUtils.read_png(src)
+                img = FitImg.start(img, self.thumb_size)
 
             else:
                 img = None
-            
+
             try:
-                self.set_new_image(image_data["widget"], img)
+                self.set_new_image(widget, img)
             except AttributeError as e:
-                self.set_default_image(image_data["widget"], "images/file_210.png")
+                # print(e, src)
+                self.set_default_image(widget, "images/file_210.png")
 
-        self.finished_thread.emit()
-        print("load images finished")
+            try:
+                img = DbImage(img).getvalue()
+                q = sqlalchemy.insert(Cache)
+                q = q.values({
+                    "img": img,
+                    "src": src,
+                    "root": self.root,
+                    "size": size,
+                    "modified": modified
+                    })
+                session.execute(q)
+            except Exception as e:
+                # print(e)
+                pass
 
-    def filter_images(self, db_images: dict, finder_images: dict):
-        filtered_images = {
-            "new": [],
-            "del": [],
-            "already": []
-            }
-        
+        session.commit()
+        session.close()
+
+    def load_already_images(self):
         for (src, size, modified), bytearray_image in self.db_images.items():
-            if (src, size, modified) not in self.finder_images:
-                filtered_images["del"].append((src, size, modified))
+            widget: QLabel = self.finder_images.get((src, size, modified))
 
-    def get_db_images(self, root: str):
+            if not self.flag:
+                return
+
+            if widget:
+                pixmap: QPixmap = PixmapFromBytes(bytearray_image)
+                widget.setPixmap(pixmap)
+                self.finder_images.pop((src, size, modified))
+
+            else:
+                self.remove_db_images[(src, size, modified)] = ""
+
+    def get_db_images(self):
         session = Dbase.get_session()
         q = sqlalchemy.select(Cache.img, Cache.src, Cache.size, Cache.modified)
-        q = q.where(Cache.dir==root)
+        q = q.where(Cache.root==self.root)
         res = session.execute(q).fetchall()
         session.close()
         return {
@@ -180,14 +200,13 @@ class LoadImagesThread(QThread):
     def stop_thread_cmd(self):
         self.flag = False
 
-    def set_new_image(self, widget: QLabel, image: Image.Image):
-        image = FitImg.fit(image, self.thumb_size, self.thumb_size)
-        image = image.convert('RGBA')  # Преобразуем в RGBA
-
-        data = np.array(image)
-        height, width, channel = data.shape
+    def set_new_image(self, widget: QLabel, image: np.ndarray):
+        "input nd array RGB"
+        height, width, channel = image.shape
         bytes_per_line = channel * width
-        qimage = QPixmap.fromImage(QImage(data.data, width, height, bytes_per_line, QImage.Format_RGBA8888))
+        qimage = QImage(image.data, width, height, bytes_per_line, QImage.Format.Format_RGB888)
+
+        qimage = QPixmap.fromImage(qimage)
 
         try:
             widget.setPixmap(qimage)

@@ -21,6 +21,7 @@ class Storage:
     # get_items_threads: list = []
     json_file = os.path.join(os.path.expanduser('~'), 'Desktop', 'last_place.json')
     json_data: dict = {}
+    load_images_thread: LoadImagesThread = None
 
 
 class ClickableFrame(QFrame):
@@ -148,8 +149,8 @@ class SimpleFileExplorer(QWidget):
     def __init__(self):
         super().__init__()
         self.thumb_size = 210
-        self.directory_items = []
-        self.thumbnails_data: dict = {}
+        self.finder_items = []
+        self.finder_images: dict = {}
         self.first_load = True
         ww, hh = Storage.json_data["ww"], Storage.json_data["hh"]
         self.resize(ww, hh)
@@ -213,6 +214,7 @@ class SimpleFileExplorer(QWidget):
         self.resizeEvent = self.custom_resize_event
 
         self.load_last_place()
+        self.set_path_title()
 
     def btn_up_cmd(self):
         path = self.get_current_path()
@@ -220,9 +222,10 @@ class SimpleFileExplorer(QWidget):
         index = self.model.index(path)
         self.tree_widget.setCurrentIndex(index)
         self.tree_widget.expand(index)
+        Storage.json_data["last_place"] = path
 
         self.set_path_title()
-        self.get_directory_items(path)
+        self.get_finder_items(path)
         self.reload_grid_layout()
 
     def tab_cmd(self, sort: str):
@@ -238,12 +241,12 @@ class SimpleFileExplorer(QWidget):
 
         self.clmn_count = clmn_count
         Utils.clear_layout(layout=self.grid_layout)
-        self.thumbnails_data.clear()
+        self.finder_images.clear()
 
         row, col = 0, 0
-        file_info_list = []
+        finder_items_sort = []
 
-        for src in self.directory_items:
+        for src in self.finder_items:
 
             src: str
 
@@ -263,27 +266,28 @@ class SimpleFileExplorer(QWidget):
                     file_type = "folder"
 
                 file_info = (src, file_name, file_size, modification_time, file_type)
-                file_info_list.append(file_info)
+                finder_items_sort.append(file_info)
+
             except (FileNotFoundError, TypeError) as e:
                 print(e, src)
                 continue
 
         if Storage.json_data["sort"] == "name":
-            file_info_list = sorted(file_info_list, key=lambda x: x[1])
+            finder_items_sort = sorted(finder_items_sort, key=lambda x: x[1])
 
         elif Storage.json_data["sort"] == "size":
-            file_info_list = sorted(file_info_list, key=lambda x: x[2])
+            finder_items_sort = sorted(finder_items_sort, key=lambda x: x[2])
 
         elif Storage.json_data["sort"] == "modify":
-            file_info_list = sorted(file_info_list, key=lambda x: x[3])
+            finder_items_sort = sorted(finder_items_sort, key=lambda x: x[3])
 
         elif Storage.json_data["sort"] == "type":
-            file_info_list = sorted(file_info_list, key=lambda x: x[4])
+            finder_items_sort = sorted(finder_items_sort, key=lambda x: x[4])
 
         if Storage.json_data["reversed"]:
-            file_info_list = reversed(file_info_list)
+            finder_items_sort = reversed(finder_items_sort)
 
-        for src, filename, size, modified, filetype in file_info_list:
+        for src, filename, size, modified, filetype in finder_items_sort:
             wid = QFrame()
             wid.setFrameShape(QFrame.Shape.StyledPanel)
             wid.mouseDoubleClickEvent = partial(self.on_wid_double_clicked, src)
@@ -308,10 +312,9 @@ class SimpleFileExplorer(QWidget):
                 row += 1
 
             try:
-                self.thumbnails_data[(src, modified, size)] = img_label
+                self.finder_images[(src, size, modified)] = img_label
             except FileNotFoundError as e:
                 print(e, src)
-        # словарик { (путь размер модификация): виджет, ... }
 
         row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.grid_layout.addItem(row_spacer, row + 1, 0)
@@ -321,23 +324,18 @@ class SimpleFileExplorer(QWidget):
         self.load_images()
 
     def load_images(self):
-        to_remove = []
+        if Storage.load_images_thread and Storage.load_images_thread.isRunning():
 
-        for thread in Storage.load_images_threads:
-            thread: LoadImagesThread
+                Storage.load_images_thread.finished.connect(
+                    lambda: QTimer.singleShot(1000, self.new_thread_load_images)
+                    )
+                Storage.load_images_thread.stop_thread.emit()
+        else:
+            self.new_thread_load_images()
 
-            if thread.isRunning():
-                thread.stop_thread.emit()
-
-            else:
-                to_remove.append(thread)
-
-        for rem_thread in to_remove:
-            Storage.load_images_threads.remove(rem_thread)
-
-        new_thread = LoadImagesThread(self.thumbnails_data, self.thumb_size)
-        Storage.load_images_threads.append(new_thread)
-        new_thread.start()
+    def new_thread_load_images(self):
+        Storage.load_images_thread = LoadImagesThread(self.finder_images, self.thumb_size)
+        Storage.load_images_thread.start()
 
     def set_path_title(self):
         path = self.get_current_path()
@@ -348,7 +346,7 @@ class SimpleFileExplorer(QWidget):
 
         if os.path.isdir(path):
             self.tree_widget.setCurrentIndex(index)
-            self.get_directory_items(path)
+            self.get_finder_items(path)
             self.reload_grid_layout()
             self.set_path_title()
             Storage.json_data["last_place"] = path
@@ -361,7 +359,7 @@ class SimpleFileExplorer(QWidget):
             self.tree_widget.setCurrentIndex(index)
             self.tree_widget.expand(index)
             self.set_path_title()
-            self.get_directory_items(path)
+            self.get_finder_items(path)
             self.reload_grid_layout()
 
             Storage.json_data["last_place"] = path
@@ -371,60 +369,36 @@ class SimpleFileExplorer(QWidget):
         return self.model.filePath(index)
 
     def tab_bar_click(self):
-        self.get_directory_items(self.get_current_path())
+        self.get_finder_items(self.get_current_path())
         self.reload_grid_layout()
 
-    def get_directory_items(self, path):
-        self.directory_items.clear()
+    def get_finder_items(self, path):
+        self.finder_items.clear()
 
         if os.path.isdir(path):
 
             try:
 
                 if Storage.json_data["only_photo"]:
-                    self.directory_items = []
+                    self.finder_items = []
 
                     for item in os.listdir(path):
                         item: str = os.path.join(path, item)
 
                         if os.path.isdir(item):
-                            self.directory_items.append(item)
+                            self.finder_items.append(item)
                         
                         elif item.lower().endswith((".jpg", "jpeg", ".tif", ".tiff", ".psd", ".psb", ".png")):
-                            self.directory_items.append(item)
+                            self.finder_items.append(item)
 
                 else:
-                    self.directory_items = [
+                    self.finder_items = [
                         os.path.join(path, item)
                         for item in os.listdir(path)
                         ]
                     
             except PermissionError as e:
                 pass
-
-    # def get_directory_items(self, fake):
-    #     to_remove = []
-
-    #     for thread in Storage.get_items_threads:
-    #         thread: GetDirItems
-
-    #         if thread.isRunning():
-    #             thread.stop.emit()
-
-    #         else:
-    #             to_remove.append(thread)
-
-    #     for rem_thread in to_remove:
-    #         Storage.get_items_threads.remove(rem_thread)
-
-    #     new_thread = GetDirItems(path=self.get_current_path(), only_photo=Storage.json_data["only_photo"])
-    #     Storage.get_items_threads.append(new_thread)
-    #     new_thread.get_dir_finished.connect(self.get_directory_items_fin)
-    #     new_thread.start()
-
-    # def get_directory_items_fin(self, items: list):
-    #     self.directory_items = items 
-    #     self.reload_grid_layout()
 
     def load_last_place(self):
         last_place = Storage.json_data["last_place"]
@@ -433,7 +407,10 @@ class SimpleFileExplorer(QWidget):
             index = self.model.index(last_place)
             self.tree_widget.setCurrentIndex(index)
             self.tree_widget.expand(index)
-            self.get_directory_items(last_place)
+
+            print(index)
+
+            self.get_finder_items(last_place)
             self.reload_grid_layout()
 
     def custom_resize_event(self, event=None):
@@ -474,7 +451,7 @@ class CustomApp(QApplication):
 
     def on_exit(self):
         with open(Storage.json_file, 'w') as f:
-            json.dump(Storage.json_data, f, indent=4)
+            json.dump(Storage.json_data, f, indent=4, ensure_ascii=False)
 
     def load_json_data(self) -> dict:
         if os.path.exists(Storage.json_file):

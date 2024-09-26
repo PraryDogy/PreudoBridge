@@ -54,6 +54,5 @@ Dbase.init_db()
 
 app = CustomApp(sys.argv)
 ex = SimpleFileExplorer()
-ex.setWindowTitle('PseudoBridge')
 ex.show()
 sys.exit(app.exec_())
