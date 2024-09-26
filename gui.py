@@ -4,7 +4,7 @@ import sys
 from functools import partial
 from typing import List
 
-from PyQt5.QtCore import QEvent, QObject, Qt, QTimer, pyqtSignal
+from PyQt5.QtCore import QEvent, QObject, Qt, QTimer, pyqtSignal, QDir
 from PyQt5.QtGui import QCloseEvent, QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import (QApplication, QFileSystemModel, QFrame,
                              QGridLayout, QHBoxLayout, QLabel, QPushButton,
@@ -177,6 +177,7 @@ class SimpleFileExplorer(QWidget):
         self.splitter.addWidget(left_wid)
 
         self.model = QFileSystemModel()
+        self.model.setFilter(QDir.AllDirs | QDir.Files | QDir.NoDotAndDotDot | QDir.Hidden)
         self.model.setRootPath("/Volumes")
 
         self.tree_widget = QTreeView()
@@ -362,6 +363,8 @@ class SimpleFileExplorer(QWidget):
             Storage.json_data["last_place"] = path
 
     def on_wid_double_clicked(self, path, event):
+
+        print(path)
         
         if os.path.isdir(path):
 
@@ -440,6 +443,9 @@ class SimpleFileExplorer(QWidget):
             if a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
                 QApplication.instance().quit()
 
+        elif a0.key() == Qt.Key.Key_Up:
+            if a0.nativeModifiers() == 11534600:
+                self.btn_up_cmd()
 
 class CustomApp(QApplication):
     def __init__(self, argv: List[str]) -> None:
