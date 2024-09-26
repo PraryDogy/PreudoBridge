@@ -11,6 +11,7 @@ from PyQt5.QtWidgets import (QApplication, QFileSystemModel, QFrame,
                              QScrollArea, QSizePolicy, QSpacerItem, QSplitter,
                              QTabBar, QTreeView, QVBoxLayout, QWidget)
 
+from database import Dbase
 from get_items import GetDirItems
 from load_images import LoadImagesThread
 from utils import Utils
@@ -168,6 +169,13 @@ class SimpleFileExplorer(QWidget):
 
         self.splitter = QSplitter(Qt.Horizontal)
 
+        left_wid = QWidget()
+        left_lay = QVBoxLayout()
+        left_lay.setContentsMargins(0, 0, 0, 0)
+        left_lay.setSpacing(2)
+        left_wid.setLayout(left_lay)
+        self.splitter.addWidget(left_wid)
+
         self.model = QFileSystemModel()
         self.model.setRootPath("/Volumes")
 
@@ -182,6 +190,11 @@ class SimpleFileExplorer(QWidget):
 
         self.tree_widget.clicked.connect(self.on_tree_clicked)
 
+        left_lay.addWidget(self.tree_widget)
+
+        self.storage_btn = QPushButton()
+        left_lay.addWidget(self.storage_btn)
+
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
 
@@ -191,7 +204,6 @@ class SimpleFileExplorer(QWidget):
 
         self.scroll_area.setWidget(self.grid_container)
 
-        self.splitter.addWidget(self.tree_widget)
         self.splitter.addWidget(self.scroll_area)
 
         self.splitter.setStretchFactor(0, 0)
@@ -317,6 +329,7 @@ class SimpleFileExplorer(QWidget):
         clmn_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
         self.grid_layout.addItem(clmn_spacer, 0, clmn_count + 1)
 
+        self.storage_btn.setText(f"Занято: {Dbase.get_file_size()}")
         if self.finder_images:
             self.load_images()
 

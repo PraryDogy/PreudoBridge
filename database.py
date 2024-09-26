@@ -39,6 +39,18 @@ class Dbase:
         DbaseStorage.engine.connect()
         DbaseStorage.base.metadata.create_all(DbaseStorage.engine)
 
+    @staticmethod
+    def get_file_size() -> str:
+        size_bytes = os.stat(DbaseStorage.db_file).st_size
+
+        size_mb = size_bytes / (1024 * 1024)
+        
+        if size_mb < 1024:
+            return f"{size_mb:.2f}мб"
+        else:
+            size_gb = size_mb / 1024
+            return f"{size_gb:.2f}гб"
+    
 
 class Cache(DbaseStorage.base):
     __tablename__ = "cache"
