@@ -110,7 +110,7 @@ class LoadImagesThread(QThread):
 
         self.db_images: dict = {}
         
-        self.psd_images: dict = {}
+        self.later_images: dict = {}
         self.thumb_size = thumb_size
         self.flag = True
         self.stop_thread.connect(self.stop_thread_cmd)
@@ -119,52 +119,20 @@ class LoadImagesThread(QThread):
         print(self, "thread started")
         self.db_images: dict = self.get_db_images()
         self.load_already_images()
-        self.create_new_images()
-        self.create_psd_images()
+        self.create_new_images(images=self.finder_images)
+        self.create_new_images(images=self.later_images)
         self.finished_thread.emit()
         print(self, "thread finished")
 
-    def create_psd_images(self):
+    def create_new_images(self, images: dict):
         session = Dbase.get_session()
-        psd_copy = self.psd_images.copy()
+        images_copy = images.copy()
 
-        for (src, size, modified), widget in psd_copy.items():
-            img = ImgUtils.read_psd(src)
-            img = FitImg.start(img, self.thumb_size)
-
-            if img is not None:
-                try:
-                    self.set_new_image(widget, img)
-                except AttributeError as e:
-                    # print(e, src)
-                    self.set_default_image(widget, "images/file_210.png")
-
-                try:
-                    img = DbImage(img).getvalue()
-                    q = sqlalchemy.insert(Cache)
-                    q = q.values({
-                        "img": img,
-                        "src": src,
-                        "root": self.root,
-                        "size": size,
-                        "modified": modified
-                        })
-                    session.execute(q)
-                except Exception as e:
-                    # print(e)
-                    pass
-
-        session.commit()
-        session.close()
-
-    def create_new_images(self):
-        session = Dbase.get_session()
-        finder_images_copy = self.finder_images.copy()
-
-        for (src, size, modified), widget in finder_images_copy.items():
+        for (src, size, modified), widget in images_copy.items():
 
             img = None
             src_lower: str = src.lower()
+            limit_size = 500
 
             if not self.flag:
                 break
@@ -172,10 +140,14 @@ class LoadImagesThread(QThread):
             if os.path.isdir(src):
                 self.set_default_image(widget, "images/folder_210.png")
                 continue
+            
+            if size > limit_size * 1024 * 1024:
+                self.later_images[(src, size, modified)] = widget
+                continue
 
             elif src_lower.endswith((".psd", ".psb")):
-                self.psd_images[(src, size, modified)] = widget
-                continue
+                img = ImgUtils.read_psd(src)
+                img = FitImg.start(img, self.thumb_size)
 
             elif src_lower.endswith((".tiff", ".tif")):
                 img = ImgUtils.read_tiff(src)
