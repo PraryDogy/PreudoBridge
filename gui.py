@@ -177,7 +177,8 @@ class SimpleFileExplorer(QWidget):
         self.splitter.addWidget(left_wid)
 
         self.model = QFileSystemModel()
-        self.model.setFilter(QDir.AllDirs | QDir.Files | QDir.NoDotAndDotDot | QDir.Hidden)
+        if Storage.json_data["hidden_dirs"]:
+            self.model.setFilter(QDir.AllDirs | QDir.Files | QDir.NoDotAndDotDot | QDir.Hidden)
         self.model.setRootPath("/Volumes")
 
         self.tree_widget = QTreeView()
@@ -229,7 +230,7 @@ class SimpleFileExplorer(QWidget):
         index = self.model.index(path)
         self.tree_widget.setCurrentIndex(index)
         self.tree_widget.expand(index)
-        Storage.json_data["last_place"] = path
+        Storage.json_data["root"] = path
 
         self.set_path_title()
         self.get_finder_items(path)
@@ -342,8 +343,6 @@ class SimpleFileExplorer(QWidget):
             if i.isFinished():
                 Storage.load_images_threads.remove(i)
 
-
-
         new_thread = LoadImagesThread(self.finder_images, self.thumb_size)
         Storage.load_images_threads.append(new_thread)
         new_thread.start()
@@ -360,11 +359,9 @@ class SimpleFileExplorer(QWidget):
             self.get_finder_items(path)
             self.reload_grid_layout()
             self.set_path_title()
-            Storage.json_data["last_place"] = path
+            Storage.json_data["root"] = path
 
     def on_wid_double_clicked(self, path, event):
-
-        print(path)
         
         if os.path.isdir(path):
 
@@ -375,7 +372,7 @@ class SimpleFileExplorer(QWidget):
             self.get_finder_items(path)
             self.reload_grid_layout()
 
-            Storage.json_data["last_place"] = path
+            Storage.json_data["root"] = path
 
     def get_current_path(self):
         index = self.tree_widget.currentIndex()
@@ -414,7 +411,7 @@ class SimpleFileExplorer(QWidget):
                 pass
 
     def load_last_place(self):
-        last_place = Storage.json_data["last_place"]
+        last_place = Storage.json_data["root"]
 
         if last_place and os.path.exists(last_place):
             index = self.model.index(last_place)
@@ -474,11 +471,12 @@ class CustomApp(QApplication):
         else:
             with open(Storage.json_file, 'w') as f:
                 Storage.json_data = {
-                    "last_place": "",
+                    "root": "",
                     "ww": 1050,
                     "hh": 700,
                     "sort": "name",
                     "reversed": False,
-                    "only_photo": False
+                    "only_photo": False,
+                    "hidden_dirs": False,
                     }
-                json.dump(Storage.json_data, f, indent=4)
+                json.dump(Storage.json_data, f, indent=4, ensure_ascii=False)
