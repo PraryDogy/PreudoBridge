@@ -1,15 +1,17 @@
 import json
 import os
+import subprocess
 import sys
 from functools import partial
 from typing import List
 
-from PyQt5.QtCore import QEvent, QObject, Qt, QTimer, pyqtSignal, QDir
+from PyQt5.QtCore import QDir, QEvent, QObject, QPoint, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QKeyEvent, QMouseEvent
-from PyQt5.QtWidgets import (QApplication, QFileSystemModel, QFrame,
-                             QGridLayout, QHBoxLayout, QLabel, QPushButton,
-                             QScrollArea, QSizePolicy, QSpacerItem, QSplitter,
-                             QTabBar, QTreeView, QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QAction, QApplication, QFileSystemModel, QFrame,
+                             QGridLayout, QHBoxLayout, QLabel, QMenu,
+                             QMessageBox, QPushButton, QScrollArea,
+                             QSizePolicy, QSpacerItem, QSplitter, QTabBar,
+                             QTreeView, QVBoxLayout, QWidget)
 
 from database import Dbase
 from get_items import GetDirItems
@@ -22,6 +24,7 @@ class Storage:
     json_file = os.path.join(os.path.expanduser('~'), 'Desktop', 'last_place.json')
     json_data: dict = {}
     load_images_thread: LoadImagesThread = None
+    thumb_size = 210
 
 
 class ClickableFrame(QFrame):
@@ -43,6 +46,71 @@ class NameLabel(QLabel):
             filename = cut_name + "..."
 
         self.setText(filename)
+
+
+class Thumbnail(QFrame):
+    double_click = pyqtSignal()
+
+    def __init__(self, filename: str, src: str):
+        super().__init__()
+        self.src = src
+
+        self.setFrameShape(QFrame.Shape.StyledPanel)
+        tooltip = filename + "\n" + src
+        self.setToolTip(tooltip)
+
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_context_menu)
+        self.mouseDoubleClickEvent = lambda e: self.double_click.emit()
+
+        v_lay = QVBoxLayout()
+        self.setLayout(v_lay)
+
+        self.img_label = QLabel()
+        self.img_label.setFixedSize(Storage.thumb_size, Storage.thumb_size)
+        self.img_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        v_lay.addWidget(self.img_label)
+
+        filename = os.path.basename(src)
+        img_name = NameLabel(filename)
+        v_lay.addWidget(img_name)
+
+    def show_context_menu(self, pos: QPoint):
+        self.setFrameShape(QFrame.Shape.Panel)
+
+        context_menu = QMenu(self)
+
+        # Пункт "Просмотр"
+        view_action = QAction("Просмотр", self)
+        view_action.triggered.connect(self.view_file)
+        context_menu.addAction(view_action)
+
+        # Пункт "Открыть в программе по умолчанию"
+        open_action = QAction("Открыть в программе по умолчанию", self)
+        open_action.triggered.connect(self.open_default)
+        context_menu.addAction(open_action)
+
+        # Сепаратор
+        context_menu.addSeparator()
+
+        # Пункт "Показать в Finder"
+        show_in_finder_action = QAction("Показать в Finder", self)
+        show_in_finder_action.triggered.connect(self.show_in_finder)
+        context_menu.addAction(show_in_finder_action)
+
+        # Отображаем меню
+        context_menu.exec_(self.mapToGlobal(pos))
+
+        self.setFrameShape(QFrame.Shape.StyledPanel)
+
+    def view_file(self):
+        QMessageBox.information(self, "Просмотр", f"Просмотр файла: {self.src}")
+
+    def open_default(self):
+        subprocess.call(["open", self.src])
+
+    def show_in_finder(self):
+        subprocess.call(["open", "-R", self.src])
 
 
 class TabsWidget(QFrame):
@@ -143,7 +211,6 @@ class TabsWidget(QFrame):
 class SimpleFileExplorer(QWidget):
     def __init__(self):
         super().__init__()
-        self.thumb_size = 210
         self.finder_items = []
         self.finder_images: dict = {}
         self.first_load = True
@@ -242,7 +309,7 @@ class SimpleFileExplorer(QWidget):
 
     def reload_grid_layout(self, event=None):
         container_width = self.splitter.width() - self.tree_widget.width() - 20
-        clmn_count = container_width // self.thumb_size
+        clmn_count = container_width // Storage.thumb_size
 
         if clmn_count < 1:
             clmn_count = 1
@@ -296,25 +363,9 @@ class SimpleFileExplorer(QWidget):
             finder_items_sort = reversed(finder_items_sort)
 
         for src, filename, size, modified, filetype in finder_items_sort:
-            wid = QFrame()
-            wid.setFrameShape(QFrame.Shape.StyledPanel)
-            wid.mouseDoubleClickEvent = partial(self.on_wid_double_clicked, src)
-            tooltip = file_name + "\n" + src
-            wid.setToolTip(tooltip)
-
-            v_lay = QVBoxLayout()
-            wid.setLayout(v_lay)
-
-            img_label = QLabel()
-            img_label.setFixedSize(self.thumb_size, self.thumb_size)
-            img_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            v_lay.addWidget(img_label)
-
-            filename = os.path.basename(src)
-            img_name = NameLabel(filename)
-            v_lay.addWidget(img_name)
-
-            self.grid_layout.addWidget(wid, row, col)
+            thumbnail = Thumbnail(filename, src)
+            thumbnail.double_click.connect(lambda : self.on_wid_double_clicked(src))
+            self.grid_layout.addWidget(thumbnail, row, col)
 
             col += 1
             if col >= clmn_count:
@@ -322,7 +373,7 @@ class SimpleFileExplorer(QWidget):
                 row += 1
 
             try:
-                self.finder_images[(src, size, modified)] = img_label
+                self.finder_images[(src, size, modified)] = thumbnail.img_label
             except FileNotFoundError as e:
                 print(e, src)
 
@@ -343,7 +394,7 @@ class SimpleFileExplorer(QWidget):
             if i.isFinished():
                 Storage.load_images_threads.remove(i)
 
-        new_thread = LoadImagesThread(self.finder_images, self.thumb_size)
+        new_thread = LoadImagesThread(self.finder_images, Storage.thumb_size)
         Storage.load_images_threads.append(new_thread)
         new_thread.start()
 
@@ -361,7 +412,7 @@ class SimpleFileExplorer(QWidget):
             self.set_path_title()
             Storage.json_data["root"] = path
 
-    def on_wid_double_clicked(self, path, event):
+    def on_wid_double_clicked(self, path):
         
         if os.path.isdir(path):
 
