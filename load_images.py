@@ -1,4 +1,5 @@
 import io
+import logging
 import os
 
 import cv2
@@ -13,6 +14,10 @@ from PyQt5.QtWidgets import QLabel
 
 from database import Cache, Dbase
 from fit_img import FitImg
+
+psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
+psd_logger = logging.getLogger("psd_tools")
+psd_logger.setLevel(logging.CRITICAL)
 
 
 class PixmapFromBytes(QPixmap):
@@ -108,15 +113,18 @@ class LoadImagesThread(QThread):
         self.stop_thread.connect(self.stop_thread_cmd)
 
     def run(self):
+        print(self, "thread started")
         self.db_images = self.get_db_images()
         self.load_already_images()
         self.create_new_images()
         self.finished_thread.emit()
+        print(self, "thread finished")
 
     def create_new_images(self):
         session = Dbase.get_session()
+        finder_images_copy = self.finder_images.copy()
 
-        for (src, size, modified), widget in self.finder_images.items():
+        for (src, size, modified), widget in finder_images_copy.items():
 
             img = None
             src_lower: str = src.lower()
@@ -176,15 +184,15 @@ class LoadImagesThread(QThread):
             widget: QLabel = self.finder_images.get((src, size, modified))
 
             if not self.flag:
-                return
+                break
 
             if widget:
                 pixmap: QPixmap = PixmapFromBytes(bytearray_image)
                 widget.setPixmap(pixmap)
                 self.finder_images.pop((src, size, modified))
-
             else:
                 self.remove_db_images[(src, size, modified)] = ""
+
 
     def get_db_images(self):
         session = Dbase.get_session()

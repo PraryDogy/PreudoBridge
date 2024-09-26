@@ -42,13 +42,10 @@ if os.path.exists("lib"):
     sys.excepthook = catch_err
 
 
-from gui import CustomApp, SimpleFileExplorer
-from database import Dbase
-import logging
+import psd_tools
 
-# psd_logger = logging.getLogger("psd_tools")
-# psd_logger.setLevel(logging.CRITICAL)
-# psd_logger.propagate = False
+from database import Dbase
+from gui import CustomApp, SimpleFileExplorer
 
 Dbase.init_db()
 

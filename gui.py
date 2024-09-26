@@ -18,7 +18,6 @@ from utils import Utils
 
 class Storage:
     load_images_threads: list = []
-    # get_items_threads: list = []
     json_file = os.path.join(os.path.expanduser('~'), 'Desktop', 'last_place.json')
     json_data: dict = {}
     load_images_thread: LoadImagesThread = None
@@ -324,18 +323,18 @@ class SimpleFileExplorer(QWidget):
         self.load_images()
 
     def load_images(self):
-        if Storage.load_images_thread and Storage.load_images_thread.isRunning():
+        for i in Storage.load_images_threads:
+            i: LoadImagesThread
+            i.stop_thread.emit()
 
-                Storage.load_images_thread.finished.connect(
-                    lambda: QTimer.singleShot(1000, self.new_thread_load_images)
-                    )
-                Storage.load_images_thread.stop_thread.emit()
-        else:
-            self.new_thread_load_images()
+            if i.isFinished():
+                Storage.load_images_threads.remove(i)
 
-    def new_thread_load_images(self):
-        Storage.load_images_thread = LoadImagesThread(self.finder_images, self.thumb_size)
-        Storage.load_images_thread.start()
+
+
+        new_thread = LoadImagesThread(self.finder_images, self.thumb_size)
+        Storage.load_images_threads.append(new_thread)
+        new_thread.start()
 
     def set_path_title(self):
         path = self.get_current_path()
@@ -407,8 +406,6 @@ class SimpleFileExplorer(QWidget):
             index = self.model.index(last_place)
             self.tree_widget.setCurrentIndex(index)
             self.tree_widget.expand(index)
-
-            print(index)
 
             self.get_finder_items(last_place)
             self.reload_grid_layout()
