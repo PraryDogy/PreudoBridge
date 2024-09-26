@@ -124,7 +124,7 @@ class TabsWidget(QFrame):
 
     def init_ui(self):
         layout = QGridLayout()
-        layout.setContentsMargins(10, 0, 0, 0)
+        layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
 
         l_spacer = QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
@@ -231,7 +231,7 @@ class SimpleFileExplorer(QWidget):
         splitter_wid = QWidget()
         v_lay.addWidget(splitter_wid)
         splitter_lay = QHBoxLayout()
-        splitter_lay.setContentsMargins(10, 0, 10, 10)
+        # splitter_lay.setContentsMargins(10, 10, 10, 10)
         splitter_wid.setLayout(splitter_lay)
 
         self.splitter = QSplitter(Qt.Horizontal)
