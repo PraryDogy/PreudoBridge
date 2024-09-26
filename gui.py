@@ -36,17 +36,12 @@ class NameLabel(QLabel):
         super().__init__()
 
         max_row = 27
-        name, ext = os.path.splitext(filename)
 
-        if len(name) >= max_row:
-            cut_name = name[:max_row]
-            cut_name = cut_name[:-6]
-            name = cut_name + "..." + name[-3:]
+        if len(filename) >= max_row:
+            cut_name = filename[:max_row]
+            filename = cut_name + "..."
 
-        if ext:
-            self.setText(f"{name}{ext}")
-        else:
-            self.setText(name)
+        self.setText(filename)
 
 
 class TabsWidget(QFrame):
@@ -62,11 +57,6 @@ class TabsWidget(QFrame):
         layout = QGridLayout()
         layout.setContentsMargins(10, 0, 0, 0)
         self.setLayout(layout)
-
-        self.up_button = QPushButton(text="↑", parent=self)
-        self.up_button.setFixedWidth(60)
-        self.up_button.clicked.connect(self.btn_up_press.emit)
-        layout.addWidget(self.up_button, 0, 0)
 
         l_spacer = QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         layout.addItem(l_spacer, 0, 0)
@@ -107,6 +97,11 @@ class TabsWidget(QFrame):
         self.sort_button.setFixedWidth(130)
         self.sort_button.clicked.connect(self.on_sort_toggle)
         layout.addWidget(self.sort_button, 0, 3)
+
+        self.up_button = QPushButton(text="↑", parent=self)
+        self.up_button.setFixedWidth(60)
+        self.up_button.clicked.connect(self.btn_up_press.emit)
+        layout.addWidget(self.up_button, 0, 4)
 
         r_spacer = QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         layout.addItem(r_spacer, 0, 5)
@@ -290,6 +285,8 @@ class SimpleFileExplorer(QWidget):
             wid = QFrame()
             wid.setFrameShape(QFrame.Shape.StyledPanel)
             wid.mouseDoubleClickEvent = partial(self.on_wid_double_clicked, src)
+            tooltip = file_name + "\n" + src
+            wid.setToolTip(tooltip)
 
             v_lay = QVBoxLayout()
             wid.setLayout(v_lay)
@@ -320,7 +317,8 @@ class SimpleFileExplorer(QWidget):
         clmn_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
         self.grid_layout.addItem(clmn_spacer, 0, clmn_count + 1)
 
-        self.load_images()
+        if self.finder_images:
+            self.load_images()
 
     def load_images(self):
         for i in Storage.load_images_threads:
