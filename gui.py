@@ -49,7 +49,7 @@ class NameLabel(QLabel):
 
 
 class Thumbnail(QFrame):
-    double_click = pyqtSignal()
+    double_click = pyqtSignal(str)
 
     def __init__(self, filename: str, src: str):
         super().__init__()
@@ -61,7 +61,7 @@ class Thumbnail(QFrame):
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
-        self.mouseDoubleClickEvent = lambda e: self.double_click.emit()
+        self.mouseDoubleClickEvent = lambda e: self.double_click.emit(src)
 
         v_lay = QVBoxLayout()
         self.setLayout(v_lay)
@@ -130,6 +130,11 @@ class TabsWidget(QFrame):
         l_spacer = QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         layout.addItem(l_spacer, 0, 0)
 
+        self.up_button = QPushButton(text="↑", parent=self)
+        self.up_button.setFixedWidth(60)
+        self.up_button.clicked.connect(self.btn_up_press.emit)
+        layout.addWidget(self.up_button, 0, 1)
+
         self.tabs = QTabBar(parent=self)
         self.tabs.addTab("Имя")
         self.tabs.addTab("Размер")
@@ -146,7 +151,7 @@ class TabsWidget(QFrame):
     
         current_tab = self.tabs_data[Storage.json_data["sort"]]
         self.tabs.setCurrentIndex(current_tab["index"])
-        layout.addWidget(self.tabs, 0, 1)
+        layout.addWidget(self.tabs, 0, 2)
 
         self.photo_tabs = QTabBar(parent=self)
         self.photo_tabs.addTab("Только фото")
@@ -159,18 +164,13 @@ class TabsWidget(QFrame):
     
         self.photo_tabs.currentChanged.connect(self.on_photo_toogle)
 
-        layout.addWidget(self.photo_tabs, 0, 2)
+        layout.addWidget(self.photo_tabs, 0, 3)
 
         sort_t = "По убыванию" if Storage.json_data["reversed"] else "По возрастанию"
         self.sort_button = QPushButton(text=sort_t, parent=self)
         self.sort_button.setFixedWidth(130)
         self.sort_button.clicked.connect(self.on_sort_toggle)
-        layout.addWidget(self.sort_button, 0, 3)
-
-        self.up_button = QPushButton(text="↑", parent=self)
-        self.up_button.setFixedWidth(60)
-        self.up_button.clicked.connect(self.btn_up_press.emit)
-        layout.addWidget(self.up_button, 0, 4)
+        layout.addWidget(self.sort_button, 0, 4)
 
         r_spacer = QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         layout.addItem(r_spacer, 0, 5)
@@ -239,7 +239,6 @@ class SimpleFileExplorer(QWidget):
         left_wid = QWidget()
         left_lay = QVBoxLayout()
         left_lay.setContentsMargins(0, 0, 0, 0)
-        left_lay.setSpacing(2)
         left_wid.setLayout(left_lay)
         self.splitter.addWidget(left_wid)
 
@@ -269,7 +268,7 @@ class SimpleFileExplorer(QWidget):
 
         self.grid_container = QWidget()
         self.grid_layout = QGridLayout(self.grid_container)
-        self.grid_layout.setSpacing(10)
+        self.grid_layout.setSpacing(5)
 
         self.scroll_area.setWidget(self.grid_container)
 
@@ -364,7 +363,7 @@ class SimpleFileExplorer(QWidget):
 
         for src, filename, size, modified, filetype in finder_items_sort:
             thumbnail = Thumbnail(filename, src)
-            thumbnail.double_click.connect(lambda : self.on_wid_double_clicked(src))
+            thumbnail.double_click.connect(self.on_wid_double_clicked)
             self.grid_layout.addWidget(thumbnail, row, col)
 
             col += 1
