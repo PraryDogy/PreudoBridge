@@ -54,7 +54,9 @@ class ImgUtils:
     def read_psd(src: str) -> np.ndarray:
         try:
             img = psd_tools.PSDImage.open(fp=src)
-            img = img.composite(ignore_preview=True)
+            print("image opened")
+            img = img.composite()
+            print("image composited")
 
             if img.mode == 'RGBA':
                 img = img.convert('RGB')
@@ -110,7 +112,6 @@ class LoadImagesThread(QThread):
 
         self.db_images: dict = {}
         
-        self.later_images: dict = {}
         self.thumb_size = thumb_size
         self.flag = True
         self.stop_thread.connect(self.stop_thread_cmd)
@@ -120,7 +121,6 @@ class LoadImagesThread(QThread):
         self.db_images: dict = self.get_db_images()
         self.load_already_images()
         self.create_new_images(images=self.finder_images)
-        self.create_new_images(images=self.later_images)
         self.finished_thread.emit()
         print(self, "thread finished")
 
@@ -129,7 +129,6 @@ class LoadImagesThread(QThread):
         images_copy = images.copy()
 
         for (src, size, modified), widget in images_copy.items():
-
             img = None
             src_lower: str = src.lower()
             limit_size = 500
@@ -139,10 +138,6 @@ class LoadImagesThread(QThread):
 
             if os.path.isdir(src):
                 self.set_default_image(widget, "images/folder_210.png")
-                continue
-            
-            if size > limit_size * 1024 * 1024:
-                self.later_images[(src, size, modified)] = widget
                 continue
 
             elif src_lower.endswith((".psd", ".psb")):
