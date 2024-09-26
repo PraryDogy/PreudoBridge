@@ -116,16 +116,20 @@ class LoadImagesThread(QThread):
         self.flag = True
         self.stop_thread.connect(self.stop_thread_cmd)
 
+        self.session = Dbase.get_session()
+
     def run(self):
         print(self, "thread started")
         self.db_images: dict = self.get_db_images()
         self.load_already_images()
         self.create_new_images(images=self.finder_images)
+        self.remove_images()
+        self.session.commit()
+        self.session.close()
         self.finished_thread.emit()
         print(self, "thread finished")
 
     def create_new_images(self, images: dict):
-        session = Dbase.get_session()
         images_copy = images.copy()
 
         for (src, size, modified), widget in images_copy.items():
@@ -175,13 +179,10 @@ class LoadImagesThread(QThread):
                     "size": size,
                     "modified": modified
                     })
-                session.execute(q)
+                self.session.execute(q)
             except Exception as e:
                 # print(e)
                 pass
-
-        session.commit()
-        session.close()
 
     def load_already_images(self):
         for (src, size, modified), bytearray_image in self.db_images.items():
@@ -197,13 +198,16 @@ class LoadImagesThread(QThread):
             else:
                 self.remove_db_images[(src, size, modified)] = ""
 
+    def remove_images(self):
+        for (src, size, modified), string in self.remove_db_images.items():
+            q = sqlalchemy.delete(Cache)
+            q = q.where(Cache.src==src, Cache.size==size, Cache.modified==modified)
+            self.session.execute(q)
 
     def get_db_images(self):
-        session = Dbase.get_session()
         q = sqlalchemy.select(Cache.img, Cache.src, Cache.size, Cache.modified)
         q = q.where(Cache.root==self.root)
-        res = session.execute(q).fetchall()
-        session.close()
+        res = self.session.execute(q).fetchall()
         return {
             (src, size, modified): img
             for img, src, size,  modified in res
