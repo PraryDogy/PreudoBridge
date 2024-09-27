@@ -1,7 +1,9 @@
-a = 821556005
-mb = 500
+test = {
+    (1, 2, 3): 0,
+    (1, 5, 1): 0,
+    (3, 5, 0): 0,
+    }
 
 
-if a > mb * 1024 * 1024:
-
-    print(1)
+test = dict(sorted(test.items(), key=lambda item: item[0][-1]))
+print(test)

@@ -2,6 +2,8 @@ import json
 import os
 import subprocess
 import sys
+from functools import partial
+from typing import List
 
 from PyQt5.QtCore import QDir, QEvent, QObject, QPoint, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QKeyEvent, QMouseEvent
@@ -13,100 +15,12 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFileSystemModel, QFrame,
 
 from cfg import Config
 from database import Dbase
-from get_finder_items import GetFinderItemsThread
-from load_images import LoadImagesThread
+from load_images import ImagesGridThread
 from utils import Utils
 
 
 class Storage:
-    load_images_threads: list = []
-    thumb_size = 210
-
-
-class ClickableFrame(QFrame):
-    double_click = pyqtSignal()
-
-    def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
-        self.double_click.emit()
-        return super().mouseDoubleClickEvent(a0)
-
-
-class NameLabel(QLabel):
-    def __init__(self, filename: str):
-        super().__init__()
-
-        max_row = 27
-
-        if len(filename) >= max_row:
-            cut_name = filename[:max_row]
-            filename = cut_name + "..."
-
-        self.setText(filename)
-
-
-class Thumbnail(QFrame):
-    double_click = pyqtSignal(str)
-
-    def __init__(self, filename: str, src: str):
-        super().__init__()
-        self.src = src
-
-        self.setFrameShape(QFrame.Shape.StyledPanel)
-        tooltip = filename + "\n" + src
-        self.setToolTip(tooltip)
-
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.show_context_menu)
-        self.mouseDoubleClickEvent = lambda e: self.double_click.emit(src)
-
-        v_lay = QVBoxLayout()
-        self.setLayout(v_lay)
-
-        self.img_label = QLabel()
-        self.img_label.setFixedSize(Config.thumb_size, Config.thumb_size)
-        self.img_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        v_lay.addWidget(self.img_label)
-
-        filename = os.path.basename(src)
-        img_name = NameLabel(filename)
-        v_lay.addWidget(img_name)
-
-    def show_context_menu(self, pos: QPoint):
-        self.setFrameShape(QFrame.Shape.Panel)
-
-        context_menu = QMenu(self)
-
-        # Пункт "Просмотр"
-        view_action = QAction("Просмотр", self)
-        view_action.triggered.connect(self.view_file)
-        context_menu.addAction(view_action)
-
-        # Пункт "Открыть в программе по умолчанию"
-        open_action = QAction("Открыть в программе по умолчанию", self)
-        open_action.triggered.connect(self.open_default)
-        context_menu.addAction(open_action)
-
-        # Сепаратор
-        context_menu.addSeparator()
-
-        # Пункт "Показать в Finder"
-        show_in_finder_action = QAction("Показать в Finder", self)
-        show_in_finder_action.triggered.connect(self.show_in_finder)
-        context_menu.addAction(show_in_finder_action)
-
-        # Отображаем меню
-        context_menu.exec_(self.mapToGlobal(pos))
-
-        self.setFrameShape(QFrame.Shape.StyledPanel)
-
-    def view_file(self):
-        QMessageBox.information(self, "Просмотр", f"Просмотр файла: {self.src}")
-
-    def open_default(self):
-        subprocess.call(["open", self.src])
-
-    def show_in_finder(self):
-        subprocess.call(["open", "-R", self.src])
+    threads: list = []
 
 
 class TabsWidget(QFrame):
@@ -295,7 +209,6 @@ class SimpleFileExplorer(QWidget):
         Config.json_data["root"] = path
 
         self.set_path_title()
-        self.get_finder_items(path)
         self.reload_grid_layout()
 
     def tab_cmd(self, sort: str):
@@ -313,76 +226,19 @@ class SimpleFileExplorer(QWidget):
         Utils.clear_layout(layout=self.grid_layout)
         self.finder_images.clear()
 
-        row, col = 0, 0
-        finder_items_sort = []
-
-        for src in self.finder_items:
-
-            src: str
-
-            try:
-                if os.path.isfile(src):
-                    filename = os.path.basename(src)
-                    stats = os.stat(src)
-                    size = stats.st_size
-                    modified = stats.st_mtime
-                    filetype = os.path.splitext(filename)[1]
-
-                else:
-                    filename = src.split(os.sep)[-1]
-                    stats = os.stat(src)
-                    size = stats.st_size
-                    modified = stats.st_mtime
-                    filetype = "folder"
-
-                file_info = (src, filename, size, modified, filetype)
-                finder_items_sort.append(file_info)
-
-            except (FileNotFoundError, TypeError) as e:
-                print(e, src)
-                continue
-
-        sort_data = {"name": 1, "size": 2,  "modify": 3, "type": 4}
-        index = sort_data.get(Config.json_data["sort"])
-        finder_items_sort = sorted(finder_items_sort, key=lambda x: x[index])
-
-        if Config.json_data["reversed"]:
-            finder_items_sort = reversed(finder_items_sort)
-
-        for src, filename, size, modified, filetype in finder_items_sort:
-            thumbnail = Thumbnail(filename, src)
-            thumbnail.double_click.connect(self.on_wid_double_clicked)
-            self.grid_layout.addWidget(thumbnail, row, col)
-
-            col += 1
-            if col >= clmn_count:
-                col = 0
-                row += 1
-
-            try:
-                self.finder_images[(src, size, modified)] = thumbnail.img_label
-            except FileNotFoundError as e:
-                print(e, src)
-
-        row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
-        self.grid_layout.addItem(row_spacer, row + 1, 0)
-        clmn_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
-        self.grid_layout.addItem(clmn_spacer, 0, clmn_count + 1)
+        ...
 
         self.storage_btn.setText(f"Занято: {Dbase.get_file_size()}")
-        if self.finder_images:
-            self.load_images()
 
-    def load_images(self):
-        for i in Storage.load_images_threads:
-            i: LoadImagesThread
+        for i in Storage.threads:
+            i: ImagesGridThread
             i.stop_thread.emit()
 
             if i.isFinished():
-                Storage.load_images_threads.remove(i)
+                Storage.threads.remove(i)
 
-        new_thread = LoadImagesThread(self.finder_images, Config.thumb_size)
-        Storage.load_images_threads.append(new_thread)
+        new_thread = ImagesGridThread(self.grid_layout, self.get_current_path(), clmn_count)
+        Storage.threads.append(new_thread)
         new_thread.start()
 
     def set_path_title(self):
@@ -394,7 +250,6 @@ class SimpleFileExplorer(QWidget):
 
         if os.path.isdir(path):
             self.tree_widget.setCurrentIndex(index)
-            self.get_finder_items(path)
             self.reload_grid_layout()
             self.set_path_title()
             Config.json_data["root"] = path
@@ -407,7 +262,6 @@ class SimpleFileExplorer(QWidget):
             self.tree_widget.setCurrentIndex(index)
             self.tree_widget.expand(index)
             self.set_path_title()
-            self.get_finder_items(path)
             self.reload_grid_layout()
 
             Config.json_data["root"] = path
@@ -417,36 +271,7 @@ class SimpleFileExplorer(QWidget):
         return self.model.filePath(index)
 
     def tab_bar_click(self):
-        self.get_finder_items(self.get_current_path())
         self.reload_grid_layout()
-
-    def get_finder_items(self, path):
-        self.finder_items.clear()
-
-        if os.path.isdir(path):
-
-            try:
-
-                if Config.json_data["only_photo"]:
-                    self.finder_items = []
-
-                    for item in os.listdir(path):
-                        item: str = os.path.join(path, item)
-
-                        if os.path.isdir(item):
-                            self.finder_items.append(item)
-                        
-                        elif item.lower().endswith((".jpg", "jpeg", ".tif", ".tiff", ".psd", ".psb", ".png")):
-                            self.finder_items.append(item)
-
-                else:
-                    self.finder_items = [
-                        os.path.join(path, item)
-                        for item in os.listdir(path)
-                        ]
-                    
-            except PermissionError as e:
-                pass
 
     def load_last_place(self):
         last_place = Config.json_data["root"]
@@ -455,8 +280,6 @@ class SimpleFileExplorer(QWidget):
             index = self.model.index(last_place)
             self.tree_widget.setCurrentIndex(index)
             self.tree_widget.expand(index)
-
-            self.get_finder_items(last_place)
             self.reload_grid_layout()
 
     def custom_resize_event(self, event=None):
@@ -484,9 +307,8 @@ class SimpleFileExplorer(QWidget):
 
 
 class CustomApp(QApplication):
-    def __init__(self, argv: list[str]) -> None:
+    def __init__(self, argv: List[str]) -> None:
         super().__init__(argv)
-        self.load_json_data()
         self.aboutToQuit.connect(self.on_exit)
         self.installEventFilter(self)
         QTimer.singleShot(1200, self.on_load)
@@ -500,27 +322,10 @@ class CustomApp(QApplication):
         return super().eventFilter(a0, a1)
 
     def on_exit(self):
-        for thread in Storage.load_images_threads:
-            thread: LoadImagesThread
+        for thread in Storage.threads:
+            thread: ImagesGridThread
             thread.stop_thread.emit()
             thread.wait()
 
         with open(Config.json_file, 'w') as f:
             json.dump(Config.json_data, f, indent=4, ensure_ascii=False)
-
-    def load_json_data(self) -> dict:
-        if os.path.exists(Config.json_file):
-            with open(Config.json_file, 'r') as f:
-                Config.json_data = json.load(f)
-        else:
-            with open(Config.json_file, 'w') as f:
-                Config.json_data = {
-                    "root": "",
-                    "ww": 1050,
-                    "hh": 700,
-                    "sort": "name",
-                    "reversed": False,
-                    "only_photo": False,
-                    "hidden_dirs": False,
-                    }
-                json.dump(Config.json_data, f, indent=4, ensure_ascii=False)
