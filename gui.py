@@ -249,8 +249,10 @@ class SimpleFileExplorer(QWidget):
         
         self.model = QFileSystemModel()
         self.model.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot)
+
         if Config.json_data["hidden_dirs"]:
             self.model.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot | QDir.Hidden)
+
         self.model.setRootPath("/Volumes")
 
         self.tree_widget = QTreeView()
