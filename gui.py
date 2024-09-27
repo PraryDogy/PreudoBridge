@@ -345,17 +345,9 @@ class SimpleFileExplorer(QWidget):
                 print(e, src)
                 continue
 
-        if Storage.json_data["sort"] == "name":
-            finder_items_sort = sorted(finder_items_sort, key=lambda x: x[1])
-
-        elif Storage.json_data["sort"] == "size":
-            finder_items_sort = sorted(finder_items_sort, key=lambda x: x[2])
-
-        elif Storage.json_data["sort"] == "modify":
-            finder_items_sort = sorted(finder_items_sort, key=lambda x: x[3])
-
-        elif Storage.json_data["sort"] == "type":
-            finder_items_sort = sorted(finder_items_sort, key=lambda x: x[4])
+        sort_data = {"name": 1, "size": 2,  "modify": 3, "type": 4}
+        index = sort_data.get(Storage.json_data["sort"])
+        finder_items_sort = sorted(finder_items_sort, key=lambda x: x[index])
 
         if Storage.json_data["reversed"]:
             finder_items_sort = reversed(finder_items_sort)
