@@ -3,7 +3,7 @@ import os
 import subprocess
 
 from PyQt5.QtCore import QDir, QEvent, QObject, QPoint, Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import QCloseEvent, QKeyEvent, QMouseEvent, QPixmap
+from PyQt5.QtGui import QCloseEvent, QKeyEvent, QPixmap
 from PyQt5.QtWidgets import (QAction, QApplication, QFileSystemModel, QFrame,
                              QGridLayout, QHBoxLayout, QLabel, QMenu,
                              QMessageBox, QPushButton, QScrollArea,
