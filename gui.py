@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFileSystemModel, QFrame,
                              QGridLayout, QHBoxLayout, QLabel, QMenu,
                              QMessageBox, QPushButton, QScrollArea,
                              QSizePolicy, QSpacerItem, QSplitter, QTabBar,
-                             QTreeView, QVBoxLayout, QWidget)
+                             QTreeView, QVBoxLayout, QWidget, QHeaderView)
 
 from cfg import Config
 from database import Dbase
@@ -263,6 +263,9 @@ class SimpleFileExplorer(QWidget):
         self.tree_widget.setHeaderHidden(True)
         for i in range(1, self.model.columnCount()):
             self.tree_widget.setColumnHidden(i, True)
+
+        self.tree_widget.header().setStretchLastSection(False)
+        self.tree_widget.header().setSectionResizeMode(QHeaderView.ResizeToContents)
 
         self.tree_widget.clicked.connect(self.on_tree_clicked)
 
