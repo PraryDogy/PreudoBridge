@@ -219,7 +219,7 @@ class SimpleFileExplorer(QWidget):
         self.setLayout(v_lay)
 
         tabs = TabsWidget()
-        tabs.btn_press.connect(self.tab_bar_click)
+        tabs.btn_press.connect(self.get_finder_items)
         tabs.btn_up_press.connect(self.btn_up_cmd)
         v_lay.addWidget(tabs)
 
@@ -283,20 +283,17 @@ class SimpleFileExplorer(QWidget):
         self.resizeEvent = self.custom_resize_event
 
         self.load_last_place()
-        self.set_path_title()
+        self.setWindowTitle(Config.json_data["root"])
 
     def btn_up_cmd(self):
         path = os.path.dirname(Config.json_data["root"])
+        Config.json_data["root"] = path
+
         index = self.model.index(path)
         self.tree_widget.setCurrentIndex(index)
         self.tree_widget.expand(index)
-        Config.json_data["root"] = path
 
-        self.set_path_title()
-        self.get_finder_items()
-
-    def tab_cmd(self, sort: str):
-        Config.json_data["sort"] = sort
+        self.setWindowTitle(Config.json_data["root"])
         self.get_finder_items()
 
     def reload_grid_layout(self, event=None):
@@ -352,28 +349,22 @@ class SimpleFileExplorer(QWidget):
         Storage.load_images_threads.append(new_thread)
         new_thread.start()
 
-    def set_path_title(self):
-        self.setWindowTitle(Config.json_data["root"])
-
     def on_tree_clicked(self, index):
         path = self.model.filePath(index)
         if os.path.isdir(path):
-            self.tree_widget.setCurrentIndex(index)
-            self.get_finder_items()
-            self.set_path_title()
             Config.json_data["root"] = path
+            self.tree_widget.setCurrentIndex(index)
+            self.setWindowTitle(Config.json_data["root"])
+            self.get_finder_items()
 
     def on_wid_double_clicked(self, path):
         if os.path.isdir(path):
+            Config.json_data["root"] = path
             index = self.model.index(path)
             self.tree_widget.setCurrentIndex(index)
             self.tree_widget.expand(index)
-            self.set_path_title()
+            self.setWindowTitle(Config.json_data["root"])
             self.get_finder_items()
-            Config.json_data["root"] = path
-
-    def tab_bar_click(self):
-        self.get_finder_items()
 
     def get_finder_items(self):
         self.setDisabled(True)
@@ -415,17 +406,17 @@ class SimpleFileExplorer(QWidget):
         a0.ignore()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
-        if a0.key() == Qt.Key.Key_W:
+        if a0.key() == Qt.Key.Key_Up:
+            if a0.nativeModifiers() == Qt.KeyboardModifier.ControlModifier:
+                self.btn_up_cmd()
+
+        elif a0.key() == Qt.Key.Key_W:
             if a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
                 self.hide()
 
         elif a0.key() == Qt.Key.Key_Q:
             if a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
                 QApplication.instance().quit()
-
-        elif a0.key() == Qt.Key.Key_Up:
-            if a0.nativeModifiers() == 11534600:
-                self.btn_up_cmd()
 
 
 class CustomApp(QApplication):
