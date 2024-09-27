@@ -242,8 +242,9 @@ class SimpleFileExplorer(QWidget):
         self.splitter.addWidget(left_wid)
         
         self.model = QFileSystemModel()
+        self.model.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot)
         if Storage.json_data["hidden_dirs"]:
-            self.model.setFilter(QDir.AllDirs | QDir.Files | QDir.NoDotAndDotDot | QDir.Hidden)
+            self.model.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot | QDir.Hidden)
         self.model.setRootPath("/Volumes")
 
         self.tree_widget = QTreeView()
@@ -485,6 +486,7 @@ class SimpleFileExplorer(QWidget):
             if a0.nativeModifiers() == 11534600:
                 self.btn_up_cmd()
 
+
 class CustomApp(QApplication):
     def __init__(self, argv: List[str]) -> None:
         super().__init__(argv)
@@ -502,6 +504,11 @@ class CustomApp(QApplication):
         return super().eventFilter(a0, a1)
 
     def on_exit(self):
+        for thread in Storage.load_images_threads:
+            thread: LoadImagesThread
+            thread.stop_thread.emit()
+            thread.wait()
+
         with open(Storage.json_file, 'w') as f:
             json.dump(Storage.json_data, f, indent=4, ensure_ascii=False)
 
