@@ -325,20 +325,20 @@ class SimpleFileExplorer(QWidget):
 
             try:
                 if os.path.isfile(src):
-                    file_name = os.path.basename(src)
+                    filename = os.path.basename(src)
                     stats = os.stat(src)
-                    file_size = stats.st_size
-                    modification_time = stats.st_mtime
-                    file_type = os.path.splitext(file_name)[1]
+                    size = stats.st_size
+                    modified = stats.st_mtime
+                    filetype = os.path.splitext(filename)[1]
 
                 else:
-                    file_name = src.split(os.sep)[-1]
+                    filename = src.split(os.sep)[-1]
                     stats = os.stat(src)
-                    file_size = stats.st_size
-                    modification_time = stats.st_mtime
-                    file_type = "folder"
+                    size = stats.st_size
+                    modified = stats.st_mtime
+                    filetype = "folder"
 
-                file_info = (src, file_name, file_size, modification_time, file_type)
+                file_info = (src, filename, size, modified, filetype)
                 finder_items_sort.append(file_info)
 
             except (FileNotFoundError, TypeError) as e:
