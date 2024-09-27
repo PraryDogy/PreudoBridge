@@ -22,26 +22,37 @@ class Storage:
     load_finder_threads: list = []
 
 
-class ClickableFrame(QFrame):
-    double_click = pyqtSignal()
-
-    def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
-        self.double_click.emit()
-        return super().mouseDoubleClickEvent(a0)
-
-
 class NameLabel(QLabel):
     def __init__(self, filename: str):
         super().__init__()
 
-        max_row = 27
+        # max_row = 27
 
-        if len(filename) >= max_row:
-            cut_name = filename[:max_row]
-            filename = cut_name + "..."
+        # if len(filename) >= max_row:
+        #     cut_name = filename[:max_row]
+        #     filename = cut_name + "..."
 
-        self.setText(filename)
+        self.setText(self.split_text(filename))
 
+    def split_text(self, text: str) -> list[str]:
+        max_length = 27
+        lines = []
+        
+        # Разбиваем текст на строки длиной не более 27 символов
+        while len(text) > max_length:
+            lines.append(text[:max_length])
+            text = text[max_length:]
+
+        # Добавляем последнюю строку (если есть остаток)
+        if text:
+            lines.append(text)
+
+        # Обрезаем, если строк больше двух
+        if len(lines) > 2:
+            lines = lines[:2]
+            lines[-1] = lines[-1][:max_length-3] + '...'  # Отсекаем и добавляем троеточие
+
+        return "\n".join(lines)
 
 class Thumbnail(QFrame):
     double_click = pyqtSignal(str)
@@ -407,7 +418,7 @@ class SimpleFileExplorer(QWidget):
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() == Qt.Key.Key_Up:
-            if a0.nativeModifiers() == Qt.KeyboardModifier.ControlModifier:
+            if a0.modifiers() == Qt.KeyboardModifier.MetaModifier:
                 self.btn_up_cmd()
 
         elif a0.key() == Qt.Key.Key_W:
