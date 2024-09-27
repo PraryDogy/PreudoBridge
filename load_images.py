@@ -141,7 +141,6 @@ class LoadImagesThread(QThread):
                 break
 
             if os.path.isdir(src):
-                self.set_default_image(widget, "images/folder_210.png")
                 continue
 
             elif src_lower.endswith((".psd", ".psb")):
@@ -166,8 +165,7 @@ class LoadImagesThread(QThread):
             try:
                 self.set_new_image(widget, img)
             except AttributeError as e:
-                # print(e, src)
-                self.set_default_image(widget, "images/file_210.png")
+                pass
 
             try:
                 img = DbImage(img).getvalue()
@@ -226,12 +224,5 @@ class LoadImagesThread(QThread):
 
         try:
             widget.setPixmap(qimage)
-        except RuntimeError:
-            pass
-
-    def set_default_image(self, widget: QLabel, png_path: str):
-        pixmap = QPixmap(png_path)
-        try:
-            widget.setPixmap(pixmap)
         except RuntimeError:
             pass

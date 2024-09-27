@@ -2,9 +2,10 @@ import json
 import os
 import subprocess
 import sys
+from random import randint
 
 from PyQt5.QtCore import QDir, QEvent, QObject, QPoint, Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import QCloseEvent, QKeyEvent, QMouseEvent
+from PyQt5.QtGui import QCloseEvent, QKeyEvent, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import (QAction, QApplication, QFileSystemModel, QFrame,
                              QGridLayout, QHBoxLayout, QLabel, QMenu,
                              QMessageBox, QPushButton, QScrollArea,
@@ -20,7 +21,7 @@ from utils import Utils
 
 class Storage:
     load_images_threads: list = []
-    thumb_size = 210
+    load_finder_threads: list = []
 
 
 class ClickableFrame(QFrame):
@@ -278,7 +279,7 @@ class SimpleFileExplorer(QWidget):
         self.resize_timer = QTimer(parent=self)
         self.resize_timer.setSingleShot(True)
         self.resize_timer.setInterval(500)
-        self.resize_timer.timeout.connect(self.reload_grid_layout)
+        self.resize_timer.timeout.connect(lambda: self.get_finder_items)
 
         self.splitter.splitterMoved.connect(self.custom_resize_event)
         self.resizeEvent = self.custom_resize_event
@@ -295,12 +296,11 @@ class SimpleFileExplorer(QWidget):
         Config.json_data["root"] = path
 
         self.set_path_title()
-        self.get_finder_items(path)
-        self.reload_grid_layout()
+        self.get_finder_items()
 
     def tab_cmd(self, sort: str):
         Config.json_data["sort"] = sort
-        self.reload_grid_layout()
+        self.get_finder_items()
 
     def reload_grid_layout(self, event=None):
         container_width = self.splitter.width() - self.tree_widget.width() - 20
@@ -310,48 +310,18 @@ class SimpleFileExplorer(QWidget):
             clmn_count = 1
 
         self.clmn_count = clmn_count
-        Utils.clear_layout(layout=self.grid_layout)
-        self.finder_images.clear()
 
         row, col = 0, 0
-        finder_items_sort = []
 
-        for src in self.finder_items:
-
-            src: str
-
-            try:
-                if os.path.isfile(src):
-                    filename = os.path.basename(src)
-                    stats = os.stat(src)
-                    size = stats.st_size
-                    modified = stats.st_mtime
-                    filetype = os.path.splitext(filename)[1]
-
-                else:
-                    filename = src.split(os.sep)[-1]
-                    stats = os.stat(src)
-                    size = stats.st_size
-                    modified = stats.st_mtime
-                    filetype = "folder"
-
-                file_info = (src, filename, size, modified, filetype)
-                finder_items_sort.append(file_info)
-
-            except (FileNotFoundError, TypeError) as e:
-                print(e, src)
-                continue
-
-        sort_data = {"name": 1, "size": 2,  "modify": 3, "type": 4}
-        index = sort_data.get(Config.json_data["sort"])
-        finder_items_sort = sorted(finder_items_sort, key=lambda x: x[index])
-
-        if Config.json_data["reversed"]:
-            finder_items_sort = reversed(finder_items_sort)
-
-        for src, filename, size, modified, filetype in finder_items_sort:
+        for src, filename, size, modified, filetype in self.finder_items:
             thumbnail = Thumbnail(filename, src)
             thumbnail.double_click.connect(self.on_wid_double_clicked)
+
+            if os.path.isdir(src):
+                self.set_default_image(thumbnail.img_label, "images/folder_210.png")
+            else:
+                self.set_default_image(thumbnail.img_label, "images/file_210.png")
+
             self.grid_layout.addWidget(thumbnail, row, col)
 
             col += 1
@@ -394,8 +364,7 @@ class SimpleFileExplorer(QWidget):
 
         if os.path.isdir(path):
             self.tree_widget.setCurrentIndex(index)
-            self.get_finder_items(path)
-            self.reload_grid_layout()
+            self.get_finder_items()
             self.set_path_title()
             Config.json_data["root"] = path
 
@@ -407,8 +376,7 @@ class SimpleFileExplorer(QWidget):
             self.tree_widget.setCurrentIndex(index)
             self.tree_widget.expand(index)
             self.set_path_title()
-            self.get_finder_items(path)
-            self.reload_grid_layout()
+            self.get_finder_items()
 
             Config.json_data["root"] = path
 
@@ -417,36 +385,31 @@ class SimpleFileExplorer(QWidget):
         return self.model.filePath(index)
 
     def tab_bar_click(self):
-        self.get_finder_items(self.get_current_path())
+        self.get_finder_items()
+
+    def get_finder_items(self):
+        path = self.get_current_path()
+        Utils.clear_layout(layout=self.grid_layout)
+        self.finder_images.clear()
+        self.setDisabled(True)
+
+        # for i in Storage.load_finder_threads:
+        #     i: GetFinderItemsThread
+        #     i.stop_thread.emit()
+
+        #     if i.isFinished():
+        #         Storage.load_finder_threads.remove(i)
+
+        # new_thread = GetFinderItemsThread(path)
+        # Storage.load_finder_threads.append(new_thread)
+        self.new_thread = GetFinderItemsThread(path)
+        self.new_thread.finder_finished.connect(self.get_finder_items_fin)
+        self.new_thread.start()
+
+    def get_finder_items_fin(self, finder_items: dict):
+        self.setDisabled(False)
+        self.finder_items = finder_items
         self.reload_grid_layout()
-
-    def get_finder_items(self, path):
-        self.finder_items.clear()
-
-        if os.path.isdir(path):
-
-            try:
-
-                if Config.json_data["only_photo"]:
-                    self.finder_items = []
-
-                    for item in os.listdir(path):
-                        item: str = os.path.join(path, item)
-
-                        if os.path.isdir(item):
-                            self.finder_items.append(item)
-                        
-                        elif item.lower().endswith((".jpg", "jpeg", ".tif", ".tiff", ".psd", ".psb", ".png")):
-                            self.finder_items.append(item)
-
-                else:
-                    self.finder_items = [
-                        os.path.join(path, item)
-                        for item in os.listdir(path)
-                        ]
-                    
-            except PermissionError as e:
-                pass
 
     def load_last_place(self):
         last_place = Config.json_data["root"]
@@ -456,8 +419,14 @@ class SimpleFileExplorer(QWidget):
             self.tree_widget.setCurrentIndex(index)
             self.tree_widget.expand(index)
 
-            self.get_finder_items(last_place)
-            self.reload_grid_layout()
+            self.get_finder_items()
+
+    def set_default_image(self, widget: QLabel, png_path: str):
+        pixmap = QPixmap(png_path)
+        try:
+            widget.setPixmap(pixmap)
+        except RuntimeError:
+            pass
 
     def custom_resize_event(self, event=None):
         Config.json_data["ww"] = self.geometry().width()

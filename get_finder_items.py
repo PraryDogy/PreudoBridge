@@ -6,16 +6,17 @@ from cfg import Config
 
 
 class GetFinderItemsThread(QThread):
-    finished = pyqtSignal(list)
-    stop = pyqtSignal()
+    finder_finished = pyqtSignal(dict)
+    stop_thread = pyqtSignal()
 
     def __init__(self, root: str):
         super().__init__()
         self.root = root
         self.flag = True
+        self.img_ext: tuple = (".jpg", "jpeg", ".tif", ".tiff", ".psd", ".psb", ".png")
         self.finder_items: dict = {}
 
-        self.stop.connect(self.stop_cmd)
+        self.stop_thread.connect(self.stop_cmd)
 
     def run(self):
         try:
@@ -24,7 +25,7 @@ class GetFinderItemsThread(QThread):
         except PermissionError:
             self.finder_items: dict = {}
         
-        self.finished.emit(self.finder_items)
+        self.finder_finished.emit(self.finder_items)
 
     def __get_items(self):
         for item in os.listdir(self.root):
@@ -40,7 +41,7 @@ class GetFinderItemsThread(QThread):
             filetype = os.path.splitext(filename)[1]
 
             if Config.json_data["only_photo"]:
-                if src.lower().endswith(self.img_ext):
+                if src.lower().endswith(self.img_ext) or os.path.isdir(src):
                     self.finder_items[(src, filename, size, modified, filetype)] = None
                     continue
             else:
