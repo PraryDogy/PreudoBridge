@@ -1,8 +1,6 @@
 import json
 import os
 import subprocess
-import sys
-from random import randint
 
 from PyQt5.QtCore import QDir, QEvent, QObject, QPoint, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QKeyEvent, QMouseEvent, QPixmap
@@ -14,7 +12,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFileSystemModel, QFrame,
 
 from cfg import Config
 from database import Dbase
-from get_finder_items import GetFinderItemsThread
+from get_finder_items import LoadFinderItems
 from load_images import LoadImagesThread
 from utils import Utils
 
@@ -288,8 +286,7 @@ class SimpleFileExplorer(QWidget):
         self.set_path_title()
 
     def btn_up_cmd(self):
-        path = self.get_current_path()
-        path = os.path.dirname(path)
+        path = os.path.dirname(Config.json_data["root"])
         index = self.model.index(path)
         self.tree_widget.setCurrentIndex(index)
         self.tree_widget.expand(index)
@@ -356,12 +353,10 @@ class SimpleFileExplorer(QWidget):
         new_thread.start()
 
     def set_path_title(self):
-        path = self.get_current_path()
-        self.setWindowTitle(os.path.basename(path))
+        self.setWindowTitle(Config.json_data["root"])
 
     def on_tree_clicked(self, index):
         path = self.model.filePath(index)
-
         if os.path.isdir(path):
             self.tree_widget.setCurrentIndex(index)
             self.get_finder_items()
@@ -369,46 +364,27 @@ class SimpleFileExplorer(QWidget):
             Config.json_data["root"] = path
 
     def on_wid_double_clicked(self, path):
-        
         if os.path.isdir(path):
-
             index = self.model.index(path)
             self.tree_widget.setCurrentIndex(index)
             self.tree_widget.expand(index)
             self.set_path_title()
             self.get_finder_items()
-
             Config.json_data["root"] = path
-
-    def get_current_path(self):
-        index = self.tree_widget.currentIndex()
-        return self.model.filePath(index)
 
     def tab_bar_click(self):
         self.get_finder_items()
 
     def get_finder_items(self):
-        path = self.get_current_path()
-        Utils.clear_layout(layout=self.grid_layout)
-        self.finder_images.clear()
         self.setDisabled(True)
 
-        # for i in Storage.load_finder_threads:
-        #     i: GetFinderItemsThread
-        #     i.stop_thread.emit()
+        Utils.clear_layout(layout=self.grid_layout)
+        self.finder_images.clear()
 
-        #     if i.isFinished():
-        #         Storage.load_finder_threads.remove(i)
+        finder_items = LoadFinderItems(Config.json_data["root"])
+        self.finder_items = finder_items.run()
 
-        # new_thread = GetFinderItemsThread(path)
-        # Storage.load_finder_threads.append(new_thread)
-        self.new_thread = GetFinderItemsThread(path)
-        self.new_thread.finder_finished.connect(self.get_finder_items_fin)
-        self.new_thread.start()
-
-    def get_finder_items_fin(self, finder_items: dict):
         self.setDisabled(False)
-        self.finder_items = finder_items
         self.reload_grid_layout()
 
     def load_last_place(self):
