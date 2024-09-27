@@ -277,7 +277,7 @@ class SimpleFileExplorer(QWidget):
         self.resize_timer = QTimer(parent=self)
         self.resize_timer.setSingleShot(True)
         self.resize_timer.setInterval(500)
-        self.resize_timer.timeout.connect(lambda: self.get_finder_items)
+        self.resize_timer.timeout.connect(self.get_finder_items)
 
         self.splitter.splitterMoved.connect(self.custom_resize_event)
         self.resizeEvent = self.custom_resize_event
