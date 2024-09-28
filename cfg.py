@@ -20,6 +20,8 @@ class Config:
                     "root": "/Volumes",
                     "ww": 1050,
                     "hh": 700,
+                    "ww_im": 400,
+                    "hh_im": 300,
                     "sort": "name",
                     "reversed": False,
                     "only_photo": False,

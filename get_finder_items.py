@@ -14,7 +14,7 @@ class LoadFinderItems:
         try:
             self.__get_items()
             self.__sort_items()
-        except PermissionError:
+        except (PermissionError, FileNotFoundError):
             self.finder_items: dict = {}
         
         return self.finder_items
@@ -24,7 +24,10 @@ class LoadFinderItems:
             src: str = os.path.join(self.root, item)
 
             filename = src.split(os.sep)[-1]
-            stats = os.stat(src)
+            try:
+                stats = os.stat(src)
+            except (PermissionError, FileNotFoundError):
+                continue
             size = stats.st_size
             modified = stats.st_mtime
             filetype = os.path.splitext(filename)[1]

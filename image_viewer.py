@@ -244,13 +244,10 @@ class WinImageView(QWidget):
 
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setMinimumSize(QSize(400, 300))
+        self.resize(Config.json_data["ww_im"], Config.json_data["hh_im"])
         self.setStyleSheet("background: black;")
         self.setMouseTracking(True)
         self.installEventFilter(self)
-
-        x, y = parent.x(), parent.y()
-        w, h = Config.json_data["ww"], Config.json_data["hh"]
-        self.setGeometry(x, y, w, h)
 
         self.v_layout = QVBoxLayout()
         self.v_layout.setContentsMargins(0, 0, 0, 0)
@@ -387,6 +384,8 @@ class WinImageView(QWidget):
         horizontal_center = a0.size().width() // 2 - self.zoom_btns.width() // 2
         bottom_window_side = a0.size().height() - self.zoom_btns.height()
         self.zoom_btns.move(horizontal_center, bottom_window_side - 30)
+
+        self.resize(Config.json_data["ww_im"], Config.json_data["hh_im"])
 
         return super().resizeEvent(a0)
 
