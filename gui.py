@@ -124,7 +124,7 @@ class SortWidget(QPushButton):
 
     def __init__(self, parent: QWidget):
         super().__init__()
-        self.setFixedWidth(120)
+        self.setFixedWidth(110)
 
         self.data = {
                 "name": "Имя",
@@ -149,7 +149,7 @@ class SortWidget(QPushButton):
         self.sort_click.emit()
 
 
-class TabsWidget(QFrame):
+class TopBarWidget(QFrame):
     btn_press = pyqtSignal()
     btn_up_press = pyqtSignal()
 
@@ -171,23 +171,9 @@ class TabsWidget(QFrame):
         self.up_button.clicked.connect(self.btn_up_press.emit)
         layout.addWidget(self.up_button, 0, 1)
 
-        self.tabs = QTabBar(parent=self)
-        self.tabs.addTab("Имя")
-        self.tabs.addTab("Размер")
-        self.tabs.addTab("Дата изменения")
-        self.tabs.addTab("Тип")
-        self.tabs.currentChanged.connect(self.on_tab_change)
-
-        self.tabs_data = {
-                "name": {"btn_text": "Имя", "index": 0},
-                "size": {"btn_text": "Размер", "index": 1},
-                "modify": {"btn_text": "Дата изменения", "index": 2},
-                "type": {"btn_text": "Тип", "index": 3},
-                }
-    
-        current_tab = self.tabs_data[Config.json_data["sort"]]
-        self.tabs.setCurrentIndex(current_tab["index"])
-        layout.addWidget(self.tabs, 0, 2)
+        self.sort_widget = SortWidget(parent=self)
+        self.sort_widget.sort_click.connect(self.btn_press.emit)
+        layout.addWidget(self.sort_widget, 0, 2)
 
         self.photo_tabs = QTabBar(parent=self)
         self.photo_tabs.addTab("Только фото")
@@ -211,11 +197,8 @@ class TabsWidget(QFrame):
         self.sort_button.clicked.connect(self.on_sort_toggle)
         layout.addWidget(self.sort_button, 0, 4)
 
-        test = SortWidget(parent=self)
-        layout.addWidget(test, 0, 5)
-
         r_spacer = QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-        layout.addItem(r_spacer, 0, 6)
+        layout.addItem(r_spacer, 0, 5)
 
     def on_photo_toogle(self):
         if Config.json_data["only_photo"]:
@@ -227,18 +210,6 @@ class TabsWidget(QFrame):
             Config.json_data["only_photo"] = True
 
         self.btn_press.emit()
-
-    def on_tab_change(self, index):
-        tab_name = self.tabs.tabText(index)
-
-        for json_sort, tab_data in self.tabs_data.items():
-
-            if tab_data["btn_text"] == tab_name:
-
-                Config.json_data["sort"] = json_sort
-                self.btn_press.emit()
-                self.tabs.setCurrentIndex(index)
-                break
 
     def on_sort_toggle(self):
         if Config.json_data["reversed"]:
@@ -265,7 +236,7 @@ class SimpleFileExplorer(QWidget):
         v_lay.setSpacing(0)
         self.setLayout(v_lay)
 
-        tabs = TabsWidget()
+        tabs = TopBarWidget()
         tabs.btn_press.connect(self.get_finder_items)
         tabs.btn_up_press.connect(self.btn_up_cmd)
         v_lay.addWidget(tabs)
