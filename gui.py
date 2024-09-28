@@ -119,12 +119,13 @@ class Thumbnail(QFrame):
         subprocess.call(["open", "-R", self.src])
 
 
-class SortWidget(QPushButton):
+class SortTypeWidget(QPushButton):
     sort_click = pyqtSignal()
 
     def __init__(self, parent: QWidget):
         super().__init__()
         self.setFixedWidth(110)
+        self.setToolTip(" Сортировка файлов ")
 
         self.data = {
                 "name": "Имя",
@@ -149,6 +150,35 @@ class SortWidget(QPushButton):
         self.sort_click.emit()
 
 
+class OnlyPhotoWidget(QPushButton):
+    sort_click = pyqtSignal()
+
+    def __init__(self, parent: QWidget):
+        super().__init__()
+        self.setFixedWidth(120)
+        self.setToolTip(" Показывать только фото и папки или показывать все файлы ")
+
+        self.data = {
+                False: "Все файлы",
+                True: "Только фото",
+                }
+
+        text = self.data[Config.json_data["only_photo"]]
+        self.setText(text)
+
+        menu = QMenu()
+        self.setMenu(menu)
+
+        for k, v in self.data.items():
+            action = menu.addAction(v)
+            action.triggered.connect(lambda e, k=k: self.action_clicked(k))
+
+    def action_clicked(self, text: str):
+        Config.json_data["only_photo"] = text
+        self.setText(self.data[text])
+        self.sort_click.emit()
+
+
 class TopBarWidget(QFrame):
     btn_press = pyqtSignal()
     btn_up_press = pyqtSignal()
@@ -167,49 +197,30 @@ class TopBarWidget(QFrame):
         layout.addItem(l_spacer, 0, 0)
 
         self.up_button = QPushButton(text="↑", parent=self)
+        self.up_button.setToolTip(" Перейти на уровень выше ")
         self.up_button.setFixedWidth(60)
         self.up_button.clicked.connect(self.btn_up_press.emit)
         layout.addWidget(self.up_button, 0, 1)
 
-        self.sort_widget = SortWidget(parent=self)
+        self.sort_widget = SortTypeWidget(parent=self)
         self.sort_widget.sort_click.connect(self.btn_press.emit)
         layout.addWidget(self.sort_widget, 0, 2)
 
-        self.photo_tabs = QTabBar(parent=self)
-        self.photo_tabs.addTab("Только фото")
-        self.photo_tabs.addTab("Все файлы")
-
-        if Config.json_data["only_photo"]:
-            self.photo_tabs.setCurrentIndex(0)
-        else:
-            self.photo_tabs.setCurrentIndex(1)
-    
-        self.photo_tabs.currentChanged.connect(self.on_photo_toogle)
-
-        layout.addWidget(self.photo_tabs, 0, 3)
+        self.only_photo = OnlyPhotoWidget(parent=self)
+        self.only_photo.sort_click.connect(self.btn_press.emit)
+        layout.addWidget(self.only_photo, 0, 3)
 
         self.ubiv = "↓↑"
         self.vozrast = "↑↓"
-
         sort_t = self.ubiv if Config.json_data["reversed"] else self.vozrast
         self.sort_button = QPushButton(text=sort_t, parent=self)
+        self.sort_button.setToolTip(" Сортировка файлов: по возрастанию / по убыванию ")
         self.sort_button.setFixedWidth(70)
         self.sort_button.clicked.connect(self.on_sort_toggle)
         layout.addWidget(self.sort_button, 0, 4)
 
         r_spacer = QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         layout.addItem(r_spacer, 0, 5)
-
-    def on_photo_toogle(self):
-        if Config.json_data["only_photo"]:
-            self.photo_tabs.setCurrentIndex(1)
-            Config.json_data["only_photo"] = False
-
-        else:
-            self.photo_tabs.setCurrentIndex(0)
-            Config.json_data["only_photo"] = True
-
-        self.btn_press.emit()
 
     def on_sort_toggle(self):
         if Config.json_data["reversed"]:
