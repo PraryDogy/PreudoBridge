@@ -216,7 +216,7 @@ class TopBarWidget(QFrame):
         sort_t = self.ubiv if Config.json_data["reversed"] else self.vozrast
         self.sort_button = QPushButton(text=sort_t, parent=self)
         self.sort_button.setToolTip(" Сортировка файлов: по возрастанию / по убыванию ")
-        self.sort_button.setFixedWidth(70)
+        self.sort_button.setFixedWidth(60)
         self.sort_button.clicked.connect(self.on_sort_toggle)
         layout.addWidget(self.sort_button, 0, 4)
 
