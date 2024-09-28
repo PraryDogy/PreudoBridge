@@ -325,9 +325,15 @@ class SimpleFileExplorer(QWidget):
     def test(self):
         path = "/Users/Morkowik/Desktop/Техника для дома"
         index = self.model.index(path)
+        self.tree_widget.setCurrentIndex(index)
+        self.tree_widget.expand(index)
+
+    def test_(self):
+        path = "/Users/Morkowik/Desktop/Техника для дома"
+        index = self.model.index(path)
         if index.isValid():
             
-            # self.expand_parents(index)
+            self.expand_parents(index)
             self.tree_widget.expand(index)
             self.tree_widget.scrollTo(index)
     
