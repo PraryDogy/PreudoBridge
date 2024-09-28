@@ -361,10 +361,8 @@ class SimpleFileExplorer(QWidget):
                 col = 0
                 row += 1
 
-            try:
-                self.finder_images[(src, size, modified)] = thumbnail.img_label
-            except FileNotFoundError as e:
-                print(e, src)
+            self.finder_images[(src, size, modified)] = thumbnail.img_label
+            Config.img_viewer_images[src] = thumbnail
 
         row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.grid_layout.addItem(row_spacer, row + 1, 0)
@@ -406,6 +404,12 @@ class SimpleFileExplorer(QWidget):
         else:
             wid.setFrameShape(QFrame.Shape.Panel)
             QTimer.singleShot(500, lambda: wid.setFrameShape(QFrame.Shape.NoFrame))
+
+            from image_viewer import WinImageView
+            self.win = WinImageView(self, path)
+            self.win.show()
+
+
 
     def get_finder_items(self):
         self.setDisabled(True)

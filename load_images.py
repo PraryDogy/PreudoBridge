@@ -14,6 +14,8 @@ from PyQt5.QtWidgets import QLabel
 
 from database import Cache, Dbase
 from fit_img import FitImg
+from image_utils import ImageUtils
+
 
 psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
 psd_logger = logging.getLogger("psd_tools")
@@ -35,67 +37,6 @@ class DbImage(io.BytesIO):
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
         res, buffer = cv2.imencode(".jpeg", img)
         self.write(buffer)
-
-
-class ImgUtils:
-
-    @staticmethod
-    def read_tiff(src: str) -> np.ndarray:
-        try:
-            img = tifffile.imread(files=src)[:,:,:3]
-            if str(object=img.dtype) != "uint8":
-                img = (img/256).astype(dtype="uint8")
-            return img
-        except Exception as e:
-            print("tifffle error:", e, src)
-            return None
-
-    @staticmethod
-    def read_psd(src: str) -> np.ndarray:
-        try:
-            img = psd_tools.PSDImage.open(fp=src)
-            print("image opened")
-            img = img.composite()
-            print("image composited")
-
-            if img.mode == 'RGBA':
-                img = img.convert('RGB')
-            
-            img = np.array(img)
-            return img
-
-        except Exception as e:
-            print("psd tools error:", e, src)
-            return None
-            
-    @staticmethod
-    def read_jpg(path: str) -> np.ndarray:
-        image = cv2.imread(path, cv2.IMREAD_UNCHANGED)  # Чтение с альфа-каналом
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-        if image is None:
-            print("Ошибка загрузки изображения")
-            return None
-
-        return image
-        
-    @staticmethod
-    def read_png(path: str) -> Image.Image:
-        image = cv2.imread(path, cv2.IMREAD_UNCHANGED)  # Чтение с альфа-каналом
-
-        if image is None:
-            return None
-
-        if image.shape[2] == 4:
-            alpha_channel = image[:, :, 3] / 255.0
-            rgb_channels = image[:, :, :3]
-            background_color = np.array([255, 255, 255], dtype=np.uint8)
-            background = np.full(rgb_channels.shape, background_color, dtype=np.uint8)
-            converted = (rgb_channels * alpha_channel[:, :, np.newaxis] + background * (1 - alpha_channel[:, :, np.newaxis])).astype(np.uint8)
-        else:
-            converted = image
-
-        return converted
 
 
 class LoadImagesThread(QThread):
@@ -135,7 +76,6 @@ class LoadImagesThread(QThread):
         for (src, size, modified), widget in images_copy.items():
             img = None
             src_lower: str = src.lower()
-            limit_size = 500
 
             if not self.flag:
                 break
@@ -144,19 +84,19 @@ class LoadImagesThread(QThread):
                 continue
 
             elif src_lower.endswith((".psd", ".psb")):
-                img = ImgUtils.read_psd(src)
+                img = ImageUtils.read_psd(src)
                 img = FitImg.start(img, self.thumb_size)
 
             elif src_lower.endswith((".tiff", ".tif")):
-                img = ImgUtils.read_tiff(src)
+                img = ImageUtils.read_tiff(src)
                 img = FitImg.start(img, self.thumb_size)
 
             elif src_lower.endswith((".jpg", ".jpeg")):
-                img = ImgUtils.read_jpg(src)
+                img = ImageUtils.read_jpg(src)
                 img = FitImg.start(img, self.thumb_size)
 
             elif src_lower.endswith((".png")):
-                img = ImgUtils.read_png(src)
+                img = ImageUtils.read_png(src)
                 img = FitImg.start(img, self.thumb_size)
 
             else:

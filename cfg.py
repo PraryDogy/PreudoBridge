@@ -7,6 +7,7 @@ class Config:
     db_file = os.path.join(os.path.expanduser('~'), 'Desktop', "Evgeny", 'preudo_db.db')
     json_data: dict = {}
     thumb_size = 210
+    img_viewer_images: dict = {}
 
     @staticmethod
     def load_json_data() -> dict:
