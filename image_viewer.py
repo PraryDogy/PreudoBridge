@@ -385,7 +385,8 @@ class WinImageView(QWidget):
         bottom_window_side = a0.size().height() - self.zoom_btns.height()
         self.zoom_btns.move(horizontal_center, bottom_window_side - 30)
 
-        self.resize(Config.json_data["ww_im"], Config.json_data["hh_im"])
+        Config.json_data["ww_im"] = self.width()
+        Config.json_data["hh_im"] = self.height()
 
         return super().resizeEvent(a0)
 
