@@ -7,7 +7,6 @@ class LoadFinderItems:
     def __init__(self, root: str):
         super().__init__()
         self.root = root
-        self.img_ext: tuple = (".jpg", "jpeg", ".tif", ".tiff", ".psd", ".psb", ".png")
         self.finder_items: dict = {}
 
     def run(self):
@@ -33,7 +32,7 @@ class LoadFinderItems:
             filetype = os.path.splitext(filename)[1]
 
             if Config.json_data["only_photo"]:
-                if src.lower().endswith(self.img_ext) or os.path.isdir(src):
+                if src.lower().endswith(Config.img_ext) or os.path.isdir(src):
                     self.finder_items[(src, filename, size, modified, filetype)] = None
                     continue
             else:

@@ -334,8 +334,13 @@ class WinImageView(QWidget):
 
         total_images = len(Config.img_viewer_images)
         new_index = (current_index + offset) % total_images
+
         self.img_src = keys[new_index]
-        self.load_thumbnail()
+
+        if not keys[new_index].endswith(Config.img_ext):
+            self.switch_image(offset)
+        else:
+            self.load_thumbnail()
 
     def button_switch_cmd(self, flag: str) -> None:
         if flag == "+":

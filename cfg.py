@@ -8,6 +8,7 @@ class Config:
     json_data: dict = {}
     thumb_size = 210
     img_viewer_images: dict = {}
+    img_ext: tuple = (".jpg", "jpeg", ".tif", ".tiff", ".psd", ".psb", ".png")
 
     @staticmethod
     def load_json_data() -> dict:
