@@ -55,19 +55,20 @@ class NameLabel(QLabel):
         return "\n".join(lines)
 
 class Thumbnail(QFrame):
-    double_click = pyqtSignal(str)
+    double_click = pyqtSignal()
 
     def __init__(self, filename: str, src: str):
         super().__init__()
+        self.setFixedSize(250, 300)
         self.src = src
 
-        self.setFrameShape(QFrame.Shape.StyledPanel)
+        self.setFrameShape(QFrame.Shape.NoFrame)
         tooltip = filename + "\n" + src
         self.setToolTip(tooltip)
 
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
-        self.mouseDoubleClickEvent = lambda e: self.double_click.emit(src)
+        self.mouseDoubleClickEvent = lambda e: self.double_click.emit()
 
         v_lay = QVBoxLayout()
         self.setLayout(v_lay)
@@ -107,7 +108,7 @@ class Thumbnail(QFrame):
         # Отображаем меню
         context_menu.exec_(self.mapToGlobal(pos))
 
-        self.setFrameShape(QFrame.Shape.StyledPanel)
+        self.setFrameShape(QFrame.Shape.NoFrame)
 
     def view_file(self):
         QMessageBox.information(self, "Просмотр", f"Просмотр файла: {self.src}")
@@ -344,7 +345,9 @@ class SimpleFileExplorer(QWidget):
 
         for src, filename, size, modified, filetype in self.finder_items:
             thumbnail = Thumbnail(filename, src)
-            thumbnail.double_click.connect(self.on_wid_double_clicked)
+            thumbnail.double_click.connect(
+                lambda src=src, wid=thumbnail: self.on_wid_double_clicked(src, wid)
+                )
 
             if os.path.isdir(src):
                 self.set_default_image(thumbnail.img_label, "images/folder_210.png")
@@ -392,7 +395,7 @@ class SimpleFileExplorer(QWidget):
             self.setWindowTitle(Config.json_data["root"])
             self.get_finder_items()
 
-    def on_wid_double_clicked(self, path):
+    def on_wid_double_clicked(self, path: str, wid: Thumbnail):
         if os.path.isdir(path):
             Config.json_data["root"] = path
             index = self.model.index(path)
@@ -400,6 +403,9 @@ class SimpleFileExplorer(QWidget):
             self.tree_widget.expand(index)
             self.setWindowTitle(Config.json_data["root"])
             self.get_finder_items()
+        else:
+            wid.setFrameShape(QFrame.Shape.Panel)
+            QTimer.singleShot(500, lambda: wid.setFrameShape(QFrame.Shape.NoFrame))
 
     def get_finder_items(self):
         self.setDisabled(True)
@@ -468,7 +474,7 @@ class CustomApp(QApplication):
     def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
         if a1.type() == QEvent.Type.ApplicationActivate:
             self.topLevelWidgets()[0].show()
-        return super().eventFilter(a0, a1)
+        return False
 
     def on_exit(self):
         for thread in Storage.load_images_threads:
