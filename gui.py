@@ -473,7 +473,6 @@ class SimpleFileExplorer(QWidget):
 class CustomApp(QApplication):
     def __init__(self, argv: list[str]) -> None:
         super().__init__(argv)
-        self.load_json_data()
         self.aboutToQuit.connect(self.on_exit)
         self.installEventFilter(self)
 
@@ -493,20 +492,3 @@ class CustomApp(QApplication):
 
         with open(Config.json_file, 'w') as f:
             json.dump(Config.json_data, f, indent=4, ensure_ascii=False)
-
-    def load_json_data(self) -> dict:
-        if os.path.exists(Config.json_file):
-            with open(Config.json_file, 'r') as f:
-                Config.json_data = json.load(f)
-        else:
-            with open(Config.json_file, 'w') as f:
-                Config.json_data = {
-                    "root": "",
-                    "ww": 1050,
-                    "hh": 700,
-                    "sort": "name",
-                    "reversed": False,
-                    "only_photo": False,
-                    "hidden_dirs": False,
-                    }
-                json.dump(Config.json_data, f, indent=4, ensure_ascii=False)

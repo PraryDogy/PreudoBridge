@@ -13,22 +13,45 @@ class Config:
     @staticmethod
     def load_json_data() -> dict:
         if os.path.exists(Config.json_file):
+
             with open(Config.json_file, 'r') as f:
-                Config.json_data = json.load(f)
+                try:
+
+                    Config.json_data = json.load(f)
+                    defs = Config.defaults()
+
+                    if not Config.json_data.keys() == defs.keys():
+                        Config.json_data = Config.defaults()
+                        print("Ключи json не соответствуют ожидаемым")
+                    
+                    for k, v in Config.json_data.items():
+                        if type(v) != type(defs[k]):
+                            Config.json_data = Config.defaults()
+                            print("Значения типов json не соответствуют ожидаемым")
+                            break
+
+                except json.JSONDecodeError:
+                    print("Ошибка чтения json")
+                    Config.json_data = Config.defaults()
+
         else:
             with open(Config.json_file, 'w') as f:
-                Config.json_data = {
-                    "root": "/Volumes",
-                    "ww": 1050,
-                    "hh": 700,
-                    "ww_im": 400,
-                    "hh_im": 300,
-                    "sort": "name",
-                    "reversed": False,
-                    "only_photo": False,
-                    "hidden_dirs": False,
-                    }
+                Config.json_data = Config.defaults()
                 json.dump(Config.json_data, f, indent=4, ensure_ascii=False)
+
+    @staticmethod
+    def defaults():
+        return {
+                "root": "/Volumes",
+                "ww": 1050,
+                "hh": 700,
+                "ww_im": 400,
+                "hh_im": 300,
+                "sort": "name",
+                "reversed": False,
+                "only_photo": False,
+                "hidden_dirs": False
+                }
 
 
 Config.load_json_data()
