@@ -225,7 +225,7 @@ class WinImageView(QWidget):
         self.img_src = img_src
 
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
-        self.setMinimumSize(QSize(300, 200))
+        self.setMinimumSize(QSize(400, 300))
         self.setStyleSheet("background: black;")
         self.installEventFilter(self)
 
