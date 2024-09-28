@@ -266,6 +266,7 @@ class SimpleFileExplorer(QWidget):
 
         self.tree_widget.header().setStretchLastSection(False)
         self.tree_widget.header().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.tree_widget.setIndentation(10)
 
         self.tree_widget.clicked.connect(self.on_tree_clicked)
 

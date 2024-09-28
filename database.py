@@ -4,9 +4,10 @@ import sqlalchemy
 from sqlalchemy.orm import (Session, declarative_base, scoped_session,
                             sessionmaker)
 
+from cfg import Config
+
 
 class DbaseStorage:
-    db_file = os.path.join(os.path.expanduser('~'), 'Desktop', 'preudo_db.db')
     engine: sqlalchemy.Engine = None
     base = declarative_base()
 
@@ -15,7 +16,7 @@ class Dbase:
     @staticmethod
     def create_engine() -> sqlalchemy.Engine:
         DbaseStorage.engine = sqlalchemy.create_engine(
-            f"sqlite:///{DbaseStorage.db_file}",
+            f"sqlite:///{Config.db_file}",
             connect_args={"check_same_thread": False},
             echo=False
             )
@@ -41,7 +42,7 @@ class Dbase:
 
     @staticmethod
     def get_file_size() -> str:
-        size_bytes = os.stat(DbaseStorage.db_file).st_size
+        size_bytes = os.stat(Config.db_file).st_size
 
         size_mb = size_bytes / (1024 * 1024)
         
