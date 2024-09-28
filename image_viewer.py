@@ -159,6 +159,12 @@ class ZoomBtns(QFrame):
 
     def __init__(self, parent: QWidget = None) -> None:
         super().__init__(parent)
+        self.setStyleSheet(
+            """
+            background-color: rgba(128, 128, 128, 0.40);
+            border-radius: 15px;
+            """
+            )
 
         h_layout = QHBoxLayout()
         h_layout.setContentsMargins(0, 0, 0, 0)
@@ -195,6 +201,12 @@ class SwitchImageBtn(QFrame):
 
     def __init__(self, icon_name: str, parent: QWidget = None) -> None:
         super().__init__(parent)
+        self.setStyleSheet(
+            """
+            background-color: rgba(128, 128, 128, 0.40);
+            border-radius: 27px;
+            """
+            )
         self.setFixedSize(54, 54)
 
         v_layout = QVBoxLayout()
@@ -352,12 +364,12 @@ class WinImageView(QWidget):
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         vertical_center = a0.size().height() // 2 - self.next_image_btn.height() // 2
         right_window_side = a0.size().width() - self.next_image_btn.width()
-        self.prev_image_btn.move(10, vertical_center)
-        self.next_image_btn.move(right_window_side - 10, vertical_center)
+        self.prev_image_btn.move(30, vertical_center)
+        self.next_image_btn.move(right_window_side - 30, vertical_center)
 
         horizontal_center = a0.size().width() // 2 - self.zoom_btns.width() // 2
         bottom_window_side = a0.size().height() - self.zoom_btns.height()
-        self.zoom_btns.move(horizontal_center, bottom_window_side - 50)
+        self.zoom_btns.move(horizontal_center, bottom_window_side - 30)
 
         return super().resizeEvent(a0)
 
