@@ -27,6 +27,7 @@ class NameLabel(QLabel):
     def __init__(self, filename: str):
         super().__init__()
         self.setText(self.split_text(filename))
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
     def split_text(self, text: str) -> list[str]:
         max_length = 27
