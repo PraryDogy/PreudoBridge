@@ -470,10 +470,6 @@ class CustomApp(QApplication):
         self.load_json_data()
         self.aboutToQuit.connect(self.on_exit)
         self.installEventFilter(self)
-        QTimer.singleShot(1200, self.on_load)
-
-    def on_load(self):
-        self.topLevelWidgets()[0].setFocus()
 
     def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
         if a1.type() == QEvent.Type.ApplicationActivate:
