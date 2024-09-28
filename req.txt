@@ -8,8 +8,8 @@ jsonschema==4.23.0
 jsonschema-specifications==2023.12.1
 lazy_loader==0.4
 networkx==3.3
-numpy==2.1.1
-opencv-python==4.10.0.84
+numpy==1.26.4
+opencv-python==4.6.0.66
 packaging==24.1
 Pillow==10.1.0
 psd-tools==1.9.34

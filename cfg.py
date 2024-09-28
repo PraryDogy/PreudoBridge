@@ -3,7 +3,7 @@ import os
 
 
 class Config:
-    json_file = os.path.join(os.path.expanduser('~'), 'Desktop', 'last_place.json')
+    json_file = os.path.join(os.path.expanduser('~'), 'Desktop', "Evgeny", 'last_place.json')
     json_data: dict = {}
     thumb_size = 210
 
