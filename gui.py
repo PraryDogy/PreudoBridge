@@ -172,9 +172,12 @@ class TabsWidget(QFrame):
 
         layout.addWidget(self.photo_tabs, 0, 3)
 
-        sort_t = "По убыванию" if Config.json_data["reversed"] else "По возрастанию"
+        self.ubiv = "↓↑"
+        self.vozrast = "↑↓"
+
+        sort_t = self.ubiv if Config.json_data["reversed"] else self.vozrast
         self.sort_button = QPushButton(text=sort_t, parent=self)
-        self.sort_button.setFixedWidth(130)
+        self.sort_button.setFixedWidth(70)
         self.sort_button.clicked.connect(self.on_sort_toggle)
         layout.addWidget(self.sort_button, 0, 4)
 
@@ -207,10 +210,10 @@ class TabsWidget(QFrame):
     def on_sort_toggle(self):
         if Config.json_data["reversed"]:
             Config.json_data["reversed"] = False
-            self.sort_button.setText("По возрастанию")
+            self.sort_button.setText(self.vozrast)
         else:
             Config.json_data["reversed"] = True
-            self.sort_button.setText("По убыванию")
+            self.sort_button.setText(self.ubiv)
         self.btn_press.emit()
 
 
