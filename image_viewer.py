@@ -201,10 +201,18 @@ class NextImageBtn(SwitchImageBtn):
 class WinImageView(QWidget):
     def __init__(self, parent: QWidget, img_src: str):
         super().__init__()
+
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setMinimumSize(QSize(300, 200))
-        self.resize(500, 500)
-        # self.resize(Config.json_data["ww"], Config.json_data["ww"])
+
+        x, y = parent.x(), parent.y()
+        w, h = Config.json_data["ww"], Config.json_data["hh"]
+        self.setGeometry(x, y, w, h)
+
+        self.v_layout = QVBoxLayout()
+        self.v_layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(self.v_layout)
+
         self.installEventFilter(self)
 
         self.img_src = img_src
@@ -212,10 +220,6 @@ class WinImageView(QWidget):
         self.mouse_move_timer = QTimer(self)
         self.mouse_move_timer.setSingleShot(True)
         self.mouse_move_timer.timeout.connect(self.hide_all_buttons)
-
-        self.v_layout = QVBoxLayout()
-        self.v_layout.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(self.v_layout)
 
         self.image_label = ImageWidget()
         self.v_layout.addWidget(self.image_label)
