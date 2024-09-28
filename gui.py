@@ -107,9 +107,10 @@ class Thumbnail(QFrame):
         self.setFrameShape(QFrame.Shape.NoFrame)
 
     def view_file(self):
-        self.win = WinImageView(self, self.src)
-        self.win.closed.connect(lambda src: self.img_view_closed.emit(src))
-        self.win.show()
+        if self.src.endswith(Config.img_ext):
+            self.win = WinImageView(self, self.src)
+            self.win.closed.connect(lambda src: self.img_view_closed.emit(src))
+            self.win.show()
 
     def open_default(self):
         subprocess.call(["open", self.src])
@@ -400,10 +401,9 @@ class SimpleFileExplorer(QWidget):
             self.tree_widget.expand(index)
             self.setWindowTitle(Config.json_data["root"])
             self.get_finder_items()
-        else:
+        elif path.endswith(Config.img_ext):
             wid.setFrameShape(QFrame.Shape.Panel)
             QTimer.singleShot(500, lambda: wid.setFrameShape(QFrame.Shape.NoFrame))
-
             self.win = WinImageView(self, path)
             self.win.closed.connect(lambda src: self.move_to_wid(src))
             self.win.show()
