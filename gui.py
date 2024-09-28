@@ -2,7 +2,7 @@ import json
 import os
 import subprocess
 
-from PyQt5.QtCore import QDir, QEvent, QObject, QPoint, Qt, QTimer, pyqtSignal
+from PyQt5.QtCore import QDir, QEvent, QObject, QPoint, Qt, QTimer, pyqtSignal, QModelIndex
 from PyQt5.QtGui import QCloseEvent, QKeyEvent, QPixmap
 from PyQt5.QtWidgets import (QAction, QApplication, QFileSystemModel, QFrame,
                              QGridLayout, QHBoxLayout, QHeaderView, QLabel,
@@ -292,6 +292,7 @@ class SimpleFileExplorer(QWidget):
         left_lay.addWidget(self.tree_widget)
 
         self.storage_btn = QPushButton()
+        self.storage_btn.clicked.connect(self.test)
         left_lay.addWidget(self.storage_btn)
 
         self.scroll_area = QScrollArea()
@@ -320,6 +321,21 @@ class SimpleFileExplorer(QWidget):
 
         self.load_last_place()
         self.setWindowTitle(Config.json_data["root"])
+
+    def test(self):
+        path = "/Users/Morkowik/Desktop/Техника для дома"
+        index = self.model.index(path)
+        if index.isValid():
+            
+            # self.expand_parents(index)
+            self.tree_widget.expand(index)
+            self.tree_widget.scrollTo(index)
+    
+    def expand_parents(self, index: QModelIndex):
+        parent = index.parent()
+        if parent.isValid():
+            self.expand_parents(parent)
+            self.tree_widget.expand(parent)
 
     def btn_up_cmd(self):
         path = os.path.dirname(Config.json_data["root"])
