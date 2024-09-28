@@ -119,6 +119,36 @@ class Thumbnail(QFrame):
         subprocess.call(["open", "-R", self.src])
 
 
+class SortWidget(QPushButton):
+    sort_click = pyqtSignal()
+
+    def __init__(self, parent: QWidget):
+        super().__init__()
+        self.setFixedWidth(120)
+
+        self.data = {
+                "name": "Имя",
+                "size": "Размер",
+                "modify": "Дата изм.",
+                "type": "Тип",
+                }
+
+        text = self.data[Config.json_data["sort"]]
+        self.setText(text)
+
+        menu = QMenu()
+        self.setMenu(menu)
+
+        for k, v in self.data.items():
+            action = menu.addAction(v)
+            action.triggered.connect(lambda e, k=k: self.action_clicked(k))
+
+    def action_clicked(self, text: str):
+        Config.json_data["sort"] = text
+        self.setText(self.data[text])
+        self.sort_click.emit()
+
+
 class TabsWidget(QFrame):
     btn_press = pyqtSignal()
     btn_up_press = pyqtSignal()
@@ -181,8 +211,11 @@ class TabsWidget(QFrame):
         self.sort_button.clicked.connect(self.on_sort_toggle)
         layout.addWidget(self.sort_button, 0, 4)
 
+        test = SortWidget(parent=self)
+        layout.addWidget(test, 0, 5)
+
         r_spacer = QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-        layout.addItem(r_spacer, 0, 5)
+        layout.addItem(r_spacer, 0, 6)
 
     def on_photo_toogle(self):
         if Config.json_data["only_photo"]:
