@@ -203,8 +203,8 @@ class WinImageView(QWidget):
         super().__init__()
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setMinimumSize(QSize(300, 200))
-        self.resize(300, 300)
-        self.resize(Config.json_data["ww"], Config.json_data["ww"])
+        self.resize(500, 500)
+        # self.resize(Config.json_data["ww"], Config.json_data["ww"])
         self.installEventFilter(self)
 
         self.img_src = img_src
@@ -215,6 +215,7 @@ class WinImageView(QWidget):
 
         self.v_layout = QVBoxLayout()
         self.v_layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(self.v_layout)
 
         self.image_label = ImageWidget()
         self.v_layout.addWidget(self.image_label)
@@ -232,7 +233,6 @@ class WinImageView(QWidget):
         self.zoom_btns.zoom_close.mouseReleaseEvent = self.close
 
         self.hide_all_buttons()
-        self.setFocus()
         self.load_thumbnail()
 
 # SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM
@@ -267,9 +267,7 @@ class WinImageView(QWidget):
     def load_image_finished(self, data: dict):
         if data["width"] == 0 or data["src"] != self.img_src:
             return
-        
-        print(data["image"])
-                
+                        
         self.image_label.set_image(data["image"])
         self.set_image_title()
 

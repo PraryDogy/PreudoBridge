@@ -473,7 +473,10 @@ class CustomApp(QApplication):
 
     def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
         if a1.type() == QEvent.Type.ApplicationActivate:
-            self.topLevelWidgets()[0].show()
+            for i in self.topLevelWidgets():
+                if i == QWidget:
+                    i.show()
+                    break
         return False
 
     def on_exit(self):
