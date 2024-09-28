@@ -59,7 +59,7 @@ class LoadImageThread(QThread):
         else:
             pixmap = Shared.loaded_images[self.img_src]
 
-        if len(Shared.loaded_images) > 2:
+        if len(Shared.loaded_images) > 50:
             first_img = list(Shared.loaded_images.keys())[0]
             Shared.loaded_images.pop(first_img)
 
