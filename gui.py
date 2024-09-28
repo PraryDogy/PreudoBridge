@@ -255,6 +255,7 @@ class SimpleFileExplorer(QWidget):
         splitter_wid = QWidget()
         v_lay.addWidget(splitter_wid)
         splitter_lay = QHBoxLayout()
+        splitter_lay.setContentsMargins(10, 0, 10, 10)
         splitter_wid.setLayout(splitter_lay)
 
         self.splitter = QSplitter(Qt.Horizontal)
