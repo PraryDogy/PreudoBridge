@@ -71,9 +71,12 @@ class LoadImageThread(QThread):
              )
 
 class ImageWidget(QLabel):
+    mouse_moved = pyqtSignal()
+
     def __init__(self):
         super().__init__()
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.setMouseTracking(True)
 
         self.current_pixmap: QPixmap = None
         self.scale_factor: float = 1.0
@@ -149,7 +152,10 @@ class ImageWidget(QLabel):
         self.w, self.h = self.width(), self.height()
         self.update()
         return super().resizeEvent(a0)
-    
+
+    def mouseMoveEvent(self, a0: QMouseEvent | None) -> None:
+        self.mouse_moved.emit()
+        return super().mouseMoveEvent(a0)
 
 class ZoomBtns(QFrame):
     press_close = pyqtSignal()
@@ -239,6 +245,7 @@ class WinImageView(QWidget):
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setMinimumSize(QSize(400, 300))
         self.setStyleSheet("background: black;")
+        self.setMouseTracking(True)
         self.installEventFilter(self)
 
         x, y = parent.x(), parent.y()
@@ -254,6 +261,7 @@ class WinImageView(QWidget):
         self.mouse_move_timer.timeout.connect(self.hide_all_buttons)
 
         self.image_label = ImageWidget()
+        self.image_label.mouse_moved.connect(self.mouse_moved_cmd)
         self.v_layout.addWidget(self.image_label)
 
         self.prev_image_btn = PrevImageBtn(self)
@@ -309,7 +317,6 @@ class WinImageView(QWidget):
 # GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI
 
     def hide_all_buttons(self):
-        return
         for i in (self.prev_image_btn, self.next_image_btn, self.zoom_btns):
             if i.underMouse():
                 return
@@ -337,6 +344,13 @@ class WinImageView(QWidget):
             self.switch_image(-1)
         self.setFocus()
         self.image_label.setCursor(Qt.CursorShape.ArrowCursor)
+
+    def mouse_moved_cmd(self):
+        self.mouse_move_timer.stop()
+        self.prev_image_btn.show()
+        self.next_image_btn.show()
+        self.zoom_btns.show()
+        self.mouse_move_timer.start(2000)
 
 # EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS 
 
@@ -373,15 +387,6 @@ class WinImageView(QWidget):
 
         return super().resizeEvent(a0)
 
-    def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
-        if a1.type() == 129:
-            self.mouse_move_timer.stop()
-            self.prev_image_btn.show()
-            self.next_image_btn.show()
-            self.zoom_btns.show()
-            self.mouse_move_timer.start(2000)
-        return super().eventFilter(a0, a1)
-
     def leaveEvent(self, a0: QEvent | None) -> None:
         self.hide_all_buttons()
         return super().leaveEvent(a0)
@@ -390,7 +395,3 @@ class WinImageView(QWidget):
         Shared.loaded_images.clear()
         self.closed.emit(self.img_src)
         return super().closeEvent(a0)
-    
-    def mouseMoveEvent(self, a0: QMouseEvent | None) -> None:
-        print(a0)
-        return super().mouseMoveEvent(a0)
