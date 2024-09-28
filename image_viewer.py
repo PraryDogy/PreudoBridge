@@ -304,15 +304,18 @@ class WinImageView(QWidget):
     def load_image_thread(self):
         img_thread = LoadImageThread(self.img_src)
         Shared.threads.append(img_thread)
-        img_thread.finished.connect(self.load_image_finished)
+        img_thread.finished.connect(
+            lambda data: self.load_image_finished(img_thread, data)
+            )
         img_thread.start()
 
-    def load_image_finished(self, data: dict):
+    def load_image_finished(self, thread: LoadImageThread, data: dict):
         if data["width"] == 0 or data["src"] != self.img_src:
             return
                         
         self.image_label.set_image(data["image"])
         self.setWindowTitle(os.path.basename(self.img_src))
+        Shared.threads.remove(thread)
 
 # GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI
 
