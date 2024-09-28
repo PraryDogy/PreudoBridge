@@ -50,6 +50,7 @@ class NameLabel(QLabel):
 
 class Thumbnail(QFrame):
     double_click = pyqtSignal()
+    img_view_closed = pyqtSignal(str)
 
     def __init__(self, filename: str, src: str):
         super().__init__()
@@ -105,7 +106,9 @@ class Thumbnail(QFrame):
         self.setFrameShape(QFrame.Shape.NoFrame)
 
     def view_file(self):
-        QMessageBox.information(self, "Просмотр", f"Просмотр файла: {self.src}")
+        self.win = WinImageView(self, self.src)
+        self.win.closed.connect(lambda src: self.img_view_closed.emit(src))
+        self.win.show()
 
     def open_default(self):
         subprocess.call(["open", self.src])
@@ -342,6 +345,7 @@ class SimpleFileExplorer(QWidget):
             thumbnail.double_click.connect(
                 lambda src=src, wid=thumbnail: self.on_wid_double_clicked(src, wid)
                 )
+            thumbnail.img_view_closed.connect(lambda src: self.move_to_wid(src))
 
             if os.path.isdir(src):
                 self.set_default_image(thumbnail.img_label, "images/folder_210.png")
@@ -405,9 +409,12 @@ class SimpleFileExplorer(QWidget):
 
     def move_to_wid(self, src: str):
         wid: Thumbnail = Config.img_viewer_images[src]
-        wid.setFrameShape(QFrame.Shape.Panel)
-        self.scroll_area.ensureWidgetVisible(wid)
-        QTimer.singleShot(1000, lambda: wid.setFrameShape(QFrame.Shape.NoFrame))
+        try:
+            wid.setFrameShape(QFrame.Shape.Panel)
+            self.scroll_area.ensureWidgetVisible(wid)
+            QTimer.singleShot(1000, lambda: wid.setFrameShape(QFrame.Shape.NoFrame))
+        except RuntimeError:
+            pass
 
     def get_finder_items(self):
         self.setDisabled(True)
