@@ -15,7 +15,7 @@ class Config:
         else:
             with open(Config.json_file, 'w') as f:
                 Config.json_data = {
-                    "root": "",
+                    "root": "/Volumes",
                     "ww": 1050,
                     "hh": 700,
                     "sort": "name",
