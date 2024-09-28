@@ -407,6 +407,7 @@ class SimpleFileExplorer(QWidget):
 
             from image_viewer import WinImageView
             self.win = WinImageView(self, path)
+            self.win.closed.connect(lambda x: print(x))
             self.win.show()
 
 

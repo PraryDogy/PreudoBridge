@@ -3,7 +3,7 @@ import os
 import sqlalchemy
 from PyQt5.QtCore import (QEvent, QObject, QPoint, QSize, Qt, QThread, QTimer,
                           pyqtSignal)
-from PyQt5.QtGui import (QImage, QKeyEvent, QMouseEvent, QPainter, QPaintEvent,
+from PyQt5.QtGui import (QCloseEvent, QImage, QKeyEvent, QMouseEvent, QPainter, QPaintEvent,
                          QPixmap, QResizeEvent)
 from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QSpacerItem,
                              QVBoxLayout, QWidget)
@@ -14,7 +14,7 @@ from svg_btn import SvgShadowed
 from image_utils import ImageUtils
 
 class Shared:
-    loaded_images: dict = {}
+    loaded_images: dict[str: QPixmap] = {}
     threads: list = []
 
 
@@ -46,7 +46,7 @@ class LoadImageThread(QThread):
                 img = ImageUtils.read_png(self.img_src)
 
             else:
-                pixmap = QPixmap("images/folder_210.png")
+                pixmap = QPixmap("images/file_210.png")
 
             if img is not None:
                 height, width, channel = img.shape
@@ -54,8 +54,14 @@ class LoadImageThread(QThread):
                 qimage = QImage(img.data, width, height, bytes_per_line, QImage.Format.Format_RGB888)
                 pixmap = QPixmap.fromImage(qimage)
 
-        if len(Shared.loaded_images) > 50:
-            Shared.loaded_images.pop(next(iter(Shared.loaded_images)))
+                Shared.loaded_images[self.img_src] = pixmap
+
+        else:
+            pixmap = Shared.loaded_images[self.img_src]
+
+        if len(Shared.loaded_images) > 2:
+            first_img = list(Shared.loaded_images.keys())[0]
+            Shared.loaded_images.pop(first_img)
 
         self.finished.emit(
             {"image": pixmap,
@@ -146,6 +152,11 @@ class ImageWidget(QLabel):
     
 
 class ZoomBtns(QFrame):
+    press_close = pyqtSignal()
+    zoomed_in = pyqtSignal()
+    zoomed_out = pyqtSignal()
+    zoomed_fit = pyqtSignal()
+
     def __init__(self, parent: QWidget = None) -> None:
         super().__init__(parent)
 
@@ -156,18 +167,22 @@ class ZoomBtns(QFrame):
         h_layout.addSpacerItem(QSpacerItem(5, 0))
 
         self.zoom_out = SvgShadowed(os.path.join("images", "zoom_out.svg"), 45)
+        self.zoom_out.mouseReleaseEvent = lambda e: self.zoomed_out.emit()
         h_layout.addWidget(self.zoom_out)
         h_layout.addSpacerItem(QSpacerItem(10, 0))
 
         self.zoom_in = SvgShadowed(os.path.join("images", "zoom_in.svg"), 45)
+        self.zoom_in.mouseReleaseEvent = lambda e: self.zoomed_in.emit()
         h_layout.addWidget(self.zoom_in)
         h_layout.addSpacerItem(QSpacerItem(10, 0))
 
         self.zoom_fit = SvgShadowed(os.path.join("images", "zoom_fit.svg"), 45)
+        self.zoom_fit.mouseReleaseEvent = lambda e: self.zoomed_fit.emit()
         h_layout.addWidget(self.zoom_fit)
         h_layout.addSpacerItem(QSpacerItem(10, 0))
 
         self.zoom_close = SvgShadowed(os.path.join("images", "zoom_close.svg"), 45)
+        self.zoom_close.mouseReleaseEvent = lambda e: self.press_close.emit()
         h_layout.addWidget(self.zoom_close)
 
         h_layout.addSpacerItem(QSpacerItem(5, 0))
@@ -176,6 +191,8 @@ class ZoomBtns(QFrame):
 
 
 class SwitchImageBtn(QFrame):
+    pressed = pyqtSignal()
+
     def __init__(self, icon_name: str, parent: QWidget = None) -> None:
         super().__init__(parent)
         self.setFixedSize(54, 54)
@@ -186,6 +203,8 @@ class SwitchImageBtn(QFrame):
 
         btn = SvgShadowed(os.path.join("images", icon_name), 50)
         v_layout.addWidget(btn)
+
+        self.mouseReleaseEvent = lambda e: self.pressed.emit()
 
 
 class PrevImageBtn(SwitchImageBtn):
@@ -199,11 +218,16 @@ class NextImageBtn(SwitchImageBtn):
 
 
 class WinImageView(QWidget):
+    closed = pyqtSignal(str)
+
     def __init__(self, parent: QWidget, img_src: str):
         super().__init__()
+        self.img_src = img_src
 
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setMinimumSize(QSize(300, 200))
+        self.setStyleSheet("background: black;")
+        self.installEventFilter(self)
 
         x, y = parent.x(), parent.y()
         w, h = Config.json_data["ww"], Config.json_data["hh"]
@@ -213,10 +237,6 @@ class WinImageView(QWidget):
         self.v_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.v_layout)
 
-        self.installEventFilter(self)
-
-        self.img_src = img_src
-
         self.mouse_move_timer = QTimer(self)
         self.mouse_move_timer.setSingleShot(True)
         self.mouse_move_timer.timeout.connect(self.hide_all_buttons)
@@ -225,16 +245,16 @@ class WinImageView(QWidget):
         self.v_layout.addWidget(self.image_label)
 
         self.prev_image_btn = PrevImageBtn(self)
-        self.prev_image_btn.mouseReleaseEvent = lambda e: self.button_switch_cmd("-")
+        self.prev_image_btn.pressed.connect(lambda: self.button_switch_cmd("-"))
 
         self.next_image_btn = NextImageBtn(self)
-        self.next_image_btn.mouseReleaseEvent = lambda e: self.button_switch_cmd("+")
+        self.next_image_btn.pressed.connect(lambda: self.button_switch_cmd("+"))
 
         self.zoom_btns = ZoomBtns(parent=self)
-        self.zoom_btns.zoom_in.mouseReleaseEvent = lambda e: self.image_label.zoom_in()
-        self.zoom_btns.zoom_out.mouseReleaseEvent = lambda e: self.image_label.zoom_out()
-        self.zoom_btns.zoom_fit.mouseReleaseEvent = lambda e: self.image_label.zoom_reset()
-        self.zoom_btns.zoom_close.mouseReleaseEvent = self.close
+        self.zoom_btns.zoomed_in.connect(self.image_label.zoom_in)
+        self.zoom_btns.zoomed_out.connect(self.image_label.zoom_out)
+        self.zoom_btns.zoomed_fit.connect(self.image_label.zoom_reset)
+        self.zoom_btns.press_close.connect(self.close)
 
         self.hide_all_buttons()
         self.load_thumbnail()
@@ -252,13 +272,12 @@ class WinImageView(QWidget):
             try:
                 thumbnail = session.execute(q).first()[0]
                 session.close()
+                pixmap = QPixmap()
+                pixmap.loadFromData(thumbnail)
+                self.image_label.set_image(pixmap)
             except Exception as e:
-                print(e)
-                return
-
-            pixmap = QPixmap()
-            pixmap.loadFromData(thumbnail)
-            self.image_label.set_image(pixmap)
+                print("IMG VIEW: there is no thumbnail in db")
+                # тут в pixmap надо загрузить изображение файла
 
         self.load_image_thread()
 
@@ -273,11 +292,12 @@ class WinImageView(QWidget):
             return
                         
         self.image_label.set_image(data["image"])
-        self.set_image_title()
+        self.setWindowTitle(os.path.basename(self.img_src))
 
 # GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI
 
     def hide_all_buttons(self):
+        return
         for i in (self.prev_image_btn, self.next_image_btn, self.zoom_btns):
             if i.underMouse():
                 return
@@ -297,16 +317,6 @@ class WinImageView(QWidget):
         new_index = (current_index + offset) % total_images
         self.img_src = keys[new_index]
         self.load_thumbnail()
-
-    def cut_text(self, text: str) -> str:
-        limit = 40
-        if len(text) > limit:
-            return text[:limit] + "..."
-        return text
-
-    def set_image_title(self):
-        name = self.cut_text(os.path.basename(self.img_src))
-        self.setWindowTitle(name)
 
     def button_switch_cmd(self, flag: str) -> None:
         if flag == "+":
@@ -363,3 +373,12 @@ class WinImageView(QWidget):
     def leaveEvent(self, a0: QEvent | None) -> None:
         self.hide_all_buttons()
         return super().leaveEvent(a0)
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        Shared.loaded_images.clear()
+        self.closed.emit(self.img_src)
+        return super().closeEvent(a0)
+    
+    def mouseMoveEvent(self, a0: QMouseEvent | None) -> None:
+        print(a0)
+        return super().mouseMoveEvent(a0)
