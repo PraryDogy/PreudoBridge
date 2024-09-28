@@ -5,14 +5,15 @@ import subprocess
 from PyQt5.QtCore import QDir, QEvent, QObject, QPoint, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QKeyEvent, QPixmap
 from PyQt5.QtWidgets import (QAction, QApplication, QFileSystemModel, QFrame,
-                             QGridLayout, QHBoxLayout, QLabel, QMenu,
-                             QMessageBox, QPushButton, QScrollArea,
+                             QGridLayout, QHBoxLayout, QHeaderView, QLabel,
+                             QMenu, QMessageBox, QPushButton, QScrollArea,
                              QSizePolicy, QSpacerItem, QSplitter, QTabBar,
-                             QTreeView, QVBoxLayout, QWidget, QHeaderView)
+                             QTreeView, QVBoxLayout, QWidget)
 
 from cfg import Config
 from database import Dbase
 from get_finder_items import LoadFinderItems
+from image_viewer import WinImageView
 from load_images import LoadImagesThread
 from utils import Utils
 
@@ -25,13 +26,6 @@ class Storage:
 class NameLabel(QLabel):
     def __init__(self, filename: str):
         super().__init__()
-
-        # max_row = 27
-
-        # if len(filename) >= max_row:
-        #     cut_name = filename[:max_row]
-        #     filename = cut_name + "..."
-
         self.setText(self.split_text(filename))
 
     def split_text(self, text: str) -> list[str]:
@@ -405,12 +399,15 @@ class SimpleFileExplorer(QWidget):
             wid.setFrameShape(QFrame.Shape.Panel)
             QTimer.singleShot(500, lambda: wid.setFrameShape(QFrame.Shape.NoFrame))
 
-            from image_viewer import WinImageView
             self.win = WinImageView(self, path)
-            self.win.closed.connect(lambda x: print(x))
+            self.win.closed.connect(lambda src: self.move_to_wid(src))
             self.win.show()
 
-
+    def move_to_wid(self, src: str):
+        wid: Thumbnail = Config.img_viewer_images[src]
+        wid.setFrameShape(QFrame.Shape.Panel)
+        self.scroll_area.ensureWidgetVisible(wid)
+        QTimer.singleShot(1000, lambda: wid.setFrameShape(QFrame.Shape.NoFrame))
 
     def get_finder_items(self):
         self.setDisabled(True)
