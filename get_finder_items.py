@@ -22,22 +22,19 @@ class LoadFinderItems:
         for item in os.listdir(self.root):
             src: str = os.path.join(self.root, item)
 
-            filename = src.split(os.sep)[-1]
             try:
                 stats = os.stat(src)
             except (PermissionError, FileNotFoundError):
                 continue
+
             size = stats.st_size
             modified = stats.st_mtime
-            filetype = os.path.splitext(filename)[1]
+            filetype = os.path.splitext(item)[1]
 
-            if Config.json_data["only_photo"]:
-                if src.lower().endswith(Config.img_ext) or os.path.isdir(src):
-                    self.finder_items[(src, filename, size, modified, filetype)] = None
-                    continue
-            else:
-                self.finder_items[(src, filename, size, modified, filetype)] = None
-
+            if src.lower().endswith(Config.img_ext):
+                self.finder_items[(src, item, size, modified, filetype)] = None
+                continue
+            
     def __sort_items(self):
         sort_data = {"name": 1, "size": 2,  "modify": 3, "type": 4}
         # начинаем с 1, потому что 0 у нас src, нам не нужна сортировка по src

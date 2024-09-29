@@ -60,7 +60,7 @@ class LoadImagesThread(QThread):
         self.session = Dbase.get_session()
 
     def run(self):
-        print(self, "thread started")
+        # print(self, "thread started")
         self.db_images: dict = self.get_db_images()
         self.load_already_images()
         self.create_new_images(images=self.finder_images)
@@ -68,7 +68,7 @@ class LoadImagesThread(QThread):
         self.session.commit()
         self.session.close()
         self.finished_thread.emit()
-        print(self, "thread finished")
+        # print(self, "thread finished")
 
     def create_new_images(self, images: dict):
         images_copy = images.copy()

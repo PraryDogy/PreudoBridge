@@ -150,35 +150,6 @@ class SortTypeWidget(QPushButton):
         self.sort_click.emit()
 
 
-class OnlyPhotoWidget(QPushButton):
-    sort_click = pyqtSignal()
-
-    def __init__(self, parent: QWidget):
-        super().__init__()
-        self.setFixedWidth(120)
-        self.setToolTip(" Показывать только фото и папки или показывать все файлы ")
-
-        self.data = {
-                False: "Все файлы",
-                True: "Только фото",
-                }
-
-        text = self.data[Config.json_data["only_photo"]]
-        self.setText(text)
-
-        menu = QMenu()
-        self.setMenu(menu)
-
-        for k, v in self.data.items():
-            action = menu.addAction(v)
-            action.triggered.connect(lambda e, k=k: self.action_clicked(k))
-
-    def action_clicked(self, text: str):
-        Config.json_data["only_photo"] = text
-        self.setText(self.data[text])
-        self.sort_click.emit()
-
-
 class TopBarWidget(QFrame):
     btn_press = pyqtSignal()
     btn_up_press = pyqtSignal()
@@ -206,10 +177,6 @@ class TopBarWidget(QFrame):
         self.sort_widget.sort_click.connect(self.btn_press.emit)
         layout.addWidget(self.sort_widget, 0, 2)
 
-        self.only_photo = OnlyPhotoWidget(parent=self)
-        self.only_photo.sort_click.connect(self.btn_press.emit)
-        layout.addWidget(self.only_photo, 0, 3)
-
         self.ubiv = "↓↑"
         self.vozrast = "↑↓"
         sort_t = self.ubiv if Config.json_data["reversed"] else self.vozrast
@@ -217,10 +184,10 @@ class TopBarWidget(QFrame):
         self.sort_button.setToolTip(" Сортировка файлов: по возрастанию / по убыванию ")
         self.sort_button.setFixedWidth(60)
         self.sort_button.clicked.connect(self.on_sort_toggle)
-        layout.addWidget(self.sort_button, 0, 4)
+        layout.addWidget(self.sort_button, 0, 3)
 
         r_spacer = QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-        layout.addItem(r_spacer, 0, 5)
+        layout.addItem(r_spacer, 0, 4)
 
     def on_sort_toggle(self):
         if Config.json_data["reversed"]:

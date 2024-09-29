@@ -49,7 +49,6 @@ class Config:
                 "hh_im": 300,
                 "sort": "name",
                 "reversed": False,
-                "only_photo": False,
                 "hidden_dirs": False
                 }
 
