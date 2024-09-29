@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFileSystemModel, QFrame,
                              QGridLayout, QHBoxLayout, QHeaderView, QLabel,
                              QMenu, QMessageBox, QPushButton, QScrollArea,
                              QSizePolicy, QSpacerItem, QSplitter, QTabBar,
-                             QTreeView, QVBoxLayout, QWidget)
+                             QTreeView, QVBoxLayout, QWidget, QTabWidget)
 
 from cfg import Config
 from database import Dbase
@@ -275,6 +275,9 @@ class SimpleFileExplorer(QWidget):
 
         self.model.setRootPath("/Volumes")
 
+        tabs = QTabWidget()
+        left_lay.addWidget(tabs)
+
         self.tree_widget = QTreeView()
         self.tree_widget.setModel(self.model)
         self.tree_widget.setRootIndex(self.model.index("/Volumes"))
@@ -288,11 +291,15 @@ class SimpleFileExplorer(QWidget):
 
         self.tree_widget.clicked.connect(self.on_tree_clicked)
 
-        left_lay.addWidget(self.tree_widget)
+        # left_lay.addWidget(self.tree_widget)
+        tabs.addTab(self.tree_widget, "Папки")
 
-        self.storage_btn = QPushButton()
-        self.storage_btn.clicked.connect(self.single_click)
-        left_lay.addWidget(self.storage_btn)
+        test = QLabel("text")
+        tabs.addTab(test, "Открывашка")
+
+        # self.storage_btn = QPushButton()
+        # self.storage_btn.clicked.connect(self.single_click)
+        # left_lay.addWidget(self.storage_btn)
 
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
@@ -377,7 +384,7 @@ class SimpleFileExplorer(QWidget):
             self.finder_images[(src, size, modified)] = thumbnail.img_label
             Config.img_viewer_images[src] = thumbnail
 
-        self.storage_btn.setText(f"Занято: {Dbase.get_file_size()}")
+        # self.storage_btn.setText(f"Занято: {Dbase.get_file_size()}")
 
         if self.finder_images:
             row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
