@@ -264,6 +264,7 @@ class SimpleFileExplorer(QWidget):
         ww, hh = Config.json_data["ww"], Config.json_data["hh"]
         self.resize(ww, hh)
         self.clmn_count = 1
+        self.move_to_filepath: str = None
 
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(0, 0, 0, 0)
@@ -353,8 +354,17 @@ class SimpleFileExplorer(QWidget):
         # Учти что без ВОЛУМЕС / ДИСК / ПУТЬ открываться дерево не будет
         # УЧТИ ЧТО ПУТЬ МОЖЕТ БЫТЬ ДО ФАЙЛА
 
+        if not os.path.exists(path):
+            return
+
         if os.path.isfile(path):
+            self.move_to_filepath = path
             path, tail = os.path.split(path)
+
+            if path == Config.json_data["root"]:
+                self.move_to_wid(self.move_to_filepath)
+                self.move_to_filepath = None
+                return
 
         self.tree_widget.collapseAll()
         index = self.model.index(path)
@@ -402,11 +412,7 @@ class SimpleFileExplorer(QWidget):
                 lambda src=src, wid=thumbnail: self.on_wid_double_clicked(src, wid)
                 )
             thumbnail.img_view_closed.connect(lambda src: self.move_to_wid(src))
-
-            if os.path.isdir(src):
-                self.set_default_image(thumbnail.img_label, "images/folder_210.png")
-            else:
-                self.set_default_image(thumbnail.img_label, "images/file_210.png")
+            self.set_default_image(thumbnail.img_label, "images/file_210.png")
 
             self.grid_layout.addWidget(thumbnail, row, col)
 
@@ -425,7 +431,13 @@ class SimpleFileExplorer(QWidget):
             self.grid_layout.addItem(row_spacer, row + 1, 0)
             clmn_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
             self.grid_layout.addItem(clmn_spacer, 0, clmn_count + 1)
+
+            if self.move_to_filepath:
+                self.move_to_wid(self.move_to_filepath)
+                self.move_to_filepath = None
+
             self.load_images()
+
         else:
             no_images = QLabel("Нет изображений")
             self.grid_layout.addWidget(no_images, 0, 0, Qt.AlignmentFlag.AlignCenter)
@@ -462,12 +474,12 @@ class SimpleFileExplorer(QWidget):
         self.win.show()
 
     def move_to_wid(self, src: str):
-        wid: Thumbnail = Config.img_viewer_images[src]
         try:
+            wid: Thumbnail = Config.img_viewer_images[src]
             wid.setFrameShape(QFrame.Shape.Panel)
             self.scroll_area.ensureWidgetVisible(wid)
             QTimer.singleShot(1000, lambda: wid.setFrameShape(QFrame.Shape.NoFrame))
-        except RuntimeError:
+        except (RuntimeError, KeyError):
             pass
 
     def get_finder_items(self):
