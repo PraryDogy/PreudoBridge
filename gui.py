@@ -241,14 +241,11 @@ class SimpleFileExplorer(QWidget):
         self.model.setRootPath("/Volumes")
 
         self.tree_widget = QTreeView()
-
         self.tree_widget.setModel(self.model)
         self.tree_widget.setRootIndex(self.model.index("/Volumes"))
-
         self.tree_widget.setHeaderHidden(True)
         for i in range(1, self.model.columnCount()):
             self.tree_widget.setColumnHidden(i, True)
-
         self.tree_widget.header().setStretchLastSection(False)
         self.tree_widget.header().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.tree_widget.setIndentation(10)
