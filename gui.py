@@ -151,8 +151,8 @@ class SortTypeWidget(QPushButton):
 
 
 class TopBarWidget(QFrame):
-    btn_press = pyqtSignal()
-    btn_up_press = pyqtSignal()
+    sort_btn_press = pyqtSignal()
+    up_btn_press = pyqtSignal()
     open_btn_press = pyqtSignal(str)
 
     def __init__(self):
@@ -180,11 +180,11 @@ class TopBarWidget(QFrame):
         self.up_button = QPushButton(text="↑", parent=self)
         self.up_button.setToolTip(" Перейти на уровень выше ")
         self.up_button.setFixedWidth(60)
-        self.up_button.clicked.connect(self.btn_up_press.emit)
+        self.up_button.clicked.connect(self.up_btn_press.emit)
         self.grid_layout.addWidget(self.up_button, 0, 3)
 
         self.sort_widget = SortTypeWidget(parent=self)
-        self.sort_widget.sort_click.connect(self.btn_press.emit)
+        self.sort_widget.sort_click.connect(self.sort_btn_press.emit)
         self.grid_layout.addWidget(self.sort_widget, 0, 4)
 
         self.ubiv = "↓↑"
@@ -240,7 +240,7 @@ class TopBarWidget(QFrame):
 
     def path_label_click(self, num: int):
         for i in range(0, num):
-            self.btn_up_press.emit()
+            self.up_btn_press.emit()
 
     def set_root(self, root: str):
         self.root = root
@@ -252,18 +252,52 @@ class TopBarWidget(QFrame):
         else:
             Config.json_data["reversed"] = True
             self.sort_button.setText(self.ubiv)
-        self.btn_press.emit()
+        self.sort_btn_press.emit()
+
+
+class TreeWidget(QTreeView):
+    on_tree_clicked = pyqtSignal(str)
+
+    def __init__(self):
+        super().__init__()
+
+        self.model = QFileSystemModel()
+        self.model.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot)
+        self.model.setRootPath("/Volumes")
+
+        self.setModel(self.model)
+        self.setRootIndex(self.model.index("/Volumes"))
+
+        self.setHeaderHidden(True)
+        for i in range(1, self.model.columnCount()):
+            self.setColumnHidden(i, True)
+        self.header().setStretchLastSection(False)
+        self.header().setSectionResizeMode(QHeaderView.ResizeToContents)
+        self.setIndentation(10)
+
+        self.clicked.connect(self.one_clicked)
+
+    def one_clicked(self, index):
+        path = self.model.filePath(index)
+        self.setCurrentIndex(index)
+        self.on_tree_clicked.emit(path)
+
+    def expand_path(self, root: str):
+        index = self.model.index(root)
+        self.setCurrentIndex(index)
+        self.expand(index)
 
 
 class SimpleFileExplorer(QWidget):
     def __init__(self):
         super().__init__()
+
+        self.clmn_count = 1
         self.finder_items = []
         self.finder_images: dict = {}
-        self.first_load = True
+
         ww, hh = Config.json_data["ww"], Config.json_data["hh"]
         self.resize(ww, hh)
-        self.clmn_count = 1
         self.move_to_filepath: str = None
 
         v_lay = QVBoxLayout()
@@ -272,8 +306,8 @@ class SimpleFileExplorer(QWidget):
         self.setLayout(v_lay)
 
         self.top_bar = TopBarWidget()
-        self.top_bar.btn_press.connect(self.get_finder_items)
-        self.top_bar.btn_up_press.connect(self.btn_up_cmd)
+        self.top_bar.sort_btn_press.connect(self.get_finder_items)
+        self.top_bar.up_btn_press.connect(self.btn_up_cmd)
         self.top_bar.open_btn_press.connect(self.open_custom_path)
         v_lay.addWidget(self.top_bar)
 
@@ -284,70 +318,45 @@ class SimpleFileExplorer(QWidget):
         splitter_wid.setLayout(splitter_lay)
 
         self.splitter = QSplitter(Qt.Horizontal)
+        self.splitter.splitterMoved.connect(self.custom_resize_event)
+        splitter_lay.addWidget(self.splitter)
 
-        left_wid = QWidget()
+        self.left_wid = QWidget()
+        self.splitter.addWidget(self.left_wid)
+        self.splitter.setStretchFactor(0, 0)
+
         left_lay = QVBoxLayout()
         left_lay.setContentsMargins(0, 0, 0, 0)
-        left_wid.setLayout(left_lay)
-        self.splitter.addWidget(left_wid)
+        self.left_wid.setLayout(left_lay)
         
-        self.model = QFileSystemModel()
-        self.model.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot)
-
-        if Config.json_data["hidden_dirs"]:
-            self.model.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot | QDir.Hidden)
-
-        self.model.setRootPath("/Volumes")
-
-        self.tree_widget = QTreeView()
-        self.tree_widget.setModel(self.model)
-        self.tree_widget.setRootIndex(self.model.index("/Volumes"))
-
-        self.tree_widget.setHeaderHidden(True)
-        for i in range(1, self.model.columnCount()):
-            self.tree_widget.setColumnHidden(i, True)
-        self.tree_widget.header().setStretchLastSection(False)
-        self.tree_widget.header().setSectionResizeMode(QHeaderView.ResizeToContents)
-        self.tree_widget.setIndentation(10)
-
-        self.tree_widget.clicked.connect(self.single_click)
-        self.tree_widget.clicked.connect(self.on_tree_clicked)
-
+        self.tree_widget = TreeWidget()
+        self.tree_widget.on_tree_clicked.connect(self.on_tree_clicked)
         left_lay.addWidget(self.tree_widget)
-
-        # self.storage_btn = QPushButton("test")
-        # self.storage_btn.clicked.connect(self.test)
-        # left_lay.addWidget(self.storage_btn)
 
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
+        self.splitter.addWidget(self.scroll_area)
+        self.splitter.setStretchFactor(1, 1)
 
         self.grid_container = QWidget()
         self.grid_layout = QGridLayout(self.grid_container)
         self.grid_layout.setSpacing(5)
-
         self.scroll_area.setWidget(self.grid_container)
-
-        self.splitter.addWidget(self.scroll_area)
-
-        self.splitter.setStretchFactor(0, 0)
-        self.splitter.setStretchFactor(1, 1)
-
-        splitter_lay.addWidget(self.splitter)
 
         self.resize_timer = QTimer(parent=self)
         self.resize_timer.setSingleShot(True)
         self.resize_timer.setInterval(500)
         self.resize_timer.timeout.connect(self.get_finder_items)
 
-        self.splitter.splitterMoved.connect(self.custom_resize_event)
         self.resizeEvent = self.custom_resize_event
 
         self.load_last_place()
         self.setWindowTitle(Config.json_data["root"])
 
-        self.top_bar.set_root(Config.json_data["root"])
-        self.top_bar.set_path_labels()
+    def on_tree_clicked(self, root: str):
+        Config.json_data["root"] = root
+        self.setWindowTitle(root)
+        self.get_finder_items()
 
     def open_custom_path(self, path: str):
         path = "/Volumes/Macintosh HD" + path
@@ -367,43 +376,28 @@ class SimpleFileExplorer(QWidget):
                 return
 
         self.tree_widget.collapseAll()
-        index = self.model.index(path)
-        self.tree_widget.setCurrentIndex(index)
-        self.tree_widget.expand(index)
+        self.tree_widget.expand_path(path)
 
         Config.json_data["root"] = path
         self.setWindowTitle(Config.json_data["root"])
         self.get_finder_items()
-
-    def single_click(self, index):
-        if self.tree_widget.isExpanded(index):
-            self.tree_widget.collapse(index)
-        else:
-            self.tree_widget.expand(index)
 
     def btn_up_cmd(self):
         path = os.path.dirname(Config.json_data["root"])
         Config.json_data["root"] = path
 
-        index = self.model.index(path)
-        self.tree_widget.setCurrentIndex(index)
-        self.tree_widget.expand(index)
-
+        self.tree_widget.expand_path(path)
         self.setWindowTitle(Config.json_data["root"])
         self.get_finder_items()
 
-        self.top_bar.set_root(Config.json_data["root"])
-        self.top_bar.set_path_labels()
-
     def reload_grid_layout(self, event=None):
-        container_width = self.splitter.width() - self.tree_widget.width() - 20
-        clmn_count = container_width // Config.thumb_size
+        ww = Config.json_data["ww"] - self.left_wid.width() - 80
+        clmn_count = ww // Config.thumb_size
 
         if clmn_count < 1:
             clmn_count = 1
 
         self.clmn_count = clmn_count
-
         row, col = 0, 0
 
         for src, filename, size, modified, filetype in self.finder_items:
@@ -456,16 +450,6 @@ class SimpleFileExplorer(QWidget):
         Storage.load_images_threads.append(new_thread)
         new_thread.start()
 
-    def on_tree_clicked(self, index):
-        path = self.model.filePath(index)
-
-        Config.json_data["root"] = path
-        self.tree_widget.setCurrentIndex(index)
-        self.setWindowTitle(Config.json_data["root"])
-        self.get_finder_items()
-        self.top_bar.set_root(Config.json_data["root"])
-        self.top_bar.set_path_labels()
-
     def on_wid_double_clicked(self, path: str, wid: Thumbnail):
         wid.setFrameShape(QFrame.Shape.Panel)
         QTimer.singleShot(500, lambda: wid.setFrameShape(QFrame.Shape.NoFrame))
@@ -495,13 +479,10 @@ class SimpleFileExplorer(QWidget):
         self.reload_grid_layout()
 
     def load_last_place(self):
-        last_place = Config.json_data["root"]
+        root = Config.json_data["root"]
 
-        if last_place and os.path.exists(last_place):
-            index = self.model.index(last_place)
-            self.tree_widget.setCurrentIndex(index)
-            self.tree_widget.expand(index)
-
+        if root and os.path.exists(root):
+            self.tree_widget.expand_path(root)
             self.get_finder_items()
 
     def set_default_image(self, widget: QLabel, png_path: str):
