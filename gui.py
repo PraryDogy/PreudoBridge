@@ -70,6 +70,7 @@ class Thumbnail(QFrame):
         self.setLayout(v_lay)
 
         self.img_label = QLabel()
+        self.img_label.setFixedHeight(Config.thumb_size)
         self.img_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         v_lay.addWidget(self.img_label)
 
@@ -187,11 +188,8 @@ class TopBarWidget(QFrame):
         self.sort_button.clicked.connect(self.on_sort_toggle)
         self.grid_layout.addWidget(self.sort_button, 0, 3)
 
-        # r_spacer = QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-        # self.grid_layout.addItem(r_spacer, 0, 4)
-
-        if self.root:
-            self.set_path_labels()
+        r_spacer = QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.grid_layout.addItem(r_spacer, 0, 4)
 
     def set_path_labels(self):
         for wid in self.path_labels_list:
@@ -216,7 +214,7 @@ class TopBarWidget(QFrame):
             self.path_labels_list.append(label)
 
         r_spacer = QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-        self.grid_layout.addItem(r_spacer, 0, clmn)
+        # self.grid_layout.addItem(r_spacer, 0, clmn)
 
     def path_label_click(self, num: int):
         for i in range(0, num):
