@@ -153,6 +153,7 @@ class SortTypeWidget(QPushButton):
 class TopBarWidget(QFrame):
     btn_press = pyqtSignal()
     btn_up_press = pyqtSignal()
+    open_btn_press = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -166,18 +167,25 @@ class TopBarWidget(QFrame):
         self.grid_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.grid_layout)
 
-        l_spacer = QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        l_spacer = QSpacerItem(5, 1)
         self.grid_layout.addItem(l_spacer, 0, 0)
+
+        self.open_btn = QPushButton("Открыть путь")
+        self.open_btn.clicked.connect(self.open_btn_cmd)
+        self.grid_layout.addWidget(self.open_btn, 0, 1)
+
+        l_spacer = QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.grid_layout.addItem(l_spacer, 0, 2)
 
         self.up_button = QPushButton(text="↑", parent=self)
         self.up_button.setToolTip(" Перейти на уровень выше ")
         self.up_button.setFixedWidth(60)
         self.up_button.clicked.connect(self.btn_up_press.emit)
-        self.grid_layout.addWidget(self.up_button, 0, 1)
+        self.grid_layout.addWidget(self.up_button, 0, 3)
 
         self.sort_widget = SortTypeWidget(parent=self)
         self.sort_widget.sort_click.connect(self.btn_press.emit)
-        self.grid_layout.addWidget(self.sort_widget, 0, 2)
+        self.grid_layout.addWidget(self.sort_widget, 0, 4)
 
         self.ubiv = "↓↑"
         self.vozrast = "↑↓"
@@ -186,12 +194,26 @@ class TopBarWidget(QFrame):
         self.sort_button.setToolTip(" Сортировка файлов: по возрастанию / по убыванию ")
         self.sort_button.setFixedWidth(60)
         self.sort_button.clicked.connect(self.on_sort_toggle)
-        self.grid_layout.addWidget(self.sort_button, 0, 3)
+        self.grid_layout.addWidget(self.sort_button, 0, 5)
 
         r_spacer = QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-        self.grid_layout.addItem(r_spacer, 0, 4)
+        self.grid_layout.addItem(r_spacer, 0, 6)
+
+    def paste_text(self) -> str:
+        paste_result = subprocess.run(
+            ['pbpaste'],
+            capture_output=True,
+            text=True,
+            check=True
+            )
+        return paste_result.stdout.strip()
+    
+    def open_btn_cmd(self):
+        path = self.paste_text()
+        self.open_btn_press.emit(path)
 
     def set_path_labels(self):
+        return
         for wid in self.path_labels_list:
             wid.deleteLater()
         self.path_labels_list.clear()
@@ -251,6 +273,7 @@ class SimpleFileExplorer(QWidget):
         self.top_bar = TopBarWidget()
         self.top_bar.btn_press.connect(self.get_finder_items)
         self.top_bar.btn_up_press.connect(self.btn_up_cmd)
+        self.top_bar.open_btn_press.connect(self.open_custom_path)
         v_lay.addWidget(self.top_bar)
 
         splitter_wid = QWidget()
@@ -275,30 +298,24 @@ class SimpleFileExplorer(QWidget):
 
         self.model.setRootPath("/Volumes")
 
-        tabs = QTabWidget()
-        left_lay.addWidget(tabs)
-
         self.tree_widget = QTreeView()
         self.tree_widget.setModel(self.model)
         self.tree_widget.setRootIndex(self.model.index("/Volumes"))
+
         self.tree_widget.setHeaderHidden(True)
         for i in range(1, self.model.columnCount()):
             self.tree_widget.setColumnHidden(i, True)
         self.tree_widget.header().setStretchLastSection(False)
         self.tree_widget.header().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.tree_widget.setIndentation(10)
-        self.tree_widget.clicked.connect(self.single_click)
 
+        self.tree_widget.clicked.connect(self.single_click)
         self.tree_widget.clicked.connect(self.on_tree_clicked)
 
-        # left_lay.addWidget(self.tree_widget)
-        tabs.addTab(self.tree_widget, "Папки")
+        left_lay.addWidget(self.tree_widget)
 
-        test = QLabel("text")
-        tabs.addTab(test, "Открывашка")
-
-        # self.storage_btn = QPushButton()
-        # self.storage_btn.clicked.connect(self.single_click)
+        # self.storage_btn = QPushButton("test")
+        # self.storage_btn.clicked.connect(self.test)
         # left_lay.addWidget(self.storage_btn)
 
         self.scroll_area = QScrollArea()
@@ -330,6 +347,23 @@ class SimpleFileExplorer(QWidget):
 
         self.top_bar.set_root(Config.json_data["root"])
         self.top_bar.set_path_labels()
+
+    def open_custom_path(self, path: str):
+        path = "/Volumes/Macintosh HD" + path
+        # Учти что без ВОЛУМЕС / ДИСК / ПУТЬ открываться дерево не будет
+        # УЧТИ ЧТО ПУТЬ МОЖЕТ БЫТЬ ДО ФАЙЛА
+
+        if os.path.isfile(path):
+            path, tail = os.path.split(path)
+
+        self.tree_widget.collapseAll()
+        index = self.model.index(path)
+        self.tree_widget.setCurrentIndex(index)
+        self.tree_widget.expand(index)
+
+        Config.json_data["root"] = path
+        self.setWindowTitle(Config.json_data["root"])
+        self.get_finder_items()
 
     def single_click(self, index):
         if self.tree_widget.isExpanded(index):
