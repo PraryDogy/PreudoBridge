@@ -433,7 +433,8 @@ class SimpleFileExplorer(QWidget):
             self.load_images()
 
         else:
-            no_images = QLabel("Нет изображений")
+            no_images = QLabel(f"{Config.json_data['root']}\nНет изображений")
+            no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0, Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.setColumnStretch(0, 1)
             self.grid_layout.setRowStretch(0, 1)
