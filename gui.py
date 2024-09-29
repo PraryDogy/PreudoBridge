@@ -281,13 +281,14 @@ class SimpleFileExplorer(QWidget):
         self.tree_widget.header().setStretchLastSection(False)
         self.tree_widget.header().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.tree_widget.setIndentation(10)
+        self.tree_widget.clicked.connect(self.single_click)
 
         self.tree_widget.clicked.connect(self.on_tree_clicked)
 
         left_lay.addWidget(self.tree_widget)
 
         self.storage_btn = QPushButton()
-        self.storage_btn.clicked.connect(self.test)
+        self.storage_btn.clicked.connect(self.single_click)
         left_lay.addWidget(self.storage_btn)
 
         self.scroll_area = QScrollArea()
@@ -320,26 +321,11 @@ class SimpleFileExplorer(QWidget):
         top_bar.set_root(Config.json_data["root"])
         top_bar.path_labels()
 
-    def test(self):
-        path = "/Users/Morkowik/Desktop/Техника для дома"
-        index = self.model.index(path)
-        self.tree_widget.setCurrentIndex(index)
-        self.tree_widget.expand(index)
-
-    def test_(self):
-        path = "/Users/Morkowik/Desktop/Техника для дома"
-        index = self.model.index(path)
-        if index.isValid():
-            
-            self.expand_parents(index)
+    def single_click(self, index):
+        if self.tree_widget.isExpanded(index):
+            self.tree_widget.collapse(index)
+        else:
             self.tree_widget.expand(index)
-            self.tree_widget.scrollTo(index)
-    
-    def expand_parents(self, index: QModelIndex):
-        parent = index.parent()
-        if parent.isValid():
-            self.expand_parents(parent)
-            self.tree_widget.expand(parent)
 
     def btn_up_cmd(self):
         path = os.path.dirname(Config.json_data["root"])
