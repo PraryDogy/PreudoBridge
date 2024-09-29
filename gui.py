@@ -155,26 +155,27 @@ class TopBarWidget(QFrame):
 
     def __init__(self):
         super().__init__()
+        self.root: str = None
         self.setFixedHeight(40)
         self.init_ui()
 
     def init_ui(self):
-        layout = QGridLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(layout)
+        self.grid_layout = QGridLayout()
+        self.grid_layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(self.grid_layout)
 
         l_spacer = QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-        layout.addItem(l_spacer, 0, 0)
+        self.grid_layout.addItem(l_spacer, 0, 0)
 
         self.up_button = QPushButton(text="↑", parent=self)
         self.up_button.setToolTip(" Перейти на уровень выше ")
         self.up_button.setFixedWidth(60)
         self.up_button.clicked.connect(self.btn_up_press.emit)
-        layout.addWidget(self.up_button, 0, 1)
+        self.grid_layout.addWidget(self.up_button, 0, 1)
 
         self.sort_widget = SortTypeWidget(parent=self)
         self.sort_widget.sort_click.connect(self.btn_press.emit)
-        layout.addWidget(self.sort_widget, 0, 2)
+        self.grid_layout.addWidget(self.sort_widget, 0, 2)
 
         self.ubiv = "↓↑"
         self.vozrast = "↑↓"
@@ -183,10 +184,41 @@ class TopBarWidget(QFrame):
         self.sort_button.setToolTip(" Сортировка файлов: по возрастанию / по убыванию ")
         self.sort_button.setFixedWidth(60)
         self.sort_button.clicked.connect(self.on_sort_toggle)
-        layout.addWidget(self.sort_button, 0, 3)
+        self.grid_layout.addWidget(self.sort_button, 0, 3)
 
         r_spacer = QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-        layout.addItem(r_spacer, 0, 4)
+        self.grid_layout.addItem(r_spacer, 0, 4)
+
+        if self.root:
+            self.path_labels()
+
+    def path_labels(self):
+        clmn = 4
+
+        splited: list = [i for i in self.root.split(os.sep) if i]
+        ln = len(splited)
+        data: dict = {
+            ln - x - 1: item
+            for x, item in enumerate(splited)
+            }
+
+        for num, name in data.items():
+            clmn += 1
+            label = QLabel(name + " >")
+            label.mouseReleaseEvent = lambda e, num=num: self.path_label_click(num)
+            self.grid_layout.addWidget(label, 0, clmn)
+
+        r_spacer = QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        self.grid_layout.addItem(r_spacer, 0, clmn)
+
+
+    def path_label_click(self, num: int):
+        print(num)
+        for i in range(0, num):
+            self.btn_up_press.emit()
+
+    def set_root(self, root: str):
+        self.root = root
 
     def on_sort_toggle(self):
         if Config.json_data["reversed"]:
@@ -213,10 +245,10 @@ class SimpleFileExplorer(QWidget):
         v_lay.setSpacing(0)
         self.setLayout(v_lay)
 
-        tabs = TopBarWidget()
-        tabs.btn_press.connect(self.get_finder_items)
-        tabs.btn_up_press.connect(self.btn_up_cmd)
-        v_lay.addWidget(tabs)
+        top_bar = TopBarWidget()
+        top_bar.btn_press.connect(self.get_finder_items)
+        top_bar.btn_up_press.connect(self.btn_up_cmd)
+        v_lay.addWidget(top_bar)
 
         splitter_wid = QWidget()
         v_lay.addWidget(splitter_wid)
@@ -284,6 +316,9 @@ class SimpleFileExplorer(QWidget):
 
         self.load_last_place()
         self.setWindowTitle(Config.json_data["root"])
+
+        top_bar.set_root(Config.json_data["root"])
+        top_bar.path_labels()
 
     def test(self):
         path = "/Users/Morkowik/Desktop/Техника для дома"
