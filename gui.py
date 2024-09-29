@@ -367,19 +367,14 @@ class SimpleFileExplorer(QWidget):
             return
 
         if os.path.isfile(path):
-            self.move_to_filepath = path
-            path, tail = os.path.split(path)
-
-            if path == Config.json_data["root"]:
-                self.move_to_wid(self.move_to_filepath)
-                self.move_to_filepath = None
-                return
-
-        self.tree_widget.collapseAll()
-        self.tree_widget.expand_path(path)
+            if path.endswith(Config.img_ext):
+                self.move_to_filepath = path
+            path, _ = os.path.split(path)
 
         Config.json_data["root"] = path
-        self.setWindowTitle(Config.json_data["root"])
+        # self.tree_widget.collapseAll()
+        self.tree_widget.expand_path(path)
+        self.setWindowTitle(path)
         self.get_finder_items()
 
     def btn_up_cmd(self):
@@ -417,8 +412,6 @@ class SimpleFileExplorer(QWidget):
 
             self.finder_images[(src, size, modified)] = thumbnail.img_label
             Config.img_viewer_images[src] = thumbnail
-
-        # self.storage_btn.setText(f"Занято: {Dbase.get_file_size()}")
 
         if self.finder_images:
             row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
