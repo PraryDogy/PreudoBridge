@@ -156,6 +156,7 @@ class TopBarWidget(QFrame):
     def __init__(self):
         super().__init__()
         self.root: str = None
+        self.path_labels_list: list = []
         self.setFixedHeight(40)
         self.init_ui()
 
@@ -186,17 +187,22 @@ class TopBarWidget(QFrame):
         self.sort_button.clicked.connect(self.on_sort_toggle)
         self.grid_layout.addWidget(self.sort_button, 0, 3)
 
-        r_spacer = QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-        self.grid_layout.addItem(r_spacer, 0, 4)
+        # r_spacer = QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
+        # self.grid_layout.addItem(r_spacer, 0, 4)
 
         if self.root:
-            self.path_labels()
+            self.set_path_labels()
 
-    def path_labels(self):
+    def set_path_labels(self):
+        for wid in self.path_labels_list:
+            wid.deleteLater()
+        self.path_labels_list.clear()
+
         clmn = 4
 
         splited: list = [i for i in self.root.split(os.sep) if i]
         ln = len(splited)
+
         data: dict = {
             ln - x - 1: item
             for x, item in enumerate(splited)
@@ -207,13 +213,12 @@ class TopBarWidget(QFrame):
             label = QLabel(name + " >")
             label.mouseReleaseEvent = lambda e, num=num: self.path_label_click(num)
             self.grid_layout.addWidget(label, 0, clmn)
+            self.path_labels_list.append(label)
 
         r_spacer = QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         self.grid_layout.addItem(r_spacer, 0, clmn)
 
-
     def path_label_click(self, num: int):
-        print(num)
         for i in range(0, num):
             self.btn_up_press.emit()
 
@@ -245,10 +250,10 @@ class SimpleFileExplorer(QWidget):
         v_lay.setSpacing(0)
         self.setLayout(v_lay)
 
-        top_bar = TopBarWidget()
-        top_bar.btn_press.connect(self.get_finder_items)
-        top_bar.btn_up_press.connect(self.btn_up_cmd)
-        v_lay.addWidget(top_bar)
+        self.top_bar = TopBarWidget()
+        self.top_bar.btn_press.connect(self.get_finder_items)
+        self.top_bar.btn_up_press.connect(self.btn_up_cmd)
+        v_lay.addWidget(self.top_bar)
 
         splitter_wid = QWidget()
         v_lay.addWidget(splitter_wid)
@@ -318,8 +323,8 @@ class SimpleFileExplorer(QWidget):
         self.load_last_place()
         self.setWindowTitle(Config.json_data["root"])
 
-        top_bar.set_root(Config.json_data["root"])
-        top_bar.path_labels()
+        self.top_bar.set_root(Config.json_data["root"])
+        self.top_bar.set_path_labels()
 
     def single_click(self, index):
         if self.tree_widget.isExpanded(index):
@@ -337,6 +342,9 @@ class SimpleFileExplorer(QWidget):
 
         self.setWindowTitle(Config.json_data["root"])
         self.get_finder_items()
+
+        self.top_bar.set_root(Config.json_data["root"])
+        self.top_bar.set_path_labels()
 
     def reload_grid_layout(self, event=None):
         container_width = self.splitter.width() - self.tree_widget.width() - 20
@@ -399,26 +407,20 @@ class SimpleFileExplorer(QWidget):
 
     def on_tree_clicked(self, index):
         path = self.model.filePath(index)
-        if os.path.isdir(path):
-            Config.json_data["root"] = path
-            self.tree_widget.setCurrentIndex(index)
-            self.setWindowTitle(Config.json_data["root"])
-            self.get_finder_items()
+
+        Config.json_data["root"] = path
+        self.tree_widget.setCurrentIndex(index)
+        self.setWindowTitle(Config.json_data["root"])
+        self.get_finder_items()
+        self.top_bar.set_root(Config.json_data["root"])
+        self.top_bar.set_path_labels()
 
     def on_wid_double_clicked(self, path: str, wid: Thumbnail):
-        if os.path.isdir(path):
-            Config.json_data["root"] = path
-            index = self.model.index(path)
-            self.tree_widget.setCurrentIndex(index)
-            self.tree_widget.expand(index)
-            self.setWindowTitle(Config.json_data["root"])
-            self.get_finder_items()
-        elif path.endswith(Config.img_ext):
-            wid.setFrameShape(QFrame.Shape.Panel)
-            QTimer.singleShot(500, lambda: wid.setFrameShape(QFrame.Shape.NoFrame))
-            self.win = WinImageView(self, path)
-            self.win.closed.connect(lambda src: self.move_to_wid(src))
-            self.win.show()
+        wid.setFrameShape(QFrame.Shape.Panel)
+        QTimer.singleShot(500, lambda: wid.setFrameShape(QFrame.Shape.NoFrame))
+        self.win = WinImageView(self, path)
+        self.win.closed.connect(lambda src: self.move_to_wid(src))
+        self.win.show()
 
     def move_to_wid(self, src: str):
         wid: Thumbnail = Config.img_viewer_images[src]
