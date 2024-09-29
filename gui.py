@@ -70,7 +70,6 @@ class Thumbnail(QFrame):
         self.setLayout(v_lay)
 
         self.img_label = QLabel()
-        self.img_label.setFixedSize(Config.thumb_size, Config.thumb_size)
         self.img_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         v_lay.addWidget(self.img_label)
 
@@ -354,14 +353,19 @@ class SimpleFileExplorer(QWidget):
             self.finder_images[(src, size, modified)] = thumbnail.img_label
             Config.img_viewer_images[src] = thumbnail
 
-        row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
-        self.grid_layout.addItem(row_spacer, row + 1, 0)
-        clmn_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
-        self.grid_layout.addItem(clmn_spacer, 0, clmn_count + 1)
-
         self.storage_btn.setText(f"Занято: {Dbase.get_file_size()}")
+
         if self.finder_images:
+            row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
+            self.grid_layout.addItem(row_spacer, row + 1, 0)
+            clmn_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
+            self.grid_layout.addItem(clmn_spacer, 0, clmn_count + 1)
             self.load_images()
+        else:
+            no_images = QLabel("Нет изображений")
+            self.grid_layout.addWidget(no_images, 0, 0, Qt.AlignmentFlag.AlignCenter)
+            self.grid_layout.setColumnStretch(0, 1)
+            self.grid_layout.setRowStretch(0, 1)
 
     def load_images(self):
         for i in Storage.load_images_threads:
