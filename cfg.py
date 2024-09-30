@@ -49,7 +49,7 @@ class Config:
                 "hh_im": 300,
                 "sort": "name",
                 "reversed": False,
-                "hidden_dirs": False
+                "extra_paths": ["/Studio/PANACEA", "/Studio/MIUZ"]
                 }
 
 

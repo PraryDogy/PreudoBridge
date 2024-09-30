@@ -2,19 +2,22 @@ import json
 import os
 import subprocess
 
-from PyQt5.QtCore import QDir, QEvent, QObject, QPoint, Qt, QTimer, pyqtSignal, QModelIndex
-from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QKeyEvent, QMouseEvent, QPixmap
+from PyQt5.QtCore import (QDir, QEvent, QModelIndex, QObject, QPoint, Qt,
+                          QTimer, pyqtSignal)
+from PyQt5.QtGui import (QCloseEvent, QContextMenuEvent, QKeyEvent,
+                         QMouseEvent, QPixmap)
 from PyQt5.QtWidgets import (QAction, QApplication, QFileSystemModel, QFrame,
                              QGridLayout, QHBoxLayout, QHeaderView, QLabel,
                              QMenu, QMessageBox, QPushButton, QScrollArea,
                              QSizePolicy, QSpacerItem, QSplitter, QTabBar,
-                             QTreeView, QVBoxLayout, QWidget, QTabWidget)
+                             QTabWidget, QTreeView, QVBoxLayout, QWidget)
 
 from cfg import Config
 from database import Dbase
 from get_finder_items import LoadFinderItems
 from image_viewer import WinImageView
 from load_images import LoadImagesThread
+from path_finder import PathFinderThread
 from utils import Utils
 
 
@@ -215,40 +218,16 @@ class TopBarWidget(QFrame):
     
     def open_btn_cmd(self):
         path = self.paste_text()
-        self.open_btn_press.emit(path)
+        self.path_thread = PathFinderThread(path)
+        self.path_thread.finished.connect(
+            lambda res: self.open_btn_press.emit(res)
+            )
+        
+        self.path_thread.start()
 
-    def set_path_labels(self):
-        return
-        for wid in self.path_labels_list:
-            wid.deleteLater()
-        self.path_labels_list.clear()
+        # self.open_btn_press.emit(path)
 
-        clmn = 4
-
-        splited: list = [i for i in self.root.split(os.sep) if i]
-        ln = len(splited)
-
-        data: dict = {
-            ln - x - 1: item
-            for x, item in enumerate(splited)
-            }
-
-        for num, name in data.items():
-            clmn += 1
-            label = QLabel(name + " >")
-            label.mouseReleaseEvent = lambda e, num=num: self.path_label_click(num)
-            self.grid_layout.addWidget(label, 0, clmn)
-            self.path_labels_list.append(label)
-
-        r_spacer = QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-        # self.grid_layout.addItem(r_spacer, 0, clmn)
-
-    def path_label_click(self, num: int):
-        for i in range(0, num):
-            self.up_btn_press.emit()
-
-    def set_root(self, root: str):
-        self.root = root
+    
 
     def on_sort_toggle(self):
         if Config.json_data["reversed"]:
@@ -396,9 +375,11 @@ class SimpleFileExplorer(QWidget):
         self.get_finder_items()
 
     def open_custom_path(self, path: str):
-        path = "/Volumes/Macintosh HD" + path
+        # path = "/Volumes/Macintosh HD" + path
         # Учти что без ВОЛУМЕС / ДИСК / ПУТЬ открываться дерево не будет
         # УЧТИ ЧТО ПУТЬ МОЖЕТ БЫТЬ ДО ФАЙЛА
+
+        print(path)
 
         if not os.path.exists(path):
             return
