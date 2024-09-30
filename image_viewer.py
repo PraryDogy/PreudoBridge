@@ -1,17 +1,21 @@
 import os
+import subprocess
 
 import sqlalchemy
 from PyQt5.QtCore import (QEvent, QObject, QPoint, QSize, Qt, QThread, QTimer,
                           pyqtSignal)
-from PyQt5.QtGui import (QCloseEvent, QImage, QKeyEvent, QMouseEvent, QPainter, QPaintEvent,
-                         QPixmap, QResizeEvent)
-from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QSpacerItem,
-                             QVBoxLayout, QWidget)
+from PyQt5.QtGui import (QCloseEvent, QContextMenuEvent, QImage, QKeyEvent,
+                         QMouseEvent, QPainter, QPaintEvent, QPixmap,
+                         QResizeEvent)
+from PyQt5.QtWidgets import (QAction, QFrame, QHBoxLayout, QLabel, QMenu,
+                             QSpacerItem, QVBoxLayout, QWidget)
 
 from cfg import Config
 from database import Cache, Dbase
-from svg_btn import SvgShadowed
 from image_utils import ImageUtils
+from svg_btn import SvgShadowed
+from utils import Utils
+
 
 class Shared:
     loaded_images: dict[str: QPixmap] = {}
@@ -250,7 +254,8 @@ class WinImageView(QWidget):
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setMinimumSize(QSize(400, 300))
         self.resize(Config.json_data["ww_im"], Config.json_data["hh_im"])
-        self.setStyleSheet("background: black;")
+        self.setObjectName("img_view")
+        self.setStyleSheet("#img_view {background: black;}")
         self.setMouseTracking(True)
         self.installEventFilter(self)
 
@@ -408,3 +413,31 @@ class WinImageView(QWidget):
         Shared.loaded_images.clear()
         self.closed.emit(self.img_src)
         return super().closeEvent(a0)
+
+    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+
+        context_menu = QMenu(self)
+        # context_menu.setStyleSheet("")
+        # context_menu.addSeparator()
+
+        open_action = QAction("Открыть по умолчанию", self)
+        open_action.triggered.connect(self.open_default)
+        context_menu.addAction(open_action)
+
+        show_in_finder_action = QAction("Показать в Finder", self)
+        show_in_finder_action.triggered.connect(self.show_in_finder)
+        context_menu.addAction(show_in_finder_action)
+
+        copy_path = QAction("Скопировать путь до файла", self)
+        copy_path.triggered.connect(lambda: Utils.copy_path(self.img_src))
+        context_menu.addAction(copy_path)
+
+        context_menu.exec_(self.mapToGlobal(a0.pos()))
+
+        return super().contextMenuEvent(a0)
+    
+    def open_default(self):
+        subprocess.call(["open", self.img_src])
+
+    def show_in_finder(self):
+        subprocess.call(["open", "-R", self.img_src])

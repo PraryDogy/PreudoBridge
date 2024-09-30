@@ -3,7 +3,7 @@ import os
 import subprocess
 
 from PyQt5.QtCore import QDir, QEvent, QObject, QPoint, Qt, QTimer, pyqtSignal, QModelIndex
-from PyQt5.QtGui import QCloseEvent, QKeyEvent, QPixmap
+from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QKeyEvent, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import (QAction, QApplication, QFileSystemModel, QFrame,
                              QGridLayout, QHBoxLayout, QHeaderView, QLabel,
                              QMenu, QMessageBox, QPushButton, QScrollArea,
@@ -62,10 +62,6 @@ class Thumbnail(QFrame):
         tooltip = filename + "\n" + src
         self.setToolTip(tooltip)
 
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.show_context_menu)
-        self.mouseDoubleClickEvent = lambda e: self.double_click.emit()
-
         v_lay = QVBoxLayout()
         self.setLayout(v_lay)
 
@@ -78,7 +74,12 @@ class Thumbnail(QFrame):
         img_name = NameLabel(filename)
         v_lay.addWidget(img_name)
 
-    def show_context_menu(self, pos: QPoint):
+    def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
+        self.double_click.emit()
+        return super().mouseReleaseEvent(a0)
+
+    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+
         self.setFrameShape(QFrame.Shape.Panel)
 
         context_menu = QMenu(self)
@@ -102,9 +103,11 @@ class Thumbnail(QFrame):
         copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
         context_menu.addAction(copy_path)
 
-        context_menu.exec_(self.mapToGlobal(pos))
+        context_menu.exec_(self.mapToGlobal(a0.pos()))
 
         self.setFrameShape(QFrame.Shape.NoFrame)
+
+        return super().contextMenuEvent(a0)
 
     def view_file(self):
         if self.src.endswith(Config.img_ext):
