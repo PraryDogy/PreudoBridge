@@ -44,11 +44,22 @@ class SearchFinderThread(QThread):
                     else:
                         img = Utils.read_image(src)
                         img = FitImg.start(img)
+                        if img:
+                            pixmap = Utils.pixmap_from_array(img)
+                            db_img = Utils.image_array_to_bytes(img)
+                            q = sqlalchemy.insert(Cache)
+                            q = q.values({
+                                "img": db_img,
+                                "src": src,
+                                "root": self.root,
+                                "size": size,
+                                "modified": modified
+                                })
+                            self.session.execute(q)
+                        else:
+                            pixmap = QPixmap("images/file_210.png")
 
 
-
-
-                    ...
                     self.new_widget.emit(
                         {
                             "src": os.path.join(root, file),
