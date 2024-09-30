@@ -273,8 +273,6 @@ class TreeWidget(QTreeView):
         for i in range(1, self.model.columnCount()):
             self.setColumnHidden(i, True)
 
-        self.header().setStretchLastSection(False)
-        self.header().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.setIndentation(10)
         self.setUniformRowHeights(True)
 
