@@ -2,8 +2,7 @@ import os
 import subprocess
 
 import sqlalchemy
-from PyQt5.QtCore import (QEvent, QObject, QPoint, QSize, Qt, QThread, QTimer,
-                          pyqtSignal)
+from PyQt5.QtCore import QEvent, QPoint, QSize, Qt, QThread, QTimer, pyqtSignal
 from PyQt5.QtGui import (QCloseEvent, QContextMenuEvent, QImage, QKeyEvent,
                          QMouseEvent, QPainter, QPaintEvent, QPixmap,
                          QResizeEvent)

@@ -65,7 +65,7 @@ class LoadImagesThread(QThread):
                 pass
 
             try:
-                img = Utils.image_to_db(img)
+                img = Utils.image_array_to_bytes(img)
                 q = sqlalchemy.insert(Cache)
                 q = q.values({
                     "img": img,
@@ -87,7 +87,7 @@ class LoadImagesThread(QThread):
                 break
 
             if widget:
-                pixmap: QPixmap = Utils.pixmap_from_db(bytearray_image)
+                pixmap: QPixmap = Utils.pixmap_from_bytes(bytearray_image)
                 widget.setPixmap(pixmap)
                 self.finder_images.pop((src, size, modified))
             else:
@@ -112,14 +112,8 @@ class LoadImagesThread(QThread):
         self.flag = False
 
     def set_new_image(self, widget: QLabel, image: np.ndarray):
-        "input nd array RGB"
-        height, width, channel = image.shape
-        bytes_per_line = channel * width
-        qimage = QImage(image.data, width, height, bytes_per_line, QImage.Format.Format_RGB888)
-
-        qimage = QPixmap.fromImage(qimage)
-
+        pixmap = Utils.pixmap_from_array(image)
         try:
-            widget.setPixmap(qimage)
+            widget.setPixmap(pixmap)
         except RuntimeError:
             pass

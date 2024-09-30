@@ -122,7 +122,7 @@ class Utils:
         return img
     
     @staticmethod
-    def pixmap_from_db(image: bytes) -> QPixmap:
+    def pixmap_from_bytes(image: bytes) -> QPixmap:
         ba = QByteArray(image)
         pixmap = QPixmap()
         pixmap.loadFromData(ba, "JPEG")
@@ -136,7 +136,7 @@ class Utils:
         return QPixmap.fromImage(qimage)
 
     @staticmethod
-    def image_to_db(image: np.ndarray) -> bytes:
+    def image_array_to_bytes(image: np.ndarray) -> bytes:
         img = np.array(image)
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
         res, buffer = cv2.imencode(".jpeg", img)
