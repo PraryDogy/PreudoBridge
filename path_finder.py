@@ -29,7 +29,6 @@ class PathFinderThread(QThread):
         self.volumes = [
             os.path.join("/Volumes", i)
             for i in os.listdir("/Volumes")
-            if os.path.ismount(os.path.join("/Volumes", i))
             ]
 
         volumes_extra = [

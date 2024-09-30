@@ -375,12 +375,6 @@ class SimpleFileExplorer(QWidget):
         self.get_finder_items()
 
     def open_custom_path(self, path: str):
-        # path = "/Volumes/Macintosh HD" + path
-        # Учти что без ВОЛУМЕС / ДИСК / ПУТЬ открываться дерево не будет
-        # УЧТИ ЧТО ПУТЬ МОЖЕТ БЫТЬ ДО ФАЙЛА
-
-        print(path)
-
         if not os.path.exists(path):
             return
 
@@ -390,7 +384,6 @@ class SimpleFileExplorer(QWidget):
             path, _ = os.path.split(path)
 
         Config.json_data["root"] = path
-        # self.tree_widget.collapseAll()
         self.tree_widget.expand_path(path)
         self.setWindowTitle(path)
         self.get_finder_items()
@@ -476,8 +469,8 @@ class SimpleFileExplorer(QWidget):
             wid.setFrameShape(QFrame.Shape.Panel)
             self.scroll_area.ensureWidgetVisible(wid)
             QTimer.singleShot(1000, lambda: self.set_no_frame(wid))
-        except (RuntimeError, KeyError):
-            pass
+        except (RuntimeError, KeyError) as e:
+            print(e)
 
     def set_no_frame(self, wid: Thumbnail):
         try:
