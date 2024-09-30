@@ -1,3 +1,5 @@
+import subprocess
+
 from PyQt5.QtWidgets import QVBoxLayout
 
 
@@ -12,3 +14,9 @@ class Utils:
                     widget.deleteLater()
                 else:
                     Utils.clear_layout(item.layout())
+
+    @staticmethod
+    def copy_path(text: str):
+        text_bytes = text.encode('utf-8')
+        subprocess.run(['pbcopy'], input=text_bytes, check=True)
+        return True

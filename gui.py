@@ -88,20 +88,20 @@ class Thumbnail(QFrame):
         view_action.triggered.connect(self.view_file)
         context_menu.addAction(view_action)
 
-        # Пункт "Открыть в программе по умолчанию"
-        open_action = QAction("Открыть в программе по умолчанию", self)
+        context_menu.addSeparator()
+
+        open_action = QAction("Открыть по умолчанию", self)
         open_action.triggered.connect(self.open_default)
         context_menu.addAction(open_action)
 
-        # Сепаратор
-        context_menu.addSeparator()
-
-        # Пункт "Показать в Finder"
         show_in_finder_action = QAction("Показать в Finder", self)
         show_in_finder_action.triggered.connect(self.show_in_finder)
         context_menu.addAction(show_in_finder_action)
 
-        # Отображаем меню
+        copy_path = QAction("Скопировать путь до файла", self)
+        copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
+        context_menu.addAction(copy_path)
+
         context_menu.exec_(self.mapToGlobal(pos))
 
         self.setFrameShape(QFrame.Shape.NoFrame)
@@ -264,16 +264,17 @@ class TreeWidget(QTreeView):
         self.model = QFileSystemModel()
         self.model.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot)
         self.model.setRootPath("/Volumes")
-
         self.setModel(self.model)
         self.setRootIndex(self.model.index("/Volumes"))
 
         self.setHeaderHidden(True)
         for i in range(1, self.model.columnCount()):
             self.setColumnHidden(i, True)
+
         self.header().setStretchLastSection(False)
         self.header().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.setIndentation(10)
+        self.setUniformRowHeights(True)
 
         self.clicked.connect(self.one_clicked)
 
@@ -291,6 +292,34 @@ class TreeWidget(QTreeView):
         index = self.model.index(root)
         self.setCurrentIndex(index)
         self.expand(index)
+
+    def contextMenuEvent(self, event):
+        index = self.indexAt(event.pos())
+        if not index.isValid():
+            return
+
+        menu = QMenu(self)
+        file_path = self.model.filePath(index)
+        index = self.model.index(file_path)
+
+        open_finder_action = QAction("Просмотр", self)
+        open_finder_action.triggered.connect(lambda: self.one_clicked(index))
+        menu.addAction(open_finder_action)
+
+        menu.addSeparator()
+
+        open_finder_action = QAction("Показать в Finder", self)
+        open_finder_action.triggered.connect(lambda: self.open_in_finder(file_path))
+        menu.addAction(open_finder_action)
+
+        copy_path_action = QAction("Скопировать путь до папки", self)
+        copy_path_action.triggered.connect(lambda: Utils.copy_path(file_path))
+        menu.addAction(copy_path_action)
+
+        menu.exec_(self.mapToGlobal(event.pos()))
+
+    def open_in_finder(self, path: str):
+        subprocess.call(["open", "-R", path])
 
 
 class SimpleFileExplorer(QWidget):
