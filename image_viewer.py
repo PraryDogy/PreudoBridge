@@ -127,6 +127,7 @@ class ImageWidget(QLabel):
         return super().mousePressEvent(ev)
 
     def mouseMoveEvent(self, ev: QMouseEvent | None) -> None:
+        self.mouse_moved.emit()
         if ev.buttons() == Qt.MouseButton.LeftButton and self.scale_factor > 1.0:
             delta = ev.pos() - self.last_mouse_pos
             self.offset += delta
@@ -162,9 +163,9 @@ class ImageWidget(QLabel):
         self.update()
         return super().resizeEvent(a0)
 
-    def mouseMoveEvent(self, a0: QMouseEvent | None) -> None:
-        self.mouse_moved.emit()
-        return super().mouseMoveEvent(a0)
+    # def mouseMoveEvent(self, a0: QMouseEvent | None) -> None:
+    #     self.mouse_moved.emit()
+    #     return super().mouseMoveEvent(a0)
 
 class ZoomBtns(QFrame):
     press_close = pyqtSignal()
