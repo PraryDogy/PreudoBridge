@@ -47,9 +47,6 @@ class LoadImagesThread(QThread):
         images_copy = images.copy()
 
         for (src, size, modified), widget in images_copy.items():
-            # img = None
-            src_lower: str = src.lower()
-
             if not self.flag:
                 break
 
