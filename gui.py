@@ -282,6 +282,11 @@ class TreeWidget(QTreeView):
         self.setCurrentIndex(index)
         self.on_tree_clicked.emit(path)
 
+        if self.isExpanded(index):
+            self.collapse(index)
+        else:
+            self.expand(index)
+
     def expand_path(self, root: str):
         index = self.model.index(root)
         self.setCurrentIndex(index)
