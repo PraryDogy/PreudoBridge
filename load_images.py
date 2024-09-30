@@ -1,22 +1,15 @@
-import logging
 import os
 
 import numpy as np
-import psd_tools
 import sqlalchemy
 from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QLabel
 
+from cfg import Config
 from database import Cache, Dbase
 from fit_img import FitImg
-from image_utils import ImageUtils
-from utils import DbImage, PixmapFromBytes
-
-psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
-psd_logger = logging.getLogger("psd_tools")
-psd_logger.setLevel(logging.CRITICAL)
-
+from utils import Utils
 
 
 class LoadImagesThread(QThread):
@@ -54,7 +47,7 @@ class LoadImagesThread(QThread):
         images_copy = images.copy()
 
         for (src, size, modified), widget in images_copy.items():
-            img = None
+            # img = None
             src_lower: str = src.lower()
 
             if not self.flag:
@@ -63,24 +56,8 @@ class LoadImagesThread(QThread):
             if os.path.isdir(src):
                 continue
 
-            elif src_lower.endswith((".psd", ".psb")):
-                img = ImageUtils.read_psd(src)
-                img = FitImg.start(img, self.thumb_size)
-
-            elif src_lower.endswith((".tiff", ".tif")):
-                img = ImageUtils.read_tiff(src)
-                img = FitImg.start(img, self.thumb_size)
-
-            elif src_lower.endswith((".jpg", ".jpeg")):
-                img = ImageUtils.read_jpg(src)
-                img = FitImg.start(img, self.thumb_size)
-
-            elif src_lower.endswith((".png")):
-                img = ImageUtils.read_png(src)
-                img = FitImg.start(img, self.thumb_size)
-
-            else:
-                img = None
+            img = Utils.read_image(src)
+            img = FitImg.start(img, Config.thumb_size)
 
             try:
                 self.set_new_image(widget, img)
@@ -88,7 +65,7 @@ class LoadImagesThread(QThread):
                 pass
 
             try:
-                img = DbImage(img).getvalue()
+                img = Utils.image_to_db(img)
                 q = sqlalchemy.insert(Cache)
                 q = q.values({
                     "img": img,
@@ -110,7 +87,7 @@ class LoadImagesThread(QThread):
                 break
 
             if widget:
-                pixmap: QPixmap = PixmapFromBytes(bytearray_image)
+                pixmap: QPixmap = Utils.pixmap_from_db(bytearray_image)
                 widget.setPixmap(pixmap)
                 self.finder_images.pop((src, size, modified))
             else:

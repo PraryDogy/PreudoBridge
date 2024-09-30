@@ -12,7 +12,6 @@ from PyQt5.QtWidgets import (QAction, QFrame, QHBoxLayout, QLabel, QMenu,
 
 from cfg import Config
 from database import Cache, Dbase
-from image_utils import ImageUtils
 from svg_btn import SvgShadowed
 from utils import Utils
 
@@ -31,40 +30,12 @@ class LoadImageThread(QThread):
 
     def run(self):
         if self.img_src not in Shared.loaded_images:
-            src_lower: str = self.img_src.lower()
-            img = None
-
-            if os.path.isdir(self.img_src):
-                pixmap = QPixmap("images/folder_210.png")
-
-            elif src_lower.endswith((".psd", ".psb")):
-                img = ImageUtils.read_psd(self.img_src)
-
-            elif src_lower.endswith((".tiff", ".tif")):
-                img = ImageUtils.read_tiff(self.img_src)
-
-            elif src_lower.endswith((".jpg", ".jpeg")):
-                img = ImageUtils.read_jpg(self.img_src)
-
-            elif src_lower.endswith((".png")):
-                img = ImageUtils.read_png(self.img_src)
-
+            img = Utils.read_image(self.img_src)
+            if img is not None:
+                pixmap = Utils.pixmap_from_array(img)
+                Shared.loaded_images[self.img_src] = pixmap
             else:
                 pixmap = QPixmap("images/file_210.png")
-
-            if img is not None:
-                height, width, channel = img.shape
-                bytes_per_line = channel * width
-
-
-                try:
-                    qimage = QImage(img.tobytes(), width, height, bytes_per_line, QImage.Format.Format_RGB888)
-                    pixmap = QPixmap.fromImage(qimage)
-                except TypeError:
-                    pixmap = QPixmap("images/file_210.png")
-
-                Shared.loaded_images[self.img_src] = pixmap
-
         else:
             pixmap = Shared.loaded_images[self.img_src]
 

@@ -1,12 +1,19 @@
 import io
+import logging
 import subprocess
+import traceback
 
 import cv2
 import numpy as np
+import psd_tools
+import tifffile
 from PyQt5.QtCore import QByteArray
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap, QImage
 from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget
 
+psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
+psd_logger = logging.getLogger("psd_tools")
+psd_logger.setLevel(logging.CRITICAL)
 
 class Utils:
     @staticmethod
@@ -37,19 +44,103 @@ class Utils:
         geo.moveCenter(parent.geometry().center())
         child.setGeometry(geo)
 
+    @staticmethod
+    def read_tiff(src: str) -> np.ndarray:
+        try:
+            img = tifffile.imread(files=src)[:,:,:3]
+            if str(object=img.dtype) != "uint8":
+                img = (img/256).astype(dtype="uint8")
+            return img
+        except (tifffile.tifffile.TiffFileError) as e:
+            print(traceback.format_exc())
+            return Utils.read_psd(src)
 
-class PixmapFromBytes(QPixmap):
-    def __init__(self, byte_array: QByteArray) -> QPixmap:
-        super().__init__()
+    @staticmethod
+    def read_psd(src: str) -> np.ndarray:
+        try:
+            img = psd_tools.PSDImage.open(fp=src)
+            img = img.composite()
 
-        ba = QByteArray(byte_array)
-        self.loadFromData(ba, "JPEG")
+            if img.mode == 'RGBA':
+                img = img.convert('RGB')
+            
+            img = np.array(img)
+            return img
 
+        except Exception as e:
+            print(traceback.format_exc())
+            return None
+            
+    @staticmethod
+    def read_jpg(path: str) -> np.ndarray:
+        image = cv2.imread(path, cv2.IMREAD_UNCHANGED)  # Чтение с альфа-каналом
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-class DbImage(io.BytesIO):
-    def __init__(self, image: np.ndarray) -> io.BytesIO:
-        super().__init__()
+        if image is None:
+            print(traceback.format_exc())
+            return None
+
+        return image
+        
+    @staticmethod
+    def read_png(path: str) -> np.ndarray:
+        image = cv2.imread(path, cv2.IMREAD_UNCHANGED)  # Чтение с альфа-каналом
+
+        if image is None:
+            return None
+
+        if image.shape[2] == 4:
+            alpha_channel = image[:, :, 3] / 255.0
+            rgb_channels = image[:, :, :3]
+            background_color = np.array([255, 255, 255], dtype=np.uint8)
+            background = np.full(rgb_channels.shape, background_color, dtype=np.uint8)
+            converted = (rgb_channels * alpha_channel[:, :, np.newaxis] + background * (1 - alpha_channel[:, :, np.newaxis])).astype(np.uint8)
+        else:
+            converted = image
+
+        return converted
+
+    @staticmethod
+    def read_image(src: str) -> np.ndarray | None:
+        src_lower: str = src.lower()
+
+        if src_lower.endswith((".psd", ".psb")):
+            img = Utils.read_psd(src)
+
+        elif src_lower.endswith((".tiff", ".tif")):
+            img = Utils.read_tiff(src)
+
+        elif src_lower.endswith((".jpg", ".jpeg")):
+            img = Utils.read_jpg(src)
+
+        elif src_lower.endswith((".png")):
+            img = Utils.read_png(src)
+
+        else:
+            img = None
+
+        return img
+    
+    @staticmethod
+    def pixmap_from_db(image: bytes) -> QPixmap:
+        ba = QByteArray(image)
+        pixmap = QPixmap()
+        pixmap.loadFromData(ba, "JPEG")
+        return pixmap
+    
+    @staticmethod
+    def pixmap_from_array(image: np.ndarray) -> QPixmap:
+        height, width, channel = image.shape
+        bytes_per_line = channel * width
+        qimage = QImage(image.tobytes(), width, height, bytes_per_line, QImage.Format.Format_RGB888)
+        return QPixmap.fromImage(qimage)
+
+    @staticmethod
+    def image_to_db(image: np.ndarray) -> bytes:
         img = np.array(image)
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
         res, buffer = cv2.imencode(".jpeg", img)
-        self.write(buffer)
+        image_io = io.BytesIO()
+        image_io.write(buffer)
+        img = image_io.getvalue()
+        return img

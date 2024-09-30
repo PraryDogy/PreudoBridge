@@ -31,7 +31,7 @@ class FitImg:
     #     return img.resize((neww, newh))
     
     @staticmethod
-    def start(image: np.ndarray, size: int) -> np.ndarray:
+    def start(image: np.ndarray, size: int) -> np.ndarray | None:
         try:
 
             h, w = image.shape[:2]

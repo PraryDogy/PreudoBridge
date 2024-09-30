@@ -6,7 +6,7 @@ from PyQt5.QtGui import QPixmap
 
 from cfg import Config
 from database import Cache, Dbase
-from utils import PixmapFromBytes
+from utils import PixmapFromDbImage
 
 
 class SearchFinderThread(QThread):
@@ -40,7 +40,7 @@ class SearchFinderThread(QThread):
                     res = session.execute(q).first()
 
                     if res:
-                        pixmap: QPixmap = PixmapFromBytes(res[0])
+                        pixmap: QPixmap = PixmapFromDbImage(res[0])
                     else:
                         ...
 
