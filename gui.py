@@ -431,8 +431,7 @@ class SimpleFileExplorer(QWidget):
             self.grid_layout.addItem(clmn_spacer, 0, clmn_count + 1)
 
             if self.move_to_filepath:
-                self.move_to_wid(self.move_to_filepath)
-                self.move_to_filepath = None
+                QTimer.singleShot(2000, lambda: self.move_to_wid(self.move_to_filepath))
 
             self.load_images()
 
@@ -471,6 +470,8 @@ class SimpleFileExplorer(QWidget):
             QTimer.singleShot(1000, lambda: self.set_no_frame(wid))
         except (RuntimeError, KeyError) as e:
             print(e)
+
+        self.move_to_filepath = None
 
     def set_no_frame(self, wid: Thumbnail):
         try:
