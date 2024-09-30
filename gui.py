@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFileSystemModel, QFrame,
                              QGridLayout, QHBoxLayout, QHeaderView, QLabel,
                              QMenu, QMessageBox, QPushButton, QScrollArea,
                              QSizePolicy, QSpacerItem, QSplitter, QTabBar,
-                             QTabWidget, QTreeView, QVBoxLayout, QWidget)
+                             QTabWidget, QTreeView, QVBoxLayout, QWidget, QLineEdit)
 
 from cfg import Config
 from database import Dbase
@@ -158,6 +158,35 @@ class SortTypeWidget(QPushButton):
         self.sort_click.emit()
 
 
+class SearchWidget(QLineEdit):
+    search_text_sig = pyqtSignal(str)
+    search_clear_sig = pyqtSignal()
+
+    def __init__(self):
+        super().__init__()
+
+        self.setPlaceholderText("Поиск")
+        self.setStyleSheet("padding-left: 2px;")
+        self.setFixedSize(200, 25)
+
+        self.textChanged.connect(self.on_text_changed)
+        self.search_text: str = None
+
+        self.search_timer = QTimer(self)
+        self.search_timer.setSingleShot(True)
+        self.search_timer.timeout.connect(
+            lambda: self.search_text_sig.emit(self.search_text)
+            )
+
+    def on_text_changed(self, text):
+        if text:
+            self.search_text = text
+            self.search_timer.stop()
+            self.search_timer.start(1000)
+        else:
+            self.search_clear.emit()
+
+
 class TopBarWidget(QFrame):
     sort_btn_press = pyqtSignal()
     up_btn_press = pyqtSignal()
@@ -175,25 +204,22 @@ class TopBarWidget(QFrame):
         self.grid_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.grid_layout)
 
-        l_spacer = QSpacerItem(5, 1)
-        self.grid_layout.addItem(l_spacer, 0, 0)
-
-        self.open_btn = QPushButton("Открыть путь")
-        self.open_btn.clicked.connect(self.open_btn_cmd)
-        self.grid_layout.addWidget(self.open_btn, 0, 1)
-
         l_spacer = QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-        self.grid_layout.addItem(l_spacer, 0, 2)
+        self.grid_layout.addItem(l_spacer, 0, 0)
 
         self.up_button = QPushButton(text="↑", parent=self)
         self.up_button.setToolTip(" Перейти на уровень выше ")
         self.up_button.setFixedWidth(60)
         self.up_button.clicked.connect(self.up_btn_press.emit)
-        self.grid_layout.addWidget(self.up_button, 0, 3)
+        self.grid_layout.addWidget(self.up_button, 0, 1)
+
+        self.open_btn = QPushButton("Открыть путь")
+        self.open_btn.clicked.connect(self.open_btn_cmd)
+        self.grid_layout.addWidget(self.open_btn, 0, 2)
 
         self.sort_widget = SortTypeWidget(parent=self)
         self.sort_widget.sort_click.connect(self.sort_btn_press.emit)
-        self.grid_layout.addWidget(self.sort_widget, 0, 4)
+        self.grid_layout.addWidget(self.sort_widget, 0, 3)
 
         self.ubiv = "↓↑"
         self.vozrast = "↑↓"
@@ -202,10 +228,16 @@ class TopBarWidget(QFrame):
         self.sort_button.setToolTip(" Сортировка файлов: по возрастанию / по убыванию ")
         self.sort_button.setFixedWidth(60)
         self.sort_button.clicked.connect(self.on_sort_toggle)
-        self.grid_layout.addWidget(self.sort_button, 0, 5)
+        self.grid_layout.addWidget(self.sort_button, 0, 4)
 
         r_spacer = QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-        self.grid_layout.addItem(r_spacer, 0, 6)
+        self.grid_layout.addItem(r_spacer, 0, 5)
+
+        self.search_box = SearchWidget()
+        self.grid_layout.addWidget(self.search_box, 0, 6)
+
+        last_spacer = QSpacerItem(10, 1)
+        self.grid_layout.addItem(last_spacer, 0, 7)
 
     def paste_text(self) -> str:
         paste_result = subprocess.run(
@@ -224,10 +256,6 @@ class TopBarWidget(QFrame):
             )
         
         self.path_thread.start()
-
-        # self.open_btn_press.emit(path)
-
-    
 
     def on_sort_toggle(self):
         if Config.json_data["reversed"]:

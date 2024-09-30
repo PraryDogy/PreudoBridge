@@ -1,42 +1,22 @@
-import io
 import logging
 import os
 
-import cv2
 import numpy as np
 import psd_tools
 import sqlalchemy
-import tifffile
-from PIL import Image
-from PyQt5.QtCore import QByteArray, QThread, pyqtSignal
+from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QLabel
 
 from database import Cache, Dbase
 from fit_img import FitImg
 from image_utils import ImageUtils
-
+from utils import DbImage, PixmapFromBytes
 
 psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
 psd_logger = logging.getLogger("psd_tools")
 psd_logger.setLevel(logging.CRITICAL)
 
-
-class PixmapFromBytes(QPixmap):
-    def __init__(self, byte_array: QByteArray) -> QPixmap:
-        super().__init__()
-
-        ba = QByteArray(byte_array)
-        self.loadFromData(ba, "JPEG")
-
-
-class DbImage(io.BytesIO):
-    def __init__(self, image: np.ndarray) -> io.BytesIO:
-        super().__init__()
-        img = np.array(image)
-        img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-        res, buffer = cv2.imencode(".jpeg", img)
-        self.write(buffer)
 
 
 class LoadImagesThread(QThread):

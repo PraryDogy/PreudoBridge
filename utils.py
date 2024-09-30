@@ -1,6 +1,11 @@
+import io
 import subprocess
 
-from PyQt5.QtWidgets import QVBoxLayout, QApplication, QWidget
+import cv2
+import numpy as np
+from PyQt5.QtCore import QByteArray
+from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget
 
 
 class Utils:
@@ -31,3 +36,20 @@ class Utils:
         geo = child.geometry()
         geo.moveCenter(parent.geometry().center())
         child.setGeometry(geo)
+
+
+class PixmapFromBytes(QPixmap):
+    def __init__(self, byte_array: QByteArray) -> QPixmap:
+        super().__init__()
+
+        ba = QByteArray(byte_array)
+        self.loadFromData(ba, "JPEG")
+
+
+class DbImage(io.BytesIO):
+    def __init__(self, image: np.ndarray) -> io.BytesIO:
+        super().__init__()
+        img = np.array(image)
+        img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+        res, buffer = cv2.imencode(".jpeg", img)
+        self.write(buffer)
