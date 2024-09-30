@@ -481,6 +481,7 @@ class SimpleFileExplorer(QWidget):
         self.finder_items = finder_items.run()
 
         self.setDisabled(False)
+        Config.img_viewer_images.clear()
         self.reload_grid_layout()
 
     def load_last_place(self):
