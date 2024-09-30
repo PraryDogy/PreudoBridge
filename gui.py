@@ -420,7 +420,7 @@ class SimpleFileExplorer(QWidget):
         self.get_finder_items()
 
     def reload_grid_layout(self, event=None):
-        ww = Config.json_data["ww"] - self.left_wid.width() - 80
+        ww = Config.json_data["ww"] - self.left_wid.width() - 180
         clmn_count = ww // Config.thumb_size
 
         if clmn_count < 1:
