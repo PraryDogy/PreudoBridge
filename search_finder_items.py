@@ -6,7 +6,8 @@ from PyQt5.QtGui import QPixmap
 
 from cfg import Config
 from database import Cache, Dbase
-from utils import PixmapFromDbImage
+from fit_img import FitImg
+from utils import Utils
 
 
 class SearchFinderThread(QThread):
@@ -35,14 +36,14 @@ class SearchFinderThread(QThread):
                 src = os.path.join(root, file)
 
                 if file == self.filename:
-
                     q = sqlalchemy.select(Cache.img).where(Cache.src==src)
                     res = session.execute(q).first()
 
                     if res:
-                        pixmap: QPixmap = PixmapFromDbImage(res[0])
+                        pixmap: QPixmap = Utils.pixmap_from_bytes(res[0])
                     else:
-                        ...
+                        img = Utils.read_image(src)
+                        img = FitImg.start(img)
 
 
 
