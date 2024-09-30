@@ -51,8 +51,13 @@ class LoadImageThread(QThread):
             if img is not None:
                 height, width, channel = img.shape
                 bytes_per_line = channel * width
-                qimage = QImage(img.data, width, height, bytes_per_line, QImage.Format.Format_RGB888)
-                pixmap = QPixmap.fromImage(qimage)
+
+
+                try:
+                    qimage = QImage(img.tobytes(), width, height, bytes_per_line, QImage.Format.Format_RGB888)
+                    pixmap = QPixmap.fromImage(qimage)
+                except TypeError:
+                    pixmap = QPixmap("images/file_210.png")
 
                 Shared.loaded_images[self.img_src] = pixmap
 

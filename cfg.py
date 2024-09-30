@@ -3,8 +3,8 @@ import os
 
 
 class Config:
-    json_file = os.path.join(os.path.expanduser('~'), 'Desktop', "Evgeny", 'last_place.json')
-    db_file = os.path.join(os.path.expanduser('~'), 'Desktop', "Evgeny", 'preudo_db.db')
+    json_file = os.path.join(os.path.expanduser('~'), 'Desktop', 'last_place.json')
+    db_file = os.path.join(os.path.expanduser('~'), 'Desktop', 'preudo_db.db')
     json_data: dict = {}
     thumb_size = 210
     img_viewer_images: dict = {}

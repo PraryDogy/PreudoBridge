@@ -456,8 +456,14 @@ class SimpleFileExplorer(QWidget):
             wid: Thumbnail = Config.img_viewer_images[src]
             wid.setFrameShape(QFrame.Shape.Panel)
             self.scroll_area.ensureWidgetVisible(wid)
-            QTimer.singleShot(1000, lambda: wid.setFrameShape(QFrame.Shape.NoFrame))
+            QTimer.singleShot(1000, lambda: self.set_no_frame(wid))
         except (RuntimeError, KeyError):
+            pass
+
+    def set_no_frame(self, wid: Thumbnail):
+        try:
+            wid.setFrameShape(QFrame.Shape.NoFrame)
+        except (RuntimeError):
             pass
 
     def get_finder_items(self):

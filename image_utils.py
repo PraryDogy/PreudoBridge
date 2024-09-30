@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 import psd_tools
 import tifffile
-
+import traceback
 
 class ImageUtils:
 
@@ -13,17 +13,15 @@ class ImageUtils:
             if str(object=img.dtype) != "uint8":
                 img = (img/256).astype(dtype="uint8")
             return img
-        except Exception as e:
-            print("tifffle error:", e, src)
-            return None
+        except (tifffile.tifffile.TiffFileError) as e:
+            print(traceback.format_exc())
+            return ImageUtils.read_psd(src)
 
     @staticmethod
     def read_psd(src: str) -> np.ndarray:
         try:
             img = psd_tools.PSDImage.open(fp=src)
-            print("image opened")
             img = img.composite()
-            print("image composited")
 
             if img.mode == 'RGBA':
                 img = img.convert('RGB')
@@ -32,7 +30,7 @@ class ImageUtils:
             return img
 
         except Exception as e:
-            print("psd tools error:", e, src)
+            print(traceback.format_exc())
             return None
             
     @staticmethod
@@ -41,7 +39,7 @@ class ImageUtils:
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         if image is None:
-            print("Ошибка загрузки изображения")
+            print(traceback.format_exc())
             return None
 
         return image
