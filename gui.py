@@ -559,11 +559,8 @@ class CustomApp(QApplication):
 
     def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
         if a1.type() == QEvent.Type.ApplicationActivate:
-            for i in self.topLevelWidgets():
-                print(i)
-                if type(i) == SimpleFileExplorer:
-                    i.show()
-                    break
+            Utils.get_main_win().show()
+
         return False
 
     def on_exit(self):

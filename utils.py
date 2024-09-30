@@ -1,6 +1,6 @@
 import subprocess
 
-from PyQt5.QtWidgets import QVBoxLayout
+from PyQt5.QtWidgets import QVBoxLayout, QApplication, QWidget
 
 
 class Utils:
@@ -20,3 +20,9 @@ class Utils:
         text_bytes = text.encode('utf-8')
         subprocess.run(['pbcopy'], input=text_bytes, check=True)
         return True
+    
+    @staticmethod
+    def get_main_win(name: str ="SimpleFileExplorer") -> QWidget:
+        for i in QApplication.topLevelWidgets():
+            if name in str(i):
+                return i
