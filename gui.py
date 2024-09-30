@@ -110,6 +110,8 @@ class Thumbnail(QFrame):
         if self.src.endswith(Config.img_ext):
             self.win = WinImageView(self, self.src)
             self.win.closed.connect(lambda src: self.img_view_closed.emit(src))
+            main_win = Utils.get_main_win()
+            Utils.center_win(parent=main_win, child=self.win)
             self.win.show()
 
     def open_default(self):
@@ -482,6 +484,7 @@ class SimpleFileExplorer(QWidget):
         wid.setFrameShape(QFrame.Shape.Panel)
         QTimer.singleShot(500, lambda: wid.setFrameShape(QFrame.Shape.NoFrame))
         self.win = WinImageView(self, path)
+        Utils.center_win(parent=self, child=self.win)
         self.win.closed.connect(lambda src: self.move_to_wid(src))
         self.win.show()
 

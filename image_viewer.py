@@ -247,8 +247,6 @@ class WinImageView(QWidget):
         super().__init__()
         self.img_src = img_src
 
-        print(Config.img_viewer_images)
-
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setMinimumSize(QSize(400, 300))
         self.resize(Config.json_data["ww_im"], Config.json_data["hh_im"])

@@ -26,3 +26,8 @@ class Utils:
         for i in QApplication.topLevelWidgets():
             if name in str(i):
                 return i
+    @staticmethod
+    def center_win(parent: QWidget, child: QWidget):
+        geo = child.geometry()
+        geo.moveCenter(parent.geometry().center())
+        child.setGeometry(geo)
