@@ -14,13 +14,16 @@ class PathFinderThread(QThread):
         super().__init__()
         self.src: str = src
         self.result: str = None
+        self.volumes: list = []
 
     def run(self):
         self.path_finder()
-        if self.result:
-            self.finished.emit(self.result)
-        else:
+        if not self.result:
             self.finished.emit("")
+        elif self.result in self.volumes:
+            self.finished.emit("")
+        elif self.result:
+            self.finished.emit(self.result)
 
     def path_finder(self):
         src = os.sep + self.src.replace("\\", os.sep).strip().strip(os.sep)
