@@ -5,7 +5,7 @@ import subprocess
 from PyQt5.QtCore import (QDir, QEvent, QModelIndex, QObject, QPoint, Qt,
                           QTimer, pyqtSignal)
 from PyQt5.QtGui import (QCloseEvent, QContextMenuEvent, QKeyEvent,
-                         QMouseEvent, QPixmap)
+                         QMouseEvent, QPixmap, QResizeEvent)
 from PyQt5.QtWidgets import (QAction, QApplication, QFileSystemModel, QFrame,
                              QGridLayout, QHBoxLayout, QHeaderView, QLabel,
                              QMenu, QMessageBox, QPushButton, QScrollArea,
@@ -337,6 +337,7 @@ class SimpleFileExplorer(QWidget):
         super().__init__()
 
         self.clmn_count = 1
+        self.first_load = True
         self.finder_items = []
         self.finder_images: dict = {}
 
@@ -350,7 +351,7 @@ class SimpleFileExplorer(QWidget):
         self.setLayout(main_lay)
 
         splitter_wid = QSplitter(Qt.Horizontal)
-        splitter_wid.splitterMoved.connect(self.custom_resize_event)
+        splitter_wid.splitterMoved.connect(self.resizeEvent)
         main_lay.addWidget(splitter_wid)
 
         self.left_wid = QTabWidget()
@@ -362,14 +363,14 @@ class SimpleFileExplorer(QWidget):
         self.left_wid.addTab(self.tree_wid, "Файлы")
         self.left_wid.addTab(QLabel("Тут будут каталоги"), "Каталог")
 
-        self.right_wid = QWidget()
-        splitter_wid.addWidget(self.right_wid)
+        right_wid = QWidget()
+        splitter_wid.addWidget(right_wid)
         splitter_wid.setStretchFactor(1, 1)
 
         r_lay = QVBoxLayout()
         r_lay.setContentsMargins(0, 0, 0, 0)
         r_lay.setSpacing(0)
-        self.right_wid.setLayout(r_lay)
+        right_wid.setLayout(r_lay)
         
         self.top_bar = TopBarWidget()
         self.top_bar.sort_btn_press.connect(self.get_finder_items)
@@ -391,7 +392,7 @@ class SimpleFileExplorer(QWidget):
         self.resize_timer.setInterval(500)
         self.resize_timer.timeout.connect(self.get_finder_items)
 
-        self.resizeEvent = self.custom_resize_event
+        # self.resizeEvent = self.custom_resize_event
 
         self.load_last_place()
         self.setWindowTitle(Config.json_data["root"])
@@ -424,6 +425,10 @@ class SimpleFileExplorer(QWidget):
         self.get_finder_items()
 
     def reload_grid_layout(self, event=None):
+        if self.first_load:
+            self.first_load = False
+            return
+
         ww = Config.json_data["ww"] - self.left_wid.width() - 180
         clmn_count = ww // Config.thumb_size
 
@@ -533,11 +538,12 @@ class SimpleFileExplorer(QWidget):
         except RuntimeError:
             pass
 
-    def custom_resize_event(self, event=None):
+    def resizeEvent(self, a0: QResizeEvent | None) -> None:
         Config.json_data["ww"] = self.geometry().width()
         Config.json_data["hh"] = self.geometry().height()
         self.resize_timer.stop()
         self.resize_timer.start()
+        # return super().resizeEvent(a0)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.hide()
