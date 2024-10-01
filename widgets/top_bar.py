@@ -126,7 +126,7 @@ class SortTypeWidget(QPushButton):
 
 class SearchWidget(QWidget):
     search_text_sig = pyqtSignal(str)
-    search_clear_sig = pyqtSignal()
+    search_stop_sig = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -165,7 +165,7 @@ class SearchWidget(QWidget):
             self.search_timer.start(1000)
         else:
             self.clear_btn.hide()
-            self.search_clear_sig.emit()
+            self.search_stop_sig.emit()
 
 
 class TopBar(QFrame):
@@ -173,6 +173,7 @@ class TopBar(QFrame):
     level_up_btn_press = pyqtSignal()
     open_path_btn_press = pyqtSignal(str)
     search_text_sig = pyqtSignal(str)
+    search_stop_sig = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -217,6 +218,7 @@ class TopBar(QFrame):
 
         self.search_box = SearchWidget()
         self.search_box.search_text_sig.connect(self.search_text_sig.emit)
+        self.search_box.search_stop_sig.connect(self.search_stop_sig.emit)
         self.grid_layout.addWidget(self.search_box, 0, 6)
 
         last_spacer = QSpacerItem(10, 1)

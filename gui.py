@@ -126,6 +126,7 @@ class SimpleFileExplorer(QWidget):
         self.top_bar.level_up_btn_press.connect(self.level_up_btn_cmd)
         self.top_bar.open_path_btn_press.connect(self.open_path_btn_cmd)
         self.top_bar.search_text_sig.connect(self.load_search_grid)
+        self.top_bar.search_stop_sig.connect(self.load_standart_grid)
         self.r_lay.addWidget(self.top_bar)
 
         self.resize_timer = QTimer(parent=self)

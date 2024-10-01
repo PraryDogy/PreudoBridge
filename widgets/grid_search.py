@@ -4,9 +4,9 @@ from time import sleep
 
 import sqlalchemy
 from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal
-from PyQt5.QtGui import QContextMenuEvent, QMouseEvent, QPixmap
+from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QLabel, QMenu,
-                             QVBoxLayout, QWidget)
+                             QSizePolicy, QSpacerItem, QVBoxLayout, QWidget)
 
 from cfg import Config
 from database import Cache, Dbase
@@ -169,6 +169,8 @@ class SearchFinderThread(QThread):
                     self.new_widget.emit({"src": src, "filename": file, "pixmap": pixmap})
                     sleep(0.3)
 
+                    print(src)
+
         self.session.commit()
 
     def get_db_image(self, src: str):
@@ -217,7 +219,6 @@ class GridSearch(GridBase):
         self.clmn_count = width // Config.thumb_size
         if self.clmn_count < 1:
             self.clmn_count = 1
-
         self.row, self.col = 0, 0
 
         main_wid = QWidget()
@@ -225,9 +226,12 @@ class GridSearch(GridBase):
         self.grid_layout.setSpacing(5)
         self.setWidget(main_wid)
 
-        self.test = SearchFinderThread(Config.json_data["root"], search_text)
-        self.test.new_widget.connect(self.add_new_widget)
-        self.test.start()
+        clmn_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.grid_layout.addItem(clmn_spacer, 0, self.clmn_count + 1)
+
+        self.search_thread = SearchFinderThread(Config.json_data["root"], search_text)
+        self.search_thread.new_widget.connect(self.add_new_widget)
+        self.search_thread.start()
 
     def add_new_widget(self, data: dict):
         widget = Thumbnail(filename=data["filename"], src=data["src"])
@@ -238,3 +242,7 @@ class GridSearch(GridBase):
         if self.col >= self.clmn_count:
             self.col = 0
             self.row += 1
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        self.search_thread.stop_cmd()
+        return super().closeEvent(a0)
