@@ -264,7 +264,7 @@ class SimpleFileExplorer(QWidget):
         splitter_wid.setStretchFactor(0, 0)
         
         self.tree_wid = TreeWidget()
-        self.tree_wid.on_tree_clicked.connect(self.on_tree_clicked)
+        self.tree_wid.on_tree_clicked.connect(self.on_files_tree_clicked)
         self.left_wid.addTab(self.tree_wid, "Файлы")
         self.left_wid.addTab(QLabel("Тут будут каталоги"), "Сохраненные")
 
@@ -279,8 +279,8 @@ class SimpleFileExplorer(QWidget):
         
         self.top_bar = TopBarWidget()
         self.top_bar.sort_btn_press.connect(self.load_standart_grid)
-        self.top_bar.up_btn_press.connect(self.btn_up_cmd)
-        self.top_bar.open_btn_press.connect(self.open_custom_path)
+        self.top_bar.up_btn_press.connect(self.btn_level_up_cmd)
+        self.top_bar.open_btn_press.connect(self.open_custom_path_cmd)
         self.r_lay.addWidget(self.top_bar)
 
 
@@ -290,15 +290,20 @@ class SimpleFileExplorer(QWidget):
         self.resize_timer.setInterval(500)
         self.resize_timer.timeout.connect(self.load_standart_grid)
 
-        self.first_load()
-        self.setWindowTitle(Config.json_data["root"])
+        root = Config.json_data["root"]
 
-    def on_tree_clicked(self, root: str):
+        if root and os.path.exists(root):
+            self.setWindowTitle(Config.json_data["root"])
+            self.tree_wid.expand_path(root)
+            self.load_standart_grid()
+
+
+    def on_files_tree_clicked(self, root: str):
         Config.json_data["root"] = root
         self.setWindowTitle(root)
         self.load_standart_grid()
 
-    def open_custom_path(self, path: str):
+    def open_custom_path_cmd(self, path: str):
         if not os.path.exists(path):
             return
 
@@ -312,7 +317,7 @@ class SimpleFileExplorer(QWidget):
         self.setWindowTitle(path)
         self.load_standart_grid()
 
-    def btn_up_cmd(self):
+    def btn_level_up_cmd(self):
         path = os.path.dirname(Config.json_data["root"])
         Config.json_data["root"] = path
 
@@ -328,12 +333,6 @@ class SimpleFileExplorer(QWidget):
         self.grid = GridStandart(width=ww, root=Config.json_data["root"])
         self.r_lay.addWidget(self.grid)
 
-    def first_load(self):
-        root = Config.json_data["root"]
-
-        if root and os.path.exists(root):
-            self.tree_wid.expand_path(root)
-            self.load_standart_grid()
 
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         Config.json_data["ww"] = self.geometry().width()
@@ -349,7 +348,7 @@ class SimpleFileExplorer(QWidget):
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() == Qt.Key.Key_Up:
             if a0.modifiers() == Qt.KeyboardModifier.MetaModifier:
-                self.btn_up_cmd()
+                self.btn_level_up_cmd()
 
         elif a0.key() == Qt.Key.Key_W:
             if a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
