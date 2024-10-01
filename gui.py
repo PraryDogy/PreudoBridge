@@ -332,7 +332,7 @@ class SimpleFileExplorer(QWidget):
             self.grid.close()
 
         ww = self.get_grid_width()
-        self.grid = GridStandart(width=ww, root=Config.json_data["root"])
+        self.grid = GridStandart(width=ww)
         self.r_lay.addWidget(self.grid)
 
     def get_grid_width(self):

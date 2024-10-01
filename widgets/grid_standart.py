@@ -30,8 +30,6 @@ class LoadImagesThread(QThread):
 
         self.finder_images: dict[tuple: QLabel] = finder_images # (src, size, modified): QLabel
         self.remove_db_images: dict[tuple: str] = {}
-        first_img = next(iter(self.finder_images))[0]
-        self.root = os.path.dirname(first_img)
 
         self.db_images: dict = {}
         
@@ -75,7 +73,6 @@ class LoadImagesThread(QThread):
                 q = q.values({
                     "img": img,
                     "src": src,
-                    "root": self.root,
                     "size": size,
                     "modified": modified
                     })
@@ -99,14 +96,14 @@ class LoadImagesThread(QThread):
                 self.remove_db_images[(src, size, modified)] = ""
 
     def remove_images(self):
-        for (src, size, modified), string in self.remove_db_images.items():
+        for (src, _, _), _ in self.remove_db_images.items():
             q = sqlalchemy.delete(Cache)
-            q = q.where(Cache.src==src, Cache.size==size, Cache.modified==modified)
+            q = q.where(Cache.src==src)
             self.session.execute(q)
 
     def get_db_images(self):
         q = sqlalchemy.select(Cache.img, Cache.src, Cache.size, Cache.modified)
-        q = q.where(Cache.root==self.root)
+        q = q.where(Cache.src.contains(Config.json_data["root"]))
         res = self.session.execute(q).fetchall()
         return {
             (src, size, modified): img
@@ -125,12 +122,11 @@ class LoadImagesThread(QThread):
 
 
 class LoadFinderItems:
-    def __init__(self, root: str):
+    def __init__(self):
         super().__init__()
-        self.root = root
         self.finder_items: dict = {}
 
-    def run(self):
+    def get(self):
         try:
             self.__get_items()
             self.__sort_items()
@@ -140,8 +136,8 @@ class LoadFinderItems:
         return self.finder_items
 
     def __get_items(self):
-        for item in os.listdir(self.root):
-            src: str = os.path.join(self.root, item)
+        for item in os.listdir(Config.json_data["root"]):
+            src: str = os.path.join(Config.json_data["root"], item)
 
             try:
                 stats = os.stat(src)
@@ -274,7 +270,7 @@ class Thumbnail(QFrame):
 
 
 class GridStandart(GridBase):
-    def __init__(self, width: int, root: str):
+    def __init__(self, width: int):
         super().__init__()
         self.setWidgetResizable(True)
 
@@ -292,8 +288,8 @@ class GridStandart(GridBase):
 
         row, col = 0, 0
 
-        finder_items = LoadFinderItems(root)
-        finder_items = finder_items.run()
+        finder_items = LoadFinderItems()
+        finder_items = finder_items.get()
 
         for (src, filename, size, modified, _), _ in finder_items.items():
             thumbnail = Thumbnail(filename, src)
@@ -366,5 +362,6 @@ class GridStandart(GridBase):
         new_thread.start()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
+        print("close event of grid")
         self.stop_threads()
         return super().closeEvent(a0)
