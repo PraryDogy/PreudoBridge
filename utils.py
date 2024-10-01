@@ -50,6 +50,7 @@ class Utils:
             img = tifffile.imread(files=src)[:,:,:3]
             if str(object=img.dtype) != "uint8":
                 img = (img/256).astype(dtype="uint8")
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             return img
         except (tifffile.tifffile.TiffFileError) as e:
             print(traceback.format_exc())
@@ -98,6 +99,7 @@ class Utils:
         else:
             converted = image
 
+        converted = cv2.cvtColor(converted, cv2.COLOR_BGR2RGB)
         return converted
 
     @staticmethod
@@ -138,7 +140,7 @@ class Utils:
     @staticmethod
     def image_array_to_bytes(image: np.ndarray) -> bytes:
         img = np.array(image)
-        img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         res, buffer = cv2.imencode(".jpeg", img)
         image_io = io.BytesIO()
         image_io.write(buffer)
