@@ -209,6 +209,7 @@ class SearchWidget(QWidget):
         self.clear_btn.setFixedSize(10, 10)
         self.clear_btn.move(180, 7)
         self.clear_btn.hide()
+        self.clear_btn.mouseReleaseEvent = lambda e: input_wid.clear()
 
         input_wid.textChanged.connect(self.on_text_changed)
         self.search_text: str = None
