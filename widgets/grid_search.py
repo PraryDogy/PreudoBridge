@@ -133,7 +133,6 @@ class SearchFinderThread(QThread):
         self.root: str = root
         self.flag: bool = True
         self.session = Dbase.get_session()
-
         self.stop_sig.connect(self.stop_cmd)
 
     def stop_cmd(self):
@@ -168,8 +167,6 @@ class SearchFinderThread(QThread):
 
                     self.new_widget.emit({"src": src, "filename": file, "pixmap": pixmap})
                     sleep(0.3)
-
-                    print(src)
 
         self.session.commit()
 
@@ -237,6 +234,7 @@ class GridSearch(GridBase):
         widget = Thumbnail(filename=data["filename"], src=data["src"])
         widget.img_label.setPixmap(data["pixmap"])
         self.grid_layout.addWidget(widget, self.row, self.col)
+        Config.img_viewer_images[data["src"]] = widget
 
         self.col += 1
         if self.col >= self.clmn_count:
