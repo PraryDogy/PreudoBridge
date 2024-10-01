@@ -215,7 +215,7 @@ class NextImageBtn(SwitchImageBtn):
         super().__init__("next.svg", parent)
 
 
-class WinImageView(QWidget):
+class WinImgView(QWidget):
     closed = pyqtSignal(str)
 
     def __init__(self, parent: QWidget, img_src: str):

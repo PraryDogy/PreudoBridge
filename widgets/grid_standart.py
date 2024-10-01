@@ -14,7 +14,7 @@ from fit_img import FitImg
 from utils import Utils
 
 from .grid_base import GridBase
-from .image_viewer import WinImageView
+from .win_img_view import WinImgView
 
 
 class GridStandartStorage:
@@ -216,7 +216,7 @@ class Thumbnail(QFrame):
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
         self.setFrameShape(QFrame.Shape.Panel)
         QTimer.singleShot(500, lambda: self.setFrameShape(QFrame.Shape.NoFrame))
-        self.win = WinImageView(self, self.src)
+        self.win = WinImgView(self, self.src)
         Utils.center_win(parent=Utils.get_main_win(), child=self.win)
         self.win.closed.connect(lambda src: self.img_view_closed.emit(src))
         self.win.show()
@@ -256,7 +256,7 @@ class Thumbnail(QFrame):
 
     def view_file(self):
         if self.src.endswith(Config.img_ext):
-            self.win = WinImageView(self, self.src)
+            self.win = WinImgView(self, self.src)
             self.win.closed.connect(lambda src: self.img_view_closed.emit(src))
             main_win = Utils.get_main_win()
             Utils.center_win(parent=main_win, child=self.win)
