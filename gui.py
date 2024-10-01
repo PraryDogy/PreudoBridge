@@ -512,15 +512,12 @@ class SimpleFileExplorer(QWidget):
             pass
 
     def get_finder_items(self):
-        self.setDisabled(True)
-
         Utils.clear_layout(layout=self.grid_layout)
         self.finder_images.clear()
 
         finder_items = LoadFinderItems(Config.json_data["root"])
         self.finder_items = finder_items.run()
 
-        self.setDisabled(False)
         Config.img_viewer_images.clear()
         self.reload_grid_layout()
 
