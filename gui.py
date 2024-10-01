@@ -264,8 +264,8 @@ class SimpleFileExplorer(QWidget):
         
         self.files_tree_wid = TreeWidget()
         self.files_tree_wid.on_tree_clicked.connect(self.on_files_tree_clicked)
-        self.left_wid.addTab(self.files_tree_wid, "Файлы")
-        self.left_wid.addTab(QLabel("Тут будут каталоги"), "Сохраненные")
+        self.left_wid.addTab(self.files_tree_wid, "Папки")
+        self.left_wid.addTab(QLabel("Тут будут каталоги"), "Каталог")
 
         right_wid = QWidget()
         splitter_wid.addWidget(right_wid)
