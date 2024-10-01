@@ -329,7 +329,7 @@ class SimpleFileExplorer(QWidget):
 
     def load_standart_grid(self):
         if self.grid:
-            self.grid.deleteLater()
+            self.grid.close()
 
         ww = self.get_grid_width()
         self.grid = GridStandart(width=ww, root=Config.json_data["root"])
@@ -372,7 +372,6 @@ class CustomApp(QApplication):
     def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
         if a1.type() == QEvent.Type.ApplicationActivate:
             Utils.get_main_win().show()
-
         return False
 
     def on_exit(self):

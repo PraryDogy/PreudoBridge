@@ -4,10 +4,9 @@ import subprocess
 import numpy as np
 import sqlalchemy
 from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal
-from PyQt5.QtGui import QContextMenuEvent, QMouseEvent, QPixmap
+from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QLabel, QMenu,
-                             QScrollArea, QSizePolicy, QSpacerItem,
-                             QVBoxLayout, QWidget)
+                             QSizePolicy, QSpacerItem, QVBoxLayout, QWidget)
 
 from cfg import Config
 from database import Cache, Dbase
@@ -274,7 +273,7 @@ class Thumbnail(QFrame):
         subprocess.call(["open", "-R", self.src])
 
 
-class GridStandart(QScrollArea):
+class GridStandart(GridBase):
     def __init__(self, width: int, root: str):
         super().__init__()
         self.setWidgetResizable(True)
@@ -362,7 +361,10 @@ class GridStandart(QScrollArea):
             thread.wait()
 
     def start_load_images_thread(self):
-        self.stop_threads()
         new_thread = LoadImagesThread(self.finder_images)
         GridStandartThreads.load_images_threads.append(new_thread)
         new_thread.start()
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        self.stop_threads()
+        return super().closeEvent(a0)

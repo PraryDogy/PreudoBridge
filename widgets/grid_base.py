@@ -1,17 +1,12 @@
-from PyQt5.QtCore import QObject
+from PyQt5.QtWidgets import QScrollArea
 
 
-class GridBase(QObject):
+class GridBase(QScrollArea):
     def __init__(self):
         super().__init__()
 
     def stop_and_wait_threads(self):
-        pass
+        print("abstact method: stop_and_wait_threads")
 
     def stop_threads(self):
-        pass
-
-
-class Test(GridBase):
-    def __init__(self):
-        super().__init__()
+        print("abstact method: stop_threads")
