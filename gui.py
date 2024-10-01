@@ -13,8 +13,8 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFileSystemModel, QFrame,
 from cfg import Config
 from path_finder import PathFinderThread
 from utils import Utils
-from widgets.grid_standart import (GridStandart, GridStandartThreads,
-                                       LoadImagesThread)
+from widgets.grid_base import GridBase
+from widgets.grid_standart import GridStandart
 
 
 class SortTypeWidget(QPushButton):
@@ -244,7 +244,7 @@ class SimpleFileExplorer(QWidget):
         self.clmn_count = 1
         self.finder_items = []
         self.finder_images: dict = {}
-        self.grid: QGridLayout = None
+        self.grid: GridBase = None
 
         ww, hh = Config.json_data["ww"], Config.json_data["hh"]
         self.resize(ww, hh)
@@ -283,8 +283,6 @@ class SimpleFileExplorer(QWidget):
         self.top_bar.open_btn_press.connect(self.open_custom_path_cmd)
         self.r_lay.addWidget(self.top_bar)
 
-
-
         self.resize_timer = QTimer(parent=self)
         self.resize_timer.setSingleShot(True)
         self.resize_timer.setInterval(500)
@@ -297,6 +295,10 @@ class SimpleFileExplorer(QWidget):
             self.tree_wid.expand_path(root)
             self.load_standart_grid()
 
+        else:
+            self.setWindowTitle("Ошибка")
+            self.grid = QLabel("Такой папки не существует. \n Проверьте подключение к сетевому диску")
+            self.r_lay.addWidget(self.grid)
 
     def on_files_tree_clicked(self, root: str):
         Config.json_data["root"] = root
@@ -333,6 +335,8 @@ class SimpleFileExplorer(QWidget):
         self.grid = GridStandart(width=ww, root=Config.json_data["root"])
         self.r_lay.addWidget(self.grid)
 
+    def get_grid_width(self):
+        return Config.json_data["ww"] - self.left_wid.width() - 180
 
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         Config.json_data["ww"] = self.geometry().width()
@@ -357,9 +361,6 @@ class SimpleFileExplorer(QWidget):
         elif a0.key() == Qt.Key.Key_Q:
             if a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
                 QApplication.instance().quit()
-
-    def get_grid_width(self):
-        return Config.json_data["ww"] - self.left_wid.width() - 180
 
 
 class CustomApp(QApplication):

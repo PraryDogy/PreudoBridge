@@ -1,14 +1,17 @@
-from abc import ABC, abstractmethod
+from PyQt5.QtCore import QObject
 
 
-class GridBase(ABC):
+class GridBase(QObject):
     def __init__(self):
         super().__init__()
 
-    @abstractmethod
     def stop_and_wait_threads(self):
         pass
 
-    @abstractmethod
     def stop_threads(self):
         pass
+
+
+class Test(GridBase):
+    def __init__(self):
+        super().__init__()

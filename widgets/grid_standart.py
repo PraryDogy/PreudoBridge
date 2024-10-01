@@ -277,10 +277,11 @@ class Thumbnail(QFrame):
 class GridStandart(QScrollArea):
     def __init__(self, width: int, root: str):
         super().__init__()
+        self.setWidgetResizable(True)
+
+        self.stop_threads()
         Config.img_viewer_images.clear()
         self.finder_images: dict = {}
-
-        self.setWidgetResizable(True)
         clmn_count = width // Config.thumb_size
         if clmn_count < 1:
             clmn_count = 1

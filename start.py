@@ -42,8 +42,6 @@ if os.path.exists("lib"):
     sys.excepthook = catch_err
 
 
-import psd_tools
-
 from database import Dbase
 from gui import CustomApp, SimpleFileExplorer
 
