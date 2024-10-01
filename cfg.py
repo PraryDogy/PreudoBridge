@@ -3,12 +3,22 @@ import os
 
 
 class Config:
-    json_file = os.path.join(os.path.expanduser('~'), 'Desktop', 'last_place.json')
-    db_file = os.path.join(os.path.expanduser('~'), 'Desktop', 'preudo_db.db')
-    json_data: dict = {}
+    json_file = os.path.join(os.path.expanduser('~'), 'Desktop', 'cfg.json')
+    db_file = os.path.join(os.path.expanduser('~'), 'Desktop', 'db.db')
     thumb_size = 210
     img_viewer_images: dict = {}
     img_ext: tuple = (".jpg", "jpeg", ".tif", ".tiff", ".psd", ".psb", ".png")
+
+    json_data: dict = {
+        "root": "/Volumes",
+        "ww": 1050,
+        "hh": 700,
+        "ww_im": 700,
+        "hh_im": 500,
+        "sort": "name",
+        "reversed": False,
+        "extra_paths": ["/Studio/PANACEA", "/Studio/MIUZ"]
+        }
 
     @staticmethod
     def load_json_data() -> dict:
@@ -16,41 +26,37 @@ class Config:
 
             with open(Config.json_file, 'r') as f:
                 try:
-
-                    Config.json_data = json.load(f)
-                    defs = Config.defaults()
-
-                    if not Config.json_data.keys() == defs.keys():
-                        Config.json_data = Config.defaults()
-                        print("Ключи json не соответствуют ожидаемым")
-                    
-                    for k, v in Config.json_data.items():
-                        if type(v) != type(defs[k]):
-                            Config.json_data = Config.defaults()
-                            print("Значения типов json не соответствуют ожидаемым")
-                            break
-
+                    json_data = json.load(f)
+                    json_data = Config.sync_json(json_data)
+                    Config.json_data = json_data
                 except json.JSONDecodeError:
                     print("Ошибка чтения json")
-                    Config.json_data = Config.defaults()
 
         else:
             with open(Config.json_file, 'w') as f:
-                Config.json_data = Config.defaults()
                 json.dump(Config.json_data, f, indent=4, ensure_ascii=False)
 
     @staticmethod
-    def defaults():
-        return {
-                "root": "/Volumes",
-                "ww": 1050,
-                "hh": 700,
-                "ww_im": 400,
-                "hh_im": 300,
-                "sort": "name",
-                "reversed": False,
-                "extra_paths": ["/Studio/PANACEA", "/Studio/MIUZ"]
-                }
+    def sync_json(json_data: dict):
+        keys_to_remove = [
+            key 
+            for key in json_data
+            if key not in Config.json_data
+            ]
+
+        for key in keys_to_remove:
+            print(f"Лишний ключ в json файле: {key}")
+            del json_data[key]
+
+        for key, default_value in Config.json_data.items():
+            if key not in json_data:
+                print(f"Недостающий ключ в json файле: {key}")
+                json_data[key] = default_value
+            elif not isinstance(json_data[key], type(default_value)):
+                print(f"Несовпадающий тип значения в json файле: {key}")
+                json_data[key] = default_value
+
+        return json_data
 
 
 Config.load_json_data()

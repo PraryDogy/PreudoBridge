@@ -184,7 +184,7 @@ class SearchWidget(QLineEdit):
             self.search_timer.stop()
             self.search_timer.start(1000)
         else:
-            self.search_clear.emit()
+            self.search_clear_sig.emit()
 
 
 class TopBarWidget(QFrame):
