@@ -361,7 +361,7 @@ class SimpleFileExplorer(QWidget):
         self.tree_wid = TreeWidget()
         self.tree_wid.on_tree_clicked.connect(self.on_tree_clicked)
         self.left_wid.addTab(self.tree_wid, "Файлы")
-        self.left_wid.addTab(QLabel("Тут будут каталоги"), "Каталог")
+        self.left_wid.addTab(QLabel("Тут будут каталоги"), "Сохраненные")
 
         right_wid = QWidget()
         splitter_wid.addWidget(right_wid)
@@ -391,8 +391,6 @@ class SimpleFileExplorer(QWidget):
         self.resize_timer.setSingleShot(True)
         self.resize_timer.setInterval(500)
         self.resize_timer.timeout.connect(self.get_finder_items)
-
-        # self.resizeEvent = self.custom_resize_event
 
         self.load_last_place()
         self.setWindowTitle(Config.json_data["root"])
