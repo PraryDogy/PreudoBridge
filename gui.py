@@ -94,7 +94,7 @@ class SearchWidget(QWidget):
 
 class TopBarWidget(QFrame):
     sort_btn_press = pyqtSignal()
-    up_btn_press = pyqtSignal()
+    level_up_btn_press = pyqtSignal()
     open_btn_press = pyqtSignal(str)
 
     def __init__(self):
@@ -112,11 +112,11 @@ class TopBarWidget(QFrame):
         l_spacer = QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         self.grid_layout.addItem(l_spacer, 0, 0)
 
-        self.up_button = QPushButton(text="↑", parent=self)
-        self.up_button.setToolTip(" Перейти на уровень выше ")
-        self.up_button.setFixedWidth(60)
-        self.up_button.clicked.connect(self.up_btn_press.emit)
-        self.grid_layout.addWidget(self.up_button, 0, 1)
+        self.level_up_button = QPushButton(text="↑", parent=self)
+        self.level_up_button.setToolTip(" Перейти на уровень выше ")
+        self.level_up_button.setFixedWidth(60)
+        self.level_up_button.clicked.connect(self.level_up_btn_press.emit)
+        self.grid_layout.addWidget(self.level_up_button, 0, 1)
 
         self.open_btn = QPushButton("Открыть путь")
         self.open_btn.clicked.connect(self.open_btn_cmd)
@@ -279,7 +279,7 @@ class SimpleFileExplorer(QWidget):
         
         self.top_bar = TopBarWidget()
         self.top_bar.sort_btn_press.connect(self.load_standart_grid)
-        self.top_bar.up_btn_press.connect(self.btn_level_up_cmd)
+        self.top_bar.level_up_btn_press.connect(self.level_up_btn_cmd)
         self.top_bar.open_btn_press.connect(self.open_custom_path_cmd)
         self.r_lay.addWidget(self.top_bar)
 
@@ -319,7 +319,7 @@ class SimpleFileExplorer(QWidget):
         self.setWindowTitle(path)
         self.load_standart_grid()
 
-    def btn_level_up_cmd(self):
+    def level_up_btn_cmd(self):
         path = os.path.dirname(Config.json_data["root"])
         Config.json_data["root"] = path
 
@@ -328,6 +328,7 @@ class SimpleFileExplorer(QWidget):
         self.load_standart_grid()
 
     def load_standart_grid(self):
+        self.top_bar.level_up_button.setDisabled(False)
         if self.grid:
             self.grid.close()
 
@@ -352,7 +353,7 @@ class SimpleFileExplorer(QWidget):
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() == Qt.Key.Key_Up:
             if a0.modifiers() == Qt.KeyboardModifier.MetaModifier:
-                self.btn_level_up_cmd()
+                self.level_up_btn_cmd()
 
         elif a0.key() == Qt.Key.Key_W:
             if a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
