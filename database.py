@@ -58,6 +58,5 @@ class Cache(DbaseStorage.base):
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
     img = sqlalchemy.Column(sqlalchemy.LargeBinary)
     src = sqlalchemy.Column(sqlalchemy.Text, unique=True)
-    root = sqlalchemy.Column(sqlalchemy.Text)
     size = sqlalchemy.Column(sqlalchemy.Integer)
     modified = sqlalchemy.Column(sqlalchemy.Integer)
