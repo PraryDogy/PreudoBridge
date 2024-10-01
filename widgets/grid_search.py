@@ -9,6 +9,14 @@ from database import Cache, Dbase
 from fit_img import FitImg
 from utils import Utils
 
+            try:
+                stats = os.stat(src)
+            except (PermissionError, FileNotFoundError):
+                continue
+
+            size = stats.st_size
+            modified = stats.st_mtime
+            filetype = os.path.splitext(item)[1]
 
 class SearchFinderThread(QThread):
     finished = pyqtSignal()
