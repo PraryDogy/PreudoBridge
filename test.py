@@ -1,9 +1,10 @@
-from database import Dbase, Cache
-import sqlalchemy
+import time
 
-Dbase.init_db()
-sess = Dbase.get_session()
-q = sqlalchemy.select(Cache.img).where(Cache.src=="/Volumes/Macintosh HD/Users/Loshkarev/Desktop/MIUZ_0158 2.jpg")
-res = sess.execute(q).first()
+for i in range(0, 10):
+    print(i)
+    break
 
-print(res)
+    for x in range(99, 999):
+        print(x)
+        time.sleep(0.5)
+        break

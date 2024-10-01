@@ -9,15 +9,6 @@ from database import Cache, Dbase
 from fit_img import FitImg
 from utils import Utils
 
-            try:
-                stats = os.stat(src)
-            except (PermissionError, FileNotFoundError):
-                continue
-
-            size = stats.st_size
-            modified = stats.st_mtime
-            filetype = os.path.splitext(item)[1]
-
 class SearchFinderThread(QThread):
     finished = pyqtSignal()
     stop_sig = pyqtSignal()
@@ -29,6 +20,7 @@ class SearchFinderThread(QThread):
         self.filename: str = filename
         self.root: str = root
         self.flag: bool = True
+        self.session = Dbase.get_session()
 
         self.stop_sig.connect(self.stop_cmd)
 
@@ -36,17 +28,21 @@ class SearchFinderThread(QThread):
         self.flag: bool = False
 
     def run(self):
-        session = Dbase.get_session()
-
         for root, dirs, files in os.walk(self.root):
+
+            if not self.flag:
+                break
+
             for file in files:
+
+                if not self.flag:
+                    break
 
                 src = os.path.join(root, file)
 
                 if self.filename in file:
                     q = sqlalchemy.select(Cache.img).where(Cache.src==src)
-                    res = session.execute(q).first()
-
+                    res = self.session.execute(q).first()
                     if res:
                         pixmap: QPixmap = Utils.pixmap_from_bytes(res[0])
                     else:
@@ -55,6 +51,15 @@ class SearchFinderThread(QThread):
                         if img:
                             pixmap = Utils.pixmap_from_array(img)
                             db_img = Utils.image_array_to_bytes(img)
+
+                            try:
+                                stats = os.stat(src)
+                            except (PermissionError, FileNotFoundError):
+                                continue
+
+                            size = stats.st_size
+                            modified = stats.st_mtime
+
                             q = sqlalchemy.insert(Cache)
                             q = q.values({
                                 "img": db_img,
@@ -70,7 +75,9 @@ class SearchFinderThread(QThread):
 
                     self.new_widget.emit(
                         {
-                            "src": os.path.join(root, file),
+                            "src": src,
                             "pixmap": pixmap
                             }
                             )
+
+        self.session.commit()
