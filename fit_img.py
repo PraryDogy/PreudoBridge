@@ -20,5 +20,5 @@ class FitImg:
             return cv2.resize(image, (new_w, new_h), interpolation=cv2.INTER_AREA)
 
         except Exception as e:
-            print(e)
+            print("fit img error: ", e)
             return None

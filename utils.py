@@ -138,11 +138,14 @@ class Utils:
         return QPixmap.fromImage(qimage)
 
     @staticmethod
-    def image_array_to_bytes(image: np.ndarray) -> bytes:
-        img = np.array(image)
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        res, buffer = cv2.imencode(".jpeg", img)
-        image_io = io.BytesIO()
-        image_io.write(buffer)
-        img = image_io.getvalue()
-        return img
+    def image_array_to_bytes(image: np.ndarray) -> bytes | None:
+        try:
+            img = np.array(image)
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            res, buffer = cv2.imencode(".jpeg", img)
+            image_io = io.BytesIO()
+            image_io.write(buffer)
+            img = image_io.getvalue()
+            return img
+        except Exception as e:
+            print("image array to bytes err: ", e)
