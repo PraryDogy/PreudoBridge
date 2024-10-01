@@ -361,6 +361,5 @@ class GridStandart(GridBase):
         new_thread.start()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
-        print(12)
         self.stop_threads()
         return super().closeEvent(a0)
