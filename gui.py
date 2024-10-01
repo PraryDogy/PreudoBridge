@@ -172,7 +172,7 @@ class TopBarWidget(QFrame):
 
 
 class TreeWidget(QTreeView):
-    on_tree_clicked = pyqtSignal(str)
+    folders_tree_clicked = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -195,7 +195,7 @@ class TreeWidget(QTreeView):
     def one_clicked(self, index):
         path = self.model.filePath(index)
         self.setCurrentIndex(index)
-        self.on_tree_clicked.emit(path)
+        self.folders_tree_clicked.emit(path)
 
         if self.isExpanded(index):
             self.collapse(index)
@@ -262,9 +262,9 @@ class SimpleFileExplorer(QWidget):
         splitter_wid.addWidget(self.left_wid)
         splitter_wid.setStretchFactor(0, 0)
         
-        self.files_tree_wid = TreeWidget()
-        self.files_tree_wid.on_tree_clicked.connect(self.on_files_tree_clicked)
-        self.left_wid.addTab(self.files_tree_wid, "Папки")
+        self.folders_tree_wid = TreeWidget()
+        self.folders_tree_wid.folders_tree_clicked.connect(self.on_files_tree_clicked)
+        self.left_wid.addTab(self.folders_tree_wid, "Папки")
         self.left_wid.addTab(QLabel("Тут будут каталоги"), "Каталог")
 
         right_wid = QWidget()
@@ -291,7 +291,7 @@ class SimpleFileExplorer(QWidget):
 
         if root and os.path.exists(root):
             self.setWindowTitle(Config.json_data["root"])
-            self.files_tree_wid.expand_path(root)
+            self.folders_tree_wid.expand_path(root)
             self.load_standart_grid()
 
         else:
@@ -314,7 +314,7 @@ class SimpleFileExplorer(QWidget):
             path, _ = os.path.split(path)
 
         Config.json_data["root"] = path
-        self.files_tree_wid.expand_path(path)
+        self.folders_tree_wid.expand_path(path)
         self.setWindowTitle(path)
         self.load_standart_grid()
 
@@ -322,7 +322,7 @@ class SimpleFileExplorer(QWidget):
         path = os.path.dirname(Config.json_data["root"])
         Config.json_data["root"] = path
 
-        self.files_tree_wid.expand_path(path)
+        self.folders_tree_wid.expand_path(path)
         self.setWindowTitle(Config.json_data["root"])
         self.load_standart_grid()
 
