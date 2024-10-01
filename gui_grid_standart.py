@@ -223,7 +223,7 @@ class Thumbnail(QFrame):
         QTimer.singleShot(500, lambda: self.setFrameShape(QFrame.Shape.NoFrame))
         self.win = WinImageView(self, self.src)
         Utils.center_win(parent=Utils.get_main_win(), child=self.win)
-        self.win.closed.connect(lambda: self.img_view_closed.emit(str))
+        self.win.closed.connect(lambda src: self.img_view_closed.emit(src))
         self.win.show()
 
         return super().mouseReleaseEvent(a0)
