@@ -4,17 +4,18 @@ import subprocess
 
 from PyQt5.QtCore import QDir, QEvent, QObject, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QKeyEvent, QResizeEvent
-from PyQt5.QtWidgets import (QAction, QApplication, QFileSystemModel, QFrame,
-                             QLabel, QMenu, QSplitter, QTabWidget, QTreeView,
+from PyQt5.QtWidgets import (QAction, QApplication, QFileSystemModel, QLabel,
+                             QMenu, QSplitter, QTabWidget, QTreeView,
                              QVBoxLayout, QWidget)
 
 from cfg import Config
 from utils import Utils
 from widgets.grid_standart import GridStandart
-from widgets.top_bar import TopBarWidget
+from widgets.top_bar import TopBar
+from widgets.tree_folders import TreeFolders
 
 
-class TreeWidget(QTreeView):
+class TreeFolders(QTreeView):
     folders_tree_clicked = pyqtSignal(str)
 
     def __init__(self):
@@ -105,7 +106,7 @@ class SimpleFileExplorer(QWidget):
         splitter_wid.addWidget(self.left_wid)
         splitter_wid.setStretchFactor(0, 0)
         
-        self.folders_tree_wid = TreeWidget()
+        self.folders_tree_wid = TreeFolders()
         self.folders_tree_wid.folders_tree_clicked.connect(self.on_files_tree_clicked)
         self.left_wid.addTab(self.folders_tree_wid, "Папки")
         self.left_wid.addTab(QLabel("Тут будут каталоги"), "Каталог")
@@ -119,7 +120,7 @@ class SimpleFileExplorer(QWidget):
         self.r_lay.setSpacing(0)
         right_wid.setLayout(self.r_lay)
         
-        self.top_bar = TopBarWidget()
+        self.top_bar = TopBar()
         self.top_bar.sort_btn_press.connect(self.load_standart_grid)
         self.top_bar.level_up_btn_press.connect(self.level_up_btn_cmd)
         self.top_bar.open_path_btn_press.connect(self.open_path_btn_cmd)

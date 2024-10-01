@@ -168,7 +168,7 @@ class SearchWidget(QWidget):
             self.search_clear_sig.emit()
 
 
-class TopBarWidget(QFrame):
+class TopBar(QFrame):
     sort_btn_press = pyqtSignal()
     level_up_btn_press = pyqtSignal()
     open_path_btn_press = pyqtSignal(str)
