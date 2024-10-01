@@ -332,7 +332,7 @@ class GridStandart(GridBase):
             self.ensureWidgetVisible(wid)
             QTimer.singleShot(1000, lambda: self.set_no_frame(wid))
         except (RuntimeError, KeyError) as e:
-            print(e)
+            print("move to wid error: ", e)
 
     def set_no_frame(self, wid: Thumbnail):
         try:

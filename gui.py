@@ -161,6 +161,7 @@ class SimpleFileExplorer(QWidget):
         self.folders_tree_wid.expand_path(path)
         self.setWindowTitle(path)
         self.load_standart_grid()
+        QTimer.singleShot(1500, lambda: self.grid.move_to_wid(self.move_to_filepath))
 
     def level_up_btn_cmd(self):
         path = os.path.dirname(Config.json_data["root"])
