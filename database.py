@@ -60,3 +60,6 @@ class Cache(DbaseStorage.base):
     src = sqlalchemy.Column(sqlalchemy.Text, unique=True)
     size = sqlalchemy.Column(sqlalchemy.Integer)
     modified = sqlalchemy.Column(sqlalchemy.Integer)
+    catalog = sqlalchemy.Column(sqlalchemy.Text)
+    colors = sqlalchemy.Column(sqlalchemy.Text)
+    stars = sqlalchemy.Column(sqlalchemy.Integer)
