@@ -13,7 +13,6 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFileSystemModel, QFrame,
 from cfg import Config
 from path_finder import PathFinderThread
 from utils import Utils
-from widgets.grid_base import GridBase
 from widgets.grid_standart import GridStandart
 
 
@@ -95,7 +94,7 @@ class SearchWidget(QWidget):
 class TopBarWidget(QFrame):
     sort_btn_press = pyqtSignal()
     level_up_btn_press = pyqtSignal()
-    open_btn_press = pyqtSignal(str)
+    open_path_btn_press = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -119,7 +118,7 @@ class TopBarWidget(QFrame):
         self.grid_layout.addWidget(self.level_up_button, 0, 1)
 
         self.open_btn = QPushButton("Открыть путь")
-        self.open_btn.clicked.connect(self.open_btn_cmd)
+        self.open_btn.clicked.connect(self.open_path_btn_cmd)
         self.grid_layout.addWidget(self.open_btn, 0, 2)
 
         self.sort_widget = SortTypeWidget(parent=self)
@@ -153,11 +152,11 @@ class TopBarWidget(QFrame):
             )
         return paste_result.stdout.strip()
     
-    def open_btn_cmd(self):
+    def open_path_btn_cmd(self):
         path = self.paste_text()
         self.path_thread = PathFinderThread(path)
         self.path_thread.finished.connect(
-            lambda res: self.open_btn_press.emit(res)
+            lambda res: self.open_path_btn_press.emit(res)
             )
         
         self.path_thread.start()
@@ -244,7 +243,7 @@ class SimpleFileExplorer(QWidget):
         self.clmn_count = 1
         self.finder_items = []
         self.finder_images: dict = {}
-        self.grid: GridBase = None
+        self.grid: GridStandart = None
 
         ww, hh = Config.json_data["ww"], Config.json_data["hh"]
         self.resize(ww, hh)
@@ -280,7 +279,7 @@ class SimpleFileExplorer(QWidget):
         self.top_bar = TopBarWidget()
         self.top_bar.sort_btn_press.connect(self.load_standart_grid)
         self.top_bar.level_up_btn_press.connect(self.level_up_btn_cmd)
-        self.top_bar.open_btn_press.connect(self.open_custom_path_cmd)
+        self.top_bar.open_path_btn_press.connect(self.open_path_btn_cmd)
         self.r_lay.addWidget(self.top_bar)
 
         self.resize_timer = QTimer(parent=self)
@@ -305,7 +304,7 @@ class SimpleFileExplorer(QWidget):
         self.setWindowTitle(root)
         self.load_standart_grid()
 
-    def open_custom_path_cmd(self, path: str):
+    def open_path_btn_cmd(self, path: str):
         if not os.path.exists(path):
             return
 
@@ -329,6 +328,7 @@ class SimpleFileExplorer(QWidget):
 
     def load_standart_grid(self):
         self.top_bar.level_up_button.setDisabled(False)
+
         if self.grid:
             self.grid.close()
 

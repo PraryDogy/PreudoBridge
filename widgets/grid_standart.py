@@ -17,7 +17,7 @@ from .grid_base import GridBase
 from .image_viewer import WinImageView
 
 
-class GridStandartThreads:
+class GridStandartStorage:
     load_images_threads: list = []
 
 
@@ -343,22 +343,22 @@ class GridStandart(GridBase):
             pass
 
     def stop_and_wait_threads(self):
-        for i in GridStandartThreads.load_images_threads:
+        for i in GridStandartStorage.load_images_threads:
             i: LoadImagesThread
             i.stop_thread.emit()
 
             if i.isFinished():
-                GridStandartThreads.load_images_threads.remove(i)
+                GridStandartStorage.load_images_threads.remove(i)
 
     def stop_threads(self):
-        for thread in GridStandartThreads.load_images_threads:
+        for thread in GridStandartStorage.load_images_threads:
             thread: LoadImagesThread
             thread.stop_thread.emit()
             thread.wait()
 
     def start_load_images_thread(self):
         new_thread = LoadImagesThread(self.finder_images)
-        GridStandartThreads.load_images_threads.append(new_thread)
+        GridStandartStorage.load_images_threads.append(new_thread)
         new_thread.start()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
