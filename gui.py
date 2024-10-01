@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFileSystemModel, QLabel,
 
 from cfg import Config
 from utils import Utils
+from widgets.grid_search import GridSearch
 from widgets.grid_standart import GridStandart
 from widgets.top_bar import TopBar
 from widgets.tree_folders import TreeFolders
@@ -124,6 +125,7 @@ class SimpleFileExplorer(QWidget):
         self.top_bar.sort_btn_press.connect(self.load_standart_grid)
         self.top_bar.level_up_btn_press.connect(self.level_up_btn_cmd)
         self.top_bar.open_path_btn_press.connect(self.open_path_btn_cmd)
+        self.top_bar.search_text_sig.connect(self.load_search_grid)
         self.r_lay.addWidget(self.top_bar)
 
         self.resize_timer = QTimer(parent=self)
@@ -170,6 +172,16 @@ class SimpleFileExplorer(QWidget):
         self.folders_tree_wid.expand_path(path)
         self.setWindowTitle(Config.json_data["root"])
         self.load_standart_grid()
+
+    def load_search_grid(self, search_text: str):
+        self.top_bar.level_up_button.setDisabled(True)
+
+        if self.grid:
+            self.grid.close()
+
+        ww = self.get_grid_width()
+        self.grid = GridSearch(width=ww, search_text=search_text)
+        self.r_lay.addWidget(self.grid)
 
     def load_standart_grid(self):
         self.top_bar.level_up_button.setDisabled(False)

@@ -74,33 +74,33 @@ class Utils:
             
     @staticmethod
     def read_jpg(path: str) -> np.ndarray:
-        image = cv2.imread(path, cv2.IMREAD_UNCHANGED)  # Чтение с альфа-каналом
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-        if image is None:
-            print(traceback.format_exc())
+        try:
+            image = cv2.imread(path, cv2.IMREAD_UNCHANGED)  # Чтение с альфа-каналом
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            return image
+        except Exception as e:
+            print("jpg read error, return None", e)
             return None
-
-        return image
         
     @staticmethod
     def read_png(path: str) -> np.ndarray:
-        image = cv2.imread(path, cv2.IMREAD_UNCHANGED)  # Чтение с альфа-каналом
+        try:
+            image = cv2.imread(path, cv2.IMREAD_UNCHANGED)  # Чтение с альфа-каналом
 
-        if image is None:
+            if image.shape[2] == 4:
+                alpha_channel = image[:, :, 3] / 255.0
+                rgb_channels = image[:, :, :3]
+                background_color = np.array([255, 255, 255], dtype=np.uint8)
+                background = np.full(rgb_channels.shape, background_color, dtype=np.uint8)
+                converted = (rgb_channels * alpha_channel[:, :, np.newaxis] + background * (1 - alpha_channel[:, :, np.newaxis])).astype(np.uint8)
+            else:
+                converted = image
+
+            converted = cv2.cvtColor(converted, cv2.COLOR_BGR2RGB)
+            return converted
+        except Exception as e:
+            print("read png error:", e)
             return None
-
-        if image.shape[2] == 4:
-            alpha_channel = image[:, :, 3] / 255.0
-            rgb_channels = image[:, :, :3]
-            background_color = np.array([255, 255, 255], dtype=np.uint8)
-            background = np.full(rgb_channels.shape, background_color, dtype=np.uint8)
-            converted = (rgb_channels * alpha_channel[:, :, np.newaxis] + background * (1 - alpha_channel[:, :, np.newaxis])).astype(np.uint8)
-        else:
-            converted = image
-
-        converted = cv2.cvtColor(converted, cv2.COLOR_BGR2RGB)
-        return converted
 
     @staticmethod
     def read_image(src: str) -> np.ndarray | None:

@@ -172,6 +172,7 @@ class TopBar(QFrame):
     sort_btn_press = pyqtSignal()
     level_up_btn_press = pyqtSignal()
     open_path_btn_press = pyqtSignal(str)
+    search_text_sig = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -215,6 +216,7 @@ class TopBar(QFrame):
         self.grid_layout.addItem(r_spacer, 0, 5)
 
         self.search_box = SearchWidget()
+        self.search_box.search_text_sig.connect(self.search_text_sig.emit)
         self.grid_layout.addWidget(self.search_box, 0, 6)
 
         last_spacer = QSpacerItem(10, 1)

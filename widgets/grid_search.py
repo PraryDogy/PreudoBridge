@@ -9,7 +9,7 @@ from cfg import Config
 from database import Cache, Dbase
 from fit_img import FitImg
 from utils import Utils
-
+from time import sleep
 from .grid_base import GridBase
 
 
@@ -19,7 +19,7 @@ class SearchFinderThread(QThread):
     new_widget = pyqtSignal(dict)
 
     def __init__(self, root: str, filename: str):
-        super().__init__(self)
+        super().__init__()
 
         self.filename: str = filename
         self.root: str = root
@@ -44,15 +44,15 @@ class SearchFinderThread(QThread):
 
                 src = os.path.join(root, file)
 
-                if self.filename in file:
+                if self.filename in file and src.endswith(Config.img_ext):
                     q = sqlalchemy.select(Cache.img).where(Cache.src==src)
                     res = self.session.execute(q).first()
                     if res:
                         pixmap: QPixmap = Utils.pixmap_from_bytes(res[0])
                     else:
                         img = Utils.read_image(src)
-                        img = FitImg.start(img)
-                        if img:
+                        img = FitImg.start(img, Config.thumb_size)
+                        if img is not None:
                             pixmap = Utils.pixmap_from_array(img)
                             db_img = Utils.image_array_to_bytes(img)
 
@@ -68,7 +68,6 @@ class SearchFinderThread(QThread):
                             q = q.values({
                                 "img": db_img,
                                 "src": src,
-                                "root": self.root,
                                 "size": size,
                                 "modified": modified
                                 })
@@ -76,7 +75,9 @@ class SearchFinderThread(QThread):
                         else:
                             pixmap = QPixmap("images/file_210.png")
 
-                    self.new_widget.emit({"src": src, "pixmap": pixmap})
+                        self.new_widget.emit({"src": src, "pixmap": pixmap})
+                        sleep(0.3)
+
         self.session.commit()
 
 
@@ -100,11 +101,12 @@ class GridSearch(GridBase):
 
         self.test = SearchFinderThread(Config.json_data["root"], search_text)
         self.test.new_widget.connect(self.add_new_widget)
+        self.test.start()
 
     def add_new_widget(self, data: dict):
         widget = QLabel()
-        widget.setPixmap(data["widget"])
-        self.grid_layout.addWidget(widget)
+        widget.setPixmap(data["pixmap"])
+        self.grid_layout.addWidget(widget, self.row, self.col)
 
         self.col += 1
         if self.col >= self.clmn_count:
