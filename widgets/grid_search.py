@@ -168,6 +168,7 @@ class SearchFinderThread(QThread):
                     self.new_widget.emit({"src": src, "filename": file, "pixmap": pixmap})
                     sleep(0.3)
 
+        self.finished.emit()
         self.session.commit()
 
     def get_db_image(self, src: str):
@@ -228,6 +229,7 @@ class GridSearch(GridBase):
 
         self.search_thread = SearchFinderThread(Config.json_data["root"], search_text)
         self.search_thread.new_widget.connect(self.add_new_widget)
+        self.search_thread.finished.connect(self.add_row_spacer)
         self.search_thread.start()
 
     def add_new_widget(self, data: dict):
@@ -240,6 +242,10 @@ class GridSearch(GridBase):
         if self.col >= self.clmn_count:
             self.col = 0
             self.row += 1
+
+    def add_row_spacer(self):
+        row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.grid_layout.addItem(row_spacer, self.row + 1, 0)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.search_thread.stop_cmd()
