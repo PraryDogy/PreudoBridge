@@ -274,7 +274,6 @@ class GridStandart(GridBase):
         super().__init__()
         self.setWidgetResizable(True)
 
-        self.stop_threads()
         Config.img_viewer_images.clear()
         self.finder_images: dict = {}
         clmn_count = width // Config.thumb_size
@@ -362,6 +361,6 @@ class GridStandart(GridBase):
         new_thread.start()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
-        print("close event of grid")
+        print(12)
         self.stop_threads()
         return super().closeEvent(a0)
