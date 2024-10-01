@@ -12,8 +12,10 @@ from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QLabel, QMenu,
 from cfg import Config
 from database import Cache, Dbase
 from fit_img import FitImg
-from .image_viewer import WinImageView
 from utils import Utils
+
+from .grid_base import GridBase
+from .image_viewer import WinImageView
 
 
 class GridStandartThreads:
@@ -313,11 +315,7 @@ class GridStandart(QScrollArea):
             self.grid_layout.addItem(row_spacer, row + 1, 0)
             clmn_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
             self.grid_layout.addItem(clmn_spacer, 0, clmn_count + 1)
-
-            # if self.move_to_filepath:
-                # QTimer.singleShot(2000, lambda: self.move_to_wid(self.move_to_filepath))
-
-            self.load_images()
+            self.start_load_images_thread()
 
         else:
             no_images = QLabel(f"{Config.json_data['root']}\nНет изображений")
@@ -348,7 +346,7 @@ class GridStandart(QScrollArea):
         except (RuntimeError):
             pass
 
-    def load_images(self):
+    def stop_and_wait_threads(self):
         for i in GridStandartThreads.load_images_threads:
             i: LoadImagesThread
             i.stop_thread.emit()
@@ -356,6 +354,14 @@ class GridStandart(QScrollArea):
             if i.isFinished():
                 GridStandartThreads.load_images_threads.remove(i)
 
+    def stop_threads(self):
+        for thread in GridStandartThreads.load_images_threads:
+            thread: LoadImagesThread
+            thread.stop_thread.emit()
+            thread.wait()
+
+    def start_load_images_thread(self):
+        self.stop_threads()
         new_thread = LoadImagesThread(self.finder_images)
         GridStandartThreads.load_images_threads.append(new_thread)
         new_thread.start()

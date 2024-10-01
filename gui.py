@@ -242,7 +242,6 @@ class SimpleFileExplorer(QWidget):
         super().__init__()
 
         self.clmn_count = 1
-        self.first_load = True
         self.finder_items = []
         self.finder_images: dict = {}
         self.grid: QGridLayout = None
@@ -291,7 +290,7 @@ class SimpleFileExplorer(QWidget):
         self.resize_timer.setInterval(500)
         self.resize_timer.timeout.connect(self.load_standart_grid)
 
-        self.load_last_place()
+        self.first_load()
         self.setWindowTitle(Config.json_data["root"])
 
     def on_tree_clicked(self, root: str):
@@ -329,7 +328,7 @@ class SimpleFileExplorer(QWidget):
         self.grid = GridStandart(width=ww, root=Config.json_data["root"])
         self.r_lay.addWidget(self.grid)
 
-    def load_last_place(self):
+    def first_load(self):
         root = Config.json_data["root"]
 
         if root and os.path.exists(root):
@@ -377,10 +376,5 @@ class CustomApp(QApplication):
         return False
 
     def on_exit(self):
-        for thread in GridStandartThreads.load_images_threads:
-            thread: LoadImagesThread
-            thread.stop_thread.emit()
-            thread.wait()
-
         with open(Config.json_file, 'w') as f:
             json.dump(Config.json_data, f, indent=4, ensure_ascii=False)
