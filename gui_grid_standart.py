@@ -24,7 +24,7 @@ class LoadImagesThread(QThread):
     stop_thread = pyqtSignal()
     finished_thread = pyqtSignal()
     
-    def __init__(self, finder_images: dict[tuple: QLabel], thumb_size: int):
+    def __init__(self, finder_images: dict[tuple: QLabel]):
         super().__init__()
 
         self.finder_images: dict[tuple: QLabel] = finder_images # (src, size, modified): QLabel
@@ -34,7 +34,6 @@ class LoadImagesThread(QThread):
 
         self.db_images: dict = {}
         
-        self.thumb_size = thumb_size
         self.flag = True
         self.stop_thread.connect(self.stop_thread_cmd)
 
@@ -194,7 +193,6 @@ class NameLabel(QLabel):
 
 
 class Thumbnail(QFrame):
-    double_click = pyqtSignal()
     img_view_closed = pyqtSignal(str)
 
     def __init__(self, filename: str, src: str):
@@ -358,6 +356,6 @@ class GridStandart(QScrollArea):
             if i.isFinished():
                 GridStandartThreads.load_images_threads.remove(i)
 
-        new_thread = LoadImagesThread(self.finder_images, Config.thumb_size)
+        new_thread = LoadImagesThread(self.finder_images)
         GridStandartThreads.load_images_threads.append(new_thread)
         new_thread.start()
