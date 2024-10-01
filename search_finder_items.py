@@ -35,7 +35,7 @@ class SearchFinderThread(QThread):
 
                 src = os.path.join(root, file)
 
-                if file == self.filename:
+                if self.filename in file:
                     q = sqlalchemy.select(Cache.img).where(Cache.src==src)
                     res = session.execute(q).first()
 
