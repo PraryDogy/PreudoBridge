@@ -25,12 +25,11 @@ class LoadImagesThread(QThread):
     stop_thread = pyqtSignal()
     finished_thread = pyqtSignal()
     
-    def __init__(self, finder_images: dict[tuple: QLabel]):
+    def __init__(self, grid_widgets: dict[tuple: QLabel]):
         super().__init__()
 
-        self.finder_images: dict[tuple: QLabel] = finder_images # (src, size, modified): QLabel
+        self.grid_widgets: dict[tuple: QLabel] = grid_widgets
         self.remove_db_images: dict[tuple: str] = {}
-
         self.db_images: dict = {}
         
         self.flag = True
@@ -42,17 +41,17 @@ class LoadImagesThread(QThread):
         # print(self, "thread started")
         self.db_images: dict = self.get_db_images()
         self.load_already_images()
-        self.create_new_images(images=self.finder_images)
+        self.create_new_images()
         self.remove_images()
         self.session.commit()
         self.session.close()
         self.finished_thread.emit()
         # print(self, "thread finished")
 
-    def create_new_images(self, images: dict):
-        images_copy = images.copy()
+    def create_new_images(self):
+        grid_widgets = self.grid_widgets.copy()
 
-        for (src, size, modified), widget in images_copy.items():
+        for (src, size, modified), widget in grid_widgets.items():
             if not self.flag:
                 break
 
@@ -83,7 +82,7 @@ class LoadImagesThread(QThread):
 
     def load_already_images(self):
         for (src, size, modified), bytearray_image in self.db_images.items():
-            widget: QLabel = self.finder_images.get((src, size, modified))
+            widget: QLabel = self.grid_widgets.get((src, size, modified))
 
             if not self.flag:
                 break
@@ -91,7 +90,7 @@ class LoadImagesThread(QThread):
             if widget:
                 pixmap: QPixmap = Utils.pixmap_from_bytes(bytearray_image)
                 widget.setPixmap(pixmap)
-                self.finder_images.pop((src, size, modified))
+                self.grid_widgets.pop((src, size, modified))
             else:
                 self.remove_db_images[(src, size, modified)] = ""
 
@@ -275,7 +274,7 @@ class GridStandart(GridBase):
         self.setWidgetResizable(True)
 
         Config.img_viewer_images.clear()
-        self.finder_images: dict = {}
+        self.grid_widgets: dict = {}
         clmn_count = width // Config.thumb_size
         if clmn_count < 1:
             clmn_count = 1
@@ -302,10 +301,10 @@ class GridStandart(GridBase):
                 col = 0
                 row += 1
 
-            self.finder_images[(src, size, modified)] = thumbnail.img_label
+            self.grid_widgets[(src, size, modified)] = thumbnail.img_label
             Config.img_viewer_images[src] = thumbnail
 
-        if self.finder_images:
+        if self.grid_widgets:
             row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
             self.grid_layout.addItem(row_spacer, row + 1, 0)
             clmn_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
@@ -356,7 +355,7 @@ class GridStandart(GridBase):
             thread.wait()
 
     def start_load_images_thread(self):
-        new_thread = LoadImagesThread(self.finder_images)
+        new_thread = LoadImagesThread(self.grid_widgets)
         GridStandartStorage.load_images_threads.append(new_thread)
         new_thread.start()
 
