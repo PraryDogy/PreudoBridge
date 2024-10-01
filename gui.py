@@ -158,18 +158,59 @@ class SortTypeWidget(QPushButton):
         self.sort_click.emit()
 
 
-class SearchWidget(QLineEdit):
+# class SearchWidget(QLineEdit):
+#     search_text_sig = pyqtSignal(str)
+#     search_clear_sig = pyqtSignal()
+
+#     def __init__(self):
+#         super().__init__()
+
+#         self.setPlaceholderText("Поиск")
+#         self.setStyleSheet("padding-left: 2px;")
+#         self.setFixedSize(200, 25)
+        
+#         self.textChanged.connect(self.on_text_changed)
+#         self.search_text: str = None
+
+#         self.search_timer = QTimer(self)
+#         self.search_timer.setSingleShot(True)
+#         self.search_timer.timeout.connect(
+#             lambda: self.search_text_sig.emit(self.search_text)
+#             )
+
+#     def on_text_changed(self, text):
+#         if text:
+#             self.search_text = text
+#             self.search_timer.stop()
+#             self.search_timer.start(1000)
+#         else:
+#             self.search_clear_sig.emit()
+
+
+class SearchWidget(QWidget):
     search_text_sig = pyqtSignal(str)
     search_clear_sig = pyqtSignal()
 
     def __init__(self):
         super().__init__()
 
-        self.setPlaceholderText("Поиск")
-        self.setStyleSheet("padding-left: 2px;")
-        self.setFixedSize(200, 25)
+        v_lay = QVBoxLayout()
+        v_lay.setContentsMargins(0, 0, 0, 0)
+        v_lay.setSpacing(0)
+        self.setLayout(v_lay)
 
-        self.textChanged.connect(self.on_text_changed)
+        input_wid = QLineEdit()
+        input_wid.setPlaceholderText("Поиск")
+        input_wid.setStyleSheet("padding-left: 2px;")
+        input_wid.setFixedSize(200, 25)
+        v_lay.addWidget(input_wid)
+
+        self.clear_btn = QLabel(parent=self, text="x")
+        self.clear_btn.setFixedSize(10, 10)
+        self.clear_btn.move(180, 7)
+        self.clear_btn.hide()
+
+        input_wid.textChanged.connect(self.on_text_changed)
         self.search_text: str = None
 
         self.search_timer = QTimer(self)
@@ -180,11 +221,17 @@ class SearchWidget(QLineEdit):
 
     def on_text_changed(self, text):
         if text:
+            self.clear_btn.show()
             self.search_text = text
             self.search_timer.stop()
             self.search_timer.start(1000)
         else:
+            self.clear_btn.hide()
             self.search_clear_sig.emit()
+
+
+
+
 
 
 class TopBarWidget(QFrame):
