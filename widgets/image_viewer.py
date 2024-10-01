@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (QAction, QFrame, QHBoxLayout, QLabel, QMenu,
 
 from cfg import Config
 from database import Cache, Dbase
-from svg_btn import SvgShadowed
+from .svg_widgets import SvgShadowed
 from utils import Utils
 
 

@@ -11,10 +11,10 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFileSystemModel, QFrame,
                              QWidget)
 
 from cfg import Config
-from gui_grid_standart import (GridStandart, GridStandartThreads,
-                               LoadImagesThread)
 from path_finder import PathFinderThread
 from utils import Utils
+from widgets.grid_standart import (GridStandart, GridStandartThreads,
+                                       LoadImagesThread)
 
 
 class SortTypeWidget(QPushButton):

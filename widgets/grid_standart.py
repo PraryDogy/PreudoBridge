@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QLabel, QMenu,
 from cfg import Config
 from database import Cache, Dbase
 from fit_img import FitImg
-from image_viewer import WinImageView
+from .image_viewer import WinImageView
 from utils import Utils
 
 
