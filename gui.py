@@ -2,129 +2,19 @@ import json
 import os
 import subprocess
 
-from PyQt5.QtCore import (QDir, QEvent, QModelIndex, QObject, QPoint, Qt,
-                          QTimer, pyqtSignal)
-from PyQt5.QtGui import (QCloseEvent, QContextMenuEvent, QKeyEvent,
-                         QMouseEvent, QPixmap, QResizeEvent)
+from PyQt5.QtCore import QDir, QEvent, QObject, Qt, QTimer, pyqtSignal
+from PyQt5.QtGui import QCloseEvent, QKeyEvent, QResizeEvent
 from PyQt5.QtWidgets import (QAction, QApplication, QFileSystemModel, QFrame,
-                             QGridLayout, QHBoxLayout, QHeaderView, QLabel,
-                             QMenu, QMessageBox, QPushButton, QScrollArea,
-                             QSizePolicy, QSpacerItem, QSplitter, QTabBar,
-                             QTabWidget, QTreeView, QVBoxLayout, QWidget, QLineEdit)
+                             QGridLayout, QLabel, QLineEdit, QMenu,
+                             QPushButton, QSizePolicy, QSpacerItem, QSplitter,
+                             QTabBar, QTabWidget, QTreeView, QVBoxLayout,
+                             QWidget)
 
 from cfg import Config
-from database import Dbase
-from get_finder_items import LoadFinderItems
-from image_viewer import WinImageView
-from load_images import LoadImagesThread
+from gui_grid_standart import (GridStandart, GridStandartThreads,
+                               LoadImagesThread)
 from path_finder import PathFinderThread
 from utils import Utils
-
-
-class Storage:
-    load_images_threads: list = []
-    load_finder_threads: list = []
-
-
-class NameLabel(QLabel):
-    def __init__(self, filename: str):
-        super().__init__()
-        self.setText(self.split_text(filename))
-        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-    def split_text(self, text: str) -> list[str]:
-        max_length = 27
-        lines = []
-        
-        # Разбиваем текст на строки длиной не более 27 символов
-        while len(text) > max_length:
-            lines.append(text[:max_length])
-            text = text[max_length:]
-
-        # Добавляем последнюю строку (если есть остаток)
-        if text:
-            lines.append(text)
-
-        # Обрезаем, если строк больше двух
-        if len(lines) > 2:
-            lines = lines[:2]
-            lines[-1] = lines[-1][:max_length-3] + '...'  # Отсекаем и добавляем троеточие
-
-        return "\n".join(lines)
-
-class Thumbnail(QFrame):
-    double_click = pyqtSignal()
-    img_view_closed = pyqtSignal(str)
-
-    def __init__(self, filename: str, src: str):
-        super().__init__()
-        self.setFixedSize(250, 300)
-        self.src = src
-
-        self.setFrameShape(QFrame.Shape.NoFrame)
-        tooltip = filename + "\n" + src
-        self.setToolTip(tooltip)
-
-        v_lay = QVBoxLayout()
-        self.setLayout(v_lay)
-
-        self.img_label = QLabel()
-        self.img_label.setFixedHeight(Config.thumb_size)
-        self.img_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        v_lay.addWidget(self.img_label)
-
-        filename = os.path.basename(src)
-        img_name = NameLabel(filename)
-        v_lay.addWidget(img_name)
-
-    def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
-        self.double_click.emit()
-        return super().mouseReleaseEvent(a0)
-
-    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-
-        self.setFrameShape(QFrame.Shape.Panel)
-
-        context_menu = QMenu(self)
-
-        # Пункт "Просмотр"
-        view_action = QAction("Просмотр", self)
-        view_action.triggered.connect(self.view_file)
-        context_menu.addAction(view_action)
-
-        context_menu.addSeparator()
-
-        open_action = QAction("Открыть по умолчанию", self)
-        open_action.triggered.connect(self.open_default)
-        context_menu.addAction(open_action)
-
-        show_in_finder_action = QAction("Показать в Finder", self)
-        show_in_finder_action.triggered.connect(self.show_in_finder)
-        context_menu.addAction(show_in_finder_action)
-
-        copy_path = QAction("Скопировать путь до файла", self)
-        copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
-        context_menu.addAction(copy_path)
-
-        context_menu.exec_(self.mapToGlobal(a0.pos()))
-
-        self.setFrameShape(QFrame.Shape.NoFrame)
-
-        return super().contextMenuEvent(a0)
-
-    def view_file(self):
-        if self.src.endswith(Config.img_ext):
-            self.win = WinImageView(self, self.src)
-            self.win.closed.connect(lambda src: self.img_view_closed.emit(src))
-            main_win = Utils.get_main_win()
-            Utils.center_win(parent=main_win, child=self.win)
-            self.win.show()
-
-    def open_default(self):
-        subprocess.call(["open", self.src])
-
-    def show_in_finder(self):
-        subprocess.call(["open", "-R", self.src])
 
 
 class SortTypeWidget(QPushButton):
@@ -156,35 +46,6 @@ class SortTypeWidget(QPushButton):
         Config.json_data["sort"] = text
         self.setText(self.data[text])
         self.sort_click.emit()
-
-
-# class SearchWidget(QLineEdit):
-#     search_text_sig = pyqtSignal(str)
-#     search_clear_sig = pyqtSignal()
-
-#     def __init__(self):
-#         super().__init__()
-
-#         self.setPlaceholderText("Поиск")
-#         self.setStyleSheet("padding-left: 2px;")
-#         self.setFixedSize(200, 25)
-        
-#         self.textChanged.connect(self.on_text_changed)
-#         self.search_text: str = None
-
-#         self.search_timer = QTimer(self)
-#         self.search_timer.setSingleShot(True)
-#         self.search_timer.timeout.connect(
-#             lambda: self.search_text_sig.emit(self.search_text)
-#             )
-
-#     def on_text_changed(self, text):
-#         if text:
-#             self.search_text = text
-#             self.search_timer.stop()
-#             self.search_timer.start(1000)
-#         else:
-#             self.search_clear_sig.emit()
 
 
 class SearchWidget(QWidget):
@@ -229,10 +90,6 @@ class SearchWidget(QWidget):
         else:
             self.clear_btn.hide()
             self.search_clear_sig.emit()
-
-
-
-
 
 
 class TopBarWidget(QFrame):
@@ -388,6 +245,7 @@ class SimpleFileExplorer(QWidget):
         self.first_load = True
         self.finder_items = []
         self.finder_images: dict = {}
+        self.grid: QGridLayout = None
 
         ww, hh = Config.json_data["ww"], Config.json_data["hh"]
         self.resize(ww, hh)
@@ -415,30 +273,23 @@ class SimpleFileExplorer(QWidget):
         splitter_wid.addWidget(right_wid)
         splitter_wid.setStretchFactor(1, 1)
 
-        r_lay = QVBoxLayout()
-        r_lay.setContentsMargins(0, 0, 0, 0)
-        r_lay.setSpacing(0)
-        right_wid.setLayout(r_lay)
+        self.r_lay = QVBoxLayout()
+        self.r_lay.setContentsMargins(0, 0, 0, 0)
+        self.r_lay.setSpacing(0)
+        right_wid.setLayout(self.r_lay)
         
         self.top_bar = TopBarWidget()
-        self.top_bar.sort_btn_press.connect(self.get_finder_items)
+        self.top_bar.sort_btn_press.connect(self.load_standart_grid)
         self.top_bar.up_btn_press.connect(self.btn_up_cmd)
         self.top_bar.open_btn_press.connect(self.open_custom_path)
-        r_lay.addWidget(self.top_bar)
+        self.r_lay.addWidget(self.top_bar)
 
-        self.scroll_area = QScrollArea()
-        self.scroll_area.setWidgetResizable(True)
-        r_lay.addWidget(self.scroll_area)
 
-        self.grid_container = QWidget()
-        self.grid_layout = QGridLayout(self.grid_container)
-        self.grid_layout.setSpacing(5)
-        self.scroll_area.setWidget(self.grid_container)
 
         self.resize_timer = QTimer(parent=self)
         self.resize_timer.setSingleShot(True)
         self.resize_timer.setInterval(500)
-        self.resize_timer.timeout.connect(self.get_finder_items)
+        self.resize_timer.timeout.connect(self.load_standart_grid)
 
         self.load_last_place()
         self.setWindowTitle(Config.json_data["root"])
@@ -446,7 +297,7 @@ class SimpleFileExplorer(QWidget):
     def on_tree_clicked(self, root: str):
         Config.json_data["root"] = root
         self.setWindowTitle(root)
-        self.get_finder_items()
+        self.load_standart_grid()
 
     def open_custom_path(self, path: str):
         if not os.path.exists(path):
@@ -460,7 +311,7 @@ class SimpleFileExplorer(QWidget):
         Config.json_data["root"] = path
         self.tree_wid.expand_path(path)
         self.setWindowTitle(path)
-        self.get_finder_items()
+        self.load_standart_grid()
 
     def btn_up_cmd(self):
         path = os.path.dirname(Config.json_data["root"])
@@ -468,118 +319,22 @@ class SimpleFileExplorer(QWidget):
 
         self.tree_wid.expand_path(path)
         self.setWindowTitle(Config.json_data["root"])
-        self.get_finder_items()
+        self.load_standart_grid()
 
-    def reload_grid_layout(self, event=None):
-        if self.first_load:
-            self.first_load = False
-            return
+    def load_standart_grid(self):
+        if self.grid:
+            self.grid.deleteLater()
 
-        ww = Config.json_data["ww"] - self.left_wid.width() - 180
-        clmn_count = ww // Config.thumb_size
-
-        if clmn_count < 1:
-            clmn_count = 1
-
-        self.clmn_count = clmn_count
-        row, col = 0, 0
-
-        for src, filename, size, modified, filetype in self.finder_items:
-            thumbnail = Thumbnail(filename, src)
-            thumbnail.double_click.connect(
-                lambda src=src, wid=thumbnail: self.on_wid_double_clicked(src, wid)
-                )
-            thumbnail.img_view_closed.connect(lambda src: self.move_to_wid(src))
-            self.set_default_image(thumbnail.img_label, "images/file_210.png")
-
-            self.grid_layout.addWidget(thumbnail, row, col)
-
-            col += 1
-            if col >= clmn_count:
-                col = 0
-                row += 1
-
-            self.finder_images[(src, size, modified)] = thumbnail.img_label
-            Config.img_viewer_images[src] = thumbnail
-
-        if self.finder_images:
-            row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
-            self.grid_layout.addItem(row_spacer, row + 1, 0)
-            clmn_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
-            self.grid_layout.addItem(clmn_spacer, 0, clmn_count + 1)
-
-            if self.move_to_filepath:
-                QTimer.singleShot(2000, lambda: self.move_to_wid(self.move_to_filepath))
-
-            self.load_images()
-
-        else:
-            no_images = QLabel(f"{Config.json_data['root']}\nНет изображений")
-            no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.grid_layout.addWidget(no_images, 0, 0, Qt.AlignmentFlag.AlignCenter)
-            self.grid_layout.setColumnStretch(0, 1)
-            self.grid_layout.setRowStretch(0, 1)
-
-    def load_images(self):
-        for i in Storage.load_images_threads:
-            i: LoadImagesThread
-            i.stop_thread.emit()
-
-            if i.isFinished():
-                Storage.load_images_threads.remove(i)
-
-        new_thread = LoadImagesThread(self.finder_images, Config.thumb_size)
-        Storage.load_images_threads.append(new_thread)
-        new_thread.start()
-
-    def on_wid_double_clicked(self, path: str, wid: Thumbnail):
-        wid.setFrameShape(QFrame.Shape.Panel)
-        QTimer.singleShot(500, lambda: wid.setFrameShape(QFrame.Shape.NoFrame))
-        self.win = WinImageView(self, path)
-        Utils.center_win(parent=self, child=self.win)
-        self.win.closed.connect(lambda src: self.move_to_wid(src))
-        self.win.show()
-
-    def move_to_wid(self, src: str):
-        try:
-            wid: Thumbnail = Config.img_viewer_images[src]
-            wid.setFrameShape(QFrame.Shape.Panel)
-            self.scroll_area.ensureWidgetVisible(wid)
-            QTimer.singleShot(1000, lambda: self.set_no_frame(wid))
-        except (RuntimeError, KeyError) as e:
-            print(e)
-
-        self.move_to_filepath = None
-
-    def set_no_frame(self, wid: Thumbnail):
-        try:
-            wid.setFrameShape(QFrame.Shape.NoFrame)
-        except (RuntimeError):
-            pass
-
-    def get_finder_items(self):
-        Utils.clear_layout(layout=self.grid_layout)
-        self.finder_images.clear()
-
-        finder_items = LoadFinderItems(Config.json_data["root"])
-        self.finder_items = finder_items.run()
-
-        Config.img_viewer_images.clear()
-        self.reload_grid_layout()
+        ww = self.get_grid_width()
+        self.grid = GridStandart(width=ww, root=Config.json_data["root"])
+        self.r_lay.addWidget(self.grid)
 
     def load_last_place(self):
         root = Config.json_data["root"]
 
         if root and os.path.exists(root):
             self.tree_wid.expand_path(root)
-            self.get_finder_items()
-
-    def set_default_image(self, widget: QLabel, png_path: str):
-        pixmap = QPixmap(png_path)
-        try:
-            widget.setPixmap(pixmap)
-        except RuntimeError:
-            pass
+            self.load_standart_grid()
 
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         Config.json_data["ww"] = self.geometry().width()
@@ -605,6 +360,9 @@ class SimpleFileExplorer(QWidget):
             if a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
                 QApplication.instance().quit()
 
+    def get_grid_width(self):
+        return Config.json_data["ww"] - self.left_wid.width() - 180
+
 
 class CustomApp(QApplication):
     def __init__(self, argv: list[str]) -> None:
@@ -619,7 +377,7 @@ class CustomApp(QApplication):
         return False
 
     def on_exit(self):
-        for thread in Storage.load_images_threads:
+        for thread in GridStandartThreads.load_images_threads:
             thread: LoadImagesThread
             thread.stop_thread.emit()
             thread.wait()
