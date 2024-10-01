@@ -344,43 +344,42 @@ class SimpleFileExplorer(QWidget):
         self.resize(ww, hh)
         self.move_to_filepath: str = None
 
-        v_lay = QVBoxLayout()
-        v_lay.setContentsMargins(0, 0, 0, 0)
-        v_lay.setSpacing(0)
-        self.setLayout(v_lay)
+        main_lay = QVBoxLayout()
+        main_lay.setContentsMargins(5, 5, 5, 5)
+        main_lay.setSpacing(0)
+        self.setLayout(main_lay)
 
+        splitter_wid = QSplitter(Qt.Horizontal)
+        splitter_wid.splitterMoved.connect(self.custom_resize_event)
+        main_lay.addWidget(splitter_wid)
+
+        self.left_wid = QTabWidget()
+        splitter_wid.addWidget(self.left_wid)
+        splitter_wid.setStretchFactor(0, 0)
+        
+        self.tree_wid = TreeWidget()
+        self.tree_wid.on_tree_clicked.connect(self.on_tree_clicked)
+        self.left_wid.addTab(self.tree_wid, "Файлы")
+        self.left_wid.addTab(QLabel("Тут будут каталоги"), "Каталог")
+
+        self.right_wid = QWidget()
+        splitter_wid.addWidget(self.right_wid)
+        splitter_wid.setStretchFactor(1, 1)
+
+        r_lay = QVBoxLayout()
+        r_lay.setContentsMargins(0, 0, 0, 0)
+        r_lay.setSpacing(0)
+        self.right_wid.setLayout(r_lay)
+        
         self.top_bar = TopBarWidget()
         self.top_bar.sort_btn_press.connect(self.get_finder_items)
         self.top_bar.up_btn_press.connect(self.btn_up_cmd)
         self.top_bar.open_btn_press.connect(self.open_custom_path)
-        v_lay.addWidget(self.top_bar)
-
-        splitter_wid = QWidget()
-        v_lay.addWidget(splitter_wid)
-        splitter_lay = QHBoxLayout()
-        splitter_lay.setContentsMargins(10, 0, 10, 10)
-        splitter_wid.setLayout(splitter_lay)
-
-        self.splitter = QSplitter(Qt.Horizontal)
-        self.splitter.splitterMoved.connect(self.custom_resize_event)
-        splitter_lay.addWidget(self.splitter)
-
-        self.left_wid = QWidget()
-        self.splitter.addWidget(self.left_wid)
-        self.splitter.setStretchFactor(0, 0)
-
-        left_lay = QVBoxLayout()
-        left_lay.setContentsMargins(0, 0, 0, 0)
-        self.left_wid.setLayout(left_lay)
-        
-        self.tree_widget = TreeWidget()
-        self.tree_widget.on_tree_clicked.connect(self.on_tree_clicked)
-        left_lay.addWidget(self.tree_widget)
+        r_lay.addWidget(self.top_bar)
 
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
-        self.splitter.addWidget(self.scroll_area)
-        self.splitter.setStretchFactor(1, 1)
+        r_lay.addWidget(self.scroll_area)
 
         self.grid_container = QWidget()
         self.grid_layout = QGridLayout(self.grid_container)
@@ -412,7 +411,7 @@ class SimpleFileExplorer(QWidget):
             path, _ = os.path.split(path)
 
         Config.json_data["root"] = path
-        self.tree_widget.expand_path(path)
+        self.tree_wid.expand_path(path)
         self.setWindowTitle(path)
         self.get_finder_items()
 
@@ -420,7 +419,7 @@ class SimpleFileExplorer(QWidget):
         path = os.path.dirname(Config.json_data["root"])
         Config.json_data["root"] = path
 
-        self.tree_widget.expand_path(path)
+        self.tree_wid.expand_path(path)
         self.setWindowTitle(Config.json_data["root"])
         self.get_finder_items()
 
@@ -524,7 +523,7 @@ class SimpleFileExplorer(QWidget):
         root = Config.json_data["root"]
 
         if root and os.path.exists(root):
-            self.tree_widget.expand_path(root)
+            self.tree_wid.expand_path(root)
             self.get_finder_items()
 
     def set_default_image(self, widget: QLabel, png_path: str):
