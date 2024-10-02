@@ -65,9 +65,15 @@ class TreeFavorites(QListWidget):
     def custom_context(self, a0: QContextMenuEvent | None, src: str) -> None:
         menu = QMenu(self)
 
+        view_ac = QAction("Просмотр", self)
+        view_ac.triggered.connect(lambda: self.on_fav_clicked.emit(src))
+        menu.addAction(view_ac)
+
         open_finder_action = QAction("Показать в Finder", self)
         open_finder_action.triggered.connect(lambda: self.open_in_finder(src))
         menu.addAction(open_finder_action)
+
+        menu.addSeparator()
 
         copy_path_action = QAction("Скопировать путь до папки", self)
         copy_path_action.triggered.connect(lambda: Utils.copy_path(src))
@@ -75,15 +81,9 @@ class TreeFavorites(QListWidget):
 
         menu.addSeparator()
 
-        favs = Config.json_data["favs"]
-        if src in favs:
-            fav_action = QAction("Удалить из избранного", self)
-            fav_action.triggered.connect(lambda: self.del_item(src))
-            menu.addAction(fav_action)
-        else:
-            fav_action = QAction("Добавить в избранное", self)
-            fav_action.triggered.connect(lambda: self.del_item(src))
-            menu.addAction(fav_action)
+        fav_action = QAction("Удалить из избранного", self)
+        fav_action.triggered.connect(lambda: self.del_item(src))
+        menu.addAction(fav_action)
 
         menu.exec_(a0.globalPos())
 
