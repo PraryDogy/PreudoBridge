@@ -45,6 +45,7 @@ class SimpleFileExplorer(QWidget):
         self.folders_tree_wid = TreeFolders()
         self.folders_tree_wid.folders_tree_clicked.connect(self.on_files_tree_clicked)
         self.left_wid.addTab(self.folders_tree_wid, "Папки")
+        self.left_wid.addTab(QLabel("Избранное"), "Избранное")
         self.left_wid.addTab(QLabel("Тут будут каталоги"), "Каталог")
 
         right_wid = QWidget()
@@ -61,7 +62,6 @@ class SimpleFileExplorer(QWidget):
         # У ТЕБЯ СОРТИРОВКА ТОЛЬКО СТАНДАРТНУЮ СЕТКУ ЗАГРУЖАЕТ КАК И РЕСАЙЗ МЕТОД
         # НАПИШИ МЕТОД КОТОРЫЙ ПРОСТО ПЕРЕРАСПРЕДЕЛЯЕТ ВИДЖЕТЫ В СЕТКЕ
         self.top_bar.sort_vozrast_btn_press.connect(self.load_standart_grid)
-        self.top_bar.level_up_btn_press.connect(self.level_up_btn_cmd)
         self.top_bar.open_path_btn_press.connect(self.open_path_btn_cmd)
         self.top_bar.search_wid.start_search_sig.connect(self.load_search_grid)
         self.top_bar.search_wid.stop_search_sig.connect(self.load_standart_grid)
@@ -104,16 +104,7 @@ class SimpleFileExplorer(QWidget):
         self.load_standart_grid()
         QTimer.singleShot(1500, lambda: self.grid.move_to_wid(self.move_to_filepath))
 
-    def level_up_btn_cmd(self):
-        path = os.path.dirname(Config.json_data["root"])
-        Config.json_data["root"] = path
-
-        self.folders_tree_wid.expand_path(path)
-        self.setWindowTitle(Config.json_data["root"])
-        self.load_standart_grid()
-
     def disable_top_bar_btns(self, b: bool):
-        self.top_bar.level_up_button.setDisabled(b)
         self.top_bar.open_btn.setDisabled(b)
         self.top_bar.sort_vozrast_button.setDisabled(b)
         self.top_bar.sort_widget.setDisabled(b)
@@ -156,11 +147,7 @@ class SimpleFileExplorer(QWidget):
         a0.ignore()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
-        if a0.key() == Qt.Key.Key_Up:
-            if a0.modifiers() == Qt.KeyboardModifier.MetaModifier:
-                self.level_up_btn_cmd()
-
-        elif a0.key() == Qt.Key.Key_W:
+        if a0.key() == Qt.Key.Key_W:
             if a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
                 self.hide()
 

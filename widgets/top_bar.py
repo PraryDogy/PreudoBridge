@@ -170,7 +170,6 @@ class SearchWidget(QWidget):
 
 class TopBar(QFrame):
     sort_vozrast_btn_press = pyqtSignal()
-    level_up_btn_press = pyqtSignal()
     open_path_btn_press = pyqtSignal(str)
 
     def __init__(self):
@@ -188,19 +187,13 @@ class TopBar(QFrame):
         l_spacer = QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         self.grid_layout.addItem(l_spacer, 0, 0)
 
-        self.level_up_button = QPushButton(text="↑", parent=self)
-        self.level_up_button.setToolTip(" Перейти на уровень выше ")
-        self.level_up_button.setFixedWidth(60)
-        self.level_up_button.clicked.connect(self.level_up_btn_press.emit)
-        self.grid_layout.addWidget(self.level_up_button, 0, 1)
-
         self.open_btn = QPushButton("Открыть путь")
         self.open_btn.clicked.connect(self.open_path_btn_cmd)
-        self.grid_layout.addWidget(self.open_btn, 0, 2)
+        self.grid_layout.addWidget(self.open_btn, 0, 1)
 
         self.sort_widget = SortTypeWidget(parent=self)
         self.sort_widget.sort_click.connect(self.sort_vozrast_btn_press.emit)
-        self.grid_layout.addWidget(self.sort_widget, 0, 3)
+        self.grid_layout.addWidget(self.sort_widget, 0, 2)
 
         self.ubiv = "↓↑"
         self.vozrast = "↑↓"
@@ -209,16 +202,16 @@ class TopBar(QFrame):
         self.sort_vozrast_button.setToolTip(" Сортировка файлов: по возрастанию / по убыванию ")
         self.sort_vozrast_button.setFixedWidth(60)
         self.sort_vozrast_button.clicked.connect(self.on_sort_toggle)
-        self.grid_layout.addWidget(self.sort_vozrast_button, 0, 4)
+        self.grid_layout.addWidget(self.sort_vozrast_button, 0, 3)
 
         r_spacer = QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-        self.grid_layout.addItem(r_spacer, 0, 5)
+        self.grid_layout.addItem(r_spacer, 0, 4)
 
         self.search_wid = SearchWidget()
-        self.grid_layout.addWidget(self.search_wid, 0, 6)
+        self.grid_layout.addWidget(self.search_wid, 0, 5)
 
         last_spacer = QSpacerItem(10, 1)
-        self.grid_layout.addItem(last_spacer, 0, 7)
+        self.grid_layout.addItem(last_spacer, 0, 6)
 
     def paste_text(self) -> str:
         paste_result = subprocess.run(
