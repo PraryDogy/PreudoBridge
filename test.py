@@ -1,10 +1,7 @@
-import time
+import os
 
-for i in range(0, 10):
-    print(i)
-    break
 
-    for x in range(99, 999):
-        print(x)
-        time.sleep(0.5)
-        break
+src = "/Users/Loshkarev/Desktop/N2018-NCA61113ADI_N2018-NCA61106ADI.psd"
+
+a = os.path.dirname(src)
+print(a)

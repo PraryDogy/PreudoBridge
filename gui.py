@@ -118,8 +118,15 @@ class SimpleFileExplorer(QWidget):
         ww = self.get_grid_width()
         self.grid = GridSearch(width=ww, search_text=search_text)
         self.grid.finished.connect(lambda: self.setWindowTitle(f"🟢\tРезультаты поиска: {search_text}"))
+        self.grid.show_in_folder.connect(self.show_in_folder)
         self.setWindowTitle(f"🟠\tИдет поиск: {search_text}")
         self.r_lay.addWidget(self.grid)
+
+    def show_in_folder(self, src: str):
+        root = os.path.dirname(src)
+        Config.json_data["root"] = root
+        self.load_standart_grid()
+        QTimer.singleShot(1500, lambda: self.grid.move_to_wid(self.move_to_filepath))
 
     def load_standart_grid(self):
         self.disable_top_bar_btns(False)

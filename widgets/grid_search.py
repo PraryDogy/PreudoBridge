@@ -42,6 +42,7 @@ class NameLabel(QLabel):
 
 class Thumbnail(QFrame):
     img_view_closed = pyqtSignal(str)
+    show_in_folder = pyqtSignal(str)
 
     def __init__(self, filename: str, src: str):
         super().__init__()
@@ -98,6 +99,12 @@ class Thumbnail(QFrame):
         copy_path = QAction("Скопировать путь до файла", self)
         copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
         context_menu.addAction(copy_path)
+
+        context_menu.addSeparator()
+
+        show_in_folder = QAction("Показать в папке", self)
+        show_in_folder.triggered.connect(lambda: self.show_in_folder.emit(self.src))
+        context_menu.addAction(show_in_folder) 
 
         context_menu.exec_(self.mapToGlobal(a0.pos()))
 
@@ -209,6 +216,7 @@ class SearchFinderThread(QThread):
 
 class GridSearchBase(QScrollArea):
     finished = pyqtSignal()
+    show_in_folder = pyqtSignal(str)
 
     def __init__(self, width: int, search_text: str):
         super().__init__()
@@ -238,6 +246,8 @@ class GridSearchBase(QScrollArea):
     def _add_new_widget(self, data: dict):
         widget = Thumbnail(filename=data["filename"], src=data["src"])
         widget.img_label.setPixmap(data["pixmap"])
+        widget.show_in_folder.connect(self.show_in_folder.emit)
+
         self.grid_layout.addWidget(widget, self.row, self.col)
         Config.img_viewer_images[data["src"]] = widget
 
