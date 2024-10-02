@@ -12,7 +12,18 @@ from utils import Utils
 from widgets.grid_search import GridSearch
 from widgets.grid_standart import GridStandart
 from widgets.top_bar import TopBar
+from widgets.tree_favorites import TreeFavorites
 from widgets.tree_folders import TreeFolders
+
+
+class NoImagesLabel(QLabel):
+    def __init__(self):
+        super().__init__("Такой папки не существует. \n Проверьте подключение к сетевому диску")
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+    
+    def rearrange(self, *args, **kwargs):
+        pass
+
 
 
 class SimpleFileExplorer(QWidget):
@@ -37,15 +48,19 @@ class SimpleFileExplorer(QWidget):
         splitter_wid.splitterMoved.connect(self.resizeEvent)
         main_lay.addWidget(splitter_wid)
 
-        self.left_wid = QTabWidget()
-        splitter_wid.addWidget(self.left_wid)
+        self.tabs_wid = QTabWidget()
+        splitter_wid.addWidget(self.tabs_wid)
         splitter_wid.setStretchFactor(0, 0)
         
         self.folders_tree_wid = TreeFolders()
-        self.folders_tree_wid.folders_tree_clicked.connect(self.on_files_tree_clicked)
-        self.left_wid.addTab(self.folders_tree_wid, "Папки")
-        self.left_wid.addTab(QLabel("Избранное"), "Избранное")
-        self.left_wid.addTab(QLabel("Тут будут каталоги"), "Каталог")
+        self.folders_tree_wid.folders_tree_clicked.connect(self.on_files_tree_clicked_cmd)
+        self.tabs_wid.addTab(self.folders_tree_wid, "Папки")
+
+        self.folders_fav_wid = TreeFavorites()
+        self.folders_fav_wid.on_fav_clicked.connect(self.on_fav_clicked_cmd)
+        self.tabs_wid.addTab(self.folders_fav_wid, "Избранное")
+
+        self.tabs_wid.addTab(QLabel("Тут будут каталоги"), "Каталог")
 
         right_wid = QWidget()
         splitter_wid.addWidget(right_wid)
@@ -80,12 +95,19 @@ class SimpleFileExplorer(QWidget):
 
         else:
             self.setWindowTitle("Ошибка")
-            self.grid = QLabel("Такой папки не существует. \n Проверьте подключение к сетевому диску")
-            self.r_lay.addWidget(self.grid)
+            self.grid = NoImagesLabel()
+            self.r_lay.addWidget(self.grid, alignment=Qt.AlignmentFlag.AlignCenter)
 
-    def on_files_tree_clicked(self, root: str):
+    def on_files_tree_clicked_cmd(self, root: str):
         Config.json_data["root"] = root
         self.setWindowTitle(root)
+        self.load_standart_grid()
+
+    def on_fav_clicked_cmd(self, root: str):
+        Config.json_data["root"] = root
+        self.setWindowTitle(root)
+        self.folders_tree_wid.expand_path(Config.json_data["root"])
+        self.tabs_wid.setCurrentIndex(0)
         self.load_standart_grid()
 
     def open_path_btn_cmd(self, path: str):
@@ -143,7 +165,7 @@ class SimpleFileExplorer(QWidget):
         self.r_lay.addWidget(self.grid)
 
     def get_grid_width(self):
-        return Config.json_data["ww"] - self.left_wid.width() - 180
+        return Config.json_data["ww"] - self.tabs_wid.width() - 180
 
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         Config.json_data["ww"] = self.geometry().width()

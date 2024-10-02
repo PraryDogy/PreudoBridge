@@ -1,7 +1,5 @@
 import os
 
+desktop = os.path.join(os.path.expanduser('~'), 'Desktop')
 
-src = "/Users/Loshkarev/Desktop/N2018-NCA61113ADI_N2018-NCA61106ADI.psd"
-
-a = os.path.dirname(src)
-print(a)
+print(desktop)

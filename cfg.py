@@ -17,7 +17,8 @@ class Config:
         "hh_im": 500,
         "sort": "name",
         "reversed": False,
-        "extra_paths": ["/Studio/PANACEA", "/Studio/MIUZ"]
+        "extra_paths": ["/Studio/PANACEA", "/Studio/MIUZ"],
+        "favs": {}
         }
 
     @staticmethod
