@@ -117,8 +117,8 @@ class SimpleFileExplorer(QWidget):
 
         ww = self.get_grid_width()
         self.grid = GridSearch(width=ww, search_text=search_text)
-        self.grid.finished.connect(lambda: self.setWindowTitle(f"🟢 Результаты поиска: {search_text}"))
-        self.setWindowTitle(f"🟠 Идет поиск: {search_text}")
+        self.grid.finished.connect(lambda: self.setWindowTitle(f"🟢\tРезультаты поиска: {search_text}"))
+        self.setWindowTitle(f"🟠\tИдет поиск: {search_text}")
         self.r_lay.addWidget(self.grid)
 
     def load_standart_grid(self):
