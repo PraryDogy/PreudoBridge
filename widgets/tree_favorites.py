@@ -13,6 +13,7 @@ class TreeFavorites(QListWidget):
         downloads = mac + os.path.join(os.path.expanduser('~'), 'Downloads')
         self._add_def_item("Рабочий стол", desktop)
         self._add_def_item("Загрузки", downloads)
+        self.fav_items: dict = {}
 
         favs: dict = Config.json_data["favs"]
         for src, name in favs.items():
@@ -40,4 +41,9 @@ class TreeFavorites(QListWidget):
         self.addItem(list_item)
         self.setItemWidget(list_item, wid)
 
+        self.fav_items[src] = wid
+
         wid.mouseReleaseEvent = lambda e: self.on_fav_clicked.emit(src)
+
+    def del_item(self, src: str):
+        self.fav_items[src].deleteLater()

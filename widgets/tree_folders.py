@@ -4,11 +4,12 @@ from PyQt5.QtCore import QDir, pyqtSignal
 from PyQt5.QtWidgets import QAction, QFileSystemModel, QMenu, QTreeView
 
 from utils import Utils
-
+from cfg import Config
 
 class TreeFolders(QTreeView):
     folders_tree_clicked = pyqtSignal(str)
     add_to_favs_clicked = pyqtSignal(str)
+    del_favs_clicked = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -67,9 +68,16 @@ class TreeFolders(QTreeView):
         menu.addAction(copy_path_action)
 
         menu.addSeparator()
-        fav_action = QAction("Добавить в избранное", self)
-        fav_action.triggered.connect(lambda: self.add_to_favs_clicked.emit(src))
-        menu.addAction(fav_action)
+
+        favs = Config.json_data["favs"]
+        if src in favs:
+            fav_action = QAction("Удалить из избранного", self)
+            fav_action.triggered.connect(lambda: self.del_favs_clicked.emit(src))
+            menu.addAction(fav_action)
+        else:
+            fav_action = QAction("Добавить в избранное", self)
+            fav_action.triggered.connect(lambda: self.add_to_favs_clicked.emit(src))
+            menu.addAction(fav_action)
 
         menu.exec_(self.mapToGlobal(event.pos()))
 
