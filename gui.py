@@ -112,8 +112,6 @@ class SimpleFileExplorer(QWidget):
         self.tabs_wid.setCurrentIndex(1)
 
     def del_fav_cmd(self, root: str):
-        favs: dict = Config.json_data["favs"]
-        favs.pop(root)
         self.folders_fav_wid.del_item(root)
         self.tabs_wid.setCurrentIndex(1)
 

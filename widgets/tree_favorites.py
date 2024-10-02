@@ -54,6 +54,8 @@ class TreeFavorites(QListWidget):
 
     def del_item(self, src: str):
         self.fav_items[src].deleteLater()
+        favs: dict = Config.json_data["favs"]
+        favs.pop(src)
 
     def l_click(self, e: QMouseEvent | None, src) -> None:
         if e.button() == Qt.MouseButton.LeftButton:
@@ -70,6 +72,18 @@ class TreeFavorites(QListWidget):
         copy_path_action = QAction("Скопировать путь до папки", self)
         copy_path_action.triggered.connect(lambda: Utils.copy_path(src))
         menu.addAction(copy_path_action)
+
+        menu.addSeparator()
+
+        favs = Config.json_data["favs"]
+        if src in favs:
+            fav_action = QAction("Удалить из избранного", self)
+            fav_action.triggered.connect(lambda: self.del_item(src))
+            menu.addAction(fav_action)
+        else:
+            fav_action = QAction("Добавить в избранное", self)
+            fav_action.triggered.connect(lambda: self.del_item(src))
+            menu.addAction(fav_action)
 
         menu.exec_(a0.globalPos())
 
