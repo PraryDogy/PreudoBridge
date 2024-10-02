@@ -143,6 +143,7 @@ class SearchFinderThread(QThread):
             for file in files:
                 if not self.flag:
                     break
+
                 src = os.path.join(root, file)
 
                 if self.filename in file and src.endswith(Config.img_ext):
@@ -257,9 +258,33 @@ class GridSearch(GridSearchBase):
         super().__init__(width, search_text)
 
     def rearrange(self, width: int):
+        if self.search_thread.isRunning():
+            self.reload_search(width)
+        else:
+            self.rearrange_already_search(width)
+
+    def rearrange_already_search(self, width: int):
+        widgets = self.findChildren(Thumbnail)
+        
+        self.clmn_count = width // Config.thumb_size
+        if self.clmn_count < 1:
+            self.clmn_count = 1
+        self.row, self.col = 0, 0
+
+        for wid in widgets:
+            self.grid_layout.addWidget(wid, self.row, self.col)
+            self.col += 1
+            if self.col >= self.clmn_count:
+                self.col = 0
+                self.row += 1
+
+    def reload_search(self, width: int):
         self.search_thread.stop_cmd()
-        # self.verticalScrollBar().setValue(0)
         self.search_thread.wait()
+
+        widgets = self.findChildren(Thumbnail)
+        for i in widgets:
+            i.hide()
 
         self.clmn_count = width // Config.thumb_size
         if self.clmn_count < 1:
@@ -270,21 +295,3 @@ class GridSearch(GridSearchBase):
         self.search_thread.new_widget.connect(self._add_new_widget)
         self.search_thread.finished.connect(self._add_row_spacer)
         self.search_thread.start()
-
-        # widgets = self.findChildren(Thumbnail)
-
-        # self.clmn_count = width // Config.thumb_size
-
-        # if self.clmn_count < 1:
-        #     self.clmn_count = 1
-
-        # row, col = 0, 0
-
-        # for wid in widgets:
-        #     self.grid_layout.addWidget(wid, row, col)
-        #     col += 1
-        #     if col >= self.clmn_count:
-        #         col = 0
-        #         row += 1
-
-        return
