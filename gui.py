@@ -27,7 +27,6 @@ class SimpleFileExplorer(QWidget):
 
         ww, hh = Config.json_data["ww"], Config.json_data["hh"]
         self.resize(ww, hh)
-        self.move_to_filepath: str = None
 
         main_lay = QVBoxLayout()
         main_lay.setContentsMargins(5, 5, 5, 5)
@@ -93,16 +92,17 @@ class SimpleFileExplorer(QWidget):
         if not os.path.exists(path):
             return
 
+        filepath = ""
         if os.path.isfile(path):
             if path.endswith(Config.img_ext):
-                self.move_to_filepath = path
+                filepath = path
             path, _ = os.path.split(path)
 
         Config.json_data["root"] = path
         self.folders_tree_wid.expand_path(path)
         self.setWindowTitle(path)
         self.load_standart_grid()
-        QTimer.singleShot(1500, lambda: self.grid.move_to_wid(self.move_to_filepath))
+        QTimer.singleShot(1500, lambda: self.grid.move_to_wid(filepath))
 
     def disable_top_bar_btns(self, b: bool):
         self.top_bar.open_btn.setDisabled(b)
@@ -125,9 +125,10 @@ class SimpleFileExplorer(QWidget):
     def show_in_folder(self, src: str):
         root = os.path.dirname(src)
         Config.json_data["root"] = root
+        self.folders_tree_wid.expand_path(root)
+        self.setWindowTitle(Config.json_data["root"])
         self.load_standart_grid()
-        self.move_to_filepath = src
-        QTimer.singleShot(1500, lambda: self.grid.move_to_wid(self.move_to_filepath))
+        QTimer.singleShot(1500, lambda: self.grid.move_to_wid(src))
 
     def load_standart_grid(self):
         self.disable_top_bar_btns(False)
