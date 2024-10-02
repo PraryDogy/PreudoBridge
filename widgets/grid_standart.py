@@ -268,7 +268,7 @@ class Thumbnail(QFrame):
         subprocess.call(["open", "-R", self.src])
 
 
-class GridStandart(GridBase):
+class GridStandartBase(GridBase):
     def __init__(self, width: int):
         super().__init__()
         self.setWidgetResizable(True)
@@ -292,7 +292,7 @@ class GridStandart(GridBase):
         for (src, filename, size, modified, _), _ in finder_items.items():
             thumbnail = Thumbnail(filename, src)
             thumbnail.img_view_closed.connect(lambda src: self.move_to_wid(src))
-            self.set_default_image(thumbnail.img_label, "images/file_210.png")
+            self._set_default_image(thumbnail.img_label, "images/file_210.png")
 
             self.grid_layout.addWidget(thumbnail, row, col)
 
@@ -309,7 +309,7 @@ class GridStandart(GridBase):
             self.grid_layout.addItem(row_spacer, row + 1, 0)
             clmn_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
             self.grid_layout.addItem(clmn_spacer, 0, clmn_count + 1)
-            self.start_load_images_thread()
+            self._start_load_images_thread()
 
         else:
             no_images = QLabel(f"{Config.json_data['root']}\nНет изображений")
@@ -318,29 +318,29 @@ class GridStandart(GridBase):
             self.grid_layout.setColumnStretch(0, 1)
             self.grid_layout.setRowStretch(0, 1)
 
-    def set_default_image(self, widget: QLabel, png_path: str):
+    def move_to_wid(self, src: str):
+        try:
+            wid: Thumbnail = Config.img_viewer_images[src]
+            wid.setFrameShape(QFrame.Shape.Panel)
+            self.ensureWidgetVisible(wid)
+            QTimer.singleShot(1000, lambda: self._set_no_frame(wid))
+        except (RuntimeError, KeyError) as e:
+            print("move to wid error: ", e)
+
+    def _set_default_image(self, widget: QLabel, png_path: str):
         pixmap = QPixmap(png_path)
         try:
             widget.setPixmap(pixmap)
         except RuntimeError:
             pass
 
-    def move_to_wid(self, src: str):
-        try:
-            wid: Thumbnail = Config.img_viewer_images[src]
-            wid.setFrameShape(QFrame.Shape.Panel)
-            self.ensureWidgetVisible(wid)
-            QTimer.singleShot(1000, lambda: self.set_no_frame(wid))
-        except (RuntimeError, KeyError) as e:
-            print("move to wid error: ", e)
-
-    def set_no_frame(self, wid: Thumbnail):
+    def _set_no_frame(self, wid: Thumbnail):
         try:
             wid.setFrameShape(QFrame.Shape.NoFrame)
         except (RuntimeError):
             pass
 
-    def stop_and_wait_threads(self):
+    def _stop_and_wait_threads(self):
         for i in GridStandartStorage.load_images_threads:
             i: LoadImagesThread
             i.stop_thread.emit()
@@ -348,17 +348,25 @@ class GridStandart(GridBase):
             if i.isFinished():
                 GridStandartStorage.load_images_threads.remove(i)
 
-    def stop_threads(self):
+    def _stop_threads(self):
         for thread in GridStandartStorage.load_images_threads:
             thread: LoadImagesThread
             thread.stop_thread.emit()
             thread.wait()
 
-    def start_load_images_thread(self):
+    def _start_load_images_thread(self):
         new_thread = LoadImagesThread(self.grid_widgets)
         GridStandartStorage.load_images_threads.append(new_thread)
         new_thread.start()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
-        self.stop_threads()
+        self._stop_threads()
         return super().closeEvent(a0)
+    
+
+class GridStandart(GridStandartBase):
+    def __init__(self, width: int):
+        super().__init__(width)
+
+    def rearrange_grid(self):
+        return

@@ -41,7 +41,7 @@ class Dbase:
         DbaseStorage.base.metadata.create_all(DbaseStorage.engine)
 
     @staticmethod
-    def get_file_size() -> str:
+    def get_db_size() -> str:
         size_bytes = os.stat(Config.db_file).st_size
 
         size_mb = size_bytes / (1024 * 1024)
