@@ -19,6 +19,7 @@ class SimpleFileExplorer(QWidget):
     def __init__(self):
         super().__init__()
 
+        self.dots_count = 1
         self.clmn_count = 1
         self.finder_items = []
         self.finder_images: dict = {}
@@ -125,6 +126,7 @@ class SimpleFileExplorer(QWidget):
 
         ww = self.get_grid_width()
         self.grid = GridSearch(width=ww, search_text=search_text)
+        self.set_title_search(search_text)
         self.r_lay.addWidget(self.grid)
 
     def load_standart_grid(self):
@@ -163,6 +165,15 @@ class SimpleFileExplorer(QWidget):
         elif a0.key() == Qt.Key.Key_Q:
             if a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
                 QApplication.instance().quit()
+
+    def set_title_search(self, text: str):
+        t = f"Идет поиск: \"{text}\"" + "." * self.dots_count
+        self.setWindowTitle(t)
+        self.dots_count += 1
+        if self.dots_count > 10:
+            self.dots_count = 1
+        
+        QTimer.singleShot(200, lambda: self.set_title_search(text))
 
 
 class CustomApp(QApplication):

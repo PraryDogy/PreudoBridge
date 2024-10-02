@@ -142,9 +142,9 @@ class SearchWidget(QWidget):
         input_wid.setFixedSize(200, 25)
         v_lay.addWidget(input_wid)
 
-        self.clear_btn = QLabel(parent=self, text="x")
-        self.clear_btn.setFixedSize(10, 10)
-        self.clear_btn.move(180, 7)
+        self.clear_btn = QLabel(parent=self, text="⛌")
+        self.clear_btn.setFixedSize(15, 10)
+        self.clear_btn.move(180, 8)
         self.clear_btn.hide()
         self.clear_btn.mouseReleaseEvent = lambda e: input_wid.clear()
 
