@@ -127,6 +127,7 @@ class SortTypeWidget(QPushButton):
 class SearchWidget(QWidget):
     start_search_sig = pyqtSignal(str)
     stop_search_sig = pyqtSignal()
+    clear_search_sig = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -136,19 +137,19 @@ class SearchWidget(QWidget):
         v_lay.setSpacing(0)
         self.setLayout(v_lay)
 
-        input_wid = QLineEdit()
-        input_wid.setPlaceholderText("Поиск")
-        input_wid.setStyleSheet("padding-left: 2px;")
-        input_wid.setFixedSize(200, 25)
-        v_lay.addWidget(input_wid)
+        self.input_wid = QLineEdit()
+        self.input_wid.setPlaceholderText("Поиск")
+        self.input_wid.setStyleSheet("padding-left: 2px;")
+        self.input_wid.setFixedSize(200, 25)
+        v_lay.addWidget(self.input_wid)
 
         self.clear_btn = QLabel(parent=self, text="⛌")
         self.clear_btn.setFixedSize(15, 10)
         self.clear_btn.move(180, 8)
         self.clear_btn.hide()
-        self.clear_btn.mouseReleaseEvent = lambda e: input_wid.clear()
+        self.clear_btn.mouseReleaseEvent = lambda e: self.input_wid.clear()
 
-        input_wid.textChanged.connect(self.on_text_changed)
+        self.input_wid.textChanged.connect(self.on_text_changed)
         self.search_text: str = None
 
         self.search_timer = QTimer(self)
@@ -156,6 +157,14 @@ class SearchWidget(QWidget):
         self.search_timer.timeout.connect(
             lambda: self.start_search_sig.emit(self.search_text)
             )
+        
+        self.clear_search_sig.connect(self.costil)
+
+    def costil(self):
+        self.input_wid.disconnect()
+        self.input_wid.clear()
+        self.clear_btn.hide()
+        self.input_wid.textChanged.connect(self.on_text_changed)
 
     def on_text_changed(self, text):
         if text:

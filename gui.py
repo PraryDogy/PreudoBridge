@@ -126,10 +126,12 @@ class SimpleFileExplorer(QWidget):
         root = os.path.dirname(src)
         Config.json_data["root"] = root
         self.load_standart_grid()
+        self.move_to_filepath = src
         QTimer.singleShot(1500, lambda: self.grid.move_to_wid(self.move_to_filepath))
 
     def load_standart_grid(self):
         self.disable_top_bar_btns(False)
+        self.top_bar.search_wid.clear_search_sig.emit()
 
         if self.grid:
             self.grid.close()
