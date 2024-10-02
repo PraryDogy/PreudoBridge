@@ -129,7 +129,7 @@ class SimpleFileExplorer(QWidget):
         self.top_bar.sort_btn_press.connect(self.load_standart_grid)
         self.top_bar.level_up_btn_press.connect(self.level_up_btn_cmd)
         self.top_bar.open_path_btn_press.connect(self.open_path_btn_cmd)
-        self.top_bar.search_text_sig.connect(self.load_search_grid)
+        self.top_bar.search_start_sig.connect(self.load_search_grid)
         self.top_bar.search_stop_sig.connect(self.load_standart_grid)
         self.r_lay.addWidget(self.top_bar)
 
@@ -177,8 +177,14 @@ class SimpleFileExplorer(QWidget):
         self.setWindowTitle(Config.json_data["root"])
         self.load_standart_grid()
 
+    def disable_top_bar_btns(self, b: bool):
+        self.top_bar.level_up_button.setDisabled(b)
+        self.top_bar.open_btn.setDisabled(b)
+        self.top_bar.sort_button.setDisabled(b)
+        self.top_bar.sort_widget.setDisabled(b)
+
     def load_search_grid(self, search_text: str):
-        self.top_bar.level_up_button.setDisabled(True)
+        self.disable_top_bar_btns(True)
 
         if self.grid:
             self.grid.close()
@@ -188,7 +194,7 @@ class SimpleFileExplorer(QWidget):
         self.r_lay.addWidget(self.grid)
 
     def load_standart_grid(self):
-        self.top_bar.level_up_button.setDisabled(False)
+        self.disable_top_bar_btns(False)
 
         if self.grid:
             self.grid.close()
