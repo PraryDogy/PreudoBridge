@@ -122,7 +122,6 @@ class Thumbnail(QFrame):
 
 class SearchFinderThread(QThread):
     finished = pyqtSignal()
-    stop_sig = pyqtSignal()
     new_widget = pyqtSignal(dict)
 
     def __init__(self, root: str, filename: str):
@@ -132,7 +131,6 @@ class SearchFinderThread(QThread):
         self.root: str = root
         self.flag: bool = True
         self.session = Dbase.get_session()
-        self.stop_sig.connect(self.stop_cmd)
 
     def stop_cmd(self):
         self.flag: bool = False
@@ -145,7 +143,6 @@ class SearchFinderThread(QThread):
             for file in files:
                 if not self.flag:
                     break
-
                 src = os.path.join(root, file)
 
                 if self.filename in file and src.endswith(Config.img_ext):
@@ -201,7 +198,10 @@ class SearchFinderThread(QThread):
                 "size": size,
                 "modified": modified
                 })
-            self.session.execute(q)
+            try:
+                self.session.execute(q)
+            except Exception as e:
+                print("search thread insert db image error: ", e)
 
         return img
 
@@ -209,6 +209,7 @@ class SearchFinderThread(QThread):
 class GridSearchBase(QScrollArea):
     def __init__(self, width: int, search_text: str):
         super().__init__()
+        self.search_text = search_text
         self.setWidgetResizable(True)
 
         Config.img_viewer_images.clear()
@@ -255,7 +256,35 @@ class GridSearch(GridSearchBase):
     def __init__(self, width: int, search_text: str):
         super().__init__(width, search_text)
 
-    def rearrange_grid(self):
-        for i in self.children():
-            print(i)
+    def rearrange(self, width: int):
+        self.search_thread.stop_cmd()
+        # self.verticalScrollBar().setValue(0)
+        self.search_thread.wait()
+
+        self.clmn_count = width // Config.thumb_size
+        if self.clmn_count < 1:
+            self.clmn_count = 1
+        self.row, self.col = 0, 0
+
+        self.search_thread = SearchFinderThread(Config.json_data["root"], self.search_text)
+        self.search_thread.new_widget.connect(self._add_new_widget)
+        self.search_thread.finished.connect(self._add_row_spacer)
+        self.search_thread.start()
+
+        # widgets = self.findChildren(Thumbnail)
+
+        # self.clmn_count = width // Config.thumb_size
+
+        # if self.clmn_count < 1:
+        #     self.clmn_count = 1
+
+        # row, col = 0, 0
+
+        # for wid in widgets:
+        #     self.grid_layout.addWidget(wid, row, col)
+        #     col += 1
+        #     if col >= self.clmn_count:
+        #         col = 0
+        #         row += 1
+
         return
