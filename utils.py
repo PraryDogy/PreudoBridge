@@ -50,7 +50,7 @@ class Utils:
             img = tifffile.imread(files=src)[:,:,:3]
             if str(object=img.dtype) != "uint8":
                 img = (img/256).astype(dtype="uint8")
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             return img
         except (tifffile.tifffile.TiffFileError) as e:
             print(traceback.format_exc())
