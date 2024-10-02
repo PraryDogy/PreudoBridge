@@ -208,6 +208,8 @@ class SearchFinderThread(QThread):
 
 
 class GridSearchBase(QScrollArea):
+    finished = pyqtSignal()
+
     def __init__(self, width: int, search_text: str):
         super().__init__()
         self.search_text = search_text
@@ -247,6 +249,7 @@ class GridSearchBase(QScrollArea):
     def _add_row_spacer(self):
         row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.grid_layout.addItem(row_spacer, self.row + 1, 0)
+        self.finished.emit()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.search_thread.stop_cmd()
