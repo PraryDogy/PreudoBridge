@@ -125,8 +125,8 @@ class SortTypeWidget(QPushButton):
 
 
 class SearchWidget(QWidget):
-    search_text_sig = pyqtSignal(str)
-    search_stop_sig = pyqtSignal()
+    start_search_sig = pyqtSignal(str)
+    stop_search_sig = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -154,7 +154,7 @@ class SearchWidget(QWidget):
         self.search_timer = QTimer(self)
         self.search_timer.setSingleShot(True)
         self.search_timer.timeout.connect(
-            lambda: self.search_text_sig.emit(self.search_text)
+            lambda: self.start_search_sig.emit(self.search_text)
             )
 
     def on_text_changed(self, text):
@@ -165,15 +165,13 @@ class SearchWidget(QWidget):
             self.search_timer.start(1000)
         else:
             self.clear_btn.hide()
-            self.search_stop_sig.emit()
+            self.stop_search_sig.emit()
 
 
 class TopBar(QFrame):
-    sort_btn_press = pyqtSignal()
+    sort_vozrast_btn_press = pyqtSignal()
     level_up_btn_press = pyqtSignal()
     open_path_btn_press = pyqtSignal(str)
-    search_start_sig = pyqtSignal(str)
-    search_stop_sig = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -201,25 +199,23 @@ class TopBar(QFrame):
         self.grid_layout.addWidget(self.open_btn, 0, 2)
 
         self.sort_widget = SortTypeWidget(parent=self)
-        self.sort_widget.sort_click.connect(self.sort_btn_press.emit)
+        self.sort_widget.sort_click.connect(self.sort_vozrast_btn_press.emit)
         self.grid_layout.addWidget(self.sort_widget, 0, 3)
 
         self.ubiv = "↓↑"
         self.vozrast = "↑↓"
         sort_t = self.ubiv if Config.json_data["reversed"] else self.vozrast
-        self.sort_button = QPushButton(text=sort_t, parent=self)
-        self.sort_button.setToolTip(" Сортировка файлов: по возрастанию / по убыванию ")
-        self.sort_button.setFixedWidth(60)
-        self.sort_button.clicked.connect(self.on_sort_toggle)
-        self.grid_layout.addWidget(self.sort_button, 0, 4)
+        self.sort_vozrast_button = QPushButton(text=sort_t, parent=self)
+        self.sort_vozrast_button.setToolTip(" Сортировка файлов: по возрастанию / по убыванию ")
+        self.sort_vozrast_button.setFixedWidth(60)
+        self.sort_vozrast_button.clicked.connect(self.on_sort_toggle)
+        self.grid_layout.addWidget(self.sort_vozrast_button, 0, 4)
 
         r_spacer = QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
         self.grid_layout.addItem(r_spacer, 0, 5)
 
-        self.search_box = SearchWidget()
-        self.search_box.search_text_sig.connect(self.search_start_sig.emit)
-        self.search_box.search_stop_sig.connect(self.search_stop_sig.emit)
-        self.grid_layout.addWidget(self.search_box, 0, 6)
+        self.search_wid = SearchWidget()
+        self.grid_layout.addWidget(self.search_wid, 0, 6)
 
         last_spacer = QSpacerItem(10, 1)
         self.grid_layout.addItem(last_spacer, 0, 7)
@@ -245,8 +241,8 @@ class TopBar(QFrame):
     def on_sort_toggle(self):
         if Config.json_data["reversed"]:
             Config.json_data["reversed"] = False
-            self.sort_button.setText(self.vozrast)
+            self.sort_vozrast_button.setText(self.vozrast)
         else:
             Config.json_data["reversed"] = True
-            self.sort_button.setText(self.ubiv)
-        self.sort_btn_press.emit()
+            self.sort_vozrast_button.setText(self.ubiv)
+        self.sort_vozrast_btn_press.emit()

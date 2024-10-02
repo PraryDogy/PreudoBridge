@@ -123,14 +123,14 @@ class SimpleFileExplorer(QWidget):
         
         self.top_bar = TopBar()
 
-
         # У ТЕБЯ СОРТИРОВКА ТОЛЬКО СТАНДАРТНУЮ СЕТКУ ЗАГРУЖАЕТ КАК И РЕСАЙЗ МЕТОД
         # НАПИШИ МЕТОД КОТОРЫЙ ПРОСТО ПЕРЕРАСПРЕДЕЛЯЕТ ВИДЖЕТЫ В СЕТКЕ
-        self.top_bar.sort_btn_press.connect(self.load_standart_grid)
+        self.top_bar.sort_vozrast_btn_press.connect(self.load_standart_grid)
         self.top_bar.level_up_btn_press.connect(self.level_up_btn_cmd)
         self.top_bar.open_path_btn_press.connect(self.open_path_btn_cmd)
-        self.top_bar.search_start_sig.connect(self.load_search_grid)
-        self.top_bar.search_stop_sig.connect(self.load_standart_grid)
+        self.top_bar.search_wid.start_search_sig.connect(self.load_search_grid)
+        self.top_bar.search_wid.stop_search_sig.connect(self.load_standart_grid)
+
         self.r_lay.addWidget(self.top_bar)
 
         self.resize_timer = QTimer(parent=self)
@@ -180,7 +180,7 @@ class SimpleFileExplorer(QWidget):
     def disable_top_bar_btns(self, b: bool):
         self.top_bar.level_up_button.setDisabled(b)
         self.top_bar.open_btn.setDisabled(b)
-        self.top_bar.sort_button.setDisabled(b)
+        self.top_bar.sort_vozrast_button.setDisabled(b)
         self.top_bar.sort_widget.setDisabled(b)
 
     def load_search_grid(self, search_text: str):
