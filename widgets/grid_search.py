@@ -6,14 +6,13 @@ import sqlalchemy
 from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QLabel, QMenu,
-                             QSizePolicy, QSpacerItem, QVBoxLayout, QWidget)
+                             QSizePolicy, QSpacerItem, QVBoxLayout, QWidget, QScrollArea)
 
 from cfg import Config
 from database import Cache, Dbase
 from fit_img import FitImg
 from utils import Utils
 
-from .grid_base import GridBase
 from .win_img_view import WinImgView
 
 
@@ -207,7 +206,7 @@ class SearchFinderThread(QThread):
         return img
 
 
-class GridSearch(GridBase):
+class GridSearchBase(QScrollArea):
     def __init__(self, width: int, search_text: str):
         super().__init__()
         self.setWidgetResizable(True)
@@ -228,11 +227,11 @@ class GridSearch(GridBase):
         self.grid_layout.addItem(clmn_spacer, 0, self.clmn_count + 1)
 
         self.search_thread = SearchFinderThread(Config.json_data["root"], search_text)
-        self.search_thread.new_widget.connect(self.add_new_widget)
-        self.search_thread.finished.connect(self.add_row_spacer)
+        self.search_thread.new_widget.connect(self._add_new_widget)
+        self.search_thread.finished.connect(self._add_row_spacer)
         self.search_thread.start()
 
-    def add_new_widget(self, data: dict):
+    def _add_new_widget(self, data: dict):
         widget = Thumbnail(filename=data["filename"], src=data["src"])
         widget.img_label.setPixmap(data["pixmap"])
         self.grid_layout.addWidget(widget, self.row, self.col)
@@ -243,10 +242,18 @@ class GridSearch(GridBase):
             self.col = 0
             self.row += 1
 
-    def add_row_spacer(self):
+    def _add_row_spacer(self):
         row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.grid_layout.addItem(row_spacer, self.row + 1, 0)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.search_thread.stop_cmd()
         return super().closeEvent(a0)
+    
+
+class GridSearch(GridSearchBase):
+    def __init__(self, width: int, search_text: str):
+        super().__init__(width, search_text)
+
+    def rearrange_grid(self):
+        return

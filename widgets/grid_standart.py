@@ -6,14 +6,14 @@ import sqlalchemy
 from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QLabel, QMenu,
-                             QSizePolicy, QSpacerItem, QVBoxLayout, QWidget)
+                             QScrollArea, QSizePolicy, QSpacerItem,
+                             QVBoxLayout, QWidget)
 
 from cfg import Config
 from database import Cache, Dbase
 from fit_img import FitImg
 from utils import Utils
 
-from .grid_base import GridBase
 from .win_img_view import WinImgView
 
 
@@ -268,7 +268,7 @@ class Thumbnail(QFrame):
         subprocess.call(["open", "-R", self.src])
 
 
-class GridStandartBase(GridBase):
+class GridStandartBase(QScrollArea):
     def __init__(self, width: int):
         super().__init__()
         self.setWidgetResizable(True)
