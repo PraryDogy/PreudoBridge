@@ -256,4 +256,6 @@ class GridSearch(GridSearchBase):
         super().__init__(width, search_text)
 
     def rearrange_grid(self):
+        for i in self.children():
+            print(i)
         return

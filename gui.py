@@ -135,8 +135,7 @@ class SimpleFileExplorer(QWidget):
 
         self.resize_timer = QTimer(parent=self)
         self.resize_timer.setSingleShot(True)
-        self.resize_timer.setInterval(500)
-        self.resize_timer.timeout.connect(self.load_standart_grid)
+        self.resize_timer.timeout.connect(lambda: self.grid.rearrange(self.get_grid_width()))
 
         root = Config.json_data["root"]
 
@@ -205,8 +204,8 @@ class SimpleFileExplorer(QWidget):
         Config.json_data["ww"] = self.geometry().width()
         Config.json_data["hh"] = self.geometry().height()
         self.resize_timer.stop()
-        self.resize_timer.start()
-        # return super().resizeEvent(a0)
+        self.resize_timer.start(500)
+        return super().resizeEvent(a0)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.hide()

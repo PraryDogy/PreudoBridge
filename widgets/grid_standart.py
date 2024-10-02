@@ -368,5 +368,21 @@ class GridStandart(GridStandartBase):
     def __init__(self, width: int):
         super().__init__(width)
 
-    def rearrange_grid(self):
+    def rearrange(self, width: int):
+        widgets = self.findChildren(Thumbnail)
+
+        clmn_count = width // Config.thumb_size
+        
+        if clmn_count < 1:
+            clmn_count = 1
+
+        row, col = 0, 0
+
+        for wid in widgets:
+            self.grid_layout.addWidget(wid, row, col)
+            col += 1
+            if col >= clmn_count:
+                col = 0
+                row += 1
+
         return
