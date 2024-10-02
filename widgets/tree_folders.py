@@ -8,6 +8,7 @@ from utils import Utils
 
 class TreeFolders(QTreeView):
     folders_tree_clicked = pyqtSignal(str)
+    add_to_favs_clicked = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -48,8 +49,8 @@ class TreeFolders(QTreeView):
             return
 
         menu = QMenu(self)
-        file_path = self.model.filePath(index)
-        index = self.model.index(file_path)
+        src = self.model.filePath(index)
+        index = self.model.index(src)
 
         open_finder_action = QAction("Просмотр", self)
         open_finder_action.triggered.connect(lambda: self.one_clicked(index))
@@ -58,12 +59,17 @@ class TreeFolders(QTreeView):
         menu.addSeparator()
 
         open_finder_action = QAction("Показать в Finder", self)
-        open_finder_action.triggered.connect(lambda: self.open_in_finder(file_path))
+        open_finder_action.triggered.connect(lambda: self.open_in_finder(src))
         menu.addAction(open_finder_action)
 
         copy_path_action = QAction("Скопировать путь до папки", self)
-        copy_path_action.triggered.connect(lambda: Utils.copy_path(file_path))
+        copy_path_action.triggered.connect(lambda: Utils.copy_path(src))
         menu.addAction(copy_path_action)
+
+        menu.addSeparator()
+        fav_action = QAction("Добавить в избранное", self)
+        fav_action.triggered.connect(lambda: self.add_to_favs_clicked.emit(src))
+        menu.addAction(fav_action)
 
         menu.exec_(self.mapToGlobal(event.pos()))
 
