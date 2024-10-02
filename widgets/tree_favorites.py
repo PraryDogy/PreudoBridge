@@ -15,7 +15,7 @@ class TreeFavorites(QListWidget):
         self._add_def_item("Загрузки", downloads)
 
         favs: dict = Config.json_data["favs"]
-        for name, src in favs.items():
+        for src, name in favs.items():
             self.add_item(name, src)
 
     def _add_def_item(self, name: str, src: str):

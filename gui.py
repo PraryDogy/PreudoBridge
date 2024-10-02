@@ -107,7 +107,7 @@ class SimpleFileExplorer(QWidget):
     def on_files_tree_fav_clicked_cmd(self, root: str):
         name = os.path.basename(root)
         self.folders_fav_wid.add_item(name, root)
-        Config.json_data["favs"][name] = root
+        Config.json_data["favs"][root] = name
         self.tabs_wid.setCurrentIndex(1)
 
     def on_fav_clicked_cmd(self, root: str):
