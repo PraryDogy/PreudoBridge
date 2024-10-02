@@ -1,7 +1,13 @@
-from PyQt5.QtWidgets import QListWidget, QListWidgetItem, QLabel
-from PyQt5.QtCore import Qt, pyqtSignal
 import os
+import subprocess
+
+from PyQt5.QtCore import QDir, Qt, pyqtSignal
+from PyQt5.QtWidgets import (QAction, QFileSystemModel, QLabel, QListWidget,
+                             QListWidgetItem, QMenu, QTreeView)
+from PyQt5.QtGui import QContextMenuEvent, QMouseEvent
 from cfg import Config
+from utils import Utils
+
 
 class TreeFavorites(QListWidget):
     on_fav_clicked = pyqtSignal(str)
@@ -29,7 +35,7 @@ class TreeFavorites(QListWidget):
         self.addItem(list_item)
         self.setItemWidget(list_item, wid)
 
-        wid.mouseReleaseEvent = lambda e: self.on_fav_clicked.emit(src)
+        wid.mouseReleaseEvent = lambda e: self.l_click(e, src)
 
     def add_item(self, name: str, src: str):
         wid = QLabel(text=name)
@@ -43,7 +49,29 @@ class TreeFavorites(QListWidget):
 
         self.fav_items[src] = wid
 
-        wid.mouseReleaseEvent = lambda e: self.on_fav_clicked.emit(src)
+        wid.mouseReleaseEvent = lambda e: self.l_click(e, src)
+        wid.contextMenuEvent = lambda e: self.custom_context(e, src)
 
     def del_item(self, src: str):
         self.fav_items[src].deleteLater()
+
+    def l_click(self, e: QMouseEvent | None, src) -> None:
+        if e.button() == Qt.MouseButton.LeftButton:
+            self.on_fav_clicked.emit(src)
+        return super().mouseReleaseEvent(e)
+
+    def custom_context(self, a0: QContextMenuEvent | None, src: str) -> None:
+        menu = QMenu(self)
+
+        open_finder_action = QAction("Показать в Finder", self)
+        open_finder_action.triggered.connect(lambda: self.open_in_finder(src))
+        menu.addAction(open_finder_action)
+
+        copy_path_action = QAction("Скопировать путь до папки", self)
+        copy_path_action.triggered.connect(lambda: Utils.copy_path(src))
+        menu.addAction(copy_path_action)
+
+        menu.exec_(a0.globalPos())
+
+    def open_in_finder(self, path: str):
+        subprocess.call(["open", "-R", path])
