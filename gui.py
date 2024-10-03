@@ -169,7 +169,7 @@ class SimpleFileExplorer(QWidget):
         Config.json_data["hh"] = self.geometry().height()
         self.resize_timer.stop()
         self.resize_timer.start(500)
-        return super().resizeEvent(a0)
+        # return super().resizeEvent(a0)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.hide()

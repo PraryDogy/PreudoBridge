@@ -330,7 +330,7 @@ class FolderThumbnail(QFrame):
             context_menu.addAction(del_fav)
         else:
             add_fav = QAction("Добавить в избранное", self)
-            del_fav.triggered.connect(lambda: self.add_fav_sig.emit(self.src))
+            add_fav.triggered.connect(lambda: self.add_fav_sig.emit(self.src))
             context_menu.addAction(add_fav)
 
         context_menu.exec_(self.mapToGlobal(a0.pos()))
