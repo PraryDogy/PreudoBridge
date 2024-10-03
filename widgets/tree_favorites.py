@@ -14,28 +14,11 @@ class TreeFavorites(QListWidget):
 
     def __init__(self):
         super().__init__()
-        mac = "/Volumes/Macintosh HD"
-        desktop = mac + os.path.join(os.path.expanduser('~'), 'Desktop')
-        downloads = mac + os.path.join(os.path.expanduser('~'), 'Downloads')
-        self._add_def_item("Рабочий стол", desktop)
-        self._add_def_item("Загрузки", downloads)
         self.fav_items: dict = {}
 
         favs: dict = Config.json_data["favs"]
         for src, name in favs.items():
             self.add_item(name, src)
-
-    def _add_def_item(self, name: str, src: str):
-        wid = QLabel(text=name)
-        wid.setStyleSheet("padding-left: 5px;")
-        wid.setFixedHeight(25)
-        list_item = QListWidgetItem()
-        list_item.setSizeHint(wid.sizeHint())
-
-        self.addItem(list_item)
-        self.setItemWidget(list_item, wid)
-
-        wid.mouseReleaseEvent = lambda e: self.l_click(e, src)
 
     def add_item(self, name: str, src: str):
         wid = QLabel(text=name)
