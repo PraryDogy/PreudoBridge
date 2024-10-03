@@ -18,7 +18,7 @@ class PathFinderThread(QThread):
         self.src: str = src
         self.result: str = None
         self.volumes: list = []
-        self.exclude = ""
+        self.exclude = "/Volumes/Macintosh HD/Volumes/"
 
     def run(self):
         self.path_finder()
@@ -68,7 +68,8 @@ class PathFinderThread(QThread):
 
         # из всех полученных возможных путей ищем самый подходящий существующий путь
         for i in sorted(all_posible_paths, key=len, reverse=True):
-            if "/Volumes/Macintosh HD/Volumes/" in i:
+            if self.exclude in i:
+                print("ignore strange folder", self.exclude)
                 continue
             if os.path.exists(i):
                 self.result = i
