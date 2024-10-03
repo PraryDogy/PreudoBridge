@@ -272,7 +272,9 @@ class Thumbnail(QFrame):
 
 
 class FolderThumbnail(QFrame):
-    img_view_closed = pyqtSignal(str)
+    add_fav_sig = pyqtSignal(str)
+    del_fav_sig = pyqtSignal(str)
+    open_folder_sig = pyqtSignal(str)
 
     def __init__(self, filename: str, src: str):
         super().__init__()
@@ -296,7 +298,7 @@ class FolderThumbnail(QFrame):
         v_lay.addWidget(img_name)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
-        subprocess.call(["open", self.src])
+        self.on_folder_click.emit(self.src)
         return super().mouseReleaseEvent(a0)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
@@ -307,22 +309,29 @@ class FolderThumbnail(QFrame):
 
         # Пункт "Просмотр"
         view_action = QAction("Просмотр", self)
-        view_action.triggered.connect(self.view_file)
+        view_action.triggered.connect(lambda: self.open_folder_sig.emit(self.src))
         context_menu.addAction(view_action)
 
         context_menu.addSeparator()
-
-        open_action = QAction("Открыть по умолчанию", self)
-        open_action.triggered.connect(self.open_default)
-        context_menu.addAction(open_action)
 
         show_in_finder_action = QAction("Показать в Finder", self)
         show_in_finder_action.triggered.connect(self.show_in_finder)
         context_menu.addAction(show_in_finder_action)
 
-        copy_path = QAction("Скопировать путь до файла", self)
+        copy_path = QAction("Скопировать путь до папки", self)
         copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
         context_menu.addAction(copy_path)
+
+        context_menu.addSeparator()
+
+        if self.src in Config.json_data["favs"]:
+            del_fav = QAction("Удалить из избранного", self)
+            del_fav.triggered.connect(lambda: self.del_fav_sig.emit(self.src))
+            context_menu.addAction(del_fav)
+        else:
+            add_fav = QAction("Добавить в избранное", self)
+            del_fav.triggered.connect(lambda: self.add_fav_sig.emit(self.src))
+            context_menu.addAction(add_fav)
 
         context_menu.exec_(self.mapToGlobal(a0.pos()))
 
@@ -330,22 +339,15 @@ class FolderThumbnail(QFrame):
 
         return super().contextMenuEvent(a0)
 
-    def view_file(self):
-        if self.src.endswith(Config.img_ext):
-            self.win = WinImgView(self, self.src)
-            self.win.closed.connect(lambda src: self.img_view_closed.emit(src))
-            main_win = Utils.get_main_win()
-            Utils.center_win(parent=main_win, child=self.win)
-            self.win.show()
-
-    def open_default(self):
-        subprocess.call(["open", self.src])
-
     def show_in_finder(self):
         subprocess.call(["open", "-R", self.src])
 
 
 class GridStandartBase(QScrollArea):
+    add_fav_sig = pyqtSignal(str)
+    del_fav_sig = pyqtSignal(str)
+    open_folder_sig = pyqtSignal(str)
+
     def __init__(self, width: int):
         super().__init__()
         self.setWidgetResizable(True)
@@ -369,7 +371,11 @@ class GridStandartBase(QScrollArea):
         for (src, filename, size, modified, _), _ in finder_items.items():
             if os.path.isdir(src):
                 thumbnail = FolderThumbnail(filename, src)
-                self._set_default_image(thumbnail.img_label, "images/folder_210.png")   
+                self._set_default_image(thumbnail.img_label, "images/folder_210.png")
+                thumbnail.open_folder_sig.connect(self.open_folder_sig.emit)
+                thumbnail.add_fav_sig.connect(self.add_fav_sig.emit)
+                thumbnail.del_fav_sig.connect(self.del_fav_sig.emit)
+
             else:
                 thumbnail = Thumbnail(filename, src)
                 thumbnail.img_view_closed.connect(lambda src: self.move_to_wid(src))
