@@ -187,10 +187,14 @@ class TopBar(QFrame):
 
     def __init__(self):
         super().__init__()
-        self.root: str = None
-        self.path_labels_list: list = []
         self.setFixedHeight(40)
+
+        self.root: str = None
+        self.path_list: list = []
+        self.current_index: int = 0
+
         self.init_ui()
+        self.set_path_list()
 
     def init_ui(self):
         self.grid_layout = QGridLayout()
@@ -200,10 +204,12 @@ class TopBar(QFrame):
 
         self.back = QPushButton("⏴")
         self.back.setFixedWidth(60)
+        self.back.clicked.connect(self.back_cmd)
         self.grid_layout.addWidget(self.back, 0, 0)
 
         self.next = QPushButton("⏵")
         self.next.setFixedWidth(60)
+        self.next.clicked.connect(self.next_cmd)
         self.grid_layout.addWidget(self.next, 0, 1)
 
         self.grid_layout.setColumnStretch(2, 10)
@@ -262,3 +268,40 @@ class TopBar(QFrame):
             Config.json_data["reversed"] = True
             self.sort_vozrast_button.setText(self.ubiv)
         self.sort_vozrast_btn_press.emit()
+
+    def set_path_list(self):
+        paths = [Config.json_data["root"]]
+        parts = Config.json_data["root"].split(os.sep)
+
+        for i in range(1, len(parts)):
+            path = os.sep.join(parts[:-i])
+
+            if path in ("", os.sep):
+                break
+
+            paths.append(path)
+
+        self.path_list = list(reversed(paths))
+        self.current_index = len(self.path_list)
+        self.next.setDisabled(True)
+
+    def back_cmd(self):
+        self.next.setDisabled(False)
+
+        if self.current_index == 0:
+            self.back.setDisabled(True)
+            return
+
+        self.current_index -= 1
+        print(self.path_list[self.current_index])
+
+    def next_cmd(self):
+        self.next.setDisabled(False)
+
+        if self.current_index == len(self.path_list) - 1:
+            self.next.setDisabled(True)
+            return
+
+        self.current_index += 1
+
+        print(self.path_list[self.current_index])
