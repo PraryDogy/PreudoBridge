@@ -57,6 +57,7 @@ class TreeFavorites(QListWidget):
         item.deleteLater()
         favs: dict = Config.json_data.get("favs")
         favs.pop(src)
+        self.clearSelection()
 
     def l_click(self, e: QMouseEvent | None, src) -> None:
         if e.button() == Qt.MouseButton.LeftButton:
