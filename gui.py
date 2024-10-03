@@ -43,7 +43,7 @@ class SimpleFileExplorer(QWidget):
         splitter_wid.setStretchFactor(0, 0)
         
         self.folders_tree_wid = TreeFolders()
-        self.folders_tree_wid.folders_tree_clicked.connect(self.on_files_tree_clicked_cmd)
+        self.folders_tree_wid.folders_tree_clicked.connect(self.on_folders_tree_clicked_cmd)
         self.folders_tree_wid.add_to_favs_clicked.connect(self.add_fav_cmd)
         self.folders_tree_wid.del_favs_clicked.connect(self.del_fav_cmd)
         self.tabs_wid.addTab(self.folders_tree_wid, "Папки")
@@ -84,7 +84,7 @@ class SimpleFileExplorer(QWidget):
         self.folders_tree_wid.expand_path(root)
         self.load_standart_grid()
         
-    def on_files_tree_clicked_cmd(self, root: str):
+    def on_folders_tree_clicked_cmd(self, root: str):
         Config.json_data["root"] = root
         self.setWindowTitle(root)
         self.load_standart_grid()
@@ -155,6 +155,10 @@ class SimpleFileExplorer(QWidget):
         self.setWindowTitle(Config.json_data["root"])
         ww = self.get_grid_width()
         self.grid = GridStandart(width=ww)
+        self.grid: GridStandart
+        self.grid.add_fav_sig.connect(self.add_fav_cmd)
+        self.grid.del_fav_sig.connect(self.del_fav_cmd)
+        self.grid.open_folder_sig.connect(self.on_folders_tree_clicked_cmd)
         self.r_lay.addWidget(self.grid)
 
     def get_grid_width(self):

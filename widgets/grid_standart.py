@@ -298,7 +298,7 @@ class FolderThumbnail(QFrame):
         v_lay.addWidget(img_name)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
-        self.on_folder_click.emit(self.src)
+        self.open_folder_sig.emit(self.src)
         return super().mouseReleaseEvent(a0)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
