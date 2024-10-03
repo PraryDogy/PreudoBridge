@@ -184,6 +184,8 @@ class SearchWidget(QWidget):
 class TopBar(QFrame):
     sort_vozrast_btn_press = pyqtSignal()
     open_path_btn_press = pyqtSignal(str)
+    back_sig = pyqtSignal(str)
+    next_sig = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -293,7 +295,7 @@ class TopBar(QFrame):
             return
 
         self.current_index -= 1
-        print(self.path_list[self.current_index])
+        self.back_sig.emit(self.path_list[self.current_index])
 
     def next_cmd(self):
         self.next.setDisabled(False)
@@ -303,5 +305,4 @@ class TopBar(QFrame):
             return
 
         self.current_index += 1
-
-        print(self.path_list[self.current_index])
+        self.next_sig.emit(self.path_list[self.current_index])
