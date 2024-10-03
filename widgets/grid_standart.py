@@ -353,7 +353,10 @@ class GridStandartBase(QScrollArea):
         self.setWidgetResizable(True)
 
         Config.img_viewer_images.clear()
-        self.grid_widgets: dict = {}
+
+        self.grid_image_labels: dict = {}
+        self.grid_widgets: list = []
+
         clmn_count = width // Config.thumb_size
         if clmn_count < 1:
             clmn_count = 1
@@ -388,10 +391,11 @@ class GridStandartBase(QScrollArea):
                 col = 0
                 row += 1
 
-            self.grid_widgets[(src, size, modified)] = thumbnail.img_label
+            self.grid_widgets.append(thumbnail)
+            self.grid_image_labels[(src, size, modified)] = thumbnail.img_label
             Config.img_viewer_images[src] = thumbnail
 
-        if self.grid_widgets:
+        if self.grid_image_labels:
             row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
             self.grid_layout.addItem(row_spacer, row + 1, 0)
             clmn_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
@@ -445,7 +449,7 @@ class GridStandartBase(QScrollArea):
             thread.wait()
 
     def _start_load_images_thread(self):
-        new_thread = LoadImagesThread(self.grid_widgets)
+        new_thread = LoadImagesThread(self.grid_image_labels)
         GridStandartStorage.load_images_threads.append(new_thread)
         new_thread.start()
 
@@ -459,8 +463,6 @@ class GridStandart(GridStandartBase):
         super().__init__(width)
 
     def rearrange(self, width: int):
-        widgets = self.findChildren(Thumbnail)
-
         clmn_count = width // Config.thumb_size
         
         if clmn_count < 1:
@@ -468,7 +470,7 @@ class GridStandart(GridStandartBase):
 
         row, col = 0, 0
 
-        for wid in widgets:
+        for wid in self.grid_widgets:
             self.grid_layout.addWidget(wid, row, col)
             col += 1
             if col >= clmn_count:
