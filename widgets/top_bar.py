@@ -5,7 +5,7 @@ from difflib import SequenceMatcher
 from PyQt5.QtCore import QThread, QTimer, pyqtSignal, Qt
 from PyQt5.QtWidgets import (QFrame, QGridLayout, QLabel, QLineEdit, QMenu,
                              QPushButton, QSizePolicy, QSpacerItem,
-                             QVBoxLayout, QWidget, QTabBar)
+                             QVBoxLayout, QWidget, QTabBar, QButtonGroup)
 
 from cfg import Config
 
@@ -194,26 +194,32 @@ class TopBar(QFrame):
 
     def init_ui(self):
         self.grid_layout = QGridLayout()
+        self.grid_layout.setSpacing(5)
         self.grid_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.grid_layout)
 
-        self.back_next = QTabBar()
-        self.back_next.setFixedWidth(90)
-        self.back_next.addTab("⏴")
-        self.back_next.addTab("⏵")
-        self.grid_layout.addWidget(self.back_next, 0, 0)
+        self.back = QPushButton("⏴")
+        self.back.setFixedWidth(60)
+        self.grid_layout.addWidget(self.back, 0, 0)
 
-        l_spacer = QSpacerItem(1, 1)
-        self.grid_layout.setColumnStretch(1, 10)
-        self.grid_layout.addItem(l_spacer, 0, 1)
+        self.next = QPushButton("⏵")
+        self.next.setFixedWidth(60)
+        self.grid_layout.addWidget(self.next, 0, 1)
+
+        self.grid_layout.setColumnStretch(2, 10)
+        self.grid_layout.addItem(QSpacerItem(1, 1), 0, 2)
 
         self.open_btn = QPushButton("Открыть путь")
         self.open_btn.clicked.connect(self.open_path_btn_cmd)
-        self.grid_layout.addWidget(self.open_btn, 0, 2)
+        self.grid_layout.addWidget(self.open_btn, 0, 3)
+
+        self.grid_layout.addItem(QSpacerItem(10, 0), 0, 4)
 
         self.sort_widget = SortTypeWidget(parent=self)
         self.sort_widget.sort_click.connect(self.sort_vozrast_btn_press.emit)
-        self.grid_layout.addWidget(self.sort_widget, 0, 3)
+        self.grid_layout.addWidget(self.sort_widget, 0, 5)
+
+        self.grid_layout.addItem(QSpacerItem(10, 0), 0, 6)
 
         self.ubiv = "↓↑"
         self.vozrast = "↑↓"
@@ -222,14 +228,13 @@ class TopBar(QFrame):
         self.sort_vozrast_button.setToolTip(" Сортировка файлов: по возрастанию / по убыванию ")
         self.sort_vozrast_button.setFixedWidth(60)
         self.sort_vozrast_button.clicked.connect(self.on_sort_toggle)
-        self.grid_layout.addWidget(self.sort_vozrast_button, 0, 4)
+        self.grid_layout.addWidget(self.sort_vozrast_button, 0, 7)
 
-        r_spacer = QSpacerItem(1, 1)
-        self.grid_layout.setColumnStretch(5, 10)
-        self.grid_layout.addItem(r_spacer, 0, 5)
+        self.grid_layout.setColumnStretch(8, 10)
+        self.grid_layout.addItem(QSpacerItem(1, 1), 0, 8)
 
         self.search_wid = SearchWidget()
-        self.grid_layout.addWidget(self.search_wid, 0, 6)
+        self.grid_layout.addWidget(self.search_wid, 0, 9)
 
     def paste_text(self) -> str:
         paste_result = subprocess.run(
