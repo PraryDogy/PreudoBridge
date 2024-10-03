@@ -112,7 +112,7 @@ class Utils:
         elif src_lower.endswith((".tiff", ".tif")):
             img = Utils.read_tiff(src)
 
-        elif src_lower.endswith((".jpg", ".jpeg")):
+        elif src_lower.endswith((".jpg", ".jpeg", "jfif")):
             img = Utils.read_jpg(src)
 
         elif src_lower.endswith((".png")):

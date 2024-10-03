@@ -7,7 +7,7 @@ class Config:
     db_file = os.path.join(os.path.expanduser('~'), 'Desktop', 'db.db')
     thumb_size = 210
     img_viewer_images: dict = {}
-    img_ext: tuple = (".jpg", "jpeg", ".tif", ".tiff", ".psd", ".psb", ".png")
+    img_ext: tuple = (".jpg", "jpeg", ".tif", ".tiff", ".psd", ".psb", ".png", "jfif")
 
     json_data: dict = {
         "root": "/Volumes",
