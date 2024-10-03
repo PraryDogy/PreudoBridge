@@ -199,7 +199,7 @@ class TopBar(QFrame):
 
         l_spacer = QSpacerItem(1, 1)
         self.grid_layout.addItem(l_spacer, 0, 0)
-        self.grid_layout.setColumnStretch(column=0, stretch=10)
+        self.grid_layout.setColumnStretch(0, 10)
 
         self.open_btn = QPushButton("Открыть путь")
         self.open_btn.clicked.connect(self.open_path_btn_cmd)
@@ -220,7 +220,7 @@ class TopBar(QFrame):
 
         r_spacer = QSpacerItem(1, 1)
         self.grid_layout.addItem(r_spacer, 0, 4)
-        self.grid_layout.setColumnStretch(column=4, stretch=10)
+        self.grid_layout.setColumnStretch(4, 10)
 
         self.search_wid = SearchWidget()
         self.grid_layout.addWidget(self.search_wid, 0, 5)
