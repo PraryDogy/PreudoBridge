@@ -150,6 +150,9 @@ class LoadFinderItems:
             if src.lower().endswith(Config.img_ext):
                 self.finder_items[(src, item, size, modified, filetype)] = None
                 continue
+
+            elif os.path.isdir(src):
+                self.finder_items[(src, item, size, modified, filetype)] = None
             
     def __sort_items(self):
         sort_data = {"name": 1, "size": 2,  "modify": 3, "type": 4}
@@ -268,6 +271,80 @@ class Thumbnail(QFrame):
         subprocess.call(["open", "-R", self.src])
 
 
+class FolderThumbnail(QFrame):
+    img_view_closed = pyqtSignal(str)
+
+    def __init__(self, filename: str, src: str):
+        super().__init__()
+        self.setFixedSize(250, 300)
+        self.src = src
+
+        self.setFrameShape(QFrame.Shape.NoFrame)
+        tooltip = filename + "\n" + src
+        self.setToolTip(tooltip)
+
+        v_lay = QVBoxLayout()
+        self.setLayout(v_lay)
+
+        self.img_label = QLabel()
+        self.img_label.setFixedHeight(Config.thumb_size)
+        self.img_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        v_lay.addWidget(self.img_label)
+
+        filename = os.path.basename(src)
+        img_name = NameLabel(filename)
+        v_lay.addWidget(img_name)
+
+    def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
+        subprocess.call(["open", self.src])
+        return super().mouseReleaseEvent(a0)
+
+    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+
+        self.setFrameShape(QFrame.Shape.Panel)
+
+        context_menu = QMenu(self)
+
+        # Пункт "Просмотр"
+        view_action = QAction("Просмотр", self)
+        view_action.triggered.connect(self.view_file)
+        context_menu.addAction(view_action)
+
+        context_menu.addSeparator()
+
+        open_action = QAction("Открыть по умолчанию", self)
+        open_action.triggered.connect(self.open_default)
+        context_menu.addAction(open_action)
+
+        show_in_finder_action = QAction("Показать в Finder", self)
+        show_in_finder_action.triggered.connect(self.show_in_finder)
+        context_menu.addAction(show_in_finder_action)
+
+        copy_path = QAction("Скопировать путь до файла", self)
+        copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
+        context_menu.addAction(copy_path)
+
+        context_menu.exec_(self.mapToGlobal(a0.pos()))
+
+        self.setFrameShape(QFrame.Shape.NoFrame)
+
+        return super().contextMenuEvent(a0)
+
+    def view_file(self):
+        if self.src.endswith(Config.img_ext):
+            self.win = WinImgView(self, self.src)
+            self.win.closed.connect(lambda src: self.img_view_closed.emit(src))
+            main_win = Utils.get_main_win()
+            Utils.center_win(parent=main_win, child=self.win)
+            self.win.show()
+
+    def open_default(self):
+        subprocess.call(["open", self.src])
+
+    def show_in_finder(self):
+        subprocess.call(["open", "-R", self.src])
+
+
 class GridStandartBase(QScrollArea):
     def __init__(self, width: int):
         super().__init__()
@@ -290,9 +367,13 @@ class GridStandartBase(QScrollArea):
         finder_items = finder_items.get()
 
         for (src, filename, size, modified, _), _ in finder_items.items():
-            thumbnail = Thumbnail(filename, src)
-            thumbnail.img_view_closed.connect(lambda src: self.move_to_wid(src))
-            self._set_default_image(thumbnail.img_label, "images/file_210.png")
+            if os.path.isdir(src):
+                thumbnail = FolderThumbnail(filename, src)
+                self._set_default_image(thumbnail.img_label, "images/folder_210.png")   
+            else:
+                thumbnail = Thumbnail(filename, src)
+                thumbnail.img_view_closed.connect(lambda src: self.move_to_wid(src))
+                self._set_default_image(thumbnail.img_label, "images/file_210.png")
 
             self.grid_layout.addWidget(thumbnail, row, col)
 
@@ -311,12 +392,15 @@ class GridStandartBase(QScrollArea):
             self.grid_layout.addItem(clmn_spacer, 0, clmn_count + 1)
             self._start_load_images_thread()
 
+        elif not os.path.exists(Config.json_data["root"]):
+            no_images = QLabel(f"{Config.json_data['root']}\nТакой папки не существует \n Проверьте подключение к сетевому диску")
+            no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.grid_layout.addWidget(no_images, 0, 0, Qt.AlignmentFlag.AlignCenter)
+
         else:
             no_images = QLabel(f"{Config.json_data['root']}\nНет изображений")
             no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0, Qt.AlignmentFlag.AlignCenter)
-            self.grid_layout.setColumnStretch(0, 1)
-            self.grid_layout.setRowStretch(0, 1)
 
     def move_to_wid(self, src: str):
         try:

@@ -16,16 +16,6 @@ from widgets.tree_favorites import TreeFavorites
 from widgets.tree_folders import TreeFolders
 
 
-class NoImagesLabel(QLabel):
-    def __init__(self):
-        super().__init__("Такой папки не существует. \n Проверьте подключение к сетевому диску")
-        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
-    
-    def rearrange(self, *args, **kwargs):
-        pass
-
-
-
 class SimpleFileExplorer(QWidget):
     def __init__(self):
         super().__init__()
@@ -90,16 +80,10 @@ class SimpleFileExplorer(QWidget):
 
         root = Config.json_data["root"]
 
-        if root and os.path.exists(root):
-            self.setWindowTitle(Config.json_data["root"])
-            self.folders_tree_wid.expand_path(root)
-            self.load_standart_grid()
-
-        else:
-            self.setWindowTitle("Ошибка")
-            self.grid = NoImagesLabel()
-            self.r_lay.addWidget(self.grid, alignment=Qt.AlignmentFlag.AlignCenter)
-
+        self.setWindowTitle(Config.json_data["root"])
+        self.folders_tree_wid.expand_path(root)
+        self.load_standart_grid()
+        
     def on_files_tree_clicked_cmd(self, root: str):
         Config.json_data["root"] = root
         self.setWindowTitle(root)
