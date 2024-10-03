@@ -53,8 +53,9 @@ class TreeFavorites(QListWidget):
         wid.contextMenuEvent = lambda e: self.custom_context(e, src)
 
     def del_item(self, src: str):
-        self.fav_items[src].deleteLater()
-        favs: dict = Config.json_data["favs"]
+        item: QLabel = self.fav_items.get(src)
+        item.deleteLater()
+        favs: dict = Config.json_data.get("favs")
         favs.pop(src)
 
     def l_click(self, e: QMouseEvent | None, src) -> None:
