@@ -43,13 +43,13 @@ class SimpleFileExplorer(QWidget):
         splitter_wid.setStretchFactor(0, 0)
         
         self.folders_tree_wid = TreeFolders()
-        self.folders_tree_wid.folders_tree_clicked.connect(self.show_folder_cmd)
+        self.folders_tree_wid.folders_tree_clicked.connect(self.open_folder_cmd)
         self.folders_tree_wid.add_to_favs_clicked.connect(self.add_fav_cmd)
         self.folders_tree_wid.del_favs_clicked.connect(self.del_fav_cmd)
         self.tabs_wid.addTab(self.folders_tree_wid, "Папки")
 
         self.folders_fav_wid = TreeFavorites()
-        self.folders_fav_wid.on_fav_clicked.connect(self.show_folder_cmd)
+        self.folders_fav_wid.on_fav_clicked.connect(self.open_folder_cmd)
         self.tabs_wid.addTab(self.folders_fav_wid, "Избранное")
 
         self.tabs_wid.addTab(QLabel("Тут будут каталоги"), "Каталог")
@@ -86,9 +86,9 @@ class SimpleFileExplorer(QWidget):
         self.folders_tree_wid.expand_path(root)
         self.load_standart_grid()
         
-    def show_folder_cmd(self, root: str):
+    def open_folder_cmd(self, root: str):
         Config.json_data["root"] = root
-        self.top_bar.set_path_list()
+        self.top_bar.update_history()
         self.folders_tree_wid.expand_path(Config.json_data["root"])
         self.setWindowTitle(root)
         self.load_standart_grid()
@@ -118,7 +118,7 @@ class SimpleFileExplorer(QWidget):
             path, _ = os.path.split(path)
 
         Config.json_data["root"] = path
-        self.top_bar.set_path_list()
+        self.top_bar.update_history()
         self.folders_tree_wid.expand_path(path)
         self.setWindowTitle(path)
         self.load_standart_grid()
@@ -163,7 +163,7 @@ class SimpleFileExplorer(QWidget):
         self.grid: GridStandart
         self.grid.add_fav_sig.connect(self.add_fav_cmd)
         self.grid.del_fav_sig.connect(self.del_fav_cmd)
-        self.grid.open_folder_sig.connect(self.show_folder_cmd)
+        self.grid.open_folder_sig.connect(self.open_folder_cmd)
         self.r_lay.addWidget(self.grid)
 
     def get_grid_width(self):

@@ -192,11 +192,10 @@ class TopBar(QFrame):
         self.setFixedHeight(40)
 
         self.root: str = None
-        self.path_list: list = []
+        self.history: list = [Config.json_data["root"]]
         self.current_index: int = 0
 
         self.init_ui()
-        self.set_path_list()
 
     def init_ui(self):
         self.grid_layout = QGridLayout()
@@ -271,38 +270,29 @@ class TopBar(QFrame):
             self.sort_vozrast_button.setText(self.ubiv)
         self.sort_vozrast_btn_press.emit()
 
-    def set_path_list(self):
-        paths = [Config.json_data["root"]]
-        parts = Config.json_data["root"].split(os.sep)
+    def update_history(self):
+        self.history.append(Config.json_data["root"])
+        self.current_index = len(self.history)
 
-        for i in range(1, len(parts)):
-            path = os.sep.join(parts[:-i])
-
-            if path in ("", os.sep):
-                break
-
-            paths.append(path)
-
-        self.path_list = list(reversed(paths))
-        self.current_index = len(self.path_list)
-        self.next.setDisabled(True)
+        if len(self.history) > 50:
+            self.history.pop(0)
 
     def back_cmd(self):
-        self.next.setDisabled(False)
+        self.current_index -= 1
 
         if self.current_index == 0:
             self.back.setDisabled(True)
             return
+        
+        print(self.history[self.current_index])
+        self.back_sig.emit(self.history[self.current_index])
 
-        self.current_index -= 1
-        self.back_sig.emit(self.path_list[self.current_index])
 
     def next_cmd(self):
-        self.next.setDisabled(False)
+        self.current_index -= 1
 
-        if self.current_index == len(self.path_list) - 1:
-            self.next.setDisabled(True)
+        if self.current_index > len(self.history):
+            self.current_index = len(self.history)
             return
-
-        self.current_index += 1
-        self.next_sig.emit(self.path_list[self.current_index])
+        
+        self.next_sig.emit(self.history[self.current_index])
