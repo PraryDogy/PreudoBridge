@@ -59,7 +59,7 @@ class SimpleFileExplorer(QWidget):
         self.tabs_wid.addTab(self.folders_tree_wid, "Папки")
 
         self.folders_fav_wid = TreeFavorites()
-        self.folders_fav_wid.on_fav_clicked.connect(self.on_fav_clicked_cmd)
+        self.folders_fav_wid.on_fav_clicked.connect(self.on_fav_tree_clicked_cmd)
         self.tabs_wid.addTab(self.folders_fav_wid, "Избранное")
 
         self.tabs_wid.addTab(QLabel("Тут будут каталоги"), "Каталог")
@@ -109,17 +109,14 @@ class SimpleFileExplorer(QWidget):
         name = os.path.basename(root)
         self.folders_fav_wid.add_item(name, root)
         Config.json_data["favs"][root] = name
-        self.tabs_wid.setCurrentIndex(1)
 
     def del_fav_cmd(self, root: str):
         self.folders_fav_wid.del_item(root)
-        self.tabs_wid.setCurrentIndex(1)
 
-    def on_fav_clicked_cmd(self, root: str):
+    def on_fav_tree_clicked_cmd(self, root: str):
         Config.json_data["root"] = root
         self.setWindowTitle(root)
         self.folders_tree_wid.expand_path(Config.json_data["root"])
-        self.tabs_wid.setCurrentIndex(0)
         self.load_standart_grid()
 
     def open_path_btn_cmd(self, path: str):
