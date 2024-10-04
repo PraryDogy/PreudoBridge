@@ -200,7 +200,7 @@ class SearchFinderThread(QThread):
                         pixmap = QPixmap("images/file_210.png")
 
                     self.new_widget.emit({"src": src, "filename": file, "pixmap": pixmap})
-                    sleep(0.3)
+                    sleep(0.1)
 
         self.finished.emit()
         self.session.commit()
@@ -279,7 +279,7 @@ class GridSearchBase(QScrollArea):
         widget.img_label.setPixmap(data["pixmap"])
         widget.show_in_folder.connect(self.show_in_folder.emit)
 
-        self.grid_layout.addWidget(widget, self.row, self.col)
+        self.grid_layout.addWidget(widget, self.row, self.col, alignment=Qt.AlignmentFlag.AlignTop)
         Config.img_viewer_images[data["src"]] = widget
 
         self.col += 1
@@ -288,6 +288,7 @@ class GridSearchBase(QScrollArea):
             self.row += 1
 
     def _add_row_spacer(self):
+        return
         row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.grid_layout.addItem(row_spacer, self.row + 1, 0)
         self.finished.emit()
