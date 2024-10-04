@@ -176,9 +176,12 @@ class SearchWidget(QWidget):
             self.search_text = text
             self.search_timer.stop()
             self.search_timer.start(1000)
+            print("text catch")
         else:
             self.clear_btn.hide()
             self.stop_search_sig.emit()
+
+        print("text: ", text)
 
 
 class TopBar(QFrame):
