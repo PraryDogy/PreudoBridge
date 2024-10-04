@@ -201,7 +201,8 @@ class SearchFinderThread(QThread):
                     self.new_widget.emit({"src": src, "filename": file, "pixmap": pixmap})
                     sleep(0.1)
 
-        self.search_finished.emit()
+        if self.flag:
+            self.search_finished.emit()
         self.session.commit()
 
     def get_db_image(self, src: str):
