@@ -70,7 +70,6 @@ class Thumbnail(QFrame):
     def mousePressEvent(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.LeftButton:
             self.drag_start_position = a0.pos()
-            self.setFrameShape(QFrame.Shape.Panel)
         return super().mousePressEvent(a0)
 
     def mouseMoveEvent(self, a0: QMouseEvent | None) -> None:
@@ -81,7 +80,8 @@ class Thumbnail(QFrame):
 
         if distance < QApplication.startDragDistance():
             return
-
+        
+        self.setFrameShape(QFrame.Shape.Panel)
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
         self.drag.setPixmap(self.img_label.pixmap())
