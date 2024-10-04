@@ -261,37 +261,7 @@ class GridSearchBase(QScrollArea):
         self.grid_layout.addItem(row_spacer, self.row + 1, 0)
         self.finished.emit()
 
-    def closeEvent(self, a0: QCloseEvent | None) -> None:
-        self.search_thread.stop_cmd()
-        return super().closeEvent(a0)
-    
-
-class GridSearch(GridSearchBase):
-    def __init__(self, width: int, search_text: str):
-        super().__init__(width, search_text)
-
-    def rearrange(self, width: int):
-        if self.search_thread.isRunning():
-            self.reload_search(width)
-        else:
-            self.rearrange_already_search(width)
-
-    def rearrange_already_search(self, width: int):
-        widgets = self.findChildren(Thumbnail)
-        
-        self.clmn_count = width // Config.thumb_size
-        if self.clmn_count < 1:
-            self.clmn_count = 1
-        self.row, self.col = 0, 0
-
-        for wid in widgets:
-            self.grid_layout.addWidget(wid, self.row, self.col)
-            self.col += 1
-            if self.col >= self.clmn_count:
-                self.col = 0
-                self.row += 1
-
-    def reload_search(self, width: int):
+    def _reload_search(self, width: int):
         self.search_thread.stop_cmd()
         self.search_thread.wait()
 
@@ -308,3 +278,37 @@ class GridSearch(GridSearchBase):
         self.search_thread.new_widget.connect(self._add_new_widget)
         self.search_thread.finished.connect(self._add_row_spacer)
         self.search_thread.start()
+
+    def _rearrange_already_search(self, width: int):
+        widgets = self.findChildren(Thumbnail)
+        
+        self.clmn_count = width // Config.thumb_size
+        if self.clmn_count < 1:
+            self.clmn_count = 1
+        self.row, self.col = 0, 0
+
+        for wid in widgets:
+            self.grid_layout.addWidget(wid, self.row, self.col)
+            self.col += 1
+            if self.col >= self.clmn_count:
+                self.col = 0
+                self.row += 1
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        self.search_thread.stop_cmd()
+        return super().closeEvent(a0)
+    
+
+class GridSearch(GridSearchBase):
+    def __init__(self, width: int, search_text: str):
+        super().__init__(width, search_text)
+
+    def rearrange(self, width: int):
+        if self.search_thread.isRunning():
+            self._reload_search(width)
+        else:
+            self._rearrange_already_search(width)
+
+    def stop_and_wait_threads(self):
+        self.search_thread.stop_cmd()
+        self.search_thread.wait()
