@@ -158,7 +158,7 @@ class Thumbnail(QFrame):
 
 
 class SearchFinderThread(QThread):
-    finished = pyqtSignal()
+    search_finished = pyqtSignal()
     new_widget = pyqtSignal(dict)
 
     def __init__(self, root: str, filename: str):
@@ -202,7 +202,7 @@ class SearchFinderThread(QThread):
                     self.new_widget.emit({"src": src, "filename": file, "pixmap": pixmap})
                     sleep(0.1)
 
-        self.finished.emit()
+        self.search_finished.emit()
         self.session.commit()
 
     def get_db_image(self, src: str):
@@ -271,6 +271,7 @@ class GridSearchBase(QScrollArea):
 
         self.search_thread = SearchFinderThread(Config.json_data["root"], search_text)
         self.search_thread.new_widget.connect(self._add_new_widget)
+        self.search_thread.search_finished.connect(self.finished.emit)
         self.search_thread.start()
 
     def _add_new_widget(self, data: dict):
@@ -301,6 +302,7 @@ class GridSearchBase(QScrollArea):
 
         self.search_thread = SearchFinderThread(Config.json_data["root"], self.search_text)
         self.search_thread.new_widget.connect(self._add_new_widget)
+        self.search_thread.search_finished.connect(self.finished.emit)
         self.search_thread.start()
 
     def _rearrange_already_search(self, width: int):

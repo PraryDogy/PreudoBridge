@@ -30,6 +30,13 @@ class SimpleFileExplorer(QWidget):
         ww, hh = Config.json_data["ww"], Config.json_data["hh"]
         self.resize(ww, hh)
 
+        self.resize_timer = QTimer(parent=self)
+        self.resize_timer.setSingleShot(True)
+        self.resize_timer.timeout.connect(lambda: self.grid.rearrange(self.get_grid_width()))
+
+        self.migaet_timer = QTimer(parent=self)
+        self.resize_timer.timeout.connect(lambda: ...)
+
         main_lay = QVBoxLayout()
         main_lay.setContentsMargins(5, 5, 5, 5)
         main_lay.setSpacing(0)
@@ -44,13 +51,13 @@ class SimpleFileExplorer(QWidget):
         splitter_wid.setStretchFactor(0, 0)
         
         self.folders_tree_wid = TreeFolders()
-        self.folders_tree_wid.folders_tree_clicked.connect(self.open_folder_cmd)
+        self.folders_tree_wid.folders_tree_clicked.connect(self.tree_open_folder_cmd)
         self.folders_tree_wid.add_to_favs_clicked.connect(self.add_fav_cmd)
         self.folders_tree_wid.del_favs_clicked.connect(self.del_fav_cmd)
         self.tabs_wid.addTab(self.folders_tree_wid, "Папки")
 
         self.folders_fav_wid = TreeFavorites()
-        self.folders_fav_wid.on_fav_clicked.connect(self.open_folder_cmd)
+        self.folders_fav_wid.on_fav_clicked.connect(self.tree_open_folder_cmd)
         self.tabs_wid.addTab(self.folders_fav_wid, "Избранное")
 
         self.tabs_wid.addTab(QLabel("Тут будут каталоги"), "Каталог")
@@ -77,16 +84,9 @@ class SimpleFileExplorer(QWidget):
 
         self.r_lay.addWidget(self.top_bar)
 
-        self.resize_timer = QTimer(parent=self)
-        self.resize_timer.setSingleShot(True)
-        self.resize_timer.timeout.connect(lambda: self.grid.rearrange(self.get_grid_width()))
-
-        root = Config.json_data["root"]
-
         self.setWindowTitle(Config.json_data["root"])
-        self.folders_tree_wid.expand_path(root)
+        self.folders_tree_wid.expand_path(Config.json_data["root"])
         self.load_standart_grid()
-
 
         self.back_up_btns = QWidget(parent=self)
         self.back_up_btns.setFixedSize(140, 40)
@@ -107,12 +107,12 @@ class SimpleFileExplorer(QWidget):
         self.back_up_btns.setLayout(back_up_lay)
 
         back_btn = QLabel("Назад")
-        back_btn.setGraphicsEffect(self.get_shadow())
-        back_btn.mouseReleaseEvent = lambda e: self.open_folder_cmd(os.path.split(Config.json_data["root"])[0])
+        # back_btn.setGraphicsEffect(self.get_shadow())
+        back_btn.mouseReleaseEvent = lambda e: self.tree_open_folder_cmd(os.path.split(Config.json_data["root"])[0])
         back_up_lay.addWidget(back_btn, alignment=Qt.AlignmentFlag.AlignLeft)
 
         up_btn = QLabel("Наверх")
-        up_btn.setGraphicsEffect(self.get_shadow())
+        # up_btn.setGraphicsEffect(self.get_shadow())
         up_btn.mouseReleaseEvent = lambda e: self.grid.verticalScrollBar().setValue(0)
         back_up_lay.addWidget(up_btn, alignment=Qt.AlignmentFlag.AlignRight)
 
@@ -123,7 +123,7 @@ class SimpleFileExplorer(QWidget):
         effect.setBlurRadius(15)
         return effect
 
-    def open_folder_cmd(self, root: str):
+    def tree_open_folder_cmd(self, root: str):
         Config.json_data["root"] = root
         self.top_bar.update_history()
         self.folders_tree_wid.expand_path(Config.json_data["root"])
@@ -176,12 +176,25 @@ class SimpleFileExplorer(QWidget):
 
         ww = self.get_grid_width()
         self.grid = GridSearch(width=ww, search_text=search_text)
-        self.grid.finished.connect(lambda: self.setWindowTitle(f"🟢\tРезультаты поиска: \"{search_text}\""))
-        self.grid.show_in_folder.connect(self.search_grid_show_in_folder)
+        self.grid.finished.connect(lambda: self.finished_search(search_text))
+        self.grid.show_in_folder.connect(self.thumbnail_show_in_folder)
         self.setWindowTitle(f"🟠\tИдет поиск: \"{search_text}\"")
         self.r_lay.addWidget(self.grid)
+        self.migaet_timer.start(200)
 
-    def search_grid_show_in_folder(self, src: str):
+    def migaet_title(self):
+        if "🟠" in self.windowTitle():
+            t = self.windowTitle().replace("🟠", "🟡")
+        else:
+            t = self.windowTitle().replace("🟡", "🟠")
+        print(t)
+        self.setWindowTitle(t)
+
+    def finished_search(self, search_text: str):
+        self.migaet_timer.stop()
+        self.setWindowTitle(f"🟢\tРезультаты поиска: \"{search_text}\"")
+
+    def thumbnail_show_in_folder(self, src: str):
         root = os.path.dirname(src)
         Config.json_data["root"] = root
         self.folders_tree_wid.expand_path(root)
@@ -202,7 +215,7 @@ class SimpleFileExplorer(QWidget):
         self.grid: GridStandart
         self.grid.add_fav_sig.connect(self.add_fav_cmd)
         self.grid.del_fav_sig.connect(self.del_fav_cmd)
-        self.grid.open_folder_sig.connect(self.open_folder_cmd)
+        self.grid.open_folder_sig.connect(self.tree_open_folder_cmd)
         self.r_lay.addWidget(self.grid)
 
     def get_grid_width(self):
