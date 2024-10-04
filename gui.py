@@ -154,6 +154,7 @@ class SimpleFileExplorer(QWidget):
         self.top_bar.sort_widget.setDisabled(b)
 
     def load_search_grid(self, search_text: str):
+        print("load search:", search_text)
         self.disable_top_bar_btns(True)
 
         if self.grid:

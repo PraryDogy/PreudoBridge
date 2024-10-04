@@ -171,17 +171,15 @@ class SearchWidget(QWidget):
         self.input_wid.textChanged.connect(self.on_text_changed)
 
     def on_text_changed(self, text):
+        self.search_timer.stop()
         if text:
             self.clear_btn.show()
             self.search_text = text
-            self.search_timer.stop()
             self.search_timer.start(1000)
-            print("text catch")
         else:
+            self.clear_search_sig.emit()
             self.clear_btn.hide()
             self.stop_search_sig.emit()
-
-        print("text: ", text)
 
 
 class TopBar(QFrame):

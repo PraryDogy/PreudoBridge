@@ -321,10 +321,9 @@ class GridSearchBase(QScrollArea):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         try:
-            self.disconnect()
+            self.search_thread.disconnect()
         except TypeError:
             pass
-
         self.search_thread.stop_cmd()
         return super().closeEvent(a0)
     
