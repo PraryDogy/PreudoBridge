@@ -35,7 +35,7 @@ class SimpleFileExplorer(QWidget):
         self.resize_timer.timeout.connect(lambda: self.grid.rearrange(self.get_grid_width()))
 
         self.migaet_timer = QTimer(parent=self)
-        self.resize_timer.timeout.connect(lambda: ...)
+        self.migaet_timer.timeout.connect(self.migaet_title)
 
         main_lay = QVBoxLayout()
         main_lay.setContentsMargins(5, 5, 5, 5)
@@ -172,15 +172,18 @@ class SimpleFileExplorer(QWidget):
         self.disable_top_bar_btns(True)
 
         if self.grid:
+            self.grid.disconnect()
             self.grid.close()
+
+        self.setWindowTitle(f"🟠\tИдет поиск: \"{search_text}\"")
+        self.migaet_timer.start(400)
 
         ww = self.get_grid_width()
         self.grid = GridSearch(width=ww, search_text=search_text)
-        self.grid.finished.connect(lambda: self.finished_search(search_text))
+
+        self.grid.search_finished.connect(lambda: self.finished_search(search_text))
         self.grid.show_in_folder.connect(self.thumbnail_show_in_folder)
-        self.setWindowTitle(f"🟠\tИдет поиск: \"{search_text}\"")
         self.r_lay.addWidget(self.grid)
-        self.migaet_timer.start(200)
 
     def migaet_title(self):
         if "🟠" in self.windowTitle():
@@ -191,6 +194,7 @@ class SimpleFileExplorer(QWidget):
         self.setWindowTitle(t)
 
     def finished_search(self, search_text: str):
+        print("stop")
         self.migaet_timer.stop()
         self.setWindowTitle(f"🟢\tРезультаты поиска: \"{search_text}\"")
 

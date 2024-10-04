@@ -245,7 +245,7 @@ class SearchFinderThread(QThread):
 
 
 class GridSearchBase(QScrollArea):
-    finished = pyqtSignal()
+    search_finished = pyqtSignal()
     show_in_folder = pyqtSignal(str)
 
     def __init__(self, width: int, search_text: str):
@@ -271,7 +271,7 @@ class GridSearchBase(QScrollArea):
 
         self.search_thread = SearchFinderThread(Config.json_data["root"], search_text)
         self.search_thread.new_widget.connect(self._add_new_widget)
-        self.search_thread.search_finished.connect(self.finished.emit)
+        self.search_thread.search_finished.connect(self.search_finished.emit)
         self.search_thread.start()
 
     def _add_new_widget(self, data: dict):
@@ -302,7 +302,7 @@ class GridSearchBase(QScrollArea):
 
         self.search_thread = SearchFinderThread(Config.json_data["root"], self.search_text)
         self.search_thread.new_widget.connect(self._add_new_widget)
-        self.search_thread.search_finished.connect(self.finished.emit)
+        self.search_thread.search_finished.connect(self.search_finished.emit)
         self.search_thread.start()
 
     def _rearrange_already_search(self, width: int):
