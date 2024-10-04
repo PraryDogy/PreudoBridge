@@ -3,10 +3,12 @@ import subprocess
 from time import sleep
 
 import sqlalchemy
-from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal
-from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QMouseEvent, QPixmap
-from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QLabel, QMenu,
-                             QSizePolicy, QSpacerItem, QVBoxLayout, QWidget, QScrollArea)
+from PyQt5.QtCore import QMimeData, Qt, QThread, QTimer, QUrl, pyqtSignal
+from PyQt5.QtGui import (QCloseEvent, QContextMenuEvent, QDrag, QMouseEvent,
+                         QPixmap)
+from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
+                             QLabel, QMenu, QScrollArea, QSizePolicy,
+                             QSpacerItem, QVBoxLayout, QWidget)
 
 from cfg import Config
 from database import Cache, Dbase
@@ -65,13 +67,41 @@ class Thumbnail(QFrame):
         img_name = NameLabel(filename)
         v_lay.addWidget(img_name)
 
+    def mousePressEvent(self, a0: QMouseEvent | None) -> None:
+        if a0.button() == Qt.MouseButton.LeftButton:
+            self.drag_start_position = a0.pos()
+            self.setFrameShape(QFrame.Shape.Panel)
+        return super().mousePressEvent(a0)
+
+    def mouseMoveEvent(self, a0: QMouseEvent | None) -> None:
+        if a0.button() == Qt.MouseButton.RightButton:
+            return
+
+        distance = (a0.pos() - self.drag_start_position).manhattanLength()
+
+        if distance < QApplication.startDragDistance():
+            return
+
+        self.drag = QDrag(self)
+        self.mime_data = QMimeData()
+        self.drag.setPixmap(self.img_label.pixmap())
+        
+        url = [QUrl.fromLocalFile(self.src)]
+        self.mime_data.setUrls(url)
+
+        self.drag.setMimeData(self.mime_data)
+        self.drag.exec_(Qt.DropAction.CopyAction)
+        self.setFrameShape(QFrame.Shape.NoFrame)
+        return super().mouseMoveEvent(a0)
+
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
-        self.setFrameShape(QFrame.Shape.Panel)
-        QTimer.singleShot(500, lambda: self.setFrameShape(QFrame.Shape.NoFrame))
-        self.win = WinImgView(self, self.src)
-        Utils.center_win(parent=Utils.get_main_win(), child=self.win)
-        self.win.closed.connect(lambda src: self.img_view_closed.emit(src))
-        self.win.show()
+        if a0.button() == Qt.MouseButton.RightButton:
+            self.setFrameShape(QFrame.Shape.Panel)
+            QTimer.singleShot(500, lambda: self.setFrameShape(QFrame.Shape.NoFrame))
+            self.win = WinImgView(self, self.src)
+            Utils.center_win(parent=Utils.get_main_win(), child=self.win)
+            self.win.closed.connect(lambda src: self.img_view_closed.emit(src))
+            self.win.show()
 
         return super().mouseReleaseEvent(a0)
 

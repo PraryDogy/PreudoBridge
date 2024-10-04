@@ -245,13 +245,14 @@ class Thumbnail(QFrame):
         return super().mouseMoveEvent(a0)
 
     def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
-        self.setFrameShape(QFrame.Shape.Panel)
-        QTimer.singleShot(500, lambda: self.setFrameShape(QFrame.Shape.NoFrame))
-        self.win = WinImgView(self, self.src)
-        Utils.center_win(parent=Utils.get_main_win(), child=self.win)
-        self.win.closed.connect(lambda src: self.img_view_closed.emit(src))
-        self.win.show()
-        return super().mouseDoubleClickEvent(a0)
+        if a0.button() == Qt.MouseButton.LeftButton:
+            self.setFrameShape(QFrame.Shape.Panel)
+            QTimer.singleShot(500, lambda: self.setFrameShape(QFrame.Shape.NoFrame))
+            self.win = WinImgView(self, self.src)
+            Utils.center_win(parent=Utils.get_main_win(), child=self.win)
+            self.win.closed.connect(lambda src: self.img_view_closed.emit(src))
+            self.win.show()
+            return super().mouseDoubleClickEvent(a0)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
 
