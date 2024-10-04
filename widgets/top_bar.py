@@ -271,8 +271,9 @@ class TopBar(QFrame):
         self.sort_vozrast_btn_press.emit()
 
     def update_history(self):
-        self.history.append(Config.json_data["root"])
-        self.current_index = len(self.history) - 1
+        if Config.json_data["root"] not in self.history:
+            self.history.append(Config.json_data["root"])
+            self.current_index = len(self.history) - 1
 
         if len(self.history) > 50:
             self.history.pop(0)
