@@ -252,6 +252,7 @@ class GridSearchBase(QScrollArea):
         super().__init__()
         self.search_text = search_text
         self.setWidgetResizable(True)
+        self.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         Config.img_viewer_images.clear()
 

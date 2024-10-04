@@ -162,7 +162,8 @@ class SimpleFileExplorer(QWidget):
         QTimer.singleShot(1500, lambda: self.grid.move_to_wid(filepath))
 
     def disable_top_bar_btns(self, b: bool):
-        self.back_up_btns.setDisabled(b)
+        self.top_bar.back.setDisabled(b)
+        self.top_bar.next.setDisabled(b)
         self.top_bar.open_btn.setDisabled(b)
         self.top_bar.sort_vozrast_button.setDisabled(b)
         self.top_bar.sort_widget.setDisabled(b)
