@@ -271,7 +271,6 @@ class GridSearchBase(QScrollArea):
 
         self.search_thread = SearchFinderThread(Config.json_data["root"], search_text)
         self.search_thread.new_widget.connect(self._add_new_widget)
-        self.search_thread.finished.connect(self._add_row_spacer)
         self.search_thread.start()
 
     def _add_new_widget(self, data: dict):
@@ -286,12 +285,6 @@ class GridSearchBase(QScrollArea):
         if self.col >= self.clmn_count:
             self.col = 0
             self.row += 1
-
-    def _add_row_spacer(self):
-        return
-        row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
-        self.grid_layout.addItem(row_spacer, self.row + 1, 0)
-        self.finished.emit()
 
     def _reload_search(self, width: int):
         self.search_thread.stop_cmd()
@@ -308,7 +301,6 @@ class GridSearchBase(QScrollArea):
 
         self.search_thread = SearchFinderThread(Config.json_data["root"], self.search_text)
         self.search_thread.new_widget.connect(self._add_new_widget)
-        self.search_thread.finished.connect(self._add_row_spacer)
         self.search_thread.start()
 
     def _rearrange_already_search(self, width: int):
