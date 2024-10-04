@@ -88,33 +88,20 @@ class SimpleFileExplorer(QWidget):
         self.folders_tree_wid.expand_path(Config.json_data["root"])
         self.load_standart_grid()
 
-        self.back_up_btns = QWidget(parent=self)
-        self.back_up_btns.setFixedSize(140, 40)
-        self.back_up_btns.move(self.width() // 2, self.height() - 70)
-        self.back_up_btns.setObjectName("back_up")
-        self.back_up_btns.show()
+        # self.back_up_btns = QWidget(parent=self)
 
+        self.back_up_btns = QLabel(parent=self, text="▲")
+        self.back_up_btns.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.back_up_btns.mouseReleaseEvent = lambda e: self.grid.verticalScrollBar().setValue(0)
+        self.back_up_btns.setFixedSize(40, 40)
+        self.back_up_btns.move(Config.json_data["ww"] - 30, self.height() - 70)
+        self.back_up_btns.show()
         self.back_up_btns.setStyleSheet(
             """
-            #back_up {
             background-color: rgba(128, 128, 128, 0.40);
-            border-radius: 15px;
-            }
+            border-radius: 20px;
             """
             )
-
-        back_up_lay = QHBoxLayout()
-        self.back_up_btns.setLayout(back_up_lay)
-
-        back_btn = QLabel("Назад")
-        # back_btn.setGraphicsEffect(self.get_shadow())
-        back_btn.mouseReleaseEvent = lambda e: self.view_folder_cmd(os.path.split(Config.json_data["root"])[0])
-        back_up_lay.addWidget(back_btn, alignment=Qt.AlignmentFlag.AlignLeft)
-
-        up_btn = QLabel("Наверх")
-        # up_btn.setGraphicsEffect(self.get_shadow())
-        up_btn.mouseReleaseEvent = lambda e: self.grid.verticalScrollBar().setValue(0)
-        back_up_lay.addWidget(up_btn, alignment=Qt.AlignmentFlag.AlignRight)
 
     def get_shadow(self):
         effect = QGraphicsDropShadowEffect()
