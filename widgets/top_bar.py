@@ -279,23 +279,25 @@ class TopBar(QFrame):
             self.history.pop(0)
 
     def back_cmd(self):
+        if self.current_index == 0:
+            return
+
         self.current_index -= 1
 
         try:
             path = self.history[self.current_index]
             self.back_sig.emit(path)
-            if self.current_index == 0:
-                self.current_index = len(self.history)
         except IndexError:
             pass
 
     def next_cmd(self):
+        if self.current_index == len(self.history) - 1:
+            return
+        
         self.current_index += 1
 
         try:
             path = self.history[self.current_index]
             self.next_sig.emit(path)
-            if self.current_index == len(self.history):
-                self.current_index = 0
         except IndexError:
-            print("index error")
+            pass
