@@ -89,11 +89,11 @@ class SimpleFileExplorer(QWidget):
         self.load_standart_grid()
 
         self.back_up_btns = QLabel(parent=self, text="▲")
+        self.back_up_btns.hide()
         self.back_up_btns.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.back_up_btns.mouseReleaseEvent = lambda e: self.grid.verticalScrollBar().setValue(0)
         self.back_up_btns.setFixedSize(40, 40)
         self.back_up_btns.move(self.width() - 70, self.height() - 70)
-        self.back_up_btns.show()
         self.back_up_btns.setStyleSheet(
             """
             background-color: rgba(128, 128, 128, 0.40);
@@ -165,7 +165,7 @@ class SimpleFileExplorer(QWidget):
 
         ww = self.get_grid_width()
         self.grid = GridSearch(width=ww, search_text=search_text)
-
+        self.grid.verticalScrollBar().valueChanged.connect(self.scroll_value)
         self.grid.search_finished.connect(lambda: self.finished_search(search_text))
         self.grid.show_in_folder.connect(self.thumbnail_show_in_folder)
         self.r_lay.addWidget(self.grid)
@@ -199,11 +199,17 @@ class SimpleFileExplorer(QWidget):
         self.setWindowTitle(Config.json_data["root"])
         ww = self.get_grid_width()
         self.grid = GridStandart(width=ww)
-        self.grid: GridStandart
+        self.grid.verticalScrollBar().valueChanged.connect(self.scroll_value)
         self.grid.add_fav_sig.connect(self.add_fav_cmd)
         self.grid.del_fav_sig.connect(self.del_fav_cmd)
         self.grid.open_folder_sig.connect(self.view_folder_cmd)
         self.r_lay.addWidget(self.grid)
+
+    def scroll_value(self, value: int):
+        if value == 0:
+            self.back_up_btns.hide()
+        else:
+            self.back_up_btns.show()
 
     def get_grid_width(self):
         return Config.json_data["ww"] - self.tabs_wid.width() - 180
