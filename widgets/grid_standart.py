@@ -434,10 +434,12 @@ class GridStandartBase(QScrollArea):
             pass
 
     def _stop_threads(self):
-        for thread in GridStandartStorage.load_images_threads:
-            thread: LoadImagesThread
-            thread.stop_thread.emit()
-            thread.wait()
+        for i in GridStandartStorage.load_images_threads:
+            i: LoadImagesThread
+            i.stop_thread.emit()
+
+            if i.isFinished():
+                GridStandartStorage.load_images_threads.remove(i)
 
     def _start_load_images_thread(self):
         new_thread = LoadImagesThread(self.grid_image_labels)
@@ -470,9 +472,7 @@ class GridStandart(GridStandartBase):
         return
     
     def stop_and_wait_threads(self):
-        for i in GridStandartStorage.load_images_threads:
-            i: LoadImagesThread
-            i.stop_thread.emit()
-
-            if i.isFinished():
-                GridStandartStorage.load_images_threads.remove(i)
+        for thread in GridStandartStorage.load_images_threads:
+            thread: LoadImagesThread
+            thread.stop_thread.emit()
+            thread.wait()
