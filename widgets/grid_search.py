@@ -94,7 +94,7 @@ class Thumbnail(QFrame):
         self.setFrameShape(QFrame.Shape.NoFrame)
         return super().mouseMoveEvent(a0)
 
-    def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
+    def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.RightButton:
             self.setFrameShape(QFrame.Shape.Panel)
             QTimer.singleShot(500, lambda: self.setFrameShape(QFrame.Shape.NoFrame))
@@ -102,8 +102,7 @@ class Thumbnail(QFrame):
             Utils.center_win(parent=Utils.get_main_win(), child=self.win)
             self.win.closed.connect(lambda src: self.img_view_closed.emit(src))
             self.win.show()
-
-        return super().mouseReleaseEvent(a0)
+        return super().mouseDoubleClickEvent(a0)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
 
