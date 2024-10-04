@@ -2,10 +2,11 @@ import json
 import os
 import subprocess
 
-from PyQt5.QtCore import QDir, QEvent, QObject, Qt, QTimer
-from PyQt5.QtGui import QCloseEvent, QKeyEvent, QResizeEvent
-from PyQt5.QtWidgets import (QApplication, QLabel, QSplitter, QTabWidget,
-                             QVBoxLayout, QWidget, QFrame, QHBoxLayout)
+from PyQt5.QtCore import QEvent, QObject, Qt, QTimer
+from PyQt5.QtGui import QCloseEvent, QColor, QKeyEvent, QResizeEvent
+from PyQt5.QtWidgets import (QApplication, QGraphicsDropShadowEffect,
+                             QHBoxLayout, QLabel, QSplitter, QTabWidget,
+                             QVBoxLayout, QWidget)
 
 from cfg import Config
 from utils import Utils
@@ -106,13 +107,21 @@ class SimpleFileExplorer(QWidget):
         self.back_up_btns.setLayout(back_up_lay)
 
         back_btn = QLabel("Назад")
+        back_btn.setGraphicsEffect(self.get_shadow())
         back_btn.mouseReleaseEvent = lambda e: self.open_folder_cmd(os.path.split(Config.json_data["root"])[0])
         back_up_lay.addWidget(back_btn, alignment=Qt.AlignmentFlag.AlignLeft)
 
         up_btn = QLabel("Наверх")
+        up_btn.setGraphicsEffect(self.get_shadow())
         up_btn.mouseReleaseEvent = lambda e: self.grid.verticalScrollBar().setValue(0)
         back_up_lay.addWidget(up_btn, alignment=Qt.AlignmentFlag.AlignRight)
 
+    def get_shadow(self):
+        effect = QGraphicsDropShadowEffect()
+        effect.setOffset(0, 0)
+        effect.setColor(QColor(0, 0, 0, 200))
+        effect.setBlurRadius(15)
+        return effect
 
     def open_folder_cmd(self, root: str):
         Config.json_data["root"] = root
