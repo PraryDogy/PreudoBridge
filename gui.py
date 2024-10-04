@@ -88,13 +88,11 @@ class SimpleFileExplorer(QWidget):
         self.folders_tree_wid.expand_path(Config.json_data["root"])
         self.load_standart_grid()
 
-        # self.back_up_btns = QWidget(parent=self)
-
         self.back_up_btns = QLabel(parent=self, text="▲")
         self.back_up_btns.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.back_up_btns.mouseReleaseEvent = lambda e: self.grid.verticalScrollBar().setValue(0)
         self.back_up_btns.setFixedSize(40, 40)
-        self.back_up_btns.move(Config.json_data["ww"] - 30, self.height() - 70)
+        self.back_up_btns.move(self.width() - 70, self.height() - 70)
         self.back_up_btns.show()
         self.back_up_btns.setStyleSheet(
             """
@@ -213,7 +211,7 @@ class SimpleFileExplorer(QWidget):
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         Config.json_data["ww"] = self.geometry().width()
         Config.json_data["hh"] = self.geometry().height()
-        self.back_up_btns.move(self.width() // 2, self.height() - 70)
+        self.back_up_btns.move(self.width() - 70, self.height() - 70)
         self.resize_timer.stop()
         self.resize_timer.start(500)
         # return super().resizeEvent(a0)
