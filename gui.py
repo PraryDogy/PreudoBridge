@@ -5,7 +5,7 @@ import subprocess
 from PyQt5.QtCore import QDir, QEvent, QObject, Qt, QTimer
 from PyQt5.QtGui import QCloseEvent, QKeyEvent, QResizeEvent
 from PyQt5.QtWidgets import (QApplication, QLabel, QSplitter, QTabWidget,
-                             QVBoxLayout, QWidget)
+                             QVBoxLayout, QWidget, QFrame, QHBoxLayout)
 
 from cfg import Config
 from utils import Utils
@@ -85,7 +85,35 @@ class SimpleFileExplorer(QWidget):
         self.setWindowTitle(Config.json_data["root"])
         self.folders_tree_wid.expand_path(root)
         self.load_standart_grid()
-        
+
+
+        self.back_up_btns = QWidget(parent=self)
+        self.back_up_btns.setFixedSize(140, 40)
+        self.back_up_btns.move(self.width() // 2, self.height() - 70)
+        self.back_up_btns.setObjectName("back_up")
+        self.back_up_btns.show()
+
+        self.back_up_btns.setStyleSheet(
+            """
+            #back_up {
+            background-color: rgba(128, 128, 128, 0.40);
+            border-radius: 15px;
+            }
+            """
+            )
+
+        back_up_lay = QHBoxLayout()
+        self.back_up_btns.setLayout(back_up_lay)
+
+        back_btn = QLabel("Назад")
+        back_btn.mouseReleaseEvent = lambda e: self.open_folder_cmd(os.path.split(Config.json_data["root"])[0])
+        back_up_lay.addWidget(back_btn, alignment=Qt.AlignmentFlag.AlignLeft)
+
+        up_btn = QLabel("Наверх")
+        up_btn.mouseReleaseEvent = lambda e: self.grid.verticalScrollBar().setValue(0)
+        back_up_lay.addWidget(up_btn, alignment=Qt.AlignmentFlag.AlignRight)
+
+
     def open_folder_cmd(self, root: str):
         Config.json_data["root"] = root
         self.top_bar.update_history()
@@ -172,6 +200,7 @@ class SimpleFileExplorer(QWidget):
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         Config.json_data["ww"] = self.geometry().width()
         Config.json_data["hh"] = self.geometry().height()
+        self.back_up_btns.move(self.width() // 2, self.height() - 70)
         self.resize_timer.stop()
         self.resize_timer.start(500)
         # return super().resizeEvent(a0)

@@ -1,5 +1,3 @@
-a = [1, 2, 3]
+import os
 
 
-last = a[a.index(len(a))]
-print(last)

@@ -272,7 +272,7 @@ class TopBar(QFrame):
 
     def update_history(self):
         self.history.append(Config.json_data["root"])
-        self.current_index = len(self.history)
+        self.current_index = len(self.history) - 1
 
         if len(self.history) > 50:
             self.history.pop(0)
@@ -280,19 +280,17 @@ class TopBar(QFrame):
     def back_cmd(self):
         self.current_index -= 1
 
+        path = self.history[self.current_index]
+        self.back_sig.emit(path)
+
         if self.current_index == 0:
             self.back.setDisabled(True)
-            return
-        
-        print(self.history[self.current_index])
-        self.back_sig.emit(self.history[self.current_index])
-
 
     def next_cmd(self):
-        self.current_index -= 1
+        self.current_index += 1
 
-        if self.current_index > len(self.history):
-            self.current_index = len(self.history)
-            return
-        
-        self.next_sig.emit(self.history[self.current_index])
+        path = self.history[self.current_index]
+        self.next_sig.emit(path)
+
+        if self.current_index == len(self.history) - 1:
+            self.next.setDisabled(True)
