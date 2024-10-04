@@ -138,11 +138,10 @@ class Utils:
         return QPixmap.fromImage(qimage)
 
     @staticmethod
-    def image_array_to_bytes(image: np.ndarray) -> bytes | None:
+    def image_array_to_bytes(image: np.ndarray, quality: int = 80) -> bytes | None:
         try:
-            img = np.array(image)
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            res, buffer = cv2.imencode(".jpeg", img)
+            img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            res, buffer = cv2.imencode(".jpeg", img, [int(cv2.IMWRITE_JPEG_QUALITY), quality])
             image_io = io.BytesIO()
             image_io.write(buffer)
             img = image_io.getvalue()
