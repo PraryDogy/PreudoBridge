@@ -160,9 +160,9 @@ class SimpleFileExplorer(QWidget):
             self.grid.disconnect()
             self.grid.close()
 
+        self.setFocus()
         self.setWindowTitle(f"🟠\tИдет поиск: \"{search_text}\"")
         self.migaet_timer.start(400)
-
         ww = self.get_grid_width()
         self.grid = GridSearch(width=ww, search_text=search_text)
         self.grid.verticalScrollBar().valueChanged.connect(self.scroll_value)
@@ -196,6 +196,7 @@ class SimpleFileExplorer(QWidget):
         if self.grid:
             self.grid.close()
 
+        self.setFocus()
         self.setWindowTitle(Config.json_data["root"])
         ww = self.get_grid_width()
         self.grid = GridStandart(width=ww)
