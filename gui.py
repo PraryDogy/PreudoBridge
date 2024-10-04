@@ -154,7 +154,6 @@ class SimpleFileExplorer(QWidget):
         self.top_bar.sort_widget.setDisabled(b)
 
     def load_search_grid(self, search_text: str):
-        print("load search:", search_text)
         self.disable_top_bar_btns(True)
 
         if self.grid:
@@ -223,13 +222,20 @@ class SimpleFileExplorer(QWidget):
         a0.ignore()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
-        if a0.key() == Qt.Key.Key_W:
+        if a0.key() == Qt.Key.Key_F:
+            if a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
+                self.top_bar.search_wid.input_wid.setFocus()
+
+        elif a0.key() == Qt.Key.Key_W:
             if a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
                 self.hide()
 
         elif a0.key() == Qt.Key.Key_Q:
             if a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
                 QApplication.instance().quit()
+
+        elif a0.key() == Qt.Key.Key_Escape:
+            self.setFocus()
 
 
 class CustomApp(QApplication):
