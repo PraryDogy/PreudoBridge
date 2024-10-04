@@ -470,6 +470,7 @@ class GridStandart(GridStandartBase):
         return
     
     def stop_and_wait_threads(self):
+        print("here")
         for i in GridStandartStorage.load_images_threads:
             i: LoadImagesThread
             i.stop_thread.emit()
