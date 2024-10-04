@@ -190,11 +190,9 @@ class SimpleFileExplorer(QWidget):
             t = self.windowTitle().replace("🟠", "🟡")
         else:
             t = self.windowTitle().replace("🟡", "🟠")
-        print(t)
         self.setWindowTitle(t)
 
     def finished_search(self, search_text: str):
-        print("stop")
         self.migaet_timer.stop()
         self.setWindowTitle(f"🟢\tРезультаты поиска: \"{search_text}\"")
 
