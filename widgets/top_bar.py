@@ -12,8 +12,8 @@ from cfg import Config
 from utils import Utils
 
 
-class PathFinderThread(QThread):
-    finished = pyqtSignal(str)
+class _PathFinderThread(QThread):
+    _finished = pyqtSignal(str)
 
     def __init__(self, src: str):
         super().__init__()
@@ -23,7 +23,7 @@ class PathFinderThread(QThread):
         self.exclude = "/Volumes/Macintosh HD/Volumes/"
 
     def run(self):
-        self.path_finder()
+        self._path_finder()
         if not self.result:
             self.finished.emit("")
         elif self.result in self.volumes:
@@ -31,7 +31,7 @@ class PathFinderThread(QThread):
         elif self.result:
             self.finished.emit(self.result)
 
-    def path_finder(self):
+    def _path_finder(self):
         src = os.sep + self.src.replace("\\", os.sep).strip().strip(os.sep)
         src_splited = [i for i in src.split(os.sep) if i]
 
@@ -99,7 +99,7 @@ class PathFinderThread(QThread):
                     break
 
 
-class SortTypeWidget(QPushButton):
+class _SortTypeWidget(QPushButton):
     sort_click = pyqtSignal()
 
     def __init__(self, parent: QWidget):
@@ -129,7 +129,7 @@ class SortTypeWidget(QPushButton):
 
         for k, v in self.data.items():
             action = QAction(parent=self, text=v.get("text"))
-            action.triggered.connect(lambda e, v=v: self.action_clicked(v))
+            action.triggered.connect(lambda e, v=v: self._action_clicked(v))
 
             if v.get("sort") == None:
                 action.setDisabled(True)
@@ -140,14 +140,14 @@ class SortTypeWidget(QPushButton):
 
             menu.addAction(action)
 
-    def action_clicked(self, data: dict):
+    def _action_clicked(self, data: dict):
         Config.json_data["sort"] = data.get("sort")
         Config.json_data["reversed"] = data.get("reversed")
         self.setText(data.get("text"))
         self.sort_click.emit()
 
 
-class SearchWidget(QWidget):
+class _SearchWidget(QWidget):
     start_search_sig = pyqtSignal(str)
     stop_search_sig = pyqtSignal()
     clear_search_sig = pyqtSignal()
@@ -223,8 +223,8 @@ class SearchWidget(QWidget):
         self.input_wid.setText(text)
 
 
-class GoWin(QWidget):
-    btn_pressed = pyqtSignal(str)
+class _GoWin(QWidget):
+    _btn_pressed = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -245,10 +245,10 @@ class GoWin(QWidget):
 
         go_btn = QPushButton("Перейти")
         go_btn.setFixedWidth(130)
-        go_btn.clicked.connect(self.open_path_btn_cmd)
+        go_btn.clicked.connect(self._open_path_btn_cmd)
         v_lay.addWidget(go_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
-    def open_path_btn_cmd(self):
+    def _open_path_btn_cmd(self):
         path: str = self.input_wid.text()
 
         if not path:
@@ -257,15 +257,15 @@ class GoWin(QWidget):
         path: str = os.sep + path.strip().strip(os.sep)
 
         if os.path.exists(path):
-            self.btn_pressed.emit(path)
+            self._btn_pressed.emit(path)
             self.close()
         else:
-            self.path_thread = PathFinderThread(path)
-            self.path_thread.finished.connect(self.finalize)
+            self.path_thread = _PathFinderThread(path)
+            self.path_thread._finished.connect(self._finalize)
             self.path_thread.start()
 
-    def finalize(self, res: str):
-        self.btn_pressed.emit(res)
+    def _finalize(self, res: str):
+        self._btn_pressed.emit(res)
         self.close()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
@@ -274,16 +274,16 @@ class GoWin(QWidget):
         return super().keyPressEvent(a0)
 
 
-class GoBtn(QPushButton):
-    btn_pressed = pyqtSignal(str)
+class _GoBtn(QPushButton):
+    open_path = pyqtSignal(str)
 
     def __init__(self):
         super().__init__("Перейти к ...")
-        self.clicked.connect(self.open_win)
+        self.clicked.connect(self._open_win)
 
-    def open_win(self):
-        self.win = GoWin()
-        self.win.btn_pressed.connect(self.btn_pressed.emit)
+    def _open_win(self):
+        self.win = _GoWin()
+        self.win._btn_pressed.connect(self.open_path.emit)
         Utils.center_win(Utils.get_main_win(), self.win)
         self.win.show()
 
@@ -300,9 +300,6 @@ class TopBar(QFrame):
         self.history: list = [Config.json_data["root"]]
         self.current_index: int = 0
 
-        self.init_ui()
-
-    def init_ui(self):
         self.grid_layout = QGridLayout()
         self.grid_layout.setSpacing(5)
         self.grid_layout.setContentsMargins(0, 0, 0, 0)
@@ -310,23 +307,23 @@ class TopBar(QFrame):
 
         self.back = QPushButton("\u25C0")
         self.back.setFixedWidth(60)
-        self.back.clicked.connect(self.back_cmd)
+        self.back.clicked.connect(self._back_cmd)
         self.grid_layout.addWidget(self.back, 0, 0)
 
         self.next = QPushButton("\u25B6")
         self.next.setFixedWidth(60)
-        self.next.clicked.connect(self.next_cmd)
+        self.next.clicked.connect(self._next_cmd)
         self.grid_layout.addWidget(self.next, 0, 1)
 
         self.grid_layout.setColumnStretch(2, 10)
         self.grid_layout.addItem(QSpacerItem(1, 1), 0, 2)
 
-        self.open_btn = GoBtn()
-        self.grid_layout.addWidget(self.open_btn, 0, 3)
+        self.go_btn = _GoBtn()
+        self.grid_layout.addWidget(self.go_btn, 0, 3)
 
         self.grid_layout.addItem(QSpacerItem(10, 0), 0, 4)
 
-        self.sort_widget = SortTypeWidget(parent=self)
+        self.sort_widget = _SortTypeWidget(parent=self)
         self.grid_layout.addWidget(self.sort_widget, 0, 5)
 
         self.grid_layout.addItem(QSpacerItem(10, 0), 0, 6)
@@ -334,7 +331,7 @@ class TopBar(QFrame):
         self.grid_layout.setColumnStretch(7, 10)
         self.grid_layout.addItem(QSpacerItem(1, 1), 0, 7)
 
-        self.search_wid = SearchWidget()
+        self.search_wid = _SearchWidget()
         self.grid_layout.addWidget(self.search_wid, 0, 8)
 
     def update_history(self):
@@ -345,7 +342,7 @@ class TopBar(QFrame):
         if len(self.history) > 50:
             self.history.pop(0)
 
-    def back_cmd(self):
+    def _back_cmd(self):
         if self.current_index == 0:
             return
 
@@ -357,7 +354,7 @@ class TopBar(QFrame):
         except IndexError:
             pass
 
-    def next_cmd(self):
+    def _next_cmd(self):
         if self.current_index == len(self.history) - 1:
             return
         
