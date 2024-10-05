@@ -3,7 +3,7 @@ import subprocess
 from difflib import SequenceMatcher
 
 from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal
-from PyQt5.QtGui import QKeyEvent
+from PyQt5.QtGui import QFocusEvent, QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import (QButtonGroup, QFrame, QGridLayout, QLabel,
                              QLineEdit, QMenu, QPushButton, QSizePolicy,
                              QSpacerItem, QTabBar, QVBoxLayout, QWidget, QAction)
@@ -163,6 +163,7 @@ class SearchWidget(QWidget):
         self.input_wid.setPlaceholderText("Поиск изображений")
         self.input_wid.setStyleSheet("padding-left: 2px; padding-right: 20px;")
         self.input_wid.setFixedSize(200, 25)
+        self.input_wid.mouseReleaseEvent = self._show_templates
         v_lay.addWidget(self.input_wid)
 
         self.clear_btn = QLabel(parent=self, text="\u2573")
@@ -198,6 +199,25 @@ class SearchWidget(QWidget):
             self.clear_search_sig.emit()
             self.clear_btn.hide()
             self.stop_search_sig.emit()
+
+    def _show_templates(self, a0: QMouseEvent | None) -> None:
+        menu = QMenu()
+
+        data = {
+            "Найти jpg": ".jpg",
+            "Найти tiff": ".tiff",
+            "Найти psd/psb": ".psd"
+            }
+
+        for k, v in data.items():
+            action = QAction(parent=self, text=k)
+            action.triggered.connect(lambda e, xx=v: self._action_cmd(xx))
+            menu.addAction(action)
+
+        menu.exec(self.mapToGlobal(self.rect().bottomLeft()))
+    
+    def _action_cmd(self, text: str):
+        self.input_wid.setText(text)
 
 
 class GoWin(QWidget):
