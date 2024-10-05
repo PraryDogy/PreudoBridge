@@ -324,29 +324,30 @@ class TopBar(QFrame):
         self.grid_layout.addItem(QSpacerItem(1, 1), 0, self.clmn)
 
         self.clmn += 1
-        self.grid_layout.addItem(QSpacerItem(10, 0), 0, self.clmn)
+        self.grid_layout.addItem(QSpacerItem(5, 0), 0, self.clmn)
 
         self.clmn += 1
-        self.level_up_btn = QPushButton("Наверх")
+        self.level_up_btn = QPushButton("\u2191")
+        self.level_up_btn.setFixedWidth(60)
         self.level_up_btn.clicked.connect(self._level_up_cmd)
         self.grid_layout.addWidget(self.level_up_btn, 0, self.clmn)
 
         self.clmn += 1
-        self.grid_layout.addItem(QSpacerItem(10, 0), 0, self.clmn)
+        self.grid_layout.addItem(QSpacerItem(5, 0), 0, self.clmn)
 
         self.clmn += 1
         self.go_btn = _GoBtn()
         self.grid_layout.addWidget(self.go_btn, 0, self.clmn)
 
         self.clmn += 1
-        self.grid_layout.addItem(QSpacerItem(10, 0), 0, self.clmn)
+        self.grid_layout.addItem(QSpacerItem(5, 0), 0, self.clmn)
 
         self.clmn += 1
         self.sort_widget = _SortTypeWidget(parent=self)
         self.grid_layout.addWidget(self.sort_widget, 0, self.clmn)
 
         self.clmn += 1
-        self.grid_layout.addItem(QSpacerItem(10, 0), 0, self.clmn)
+        self.grid_layout.addItem(QSpacerItem(5, 0), 0, self.clmn)
 
         self.clmn += 1
         self.grid_layout.setColumnStretch(self.clmn, 10)
