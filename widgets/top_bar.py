@@ -191,6 +191,7 @@ class GoWin(QWidget):
         super().__init__()
         self.setWindowTitle("Перейти к ...")
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowCloseButtonHint)
         self.setFixedSize(290, 90)
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(10, 10, 10, 10)
