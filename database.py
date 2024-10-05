@@ -40,6 +40,16 @@ class Dbase:
         DbaseStorage.engine.connect()
         DbaseStorage.base.metadata.create_all(DbaseStorage.engine)
 
+        sess = Dbase.get_session()
+
+        try:
+            q = sqlalchemy.select(Cache)
+            sess.execute(q).first()
+        except sqlalchemy.exc.OperationalError as e:
+            print(e)
+            os.remove(Config.db_file)
+            Dbase.init_db()
+
     @staticmethod
     def get_db_size() -> str:
         size_bytes = os.stat(Config.db_file).st_size
