@@ -45,7 +45,6 @@ class TreeFolders(QWidget):
     def add_item(self):
         wid = QLabel(text="Назад")
         wid.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        wid.setStyleSheet("padding-left: 5px;")
         wid.setFixedHeight(25)
         list_item = QListWidgetItem()
         list_item.setSizeHint(wid.sizeHint())
