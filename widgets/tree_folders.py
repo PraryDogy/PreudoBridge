@@ -107,7 +107,7 @@ class TreeFolders(QListView):
 
         self.setStyleSheet("#trees {padding-top: 20px;}")
 
-        self.back_btn = QLabel(parent=self, text="\u25C0  Назад")
+        self.back_btn = QLabel(parent=self, text="\u25C0   Назад")
         self.back_btn.setFixedSize(self.width(), 20)
         self.back_btn.setStyleSheet("padding-left: 5px;")
         self.back_btn.move(self.x(), self.y())
