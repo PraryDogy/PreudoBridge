@@ -220,39 +220,6 @@ class GridSearchBase(QScrollArea):
             self.col = 0
             self.row += 1
 
-    def _reload_search(self, width: int):
-        self.search_thread.stop_cmd()
-        self.search_thread.wait()
-
-        widgets = self.findChildren(Thumbnail)
-        for i in widgets:
-            i.hide()
-
-        self.clmn_count = width // Config.thumb_size
-        if self.clmn_count < 1:
-            self.clmn_count = 1
-        self.row, self.col = 0, 0
-
-        self.search_thread = SearchFinderThread(Config.json_data["root"], self.search_text)
-        self.search_thread._new_widget.connect(self._add_new_widget)
-        self.search_thread._finished.connect(self.search_finished.emit)
-        self.search_thread.start()
-
-    def _rearrange_already_search(self, width: int):
-        widgets = self.findChildren(Thumbnail)
-        
-        self.clmn_count = width // Config.thumb_size
-        if self.clmn_count < 1:
-            self.clmn_count = 1
-        self.row, self.col = 0, 0
-
-        for wid in widgets:
-            self.grid_layout.addWidget(wid, self.row, self.col)
-            self.col += 1
-            if self.col >= self.clmn_count:
-                self.col = 0
-                self.row += 1
-
     def _move_to_wid(self, src: str):
         try:
             wid: Thumbnail = Config.img_viewer_images[src]
@@ -282,8 +249,19 @@ class GridSearch(GridSearchBase, GridMethods):
         super().__init__(width, search_text)
 
     def rearrange(self, width: int):
-        if not self.search_thread.isRunning():
-            self._rearrange_already_search(width)
+        widgets = self.findChildren(Thumbnail)
+        
+        self.clmn_count = width // Config.thumb_size
+        if self.clmn_count < 1:
+            self.clmn_count = 1
+        self.row, self.col = 0, 0
+
+        for wid in widgets:
+            self.grid_layout.addWidget(wid, self.row, self.col)
+            self.col += 1
+            if self.col >= self.clmn_count:
+                self.col = 0
+                self.row += 1
 
     def stop_and_wait_threads(self):
         self.search_thread.stop_cmd()
