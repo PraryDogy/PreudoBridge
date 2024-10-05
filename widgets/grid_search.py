@@ -25,7 +25,7 @@ class Thumbnail(Thumbnail):
         super().__init__(filename, src)
 
     def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
-        if a0.button() == Qt.MouseButton.RightButton:
+        if a0.button() == Qt.MouseButton.LeftButton:
             self.setFrameShape(QFrame.Shape.Panel)
             QTimer.singleShot(500, lambda: self.setFrameShape(QFrame.Shape.NoFrame))
             self.win = WinImgView(self, self.src)
