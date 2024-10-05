@@ -89,11 +89,11 @@ class SearchFinderThread(QThread):
     search_finished = pyqtSignal()
     new_widget = pyqtSignal(dict)
 
-    def __init__(self, root: str, filename: str):
+    def __init__(self, search_dir: str, search_text: str):
         super().__init__()
 
-        self.filename: str = filename
-        self.root: str = root
+        self.search_text: str = search_text
+        self.search_dir: str = search_dir
         self.flag: bool = True
         self.session = Dbase.get_session()
 
@@ -101,7 +101,7 @@ class SearchFinderThread(QThread):
         self.flag: bool = False
 
     def run(self):
-        for root, dirs, files in os.walk(self.root):
+        for root, dirs, files in os.walk(self.search_dir):
             if not self.flag:
                 break
 
@@ -111,28 +111,32 @@ class SearchFinderThread(QThread):
 
                 src = os.path.join(root, file)
 
-                if self.filename in file and src.endswith(Config.img_ext):
-                    
-                    pixmap: QPixmap = None
-
-                    db_img = self.get_db_image(src)
-                    if db_img is not None:
-                        pixmap: QPixmap = Utils.pixmap_from_bytes(db_img)
-
-                    else:
-                        new_img = self.create_new_image(src)
-                        if new_img is not None:
-                            pixmap = Utils.pixmap_from_array(new_img)
-
-                    if not pixmap:
-                        pixmap = QPixmap("images/file_210.png")
-
-                    self.new_widget.emit({"src": src, "filename": file, "pixmap": pixmap})
-                    sleep(0.1)
+                if self.search_text in file and src.endswith(Config.img_ext):
+                    self.create_wid(src, file)
 
         if self.flag:
             self.search_finished.emit()
         self.session.commit()
+
+    def create_wid(self, src: str, file: str):
+        pixmap: QPixmap = None
+        db_img = self.get_db_image(src)
+
+        if db_img is not None:
+            pixmap: QPixmap = Utils.pixmap_from_bytes(db_img)
+
+        else:
+            new_img = self.create_new_image(src)
+            self.image_to_db(src, new_img)
+
+            if new_img is not None:
+                pixmap = Utils.pixmap_from_array(new_img)
+
+        if not pixmap:
+            pixmap = QPixmap("images/file_210.png")
+
+        self.new_widget.emit({"src": src, "filename": file, "pixmap": pixmap})
+        sleep(0.1)
 
     def get_db_image(self, src: str):
         q = sqlalchemy.select(Cache.img).where(Cache.src==src)
@@ -140,14 +144,8 @@ class SearchFinderThread(QThread):
         if res:
             return res[0]
         return None
-        
-    def create_new_image(self, src: str):
-        img = Utils.read_image(src)
-        img = FitImg.start(img, Config.thumb_size)
 
-        if img is None:
-            return None
-
+    def image_to_db(self, src: str, img_array):
         try:
             stats = os.stat(src)
         except (PermissionError, FileNotFoundError):
@@ -155,7 +153,7 @@ class SearchFinderThread(QThread):
 
         size = stats.st_size
         modified = stats.st_mtime
-        db_img = Utils.image_array_to_bytes(img)
+        db_img = Utils.image_array_to_bytes(img_array)
 
         if db_img is not None:
             q = sqlalchemy.insert(Cache)
@@ -171,6 +169,9 @@ class SearchFinderThread(QThread):
             except Exception as e:
                 print("search thread insert db image error: ", e)
 
+    def create_new_image(self, src: str):
+        img = Utils.read_image(src)
+        img = FitImg.start(img, Config.thumb_size)
         return img
 
 
