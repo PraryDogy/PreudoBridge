@@ -163,13 +163,13 @@ class _SearchWidget(QWidget):
         self.input_wid = QLineEdit()
         self.input_wid.setPlaceholderText("Поиск изображений")
         self.input_wid.setStyleSheet("padding-left: 2px; padding-right: 20px;")
-        self.input_wid.setFixedSize(200, 25)
+        self.input_wid.setFixedSize(170, 25)
         self.input_wid.mouseReleaseEvent = self._show_templates
         v_lay.addWidget(self.input_wid)
 
         self.clear_btn = QLabel(parent=self, text="\u2573")
         self.clear_btn.setFixedSize(15, 10)
-        self.clear_btn.move(180, 8)
+        self.clear_btn.move(self.input_wid.width() - 20, 8)
         self.clear_btn.hide()
         self.clear_btn.mouseReleaseEvent = lambda e: self.input_wid.clear()
 
