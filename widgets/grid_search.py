@@ -105,20 +105,20 @@ class SearchFinderThread(QThread):
             if not self.flag:
                 break
 
-            for file in files:
+            for filename in files:
                 if not self.flag:
                     break
 
-                src = os.path.join(root, file)
+                src = os.path.join(root, filename)
 
-                if self.search_text in file and src.endswith(Config.img_ext):
-                    self.create_wid(src, file)
+                if self.search_text in filename and src.endswith(Config.img_ext):
+                    self.create_wid(src, filename)
 
         if self.flag:
             self.search_finished.emit()
         self.session.commit()
 
-    def create_wid(self, src: str, file: str):
+    def create_wid(self, src: str, filename: str):
         pixmap: QPixmap = None
         db_img = self.get_db_image(src)
 
@@ -135,10 +135,10 @@ class SearchFinderThread(QThread):
         if not pixmap:
             pixmap = QPixmap("images/file_210.png")
 
-        self.new_widget.emit({"src": src, "filename": file, "pixmap": pixmap})
+        self.new_widget.emit({"src": src, "filename": filename, "pixmap": pixmap})
         sleep(0.1)
 
-    def get_db_image(self, src: str):
+    def get_db_image(self, src: str) -> bytes | None:
         q = sqlalchemy.select(Cache.img).where(Cache.src==src)
         res = self.session.execute(q).first()
         if res:

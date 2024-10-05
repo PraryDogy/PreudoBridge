@@ -124,11 +124,15 @@ class Utils:
         return img
     
     @staticmethod
-    def pixmap_from_bytes(image: bytes) -> QPixmap:
-        ba = QByteArray(image)
-        pixmap = QPixmap()
-        pixmap.loadFromData(ba, "JPEG")
-        return pixmap
+    def pixmap_from_bytes(image: bytes) -> QPixmap | None:
+        try:
+            ba = QByteArray(image)
+            pixmap = QPixmap()
+            pixmap.loadFromData(ba, "JPEG")
+            return pixmap
+        except Exception as e:
+            print("pixmap from bytes error: ", e)
+            return None
     
     @staticmethod
     def pixmap_from_array(image: np.ndarray) -> QPixmap:
