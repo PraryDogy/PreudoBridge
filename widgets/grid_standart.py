@@ -16,13 +16,13 @@ from utils import Utils
 from .grid_base import Thumbnail, GridMethods
 from .win_img_view import WinImgView
 
-class GridStandartStorage:
-    load_images_threads: list = []
+class _Storage:
+    threads: list = []
 
 
-class LoadImagesThread(QThread):
-    stop_thread = pyqtSignal()
-    finished_thread = pyqtSignal()
+class _LoadImagesThread(QThread):
+    _stop_thread = pyqtSignal()
+    _finished = pyqtSignal()
     
     def __init__(self, grid_widgets: dict[tuple: QLabel]):
         super().__init__()
@@ -32,22 +32,22 @@ class LoadImagesThread(QThread):
         self.db_images: dict = {}
         
         self.flag = True
-        self.stop_thread.connect(self.stop_thread_cmd)
+        self._stop_thread.connect(self._stop_thread_cmd)
 
         self.session = Dbase.get_session()
 
     def run(self):
         # print(self, "thread started")
-        self.db_images: dict = self.get_db_images()
-        self.load_already_images()
-        self.create_new_images()
-        self.remove_images()
+        self.db_images: dict = self._get_db_images()
+        self._load_already_images()
+        self._create_new_images()
+        self._remove_images()
         self.session.commit()
         self.session.close()
-        self.finished_thread.emit()
+        self._finished.emit()
         # print(self, "thread finished")
 
-    def create_new_images(self):
+    def _create_new_images(self):
         grid_widgets = self.grid_widgets.copy()
 
         for (src, size, modified), widget in grid_widgets.items():
@@ -61,7 +61,7 @@ class LoadImagesThread(QThread):
             img = FitImg.start(img, Config.thumb_size)
 
             try:
-                self.set_new_image(widget, img)
+                self._set_new_image(widget, img)
             except AttributeError as e:
                 pass
 
@@ -80,7 +80,7 @@ class LoadImagesThread(QThread):
                 # print(e)
                 pass
 
-    def load_already_images(self):
+    def _load_already_images(self):
         for (src, size, modified), bytearray_image in self.db_images.items():
             widget: QLabel = self.grid_widgets.get((src, size, modified))
 
@@ -94,13 +94,13 @@ class LoadImagesThread(QThread):
             else:
                 self.remove_db_images[(src, size, modified)] = ""
 
-    def remove_images(self):
+    def _remove_images(self):
         for (src, _, _), _ in self.remove_db_images.items():
             q = sqlalchemy.delete(Cache)
             q = q.where(Cache.src==src)
             self.session.execute(q)
 
-    def get_db_images(self):
+    def _get_db_images(self):
         q = sqlalchemy.select(Cache.img, Cache.src, Cache.size, Cache.modified)
         q = q.where(Cache.root==Config.json_data["root"])
         res = self.session.execute(q).fetchall()
@@ -109,10 +109,10 @@ class LoadImagesThread(QThread):
             for img, src, size,  modified in res
             }
 
-    def stop_thread_cmd(self):
+    def _stop_thread_cmd(self):
         self.flag = False
 
-    def set_new_image(self, widget: QLabel, image: np.ndarray):
+    def _set_new_image(self, widget: QLabel, image: np.ndarray):
         pixmap = Utils.pixmap_from_array(image)
         try:
             widget.setPixmap(pixmap)
@@ -120,21 +120,21 @@ class LoadImagesThread(QThread):
             pass
 
 
-class LoadFinderItems:
+class _LoadFinderItems:
     def __init__(self):
         super().__init__()
         self.finder_items: dict = {}
 
-    def get(self):
+    def _get(self):
         try:
-            self.__get_items()
-            self.__sort_items()
+            self._get_items()
+            self._sort_items()
         except (PermissionError, FileNotFoundError):
             self.finder_items: dict = {}
         
         return self.finder_items
 
-    def __get_items(self):
+    def _get_items(self):
         for item in os.listdir(Config.json_data["root"]):
             src: str = os.path.join(Config.json_data["root"], item)
 
@@ -154,7 +154,7 @@ class LoadFinderItems:
             elif os.path.isdir(src):
                 self.finder_items[(src, item, size, modified, filetype)] = None
             
-    def __sort_items(self):
+    def _sort_items(self):
         sort_data = {"name": 1, "size": 2,  "modify": 3, "type": 4}
         # начинаем с 1, потому что 0 у нас src, нам не нужна сортировка по src
 
@@ -167,8 +167,8 @@ class LoadFinderItems:
             self.finder_items = dict(reversed(self.finder_items.items()))
 
 
-class Thumbnail(Thumbnail):
-    img_view_closed = pyqtSignal(str)
+class _Thumbnail(Thumbnail):
+    _move_to_wid = pyqtSignal(str)
 
     def __init__(self, filename: str, src: str):
         super().__init__(filename, src)
@@ -179,7 +179,7 @@ class Thumbnail(Thumbnail):
             QTimer.singleShot(500, lambda: self.setFrameShape(QFrame.Shape.NoFrame))
             self.win = WinImgView(self, self.src)
             Utils.center_win(parent=Utils.get_main_win(), child=self.win)
-            self.win.closed.connect(lambda src: self.img_view_closed.emit(src))
+            self.win.closed.connect(lambda src: self._move_to_wid.emit(src))
             self.win.show()
             return super().mouseDoubleClickEvent(a0)
 
@@ -188,17 +188,17 @@ class Thumbnail(Thumbnail):
         context_menu = QMenu(self)
 
         view_action = QAction("Просмотр", self)
-        view_action.triggered.connect(self.view_file)
+        view_action.triggered.connect(self._view_file)
         context_menu.addAction(view_action)
 
         context_menu.addSeparator()
 
         open_action = QAction("Открыть по умолчанию", self)
-        open_action.triggered.connect(self.open_default)
+        open_action.triggered.connect(self._open_default)
         context_menu.addAction(open_action)
 
         show_in_finder_action = QAction("Показать в Finder", self)
-        show_in_finder_action.triggered.connect(self.show_in_finder)
+        show_in_finder_action.triggered.connect(self._show_in_finder)
         context_menu.addAction(show_in_finder_action)
 
         copy_path = QAction("Скопировать путь до файла", self)
@@ -211,31 +211,31 @@ class Thumbnail(Thumbnail):
 
         return super().contextMenuEvent(a0)
 
-    def view_file(self):
+    def _view_file(self):
         if self.src.endswith(Config.img_ext):
             self.win = WinImgView(self, self.src)
-            self.win.closed.connect(lambda src: self.img_view_closed.emit(src))
+            self.win.closed.connect(lambda src: self._move_to_wid.emit(src))
             main_win = Utils.get_main_win()
             Utils.center_win(parent=main_win, child=self.win)
             self.win.show()
 
-    def open_default(self):
+    def _open_default(self):
         subprocess.call(["open", self.src])
 
-    def show_in_finder(self):
+    def _show_in_finder(self):
         subprocess.call(["open", "-R", self.src])
 
 
-class FolderThumbnail(Thumbnail):
-    add_fav_sig = pyqtSignal(str)
-    del_fav_sig = pyqtSignal(str)
-    open_folder_sig = pyqtSignal(str)
+class _FolderThumbnail(Thumbnail):
+    _add_fav_sig = pyqtSignal(str)
+    _del_fav_sig = pyqtSignal(str)
+    _open_folder_sig = pyqtSignal(str)
 
     def __init__(self, filename: str, src: str):
         super().__init__(filename, src)
 
     def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
-        self.open_folder_sig.emit(self.src)
+        self._open_folder_sig.emit(self.src)
         return super().mouseDoubleClickEvent(a0)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
@@ -246,13 +246,13 @@ class FolderThumbnail(Thumbnail):
 
         # Пункт "Просмотр"
         view_action = QAction("Просмотр", self)
-        view_action.triggered.connect(lambda: self.open_folder_sig.emit(self.src))
+        view_action.triggered.connect(lambda: self._open_folder_sig.emit(self.src))
         context_menu.addAction(view_action)
 
         context_menu.addSeparator()
 
         show_in_finder_action = QAction("Показать в Finder", self)
-        show_in_finder_action.triggered.connect(self.show_in_finder)
+        show_in_finder_action.triggered.connect(self._show_in_finder)
         context_menu.addAction(show_in_finder_action)
 
         copy_path = QAction("Скопировать путь до папки", self)
@@ -263,11 +263,11 @@ class FolderThumbnail(Thumbnail):
 
         if self.src in Config.json_data["favs"]:
             del_fav = QAction("Удалить из избранного", self)
-            del_fav.triggered.connect(lambda: self.del_fav_sig.emit(self.src))
+            del_fav.triggered.connect(lambda: self._del_fav_sig.emit(self.src))
             context_menu.addAction(del_fav)
         else:
             add_fav = QAction("Добавить в избранное", self)
-            add_fav.triggered.connect(lambda: self.add_fav_sig.emit(self.src))
+            add_fav.triggered.connect(lambda: self._add_fav_sig.emit(self.src))
             context_menu.addAction(add_fav)
 
         context_menu.exec_(self.mapToGlobal(a0.pos()))
@@ -276,11 +276,11 @@ class FolderThumbnail(Thumbnail):
 
         return super().contextMenuEvent(a0)
 
-    def show_in_finder(self):
+    def _show_in_finder(self):
         subprocess.call(["open", "-R", self.src])
 
 
-class GridStandartBase(QScrollArea):
+class _GridStandartBase(QScrollArea):
     add_fav_sig = pyqtSignal(str)
     del_fav_sig = pyqtSignal(str)
     open_folder_sig = pyqtSignal(str)
@@ -305,20 +305,20 @@ class GridStandartBase(QScrollArea):
 
         row, col = 0, 0
 
-        finder_items = LoadFinderItems()
-        finder_items = finder_items.get()
+        finder_items = _LoadFinderItems()
+        finder_items = finder_items._get()
 
         for (src, filename, size, modified, _), _ in finder_items.items():
             if os.path.isdir(src):
-                thumbnail = FolderThumbnail(filename, src)
+                thumbnail = _FolderThumbnail(filename, src)
                 self._set_default_image(thumbnail.img_label, "images/folder_210.png")
-                thumbnail.open_folder_sig.connect(self.open_folder_sig.emit)
-                thumbnail.add_fav_sig.connect(self.add_fav_sig.emit)
-                thumbnail.del_fav_sig.connect(self.del_fav_sig.emit)
+                thumbnail._open_folder_sig.connect(self.open_folder_sig.emit)
+                thumbnail._add_fav_sig.connect(self.add_fav_sig.emit)
+                thumbnail._del_fav_sig.connect(self.del_fav_sig.emit)
 
             else:
-                thumbnail = Thumbnail(filename, src)
-                thumbnail.img_view_closed.connect(lambda src: self.move_to_wid(src))
+                thumbnail = _Thumbnail(filename, src)
+                thumbnail._move_to_wid.connect(lambda src: self._move_to_wid(src))
                 self._set_default_image(thumbnail.img_label, "images/file_210.png")
 
             self.grid_layout.addWidget(thumbnail, row, col)
@@ -349,9 +349,9 @@ class GridStandartBase(QScrollArea):
             no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0, Qt.AlignmentFlag.AlignCenter)
 
-    def move_to_wid(self, src: str):
+    def _move_to_wid(self, src: str):
         try:
-            wid: Thumbnail = Config.img_viewer_images[src]
+            wid: _Thumbnail = Config.img_viewer_images[src]
             wid.setFrameShape(QFrame.Shape.Panel)
             self.ensureWidgetVisible(wid)
             QTimer.singleShot(1000, lambda: self._set_no_frame(wid))
@@ -365,23 +365,23 @@ class GridStandartBase(QScrollArea):
         except RuntimeError:
             pass
 
-    def _set_no_frame(self, wid: Thumbnail):
+    def _set_no_frame(self, wid: _Thumbnail):
         try:
             wid.setFrameShape(QFrame.Shape.NoFrame)
         except (RuntimeError):
             pass
 
     def _stop_threads(self):
-        for i in GridStandartStorage.load_images_threads:
-            i: LoadImagesThread
-            i.stop_thread.emit()
+        for i in _Storage.threads:
+            i: _LoadImagesThread
+            i._stop_thread.emit()
 
             if i.isFinished():
-                GridStandartStorage.load_images_threads.remove(i)
+                _Storage.threads.remove(i)
 
     def _start_load_images_thread(self):
-        new_thread = LoadImagesThread(self.grid_image_labels)
-        GridStandartStorage.load_images_threads.append(new_thread)
+        new_thread = _LoadImagesThread(self.grid_image_labels)
+        _Storage.threads.append(new_thread)
         new_thread.start()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
@@ -389,7 +389,7 @@ class GridStandartBase(QScrollArea):
         return super().closeEvent(a0)
     
 
-class GridStandart(GridStandartBase, GridMethods):
+class GridStandart(_GridStandartBase, GridMethods):
     def __init__(self, width: int):
         super().__init__(width)
 
@@ -410,7 +410,7 @@ class GridStandart(GridStandartBase, GridMethods):
         return
     
     def stop_and_wait_threads(self):
-        for thread in GridStandartStorage.load_images_threads:
-            thread: LoadImagesThread
-            thread.stop_thread.emit()
+        for thread in _Storage.threads:
+            thread: _LoadImagesThread
+            thread._stop_thread.emit()
             thread.wait()
