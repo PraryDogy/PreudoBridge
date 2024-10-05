@@ -294,12 +294,13 @@ class _GridStandartBase(QScrollArea):
         self.grid_image_labels: dict = {}
         self.grid_widgets: list = []
 
-        clmn_count = width // Config.thumb_size
+        clmn_count = width // (Config.thumb_size)
         if clmn_count < 1:
             clmn_count = 1
 
         main_wid = QWidget()
         self.grid_layout = QGridLayout(main_wid)
+        self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.grid_layout.setSpacing(5)
         self.setWidget(main_wid)
 
@@ -335,8 +336,8 @@ class _GridStandartBase(QScrollArea):
         if self.grid_image_labels:
             row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
             self.grid_layout.addItem(row_spacer, row + 1, 0)
-            clmn_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
-            self.grid_layout.addItem(clmn_spacer, 0, clmn_count + 1)
+            # clmn_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
+            # self.grid_layout.addItem(clmn_spacer, 0, clmn_count + 1)
             self._start_load_images_thread()
 
         elif not os.path.exists(Config.json_data["root"]):
@@ -394,7 +395,7 @@ class GridStandart(_GridStandartBase, GridMethods):
         super().__init__(width)
 
     def rearrange(self, width: int):
-        clmn_count = width // Config.thumb_size
+        clmn_count = width // (Config.thumb_size - 20)
         
         if clmn_count < 1:
             clmn_count = 1

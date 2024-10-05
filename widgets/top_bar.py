@@ -278,7 +278,7 @@ class _GoBtn(QPushButton):
     open_path = pyqtSignal(str)
 
     def __init__(self):
-        super().__init__("Перейти к ...")
+        super().__init__("Перейти")
         self.clicked.connect(self._open_win)
 
     def _open_win(self):
