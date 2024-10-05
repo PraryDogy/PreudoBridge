@@ -88,13 +88,13 @@ class SimpleFileExplorer(QWidget):
         self.folders_tree_wid.expand_path(Config.json_data["root"])
         self.load_standart_grid()
 
-        self.back_up_btns = QLabel(parent=self, text="▲")
-        self.back_up_btns.hide()
-        self.back_up_btns.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.back_up_btns.mouseReleaseEvent = lambda e: self.grid.verticalScrollBar().setValue(0)
-        self.back_up_btns.setFixedSize(40, 40)
-        self.back_up_btns.move(self.width() - 70, self.height() - 70)
-        self.back_up_btns.setStyleSheet(
+        self.scroll_up = QLabel(parent=self, text="▲")
+        self.scroll_up.hide()
+        self.scroll_up.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.scroll_up.mouseReleaseEvent = lambda e: self.grid.verticalScrollBar().setValue(0)
+        self.scroll_up.setFixedSize(40, 40)
+        self.scroll_up.move(self.width() - 70, self.height() - 70)
+        self.scroll_up.setStyleSheet(
             """
             background-color: rgba(128, 128, 128, 0.40);
             border-radius: 20px;
@@ -208,9 +208,9 @@ class SimpleFileExplorer(QWidget):
 
     def scroll_value(self, value: int):
         if value == 0:
-            self.back_up_btns.hide()
+            self.scroll_up.hide()
         else:
-            self.back_up_btns.show()
+            self.scroll_up.show()
 
     def get_grid_width(self):
         return Config.json_data["ww"] - self.tabs_wid.width() - 180
@@ -218,7 +218,7 @@ class SimpleFileExplorer(QWidget):
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         Config.json_data["ww"] = self.geometry().width()
         Config.json_data["hh"] = self.geometry().height()
-        self.back_up_btns.move(self.width() - 70, self.height() - 70)
+        self.scroll_up.move(self.width() - 70, self.height() - 70)
         self.resize_timer.stop()
         self.resize_timer.start(500)
         # return super().resizeEvent(a0)

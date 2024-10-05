@@ -236,6 +236,7 @@ class SearchFinderThread(QThread):
             q = q.values({
                 "img": db_img,
                 "src": src,
+                "root": os.path.dirname(src),
                 "size": size,
                 "modified": modified
                 })

@@ -30,6 +30,14 @@ class LoadImagesThread(QThread):
     def __init__(self, grid_widgets: dict[tuple: QLabel]):
         super().__init__()
 
+        # try:
+        #     src = list(grid_widgets.keys())[0][0]
+        #     self.root = os.path.dirname(src)
+        #     print(self.root)
+        # except (IndexError) as e:
+        #     print("failed get root in load images thread init: ", e)
+        #     return
+
         self.grid_widgets: dict[tuple: QLabel] = grid_widgets
         self.remove_db_images: dict[tuple: str] = {}
         self.db_images: dict = {}
@@ -40,7 +48,7 @@ class LoadImagesThread(QThread):
         self.session = Dbase.get_session()
 
     def run(self):
-        print(self, "thread started")
+        # print(self, "thread started")
         self.db_images: dict = self.get_db_images()
         self.load_already_images()
         self.create_new_images()
@@ -48,7 +56,7 @@ class LoadImagesThread(QThread):
         self.session.commit()
         self.session.close()
         self.finished_thread.emit()
-        print(self, "thread finished")
+        # print(self, "thread finished")
 
     def create_new_images(self):
         grid_widgets = self.grid_widgets.copy()
@@ -74,6 +82,7 @@ class LoadImagesThread(QThread):
                 q = q.values({
                     "img": img,
                     "src": src,
+                    "root": Config.json_data["root"],
                     "size": size,
                     "modified": modified
                     })
@@ -104,7 +113,7 @@ class LoadImagesThread(QThread):
 
     def get_db_images(self):
         q = sqlalchemy.select(Cache.img, Cache.src, Cache.size, Cache.modified)
-        q = q.where(Cache.src.contains(Config.json_data["root"]))
+        q = q.where(Cache.root==Config.json_data["root"])
         res = self.session.execute(q).fetchall()
         return {
             (src, size, modified): img
