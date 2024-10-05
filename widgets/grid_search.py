@@ -17,7 +17,7 @@ from .grid_base import Thumbnail, GridMethods
 from .win_img_view import WinImgView
 
 
-class Thumbnail(Thumbnail):
+class _Thumbnail(Thumbnail):
     _move_to_widget = pyqtSignal(str)
     _show_in_folder = pyqtSignal(str)
 
@@ -85,7 +85,7 @@ class Thumbnail(Thumbnail):
         subprocess.call(["open", "-R", self.src])
 
 
-class SearchFinderThread(QThread):
+class _SearchFinderThread(QThread):
     _finished = pyqtSignal()
     _new_widget = pyqtSignal(dict)
 
@@ -175,7 +175,7 @@ class SearchFinderThread(QThread):
         return img
 
 
-class GridSearchBase(QScrollArea):
+class _GridSearchBase(QScrollArea):
     search_finished = pyqtSignal()
     show_in_folder = pyqtSignal(str)
     move_to_widget = pyqtSignal(str)
@@ -201,13 +201,13 @@ class GridSearchBase(QScrollArea):
         clmn_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
         self.grid_layout.addItem(clmn_spacer, 0, self.clmn_count + 1)
 
-        self.search_thread = SearchFinderThread(Config.json_data["root"], search_text)
+        self.search_thread = _SearchFinderThread(Config.json_data["root"], search_text)
         self.search_thread._new_widget.connect(self._add_new_widget)
         self.search_thread._finished.connect(self.search_finished.emit)
         self.search_thread.start()
 
     def _add_new_widget(self, data: dict):
-        widget = Thumbnail(filename=data["filename"], src=data["src"])
+        widget = _Thumbnail(filename=data["filename"], src=data["src"])
         widget.img_label.setPixmap(data["pixmap"])
         widget._show_in_folder.connect(self.show_in_folder.emit)
         widget._move_to_widget.connect(self._move_to_wid)
@@ -222,14 +222,14 @@ class GridSearchBase(QScrollArea):
 
     def _move_to_wid(self, src: str):
         try:
-            wid: Thumbnail = Config.img_viewer_images[src]
+            wid: _Thumbnail = Config.img_viewer_images[src]
             wid.setFrameShape(QFrame.Shape.Panel)
             self.ensureWidgetVisible(wid)
             QTimer.singleShot(1000, lambda: self._set_no_frame(wid))
         except (RuntimeError, KeyError) as e:
             print("move to wid error: ", e)
 
-    def _set_no_frame(self, wid: Thumbnail):
+    def _set_no_frame(self, wid: _Thumbnail):
         try:
             wid.setFrameShape(QFrame.Shape.NoFrame)
         except (RuntimeError):
@@ -244,12 +244,12 @@ class GridSearchBase(QScrollArea):
         return super().closeEvent(a0)
     
 
-class GridSearch(GridSearchBase, GridMethods):
+class GridSearch(_GridSearchBase, GridMethods):
     def __init__(self, width: int, search_text: str):
         super().__init__(width, search_text)
 
     def rearrange(self, width: int):
-        widgets = self.findChildren(Thumbnail)
+        widgets = self.findChildren(_Thumbnail)
         
         self.clmn_count = width // Config.thumb_size
         if self.clmn_count < 1:
