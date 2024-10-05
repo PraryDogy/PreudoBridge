@@ -210,6 +210,13 @@ class GridSearchBase(QScrollArea):
         widget.img_label.setPixmap(data["pixmap"])
         widget.show_in_folder.connect(self.show_in_folder.emit)
 
+
+        # переместиться к файлу
+
+
+
+
+
         self.grid_layout.addWidget(widget, self.row, self.col, alignment=Qt.AlignmentFlag.AlignTop)
         Config.img_viewer_images[data["src"]] = widget
 
