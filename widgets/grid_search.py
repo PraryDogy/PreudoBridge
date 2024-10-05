@@ -209,7 +209,7 @@ class _GridSearchBase(QScrollArea):
 
         Config.img_viewer_images.clear()
 
-        self.clmn_count = width // Config.thumb_size
+        self.clmn_count = Utils.get_clmn_count(width)
         if self.clmn_count < 1:
             self.clmn_count = 1
         self.row, self.col = 0, 0
@@ -272,7 +272,7 @@ class GridSearch(_GridSearchBase, GridMethods):
     def rearrange(self, width: int):
         widgets = self.findChildren(_Thumbnail)
         
-        self.clmn_count = width // Config.thumb_size
+        self.clmn_count = Utils.get_clmn_count(width)
         if self.clmn_count < 1:
             self.clmn_count = 1
         self.row, self.col = 0, 0

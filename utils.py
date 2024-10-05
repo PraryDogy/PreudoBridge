@@ -8,8 +8,10 @@ import numpy as np
 import psd_tools
 import tifffile
 from PyQt5.QtCore import QByteArray
-from PyQt5.QtGui import QPixmap, QImage
+from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget
+
+from cfg import Config
 
 psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
 psd_logger = logging.getLogger("psd_tools")
@@ -152,3 +154,7 @@ class Utils:
             return img
         except Exception as e:
             print("image array to bytes err: ", e)
+
+    @staticmethod
+    def get_clmn_count(width: int):
+        return width // (Config.thumb_size - 20)

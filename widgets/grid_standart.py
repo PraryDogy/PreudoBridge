@@ -294,7 +294,7 @@ class _GridStandartBase(QScrollArea):
         self.grid_image_labels: dict = {}
         self.grid_widgets: list = []
 
-        clmn_count = width // (Config.thumb_size)
+        clmn_count = Utils.get_clmn_count(width)
         if clmn_count < 1:
             clmn_count = 1
 
@@ -395,7 +395,7 @@ class GridStandart(_GridStandartBase, GridMethods):
         super().__init__(width)
 
     def rearrange(self, width: int):
-        clmn_count = width // (Config.thumb_size - 20)
+        clmn_count = Utils.get_clmn_count(width)
         
         if clmn_count < 1:
             clmn_count = 1
