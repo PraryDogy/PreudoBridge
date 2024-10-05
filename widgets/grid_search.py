@@ -41,17 +41,17 @@ class Thumbnail(Thumbnail):
         context_menu = QMenu(self)
 
         view_action = QAction("Просмотр", self)
-        view_action.triggered.connect(self.view_file)
+        view_action.triggered.connect(self._view_file)
         context_menu.addAction(view_action)
 
         context_menu.addSeparator()
 
         open_action = QAction("Открыть по умолчанию", self)
-        open_action.triggered.connect(self.open_default)
+        open_action.triggered.connect(self._open_default)
         context_menu.addAction(open_action)
 
         show_in_finder_action = QAction("Показать в Finder", self)
-        show_in_finder_action.triggered.connect(self.show_in_finder)
+        show_in_finder_action.triggered.connect(self._show_in_finder)
         context_menu.addAction(show_in_finder_action)
 
         copy_path = QAction("Скопировать путь до файла", self)
@@ -70,7 +70,7 @@ class Thumbnail(Thumbnail):
 
         return super().contextMenuEvent(a0)
 
-    def view_file(self):
+    def _view_file(self):
         if self.src.endswith(Config.img_ext):
             self.win = WinImgView(self, self.src)
             self.win.closed.connect(lambda src: self._move_to_widget.emit(src))
@@ -78,10 +78,10 @@ class Thumbnail(Thumbnail):
             Utils.center_win(parent=main_win, child=self.win)
             self.win.show()
 
-    def open_default(self):
+    def _open_default(self):
         subprocess.call(["open", self.src])
 
-    def show_in_finder(self):
+    def _show_in_finder(self):
         subprocess.call(["open", "-R", self.src])
 
 
@@ -97,7 +97,7 @@ class SearchFinderThread(QThread):
         self.flag: bool = True
         self.session = Dbase.get_session()
 
-    def stop_cmd(self):
+    def _stop_cmd(self):
         self.flag: bool = False
 
     def run(self):
@@ -112,22 +112,22 @@ class SearchFinderThread(QThread):
                 src = os.path.join(root, filename)
 
                 if self.search_text in filename and src.endswith(Config.img_ext):
-                    self.create_wid(src, filename)
+                    self._create_wid(src, filename)
 
         if self.flag:
             self._finished.emit()
         self.session.commit()
 
-    def create_wid(self, src: str, filename: str):
+    def _create_wid(self, src: str, filename: str):
         pixmap: QPixmap = None
-        db_img = self.get_db_image(src)
+        db_img = self._get_db_image(src)
 
         if db_img is not None:
             pixmap: QPixmap = Utils.pixmap_from_bytes(db_img)
 
         else:
-            new_img = self.create_new_image(src)
-            self.image_to_db(src, new_img)
+            new_img = self._create_new_image(src)
+            self._image_to_db(src, new_img)
 
             if new_img is not None:
                 pixmap = Utils.pixmap_from_array(new_img)
@@ -138,14 +138,14 @@ class SearchFinderThread(QThread):
         self._new_widget.emit({"src": src, "filename": filename, "pixmap": pixmap})
         sleep(0.1)
 
-    def get_db_image(self, src: str) -> bytes | None:
+    def _get_db_image(self, src: str) -> bytes | None:
         q = sqlalchemy.select(Cache.img).where(Cache.src==src)
         res = self.session.execute(q).first()
         if res:
             return res[0]
         return None
 
-    def image_to_db(self, src: str, img_array):
+    def _image_to_db(self, src: str, img_array):
         try:
             stats = os.stat(src)
         except (PermissionError, FileNotFoundError):
@@ -169,7 +169,7 @@ class SearchFinderThread(QThread):
             except Exception as e:
                 print("search thread insert db image error: ", e)
 
-    def create_new_image(self, src: str):
+    def _create_new_image(self, src: str):
         img = Utils.read_image(src)
         img = FitImg.start(img, Config.thumb_size)
         return img
@@ -240,7 +240,7 @@ class GridSearchBase(QScrollArea):
             self.search_thread.disconnect()
         except TypeError:
             pass
-        self.search_thread.stop_cmd()
+        self.search_thread._stop_cmd()
         return super().closeEvent(a0)
     
 
@@ -264,5 +264,5 @@ class GridSearch(GridSearchBase, GridMethods):
                 self.row += 1
 
     def stop_and_wait_threads(self):
-        self.search_thread.stop_cmd()
+        self.search_thread._stop_cmd()
         self.search_thread.wait()
