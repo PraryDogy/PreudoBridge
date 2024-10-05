@@ -104,7 +104,7 @@ class SortTypeWidget(QPushButton):
 
     def __init__(self, parent: QWidget):
         super().__init__()
-        self.setFixedWidth(110)
+        self.setFixedWidth(125)
         self.setToolTip(" Сортировка файлов ")
         
         self.data = {
@@ -160,7 +160,7 @@ class SearchWidget(QWidget):
         self.setLayout(v_lay)
 
         self.input_wid = QLineEdit()
-        self.input_wid.setPlaceholderText("Поиск")
+        self.input_wid.setPlaceholderText("Поиск изображений")
         self.input_wid.setStyleSheet("padding-left: 2px; padding-right: 20px;")
         self.input_wid.setFixedSize(200, 25)
         v_lay.addWidget(self.input_wid)
