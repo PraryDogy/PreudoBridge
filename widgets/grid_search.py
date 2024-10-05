@@ -48,7 +48,7 @@ class Thumbnail(QFrame):
 
     def __init__(self, filename: str, src: str):
         super().__init__()
-        self.setFixedSize(250, 300)
+        self.setFixedSize(250, 280)
         self.src = src
 
         self.setFrameShape(QFrame.Shape.NoFrame)
@@ -56,6 +56,7 @@ class Thumbnail(QFrame):
         self.setToolTip(tooltip)
 
         v_lay = QVBoxLayout()
+        v_lay.setSpacing(0)
         self.setLayout(v_lay)
 
         self.img_label = QLabel()

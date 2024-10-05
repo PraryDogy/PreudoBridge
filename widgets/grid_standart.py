@@ -199,7 +199,7 @@ class Thumbnail(QFrame):
 
     def __init__(self, filename: str, src: str):
         super().__init__()
-        self.setFixedSize(Config.thumb_size, Config.thumb_size + 60)
+        self.setFixedSize(250, 280)
         self.src = src
 
         self.setFrameShape(QFrame.Shape.NoFrame)
@@ -207,7 +207,7 @@ class Thumbnail(QFrame):
         self.setToolTip(tooltip)
 
         v_lay = QVBoxLayout()
-        v_lay.setContentsMargins(5, 5, 5, 5)
+        v_lay.setContentsMargins(0, 0, 0, 0)
         v_lay.setSpacing(0)
         self.setLayout(v_lay)
 
@@ -313,7 +313,7 @@ class FolderThumbnail(QFrame):
 
     def __init__(self, filename: str, src: str):
         super().__init__()
-        self.setFixedSize(250, 300)
+        self.setFixedSize(250, 280)
         self.src = src
 
         self.setFrameShape(QFrame.Shape.NoFrame)
@@ -321,6 +321,8 @@ class FolderThumbnail(QFrame):
         self.setToolTip(tooltip)
 
         v_lay = QVBoxLayout()
+        v_lay.setContentsMargins(0, 0, 0, 0)
+        v_lay.setSpacing(0)
         self.setLayout(v_lay)
 
         self.img_label = QLabel()
