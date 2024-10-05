@@ -172,7 +172,7 @@ class SearchWidget(QWidget):
         self.clear_btn.hide()
         self.clear_btn.mouseReleaseEvent = lambda e: self.input_wid.clear()
 
-        self.input_wid.textChanged.connect(self.on_text_changed)
+        self.input_wid.textChanged.connect(self._on_text_changed)
         self.search_text: str = None
 
         self.search_timer = QTimer(self)
@@ -181,15 +181,15 @@ class SearchWidget(QWidget):
             lambda: self.start_search_sig.emit(self.search_text)
             )
         
-        self.clear_search_sig.connect(self.costil)
+        self.clear_search_sig.connect(self._costil)
 
-    def costil(self):
+    def _costil(self):
         self.input_wid.disconnect()
         self.input_wid.clear()
         self.clear_btn.hide()
-        self.input_wid.textChanged.connect(self.on_text_changed)
+        self.input_wid.textChanged.connect(self._on_text_changed)
 
-    def on_text_changed(self, text):
+    def _on_text_changed(self, text):
         self.search_timer.stop()
         if text:
             self.clear_btn.show()
@@ -204,9 +204,9 @@ class SearchWidget(QWidget):
         menu = QMenu()
 
         data = {
-            "Найти jpg": ".jpg",
-            "Найти tiff": ".tiff",
-            "Найти psd/psb": ".psd",
+            "Найти jpg": str((".jpg", ".jpeg", "jfif")),
+            "Найти tiff": str((".tiff", ".tiff")),
+            "Найти psd/psb": str((".psd", ".psb")),
             "Найти любые фото": str(Config.img_ext)
             }
 

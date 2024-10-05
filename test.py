@@ -1,7 +1,11 @@
-import os
+from ast import literal_eval
 
-src = "/Users/Morkowik/Desktop/Evgeny/WordsBot/"
 
-src = os.sep + src.strip().strip(os.sep)
+a = "[1, 2, 3]"
+a = "sdfsdf"
+a = "1"
 
-print(os.path.exists(src))
+b = literal_eval(a)
+
+print(b)
+print(type(b))

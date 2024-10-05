@@ -1,5 +1,6 @@
 import os
 import subprocess
+from ast import literal_eval
 from time import sleep
 
 import sqlalchemy
@@ -13,7 +14,7 @@ from database import Cache, Dbase
 from fit_img import FitImg
 from utils import Utils
 
-from .grid_base import Thumbnail, GridMethods
+from .grid_base import GridMethods, Thumbnail
 from .win_img_view import WinImgView
 
 
@@ -101,7 +102,13 @@ class _SearchFinderThread(QThread):
         self.flag: bool = False
 
     def run(self):
-        all_img_template = str(Config.img_ext)
+        try:
+            self.search_text = literal_eval(self.search_text)
+        except ValueError:
+            pass
+
+        if not isinstance(self.search_text, tuple):
+            self.search_text = str(self.search_text)
 
         for root, dirs, files in os.walk(self.search_dir):
             if not self.flag:
@@ -114,9 +121,10 @@ class _SearchFinderThread(QThread):
                 src: str = os.path.join(root, filename)
                 src_lower: str = src.lower()
 
-                if self.search_text == all_img_template and src_lower.endswith(Config.img_ext):
-                    self._create_wid(src, filename)
-                    continue
+                if isinstance(self.search_text, tuple):
+                    if src_lower.endswith(self.search_text):
+                        self._create_wid(src, filename)
+                        continue
 
                 elif self.search_text in filename and src_lower.endswith(Config.img_ext):
                     self._create_wid(src, filename)
