@@ -161,7 +161,7 @@ class SearchWidget(QWidget):
 
         self.input_wid = QLineEdit()
         self.input_wid.setPlaceholderText("Поиск")
-        self.input_wid.setStyleSheet("padding-left: 2px;")
+        self.input_wid.setStyleSheet("padding-left: 2px; padding-right: 20px;")
         self.input_wid.setFixedSize(200, 25)
         v_lay.addWidget(self.input_wid)
 
