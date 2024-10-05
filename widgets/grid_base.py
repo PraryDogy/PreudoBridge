@@ -89,7 +89,10 @@ class Thumbnail(QFrame):
 
 class GridMethods:
     def rearrange(self):
-        pass
+        ...
 
     def stop_and_wait_threads(self):
+        ...
+
+    def rearrange_sorted(self):
         ...

@@ -135,7 +135,12 @@ class _SearchFinderThread(QThread):
         if not pixmap:
             pixmap = QPixmap("images/file_210.png")
 
-        self._new_widget.emit({"src": src, "filename": filename, "pixmap": pixmap})
+        self._new_widget.emit
+        ({
+            "src": src,
+            "filename": filename,
+            "pixmap": pixmap
+          })
         sleep(0.1)
 
     def _get_db_image(self, src: str) -> bytes | None:
@@ -182,6 +187,7 @@ class _GridSearchBase(QScrollArea):
 
     def __init__(self, width: int, search_text: str):
         super().__init__()
+        self.widgets_data: dict = {}
         self.search_text = search_text
         self.setWidgetResizable(True)
         self.setAlignment(Qt.AlignmentFlag.AlignTop)
@@ -266,3 +272,6 @@ class GridSearch(_GridSearchBase, GridMethods):
     def stop_and_wait_threads(self):
         self.search_thread._stop_cmd()
         self.search_thread.wait()
+
+    def rearrange_sorted(self, width: int):
+        ...

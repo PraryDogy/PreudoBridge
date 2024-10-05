@@ -414,3 +414,6 @@ class GridStandart(_GridStandartBase, GridMethods):
             thread: _LoadImagesThread
             thread._stop_thread.emit()
             thread.wait()
+
+    def rearrange_sorted(self, width: int):
+        self.rearrange(width)
