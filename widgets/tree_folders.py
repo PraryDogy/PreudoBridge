@@ -1,8 +1,9 @@
+import os
 import subprocess
 
 from PyQt5.QtCore import QDir, QModelIndex, pyqtSignal
-from PyQt5.QtWidgets import (QAction, QFileSystemModel, QListView, QMenu,
-                             QTreeView)
+from PyQt5.QtWidgets import (QAction, QFileSystemModel, QLabel, QListView,
+                             QMenu, QTreeView)
 
 from cfg import Config
 from utils import Utils
@@ -95,7 +96,7 @@ class TreeFolders(QListView):
 
     def __init__(self):
         super().__init__()
-
+        self.setObjectName("trees")
         self.c_model = QFileSystemModel()
         self.c_model.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot)
         self.c_model.setRootPath('/Volumes')
@@ -104,6 +105,19 @@ class TreeFolders(QListView):
 
         self.doubleClicked.connect(self.on_double_click)
 
+        self.setStyleSheet("#trees {padding-top: 20px;}")
+
+        self.back_btn = QLabel(parent=self, text="\u25C0  Назад")
+        self.back_btn.setFixedSize(self.width(), 20)
+        self.back_btn.setStyleSheet("padding-left: 5px;")
+        self.back_btn.move(self.x(), self.y())
+        self.back_btn.mouseDoubleClickEvent = self.back_click
+
+    def back_click(self, e):
+        root = os.path.dirname(Config.json_data["root"])
+        self.expand_path(root)
+        self.folders_tree_clicked.emit(root)
+
     def on_double_click(self, index: QModelIndex):
         path = self.c_model.filePath(index)
         self.expand_path(path)
@@ -111,7 +125,6 @@ class TreeFolders(QListView):
     
     def expand_path(self, path: str):
         self.setRootIndex(self.c_model.index(path))
-        self.c_model.insertRow(0)
 
     def contextMenuEvent(self, event):
         index = self.indexAt(event.pos())
