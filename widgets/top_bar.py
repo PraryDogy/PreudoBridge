@@ -147,7 +147,7 @@ class SearchWidget(QWidget):
         self.input_wid.setFixedSize(200, 25)
         v_lay.addWidget(self.input_wid)
 
-        self.clear_btn = QLabel(parent=self, text="⛌")
+        self.clear_btn = QLabel(parent=self, text="\u2573")
         self.clear_btn.setFixedSize(15, 10)
         self.clear_btn.move(180, 8)
         self.clear_btn.hide()
@@ -204,12 +204,12 @@ class TopBar(QFrame):
         self.grid_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.grid_layout)
 
-        self.back = QPushButton("⏴")
+        self.back = QPushButton("\u25C0")
         self.back.setFixedWidth(60)
         self.back.clicked.connect(self.back_cmd)
         self.grid_layout.addWidget(self.back, 0, 0)
 
-        self.next = QPushButton("⏵")
+        self.next = QPushButton("\u25B6")
         self.next.setFixedWidth(60)
         self.next.clicked.connect(self.next_cmd)
         self.grid_layout.addWidget(self.next, 0, 1)

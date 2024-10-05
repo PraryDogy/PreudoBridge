@@ -88,7 +88,7 @@ class SimpleFileExplorer(QWidget):
         self.folders_tree_wid.expand_path(Config.json_data["root"])
         self.load_standart_grid()
 
-        self.scroll_up = QLabel(parent=self, text="▲")
+        self.scroll_up = QLabel(parent=self, text="\u25B2")
         self.scroll_up.hide()
         self.scroll_up.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.scroll_up.mouseReleaseEvent = lambda e: self.grid.verticalScrollBar().setValue(0)
