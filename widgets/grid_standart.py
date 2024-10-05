@@ -30,14 +30,6 @@ class LoadImagesThread(QThread):
     def __init__(self, grid_widgets: dict[tuple: QLabel]):
         super().__init__()
 
-        # try:
-        #     src = list(grid_widgets.keys())[0][0]
-        #     self.root = os.path.dirname(src)
-        #     print(self.root)
-        # except (IndexError) as e:
-        #     print("failed get root in load images thread init: ", e)
-        #     return
-
         self.grid_widgets: dict[tuple: QLabel] = grid_widgets
         self.remove_db_images: dict[tuple: str] = {}
         self.db_images: dict = {}
@@ -207,7 +199,7 @@ class Thumbnail(QFrame):
 
     def __init__(self, filename: str, src: str):
         super().__init__()
-        self.setFixedSize(250, 300)
+        self.setFixedSize(Config.thumb_size, Config.thumb_size + 60)
         self.src = src
 
         self.setFrameShape(QFrame.Shape.NoFrame)
@@ -215,6 +207,8 @@ class Thumbnail(QFrame):
         self.setToolTip(tooltip)
 
         v_lay = QVBoxLayout()
+        v_lay.setContentsMargins(5, 5, 5, 5)
+        v_lay.setSpacing(0)
         self.setLayout(v_lay)
 
         self.img_label = QLabel()
