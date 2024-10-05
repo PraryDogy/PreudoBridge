@@ -73,12 +73,11 @@ class SimpleFileExplorer(QWidget):
         
         self.top_bar = TopBar()
 
-        # У ТЕБЯ СОРТИРОВКА ТОЛЬКО СТАНДАРТНУЮ СЕТКУ ЗАГРУЖАЕТ КАК И РЕСАЙЗ МЕТОД
-        # НАПИШИ МЕТОД КОТОРЫЙ ПРОСТО ПЕРЕРАСПРЕДЕЛЯЕТ ВИДЖЕТЫ В СЕТКЕ
-        self.top_bar.sort_vozrast_btn_press.connect(self.load_standart_grid)
+        self.top_bar.sort_widget.sort_click.connect(self.load_standart_grid)
         self.top_bar.open_btn.btn_pressed.connect(self.open_path_btn_cmd)
         self.top_bar.search_wid.start_search_sig.connect(self.load_search_grid)
         self.top_bar.search_wid.stop_search_sig.connect(self.load_standart_grid)
+
         self.top_bar.back_sig.connect(self.next_back_cmd)
         self.top_bar.next_sig.connect(self.next_back_cmd)
 
@@ -150,7 +149,6 @@ class SimpleFileExplorer(QWidget):
         self.top_bar.back.setDisabled(b)
         self.top_bar.next.setDisabled(b)
         self.top_bar.open_btn.setDisabled(b)
-        self.top_bar.sort_vozrast_button.setDisabled(b)
         self.top_bar.sort_widget.setDisabled(b)
 
     def load_search_grid(self, search_text: str):

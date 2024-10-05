@@ -6,7 +6,7 @@ from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtWidgets import (QButtonGroup, QFrame, QGridLayout, QLabel,
                              QLineEdit, QMenu, QPushButton, QSizePolicy,
-                             QSpacerItem, QTabBar, QVBoxLayout, QWidget)
+                             QSpacerItem, QTabBar, QVBoxLayout, QWidget, QAction)
 
 from cfg import Config
 from utils import Utils
@@ -106,27 +106,43 @@ class SortTypeWidget(QPushButton):
         super().__init__()
         self.setFixedWidth(110)
         self.setToolTip(" Сортировка файлов ")
-
+        
         self.data = {
-                "name": "Имя",
-                "size": "Размер",
-                "modify": "Дата изм.",
-                "type": "Тип",
-                }
+            0: {"sort": None, "reversed": None, "text": "По убыванию"},
 
-        text = self.data[Config.json_data["sort"]]
-        self.setText(text)
+            1: {"sort": "name", "reversed": True, "text": "Имя уб."},
+            2: {"sort": "size", "reversed": True, "text": "Размер уб."},
+            3: {"sort": "modify", "reversed": True, "text": "Дата уб."},
+            4: {"sort": "type", "reversed": True, "text": "Тип уб."},
+
+            5: {"sort": None, "reversed": None, "text": "По возрастанию"},
+
+            6: {"sort": "name", "reversed": False, "text": "Имя возр."},
+            7: {"sort": "size", "reversed": False, "text": "Размер возр."},
+            8: {"sort": "modify", "reversed": False, "text": "Дата возр."},
+            9: {"sort": "type", "reversed": False, "text": "Тип возр."}
+            }
 
         menu = QMenu()
         self.setMenu(menu)
 
         for k, v in self.data.items():
-            action = menu.addAction(v)
-            action.triggered.connect(lambda e, k=k: self.action_clicked(k))
+            action = QAction(parent=self, text=v.get("text"))
+            action.triggered.connect(lambda e, v=v: self.action_clicked(v))
 
-    def action_clicked(self, text: str):
-        Config.json_data["sort"] = text
-        self.setText(self.data[text])
+            if v.get("sort") == None:
+                action.setDisabled(True)
+
+            if v.get("sort") == Config.json_data["sort"]:
+                if v.get("reversed") == Config.json_data["reversed"]:
+                    self.setText(v.get("text"))
+
+            menu.addAction(action)
+
+    def action_clicked(self, data: dict):
+        Config.json_data["sort"] = data.get("sort")
+        Config.json_data["reversed"] = data.get("reversed")
+        self.setText(data.get("text"))
         self.sort_click.emit()
 
 
@@ -250,7 +266,6 @@ class GoBtn(QPushButton):
 
 
 class TopBar(QFrame):
-    sort_vozrast_btn_press = pyqtSignal()
     back_sig = pyqtSignal(str)
     next_sig = pyqtSignal(str)
 
@@ -289,34 +304,15 @@ class TopBar(QFrame):
         self.grid_layout.addItem(QSpacerItem(10, 0), 0, 4)
 
         self.sort_widget = SortTypeWidget(parent=self)
-        self.sort_widget.sort_click.connect(self.sort_vozrast_btn_press.emit)
         self.grid_layout.addWidget(self.sort_widget, 0, 5)
 
         self.grid_layout.addItem(QSpacerItem(10, 0), 0, 6)
 
-        self.ubiv = "↓↑"
-        self.vozrast = "↑↓"
-        sort_t = self.ubiv if Config.json_data["reversed"] else self.vozrast
-        self.sort_vozrast_button = QPushButton(text=sort_t, parent=self)
-        self.sort_vozrast_button.setToolTip(" Сортировка файлов: по возрастанию / по убыванию ")
-        self.sort_vozrast_button.setFixedWidth(60)
-        self.sort_vozrast_button.clicked.connect(self.on_sort_toggle)
-        self.grid_layout.addWidget(self.sort_vozrast_button, 0, 7)
-
-        self.grid_layout.setColumnStretch(8, 10)
-        self.grid_layout.addItem(QSpacerItem(1, 1), 0, 8)
+        self.grid_layout.setColumnStretch(7, 10)
+        self.grid_layout.addItem(QSpacerItem(1, 1), 0, 7)
 
         self.search_wid = SearchWidget()
-        self.grid_layout.addWidget(self.search_wid, 0, 9)
-
-    def on_sort_toggle(self):
-        if Config.json_data["reversed"]:
-            Config.json_data["reversed"] = False
-            self.sort_vozrast_button.setText(self.vozrast)
-        else:
-            Config.json_data["reversed"] = True
-            self.sort_vozrast_button.setText(self.ubiv)
-        self.sort_vozrast_btn_press.emit()
+        self.grid_layout.addWidget(self.search_wid, 0, 8)
 
     def update_history(self):
         if Config.json_data["root"] not in self.history:
