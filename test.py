@@ -7,7 +7,6 @@ class FileNavigator(QListView):
     def __init__(self):
         super().__init__()
 
-
         self.model = QFileSystemModel()
         self.model.setRootPath('/Volumes')  # Устанавливаем корневой путь
         
