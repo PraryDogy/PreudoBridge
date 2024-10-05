@@ -79,13 +79,14 @@ class SimpleFileExplorer(QWidget):
         self.top_bar.search_wid.start_search_sig.connect(self.load_search_grid)
         self.top_bar.search_wid.stop_search_sig.connect(self.load_standart_grid)
 
+        self.top_bar.level_up_sig.connect(self.load_standart_grid)
         self.top_bar.back_sig.connect(self.next_back_cmd)
         self.top_bar.next_sig.connect(self.next_back_cmd)
 
         self.r_lay.addWidget(self.top_bar)
 
         self.setWindowTitle(os.path.basename(Config.json_data["root"]))
-        self.folders_tree_wid.expand_path(Config.json_data["root"])
+        # self.folders_tree_wid.expand_path(Config.json_data["root"])
         self.load_standart_grid()
 
         self.scroll_up = QLabel(parent=self, text="\u25B2")
@@ -110,14 +111,14 @@ class SimpleFileExplorer(QWidget):
 
     def view_folder_cmd(self, root: str):
         Config.json_data["root"] = root
-        self.top_bar.update_history()
-        self.folders_tree_wid.expand_path(Config.json_data["root"])
+        # self.top_bar.update_history()
+        # self.folders_tree_wid.expand_path(Config.json_data["root"])
         self.setWindowTitle(os.path.basename(root))
         self.load_standart_grid()
 
     def next_back_cmd(self, root: str):
         Config.json_data["root"] = root
-        self.folders_tree_wid.expand_path(root)
+        # self.folders_tree_wid.expand_path(root)
         self.setWindowTitle(os.path.basename(root))
         self.load_standart_grid()
 
@@ -140,13 +141,14 @@ class SimpleFileExplorer(QWidget):
             path, _ = os.path.split(path)
 
         Config.json_data["root"] = path
-        self.top_bar.update_history()
-        self.folders_tree_wid.expand_path(path)
+        # self.top_bar.update_history()
+        # self.folders_tree_wid.expand_path(path)
         self.setWindowTitle(os.path.basename(path))
         self.load_standart_grid()
         QTimer.singleShot(1500, lambda: self.grid.move_to_wid(filepath))
 
     def disable_top_bar_btns(self, b: bool):
+        self.top_bar.level_up_btn.setDisabled(b)
         self.top_bar.back.setDisabled(b)
         self.top_bar.next.setDisabled(b)
         self.top_bar.go_btn.setDisabled(b)
@@ -183,7 +185,7 @@ class SimpleFileExplorer(QWidget):
     def thumbnail_show_in_folder(self, src: str):
         root = os.path.dirname(src)
         Config.json_data["root"] = root
-        self.folders_tree_wid.expand_path(root)
+        # self.folders_tree_wid.expand_path(root)
         self.setWindowTitle(os.path.basename(root))
         self.load_standart_grid()
         QTimer.singleShot(1500, lambda: self.grid.move_to_wid(src))
@@ -197,6 +199,8 @@ class SimpleFileExplorer(QWidget):
 
         self.setFocus()
         self.setWindowTitle(os.path.basename(Config.json_data["root"]))
+        self.folders_tree_wid.expand_path(Config.json_data["root"])
+        self.top_bar.update_history()
         ww = self.get_grid_width()
         self.grid = GridStandart(width=ww)
         self.grid.verticalScrollBar().valueChanged.connect(self.scroll_value)

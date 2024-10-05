@@ -291,6 +291,7 @@ class _GoBtn(QPushButton):
 class TopBar(QFrame):
     back_sig = pyqtSignal(str)
     next_sig = pyqtSignal(str)
+    level_up_sig = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -327,6 +328,7 @@ class TopBar(QFrame):
 
         self.clmn += 1
         self.level_up_btn = QPushButton("Наверх")
+        self.level_up_btn.clicked.connect(self._level_up_cmd)
         self.grid_layout.addWidget(self.level_up_btn, 0, self.clmn)
 
         self.clmn += 1
@@ -361,6 +363,11 @@ class TopBar(QFrame):
 
         if len(self.history) > 50:
             self.history.pop(0)
+
+    def _level_up_cmd(self):
+        Config.json_data["root"] = os.path.dirname(Config.json_data["root"])
+        self.level_up_sig.emit()
+
 
     def _back_cmd(self):
         if self.current_index == 0:
