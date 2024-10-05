@@ -16,14 +16,14 @@ class TreeFolders(QTreeView):
     def __init__(self):
         super().__init__()
 
-        self.model = QFileSystemModel()
-        self.model.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot)
-        self.model.setRootPath("/Volumes")
-        self.setModel(self.model)
-        self.setRootIndex(self.model.index("/Volumes"))
+        self.c_model = QFileSystemModel()
+        self.c_model.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot)
+        self.c_model.setRootPath("/Volumes")
+        self.setModel(self.c_model)
+        self.setRootIndex(self.c_model.index("/Volumes"))
 
         self.setHeaderHidden(True)
-        for i in range(1, self.model.columnCount()):
+        for i in range(1, self.c_model.columnCount()):
             self.setColumnHidden(i, True)
 
         self.setIndentation(10)
@@ -32,7 +32,7 @@ class TreeFolders(QTreeView):
         self.clicked.connect(self.one_clicked)
 
     def one_clicked(self, index):
-        path = self.model.filePath(index)
+        path = self.c_model.filePath(index)
         self.setCurrentIndex(index)
         self.folders_tree_clicked.emit(path)
 
@@ -42,7 +42,7 @@ class TreeFolders(QTreeView):
             self.expand(index)
 
     def expand_path(self, root: str):
-        index = self.model.index(root)
+        index = self.c_model.index(root)
         self.setCurrentIndex(index)
         self.expand(index)
 
@@ -52,8 +52,8 @@ class TreeFolders(QTreeView):
             return
 
         menu = QMenu(self)
-        src = self.model.filePath(index)
-        index = self.model.index(src)
+        src = self.c_model.filePath(index)
+        index = self.c_model.index(src)
 
         open_finder_action = QAction("Просмотр", self)
         open_finder_action.triggered.connect(lambda: self.one_clicked(index))
@@ -96,22 +96,22 @@ class TreeFolders(QListView):
     def __init__(self):
         super().__init__()
 
-        self.model = QFileSystemModel()
-        self.model.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot)
-        self.model.setRootPath('/Volumes')
-        self.setModel(self.model)
-        self.setRootIndex(self.model.index("/Volumes"))
+        self.c_model = QFileSystemModel()
+        self.c_model.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot)
+        self.c_model.setRootPath('/Volumes')
+        self.setModel(self.c_model)
+        self.setRootIndex(self.c_model.index("/Volumes"))
 
-        # self.current_path = self.model.rootPath()
         self.doubleClicked.connect(self.on_double_click)
 
     def on_double_click(self, index: QModelIndex):
-        path = self.model.filePath(index)
+        path = self.c_model.filePath(index)
         self.expand_path(path)
         self.folders_tree_clicked.emit(path)
     
     def expand_path(self, path: str):
-        self.setRootIndex(self.model.index(path))
+        self.setRootIndex(self.c_model.index(path))
+        self.c_model.insertRow(0)
 
     def contextMenuEvent(self, event):
         index = self.indexAt(event.pos())
@@ -119,8 +119,8 @@ class TreeFolders(QListView):
             return
 
         menu = QMenu(self)
-        src = self.model.filePath(index)
-        index = self.model.index(src)
+        src = self.c_model.filePath(index)
+        index = self.c_model.index(src)
 
         open_finder_action = QAction("Просмотр", self)
         open_finder_action.triggered.connect(lambda: self.one_clicked(index))
