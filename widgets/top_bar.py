@@ -2,12 +2,14 @@ import os
 import subprocess
 from difflib import SequenceMatcher
 
-from PyQt5.QtCore import QThread, QTimer, pyqtSignal, Qt
-from PyQt5.QtWidgets import (QFrame, QGridLayout, QLabel, QLineEdit, QMenu,
-                             QPushButton, QSizePolicy, QSpacerItem,
-                             QVBoxLayout, QWidget, QTabBar, QButtonGroup)
+from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal
+from PyQt5.QtGui import QKeyEvent
+from PyQt5.QtWidgets import (QButtonGroup, QFrame, QGridLayout, QLabel,
+                             QLineEdit, QMenu, QPushButton, QSizePolicy,
+                             QSpacerItem, QTabBar, QVBoxLayout, QWidget)
 
 from cfg import Config
+from utils import Utils
 
 
 class PathFinderThread(QThread):
@@ -182,9 +184,72 @@ class SearchWidget(QWidget):
             self.stop_search_sig.emit()
 
 
+class GoWin(QWidget):
+    btn_pressed = pyqtSignal(str)
+
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Перейти к ...")
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.setFixedSize(290, 90)
+        v_lay = QVBoxLayout()
+        v_lay.setContentsMargins(10, 10, 10, 10)
+        v_lay.setSpacing(10)
+        self.setLayout(v_lay)
+
+        self.input_wid = QLineEdit()
+        self.input_wid.setPlaceholderText("Вставьте путь к файлу/папке")
+        self.input_wid.setStyleSheet("padding-left: 2px;")
+        self.input_wid.setFixedSize(270, 25)
+        v_lay.addWidget(self.input_wid, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        go_btn = QPushButton("Перейти")
+        go_btn.setFixedWidth(130)
+        go_btn.clicked.connect(self.open_path_btn_cmd)
+        v_lay.addWidget(go_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+
+    def open_path_btn_cmd(self):
+        path: str = self.input_wid.text()
+
+        if not path:
+            return
+
+        path: str = os.sep + path.strip().strip(os.sep)
+
+        if os.path.exists(path):
+            self.btn_pressed.emit(path)
+            self.close()
+        else:
+            self.path_thread = PathFinderThread(path)
+            self.path_thread.finished.connect(self.finalize)
+            self.path_thread.start()
+
+    def finalize(self, res: str):
+        self.btn_pressed.emit(res)
+        self.close()
+
+    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
+        if a0.key() == Qt.Key.Key_Escape:
+            self.close()
+        return super().keyPressEvent(a0)
+
+
+class GoBtn(QPushButton):
+    btn_pressed = pyqtSignal(str)
+
+    def __init__(self):
+        super().__init__("Перейти к ...")
+        self.clicked.connect(self.open_win)
+
+    def open_win(self):
+        self.win = GoWin()
+        self.win.btn_pressed.connect(self.btn_pressed.emit)
+        Utils.center_win(Utils.get_main_win(), self.win)
+        self.win.show()
+
+
 class TopBar(QFrame):
     sort_vozrast_btn_press = pyqtSignal()
-    open_path_btn_press = pyqtSignal(str)
     back_sig = pyqtSignal(str)
     next_sig = pyqtSignal(str)
 
@@ -217,8 +282,7 @@ class TopBar(QFrame):
         self.grid_layout.setColumnStretch(2, 10)
         self.grid_layout.addItem(QSpacerItem(1, 1), 0, 2)
 
-        self.open_btn = QPushButton("Открыть путь")
-        self.open_btn.clicked.connect(self.open_path_btn_cmd)
+        self.open_btn = GoBtn()
         self.grid_layout.addWidget(self.open_btn, 0, 3)
 
         self.grid_layout.addItem(QSpacerItem(10, 0), 0, 4)
@@ -243,24 +307,6 @@ class TopBar(QFrame):
 
         self.search_wid = SearchWidget()
         self.grid_layout.addWidget(self.search_wid, 0, 9)
-
-    def paste_text(self) -> str:
-        paste_result = subprocess.run(
-            ['pbpaste'],
-            capture_output=True,
-            text=True,
-            check=True
-            )
-        return paste_result.stdout.strip()
-    
-    def open_path_btn_cmd(self):
-        path = self.paste_text()
-        self.path_thread = PathFinderThread(path)
-        self.path_thread.finished.connect(
-            lambda res: self.open_path_btn_press.emit(res)
-            )
-        
-        self.path_thread.start()
 
     def on_sort_toggle(self):
         if Config.json_data["reversed"]:

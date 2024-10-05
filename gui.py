@@ -76,7 +76,7 @@ class SimpleFileExplorer(QWidget):
         # У ТЕБЯ СОРТИРОВКА ТОЛЬКО СТАНДАРТНУЮ СЕТКУ ЗАГРУЖАЕТ КАК И РЕСАЙЗ МЕТОД
         # НАПИШИ МЕТОД КОТОРЫЙ ПРОСТО ПЕРЕРАСПРЕДЕЛЯЕТ ВИДЖЕТЫ В СЕТКЕ
         self.top_bar.sort_vozrast_btn_press.connect(self.load_standart_grid)
-        self.top_bar.open_path_btn_press.connect(self.open_path_btn_cmd)
+        self.top_bar.open_btn.btn_pressed.connect(self.open_path_btn_cmd)
         self.top_bar.search_wid.start_search_sig.connect(self.load_search_grid)
         self.top_bar.search_wid.stop_search_sig.connect(self.load_standart_grid)
         self.top_bar.back_sig.connect(self.next_back_cmd)
