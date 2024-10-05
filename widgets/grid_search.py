@@ -18,8 +18,8 @@ from .win_img_view import WinImgView
 
 
 class Thumbnail(Thumbnail):
-    img_view_closed = pyqtSignal(str)
-    show_in_folder = pyqtSignal(str)
+    _move_to_widget = pyqtSignal(str)
+    _show_in_folder = pyqtSignal(str)
 
     def __init__(self, filename: str, src: str):
         super().__init__(filename, src)
@@ -30,7 +30,7 @@ class Thumbnail(Thumbnail):
             QTimer.singleShot(500, lambda: self.setFrameShape(QFrame.Shape.NoFrame))
             self.win = WinImgView(self, self.src)
             Utils.center_win(parent=Utils.get_main_win(), child=self.win)
-            self.win.closed.connect(lambda src: self.img_view_closed.emit(src))
+            self.win.closed.connect(lambda src: self._move_to_widget.emit(src))
             self.win.show()
         return super().mouseDoubleClickEvent(a0)
 
@@ -61,7 +61,7 @@ class Thumbnail(Thumbnail):
         context_menu.addSeparator()
 
         show_in_folder = QAction("Показать в папке", self)
-        show_in_folder.triggered.connect(lambda: self.show_in_folder.emit(self.src))
+        show_in_folder.triggered.connect(lambda: self._show_in_folder.emit(self.src))
         context_menu.addAction(show_in_folder) 
 
         context_menu.exec_(self.mapToGlobal(a0.pos()))
@@ -73,7 +73,7 @@ class Thumbnail(Thumbnail):
     def view_file(self):
         if self.src.endswith(Config.img_ext):
             self.win = WinImgView(self, self.src)
-            self.win.closed.connect(lambda src: self.img_view_closed.emit(src))
+            self.win.closed.connect(lambda src: self._move_to_widget.emit(src))
             main_win = Utils.get_main_win()
             Utils.center_win(parent=main_win, child=self.win)
             self.win.show()
@@ -86,8 +86,8 @@ class Thumbnail(Thumbnail):
 
 
 class SearchFinderThread(QThread):
-    search_finished = pyqtSignal()
-    new_widget = pyqtSignal(dict)
+    _finished = pyqtSignal()
+    _new_widget = pyqtSignal(dict)
 
     def __init__(self, search_dir: str, search_text: str):
         super().__init__()
@@ -115,7 +115,7 @@ class SearchFinderThread(QThread):
                     self.create_wid(src, filename)
 
         if self.flag:
-            self.search_finished.emit()
+            self._finished.emit()
         self.session.commit()
 
     def create_wid(self, src: str, filename: str):
@@ -135,7 +135,7 @@ class SearchFinderThread(QThread):
         if not pixmap:
             pixmap = QPixmap("images/file_210.png")
 
-        self.new_widget.emit({"src": src, "filename": filename, "pixmap": pixmap})
+        self._new_widget.emit({"src": src, "filename": filename, "pixmap": pixmap})
         sleep(0.1)
 
     def get_db_image(self, src: str) -> bytes | None:
@@ -178,6 +178,7 @@ class SearchFinderThread(QThread):
 class GridSearchBase(QScrollArea):
     search_finished = pyqtSignal()
     show_in_folder = pyqtSignal(str)
+    move_to_widget = pyqtSignal(str)
 
     def __init__(self, width: int, search_text: str):
         super().__init__()
@@ -201,21 +202,15 @@ class GridSearchBase(QScrollArea):
         self.grid_layout.addItem(clmn_spacer, 0, self.clmn_count + 1)
 
         self.search_thread = SearchFinderThread(Config.json_data["root"], search_text)
-        self.search_thread.new_widget.connect(self._add_new_widget)
-        self.search_thread.search_finished.connect(self.search_finished.emit)
+        self.search_thread._new_widget.connect(self._add_new_widget)
+        self.search_thread._finished.connect(self.search_finished.emit)
         self.search_thread.start()
 
     def _add_new_widget(self, data: dict):
         widget = Thumbnail(filename=data["filename"], src=data["src"])
         widget.img_label.setPixmap(data["pixmap"])
-        widget.show_in_folder.connect(self.show_in_folder.emit)
-
-
-        # переместиться к файлу
-
-
-
-
+        widget._show_in_folder.connect(self.show_in_folder.emit)
+        widget._move_to_widget.connect(self._move_to_wid)
 
         self.grid_layout.addWidget(widget, self.row, self.col, alignment=Qt.AlignmentFlag.AlignTop)
         Config.img_viewer_images[data["src"]] = widget
@@ -239,8 +234,8 @@ class GridSearchBase(QScrollArea):
         self.row, self.col = 0, 0
 
         self.search_thread = SearchFinderThread(Config.json_data["root"], self.search_text)
-        self.search_thread.new_widget.connect(self._add_new_widget)
-        self.search_thread.search_finished.connect(self.search_finished.emit)
+        self.search_thread._new_widget.connect(self._add_new_widget)
+        self.search_thread._finished.connect(self.search_finished.emit)
         self.search_thread.start()
 
     def _rearrange_already_search(self, width: int):
@@ -258,6 +253,21 @@ class GridSearchBase(QScrollArea):
                 self.col = 0
                 self.row += 1
 
+    def _move_to_wid(self, src: str):
+        try:
+            wid: Thumbnail = Config.img_viewer_images[src]
+            wid.setFrameShape(QFrame.Shape.Panel)
+            self.ensureWidgetVisible(wid)
+            QTimer.singleShot(1000, lambda: self._set_no_frame(wid))
+        except (RuntimeError, KeyError) as e:
+            print("move to wid error: ", e)
+
+    def _set_no_frame(self, wid: Thumbnail):
+        try:
+            wid.setFrameShape(QFrame.Shape.NoFrame)
+        except (RuntimeError):
+            pass
+
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         try:
             self.search_thread.disconnect()
@@ -273,8 +283,6 @@ class GridSearch(GridSearchBase):
 
     def rearrange(self, width: int):
         if self.search_thread.isRunning():
-            self._reload_search(width)
-        else:
             self._rearrange_already_search(width)
 
     def stop_and_wait_threads(self):
