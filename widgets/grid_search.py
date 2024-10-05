@@ -76,7 +76,10 @@ class Thumbnail(QFrame):
         if a0.button() == Qt.MouseButton.RightButton:
             return
 
-        distance = (a0.pos() - self.drag_start_position).manhattanLength()
+        try:
+            distance = (a0.pos() - self.drag_start_position).manhattanLength()
+        except AttributeError:
+            return
 
         if distance < QApplication.startDragDistance():
             return

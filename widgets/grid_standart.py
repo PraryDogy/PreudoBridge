@@ -40,7 +40,7 @@ class LoadImagesThread(QThread):
         self.session = Dbase.get_session()
 
     def run(self):
-        # print(self, "thread started")
+        print(self, "thread started")
         self.db_images: dict = self.get_db_images()
         self.load_already_images()
         self.create_new_images()
@@ -48,7 +48,7 @@ class LoadImagesThread(QThread):
         self.session.commit()
         self.session.close()
         self.finished_thread.emit()
-        # print(self, "thread finished")
+        print(self, "thread finished")
 
     def create_new_images(self):
         grid_widgets = self.grid_widgets.copy()
@@ -225,7 +225,11 @@ class Thumbnail(QFrame):
     def mouseMoveEvent(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.RightButton:
             return
-        distance = (a0.pos() - self.drag_start_position).manhattanLength()
+        
+        try:
+            distance = (a0.pos() - self.drag_start_position).manhattanLength()
+        except AttributeError:
+            return
 
         if distance < QApplication.startDragDistance():
             return
