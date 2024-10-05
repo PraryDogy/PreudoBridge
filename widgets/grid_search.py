@@ -13,7 +13,7 @@ from database import Cache, Dbase
 from fit_img import FitImg
 from utils import Utils
 
-from .grid_base import Thumbnail
+from .grid_base import Thumbnail, GridMethods
 from .win_img_view import WinImgView
 
 
@@ -277,12 +277,12 @@ class GridSearchBase(QScrollArea):
         return super().closeEvent(a0)
     
 
-class GridSearch(GridSearchBase):
+class GridSearch(GridSearchBase, GridMethods):
     def __init__(self, width: int, search_text: str):
         super().__init__(width, search_text)
 
     def rearrange(self, width: int):
-        if self.search_thread.isRunning():
+        if not self.search_thread.isRunning():
             self._rearrange_already_search(width)
 
     def stop_and_wait_threads(self):

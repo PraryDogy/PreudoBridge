@@ -13,9 +13,8 @@ from database import Cache, Dbase
 from fit_img import FitImg
 from utils import Utils
 
-from .grid_base import Thumbnail
+from .grid_base import Thumbnail, GridMethods
 from .win_img_view import WinImgView
-
 
 class GridStandartStorage:
     load_images_threads: list = []
@@ -390,7 +389,7 @@ class GridStandartBase(QScrollArea):
         return super().closeEvent(a0)
     
 
-class GridStandart(GridStandartBase):
+class GridStandart(GridStandartBase, GridMethods):
     def __init__(self, width: int):
         super().__init__(width)
 

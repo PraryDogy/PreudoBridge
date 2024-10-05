@@ -85,3 +85,11 @@ class Thumbnail(QFrame):
         self.drag.exec_(Qt.DropAction.CopyAction)
         self.setFrameShape(QFrame.Shape.NoFrame)
         return super().mouseMoveEvent(a0)
+    
+
+class GridMethods:
+    def rearrange(self):
+        pass
+
+    def stop_and_wait_threads(self):
+        ...

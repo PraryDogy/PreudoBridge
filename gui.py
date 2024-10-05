@@ -11,6 +11,7 @@ from PyQt5.QtWidgets import (QApplication, QGraphicsDropShadowEffect,
 from cfg import Config
 from utils import Utils
 from widgets.grid_search import GridSearch
+from widgets.grid_base import GridMethods
 from widgets.grid_standart import GridStandart
 from widgets.top_bar import TopBar
 from widgets.tree_favorites import TreeFavorites
@@ -25,7 +26,7 @@ class SimpleFileExplorer(QWidget):
         self.clmn_count = 1
         self.finder_items = []
         self.finder_images: dict = {}
-        self.grid: GridStandart = None
+        self.grid: GridMethods = None
 
         ww, hh = Config.json_data["ww"], Config.json_data["hh"]
         self.resize(ww, hh)
