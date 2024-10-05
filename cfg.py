@@ -3,6 +3,8 @@ import os
 
 
 class Config:
+    app_name = "PseudoBridge"
+    app_ver = "1.0.0"
     json_file = os.path.join(os.path.expanduser('~'), 'Desktop', 'cfg.json')
     db_file = os.path.join(os.path.expanduser('~'), 'Desktop', 'db.db')
     thumb_size = 210
