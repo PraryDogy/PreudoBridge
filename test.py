@@ -7,7 +7,7 @@ class FileNavigator(QListView):
     def __init__(self):
         super().__init__()
 
-        # Создаем модель файловой системы
+
         self.model = QFileSystemModel()
         self.model.setRootPath('/Volumes')  # Устанавливаем корневой путь
         
@@ -20,12 +20,6 @@ class FileNavigator(QListView):
 
         # Подключаем событие двойного клика
         self.doubleClicked.connect(self.on_double_click)
-
-    def add_up_directory_item(self):
-        up_item = '..'
-        self.model.insertRow(0)
-        index = self.model.index(self.model.rootPath())
-        self.model.setData(index, up_item)
 
     def on_double_click(self, index: QModelIndex):
         path = self.model.filePath(index)
