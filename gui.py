@@ -84,7 +84,7 @@ class SimpleFileExplorer(QWidget):
 
         self.r_lay.addWidget(self.top_bar)
 
-        self.setWindowTitle(Config.json_data["root"])
+        self.setWindowTitle(os.path.basename(Config.json_data["root"]))
         self.folders_tree_wid.expand_path(Config.json_data["root"])
         self.load_standart_grid()
 
@@ -112,13 +112,13 @@ class SimpleFileExplorer(QWidget):
         Config.json_data["root"] = root
         self.top_bar.update_history()
         self.folders_tree_wid.expand_path(Config.json_data["root"])
-        self.setWindowTitle(root)
+        self.setWindowTitle(os.path.basename(root))
         self.load_standart_grid()
 
     def next_back_cmd(self, root: str):
         Config.json_data["root"] = root
         self.folders_tree_wid.expand_path(root)
-        self.setWindowTitle(root)
+        self.setWindowTitle(os.path.basename(root))
         self.load_standart_grid()
 
     def add_fav_cmd(self, root: str):
@@ -142,7 +142,7 @@ class SimpleFileExplorer(QWidget):
         Config.json_data["root"] = path
         self.top_bar.update_history()
         self.folders_tree_wid.expand_path(path)
-        self.setWindowTitle(path)
+        self.setWindowTitle(os.path.basename(path))
         self.load_standart_grid()
         QTimer.singleShot(1500, lambda: self.grid.move_to_wid(filepath))
 
@@ -185,7 +185,7 @@ class SimpleFileExplorer(QWidget):
         root = os.path.dirname(src)
         Config.json_data["root"] = root
         self.folders_tree_wid.expand_path(root)
-        self.setWindowTitle(Config.json_data["root"])
+        self.setWindowTitle(os.path.basename(root))
         self.load_standart_grid()
         QTimer.singleShot(1500, lambda: self.grid.move_to_wid(src))
 
@@ -197,7 +197,7 @@ class SimpleFileExplorer(QWidget):
             self.grid.close()
 
         self.setFocus()
-        self.setWindowTitle(Config.json_data["root"])
+        self.setWindowTitle(os.path.basename(Config.json_data["root"]))
         ww = self.get_grid_width()
         self.grid = GridStandart(width=ww)
         self.grid.verticalScrollBar().valueChanged.connect(self.scroll_value)
