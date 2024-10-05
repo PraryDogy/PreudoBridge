@@ -295,6 +295,7 @@ class TopBar(QFrame):
     def __init__(self):
         super().__init__()
         self.setFixedHeight(40)
+        self.clmn = 0
 
         self.root: str = None
         self.history: list = [Config.json_data["root"]]
@@ -305,34 +306,53 @@ class TopBar(QFrame):
         self.grid_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.grid_layout)
 
+        self.clmn += 1
         self.back = QPushButton("\u25C0")
         self.back.setFixedWidth(60)
         self.back.clicked.connect(self._back_cmd)
-        self.grid_layout.addWidget(self.back, 0, 0)
+        self.grid_layout.addWidget(self.back, 0, self.clmn)
 
+        self.clmn += 1
         self.next = QPushButton("\u25B6")
         self.next.setFixedWidth(60)
         self.next.clicked.connect(self._next_cmd)
-        self.grid_layout.addWidget(self.next, 0, 1)
+        self.grid_layout.addWidget(self.next, 0, self.clmn)
 
-        self.grid_layout.setColumnStretch(2, 10)
-        self.grid_layout.addItem(QSpacerItem(1, 1), 0, 2)
+        self.clmn += 1
+        self.grid_layout.setColumnStretch(self.clmn, 10)
+        self.grid_layout.addItem(QSpacerItem(1, 1), 0, self.clmn)
 
+        self.clmn += 1
+        self.grid_layout.addItem(QSpacerItem(10, 0), 0, self.clmn)
+
+        self.clmn += 1
+        self.level_up_btn = QPushButton("Наверх")
+        self.grid_layout.addWidget(self.level_up_btn, 0, self.clmn)
+
+        self.clmn += 1
+        self.grid_layout.addItem(QSpacerItem(10, 0), 0, self.clmn)
+
+        self.clmn += 1
         self.go_btn = _GoBtn()
-        self.grid_layout.addWidget(self.go_btn, 0, 3)
+        self.grid_layout.addWidget(self.go_btn, 0, self.clmn)
 
-        self.grid_layout.addItem(QSpacerItem(10, 0), 0, 4)
+        self.clmn += 1
+        self.grid_layout.addItem(QSpacerItem(10, 0), 0, self.clmn)
 
+        self.clmn += 1
         self.sort_widget = _SortTypeWidget(parent=self)
-        self.grid_layout.addWidget(self.sort_widget, 0, 5)
+        self.grid_layout.addWidget(self.sort_widget, 0, self.clmn)
 
-        self.grid_layout.addItem(QSpacerItem(10, 0), 0, 6)
+        self.clmn += 1
+        self.grid_layout.addItem(QSpacerItem(10, 0), 0, self.clmn)
 
-        self.grid_layout.setColumnStretch(7, 10)
-        self.grid_layout.addItem(QSpacerItem(1, 1), 0, 7)
+        self.clmn += 1
+        self.grid_layout.setColumnStretch(self.clmn, 10)
+        self.grid_layout.addItem(QSpacerItem(1, 1), 0, self.clmn)
 
+        self.clmn += 1
         self.search_wid = _SearchWidget()
-        self.grid_layout.addWidget(self.search_wid, 0, 8)
+        self.grid_layout.addWidget(self.search_wid, 0, self.clmn)
 
     def update_history(self):
         if Config.json_data["root"] not in self.history:
