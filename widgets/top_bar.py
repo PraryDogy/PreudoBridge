@@ -206,7 +206,8 @@ class SearchWidget(QWidget):
         data = {
             "Найти jpg": ".jpg",
             "Найти tiff": ".tiff",
-            "Найти psd/psb": ".psd"
+            "Найти psd/psb": ".psd",
+            "Найти любые фото": str(Config.img_ext)
             }
 
         for k, v in data.items():

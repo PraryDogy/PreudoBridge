@@ -101,6 +101,8 @@ class _SearchFinderThread(QThread):
         self.flag: bool = False
 
     def run(self):
+        all_img_template = str(Config.img_ext)
+
         for root, dirs, files in os.walk(self.search_dir):
             if not self.flag:
                 break
@@ -109,10 +111,16 @@ class _SearchFinderThread(QThread):
                 if not self.flag:
                     break
 
-                src = os.path.join(root, filename)
+                src: str = os.path.join(root, filename)
+                src_lower: str = src.lower()
 
-                if self.search_text in filename and src.endswith(Config.img_ext):
+                if self.search_text == all_img_template and src_lower.endswith(Config.img_ext):
                     self._create_wid(src, filename)
+                    continue
+
+                elif self.search_text in filename and src_lower.endswith(Config.img_ext):
+                    self._create_wid(src, filename)
+                    continue
 
         if self.flag:
             self._finished.emit()
@@ -135,13 +143,12 @@ class _SearchFinderThread(QThread):
         if not pixmap:
             pixmap = QPixmap("images/file_210.png")
 
-        self._new_widget.emit
-        ({
+        self._new_widget.emit({
             "src": src,
             "filename": filename,
             "pixmap": pixmap
-          })
-        sleep(0.1)
+            })
+        sleep(0.2)
 
     def _get_db_image(self, src: str) -> bytes | None:
         q = sqlalchemy.select(Cache.img).where(Cache.src==src)
