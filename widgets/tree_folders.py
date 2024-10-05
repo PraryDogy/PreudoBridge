@@ -1,11 +1,11 @@
 import os
 import subprocess
 
-from PyQt5.QtCore import QDir, QModelIndex, Qt, pyqtSignal
+from PyQt5.QtCore import QDir, QModelIndex, pyqtSignal, Qt
 from PyQt5.QtGui import QContextMenuEvent
 from PyQt5.QtWidgets import (QAction, QFileSystemModel, QLabel, QListView,
-                             QListWidget, QMenu, QSizePolicy, QSpacerItem,
-                             QTreeView, QVBoxLayout, QWidget)
+                             QListWidget, QListWidgetItem, QMenu, QVBoxLayout,
+                             QWidget)
 
 from cfg import Config
 from utils import Utils
@@ -25,9 +25,9 @@ class TreeFolders(QWidget):
         self.setLayout(layout)
 
         self.back_btn = QListWidget()
-        self.back_btn.setFixedHeight(30)
-        self.back_btn.addItem("Назад")
-        self.back_btn.itemDoubleClicked.connect(self.back_click)
+        self.back_btn.setSelectionMode(QListWidget.SelectionMode.NoSelection)
+        self.back_btn.setFixedHeight(27)
+        self.add_item()
         layout.addWidget(self.back_btn)
 
         self.c_model = QFileSystemModel()
@@ -38,11 +38,24 @@ class TreeFolders(QWidget):
         self.list_view.setModel(self.c_model)
         self.list_view.setRootIndex(self.c_model.index("/Volumes"))
         layout.addWidget(self.list_view)
+
         self.list_view.doubleClicked.connect(self.on_double_click)
         self.list_view.contextMenuEvent = self.custom_context
 
+    def add_item(self):
+        wid = QLabel(text="Назад")
+        wid.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        wid.setStyleSheet("padding-left: 5px;")
+        wid.setFixedHeight(25)
+        list_item = QListWidgetItem()
+        list_item.setSizeHint(wid.sizeHint())
+
+        self.back_btn.addItem(list_item)
+        self.back_btn.setItemWidget(list_item, wid)
+
+        wid.mouseDoubleClickEvent = self.back_click
+
     def back_click(self, e):
-        print(e)
         root = os.path.dirname(Config.json_data["root"])
         self.expand_path(root)
         self.folders_tree_clicked.emit(root)
