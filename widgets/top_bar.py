@@ -105,6 +105,7 @@ class SortTypeWidget(QPushButton):
     def __init__(self, parent: QWidget):
         super().__init__()
         self.setFixedWidth(125)
+        self.setStyleSheet("text-align: center;")
         self.setToolTip(" Сортировка файлов ")
         
         self.data = {
@@ -207,6 +208,7 @@ class SearchWidget(QWidget):
             "Найти jpg": str((".jpg", ".jpeg", "jfif")),
             "Найти tiff": str((".tiff", ".tiff")),
             "Найти psd/psb": str((".psd", ".psb")),
+            "Найти raw": str((".nef", ".raw")),
             "Найти любые фото": str(Config.img_ext)
             }
 
