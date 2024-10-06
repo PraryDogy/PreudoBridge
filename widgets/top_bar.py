@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import (QButtonGroup, QFrame, QGridLayout, QLabel,
 
 from cfg import Config
 from utils import Utils
+from .button_round import ButtonRound
 
 
 class _PathFinderThread(QThread):
@@ -288,6 +289,18 @@ class _GoBtn(QPushButton):
         self.win.show()
 
 
+class _ColorTags(ButtonRound):
+    def __init__(self):
+        super().__init__(text="🔵")
+
+        self.menu = QMenu()
+
+
+    def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
+        return super().mouseReleaseEvent(ev)
+
+
+
 class TopBar(QFrame):
     back_sig = pyqtSignal(str)
     next_sig = pyqtSignal(str)
@@ -348,6 +361,10 @@ class TopBar(QFrame):
 
         self.clmn += 1
         self.grid_layout.addItem(QSpacerItem(5, 0), 0, self.clmn)
+
+        self.clmn += 1
+        self.color_tags = _ColorTags()
+        self.grid_layout.addWidget(self.color_tags, 0, self.clmn)
 
         self.clmn += 1
         self.grid_layout.setColumnStretch(self.clmn, 10)
