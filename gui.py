@@ -94,7 +94,10 @@ class SimpleFileExplorer(QWidget):
             )
 
     def sort_grid(self):
-        self.grid.rearrange_sorted(self.get_grid_width())
+        if isinstance(self.grid, GridSearch):
+            self.grid.rearrange_sorted(self.get_grid_width())
+        elif isinstance(self.grid, GridStandart):
+            self.load_standart_grid()
 
     def top_bar_setDisabled(self, b: bool):
         self.top_bar.back.setDisabled(b)
