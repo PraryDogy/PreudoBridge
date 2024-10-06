@@ -299,12 +299,6 @@ class _GridStandartBase(QScrollArea):
         except RuntimeError:
             pass
 
-    def _set_no_frame(self, wid: Thumbnail):
-        try:
-            wid.setFrameShape(QFrame.Shape.NoFrame)
-        except (RuntimeError):
-            pass
-
     def _stop_threads(self):
         for i in _Storage.threads:
             i: _LoadImagesThread

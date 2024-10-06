@@ -194,12 +194,6 @@ class _GridSearchBase(QScrollArea):
         except (RuntimeError, KeyError) as e:
             print("move to wid error: ", e)
 
-    def _set_no_frame(self, wid: _Thumbnail):
-        try:
-            wid.setFrameShape(QFrame.Shape.NoFrame)
-        except (RuntimeError):
-            pass
-
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         try:
             self.search_thread.disconnect()
