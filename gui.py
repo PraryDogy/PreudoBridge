@@ -19,7 +19,7 @@ class SimpleFileExplorer(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.grid: GridStandart = None
+        self.grid = None
 
         ww, hh = Config.json_data.get("ww"), Config.json_data.get("hh")
         self.resize(ww, hh)
@@ -79,7 +79,6 @@ class SimpleFileExplorer(QWidget):
         self.r_lay.addWidget(self.top_bar)
 
         self.grid_standart_load()
-        # QTimer.singleShot(1000, self.load_standart_grid)
 
         self.scroll_up = QLabel(parent=self, text="\u25B2")
         self.scroll_up.hide()
@@ -96,8 +95,10 @@ class SimpleFileExplorer(QWidget):
 
     def resize_grid(self):
         if isinstance(self.grid, GridSearch):
+            self.grid: GridSearch
             self.grid.resize_grid(self.get_grid_width())
         elif isinstance(self.grid, GridStandart):
+            self.grid: GridStandart
             self.grid.rearrange(self.get_grid_width())
 
     def sort_grid(self):
@@ -171,6 +172,7 @@ class SimpleFileExplorer(QWidget):
         self.setWindowTitle(t)
 
     def grid_search_finished(self, search_text: str):
+        self.grid: GridSearch
         self.migaet_timer.stop()
         self.setWindowTitle(f"🟢\tРезультаты поиска: \"{search_text}\"")
         self.grid.sort_grid(self.get_grid_width())
