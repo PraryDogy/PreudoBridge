@@ -1,4 +1,5 @@
 import os
+import subprocess
 
 from PyQt5.QtCore import QMimeData, Qt, QThread, QTimer, QUrl, pyqtSignal
 from PyQt5.QtGui import (QCloseEvent, QContextMenuEvent, QDrag, QKeyEvent,
@@ -9,6 +10,8 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
 
 from cfg import Config
 from utils import Utils
+
+from .win_img_view import WinImgView
 
 
 class NameLabel(QLabel):
@@ -36,6 +39,8 @@ class NameLabel(QLabel):
 
 
 class Thumbnail(QFrame):
+    _move_to_wid = pyqtSignal(str)
+
     def __init__(self, filename: str, src: str):
         super().__init__()
         self.setFixedSize(250, 280)
@@ -58,6 +63,26 @@ class Thumbnail(QFrame):
         filename = os.path.basename(src)
         img_name = NameLabel(filename)
         v_lay.addWidget(img_name)
+
+        self.context_menu = QMenu(self)
+
+        view_action = QAction("Просмотр", self)
+        view_action.triggered.connect(self._view_file)
+        self.context_menu.addAction(view_action)
+
+        self.context_menu.addSeparator()
+
+        open_action = QAction("Открыть по умолчанию", self)
+        open_action.triggered.connect(self._open_default)
+        self.context_menu.addAction(open_action)
+
+        show_in_finder_action = QAction("Показать в Finder", self)
+        show_in_finder_action.triggered.connect(self._show_in_finder)
+        self.context_menu.addAction(show_in_finder_action)
+
+        copy_path = QAction("Скопировать путь до файла", self)
+        copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
+        self.context_menu.addAction(copy_path)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
         self.select_thumbnail()
@@ -92,7 +117,35 @@ class Thumbnail(QFrame):
         self.drag.setMimeData(self.mime_data)
         self.drag.exec_(Qt.DropAction.CopyAction)
         return super().mouseMoveEvent(a0)
-    
+
+    def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
+        if a0.button() == Qt.MouseButton.LeftButton:
+            self.select_thumbnail()
+            self.win = WinImgView(self, self.src)
+            Utils.center_win(parent=Utils.get_main_win(), child=self.win)
+            self.win.closed.connect(lambda src: self._move_to_wid.emit(src))
+            self.win.show()
+            return super().mouseDoubleClickEvent(a0)
+
+    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+        self.select_thumbnail()
+        self.context_menu.exec_(self.mapToGlobal(a0.pos()))
+        return super().contextMenuEvent(a0)
+
+    def _view_file(self):
+        if self.src.endswith(Config.img_ext):
+            self.win = WinImgView(self, self.src)
+            self.win.closed.connect(lambda src: self._move_to_wid.emit(src))
+            main_win = Utils.get_main_win()
+            Utils.center_win(parent=main_win, child=self.win)
+            self.win.show()
+
+    def _open_default(self):
+        subprocess.call(["open", self.src])
+
+    def _show_in_finder(self):
+        subprocess.call(["open", "-R", self.src])
+
     def select_thumbnail(self):
         Utils.deselect_selected_thumb()
         self.setFrameShape(QFrame.Shape.Panel)
