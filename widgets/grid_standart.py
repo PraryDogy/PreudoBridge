@@ -313,7 +313,7 @@ class GridStandart(_GridStandartBase):
     def __init__(self, width: int):
         super().__init__(width)
 
-    def rearrange(self, width: int):
+    def resize_grid(self, width: int):
         clmn_count = Utils.get_clmn_count(width)
         
         if clmn_count < 1:
@@ -335,8 +335,8 @@ class GridStandart(_GridStandartBase):
             thread._stop_thread.emit()
             thread.wait()
 
-    def rearrange_sorted(self, width: int):
-        self.rearrange(width)
+    def sort_grid(self, width: int):
+        self.resize_grid(width)
 
     def move_to_wid(self, src: str):
         self._move_to_wid(src)

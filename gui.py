@@ -1,5 +1,6 @@
 import json
 import os
+from typing import Union
 
 from PyQt5.QtCore import QEvent, QObject, Qt, QTimer
 from PyQt5.QtGui import QCloseEvent, QKeyEvent, QResizeEvent
@@ -19,7 +20,7 @@ class SimpleFileExplorer(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.grid = None
+        self.grid: Union[GridSearch, GridStandart] = None
 
         ww, hh = Config.json_data.get("ww"), Config.json_data.get("hh")
         self.resize(ww, hh)
@@ -95,11 +96,9 @@ class SimpleFileExplorer(QWidget):
 
     def resize_grid(self):
         if isinstance(self.grid, GridSearch):
-            self.grid: GridSearch
             self.grid.resize_grid(self.get_grid_width())
         elif isinstance(self.grid, GridStandart):
-            self.grid: GridStandart
-            self.grid.rearrange(self.get_grid_width())
+            self.grid.resize_grid(self.get_grid_width())
 
     def top_bar_sort_grid(self):
         if isinstance(self.grid, GridSearch):
@@ -172,7 +171,6 @@ class SimpleFileExplorer(QWidget):
         self.setWindowTitle(t)
 
     def grid_search_finished(self, search_text: str):
-        self.grid: GridSearch
         self.migaet_timer.stop()
         self.setWindowTitle(f"🟢\tРезультаты поиска: \"{search_text}\"")
         self.grid.sort_grid(self.get_grid_width())
