@@ -175,50 +175,40 @@ class _FolderThumbnail(Thumbnail):
     def __init__(self, filename: str, src: str):
         super().__init__(filename, src)
 
-    def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
-        self._open_folder_sig.emit(self.src)
-        return super().mouseDoubleClickEvent(a0)
+        self.context_menu = QMenu(self)
 
-    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-
-        self.setFrameShape(QFrame.Shape.Panel)
-
-        context_menu = QMenu(self)
-
-        # Пункт "Просмотр"
         view_action = QAction("Просмотр", self)
         view_action.triggered.connect(lambda: self._open_folder_sig.emit(self.src))
-        context_menu.addAction(view_action)
+        self.context_menu.addAction(view_action)
 
-        context_menu.addSeparator()
+        self.context_menu.addSeparator()
 
         show_in_finder_action = QAction("Показать в Finder", self)
         show_in_finder_action.triggered.connect(self._show_in_finder)
-        context_menu.addAction(show_in_finder_action)
+        self.context_menu.addAction(show_in_finder_action)
 
         copy_path = QAction("Скопировать путь до папки", self)
         copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
-        context_menu.addAction(copy_path)
+        self.context_menu.addAction(copy_path)
 
-        context_menu.addSeparator()
+        self.context_menu.addSeparator()
 
         if self.src in Config.json_data["favs"]:
             del_fav = QAction("Удалить из избранного", self)
             del_fav.triggered.connect(lambda: self._del_fav_sig.emit(self.src))
-            context_menu.addAction(del_fav)
+            self.context_menu.addAction(del_fav)
+
         else:
             add_fav = QAction("Добавить в избранное", self)
             add_fav.triggered.connect(lambda: self._add_fav_sig.emit(self.src))
-            context_menu.addAction(add_fav)
+            self.context_menu.addAction(add_fav)
 
-        context_menu.exec_(self.mapToGlobal(a0.pos()))
+    def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
+        self._open_folder_sig.emit(self.src)
 
-        self.setFrameShape(QFrame.Shape.NoFrame)
-
-        return super().contextMenuEvent(a0)
-
-    def _show_in_finder(self):
-        subprocess.call(["open", "-R", self.src])
+    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+        self.select_thumbnail()
+        self.context_menu.exec_(self.mapToGlobal(a0.pos()))
 
 
 class _GridStandartBase(QScrollArea):

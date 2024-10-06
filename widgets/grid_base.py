@@ -86,7 +86,6 @@ class Thumbnail(QFrame):
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
         self.select_thumbnail()
-        return super().mouseReleaseEvent(a0)
 
     def mousePressEvent(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.LeftButton:
@@ -125,12 +124,10 @@ class Thumbnail(QFrame):
             Utils.center_win(parent=Utils.get_main_win(), child=self.win)
             self.win.closed.connect(lambda src: self._move_to_wid.emit(src))
             self.win.show()
-            return super().mouseDoubleClickEvent(a0)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         self.select_thumbnail()
         self.context_menu.exec_(self.mapToGlobal(a0.pos()))
-        return super().contextMenuEvent(a0)
 
     def _view_file(self):
         if self.src.endswith(Config.img_ext):
