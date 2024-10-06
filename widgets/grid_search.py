@@ -14,7 +14,7 @@ from database import Cache, Dbase
 from fit_img import FitImg
 from utils import Utils
 
-from .grid_base import GridMethods, Thumbnail
+from .grid_base import GridCustom, Thumbnail
 from .win_img_view import WinImgView
 
 
@@ -140,7 +140,7 @@ class _SearchFinderThread(QThread):
         return img
 
 
-class _GridSearchBase(QScrollArea):
+class _GridSearchBase(GridCustom):
     search_finished = pyqtSignal()
     show_in_folder = pyqtSignal(str)
     move_to_widget = pyqtSignal(str)
@@ -203,7 +203,7 @@ class _GridSearchBase(QScrollArea):
         return super().closeEvent(a0)
   
 
-class GridSearch(_GridSearchBase, GridMethods):
+class GridSearch(_GridSearchBase):
     def __init__(self, width: int, search_text: str):
         super().__init__(width, search_text)
 

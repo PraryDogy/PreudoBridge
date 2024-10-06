@@ -13,7 +13,7 @@ from database import Cache, Dbase
 from fit_img import FitImg
 from utils import Utils
 
-from .grid_base import Thumbnail, GridMethods
+from .grid_base import Thumbnail, GridCustom
 from .win_img_view import WinImgView
 
 class _Storage:
@@ -211,7 +211,7 @@ class _FolderThumbnail(Thumbnail):
         self.context_menu.exec_(self.mapToGlobal(a0.pos()))
 
 
-class _GridStandartBase(QScrollArea):
+class _GridStandartBase(GridCustom):
     add_fav_sig = pyqtSignal(str)
     del_fav_sig = pyqtSignal(str)
     open_folder_sig = pyqtSignal(str)
@@ -317,7 +317,7 @@ class _GridStandartBase(QScrollArea):
         return super().closeEvent(a0)
         
 
-class GridStandart(_GridStandartBase, GridMethods):
+class GridStandart(_GridStandartBase):
     def __init__(self, width: int):
         super().__init__(width)
 

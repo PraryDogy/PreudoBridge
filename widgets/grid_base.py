@@ -154,7 +154,10 @@ class Thumbnail(QFrame):
         Config.selected_thumbnail = self        
 
 
-class GridMethods:
+class GridCustom(QScrollArea):
+    def __init__(self):
+        super().__init__()
+
     def rearrange(self) -> None: ...
     def stop_and_wait_threads(self) -> None: ...
     def rearrange_sorted(self) -> None: ...

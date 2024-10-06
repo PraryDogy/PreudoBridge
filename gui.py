@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (QApplication, QGraphicsDropShadowEffect,
 from cfg import Config
 from utils import Utils
 from widgets.grid_search import GridSearch
-from widgets.grid_base import GridMethods
+from widgets.grid_base import GridCustom
 from widgets.grid_standart import GridStandart
 from widgets.top_bar import TopBar
 from widgets.tree_favorites import TreeFavorites
