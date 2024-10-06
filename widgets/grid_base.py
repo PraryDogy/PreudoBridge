@@ -158,3 +158,10 @@ class GridMethods:
     def rearrange(self) -> None: ...
     def stop_and_wait_threads(self) -> None: ...
     def rearrange_sorted(self) -> None: ...
+
+    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
+        if a0.key() == Qt.Key.Key_Space:
+
+            wid: Thumbnail = Config.selected_thumbnail
+            if os.path.isdir(self.src):
+                wid._view_file()

@@ -4,7 +4,7 @@ import subprocess
 import numpy as np
 import sqlalchemy
 from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal
-from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QMouseEvent, QPixmap
+from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QKeyEvent, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QLabel, QMenu,
                              QScrollArea, QSizePolicy, QSpacerItem, QWidget)
 
@@ -265,7 +265,7 @@ class _GridStandartBase(QScrollArea):
 
             self.all_grid_widgets.append(thumbnail)
 
-        if self.image_grid_widgets:
+        if self.all_grid_widgets:
             row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
             self.grid_layout.addItem(row_spacer, row + 1, 0)
             # clmn_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
@@ -275,12 +275,14 @@ class _GridStandartBase(QScrollArea):
         elif not os.path.exists(Config.json_data["root"]):
             no_images = QLabel(f"{Config.json_data['root']}\nТакой папки не существует \n Проверьте подключение к сетевому диску")
             no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.grid_layout.addWidget(no_images, 0, 0, Qt.AlignmentFlag.AlignCenter)
+            self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.grid_layout.addWidget(no_images, 0, 0)
 
         else:
             no_images = QLabel(f"{Config.json_data['root']}\nНет изображений")
             no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.grid_layout.addWidget(no_images, 0, 0, Qt.AlignmentFlag.AlignCenter)
+            self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.grid_layout.addWidget(no_images, 0, 0)
 
     def _move_to_wid_cmd(self, src: str):
         try:
@@ -319,6 +321,12 @@ class _GridStandartBase(QScrollArea):
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self._stop_threads()
         return super().closeEvent(a0)
+    
+    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
+        if a0.key() == Qt.Key.Key_Space:
+            wid: Thumbnail = Config.selected_thumbnail
+            wid._view_file()
+        # return super().keyPressEvent(a0)
     
 
 class GridStandart(_GridStandartBase, GridMethods):
