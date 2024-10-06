@@ -15,7 +15,9 @@ class TreeFavorites(QListWidget):
     def __init__(self):
         super().__init__()
         self.fav_items: dict[str: QLabel] = {}
+        self.init_ui()
 
+    def init_ui(self):
         favs: dict = Config.json_data["favs"]
         for src, name in favs.items():
             self.add_item(name, src)
@@ -40,7 +42,8 @@ class TreeFavorites(QListWidget):
         item.deleteLater()
         favs: dict = Config.json_data.get("favs")
         favs.pop(src)
-        self.clearSelection()
+        self.clear()
+        self.init_ui()
 
     def l_click(self, e: QMouseEvent | None, src) -> None:
         if e.button() == Qt.MouseButton.LeftButton:
