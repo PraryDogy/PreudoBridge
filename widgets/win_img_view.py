@@ -305,13 +305,13 @@ class WinImgView(QWidget):
 
     def switch_image(self, offset):
         try:
-            keys = list(Config.current_image_thumbnails.keys())
+            keys = list(Config.image_grid_widgets.keys())
             current_index = keys.index(self.img_src)
         except Exception as e:
-            keys = list(Config.current_image_thumbnails.keys())
+            keys = list(Config.image_grid_widgets.keys())
             current_index = 0
 
-        total_images = len(Config.current_image_thumbnails)
+        total_images = len(Config.image_grid_widgets)
         new_index = (current_index + offset) % total_images
 
         self.img_src = keys[new_index]

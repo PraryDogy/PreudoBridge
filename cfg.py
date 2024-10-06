@@ -10,7 +10,7 @@ class Config:
     json_file = os.path.join(os.path.expanduser('~'), 'Desktop', 'cfg.json')
     db_file = os.path.join(os.path.expanduser('~'), 'Desktop', 'db.db')
     thumb_size = 210
-    current_image_thumbnails: dict = {}
+    image_grid_widgets: dict = {}
     selected_thumbnail: QFrame = None
     img_ext: tuple = (".jpg", "jpeg", ".tif", ".tiff", ".psd", ".psb", ".png", "jfif")
 

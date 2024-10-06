@@ -244,7 +244,7 @@ class _GridStandartBase(GridCustom):
                 thumbnail._move_to_wid_sig.connect(lambda src: self.move_to_wid_cmd(src))
                 self._set_default_image(thumbnail.img_label, "images/file_210.png")
 
-                Config.current_image_thumbnails[src] = thumbnail
+                Config.image_grid_widgets[src] = thumbnail
                 self.image_grid_widgets[(src, size, modified)] = thumbnail.img_label
 
             self.grid_layout.addWidget(thumbnail, row, col)
@@ -275,7 +275,7 @@ class _GridStandartBase(GridCustom):
 
     def move_to_wid_cmd(self, src: str):
         try:
-            wid: Thumbnail = Config.current_image_thumbnails.get("src")
+            wid: Thumbnail = Config.image_grid_widgets.get("src")
             wid.select_thumbnail()
             self.ensureWidgetVisible(wid)
         except (RuntimeError, KeyError) as e:
