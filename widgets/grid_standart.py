@@ -258,6 +258,10 @@ class _GridStandartBase(GridCustom):
         if self._all_grid_widgets:
             row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
             self.grid_layout.addItem(row_spacer, row + 1, 0)
+
+            col_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
+            self.grid_layout.addItem(col_spacer, 0, col + 1)
+
             self._start_load_images_thread()
 
         elif not os.path.exists(Config.json_data.get("root")):
