@@ -148,7 +148,8 @@ class Thumbnail(QFrame):
             wid: QFrame = Config.selected_thumbnail
             wid.setFrameShape(QFrame.Shape.NoFrame)
         except (RuntimeError, AttributeError) as e:
-            print("thumbnail > deselect prev thumb error:", e)
+            # print("thumbnail > deselect prev thumb error:", e)
+            ...
 
         self.setFrameShape(QFrame.Shape.Panel)
         Config.selected_thumbnail = self        

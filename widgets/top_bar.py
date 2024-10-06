@@ -165,7 +165,7 @@ class _SearchWidget(QWidget):
         self.input_wid.setPlaceholderText("Поиск изображений")
         self.input_wid.setStyleSheet("padding-left: 2px; padding-right: 20px;")
         self.input_wid.setFixedSize(170, 25)
-        self.input_wid.mouseReleaseEvent = self._show_templates
+        self.input_wid.mouseDoubleClickEvent = self._show_templates
         v_lay.addWidget(self.input_wid)
 
         self.clear_btn = QLabel(parent=self, text="\u2573")
