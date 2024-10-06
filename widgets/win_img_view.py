@@ -3,7 +3,7 @@ import subprocess
 
 import sqlalchemy
 from PyQt5.QtCore import QEvent, QPoint, QSize, Qt, QThread, QTimer, pyqtSignal
-from PyQt5.QtGui import (QCloseEvent, QContextMenuEvent, QImage, QKeyEvent,
+from PyQt5.QtGui import (QCloseEvent, QContextMenuEvent, QKeyEvent,
                          QMouseEvent, QPainter, QPaintEvent, QPixmap,
                          QResizeEvent)
 from PyQt5.QtWidgets import (QAction, QFrame, QHBoxLayout, QLabel, QMenu,
@@ -11,8 +11,9 @@ from PyQt5.QtWidgets import (QAction, QFrame, QHBoxLayout, QLabel, QMenu,
 
 from cfg import Config
 from database import Cache, Dbase
-from .svg_widgets import SvgShadowed
 from utils import Utils
+
+from .svg_widgets import SvgShadowed
 
 
 class Shared:
