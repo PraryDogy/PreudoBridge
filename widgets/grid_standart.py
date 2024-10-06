@@ -11,7 +11,7 @@ from database import Cache, Dbase
 from fit_img import FitImg
 from utils import Utils
 
-from .grid_base import GridCustom, Thumbnail
+from .grid_base import Grid, Thumbnail, GridMethods
 
 
 class _Storage:
@@ -210,7 +210,7 @@ class _FolderThumbnail(Thumbnail):
         self.context_menu.exec_(self.mapToGlobal(a0.pos()))
 
 
-class _GridStandartBase(GridCustom):
+class _GridStandartBase(Grid):
     add_fav_sig = pyqtSignal(str)
     del_fav_sig = pyqtSignal(str)
     open_folder_sig = pyqtSignal(str)
@@ -309,7 +309,7 @@ class _GridStandartBase(GridCustom):
         return super().closeEvent(a0)
         
 
-class GridStandart(_GridStandartBase):
+class GridStandart(_GridStandartBase, GridMethods):
     def __init__(self, width: int):
         super().__init__(width)
 

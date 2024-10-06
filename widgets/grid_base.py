@@ -10,9 +10,8 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
 
 from cfg import Config
 from utils import Utils
-
+from abc import ABC, abstractmethod
 from .win_img_view import WinImgView
-
 
 class NameLabel(QLabel):
     def __init__(self, filename: str):
@@ -155,7 +154,7 @@ class Thumbnail(QFrame):
         Config.selected_thumbnail = self        
 
 
-class GridCustom(QScrollArea):
+class Grid(QScrollArea):
     def __init__(self):
         super().__init__()
         self.setWidgetResizable(True)
@@ -165,11 +164,6 @@ class GridCustom(QScrollArea):
         self.grid_layout = QGridLayout(main_wid)
         self.grid_layout.setSpacing(5)
         self.setWidget(main_wid)
-
-    def resize_grid(self) -> None: ...
-    def stop_and_wait_threads(self) -> None: ...
-    def sort_grid(self) -> None: ...
-    def move_to_wid(self) -> None: ...
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() == Qt.Key.Key_Space:
@@ -185,3 +179,17 @@ class GridCustom(QScrollArea):
         except Exception as e:
             print("grid can't deselect thumbnail:", e)
         # return super().mouseReleaseEvent(a0)
+
+
+class GridMethods:
+    def resize_grid(self) -> None:
+        raise NotImplementedError("Переназначь resize_grid")
+
+    def stop_and_wait_threads(self) -> None:
+        raise NotImplementedError("Переназначь stop_and_wait_threads")
+
+    def sort_grid(self) -> None:
+        raise NotImplementedError("Переназначь sort_grid")
+
+    def move_to_wid(self) -> None:
+        raise NotImplementedError("Переназначь move_to_wid")

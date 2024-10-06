@@ -27,7 +27,7 @@ class SimpleFileExplorer(QWidget):
 
         self.resize_timer = QTimer(parent=self)
         self.resize_timer.setSingleShot(True)
-        self.resize_timer.timeout.connect(self.resize_grid)
+        self.resize_timer.timeout.connect(lambda: self.grid.resize_grid(self.get_grid_width()))
 
         self.migaet_timer = QTimer(parent=self)
         self.migaet_timer.timeout.connect(self.grid_search_migaet_title)
@@ -93,12 +93,6 @@ class SimpleFileExplorer(QWidget):
             border-radius: 20px;
             """
             )
-
-    def resize_grid(self):
-        if isinstance(self.grid, GridSearch):
-            self.grid.resize_grid(self.get_grid_width())
-        elif isinstance(self.grid, GridStandart):
-            self.grid.resize_grid(self.get_grid_width())
 
     def top_bar_sort_grid(self):
         if isinstance(self.grid, GridSearch):
