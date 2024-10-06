@@ -167,13 +167,6 @@ class _LoadFinderItems:
             self.finder_items = dict(reversed(self.finder_items.items()))
 
 
-class _Thumbnail(Thumbnail):
-
-    def __init__(self, filename: str, src: str):
-        super().__init__(filename, src)
-  
-
-
 class _FolderThumbnail(Thumbnail):
     _add_fav_sig = pyqtSignal(str)
     _del_fav_sig = pyqtSignal(str)
@@ -266,7 +259,7 @@ class _GridStandartBase(QScrollArea):
                 thumbnail._del_fav_sig.connect(self.del_fav_sig.emit)
 
             else:
-                thumbnail = _Thumbnail(filename, src)
+                thumbnail = Thumbnail(filename, src)
                 thumbnail._move_to_wid.connect(lambda src: self._move_to_wid(src))
                 self._set_default_image(thumbnail.img_label, "images/file_210.png")
 
@@ -300,7 +293,7 @@ class _GridStandartBase(QScrollArea):
 
     def _move_to_wid(self, src: str):
         try:
-            wid: _Thumbnail = Config.current_thumbnails[src]
+            wid: Thumbnail = Config.current_thumbnails[src]
             wid.setFrameShape(QFrame.Shape.Panel)
             self.ensureWidgetVisible(wid)
             QTimer.singleShot(1000, lambda: self._set_no_frame(wid))
@@ -314,7 +307,7 @@ class _GridStandartBase(QScrollArea):
         except RuntimeError:
             pass
 
-    def _set_no_frame(self, wid: _Thumbnail):
+    def _set_no_frame(self, wid: Thumbnail):
         try:
             wid.setFrameShape(QFrame.Shape.NoFrame)
         except (RuntimeError):
