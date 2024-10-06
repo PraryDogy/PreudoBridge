@@ -261,21 +261,21 @@ class _GridStandartBase(GridCustom):
             self.grid_layout.addItem(row_spacer, row + 1, 0)
             self._start_load_images_thread()
 
-        elif not os.path.exists(Config.json_data["root"]):
-            no_images = QLabel(f"{Config.json_data['root']}\nТакой папки не существует \n Проверьте подключение к сетевому диску")
+        elif not os.path.exists(Config.json_data.get("root")):
+            no_images = QLabel(f"{Config.json_data.get('root')}\nТакой папки не существует \n Проверьте подключение к сетевому диску")
             no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0)
 
         else:
-            no_images = QLabel(f"{Config.json_data['root']}\nНет изображений")
+            no_images = QLabel(f"{Config.json_data.get('root')}\nНет изображений")
             no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0)
 
     def move_to_wid_cmd(self, src: str):
         try:
-            wid: Thumbnail = Config.current_image_thumbnails[src]
+            wid: Thumbnail = Config.current_image_thumbnails.get("src")
             wid.select_thumbnail()
             self.ensureWidgetVisible(wid)
         except (RuntimeError, KeyError) as e:
