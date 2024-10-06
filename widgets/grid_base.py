@@ -39,7 +39,7 @@ class NameLabel(QLabel):
 
 
 class Thumbnail(QFrame):
-    _move_to_wid = pyqtSignal(str)
+    _move_to_wid_sig = pyqtSignal(str)
 
     def __init__(self, filename: str, src: str):
         super().__init__()
@@ -122,7 +122,7 @@ class Thumbnail(QFrame):
             self.select_thumbnail()
             self.win = WinImgView(self, self.src)
             Utils.center_win(parent=Utils.get_main_win(), child=self.win)
-            self.win.closed.connect(lambda src: self._move_to_wid.emit(src))
+            self.win.closed.connect(lambda src: self._move_to_wid_sig.emit(src))
             self.win.show()
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
@@ -132,7 +132,7 @@ class Thumbnail(QFrame):
     def _view_file(self):
         if self.src.endswith(Config.img_ext):
             self.win = WinImgView(self, self.src)
-            self.win.closed.connect(lambda src: self._move_to_wid.emit(src))
+            self.win.closed.connect(lambda src: self._move_to_wid_sig.emit(src))
             main_win = Utils.get_main_win()
             Utils.center_win(parent=main_win, child=self.win)
             self.win.show()
@@ -144,10 +144,14 @@ class Thumbnail(QFrame):
         subprocess.call(["open", "-R", self.src])
 
     def select_thumbnail(self):
-        Utils.deselect_selected_thumb()
+        try:
+            wid: QFrame = Config.selected_thumbnail
+            wid.setFrameShape(QFrame.Shape.NoFrame)
+        except (RuntimeError, AttributeError) as e:
+            print("thumbnail > deselect prev thumb error:", e)
+
         self.setFrameShape(QFrame.Shape.Panel)
         Config.selected_thumbnail = self        
-
 
 
 class GridMethods:

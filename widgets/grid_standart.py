@@ -250,7 +250,7 @@ class _GridStandartBase(QScrollArea):
 
             else:
                 thumbnail = Thumbnail(filename, src)
-                thumbnail._move_to_wid.connect(lambda src: self._move_to_wid(src))
+                thumbnail._move_to_wid_sig.connect(lambda src: self._move_to_wid_cmd(src))
                 self._set_default_image(thumbnail.img_label, "images/file_210.png")
 
             self.grid_layout.addWidget(thumbnail, row, col)
@@ -281,12 +281,11 @@ class _GridStandartBase(QScrollArea):
             no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0, Qt.AlignmentFlag.AlignCenter)
 
-    def _move_to_wid(self, src: str):
+    def _move_to_wid_cmd(self, src: str):
         try:
             wid: Thumbnail = Config.current_thumbnails[src]
-            wid.setFrameShape(QFrame.Shape.Panel)
+            wid.select_thumbnail()
             self.ensureWidgetVisible(wid)
-            QTimer.singleShot(1000, lambda: self._set_no_frame(wid))
         except (RuntimeError, KeyError) as e:
             print("move to wid error: ", e)
 

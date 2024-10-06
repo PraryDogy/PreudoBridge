@@ -19,7 +19,6 @@ from .win_img_view import WinImgView
 
 
 class _Thumbnail(Thumbnail):
-    _move_to_widget = pyqtSignal(str)
     _show_in_folder = pyqtSignal(str)
 
     def __init__(self, filename: str, src: str):
@@ -177,7 +176,7 @@ class _GridSearchBase(QScrollArea):
         widget = _Thumbnail(filename=data["filename"], src=data["src"])
         widget.img_label.setPixmap(data["pixmap"])
         widget._show_in_folder.connect(self.show_in_folder.emit)
-        widget._move_to_widget.connect(self._move_to_wid)
+        widget._move_to_wid_sig.connect(self._move_to_wid_cmd)
 
         self.grid_layout.addWidget(widget, self.row, self.col, alignment=Qt.AlignmentFlag.AlignTop)
         Config.current_thumbnails[data["src"]] = widget
@@ -187,12 +186,11 @@ class _GridSearchBase(QScrollArea):
             self.col = 0
             self.row += 1
 
-    def _move_to_wid(self, src: str):
+    def _move_to_wid_cmd(self, src: str):
         try:
             wid: _Thumbnail = Config.current_thumbnails[src]
-            wid.setFrameShape(QFrame.Shape.Panel)
+            wid.select_thumbnail()
             self.ensureWidgetVisible(wid)
-            QTimer.singleShot(1000, lambda: self._set_no_frame(wid))
         except (RuntimeError, KeyError) as e:
             print("move to wid error: ", e)
 

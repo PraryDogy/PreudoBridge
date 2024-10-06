@@ -158,11 +158,3 @@ class Utils:
     @staticmethod
     def get_clmn_count(width: int):
         return width // (Config.thumb_size - 20)
-    
-    @staticmethod
-    def deselect_selected_thumb():
-        try:
-            wid: QFrame = Config.selected_thumbnail
-            wid.setFrameShape(QFrame.Shape.NoFrame)
-        except (RuntimeError, AttributeError) as e:
-            print("thumbnail > deselect prev thumb error:", e)
