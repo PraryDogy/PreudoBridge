@@ -110,19 +110,20 @@ class _SortTypeWidget(QPushButton):
         self.setToolTip(" Сортировка файлов ")
         
         self.data = {
-            0: {"sort": None, "reversed": None, "text": "По убыванию"},
+            0: {"sort": None, "reversed": None, "text": "По возрастанию"},
 
-            1: {"sort": "name", "reversed": True, "text": "Имя уб."},
-            2: {"sort": "size", "reversed": True, "text": "Размер уб."},
-            3: {"sort": "modify", "reversed": True, "text": "Дата уб."},
-            4: {"sort": "type", "reversed": True, "text": "Тип уб."},
+            1: {"sort": "name", "reversed": False, "text": "Имя возр."},
+            2: {"sort": "size", "reversed": False, "text": "Размер возр."},
+            3: {"sort": "modify", "reversed": False, "text": "Дата возр."},
+            4: {"sort": "type", "reversed": False, "text": "Тип возр."},
 
-            5: {"sort": None, "reversed": None, "text": "По возрастанию"},
+            5: {"sort": None, "reversed": None, "text": "По убыванию"},
 
-            6: {"sort": "name", "reversed": False, "text": "Имя возр."},
-            7: {"sort": "size", "reversed": False, "text": "Размер возр."},
-            8: {"sort": "modify", "reversed": False, "text": "Дата возр."},
-            9: {"sort": "type", "reversed": False, "text": "Тип возр."}
+            6: {"sort": "name", "reversed": True, "text": "Имя уб."},
+            7: {"sort": "size", "reversed": True, "text": "Размер уб."},
+            8: {"sort": "modify", "reversed": True, "text": "Дата уб."},
+            9: {"sort": "type", "reversed": True, "text": "Тип уб."},
+
             }
 
         menu = QMenu()

@@ -79,6 +79,7 @@ class SimpleFileExplorer(QWidget):
         self.r_lay.addWidget(self.top_bar)
 
         self.load_standart_grid()
+        QTimer.singleShot(1000, self.load_standart_grid)
 
         self.scroll_up = QLabel(parent=self, text="\u25B2")
         self.scroll_up.hide()
