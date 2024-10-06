@@ -220,7 +220,7 @@ class _GridStandartBase(QScrollArea):
         super().__init__()
         self.setWidgetResizable(True)
 
-        Config.current_thumbnails.clear()
+        Config.current_image_thumbnails.clear()
 
         self.grid_image_labels: dict = {}
         self.grid_widgets: list = []
@@ -252,6 +252,7 @@ class _GridStandartBase(QScrollArea):
                 thumbnail = Thumbnail(filename, src)
                 thumbnail._move_to_wid_sig.connect(lambda src: self._move_to_wid_cmd(src))
                 self._set_default_image(thumbnail.img_label, "images/file_210.png")
+                Config.current_image_thumbnails[src] = thumbnail
 
             self.grid_layout.addWidget(thumbnail, row, col)
 
@@ -262,7 +263,6 @@ class _GridStandartBase(QScrollArea):
 
             self.grid_widgets.append(thumbnail)
             self.grid_image_labels[(src, size, modified)] = thumbnail.img_label
-            Config.current_thumbnails[src] = thumbnail
 
         if self.grid_image_labels:
             row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
@@ -283,7 +283,7 @@ class _GridStandartBase(QScrollArea):
 
     def _move_to_wid_cmd(self, src: str):
         try:
-            wid: Thumbnail = Config.current_thumbnails[src]
+            wid: Thumbnail = Config.current_image_thumbnails[src]
             wid.select_thumbnail()
             self.ensureWidgetVisible(wid)
         except (RuntimeError, KeyError) as e:

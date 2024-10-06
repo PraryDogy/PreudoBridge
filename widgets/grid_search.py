@@ -152,7 +152,7 @@ class _GridSearchBase(QScrollArea):
         self.setWidgetResizable(True)
         self.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-        Config.current_thumbnails.clear()
+        Config.current_image_thumbnails.clear()
 
         self.clmn_count = Utils.get_clmn_count(width)
         if self.clmn_count < 1:
@@ -179,7 +179,7 @@ class _GridSearchBase(QScrollArea):
         widget._move_to_wid_sig.connect(self._move_to_wid_cmd)
 
         self.grid_layout.addWidget(widget, self.row, self.col, alignment=Qt.AlignmentFlag.AlignTop)
-        Config.current_thumbnails[data["src"]] = widget
+        Config.current_image_thumbnails[data["src"]] = widget
 
         self.col += 1
         if self.col >= self.clmn_count:
@@ -188,7 +188,7 @@ class _GridSearchBase(QScrollArea):
 
     def _move_to_wid_cmd(self, src: str):
         try:
-            wid: _Thumbnail = Config.current_thumbnails[src]
+            wid: _Thumbnail = Config.current_image_thumbnails[src]
             wid.select_thumbnail()
             self.ensureWidgetVisible(wid)
         except (RuntimeError, KeyError) as e:
