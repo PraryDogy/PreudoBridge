@@ -93,11 +93,7 @@ class _SearchFinderThread(QThread):
         if not pixmap:
             pixmap = QPixmap("images/file_210.png")
 
-        self._new_widget.emit({
-            "src": src,
-            "filename": filename,
-            "pixmap": pixmap
-            })
+        self._new_widget.emit({"src": src,"pixmap": pixmap})
         sleep(0.2)
 
     def _get_db_image(self, src: str) -> bytes | None:
@@ -143,7 +139,7 @@ class _GridSearchBase(GridCustom):
 
     def __init__(self, width: int, search_text: str):
         super().__init__()
-        self.image_grid_widgets: dict[tuple: QPixmap] = {}
+        self._image_grid_widgets: dict[tuple: _Thumbnail] = {}
         self.search_text = search_text
         self.setAlignment(Qt.AlignmentFlag.AlignTop)
 
@@ -161,7 +157,8 @@ class _GridSearchBase(GridCustom):
         self._thread.start()
 
     def _add_new_widget(self, data: dict):
-        widget = _Thumbnail(filename=data.get("filename"), src=data.get("src"))
+        filename = os.path.basename(data.get("src"))
+        widget = _Thumbnail(filename=filename, src=data.get("src"))
         widget.img_label.setPixmap(data.get("pixmap"))
         widget._show_in_folder.connect(self.show_thumbnail_in_folder.emit)
         widget._move_to_wid_sig.connect(self._move_to_wid)
@@ -173,6 +170,18 @@ class _GridSearchBase(GridCustom):
         if self.col >= self.clmn_count:
             self.col = 0
             self.row += 1
+
+        try:
+            stats = os.stat(data.get("src"))
+            size = stats.st_size
+            modified = stats.st_mtime
+            filetype = os.path.splitext(data.get("src"))[1]
+            self._image_grid_widgets[(data.get("src"), filename, size, modified, filetype)] = widget
+
+        except (PermissionError, FileNotFoundError):
+            self._image_grid_widgets[(data.get("src"), filename, 0, 0, "???")] = widget
+
+        self._image_grid_widgets[(data.get("src"), filename, size, modified, filetype)] = widget
 
     def _move_to_wid(self, src: str):
         try:
@@ -196,14 +205,12 @@ class GridSearch(_GridSearchBase):
         super().__init__(width, search_text)
 
     def rearrange(self, width: int):
-        widgets = self.findChildren(_Thumbnail)
-        
         self.clmn_count = Utils.get_clmn_count(width)
         if self.clmn_count < 1:
             self.clmn_count = 1
         self.row, self.col = 0, 0
 
-        for wid in widgets:
+        for data, wid in self._image_grid_widgets.items():
             self.grid_layout.addWidget(wid, self.row, self.col)
             self.col += 1
             if self.col >= self.clmn_count:
@@ -215,7 +222,18 @@ class GridSearch(_GridSearchBase):
         self._thread.wait()
 
     def rearrange_sorted(self, width: int):
-        ...
+        return
+
+        sort_data = {"name": 1, "size": 2,  "modify": 3, "type": 4}
+        # начинаем с 1, потому что 0 у нас src, нам не нужна сортировка по src
+
+        index = sort_data.get(Config.json_data["sort"])
+        self.finder_items = dict(
+            sorted(self.finder_items.items(), key=lambda item: item[0][index])
+            )
+
+        if Config.json_data["reversed"]:
+            self.finder_items = dict(reversed(self.finder_items.items()))
 
     def move_to_wid(self, src: str):
         self._move_to_wid(src)

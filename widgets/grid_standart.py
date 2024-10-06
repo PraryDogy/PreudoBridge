@@ -133,8 +133,8 @@ class _LoadFinderItems:
         return self.finder_items
 
     def _get_items(self):
-        for item in os.listdir(Config.json_data.get("root")):
-            src: str = os.path.join(Config.json_data.get("root"), item)
+        for filename in os.listdir(Config.json_data.get("root")):
+            src: str = os.path.join(Config.json_data.get("root"), filename)
 
             try:
                 stats = os.stat(src)
@@ -143,14 +143,14 @@ class _LoadFinderItems:
 
             size = stats.st_size
             modified = stats.st_mtime
-            filetype = os.path.splitext(item)[1]
+            filetype = os.path.splitext(filename)[1]
 
             if src.lower().endswith(Config.img_ext):
-                self.finder_items[(src, item, size, modified, filetype)] = None
+                self.finder_items[(src, filename, size, modified, filetype)] = None
                 continue
 
             elif os.path.isdir(src):
-                self.finder_items[(src, item, size, modified, filetype)] = None
+                self.finder_items[(src, filename, size, modified, filetype)] = None
             
     def _sort_items(self):
         sort_data = {"name": 1, "size": 2,  "modify": 3, "type": 4}
