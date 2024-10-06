@@ -241,7 +241,7 @@ class _GridStandartBase(GridCustom):
 
             else:
                 thumbnail = Thumbnail(filename, src)
-                thumbnail._move_to_wid_sig.connect(lambda src: self.move_to_wid_cmd(src))
+                thumbnail._move_to_wid_sig.connect(lambda src: self._move_to_wid(src))
                 self._set_default_image(thumbnail.img_label, "images/file_210.png")
 
                 Config.image_grid_widgets[src] = thumbnail
@@ -273,9 +273,9 @@ class _GridStandartBase(GridCustom):
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0)
 
-    def move_to_wid_cmd(self, src: str):
+    def _move_to_wid(self, src: str):
         try:
-            wid: Thumbnail = Config.image_grid_widgets.get("src")
+            wid: Thumbnail = Config.image_grid_widgets.get(src)
             wid.select_thumbnail()
             self.ensureWidgetVisible(wid)
         except (RuntimeError, KeyError) as e:
@@ -334,3 +334,6 @@ class GridStandart(_GridStandartBase):
 
     def rearrange_sorted(self, width: int):
         self.rearrange(width)
+
+    def move_to_wid(self, src: str):
+        self._move_to_wid(src)

@@ -142,7 +142,7 @@ class _SearchFinderThread(QThread):
 
 class _GridSearchBase(GridCustom):
     search_finished = pyqtSignal()
-    show_in_folder = pyqtSignal(str)
+    show_thumbnail_in_folder = pyqtSignal(str)
 
     def __init__(self, width: int, search_text: str):
         super().__init__()
@@ -166,8 +166,8 @@ class _GridSearchBase(GridCustom):
     def _add_new_widget(self, data: dict):
         widget = _Thumbnail(filename=data["filename"], src=data["src"])
         widget.img_label.setPixmap(data.get("pixmap"))
-        widget._show_in_folder.connect(self.show_in_folder.emit)
-        widget._move_to_wid_sig.connect(self._move_to_wid_cmd)
+        widget._show_in_folder.connect(self.show_thumbnail_in_folder.emit)
+        widget._move_to_wid_sig.connect(self._move_to_wid)
 
         self.grid_layout.addWidget(widget, self.row, self.col, alignment=Qt.AlignmentFlag.AlignTop)
         Config.image_grid_widgets[data.get("src")] = widget
@@ -177,7 +177,7 @@ class _GridSearchBase(GridCustom):
             self.col = 0
             self.row += 1
 
-    def _move_to_wid_cmd(self, src: str):
+    def _move_to_wid(self, src: str):
         try:
             wid: _Thumbnail = Config.image_grid_widgets.get(src)
             wid.select_thumbnail()
@@ -219,3 +219,6 @@ class GridSearch(_GridSearchBase):
 
     def rearrange_sorted(self, width: int):
         ...
+
+    def move_to_wid(self, src: str):
+        self._move_to_wid(src)
