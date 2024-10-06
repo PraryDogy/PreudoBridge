@@ -218,9 +218,6 @@ class _GridStandartBase(GridCustom):
 
     def __init__(self, width: int):
         super().__init__()
-        self.setWidgetResizable(True)
-
-        Config.current_image_thumbnails.clear()
 
         self.image_grid_widgets: dict = {}
         self.all_grid_widgets: list = []
@@ -228,12 +225,6 @@ class _GridStandartBase(GridCustom):
         clmn_count = Utils.get_clmn_count(width)
         if clmn_count < 1:
             clmn_count = 1
-
-        main_wid = QWidget()
-        self.grid_layout = QGridLayout(main_wid)
-        self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        self.grid_layout.setSpacing(5)
-        self.setWidget(main_wid)
 
         row, col = 0, 0
 
@@ -268,8 +259,6 @@ class _GridStandartBase(GridCustom):
         if self.all_grid_widgets:
             row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
             self.grid_layout.addItem(row_spacer, row + 1, 0)
-            # clmn_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
-            # self.grid_layout.addItem(clmn_spacer, 0, clmn_count + 1)
             self._start_load_images_thread()
 
         elif not os.path.exists(Config.json_data["root"]):

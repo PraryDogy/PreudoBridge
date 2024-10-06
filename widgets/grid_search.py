@@ -143,43 +143,34 @@ class _SearchFinderThread(QThread):
 class _GridSearchBase(GridCustom):
     search_finished = pyqtSignal()
     show_in_folder = pyqtSignal(str)
-    move_to_widget = pyqtSignal(str)
 
     def __init__(self, width: int, search_text: str):
         super().__init__()
-        self.widgets_data: dict = {}
+        self.all_grid_widgets: dict = {}
         self.search_text = search_text
-        self.setWidgetResizable(True)
         self.setAlignment(Qt.AlignmentFlag.AlignTop)
-
-        Config.current_image_thumbnails.clear()
 
         self.clmn_count = Utils.get_clmn_count(width)
         if self.clmn_count < 1:
             self.clmn_count = 1
         self.row, self.col = 0, 0
 
-        main_wid = QWidget()
-        self.grid_layout = QGridLayout(main_wid)
-        self.grid_layout.setSpacing(5)
-        self.setWidget(main_wid)
-
         clmn_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
         self.grid_layout.addItem(clmn_spacer, 0, self.clmn_count + 1)
 
-        self.search_thread = _SearchFinderThread(Config.json_data["root"], search_text)
-        self.search_thread._new_widget.connect(self._add_new_widget)
-        self.search_thread._finished.connect(self.search_finished.emit)
-        self.search_thread.start()
+        self._thread = _SearchFinderThread(Config.json_data["root"], search_text)
+        self._thread._new_widget.connect(self._add_new_widget)
+        self._thread._finished.connect(self.search_finished.emit)
+        self._thread.start()
 
     def _add_new_widget(self, data: dict):
         widget = _Thumbnail(filename=data["filename"], src=data["src"])
-        widget.img_label.setPixmap(data["pixmap"])
+        widget.img_label.setPixmap(data.get("pixmap"))
         widget._show_in_folder.connect(self.show_in_folder.emit)
         widget._move_to_wid_sig.connect(self._move_to_wid_cmd)
 
         self.grid_layout.addWidget(widget, self.row, self.col, alignment=Qt.AlignmentFlag.AlignTop)
-        Config.current_image_thumbnails[data["src"]] = widget
+        Config.current_image_thumbnails[data.get("src")] = widget
 
         self.col += 1
         if self.col >= self.clmn_count:
@@ -188,7 +179,7 @@ class _GridSearchBase(GridCustom):
 
     def _move_to_wid_cmd(self, src: str):
         try:
-            wid: _Thumbnail = Config.current_image_thumbnails[src]
+            wid: _Thumbnail = Config.current_image_thumbnails.get(src)
             wid.select_thumbnail()
             self.ensureWidgetVisible(wid)
         except (RuntimeError, KeyError) as e:
@@ -196,10 +187,10 @@ class _GridSearchBase(GridCustom):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         try:
-            self.search_thread.disconnect()
+            self._thread.disconnect()
         except TypeError:
             pass
-        self.search_thread._stop_cmd()
+        self._thread._stop_cmd()
         return super().closeEvent(a0)
   
 
@@ -223,8 +214,8 @@ class GridSearch(_GridSearchBase):
                 self.row += 1
 
     def stop_and_wait_threads(self):
-        self.search_thread._stop_cmd()
-        self.search_thread.wait()
+        self._thread._stop_cmd()
+        self._thread.wait()
 
     def rearrange_sorted(self, width: int):
         ...

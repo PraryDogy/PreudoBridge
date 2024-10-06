@@ -157,6 +157,13 @@ class Thumbnail(QFrame):
 class GridCustom(QScrollArea):
     def __init__(self):
         super().__init__()
+        self.setWidgetResizable(True)
+        Config.current_image_thumbnails.clear()
+
+        main_wid = QWidget()
+        self.grid_layout = QGridLayout(main_wid)
+        self.grid_layout.setSpacing(5)
+        self.setWidget(main_wid)
 
     def rearrange(self) -> None: ...
     def stop_and_wait_threads(self) -> None: ...
