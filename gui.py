@@ -1,17 +1,14 @@
 import json
 import os
-import subprocess
 
 from PyQt5.QtCore import QEvent, QObject, Qt, QTimer
-from PyQt5.QtGui import QCloseEvent, QColor, QKeyEvent, QResizeEvent
-from PyQt5.QtWidgets import (QApplication, QGraphicsDropShadowEffect,
-                             QHBoxLayout, QLabel, QSplitter, QTabWidget,
+from PyQt5.QtGui import QCloseEvent, QKeyEvent, QResizeEvent
+from PyQt5.QtWidgets import (QApplication, QLabel, QSplitter, QTabWidget,
                              QVBoxLayout, QWidget)
 
 from cfg import Config
 from utils import Utils
 from widgets.grid_search import GridSearch
-from widgets.grid_base import GridCustom
 from widgets.grid_standart import GridStandart
 from widgets.top_bar import TopBar
 from widgets.tree_favorites import TreeFavorites
@@ -22,13 +19,9 @@ class SimpleFileExplorer(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.dots_count = 1
-        self.clmn_count = 1
-        self.finder_items = []
-        self.finder_images: dict = {}
         self.grid: GridStandart = None
 
-        ww, hh = Config.json_data["ww"], Config.json_data["hh"]
+        ww, hh = Config.json_data.get("ww"), Config.json_data.get("hh")
         self.resize(ww, hh)
 
         self.resize_timer = QTimer(parent=self)
@@ -119,7 +112,8 @@ class SimpleFileExplorer(QWidget):
     def add_fav_cmd(self, root: str):
         name = os.path.basename(root)
         self.folders_fav_wid.add_item(name, root)
-        Config.json_data["favs"][root] = name
+        favs: dict = Config.json_data.get("favs")
+        favs[root] = name
 
     def del_fav_cmd(self, root: str):
         self.folders_fav_wid.del_item(root)
@@ -180,9 +174,9 @@ class SimpleFileExplorer(QWidget):
             self.grid.close()
 
         self.setFocus()
-        self.setWindowTitle(os.path.basename(Config.json_data["root"]))
+        self.setWindowTitle(os.path.basename(Config.json_data.get("root")))
 
-        self.folders_tree_wid.expand_path(Config.json_data["root"])
+        self.folders_tree_wid.expand_path(Config.json_data.get("root"))
         self.top_bar.update_history()
 
         self.grid = GridStandart(width=self.get_grid_width())
@@ -202,7 +196,7 @@ class SimpleFileExplorer(QWidget):
             self.scroll_up.show()
 
     def get_grid_width(self):
-        return Config.json_data["ww"] - self.tabs_wid.width() - 180
+        return Config.json_data.get("ww") - self.tabs_wid.width() - 180
 
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         Config.json_data["ww"] = self.geometry().width()
