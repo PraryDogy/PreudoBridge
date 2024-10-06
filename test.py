@@ -1,40 +1,51 @@
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QPushButton,
-                             QWidget)
+                             QWidget, QVBoxLayout)
 
 app = QApplication([])
 
-class HorizontalMenu(QWidget):
+class Filters(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.setWindowFlags(self.windowFlags() | Qt.Popup)  # Окно закрывается при клике вне
-        layout = QHBoxLayout(self)
-        
-        # Добавляем кнопки как пункты меню
-        button1 = QPushButton("Option 1")
-        button1.clicked.connect(lambda: self.menu_action("Option 1"))
-        
-        button2 = QPushButton("Option 2")
-        button2.clicked.connect(lambda: self.menu_action("Option 2"))
-        
-        layout.addWidget(button1)
-        layout.addWidget(button2)
+        self.setWindowFlags(self.windowFlags() | Qt.Popup)
+        v_layout = QVBoxLayout(self)
+        v_layout.setContentsMargins(5, 5, 5, 5)
+        v_layout.setSpacing(0)
+        self.setLayout(v_layout)
 
-    def menu_action(self, option):
-        print(f"{option} selected")
-        # self.close()  # Закрываем меню после выбора опции
+        color_wid = QWidget()
+        v_layout.addWidget(color_wid)
+        color_lay = QHBoxLayout()
+        color_wid.setLayout(color_lay)
+
+        # черный и белый в пролете
+        # замени цвета на unicode
+        colors = "🔴🔵🟠🟡🟢🟣🟤"
+        for color in colors:
+            label = QLabel(text=color)
+            color_lay.addWidget(label)
+
+        stars_wid = QWidget()
+        v_layout.addWidget(stars_wid)
+        stars_lay = QHBoxLayout()
+        stars_wid.setLayout(stars_lay)
+
+        for i in range(1, 6):
+            label = QLabel(text="★" * i)
+            stars_lay.addWidget(label)
+            
 
 class ClickableLabel(QLabel):
     def __init__(self, text="", parent=None):
         super().__init__(text, parent)
-        self.menu = HorizontalMenu(self)
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.menu = Filters(self)
 
     def mousePressEvent(self, event):
-        # Показываем меню под меткой
         self.menu.move(self.mapToGlobal(self.rect().bottomLeft()))
         self.menu.show()
 
-app_label = ClickableLabel("Click me")
+app_label = ClickableLabel("Фильтры")
 app_label.resize(100, 50)
 app_label.show()
 
