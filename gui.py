@@ -165,9 +165,9 @@ class SimpleFileExplorer(QWidget):
 
     def grid_search_migaet_title(self):
         if "🟠" in self.windowTitle():
-            t = self.windowTitle().replace("🟠", "🟡")
+            t = self.windowTitle().replace("🟠", "⚪")
         else:
-            t = self.windowTitle().replace("🟡", "🟠")
+            t = self.windowTitle().replace("⚪", "🟠")
         self.setWindowTitle(t)
 
     def grid_search_finished(self, search_text: str):
