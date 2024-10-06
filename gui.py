@@ -26,7 +26,7 @@ class SimpleFileExplorer(QWidget):
 
         self.resize_timer = QTimer(parent=self)
         self.resize_timer.setSingleShot(True)
-        self.resize_timer.timeout.connect(lambda: self.resize_grid)
+        self.resize_timer.timeout.connect(self.resize_grid)
 
         self.migaet_timer = QTimer(parent=self)
         self.migaet_timer.timeout.connect(self.migaet_title)
@@ -79,7 +79,7 @@ class SimpleFileExplorer(QWidget):
         self.r_lay.addWidget(self.top_bar)
 
         self.load_standart_grid()
-        QTimer.singleShot(1000, self.load_standart_grid)
+        # QTimer.singleShot(1000, self.load_standart_grid)
 
         self.scroll_up = QLabel(parent=self, text="\u25B2")
         self.scroll_up.hide()
