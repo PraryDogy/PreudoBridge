@@ -52,7 +52,7 @@ class _SearchFinderThread(QThread):
         if not isinstance(self.search_text, tuple):
             self.search_text = str(self.search_text)
 
-        for root, dirs, files in os.walk(self.search_dir):
+        for root, _, files in os.walk(self.search_dir):
             if not self.flag:
                 break
 
@@ -65,18 +65,25 @@ class _SearchFinderThread(QThread):
 
                 if isinstance(self.search_text, tuple):
                     if src_lower.endswith(self.search_text):
-                        self._create_wid(src, filename)
+                        self._create_wid(src)
                         continue
 
                 elif self.search_text in filename and src_lower.endswith(Config.img_ext):
-                    self._create_wid(src, filename)
+                    self._create_wid(src)
                     continue
 
         if self.flag:
             self._finished.emit()
         self.session.commit()
 
-    def _create_wid(self, src: str, filename: str):
+    def _create_wid(self, src: str):
+
+        try:
+            stats = os.stat(src)
+        except (PermissionError, FileNotFoundError) as e:
+            print("search grid > thread > error get os stat", e)
+            return None
+
         pixmap: QPixmap = None
         db_img = self._get_db_image(src)
 
@@ -85,7 +92,7 @@ class _SearchFinderThread(QThread):
 
         else:
             new_img = self._create_new_image(src)
-            self._image_to_db(src, new_img)
+            self._image_to_db(src, new_img, stats)
 
             if new_img is not None:
                 pixmap = Utils.pixmap_from_array(new_img)
@@ -93,7 +100,7 @@ class _SearchFinderThread(QThread):
         if not pixmap:
             pixmap = QPixmap("images/file_210.png")
 
-        self._new_widget.emit({"src": src,"pixmap": pixmap})
+        self._new_widget.emit({"src": src, "stats": stats, "pixmap": pixmap})
         sleep(0.2)
 
     def _get_db_image(self, src: str) -> bytes | None:
@@ -103,12 +110,7 @@ class _SearchFinderThread(QThread):
             return res[0]
         return None
 
-    def _image_to_db(self, src: str, img_array):
-        try:
-            stats = os.stat(src)
-        except (PermissionError, FileNotFoundError):
-            return None
-
+    def _image_to_db(self, src: str, img_array, stats: os.stat_result):
         size = stats.st_size
         modified = stats.st_mtime
         db_img = Utils.image_array_to_bytes(img_array)
@@ -171,15 +173,11 @@ class _GridSearchBase(GridCustom):
             self.col = 0
             self.row += 1
 
-        try:
-            stats = os.stat(data.get("src"))
-            size = stats.st_size
-            modified = stats.st_mtime
-            filetype = os.path.splitext(data.get("src"))[1]
-            self._image_grid_widgets[(data.get("src"), filename, size, modified, filetype)] = widget
-
-        except (PermissionError, FileNotFoundError):
-            self._image_grid_widgets[(data.get("src"), filename, 0, 0, "???")] = widget
+        stats: os.stat_result = data.get("stats")
+        size = stats.st_size
+        modified = stats.st_mtime
+        filetype = os.path.splitext(data.get("src"))[1]
+        self._image_grid_widgets[(data.get("src"), filename, size, modified, filetype)] = widget
 
         self._image_grid_widgets[(data.get("src"), filename, size, modified, filetype)] = widget
 
@@ -204,7 +202,7 @@ class GridSearch(_GridSearchBase):
     def __init__(self, width: int, search_text: str):
         super().__init__(width, search_text)
 
-    def rearrange(self, width: int):
+    def resize_grid(self, width: int):
         if not self._thread.isRunning():
             self.clmn_count = Utils.get_clmn_count(width)
             if self.clmn_count < 1:
@@ -222,7 +220,7 @@ class GridSearch(_GridSearchBase):
         self._thread._stop_cmd()
         self._thread.wait()
 
-    def rearrange_sorted(self, width: int):
+    def sort_grid(self, width: int):
 
         sort_data = {"name": 1, "size": 2,  "modify": 3, "type": 4}
         # начинаем с 1, потому что 0 у нас src, нам не нужна сортировка по src

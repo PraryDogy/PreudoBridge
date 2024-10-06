@@ -69,16 +69,16 @@ class SimpleFileExplorer(QWidget):
 
         self.top_bar.sort_widget.sort_click.connect(self.sort_grid)
         self.top_bar.go_btn.open_path.connect(self.open_path_btn_cmd)
-        self.top_bar.search_wid.start_search_sig.connect(self.load_search_grid)
-        self.top_bar.search_wid.stop_search_sig.connect(self.load_standart_grid)
+        self.top_bar.search_wid.start_search_sig.connect(self.grid_search_load)
+        self.top_bar.search_wid.stop_search_sig.connect(self.grid_standart_load)
 
-        self.top_bar.level_up_sig.connect(self.load_standart_grid)
+        self.top_bar.level_up_sig.connect(self.grid_standart_load)
         self.top_bar.back_sig.connect(self.next_back_cmd)
         self.top_bar.next_sig.connect(self.next_back_cmd)
 
         self.r_lay.addWidget(self.top_bar)
 
-        self.load_standart_grid()
+        self.grid_standart_load()
         # QTimer.singleShot(1000, self.load_standart_grid)
 
         self.scroll_up = QLabel(parent=self, text="\u25B2")
@@ -95,13 +95,17 @@ class SimpleFileExplorer(QWidget):
             )
 
     def resize_grid(self):
-        self.grid.rearrange(self.get_grid_width())
+        if isinstance(self.grid, GridSearch):
+            self.grid.resize_grid(self.get_grid_width())
+        elif isinstance(self.grid, GridStandart):
+            self.grid.rearrange(self.get_grid_width())
 
     def sort_grid(self):
         if isinstance(self.grid, GridSearch):
-            self.grid.rearrange_sorted(self.get_grid_width())
+            self.grid.sort_grid(self.get_grid_width())
+
         elif isinstance(self.grid, GridStandart):
-            self.load_standart_grid()
+            self.grid_standart_load()
 
     def top_bar_setDisabled(self, b: bool):
         self.top_bar.back.setDisabled(b)
@@ -113,11 +117,11 @@ class SimpleFileExplorer(QWidget):
 
     def view_folder_cmd(self, root: str):
         Config.json_data["root"] = root
-        self.load_standart_grid()
+        self.grid_standart_load()
 
     def next_back_cmd(self, root: str):
         Config.json_data["root"] = root
-        self.load_standart_grid()
+        self.grid_standart_load()
 
     def add_fav_cmd(self, root: str):
         name = os.path.basename(root)
@@ -139,10 +143,10 @@ class SimpleFileExplorer(QWidget):
             path, _ = os.path.split(path)
 
         Config.json_data["root"] = path
-        self.load_standart_grid()
+        self.grid_standart_load()
         QTimer.singleShot(1500, lambda: self.grid.move_to_wid(filepath))
 
-    def load_search_grid(self, search_text: str):
+    def grid_search_load(self, search_text: str):
         self.top_bar_setDisabled(True)
 
         if self.grid:
@@ -155,7 +159,7 @@ class SimpleFileExplorer(QWidget):
         ww = self.get_grid_width()
         self.grid = GridSearch(width=ww, search_text=search_text)
         self.grid.verticalScrollBar().valueChanged.connect(self.scroll_value)
-        self.grid.search_finished.connect(lambda: self.finished_search(search_text))
+        self.grid.search_finished.connect(lambda: self.grid_search_finished(search_text))
         self.grid.show_thumbnail_in_folder.connect(self.show_thumbnail_in_folder_cmd)
         self.r_lay.addWidget(self.grid)
 
@@ -166,18 +170,19 @@ class SimpleFileExplorer(QWidget):
             t = self.windowTitle().replace("🟡", "🟠")
         self.setWindowTitle(t)
 
-    def finished_search(self, search_text: str):
+    def grid_search_finished(self, search_text: str):
         self.migaet_timer.stop()
         self.setWindowTitle(f"🟢\tРезультаты поиска: \"{search_text}\"")
+        self.grid.sort_grid(self.get_grid_width())
         self.top_bar_setDisabled(False)
 
     def show_thumbnail_in_folder_cmd(self, src: str):
         root = os.path.dirname(src)
         Config.json_data["root"] = root
-        self.load_standart_grid()
+        self.grid_standart_load()
         QTimer.singleShot(1500, lambda: self.grid.move_to_wid(src))
 
-    def load_standart_grid(self):
+    def grid_standart_load(self):
         self.top_bar_setDisabled(False)
         self.top_bar.search_wid.clear_search_sig.emit()
 
