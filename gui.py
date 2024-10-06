@@ -67,7 +67,7 @@ class SimpleFileExplorer(QWidget):
         
         self.top_bar = TopBar()
 
-        self.top_bar.sort_widget.sort_click.connect(self.load_standart_grid)
+        self.top_bar.sort_widget.sort_click.connect(self.sort_grid)
         self.top_bar.go_btn.open_path.connect(self.open_path_btn_cmd)
         self.top_bar.search_wid.start_search_sig.connect(self.load_search_grid)
         self.top_bar.search_wid.stop_search_sig.connect(self.load_standart_grid)
@@ -92,6 +92,9 @@ class SimpleFileExplorer(QWidget):
             border-radius: 20px;
             """
             )
+
+    def sort_grid(self):
+        self.grid.rearrange_sorted(self.get_grid_width())
 
     def top_bar_setDisabled(self, b: bool):
         self.top_bar.back.setDisabled(b)
