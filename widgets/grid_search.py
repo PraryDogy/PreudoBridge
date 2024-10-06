@@ -205,6 +205,37 @@ class GridSearch(_GridSearchBase):
         super().__init__(width, search_text)
 
     def rearrange(self, width: int):
+        if not self._thread.isRunning():
+            self.clmn_count = Utils.get_clmn_count(width)
+            if self.clmn_count < 1:
+                self.clmn_count = 1
+            self.row, self.col = 0, 0
+
+            for data, wid in self._image_grid_widgets.items():
+                self.grid_layout.addWidget(wid, self.row, self.col)
+                self.col += 1
+                if self.col >= self.clmn_count:
+                    self.col = 0
+                    self.row += 1
+
+    def stop_and_wait_threads(self):
+        self._thread._stop_cmd()
+        self._thread.wait()
+
+    def rearrange_sorted(self, width: int):
+
+        sort_data = {"name": 1, "size": 2,  "modify": 3, "type": 4}
+        # начинаем с 1, потому что 0 у нас src, нам не нужна сортировка по src
+        # ключи соответствуют json_data["sort"]
+
+        index = sort_data.get(Config.json_data.get("sort"))
+        self._image_grid_widgets = dict(
+            sorted(self._image_grid_widgets.items(), key=lambda item: item[0][index])
+            )
+
+        if Config.json_data["reversed"]:
+            self._image_grid_widgets = dict(reversed(self._image_grid_widgets.items()))
+
         self.clmn_count = Utils.get_clmn_count(width)
         if self.clmn_count < 1:
             self.clmn_count = 1
@@ -216,24 +247,6 @@ class GridSearch(_GridSearchBase):
             if self.col >= self.clmn_count:
                 self.col = 0
                 self.row += 1
-
-    def stop_and_wait_threads(self):
-        self._thread._stop_cmd()
-        self._thread.wait()
-
-    def rearrange_sorted(self, width: int):
-        return
-
-        sort_data = {"name": 1, "size": 2,  "modify": 3, "type": 4}
-        # начинаем с 1, потому что 0 у нас src, нам не нужна сортировка по src
-
-        index = sort_data.get(Config.json_data["sort"])
-        self.finder_items = dict(
-            sorted(self.finder_items.items(), key=lambda item: item[0][index])
-            )
-
-        if Config.json_data["reversed"]:
-            self.finder_items = dict(reversed(self.finder_items.items()))
 
     def move_to_wid(self, src: str):
         self._move_to_wid(src)

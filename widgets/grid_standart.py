@@ -155,8 +155,9 @@ class _LoadFinderItems:
     def _sort_items(self):
         sort_data = {"name": 1, "size": 2,  "modify": 3, "type": 4}
         # начинаем с 1, потому что 0 у нас src, нам не нужна сортировка по src
+        # ключи соответствуют json_data["sort"]
 
-        index = sort_data.get(Config.json_data["sort"])
+        index = sort_data.get(Config.json_data.get("sort"))
         self.finder_items = dict(
             sorted(self.finder_items.items(), key=lambda item: item[0][index])
             )
