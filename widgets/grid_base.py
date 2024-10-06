@@ -159,7 +159,7 @@ class GridCustom(QScrollArea):
     def __init__(self):
         super().__init__()
         self.setWidgetResizable(True)
-        Config.image_grid_widgets.clear()
+        Config.image_grid_widgets_global.clear()
 
         main_wid = QWidget()
         self.grid_layout = QGridLayout(main_wid)

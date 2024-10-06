@@ -167,7 +167,7 @@ class _GridSearchBase(GridCustom):
         widget._move_to_wid_sig.connect(self._move_to_wid)
 
         self.grid_layout.addWidget(widget, self.row, self.col, alignment=Qt.AlignmentFlag.AlignTop)
-        Config.image_grid_widgets[data.get("src")] = widget
+        Config.image_grid_widgets_global[data.get("src")] = widget
 
         self.col += 1
         if self.col >= self.clmn_count:
@@ -176,7 +176,7 @@ class _GridSearchBase(GridCustom):
 
     def _move_to_wid(self, src: str):
         try:
-            wid: _Thumbnail = Config.image_grid_widgets.get(src)
+            wid: _Thumbnail = Config.image_grid_widgets_global.get(src)
             wid.select_thumbnail()
             self.ensureWidgetVisible(wid)
         except (RuntimeError, KeyError) as e:
