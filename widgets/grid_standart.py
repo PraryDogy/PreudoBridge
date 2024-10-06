@@ -218,8 +218,8 @@ class _GridStandartBase(GridCustom):
     def __init__(self, width: int):
         super().__init__()
 
-        self.image_grid_widgets: dict[tuple: QPixmap] = {}
-        self.all_grid_widgets: list[Thumbnail] = []
+        self._image_grid_widgets: dict[tuple: QPixmap] = {}
+        self._all_grid_widgets: list[Thumbnail] = []
 
         clmn_count = Utils.get_clmn_count(width)
         if clmn_count < 1:
@@ -244,7 +244,7 @@ class _GridStandartBase(GridCustom):
                 self._set_default_image(thumbnail.img_label, "images/file_210.png")
 
                 Config.image_grid_widgets_global[src] = thumbnail
-                self.image_grid_widgets[(src, size, modified)] = thumbnail.img_label
+                self._image_grid_widgets[(src, size, modified)] = thumbnail.img_label
 
             self.grid_layout.addWidget(thumbnail, row, col)
 
@@ -253,9 +253,9 @@ class _GridStandartBase(GridCustom):
                 col = 0
                 row += 1
 
-            self.all_grid_widgets.append(thumbnail)
+            self._all_grid_widgets.append(thumbnail)
 
-        if self.all_grid_widgets:
+        if self._all_grid_widgets:
             row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
             self.grid_layout.addItem(row_spacer, row + 1, 0)
             self._start_load_images_thread()
@@ -296,7 +296,7 @@ class _GridStandartBase(GridCustom):
                 _Storage.threads.remove(i)
 
     def _start_load_images_thread(self):
-        new_thread = _LoadImagesThread(self.image_grid_widgets)
+        new_thread = _LoadImagesThread(self._image_grid_widgets)
         _Storage.threads.append(new_thread)
         new_thread.start()
 
@@ -317,7 +317,7 @@ class GridStandart(_GridStandartBase):
 
         row, col = 0, 0
 
-        for wid in self.all_grid_widgets:
+        for wid in self._all_grid_widgets:
             self.grid_layout.addWidget(wid, row, col)
             col += 1
             if col >= clmn_count:
