@@ -1,6 +1,8 @@
 import json
 import os
 
+from PyQt5.QtWidgets import QFrame
+
 
 class Config:
     app_name = "PseudoBridge"
@@ -8,7 +10,8 @@ class Config:
     json_file = os.path.join(os.path.expanduser('~'), 'Desktop', 'cfg.json')
     db_file = os.path.join(os.path.expanduser('~'), 'Desktop', 'db.db')
     thumb_size = 210
-    img_viewer_images: dict = {}
+    current_thumbnails: dict = {}
+    selected_thumbnail: QFrame = None
     img_ext: tuple = (".jpg", "jpeg", ".tif", ".tiff", ".psd", ".psb", ".png", "jfif")
 
     json_data: dict = {

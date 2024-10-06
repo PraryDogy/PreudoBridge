@@ -9,7 +9,7 @@ import psd_tools
 import tifffile
 from PyQt5.QtCore import QByteArray
 from PyQt5.QtGui import QImage, QPixmap
-from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QApplication, QFrame, QVBoxLayout, QWidget
 
 from cfg import Config
 
@@ -158,3 +158,11 @@ class Utils:
     @staticmethod
     def get_clmn_count(width: int):
         return width // (Config.thumb_size - 20)
+    
+    @staticmethod
+    def deselect_selected_thumb():
+        try:
+            wid: QFrame = Config.selected_thumbnail
+            wid.setFrameShape(QFrame.Shape.NoFrame)
+        except (RuntimeError, AttributeError) as e:
+            print("thumbnail > deselect prev thumb error:", e)

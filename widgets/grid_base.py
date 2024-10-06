@@ -1,12 +1,15 @@
+import os
+
 from PyQt5.QtCore import QMimeData, Qt, QThread, QTimer, QUrl, pyqtSignal
-from PyQt5.QtGui import (QCloseEvent, QContextMenuEvent, QDrag, QMouseEvent,
-                         QPixmap)
+from PyQt5.QtGui import (QCloseEvent, QContextMenuEvent, QDrag, QKeyEvent,
+                         QMouseEvent, QPixmap)
 from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
                              QLabel, QMenu, QScrollArea, QSizePolicy,
                              QSpacerItem, QVBoxLayout, QWidget)
 
 from cfg import Config
-import os
+from utils import Utils
+
 
 class NameLabel(QLabel):
     def __init__(self, filename: str):
@@ -56,6 +59,10 @@ class Thumbnail(QFrame):
         img_name = NameLabel(filename)
         v_lay.addWidget(img_name)
 
+    def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
+        self.select_thumbnail()
+        return super().mouseReleaseEvent(a0)
+
     def mousePressEvent(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.LeftButton:
             self.drag_start_position = a0.pos()
@@ -73,7 +80,8 @@ class Thumbnail(QFrame):
         if distance < QApplication.startDragDistance():
             return
 
-        self.setFrameShape(QFrame.Shape.Panel)
+        self.select_thumbnail()
+
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
         self.drag.setPixmap(self.img_label.pixmap())
@@ -83,9 +91,14 @@ class Thumbnail(QFrame):
 
         self.drag.setMimeData(self.mime_data)
         self.drag.exec_(Qt.DropAction.CopyAction)
-        self.setFrameShape(QFrame.Shape.NoFrame)
         return super().mouseMoveEvent(a0)
     
+    def select_thumbnail(self):
+        Utils.deselect_selected_thumb()
+        self.setFrameShape(QFrame.Shape.Panel)
+        Config.selected_thumbnail = self        
+
+
 
 class GridMethods:
     def rearrange(self) -> None: ...

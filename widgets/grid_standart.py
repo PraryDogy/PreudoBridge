@@ -289,7 +289,7 @@ class _GridStandartBase(QScrollArea):
         super().__init__()
         self.setWidgetResizable(True)
 
-        Config.img_viewer_images.clear()
+        Config.current_thumbnails.clear()
 
         self.grid_image_labels: dict = {}
         self.grid_widgets: list = []
@@ -331,7 +331,7 @@ class _GridStandartBase(QScrollArea):
 
             self.grid_widgets.append(thumbnail)
             self.grid_image_labels[(src, size, modified)] = thumbnail.img_label
-            Config.img_viewer_images[src] = thumbnail
+            Config.current_thumbnails[src] = thumbnail
 
         if self.grid_image_labels:
             row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
@@ -352,7 +352,7 @@ class _GridStandartBase(QScrollArea):
 
     def _move_to_wid(self, src: str):
         try:
-            wid: _Thumbnail = Config.img_viewer_images[src]
+            wid: _Thumbnail = Config.current_thumbnails[src]
             wid.setFrameShape(QFrame.Shape.Panel)
             self.ensureWidgetVisible(wid)
             QTimer.singleShot(1000, lambda: self._set_no_frame(wid))

@@ -207,7 +207,7 @@ class _GridSearchBase(QScrollArea):
         self.setWidgetResizable(True)
         self.setAlignment(Qt.AlignmentFlag.AlignTop)
 
-        Config.img_viewer_images.clear()
+        Config.current_thumbnails.clear()
 
         self.clmn_count = Utils.get_clmn_count(width)
         if self.clmn_count < 1:
@@ -234,7 +234,7 @@ class _GridSearchBase(QScrollArea):
         widget._move_to_widget.connect(self._move_to_wid)
 
         self.grid_layout.addWidget(widget, self.row, self.col, alignment=Qt.AlignmentFlag.AlignTop)
-        Config.img_viewer_images[data["src"]] = widget
+        Config.current_thumbnails[data["src"]] = widget
 
         self.col += 1
         if self.col >= self.clmn_count:
@@ -243,7 +243,7 @@ class _GridSearchBase(QScrollArea):
 
     def _move_to_wid(self, src: str):
         try:
-            wid: _Thumbnail = Config.img_viewer_images[src]
+            wid: _Thumbnail = Config.current_thumbnails[src]
             wid.setFrameShape(QFrame.Shape.Panel)
             self.ensureWidgetVisible(wid)
             QTimer.singleShot(1000, lambda: self._set_no_frame(wid))
