@@ -94,7 +94,7 @@ class ImageWidget(QLabel):
     def mousePressEvent(self, ev: QMouseEvent | None) -> None:
         if ev.button() == Qt.MouseButton.LeftButton:
             self.last_mouse_pos = ev.pos()
-        return super().mousePressEvent(ev)
+        # return super().mousePressEvent(ev)
 
     def mouseMoveEvent(self, ev: QMouseEvent | None) -> None:
         self.mouse_moved.emit()
@@ -104,12 +104,12 @@ class ImageWidget(QLabel):
             self.last_mouse_pos = ev.pos()
             self.setCursor(Qt.CursorShape.ClosedHandCursor)
             self.update()
-        return super().mouseMoveEvent(ev)
+        # return super().mouseMoveEvent(ev)
 
     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
         if self.scale_factor > 1.0:
             self.setCursor(Qt.CursorShape.OpenHandCursor)
-        return super().mouseReleaseEvent(ev)
+        # return super().mouseReleaseEvent(ev)
 
     def paintEvent(self, a0: QPaintEvent | None) -> None:
         if self.current_pixmap is not None:
@@ -126,16 +126,13 @@ class ImageWidget(QLabel):
                 int((self.height() - scaled_pixmap.height()) / 2)
                 )
             painter.drawPixmap(offset, scaled_pixmap)
-        return super().paintEvent(a0)
+        # return super().paintEvent(a0)
 
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         self.w, self.h = self.width(), self.height()
         self.update()
-        return super().resizeEvent(a0)
+        # return super().resizeEvent(a0)
 
-    # def mouseMoveEvent(self, a0: QMouseEvent | None) -> None:
-    #     self.mouse_moved.emit()
-    #     return super().mouseMoveEvent(a0)
 
 class ZoomBtns(QFrame):
     press_close = pyqtSignal()
@@ -355,7 +352,10 @@ class WinImgView(QWidget):
         elif ev.key() == Qt.Key.Key_0:
             self.image_label.zoom_reset()
 
-        return super().keyPressEvent(ev)
+        elif ev.key() == Qt.Key.Key_Space:
+            self.close()
+
+        # return super().keyPressEvent(ev)
 
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         vertical_center = a0.size().height() // 2 - self.next_image_btn.height() // 2
@@ -370,22 +370,19 @@ class WinImgView(QWidget):
         Config.json_data["ww_im"] = self.width()
         Config.json_data["hh_im"] = self.height()
 
-        return super().resizeEvent(a0)
+        # return super().resizeEvent(a0)
 
     def leaveEvent(self, a0: QEvent | None) -> None:
         self.hide_all_buttons()
-        return super().leaveEvent(a0)
+        # return super().leaveEvent(a0)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         Shared.loaded_images.clear()
         self.closed.emit(self.img_src)
-        return super().closeEvent(a0)
+        # return super().closeEvent(a0)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-
         context_menu = QMenu(self)
-        # context_menu.setStyleSheet("")
-        # context_menu.addSeparator()
 
         open_action = QAction("Открыть по умолчанию", self)
         open_action.triggered.connect(self.open_default)
@@ -401,7 +398,7 @@ class WinImgView(QWidget):
 
         context_menu.exec_(self.mapToGlobal(a0.pos()))
 
-        return super().contextMenuEvent(a0)
+        # return super().contextMenuEvent(a0)
     
     def open_default(self):
         subprocess.call(["open", self.img_src])
