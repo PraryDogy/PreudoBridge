@@ -5,7 +5,7 @@ from time import sleep
 
 import sqlalchemy
 from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal
-from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QMouseEvent, QPixmap
+from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QMouseEvent, QPixmap, QKeyEvent
 from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QMenu, QScrollArea,
                              QSizePolicy, QSpacerItem, QWidget)
 
@@ -207,7 +207,7 @@ class _GridSearchBase(QScrollArea):
             pass
         self.search_thread._stop_cmd()
         return super().closeEvent(a0)
-    
+  
 
 class GridSearch(_GridSearchBase, GridMethods):
     def __init__(self, width: int, search_text: str):

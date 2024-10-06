@@ -161,7 +161,15 @@ class GridMethods:
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() == Qt.Key.Key_Space:
-
             wid: Thumbnail = Config.selected_thumbnail
-            if os.path.isdir(self.src):
+            if not os.path.isdir(wid.src):
                 wid._view_file()
+        # return super().keyPressEvent(a0)
+
+    def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
+        wid: Thumbnail = Config.selected_thumbnail
+        try:
+            wid.setFrameShape(QFrame.Shape.NoFrame)
+        except Exception as e:
+            print("grid can't deselect thumbnail:", e)
+        # return super().mouseReleaseEvent(a0)

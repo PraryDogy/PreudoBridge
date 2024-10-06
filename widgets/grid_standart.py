@@ -321,13 +321,7 @@ class _GridStandartBase(QScrollArea):
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self._stop_threads()
         return super().closeEvent(a0)
-    
-    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
-        if a0.key() == Qt.Key.Key_Space:
-            wid: Thumbnail = Config.selected_thumbnail
-            wid._view_file()
-        # return super().keyPressEvent(a0)
-    
+        
 
 class GridStandart(_GridStandartBase, GridMethods):
     def __init__(self, width: int):
