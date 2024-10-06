@@ -18,7 +18,7 @@ from .svg_widgets import SvgShadowed
 
 class Shared:
     loaded_images: dict[str: QPixmap] = {}
-    threads: list = []
+    threads: list[QThread] = []
 
 
 class LoadImageThread(QThread):
@@ -26,7 +26,7 @@ class LoadImageThread(QThread):
 
     def __init__(self, img_src: str):
         super().__init__(parent=None)
-        self.img_src = img_src
+        self.img_src: str = img_src
 
     def run(self):
         if self.img_src not in Shared.loaded_images:
@@ -37,7 +37,7 @@ class LoadImageThread(QThread):
             else:
                 pixmap = QPixmap("images/file_210.png")
         else:
-            pixmap = Shared.loaded_images[self.img_src]
+            pixmap = Shared.loaded_images.get(self.img_src)
 
         if len(Shared.loaded_images) > 50:
             first_img = list(Shared.loaded_images.keys())[0]
@@ -218,13 +218,13 @@ class WinImgView(QWidget):
 
     def __init__(self, parent: QWidget, img_src: str):
         super().__init__()
-        self.img_src = img_src
+        self.img_src: str = img_src
 
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setMinimumSize(QSize(400, 300))
-        self.resize(Config.json_data["ww_im"], Config.json_data["hh_im"])
+        self.resize(Config.json_data.get("ww_im"), Config.json_data.get("hh_im"))
         self.setObjectName("img_view")
-        self.setStyleSheet("#img_view {background: black;}")
+        self.setStyleSheet("""#img_view {background: black;}""")
         self.setMouseTracking(True)
         self.installEventFilter(self)
 
@@ -286,10 +286,10 @@ class WinImgView(QWidget):
         img_thread.start()
 
     def load_image_finished(self, thread: LoadImageThread, data: dict):
-        if data["width"] == 0 or data["src"] != self.img_src:
+        if data.get("width") == 0 or data.get("src") != self.img_src:
             return
                         
-        self.image_label.set_image(data["image"])
+        self.image_label.set_image(data.get("image"))
         self.setWindowTitle(os.path.basename(self.img_src))
         Shared.threads.remove(thread)
 

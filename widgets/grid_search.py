@@ -1,13 +1,11 @@
 import os
-import subprocess
 from ast import literal_eval
 from time import sleep
 
 import sqlalchemy
-from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal
-from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QMouseEvent, QPixmap, QKeyEvent
-from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QMenu, QScrollArea,
-                             QSizePolicy, QSpacerItem, QWidget)
+from PyQt5.QtCore import Qt, QThread, pyqtSignal
+from PyQt5.QtGui import QCloseEvent, QPixmap
+from PyQt5.QtWidgets import QAction, QSizePolicy, QSpacerItem
 
 from cfg import Config
 from database import Cache, Dbase
@@ -15,7 +13,6 @@ from fit_img import FitImg
 from utils import Utils
 
 from .grid_base import GridCustom, Thumbnail
-from .win_img_view import WinImgView
 
 
 class _Thumbnail(Thumbnail):
@@ -146,7 +143,7 @@ class _GridSearchBase(GridCustom):
 
     def __init__(self, width: int, search_text: str):
         super().__init__()
-        self.image_grid_widgets: dict = {}
+        self.image_grid_widgets: dict[tuple: QPixmap] = {}
         self.search_text = search_text
         self.setAlignment(Qt.AlignmentFlag.AlignTop)
 
@@ -164,7 +161,7 @@ class _GridSearchBase(GridCustom):
         self._thread.start()
 
     def _add_new_widget(self, data: dict):
-        widget = _Thumbnail(filename=data["filename"], src=data["src"])
+        widget = _Thumbnail(filename=data.get("filename"), src=data.get("src"))
         widget.img_label.setPixmap(data.get("pixmap"))
         widget._show_in_folder.connect(self.show_thumbnail_in_folder.emit)
         widget._move_to_wid_sig.connect(self._move_to_wid)

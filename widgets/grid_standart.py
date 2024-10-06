@@ -1,20 +1,18 @@
 import os
-import subprocess
 
 import numpy as np
 import sqlalchemy
-from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal
-from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QKeyEvent, QMouseEvent, QPixmap
-from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QLabel, QMenu,
-                             QScrollArea, QSizePolicy, QSpacerItem, QWidget)
+from PyQt5.QtCore import Qt, QThread, pyqtSignal
+from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QMouseEvent, QPixmap
+from PyQt5.QtWidgets import QAction, QLabel, QMenu, QSizePolicy, QSpacerItem
 
 from cfg import Config
 from database import Cache, Dbase
 from fit_img import FitImg
 from utils import Utils
 
-from .grid_base import Thumbnail, GridCustom
-from .win_img_view import WinImgView
+from .grid_base import GridCustom, Thumbnail
+
 
 class _Storage:
     threads: list = []
@@ -28,7 +26,7 @@ class _LoadImagesThread(QThread):
         super().__init__()
 
         self.grid_widgets: dict[tuple: QLabel] = grid_widgets
-        self.remove_db_images: dict[tuple: str] = {}
+        self.remove_db_images: dict[tuple: None] = {}
         self.db_images: dict = {}
         
         self.flag = True
@@ -71,7 +69,7 @@ class _LoadImagesThread(QThread):
                 q = q.values({
                     "img": img,
                     "src": src,
-                    "root": Config.json_data["root"],
+                    "root": Config.json_data.get("root"),
                     "size": size,
                     "modified": modified
                     })
@@ -92,7 +90,7 @@ class _LoadImagesThread(QThread):
                 widget.setPixmap(pixmap)
                 self.grid_widgets.pop((src, size, modified))
             else:
-                self.remove_db_images[(src, size, modified)] = ""
+                self.remove_db_images[(src, size, modified)] = None
 
     def _remove_images(self):
         for (src, _, _), _ in self.remove_db_images.items():
@@ -102,7 +100,7 @@ class _LoadImagesThread(QThread):
 
     def _get_db_images(self):
         q = sqlalchemy.select(Cache.img, Cache.src, Cache.size, Cache.modified)
-        q = q.where(Cache.root==Config.json_data["root"])
+        q = q.where(Cache.root==Config.json_data.get("root"))
         res = self.session.execute(q).fetchall()
         return {
             (src, size, modified): img
@@ -123,20 +121,20 @@ class _LoadImagesThread(QThread):
 class _LoadFinderItems:
     def __init__(self):
         super().__init__()
-        self.finder_items: dict = {}
+        self.finder_items: dict[tuple: None] = {}
 
     def _get(self):
         try:
             self._get_items()
             self._sort_items()
         except (PermissionError, FileNotFoundError):
-            self.finder_items: dict = {}
+            self.finder_items: dict[tuple: None] = {}
         
         return self.finder_items
 
     def _get_items(self):
-        for item in os.listdir(Config.json_data["root"]):
-            src: str = os.path.join(Config.json_data["root"], item)
+        for item in os.listdir(Config.json_data.get("root")):
+            src: str = os.path.join(Config.json_data.get("root"), item)
 
             try:
                 stats = os.stat(src)
@@ -219,8 +217,8 @@ class _GridStandartBase(GridCustom):
     def __init__(self, width: int):
         super().__init__()
 
-        self.image_grid_widgets: dict = {}
-        self.all_grid_widgets: list = []
+        self.image_grid_widgets: dict[tuple: QPixmap] = {}
+        self.all_grid_widgets: list[Thumbnail] = []
 
         clmn_count = Utils.get_clmn_count(width)
         if clmn_count < 1:

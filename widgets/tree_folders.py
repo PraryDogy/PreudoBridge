@@ -1,9 +1,7 @@
-import os
 import subprocess
 
-from PyQt5.QtCore import QDir, QModelIndex, pyqtSignal, Qt
-from PyQt5.QtWidgets import (QAction, QFileSystemModel, QLabel, QListView,
-                             QMenu, QTreeView)
+from PyQt5.QtCore import QDir, pyqtSignal
+from PyQt5.QtWidgets import QAction, QFileSystemModel, QMenu, QTreeView
 
 from cfg import Config
 from utils import Utils
@@ -72,7 +70,7 @@ class TreeFolders(QTreeView):
 
         menu.addSeparator()
 
-        favs = Config.json_data["favs"]
+        favs: dict = Config.json_data.get("favs")
         if src in favs:
             fav_action = QAction("Удалить из избранного", self)
             fav_action.triggered.connect(lambda: self.del_favs_clicked.emit(src))

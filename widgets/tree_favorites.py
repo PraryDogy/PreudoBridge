@@ -1,10 +1,10 @@
-import os
 import subprocess
 
-from PyQt5.QtCore import QDir, Qt, pyqtSignal
-from PyQt5.QtWidgets import (QAction, QFileSystemModel, QLabel, QListWidget,
-                             QListWidgetItem, QMenu, QTreeView)
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QMouseEvent
+from PyQt5.QtWidgets import (QAction, QLabel, QListWidget, QListWidgetItem,
+                             QMenu)
+
 from cfg import Config
 from utils import Utils
 
@@ -14,7 +14,7 @@ class TreeFavorites(QListWidget):
 
     def __init__(self):
         super().__init__()
-        self.fav_items: dict = {}
+        self.fav_items: dict[str: QLabel] = {}
 
         favs: dict = Config.json_data["favs"]
         for src, name in favs.items():

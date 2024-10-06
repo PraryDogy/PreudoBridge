@@ -1,15 +1,15 @@
 import os
-import subprocess
 from difflib import SequenceMatcher
 
 from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal
-from PyQt5.QtGui import QFocusEvent, QKeyEvent, QMouseEvent
-from PyQt5.QtWidgets import (QButtonGroup, QFrame, QGridLayout, QLabel,
-                             QLineEdit, QMenu, QPushButton, QSizePolicy,
-                             QSpacerItem, QTabBar, QVBoxLayout, QWidget, QAction)
+from PyQt5.QtGui import QKeyEvent, QMouseEvent
+from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QLabel, QLineEdit,
+                             QMenu, QPushButton, QSpacerItem, QVBoxLayout,
+                             QWidget)
 
 from cfg import Config
 from utils import Utils
+
 from .button_round import ButtonRound
 
 
@@ -20,7 +20,7 @@ class _PathFinderThread(QThread):
         super().__init__()
         self.src: str = src
         self.result: str = None
-        self.volumes: list = []
+        self.volumes: list[str] = []
         self.exclude = "/Volumes/Macintosh HD/Volumes/"
 
     def run(self):
@@ -43,7 +43,7 @@ class _PathFinderThread(QThread):
 
         volumes_extra = [
             os.path.join(vol, *extra.strip().split(os.sep))
-            for extra in Config.json_data["extra_paths"]
+            for extra in Config.json_data.get("extra_paths")
             for vol in self.volumes
             ]
         
@@ -135,8 +135,8 @@ class _SortTypeWidget(QPushButton):
             if v.get("sort") == None:
                 action.setDisabled(True)
 
-            if v.get("sort") == Config.json_data["sort"]:
-                if v.get("reversed") == Config.json_data["reversed"]:
+            if v.get("sort") == Config.json_data.get("sort"):
+                if v.get("reversed") == Config.json_data.get("reversed"):
                     self.setText(v.get("text"))
 
             menu.addAction(action)
@@ -292,13 +292,10 @@ class _GoBtn(QPushButton):
 class _ColorTags(ButtonRound):
     def __init__(self):
         super().__init__(text="🔵")
-
         self.menu = QMenu()
-
 
     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
         return super().mouseReleaseEvent(ev)
-
 
 
 class TopBar(QFrame):
@@ -312,7 +309,7 @@ class TopBar(QFrame):
         self.clmn = 0
 
         self.root: str = None
-        self.history: list = [Config.json_data["root"]]
+        self.history: list[str] = [Config.json_data.get("root")]
         self.current_index: int = 0
 
         self.grid_layout = QGridLayout()
@@ -375,15 +372,15 @@ class TopBar(QFrame):
         self.grid_layout.addWidget(self.search_wid, 0, self.clmn)
 
     def update_history(self):
-        if Config.json_data["root"] not in self.history:
-            self.history.append(Config.json_data["root"])
+        if Config.json_data.get("root") not in self.history:
+            self.history.append(Config.json_data.get("root"))
             self.current_index = len(self.history) - 1
 
         if len(self.history) > 50:
             self.history.pop(0)
 
     def _level_up_cmd(self):
-        Config.json_data["root"] = os.path.dirname(Config.json_data["root"])
+        Config.json_data["root"] = os.path.dirname(Config.json_data.get("root"))
         self.level_up_sig.emit()
 
 
