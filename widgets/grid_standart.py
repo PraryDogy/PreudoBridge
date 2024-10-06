@@ -222,8 +222,8 @@ class _GridStandartBase(QScrollArea):
 
         Config.current_image_thumbnails.clear()
 
-        self.grid_image_labels: dict = {}
-        self.grid_widgets: list = []
+        self.image_grid_widgets: dict = {}
+        self.all_grid_widgets: list = []
 
         clmn_count = Utils.get_clmn_count(width)
         if clmn_count < 1:
@@ -252,7 +252,9 @@ class _GridStandartBase(QScrollArea):
                 thumbnail = Thumbnail(filename, src)
                 thumbnail._move_to_wid_sig.connect(lambda src: self._move_to_wid_cmd(src))
                 self._set_default_image(thumbnail.img_label, "images/file_210.png")
+
                 Config.current_image_thumbnails[src] = thumbnail
+                self.image_grid_widgets[(src, size, modified)] = thumbnail.img_label
 
             self.grid_layout.addWidget(thumbnail, row, col)
 
@@ -261,10 +263,9 @@ class _GridStandartBase(QScrollArea):
                 col = 0
                 row += 1
 
-            self.grid_widgets.append(thumbnail)
-            self.grid_image_labels[(src, size, modified)] = thumbnail.img_label
+            self.all_grid_widgets.append(thumbnail)
 
-        if self.grid_image_labels:
+        if self.image_grid_widgets:
             row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
             self.grid_layout.addItem(row_spacer, row + 1, 0)
             # clmn_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
@@ -311,7 +312,7 @@ class _GridStandartBase(QScrollArea):
                 _Storage.threads.remove(i)
 
     def _start_load_images_thread(self):
-        new_thread = _LoadImagesThread(self.grid_image_labels)
+        new_thread = _LoadImagesThread(self.image_grid_widgets)
         _Storage.threads.append(new_thread)
         new_thread.start()
 
@@ -332,7 +333,7 @@ class GridStandart(_GridStandartBase, GridMethods):
 
         row, col = 0, 0
 
-        for wid in self.grid_widgets:
+        for wid in self.all_grid_widgets:
             self.grid_layout.addWidget(wid, row, col)
             col += 1
             if col >= clmn_count:
