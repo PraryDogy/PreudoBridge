@@ -100,6 +100,14 @@ class SimpleFileExplorer(QWidget):
             """
             )
 
+    def top_bar_setDisabled(self, b: bool):
+        self.top_bar.back.setDisabled(b)
+        self.top_bar.next.setDisabled(b)
+        self.top_bar.level_up_btn.setDisabled(b)
+        self.top_bar.go_btn.setDisabled(b)
+        self.top_bar.sort_widget.setDisabled(b)
+        self.top_bar.color_tags.setDisabled(b)
+
     def view_folder_cmd(self, root: str):
         Config.json_data["root"] = root
         self.load_standart_grid()
@@ -131,7 +139,7 @@ class SimpleFileExplorer(QWidget):
         QTimer.singleShot(1500, lambda: self.grid.move_to_wid(filepath))
 
     def load_search_grid(self, search_text: str):
-        self.top_bar.setDisabled(True)
+        self.top_bar_setDisabled(True)
 
         if self.grid:
             self.grid.disconnect()
@@ -165,7 +173,7 @@ class SimpleFileExplorer(QWidget):
         QTimer.singleShot(1500, lambda: self.grid.move_to_wid(src))
 
     def load_standart_grid(self):
-        self.top_bar.setDisabled(False)
+        self.top_bar_setDisabled(False)
         self.top_bar.search_wid.clear_search_sig.emit()
 
         if self.grid:
