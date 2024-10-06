@@ -48,7 +48,7 @@ class TreeFavorites(QListWidget):
     def l_click(self, e: QMouseEvent | None, src) -> None:
         if e.button() == Qt.MouseButton.LeftButton:
             self.on_fav_clicked.emit(src)
-        return super().mouseReleaseEvent(e)
+        # return super().mouseReleaseEvent(e)
 
     def custom_context(self, a0: QContextMenuEvent | None, src: str) -> None:
         menu = QMenu(self)

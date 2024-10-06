@@ -23,4 +23,4 @@ class ButtonRound(QLabel):
     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
         b = not self.checked
         self.set_checked(b)
-        return super().mouseReleaseEvent(ev)
+        # return super().mouseReleaseEvent(ev)

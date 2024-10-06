@@ -272,7 +272,7 @@ class _GoWin(QWidget):
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() == Qt.Key.Key_Escape:
             self.close()
-        return super().keyPressEvent(a0)
+        # return super().keyPressEvent(a0)
 
 
 class _GoBtn(QPushButton):
@@ -295,7 +295,8 @@ class _ColorTags(ButtonRound):
         self.menu = QMenu()
 
     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
-        return super().mouseReleaseEvent(ev)
+        ...
+        # return super().mouseReleaseEvent(ev)
 
 
 class TopBar(QFrame):

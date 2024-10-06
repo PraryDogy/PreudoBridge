@@ -90,7 +90,7 @@ class Thumbnail(QFrame):
     def mousePressEvent(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.LeftButton:
             self.drag_start_position = a0.pos()
-        return super().mousePressEvent(a0)
+        # return super().mousePressEvent(a0)
 
     def mouseMoveEvent(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.RightButton:
@@ -115,7 +115,7 @@ class Thumbnail(QFrame):
 
         self.drag.setMimeData(self.mime_data)
         self.drag.exec_(Qt.DropAction.CopyAction)
-        return super().mouseMoveEvent(a0)
+        # return super().mouseMoveEvent(a0)
 
     def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.LeftButton:

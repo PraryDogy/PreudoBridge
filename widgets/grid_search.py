@@ -188,7 +188,7 @@ class _GridSearchBase(GridCustom):
         except TypeError:
             pass
         self._thread._stop_cmd()
-        return super().closeEvent(a0)
+        # return super().closeEvent(a0)
   
 
 class GridSearch(_GridSearchBase):
