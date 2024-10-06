@@ -25,65 +25,11 @@ class _Thumbnail(Thumbnail):
     def __init__(self, filename: str, src: str):
         super().__init__(filename, src)
 
-    def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
-        if a0.button() == Qt.MouseButton.LeftButton:
-            self.setFrameShape(QFrame.Shape.Panel)
-            QTimer.singleShot(500, lambda: self.setFrameShape(QFrame.Shape.NoFrame))
-            self.win = WinImgView(self, self.src)
-            Utils.center_win(parent=Utils.get_main_win(), child=self.win)
-            self.win.closed.connect(lambda src: self._move_to_widget.emit(src))
-            self.win.show()
-        return super().mouseDoubleClickEvent(a0)
-
-    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-
-        self.setFrameShape(QFrame.Shape.Panel)
-
-        context_menu = QMenu(self)
-
-        view_action = QAction("Просмотр", self)
-        view_action.triggered.connect(self._view_file)
-        context_menu.addAction(view_action)
-
-        context_menu.addSeparator()
-
-        open_action = QAction("Открыть по умолчанию", self)
-        open_action.triggered.connect(self._open_default)
-        context_menu.addAction(open_action)
-
-        show_in_finder_action = QAction("Показать в Finder", self)
-        show_in_finder_action.triggered.connect(self._show_in_finder)
-        context_menu.addAction(show_in_finder_action)
-
-        copy_path = QAction("Скопировать путь до файла", self)
-        copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
-        context_menu.addAction(copy_path)
-
-        context_menu.addSeparator()
+        self.context_menu.addSeparator()
 
         show_in_folder = QAction("Показать в папке", self)
         show_in_folder.triggered.connect(lambda: self._show_in_folder.emit(self.src))
-        context_menu.addAction(show_in_folder) 
-
-        context_menu.exec_(self.mapToGlobal(a0.pos()))
-
-        self.setFrameShape(QFrame.Shape.NoFrame)
-
-        return super().contextMenuEvent(a0)
-
-    def _view_file(self):
-        if self.src.endswith(Config.img_ext):
-            self.win = WinImgView(self, self.src)
-            self.win.closed.connect(lambda src: self._move_to_widget.emit(src))
-            main_win = Utils.get_main_win()
-            Utils.center_win(parent=main_win, child=self.win)
-            self.win.show()
-
-    def _open_default(self):
-        subprocess.call(["open", self.src])
-
-    def _show_in_finder(self):
-        subprocess.call(["open", "-R", self.src])
+        self.context_menu.addAction(show_in_folder) 
 
 
 class _SearchFinderThread(QThread):
