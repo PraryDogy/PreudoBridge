@@ -29,7 +29,7 @@ class SimpleFileExplorer(QWidget):
         self.resize_timer.timeout.connect(self.resize_grid)
 
         self.migaet_timer = QTimer(parent=self)
-        self.migaet_timer.timeout.connect(self.migaet_title)
+        self.migaet_timer.timeout.connect(self.grid_search_migaet_title)
 
         main_lay = QVBoxLayout()
         main_lay.setContentsMargins(5, 5, 5, 5)
@@ -45,13 +45,13 @@ class SimpleFileExplorer(QWidget):
         splitter_wid.setStretchFactor(0, 0)
         
         self.folders_tree_wid = TreeFolders()
-        self.folders_tree_wid.folders_tree_clicked.connect(self.view_folder_cmd)
-        self.folders_tree_wid.add_to_favs_clicked.connect(self.add_fav_cmd)
-        self.folders_tree_wid.del_favs_clicked.connect(self.del_fav_cmd)
+        self.folders_tree_wid.folders_tree_clicked.connect(self.tree_wid_view_folder_cmd)
+        self.folders_tree_wid.add_to_favs_clicked.connect(self.tree_wid_add_fav_cmd)
+        self.folders_tree_wid.del_favs_clicked.connect(self.tree_wid_del_fav_cmd)
         self.tabs_wid.addTab(self.folders_tree_wid, "Папки")
 
         self.folders_fav_wid = TreeFavorites()
-        self.folders_fav_wid.on_fav_clicked.connect(self.view_folder_cmd)
+        self.folders_fav_wid.on_fav_clicked.connect(self.tree_wid_view_folder_cmd)
         self.tabs_wid.addTab(self.folders_fav_wid, "Избранное")
 
         self.tabs_wid.addTab(QLabel("Тут будут каталоги"), "Каталог")
@@ -67,14 +67,14 @@ class SimpleFileExplorer(QWidget):
         
         self.top_bar = TopBar()
 
-        self.top_bar.sort_widget.sort_click.connect(self.sort_grid)
-        self.top_bar.go_btn.open_path.connect(self.open_path_btn_cmd)
+        self.top_bar.sort_widget.sort_click.connect(self.top_bar_sort_grid)
+        self.top_bar.go_btn.open_path.connect(self.top_bar_open_path_btn_cmd)
         self.top_bar.search_wid.start_search_sig.connect(self.grid_search_load)
         self.top_bar.search_wid.stop_search_sig.connect(self.grid_standart_load)
 
         self.top_bar.level_up_sig.connect(self.grid_standart_load)
-        self.top_bar.back_sig.connect(self.next_back_cmd)
-        self.top_bar.next_sig.connect(self.next_back_cmd)
+        self.top_bar.back_sig.connect(self.top_bar_next_back_cmd)
+        self.top_bar.next_sig.connect(self.top_bar_next_back_cmd)
 
         self.r_lay.addWidget(self.top_bar)
 
@@ -101,7 +101,7 @@ class SimpleFileExplorer(QWidget):
             self.grid: GridStandart
             self.grid.rearrange(self.get_grid_width())
 
-    def sort_grid(self):
+    def top_bar_sort_grid(self):
         if isinstance(self.grid, GridSearch):
             self.grid.sort_grid(self.get_grid_width())
 
@@ -116,24 +116,24 @@ class SimpleFileExplorer(QWidget):
         self.top_bar.sort_widget.setDisabled(b)
         self.top_bar.color_tags.setDisabled(b)
 
-    def view_folder_cmd(self, root: str):
+    def tree_wid_view_folder_cmd(self, root: str):
         Config.json_data["root"] = root
         self.grid_standart_load()
 
-    def next_back_cmd(self, root: str):
+    def top_bar_next_back_cmd(self, root: str):
         Config.json_data["root"] = root
         self.grid_standart_load()
 
-    def add_fav_cmd(self, root: str):
+    def tree_wid_add_fav_cmd(self, root: str):
         name = os.path.basename(root)
         self.folders_fav_wid.add_item(name, root)
         favs: dict = Config.json_data.get("favs")
         favs[root] = name
 
-    def del_fav_cmd(self, root: str):
+    def tree_wid_del_fav_cmd(self, root: str):
         self.folders_fav_wid.del_item(root)
 
-    def open_path_btn_cmd(self, path: str):
+    def top_bar_open_path_btn_cmd(self, path: str):
         if not os.path.exists(path):
             return
 
@@ -159,12 +159,12 @@ class SimpleFileExplorer(QWidget):
         self.migaet_timer.start(400)
         ww = self.get_grid_width()
         self.grid = GridSearch(width=ww, search_text=search_text)
-        self.grid.verticalScrollBar().valueChanged.connect(self.scroll_value)
+        self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
         self.grid.search_finished.connect(lambda: self.grid_search_finished(search_text))
-        self.grid.show_thumbnail_in_folder.connect(self.show_thumbnail_in_folder_cmd)
+        self.grid.show_thumbnail_in_folder.connect(self.grid_search_move_to_wid)
         self.r_lay.addWidget(self.grid)
 
-    def migaet_title(self):
+    def grid_search_migaet_title(self):
         if "🟠" in self.windowTitle():
             t = self.windowTitle().replace("🟠", "🟡")
         else:
@@ -178,7 +178,7 @@ class SimpleFileExplorer(QWidget):
         self.grid.sort_grid(self.get_grid_width())
         self.top_bar_setDisabled(False)
 
-    def show_thumbnail_in_folder_cmd(self, src: str):
+    def grid_search_move_to_wid(self, src: str):
         root = os.path.dirname(src)
         Config.json_data["root"] = root
         self.grid_standart_load()
@@ -198,16 +198,16 @@ class SimpleFileExplorer(QWidget):
         self.top_bar.update_history()
 
         self.grid = GridStandart(width=self.get_grid_width())
-        self.grid.verticalScrollBar().valueChanged.connect(self.scroll_value)
+        self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
 
-        self.grid.add_fav_sig.connect(self.add_fav_cmd)
-        self.grid.del_fav_sig.connect(self.del_fav_cmd)
+        self.grid.add_fav_sig.connect(self.tree_wid_add_fav_cmd)
+        self.grid.del_fav_sig.connect(self.tree_wid_del_fav_cmd)
 
-        self.grid.open_folder_sig.connect(self.view_folder_cmd)
+        self.grid.open_folder_sig.connect(self.tree_wid_view_folder_cmd)
 
         self.r_lay.addWidget(self.grid)
 
-    def scroll_value(self, value: int):
+    def scroll_up_scroll_value(self, value: int):
         if value == 0:
             self.scroll_up.hide()
         else:
