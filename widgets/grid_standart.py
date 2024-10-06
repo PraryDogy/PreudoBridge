@@ -250,7 +250,7 @@ class _GridStandartBase(QScrollArea):
 
             else:
                 thumbnail = Thumbnail(filename, src)
-                thumbnail._move_to_wid_sig.connect(lambda src: self._move_to_wid_cmd(src))
+                thumbnail._move_to_wid_sig.connect(lambda src: self.move_to_wid_cmd(src))
                 self._set_default_image(thumbnail.img_label, "images/file_210.png")
 
                 Config.current_image_thumbnails[src] = thumbnail
@@ -284,7 +284,7 @@ class _GridStandartBase(QScrollArea):
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0)
 
-    def _move_to_wid_cmd(self, src: str):
+    def move_to_wid_cmd(self, src: str):
         try:
             wid: Thumbnail = Config.current_image_thumbnails[src]
             wid.select_thumbnail()

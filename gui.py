@@ -26,7 +26,7 @@ class SimpleFileExplorer(QWidget):
         self.clmn_count = 1
         self.finder_items = []
         self.finder_images: dict = {}
-        self.grid: GridMethods = None
+        self.grid: GridStandart = None
 
         ww, hh = Config.json_data["ww"], Config.json_data["hh"]
         self.resize(ww, hh)
@@ -85,8 +85,6 @@ class SimpleFileExplorer(QWidget):
 
         self.r_lay.addWidget(self.top_bar)
 
-        self.setWindowTitle(os.path.basename(Config.json_data["root"]))
-        # self.folders_tree_wid.expand_path(Config.json_data["root"])
         self.load_standart_grid()
 
         self.scroll_up = QLabel(parent=self, text="\u25B2")
@@ -111,15 +109,10 @@ class SimpleFileExplorer(QWidget):
 
     def view_folder_cmd(self, root: str):
         Config.json_data["root"] = root
-        # self.top_bar.update_history()
-        # self.folders_tree_wid.expand_path(Config.json_data["root"])
-        self.setWindowTitle(os.path.basename(root))
         self.load_standart_grid()
 
     def next_back_cmd(self, root: str):
         Config.json_data["root"] = root
-        # self.folders_tree_wid.expand_path(root)
-        self.setWindowTitle(os.path.basename(root))
         self.load_standart_grid()
 
     def add_fav_cmd(self, root: str):
@@ -141,9 +134,6 @@ class SimpleFileExplorer(QWidget):
             path, _ = os.path.split(path)
 
         Config.json_data["root"] = path
-        # self.top_bar.update_history()
-        # self.folders_tree_wid.expand_path(path)
-        self.setWindowTitle(os.path.basename(path))
         self.load_standart_grid()
         QTimer.singleShot(1500, lambda: self.grid.move_to_wid(filepath))
 
@@ -185,10 +175,8 @@ class SimpleFileExplorer(QWidget):
     def thumbnail_show_in_folder(self, src: str):
         root = os.path.dirname(src)
         Config.json_data["root"] = root
-        # self.folders_tree_wid.expand_path(root)
-        self.setWindowTitle(os.path.basename(root))
         self.load_standart_grid()
-        QTimer.singleShot(1500, lambda: self.grid.move_to_wid(src))
+        QTimer.singleShot(1500, lambda: self.grid.move_to_wid_cmd(src))
 
     def load_standart_grid(self):
         self.disable_top_bar_btns(False)
@@ -199,14 +187,18 @@ class SimpleFileExplorer(QWidget):
 
         self.setFocus()
         self.setWindowTitle(os.path.basename(Config.json_data["root"]))
+
         self.folders_tree_wid.expand_path(Config.json_data["root"])
         self.top_bar.update_history()
-        ww = self.get_grid_width()
-        self.grid = GridStandart(width=ww)
+
+        self.grid = GridStandart(width=self.get_grid_width())
         self.grid.verticalScrollBar().valueChanged.connect(self.scroll_value)
+
         self.grid.add_fav_sig.connect(self.add_fav_cmd)
         self.grid.del_fav_sig.connect(self.del_fav_cmd)
+
         self.grid.open_folder_sig.connect(self.view_folder_cmd)
+
         self.r_lay.addWidget(self.grid)
 
     def scroll_value(self, value: int):
