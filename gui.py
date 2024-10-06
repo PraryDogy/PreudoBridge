@@ -26,7 +26,7 @@ class SimpleFileExplorer(QWidget):
 
         self.resize_timer = QTimer(parent=self)
         self.resize_timer.setSingleShot(True)
-        self.resize_timer.timeout.connect(lambda: self.grid.rearrange(self.get_grid_width()))
+        self.resize_timer.timeout.connect(lambda: self.resize_grid)
 
         self.migaet_timer = QTimer(parent=self)
         self.migaet_timer.timeout.connect(self.migaet_title)
@@ -92,6 +92,9 @@ class SimpleFileExplorer(QWidget):
             border-radius: 20px;
             """
             )
+
+    def resize_grid(self):
+        self.grid.rearrange(self.get_grid_width())
 
     def sort_grid(self):
         if isinstance(self.grid, GridSearch):
@@ -165,6 +168,7 @@ class SimpleFileExplorer(QWidget):
     def finished_search(self, search_text: str):
         self.migaet_timer.stop()
         self.setWindowTitle(f"🟢\tРезультаты поиска: \"{search_text}\"")
+        self.top_bar_setDisabled(False)
 
     def show_thumbnail_in_folder_cmd(self, src: str):
         root = os.path.dirname(src)

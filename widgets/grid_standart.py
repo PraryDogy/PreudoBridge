@@ -331,5 +331,8 @@ class GridStandart(_GridStandartBase):
             thread._stop_thread.emit()
             thread.wait()
 
+    def rearrange_sorted(self, width: int):
+        self.rearrange(width)
+
     def move_to_wid(self, src: str):
         self._move_to_wid(src)
