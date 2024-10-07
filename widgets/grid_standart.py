@@ -279,7 +279,7 @@ class _GridStandartBase(Grid):
 
     def _clicked_thumb(self, widget: Thumbnail):
         self._frame_selected_widget(QFrame.Shape.NoFrame)
-        self.cur_row, self.cur_col = self._widget_row_col.get(widget)
+        self._cur_row, self._cur_col = self._widget_row_col.get(widget)
         self._cur_thumb = widget
         self._frame_selected_widget(QFrame.Shape.Panel)
 
@@ -322,7 +322,7 @@ class GridStandart(_GridStandartBase):
             self.col_count = 1
 
         self.row_count, local_col_count = 0, 0
-        self.cur_row, self.cur_col = 0, 0
+        self._cur_row, self._cur_col = 0, 0
 
         for (row, col), wid in row_col_widget.items():
 

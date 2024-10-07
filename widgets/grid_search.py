@@ -184,7 +184,7 @@ class _GridSearchBase(Grid):
 
     def _clicked_thumb(self, widget: Thumbnail):
         self._frame_selected_widget(QFrame.Shape.NoFrame)
-        self.cur_row, self.cur_col = self._widget_row_col.get(widget)
+        self._cur_row, self._cur_col = self._widget_row_col.get(widget)
         self._cur_thumb = widget
         self._frame_selected_widget(QFrame.Shape.Panel)
 
