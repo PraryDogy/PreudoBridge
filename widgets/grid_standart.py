@@ -325,7 +325,7 @@ class GridStandart(_GridStandartBase, GridMethods):
 
         self.row_count, self.col_count = 0, 0
 
-        for data, wid in row_col_widget.items():
+        for (row, col), wid in row_col_widget.items():
 
             self.grid_layout.addWidget(wid, self.row_count, self.col_count)
 

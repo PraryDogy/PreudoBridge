@@ -180,6 +180,30 @@ class Grid(QScrollArea):
         except (RuntimeError, KeyError) as e:
             print("move to wid error: ", e)
 
+    def _frame_selected_widget(self, shape: QFrame.Shape):
+        try:
+            self._selected_thumbnail.setFrameShape(shape)
+            self.ensureWidgetVisible(self._selected_thumbnail)
+        except (AttributeError, TypeError):
+            pass
+
+    def _add_wid_to_dicts(self, data: dict):
+        """row, col, widget, src"""
+
+        self._row_col_widget[(data.get("row"), data.get("col"))] = data.get("widget")
+        self._widget_row_col[data.get("widget")] = (data.get("row"), data.get("col"))
+
+        self._path_widget[data.get("src")] = data.get("widget")
+
+        self._widget_path[data.get("widget")] = data.get("src")
+
+        if os.path.isfile(data.get("src")):
+            self._paths.append(data.get("src"))
+
+    def _reset_row_cols(self):
+        self._row_col_widget.clear()
+        self._widget_row_col.clear()
+
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
 
         if a0.key() == Qt.Key.Key_Space:
@@ -210,34 +234,7 @@ class Grid(QScrollArea):
             self._frame_selected_widget(QFrame.Shape.Panel)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
-        try:
-            self._selected_thumbnail.setFrameShape(QFrame.Shape.NoFrame)
-        except Exception as e:
-            pass
-
-    def _frame_selected_widget(self, shape: QFrame.Shape):
-        try:
-            self._selected_thumbnail.setFrameShape(shape)
-            self.ensureWidgetVisible(self._selected_thumbnail)
-        except (AttributeError, TypeError):
-            pass
-
-    def _add_wid_to_dicts(self, data: dict):
-        """row, col, widget, src"""
-
-        self._row_col_widget[(data.get("row"), data.get("col"))] = data.get("widget")
-        self._widget_row_col[data.get("widget")] = (data.get("row"), data.get("col"))
-
-        self._path_widget[data.get("src")] = data.get("widget")
-
-        self._widget_path[data.get("widget")] = data.get("src")
-
-        if os.path.isfile(data.get("src")):
-            self._paths.append(data.get("src"))
-
-    def _reset_row_cols(self):
-        self._row_col_widget.clear()
-        self._widget_row_col.clear()
+        self._frame_selected_widget(QFrame.Shape.NoFrame)
 
 
 class GridMethods:
