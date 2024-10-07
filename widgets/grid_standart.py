@@ -229,7 +229,7 @@ class _GridStandartBase(Grid):
 
     def _create_grid(self, _finder_items: dict):
         self.finder_items_loaded.emit()
-        self.row_count, local_col_count = 0, 0
+        local_col_count = 0
 
         # (src, size, modified): QLabel. Для последующей загрузки в _LoadImagesThread
         self._image_grid_widgets: dict[tuple: QPixmap] = {}
