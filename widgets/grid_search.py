@@ -172,42 +172,80 @@ class _SearchFinderThread(QThread):
         return img
 
 
+# os.walk и чтение изображения происходит в отдельном QThread
+# чтобы не блокировать основной интерфейс
+# по мере того, как QThread находит и считывает изображение,
+# в основной поток посылается сигнал и в сетку добавляется найденное изображение
+# 
+# во время поиска НЕ работает ресайз и сортировка сетки, поскольку сетка 
+# до конца не сформирована
 class _GridSearchBase(Grid):
     search_finished = pyqtSignal()
+
+    # для конекстного меню Thumbnail - "показать в папке"
+    # программа переходит из поиска в исходную папку с изображением и выделяет его
     show_thumbnail_in_folder = pyqtSignal(str)
 
     def __init__(self, width: int, search_text: str):
         super().__init__(width)
         self.setAlignment(Qt.AlignmentFlag.AlignTop)
 
+        # (путь до файла, имя файла, размер, дата изменения, тип файла)
+        # этот словарик нужен для повторного формирования сетки при изменении
+        # размера и для сортировки по имени/размеру/дате/типу
         self._image_grid_widgets: dict[tuple: _Thumbnail] = {}
         self.search_text = search_text
 
+        # row_count наследуется от Grid, поскольку строчки только увеличивают
+        # значение при формировании сетки
+        # local_col_count это количество колонок, которое сбрасывается при 
+        # каждой новой строчке
         self.row_count, self.local_col_count = 0, 0
 
         clmn_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
         self.grid_layout.addItem(clmn_spacer, 0, self.col_count + 1)
 
-        self._thread = _SearchFinderThread(Config.json_data["root"], search_text)
+        self._thread = _SearchFinderThread(Config.json_data.get("root"), search_text)
         self._thread._new_widget_sig.connect(self._add_new_widget)
         self._thread._finished.connect(self.search_finished.emit)
         self._thread.start()
 
     def _add_new_widget(self, data: dict):
+        # data идет из сигнала _new_widget_sig
+        # "src", "stats" - os.stat, "pixmap"
         filename = os.path.basename(data.get("src"))
         wid = _Thumbnail(filename=filename, src=data.get("src"), paths=self._paths)
         wid.img_label.setPixmap(data.get("pixmap"))
+
+        # читай в инициализаторе описание сигнала show_thumbnail_in_folder
         wid._show_in_folder.connect(self.show_thumbnail_in_folder.emit)
+
+        # обычный сигнал по закрытию просмотрщика, читай описание к Grid
         wid._move_to_wid_sig.connect(self._move_to_wid_cmd)
+
+        # любой клик по Thumbnail выделит его и снимет выделение с прошлого
         wid._clicked_sig.connect(lambda wid=wid: self._clicked_thumb(wid))  
 
         self.grid_layout.addWidget(wid, self.row_count, self.local_col_count, alignment=Qt.AlignmentFlag.AlignTop)
 
+        ############################################################
+
+        # С помощью данных словарей мы упрощаем навигацию по сетке
+        # зображений клавиатурными стрелочками
+        # чтобы каждый раз не итерировать и не искать, какой виджет был выделен,
+        # а какой нужно выделить теперь
+
+        ############################################################
         self._row_col_widget[self.row_count, self.local_col_count] = wid
         self._widget_row_col[wid] = (self.row_count, self.local_col_count)
+
+        # для метода _move_to_wid
         self._path_widget[data.get("src")] = wid
+
+        # для просмотрщика
         self._paths.append(data.get("src"))
 
+        # прибавляем строчку и столбец в сетку
         self.local_col_count += 1
         if self.local_col_count >= self.col_count:
             self.local_col_count = 0
@@ -217,6 +255,10 @@ class _GridSearchBase(Grid):
         size = stats.st_size
         modified = stats.st_mtime
         filetype = os.path.splitext(data.get("src"))[1]
+
+        # (путь до файла, имя файла, размер, дата изменения, тип файла)
+        # этот словарик нужен для повторного формирования сетки при изменении
+        # размера и для сортировки по имени/размеру/дате/типу
         self._image_grid_widgets[(data.get("src"), filename, size, modified, filetype)] = wid
 
     def _clicked_thumb(self, widget: Thumbnail):
@@ -230,8 +272,10 @@ class _GridSearchBase(Grid):
             self._thread.disconnect()
         except TypeError:
             pass
+
+        # устанавливаем флаг QThread на False чтобы прервать цикл os.walk
+        # и не дожидаемся завершения
         self._thread._stop_cmd()
-        # return super().closeEvent(a0)
   
 
 class GridSearch(_GridSearchBase):
