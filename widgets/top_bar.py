@@ -30,7 +30,7 @@ class _PathFinderThread(QThread):
         elif self.result in self.volumes:
             self.finished.emit("")
         elif self.result:
-            self.finished.emit(self.result)
+            self._finished.emit(self.result)
 
     def _path_finder(self):
         src = os.sep + self.src.replace("\\", os.sep).strip().strip(os.sep)
