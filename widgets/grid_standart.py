@@ -263,6 +263,12 @@ class _GridStandartBase(Grid):
                 local_col_count = 0
                 self.row_count += 1
 
+        # мы проверяем, есть ли на последней строке первый виджет
+        # если нет, значит при итерации выше добавилась лишняя строка
+        last_row_check = self._row_col_wid.get((self.row_count, 0))
+        if not last_row_check:
+            self.row_count -= 1
+
         if self._row_col_wid:
             row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
             self.grid_layout.addItem(row_spacer, self.row_count + 1, 0)
@@ -342,6 +348,12 @@ class GridStandart(_GridStandartBase):
             if local_col_count >= self.col_count:
                 local_col_count = 0
                 self.row_count += 1
+
+        # мы проверяем, есть ли на последней строке первый виджет
+        # если нет, значит при итерации выше добавилась лишняя строка
+        last_row_check = self._row_col_wid.get((self.row_count, 0))
+        if not last_row_check:
+            self.row_count -= 1
 
     def stop_and_wait_threads(self):
         for thread in _Storage.threads:

@@ -201,7 +201,7 @@ class _GridSearchBase(Grid):
         # значение при формировании сетки
         # local_col_count это количество колонок, которое сбрасывается при 
         # каждой новой строчке
-        self.row_count, self.local_col_count = 0, 0
+        self.local_col_count = 0
 
         clmn_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
         self.grid_layout.addItem(clmn_spacer, 0, self.col_count + 1)
@@ -294,7 +294,9 @@ class GridSearch(_GridSearchBase):
             self.col_count = Utils.get_clmn_count(width)
             if self.col_count < 1:
                 self.col_count = 1
-            self.row_count, self.local_col_count = 0, 0
+
+            self.row_count = 0
+            self.local_col_count = 0
 
             # (путь до файла, имя файла, размер, дата изменения, тип файла)
             # этот словарик нужен для повторного формирования сетки при изменении
@@ -309,6 +311,12 @@ class GridSearch(_GridSearchBase):
                 if self.local_col_count >= self.col_count:
                     self.local_col_count = 0
                     self.row_count += 1
+            
+            # мы проверяем, есть ли на последней строке первый виджет
+            # если нет, значит при итерации выше добавилась лишняя строка
+            last_row_check = self._row_col_wid.get((self.row_count, 0))
+            if not last_row_check:
+                self.row_count -= 1
 
     # неактивно
     # в идеале нужно для выхода из приложения, потому что только по завершению

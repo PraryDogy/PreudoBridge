@@ -208,7 +208,7 @@ class _SearchWidget(QWidget):
 
         data = {
             "Найти jpg": str((".jpg", ".jpeg", "jfif")),
-            "Найти tiff": str((".tiff", ".tiff")),
+            "Найти tiff": str((".tif", ".tiff")),
             "Найти psd/psb": str((".psd", ".psb")),
             "Найти raw": str((".nef", ".raw")),
             "Найти любые фото": str(Config.img_ext)
