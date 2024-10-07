@@ -317,7 +317,8 @@ class GridStandart(_GridStandartBase, GridMethods):
 
     def resize_grid(self, width: int):
         row_col_widget = self._row_col_widget.copy()
-        self._reset_row_cols()
+        self._row_col_widget.clear()
+        self._widget_row_col.clear()
 
         clmn_count = Utils.get_clmn_count(width)
         if clmn_count < 1:
