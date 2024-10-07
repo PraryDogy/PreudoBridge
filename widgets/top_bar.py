@@ -322,18 +322,26 @@ class ColorStarsBtn(QPushButton):
         pont = self.rect().bottomLeft()
         self._menu.move(self.mapToGlobal(pont))
         self._menu.show()
-        self.setDown(False)
 
     def toggle_label(self, widget: QLabel, color: str):
         key = self.color_data.get(color)
         if key.get("bool"):
             widget.setStyleSheet("")
             key["bool"] = False
-
         else:
             widget.setStyleSheet("background: green;")
             key["bool"] = True
         
+        all_false = all(
+            data["bool"] is False
+            for data in self.color_data.values()
+            )
+        
+        if all_false:
+            self.setDown(False)
+        else:
+            self.setDown(True)
+
         print(self.color_data.get(color))
 
 
