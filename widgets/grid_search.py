@@ -17,11 +17,6 @@ from utils import Utils
 from .grid_base import Grid, Thumbnail
 
 
-class Storage:
-    session: sqlalchemy.orm.Session = None
-
-
-
 # Добавляем в контенкстное меню "Показать в папке"
 class _Thumbnail(Thumbnail):
     _show_in_folder = pyqtSignal(str)
@@ -53,7 +48,7 @@ class _SearchFinderThread(QThread):
         self.search_text: str = search_text
         self.search_dir: str = search_dir
         self.flag: bool = True
-        Storage.session = Dbase.get_session()
+        self.session = Dbase.get_session()
 
     def _stop_cmd(self):
         self.flag: bool = False
@@ -107,8 +102,8 @@ class _SearchFinderThread(QThread):
         if self.flag:
             self._finished.emit()
 
-        Storage.session.commit()
-        Storage.session.close()
+        self.session.commit()
+        self.session.close()
 
     # общий метод для создания QPixmap, который мы передадим в основной поток
     # для отображения в сетке GridSearch
@@ -144,7 +139,7 @@ class _SearchFinderThread(QThread):
 
     def _get_db_image(self, src: str) -> bytes | None:
         q = sqlalchemy.select(Cache.img).where(Cache.src==src)
-        res = Storage.session.execute(q).first()
+        res = self.session.execute(q).first()
         if res:
             return res[0]
         return None
@@ -168,7 +163,7 @@ class _SearchFinderThread(QThread):
                 "modified": modified
                 })
             try:
-                Storage.session.execute(q)
+                self.session.execute(q)
             except Exception as e:
                 print("search thread insert db image error: ", e)
 
