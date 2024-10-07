@@ -184,7 +184,7 @@ class Grid(QScrollArea):
         try:
             self._selected_thumbnail.setFrameShape(shape)
             self.ensureWidgetVisible(self._selected_thumbnail)
-        except (AttributeError, TypeError):
+        except (AttributeError, TypeError) as e:
             pass
 
     def _add_wid_to_dicts(self, data: dict):

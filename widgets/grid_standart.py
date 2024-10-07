@@ -203,9 +203,6 @@ class _FolderThumbnail(Thumbnail):
             add_fav.triggered.connect(lambda: self._add_fav_sig.emit(self.src))
             self.context_menu.addAction(add_fav)
 
-    def _view_file(self):
-        self._open_folder_sig.emit(self.src)
-
     def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
         self._open_folder_sig.emit(self.src)
 
