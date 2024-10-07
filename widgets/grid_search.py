@@ -7,6 +7,7 @@ from numpy import ndarray
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtWidgets import QAction, QFrame, QSizePolicy, QSpacerItem
+import sqlalchemy.orm
 
 from cfg import Config
 from database import Cache, Dbase
@@ -14,6 +15,11 @@ from fit_img import FitImg
 from utils import Utils
 
 from .grid_base import Grid, Thumbnail
+
+
+class Storage:
+    session: sqlalchemy.orm.Session = None
+
 
 
 # Добавляем в контенкстное меню "Показать в папке"
@@ -47,7 +53,7 @@ class _SearchFinderThread(QThread):
         self.search_text: str = search_text
         self.search_dir: str = search_dir
         self.flag: bool = True
-        self.session = Dbase.get_session()
+        Storage.session = Dbase.get_session()
 
     def _stop_cmd(self):
         self.flag: bool = False
@@ -101,8 +107,8 @@ class _SearchFinderThread(QThread):
         if self.flag:
             self._finished.emit()
 
-        self.session.commit()
-
+        Storage.session.commit()
+        Storage.session.close()
 
     # общий метод для создания QPixmap, который мы передадим в основной поток
     # для отображения в сетке GridSearch
@@ -138,7 +144,7 @@ class _SearchFinderThread(QThread):
 
     def _get_db_image(self, src: str) -> bytes | None:
         q = sqlalchemy.select(Cache.img).where(Cache.src==src)
-        res = self.session.execute(q).first()
+        res = Storage.session.execute(q).first()
         if res:
             return res[0]
         return None
@@ -162,7 +168,7 @@ class _SearchFinderThread(QThread):
                 "modified": modified
                 })
             try:
-                self.session.execute(q)
+                Storage.session.execute(q)
             except Exception as e:
                 print("search thread insert db image error: ", e)
 
