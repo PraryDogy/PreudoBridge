@@ -1,18 +1,14 @@
-class Foo:
-    def __init__(self) -> None:
-        super().__init__()
+import sqlalchemy
+from database import Dbase, Cache
 
-    def foo_method(self):
-        ...
 
-class Boo:
-    def __init__(self) -> None:
-        super().__init__()
+src = "/Volumes/Macintosh HD/Users/Loshkarev/Desktop/MIUZ_0182.psd"
 
-    def boo_method(self):
-        ...
+Dbase.init_db()
+sess = Dbase.get_session()
 
-test = Foo()
+q = sqlalchemy.select(Cache.img).where(Cache.src==src)
+res = sess.execute(q).first()[0]
 
-test: Boo
-test.boo_method()
+
+print(type(res))

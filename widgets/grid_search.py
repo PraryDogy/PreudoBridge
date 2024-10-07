@@ -3,9 +3,10 @@ from ast import literal_eval
 from time import sleep
 
 import sqlalchemy
+from numpy import ndarray
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
-from PyQt5.QtWidgets import QAction, QSizePolicy, QSpacerItem, QFrame
+from PyQt5.QtWidgets import QAction, QFrame, QSizePolicy, QSpacerItem
 
 from cfg import Config
 from database import Cache, Dbase
@@ -15,6 +16,7 @@ from utils import Utils
 from .grid_base import Grid, Thumbnail
 
 
+# Добавляем в контенкстное меню "Показать в папке"
 class _Thumbnail(Thumbnail):
     _show_in_folder = pyqtSignal(str)
 
@@ -28,9 +30,16 @@ class _Thumbnail(Thumbnail):
         self.context_menu.addAction(show_in_folder) 
 
 
+# Тред
+# На вход получает директорию для поиска иs текст/шаблон для поиска
+# Ищет ТОЛЬКО изображения
+# Если найденного изображения нет в БД, то кеширует
+# Если есть - загружает изображение кеша
+# Отправляется синал _new_widget_sig:
+# путь к изображению, os.stat, QPixmap
 class _SearchFinderThread(QThread):
     _finished = pyqtSignal()
-    _new_widget = pyqtSignal(dict)
+    _new_widget_sig = pyqtSignal(dict)
 
     def __init__(self, search_dir: str, search_text: str):
         super().__init__()
@@ -44,11 +53,22 @@ class _SearchFinderThread(QThread):
         self.flag: bool = False
 
     def run(self):
+        # Шаблоны в поиске передаются сюда текстовым кортежем, например
+        # str( [.jpg, .jpeg] )
+        # Мы пытаемся конветировать текст обратно в кортеж
+        # Если это кортеж, то поиск производится по шаблону
+        # Если это тккст, то по тексту
+        # 
+        # Шаблоны могут указывать только расширения файлов
+        # Можно найти только JPG или все форматы фотографий
+        # Шаблон вызывается двойным кликом в поиске
         try:
             self.search_text = literal_eval(self.search_text)
         except (ValueError, SyntaxError):
             pass
 
+        # literal_eval может конвертировать не только кортежи
+        # но и числа, а нам нужен только кортеж
         if not isinstance(self.search_text, tuple):
             self.search_text = str(self.search_text)
 
@@ -63,21 +83,30 @@ class _SearchFinderThread(QThread):
                 src: str = os.path.join(root, filename)
                 src_lower: str = src.lower()
 
+                # поиск по шаблону
                 if isinstance(self.search_text, tuple):
                     if src_lower.endswith(self.search_text):
                         self._create_wid(src)
                         continue
 
+                # поиск по тексту
                 elif self.search_text in filename and src_lower.endswith(Config.img_ext):
                     self._create_wid(src)
                     continue
 
+        # _finished будет послан только если поиску дали закончить
+        # если же он был прерван флагом, то сигнал не будет послан
+        # данный сигнал предназначен чтобы сменить заголовок окна с 
+        # "поиск файла" на "результаты поиска"
         if self.flag:
             self._finished.emit()
+
         self.session.commit()
 
-    def _create_wid(self, src: str):
 
+    # общий метод для создания QPixmap, который мы передадим в основной поток
+    # для отображения в сетке GridSearch
+    def _create_wid(self, src: str):
         try:
             stats = os.stat(src)
         except (PermissionError, FileNotFoundError) as e:
@@ -85,22 +114,26 @@ class _SearchFinderThread(QThread):
             return None
 
         pixmap: QPixmap = None
-        db_img = self._get_db_image(src)
+        db_img: bytes = self._get_db_image(src)
 
-        if db_img is not None:
+        # Если изображение уже есть в БД, то сразу делаем QPixmap
+        if isinstance(db_img, bytes):
             pixmap: QPixmap = Utils.pixmap_from_bytes(db_img)
 
+        # Создаем изображение, ресайзим и записываем в БД
         else:
-            new_img = self._create_new_image(src)
+            new_img: ndarray = self._create_new_image(src)
             self._image_to_db(src, new_img, stats)
 
-            if new_img is not None:
+            if isinstance(new_img, ndarray):
                 pixmap = Utils.pixmap_from_array(new_img)
 
+        # Если не удалось получить изображение, загружаем изображение по умолчанию
         if not pixmap:
             pixmap = QPixmap("images/file_210.png")
 
-        self._new_widget.emit({"src": src, "stats": stats, "pixmap": pixmap})
+        # посылаем сигнал в SearchGrid
+        self._new_widget_sig.emit({"src": src, "stats": stats, "pixmap": pixmap})
         sleep(0.2)
 
     def _get_db_image(self, src: str) -> bytes | None:
@@ -111,11 +144,15 @@ class _SearchFinderThread(QThread):
         return None
 
     def _image_to_db(self, src: str, img_array, stats: os.stat_result):
+        # чтобы несколько раз не запрашивать os.stat
+        # мы запрашиваем os.stat в основном цикле os.walk и передаем сюда
         size = stats.st_size
         modified = stats.st_mtime
-        db_img = Utils.image_array_to_bytes(img_array)
 
-        if db_img is not None:
+        # качество по умолчанию 80 для экономии места
+        db_img: bytes = Utils.image_array_to_bytes(img_array)
+
+        if isinstance(db_img, bytes):
             q = sqlalchemy.insert(Cache)
             q = q.values({
                 "img": db_img,
@@ -129,7 +166,7 @@ class _SearchFinderThread(QThread):
             except Exception as e:
                 print("search thread insert db image error: ", e)
 
-    def _create_new_image(self, src: str):
+    def _create_new_image(self, src: str) -> ndarray | None:
         img = Utils.read_image(src)
         img = FitImg.start(img, Config.thumb_size)
         return img
@@ -152,7 +189,7 @@ class _GridSearchBase(Grid):
         self.grid_layout.addItem(clmn_spacer, 0, self.col_count + 1)
 
         self._thread = _SearchFinderThread(Config.json_data["root"], search_text)
-        self._thread._new_widget.connect(self._add_new_widget)
+        self._thread._new_widget_sig.connect(self._add_new_widget)
         self._thread._finished.connect(self.search_finished.emit)
         self._thread.start()
 
