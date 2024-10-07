@@ -299,6 +299,7 @@ class ColorStarsBtn(QPushButton):
         self._menu.setLayout(QVBoxLayout())
         self._menu.layout().setContentsMargins(0, 0, 0, 0)
         self._menu.layout().setSpacing(1)
+        self._menu.closeEvent = lambda e: self.press_check()
 
         self.color_data = {
             "🔴": {"text": "Красный", "bool": False},
@@ -331,6 +332,8 @@ class ColorStarsBtn(QPushButton):
             widget.setStyleSheet("background: green;")
             key["bool"] = True
         
+    def press_check(self):
+        print(1)
         all_false = all(
             data["bool"] is False
             for data in self.color_data.values()
@@ -340,8 +343,6 @@ class ColorStarsBtn(QPushButton):
             self.setDown(False)
         else:
             self.setDown(True)
-
-        print(self.color_data.get(color))
 
 
 class TopBar(QFrame):
