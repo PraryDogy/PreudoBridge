@@ -209,7 +209,7 @@ class _FolderThumbnail(Thumbnail):
         self._open_folder_sig.emit(self.src)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        self.clicked_cmd()
+        self._clicked_sig.emit()
         self.context_menu.exec_(self.mapToGlobal(a0.pos()))
 
 
