@@ -222,11 +222,11 @@ class _GridStandartBase(Grid):
         _finder_items = _LoadFinderItems()
         _finder_items = _finder_items._get()
 
-        clmn_count = Utils.get_clmn_count(width)
-        if clmn_count < 1:
-            clmn_count = 1
+        self.col_count = Utils.get_clmn_count(width)
+        if self.col_count < 1:
+            self.col_count = 1
 
-        self.row_count, self.col_count = 0, 0
+        self.row_count, local_col_count = 0, 0
 
         # (src, size, modified): QLabel. Для последующей загрузки в _LoadImagesThread
         self._image_grid_widgets: dict[tuple: QPixmap] = {}
@@ -246,15 +246,15 @@ class _GridStandartBase(Grid):
                 self._set_default_image(wid.img_label, "images/file_210.png")
                 self._image_grid_widgets[(src, size, modified)] = wid.img_label
 
-            self._add_wid_to_dicts({"row": self.row_count, "col": self.col_count, "src": src, "widget": wid})
+            self._add_wid_to_dicts({"row": self.row_count, "col": local_col_count, "src": src, "widget": wid})
             wid._clicked_sig.connect(lambda wid=wid: self._clicked_thumb(wid))
+            self.grid_layout.addWidget(wid, self.row_count, local_col_count)
 
-            self.grid_layout.addWidget(wid, self.row_count, self.col_count)
-
-            self.col_count += 1
-            if self.col_count >= clmn_count:
-                self.col_count = 0
+            local_col_count += 1
+            if local_col_count >= self.col_count:
+                local_col_count = 0
                 self.row_count += 1
+
 
         if self._row_col_widget:
             row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
@@ -317,22 +317,23 @@ class GridStandart(_GridStandartBase, GridMethods):
         self._row_col_widget.clear()
         self._widget_row_col.clear()
 
-        clmn_count = Utils.get_clmn_count(width)
-        if clmn_count < 1:
-            clmn_count = 1
+        self.col_count = Utils.get_clmn_count(width)
+        if self.col_count < 1:
+            self.col_count = 1
 
-        self.row_count, self.col_count = 0, 0
+        self.row_count, local_col_count = 0, 0
+        self.cur_row, self.cur_col = 0, 0
 
         for (row, col), wid in row_col_widget.items():
 
-            self.grid_layout.addWidget(wid, self.row_count, self.col_count)
+            self.grid_layout.addWidget(wid, self.row_count, local_col_count)
 
             src = self._widget_path.get(wid)
-            self._add_wid_to_dicts({"row": self.row_count, "col": self.col_count, "src": src, "widget": wid})
+            self._add_wid_to_dicts({"row": self.row_count, "col": local_col_count, "src": src, "widget": wid})
 
-            self.col_count += 1
-            if self.col_count >= clmn_count:
-                self.col_count = 0
+            local_col_count += 1
+            if local_col_count >= self.col_count:
+                local_col_count = 0
                 self.row_count += 1
 
     def stop_and_wait_threads(self):

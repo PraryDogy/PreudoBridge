@@ -147,6 +147,9 @@ class Thumbnail(QFrame):
 class EmptyThumbnail:
     def setFrameShape(*args, **kwargs):
         ...
+    
+    def _view_file(*args, **kwargs):
+        ...
 
 
 class Grid(QScrollArea):
@@ -169,8 +172,8 @@ class Grid(QScrollArea):
         self._selected_thumbnail: Thumbnail = EmptyThumbnail() # Какой виджет сейчас выделен
         self.cur_row: int = 0
         self.cur_col: int = 0
-        self.row_count: int = 1
-        self.col_count: int = 1
+        self.row_count: int = 0
+        self.col_count: int = 0
 
     def _move_to_wid(self, src: str):
         try:
@@ -198,7 +201,6 @@ class Grid(QScrollArea):
             self._paths.append(data.get("src"))
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
-
         if a0.key() == Qt.Key.Key_Space:
             self._selected_thumbnail._view_file()
 
@@ -210,7 +212,7 @@ class Grid(QScrollArea):
 
         elif a0.key() == Qt.Key.Key_Right:
             self._frame_selected_widget(QFrame.Shape.NoFrame)
-            self.cur_col = self.col_count if self.cur_col == self.col_count else self.cur_col + 1 
+            self.cur_col = self.col_count - 1 if self.cur_col == self.col_count - 1 else self.cur_col + 1 
             self._selected_thumbnail = self._row_col_widget.get((self.cur_row, self.cur_col))
             self._frame_selected_widget(QFrame.Shape.Panel)
 
