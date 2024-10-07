@@ -225,8 +225,6 @@ class GridSearch(_GridSearchBase, GridMethods):
         self._thread.wait()
 
     def sort_grid(self, width: int):
-        return
-
         sort_data = {"name": 1, "size": 2,  "modify": 3, "type": 4}
         # начинаем с 1, потому что 0 у нас src, нам не нужна сортировка по src
         # ключи соответствуют json_data["sort"]
@@ -239,17 +237,19 @@ class GridSearch(_GridSearchBase, GridMethods):
         if Config.json_data["reversed"]:
             self._image_grid_widgets = dict(reversed(self._image_grid_widgets.items()))
 
-        self.col_count = Utils.get_clmn_count(width)
-        if self.col_count < 1:
-            self.col_count = 1
-        self.row_count, self.col = 0, 0
+        self.resize_grid(width)
 
-        for data, wid in self._image_grid_widgets.items():
-            self.grid_layout.addWidget(wid, self.row_count, self.col)
-            self.col += 1
-            if self.col >= self.col_count:
-                self.col = 0
-                self.row_count += 1
+        # self.col_count = Utils.get_clmn_count(width)
+        # if self.col_count < 1:
+        #     self.col_count = 1
+        # self.row_count, self.col = 0, 0
+
+        # for data, wid in self._image_grid_widgets.items():
+        #     self.grid_layout.addWidget(wid, self.row_count, self.col)
+        #     self.col += 1
+        #     if self.col >= self.col_count:
+        #         self.col = 0
+        #         self.row_count += 1
 
     def move_to_wid(self, src: str):
         self._move_to_wid(src)
