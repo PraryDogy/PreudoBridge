@@ -4,18 +4,25 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QPushButton,
 
 app = QApplication([])
 
+
+class Colors:
+    red = "\u1F534"
+
+
 class Filters(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowFlags(self.windowFlags() | Qt.Popup)
         v_layout = QVBoxLayout(self)
-        v_layout.setContentsMargins(5, 5, 5, 5)
-        v_layout.setSpacing(0)
+        v_layout.setContentsMargins(10, 10, 10, 10)
+        v_layout.setSpacing(5)
+        v_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setLayout(v_layout)
 
         color_wid = QWidget()
         v_layout.addWidget(color_wid)
         color_lay = QHBoxLayout()
+        color_lay.setContentsMargins(0, 0, 0, 0)
         color_wid.setLayout(color_lay)
 
         # черный и белый в пролете
@@ -28,10 +35,11 @@ class Filters(QWidget):
         stars_wid = QWidget()
         v_layout.addWidget(stars_wid)
         stars_lay = QHBoxLayout()
+        stars_lay.setContentsMargins(0, 0, 0, 0)
         stars_wid.setLayout(stars_lay)
 
         for i in range(1, 6):
-            label = QLabel(text="★" * i)
+            label = QLabel(text="★")
             stars_lay.addWidget(label)
             
 
