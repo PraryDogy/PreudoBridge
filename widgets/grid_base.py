@@ -165,6 +165,9 @@ class Grid(QScrollArea):
         self.grid_layout.setSpacing(5)
         self.setWidget(main_wid)
 
+        self.navigate_widgets = {tuple: Thumbnail}
+
+
     def _move_to_wid(self, src: str):
         try:
             wid: Thumbnail = Config.image_grid_widgets_global.get(src)

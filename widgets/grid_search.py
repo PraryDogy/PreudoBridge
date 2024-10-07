@@ -46,7 +46,7 @@ class _SearchFinderThread(QThread):
     def run(self):
         try:
             self.search_text = literal_eval(self.search_text)
-        except ValueError:
+        except (ValueError, SyntaxError):
             pass
 
         if not isinstance(self.search_text, tuple):
