@@ -206,6 +206,7 @@ class _FolderThumbnail(Thumbnail):
             self.context_menu.addAction(add_fav)
 
     def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
+        self._clicked_sig.emit()
         self._open_folder_sig.emit(self.src)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
