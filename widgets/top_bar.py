@@ -294,7 +294,6 @@ class ColorStarsBtn(QPushButton):
     def __init__(self):
         super().__init__(text="Фильтры")
         
-        # Создаем кастомный виджет-меню
         self._menu = QWidget()
         self._menu.setWindowFlags(Qt.Popup)
         self._menu.setLayout(QVBoxLayout())
