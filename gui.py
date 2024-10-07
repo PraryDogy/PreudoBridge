@@ -237,6 +237,9 @@ class SimpleFileExplorer(QWidget):
         elif a0.key() == Qt.Key.Key_Escape:
             self.setFocus()
 
+        elif a0.key() in (Qt.Key.Key_Up, Qt.Key.Key_Down, Qt.Key.Key_Left, Qt.Key.Key_Right):
+            self.grid.setFocus()
+
 
 class CustomApp(QApplication):
     def __init__(self, argv: list[str]) -> None:
