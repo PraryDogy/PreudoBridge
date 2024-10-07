@@ -236,8 +236,8 @@ class _GridSearchBase(Grid):
         # а какой нужно выделить теперь
 
         ############################################################
-        self._row_col_widget[self.row_count, self.local_col_count] = wid
-        self._widget_row_col[wid] = (self.row_count, self.local_col_count)
+        self._row_col_wid[self.row_count, self.local_col_count] = wid
+        self._wid_row_col[wid] = (self.row_count, self.local_col_count)
 
         # для метода _move_to_wid
         self._path_widget[data.get("src")] = wid
@@ -263,7 +263,7 @@ class _GridSearchBase(Grid):
 
     def _clicked_thumb(self, widget: Thumbnail):
         self._frame_selected_widget(QFrame.Shape.NoFrame)
-        self._cur_row, self._cur_col = self._widget_row_col.get(widget)
+        self._cur_row, self._cur_col = self._wid_row_col.get(widget)
         self._cur_thumb = widget
         self._frame_selected_widget(QFrame.Shape.Panel)
 
@@ -282,36 +282,48 @@ class GridSearch(_GridSearchBase):
     def __init__(self, width: int, search_text: str):
         super().__init__(width, search_text)
 
+    # если поиск еще идет, сетка не переформируется
+    # если завершен, то мы формируем новую сетку на основе новых размеров
     def resize_grid(self, width: int):
         if not self._thread.isRunning():
 
-            self._row_col_widget.clear()
-            self._widget_row_col.clear()
+            self._row_col_wid.clear()
+            self._wid_row_col.clear()
 
             self.col_count = Utils.get_clmn_count(width)
             if self.col_count < 1:
                 self.col_count = 1
             self.row_count, self.local_col_count = 0, 0
 
+            # (путь до файла, имя файла, размер, дата изменения, тип файла)
+            # этот словарик нужен для повторного формирования сетки при изменении
+            # размера и для сортировки по имени/размеру/дате/типу
             for data, wid in self._image_grid_widgets.items():
                 self.grid_layout.addWidget(wid, self.row_count, self.local_col_count, alignment=Qt.AlignmentFlag.AlignTop)
 
-                self._row_col_widget[self.row_count, self.local_col_count] = wid
-                self._widget_row_col[wid] = (self.row_count, self.local_col_count)
+                self._row_col_wid[self.row_count, self.local_col_count] = wid
+                self._wid_row_col[wid] = (self.row_count, self.local_col_count)
 
                 self.local_col_count += 1
                 if self.local_col_count >= self.col_count:
                     self.local_col_count = 0
                     self.row_count += 1
 
+    # неактивно
+    # в идеале нужно для выхода из приложения, потому что только по завершению
+    # треда происходит commit сессии, то есть сохраняются в БД все кешированные
+    # изображения
     def stop_and_wait_threads(self):
         self._thread._stop_cmd()
         self._thread.wait()
 
+    
     def sort_grid(self, width: int):
         sort_data = {"name": 1, "size": 2,  "modify": 3, "type": 4}
-        # начинаем с 1, потому что 0 у нас src, нам не нужна сортировка по src
         # ключи соответствуют json_data["sort"]
+        # значения соответствуют индексам в кортеже у ключей
+        # (путь до файла, имя файла, размер, дата изменения, тип файла)
+        # начинаем с 1, потому что 0 у нас путь до файла, нам не нужна сортировка по src
 
         index = sort_data.get(Config.json_data.get("sort"))
         self._image_grid_widgets = dict(

@@ -245,8 +245,8 @@ class _GridStandartBase(Grid):
             wid._clicked_sig.connect(lambda wid=wid: self._clicked_thumb(wid))
             self.grid_layout.addWidget(wid, self.row_count, local_col_count)
 
-            self._row_col_widget[self.row_count, local_col_count] = wid
-            self._widget_row_col[wid] = (self.row_count, local_col_count)
+            self._row_col_wid[self.row_count, local_col_count] = wid
+            self._wid_row_col[wid] = (self.row_count, local_col_count)
             self._path_widget[src] = wid
             if os.path.isfile(src):
                 self._paths.append(src)
@@ -256,7 +256,7 @@ class _GridStandartBase(Grid):
                 local_col_count = 0
                 self.row_count += 1
 
-        if self._row_col_widget:
+        if self._row_col_wid:
             row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
             self.grid_layout.addItem(row_spacer, self.row_count + 1, 0)
 
@@ -279,7 +279,7 @@ class _GridStandartBase(Grid):
 
     def _clicked_thumb(self, widget: Thumbnail):
         self._frame_selected_widget(QFrame.Shape.NoFrame)
-        self._cur_row, self._cur_col = self._widget_row_col.get(widget)
+        self._cur_row, self._cur_col = self._wid_row_col.get(widget)
         self._cur_thumb = widget
         self._frame_selected_widget(QFrame.Shape.Panel)
 
@@ -313,9 +313,9 @@ class GridStandart(_GridStandartBase):
         super().__init__(width)
 
     def resize_grid(self, width: int):
-        row_col_widget = self._row_col_widget.copy()
-        self._row_col_widget.clear()
-        self._widget_row_col.clear()
+        row_col_widget = self._row_col_wid.copy()
+        self._row_col_wid.clear()
+        self._wid_row_col.clear()
 
         self.col_count = Utils.get_clmn_count(width)
         if self.col_count < 1:
@@ -328,8 +328,8 @@ class GridStandart(_GridStandartBase):
 
             self.grid_layout.addWidget(wid, self.row_count, local_col_count)
 
-            self._row_col_widget[self.row_count, local_col_count] = wid
-            self._widget_row_col[wid] = (self.row_count, local_col_count)
+            self._row_col_wid[self.row_count, local_col_count] = wid
+            self._wid_row_col[wid] = (self.row_count, local_col_count)
 
             local_col_count += 1
             if local_col_count >= self.col_count:

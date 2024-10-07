@@ -208,7 +208,7 @@ class Grid(QScrollArea, GridMethods):
         # Поиск виджета по номеру строки и колонки
         # При нажатии на клавиатурную стрелочку мы знаем новую строку и колонку
         # (строка, колонка): виджет
-        self._row_col_widget: dict[tuple: Thumbnail] = {}
+        self._row_col_wid: dict[tuple: Thumbnail] = {}
 
         # Поиск виджета по пути к изображению
         # Когда просмотрщик закрывается и Thumbnail посылает сигнал
@@ -225,7 +225,7 @@ class Grid(QScrollArea, GridMethods):
         # то важно знать, какая сейчас строка и колонка выделена
         # Используется в _clicked_thumb во всех наследниках Grid
         # виджет: (строка, колонка). 
-        self._widget_row_col: dict[Thumbnail: tuple] = {}
+        self._wid_row_col: dict[Thumbnail: tuple] = {}
 
 
         # Список путей к изображениям в сетке, который передается в
@@ -271,25 +271,25 @@ class Grid(QScrollArea, GridMethods):
         elif a0.key() == Qt.Key.Key_Left:
             self._frame_selected_widget(QFrame.Shape.NoFrame)
             self._cur_col = 0 if self._cur_col == 0 else self._cur_col - 1
-            self._cur_thumb = self._row_col_widget.get((self._cur_row, self._cur_col))
+            self._cur_thumb = self._row_col_wid.get((self._cur_row, self._cur_col))
             self._frame_selected_widget(QFrame.Shape.Panel)
 
         elif a0.key() == Qt.Key.Key_Right:
             self._frame_selected_widget(QFrame.Shape.NoFrame)
             self._cur_col = self.col_count - 1 if self._cur_col == self.col_count - 1 else self._cur_col + 1 
-            self._cur_thumb = self._row_col_widget.get((self._cur_row, self._cur_col))
+            self._cur_thumb = self._row_col_wid.get((self._cur_row, self._cur_col))
             self._frame_selected_widget(QFrame.Shape.Panel)
 
         elif a0.key() == Qt.Key.Key_Up:
             self._frame_selected_widget(QFrame.Shape.NoFrame)
             self._cur_row = 0 if self._cur_row == 0 else self._cur_row - 1
-            self._cur_thumb = self._row_col_widget.get((self._cur_row, self._cur_col))
+            self._cur_thumb = self._row_col_wid.get((self._cur_row, self._cur_col))
             self._frame_selected_widget(QFrame.Shape.Panel)
 
         elif a0.key() == Qt.Key.Key_Down:
             self._frame_selected_widget(QFrame.Shape.NoFrame)
             self._cur_row = self.row_count if self._cur_row == self.row_count else self._cur_row + 1
-            self._cur_thumb = self._row_col_widget.get((self._cur_row, self._cur_col))
+            self._cur_thumb = self._row_col_wid.get((self._cur_row, self._cur_col))
             self._frame_selected_widget(QFrame.Shape.Panel)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
