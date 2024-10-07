@@ -260,7 +260,7 @@ class _GridStandartBase(Grid):
             self.grid_layout.addItem(row_spacer, row + 1, 0)
 
             col_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
-            self.grid_layout.addItem(col_spacer, 0, col + 1)
+            self.grid_layout.addItem(col_spacer, 0, col + 2)
 
             self._start_load_images_thread()
 
