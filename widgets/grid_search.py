@@ -141,9 +141,10 @@ class _GridSearchBase(Grid):
 
     def __init__(self, width: int, search_text: str):
         super().__init__()
+        self.setAlignment(Qt.AlignmentFlag.AlignTop)
+
         self._image_grid_widgets: dict[tuple: _Thumbnail] = {}
         self.search_text = search_text
-        self.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         self.clmn_count = Utils.get_clmn_count(width)
         if self.clmn_count < 1:
