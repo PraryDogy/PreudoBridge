@@ -165,14 +165,19 @@ class _GridSearchBase(Grid):
         wid.img_label.setPixmap(data.get("pixmap"))
         wid._show_in_folder.connect(self.show_thumbnail_in_folder.emit)
         wid._move_to_wid_sig.connect(self._move_to_wid)
-
-        self.grid_layout.addWidget(wid, self.row_count, self.local_col, alignment=Qt.AlignmentFlag.AlignTop)
-        self._add_wid_to_dicts({"row": self.row_count, "col": self.local_col, "src": data.get("src"), "widget": wid})
         wid._clicked_sig.connect(lambda wid=wid: self._clicked_thumb(wid))  
 
-        self.local_col += 1
-        if self.local_col >= self.col_count:
-            self.local_col = 0
+        self.grid_layout.addWidget(wid, self.row_count, self.local_col, alignment=Qt.AlignmentFlag.AlignTop)
+
+        self._row_col_widget[self.row_count, self.local_col_count] = wid
+        self._widget_row_col[wid] = (self.row_count, self.local_col_count)
+        self._path_widget[data.get("src")] = wid
+        self._widget_path[wid] = data.get("src")
+        self._paths.append(data.get("src"))
+
+        self.local_col_count += 1
+        if self.local_col_count >= self.col_count:
+            self.local_col_count = 0
             self.row_count += 1
 
         stats: os.stat_result = data.get("stats")
@@ -209,15 +214,17 @@ class GridSearch(_GridSearchBase, GridMethods):
             self.col_count = Utils.get_clmn_count(width)
             if self.col_count < 1:
                 self.col_count = 1
-            self.row_count, self.local_col = 0, 0
+            self.row_count, self.local_col_count = 0, 0
 
             for data, wid in self._image_grid_widgets.items():
-                self.grid_layout.addWidget(wid, self.row_count, self.local_col, alignment=Qt.AlignmentFlag.AlignTop)
-                self._add_wid_to_dicts({"row": self.row_count, "col": self.local_col, "src": data[0], "widget": wid})
+                self.grid_layout.addWidget(wid, self.row_count, self.local_col_count, alignment=Qt.AlignmentFlag.AlignTop)
 
-                self.local_col += 1
-                if self.local_col >= self.col_count:
-                    self.local_col = 0
+                self._row_col_widget[self.row_count, self.local_col_count] = wid
+                self._widget_row_col[wid] = (self.row_count, self.local_col_count)
+
+                self.local_col_count += 1
+                if self.local_col_count >= self.col_count:
+                    self.local_col_count = 0
                     self.row_count += 1
 
     def stop_and_wait_threads(self):
@@ -238,18 +245,6 @@ class GridSearch(_GridSearchBase, GridMethods):
             self._image_grid_widgets = dict(reversed(self._image_grid_widgets.items()))
 
         self.resize_grid(width)
-
-        # self.col_count = Utils.get_clmn_count(width)
-        # if self.col_count < 1:
-        #     self.col_count = 1
-        # self.row_count, self.col = 0, 0
-
-        # for data, wid in self._image_grid_widgets.items():
-        #     self.grid_layout.addWidget(wid, self.row_count, self.col)
-        #     self.col += 1
-        #     if self.col >= self.col_count:
-        #         self.col = 0
-        #         self.row_count += 1
 
     def move_to_wid(self, src: str):
         self._move_to_wid(src)

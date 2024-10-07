@@ -246,9 +246,15 @@ class _GridStandartBase(Grid):
                 self._set_default_image(wid.img_label, "images/file_210.png")
                 self._image_grid_widgets[(src, size, modified)] = wid.img_label
 
-            self._add_wid_to_dicts({"row": self.row_count, "col": local_col_count, "src": src, "widget": wid})
             wid._clicked_sig.connect(lambda wid=wid: self._clicked_thumb(wid))
             self.grid_layout.addWidget(wid, self.row_count, local_col_count)
+
+            self._row_col_widget[self.row_count, local_col_count] = wid
+            self._widget_row_col[wid] = (self.row_count, local_col_count)
+            self._path_widget[src] = wid
+            self._widget_path[wid] = src
+            if os.path.isfile(src):
+                self._paths.append(src)
 
             local_col_count += 1
             if local_col_count >= self.col_count:
@@ -329,7 +335,8 @@ class GridStandart(_GridStandartBase, GridMethods):
             self.grid_layout.addWidget(wid, self.row_count, local_col_count)
 
             src = self._widget_path.get(wid)
-            self._add_wid_to_dicts({"row": self.row_count, "col": local_col_count, "src": src, "widget": wid})
+            self._row_col_widget[self.row_count, local_col_count] = wid
+            self._widget_row_col[wid] = (self.row_count, local_col_count)
 
             local_col_count += 1
             if local_col_count >= self.col_count:
