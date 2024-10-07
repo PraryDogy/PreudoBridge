@@ -4,14 +4,15 @@ import numpy as np
 import sqlalchemy
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QMouseEvent, QPixmap
-from PyQt5.QtWidgets import QAction, QLabel, QMenu, QSizePolicy, QSpacerItem
+from PyQt5.QtWidgets import (QAction, QFrame, QLabel, QMenu, QSizePolicy,
+                             QSpacerItem)
 
 from cfg import Config
 from database import Cache, Dbase
 from fit_img import FitImg
 from utils import Utils
 
-from .grid_base import Grid, Thumbnail, GridMethods
+from .grid_base import Grid, GridMethods, Thumbnail
 
 
 class _Storage:
@@ -172,7 +173,7 @@ class _FolderThumbnail(Thumbnail):
     _open_folder_sig = pyqtSignal(str)
 
     def __init__(self, filename: str, src: str):
-        super().__init__(filename, src)
+        super().__init__(filename, src, [])
 
         self.context_menu = QMenu(self)
 
@@ -206,7 +207,7 @@ class _FolderThumbnail(Thumbnail):
         self._open_folder_sig.emit(self.src)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        self.select_thumbnail()
+        self.clicked_cmd()
         self.context_menu.exec_(self.mapToGlobal(a0.pos()))
 
 
@@ -218,8 +219,8 @@ class _GridStandartBase(Grid):
     def __init__(self, width: int):
         super().__init__()
 
-        self._image_grid_widgets: dict[tuple: QPixmap] = {}
-        self._all_grid_widgets: list[Thumbnail] = []
+        _finder_items = _LoadFinderItems()
+        _finder_items = _finder_items._get()
 
         clmn_count = Utils.get_clmn_count(width)
         if clmn_count < 1:
@@ -227,35 +228,35 @@ class _GridStandartBase(Grid):
 
         row, col = 0, 0
 
-        finder_items = _LoadFinderItems()
-        finder_items = finder_items._get()
+        # (src, size, modified): QLabel. Для последующей загрузки в _LoadImagesThread
+        self._image_grid_widgets: dict[tuple: QPixmap] = {}
 
-        for (src, filename, size, modified, _), _ in finder_items.items():
+        for (src, filename, size, modified, _), _ in _finder_items.items():
+
             if os.path.isdir(src):
-                thumbnail = _FolderThumbnail(filename, src)
-                self._set_default_image(thumbnail.img_label, "images/folder_210.png")
-                thumbnail._open_folder_sig.connect(self.open_folder_sig.emit)
-                thumbnail._add_fav_sig.connect(self.add_fav_sig.emit)
-                thumbnail._del_fav_sig.connect(self.del_fav_sig.emit)
+                wid = _FolderThumbnail(filename, src)
+                self._set_default_image(wid.img_label, "images/folder_210.png")
+                wid._open_folder_sig.connect(self.open_folder_sig.emit)
+                wid._add_fav_sig.connect(self.add_fav_sig.emit)
+                wid._del_fav_sig.connect(self.del_fav_sig.emit)
 
             else:
-                thumbnail = Thumbnail(filename, src)
-                thumbnail._move_to_wid_sig.connect(lambda src: self._move_to_wid(src))
-                self._set_default_image(thumbnail.img_label, "images/file_210.png")
+                wid = Thumbnail(filename, src, self._paths)
+                wid._move_to_wid_sig.connect(lambda src: self._move_to_wid(src))
+                self._set_default_image(wid.img_label, "images/file_210.png")
+                self._image_grid_widgets[(src, size, modified)] = wid.img_label
 
-                Config.image_grid_widgets_global[src] = thumbnail
-                self._image_grid_widgets[(src, size, modified)] = thumbnail.img_label
+            self._add_wid_to_dicts({"row": row, "col": col, "src": src, "widget": wid})
+            wid._clicked_sig.connect(lambda wid=wid: self._clicked_thumb(wid))
 
-            self.grid_layout.addWidget(thumbnail, row, col)
+            self.grid_layout.addWidget(wid, row, col)
 
             col += 1
             if col >= clmn_count:
                 col = 0
                 row += 1
 
-            self._all_grid_widgets.append(thumbnail)
-
-        if self._all_grid_widgets:
+        if self._row_col_widget:
             row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
             self.grid_layout.addItem(row_spacer, row + 1, 0)
 
@@ -275,6 +276,14 @@ class _GridStandartBase(Grid):
             no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0)
+
+    def _clicked_thumb(self, widget: Thumbnail):
+        if isinstance(self._selected_thumbnail, Thumbnail):
+            self._selected_thumbnail.setFrameShape(QFrame.Shape.NoFrame)
+
+        self.cur_row, self.cur_col = self._widget_row_col.get(widget)
+        widget.setFrameShape(QFrame.Shape.Panel)
+        self._selected_thumbnail = widget
 
     def _set_default_image(self, widget: QLabel, png_path: str):
         pixmap = QPixmap(png_path)
@@ -306,20 +315,25 @@ class GridStandart(_GridStandartBase, GridMethods):
         super().__init__(width)
 
     def resize_grid(self, width: int):
+        row_col_widget = self._row_col_widget.copy()
+        self._reset_row_cols()
+
         clmn_count = Utils.get_clmn_count(width)
-        
         if clmn_count < 1:
             clmn_count = 1
-
         row, col = 0, 0
 
-        for wid in self._all_grid_widgets:
+        for data, wid in row_col_widget.items():
+
             self.grid_layout.addWidget(wid, row, col)
+
+            src = self._widget_path.get(wid)
+            self._add_wid_to_dicts({"row": row, "col": col, "src": src, "widget": wid})
+
             col += 1
             if col >= clmn_count:
                 col = 0
                 row += 1
-        return
     
     def stop_and_wait_threads(self):
         for thread in _Storage.threads:

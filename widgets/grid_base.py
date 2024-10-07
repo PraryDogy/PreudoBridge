@@ -38,11 +38,13 @@ class NameLabel(QLabel):
 
 class Thumbnail(QFrame):
     _move_to_wid_sig = pyqtSignal(str)
+    _clicked_sig = pyqtSignal()
 
-    def __init__(self, filename: str, src: str):
+    def __init__(self, filename: str, src: str, paths: list):
         super().__init__()
         self.setFixedSize(250, 280)
-        self.src = src
+        self.src: str = src
+        self.paths: list = paths
 
         self.setFrameShape(QFrame.Shape.NoFrame)
         tooltip = filename + "\n" + src
@@ -84,12 +86,11 @@ class Thumbnail(QFrame):
         self.context_menu.addAction(copy_path)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
-        self.select_thumbnail()
+        self._clicked_sig.emit()
 
     def mousePressEvent(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.LeftButton:
             self.drag_start_position = a0.pos()
-        # return super().mousePressEvent(a0)
 
     def mouseMoveEvent(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.RightButton:
@@ -103,7 +104,7 @@ class Thumbnail(QFrame):
         if distance < QApplication.startDragDistance():
             return
 
-        self.select_thumbnail()
+        self._clicked_sig.emit()
 
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
@@ -114,23 +115,22 @@ class Thumbnail(QFrame):
 
         self.drag.setMimeData(self.mime_data)
         self.drag.exec_(Qt.DropAction.CopyAction)
-        # return super().mouseMoveEvent(a0)
 
     def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.LeftButton:
-            self.select_thumbnail()
-            self.win = WinImgView(self, self.src)
+            self._clicked_sig.emit()
+            self.win = WinImgView(self.src, self.paths)
             Utils.center_win(parent=Utils.get_main_win(), child=self.win)
             self.win.closed.connect(lambda src: self._move_to_wid_sig.emit(src))
             self.win.show()
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        self.select_thumbnail()
+        self._clicked_sig.emit()
         self.context_menu.exec_(self.mapToGlobal(a0.pos()))
 
     def _view_file(self):
         if self.src.endswith(Config.img_ext):
-            self.win = WinImgView(self, self.src)
+            self.win = WinImgView(self.src, self.paths)
             self.win.closed.connect(lambda src: self._move_to_wid_sig.emit(src))
             main_win = Utils.get_main_win()
             Utils.center_win(parent=main_win, child=self.win)
@@ -141,17 +141,6 @@ class Thumbnail(QFrame):
 
     def _show_in_finder(self):
         subprocess.call(["open", "-R", self.src])
-
-    def select_thumbnail(self):
-        try:
-            wid: QFrame = Config.selected_thumbnail
-            wid.setFrameShape(QFrame.Shape.NoFrame)
-        except (RuntimeError, AttributeError) as e:
-            # print("thumbnail > deselect prev thumb error:", e)
-            ...
-
-        self.setFrameShape(QFrame.Shape.Panel)
-        Config.selected_thumbnail = self        
 
 
 class Grid(QScrollArea):
@@ -164,32 +153,54 @@ class Grid(QScrollArea):
         self.grid_layout = QGridLayout(main_wid)
         self.grid_layout.setSpacing(5)
         self.setWidget(main_wid)
+        
+        self._row_col_widget: dict[tuple: Thumbnail] = {} # (строка, колонка): виджет
+        self._path_widget: dict[str: Thumbnail] = {} # путь к фото: виджет
 
-        self.navigate_widgets = {tuple: Thumbnail}
+        self._widget_row_col: dict[Thumbnail: tuple] = {} # виджет: (строка, колонка)
+        self._widget_path: dict[Thumbnail: str] = {} # виджет: путь к фото
 
+        self._paths: list = [] # Список путей к изображениям в сетке
+
+        self._selected_thumbnail: Thumbnail = None # Какой виджет сейчас выделен
+        self.cur_row: int = 0
+        self.cur_col: int = 0
 
     def _move_to_wid(self, src: str):
         try:
-            wid: Thumbnail = Config.image_grid_widgets_global.get(src)
-            wid.select_thumbnail()
+            wid: Thumbnail = self._path_widget.get(src)
+            wid._clicked_sig.emit()
             self.ensureWidgetVisible(wid)
         except (RuntimeError, KeyError) as e:
             print("move to wid error: ", e)
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() == Qt.Key.Key_Space:
-            wid: Thumbnail = Config.selected_thumbnail
-            if not os.path.isdir(wid.src):
-                wid._view_file()
-        # return super().keyPressEvent(a0)
+            if not os.path.isdir(self._selected_thumbnail.src):
+                self._selected_thumbnail._view_file()
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
-        wid: Thumbnail = Config.selected_thumbnail
         try:
-            wid.setFrameShape(QFrame.Shape.NoFrame)
+            self._selected_thumbnail.setFrameShape(QFrame.Shape.NoFrame)
         except Exception as e:
-            print("grid can't deselect thumbnail:", e)
-        # return super().mouseReleaseEvent(a0)
+            pass
+
+    def _add_wid_to_dicts(self, data: dict):
+        """row, col, widget, src"""
+
+        self._row_col_widget[(data.get("row"), data.get("col"))] = data.get("widget")
+        self._widget_row_col[data.get("widget")] = (data.get("row"), data.get("col"))
+
+        self._path_widget[data.get("src")] = data.get("widget")
+
+        self._widget_path[data.get("widget")] = data.get("src")
+
+        if os.path.isfile(data.get("src")):
+            self._paths.append(data.get("src"))
+
+    def _reset_row_cols(self):
+        self._row_col_widget.clear()
+        self._widget_row_col.clear()
 
 
 class GridMethods:

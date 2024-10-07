@@ -216,9 +216,10 @@ class NextImageBtn(SwitchImageBtn):
 class WinImgView(QWidget):
     closed = pyqtSignal(str)
 
-    def __init__(self, parent: QWidget, img_src: str):
+    def __init__(self, img_src: str, paths: list):
         super().__init__()
         self.img_src: str = img_src
+        self.paths: list = paths
 
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setMinimumSize(QSize(400, 300))
@@ -305,16 +306,14 @@ class WinImgView(QWidget):
 
     def switch_image(self, offset):
         try:
-            keys = list(Config.image_grid_widgets_global.keys())
-            current_index = keys.index(self.img_src)
+            current_index = self.paths.index(self.img_src)
         except Exception as e:
-            keys = list(Config.image_grid_widgets_global.keys())
             current_index = 0
 
-        total_images = len(Config.image_grid_widgets_global)
+        total_images = len(self.paths)
         new_index = (current_index + offset) % total_images
 
-        self.img_src = keys[new_index]
+        self.img_src = self.paths[new_index]
         self.load_thumbnail()
 
     def button_switch_cmd(self, flag: str) -> None:
