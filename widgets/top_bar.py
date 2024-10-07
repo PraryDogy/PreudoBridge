@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal
 from PyQt5.QtGui import QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QLabel, QLineEdit,
                              QMenu, QPushButton, QSpacerItem, QVBoxLayout,
-                             QWidget)
+                             QWidget, QAction)
 
 from cfg import Config
 from utils import Utils
@@ -290,14 +290,30 @@ class _GoBtn(QPushButton):
         self.win.show()
 
 
-class _ColorTags(ButtonRound):
+class ColorStarsBtn(QPushButton):
     def __init__(self):
-        super().__init__(text="🔵")
-        self.menu = QMenu()
+        super().__init__(text="Фильтры")
 
-    def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
-        ...
-        # return super().mouseReleaseEvent(ev)
+        self._menu = QMenu()
+        self.setMenu(self._menu)
+
+        colors = {
+            "🔴": "Red",
+            "🔵": "Blue",
+            "🟠": "Orange",
+            "🟡": "Yellow",
+            "🟢": "Green",
+            "🟣": "Purple",
+            "🟤": "Brown"
+            }
+        
+        for color, name in colors.items():
+            action = QAction(parent=self._menu, text=color + name)
+            self._menu.addAction(action)
+
+    def mouseReleaseEvent(self, e: QMouseEvent | None) -> None:
+        self._menu.exec_()
+        return super().mouseReleaseEvent(e)
 
 
 class TopBar(QFrame):
@@ -362,7 +378,7 @@ class TopBar(QFrame):
         self.grid_layout.addItem(QSpacerItem(5, 0), 0, self.clmn)
 
         self.clmn += 1
-        self.color_tags = _ColorTags()
+        self.color_tags = ColorStarsBtn()
         self.grid_layout.addWidget(self.color_tags, 0, self.clmn)
 
         self.clmn += 1
