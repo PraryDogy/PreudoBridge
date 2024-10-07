@@ -309,11 +309,16 @@ class ColorStarsBtn(QPushButton):
         
         for color, name in colors.items():
             action = QAction(parent=self._menu, text=color + name)
+            action.setCheckable(True)
+            action.triggered.connect(lambda e, t=color: self.action_cmd(t))
             self._menu.addAction(action)
 
     def mouseReleaseEvent(self, e: QMouseEvent | None) -> None:
         self._menu.exec_()
         return super().mouseReleaseEvent(e)
+    
+    def action_cmd(self, text: str):
+        print(text)
 
 
 class TopBar(QFrame):
