@@ -275,7 +275,7 @@ class _GridSearchBase(Grid):
             pass
 
         # устанавливаем флаг QThread на False чтобы прервать цикл os.walk
-        # и не дожидаемся завершения
+        # происходит session commit и не подается сигнал _finished
         self._thread._stop_cmd()
   
 
