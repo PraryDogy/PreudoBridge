@@ -281,10 +281,10 @@ class _GridStandartBase(Grid):
             self.grid_layout.addWidget(no_images, 0, 0)
 
     def _clicked_thumb(self, widget: Thumbnail):
-        self._selected_thumbnail.setFrameShape(QFrame.Shape.NoFrame)
+        self._frame_selected_widget(QFrame.Shape.NoFrame)
         self.cur_row, self.cur_col = self._widget_row_col.get(widget)
-        widget.setFrameShape(QFrame.Shape.Panel)
         self._selected_thumbnail = widget
+        self._frame_selected_widget(QFrame.Shape.Panel)
 
     def _set_default_image(self, widget: QLabel, png_path: str):
         pixmap = QPixmap(png_path)

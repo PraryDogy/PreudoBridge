@@ -186,36 +186,40 @@ class Grid(QScrollArea):
             self._selected_thumbnail._view_file()
 
         elif a0.key() == Qt.Key.Key_Left:
-            self._selected_thumbnail.setFrameShape(QFrame.Shape.NoFrame)
+            self._frame_selected_widget(QFrame.Shape.NoFrame)
             self.cur_col = 0 if self.cur_col == 0 else self.cur_col - 1
-            self._selected_thumbnail = self._row_col_widget[(self.cur_row, self.cur_col)]
-            self._selected_thumbnail.setFrameShape(QFrame.Shape.Panel)
+            self._selected_thumbnail = self._row_col_widget.get((self.cur_row, self.cur_col))
+            self._frame_selected_widget(QFrame.Shape.Panel)
 
         elif a0.key() == Qt.Key.Key_Right:
-            self._selected_thumbnail.setFrameShape(QFrame.Shape.NoFrame)
-            self.cur_col = self.col_count - 1 if self.cur_col == self.col_count - 1 else self.cur_col + 1 
+            self._frame_selected_widget(QFrame.Shape.NoFrame)
+            self.cur_col = self.col_count if self.cur_col == self.col_count else self.cur_col + 1 
             self._selected_thumbnail = self._row_col_widget.get((self.cur_row, self.cur_col))
-            self._selected_thumbnail.setFrameShape(QFrame.Shape.Panel)
+            self._frame_selected_widget(QFrame.Shape.Panel)
 
         elif a0.key() == Qt.Key.Key_Up:
-            self._selected_thumbnail.setFrameShape(QFrame.Shape.NoFrame)
+            self._frame_selected_widget(QFrame.Shape.NoFrame)
             self.cur_row = 0 if self.cur_row == 0 else self.cur_row - 1
-            self._selected_thumbnail = self._row_col_widget[(self.cur_row, self.cur_col)]
-            self._selected_thumbnail.setFrameShape(QFrame.Shape.Panel)
-            self.ensureWidgetVisible(self._selected_thumbnail)
+            self._selected_thumbnail = self._row_col_widget.get((self.cur_row, self.cur_col))
+            self._frame_selected_widget(QFrame.Shape.Panel)
 
         elif a0.key() == Qt.Key.Key_Down:
-            self._selected_thumbnail.setFrameShape(QFrame.Shape.NoFrame)
+            self._frame_selected_widget(QFrame.Shape.NoFrame)
             self.cur_row = self.row_count if self.cur_row == self.row_count else self.cur_row + 1
-            self._selected_thumbnail = self._row_col_widget[(self.cur_row, self.cur_col)]
-            self._selected_thumbnail.setFrameShape(QFrame.Shape.Panel)
-            self.ensureWidgetVisible(self._selected_thumbnail)
-
+            self._selected_thumbnail = self._row_col_widget.get((self.cur_row, self.cur_col))
+            self._frame_selected_widget(QFrame.Shape.Panel)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
         try:
             self._selected_thumbnail.setFrameShape(QFrame.Shape.NoFrame)
         except Exception as e:
+            pass
+
+    def _frame_selected_widget(self, shape: QFrame.Shape):
+        try:
+            self._selected_thumbnail.setFrameShape(shape)
+            self.ensureWidgetVisible(self._selected_thumbnail)
+        except (AttributeError, TypeError):
             pass
 
     def _add_wid_to_dicts(self, data: dict):
