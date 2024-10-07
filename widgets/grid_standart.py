@@ -217,14 +217,10 @@ class _GridStandartBase(Grid):
     open_folder_sig = pyqtSignal(str)
 
     def __init__(self, width: int):
-        super().__init__()
+        super().__init__(width)
 
         _finder_items = _LoadFinderItems()
         _finder_items = _finder_items._get()
-
-        self.col_count = Utils.get_clmn_count(width)
-        if self.col_count < 1:
-            self.col_count = 1
 
         self.row_count, local_col_count = 0, 0
 
@@ -252,7 +248,6 @@ class _GridStandartBase(Grid):
             self._row_col_widget[self.row_count, local_col_count] = wid
             self._widget_row_col[wid] = (self.row_count, local_col_count)
             self._path_widget[src] = wid
-            self._widget_path[wid] = src
             if os.path.isfile(src):
                 self._paths.append(src)
 
@@ -260,7 +255,6 @@ class _GridStandartBase(Grid):
             if local_col_count >= self.col_count:
                 local_col_count = 0
                 self.row_count += 1
-
 
         if self._row_col_widget:
             row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
@@ -286,7 +280,7 @@ class _GridStandartBase(Grid):
     def _clicked_thumb(self, widget: Thumbnail):
         self._frame_selected_widget(QFrame.Shape.NoFrame)
         self.cur_row, self.cur_col = self._widget_row_col.get(widget)
-        self._selected_thumbnail = widget
+        self._cur_thumb = widget
         self._frame_selected_widget(QFrame.Shape.Panel)
 
     def _set_default_image(self, widget: QLabel, png_path: str):
@@ -334,7 +328,6 @@ class GridStandart(_GridStandartBase, GridMethods):
 
             self.grid_layout.addWidget(wid, self.row_count, local_col_count)
 
-            src = self._widget_path.get(wid)
             self._row_col_widget[self.row_count, local_col_count] = wid
             self._widget_row_col[wid] = (self.row_count, local_col_count)
 

@@ -13,6 +13,8 @@ from utils import Utils
 from .win_img_view import WinImgView
 
 
+# Текст с именем файла под изображением
+# Максимум 2 строки, дальше прибавляет ...
 class NameLabel(QLabel):
     def __init__(self, filename: str):
         super().__init__()
@@ -37,8 +39,18 @@ class NameLabel(QLabel):
         return "\n".join(lines)
 
 
+# Базовый виджет для файлов, сверху фото, снизу имя файла
+# Контекстное меню заранее определено, можно добавить пункты
+# Весь виджет можно перетаскивать мышкой на графические редакторы (Photoshop)
+# В редактор переместится только изображение
+# В случае, когда виджет назначается на папку, скопируется вся папка на жесткий диск
+# Двойной клик открывает просмотрщик изображений
 class Thumbnail(QFrame):
+    # просмотрщик изображений был закрыт и в аргумент передает путь к
+    # фотографии, на которой просмотрщик остановился
     _move_to_wid_sig = pyqtSignal(str)
+
+    # по виджету произошел любой клик мыши (правый левый неважно)
     _clicked_sig = pyqtSignal()
 
     def __init__(self, filename: str, src: str, paths: list):
@@ -66,6 +78,8 @@ class Thumbnail(QFrame):
         img_name = NameLabel(filename)
         v_lay.addWidget(img_name)
 
+
+        # КОНЕКСТНОЕ МЕНЮ
         self.context_menu = QMenu(self)
 
         view_action = QAction("Просмотр", self)
@@ -144,6 +158,10 @@ class Thumbnail(QFrame):
         subprocess.call(["open", "-R", self.src])
 
 
+# Заглушка
+# При первой инициации Grid - _selected_thumbnail является None
+# И чтобы не осуществлять проверку на None, мы добавляем эту заглушку
+# С теми же методами, что и в Thumbnail
 class EmptyThumbnail:
     def setFrameShape(*args, **kwargs):
         ...
@@ -152,28 +170,67 @@ class EmptyThumbnail:
         ...
 
 
+# Сетка изображений
 class Grid(QScrollArea):
-    def __init__(self):
+    def __init__(self, width: int):
         super().__init__()
         self.setWidgetResizable(True)
-        Config.image_grid_widgets_global.clear()
 
         main_wid = QWidget()
         self.grid_layout = QGridLayout(main_wid)
+        # Промежутки между ячейками
         self.grid_layout.setSpacing(5)
         self.setWidget(main_wid)
-        
-        self._row_col_widget: dict[tuple: Thumbnail] = {} # (строка, колонка): виджет
-        self._path_widget: dict[str: Thumbnail] = {} # путь к фото: виджет
-        self._widget_row_col: dict[Thumbnail: tuple] = {} # виджет: (строка, колонка)
-        self._widget_path: dict[Thumbnail: str] = {} # виджет: путь к фото
-        self._paths: list = [] # Список путей к изображениям в сетке
 
-        self._selected_thumbnail: Thumbnail = EmptyThumbnail() # Какой виджет сейчас выделен
+        ############################################################
+
+        # С помощью данных словарей мы упрощаем навигацию по сетке
+        # зображений клавиатурными стрелочками
+        # чтобы каждый раз не итерировать и не искать, какой виджет был выделен,
+        # а какой нужно выделить теперь
+
+        ############################################################
+
+        # Поиск виджета по номеру строки и колонки
+        # При нажатии на клавиатурную стрелочку мы знаем новую строку и колонку
+        # (строка, колонка): виджет
+        self._row_col_widget: dict[tuple: Thumbnail] = {}
+
+        # Поиск виджета по пути к изображению
+        # Когда просмотрщик закрывается и Thumbnail посылает сигнал
+        # move_to_wid в сетку, в аргументе сигнала содержится путь к фотографии
+        # и мы ищем по этому пути, на каком виджете с изображением остановился
+        # просмотр, чтобы перевести на него выделение и скролл
+        # Используется в Grid._move_to_wid
+        # путь к фото: виджет
+        self._path_widget: dict[str: Thumbnail] = {}
+
+        # Поиск номера строки и колонки по виджету
+        # Клик мышкой по Thumbnail и мы узнаем строку и колонку
+        # Если дальнейшую навигацию по сетке осуществлять клавишами
+        # то важно знать, какая сейчас строка и колонка выделена
+        # Используется в _clicked_thumb во всех наследниках Grid
+        # виджет: (строка, колонка). 
+        self._widget_row_col: dict[Thumbnail: tuple] = {}
+
+
+        # Список путей к изображениям в сетке, который передается в
+        # просмотрщик изображений
+        self._paths: list = []
+
+        # Текущий выделенный виджет
+        # Когда происходит клик вне виджета или по другому виджету Thumbnail
+        # С данного виджета снимается выделение
+        self._cur_thumb: Thumbnail = EmptyThumbnail()
         self.cur_row: int = 0
         self.cur_col: int = 0
+
+        # Максимальное количество строк
+        # При итерации изображений в сетке, каждый раз прибавляется + 1
         self.row_count: int = 0
-        self.col_count: int = 0
+
+        # Макимальное количество колонок
+        self.col_count = Utils.get_clmn_count(width)
 
     def _move_to_wid(self, src: str):
         try:
@@ -185,37 +242,37 @@ class Grid(QScrollArea):
 
     def _frame_selected_widget(self, shape: QFrame.Shape):
         try:
-            self._selected_thumbnail.setFrameShape(shape)
-            self.ensureWidgetVisible(self._selected_thumbnail)
+            self._cur_thumb.setFrameShape(shape)
+            self.ensureWidgetVisible(self._cur_thumb)
         except (AttributeError, TypeError) as e:
             pass
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() == Qt.Key.Key_Space:
-            self._selected_thumbnail._view_file()
+            self._cur_thumb._view_file()
 
         elif a0.key() == Qt.Key.Key_Left:
             self._frame_selected_widget(QFrame.Shape.NoFrame)
             self.cur_col = 0 if self.cur_col == 0 else self.cur_col - 1
-            self._selected_thumbnail = self._row_col_widget.get((self.cur_row, self.cur_col))
+            self._cur_thumb = self._row_col_widget.get((self.cur_row, self.cur_col))
             self._frame_selected_widget(QFrame.Shape.Panel)
 
         elif a0.key() == Qt.Key.Key_Right:
             self._frame_selected_widget(QFrame.Shape.NoFrame)
             self.cur_col = self.col_count - 1 if self.cur_col == self.col_count - 1 else self.cur_col + 1 
-            self._selected_thumbnail = self._row_col_widget.get((self.cur_row, self.cur_col))
+            self._cur_thumb = self._row_col_widget.get((self.cur_row, self.cur_col))
             self._frame_selected_widget(QFrame.Shape.Panel)
 
         elif a0.key() == Qt.Key.Key_Up:
             self._frame_selected_widget(QFrame.Shape.NoFrame)
             self.cur_row = 0 if self.cur_row == 0 else self.cur_row - 1
-            self._selected_thumbnail = self._row_col_widget.get((self.cur_row, self.cur_col))
+            self._cur_thumb = self._row_col_widget.get((self.cur_row, self.cur_col))
             self._frame_selected_widget(QFrame.Shape.Panel)
 
         elif a0.key() == Qt.Key.Key_Down:
             self._frame_selected_widget(QFrame.Shape.NoFrame)
             self.cur_row = self.row_count if self.cur_row == self.row_count else self.cur_row + 1
-            self._selected_thumbnail = self._row_col_widget.get((self.cur_row, self.cur_col))
+            self._cur_thumb = self._row_col_widget.get((self.cur_row, self.cur_col))
             self._frame_selected_widget(QFrame.Shape.Panel)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:

@@ -1,7 +1,9 @@
-from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QMouseEvent
-from PyQt5.QtWidgets import QApplication, QLabel, QMainWindow, QPushButton
+from PyQt5.QtWidgets import QLabel
 
+
+# Кликабельный круглый лейбл для 🔴🔵🟠🟡🟢🟣🟤
+# Эмулирует QPushButton с setCheckable(True)
 
 class ButtonRound(QLabel):
     def __init__(self, text):

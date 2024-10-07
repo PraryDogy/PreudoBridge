@@ -140,15 +140,12 @@ class _GridSearchBase(Grid):
     show_thumbnail_in_folder = pyqtSignal(str)
 
     def __init__(self, width: int, search_text: str):
-        super().__init__()
+        super().__init__(width)
         self.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         self._image_grid_widgets: dict[tuple: _Thumbnail] = {}
         self.search_text = search_text
 
-        self.col_count = Utils.get_clmn_count(width)
-        if self.col_count < 1:
-            self.col_count = 1
         self.row_count, self.local_col = 0, 0
 
         clmn_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
@@ -172,7 +169,6 @@ class _GridSearchBase(Grid):
         self._row_col_widget[self.row_count, self.local_col_count] = wid
         self._widget_row_col[wid] = (self.row_count, self.local_col_count)
         self._path_widget[data.get("src")] = wid
-        self._widget_path[wid] = data.get("src")
         self._paths.append(data.get("src"))
 
         self.local_col_count += 1
@@ -189,7 +185,7 @@ class _GridSearchBase(Grid):
     def _clicked_thumb(self, widget: Thumbnail):
         self._frame_selected_widget(QFrame.Shape.NoFrame)
         self.cur_row, self.cur_col = self._widget_row_col.get(widget)
-        self._selected_thumbnail = widget
+        self._cur_thumb = widget
         self._frame_selected_widget(QFrame.Shape.Panel)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
