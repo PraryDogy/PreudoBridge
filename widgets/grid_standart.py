@@ -203,6 +203,9 @@ class _FolderThumbnail(Thumbnail):
             add_fav.triggered.connect(lambda: self._add_fav_sig.emit(self.src))
             self.context_menu.addAction(add_fav)
 
+    def _view_file(self):
+        self._open_folder_sig.emit(self.src)
+
     def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
         self._open_folder_sig.emit(self.src)
 
@@ -226,7 +229,7 @@ class _GridStandartBase(Grid):
         if clmn_count < 1:
             clmn_count = 1
 
-        row, col = 0, 0
+        self.row_count, self.col_count = 0, 0
 
         # (src, size, modified): QLabel. Для последующей загрузки в _LoadImagesThread
         self._image_grid_widgets: dict[tuple: QPixmap] = {}
@@ -246,22 +249,22 @@ class _GridStandartBase(Grid):
                 self._set_default_image(wid.img_label, "images/file_210.png")
                 self._image_grid_widgets[(src, size, modified)] = wid.img_label
 
-            self._add_wid_to_dicts({"row": row, "col": col, "src": src, "widget": wid})
+            self._add_wid_to_dicts({"row": self.row_count, "col": self.col_count, "src": src, "widget": wid})
             wid._clicked_sig.connect(lambda wid=wid: self._clicked_thumb(wid))
 
-            self.grid_layout.addWidget(wid, row, col)
+            self.grid_layout.addWidget(wid, self.row_count, self.col_count)
 
-            col += 1
-            if col >= clmn_count:
-                col = 0
-                row += 1
+            self.col_count += 1
+            if self.col_count >= clmn_count:
+                self.col_count = 0
+                self.row_count += 1
 
         if self._row_col_widget:
             row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
-            self.grid_layout.addItem(row_spacer, row + 1, 0)
+            self.grid_layout.addItem(row_spacer, self.row_count + 1, 0)
 
             col_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
-            self.grid_layout.addItem(col_spacer, 0, col + 2)
+            self.grid_layout.addItem(col_spacer, 0, self.col_count + 2)
 
             self._start_load_images_thread()
 
@@ -278,9 +281,7 @@ class _GridStandartBase(Grid):
             self.grid_layout.addWidget(no_images, 0, 0)
 
     def _clicked_thumb(self, widget: Thumbnail):
-        if isinstance(self._selected_thumbnail, Thumbnail):
-            self._selected_thumbnail.setFrameShape(QFrame.Shape.NoFrame)
-
+        self._selected_thumbnail.setFrameShape(QFrame.Shape.NoFrame)
         self.cur_row, self.cur_col = self._widget_row_col.get(widget)
         widget.setFrameShape(QFrame.Shape.Panel)
         self._selected_thumbnail = widget
@@ -321,20 +322,21 @@ class GridStandart(_GridStandartBase, GridMethods):
         clmn_count = Utils.get_clmn_count(width)
         if clmn_count < 1:
             clmn_count = 1
-        row, col = 0, 0
+
+        self.row_count, self.col_count = 0, 0
 
         for data, wid in row_col_widget.items():
 
-            self.grid_layout.addWidget(wid, row, col)
+            self.grid_layout.addWidget(wid, self.row_count, self.col_count)
 
             src = self._widget_path.get(wid)
-            self._add_wid_to_dicts({"row": row, "col": col, "src": src, "widget": wid})
+            self._add_wid_to_dicts({"row": self.row_count, "col": self.col_count, "src": src, "widget": wid})
 
-            col += 1
-            if col >= clmn_count:
-                col = 0
-                row += 1
-    
+            self.col_count += 1
+            if self.col_count >= clmn_count:
+                self.col_count = 0
+                self.row_count += 1
+
     def stop_and_wait_threads(self):
         for thread in _Storage.threads:
             thread: _LoadImagesThread

@@ -1,5 +1,6 @@
 import os
 import subprocess
+from typing import Union
 
 from PyQt5.QtCore import QMimeData, Qt, QUrl, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent
@@ -143,6 +144,11 @@ class Thumbnail(QFrame):
         subprocess.call(["open", "-R", self.src])
 
 
+class EmptyThumbnail:
+    def setFrameShape(*args, **kwargs):
+        ...
+
+
 class Grid(QScrollArea):
     def __init__(self):
         super().__init__()
@@ -156,15 +162,15 @@ class Grid(QScrollArea):
         
         self._row_col_widget: dict[tuple: Thumbnail] = {} # (строка, колонка): виджет
         self._path_widget: dict[str: Thumbnail] = {} # путь к фото: виджет
-
         self._widget_row_col: dict[Thumbnail: tuple] = {} # виджет: (строка, колонка)
         self._widget_path: dict[Thumbnail: str] = {} # виджет: путь к фото
-
         self._paths: list = [] # Список путей к изображениям в сетке
 
-        self._selected_thumbnail: Thumbnail = None # Какой виджет сейчас выделен
+        self._selected_thumbnail: Thumbnail = EmptyThumbnail() # Какой виджет сейчас выделен
         self.cur_row: int = 0
         self.cur_col: int = 0
+        self.row_count: int = 1
+        self.col_count: int = 1
 
     def _move_to_wid(self, src: str):
         try:
@@ -175,9 +181,36 @@ class Grid(QScrollArea):
             print("move to wid error: ", e)
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
+
         if a0.key() == Qt.Key.Key_Space:
-            if not os.path.isdir(self._selected_thumbnail.src):
-                self._selected_thumbnail._view_file()
+            self._selected_thumbnail._view_file()
+
+        elif a0.key() == Qt.Key.Key_Left:
+            self._selected_thumbnail.setFrameShape(QFrame.Shape.NoFrame)
+            self.cur_col = 0 if self.cur_col == 0 else self.cur_col - 1
+            self._selected_thumbnail = self._row_col_widget[(self.cur_row, self.cur_col)]
+            self._selected_thumbnail.setFrameShape(QFrame.Shape.Panel)
+
+        elif a0.key() == Qt.Key.Key_Right:
+            self._selected_thumbnail.setFrameShape(QFrame.Shape.NoFrame)
+            self.cur_col = self.col_count - 1 if self.cur_col == self.col_count - 1 else self.cur_col + 1 
+            self._selected_thumbnail = self._row_col_widget.get((self.cur_row, self.cur_col))
+            self._selected_thumbnail.setFrameShape(QFrame.Shape.Panel)
+
+        elif a0.key() == Qt.Key.Key_Up:
+            self._selected_thumbnail.setFrameShape(QFrame.Shape.NoFrame)
+            self.cur_row = 0 if self.cur_row == 0 else self.cur_row - 1
+            self._selected_thumbnail = self._row_col_widget[(self.cur_row, self.cur_col)]
+            self._selected_thumbnail.setFrameShape(QFrame.Shape.Panel)
+            self.ensureWidgetVisible(self._selected_thumbnail)
+
+        elif a0.key() == Qt.Key.Key_Down:
+            self._selected_thumbnail.setFrameShape(QFrame.Shape.NoFrame)
+            self.cur_row = self.row_count if self.cur_row == self.row_count else self.cur_row + 1
+            self._selected_thumbnail = self._row_col_widget[(self.cur_row, self.cur_col)]
+            self._selected_thumbnail.setFrameShape(QFrame.Shape.Panel)
+            self.ensureWidgetVisible(self._selected_thumbnail)
+
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
         try:
