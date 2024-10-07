@@ -1,7 +1,7 @@
 import os
 from difflib import SequenceMatcher
 
-from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal
+from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal, QPoint
 from PyQt5.QtGui import QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QLabel, QLineEdit,
                              QMenu, QPushButton, QSpacerItem, QVBoxLayout,
@@ -293,32 +293,48 @@ class _GoBtn(QPushButton):
 class ColorStarsBtn(QPushButton):
     def __init__(self):
         super().__init__(text="Фильтры")
-
-        self._menu = QMenu()
-        self.setMenu(self._menu)
-
-        colors = {
-            "🔴": "Red",
-            "🔵": "Blue",
-            "🟠": "Orange",
-            "🟡": "Yellow",
-            "🟢": "Green",
-            "🟣": "Purple",
-            "🟤": "Brown"
-            }
+        self.setCheckable(False)
         
-        for color, name in colors.items():
-            action = QAction(parent=self._menu, text=color + name)
-            action.setCheckable(True)
-            action.triggered.connect(lambda e, t=color: self.action_cmd(t))
-            self._menu.addAction(action)
+        # Создаем кастомный виджет-меню
+        self._menu = QWidget()
+        self._menu.setWindowFlags(Qt.Popup)
+        self._menu.setLayout(QVBoxLayout())
+        self._menu.layout().setContentsMargins(0, 0, 0, 0)
+        self._menu.layout().setSpacing(1)
 
-    def mouseReleaseEvent(self, e: QMouseEvent | None) -> None:
-        self._menu.exec_()
-        return super().mouseReleaseEvent(e)
-    
-    def action_cmd(self, text: str):
-        print(text)
+        self.color_data = {
+            "🔴": {"text": "Красный", "bool": False},
+            "🔵": {"text": "Синий", "bool": False},
+            "🟠": {"text": "Оранжевый", "bool": False},
+            "🟡": {"text": "Желтый", "bool": False},
+            "🟢": {"text": "Зеленый", "bool": False},
+            "🟣": {"text": "Фиолетовый", "bool": False},
+            "🟤": {"text": "Коричневый", "bool": False}
+            }
+
+        self.labels = {}
+        for color, data in self.color_data.items():
+            label = QLabel(color + " " + data.get("text"))
+            label.setContentsMargins(15, 5, 15, 5)
+            label.mousePressEvent = lambda e, w=label, c=color: self.toggle_label(w, c)
+            self._menu.layout().addWidget(label)
+
+    def mouseReleaseEvent(self, e):
+        pont = self.rect().bottomLeft()
+        self._menu.move(self.mapToGlobal(pont))
+        self._menu.show()
+
+    def toggle_label(self, widget: QLabel, color: str):
+        key = self.color_data.get(color)
+        if key.get("bool"):
+            widget.setStyleSheet("")
+            key["bool"] = False
+
+        else:
+            widget.setStyleSheet("background: green;")
+            key["bool"] = True
+        
+        print(self.color_data.get(color))
 
 
 class TopBar(QFrame):
