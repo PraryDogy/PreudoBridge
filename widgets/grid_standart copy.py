@@ -119,21 +119,19 @@ class _LoadImagesThread(QThread):
             pass
 
 
-class _LoadFinderThread(QThread):
-    _finished = pyqtSignal(dict)
-
+class _LoadFinderItems:
     def __init__(self):
         super().__init__()
         self.finder_items: dict[tuple: None] = {}
 
-    def run(self):
+    def _get(self):
         try:
             self._get_items()
             self._sort_items()
         except (PermissionError, FileNotFoundError):
             self.finder_items: dict[tuple: None] = {}
         
-        self._finished.emit(self.finder_items)
+        return self.finder_items
 
     def _get_items(self):
         for filename in os.listdir(Config.json_data.get("root")):
@@ -217,17 +215,13 @@ class _GridStandartBase(Grid):
     add_fav_sig = pyqtSignal(str)
     del_fav_sig = pyqtSignal(str)
     open_folder_sig = pyqtSignal(str)
-    finder_items_loaded = pyqtSignal()
 
     def __init__(self, width: int):
         super().__init__(width)
 
-        self._finder_thread = _LoadFinderThread()
-        self._finder_thread._finished.connect(self._create_grid)
-        self._finder_thread.start()
+        _finder_items = _LoadFinderItems()
+        _finder_items = _finder_items._get()
 
-    def _create_grid(self, _finder_items: dict):
-        self.finder_items_loaded.emit()
         self.row_count, local_col_count = 0, 0
 
         # (src, size, modified): QLabel. Для последующей загрузки в _LoadImagesThread
