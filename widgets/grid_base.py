@@ -178,7 +178,6 @@ class Grid(QScrollArea):
 
         main_wid = QWidget()
         self.grid_layout = QGridLayout(main_wid)
-        # Промежутки между ячейками
         self.grid_layout.setSpacing(5)
         self.setWidget(main_wid)
 
