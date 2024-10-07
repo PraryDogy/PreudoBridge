@@ -12,7 +12,7 @@ from database import Cache, Dbase
 from fit_img import FitImg
 from utils import Utils
 
-from .grid_base import Grid, GridMethods, Thumbnail
+from .grid_base import Grid, Thumbnail
 
 
 class _Storage:
@@ -308,7 +308,7 @@ class _GridStandartBase(Grid):
         return super().closeEvent(a0)
         
 
-class GridStandart(_GridStandartBase, GridMethods):
+class GridStandart(_GridStandartBase):
     def __init__(self, width: int):
         super().__init__(width)
 

@@ -12,7 +12,7 @@ from database import Cache, Dbase
 from fit_img import FitImg
 from utils import Utils
 
-from .grid_base import Grid, GridMethods, Thumbnail
+from .grid_base import Grid, Thumbnail
 
 
 class _Thumbnail(Thumbnail):
@@ -146,7 +146,7 @@ class _GridSearchBase(Grid):
         self._image_grid_widgets: dict[tuple: _Thumbnail] = {}
         self.search_text = search_text
 
-        self.row_count, self.local_col = 0, 0
+        self.row_count, self.local_col_count = 0, 0
 
         clmn_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
         self.grid_layout.addItem(clmn_spacer, 0, self.col_count + 1)
@@ -164,7 +164,7 @@ class _GridSearchBase(Grid):
         wid._move_to_wid_sig.connect(self._move_to_wid)
         wid._clicked_sig.connect(lambda wid=wid: self._clicked_thumb(wid))  
 
-        self.grid_layout.addWidget(wid, self.row_count, self.local_col, alignment=Qt.AlignmentFlag.AlignTop)
+        self.grid_layout.addWidget(wid, self.row_count, self.local_col_count, alignment=Qt.AlignmentFlag.AlignTop)
 
         self._row_col_widget[self.row_count, self.local_col_count] = wid
         self._widget_row_col[wid] = (self.row_count, self.local_col_count)
@@ -197,7 +197,7 @@ class _GridSearchBase(Grid):
         # return super().closeEvent(a0)
   
 
-class GridSearch(_GridSearchBase, GridMethods):
+class GridSearch(_GridSearchBase):
     def __init__(self, width: int, search_text: str):
         super().__init__(width, search_text)
 

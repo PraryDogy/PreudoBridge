@@ -66,7 +66,7 @@ class Thumbnail(QFrame):
         v_lay = QVBoxLayout()
         v_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
         v_lay.setContentsMargins(0, 0, 0, 0)
-        v_lay.setSpacing(0)
+        v_lay.setSpacing(10)
         self.setLayout(v_lay)
 
         self.img_label = QLabel()
@@ -170,8 +170,25 @@ class EmptyThumbnail:
         ...
 
 
+# Методы для внешнего использования, которые обязательно нужно
+# Переназначить в наследнике Grid
+# Служит как напоминалка
+class GridMethods:
+    def resize_grid(self) -> None:
+        raise NotImplementedError("Переназначь resize_grid")
+
+    def stop_and_wait_threads(self) -> None:
+        raise NotImplementedError("Переназначь stop_and_wait_threads")
+
+    def sort_grid(self) -> None:
+        raise NotImplementedError("Переназначь sort_grid")
+
+    def move_to_wid(self) -> None:
+        raise NotImplementedError("Переназначь move_to_wid")
+
+
 # Сетка изображений
-class Grid(QScrollArea):
+class Grid(QScrollArea, GridMethods):
     def __init__(self, width: int):
         super().__init__()
         self.setWidgetResizable(True)
@@ -197,7 +214,7 @@ class Grid(QScrollArea):
 
         # Поиск виджета по пути к изображению
         # Когда просмотрщик закрывается и Thumbnail посылает сигнал
-        # move_to_wid в сетку, в аргументе сигнала содержится путь к фотографии
+        # move_to_wid в сетку, в аргументе сигнала содержится путь к изображению
         # и мы ищем по этому пути, на каком виджете с изображением остановился
         # просмотр, чтобы перевести на него выделение и скролл
         # Используется в Grid._move_to_wid
@@ -231,6 +248,13 @@ class Grid(QScrollArea):
         # Макимальное количество колонок
         self.col_count = Utils.get_clmn_count(width)
 
+    def _frame_selected_widget(self, shape: QFrame.Shape):
+        try:
+            self._cur_thumb.setFrameShape(shape)
+            self.ensureWidgetVisible(self._cur_thumb)
+        except (AttributeError, TypeError) as e:
+            pass
+
     def _move_to_wid(self, src: str):
         try:
             wid: Thumbnail = self._path_widget.get(src)
@@ -238,13 +262,6 @@ class Grid(QScrollArea):
             self.ensureWidgetVisible(wid)
         except (RuntimeError, KeyError) as e:
             print("move to wid error: ", e)
-
-    def _frame_selected_widget(self, shape: QFrame.Shape):
-        try:
-            self._cur_thumb.setFrameShape(shape)
-            self.ensureWidgetVisible(self._cur_thumb)
-        except (AttributeError, TypeError) as e:
-            pass
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() == Qt.Key.Key_Space:
@@ -276,17 +293,3 @@ class Grid(QScrollArea):
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
         self._frame_selected_widget(QFrame.Shape.NoFrame)
-
-
-class GridMethods:
-    def resize_grid(self) -> None:
-        raise NotImplementedError("Переназначь resize_grid")
-
-    def stop_and_wait_threads(self) -> None:
-        raise NotImplementedError("Переназначь stop_and_wait_threads")
-
-    def sort_grid(self) -> None:
-        raise NotImplementedError("Переназначь sort_grid")
-
-    def move_to_wid(self) -> None:
-        raise NotImplementedError("Переназначь move_to_wid")
