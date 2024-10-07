@@ -276,14 +276,6 @@ class _GridStandartBase(Grid):
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0)
 
-    def _move_to_wid(self, src: str):
-        try:
-            wid: Thumbnail = Config.image_grid_widgets_global.get(src)
-            wid.select_thumbnail()
-            self.ensureWidgetVisible(wid)
-        except (RuntimeError, KeyError) as e:
-            print("move to wid error: ", e)
-
     def _set_default_image(self, widget: QLabel, png_path: str):
         pixmap = QPixmap(png_path)
         try:

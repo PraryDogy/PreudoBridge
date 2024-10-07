@@ -181,14 +181,6 @@ class _GridSearchBase(Grid):
 
         self._image_grid_widgets[(data.get("src"), filename, size, modified, filetype)] = widget
 
-    def _move_to_wid(self, src: str):
-        try:
-            wid: _Thumbnail = Config.image_grid_widgets_global.get(src)
-            wid.select_thumbnail()
-            self.ensureWidgetVisible(wid)
-        except (RuntimeError, KeyError) as e:
-            print("move to wid error: ", e)
-
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         try:
             self._thread.disconnect()

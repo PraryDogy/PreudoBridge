@@ -1,17 +1,16 @@
 import os
 import subprocess
 
-from PyQt5.QtCore import QMimeData, Qt, QThread, QTimer, QUrl, pyqtSignal
-from PyQt5.QtGui import (QCloseEvent, QContextMenuEvent, QDrag, QKeyEvent,
-                         QMouseEvent, QPixmap)
+from PyQt5.QtCore import QMimeData, Qt, QUrl, pyqtSignal
+from PyQt5.QtGui import QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
-                             QLabel, QMenu, QScrollArea, QSizePolicy,
-                             QSpacerItem, QVBoxLayout, QWidget)
+                             QLabel, QMenu, QScrollArea, QVBoxLayout, QWidget)
 
 from cfg import Config
 from utils import Utils
-from abc import ABC, abstractmethod
+
 from .win_img_view import WinImgView
+
 
 class NameLabel(QLabel):
     def __init__(self, filename: str):
@@ -50,6 +49,7 @@ class Thumbnail(QFrame):
         self.setToolTip(tooltip)
 
         v_lay = QVBoxLayout()
+        v_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
         v_lay.setContentsMargins(0, 0, 0, 0)
         v_lay.setSpacing(0)
         self.setLayout(v_lay)
@@ -164,6 +164,14 @@ class Grid(QScrollArea):
         self.grid_layout = QGridLayout(main_wid)
         self.grid_layout.setSpacing(5)
         self.setWidget(main_wid)
+
+    def _move_to_wid(self, src: str):
+        try:
+            wid: Thumbnail = Config.image_grid_widgets_global.get(src)
+            wid.select_thumbnail()
+            self.ensureWidgetVisible(wid)
+        except (RuntimeError, KeyError) as e:
+            print("move to wid error: ", e)
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() == Qt.Key.Key_Space:
