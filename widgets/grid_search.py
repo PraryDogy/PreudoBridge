@@ -161,7 +161,7 @@ class _GridSearchBase(Grid):
         wid = _Thumbnail(filename=filename, src=data.get("src"), paths=self._paths)
         wid.img_label.setPixmap(data.get("pixmap"))
         wid._show_in_folder.connect(self.show_thumbnail_in_folder.emit)
-        wid._move_to_wid_sig.connect(self._move_to_wid)
+        wid._move_to_wid_sig.connect(self._move_to_wid_cmd)
         wid._clicked_sig.connect(lambda wid=wid: self._clicked_thumb(wid))  
 
         self.grid_layout.addWidget(wid, self.row_count, self.local_col_count, alignment=Qt.AlignmentFlag.AlignTop)
@@ -243,4 +243,4 @@ class GridSearch(_GridSearchBase):
         self.resize_grid(width)
 
     def move_to_wid(self, src: str):
-        self._move_to_wid(src)
+        self._move_to_wid_cmd(src)

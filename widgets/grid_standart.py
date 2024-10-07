@@ -238,7 +238,7 @@ class _GridStandartBase(Grid):
 
             else:
                 wid = Thumbnail(filename, src, self._paths)
-                wid._move_to_wid_sig.connect(lambda src: self._move_to_wid(src))
+                wid._move_to_wid_sig.connect(lambda src: self._move_to_wid_cmd(src))
                 self._set_default_image(wid.img_label, "images/file_210.png")
                 self._image_grid_widgets[(src, size, modified)] = wid.img_label
 
@@ -346,4 +346,4 @@ class GridStandart(_GridStandartBase):
         self.resize_grid(width)
 
     def move_to_wid(self, src: str):
-        self._move_to_wid(src)
+        self._move_to_wid_cmd(src)

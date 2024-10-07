@@ -171,8 +171,9 @@ class EmptyThumbnail:
 
 
 # Методы для внешнего использования, которые обязательно нужно
-# Переназначить в наследнике Grid
-# Служит как напоминалка
+# переназначить в наследнике Grid, потому что в GUI идет обращение
+# к этим методам без разбора
+# полиморфизм
 class GridMethods:
     def resize_grid(self) -> None:
         raise NotImplementedError("Переназначь resize_grid")
@@ -182,9 +183,6 @@ class GridMethods:
 
     def sort_grid(self) -> None:
         raise NotImplementedError("Переназначь sort_grid")
-
-    def move_to_wid(self) -> None:
-        raise NotImplementedError("Переназначь move_to_wid")
 
 
 # Сетка изображений
@@ -255,7 +253,10 @@ class Grid(QScrollArea, GridMethods):
         except (AttributeError, TypeError) as e:
             pass
 
-    def _move_to_wid(self, src: str):
+    # Общий метод для всех Grid
+    # В каждой Grud сигнал каждого Thumbnail - _move_to_wid_sig
+    # мы подключаем к данному методу
+    def _move_to_wid_cmd(self, src: str):
         try:
             wid: Thumbnail = self._path_widget.get(src)
             wid._clicked_sig.emit()
