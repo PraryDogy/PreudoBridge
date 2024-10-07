@@ -293,7 +293,6 @@ class _GoBtn(QPushButton):
 class ColorStarsBtn(QPushButton):
     def __init__(self):
         super().__init__(text="Фильтры")
-        self.setCheckable(False)
         
         # Создаем кастомный виджет-меню
         self._menu = QWidget()
@@ -323,6 +322,7 @@ class ColorStarsBtn(QPushButton):
         pont = self.rect().bottomLeft()
         self._menu.move(self.mapToGlobal(pont))
         self._menu.show()
+        self.setDown(False)
 
     def toggle_label(self, widget: QLabel, color: str):
         key = self.color_data.get(color)
