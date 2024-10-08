@@ -1,6 +1,7 @@
 import os
 
 import sqlalchemy
+import sqlalchemy.exc
 from sqlalchemy.orm import (Session, declarative_base, scoped_session,
                             sessionmaker)
 
@@ -24,15 +25,6 @@ class Dbase:
     @staticmethod
     def get_session() -> Session:
         return Session(bind=DbaseStorage.engine)
-
-    @staticmethod
-    def vacuum():
-        session = Dbase.get_session()
-        try:
-            session.execute(sqlalchemy.text("VACUUM"))
-            session.commit()
-        finally:
-            session.close()
 
     @staticmethod
     def init_db():
@@ -61,6 +53,11 @@ class Dbase:
         else:
             size_gb = size_mb / 1024
             return f"{size_gb:.2f}гб"
+        
+    @staticmethod
+    def c_commit(session: Session):
+        session.commit()
+        print("commit done")
     
 
 class Cache(DbaseStorage.base):

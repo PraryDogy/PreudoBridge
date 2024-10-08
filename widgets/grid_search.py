@@ -7,6 +7,7 @@ from numpy import ndarray
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtWidgets import QAction, QFrame, QSizePolicy, QSpacerItem
+import sqlalchemy.exc
 import sqlalchemy.orm
 
 from cfg import Config
@@ -102,7 +103,7 @@ class _SearchFinderThread(QThread):
         if self.flag:
             self._finished.emit()
 
-        self.session.commit()
+        Dbase.c_commit(self.session)
         self.session.close()
 
     # общий метод для создания QPixmap, который мы передадим в основной поток
@@ -138,10 +139,15 @@ class _SearchFinderThread(QThread):
         sleep(0.2)
 
     def _get_db_image(self, src: str) -> bytes | None:
-        q = sqlalchemy.select(Cache.img).where(Cache.src==src)
-        res = self.session.execute(q).first()
-        if res:
+        try:
+            q = sqlalchemy.select(Cache.img).where(Cache.src==src)
+            res = self.session.execute(q).first()
+        except sqlalchemy.exc.OperationalError:
+            return None
+
+        if isinstance(res, bytes):
             return res[0]
+
         return None
 
     def _image_to_db(self, src: str, img_array, stats: os.stat_result):
@@ -164,7 +170,7 @@ class _SearchFinderThread(QThread):
                 })
             try:
                 self.session.execute(q)
-            except Exception as e:
+            except (sqlalchemy.exc.OperationalError, Exception) as e:
                 print("search thread insert db image error: ", e)
 
     def _create_new_image(self, src: str) -> ndarray | None:

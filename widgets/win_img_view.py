@@ -8,6 +8,7 @@ from PyQt5.QtGui import (QCloseEvent, QContextMenuEvent, QKeyEvent,
                          QResizeEvent)
 from PyQt5.QtWidgets import (QAction, QFrame, QHBoxLayout, QLabel, QMenu,
                              QSpacerItem, QVBoxLayout, QWidget)
+import sqlalchemy.exc
 
 from cfg import Config
 from database import Cache, Dbase
@@ -272,7 +273,7 @@ class WinImgView(QWidget):
                 pixmap = QPixmap()
                 pixmap.loadFromData(thumbnail)
                 self.image_label.set_image(pixmap)
-            except Exception as e:
+            except (sqlalchemy.exc.OperationalError, Exception) as e:
                 print("IMG VIEW: there is no thumbnail in db")
                 # тут в pixmap надо загрузить изображение файла
 

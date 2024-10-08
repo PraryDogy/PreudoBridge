@@ -6,6 +6,7 @@ from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import (QAction, QFrame, QLabel, QMenu, QSizePolicy,
                              QSpacerItem)
+import sqlalchemy.exc
 
 from cfg import Config
 from database import Cache, Dbase
@@ -41,7 +42,7 @@ class _LoadImagesThread(QThread):
         self._load_already_images()
         self._create_new_images()
         self._remove_images()
-        self.session.commit()
+        Dbase.c_commit(self.session)
         self.session.close()
         self._finished.emit()
         # print(self, "thread finished")
@@ -75,7 +76,7 @@ class _LoadImagesThread(QThread):
                     "modified": modified
                     })
                 self.session.execute(q)
-            except Exception as e:
+            except (sqlalchemy.exc.OperationalError ,Exception) as e:
                 # print(e)
                 pass
 
@@ -97,12 +98,20 @@ class _LoadImagesThread(QThread):
         for (src, _, _), _ in self.remove_db_images.items():
             q = sqlalchemy.delete(Cache)
             q = q.where(Cache.src==src)
-            self.session.execute(q)
+            try:
+                self.session.execute(q)
+            except sqlalchemy.exc.OperationalError:
+                ...
 
     def _get_db_images(self):
         q = sqlalchemy.select(Cache.img, Cache.src, Cache.size, Cache.modified)
         q = q.where(Cache.root==Config.json_data.get("root"))
-        res = self.session.execute(q).fetchall()
+
+        try:
+            res = self.session.execute(q).fetchall()
+        except sqlalchemy.exc.OperationalError:
+            return None
+
         return {
             (src, size, modified): img
             for img, src, size,  modified in res
