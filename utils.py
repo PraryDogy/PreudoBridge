@@ -55,7 +55,7 @@ class Utils:
             # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             return img
         except (tifffile.tifffile.TiffFileError) as e:
-            print(traceback.format_exc())
+            print("tiffle error read image", e)
             return Utils.read_psd(src)
 
     @staticmethod
