@@ -280,6 +280,7 @@ class WinImgView(QWidget):
         self.load_image_thread()
 
     def load_image_thread(self):
+        self.setWindowTitle("Загрузка")
         img_thread = LoadImageThread(self.img_src)
         Shared.threads.append(img_thread)
         img_thread.finished.connect(
