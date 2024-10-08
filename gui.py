@@ -185,6 +185,7 @@ class SimpleFileExplorer(QWidget):
 
         self.top_bar.search_wid.clear_search_sig.emit()
         self.top_bar.update_history()
+        self.top_bar_setDisabled(False)
 
         self.folders_tree_wid.expand_path(Config.json_data.get("root"))
         QTimer.singleShot(1000, self.grid_standart_load_fin)
