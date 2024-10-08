@@ -49,6 +49,7 @@ class _LoadImagesThread(QThread):
 
     def _create_new_images(self):
         grid_widgets = self.grid_widgets.copy()
+        count = 0
 
         for (src, size, modified), widget in grid_widgets.items():
             if not self.flag:
@@ -56,6 +57,9 @@ class _LoadImagesThread(QThread):
 
             if os.path.isdir(src):
                 continue
+
+            if count % 10 == 0:
+                Dbase.c_commit(self.session)
 
             img = Utils.read_image(src)
             img = FitImg.start(img, Config.thumb_size)
@@ -79,6 +83,8 @@ class _LoadImagesThread(QThread):
             except (sqlalchemy.exc.OperationalError ,Exception) as e:
                 # print(e)
                 pass
+
+            count += 1
 
     def _load_already_images(self):
         for (src, size, modified), bytearray_image in self.db_images.items():
@@ -374,7 +380,6 @@ class GridStandart(_GridStandartBase):
         for thread in _Storage.threads:
             thread: _LoadImagesThread
             thread._stop_thread.emit()
-            thread.session.commit()
 
     def sort_grid(self, width: int):
         self.resize_grid(width)
