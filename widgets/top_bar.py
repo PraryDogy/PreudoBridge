@@ -297,7 +297,7 @@ class ColorStarsBtn(QPushButton):
         self._menu = QWidget()
         self._menu.setWindowFlags(Qt.Popup)
         self._menu.setLayout(QVBoxLayout())
-        self._menu.layout().setContentsMargins(0, 0, 0, 0)
+        self._menu.layout().setContentsMargins(1, 1, 1, 1)
         self._menu.layout().setSpacing(1)
         self._menu.closeEvent = lambda e: self.press_check()
 
@@ -332,7 +332,7 @@ class ColorStarsBtn(QPushButton):
             key["bool"] = False
             self.counter -= 1
         else:
-            widget.setStyleSheet("background: blue;")
+            widget.setStyleSheet("background: #007AFF;")
             key["bool"] = True
             self.counter += 1
         
