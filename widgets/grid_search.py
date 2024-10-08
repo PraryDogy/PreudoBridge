@@ -145,7 +145,7 @@ class _SearchFinderThread(QThread):
         except sqlalchemy.exc.OperationalError:
             return None
 
-        if isinstance(res, bytes):
+        if isinstance(res, sqlalchemy.engine.Row):
             return res[0]
 
         return None
@@ -172,6 +172,7 @@ class _SearchFinderThread(QThread):
                 self.session.execute(q)
             except (sqlalchemy.exc.OperationalError, Exception) as e:
                 print("search thread insert db image error: ", e)
+                ...
 
     def _create_new_image(self, src: str) -> ndarray | None:
         img = Utils.read_image(src)
