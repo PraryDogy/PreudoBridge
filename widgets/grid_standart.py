@@ -374,7 +374,7 @@ class GridStandart(_GridStandartBase):
         for thread in _Storage.threads:
             thread: _LoadImagesThread
             thread._stop_thread.emit()
-            thread.wait()
+            thread.session.commit()
 
     def sort_grid(self, width: int):
         self.resize_grid(width)

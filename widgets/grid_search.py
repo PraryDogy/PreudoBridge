@@ -333,7 +333,7 @@ class GridSearch(_GridSearchBase):
     # изображения
     def stop_and_wait_threads(self):
         self._thread._stop_cmd()
-        self._thread.wait()
+        self._thread.session.commit()
 
     
     def sort_grid(self, width: int):
