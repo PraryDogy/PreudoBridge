@@ -27,7 +27,7 @@ class SimpleFileExplorer(QWidget):
 
         self.resize_timer = QTimer(parent=self)
         self.resize_timer.setSingleShot(True)
-        self.resize_timer.timeout.connect(lambda: self.grid.resize_grid(self.get_grid_width()))
+        self.resize_timer.timeout.connect(self.resize_timer_cmd)
 
         self.migaet_timer = QTimer(parent=self)
         self.migaet_timer.timeout.connect(self.grid_search_migaet_title)
@@ -77,7 +77,7 @@ class SimpleFileExplorer(QWidget):
         self.top_bar.back_sig.connect(self.top_bar_next_back_cmd)
         self.top_bar.next_sig.connect(self.top_bar_next_back_cmd)
 
-        self.r_lay.addWidget(self.top_bar)
+        self.r_lay.addWidget(self.top_bar, alignment=Qt.AlignmentFlag.AlignTop)
 
         self.grid_standart_load()
 
@@ -187,7 +187,9 @@ class SimpleFileExplorer(QWidget):
         self.top_bar.update_history()
 
         self.folders_tree_wid.expand_path(Config.json_data.get("root"))
-    
+        QTimer.singleShot(1000, self.grid_standart_load_fin)
+
+    def grid_standart_load_fin(self):
         self.grid = GridStandart(width=self.get_grid_width())
         self.grid.finder_items_loaded.connect(lambda: self.setDisabled(False))
         self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
@@ -207,6 +209,10 @@ class SimpleFileExplorer(QWidget):
 
     def get_grid_width(self):
         return Config.json_data.get("ww") - self.tabs_wid.width() - 180
+
+    def resize_timer_cmd(self):
+        if isinstance(self.grid, (GridSearch, GridStandart)):
+            self.grid.resize_grid(self.get_grid_width())
 
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         Config.json_data["ww"] = self.geometry().width()
