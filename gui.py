@@ -180,6 +180,7 @@ class SimpleFileExplorer(QWidget):
         if isinstance(self.grid, (GridSearch, GridStandart)):
             self.grid.close()
 
+        self.update()
         self.setDisabled(True)
         self.setFocus()
         self.setWindowTitle(os.path.basename(Config.json_data.get("root")))
