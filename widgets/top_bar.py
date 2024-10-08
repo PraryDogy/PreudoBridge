@@ -310,6 +310,8 @@ class ColorStarsBtn(QPushButton):
             "🟣": {"text": "Фиолетовый", "bool": False},
             "🟤": {"text": "Коричневый", "bool": False}
             }
+        
+        self.counter = 0
 
         self.labels = {}
         for color, data in self.color_data.items():
@@ -328,18 +330,14 @@ class ColorStarsBtn(QPushButton):
         if key.get("bool"):
             widget.setStyleSheet("")
             key["bool"] = False
+            self.counter -= 1
         else:
             widget.setStyleSheet("background: green;")
             key["bool"] = True
+            self.counter += 1
         
     def press_check(self):
-        print(1)
-        all_false = all(
-            data["bool"] is False
-            for data in self.color_data.values()
-            )
-        
-        if all_false:
+        if self.counter == 0:
             self.setDown(False)
         else:
             self.setDown(True)
