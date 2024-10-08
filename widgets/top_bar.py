@@ -332,7 +332,7 @@ class ColorStarsBtn(QPushButton):
             key["bool"] = False
             self.counter -= 1
         else:
-            widget.setStyleSheet("background: green;")
+            widget.setStyleSheet("background: blue;")
             key["bool"] = True
             self.counter += 1
         
