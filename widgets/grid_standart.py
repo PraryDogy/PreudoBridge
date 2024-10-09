@@ -82,17 +82,12 @@ class _LoadImagesThread(QThread):
         self._finished.emit()
 
     def _create_new_images(self):
-        # копируем словарик из инициатора
-        # чтобы защититься во время итерации от случайных изменений
-        # почему то вылезала ошибка что словарь изменен во время итерации
-        grid_widgets = self.grid_widgets.copy()
-
         # каждые 10 изображений коммитим в БД
         count = 0
 
-        self._progressbar_start.emit(len(grid_widgets))
+        self._progressbar_start.emit(len(self.grid_widgets))
 
-        for (src, size, modified), widget in grid_widgets.items():
+        for (src, size, modified), widget in self.grid_widgets.items():
             if not self.flag:
                 break
 
@@ -137,15 +132,10 @@ class _LoadImagesThread(QThread):
         self._progressbar_value.emit(1000000)
 
     def _load_already_images(self):
-        # копируем словарик из инициатора
-        # чтобы защититься во время итерации от случайных изменений
-        # почему то вылезала ошибка что словарь изменен во время итерации
-        grid_widgets = self.grid_widgets.copy()
-
         for (src, size, modified), bytearray_image in self.db_images.items():
 
             # мы сверяем по пути, размеру и дате, есть ли в БД такой же ключ
-            key = grid_widgets.get((src, size, modified))
+            key = self.grid_widgets.get((src, size, modified))
 
             if not self.flag:
                 break
