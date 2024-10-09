@@ -168,6 +168,8 @@ class SimpleFileExplorer(QWidget):
         self.grid.search_finished.connect(lambda: self.grid_search_finished(search_text))
         self.grid.show_thumbnail_in_folder.connect(self.grid_search_move_to_wid)
         self.r_lay.addWidget(self.grid, 1, 0)
+        # чтобы фокус сместился с окна ввода в поиске на сетку
+        self.grid.setFocus()
 
     def grid_search_migaet_title(self):
         if "🟠" in self.windowTitle():
@@ -228,6 +230,8 @@ class SimpleFileExplorer(QWidget):
             self.grid.open_folder_sig.connect(self.tree_wid_view_folder_cmd)
 
         self.r_lay.addWidget(self.grid, 1, 0)
+        # по умолчанию фокус будет на tree widget
+        self.grid.setFocus()
 
     def scroll_up_scroll_value(self, value: int):
         if value == 0:
