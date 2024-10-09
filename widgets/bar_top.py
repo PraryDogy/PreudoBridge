@@ -167,8 +167,10 @@ class _ViewTypeBtn(QTabBar):
 
     def set_view_cmd(self, index: int):
         if index == 0:
+            self.setCurrentIndex(0)
             Config.json_data["list_view"] = False
         else:
+            self.setCurrentIndex(1)
             Config.json_data["list_view"] = True
         self.view_click.emit()
 
