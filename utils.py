@@ -10,7 +10,7 @@ import tifffile
 from PyQt5.QtCore import QByteArray
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QApplication, QFrame, QVBoxLayout, QWidget
-
+import rawpy
 from cfg import Config
 
 psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
@@ -47,7 +47,7 @@ class Utils:
         child.setGeometry(geo)
 
     @staticmethod
-    def read_tiff(src: str) -> np.ndarray:
+    def read_tiff(src: str) -> np.ndarray | None:
         try:
             img = tifffile.imread(files=src)[:,:,:3]
             if str(object=img.dtype) != "uint8":
@@ -59,7 +59,7 @@ class Utils:
             return Utils.read_psd(src)
 
     @staticmethod
-    def read_psd(src: str) -> np.ndarray:
+    def read_psd(src: str) -> np.ndarray | None:
         try:
             img = psd_tools.PSDImage.open(fp=src)
             img = img.composite()
@@ -75,7 +75,7 @@ class Utils:
             return None
             
     @staticmethod
-    def read_jpg(path: str) -> np.ndarray:
+    def read_jpg(path: str) -> np.ndarray | None:
         try:
             image = cv2.imread(path, cv2.IMREAD_UNCHANGED)  # Чтение с альфа-каналом
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -85,7 +85,7 @@ class Utils:
             return None
         
     @staticmethod
-    def read_png(path: str) -> np.ndarray:
+    def read_png(path: str) -> np.ndarray | None:
         try:
             image = cv2.imread(path, cv2.IMREAD_UNCHANGED)  # Чтение с альфа-каналом
 
@@ -103,6 +103,16 @@ class Utils:
         except Exception as e:
             print("read png error:", e)
             return None
+        
+    @staticmethod
+    def read_raw(path: str) -> np.ndarray | None:
+        try:
+            img = rawpy.imread(path).postprocess()
+            # img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+            return img
+        except (rawpy._rawpy.LibRawDataError) as e:
+            print("read raw error:", e)
+            return None
 
     @staticmethod
     def read_image(src: str) -> np.ndarray | None:
@@ -119,6 +129,9 @@ class Utils:
 
         elif src_lower.endswith((".png")):
             img = Utils.read_png(src)
+
+        elif src_lower.endswith((".nef", ".cr2", ".cr3", ".arw", ".raf")):
+            img = Utils.read_raw(src)
 
         else:
             img = None

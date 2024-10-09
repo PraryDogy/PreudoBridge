@@ -1,14 +1,20 @@
-import sqlalchemy
-from database import Dbase, Cache
+from rawpy import rawpy
+import os
+import cv2
 
 
-src = "/Volumes/Macintosh HD/Users/Loshkarev/Desktop/MIUZ_0182.psd"
+src = "/Users/Loshkarev/Desktop/RAW"
+files = [os.path.join(src, i) for i in os.listdir(src)]
 
-Dbase.init_db()
-sess = Dbase.get_session()
+# for raw in files:
+#     print(raw)
+#     img = rawpy.imread(raw)
+#     img = img.postprocess()
+#     img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
+#     cv2.imshow("1", img)
+#     cv2.waitKey(0)
 
-q = sqlalchemy.select(Cache.img).where(Cache.src==src)
-res = sess.execute(q).first()[0]
 
-
-print(type(res))
+src = "/Users/Loshkarev/Desktop/RAW/DSC_0073.NEF"
+img: rawpy.RawPy = rawpy.imread(src).postprocess()
+img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)

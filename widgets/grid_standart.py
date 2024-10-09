@@ -356,7 +356,8 @@ class _GridStandartBase(Grid):
     def _set_pixmap(self, data: tuple):
         src, size, modified, pixmap = data
         widget: QLabel = self._image_grid_widgets.get((src, size, modified))
-        widget.setPixmap(pixmap)
+        if isinstance(pixmap, QPixmap):
+            widget.setPixmap(pixmap)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self._stop_threads()
