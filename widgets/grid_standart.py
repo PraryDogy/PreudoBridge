@@ -43,7 +43,9 @@ class _LoadImagesThread(QThread):
         super().__init__()
 
         # копируем, чтобы не менялся родительский словарик
-        self.grid_widgets: dict[tuple: QLabel] = grid_widgets
+        # потому что на него опирается основной поток
+        # а мы удаляем из этого словарика элементы в обходе БД
+        self.grid_widgets: dict[tuple: QLabel] = grid_widgets.copy()
 
         # если изображение есть в БД но нет в словарике
         # значит оно было ранее удалено из Findder и будет удалено из БД
@@ -153,6 +155,13 @@ class _LoadImagesThread(QThread):
             if key:
                 pixmap: QPixmap = Utils.pixmap_from_bytes(bytearray_image)
                 self._set_pixmap.emit((src, size, modified, pixmap))
+
+                # !!! очень важный момент
+                # потому что следом за проверкой БД изображений
+                # последует обход ОСТАВШИХСЯ в self.grid_widgets элементов
+                # то есть после этой итерации с БД в словаре останутся
+                # только НОВЫЕ изображения, которые вставим в БД и сетку
+                self.grid_widgets.pop((src, size, modified))
             else:
                 self.remove_db_images[(src, size, modified)] = None
 
