@@ -14,44 +14,78 @@ from utils import Utils
 
 from .grid_base import Grid, Thumbnail
 
-
+# Если родительский класс запущенного треда будет закрыт
+# Тред получит сигнал стоп и безопасно завершится
 class _Storage:
     threads: list = []
 
-
+# Данный тред получает на вхол словарик {(путь, размер, дата): виджет для Pixmap}
+# по ключам ищем существующие изображения в БД
+# если есть - подгружаем в сетку
+# если нет - считываем, делаем запись в БД, подгружаем в сетку
 class _LoadImagesThread(QThread):
+
+    # передает обратно (путь, размер, дата): PIXMAP
+    # чтобы в основном потоке в словарике найти виджет и применить изображение
     _set_pixmap = pyqtSignal(tuple)
+
+    # отправляем в основное приложение чтобы показать прогресс
     _progressbar_start = pyqtSignal(int)
     _progressbar_value = pyqtSignal(int)
+
+    # флаг проверяется в цикле и если False то цикл прерывается
     _stop_thread = pyqtSignal()
+
+    # не используется
     _finished = pyqtSignal()
     
     def __init__(self, grid_widgets: dict[tuple: QLabel]):
         super().__init__()
 
+        # копируем, чтобы не менялся родительский словарик
         self.grid_widgets: dict[tuple: QLabel] = grid_widgets.copy()
+
+        # если изображение есть в БД но нет в словарике
+        # значит оно было ранее удалено из Findder и будет удалено из БД
         self.remove_db_images: dict[tuple: None] = {}
+
+        # существующие изображения в БД
         self.db_images: dict = {}
         
+        # флаг для остановки, если False - прервется цикл
         self.flag = True
         self._stop_thread.connect(self._stop_thread_cmd)
 
+        # открываем сессию на время треда
         self.session = Dbase.get_session()
 
     def run(self):
-        # print(self, "thread started")
+        # загружаем изображения по корневой директории из Config.json_data
         self.db_images: dict = self._get_db_images()
+
+        # проверяем какие есть в БД и в словарике, подгружаем в сетку сигналом
         self._load_already_images()
+
+        # остальные изображения создаем, пишем в БД, подружаем в сетку сигналом
         self._create_new_images()
+
+        # удаляем то, чего уже нет в Finder но было в БД
         self._remove_images()
+
+        # последний комит, помимо комитов в цикле
         Dbase.c_commit(self.session)
         self.session.close()
+
+        # не используется
         self._finished.emit()
-        # print(self, "thread finished")
 
     def _create_new_images(self):
+        # копируем словарик из инициатора, чтобы на лету удалять лишние элементы
         grid_widgets = self.grid_widgets.copy()
+
+        # каждые 10 изображений коммитим в БД
         count = 0
+
         self._progressbar_start.emit(len(self.grid_widgets))
 
         for (src, size, modified), widget in grid_widgets.items():
@@ -68,11 +102,13 @@ class _LoadImagesThread(QThread):
             img = FitImg.start(img, Config.thumb_size)
 
             try:
+                # numpy array в PIXMAP и сигнал в сетку
                 self._set_new_image((src, size, modified), img)
             except AttributeError as e:
                 pass
 
             try:
+                # numpy array в БД
                 img = Utils.image_array_to_bytes(img)
 
                 if not isinstance(img, bytes):
@@ -93,16 +129,21 @@ class _LoadImagesThread(QThread):
             self._progressbar_value.emit(count)
             count += 1
 
+        # 1 милилон = скрыть прогресс бар согласно его инструкции
         self._progressbar_value.emit(1000000)
 
     def _load_already_images(self):
         for (src, size, modified), bytearray_image in self.db_images.items():
-            widget: QLabel = self.grid_widgets.get((src, size, modified))
+
+            # мы сверяем по пути, размеру и дате, есть ли в БД такой же ключ
+            key = self.grid_widgets.get((src, size, modified))
 
             if not self.flag:
                 break
 
-            if widget:
+            # если есть в БД, то отправляем изображение в сетку
+            # и удаляем из словарика этот элемент
+            if key:
                 pixmap: QPixmap = Utils.pixmap_from_bytes(bytearray_image)
                 self._set_pixmap.emit((src, size, modified, pixmap))
                 self.grid_widgets.pop((src, size, modified))
@@ -195,9 +236,9 @@ class _LoadFinderThread(QThread):
 
 
 class _FolderThumbnail(Thumbnail):
-    _add_fav_sig = pyqtSignal(str)
-    _del_fav_sig = pyqtSignal(str)
-    _open_folder_sig = pyqtSignal(str)
+    _folder_context_add_fav_sig = pyqtSignal(str)
+    _foder_context_del_fav_sig = pyqtSignal(str)
+    _folder_thumb_open_folder_sig = pyqtSignal(str)
 
     def __init__(self, filename: str, src: str):
         super().__init__(filename, src, [])
@@ -205,7 +246,7 @@ class _FolderThumbnail(Thumbnail):
         self.context_menu.clear()
 
         view_action = QAction("Просмотр", self)
-        view_action.triggered.connect(lambda: self._open_folder_sig.emit(self.src))
+        view_action.triggered.connect(lambda: self._folder_thumb_open_folder_sig.emit(self.src))
         self.context_menu.addAction(view_action)
 
         self.context_menu.addSeparator()
@@ -230,21 +271,25 @@ class _FolderThumbnail(Thumbnail):
             self.context_menu.addAction(self.fav_action)
 
     def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
-        self._clicked_sig.emit()
-        self._open_folder_sig.emit(self.src)
+        # это FOLDER THUMB, поэтому мы переопределяем double click
+        # отправляем сигнал в сетку чтобы выделить этот виджет
+        self._base_thumb_click.emit()
+
+        # отправляем сигнал в сетку чтобы открыть папку
+        self._folder_thumb_open_folder_sig.emit(self.src)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        self._clicked_sig.emit()
+        self._base_thumb_click.emit()
         self.context_menu.exec_(self.mapToGlobal(a0.pos()))
 
     def _fav_cmd(self, offset: int):
         self.fav_action.triggered.disconnect()
         if 0 + offset == 1:
-            self._add_fav_sig.emit(self.src)
+            self._folder_context_add_fav_sig.emit(self.src)
             self.fav_action.setText("Удалить из избранного")
             self.fav_action.triggered.connect(lambda: self._fav_cmd(-1))
         else:
-            self._del_fav_sig.emit(self.src)
+            self._foder_context_del_fav_sig.emit(self.src)
             self.fav_action.setText("Добавить в избранное")
             self.fav_action.triggered.connect(lambda: self._fav_cmd(+1))
 
@@ -252,7 +297,7 @@ class _FolderThumbnail(Thumbnail):
 class _GridStandartBase(Grid):
     add_fav_sig = pyqtSignal(str)
     del_fav_sig = pyqtSignal(str)
-    open_folder_sig = pyqtSignal(str)
+    folder_thumb_open_folder_sig = pyqtSignal(str)
     progressbar_start = pyqtSignal(int)
     progressbar_value = pyqtSignal(int)
 
@@ -274,10 +319,10 @@ class _GridStandartBase(Grid):
             if os.path.isdir(src):
                 wid = _FolderThumbnail(filename, src)
                 self._set_default_image(wid.img_label, "images/folder_210.png")
-                wid._open_folder_sig.connect(self.open_folder_sig.emit)
-                wid._add_fav_sig.connect(self.add_fav_sig.emit)
-                wid._del_fav_sig.connect(self.del_fav_sig.emit)
-                wid._clicked_folder_sig.connect(self.open_folder_sig.emit)
+                wid._folder_thumb_open_folder_sig.connect(self.folder_thumb_open_folder_sig.emit)
+                wid._folder_context_add_fav_sig.connect(self.add_fav_sig.emit)
+                wid._foder_context_del_fav_sig.connect(self.del_fav_sig.emit)
+                wid._base_thumb_folder_click.connect(self.folder_thumb_open_folder_sig.emit)
 
             else:
                 wid = Thumbnail(filename, src, self._paths)
@@ -285,7 +330,7 @@ class _GridStandartBase(Grid):
                 self._set_default_image(wid.img_label, "images/file_210.png")
                 self._image_grid_widgets[(src, size, modified)] = wid.img_label
 
-            wid._clicked_sig.connect(lambda wid=wid: self._grid_select_new_widget(wid))
+            wid._base_thumb_click.connect(lambda wid=wid: self._grid_select_new_widget(wid))
             self.grid_layout.addWidget(wid, self.row_count, local_col_count)
 
             self._row_col_wid[self.row_count, local_col_count] = wid

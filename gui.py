@@ -227,7 +227,7 @@ class SimpleFileExplorer(QWidget):
 
             self.grid.add_fav_sig.connect(self.tree_wid_add_fav_cmd)
             self.grid.del_fav_sig.connect(self.tree_wid_del_fav_cmd)
-            self.grid.open_folder_sig.connect(self.tree_wid_view_folder_cmd)
+            self.grid.folder_thumb_open_folder_sig.connect(self.tree_wid_view_folder_cmd)
 
         self.r_lay.addWidget(self.grid, 1, 0)
         # по умолчанию фокус будет на tree widget

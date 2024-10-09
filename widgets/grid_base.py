@@ -51,9 +51,11 @@ class Thumbnail(QFrame):
 
     # !!!!!!!! при переназначении клик эвентов не забудь добавить _clicked_sig
     # по виджету произошел любой клик мыши (правый левый неважно)
-    _clicked_sig = pyqtSignal()
+    _base_thumb_click = pyqtSignal()
 
-    _clicked_folder_sig = pyqtSignal(str)
+    # view file попытается открыть просмотрщик изображений, если это папка
+    # то передается этот сигнал
+    _base_thumb_folder_click = pyqtSignal(str)
 
     def __init__(self, filename: str, src: str, paths: list):
         super().__init__()
@@ -103,7 +105,7 @@ class Thumbnail(QFrame):
         self.context_menu.addAction(copy_path)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
-        self._clicked_sig.emit()
+        self._base_thumb_click.emit()
 
     def mousePressEvent(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.LeftButton:
@@ -121,7 +123,7 @@ class Thumbnail(QFrame):
         if distance < QApplication.startDragDistance():
             return
 
-        self._clicked_sig.emit()
+        self._base_thumb_click.emit()
 
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
@@ -135,14 +137,14 @@ class Thumbnail(QFrame):
 
     def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.LeftButton:
-            self._clicked_sig.emit()
+            self._base_thumb_click.emit()
             self.win = WinImgView(self.src, self.paths)
             Utils.center_win(parent=Utils.get_main_win(), child=self.win)
             self.win.closed.connect(lambda src: self._move_to_wid_sig.emit(src))
             self.win.show()
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        self._clicked_sig.emit()
+        self._base_thumb_click.emit()
         self.context_menu.exec_(self.mapToGlobal(a0.pos()))
 
     def _view_file(self):
@@ -153,7 +155,7 @@ class Thumbnail(QFrame):
             Utils.center_win(parent=main_win, child=self.win)
             self.win.show()
         else:
-            self._clicked_folder_sig.emit(self.src)
+            self._base_thumb_folder_click.emit(self.src)
 
     def _open_default(self):
         subprocess.call(["open", self.src])
@@ -271,7 +273,7 @@ class Grid(QScrollArea, GridMethods):
     def _move_to_wid_cmd(self, src: str):
         try:
             wid: Thumbnail = self._path_widget.get(src)
-            wid._clicked_sig.emit()
+            wid._base_thumb_click.emit()
             self.ensureWidgetVisible(wid)
         except (RuntimeError, KeyError) as e:
             print("move to wid error: ", e)
