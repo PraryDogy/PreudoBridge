@@ -337,7 +337,6 @@ class WinImgView(QWidget):
             self.switch_image(1)
         else:
             self.switch_image(-1)
-        self.setFocus()
         self.image_label.setCursor(Qt.CursorShape.ArrowCursor)
 
     def mouse_moved_cmd(self):

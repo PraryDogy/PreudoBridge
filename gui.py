@@ -100,8 +100,6 @@ class SimpleFileExplorer(QWidget):
             border-radius: 20px;
             """
             )
-        
-        self.grid.setFocus()
 
     def bar_top_sort_grid(self):
         if isinstance(self.grid, GridSearch):
@@ -162,7 +160,6 @@ class SimpleFileExplorer(QWidget):
             self.grid.disconnect()
             self.grid.close()
 
-        self.setFocus()
         self.setWindowTitle(f"🟠\tИдет поиск: \"{search_text}\"")
         self.migaet_timer.start(400)
         ww = self.get_grid_width()
@@ -272,9 +269,6 @@ class SimpleFileExplorer(QWidget):
 
         elif a0.key() == Qt.Key.Key_Escape:
             self.setFocus()
-
-        elif a0.key() in (Qt.Key.Key_Up, Qt.Key.Key_Down, Qt.Key.Key_Left, Qt.Key.Key_Right):
-            self.grid.setFocus()
 
 
 class CustomApp(QApplication):
