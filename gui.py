@@ -100,6 +100,8 @@ class SimpleFileExplorer(QWidget):
             border-radius: 20px;
             """
             )
+        
+        self.grid.setFocus()
 
     def bar_top_sort_grid(self):
         if isinstance(self.grid, GridSearch):
@@ -182,6 +184,7 @@ class SimpleFileExplorer(QWidget):
         self.setWindowTitle(f"🟢\tРезультаты поиска: \"{search_text}\"")
         self.grid.sort_grid(self.get_grid_width())
         self.bar_top_setDisabled(False)
+        self.bar_top.view_type_btn.setDisabled(True)
 
     def grid_search_move_to_wid(self, src: str):
         root = os.path.dirname(src)
