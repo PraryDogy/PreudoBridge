@@ -269,7 +269,14 @@ class SimpleFileExplorer(QWidget):
 
         elif a0.key() == Qt.Key.Key_Escape:
             self.setFocus()
+        
+        elif a0.key() == Qt.Key.Key_1:
+            self.bar_top.view_type_btn.clicked_cmd(0)
+        
+        elif a0.key() == Qt.Key.Key_2:
+            self.bar_top.view_type_btn.clicked_cmd(1)
 
+        return super().keyPressEvent(a0)
 
 class CustomApp(QApplication):
     def __init__(self, argv: list[str]) -> None:

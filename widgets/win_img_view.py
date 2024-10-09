@@ -370,7 +370,7 @@ class WinImgView(QWidget):
         elif ev.key() == Qt.Key.Key_Space:
             self.close()
 
-        # return super().keyPressEvent(ev)
+        return super().keyPressEvent(ev)
 
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         vertical_center = a0.size().height() // 2 - self.next_image_btn.height() // 2

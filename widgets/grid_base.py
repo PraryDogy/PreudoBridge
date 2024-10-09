@@ -298,6 +298,8 @@ class Grid(QScrollArea, GridMethods):
             self._cur_row = self.row_count if self._cur_row == self.row_count else self._cur_row + 1
             self._cur_thumb = self._row_col_wid.get((self._cur_row, self._cur_col))
             self._frame_selected_widget(QFrame.Shape.Panel)
+        
+        return super().keyPressEvent(a0)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
         self._frame_selected_widget(QFrame.Shape.NoFrame)
