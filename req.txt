@@ -17,6 +17,7 @@ pyproject-toml==0.0.10
 PyQt5==5.15.10
 PyQt5-Qt5==5.15.15
 PyQt5_sip==12.15.0
+rawpy==0.23.1
 referencing==0.35.1
 rpds-py==0.20.0
 scikit-image==0.24.0

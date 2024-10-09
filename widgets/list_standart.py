@@ -1,8 +1,8 @@
 import os
 import subprocess
 
-from PyQt5.QtCore import QDir, pyqtSignal
-from PyQt5.QtGui import QCloseEvent
+from PyQt5.QtCore import QDir, pyqtSignal, Qt
+from PyQt5.QtGui import QCloseEvent, QKeyEvent
 from PyQt5.QtWidgets import QAction, QFileSystemModel, QMenu, QTableView
 
 from cfg import Config
@@ -43,9 +43,9 @@ class ListStandart(QTableView, GridMethods):
         self.setColumnWidth(3, 150)
 
         self.horizontalHeader().sectionClicked.connect(self._save_sort_settings)
-        self.doubleClicked.connect(self._d_clicked)
+        self.doubleClicked.connect(self._double_clicked)
 
-    def _d_clicked(self, index):
+    def _double_clicked(self, index):
         path = self._model.filePath(index)
         path = os.path.abspath(path)
         path_lower = path.lower()
@@ -73,7 +73,7 @@ class ListStandart(QTableView, GridMethods):
         index = self._model.index(src)
 
         open_finder_action = QAction("Просмотр", self)
-        open_finder_action.triggered.connect(lambda: self._d_clicked(index))
+        open_finder_action.triggered.connect(lambda: self._double_clicked(index))
         menu.addAction(open_finder_action)
 
         menu.addSeparator()
@@ -100,6 +100,12 @@ class ListStandart(QTableView, GridMethods):
                 menu.addAction(fav_action)
 
         menu.exec_(self.mapToGlobal(event.pos()))
+
+    def keyPressEvent(self, e: QKeyEvent | None) -> None:
+        if e.key() in (Qt.Key.Key_Return, Qt.Key.Key_Space):
+            index = self.currentIndex()
+            self._double_clicked(index)
+        return super().keyPressEvent(e)
 
     def open_in_finder(self, path: str):
         subprocess.call(["open", "-R", path])
