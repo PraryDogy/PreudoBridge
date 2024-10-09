@@ -53,6 +53,8 @@ class Thumbnail(QFrame):
     # по виджету произошел любой клик мыши (правый левый неважно)
     _clicked_sig = pyqtSignal()
 
+    _clicked_folder_sig = pyqtSignal()
+
     def __init__(self, filename: str, src: str, paths: list):
         super().__init__()
         self.setFixedSize(250, 280)
@@ -150,6 +152,8 @@ class Thumbnail(QFrame):
             main_win = Utils.get_main_win()
             Utils.center_win(parent=main_win, child=self.win)
             self.win.show()
+        else:
+            self._clicked_folder_sig.emit()
 
     def _open_default(self):
         subprocess.call(["open", self.src])

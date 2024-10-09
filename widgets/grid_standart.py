@@ -277,6 +277,7 @@ class _GridStandartBase(Grid):
                 wid._open_folder_sig.connect(self.open_folder_sig.emit)
                 wid._add_fav_sig.connect(self.add_fav_sig.emit)
                 wid._del_fav_sig.connect(self.del_fav_sig.emit)
+                wid._clicked_folder_sig.connect(lambda: self.open_folder_sig.emit(src))
 
             else:
                 wid = Thumbnail(filename, src, self._paths)
