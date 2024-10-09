@@ -254,6 +254,20 @@ class WinImgView(QWidget):
         self.zoom_btns.zoomed_fit.connect(self.image_label.zoom_reset)
         self.zoom_btns.press_close.connect(self.close)
 
+        self.context_menu = QMenu(self)
+
+        open_action = QAction("Открыть по умолчанию", self)
+        open_action.triggered.connect(self.open_default)
+        self.context_menu.addAction(open_action)
+
+        show_in_finder_action = QAction("Показать в Finder", self)
+        show_in_finder_action.triggered.connect(self.show_in_finder)
+        self.context_menu.addAction(show_in_finder_action)
+
+        copy_path = QAction("Скопировать путь до файла", self)
+        copy_path.triggered.connect(lambda: Utils.copy_path(self.img_src))
+        self.context_menu.addAction(copy_path)
+
         self.hide_all_buttons()
         self.load_thumbnail()
 
@@ -384,23 +398,7 @@ class WinImgView(QWidget):
         # return super().closeEvent(a0)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        context_menu = QMenu(self)
-
-        open_action = QAction("Открыть по умолчанию", self)
-        open_action.triggered.connect(self.open_default)
-        context_menu.addAction(open_action)
-
-        show_in_finder_action = QAction("Показать в Finder", self)
-        show_in_finder_action.triggered.connect(self.show_in_finder)
-        context_menu.addAction(show_in_finder_action)
-
-        copy_path = QAction("Скопировать путь до файла", self)
-        copy_path.triggered.connect(lambda: Utils.copy_path(self.img_src))
-        context_menu.addAction(copy_path)
-
-        context_menu.exec_(self.mapToGlobal(a0.pos()))
-
-        # return super().contextMenuEvent(a0)
+        self.context_menu.exec_(self.mapToGlobal(a0.pos()))
     
     def open_default(self):
         subprocess.call(["open", self.img_src])
