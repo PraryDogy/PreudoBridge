@@ -32,5 +32,6 @@ class BarBottom(QWidget):
     def _value_cmd(self, value: int):
         self._progressbar.setValue(value)
 
-        if self._progressbar.value() >= self._progressbar.maximum():
+        if value == 1000000:
             self._progressbar.hide()
+            print(111)
