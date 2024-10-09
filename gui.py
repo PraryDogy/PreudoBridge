@@ -255,26 +255,24 @@ class SimpleFileExplorer(QWidget):
         a0.ignore()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
-        if a0.key() == Qt.Key.Key_F:
-            if a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
+        if a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
+            if a0.key() == Qt.Key.Key_F:
                 self.bar_top.search_wid.input_wid.setFocus()
 
-        elif a0.key() == Qt.Key.Key_W:
-            if a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
+            elif a0.key() == Qt.Key.Key_W:
                 self.hide()
 
-        elif a0.key() == Qt.Key.Key_Q:
-            if a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
+            elif a0.key() == Qt.Key.Key_Q:
                 QApplication.instance().quit()
 
         elif a0.key() == Qt.Key.Key_Escape:
             self.setFocus()
         
         elif a0.key() == Qt.Key.Key_1:
-            self.bar_top.view_type_btn.clicked_cmd(0)
+            self.bar_top.view_type_btn.set_view_cmd(0)
         
         elif a0.key() == Qt.Key.Key_2:
-            self.bar_top.view_type_btn.clicked_cmd(1)
+            self.bar_top.view_type_btn.set_view_cmd(1)
 
         return super().keyPressEvent(a0)
 

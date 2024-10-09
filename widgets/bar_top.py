@@ -165,9 +165,9 @@ class _ViewTypeBtn(QTabBar):
         else:
             self.setCurrentIndex(0)
 
-        self.tabBarClicked.connect(self.clicked_cmd)
+        self.tabBarClicked.connect(self.set_view_cmd)
 
-    def clicked_cmd(self, index: int):
+    def set_view_cmd(self, index: int):
         if index == 0:
             Config.json_data["list_view"] = False
         else:
