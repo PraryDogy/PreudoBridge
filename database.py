@@ -57,7 +57,7 @@ class Dbase:
     @staticmethod
     def c_commit(session: Session):
         session.commit()
-        print(session, "commit done")
+        # print(session, "commit done")
     
 
 class Cache(DbaseStorage.base):

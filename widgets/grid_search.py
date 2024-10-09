@@ -74,6 +74,8 @@ class _SearchFinderThread(QThread):
         if not isinstance(self.search_text, tuple):
             self.search_text = str(self.search_text)
 
+        self.counter = 0
+
         for root, _, files in os.walk(self.search_dir):
             if not self.flag:
                 break
@@ -89,12 +91,15 @@ class _SearchFinderThread(QThread):
                 if isinstance(self.search_text, tuple):
                     if src_lower.endswith(self.search_text):
                         self._create_wid(src)
-                        continue
 
                 # поиск по тексту
                 elif self.search_text in filename and src_lower.endswith(Config.img_ext):
                     self._create_wid(src)
-                    continue
+
+                if self.counter % 10 == 0:
+                    Dbase.c_commit(self.session)
+
+                self.counter += 1
 
         # _finished будет послан только если поиску дали закончить
         # если же он был прерван флагом, то сигнал не будет послан
