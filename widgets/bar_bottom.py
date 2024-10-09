@@ -55,7 +55,7 @@ class BarBottom(QWidget):
 
         chunks = []
         for chunk in root:
-            label = QLabel("\U0001F4C1" + chunk + " > ")
+            label = QLabel(f"\U0001F4C1 {chunk} > ")
             label.mouseReleaseEvent = lambda e, c=chunk: self._new_root(root, c)
             h_lay.addWidget(label, alignment=Qt.AlignmentFlag.AlignLeft)
             chunks.append(label)
