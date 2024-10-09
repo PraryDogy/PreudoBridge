@@ -191,6 +191,12 @@ class _LoadImagesThread(QThread):
             pass
 
 
+# большие сетевые папки замедляют обход через os listdir
+# поэтому мы делаем это в треде
+# ищем только изображения и папки в родительской директории Config.json_data
+# и добавляем стандартые иконки папок и файлов
+# сортируем полученный список соответсвуя Config.json_data
+# отправляем в сетку
 class _LoadFinderThread(QThread):
     _finished = pyqtSignal(dict)
 
@@ -228,9 +234,14 @@ class _LoadFinderThread(QThread):
                 self.finder_items[(src, filename, size, modified, filetype)] = None
             
     def _sort_items(self):
+        # ключ finder_items src filename size modified filetype
+        # а мы осуществляем сортировку только filename size modified filetype
+        # поэтому мы создаем отдельный словарик, где
+        # имя соответствует Config.json_data "sort"
+        # а значение индексу в ключе self.finder_items
+        # таким образом если "sort" у нас size, то мы знаем, что нужно сортировать
+        # по индексу 2
         sort_data = {"name": 1, "size": 2,  "modify": 3, "type": 4}
-        # начинаем с 1, потому что 0 у нас src, нам не нужна сортировка по src
-        # ключи соответствуют json_data["sort"]
 
         index = sort_data.get(Config.json_data.get("sort"))
         self.finder_items = dict(
@@ -300,24 +311,37 @@ class _FolderThumbnail(Thumbnail):
             self.fav_action.triggered.connect(lambda: self._fav_cmd(+1))
 
 
+# Базовый класс со внутренними методами не для импорта
 class _GridStandartBase(Grid):
+    # сигналы переданные из FOLDER THUMBNAIL
     add_fav_sig = pyqtSignal(str)
     del_fav_sig = pyqtSignal(str)
     folder_thumb_open_folder_sig = pyqtSignal(str)
+
+    # сигналы из треда по загрузке изображений
     progressbar_start = pyqtSignal(int)
     progressbar_value = pyqtSignal(int)
 
     def __init__(self, width: int):
         super().__init__(width)
 
+        # делаем os listdir обход и по сигналу finished
+        # запустится создание сетки
+        # в конце создания запустится подгрузка изображений
         self._finder_thread = _LoadFinderThread()
         self._finder_thread._finished.connect(self._create_grid)
         self._finder_thread.start()
 
     def _create_grid(self, _finder_items: dict):
+
+        # ROW COUNT сейчас так же равен 0 при инициации BASE GRID
+        # COL COUNT узнает количество колонок при инициации BASE GRID
+
+        # local coint нужен для итерации
         local_col_count = 0
 
-        # (src, size, modified): QLabel. Для последующей загрузки в _LoadImagesThread
+        # (путь, размео, дата): QLabel
+        # Для последующей загрузки в _LoadImagesThread
         self._image_grid_widgets: dict[tuple: QPixmap] = {}
 
         for (src, filename, size, modified, _), _ in _finder_items.items():
@@ -325,6 +349,8 @@ class _GridStandartBase(Grid):
             if os.path.isdir(src):
                 wid = _FolderThumbnail(filename, src)
                 self._set_default_image(wid.img_label, "images/folder_210.png")
+
+                # подключаем сигналы виджеты к сигналу сетки
                 wid._folder_thumb_open_folder_sig.connect(self.folder_thumb_open_folder_sig.emit)
                 wid._folder_context_add_fav_sig.connect(self.add_fav_sig.emit)
                 wid._foder_context_del_fav_sig.connect(self.del_fav_sig.emit)
@@ -334,13 +360,31 @@ class _GridStandartBase(Grid):
                 wid = Thumbnail(filename, src, self._paths)
                 wid._move_to_wid_sig.connect(lambda src: self._move_to_wid_cmd(src))
                 self._set_default_image(wid.img_label, "images/file_210.png")
+
+                # добавляем в словарик для подгрузки изображений
                 self._image_grid_widgets[(src, size, modified)] = wid.img_label
 
+            # подключаем клик из БАЗОВОГО thumbnail
+            # любой клик по thumbnail снимет выделение с прошлого выделенного thumbnail
+            # который записан в BASE GRID как selected thumbnail
+            # и выделит по которому кликнули, сделав его selected thumbnail
             wid._base_thumb_click.connect(lambda wid=wid: self._grid_select_new_widget(wid))
+
             self.grid_layout.addWidget(wid, self.row_count, local_col_count)
 
+            # добавляем местоположение виджета в сетке для навигации клавишами
             self._row_col_wid[self.row_count, local_col_count] = wid
+            
+            # добавляем для поиска какой виджет находится в строке и столбце
+            # чтобы по клику на виджет мы записали в CUR COL, CUR ROW
+            # какая строка и столбец сейчас выделены
+            # CUR COL CUR ROW записаны в BASE GRID
             self._wid_row_col[wid] = (self.row_count, local_col_count)
+
+            # для поиска виджета по пути к файлу
+            # это нужно когда закрывается просмотрщик изображений
+            # который сигналом возвращает, на каком изображении остановился просмотр
+            # чтобы выделить этот виджет в сетке
             self._path_widget[src] = wid
             if os.path.isfile(src):
                 self._paths.append(src)
@@ -359,6 +403,7 @@ class _GridStandartBase(Grid):
         if not last_row_check:
             self.row_count -= 1
 
+        # добавляем спейсеры чтобы сетка была слева сверху
         if self._row_col_wid:
             row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
             self.grid_layout.addItem(row_spacer, self.row_count + 1, 0)
@@ -368,12 +413,18 @@ class _GridStandartBase(Grid):
 
             self._start_load_images_thread()
 
+        # если же словарик пустой значит либо нет папок и фото
+        # либо директория не существует
+        # такое бывает если в закладках TREE FAVORITES есть директория
+        # которой уже не существует
+        # или же программа впервые загружается на несуществующей директории
         elif not os.path.exists(Config.json_data.get("root")):
             no_images = QLabel(f"{Config.json_data.get('root')}\nТакой папки не существует \n Проверьте подключение к сетевому диску")
             no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0)
 
+        # нет фото
         else:
             no_images = QLabel(f"{Config.json_data.get('root')}\nНет изображений")
             no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -381,10 +432,18 @@ class _GridStandartBase(Grid):
             self.grid_layout.addWidget(no_images, 0, 0)
 
     def _grid_select_new_widget(self, widget: Thumbnail):
-        self._grid_select_widget(QFrame.Shape.NoFrame)
+        # клик по виджету
+        # убирает выделение с предыдущего selected_widget 
+        self._grid_selected_widget_cmd(QFrame.Shape.NoFrame)
+
+        # записываем новую строку и столбец какая сейчас выделена по клику
         self._cur_row, self._cur_col = self._wid_row_col.get(widget)
+
+        # записываем в selected widget
         self._selected_widget = widget
-        self._grid_select_widget(QFrame.Shape.Panel)
+
+        # выделяем selected widget
+        self._grid_selected_widget_cmd(QFrame.Shape.Panel)
 
     def _set_default_image(self, widget: QLabel, png_path: str):
         pixmap = QPixmap(png_path)
@@ -416,6 +475,7 @@ class _GridStandartBase(Grid):
             widget.setPixmap(pixmap)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
+        # когда убивается этот виджет, все треды безопасно завершатся
         self._stop_threads()
         return super().closeEvent(a0)
         
@@ -424,15 +484,25 @@ class GridStandart(_GridStandartBase):
     def __init__(self, width: int):
         super().__init__(width)
 
+    # метод вызывается если была изменена сортировка или размер окна
+    # тогда нет необходимости заново делать обход в Finder и грузить изображения
+    # здесь только пересортируется сетка
     def resize_grid(self, width: int):
+
+        # копируем для итерации виджетов
+        # нам нужны только значения ключей, там записаны виджеты
         row_col_widget = self._row_col_wid.copy()
+
+        # очищаем для нового наполнения
         self._row_col_wid.clear()
         self._wid_row_col.clear()
 
+        # получаем новое количество колонок на случай изменения размера окна
         self.col_count = Utils.get_clmn_count(width)
         if self.col_count < 1:
             self.col_count = 1
 
+        # сбрасываем счетчик строчек, финальный результат мы узнаем после итерации
         self.row_count, local_col_count = 0, 0
         self._cur_row, self._cur_col = 0, 0
 
@@ -462,8 +532,14 @@ class GridStandart(_GridStandartBase):
             thread: _LoadImagesThread
             thread._stop_thread.emit()
 
+    # это заглушка для полиморфности
+    # чтобы сортировать сетку, GRID инициируется заново в приложении
     def sort_grid(self, width: int):
         self.resize_grid(width)
 
+    # ссылка на внутренний метод для полиморфности
+    # нужно для функции "перейти" которая открывает путь к файлу
+    # чтобы выделить искомый файл в сетке
+    # и для выделения файла после закрытия просмотрщика изображений 
     def move_to_wid(self, src: str):
         self._move_to_wid_cmd(src)

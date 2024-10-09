@@ -258,7 +258,7 @@ class Grid(QScrollArea, GridMethods):
         # Макимальное количество колонок
         self.col_count = Utils.get_clmn_count(width)
 
-    def _grid_select_widget(self, shape: QFrame.Shape):
+    def _grid_selected_widget_cmd(self, shape: QFrame.Shape):
         try:
             self._selected_widget.setFrameShape(shape)
             # Клик дает sender Thumbnail, клавиши None
@@ -283,28 +283,28 @@ class Grid(QScrollArea, GridMethods):
             self._selected_widget._view_file()
 
         elif a0.key() == Qt.Key.Key_Left:
-            self._grid_select_widget(QFrame.Shape.NoFrame)
+            self._grid_selected_widget_cmd(QFrame.Shape.NoFrame)
             self._cur_col = 0 if self._cur_col == 0 else self._cur_col - 1
             self._selected_widget = self._row_col_wid.get((self._cur_row, self._cur_col))
-            self._grid_select_widget(QFrame.Shape.Panel)
+            self._grid_selected_widget_cmd(QFrame.Shape.Panel)
 
         elif a0.key() == Qt.Key.Key_Right:
-            self._grid_select_widget(QFrame.Shape.NoFrame)
+            self._grid_selected_widget_cmd(QFrame.Shape.NoFrame)
             self._cur_col = self.col_count - 1 if self._cur_col == self.col_count - 1 else self._cur_col + 1 
             self._selected_widget = self._row_col_wid.get((self._cur_row, self._cur_col))
-            self._grid_select_widget(QFrame.Shape.Panel)
+            self._grid_selected_widget_cmd(QFrame.Shape.Panel)
 
         elif a0.key() == Qt.Key.Key_Up:
-            self._grid_select_widget(QFrame.Shape.NoFrame)
+            self._grid_selected_widget_cmd(QFrame.Shape.NoFrame)
             self._cur_row = 0 if self._cur_row == 0 else self._cur_row - 1
             self._selected_widget = self._row_col_wid.get((self._cur_row, self._cur_col))
-            self._grid_select_widget(QFrame.Shape.Panel)
+            self._grid_selected_widget_cmd(QFrame.Shape.Panel)
 
         elif a0.key() == Qt.Key.Key_Down:
-            self._grid_select_widget(QFrame.Shape.NoFrame)
+            self._grid_selected_widget_cmd(QFrame.Shape.NoFrame)
             self._cur_row = self.row_count if self._cur_row == self.row_count else self._cur_row + 1
             self._selected_widget = self._row_col_wid.get((self._cur_row, self._cur_col))
-            self._grid_select_widget(QFrame.Shape.Panel)
+            self._grid_selected_widget_cmd(QFrame.Shape.Panel)
         
         return super().keyPressEvent(a0)
 

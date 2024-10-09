@@ -275,10 +275,10 @@ class _GridSearchBase(Grid):
         self._image_grid_widgets[(data.get("src"), filename, size, modified, filetype)] = wid
 
     def _clicked_thumb(self, widget: Thumbnail):
-        self._grid_select_widget(QFrame.Shape.NoFrame)
+        self._grid_selected_widget_cmd(QFrame.Shape.NoFrame)
         self._cur_row, self._cur_col = self._wid_row_col.get(widget)
         self._selected_widget = widget
-        self._grid_select_widget(QFrame.Shape.Panel)
+        self._grid_selected_widget_cmd(QFrame.Shape.Panel)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         try:
