@@ -43,7 +43,7 @@ class _LoadImagesThread(QThread):
         super().__init__()
 
         # копируем, чтобы не менялся родительский словарик
-        self.grid_widgets: dict[tuple: QLabel] = grid_widgets.copy()
+        self.grid_widgets: dict[tuple: QLabel] = grid_widgets
 
         # если изображение есть в БД но нет в словарике
         # значит оно было ранее удалено из Findder и будет удалено из БД
@@ -80,13 +80,15 @@ class _LoadImagesThread(QThread):
         self._finished.emit()
 
     def _create_new_images(self):
-        # копируем словарик из инициатора, чтобы на лету удалять лишние элементы
+        # копируем словарик из инициатора
+        # чтобы защититься во время итерации от случайных изменений
+        # почему то вылезала ошибка что словарь изменен во время итерации
         grid_widgets = self.grid_widgets.copy()
 
         # каждые 10 изображений коммитим в БД
         count = 0
 
-        self._progressbar_start.emit(len(self.grid_widgets))
+        self._progressbar_start.emit(len(grid_widgets))
 
         for (src, size, modified), widget in grid_widgets.items():
             if not self.flag:
@@ -133,10 +135,15 @@ class _LoadImagesThread(QThread):
         self._progressbar_value.emit(1000000)
 
     def _load_already_images(self):
+        # копируем словарик из инициатора
+        # чтобы защититься во время итерации от случайных изменений
+        # почему то вылезала ошибка что словарь изменен во время итерации
+        grid_widgets = self.grid_widgets.copy()
+
         for (src, size, modified), bytearray_image in self.db_images.items():
 
             # мы сверяем по пути, размеру и дате, есть ли в БД такой же ключ
-            key = self.grid_widgets.get((src, size, modified))
+            key = grid_widgets.get((src, size, modified))
 
             if not self.flag:
                 break
@@ -146,7 +153,6 @@ class _LoadImagesThread(QThread):
             if key:
                 pixmap: QPixmap = Utils.pixmap_from_bytes(bytearray_image)
                 self._set_pixmap.emit((src, size, modified, pixmap))
-                self.grid_widgets.pop((src, size, modified))
             else:
                 self.remove_db_images[(src, size, modified)] = None
 
@@ -168,6 +174,7 @@ class _LoadImagesThread(QThread):
         except sqlalchemy.exc.OperationalError:
             return None
 
+        # возвращаем словарик по структуре такой же как входящий
         return {
             (src, size, modified): img
             for img, src, size,  modified in res
