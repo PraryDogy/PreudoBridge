@@ -20,6 +20,7 @@ class _Storage:
 
 
 class _LoadImagesThread(QThread):
+    _set_pixmap = pyqtSignal(tuple)
     _progressbar_start = pyqtSignal(int)
     _progressbar_value = pyqtSignal(int)
     _stop_thread = pyqtSignal()
@@ -28,7 +29,7 @@ class _LoadImagesThread(QThread):
     def __init__(self, grid_widgets: dict[tuple: QLabel]):
         super().__init__()
 
-        self.grid_widgets: dict[tuple: QLabel] = grid_widgets
+        self.grid_widgets: dict[tuple: QLabel] = grid_widgets.copy()
         self.remove_db_images: dict[tuple: None] = {}
         self.db_images: dict = {}
         
@@ -67,7 +68,7 @@ class _LoadImagesThread(QThread):
             img = FitImg.start(img, Config.thumb_size)
 
             try:
-                self._set_new_image(widget, img)
+                self._set_new_image((src, size, modified), img)
             except AttributeError as e:
                 pass
 
@@ -83,7 +84,6 @@ class _LoadImagesThread(QThread):
                     })
                 self.session.execute(q)
             except (sqlalchemy.exc.OperationalError ,Exception) as e:
-                # print(e)
                 pass
 
             self._progressbar_value.emit(count)
@@ -100,7 +100,7 @@ class _LoadImagesThread(QThread):
 
             if widget:
                 pixmap: QPixmap = Utils.pixmap_from_bytes(bytearray_image)
-                widget.setPixmap(pixmap)
+                self._set_pixmap.emit((src, size, modified, pixmap))
                 self.grid_widgets.pop((src, size, modified))
             else:
                 self.remove_db_images[(src, size, modified)] = None
@@ -131,10 +131,11 @@ class _LoadImagesThread(QThread):
     def _stop_thread_cmd(self):
         self.flag = False
 
-    def _set_new_image(self, widget: QLabel, image: np.ndarray):
+    def _set_new_image(self, data: tuple, image: np.ndarray):
         pixmap = Utils.pixmap_from_array(image)
         try:
-            widget.setPixmap(pixmap)
+            src, size, modified = data
+            self._set_pixmap.emit((src, size, modified, pixmap))
         except RuntimeError:
             pass
 
@@ -238,7 +239,6 @@ class _FolderThumbnail(Thumbnail):
             self._add_fav_sig.emit(self.src)
             self.fav_action.setText("Удалить из избранного")
             self.fav_action.triggered.connect(lambda: self._fav_cmd(-1))
-            print("")
         else:
             self._del_fav_sig.emit(self.src)
             self.fav_action.setText("Добавить в избранное")
@@ -349,8 +349,14 @@ class _GridStandartBase(Grid):
         new_thread = _LoadImagesThread(self._image_grid_widgets)
         new_thread._progressbar_start.connect(self.progressbar_start.emit)
         new_thread._progressbar_value.connect(self.progressbar_value.emit)
+        new_thread._set_pixmap.connect(self._set_pixmap)
         _Storage.threads.append(new_thread)
         new_thread.start()
+    
+    def _set_pixmap(self, data: tuple):
+        src, size, modified, pixmap = data
+        widget: QLabel = self._image_grid_widgets.get((src, size, modified))
+        widget.setPixmap(pixmap)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self._stop_threads()
