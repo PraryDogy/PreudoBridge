@@ -204,9 +204,10 @@ class SimpleFileExplorer(QWidget):
             self.grid = ListStandart()
             self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
             self.bar_top.sort_widget.setDisabled(True)
+            self.bar_top.color_tags.setDisabled(True)
 
-            # self.grid.add_fav_sig.connect(self.tree_wid_add_fav_cmd)
-            # self.grid.del_fav_sig.connect(self.tree_wid_del_fav_cmd)
+            self.grid.add_to_favs_clicked.connect(self.tree_wid_add_fav_cmd)
+            self.grid.del_favs_clicked.connect(self.tree_wid_del_fav_cmd)
             self.grid.folders_tree_clicked.connect(self.tree_wid_view_folder_cmd)
 
         else:

@@ -1,14 +1,15 @@
+import os
 import subprocess
 
-from PyQt5.QtCore import QDir, Qt, pyqtSignal
-from PyQt5.QtGui import QMouseEvent
+from PyQt5.QtCore import QDir, pyqtSignal
 from PyQt5.QtWidgets import QAction, QFileSystemModel, QMenu, QTableView
 
 from cfg import Config
 from utils import Utils
 
 from .grid_base import GridMethods
-
+from .win_img_view import WinImgView
+from pathlib import Path
 
 class Sort:
     column = 0
@@ -45,8 +46,16 @@ class ListStandart(QTableView, GridMethods):
 
     def _d_clicked(self, index):
         path = self._model.filePath(index)
-        self.setCurrentIndex(index)
-        self.folders_tree_clicked.emit(path)
+        path = os.path.abspath(path)
+        path_lower = path.lower()
+
+        if os.path.isdir(path):
+            self.setCurrentIndex(index)
+            self.folders_tree_clicked.emit(path)
+
+        elif path_lower.endswith(Config.img_ext):
+            self.win = WinImgView(path, [path])
+            self.win.show()
 
     def _save_sort_settings(self, index):
         Sort.column = index
@@ -78,15 +87,16 @@ class ListStandart(QTableView, GridMethods):
 
         menu.addSeparator()
 
-        favs: dict = Config.json_data.get("favs")
-        if src in favs:
-            fav_action = QAction("Удалить из избранного", self)
-            fav_action.triggered.connect(lambda: self.del_favs_clicked.emit(src))
-            menu.addAction(fav_action)
-        else:
-            fav_action = QAction("Добавить в избранное", self)
-            fav_action.triggered.connect(lambda: self.add_to_favs_clicked.emit(src))
-            menu.addAction(fav_action)
+        if os.path.isdir(src):
+            favs: dict = Config.json_data.get("favs")
+            if src in favs:
+                fav_action = QAction("Удалить из избранного", self)
+                fav_action.triggered.connect(lambda: self.del_favs_clicked.emit(src))
+                menu.addAction(fav_action)
+            else:
+                fav_action = QAction("Добавить в избранное", self)
+                fav_action.triggered.connect(lambda: self.add_to_favs_clicked.emit(src))
+                menu.addAction(fav_action)
 
         menu.exec_(self.mapToGlobal(event.pos()))
 
