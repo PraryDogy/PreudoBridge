@@ -17,7 +17,7 @@ class BarBottom(QWidget):
         self.path_label: QWidget = None
 
         self.h_lay = QGridLayout()
-        self.h_lay.setContentsMargins(10, 0, 10, 0)
+        self.h_lay.setContentsMargins(10, 2, 10, 2)
         self.setLayout(self.h_lay)
 
         self._progressbar = QProgressBar()
@@ -52,12 +52,16 @@ class BarBottom(QWidget):
 
         root: str = Config.json_data.get("root")
         root = root.strip(os.sep).split(os.sep)
+
         chunks = []
         for chunk in root:
-            label = QLabel(" > " + chunk)
+            label = QLabel("\U0001F4C1" + chunk + " > ")
             label.mouseReleaseEvent = lambda e, c=chunk: self._new_root(root, c)
             h_lay.addWidget(label, alignment=Qt.AlignmentFlag.AlignLeft)
             chunks.append(label)
+
+        t = chunks[-1].text().replace(" > ", "")
+        chunks[-1].setText(t)
 
         h_lay.addStretch(1)
 
