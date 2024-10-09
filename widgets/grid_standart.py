@@ -2,11 +2,10 @@ import os
 
 import numpy as np
 import sqlalchemy
+import sqlalchemy.exc
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QMouseEvent, QPixmap
-from PyQt5.QtWidgets import (QAction, QFrame, QLabel, QMenu, QSizePolicy,
-                             QSpacerItem)
-import sqlalchemy.exc
+from PyQt5.QtWidgets import QAction, QFrame, QLabel, QSizePolicy, QSpacerItem
 
 from cfg import Config
 from database import Cache, Dbase
