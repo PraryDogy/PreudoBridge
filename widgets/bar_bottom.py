@@ -45,7 +45,6 @@ class BarBottom(QWidget):
             self.path_label.close()
 
         self.path_label = QWidget()
-        self.h_lay.addWidget(self.path_label, 0, 0, alignment=Qt.AlignmentFlag.AlignLeft)
         h_lay = QHBoxLayout()
         h_lay.setContentsMargins(0, 0, 0, 0)
         h_lay.setSpacing(0)
@@ -53,12 +52,24 @@ class BarBottom(QWidget):
 
         root: str = Config.json_data.get("root")
         root = root.strip(os.sep).split(os.sep)
+        chunks = []
         for chunk in root:
             label = QLabel(" > " + chunk)
             label.mouseReleaseEvent = lambda e, c=chunk: self._new_root(root, c)
             h_lay.addWidget(label, alignment=Qt.AlignmentFlag.AlignLeft)
+            chunks.append(label)
 
         h_lay.addStretch(1)
+
+        self.path_label.adjustSize()
+        ww = self.path_label.width()
+        while ww > 485:
+            chunks[0].hide()
+            chunks.pop(0)
+            self.path_label.adjustSize()
+            ww = self.path_label.width()
+        chunks.clear()
+        self.h_lay.addWidget(self.path_label, 0, 0, alignment=Qt.AlignmentFlag.AlignLeft)
 
     def _new_root(self, rooted: list, chunk: str):
         new_path = rooted[:rooted.index(chunk) + 1]
