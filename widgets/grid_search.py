@@ -277,7 +277,7 @@ class _GridSearchBase(Grid):
     def _clicked_thumb(self, widget: Thumbnail):
         self._frame_selected_widget(QFrame.Shape.NoFrame)
         self._cur_row, self._cur_col = self._wid_row_col.get(widget)
-        self._cur_thumb = widget
+        self._selected_widget = widget
         self._frame_selected_widget(QFrame.Shape.Panel)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:

@@ -12,7 +12,6 @@ from utils import Utils
 
 from .win_img_view import WinImgView
 
-
 # Текст с именем файла под изображением
 # Максимум 2 строки, дальше прибавляет ...
 class NameLabel(QLabel):
@@ -242,7 +241,7 @@ class Grid(QScrollArea, GridMethods):
         # Текущий выделенный виджет
         # Когда происходит клик вне виджета или по другому виджету Thumbnail
         # С данного виджета снимается выделение
-        self._cur_thumb: Thumbnail = EmptyThumbnail()
+        self._selected_widget: Thumbnail = EmptyThumbnail()
         self._cur_row: int = 0
         self._cur_col: int = 0
 
@@ -255,9 +254,10 @@ class Grid(QScrollArea, GridMethods):
 
     def _frame_selected_widget(self, shape: QFrame.Shape):
         try:
-            self._cur_thumb.setFrameShape(shape)
-            if shape != QFrame.Shape.NoFrame:
-                self.ensureWidgetVisible(self._cur_thumb)
+            self._selected_widget.setFrameShape(shape)
+            # Клик дает sender Thumbnail, клавиши None
+            if self.sender() is None:
+                self.ensureWidgetVisible(self._selected_widget)
         except (AttributeError, TypeError) as e:
             pass
 
@@ -274,33 +274,36 @@ class Grid(QScrollArea, GridMethods):
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() == Qt.Key.Key_Space:
-            self._cur_thumb._view_file()
+            self._selected_widget._view_file()
 
         elif a0.key() == Qt.Key.Key_Left:
             self._frame_selected_widget(QFrame.Shape.NoFrame)
             self._cur_col = 0 if self._cur_col == 0 else self._cur_col - 1
-            self._cur_thumb = self._row_col_wid.get((self._cur_row, self._cur_col))
+            self._selected_widget = self._row_col_wid.get((self._cur_row, self._cur_col))
             self._frame_selected_widget(QFrame.Shape.Panel)
 
         elif a0.key() == Qt.Key.Key_Right:
             self._frame_selected_widget(QFrame.Shape.NoFrame)
             self._cur_col = self.col_count - 1 if self._cur_col == self.col_count - 1 else self._cur_col + 1 
-            self._cur_thumb = self._row_col_wid.get((self._cur_row, self._cur_col))
+            self._selected_widget = self._row_col_wid.get((self._cur_row, self._cur_col))
             self._frame_selected_widget(QFrame.Shape.Panel)
 
         elif a0.key() == Qt.Key.Key_Up:
             self._frame_selected_widget(QFrame.Shape.NoFrame)
             self._cur_row = 0 if self._cur_row == 0 else self._cur_row - 1
-            self._cur_thumb = self._row_col_wid.get((self._cur_row, self._cur_col))
+            self._selected_widget = self._row_col_wid.get((self._cur_row, self._cur_col))
             self._frame_selected_widget(QFrame.Shape.Panel)
 
         elif a0.key() == Qt.Key.Key_Down:
             self._frame_selected_widget(QFrame.Shape.NoFrame)
             self._cur_row = self.row_count if self._cur_row == self.row_count else self._cur_row + 1
-            self._cur_thumb = self._row_col_wid.get((self._cur_row, self._cur_col))
+            self._selected_widget = self._row_col_wid.get((self._cur_row, self._cur_col))
             self._frame_selected_widget(QFrame.Shape.Panel)
         
         return super().keyPressEvent(a0)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
-        self._frame_selected_widget(QFrame.Shape.NoFrame)
+        try:
+            self._selected_widget.setFrameShape(QFrame.Shape.NoFrame)
+        except Exception:
+            ...
