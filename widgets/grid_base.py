@@ -256,7 +256,8 @@ class Grid(QScrollArea, GridMethods):
     def _frame_selected_widget(self, shape: QFrame.Shape):
         try:
             self._cur_thumb.setFrameShape(shape)
-            self.ensureWidgetVisible(self._cur_thumb)
+            if shape != QFrame.Shape.NoFrame:
+                self.ensureWidgetVisible(self._cur_thumb)
         except (AttributeError, TypeError) as e:
             pass
 
@@ -302,7 +303,4 @@ class Grid(QScrollArea, GridMethods):
         return super().keyPressEvent(a0)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
-        try:
-            self._cur_thumb.setFrameShape(QFrame.Shape.NoFrame)
-        except Exception as e:
-            pass
+        self._frame_selected_widget(QFrame.Shape.NoFrame)
