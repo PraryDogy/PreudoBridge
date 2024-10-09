@@ -149,7 +149,8 @@ class SimpleFileExplorer(QWidget):
         QTimer.singleShot(1500, lambda: self.grid.move_to_wid(filepath))
 
     def grid_search_load(self, search_text: str):
-        self.bar_top.view_type_btn.set_view_cmd(0)
+        self.bar_top.view_type_btn.setCurrentIndex(0)
+        Config.json_data["list_view"] = False
         self.bar_top_setDisabled(True)
 
         if isinstance(self.grid, GridStandart):
