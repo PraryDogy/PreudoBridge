@@ -151,7 +151,10 @@ class SimpleFileExplorer(QWidget):
     def grid_search_load(self, search_text: str):
         self.bar_top_setDisabled(True)
 
-        if self.grid:
+        if isinstance(self.grid, GridStandart):
+            self.grid.progressbar_value.emit(1000000)
+
+        if isinstance(self.grid, (GridSearch, GridStandart, ListStandart)):
             self.grid.disconnect()
             self.grid.close()
 
