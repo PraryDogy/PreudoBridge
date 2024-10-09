@@ -74,6 +74,10 @@ class _LoadImagesThread(QThread):
 
             try:
                 img = Utils.image_array_to_bytes(img)
+
+                if not isinstance(img, bytes):
+                    continue
+
                 q = sqlalchemy.insert(Cache)
                 q = q.values({
                     "img": img,
@@ -89,7 +93,7 @@ class _LoadImagesThread(QThread):
             self._progressbar_value.emit(count)
             count += 1
 
-        self._progressbar_value.emit(count)
+        self._progressbar_value.emit(1000000)
 
     def _load_already_images(self):
         for (src, size, modified), bytearray_image in self.db_images.items():
