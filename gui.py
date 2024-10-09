@@ -180,7 +180,6 @@ class SimpleFileExplorer(QWidget):
         if isinstance(self.grid, (GridSearch, GridStandart)):
             self.grid.close()
 
-        # self.setDisabled(True)
         self.setWindowTitle(os.path.basename(Config.json_data.get("root")))
 
         self.top_bar.search_wid.clear_search_sig.emit()
@@ -188,11 +187,8 @@ class SimpleFileExplorer(QWidget):
         self.top_bar_setDisabled(False)
 
         self.folders_tree_wid.expand_path(Config.json_data.get("root"))
-        QTimer.singleShot(1000, self.grid_standart_load_fin)
 
-    def grid_standart_load_fin(self):
         self.grid = GridStandart(width=self.get_grid_width())
-        # self.grid.finder_items_loaded.connect(lambda: self.setDisabled(False))
         self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
 
         self.grid.add_fav_sig.connect(self.tree_wid_add_fav_cmd)
