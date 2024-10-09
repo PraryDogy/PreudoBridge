@@ -285,7 +285,7 @@ class _GridStandartBase(Grid):
                 self._set_default_image(wid.img_label, "images/file_210.png")
                 self._image_grid_widgets[(src, size, modified)] = wid.img_label
 
-            wid._clicked_sig.connect(lambda wid=wid: self._select_thumb_cmd(wid))
+            wid._clicked_sig.connect(lambda wid=wid: self._grid_select_new_widget(wid))
             self.grid_layout.addWidget(wid, self.row_count, local_col_count)
 
             self._row_col_wid[self.row_count, local_col_count] = wid
@@ -329,7 +329,7 @@ class _GridStandartBase(Grid):
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0)
 
-    def _select_thumb_cmd(self, widget: Thumbnail):
+    def _grid_select_new_widget(self, widget: Thumbnail):
         self._grid_select_widget(QFrame.Shape.NoFrame)
         self._cur_row, self._cur_col = self._wid_row_col.get(widget)
         self._selected_widget = widget
