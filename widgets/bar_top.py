@@ -1,16 +1,14 @@
 import os
 from difflib import SequenceMatcher
 
-from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal, QPoint
+from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal
 from PyQt5.QtGui import QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QLabel, QLineEdit,
-                             QMenu, QPushButton, QSpacerItem, QVBoxLayout,
-                             QWidget, QAction, QTabBar)
+                             QMenu, QPushButton, QSpacerItem, QTabBar,
+                             QVBoxLayout, QWidget)
 
 from cfg import Config
 from utils import Utils
-
-from .button_round import ButtonRound
 
 
 class _PathFinderThread(QThread):
