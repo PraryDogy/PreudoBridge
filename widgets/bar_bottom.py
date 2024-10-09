@@ -8,10 +8,10 @@ class BarBottom(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.setFixedHeight(25)
+        self.setFixedHeight(20)
 
         h_lay = QHBoxLayout()
-        h_lay.setContentsMargins(5, 0, 5, 0)
+        h_lay.setContentsMargins(10, 0, 10, 0)
         self.setLayout(h_lay)
 
         self.rooter = QLabel(text=Config.json_data.get("root"))
