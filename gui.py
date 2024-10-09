@@ -185,13 +185,13 @@ class SimpleFileExplorer(QWidget):
         QTimer.singleShot(1500, lambda: self.grid.move_to_wid(src))
 
     def grid_standart_load(self):
-        if isinstance(self.grid, (GridSearch, GridStandart)):
+        if isinstance(self.grid, GridStandart):
+            self.grid.progressbar_value.emit(1000000)
+
+        if isinstance(self.grid, (GridSearch, GridStandart, ListStandart)):
+            self.grid.disconnect()
             self.grid.close()
         
-        if isinstance(self.grid, GridStandart):
-            self.grid.progressbar_start.disconnect()
-            self.grid.progressbar_value.disconnect()
-
         self.setWindowTitle(os.path.basename(Config.json_data.get("root")))
 
         self.bar_top.search_wid.clear_search_sig.emit()

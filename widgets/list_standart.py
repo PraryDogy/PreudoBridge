@@ -2,6 +2,7 @@ import os
 import subprocess
 
 from PyQt5.QtCore import QDir, pyqtSignal
+from PyQt5.QtGui import QCloseEvent
 from PyQt5.QtWidgets import QAction, QFileSystemModel, QMenu, QTableView
 
 from cfg import Config

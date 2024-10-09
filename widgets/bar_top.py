@@ -161,9 +161,9 @@ class _ViewTypeBtn(QTabBar):
         self.addTab("Список")
 
         if Config.json_data.get("list_view"):
-            self.setCurrentIndex(0)
-        else:
             self.setCurrentIndex(1)
+        else:
+            self.setCurrentIndex(0)
 
         self.tabBarClicked.connect(self.clicked_cmd)
 
