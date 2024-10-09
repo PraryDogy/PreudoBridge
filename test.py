@@ -1,43 +1,21 @@
-from PyQt5.QtWidgets import QPushButton, QWidget, QVBoxLayout, QLabel, QApplication
-from PyQt5.QtCore import Qt
-import sys
+import os
 
-class ColorStarsBtn(QPushButton):
-    def __init__(self):
-        super().__init__(text="Фильтры")
-        
-        # Создаем кастомный виджет-меню
-        self._menu_widget = QWidget()
-        self._menu_widget.setWindowFlags(Qt.Popup)
-        self._menu_widget.setLayout(QVBoxLayout())
+src = os.path.dirname(__file__)
+count = 0
 
-        # Список цветов и их названия
-        colors = {
-            "🔴": "Red",
-            "🔵": "Blue",
-            "🟠": "Orange",
-            "🟡": "Yellow",
-            "🟢": "Green",
-            "🟣": "Purple",
-            "🟤": "Brown"
-        }
+for root, dir, files in os.walk(src):
 
-        # Добавляем QLabel для каждого цвета
-        self.labels = {}
-        for emoji, name in colors.items():
-            label = QLabel(f"{emoji} {name}")
-            label.mousePressEvent = lambda event, color=name: self.toggle_label(color)
-            self._menu_widget.layout().addWidget(label)
+    if "/env/" in root:
+        continue
 
-    def mouseReleaseEvent(self, e):
-        self._menu_widget.move(self.mapToGlobal(self.rect().bottomLeft()))
-        self._menu_widget.show()
+    for file in files:
 
-    def toggle_label(self, color_name):
-        print(color_name)
+        if file.endswith(".py"):
+            p = os.path.join(root, file)
+            with open(p, "r") as f:
 
-# Запуск приложения
-app = QApplication(sys.argv)
-window = ColorStarsBtn()
-window.show()
-sys.exit(app.exec_())
+                data = f.read()
+                count += data.count("\n")
+
+print(count)
+# 3224
