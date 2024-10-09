@@ -273,7 +273,7 @@ class Grid(QScrollArea, GridMethods):
             print("move to wid error: ", e)
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
-        if a0.key() == Qt.Key.Key_Space:
+        if a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
             self._selected_widget._view_file()
 
         elif a0.key() == Qt.Key.Key_Left:
