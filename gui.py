@@ -5,7 +5,7 @@ from typing import Union
 from PyQt5.QtCore import QEvent, QObject, Qt, QTimer
 from PyQt5.QtGui import QCloseEvent, QKeyEvent, QResizeEvent
 from PyQt5.QtWidgets import (QApplication, QLabel, QSplitter, QTabWidget,
-                             QVBoxLayout, QWidget)
+                             QVBoxLayout, QWidget, QGridLayout)
 
 from cfg import Config
 from utils import Utils
@@ -62,33 +62,35 @@ class SimpleFileExplorer(QWidget):
         splitter_wid.addWidget(right_wid)
         splitter_wid.setStretchFactor(1, 1)
 
-        self.r_lay = QVBoxLayout()
+        # self.r_lay = QVBoxLayout()
+        self.r_lay = QGridLayout()
         self.r_lay.setContentsMargins(0, 0, 0, 0)
         self.r_lay.setSpacing(0)
         right_wid.setLayout(self.r_lay)
         
-        self.top_bar = BarTop()
+        self.bar_top = BarTop()
 
-        self.top_bar.sort_widget.sort_click.connect(self.top_bar_sort_grid)
-        self.top_bar.go_btn.open_path.connect(self.top_bar_open_path_btn_cmd)
-        self.top_bar.search_wid.start_search_sig.connect(self.grid_search_load)
-        self.top_bar.search_wid.stop_search_sig.connect(self.grid_standart_load)
+        self.bar_top.sort_widget.sort_click.connect(self.bar_top_sort_grid)
+        self.bar_top.go_btn.open_path.connect(self.bar_top_open_path_btn_cmd)
+        self.bar_top.search_wid.start_search_sig.connect(self.grid_search_load)
+        self.bar_top.search_wid.stop_search_sig.connect(self.grid_standart_load)
 
-        self.top_bar.level_up_sig.connect(self.grid_standart_load)
-        self.top_bar.back_sig.connect(self.top_bar_next_back_cmd)
-        self.top_bar.next_sig.connect(self.top_bar_next_back_cmd)
+        self.bar_top.level_up_sig.connect(self.grid_standart_load)
+        self.bar_top.back_sig.connect(self.bar_top_next_back_cmd)
+        self.bar_top.next_sig.connect(self.bar_top_next_back_cmd)
 
-        self.r_lay.addWidget(self.top_bar, alignment=Qt.AlignmentFlag.AlignTop)
-        self.grid_standart_load()
+        self.r_lay.addWidget(self.bar_top, 0, 0, alignment=Qt.AlignmentFlag.AlignTop)
+        
         self.bar_bottom = BarBottom()
-        self.r_lay.addWidget(self.bar_bottom, alignment=Qt.AlignmentFlag.AlignBottom)
+        self.r_lay.addWidget(self.bar_bottom, 2, 0, alignment=Qt.AlignmentFlag.AlignBottom)
+
+        self.grid_standart_load()
 
         self.scroll_up = QLabel(parent=self, text="\u25B2")
         self.scroll_up.hide()
         self.scroll_up.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.scroll_up.mouseReleaseEvent = lambda e: self.grid.verticalScrollBar().setValue(0)
         self.scroll_up.setFixedSize(40, 40)
-        self.scroll_up.move(self.width() - 70, self.height() - 70)
         self.scroll_up.setStyleSheet(
             """
             background-color: rgba(128, 128, 128, 0.40);
@@ -96,26 +98,26 @@ class SimpleFileExplorer(QWidget):
             """
             )
 
-    def top_bar_sort_grid(self):
+    def bar_top_sort_grid(self):
         if isinstance(self.grid, GridSearch):
             self.grid.sort_grid(self.get_grid_width())
 
         elif isinstance(self.grid, GridStandart):
             self.grid_standart_load()
 
-    def top_bar_setDisabled(self, b: bool):
-        self.top_bar.back.setDisabled(b)
-        self.top_bar.next.setDisabled(b)
-        self.top_bar.level_up_btn.setDisabled(b)
-        self.top_bar.go_btn.setDisabled(b)
-        self.top_bar.sort_widget.setDisabled(b)
-        self.top_bar.color_tags.setDisabled(b)
+    def bar_top_setDisabled(self, b: bool):
+        self.bar_top.back.setDisabled(b)
+        self.bar_top.next.setDisabled(b)
+        self.bar_top.level_up_btn.setDisabled(b)
+        self.bar_top.go_btn.setDisabled(b)
+        self.bar_top.sort_widget.setDisabled(b)
+        self.bar_top.color_tags.setDisabled(b)
 
     def tree_wid_view_folder_cmd(self, root: str):
         Config.json_data["root"] = root
         self.grid_standart_load()
 
-    def top_bar_next_back_cmd(self, root: str):
+    def bar_top_next_back_cmd(self, root: str):
         Config.json_data["root"] = root
         self.grid_standart_load()
 
@@ -128,7 +130,7 @@ class SimpleFileExplorer(QWidget):
     def tree_wid_del_fav_cmd(self, root: str):
         self.folders_fav_wid.del_item(root)
 
-    def top_bar_open_path_btn_cmd(self, path: str):
+    def bar_top_open_path_btn_cmd(self, path: str):
         if not os.path.exists(path):
             return
 
@@ -143,7 +145,7 @@ class SimpleFileExplorer(QWidget):
         QTimer.singleShot(1500, lambda: self.grid.move_to_wid(filepath))
 
     def grid_search_load(self, search_text: str):
-        self.top_bar_setDisabled(True)
+        self.bar_top_setDisabled(True)
 
         if self.grid:
             self.grid.disconnect()
@@ -157,7 +159,7 @@ class SimpleFileExplorer(QWidget):
         self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
         self.grid.search_finished.connect(lambda: self.grid_search_finished(search_text))
         self.grid.show_thumbnail_in_folder.connect(self.grid_search_move_to_wid)
-        self.r_lay.addWidget(self.grid)
+        self.r_lay.addWidget(self.grid, 1, 0)
 
     def grid_search_migaet_title(self):
         if "🟠" in self.windowTitle():
@@ -170,7 +172,7 @@ class SimpleFileExplorer(QWidget):
         self.migaet_timer.stop()
         self.setWindowTitle(f"🟢\tРезультаты поиска: \"{search_text}\"")
         self.grid.sort_grid(self.get_grid_width())
-        self.top_bar_setDisabled(False)
+        self.bar_top_setDisabled(False)
 
     def grid_search_move_to_wid(self, src: str):
         root = os.path.dirname(src)
@@ -180,25 +182,30 @@ class SimpleFileExplorer(QWidget):
 
     def grid_standart_load(self):
         if isinstance(self.grid, (GridSearch, GridStandart)):
+            self.grid.progressbar_start.disconnect()
+            self.grid.progressbar_value.disconnect()
             self.grid.close()
 
         self.setWindowTitle(os.path.basename(Config.json_data.get("root")))
+        self.bar_bottom.rooter.setText(Config.json_data.get("root"))
 
-        self.top_bar.search_wid.clear_search_sig.emit()
-        self.top_bar.update_history()
-        self.top_bar_setDisabled(False)
+        self.bar_top.search_wid.clear_search_sig.emit()
+        self.bar_top.update_history()
+        self.bar_top_setDisabled(False)
 
         self.folders_tree_wid.expand_path(Config.json_data.get("root"))
 
         self.grid = GridStandart(width=self.get_grid_width())
         self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
+        self.grid.progressbar_start.connect(self.bar_bottom.progressbar_start.emit)
+        self.grid.progressbar_value.connect(self.bar_bottom.progressbar_value.emit)
 
         self.grid.add_fav_sig.connect(self.tree_wid_add_fav_cmd)
         self.grid.del_fav_sig.connect(self.tree_wid_del_fav_cmd)
 
         self.grid.open_folder_sig.connect(self.tree_wid_view_folder_cmd)
 
-        self.r_lay.addWidget(self.grid)
+        self.r_lay.addWidget(self.grid, 1, 0)
 
     def scroll_up_scroll_value(self, value: int):
         if value == 0:
@@ -216,10 +223,9 @@ class SimpleFileExplorer(QWidget):
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         Config.json_data["ww"] = self.geometry().width()
         Config.json_data["hh"] = self.geometry().height()
-        self.scroll_up.move(self.width() - 70, self.height() - 70)
+        self.scroll_up.move(self.width() - 70, self.height() - 90)
         self.resize_timer.stop()
         self.resize_timer.start(500)
-        # return super().resizeEvent(a0)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.hide()
@@ -229,7 +235,7 @@ class SimpleFileExplorer(QWidget):
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() == Qt.Key.Key_F:
             if a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
-                self.top_bar.search_wid.input_wid.setFocus()
+                self.bar_top.search_wid.input_wid.setFocus()
 
         elif a0.key() == Qt.Key.Key_W:
             if a0.modifiers() == Qt.KeyboardModifier.ControlModifier:

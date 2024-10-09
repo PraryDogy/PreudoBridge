@@ -1,6 +1,6 @@
-from PyQt5.QtWidgets import QProgressBar, QWidget, QHBoxLayout
+from PyQt5.QtWidgets import QProgressBar, QWidget, QHBoxLayout, QLabel
 from PyQt5.QtCore import pyqtSignal, Qt, QTimer
-
+from cfg import Config
 
 class BarBottom(QWidget):
     progressbar_start = pyqtSignal(int)
@@ -8,10 +8,14 @@ class BarBottom(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.setFixedHeight(30)
+        self.setFixedHeight(25)
 
         h_lay = QHBoxLayout()
+        h_lay.setContentsMargins(5, 0, 5, 0)
         self.setLayout(h_lay)
+
+        self.rooter = QLabel(text=Config.json_data.get("root"))
+        h_lay.addWidget(self.rooter, alignment=Qt.AlignmentFlag.AlignLeft)
 
         self._progressbar = QProgressBar()
         self._progressbar.setFixedWidth(100)

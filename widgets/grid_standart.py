@@ -20,6 +20,8 @@ class _Storage:
 
 
 class _LoadImagesThread(QThread):
+    _progressbar_start = pyqtSignal(int)
+    _progressbar_value = pyqtSignal(int)
     _stop_thread = pyqtSignal()
     _finished = pyqtSignal()
     
@@ -49,6 +51,7 @@ class _LoadImagesThread(QThread):
     def _create_new_images(self):
         grid_widgets = self.grid_widgets.copy()
         count = 0
+        self._progressbar_start.emit(len(self.grid_widgets))
 
         for (src, size, modified), widget in grid_widgets.items():
             if not self.flag:
@@ -83,7 +86,10 @@ class _LoadImagesThread(QThread):
                 # print(e)
                 pass
 
+            self._progressbar_value.emit(count)
             count += 1
+
+        self._progressbar_value.emit(count)
 
     def _load_already_images(self):
         for (src, size, modified), bytearray_image in self.db_images.items():
@@ -243,7 +249,8 @@ class _GridStandartBase(Grid):
     add_fav_sig = pyqtSignal(str)
     del_fav_sig = pyqtSignal(str)
     open_folder_sig = pyqtSignal(str)
-    finder_items_loaded = pyqtSignal()
+    progressbar_start = pyqtSignal(int)
+    progressbar_value = pyqtSignal(int)
 
     def __init__(self, width: int):
         super().__init__(width)
@@ -253,7 +260,6 @@ class _GridStandartBase(Grid):
         self._finder_thread.start()
 
     def _create_grid(self, _finder_items: dict):
-        self.finder_items_loaded.emit()
         local_col_count = 0
 
         # (src, size, modified): QLabel. Для последующей загрузки в _LoadImagesThread
@@ -341,6 +347,8 @@ class _GridStandartBase(Grid):
 
     def _start_load_images_thread(self):
         new_thread = _LoadImagesThread(self._image_grid_widgets)
+        new_thread._progressbar_start.connect(self.progressbar_start.emit)
+        new_thread._progressbar_value.connect(self.progressbar_value.emit)
         _Storage.threads.append(new_thread)
         new_thread.start()
 
