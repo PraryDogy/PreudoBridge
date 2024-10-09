@@ -192,7 +192,7 @@ class _FolderThumbnail(Thumbnail):
     def __init__(self, filename: str, src: str):
         super().__init__(filename, src, [])
 
-        self.context_menu = QMenu(self)
+        self.context_menu.clear()
 
         view_action = QAction("Просмотр", self)
         view_action.triggered.connect(lambda: self._open_folder_sig.emit(self.src))
@@ -211,14 +211,13 @@ class _FolderThumbnail(Thumbnail):
         self.context_menu.addSeparator()
 
         if self.src in Config.json_data["favs"]:
-            del_fav = QAction("Удалить из избранного", self)
-            del_fav.triggered.connect(lambda: self._del_fav_sig.emit(self.src))
-            self.context_menu.addAction(del_fav)
-
+            self.fav_action = QAction("Удалить из избранного", self)
+            self.fav_action.triggered.connect(lambda: self._fav_cmd(-1))
+            self.context_menu.addAction(self.fav_action)
         else:
-            add_fav = QAction("Добавить в избранное", self)
-            add_fav.triggered.connect(lambda: self._add_fav_sig.emit(self.src))
-            self.context_menu.addAction(add_fav)
+            self.fav_action = QAction("Добавить в избранное", self)
+            self.fav_action.triggered.connect(lambda: self._fav_cmd(+1))
+            self.context_menu.addAction(self.fav_action)
 
     def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
         self._clicked_sig.emit()
@@ -227,6 +226,18 @@ class _FolderThumbnail(Thumbnail):
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         self._clicked_sig.emit()
         self.context_menu.exec_(self.mapToGlobal(a0.pos()))
+
+    def _fav_cmd(self, offset: int):
+        self.fav_action.triggered.disconnect()
+        if 0 + offset == 1:
+            self._add_fav_sig.emit(self.src)
+            self.fav_action.setText("Удалить из избранного")
+            self.fav_action.triggered.connect(lambda: self._fav_cmd(-1))
+            print("")
+        else:
+            self._del_fav_sig.emit(self.src)
+            self.fav_action.setText("Добавить в избранное")
+            self.fav_action.triggered.connect(lambda: self._fav_cmd(+1))
 
 
 class _GridStandartBase(Grid):

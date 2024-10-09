@@ -36,11 +36,6 @@ class TreeFolders(QTreeView):
         self.folders_tree_clicked.emit(path)
         self.expand(index)
 
-        # if self.isExpanded(index):
-            # self.collapse(index)
-        # else:
-            # self.expand(index)
-
     def expand_path(self, root: str):
         index = self.c_model.index(root)
         self.setCurrentIndex(index)

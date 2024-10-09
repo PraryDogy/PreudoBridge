@@ -186,6 +186,21 @@ class _SearchWidget(QWidget):
         
         self.clear_search_sig.connect(self._costil)
 
+        self.templates_menu = QMenu()
+
+        data = {
+            "Найти jpg": str((".jpg", ".jpeg", "jfif")),
+            "Найти tiff": str((".tif", ".tiff")),
+            "Найти psd/psb": str((".psd", ".psb")),
+            "Найти raw": str((".nef", ".raw")),
+            "Найти любые фото": str(Config.img_ext)
+            }
+
+        for k, v in data.items():
+            action = QAction(parent=self, text=k)
+            action.triggered.connect(lambda e, xx=v: self._action_cmd(xx))
+            self.templates_menu.addAction(action)
+
     def _costil(self):
         self.input_wid.disconnect()
         self.input_wid.clear()
@@ -204,22 +219,7 @@ class _SearchWidget(QWidget):
             self.stop_search_sig.emit()
 
     def _show_templates(self, a0: QMouseEvent | None) -> None:
-        menu = QMenu()
-
-        data = {
-            "Найти jpg": str((".jpg", ".jpeg", "jfif")),
-            "Найти tiff": str((".tif", ".tiff")),
-            "Найти psd/psb": str((".psd", ".psb")),
-            "Найти raw": str((".nef", ".raw")),
-            "Найти любые фото": str(Config.img_ext)
-            }
-
-        for k, v in data.items():
-            action = QAction(parent=self, text=k)
-            action.triggered.connect(lambda e, xx=v: self._action_cmd(xx))
-            menu.addAction(action)
-
-        menu.exec(self.mapToGlobal(self.rect().bottomLeft()))
+        self.templates_menu.exec(self.mapToGlobal(self.rect().bottomLeft()))
     
     def _action_cmd(self, text: str):
         self.input_wid.setText(text)
