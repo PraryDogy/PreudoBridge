@@ -11,7 +11,7 @@ from cfg import Config
 from utils import Utils
 from widgets.grid_search import GridSearch
 from widgets.grid_standart import GridStandart
-from widgets.top_bar import TopBar
+from widgets.bar_top import BarTop
 from widgets.tree_favorites import TreeFavorites
 from widgets.tree_folders import TreeFolders
 
@@ -66,7 +66,7 @@ class SimpleFileExplorer(QWidget):
         self.r_lay.setSpacing(0)
         right_wid.setLayout(self.r_lay)
         
-        self.top_bar = TopBar()
+        self.top_bar = BarTop()
 
         self.top_bar.sort_widget.sort_click.connect(self.top_bar_sort_grid)
         self.top_bar.go_btn.open_path.connect(self.top_bar_open_path_btn_cmd)

@@ -343,7 +343,7 @@ class ColorStarsBtn(QPushButton):
             self.setDown(True)
 
 
-class TopBar(QFrame):
+class BarTop(QFrame):
     back_sig = pyqtSignal(str)
     next_sig = pyqtSignal(str)
     level_up_sig = pyqtSignal()
