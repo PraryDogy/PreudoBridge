@@ -82,6 +82,7 @@ class SimpleFileExplorer(QWidget):
         self.r_lay.addWidget(self.bar_top, 0, 0, alignment=Qt.AlignmentFlag.AlignTop)
         
         self.bar_bottom = BarBottom()
+        self.bar_bottom.path_click.connect(self.grid_standart_load)
         self.r_lay.addWidget(self.bar_bottom, 2, 0, alignment=Qt.AlignmentFlag.AlignBottom)
 
         self.grid_standart_load()
@@ -189,11 +190,12 @@ class SimpleFileExplorer(QWidget):
             self.grid.progressbar_value.disconnect()
 
         self.setWindowTitle(os.path.basename(Config.json_data.get("root")))
-        self.bar_bottom.rooter.setText(Config.json_data.get("root"))
 
         self.bar_top.search_wid.clear_search_sig.emit()
         self.bar_top.update_history()
         self.bar_top_setDisabled(False)
+
+        self.bar_bottom.create_path_label()
 
         self.folders_tree_wid.expand_path(Config.json_data.get("root"))
 
