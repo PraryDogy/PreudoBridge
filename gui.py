@@ -71,10 +71,11 @@ class SimpleFileExplorer(QWidget):
         
         self.bar_top = BarTop()
 
-        self.bar_top.sort_widget.sort_click.connect(self.bar_top_sort_grid)
+        self.bar_top.sort_type_btn.sort_click.connect(self.bar_top_sort_grid)
         self.bar_top.go_btn.open_path.connect(self.bar_top_open_path_btn_cmd)
         self.bar_top.search_wid.start_search_sig.connect(self.grid_search_load)
         self.bar_top.search_wid.stop_search_sig.connect(self.grid_standart_load)
+        self.bar_top.view_type_btn.view_click.connect(self.grid_standart_load)
 
         self.bar_top.level_up_sig.connect(self.grid_standart_load)
         self.bar_top.back_sig.connect(self.bar_top_next_back_cmd)
@@ -112,8 +113,9 @@ class SimpleFileExplorer(QWidget):
         self.bar_top.next.setDisabled(b)
         self.bar_top.level_up_btn.setDisabled(b)
         self.bar_top.go_btn.setDisabled(b)
-        self.bar_top.sort_widget.setDisabled(b)
-        self.bar_top.color_tags.setDisabled(b)
+        self.bar_top.sort_type_btn.setDisabled(b)
+        self.bar_top.filters_btn.setDisabled(b)
+        self.bar_top.view_type_btn.setDisabled(b)
 
     def tree_wid_view_folder_cmd(self, root: str):
         Config.json_data["root"] = root
@@ -203,8 +205,8 @@ class SimpleFileExplorer(QWidget):
         if Config.json_data.get("list_view"):
             self.grid = ListStandart()
             self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
-            self.bar_top.sort_widget.setDisabled(True)
-            self.bar_top.color_tags.setDisabled(True)
+            self.bar_top.sort_type_btn.setDisabled(True)
+            self.bar_top.filters_btn.setDisabled(True)
 
             self.grid.add_to_favs_clicked.connect(self.tree_wid_add_fav_cmd)
             self.grid.del_favs_clicked.connect(self.tree_wid_del_fav_cmd)

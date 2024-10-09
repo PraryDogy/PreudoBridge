@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal, QPoint
 from PyQt5.QtGui import QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QLabel, QLineEdit,
                              QMenu, QPushButton, QSpacerItem, QVBoxLayout,
-                             QWidget, QAction)
+                             QWidget, QAction, QTabBar)
 
 from cfg import Config
 from utils import Utils
@@ -100,7 +100,7 @@ class _PathFinderThread(QThread):
                     break
 
 
-class _SortTypeWidget(QPushButton):
+class _SortTypeBtn(QPushButton):
     sort_click = pyqtSignal()
 
     def __init__(self, parent: QWidget):
@@ -148,6 +148,31 @@ class _SortTypeWidget(QPushButton):
         self.setText(data.get("text"))
         self.sort_click.emit()
 
+
+class _ViewTypeBtn(QTabBar):
+    view_click = pyqtSignal()
+
+    def __init__(self):
+        super().__init__()
+        self.setFixedWidth(125)
+        self.setStyleSheet("text-align: center;")
+
+        self.addTab("Список")
+        self.addTab("Плитка")
+
+        if Config.json_data.get("list_view"):
+            self.setCurrentIndex(0)
+        else:
+            self.setCurrentIndex(1)
+
+        self.tabBarClicked.connect(self.clicked_cmd)
+
+    def clicked_cmd(self, index: int):
+        if index == 0:
+            Config.json_data["list_view"] = True
+        else:
+            Config.json_data["list_view"] = False
+        self.view_click.emit()
 
 class _SearchWidget(QWidget):
     start_search_sig = pyqtSignal(str)
@@ -290,7 +315,7 @@ class _GoBtn(QPushButton):
         self.win.show()
 
 
-class ColorStarsBtn(QPushButton):
+class _FiltersBtn(QPushButton):
     def __init__(self):
         super().__init__(text="Фильтры")
         
@@ -391,6 +416,13 @@ class BarTop(QFrame):
         self.grid_layout.addItem(QSpacerItem(5, 0), 0, self.clmn)
 
         self.clmn += 1
+        self.view_type_btn = _ViewTypeBtn()
+        self.grid_layout.addWidget(self.view_type_btn, 0, self.clmn)
+
+        self.clmn += 1
+        self.grid_layout.addItem(QSpacerItem(5, 0), 0, self.clmn)
+
+        self.clmn += 1
         self.go_btn = _GoBtn()
         self.grid_layout.addWidget(self.go_btn, 0, self.clmn)
 
@@ -398,15 +430,15 @@ class BarTop(QFrame):
         self.grid_layout.addItem(QSpacerItem(5, 0), 0, self.clmn)
 
         self.clmn += 1
-        self.sort_widget = _SortTypeWidget(parent=self)
-        self.grid_layout.addWidget(self.sort_widget, 0, self.clmn)
+        self.sort_type_btn = _SortTypeBtn(parent=self)
+        self.grid_layout.addWidget(self.sort_type_btn, 0, self.clmn)
 
         self.clmn += 1
         self.grid_layout.addItem(QSpacerItem(5, 0), 0, self.clmn)
 
         self.clmn += 1
-        self.color_tags = ColorStarsBtn()
-        self.grid_layout.addWidget(self.color_tags, 0, self.clmn)
+        self.filters_btn = _FiltersBtn()
+        self.grid_layout.addWidget(self.filters_btn, 0, self.clmn)
 
         self.clmn += 1
         self.grid_layout.setColumnStretch(self.clmn, 10)
