@@ -302,4 +302,7 @@ class Grid(QScrollArea, GridMethods):
         return super().keyPressEvent(a0)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
-        self._frame_selected_widget(QFrame.Shape.NoFrame)
+        try:
+            self._cur_thumb.setFrameShape(QFrame.Shape.NoFrame)
+        except Exception as e:
+            pass

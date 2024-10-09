@@ -278,6 +278,7 @@ class SimpleFileExplorer(QWidget):
 
         return super().keyPressEvent(a0)
 
+
 class CustomApp(QApplication):
     def __init__(self, argv: list[str]) -> None:
         super().__init__(argv)
