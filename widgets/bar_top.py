@@ -157,8 +157,8 @@ class _ViewTypeBtn(QTabBar):
         self.setFixedWidth(125)
         self.setStyleSheet("text-align: center;")
 
-        self.addTab("Список")
         self.addTab("Плитка")
+        self.addTab("Список")
 
         if Config.json_data.get("list_view"):
             self.setCurrentIndex(0)
@@ -169,9 +169,9 @@ class _ViewTypeBtn(QTabBar):
 
     def clicked_cmd(self, index: int):
         if index == 0:
-            Config.json_data["list_view"] = True
-        else:
             Config.json_data["list_view"] = False
+        else:
+            Config.json_data["list_view"] = True
         self.view_click.emit()
 
 class _SearchWidget(QWidget):
