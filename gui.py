@@ -9,9 +9,10 @@ from PyQt5.QtWidgets import (QApplication, QLabel, QSplitter, QTabWidget,
 
 from cfg import Config
 from utils import Utils
+from widgets.bar_bottom import BarBottom
+from widgets.bar_top import BarTop
 from widgets.grid_search import GridSearch
 from widgets.grid_standart import GridStandart
-from widgets.bar_top import BarTop
 from widgets.tree_favorites import TreeFavorites
 from widgets.tree_folders import TreeFolders
 
@@ -78,8 +79,9 @@ class SimpleFileExplorer(QWidget):
         self.top_bar.next_sig.connect(self.top_bar_next_back_cmd)
 
         self.r_lay.addWidget(self.top_bar, alignment=Qt.AlignmentFlag.AlignTop)
-
         self.grid_standart_load()
+        self.bar_bottom = BarBottom()
+        self.r_lay.addWidget(self.bar_bottom, alignment=Qt.AlignmentFlag.AlignBottom)
 
         self.scroll_up = QLabel(parent=self, text="\u25B2")
         self.scroll_up.hide()
