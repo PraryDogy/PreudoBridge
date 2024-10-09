@@ -176,6 +176,9 @@ class EmptyThumbnail:
 # к этим методам без разбора
 # полиморфизм
 class GridMethods:
+    def __init__(self):
+        super().__init__()
+
     def resize_grid(self) -> None:
         raise NotImplementedError("Переназначь resize_grid")
 
@@ -184,6 +187,9 @@ class GridMethods:
 
     def sort_grid(self) -> None:
         raise NotImplementedError("Переназначь sort_grid")
+
+    def move_to_wid(self, path: str):
+        raise NotImplementedError("Переназначь move_to_wid")
 
 
 # Сетка изображений

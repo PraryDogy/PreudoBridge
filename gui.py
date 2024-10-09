@@ -4,8 +4,8 @@ from typing import Union
 
 from PyQt5.QtCore import QEvent, QObject, Qt, QTimer
 from PyQt5.QtGui import QCloseEvent, QKeyEvent, QResizeEvent
-from PyQt5.QtWidgets import (QApplication, QLabel, QSplitter, QTabWidget,
-                             QVBoxLayout, QWidget, QGridLayout)
+from PyQt5.QtWidgets import (QApplication, QGridLayout, QLabel, QSplitter,
+                             QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import Config
 from utils import Utils
@@ -13,6 +13,7 @@ from widgets.bar_bottom import BarBottom
 from widgets.bar_top import BarTop
 from widgets.grid_search import GridSearch
 from widgets.grid_standart import GridStandart
+from widgets.list_standart import ListStandart
 from widgets.tree_favorites import TreeFavorites
 from widgets.tree_folders import TreeFolders
 
@@ -199,15 +200,24 @@ class SimpleFileExplorer(QWidget):
 
         self.folders_tree_wid.expand_path(Config.json_data.get("root"))
 
-        self.grid = GridStandart(width=self.get_grid_width())
-        self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
-        self.grid.progressbar_start.connect(self.bar_bottom.progressbar_start.emit)
-        self.grid.progressbar_value.connect(self.bar_bottom.progressbar_value.emit)
+        if Config.json_data.get("list_view"):
+            self.grid = ListStandart()
+            self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
+            self.bar_top.sort_widget.setDisabled(True)
 
-        self.grid.add_fav_sig.connect(self.tree_wid_add_fav_cmd)
-        self.grid.del_fav_sig.connect(self.tree_wid_del_fav_cmd)
+            # self.grid.add_fav_sig.connect(self.tree_wid_add_fav_cmd)
+            # self.grid.del_fav_sig.connect(self.tree_wid_del_fav_cmd)
+            self.grid.folders_tree_clicked.connect(self.tree_wid_view_folder_cmd)
 
-        self.grid.open_folder_sig.connect(self.tree_wid_view_folder_cmd)
+        else:
+            self.grid = GridStandart(width=self.get_grid_width())
+            self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
+            self.grid.progressbar_start.connect(self.bar_bottom.progressbar_start.emit)
+            self.grid.progressbar_value.connect(self.bar_bottom.progressbar_value.emit)
+
+            self.grid.add_fav_sig.connect(self.tree_wid_add_fav_cmd)
+            self.grid.del_fav_sig.connect(self.tree_wid_del_fav_cmd)
+            self.grid.open_folder_sig.connect(self.tree_wid_view_folder_cmd)
 
         self.r_lay.addWidget(self.grid, 1, 0)
 

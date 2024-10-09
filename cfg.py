@@ -27,7 +27,8 @@ class Config:
         "sort": "name",
         "reversed": False,
         "extra_paths": ["/Studio/PANACEA", "/Studio/MIUZ"],
-        "favs": {}
+        "favs": {},
+        "list_view": True
         }
 
     @staticmethod
