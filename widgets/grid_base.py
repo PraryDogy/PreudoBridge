@@ -253,6 +253,7 @@ class Grid(QScrollArea, GridMethods):
         return super().keyPressEvent(a0)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
-        wid: Thumbnail = self.coords.get(self.coords_cur)
-        wid.setFrameShape(QFrame.Shape.NoFrame)
+        wid = self.coords.get(self.coords_cur)
+        if isinstance(wid, Thumbnail):
+            wid.setFrameShape(QFrame.Shape.NoFrame)
         self.setFocus()
