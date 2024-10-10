@@ -1,21 +1,14 @@
-import os
+from math import ceil
+from random import randint
 
-src = os.path.dirname(__file__)
-count = 0
+test = {i: randint(100, 900) for i in range(1, 18)}
+cols = 4
+rows = ceil(len(test)/cols)
 
-for root, dir, files in os.walk(src):
 
-    if "/env/" in root:
-        continue
-
-    for file in files:
-
-        if file.endswith(".py"):
-            p = os.path.join(root, file)
-            with open(p, "r") as f:
-
-                data = f.read()
-                count += data.count("\n")
-
-print(count)
-# 3224
+temp_test = list(test.items())
+grid = [
+    dict(temp_test[i * cols:(i + 1) * cols])
+    for i in range(rows)
+]
+print(grid)

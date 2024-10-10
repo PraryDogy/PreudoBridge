@@ -227,7 +227,7 @@ class _GridSearchBase(Grid):
         # data идет из сигнала _new_widget_sig
         # "src", "stats" - os.stat, "pixmap"
         filename = os.path.basename(data.get("src"))
-        wid = _Thumbnail(filename=filename, src=data.get("src"), paths=self._paths)
+        wid = _Thumbnail(filename=filename, src=data.get("src"), paths=self._paths_images)
         wid.img_label.setPixmap(data.get("pixmap"))
 
         # читай в инициализаторе описание сигнала show_thumbnail_in_folder
@@ -253,10 +253,10 @@ class _GridSearchBase(Grid):
         self._wid_row_col[wid] = (self.row_count, self.local_col_count)
 
         # для метода _move_to_wid
-        self._path_widget[data.get("src")] = wid
+        self._paths_widgets[data.get("src")] = wid
 
         # для просмотрщика
-        self._paths.append(data.get("src"))
+        self._paths_images.append(data.get("src"))
 
         # прибавляем строчку и столбец в сетку
         self.local_col_count += 1
@@ -275,10 +275,10 @@ class _GridSearchBase(Grid):
         self._image_grid_widgets[(data.get("src"), filename, size, modified, filetype)] = wid
 
     def _clicked_thumb(self, widget: Thumbnail):
-        self._grid_selected_widget_cmd(QFrame.Shape.NoFrame)
+        self.select_new_widget(QFrame.Shape.NoFrame)
         self._cur_row, self._cur_col = self._wid_row_col.get(widget)
         self._selected_widget = widget
-        self._grid_selected_widget_cmd(QFrame.Shape.Panel)
+        self.select_new_widget(QFrame.Shape.Panel)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         try:

@@ -324,6 +324,7 @@ class _GridStandartBase(Grid):
 
     def __init__(self, width: int):
         super().__init__(width)
+        self.ww = width
 
         # делаем os listdir обход и по сигналу finished
         # запустится создание сетки
@@ -338,11 +339,14 @@ class _GridStandartBase(Grid):
         # COL COUNT узнает количество колонок при инициации BASE GRID
 
         # local coint нужен для итерации
-        local_col_count = 0
+        # local_col_count = 0
 
         # (путь, размео, дата): QLabel
         # Для последующей загрузки в _LoadImagesThread
-        self._image_grid_widgets: dict[tuple: QPixmap] = {}
+        self._load_images_data: dict[tuple: QPixmap] = {}
+
+        col_count = Utils.get_clmn_count(self.ww)
+        row, col = 0, 0
 
         for (src, filename, size, modified, _), _ in _finder_items.items():
 
@@ -357,59 +361,41 @@ class _GridStandartBase(Grid):
                 wid._base_thumb_folder_click.connect(self.folder_thumb_open_folder_sig.emit)
 
             else:
-                wid = Thumbnail(filename, src, self._paths)
+                wid = Thumbnail(filename, src, self._paths_images)
                 wid._move_to_wid_sig.connect(lambda src: self._move_to_wid_cmd(src))
                 self._set_default_image(wid.img_label, "images/file_210.png")
 
                 # добавляем в словарик для подгрузки изображений
-                self._image_grid_widgets[(src, size, modified)] = wid.img_label
+                self._load_images_data[(src, size, modified)] = wid.img_label
 
-            # подключаем клик из БАЗОВОГО thumbnail
-            # любой клик по thumbnail снимет выделение с прошлого выделенного thumbnail
-            # который записан в BASE GRID как selected thumbnail
-            # и выделит по которому кликнули, сделав его selected thumbnail
-            wid._base_thumb_click.connect(lambda wid=wid: self._grid_select_new_widget(wid))
-
-            self.grid_layout.addWidget(wid, self.row_count, local_col_count)
+            self.grid_layout.addWidget(wid, row, col)
+            wid._base_thumb_click.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
 
             # добавляем местоположение виджета в сетке для навигации клавишами
-            self._row_col_wid[self.row_count, local_col_count] = wid
-            
-            # добавляем для поиска какой виджет находится в строке и столбце
-            # чтобы по клику на виджет мы записали в CUR COL, CUR ROW
-            # какая строка и столбец сейчас выделены
-            # CUR COL CUR ROW записаны в BASE GRID
-            self._wid_row_col[wid] = (self.row_count, local_col_count)
+            self.coords[row, col] = wid
 
             # для поиска виджета по пути к файлу
             # это нужно когда закрывается просмотрщик изображений
             # который сигналом возвращает, на каком изображении остановился просмотр
             # чтобы выделить этот виджет в сетке
-            self._path_widget[src] = wid
+            self._paths_widgets[src] = wid
             if os.path.isfile(src):
-                self._paths.append(src)
+                self._paths_images.append(src)
 
-            local_col_count += 1
-            if local_col_count >= self.col_count:
-                local_col_count = 0
-                self.row_count += 1
+            col += 1
+            if col >= col_count:
+                col = 0
+                row += 1
 
-        # при итерации виджетов строка прибавляется уже после обработки 
-        # виджета, то есть после последнего виджета в последней колонке
-        # строка все равно прибавится, они будет лишней, пустой
-        # мы проверяем, есть ли на последней строке и первой колонке виджет
-        # если нет, значит при итерации выше добавилась лишняя строка
-        last_row_check = self._row_col_wid.get((self.row_count, 0))
-        if not last_row_check:
-            self.row_count -= 1
+        self.coords_reversed = {v: k for k, v in self.coords.items()}
 
         # добавляем спейсеры чтобы сетка была слева сверху
-        if self._row_col_wid:
+        if self.coords:
             row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
-            self.grid_layout.addItem(row_spacer, self.row_count + 1, 0)
+            self.grid_layout.addItem(row_spacer, row + 1, 0)
 
             col_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
-            self.grid_layout.addItem(col_spacer, 0, self.col_count + 2)
+            self.grid_layout.addItem(col_spacer, 0, col_count + 1)
 
             self._start_load_images_thread()
 
@@ -431,20 +417,6 @@ class _GridStandartBase(Grid):
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0)
 
-    def _grid_select_new_widget(self, widget: Thumbnail):
-        # клик по виджету
-        # убирает выделение с предыдущего selected_widget 
-        self._grid_selected_widget_cmd(QFrame.Shape.NoFrame)
-
-        # записываем новую строку и столбец какая сейчас выделена по клику
-        self._cur_row, self._cur_col = self._wid_row_col.get(widget)
-
-        # записываем в selected widget
-        self._selected_widget = widget
-
-        # выделяем selected widget
-        self._grid_selected_widget_cmd(QFrame.Shape.Panel)
-
     def _set_default_image(self, widget: QLabel, png_path: str):
         pixmap = QPixmap(png_path)
         try:
@@ -461,7 +433,7 @@ class _GridStandartBase(Grid):
                 _Storage.threads.remove(i)
 
     def _start_load_images_thread(self):
-        new_thread = _LoadImagesThread(self._image_grid_widgets)
+        new_thread = _LoadImagesThread(self._load_images_data)
         new_thread._progressbar_start.connect(self.progressbar_start.emit)
         new_thread._progressbar_value.connect(self.progressbar_value.emit)
         new_thread._set_pixmap.connect(self._set_pixmap)
@@ -470,7 +442,7 @@ class _GridStandartBase(Grid):
     
     def _set_pixmap(self, data: tuple):
         src, size, modified, pixmap = data
-        widget: QLabel = self._image_grid_widgets.get((src, size, modified))
+        widget: QLabel = self._load_images_data.get((src, size, modified))
         if isinstance(pixmap, QPixmap):
             widget.setPixmap(pixmap)
 
@@ -491,41 +463,32 @@ class GridStandart(_GridStandartBase):
 
         # копируем для итерации виджетов
         # нам нужны только значения ключей, там записаны виджеты
-        row_col_widget = self._row_col_wid.copy()
+        coords = self.coords.copy()
 
         # очищаем для нового наполнения
-        self._row_col_wid.clear()
-        self._wid_row_col.clear()
+        self.coords.clear()
+        self.coords_reversed.clear()
+        self.coords_cur = (0, 0)
 
         # получаем новое количество колонок на случай изменения размера окна
-        self.col_count = Utils.get_clmn_count(width)
-        if self.col_count < 1:
-            self.col_count = 1
+        col_count = Utils.get_clmn_count(width)
+        row, col = 0, 0
 
-        # сбрасываем счетчик строчек, финальный результат мы узнаем после итерации
-        self.row_count, local_col_count = 0, 0
-        self._cur_row, self._cur_col = 0, 0
+        for (_row, _col), wid in coords.items():
+            self.grid_layout.addWidget(wid, row, col)
 
-        for (row, col), wid in row_col_widget.items():
+            wid: Thumbnail
+            wid.disconnect()
+            wid._base_thumb_click.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
 
-            self.grid_layout.addWidget(wid, self.row_count, local_col_count)
+            self.coords[row, col] = wid
 
-            self._row_col_wid[self.row_count, local_col_count] = wid
-            self._wid_row_col[wid] = (self.row_count, local_col_count)
+            col += 1
+            if col >= col_count:
+                col = 0
+                row += 1
 
-            local_col_count += 1
-            if local_col_count >= self.col_count:
-                local_col_count = 0
-                self.row_count += 1
-
-        # при итерации виджетов строка прибавляется уже после обработки 
-        # виджета, то есть после последнего виджета в последней колонке
-        # строка все равно прибавится, они будет лишней, пустой
-        # мы проверяем, есть ли на последней строке и первой колонке виджет
-        # если нет, значит при итерации выше добавилась лишняя строка
-        last_row_check = self._row_col_wid.get((self.row_count, 0))
-        if not last_row_check:
-            self.row_count -= 1
+        self.coords_reversed = {v: k for k, v in self.coords.items()}
 
     def stop_and_wait_threads(self):
         for thread in _Storage.threads:

@@ -210,106 +210,69 @@ class Grid(QScrollArea, GridMethods):
 
         ############################################################
 
-        # С помощью данных словарей мы упрощаем навигацию по сетке
-        # зображений клавиатурными стрелочками
-        # чтобы каждый раз не итерировать и не искать, какой виджет был выделен,
-        # а какой нужно выделить теперь
+        # координаты: строка, столбец
+        # при формировании сетки наполняется словарь coords
+        # reversed это value: key - coords
+        # все это для навигации по сетке
 
         ############################################################
 
-        # Поиск виджета по номеру строки и колонки
-        # При нажатии на клавиатурную стрелочку мы знаем новую строку и колонку
-        # (строка, колонка): виджет
-        self._row_col_wid: dict[tuple: Thumbnail] = {}
+        self.coords_cur = (0, 0)
+        self.coords: dict[tuple: Thumbnail] =  {}
+        self.coords_reversed: dict[Thumbnail: tuple] = {}
 
-        # Поиск виджета по пути к изображению
-        # Когда просмотрщик закрывается и Thumbnail посылает сигнал
-        # move_to_wid в сетку, в аргументе сигнала содержится путь к изображению
-        # и мы ищем по этому пути, на каком виджете с изображением остановился
-        # просмотр, чтобы перевести на него выделение и скролл
-        # Используется в Grid._move_to_wid
-        # путь к фото: виджет
-        self._path_widget: dict[str: Thumbnail] = {}
-
-        # Поиск номера строки и колонки по виджету
-        # Клик мышкой по Thumbnail и мы узнаем строку и колонку
-        # Если дальнейшую навигацию по сетке осуществлять клавишами
-        # то важно знать, какая сейчас строка и колонка выделена
-        # Используется в _clicked_thumb во всех наследниках Grid
-        # виджет: (строка, колонка). 
-        self._wid_row_col: dict[Thumbnail: tuple] = {}
-
-
-        # Список путей к изображениям в сетке, который передается в
-        # просмотрщик изображений
-        self._paths: list = []
-
-        # Текущий выделенный виджет
-        # Когда происходит клик вне виджета или по другому виджету Thumbnail
-        # С данного виджета снимается выделение
-        self._selected_widget: Thumbnail = EmptyThumbnail()
-        self._cur_row: int = 0
-        self._cur_col: int = 0
-
-        # Максимальное количество строк
-        # При итерации изображений в сетке, каждый раз прибавляется + 1
-        self.row_count: int = 0
-
-        # Макимальное количество колонок
-        self.col_count = Utils.get_clmn_count(width)
-
-    def _grid_selected_widget_cmd(self, shape: QFrame.Shape):
-        try:
-            self._selected_widget.setFrameShape(shape)
-            # Клик дает sender Thumbnail, клавиши None
-            if self.sender() is None:
-                self.ensureWidgetVisible(self._selected_widget)
-        except (AttributeError, TypeError) as e:
-            pass
+        self._paths_widgets: dict[str: Thumbnail] = {}
+        self._paths_images: list = []
 
     # Общий метод для всех Grid
     # В каждой Grud сигнал каждого Thumbnail - _move_to_wid_sig
     # мы подключаем к данному методу
     def _move_to_wid_cmd(self, src: str):
         try:
-            wid: Thumbnail = self._path_widget.get(src)
+            wid: Thumbnail = self._paths_widgets.get(src)
             wid._base_thumb_click.emit()
             self.ensureWidgetVisible(wid)
         except (RuntimeError, KeyError) as e:
             print("move to wid error: ", e)
+
+    def select_new_widget(self, coords: tuple):
+        new_widget = self.coords.get(coords)
+        old_widget = self.coords.get(self.coords_cur)
+
+        if isinstance(new_widget, QFrame):
+
+            if isinstance(old_widget, QFrame):
+                old_widget.setFrameShape(QFrame.Shape.NoFrame)
+
+            new_widget.setFrameShape(QFrame.Shape.Panel)
+            self.coords_cur = coords
+
+            self.ensureVisible(coords[0], coords[1])
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
             self._selected_widget._view_file()
 
         elif a0.key() == Qt.Key.Key_Left:
-            self._grid_selected_widget_cmd(QFrame.Shape.NoFrame)
-            self._cur_col = 0 if self._cur_col == 0 else self._cur_col - 1
-            self._selected_widget = self._row_col_wid.get((self._cur_row, self._cur_col))
-            self._grid_selected_widget_cmd(QFrame.Shape.Panel)
+            coords = (self.coords_cur[0], self.coords_cur[1] - 1)
+            self.select_new_widget(coords)
 
         elif a0.key() == Qt.Key.Key_Right:
-            self._grid_selected_widget_cmd(QFrame.Shape.NoFrame)
-            self._cur_col = self.col_count - 1 if self._cur_col == self.col_count - 1 else self._cur_col + 1 
-            self._selected_widget = self._row_col_wid.get((self._cur_row, self._cur_col))
-            self._grid_selected_widget_cmd(QFrame.Shape.Panel)
+            coords = (self.coords_cur[0], self.coords_cur[1] + 1)
+            self.select_new_widget(coords)
 
         elif a0.key() == Qt.Key.Key_Up:
-            self._grid_selected_widget_cmd(QFrame.Shape.NoFrame)
-            self._cur_row = 0 if self._cur_row == 0 else self._cur_row - 1
-            self._selected_widget = self._row_col_wid.get((self._cur_row, self._cur_col))
-            self._grid_selected_widget_cmd(QFrame.Shape.Panel)
+            coords = (self.coords_cur[0] - 1, self.coords_cur[1])
+            self.select_new_widget(coords)
 
         elif a0.key() == Qt.Key.Key_Down:
-            self._grid_selected_widget_cmd(QFrame.Shape.NoFrame)
-            self._cur_row = self.row_count if self._cur_row == self.row_count else self._cur_row + 1
-            self._selected_widget = self._row_col_wid.get((self._cur_row, self._cur_col))
-            self._grid_selected_widget_cmd(QFrame.Shape.Panel)
+            coords = (self.coords_cur[0] + 1, self.coords_cur[1])
+            self.select_new_widget(coords)
         
         return super().keyPressEvent(a0)
 
-    def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
-        try:
-            self._selected_widget.setFrameShape(QFrame.Shape.NoFrame)
-        except Exception:
-            ...
+    # def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
+        # try:
+        #     self._selected_widget.setFrameShape(QFrame.Shape.NoFrame)
+        # except Exception:
+        #     ...
