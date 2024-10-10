@@ -255,7 +255,6 @@ class _LoadFinderThread(QThread):
 class _FolderThumbnail(Thumbnail):
     add_fav = pyqtSignal(str)
     del_fav = pyqtSignal(str)
-    clicked_folder = pyqtSignal(str)
 
     def __init__(self, filename: str, src: str):
         super().__init__(filename, src, [])
@@ -295,9 +294,9 @@ class _FolderThumbnail(Thumbnail):
         self.clicked.emit()
         self.context_menu.exec_(self.mapToGlobal(a0.pos()))
 
-    def view(self):
+    # def view(self):
         # self.clicked.emit()
-        self.clicked_folder.emit(self.src)
+        # self.clicked_folder.emit(self.src)
 
     def fav_cmd(self, offset: int):
         self.fav_action.triggered.disconnect()
@@ -358,7 +357,6 @@ class _GridStandartBase(Grid):
                 wid.clicked_folder.connect(lambda x: print(x))
                 wid.add_fav.connect(self.add_fav.emit)
                 wid.del_fav.connect(self.del_fav.emit)
-                # wid.clicked_folder.connect(self.clicked_folder.emit)
 
             else:
                 wid = Thumbnail(filename, src, self._paths_images)
@@ -472,8 +470,16 @@ class GridStandart(_GridStandartBase):
         for (_row, _col), wid in coords.items():
             self.grid_layout.addWidget(wid, row, col)
 
-            wid: Thumbnail
-            wid.disconnect()
+            if isinstance(wid, _FolderThumbnail):
+                wid.disconnect()
+                wid.clicked_folder.connect(lambda x: print(x))
+                wid.add_fav.connect(self.add_fav.emit)
+                wid.del_fav.connect(self.del_fav.emit)
+        
+            elif isinstance(wid, Thumbnail):
+                wid.disconnect()
+                wid._move_to_wid_sig.connect(lambda src: self._move_to_wid_cmd(src))
+
             wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
 
             self.coords[row, col] = wid

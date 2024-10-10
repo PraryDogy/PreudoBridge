@@ -52,6 +52,7 @@ class Thumbnail(QFrame):
     # !!!!!!!! при переназначении клик эвентов не забудь добавить _clicked_sig
     # по виджету произошел любой клик мыши (правый левый неважно)
     clicked = pyqtSignal()
+    clicked_folder = pyqtSignal(str)
 
     def __init__(self, filename: str, src: str, paths: list):
         super().__init__()
@@ -101,7 +102,7 @@ class Thumbnail(QFrame):
         self.context_menu.addAction(copy_path)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
-        self.clicked.emit()
+        self.view()
 
     def mousePressEvent(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.LeftButton:
@@ -144,11 +145,14 @@ class Thumbnail(QFrame):
         self.context_menu.exec_(self.mapToGlobal(a0.pos()))
 
     def view(self):
-        self.win = WinImgView(self.src, self.paths)
-        self.win.closed.connect(lambda src: self._move_to_wid_sig.emit(src))
-        main_win = Utils.get_main_win()
-        Utils.center_win(parent=main_win, child=self.win)
-        self.win.show()
+        if os.path.isfile(self.src):
+            self.win = WinImgView(self.src, self.paths)
+            self.win.closed.connect(lambda src: self._move_to_wid_sig.emit(src))
+            main_win = Utils.get_main_win()
+            Utils.center_win(parent=main_win, child=self.win)
+            self.win.show()
+        else:
+            self.clicked_folder.emit(self.src)
 
     def _open_default(self):
         subprocess.call(["open", self.src])
