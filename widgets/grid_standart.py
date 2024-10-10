@@ -333,13 +333,6 @@ class _GridStandartBase(Grid):
         self._finder_thread.start()
 
     def _create_grid(self, _finder_items: dict):
-
-        # ROW COUNT сейчас так же равен 0 при инициации BASE GRID
-        # COL COUNT узнает количество колонок при инициации BASE GRID
-
-        # local coint нужен для итерации
-        # local_col_count = 0
-
         # (путь, размео, дата): QLabel
         # Для последующей загрузки в _LoadImagesThread
         self._load_images_data: dict[tuple: QPixmap] = {}
