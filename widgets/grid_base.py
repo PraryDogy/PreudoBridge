@@ -102,7 +102,7 @@ class Thumbnail(QFrame):
         self.context_menu.addAction(copy_path)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
-        self.view()
+        self.clicked.emit()
 
     def mousePressEvent(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.LeftButton:
@@ -134,11 +134,7 @@ class Thumbnail(QFrame):
 
     def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.LeftButton:
-            self.clicked.emit()
-            self.win = WinImgView(self.src, self.paths)
-            Utils.center_win(parent=Utils.get_main_win(), child=self.win)
-            self.win.closed.connect(lambda src: self._move_to_wid_sig.emit(src))
-            self.win.show()
+            self.view()
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         self.clicked.emit()
@@ -147,9 +143,8 @@ class Thumbnail(QFrame):
     def view(self):
         if os.path.isfile(self.src):
             self.win = WinImgView(self.src, self.paths)
+            Utils.center_win(parent=Utils.get_main_win(), child=self.win)
             self.win.closed.connect(lambda src: self._move_to_wid_sig.emit(src))
-            main_win = Utils.get_main_win()
-            Utils.center_win(parent=main_win, child=self.win)
             self.win.show()
         else:
             self.clicked_folder.emit(self.src)

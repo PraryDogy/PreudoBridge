@@ -354,7 +354,7 @@ class _GridStandartBase(Grid):
                 self._set_default_image(wid.img_label, "images/folder_210.png")
 
                 # подключаем сигналы виджеты к сигналу сетки
-                wid.clicked_folder.connect(lambda x: print(x))
+                wid.clicked_folder.connect(self.clicked_folder.emit)
                 wid.add_fav.connect(self.add_fav.emit)
                 wid.del_fav.connect(self.del_fav.emit)
 
@@ -472,7 +472,7 @@ class GridStandart(_GridStandartBase):
 
             if isinstance(wid, _FolderThumbnail):
                 wid.disconnect()
-                wid.clicked_folder.connect(lambda x: print(x))
+                wid.clicked_folder.connect(self.clicked_folder.emit)
                 wid.add_fav.connect(self.add_fav.emit)
                 wid.del_fav.connect(self.del_fav.emit)
         
