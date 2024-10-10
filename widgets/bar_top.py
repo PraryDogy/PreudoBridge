@@ -2,7 +2,7 @@ import os
 from difflib import SequenceMatcher
 
 from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal
-from PyQt5.QtGui import QKeyEvent, QMouseEvent
+from PyQt5.QtGui import QKeyEvent, QMouseEvent, QIcon
 from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QLabel, QLineEdit,
                              QMenu, QPushButton, QSpacerItem, QTabBar,
                              QVBoxLayout, QWidget)
@@ -155,8 +155,10 @@ class _ViewTypeBtn(QTabBar):
         self.setFixedWidth(125)
         self.setStyleSheet("text-align: center;")
 
-        self.addTab("Плитка")
+        icon = QIcon("images/grid_view.svg")
+        self.addTab("")
         self.addTab("Список")
+        self.setTabIcon(0, icon)
 
         if Config.json_data.get("list_view"):
             self.setCurrentIndex(1)
