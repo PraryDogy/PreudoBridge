@@ -4,7 +4,7 @@ import numpy as np
 import sqlalchemy
 import sqlalchemy.exc
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
-from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QMouseEvent, QPixmap
+from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QKeyEvent, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import QAction, QFrame, QLabel, QSizePolicy, QSpacerItem
 
 from cfg import Config
@@ -253,9 +253,9 @@ class _LoadFinderThread(QThread):
 
 
 class _FolderThumbnail(Thumbnail):
-    _folder_context_add_fav_sig = pyqtSignal(str)
-    _foder_context_del_fav_sig = pyqtSignal(str)
-    _folder_thumb_open_folder_sig = pyqtSignal(str)
+    add_fav = pyqtSignal(str)
+    del_fav = pyqtSignal(str)
+    clicked_folder = pyqtSignal(str)
 
     def __init__(self, filename: str, src: str):
         super().__init__(filename, src, [])
@@ -263,7 +263,7 @@ class _FolderThumbnail(Thumbnail):
         self.context_menu.clear()
 
         view_action = QAction("Просмотр", self)
-        view_action.triggered.connect(lambda: self._folder_thumb_open_folder_sig.emit(self.src))
+        view_action.triggered.connect(lambda: self.clicked_folder.emit(self.src))
         self.context_menu.addAction(view_action)
 
         self.context_menu.addSeparator()
@@ -280,43 +280,43 @@ class _FolderThumbnail(Thumbnail):
 
         if self.src in Config.json_data["favs"]:
             self.fav_action = QAction("Удалить из избранного", self)
-            self.fav_action.triggered.connect(lambda: self._fav_cmd(-1))
+            self.fav_action.triggered.connect(lambda: self.fav_cmd(-1))
             self.context_menu.addAction(self.fav_action)
         else:
             self.fav_action = QAction("Добавить в избранное", self)
-            self.fav_action.triggered.connect(lambda: self._fav_cmd(+1))
+            self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))
             self.context_menu.addAction(self.fav_action)
 
     def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
-        # это FOLDER THUMB, поэтому мы переопределяем double click
-        # отправляем сигнал в сетку чтобы выделить этот виджет
-        self._base_thumb_click.emit()
-
-        # отправляем сигнал в сетку чтобы открыть папку
-        self._folder_thumb_open_folder_sig.emit(self.src)
+        self.clicked.emit()
+        self.clicked_folder.emit(self.src)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        self._base_thumb_click.emit()
+        self.clicked.emit()
         self.context_menu.exec_(self.mapToGlobal(a0.pos()))
 
-    def _fav_cmd(self, offset: int):
+    def view(self):
+        # self.clicked.emit()
+        self.clicked_folder.emit(self.src)
+
+    def fav_cmd(self, offset: int):
         self.fav_action.triggered.disconnect()
         if 0 + offset == 1:
-            self._folder_context_add_fav_sig.emit(self.src)
+            self.add_fav.emit(self.src)
             self.fav_action.setText("Удалить из избранного")
-            self.fav_action.triggered.connect(lambda: self._fav_cmd(-1))
+            self.fav_action.triggered.connect(lambda: self.fav_cmd(-1))
         else:
-            self._foder_context_del_fav_sig.emit(self.src)
+            self.del_fav.emit(self.src)
             self.fav_action.setText("Добавить в избранное")
-            self.fav_action.triggered.connect(lambda: self._fav_cmd(+1))
+            self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))
 
 
 # Базовый класс со внутренними методами не для импорта
 class _GridStandartBase(Grid):
     # сигналы переданные из FOLDER THUMBNAIL
-    add_fav_sig = pyqtSignal(str)
-    del_fav_sig = pyqtSignal(str)
-    folder_thumb_open_folder_sig = pyqtSignal(str)
+    add_fav = pyqtSignal(str)
+    del_fav = pyqtSignal(str)
+    clicked_folder = pyqtSignal(str)
 
     # сигналы из треда по загрузке изображений
     progressbar_start = pyqtSignal(int)
@@ -355,10 +355,10 @@ class _GridStandartBase(Grid):
                 self._set_default_image(wid.img_label, "images/folder_210.png")
 
                 # подключаем сигналы виджеты к сигналу сетки
-                wid._folder_thumb_open_folder_sig.connect(self.folder_thumb_open_folder_sig.emit)
-                wid._folder_context_add_fav_sig.connect(self.add_fav_sig.emit)
-                wid._foder_context_del_fav_sig.connect(self.del_fav_sig.emit)
-                wid._base_thumb_folder_click.connect(self.folder_thumb_open_folder_sig.emit)
+                wid.clicked_folder.connect(lambda x: print(x))
+                wid.add_fav.connect(self.add_fav.emit)
+                wid.del_fav.connect(self.del_fav.emit)
+                # wid.clicked_folder.connect(self.clicked_folder.emit)
 
             else:
                 wid = Thumbnail(filename, src, self._paths_images)
@@ -369,7 +369,7 @@ class _GridStandartBase(Grid):
                 self._load_images_data[(src, size, modified)] = wid.img_label
 
             self.grid_layout.addWidget(wid, row, col)
-            wid._base_thumb_click.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
+            wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
 
             # добавляем местоположение виджета в сетке для навигации клавишами
             self.coords[row, col] = wid
@@ -474,7 +474,7 @@ class GridStandart(_GridStandartBase):
 
             wid: Thumbnail
             wid.disconnect()
-            wid._base_thumb_click.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
+            wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
 
             self.coords[row, col] = wid
 

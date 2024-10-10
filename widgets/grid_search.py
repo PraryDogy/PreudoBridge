@@ -237,7 +237,7 @@ class _GridSearchBase(Grid):
         wid._move_to_wid_sig.connect(self._move_to_wid_cmd)
 
         # любой клик по Thumbnail выделит его и снимет выделение с прошлого
-        wid._base_thumb_click.connect(lambda wid=wid: self._clicked_thumb(wid))  
+        wid.clicked.connect(lambda wid=wid: self._clicked_thumb(wid))  
 
         self.grid_layout.addWidget(wid, self.row_count, self.local_col_count, alignment=Qt.AlignmentFlag.AlignTop)
 

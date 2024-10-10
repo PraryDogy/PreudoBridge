@@ -51,11 +51,7 @@ class Thumbnail(QFrame):
 
     # !!!!!!!! при переназначении клик эвентов не забудь добавить _clicked_sig
     # по виджету произошел любой клик мыши (правый левый неважно)
-    _base_thumb_click = pyqtSignal()
-
-    # view file попытается открыть просмотрщик изображений, если это папка
-    # то передается этот сигнал
-    _base_thumb_folder_click = pyqtSignal(str)
+    clicked = pyqtSignal()
 
     def __init__(self, filename: str, src: str, paths: list):
         super().__init__()
@@ -87,7 +83,7 @@ class Thumbnail(QFrame):
         self.context_menu = QMenu(self)
 
         view_action = QAction("Просмотр", self)
-        view_action.triggered.connect(self.open_img_view)
+        view_action.triggered.connect(self.view)
         self.context_menu.addAction(view_action)
 
         self.context_menu.addSeparator()
@@ -105,7 +101,7 @@ class Thumbnail(QFrame):
         self.context_menu.addAction(copy_path)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
-        self._base_thumb_click.emit()
+        self.clicked.emit()
 
     def mousePressEvent(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.LeftButton:
@@ -123,7 +119,7 @@ class Thumbnail(QFrame):
         if distance < QApplication.startDragDistance():
             return
 
-        self._base_thumb_click.emit()
+        self.clicked.emit()
 
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
@@ -137,43 +133,28 @@ class Thumbnail(QFrame):
 
     def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.LeftButton:
-            self._base_thumb_click.emit()
+            self.clicked.emit()
             self.win = WinImgView(self.src, self.paths)
             Utils.center_win(parent=Utils.get_main_win(), child=self.win)
             self.win.closed.connect(lambda src: self._move_to_wid_sig.emit(src))
             self.win.show()
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        self._base_thumb_click.emit()
+        self.clicked.emit()
         self.context_menu.exec_(self.mapToGlobal(a0.pos()))
 
-    def open_img_view(self):
-        if self.src.endswith(Config.img_ext):
-            self.win = WinImgView(self.src, self.paths)
-            self.win.closed.connect(lambda src: self._move_to_wid_sig.emit(src))
-            main_win = Utils.get_main_win()
-            Utils.center_win(parent=main_win, child=self.win)
-            self.win.show()
-        else:
-            self._base_thumb_folder_click.emit(self.src)
+    def view(self):
+        self.win = WinImgView(self.src, self.paths)
+        self.win.closed.connect(lambda src: self._move_to_wid_sig.emit(src))
+        main_win = Utils.get_main_win()
+        Utils.center_win(parent=main_win, child=self.win)
+        self.win.show()
 
     def _open_default(self):
         subprocess.call(["open", self.src])
 
     def _show_in_finder(self):
         subprocess.call(["open", "-R", self.src])
-
-
-# Заглушка
-# При первой инициации Grid - _selected_thumbnail является None
-# И чтобы не осуществлять проверку на None, мы добавляем эту заглушку
-# С теми же методами, что и в Thumbnail
-class EmptyThumbnail:
-    def setFrameShape(*args, **kwargs):
-        ...
-    
-    def _view_file(*args, **kwargs):
-        ...
 
 
 # Методы для внешнего использования, которые обязательно нужно
@@ -230,7 +211,7 @@ class Grid(QScrollArea, GridMethods):
     def _move_to_wid_cmd(self, src: str):
         try:
             wid: Thumbnail = self._paths_widgets.get(src)
-            wid._base_thumb_click.emit()
+            wid.clicked.emit()
             self.ensureWidgetVisible(wid)
         except (RuntimeError, KeyError) as e:
             print("move to wid error: ", e)
@@ -252,7 +233,7 @@ class Grid(QScrollArea, GridMethods):
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
             wid: Thumbnail = self.coords.get(self.coords_cur)
-            wid.open_img_view()
+            wid.view()
 
         elif a0.key() == Qt.Key.Key_Left:
             coords = (self.coords_cur[0], self.coords_cur[1] - 1)
@@ -275,3 +256,4 @@ class Grid(QScrollArea, GridMethods):
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
         wid: Thumbnail = self.coords.get(self.coords_cur)
         wid.setFrameShape(QFrame.Shape.NoFrame)
+        self.setFocus()
