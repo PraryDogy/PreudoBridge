@@ -87,7 +87,7 @@ class Thumbnail(QFrame):
         self.context_menu = QMenu(self)
 
         view_action = QAction("Просмотр", self)
-        view_action.triggered.connect(self._view_file)
+        view_action.triggered.connect(self.open_img_view)
         self.context_menu.addAction(view_action)
 
         self.context_menu.addSeparator()
@@ -147,7 +147,7 @@ class Thumbnail(QFrame):
         self._base_thumb_click.emit()
         self.context_menu.exec_(self.mapToGlobal(a0.pos()))
 
-    def _view_file(self):
+    def open_img_view(self):
         if self.src.endswith(Config.img_ext):
             self.win = WinImgView(self.src, self.paths)
             self.win.closed.connect(lambda src: self._move_to_wid_sig.emit(src))
@@ -251,7 +251,8 @@ class Grid(QScrollArea, GridMethods):
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
-            self._selected_widget._view_file()
+            wid: Thumbnail = self.coords.get(self.coords_cur)
+            wid.open_img_view()
 
         elif a0.key() == Qt.Key.Key_Left:
             coords = (self.coords_cur[0], self.coords_cur[1] - 1)

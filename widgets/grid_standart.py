@@ -389,7 +389,6 @@ class _GridStandartBase(Grid):
 
         self.coords_reversed = {v: k for k, v in self.coords.items()}
 
-        # добавляем спейсеры чтобы сетка была слева сверху
         if self.coords:
             row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
             self.grid_layout.addItem(row_spacer, row + 1, 0)
@@ -399,20 +398,16 @@ class _GridStandartBase(Grid):
 
             self._start_load_images_thread()
 
-        # если же словарик пустой значит либо нет папок и фото
-        # либо директория не существует
-        # такое бывает если в закладках TREE FAVORITES есть директория
-        # которой уже не существует
-        # или же программа впервые загружается на несуществующей директории
         elif not os.path.exists(Config.json_data.get("root")):
-            no_images = QLabel(f"{Config.json_data.get('root')}\nТакой папки не существует \n Проверьте подключение к сетевому диску")
-            no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.grid_layout.addWidget(no_images, 0, 0)
+            t = f"{Config.json_data.get('root')}\nТакой папки не существует\nПроверьте подключение к сетевому диску"
+            setattr(self, "no_images", t)
 
-        # нет фото
         else:
-            no_images = QLabel(f"{Config.json_data.get('root')}\nНет изображений")
+            t = f"{Config.json_data.get('root')}\nНет изображений"
+            setattr(self, "no_images", t)
+
+        if hasattr(self, "no_images"):
+            no_images = QLabel(t)
             no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0)
