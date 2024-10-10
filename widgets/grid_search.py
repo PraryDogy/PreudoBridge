@@ -19,7 +19,7 @@ from .grid_base import Grid, Thumbnail
 
 
 # Добавляем в контенкстное меню "Показать в папке"
-class _Thumbnail(Thumbnail):
+class SearchThumbnail(Thumbnail):
     _show_in_folder = pyqtSignal(str)
 
     def __init__(self, filename: str, src: str, paths: list):
@@ -197,7 +197,7 @@ class _GridSearchBase(Grid):
 
     # для конекстного меню Thumbnail - "показать в папке"
     # программа переходит из поиска в исходную папку с изображением и выделяет его
-    show_thumbnail_in_folder = pyqtSignal(str)
+    show_in_folder = pyqtSignal(str)
 
     def __init__(self, width: int, search_text: str):
         super().__init__(width)
@@ -206,17 +206,15 @@ class _GridSearchBase(Grid):
         # (путь до файла, имя файла, размер, дата изменения, тип файла)
         # этот словарик нужен для повторного формирования сетки при изменении
         # размера и для сортировки по имени/размеру/дате/типу
-        self._image_grid_widgets: dict[tuple: _Thumbnail] = {}
+        self._image_grid_widgets: dict[tuple: SearchThumbnail] = {}
         self.search_text = search_text
 
-        # row_count наследуется от Grid, поскольку строчки только увеличивают
-        # значение при формировании сетки
-        # local_col_count это количество колонок, которое сбрасывается при 
-        # каждой новой строчке
-        self.local_col_count = 0
 
-        clmn_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
-        self.grid_layout.addItem(clmn_spacer, 0, self.col_count + 1)
+        self.col_count = Utils.get_clmn_count(width)
+        self.row, self.col = 0, 0
+
+        # clmn_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        # self.grid_layout.addItem(clmn_spacer, 0, self.col_count + 1)
 
         self._thread = _SearchFinderThread(Config.json_data.get("root"), search_text)
         self._thread._new_widget_sig.connect(self._add_new_widget)
@@ -227,58 +225,33 @@ class _GridSearchBase(Grid):
         # data идет из сигнала _new_widget_sig
         # "src", "stats" - os.stat, "pixmap"
         filename = os.path.basename(data.get("src"))
-        wid = _Thumbnail(filename=filename, src=data.get("src"), paths=self._paths_images)
+        wid = SearchThumbnail(filename=filename, src=data.get("src"), paths=self._paths_images)
         wid.img_label.setPixmap(data.get("pixmap"))
 
-        # читай в инициализаторе описание сигнала show_thumbnail_in_folder
-        wid._show_in_folder.connect(self.show_thumbnail_in_folder.emit)
-
-        # обычный сигнал по закрытию просмотрщика, читай описание к Grid
+        wid._show_in_folder.connect(self.show_in_folder.emit)
         wid._move_to_wid_sig.connect(self._move_to_wid_cmd)
+        wid.clicked.connect(lambda r=self.row, c=self.col: self.select_new_widget((r, c)))
+        self.grid_layout.addWidget(wid, self.row, self.col, alignment=Qt.AlignmentFlag.AlignTop)
 
-        # любой клик по Thumbnail выделит его и снимет выделение с прошлого
-        wid.clicked.connect(lambda wid=wid: self._clicked_thumb(wid))  
-
-        self.grid_layout.addWidget(wid, self.row_count, self.local_col_count, alignment=Qt.AlignmentFlag.AlignTop)
-
-        ############################################################
-
-        # С помощью данных словарей мы упрощаем навигацию по сетке
-        # зображений клавиатурными стрелочками
-        # чтобы каждый раз не итерировать и не искать, какой виджет был выделен,
-        # а какой нужно выделить теперь
-
-        ############################################################
-        self._row_col_wid[self.row_count, self.local_col_count] = wid
-        self._wid_row_col[wid] = (self.row_count, self.local_col_count)
-
-        # для метода _move_to_wid
+        self.coords[self.row, self.col] = wid
+        self.coords_reversed[wid] = (self.row, self.col)
         self._paths_widgets[data.get("src")] = wid
-
-        # для просмотрщика
         self._paths_images.append(data.get("src"))
-
-        # прибавляем строчку и столбец в сетку
-        self.local_col_count += 1
-        if self.local_col_count >= self.col_count:
-            self.local_col_count = 0
-            self.row_count += 1
-
-        stats: os.stat_result = data.get("stats")
-        size = stats.st_size
-        modified = stats.st_mtime
-        filetype = os.path.splitext(data.get("src"))[1]
 
         # (путь до файла, имя файла, размер, дата изменения, тип файла)
         # этот словарик нужен для повторного формирования сетки при изменении
         # размера и для сортировки по имени/размеру/дате/типу
+        stats: os.stat_result = data.get("stats")
+        size = stats.st_size
+        modified = stats.st_mtime
+        filetype = os.path.splitext(data.get("src"))[1]
         self._image_grid_widgets[(data.get("src"), filename, size, modified, filetype)] = wid
 
-    def _clicked_thumb(self, widget: Thumbnail):
-        self.select_new_widget(QFrame.Shape.NoFrame)
-        self._cur_row, self._cur_col = self._wid_row_col.get(widget)
-        self._selected_widget = widget
-        self.select_new_widget(QFrame.Shape.Panel)
+        # прибавляем строчку и столбец в сетку
+        self.col += 1
+        if self.col >= self.col_count:
+            self.col = 0
+            self.row += 1
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         try:
@@ -300,38 +273,36 @@ class GridSearch(_GridSearchBase):
     def resize_grid(self, width: int):
         if not self._thread.isRunning():
 
-            self._row_col_wid.clear()
-            self._wid_row_col.clear()
+            # очищаем для нового наполнения
+            self.coords.clear()
+            self.coords_reversed.clear()
+            self.coords_cur = (0, 0)
 
-            self.col_count = Utils.get_clmn_count(width)
-            if self.col_count < 1:
-                self.col_count = 1
-
-            self.row_count = 0
-            self.local_col_count = 0
+            # получаем новое количество колонок на случай изменения размера окна
+            col_count = Utils.get_clmn_count(width)
+            row, col = 0, 0
 
             # (путь до файла, имя файла, размер, дата изменения, тип файла)
             # этот словарик нужен для повторного формирования сетки при изменении
             # размера и для сортировки по имени/размеру/дате/типу
             for data, wid in self._image_grid_widgets.items():
-                self.grid_layout.addWidget(wid, self.row_count, self.local_col_count, alignment=Qt.AlignmentFlag.AlignTop)
+                
+                wid: SearchThumbnail
+                wid.disconnect()
+                wid._show_in_folder.connect(self.show_in_folder.emit)
+                wid._move_to_wid_sig.connect(self._move_to_wid_cmd)
+                wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
 
-                self._row_col_wid[self.row_count, self.local_col_count] = wid
-                self._wid_row_col[wid] = (self.row_count, self.local_col_count)
+                self.grid_layout.addWidget(wid, row, col, alignment=Qt.AlignmentFlag.AlignTop)
+                self.coords[row, col] = wid
 
-                self.local_col_count += 1
-                if self.local_col_count >= self.col_count:
-                    self.local_col_count = 0
-                    self.row_count += 1
+                col += 1
+                if col >= col_count:
+                    col = 0
+                    row += 1
             
-            # при итерации виджетов строка прибавляется уже после обработки 
-            # виджета, то есть после последнего виджета в последней колонке
-            # строка все равно прибавится, они будет лишней, пустой
-            # мы проверяем, есть ли на последней строке и первой колонке виджет
-            # если нет, значит при итерации выше добавилась лишняя строка
-            last_row_check = self._row_col_wid.get((self.row_count, 0))
-            if not last_row_check:
-                self.row_count -= 1
+            self.coords_reversed = {v: k for k, v in self.coords.items()}
+
 
     # неактивно
     # в идеале нужно для выхода из приложения, потому что только по завершению
