@@ -468,7 +468,6 @@ class GridStandart(_GridStandartBase):
         row, col = 0, 0
 
         for (_row, _col), wid in coords.items():
-            self.grid_layout.addWidget(wid, row, col)
 
             if isinstance(wid, _FolderThumbnail):
                 wid.disconnect()
@@ -481,7 +480,7 @@ class GridStandart(_GridStandartBase):
                 wid._move_to_wid_sig.connect(lambda src: self._move_to_wid_cmd(src))
 
             wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
-
+            self.grid_layout.addWidget(wid, row, col)
             self.coords[row, col] = wid
 
             col += 1
