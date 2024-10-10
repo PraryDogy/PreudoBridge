@@ -213,8 +213,8 @@ class _GridSearchBase(Grid):
         self.col_count = Utils.get_clmn_count(width)
         self.row, self.col = 0, 0
 
-        # clmn_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
-        # self.grid_layout.addItem(clmn_spacer, 0, self.col_count + 1)
+        clmn_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        self.grid_layout.addItem(clmn_spacer, 0, self.col_count + 1)
 
         self._thread = _SearchFinderThread(Config.json_data.get("root"), search_text)
         self._thread._new_widget_sig.connect(self._add_new_widget)
