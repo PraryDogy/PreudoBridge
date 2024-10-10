@@ -89,9 +89,9 @@ class Thumbnail(QFrame):
 
         self.context_menu.addSeparator()
 
-        open_action = QAction("Открыть по умолчанию", self)
-        open_action.triggered.connect(self._open_default)
-        self.context_menu.addAction(open_action)
+        open_menu = QMenu("Открыть в приложении", self)
+        open_menu.triggered.connect(self._open_default)
+        self.context_menu.addMenu(open_menu)
 
         show_in_finder_action = QAction("Показать в Finder", self)
         show_in_finder_action.triggered.connect(self._show_in_finder)
