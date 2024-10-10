@@ -247,7 +247,7 @@ class Grid(QScrollArea, GridMethods):
             new_widget.setFrameShape(QFrame.Shape.Panel)
             self.coords_cur = coords
 
-            self.ensureVisible(coords[0], coords[1])
+            self.ensureWidgetVisible(new_widget)
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
@@ -271,8 +271,6 @@ class Grid(QScrollArea, GridMethods):
         
         return super().keyPressEvent(a0)
 
-    # def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
-        # try:
-        #     self._selected_widget.setFrameShape(QFrame.Shape.NoFrame)
-        # except Exception:
-        #     ...
+    def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
+        wid: Thumbnail = self.coords.get(self.coords_cur)
+        wid.setFrameShape(QFrame.Shape.NoFrame)
