@@ -1,48 +1,48 @@
-import os
-import re
-from datetime import date
+from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QLineEdit, QVBoxLayout, QWidget
+from PyQt5.QtCore import Qt
 
-def find_photoshops():
-    root_path = "/Applications"
-    photoshop_apps = []
-
-    names = [
-        f"Adobe Photoshop CC {i}"
-        for i in range(2014, 2020)
-        ]
-
-    names.extend([
-            f"Adobe Photoshop {i}"
-            for i in range(2020, date.today().year + 1)
-            ])
-
-    for item in os.listdir(root_path):
-        full_path = os.path.join(root_path, item)
+class RenameLabel(QLabel):
+    def __init__(self, text):
+        super().__init__(text)
+        self.setText(text)
         
-        if item in names:        
-            if os.path.isdir(full_path):
-                app_inside_folder = os.path.join(full_path, item + ".app")
-                if os.path.exists(app_inside_folder):
-                    photoshop_apps.append(app_inside_folder)
-            else:
-                photoshop_apps.append(full_path)
+        # Линия редактирования для изменения текста
+        self.line_edit = QLineEdit(self.text())
+        self.line_edit.hide()
+        
+        # Когда редактирование завершено
+        self.line_edit.editingFinished.connect(self.finish_edit)
+        
+    def mouseDoubleClickEvent(self, event):
+        # Двойной щелчок активирует редактирование
+        self.line_edit.setText(self.text())
+        self.line_edit.show()
+        self.line_edit.setFocus()
+        self.hide()
+        
+    def finish_edit(self):
+        # Завершаем редактирование и возвращаем текст в QLabel
+        self.setText(self.line_edit.text())
+        self.line_edit.hide()
+        self.show()
 
-    return photoshop_apps
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        
+        # Главный виджет и компоновка
+        widget = QWidget()
+        layout = QVBoxLayout(widget)
+        
+        # Создаем кастомный QLabel с возможностью переименования
+        self.rename_label = RenameLabel("Дважды щелкните, чтобы переименовать")
+        layout.addWidget(self.rename_label)
+        layout.addWidget(self.rename_label.line_edit)
+        
+        self.setCentralWidget(widget)
+        self.setWindowTitle("Переименование QLabel")
 
-
-
-
-
-# def find_photoshops():
-#     years_list = [
-#         f"Adobe Photoshop CC {i}"
-#         for i in range(2014, 2020)
-#         ]
-
-#     years_list.extend([
-#             f"Adobe Photoshop {i}"
-#             for i in range(2020, date.today().year)
-#             ])
-
-a = find_photoshops()
-print(a)
+# app = QApplication([])
+# window = MainWindow()
+# window.show()
+# app.exec_()

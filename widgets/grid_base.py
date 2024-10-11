@@ -59,6 +59,7 @@ class Thumbnail(QFrame):
         self.setFixedSize(250, 280)
         self.src: str = src
         self.paths: list = paths
+        self.colors: list = []
 
         self.setFrameShape(QFrame.Shape.NoFrame)
         tooltip = filename + "\n" + src
@@ -105,6 +106,16 @@ class Thumbnail(QFrame):
         copy_path = QAction("Скопировать путь до файла", self)
         copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
         self.context_menu.addAction(copy_path)
+
+        self.context_menu.addSeparator()
+
+        color_menu = QMenu("Цвета", self)
+        self.context_menu.addMenu(color_menu)
+
+        for color, text in Config.colors.items():
+            clr = QAction(parent=color_menu, text=f"{color} {text}")
+            clr.triggered.connect(lambda e, c=color: self.color_click(c))
+            color_menu.addAction(clr)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
         self.clicked.emit()
@@ -159,6 +170,13 @@ class Thumbnail(QFrame):
 
     def _show_in_finder(self):
         subprocess.call(["open", "-R", self.src])
+
+    def color_click(self, color: str):
+        if color not in self.colors:
+            self.colors.append(color)
+            self.colors.sort()
+
+        print(self.colors)
 
 
 # Методы для внешнего использования, которые обязательно нужно

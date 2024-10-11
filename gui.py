@@ -114,7 +114,7 @@ class SimpleFileExplorer(QWidget):
         self.bar_top.level_up_btn.setDisabled(b)
         self.bar_top.go_btn.setDisabled(b)
         self.bar_top.sort_type_btn.setDisabled(b)
-        self.bar_top.filters_btn.setDisabled(b)
+        # self.bar_top.filters_btn.setDisabled(b)
         self.bar_top.view_type_btn.setDisabled(b)
 
     def tree_wid_view_folder_cmd(self, root: str):
@@ -213,7 +213,7 @@ class SimpleFileExplorer(QWidget):
             self.grid = ListStandart()
             self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
             self.bar_top.sort_type_btn.setDisabled(True)
-            self.bar_top.filters_btn.setDisabled(True)
+            # self.bar_top.filters_btn.setDisabled(True)
 
             self.grid.add_to_favs_clicked.connect(self.tree_wid_add_fav_cmd)
             self.grid.del_favs_clicked.connect(self.tree_wid_del_fav_cmd)

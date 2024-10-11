@@ -440,9 +440,9 @@ class BarTop(QFrame):
         self.clmn += 1
         self.grid_layout.addItem(QSpacerItem(5, 0), 0, self.clmn)
 
-        self.clmn += 1
-        self.filters_btn = _FiltersBtn()
-        self.grid_layout.addWidget(self.filters_btn, 0, self.clmn)
+        # self.clmn += 1
+        # self.filters_btn = _FiltersBtn()
+        # self.grid_layout.addWidget(self.filters_btn, 0, self.clmn)
 
         self.clmn += 1
         self.grid_layout.setColumnStretch(self.clmn, 10)

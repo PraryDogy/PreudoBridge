@@ -10,6 +10,17 @@ class Config:
     db_file = os.path.join(os.path.expanduser('~'), 'Desktop', 'db.db')
     image_apps: dict = {}
     thumb_size = 210
+
+    colors = {
+        "🔴": "Красный",
+        "🔵": "Синий",
+        "🟠": "Оранжевый",
+        "🟡": "Желтый",
+        "🟢": "Зеленый",
+        "🟣": "Фиолетовый",
+        "🟤": "Коричневый"
+        }
+
     img_ext: tuple = (
         ".jpg", "jpeg", "jfif",
         ".tif", ".tiff",
