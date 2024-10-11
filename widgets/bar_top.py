@@ -1,7 +1,7 @@
 import os
 from difflib import SequenceMatcher
 
-from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal
+from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal, QSize
 from PyQt5.QtGui import QKeyEvent, QMouseEvent, QIcon
 from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QLabel, QLineEdit,
                              QMenu, QPushButton, QSpacerItem, QTabBar,
@@ -153,12 +153,9 @@ class _ViewTypeBtn(QTabBar):
     def __init__(self):
         super().__init__()
         self.setFixedWidth(125)
-        self.setStyleSheet("text-align: center;")
 
-        icon = QIcon("images/grid_view.svg")
-        self.addTab("")
+        self.addTab("Плитка")
         self.addTab("Список")
-        self.setTabIcon(0, icon)
 
         if Config.json_data.get("list_view"):
             self.setCurrentIndex(1)
@@ -175,6 +172,11 @@ class _ViewTypeBtn(QTabBar):
             self.setCurrentIndex(1)
             Config.json_data["list_view"] = True
         self.view_click.emit()
+
+    def tabSizeHint(self, index):
+        size = QTabBar.tabSizeHint(self, index)
+        return QSize(10, size.height())
+
 
 class _SearchWidget(QWidget):
     start_search_sig = pyqtSignal(str)
