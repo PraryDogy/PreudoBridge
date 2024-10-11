@@ -114,6 +114,7 @@ class _SortTypeBtn(QPushButton):
             2: {"sort": "size", "reversed": False, "text": "Размер возр."},
             3: {"sort": "modify", "reversed": False, "text": "Дата возр."},
             4: {"sort": "type", "reversed": False, "text": "Тип возр."},
+            5: {"sort": "colors", "reversed": False, "text": "Цвета возр."},
 
             6: {"sort": None, "reversed": None, "text": "По убыванию"},
 
@@ -121,6 +122,7 @@ class _SortTypeBtn(QPushButton):
             8: {"sort": "size", "reversed": True, "text": "Размер уб."},
             9: {"sort": "modify", "reversed": True, "text": "Дата уб."},
             10: {"sort": "type", "reversed": True, "text": "Тип уб."},
+            11: {"sort": "colors", "reversed": True, "text": "Цвета уб."},
 
             }
 
@@ -440,9 +442,9 @@ class BarTop(QFrame):
         self.clmn += 1
         self.grid_layout.addItem(QSpacerItem(5, 0), 0, self.clmn)
 
-        self.clmn += 1
-        self.filters_btn = _FiltersBtn()
-        self.grid_layout.addWidget(self.filters_btn, 0, self.clmn)
+        # self.clmn += 1
+        # self.filters_btn = _FiltersBtn()
+        # self.grid_layout.addWidget(self.filters_btn, 0, self.clmn)
 
         self.clmn += 1
         self.grid_layout.setColumnStretch(self.clmn, 10)

@@ -61,8 +61,8 @@ class Thumbnail(QFrame):
         self.src: str = src
         self.paths: list = paths
         self.filename = filename
-        self.colors: list = []
-        self.colored_filename = "".join(self.colors) + "\n" + filename
+        self.colors: str = ""
+        self.colored_filename = self.colors + "\n" + filename
 
         self.setFrameShape(QFrame.Shape.NoFrame)
         tooltip = self.filename + "\n" + src
@@ -182,9 +182,9 @@ class Thumbnail(QFrame):
 
     def color_click(self, color: str):
         if color not in self.colors:
-            self.colors.append(color)
+            self.colors + color
         else:
-            self.colors.remove(color)
+            self.colors.replace(color, "")
 
         self.update_colors(self.colors)
         self.color_to_db()
@@ -201,10 +201,9 @@ class Thumbnail(QFrame):
             print(e)
         sess.close()
 
-    def update_colors(self, colors: list):
-        colors.sort()
+    def update_colors(self, colors: str):
         self.colors = colors
-        self.colored_filename = "".join(colors) + "\n" + self.filename
+        self.colored_filename = colors + "\n" + self.filename
         self.name_label.set_text(self.colored_filename)
 
         for item in self.color_items:

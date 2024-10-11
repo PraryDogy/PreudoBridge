@@ -132,7 +132,7 @@ class _LoadImagesThread(QThread):
         self._progressbar_value.emit(1000000)
 
     def _load_already_images(self):
-        for (src, size, modified, colors), bytearray_image in self.db_images.items():
+        for (src, size, modified), bytearray_image in self.db_images.items():
 
             # мы сверяем по пути, размеру и дате, есть ли в БД такой же ключ
             key = self.grid_widgets.get((src, size, modified))
@@ -144,7 +144,7 @@ class _LoadImagesThread(QThread):
             # и удаляем из словарика этот элемент
             if key:
                 pixmap: QPixmap = Utils.pixmap_from_bytes(bytearray_image)
-                self._set_pixmap.emit((src, size, modified, colors, pixmap))
+                self._set_pixmap.emit((src, size, modified, pixmap))
 
                 # !!! очень важный момент
                 # потому что следом за проверкой БД изображений
@@ -165,7 +165,7 @@ class _LoadImagesThread(QThread):
                 ...
 
     def _get_db_images(self):
-        q = sqlalchemy.select(Cache.img, Cache.src, Cache.size, Cache.modified, Cache.colors)
+        q = sqlalchemy.select(Cache.img, Cache.src, Cache.size, Cache.modified)
         q = q.where(Cache.root==Config.json_data.get("root"))
 
         try:
@@ -175,8 +175,8 @@ class _LoadImagesThread(QThread):
 
         # возвращаем словарик по структуре такой же как входящий
         return {
-            (src, size, modified, colors): img
-            for img, src, size,  modified, colors in res
+            (src, size, modified): img
+            for img, src, size,  modified in res
             }
 
     def _stop_thread_cmd(self):
@@ -203,15 +203,25 @@ class _LoadFinderThread(QThread):
     def __init__(self):
         super().__init__()
         self.finder_items: dict[tuple: None] = {}
+        self.db_colors: dict[str: str] = {}
 
     def run(self):
         try:
+            self.get_db_colors()
             self._get_items()
             self._sort_items()
         except (PermissionError, FileNotFoundError):
             self.finder_items: dict[tuple: None] = {}
         
         self._finished.emit(self.finder_items)
+
+    def get_db_colors(self):
+        sess = Dbase.get_session()
+        q = sqlalchemy.select(Cache.src, Cache.colors)
+        q = q.where(Cache.root == Config.json_data.get("root"))
+        res = sess.execute(q).fetchall()
+
+        self.db_colors = {src: colors for src, colors in res}
 
     def _get_items(self):
         for filename in os.listdir(Config.json_data.get("root")):
@@ -225,13 +235,17 @@ class _LoadFinderThread(QThread):
             size = stats.st_size
             modified = stats.st_mtime
             filetype = os.path.splitext(filename)[1]
+            colors = self.db_colors.get(src)
+
+            if not isinstance(colors, str):
+                colors = ""
 
             if src.lower().endswith(Config.img_ext):
-                self.finder_items[(src, filename, size, modified, filetype)] = None
+                self.finder_items[(src, filename, size, modified, filetype, colors)] = None
                 continue
 
             elif os.path.isdir(src):
-                self.finder_items[(src, filename, size, modified, filetype)] = None
+                self.finder_items[(src, filename, size, modified, filetype, colors)] = None
             
     def _sort_items(self):
         # ключ finder_items src filename size modified filetype
@@ -241,7 +255,7 @@ class _LoadFinderThread(QThread):
         # а значение индексу в ключе self.finder_items
         # таким образом если "sort" у нас size, то мы знаем, что нужно сортировать
         # по индексу 2
-        sort_data = {"name": 1, "size": 2,  "modify": 3, "type": 4}
+        sort_data = {"name": 1, "size": 2,  "modify": 3, "type": 4, "colors": 5}
 
         index = sort_data.get(Config.json_data.get("sort"))
         self.finder_items = dict(
@@ -340,7 +354,7 @@ class _GridStandartBase(Grid):
         col_count = Utils.get_clmn_count(self.ww)
         row, col = 0, 0
 
-        for (src, filename, size, modified, _), _ in _finder_items.items():
+        for (src, filename, size, modified, _, colors), _ in _finder_items.items():
 
             if os.path.isdir(src):
                 wid = _FolderThumbnail(filename, src)
@@ -355,7 +369,8 @@ class _GridStandartBase(Grid):
                 wid = Thumbnail(filename, src, self._paths_images)
                 wid._move_to_wid_sig.connect(lambda src: self._move_to_wid_cmd(src))
                 self._set_default_image(wid.img_label, "images/file_210.png")
-
+                # ADD COLORS TO THUMBNAIL
+                wid.update_colors(colors)
                 # добавляем в словарик для подгрузки изображений
                 self._load_images_data[(src, size, modified)] = wid.img_label
 
@@ -423,16 +438,13 @@ class _GridStandartBase(Grid):
         new_thread.start()
     
     def _set_pixmap(self, data: tuple):
-        src, size, modified, colors, pixmap = data
+        src, size, modified, pixmap = data
         widget = self._paths_widgets.get(src)
 
         if isinstance(widget, Thumbnail):
 
             if isinstance(pixmap, QPixmap):
                 widget.img_label.setPixmap(pixmap)
-
-            if isinstance(colors, str):
-                widget.update_colors([*colors])
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         # когда убивается этот виджет, все треды безопасно завершатся
@@ -489,11 +501,6 @@ class GridStandart(_GridStandartBase):
         for thread in _Storage.threads:
             thread: _LoadImagesThread
             thread._stop_thread.emit()
-
-    # это заглушка для полиморфности
-    # чтобы сортировать сетку, GRID инициируется заново в приложении
-    def sort_grid(self, width: int):
-        self.resize_grid(width)
 
     # ссылка на внутренний метод для полиморфности
     # нужно для функции "перейти" которая открывает путь к файлу
