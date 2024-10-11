@@ -274,7 +274,7 @@ class GridSearch(_GridSearchBase):
         if not self._thread.isRunning():
 
             # очищаем для нового наполнения
-            self.coords.clear()
+            # self.coords.clear()
             self.coords_reversed.clear()
             self.coords_cur = (0, 0)
 
@@ -285,13 +285,13 @@ class GridSearch(_GridSearchBase):
             # (путь до файла, имя файла, размер, дата изменения, тип файла)
             # этот словарик нужен для повторного формирования сетки при изменении
             # размера и для сортировки по имени/размеру/дате/типу
-            for data, wid in self._image_grid_widgets.items():
-                
+            for (src, filename, size, modify, filetype), wid in self._image_grid_widgets.items():
                 wid: SearchThumbnail
                 wid.disconnect()
                 wid._show_in_folder.connect(self.show_in_folder.emit)
                 wid._move_to_wid_sig.connect(self._move_to_wid_cmd)
                 wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
+                wid.paths = self._paths_images
 
                 self.grid_layout.addWidget(wid, row, col, alignment=Qt.AlignmentFlag.AlignTop)
                 self.coords[row, col] = wid
@@ -302,7 +302,6 @@ class GridSearch(_GridSearchBase):
                     row += 1
             
             self.coords_reversed = {v: k for k, v in self.coords.items()}
-
 
     # неактивно
     # в идеале нужно для выхода из приложения, потому что только по завершению
@@ -327,7 +326,8 @@ class GridSearch(_GridSearchBase):
 
         if Config.json_data["reversed"]:
             self._image_grid_widgets = dict(reversed(self._image_grid_widgets.items()))
-
+            
+        self._paths_images = [k[0] for k, v in self._image_grid_widgets.items()]
         self.resize_grid(width)
 
     def move_to_wid(self, src: str):
