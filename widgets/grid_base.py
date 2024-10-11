@@ -15,12 +15,11 @@ from .win_img_view import WinImgView
 # Текст с именем файла под изображением
 # Максимум 2 строки, дальше прибавляет ...
 class NameLabel(QLabel):
-    def __init__(self, filename: str):
+    def __init__(self):
         super().__init__()
-        self.setText(self.split_text(filename))
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-    def split_text(self, text: str) -> list[str]:
+    def set_text(self, text: str) -> list[str]:
         max_length = 27
         lines = []
         
@@ -35,7 +34,7 @@ class NameLabel(QLabel):
             lines = lines[:2]
             lines[-1] = lines[-1][:max_length-3] + '...'
 
-        return "\n".join(lines)
+        self.setText("\n".join(lines))
 
 
 # Базовый виджет для файлов, сверху фото, снизу имя файла
@@ -59,10 +58,12 @@ class Thumbnail(QFrame):
         self.setFixedSize(250, 280)
         self.src: str = src
         self.paths: list = paths
+        self.filename = filename
         self.colors: list = []
+        self.colored_filename = "".join(self.colors) + "\n" + filename
 
         self.setFrameShape(QFrame.Shape.NoFrame)
-        tooltip = filename + "\n" + src
+        tooltip = self.filename + "\n" + src
         self.setToolTip(tooltip)
 
         v_lay = QVBoxLayout()
@@ -76,10 +77,9 @@ class Thumbnail(QFrame):
         self.img_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         v_lay.addWidget(self.img_label)
 
-        filename = os.path.basename(src)
-        img_name = NameLabel(filename)
-        v_lay.addWidget(img_name)
-
+        self.name_label = NameLabel()
+        self.name_label.set_text(self.colored_filename)
+        v_lay.addWidget(self.name_label)
 
         # КОНЕКСТНОЕ МЕНЮ
         self.context_menu = QMenu(self)
@@ -93,9 +93,9 @@ class Thumbnail(QFrame):
         self.context_menu.addMenu(open_menu)
 
         for name, app_path in Config.image_apps.items():
-            act = QAction(name, parent=open_menu)
-            act.triggered.connect(lambda e, a=app_path: self._open_default(a))
-            open_menu.addAction(act)
+            wid = QAction(name, parent=open_menu)
+            wid.triggered.connect(lambda e, a=app_path: self._open_default(a))
+            open_menu.addAction(wid)
 
         self.context_menu.addSeparator()
 
@@ -113,9 +113,14 @@ class Thumbnail(QFrame):
         self.context_menu.addMenu(color_menu)
 
         for color, text in Config.colors.items():
-            clr = QAction(parent=color_menu, text=f"{color} {text}")
-            clr.triggered.connect(lambda e, c=color: self.color_click(c))
-            color_menu.addAction(clr)
+            wid = QAction(parent=color_menu, text=f"{color} {text}")
+            wid.setCheckable(True)
+
+            if color in self.colors:
+                wid.setChecked(True)
+
+            wid.triggered.connect(lambda e, w=wid, c=color: self.color_click(c, w))
+            color_menu.addAction(wid)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
         self.clicked.emit()
@@ -171,12 +176,17 @@ class Thumbnail(QFrame):
     def _show_in_finder(self):
         subprocess.call(["open", "-R", self.src])
 
-    def color_click(self, color: str):
+    def color_click(self, color: str, wid: QAction):
         if color not in self.colors:
             self.colors.append(color)
-            self.colors.sort()
+            wid.setChecked(True)
+        else:
+            self.colors.remove(color)
+            wid.setChecked(False)
 
-        print(self.colors)
+        self.colors.sort()
+        self.colored_filename = "".join(self.colors) + "\n" + self.filename
+        self.name_label.set_text(self.colored_filename)
 
 
 # Методы для внешнего использования, которые обязательно нужно

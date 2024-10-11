@@ -22,8 +22,8 @@ from .grid_base import Grid, Thumbnail
 class SearchThumbnail(Thumbnail):
     _show_in_folder = pyqtSignal(str)
 
-    def __init__(self, filename: str, src: str, paths: list):
-        super().__init__(filename, src, paths)
+    def __init__(self, src: str, paths: list):
+        super().__init__(src, paths)
 
         self.context_menu.addSeparator()
 
@@ -225,7 +225,7 @@ class _GridSearchBase(Grid):
         # data идет из сигнала _new_widget_sig
         # "src", "stats" - os.stat, "pixmap"
         filename = os.path.basename(data.get("src"))
-        wid = SearchThumbnail(filename=filename, src=data.get("src"), paths=self._paths_images)
+        wid = SearchThumbnail(src=data.get("src"), paths=self._paths_images)
         wid.img_label.setPixmap(data.get("pixmap"))
 
         wid._show_in_folder.connect(self.show_in_folder.emit)
