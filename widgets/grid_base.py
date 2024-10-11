@@ -1,16 +1,18 @@
 import os
 import subprocess
-from typing import Union
 
+import sqlalchemy
 from PyQt5.QtCore import QMimeData, Qt, QUrl, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
                              QLabel, QMenu, QScrollArea, QVBoxLayout, QWidget)
 
 from cfg import Config
+from database import Cache, Dbase
 from utils import Utils
 
 from .win_img_view import WinImgView
+
 
 # Текст с именем файла под изображением
 # Максимум 2 строки, дальше прибавляет ...
@@ -187,7 +189,19 @@ class Thumbnail(QFrame):
         self.colors.sort()
         self.colored_filename = "".join(self.colors) + "\n" + self.filename
         self.name_label.set_text(self.colored_filename)
+        self.color_to_db()
 
+    def color_to_db(self):
+        sess = Dbase.get_session()
+        q = sqlalchemy.update(Cache)
+        q = q.where(Cache.src==self.src)
+        q = q.values({"colors": "".join(self.colors)})
+        try:
+            sess.execute(q)
+            sess.commit()
+        except Exception as e:
+            print(e)
+        sess.close()
 
 # Методы для внешнего использования, которые обязательно нужно
 # переназначить в наследнике Grid, потому что в GUI идет обращение
