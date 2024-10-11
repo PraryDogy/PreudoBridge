@@ -261,9 +261,15 @@ class _LoadFinderThread(QThread):
         sort_data = {"name": 1, "size": 2,  "modify": 3, "type": 4, "colors": 5}
 
         index = sort_data.get(Config.json_data.get("sort"))
-        self.finder_items = dict(
-            sorted(self.finder_items.items(), key=lambda item: item[0][index])
-            )
+
+        if index < 5:
+            self.finder_items = dict(
+                sorted(self.finder_items.items(), key=lambda x: x[0][index])
+                )
+        else:
+            self.finder_items = dict(
+                sorted(self.finder_items.items(), key=lambda x: len(x[0][index]))
+                )     
 
         if Config.json_data["reversed"]:
             self.finder_items = dict(reversed(self.finder_items.items()))
