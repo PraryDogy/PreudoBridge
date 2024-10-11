@@ -1,7 +1,6 @@
 import json
 import os
-
-from PyQt5.QtWidgets import QFrame
+from datetime import date
 
 
 class Config:
@@ -9,6 +8,7 @@ class Config:
     app_ver = "1.0.0"
     json_file = os.path.join(os.path.expanduser('~'), 'Desktop', 'cfg.json')
     db_file = os.path.join(os.path.expanduser('~'), 'Desktop', 'db.db')
+    image_apps: dict = {}
     thumb_size = 210
     img_ext: tuple = (
         ".jpg", "jpeg", "jfif",
@@ -69,5 +69,33 @@ class Config:
 
         return json_data
 
+    @staticmethod
+    def find_img_apps():
+        root_path = "/Applications"
+
+        names = [
+            f"Adobe Photoshop CC {i}"
+            for i in range(2014, 2020)
+            ]
+        names.extend([
+                f"Adobe Photoshop {i}"
+                for i in range(2020, date.today().year + 1)
+                ])
+        names.append("Capture One")
+        names_app = [i + ".app" for i in names]
+        Config.image_apps["Просмотр"] = "/System/Applications/Preview.app"
+
+        for item in os.listdir(root_path):
+            full_path = os.path.join(root_path, item)
+
+            if item in names:        
+                app_inside_folder = os.path.join(full_path, item + ".app")
+                if os.path.exists(app_inside_folder):
+                    Config.image_apps[item] = app_inside_folder
+            elif item in names_app:
+                item = item.replace(".app", "")
+                Config.image_apps[item] = full_path
+
 
 Config.load_json_data()
+Config.find_img_apps()

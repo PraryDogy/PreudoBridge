@@ -87,11 +87,16 @@ class Thumbnail(QFrame):
         view_action.triggered.connect(self.view)
         self.context_menu.addAction(view_action)
 
-        self.context_menu.addSeparator()
 
         open_menu = QMenu("Открыть в приложении", self)
-        open_menu.triggered.connect(self._open_default)
         self.context_menu.addMenu(open_menu)
+
+        for name, app_path in Config.image_apps.items():
+            act = QAction(name, parent=open_menu)
+            act.triggered.connect(lambda e, a=app_path: self._open_default(a))
+            open_menu.addAction(act)
+
+        self.context_menu.addSeparator()
 
         show_in_finder_action = QAction("Показать в Finder", self)
         show_in_finder_action.triggered.connect(self._show_in_finder)
@@ -149,8 +154,8 @@ class Thumbnail(QFrame):
         else:
             self.clicked_folder.emit(self.src)
 
-    def _open_default(self):
-        subprocess.call(["open", self.src])
+    def _open_default(self, app_path: str):
+        subprocess.call(["open", "-a", app_path, self.src])
 
     def _show_in_finder(self):
         subprocess.call(["open", "-R", self.src])
