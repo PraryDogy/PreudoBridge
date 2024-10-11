@@ -204,12 +204,13 @@ class Thumbnail(QFrame):
     def update_colors(self, colors: str):
         self.colors = colors
         self.colors = ''.join(sorted(self.colors, key=lambda x: Config.colors_order.index(x)))
-        self.colored_filename = colors + "\n" + self.filename
+
+        self.colored_filename = self.colors + "\n" + self.filename
         self.name_label.set_text(self.colored_filename)
 
         for item in self.color_items:
             item: QAction
-            if item.text()[0] in colors:
+            if item.text()[0] in self.colors:
                 item.setChecked(True)
 
 # Методы для внешнего использования, которые обязательно нужно
