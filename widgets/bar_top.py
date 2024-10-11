@@ -114,13 +114,15 @@ class _SortTypeBtn(QPushButton):
             2: {"sort": "size", "reversed": False, "text": "Размер возр."},
             3: {"sort": "modify", "reversed": False, "text": "Дата возр."},
             4: {"sort": "type", "reversed": False, "text": "Тип возр."},
+            5: {"sort": "colors", "reversed": False, "text": "Цвета возр."},
 
-            5: {"sort": None, "reversed": None, "text": "По убыванию"},
+            6: {"sort": None, "reversed": None, "text": "По убыванию"},
 
-            6: {"sort": "name", "reversed": True, "text": "Имя уб."},
-            7: {"sort": "size", "reversed": True, "text": "Размер уб."},
-            8: {"sort": "modify", "reversed": True, "text": "Дата уб."},
-            9: {"sort": "type", "reversed": True, "text": "Тип уб."},
+            7: {"sort": "name", "reversed": True, "text": "Имя уб."},
+            8: {"sort": "size", "reversed": True, "text": "Размер уб."},
+            9: {"sort": "modify", "reversed": True, "text": "Дата уб."},
+            10: {"sort": "type", "reversed": True, "text": "Тип уб."},
+            11: {"sort": "colors", "reversed": True, "text": "Цвета уб."},
 
             }
 
