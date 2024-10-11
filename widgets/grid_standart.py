@@ -256,8 +256,8 @@ class _FolderThumbnail(Thumbnail):
     add_fav = pyqtSignal(str)
     del_fav = pyqtSignal(str)
 
-    def __init__(self, src: str):
-        super().__init__(src, [])
+    def __init__(self, filename: str, src: str):
+        super().__init__(filename, src, [])
 
         self.context_menu.clear()
 
