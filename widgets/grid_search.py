@@ -171,7 +171,10 @@ class _SearchFinderThread(QThread):
                 "src": src,
                 "root": os.path.dirname(src),
                 "size": size,
-                "modified": modified
+                "modified": modified,
+                "catalog": "",
+                "colors": "",
+                "stars": ""
                 })
             try:
                 self.session.execute(q)

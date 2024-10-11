@@ -119,7 +119,10 @@ class _LoadImagesThread(QThread):
                     "src": src,
                     "root": Config.json_data.get("root"),
                     "size": size,
-                    "modified": modified
+                    "modified": modified,
+                    "catalog": "",
+                    "colors": "",
+                    "stars": ""
                     })
                 self.session.execute(q)
             except (sqlalchemy.exc.OperationalError ,Exception) as e:
