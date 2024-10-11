@@ -123,11 +123,12 @@ class _SearchFinderThread(QThread):
         pixmap: QPixmap = None
         colors: str = ""
 
-        db_img: dict = self._get_db_image(src)
+        db_data: dict = self._get_db_data(src)
 
         # Если изображение уже есть в БД, то сразу делаем QPixmap
-        if isinstance(db_img, dict):
-            pixmap: QPixmap = Utils.pixmap_from_bytes(db_img.get("img"))
+        if isinstance(db_data, dict):
+            pixmap: QPixmap = Utils.pixmap_from_bytes(db_data.get("img"))
+            colors = db_data.get("img")
 
         # Создаем изображение, ресайзим и записываем в БД
         else:
@@ -147,7 +148,7 @@ class _SearchFinderThread(QThread):
             )
         sleep(0.2)
 
-    def _get_db_image(self, src: str) -> bytes | None:
+    def _get_db_data(self, src: str) -> bytes | None:
         try:
             q = sqlalchemy.select(Cache.img, Cache.colors).where(Cache.src==src)
             res = self.session.execute(q).first()
@@ -236,6 +237,7 @@ class _GridSearchBase(Grid):
         wid = SearchThumbnail(filename=filename, src=data.get("src"), paths=self._paths_images)
         wid.img_label.setPixmap(data.get("pixmap"))
         wid.update_colors(colors)
+        print(colors)
 
         wid._show_in_folder.connect(self.show_in_folder.emit)
         wid._move_to_wid_sig.connect(self._move_to_wid_cmd)
