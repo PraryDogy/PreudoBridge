@@ -181,8 +181,9 @@ class Thumbnail(QFrame):
         subprocess.call(["open", "-R", self.src])
 
     def color_click(self, color: str):
+        # print(bool(color in self.colors))
         if color not in self.colors:
-            self.colors + color
+            self.colors = self.colors + color
         else:
             self.colors.replace(color, "")
 
