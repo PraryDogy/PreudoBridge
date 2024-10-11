@@ -181,7 +181,6 @@ class Thumbnail(QFrame):
         subprocess.call(["open", "-R", self.src])
 
     def color_click(self, color: str):
-        # print(bool(color in self.colors))
         if color not in self.colors:
             self.colors = self.colors + color
         else:
@@ -204,6 +203,7 @@ class Thumbnail(QFrame):
 
     def update_colors(self, colors: str):
         self.colors = colors
+        self.colors = ''.join(sorted(self.colors, key=lambda x: Config.colors_order.index(x)))
         self.colored_filename = colors + "\n" + self.filename
         self.name_label.set_text(self.colored_filename)
 

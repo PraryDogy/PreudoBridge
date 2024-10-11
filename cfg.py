@@ -20,6 +20,8 @@ class Config:
         "🟣": "Фиолетовый",
         "🟤": "Коричневый"
         }
+    
+    colors_order = list(colors.keys())
 
     img_ext: tuple = (
         ".jpg", "jpeg", "jfif",
