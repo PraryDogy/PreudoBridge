@@ -184,7 +184,7 @@ class Thumbnail(QFrame):
         if color not in self.colors:
             self.colors = self.colors + color
         else:
-            self.colors.replace(color, "")
+            self.colors = self.colors.replace(color, "")
 
         self.update_colors(self.colors)
         self.color_to_db()
