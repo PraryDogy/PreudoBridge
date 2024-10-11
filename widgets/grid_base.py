@@ -123,7 +123,7 @@ class Thumbnail(QFrame):
             if color in self.colors:
                 wid.setChecked(True)
 
-            wid.triggered.connect(lambda e, w=wid, c=color: self.color_click(c, w))
+            wid.triggered.connect(lambda e, c=color: self.color_click(c))
             color_menu.addAction(wid)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
@@ -180,13 +180,11 @@ class Thumbnail(QFrame):
     def _show_in_finder(self):
         subprocess.call(["open", "-R", self.src])
 
-    def color_click(self, color: str, wid: QAction):
+    def color_click(self, color: str):
         if color not in self.colors:
             self.colors.append(color)
-            wid.setChecked(True)
         else:
             self.colors.remove(color)
-            wid.setChecked(False)
 
         self.update_colors(self.colors)
         self.color_to_db()
