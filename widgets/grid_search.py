@@ -128,7 +128,7 @@ class _SearchFinderThread(QThread):
         # Если изображение уже есть в БД, то сразу делаем QPixmap
         if isinstance(db_data, dict):
             pixmap: QPixmap = Utils.pixmap_from_bytes(db_data.get("img"))
-            colors = db_data.get("img")
+            colors = db_data.get("colors")
 
         # Создаем изображение, ресайзим и записываем в БД
         else:
@@ -237,7 +237,6 @@ class _GridSearchBase(Grid):
         wid = SearchThumbnail(filename=filename, src=data.get("src"), paths=self._paths_images)
         wid.img_label.setPixmap(data.get("pixmap"))
         wid.update_colors(colors)
-        print(colors)
 
         wid._show_in_folder.connect(self.show_in_folder.emit)
         wid._move_to_wid_sig.connect(self._move_to_wid_cmd)
