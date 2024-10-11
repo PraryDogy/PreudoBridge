@@ -121,11 +121,13 @@ class _SearchFinderThread(QThread):
             return None
 
         pixmap: QPixmap = None
-        db_img: bytes = self._get_db_image(src)
+        colors: str = ""
+
+        db_img: dict = self._get_db_image(src)
 
         # Если изображение уже есть в БД, то сразу делаем QPixmap
-        if isinstance(db_img, bytes):
-            pixmap: QPixmap = Utils.pixmap_from_bytes(db_img)
+        if isinstance(db_img, dict):
+            pixmap: QPixmap = Utils.pixmap_from_bytes(db_img.get("img"))
 
         # Создаем изображение, ресайзим и записываем в БД
         else:
@@ -140,18 +142,20 @@ class _SearchFinderThread(QThread):
             pixmap = QPixmap("images/file_210.png")
 
         # посылаем сигнал в SearchGrid
-        self._new_widget_sig.emit({"src": src, "stats": stats, "pixmap": pixmap})
+        self._new_widget_sig.emit(
+            {"src": src, "stats": stats, "pixmap": pixmap, "colors": colors}
+            )
         sleep(0.2)
 
     def _get_db_image(self, src: str) -> bytes | None:
         try:
-            q = sqlalchemy.select(Cache.img).where(Cache.src==src)
+            q = sqlalchemy.select(Cache.img, Cache.colors).where(Cache.src==src)
             res = self.session.execute(q).first()
         except sqlalchemy.exc.OperationalError:
             return None
 
         if isinstance(res, sqlalchemy.engine.Row):
-            return res[0]
+            return {"img": res[0], "colors": res[1]}
 
         return None
 
@@ -228,8 +232,10 @@ class _GridSearchBase(Grid):
         # data идет из сигнала _new_widget_sig
         # "src", "stats" - os.stat, "pixmap"
         filename = os.path.basename(data.get("src"))
+        colors = data.get("colors")
         wid = SearchThumbnail(filename=filename, src=data.get("src"), paths=self._paths_images)
         wid.img_label.setPixmap(data.get("pixmap"))
+        wid.update_colors(colors)
 
         wid._show_in_folder.connect(self.show_in_folder.emit)
         wid._move_to_wid_sig.connect(self._move_to_wid_cmd)
@@ -248,7 +254,7 @@ class _GridSearchBase(Grid):
         size = stats.st_size
         modified = stats.st_mtime
         filetype = os.path.splitext(data.get("src"))[1]
-        self._image_grid_widgets[(data.get("src"), filename, size, modified, filetype)] = wid
+        self._image_grid_widgets[(data.get("src"), filename, size, modified, filetype, colors)] = wid
 
         # прибавляем строчку и столбец в сетку
         self.col += 1
@@ -288,7 +294,7 @@ class GridSearch(_GridSearchBase):
             # (путь до файла, имя файла, размер, дата изменения, тип файла)
             # этот словарик нужен для повторного формирования сетки при изменении
             # размера и для сортировки по имени/размеру/дате/типу
-            for (src, filename, size, modify, filetype), wid in self._image_grid_widgets.items():
+            for (src, filename, size, modify, filetype, colors), wid in self._image_grid_widgets.items():
                 wid: SearchThumbnail
                 wid.disconnect()
                 wid._show_in_folder.connect(self.show_in_folder.emit)
@@ -316,15 +322,21 @@ class GridSearch(_GridSearchBase):
 
     
     def sort_grid(self, width: int):
-        sort_data = {"name": 1, "size": 2,  "modify": 3, "type": 4}
+        sort_data = {"name": 1, "size": 2,  "modify": 3, "type": 4, "colors": 5}
         # ключи соответствуют json_data["sort"]
         # значения соответствуют индексам в кортеже у ключей
         # (путь до файла, имя файла, размер, дата изменения, тип файла)
         # начинаем с 1, потому что 0 у нас путь до файла, нам не нужна сортировка по src
 
         index = sort_data.get(Config.json_data.get("sort"))
+
+        if index < 5:
+            sort_key = lambda item: item[0][index]
+        else:
+            sort_key = lambda item: len(item[0][index])
+            
         self._image_grid_widgets = dict(
-            sorted(self._image_grid_widgets.items(), key=lambda item: item[0][index])
+            sorted(self._image_grid_widgets.items(), key=sort_key)
             )
 
         if Config.json_data["reversed"]:
