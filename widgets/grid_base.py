@@ -113,10 +113,12 @@ class Thumbnail(QFrame):
 
         color_menu = QMenu("Цвета", self)
         self.context_menu.addMenu(color_menu)
+        self.color_items = []
 
         for color, text in Config.colors.items():
             wid = QAction(parent=color_menu, text=f"{color} {text}")
             wid.setCheckable(True)
+            self.color_items.append(wid)
 
             if color in self.colors:
                 wid.setChecked(True)
@@ -186,9 +188,7 @@ class Thumbnail(QFrame):
             self.colors.remove(color)
             wid.setChecked(False)
 
-        self.colors.sort()
-        self.colored_filename = "".join(self.colors) + "\n" + self.filename
-        self.name_label.set_text(self.colored_filename)
+        self.update_colors(self.colors)
         self.color_to_db()
 
     def color_to_db(self):
@@ -202,6 +202,17 @@ class Thumbnail(QFrame):
         except Exception as e:
             print(e)
         sess.close()
+
+    def update_colors(self, colors: list):
+        colors.sort()
+        self.colors = colors
+        self.colored_filename = "".join(colors) + "\n" + self.filename
+        self.name_label.set_text(self.colored_filename)
+
+        for item in self.color_items:
+            item: QAction
+            if item.text()[0] in colors:
+                item.setChecked(True)
 
 # Методы для внешнего использования, которые обязательно нужно
 # переназначить в наследнике Grid, потому что в GUI идет обращение

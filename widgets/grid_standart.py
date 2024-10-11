@@ -132,7 +132,7 @@ class _LoadImagesThread(QThread):
         self._progressbar_value.emit(1000000)
 
     def _load_already_images(self):
-        for (src, size, modified), bytearray_image in self.db_images.items():
+        for (src, size, modified, colors), bytearray_image in self.db_images.items():
 
             # мы сверяем по пути, размеру и дате, есть ли в БД такой же ключ
             key = self.grid_widgets.get((src, size, modified))
@@ -144,7 +144,7 @@ class _LoadImagesThread(QThread):
             # и удаляем из словарика этот элемент
             if key:
                 pixmap: QPixmap = Utils.pixmap_from_bytes(bytearray_image)
-                self._set_pixmap.emit((src, size, modified, pixmap))
+                self._set_pixmap.emit((src, size, modified, colors, pixmap))
 
                 # !!! очень важный момент
                 # потому что следом за проверкой БД изображений
@@ -165,7 +165,7 @@ class _LoadImagesThread(QThread):
                 ...
 
     def _get_db_images(self):
-        q = sqlalchemy.select(Cache.img, Cache.src, Cache.size, Cache.modified)
+        q = sqlalchemy.select(Cache.img, Cache.src, Cache.size, Cache.modified, Cache.colors)
         q = q.where(Cache.root==Config.json_data.get("root"))
 
         try:
@@ -175,8 +175,8 @@ class _LoadImagesThread(QThread):
 
         # возвращаем словарик по структуре такой же как входящий
         return {
-            (src, size, modified): img
-            for img, src, size,  modified in res
+            (src, size, modified, colors): img
+            for img, src, size,  modified, colors in res
             }
 
     def _stop_thread_cmd(self):
@@ -423,10 +423,16 @@ class _GridStandartBase(Grid):
         new_thread.start()
     
     def _set_pixmap(self, data: tuple):
-        src, size, modified, pixmap = data
-        widget: QLabel = self._load_images_data.get((src, size, modified))
-        if isinstance(pixmap, QPixmap):
-            widget.setPixmap(pixmap)
+        src, size, modified, colors, pixmap = data
+        widget = self._paths_widgets.get(src)
+
+        if isinstance(widget, Thumbnail):
+
+            if isinstance(pixmap, QPixmap):
+                widget.img_label.setPixmap(pixmap)
+
+            if isinstance(colors, str):
+                widget.update_colors([*colors])
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         # когда убивается этот виджет, все треды безопасно завершатся

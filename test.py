@@ -46,3 +46,7 @@ class MainWindow(QMainWindow):
 # window = MainWindow()
 # window.show()
 # app.exec_()
+
+a = "🔴🟡🟢🟣"
+a = [*a]
+print(a)
