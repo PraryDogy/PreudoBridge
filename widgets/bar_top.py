@@ -470,7 +470,6 @@ class BarTop(QFrame):
         Config.json_data["root"] = os.path.dirname(Config.json_data.get("root"))
         self.level_up_sig.emit()
 
-
     def _back_cmd(self):
         if self.current_index == 0:
             return
@@ -494,3 +493,13 @@ class BarTop(QFrame):
             self.next_sig.emit(path)
         except IndexError:
             pass
+
+    def resizeEvent(self, a0: QResizeEvent | None) -> None:
+        if a0.size().width() < 550:
+            self.go_btn.hide()
+            self.search_wid.hide()
+        else:
+            self.go_btn.show()    
+            self.search_wid.show()
+        
+        return super().resizeEvent(a0)
