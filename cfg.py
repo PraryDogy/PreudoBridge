@@ -9,7 +9,7 @@ class Config:
     json_file = os.path.join(os.path.expanduser('~'), 'Desktop', 'cfg.json')
     db_file = os.path.join(os.path.expanduser('~'), 'Desktop', 'db.db')
     image_apps: dict = {}
-    thumb_size = 210
+    img_size = 210
 
     colors = {
         "🔴": "Красный",

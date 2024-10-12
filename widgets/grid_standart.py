@@ -98,7 +98,7 @@ class _LoadImagesThread(QThread):
                 Dbase.c_commit(self.session)
 
             img = Utils.read_image(src)
-            img = FitImg.start(img, Config.thumb_size)
+            img = FitImg.start(img, Config.img_size)
 
             try:
                 # numpy array в PIXMAP и сигнал в сетку

@@ -189,7 +189,7 @@ class _SearchFinderThread(QThread):
 
     def _create_new_image(self, src: str) -> ndarray | None:
         img = Utils.read_image(src)
-        img = FitImg.start(img, Config.thumb_size)
+        img = FitImg.start(img, Config.img_size)
         return img
 
 

@@ -170,4 +170,4 @@ class Utils:
 
     @staticmethod
     def get_clmn_count(width: int):
-        return width // (Config.thumb_size - 20)
+        return (width + 150) // (Config.img_size + 10)

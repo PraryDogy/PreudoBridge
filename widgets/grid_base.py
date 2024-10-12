@@ -45,6 +45,14 @@ class NameLabel(QLabel):
 # В редактор переместится только изображение
 # В случае, когда виджет назначается на папку, скопируется вся папка на жесткий диск
 # Двойной клик открывает просмотрщик изображений
+class Geo:
+    img_h = Config.img_size
+    text_h = 70
+
+    w = Config.img_size + 10
+    h = img_h + text_h +10
+
+
 class Thumbnail(QFrame):
     # просмотрщик изображений был закрыт и в аргумент передается путь к
     # фотографии, на которой просмотрщик остановился
@@ -57,14 +65,13 @@ class Thumbnail(QFrame):
 
     def __init__(self, filename: str, src: str, paths: list):
         super().__init__()
-        self.setFixedSize(250, 280)
+        self.setFixedSize(Geo.w, Geo.h)
         self.src: str = src
         self.paths: list = paths
         self.filename = filename
         self.colors: str = ""
         self.colored_filename = self.colors + "\n" + filename
 
-        self.setFrameShape(QFrame.Shape.NoFrame)
         tooltip = self.filename + "\n" + src
         self.setToolTip(tooltip)
 
@@ -75,11 +82,12 @@ class Thumbnail(QFrame):
         self.setLayout(v_lay)
 
         self.img_label = QLabel()
-        self.img_label.setFixedHeight(Config.thumb_size)
+        self.img_label.setFixedHeight(Geo.img_h)
         self.img_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         v_lay.addWidget(self.img_label)
 
         self.name_label = NameLabel()
+        self.name_label.setFixedHeight(Geo.text_h)
         self.name_label.set_text(self.colored_filename)
         v_lay.addWidget(self.name_label)
 
