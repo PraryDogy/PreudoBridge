@@ -2,7 +2,7 @@ import os
 from difflib import SequenceMatcher
 
 from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal, QSize
-from PyQt5.QtGui import QKeyEvent, QMouseEvent, QIcon
+from PyQt5.QtGui import QKeyEvent, QMouseEvent, QIcon, QResizeEvent
 from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QLabel, QLineEdit,
                              QMenu, QPushButton, QSpacerItem, QTabBar,
                              QVBoxLayout, QWidget)
@@ -314,7 +314,8 @@ class _GoBtn(QPushButton):
 
     def __init__(self):
         super().__init__("Перейти")
-        self.setMinimumWidth(20)
+        self.setMinimumWidth(78)
+        self.setMaximumWidth(150)
         self.clicked.connect(self._open_win)
 
     def _open_win(self):

@@ -400,10 +400,10 @@ class _GridStandartBase(Grid):
 
         if self.coords:
             row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
-            self.grid_layout.addItem(row_spacer, row + 1, 0)
+            self.grid_layout.addItem(row_spacer, row + 2, 0)
 
             col_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
-            self.grid_layout.addItem(col_spacer, 0, col_count + 1)
+            self.grid_layout.addItem(col_spacer, 0, col_count + 2)
 
             self._start_load_images_thread()
 
