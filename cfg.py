@@ -100,12 +100,15 @@ class Config:
 
         for item in os.listdir(root_path):
             full_path = os.path.join(root_path, item)
+            app_folder = any(x for x in names if item in x)
+            app_app = any(x for x in names_app if item in x)
 
-            if item in names:        
+            if app_folder:        
                 app_inside_folder = os.path.join(full_path, item + ".app")
                 if os.path.exists(app_inside_folder):
                     Config.image_apps[item] = app_inside_folder
-            elif item in names_app:
+
+            elif app_app:
                 item = item.replace(".app", "")
                 Config.image_apps[item] = full_path
 
