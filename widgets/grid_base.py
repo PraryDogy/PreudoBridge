@@ -111,20 +111,18 @@ class Thumbnail(QFrame):
 
         self.context_menu.addSeparator()
 
-        color_menu = QMenu("Цвета", self)
-        self.context_menu.addMenu(color_menu)
-        self.color_items = []
+        self.color_menu = QMenu("Цвета", self)
+        self.context_menu.addMenu(self.color_menu)
 
         for color, text in Config.colors.items():
-            wid = QAction(parent=color_menu, text=f"{color} {text}")
+            wid = QAction(parent=self.color_menu, text=f"{color} {text}")
             wid.setCheckable(True)
-            self.color_items.append(wid)
 
             if color in self.colors:
                 wid.setChecked(True)
 
             wid.triggered.connect(lambda e, c=color: self.color_click(c))
-            color_menu.addAction(wid)
+            self.color_menu.addAction(wid)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
         self.clicked.emit()
@@ -208,8 +206,7 @@ class Thumbnail(QFrame):
         self.colored_filename = self.colors + "\n" + self.filename
         self.name_label.set_text(self.colored_filename)
 
-        for item in self.color_items:
-            item: QAction
+        for item in self.color_menu.children():
             if item.text()[0] in self.colors:
                 item.setChecked(True)
 
