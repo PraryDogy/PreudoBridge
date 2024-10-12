@@ -194,9 +194,11 @@ class _SearchWidget(QWidget):
         self.setLayout(v_lay)
 
         self.input_wid = QLineEdit()
-        self.input_wid.setPlaceholderText("Поиск изображений")
+        self.input_wid.setPlaceholderText("Поиск")
         self.input_wid.setStyleSheet("padding-left: 2px; padding-right: 20px;")
-        self.input_wid.setFixedSize(170, 25)
+        self.input_wid.setFixedHeight(25)
+        self.input_wid.setMaximumWidth(170)
+        self.input_wid.setMinimumWidth(1)
         self.input_wid.mouseDoubleClickEvent = self._show_templates
         v_lay.addWidget(self.input_wid)
 
@@ -312,6 +314,7 @@ class _GoBtn(QPushButton):
 
     def __init__(self):
         super().__init__("Перейти")
+        self.setMinimumWidth(20)
         self.clicked.connect(self._open_win)
 
     def _open_win(self):
@@ -429,15 +432,15 @@ class BarTop(QFrame):
         self.grid_layout.addItem(QSpacerItem(5, 0), 0, self.clmn)
 
         self.clmn += 1
-        self.go_btn = _GoBtn()
-        self.grid_layout.addWidget(self.go_btn, 0, self.clmn)
+        self.sort_type_btn = _SortTypeBtn(parent=self)
+        self.grid_layout.addWidget(self.sort_type_btn, 0, self.clmn)
 
         self.clmn += 1
         self.grid_layout.addItem(QSpacerItem(5, 0), 0, self.clmn)
 
         self.clmn += 1
-        self.sort_type_btn = _SortTypeBtn(parent=self)
-        self.grid_layout.addWidget(self.sort_type_btn, 0, self.clmn)
+        self.go_btn = _GoBtn()
+        self.grid_layout.addWidget(self.go_btn, 0, self.clmn)
 
         self.clmn += 1
         self.grid_layout.addItem(QSpacerItem(5, 0), 0, self.clmn)
