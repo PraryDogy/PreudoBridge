@@ -1,6 +1,6 @@
 import sqlalchemy
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QCloseEvent
+from PyQt5.QtGui import QCloseEvent, QKeyEvent
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QSlider,
                              QVBoxLayout, QWidget)
 
@@ -51,12 +51,12 @@ class WinSettings(QWidget):
 
         v_lay.addStretch(0)
 
-        self.slider.valueChanged.connect(self.update_label)
-
         current = Config.json_data.get("clear_db")
         ind = self.slider_values.index(current)
+
         self.slider.setValue(ind)
         self.update_label(ind)
+        self.slider.valueChanged.connect(self.update_label)
 
     def update_label(self, index):
         value = self.slider_values[index]
@@ -66,7 +66,6 @@ class WinSettings(QWidget):
         else:
             t = f"Максимальный размер данных: {value}гб"
 
-        print(t)
         self.label.setText(t)
         Config.json_data["clear_db"] = value
 
@@ -105,7 +104,10 @@ class WinSettings(QWidget):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         Config.write_json_data()
-        return super().closeEvent(a0)
+    
+    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
+        if a0.key() == Qt.Key.Key_Escape:
+            self.close()
 
 
 class BarBottomTree(QWidget):
