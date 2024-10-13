@@ -372,7 +372,7 @@ class _GridStandartBase(Grid):
 
             else:
                 wid = Thumbnail(filename, src, self._paths_images)
-                wid._move_to_wid_sig.connect(lambda src: self._move_to_wid_cmd(src))
+                wid.img_viewer_closed.connect(lambda src: self.move_to_wid(src))
                 self._set_default_image(wid.img_label, "images/file_210.png")
                 # ADD COLORS TO THUMBNAIL
                 wid.update_colors(colors)
@@ -489,7 +489,7 @@ class GridStandart(_GridStandartBase):
         
             elif isinstance(wid, Thumbnail):
                 wid.disconnect()
-                wid._move_to_wid_sig.connect(lambda src: self._move_to_wid_cmd(src))
+                wid.img_viewer_closed.connect(lambda src: self.move_to_wid(src))
 
             wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
             self.grid_layout.addWidget(wid, row, col)
@@ -502,14 +502,9 @@ class GridStandart(_GridStandartBase):
 
         self.coords_reversed = {v: k for k, v in self.coords.items()}
 
-    def stop_and_wait_threads(self):
-        for thread in _Storage.threads:
-            thread: _LoadImagesThread
-            thread._stop_thread.emit()
-
     # ссылка на внутренний метод для полиморфности
     # нужно для функции "перейти" которая открывает путь к файлу
     # чтобы выделить искомый файл в сетке
     # и для выделения файла после закрытия просмотрщика изображений 
     def move_to_wid(self, src: str):
-        self._move_to_wid_cmd(src)
+        self.move_to_wid(src)

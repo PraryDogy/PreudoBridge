@@ -59,7 +59,7 @@ class Geo:
 class Thumbnail(QFrame):
     # просмотрщик изображений был закрыт и в аргумент передается путь к
     # фотографии, на которой просмотрщик остановился
-    _move_to_wid_sig = pyqtSignal(str)
+    img_viewer_closed = pyqtSignal(str)
 
     # !!!!!!!! при переназначении клик эвентов не забудь добавить _clicked_sig
     # по виджету произошел любой клик мыши (правый левый неважно)
@@ -176,7 +176,7 @@ class Thumbnail(QFrame):
         if os.path.isfile(self.src):
             self.win = WinImgView(self.src, self.paths)
             Utils.center_win(parent=Utils.get_main_win(), child=self.win)
-            self.win.closed.connect(lambda src: self._move_to_wid_sig.emit(src))
+            self.win.closed.connect(lambda src: self.img_viewer_closed.emit(src))
             self.win.show()
         else:
             self.clicked_folder.emit(self.src)
@@ -223,29 +223,9 @@ class Thumbnail(QFrame):
             if item.text()[0] in self.colors:
                 item.setChecked(True)
 
-# Методы для внешнего использования, которые обязательно нужно
-# переназначить в наследнике Grid, потому что в GUI идет обращение
-# к этим методам без разбора
-# полиморфизм
-class GridMethods:
-    def __init__(self):
-        super().__init__()
-
-    def resize_grid(self) -> None:
-        raise NotImplementedError("Переназначь resize_grid")
-
-    def stop_and_wait_threads(self) -> None:
-        raise NotImplementedError("Переназначь stop_and_wait_threads")
-
-    def sort_grid(self) -> None:
-        raise NotImplementedError("Переназначь sort_grid")
-
-    def move_to_wid(self, path: str):
-        raise NotImplementedError("Переназначь move_to_wid")
-
 
 # Сетка изображений
-class Grid(QScrollArea, GridMethods):
+class Grid(QScrollArea):
     def __init__(self, width: int):
         super().__init__()
         self.setWidgetResizable(True)
@@ -274,13 +254,12 @@ class Grid(QScrollArea, GridMethods):
     # Общий метод для всех Grid
     # В каждой Grud сигнал каждого Thumbnail - _move_to_wid_sig
     # мы подключаем к данному методу
-    def _move_to_wid_cmd(self, src: str):
-        try:
-            wid: Thumbnail = self._paths_widgets.get(src)
+    def move_to_wid(self, src: str):
+        wid = self._paths_widgets.get(src)
+
+        if isinstance(wid, Thumbnail):
             wid.clicked.emit()
             self.ensureWidgetVisible(wid)
-        except (RuntimeError, KeyError) as e:
-            print("move to wid error: ", e)
 
     def select_new_widget(self, coords: tuple):
         new_widget = self.coords.get(coords)

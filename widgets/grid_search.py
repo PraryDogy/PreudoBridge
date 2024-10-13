@@ -20,7 +20,7 @@ from .grid_base import Grid, Thumbnail
 
 # Добавляем в контенкстное меню "Показать в папке"
 class SearchThumbnail(Thumbnail):
-    _show_in_folder = pyqtSignal(str)
+    show_in_folder = pyqtSignal(str)
 
     def __init__(self, filename: str, src: str, paths: list):
         super().__init__(filename, src, paths)
@@ -28,7 +28,7 @@ class SearchThumbnail(Thumbnail):
         self.context_menu.addSeparator()
 
         show_in_folder = QAction("Показать в папке", self)
-        show_in_folder.triggered.connect(lambda: self._show_in_folder.emit(self.src))
+        show_in_folder.triggered.connect(lambda: self.show_in_folder.emit(self.src))
         self.context_menu.addAction(show_in_folder) 
 
 
@@ -238,8 +238,8 @@ class _GridSearchBase(Grid):
         wid.img_label.setPixmap(data.get("pixmap"))
         wid.update_colors(colors)
 
-        wid._show_in_folder.connect(self.show_in_folder.emit)
-        wid._move_to_wid_sig.connect(self._move_to_wid_cmd)
+        wid.show_in_folder.connect(self.show_in_folder.emit)
+        wid.img_viewer_closed.connect(self.move_to_wid)
         wid.clicked.connect(lambda r=self.row, c=self.col: self.select_new_widget((r, c)))
         self.grid_layout.addWidget(wid, self.row, self.col, alignment=Qt.AlignmentFlag.AlignTop)
 
@@ -298,8 +298,8 @@ class GridSearch(_GridSearchBase):
             for (src, filename, size, modify, filetype, colors), wid in self._image_grid_widgets.items():
                 wid: SearchThumbnail
                 wid.disconnect()
-                wid._show_in_folder.connect(self.show_in_folder.emit)
-                wid._move_to_wid_sig.connect(self._move_to_wid_cmd)
+                wid.show_in_folder.connect(self.show_in_folder.emit)
+                wid.img_viewer_closed.connect(self.move_to_wid)
                 wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
                 wid.paths = self._paths_images
 
@@ -312,15 +312,6 @@ class GridSearch(_GridSearchBase):
                     row += 1
             
             self.coords_reversed = {v: k for k, v in self.coords.items()}
-
-    # неактивно
-    # в идеале нужно для выхода из приложения, потому что только по завершению
-    # треда происходит commit сессии, то есть сохраняются в БД все кешированные
-    # изображения
-    def stop_and_wait_threads(self):
-        self._thread._stop_cmd()
-        self._thread.session.commit()
-
     
     def sort_grid(self, width: int):
         sort_data = {"src": 0, "name": 1, "size": 2,  "modify": 3, "type": 4, "colors": 5}
@@ -347,4 +338,4 @@ class GridSearch(_GridSearchBase):
         self.resize_grid(width)
 
     def move_to_wid(self, src: str):
-        self._move_to_wid_cmd(src)
+        self.move_to_wid(src)

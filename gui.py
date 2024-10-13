@@ -255,7 +255,6 @@ class SimpleFileExplorer(QWidget):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.hide()
-        self.grid.stop_and_wait_threads()
         a0.ignore()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:

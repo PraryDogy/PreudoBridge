@@ -8,7 +8,6 @@ from PyQt5.QtWidgets import QAction, QFileSystemModel, QMenu, QTableView
 from cfg import Config
 from utils import Utils
 
-from .grid_base import GridMethods
 from .win_img_view import WinImgView
 from pathlib import Path
 
@@ -17,7 +16,7 @@ class Sort:
     order = 0
 
 
-class ListStandart(QTableView, GridMethods):
+class ListStandart(QTableView):
     folders_tree_clicked = pyqtSignal(str)
     add_to_favs_clicked = pyqtSignal(str)
     del_favs_clicked = pyqtSignal(str)
@@ -109,9 +108,6 @@ class ListStandart(QTableView, GridMethods):
 
     def open_in_finder(self, path: str):
         subprocess.call(["open", "-R", path])
-
-    def stop_and_wait_threads(self):
-        ...
 
     def move_to_wid(self, path: str):
         ...
