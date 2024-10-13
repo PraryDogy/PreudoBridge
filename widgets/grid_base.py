@@ -244,25 +244,24 @@ class Grid(QScrollArea):
 
         ############################################################
 
-        self.coords_cur = (0, 0)
-        self.coords: dict[tuple: Thumbnail] =  {}
-        self.coords_reversed: dict[Thumbnail: tuple] = {}
-
-        self._paths_widgets: dict[str: Thumbnail] = {}
-        self._paths_images: list = []
+        self.curr_cell: tuple = (0, 0)
+        self.cell_to_wid: dict[tuple: Thumbnail] =  {}
+        self.wid_to_cell: dict[Thumbnail: tuple] = {}
+        self.path_to_wid: dict[str: Thumbnail] = {}
+        self.image_paths: list = []
 
     # Общий метод для всех Grid
     # В каждой Grud сигнал каждого Thumbnail - _move_to_wid_sig
     # мы подключаем к данному методу
     def move_to_wid(self, src: str):
-        wid = self._paths_widgets.get(src)
-        coords = self.coords_reversed.get(wid)
+        wid = self.path_to_wid.get(src)
+        coords = self.wid_to_cell.get(wid)
         if coords:
             self.select_new_widget(coords)
 
     def select_new_widget(self, coords: tuple):
-        new_widget = self.coords.get(coords)
-        old_widget = self.coords.get(self.coords_cur)
+        new_widget = self.cell_to_wid.get(coords)
+        old_widget = self.cell_to_wid.get(self.curr_cell)
 
         if isinstance(new_widget, QFrame):
 
@@ -270,35 +269,35 @@ class Grid(QScrollArea):
                 old_widget.setFrameShape(QFrame.Shape.NoFrame)
 
             new_widget.setFrameShape(QFrame.Shape.Panel)
-            self.coords_cur = coords
+            self.curr_cell = coords
 
             self.ensureWidgetVisible(new_widget)
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
-            wid: Thumbnail = self.coords.get(self.coords_cur)
+            wid: Thumbnail = self.cell_to_wid.get(self.curr_cell)
             wid.view()
 
         elif a0.key() == Qt.Key.Key_Left:
-            coords = (self.coords_cur[0], self.coords_cur[1] - 1)
+            coords = (self.curr_cell[0], self.curr_cell[1] - 1)
             self.select_new_widget(coords)
 
         elif a0.key() == Qt.Key.Key_Right:
-            coords = (self.coords_cur[0], self.coords_cur[1] + 1)
+            coords = (self.curr_cell[0], self.curr_cell[1] + 1)
             self.select_new_widget(coords)
 
         elif a0.key() == Qt.Key.Key_Up:
-            coords = (self.coords_cur[0] - 1, self.coords_cur[1])
+            coords = (self.curr_cell[0] - 1, self.curr_cell[1])
             self.select_new_widget(coords)
 
         elif a0.key() == Qt.Key.Key_Down:
-            coords = (self.coords_cur[0] + 1, self.coords_cur[1])
+            coords = (self.curr_cell[0] + 1, self.curr_cell[1])
             self.select_new_widget(coords)
         
         return super().keyPressEvent(a0)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
-        wid = self.coords.get(self.coords_cur)
+        wid = self.cell_to_wid.get(self.curr_cell)
         if isinstance(wid, Thumbnail):
             wid.setFrameShape(QFrame.Shape.NoFrame)
         self.setFocus()

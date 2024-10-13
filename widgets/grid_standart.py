@@ -371,7 +371,7 @@ class GridStandart(Grid):
                 wid.del_fav.connect(self.del_fav.emit)
 
             else:
-                wid = Thumbnail(filename, src, self._paths_images)
+                wid = Thumbnail(filename, src, self.image_paths)
                 wid.img_viewer_closed.connect(lambda src: self.move_to_wid(src))
                 self._set_default_image(wid.img_label, "images/file_210.png")
                 # ADD COLORS TO THUMBNAIL
@@ -383,20 +383,20 @@ class GridStandart(Grid):
             wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
 
             # добавляем местоположение виджета в сетке для навигации клавишами
-            self.coords[row, col] = wid
-            self._paths_widgets[src] = wid
+            self.cell_to_wid[row, col] = wid
+            self.path_to_wid[src] = wid
 
             if os.path.isfile(src):
-                self._paths_images.append(src)
+                self.image_paths.append(src)
 
             col += 1
             if col >= col_count:
                 col = 0
                 row += 1
 
-        self.coords_reversed = {v: k for k, v in self.coords.items()}
+        self.wid_to_cell = {v: k for k, v in self.cell_to_wid.items()}
 
-        if self.coords:
+        if self.cell_to_wid:
             row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
             self.grid_layout.addItem(row_spacer, row + 2, 0)
 
@@ -444,7 +444,7 @@ class GridStandart(Grid):
     
     def _set_pixmap(self, data: tuple):
         src, size, modified, pixmap = data
-        widget = self._paths_widgets.get(src)
+        widget = self.path_to_wid.get(src)
 
         if isinstance(widget, Thumbnail):
 
@@ -458,12 +458,12 @@ class GridStandart(Grid):
 
         # копируем для итерации виджетов
         # нам нужны только значения ключей, там записаны виджеты
-        coords = self.coords.copy()
+        coords = self.cell_to_wid.copy()
 
         # очищаем для нового наполнения
-        self.coords.clear()
-        self.coords_reversed.clear()
-        self.coords_cur = (0, 0)
+        self.cell_to_wid.clear()
+        self.wid_to_cell.clear()
+        self.curr_cell = (0, 0)
 
         # получаем новое количество колонок на случай изменения размера окна
         col_count = Utils.get_clmn_count(width)
@@ -483,14 +483,14 @@ class GridStandart(Grid):
 
             wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
             self.grid_layout.addWidget(wid, row, col)
-            self.coords[row, col] = wid
+            self.cell_to_wid[row, col] = wid
 
             col += 1
             if col >= col_count:
                 col = 0
                 row += 1
 
-        self.coords_reversed = {v: k for k, v in self.coords.items()}
+        self.wid_to_cell = {v: k for k, v in self.cell_to_wid.items()}
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         # когда убивается этот виджет, все треды безопасно завершатся

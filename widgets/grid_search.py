@@ -233,7 +233,7 @@ class GridSearch(Grid):
         # "src", "stats" - os.stat, "pixmap"
         filename = os.path.basename(data.get("src"))
         colors = data.get("colors")
-        wid = SearchThumbnail(filename=filename, src=data.get("src"), paths=self._paths_images)
+        wid = SearchThumbnail(filename=filename, src=data.get("src"), paths=self.image_paths)
         wid.img_label.setPixmap(data.get("pixmap"))
         wid.update_colors(colors)
 
@@ -242,10 +242,10 @@ class GridSearch(Grid):
         wid.clicked.connect(lambda r=self.row, c=self.col: self.select_new_widget((r, c)))
         self.grid_layout.addWidget(wid, self.row, self.col, alignment=Qt.AlignmentFlag.AlignTop)
 
-        self.coords[self.row, self.col] = wid
-        self.coords_reversed[wid] = (self.row, self.col)
-        self._paths_widgets[data.get("src")] = wid
-        self._paths_images.append(data.get("src"))
+        self.cell_to_wid[self.row, self.col] = wid
+        self.wid_to_cell[wid] = (self.row, self.col)
+        self.path_to_wid[data.get("src")] = wid
+        self.image_paths.append(data.get("src"))
 
         # (путь до файла, имя файла, размер, дата изменения, тип файла)
         # этот словарик нужен для повторного формирования сетки при изменении
@@ -269,8 +269,8 @@ class GridSearch(Grid):
 
             # очищаем для нового наполнения
             # self.coords.clear()
-            self.coords_reversed.clear()
-            self.coords_cur = (0, 0)
+            self.wid_to_cell.clear()
+            self.curr_cell = (0, 0)
 
             # получаем новое количество колонок на случай изменения размера окна
             col_count = Utils.get_clmn_count(width)
@@ -285,17 +285,17 @@ class GridSearch(Grid):
                 wid.show_in_folder.connect(self.show_in_folder.emit)
                 wid.img_viewer_closed.connect(self.move_to_wid)
                 wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
-                wid.paths = self._paths_images
+                wid.paths = self.image_paths
 
                 self.grid_layout.addWidget(wid, row, col, alignment=Qt.AlignmentFlag.AlignTop)
-                self.coords[row, col] = wid
+                self.cell_to_wid[row, col] = wid
 
                 col += 1
                 if col >= col_count:
                     col = 0
                     row += 1
             
-            self.coords_reversed = {v: k for k, v in self.coords.items()}
+            self.wid_to_cell = {v: k for k, v in self.cell_to_wid.items()}
     
     def sort_grid(self, width: int):
         sort_data = {"src": 0, "name": 1, "size": 2,  "modify": 3, "type": 4, "colors": 5}
@@ -318,7 +318,7 @@ class GridSearch(Grid):
         if Config.json_data["reversed"]:
             self._image_grid_widgets = dict(reversed(self._image_grid_widgets.items()))
             
-        self._paths_images = [k[0] for k, v in self._image_grid_widgets.items()]
+        self.image_paths = [k[0] for k, v in self._image_grid_widgets.items()]
         self.resize_grid(width)
 
     def move_to_wid(self, src: str):
