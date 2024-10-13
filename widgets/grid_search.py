@@ -32,16 +32,22 @@ class SearchThumbnail(Thumbnail):
         self.context_menu.addAction(show_in_folder) 
 
 
+class WidgetData:
+    def __init__(self, src: str, colors: str, stats: os.stat_result, pixmap: QPixmap):
+        self.src: str = src
+        self.colors: str = colors
+        self.stats: os.stat_result = stats
+        self.pixmap: QPixmap = pixmap
+
+
 # Тред
 # На вход получает директорию для поиска иs текст/шаблон для поиска
 # Ищет ТОЛЬКО изображения
 # Если найденного изображения нет в БД, то кеширует
-# Если есть - загружает изображение кеша
-# Отправляется синал _new_widget_sig:
-# путь к изображению, os.stat, QPixmap
+# Если есть - загружает изображение кеша и отправляется синал add_new_widget:
 class _SearchFinderThread(QThread):
     _finished = pyqtSignal()
-    _new_widget_sig = pyqtSignal(dict)
+    add_new_widget = pyqtSignal(WidgetData)
 
     def __init__(self, search_dir: str, search_text: str):
         super().__init__()
@@ -143,9 +149,8 @@ class _SearchFinderThread(QThread):
             pixmap = QPixmap("images/file_210.png")
 
         # посылаем сигнал в SearchGrid
-        self._new_widget_sig.emit(
-            {"src": src, "stats": stats, "pixmap": pixmap, "colors": colors}
-            )
+        widget_data = WidgetData(src, colors, stats, pixmap)
+        self.add_new_widget.emit(widget_data)
         sleep(0.2)
 
     def _get_db_data(self, src: str) -> bytes | None:
@@ -224,17 +229,17 @@ class GridSearch(Grid):
         self.grid_layout.addItem(clmn_spacer, 0, self.col_count + 1)
 
         self._thread = _SearchFinderThread(Config.json_data.get("root"), search_text)
-        self._thread._new_widget_sig.connect(self._add_new_widget)
+        self._thread.add_new_widget.connect(self._add_new_widget)
         self._thread._finished.connect(self.search_finished.emit)
         self._thread.start()
 
-    def _add_new_widget(self, data: dict):
+    def _add_new_widget(self, widget_data: WidgetData):
         # data идет из сигнала _new_widget_sig
         # "src", "stats" - os.stat, "pixmap", "colors": str
-        filename = os.path.basename(data.get("src"))
-        colors = data.get("colors")
-        wid = SearchThumbnail(filename=filename, src=data.get("src"), paths=self.image_paths)
-        wid.img_label.setPixmap(data.get("pixmap"))
+        filename = os.path.basename(widget_data.src)
+        colors = widget_data.colors
+        wid = SearchThumbnail(filename=filename, src=widget_data.src, paths=self.image_paths)
+        wid.img_label.setPixmap(widget_data.pixmap)
         wid.update_colors(colors)
 
         wid.show_in_folder.connect(self.show_in_folder.emit)
@@ -244,17 +249,16 @@ class GridSearch(Grid):
 
         self.cell_to_wid[self.row, self.col] = wid
         self.wid_to_cell[wid] = (self.row, self.col)
-        self.path_to_wid[data.get("src")] = wid
-        self.image_paths.append(data.get("src"))
+        self.path_to_wid[widget_data.src] = wid
+        self.image_paths.append(widget_data.src)
 
         # (путь до файла, имя файла, размер, дата изменения, тип файла)
         # этот словарик нужен для повторного формирования сетки при изменении
         # размера и для сортировки по имени/размеру/дате/типу
-        stats: os.stat_result = data.get("stats")
-        size = stats.st_size
-        modified = stats.st_mtime
-        filetype = os.path.splitext(data.get("src"))[1]
-        self._image_grid_widgets[(data.get("src"), filename, size, modified, filetype, colors)] = wid
+        size = widget_data.stats.st_size
+        modified = widget_data.stats.st_mtime
+        filetype = os.path.splitext(widget_data.src)[1]
+        self._image_grid_widgets[(widget_data.src, filename, size, modified, filetype, colors)] = wid
 
         # прибавляем строчку и столбец в сетку
         self.col += 1
@@ -320,9 +324,6 @@ class GridSearch(Grid):
             
         self.image_paths = [k[0] for k, v in self._image_grid_widgets.items()]
         self.resize_grid(width)
-
-    def move_to_wid(self, src: str):
-        self.move_to_wid(src)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         try:
