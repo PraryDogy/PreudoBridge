@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import (QApplication, QGridLayout, QLabel, QSplitter,
 from cfg import Config
 from utils import Utils
 from widgets.bar_bottom import BarBottom
+from widgets.bar_bottom_tree import BarBottomTree
 from widgets.bar_top import BarTop
 from widgets.grid_search import GridSearch
 from widgets.grid_standart import GridStandart
@@ -43,10 +44,22 @@ class SimpleFileExplorer(QWidget):
         splitter_wid.splitterMoved.connect(self.resizeEvent)
         main_lay.addWidget(splitter_wid)
 
+        left_wid = QWidget()
+        splitter_wid.addWidget(left_wid)
+
+        left_lay = QVBoxLayout()
+        left_lay.setContentsMargins(0, 0, 0, 0)
+        left_lay.setSpacing(0)
+        left_wid.setLayout(left_lay)
+
         self.tabs_wid = QTabWidget()
-        splitter_wid.addWidget(self.tabs_wid)
+        left_lay.addWidget(self.tabs_wid)
+
+        self.tabs_bottom = BarBottomTree()
+        left_lay.addWidget(self.tabs_bottom)
+
         splitter_wid.setStretchFactor(0, 0)
-        
+
         self.folders_tree_wid = TreeFolders()
         self.folders_tree_wid.folders_tree_clicked.connect(self.tree_wid_view_folder_cmd)
         self.folders_tree_wid.add_to_favs_clicked.connect(self.tree_wid_add_fav_cmd)

@@ -52,8 +52,11 @@ class WinSettings(QWidget):
         v_lay.addStretch(0)
 
         self.slider.valueChanged.connect(self.update_label)
+
         current = Config.json_data.get("clear_db")
-        self.slider.setValue(self.slider_values.index(current))
+        ind = self.slider_values.index(current)
+        self.slider.setValue(ind)
+        self.update_label(ind)
 
     def update_label(self, index):
         value = self.slider_values[index]
@@ -63,6 +66,7 @@ class WinSettings(QWidget):
         else:
             t = f"Максимальный размер данных: {value}гб"
 
+        print(t)
         self.label.setText(t)
         Config.json_data["clear_db"] = value
 
