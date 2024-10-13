@@ -14,14 +14,18 @@ class WinSettings(QWidget):
         super().__init__()
         
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowCloseButtonHint)
         self.setWindowTitle("Настройки")
-        self.setGeometry(100, 100, 300, 150)
-        self.setFixedSize(300, 130)
+        self.setFixedSize(300, 150)
 
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(10, 10, 10, 10)
         v_lay.setSpacing(10)
         self.setLayout(v_lay)
+
+        t = "Данные загруженных изображений.\nРазмер каталогов считается отдельно."
+        title_label = QLabel(t)
+        v_lay.addWidget(title_label)
 
         h_wid = QWidget()
         v_lay.addWidget(h_wid)
