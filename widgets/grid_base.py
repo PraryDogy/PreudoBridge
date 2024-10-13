@@ -23,7 +23,7 @@ class NameLabel(QLabel):
         # font = QFont("Times")
         # self.setFont(font)
 
-    def set_text(self, text: str) -> list[str]:
+    def set_text(self, colors: str, text: str) -> list[str]:
         max_length = 27
         lines = []
         
@@ -38,6 +38,7 @@ class NameLabel(QLabel):
             lines = lines[:2]
             lines[-1] = lines[-1][:max_length-3] + '...'
 
+        lines.insert(0, colors)
         self.setText("\n".join(lines))
 
 
@@ -72,7 +73,6 @@ class Thumbnail(QFrame):
         self.paths: list = paths
         self.filename = filename
         self.colors: str = ""
-        self.colored_filename = self.colors + "\n" + filename
 
         tooltip = self.filename + "\n" + src
         self.setToolTip(tooltip)
@@ -90,7 +90,7 @@ class Thumbnail(QFrame):
 
         self.name_label = NameLabel()
         self.name_label.setFixedHeight(Geo.text_h)
-        self.name_label.set_text(self.colored_filename)
+        self.name_label.set_text(self.colors, self.filename)
         v_lay.addWidget(self.name_label)
 
         # КОНЕКСТНОЕ МЕНЮ
@@ -99,7 +99,6 @@ class Thumbnail(QFrame):
         view_action = QAction("Просмотр", self)
         view_action.triggered.connect(self.view)
         self.context_menu.addAction(view_action)
-
 
         open_menu = QMenu("Открыть в приложении", self)
         self.context_menu.addMenu(open_menu)
@@ -218,8 +217,7 @@ class Thumbnail(QFrame):
         key = lambda x: Config.colors_order.index(x)
         self.colors = ''.join(sorted(self.colors, key=key))
 
-        self.colored_filename = self.colors + "\n" + self.filename
-        self.name_label.set_text(self.colored_filename)
+        self.name_label.set_text(self.colors, self.filename)
 
         for item in self.color_menu.children():
             if item.text()[0] in self.colors:
