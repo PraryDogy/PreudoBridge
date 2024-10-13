@@ -1,9 +1,6 @@
-import os
-
 import sqlalchemy
 import sqlalchemy.exc
-from sqlalchemy.orm import (Session, declarative_base, scoped_session,
-                            sessionmaker)
+from sqlalchemy.orm import Session, declarative_base
 
 from cfg import Config
 
@@ -15,23 +12,24 @@ class DbaseStorage:
 
 class Dbase:
     @staticmethod
-    def create_engine() -> sqlalchemy.Engine:
-        DbaseStorage.engine = sqlalchemy.create_engine(
-            f"sqlite:///{Config.db_file}",
-            connect_args={"check_same_thread": False},
-            echo=False
-            )
-
-    @staticmethod
     def get_session() -> Session:
         return Session(bind=DbaseStorage.engine)
 
     @staticmethod
     def init_db():
-        Dbase.create_engine()
+
+        DbaseStorage.engine = sqlalchemy.create_engine(
+            f"sqlite:///{Config.db_file}",
+            connect_args={"check_same_thread": False},
+            echo=False
+            )
+        
         DbaseStorage.engine.connect()
         DbaseStorage.base.metadata.create_all(DbaseStorage.engine)
+        Dbase.check_stats_main()
 
+    @staticmethod
+    def check_stats_main():
         sess = Dbase.get_session()
 
         try:
@@ -48,18 +46,6 @@ class Dbase:
             print("init db error:", e)
 
         sess.close()
-
-    @staticmethod
-    def get_db_size() -> str:
-        size_bytes = os.stat(Config.db_file).st_size
-
-        size_mb = size_bytes / (1024 * 1024)
-        
-        if size_mb < 1024:
-            return f"{size_mb:.2f}мб"
-        else:
-            size_gb = size_mb / 1024
-            return f"{size_gb:.2f}гб"
         
     @staticmethod
     def c_commit(session: Session):
