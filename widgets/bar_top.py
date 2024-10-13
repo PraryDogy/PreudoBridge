@@ -98,6 +98,12 @@ class _PathFinderThread(QThread):
                     break
 
 
+class DataAction:
+    def __init__(self, sort: str | None, reversed: bool):
+        self.sort: str | None = sort
+        self.reversed: bool = reversed
+
+
 class _SortTypeBtn(QPushButton):
     sort_click = pyqtSignal()
 
