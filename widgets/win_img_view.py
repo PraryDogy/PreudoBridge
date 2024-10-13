@@ -22,8 +22,15 @@ class Shared:
     threads: list[QThread] = []
 
 
+class ImageData:
+    def __init__(self, src: str, width: int, pixmap: QPixmap):
+        self.src: str = src
+        self.width: int = width
+        self.pixmap: QPixmap = pixmap
+
+
 class LoadImageThread(QThread):
-    finished = pyqtSignal(dict)
+    _finished = pyqtSignal(ImageData)
 
     def __init__(self, img_src: str):
         super().__init__(parent=None)
@@ -44,12 +51,7 @@ class LoadImageThread(QThread):
             first_img = list(Shared.loaded_images.keys())[0]
             Shared.loaded_images.pop(first_img)
 
-        self.finished.emit(
-            {"image": pixmap,
-             "width": pixmap.width(),
-             "src": self.img_src
-             }
-             )
+        self._finished.emit(ImageData(self.img_src, pixmap.width(), pixmap))
 
 class ImageWidget(QLabel):
     mouse_moved = pyqtSignal()
@@ -297,16 +299,19 @@ class WinImgView(QWidget):
         self.setWindowTitle("Загрузка")
         img_thread = LoadImageThread(self.src)
         Shared.threads.append(img_thread)
-        img_thread.finished.connect(
-            lambda data: self.load_image_finished(img_thread, data)
+        img_thread._finished.connect(
+            lambda image_data: self.load_image_finished(img_thread, image_data)
             )
         img_thread.start()
 
-    def load_image_finished(self, thread: LoadImageThread, data: dict):
-        if data.get("width") == 0 or data.get("src") != self.src:
+    def load_image_finished(self, thread: LoadImageThread, image_data: ImageData):
+        if image_data.width == 0:
+            return
+
+        elif image_data.src != self.src:
             return
                         
-        self.image_label.set_image(data.get("image"))
+        self.image_label.set_image(image_data.pixmap)
         self.setWindowTitle(os.path.basename(self.src))
         Shared.threads.remove(thread)
 
