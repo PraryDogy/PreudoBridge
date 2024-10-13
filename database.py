@@ -35,12 +35,19 @@ class Dbase:
         sess = Dbase.get_session()
 
         try:
-            q = sqlalchemy.select(Cache)
-            sess.execute(q).first()
-        except sqlalchemy.exc.OperationalError as e:
-            print(e)
-            os.remove(Config.db_file)
-            Dbase.init_db()
+            q = sqlalchemy.select(Stats).where(Stats.name=="main")
+            res = sess.execute(q).first()
+
+            if not res:
+                q = sqlalchemy.insert(Stats)
+                q = q.values({"name": "main", "size": 0})
+                sess.execute(q)
+                sess.commit()
+
+        except Exception as e:
+            print("init db error:", e)
+
+        sess.close()
 
     @staticmethod
     def get_db_size() -> str:
@@ -71,3 +78,10 @@ class Cache(DbaseStorage.base):
     catalog = sqlalchemy.Column(sqlalchemy.Text, nullable=False)
     colors = sqlalchemy.Column(sqlalchemy.Text, nullable=False)
     stars = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+
+
+class Stats(DbaseStorage.base):
+    __tablename__ = "stats"
+    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
+    name = sqlalchemy.Column(sqlalchemy.Text, unique=True)
+    size = sqlalchemy.Column(sqlalchemy.Integer)

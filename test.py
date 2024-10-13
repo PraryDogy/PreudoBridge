@@ -1,7 +1,6 @@
 from sqlalchemy import func
-from database import Dbase, Cache, sqlalchemy
 
-Dbase.init_db()
+from database import Cache, Dbase, Stats, sqlalchemy
 
 
 def get_images_size() -> int:
@@ -39,6 +38,5 @@ git_five = 5368709120
 gig_ten = 10737418240
 limit = 1000000
 
-print(get_images_size())
-remove_excess_images(limit)
-print(get_images_size())
+Dbase.init_db()
+sess = Dbase.get_session()

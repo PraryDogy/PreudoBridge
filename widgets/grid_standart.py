@@ -4,15 +4,16 @@ import numpy as np
 import sqlalchemy
 import sqlalchemy.exc
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
-from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QKeyEvent, QMouseEvent, QPixmap
-from PyQt5.QtWidgets import QAction, QFrame, QLabel, QSizePolicy, QSpacerItem
+from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QMouseEvent, QPixmap
+from PyQt5.QtWidgets import QAction, QLabel, QSizePolicy, QSpacerItem
 
 from cfg import Config
-from database import Cache, Dbase
+from database import Cache, Dbase, Stats
 from fit_img import FitImg
 from utils import Utils
 
 from .grid_base import Grid, Thumbnail
+
 
 # Если родительский класс запущенного треда будет закрыт
 # Тред получит сигнал стоп и безопасно завершится
@@ -119,7 +120,7 @@ class _LoadImagesThread(QThread):
 
             try:
                 # numpy array в БД
-                img = Utils.image_array_to_bytes(img)
+                img: bytes = Utils.image_array_to_bytes(img)
 
                 if not isinstance(img, bytes):
                     continue
@@ -136,6 +137,15 @@ class _LoadImagesThread(QThread):
                     "stars": ""
                     })
                 self.session.execute(q)
+
+                q = sqlalchemy.select(Stats.size).where(Stats.name=="main")
+                stats_size = self.session.execute(q).first()[0]
+                stats_size += len(img)
+
+                q = sqlalchemy.update(Stats).where(Stats.name=="main")
+                q = q.values({"size": stats_size})
+                self.session.execute(q)
+
             except (sqlalchemy.exc.OperationalError ,Exception) as e:
                 pass
 

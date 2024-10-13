@@ -3,15 +3,15 @@ from ast import literal_eval
 from time import sleep
 
 import sqlalchemy
+import sqlalchemy.exc
+import sqlalchemy.orm
 from numpy import ndarray
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
-from PyQt5.QtWidgets import QAction, QFrame, QSizePolicy, QSpacerItem
-import sqlalchemy.exc
-import sqlalchemy.orm
+from PyQt5.QtWidgets import QAction, QSizePolicy, QSpacerItem
 
 from cfg import Config
-from database import Cache, Dbase
+from database import Cache, Dbase, Stats
 from fit_img import FitImg
 from utils import Utils
 
@@ -174,22 +174,33 @@ class _SearchFinderThread(QThread):
         db_img: bytes = Utils.image_array_to_bytes(img_array)
 
         if isinstance(db_img, bytes):
-            q = sqlalchemy.insert(Cache)
-            q = q.values({
-                "img": db_img,
-                "src": src,
-                "root": os.path.dirname(src),
-                "size": size,
-                "modified": modified,
-                "catalog": "",
-                "colors": "",
-                "stars": ""
-                })
+
             try:
+
+                q = sqlalchemy.insert(Cache)
+                q = q.values({
+                    "img": db_img,
+                    "src": src,
+                    "root": os.path.dirname(src),
+                    "size": size,
+                    "modified": modified,
+                    "catalog": "",
+                    "colors": "",
+                    "stars": ""
+                    })
+                
                 self.session.execute(q)
+
+                q = sqlalchemy.select(Stats.size).where(Stats.name=="main")
+                stats_size = self.session.execute(q).first()[0]
+                stats_size += len(db_img)
+
+                q = sqlalchemy.update(Stats).where(Stats.name=="main")
+                q = q.values({"size": stats_size})
+                self.session.execute(q)
+
             except (sqlalchemy.exc.OperationalError, Exception) as e:
                 print("search thread insert db image error: ", e)
-                ...
 
     def _create_new_image(self, src: str) -> ndarray | None:
         img = Utils.read_image(src)
