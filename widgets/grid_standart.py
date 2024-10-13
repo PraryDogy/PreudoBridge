@@ -19,15 +19,26 @@ from .grid_base import Grid, Thumbnail
 class _Storage:
     threads: list = []
 
+
 # Данный тред получает на вхол словарик {(путь, размер, дата): виджет для Pixmap}
 # по ключам ищем существующие изображения в БД
 # если есть - подгружаем в сетку
 # если нет - считываем, делаем запись в БД, подгружаем в сетку
+
+
+class ImageData:
+    def __init__(self, src: str, size: int, modified: int, pixmap: QPixmap):
+        self.src: str = src
+        self.size: int = size
+        self.modified: int = modified
+        self.pixmap: QPixmap = pixmap
+
+
 class _LoadImagesThread(QThread):
 
     # передает обратно (путь, размер, дата): PIXMAP
     # чтобы в основном потоке в словарике найти виджет и применить изображение
-    _set_pixmap = pyqtSignal(tuple)
+    image_data = pyqtSignal(ImageData)
 
     # отправляем в основное приложение чтобы показать прогресс
     _progressbar_start = pyqtSignal(int)
@@ -147,7 +158,7 @@ class _LoadImagesThread(QThread):
             # и удаляем из словарика этот элемент
             if key:
                 pixmap: QPixmap = Utils.pixmap_from_bytes(bytearray_image)
-                self._set_pixmap.emit((src, size, modified, pixmap))
+                self.image_data.emit(ImageData(src, size, modified, pixmap))
 
                 # !!! очень важный момент
                 # потому что следом за проверкой БД изображений
@@ -189,7 +200,7 @@ class _LoadImagesThread(QThread):
         pixmap = Utils.pixmap_from_array(image)
         try:
             src, size, modified = data
-            self._set_pixmap.emit((src, size, modified, pixmap))
+            self.image_data.emit(ImageData(src, size, modified, pixmap))
         except RuntimeError:
             pass
 
@@ -438,18 +449,17 @@ class GridStandart(Grid):
         new_thread = _LoadImagesThread(self._load_images_data)
         new_thread._progressbar_start.connect(self.progressbar_start.emit)
         new_thread._progressbar_value.connect(self.progressbar_value.emit)
-        new_thread._set_pixmap.connect(self._set_pixmap)
+        new_thread.image_data.connect(lambda image_data: self._set_pixmap(image_data))
         _Storage.threads.append(new_thread)
         new_thread.start()
     
-    def _set_pixmap(self, data: tuple):
-        src, size, modified, pixmap = data
-        widget = self.path_to_wid.get(src)
+    def _set_pixmap(self, image_data: ImageData):
+        widget = self.path_to_wid.get(image_data.src)
 
         if isinstance(widget, Thumbnail):
 
-            if isinstance(pixmap, QPixmap):
-                widget.img_label.setPixmap(pixmap)
+            if isinstance(image_data.pixmap, QPixmap):
+                widget.img_label.setPixmap(image_data.pixmap)
 
     # метод вызывается если была изменена сортировка или размер окна
     # тогда нет необходимости заново делать обход в Finder и грузить изображения

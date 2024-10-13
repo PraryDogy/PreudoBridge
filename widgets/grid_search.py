@@ -149,8 +149,7 @@ class _SearchFinderThread(QThread):
             pixmap = QPixmap("images/file_210.png")
 
         # посылаем сигнал в SearchGrid
-        widget_data = WidgetData(src, colors, stats, pixmap)
-        self.add_new_widget.emit(widget_data)
+        self.add_new_widget.emit(WidgetData(src, colors, stats, pixmap))
         sleep(0.2)
 
     def _get_db_data(self, src: str) -> bytes | None:

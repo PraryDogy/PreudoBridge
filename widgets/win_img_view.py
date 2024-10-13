@@ -53,6 +53,7 @@ class LoadImageThread(QThread):
 
         self._finished.emit(ImageData(self.img_src, pixmap.width(), pixmap))
 
+
 class ImageWidget(QLabel):
     mouse_moved = pyqtSignal()
 
