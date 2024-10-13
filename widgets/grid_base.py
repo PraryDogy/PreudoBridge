@@ -256,10 +256,9 @@ class Grid(QScrollArea):
     # мы подключаем к данному методу
     def move_to_wid(self, src: str):
         wid = self._paths_widgets.get(src)
-
-        if isinstance(wid, Thumbnail):
-            wid.clicked.emit()
-            self.ensureWidgetVisible(wid)
+        coords = self.coords_reversed.get(wid)
+        if coords:
+            self.select_new_widget(coords)
 
     def select_new_widget(self, coords: tuple):
         new_widget = self.coords.get(coords)

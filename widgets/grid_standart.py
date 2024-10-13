@@ -330,7 +330,7 @@ class _FolderThumbnail(Thumbnail):
 
 
 # Базовый класс со внутренними методами не для импорта
-class _GridStandartBase(Grid):
+class GridStandart(Grid):
     # сигналы переданные из FOLDER THUMBNAIL
     add_fav = pyqtSignal(str)
     del_fav = pyqtSignal(str)
@@ -451,16 +451,6 @@ class _GridStandartBase(Grid):
             if isinstance(pixmap, QPixmap):
                 widget.img_label.setPixmap(pixmap)
 
-    def closeEvent(self, a0: QCloseEvent | None) -> None:
-        # когда убивается этот виджет, все треды безопасно завершатся
-        self._stop_threads()
-        return super().closeEvent(a0)
-        
-
-class GridStandart(_GridStandartBase):
-    def __init__(self, width: int):
-        super().__init__(width)
-
     # метод вызывается если была изменена сортировка или размер окна
     # тогда нет необходимости заново делать обход в Finder и грузить изображения
     # здесь только пересортируется сетка
@@ -502,9 +492,7 @@ class GridStandart(_GridStandartBase):
 
         self.coords_reversed = {v: k for k, v in self.coords.items()}
 
-    # ссылка на внутренний метод для полиморфности
-    # нужно для функции "перейти" которая открывает путь к файлу
-    # чтобы выделить искомый файл в сетке
-    # и для выделения файла после закрытия просмотрщика изображений 
-    def move_to_wid(self, src: str):
-        self.move_to_wid(src)
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        # когда убивается этот виджет, все треды безопасно завершатся
+        self._stop_threads()
+        return super().closeEvent(a0)
