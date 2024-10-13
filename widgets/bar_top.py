@@ -199,9 +199,7 @@ class _SearchWidget(QWidget):
         self.input_wid = QLineEdit()
         self.input_wid.setPlaceholderText("Поиск")
         self.input_wid.setStyleSheet("padding-left: 2px; padding-right: 20px;")
-        self.input_wid.setFixedHeight(25)
-        self.input_wid.setMaximumWidth(170)
-        self.input_wid.setMinimumWidth(1)
+        self.input_wid.setFixedSize(170, 25)
         self.input_wid.mouseDoubleClickEvent = self._show_templates
         v_lay.addWidget(self.input_wid)
 
