@@ -166,7 +166,7 @@ class SimpleFileExplorer(QWidget):
         self.grid = GridSearch(width=ww, search_text=search_text)
         self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
         self.grid.search_finished.connect(lambda: self.grid_search_finished(search_text))
-        self.grid.show_in_folder.connect(self.grid_search_move_to_wid)
+        self.grid.show_in_folder.connect(self.move_to_wid_delayed)
         self.r_lay.addWidget(self.grid, 1, 0)
         # чтобы фокус сместился с окна ввода в поиске на сетку
         self.grid.setFocus()
@@ -185,7 +185,7 @@ class SimpleFileExplorer(QWidget):
         self.bar_top_setDisabled(False)
         self.bar_top.view_type_btn.setDisabled(True)
 
-    def grid_search_move_to_wid(self, src: str):
+    def move_to_wid_delayed(self, src: str):
         root = os.path.dirname(src)
         Config.json_data["root"] = root
         self.grid_standart_load()

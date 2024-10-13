@@ -200,7 +200,7 @@ class _SearchFinderThread(QThread):
 # 
 # во время поиска НЕ работает ресайз и сортировка сетки, поскольку сетка 
 # до конца не сформирована
-class _GridSearchBase(Grid):
+class GridSearch(Grid):
     search_finished = pyqtSignal()
 
     # для конекстного меню Thumbnail - "показать в папке"
@@ -216,7 +216,6 @@ class _GridSearchBase(Grid):
         # размера и для сортировки по имени/размеру/дате/типу
         self._image_grid_widgets: dict[tuple: SearchThumbnail] = {}
         self.search_text = search_text
-
 
         self.col_count = Utils.get_clmn_count(width)
         self.row, self.col = 0, 0
@@ -262,22 +261,7 @@ class _GridSearchBase(Grid):
         if self.col >= self.col_count:
             self.col = 0
             self.row += 1
-
-    def closeEvent(self, a0: QCloseEvent | None) -> None:
-        try:
-            self._thread.disconnect()
-        except TypeError:
-            pass
-
-        # устанавливаем флаг QThread на False чтобы прервать цикл os.walk
-        # происходит session commit и не подается сигнал _finished
-        self._thread._stop_cmd()
-  
-
-class GridSearch(_GridSearchBase):
-    def __init__(self, width: int, search_text: str):
-        super().__init__(width, search_text)
-
+ 
     # если поиск еще идет, сетка не переформируется
     # если завершен, то мы формируем новую сетку на основе новых размеров
     def resize_grid(self, width: int):
@@ -339,3 +323,13 @@ class GridSearch(_GridSearchBase):
 
     def move_to_wid(self, src: str):
         self.move_to_wid(src)
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        try:
+            self._thread.disconnect()
+        except TypeError:
+            pass
+
+        # устанавливаем флаг QThread на False чтобы прервать цикл os.walk
+        # происходит session commit и не подается сигнал _finished
+        self._thread._stop_cmd()
