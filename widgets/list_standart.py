@@ -108,6 +108,3 @@ class ListStandart(QTableView):
 
     def open_in_finder(self, path: str):
         subprocess.call(["open", "-R", path])
-
-    def move_to_wid(self, path: str):
-        ...
