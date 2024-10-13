@@ -230,7 +230,7 @@ class GridSearch(Grid):
 
     def _add_new_widget(self, data: dict):
         # data идет из сигнала _new_widget_sig
-        # "src", "stats" - os.stat, "pixmap"
+        # "src", "stats" - os.stat, "pixmap", "colors": str
         filename = os.path.basename(data.get("src"))
         colors = data.get("colors")
         wid = SearchThumbnail(filename=filename, src=data.get("src"), paths=self.image_paths)
