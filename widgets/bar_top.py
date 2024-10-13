@@ -496,7 +496,7 @@ class BarTop(QFrame):
             pass
 
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
-        if a0.size().width() < 550:
+        if a0.size().width() < 700:
             self.go_btn.hide()
             self.search_wid.hide()
         else:
