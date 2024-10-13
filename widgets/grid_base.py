@@ -122,8 +122,8 @@ class Thumbnail(QFrame):
         self.color_menu = QMenu("Цвета", self)
         self.context_menu.addMenu(self.color_menu)
 
-        for color, text in Config.colors.items():
-            wid = QAction(parent=self.color_menu, text=f"{color} {text}")
+        for color, data in Config.colors.items():
+            wid = QAction(parent=self.color_menu, text=f"{color} {data.get('text')}")
             wid.setCheckable(True)
 
             if color in self.colors:
@@ -188,24 +188,28 @@ class Thumbnail(QFrame):
 
     def color_click(self, color: str):
         if color not in self.colors:
-            self.colors = self.colors + color
+            temp_colors = self.colors + color
         else:
-            self.colors = self.colors.replace(color, "")
+            temp_colors = self.colors.replace(color, "")
 
-        self.update_colors(self.colors)
-        self.color_to_db()
+        if isinstance(self.color_to_db(temp_colors), bool):
+            self.update_colors(temp_colors)
+            self.colors = temp_colors
 
-    def color_to_db(self):
+    def color_to_db(self, colors: str):
         sess = Dbase.get_session()
         q = sqlalchemy.update(Cache)
         q = q.where(Cache.src==self.src)
-        q = q.values({"colors": "".join(self.colors)})
+        q = q.values({"colors": colors})
         try:
             sess.execute(q)
             sess.commit()
         except Exception as e:
             print(e)
+            return None
+
         sess.close()
+        return True
 
     def update_colors(self, colors: str):
         self.colors = colors

@@ -12,13 +12,13 @@ class Config:
     img_size = 210
 
     colors = {
-        "🔴": "Красный",
-        "🔵": "Синий",
-        "🟠": "Оранжевый",
-        "🟡": "Желтый",
-        "🟢": "Зеленый",
-        "🟣": "Фиолетовый",
-        "🟤": "Коричневый"
+        "🔴": {"text": "Красный", "html": """<span style="color: red; font-weight: bold;">\u25CF</span>"""},
+        "🔵": {"text": "Синий", "html": """<span style="color: blue; font-weight: bold;">\u25CF</span>"""},
+        "🟠": {"text": "Оранжевый", "html": """<span style="color: orange; font-weight: bold;">\u25CF</span>"""},
+        "🟡": {"text": "Желтый", "html": """<span style="color: yellow; font-weight: bold;">\u25CF</span>"""},
+        "🟢": {"text": "Зеленый", "html": """<span style="color: green; font-weight: bold;">\u25CF</span>"""},
+        "🟣": {"text": "Фиолетовый", "html": """<span style="color: purple; font-weight: bold;">\u25CF</span>"""},
+        "🟤": {"text": "Коричневый", "html": """<span style="color: brown; font-weight: bold;">\u25CF</span>"""},
         }
     
     colors_order = list(colors.keys())
