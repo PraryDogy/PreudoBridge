@@ -323,7 +323,7 @@ class GridSearch(_GridSearchBase):
 
     
     def sort_grid(self, width: int):
-        sort_data = {"name": 1, "size": 2,  "modify": 3, "type": 4, "colors": 5}
+        sort_data = {"src": 0, "name": 1, "size": 2,  "modify": 3, "type": 4, "colors": 5}
         # ключи соответствуют json_data["sort"]
         # значения соответствуют индексам в кортеже у ключей
         # (путь до файла, имя файла, размер, дата изменения, тип файла)

@@ -251,14 +251,12 @@ class _LoadFinderThread(QThread):
                 self.finder_items[(src, filename, size, modified, filetype, colors)] = None
             
     def _sort_items(self):
-        # ключ finder_items src filename size modified filetype
-        # а мы осуществляем сортировку только filename size modified filetype
-        # поэтому мы создаем отдельный словарик, где
-        # имя соответствует Config.json_data "sort"
+        # finder_items: src filename size modified filetype
+        # мы создаем отдельный словарик, где ключ соответствует Config.json_data "sort"
         # а значение индексу в ключе self.finder_items
         # таким образом если "sort" у нас size, то мы знаем, что нужно сортировать
         # по индексу 2
-        sort_data = {"name": 1, "size": 2,  "modify": 3, "type": 4, "colors": 5}
+        sort_data = {"src": 0, "name": 1, "size": 2,  "modify": 3, "type": 4, "colors": 5}
 
         index = sort_data.get(Config.json_data.get("sort"))
             
