@@ -56,7 +56,7 @@ class Utils:
             # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             return img
         except (tifffile.tifffile.TiffFileError) as e:
-            print("tiffle error read image", path)
+            print("tiffle error read image", path, "\n")
             return Utils.read_psd(path)
 
     @staticmethod
@@ -72,7 +72,7 @@ class Utils:
             return img
 
         except Exception as e:
-            print("read psd error", path)
+            print("read psd error", path, "\n")
             return None
             
     @staticmethod
@@ -82,7 +82,7 @@ class Utils:
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             return image
         except Exception as e:
-            print("jpg read error, return None", path)
+            print("jpg read error, return None", path, "\n")
             return None
         
     @staticmethod
@@ -102,7 +102,7 @@ class Utils:
             converted = cv2.cvtColor(converted, cv2.COLOR_BGR2RGB)
             return converted
         except Exception as e:
-            print("read png error:", path)
+            print("read png error:", path, "\n")
             return None
         
     @staticmethod
@@ -112,7 +112,7 @@ class Utils:
             # img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
             return img
         except (rawpy._rawpy.LibRawDataError) as e:
-            print("read raw error:", path)
+            print("read raw error:", path, "\n")
             return None
 
     @staticmethod
@@ -141,33 +141,32 @@ class Utils:
     
     @staticmethod
     def pixmap_from_bytes(image: bytes) -> QPixmap | None:
-        try:
+        if isinstance(image, bytes):
             ba = QByteArray(image)
             pixmap = QPixmap()
             pixmap.loadFromData(ba, "JPEG")
             return pixmap
-        except Exception as e:
-            print("pixmap from bytes error: ", e)
-            return None
+        return None
     
     @staticmethod
     def pixmap_from_array(image: np.ndarray) -> QPixmap:
-        height, width, channel = image.shape
-        bytes_per_line = channel * width
-        qimage = QImage(image.tobytes(), width, height, bytes_per_line, QImage.Format.Format_RGB888)
-        return QPixmap.fromImage(qimage)
+        if isinstance(image, np.ndarray):
+            height, width, channel = image.shape
+            bytes_per_line = channel * width
+            qimage = QImage(image.tobytes(), width, height, bytes_per_line, QImage.Format.Format_RGB888)
+            return QPixmap.fromImage(qimage)
+        return None
 
     @staticmethod
     def image_array_to_bytes(image: np.ndarray, quality: int = 80) -> bytes | None:
-        try:
+        if isinstance(image, np.ndarray):
             img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             res, buffer = cv2.imencode(".jpeg", img, [int(cv2.IMWRITE_JPEG_QUALITY), quality])
             image_io = io.BytesIO()
             image_io.write(buffer)
             img = image_io.getvalue()
             return img
-        except Exception as e:
-            print("image array to bytes err: ", e)
+        return None
 
     @staticmethod
     def get_clmn_count(width: int):
