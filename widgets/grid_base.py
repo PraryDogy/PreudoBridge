@@ -74,9 +74,6 @@ class Thumbnail(QFrame):
         self.filename = filename
         self.colors: str = ""
 
-        tooltip = self.filename + "\n" + src
-        self.setToolTip(tooltip)
-
         v_lay = QVBoxLayout()
         v_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
         v_lay.setContentsMargins(0, 0, 0, 0)

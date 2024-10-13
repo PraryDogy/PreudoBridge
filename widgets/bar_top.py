@@ -112,7 +112,6 @@ class _SortTypeBtn(QPushButton):
         super().__init__()
         self.setFixedWidth(125)
         self.setStyleSheet("text-align: center;")
-        self.setToolTip(" Сортировка файлов ")
                 
         data_actions = (
             ActionData(None, False, "По возрастанию"),
