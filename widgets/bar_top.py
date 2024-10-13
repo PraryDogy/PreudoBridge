@@ -24,9 +24,9 @@ class _PathFinderThread(QThread):
     def run(self):
         self._path_finder()
         if not self.result:
-            self.finished.emit("")
+            self._finished.emit("")
         elif self.result in self.volumes:
-            self.finished.emit("")
+            self._finished.emit("")
         elif self.result:
             self._finished.emit(self.result)
 
