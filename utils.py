@@ -40,6 +40,7 @@ class Utils:
         for i in QApplication.topLevelWidgets():
             if name in str(i):
                 return i
+
     @staticmethod
     def center_win(parent: QWidget, child: QWidget):
         geo = child.geometry()
@@ -47,21 +48,21 @@ class Utils:
         child.setGeometry(geo)
 
     @staticmethod
-    def read_tiff(src: str) -> np.ndarray | None:
+    def read_tiff(path: str) -> np.ndarray | None:
         try:
-            img = tifffile.imread(files=src)[:,:,:3]
+            img = tifffile.imread(files=path)[:,:,:3]
             if str(object=img.dtype) != "uint8":
                 img = (img/256).astype(dtype="uint8")
             # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             return img
         except (tifffile.tifffile.TiffFileError) as e:
-            print("tiffle error read image", e)
-            return Utils.read_psd(src)
+            print("tiffle error read image", path)
+            return Utils.read_psd(path)
 
     @staticmethod
-    def read_psd(src: str) -> np.ndarray | None:
+    def read_psd(path: str) -> np.ndarray | None:
         try:
-            img = psd_tools.PSDImage.open(fp=src)
+            img = psd_tools.PSDImage.open(fp=path)
             img = img.composite()
 
             if img.mode == 'RGBA':
@@ -71,7 +72,7 @@ class Utils:
             return img
 
         except Exception as e:
-            print(traceback.format_exc())
+            print("read psd error", path)
             return None
             
     @staticmethod
@@ -81,7 +82,7 @@ class Utils:
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             return image
         except Exception as e:
-            print("jpg read error, return None", e)
+            print("jpg read error, return None", path)
             return None
         
     @staticmethod
@@ -101,7 +102,7 @@ class Utils:
             converted = cv2.cvtColor(converted, cv2.COLOR_BGR2RGB)
             return converted
         except Exception as e:
-            print("read png error:", e)
+            print("read png error:", path)
             return None
         
     @staticmethod
@@ -111,7 +112,7 @@ class Utils:
             # img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
             return img
         except (rawpy._rawpy.LibRawDataError) as e:
-            print("read raw error:", e)
+            print("read raw error:", path)
             return None
 
     @staticmethod
