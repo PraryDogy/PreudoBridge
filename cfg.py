@@ -41,7 +41,8 @@ class Config:
         "reversed": False,
         "extra_paths": ["/Studio/PANACEA", "/Studio/MIUZ"],
         "favs": {},
-        "list_view": True
+        "list_view": True,
+        "clear_db": 5
         }
 
     @staticmethod
@@ -59,6 +60,15 @@ class Config:
         else:
             with open(Config.json_file, 'w') as f:
                 json.dump(Config.json_data, f, indent=4, ensure_ascii=False)
+
+    @staticmethod
+    def write_json_data() -> bool:
+        try:
+            with open(Config.json_file, 'w') as f:
+                json.dump(Config.json_data, f, indent=4, ensure_ascii=False)
+            return True
+        except Exception as e:
+            return False
 
     @staticmethod
     def sync_json(json_data: dict):
