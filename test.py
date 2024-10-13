@@ -1,21 +1,23 @@
 import sys
 
-from PyQt5.QtGui import QCloseEvent
 import sqlalchemy
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import (QApplication, QLabel, QHBoxLayout, QSlider,
-                             QVBoxLayout, QWidget, QPushButton)
+from PyQt5.QtGui import QCloseEvent
+from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QPushButton,
+                             QSlider, QVBoxLayout, QWidget)
 
 from cfg import Config
-from database import Dbase, Stats
+from database import Cache, Dbase, Stats
 
 
 class SliderWindow(QWidget):
     def __init__(self):
         super().__init__()
         
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setWindowTitle("Настройки")
         self.setGeometry(100, 100, 300, 150)
+        self.setFixedSize(300, 130)
 
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(10, 10, 10, 10)
@@ -33,6 +35,7 @@ class SliderWindow(QWidget):
         h_lay.addWidget(self.current_size)
 
         self.clear_btn = QPushButton("Очистить данные")
+        self.clear_btn.clicked.connect(self.clear_db_cmd)
         h_lay.addWidget(self.clear_btn)
         
         self.slider_values = [2, 5, 10, 100]
@@ -57,7 +60,7 @@ class SliderWindow(QWidget):
         value = self.slider_values[index]
 
         if value == 100:
-            t = "Без лимита"
+            t = "Максимальный размер данных: без лимита"
         else:
             t = f"Максимальный размер данных: {value}гб"
 
@@ -77,6 +80,25 @@ class SliderWindow(QWidget):
             t = f"Данные: {res}гб"
 
         self.current_size.setText(t)
+
+    def clear_db_cmd(self):
+        try:
+            sess = Dbase.get_session()
+            q = sqlalchemy.delete(Cache)
+            sess.execute(q)
+
+            q = sqlalchemy.update(Stats).where(Stats.name=="main")
+            q = q.values({"size": 0})
+            sess.execute(q)
+
+            sess.commit()
+            sess.execute(sqlalchemy.text("VACUUM"))
+            sess.close()
+            self.get_current_size()
+
+        except Exception as e:
+            print("error clear db:", e)
+        
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         Config.write_json_data()
