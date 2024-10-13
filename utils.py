@@ -82,7 +82,7 @@ class Utils:
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             return image
         except Exception as e:
-            print("jpg read error, return None", path, "\n")
+            print("jpg read error", path, "\n")
             return None
         
     @staticmethod
