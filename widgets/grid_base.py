@@ -220,6 +220,7 @@ class Thumbnail(QFrame):
         self.name_label.set_text(self.colors, self.filename)
 
         for item in self.color_menu.children():
+            item: QAction
             if item.text()[0] in self.colors:
                 item.setChecked(True)
 
