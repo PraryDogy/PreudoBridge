@@ -1,52 +1,28 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QLineEdit, QVBoxLayout, QWidget
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QVBoxLayout
+import sys
 
-class RenameLabel(QLabel):
-    def __init__(self, text):
-        super().__init__(text)
-        self.setText(text)
-        
-        # Линия редактирования для изменения текста
-        self.line_edit = QLineEdit(self.text())
-        self.line_edit.hide()
-        
-        # Когда редактирование завершено
-        self.line_edit.editingFinished.connect(self.finish_edit)
-        
-    def mouseDoubleClickEvent(self, event):
-        # Двойной щелчок активирует редактирование
-        self.line_edit.setText(self.text())
-        self.line_edit.show()
-        self.line_edit.setFocus()
-        self.hide()
-        
-    def finish_edit(self):
-        # Завершаем редактирование и возвращаем текст в QLabel
-        self.setText(self.line_edit.text())
-        self.line_edit.hide()
-        self.show()
-
-class MainWindow(QMainWindow):
+class MultiDotWidget(QWidget):
     def __init__(self):
         super().__init__()
         
-        # Главный виджет и компоновка
-        widget = QWidget()
-        layout = QVBoxLayout(widget)
-        
-        # Создаем кастомный QLabel с возможностью переименования
-        self.rename_label = RenameLabel("Дважды щелкните, чтобы переименовать")
-        layout.addWidget(self.rename_label)
-        layout.addWidget(self.rename_label.line_edit)
-        
-        self.setCentralWidget(widget)
-        self.setWindowTitle("Переименование QLabel")
+        layout = QVBoxLayout()
+        self.setLayout(layout)
 
-# app = QApplication([])
-# window = MainWindow()
-# window.show()
-# app.exec_()
+        # Создаем QLabel с текстом и цветными точками
+        label = QLabel()
+        
+        # Добавляем текст и цветные точки в HTML-код
+        dots_html = '''
+            <span style="color: yellow; font-weight: bold;">\u25CF</span>
+            <span style="color: blue; font-weight: bold;">\u25CF</span>
+            <span style="color: red; font-weight: bold;">\u25CF</span>
+            <br>
+            <span>Image 001.jpg</span>
+        '''
+        label.setText(dots_html)
+        layout.addWidget(label)
 
-a = "🔴🟡🟢🟣"
-a = [*a]
-print(a)
+app = QApplication(sys.argv)
+window = MultiDotWidget()
+window.show()
+sys.exit(app.exec_())
