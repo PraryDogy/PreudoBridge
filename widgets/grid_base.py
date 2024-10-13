@@ -20,6 +20,7 @@ class NameLabel(QLabel):
     def __init__(self):
         super().__init__()
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.setStyleSheet("padding: 4px;")
 
     def set_text(self, text: str) -> list[str]:
         max_length = 27
@@ -122,8 +123,8 @@ class Thumbnail(QFrame):
         self.color_menu = QMenu("Цвета", self)
         self.context_menu.addMenu(self.color_menu)
 
-        for color, data in Config.colors.items():
-            wid = QAction(parent=self.color_menu, text=f"{color} {data.get('text')}")
+        for color, text in Config.colors.items():
+            wid = QAction(parent=self.color_menu, text=f"{color} {text}")
             wid.setCheckable(True)
 
             if color in self.colors:
@@ -213,7 +214,8 @@ class Thumbnail(QFrame):
 
     def update_colors(self, colors: str):
         self.colors = colors
-        self.colors = ''.join(sorted(self.colors, key=lambda x: Config.colors_order.index(x)))
+        key = lambda x: Config.colors_order.index(x)
+        self.colors = ''.join(sorted(self.colors, key=key))
 
         self.colored_filename = self.colors + "\n" + self.filename
         self.name_label.set_text(self.colored_filename)
