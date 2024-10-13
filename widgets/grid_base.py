@@ -3,7 +3,7 @@ import subprocess
 
 import sqlalchemy
 from PyQt5.QtCore import QMimeData, Qt, QUrl, pyqtSignal
-from PyQt5.QtGui import QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent
+from PyQt5.QtGui import QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent, QFont
 from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
                              QLabel, QMenu, QScrollArea, QVBoxLayout, QWidget)
 
@@ -20,7 +20,8 @@ class NameLabel(QLabel):
     def __init__(self):
         super().__init__()
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.setStyleSheet("padding: 4px;")
+        # font = QFont("Times")
+        # self.setFont(font)
 
     def set_text(self, text: str) -> list[str]:
         max_length = 27
