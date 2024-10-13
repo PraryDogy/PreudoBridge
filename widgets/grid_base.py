@@ -70,7 +70,7 @@ class Thumbnail(QFrame):
         super().__init__()
         self.setFixedSize(Geo.w, Geo.h)
         self.src: str = src
-        self.paths: list = paths
+        self.image_paths: list = paths
         self.filename = filename
         self.colors: str = ""
 
@@ -174,7 +174,7 @@ class Thumbnail(QFrame):
 
     def view(self):
         if os.path.isfile(self.src):
-            self.win = WinImgView(self.src, self.paths)
+            self.win = WinImgView(self.src, self.image_paths)
             Utils.center_win(parent=Utils.get_main_win(), child=self.win)
             self.win.closed.connect(lambda src: self.img_viewer_closed.emit(src))
             self.win.show()

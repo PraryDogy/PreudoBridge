@@ -217,10 +217,10 @@ class NextImageBtn(SwitchImageBtn):
 class WinImgView(QWidget):
     closed = pyqtSignal(str)
 
-    def __init__(self, img_src: str, paths: list):
+    def __init__(self, img_src: str, image_paths: list):
         super().__init__()
-        self.img_src: str = img_src
-        self.paths: list = paths
+        self.src: str = img_src
+        self.image_paths: list = image_paths
 
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setMinimumSize(QSize(400, 300))
@@ -265,7 +265,7 @@ class WinImgView(QWidget):
         self.context_menu.addAction(show_in_finder_action)
 
         copy_path = QAction("Скопировать путь до файла", self)
-        copy_path.triggered.connect(lambda: Utils.copy_path(self.img_src))
+        copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
         self.context_menu.addAction(copy_path)
 
         self.hide_all_buttons()
@@ -274,11 +274,11 @@ class WinImgView(QWidget):
 # SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM
                 
     def load_thumbnail(self):
-        if self.img_src not in Shared.loaded_images:
+        if self.src not in Shared.loaded_images:
             self.setWindowTitle("Загрузка")
 
             q = (sqlalchemy.select(Cache.img)
-                .filter(Cache.src == self.img_src))
+                .filter(Cache.src == self.src))
             session = Dbase.get_session()
 
             try:
@@ -295,7 +295,7 @@ class WinImgView(QWidget):
 
     def load_image_thread(self):
         self.setWindowTitle("Загрузка")
-        img_thread = LoadImageThread(self.img_src)
+        img_thread = LoadImageThread(self.src)
         Shared.threads.append(img_thread)
         img_thread.finished.connect(
             lambda data: self.load_image_finished(img_thread, data)
@@ -303,11 +303,11 @@ class WinImgView(QWidget):
         img_thread.start()
 
     def load_image_finished(self, thread: LoadImageThread, data: dict):
-        if data.get("width") == 0 or data.get("src") != self.img_src:
+        if data.get("width") == 0 or data.get("src") != self.src:
             return
                         
         self.image_label.set_image(data.get("image"))
-        self.setWindowTitle(os.path.basename(self.img_src))
+        self.setWindowTitle(os.path.basename(self.src))
         Shared.threads.remove(thread)
 
 # GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI
@@ -322,14 +322,14 @@ class WinImgView(QWidget):
 
     def switch_image(self, offset):
         try:
-            current_index = self.paths.index(self.img_src)
+            current_index = self.image_paths.index(self.src)
         except Exception as e:
             current_index = 0
 
-        total_images = len(self.paths)
+        total_images = len(self.image_paths)
         new_index = (current_index + offset) % total_images
 
-        self.img_src = self.paths[new_index]
+        self.src = self.image_paths[new_index]
         self.load_thumbnail()
 
     def button_switch_cmd(self, flag: str) -> None:
@@ -393,14 +393,14 @@ class WinImgView(QWidget):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         Shared.loaded_images.clear()
-        self.closed.emit(self.img_src)
+        self.closed.emit(self.src)
         # return super().closeEvent(a0)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         self.context_menu.exec_(self.mapToGlobal(a0.pos()))
     
     def open_default(self):
-        subprocess.call(["open", self.img_src])
+        subprocess.call(["open", self.src])
 
     def show_in_finder(self):
-        subprocess.call(["open", "-R", self.img_src])
+        subprocess.call(["open", "-R", self.src])

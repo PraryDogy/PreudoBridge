@@ -289,7 +289,7 @@ class GridSearch(Grid):
                 wid.show_in_folder.connect(self.show_in_folder.emit)
                 wid.img_viewer_closed.connect(self.move_to_wid)
                 wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
-                wid.paths = self.image_paths
+                wid.image_paths = self.image_paths
 
                 self.grid_layout.addWidget(wid, row, col, alignment=Qt.AlignmentFlag.AlignTop)
                 self.cell_to_wid[row, col] = wid
