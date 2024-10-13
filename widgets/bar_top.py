@@ -98,10 +98,11 @@ class _PathFinderThread(QThread):
                     break
 
 
-class DataAction:
-    def __init__(self, sort: str | None, reversed: bool):
+class ActionData:
+    def __init__(self, sort: str | None, reversed: bool, text: str):
         self.sort: str | None = sort
         self.reversed: bool = reversed
+        self.text: text = text
 
 
 class _SortTypeBtn(QPushButton):
@@ -112,46 +113,43 @@ class _SortTypeBtn(QPushButton):
         self.setFixedWidth(125)
         self.setStyleSheet("text-align: center;")
         self.setToolTip(" Сортировка файлов ")
-        
-        self.data = {
-            0: {"sort": None, "reversed": None, "text": "По возрастанию"},
+                
+        data_actions = (
+            ActionData(None, False, "По возрастанию"),
+            ActionData("name", False, "Имя возр"),
+            ActionData("size", False, "Размер возр"),
+            ActionData("modify", False, "Дата возр"),
+            ActionData("type", False, "Тип возр"),
+            ActionData("colors", False, "Цвета возр"),
 
-            1: {"sort": "name", "reversed": False, "text": "Имя возр."},
-            2: {"sort": "size", "reversed": False, "text": "Размер возр."},
-            3: {"sort": "modify", "reversed": False, "text": "Дата возр."},
-            4: {"sort": "type", "reversed": False, "text": "Тип возр."},
-            5: {"sort": "colors", "reversed": False, "text": "Цвета возр."},
-
-            6: {"sort": None, "reversed": None, "text": "По убыванию"},
-
-            7: {"sort": "name", "reversed": True, "text": "Имя уб."},
-            8: {"sort": "size", "reversed": True, "text": "Размер уб."},
-            9: {"sort": "modify", "reversed": True, "text": "Дата уб."},
-            10: {"sort": "type", "reversed": True, "text": "Тип уб."},
-            11: {"sort": "colors", "reversed": True, "text": "Цвета уб."},
-
-            }
+            ActionData(None, True, "По убыванию"),
+            ActionData("name", True, "Имя убыв"),
+            ActionData("size", True, "Размер убыв"),
+            ActionData("modify", True, "Дата убыв"),
+            ActionData("type", True, "Тип убыв"),
+            ActionData("colors", True, "Цвета убыв"),
+            )
 
         menu = QMenu()
         self.setMenu(menu)
 
-        for k, v in self.data.items():
-            action = QAction(parent=self, text=v.get("text"))
-            action.triggered.connect(lambda e, v=v: self._action_clicked(v))
+        for data_action in data_actions:
+            action = QAction(parent=self, text=data_action.text)
+            action.triggered.connect(lambda e, d=data_action: self._action_clicked(d))
 
-            if v.get("sort") == None:
+            if data_action.sort == None:
                 action.setDisabled(True)
 
-            if v.get("sort") == Config.json_data.get("sort"):
-                if v.get("reversed") == Config.json_data.get("reversed"):
-                    self.setText(v.get("text"))
+            if data_action.sort == Config.json_data.get("sort"):
+                if data_action.reversed == Config.json_data.get("reversed"):
+                    self.setText(data_action.text)
 
             menu.addAction(action)
 
-    def _action_clicked(self, data: dict):
-        Config.json_data["sort"] = data.get("sort")
-        Config.json_data["reversed"] = data.get("reversed")
-        self.setText(data.get("text"))
+    def _action_clicked(self, data_action: ActionData):
+        Config.json_data["sort"] = data_action.sort
+        Config.json_data["reversed"] = data_action.reversed
+        self.setText(data_action.text)
         self.sort_click.emit()
 
 
