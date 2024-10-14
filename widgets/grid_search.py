@@ -3,19 +3,18 @@ from ast import literal_eval
 from time import sleep
 
 import sqlalchemy
-import sqlalchemy.exc
-import sqlalchemy.orm
 from numpy import ndarray
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtWidgets import QAction, QSizePolicy, QSpacerItem
 
 from cfg import Config
-from database import CACHE, Dbase, STATS, Storage
+from database import CACHE, STATS, Storage
 from fit_img import FitImg
 from utils import Utils
 
 from .grid_base import Grid, Thumbnail
+
 
 # Добавляем в контенкстное меню "Показать в папке"
 class SearchThumbnail(Thumbnail):
@@ -57,6 +56,7 @@ class _SearchFinderThread(QThread):
 
         self.conn: sqlalchemy.Connection = Storage.engine.connect()
         self.transaction: sqlalchemy.RootTransaction = self.conn.begin()
+        self.insert_count: int = 0 
 
     def _stop_cmd(self):
         self.flag: bool = False
@@ -81,8 +81,6 @@ class _SearchFinderThread(QThread):
         if not isinstance(self.search_text, tuple):
             self.search_text = str(self.search_text)
 
-        self.counter = 0
-
         for root, _, files in os.walk(self.search_dir):
             if not self.flag:
                 break
@@ -103,17 +101,15 @@ class _SearchFinderThread(QThread):
                 elif self.search_text in filename and src_lower.endswith(Config.img_ext):
                     self.create_wid(src)
 
-                if self.counter % 10 == 0:
-                    self.transaction.commit()
-
-                self.counter += 1
-
         # _finished будет послан только если поиску дали закончить
         # если же он был прерван флагом, то сигнал не будет послан
         # данный сигнал предназначен чтобы сменить заголовок окна с 
         # "поиск файла" на "результаты поиска"
-        self.transaction.commit()
+
+        if self.insert_count > 0:
+            self.transaction.commit()
         self.conn.close()
+
         if self.flag:
             self._finished.emit()
 
@@ -176,33 +172,39 @@ class _SearchFinderThread(QThread):
         db_img: bytes = Utils.image_array_to_bytes(img_array)
 
         if isinstance(db_img, bytes):
-
             try:
-
-                q = sqlalchemy.insert(CACHE)
-                q = q.values(
-                    img = db_img,
-                    src = src,
-                    root = os.path.dirname(src),
-                    size = size,
-                    modified = modified,
-                    catalog = "",
-                    colors = "",
-                    start = ""
+                insert_query = sqlalchemy.insert(CACHE).values(
+                    img=db_img,
+                    src=src,
+                    root=os.path.dirname(src),
+                    size=size,
+                    modified=modified,
+                    catalog="",
+                    colors="",
+                    stars=""
                     )
-                
-                self.conn.execute(q)
+                self.conn.execute(insert_query)
 
-                q = sqlalchemy.select(STATS.c.size).where(STATS.c.name=="main")
-                stats_size = self.conn.execute(q).first()[0]
-                stats_size += len(db_img)
+                select_query = sqlalchemy.select(STATS.c.size).where(STATS.c.name == "main")
+                current_size = self.conn.execute(select_query).scalar() or 0
+                new_size = current_size + len(db_img)
 
-                q = sqlalchemy.update(STATS).where(STATS.c.name=="main")
-                q = q.values(size = stats_size)
-                self.conn.execute(q)
+                update_query = sqlalchemy.update(STATS).where(STATS.c.name == "main").values(size=new_size)
+                self.conn.execute(update_query)
 
-            except (sqlalchemy.exc.OperationalError, Exception) as e:
-                print("search thread insert db image error: ", e)
+                # Контроль количества коммитов
+                self.insert_count += 1
+                if self.insert_count >= 10:  # Коммит каждые 10 записей
+                    self.transaction.commit()
+                    self.transaction = self.conn.begin()
+                    self.insert_count = 0
+
+            except sqlalchemy.exc.OperationalError:
+                print("Operational error while inserting image data")
+                self.transaction.rollback()  # Откат в случае ошибки
+            except Exception as e:
+                print("Unexpected error during image insert:", e)
+                self.transaction.rollback()
 
     def _create_new_image(self, src: str) -> ndarray | None:
         img = Utils.read_image(src)
