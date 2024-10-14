@@ -8,10 +8,10 @@ from PyQt5.QtGui import (QCloseEvent, QContextMenuEvent, QKeyEvent,
                          QResizeEvent)
 from PyQt5.QtWidgets import (QAction, QFrame, QHBoxLayout, QLabel, QMenu,
                              QSpacerItem, QVBoxLayout, QWidget)
-import sqlalchemy.exc
+from sqlalchemy.exc import OperationalError
 
 from cfg import Config
-from database import CACHE, Dbase
+from database import CACHE, Storage
 from utils import Utils
 
 from .svg_widgets import SvgShadowed
@@ -278,21 +278,20 @@ class WinImgView(QWidget):
                 
     def load_thumbnail(self):
         if self.src not in Shared.loaded_images:
+
             self.setWindowTitle("Загрузка")
+            q = (sqlalchemy.select(CACHE.c.img).filter(CACHE.c.src == self.src))
 
-            q = (sqlalchemy.select(CACHE.img)
-                .filter(CACHE.src == self.src))
-            session = Dbase.get_session()
+            with Storage.engine.connect() as conn:
+                with conn.begin():
 
-            try:
-                thumbnail = session.execute(q).first()[0]
-                session.close()
-                pixmap = QPixmap()
-                pixmap.loadFromData(thumbnail)
-                self.image_label.set_image(pixmap)
-            except (sqlalchemy.exc.OperationalError, Exception) as e:
-                print("IMG VIEW: there is no thumbnail in db")
-                # тут в pixmap надо загрузить изображение файла
+                    try:
+                        thumbnail = conn.execute(q).scalar() or None
+                        pixmap = QPixmap()
+                        pixmap.loadFromData(thumbnail)
+                        self.image_label.set_image(pixmap)
+                    except (OperationalError, Exception) as e:
+                        print("IMG VIEW: there is no thumbnail in db")
 
         self.load_image_thread()
 

@@ -1,7 +1,6 @@
 import subprocess
 
 from PyQt5.QtCore import QDir, pyqtSignal
-from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import QAction, QFileSystemModel, QMenu, QTreeView
 
 from cfg import Config
