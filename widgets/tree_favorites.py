@@ -1,7 +1,7 @@
 import subprocess
 
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QContextMenuEvent, QMouseEvent
+from PyQt5.QtGui import QContextMenuEvent, QDragMoveEvent, QDropEvent, QMouseEvent
 from PyQt5.QtWidgets import (QAction, QLabel, QListWidget, QListWidgetItem,
                              QMenu)
 
@@ -15,6 +15,9 @@ class FavItem(QLabel):
 
     def __init__(self, name: str, src: str):
         super().__init__(text=name)
+        self.name = name
+        self.src = src
+
         self.setFixedHeight(25)
 
         self.list_item = QListWidgetItem()
@@ -80,4 +83,16 @@ class TreeFavorites(QListWidget):
         favs.pop(src)
         self.clear()
         self.init_ui()
+    
+    def dropEvent(self, event: QDropEvent | None) -> None:
+        super().dropEvent(event)
+        new_order = {}
+        for i in range(self.count()):
+            item = self.item(i)
+            fav_widget = self.itemWidget(item)
+            if isinstance(fav_widget, FavItem):
+                new_order[fav_widget.src] = fav_widget.name
 
+        Config.json_data["favs"] = new_order
+
+        # return super().dropEvent(event)
