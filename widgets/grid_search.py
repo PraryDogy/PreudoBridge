@@ -54,7 +54,9 @@ class _SearchFinderThread(QThread):
         self.search_text: str = search_text
         self.search_dir: str = search_dir
         self.flag: bool = True
-        self.session = Dbase.get_session()
+
+        self.conn: sqlalchemy.Connection = Storage.engine.connect()
+        self.transaction: sqlalchemy.RootTransaction = self.conn.begin()
 
     def _stop_cmd(self):
         self.flag: bool = False
@@ -102,7 +104,7 @@ class _SearchFinderThread(QThread):
                     self.create_wid(src)
 
                 if self.counter % 10 == 0:
-                    Dbase.c_commit(self.session)
+                    self.transaction.commit()
 
                 self.counter += 1
 
@@ -110,6 +112,8 @@ class _SearchFinderThread(QThread):
         # если же он был прерван флагом, то сигнал не будет послан
         # данный сигнал предназначен чтобы сменить заголовок окна с 
         # "поиск файла" на "результаты поиска"
+        self.transaction.commit()
+        self.conn.close()
         if self.flag:
             self._finished.emit()
 
@@ -152,16 +156,12 @@ class _SearchFinderThread(QThread):
         try:
             q = sqlalchemy.select(CACHE.c.img, CACHE.c.colors)
             q = q.where(CACHE.c.src == src)
+            res = self.conn.execute(q).fetchall()
 
-            with Storage.engine.connect() as conn:
-                with conn.begin():
-
-                    res = conn.execute(q).fetchall()
-
-                    if isinstance(res, sqlalchemy.engine.Row):
-                        return {"img": res[0], "colors": res[1]}
-                    else:
-                        return None
+            if isinstance(res, sqlalchemy.engine.Row):
+                return {"img": res[0], "colors": res[1]}
+            else:
+                return None
 
         except sqlalchemy.exc.OperationalError:
             return None
@@ -180,26 +180,26 @@ class _SearchFinderThread(QThread):
             try:
 
                 q = sqlalchemy.insert(CACHE)
-                q = q.values({
-                    "img": db_img,
-                    "src": src,
-                    "root": os.path.dirname(src),
-                    "size": size,
-                    "modified": modified,
-                    "catalog": "",
-                    "colors": "",
-                    "stars": ""
-                    })
+                q = q.values(
+                    img = db_img,
+                    src = src,
+                    root = os.path.dirname(src),
+                    size = size,
+                    modified = modified,
+                    catalog = "",
+                    colors = "",
+                    start = ""
+                    )
                 
-                self.session.execute(q)
+                self.conn.execute(q)
 
-                q = sqlalchemy.select(STATS.size).where(STATS.name=="main")
-                stats_size = self.session.execute(q).first()[0]
+                q = sqlalchemy.select(STATS.c.size).where(STATS.c.name=="main")
+                stats_size = self.conn.execute(q).first()[0]
                 stats_size += len(db_img)
 
-                q = sqlalchemy.update(STATS).where(STATS.name=="main")
-                q = q.values({"size": stats_size})
-                self.session.execute(q)
+                q = sqlalchemy.update(STATS).where(STATS.c.name=="main")
+                q = q.values(size = stats_size)
+                self.conn.execute(q)
 
             except (sqlalchemy.exc.OperationalError, Exception) as e:
                 print("search thread insert db image error: ", e)
