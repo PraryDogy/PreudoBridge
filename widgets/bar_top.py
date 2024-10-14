@@ -518,7 +518,7 @@ class BarTop(QFrame):
         self.current_index: int = 0
 
         self.grid_layout = QGridLayout()
-        self.grid_layout.setSpacing(15)
+        self.grid_layout.setSpacing(10)
         self.grid_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.grid_layout)
 
