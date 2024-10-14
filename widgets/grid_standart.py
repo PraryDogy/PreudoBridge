@@ -8,7 +8,7 @@ from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import QAction, QLabel, QSizePolicy, QSpacerItem
 
 from cfg import Config
-from database import Cache, Dbase, Stats
+from database import CACHE, Dbase, STATS
 from fit_img import FitImg
 from utils import Utils
 
@@ -125,7 +125,7 @@ class _LoadImagesThread(QThread):
                 if not isinstance(img, bytes):
                     continue
 
-                q = sqlalchemy.insert(Cache)
+                q = sqlalchemy.insert(CACHE)
                 q = q.values({
                     "img": img,
                     "src": src,
@@ -138,11 +138,11 @@ class _LoadImagesThread(QThread):
                     })
                 self.session.execute(q)
 
-                q = sqlalchemy.select(Stats.size).where(Stats.name=="main")
+                q = sqlalchemy.select(STATS.size).where(STATS.name=="main")
                 stats_size = self.session.execute(q).first()[0]
                 stats_size += len(img)
 
-                q = sqlalchemy.update(Stats).where(Stats.name=="main")
+                q = sqlalchemy.update(STATS).where(STATS.name=="main")
                 q = q.values({"size": stats_size})
                 self.session.execute(q)
 
@@ -181,16 +181,16 @@ class _LoadImagesThread(QThread):
 
     def _remove_images(self):
         for (src, _, _), _ in self.remove_db_images.items():
-            q = sqlalchemy.delete(Cache)
-            q = q.where(Cache.src==src)
+            q = sqlalchemy.delete(CACHE)
+            q = q.where(CACHE.src==src)
             try:
                 self.session.execute(q)
             except sqlalchemy.exc.OperationalError:
                 ...
 
     def _get_db_images(self):
-        q = sqlalchemy.select(Cache.img, Cache.src, Cache.size, Cache.modified)
-        q = q.where(Cache.root==Config.json_data.get("root"))
+        q = sqlalchemy.select(CACHE.img, CACHE.src, CACHE.size, CACHE.modified)
+        q = q.where(CACHE.root==Config.json_data.get("root"))
 
         try:
             res = self.session.execute(q).fetchall()
@@ -241,8 +241,8 @@ class _LoadFinderThread(QThread):
 
     def get_db_colors(self):
         sess = Dbase.get_session()
-        q = sqlalchemy.select(Cache.src, Cache.colors)
-        q = q.where(Cache.root == Config.json_data.get("root"))
+        q = sqlalchemy.select(CACHE.src, CACHE.colors)
+        q = q.where(CACHE.root == Config.json_data.get("root"))
         res = sess.execute(q).fetchall()
 
         self.db_colors = {src: colors for src, colors in res}

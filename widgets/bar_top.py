@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
                              QSpacerItem, QTabBar, QVBoxLayout, QWidget)
 
 from cfg import Config
-from database import Cache, Dbase, Stats
+from database import CACHE, STATS, Dbase, Storage
 from utils import Utils
 
 
@@ -430,9 +430,10 @@ class WinSettings(QWidget):
         Config.json_data["clear_db"] = value
 
     def get_current_size(self):
-        sess = Dbase.get_session()
-        q = sqlalchemy.select(Stats.size).where(Stats.name=="main")
-        res = sess.execute(q).first()[0]
+        with Storage.engine.connect() as conn:
+            with conn.begin():
+                q = sqlalchemy.select(STATS.size).where(STATS.c.name == "main")
+                res = conn.execute(q).first()[0]
 
         res = int(res / (1024))
         t = f"Данные: {res}кб"
@@ -448,22 +449,8 @@ class WinSettings(QWidget):
         self.current_size.setText(t)
 
     def clear_db_cmd(self):
-        try:
-            sess = Dbase.get_session()
-            q = sqlalchemy.delete(Cache)
-            sess.execute(q)
-
-            q = sqlalchemy.update(Stats).where(Stats.name=="main")
-            q = q.values({"size": 0})
-            sess.execute(q)
-
-            sess.commit()
-            sess.execute(sqlalchemy.text("VACUUM"))
-            sess.close()
-            self.get_current_size()
-
-        except Exception as e:
-            print("error clear db:", e)
+        Dbase.clear_db()
+        self.get_current_size()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         Config.write_json_data()

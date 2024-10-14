@@ -1,73 +1,80 @@
 import sqlalchemy
-import sqlalchemy.exc
-from sqlalchemy.orm import Session, declarative_base
 
 from cfg import Config
 
 
-class DbaseStorage:
+class Storage:
     engine: sqlalchemy.Engine = None
-    base = declarative_base()
+    metadata = sqlalchemy.MetaData()
+
+CACHE = sqlalchemy.Table(
+    "cache", Storage.metadata,
+    sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column("img", sqlalchemy.LargeBinary),
+    sqlalchemy.Column("src", sqlalchemy.Text, unique=True),
+    sqlalchemy.Column("root", sqlalchemy.Text),
+    sqlalchemy.Column("size", sqlalchemy.Integer),
+    sqlalchemy.Column("modified", sqlalchemy.Integer),
+    sqlalchemy.Column("catalog", sqlalchemy.Text, nullable=False),
+    sqlalchemy.Column("colors", sqlalchemy.Text, nullable=False),
+    sqlalchemy.Column("stars", sqlalchemy.Integer, nullable=False)
+    )
+
+
+STATS = sqlalchemy.Table(
+    'stats', Storage.metadata,
+    sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column('name', sqlalchemy.Text, unique=True),
+    sqlalchemy.Column('size', sqlalchemy.Integer)
+    )
 
 
 class Dbase:
     @staticmethod
-    def get_session() -> Session:
-        return Session(bind=DbaseStorage.engine)
-
-    @staticmethod
     def init_db():
-
-        DbaseStorage.engine = sqlalchemy.create_engine(
+        Storage.engine = sqlalchemy.create_engine(
             f"sqlite:///{Config.db_file}",
             connect_args={"check_same_thread": False},
             echo=False
             )
-        
-        DbaseStorage.engine.connect()
-        DbaseStorage.base.metadata.create_all(DbaseStorage.engine)
+        Storage.metadata.create_all(Storage.engine)
         Dbase.check_stats_main()
+        Dbase.check_cache_size()
 
     @staticmethod
     def check_stats_main():
-        sess = Dbase.get_session()
-
-        try:
-            q = sqlalchemy.select(Stats).where(Stats.name=="main")
-            res = sess.execute(q).first()
-
-            if not res:
-                q = sqlalchemy.insert(Stats)
-                q = q.values({"name": "main", "size": 0})
-                sess.execute(q)
-                sess.commit()
-
-        except Exception as e:
-            print("init db error:", e)
-
-        sess.close()
+        stmt_select = sqlalchemy.select(STATS).where(STATS.c.name == "main")
+        stmt_insert = sqlalchemy.insert(STATS).values(name="main", size=0)
         
+        with Storage.engine.connect() as connection:
+            with connection.begin():
+                result = connection.execute(stmt_select).first()
+                if not result:
+                    connection.execute(stmt_insert)
+
     @staticmethod
-    def c_commit(session: Session):
-        session.commit()
-        # print(session, "commit done")
-    
+    def check_cache_size():
+        q = sqlalchemy.select(STATS.c.size).where(STATS.c.name == "main")
 
-class Cache(DbaseStorage.base):
-    __tablename__ = "cache"
-    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
-    img = sqlalchemy.Column(sqlalchemy.LargeBinary)
-    src = sqlalchemy.Column(sqlalchemy.Text, unique=True)
-    root = sqlalchemy.Column(sqlalchemy.Text)
-    size = sqlalchemy.Column(sqlalchemy.Integer)
-    modified = sqlalchemy.Column(sqlalchemy.Integer)
-    catalog = sqlalchemy.Column(sqlalchemy.Text, nullable=False)
-    colors = sqlalchemy.Column(sqlalchemy.Text, nullable=False)
-    stars = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+        with Storage.engine.connect() as conn:
+            with conn.begin():
+                current_size = conn.execute(q).first()[0]
+                config_size = Config.json_data["clear_db"] * (1024**3)
 
+                if current_size >= config_size:
+                    Dbase.clear_db()
 
-class Stats(DbaseStorage.base):
-    __tablename__ = "stats"
-    id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True)
-    name = sqlalchemy.Column(sqlalchemy.Text, unique=True)
-    size = sqlalchemy.Column(sqlalchemy.Integer)
+    @staticmethod
+    def clear_db():
+        with Storage.engine.connect() as connection:
+            with connection.begin():
+
+                q = sqlalchemy.delete(CACHE)
+                connection.execute(q)
+                
+                q = sqlalchemy.update(STATS)
+                q = q.where(STATS.c.name == "main")
+                q = q.values(size=0)
+                connection.execute(q)
+                
+            connection.execute(sqlalchemy.text("VACUUM"))

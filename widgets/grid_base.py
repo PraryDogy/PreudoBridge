@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
                              QLabel, QMenu, QScrollArea, QVBoxLayout, QWidget)
 
 from cfg import Config
-from database import Cache, Dbase
+from database import CACHE, Dbase
 from utils import Utils
 
 from .win_img_view import WinImgView
@@ -196,8 +196,8 @@ class Thumbnail(QFrame):
 
     def color_to_db(self, colors: str):
         sess = Dbase.get_session()
-        q = sqlalchemy.update(Cache)
-        q = q.where(Cache.src==self.src)
+        q = sqlalchemy.update(CACHE)
+        q = q.where(CACHE.src==self.src)
         q = q.values({"colors": colors})
         try:
             sess.execute(q)

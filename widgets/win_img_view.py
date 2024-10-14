@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (QAction, QFrame, QHBoxLayout, QLabel, QMenu,
 import sqlalchemy.exc
 
 from cfg import Config
-from database import Cache, Dbase
+from database import CACHE, Dbase
 from utils import Utils
 
 from .svg_widgets import SvgShadowed
@@ -280,8 +280,8 @@ class WinImgView(QWidget):
         if self.src not in Shared.loaded_images:
             self.setWindowTitle("Загрузка")
 
-            q = (sqlalchemy.select(Cache.img)
-                .filter(Cache.src == self.src))
+            q = (sqlalchemy.select(CACHE.img)
+                .filter(CACHE.src == self.src))
             session = Dbase.get_session()
 
             try:

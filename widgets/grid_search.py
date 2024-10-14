@@ -11,7 +11,7 @@ from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtWidgets import QAction, QSizePolicy, QSpacerItem
 
 from cfg import Config
-from database import Cache, Dbase, Stats
+from database import CACHE, Dbase, STATS
 from fit_img import FitImg
 from utils import Utils
 
@@ -154,7 +154,7 @@ class _SearchFinderThread(QThread):
 
     def _get_db_data(self, src: str) -> bytes | None:
         try:
-            q = sqlalchemy.select(Cache.img, Cache.colors).where(Cache.src==src)
+            q = sqlalchemy.select(CACHE.img, CACHE.colors).where(CACHE.src==src)
             res = self.session.execute(q).first()
         except sqlalchemy.exc.OperationalError:
             return None
@@ -177,7 +177,7 @@ class _SearchFinderThread(QThread):
 
             try:
 
-                q = sqlalchemy.insert(Cache)
+                q = sqlalchemy.insert(CACHE)
                 q = q.values({
                     "img": db_img,
                     "src": src,
@@ -191,11 +191,11 @@ class _SearchFinderThread(QThread):
                 
                 self.session.execute(q)
 
-                q = sqlalchemy.select(Stats.size).where(Stats.name=="main")
+                q = sqlalchemy.select(STATS.size).where(STATS.name=="main")
                 stats_size = self.session.execute(q).first()[0]
                 stats_size += len(db_img)
 
-                q = sqlalchemy.update(Stats).where(Stats.name=="main")
+                q = sqlalchemy.update(STATS).where(STATS.name=="main")
                 q = q.values({"size": stats_size})
                 self.session.execute(q)
 
