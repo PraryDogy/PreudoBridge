@@ -188,7 +188,7 @@ class _LoadImagesThread(QThread):
             q = sqlalchemy.delete(CACHE).where(CACHE.c.src == src)
             try:
                 self.conn.execute(q)
-                self.transaction.commit()
+                self.insert_count += 1
             except OperationalError:
                 ...
 

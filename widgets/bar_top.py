@@ -432,8 +432,8 @@ class WinSettings(QWidget):
     def get_current_size(self):
         with Engine.engine.connect() as conn:
             with conn.begin():
-                q = sqlalchemy.select(STATS.size).where(STATS.c.name == "main")
-                res = conn.execute(q).first()[0]
+                q = sqlalchemy.select(STATS.c.size).where(STATS.c.name == "main")
+                res = conn.execute(q).scalar() or 0
 
         res = int(res / (1024))
         t = f"Данные: {res}кб"
