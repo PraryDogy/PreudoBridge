@@ -1,15 +1,15 @@
 import os
 import subprocess
 
-from PyQt5.QtCore import QDir, pyqtSignal, Qt
-from PyQt5.QtGui import QCloseEvent, QKeyEvent
+from PyQt5.QtCore import QDir, Qt, pyqtSignal
+from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtWidgets import QAction, QFileSystemModel, QMenu, QTableView
 
 from cfg import Config
 from utils import Utils
 
 from .win_img_view import WinImgView
-from pathlib import Path
+
 
 class Sort:
     column = 0
