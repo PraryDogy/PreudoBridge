@@ -3,6 +3,7 @@ from ast import literal_eval
 from time import sleep
 
 import sqlalchemy
+from sqlalchemy.exc import OperationalError
 from numpy import ndarray
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
@@ -159,7 +160,7 @@ class _SearchFinderThread(QThread):
             else:
                 return None
 
-        except sqlalchemy.exc.OperationalError:
+        except OperationalError:
             return None
 
     def image_to_db(self, src: str, img_array, stats: os.stat_result):
@@ -199,7 +200,7 @@ class _SearchFinderThread(QThread):
                     self.transaction = self.conn.begin()
                     self.insert_count = 0
 
-            except sqlalchemy.exc.OperationalError:
+            except OperationalError:
                 print("Operational error while inserting image data")
                 self.transaction.rollback()  # Откат в случае ошибки
             except Exception as e:
