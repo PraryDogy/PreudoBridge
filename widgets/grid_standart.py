@@ -2,13 +2,13 @@ import os
 
 import numpy as np
 import sqlalchemy
-import sqlalchemy.exc
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import QAction, QLabel, QSizePolicy, QSpacerItem
+from sqlalchemy.exc import OperationalError
 
 from cfg import Config
-from database import CACHE, Dbase, STATS
+from database import CACHE, STATS, Dbase, Storage
 from fit_img import FitImg
 from utils import Utils
 
@@ -68,36 +68,37 @@ class _LoadImagesThread(QThread):
         
         # флаг для остановки, если False - прервется цикл
         self.flag = True
-        self._stop_thread.connect(self._stop_thread_cmd)
+        self._stop_thread.connect(self.stop_thread_cmd)
 
         # открываем сессию на время треда
-        self.session = Dbase.get_session()
+        self.conn = Storage.engine.connect()
+        self.transaction = self.conn.begin()
+        self.insert_count = 0
 
     def run(self):
         # загружаем изображения по корневой директории из Config.json_data
-        self.db_images: dict = self._get_db_images()
+        self.db_images: dict = self.get_db_images()
 
         # проверяем какие есть в БД и в словарике, подгружаем в сетку сигналом
-        self._load_already_images()
+        self.load_already_images()
 
         # остальные изображения создаем, пишем в БД, подружаем в сетку сигналом
-        self._create_new_images()
+        self.create_new_images()
 
         # удаляем то, чего уже нет в Finder но было в БД
-        self._remove_images()
+        self.remove_images()
 
         # последний комит, помимо комитов в цикле
-        Dbase.c_commit(self.session)
-        self.session.close()
+        if self.insert_count > 0:
+            self.transaction.commit()
+        self.conn.close()
 
         # не используется
         self._finished.emit()
 
-    def _create_new_images(self):
-        # каждые 10 изображений коммитим в БД
-        count = 0
-
+    def create_new_images(self):
         self._progressbar_start.emit(len(self.grid_widgets))
+        count = 0
 
         for (src, size, modified), widget in self.grid_widgets.items():
             if not self.flag:
@@ -106,15 +107,12 @@ class _LoadImagesThread(QThread):
             if os.path.isdir(src):
                 continue
 
-            if count % 10 == 0:
-                Dbase.c_commit(self.session)
-
             img = Utils.read_image(src)
             img = FitImg.start(img, Config.img_size)
 
             try:
                 # numpy array в PIXMAP и сигнал в сетку
-                self._set_new_image((src, size, modified), img)
+                self.set_new_image((src, size, modified), img)
             except AttributeError as e:
                 pass
 
@@ -146,7 +144,7 @@ class _LoadImagesThread(QThread):
                 q = q.values({"size": stats_size})
                 self.session.execute(q)
 
-            except (sqlalchemy.exc.OperationalError ,Exception) as e:
+            except (OperationalError ,Exception) as e:
                 pass
 
             self._progressbar_value.emit(count)
@@ -155,7 +153,7 @@ class _LoadImagesThread(QThread):
         # 1 милилон = скрыть прогресс бар согласно его инструкции
         self._progressbar_value.emit(1000000)
 
-    def _load_already_images(self):
+    def load_already_images(self):
         for (src, size, modified), bytearray_image in self.db_images.items():
 
             # мы сверяем по пути, размеру и дате, есть ли в БД такой же ключ
@@ -179,22 +177,22 @@ class _LoadImagesThread(QThread):
             else:
                 self.remove_db_images[(src, size, modified)] = None
 
-    def _remove_images(self):
+    def remove_images(self):
         for (src, _, _), _ in self.remove_db_images.items():
-            q = sqlalchemy.delete(CACHE)
-            q = q.where(CACHE.src==src)
+            q = sqlalchemy.delete(CACHE).where(CACHE.c.src == src)
             try:
-                self.session.execute(q)
-            except sqlalchemy.exc.OperationalError:
+                self.conn.execute(q)
+                self.transaction.commit()
+            except OperationalError:
                 ...
 
-    def _get_db_images(self):
-        q = sqlalchemy.select(CACHE.img, CACHE.src, CACHE.size, CACHE.modified)
-        q = q.where(CACHE.root==Config.json_data.get("root"))
+    def get_db_images(self):
+        q = sqlalchemy.select(CACHE.c.img, CACHE.c.src, CACHE.c.size, CACHE.c.modified)
+        q = q.where(CACHE.c.root == Config.json_data.get("root"))
 
         try:
-            res = self.session.execute(q).fetchall()
-        except sqlalchemy.exc.OperationalError:
+            res = self.conn.execute(q).fetchall()
+        except OperationalError:
             return None
 
         # возвращаем словарик по структуре такой же как входящий
@@ -203,10 +201,10 @@ class _LoadImagesThread(QThread):
             for img, src, size,  modified in res
             }
 
-    def _stop_thread_cmd(self):
+    def stop_thread_cmd(self):
         self.flag = False
 
-    def _set_new_image(self, data: tuple, image: np.ndarray):
+    def set_new_image(self, data: tuple, image: np.ndarray):
         pixmap = Utils.pixmap_from_array(image)
         try:
             src, size, modified = data

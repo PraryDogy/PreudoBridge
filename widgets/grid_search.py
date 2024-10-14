@@ -3,11 +3,11 @@ from ast import literal_eval
 from time import sleep
 
 import sqlalchemy
-from sqlalchemy.exc import OperationalError
 from numpy import ndarray
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtWidgets import QAction, QSizePolicy, QSpacerItem
+from sqlalchemy.exc import OperationalError
 
 from cfg import Config
 from database import CACHE, STATS, Storage
