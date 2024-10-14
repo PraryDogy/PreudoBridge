@@ -21,6 +21,7 @@ from widgets.tree_folders import TreeFolders
 class SimpleFileExplorer(QWidget):
     def __init__(self):
         super().__init__()
+        self.setMinimumWidth(200)
 
         self.grid: Union[GridSearch, GridStandart] = None
 
