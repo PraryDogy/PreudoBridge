@@ -1,17 +1,19 @@
 import os
 from difflib import SequenceMatcher
 
-from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal, QSize
-from PyQt5.QtGui import QKeyEvent, QMouseEvent, QIcon, QResizeEvent
-from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QLabel, QLineEdit,
-                             QMenu, QPushButton, QSpacerItem, QTabBar,
-                             QVBoxLayout, QWidget)
+import sqlalchemy
+from PyQt5.QtCore import QSize, Qt, QThread, QTimer, pyqtSignal
+from PyQt5.QtGui import QCloseEvent, QKeyEvent, QMouseEvent
+from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
+                             QLineEdit, QMenu, QPushButton, QSlider,
+                             QSpacerItem, QTabBar, QVBoxLayout, QWidget)
 
 from cfg import Config
+from database import Cache, Dbase, Stats
 from utils import Utils
 
 
-class _PathFinderThread(QThread):
+class PathFinderThread(QThread):
     _finished = pyqtSignal(str)
 
     def __init__(self, src: str):
@@ -102,10 +104,10 @@ class ActionData:
     def __init__(self, sort: str | None, reversed: bool, text: str):
         self.sort: str | None = sort
         self.reversed: bool = reversed
-        self.text: text = text
+        self.text: str = text
 
 
-class _SortTypeBtn(QPushButton):
+class SortTypeBtn(QPushButton):
     sort_click = pyqtSignal()
 
     def __init__(self, parent: QWidget):
@@ -152,7 +154,7 @@ class _SortTypeBtn(QPushButton):
         self.sort_click.emit()
 
 
-class _ViewTypeBtn(QTabBar):
+class ViewTypeBtn(QTabBar):
     view_click = pyqtSignal()
 
     def __init__(self):
@@ -259,73 +261,6 @@ class _SearchWidget(QWidget):
         self.input_wid.setText(text)
 
 
-class _GoWin(QWidget):
-    _btn_pressed = pyqtSignal(str)
-
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle("Перейти к ...")
-        self.setWindowModality(Qt.WindowModality.ApplicationModal)
-        self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowCloseButtonHint)
-        self.setFixedSize(290, 90)
-        v_lay = QVBoxLayout()
-        v_lay.setContentsMargins(10, 10, 10, 10)
-        v_lay.setSpacing(10)
-        self.setLayout(v_lay)
-
-        self.input_wid = QLineEdit()
-        self.input_wid.setPlaceholderText("Вставьте путь к файлу/папке")
-        self.input_wid.setStyleSheet("padding-left: 2px;")
-        self.input_wid.setFixedSize(270, 25)
-        v_lay.addWidget(self.input_wid, alignment=Qt.AlignmentFlag.AlignCenter)
-
-        go_btn = QPushButton("Перейти")
-        go_btn.setFixedWidth(130)
-        go_btn.clicked.connect(self._open_path_btn_cmd)
-        v_lay.addWidget(go_btn, alignment=Qt.AlignmentFlag.AlignCenter)
-
-    def _open_path_btn_cmd(self):
-        path: str = self.input_wid.text()
-
-        if not path:
-            return
-
-        path: str = os.sep + path.strip().strip(os.sep)
-
-        if os.path.exists(path):
-            self._btn_pressed.emit(path)
-            self.close()
-        else:
-            self.path_thread = _PathFinderThread(path)
-            self.path_thread._finished.connect(self._finalize)
-            self.path_thread.start()
-
-    def _finalize(self, res: str):
-        self._btn_pressed.emit(res)
-        self.close()
-
-    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
-        if a0.key() == Qt.Key.Key_Escape:
-            self.close()
-        return super().keyPressEvent(a0)
-
-
-class _GoBtn(QPushButton):
-    open_path = pyqtSignal(str)
-
-    def __init__(self):
-        super().__init__("Перейти")
-        self.setMinimumWidth(78)
-        self.setMaximumWidth(150)
-        self.clicked.connect(self._open_win)
-
-    def _open_win(self):
-        self.win = _GoWin()
-        self.win._btn_pressed.connect(self.open_path.emit)
-        Utils.center_win(Utils.get_main_win(), self.win)
-        self.win.show()
-
-
 class _FiltersBtn(QPushButton):
     def __init__(self):
         super().__init__(text="Фильтры")
@@ -379,6 +314,195 @@ class _FiltersBtn(QPushButton):
             self.setDown(True)
 
 
+class WinGo(QWidget):
+    open_path = pyqtSignal(str)
+
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Перейти к ...")
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowCloseButtonHint)
+        self.setFixedSize(290, 90)
+        v_lay = QVBoxLayout()
+        v_lay.setContentsMargins(10, 10, 10, 10)
+        v_lay.setSpacing(10)
+        self.setLayout(v_lay)
+
+        self.input_wid = QLineEdit()
+        self.input_wid.setPlaceholderText("Вставьте путь к файлу/папке")
+        self.input_wid.setStyleSheet("padding-left: 2px;")
+        self.input_wid.setFixedSize(270, 25)
+        v_lay.addWidget(self.input_wid, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        go_btn = QPushButton("Перейти")
+        go_btn.setFixedWidth(130)
+        go_btn.clicked.connect(self._open_path_btn_cmd)
+        v_lay.addWidget(go_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+
+    def _open_path_btn_cmd(self):
+        path: str = self.input_wid.text()
+
+        if not path:
+            return
+
+        path: str = os.sep + path.strip().strip(os.sep)
+
+        if os.path.exists(path):
+            self.open_path.emit(path)
+            self.close()
+        else:
+            self.path_thread = PathFinderThread(path)
+            self.path_thread._finished.connect(self._finalize)
+            self.path_thread.start()
+
+    def _finalize(self, res: str):
+        self.open_path.emit(res)
+        self.close()
+
+    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
+        if a0.key() == Qt.Key.Key_Escape:
+            self.close()
+        return super().keyPressEvent(a0)
+    
+
+class WinSettings(QWidget):
+    def __init__(self):
+        super().__init__()
+        
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowCloseButtonHint)
+        self.setWindowTitle("Настройки")
+        self.setFixedSize(300, 150)
+
+        v_lay = QVBoxLayout()
+        v_lay.setContentsMargins(10, 10, 10, 10)
+        v_lay.setSpacing(10)
+        self.setLayout(v_lay)
+
+        t = "Кэшированные изображения."
+        title_label = QLabel(t)
+        v_lay.addWidget(title_label)
+
+        h_wid = QWidget()
+        v_lay.addWidget(h_wid)
+
+        h_lay = QHBoxLayout()
+        h_lay.setContentsMargins(0, 0, 0, 0)
+        h_wid.setLayout(h_lay)
+
+        self.current_size = QLabel("")
+        h_lay.addWidget(self.current_size)
+
+        self.clear_btn = QPushButton("Очистить данные")
+        self.clear_btn.clicked.connect(self.clear_db_cmd)
+        h_lay.addWidget(self.clear_btn)
+        
+        self.slider_values = [2, 5, 10, 100]
+        self.slider = QSlider(Qt.Horizontal)
+        self.slider.setMinimum(0)
+        self.slider.setMaximum(len(self.slider_values) - 1)
+        self.slider.setTickPosition(QSlider.TicksBelow)
+        self.slider.setTickInterval(1)
+        v_lay.addWidget(self.slider)
+
+        self.label = QLabel("", self)
+        v_lay.addWidget(self.label)
+        self.get_current_size()
+
+        v_lay.addStretch(0)
+
+        current = Config.json_data.get("clear_db")
+        ind = self.slider_values.index(current)
+
+        self.slider.setValue(ind)
+        self.update_label(ind)
+        self.slider.valueChanged.connect(self.update_label)
+
+    def update_label(self, index):
+        value = self.slider_values[index]
+
+        if value == 100:
+            t = "Максимальный размер данных: без лимита"
+        else:
+            t = f"Максимальный размер данных: {value}гб"
+
+        self.label.setText(t)
+        Config.json_data["clear_db"] = value
+
+    def get_current_size(self):
+        sess = Dbase.get_session()
+        q = sqlalchemy.select(Stats.size).where(Stats.name=="main")
+        res = sess.execute(q).first()[0]
+
+        res = int(res / (1024))
+        t = f"Данные: {res}кб"
+
+        if res > 1024:
+            res = round(res / (1024), 2)
+            t = f"Данные: {res}мб"
+
+        if res > 1024:
+            res = round(res / (1024), 2)
+            t = f"Данные: {res}гб"
+
+        self.current_size.setText(t)
+
+    def clear_db_cmd(self):
+        try:
+            sess = Dbase.get_session()
+            q = sqlalchemy.delete(Cache)
+            sess.execute(q)
+
+            q = sqlalchemy.update(Stats).where(Stats.name=="main")
+            q = q.values({"size": 0})
+            sess.execute(q)
+
+            sess.commit()
+            sess.execute(sqlalchemy.text("VACUUM"))
+            sess.close()
+            self.get_current_size()
+
+        except Exception as e:
+            print("error clear db:", e)
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        Config.write_json_data()
+    
+    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
+        if a0.key() == Qt.Key.Key_Escape:
+            self.close()
+
+
+class AdvancedBtn(QPushButton):
+    open_path = pyqtSignal(str)
+
+    def __init__(self):
+        super().__init__("")
+        self.setFixedWidth(50)
+
+        menu = QMenu()
+        self.setMenu(menu)
+
+        self.go_action = QAction(parent=self, text="Перейти")
+        self.go_action.triggered.connect(self.open_go_win)
+        menu.addAction(self.go_action)
+
+        self.go_action = QAction(parent=self, text="Настройки")
+        self.go_action.triggered.connect(self.open_settings_win)
+        menu.addAction(self.go_action)
+    
+    def open_go_win(self):
+        self.win = WinGo()
+        self.win.open_path.connect(self.open_path.emit)
+        Utils.center_win(Utils.get_main_win(), self.win)
+        self.win.show()
+
+    def open_settings_win(self):
+        self.win = WinSettings()
+        Utils.center_win(Utils.get_main_win(), self.win)
+        self.win.show()
+
+
 class BarTop(QFrame):
     back_sig = pyqtSignal(str)
     next_sig = pyqtSignal(str)
@@ -394,7 +518,7 @@ class BarTop(QFrame):
         self.current_index: int = 0
 
         self.grid_layout = QGridLayout()
-        self.grid_layout.setSpacing(5)
+        self.grid_layout.setSpacing(15)
         self.grid_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.grid_layout)
 
@@ -414,8 +538,8 @@ class BarTop(QFrame):
         self.grid_layout.setColumnStretch(self.clmn, 10)
         self.grid_layout.addItem(QSpacerItem(1, 1), 0, self.clmn)
 
-        self.clmn += 1
-        self.grid_layout.addItem(QSpacerItem(5, 0), 0, self.clmn)
+        # self.clmn += 1
+        # self.grid_layout.addItem(QSpacerItem(5, 0), 0, self.clmn)
 
         self.clmn += 1
         self.level_up_btn = QPushButton("\u2191")
@@ -423,33 +547,26 @@ class BarTop(QFrame):
         self.level_up_btn.clicked.connect(self._level_up_cmd)
         self.grid_layout.addWidget(self.level_up_btn, 0, self.clmn)
 
-        self.clmn += 1
-        self.grid_layout.addItem(QSpacerItem(5, 0), 0, self.clmn)
+        # self.clmn += 1
+        # self.grid_layout.addItem(QSpacerItem(5, 0), 0, self.clmn)
 
         self.clmn += 1
-        self.view_type_btn = _ViewTypeBtn()
+        self.view_type_btn = ViewTypeBtn()
         self.grid_layout.addWidget(self.view_type_btn, 0, self.clmn)
 
-        self.clmn += 1
-        self.grid_layout.addItem(QSpacerItem(5, 0), 0, self.clmn)
+        # self.clmn += 1
+        # self.grid_layout.addItem(QSpacerItem(5, 0), 0, self.clmn)
 
         self.clmn += 1
-        self.sort_type_btn = _SortTypeBtn(parent=self)
+        self.sort_type_btn = SortTypeBtn(parent=self)
         self.grid_layout.addWidget(self.sort_type_btn, 0, self.clmn)
 
         self.clmn += 1
-        self.grid_layout.addItem(QSpacerItem(5, 0), 0, self.clmn)
-
-        self.clmn += 1
-        self.go_btn = _GoBtn()
-        self.grid_layout.addWidget(self.go_btn, 0, self.clmn)
-
-        self.clmn += 1
-        self.grid_layout.addItem(QSpacerItem(5, 0), 0, self.clmn)
+        self.advanced_btn = AdvancedBtn()
+        self.grid_layout.addWidget(self.advanced_btn, 0, self.clmn)
 
         # self.clmn += 1
-        # self.filters_btn = _FiltersBtn()
-        # self.grid_layout.addWidget(self.filters_btn, 0, self.clmn)
+        # self.grid_layout.addItem(QSpacerItem(5, 0), 0, self.clmn)
 
         self.clmn += 1
         self.grid_layout.setColumnStretch(self.clmn, 10)
@@ -494,13 +611,3 @@ class BarTop(QFrame):
             self.next_sig.emit(path)
         except IndexError:
             pass
-
-    def resizeEvent(self, a0: QResizeEvent | None) -> None:
-        if a0.size().width() < 700:
-            self.go_btn.hide()
-            self.search_wid.hide()
-        else:
-            self.go_btn.show()    
-            self.search_wid.show()
-        
-        return super().resizeEvent(a0)

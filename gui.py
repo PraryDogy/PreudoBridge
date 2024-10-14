@@ -10,7 +10,6 @@ from PyQt5.QtWidgets import (QApplication, QGridLayout, QLabel, QSplitter,
 from cfg import Config
 from utils import Utils
 from widgets.bar_bottom import BarBottom
-from widgets.bar_bottom_tree import BarBottomTree
 from widgets.bar_top import BarTop
 from widgets.grid_search import GridSearch
 from widgets.grid_standart import GridStandart
@@ -44,20 +43,8 @@ class SimpleFileExplorer(QWidget):
         splitter_wid.splitterMoved.connect(self.resizeEvent)
         main_lay.addWidget(splitter_wid)
 
-        left_wid = QWidget()
-        splitter_wid.addWidget(left_wid)
-
-        left_lay = QVBoxLayout()
-        left_lay.setContentsMargins(0, 0, 0, 0)
-        left_lay.setSpacing(0)
-        left_wid.setLayout(left_lay)
-
         self.tabs_wid = QTabWidget()
-        left_lay.addWidget(self.tabs_wid)
-
-        self.tabs_bottom = BarBottomTree()
-        left_lay.addWidget(self.tabs_bottom)
-
+        splitter_wid.addWidget(self.tabs_wid)
         splitter_wid.setStretchFactor(0, 0)
 
         self.folders_tree_wid = TreeFolders()
@@ -85,7 +72,7 @@ class SimpleFileExplorer(QWidget):
         self.bar_top = BarTop()
 
         self.bar_top.sort_type_btn.sort_click.connect(self.bar_top_sort_grid)
-        self.bar_top.go_btn.open_path.connect(self.bar_top_open_path_btn_cmd)
+        self.bar_top.advanced_btn.open_path.connect(self.bar_top_open_path_btn_cmd)
         self.bar_top.search_wid.start_search_sig.connect(self.grid_search_load)
         self.bar_top.search_wid.stop_search_sig.connect(self.grid_standart_load)
         self.bar_top.view_type_btn.view_click.connect(self.grid_standart_load)
@@ -125,7 +112,7 @@ class SimpleFileExplorer(QWidget):
         self.bar_top.back.setDisabled(b)
         self.bar_top.next.setDisabled(b)
         self.bar_top.level_up_btn.setDisabled(b)
-        self.bar_top.go_btn.setDisabled(b)
+        self.bar_top.advanced_btn.setDisabled(b)
         self.bar_top.sort_type_btn.setDisabled(b)
         # self.bar_top.filters_btn.setDisabled(b)
         self.bar_top.view_type_btn.setDisabled(b)
