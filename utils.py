@@ -1,16 +1,16 @@
 import io
 import logging
 import subprocess
-import traceback
 
 import cv2
 import numpy as np
 import psd_tools
+import rawpy
 import tifffile
 from PyQt5.QtCore import QByteArray
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QApplication, QFrame, QVBoxLayout, QWidget
-import rawpy
+
 from cfg import Config
 
 psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
