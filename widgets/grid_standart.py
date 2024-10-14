@@ -124,25 +124,31 @@ class _LoadImagesThread(QThread):
                     continue
 
                 q = sqlalchemy.insert(CACHE)
-                q = q.values({
-                    "img": img,
-                    "src": src,
-                    "root": Config.json_data.get("root"),
-                    "size": size,
-                    "modified": modified,
-                    "catalog": "",
-                    "colors": "",
-                    "stars": ""
-                    })
-                self.session.execute(q)
+                q = q.values(
+                    img = img,
+                    src = src,
+                    root = Config.json_data.get("root"),
+                    size = size,
+                    modified = modified,
+                    catalog = "",
+                    colors = "",
+                    stars = ""
+                    )
+                self.conn.execute(q)
 
-                q = sqlalchemy.select(STATS.size).where(STATS.name=="main")
-                stats_size = self.session.execute(q).first()[0]
+                q = sqlalchemy.select(STATS.c.size).where(STATS.c.name == "main")
+                stats_size = self.conn.execute(q).scalar() or 0
                 stats_size += len(img)
 
                 q = sqlalchemy.update(STATS).where(STATS.name=="main")
-                q = q.values({"size": stats_size})
-                self.session.execute(q)
+                q = q.values(size = stats_size)
+                self.conn.execute(q)
+
+                self.insert_count += 1
+                if self.insert_count >= 10:
+                    self.transaction.commit()
+                    self.transaction = self.conn.begin()
+                    self.insert_count = 0
 
             except (OperationalError ,Exception) as e:
                 pass
