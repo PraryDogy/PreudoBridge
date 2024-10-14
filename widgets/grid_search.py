@@ -11,12 +11,11 @@ from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtWidgets import QAction, QSizePolicy, QSpacerItem
 
 from cfg import Config
-from database import CACHE, Dbase, STATS
+from database import CACHE, Dbase, STATS, Storage
 from fit_img import FitImg
 from utils import Utils
 
 from .grid_base import Grid, Thumbnail
-
 
 # Добавляем в контенкстное меню "Показать в папке"
 class SearchThumbnail(Thumbnail):
@@ -114,9 +113,6 @@ class _SearchFinderThread(QThread):
         if self.flag:
             self._finished.emit()
 
-        Dbase.c_commit(self.session)
-        self.session.close()
-
     # общий метод для создания QPixmap, который мы передадим в основной поток
     # для отображения в сетке GridSearch
     def _create_wid(self, src: str):
@@ -129,7 +125,7 @@ class _SearchFinderThread(QThread):
         pixmap: QPixmap = None
         colors: str = ""
 
-        db_data: dict = self._get_db_data(src)
+        db_data: dict = self.get_db_data(src)
 
         # Если изображение уже есть в БД, то сразу делаем QPixmap
         if isinstance(db_data, dict):
@@ -152,10 +148,15 @@ class _SearchFinderThread(QThread):
         self.add_new_widget.emit(WidgetData(src, colors, stats, pixmap))
         sleep(0.2)
 
-    def _get_db_data(self, src: str) -> bytes | None:
+    def get_db_data(self, src: str) -> bytes | None:
         try:
-            q = sqlalchemy.select(CACHE.img, CACHE.colors).where(CACHE.src==src)
-            res = self.session.execute(q).first()
+            q = sqlalchemy.select(CACHE.c.img, CACHE.c.colors)
+            q = q.where(CACHE.c.src == src)
+
+            with Storage.engine.connect() as conn:
+                with conn.begin():
+                    return conn.execute(q).fetchall()
+
         except sqlalchemy.exc.OperationalError:
             return None
 
