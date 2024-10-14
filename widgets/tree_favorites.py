@@ -60,6 +60,7 @@ class TreeFavorites(QListWidget):
 
     def __init__(self):
         super().__init__()
+        self.setDragDropMode(QListWidget.DragDropMode.InternalMove)
         self.init_ui()
 
     def init_ui(self):
