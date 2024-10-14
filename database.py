@@ -54,27 +54,19 @@ class Dbase:
 
     @staticmethod
     def check_cache_size():
-        q = sqlalchemy.select(STATS.c.size).where(STATS.c.name == "main")
+        q_get_stats = sqlalchemy.select(STATS.c.size).where(STATS.c.name == "main")
+        q_upd_stats = sqlalchemy.update(STATS).where(STATS.c.name == "main").values(size=0)
+        q_del_cache = sqlalchemy.delete(CACHE)
 
         with Storage.engine.connect() as conn:
             with conn.begin():
-                current_size = conn.execute(q).first()[0]
+
+                current_size = conn.execute(q_get_stats).first()[0]
                 config_size = Config.json_data["clear_db"] * (1024**3)
 
                 if current_size >= config_size:
-                    Dbase.clear_db()
 
-    @staticmethod
-    def clear_db():
-        with Storage.engine.connect() as connection:
-            with connection.begin():
-
-                q = sqlalchemy.delete(CACHE)
-                connection.execute(q)
-                
-                q = sqlalchemy.update(STATS)
-                q = q.where(STATS.c.name == "main")
-                q = q.values(size=0)
-                connection.execute(q)
-                
-            connection.execute(sqlalchemy.text("VACUUM"))
+                    conn.execute(q_del_cache)
+                    conn.execute(q_upd_stats)
+                    
+                conn.execute(sqlalchemy.text("VACUUM"))
