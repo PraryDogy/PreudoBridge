@@ -76,7 +76,7 @@ class Thumbnail(QFrame):
 
         v_lay = QVBoxLayout()
         v_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        v_lay.setContentsMargins(0, 0, 0, 0)
+        v_lay.setContentsMargins(0, 4, 0, 0)
         v_lay.setSpacing(10)
         self.setLayout(v_lay)
 
