@@ -140,7 +140,7 @@ class _LoadImagesThread(QThread):
                 stats_size = self.conn.execute(q).scalar() or 0
                 stats_size += len(img)
 
-                q = sqlalchemy.update(STATS).where(STATS.name=="main")
+                q = sqlalchemy.update(STATS).where(STATS.c.name=="main")
                 q = q.values(size = stats_size)
                 self.conn.execute(q)
 
@@ -236,22 +236,24 @@ class _LoadFinderThread(QThread):
     def run(self):
         try:
             self.get_db_colors()
-            self._get_items()
-            self._sort_items()
+            self.get_items()
+            self.sort_items()
         except (PermissionError, FileNotFoundError):
             self.finder_items: dict[tuple: None] = {}
         
         self._finished.emit(self.finder_items)
 
     def get_db_colors(self):
-        sess = Dbase.get_session()
-        q = sqlalchemy.select(CACHE.src, CACHE.colors)
-        q = q.where(CACHE.root == Config.json_data.get("root"))
-        res = sess.execute(q).fetchall()
+        q = sqlalchemy.select(CACHE.c.src, CACHE.c.colors)
+        q = q.where(CACHE.c.root == Config.json_data.get("root"))
 
-        self.db_colors = {src: colors for src, colors in res}
+        with Storage.engine.connect() as conn:
+            with conn.begin():
 
-    def _get_items(self):
+                res = conn.execute(q).fetchall()
+                self.db_colors = {src: colors for src, colors in res}
+
+    def get_items(self):
         for filename in os.listdir(Config.json_data.get("root")):
             src: str = os.path.join(Config.json_data.get("root"), filename)
 
@@ -275,7 +277,7 @@ class _LoadFinderThread(QThread):
             elif os.path.isdir(src):
                 self.finder_items[(src, filename, size, modified, filetype, colors)] = None
             
-    def _sort_items(self):
+    def sort_items(self):
         # finder_items: src filename size modified filetype
         # мы создаем отдельный словарик, где ключ соответствует Config.json_data "sort"
         # а значение индексу в ключе self.finder_items
@@ -337,10 +339,6 @@ class _FolderThumbnail(Thumbnail):
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         self.clicked.emit()
         self.context_menu.exec_(self.mapToGlobal(a0.pos()))
-
-    # def view(self):
-        # self.clicked.emit()
-        # self.clicked_folder.emit(self.src)
 
     def fav_cmd(self, offset: int):
         self.fav_action.triggered.disconnect()
