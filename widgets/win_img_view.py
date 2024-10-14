@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (QAction, QFrame, QHBoxLayout, QLabel, QMenu,
 from sqlalchemy.exc import OperationalError
 
 from cfg import Config
-from database import CACHE, Storage
+from database import CACHE, Engine
 from utils import Utils
 
 from .svg_widgets import SvgShadowed
@@ -282,7 +282,7 @@ class WinImgView(QWidget):
             self.setWindowTitle("Загрузка")
             q = (sqlalchemy.select(CACHE.c.img).filter(CACHE.c.src == self.src))
 
-            with Storage.engine.connect() as conn:
+            with Engine.engine.connect() as conn:
                 with conn.begin():
 
                     try:

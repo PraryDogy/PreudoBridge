@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
                              QSpacerItem, QTabBar, QVBoxLayout, QWidget)
 
 from cfg import Config
-from database import CACHE, STATS, Dbase, Storage
+from database import CACHE, STATS, Dbase, Engine
 from utils import Utils
 
 
@@ -430,7 +430,7 @@ class WinSettings(QWidget):
         Config.json_data["clear_db"] = value
 
     def get_current_size(self):
-        with Storage.engine.connect() as conn:
+        with Engine.engine.connect() as conn:
             with conn.begin():
                 q = sqlalchemy.select(STATS.size).where(STATS.c.name == "main")
                 res = conn.execute(q).first()[0]

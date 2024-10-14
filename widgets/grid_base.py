@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
                              QLabel, QMenu, QScrollArea, QVBoxLayout, QWidget)
 
 from cfg import Config
-from database import CACHE, Storage
+from database import CACHE, Engine
 from utils import Utils
 
 from .win_img_view import WinImgView
@@ -198,7 +198,7 @@ class Thumbnail(QFrame):
         upd_color = sqlalchemy.update(CACHE).where(CACHE.c.src == self.src)
         upd_color = upd_color.values(colors=colors)
 
-        with Storage.engine.connect() as conn:
+        with Engine.engine.connect() as conn:
             with conn.begin():
                 conn.execute(upd_color)
 

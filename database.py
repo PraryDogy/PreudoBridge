@@ -3,12 +3,12 @@ import sqlalchemy
 from cfg import Config
 
 
-class Storage:
+class Engine:
     engine: sqlalchemy.Engine = None
     metadata = sqlalchemy.MetaData()
 
 CACHE = sqlalchemy.Table(
-    "cache", Storage.metadata,
+    "cache", Engine.metadata,
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
     sqlalchemy.Column("img", sqlalchemy.LargeBinary),
     sqlalchemy.Column("src", sqlalchemy.Text, unique=True),
@@ -22,7 +22,7 @@ CACHE = sqlalchemy.Table(
 
 
 STATS = sqlalchemy.Table(
-    'stats', Storage.metadata,
+    'stats', Engine.metadata,
     sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
     sqlalchemy.Column('name', sqlalchemy.Text, unique=True),
     sqlalchemy.Column('size', sqlalchemy.Integer)
@@ -32,12 +32,12 @@ STATS = sqlalchemy.Table(
 class Dbase:
     @staticmethod
     def init_db():
-        Storage.engine = sqlalchemy.create_engine(
+        Engine.engine = sqlalchemy.create_engine(
             f"sqlite:///{Config.db_file}",
             connect_args={"check_same_thread": False},
             echo=False
             )
-        Storage.metadata.create_all(Storage.engine)
+        Engine.metadata.create_all(Engine.engine)
         Dbase.check_stats_main()
         Dbase.check_cache_size()
 
@@ -46,7 +46,7 @@ class Dbase:
         stmt_select = sqlalchemy.select(STATS).where(STATS.c.name == "main")
         stmt_insert = sqlalchemy.insert(STATS).values(name="main", size=0)
         
-        with Storage.engine.connect() as conn:
+        with Engine.engine.connect() as conn:
             with conn.begin():
                 result = conn.execute(stmt_select).first()
                 if not result:
@@ -58,7 +58,7 @@ class Dbase:
         q_upd_stats = sqlalchemy.update(STATS).where(STATS.c.name == "main").values(size=0)
         q_del_cache = sqlalchemy.delete(CACHE)
 
-        with Storage.engine.connect() as conn:
+        with Engine.engine.connect() as conn:
             with conn.begin():
 
                 current_size = conn.execute(q_get_stats).first()[0]

@@ -1,9 +1,9 @@
-from database import Dbase, CACHE, Storage
+from database import Dbase, CACHE, Engine
 import sqlalchemy
 from sqlalchemy.exc import OperationalError
 
 Dbase.init_db()
-conn = Storage.engine.connect()
+conn = Engine.engine.connect()
 
 
 

@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import QAction, QLabel, QSizePolicy, QSpacerItem
 from sqlalchemy.exc import OperationalError
 
 from cfg import Config
-from database import CACHE, STATS, Dbase, Storage
+from database import CACHE, STATS, Dbase, Engine
 from fit_img import FitImg
 from utils import Utils
 
@@ -71,7 +71,7 @@ class _LoadImagesThread(QThread):
         self._stop_thread.connect(self.stop_thread_cmd)
 
         # открываем сессию на время треда
-        self.conn = Storage.engine.connect()
+        self.conn = Engine.engine.connect()
         self.transaction = self.conn.begin()
         self.insert_count = 0
 
@@ -247,7 +247,7 @@ class _LoadFinderThread(QThread):
         q = sqlalchemy.select(CACHE.c.src, CACHE.c.colors)
         q = q.where(CACHE.c.root == Config.json_data.get("root"))
 
-        with Storage.engine.connect() as conn:
+        with Engine.engine.connect() as conn:
             with conn.begin():
 
                 res = conn.execute(q).fetchall()

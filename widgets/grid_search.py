@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import QAction, QSizePolicy, QSpacerItem
 from sqlalchemy.exc import OperationalError
 
 from cfg import Config
-from database import CACHE, STATS, Storage
+from database import CACHE, STATS, Engine
 from fit_img import FitImg
 from utils import Utils
 
@@ -55,7 +55,7 @@ class _SearchFinderThread(QThread):
         self.search_dir: str = search_dir
         self.flag: bool = True
 
-        self.conn: sqlalchemy.Connection = Storage.engine.connect()
+        self.conn: sqlalchemy.Connection = Engine.engine.connect()
         self.transaction: sqlalchemy.RootTransaction = self.conn.begin()
         self.insert_count: int = 0 
 
