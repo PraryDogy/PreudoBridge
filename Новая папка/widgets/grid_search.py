@@ -11,11 +11,12 @@ from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtWidgets import QAction, QSizePolicy, QSpacerItem
 
 from cfg import Config
-from database import CACHE, Dbase, STATS, Storage
+from database import Cache, Dbase, Stats
 from fit_img import FitImg
 from utils import Utils
 
 from .grid_base import Grid, Thumbnail
+
 
 # Добавляем в контенкстное меню "Показать в папке"
 class SearchThumbnail(Thumbnail):
@@ -95,11 +96,11 @@ class _SearchFinderThread(QThread):
                 # поиск по шаблону
                 if isinstance(self.search_text, tuple):
                     if src_lower.endswith(self.search_text):
-                        self.create_wid(src)
+                        self._create_wid(src)
 
                 # поиск по тексту
                 elif self.search_text in filename and src_lower.endswith(Config.img_ext):
-                    self.create_wid(src)
+                    self._create_wid(src)
 
                 if self.counter % 10 == 0:
                     Dbase.c_commit(self.session)
@@ -113,9 +114,12 @@ class _SearchFinderThread(QThread):
         if self.flag:
             self._finished.emit()
 
+        Dbase.c_commit(self.session)
+        self.session.close()
+
     # общий метод для создания QPixmap, который мы передадим в основной поток
     # для отображения в сетке GridSearch
-    def create_wid(self, src: str):
+    def _create_wid(self, src: str):
         try:
             stats = os.stat(src)
         except (PermissionError, FileNotFoundError) as e:
@@ -125,7 +129,7 @@ class _SearchFinderThread(QThread):
         pixmap: QPixmap = None
         colors: str = ""
 
-        db_data: dict = self.get_db_data(src)
+        db_data: dict = self._get_db_data(src)
 
         # Если изображение уже есть в БД, то сразу делаем QPixmap
         if isinstance(db_data, dict):
@@ -135,7 +139,7 @@ class _SearchFinderThread(QThread):
         # Создаем изображение, ресайзим и записываем в БД
         else:
             new_img: ndarray = self._create_new_image(src)
-            self.image_to_db(src, new_img, stats)
+            self._image_to_db(src, new_img, stats)
 
             if isinstance(new_img, ndarray):
                 pixmap = Utils.pixmap_from_array(new_img)
@@ -148,25 +152,19 @@ class _SearchFinderThread(QThread):
         self.add_new_widget.emit(WidgetData(src, colors, stats, pixmap))
         sleep(0.2)
 
-    def get_db_data(self, src: str) -> bytes | None:
+    def _get_db_data(self, src: str) -> bytes | None:
         try:
-            q = sqlalchemy.select(CACHE.c.img, CACHE.c.colors)
-            q = q.where(CACHE.c.src == src)
-
-            with Storage.engine.connect() as conn:
-                with conn.begin():
-
-                    res = conn.execute(q).fetchall()
-
-                    if isinstance(res, sqlalchemy.engine.Row):
-                        return {"img": res[0], "colors": res[1]}
-                    else:
-                        return None
-
+            q = sqlalchemy.select(Cache.img, Cache.colors).where(Cache.src==src)
+            res = self.session.execute(q).first()
         except sqlalchemy.exc.OperationalError:
             return None
 
-    def image_to_db(self, src: str, img_array, stats: os.stat_result):
+        if isinstance(res, sqlalchemy.engine.Row):
+            return {"img": res[0], "colors": res[1]}
+
+        return None
+
+    def _image_to_db(self, src: str, img_array, stats: os.stat_result):
         # чтобы несколько раз не запрашивать os.stat
         # мы запрашиваем os.stat в основном цикле os.walk и передаем сюда
         size = stats.st_size
@@ -179,7 +177,7 @@ class _SearchFinderThread(QThread):
 
             try:
 
-                q = sqlalchemy.insert(CACHE)
+                q = sqlalchemy.insert(Cache)
                 q = q.values({
                     "img": db_img,
                     "src": src,
@@ -193,11 +191,11 @@ class _SearchFinderThread(QThread):
                 
                 self.session.execute(q)
 
-                q = sqlalchemy.select(STATS.size).where(STATS.name=="main")
+                q = sqlalchemy.select(Stats.size).where(Stats.name=="main")
                 stats_size = self.session.execute(q).first()[0]
                 stats_size += len(db_img)
 
-                q = sqlalchemy.update(STATS).where(STATS.name=="main")
+                q = sqlalchemy.update(Stats).where(Stats.name=="main")
                 q = q.values({"size": stats_size})
                 self.session.execute(q)
 
