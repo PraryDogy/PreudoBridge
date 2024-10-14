@@ -23,7 +23,7 @@ class WinSettings(QWidget):
         v_lay.setSpacing(10)
         self.setLayout(v_lay)
 
-        t = "Данные загруженных изображений.\nРазмер каталогов считается отдельно."
+        t = "Кэшированные изображения."
         title_label = QLabel(t)
         v_lay.addWidget(title_label)
 
@@ -78,11 +78,15 @@ class WinSettings(QWidget):
         q = sqlalchemy.select(Stats.size).where(Stats.name=="main")
         res = sess.execute(q).first()[0]
 
-        res = round(res / (1024**2), 2)
-        t = f"Данные: {res}мб"
+        res = int(res / (1024))
+        t = f"Данные: {res}кб"
 
-        if res > 1000:
-            res = round(res / 1024, 2)
+        if res > 1024:
+            res = round(res / (1024), 2)
+            t = f"Данные: {res}мб"
+
+        if res > 1024:
+            res = round(res / (1024), 2)
             t = f"Данные: {res}гб"
 
         self.current_size.setText(t)
