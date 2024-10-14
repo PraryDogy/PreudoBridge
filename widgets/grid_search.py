@@ -149,14 +149,14 @@ class _SearchFinderThread(QThread):
         self.add_new_widget.emit(WidgetData(src, colors, stats, pixmap))
         sleep(0.2)
 
-    def get_db_data(self, src: str) -> bytes | None:
+    def get_db_data(self, src: str) -> dict | None:
         try:
             q = sqlalchemy.select(CACHE.c.img, CACHE.c.colors)
             q = q.where(CACHE.c.src == src)
-            res = self.conn.execute(q).fetchall()
+            res = self.conn.execute(q).first()
 
-            if isinstance(res, sqlalchemy.engine.Row):
-                return {"img": res[0], "colors": res[1]}
+            if res:
+                return {"img": res.img, "colors": res.colors}
             else:
                 return None
 
@@ -174,7 +174,8 @@ class _SearchFinderThread(QThread):
 
         if isinstance(db_img, bytes):
             try:
-                insert_query = sqlalchemy.insert(CACHE).values(
+                insert_query = sqlalchemy.insert(CACHE)
+                insert_query = insert_query.values(
                     img=db_img,
                     src=src,
                     root=os.path.dirname(src),
