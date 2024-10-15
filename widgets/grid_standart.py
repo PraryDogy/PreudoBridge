@@ -262,7 +262,7 @@ class LoadFinder(QThread):
                 size = stats.st_size
                 modified = stats.st_mtime
                 filetype = os.path.splitext(filename)[1]
-                colors = db_colors.get(src)
+                colors = db_colors.get(src) or ""
             except (PermissionError, FileNotFoundError):
                 continue
 

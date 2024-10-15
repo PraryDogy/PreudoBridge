@@ -1,14 +1,5 @@
-from database import Dbase, Engine, CACHE
-import sqlalchemy
-
-Dbase.init_db()
-with Engine.engine.connect() as conn:
-    with conn.begin():
-
-        q = sqlalchemy.select(CACHE.c.colors)
-        res = conn.execute(q).fetchall()
+test = {"1": 2}
 
 
-for i in res:
-    a = type(i[0])
-    print(a)
+a = test.get("4") or "123"
+print(a)
