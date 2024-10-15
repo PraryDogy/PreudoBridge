@@ -1,6 +1,5 @@
 import os
 
-import numpy as np
 import sqlalchemy
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QMouseEvent, QPixmap
@@ -63,6 +62,7 @@ class LoadImages(QThread):
         # если изображение есть в БД но нет в словарике
         # значит оно было ранее удалено из Findder и будет удалено из БД
         self.remove_db_images: list = []
+        self.remove_size_bytes: int = 0
 
         # существующие изображения в БД
         self.db_images: dict[tuple: bytearray] = {}
@@ -73,29 +73,29 @@ class LoadImages(QThread):
 
         # открываем сессию на время треда
         self.conn = Engine.engine.connect()
-        self.transaction = self.conn.begin()
-        self.insert_count = 0
 
     def run(self):
-        # загружаем изображения по корневой директории из Config.json_data
         self.db_images: dict = self.get_db_images()
-
-        # проверяем какие есть в БД и в словарике, подгружаем в сетку сигналом
         self.load_already_images()
-
-        # остальные изображения создаем, пишем в БД, подружаем в сетку сигналом
         self.create_new_images()
-
-        # удаляем то, чего уже нет в Finder но было в БД
         self.remove_images()
 
-        # последний комит, помимо комитов в цикле
-        if self.insert_count > 0:
-            self.transaction.commit()
+        if self.remove_size_bytes > 0:
+            self.new_db_size()
+
         self.conn.close()
 
         # не используется
         self._finished.emit()
+
+    def new_db_size(self):
+        q = sqlalchemy.select(STATS.c.size).where(STATS.c.name == "main")
+        current_size = self.conn.execute(q).scalar() or 0
+
+        new_size = current_size - self.remove_size_bytes
+        q = sqlalchemy.update(STATS).where(STATS.c.name == "main").values(size=new_size)
+        self.conn.execute(q)
+        self.conn.commit()
 
     def get_db_images(self):
         q = sqlalchemy.select(CACHE.c.img, CACHE.c.src, CACHE.c.size, CACHE.c.modified)
@@ -133,10 +133,15 @@ class LoadImages(QThread):
                 self.src_size_mod.remove((db_src, db_size, db_mod))
             else:
                 self.remove_db_images.append(db_src)
+                self.remove_size_bytes += len(db_byte_img)
 
     def create_new_images(self):
         self.progressbar_start.emit(len(self.src_size_mod))
-        count = 0
+        progress_count = 0
+        insert_count = 0
+
+        q = sqlalchemy.select(STATS.c.size).where(STATS.c.name == "main")
+        stats_size = self.conn.execute(q).scalar() or 0
 
         for src, size, modified in self.src_size_mod:
             if not self.flag:
@@ -171,25 +176,23 @@ class LoadImages(QThread):
                     )
                 self.conn.execute(q)
 
-                q = sqlalchemy.select(STATS.c.size).where(STATS.c.name == "main")
-                stats_size = self.conn.execute(q).scalar() or 0
                 stats_size += len(img_bytes)
 
-                q = sqlalchemy.update(STATS).where(STATS.c.name=="main")
-                q = q.values(size = stats_size)
-                self.conn.execute(q)
-
-                self.insert_count += 1
-                if self.insert_count >= 10:
-                    self.transaction.commit()
-                    self.transaction = self.conn.begin()
-                    self.insert_count = 0
+                insert_count += 1
+                if insert_count >= 10:
+                    self.conn.commit()
+                    insert_count = 0
 
             except (OperationalError ,Exception) as e:
-                pass
+                print("you here", e)
+                continue
 
-            self.progressbar_value.emit(count)
-            count += 1
+            self.progressbar_value.emit(progress_count)
+            progress_count += 1
+
+        q = sqlalchemy.update(STATS).where(STATS.c.name=="main").values(size = stats_size)
+        self.conn.execute(q)
+        self.conn.commit()
 
         # 1 милилон = скрыть прогресс бар согласно его инструкции
         self.progressbar_value.emit(1000000)
@@ -199,9 +202,9 @@ class LoadImages(QThread):
             q = sqlalchemy.delete(CACHE).where(CACHE.c.src == src)
             try:
                 self.conn.execute(q)
-                self.insert_count += 1
             except OperationalError:
                 ...
+        self.conn.commit()
 
     def stop_thread_cmd(self):
         self.flag = False
@@ -234,9 +237,8 @@ class LoadFinder(QThread):
         q = q.where(CACHE.c.root == Config.json_data.get("root"))
 
         with Engine.engine.connect() as conn:
-            with conn.begin():
-                res = conn.execute(q).fetchall()
-                return {src: colors for src, colors in res}
+            res = conn.execute(q).fetchall()
+            return {src: colors for src, colors in res}
 
     def get_items(self, db_colors: dict) -> list:
         finder_items = []

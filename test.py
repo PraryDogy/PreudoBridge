@@ -1,3 +1,8 @@
-a = [ (1, 2, 3) ]
+from database import Dbase, STATS, Engine
+import sqlalchemy
 
-b = a.index((1, 2, 4))
+Dbase.init_db()
+
+with Engine.engine.connect() as conn:
+    q = sqlalchemy.update(STATS).values(size=555)
+    res = conn.execute(q)
