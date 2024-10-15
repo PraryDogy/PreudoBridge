@@ -21,8 +21,8 @@ from .grid_base import Grid, Thumbnail
 class ThumbnailSearch(Thumbnail):
     show_in_folder = pyqtSignal(str)
 
-    def __init__(self, filename: str, src: str, paths: list):
-        super().__init__(filename, src, paths)
+    def __init__(self, filename: str, src: str, path_to_wid: dict[str: Thumbnail]):
+        super().__init__(filename, src, path_to_wid)
 
         self.context_menu.addSeparator()
 
@@ -248,7 +248,7 @@ class GridSearch(Grid):
         # "src", "stats" - os.stat, "pixmap", "colors": str
         filename = os.path.basename(widget_data.src)
         colors = widget_data.colors
-        wid = ThumbnailSearch(filename=filename, src=widget_data.src, paths=self.image_paths)
+        wid = ThumbnailSearch(filename=filename, src=widget_data.src, path_to_wid=self.path_to_wid)
         wid.img_label.setPixmap(widget_data.pixmap)
         wid.update_colors(colors)
 
@@ -260,7 +260,6 @@ class GridSearch(Grid):
         self.cell_to_wid[self.row, self.col] = wid
         self.wid_to_cell[wid] = (self.row, self.col)
         self.path_to_wid[widget_data.src] = wid
-        self.image_paths.append(widget_data.src)
 
         # (путь до файла, имя файла, размер, дата изменения, тип файла)
         # этот словарик нужен для повторного формирования сетки при изменении
@@ -299,7 +298,10 @@ class GridSearch(Grid):
                 wid.show_in_folder.connect(self.show_in_folder.emit)
                 wid.img_viewer_closed.connect(self.move_to_wid)
                 wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
-                wid.image_paths = self.image_paths
+
+                # обновляем информацию в Thumbnail о порядке путей и виджетом
+                # для правильной передачи в ImgView после пересортировки сетки
+                wid.path_to_wid = self.path_to_wid
 
                 self.grid_layout.addWidget(wid, row, col, alignment=Qt.AlignmentFlag.AlignTop)
                 self.cell_to_wid[row, col] = wid
@@ -327,8 +329,12 @@ class GridSearch(Grid):
         self.sorted_widgets = dict(
             sorted(self.sorted_widgets.items(), key=sort_key, reverse=rev)
             )
-            
-        self.image_paths = [k[0] for k, v in self.sorted_widgets.items()]
+        
+        # 
+        # 
+        # 
+        # тут нужна пересортировка path_to_wid
+        self.path_to_wid = {k[0]: v for k, v in self.sorted_widgets.items()}
         self.resize_grid(width)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:

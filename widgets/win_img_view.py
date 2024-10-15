@@ -217,14 +217,27 @@ class NextImageBtn(SwitchImageBtn):
         super().__init__("next.svg", parent)
 
 
+# Заглушка которое дает базовое представление о классе, из которого
+# вызывается WinImgView для удобства
+#  widgets > grid_base > Thumbnail
+class Thumbnail:
+    colors: str = ""
+    image_paths: list = [str]
+    def color_click(self, color: str) -> None: ...
+    def color_to_db(self, colors: str) -> bool: ...
+    def update_colors(self, colors: str) -> None: ...
+
+
 class WinImgView(QWidget):
     closed = pyqtSignal(str)
     color_click = pyqtSignal(str)
 
-    def __init__(self, img_src: str, image_paths: list):
+    def __init__(self, img_src: str, path_to_wid: dict[str: Thumbnail]):
         super().__init__()
         self.src: str = img_src
-        self.image_paths: list = image_paths
+
+        self.path_to_wid: dict[str: Thumbnail] = path_to_wid
+        self.image_paths: list = list(i for i in path_to_wid.keys() if os.path.isfile(i))
 
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setMinimumSize(QSize(400, 300))
@@ -257,37 +270,6 @@ class WinImgView(QWidget):
         self.zoom_btns.zoomed_out.connect(self.image_label.zoom_out)
         self.zoom_btns.zoomed_fit.connect(self.image_label.zoom_reset)
         self.zoom_btns.press_close.connect(self.close)
-
-        self.context_menu = QMenu(self)
-
-        open_menu = QMenu("Открыть в приложении", self)
-        self.context_menu.addMenu(open_menu)
-
-        for name, app_path in Config.image_apps.items():
-            wid = QAction(name, parent=open_menu)
-            wid.triggered.connect(lambda e, a=app_path: self.open_default(a))
-            open_menu.addAction(wid)
-
-        show_in_finder_action = QAction("Показать в Finder", self)
-        show_in_finder_action.triggered.connect(self.show_in_finder)
-        self.context_menu.addAction(show_in_finder_action)
-
-        copy_path = QAction("Скопировать путь до файла", self)
-        copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
-        self.context_menu.addAction(copy_path)
-
-        self.color_menu = QMenu("Цвета", self)
-        self.context_menu.addMenu(self.color_menu)
-
-        for color, text in Config.colors.items():
-            wid = QAction(parent=self.color_menu, text=f"{color} {text}")
-            wid.setCheckable(True)
-
-            # if color in self.colors:
-                # wid.setChecked(True)
-
-            wid.triggered.connect(lambda e, c=color: self.color_click.emit(c))
-            self.color_menu.addAction(wid)
 
         self.hide_all_buttons()
         self.load_thumbnail()
@@ -425,5 +407,37 @@ class WinImgView(QWidget):
         # return super().closeEvent(a0)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        self.context_menu.exec_(self.mapToGlobal(a0.pos()))
+        context_menu = QMenu(self)
+        thumbnail: Thumbnail = self.path_to_wid.get(self.src)
+
+        open_menu = QMenu("Открыть в приложении", self)
+        context_menu.addMenu(open_menu)
+
+        for name, app_path in Config.image_apps.items():
+            wid = QAction(name, parent=open_menu)
+            wid.triggered.connect(lambda e, a=app_path: self.open_default(a))
+            open_menu.addAction(wid)
+
+        show_in_finder_action = QAction("Показать в Finder", self)
+        show_in_finder_action.triggered.connect(self.show_in_finder)
+        context_menu.addAction(show_in_finder_action)
+
+        copy_path = QAction("Скопировать путь до файла", self)
+        copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
+        context_menu.addAction(copy_path)
+
+        self.color_menu = QMenu("Цвета", self)
+        context_menu.addMenu(self.color_menu)
+
+        for color, text in Config.colors.items():
+            wid = QAction(parent=self.color_menu, text=f"{color} {text}")
+            wid.setCheckable(True)
+
+            if color in thumbnail.colors:
+                wid.setChecked(True)
+
+            wid.triggered.connect(lambda e, c=color: thumbnail.color_click(c))
+            self.color_menu.addAction(wid)
+
+        context_menu.exec_(self.mapToGlobal(a0.pos()))
     

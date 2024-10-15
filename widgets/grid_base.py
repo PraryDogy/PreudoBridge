@@ -66,11 +66,11 @@ class Thumbnail(QFrame):
     clicked = pyqtSignal()
     clicked_folder = pyqtSignal(str)
 
-    def __init__(self, filename: str, src: str, paths: list):
+    def __init__(self, filename: str, src: str, path_to_wid: dict[str: QLabel]):
         super().__init__()
         self.setFixedSize(Geo.w, Geo.h)
         self.src: str = src
-        self.image_paths: list = paths
+        self.path_to_wid: dict[str: QLabel] = path_to_wid
         self.filename = filename
         self.colors: str = ""
 
@@ -171,7 +171,7 @@ class Thumbnail(QFrame):
 
     def view(self):
         if os.path.isfile(self.src):
-            self.win = WinImgView(self.src, self.image_paths)
+            self.win = WinImgView(self.src, self.path_to_wid)
             Utils.center_win(parent=Utils.get_main_win(), child=self.win)
             self.win.closed.connect(lambda src: self.img_viewer_closed.emit(src))
             self.win.show()
@@ -241,7 +241,6 @@ class Grid(QScrollArea):
         self.cell_to_wid: dict[tuple: Thumbnail] =  {}
         self.wid_to_cell: dict[Thumbnail: tuple] = {}
         self.path_to_wid: dict[str: Thumbnail] = {}
-        self.image_paths: list = []
 
     # Общий метод для всех Grid
     # В каждой Grud сигнал каждого Thumbnail - _move_to_wid_sig

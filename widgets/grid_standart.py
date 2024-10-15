@@ -288,7 +288,7 @@ class ThumbnailFolder(Thumbnail):
     del_fav = pyqtSignal(str)
 
     def __init__(self, filename: str, src: str):
-        super().__init__(filename, src, [])
+        super().__init__(filename, src, {})
 
         self.context_menu.clear()
 
@@ -379,7 +379,7 @@ class GridStandart(Grid):
                 wid.del_fav.connect(self.del_fav.emit)
 
             else:
-                wid = Thumbnail(filename, src, self.image_paths)
+                wid = Thumbnail(filename, src, self.path_to_wid)
                 wid.img_viewer_closed.connect(lambda src: self.move_to_wid(src))
                 self.set_base_img(wid.img_label, "images/file_210.png")
                 # ADD COLORS TO THUMBNAIL
@@ -392,9 +392,6 @@ class GridStandart(Grid):
             # добавляем местоположение виджета в сетке для навигации клавишами
             self.cell_to_wid[row, col] = wid
             self.path_to_wid[src] = wid
-
-            if os.path.isfile(src):
-                self.image_paths.append(src)
 
             col += 1
             if col >= col_count:
