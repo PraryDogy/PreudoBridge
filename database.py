@@ -59,14 +59,15 @@ class Dbase:
         q_del_cache = sqlalchemy.delete(CACHE)
 
         with Engine.engine.connect() as conn:
-            with conn.begin():
 
-                current_size = conn.execute(q_get_stats).scalar() or 0
-                config_size = Config.json_data["clear_db"] * (1024**3)
+            current_size = conn.execute(q_get_stats).scalar() or 0
+            config_size = Config.json_data["clear_db"] * (1024**3)
+            config_size = 10
 
-                if current_size >= config_size:
+            if current_size >= config_size:
 
-                    conn.execute(q_del_cache)
-                    conn.execute(q_upd_stats)
+                conn.execute(q_del_cache)
+                conn.execute(q_upd_stats)
+                conn.commit()
 
             conn.execute(sqlalchemy.text("VACUUM"))
