@@ -42,7 +42,8 @@ class Config:
         "extra_paths": ["/Studio/PANACEA", "/Studio/MIUZ"],
         "favs": {},
         "list_view": True,
-        "clear_db": 5
+        "clear_db": 5,
+        "tab_bar": 1
         }
 
     @staticmethod

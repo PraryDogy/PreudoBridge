@@ -18,6 +18,19 @@ from widgets.tree_favorites import TreeFavorites
 from widgets.tree_folders import TreeFolders
 
 
+class BarTabs(QTabWidget):
+    def __init__(self):
+        super().__init__()
+        self.tabBarClicked.connect(self.tab_cmd)
+
+    def load_last_tab(self):
+        self.setCurrentIndex(Config.json_data.get("tab_bar"))
+
+    def tab_cmd(self, index: int):
+        self.setCurrentIndex(Config.json_data.get("tab_bar"))
+        Config.json_data["tab_bar"] = index
+
+
 class SimpleFileExplorer(QWidget):
     def __init__(self):
         super().__init__()
@@ -44,21 +57,23 @@ class SimpleFileExplorer(QWidget):
         splitter_wid.splitterMoved.connect(self.resizeEvent)
         main_lay.addWidget(splitter_wid)
 
-        self.tabs_wid = QTabWidget()
-        splitter_wid.addWidget(self.tabs_wid)
+        self.bar_tabs = BarTabs()
+        splitter_wid.addWidget(self.bar_tabs)
         splitter_wid.setStretchFactor(0, 0)
 
         self.folders_tree_wid = TreeFolders()
         self.folders_tree_wid.folders_tree_clicked.connect(self.tree_wid_view_folder_cmd)
         self.folders_tree_wid.add_to_favs_clicked.connect(self.tree_wid_add_fav_cmd)
         self.folders_tree_wid.del_favs_clicked.connect(self.tree_wid_del_fav_cmd)
-        self.tabs_wid.addTab(self.folders_tree_wid, "Папки")
+        self.bar_tabs.addTab(self.folders_tree_wid, "Папки")
 
         self.folders_fav_wid = TreeFavorites()
         self.folders_fav_wid.on_fav_clicked.connect(self.tree_wid_view_folder_cmd)
-        self.tabs_wid.addTab(self.folders_fav_wid, "Избранное")
+        self.bar_tabs.addTab(self.folders_fav_wid, "Избранное")
 
-        self.tabs_wid.addTab(QLabel("Тут будут каталоги"), "Каталог")
+        self.bar_tabs.addTab(QLabel("Тут будут каталоги"), "Каталог")
+
+        self.bar_tabs.load_last_tab()
 
         right_wid = QWidget()
         splitter_wid.addWidget(right_wid)
@@ -241,7 +256,7 @@ class SimpleFileExplorer(QWidget):
             self.scroll_up.show()
 
     def get_grid_width(self):
-        return Config.json_data.get("ww") - self.tabs_wid.width() - 180
+        return Config.json_data.get("ww") - self.bar_tabs.width() - 180
 
     def resize_timer_cmd(self):
         if isinstance(self.grid, (GridSearch, GridStandart)):
