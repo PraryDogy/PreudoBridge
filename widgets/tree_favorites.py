@@ -20,9 +20,6 @@ class FavItem(QLabel):
 
         self.setFixedHeight(25)
 
-        self.list_item = QListWidgetItem()
-        self.list_item.setSizeHint(self.sizeHint())
-
         self.context_menu = QMenu(self)
 
         view_ac = QAction("Просмотр", self)
@@ -57,6 +54,9 @@ class FavItem(QLabel):
     def open_in_finder(self, path: str):
         subprocess.call(["open", "-R", path])
 
+    def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
+        return super().mouseDoubleClickEvent(a0)
+
 
 class TreeFavorites(QListWidget):
     on_fav_clicked = pyqtSignal(str)
@@ -75,8 +75,12 @@ class TreeFavorites(QListWidget):
         item = FavItem(name, src)
         item._del_clicked.connect(lambda: self.del_item(src))
         item._on_fav_clicked.connect(lambda: self.on_fav_clicked.emit(src))
-        self.addItem(item.list_item)
-        self.setItemWidget(item.list_item, item)
+
+        list_item = QListWidgetItem()
+        list_item.setSizeHint(item.sizeHint())
+
+        self.addItem(list_item)
+        self.setItemWidget(list_item, item)
 
     def del_item(self, src: str):
         favs: dict = Config.json_data.get("favs")
