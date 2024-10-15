@@ -283,15 +283,14 @@ class WinImgView(QWidget):
             q = (sqlalchemy.select(CACHE.c.img).filter(CACHE.c.src == self.src))
 
             with Engine.engine.connect() as conn:
-                with conn.begin():
 
-                    try:
-                        thumbnail = conn.execute(q).scalar() or None
-                        pixmap = QPixmap()
-                        pixmap.loadFromData(thumbnail)
-                        self.image_label.set_image(pixmap)
-                    except (OperationalError, Exception) as e:
-                        print("IMG VIEW: there is no thumbnail in db")
+                try:
+                    thumbnail = conn.execute(q).scalar() or None
+                    pixmap = QPixmap()
+                    pixmap.loadFromData(thumbnail)
+                    self.image_label.set_image(pixmap)
+                except (OperationalError, Exception) as e:
+                    print("IMG VIEW: there is no thumbnail in db")
 
         self.load_image_thread()
 

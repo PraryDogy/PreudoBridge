@@ -47,10 +47,10 @@ class Dbase:
         stmt_insert = sqlalchemy.insert(STATS).values(name="main", size=0)
         
         with Engine.engine.connect() as conn:
-            with conn.begin():
-                result = conn.execute(stmt_select).first()
-                if not result:
-                    conn.execute(stmt_insert)
+            result = conn.execute(stmt_select).first()
+            if not result:
+                conn.execute(stmt_insert)
+                conn.commit()
 
     @staticmethod
     def check_cache_size():

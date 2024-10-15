@@ -195,12 +195,11 @@ class Thumbnail(QFrame):
             self.colors = temp_colors
 
     def color_to_db(self, colors: str):
-        upd_color = sqlalchemy.update(CACHE).where(CACHE.c.src == self.src)
-        upd_color = upd_color.values(colors=colors)
+        upd_color = sqlalchemy.update(CACHE).where(CACHE.c.src == self.src).values(colors=colors)
 
         with Engine.engine.connect() as conn:
-            with conn.begin():
-                conn.execute(upd_color)
+            conn.execute(upd_color)
+            conn.commit()
 
         return True
 
