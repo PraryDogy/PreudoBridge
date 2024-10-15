@@ -85,21 +85,22 @@ class SearchFinder(QThread):
             if not self.flag:
                 break
 
-            for filename in files:
+            for file in files:
                 if not self.flag:
                     break
 
-                src: str = os.path.join(root, filename)
-                src_lower: str = src.lower()
+                file_path: str = os.path.join(root, file)
+                file_path_lower: str = file_path.lower()
 
-                # поиск по шаблону
-                if isinstance(self.search_text, tuple):
-                    if src_lower.endswith(self.search_text):
-                        self.create_wid(src)
+                if file_path_lower.endswith(self.search_text):
 
-                # поиск по тексту
-                elif self.search_text in filename and src_lower.endswith(Config.img_ext):
-                    self.create_wid(src)
+                    # поиск по шаблону
+                    if isinstance(self.search_text, tuple):
+                        self.create_wid(file_path)
+
+                    # поиск по тексту
+                    elif self.search_text in file:
+                        self.create_wid(file_path)
 
         # _finished будет послан только если поиску дали закончить
         # если же он был прерван флагом, то сигнал не будет послан
@@ -125,7 +126,7 @@ class SearchFinder(QThread):
         pixmap: QPixmap = None
         colors: str = ""
 
-        db_data: dict = self.get_db_data(src)
+        db_data: dict = self.get_img_data_db(src)
 
         # Если изображение уже есть в БД, то сразу делаем QPixmap
         if isinstance(db_data, dict):
@@ -134,11 +135,11 @@ class SearchFinder(QThread):
 
         # Создаем изображение, ресайзим и записываем в БД
         else:
-            new_img: ndarray = self._create_new_image(src)
-            self.image_to_db(src, new_img, stats)
+            img_array: ndarray = self.create_img_array(src)
+            self.img_data_to_db(src, img_array, stats)
 
-            if isinstance(new_img, ndarray):
-                pixmap = Utils.pixmap_from_array(new_img)
+            if isinstance(img_array, ndarray):
+                pixmap = Utils.pixmap_from_array(img_array)
 
         # Если не удалось получить изображение, загружаем изображение по умолчанию
         if not pixmap:
@@ -148,7 +149,7 @@ class SearchFinder(QThread):
         self.add_new_widget.emit(WidgetData(src, colors, stats, pixmap))
         sleep(0.2)
 
-    def get_db_data(self, src: str) -> dict | None:
+    def get_img_data_db(self, src: str) -> dict | None:
         try:
             q = sqlalchemy.select(CACHE.c.img, CACHE.c.colors)
             q = q.where(CACHE.c.src == src)
@@ -162,7 +163,7 @@ class SearchFinder(QThread):
         except OperationalError:
             return None
 
-    def image_to_db(self, src: str, img_array, stats: os.stat_result):
+    def img_data_to_db(self, src: str, img_array, stats: os.stat_result):
         # чтобы несколько раз не запрашивать os.stat
         # мы запрашиваем os.stat в основном цикле os.walk и передаем сюда
         size = stats.st_size
@@ -207,7 +208,7 @@ class SearchFinder(QThread):
                 print("Unexpected error during image insert:", e)
                 self.transaction.rollback()
 
-    def _create_new_image(self, src: str) -> ndarray | None:
+    def create_img_array(self, src: str) -> ndarray | None:
         img = Utils.read_image(src)
         img = FitImg.start(img, Config.img_size)
         return img
