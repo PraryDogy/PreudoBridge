@@ -1,9 +1,14 @@
-test = [(1, 2, 3, 4, "ddd"), (5, 6, 7, 8, "wdds")]
+from database import Dbase, Engine, CACHE
+import sqlalchemy
+
+Dbase.init_db()
+with Engine.engine.connect() as conn:
+    with conn.begin():
+
+        q = sqlalchemy.select(CACHE.c.colors)
+        res = conn.execute(q).fetchall()
 
 
-k = lambda x: x[3]
-a = sorted(test, key=k)
-
-a = reversed(a)
-
-print(a)
+for i in res:
+    a = type(i[0])
+    print(a)

@@ -51,13 +51,13 @@ class LoadImages(QThread):
     # не используется
     _finished = pyqtSignal()
     
-    def __init__(self, grid_widgets: dict[tuple: QLabel]):
+    def __init__(self, stats_pixmap: dict[tuple: QLabel]):
         super().__init__()
 
         # копируем, чтобы не менялся родительский словарик
         # потому что на него опирается основной поток
         # а мы удаляем из этого словарика элементы в обходе БД
-        self.grid_widgets: dict[tuple: QLabel] = grid_widgets.copy()
+        self.stats_pixmap: dict[tuple: QLabel] = stats_pixmap
 
         # если изображение есть в БД но нет в словарике
         # значит оно было ранее удалено из Findder и будет удалено из БД
@@ -97,10 +97,10 @@ class LoadImages(QThread):
         self._finished.emit()
 
     def create_new_images(self):
-        self.progressbar_start.emit(len(self.grid_widgets))
+        self.progressbar_start.emit(len(self.stats_pixmap))
         count = 0
 
-        for (src, size, modified), widget in self.grid_widgets.items():
+        for (src, size, modified), widget in self.stats_pixmap.items():
             if not self.flag:
                 break
 
@@ -163,7 +163,7 @@ class LoadImages(QThread):
         for (src, size, modified), bytearray_image in self.db_images.items():
 
             # мы сверяем по пути, размеру и дате, есть ли в БД такой же ключ
-            key = self.grid_widgets.get((src, size, modified))
+            key = self.stats_pixmap.get((src, size, modified))
 
             if not self.flag:
                 break
@@ -179,7 +179,7 @@ class LoadImages(QThread):
                 # последует обход ОСТАВШИХСЯ в self.grid_widgets элементов
                 # то есть после этой итерации с БД в словаре останутся
                 # только НОВЫЕ изображения, которые вставим в БД и сетку
-                self.grid_widgets.pop((src, size, modified))
+                self.stats_pixmap.pop((src, size, modified))
             else:
                 self.remove_db_images[(src, size, modified)] = None
 

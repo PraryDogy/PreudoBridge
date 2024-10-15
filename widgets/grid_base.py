@@ -205,16 +205,17 @@ class Thumbnail(QFrame):
         return True
 
     def update_colors(self, colors: str):
-        self.colors = colors
-        key = lambda x: Config.colors_order.index(x)
-        self.colors = ''.join(sorted(self.colors, key=key))
+        if isinstance(colors, str):
+            self.colors = colors
+            key = lambda x: Config.colors_order.index(x)
+            self.colors = ''.join(sorted(self.colors, key=key))
 
-        self.name_label.set_text(self.colors, self.filename)
+            self.name_label.set_text(self.colors, self.filename)
 
-        for item in self.color_menu.children():
-            item: QAction
-            if item.text()[0] in self.colors:
-                item.setChecked(True)
+            for item in self.color_menu.children():
+                item: QAction
+                if item.text()[0] in self.colors:
+                    item.setChecked(True)
 
 
 # Сетка изображений
