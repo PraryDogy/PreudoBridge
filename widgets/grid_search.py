@@ -236,7 +236,6 @@ class GridSearch(Grid):
         # этот словарик нужен для повторного формирования сетки при изменении
         # размера и для сортировки по имени/размеру/дате/типу
         self._image_grid_widgets: dict[tuple: ThumbnailSearch] = {}
-        self.search_text = search_text
 
         self.col_count = Utils.get_clmn_count(width)
         self.row, self.col = 0, 0
@@ -245,11 +244,11 @@ class GridSearch(Grid):
         self.grid_layout.addItem(clmn_spacer, 0, self.col_count + 1)
 
         self.search_thread = SearchFinder(search_text)
-        self.search_thread.add_new_widget.connect(self._add_new_widget)
+        self.search_thread.add_new_widget.connect(self.add_new_widget)
         self.search_thread._finished.connect(self.search_finished.emit)
         self.search_thread.start()
 
-    def _add_new_widget(self, widget_data: WidgetData):
+    def add_new_widget(self, widget_data: WidgetData):
         # data идет из сигнала _new_widget_sig
         # "src", "stats" - os.stat, "pixmap", "colors": str
         filename = os.path.basename(widget_data.src)
@@ -288,8 +287,8 @@ class GridSearch(Grid):
         if not self.search_thread.isRunning():
 
             # очищаем для нового наполнения
-            # self.coords.clear()
             self.wid_to_cell.clear()
+            self.cell_to_wid.clear()
             self.curr_cell = (0, 0)
 
             # получаем новое количество колонок на случай изменения размера окна
@@ -325,6 +324,7 @@ class GridSearch(Grid):
         # начинаем с 1, потому что 0 у нас путь до файла, нам не нужна сортировка по src
 
         index = sort_data.get(Config.json_data.get("sort"))
+        rev = Config.json_data.get("reversed")
 
         if index < 5:
             sort_key = lambda item: item[0][index]
@@ -332,11 +332,8 @@ class GridSearch(Grid):
             sort_key = lambda item: len(item[0][index])
             
         self._image_grid_widgets = dict(
-            sorted(self._image_grid_widgets.items(), key=sort_key)
+            sorted(self._image_grid_widgets.items(), key=sort_key, reverse=rev)
             )
-
-        if Config.json_data["reversed"]:
-            self._image_grid_widgets = dict(reversed(self._image_grid_widgets.items()))
             
         self.image_paths = [k[0] for k, v in self._image_grid_widgets.items()]
         self.resize_grid(width)
