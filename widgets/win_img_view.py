@@ -259,9 +259,13 @@ class WinImgView(QWidget):
 
         self.context_menu = QMenu(self)
 
-        open_action = QAction("Открыть по умолчанию", self)
-        open_action.triggered.connect(self.open_default)
-        self.context_menu.addAction(open_action)
+        open_menu = QMenu("Открыть в приложении", self)
+        self.context_menu.addMenu(open_menu)
+
+        for name, app_path in Config.image_apps.items():
+            wid = QAction(name, parent=open_menu)
+            wid.triggered.connect(lambda e, a=app_path: self.open_default(a))
+            open_menu.addAction(wid)
 
         show_in_finder_action = QAction("Показать в Finder", self)
         show_in_finder_action.triggered.connect(self.show_in_finder)
@@ -275,7 +279,13 @@ class WinImgView(QWidget):
         self.load_thumbnail()
 
 # SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM
-                
+
+    def open_default(self, app_path: str):
+        subprocess.call(["open", "-a", app_path, self.src])
+
+    def show_in_finder(self):
+        subprocess.call(["open", "-R", self.src])
+
     def load_thumbnail(self):
         if self.src not in Shared.loaded_images:
 
@@ -403,8 +413,3 @@ class WinImgView(QWidget):
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         self.context_menu.exec_(self.mapToGlobal(a0.pos()))
     
-    def open_default(self):
-        subprocess.call(["open", self.src])
-
-    def show_in_finder(self):
-        subprocess.call(["open", "-R", self.src])
