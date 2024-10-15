@@ -235,7 +235,7 @@ class GridSearch(Grid):
         # (путь до файла, имя файла, размер, дата изменения, тип файла)
         # этот словарик нужен для повторного формирования сетки при изменении
         # размера и для сортировки по имени/размеру/дате/типу
-        self._image_grid_widgets: dict[tuple: ThumbnailSearch] = {}
+        self.sorted_widgets: dict[tuple: ThumbnailSearch] = {}
 
         self.col_count = Utils.get_clmn_count(width)
         self.row, self.col = 0, 0
@@ -273,7 +273,7 @@ class GridSearch(Grid):
         size = widget_data.stats.st_size
         modified = widget_data.stats.st_mtime
         filetype = os.path.splitext(widget_data.src)[1]
-        self._image_grid_widgets[(widget_data.src, filename, size, modified, filetype, colors)] = wid
+        self.sorted_widgets[(widget_data.src, filename, size, modified, filetype, colors)] = wid
 
         # прибавляем строчку и столбец в сетку
         self.col += 1
@@ -298,7 +298,7 @@ class GridSearch(Grid):
             # (путь до файла, имя файла, размер, дата изменения, тип файла)
             # этот словарик нужен для повторного формирования сетки при изменении
             # размера и для сортировки по имени/размеру/дате/типу
-            for (src, filename, size, modify, filetype, colors), wid in self._image_grid_widgets.items():
+            for wid in self.sorted_widgets.values():
                 wid: ThumbnailSearch
                 wid.disconnect()
                 wid.show_in_folder.connect(self.show_in_folder.emit)
@@ -319,9 +319,7 @@ class GridSearch(Grid):
     def sort_grid(self, width: int):
         sort_data = {"src": 0, "name": 1, "size": 2,  "modify": 3, "type": 4, "colors": 5}
         # ключи соответствуют json_data["sort"]
-        # значения соответствуют индексам в кортеже у ключей
-        # (путь до файла, имя файла, размер, дата изменения, тип файла)
-        # начинаем с 1, потому что 0 у нас путь до файла, нам не нужна сортировка по src
+        # self.sorted_widgets = { (src, filename, size, modify, type, colors): SearchThumbnail }
 
         index = sort_data.get(Config.json_data.get("sort"))
         rev = Config.json_data.get("reversed")
@@ -331,11 +329,11 @@ class GridSearch(Grid):
         else:
             sort_key = lambda item: len(item[0][index])
             
-        self._image_grid_widgets = dict(
-            sorted(self._image_grid_widgets.items(), key=sort_key, reverse=rev)
+        self.sorted_widgets = dict(
+            sorted(self.sorted_widgets.items(), key=sort_key, reverse=rev)
             )
             
-        self.image_paths = [k[0] for k, v in self._image_grid_widgets.items()]
+        self.image_paths = [k[0] for k, v in self.sorted_widgets.items()]
         self.resize_grid(width)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
