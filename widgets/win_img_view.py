@@ -280,7 +280,7 @@ class WinImgView(QWidget):
         if self.src not in Shared.loaded_images:
 
             self.setWindowTitle("Загрузка")
-            q = (sqlalchemy.select(CACHE.c.img).filter(CACHE.c.src == self.src))
+            q = sqlalchemy.select(CACHE.c.img).filter(CACHE.c.src == self.src)
 
             with Engine.engine.connect() as conn:
 
