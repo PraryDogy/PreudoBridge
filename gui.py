@@ -36,7 +36,7 @@ class SimpleFileExplorer(QWidget):
         super().__init__()
         self.setMinimumWidth(200)
 
-        self.grid: Union[GridSearch, GridStandart] = None
+        self.grid: Union[GridSearch, GridStandart, ListStandart] = False
 
         ww, hh = Config.json_data.get("ww"), Config.json_data.get("hh")
         self.resize(ww, hh)
@@ -172,7 +172,7 @@ class SimpleFileExplorer(QWidget):
         if isinstance(self.grid, GridStandart):
             self.grid.progressbar_value.emit(1000000)
 
-        if isinstance(self.grid, (GridSearch, GridStandart, ListStandart)):
+        if not isinstance(self.grid, bool):
             self.grid.disconnect()
             self.grid.close()
 
@@ -211,7 +211,7 @@ class SimpleFileExplorer(QWidget):
         if isinstance(self.grid, GridStandart):
             self.grid.progressbar_value.emit(1000000)
 
-        if isinstance(self.grid, (GridSearch, GridStandart, ListStandart)):
+        if not isinstance(self.grid, bool):
             self.grid.disconnect()
             self.grid.close()
         
