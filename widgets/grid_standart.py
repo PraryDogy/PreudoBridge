@@ -51,20 +51,21 @@ class LoadImages(QThread):
     # не используется
     _finished = pyqtSignal()
     
-    def __init__(self, stats_pixmap: dict[tuple: QLabel]):
+    def __init__(self, src_size_mod: list[tuple]):
         super().__init__()
 
         # копируем, чтобы не менялся родительский словарик
         # потому что на него опирается основной поток
         # а мы удаляем из этого словарика элементы в обходе БД
-        self.stats_pixmap: dict[tuple: QLabel] = stats_pixmap
+        # self.stats_pixmap: dict[tuple: QLabel] = stats_pixmap
+        self.src_size_mod: list[tuple] = src_size_mod
 
         # если изображение есть в БД но нет в словарике
         # значит оно было ранее удалено из Findder и будет удалено из БД
-        self.remove_db_images: dict[tuple: None] = {}
+        self.remove_db_images: list = []
 
         # существующие изображения в БД
-        self.db_images: dict = {}
+        self.db_images: dict[tuple: bytearray] = {}
         
         # флаг для остановки, если False - прервется цикл
         self.flag = True
@@ -97,10 +98,10 @@ class LoadImages(QThread):
         self._finished.emit()
 
     def create_new_images(self):
-        self.progressbar_start.emit(len(self.stats_pixmap))
+        self.progressbar_start.emit(len(self.src_size_mod))
         count = 0
 
-        for (src, size, modified), widget in self.stats_pixmap.items():
+        for src, size, modified in self.src_size_mod:
             if not self.flag:
                 break
 
@@ -112,7 +113,7 @@ class LoadImages(QThread):
 
             try:
                 # numpy array в PIXMAP и сигнал в сетку
-                self.set_new_image((src, size, modified), img)
+                self.set_new_image(src, size, modified, img)
             except AttributeError as e:
                 pass
 
@@ -160,31 +161,28 @@ class LoadImages(QThread):
         self.progressbar_value.emit(1000000)
 
     def load_already_images(self):
-        for (src, size, modified), bytearray_image in self.db_images.items():
-
-            # мы сверяем по пути, размеру и дате, есть ли в БД такой же ключ
-            key = self.stats_pixmap.get((src, size, modified))
+        for (db_src, db_size, db_mod), db_byte_img in self.db_images.items():
 
             if not self.flag:
                 break
 
             # если есть в БД, то отправляем изображение в сетку
             # и удаляем из словарика этот элемент
-            if key:
-                pixmap: QPixmap = Utils.pixmap_from_bytes(bytearray_image)
-                self.new_widget.emit(ImageData(src, size, modified, pixmap))
+            if (db_src, db_size, db_mod) in self.src_size_mod:
+                pixmap: QPixmap = Utils.pixmap_from_bytes(db_byte_img)
+                self.new_widget.emit(ImageData(db_src, db_size, db_mod, pixmap))
 
                 # !!! очень важный момент
-                # потому что следом за проверкой БД изображений
-                # последует обход ОСТАВШИХСЯ в self.grid_widgets элементов
+                # следом за проверкой БД изображений
+                # последует обход ОСТАВШИХСЯ в self.src_size_mod элементов
                 # то есть после этой итерации с БД в словаре останутся
                 # только НОВЫЕ изображения, которые вставим в БД и сетку
-                self.stats_pixmap.pop((src, size, modified))
+                self.src_size_mod.remove((db_src, db_size, db_mod))
             else:
-                self.remove_db_images[(src, size, modified)] = None
+                self.remove_db_images.append(db_src)
 
     def remove_images(self):
-        for (src, _, _), _ in self.remove_db_images.items():
+        for src in self.remove_db_images:
             q = sqlalchemy.delete(CACHE).where(CACHE.c.src == src)
             try:
                 self.conn.execute(q)
@@ -210,13 +208,11 @@ class LoadImages(QThread):
     def stop_thread_cmd(self):
         self.flag = False
 
-    def set_new_image(self, data: tuple, image: np.ndarray):
+    def set_new_image(self, src: str, size: int, modified: int, image: np.ndarray):
         pixmap = Utils.pixmap_from_array(image)
-        try:
-            src, size, modified = data
+
+        if isinstance(pixmap, QPixmap):
             self.new_widget.emit(ImageData(src, size, modified, pixmap))
-        except RuntimeError:
-            pass
 
 
 # большие сетевые папки замедляют обход через os listdir
@@ -372,7 +368,7 @@ class GridStandart(Grid):
     def create_grid(self, finder_items: list):
         # (путь, размер, дата): QLabel
         # Для последующей загрузки в LoadImages
-        stats_pixmap: dict[tuple: QLabel] = {}
+        src_size_mod: list[tuple] = []
 
         col_count = Utils.get_clmn_count(self.ww)
         row, col = 0, 0
@@ -394,8 +390,7 @@ class GridStandart(Grid):
                 self.set_base_img(wid.img_label, "images/file_210.png")
                 # ADD COLORS TO THUMBNAIL
                 wid.update_colors(colors)
-                # добавляем в словарик для подгрузки изображений
-                stats_pixmap[(src, size, modified)] = wid.img_label
+                src_size_mod.append((src, size, modified))
 
             self.grid_layout.addWidget(wid, row, col)
             wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
@@ -421,7 +416,7 @@ class GridStandart(Grid):
             col_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
             self.grid_layout.addItem(col_spacer, 0, col_count + 2)
 
-            self.start_load_images(stats_pixmap)
+            self.start_load_images(src_size_mod)
 
         elif not os.path.exists(Config.json_data.get("root")):
             t = f"{Config.json_data.get('root')}\nТакой папки не существует\nПроверьте подключение к сетевому диску"
@@ -452,8 +447,8 @@ class GridStandart(Grid):
             if i.isFinished():
                 Storage.threads.remove(i)
 
-    def start_load_images(self, stats_pixmap: dict[tuple: QLabel]):
-        thread = LoadImages(stats_pixmap)
+    def start_load_images(self, src_size_mod: list[tuple]):
+        thread = LoadImages(src_size_mod)
         thread.progressbar_start.connect(self.progressbar_start.emit)
         thread.progressbar_value.connect(self.progressbar_value.emit)
         thread.new_widget.connect(lambda image_data: self.set_pixmap(image_data))

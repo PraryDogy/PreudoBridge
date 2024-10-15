@@ -149,7 +149,7 @@ class Utils:
         return None
     
     @staticmethod
-    def pixmap_from_array(image: np.ndarray) -> QPixmap:
+    def pixmap_from_array(image: np.ndarray) -> QPixmap | None:
         if isinstance(image, np.ndarray):
             height, width, channel = image.shape
             bytes_per_line = channel * width

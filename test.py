@@ -1,5 +1,3 @@
-test = {"1": 2}
+a = [ (1, 2, 3) ]
 
-
-a = test.get("4") or "123"
-print(a)
+b = a.index((1, 2, 4))
