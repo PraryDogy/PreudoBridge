@@ -219,6 +219,7 @@ class NextImageBtn(SwitchImageBtn):
 
 class WinImgView(QWidget):
     closed = pyqtSignal(str)
+    color_click = pyqtSignal(str)
 
     def __init__(self, img_src: str, image_paths: list):
         super().__init__()
@@ -274,6 +275,19 @@ class WinImgView(QWidget):
         copy_path = QAction("Скопировать путь до файла", self)
         copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
         self.context_menu.addAction(copy_path)
+
+        self.color_menu = QMenu("Цвета", self)
+        self.context_menu.addMenu(self.color_menu)
+
+        for color, text in Config.colors.items():
+            wid = QAction(parent=self.color_menu, text=f"{color} {text}")
+            wid.setCheckable(True)
+
+            # if color in self.colors:
+                # wid.setChecked(True)
+
+            wid.triggered.connect(lambda e, c=color: self.color_click.emit(c))
+            self.color_menu.addAction(wid)
 
         self.hide_all_buttons()
         self.load_thumbnail()
