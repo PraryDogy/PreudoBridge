@@ -61,12 +61,12 @@ class Dbase:
         with Engine.engine.connect() as conn:
             with conn.begin():
 
-                current_size = conn.execute(q_get_stats).first()[0]
+                current_size = conn.execute(q_get_stats).scalar() or 0
                 config_size = Config.json_data["clear_db"] * (1024**3)
 
                 if current_size >= config_size:
 
                     conn.execute(q_del_cache)
                     conn.execute(q_upd_stats)
-                    
-                conn.execute(sqlalchemy.text("VACUUM"))
+
+            conn.execute(sqlalchemy.text("VACUUM"))
