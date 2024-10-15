@@ -299,7 +299,7 @@ class GridSearch(Grid):
                 wid.img_viewer_closed.connect(self.move_to_wid)
                 wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
 
-                # обновляем информацию в Thumbnail о порядке путей и виджетом
+                # обновляем информацию в Thumbnail о порядке путей и виджетов
                 # для правильной передачи в ImgView после пересортировки сетки
                 wid.path_to_wid = self.path_to_wid
 
