@@ -55,7 +55,6 @@ class SearchFinder(QThread):
         self.flag: bool = True
 
         self.conn: sqlalchemy.Connection = Engine.engine.connect()
-        self.transaction: sqlalchemy.RootTransaction = self.conn.begin()
         self.insert_count: int = 0 
 
     def _stop_cmd(self):
@@ -108,7 +107,8 @@ class SearchFinder(QThread):
         # "поиск файла" на "результаты поиска"
 
         if self.insert_count > 0:
-            self.transaction.commit()
+            self.conn.commit()
+
         self.conn.close()
 
         if self.flag:
@@ -197,16 +197,11 @@ class SearchFinder(QThread):
                 # Контроль количества коммитов
                 self.insert_count += 1
                 if self.insert_count >= 10:  # Коммит каждые 10 записей
-                    self.transaction.commit()
-                    self.transaction = self.conn.begin()
+                    self.conn.commit()
                     self.insert_count = 0
 
-            except OperationalError:
-                print("Operational error while inserting image data")
-                self.transaction.rollback()  # Откат в случае ошибки
-            except Exception as e:
-                print("Unexpected error during image insert:", e)
-                self.transaction.rollback()
+            except (OperationalError, Exception) as e:
+                print("grid search > img_data_to_db: ", e)
 
     def create_img_array(self, src: str) -> ndarray | None:
         img = Utils.read_image(src)

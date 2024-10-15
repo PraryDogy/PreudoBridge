@@ -61,8 +61,7 @@ class Dbase:
         with Engine.engine.connect() as conn:
 
             current_size = conn.execute(q_get_stats).scalar() or 0
-            config_size = Config.json_data["clear_db"] * (1024**3)
-            config_size = 10
+            config_size = Config.json_data.get("clear_db") * (1024**3)
 
             if current_size >= config_size:
 
