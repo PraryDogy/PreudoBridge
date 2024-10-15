@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import QAction, QLabel, QSizePolicy, QSpacerItem
 from sqlalchemy.exc import OperationalError
 
 from cfg import Config
-from database import CACHE, STATS, Dbase, Engine
+from database import CACHE, STATS, Engine
 from fit_img import FitImg
 from utils import Utils
 
@@ -17,7 +17,7 @@ from .grid_base import Grid, Thumbnail
 
 # Если родительский класс запущенного треда будет закрыт
 # Тред получит сигнал стоп и безопасно завершится
-class _Storage:
+class Storage:
     threads: list = []
 
 
@@ -35,18 +35,18 @@ class ImageData:
         self.pixmap: QPixmap = pixmap
 
 
-class _LoadImagesThread(QThread):
+class LoadImages(QThread):
 
     # передает обратно (путь, размер, дата): PIXMAP
     # чтобы в основном потоке в словарике найти виджет и применить изображение
-    image_data = pyqtSignal(ImageData)
+    new_widget = pyqtSignal(ImageData)
 
     # отправляем в основное приложение чтобы показать прогресс
-    _progressbar_start = pyqtSignal(int)
-    _progressbar_value = pyqtSignal(int)
+    progressbar_start = pyqtSignal(int)
+    progressbar_value = pyqtSignal(int)
 
     # флаг проверяется в цикле и если False то цикл прерывается
-    _stop_thread = pyqtSignal()
+    stop_thread = pyqtSignal()
 
     # не используется
     _finished = pyqtSignal()
@@ -68,7 +68,7 @@ class _LoadImagesThread(QThread):
         
         # флаг для остановки, если False - прервется цикл
         self.flag = True
-        self._stop_thread.connect(self.stop_thread_cmd)
+        self.stop_thread.connect(self.stop_thread_cmd)
 
         # открываем сессию на время треда
         self.conn = Engine.engine.connect()
@@ -97,7 +97,7 @@ class _LoadImagesThread(QThread):
         self._finished.emit()
 
     def create_new_images(self):
-        self._progressbar_start.emit(len(self.grid_widgets))
+        self.progressbar_start.emit(len(self.grid_widgets))
         count = 0
 
         for (src, size, modified), widget in self.grid_widgets.items():
@@ -153,11 +153,11 @@ class _LoadImagesThread(QThread):
             except (OperationalError ,Exception) as e:
                 pass
 
-            self._progressbar_value.emit(count)
+            self.progressbar_value.emit(count)
             count += 1
 
         # 1 милилон = скрыть прогресс бар согласно его инструкции
-        self._progressbar_value.emit(1000000)
+        self.progressbar_value.emit(1000000)
 
     def load_already_images(self):
         for (src, size, modified), bytearray_image in self.db_images.items():
@@ -172,7 +172,7 @@ class _LoadImagesThread(QThread):
             # и удаляем из словарика этот элемент
             if key:
                 pixmap: QPixmap = Utils.pixmap_from_bytes(bytearray_image)
-                self.image_data.emit(ImageData(src, size, modified, pixmap))
+                self.new_widget.emit(ImageData(src, size, modified, pixmap))
 
                 # !!! очень важный момент
                 # потому что следом за проверкой БД изображений
@@ -214,7 +214,7 @@ class _LoadImagesThread(QThread):
         pixmap = Utils.pixmap_from_array(image)
         try:
             src, size, modified = data
-            self.image_data.emit(ImageData(src, size, modified, pixmap))
+            self.new_widget.emit(ImageData(src, size, modified, pixmap))
         except RuntimeError:
             pass
 
@@ -225,23 +225,21 @@ class _LoadImagesThread(QThread):
 # и добавляем стандартые иконки папок и файлов
 # сортируем полученный список соответсвуя Config.json_data
 # отправляем в сетку
-class _LoadFinderThread(QThread):
-    _finished = pyqtSignal(dict)
+class LoadFinder(QThread):
+    _finished = pyqtSignal(list)
 
     def __init__(self):
         super().__init__()
-        self.finder_items: dict[tuple: None] = {}
-        self.db_colors: dict[str: str] = {}
 
     def run(self):
         try:
-            self.get_db_colors()
-            self.get_items()
-            self.sort_items()
+            db_colors = self.get_db_colors()
+            finder_items: list = self.get_items(db_colors)
+            finder_items: list = self.sort_items(finder_items)
         except (PermissionError, FileNotFoundError):
-            self.finder_items: dict[tuple: None] = {}
+            finder_items: list = []
         
-        self._finished.emit(self.finder_items)
+        self._finished.emit(finder_items)
 
     def get_db_colors(self):
         q = sqlalchemy.select(CACHE.c.src, CACHE.c.colors)
@@ -249,56 +247,53 @@ class _LoadFinderThread(QThread):
 
         with Engine.engine.connect() as conn:
             with conn.begin():
-
                 res = conn.execute(q).fetchall()
-                self.db_colors = {src: colors for src, colors in res}
+                return {src: colors for src, colors in res}
 
-    def get_items(self):
+    def get_items(self, db_colors: dict) -> list:
+        finder_items = []
+
         for filename in os.listdir(Config.json_data.get("root")):
+
             src: str = os.path.join(Config.json_data.get("root"), filename)
 
             try:
                 stats = os.stat(src)
+                size = stats.st_size
+                modified = stats.st_mtime
+                filetype = os.path.splitext(filename)[1]
+                colors = db_colors.get(src)
             except (PermissionError, FileNotFoundError):
                 continue
 
-            size = stats.st_size
-            modified = stats.st_mtime
-            filetype = os.path.splitext(filename)[1]
-            colors = self.db_colors.get(src)
-
-            if not isinstance(colors, str):
-                colors = ""
-
             if src.lower().endswith(Config.img_ext):
-                self.finder_items[(src, filename, size, modified, filetype, colors)] = None
+                finder_items.append((src, filename, size, modified, filetype, colors))
                 continue
 
             elif os.path.isdir(src):
-                self.finder_items[(src, filename, size, modified, filetype, colors)] = None
+                finder_items.append((src, filename, size, modified, filetype, colors))
+
+        return finder_items
             
-    def sort_items(self):
+    def sort_items(self, finder_items: list):
         # finder_items: src filename size modified filetype
         # мы создаем отдельный словарик, где ключ соответствует Config.json_data "sort"
         # а значение индексу в ключе self.finder_items
         # таким образом если "sort" у нас size, то мы знаем, что нужно сортировать
         # по индексу 2
         sort_data = {"src": 0, "name": 1, "size": 2,  "modify": 3, "type": 4, "colors": 5}
-
         index = sort_data.get(Config.json_data.get("sort"))
-            
-        if index < 5:
-            sort_key = lambda item: item[0][index]
+        rev = Config.json_data.get("reversed")
+
+        if index != 5:
+            sort_key = lambda x: x[index]
         else:
-            sort_key = lambda item: len(item[0][index])
+            sort_key = lambda x: len(x[index])
 
-        self.finder_items = dict(sorted(self.finder_items.items(), key=sort_key))     
-
-        if Config.json_data["reversed"]:
-            self.finder_items = dict(reversed(self.finder_items.items()))
+        return sorted(finder_items, key=sort_key, reverse=rev)
 
 
-class _FolderThumbnail(Thumbnail):
+class ThumbnailFolder(Thumbnail):
     add_fav = pyqtSignal(str)
     del_fav = pyqtSignal(str)
 
@@ -370,23 +365,23 @@ class GridStandart(Grid):
         # делаем os listdir обход и по сигналу finished
         # запустится создание сетки
         # в конце создания запустится подгрузка изображений
-        self._finder_thread = _LoadFinderThread()
-        self._finder_thread._finished.connect(self._create_grid)
-        self._finder_thread.start()
+        self.finder_thread = LoadFinder()
+        self.finder_thread._finished.connect(self.create_grid)
+        self.finder_thread.start()
 
-    def _create_grid(self, _finder_items: dict):
-        # (путь, размео, дата): QLabel
-        # Для последующей загрузки в _LoadImagesThread
-        self._load_images_data: dict[tuple: QPixmap] = {}
+    def create_grid(self, finder_items: list):
+        # (путь, размер, дата): QLabel
+        # Для последующей загрузки в LoadImages
+        stats_pixmap: dict[tuple: QLabel] = {}
 
         col_count = Utils.get_clmn_count(self.ww)
         row, col = 0, 0
 
-        for (src, filename, size, modified, _, colors), _ in _finder_items.items():
+        for src, filename, size, modified, type, colors in finder_items:
 
             if os.path.isdir(src):
-                wid = _FolderThumbnail(filename, src)
-                self._set_default_image(wid.img_label, "images/folder_210.png")
+                wid = ThumbnailFolder(filename, src)
+                self.set_base_img(wid.img_label, "images/folder_210.png")
 
                 # подключаем сигналы виджеты к сигналу сетки
                 wid.clicked_folder.connect(self.clicked_folder.emit)
@@ -396,11 +391,11 @@ class GridStandart(Grid):
             else:
                 wid = Thumbnail(filename, src, self.image_paths)
                 wid.img_viewer_closed.connect(lambda src: self.move_to_wid(src))
-                self._set_default_image(wid.img_label, "images/file_210.png")
+                self.set_base_img(wid.img_label, "images/file_210.png")
                 # ADD COLORS TO THUMBNAIL
                 wid.update_colors(colors)
                 # добавляем в словарик для подгрузки изображений
-                self._load_images_data[(src, size, modified)] = wid.img_label
+                stats_pixmap[(src, size, modified)] = wid.img_label
 
             self.grid_layout.addWidget(wid, row, col)
             wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
@@ -426,7 +421,7 @@ class GridStandart(Grid):
             col_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
             self.grid_layout.addItem(col_spacer, 0, col_count + 2)
 
-            self._start_load_images_thread()
+            self.start_load_images(stats_pixmap)
 
         elif not os.path.exists(Config.json_data.get("root")):
             t = f"{Config.json_data.get('root')}\nТакой папки не существует\nПроверьте подключение к сетевому диску"
@@ -442,30 +437,30 @@ class GridStandart(Grid):
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0)
 
-    def _set_default_image(self, widget: QLabel, png_path: str):
+    def set_base_img(self, widget: QLabel, png_path: str):
         pixmap = QPixmap(png_path)
         try:
             widget.setPixmap(pixmap)
         except RuntimeError:
             pass
 
-    def _stop_threads(self):
-        for i in _Storage.threads:
-            i: _LoadImagesThread
-            i._stop_thread.emit()
+    def stop_threads(self):
+        for i in Storage.threads:
+            i: LoadImages
+            i.stop_thread.emit()
 
             if i.isFinished():
-                _Storage.threads.remove(i)
+                Storage.threads.remove(i)
 
-    def _start_load_images_thread(self):
-        new_thread = _LoadImagesThread(self._load_images_data)
-        new_thread._progressbar_start.connect(self.progressbar_start.emit)
-        new_thread._progressbar_value.connect(self.progressbar_value.emit)
-        new_thread.image_data.connect(lambda image_data: self._set_pixmap(image_data))
-        _Storage.threads.append(new_thread)
-        new_thread.start()
+    def start_load_images(self, stats_pixmap: dict[tuple: QLabel]):
+        thread = LoadImages(stats_pixmap)
+        thread.progressbar_start.connect(self.progressbar_start.emit)
+        thread.progressbar_value.connect(self.progressbar_value.emit)
+        thread.new_widget.connect(lambda image_data: self.set_pixmap(image_data))
+        Storage.threads.append(thread)
+        thread.start()
     
-    def _set_pixmap(self, image_data: ImageData):
+    def set_pixmap(self, image_data: ImageData):
         widget = self.path_to_wid.get(image_data.src)
 
         if isinstance(widget, Thumbnail):
@@ -493,7 +488,7 @@ class GridStandart(Grid):
 
         for (_row, _col), wid in coords.items():
 
-            if isinstance(wid, _FolderThumbnail):
+            if isinstance(wid, ThumbnailFolder):
                 wid.disconnect()
                 wid.clicked_folder.connect(self.clicked_folder.emit)
                 wid.add_fav.connect(self.add_fav.emit)
@@ -516,5 +511,5 @@ class GridStandart(Grid):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         # когда убивается этот виджет, все треды безопасно завершатся
-        self._stop_threads()
+        self.stop_threads()
         return super().closeEvent(a0)

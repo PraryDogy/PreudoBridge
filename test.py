@@ -1,22 +1,9 @@
-from database import Dbase, CACHE, Engine
-import sqlalchemy
-from sqlalchemy.exc import OperationalError
-
-Dbase.init_db()
-conn = Engine.engine.connect()
+test = [(1, 2, 3, 4, "ddd"), (5, 6, 7, 8, "wdds")]
 
 
+k = lambda x: x[3]
+a = sorted(test, key=k)
 
-def get_db_data(src: str) -> dict | None:
-    try:
-        q = sqlalchemy.select(CACHE.c.img, CACHE.c.colors)
-        q = q.where(CACHE.c.src == src)
-        res = conn.execute(q).first()
+a = reversed(a)
 
-        if res:
-            return {"img": res.img, "colors": res.colors}
-        else:
-            return None
-
-    except OperationalError:
-        return None
+print(a)
