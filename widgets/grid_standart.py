@@ -145,25 +145,22 @@ class LoadImages(QThread):
             if os.path.isdir(src):
                 continue
 
-            img = Utils.read_image(src)
-            img = FitImg.start(img, Config.img_size)
+            img_array = Utils.read_image(src)
+            img_array = FitImg.start(img_array, Config.img_size)
+            img_bytes: bytes = Utils.image_array_to_bytes(img_array)
+            pixmap = Utils.pixmap_from_array(img_array)
+
+            if not isinstance(img_bytes, bytes):
+                continue
+
+            if isinstance(pixmap, QPixmap):
+                self.new_widget.emit(ImageData(src, size, modified, pixmap))
 
             try:
-                # numpy array в PIXMAP и сигнал в сетку
-                self.set_new_image(src, size, modified, img)
-            except AttributeError as e:
-                pass
-
-            try:
-                # numpy array в БД
-                img: bytes = Utils.image_array_to_bytes(img)
-
-                if not isinstance(img, bytes):
-                    continue
 
                 q = sqlalchemy.insert(CACHE)
                 q = q.values(
-                    img = img,
+                    img = img_bytes,
                     src = src,
                     root = Config.json_data.get("root"),
                     size = size,
@@ -176,7 +173,7 @@ class LoadImages(QThread):
 
                 q = sqlalchemy.select(STATS.c.size).where(STATS.c.name == "main")
                 stats_size = self.conn.execute(q).scalar() or 0
-                stats_size += len(img)
+                stats_size += len(img_bytes)
 
                 q = sqlalchemy.update(STATS).where(STATS.c.name=="main")
                 q = q.values(size = stats_size)
@@ -208,12 +205,6 @@ class LoadImages(QThread):
 
     def stop_thread_cmd(self):
         self.flag = False
-
-    def set_new_image(self, src: str, size: int, modified: int, image: np.ndarray):
-        pixmap = Utils.pixmap_from_array(image)
-
-        if isinstance(pixmap, QPixmap):
-            self.new_widget.emit(ImageData(src, size, modified, pixmap))
 
 
 # большие сетевые папки замедляют обход через os listdir
