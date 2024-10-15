@@ -97,6 +97,43 @@ class LoadImages(QThread):
         # не используется
         self._finished.emit()
 
+    def get_db_images(self):
+        q = sqlalchemy.select(CACHE.c.img, CACHE.c.src, CACHE.c.size, CACHE.c.modified)
+        q = q.where(CACHE.c.root == Config.json_data.get("root"))
+
+        try:
+            res = self.conn.execute(q).fetchall()
+        except OperationalError:
+            return None
+
+        # возвращаем словарик по структуре такой же как входящий
+        return {
+            (src, size, modified): img
+            for img, src, size,  modified in res
+            }
+
+    def load_already_images(self):
+        for (db_src, db_size, db_mod), db_byte_img in self.db_images.items():
+
+            if not self.flag:
+                break
+
+            # если есть в БД, то отправляем изображение в сетку
+            # и удаляем из словарика этот элемент
+            if (db_src, db_size, db_mod) in self.src_size_mod:
+                pixmap: QPixmap = Utils.pixmap_from_bytes(db_byte_img)
+                self.new_widget.emit(ImageData(db_src, db_size, db_mod, pixmap))
+
+                # мы удаляем элемент если он есть в базе данных и в Finder
+                # в src_size_mod останутся только те элементы
+                # которые есть в Finder и нет в БД
+                # т.е. то, что это новые Finder элементы, которые 
+                # добавятся в БД в последующем методе create_new_images
+
+                self.src_size_mod.remove((db_src, db_size, db_mod))
+            else:
+                self.remove_db_images.append(db_src)
+
     def create_new_images(self):
         self.progressbar_start.emit(len(self.src_size_mod))
         count = 0
@@ -160,27 +197,6 @@ class LoadImages(QThread):
         # 1 милилон = скрыть прогресс бар согласно его инструкции
         self.progressbar_value.emit(1000000)
 
-    def load_already_images(self):
-        for (db_src, db_size, db_mod), db_byte_img in self.db_images.items():
-
-            if not self.flag:
-                break
-
-            # если есть в БД, то отправляем изображение в сетку
-            # и удаляем из словарика этот элемент
-            if (db_src, db_size, db_mod) in self.src_size_mod:
-                pixmap: QPixmap = Utils.pixmap_from_bytes(db_byte_img)
-                self.new_widget.emit(ImageData(db_src, db_size, db_mod, pixmap))
-
-                # !!! очень важный момент
-                # следом за проверкой БД изображений
-                # последует обход ОСТАВШИХСЯ в self.src_size_mod элементов
-                # то есть после этой итерации с БД в словаре останутся
-                # только НОВЫЕ изображения, которые вставим в БД и сетку
-                self.src_size_mod.remove((db_src, db_size, db_mod))
-            else:
-                self.remove_db_images.append(db_src)
-
     def remove_images(self):
         for src in self.remove_db_images:
             q = sqlalchemy.delete(CACHE).where(CACHE.c.src == src)
@@ -189,21 +205,6 @@ class LoadImages(QThread):
                 self.insert_count += 1
             except OperationalError:
                 ...
-
-    def get_db_images(self):
-        q = sqlalchemy.select(CACHE.c.img, CACHE.c.src, CACHE.c.size, CACHE.c.modified)
-        q = q.where(CACHE.c.root == Config.json_data.get("root"))
-
-        try:
-            res = self.conn.execute(q).fetchall()
-        except OperationalError:
-            return None
-
-        # возвращаем словарик по структуре такой же как входящий
-        return {
-            (src, size, modified): img
-            for img, src, size,  modified in res
-            }
 
     def stop_thread_cmd(self):
         self.flag = False
