@@ -18,7 +18,7 @@ from .grid_base import Grid, Thumbnail
 
 
 # Добавляем в контенкстное меню "Показать в папке"
-class SearchThumbnail(Thumbnail):
+class ThumbnailSearch(Thumbnail):
     show_in_folder = pyqtSignal(str)
 
     def __init__(self, filename: str, src: str, paths: list):
@@ -44,15 +44,14 @@ class WidgetData:
 # Ищет ТОЛЬКО изображения
 # Если найденного изображения нет в БД, то кеширует
 # Если есть - загружает изображение кеша и отправляется синал add_new_widget:
-class _SearchFinderThread(QThread):
+class SearchFinder(QThread):
     _finished = pyqtSignal()
     add_new_widget = pyqtSignal(WidgetData)
 
-    def __init__(self, search_dir: str, search_text: str):
+    def __init__(self, search_text: str):
         super().__init__()
 
         self.search_text: str = search_text
-        self.search_dir: str = search_dir
         self.flag: bool = True
 
         self.conn: sqlalchemy.Connection = Engine.engine.connect()
@@ -82,7 +81,7 @@ class _SearchFinderThread(QThread):
         if not isinstance(self.search_text, tuple):
             self.search_text = str(self.search_text)
 
-        for root, _, files in os.walk(self.search_dir):
+        for root, _, files in os.walk(Config.json_data.get("root")):
             if not self.flag:
                 break
 
@@ -235,7 +234,7 @@ class GridSearch(Grid):
         # (путь до файла, имя файла, размер, дата изменения, тип файла)
         # этот словарик нужен для повторного формирования сетки при изменении
         # размера и для сортировки по имени/размеру/дате/типу
-        self._image_grid_widgets: dict[tuple: SearchThumbnail] = {}
+        self._image_grid_widgets: dict[tuple: ThumbnailSearch] = {}
         self.search_text = search_text
 
         self.col_count = Utils.get_clmn_count(width)
@@ -244,17 +243,17 @@ class GridSearch(Grid):
         clmn_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
         self.grid_layout.addItem(clmn_spacer, 0, self.col_count + 1)
 
-        self._thread = _SearchFinderThread(Config.json_data.get("root"), search_text)
-        self._thread.add_new_widget.connect(self._add_new_widget)
-        self._thread._finished.connect(self.search_finished.emit)
-        self._thread.start()
+        self.search_thread = SearchFinder(search_text)
+        self.search_thread.add_new_widget.connect(self._add_new_widget)
+        self.search_thread._finished.connect(self.search_finished.emit)
+        self.search_thread.start()
 
     def _add_new_widget(self, widget_data: WidgetData):
         # data идет из сигнала _new_widget_sig
         # "src", "stats" - os.stat, "pixmap", "colors": str
         filename = os.path.basename(widget_data.src)
         colors = widget_data.colors
-        wid = SearchThumbnail(filename=filename, src=widget_data.src, paths=self.image_paths)
+        wid = ThumbnailSearch(filename=filename, src=widget_data.src, paths=self.image_paths)
         wid.img_label.setPixmap(widget_data.pixmap)
         wid.update_colors(colors)
 
@@ -285,7 +284,7 @@ class GridSearch(Grid):
     # если поиск еще идет, сетка не переформируется
     # если завершен, то мы формируем новую сетку на основе новых размеров
     def resize_grid(self, width: int):
-        if not self._thread.isRunning():
+        if not self.search_thread.isRunning():
 
             # очищаем для нового наполнения
             # self.coords.clear()
@@ -300,7 +299,7 @@ class GridSearch(Grid):
             # этот словарик нужен для повторного формирования сетки при изменении
             # размера и для сортировки по имени/размеру/дате/типу
             for (src, filename, size, modify, filetype, colors), wid in self._image_grid_widgets.items():
-                wid: SearchThumbnail
+                wid: ThumbnailSearch
                 wid.disconnect()
                 wid.show_in_folder.connect(self.show_in_folder.emit)
                 wid.img_viewer_closed.connect(self.move_to_wid)
@@ -343,10 +342,10 @@ class GridSearch(Grid):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         try:
-            self._thread.disconnect()
+            self.search_thread.disconnect()
         except TypeError:
             pass
 
         # устанавливаем флаг QThread на False чтобы прервать цикл os.walk
         # происходит session commit и не подается сигнал _finished
-        self._thread._stop_cmd()
+        self.search_thread._stop_cmd()
