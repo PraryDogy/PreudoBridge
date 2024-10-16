@@ -218,17 +218,6 @@ class NextImageBtn(SwitchImageBtn):
         super().__init__("next.svg", parent)
 
 
-# Заглушка которое дает базовое представление о классе, из которого
-# вызывается WinImgView для удобства
-#  widgets > grid_base > Thumbnail
-# class Thumbnail:
-#     colors: str = ""
-#     image_paths: list = [str]
-#     def color_click(self, color: str) -> None: ...
-#     def color_to_db(self, colors: str) -> bool: ...
-#     def update_colors(self, colors: str) -> None: ...
-
-
 class WinImgView(QWidget):
     move_to_wid = pyqtSignal(str)
 
