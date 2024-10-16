@@ -4,7 +4,7 @@ import sqlalchemy
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import QAction, QLabel, QSizePolicy, QSpacerItem
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Config
 from database import CACHE, STATS, Engine
@@ -53,61 +53,46 @@ class LoadImages(QThread):
     def __init__(self, src_size_mod: list[tuple]):
         super().__init__()
 
-        # копируем, чтобы не менялся родительский словарик
-        # потому что на него опирается основной поток
-        # а мы удаляем из этого словарика элементы в обходе БД
-        # self.stats_pixmap: dict[tuple: QLabel] = stats_pixmap
         self.src_size_mod: list[tuple] = src_size_mod
-
-        # если изображение есть в БД но нет в словарике
-        # значит оно было ранее удалено из Findder и будет удалено из БД
         self.remove_db_images: list = []
-        self.remove_size_bytes: int = 0
-
-        # существующие изображения в БД
         self.db_images: dict[tuple: bytearray] = {}
-        
-        # флаг для остановки, если False - прервется цикл
         self.flag = True
-        self.stop_thread.connect(self.stop_thread_cmd)
+        self.db_size: int = 0
 
-        # открываем сессию на время треда
+        self.stop_thread.connect(self.stop_thread_cmd)
         self.conn = Engine.engine.connect()
 
     def run(self):
-        self.db_images: dict = self.get_db_images()
+        self.get_db_size()
+
+        self.get_db_images()
         self.load_already_images()
         self.create_new_images()
         self.remove_images()
 
-        if self.remove_size_bytes > 0:
-            self.new_db_size()
+        self.update_db_size()
 
         self.conn.close()
-
-        # не используется
         self._finished.emit()
 
-    def new_db_size(self):
-        q = sqlalchemy.select(STATS.c.size).where(STATS.c.name == "main")
-        current_size = self.conn.execute(q).scalar() or 0
+    def get_db_size(self):
+        sel_size = sqlalchemy.select(STATS.c.size).where(STATS.c.name == "main")
+        self.db_size: int = self.conn.execute(sel_size).scalar() or 0
 
-        new_size = current_size - self.remove_size_bytes
-        q = sqlalchemy.update(STATS).where(STATS.c.name == "main").values(size=new_size)
-        self.conn.execute(q)
-        self.conn.commit()
+    def update_db_size(self):
+        upd_size = sqlalchemy.update(STATS).where(STATS.c.name == "main").values(size=self.db_size)
+        try:
+            self.conn.execute(upd_size)
+            self.conn.commit()
+        except OperationalError as e:
+            Utils.print_err(self, e)
 
     def get_db_images(self):
         q = sqlalchemy.select(CACHE.c.img, CACHE.c.src, CACHE.c.size, CACHE.c.modified)
         q = q.where(CACHE.c.root == Config.json_data.get("root"))
+        res = self.conn.execute(q).fetchall()
 
-        try:
-            res = self.conn.execute(q).fetchall()
-        except OperationalError:
-            return None
-
-        # возвращаем словарик по структуре такой же как входящий
-        return {
+        self.db_images: dict[tuple: bytearray] = {
             (src, size, modified): img
             for img, src, size,  modified in res
             }
@@ -133,15 +118,12 @@ class LoadImages(QThread):
                 self.src_size_mod.remove((db_src, db_size, db_mod))
             else:
                 self.remove_db_images.append(db_src)
-                self.remove_size_bytes += len(db_byte_img)
+                self.db_size -= len(db_byte_img)
 
     def create_new_images(self):
         self.progressbar_start.emit(len(self.src_size_mod))
         progress_count = 0
         insert_count = 0
-
-        q = sqlalchemy.select(STATS.c.size).where(STATS.c.name == "main")
-        stats_size = self.conn.execute(q).scalar() or 0
 
         for src, size, modified in self.src_size_mod:
 
@@ -166,34 +148,32 @@ class LoadImages(QThread):
                 insert = self.insert_row(img_bytes, src, size, modified)
                 self.conn.execute(insert)
 
-                stats_size += len(img_bytes)
+                self.db_size += len(img_bytes)
 
                 insert_count += 1
                 if insert_count >= 10:
                     self.conn.commit()
                     insert_count = 0
 
-            except (OperationalError ,Exception) as e:
-                print()
-                # print(e)
-                print("grid standart > load images > insert err")
-                print(src, Config.json_data.get("root"))
-                print()
-                print()
+                self.progressbar_value.emit(progress_count)
+                progress_count += 1
+
+            except IntegrityError as e:
+                Utils.print_err(self, e)
                 continue
 
-            self.progressbar_value.emit(progress_count)
-            progress_count += 1
+            except OperationalError as e:
+                Utils.print_err(self, e)
+                self.stop_thread_cmd()
+                break
 
         if insert_count > 0:
-            self.conn.commit()
-
-        try:
-            q = sqlalchemy.update(STATS).where(STATS.c.name=="main").values(size = stats_size)
-            self.conn.execute(q)
-            self.conn.commit()
-        except (OperationalError):
-            pass
+            try:
+                self.conn.commit()
+            except IntegrityError as e:
+                Utils.print_err(self, e)
+            except OperationalError as e:
+                Utils.print_err(self, e)
 
         # 1 милилон = скрыть прогресс бар согласно его инструкции
         self.progressbar_value.emit(1000000)
@@ -212,17 +192,18 @@ class LoadImages(QThread):
             )
         return insert
 
-    def delete_bad_row(self, src: str):
-        return sqlalchemy.delete(CACHE).where(CACHE.c.src == src)
-
     def remove_images(self):
         for src in self.remove_db_images:
             q = sqlalchemy.delete(CACHE).where(CACHE.c.src == src)
             try:
                 self.conn.execute(q)
-            except OperationalError:
-                ...
-        self.conn.commit()
+            except OperationalError as e:
+                Utils.print_err(self, e)
+                return
+        try:
+            self.conn.commit()
+        except OperationalError as e:
+            Utils.print_err(self, e)
 
     def stop_thread_cmd(self):
         self.flag = False

@@ -1,6 +1,8 @@
 import io
 import logging
+import os
 import subprocess
+import traceback
 
 import cv2
 import numpy as np
@@ -9,7 +11,7 @@ import rawpy
 import tifffile
 from PyQt5.QtCore import QByteArray
 from PyQt5.QtGui import QImage, QPixmap
-from PyQt5.QtWidgets import QApplication, QFrame, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget
 
 from cfg import Config
 
@@ -171,3 +173,35 @@ class Utils:
     @staticmethod
     def get_clmn_count(width: int):
         return (width + 150) // (Config.img_size + 10)
+
+
+    @staticmethod
+    def print_err(parent: object, error: Exception):
+        tb = traceback.extract_tb(error.__traceback__)
+
+        # Попробуем найти первую строчку стека, которая относится к вашему коду.
+        for trace in tb:
+            filepath = trace.filename
+            filename = os.path.basename(filepath)
+            
+            # Если файл - не стандартный модуль, считаем его основным
+            if not filepath.startswith("<") and filename != "site-packages":
+                line_number = trace.lineno
+                break
+        else:
+            # Если не нашли, то берем последний вызов
+            trace = tb[-1]
+            filepath = trace.filename
+            filename = os.path.basename(filepath)
+            line_number = trace.lineno
+
+        class_name = parent.__class__.__name__
+        error_message = str(error)
+
+        print()
+        print("#" * 100)
+        print(f"{filepath}:{line_number}")
+        print()
+        print("ERROR:", error_message)
+        print("#" * 100)
+        print()
