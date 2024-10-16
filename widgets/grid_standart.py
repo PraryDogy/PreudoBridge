@@ -145,8 +145,8 @@ class LoadImages(QThread):
                 self.new_widget.emit(ImageData(src, size, modified, pixmap))
 
             try:
-                insert = self.insert_row(img_bytes, src, size, modified)
-                self.conn.execute(insert)
+                insert_stmt = self.get_insert_stmt(img_bytes, src, size, modified)
+                self.conn.execute(insert_stmt)
 
                 self.db_size += len(img_bytes)
 
@@ -178,9 +178,9 @@ class LoadImages(QThread):
         # 1 милилон = скрыть прогресс бар согласно его инструкции
         self.progressbar_value.emit(1000000)
 
-    def insert_row(self, img_bytes, src, size, modified):
+    def get_insert_stmt(self, img_bytes, src, size, modified):
         insert = sqlalchemy.insert(CACHE)
-        insert = insert.values(
+        return insert.values(
             img = img_bytes,
             src = src,
             root = os.path.dirname(src),
@@ -190,31 +190,21 @@ class LoadImages(QThread):
             colors = "",
             stars = ""
             )
-        return insert
 
     def remove_images(self):
-        for src in self.remove_db_images:
-            q = sqlalchemy.delete(CACHE).where(CACHE.c.src == src)
-            try:
-                self.conn.execute(q)
-            except OperationalError as e:
-                Utils.print_err(self, e)
-                return
         try:
+            for src in self.remove_db_images:
+                q = sqlalchemy.delete(CACHE).where(CACHE.c.src == src)
+                self.conn.execute(q)
             self.conn.commit()
         except OperationalError as e:
             Utils.print_err(self, e)
+            return
 
     def stop_thread_cmd(self):
         self.flag = False
 
 
-# большие сетевые папки замедляют обход через os listdir
-# поэтому мы делаем это в треде
-# ищем только изображения и папки в родительской директории Config.json_data
-# и добавляем стандартые иконки папок и файлов
-# сортируем полученный список соответсвуя Config.json_data
-# отправляем в сетку
 class LoadFinder(QThread):
     _finished = pyqtSignal(list)
 
