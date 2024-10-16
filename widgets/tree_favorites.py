@@ -1,13 +1,15 @@
 import subprocess
 
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QContextMenuEvent, QDropEvent, QKeyEvent, QMouseEvent
+from PyQt5.QtGui import (QContextMenuEvent, QDragEnterEvent, QDragLeaveEvent,
+                         QDropEvent, QKeyEvent, QMouseEvent, QResizeEvent)
 from PyQt5.QtWidgets import (QAction, QLabel, QLineEdit, QListWidget,
-                             QListWidgetItem, QMenu, QWidget, QVBoxLayout, QPushButton)
+                             QListWidgetItem, QMenu, QPushButton, QVBoxLayout,
+                             QWidget)
 
 from cfg import Config
 from utils import Utils
-
+import os
 
 class WinRename(QWidget):
     _finished = pyqtSignal(str)
@@ -115,6 +117,7 @@ class TreeFavorites(QListWidget):
     def __init__(self):
         super().__init__()
         self.setDragDropMode(QListWidget.DragDropMode.InternalMove)
+        self.setAcceptDrops(True)
         self.init_ui()
 
     def init_ui(self):
@@ -145,19 +148,29 @@ class TreeFavorites(QListWidget):
         self.clear()
         self.init_ui()
     
-    def dropEvent(self, event: QDropEvent | None) -> None:
-        super().dropEvent(event)
-        new_order = {}
-        for i in range(self.count()):
-            item = self.item(i)
-            fav_widget = self.itemWidget(item)
-            if isinstance(fav_widget, FavItem):
-                new_order[fav_widget.src] = fav_widget.name
+    def dropEvent(self, a0: QDropEvent | None) -> None:
+        urls = a0.mimeData().urls()
+        if urls:
+            path = urls[0].toLocalFile()
+            print(path)
+            if os.path.isdir(path):
+                name = os.path.basename(path)
+                self.add_item(name, path)
 
-        Config.json_data["favs"] = new_order
-
-    def mouseReleaseEvent(self, e: QMouseEvent | None) -> None:
-        cur = self.itemWidget(self.currentItem())
-        if isinstance(cur, FavItem):
-            cur.finish_rename()
-        return super().mouseReleaseEvent(e)
+        else:
+            super().dropEvent(a0)
+            new_order = {}
+            for i in range(self.count()):
+                item = self.item(i)
+                fav_widget = self.itemWidget(item)
+                if isinstance(fav_widget, FavItem):
+                    new_order[fav_widget.src] = fav_widget.name
+            Config.json_data["favs"] = new_order
+    
+    def dragEnterEvent(self, a0: QDragEnterEvent | None) -> None:
+        if a0.mimeData().hasUrls():
+            a0.acceptProposedAction()
+        return super().dragEnterEvent(a0)
+    
+    def dragLeaveEvent(self, a0: QDragLeaveEvent | None) -> None:
+        return super().dragLeaveEvent(a0)
