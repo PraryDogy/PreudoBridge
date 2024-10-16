@@ -14,6 +14,7 @@ from cfg import Config
 from database import CACHE, Engine
 from utils import Utils
 
+from .grid_base import Thumbnail
 from .svg_widgets import SvgShadowed
 
 
@@ -220,24 +221,27 @@ class NextImageBtn(SwitchImageBtn):
 # Заглушка которое дает базовое представление о классе, из которого
 # вызывается WinImgView для удобства
 #  widgets > grid_base > Thumbnail
-class Thumbnail:
-    colors: str = ""
-    image_paths: list = [str]
-    def color_click(self, color: str) -> None: ...
-    def color_to_db(self, colors: str) -> bool: ...
-    def update_colors(self, colors: str) -> None: ...
+# class Thumbnail:
+#     colors: str = ""
+#     image_paths: list = [str]
+#     def color_click(self, color: str) -> None: ...
+#     def color_to_db(self, colors: str) -> bool: ...
+#     def update_colors(self, colors: str) -> None: ...
 
 
 class WinImgView(QWidget):
-    closed = pyqtSignal(str)
-    color_click = pyqtSignal(str)
+    move_to_wid = pyqtSignal(str)
 
-    def __init__(self, img_src: str, path_to_wid: dict[str: Thumbnail]):
+    def __init__(self, src: str, path_to_wid: dict[str: Thumbnail]):
         super().__init__()
-        self.src: str = img_src
+        self.src: str = src
 
+        self.wid: Thumbnail = path_to_wid.get(src)
         self.path_to_wid: dict[str: Thumbnail] = path_to_wid
-        self.image_paths: list = list(i for i in path_to_wid.keys() if os.path.isfile(i))
+        self.image_paths: list = [
+            i for i in path_to_wid.keys()
+            if os.path.isfile(i)
+            ]
 
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setMinimumSize(QSize(400, 300))
@@ -255,20 +259,20 @@ class WinImgView(QWidget):
         self.mouse_move_timer.setSingleShot(True)
         self.mouse_move_timer.timeout.connect(self.hide_all_buttons)
 
-        self.image_label = ImageWidget()
-        self.image_label.mouse_moved.connect(self.mouse_moved_cmd)
-        self.v_layout.addWidget(self.image_label)
+        self.img_label = ImageWidget()
+        self.img_label.mouse_moved.connect(self.mouse_moved_cmd)
+        self.v_layout.addWidget(self.img_label)
 
         self.prev_image_btn = PrevImageBtn(self)
-        self.prev_image_btn.pressed.connect(lambda: self.button_switch_cmd("-"))
+        self.prev_image_btn.pressed.connect(lambda: self.switch_img_btn("-"))
 
         self.next_image_btn = NextImageBtn(self)
-        self.next_image_btn.pressed.connect(lambda: self.button_switch_cmd("+"))
+        self.next_image_btn.pressed.connect(lambda: self.switch_img_btn("+"))
 
         self.zoom_btns = ZoomBtns(parent=self)
-        self.zoom_btns.zoomed_in.connect(self.image_label.zoom_in)
-        self.zoom_btns.zoomed_out.connect(self.image_label.zoom_out)
-        self.zoom_btns.zoomed_fit.connect(self.image_label.zoom_reset)
+        self.zoom_btns.zoomed_in.connect(self.img_label.zoom_in)
+        self.zoom_btns.zoomed_out.connect(self.img_label.zoom_out)
+        self.zoom_btns.zoomed_fit.connect(self.img_label.zoom_reset)
         self.zoom_btns.press_close.connect(self.close)
 
         self.hide_all_buttons()
@@ -294,7 +298,7 @@ class WinImgView(QWidget):
                     thumbnail = conn.execute(q).scalar() or None
                     pixmap = QPixmap()
                     pixmap.loadFromData(thumbnail)
-                    self.image_label.set_image(pixmap)
+                    self.img_label.set_image(pixmap)
                 except (OperationalError, Exception) as e:
                     print("IMG VIEW: there is no thumbnail in db")
 
@@ -316,8 +320,9 @@ class WinImgView(QWidget):
         elif image_data.src != self.src:
             return
                         
-        self.image_label.set_image(image_data.pixmap)
-        self.setWindowTitle(os.path.basename(self.src))
+        self.img_label.set_image(image_data.pixmap)
+        name = f"{self.wid.colors} {os.path.basename(self.src)}"
+        self.setWindowTitle(name)
         Shared.threads.remove(thread)
 
 # GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI
@@ -330,24 +335,26 @@ class WinImgView(QWidget):
         self.prev_image_btn.hide()
         self.next_image_btn.hide()
 
-    def switch_image(self, offset):
+    def switch_img(self, offset: int):
         try:
-            current_index = self.image_paths.index(self.src)
+            current_index: int = self.image_paths.index(self.src)
         except Exception as e:
-            current_index = 0
+            current_index: int = 0
 
-        total_images = len(self.image_paths)
-        new_index = (current_index + offset) % total_images
+        total_images: int = len(self.image_paths)
+        new_index: int = (current_index + offset) % total_images
 
-        self.src = self.image_paths[new_index]
+        self.src: str = self.image_paths[new_index]
+        self.wid: Thumbnail = self.path_to_wid.get(self.src)
+        self.move_to_wid.emit(self.src)
         self.load_thumbnail()
 
-    def button_switch_cmd(self, flag: str) -> None:
+    def switch_img_btn(self, flag: str) -> None:
         if flag == "+":
-            self.switch_image(1)
+            self.switch_img(1)
         else:
-            self.switch_image(-1)
-        self.image_label.setCursor(Qt.CursorShape.ArrowCursor)
+            self.switch_img(-1)
+        self.img_label.setCursor(Qt.CursorShape.ArrowCursor)
 
     def mouse_moved_cmd(self):
         self.mouse_move_timer.stop()
@@ -356,26 +363,31 @@ class WinImgView(QWidget):
         self.zoom_btns.show()
         self.mouse_move_timer.start(2000)
 
+    def color_click(self, colors: str):
+        self.wid.color_click(colors)
+        name = f"{self.wid.colors} {os.path.basename(self.src)}"
+        self.setWindowTitle(name)
+
 # EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS 
 
     def keyPressEvent(self, ev: QKeyEvent | None) -> None:
         if ev.key() == Qt.Key.Key_Left:
-            self.switch_image(-1)
+            self.switch_img(-1)
 
         elif ev.key() == Qt.Key.Key_Right:
-            self.switch_image(1)
+            self.switch_img(1)
 
         elif ev.key() == Qt.Key.Key_Escape:
             self.close()
 
         elif ev.key() == Qt.Key.Key_Equal:
-            self.image_label.zoom_in()
+            self.img_label.zoom_in()
 
         elif ev.key() == Qt.Key.Key_Minus:
-            self.image_label.zoom_out()
+            self.img_label.zoom_out()
 
         elif ev.key() == Qt.Key.Key_0:
-            self.image_label.zoom_reset()
+            self.img_label.zoom_reset()
 
         elif ev.key() == Qt.Key.Key_Space:
             self.close()
@@ -395,20 +407,14 @@ class WinImgView(QWidget):
         Config.json_data["ww_im"] = self.width()
         Config.json_data["hh_im"] = self.height()
 
-        # return super().resizeEvent(a0)
-
     def leaveEvent(self, a0: QEvent | None) -> None:
         self.hide_all_buttons()
-        # return super().leaveEvent(a0)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         Shared.loaded_images.clear()
-        self.closed.emit(self.src)
-        # return super().closeEvent(a0)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         context_menu = QMenu(self)
-        thumbnail: Thumbnail = self.path_to_wid.get(self.src)
 
         open_menu = QMenu("Открыть в приложении", self)
         context_menu.addMenu(open_menu)
@@ -433,10 +439,10 @@ class WinImgView(QWidget):
             wid = QAction(parent=self.color_menu, text=f"{color} {text}")
             wid.setCheckable(True)
 
-            if color in thumbnail.colors:
+            if color in self.wid.colors:
                 wid.setChecked(True)
 
-            wid.triggered.connect(lambda e, c=color: thumbnail.color_click(c))
+            wid.triggered.connect(lambda e, c=color: self.color_click(c))
             self.color_menu.addAction(wid)
 
         context_menu.exec_(self.mapToGlobal(a0.pos()))
