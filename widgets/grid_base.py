@@ -2,6 +2,7 @@ import os
 import subprocess
 
 import sqlalchemy
+from sqlalchemy.exc import OperationalError
 from PyQt5.QtCore import QMimeData, Qt, QUrl, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QDrag, QFont, QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
@@ -195,7 +196,9 @@ class Thumbnail(QFrame):
         else:
             temp_colors = self.colors.replace(color, "")
 
-        if isinstance(self.color_to_db(temp_colors), bool):
+        color_to_db: bool = self.color_to_db()
+
+        if color_to_db:
             self.update_colors(temp_colors)
             self.colors = temp_colors
 
@@ -203,8 +206,12 @@ class Thumbnail(QFrame):
         upd_color = sqlalchemy.update(CACHE).where(CACHE.c.src == self.src).values(colors=colors)
 
         with Engine.engine.connect() as conn:
-            conn.execute(upd_color)
-            conn.commit()
+            try:
+                conn.execute(upd_color)
+                conn.commit()
+            except OperationalError as e:
+                Utils.print_error(self, e)
+                return False
 
         return True
 

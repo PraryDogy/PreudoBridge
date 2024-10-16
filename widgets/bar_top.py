@@ -448,7 +448,7 @@ class WinSettings(QWidget):
         self.current_size.setText(t)
 
     def clear_db_cmd(self):
-        Dbase.clear_db()
+        Dbase.check_cache_size()
         self.get_current_size()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
