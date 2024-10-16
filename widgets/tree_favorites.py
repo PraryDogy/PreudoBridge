@@ -156,8 +156,6 @@ class TreeFavorites(QListWidget):
                 name = os.path.basename(path)
                 self.add_item(name, path)
 
-                print(name, path)
-
         else:
             super().dropEvent(a0)
             new_order = {}
