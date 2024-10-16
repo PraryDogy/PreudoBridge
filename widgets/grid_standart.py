@@ -170,9 +170,7 @@ class LoadImages(QThread):
         if insert_count > 0:
             try:
                 self.conn.commit()
-            except IntegrityError as e:
-                Utils.print_error(self, e)
-            except OperationalError as e:
+            except (IntegrityError, OperationalError) as e:
                 Utils.print_error(self, e)
 
         # 1 милилон = скрыть прогресс бар согласно его инструкции
