@@ -73,13 +73,17 @@ class Dbase:
 
     def clear_db():
         q_del_cache = sqlalchemy.delete(CACHE)
+        q_upd_stats = sqlalchemy.update(STATS).where(STATS.c.name == "main").values(size=0)
 
         with Engine.engine.connect() as conn:
             try:
                 conn.execute(q_del_cache)
+                conn.execute(q_upd_stats)
                 conn.commit()
             except OperationalError as e:
                 Utils.print_error(Dbase, e)
                 return False
+
+            conn.execute(sqlalchemy.text("VACUUM"))
             
         return True
