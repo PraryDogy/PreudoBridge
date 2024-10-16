@@ -155,6 +155,7 @@ class TreeFavorites(QListWidget):
             if os.path.isdir(path):
                 name = os.path.basename(path)
                 self.add_item(name, path)
+                Config.json_data["favs"][path] = name
 
         else:
             super().dropEvent(a0)

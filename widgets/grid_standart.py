@@ -190,6 +190,9 @@ class LoadImages(QThread):
             self.progressbar_value.emit(progress_count)
             progress_count += 1
 
+        if insert_count > 0:
+            self.conn.commit()
+
         q = sqlalchemy.update(STATS).where(STATS.c.name=="main").values(size = stats_size)
         self.conn.execute(q)
         self.conn.commit()
