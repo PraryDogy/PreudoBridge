@@ -19,8 +19,6 @@ class NameLabel(QLabel):
     def __init__(self):
         super().__init__()
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        # font = QFont("Times")
-        # self.setFont(font)
 
     def set_text(self, colors: str, text: str) -> list[str]:
         max_length = 27

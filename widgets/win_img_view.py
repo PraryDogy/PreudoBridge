@@ -412,6 +412,8 @@ class WinImgView(QWidget):
             wid.triggered.connect(lambda e, a=app_path: self.open_default(a))
             open_menu.addAction(wid)
 
+        context_menu.addSeparator()
+
         show_in_finder_action = QAction("Показать в Finder", self)
         show_in_finder_action.triggered.connect(self.show_in_finder)
         context_menu.addAction(show_in_finder_action)
@@ -419,6 +421,8 @@ class WinImgView(QWidget):
         copy_path = QAction("Скопировать путь до файла", self)
         copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
         context_menu.addAction(copy_path)
+
+        context_menu.addSeparator()
 
         self.color_menu = QMenu("Цвета", self)
         context_menu.addMenu(self.color_menu)
