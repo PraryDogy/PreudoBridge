@@ -1,7 +1,7 @@
 import sqlalchemy
-
+from sqlalchemy.exc import OperationalError
 from cfg import Config
-
+from utils import Utils
 
 class Engine:
     engine: sqlalchemy.Engine = None
@@ -70,3 +70,16 @@ class Dbase:
                 conn.commit()
 
             conn.execute(sqlalchemy.text("VACUUM"))
+
+    def clear_db():
+        q_del_cache = sqlalchemy.delete(CACHE)
+
+        with Engine.engine.connect() as conn:
+            try:
+                conn.execute(q_del_cache)
+                conn.commit()
+            except OperationalError as e:
+                Utils.print_error(Dbase, e)
+                return False
+            
+        return True

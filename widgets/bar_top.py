@@ -448,8 +448,8 @@ class WinSettings(QWidget):
         self.current_size.setText(t)
 
     def clear_db_cmd(self):
-        Dbase.check_cache_size()
-        self.get_current_size()
+        if Dbase.clear_db():
+            self.get_current_size()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         Config.write_json_data()
