@@ -253,7 +253,7 @@ class GridSearch(Grid):
         wid.update_colors(colors)
 
         wid.show_in_folder.connect(self.show_in_folder.emit)
-        wid.img_viewer_closed.connect(self.move_to_wid)
+        wid.move_to_wid.connect(self.move_to_wid)
         wid.clicked.connect(lambda r=self.row, c=self.col: self.select_new_widget((r, c)))
         self.grid_layout.addWidget(wid, self.row, self.col, alignment=Qt.AlignmentFlag.AlignTop)
 
@@ -296,7 +296,7 @@ class GridSearch(Grid):
                 wid: ThumbnailSearch
                 wid.disconnect()
                 wid.show_in_folder.connect(self.show_in_folder.emit)
-                wid.img_viewer_closed.connect(self.move_to_wid)
+                wid.move_to_wid.connect(self.move_to_wid)
                 wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
 
                 # обновляем информацию в Thumbnail о порядке путей и виджетов

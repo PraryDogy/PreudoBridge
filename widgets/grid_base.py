@@ -58,7 +58,7 @@ class Geo:
 class Thumbnail(QFrame):
     # просмотрщик изображений был закрыт и в аргумент передается путь к
     # фотографии, на которой просмотрщик остановился
-    img_viewer_closed = pyqtSignal(str)
+    move_to_wid = pyqtSignal(str)
 
     # !!!!!!!! при переназначении клик эвентов не забудь добавить _clicked_sig
     # по виджету произошел любой клик мыши (правый левый неважно)
@@ -170,10 +170,12 @@ class Thumbnail(QFrame):
 
     def view(self):
         if os.path.isfile(self.src):
+            # в win_img_view есть импорт Thumbnail.
+            # избегаем circular import
             from .win_img_view import WinImgView
             self.win = WinImgView(self.src, self.path_to_wid)
             Utils.center_win(parent=Utils.get_main_win(), child=self.win)
-            self.win.move_to_wid.connect(lambda src: self.img_viewer_closed.emit(src))
+            self.win.move_to_wid.connect(lambda src: self.move_to_wid.emit(src))
             self.win.show()
         else:
             self.clicked_folder.emit(self.src)
