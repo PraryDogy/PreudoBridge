@@ -85,7 +85,7 @@ class LoadImages(QThread):
             self.conn.execute(upd_size)
             self.conn.commit()
         except OperationalError as e:
-            Utils.print_err(self, e)
+            Utils.print_error(self, e)
 
     def get_db_images(self):
         q = sqlalchemy.select(CACHE.c.img, CACHE.c.src, CACHE.c.size, CACHE.c.modified)
@@ -159,11 +159,11 @@ class LoadImages(QThread):
                 progress_count += 1
 
             except IntegrityError as e:
-                Utils.print_err(self, e)
+                Utils.print_error(self, e)
                 continue
 
             except OperationalError as e:
-                Utils.print_err(self, e)
+                Utils.print_error(self, e)
                 self.stop_thread_cmd()
                 break
 
@@ -171,9 +171,9 @@ class LoadImages(QThread):
             try:
                 self.conn.commit()
             except IntegrityError as e:
-                Utils.print_err(self, e)
+                Utils.print_error(self, e)
             except OperationalError as e:
-                Utils.print_err(self, e)
+                Utils.print_error(self, e)
 
         # 1 милилон = скрыть прогресс бар согласно его инструкции
         self.progressbar_value.emit(1000000)
@@ -198,7 +198,7 @@ class LoadImages(QThread):
                 self.conn.execute(q)
             self.conn.commit()
         except OperationalError as e:
-            Utils.print_err(self, e)
+            Utils.print_error(self, e)
             return
 
     def stop_thread_cmd(self):

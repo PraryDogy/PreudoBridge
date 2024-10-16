@@ -176,7 +176,7 @@ class Utils:
 
 
     @staticmethod
-    def print_err(parent: object, error: Exception):
+    def print_error(parent: object, error: Exception):
         tb = traceback.extract_tb(error.__traceback__)
 
         # Попробуем найти первую строчку стека, которая относится к вашему коду.

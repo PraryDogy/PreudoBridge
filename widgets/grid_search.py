@@ -7,7 +7,7 @@ from numpy import ndarray
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtWidgets import QAction, QSizePolicy, QSpacerItem
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Config
 from database import CACHE, STATS, Engine
@@ -17,7 +17,6 @@ from utils import Utils
 from .grid_base import Grid, Thumbnail
 
 
-# Добавляем в контенкстное меню "Показать в папке"
 class ThumbnailSearch(Thumbnail):
     show_in_folder = pyqtSignal(str)
 
@@ -39,11 +38,6 @@ class WidgetData:
         self.pixmap: QPixmap = pixmap
 
 
-# Тред
-# На вход получает директорию для поиска иs текст/шаблон для поиска
-# Ищет ТОЛЬКО изображения
-# Если найденного изображения нет в БД, то кеширует
-# Если есть - загружает изображение кеша и отправляется синал add_new_widget:
 class SearchFinder(QThread):
     _finished = pyqtSignal()
     add_new_widget = pyqtSignal(WidgetData)
@@ -61,24 +55,13 @@ class SearchFinder(QThread):
         self.flag: bool = False
 
     def run(self):
-        # Шаблоны в поиске передаются сюда текстовым кортежем, например
-        # str( [.jpg, .jpeg] )
-        # Мы пытаемся конветировать текст обратно в кортеж
-        # Если это кортеж, то поиск производится по шаблону
-        # Если это тккст, то по тексту
-        # 
-        # Шаблоны могут указывать только расширения файлов
-        # Можно найти только JPG или все форматы фотографий
-        # Шаблон вызывается двойным кликом в поиске
         try:
-            self.search_text = literal_eval(self.search_text)
+            self.search_text: tuple = literal_eval(self.search_text)
         except (ValueError, SyntaxError):
             pass
 
-        # literal_eval может конвертировать не только кортежи
-        # но и числа, а нам нужен только кортеж
         if not isinstance(self.search_text, tuple):
-            self.search_text = str(self.search_text)
+            self.search_text: str = str(self.search_text)
 
         for root, _, files in os.walk(Config.json_data.get("root")):
             if not self.flag:
@@ -101,26 +84,22 @@ class SearchFinder(QThread):
                     elif self.search_text in file:
                         self.create_wid(file_path)
 
-        # _finished будет послан только если поиску дали закончить
-        # если же он был прерван флагом, то сигнал не будет послан
-        # данный сигнал предназначен чтобы сменить заголовок окна с 
-        # "поиск файла" на "результаты поиска"
-
         if self.insert_count > 0:
-            self.conn.commit()
+            try:
+                self.conn.commit()
+            except (IntegrityError, OperationalError) as e:
+                Utils.print_error(self, e)
 
         self.conn.close()
 
         if self.flag:
             self._finished.emit()
 
-    # общий метод для создания QPixmap, который мы передадим в основной поток
-    # для отображения в сетке GridSearch
     def create_wid(self, src: str):
         try:
             stats = os.stat(src)
         except (PermissionError, FileNotFoundError) as e:
-            print("search grid > thread > error get os stat", e)
+            Utils.print_error(self, e)
             return None
 
         pixmap: QPixmap = None
@@ -128,12 +107,10 @@ class SearchFinder(QThread):
 
         db_data: dict = self.get_img_data_db(src)
 
-        # Если изображение уже есть в БД, то сразу делаем QPixmap
         if isinstance(db_data, dict):
             pixmap: QPixmap = Utils.pixmap_from_bytes(db_data.get("img"))
             colors = db_data.get("colors")
 
-        # Создаем изображение, ресайзим и записываем в БД
         else:
             img_array: ndarray = self.create_img_array(src)
             self.img_data_to_db(src, img_array, stats)
@@ -141,19 +118,16 @@ class SearchFinder(QThread):
             if isinstance(img_array, ndarray):
                 pixmap = Utils.pixmap_from_array(img_array)
 
-        # Если не удалось получить изображение, загружаем изображение по умолчанию
         if not pixmap:
             pixmap = QPixmap("images/file_210.png")
 
-        # посылаем сигнал в SearchGrid
         self.add_new_widget.emit(WidgetData(src, colors, stats, pixmap))
-        sleep(0.2)
+        sleep(0.1)
 
     def get_img_data_db(self, src: str) -> dict | None:
         try:
-            q = sqlalchemy.select(CACHE.c.img, CACHE.c.colors)
-            q = q.where(CACHE.c.src == src)
-            res = self.conn.execute(q).first()
+            sel_stmt = sqlalchemy.select(CACHE.c.img, CACHE.c.colors).where(CACHE.c.src == src)
+            res = self.conn.execute(sel_stmt).first()
 
             if res:
                 return {"img": res.img, "colors": res.colors}
@@ -164,18 +138,14 @@ class SearchFinder(QThread):
             return None
 
     def img_data_to_db(self, src: str, img_array, stats: os.stat_result):
-        # чтобы несколько раз не запрашивать os.stat
-        # мы запрашиваем os.stat в основном цикле os.walk и передаем сюда
         size = stats.st_size
         modified = stats.st_mtime
-
-        # качество по умолчанию 80 для экономии места
         db_img: bytes = Utils.image_array_to_bytes(img_array)
 
         if isinstance(db_img, bytes):
             try:
-                insert_query = sqlalchemy.insert(CACHE)
-                insert_query = insert_query.values(
+                insert_stmt = sqlalchemy.insert(CACHE)
+                insert_stmt = insert_stmt.values(
                     img=db_img,
                     src=src,
                     root=os.path.dirname(src),
@@ -185,7 +155,7 @@ class SearchFinder(QThread):
                     colors="",
                     stars=""
                     )
-                self.conn.execute(insert_query)
+                self.conn.execute(insert_stmt)
 
                 select_query = sqlalchemy.select(STATS.c.size).where(STATS.c.name == "main")
                 current_size = self.conn.execute(select_query).scalar() or 0
@@ -194,14 +164,13 @@ class SearchFinder(QThread):
                 update_query = sqlalchemy.update(STATS).where(STATS.c.name == "main").values(size=new_size)
                 self.conn.execute(update_query)
 
-                # Контроль количества коммитов
                 self.insert_count += 1
-                if self.insert_count >= 10:  # Коммит каждые 10 записей
+                if self.insert_count >= 10:
                     self.conn.commit()
                     self.insert_count = 0
 
-            except (OperationalError, Exception) as e:
-                print("grid search > img_data_to_db: ", e)
+            except (OperationalError, IntegrityError) as e:
+                Utils.print_error(self, e)
 
     def create_img_array(self, src: str) -> ndarray | None:
         img = Utils.read_image(src)

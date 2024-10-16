@@ -18,8 +18,8 @@ class Test:
         try:
             conn.execute(q)
         except IntegrityError as er:
-            Utils.print_err(parent=self, error=er)
+            Utils.print_error(parent=self, error=er)
         except OperationalError:
-            Utils.print_err(parent=self, error=er)
+            Utils.print_error(parent=self, error=er)
 
 Test()
