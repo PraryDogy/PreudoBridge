@@ -50,11 +50,11 @@ class SearchFinder(QThread):
 
         self.conn: sqlalchemy.Connection = Engine.engine.connect()
         self.insert_count: int = 0 
-
-    def _stop_cmd(self):
-        self.flag: bool = False
+        self.db_size: int = 0
 
     def run(self):
+        self.get_db_size()
+
         try:
             self.search_text: tuple = literal_eval(self.search_text)
         except (ValueError, SyntaxError):
@@ -76,11 +76,9 @@ class SearchFinder(QThread):
 
                 if file_path_lower.endswith(self.search_text):
 
-                    # поиск по шаблону
                     if isinstance(self.search_text, tuple):
                         self.create_wid(file_path)
 
-                    # поиск по тексту
                     elif self.search_text in file:
                         self.create_wid(file_path)
 
@@ -90,6 +88,7 @@ class SearchFinder(QThread):
             except (IntegrityError, OperationalError) as e:
                 Utils.print_error(self, e)
 
+        self.update_db_size()
         self.conn.close()
 
         if self.flag:
@@ -157,17 +156,12 @@ class SearchFinder(QThread):
                     )
                 self.conn.execute(insert_stmt)
 
-                select_query = sqlalchemy.select(STATS.c.size).where(STATS.c.name == "main")
-                current_size = self.conn.execute(select_query).scalar() or 0
-                new_size = current_size + len(db_img)
-
-                update_query = sqlalchemy.update(STATS).where(STATS.c.name == "main").values(size=new_size)
-                self.conn.execute(update_query)
-
                 self.insert_count += 1
                 if self.insert_count >= 10:
                     self.conn.commit()
                     self.insert_count = 0
+
+                self.db_size += len(db_img)
 
             except (OperationalError, IntegrityError) as e:
                 Utils.print_error(self, e)
@@ -177,14 +171,22 @@ class SearchFinder(QThread):
         img = FitImg.start(img, Config.img_size)
         return img
 
+    def stop_cmd(self):
+        self.flag: bool = False
 
-# os.walk и чтение изображения происходит в отдельном QThread
-# чтобы не блокировать основной интерфейс
-# по мере того, как QThread находит и считывает изображение,
-# в основной поток посылается сигнал и в сетку добавляется найденное изображение
-# 
-# во время поиска НЕ работает ресайз и сортировка сетки, поскольку сетка 
-# до конца не сформирована
+    def get_db_size(self):
+        sel_size = sqlalchemy.select(STATS.c.size).where(STATS.c.name == "main")
+        self.db_size: int = self.conn.execute(sel_size).scalar() or 0
+
+    def update_db_size(self):
+        upd_size = sqlalchemy.update(STATS).where(STATS.c.name == "main").values(size=self.db_size)
+        try:
+            self.conn.execute(upd_size)
+            self.conn.commit()
+        except OperationalError as e:
+            Utils.print_error(self, e)
+
+
 class GridSearch(Grid):
     search_finished = pyqtSignal()
 
@@ -314,4 +316,4 @@ class GridSearch(Grid):
 
         # устанавливаем флаг QThread на False чтобы прервать цикл os.walk
         # происходит session commit и не подается сигнал _finished
-        self.search_thread._stop_cmd()
+        self.search_thread.stop_cmd()
