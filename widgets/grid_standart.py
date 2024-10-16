@@ -302,7 +302,7 @@ class ThumbnailFolder(Thumbnail):
         self.context_menu.addSeparator()
 
         show_in_finder_action = QAction("Показать в Finder", self)
-        show_in_finder_action.triggered.connect(self._show_in_finder)
+        show_in_finder_action.triggered.connect(self.show_in_finder)
         self.context_menu.addAction(show_in_finder_action)
 
         copy_path = QAction("Скопировать путь до папки", self)

@@ -3,7 +3,7 @@ import subprocess
 
 import sqlalchemy
 from PyQt5.QtCore import QMimeData, Qt, QUrl, pyqtSignal
-from PyQt5.QtGui import QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent, QFont
+from PyQt5.QtGui import QContextMenuEvent, QDrag, QFont, QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
                              QLabel, QMenu, QScrollArea, QVBoxLayout, QWidget)
 
@@ -11,6 +11,7 @@ from cfg import Config
 from database import CACHE, Engine
 from utils import Utils
 
+from .win_rename import WinRename
 
 
 # Текст с именем файла под изображением
@@ -99,13 +100,13 @@ class Thumbnail(QFrame):
 
         for name, app_path in Config.image_apps.items():
             wid = QAction(name, parent=open_menu)
-            wid.triggered.connect(lambda e, a=app_path: self._open_default(a))
+            wid.triggered.connect(lambda e, a=app_path: self.open_in_app(a))
             open_menu.addAction(wid)
 
         self.context_menu.addSeparator()
 
         show_in_finder_action = QAction("Показать в Finder", self)
-        show_in_finder_action.triggered.connect(self._show_in_finder)
+        show_in_finder_action.triggered.connect(self.show_in_finder)
         self.context_menu.addAction(show_in_finder_action)
 
         copy_path = QAction("Скопировать путь до файла", self)
@@ -178,10 +179,10 @@ class Thumbnail(QFrame):
         else:
             self.clicked_folder.emit(self.src)
 
-    def _open_default(self, app_path: str):
+    def open_in_app(self, app_path: str):
         subprocess.call(["open", "-a", app_path, self.src])
 
-    def _show_in_finder(self):
+    def show_in_finder(self):
         subprocess.call(["open", "-R", self.src])
 
     def color_click(self, color: str):
@@ -202,6 +203,12 @@ class Thumbnail(QFrame):
             conn.commit()
 
         return True
+
+    def rename_cmd(self):
+        self.win = WinRename(self.name)
+        self.win._finished.connect(self.rename_finished_cmd)
+        Utils.center_win(Utils.get_main_win(), self.win)
+        self.win.show()
 
     def update_colors(self, colors: str):
         if isinstance(colors, str):
