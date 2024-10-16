@@ -236,7 +236,7 @@ class WinImgView(QWidget):
         super().__init__()
         self.src: str = src
 
-        self.wid: Thumbnail = path_to_wid.get(src)
+        self.thumbnail: Thumbnail = path_to_wid.get(src)
         self.path_to_wid: dict[str: Thumbnail] = path_to_wid
         self.image_paths: list = [
             i for i in path_to_wid.keys()
@@ -321,7 +321,7 @@ class WinImgView(QWidget):
             return
                         
         self.img_label.set_image(image_data.pixmap)
-        name = f"{self.wid.colors} {os.path.basename(self.src)}"
+        name = f"{self.thumbnail.colors} {os.path.basename(self.src)}"
         self.setWindowTitle(name)
         Shared.threads.remove(thread)
 
@@ -345,7 +345,7 @@ class WinImgView(QWidget):
         new_index: int = (current_index + offset) % total_images
 
         self.src: str = self.image_paths[new_index]
-        self.wid: Thumbnail = self.path_to_wid.get(self.src)
+        self.thumbnail: Thumbnail = self.path_to_wid.get(self.src)
         self.move_to_wid.emit(self.src)
         self.load_thumbnail()
 
@@ -364,8 +364,8 @@ class WinImgView(QWidget):
         self.mouse_move_timer.start(2000)
 
     def color_click(self, colors: str):
-        self.wid.color_click(colors)
-        name = f"{self.wid.colors} {os.path.basename(self.src)}"
+        self.thumbnail.color_click(colors)
+        name = f"{self.thumbnail.colors} {os.path.basename(self.src)}"
         self.setWindowTitle(name)
 
 # EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS 
@@ -439,7 +439,7 @@ class WinImgView(QWidget):
             wid = QAction(parent=self.color_menu, text=f"{color} {text}")
             wid.setCheckable(True)
 
-            if color in self.wid.colors:
+            if color in self.thumbnail.colors:
                 wid.setChecked(True)
 
             wid.triggered.connect(lambda e, c=color: self.color_click(c))
