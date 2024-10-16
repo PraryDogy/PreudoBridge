@@ -84,7 +84,7 @@ class FavItem(QLabel):
         rename_action.triggered.connect(self.rename_cmd)
         self.context_menu.addAction(rename_action)
 
-        fav_action = QAction("Удалить из избранного", self)
+        fav_action = QAction("Удалить", self)
         fav_action.triggered.connect(lambda: self.del_click.emit())
         self.context_menu.addAction(fav_action)
 
