@@ -121,7 +121,6 @@ class TreeFavorites(QListWidget):
         self.setItemWidget(list_item, item)
 
     def update_name(self, src: str, new_name: str):
-        # Обновляем имя в данных Config.json_data
         favs: dict = Config.json_data.get("favs")
         if src in favs:
             favs[src] = new_name
@@ -142,3 +141,9 @@ class TreeFavorites(QListWidget):
                 new_order[fav_widget.src] = fav_widget.name
 
         Config.json_data["favs"] = new_order
+
+    def mouseReleaseEvent(self, e: QMouseEvent | None) -> None:
+        cur = self.itemWidget(self.currentItem())
+        if isinstance(cur, FavItem):
+            cur.finish_rename()
+        return super().mouseReleaseEvent(e)
