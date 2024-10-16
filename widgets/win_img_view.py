@@ -43,7 +43,7 @@ class LoadImageThread(QThread):
                 pixmap = Utils.pixmap_from_array(img_array)
                 Shared.loaded_images[self.img_src] = pixmap
             else:
-                pixmap = QPixmap("images/file_210.png")
+                pixmap = QPixmap("images/file_1024.png")
         else:
             pixmap = Shared.loaded_images.get(self.img_src)
 
@@ -286,7 +286,7 @@ class WinImgView(QWidget):
                     pixmap = QPixmap()
                     pixmap.loadFromData(thumbnail)
                 else:
-                    pixmap = QPixmap("images/file_210.png")
+                    pixmap = QPixmap("images/file_1024.png")
 
                 self.img_label.set_image(pixmap)
 

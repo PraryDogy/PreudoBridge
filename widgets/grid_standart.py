@@ -144,6 +144,7 @@ class LoadImages(QThread):
         stats_size = self.conn.execute(q).scalar() or 0
 
         for src, size, modified in self.src_size_mod:
+
             if not self.flag:
                 break
 
@@ -173,7 +174,12 @@ class LoadImages(QThread):
                     insert_count = 0
 
             except (OperationalError ,Exception) as e:
-                print("you here", src, e)
+                print()
+                # print(e)
+                print("grid standart > load images > insert err")
+                print(src, Config.json_data.get("root"))
+                print()
+                print()
                 continue
 
             self.progressbar_value.emit(progress_count)
@@ -182,9 +188,12 @@ class LoadImages(QThread):
         if insert_count > 0:
             self.conn.commit()
 
-        q = sqlalchemy.update(STATS).where(STATS.c.name=="main").values(size = stats_size)
-        self.conn.execute(q)
-        self.conn.commit()
+        try:
+            q = sqlalchemy.update(STATS).where(STATS.c.name=="main").values(size = stats_size)
+            self.conn.execute(q)
+            self.conn.commit()
+        except (OperationalError):
+            pass
 
         # 1 милилон = скрыть прогресс бар согласно его инструкции
         self.progressbar_value.emit(1000000)
@@ -194,7 +203,7 @@ class LoadImages(QThread):
         insert = insert.values(
             img = img_bytes,
             src = src,
-            root = Config.json_data.get("root"),
+            root = os.path.dirname(src),
             size = size,
             modified = modified,
             catalog = "",
@@ -447,6 +456,7 @@ class GridStandart(Grid):
         for i in Storage.threads:
             i: LoadImages
             i.stop_thread.emit()
+            # i.wait()
 
             if i.isFinished():
                 Storage.threads.remove(i)
