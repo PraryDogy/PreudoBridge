@@ -151,11 +151,12 @@ class TreeFavorites(QListWidget):
     def dropEvent(self, a0: QDropEvent | None) -> None:
         urls = a0.mimeData().urls()
         if urls:
-            path = urls[0].toLocalFile()
-            print(path)
+            path = os.sep + urls[0].toLocalFile().strip(os.sep)
             if os.path.isdir(path):
                 name = os.path.basename(path)
                 self.add_item(name, path)
+
+                print(name, path)
 
         else:
             super().dropEvent(a0)
