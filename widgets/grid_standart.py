@@ -184,7 +184,7 @@ class LoadImages(QThread):
                     insert_count = 0
 
             except (OperationalError ,Exception) as e:
-                print("you here", e)
+                print("you here", src, e)
                 continue
 
             self.progressbar_value.emit(progress_count)

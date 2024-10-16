@@ -1,8 +1,7 @@
-from database import Dbase, STATS, Engine
-import sqlalchemy
+filter = "🟣🟠"
 
-Dbase.init_db()
+colors = "🟠🟡🟢"
 
-with Engine.engine.connect() as conn:
-    q = sqlalchemy.update(STATS).values(size=555)
-    res = conn.execute(q)
+
+if any(color in filter for color in colors):
+    print(1)
