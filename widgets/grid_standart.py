@@ -162,19 +162,8 @@ class LoadImages(QThread):
                 self.new_widget.emit(ImageData(src, size, modified, pixmap))
 
             try:
-
-                q = sqlalchemy.insert(CACHE)
-                q = q.values(
-                    img = img_bytes,
-                    src = src,
-                    root = Config.json_data.get("root"),
-                    size = size,
-                    modified = modified,
-                    catalog = "",
-                    colors = "",
-                    stars = ""
-                    )
-                self.conn.execute(q)
+                insert = self.insert_row(img_bytes, src, size, modified)
+                self.conn.execute(insert)
 
                 stats_size += len(img_bytes)
 
@@ -199,6 +188,23 @@ class LoadImages(QThread):
 
         # 1 милилон = скрыть прогресс бар согласно его инструкции
         self.progressbar_value.emit(1000000)
+
+    def insert_row(self, img_bytes, src, size, modified):
+        insert = sqlalchemy.insert(CACHE)
+        insert = insert.values(
+            img = img_bytes,
+            src = src,
+            root = Config.json_data.get("root"),
+            size = size,
+            modified = modified,
+            catalog = "",
+            colors = "",
+            stars = ""
+            )
+        return insert
+
+    def delete_bad_row(self, src: str):
+        return sqlalchemy.delete(CACHE).where(CACHE.c.src == src)
 
     def remove_images(self):
         for src in self.remove_db_images:
