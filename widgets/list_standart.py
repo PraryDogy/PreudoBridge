@@ -8,6 +8,7 @@ from PyQt5.QtWidgets import QAction, QFileSystemModel, QMenu, QTableView
 from cfg import Config
 from utils import Utils
 
+from .grid_base import Thumbnail
 from .win_img_view import WinImgView
 
 
@@ -54,7 +55,8 @@ class ListStandart(QTableView):
             self.folders_tree_clicked.emit(path)
 
         elif path_lower.endswith(Config.img_ext):
-            self.win = WinImgView(path, [path])
+            thumbnail = Thumbnail("", "", {})
+            self.win = WinImgView(path, {path: thumbnail})
             self.win.show()
 
     def _save_sort_settings(self, index):
