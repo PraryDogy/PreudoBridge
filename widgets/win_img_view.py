@@ -13,7 +13,6 @@ from sqlalchemy.exc import OperationalError
 from cfg import Config
 from database import CACHE, Engine
 from utils import Utils
-
 from .grid_base import Thumbnail
 from .svg_widgets import SvgShadowed
 
@@ -39,9 +38,9 @@ class LoadImageThread(QThread):
 
     def run(self):
         if self.img_src not in Shared.loaded_images:
-            img = Utils.read_image(self.img_src)
-            if img is not None:
-                pixmap = Utils.pixmap_from_array(img)
+            img_array = Utils.read_image(self.img_src)
+            if img_array is not NotImplemented:
+                pixmap = Utils.pixmap_from_array(img_array)
                 Shared.loaded_images[self.img_src] = pixmap
             else:
                 pixmap = QPixmap("images/file_210.png")
@@ -282,14 +281,14 @@ class WinImgView(QWidget):
             q = sqlalchemy.select(CACHE.c.img).filter(CACHE.c.src == self.src)
 
             with Engine.engine.connect() as conn:
-
-                try:
-                    thumbnail = conn.execute(q).scalar() or None
+                thumbnail = conn.execute(q).scalar() or None
+                if isinstance(thumbnail, bytes):
                     pixmap = QPixmap()
                     pixmap.loadFromData(thumbnail)
-                    self.img_label.set_image(pixmap)
-                except (OperationalError, Exception) as e:
-                    print("IMG VIEW: there is no thumbnail in db")
+                else:
+                    pixmap = QPixmap("images/file_210.png")
+
+                self.img_label.set_image(pixmap)
 
         self.load_image_thread()
 
