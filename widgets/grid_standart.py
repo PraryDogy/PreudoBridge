@@ -214,7 +214,8 @@ class LoadFinder(QThread):
             db_colors = self.get_db_colors()
             finder_items: list = self.get_items(db_colors)
             finder_items: list = self.sort_items(finder_items)
-        except (PermissionError, FileNotFoundError):
+        except (PermissionError, FileNotFoundError) as e:
+            Utils.print_error(self, e)
             finder_items: list = []
         
         self._finished.emit(finder_items)

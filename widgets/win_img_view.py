@@ -326,7 +326,7 @@ class WinImgView(QWidget):
     def switch_img(self, offset: int):
         try:
             current_index: int = self.image_paths.index(self.src)
-        except Exception as e:
+        except ValueError:
             current_index: int = 0
 
         total_images: int = len(self.image_paths)

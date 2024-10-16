@@ -133,7 +133,8 @@ class SearchFinder(QThread):
             else:
                 return None
 
-        except OperationalError:
+        except OperationalError as e:
+            Utils.print_error(self, e)
             return None
 
     def img_data_to_db(self, src: str, img_array, stats: os.stat_result):
