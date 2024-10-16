@@ -69,7 +69,7 @@ class Thumbnail(QFrame):
         self.setFixedSize(Geo.w, Geo.h)
         self.src: str = src
         self.path_to_wid: dict[str: QLabel] = path_to_wid
-        self.filename = filename
+        self.name = filename
         self.colors: str = ""
 
         v_lay = QVBoxLayout()
@@ -85,7 +85,7 @@ class Thumbnail(QFrame):
 
         self.name_label = NameLabel()
         self.name_label.setFixedHeight(Geo.text_h)
-        self.name_label.set_text(self.colors, self.filename)
+        self.name_label.set_text(self.colors, self.name)
         v_lay.addWidget(self.name_label)
 
         # КОНЕКСТНОЕ МЕНЮ
@@ -112,6 +112,10 @@ class Thumbnail(QFrame):
         copy_path = QAction("Скопировать путь до файла", self)
         copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
         self.context_menu.addAction(copy_path)
+
+        rename = QAction("Переименовать", self)
+        rename.triggered.connect(self.rename_win)
+        self.context_menu.addAction(rename)
 
         self.context_menu.addSeparator()
 
@@ -204,11 +208,25 @@ class Thumbnail(QFrame):
 
         return True
 
-    def rename_cmd(self):
+    def rename_win(self):
         self.win = WinRename(self.name)
-        self.win._finished.connect(self.rename_finished_cmd)
+        self.win._finished.connect(self.rename_cmd)
         Utils.center_win(Utils.get_main_win(), self.win)
         self.win.show()
+
+    def rename_cmd(self, text: str):
+        root = os.sep + os.path.dirname(self.src).strip(os.sep)
+        dest = os.path.join(root, text)
+        os.rename(self.src, dest)
+
+        self.name_label.set_text(self.colors, text)
+
+        if os.path.isfile(self.src):
+            self.path_to_wid.pop(self.src)
+            self.path_to_wid[dest] = self
+
+        self.name = text
+        self.src  = dest
 
     def update_colors(self, colors: str):
         if isinstance(colors, str):
@@ -216,7 +234,7 @@ class Thumbnail(QFrame):
             key = lambda x: Config.colors_order.index(x)
             self.colors = ''.join(sorted(self.colors, key=key))
 
-            self.name_label.set_text(self.colors, self.filename)
+            self.name_label.set_text(self.colors, self.name)
 
             for item in self.color_menu.children():
                 item: QAction

@@ -309,6 +309,10 @@ class ThumbnailFolder(Thumbnail):
         copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
         self.context_menu.addAction(copy_path)
 
+        rename = QAction("Переименовать", self)
+        rename.triggered.connect(self.rename_win)
+        self.context_menu.addAction(rename)
+
         self.context_menu.addSeparator()
 
         if self.src in Config.json_data["favs"]:
