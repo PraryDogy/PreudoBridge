@@ -3,10 +3,50 @@ import subprocess
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QDropEvent, QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import (QAction, QLabel, QLineEdit, QListWidget,
-                             QListWidgetItem, QMenu)
+                             QListWidgetItem, QMenu, QWidget, QVBoxLayout, QPushButton)
 
 from cfg import Config
 from utils import Utils
+
+
+class WinRename(QWidget):
+    _finished = pyqtSignal(str)
+
+    def __init__(self, text: str):
+        super().__init__()
+        self.setWindowTitle("Переименовать")
+        self.setFixedSize(200, 70)
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowCloseButtonHint)
+
+        v_lay = QVBoxLayout()
+        v_lay.setContentsMargins(10, 10, 10, 10)
+        v_lay.setSpacing(10)
+        self.setLayout(v_lay)
+
+        self.input_wid = QLineEdit()
+        self.input_wid.setText(text)
+        self.input_wid.selectAll()
+        v_lay.addWidget(self.input_wid)
+
+        self.ok_btn = QPushButton(text="Ок")
+        self.ok_btn.clicked.connect(self.finish_rename)
+        self.ok_btn.setFixedWidth(100)
+        v_lay.addWidget(self.ok_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        self.input_wid.setStyleSheet("padding-left: 2px; padding-right: 2px;")
+        self.input_wid.setFixedSize(170, 25)
+
+    def finish_rename(self):
+        self._finished.emit(self.input_wid.text())
+        self.close()
+
+    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
+        if a0.key() == Qt.Key.Key_Escape:
+            self.close()
+        elif a0.key() == Qt.Key.Key_Return:
+            self.finish_rename()
+        return super().keyPressEvent(a0)
 
 
 class FavItem(QLabel):
@@ -18,15 +58,7 @@ class FavItem(QLabel):
         super().__init__(text=name)
         self.name = name
         self.src = src
-
         self.setFixedHeight(25)
-
-        # Добавляем QLineEdit для редактирования имени
-        self.name_editor = QLineEdit(self)
-        self.name_editor.setText(name)
-        self.name_editor.setVisible(False)
-        self.name_editor.setStyleSheet("padding-left: 2px; padding-right: 20px;")
-        self.name_editor.setFixedSize(170, 25)
 
         self.context_menu = QMenu(self)
 
@@ -46,13 +78,13 @@ class FavItem(QLabel):
 
         self.context_menu.addSeparator()
 
-        fav_action = QAction("Удалить из избранного", self)
-        fav_action.triggered.connect(lambda: self.del_click.emit())
-        self.context_menu.addAction(fav_action)
-
         rename_action = QAction("Переименовать", self)
         rename_action.triggered.connect(self.rename_cmd)
         self.context_menu.addAction(rename_action)
+
+        fav_action = QAction("Удалить из избранного", self)
+        fav_action.triggered.connect(lambda: self.del_click.emit())
+        self.context_menu.addAction(fav_action)
 
         self.setContentsMargins(10, 0, 10, 0)
 
@@ -60,32 +92,14 @@ class FavItem(QLabel):
         subprocess.call(["open", "-R", path])
 
     def rename_cmd(self):
-        self.setText("")
-        self.name_editor.setVisible(True)
-        self.name_editor.setFocus()
-        self.name_editor.selectAll()
+        self.win = WinRename(self.name)
+        self.win._finished.connect(self.rename_finished_cmd)
+        Utils.center_win(Utils.get_main_win(), self.win)
+        self.win.show()
 
-    def finish_rename(self):
-        new_name = self.name_editor.text().strip()
-        if new_name:
-            self.name = new_name
-            self.setText(new_name)
-            self.rename_finished.emit(new_name)
-        self.name_editor.setVisible(False)
-        self.setText(self.name)
-
-    def cancel_rename(self):
-        self.name_editor.setVisible(False)
-        self.setText(self.name)
-        self.rename_finished.emit(self.name)
-
-    def keyPressEvent(self, ev: QKeyEvent | None) -> None:
-        if ev.key() == Qt.Key.Key_Return:
-            self.finish_rename()
-        elif ev.key() == Qt.Key.Key_Escape:
-            self.cancel_rename()
-
-        return super().keyPressEvent(ev)
+    def rename_finished_cmd(self, text: str):
+        self.setText(text)
+        self.rename_finished.emit(text)
 
     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
         if ev.button() == Qt.MouseButton.LeftButton:
