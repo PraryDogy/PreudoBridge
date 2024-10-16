@@ -185,7 +185,7 @@ class ViewTypeBtn(QTabBar):
         return QSize(10, size.height())
 
 
-class _SearchWidget(QWidget):
+class SearchWidget(QWidget):
     start_search_sig = pyqtSignal(str)
     stop_search_sig = pyqtSignal()
     clear_search_sig = pyqtSignal()
@@ -559,7 +559,7 @@ class BarTop(QFrame):
         self.grid_layout.addItem(QSpacerItem(1, 1), 0, self.clmn)
 
         self.clmn += 1
-        self.search_wid = _SearchWidget()
+        self.search_wid = SearchWidget()
         self.grid_layout.addWidget(self.search_wid, 0, self.clmn)
 
     def update_history(self):
