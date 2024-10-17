@@ -112,23 +112,23 @@ class SortTypeBtn(QPushButton):
 
     def __init__(self, parent: QWidget):
         super().__init__()
-        self.setFixedWidth(125)
+        self.setFixedWidth(105)
         self.setStyleSheet("text-align: center;")
                 
         data_actions = (
             ActionData(None, False, "По возрастанию"),
-            ActionData("name", False, "Имя возр"),
-            ActionData("size", False, "Размер возр"),
-            ActionData("modify", False, "Дата возр"),
-            ActionData("type", False, "Тип возр"),
-            ActionData("colors", False, "Цвета возр"),
+            ActionData("name", False, "Имя \U00002191"),
+            ActionData("size", False, "Размер \U00002191"),
+            ActionData("modify", False, "Дата \U00002191"),
+            ActionData("type", False, "Тип \U00002191"),
+            ActionData("colors", False, "Цвета \U00002191"),
 
-            ActionData(None, True, "По убыванию"),
-            ActionData("name", True, "Имя убыв"),
-            ActionData("size", True, "Размер убыв"),
-            ActionData("modify", True, "Дата убыв"),
-            ActionData("type", True, "Тип убыв"),
-            ActionData("colors", True, "Цвета убыв"),
+            ActionData(None, True, "По возрастанию"),
+            ActionData("name", True, "Имя \U00002193"),
+            ActionData("size", True, "Размер \U00002193"),
+            ActionData("modify", True, "Дата \U00002193"),
+            ActionData("type", True, "Тип \U00002193"),
+            ActionData("colors", True, "Цвета \U00002193"),
             )
 
         menu = QMenu()
