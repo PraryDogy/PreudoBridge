@@ -3,7 +3,7 @@ from difflib import SequenceMatcher
 
 import sqlalchemy
 from PyQt5.QtCore import QSize, Qt, QThread, QTimer, pyqtSignal
-from PyQt5.QtGui import QCloseEvent, QKeyEvent, QMouseEvent
+from PyQt5.QtGui import QCloseEvent, QKeyEvent, QMouseEvent, QCursor
 from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
                              QLineEdit, QMenu, QPushButton, QSlider,
                              QSpacerItem, QTabBar, QVBoxLayout, QWidget)
@@ -489,6 +489,12 @@ class AdvancedBtn(QPushButton):
         self.win.show()
 
 
+class HistoryBtn(QPushButton):
+    def __init__(self, text: str):
+        super().__init__(text)
+        self.setFixedWidth(60)
+
+
 class BarTop(QFrame):
     back_sig = pyqtSignal(str)
     next_sig = pyqtSignal(str)
@@ -509,14 +515,12 @@ class BarTop(QFrame):
         self.setLayout(self.grid_layout)
 
         self.clmn += 1
-        self.back = QPushButton("\u25C0")
-        self.back.setFixedWidth(60)
+        self.back = HistoryBtn("\u25C0")
         self.back.clicked.connect(self._back_cmd)
         self.grid_layout.addWidget(self.back, 0, self.clmn)
 
         self.clmn += 1
-        self.next = QPushButton("\u25B6")
-        self.next.setFixedWidth(60)
+        self.next = HistoryBtn("\u25B6")
         self.next.clicked.connect(self._next_cmd)
         self.grid_layout.addWidget(self.next, 0, self.clmn)
 
@@ -563,9 +567,14 @@ class BarTop(QFrame):
         self.grid_layout.addWidget(self.search_wid, 0, self.clmn)
 
     def update_history(self):
-        if Config.json_data.get("root") not in self.history:
-            self.history.append(Config.json_data.get("root"))
-            self.current_index = len(self.history) - 1
+        topbar = self.sender()
+        if isinstance(topbar, BarTop):
+            pos = topbar.mapFromGlobal(QCursor.pos())
+            if isinstance(topbar.childAt(pos), HistoryBtn):
+                return
+
+        self.history.append(Config.json_data.get("root"))
+        self.current_index = len(self.history) - 1
 
         if len(self.history) > 50:
             self.history.pop(0)
