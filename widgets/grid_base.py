@@ -196,7 +196,7 @@ class Thumbnail(QFrame):
         else:
             temp_colors = self.colors.replace(color, "")
 
-        color_to_db: bool = self.color_to_db()
+        color_to_db: bool = self.color_to_db(temp_colors)
 
         if color_to_db:
             self.update_colors(temp_colors)
