@@ -586,8 +586,10 @@ class BarTop(QFrame):
     def back_cmd(self):
         if self.current_index == 0:
             return
-
+        
         self.current_index -= 1
+        print(self.history)
+        print(self.history[self.current_index])
 
         try:
             path = self.history[self.current_index]
