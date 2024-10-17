@@ -534,7 +534,7 @@ class BarTop(QFrame):
         self.clmn += 1
         self.level_up_btn = QPushButton("\u2191")
         self.level_up_btn.setFixedWidth(60)
-        self.level_up_btn.clicked.connect(self._level_up_cmd)
+        self.level_up_btn.clicked.connect(self.level_up_cmd)
         self.grid_layout.addWidget(self.level_up_btn, 0, self.clmn)
 
         # self.clmn += 1
@@ -579,7 +579,7 @@ class BarTop(QFrame):
         if len(self.history) > 50:
             self.history.pop(0)
 
-    def _level_up_cmd(self):
+    def level_up_cmd(self):
         Config.json_data["root"] = os.path.dirname(Config.json_data.get("root"))
         self.level_up_sig.emit()
 
