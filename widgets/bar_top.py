@@ -516,12 +516,12 @@ class BarTop(QFrame):
 
         self.clmn += 1
         self.back = HistoryBtn("\u25C0")
-        self.back.clicked.connect(self._back_cmd)
+        self.back.clicked.connect(self.back_cmd)
         self.grid_layout.addWidget(self.back, 0, self.clmn)
 
         self.clmn += 1
         self.next = HistoryBtn("\u25B6")
-        self.next.clicked.connect(self._next_cmd)
+        self.next.clicked.connect(self.next_cmd)
         self.grid_layout.addWidget(self.next, 0, self.clmn)
 
         self.clmn += 1
@@ -583,7 +583,7 @@ class BarTop(QFrame):
         Config.json_data["root"] = os.path.dirname(Config.json_data.get("root"))
         self.level_up_sig.emit()
 
-    def _back_cmd(self):
+    def back_cmd(self):
         if self.current_index == 0:
             return
 
@@ -595,7 +595,7 @@ class BarTop(QFrame):
         except IndexError:
             pass
 
-    def _next_cmd(self):
+    def next_cmd(self):
         if self.current_index == len(self.history) - 1:
             return
         
