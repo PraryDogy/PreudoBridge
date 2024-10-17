@@ -74,7 +74,8 @@ class SearchFinder(QThread):
                 file_path: str = os.path.join(root, file)
                 file_path_lower: str = file_path.lower()
 
-                if file_path_lower.endswith(self.search_text):
+
+                if file_path_lower.endswith(Config.img_ext):
 
                     if isinstance(self.search_text, tuple):
                         self.create_wid(file_path)
