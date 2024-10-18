@@ -23,13 +23,16 @@ class NameLabel(QLabel):
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
     def update_name(self, rating: int, colors: str, text: str) -> list[str]:
-        max_length = 27
+        max_length = 25
         lines = []
         
-        while len(text) > max_length:
-            lines.append(text[:max_length])
-            text = text[max_length:]
+        # while len(text) > max_length:
+        #     lines.append(text[:max_length])
+        #     text = text[max_length:]
 
+        if len(text) > max_length:
+            text = text[:max_length] + "..."
+    
         if text:
             lines.append(text)
 
