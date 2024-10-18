@@ -24,39 +24,18 @@ class NameLabel(QLabel):
 
     def update_name(self, rating: int, colors: str, text: str) -> list[str]:
         max_length = 25
-        lines = []
-        
-        # while len(text) > max_length:
-        #     lines.append(text[:max_length])
-        #     text = text[max_length:]
 
         if len(text) > max_length:
             text = text[:max_length] + "..."
-    
-        if text:
-            lines.append(text)
 
-        if len(lines) > 2:
-            lines = lines[:2]
-            lines[-1] = lines[-1][:max_length-3] + '...'
+        if rating > 0:
+            rating = "\U00002605" * rating
 
-        if rating > 0 and colors:
-            lines.insert(0, "\U00002605" * rating)
-            lines.insert(1, colors)
-        elif rating > 0 and not colors:
-            lines.insert(0, "\U00002605" * rating)
-        elif rating == 0 and colors:
-            lines.insert(0, colors)
+        lines = [i for i in (rating, colors, text) if i]
 
         self.setText("\n".join(lines))
 
 
-# Базовый виджет для файлов, сверху фото, снизу имя файла
-# Контекстное меню заранее определено, можно добавить пункты
-# Весь виджет можно перетаскивать мышкой на графические редакторы (Photoshop)
-# В редактор переместится только изображение
-# В случае, когда виджет назначается на папку, скопируется вся папка на жесткий диск
-# Двойной клик открывает просмотрщик изображений
 class Geo:
     img_h = Config.img_size
     text_h = 70
@@ -66,12 +45,7 @@ class Geo:
 
 
 class Thumbnail(QFrame):
-    # просмотрщик изображений был закрыт и в аргумент передается путь к
-    # фотографии, на которой просмотрщик остановился
     move_to_wid = pyqtSignal(str)
-
-    # !!!!!!!! при переназначении клик эвентов не забудь добавить _clicked_sig
-    # по виджету произошел любой клик мыши (правый левый неважно)
     clicked = pyqtSignal()
     clicked_folder = pyqtSignal(str)
 
@@ -287,7 +261,6 @@ class Thumbnail(QFrame):
         self.src  = dest
 
 
-# Сетка изображений
 class Grid(QScrollArea):
     def __init__(self, width: int):
         super().__init__()
@@ -312,9 +285,6 @@ class Grid(QScrollArea):
         self.wid_to_cell: dict[Thumbnail: tuple] = {}
         self.path_to_wid: dict[str: Thumbnail] = {}
 
-    # Общий метод для всех Grid
-    # В каждой Grud сигнал каждого Thumbnail - _move_to_wid_sig
-    # мы подключаем к данному методу
     def move_to_wid(self, src: str):
         wid = self.path_to_wid.get(src)
         coords = self.wid_to_cell.get(wid)
