@@ -72,6 +72,7 @@ class Thumbnail(QFrame):
         self.path_to_wid: dict[str: QLabel] = path_to_wid
         self.name = filename
         self.colors: str = ""
+        self.rating: int = 0
 
         v_lay = QVBoxLayout()
         v_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -132,6 +133,21 @@ class Thumbnail(QFrame):
 
             wid.triggered.connect(lambda e, c=color: self.color_click(c))
             self.color_menu.addAction(wid)
+
+        self.rating_menu = QMenu("Рейтинг", self)
+        self.context_menu.addMenu(self.rating_menu)
+
+        self.rating_wids: list[QAction] = []
+        for rate in range(1, 6):
+            wid = QAction(parent=self.color_menu, text="\U00002605" * rate)
+            wid.setCheckable(True)
+            self.rating_wids.append(wid)
+
+            if self.rating == rate:
+                wid.setChecked(True)
+
+            wid.triggered.connect(lambda e, r=rate, w=wid: self.rating_click(w, r))
+            self.rating_menu.addAction(wid)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
         self.clicked.emit()
@@ -196,18 +212,27 @@ class Thumbnail(QFrame):
         else:
             temp_colors = self.colors.replace(color, "")
 
-        color_to_db: bool = self.color_to_db(temp_colors)
+        color_to_db: bool = self.update_data_db(temp_colors)
 
         if color_to_db:
             self.update_colors(temp_colors)
             self.colors = temp_colors
 
-    def color_to_db(self, colors: str):
-        upd_color = sqlalchemy.update(CACHE).where(CACHE.c.src == self.src).values(colors=colors)
+    def rating_click(self, wid: QAction, rate: int):
+        for i in self.rating_wids:
+            i.setChecked(False)
+
+        wid.setChecked(True)
+        self.rating = rate
+        self.update_data_db(colors=self.colors)
+
+    def update_data_db(self, colors: str):
+        upd_stmt = sqlalchemy.update(CACHE)
+        upd_stmt = upd_stmt.where(CACHE.c.src == self.src).values(colors=colors, rating=self.rating)
 
         with Engine.engine.connect() as conn:
             try:
-                conn.execute(upd_color)
+                conn.execute(upd_stmt)
                 conn.commit()
             except OperationalError as e:
                 Utils.print_error(self, e)

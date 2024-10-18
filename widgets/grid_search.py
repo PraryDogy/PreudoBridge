@@ -154,7 +154,7 @@ class SearchFinder(QThread):
                     modified=modified,
                     catalog="",
                     colors="",
-                    stars=""
+                    rating=0
                     )
                 self.conn.execute(insert_stmt)
 

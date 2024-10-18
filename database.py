@@ -17,7 +17,7 @@ CACHE = sqlalchemy.Table(
     sqlalchemy.Column("modified", sqlalchemy.Integer),
     sqlalchemy.Column("catalog", sqlalchemy.Text, nullable=False),
     sqlalchemy.Column("colors", sqlalchemy.Text, nullable=False),
-    sqlalchemy.Column("stars", sqlalchemy.Integer, nullable=False)
+    sqlalchemy.Column("rating", sqlalchemy.Integer, nullable=False)
     )
 
 

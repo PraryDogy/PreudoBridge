@@ -186,7 +186,7 @@ class LoadImages(QThread):
             modified = modified,
             catalog = "",
             colors = "",
-            stars = ""
+            rating = 0
             )
 
     def remove_images(self):
