@@ -282,7 +282,7 @@ class LoadFinder(QThread):
         index = sort_data.get(Config.json_data.get("sort"))
         rev = Config.json_data.get("reversed")
 
-        if index < 5:
+        if index != 5:
             sort_key = lambda x: x[index]
         else:
             sort_key = lambda x: len(x[index])

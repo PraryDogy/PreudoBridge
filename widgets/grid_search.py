@@ -307,7 +307,7 @@ class GridSearch(Grid):
         index = sort_data.get(Config.json_data.get("sort"))
         rev = Config.json_data.get("reversed")
 
-        if index < 5:
+        if index != 5:
             sort_key = lambda item: item[0][index]
         else:
             sort_key = lambda item: len(item[0][index])

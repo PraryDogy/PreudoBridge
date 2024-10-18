@@ -122,6 +122,7 @@ class SortTypeBtn(QPushButton):
             ActionData("modify", False, "Дата \U00002191"),
             ActionData("type", False, "Тип \U00002191"),
             ActionData("colors", False, "Цвета \U00002191"),
+            ActionData("rating", False, "Рейтинг \U00002191"),
 
             ActionData(None, True, "По возрастанию"),
             ActionData("name", True, "Имя \U00002193"),
@@ -129,6 +130,7 @@ class SortTypeBtn(QPushButton):
             ActionData("modify", True, "Дата \U00002193"),
             ActionData("type", True, "Тип \U00002193"),
             ActionData("colors", True, "Цвета \U00002193"),
+            ActionData("rating", True, "Рейтинг \U00002193"),
             )
 
         menu = QMenu()
