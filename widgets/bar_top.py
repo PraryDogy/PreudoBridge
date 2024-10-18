@@ -261,9 +261,9 @@ class SearchWidget(QWidget):
         self.input_wid.setText(text)
 
 
-class _FiltersBtn(QPushButton):
+class FiltersBtn(QPushButton):
     def __init__(self):
-        super().__init__(text="Фильтры")
+        super().__init__(text="\U000026AB")
         
         self._menu = QWidget()
         self._menu.setWindowFlags(Qt.Popup)
@@ -273,14 +273,14 @@ class _FiltersBtn(QPushButton):
         self._menu.closeEvent = lambda e: self.press_check()
 
         self.color_data = {
-            "🔴": {"text": "Красный", "bool": False},
-            "🔵": {"text": "Синий", "bool": False},
-            "🟠": {"text": "Оранжевый", "bool": False},
-            "🟡": {"text": "Желтый", "bool": False},
-            "🟢": {"text": "Зеленый", "bool": False},
-            "🟣": {"text": "Фиолетовый", "bool": False},
-            "🟤": {"text": "Коричневый", "bool": False}
-            }
+            "\U0001F534": {"text": "Красный", "bool": False},  # 🔴
+            "\U0001F535": {"text": "Синий", "bool": False},   # 🔵
+            "\U0001F7E0": {"text": "Оранжевый", "bool": False}, # 🟠
+            "\U0001F7E1": {"text": "Желтый", "bool": False},   # 🟡
+            "\U0001F7E2": {"text": "Зеленый", "bool": False},   # 🟢
+            "\U0001F7E3": {"text": "Фиолетовый", "bool": False}, # 🟣
+            "\U0001F7E4": {"text": "Коричневый", "bool": False}  # 🟤
+        }
         
         self.counter = 0
 
@@ -544,19 +544,17 @@ class BarTop(QFrame):
         self.view_type_btn = ViewTypeBtn()
         self.grid_layout.addWidget(self.view_type_btn, 0, self.clmn)
 
-        # self.clmn += 1
-        # self.grid_layout.addItem(QSpacerItem(5, 0), 0, self.clmn)
-
         self.clmn += 1
         self.sort_type_btn = SortTypeBtn(parent=self)
         self.grid_layout.addWidget(self.sort_type_btn, 0, self.clmn)
 
         self.clmn += 1
+        self.filters_btn = FiltersBtn()
+        self.grid_layout.addWidget(self.filters_btn, 0, self.clmn)
+
+        self.clmn += 1
         self.advanced_btn = AdvancedBtn()
         self.grid_layout.addWidget(self.advanced_btn, 0, self.clmn)
-
-        # self.clmn += 1
-        # self.grid_layout.addItem(QSpacerItem(5, 0), 0, self.clmn)
 
         self.clmn += 1
         self.grid_layout.setColumnStretch(self.clmn, 10)
