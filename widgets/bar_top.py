@@ -315,12 +315,6 @@ class FiltersBtn(QPushButton):
         self.rating_data = {1: False, 2: False,  3: False, 4: False, 5: False}
         self.rating_wids: list[QLabel] = []
 
-        label = QLabel("\U00002022")
-        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        label.setFixedSize(20, 20)
-        label.mouseReleaseEvent = lambda e: self.reset_rating()
-        rating_lay.addWidget(label)
-
         for rate in self.rating_data:
             label = QLabel("\U00002605")
             label.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -335,12 +329,6 @@ class FiltersBtn(QPushButton):
         pont = self.rect().bottomLeft()
         self._menu.move(self.mapToGlobal(pont))
         self._menu.show()
-
-    def reset_rating(self):
-        for i in self.rating_wids:
-            i.setStyleSheet("")
-        Config.rating = 0
-        self._clicked.emit()
 
     def toggle_color(self, widget: QLabel, color: str):
         if self.color_data[color] == True:
@@ -357,14 +345,18 @@ class FiltersBtn(QPushButton):
         self._clicked.emit()
 
     def toggle_rating(self, rate: int):
-        for i in self.rating_wids[:rate]:
-            i.setStyleSheet("background: #007AFF;")
-        for i in self.rating_wids[rate:]:
-            i.setStyleSheet("")
+        if rate > 1:
+            Config.rating = rate
+            for i in self.rating_wids[:rate]:
+                i.setStyleSheet("background: #007AFF;")
+            for i in self.rating_wids[rate:]:
+                i.setStyleSheet("")
+        else:
+            Config.rating = 0
+            for i in self.rating_wids:
+                i.setStyleSheet("")
 
-        Config.rating = rate
         self._clicked.emit()
-
         print(Config.rating)
 
     def press_check(self):
