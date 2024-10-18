@@ -302,10 +302,12 @@ class FiltersBtn(QPushButton):
             widget.setStyleSheet("")
             key["bool"] = False
             self.counter -= 1
+            Config.color_filters.remove(color)
         else:
             widget.setStyleSheet("background: #007AFF;")
             key["bool"] = True
             self.counter += 1
+            Config.color_filters.append(color)
         
     def press_check(self):
         if self.counter == 0:

@@ -11,6 +11,8 @@ class Config:
     image_apps: dict = {}
     img_size = 210
     
+    color_filters: list = []
+
     colors = {
         "\U0001F534": "Красный",
         "\U0001F535": "Синий",
