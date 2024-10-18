@@ -208,29 +208,29 @@ class LoadFinder(QThread):
 
     def __init__(self):
         super().__init__()
+        self.db_colors: dict[str: list] = {}
+        self.finder_items: list[tuple] = []
 
     def run(self):
         try:
-            db_colors = self.get_db_colors()
-            finder_items: list = self.get_items(db_colors)
-            finder_items: list = self.sort_items(finder_items)
+            self.get_db_colors()
+            self.get_items()
+            self.sort_items()
         except (PermissionError, FileNotFoundError) as e:
             Utils.print_error(self, e)
-            finder_items: list = []
+            self.finder_items: list = []
         
-        self._finished.emit(finder_items)
+        self._finished.emit(self.finder_items)
 
     def get_db_colors(self):
-        q = sqlalchemy.select(CACHE.c.src, CACHE.c.colors)
+        q = sqlalchemy.select(CACHE.c.src, CACHE.c.colors, CACHE.c.rating)
         q = q.where(CACHE.c.root == Config.json_data.get("root"))
 
         with Engine.engine.connect() as conn:
             res = conn.execute(q).fetchall()
-            return {src: colors for src, colors in res}
+            self.db_colors = {src: [colors, rating] for src, colors, rating in res}
 
-    def get_items(self, db_colors: dict) -> list:
-        finder_items = []
-
+    def get_items(self) -> list:
         for filename in os.listdir(Config.json_data.get("root")):
 
             src: str = os.path.join(Config.json_data.get("root"), filename)
@@ -240,25 +240,30 @@ class LoadFinder(QThread):
                 size = stats.st_size
                 modified = stats.st_mtime
                 filetype = os.path.splitext(filename)[1]
-                colors = db_colors.get(src) or ""
+
+                if self.db_colors.get(src):
+                    colors = self.db_colors.get(src)[0]
+                    rating = self.db_colors.get(src)[1]
+                else:
+                    colors = ""
+                    rating = 0
+
             except (PermissionError, FileNotFoundError):
                 continue
 
             if Config.color_filters:
                 if any(color in colors for color in Config.color_filters):
-                    finder_items.append((src, filename, size, modified, filetype, colors))
+                    self.finder_items.append((src, filename, size, modified, filetype, colors, rating))
                 continue
 
             if src.lower().endswith(Config.img_ext):
-                finder_items.append((src, filename, size, modified, filetype, colors))
+                self.finder_items.append((src, filename, size, modified, filetype, colors, rating))
                 continue
 
             if os.path.isdir(src):
-                finder_items.append((src, filename, size, modified, filetype, colors))
-
-        return finder_items
+                self.finder_items.append((src, filename, size, modified, filetype, colors, rating))
             
-    def sort_items(self, finder_items: list):
+    def sort_items(self):
         # finder_items: src filename size modified filetype
         # мы создаем отдельный словарик, где ключ соответствует Config.json_data "sort"
         # а значение индексу в ключе self.finder_items
@@ -273,7 +278,7 @@ class LoadFinder(QThread):
         else:
             sort_key = lambda x: len(x[index])
 
-        return sorted(finder_items, key=sort_key, reverse=rev)
+        self.finder_items = sorted(self.finder_items, key=sort_key, reverse=rev)
 
 
 class ThumbnailFolder(Thumbnail):
@@ -364,7 +369,7 @@ class GridStandart(Grid):
         col_count = Utils.get_clmn_count(self.ww)
         row, col = 0, 0
 
-        for src, filename, size, modified, type, colors in finder_items:
+        for src, filename, size, modified, type, colors, rating in finder_items:
 
             if os.path.isdir(src):
                 wid = ThumbnailFolder(filename, src)
@@ -375,12 +380,16 @@ class GridStandart(Grid):
                 wid.add_fav.connect(self.add_fav.emit)
                 wid.del_fav.connect(self.del_fav.emit)
 
+                # у папок нет цветных тегов, но этот метод задает имя
+                wid.set_colors("")
+
             else:
                 wid = Thumbnail(filename, src, self.path_to_wid)
                 wid.move_to_wid.connect(lambda src: self.move_to_wid(src))
                 self.set_base_img(wid.img_label, "images/file_210.png")
                 # ADD COLORS TO THUMBNAIL
                 wid.set_colors(colors)
+                wid.set_rating(rating)
                 src_size_mod.append((src, size, modified))
 
             self.grid_layout.addWidget(wid, row, col)

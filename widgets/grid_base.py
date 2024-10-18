@@ -37,10 +37,12 @@ class NameLabel(QLabel):
             lines = lines[:2]
             lines[-1] = lines[-1][:max_length-3] + '...'
 
-        if rating > 0:
+        if rating > 0 and colors:
             lines.insert(0, "\U00002605" * rating)
             lines.insert(1, colors)
-        else:
+        elif rating > 0 and not colors:
+            lines.insert(0, "\U00002605" * rating)
+        elif rating == 0 and colors:
             lines.insert(0, colors)
 
         self.setText("\n".join(lines))
@@ -228,7 +230,6 @@ class Thumbnail(QFrame):
                     item.setChecked(True)
 
     def rating_click(self, wid: QAction, rate: int):
-        print(rate)
         update_db = self.update_data_db(self.colors, rate)
 
         if update_db:
@@ -242,6 +243,10 @@ class Thumbnail(QFrame):
 
     def set_colors(self, colors: str):
         self.colors = colors
+        self.name_label.update_name(self.rating, self.colors, self.name)
+
+    def set_rating(self, rating: int):
+        self.rating = rating
         self.name_label.update_name(self.rating, self.colors, self.name)
 
     def update_data_db(self, colors: str, rating: int):
