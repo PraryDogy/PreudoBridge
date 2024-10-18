@@ -223,7 +223,7 @@ class GridSearch(Grid):
         colors = widget_data.colors
         wid = ThumbnailSearch(filename=filename, src=widget_data.src, path_to_wid=self.path_to_wid)
         wid.img_label.setPixmap(widget_data.pixmap)
-        wid.update_colors(colors)
+        wid.set_colors(widget_data.colors)
 
         wid.show_in_folder.connect(self.show_in_folder.emit)
         wid.move_to_wid.connect(self.move_to_wid)

@@ -22,7 +22,7 @@ class NameLabel(QLabel):
         super().__init__()
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-    def set_text(self, colors: str, text: str) -> list[str]:
+    def update_name(self, rating: int, colors: str, text: str) -> list[str]:
         max_length = 27
         lines = []
         
@@ -37,7 +37,12 @@ class NameLabel(QLabel):
             lines = lines[:2]
             lines[-1] = lines[-1][:max_length-3] + '...'
 
-        lines.insert(0, colors)
+        if rating > 0:
+            lines.insert(0, "\U00002605" * rating)
+            lines.insert(1, colors)
+        else:
+            lines.insert(0, colors)
+
         self.setText("\n".join(lines))
 
 
@@ -87,7 +92,6 @@ class Thumbnail(QFrame):
 
         self.name_label = NameLabel()
         self.name_label.setFixedHeight(Geo.text_h)
-        self.name_label.set_text(self.colors, self.name)
         v_lay.addWidget(self.name_label)
 
         # КОНЕКСТНОЕ МЕНЮ
@@ -137,11 +141,9 @@ class Thumbnail(QFrame):
         self.rating_menu = QMenu("Рейтинг", self)
         self.context_menu.addMenu(self.rating_menu)
 
-        self.rating_wids: list[QAction] = []
         for rate in range(1, 6):
-            wid = QAction(parent=self.color_menu, text="\U00002605" * rate)
+            wid = QAction(parent=self.rating_menu, text="\U00002605" * rate)
             wid.setCheckable(True)
-            self.rating_wids.append(wid)
 
             if self.rating == rate:
                 wid.setChecked(True)
@@ -212,23 +214,39 @@ class Thumbnail(QFrame):
         else:
             temp_colors = self.colors.replace(color, "")
 
-        color_to_db: bool = self.update_data_db(temp_colors)
+        update_db: bool = self.update_data_db(temp_colors, self.rating)
 
-        if color_to_db:
-            self.update_colors(temp_colors)
+        if update_db:
             self.colors = temp_colors
+            key = lambda x: Config.colors_order.index(x)
+            self.colors = ''.join(sorted(self.colors, key=key))
+            self.name_label.update_name(self.rating, self.colors, self.name)
+
+            for item in self.color_menu.children():
+                item: QAction
+                if item.text()[0] in self.colors:
+                    item.setChecked(True)
 
     def rating_click(self, wid: QAction, rate: int):
-        for i in self.rating_wids:
-            i.setChecked(False)
+        print(rate)
+        update_db = self.update_data_db(self.colors, rate)
 
-        wid.setChecked(True)
-        self.rating = rate
-        self.update_data_db(colors=self.colors)
+        if update_db:
+            self.name_label.update_name(rate, self.colors, self.name)
+            self.rating = rate
 
-    def update_data_db(self, colors: str):
+            for i in self.rating_menu.children():
+                i: QAction
+                i.setChecked(False)
+            wid.setChecked(True)
+
+    def set_colors(self, colors: str):
+        self.colors = colors
+        self.name_label.update_name(self.rating, self.colors, self.name)
+
+    def update_data_db(self, colors: str, rating: int):
         upd_stmt = sqlalchemy.update(CACHE)
-        upd_stmt = upd_stmt.where(CACHE.c.src == self.src).values(colors=colors, rating=self.rating)
+        upd_stmt = upd_stmt.where(CACHE.c.src == self.src).values(colors=colors, rating=rating)
 
         with Engine.engine.connect() as conn:
             try:
@@ -251,7 +269,7 @@ class Thumbnail(QFrame):
         dest = os.path.join(root, text)
         os.rename(self.src, dest)
 
-        self.name_label.set_text(self.colors, text)
+        self.name_label.update_name(self.rating, self.colors, text)
 
         if os.path.isfile(self.src):
             self.path_to_wid.pop(self.src)
@@ -259,19 +277,6 @@ class Thumbnail(QFrame):
 
         self.name = text
         self.src  = dest
-
-    def update_colors(self, colors: str):
-        if isinstance(colors, str):
-            self.colors = colors
-            key = lambda x: Config.colors_order.index(x)
-            self.colors = ''.join(sorted(self.colors, key=key))
-
-            self.name_label.set_text(self.colors, self.name)
-
-            for item in self.color_menu.children():
-                item: QAction
-                if item.text()[0] in self.colors:
-                    item.setChecked(True)
 
 
 # Сетка изображений

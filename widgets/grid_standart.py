@@ -380,7 +380,7 @@ class GridStandart(Grid):
                 wid.move_to_wid.connect(lambda src: self.move_to_wid(src))
                 self.set_base_img(wid.img_label, "images/file_210.png")
                 # ADD COLORS TO THUMBNAIL
-                wid.update_colors(colors)
+                wid.set_colors(colors)
                 src_size_mod.append((src, size, modified))
 
             self.grid_layout.addWidget(wid, row, col)
