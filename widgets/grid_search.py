@@ -31,9 +31,10 @@ class ThumbnailSearch(Thumbnail):
 
 
 class WidgetData:
-    def __init__(self, src: str, colors: str, stats: os.stat_result, pixmap: QPixmap):
+    def __init__(self, src: str, colors: str, rating: int, stats: os.stat_result, pixmap: QPixmap):
         self.src: str = src
         self.colors: str = colors
+        self.rating: int = rating
         self.stats: os.stat_result = stats
         self.pixmap: QPixmap = pixmap
 
@@ -104,12 +105,14 @@ class SearchFinder(QThread):
 
         pixmap: QPixmap = None
         colors: str = ""
+        rating: int = 0
 
         db_data: dict = self.get_img_data_db(src)
 
         if isinstance(db_data, dict):
             pixmap: QPixmap = Utils.pixmap_from_bytes(db_data.get("img"))
             colors = db_data.get("colors")
+            rating = db_data.get("rating")
 
         else:
             img_array: ndarray = self.create_img_array(src)
@@ -121,16 +124,16 @@ class SearchFinder(QThread):
         if not pixmap:
             pixmap = QPixmap("images/file_210.png")
 
-        self.add_new_widget.emit(WidgetData(src, colors, stats, pixmap))
+        self.add_new_widget.emit(WidgetData(src, colors, rating, stats, pixmap))
         sleep(0.1)
 
     def get_img_data_db(self, src: str) -> dict | None:
         try:
-            sel_stmt = sqlalchemy.select(CACHE.c.img, CACHE.c.colors).where(CACHE.c.src == src)
+            sel_stmt = sqlalchemy.select(CACHE.c.img, CACHE.c.colors, CACHE.c.rating).where(CACHE.c.src == src)
             res = self.conn.execute(sel_stmt).first()
 
             if res:
-                return {"img": res.img, "colors": res.colors}
+                return {"img": res.img, "colors": res.colors, "rating": res.rating}
             else:
                 return None
 
@@ -218,12 +221,12 @@ class GridSearch(Grid):
 
     def add_new_widget(self, widget_data: WidgetData):
         # data идет из сигнала _new_widget_sig
-        # "src", "stats" - os.stat, "pixmap", "colors": str
+        # "src", "stats" - os.stat, "pixmap", "colors": str, "rating": int
         filename = os.path.basename(widget_data.src)
         colors = widget_data.colors
         wid = ThumbnailSearch(filename=filename, src=widget_data.src, path_to_wid=self.path_to_wid)
         wid.img_label.setPixmap(widget_data.pixmap)
-        wid.set_colors(widget_data.colors)
+        wid.set_colors(colors)
 
         wid.show_in_folder.connect(self.show_in_folder.emit)
         wid.move_to_wid.connect(self.move_to_wid)
