@@ -108,7 +108,7 @@ class ActionData:
 
 
 class SortTypeBtn(QPushButton):
-    sort_click = pyqtSignal()
+    _clicked = pyqtSignal()
 
     def __init__(self, parent: QWidget):
         super().__init__()
@@ -151,11 +151,11 @@ class SortTypeBtn(QPushButton):
         Config.json_data["sort"] = data_action.sort
         Config.json_data["reversed"] = data_action.reversed
         self.setText(data_action.text)
-        self.sort_click.emit()
+        self._clicked.emit()
 
 
 class ViewTypeBtn(QTabBar):
-    view_click = pyqtSignal()
+    _clicked = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -178,7 +178,7 @@ class ViewTypeBtn(QTabBar):
         else:
             self.setCurrentIndex(1)
             Config.json_data["list_view"] = True
-        self.view_click.emit()
+        self._clicked.emit()
 
     def tabSizeHint(self, index):
         size = QTabBar.tabSizeHint(self, index)
@@ -186,9 +186,9 @@ class ViewTypeBtn(QTabBar):
 
 
 class SearchWidget(QWidget):
-    start_search_sig = pyqtSignal(str)
-    stop_search_sig = pyqtSignal()
-    clear_search_sig = pyqtSignal()
+    start_search = pyqtSignal(str)
+    stop_search = pyqtSignal()
+    clear_search = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -202,7 +202,7 @@ class SearchWidget(QWidget):
         self.input_wid.setPlaceholderText("Поиск")
         self.input_wid.setStyleSheet("padding-left: 2px; padding-right: 20px;")
         self.input_wid.setFixedSize(170, 25)
-        self.input_wid.mouseDoubleClickEvent = self._show_templates
+        self.input_wid.mouseDoubleClickEvent = self.show_templates
         v_lay.addWidget(self.input_wid)
 
         self.clear_btn = QLabel(parent=self, text="\u2573")
@@ -211,16 +211,16 @@ class SearchWidget(QWidget):
         self.clear_btn.hide()
         self.clear_btn.mouseReleaseEvent = lambda e: self.input_wid.clear()
 
-        self.input_wid.textChanged.connect(self._on_text_changed)
+        self.input_wid.textChanged.connect(self.on_text_changed)
         self.search_text: str = None
 
         self.search_timer = QTimer(self)
         self.search_timer.setSingleShot(True)
         self.search_timer.timeout.connect(
-            lambda: self.start_search_sig.emit(self.search_text)
+            lambda: self.start_search.emit(self.search_text)
             )
         
-        self.clear_search_sig.connect(self._costil)
+        self.clear_search.connect(self.costil)
 
         self.templates_menu = QMenu()
 
@@ -234,34 +234,36 @@ class SearchWidget(QWidget):
 
         for k, v in data.items():
             action = QAction(parent=self, text=k)
-            action.triggered.connect(lambda e, xx=v: self._action_cmd(xx))
+            action.triggered.connect(lambda e, xx=v: self.action_cmd(xx))
             self.templates_menu.addAction(action)
 
-    def _costil(self):
+    def costil(self):
         self.input_wid.disconnect()
         self.input_wid.clear()
         self.clear_btn.hide()
-        self.input_wid.textChanged.connect(self._on_text_changed)
+        self.input_wid.textChanged.connect(self.on_text_changed)
 
-    def _on_text_changed(self, text):
+    def on_text_changed(self, text):
         self.search_timer.stop()
         if text:
             self.clear_btn.show()
             self.search_text = text
             self.search_timer.start(1000)
         else:
-            self.clear_search_sig.emit()
+            self.clear_search.emit()
             self.clear_btn.hide()
-            self.stop_search_sig.emit()
+            self.stop_search.emit()
 
-    def _show_templates(self, a0: QMouseEvent | None) -> None:
+    def show_templates(self, a0: QMouseEvent | None) -> None:
         self.templates_menu.exec(self.mapToGlobal(self.rect().bottomLeft()))
     
-    def _action_cmd(self, text: str):
+    def action_cmd(self, text: str):
         self.input_wid.setText(text)
 
 
 class FiltersBtn(QPushButton):
+    _clicked = pyqtSignal()
+
     def __init__(self):
         super().__init__(text="\U000026AB")
         
@@ -308,6 +310,8 @@ class FiltersBtn(QPushButton):
             key["bool"] = True
             self.counter += 1
             Config.color_filters.append(color)
+
+        self._clicked.emit()
         
     def press_check(self):
         if self.counter == 0:
@@ -317,7 +321,7 @@ class FiltersBtn(QPushButton):
 
 
 class WinGo(QWidget):
-    open_path = pyqtSignal(str)
+    _closed = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -350,7 +354,7 @@ class WinGo(QWidget):
         path: str = os.sep + path.strip().strip(os.sep)
 
         if os.path.exists(path):
-            self.open_path.emit(path)
+            self._closed.emit(path)
             self.close()
         else:
             self.path_thread = PathFinderThread(path)
@@ -358,7 +362,7 @@ class WinGo(QWidget):
             self.path_thread.start()
 
     def _finalize(self, res: str):
-        self.open_path.emit(res)
+        self._closed.emit(res)
         self.close()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
@@ -462,7 +466,7 @@ class WinSettings(QWidget):
 
 
 class AdvancedBtn(QPushButton):
-    open_path = pyqtSignal(str)
+    _clicked = pyqtSignal(str)
 
     def __init__(self):
         super().__init__("...")
@@ -481,7 +485,7 @@ class AdvancedBtn(QPushButton):
     
     def open_go_win(self):
         self.win = WinGo()
-        self.win.open_path.connect(self.open_path.emit)
+        self.win._closed.connect(self._clicked.emit)
         Utils.center_win(Utils.get_main_win(), self.win)
         self.win.show()
 
@@ -498,9 +502,9 @@ class HistoryBtn(QPushButton):
 
 
 class BarTop(QFrame):
-    back_sig = pyqtSignal(str)
-    next_sig = pyqtSignal(str)
-    level_up_sig = pyqtSignal()
+    back = pyqtSignal(str)
+    next = pyqtSignal(str)
+    level_up = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -517,14 +521,14 @@ class BarTop(QFrame):
         self.setLayout(self.grid_layout)
 
         self.clmn += 1
-        self.back = HistoryBtn("\u25C0")
-        self.back.clicked.connect(self.back_cmd)
-        self.grid_layout.addWidget(self.back, 0, self.clmn)
+        self.back_btn = HistoryBtn("\u25C0")
+        self.back_btn.clicked.connect(self.back_cmd)
+        self.grid_layout.addWidget(self.back_btn, 0, self.clmn)
 
         self.clmn += 1
-        self.next = HistoryBtn("\u25B6")
-        self.next.clicked.connect(self.next_cmd)
-        self.grid_layout.addWidget(self.next, 0, self.clmn)
+        self.next_btn = HistoryBtn("\u25B6")
+        self.next_btn.clicked.connect(self.next_cmd)
+        self.grid_layout.addWidget(self.next_btn, 0, self.clmn)
 
         self.clmn += 1
         self.grid_layout.setColumnStretch(self.clmn, 10)
@@ -538,9 +542,6 @@ class BarTop(QFrame):
         self.level_up_btn.setFixedWidth(60)
         self.level_up_btn.clicked.connect(self.level_up_cmd)
         self.grid_layout.addWidget(self.level_up_btn, 0, self.clmn)
-
-        # self.clmn += 1
-        # self.grid_layout.addItem(QSpacerItem(5, 0), 0, self.clmn)
 
         self.clmn += 1
         self.view_type_btn = ViewTypeBtn()
@@ -581,7 +582,7 @@ class BarTop(QFrame):
 
     def level_up_cmd(self):
         Config.json_data["root"] = os.path.dirname(Config.json_data.get("root"))
-        self.level_up_sig.emit()
+        self.level_up.emit()
 
     def back_cmd(self):
         if self.current_index == 0:
@@ -591,7 +592,7 @@ class BarTop(QFrame):
 
         try:
             path = self.history[self.current_index]
-            self.back_sig.emit(path)
+            self.back.emit(path)
         except IndexError:
             pass
 
@@ -603,6 +604,6 @@ class BarTop(QFrame):
 
         try:
             path = self.history[self.current_index]
-            self.next_sig.emit(path)
+            self.next.emit(path)
         except IndexError:
             pass

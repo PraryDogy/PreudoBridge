@@ -244,11 +244,17 @@ class LoadFinder(QThread):
             except (PermissionError, FileNotFoundError):
                 continue
 
+            if Config.color_filters:
+                if any(color in colors for color in Config.color_filters):
+                    finder_items.append((src, filename, size, modified, filetype, colors))
+                continue
+
             if src.lower().endswith(Config.img_ext):
+                print("here")
                 finder_items.append((src, filename, size, modified, filetype, colors))
                 continue
 
-            elif os.path.isdir(src):
+            if os.path.isdir(src):
                 finder_items.append((src, filename, size, modified, filetype, colors))
 
         return finder_items

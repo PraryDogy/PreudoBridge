@@ -62,13 +62,13 @@ class SimpleFileExplorer(QWidget):
         splitter_wid.setStretchFactor(0, 0)
 
         self.folders_tree_wid = TreeFolders()
-        self.folders_tree_wid.folders_tree_clicked.connect(self.tree_wid_view_folder_cmd)
-        self.folders_tree_wid.add_to_favs_clicked.connect(self.tree_wid_add_fav_cmd)
-        self.folders_tree_wid.del_favs_clicked.connect(self.tree_wid_del_fav_cmd)
+        self.folders_tree_wid.folders_tree_clicked.connect(self.view_folder_cmd)
+        self.folders_tree_wid.add_to_favs_clicked.connect(self.add_fav_cmd)
+        self.folders_tree_wid.del_favs_clicked.connect(self.del_fav_cmd)
         self.bar_tabs.addTab(self.folders_tree_wid, "Папки")
 
         self.folders_fav_wid = TreeFavorites()
-        self.folders_fav_wid.on_fav_clicked.connect(self.tree_wid_view_folder_cmd)
+        self.folders_fav_wid.on_fav_clicked.connect(self.view_folder_cmd)
         self.bar_tabs.addTab(self.folders_fav_wid, "Избранное")
 
         self.bar_tabs.addTab(QLabel("Тут будут каталоги"), "Каталог")
@@ -87,15 +87,16 @@ class SimpleFileExplorer(QWidget):
         
         self.bar_top = BarTop()
 
-        self.bar_top.sort_type_btn.sort_click.connect(self.bar_top_sort_grid)
-        self.bar_top.advanced_btn.open_path.connect(self.bar_top_open_path_btn_cmd)
-        self.bar_top.search_wid.start_search_sig.connect(self.grid_search_load)
-        self.bar_top.search_wid.stop_search_sig.connect(self.grid_standart_load)
-        self.bar_top.view_type_btn.view_click.connect(self.grid_standart_load)
+        self.bar_top.sort_type_btn._clicked.connect(self.sort_btn_cmd)
+        self.bar_top.view_type_btn._clicked.connect(self.grid_standart_load)
+        self.bar_top.filters_btn._clicked.connect(self.filter_btn_cmd)
+        self.bar_top.advanced_btn._clicked.connect(self.open_path_btn_cmd)
+        self.bar_top.search_wid.start_search.connect(self.grid_search_load)
+        self.bar_top.search_wid.stop_search.connect(self.grid_standart_load)
 
-        self.bar_top.level_up_sig.connect(self.grid_standart_load)
-        self.bar_top.back_sig.connect(self.bar_top_next_back_cmd)
-        self.bar_top.next_sig.connect(self.bar_top_next_back_cmd)
+        self.bar_top.level_up.connect(self.grid_standart_load)
+        self.bar_top.back.connect(self.next_btn_cmd)
+        self.bar_top.next.connect(self.next_btn_cmd)
 
         self.r_lay.addWidget(self.bar_top, 0, 0, alignment=Qt.AlignmentFlag.AlignTop)
         
@@ -117,40 +118,47 @@ class SimpleFileExplorer(QWidget):
             """
             )
 
-    def bar_top_sort_grid(self):
+    def sort_btn_cmd(self):
         if isinstance(self.grid, GridSearch):
             self.grid.sort_grid(self.get_grid_width())
 
         elif isinstance(self.grid, GridStandart):
             self.grid_standart_load()
 
+    def filter_btn_cmd(self):
+        if isinstance(self.grid, GridSearch):
+            self.grid.sort_grid(self.get_grid_width())
+
+        elif isinstance(self.grid, GridStandart):
+            self.grid_standart_load()
+
+    def next_btn_cmd(self, root: str):
+        Config.json_data["root"] = root
+        self.grid_standart_load()
+
     def bar_top_setDisabled(self, b: bool):
-        self.bar_top.back.setDisabled(b)
-        self.bar_top.next.setDisabled(b)
+        self.bar_top.back_btn.setDisabled(b)
+        self.bar_top.next_btn.setDisabled(b)
         self.bar_top.level_up_btn.setDisabled(b)
         self.bar_top.advanced_btn.setDisabled(b)
         self.bar_top.sort_type_btn.setDisabled(b)
         # self.bar_top.filters_btn.setDisabled(b)
         self.bar_top.view_type_btn.setDisabled(b)
 
-    def tree_wid_view_folder_cmd(self, root: str):
+    def view_folder_cmd(self, root: str):
         Config.json_data["root"] = root
         self.grid_standart_load()
 
-    def bar_top_next_back_cmd(self, root: str):
-        Config.json_data["root"] = root
-        self.grid_standart_load()
-
-    def tree_wid_add_fav_cmd(self, root: str):
+    def add_fav_cmd(self, root: str):
         name = os.path.basename(root)
         self.folders_fav_wid.add_item(name, root)
         favs: dict = Config.json_data.get("favs")
         favs[root] = name
 
-    def tree_wid_del_fav_cmd(self, root: str):
+    def del_fav_cmd(self, root: str):
         self.folders_fav_wid.del_item(root)
 
-    def bar_top_open_path_btn_cmd(self, path: str):
+    def open_path_btn_cmd(self, path: str):
         if not os.path.exists(path):
             return
 
@@ -217,7 +225,7 @@ class SimpleFileExplorer(QWidget):
         
         self.setWindowTitle(os.path.basename(Config.json_data.get("root")))
 
-        self.bar_top.search_wid.clear_search_sig.emit()
+        self.bar_top.search_wid.clear_search.emit()
         self.bar_top.update_history()
         self.bar_top_setDisabled(False)
 
@@ -231,9 +239,9 @@ class SimpleFileExplorer(QWidget):
             self.bar_top.sort_type_btn.setDisabled(True)
             # self.bar_top.filters_btn.setDisabled(True)
 
-            self.grid.add_to_favs_clicked.connect(self.tree_wid_add_fav_cmd)
-            self.grid.del_favs_clicked.connect(self.tree_wid_del_fav_cmd)
-            self.grid.folders_tree_clicked.connect(self.tree_wid_view_folder_cmd)
+            self.grid.add_to_favs_clicked.connect(self.add_fav_cmd)
+            self.grid.del_favs_clicked.connect(self.del_fav_cmd)
+            self.grid.folders_tree_clicked.connect(self.view_folder_cmd)
 
         else:
             self.grid = GridStandart(width=self.get_grid_width())
@@ -241,9 +249,9 @@ class SimpleFileExplorer(QWidget):
             self.grid.progressbar_start.connect(self.bar_bottom.progressbar_start.emit)
             self.grid.progressbar_value.connect(self.bar_bottom.progressbar_value.emit)
 
-            self.grid.add_fav.connect(self.tree_wid_add_fav_cmd)
-            self.grid.del_fav.connect(self.tree_wid_del_fav_cmd)
-            self.grid.clicked_folder.connect(self.tree_wid_view_folder_cmd)
+            self.grid.add_fav.connect(self.add_fav_cmd)
+            self.grid.del_fav.connect(self.del_fav_cmd)
+            self.grid.clicked_folder.connect(self.view_folder_cmd)
 
         self.r_lay.addWidget(self.grid, 1, 0)
         # по умолчанию фокус будет на tree widget
