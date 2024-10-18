@@ -159,10 +159,10 @@ class ViewTypeBtn(QTabBar):
 
     def __init__(self):
         super().__init__()
-        self.setFixedWidth(125)
+        self.setFixedWidth(90)
 
-        self.addTab("Плитка")
-        self.addTab("Список")
+        self.addTab("\U00001392" * 3)
+        self.addTab("\U00002630")
 
         if Config.json_data.get("list_view"):
             self.setCurrentIndex(1)
@@ -463,8 +463,8 @@ class AdvancedBtn(QPushButton):
     open_path = pyqtSignal(str)
 
     def __init__(self):
-        super().__init__("")
-        self.setFixedWidth(50)
+        super().__init__("...")
+        self.setFixedWidth(55)
 
         menu = QMenu()
         self.setMenu(menu)
