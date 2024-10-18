@@ -269,52 +269,106 @@ class FiltersBtn(QPushButton):
         
         self._menu = QWidget()
         self._menu.setWindowFlags(Qt.Popup)
-        self._menu.setLayout(QVBoxLayout())
-        self._menu.layout().setContentsMargins(1, 1, 1, 1)
-        self._menu.layout().setSpacing(1)
         self._menu.closeEvent = lambda e: self.press_check()
 
-        self.color_data = {
-            "\U0001F534": {"text": "Красный", "bool": False},  # 🔴
-            "\U0001F535": {"text": "Синий", "bool": False},   # 🔵
-            "\U0001F7E0": {"text": "Оранжевый", "bool": False}, # 🟠
-            "\U0001F7E1": {"text": "Желтый", "bool": False},   # 🟡
-            "\U0001F7E2": {"text": "Зеленый", "bool": False},   # 🟢
-            "\U0001F7E3": {"text": "Фиолетовый", "bool": False}, # 🟣
-            "\U0001F7E4": {"text": "Коричневый", "bool": False}  # 🟤
-        }
-        
-        self.counter = 0
+        self._menu.setLayout(QVBoxLayout())
+        self._menu.layout().setContentsMargins(0, 0, 0, 0)
+        self._menu.layout().setSpacing(1)
 
-        self.labels = {}
-        for color, data in self.color_data.items():
-            label = QLabel(color + " " + data.get("text"))
-            label.setContentsMargins(15, 5, 15, 5)
-            label.mousePressEvent = lambda e, w=label, c=color: self.toggle_label(w, c)
-            self._menu.layout().addWidget(label)
+        # строчка с цветами
+
+        color_wid = QWidget()
+        self._menu.layout().addWidget(color_wid)
+        color_lay = QHBoxLayout()
+        color_lay.setContentsMargins(3, 3, 3, 3)
+        color_lay.setSpacing(5)
+        color_wid.setLayout(color_lay)
+
+        self.color_count = 0
+        self.color_data = {
+            "\U0001F534": False,  # 🔴
+            "\U0001F535": False,   # 🔵
+            "\U0001F7E0": False, # 🟠
+            "\U0001F7E1": False,   # 🟡
+            "\U0001F7E2": False,   # 🟢
+            "\U0001F7E3": False, # 🟣
+            "\U0001F7E4": False,  # 🟤
+            }
+
+        for color in self.color_data:
+            label = QLabel(color)
+            label.setFixedSize(20, 20)
+            label.mousePressEvent = lambda e, w=label, c=color: self.toggle_color(w, c)
+            color_lay.addWidget(label)
+
+        color_lay.addStretch(1)
+
+        # строчка с рейтингом
+
+        raging_wid = QWidget()
+        self._menu.layout().addWidget(raging_wid)
+        rating_lay = QHBoxLayout()
+        rating_lay.setContentsMargins(3, 3, 3, 3)
+        rating_lay.setSpacing(5)
+        raging_wid.setLayout(rating_lay)
+
+        self.rating_data = {1: False, 2: False,  3: False, 4: False, 5: False}
+        self.rating_wids: list[QLabel] = []
+
+        label = QLabel("\U00002022")
+        label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        label.setFixedSize(20, 20)
+        label.mouseReleaseEvent = lambda e: self.reset_rating()
+        rating_lay.addWidget(label)
+
+        for rate in self.rating_data:
+            label = QLabel("\U00002605")
+            label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            label.setFixedSize(20, 20)
+            label.mouseReleaseEvent = lambda e, r=rate: self.toggle_rating(r)
+            rating_lay.addWidget(label)
+            self.rating_wids.append(label)
+        
+        rating_lay.addStretch(1)
 
     def mouseReleaseEvent(self, e):
         pont = self.rect().bottomLeft()
         self._menu.move(self.mapToGlobal(pont))
         self._menu.show()
 
-    def toggle_label(self, widget: QLabel, color: str):
-        key = self.color_data.get(color)
-        if key.get("bool"):
+    def reset_rating(self):
+        for i in self.rating_wids:
+            i.setStyleSheet("")
+        Config.rating = 0
+        self._clicked.emit()
+
+    def toggle_color(self, widget: QLabel, color: str):
+        if self.color_data[color] == True:
             widget.setStyleSheet("")
-            key["bool"] = False
-            self.counter -= 1
+            self.color_data[color] = False
+            self.color_count -= 1
             Config.color_filters.remove(color)
         else:
             widget.setStyleSheet("background: #007AFF;")
-            key["bool"] = True
-            self.counter += 1
+            self.color_data[color] = True
+            self.color_count += 1
             Config.color_filters.append(color)
 
         self._clicked.emit()
-        
+
+    def toggle_rating(self, rate: int):
+        for i in self.rating_wids[:rate]:
+            i.setStyleSheet("background: #007AFF;")
+        for i in self.rating_wids[rate:]:
+            i.setStyleSheet("")
+
+        Config.rating = rate
+        self._clicked.emit()
+
+        print(Config.rating)
+
     def press_check(self):
-        if self.counter == 0:
+        if self.color_count == 0:
             self.setDown(False)
         else:
             self.setDown(True)
