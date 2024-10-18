@@ -85,9 +85,13 @@ class TreeFavorites(QListWidget):
     def init_ui(self):
         favs: dict = Config.json_data["favs"]
         for src, name in favs.items():
-            self.add_item(name, src)
+            item = self.add_item(name, src)
 
-    def add_item(self, name: str, src: str):
+            if Config.json_data.get("root") == src:
+                self.setCurrentItem(item)
+
+
+    def add_item(self, name: str, src: str) -> QListWidgetItem:
         item = FavItem(name, src)
         item.del_click.connect(lambda: self.del_item(src))
         item.on_fav_click.connect(lambda: self.on_fav_clicked.emit(src))
@@ -98,6 +102,8 @@ class TreeFavorites(QListWidget):
 
         self.addItem(list_item)
         self.setItemWidget(list_item, item)
+
+        return list_item
 
     def update_name(self, src: str, new_name: str):
         favs: dict = Config.json_data.get("favs")

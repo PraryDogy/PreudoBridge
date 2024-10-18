@@ -142,7 +142,7 @@ class SimpleFileExplorer(QWidget):
         self.bar_top.level_up_btn.setDisabled(b)
         self.bar_top.advanced_btn.setDisabled(b)
         self.bar_top.sort_type_btn.setDisabled(b)
-        # self.bar_top.filters_btn.setDisabled(b)
+        self.bar_top.filters_btn.setDisabled(b)
         self.bar_top.view_type_btn.setDisabled(b)
 
     def view_folder_cmd(self, root: str):
@@ -184,7 +184,7 @@ class SimpleFileExplorer(QWidget):
             self.grid.disconnect()
             self.grid.close()
 
-        self.setWindowTitle(f"🟠\tИдет поиск: \"{search_text}\"")
+        self.setWindowTitle(f"🟠\tИдет поиск: \"{search_text}\" в \"{os.path.basename(Config.json_data.get('root'))}\"")
         self.migaet_timer.start(400)
         ww = self.get_grid_width()
         self.grid = GridSearch(width=ww, search_text=search_text)

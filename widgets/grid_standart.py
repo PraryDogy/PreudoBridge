@@ -250,7 +250,6 @@ class LoadFinder(QThread):
                 continue
 
             if src.lower().endswith(Config.img_ext):
-                print("here")
                 finder_items.append((src, filename, size, modified, filetype, colors))
                 continue
 
