@@ -16,8 +16,8 @@ from .grid_base import Grid, Thumbnail
 
 # Если родительский класс запущенного треда будет закрыт
 # Тред получит сигнал стоп и безопасно завершится
-class Storage:
-    threads: list = []
+class Threads:
+    all: list = []
 
 
 # Данный тред получает на вхол словарик {(путь, размер, дата): виджет для Pixmap}
@@ -423,20 +423,19 @@ class GridStandart(Grid):
             pass
 
     def stop_threads(self):
-        for i in Storage.threads:
+        for i in Threads.all:
             i: LoadImages
             i.stop_thread.emit()
-            # i.wait()
 
             if i.isFinished():
-                Storage.threads.remove(i)
+                Threads.all.remove(i)
 
     def start_load_images(self, src_size_mod: list[tuple]):
         thread = LoadImages(src_size_mod)
         thread.progressbar_start.connect(self.progressbar_start.emit)
         thread.progressbar_value.connect(self.progressbar_value.emit)
         thread.new_widget.connect(lambda image_data: self.set_pixmap(image_data))
-        Storage.threads.append(thread)
+        Threads.all.append(thread)
         thread.start()
     
     def set_pixmap(self, image_data: ImageData):
