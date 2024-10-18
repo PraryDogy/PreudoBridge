@@ -237,7 +237,7 @@ class SimpleFileExplorer(QWidget):
             self.grid = ListStandart()
             self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
             self.bar_top.sort_type_btn.setDisabled(True)
-            # self.bar_top.filters_btn.setDisabled(True)
+            self.bar_top.filters_btn.setDisabled(True)
 
             self.grid.add_to_favs_clicked.connect(self.add_fav_cmd)
             self.grid.del_favs_clicked.connect(self.del_fav_cmd)

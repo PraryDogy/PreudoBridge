@@ -412,6 +412,8 @@ class GridStandart(Grid):
 
         else:
             t = f"{Config.json_data.get('root')}\nНет изображений"
+            if Config.color_filters:
+                t = f"{t} с фильтрами: {''.join(Config.color_filters)}"
             setattr(self, "no_images", t)
 
         if hasattr(self, "no_images"):
