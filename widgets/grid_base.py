@@ -15,8 +15,6 @@ from utils import Utils
 from .win_rename import WinRename
 
 
-# Текст с именем файла под изображением
-# Максимум 2 строки, дальше прибавляет ...
 class NameLabel(QLabel):
     def __init__(self):
         super().__init__()
