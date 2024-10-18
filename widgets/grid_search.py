@@ -224,9 +224,11 @@ class GridSearch(Grid):
         # "src", "stats" - os.stat, "pixmap", "colors": str, "rating": int
         filename = os.path.basename(widget_data.src)
         colors = widget_data.colors
+        rating = widget_data.rating
         wid = ThumbnailSearch(filename=filename, src=widget_data.src, path_to_wid=self.path_to_wid)
         wid.img_label.setPixmap(widget_data.pixmap)
         wid.set_colors(colors)
+        wid.set_rating(rating)
 
         wid.show_in_folder.connect(self.show_in_folder.emit)
         wid.move_to_wid.connect(self.move_to_wid)
@@ -243,7 +245,7 @@ class GridSearch(Grid):
         size = widget_data.stats.st_size
         modified = widget_data.stats.st_mtime
         filetype = os.path.splitext(widget_data.src)[1]
-        self.sorted_widgets[(widget_data.src, filename, size, modified, filetype, colors)] = wid
+        self.sorted_widgets[(widget_data.src, filename, size, modified, filetype, colors, rating)] = wid
 
         # прибавляем строчку и столбец в сетку
         self.col += 1
@@ -290,9 +292,17 @@ class GridSearch(Grid):
             self.wid_to_cell = {v: k for k, v in self.cell_to_wid.items()}
     
     def sort_grid(self, width: int):
-        sort_data = {"src": 0, "name": 1, "size": 2,  "modify": 3, "type": 4, "colors": 5}
+        sort_data = {
+            "src": 0,
+            "name": 1,
+            "size": 2, 
+            "modify": 3,
+            "type": 4,
+            "colors": 5,
+            "rating": 6
+            }
         # ключи соответствуют json_data["sort"]
-        # self.sorted_widgets = { (src, filename, size, modify, type, colors): SearchThumbnail }
+        # self.sorted_widgets = { (src, filename, size, modify, type, colors, rating): SearchThumbnail }
 
         index = sort_data.get(Config.json_data.get("sort"))
         rev = Config.json_data.get("reversed")

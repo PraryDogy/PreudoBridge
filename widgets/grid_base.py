@@ -30,6 +30,8 @@ class NameLabel(QLabel):
             rating = "\U00002605" * rating
 
         lines = [i for i in (rating, colors, text) if i]
+        # print(lines)
+        # lines = []
 
         self.setText("\n".join(lines))
 
