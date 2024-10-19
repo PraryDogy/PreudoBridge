@@ -12,7 +12,7 @@ class Config:
     img_size = 210
     
     color_filters: list = []
-    rating: int = 0
+    rating_filter: int = 0
 
     colors = {
         "\U0001F534": "Красный",

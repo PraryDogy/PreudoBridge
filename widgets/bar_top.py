@@ -348,18 +348,17 @@ class FiltersBtn(QPushButton):
 
     def toggle_rating(self, rate: int):
         if rate > 1:
-            Config.rating = rate
+            Config.rating_filter = rate
             for i in self.rating_wids[:rate]:
                 i.setStyleSheet("background: #007AFF;")
             for i in self.rating_wids[rate:]:
                 i.setStyleSheet("")
         else:
-            Config.rating = 0
+            Config.rating_filter = 0
             for i in self.rating_wids:
                 i.setStyleSheet("")
 
         self._clicked.emit()
-        print(Config.rating)
 
     def press_check(self):
         if self.color_count == 0:

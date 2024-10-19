@@ -309,9 +309,9 @@ class Grid(QScrollArea):
         rating_data = {48: 0, 49: 1, 50: 2, 51: 3, 52: 4, 53: 5}
         wid: Thumbnail = self.cell_to_wid.get(self.curr_cell)
         if isinstance(wid, Thumbnail):
-            self.select_new_widget(self.curr_cell)
-            wid.set_rating(rating_data.get(rating))
-
+            if wid.update_data_db(wid.colors, rating_data.get(rating)):
+                wid.set_rating(rating_data.get(rating))
+                self.select_new_widget(self.curr_cell)
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):

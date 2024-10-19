@@ -68,7 +68,7 @@ class LoadImages(QThread):
         self.get_db_images()
         self.load_already_images()
         self.create_new_images()
-        self.remove_images()
+        # self.remove_images()
 
         self.update_db_size()
 
@@ -103,17 +103,9 @@ class LoadImages(QThread):
             if not self.flag:
                 break
 
-            # если есть в БД, то отправляем изображение в сетку
-            # и удаляем из словарика этот элемент
             if (db_src, db_size, db_mod) in self.src_size_mod:
                 pixmap: QPixmap = Utils.pixmap_from_bytes(db_byte_img)
                 self.new_widget.emit(ImageData(db_src, db_size, db_mod, pixmap))
-
-                # мы удаляем элемент если он есть в базе данных и в Finder
-                # в src_size_mod останутся только те элементы
-                # которые есть в Finder и нет в БД
-                # т.е. то, что это новые Finder элементы, которые 
-                # добавятся в БД в последующем методе create_new_images
 
                 self.src_size_mod.remove((db_src, db_size, db_mod))
             else:
@@ -208,12 +200,12 @@ class LoadFinder(QThread):
 
     def __init__(self):
         super().__init__()
-        self.db_colors: dict[str: list] = {}
+        self.db_data: dict[str: list] = {}
         self.finder_items: list[tuple] = []
 
     def run(self):
         try:
-            self.get_db_colors()
+            self.get_db_data()
             self.get_items()
             self.sort_items()
         except (PermissionError, FileNotFoundError) as e:
@@ -222,13 +214,13 @@ class LoadFinder(QThread):
         
         self._finished.emit(self.finder_items)
 
-    def get_db_colors(self):
+    def get_db_data(self):
         q = sqlalchemy.select(CACHE.c.src, CACHE.c.colors, CACHE.c.rating)
         q = q.where(CACHE.c.root == Config.json_data.get("root"))
 
         with Engine.engine.connect() as conn:
             res = conn.execute(q).fetchall()
-            self.db_colors = {src: [colors, rating] for src, colors, rating in res}
+            self.db_data = {src: [colors, rating] for src, colors, rating in res}
 
     def get_items(self) -> list:
         for filename in os.listdir(Config.json_data.get("root")):
@@ -241,9 +233,9 @@ class LoadFinder(QThread):
                 modified = stats.st_mtime
                 filetype = os.path.splitext(filename)[1]
 
-                if self.db_colors.get(src):
-                    colors = self.db_colors.get(src)[0]
-                    rating = self.db_colors.get(src)[1]
+                if self.db_data.get(src):
+                    colors = self.db_data.get(src)[0]
+                    rating = self.db_data.get(src)[1]
                 else:
                     colors = ""
                     rating = 0
@@ -253,6 +245,10 @@ class LoadFinder(QThread):
 
             if Config.color_filters:
                 if any(color in colors for color in Config.color_filters):
+                    self.finder_items.append((src, filename, size, modified, filetype, colors, rating))
+            
+            if Config.rating_filter > 0:
+                if 0 < rating <= Config.rating_filter:
                     self.finder_items.append((src, filename, size, modified, filetype, colors, rating))
                 continue
 
