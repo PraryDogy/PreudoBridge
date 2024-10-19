@@ -217,15 +217,7 @@ class LoadFinder(QThread):
     def get_db_data(self):
         q = sqlalchemy.select(CACHE.c.src, CACHE.c.colors, CACHE.c.rating)
         q = q.where(CACHE.c.root == Config.json_data.get("root"))
-        
-        # if Config.color_filters:
-            # color_filters = list(Config.color_filters)
-            # queries = [
-            #     CACHE.c.colors.like(f"%{colorr}%")
-            #     for colorr in color_filters
-            #     ]
-            # q = q.where(sqlalchemy.or_(*queries))
-
+  
         with Engine.engine.connect() as conn:
             res = conn.execute(q).fetchall()
             self.db_data = {src: [colors, rating] for src, colors, rating in res}
