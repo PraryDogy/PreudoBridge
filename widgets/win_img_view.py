@@ -274,6 +274,16 @@ class WinImgView(QWidget):
     def show_in_finder(self):
         subprocess.call(["open", "-R", self.src])
 
+    def set_title(self):
+        t = ""
+        if self.thumbnail.rating > 0:
+            t = "\U00002605" * self.thumbnail.rating + " | "
+        if self.thumbnail.colors:
+            t = t + self.thumbnail.colors + " | "
+        t = t + os.path.basename(self.src)
+
+        self.setWindowTitle(t)
+
     def load_thumbnail(self):
         if self.src not in Shared.loaded_images:
 
@@ -309,8 +319,7 @@ class WinImgView(QWidget):
             return
                         
         self.img_label.set_image(image_data.pixmap)
-        name = f"{self.thumbnail.colors} {os.path.basename(self.src)}"
-        self.setWindowTitle(name)
+        self.set_title()
         Shared.threads.remove(thread)
 
 # GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI
@@ -353,8 +362,7 @@ class WinImgView(QWidget):
 
     def color_click(self, colors: str):
         self.thumbnail.color_click(colors)
-        name = f"{self.thumbnail.colors} {os.path.basename(self.src)}"
-        self.setWindowTitle(name)
+        self.set_title()
 
 # EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS 
 
