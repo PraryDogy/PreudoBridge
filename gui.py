@@ -216,6 +216,7 @@ class SimpleFileExplorer(QWidget):
         self.grid.sort_grid(self.get_grid_width())
         self.bar_top_setDisabled(False)
         self.bar_top.view_type_btn.setDisabled(True)
+        self.bar_top.filters_btn.setDisabled(True)
 
     def move_to_wid_delayed(self, src: str):
         root = os.path.dirname(src)
