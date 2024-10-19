@@ -18,7 +18,7 @@ from .win_rename import WinRename
 class NameLabel(QLabel):
     def __init__(self):
         super().__init__()
-        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.setAlignment(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignCenter)
 
     def update_name(self, rating: int, colors: str, text: str) -> list[str]:
         max_length = 25
@@ -38,7 +38,7 @@ class NameLabel(QLabel):
 
 class Geo:
     img_h = Config.img_size
-    text_h = 70
+    text_h = 50
 
     w = Config.img_size + 10
     h = img_h + text_h +10
@@ -60,7 +60,7 @@ class Thumbnail(QFrame):
 
         v_lay = QVBoxLayout()
         v_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        v_lay.setContentsMargins(0, 4, 0, 0)
+        v_lay.setContentsMargins(0, 4, 0, 4)
         v_lay.setSpacing(10)
         self.setLayout(v_lay)
 
