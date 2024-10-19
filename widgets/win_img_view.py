@@ -364,6 +364,10 @@ class WinImgView(QWidget):
         self.thumbnail.color_click(colors)
         self.set_title()
 
+    def rating_click(self, wid: QAction, rate: int):
+        self.thumbnail.rating_click(wid, rate)
+        self.set_title()
+
 # EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS 
 
     def keyPressEvent(self, ev: QKeyEvent | None) -> None:
@@ -444,6 +448,19 @@ class WinImgView(QWidget):
 
             wid.triggered.connect(lambda e, c=color: self.color_click(c))
             self.color_menu.addAction(wid)
+
+        self.rating_menu = QMenu("Рейтинг", self)
+        context_menu.addMenu(self.rating_menu)
+
+        for rate in range(1, 6):
+            wid = QAction(parent=self.rating_menu, text="\U00002605" * rate)
+            wid.setCheckable(True)
+
+            if self.thumbnail.rating == rate:
+                wid.setChecked(True)
+
+            wid.triggered.connect(lambda e, w=wid, r=rate: self.rating_click(w, r))
+            self.rating_menu.addAction(wid)
 
         context_menu.exec_(self.mapToGlobal(a0.pos()))
     
