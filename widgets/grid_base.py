@@ -304,6 +304,14 @@ class Grid(QScrollArea):
             self.curr_cell = coords
 
             self.ensureWidgetVisible(new_widget)
+    
+    def set_rating(self, rating: int):
+        rating_data = {48: 0, 49: 1, 50: 2, 51: 3, 52: 4, 53: 5}
+        wid: Thumbnail = self.cell_to_wid.get(self.curr_cell)
+        if isinstance(wid, Thumbnail):
+            self.select_new_widget(self.curr_cell)
+            wid.set_rating(rating_data.get(rating))
+
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
@@ -325,6 +333,9 @@ class Grid(QScrollArea):
         elif a0.key() == Qt.Key.Key_Down:
             coords = (self.curr_cell[0] + 1, self.curr_cell[1])
             self.select_new_widget(coords)
+
+        elif a0.key() in (Qt.Key.Key_0, Qt.Key.Key_1, Qt.Key.Key_2, Qt.Key.Key_3, Qt.Key.Key_4, Qt.Key.Key_5):
+            self.set_rating(a0.key())
         
         return super().keyPressEvent(a0)
 
