@@ -207,6 +207,9 @@ class Thumbnail(QFrame):
                     item.setChecked(True)
 
     def rating_click(self, wid: QAction, rate: int):
+        if rate == 1:
+            rate = 0
+
         update_db = self.update_data_db(self.colors, rate)
 
         if update_db:
@@ -216,7 +219,8 @@ class Thumbnail(QFrame):
             for i in self.rating_menu.children():
                 i: QAction
                 i.setChecked(False)
-            wid.setChecked(True)
+            if rate > 0:
+                wid.setChecked(True)
 
     def set_colors(self, colors: str):
         self.colors = colors
