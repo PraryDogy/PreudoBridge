@@ -68,7 +68,7 @@ class LoadImages(QThread):
         self.get_db_images()
         self.load_already_images()
         self.create_new_images()
-        # self.remove_images()
+        self.remove_images()
 
         self.update_db_size()
 
@@ -217,6 +217,14 @@ class LoadFinder(QThread):
     def get_db_data(self):
         q = sqlalchemy.select(CACHE.c.src, CACHE.c.colors, CACHE.c.rating)
         q = q.where(CACHE.c.root == Config.json_data.get("root"))
+        
+        # if Config.color_filters:
+            # color_filters = list(Config.color_filters)
+            # queries = [
+            #     CACHE.c.colors.like(f"%{colorr}%")
+            #     for colorr in color_filters
+            #     ]
+            # q = q.where(sqlalchemy.or_(*queries))
 
         with Engine.engine.connect() as conn:
             res = conn.execute(q).fetchall()
@@ -243,14 +251,14 @@ class LoadFinder(QThread):
             except (PermissionError, FileNotFoundError):
                 continue
 
-            if Config.color_filters:
-                if any(color in colors for color in Config.color_filters):
-                    self.finder_items.append((src, filename, size, modified, filetype, colors, rating))
+            # if Config.color_filters:
+            #     if any(color in colors for color in Config.color_filters):
+            #         self.finder_items.append((src, filename, size, modified, filetype, colors, rating))
             
-            if Config.rating_filter > 0:
-                if 0 < rating <= Config.rating_filter:
-                    self.finder_items.append((src, filename, size, modified, filetype, colors, rating))
-                continue
+            # if Config.rating_filter > 0:
+            #     if Config.rating_filter >= rating > 0:
+            #         self.finder_items.append((src, filename, size, modified, filetype, colors, rating))
+            #     continue
 
             if src.lower().endswith(Config.img_ext):
                 self.finder_items.append((src, filename, size, modified, filetype, colors, rating))

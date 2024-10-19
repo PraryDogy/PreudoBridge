@@ -16,6 +16,7 @@ from widgets.grid_standart import GridStandart
 from widgets.list_standart import ListStandart
 from widgets.tree_favorites import TreeFavorites
 from widgets.tree_folders import TreeFolders
+from widgets.grid_filtered import GridFiltered
 
 
 class BarTabs(QTabWidget):
@@ -126,11 +127,21 @@ class SimpleFileExplorer(QWidget):
             self.grid_standart_load()
 
     def filter_btn_cmd(self):
-        if isinstance(self.grid, GridSearch):
-            self.grid.sort_grid(self.get_grid_width())
+        if isinstance(self.grid, (GridSearch, GridStandart, GridFiltered)):
+            self.grid.disconnect()
+            self.grid.close()
 
-        elif isinstance(self.grid, GridStandart):
-            self.grid_standart_load()
+        self.grid = GridFiltered(self.get_grid_width())
+        self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
+        self.r_lay.addWidget(self.grid, 1, 0)
+        # чтобы фокус сместился с окна ввода в поиске на сетку
+        self.grid.setFocus()
+
+        # if isinstance(self.grid, GridSearch):
+        #     self.grid.sort_grid(self.get_grid_width())
+
+        # elif isinstance(self.grid, GridStandart):
+        #     self.grid_standart_load()
 
     def next_btn_cmd(self, root: str):
         Config.json_data["root"] = root
@@ -180,7 +191,7 @@ class SimpleFileExplorer(QWidget):
         if isinstance(self.grid, GridStandart):
             self.grid.progressbar_value.emit(1000000)
 
-        if not isinstance(self.grid, bool):
+        if isinstance(self.grid, (GridSearch, GridStandart, GridFiltered)):
             self.grid.disconnect()
             self.grid.close()
 
@@ -219,7 +230,7 @@ class SimpleFileExplorer(QWidget):
         if isinstance(self.grid, GridStandart):
             self.grid.progressbar_value.emit(1000000)
 
-        if not isinstance(self.grid, bool):
+        if isinstance(self.grid, (GridSearch, GridStandart, GridFiltered)):
             self.grid.disconnect()
             self.grid.close()
         
@@ -232,6 +243,10 @@ class SimpleFileExplorer(QWidget):
         self.bar_bottom.create_path_label()
 
         self.folders_tree_wid.expand_path(Config.json_data.get("root"))
+
+        # СБРОС ФИЛЬТРОВ
+
+        # СБРОС ФИЛЬТРОВ
 
         if Config.json_data.get("list_view"):
             self.grid = ListStandart()
@@ -267,7 +282,7 @@ class SimpleFileExplorer(QWidget):
         return Config.json_data.get("ww") - self.bar_tabs.width() - 180
 
     def resize_timer_cmd(self):
-        if isinstance(self.grid, (GridSearch, GridStandart)):
+        if isinstance(self.grid, (GridSearch, GridStandart, GridFiltered)):
             self.grid.resize_grid(self.get_grid_width())
 
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
