@@ -1,7 +1,11 @@
+import os
+
 import sqlalchemy
 from sqlalchemy.exc import OperationalError
+
 from cfg import Config
 from utils import Utils
+
 
 class Engine:
     engine: sqlalchemy.Engine = None
@@ -38,6 +42,7 @@ class Dbase:
             echo=False
             )
         Engine.metadata.create_all(Engine.engine)
+        Dbase.check_tables()
         Dbase.check_stats_main()
         Dbase.check_cache_size()
 
@@ -87,3 +92,29 @@ class Dbase:
             conn.execute(sqlalchemy.text("VACUUM"))
             
         return True
+
+    @staticmethod
+    def check_tables():
+        inspector = sqlalchemy.inspect(Engine.engine)
+
+        TABLES = [CACHE, STATS]
+
+        db_tables = inspector.get_table_names()
+        res: bool = (list(i.name for i in TABLES) == db_tables)
+
+        if not res:
+            print("Не соответствие таблиц, создаю новую дб")
+            os.remove(Config.db_file)
+            Dbase.init_db()
+            return
+
+        for table in TABLES:
+            clmns = list(clmn.name for clmn in table.columns)
+            db_clmns = list(clmn.get("name") for clmn in inspector.get_columns(table.name))
+            res = bool(db_clmns == clmns)
+
+            if not res:
+                print(f"Не соответствие колонок в {table.name}, создаю новую дб")
+                os.remove(Config.db_file)
+                Dbase.init_db()
+                break
