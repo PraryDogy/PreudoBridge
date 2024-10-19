@@ -124,6 +124,9 @@ class GridFiltered(Grid):
             t = f"{Config.json_data.get('root')}\nНет изображений"
             if Config.color_filters:
                 t = f"{t} с фильтрами: {''.join(Config.color_filters)}"
+            if Config.rating_filter > 0:
+                stars = '\U00002605' * Config.rating_filter
+                t = f"{t}\nС рейтингом: {stars}"
             setattr(self, "no_images", t)
 
         if hasattr(self, "no_images"):
