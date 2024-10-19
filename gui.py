@@ -90,7 +90,7 @@ class SimpleFileExplorer(QWidget):
 
         self.bar_top.sort_type_btn._clicked.connect(self.sort_btn_cmd)
         self.bar_top.view_type_btn._clicked.connect(self.grid_standart_load)
-        self.bar_top.filters_btn._clicked.connect(self.filter_btn_cmd)
+        self.bar_top.filters_btn._clicked.connect(self.grid_filtered_load)
         self.bar_top.advanced_btn._clicked.connect(self.open_path_btn_cmd)
         self.bar_top.search_wid.start_search.connect(self.grid_search_load)
         self.bar_top.search_wid.stop_search.connect(self.grid_standart_load)
@@ -126,7 +126,10 @@ class SimpleFileExplorer(QWidget):
         elif isinstance(self.grid, GridStandart):
             self.grid_standart_load()
 
-    def filter_btn_cmd(self):
+        elif isinstance(self.grid, GridFiltered):
+            self.grid_filtered_load()
+
+    def grid_filtered_load(self):
         if isinstance(self.grid, (GridSearch, GridStandart, GridFiltered)):
             self.grid.disconnect()
             self.grid.close()
@@ -136,12 +139,6 @@ class SimpleFileExplorer(QWidget):
         self.r_lay.addWidget(self.grid, 1, 0)
         # чтобы фокус сместился с окна ввода в поиске на сетку
         self.grid.setFocus()
-
-        # if isinstance(self.grid, GridSearch):
-        #     self.grid.sort_grid(self.get_grid_width())
-
-        # elif isinstance(self.grid, GridStandart):
-        #     self.grid_standart_load()
 
     def next_btn_cmd(self, root: str):
         Config.json_data["root"] = root
