@@ -460,6 +460,7 @@ class GridStandart(Grid):
                 wid.clicked_folder.connect(self.clicked_folder.emit)
                 wid.add_fav.connect(self.add_fav.emit)
                 wid.del_fav.connect(self.del_fav.emit)
+                wid.sort_click.connect(lambda: self.sort_grid(width))
         
             elif isinstance(wid, Thumbnail):
                 wid.disconnect()
