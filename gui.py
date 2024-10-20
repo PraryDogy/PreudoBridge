@@ -183,6 +183,7 @@ class SimpleFileExplorer(QWidget):
         self.bar_top.view_type_btn.setCurrentIndex(0)
         JsonData.list_view = False
         self.bar_top_setDisabled(True)
+        self.bar_top.filters_btn.reset_filters()
 
         if isinstance(self.grid, GridStandart):
             self.grid.progressbar_value.emit(1000000)
@@ -236,6 +237,7 @@ class SimpleFileExplorer(QWidget):
         self.bar_top.search_wid.clear_search.emit()
         self.bar_top.update_history()
         self.bar_top_setDisabled(False)
+        self.bar_top.filters_btn.reset_filters()
 
         self.bar_bottom.create_path_label()
 

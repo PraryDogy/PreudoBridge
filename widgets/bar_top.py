@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
                              QLineEdit, QMenu, QPushButton, QSlider,
                              QSpacerItem, QTabBar, QVBoxLayout, QWidget)
 
-from cfg import Config, JsonData, ORDER
+from cfg import ORDER, Config, JsonData
 from database import STATS, Dbase, Engine
 from utils import Utils
 
@@ -258,6 +258,12 @@ class SearchWidget(QWidget):
         self.input_wid.setText(text)
 
 
+class ColorLabel(QLabel):
+    def __init__(self, text: str):
+        super().__init__(text)
+        self.is_selected = False
+
+
 class FiltersBtn(QPushButton):
     _clicked = pyqtSignal()
 
@@ -274,28 +280,20 @@ class FiltersBtn(QPushButton):
 
         # строчка с цветами
 
-        color_wid = QWidget()
-        self._menu.layout().addWidget(color_wid)
+        self.color_wid = QWidget()
+        self._menu.layout().addWidget(self.color_wid)
         color_lay = QHBoxLayout()
         color_lay.setContentsMargins(3, 3, 3, 3)
         color_lay.setSpacing(5)
-        color_wid.setLayout(color_lay)
+        self.color_wid.setLayout(color_lay)
 
         self.color_count = 0
-        self.color_data = {
-            "\U0001F534": False,  # 🔴
-            "\U0001F535": False,   # 🔵
-            "\U0001F7E0": False, # 🟠
-            "\U0001F7E1": False,   # 🟡
-            "\U0001F7E2": False,   # 🟢
-            "\U0001F7E3": False, # 🟣
-            "\U0001F7E4": False,  # 🟤
-            }
-
-        for color in self.color_data:
-            label = QLabel(color)
+        
+        for color in Config.COLORS:
+            label = ColorLabel(color)
             label.setFixedSize(20, 20)
             label.mousePressEvent = lambda e, w=label, c=color: self.toggle_color(w, c)
+            label.is_selected = False
             color_lay.addWidget(label)
 
         color_lay.addStretch(1)
@@ -327,17 +325,17 @@ class FiltersBtn(QPushButton):
         self._menu.move(self.mapToGlobal(pont))
         self._menu.show()
 
-    def toggle_color(self, widget: QLabel, color: str):
-        if self.color_data[color] == True:
-            widget.setStyleSheet("")
-            self.color_data[color] = False
+    def toggle_color(self, widget: ColorLabel, color: str):
+        if widget.is_selected == True:
             self.color_count -= 1
             Config.color_filters.remove(color)
+            widget.setStyleSheet("")
+            widget.is_selected = False
         else:
-            widget.setStyleSheet("background: #007AFF;")
-            self.color_data[color] = True
             self.color_count += 1
             Config.color_filters.append(color)
+            widget.setStyleSheet("background: #007AFF;")
+            widget.is_selected = True
 
         self._clicked.emit()
 
@@ -360,6 +358,18 @@ class FiltersBtn(QPushButton):
             self.setDown(False)
         else:
             self.setDown(True)
+
+    def reset_filters(self):
+        for i in self.rating_wids:
+            i.setStyleSheet("")
+        for i in self.color_wid.findChildren(QLabel):
+            i.setStyleSheet("")
+            i.is_selected = False
+
+        Config.color_filters.clear()
+        Config.rating_filter = 0
+        self.color_count = 0
+        self.setDown(False)
 
 
 class WinGo(QWidget):
