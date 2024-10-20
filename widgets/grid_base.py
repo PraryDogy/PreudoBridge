@@ -8,7 +8,7 @@ from PyQt5.QtGui import QContextMenuEvent, QDrag, QFont, QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
                              QLabel, QMenu, QScrollArea, QVBoxLayout, QWidget)
 
-from cfg import Config
+from cfg import Config, ORDER
 from database import CACHE, Engine
 from utils import Utils
 
@@ -50,14 +50,30 @@ class Thumbnail(QFrame):
     clicked_folder = pyqtSignal(str)
     sort_click = pyqtSignal()
 
-    def __init__(self, filename: str, src: str, path_to_wid: dict[str: QLabel]):
+    def __init__(
+            self, name: str, size: int, modify: int, type: str, src: str,
+            path_to_wid: dict[str: QLabel]
+            ):
         super().__init__()
         self.setFixedSize(Geo.w, Geo.h)
-        self.src: str = src
         self.path_to_wid: dict[str: QLabel] = path_to_wid
-        self.name = filename
+        self.src: str = src
+
+        ############################################################
+        # Данные аттрибуты должны соответстовать ключам в ORDER
+        # так как по этим аттрибутам будет совершаться сортировка сетки
+        # и фильтрация
+        # в Grid ниже будет совершена проверка
+
+        self.name = name
+        self.size: int = size
+        self.modify: int = modify
+        self.type: str = type
+
         self.colors: str = ""
         self.rating: int = 0
+
+        ############################################################
 
         v_lay = QVBoxLayout()
         v_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -272,6 +288,13 @@ class Thumbnail(QFrame):
 
 class Grid(QScrollArea):
     def __init__(self, width: int):
+
+        # 
+        for k, v in ORDER.items():
+            if not hasattr(Thumbnail("test", 0, 0, ".extension", "test", {}), k):
+                print("НЕТ АТТРИБУТА", k)
+                quit()
+
         super().__init__()
         self.setWidgetResizable(True)
 
@@ -298,7 +321,7 @@ class Grid(QScrollArea):
         # Здесь хранится информация для сортировки виджетов
         # Которая соответствует порядку в ORDER из config
         # name, size, modified, type, colors, rating, ||| src, wid
-        self.sorted_widgets: list[tuple] = []
+        self.sorted_widgets: list[Thumbnail] = []
 
     def move_to_wid(self, src: str):
         wid = self.path_to_wid.get(src)

@@ -343,7 +343,7 @@ class GridStandart(Grid):
         row, col = 0, 0
 
         # ПОРЯДОК СООТВЕТСТВУЕТ ORDER + SRC по которому нет сортировки
-        for name, size, modified, type, colors, rating, src in finder_items:
+        for name, size, modify, type, colors, rating, src in finder_items:
 
             if os.path.isdir(src):
                 wid = ThumbnailFolder(name, src)
@@ -358,14 +358,14 @@ class GridStandart(Grid):
                 wid.set_colors("")
 
             else:
-                wid = Thumbnail(name, src, self.path_to_wid)
+                wid = Thumbnail(name, size, modify, type, src, self.path_to_wid)
                 wid.move_to_wid.connect(lambda src: self.move_to_wid(src))
                 wid.sort_click.connect(lambda: self.sort_grid(self.ww))
                 self.set_base_img(wid.img_label, "images/file_210.png")
                 # ADD COLORS TO THUMBNAIL
                 wid.set_colors(colors)
                 wid.set_rating(rating)
-                src_size_mod.append((src, size, modified))
+                src_size_mod.append((src, size, modify))
 
             self.grid_layout.addWidget(wid, row, col)
             wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
@@ -374,9 +374,7 @@ class GridStandart(Grid):
             self.cell_to_wid[row, col] = wid
             self.path_to_wid[src] = wid
 
-            # ЭТОТ ПОРЯДОК СООТВЕТСТВУЕТ ORDER ДЛЯ СОРТИРОВКИ
-            # SRC и WID идут в конце так как по ним нет сортировки
-            self.sorted_widgets.append((name, size, modified, type, colors, rating, src, wid))
+            self.sorted_widgets.append(wid)
 
             col += 1
             if col >= col_count:
@@ -451,9 +449,8 @@ class GridStandart(Grid):
         col_count = Utils.get_clmn_count(width)
         row, col = 0, 0
 
-        for name, size, mod, type, colors, rating, src, wid in self.sorted_widgets:
+        for wid in self.sorted_widgets:
 
-            wid: Thumbnail
             if not wid.isVisible():
                 continue
 
@@ -480,23 +477,24 @@ class GridStandart(Grid):
         self.wid_to_cell = {v: k for k, v in self.cell_to_wid.items()}
 
     def sort_grid(self, width: int):
-        # ПОРЯДОК КОРТЕЖА В сортируемом РАВЕН ORDER
-        # SRC по которой нет сортировки идет в конце
-        sort_type: dict = ORDER.get(JsonData.sort)
-        index = sort_type.get("index")
-        rev = JsonData.reversed
-
-        # индекс цвета в ORDER
-        if index != 4:
-            sort_key = lambda x: x[index]
+        if self.sorted_widgets:
+            first_wid: Thumbnail = self.sorted_widgets[0]
         else:
-            sort_key = lambda x: len(x[index])
+            return
 
-        self.sorted_widgets = sorted(self.sorted_widgets, key=sort_key, reverse=rev)
-
-        # предпоследний элемент это src, последний элемент это ThumbnailSearch
-        # 0-5 это индексы ORDER
-        self.path_to_wid = {item[6]: item[7] for item in self.sorted_widgets}
+        if hasattr(first_wid, JsonData.sort):
+            key = lambda x: getattr(x, JsonData.sort)
+            rev = JsonData.reversed
+            self.sorted_widgets = sorted(self.sorted_widgets, key=key, reverse=rev)
+        else:
+            print("Thumbnail не имеет атрибута для сортировки", JsonData.sort)
+            return
+        
+        self.path_to_wid = {
+            wid.src: wid
+            for wid in self.sorted_widgets
+            if isinstance(wid, Thumbnail)
+            }
 
         self.resize_grid(width)
 
