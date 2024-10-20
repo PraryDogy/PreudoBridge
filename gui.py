@@ -243,10 +243,6 @@ class SimpleFileExplorer(QWidget):
 
         self.folders_tree_wid.expand_path(JsonData.root)
 
-        # СБРОС ФИЛЬТРОВ
-
-        # СБРОС ФИЛЬТРОВ
-
         if JsonData.list_view:
             self.grid = ListStandart()
             self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
