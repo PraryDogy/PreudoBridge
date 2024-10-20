@@ -202,7 +202,7 @@ class GridSearch(Grid):
     show_in_folder = pyqtSignal(str)
 
     def __init__(self, width: int, search_text: str):
-        super().__init__(width)
+        super().__init__()
         self.ww = width
 
         self.col_count = Utils.get_clmn_count(width)
