@@ -361,13 +361,13 @@ class GridStandart(Grid):
                 wid = Thumbnail(name, size, modify, type, src, self.path_to_wid)
                 self.set_base_img(wid.img_label, "images/file_210.png")
 
-                wid.move_to_wid.connect(lambda src: self.move_to_wid(src))
+                wid.move_to_wid.connect(lambda src: super().move_to_wid(src))
                 wid.set_colors(colors)
                 wid.set_rating(rating)
 
                 src_size_mod.append((src, size, modify))
 
-            wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
+            wid.clicked.connect(lambda r=row, c=col: super().select_new_widget((r, c)))
             wid.sort_click.connect(lambda: self.sort_grid(self.ww))
 
             self.grid_layout.addWidget(wid, row, col)
@@ -442,9 +442,7 @@ class GridStandart(Grid):
                 widget.img_label.setPixmap(image_data.pixmap)
 
     def resize_grid(self, width: int):
-        self.cell_to_wid.clear()
-        self.wid_to_cell.clear()
-        self.curr_cell = (0, 0)
+        super().clear_grid_data()
         col_count = Utils.get_clmn_count(width)
         row, col = 0, 0
 
@@ -461,10 +459,10 @@ class GridStandart(Grid):
         
             elif isinstance(wid, Thumbnail):
                 wid.disconnect()
-                wid.move_to_wid.connect(lambda src: self.move_to_wid(src))
+                wid.move_to_wid.connect(lambda src: super().move_to_wid(src))
 
             wid.sort_click.connect(lambda: self.sort_grid(width))
-            wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
+            wid.clicked.connect(lambda r=row, c=col: super().select_new_widget((r, c)))
 
             self.grid_layout.addWidget(wid, row, col)
             self.cell_to_wid[row, col] = wid

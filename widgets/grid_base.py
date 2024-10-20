@@ -359,6 +359,11 @@ class Grid(QScrollArea):
                 wid.set_rating(rating_data.get(rating))
                 self.select_new_widget(self.curr_cell)
 
+    def clear_grid_data(self):
+        self.wid_to_cell.clear()
+        self.cell_to_wid.clear()
+        self.curr_cell = (0, 0)
+
     def sort_grid(self):
         if not self.sorted_widgets:
             return
