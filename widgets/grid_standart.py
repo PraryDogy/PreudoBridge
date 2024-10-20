@@ -360,6 +360,7 @@ class GridStandart(Grid):
             else:
                 wid = Thumbnail(name, src, self.path_to_wid)
                 wid.move_to_wid.connect(lambda src: self.move_to_wid(src))
+                wid.sort_click.connect(lambda: self.sort_grid(self.ww))
                 self.set_base_img(wid.img_label, "images/file_210.png")
                 # ADD COLORS TO THUMBNAIL
                 wid.set_colors(colors)
@@ -465,6 +466,7 @@ class GridStandart(Grid):
             elif isinstance(wid, Thumbnail):
                 wid.disconnect()
                 wid.move_to_wid.connect(lambda src: self.move_to_wid(src))
+                wid.sort_click.connect(lambda: self.sort_grid(width))
 
             wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
             self.grid_layout.addWidget(wid, row, col)

@@ -48,6 +48,7 @@ class Thumbnail(QFrame):
     move_to_wid = pyqtSignal(str)
     clicked = pyqtSignal()
     clicked_folder = pyqtSignal(str)
+    sort_click = pyqtSignal()
 
     def __init__(self, filename: str, src: str, path_to_wid: dict[str: QLabel]):
         super().__init__()
@@ -206,6 +207,8 @@ class Thumbnail(QFrame):
                 if item.text()[0] in self.colors:
                     item.setChecked(True)
 
+            self.sort_click.emit()
+
     def rating_click(self, wid: QAction, rate: int):
         if rate == 1:
             rate = 0
@@ -221,6 +224,8 @@ class Thumbnail(QFrame):
                 i.setChecked(False)
             if rate > 0:
                 wid.setChecked(True)
+            
+            self.sort_click.emit()
 
     def set_colors(self, colors: str):
         self.colors = colors
