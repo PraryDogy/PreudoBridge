@@ -15,7 +15,6 @@ from widgets.grid_standart import GridStandart
 from widgets.list_standart import ListStandart
 from widgets.tree_favorites import TreeFavorites
 from widgets.tree_folders import TreeFolders
-from widgets.grid_filtered import GridFiltered
 
 
 class BarTabs(QTabWidget):
@@ -125,21 +124,9 @@ class SimpleFileExplorer(QWidget):
         elif isinstance(self.grid, GridStandart):
             self.grid_standart_load()
 
-        elif isinstance(self.grid, GridFiltered):
-            self.grid_filtered_load()
-
     def grid_filtered_load(self):
-        if isinstance(self.grid, GridSearch):
+        if isinstance(self.grid, (GridSearch, GridStandart)):
             self.grid.filter_grid(self.get_grid_width())
-
-        elif isinstance(self.grid, (GridStandart, GridFiltered)):
-            self.grid.disconnect()
-            self.grid.close()        
-
-            self.grid = GridFiltered(self.get_grid_width())
-            self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
-            self.r_lay.addWidget(self.grid, 1, 0)
-            self.grid.setFocus()
 
     def next_btn_cmd(self, root: str):
         JsonData.root = root
@@ -190,7 +177,7 @@ class SimpleFileExplorer(QWidget):
         if isinstance(self.grid, GridStandart):
             self.grid.progressbar_value.emit(1000000)
 
-        if isinstance(self.grid, (GridSearch, GridStandart, GridFiltered)):
+        if isinstance(self.grid, (GridSearch, GridStandart)):
             self.grid.disconnect()
             self.grid.close()
 
@@ -230,7 +217,7 @@ class SimpleFileExplorer(QWidget):
         if isinstance(self.grid, GridStandart):
             self.grid.progressbar_value.emit(1000000)
 
-        if isinstance(self.grid, (GridSearch, GridStandart, GridFiltered)):
+        if isinstance(self.grid, (GridSearch, GridStandart)):
             self.grid.disconnect()
             self.grid.close()
         
@@ -279,7 +266,7 @@ class SimpleFileExplorer(QWidget):
         return JsonData.ww - self.bar_tabs.width() - 180
 
     def resize_timer_cmd(self):
-        if isinstance(self.grid, (GridSearch, GridStandart, GridFiltered)):
+        if isinstance(self.grid, (GridSearch, GridStandart)):
             self.grid.resize_grid(self.get_grid_width())
 
     def resizeEvent(self, a0: QResizeEvent | None) -> None:

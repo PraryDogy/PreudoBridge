@@ -340,6 +340,7 @@ class GridStandart(Grid):
     def __init__(self, width: int):
         super().__init__(width)
         self.ww = width
+        self.sorted_widgets: list[Thumbnail | ThumbnailFolder] = []
 
         # делаем os listdir обход и по сигналу finished
         # запустится создание сетки
@@ -386,6 +387,7 @@ class GridStandart(Grid):
             # добавляем местоположение виджета в сетке для навигации клавишами
             self.cell_to_wid[row, col] = wid
             self.path_to_wid[src] = wid
+            self.sorted_widgets.append(wid)
 
             col += 1
             if col >= col_count:
@@ -465,7 +467,11 @@ class GridStandart(Grid):
         col_count = Utils.get_clmn_count(width)
         row, col = 0, 0
 
-        for (_row, _col), wid in coords.items():
+        for wid in self.sorted_widgets:
+
+            wid: Thumbnail
+            if not wid.isVisible():
+                continue
 
             if isinstance(wid, ThumbnailFolder):
                 wid.disconnect()
@@ -487,6 +493,26 @@ class GridStandart(Grid):
                 row += 1
 
         self.wid_to_cell = {v: k for k, v in self.cell_to_wid.items()}
+
+    def filter_grid(self, width: int):
+        for wid in self.sorted_widgets:
+            wid: Thumbnail
+            show_widget = True
+
+            if Config.rating_filter > 0:
+                if not (Config.rating_filter >= wid.rating > 0):
+                    show_widget = False
+
+            if Config.color_filters:
+                if not any(color for color in wid.colors if color in Config.color_filters):
+                    show_widget = False
+
+            if show_widget:
+                wid.show()
+            else:
+                wid.hide()
+
+        self.resize_grid(width)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         # когда убивается этот виджет, все треды безопасно завершатся
