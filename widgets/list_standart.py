@@ -55,7 +55,7 @@ class ListStandart(QTableView):
             self.folders_tree_clicked.emit(path)
 
         elif path_lower.endswith(Config.IMG_EXT):
-            thumbnail = Thumbnail("", "", {})
+            thumbnail = Thumbnail("", 0, 0, "", "", {})
             self.win = WinImgView(path, {path: thumbnail})
             self.win.show()
 
