@@ -330,7 +330,6 @@ class GridSearch(Grid):
             else:
                 wid.hide()
 
-
         self.resize_grid(width)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:

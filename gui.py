@@ -130,7 +130,6 @@ class SimpleFileExplorer(QWidget):
 
     def grid_filtered_load(self):
         if isinstance(self.grid, GridSearch):
-            # print("show search grid with filters")
             self.grid.filter_grid(self.get_grid_width())
 
         elif isinstance(self.grid, (GridStandart, GridFiltered)):
