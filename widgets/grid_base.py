@@ -52,11 +52,11 @@ class Thumbnail(QFrame):
 
     def __init__(
             self, name: str, size: int, modify: int, type: str, src: str,
-            path_to_wid: dict[str: QLabel]
+            path_to_wid: dict[str, QLabel]
             ):
         super().__init__()
         self.setFixedSize(Geo.w, Geo.h)
-        self.path_to_wid: dict[str: QLabel] = path_to_wid
+        self.path_to_wid: dict[str, QLabel] = path_to_wid
         self.src: str = src
 
         ############################################################
