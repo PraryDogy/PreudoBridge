@@ -257,8 +257,8 @@ class ThumbnailFolder(Thumbnail):
     add_fav = pyqtSignal(str)
     del_fav = pyqtSignal(str)
 
-    def __init__(self, filename: str, src: str):
-        super().__init__(filename, src, {})
+    def __init__(self, name: str, src: str):
+        super().__init__(name, 0, 0, "", src, {})
 
         self.context_menu.clear()
 
@@ -323,7 +323,7 @@ class GridStandart(Grid):
     progressbar_value = pyqtSignal(int)
 
     def __init__(self, width: int):
-        super().__init__(width)
+        super().__init__()
         self.ww = width
 
         # делаем os listdir обход и по сигналу finished
@@ -349,22 +349,23 @@ class GridStandart(Grid):
                 wid = ThumbnailFolder(name, src)
                 self.set_base_img(wid.img_label, "images/folder_210.png")
 
-                # подключаем сигналы виджеты к сигналу сетки
                 wid.clicked_folder.connect(self.clicked_folder.emit)
                 wid.add_fav.connect(self.add_fav.emit)
                 wid.del_fav.connect(self.del_fav.emit)
+                wid.sort_click.connect(lambda: self.sort_grid(self.ww))
 
                 # у папок нет цветных тегов, но этот метод задает имя
                 wid.set_colors("")
 
             else:
                 wid = Thumbnail(name, size, modify, type, src, self.path_to_wid)
+                self.set_base_img(wid.img_label, "images/file_210.png")
+
                 wid.move_to_wid.connect(lambda src: self.move_to_wid(src))
                 wid.sort_click.connect(lambda: self.sort_grid(self.ww))
-                self.set_base_img(wid.img_label, "images/file_210.png")
-                # ADD COLORS TO THUMBNAIL
                 wid.set_colors(colors)
                 wid.set_rating(rating)
+
                 src_size_mod.append((src, size, modify))
 
             self.grid_layout.addWidget(wid, row, col)
@@ -500,7 +501,7 @@ class GridStandart(Grid):
         self.resize_grid(width)
 
     def filter_grid(self, width: int):
-        for name, size, mod, type, colors, rating, src, wid in self.sorted_widgets:
+        for wid in self.sorted_widgets:
             wid: Thumbnail
             show_widget = True
 

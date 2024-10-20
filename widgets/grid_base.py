@@ -288,7 +288,7 @@ class Thumbnail(QFrame):
 
 
 class Grid(QScrollArea):
-    def __init__(self, width: int):
+    def __init__(self):
 
         # 
         for k, v in ORDER.items():
