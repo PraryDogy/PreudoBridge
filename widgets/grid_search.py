@@ -23,11 +23,11 @@ class ThumbnailSearch(Thumbnail):
     def __init__(self, name: str, src: str, path_to_wid: dict[str: Thumbnail]):
         super().__init__(name, 0, 0, "", src, path_to_wid)
 
-        self.context_menu.addSeparator()
-
         show_in_folder = QAction("Показать в папке", self)
         show_in_folder.triggered.connect(lambda: self.show_in_folder.emit(self.src))
         self.context_menu.addAction(show_in_folder)
+
+        self.context_menu.addSeparator()
 
 
 class WidgetData:
