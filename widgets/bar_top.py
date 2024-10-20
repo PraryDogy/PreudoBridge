@@ -118,12 +118,12 @@ class SortTypeBtn(QPushButton):
         data_actions = (
             ActionData(None, False, "По возрастанию"),
             *(
-            ActionData(key, False, f"{order_name} \U00002191")
+            ActionData(sort=key, reversed=False, text=f"{order_name} \U00002191")
             for key, order_name in Config.ORDER.items()
             ),
             ActionData(None, True, "По убыванию"),
             *(
-            ActionData(key, True, f"{order_name} \U00002193")
+            ActionData(sort=key, reversed=True, text=f"{order_name} \U00002193")
             for key, order_name in Config.ORDER.items()
             )
             )
