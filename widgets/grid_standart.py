@@ -207,7 +207,6 @@ class LoadFinder(QThread):
         try:
             self.get_db_data()
             self.get_items()
-            self.sort_items()
         except (PermissionError, FileNotFoundError) as e:
             Utils.print_error(self, e)
             self.finder_items: list = []
@@ -252,21 +251,6 @@ class LoadFinder(QThread):
 
             if os.path.isdir(src):
                 self.finder_items.append((name, size, modified, filetype, colors, rating, src))
-            
-    def sort_items(self):
-        # ПОРЯДОК КОРТЕЖА В сортируемом РАВЕН ORDER
-        # SRC по которой нет сортировки идет в конце
-        sort_type: dict = ORDER.get(JsonData.sort)
-        index = sort_type.get("index")
-        rev = JsonData.reversed
-
-        # индекс цвета в ORDER
-        if index != 4:
-            sort_key = lambda x: x[index]
-        else:
-            sort_key = lambda x: len(x[index])
-
-        self.finder_items = sorted(self.finder_items, key=sort_key, reverse=rev)
 
 
 class ThumbnailFolder(Thumbnail):
@@ -350,6 +334,7 @@ class GridStandart(Grid):
         self.finder_thread.start()
 
     def create_grid(self, finder_items: list):
+        self.hide()
         # (путь, размер, дата): QLabel
         # Для последующей загрузки в LoadImages
         src_size_mod: list[tuple] = []
@@ -420,6 +405,9 @@ class GridStandart(Grid):
             no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0)
+
+        self.sort_grid(self.ww)
+        self.show()
 
     def set_base_img(self, widget: QLabel, png_path: str):
         pixmap = QPixmap(png_path)

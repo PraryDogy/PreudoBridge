@@ -292,8 +292,8 @@ class Grid(QScrollArea):
 
         # Здесь хранится информация для сортировки виджетов
         # Которая соответствует порядку в ORDER из config
-        # (name, size, modified, type, colors, rating, ОСТАЛЬНОЕ)
-        self.sorted_widgets: list[tuple] = {}
+        # name, size, modified, type, colors, rating, ||| src, wid
+        self.sorted_widgets: list[tuple] = []
 
     def move_to_wid(self, src: str):
         wid = self.path_to_wid.get(src)
