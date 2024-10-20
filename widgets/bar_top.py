@@ -120,13 +120,11 @@ class SortTypeBtn(QPushButton):
             *(
             ActionData(sort=order_key, reversed=False, text=f"{order_dict.get('text')} \U00002191")
             for order_key, order_dict in ORDER.items()
-            if isinstance(order_dict.get("text"), str)
             ),
             ActionData(None, True, "По убыванию"),
             *(
             ActionData(sort=order_key, reversed=True, text=f"{order_dict.get('text')} \U00002193")
             for order_key, order_dict in ORDER.items()
-            if isinstance(order_dict.get("text"), str)
             )
             )
 

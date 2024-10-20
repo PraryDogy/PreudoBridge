@@ -16,10 +16,6 @@ ORDER: dict[str: dict] = {
         "type": {"text": "Тип", "index": 3},
         "colors": {"text": "Цвета", "index": 4},
         "rating": {"text": "Рейтинг", "index": 5},
-        **{
-            str(i): {"text": None, "index": i}
-            for i in range(6, 14)
-        }
         }
 
 
