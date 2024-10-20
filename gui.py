@@ -1,4 +1,3 @@
-import json
 import os
 from typing import Union
 
@@ -7,7 +6,7 @@ from PyQt5.QtGui import QCloseEvent, QKeyEvent, QResizeEvent
 from PyQt5.QtWidgets import (QApplication, QGridLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
 
-from cfg import Config
+from cfg import Config, JsonData
 from utils import Utils
 from widgets.bar_bottom import BarBottom
 from widgets.bar_top import BarTop
@@ -25,11 +24,11 @@ class BarTabs(QTabWidget):
         self.tabBarClicked.connect(self.tab_cmd)
 
     def load_last_tab(self):
-        self.setCurrentIndex(Config.json_data.get("tab_bar"))
+        self.setCurrentIndex(JsonData.tab_bar)
 
     def tab_cmd(self, index: int):
-        self.setCurrentIndex(Config.json_data.get("tab_bar"))
-        Config.json_data["tab_bar"] = index
+        self.setCurrentIndex(JsonData.tab_bar)
+        JsonData.tab_bar = index
 
 
 class SimpleFileExplorer(QWidget):
@@ -39,7 +38,7 @@ class SimpleFileExplorer(QWidget):
 
         self.grid: Union[GridSearch, GridStandart, ListStandart] = False
 
-        ww, hh = Config.json_data.get("ww"), Config.json_data.get("hh")
+        ww, hh = JsonData.ww, JsonData.hh
         self.resize(ww, hh)
 
         self.resize_timer = QTimer(parent=self)
@@ -141,7 +140,7 @@ class SimpleFileExplorer(QWidget):
         self.grid.setFocus()
 
     def next_btn_cmd(self, root: str):
-        Config.json_data["root"] = root
+        JsonData.root = root
         self.grid_standart_load()
 
     def bar_top_setDisabled(self, b: bool):
@@ -154,13 +153,13 @@ class SimpleFileExplorer(QWidget):
         self.bar_top.view_type_btn.setDisabled(b)
 
     def view_folder_cmd(self, root: str):
-        Config.json_data["root"] = root
+        JsonData.root = root
         self.grid_standart_load()
 
     def add_fav_cmd(self, root: str):
         name = os.path.basename(root)
         self.folders_fav_wid.add_item(name, root)
-        favs: dict = Config.json_data.get("favs")
+        favs: dict = JsonData.favs
         favs[root] = name
 
     def del_fav_cmd(self, root: str):
@@ -172,17 +171,17 @@ class SimpleFileExplorer(QWidget):
 
         filepath = ""
         if os.path.isfile(path):
-            if path.endswith(Config.img_ext):
+            if path.endswith(Config.IMG_EXT):
                 filepath = path
             path, _ = os.path.split(path)
 
-        Config.json_data["root"] = path
+        JsonData.root = path
         self.grid_standart_load()
         QTimer.singleShot(1500, lambda: self.grid.move_to_wid(filepath))
 
     def grid_search_load(self, search_text: str):
         self.bar_top.view_type_btn.setCurrentIndex(0)
-        Config.json_data["list_view"] = False
+        JsonData.list_view = False
         self.bar_top_setDisabled(True)
 
         if isinstance(self.grid, GridStandart):
@@ -192,7 +191,7 @@ class SimpleFileExplorer(QWidget):
             self.grid.disconnect()
             self.grid.close()
 
-        self.setWindowTitle(f"🟠\tИдет поиск: \"{search_text}\" в \"{os.path.basename(Config.json_data.get('root'))}\"")
+        self.setWindowTitle(f"🟠\tИдет поиск: \"{search_text}\" в \"{os.path.basename(JsonData.root)}\"")
         self.migaet_timer.start(400)
         ww = self.get_grid_width()
         self.grid = GridSearch(width=ww, search_text=search_text)
@@ -220,7 +219,7 @@ class SimpleFileExplorer(QWidget):
 
     def move_to_wid_delayed(self, src: str):
         root = os.path.dirname(src)
-        Config.json_data["root"] = root
+        JsonData.root = root
         self.grid_standart_load()
         QTimer.singleShot(1500, lambda: self.grid.move_to_wid(src))
 
@@ -232,7 +231,7 @@ class SimpleFileExplorer(QWidget):
             self.grid.disconnect()
             self.grid.close()
         
-        self.setWindowTitle(os.path.basename(Config.json_data.get("root")))
+        self.setWindowTitle(os.path.basename(JsonData.root))
 
         self.bar_top.search_wid.clear_search.emit()
         self.bar_top.update_history()
@@ -240,13 +239,13 @@ class SimpleFileExplorer(QWidget):
 
         self.bar_bottom.create_path_label()
 
-        self.folders_tree_wid.expand_path(Config.json_data.get("root"))
+        self.folders_tree_wid.expand_path(JsonData.root)
 
         # СБРОС ФИЛЬТРОВ
 
         # СБРОС ФИЛЬТРОВ
 
-        if Config.json_data.get("list_view"):
+        if JsonData.list_view:
             self.grid = ListStandart()
             self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
             self.bar_top.sort_type_btn.setDisabled(True)
@@ -277,15 +276,15 @@ class SimpleFileExplorer(QWidget):
             self.scroll_up.show()
 
     def get_grid_width(self):
-        return Config.json_data.get("ww") - self.bar_tabs.width() - 180
+        return JsonData.ww - self.bar_tabs.width() - 180
 
     def resize_timer_cmd(self):
         if isinstance(self.grid, (GridSearch, GridStandart, GridFiltered)):
             self.grid.resize_grid(self.get_grid_width())
 
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
-        Config.json_data["ww"] = self.geometry().width()
-        Config.json_data["hh"] = self.geometry().height()
+        JsonData.ww = self.geometry().width()
+        JsonData.hh = self.geometry().height()
         self.scroll_up.move(self.width() - 70, self.height() - 90)
         self.resize_timer.stop()
         self.resize_timer.start(500)
@@ -329,5 +328,4 @@ class CustomApp(QApplication):
         return False
 
     def on_exit(self):
-        with open(Config.json_file, 'w') as f:
-            json.dump(Config.json_data, f, indent=4, ensure_ascii=False)
+        Config.write_config()

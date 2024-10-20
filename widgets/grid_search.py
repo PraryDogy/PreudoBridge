@@ -9,7 +9,7 @@ from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtWidgets import QAction, QSizePolicy, QSpacerItem
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import Config
+from cfg import Config, JsonData
 from database import CACHE, STATS, Engine
 from fit_img import FitImg
 from utils import Utils
@@ -64,7 +64,7 @@ class SearchFinder(QThread):
         if not isinstance(self.search_text, tuple):
             self.search_text: str = str(self.search_text)
 
-        for root, _, files in os.walk(Config.json_data.get("root")):
+        for root, _, files in os.walk(JsonData.root):
             if not self.flag:
                 break
 
@@ -76,7 +76,7 @@ class SearchFinder(QThread):
                 file_path_lower: str = file_path.lower()
 
 
-                if file_path_lower.endswith(Config.img_ext):
+                if file_path_lower.endswith(Config.IMG_EXT):
 
                     if isinstance(self.search_text, tuple):
                         self.create_wid(file_path)
@@ -173,7 +173,7 @@ class SearchFinder(QThread):
 
     def create_img_array(self, src: str) -> ndarray | None:
         img = Utils.read_image(src)
-        img = FitImg.start(img, Config.img_size)
+        img = FitImg.start(img, Config.IMG_SIZE)
         return img
 
     def stop_cmd(self):
@@ -304,8 +304,8 @@ class GridSearch(Grid):
         # ключи соответствуют json_data["sort"]
         # self.sorted_widgets = { (src, filename, size, modify, type, colors, rating): SearchThumbnail }
 
-        index = sort_data.get(Config.json_data.get("sort"))
-        rev = Config.json_data.get("reversed")
+        index = sort_data.get(JsonData.sort)
+        rev = JsonData.reversed
 
         if index != 5:
             sort_key = lambda item: item[0][index]

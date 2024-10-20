@@ -2,8 +2,8 @@ import cv2
 import numpy as np
 
 class FitImg:    
-    @staticmethod
-    def start(image: np.ndarray, size: int) -> np.ndarray | None:
+    @classmethod
+    def start(cls, image: np.ndarray, size: int) -> np.ndarray | None:
         if isinstance(image, np.ndarray):
 
             try:

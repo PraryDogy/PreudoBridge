@@ -20,8 +20,8 @@ psd_logger = logging.getLogger("psd_tools")
 psd_logger.setLevel(logging.CRITICAL)
 
 class Utils:
-    @staticmethod
-    def clear_layout(layout: QVBoxLayout):
+    @classmethod
+    def clear_layout(cls, layout: QVBoxLayout):
         if layout:
             while layout.count():
                 item = layout.takeAt(0)
@@ -29,28 +29,28 @@ class Utils:
                 if widget:
                     widget.deleteLater()
                 else:
-                    Utils.clear_layout(item.layout())
+                    cls.clear_layout(item.layout())
 
-    @staticmethod
-    def copy_path(text: str):
+    @classmethod
+    def copy_path(cls, text: str):
         text_bytes = text.encode('utf-8')
         subprocess.run(['pbcopy'], input=text_bytes, check=True)
         return True
     
-    @staticmethod
-    def get_main_win(name: str ="SimpleFileExplorer") -> QWidget:
+    @classmethod
+    def get_main_win(cls, name: str ="SimpleFileExplorer") -> QWidget:
         for i in QApplication.topLevelWidgets():
             if name in str(i):
                 return i
 
-    @staticmethod
-    def center_win(parent: QWidget, child: QWidget):
+    @classmethod
+    def center_win(cls, parent: QWidget, child: QWidget):
         geo = child.geometry()
         geo.moveCenter(parent.geometry().center())
         child.setGeometry(geo)
 
-    @staticmethod
-    def read_tiff(path: str) -> np.ndarray | None:
+    @classmethod
+    def read_tiff(cls, path: str) -> np.ndarray | None:
         try:
             img = tifffile.imread(files=path)[:,:,:3]
             if str(object=img.dtype) != "uint8":
@@ -58,11 +58,11 @@ class Utils:
             # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             return img
         except (tifffile.tifffile.TiffFileError, RuntimeError) as e:
-            Utils.print_error(Utils, e)
-            return Utils.read_psd(path)
+            cls.print_error(cls, e)
+            return cls.read_psd(path)
 
-    @staticmethod
-    def read_psd(path: str) -> np.ndarray | None:
+    @classmethod
+    def read_psd(cls, path: str) -> np.ndarray | None:
         try:
             img = psd_tools.PSDImage.open(fp=path)
             img = img.composite()
@@ -77,8 +77,8 @@ class Utils:
             print("read psd error", path, "\n")
             return None
             
-    @staticmethod
-    def read_jpg(path: str) -> np.ndarray | None:
+    @classmethod
+    def read_jpg(cls, path: str) -> np.ndarray | None:
         try:
             image = cv2.imread(path, cv2.IMREAD_UNCHANGED)  # Чтение с альфа-каналом
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -87,8 +87,8 @@ class Utils:
             print("jpg read error", path, "\n")
             return None
         
-    @staticmethod
-    def read_png(path: str) -> np.ndarray | None:
+    @classmethod
+    def read_png(cls, path: str) -> np.ndarray | None:
         try:
             image = cv2.imread(path, cv2.IMREAD_UNCHANGED)  # Чтение с альфа-каналом
 
@@ -107,8 +107,8 @@ class Utils:
             print("read png error:", path, "\n")
             return None
         
-    @staticmethod
-    def read_raw(path: str) -> np.ndarray | None:
+    @classmethod
+    def read_raw(cls, path: str) -> np.ndarray | None:
         try:
             img = rawpy.imread(path).postprocess()
             # img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
@@ -117,32 +117,32 @@ class Utils:
             print("read raw error:", path, "\n")
             return None
 
-    @staticmethod
-    def read_image(src: str) -> np.ndarray | None:
+    @classmethod
+    def read_image(cls, src: str) -> np.ndarray | None:
         src_lower: str = src.lower()
 
         if src_lower.endswith((".psd", ".psb")):
-            img = Utils.read_psd(src)
+            img = cls.read_psd(src)
 
         elif src_lower.endswith((".tiff", ".tif")):
-            img = Utils.read_tiff(src)
+            img = cls.read_tiff(src)
 
         elif src_lower.endswith((".jpg", ".jpeg", "jfif")):
-            img = Utils.read_jpg(src)
+            img = cls.read_jpg(src)
 
         elif src_lower.endswith((".png")):
-            img = Utils.read_png(src)
+            img = cls.read_png(src)
 
         elif src_lower.endswith((".nef", ".cr2", ".cr3", ".arw", ".raf")):
-            img = Utils.read_raw(src)
+            img = cls.read_raw(src)
 
         else:
             img = None
 
         return img
     
-    @staticmethod
-    def pixmap_from_bytes(image: bytes) -> QPixmap | None:
+    @classmethod
+    def pixmap_from_bytes(cls, image: bytes) -> QPixmap | None:
         if isinstance(image, bytes):
             ba = QByteArray(image)
             pixmap = QPixmap()
@@ -150,17 +150,18 @@ class Utils:
             return pixmap
         return None
     
-    @staticmethod
-    def pixmap_from_array(image: np.ndarray) -> QPixmap | None:
+    @classmethod
+    def pixmap_from_array(cls, image: np.ndarray) -> QPixmap | None:
         if isinstance(image, np.ndarray):
             height, width, channel = image.shape
             bytes_per_line = channel * width
             qimage = QImage(image.tobytes(), width, height, bytes_per_line, QImage.Format.Format_RGB888)
             return QPixmap.fromImage(qimage)
-        return None
+        else:
+            return None
 
-    @staticmethod
-    def image_array_to_bytes(image: np.ndarray, quality: int = 80) -> bytes | None:
+    @classmethod
+    def image_array_to_bytes(cls, image: np.ndarray, quality: int = 80) -> bytes | None:
         if isinstance(image, np.ndarray):
             img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             res, buffer = cv2.imencode(".jpeg", img, [int(cv2.IMWRITE_JPEG_QUALITY), quality])
@@ -168,15 +169,16 @@ class Utils:
             image_io.write(buffer)
             img = image_io.getvalue()
             return img
-        return None
+        else:
+            return None
 
-    @staticmethod
-    def get_clmn_count(width: int):
-        return (width + 150) // (Config.img_size + 10)
+    @classmethod
+    def get_clmn_count(cls, width: int):
+        return (width + 150) // (Config.IMG_SIZE + 10)
 
 
-    @staticmethod
-    def print_error(parent: object, error: Exception):
+    @classmethod
+    def print_error(cls, parent: object, error: Exception):
         tb = traceback.extract_tb(error.__traceback__)
 
         # Попробуем найти первую строчку стека, которая относится к вашему коду.

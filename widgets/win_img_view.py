@@ -8,9 +8,8 @@ from PyQt5.QtGui import (QCloseEvent, QContextMenuEvent, QKeyEvent,
                          QResizeEvent)
 from PyQt5.QtWidgets import (QAction, QFrame, QHBoxLayout, QLabel, QMenu,
                              QSpacerItem, QVBoxLayout, QWidget)
-from sqlalchemy.exc import OperationalError
 
-from cfg import Config
+from cfg import Config, JsonData
 from database import CACHE, Engine
 from utils import Utils
 from .grid_base import Thumbnail
@@ -233,7 +232,7 @@ class WinImgView(QWidget):
 
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setMinimumSize(QSize(400, 300))
-        self.resize(Config.json_data.get("ww_im"), Config.json_data.get("hh_im"))
+        self.resize(JsonData.ww_im, JsonData.hh_im)
         self.setObjectName("img_view")
         self.setStyleSheet("""#img_view {background: black;}""")
         self.setMouseTracking(True)
@@ -404,8 +403,8 @@ class WinImgView(QWidget):
         bottom_window_side = a0.size().height() - self.zoom_btns.height()
         self.zoom_btns.move(horizontal_center, bottom_window_side - 30)
 
-        Config.json_data["ww_im"] = self.width()
-        Config.json_data["hh_im"] = self.height()
+        JsonData.ww_im = self.width()
+        JsonData.hh_im = self.height()
 
     def leaveEvent(self, a0: QEvent | None) -> None:
         self.hide_all_buttons()
@@ -439,7 +438,7 @@ class WinImgView(QWidget):
         self.color_menu = QMenu("Цвета", self)
         context_menu.addMenu(self.color_menu)
 
-        for color, text in Config.colors.items():
+        for color, text in Config.COLORS.items():
             wid = QAction(parent=self.color_menu, text=f"{color} {text}")
             wid.setCheckable(True)
 

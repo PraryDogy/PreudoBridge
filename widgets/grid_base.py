@@ -37,10 +37,10 @@ class NameLabel(QLabel):
 
 
 class Geo:
-    img_h = Config.img_size
+    img_h = Config.IMG_SIZE
     text_h = 50
 
-    w = Config.img_size + 10
+    w = Config.IMG_SIZE + 10
     h = img_h + text_h +10
 
 
@@ -107,7 +107,7 @@ class Thumbnail(QFrame):
         self.color_menu = QMenu("Цвета", self)
         self.context_menu.addMenu(self.color_menu)
 
-        for color, text in Config.colors.items():
+        for color, text in Config.COLORS.items():
             wid = QAction(parent=self.color_menu, text=f"{color} {text}")
             wid.setCheckable(True)
 
@@ -197,7 +197,7 @@ class Thumbnail(QFrame):
 
         if update_db:
             self.colors = temp_colors
-            key = lambda x: Config.colors_order.index(x)
+            key = lambda x: list(Config.COLORS.keys()).index(x)
             self.colors = ''.join(sorted(self.colors, key=key))
             self.name_label.update_name(self.rating, self.colors, self.name)
 

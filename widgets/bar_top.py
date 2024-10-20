@@ -3,13 +3,13 @@ from difflib import SequenceMatcher
 
 import sqlalchemy
 from PyQt5.QtCore import QSize, Qt, QThread, QTimer, pyqtSignal
-from PyQt5.QtGui import QCloseEvent, QKeyEvent, QMouseEvent, QCursor
+from PyQt5.QtGui import QCloseEvent, QCursor, QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
                              QLineEdit, QMenu, QPushButton, QSlider,
                              QSpacerItem, QTabBar, QVBoxLayout, QWidget)
 
-from cfg import Config
-from database import CACHE, STATS, Dbase, Engine
+from cfg import Config, JsonData
+from database import STATS, Dbase, Engine
 from utils import Utils
 
 
@@ -43,7 +43,7 @@ class PathFinderThread(QThread):
 
         volumes_extra = [
             os.path.join(vol, *extra.strip().split(os.sep))
-            for extra in Config.json_data.get("extra_paths")
+            for extra in JsonData.extra_paths
             for vol in self.volumes
             ]
         
@@ -143,15 +143,15 @@ class SortTypeBtn(QPushButton):
             if data_action.sort == None:
                 action.setDisabled(True)
 
-            if data_action.sort == Config.json_data.get("sort"):
-                if data_action.reversed == Config.json_data.get("reversed"):
+            if data_action.sort == JsonData.sort:
+                if data_action.reversed == JsonData.reversed:
                     self.setText(data_action.text)
 
             menu.addAction(action)
 
     def _action_clicked(self, data_action: ActionData):
-        Config.json_data["sort"] = data_action.sort
-        Config.json_data["reversed"] = data_action.reversed
+        JsonData.sort = data_action.sort
+        JsonData.reversed = data_action.reversed
         self.setText(data_action.text)
         self._clicked.emit()
 
@@ -166,7 +166,7 @@ class ViewTypeBtn(QTabBar):
         self.addTab("\U00001392" * 3)
         self.addTab("\U00002630")
 
-        if Config.json_data.get("list_view"):
+        if JsonData.list_view:
             self.setCurrentIndex(1)
         else:
             self.setCurrentIndex(0)
@@ -176,10 +176,10 @@ class ViewTypeBtn(QTabBar):
     def set_view_cmd(self, index: int):
         if index == 0:
             self.setCurrentIndex(0)
-            Config.json_data["list_view"] = False
+            JsonData.list_view = False
         else:
             self.setCurrentIndex(1)
-            Config.json_data["list_view"] = True
+            JsonData.list_view = True
         self._clicked.emit()
 
     def tabSizeHint(self, index):
@@ -231,7 +231,7 @@ class SearchWidget(QWidget):
             "Найти tiff": str((".tif", ".tiff")),
             "Найти psd/psb": str((".psd", ".psb")),
             "Найти raw": str((".nef", ".raw")),
-            "Найти любые фото": str(Config.img_ext)
+            "Найти любые фото": str(Config.IMG_EXT)
             }
 
         for k, v in data.items():
@@ -460,7 +460,7 @@ class WinSettings(QWidget):
 
         v_lay.addStretch(0)
 
-        current = Config.json_data.get("clear_db")
+        current = JsonData.clear_db
         ind = self.slider_values.index(current)
 
         self.slider.setValue(ind)
@@ -476,7 +476,7 @@ class WinSettings(QWidget):
             t = f"Максимальный размер данных: {value}гб"
 
         self.label.setText(t)
-        Config.json_data["clear_db"] = value
+        JsonData.clear_db = value
 
     def get_current_size(self):
         with Engine.engine.connect() as conn:
@@ -501,7 +501,7 @@ class WinSettings(QWidget):
             self.get_current_size()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
-        Config.write_json_data()
+        Config.write_config()
     
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() == Qt.Key.Key_Escape:
@@ -555,7 +555,7 @@ class BarTop(QFrame):
         self.clmn = 0
 
         self.root: str = None
-        self.history: list[str] = [Config.json_data.get("root")]
+        self.history: list[str] = [JsonData.root]
         self.current_index: int = 0
 
         self.grid_layout = QGridLayout()
@@ -617,14 +617,14 @@ class BarTop(QFrame):
             if isinstance(topbar.childAt(pos), HistoryBtn):
                 return
 
-        self.history.append(Config.json_data.get("root"))
+        self.history.append(JsonData.root)
         self.current_index = len(self.history) - 1
 
         if len(self.history) > 50:
             self.history.pop(0)
 
     def level_up_cmd(self):
-        Config.json_data["root"] = os.path.dirname(Config.json_data.get("root"))
+        JsonData.root = os.path.dirname(JsonData.root)
         self.level_up.emit()
 
     def back_cmd(self):

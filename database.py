@@ -3,7 +3,7 @@ import os
 import sqlalchemy
 from sqlalchemy.exc import OperationalError
 
-from cfg import Config
+from cfg import Config, JsonData
 from utils import Utils
 
 
@@ -34,20 +34,20 @@ STATS = sqlalchemy.Table(
 
 
 class Dbase:
-    @staticmethod
-    def init_db():
+    @classmethod
+    def init_db(cls):
         Engine.engine = sqlalchemy.create_engine(
-            f"sqlite:///{Config.db_file}",
+            f"sqlite:///{Config.DB_FILE}",
             connect_args={"check_same_thread": False},
             echo=False
             )
         Engine.metadata.create_all(Engine.engine)
-        Dbase.check_tables()
-        Dbase.check_stats_main()
-        Dbase.check_cache_size()
+        cls.check_tables()
+        cls.check_stats_main()
+        cls.check_cache_size()
 
-    @staticmethod
-    def check_stats_main():
+    @classmethod
+    def check_stats_main(cls):
         stmt_select = sqlalchemy.select(STATS).where(STATS.c.name == "main")
         stmt_insert = sqlalchemy.insert(STATS).values(name="main", size=0)
         
@@ -57,8 +57,8 @@ class Dbase:
                 conn.execute(stmt_insert)
                 conn.commit()
 
-    @staticmethod
-    def check_cache_size():
+    @classmethod
+    def check_cache_size(cls):
         q_get_stats = sqlalchemy.select(STATS.c.size).where(STATS.c.name == "main")
         q_upd_stats = sqlalchemy.update(STATS).where(STATS.c.name == "main").values(size=0)
         q_del_cache = sqlalchemy.delete(CACHE)
@@ -66,7 +66,7 @@ class Dbase:
         with Engine.engine.connect() as conn:
 
             current_size = conn.execute(q_get_stats).scalar() or 0
-            config_size = Config.json_data.get("clear_db") * (1024**3)
+            config_size = JsonData.clear_db * (1024**3)
 
             if current_size >= config_size:
 
@@ -76,7 +76,8 @@ class Dbase:
 
             conn.execute(sqlalchemy.text("VACUUM"))
 
-    def clear_db():
+    @classmethod
+    def clear_db(cls):
         q_del_cache = sqlalchemy.delete(CACHE)
         q_upd_stats = sqlalchemy.update(STATS).where(STATS.c.name == "main").values(size=0)
 
@@ -86,15 +87,15 @@ class Dbase:
                 conn.execute(q_upd_stats)
                 conn.commit()
             except OperationalError as e:
-                Utils.print_error(Dbase, e)
+                Utils.print_error(cls, e)
                 return False
 
             conn.execute(sqlalchemy.text("VACUUM"))
             
         return True
 
-    @staticmethod
-    def check_tables():
+    @classmethod
+    def check_tables(cls):
         inspector = sqlalchemy.inspect(Engine.engine)
 
         TABLES = [CACHE, STATS]
@@ -104,8 +105,8 @@ class Dbase:
 
         if not res:
             print("Не соответствие таблиц, создаю новую дб")
-            os.remove(Config.db_file)
-            Dbase.init_db()
+            os.remove(Config.DB_FILE)
+            cls.init_db()
             return
 
         for table in TABLES:
@@ -115,6 +116,6 @@ class Dbase:
 
             if not res:
                 print(f"Не соответствие колонок в {table.name}, создаю новую дб")
-                os.remove(Config.db_file)
-                Dbase.init_db()
+                os.remove(Config.DB_FILE)
+                cls.init_db()
                 break

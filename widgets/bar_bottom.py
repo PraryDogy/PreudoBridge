@@ -1,9 +1,10 @@
 import os
 
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtWidgets import QHBoxLayout, QLabel, QProgressBar, QWidget, QGridLayout
+from PyQt5.QtWidgets import (QGridLayout, QHBoxLayout, QLabel, QProgressBar,
+                             QWidget)
 
-from cfg import Config
+from cfg import JsonData
 
 
 class BarBottom(QWidget):
@@ -50,7 +51,7 @@ class BarBottom(QWidget):
         h_lay.setSpacing(0)
         self.path_label.setLayout(h_lay)
 
-        root: str = Config.json_data.get("root")
+        root: str = JsonData.root
         root = root.strip(os.sep).split(os.sep)
 
         chunks = []
@@ -78,5 +79,5 @@ class BarBottom(QWidget):
     def _new_root(self, rooted: list, chunk: str):
         new_path = rooted[:rooted.index(chunk) + 1]
         new_path = os.path.join(os.sep, *new_path)
-        Config.json_data["root"] = new_path
+        JsonData.root = new_path
         self.path_click.emit()

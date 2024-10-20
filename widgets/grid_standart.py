@@ -6,7 +6,7 @@ from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import QAction, QLabel, QSizePolicy, QSpacerItem
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import Config
+from cfg import Config, JsonData
 from database import CACHE, STATS, Engine
 from fit_img import FitImg
 from utils import Utils
@@ -89,7 +89,7 @@ class LoadImages(QThread):
 
     def get_db_images(self):
         q = sqlalchemy.select(CACHE.c.img, CACHE.c.src, CACHE.c.size, CACHE.c.modified)
-        q = q.where(CACHE.c.root == Config.json_data.get("root"))
+        q = q.where(CACHE.c.root == JsonData.root)
         res = self.conn.execute(q).fetchall()
 
         self.db_images: dict[tuple: bytearray] = {
@@ -126,7 +126,7 @@ class LoadImages(QThread):
                 continue
 
             img_array = Utils.read_image(src)
-            img_array = FitImg.start(img_array, Config.img_size)
+            img_array = FitImg.start(img_array, Config.IMG_SIZE)
             img_bytes: bytes = Utils.image_array_to_bytes(img_array)
             pixmap = Utils.pixmap_from_array(img_array)
 
@@ -216,16 +216,16 @@ class LoadFinder(QThread):
 
     def get_db_data(self):
         q = sqlalchemy.select(CACHE.c.src, CACHE.c.colors, CACHE.c.rating)
-        q = q.where(CACHE.c.root == Config.json_data.get("root"))
+        q = q.where(CACHE.c.root == JsonData.root)
   
         with Engine.engine.connect() as conn:
             res = conn.execute(q).fetchall()
             self.db_data = {src: [colors, rating] for src, colors, rating in res}
 
     def get_items(self) -> list:
-        for filename in os.listdir(Config.json_data.get("root")):
+        for filename in os.listdir(JsonData.root):
 
-            src: str = os.path.join(Config.json_data.get("root"), filename)
+            src: str = os.path.join(JsonData.root, filename)
 
             try:
                 stats = os.stat(src)
@@ -243,7 +243,7 @@ class LoadFinder(QThread):
             except (PermissionError, FileNotFoundError):
                 continue
 
-            if src.lower().endswith(Config.img_ext):
+            if src.lower().endswith(Config.IMG_EXT):
                 self.finder_items.append((src, filename, size, modified, filetype, colors, rating))
                 continue
 
@@ -266,8 +266,8 @@ class LoadFinder(QThread):
             "colors": 5,
             "rating": 6
             }
-        index = sort_data.get(Config.json_data.get("sort"))
-        rev = Config.json_data.get("reversed")
+        index = sort_data.get(JsonData.sort)
+        rev = JsonData.reversed
 
         if index != 5:
             sort_key = lambda x: x[index]
@@ -306,7 +306,7 @@ class ThumbnailFolder(Thumbnail):
 
         self.context_menu.addSeparator()
 
-        if self.src in Config.json_data["favs"]:
+        if self.src in JsonData.favs:
             self.fav_action = QAction("Удалить из избранного", self)
             self.fav_action.triggered.connect(lambda: self.fav_cmd(-1))
             self.context_menu.addAction(self.fav_action)
@@ -411,12 +411,12 @@ class GridStandart(Grid):
 
             self.start_load_images(src_size_mod)
 
-        elif not os.path.exists(Config.json_data.get("root")):
-            t = f"{Config.json_data.get('root')}\nТакой папки не существует\nПроверьте подключение к сетевому диску"
+        elif not os.path.exists(JsonData.root):
+            t = f"{JsonData.root}\nТакой папки не существует\nПроверьте подключение к сетевому диску"
             setattr(self, "no_images", t)
 
         else:
-            t = f"{Config.json_data.get('root')}\nНет изображений"
+            t = f"{JsonData.root}\nНет изображений"
             if Config.color_filters:
                 t = f"{t} с фильтрами: {''.join(Config.color_filters)}"
             if Config.rating_filter > 0:

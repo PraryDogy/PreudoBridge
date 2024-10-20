@@ -5,7 +5,7 @@ from PyQt5.QtCore import QDir, Qt, pyqtSignal
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtWidgets import QAction, QFileSystemModel, QMenu, QTableView
 
-from cfg import Config
+from cfg import Config, JsonData
 from utils import Utils
 
 from .grid_base import Thumbnail
@@ -26,11 +26,11 @@ class ListStandart(QTableView):
         super().__init__()
 
         self._model = QFileSystemModel()
-        self._model.setRootPath(Config.json_data.get("root"))
+        self._model.setRootPath(JsonData.root)
         self._model.setFilter(QDir.NoDotAndDotDot | QDir.AllEntries)
 
         self.setModel(self._model)
-        self.setRootIndex(self._model.index(Config.json_data.get("root")))
+        self.setRootIndex(self._model.index(JsonData.root))
 
         self.setSelectionBehavior(QTableView.SelectRows)
         self.setSortingEnabled(True)
@@ -54,7 +54,7 @@ class ListStandart(QTableView):
             self.setCurrentIndex(index)
             self.folders_tree_clicked.emit(path)
 
-        elif path_lower.endswith(Config.img_ext):
+        elif path_lower.endswith(Config.IMG_EXT):
             thumbnail = Thumbnail("", "", {})
             self.win = WinImgView(path, {path: thumbnail})
             self.win.show()
@@ -90,7 +90,7 @@ class ListStandart(QTableView):
         menu.addSeparator()
 
         if os.path.isdir(src):
-            favs: dict = Config.json_data.get("favs")
+            favs: dict = JsonData.favs
             if src in favs:
                 fav_action = QAction("Удалить из избранного", self)
                 fav_action.triggered.connect(lambda: self.del_favs_clicked.emit(src))

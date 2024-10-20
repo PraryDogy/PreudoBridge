@@ -7,7 +7,7 @@ from PyQt5.QtGui import (QContextMenuEvent, QDragEnterEvent, QDragLeaveEvent,
 from PyQt5.QtWidgets import (QAction, QLabel, QListWidget, QListWidgetItem,
                              QMenu)
 
-from cfg import Config
+from cfg import Config, JsonData
 from utils import Utils
 
 from .win_rename import WinRename
@@ -83,11 +83,11 @@ class TreeFavorites(QListWidget):
         self.init_ui()
 
     def init_ui(self):
-        favs: dict = Config.json_data["favs"]
+        favs: dict = JsonData.favs
         for src, name in favs.items():
             item = self.add_item(name, src)
 
-            if Config.json_data.get("root") == src:
+            if JsonData.root == src:
                 self.setCurrentItem(item)
 
 
@@ -106,12 +106,12 @@ class TreeFavorites(QListWidget):
         return list_item
 
     def update_name(self, src: str, new_name: str):
-        favs: dict = Config.json_data.get("favs")
+        favs: dict = JsonData.favs
         if src in favs:
             favs[src] = new_name
 
     def del_item(self, src: str):
-        favs: dict = Config.json_data.get("favs")
+        favs: dict = JsonData.favs
         favs.pop(src)
         self.clear()
         self.init_ui()
@@ -123,7 +123,7 @@ class TreeFavorites(QListWidget):
             if os.path.isdir(path):
                 name = os.path.basename(path)
                 self.add_item(name, path)
-                Config.json_data["favs"][path] = name
+                JsonData.favs[path] = name
 
         else:
             super().dropEvent(a0)
@@ -133,7 +133,7 @@ class TreeFavorites(QListWidget):
                 fav_widget = self.itemWidget(item)
                 if isinstance(fav_widget, FavItem):
                     new_order[fav_widget.src] = fav_widget.name
-            Config.json_data["favs"] = new_order
+            JsonData.favs = new_order
     
     def dragEnterEvent(self, a0: QDragEnterEvent | None) -> None:
         if a0.mimeData().hasUrls():

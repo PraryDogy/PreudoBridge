@@ -3,18 +3,59 @@ import os
 from datetime import date
 
 
-class Config:
-    app_name = "PseudoBridge"
-    app_ver = "1.0.0"
-    json_file = os.path.join(os.path.expanduser('~'), 'Desktop', 'cfg.json')
-    db_file = os.path.join(os.path.expanduser('~'), 'Desktop', 'db.db')
-    image_apps: dict = {}
-    img_size = 210
-    
-    color_filters: list = []
-    rating_filter: int = 0
+class JsonData:
+    root = "/Volumes"
+    ww = 1050
+    hh = 700
+    ww_im = 700
+    hh_im = 500
+    sort = "name"
+    reversed = False
+    extra_paths = ["/Studio/PANACEA", "/Studio/MIUZ"]
+    favs = {}
+    list_view = False
+    clear_db = 5
+    tab_bar = 1
+    test = 555
 
-    colors = {
+    @classmethod
+    def get_data(cls):
+        return [
+            i for i in dir(cls)
+            if not i.startswith("__")
+            and
+            not callable(getattr(cls, i))
+            ]
+
+
+class Config:
+    APP_NAME = "PseudoBridge"
+    APP_VER = "1.0.0"
+
+    JSON_FILE = os.path.join(os.path.expanduser('~'), 'Desktop', 'cfg.json')
+    DB_FILE = os.path.join(os.path.expanduser('~'), 'Desktop', 'db.db')
+
+    IMG_SIZE = 210
+
+    IMG_EXT: tuple = (
+        ".jpg", "jpeg", "jfif",
+        ".tif", ".tiff",
+        ".psd", ".psb",
+        ".png",
+        ".nef", ".cr2", ".cr3", ".arw", ".raf"
+        )
+    
+    ORDER: dict = {
+            1: "src",
+            2: "name",
+            3: "size",
+            4: "modify",
+            5: "type",
+            6: "colors",
+            7: "rating"
+            }
+      
+    COLORS: dict = {
         "\U0001F534": "Красный",
         "\U0001F535": "Синий",
         "\U0001F7E0": "Оранжевый",
@@ -24,80 +65,53 @@ class Config:
         "\U0001F7E4": "Коричневый"
         }
 
-    colors_order = list(colors.keys())
+    color_filters: list = []
+    rating_filter: int = 0
+    image_apps: dict = {}
 
-    img_ext: tuple = (
-        ".jpg", "jpeg", "jfif",
-        ".tif", ".tiff",
-        ".psd", ".psb",
-        ".png",
-        ".nef", ".cr2", ".cr3", ".arw", ".raf"
-        )
+    @classmethod
+    def read_json_data(cls) -> dict:
 
-    json_data: dict = {
-        "root": "/Volumes",
-        "ww": 1050,
-        "hh": 700,
-        "ww_im": 700,
-        "hh_im": 500,
-        "sort": "name",
-        "reversed": False,
-        "extra_paths": ["/Studio/PANACEA", "/Studio/MIUZ"],
-        "favs": {},
-        "list_view": True,
-        "clear_db": 5,
-        "tab_bar": 1
-        }
+        if os.path.exists(cls.JSON_FILE):
 
-    @staticmethod
-    def load_json_data() -> dict:
-        if os.path.exists(Config.json_file):
+            with open(cls.JSON_FILE, 'r') as f:
 
-            with open(Config.json_file, 'r') as f:
                 try:
-                    json_data = json.load(f)
-                    json_data = Config.sync_json(json_data)
-                    Config.json_data = json_data
+                    json_data: dict = json.load(f)
+                
+                    for k, v in json_data.items():
+                        if hasattr(JsonData, k):
+                            setattr(JsonData, k, v)
+
                 except json.JSONDecodeError:
                     print("Ошибка чтения json")
+                    cls.write_config()
 
         else:
-            with open(Config.json_file, 'w') as f:
-                json.dump(Config.json_data, f, indent=4, ensure_ascii=False)
+            print("файла не существует")
+            cls.write_config()
 
-    @staticmethod
-    def write_json_data() -> bool:
+    @classmethod
+    def write_config(cls):
+        # мы пишем тут данные из JsonData, независимо от успешности чтения
+        # cfg.json
+
+        new_data: dict = {
+            attr: getattr(JsonData, attr)
+            for attr in JsonData.get_data()
+            }
+
         try:
-            with open(Config.json_file, 'w') as f:
-                json.dump(Config.json_data, f, indent=4, ensure_ascii=False)
+            with open(cls.JSON_FILE, 'w') as f:
+                json.dump(new_data, f, indent=4, ensure_ascii=False)
             return True
+        
         except Exception as e:
+            print(e)
             return False
 
-    @staticmethod
-    def sync_json(json_data: dict):
-        keys_to_remove = [
-            key 
-            for key in json_data
-            if key not in Config.json_data
-            ]
-
-        for key in keys_to_remove:
-            print(f"Лишний ключ в json файле: {key}")
-            del json_data[key]
-
-        for key, default_value in Config.json_data.items():
-            if key not in json_data:
-                print(f"Недостающий ключ в json файле: {key}")
-                json_data[key] = default_value
-            elif not isinstance(json_data[key], type(default_value)):
-                print(f"Несовпадающий тип значения в json файле: {key}")
-                json_data[key] = default_value
-
-        return json_data
-
-    @staticmethod
-    def find_img_apps():
+    @classmethod
+    def find_img_apps(cls):
         root_path = "/Applications"
 
         names = [
@@ -110,7 +124,7 @@ class Config:
                 ])
         names.append("Capture One")
         names_app = [i + ".app" for i in names]
-        Config.image_apps["Просмотр"] = "/System/Applications/Preview.app"
+        cls.image_apps["Просмотр"] = "/System/Applications/Preview.app"
 
         for item in os.listdir(root_path):
             full_path = os.path.join(root_path, item)
@@ -120,12 +134,12 @@ class Config:
             if app_folder:        
                 app_inside_folder = os.path.join(full_path, item + ".app")
                 if os.path.exists(app_inside_folder):
-                    Config.image_apps[item] = app_inside_folder
+                    cls.image_apps[item] = app_inside_folder
 
             elif app_app:
                 item = item.replace(".app", "")
-                Config.image_apps[item] = full_path
+                cls.image_apps[item] = full_path
 
 
-Config.load_json_data()
+Config.read_json_data()
 Config.find_img_apps()

@@ -1,12 +1,9 @@
-_colors = (
-"\U0001F534",
-"\U0001F535",
-"\U0001F7E0",
-"\U0001F7E1",
-"\U0001F7E2",
-"\U0001F7E3",
-"\U0001F7E4",
-)
+class Test:
 
-for k, v in _colors.items():
-    print(k)
+    @classmethod
+    def testt(cls, inp: int):
+        print(inp)
+
+
+
+Test.testt(123)

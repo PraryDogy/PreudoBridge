@@ -2,11 +2,10 @@ import os
 
 import sqlalchemy
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
-from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QMouseEvent, QPixmap
-from PyQt5.QtWidgets import QAction, QLabel, QSizePolicy, QSpacerItem
-from sqlalchemy.exc import IntegrityError, OperationalError
+from PyQt5.QtGui import QCloseEvent, QPixmap
+from PyQt5.QtWidgets import QLabel, QSizePolicy, QSpacerItem
 
-from cfg import Config
+from cfg import Config, JsonData
 from database import CACHE, STATS, Engine
 from fit_img import FitImg
 from utils import Utils
@@ -22,7 +21,7 @@ class LoadDbItems(QThread):
 
     def run(self):
         q = sqlalchemy.select(CACHE.c.img, CACHE.c.src, CACHE.c.size, CACHE.c.modified, CACHE.c.colors, CACHE.c.rating)
-        q = q.where(CACHE.c.root == Config.json_data.get("root"))
+        q = q.where(CACHE.c.root == JsonData.root)
         
         if Config.color_filters:
             color_filters = list(Config.color_filters)
@@ -67,8 +66,8 @@ class LoadDbItems(QThread):
             "colors": 6,
             "rating": 7
             }
-        index = sort_data.get(Config.json_data.get("sort"))
-        rev = Config.json_data.get("reversed")
+        index = sort_data.get(JsonData.sort)
+        rev = JsonData.reversed
 
         if index != 5:
             sort_key = lambda x: x[index]
@@ -121,7 +120,7 @@ class GridFiltered(Grid):
             self.grid_layout.addItem(col_spacer, 0, col_count + 2)
 
         else:
-            t = f"{Config.json_data.get('root')}\nНет изображений"
+            t = f"{JsonData.root}\nНет изображений"
             if Config.color_filters:
                 t = f"{t} с фильтрами: {''.join(Config.color_filters)}"
             if Config.rating_filter > 0:
