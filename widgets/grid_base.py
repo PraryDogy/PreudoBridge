@@ -290,6 +290,11 @@ class Grid(QScrollArea):
         self.wid_to_cell: dict[Thumbnail: tuple] = {}
         self.path_to_wid: dict[str: Thumbnail] = {}
 
+        # Здесь хранится информация для сортировки виджетов
+        # Которая соответствует порядку в ORDER из config
+        # (name, size, modified, type, colors, rating, ОСТАЛЬНОЕ)
+        self.sorted_widgets: list[tuple] = {}
+
     def move_to_wid(self, src: str):
         wid = self.path_to_wid.get(src)
         coords = self.wid_to_cell.get(wid)
@@ -309,6 +314,13 @@ class Grid(QScrollArea):
             self.curr_cell = coords
 
             self.ensureWidgetVisible(new_widget)
+
+    def reset_selection(self):
+        widget = self.cell_to_wid.get(self.curr_cell)
+
+        if isinstance(widget, QFrame):
+            widget.setFrameShape(Qt.Shape.NoFrame)
+            self.curr_cell: tuple = (0, 0)
     
     def set_rating(self, rating: int):
         rating_data = {48: 0, 49: 1, 50: 2, 51: 3, 52: 4, 53: 5}

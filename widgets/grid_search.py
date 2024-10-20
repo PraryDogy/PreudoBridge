@@ -204,11 +204,6 @@ class GridSearch(Grid):
     def __init__(self, width: int, search_text: str):
         super().__init__(width)
 
-        # (путь до файла, имя файла, размер, дата изменения, тип файла)
-        # этот словарик нужен для повторного формирования сетки при изменении
-        # размера и для сортировки по имени/размеру/дате/типу
-        self.sorted_widgets: list[tuple] = []
-
         self.col_count = Utils.get_clmn_count(width)
         self.row, self.col = 0, 0
 
@@ -299,7 +294,8 @@ class GridSearch(Grid):
         index = sort_type.get("index")
         rev = JsonData.reversed
 
-        if sort_type != "colors":
+        # индекс цвета в ORDER
+        if index != 4:
             sort_key = lambda x: x[index]
         else:
             sort_key = lambda x: len(x[index])

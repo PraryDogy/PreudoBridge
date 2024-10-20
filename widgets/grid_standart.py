@@ -260,7 +260,8 @@ class LoadFinder(QThread):
         index = sort_type.get("index")
         rev = JsonData.reversed
 
-        if sort_type != "colors":
+        # индекс цвета в ORDER
+        if index != 4:
             sort_key = lambda x: x[index]
         else:
             sort_key = lambda x: len(x[index])
@@ -340,7 +341,6 @@ class GridStandart(Grid):
     def __init__(self, width: int):
         super().__init__(width)
         self.ww = width
-        self.sorted_widgets: list[Thumbnail | ThumbnailFolder] = []
 
         # делаем os listdir обход и по сигналу finished
         # запустится создание сетки
@@ -387,7 +387,10 @@ class GridStandart(Grid):
             # добавляем местоположение виджета в сетке для навигации клавишами
             self.cell_to_wid[row, col] = wid
             self.path_to_wid[src] = wid
-            self.sorted_widgets.append(wid)
+
+            # ЭТОТ ПОРЯДОК СООТВЕТСТВУЕТ ORDER ДЛЯ СОРТИРОВКИ
+            # SRC и WID идут в конце так как по ним нет сортировки
+            self.sorted_widgets.append((name, size, modified, type, colors, rating, src, wid))
 
             col += 1
             if col >= col_count:
@@ -449,15 +452,7 @@ class GridStandart(Grid):
             if isinstance(image_data.pixmap, QPixmap):
                 widget.img_label.setPixmap(image_data.pixmap)
 
-    # метод вызывается если была изменена сортировка или размер окна
-    # тогда нет необходимости заново делать обход в Finder и грузить изображения
-    # здесь только пересортируется сетка
     def resize_grid(self, width: int):
-
-        # копируем для итерации виджетов
-        # нам нужны только значения ключей, там записаны виджеты
-        coords = self.cell_to_wid.copy()
-
         # очищаем для нового наполнения
         self.cell_to_wid.clear()
         self.wid_to_cell.clear()
@@ -467,7 +462,7 @@ class GridStandart(Grid):
         col_count = Utils.get_clmn_count(width)
         row, col = 0, 0
 
-        for wid in self.sorted_widgets:
+        for name, size, mod, type, colors, rating, src, wid in self.sorted_widgets:
 
             wid: Thumbnail
             if not wid.isVisible():
@@ -494,8 +489,29 @@ class GridStandart(Grid):
 
         self.wid_to_cell = {v: k for k, v in self.cell_to_wid.items()}
 
+    def sort_grid(self, width: int):
+        # ПОРЯДОК КОРТЕЖА В сортируемом РАВЕН ORDER
+        # SRC по которой нет сортировки идет в конце
+        sort_type: dict = ORDER.get(JsonData.sort)
+        index = sort_type.get("index")
+        rev = JsonData.reversed
+
+        # индекс цвета в ORDER
+        if index != 4:
+            sort_key = lambda x: x[index]
+        else:
+            sort_key = lambda x: len(x[index])
+
+        self.sorted_widgets = sorted(self.sorted_widgets, key=sort_key, reverse=rev)
+
+        # предпоследний элемент это src, последний элемент это ThumbnailSearch
+        # 0-5 это индексы ORDER
+        self.path_to_wid = {item[6]: item[7] for item in self.sorted_widgets}
+
+        self.resize_grid(width)
+
     def filter_grid(self, width: int):
-        for wid in self.sorted_widgets:
+        for name, size, mod, type, colors, rating, src, wid in self.sorted_widgets:
             wid: Thumbnail
             show_widget = True
 

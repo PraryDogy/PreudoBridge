@@ -118,11 +118,11 @@ class SimpleFileExplorer(QWidget):
             )
 
     def sort_btn_cmd(self):
-        if isinstance(self.grid, GridSearch):
+        if isinstance(self.grid, (GridSearch, GridStandart)):
             self.grid.sort_grid(self.get_grid_width())
 
-        elif isinstance(self.grid, GridStandart):
-            self.grid_standart_load()
+        # elif isinstance(self.grid, GridStandart):
+            # self.grid_standart_load()
 
     def grid_filtered_load(self):
         if isinstance(self.grid, (GridSearch, GridStandart)):
