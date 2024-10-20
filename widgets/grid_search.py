@@ -9,7 +9,7 @@ from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtWidgets import QAction, QSizePolicy, QSpacerItem
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import Config, JsonData
+from cfg import Config, JsonData, ORDER
 from database import CACHE, STATS, Engine
 from fit_img import FitImg
 from utils import Utils
@@ -205,7 +205,7 @@ class GridSearch(Grid):
         # (путь до файла, имя файла, размер, дата изменения, тип файла)
         # этот словарик нужен для повторного формирования сетки при изменении
         # размера и для сортировки по имени/размеру/дате/типу
-        self.sorted_widgets: dict[tuple: ThumbnailSearch] = {}
+        self.sorted_widgets: list[tuple] = []
 
         self.col_count = Utils.get_clmn_count(width)
         self.row, self.col = 0, 0
@@ -221,10 +221,10 @@ class GridSearch(Grid):
     def add_new_widget(self, widget_data: WidgetData):
         # data идет из сигнала _new_widget_sig
         # "src", "stats" - os.stat, "pixmap", "colors": str, "rating": int
-        filename = os.path.basename(widget_data.src)
+        name = os.path.basename(widget_data.src)
         colors = widget_data.colors
         rating = widget_data.rating
-        wid = ThumbnailSearch(filename=filename, src=widget_data.src, path_to_wid=self.path_to_wid)
+        wid = ThumbnailSearch(filename=name, src=widget_data.src, path_to_wid=self.path_to_wid)
         wid.img_label.setPixmap(widget_data.pixmap)
         wid.set_colors(colors)
         wid.set_rating(rating)
@@ -238,13 +238,13 @@ class GridSearch(Grid):
         self.wid_to_cell[wid] = (self.row, self.col)
         self.path_to_wid[widget_data.src] = wid
 
-        # (путь до файла, имя файла, размер, дата изменения, тип файла)
-        # этот словарик нужен для повторного формирования сетки при изменении
-        # размера и для сортировки по имени/размеру/дате/типу
         size = widget_data.stats.st_size
         modified = widget_data.stats.st_mtime
         filetype = os.path.splitext(widget_data.src)[1]
-        self.sorted_widgets[(widget_data.src, filename, size, modified, filetype, colors, rating)] = wid
+
+        # ЭТОТ ПОРЯДОК СООТВЕТСТВУЕТ ORDER ДЛЯ СОРТИРОВКИ
+        # SRC и WID идут в конце так как по ним нет сортировки
+        self.sorted_widgets.append((name, size, modified, filetype, colors, rating, widget_data.src, wid))
 
         # прибавляем строчку и столбец в сетку
         self.col += 1
@@ -257,19 +257,16 @@ class GridSearch(Grid):
     def resize_grid(self, width: int):
         if not self.search_thread.isRunning():
 
-            # очищаем для нового наполнения
             self.wid_to_cell.clear()
             self.cell_to_wid.clear()
             self.curr_cell = (0, 0)
 
-            # получаем новое количество колонок на случай изменения размера окна
             col_count = Utils.get_clmn_count(width)
             row, col = 0, 0
 
-            # (путь до файла, имя файла, размер, дата изменения, тип файла)
-            # этот словарик нужен для повторного формирования сетки при изменении
-            # размера и для сортировки по имени/размеру/дате/типу
-            for wid in self.sorted_widgets.values():
+            # ПОРЯДОК КОРТЕЖА ИТЕРАТОРА СООТВЕТСВУЕТ ORDER 
+            # КРОМЕ SRC и WID - ПО НИМ НЕТ СОРТИРОВКИ, ОНИ ИДУТ В КОНЦЕ
+            for name, size, modified, filetype, colors, rating, src, wid in self.sorted_widgets:
                 wid: ThumbnailSearch
                 wid.disconnect()
                 wid.show_in_folder.connect(self.show_in_folder.emit)
@@ -291,37 +288,22 @@ class GridSearch(Grid):
             self.wid_to_cell = {v: k for k, v in self.cell_to_wid.items()}
     
     def sort_grid(self, width: int):
-        # (src, filename, size, modified, filetype, colors, rating): VALUE - self.sorted_widgets
-        # {'src': 0, 'filename': 1, 'name': 2, 'size': 3, 'modify': 4, 'type': 5, 'colors': 6, 'rating': 7} - sort_data
-        # если сортировка JsonData.sort будет "size"
-        # то индекс будет 3
-        # и произойдет сортировка db_items по индексу 3, он же size
-        sort_data = {
-            "src": 0,
-            "filename": 1,
-            **{
-                key: x
-                for x, key in enumerate(Config.ORDER, 2)
-            }
-            }
-
-        index = sort_data.get(JsonData.sort)
+        # ПОРЯДОК КОРТЕЖА В сортируемом РАВЕН ORDER
+        # SRC по которой нет сортировки идет в конце
+        sort_type: dict = ORDER.get(JsonData.sort)
+        index = sort_type.get("index")
         rev = JsonData.reversed
 
-        if index != 5:
-            sort_key = lambda item: item[0][index]
+        if sort_type != "colors":
+            sort_key = lambda x: x[index]
         else:
-            sort_key = lambda item: len(item[0][index])
-            
-        self.sorted_widgets = dict(
-            sorted(self.sorted_widgets.items(), key=sort_key, reverse=rev)
-            )
-        
-        # 
-        # 
-        # 
-        # тут нужна пересортировка path_to_wid
-        self.path_to_wid = {k[0]: v for k, v in self.sorted_widgets.items()}
+            sort_key = lambda x: len(x[index])
+
+        self.sorted_widgets = sorted(self.sorted_widgets, key=sort_key, reverse=rev)
+
+        # предпоследний элемент это src, последний элемент это ThumbnailSearch
+        self.path_to_wid = {item[-2]: item[-1] for item in self.sorted_widgets}
+
         self.resize_grid(width)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
