@@ -315,9 +315,9 @@ class Grid(QScrollArea):
         ############################################################
 
         self.curr_cell: tuple = (0, 0)
-        self.cell_to_wid: dict[tuple: Thumbnail] =  {}
-        self.wid_to_cell: dict[Thumbnail: tuple] = {}
-        self.path_to_wid: dict[str: Thumbnail] = {}
+        self.cell_to_wid: dict[tuple, Thumbnail] =  {}
+        self.wid_to_cell: dict[Thumbnail, tuple] = {}
+        self.path_to_wid: dict[str, Thumbnail] = {}
 
         # Здесь хранится информация для сортировки виджетов
         # Которая соответствует порядку в ORDER из config
