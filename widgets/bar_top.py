@@ -114,23 +114,18 @@ class SortTypeBtn(QPushButton):
         super().__init__()
         self.setFixedWidth(105)
         self.setStyleSheet("text-align: center;")
-                
+
         data_actions = (
             ActionData(None, False, "По возрастанию"),
-            ActionData("name", False, "Имя \U00002191"),
-            ActionData("size", False, "Размер \U00002191"),
-            ActionData("modify", False, "Дата \U00002191"),
-            ActionData("type", False, "Тип \U00002191"),
-            ActionData("colors", False, "Цвета \U00002191"),
-            ActionData("rating", False, "Рейтинг \U00002191"),
-
-            ActionData(None, True, "По возрастанию"),
-            ActionData("name", True, "Имя \U00002193"),
-            ActionData("size", True, "Размер \U00002193"),
-            ActionData("modify", True, "Дата \U00002193"),
-            ActionData("type", True, "Тип \U00002193"),
-            ActionData("colors", True, "Цвета \U00002193"),
-            ActionData("rating", True, "Рейтинг \U00002193"),
+            *(
+            ActionData(key, False, f"{order_name} \U00002191")
+            for key, order_name in Config.ORDER.items()
+            ),
+            ActionData(None, True, "По убыванию"),
+            *(
+            ActionData(key, True, f"{order_name} \U00002193")
+            for key, order_name in Config.ORDER.items()
+            )
             )
 
         menu = QMenu()

@@ -46,13 +46,12 @@ class Config:
         )
     
     ORDER: dict = {
-            1: "src",
-            2: "name",
-            3: "size",
-            4: "modify",
-            5: "type",
-            6: "colors",
-            7: "rating"
+            "name": "Имя",
+            "size": "Размер",
+            "modify": "Дата",
+            "type": "Тип",
+            "colors": "Цвета",
+            "rating": "Рейтинг",
             }
       
     COLORS: dict = {
