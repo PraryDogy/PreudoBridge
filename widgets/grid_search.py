@@ -262,7 +262,7 @@ class GridSearch(Grid):
 
             for wid in self.sorted_widgets:
 
-                if not wid.isVisible():
+                if wid.isHidden():
                     continue
 
                 wid: ThumbnailSearch

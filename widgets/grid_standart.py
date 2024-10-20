@@ -362,14 +362,15 @@ class GridStandart(Grid):
                 self.set_base_img(wid.img_label, "images/file_210.png")
 
                 wid.move_to_wid.connect(lambda src: self.move_to_wid(src))
-                wid.sort_click.connect(lambda: self.sort_grid(self.ww))
                 wid.set_colors(colors)
                 wid.set_rating(rating)
 
                 src_size_mod.append((src, size, modify))
 
-            self.grid_layout.addWidget(wid, row, col)
             wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
+            wid.sort_click.connect(lambda: self.sort_grid(self.ww))
+
+            self.grid_layout.addWidget(wid, row, col)
 
             # добавляем местоположение виджета в сетке для навигации клавишами
             self.cell_to_wid[row, col] = wid
@@ -452,7 +453,7 @@ class GridStandart(Grid):
 
         for wid in self.sorted_widgets:
 
-            if not wid.isVisible():
+            if wid.isHidden():
                 continue
 
             if isinstance(wid, ThumbnailFolder):
@@ -460,14 +461,14 @@ class GridStandart(Grid):
                 wid.clicked_folder.connect(self.clicked_folder.emit)
                 wid.add_fav.connect(self.add_fav.emit)
                 wid.del_fav.connect(self.del_fav.emit)
-                wid.sort_click.connect(lambda: self.sort_grid(width))
         
             elif isinstance(wid, Thumbnail):
                 wid.disconnect()
                 wid.move_to_wid.connect(lambda src: self.move_to_wid(src))
-                wid.sort_click.connect(lambda: self.sort_grid(width))
 
+            wid.sort_click.connect(lambda: self.sort_grid(width))
             wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
+
             self.grid_layout.addWidget(wid, row, col)
             self.cell_to_wid[row, col] = wid
 
@@ -483,9 +484,6 @@ class GridStandart(Grid):
     def sort_grid(self, width: int):
         if not self.sorted_widgets:
             return
-        
-        if len(self.sorted_widgets) < 5:
-            print(list(i.name for i in self.sorted_widgets))
 
         key = lambda x: getattr(x, JsonData.sort)
         rev = JsonData.reversed
@@ -496,9 +494,6 @@ class GridStandart(Grid):
             for wid in self.sorted_widgets
             if isinstance(wid, Thumbnail)
             }
-
-        if len(self.sorted_widgets) < 5:
-            print(list(i.name for i in self.sorted_widgets))
 
         self.reset_selection()
         self.resize_grid(width)
