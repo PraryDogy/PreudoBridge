@@ -471,6 +471,8 @@ class GridStandart(Grid):
             self.grid_layout.addWidget(wid, row, col)
             self.cell_to_wid[row, col] = wid
 
+            wid.path_to_wid = self.path_to_wid
+
             col += 1
             if col >= col_count:
                 col = 0
@@ -481,6 +483,9 @@ class GridStandart(Grid):
     def sort_grid(self, width: int):
         if not self.sorted_widgets:
             return
+        
+        if len(self.sorted_widgets) < 5:
+            print(list(i.name for i in self.sorted_widgets))
 
         key = lambda x: getattr(x, JsonData.sort)
         rev = JsonData.reversed
@@ -491,6 +496,9 @@ class GridStandart(Grid):
             for wid in self.sorted_widgets
             if isinstance(wid, Thumbnail)
             }
+
+        if len(self.sorted_widgets) < 5:
+            print(list(i.name for i in self.sorted_widgets))
 
         self.reset_selection()
         self.resize_grid(width)
