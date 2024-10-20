@@ -254,8 +254,8 @@ class LoadFinder(QThread):
 
 
 class ThumbnailFolder(Thumbnail):
-    add_fav = pyqtSignal(str)
-    del_fav = pyqtSignal(str)
+    add_fav_sig = pyqtSignal(str)
+    del_fav_sig = pyqtSignal(str)
 
     def __init__(self, name: str, src: str):
         super().__init__(name, 0, 0, "", src, {})
@@ -350,8 +350,8 @@ class GridStandart(Grid):
                 self.set_base_img(wid.img_label, "images/folder_210.png")
 
                 wid.clicked_folder.connect(self.clicked_folder.emit)
-                wid.add_fav.connect(self.add_fav.emit)
-                wid.del_fav.connect(self.del_fav.emit)
+                wid.add_fav_sig.connect(self.add_fav.emit)
+                wid.del_fav_sig.connect(self.del_fav.emit)
                 wid.sort_click.connect(lambda: self.sort_grid(self.ww))
 
                 # у папок нет цветных тегов, но этот метод задает имя
@@ -459,8 +459,8 @@ class GridStandart(Grid):
             if isinstance(wid, ThumbnailFolder):
                 wid.disconnect()
                 wid.clicked_folder.connect(self.clicked_folder.emit)
-                wid.add_fav.connect(self.add_fav.emit)
-                wid.del_fav.connect(self.del_fav.emit)
+                wid.add_fav_sig.connect(self.add_fav.emit)
+                wid.del_fav_sig.connect(self.del_fav.emit)
         
             elif isinstance(wid, Thumbnail):
                 wid.disconnect()
