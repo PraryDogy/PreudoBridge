@@ -359,12 +359,12 @@ class WinImgView(QWidget):
         self.zoom_btns.show()
         self.mouse_move_timer.start(2000)
 
-    def color_click(self, colors: str):
-        self.thumbnail.color_click(colors)
+    def color_click(self, menu: QMenu, colors: str):
+        self.thumbnail.color_click(menu, colors)
         self.set_title()
 
-    def rating_click(self, wid: QAction, rate: int):
-        self.thumbnail.rating_click(wid, rate)
+    def rating_click(self, menu: QMenu, wid: QAction, rate: int):
+        self.thumbnail.rating_click(menu, wid, rate)
         self.set_title()
 
 # EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS 
@@ -435,31 +435,31 @@ class WinImgView(QWidget):
 
         context_menu.addSeparator()
 
-        self.color_menu = QMenu("Цвета", self)
-        context_menu.addMenu(self.color_menu)
+        color_menu = QMenu("Цвета", self)
+        context_menu.addMenu(color_menu)
 
         for color, text in Config.COLORS.items():
-            wid = QAction(parent=self.color_menu, text=f"{color} {text}")
+            wid = QAction(parent=color_menu, text=f"{color} {text}")
             wid.setCheckable(True)
 
             if color in self.thumbnail.colors:
                 wid.setChecked(True)
 
-            wid.triggered.connect(lambda e, c=color: self.color_click(c))
-            self.color_menu.addAction(wid)
+            wid.triggered.connect(lambda e, c=color: self.color_click(color_menu, c))
+            color_menu.addAction(wid)
 
-        self.rating_menu = QMenu("Рейтинг", self)
-        context_menu.addMenu(self.rating_menu)
+        rating_menu = QMenu("Рейтинг", self)
+        context_menu.addMenu(rating_menu)
 
         for rate in range(1, 6):
-            wid = QAction(parent=self.rating_menu, text="\U00002605" * rate)
+            wid = QAction(parent=rating_menu, text="\U00002605" * rate)
             wid.setCheckable(True)
 
             if self.thumbnail.rating == rate:
                 wid.setChecked(True)
 
-            wid.triggered.connect(lambda e, w=wid, r=rate: self.rating_click(w, r))
-            self.rating_menu.addAction(wid)
+            wid.triggered.connect(lambda e, w=wid, r=rate: self.rating_click(rating_menu, w, r))
+            rating_menu.addAction(wid)
 
         context_menu.exec_(self.mapToGlobal(a0.pos()))
     

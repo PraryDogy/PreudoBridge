@@ -225,8 +225,8 @@ class GridSearch(Grid):
         wid.filetype = os.path.splitext(widget_data.src)[1]
 
         wid.show_in_folder.connect(self.show_in_folder.emit)
-        wid.move_to_wid.connect(super().move_to_wid)
-        wid.clicked.connect(lambda r=self.row, c=self.col: super().select_new_widget((r, c)))
+        wid.move_to_wid.connect(self.move_to_wid)
+        wid.clicked.connect(lambda r=self.row, c=self.col: self.select_new_widget((r, c)))
         wid.sort_click.connect(lambda: self.sort_grid(self.ww))
 
         self.grid_layout.addWidget(wid, self.row, self.col)
@@ -256,8 +256,8 @@ class GridSearch(Grid):
                 wid: ThumbnailSearch
                 wid.disconnect()
                 wid.show_in_folder.connect(self.show_in_folder.emit)
-                wid.move_to_wid.connect(super().move_to_wid)
-                wid.clicked.connect(lambda r=row, c=col: super().select_new_widget((r, c)))
+                wid.move_to_wid.connect(self.move_to_wid)
+                wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
                 wid.sort_click.connect(lambda: self.sort_grid(width))
 
                 # обновляем информацию в Thumbnail о порядке путей и виджетов
