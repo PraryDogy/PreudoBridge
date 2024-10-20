@@ -6,7 +6,7 @@ from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import QAction, QLabel, QSizePolicy, QSpacerItem
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import Config, JsonData
+from cfg import Config, JsonData, ORDER
 from database import CACHE, STATS, Engine
 from fit_img import FitImg
 from utils import Utils
@@ -223,15 +223,15 @@ class LoadFinder(QThread):
             self.db_data = {src: [colors, rating] for src, colors, rating in res}
 
     def get_items(self) -> list:
-        for filename in os.listdir(JsonData.root):
+        for name in os.listdir(JsonData.root):
 
-            src: str = os.path.join(JsonData.root, filename)
+            src: str = os.path.join(JsonData.root, name)
 
             try:
                 stats = os.stat(src)
                 size = stats.st_size
                 modified = stats.st_mtime
-                filetype = os.path.splitext(filename)[1]
+                filetype = os.path.splitext(name)[1]
 
                 if self.db_data.get(src):
                     colors = self.db_data.get(src)[0]
@@ -243,31 +243,22 @@ class LoadFinder(QThread):
             except (PermissionError, FileNotFoundError):
                 continue
 
+            # ПОРЯДОК КОРТЕЖА РАВЕН ORDER
+            # SRC по которой нет сортировки идет в конце
+
             if src.lower().endswith(Config.IMG_EXT):
-                self.finder_items.append((src, filename, size, modified, filetype, colors, rating))
+                self.finder_items.append((name, size, modified, filetype, colors, rating, src))
                 continue
 
             if os.path.isdir(src):
-                self.finder_items.append((src, filename, size, modified, filetype, colors, rating))
+                self.finder_items.append((name, size, modified, filetype, colors, rating, src))
             
     def sort_items(self):
-        # (src, filename, size, modified, filetype, colors, rating): VALUE - self.sorted_widgets
-        # {'src': 0, 'filename': 1, 'name': 2, 'size': 3, 'modify': 4, 'type': 5, 'colors': 6, 'rating': 7} - sort_data
-        # если сортировка JsonData.sort будет "size"
-        # то индекс будет 3
-        # и произойдет сортировка db_items по индексу 3, он же size
-        sort_data = {
-            "src": 0,
-            "filename": 1,
-            **{
-                key: x
-                for x, key in enumerate(Config.ORDER, 2)
-            }
-            }
-        index = sort_data.get(JsonData.sort)
+        sort_type: dict = ORDER.get(JsonData.sort)
+        index = sort_type.get("index")
         rev = JsonData.reversed
 
-        if index != 5:
+        if sort_type != "colors":
             sort_key = lambda x: x[index]
         else:
             sort_key = lambda x: len(x[index])
@@ -363,10 +354,11 @@ class GridStandart(Grid):
         col_count = Utils.get_clmn_count(self.ww)
         row, col = 0, 0
 
-        for src, filename, size, modified, type, colors, rating in finder_items:
+        # ПОРЯДОК СООТВЕТСТВУЕТ ORDER + SRC по которому нет сортировки
+        for name, size, modified, type, colors, rating, src in finder_items:
 
             if os.path.isdir(src):
-                wid = ThumbnailFolder(filename, src)
+                wid = ThumbnailFolder(name, src)
                 self.set_base_img(wid.img_label, "images/folder_210.png")
 
                 # подключаем сигналы виджеты к сигналу сетки
@@ -378,7 +370,7 @@ class GridStandart(Grid):
                 wid.set_colors("")
 
             else:
-                wid = Thumbnail(filename, src, self.path_to_wid)
+                wid = Thumbnail(name, src, self.path_to_wid)
                 wid.move_to_wid.connect(lambda src: self.move_to_wid(src))
                 self.set_base_img(wid.img_label, "images/file_210.png")
                 # ADD COLORS TO THUMBNAIL

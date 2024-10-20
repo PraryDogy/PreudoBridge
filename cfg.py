@@ -2,13 +2,24 @@ import json
 import os
 from datetime import date
 
-ORDER: dict = {
-        "name": "Имя",
-        "size": "Размер",
-        "modify": "Дата",
-        "type": "Тип",
-        "colors": "Цвета",
-        "rating": "Рейтинг",
+
+# при сортировке сетки изображений каждый итератор - элемент сетки
+# будет иметь кортеж соответствующий ORDER из 5 пунктов
+# описанных в ORDER
+# а так же свои дополнительные, по которым сортировка не будет производиться
+# описаны как абстрактый словарь от 6 до 14
+
+ORDER: dict[str: dict] = {
+        "name": {"text": "Имя", "index": 0},
+        "size": {"text": "Размер", "index": 1},
+        "modify": {"text": "Дата", "index": 2},
+        "type": {"text": "Тип", "index": 3},
+        "colors": {"text": "Цвета", "index": 4},
+        "rating": {"text": "Рейтинг", "index": 5},
+        **{
+            str(i): {"text": None, "index": i}
+            for i in range(6, 14)
+        }
         }
 
 
@@ -53,8 +64,6 @@ class Config:
         ".png",
         ".nef", ".cr2", ".cr3", ".arw", ".raf"
         )
-    
-    ORDER: dict = ORDER
       
     COLORS: dict = {
         "\U0001F534": "Красный",

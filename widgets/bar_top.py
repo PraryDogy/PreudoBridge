@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
                              QLineEdit, QMenu, QPushButton, QSlider,
                              QSpacerItem, QTabBar, QVBoxLayout, QWidget)
 
-from cfg import Config, JsonData
+from cfg import Config, JsonData, ORDER
 from database import STATS, Dbase, Engine
 from utils import Utils
 
@@ -118,13 +118,15 @@ class SortTypeBtn(QPushButton):
         data_actions = (
             ActionData(None, False, "По возрастанию"),
             *(
-            ActionData(sort=key, reversed=False, text=f"{order_name} \U00002191")
-            for key, order_name in Config.ORDER.items()
+            ActionData(sort=order_key, reversed=False, text=f"{order_dict.get('text')} \U00002191")
+            for order_key, order_dict in ORDER.items()
+            if isinstance(order_dict.get("text"), str)
             ),
             ActionData(None, True, "По убыванию"),
             *(
-            ActionData(sort=key, reversed=True, text=f"{order_name} \U00002193")
-            for key, order_name in Config.ORDER.items()
+            ActionData(sort=order_key, reversed=True, text=f"{order_dict.get('text')} \U00002193")
+            for order_key, order_dict in ORDER.items()
+            if isinstance(order_dict.get("text"), str)
             )
             )
 
