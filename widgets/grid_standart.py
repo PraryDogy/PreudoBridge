@@ -403,12 +403,6 @@ class GridStandart(Grid):
         self.wid_to_cell = {v: k for k, v in self.cell_to_wid.items()}
 
         if self.cell_to_wid:
-            row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
-            self.grid_layout.addItem(row_spacer, row + 2, 0)
-
-            col_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
-            self.grid_layout.addItem(col_spacer, 0, col_count + 2)
-
             self.start_load_images(src_size_mod)
 
         elif not os.path.exists(JsonData.root):

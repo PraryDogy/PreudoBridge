@@ -3,11 +3,10 @@ import os
 import sqlalchemy
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
-from PyQt5.QtWidgets import QLabel, QSizePolicy, QSpacerItem
+from PyQt5.QtWidgets import QLabel
 
 from cfg import Config, JsonData
-from database import CACHE, STATS, Engine
-from fit_img import FitImg
+from database import CACHE, Engine
 from utils import Utils
 
 from .grid_base import Grid, Thumbnail
@@ -112,14 +111,7 @@ class GridFiltered(Grid):
 
         self.wid_to_cell = {v: k for k, v in self.cell_to_wid.items()}
 
-        if self.cell_to_wid:
-            row_spacer = QSpacerItem(1, 1, QSizePolicy.Minimum, QSizePolicy.Expanding)
-            self.grid_layout.addItem(row_spacer, row + 2, 0)
-
-            col_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
-            self.grid_layout.addItem(col_spacer, 0, col_count + 2)
-
-        else:
+        if not self.cell_to_wid:
             t = f"{JsonData.root}\nНет изображений"
             if Config.color_filters:
                 t = f"{t} с фильтрами: {''.join(Config.color_filters)}"

@@ -4,7 +4,7 @@ from time import sleep
 
 import sqlalchemy
 from numpy import ndarray
-from PyQt5.QtCore import Qt, QThread, pyqtSignal
+from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtWidgets import QAction, QSizePolicy, QSpacerItem
 from sqlalchemy.exc import IntegrityError, OperationalError
@@ -201,7 +201,6 @@ class GridSearch(Grid):
 
     def __init__(self, width: int, search_text: str):
         super().__init__(width)
-        self.setAlignment(Qt.AlignmentFlag.AlignTop)
 
         # (путь до файла, имя файла, размер, дата изменения, тип файла)
         # этот словарик нужен для повторного формирования сетки при изменении
@@ -233,7 +232,7 @@ class GridSearch(Grid):
         wid.show_in_folder.connect(self.show_in_folder.emit)
         wid.move_to_wid.connect(self.move_to_wid)
         wid.clicked.connect(lambda r=self.row, c=self.col: self.select_new_widget((r, c)))
-        self.grid_layout.addWidget(wid, self.row, self.col, alignment=Qt.AlignmentFlag.AlignTop)
+        self.grid_layout.addWidget(wid, self.row, self.col)
 
         self.cell_to_wid[self.row, self.col] = wid
         self.wid_to_cell[wid] = (self.row, self.col)
@@ -281,7 +280,7 @@ class GridSearch(Grid):
                 # для правильной передачи в ImgView после пересортировки сетки
                 wid.path_to_wid = self.path_to_wid
 
-                self.grid_layout.addWidget(wid, row, col, alignment=Qt.AlignmentFlag.AlignTop)
+                self.grid_layout.addWidget(wid, row, col)
                 self.cell_to_wid[row, col] = wid
 
                 col += 1
