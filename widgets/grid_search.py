@@ -27,7 +27,9 @@ class ThumbnailSearch(Thumbnail):
 
         show_in_folder = QAction("Показать в папке", self)
         show_in_folder.triggered.connect(lambda: self.show_in_folder.emit(self.src))
-        self.context_menu.addAction(show_in_folder) 
+        self.context_menu.addAction(show_in_folder)
+
+        self.filtered = False
 
 
 class WidgetData:
@@ -267,6 +269,10 @@ class GridSearch(Grid):
             # ПОРЯДОК КОРТЕЖА ИТЕРАТОРА СООТВЕТСВУЕТ ORDER 
             # КРОМЕ SRC и WID - ПО НИМ НЕТ СОРТИРОВКИ, ОНИ ИДУТ В КОНЦЕ
             for name, size, modified, filetype, colors, rating, src, wid in self.sorted_widgets:
+
+                if not wid.isVisible():
+                    continue
+
                 wid: ThumbnailSearch
                 wid.disconnect()
                 wid.show_in_folder.connect(self.show_in_folder.emit)
@@ -276,7 +282,6 @@ class GridSearch(Grid):
                 # обновляем информацию в Thumbnail о порядке путей и виджетов
                 # для правильной передачи в ImgView после пересортировки сетки
                 wid.path_to_wid = self.path_to_wid
-
                 self.grid_layout.addWidget(wid, row, col)
                 self.cell_to_wid[row, col] = wid
 
@@ -304,6 +309,27 @@ class GridSearch(Grid):
         # предпоследний элемент это src, последний элемент это ThumbnailSearch
         # 0-5 это индексы ORDER
         self.path_to_wid = {item[6]: item[7] for item in self.sorted_widgets}
+
+        self.resize_grid(width)
+
+    def filter_grid(self, width: int):
+        for name, size, mod, type, colors, rating, src, wid in self.sorted_widgets:
+            wid: ThumbnailSearch
+            show_widget = True
+
+            if Config.rating_filter > 0:
+                if not (Config.rating_filter >= rating > 0):
+                    show_widget = False
+
+            if Config.color_filters:
+                if not any(color for color in colors if color in Config.color_filters):
+                    show_widget = False
+
+            if show_widget:
+                wid.show()
+            else:
+                wid.hide()
+
 
         self.resize_grid(width)
 

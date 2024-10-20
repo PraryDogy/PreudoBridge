@@ -129,15 +129,18 @@ class SimpleFileExplorer(QWidget):
             self.grid_filtered_load()
 
     def grid_filtered_load(self):
-        if isinstance(self.grid, (GridSearch, GridStandart, GridFiltered)):
-            self.grid.disconnect()
-            self.grid.close()
+        if isinstance(self.grid, GridSearch):
+            # print("show search grid with filters")
+            self.grid.filter_grid(self.get_grid_width())
 
-        self.grid = GridFiltered(self.get_grid_width())
-        self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
-        self.r_lay.addWidget(self.grid, 1, 0)
-        # чтобы фокус сместился с окна ввода в поиске на сетку
-        self.grid.setFocus()
+        elif isinstance(self.grid, (GridStandart, GridFiltered)):
+            self.grid.disconnect()
+            self.grid.close()        
+
+            self.grid = GridFiltered(self.get_grid_width())
+            self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
+            self.r_lay.addWidget(self.grid, 1, 0)
+            self.grid.setFocus()
 
     def next_btn_cmd(self, root: str):
         JsonData.root = root
@@ -216,7 +219,7 @@ class SimpleFileExplorer(QWidget):
         self.grid.sort_grid(self.get_grid_width())
         self.bar_top_setDisabled(False)
         self.bar_top.view_type_btn.setDisabled(True)
-        self.bar_top.filters_btn.setDisabled(True)
+        # self.bar_top.filters_btn.setDisabled(True)
 
     def move_to_wid_delayed(self, src: str):
         root = os.path.dirname(src)
