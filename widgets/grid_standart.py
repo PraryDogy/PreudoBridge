@@ -259,6 +259,7 @@ class ThumbnailFolder(Thumbnail):
 
     def __init__(self, name: str, src: str):
         super().__init__(name, 0, 0, "", src, {})
+        self.context_menu.clear()
 
     def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
         self.clicked.emit()
@@ -267,38 +268,36 @@ class ThumbnailFolder(Thumbnail):
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         self.clicked.emit()
 
-        context_menu = QMenu(parent=self)
-
         view_action = QAction("Просмотр", self)
         view_action.triggered.connect(lambda: self.clicked_folder.emit(self.src))
-        context_menu.addAction(view_action)
+        self.context_menu.addAction(view_action)
 
-        context_menu.addSeparator()
+        self.context_menu.addSeparator()
 
         show_in_finder_action = QAction("Показать в Finder", self)
         show_in_finder_action.triggered.connect(self.show_in_finder)
-        context_menu.addAction(show_in_finder_action)
+        self.context_menu.addAction(show_in_finder_action)
 
         copy_path = QAction("Скопировать путь до папки", self)
         copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
-        context_menu.addAction(copy_path)
+        self.context_menu.addAction(copy_path)
 
         rename = QAction("Переименовать", self)
         rename.triggered.connect(self.rename_win)
-        context_menu.addAction(rename)
+        self.context_menu.addAction(rename)
 
-        context_menu.addSeparator()
+        self.context_menu.addSeparator()
 
         if self.src in JsonData.favs:
             self.fav_action = QAction("Удалить из избранного", self)
             self.fav_action.triggered.connect(lambda: self.fav_cmd(-1))
-            context_menu.addAction(self.fav_action)
+            self.context_menu.addAction(self.fav_action)
         else:
             self.fav_action = QAction("Добавить в избранное", self)
             self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))
-            context_menu.addAction(self.fav_action)
+            self.context_menu.addAction(self.fav_action)
 
-        context_menu.exec_(self.mapToGlobal(a0.pos()))
+        self.context_menu.exec_(self.mapToGlobal(a0.pos()))
 
     def fav_cmd(self, offset: int):
         self.fav_action.triggered.disconnect()

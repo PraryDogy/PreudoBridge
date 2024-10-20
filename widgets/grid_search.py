@@ -5,7 +5,7 @@ from time import sleep
 import sqlalchemy
 from numpy import ndarray
 from PyQt5.QtCore import QThread, pyqtSignal
-from PyQt5.QtGui import QCloseEvent, QPixmap
+from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QPixmap
 from PyQt5.QtWidgets import QAction, QSizePolicy, QSpacerItem
 from sqlalchemy.exc import IntegrityError, OperationalError
 
@@ -28,8 +28,6 @@ class ThumbnailSearch(Thumbnail):
         show_in_folder = QAction("Показать в папке", self)
         show_in_folder.triggered.connect(lambda: self.show_in_folder.emit(self.src))
         self.context_menu.addAction(show_in_folder)
-
-        self.filtered = False
 
 
 class WidgetData:

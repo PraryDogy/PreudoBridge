@@ -90,6 +90,8 @@ class Thumbnail(QFrame):
         self.name_label.setFixedHeight(Geo.text_h)
         v_lay.addWidget(self.name_label)
 
+        self.context_menu = QMenu(parent=self)
+
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
         self.clicked.emit()
 
@@ -128,38 +130,36 @@ class Thumbnail(QFrame):
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         self.clicked.emit()
 
-        context_menu = QMenu(self)
-
         view_action = QAction("Просмотр", self)
         view_action.triggered.connect(self.view)
-        context_menu.addAction(view_action)
+        self.context_menu.addAction(view_action)
 
         open_menu = QMenu("Открыть в приложении", self)
-        context_menu.addMenu(open_menu)
+        self.context_menu.addMenu(open_menu)
 
         for name, app_path in Config.image_apps.items():
             wid = QAction(name, parent=open_menu)
             wid.triggered.connect(lambda e, a=app_path: self.open_in_app(a))
             open_menu.addAction(wid)
 
-        context_menu.addSeparator()
+        self.context_menu.addSeparator()
 
         show_in_finder_action = QAction("Показать в Finder", self)
         show_in_finder_action.triggered.connect(self.show_in_finder)
-        context_menu.addAction(show_in_finder_action)
+        self.context_menu.addAction(show_in_finder_action)
 
         copy_path = QAction("Скопировать путь до файла", self)
         copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
-        context_menu.addAction(copy_path)
+        self.context_menu.addAction(copy_path)
 
         rename = QAction("Переименовать", self)
         rename.triggered.connect(self.rename_win)
-        context_menu.addAction(rename)
+        self.context_menu.addAction(rename)
 
-        context_menu.addSeparator()
+        self.context_menu.addSeparator()
 
         color_menu = QMenu("Цвета", self)
-        context_menu.addMenu(color_menu)
+        self.context_menu.addMenu(color_menu)
 
         for color, text in Config.COLORS.items():
             wid = QAction(parent=color_menu, text=f"{color} {text}")
@@ -172,7 +172,7 @@ class Thumbnail(QFrame):
             color_menu.addAction(wid)
 
         rating_menu = QMenu("Рейтинг", self)
-        context_menu.addMenu(rating_menu)
+        self.context_menu.addMenu(rating_menu)
 
         for rate in range(1, 6):
             wid = QAction(parent=rating_menu, text="\U00002605" * rate)
@@ -184,7 +184,7 @@ class Thumbnail(QFrame):
             wid.triggered.connect(lambda e, r=rate, w=wid: self.rating_click(rating_menu, w, r))
             rating_menu.addAction(wid)
 
-        context_menu.exec_(self.mapToGlobal(a0.pos()))
+        self.context_menu.exec_(self.mapToGlobal(a0.pos()))
 
     def view(self):
         if os.path.isfile(self.src):
