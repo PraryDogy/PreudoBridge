@@ -19,6 +19,8 @@ class LoadDbItems(QThread):
         super().__init__()
 
     def run(self):
+        # загружаем данные соответствуя порядку в Config.ORDER за исключением
+        # img, src (по ним не производится сортировка сетки)
         q = sqlalchemy.select(CACHE.c.img, CACHE.c.src, CACHE.c.size, CACHE.c.modified, CACHE.c.colors, CACHE.c.rating)
         q = q.where(CACHE.c.root == JsonData.root)
         
@@ -31,7 +33,6 @@ class LoadDbItems(QThread):
             q = q.where(sqlalchemy.or_(*queries))
 
         if Config.rating_filter:
-            # Используем and_ для корректного объединения условий
             q = q.where(sqlalchemy.and_(CACHE.c.rating > 0, Config.rating_filter >= CACHE.c.rating))
 
         with Engine.engine.connect() as conn:
@@ -42,6 +43,9 @@ class LoadDbItems(QThread):
             img = Utils.pixmap_from_bytes(img)
             filename: str = os.path.basename(src)
             type = filename.split(".")[-1]
+
+            # кортеж соответствует порядку в Config.ORDER за исключением 
+            # img, src, filename (по ним не производится сортировка сетки)
             item = (img, src, filename, size, modified, type, colors, rating)
             items.append(item)
 
@@ -49,22 +53,22 @@ class LoadDbItems(QThread):
         self._finished.emit(items)
 
     def sort_items(self, db_items: list):
-        # finder_items: src filename size modified filetype colors rating
-        # мы создаем словарик, где ключ соответствует Config.json_data "sort"
-        # а значение индексу в ключе self.finder_items
-        # например
-        # таким образом если "sort" у нас size, то мы знаем, что нужно сортировать
-        # по индексу 2
+        # (img, src, filename, size, modified, filetype, colors, rating) - db_items
+        # {'img': 0, 'src': 1, 'filename': 2, 'name': 3, 'size': 4, 'modify': 5, 'type': 6, 'colors': 7, 'rating': 8} - sort_data
+        # если сортировка JsonData.sort будет "size"
+        # то индекс будет 4
+        # и произойдет сортировка db_items по индексу 4, он же size
+
         sort_data = {
             "img": 0,
             "src": 1,
-            "name": 2,
-            "size": 3,
-            "modify": 4,
-            "type": 5,
-            "colors": 6,
-            "rating": 7
+            "filename": 2,
+            **{
+                key: x
+                for x, key in enumerate(Config.ORDER, 3)
             }
+            }
+        
         index = sort_data.get(JsonData.sort)
         rev = JsonData.reversed
 

@@ -2,6 +2,15 @@ import json
 import os
 from datetime import date
 
+ORDER: dict = {
+        "name": "Имя",
+        "size": "Размер",
+        "modify": "Дата",
+        "type": "Тип",
+        "colors": "Цвета",
+        "rating": "Рейтинг",
+        }
+
 
 class JsonData:
     root = "/Volumes"
@@ -9,7 +18,7 @@ class JsonData:
     hh = 700
     ww_im = 700
     hh_im = 500
-    sort = "name"
+    sort = list(ORDER.keys())[0]
     reversed = False
     extra_paths = ["/Studio/PANACEA", "/Studio/MIUZ"]
     favs = {}
@@ -45,14 +54,7 @@ class Config:
         ".nef", ".cr2", ".cr3", ".arw", ".raf"
         )
     
-    ORDER: dict = {
-            "name": "Имя",
-            "size": "Размер",
-            "modify": "Дата",
-            "type": "Тип",
-            "colors": "Цвета",
-            "rating": "Рейтинг",
-            }
+    ORDER: dict = ORDER
       
     COLORS: dict = {
         "\U0001F534": "Красный",

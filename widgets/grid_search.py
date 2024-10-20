@@ -291,17 +291,19 @@ class GridSearch(Grid):
             self.wid_to_cell = {v: k for k, v in self.cell_to_wid.items()}
     
     def sort_grid(self, width: int):
+        # (src, filename, size, modified, filetype, colors, rating): VALUE - self.sorted_widgets
+        # {'src': 0, 'filename': 1, 'name': 2, 'size': 3, 'modify': 4, 'type': 5, 'colors': 6, 'rating': 7} - sort_data
+        # если сортировка JsonData.sort будет "size"
+        # то индекс будет 3
+        # и произойдет сортировка db_items по индексу 3, он же size
         sort_data = {
             "src": 0,
-            "name": 1,
-            "size": 2, 
-            "modify": 3,
-            "type": 4,
-            "colors": 5,
-            "rating": 6
+            "filename": 1,
+            **{
+                key: x
+                for x, key in enumerate(Config.ORDER, 2)
             }
-        # ключи соответствуют json_data["sort"]
-        # self.sorted_widgets = { (src, filename, size, modify, type, colors, rating): SearchThumbnail }
+            }
 
         index = sort_data.get(JsonData.sort)
         rev = JsonData.reversed

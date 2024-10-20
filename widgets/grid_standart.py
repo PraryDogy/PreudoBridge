@@ -251,20 +251,18 @@ class LoadFinder(QThread):
                 self.finder_items.append((src, filename, size, modified, filetype, colors, rating))
             
     def sort_items(self):
-        # finder_items: src filename size modified filetype colors rating
-        # мы создаем словарик, где ключ соответствует Config.json_data "sort"
-        # а значение индексу в ключе self.finder_items
-        # например
-        # таким образом если "sort" у нас size, то мы знаем, что нужно сортировать
-        # по индексу 2
+        # (src, filename, size, modified, filetype, colors, rating): VALUE - self.sorted_widgets
+        # {'src': 0, 'filename': 1, 'name': 2, 'size': 3, 'modify': 4, 'type': 5, 'colors': 6, 'rating': 7} - sort_data
+        # если сортировка JsonData.sort будет "size"
+        # то индекс будет 3
+        # и произойдет сортировка db_items по индексу 3, он же size
         sort_data = {
             "src": 0,
-            "name": 1,
-            "size": 2,
-            "modify": 3,
-            "type": 4,
-            "colors": 5,
-            "rating": 6
+            "filename": 1,
+            **{
+                key: x
+                for x, key in enumerate(Config.ORDER, 2)
+            }
             }
         index = sort_data.get(JsonData.sort)
         rev = JsonData.reversed

@@ -1,9 +1,18 @@
-class Test:
+ORDER: dict = {
+        "name": "Имя",
+        "size": "Размер",
+        "modify": "Дата",
+        "type": "Тип",
+        "colors": "Цвета",
+        "rating": "Рейтинг",
+        }
 
-    @classmethod
-    def testt(cls, inp: int):
-        print(inp)
+class JsonData:
+    root = "/Volumes"
+    ww = 1050
+    hh = 700
+    ww_im = 700
+    hh_im = 500
+    sort = list(ORDER.keys())[0]
 
-
-
-Test.testt(123)
+print(JsonData.sort)
