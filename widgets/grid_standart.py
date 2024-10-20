@@ -254,6 +254,8 @@ class LoadFinder(QThread):
                 self.finder_items.append((name, size, modified, filetype, colors, rating, src))
             
     def sort_items(self):
+        # ПОРЯДОК КОРТЕЖА В сортируемом списке РАВЕН ORDER
+        # SRC по которой нет сортировки идет в конце
         sort_type: dict = ORDER.get(JsonData.sort)
         index = sort_type.get("index")
         rev = JsonData.reversed

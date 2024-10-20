@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtWidgets import QLabel
 
-from cfg import Config, JsonData
+from cfg import Config, JsonData, ORDER
 from database import CACHE, Engine
 from utils import Utils
 
@@ -41,38 +41,27 @@ class LoadDbItems(QThread):
         items = []
         for img, src, size, modified, colors, rating in res:
             img = Utils.pixmap_from_bytes(img)
-            filename: str = os.path.basename(src)
-            type = filename.split(".")[-1]
+            name: str = os.path.basename(src)
+            type = name.split(".")[-1]
 
-            # кортеж соответствует порядку в Config.ORDER за исключением 
-            # img, src, filename (по ним не производится сортировка сетки)
-            item = (img, src, filename, size, modified, type, colors, rating)
+            # ПОРЯДОК КОРТЕЖА РАВЕН ORDER
+            # IMG и SRC по которым нет сортировки идут в конце
+
+            item = (name, size, modified, type, colors, rating, img, src)
             items.append(item)
 
         items = self.sort_items(items)
         self._finished.emit(items)
 
     def sort_items(self, db_items: list):
-        # (img, src, filename, size, modified, filetype, colors, rating) - db_items
-        # {'img': 0, 'src': 1, 'filename': 2, 'name': 3, 'size': 4, 'modify': 5, 'type': 6, 'colors': 7, 'rating': 8} - sort_data
-        # если сортировка JsonData.sort будет "size"
-        # то индекс будет 4
-        # и произойдет сортировка db_items по индексу 4, он же size
+        # ПОРЯДОК КОРТЕЖА В сортируемом списке РАВЕН ORDER
+        # IMG SRC по которым нет сортировки идут в конце
 
-        sort_data = {
-            "img": 0,
-            "src": 1,
-            "filename": 2,
-            **{
-                key: x
-                for x, key in enumerate(Config.ORDER, 3)
-            }
-            }
-        
-        index = sort_data.get(JsonData.sort)
+        sort_type: dict = ORDER.get(JsonData.sort)
+        index = sort_type.get("index")
         rev = JsonData.reversed
 
-        if index != 5:
+        if sort_type != "colors":
             sort_key = lambda x: x[index]
         else:
             sort_key = lambda x: len(x[index])
@@ -93,9 +82,12 @@ class GridFiltered(Grid):
         col_count = Utils.get_clmn_count(self.ww)
         row, col = 0, 0
 
-        for img, src, filename, size, modified, type, colors, rating in finder_items:
+        # ПОРЯДОК КОРТЕЖА РАВЕН ORDER
+        # IMG и SRC по которым нет сортировки идут в конце
 
-            wid = Thumbnail(filename, src, self.path_to_wid)
+        for name, size, modified, type, colors, rating, img, src in finder_items:
+
+            wid = Thumbnail(name, src, self.path_to_wid)
             wid.move_to_wid.connect(lambda src: self.move_to_wid(src))
             self.set_pixmap(wid, img)
             wid.set_colors(colors)
