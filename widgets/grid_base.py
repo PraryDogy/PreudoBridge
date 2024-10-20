@@ -284,6 +284,7 @@ class Thumbnail(QFrame):
 
         self.name = text
         self.src  = dest
+        self.sort_click.emit()
 
 
 class Grid(QScrollArea):
@@ -347,7 +348,7 @@ class Grid(QScrollArea):
         widget = self.cell_to_wid.get(self.curr_cell)
 
         if isinstance(widget, QFrame):
-            widget.setFrameShape(Qt.Shape.NoFrame)
+            widget.setFrameShape(QFrame.Shape.NoFrame)
             self.curr_cell: tuple = (0, 0)
     
     def set_rating(self, rating: int):

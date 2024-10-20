@@ -496,6 +496,7 @@ class GridStandart(Grid):
             if isinstance(wid, Thumbnail)
             }
 
+        self.reset_selection()
         self.resize_grid(width)
 
     def filter_grid(self, width: int):
@@ -516,6 +517,7 @@ class GridStandart(Grid):
             else:
                 wid.hide()
 
+        self.reset_selection()
         self.resize_grid(width)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
