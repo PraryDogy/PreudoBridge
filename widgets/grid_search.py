@@ -253,7 +253,6 @@ class GridSearch(Grid):
                 if wid.isHidden():
                     continue
 
-                wid: ThumbnailSearch
                 wid.disconnect()
                 wid.show_in_folder.connect(self.show_in_folder.emit)
                 wid.move_to_wid.connect(self.move_to_wid)
