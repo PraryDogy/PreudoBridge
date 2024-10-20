@@ -3,10 +3,10 @@ import os
 import sqlalchemy
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QMouseEvent, QPixmap
-from PyQt5.QtWidgets import QAction, QLabel, QSizePolicy, QSpacerItem
+from PyQt5.QtWidgets import QAction, QLabel
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import Config, JsonData, ORDER
+from cfg import Config, JsonData
 from database import CACHE, STATS, Engine
 from fit_img import FitImg
 from utils import Utils
@@ -478,9 +478,7 @@ class GridStandart(Grid):
         self.wid_to_cell = {v: k for k, v in self.cell_to_wid.items()}
 
     def sort_grid(self, width: int):
-        if self.sorted_widgets:
-            first_wid: Thumbnail = self.sorted_widgets[0]
-        else:
+        if not self.sorted_widgets:
             return
 
         key = lambda x: getattr(x, JsonData.sort)

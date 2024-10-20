@@ -9,7 +9,7 @@ from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtWidgets import QAction, QSizePolicy, QSpacerItem
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import Config, JsonData, ORDER
+from cfg import Config, JsonData
 from database import CACHE, STATS, Engine
 from fit_img import FitImg
 from utils import Utils
@@ -20,8 +20,8 @@ from .grid_base import Grid, Thumbnail
 class ThumbnailSearch(Thumbnail):
     show_in_folder = pyqtSignal(str)
 
-    def __init__(self, filename: str, src: str, path_to_wid: dict[str: Thumbnail]):
-        super().__init__(filename, src, path_to_wid)
+    def __init__(self, name: str, src: str, path_to_wid: dict[str: Thumbnail]):
+        super().__init__(name, 0, 0, "", src, path_to_wid)
 
         self.context_menu.addSeparator()
 
@@ -203,6 +203,7 @@ class GridSearch(Grid):
 
     def __init__(self, width: int, search_text: str):
         super().__init__(width)
+        self.ww = width
 
         self.col_count = Utils.get_clmn_count(width)
         self.row, self.col = 0, 0
@@ -216,32 +217,30 @@ class GridSearch(Grid):
         self.search_thread.start()
 
     def add_new_widget(self, widget_data: WidgetData):
-        # data идет из сигнала _new_widget_sig
-        # "src", "stats" - os.stat, "pixmap", "colors": str, "rating": int
         name = os.path.basename(widget_data.src)
-        colors = widget_data.colors
-        rating = widget_data.rating
-        wid = ThumbnailSearch(filename=name, src=widget_data.src, path_to_wid=self.path_to_wid)
+        wid = ThumbnailSearch(name=name, src=widget_data.src, path_to_wid=self.path_to_wid)
+
         wid.img_label.setPixmap(widget_data.pixmap)
-        wid.set_colors(colors)
-        wid.set_rating(rating)
+
+        # устанавливаем аттрибуты для сортировки
+        wid.set_colors(widget_data.colors)
+        wid.set_rating(widget_data.rating)
+        wid.size = widget_data.stats.st_size
+        wid.modified = widget_data.stats.st_mtime
+        wid.filetype = os.path.splitext(widget_data.src)[1]
 
         wid.show_in_folder.connect(self.show_in_folder.emit)
         wid.move_to_wid.connect(self.move_to_wid)
         wid.clicked.connect(lambda r=self.row, c=self.col: self.select_new_widget((r, c)))
+        wid.sort_click.connect(lambda: self.sort_grid(self.ww))
+
         self.grid_layout.addWidget(wid, self.row, self.col)
 
         self.cell_to_wid[self.row, self.col] = wid
         self.wid_to_cell[wid] = (self.row, self.col)
         self.path_to_wid[widget_data.src] = wid
 
-        size = widget_data.stats.st_size
-        modified = widget_data.stats.st_mtime
-        filetype = os.path.splitext(widget_data.src)[1]
-
-        # ЭТОТ ПОРЯДОК СООТВЕТСТВУЕТ ORDER ДЛЯ СОРТИРОВКИ
-        # SRC и WID идут в конце так как по ним нет сортировки
-        self.sorted_widgets.append((name, size, modified, filetype, colors, rating, widget_data.src, wid))
+        self.sorted_widgets.append(wid)
 
         # прибавляем строчку и столбец в сетку
         self.col += 1
@@ -261,9 +260,7 @@ class GridSearch(Grid):
             col_count = Utils.get_clmn_count(width)
             row, col = 0, 0
 
-            # ПОРЯДОК КОРТЕЖА ИТЕРАТОРА СООТВЕТСВУЕТ ORDER 
-            # КРОМЕ SRC и WID - ПО НИМ НЕТ СОРТИРОВКИ, ОНИ ИДУТ В КОНЦЕ
-            for name, size, modified, filetype, colors, rating, src, wid in self.sorted_widgets:
+            for wid in self.sorted_widgets:
 
                 if not wid.isVisible():
                     continue
@@ -273,10 +270,12 @@ class GridSearch(Grid):
                 wid.show_in_folder.connect(self.show_in_folder.emit)
                 wid.move_to_wid.connect(self.move_to_wid)
                 wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
+                wid.sort_click.connect(lambda: self.sort_grid(width))
 
                 # обновляем информацию в Thumbnail о порядке путей и виджетов
                 # для правильной передачи в ImgView после пересортировки сетки
                 wid.path_to_wid = self.path_to_wid
+
                 self.grid_layout.addWidget(wid, row, col)
                 self.cell_to_wid[row, col] = wid
 
@@ -288,37 +287,33 @@ class GridSearch(Grid):
             self.wid_to_cell = {v: k for k, v in self.cell_to_wid.items()}
     
     def sort_grid(self, width: int):
-        # ПОРЯДОК КОРТЕЖА В сортируемом РАВЕН ORDER
-        # SRC по которой нет сортировки идет в конце
-        sort_type: dict = ORDER.get(JsonData.sort)
-        index = sort_type.get("index")
+        if not self.sorted_widgets:
+            return
+
+        key = lambda x: getattr(x, JsonData.sort)
         rev = JsonData.reversed
+        self.sorted_widgets = sorted(self.sorted_widgets, key=key, reverse=rev)
+        
+        self.path_to_wid = {
+            wid.src: wid
+            for wid in self.sorted_widgets
+            if isinstance(wid, Thumbnail)
+            }
 
-        # индекс цвета в ORDER
-        if index != 4:
-            sort_key = lambda x: x[index]
-        else:
-            sort_key = lambda x: len(x[index])
-
-        self.sorted_widgets = sorted(self.sorted_widgets, key=sort_key, reverse=rev)
-
-        # предпоследний элемент это src, последний элемент это ThumbnailSearch
-        # 0-5 это индексы ORDER
-        self.path_to_wid = {item[6]: item[7] for item in self.sorted_widgets}
-
+        self.reset_selection()
         self.resize_grid(width)
 
     def filter_grid(self, width: int):
-        for name, size, mod, type, colors, rating, src, wid in self.sorted_widgets:
+        for wid in self.sorted_widgets:
             wid: ThumbnailSearch
             show_widget = True
 
             if Config.rating_filter > 0:
-                if not (Config.rating_filter >= rating > 0):
+                if not (Config.rating_filter >= wid.rating > 0):
                     show_widget = False
 
             if Config.color_filters:
-                if not any(color for color in colors if color in Config.color_filters):
+                if not any(color for color in wid.colors if color in Config.color_filters):
                     show_widget = False
 
             if show_widget:
@@ -326,6 +321,7 @@ class GridSearch(Grid):
             else:
                 wid.hide()
 
+        self.reset_selection()
         self.resize_grid(width)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:

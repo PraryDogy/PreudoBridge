@@ -2,13 +2,13 @@ import os
 import subprocess
 
 import sqlalchemy
-from sqlalchemy.exc import OperationalError
 from PyQt5.QtCore import QMimeData, Qt, QUrl, pyqtSignal
-from PyQt5.QtGui import QContextMenuEvent, QDrag, QFont, QKeyEvent, QMouseEvent
+from PyQt5.QtGui import QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
                              QLabel, QMenu, QScrollArea, QVBoxLayout, QWidget)
+from sqlalchemy.exc import OperationalError
 
-from cfg import Config, ORDER
+from cfg import ORDER, Config
 from database import CACHE, Engine
 from utils import Utils
 
