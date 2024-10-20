@@ -290,7 +290,10 @@ class GridSearch(Grid):
         if not self.sorted_widgets:
             return
 
-        key = lambda x: getattr(x, JsonData.sort)
+        if JsonData.sort == "colors":
+            key = lambda x: len(getattr(x, JsonData.sort))
+        else:
+            key = lambda x: getattr(x, JsonData.sort)
         rev = JsonData.reversed
         self.sorted_widgets = sorted(self.sorted_widgets, key=key, reverse=rev)
         
