@@ -483,13 +483,9 @@ class GridStandart(Grid):
         else:
             return
 
-        if hasattr(first_wid, JsonData.sort):
-            key = lambda x: getattr(x, JsonData.sort)
-            rev = JsonData.reversed
-            self.sorted_widgets = sorted(self.sorted_widgets, key=key, reverse=rev)
-        else:
-            print("Thumbnail не имеет атрибута для сортировки", JsonData.sort)
-            return
+        key = lambda x: getattr(x, JsonData.sort)
+        rev = JsonData.reversed
+        self.sorted_widgets = sorted(self.sorted_widgets, key=key, reverse=rev)
         
         self.path_to_wid = {
             wid.src: wid
