@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
                              QLabel, QMenu, QScrollArea, QVBoxLayout, QWidget)
 from sqlalchemy.exc import OperationalError
 
-from cfg import ORDER, Config
+from cfg import ORDER, Config, JsonData
 from database import CACHE, Engine
 from utils import Utils
 
@@ -358,6 +358,45 @@ class Grid(QScrollArea):
             if wid.update_data_db(wid.colors, rating_data.get(rating)):
                 wid.set_rating(rating_data.get(rating))
                 self.select_new_widget(self.curr_cell)
+
+    def sort_grid(self):
+        if not self.sorted_widgets:
+            return
+
+        if JsonData.sort == "colors":
+            key = lambda x: len(getattr(x, JsonData.sort))
+        else:
+            key = lambda x: getattr(x, JsonData.sort)
+        rev = JsonData.reversed
+        self.sorted_widgets = sorted(self.sorted_widgets, key=key, reverse=rev)
+        
+        self.path_to_wid = {
+            wid.src: wid
+            for wid in self.sorted_widgets
+            if isinstance(wid, Thumbnail)
+            }
+
+        self.reset_selection()
+
+    def filter_grid(self):
+        for wid in self.sorted_widgets:
+            wid: Thumbnail
+            show_widget = True
+
+            if Config.rating_filter > 0:
+                if not (Config.rating_filter >= wid.rating > 0):
+                    show_widget = False
+
+            if Config.color_filters:
+                if not any(color for color in wid.colors if color in Config.color_filters):
+                    show_widget = False
+
+            if show_widget:
+                wid.show()
+            else:
+                wid.hide()
+
+        self.reset_selection()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):

@@ -442,12 +442,9 @@ class GridStandart(Grid):
                 widget.img_label.setPixmap(image_data.pixmap)
 
     def resize_grid(self, width: int):
-        # очищаем для нового наполнения
         self.cell_to_wid.clear()
         self.wid_to_cell.clear()
         self.curr_cell = (0, 0)
-
-        # получаем новое количество колонок на случай изменения размера окна
         col_count = Utils.get_clmn_count(width)
         row, col = 0, 0
 
@@ -482,44 +479,11 @@ class GridStandart(Grid):
         self.wid_to_cell = {v: k for k, v in self.cell_to_wid.items()}
 
     def sort_grid(self, width: int):
-        if not self.sorted_widgets:
-            return
-
-        if JsonData.sort == "colors":
-            key = lambda x: len(getattr(x, JsonData.sort))
-        else:
-            key = lambda x: getattr(x, JsonData.sort)
-        rev = JsonData.reversed
-        self.sorted_widgets = sorted(self.sorted_widgets, key=key, reverse=rev)
-        
-        self.path_to_wid = {
-            wid.src: wid
-            for wid in self.sorted_widgets
-            if isinstance(wid, Thumbnail)
-            }
-
-        self.reset_selection()
+        super().sort_grid()
         self.resize_grid(width)
 
     def filter_grid(self, width: int):
-        for wid in self.sorted_widgets:
-            wid: Thumbnail
-            show_widget = True
-
-            if Config.rating_filter > 0:
-                if not (Config.rating_filter >= wid.rating > 0):
-                    show_widget = False
-
-            if Config.color_filters:
-                if not any(color for color in wid.colors if color in Config.color_filters):
-                    show_widget = False
-
-            if show_widget:
-                wid.show()
-            else:
-                wid.hide()
-
-        self.reset_selection()
+        super().filter_grid()
         self.resize_grid(width)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:

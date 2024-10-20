@@ -194,9 +194,6 @@ class SearchFinder(QThread):
 
 class GridSearch(Grid):
     search_finished = pyqtSignal()
-
-    # для конекстного меню Thumbnail - "показать в папке"
-    # программа переходит из поиска в исходную папку с изображением и выделяет его
     show_in_folder = pyqtSignal(str)
 
     def __init__(self, width: int, search_text: str):
@@ -240,21 +237,16 @@ class GridSearch(Grid):
 
         self.sorted_widgets.append(wid)
 
-        # прибавляем строчку и столбец в сетку
         self.col += 1
         if self.col >= self.col_count:
             self.col = 0
             self.row += 1
  
-    # если поиск еще идет, сетка не переформируется
-    # если завершен, то мы формируем новую сетку на основе новых размеров
     def resize_grid(self, width: int):
         if not self.search_thread.isRunning():
-
             self.wid_to_cell.clear()
             self.cell_to_wid.clear()
             self.curr_cell = (0, 0)
-
             col_count = Utils.get_clmn_count(width)
             row, col = 0, 0
 
@@ -285,44 +277,11 @@ class GridSearch(Grid):
             self.wid_to_cell = {v: k for k, v in self.cell_to_wid.items()}
     
     def sort_grid(self, width: int):
-        if not self.sorted_widgets:
-            return
-
-        if JsonData.sort == "colors":
-            key = lambda x: len(getattr(x, JsonData.sort))
-        else:
-            key = lambda x: getattr(x, JsonData.sort)
-        rev = JsonData.reversed
-        self.sorted_widgets = sorted(self.sorted_widgets, key=key, reverse=rev)
-        
-        self.path_to_wid = {
-            wid.src: wid
-            for wid in self.sorted_widgets
-            if isinstance(wid, Thumbnail)
-            }
-
-        self.reset_selection()
+        super().sort_grid()
         self.resize_grid(width)
 
     def filter_grid(self, width: int):
-        for wid in self.sorted_widgets:
-            wid: ThumbnailSearch
-            show_widget = True
-
-            if Config.rating_filter > 0:
-                if not (Config.rating_filter >= wid.rating > 0):
-                    show_widget = False
-
-            if Config.color_filters:
-                if not any(color for color in wid.colors if color in Config.color_filters):
-                    show_widget = False
-
-            if show_widget:
-                wid.show()
-            else:
-                wid.hide()
-
-        self.reset_selection()
+        super().filter_grid()
         self.resize_grid(width)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
