@@ -90,63 +90,6 @@ class Thumbnail(QFrame):
         self.name_label.setFixedHeight(Geo.text_h)
         v_lay.addWidget(self.name_label)
 
-        # КОНЕКСТНОЕ МЕНЮ
-        self.context_menu = QMenu(self)
-
-        view_action = QAction("Просмотр", self)
-        view_action.triggered.connect(self.view)
-        self.context_menu.addAction(view_action)
-
-        open_menu = QMenu("Открыть в приложении", self)
-        self.context_menu.addMenu(open_menu)
-
-        for name, app_path in Config.image_apps.items():
-            wid = QAction(name, parent=open_menu)
-            wid.triggered.connect(lambda e, a=app_path: self.open_in_app(a))
-            open_menu.addAction(wid)
-
-        self.context_menu.addSeparator()
-
-        show_in_finder_action = QAction("Показать в Finder", self)
-        show_in_finder_action.triggered.connect(self.show_in_finder)
-        self.context_menu.addAction(show_in_finder_action)
-
-        copy_path = QAction("Скопировать путь до файла", self)
-        copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
-        self.context_menu.addAction(copy_path)
-
-        rename = QAction("Переименовать", self)
-        rename.triggered.connect(self.rename_win)
-        self.context_menu.addAction(rename)
-
-        self.context_menu.addSeparator()
-
-        self.color_menu = QMenu("Цвета", self)
-        self.context_menu.addMenu(self.color_menu)
-
-        for color, text in Config.COLORS.items():
-            wid = QAction(parent=self.color_menu, text=f"{color} {text}")
-            wid.setCheckable(True)
-
-            if color in self.colors:
-                wid.setChecked(True)
-
-            wid.triggered.connect(lambda e, c=color: self.color_click(c))
-            self.color_menu.addAction(wid)
-
-        self.rating_menu = QMenu("Рейтинг", self)
-        self.context_menu.addMenu(self.rating_menu)
-
-        for rate in range(1, 6):
-            wid = QAction(parent=self.rating_menu, text="\U00002605" * rate)
-            wid.setCheckable(True)
-
-            if self.rating == rate:
-                wid.setChecked(True)
-
-            wid.triggered.connect(lambda e, r=rate, w=wid: self.rating_click(w, r))
-            self.rating_menu.addAction(wid)
-
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
         self.clicked.emit()
 
@@ -184,7 +127,64 @@ class Thumbnail(QFrame):
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         self.clicked.emit()
-        self.context_menu.exec_(self.mapToGlobal(a0.pos()))
+
+        context_menu = QMenu(self)
+
+        view_action = QAction("Просмотр", self)
+        view_action.triggered.connect(self.view)
+        context_menu.addAction(view_action)
+
+        open_menu = QMenu("Открыть в приложении", self)
+        context_menu.addMenu(open_menu)
+
+        for name, app_path in Config.image_apps.items():
+            wid = QAction(name, parent=open_menu)
+            wid.triggered.connect(lambda e, a=app_path: self.open_in_app(a))
+            open_menu.addAction(wid)
+
+        context_menu.addSeparator()
+
+        show_in_finder_action = QAction("Показать в Finder", self)
+        show_in_finder_action.triggered.connect(self.show_in_finder)
+        context_menu.addAction(show_in_finder_action)
+
+        copy_path = QAction("Скопировать путь до файла", self)
+        copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
+        context_menu.addAction(copy_path)
+
+        rename = QAction("Переименовать", self)
+        rename.triggered.connect(self.rename_win)
+        context_menu.addAction(rename)
+
+        context_menu.addSeparator()
+
+        color_menu = QMenu("Цвета", self)
+        context_menu.addMenu(color_menu)
+
+        for color, text in Config.COLORS.items():
+            wid = QAction(parent=color_menu, text=f"{color} {text}")
+            wid.setCheckable(True)
+
+            if color in self.colors:
+                wid.setChecked(True)
+
+            wid.triggered.connect(lambda e, c=color: self.color_click(color_menu, c))
+            color_menu.addAction(wid)
+
+        rating_menu = QMenu("Рейтинг", self)
+        context_menu.addMenu(rating_menu)
+
+        for rate in range(1, 6):
+            wid = QAction(parent=rating_menu, text="\U00002605" * rate)
+            wid.setCheckable(True)
+
+            if self.rating == rate:
+                wid.setChecked(True)
+
+            wid.triggered.connect(lambda e, r=rate, w=wid: self.rating_click(rating_menu, w, r))
+            rating_menu.addAction(wid)
+
+        context_menu.exec_(self.mapToGlobal(a0.pos()))
 
     def view(self):
         if os.path.isfile(self.src):
@@ -204,7 +204,7 @@ class Thumbnail(QFrame):
     def show_in_finder(self):
         subprocess.call(["open", "-R", self.src])
 
-    def color_click(self, color: str):
+    def color_click(self, menu: QMenu, color: str):
         if color not in self.colors:
             temp_colors = self.colors + color
         else:
@@ -218,14 +218,14 @@ class Thumbnail(QFrame):
             self.colors = ''.join(sorted(self.colors, key=key))
             self.name_label.update_name(self.rating, self.colors, self.name)
 
-            for item in self.color_menu.children():
+            for item in menu.children():
                 item: QAction
                 if item.text()[0] in self.colors:
                     item.setChecked(True)
 
             self.sort_click.emit()
 
-    def rating_click(self, wid: QAction, rate: int):
+    def rating_click(self, menu: QMenu, wid: QAction, rate: int):
         if rate == 1:
             rate = 0
 
@@ -235,7 +235,7 @@ class Thumbnail(QFrame):
             self.name_label.update_name(rate, self.colors, self.name)
             self.rating = rate
 
-            for i in self.rating_menu.children():
+            for i in menu.children():
                 i: QAction
                 i.setChecked(False)
             if rate > 0:
