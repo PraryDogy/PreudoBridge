@@ -302,7 +302,8 @@ class GridSearch(Grid):
         self.sorted_widgets = sorted(self.sorted_widgets, key=sort_key, reverse=rev)
 
         # предпоследний элемент это src, последний элемент это ThumbnailSearch
-        self.path_to_wid = {item[-2]: item[-1] for item in self.sorted_widgets}
+        # 0-5 это индексы ORDER
+        self.path_to_wid = {item[6]: item[7] for item in self.sorted_widgets}
 
         self.resize_grid(width)
 
