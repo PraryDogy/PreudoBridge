@@ -119,22 +119,8 @@ class Grid(BaseGrid):
 
             self.grid_layout.addWidget(wid, row, col)
             self.cell_to_wid[row, col] = wid
-
             wid.path_to_wid = self.path_to_wid
             wid.row, wid.col = row, col
-
-            # wid.disconnect()
-
-            # wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
-            # wid.move_to_wid.connect(self.move_to_wid)
-
-            # if isinstance(wid, ThumbFolder):
-            #     wid.clicked_folder.connect(self.clicked_folder.emit)
-            #     wid.add_fav.connect(self.add_fav.emit)
-            #     wid.del_fav.connect(self.del_fav.emit)
-
-            # elif isinstance(wid, ThumbSearch):
-            #     wid.show_in_folder.connect(self.show_in_folder.emit)
 
             col += 1
             if col >= col_count:
