@@ -197,10 +197,10 @@ class SimpleFileExplorer(QWidget):
         self.bar_top_setDisabled(False)
         self.bar_top.view_type_btn.setDisabled(True)
 
-    def move_to_wid_delayed(self, src: str):
-        JsonData.root = os.path.dirname(src)
+    def move_to_wid_delayed(self, filepath: str):
+        JsonData.root = os.path.dirname(filepath)
         self.grid_standart_load()
-        QTimer.singleShot(2000, lambda: self.grid.select_new_widget(src))
+        QTimer.singleShot(2000, lambda: self.grid.select_new_widget(filepath))
 
     def grid_standart_load(self, src: str = None):
         self.grid.progressbar_value.emit(1000000)
