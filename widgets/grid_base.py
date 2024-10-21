@@ -64,14 +64,14 @@ class Grid(QScrollArea):
             self.select_new_widget(coords)
 
     def select_new_widget(self, coords: tuple):
-        self.reset_selection()
+        prev_wid = self.cell_to_wid.get(self.curr_cell)
+        new_wid = self.cell_to_wid.get(coords)
 
-        new_widget = self.cell_to_wid.get(coords)
-
-        if isinstance(new_widget, Thumb):
-            new_widget.setFrameShape(QFrame.Shape.Panel)
+        if isinstance(new_wid, Thumb):
+            prev_wid.setFrameShape(QFrame.Shape.NoFrame)
+            new_wid.setFrameShape(QFrame.Shape.Panel)
             self.curr_cell = coords
-            self.ensureWidgetVisible(new_widget)
+            self.ensureWidgetVisible(new_wid)
 
     def reset_selection(self):
         widget = self.cell_to_wid.get(self.curr_cell)
@@ -120,9 +120,9 @@ class Grid(QScrollArea):
                     show_widget = False
 
             if show_widget:
-                wid.show()
+                wid.must_hidden = False
             else:
-                wid.hide()
+                wid.must_hidden = True
 
         self.resize_grid(width)
 
@@ -137,7 +137,7 @@ class Grid(QScrollArea):
 
         for wid in self.sorted_widgets:
 
-            if wid.isHidden():
+            if wid.must_hidden:
                 continue
 
             wid.disconnect()
@@ -146,6 +146,7 @@ class Grid(QScrollArea):
             wid.move_to_wid.connect(self.move_to_wid)
 
             self.grid_layout.addWidget(wid, row, col)
+
             self.cell_to_wid[row, col] = wid
             wid.path_to_wid = self.path_to_wid
 
@@ -163,6 +164,7 @@ class Grid(QScrollArea):
                 row += 1
 
         self.wid_to_cell = {v: k for k, v in self.cell_to_wid.items()}
+
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):

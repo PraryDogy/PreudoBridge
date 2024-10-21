@@ -54,8 +54,10 @@ class Thumb(QFrame):
             ):
         super().__init__()
         self.setFixedSize(Geo.w, Geo.h)
+
         self.path_to_wid: dict[str, QLabel] = path_to_wid
         self.src: str = src
+        self.must_hidden: bool = False
 
         ############################################################
         # Данные аттрибуты должны соответстовать ключам в ORDER

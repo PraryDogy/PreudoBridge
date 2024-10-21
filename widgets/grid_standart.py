@@ -360,17 +360,9 @@ class GridStandart(Grid):
     
     def set_pixmap(self, image_data: ImageData):
         widget = self.path_to_wid.get(image_data.src)
-
         if isinstance(widget, Thumb):
-
             if isinstance(image_data.pixmap, QPixmap):
                 widget.img_label.setPixmap(image_data.pixmap)
-
-    def sort_grid(self, width: int):
-        super().sort_grid(width)
-
-    def filter_grid(self, width: int):
-        super().filter_grid(width)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         # когда убивается этот виджет, все треды безопасно завершатся
