@@ -224,9 +224,15 @@ class WinImgView(QWidget):
         self.src: str = src
 
         self.thumbnail: Thumb = path_to_wid.get(src)
-        self.path_to_wid: dict[str, Thumb] = path_to_wid
+
+        self.path_to_wid: dict[str, Thumb] = {
+            path: wid
+            for path, wid in path_to_wid.items()
+            if not wid.must_hidden
+            }
+
         self.image_paths: list = [
-            i for i in path_to_wid.keys()
+            i for i in self.path_to_wid.keys()
             if os.path.isfile(i)
             ]
 
