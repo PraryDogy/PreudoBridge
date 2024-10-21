@@ -213,7 +213,7 @@ class GridSearch(Grid):
         wid.row, wid.col = self.row, self.col
 
         wid.show_in_folder.connect(self.show_in_folder.emit)
-        wid.move_to_wid.connect(self.move_to_wid)
+        wid.move_to_wid.connect(lambda w: self.select_new_widget(w))
         wid.clicked.connect(lambda w=wid: self.select_new_widget(w))
 
         self.grid_layout.addWidget(wid, self.row, self.col)

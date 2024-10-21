@@ -217,7 +217,7 @@ class NextImageBtn(SwitchImageBtn):
 
 
 class WinImgView(QWidget):
-    move_to_wid = pyqtSignal(str)
+    move_to_wid = pyqtSignal(object)
 
     def __init__(self, src: str, path_to_wid: dict[str: Thumb]):
         super().__init__()
@@ -342,7 +342,7 @@ class WinImgView(QWidget):
 
         self.src: str = self.image_paths[new_index]
         self.thumbnail: Thumb = self.path_to_wid.get(self.src)
-        self.move_to_wid.emit(self.src)
+        self.move_to_wid.emit(self.thumbnail)
         self.load_thumbnail()
 
     def switch_img_btn(self, flag: str) -> None:

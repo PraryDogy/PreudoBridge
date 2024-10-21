@@ -28,12 +28,6 @@ class Grid(BaseGrid):
         self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
         self.setWidget(main_wid)
 
-    def move_to_wid(self, src: str):
-        wid = self.path_to_wid.get(src)
-        coords = self.wid_to_cell.get(wid)
-        if coords:
-            self.select_new_widget(coords)
-
     def select_new_widget(self, coords_wid: tuple | Thumb):
         if isinstance(coords_wid, Thumb):
             coords = coords_wid.row, coords_wid.col

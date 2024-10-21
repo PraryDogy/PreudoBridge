@@ -45,7 +45,7 @@ class Geo:
 
 
 class Thumb(QFrame):
-    move_to_wid = pyqtSignal(str)
+    move_to_wid = pyqtSignal(object)
     clicked = pyqtSignal()
 
     def __init__(
@@ -197,7 +197,7 @@ class Thumb(QFrame):
         from .win_img_view import WinImgView
         self.win = WinImgView(self.src, self.path_to_wid)
         Utils.center_win(parent=Utils.get_main_win(), child=self.win)
-        self.win.move_to_wid.connect(lambda src: self.move_to_wid.emit(src))
+        self.win.move_to_wid.connect(self.move_to_wid.emit)
         self.win.show()
 
     def open_in_app(self, app_path: str):
