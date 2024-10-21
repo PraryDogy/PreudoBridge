@@ -219,7 +219,6 @@ class GridSearch(Grid):
         self.grid_layout.addWidget(wid, self.row, self.col)
 
         self.cell_to_wid[self.row, self.col] = wid
-        self.wid_to_cell[wid] = (self.row, self.col)
         self.path_to_wid[widget_data.src] = wid
 
         self.sorted_widgets.append(wid)

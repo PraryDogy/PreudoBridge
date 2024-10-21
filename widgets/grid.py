@@ -16,7 +16,6 @@ class Grid(BaseGrid):
 
         self.curr_cell: tuple = (0, 0)
         self.cell_to_wid: dict[tuple, Thumb] = {}
-        self.wid_to_cell: dict[Thumb, tuple] = {}
         self.path_to_wid: dict[str, Thumb] = {}
         self.sorted_widgets: list[Thumb | ThumbFolder | ThumbSearch] = []
 
@@ -100,7 +99,6 @@ class Grid(BaseGrid):
 
     def resize_grid(self, width: int):
         self.reset_selection()
-        self.wid_to_cell.clear()
         self.cell_to_wid.clear()
 
         col_count = Utils.get_clmn_count(width)
@@ -120,9 +118,6 @@ class Grid(BaseGrid):
             if col >= col_count:
                 col = 0
                 row += 1
-
-        self.wid_to_cell = {v: k for k, v in self.cell_to_wid.items()}
-
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         wid: Thumb | ThumbFolder 

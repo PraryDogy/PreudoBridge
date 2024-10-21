@@ -311,8 +311,6 @@ class GridStandart(Grid):
                 col = 0
                 row += 1
 
-        self.wid_to_cell = {v: k for k, v in self.cell_to_wid.items()}
-
         if self.cell_to_wid:
             self.start_load_images(src_size_mod)
 
