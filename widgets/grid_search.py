@@ -52,10 +52,6 @@ class SearchFinder(QThread):
         if not isinstance(self.search_text, tuple):
             self.search_text: str = str(self.search_text)
 
-        # print(self.search_text)
-        # print(type(self.search_text))
-        # quit()
-
         for root, _, files in os.walk(JsonData.root):
             if not self.flag:
                 break
