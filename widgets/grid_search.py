@@ -52,6 +52,10 @@ class SearchFinder(QThread):
         if not isinstance(self.search_text, tuple):
             self.search_text: str = str(self.search_text)
 
+        # print(self.search_text)
+        # print(type(self.search_text))
+        # quit()
+
         for root, _, files in os.walk(JsonData.root):
             if not self.flag:
                 break
@@ -67,7 +71,8 @@ class SearchFinder(QThread):
                 if file_path_lower.endswith(Config.IMG_EXT):
 
                     if isinstance(self.search_text, tuple):
-                        self.create_wid(file_path)
+                        if file_path_lower.endswith(self.search_text):
+                            self.create_wid(file_path)
 
                     elif self.search_text in file:
                         self.create_wid(file_path)
