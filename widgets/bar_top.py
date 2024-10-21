@@ -287,7 +287,7 @@ class FiltersBtn(QPushButton):
         color_lay.setSpacing(5)
         self.color_wid.setLayout(color_lay)
 
-        self.color_count = 0
+        self.filter_count = 0
         
         for color in Config.COLORS:
             label = ColorLabel(color)
@@ -327,12 +327,12 @@ class FiltersBtn(QPushButton):
 
     def toggle_color(self, widget: ColorLabel, color: str):
         if widget.is_selected == True:
-            self.color_count -= 1
+            self.filter_count -= 1
             Config.color_filters.remove(color)
             widget.setStyleSheet("")
             widget.is_selected = False
         else:
-            self.color_count += 1
+            self.filter_count += 1
             Config.color_filters.append(color)
             widget.setStyleSheet("background: #007AFF;")
             widget.is_selected = True
@@ -342,11 +342,13 @@ class FiltersBtn(QPushButton):
     def toggle_rating(self, rate: int):
         if rate > 1:
             Config.rating_filter = rate
+            self.filter_count += 1
             for i in self.rating_wids[:rate]:
                 i.setStyleSheet("background: #007AFF;")
             for i in self.rating_wids[rate:]:
                 i.setStyleSheet("")
         else:
+            self.filter_count -= 1
             Config.rating_filter = 0
             for i in self.rating_wids:
                 i.setStyleSheet("")
@@ -354,7 +356,7 @@ class FiltersBtn(QPushButton):
         self._clicked.emit()
 
     def press_check(self):
-        if self.color_count == 0:
+        if self.filter_count == 0:
             self.setDown(False)
         else:
             self.setDown(True)
@@ -368,7 +370,7 @@ class FiltersBtn(QPushButton):
 
         Config.color_filters.clear()
         Config.rating_filter = 0
-        self.color_count = 0
+        self.filter_count = 0
         self.setDown(False)
 
 
