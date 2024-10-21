@@ -56,7 +56,7 @@ class LoadImages(QThread):
 
         self.src_size_mod: list[tuple] = src_size_mod
         self.remove_db_images: list = []
-        self.db_images: dict[tuple: bytearray] = {}
+        self.db_images: dict[tuple, bytearray] = {}
         self.flag = True
         self.db_size: int = 0
 
@@ -93,7 +93,7 @@ class LoadImages(QThread):
         q = q.where(CACHE.c.root == JsonData.root)
         res = self.conn.execute(q).fetchall()
 
-        self.db_images: dict[tuple: bytearray] = {
+        self.db_images: dict[tuple, bytearray] = {
             (src, size, modified): img
             for img, src, size,  modified in res
             }
@@ -201,7 +201,7 @@ class LoadFinder(QThread):
 
     def __init__(self):
         super().__init__()
-        self.db_data: dict[str: list] = {}
+        self.db_data: dict[str, list] = {}
         self.finder_items: list[tuple] = []
 
     def run(self):

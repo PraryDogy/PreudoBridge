@@ -17,7 +17,7 @@ from .svg_widgets import SvgShadowed
 
 
 class Shared:
-    loaded_images: dict[str: QPixmap] = {}
+    loaded_images: dict[str, QPixmap] = {}
     threads: list[QThread] = []
 
 
@@ -219,12 +219,12 @@ class NextImageBtn(SwitchImageBtn):
 class WinImgView(QWidget):
     move_to_wid = pyqtSignal(object)
 
-    def __init__(self, src: str, path_to_wid: dict[str: Thumb]):
+    def __init__(self, src: str, path_to_wid: dict[str, Thumb]):
         super().__init__()
         self.src: str = src
 
         self.thumbnail: Thumb = path_to_wid.get(src)
-        self.path_to_wid: dict[str: Thumb] = path_to_wid
+        self.path_to_wid: dict[str, Thumb] = path_to_wid
         self.image_paths: list = [
             i for i in path_to_wid.keys()
             if os.path.isfile(i)

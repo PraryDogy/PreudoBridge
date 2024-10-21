@@ -12,7 +12,7 @@ from datetime import date
 
 # grid_widgets = [ (name, size, modify, type, colors, rating, ОСТАЛЬНОЕ), ... ]
 
-ORDER: dict[str: dict] = {
+ORDER: dict[str, dict] = {
         "name": {"text": "Имя", "index": 0},
         "size": {"text": "Размер", "index": 1},
         "modify": {"text": "Дата", "index": 2},

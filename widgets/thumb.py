@@ -347,7 +347,7 @@ class ThumbFolder(Thumb):
 class ThumbSearch(Thumb):
     show_in_folder = pyqtSignal(str)
 
-    def __init__(self, name: str, src: str, path_to_wid: dict[str: Thumb]):
+    def __init__(self, name: str, src: str, path_to_wid: dict[str, Thumb]):
         super().__init__(name, 0, 0, "", src, path_to_wid)
 
     def add_custom_menu_items(self):
