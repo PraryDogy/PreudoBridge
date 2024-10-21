@@ -121,8 +121,10 @@ class Grid(QScrollArea):
 
             if show_widget:
                 wid.must_hidden = False
+                wid.show()
             else:
                 wid.must_hidden = True
+                wid.hide()
 
         self.resize_grid(width)
 
@@ -166,8 +168,10 @@ class Grid(QScrollArea):
 
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
+        wid: Thumb | ThumbFolder 
+
         if a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
-            wid: Thumb = self.cell_to_wid.get(self.curr_cell)
+            wid = self.cell_to_wid.get(self.curr_cell)
             wid.view()
 
         elif a0.key() == Qt.Key.Key_Left:
