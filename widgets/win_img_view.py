@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (QAction, QFrame, QHBoxLayout, QLabel, QMenu,
 from cfg import Config, JsonData
 from database import CACHE, Engine
 from utils import Utils
-from .grid_base import Thumb
+from .grid import Thumb
 from .svg_widgets import SvgShadowed
 
 

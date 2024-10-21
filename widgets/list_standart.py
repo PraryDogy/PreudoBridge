@@ -8,16 +8,16 @@ from PyQt5.QtWidgets import QAction, QFileSystemModel, QMenu, QTableView
 from cfg import Config, JsonData
 from utils import Utils
 
-from .grid_base import Thumb
+from .thumb import Thumb
+from ._base import BaseTableView
 from .win_img_view import WinImgView
-
 
 class Sort:
     column = 0
     order = 0
 
 
-class ListStandart(QTableView):
+class ListStandart(BaseTableView):
     folders_tree_clicked = pyqtSignal(str)
     add_to_favs_clicked = pyqtSignal(str)
     del_favs_clicked = pyqtSignal(str)
@@ -42,10 +42,10 @@ class ListStandart(QTableView):
         self.setColumnWidth(2, 100)
         self.setColumnWidth(3, 150)
 
-        self.horizontalHeader().sectionClicked.connect(self._save_sort_settings)
-        self.doubleClicked.connect(self._double_clicked)
+        self.horizontalHeader().sectionClicked.connect(self.save_sort_settings)
+        self.doubleClicked.connect(self.double_clicked)
 
-    def _double_clicked(self, index):
+    def double_clicked(self, index):
         path = self._model.filePath(index)
         path = os.path.abspath(path)
         path_lower = path.lower()
@@ -59,10 +59,16 @@ class ListStandart(QTableView):
             self.win = WinImgView(path, {path: thumbnail})
             self.win.show()
 
-    def _save_sort_settings(self, index):
+    def save_sort_settings(self, index):
         Sort.column = index
         Sort.order = self.horizontalHeader().sortIndicatorOrder()
         self.sortByColumn(Sort.column, Sort.order)
+
+    def open_in_finder(self, path: str):
+        subprocess.call(["open", "-R", path])
+
+    def resize_grid(self, *args, **kwargs):
+        ...
 
     def contextMenuEvent(self, event):
         index = self.indexAt(event.pos())
@@ -74,7 +80,7 @@ class ListStandart(QTableView):
         index = self._model.index(src)
 
         open_finder_action = QAction("Просмотр", self)
-        open_finder_action.triggered.connect(lambda: self._double_clicked(index))
+        open_finder_action.triggered.connect(lambda: self.double_clicked(index))
         menu.addAction(open_finder_action)
 
         menu.addSeparator()
@@ -105,8 +111,5 @@ class ListStandart(QTableView):
     def keyPressEvent(self, e: QKeyEvent | None) -> None:
         if e.key() in (Qt.Key.Key_Return, Qt.Key.Key_Space):
             index = self.currentIndex()
-            self._double_clicked(index)
+            self.double_clicked(index)
         return super().keyPressEvent(e)
-
-    def open_in_finder(self, path: str):
-        subprocess.call(["open", "-R", path])

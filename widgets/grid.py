@@ -1,35 +1,25 @@
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeyEvent, QMouseEvent
-from PyQt5.QtWidgets import QFrame, QGridLayout, QScrollArea, QWidget
+from PyQt5.QtWidgets import QFrame, QGridLayout, QWidget
 
-from cfg import ORDER, Config, JsonData
+from cfg import Config, JsonData
 from utils import Utils
 
+from ._base import BaseGrid
 from .thumb import Thumb, ThumbFolder, ThumbSearch
 
 
-class Grid(QScrollArea):
-    # клик по папке ThumbFolder
-    add_fav = pyqtSignal(str)
-    del_fav = pyqtSignal(str)
-
-    clicked_folder = pyqtSignal(str)
-
-    # сигналы из треда по загрузке изображений
-    progressbar_start = pyqtSignal(int)
-    progressbar_value = pyqtSignal(int)
-
-    # 
-    show_in_folder = pyqtSignal(str)
+class Grid(BaseGrid):
 
     def __init__(self):
-
-        for k, v in ORDER.items():
-            if not hasattr(Thumb("test", 0, 0, ".extension", "test", {}), k):
-                print("НЕТ АТТРИБУТА", k)
-                quit()
-
         super().__init__()
+
+        self.curr_cell: tuple = (0, 0)
+        self.cell_to_wid: dict[tuple, Thumb] = {}
+        self.wid_to_cell: dict[Thumb, tuple] = {}
+        self.path_to_wid: dict[str, Thumb] = {}
+        self.sorted_widgets: list[Thumb | ThumbFolder | ThumbSearch] = []
+
         self.setWidgetResizable(True)
 
         main_wid = QWidget()
@@ -37,25 +27,6 @@ class Grid(QScrollArea):
         self.grid_layout.setSpacing(5)
         self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
         self.setWidget(main_wid)
-
-        ############################################################
-
-        # координаты: строка, столбец
-        # при формировании сетки наполняется словарь coords
-        # reversed это value: key - coords
-        # все это для навигации по сетке
-
-        ############################################################
-
-        self.curr_cell: tuple = (0, 0)
-        self.cell_to_wid: dict[tuple, Thumb] =  {}
-        self.wid_to_cell: dict[Thumb, tuple] = {}
-        self.path_to_wid: dict[str, Thumb] = {}
-
-        # Здесь хранится информация для сортировки виджетов
-        # Которая соответствует порядку в ORDER из config
-        # name, size, modified, type, colors, rating, ||| src, wid
-        self.sorted_widgets: list[Thumb | ThumbFolder | ThumbSearch] = []
 
     def move_to_wid(self, src: str):
         wid = self.path_to_wid.get(src)

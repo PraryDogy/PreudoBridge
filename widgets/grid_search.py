@@ -14,7 +14,7 @@ from database import CACHE, STATS, Engine
 from fit_img import FitImg
 from utils import Utils
 
-from .grid_base import Grid
+from .grid import Grid
 from .thumb import ThumbSearch
 
 

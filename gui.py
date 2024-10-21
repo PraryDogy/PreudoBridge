@@ -1,5 +1,4 @@
 import os
-from typing import Union
 
 from PyQt5.QtCore import QEvent, QObject, Qt, QTimer
 from PyQt5.QtGui import QCloseEvent, QKeyEvent, QResizeEvent
@@ -10,6 +9,7 @@ from cfg import Config, JsonData
 from utils import Utils
 from widgets.bar_bottom import BarBottom
 from widgets.bar_top import BarTop
+from widgets.grid import Grid
 from widgets.grid_search import GridSearch
 from widgets.grid_standart import GridStandart
 from widgets.list_standart import ListStandart
@@ -35,7 +35,7 @@ class SimpleFileExplorer(QWidget):
         super().__init__()
         self.setMinimumWidth(200)
 
-        self.grid: Union[GridSearch, GridStandart, ListStandart] = False
+        self.grid: Grid = Grid()
 
         ww, hh = JsonData.ww, JsonData.hh
         self.resize(ww, hh)
@@ -118,15 +118,10 @@ class SimpleFileExplorer(QWidget):
             )
 
     def sort_btn_cmd(self):
-        if isinstance(self.grid, (GridSearch, GridStandart)):
-            self.grid.sort_grid(self.get_grid_width())
-
-        # elif isinstance(self.grid, GridStandart):
-            # self.grid_standart_load()
+        self.grid.sort_grid(self.get_grid_width())
 
     def grid_filtered_load(self):
-        if isinstance(self.grid, (GridSearch, GridStandart)):
-            self.grid.filter_grid(self.get_grid_width())
+        self.grid.filter_grid(self.get_grid_width())
 
     def next_btn_cmd(self, root: str):
         JsonData.root = root
@@ -174,12 +169,9 @@ class SimpleFileExplorer(QWidget):
         self.bar_top_setDisabled(True)
         self.bar_top.filters_btn.reset_filters()
 
-        if isinstance(self.grid, GridStandart):
-            self.grid.progressbar_value.emit(1000000)
-
-        if isinstance(self.grid, (GridSearch, GridStandart)):
-            self.grid.disconnect()
-            self.grid.close()
+        self.grid.progressbar_value.emit(1000000)
+        self.grid.disconnect()
+        self.grid.close()
 
         self.setWindowTitle(f"🟠\tИдет поиск: \"{search_text}\" в \"{os.path.basename(JsonData.root)}\"")
         self.migaet_timer.start(400)
@@ -205,7 +197,6 @@ class SimpleFileExplorer(QWidget):
         self.grid.sort_grid(self.get_grid_width())
         self.bar_top_setDisabled(False)
         self.bar_top.view_type_btn.setDisabled(True)
-        # self.bar_top.filters_btn.setDisabled(True)
 
     def move_to_wid_delayed(self, src: str):
         root = os.path.dirname(src)
@@ -214,12 +205,9 @@ class SimpleFileExplorer(QWidget):
         QTimer.singleShot(1500, lambda: self.grid.move_to_wid(src))
 
     def grid_standart_load(self):
-        if isinstance(self.grid, GridStandart):
-            self.grid.progressbar_value.emit(1000000)
-
-        if isinstance(self.grid, (GridSearch, GridStandart)):
-            self.grid.disconnect()
-            self.grid.close()
+        self.grid.progressbar_value.emit(1000000)
+        self.grid.disconnect()
+        self.grid.close()
         
         self.setWindowTitle(os.path.basename(JsonData.root))
 
@@ -253,7 +241,6 @@ class SimpleFileExplorer(QWidget):
             self.grid.clicked_folder.connect(self.view_folder_cmd)
 
         self.r_lay.addWidget(self.grid, 1, 0)
-        # по умолчанию фокус будет на tree widget
         self.grid.setFocus()
 
     def scroll_up_scroll_value(self, value: int):
@@ -266,8 +253,7 @@ class SimpleFileExplorer(QWidget):
         return JsonData.ww - self.bar_tabs.width() - 180
 
     def resize_timer_cmd(self):
-        if isinstance(self.grid, (GridSearch, GridStandart)):
-            self.grid.resize_grid(self.get_grid_width())
+        self.grid.resize_grid(self.get_grid_width())
 
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         JsonData.ww = self.geometry().width()

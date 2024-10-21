@@ -11,7 +11,7 @@ from database import CACHE, STATS, Engine
 from fit_img import FitImg
 from utils import Utils
 
-from .grid_base import Grid, Thumb
+from .grid import Grid, Thumb
 from .thumb import ThumbFolder
 
 
@@ -253,10 +253,8 @@ class LoadFinder(QThread):
             if os.path.isdir(src):
                 self.finder_items.append((name, size, modified, filetype, colors, rating, src))
 
-# Базовый класс со внутренними методами не для импорта
+
 class GridStandart(Grid):
-
-
     def __init__(self, width: int):
         super().__init__()
         self.ww = width
