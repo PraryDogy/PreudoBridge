@@ -88,7 +88,7 @@ class Grid(QScrollArea):
                 wid.set_rating(rating_data.get(rating))
                 self.select_new_widget(self.curr_cell)
 
-    def sort_grid(self):
+    def sort_grid(self, width: int):
         if not self.sorted_widgets:
             return
 
@@ -104,10 +104,10 @@ class Grid(QScrollArea):
             for wid in self.sorted_widgets
             if isinstance(wid, Thumb)
             }
+        
+        self.resize_grid(width)
 
-        self.reset_selection()
-
-    def filter_grid(self):
+    def filter_grid(self, width: int):
         for wid in self.sorted_widgets:
             show_widget = True
 
@@ -124,10 +124,11 @@ class Grid(QScrollArea):
             else:
                 wid.hide()
 
-        self.reset_selection()
+        self.resize_grid(width)
 
     def resize_grid(self, width: int):
         self.reset_selection()
+
         self.wid_to_cell.clear()
         self.cell_to_wid.clear()
 

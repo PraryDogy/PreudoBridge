@@ -334,7 +334,6 @@ class GridStandart(Grid):
             self.grid_layout.addWidget(no_images, 0, 0)
 
         self.sort_grid(self.ww)
-        self.show()
 
     def set_base_img(self, widget: QLabel, png_path: str):
         pixmap = QPixmap(png_path)
@@ -368,12 +367,10 @@ class GridStandart(Grid):
                 widget.img_label.setPixmap(image_data.pixmap)
 
     def sort_grid(self, width: int):
-        super().sort_grid()
-        self.resize_grid(width)
+        super().sort_grid(width)
 
     def filter_grid(self, width: int):
-        super().filter_grid()
-        self.resize_grid(width)
+        super().filter_grid(width)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         # когда убивается этот виджет, все треды безопасно завершатся

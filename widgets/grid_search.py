@@ -214,7 +214,6 @@ class GridSearch(Grid):
         wid.show_in_folder.connect(self.show_in_folder.emit)
         wid.move_to_wid.connect(self.move_to_wid)
         wid.clicked.connect(lambda r=self.row, c=self.col: self.select_new_widget((r, c)))
-        wid.sort_click.connect(lambda: self.sort_grid(self.ww))
 
         self.grid_layout.addWidget(wid, self.row, self.col)
 
@@ -234,12 +233,10 @@ class GridSearch(Grid):
             super().resize_grid(width)
     
     def sort_grid(self, width: int):
-        super().sort_grid()
-        self.resize_grid(width)
+        super().sort_grid(width)
 
     def filter_grid(self, width: int):
-        super().filter_grid()
-        self.resize_grid(width)
+        super().filter_grid(width)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         try:
