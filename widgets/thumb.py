@@ -90,7 +90,8 @@ class Thumb(QFrame):
         self.name_label.setFixedHeight(Geo.text_h)
         v_lay.addWidget(self.name_label)
 
-        self.context_menu = QMenu(parent=self)
+        self.context_menu = QMenu(self)
+        self.init_context_menu()
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
         self.clicked.emit()
@@ -129,11 +130,20 @@ class Thumb(QFrame):
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         self.clicked.emit()
+        self.add_custom_menu_items()
+        self.context_menu.exec_(self.mapToGlobal(a0.pos()))
 
+    def add_custom_menu_items(self):
+        """Метод для добавления дополнительных пунктов меню в наследниках."""
+        pass
+
+    def init_context_menu(self):
+        # Просмотр
         view_action = QAction("Просмотр", self)
         view_action.triggered.connect(self.view)
         self.context_menu.addAction(view_action)
 
+        # Открыть в приложении
         open_menu = QMenu("Открыть в приложении", self)
         self.context_menu.addMenu(open_menu)
 
@@ -144,20 +154,24 @@ class Thumb(QFrame):
 
         self.context_menu.addSeparator()
 
+        # Показать в Finder
         show_in_finder_action = QAction("Показать в Finder", self)
         show_in_finder_action.triggered.connect(self.show_in_finder)
         self.context_menu.addAction(show_in_finder_action)
 
+        # Скопировать путь до файла
         copy_path = QAction("Скопировать путь до файла", self)
         copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
         self.context_menu.addAction(copy_path)
 
+        # Переименовать
         rename = QAction("Переименовать", self)
         rename.triggered.connect(self.rename_win)
         self.context_menu.addAction(rename)
 
         self.context_menu.addSeparator()
 
+        # Меню выбора цветов
         color_menu = QMenu("Цвета", self)
         self.context_menu.addMenu(color_menu)
 
@@ -171,6 +185,7 @@ class Thumb(QFrame):
             wid.triggered.connect(lambda e, c=color: self.color_click(color_menu, c))
             color_menu.addAction(wid)
 
+        # Меню рейтингов
         rating_menu = QMenu("Рейтинг", self)
         self.context_menu.addMenu(rating_menu)
 
@@ -183,8 +198,6 @@ class Thumb(QFrame):
 
             wid.triggered.connect(lambda e, r=rate, w=wid: self.rating_click(rating_menu, w, r))
             rating_menu.addAction(wid)
-
-        self.context_menu.exec_(self.mapToGlobal(a0.pos()))
 
     def view(self):
         # в win_img_view есть импорт Thumbnail.
@@ -350,8 +363,9 @@ class ThumbSearch(Thumb):
     def __init__(self, name: str, src: str, path_to_wid: dict[str: Thumb]):
         super().__init__(name, 0, 0, "", src, path_to_wid)
 
+    def add_custom_menu_items(self):
         show_in_folder = QAction("Показать в папке", self)
         show_in_folder.triggered.connect(lambda: self.show_in_folder.emit(self.src))
         self.context_menu.addAction(show_in_folder)
 
-        self.context_menu.addSeparator()
+        self.context_menu.addSeparator()    
