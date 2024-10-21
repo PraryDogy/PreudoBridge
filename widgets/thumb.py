@@ -297,9 +297,9 @@ class ThumbFolder(Thumb):
         self.clicked_folder.emit(self.src)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        context_menu = QMenu(parent=self)
-
         self.clicked.emit()
+
+        context_menu = QMenu(parent=self)
 
         view_action = QAction("Просмотр", self)
         view_action.triggered.connect(lambda: self.clicked_folder.emit(self.src))
@@ -358,6 +358,8 @@ class ThumbSearch(Thumb):
         self.context_menu.addSeparator()    
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+        self.clicked.emit()
+        
         context_menu = QMenu(parent=self)
 
         self.add_base_actions(context_menu)
