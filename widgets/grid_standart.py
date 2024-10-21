@@ -269,7 +269,6 @@ class GridStandart(Grid):
         self.finder_thread.start()
 
     def create_grid(self, finder_items: list):
-        self.hide()
         # (путь, размер, дата): QLabel
         # Для последующей загрузки в LoadImages
         src_size_mod: list[tuple] = []

@@ -113,7 +113,6 @@ class Grid(QScrollArea):
 
     def filter_grid(self):
         for wid in self.sorted_widgets:
-            wid: Thumb
             show_widget = True
 
             if Config.rating_filter > 0:
