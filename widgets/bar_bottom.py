@@ -8,6 +8,9 @@ from cfg import JsonData
 
 
 class BarBottom(QWidget):
+    folder_sym = "\U0001F4C1"
+    folder_sym = "\U0001F5C2"
+    folder_sym = ""
     progressbar_start = pyqtSignal(int)
     progressbar_value = pyqtSignal(int)
     path_click = pyqtSignal()
@@ -56,7 +59,7 @@ class BarBottom(QWidget):
 
         chunks = []
         for chunk in root:
-            label = QLabel(f"\U0001F4C1 {chunk} > ")
+            label = QLabel(f"{BarBottom.folder_sym} {chunk} > ")
             label.mouseReleaseEvent = lambda e, c=chunk: self._new_root(root, c)
             h_lay.addWidget(label, alignment=Qt.AlignmentFlag.AlignLeft)
             chunks.append(label)
