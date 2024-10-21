@@ -64,17 +64,13 @@ class Grid(QScrollArea):
             self.select_new_widget(coords)
 
     def select_new_widget(self, coords: tuple):
+        self.reset_selection()
+
         new_widget = self.cell_to_wid.get(coords)
-        old_widget = self.cell_to_wid.get(self.curr_cell)
 
-        if isinstance(new_widget, QFrame):
-
-            if isinstance(old_widget, QFrame):
-                old_widget.setFrameShape(QFrame.Shape.NoFrame)
-
+        if isinstance(new_widget, Thumb):
             new_widget.setFrameShape(QFrame.Shape.Panel)
             self.curr_cell = coords
-
             self.ensureWidgetVisible(new_widget)
 
     def reset_selection(self):
