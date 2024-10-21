@@ -42,12 +42,22 @@ if os.path.exists("lib"):
     sys.excepthook = catch_err
 
 
+from PyQt5.QtCore import QLibraryInfo, QTranslator
+from PyQt5.QtWidgets import QApplication
+
 from database import Dbase
 from gui import CustomApp, SimpleFileExplorer
 
 Dbase.init_db()
 
 app = CustomApp(sys.argv)
+
+translator = QTranslator()
+locale = "ru_RU"
+
+if translator.load(f"qtbase_{locale}", QLibraryInfo.location(QLibraryInfo.TranslationsPath)):
+    app.installTranslator(translator)
+
 ex = SimpleFileExplorer()
 ex.show()
 sys.exit(app.exec_())
