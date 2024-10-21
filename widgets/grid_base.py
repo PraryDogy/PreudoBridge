@@ -128,7 +128,6 @@ class Grid(QScrollArea):
 
     def resize_grid(self, width: int):
         self.reset_selection()
-
         self.wid_to_cell.clear()
         self.cell_to_wid.clear()
 
