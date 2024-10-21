@@ -371,41 +371,6 @@ class GridStandart(Grid):
             if isinstance(image_data.pixmap, QPixmap):
                 widget.img_label.setPixmap(image_data.pixmap)
 
-    # def resize_grid(self, width: int):
-    #     super().clear_grid_data()
-    #     col_count = Utils.get_clmn_count(width)
-    #     row, col = 0, 0
-
-    #     for wid in self.sorted_widgets:
-
-    #         if wid.isHidden():
-    #             continue
-
-    #         if isinstance(wid, ThumbnailFolder):
-    #             wid.disconnect()
-    #             wid.clicked_folder.connect(self.clicked_folder.emit)
-    #             wid.add_fav_sig.connect(self.add_fav.emit)
-    #             wid.del_fav_sig.connect(self.del_fav.emit)
-        
-    #         elif isinstance(wid, Thumbnail):
-    #             wid.disconnect()
-    #             wid.move_to_wid.connect(lambda src: self.move_to_wid(src))
-
-    #         wid.sort_click.connect(lambda: self.sort_grid(width))
-    #         wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
-
-    #         self.grid_layout.addWidget(wid, row, col)
-    #         self.cell_to_wid[row, col] = wid
-
-    #         wid.path_to_wid = self.path_to_wid
-
-    #         col += 1
-    #         if col >= col_count:
-    #             col = 0
-    #             row += 1
-
-    #     self.wid_to_cell = {v: k for k, v in self.cell_to_wid.items()}
-
     def sort_grid(self, width: int):
         super().sort_grid()
         self.resize_grid(width)
