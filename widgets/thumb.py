@@ -47,8 +47,6 @@ class Geo:
 class Thumb(QFrame):
     move_to_wid = pyqtSignal(str)
     clicked = pyqtSignal()
-    clicked_folder = pyqtSignal(str)
-    sort_click = pyqtSignal()
 
     def __init__(
             self, name: str, size: int, modify: int, type: str, src: str,
@@ -187,16 +185,13 @@ class Thumb(QFrame):
         self.context_menu.exec_(self.mapToGlobal(a0.pos()))
 
     def view(self):
-        if os.path.isfile(self.src):
-            # в win_img_view есть импорт Thumbnail.
-            # избегаем circular import
-            from .win_img_view import WinImgView
-            self.win = WinImgView(self.src, self.path_to_wid)
-            Utils.center_win(parent=Utils.get_main_win(), child=self.win)
-            self.win.move_to_wid.connect(lambda src: self.move_to_wid.emit(src))
-            self.win.show()
-        else:
-            self.clicked_folder.emit(self.src)
+        # в win_img_view есть импорт Thumbnail.
+        # избегаем circular import
+        from .win_img_view import WinImgView
+        self.win = WinImgView(self.src, self.path_to_wid)
+        Utils.center_win(parent=Utils.get_main_win(), child=self.win)
+        self.win.move_to_wid.connect(lambda src: self.move_to_wid.emit(src))
+        self.win.show()
 
     def open_in_app(self, app_path: str):
         subprocess.call(["open", "-a", app_path, self.src])
@@ -223,8 +218,6 @@ class Thumb(QFrame):
                 if item.text()[0] in self.colors:
                     item.setChecked(True)
 
-            self.sort_click.emit()
-
     def rating_click(self, menu: QMenu, wid: QAction, rate: int):
         if rate == 1:
             rate = 0
@@ -240,8 +233,6 @@ class Thumb(QFrame):
                 i.setChecked(False)
             if rate > 0:
                 wid.setChecked(True)
-            
-            self.sort_click.emit()
 
     def set_colors(self, colors: str):
         self.colors = colors
@@ -284,7 +275,6 @@ class Thumb(QFrame):
 
         self.name = text
         self.src  = dest
-        self.sort_click.emit()
 
     def connect_signals(self, context: QWidget):
         if hasattr(context, ...):
@@ -294,6 +284,7 @@ class Thumb(QFrame):
 class ThumbFolder(Thumb):
     add_fav = pyqtSignal(str)
     del_fav = pyqtSignal(str)
+    clicked_folder = pyqtSignal(str)
 
     def __init__(self, name: str, src: str):
         super().__init__(name, 0, 0, "", src, {})
@@ -348,6 +339,8 @@ class ThumbFolder(Thumb):
             self.fav_action.setText("Добавить в избранное")
             self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))
 
+    def view(self):
+        self.clicked_folder.emit(self.src)
 
 class ThumbSearch(Thumb):
     show_in_folder = pyqtSignal(str)

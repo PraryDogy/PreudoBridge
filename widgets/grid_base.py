@@ -131,9 +131,9 @@ class Grid(QScrollArea):
         self.reset_selection()
 
     def resize_grid(self, width: int):
+        self.reset_selection()
         self.wid_to_cell.clear()
         self.cell_to_wid.clear()
-        self.curr_cell = (0, 0)
 
         col_count = Utils.get_clmn_count(width)
         row, col = 0, 0
@@ -145,8 +145,6 @@ class Grid(QScrollArea):
 
             wid.disconnect()
 
-            wid.clicked_folder.connect(self.clicked_folder.emit)
-            wid.sort_click.connect(lambda: self.sort_grid(width))
             wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
             wid.move_to_wid.connect(self.move_to_wid)
 
@@ -155,6 +153,7 @@ class Grid(QScrollArea):
             wid.path_to_wid = self.path_to_wid
 
             if isinstance(wid, ThumbFolder):
+                wid.clicked_folder.connect(self.clicked_folder.emit)
                 wid.add_fav.connect(self.add_fav.emit)
                 wid.del_fav.connect(self.del_fav.emit)
 

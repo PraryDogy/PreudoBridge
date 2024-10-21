@@ -286,7 +286,6 @@ class GridStandart(Grid):
                 wid.clicked_folder.connect(self.clicked_folder.emit)
                 wid.add_fav.connect(self.add_fav.emit)
                 wid.del_fav.connect(self.del_fav.emit)
-                wid.sort_click.connect(lambda: self.sort_grid(self.ww))
 
                 # у папок нет цветных тегов, но этот метод задает имя
                 wid.set_colors("")
@@ -302,8 +301,6 @@ class GridStandart(Grid):
                 src_size_mod.append((src, size, modify))
 
             wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
-            wid.sort_click.connect(lambda: self.sort_grid(self.ww))
-
             self.grid_layout.addWidget(wid, row, col)
 
             # добавляем местоположение виджета в сетке для навигации клавишами
