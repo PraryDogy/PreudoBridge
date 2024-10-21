@@ -64,15 +64,15 @@ class Thumb(QFrame):
         # так как по этим аттрибутам будет совершаться сортировка сетки
         # и фильтрация
         # в Grid ниже будет совершена проверка
-
         self.name = name
         self.size: int = size
         self.modify: int = modify
         self.type: str = type
-
         self.colors: str = ""
         self.rating: int = 0
-
+        ############################################################
+        # для навигации по сетке
+        self.row, self.col = 0, 0
         ############################################################
 
         v_lay = QVBoxLayout()

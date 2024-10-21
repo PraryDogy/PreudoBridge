@@ -298,10 +298,9 @@ class GridStandart(Grid):
 
                 src_size_mod.append((src, size, modify))
 
-            wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
+            wid.row, wid.col = row, col
+            wid.clicked.connect(lambda w=wid: self.select_new_widget(w))
             self.grid_layout.addWidget(wid, row, col)
-
-            # добавляем местоположение виджета в сетке для навигации клавишами
             self.cell_to_wid[row, col] = wid
             self.path_to_wid[src] = wid
 

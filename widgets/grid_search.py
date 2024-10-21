@@ -210,10 +210,11 @@ class GridSearch(Grid):
         wid.size = widget_data.stats.st_size
         wid.modified = widget_data.stats.st_mtime
         wid.filetype = os.path.splitext(widget_data.src)[1]
+        wid.row, wid.col = self.row, self.col
 
         wid.show_in_folder.connect(self.show_in_folder.emit)
         wid.move_to_wid.connect(self.move_to_wid)
-        wid.clicked.connect(lambda r=self.row, c=self.col: self.select_new_widget((r, c)))
+        wid.clicked.connect(lambda w=wid: self.select_new_widget(w))
 
         self.grid_layout.addWidget(wid, self.row, self.col)
 

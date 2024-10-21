@@ -34,11 +34,16 @@ class Grid(BaseGrid):
         if coords:
             self.select_new_widget(coords)
 
-    def select_new_widget(self, coords: tuple):
-        prev_wid = self.cell_to_wid.get(self.curr_cell)
-        new_wid = self.cell_to_wid.get(coords)
+    def select_new_widget(self, coords_wid: tuple | Thumb):
+        if isinstance(coords_wid, Thumb):
+            coords = coords_wid.row, coords_wid.col
+            new_wid = coords_wid
+        else:
+            coords = coords_wid
+            new_wid = self.cell_to_wid.get(coords_wid)
 
         if isinstance(new_wid, Thumb):
+            prev_wid = self.cell_to_wid.get(self.curr_cell)
             prev_wid.setFrameShape(QFrame.Shape.NoFrame)
             new_wid.setFrameShape(QFrame.Shape.Panel)
             self.curr_cell = coords
@@ -112,23 +117,24 @@ class Grid(BaseGrid):
             if wid.must_hidden:
                 continue
 
-            wid.disconnect()
-
-            wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
-            wid.move_to_wid.connect(self.move_to_wid)
-
             self.grid_layout.addWidget(wid, row, col)
-
             self.cell_to_wid[row, col] = wid
+
             wid.path_to_wid = self.path_to_wid
+            wid.row, wid.col = row, col
 
-            if isinstance(wid, ThumbFolder):
-                wid.clicked_folder.connect(self.clicked_folder.emit)
-                wid.add_fav.connect(self.add_fav.emit)
-                wid.del_fav.connect(self.del_fav.emit)
+            # wid.disconnect()
 
-            elif isinstance(wid, ThumbSearch):
-                wid.show_in_folder.connect(self.show_in_folder.emit)
+            # wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
+            # wid.move_to_wid.connect(self.move_to_wid)
+
+            # if isinstance(wid, ThumbFolder):
+            #     wid.clicked_folder.connect(self.clicked_folder.emit)
+            #     wid.add_fav.connect(self.add_fav.emit)
+            #     wid.del_fav.connect(self.del_fav.emit)
+
+            # elif isinstance(wid, ThumbSearch):
+            #     wid.show_in_folder.connect(self.show_in_folder.emit)
 
             col += 1
             if col >= col_count:
