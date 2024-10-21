@@ -5,8 +5,8 @@ from time import sleep
 import sqlalchemy
 from numpy import ndarray
 from PyQt5.QtCore import QThread, pyqtSignal
-from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QPixmap
-from PyQt5.QtWidgets import QAction, QSizePolicy, QSpacerItem
+from PyQt5.QtGui import QCloseEvent, QPixmap
+from PyQt5.QtWidgets import QSizePolicy, QSpacerItem
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Config, JsonData
@@ -14,20 +14,8 @@ from database import CACHE, STATS, Engine
 from fit_img import FitImg
 from utils import Utils
 
-from .grid_base import Grid, Thumbnail
-
-
-class ThumbnailSearch(Thumbnail):
-    show_in_folder = pyqtSignal(str)
-
-    def __init__(self, name: str, src: str, path_to_wid: dict[str: Thumbnail]):
-        super().__init__(name, 0, 0, "", src, path_to_wid)
-
-        show_in_folder = QAction("Показать в папке", self)
-        show_in_folder.triggered.connect(lambda: self.show_in_folder.emit(self.src))
-        self.context_menu.addAction(show_in_folder)
-
-        self.context_menu.addSeparator()
+from .grid_base import Grid
+from .thumb import ThumbSearch
 
 
 class WidgetData:
@@ -194,7 +182,6 @@ class SearchFinder(QThread):
 
 class GridSearch(Grid):
     search_finished = pyqtSignal()
-    show_in_folder = pyqtSignal(str)
 
     def __init__(self, width: int, search_text: str):
         super().__init__()
@@ -213,7 +200,7 @@ class GridSearch(Grid):
 
     def add_new_widget(self, widget_data: WidgetData):
         name = os.path.basename(widget_data.src)
-        wid = ThumbnailSearch(name=name, src=widget_data.src, path_to_wid=self.path_to_wid)
+        wid = ThumbSearch(name=name, src=widget_data.src, path_to_wid=self.path_to_wid)
 
         wid.img_label.setPixmap(widget_data.pixmap)
 
@@ -244,34 +231,7 @@ class GridSearch(Grid):
  
     def resize_grid(self, width: int):
         if not self.search_thread.isRunning():
-            super().clear_grid_data()
-            col_count = Utils.get_clmn_count(width)
-            row, col = 0, 0
-
-            for wid in self.sorted_widgets:
-
-                if wid.isHidden():
-                    continue
-
-                wid.disconnect()
-                wid.show_in_folder.connect(self.show_in_folder.emit)
-                wid.move_to_wid.connect(self.move_to_wid)
-                wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
-                wid.sort_click.connect(lambda: self.sort_grid(width))
-
-                # обновляем информацию в Thumbnail о порядке путей и виджетов
-                # для правильной передачи в ImgView после пересортировки сетки
-                wid.path_to_wid = self.path_to_wid
-
-                self.grid_layout.addWidget(wid, row, col)
-                self.cell_to_wid[row, col] = wid
-
-                col += 1
-                if col >= col_count:
-                    col = 0
-                    row += 1
-            
-            self.wid_to_cell = {v: k for k, v in self.cell_to_wid.items()}
+            super().resize_grid(width)
     
     def sort_grid(self, width: int):
         super().sort_grid()

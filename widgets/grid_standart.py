@@ -2,8 +2,8 @@ import os
 
 import sqlalchemy
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
-from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QMouseEvent, QPixmap
-from PyQt5.QtWidgets import QAction, QLabel, QMenu
+from PyQt5.QtGui import QCloseEvent, QPixmap
+from PyQt5.QtWidgets import QLabel
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Config, JsonData
@@ -11,7 +11,8 @@ from database import CACHE, STATS, Engine
 from fit_img import FitImg
 from utils import Utils
 
-from .grid_base import Grid, Thumbnail
+from .grid_base import Grid, Thumb
+from .thumb import ThumbFolder
 
 
 # Если родительский класс запущенного треда будет закрыт
@@ -252,75 +253,9 @@ class LoadFinder(QThread):
             if os.path.isdir(src):
                 self.finder_items.append((name, size, modified, filetype, colors, rating, src))
 
-
-class ThumbnailFolder(Thumbnail):
-    add_fav_sig = pyqtSignal(str)
-    del_fav_sig = pyqtSignal(str)
-
-    def __init__(self, name: str, src: str):
-        super().__init__(name, 0, 0, "", src, {})
-        self.context_menu.clear()
-
-    def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
-        self.clicked.emit()
-        self.clicked_folder.emit(self.src)
-
-    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        self.clicked.emit()
-
-        view_action = QAction("Просмотр", self)
-        view_action.triggered.connect(lambda: self.clicked_folder.emit(self.src))
-        self.context_menu.addAction(view_action)
-
-        self.context_menu.addSeparator()
-
-        show_in_finder_action = QAction("Показать в Finder", self)
-        show_in_finder_action.triggered.connect(self.show_in_finder)
-        self.context_menu.addAction(show_in_finder_action)
-
-        copy_path = QAction("Скопировать путь до папки", self)
-        copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
-        self.context_menu.addAction(copy_path)
-
-        rename = QAction("Переименовать", self)
-        rename.triggered.connect(self.rename_win)
-        self.context_menu.addAction(rename)
-
-        self.context_menu.addSeparator()
-
-        if self.src in JsonData.favs:
-            self.fav_action = QAction("Удалить из избранного", self)
-            self.fav_action.triggered.connect(lambda: self.fav_cmd(-1))
-            self.context_menu.addAction(self.fav_action)
-        else:
-            self.fav_action = QAction("Добавить в избранное", self)
-            self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))
-            self.context_menu.addAction(self.fav_action)
-
-        self.context_menu.exec_(self.mapToGlobal(a0.pos()))
-
-    def fav_cmd(self, offset: int):
-        self.fav_action.triggered.disconnect()
-        if 0 + offset == 1:
-            self.add_fav.emit(self.src)
-            self.fav_action.setText("Удалить из избранного")
-            self.fav_action.triggered.connect(lambda: self.fav_cmd(-1))
-        else:
-            self.del_fav.emit(self.src)
-            self.fav_action.setText("Добавить в избранное")
-            self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))
-
-
 # Базовый класс со внутренними методами не для импорта
 class GridStandart(Grid):
-    # сигналы переданные из FOLDER THUMBNAIL
-    add_fav = pyqtSignal(str)
-    del_fav = pyqtSignal(str)
-    clicked_folder = pyqtSignal(str)
 
-    # сигналы из треда по загрузке изображений
-    progressbar_start = pyqtSignal(int)
-    progressbar_value = pyqtSignal(int)
 
     def __init__(self, width: int):
         super().__init__()
@@ -346,19 +281,19 @@ class GridStandart(Grid):
         for name, size, modify, type, colors, rating, src in finder_items:
 
             if os.path.isdir(src):
-                wid = ThumbnailFolder(name, src)
+                wid = ThumbFolder(name, src)
                 self.set_base_img(wid.img_label, "images/folder_210.png")
 
                 wid.clicked_folder.connect(self.clicked_folder.emit)
-                wid.add_fav_sig.connect(self.add_fav.emit)
-                wid.del_fav_sig.connect(self.del_fav.emit)
+                wid.add_fav.connect(self.add_fav.emit)
+                wid.del_fav.connect(self.del_fav.emit)
                 wid.sort_click.connect(lambda: self.sort_grid(self.ww))
 
                 # у папок нет цветных тегов, но этот метод задает имя
                 wid.set_colors("")
 
             else:
-                wid = Thumbnail(name, size, modify, type, src, self.path_to_wid)
+                wid = Thumb(name, size, modify, type, src, self.path_to_wid)
                 self.set_base_img(wid.img_label, "images/file_210.png")
 
                 wid.move_to_wid.connect(lambda src: self.move_to_wid(src))
@@ -431,45 +366,45 @@ class GridStandart(Grid):
     def set_pixmap(self, image_data: ImageData):
         widget = self.path_to_wid.get(image_data.src)
 
-        if isinstance(widget, Thumbnail):
+        if isinstance(widget, Thumb):
 
             if isinstance(image_data.pixmap, QPixmap):
                 widget.img_label.setPixmap(image_data.pixmap)
 
-    def resize_grid(self, width: int):
-        super().clear_grid_data()
-        col_count = Utils.get_clmn_count(width)
-        row, col = 0, 0
+    # def resize_grid(self, width: int):
+    #     super().clear_grid_data()
+    #     col_count = Utils.get_clmn_count(width)
+    #     row, col = 0, 0
 
-        for wid in self.sorted_widgets:
+    #     for wid in self.sorted_widgets:
 
-            if wid.isHidden():
-                continue
+    #         if wid.isHidden():
+    #             continue
 
-            if isinstance(wid, ThumbnailFolder):
-                wid.disconnect()
-                wid.clicked_folder.connect(self.clicked_folder.emit)
-                wid.add_fav_sig.connect(self.add_fav.emit)
-                wid.del_fav_sig.connect(self.del_fav.emit)
+    #         if isinstance(wid, ThumbnailFolder):
+    #             wid.disconnect()
+    #             wid.clicked_folder.connect(self.clicked_folder.emit)
+    #             wid.add_fav_sig.connect(self.add_fav.emit)
+    #             wid.del_fav_sig.connect(self.del_fav.emit)
         
-            elif isinstance(wid, Thumbnail):
-                wid.disconnect()
-                wid.move_to_wid.connect(lambda src: self.move_to_wid(src))
+    #         elif isinstance(wid, Thumbnail):
+    #             wid.disconnect()
+    #             wid.move_to_wid.connect(lambda src: self.move_to_wid(src))
 
-            wid.sort_click.connect(lambda: self.sort_grid(width))
-            wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
+    #         wid.sort_click.connect(lambda: self.sort_grid(width))
+    #         wid.clicked.connect(lambda r=row, c=col: self.select_new_widget((r, c)))
 
-            self.grid_layout.addWidget(wid, row, col)
-            self.cell_to_wid[row, col] = wid
+    #         self.grid_layout.addWidget(wid, row, col)
+    #         self.cell_to_wid[row, col] = wid
 
-            wid.path_to_wid = self.path_to_wid
+    #         wid.path_to_wid = self.path_to_wid
 
-            col += 1
-            if col >= col_count:
-                col = 0
-                row += 1
+    #         col += 1
+    #         if col >= col_count:
+    #             col = 0
+    #             row += 1
 
-        self.wid_to_cell = {v: k for k, v in self.cell_to_wid.items()}
+    #     self.wid_to_cell = {v: k for k, v in self.cell_to_wid.items()}
 
     def sort_grid(self, width: int):
         super().sort_grid()

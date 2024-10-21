@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import QAction, QFileSystemModel, QMenu, QTableView
 from cfg import Config, JsonData
 from utils import Utils
 
-from .grid_base import Thumbnail
+from .grid_base import Thumb
 from .win_img_view import WinImgView
 
 
@@ -55,7 +55,7 @@ class ListStandart(QTableView):
             self.folders_tree_clicked.emit(path)
 
         elif path_lower.endswith(Config.IMG_EXT):
-            thumbnail = Thumbnail("", 0, 0, "", "", {})
+            thumbnail = Thumb("", 0, 0, "", "", {})
             self.win = WinImgView(path, {path: thumbnail})
             self.win.show()
 

@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (QAction, QFrame, QHBoxLayout, QLabel, QMenu,
 from cfg import Config, JsonData
 from database import CACHE, Engine
 from utils import Utils
-from .grid_base import Thumbnail
+from .grid_base import Thumb
 from .svg_widgets import SvgShadowed
 
 
@@ -219,12 +219,12 @@ class NextImageBtn(SwitchImageBtn):
 class WinImgView(QWidget):
     move_to_wid = pyqtSignal(str)
 
-    def __init__(self, src: str, path_to_wid: dict[str: Thumbnail]):
+    def __init__(self, src: str, path_to_wid: dict[str: Thumb]):
         super().__init__()
         self.src: str = src
 
-        self.thumbnail: Thumbnail = path_to_wid.get(src)
-        self.path_to_wid: dict[str: Thumbnail] = path_to_wid
+        self.thumbnail: Thumb = path_to_wid.get(src)
+        self.path_to_wid: dict[str: Thumb] = path_to_wid
         self.image_paths: list = [
             i for i in path_to_wid.keys()
             if os.path.isfile(i)
@@ -341,7 +341,7 @@ class WinImgView(QWidget):
         new_index: int = (current_index + offset) % total_images
 
         self.src: str = self.image_paths[new_index]
-        self.thumbnail: Thumbnail = self.path_to_wid.get(self.src)
+        self.thumbnail: Thumb = self.path_to_wid.get(self.src)
         self.move_to_wid.emit(self.src)
         self.load_thumbnail()
 
