@@ -90,8 +90,6 @@ class Thumb(QFrame):
         self.name_label.setFixedHeight(Geo.text_h)
         v_lay.addWidget(self.name_label)
 
-        self.context_menu = QMenu(self)
-        self.init_context_menu()
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
         self.clicked.emit()
@@ -130,49 +128,45 @@ class Thumb(QFrame):
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         self.clicked.emit()
-        self.add_custom_menu_items()
-        self.context_menu.exec_(self.mapToGlobal(a0.pos()))
+        context_menu = QMenu(self)
+        self.add_base_actions(context_menu)
+        context_menu.exec_(self.mapToGlobal(a0.pos()))
 
-    def add_custom_menu_items(self):
-        """Метод для добавления дополнительных пунктов меню в наследниках."""
-        pass
-
-    def init_context_menu(self):
-        # Просмотр
+    def add_base_actions(self, context_menu: QMenu):
         view_action = QAction("Просмотр", self)
         view_action.triggered.connect(self.view)
-        self.context_menu.addAction(view_action)
+        context_menu.addAction(view_action)
 
         # Открыть в приложении
         open_menu = QMenu("Открыть в приложении", self)
-        self.context_menu.addMenu(open_menu)
+        context_menu.addMenu(open_menu)
 
         for name, app_path in Config.image_apps.items():
             wid = QAction(name, parent=open_menu)
             wid.triggered.connect(lambda e, a=app_path: self.open_in_app(a))
             open_menu.addAction(wid)
 
-        self.context_menu.addSeparator()
+        context_menu.addSeparator()
 
         # Показать в Finder
         show_in_finder_action = QAction("Показать в Finder", self)
         show_in_finder_action.triggered.connect(self.show_in_finder)
-        self.context_menu.addAction(show_in_finder_action)
+        context_menu.addAction(show_in_finder_action)
 
         # Скопировать путь до файла
         copy_path = QAction("Скопировать путь до файла", self)
         copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
-        self.context_menu.addAction(copy_path)
+        context_menu.addAction(copy_path)
 
         # Переименовать
         rename = QAction("Переименовать", self)
         rename.triggered.connect(self.rename_win)
-        self.context_menu.addAction(rename)
+        context_menu.addAction(rename)
 
-        self.context_menu.addSeparator()
+        context_menu.addSeparator()
 
         color_menu = QMenu("Цвета", self)
-        self.context_menu.addMenu(color_menu)
+        context_menu.addMenu(color_menu)
 
         for color, text in Config.COLORS.items():
             wid = QAction(parent=color_menu, text=f"{color} {text}")
@@ -185,14 +179,13 @@ class Thumb(QFrame):
             color_menu.addAction(wid)
 
         rating_menu = QMenu("Рейтинг", self)
-        self.context_menu.addMenu(rating_menu)
+        context_menu.addMenu(rating_menu)
 
         for rate in range(1, 6):
             wid = QAction(parent=rating_menu, text="\U00002605" * rate)
             wid.setCheckable(True)
 
             if self.rating == rate:
-                print(self.rating)
                 wid.setChecked(True)
 
             wid.triggered.connect(lambda e, r=rate, w=wid: self.rating_click(rating_menu, w, r))
@@ -298,45 +291,44 @@ class ThumbFolder(Thumb):
 
     def __init__(self, name: str, src: str):
         super().__init__(name, 0, 0, "", src, {})
-        self.context_menu.clear()
 
     def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
         self.clicked.emit()
         self.clicked_folder.emit(self.src)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+        context_menu = QMenu(parent=self)
+
         self.clicked.emit()
 
         view_action = QAction("Просмотр", self)
         view_action.triggered.connect(lambda: self.clicked_folder.emit(self.src))
-        self.context_menu.addAction(view_action)
-
-        self.context_menu.addSeparator()
+        context_menu.addAction(view_action)
 
         show_in_finder_action = QAction("Показать в Finder", self)
         show_in_finder_action.triggered.connect(self.show_in_finder)
-        self.context_menu.addAction(show_in_finder_action)
+        context_menu.addAction(show_in_finder_action)
 
         copy_path = QAction("Скопировать путь до папки", self)
         copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
-        self.context_menu.addAction(copy_path)
+        context_menu.addAction(copy_path)
 
         rename = QAction("Переименовать", self)
         rename.triggered.connect(self.rename_win)
-        self.context_menu.addAction(rename)
+        context_menu.addAction(rename)
 
-        self.context_menu.addSeparator()
+        context_menu.addSeparator()
 
         if self.src in JsonData.favs:
             self.fav_action = QAction("Удалить из избранного", self)
             self.fav_action.triggered.connect(lambda: self.fav_cmd(-1))
-            self.context_menu.addAction(self.fav_action)
+            context_menu.addAction(self.fav_action)
         else:
             self.fav_action = QAction("Добавить в избранное", self)
             self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))
-            self.context_menu.addAction(self.fav_action)
+            context_menu.addAction(self.fav_action)
 
-        self.context_menu.exec_(self.mapToGlobal(a0.pos()))
+        context_menu.exec_(self.mapToGlobal(a0.pos()))
 
     def fav_cmd(self, offset: int):
         self.fav_action.triggered.disconnect()
@@ -364,3 +356,16 @@ class ThumbSearch(Thumb):
         self.context_menu.addAction(show_in_folder)
 
         self.context_menu.addSeparator()    
+
+    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+        context_menu = QMenu(parent=self)
+
+        self.add_base_actions(context_menu)
+
+        context_menu.addSeparator()
+
+        show_in_folder = QAction("Показать в папке", self)
+        show_in_folder.triggered.connect(lambda: self.show_in_folder.emit(self.src))
+        context_menu.addAction(show_in_folder)
+
+        context_menu.exec_(self.mapToGlobal(a0.pos()))
