@@ -12,8 +12,6 @@ from cfg import Config, JsonData
 from database import CACHE, Engine
 from utils import Utils
 
-from .win_rename import WinRename
-
 
 class NameLabel(QLabel):
     def __init__(self):
@@ -158,11 +156,6 @@ class Thumb(QFrame):
         copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
         context_menu.addAction(copy_path)
 
-        # Переименовать
-        rename = QAction("Переименовать", self)
-        rename.triggered.connect(self.rename_win)
-        context_menu.addAction(rename)
-
         context_menu.addSeparator()
 
         color_menu = QMenu("Цвета", self)
@@ -263,26 +256,6 @@ class Thumb(QFrame):
 
         return True
 
-    def rename_win(self):
-        self.win = WinRename(self.name)
-        self.win._finished.connect(self.rename_cmd)
-        Utils.center_win(Utils.get_main_win(), self.win)
-        self.win.show()
-
-    def rename_cmd(self, text: str):
-        root = os.sep + os.path.dirname(self.src).strip(os.sep)
-        dest = os.path.join(root, text)
-        os.rename(self.src, dest)
-
-        self.name_label.update_name(self.rating, self.colors, text)
-
-        if os.path.isfile(self.src):
-            self.path_to_wid.pop(self.src)
-            self.path_to_wid[dest] = self
-
-        self.name = text
-        self.src  = dest
-
 
 class ThumbFolder(Thumb):
     add_fav = pyqtSignal(str)
@@ -312,10 +285,6 @@ class ThumbFolder(Thumb):
         copy_path = QAction("Скопировать путь до папки", self)
         copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
         context_menu.addAction(copy_path)
-
-        rename = QAction("Переименовать", self)
-        rename.triggered.connect(self.rename_win)
-        context_menu.addAction(rename)
 
         context_menu.addSeparator()
 
