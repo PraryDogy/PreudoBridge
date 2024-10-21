@@ -171,7 +171,6 @@ class Thumb(QFrame):
 
         self.context_menu.addSeparator()
 
-        # Меню выбора цветов
         color_menu = QMenu("Цвета", self)
         self.context_menu.addMenu(color_menu)
 
@@ -185,7 +184,6 @@ class Thumb(QFrame):
             wid.triggered.connect(lambda e, c=color: self.color_click(color_menu, c))
             color_menu.addAction(wid)
 
-        # Меню рейтингов
         rating_menu = QMenu("Рейтинг", self)
         self.context_menu.addMenu(rating_menu)
 
@@ -194,6 +192,7 @@ class Thumb(QFrame):
             wid.setCheckable(True)
 
             if self.rating == rate:
+                print(self.rating)
                 wid.setChecked(True)
 
             wid.triggered.connect(lambda e, r=rate, w=wid: self.rating_click(rating_menu, w, r))
@@ -290,10 +289,6 @@ class Thumb(QFrame):
 
         self.name = text
         self.src  = dest
-
-    def connect_signals(self, context: QWidget):
-        if hasattr(context, ...):
-            ...
 
 
 class ThumbFolder(Thumb):
