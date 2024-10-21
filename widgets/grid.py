@@ -27,13 +27,19 @@ class Grid(BaseGrid):
         self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
         self.setWidget(main_wid)
 
-    def select_new_widget(self, coords_wid: tuple | Thumb):
-        if isinstance(coords_wid, Thumb):
-            coords = coords_wid.row, coords_wid.col
-            new_wid = coords_wid
-        else:
-            coords = coords_wid
-            new_wid = self.cell_to_wid.get(coords_wid)
+    def select_new_widget(self, data: tuple | str | Thumb):
+
+        if isinstance(data, Thumb):
+            coords = data.row, data.col
+            new_wid = data
+
+        elif isinstance(data, tuple):
+            coords = data
+            new_wid = self.cell_to_wid.get(data)
+
+        elif isinstance(data, str):
+            new_wid = self.path_to_wid.get(data)
+            coords = new_wid.row, new_wid.col
 
         if isinstance(new_wid, Thumb):
             prev_wid = self.cell_to_wid.get(self.curr_cell)

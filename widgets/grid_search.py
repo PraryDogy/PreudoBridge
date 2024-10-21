@@ -212,7 +212,7 @@ class GridSearch(Grid):
         wid.filetype = os.path.splitext(widget_data.src)[1]
         wid.row, wid.col = self.row, self.col
 
-        wid.show_in_folder.connect(self.show_in_folder.emit)
+        wid.show_in_folder.connect(lambda: self.show_in_folder.emit(widget_data.src))
         wid.move_to_wid.connect(lambda w: self.select_new_widget(w))
         wid.clicked.connect(lambda w=wid: self.select_new_widget(w))
 

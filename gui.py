@@ -153,15 +153,15 @@ class SimpleFileExplorer(QWidget):
         if not os.path.exists(path):
             return
 
-        filepath = ""
         if os.path.isfile(path):
             if path.endswith(Config.IMG_EXT):
-                filepath = path
-            path, _ = os.path.split(path)
-
-        JsonData.root = path
-        self.grid_standart_load()
-        QTimer.singleShot(1500, lambda: self.grid.move_to_wid(filepath))
+                root = os.path.dirname(path)
+                JsonData.root = root
+                self.grid_standart_load()
+                self.move_to_wid_delayed(path)
+        else:
+            JsonData.root = path
+            self.grid_standart_load()
 
     def grid_search_load(self, search_text: str):
         self.bar_top.view_type_btn.setCurrentIndex(0)
@@ -179,9 +179,8 @@ class SimpleFileExplorer(QWidget):
         self.grid = GridSearch(width=ww, search_text=search_text)
         self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
         self.grid.search_finished.connect(lambda: self.grid_search_finished(search_text))
-        self.grid.show_in_folder.connect(self.move_to_wid_delayed)
+        self.grid.show_in_folder.connect(lambda src: self.move_to_wid_delayed(src))
         self.r_lay.addWidget(self.grid, 1, 0)
-        # чтобы фокус сместился с окна ввода в поиске на сетку
         self.grid.setFocus()
 
     def grid_search_migaet_title(self):
@@ -199,12 +198,11 @@ class SimpleFileExplorer(QWidget):
         self.bar_top.view_type_btn.setDisabled(True)
 
     def move_to_wid_delayed(self, src: str):
-        root = os.path.dirname(src)
-        JsonData.root = root
+        JsonData.root = os.path.dirname(src)
         self.grid_standart_load()
-        QTimer.singleShot(1500, lambda: self.grid.move_to_wid(src))
+        QTimer.singleShot(2000, lambda: self.grid.select_new_widget(src))
 
-    def grid_standart_load(self):
+    def grid_standart_load(self, src: str = None):
         self.grid.progressbar_value.emit(1000000)
         self.grid.disconnect()
         self.grid.close()
@@ -239,6 +237,9 @@ class SimpleFileExplorer(QWidget):
             self.grid.add_fav.connect(self.add_fav_cmd)
             self.grid.del_fav.connect(self.del_fav_cmd)
             self.grid.clicked_folder.connect(self.view_folder_cmd)
+
+            if src:
+                QTimer.singleShot(2000, lambda: self.grid.select_new_widget(src))
 
         self.r_lay.addWidget(self.grid, 1, 0)
         self.grid.setFocus()
