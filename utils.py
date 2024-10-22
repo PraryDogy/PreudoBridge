@@ -74,7 +74,7 @@ class Utils:
             return img
 
         except Exception as e:
-            print("read psd error", path, "\n")
+            cls.print_error(cls, e)
             return None
             
     @classmethod
@@ -83,8 +83,8 @@ class Utils:
             image = cv2.imread(path, cv2.IMREAD_UNCHANGED)  # Чтение с альфа-каналом
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             return image
-        except Exception as e:
-            print("jpg read error", path, "\n")
+        except (Exception, cv2.error) as e:
+            cls.print_error(cls, e)
             return None
         
     @classmethod
@@ -104,7 +104,7 @@ class Utils:
             converted = cv2.cvtColor(converted, cv2.COLOR_BGR2RGB)
             return converted
         except Exception as e:
-            print("read png error:", path, "\n")
+            cls.print_error(cls, e)
             return None
         
     @classmethod
@@ -114,7 +114,7 @@ class Utils:
             # img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
             return img
         except (rawpy._rawpy.LibRawDataError) as e:
-            print("read raw error:", path, "\n")
+            cls.print_error(cls, e)
             return None
 
     @classmethod

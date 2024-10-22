@@ -50,7 +50,10 @@ class LoadImageThread(QThread):
             first_img = list(Shared.loaded_images.keys())[0]
             Shared.loaded_images.pop(first_img)
 
-        self._finished.emit(ImageData(self.img_src, pixmap.width(), pixmap))
+        if isinstance(pixmap, QPixmap):
+            self._finished.emit(ImageData(self.img_src, pixmap.width(), pixmap))
+        else:
+            self._finished.emit(ImageData(self.img_src, 0, None))
 
 
 class ImageWidget(QLabel):
