@@ -65,9 +65,7 @@ class Thumb(QFrame):
             ):
 
         super().__init__()
-        self.setObjectName("thumb")
-        self.set_no_frame()
-
+  
         self.text_label_h = 65
 
         ############################################################
@@ -96,7 +94,8 @@ class Thumb(QFrame):
 
         v_lay = QVBoxLayout()
         v_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        v_lay.setContentsMargins(1, 1, 1, 1)
+        mar = 4
+        v_lay.setContentsMargins(mar, mar, mar, mar)
         v_lay.setSpacing(0)
         self.setLayout(v_lay)
 
@@ -107,6 +106,8 @@ class Thumb(QFrame):
         self.name_label = NameLabel()
         v_lay.addWidget(self.name_label)
 
+        self.setObjectName("thumb")
+        self.set_no_frame()
         self.resize()
 
     # 210 пикселей
