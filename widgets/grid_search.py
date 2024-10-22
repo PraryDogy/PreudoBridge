@@ -203,8 +203,7 @@ class GridSearch(Grid):
         name = os.path.basename(widget_data.src)
         wid = ThumbSearch(name=name, src=widget_data.src, path_to_wid=self.path_to_wid)
 
-        pixmap = Utils.pixmap_scale(widget_data.pixmap, JsonData.thumb_size)
-        wid.set_pixmap(pixmap)
+        wid.set_pixmap(widget_data.pixmap)
 
         # устанавливаем аттрибуты для сортировки
         wid.set_colors_from_db(widget_data.colors)
