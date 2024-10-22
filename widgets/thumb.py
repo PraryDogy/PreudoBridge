@@ -1,3 +1,5 @@
+import datetime
+import os
 import subprocess
 
 import sqlalchemy
@@ -7,10 +9,10 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QLabel, QMenu,
                              QVBoxLayout)
 from sqlalchemy.exc import OperationalError
 
-from cfg import Config, JsonData, IMG_SIZES, TEXT_LENS
+from cfg import IMG_SIZES, TEXT_LENS, Config, JsonData
 from database import CACHE, Engine
 from utils import Utils
-import os
+
 
 class NameLabel(QLabel):
     def __init__(self):
@@ -228,11 +230,16 @@ class Thumb(QFrame):
 
         rating = "\U00002605" * self.rating
 
+        if self.modify:
+            modify = datetime.datetime.fromtimestamp(self.modify).replace(microsecond=0)
+        else:
+            modify = "-"
+
         t = [
             f"Имя: {self.name}",
             f"Путь: {self.src}",
             f"Размер: {f_size}" if self.size > 0 else "Размер: -",
-            f"Изменен: {self.modify}",
+            f"Изменен: {modify}",
             f"Тип: {self.type}" if self.type else f"Тип: папка",
             f"Рейтинг: {rating}" if rating else "Рейтинг: -",
             f"Цвета: {self.colors}" if self.colors else "Цвета: -"
