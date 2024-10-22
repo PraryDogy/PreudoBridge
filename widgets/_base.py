@@ -18,6 +18,9 @@ class BaseMethods:
     def filter_grid(self, *args, **kwargs):
         raise Exception("Переопредели метод filter_grid")
 
+    def resize_grid(self, *args, **kwargs):
+        raise Exception("Переопредели метод resize_grid")
+
 
 class BaseGrid(QScrollArea, BaseMethods):
     add_fav = pyqtSignal(str)

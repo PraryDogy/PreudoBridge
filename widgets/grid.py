@@ -105,6 +105,12 @@ class Grid(BaseGrid):
 
         self.rearrange_grid(width)
 
+    def resize_grid(self, width: int):
+        for wid in self.sorted_widgets:
+            wid.resize()
+            wid.resize_pixmap()
+        self.rearrange_grid(width)
+
     def rearrange_grid(self, width: int):
         self.reset_selection()
         self.cell_to_wid.clear()

@@ -30,6 +30,7 @@ class BarBottom(QWidget):
     progressbar_start = pyqtSignal(int)
     progressbar_value = pyqtSignal(int)
     path_click = pyqtSignal()
+    resize_grid = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -48,7 +49,7 @@ class BarBottom(QWidget):
         self.progressbar_value.connect(self.value_cmd)
 
         self.slider = CustomSlider()
-        self.slider._clicked.connect(self.path_click.emit)
+        self.slider._clicked.connect(self.resize_grid.emit)
         self.h_lay.addWidget(self.slider, 0, 2, alignment=Qt.AlignmentFlag.AlignVCenter)
         self.create_path_label()
 

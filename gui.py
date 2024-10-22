@@ -101,6 +101,7 @@ class SimpleFileExplorer(QWidget):
         
         self.bar_bottom = BarBottom()
         self.bar_bottom.path_click.connect(self.grid_standart_load)
+        self.bar_bottom.resize_grid.connect(lambda: self.grid.resize_grid(self.get_grid_width()))
         self.r_lay.addWidget(self.bar_bottom, 2, 0, alignment=Qt.AlignmentFlag.AlignBottom)
 
         self.grid_standart_load()
@@ -301,14 +302,6 @@ class CustomApp(QApplication):
     def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
         if a1.type() == QEvent.Type.ApplicationActivate:
             Utils.get_main_win().show()
-
-        # if a1.type() == QEvent.Type.KeyPress:
-        #     key_event = QKeyEvent(a1)
-
-        #     if key_event.key() == Qt.Key_Up:
-        #         if key_event.modifiers() & Qt.MetaModifier:
-        #             print("Command + стрелка вверх")
-
         return False
 
     def on_exit(self):

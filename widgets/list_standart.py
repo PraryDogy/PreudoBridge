@@ -68,7 +68,10 @@ class ListStandart(BaseTableView):
         subprocess.call(["open", "-R", path])
 
     def rearrange_grid(self, *args, **kwargs):
-        ...
+        print("list view has no rearrange grid")
+
+    def resize_grid(self, *args, **kwargs):
+        print("list widget has no resize grid")
 
     def contextMenuEvent(self, event):
         index = self.indexAt(event.pos())
