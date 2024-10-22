@@ -1,17 +1,15 @@
-import os
 import subprocess
 
 import sqlalchemy
 from PyQt5.QtCore import QMimeData, Qt, QUrl, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QDrag, QMouseEvent
 from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QLabel, QMenu,
-                             QVBoxLayout, QWidget)
+                             QVBoxLayout)
 from sqlalchemy.exc import OperationalError
 
 from cfg import Config, JsonData
 from database import CACHE, Engine
 from utils import Utils
-from PyQt5.QtGui import QFontMetrics
 
 
 class NameLabel(QLabel):
