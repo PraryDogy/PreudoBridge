@@ -284,7 +284,7 @@ class GridStandart(Grid):
                 wid = ThumbFolder(name, src)
                 pixmap = QPixmap("images/folder_210.png")
                 pixmap: QPixmap = Utils.pixmap_scale(pixmap, JsonData.thumb_size, JsonData.thumb_size)
-                self.set_base_img(wid.img_label, pixmap)
+                self.set_base_img(wid, pixmap)
 
                 wid.clicked_folder.connect(self.clicked_folder.emit)
                 wid.add_fav.connect(self.add_fav.emit)
@@ -297,7 +297,7 @@ class GridStandart(Grid):
                 wid = Thumb(name, size, modify, type, src, self.path_to_wid)
                 pixmap = QPixmap("images/file_210.png")
                 pixmap: QPixmap = Utils.pixmap_scale(pixmap, JsonData.thumb_size, JsonData.thumb_size)
-                self.set_base_img(wid.img_label, pixmap)
+                self.set_base_img(wid, pixmap)
 
                 wid.move_to_wid.connect(lambda w: self.select_new_widget(w))
                 wid.set_colors_from_db(colors)
@@ -337,10 +337,9 @@ class GridStandart(Grid):
 
         self.sort_grid(self.ww)
 
-    def set_base_img(self, widget: QLabel, png_path: str):
-        pixmap = QPixmap(png_path)
+    def set_base_img(self, widget: Thumb, pixmap: QPixmap):
         try:
-            widget.setPixmap(pixmap)
+            widget.set_pixmap(pixmap)
         except RuntimeError:
             pass
 
@@ -364,7 +363,7 @@ class GridStandart(Grid):
         widget = self.path_to_wid.get(image_data.src)
         if isinstance(widget, Thumb):
             if isinstance(image_data.pixmap, QPixmap):
-                widget.img_label.setPixmap(image_data.pixmap)
+                widget.set_pixmap(image_data.pixmap)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         # когда убивается этот виджет, все треды безопасно завершатся
