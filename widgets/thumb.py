@@ -110,7 +110,13 @@ class Thumb(QFrame):
         self.resize()
 
     def set_pixmap(self, pixmap: QPixmap):
+        self.img = pixmap
         self.img_label.setPixmap(pixmap)
+
+    def resize_pixmap(self):
+        if isinstance(self.img, QPixmap):
+            pixmap = Utils.pixmap_scale(self.img, JsonData.thumb_size, JsonData.thumb_size)
+            self.img_label.setPixmap(pixmap)
 
     def resize(self):
         self.setFixedSize(
