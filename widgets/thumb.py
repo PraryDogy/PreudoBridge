@@ -232,6 +232,7 @@ class Thumb(QFrame):
             f"Имя: {self.name}",
             f"Путь: {self.src}",
             f"Размер: {f_size}" if self.size > 0 else "Размер: -",
+            f"Изменен: {self.modify}",
             f"Тип: {self.type}" if self.type else f"Тип: папка",
             f"Рейтинг: {rating}" if rating else "Рейтинг: -",
             f"Цвета: {self.colors}" if self.colors else "Цвета: -"
