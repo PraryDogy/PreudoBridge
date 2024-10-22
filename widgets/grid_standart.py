@@ -294,7 +294,9 @@ class GridStandart(Grid):
 
             if os.path.isdir(src):
                 wid = ThumbFolder(name, src)
-                self.set_base_img(wid.img_label, "images/folder_210.png")
+                pixmap = QPixmap("images/folder_210.png")
+                pixmap: QPixmap = pixmap.scaled(Config.thumb_size, Config.thumb_size, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio)
+                self.set_base_img(wid.img_label, pixmap)
 
                 wid.clicked_folder.connect(self.clicked_folder.emit)
                 wid.add_fav.connect(self.add_fav.emit)
@@ -305,7 +307,9 @@ class GridStandart(Grid):
 
             else:
                 wid = Thumb(name, size, modify, type, src, self.path_to_wid)
-                self.set_base_img(wid.img_label, "images/file_210.png")
+                pixmap = QPixmap("images/file_210.png")
+                pixmap: QPixmap = pixmap.scaled(Config.thumb_size, Config.thumb_size, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio)
+                self.set_base_img(wid.img_label, pixmap)
 
                 wid.move_to_wid.connect(lambda w: self.select_new_widget(w))
                 wid.set_colors(colors)
