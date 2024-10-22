@@ -106,15 +106,8 @@ class LoadImages(QThread):
 
             if (db_src, db_size, db_mod) in self.src_size_mod:
                 pixmap: QPixmap = Utils.pixmap_from_bytes(db_byte_img)
-
-
-
-
-                # РАЗМЕР СЕТКИ
-                pixmap: QPixmap = pixmap.scaled(JsonData.thumb_size, JsonData.thumb_size, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio)
-
+                pixmap: QPixmap = Utils.pixmap_scale(JsonData.thumb_size, JsonData.thumb_size)
                 self.new_widget.emit(ImageData(db_src, db_size, db_mod, pixmap))
-
                 self.src_size_mod.remove((db_src, db_size, db_mod))
             else:
                 self.remove_db_images.append(db_src)
@@ -144,12 +137,7 @@ class LoadImages(QThread):
 
             if isinstance(pixmap, QPixmap):
 
-
-
-
-                # РАЗМЕР СЕТКИ
-                pixmap: QPixmap = pixmap.scaled(JsonData.thumb_size, JsonData.thumb_size, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio)
-
+                pixmap: QPixmap = Utils.pixmap_scale(JsonData.thumb_size, JsonData.thumb_size)
                 self.new_widget.emit(ImageData(src, size, modified, pixmap))
 
             try:
@@ -295,7 +283,7 @@ class GridStandart(Grid):
             if os.path.isdir(src):
                 wid = ThumbFolder(name, src)
                 pixmap = QPixmap("images/folder_210.png")
-                pixmap: QPixmap = pixmap.scaled(JsonData.thumb_size, JsonData.thumb_size, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio)
+                pixmap: QPixmap = Utils.pixmap_scale(JsonData.thumb_size, JsonData.thumb_size)
                 self.set_base_img(wid.img_label, pixmap)
 
                 wid.clicked_folder.connect(self.clicked_folder.emit)
@@ -308,7 +296,7 @@ class GridStandart(Grid):
             else:
                 wid = Thumb(name, size, modify, type, src, self.path_to_wid)
                 pixmap = QPixmap("images/file_210.png")
-                pixmap: QPixmap = pixmap.scaled(JsonData.thumb_size, JsonData.thumb_size, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio)
+                pixmap: QPixmap = Utils.pixmap_scale(JsonData.thumb_size, JsonData.thumb_size)
                 self.set_base_img(wid.img_label, pixmap)
 
                 wid.move_to_wid.connect(lambda w: self.select_new_widget(w))

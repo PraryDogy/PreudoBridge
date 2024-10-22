@@ -9,7 +9,7 @@ import numpy as np
 import psd_tools
 import rawpy
 import tifffile
-from PyQt5.QtCore import QByteArray
+from PyQt5.QtCore import QByteArray, Qt
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget
 
@@ -176,6 +176,9 @@ class Utils:
     def get_clmn_count(cls, width: int):
         return (width + 150) // (JsonData.thumb_size + 10 + Config.GRID_SPACING)
 
+    @classmethod
+    def pixmap_scale(cls, pixmap: QPixmap, w: int, h: int) -> QPixmap:
+        return pixmap.scaled(w, h, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio)
 
     @classmethod
     def print_error(cls, parent: object, error: Exception):
