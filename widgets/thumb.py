@@ -17,7 +17,6 @@ class NameLabel(QLabel):
     def __init__(self):
         super().__init__()
         self.setAlignment(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignCenter)
-        # self.setStyleSheet("background: red;")
 
     def update_name(self, rating: int, colors: str, text: str) -> list[str]:
         max_row = 25
@@ -72,6 +71,23 @@ class Thumb(QFrame):
             ):
         super().__init__()
         self.setFixedSize(Geo.w, Geo.h)
+
+        _size = round(size / (1024**2), 2)
+
+        if _size < 1000:
+            f_size = f"{_size} МБ"
+        else:
+            _size = round(size / (1024**3), 2)
+            f_size = f"{_size} ГБ"
+
+        t = [
+            f"Имя: {name}",
+            f"Путь: {src}",
+            "Размер: -" if size == 0 else f"размер: {f_size}",
+            "Тип: папка" if not type else f"Тип: {type}"
+        ]
+
+        self.setToolTip("\n".join(t))
 
         self.path_to_wid: dict[str, QLabel] = path_to_wid
         self.src: str = src
