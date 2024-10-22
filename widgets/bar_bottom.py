@@ -28,7 +28,7 @@ class BarBottom(QWidget):
         self._progressbar = QProgressBar()
         self._progressbar.setFixedWidth(100)
         self.h_lay.addWidget(self._progressbar, 0, 1, alignment=Qt.AlignmentFlag.AlignRight)
-        # self._progressbar.hide()
+        self._progressbar.hide()
         self.progressbar_start.connect(self.start_cmd)
         self.progressbar_value.connect(self.value_cmd)
 
@@ -70,7 +70,6 @@ class BarBottom(QWidget):
         self._progressbar.setValue(value)
 
         if value == 1000000:
-            return
             self._progressbar.hide()
 
     def create_path_label(self):
