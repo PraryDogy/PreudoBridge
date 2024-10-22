@@ -111,7 +111,7 @@ class Thumb(QFrame):
 
         v_lay = QVBoxLayout()
         v_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        v_lay.setContentsMargins(4, 4, 4, 4)
+        v_lay.setContentsMargins(1, 1, 1, 1)
         v_lay.setSpacing(0)
         self.setLayout(v_lay)
 
