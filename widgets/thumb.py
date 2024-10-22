@@ -10,7 +10,7 @@ from sqlalchemy.exc import OperationalError
 from cfg import Config, JsonData, IMG_SIZES, TEXT_LENS
 from database import CACHE, Engine
 from utils import Utils
-
+import os
 
 class NameLabel(QLabel):
     def __init__(self):
@@ -59,15 +59,9 @@ class Thumb(QFrame):
     move_to_wid = pyqtSignal(object)
     clicked = pyqtSignal()
 
-    def __init__(
-            self, name: str, size: int, modify: int, type: str, src: str,
-            path_to_wid: dict[str, QLabel]
-            ):
-
+    def __init__(self, src: str, size: int, modify: int, path_to_wid: dict[str, QLabel]):
         super().__init__()
   
-        self.text_label_h = 65
-
         ############################################################
         # path_to_wid для просмотрщика, must_hidden для фильтрации сетки
         self.path_to_wid: dict[str, QLabel] = path_to_wid
@@ -78,10 +72,10 @@ class Thumb(QFrame):
         # так как по этим аттрибутам будет совершаться сортировка сетки
         # и фильтрация
         # в Grid ниже будет совершена проверка
-        self.name = name
+        self.name: str = os.path.split(src)[-1]
+        self.type: str = os.path.splitext(src)[-1]
         self.size: int = size
         self.modify: int = modify
-        self.type: str = type
         self.colors: str = ""
         self.rating: int = 0
         ############################################################
@@ -124,12 +118,10 @@ class Thumb(QFrame):
             print("thumb has no pixmap in self.img")
 
     def resize(self):
-        self.setFixedSize(
-            JsonData.thumb_size,
-            JsonData.thumb_size + self.text_label_h
-            )
+        text_label_h = 65
+        self.setFixedSize(JsonData.thumb_size, JsonData.thumb_size + text_label_h)
         self.img_label.setFixedHeight(JsonData.thumb_size)
-        self.name_label.setFixedHeight(self.text_label_h)
+        self.name_label.setFixedHeight(text_label_h)
         self.name_label.update_name(self.rating, self.colors, self.name)
 
     def set_frame(self):
@@ -333,8 +325,8 @@ class ThumbFolder(Thumb):
     del_fav = pyqtSignal(str)
     clicked_folder = pyqtSignal(str)
 
-    def __init__(self, name: str, src: str):
-        super().__init__(name, 0, 0, "", src, {})
+    def __init__(self, src: str):
+        super().__init__(src, 0, 0, {})
 
     def fav_cmd(self, offset: int):
         self.fav_action.triggered.disconnect()
@@ -389,8 +381,8 @@ class ThumbFolder(Thumb):
 class ThumbSearch(Thumb):
     show_in_folder = pyqtSignal(str)
 
-    def __init__(self, name: str, src: str, path_to_wid: dict[str, Thumb]):
-        super().__init__(name, 0, 0, "", src, path_to_wid)
+    def __init__(self, src: str, path_to_wid: dict[str, Thumb]):
+        super().__init__(src, 0, 0, path_to_wid)
 
     def add_custom_menu_items(self):
         show_in_folder = QAction("Показать в папке", self)

@@ -55,7 +55,7 @@ class ListStandart(BaseTableView):
             self.folders_tree_clicked.emit(path)
 
         elif path_lower.endswith(Config.IMG_EXT):
-            thumbnail = Thumb("", 0, 0, "", "", {})
+            thumbnail = Thumb("", 0, 0, {})
             self.win = WinImgView(path, {path: thumbnail})
             self.win.show()
 
