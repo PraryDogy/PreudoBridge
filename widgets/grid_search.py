@@ -19,12 +19,12 @@ from .thumb import ThumbSearch
 
 
 class WidgetData:
-    def __init__(self, src: str, colors: str, rating: int, size: int, modified: int, pixmap: QPixmap):
+    def __init__(self, src: str, colors: str, rating: int, size: int, mod: int, pixmap: QPixmap):
         self.src: str = src
         self.colors: str = colors
         self.rating: int = rating
         self.size: int = size
-        self.modified: int = modified
+        self.mod: int = mod
         self.pixmap: QPixmap = pixmap
 
 
@@ -90,7 +90,7 @@ class SearchFinder(QThread):
         try:
             stats = os.stat(src)
             size = stats.st_size
-            modified = stats.st_mtime
+            mod = stats.st_mtime
         except (PermissionError, FileNotFoundError) as e:
             Utils.print_error(self, e)
             return None
@@ -108,7 +108,7 @@ class SearchFinder(QThread):
 
         else:
             img_array: ndarray = self.create_img_array(src)
-            self.img_data_to_db(src, img_array, size, modified)
+            self.img_data_to_db(src, img_array, size, mod)
 
             if isinstance(img_array, ndarray):
                 pixmap = Utils.pixmap_from_array(img_array)
@@ -116,7 +116,7 @@ class SearchFinder(QThread):
         if not pixmap:
             pixmap = QPixmap("images/file_210.png")
 
-        self.add_new_widget.emit(WidgetData(src, colors, rating, size, modified, pixmap))
+        self.add_new_widget.emit(WidgetData(src, colors, rating, size, mod, pixmap))
         sleep(0.1)
 
     def get_img_data_db(self, src: str) -> dict | None:
@@ -133,7 +133,7 @@ class SearchFinder(QThread):
             Utils.print_error(self, e)
             return None
 
-    def img_data_to_db(self, src: str, img_array, size: int, modified: int):
+    def img_data_to_db(self, src: str, img_array, size: int, mod: int):
         db_img: bytes = Utils.image_array_to_bytes(img_array)
 
         if isinstance(db_img, bytes):
@@ -144,7 +144,7 @@ class SearchFinder(QThread):
                     src=src,
                     root=os.path.dirname(src),
                     size=size,
-                    modified=modified,
+                    mod=mod,
                     catalog="",
                     colors="",
                     rating=0
@@ -201,7 +201,7 @@ class GridSearch(Grid):
         self.search_thread.start()
 
     def add_new_widget(self, widget_data: WidgetData):
-        wid = ThumbSearch(widget_data.src, widget_data.size, widget_data.modified, self.path_to_wid)
+        wid = ThumbSearch(widget_data.src, widget_data.size, widget_data.mod, self.path_to_wid)
 
         wid.set_pixmap(widget_data.pixmap)
 

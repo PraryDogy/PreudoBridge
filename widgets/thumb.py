@@ -61,7 +61,7 @@ class Thumb(QFrame):
     move_to_wid = pyqtSignal(object)
     clicked = pyqtSignal()
 
-    def __init__(self, src: str, size: int, modify: int, path_to_wid: dict[str, QLabel]):
+    def __init__(self, src: str, size: int, mod: int, path_to_wid: dict[str, QLabel]):
         super().__init__()
   
         ############################################################
@@ -77,7 +77,7 @@ class Thumb(QFrame):
         self.name: str = os.path.split(src)[-1]
         self.type: str = os.path.splitext(src)[-1]
         self.size: int = size
-        self.modify: int = modify
+        self.mod: int = mod
         self.colors: str = ""
         self.rating: int = 0
         ############################################################
@@ -230,23 +230,24 @@ class Thumb(QFrame):
 
         rating = "\U00002605" * self.rating
 
-        if self.modify:
-            modify = datetime.datetime.fromtimestamp(self.modify).replace(microsecond=0)
-            modify = modify.strftime("%d.%m.%Y %H:%M")
+        if self.mod:
+            mod = datetime.datetime.fromtimestamp(self.mod).replace(microsecond=0)
+            mod = mod.strftime("%d.%m.%Y %H:%M")
         else:
-            modify = "-"
+            mod = ""
 
-        t = [
+        text = [
             f"Имя: {self.name}",
-            f"Путь: {self.src}",
-            f"Размер: {f_size}" if self.size > 0 else "Размер: -",
-            f"Изменен: {modify}",
             f"Тип: {self.type}" if self.type else f"Тип: папка",
-            f"Рейтинг: {rating}" if rating else "Рейтинг: -",
-            f"Цвета: {self.colors}" if self.colors else "Цвета: -"
+            f"Путь: {self.src}",
+            f"Размер: {f_size}" if self.size > 0 else "",
+            f"Изменен: {mod}" if mod else "",
+            f"Рейтинг: {rating}" if rating else "",
+            f"Цвета: {self.colors}" if self.colors else ""
             ]
+        text = [i for i in text if i]
 
-        self.setToolTip("\n".join(t))
+        self.setToolTip("\n".join(text))
         self.name_label.update_name(self.rating, self.colors, self.name)
 
     def rating_click(self, menu: QMenu, wid: QAction, rate: int):
@@ -334,8 +335,8 @@ class ThumbFolder(Thumb):
     del_fav = pyqtSignal(str)
     clicked_folder = pyqtSignal(str)
 
-    def __init__(self, src: str, size: int, modify: int, path_to_wid: dict[str, QLabel]):
-        super().__init__(src, size, modify, path_to_wid)
+    def __init__(self, src: str, size: int, mod: int, path_to_wid: dict[str, QLabel]):
+        super().__init__(src, size, mod, path_to_wid)
 
     def fav_cmd(self, offset: int):
         self.fav_action.triggered.disconnect()
@@ -390,8 +391,8 @@ class ThumbFolder(Thumb):
 class ThumbSearch(Thumb):
     show_in_folder = pyqtSignal(str)
 
-    def __init__(self, src: str, size: int, modify: int, path_to_wid: dict[str, QLabel]):
-        super().__init__(src, size, modify, path_to_wid)
+    def __init__(self, src: str, size: int, mod: int, path_to_wid: dict[str, QLabel]):
+        super().__init__(src, size, mod, path_to_wid)
 
     def add_custom_menu_items(self):
         show_in_folder = QAction("Показать в папке", self)

@@ -28,10 +28,10 @@ class Threads:
 
 
 class ImageData:
-    def __init__(self, src: str, size: int, modified: int, pixmap: QPixmap):
+    def __init__(self, src: str, size: int, mod: int, pixmap: QPixmap):
         self.src: str = src
         self.size: int = size
-        self.modified: int = modified
+        self.mod: int = mod
         self.pixmap: QPixmap = pixmap
 
 
@@ -89,13 +89,13 @@ class LoadImages(QThread):
             Utils.print_error(self, e)
 
     def get_db_images(self):
-        q = sqlalchemy.select(CACHE.c.img, CACHE.c.src, CACHE.c.size, CACHE.c.modified)
+        q = sqlalchemy.select(CACHE.c.img, CACHE.c.src, CACHE.c.size, CACHE.c.mod)
         q = q.where(CACHE.c.root == JsonData.root)
         res = self.conn.execute(q).fetchall()
 
         self.db_images: dict[tuple, bytearray] = {
-            (src, size, modified): img
-            for img, src, size,  modified in res
+            (src, size, mod): img
+            for img, src, size,  mod in res
             }
 
     def load_already_images(self):
@@ -117,7 +117,7 @@ class LoadImages(QThread):
         progress_count = 0
         insert_count = 0
 
-        for src, size, modified in self.src_size_mod:
+        for src, size, mod in self.src_size_mod:
 
             if not self.flag:
                 break
@@ -136,10 +136,10 @@ class LoadImages(QThread):
 
             if isinstance(pixmap, QPixmap):
 
-                self.new_widget.emit(ImageData(src, size, modified, pixmap))
+                self.new_widget.emit(ImageData(src, size, mod, pixmap))
 
             try:
-                insert_stmt = self.get_insert_stmt(img_bytes, src, size, modified)
+                insert_stmt = self.get_insert_stmt(img_bytes, src, size, mod)
                 self.conn.execute(insert_stmt)
 
                 self.db_size += len(img_bytes)
@@ -170,14 +170,14 @@ class LoadImages(QThread):
         # 1 милилон = скрыть прогресс бар согласно его инструкции
         self.progressbar_value.emit(1000000)
 
-    def get_insert_stmt(self, img_bytes, src, size, modified):
+    def get_insert_stmt(self, img_bytes, src, size, mod):
         insert = sqlalchemy.insert(CACHE)
         return insert.values(
             img = img_bytes,
             src = src,
             root = os.path.dirname(src),
             size = size,
-            modified = modified,
+            mod = mod,
             catalog = "",
             colors = "",
             rating = 0
@@ -231,7 +231,7 @@ class LoadFinder(QThread):
             try:
                 stats = os.stat(src)
                 size = stats.st_size
-                modified = stats.st_mtime
+                mod = stats.st_mtime
                 filetype = os.path.splitext(name)[1]
 
                 if self.db_data.get(src):
@@ -248,11 +248,11 @@ class LoadFinder(QThread):
             # SRC по которой нет сортировки идет в конце
 
             if src.lower().endswith(Config.IMG_EXT):
-                self.finder_items.append((name, size, modified, filetype, colors, rating, src))
+                self.finder_items.append((name, size, mod, filetype, colors, rating, src))
                 continue
 
             if os.path.isdir(src):
-                self.finder_items.append((name, size, modified, filetype, colors, rating, src))
+                self.finder_items.append((name, size, mod, filetype, colors, rating, src))
 
 
 class GridStandart(Grid):
@@ -276,7 +276,7 @@ class GridStandart(Grid):
         row, col = 0, 0
 
         # ПОРЯДОК СООТВЕТСТВУЕТ ORDER + SRC по которому нет сортировки
-        for name, size, modify, type, colors, rating, src in finder_items:
+        for name, size, mod, type, colors, rating, src in finder_items:
 
             if os.path.isdir(src):
                 wid = ThumbFolder(src, 0, 0, {})
@@ -291,7 +291,7 @@ class GridStandart(Grid):
                 wid.set_colors_from_db("")
 
             else:
-                wid = Thumb(src, size, modify, self.path_to_wid)
+                wid = Thumb(src, size, mod, self.path_to_wid)
                 pixmap = QPixmap("images/file_210.png")
                 wid.set_pixmap(pixmap)
 
@@ -299,7 +299,7 @@ class GridStandart(Grid):
                 wid.set_colors_from_db(colors)
                 wid.set_rating_from_db(rating)
 
-                src_size_mod.append((src, size, modify))
+                src_size_mod.append((src, size, mod))
 
             wid.row, wid.col = row, col
             wid.clicked.connect(lambda w=wid: self.select_new_widget(w))
