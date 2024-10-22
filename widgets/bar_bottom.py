@@ -3,21 +3,22 @@ import os
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import (QGridLayout, QHBoxLayout, QLabel, QProgressBar,
                              QWidget)
+from PyQt5.QtGui import QMouseEvent
 
 from cfg import JsonData
 
 
 class BarBottom(QWidget):
     folder_sym = "\U0001F4C1"
-    folder_sym = "\U0001F5C2"
-    folder_sym = ""
+    # folder_sym = "\U0001F5C2"
+    # folder_sym = ""
     progressbar_start = pyqtSignal(int)
     progressbar_value = pyqtSignal(int)
     path_click = pyqtSignal()
 
     def __init__(self):
         super().__init__()
-        self.setFixedHeight(20)
+        self.setFixedHeight(25)
         self.path_label: QWidget = None
 
         self.h_lay = QGridLayout()
@@ -29,16 +30,16 @@ class BarBottom(QWidget):
         self.h_lay.addWidget(self._progressbar, 0, 1, alignment=Qt.AlignmentFlag.AlignRight)
         self._progressbar.hide()
 
-        self.progressbar_start.connect(self._start_cmd)
-        self.progressbar_value.connect(self._value_cmd)
+        self.progressbar_start.connect(self.start_cmd)
+        self.progressbar_value.connect(self.value_cmd)
 
         self.create_path_label()
 
-    def _start_cmd(self, value: int):
+    def start_cmd(self, value: int):
         self._progressbar.setMaximum(value)
         self._progressbar.show()
 
-    def _value_cmd(self, value: int):
+    def value_cmd(self, value: int):
         self._progressbar.setValue(value)
 
         if value == 1000000:
@@ -60,7 +61,7 @@ class BarBottom(QWidget):
         chunks = []
         for chunk in root:
             label = QLabel(f"{BarBottom.folder_sym} {chunk} > ")
-            label.mouseReleaseEvent = lambda e, c=chunk: self._new_root(root, c)
+            label.mouseReleaseEvent = lambda e, c=chunk: self.new_root(e, root, c)
             h_lay.addWidget(label, alignment=Qt.AlignmentFlag.AlignLeft)
             chunks.append(label)
 
@@ -79,8 +80,9 @@ class BarBottom(QWidget):
         chunks.clear()
         self.h_lay.addWidget(self.path_label, 0, 0, alignment=Qt.AlignmentFlag.AlignLeft)
 
-    def _new_root(self, rooted: list, chunk: str):
-        new_path = rooted[:rooted.index(chunk) + 1]
-        new_path = os.path.join(os.sep, *new_path)
-        JsonData.root = new_path
-        self.path_click.emit()
+    def new_root(self, a0: QMouseEvent | None, rooted: list, chunk: str):
+        if a0.button() == Qt.MouseButton.LeftButton:
+            new_path = rooted[:rooted.index(chunk) + 1]
+            new_path = os.path.join(os.sep, *new_path)
+            JsonData.root = new_path
+            self.path_click.emit()

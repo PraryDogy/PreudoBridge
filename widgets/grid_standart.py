@@ -240,7 +240,7 @@ class LoadFinder(QThread):
                     colors = ""
                     rating = 0
 
-            except (PermissionError, FileNotFoundError):
+            except (PermissionError, FileNotFoundError, OSError):
                 continue
 
             # ПОРЯДОК КОРТЕЖА РАВЕН ORDER

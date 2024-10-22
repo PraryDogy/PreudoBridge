@@ -140,7 +140,8 @@ class Grid(BaseGrid):
 
         elif a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
             wid = self.cell_to_wid.get(self.curr_cell)
-            wid.view()
+            if wid:
+                wid.view()
 
         elif a0.key() == Qt.Key.Key_Left:
             coords = (self.curr_cell[0], self.curr_cell[1] - 1)
