@@ -45,8 +45,8 @@ class Grid(BaseGrid):
 
         if isinstance(new_wid, Thumb):
             prev_wid = self.cell_to_wid.get(self.curr_cell)
-            prev_wid.setFrameShape(QFrame.Shape.NoFrame)
-            new_wid.setFrameShape(QFrame.Shape.Panel)
+            prev_wid.set_no_frame()
+            new_wid.set_frame()
             self.curr_cell = coords
             self.ensureWidgetVisible(new_wid)
 
@@ -54,7 +54,7 @@ class Grid(BaseGrid):
         widget = self.cell_to_wid.get(self.curr_cell)
 
         if isinstance(widget, QFrame):
-            widget.setFrameShape(QFrame.Shape.NoFrame)
+            widget.set_no_frame()
             self.curr_cell: tuple = (0, 0)
     
     def set_rating(self, rating: int):
@@ -167,5 +167,5 @@ class Grid(BaseGrid):
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
         wid = self.cell_to_wid.get(self.curr_cell)
         if isinstance(wid, Thumb):
-            wid.setFrameShape(QFrame.Shape.NoFrame)
+            wid.set_no_frame()
         self.setFocus()

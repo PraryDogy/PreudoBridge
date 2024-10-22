@@ -20,7 +20,7 @@ class NameLabel(QLabel):
         self.setAlignment(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignCenter)
 
     def update_name(self, rating: int, colors: str, text: str) -> list[str]:
-        max_row = 25
+        max_row = 20
         name_lines = []
 
         # Проверяем длину текста и обрезаем, если нужно
@@ -64,11 +64,12 @@ class Thumb(QFrame):
             ):
 
         super().__init__()
+        self.setObjectName("thumb")
 
         text_label_h = 65
 
         self.setFixedSize(
-            JsonData.thumb_size + 10,
+            JsonData.thumb_size + 30,
             JsonData.thumb_size + text_label_h + 10
             )
 
@@ -111,8 +112,8 @@ class Thumb(QFrame):
 
         v_lay = QVBoxLayout()
         v_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        v_lay.setContentsMargins(0, 4, 0, 4)
-        v_lay.setSpacing(10)
+        v_lay.setContentsMargins(4, 4, 4, 4)
+        v_lay.setSpacing(0)
         self.setLayout(v_lay)
 
         self.img_label = QLabel()
@@ -124,6 +125,19 @@ class Thumb(QFrame):
         self.name_label.setFixedHeight(text_label_h)
         v_lay.addWidget(self.name_label)
 
+    def set_frame(self):
+        self.setStyleSheet("""
+            #thumb {
+                border: 1px solid white;
+            }
+        """)
+
+    def set_no_frame(self):
+        self.setStyleSheet("""
+            #thumb {
+                border: 1px solid transparent;
+            }
+        """)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
         self.clicked.emit()

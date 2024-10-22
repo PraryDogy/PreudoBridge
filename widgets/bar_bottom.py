@@ -3,9 +3,50 @@ import os
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import (QGridLayout, QHBoxLayout, QLabel, QProgressBar,
                              QWidget, QSlider)
-from PyQt5.QtGui import QMouseEvent
+from PyQt5.QtGui import QMouseEvent, QWheelEvent
 
 from cfg import JsonData, Config
+
+
+class CustomSlider(QSlider):
+    _clicked = pyqtSignal()
+
+    def __init__(self):
+        super().__init__(orientation=Qt.Orientation.Horizontal, minimum=0, maximum=3)
+        self.setFixedWidth(80)
+        self.setValue(Config.IMG_SIZES.index(JsonData.thumb_size))
+        self.valueChanged.connect(self.change_size)
+        st = f"""
+            QSlider::groove:horizontal {{
+                border-radius: 1px;
+                height: 3px;
+                margin: 0px;
+                background-color: rgba(111, 111, 111, 0.5);
+            }}
+            QSlider::handle:horizontal {{
+                background-color: rgba(199, 199, 199, 1);
+                height: 10px;
+                width: 10px;
+                border-radius: 5px;
+                margin: -4px 0;
+                padding: -4px 0px;
+            }}
+            """
+        self.setStyleSheet(st)
+
+    def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
+        if ev.button() == Qt.MouseButton.LeftButton:
+            super().mouseReleaseEvent(ev)
+        else:
+            ev.ignore()
+
+    def wheelEvent(self, e: QWheelEvent | None) -> None:
+        e.ignore()
+
+    def change_size(self, value: int):
+        self.setValue(value)
+        JsonData.thumb_size = Config.IMG_SIZES[value]
+        self._clicked.emit()
 
 
 class BarBottom(QWidget):
@@ -32,35 +73,10 @@ class BarBottom(QWidget):
         self.progressbar_start.connect(self.start_cmd)
         self.progressbar_value.connect(self.value_cmd)
 
-        self.slider = QSlider(parent=self, orientation=Qt.Horizontal, minimum=0, maximum=3)
-        self.slider.setFixedWidth(80)
-        self.slider.setValue(Config.IMG_SIZES.index(JsonData.thumb_size))
-        self.slider.valueChanged.connect(self.change_size)
-        st = f"""
-            QSlider::groove:horizontal {{
-                border-radius: 1px;
-                height: 3px;
-                margin: 0px;
-                background-color: rgba(111, 111, 111, 0.5);
-            }}
-            QSlider::handle:horizontal {{
-                background-color: rgba(199, 199, 199, 1);
-                height: 10px;
-                width: 10px;
-                border-radius: 5px;
-                margin: -4px 0;
-                padding: -4px 0px;
-            }}
-            """
-        self.slider.setStyleSheet(st)
-
+        self.slider = CustomSlider()
+        self.slider._clicked.connect(self.path_click.emit)
         self.h_lay.addWidget(self.slider, 0, 2, alignment=Qt.AlignmentFlag.AlignVCenter)
         self.create_path_label()
-
-    def change_size(self, value: int):
-        self.slider.setValue(value)
-        JsonData.thumb_size = Config.IMG_SIZES[value]
-        self.path_click.emit()
 
     def start_cmd(self, value: int):
         self._progressbar.setMaximum(value)
