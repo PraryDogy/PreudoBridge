@@ -34,7 +34,7 @@ class BarBottom(QWidget):
 
         self.slider = QSlider(parent=self, orientation=Qt.Horizontal, minimum=0, maximum=3)
         self.slider.setFixedWidth(80)
-        self.slider.setValue(3)
+        self.slider.setValue(Config.IMG_SIZES.index(JsonData.thumb_size))
         self.slider.valueChanged.connect(self.change_size)
         st = f"""
             QSlider::groove:horizontal {{
@@ -58,15 +58,8 @@ class BarBottom(QWidget):
         self.create_path_label()
 
     def change_size(self, value: int):
-        values = {
-            0: Config.IMG_SIZE - 40 * 3,
-            1: Config.IMG_SIZE - 40 * 2,
-            2: Config.IMG_SIZE - 40 * 1,
-            3: Config.IMG_SIZE
-            }
-        
         self.slider.setValue(value)
-        Config.thumb_size = values[value]
+        JsonData.thumb_size = Config.IMG_SIZES[value]
         self.path_click.emit()
 
     def start_cmd(self, value: int):

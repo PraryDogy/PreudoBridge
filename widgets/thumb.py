@@ -67,8 +67,8 @@ class Thumb(QFrame):
         text_label_h = 65
 
         self.setFixedSize(
-            Config.thumb_size + 10,
-            Config.thumb_size + text_label_h + 10
+            JsonData.thumb_size + 10,
+            JsonData.thumb_size + text_label_h + 10
             )
 
         _size = round(size / (1024**2), 2)
@@ -115,7 +115,7 @@ class Thumb(QFrame):
         self.setLayout(v_lay)
 
         self.img_label = QLabel()
-        self.img_label.setFixedHeight(Config.thumb_size)
+        self.img_label.setFixedHeight(JsonData.thumb_size)
         self.img_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         v_lay.addWidget(self.img_label)
 

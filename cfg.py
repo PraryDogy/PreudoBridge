@@ -35,7 +35,7 @@ class JsonData:
     list_view = False
     clear_db = 5
     tab_bar = 1
-    test = 555
+    thumb_size = 3
 
     @classmethod
     def get_data(cls):
@@ -54,8 +54,9 @@ class Config:
     JSON_FILE = os.path.join(os.path.expanduser('~'), 'Desktop', 'cfg.json')
     DB_FILE = os.path.join(os.path.expanduser('~'), 'Desktop', 'db.db')
 
-    IMG_SIZE = 210
-    thumb_size = IMG_SIZE
+    # это базовое значение маленьких картинок которые улетают в базу данных
+    IMG_SIZE: int = 210
+    IMG_SIZES: list = [90, 130, 170, IMG_SIZE]
 
     IMG_EXT: tuple = (
         ".jpg", "jpeg", "jfif",

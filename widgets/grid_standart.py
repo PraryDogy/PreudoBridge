@@ -111,7 +111,7 @@ class LoadImages(QThread):
 
 
                 # РАЗМЕР СЕТКИ
-                pixmap: QPixmap = pixmap.scaled(Config.thumb_size, Config.thumb_size, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio)
+                pixmap: QPixmap = pixmap.scaled(JsonData.thumb_size, JsonData.thumb_size, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio)
 
                 self.new_widget.emit(ImageData(db_src, db_size, db_mod, pixmap))
 
@@ -148,7 +148,7 @@ class LoadImages(QThread):
 
 
                 # РАЗМЕР СЕТКИ
-                pixmap: QPixmap = pixmap.scaled(Config.thumb_size, Config.thumb_size, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio)
+                pixmap: QPixmap = pixmap.scaled(JsonData.thumb_size, JsonData.thumb_size, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio)
 
                 self.new_widget.emit(ImageData(src, size, modified, pixmap))
 
@@ -295,7 +295,7 @@ class GridStandart(Grid):
             if os.path.isdir(src):
                 wid = ThumbFolder(name, src)
                 pixmap = QPixmap("images/folder_210.png")
-                pixmap: QPixmap = pixmap.scaled(Config.thumb_size, Config.thumb_size, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio)
+                pixmap: QPixmap = pixmap.scaled(JsonData.thumb_size, JsonData.thumb_size, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio)
                 self.set_base_img(wid.img_label, pixmap)
 
                 wid.clicked_folder.connect(self.clicked_folder.emit)
@@ -308,7 +308,7 @@ class GridStandart(Grid):
             else:
                 wid = Thumb(name, size, modify, type, src, self.path_to_wid)
                 pixmap = QPixmap("images/file_210.png")
-                pixmap: QPixmap = pixmap.scaled(Config.thumb_size, Config.thumb_size, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio)
+                pixmap: QPixmap = pixmap.scaled(JsonData.thumb_size, JsonData.thumb_size, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio)
                 self.set_base_img(wid.img_label, pixmap)
 
                 wid.move_to_wid.connect(lambda w: self.select_new_widget(w))
