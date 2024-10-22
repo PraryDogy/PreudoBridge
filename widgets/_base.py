@@ -1,5 +1,8 @@
-from PyQt5.QtCore import QObject, pyqtSignal
-from PyQt5.QtWidgets import QScrollArea, QTableView
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QMouseEvent, QWheelEvent
+from PyQt5.QtWidgets import QScrollArea, QSlider, QTableView
+
+from cfg import Config, JsonData
 
 
 class BaseMethods:
@@ -42,3 +45,38 @@ class BaseTableView(QTableView, BaseMethods):
     def __init__(self):
         QTableView.__init__(self)
         BaseMethods.__init__(self)
+
+
+class BaseSlider(QSlider):
+    _clicked = pyqtSignal()
+
+    def __init__(self, orientation: Qt.Orientation, minimum: int, maximum: int):
+        super().__init__(orientation=orientation, minimum=minimum, maximum=maximum)
+
+        st = f"""
+            QSlider::groove:horizontal {{
+                border-radius: 1px;
+                height: 3px;
+                margin: 0px;
+                background-color: rgba(111, 111, 111, 0.5);
+            }}
+            QSlider::handle:horizontal {{
+                background-color: rgba(199, 199, 199, 1);
+                height: 10px;
+                width: 10px;
+                border-radius: 5px;
+                margin: -4px 0;
+                padding: -4px 0px;
+            }}
+            """
+
+        self.setStyleSheet(st)
+
+    def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
+        if ev.button() == Qt.MouseButton.LeftButton:
+            super().mouseReleaseEvent(ev)
+        else:
+            ev.ignore()
+
+    def wheelEvent(self, e: QWheelEvent | None) -> None:
+        e.ignore()

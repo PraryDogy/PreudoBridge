@@ -12,6 +12,8 @@ from cfg import ORDER, Config, JsonData
 from database import STATS, Dbase, Engine
 from utils import Utils
 
+from ._base import BaseSlider
+
 
 class PathFinderThread(QThread):
     _finished = pyqtSignal(str)
@@ -454,11 +456,7 @@ class WinSettings(QWidget):
         h_lay.addWidget(self.clear_btn)
         
         self.slider_values = [2, 5, 10, 100]
-        self.slider = QSlider(Qt.Horizontal)
-        self.slider.setMinimum(0)
-        self.slider.setMaximum(len(self.slider_values) - 1)
-        self.slider.setTickPosition(QSlider.TicksBelow)
-        self.slider.setTickInterval(1)
+        self.slider = BaseSlider(Qt.Horizontal, 0, len(self.slider_values) - 1)
         v_lay.addWidget(self.slider)
 
         self.label = QLabel("", self)

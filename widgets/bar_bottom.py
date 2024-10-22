@@ -5,10 +5,11 @@ from PyQt5.QtWidgets import (QGridLayout, QHBoxLayout, QLabel, QProgressBar,
                              QWidget, QSlider)
 from PyQt5.QtGui import QMouseEvent, QWheelEvent
 
+from ._base import BaseSlider
 from cfg import JsonData, Config
 
 
-class CustomSlider(QSlider):
+class CustomSlider(BaseSlider):
     _clicked = pyqtSignal()
 
     def __init__(self):
@@ -16,33 +17,7 @@ class CustomSlider(QSlider):
         self.setFixedWidth(80)
         self.setValue(Config.IMG_SIZES.index(JsonData.thumb_size))
         self.valueChanged.connect(self.change_size)
-        st = f"""
-            QSlider::groove:horizontal {{
-                border-radius: 1px;
-                height: 3px;
-                margin: 0px;
-                background-color: rgba(111, 111, 111, 0.5);
-            }}
-            QSlider::handle:horizontal {{
-                background-color: rgba(199, 199, 199, 1);
-                height: 10px;
-                width: 10px;
-                border-radius: 5px;
-                margin: -4px 0;
-                padding: -4px 0px;
-            }}
-            """
-        self.setStyleSheet(st)
-
-    def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
-        if ev.button() == Qt.MouseButton.LeftButton:
-            super().mouseReleaseEvent(ev)
-        else:
-            ev.ignore()
-
-    def wheelEvent(self, e: QWheelEvent | None) -> None:
-        e.ignore()
-
+    
     def change_size(self, value: int):
         self.setValue(value)
         JsonData.thumb_size = Config.IMG_SIZES[value]
@@ -51,8 +26,6 @@ class CustomSlider(QSlider):
 
 class BarBottom(QWidget):
     folder_sym = "\U0001F4C1"
-    # folder_sym = "\U0001F5C2"
-    # folder_sym = ""
     progressbar_start = pyqtSignal(int)
     progressbar_value = pyqtSignal(int)
     path_click = pyqtSignal()

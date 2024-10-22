@@ -35,7 +35,7 @@ class JsonData:
     list_view = False
     clear_db = 5
     tab_bar = 1
-    thumb_size = 150
+    thumb_size = 90
 
     @classmethod
     def get_data(cls):

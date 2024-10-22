@@ -2,7 +2,7 @@ import subprocess
 
 import sqlalchemy
 from PyQt5.QtCore import QMimeData, Qt, QUrl, pyqtSignal
-from PyQt5.QtGui import QContextMenuEvent, QDrag, QMouseEvent
+from PyQt5.QtGui import QContextMenuEvent, QDrag, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QLabel, QMenu,
                              QVBoxLayout)
 from sqlalchemy.exc import OperationalError
@@ -71,6 +71,7 @@ class Thumb(QFrame):
             JsonData.thumb_size,
             JsonData.thumb_size + text_label_h
             )
+        self.set_no_frame()
 
         ############################################################
         # path_to_wid для просмотрщика, must_hidden для фильтрации сетки
@@ -91,6 +92,9 @@ class Thumb(QFrame):
         ############################################################
         # для навигации по сетке
         self.row, self.col = 0, 0
+        ############################################################
+        # при изменении размера мы берем это изображение 210 пикселей
+        self.img: QPixmap = None
         ############################################################
 
         v_lay = QVBoxLayout()
