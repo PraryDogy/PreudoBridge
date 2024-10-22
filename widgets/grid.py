@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import QFrame, QGridLayout, QWidget
 
-from cfg import Config, JsonData
+from cfg import GRID_SPACING, Config, JsonData
 from utils import Utils
 
 from ._base import BaseGrid
@@ -25,7 +25,7 @@ class Grid(BaseGrid):
 
         main_wid = QWidget()
         self.grid_layout = QGridLayout(main_wid)
-        self.grid_layout.setSpacing(Config.GRID_SPACING)
+        self.grid_layout.setSpacing(GRID_SPACING)
         self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
         self.setWidget(main_wid)
 

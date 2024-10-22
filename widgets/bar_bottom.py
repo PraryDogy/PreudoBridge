@@ -1,12 +1,13 @@
 import os
 
 from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import (QGridLayout, QHBoxLayout, QLabel, QProgressBar,
-                             QWidget, QSlider)
-from PyQt5.QtGui import QMouseEvent, QWheelEvent
+                             QWidget)
+
+from cfg import IMG_SIZES, JsonData
 
 from ._base import BaseSlider
-from cfg import JsonData, Config
 
 
 class CustomSlider(BaseSlider):
@@ -15,12 +16,12 @@ class CustomSlider(BaseSlider):
     def __init__(self):
         super().__init__(orientation=Qt.Orientation.Horizontal, minimum=0, maximum=3)
         self.setFixedWidth(80)
-        self.setValue(Config.IMG_SIZES.index(JsonData.thumb_size))
+        self.setValue(IMG_SIZES.index(JsonData.thumb_size))
         self.valueChanged.connect(self.change_size)
     
     def change_size(self, value: int):
         self.setValue(value)
-        JsonData.thumb_size = Config.IMG_SIZES[value]
+        JsonData.thumb_size = IMG_SIZES[value]
         self._clicked.emit()
 
 

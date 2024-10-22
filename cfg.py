@@ -3,14 +3,8 @@ import os
 from datetime import date
 
 
-# при сортировке сетки изображений каждый итератор - элемент сетки
-# будет иметь кортеж соответствующий ORDER из 5 пунктов
-# описанных в ORDER
-# а так же свои дополнительные, по которым сортировка не будет производиться
-# они будут идти после элементов ORDER
-# пример:
-
-# grid_widgets = [ (name, size, modify, type, colors, rating, ОСТАЛЬНОЕ), ... ]
+# для сортировки Thumb в сетке
+# имя каждого ключа соответствует аттрибуту Thumb
 
 ORDER: dict[str, dict] = {
         "name": {"text": "Имя", "index": 0},
@@ -20,6 +14,18 @@ ORDER: dict[str, dict] = {
         "colors": {"text": "Цвета", "index": 4},
         "rating": {"text": "Рейтинг", "index": 5},
         }
+
+# это базовое значение маленьких картинок которые улетают в базу данных
+IMG_SIZE: int = 210
+
+# Вариации маленьких картинок, размер меняется на лету при формировании сетки
+IMG_SIZES: list = [90, 130, 170, IMG_SIZE]
+
+# Подобрана максимальная длина строки в названии Thumbnail
+# Соответствующая IMG_SIZES
+TEXT_LENS = [10, 14, 21, 28]
+
+GRID_SPACING = 15
 
 
 class JsonData:
@@ -35,7 +41,7 @@ class JsonData:
     list_view = False
     clear_db = 5
     tab_bar = 1
-    thumb_size = 90
+    thumb_size = IMG_SIZES[0]
 
     @classmethod
     def get_data(cls):
@@ -53,16 +59,6 @@ class Config:
 
     JSON_FILE = os.path.join(os.path.expanduser('~'), 'Desktop', 'cfg.json')
     DB_FILE = os.path.join(os.path.expanduser('~'), 'Desktop', 'db.db')
-
-    # это базовое значение маленьких картинок которые улетают в базу данных
-    IMG_SIZE: int = 210
-    # Вариации маленьких картинок, размер меняется на лету при формировании сетки
-    IMG_SIZES: list = [90, 130, 170, IMG_SIZE]
-    # Подобрана максимальная длина строки в названии Thumbnail
-    # Соответствующая IMG_SIZES
-    TEXT_LENS = [10, 14, 21, 28]
-
-    GRID_SPACING = 15
 
     IMG_EXT: tuple = (
         ".jpg", "jpeg", "jfif",

@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QLabel, QMenu,
                              QVBoxLayout)
 from sqlalchemy.exc import OperationalError
 
-from cfg import Config, JsonData
+from cfg import Config, JsonData, IMG_SIZES, TEXT_LENS
 from database import CACHE, Engine
 from utils import Utils
 
@@ -19,8 +19,8 @@ class NameLabel(QLabel):
 
     def update_name(self, rating: int, colors: str, text: str) -> list[str]:
 
-        ind = Config.IMG_SIZES.index(JsonData.thumb_size)
-        max_row = Config.TEXT_LENS[ind]
+        ind = IMG_SIZES.index(JsonData.thumb_size)
+        max_row = TEXT_LENS[ind]
 
         name_lines = []
 
