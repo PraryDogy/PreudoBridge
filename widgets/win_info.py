@@ -10,6 +10,7 @@ class WinInfo(QWidget):
         self.setWindowTitle("Инфо")
 
         self.grid_layout = QGridLayout()
+        self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.grid_layout.setContentsMargins(10, 10, 10, 10)
         self.grid_layout.setSpacing(5)
         self.setLayout(self.grid_layout)
@@ -21,7 +22,7 @@ class WinInfo(QWidget):
             left_text, right_text = left_text.strip(), right_text.strip()
 
             if len(right_text) > 50:
-                max_row = 35
+                max_row = 39
                 right_text = [
                     right_text[i:i + max_row]
                     for i in range(0, len(right_text), max_row)
@@ -33,6 +34,7 @@ class WinInfo(QWidget):
             self.grid_layout.addWidget(left_lbl, row, 0, alignment=al)
 
             right_lbl = QLabel(right_text)
+            right_lbl.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
             al = Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom
             self.grid_layout.addWidget(right_lbl, row, 1, alignment=al)
 

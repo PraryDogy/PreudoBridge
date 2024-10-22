@@ -14,7 +14,7 @@ from database import CACHE, Engine
 from utils import Utils
 from ._grid import Thumb
 from ._svg_widgets import SvgShadowed
-
+from .win_info import WinInfo
 
 class Shared:
     loaded_images: dict[str, QPixmap] = {}
@@ -226,7 +226,7 @@ class WinImgView(QWidget):
         super().__init__()
         self.src: str = src
 
-        self.thumbnail: Thumb = path_to_wid.get(src)
+        self.wid: Thumb = path_to_wid.get(src)
 
         self.path_to_wid: dict[str, Thumb] = {
             path: wid
@@ -284,10 +284,10 @@ class WinImgView(QWidget):
 
     def set_title(self):
         t = ""
-        if self.thumbnail.rating > 0:
-            t = "\U00002605" * self.thumbnail.rating + " | "
-        if self.thumbnail.colors:
-            t = t + self.thumbnail.colors + " | "
+        if self.wid.rating > 0:
+            t = "\U00002605" * self.wid.rating + " | "
+        if self.wid.colors:
+            t = t + self.wid.colors + " | "
         t = t + os.path.basename(self.src)
 
         self.setWindowTitle(t)
@@ -350,8 +350,8 @@ class WinImgView(QWidget):
         new_index: int = (current_index + offset) % total_images
 
         self.src: str = self.image_paths[new_index]
-        self.thumbnail: Thumb = self.path_to_wid.get(self.src)
-        self.move_to_wid.emit(self.thumbnail)
+        self.wid: Thumb = self.path_to_wid.get(self.src)
+        self.move_to_wid.emit(self.wid)
         self.load_thumbnail()
 
     def switch_img_btn(self, flag: str) -> None:
@@ -369,12 +369,17 @@ class WinImgView(QWidget):
         self.mouse_move_timer.start(2000)
 
     def color_click(self, menu: QMenu, colors: str):
-        self.thumbnail.color_click(menu, colors)
+        self.wid.color_click(menu, colors)
         self.set_title()
 
     def rating_click(self, menu: QMenu, wid: QAction, rate: int):
-        self.thumbnail.rating_click(menu, wid, rate)
+        self.wid.rating_click(menu, wid, rate)
         self.set_title()
+
+    def show_info_win(self):
+        self.win_info = WinInfo(self.wid.get_info())
+        Utils.center_win(parent=self, child=self.win_info)
+        self.win_info.show()
 
 # EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS 
 
@@ -434,6 +439,10 @@ class WinImgView(QWidget):
 
         context_menu.addSeparator()
 
+        info = QAction("Инфо", self)
+        info.triggered.connect(self.show_info_win)
+        context_menu.addAction(info)
+
         show_in_finder_action = QAction("Показать в Finder", self)
         show_in_finder_action.triggered.connect(self.show_in_finder)
         context_menu.addAction(show_in_finder_action)
@@ -451,7 +460,7 @@ class WinImgView(QWidget):
             wid = QAction(parent=color_menu, text=f"{color} {text}")
             wid.setCheckable(True)
 
-            if color in self.thumbnail.colors:
+            if color in self.wid.colors:
                 wid.setChecked(True)
 
             wid.triggered.connect(lambda e, c=color: self.color_click(color_menu, c))
@@ -464,7 +473,7 @@ class WinImgView(QWidget):
             wid = QAction(parent=rating_menu, text="\U00002605" * rate)
             wid.setCheckable(True)
 
-            if self.thumbnail.rating == rate:
+            if self.wid.rating == rate:
                 wid.setChecked(True)
 
             wid.triggered.connect(lambda e, w=wid, r=rate: self.rating_click(rating_menu, w, r))
