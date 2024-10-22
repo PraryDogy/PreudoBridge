@@ -325,8 +325,8 @@ class ThumbFolder(Thumb):
     del_fav = pyqtSignal(str)
     clicked_folder = pyqtSignal(str)
 
-    def __init__(self, src: str):
-        super().__init__(src, 0, 0, {})
+    def __init__(self, src: str, size: int, modify: int, path_to_wid: dict[str, QLabel]):
+        super().__init__(src, size, modify, path_to_wid)
 
     def fav_cmd(self, offset: int):
         self.fav_action.triggered.disconnect()
@@ -381,8 +381,8 @@ class ThumbFolder(Thumb):
 class ThumbSearch(Thumb):
     show_in_folder = pyqtSignal(str)
 
-    def __init__(self, src: str, path_to_wid: dict[str, Thumb]):
-        super().__init__(src, 0, 0, path_to_wid)
+    def __init__(self, src: str, size: int, modify: int, path_to_wid: dict[str, QLabel]):
+        super().__init__(src, size, modify, path_to_wid)
 
     def add_custom_menu_items(self):
         show_in_folder = QAction("Показать в папке", self)

@@ -279,7 +279,7 @@ class GridStandart(Grid):
         for name, size, modify, type, colors, rating, src in finder_items:
 
             if os.path.isdir(src):
-                wid = ThumbFolder(src)
+                wid = ThumbFolder(src, 0, 0, {})
                 pixmap = QPixmap("images/folder_210.png")
                 wid.set_pixmap(pixmap)
 

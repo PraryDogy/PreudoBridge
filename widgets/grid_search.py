@@ -201,7 +201,7 @@ class GridSearch(Grid):
 
     def add_new_widget(self, widget_data: WidgetData):
         name = os.path.basename(widget_data.src)
-        wid = ThumbSearch(widget_data.src, self.path_to_wid)
+        wid = ThumbSearch(widget_data.src, 0, 0, self.path_to_wid)
 
         wid.set_pixmap(widget_data.pixmap)
 
