@@ -21,42 +21,37 @@ class NameLabel(QLabel):
 
     def update_name(self, rating: int, colors: str, text: str) -> list[str]:
         max_row = 25
-        name_lines = ["" for i in range(0, 4)]
+        name_lines = []
 
+        # Проверяем длину текста и обрезаем, если нужно
         if len(text) > max_row:
+            first_part = text[:max_row]
+            second_part = text[max_row:]
 
-            lines = [
-                text[:max_row],
-                text[max_row:]
-                ]
+            if len(second_part) > max_row:
+                # Обрезаем вторую часть строки с учётом места для троеточия и расширения
+                name_start = second_part[:max_row - 10]  # 4 символа расширения + 3 символа перед расширением + 3 для троеточия
+                name_end = second_part[-7:]  # 3 символа перед расширением + 4 символа расширения
+                second_part = name_start + "..." + name_end
 
-            if len(lines[-1]) > max_row:
-                # Обрезаем строку до нужной длины, учитывая троеточие, символы перед расширением и само расширение
-                name_start = lines[-1][:max_row - 4 - 3 - 3]
+            text = [first_part, second_part]
 
-                # 3 символа перед расширением и 4 символа расширения
-                name_end = lines[-1][-7:]
-
-                # Формируем итоговую строку
-                name = name_start + "..." + name_end
-                lines[-1] = name
-
-                text = lines
-
+        # Добавляем рейтинг, если задан
         if rating > 0:
-            rating = "\U00002605" * rating
-            name_lines[0] = rating
+            name_lines.append("\U00002605" * rating)
 
+        # Добавляем цвета, если заданы
         if colors:
-            name_lines[1] = colors
+            name_lines.append(colors)
 
+        # Добавляем текстовые строки
         if isinstance(text, str):
-            name_lines[2] = text
+            name_lines.append(text)
         else:
-            name_lines[2] = text[0]
-            name_lines[3] = text[1]
+            name_lines.extend(text[:2])  # Добавляем до 2 строк текста
 
-        self.setText("\n".join([i for i in name_lines if i]))
+        # Устанавливаем текст, исключая пустые строки
+        self.setText("\n".join(name_lines))
 
 
 class Geo:
@@ -64,7 +59,7 @@ class Geo:
     text_h = 65
 
     w = Config.IMG_SIZE + 10
-    h = img_h + text_h +10
+    h = img_h + text_h + 10
 
 
 class Thumb(QFrame):
