@@ -2,7 +2,7 @@ import os
 
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import (QGridLayout, QHBoxLayout, QLabel, QProgressBar,
-                             QWidget)
+                             QWidget, QSlider)
 from PyQt5.QtGui import QMouseEvent
 
 from cfg import JsonData
@@ -28,10 +28,33 @@ class BarBottom(QWidget):
         self._progressbar = QProgressBar()
         self._progressbar.setFixedWidth(100)
         self.h_lay.addWidget(self._progressbar, 0, 1, alignment=Qt.AlignmentFlag.AlignRight)
-        self._progressbar.hide()
-
+        # self._progressbar.hide()
         self.progressbar_start.connect(self.start_cmd)
         self.progressbar_value.connect(self.value_cmd)
+
+        self.slider_values = [0, 1, 2, 3]
+        self.slider = QSlider(parent=self, orientation=Qt.Horizontal, minimum=0, maximum=3)
+        self.slider.setFixedWidth(80)
+        self.slider.setValue(2)
+        self.h_lay.addWidget(self.slider, 0, 2, alignment=Qt.AlignmentFlag.AlignVCenter)
+
+        st = f"""
+        QSlider::groove:horizontal {{
+            border-radius: 1px;
+            height: 3px;
+            margin: 0px;
+            background-color: #a9a9a9;
+        }}
+        QSlider::handle:horizontal {{
+            background-color: #c7c7c7;
+            height: 10px;
+            width: 10px;
+            border-radius: 5px;
+            margin: -4px 0;
+            padding: -4px 0px;
+        }}
+        """
+        self.slider.setStyleSheet(st)
 
         self.create_path_label()
 
@@ -43,6 +66,7 @@ class BarBottom(QWidget):
         self._progressbar.setValue(value)
 
         if value == 1000000:
+            return
             self._progressbar.hide()
 
     def create_path_label(self):

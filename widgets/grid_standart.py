@@ -106,6 +106,13 @@ class LoadImages(QThread):
 
             if (db_src, db_size, db_mod) in self.src_size_mod:
                 pixmap: QPixmap = Utils.pixmap_from_bytes(db_byte_img)
+
+
+
+
+                # РАЗМЕР СЕТКИ
+                pixmap: QPixmap = pixmap.scaled(Config.thumb_size, Config.thumb_size, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio)
+
                 self.new_widget.emit(ImageData(db_src, db_size, db_mod, pixmap))
 
                 self.src_size_mod.remove((db_src, db_size, db_mod))
@@ -129,12 +136,20 @@ class LoadImages(QThread):
             img_array = Utils.read_image(src)
             img_array = FitImg.start(img_array, Config.IMG_SIZE)
             img_bytes: bytes = Utils.image_array_to_bytes(img_array)
+
             pixmap = Utils.pixmap_from_array(img_array)
 
             if not isinstance(img_bytes, bytes):
                 continue
 
             if isinstance(pixmap, QPixmap):
+
+
+
+
+                # РАЗМЕР СЕТКИ
+                pixmap: QPixmap = pixmap.scaled(Config.thumb_size, Config.thumb_size, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio)
+
                 self.new_widget.emit(ImageData(src, size, modified, pixmap))
 
             try:

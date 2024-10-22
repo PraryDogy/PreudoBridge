@@ -55,6 +55,7 @@ class Config:
     DB_FILE = os.path.join(os.path.expanduser('~'), 'Desktop', 'db.db')
 
     IMG_SIZE = 210
+    thumb_size = IMG_SIZE
 
     IMG_EXT: tuple = (
         ".jpg", "jpeg", "jfif",
