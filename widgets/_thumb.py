@@ -13,6 +13,8 @@ from cfg import IMG_SIZES, TEXT_LENS, Config, JsonData
 from database import CACHE, Engine
 from utils import Utils
 
+from .win_info import WinInfo
+
 
 class NameLabel(QLabel):
     def __init__(self):
@@ -148,6 +150,10 @@ class Thumb(QFrame):
 
         context_menu.addSeparator()
 
+        info = QAction("Инфо", self)
+        info.triggered.connect(self.show_info_win)
+        context_menu.addAction(info)
+
         # Показать в Finder
         show_in_finder_action = QAction("Показать в Finder", self)
         show_in_finder_action.triggered.connect(self.show_in_finder)
@@ -186,6 +192,11 @@ class Thumb(QFrame):
             wid.triggered.connect(lambda e, r=rate, w=wid: self.rating_click(rating_menu, w, r))
             rating_menu.addAction(wid)
 
+    def show_info_win(self):
+        self.win_info = WinInfo(self.get_info())
+        Utils.center_win(parent=Utils.get_main_win(), child=self.win_info)
+        self.win_info.show()
+
     def view(self):
         # в win_img_view есть импорт Thumbnail.
         # избегаем circular import
@@ -220,7 +231,7 @@ class Thumb(QFrame):
                 if item.text()[0] in self.colors:
                     item.setChecked(True)
 
-    def update_name(self):
+    def get_info(self) -> str:
         _size = round(self.size / (1024**2), 2)
         if _size < 1000:
             f_size = f"{_size} МБ"
@@ -232,7 +243,7 @@ class Thumb(QFrame):
 
         if self.mod:
             mod = datetime.datetime.fromtimestamp(self.mod).replace(microsecond=0)
-            mod = mod.strftime("%d.%m.%Y %H:%M")
+            mod = mod.strftime("%d.%m.%Y %H-%M")
         else:
             mod = ""
 
@@ -246,8 +257,10 @@ class Thumb(QFrame):
             f"Цвета: {self.colors}" if self.colors else ""
             ]
         text = [i for i in text if i]
+        return "\n".join(text)
 
-        self.setToolTip("\n".join(text))
+    def update_name(self):
+        self.setToolTip(self.get_info())
         self.name_label.update_name(self.rating, self.colors, self.name)
 
     def rating_click(self, menu: QMenu, wid: QAction, rate: int):
