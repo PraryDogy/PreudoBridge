@@ -48,6 +48,7 @@ class BarBottom(QWidget):
         self.progressbar_value.connect(self.value_cmd)
 
         self.slider = CustomSlider()
+        self.slider.setFixedWidth(70)
         self.slider._clicked.connect(self.resize_grid.emit)
         self.h_lay.addWidget(self.slider, 0, 2, alignment=Qt.AlignmentFlag.AlignVCenter)
         self.create_path_label()

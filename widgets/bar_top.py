@@ -458,6 +458,7 @@ class WinSettings(QWidget):
         
         self.slider_values = [2, 5, 10, 100]
         self.slider = BaseSlider(Qt.Horizontal, 0, len(self.slider_values) - 1)
+        self.slider.setFixedWidth(100)
         v_lay.addWidget(self.slider)
 
         self.label = QLabel("", self)
