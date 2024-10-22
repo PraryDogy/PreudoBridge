@@ -122,7 +122,7 @@ class Thumb(QFrame):
             print("thumb has no pixmap in self.img")
 
     def resize(self):
-        text_label_h = 65
+        text_label_h = 75
         self.setFixedSize(JsonData.thumb_size, JsonData.thumb_size + text_label_h)
         self.img_label.setFixedHeight(JsonData.thumb_size)
         self.name_label.setFixedHeight(text_label_h)
