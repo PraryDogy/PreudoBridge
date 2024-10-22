@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (QGridLayout, QHBoxLayout, QLabel, QProgressBar,
                              QWidget, QSlider)
 from PyQt5.QtGui import QMouseEvent
 
-from cfg import JsonData
+from cfg import JsonData, Config
 
 
 class BarBottom(QWidget):
@@ -32,31 +32,42 @@ class BarBottom(QWidget):
         self.progressbar_start.connect(self.start_cmd)
         self.progressbar_value.connect(self.value_cmd)
 
-        self.slider_values = [0, 1, 2, 3]
         self.slider = QSlider(parent=self, orientation=Qt.Horizontal, minimum=0, maximum=3)
         self.slider.setFixedWidth(80)
-        self.slider.setValue(2)
-        self.h_lay.addWidget(self.slider, 0, 2, alignment=Qt.AlignmentFlag.AlignVCenter)
-
+        self.slider.setValue(3)
+        self.slider.valueChanged.connect(self.change_size)
         st = f"""
-        QSlider::groove:horizontal {{
-            border-radius: 1px;
-            height: 3px;
-            margin: 0px;
-            background-color: #a9a9a9;
-        }}
-        QSlider::handle:horizontal {{
-            background-color: #c7c7c7;
-            height: 10px;
-            width: 10px;
-            border-radius: 5px;
-            margin: -4px 0;
-            padding: -4px 0px;
-        }}
-        """
+            QSlider::groove:horizontal {{
+                border-radius: 1px;
+                height: 3px;
+                margin: 0px;
+                background-color: rgba(111, 111, 111, 0.5);
+            }}
+            QSlider::handle:horizontal {{
+                background-color: rgba(199, 199, 199, 1);
+                height: 10px;
+                width: 10px;
+                border-radius: 5px;
+                margin: -4px 0;
+                padding: -4px 0px;
+            }}
+            """
         self.slider.setStyleSheet(st)
 
+        self.h_lay.addWidget(self.slider, 0, 2, alignment=Qt.AlignmentFlag.AlignVCenter)
         self.create_path_label()
+
+    def change_size(self, value: int):
+        values = {
+            0: Config.IMG_SIZE - 40 * 3,
+            1: Config.IMG_SIZE - 40 * 2,
+            2: Config.IMG_SIZE - 40 * 1,
+            3: Config.IMG_SIZE
+            }
+        
+        self.slider.setValue(value)
+        Config.thumb_size = values[value]
+        self.path_click.emit()
 
     def start_cmd(self, value: int):
         self._progressbar.setMaximum(value)

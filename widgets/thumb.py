@@ -53,14 +53,6 @@ class NameLabel(QLabel):
         self.setText("\n".join(name_lines))
 
 
-class Geo:
-    img_h = Config.IMG_SIZE
-    text_h = 65
-
-    w = Config.IMG_SIZE + 10
-    h = img_h + text_h + 10
-
-
 class Thumb(QFrame):
     move_to_wid = pyqtSignal(object)
     clicked = pyqtSignal()
@@ -69,8 +61,15 @@ class Thumb(QFrame):
             self, name: str, size: int, modify: int, type: str, src: str,
             path_to_wid: dict[str, QLabel]
             ):
+
         super().__init__()
-        self.setFixedSize(Geo.w, Geo.h)
+
+        text_label_h = 65
+
+        self.setFixedSize(
+            Config.thumb_size + 10,
+            Config.thumb_size + text_label_h + 10
+            )
 
         _size = round(size / (1024**2), 2)
 
@@ -116,12 +115,12 @@ class Thumb(QFrame):
         self.setLayout(v_lay)
 
         self.img_label = QLabel()
-        self.img_label.setFixedHeight(Geo.img_h)
+        self.img_label.setFixedHeight(Config.thumb_size)
         self.img_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         v_lay.addWidget(self.img_label)
 
         self.name_label = NameLabel()
-        self.name_label.setFixedHeight(Geo.text_h)
+        self.name_label.setFixedHeight(text_label_h)
         v_lay.addWidget(self.name_label)
 
 

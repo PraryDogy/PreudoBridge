@@ -174,7 +174,7 @@ class Utils:
 
     @classmethod
     def get_clmn_count(cls, width: int):
-        return (width + 150) // (Config.IMG_SIZE + 10)
+        return (width + 150) // (Config.thumb_size + 10)
 
 
     @classmethod
