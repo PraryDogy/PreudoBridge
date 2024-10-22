@@ -230,9 +230,9 @@ class GridSearch(Grid):
             self.col = 0
             self.row += 1
  
-    def resize_grid(self, width: int):
+    def rearrange_grid(self, width: int):
         if not self.search_thread.isRunning():
-            super().resize_grid(width)
+            super().rearrange_grid(width)
     
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         try:

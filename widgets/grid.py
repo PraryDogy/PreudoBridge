@@ -82,7 +82,7 @@ class Grid(BaseGrid):
             if isinstance(wid, Thumb)
             }
         
-        self.resize_grid(width)
+        self.rearrange_grid(width)
 
     def filter_grid(self, width: int):
         for wid in self.sorted_widgets:
@@ -103,9 +103,9 @@ class Grid(BaseGrid):
                 wid.must_hidden = True
                 wid.hide()
 
-        self.resize_grid(width)
+        self.rearrange_grid(width)
 
-    def resize_grid(self, width: int):
+    def rearrange_grid(self, width: int):
         self.reset_selection()
         self.cell_to_wid.clear()
 

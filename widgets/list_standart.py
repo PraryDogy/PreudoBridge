@@ -67,7 +67,7 @@ class ListStandart(BaseTableView):
     def open_in_finder(self, path: str):
         subprocess.call(["open", "-R", path])
 
-    def resize_grid(self, *args, **kwargs):
+    def rearrange_grid(self, *args, **kwargs):
         ...
 
     def contextMenuEvent(self, event):

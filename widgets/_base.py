@@ -6,7 +6,7 @@ from cfg import Config, JsonData
 
 
 class BaseMethods:
-    def resize_grid(self, *args, **kwargs):
+    def rearrange_grid(self, *args, **kwargs):
         raise Exception("Переопредели метод resize")
 
     def sort_grid(self, *args, **kwargs):

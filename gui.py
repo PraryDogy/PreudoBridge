@@ -256,7 +256,7 @@ class SimpleFileExplorer(QWidget):
         return JsonData.ww - self.bar_tabs.width() - 180
 
     def resize_timer_cmd(self):
-        self.grid.resize_grid(self.get_grid_width())
+        self.grid.rearrange_grid(self.get_grid_width())
 
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         JsonData.ww = self.geometry().width()
