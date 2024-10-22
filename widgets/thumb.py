@@ -20,7 +20,10 @@ class NameLabel(QLabel):
         self.setAlignment(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignCenter)
 
     def update_name(self, rating: int, colors: str, text: str) -> list[str]:
-        max_row = 20
+
+        ind = Config.IMG_SIZES.index(JsonData.thumb_size)
+        max_row = Config.TEXT_LENS[ind]
+
         name_lines = []
 
         # Проверяем длину текста и обрезаем, если нужно
@@ -65,35 +68,31 @@ class Thumb(QFrame):
 
         super().__init__()
         self.setObjectName("thumb")
-
         text_label_h = 65
-
         self.setFixedSize(
-            JsonData.thumb_size + 30,
-            JsonData.thumb_size + text_label_h + 10
+            JsonData.thumb_size,
+            JsonData.thumb_size + text_label_h
             )
 
         _size = round(size / (1024**2), 2)
-
         if _size < 1000:
             f_size = f"{_size} МБ"
         else:
             _size = round(size / (1024**3), 2)
             f_size = f"{_size} ГБ"
-
         t = [
             f"Имя: {name}",
             f"Путь: {src}",
             "Размер: -" if size == 0 else f"размер: {f_size}",
             "Тип: папка" if not type else f"Тип: {type}"
-        ]
-
+            ]
         self.setToolTip("\n".join(t))
 
+        ############################################################
+        # path_to_wid для просмотрщика, must_hidden для фильтрации сетки
         self.path_to_wid: dict[str, QLabel] = path_to_wid
         self.src: str = src
         self.must_hidden: bool = False
-
         ############################################################
         # Данные аттрибуты должны соответстовать ключам в ORDER
         # так как по этим аттрибутам будет совершаться сортировка сетки

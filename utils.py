@@ -174,7 +174,7 @@ class Utils:
 
     @classmethod
     def get_clmn_count(cls, width: int):
-        return (width + 150) // (JsonData.thumb_size + Config.GRID_SPACING + 15)
+        return (width + 150) // (JsonData.thumb_size + Config.GRID_SPACING)
 
     @classmethod
     def pixmap_scale(cls, pixmap: QPixmap, w: int, h: int) -> QPixmap:
