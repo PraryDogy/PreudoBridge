@@ -44,7 +44,6 @@ class BarBottom(QWidget):
         self._progressbar = QProgressBar()
         self._progressbar.setFixedWidth(100)
         self.h_lay.addWidget(self._progressbar, 0, 1, alignment=Qt.AlignmentFlag.AlignRight)
-        self._progressbar.hide()
         self.progressbar_start.connect(self.start_cmd)
         self.progressbar_value.connect(self.value_cmd)
 
@@ -90,7 +89,7 @@ class BarBottom(QWidget):
 
         self.path_label.adjustSize()
         ww = self.path_label.width()
-        while ww > 485:
+        while ww > 430:
             chunks[0].hide()
             chunks.pop(0)
             self.path_label.adjustSize()
