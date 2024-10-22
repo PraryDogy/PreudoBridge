@@ -238,6 +238,8 @@ class SimpleFileExplorer(QWidget):
             self.grid.del_fav.connect(self.del_fav_cmd)
             self.grid.clicked_folder.connect(self.view_folder_cmd)
 
+            self.grid.level_up.connect(self.grid_standart_load)
+
             if src:
                 QTimer.singleShot(2000, lambda: self.grid.select_new_widget(src))
 
@@ -267,7 +269,7 @@ class SimpleFileExplorer(QWidget):
         self.hide()
         a0.ignore()
 
-    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
+    def keyPressEvent(self, a0: QKeyEvent | None) -> None:            
         if a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
             if a0.key() == Qt.Key.Key_F:
                 self.bar_top.search_wid.input_wid.setFocus()
@@ -299,6 +301,14 @@ class CustomApp(QApplication):
     def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
         if a1.type() == QEvent.Type.ApplicationActivate:
             Utils.get_main_win().show()
+
+        # if a1.type() == QEvent.Type.KeyPress:
+        #     key_event = QKeyEvent(a1)
+
+        #     if key_event.key() == Qt.Key_Up:
+        #         if key_event.modifiers() & Qt.MetaModifier:
+        #             print("Command + стрелка вверх")
+
         return False
 
     def on_exit(self):

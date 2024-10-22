@@ -1,3 +1,5 @@
+import os
+
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import QFrame, QGridLayout, QWidget
@@ -128,7 +130,15 @@ class Grid(BaseGrid):
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         wid: Thumb | ThumbFolder 
 
-        if a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
+        if a0.modifiers() & Qt.KeyboardModifier.ControlModifier and a0.key() == Qt.Key.Key_Up:
+            JsonData.root = os.path.dirname(JsonData.root)
+            self.level_up.emit()
+
+        if a0.modifiers() & Qt.KeyboardModifier.ControlModifier and a0.key() == Qt.Key.Key_Down:
+            wid = self.cell_to_wid.get(self.curr_cell)
+            wid.view()
+
+        elif a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
             wid = self.cell_to_wid.get(self.curr_cell)
             wid.view()
 
