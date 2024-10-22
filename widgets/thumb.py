@@ -66,12 +66,9 @@ class Thumb(QFrame):
 
         super().__init__()
         self.setObjectName("thumb")
-        text_label_h = 65
-        self.setFixedSize(
-            JsonData.thumb_size,
-            JsonData.thumb_size + text_label_h
-            )
         self.set_no_frame()
+
+        self.text_label_h = 65
 
         ############################################################
         # path_to_wid для просмотрщика, must_hidden для фильтрации сетки
@@ -104,27 +101,27 @@ class Thumb(QFrame):
         self.setLayout(v_lay)
 
         self.img_label = QLabel()
-        self.img_label.setFixedHeight(JsonData.thumb_size)
         self.img_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         v_lay.addWidget(self.img_label)
 
         self.name_label = NameLabel()
-        self.name_label.setFixedHeight(text_label_h)
         v_lay.addWidget(self.name_label)
 
+        self.resize()
+
+    def resize(self):
+        self.setFixedSize(
+            JsonData.thumb_size,
+            JsonData.thumb_size + self.text_label_h
+            )
+        self.img_label.setFixedHeight(JsonData.thumb_size)
+        self.name_label.setFixedHeight(self.text_label_h)
+
     def set_frame(self):
-        self.setStyleSheet("""
-            #thumb {
-                border: 1px solid white;
-            }
-        """)
+        self.setStyleSheet("""#thumb { border: 1px solid white; }""")
 
     def set_no_frame(self):
-        self.setStyleSheet("""
-            #thumb {
-                border: 1px solid transparent;
-            }
-        """)
+        self.setStyleSheet("""#thumb { border: 1px solid transparent; }""")
 
     def add_base_actions(self, context_menu: QMenu):
         view_action = QAction("Просмотр", self)
