@@ -17,7 +17,7 @@ class NameLabel(QLabel):
         super().__init__()
         self.setAlignment(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignCenter)
 
-    def update_name(self, rating: int, colors: str, text: str) -> list[str]:
+    def update_name(self, rating: int, colors: str, name: str) -> list[str]:
 
         ind = IMG_SIZES.index(JsonData.thumb_size)
         max_row = TEXT_LENS[ind]
@@ -25,9 +25,9 @@ class NameLabel(QLabel):
         name_lines = []
 
         # Проверяем длину текста и обрезаем, если нужно
-        if len(text) > max_row:
-            first_part = text[:max_row]
-            second_part = text[max_row:]
+        if len(name) > max_row:
+            first_part = name[:max_row]
+            second_part = name[max_row:]
 
             if len(second_part) > max_row:
                 # Обрезаем вторую часть строки с учётом места для троеточия и расширения
@@ -35,7 +35,7 @@ class NameLabel(QLabel):
                 name_end = second_part[-7:]  # 3 символа перед расширением + 4 символа расширения
                 second_part = name_start + "..." + name_end
 
-            text = [first_part, second_part]
+            name = [first_part, second_part]
 
         # Добавляем рейтинг, если задан
         if rating > 0:
@@ -46,10 +46,10 @@ class NameLabel(QLabel):
             name_lines.append(colors)
 
         # Добавляем текстовые строки
-        if isinstance(text, str):
-            name_lines.append(text)
+        if isinstance(name, str):
+            name_lines.append(name)
         else:
-            name_lines.extend(text[:2])  # Добавляем до 2 строк текста
+            name_lines.extend(name[:2])  # Добавляем до 2 строк текста
 
         # Устанавливаем текст, исключая пустые строки
         self.setText("\n".join(name_lines))
@@ -127,6 +127,7 @@ class Thumb(QFrame):
             )
         self.img_label.setFixedHeight(JsonData.thumb_size)
         self.name_label.setFixedHeight(self.text_label_h)
+        self.name_label.update_name(self.rating, self.colors, self.name)
 
     def set_frame(self):
         self.setStyleSheet("""#thumb { border: 1px solid white; }""")
