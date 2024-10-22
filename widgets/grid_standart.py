@@ -106,7 +106,7 @@ class LoadImages(QThread):
 
             if (db_src, db_size, db_mod) in self.src_size_mod:
                 pixmap: QPixmap = Utils.pixmap_from_bytes(db_byte_img)
-                pixmap: QPixmap = Utils.pixmap_scale(JsonData.thumb_size, JsonData.thumb_size)
+                pixmap: QPixmap = Utils.pixmap_scale(pixmap, JsonData.thumb_size, JsonData.thumb_size)
                 self.new_widget.emit(ImageData(db_src, db_size, db_mod, pixmap))
                 self.src_size_mod.remove((db_src, db_size, db_mod))
             else:
@@ -137,7 +137,7 @@ class LoadImages(QThread):
 
             if isinstance(pixmap, QPixmap):
 
-                pixmap: QPixmap = Utils.pixmap_scale(JsonData.thumb_size, JsonData.thumb_size)
+                pixmap: QPixmap = Utils.pixmap_scale(pixmap, JsonData.thumb_size, JsonData.thumb_size)
                 self.new_widget.emit(ImageData(src, size, modified, pixmap))
 
             try:
@@ -283,7 +283,7 @@ class GridStandart(Grid):
             if os.path.isdir(src):
                 wid = ThumbFolder(name, src)
                 pixmap = QPixmap("images/folder_210.png")
-                pixmap: QPixmap = Utils.pixmap_scale(JsonData.thumb_size, JsonData.thumb_size)
+                pixmap: QPixmap = Utils.pixmap_scale(pixmap, JsonData.thumb_size, JsonData.thumb_size)
                 self.set_base_img(wid.img_label, pixmap)
 
                 wid.clicked_folder.connect(self.clicked_folder.emit)
@@ -296,7 +296,7 @@ class GridStandart(Grid):
             else:
                 wid = Thumb(name, size, modify, type, src, self.path_to_wid)
                 pixmap = QPixmap("images/file_210.png")
-                pixmap: QPixmap = Utils.pixmap_scale(JsonData.thumb_size, JsonData.thumb_size)
+                pixmap: QPixmap = Utils.pixmap_scale(pixmap, JsonData.thumb_size, JsonData.thumb_size)
                 self.set_base_img(wid.img_label, pixmap)
 
                 wid.move_to_wid.connect(lambda w: self.select_new_widget(w))
