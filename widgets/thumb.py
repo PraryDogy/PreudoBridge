@@ -74,20 +74,6 @@ class Thumb(QFrame):
             JsonData.thumb_size + text_label_h
             )
 
-        _size = round(size / (1024**2), 2)
-        if _size < 1000:
-            f_size = f"{_size} МБ"
-        else:
-            _size = round(size / (1024**3), 2)
-            f_size = f"{_size} ГБ"
-        t = [
-            f"Имя: {name}",
-            f"Путь: {src}",
-            "Размер: -" if size == 0 else f"размер: {f_size}",
-            "Тип: папка" if not type else f"Тип: {type}"
-            ]
-        self.setToolTip("\n".join(t))
-
         ############################################################
         # path_to_wid для просмотрщика, must_hidden для фильтрации сетки
         self.path_to_wid: dict[str, QLabel] = path_to_wid
@@ -123,20 +109,6 @@ class Thumb(QFrame):
         self.name_label = NameLabel()
         self.name_label.setFixedHeight(text_label_h)
         v_lay.addWidget(self.name_label)
-
-    def set_frame(self):
-        self.setStyleSheet("""
-            #thumb {
-                border: 1px solid white;
-            }
-        """)
-
-    def set_no_frame(self):
-        self.setStyleSheet("""
-            #thumb {
-                border: 1px solid transparent;
-            }
-        """)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
         self.clicked.emit()
@@ -178,6 +150,20 @@ class Thumb(QFrame):
         context_menu = QMenu(self)
         self.add_base_actions(context_menu)
         context_menu.exec_(self.mapToGlobal(a0.pos()))
+
+    def set_frame(self):
+        self.setStyleSheet("""
+            #thumb {
+                border: 1px solid white;
+            }
+        """)
+
+    def set_no_frame(self):
+        self.setStyleSheet("""
+            #thumb {
+                border: 1px solid transparent;
+            }
+        """)
 
     def add_base_actions(self, context_menu: QMenu):
         view_action = QAction("Просмотр", self)
@@ -260,12 +246,34 @@ class Thumb(QFrame):
             self.colors = temp_colors
             key = lambda x: list(Config.COLORS.keys()).index(x)
             self.colors = ''.join(sorted(self.colors, key=key))
-            self.name_label.update_name(self.rating, self.colors, self.name)
+            self.update_name()
 
             for item in menu.children():
                 item: QAction
                 if item.text()[0] in self.colors:
                     item.setChecked(True)
+
+    def update_name(self):
+        _size = round(self.size / (1024**2), 2)
+        if _size < 1000:
+            f_size = f"{_size} МБ"
+        else:
+            _size = round(self.size / (1024**3), 2)
+            f_size = f"{_size} ГБ"
+
+        rating = "\U00002605" * self.rating
+
+        t = [
+            f"Имя: {self.name}",
+            f"Путь: {self.src}",
+            f"Размер: {f_size}" if self.size > 0 else "Размер: -",
+            f"Тип: {self.type}" if self.type else f"Тип: папка",
+            f"Рейтинг: {rating}" if rating else "Рейтинг: -",
+            f"Цвета: {self.colors}" if self.colors else "Цвета: -"
+            ]
+
+        self.setToolTip("\n".join(t))
+        self.name_label.update_name(self.rating, self.colors, self.name)
 
     def rating_click(self, menu: QMenu, wid: QAction, rate: int):
         if rate == 1:
@@ -274,8 +282,8 @@ class Thumb(QFrame):
         update_db = self.update_data_db(self.colors, rate)
 
         if update_db:
-            self.name_label.update_name(rate, self.colors, self.name)
             self.rating = rate
+            self.update_name()
 
             for i in menu.children():
                 i: QAction
@@ -283,13 +291,13 @@ class Thumb(QFrame):
             if rate > 0:
                 wid.setChecked(True)
 
-    def set_colors(self, colors: str):
+    def set_colors_from_db(self, colors: str):
         self.colors = colors
-        self.name_label.update_name(self.rating, self.colors, self.name)
+        self.update_name()
 
-    def set_rating(self, rating: int):
+    def set_rating_from_db(self, rating: int):
         self.rating = rating
-        self.name_label.update_name(self.rating, self.colors, self.name)
+        self.update_name()
 
     def update_data_db(self, colors: str, rating: int):
         upd_stmt = sqlalchemy.update(CACHE)

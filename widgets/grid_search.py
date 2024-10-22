@@ -206,8 +206,8 @@ class GridSearch(Grid):
         wid.img_label.setPixmap(widget_data.pixmap)
 
         # устанавливаем аттрибуты для сортировки
-        wid.set_colors(widget_data.colors)
-        wid.set_rating(widget_data.rating)
+        wid.set_colors_from_db(widget_data.colors)
+        wid.set_rating_from_db(widget_data.rating)
         wid.size = widget_data.stats.st_size
         wid.modified = widget_data.stats.st_mtime
         wid.filetype = os.path.splitext(widget_data.src)[1]

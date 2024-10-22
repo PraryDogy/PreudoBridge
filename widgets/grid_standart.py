@@ -291,7 +291,7 @@ class GridStandart(Grid):
                 wid.del_fav.connect(self.del_fav.emit)
 
                 # у папок нет цветных тегов, но этот метод задает имя
-                wid.set_colors("")
+                wid.set_colors_from_db("")
 
             else:
                 wid = Thumb(name, size, modify, type, src, self.path_to_wid)
@@ -300,8 +300,8 @@ class GridStandart(Grid):
                 self.set_base_img(wid.img_label, pixmap)
 
                 wid.move_to_wid.connect(lambda w: self.select_new_widget(w))
-                wid.set_colors(colors)
-                wid.set_rating(rating)
+                wid.set_colors_from_db(colors)
+                wid.set_rating_from_db(rating)
 
                 src_size_mod.append((src, size, modify))
 
