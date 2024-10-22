@@ -17,23 +17,51 @@ class NameLabel(QLabel):
     def __init__(self):
         super().__init__()
         self.setAlignment(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignCenter)
+        # self.setStyleSheet("background: red;")
 
     def update_name(self, rating: int, colors: str, text: str) -> list[str]:
-        max_length = 25
+        max_row = 25
+        name_lines = ["" for i in range(0, 4)]
 
-        if len(text) > max_length:
-            text = text[:max_length] + "..."
+        if len(text) > max_row:
+
+            lines = [
+                text[:max_row],
+                text[max_row:]
+                ]
+
+            if len(lines[-1]) > max_row:
+                # Обрезаем строку до нужной длины, учитывая троеточие, символы перед расширением и само расширение
+                name_start = lines[-1][:max_row - 4 - 3 - 3]
+
+                # 3 символа перед расширением и 4 символа расширения
+                name_end = lines[-1][-7:]
+
+                # Формируем итоговую строку
+                name = name_start + "..." + name_end
+                lines[-1] = name
+
+                text = lines
 
         if rating > 0:
             rating = "\U00002605" * rating
+            name_lines[0] = rating
 
-        lines = [i for i in (rating, colors, text) if i]
-        self.setText("\n".join(lines))
+        if colors:
+            name_lines[1] = colors
+
+        if isinstance(text, str):
+            name_lines[2] = text
+        else:
+            name_lines[2] = text[0]
+            name_lines[3] = text[1]
+
+        self.setText("\n".join([i for i in name_lines if i]))
 
 
 class Geo:
     img_h = Config.IMG_SIZE
-    text_h = 50
+    text_h = 65
 
     w = Config.IMG_SIZE + 10
     h = img_h + text_h +10

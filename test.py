@@ -1,2 +1,3 @@
-text = "here_is_name_than_contains_symbols_more_then_25_per_row.jpg"
-print(format_text(text))
+lines = ["1" for i in range(0, 4)]
+
+print(lines)
