@@ -112,47 +112,6 @@ class Thumb(QFrame):
         self.name_label.setFixedHeight(text_label_h)
         v_lay.addWidget(self.name_label)
 
-    def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
-        self.clicked.emit()
-
-    def mousePressEvent(self, a0: QMouseEvent | None) -> None:
-        if a0.button() == Qt.MouseButton.LeftButton:
-            self.drag_start_position = a0.pos()
-
-    def mouseMoveEvent(self, a0: QMouseEvent | None) -> None:
-        if a0.button() == Qt.MouseButton.RightButton:
-            return
-        
-        try:
-            distance = (a0.pos() - self.drag_start_position).manhattanLength()
-        except AttributeError:
-            return
-
-        if distance < QApplication.startDragDistance():
-            return
-
-        self.clicked.emit()
-
-        self.drag = QDrag(self)
-        self.mime_data = QMimeData()
-        self.drag.setPixmap(self.img_label.pixmap())
-        
-        url = [QUrl.fromLocalFile(self.src)]
-        self.mime_data.setUrls(url)
-
-        self.drag.setMimeData(self.mime_data)
-        self.drag.exec_(Qt.DropAction.CopyAction)
-
-    def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
-        if a0.button() == Qt.MouseButton.LeftButton:
-            self.view()
-
-    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        self.clicked.emit()
-        context_menu = QMenu(self)
-        self.add_base_actions(context_menu)
-        context_menu.exec_(self.mapToGlobal(a0.pos()))
-
     def set_frame(self):
         self.setStyleSheet("""
             #thumb {
@@ -315,6 +274,47 @@ class Thumb(QFrame):
 
         return True
 
+    def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
+        self.clicked.emit()
+
+    def mousePressEvent(self, a0: QMouseEvent | None) -> None:
+        if a0.button() == Qt.MouseButton.LeftButton:
+            self.drag_start_position = a0.pos()
+
+    def mouseMoveEvent(self, a0: QMouseEvent | None) -> None:
+        if a0.button() == Qt.MouseButton.RightButton:
+            return
+        
+        try:
+            distance = (a0.pos() - self.drag_start_position).manhattanLength()
+        except AttributeError:
+            return
+
+        if distance < QApplication.startDragDistance():
+            return
+
+        self.clicked.emit()
+
+        self.drag = QDrag(self)
+        self.mime_data = QMimeData()
+        self.drag.setPixmap(self.img_label.pixmap())
+        
+        url = [QUrl.fromLocalFile(self.src)]
+        self.mime_data.setUrls(url)
+
+        self.drag.setMimeData(self.mime_data)
+        self.drag.exec_(Qt.DropAction.CopyAction)
+
+    def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
+        if a0.button() == Qt.MouseButton.LeftButton:
+            self.view()
+
+    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+        self.clicked.emit()
+        context_menu = QMenu(self)
+        self.add_base_actions(context_menu)
+        context_menu.exec_(self.mapToGlobal(a0.pos()))
+
 
 class ThumbFolder(Thumb):
     add_fav = pyqtSignal(str)
@@ -323,6 +323,21 @@ class ThumbFolder(Thumb):
 
     def __init__(self, name: str, src: str):
         super().__init__(name, 0, 0, "", src, {})
+
+    def fav_cmd(self, offset: int):
+        self.fav_action.triggered.disconnect()
+        if 0 + offset == 1:
+            self.add_fav.emit(self.src)
+            self.fav_action.setText("Удалить из избранного")
+            self.fav_action.triggered.connect(lambda: self.fav_cmd(-1))
+        else:
+            self.del_fav.emit(self.src)
+            self.fav_action.setText("Добавить в избранное")
+            self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))
+
+    # переназначение метода Thumb
+    def view(self):
+        self.clicked_folder.emit(self.src)
 
     def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
         self.clicked.emit()
@@ -358,20 +373,7 @@ class ThumbFolder(Thumb):
 
         context_menu.exec_(self.mapToGlobal(a0.pos()))
 
-    def fav_cmd(self, offset: int):
-        self.fav_action.triggered.disconnect()
-        if 0 + offset == 1:
-            self.add_fav.emit(self.src)
-            self.fav_action.setText("Удалить из избранного")
-            self.fav_action.triggered.connect(lambda: self.fav_cmd(-1))
-        else:
-            self.del_fav.emit(self.src)
-            self.fav_action.setText("Добавить в избранное")
-            self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))
-
-    def view(self):
-        self.clicked_folder.emit(self.src)
-
+ 
 class ThumbSearch(Thumb):
     show_in_folder = pyqtSignal(str)
 
