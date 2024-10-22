@@ -11,8 +11,8 @@ from database import CACHE, STATS, Engine
 from fit_img import FitImg
 from utils import Utils
 
-from .grid import Grid, Thumb
-from .thumb import ThumbFolder
+from ._grid import Grid, Thumb
+from ._thumb import ThumbFolder
 
 
 # Если родительский класс запущенного треда будет закрыт

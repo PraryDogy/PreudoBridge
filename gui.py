@@ -9,7 +9,7 @@ from cfg import Config, JsonData
 from utils import Utils
 from widgets.bar_bottom import BarBottom
 from widgets.bar_top import BarTop
-from widgets.grid import Grid
+from widgets._grid import Grid
 from widgets.grid_search import GridSearch
 from widgets.grid_standart import GridStandart
 from widgets.list_standart import ListStandart

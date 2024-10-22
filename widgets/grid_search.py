@@ -14,8 +14,8 @@ from database import CACHE, STATS, Engine
 from fit_img import FitImg
 from utils import Utils
 
-from .grid import Grid
-from .thumb import ThumbSearch
+from ._grid import Grid
+from ._thumb import ThumbSearch
 
 
 class WidgetData:

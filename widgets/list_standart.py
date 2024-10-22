@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import QAction, QFileSystemModel, QMenu, QTableView
 from cfg import Config, JsonData
 from utils import Utils
 
-from .thumb import Thumb
+from ._thumb import Thumb
 from ._base import BaseTableView
 from .win_img_view import WinImgView
 

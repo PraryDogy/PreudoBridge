@@ -8,7 +8,7 @@ from cfg import GRID_SPACING, Config, JsonData
 from utils import Utils
 
 from ._base import BaseGrid
-from .thumb import Thumb, ThumbFolder, ThumbSearch
+from ._thumb import Thumb, ThumbFolder, ThumbSearch
 
 
 class Grid(BaseGrid):
