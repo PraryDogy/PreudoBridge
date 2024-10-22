@@ -11,6 +11,7 @@ from sqlalchemy.exc import OperationalError
 from cfg import Config, JsonData
 from database import CACHE, Engine
 from utils import Utils
+from PyQt5.QtGui import QFontMetrics
 
 
 class NameLabel(QLabel):

@@ -35,7 +35,7 @@ class JsonData:
     list_view = False
     clear_db = 5
     tab_bar = 1
-    thumb_size = 3
+    thumb_size = 150
 
     @classmethod
     def get_data(cls):
@@ -56,7 +56,10 @@ class Config:
 
     # это базовое значение маленьких картинок которые улетают в базу данных
     IMG_SIZE: int = 210
+    # Вариации маленьких картинок, размер меняется на лету при формировании сетки
     IMG_SIZES: list = [90, 130, 170, IMG_SIZE]
+
+    GRID_SPACING = 15
 
     IMG_EXT: tuple = (
         ".jpg", "jpeg", "jfif",

@@ -25,7 +25,7 @@ class Grid(BaseGrid):
 
         main_wid = QWidget()
         self.grid_layout = QGridLayout(main_wid)
-        self.grid_layout.setSpacing(15)
+        self.grid_layout.setSpacing(Config.GRID_SPACING)
         self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
         self.setWidget(main_wid)
 
