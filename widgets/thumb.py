@@ -232,6 +232,7 @@ class Thumb(QFrame):
 
         if self.modify:
             modify = datetime.datetime.fromtimestamp(self.modify).replace(microsecond=0)
+            modify = modify.strftime("%d.%m.%Y %H:%M")
         else:
             modify = "-"
 
