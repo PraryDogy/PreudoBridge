@@ -115,8 +115,10 @@ class Thumb(QFrame):
 
     def resize_pixmap(self):
         if isinstance(self.img, QPixmap):
-            pixmap = Utils.pixmap_scale(self.img, JsonData.thumb_size, JsonData.thumb_size)
+            pixmap = Utils.pixmap_scale(self.img, JsonData.thumb_size)
             self.img_label.setPixmap(pixmap)
+        else:
+            print("thumb has no pixmap in self.img")
 
     def resize(self):
         self.setFixedSize(

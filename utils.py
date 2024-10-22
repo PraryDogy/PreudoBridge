@@ -177,8 +177,8 @@ class Utils:
         return (width + 150) // (JsonData.thumb_size + GRID_SPACING)
 
     @classmethod
-    def pixmap_scale(cls, pixmap: QPixmap, w: int, h: int) -> QPixmap:
-        return pixmap.scaled(w, h, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio)
+    def pixmap_scale(cls, pixmap: QPixmap, size: int) -> QPixmap:
+        return pixmap.scaled(size, size, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio)
 
     @classmethod
     def print_error(cls, parent: object, error: Exception):
