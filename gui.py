@@ -262,7 +262,12 @@ class SimpleFileExplorer(QWidget):
                 self.grid.setFocus()
                 self.grid.keyPressEvent(a0)
 
-        if a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
+        if a0.modifiers() & Qt.KeyboardModifier.ControlModifier and a0.key() == Qt.Key.Key_Up:
+            if not self.grid.hasFocus():
+                self.grid.setFocus()
+                self.grid.keyPressEvent(a0)
+
+        elif a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
             if a0.key() == Qt.Key.Key_F:
                 self.bar_top.search_wid.input_wid.setFocus()
 
