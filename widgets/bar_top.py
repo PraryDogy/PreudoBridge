@@ -400,7 +400,7 @@ class WinGo(QWidget):
         path: str = os.sep + path.strip().strip(os.sep)
 
         if os.path.exists(path):
-            self._closed.emit(path)
+            SIGNALS.open_path.emit(path)
             self.close()
         else:
             self.path_thread = PathFinderThread(path)
