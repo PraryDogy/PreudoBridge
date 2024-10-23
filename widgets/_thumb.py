@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QLabel, QMenu,
                              QSizePolicy, QVBoxLayout)
 from sqlalchemy.exc import OperationalError
 
-from cfg import PIXMAP_SIZE, TEXT_LENGTH, THUMB_WIDTH, Config, JsonData
+from cfg import PIXMAP_SIZE, TEXT_LENGTH, THUMB_WIDTH, THUMB_HEIGHT, Config, JsonData
 from database import CACHE, Engine
 from signals import SIGNALS
 from utils import Utils
@@ -22,7 +22,6 @@ class NameLabel(QLabel):
         super().__init__()
 
     def update_name(self, rating: int, colors: str, name: str) -> list[str]:
-
         max_row = TEXT_LENGTH[JsonData.pixmap_size_ind]
 
         name_lines = []
@@ -123,14 +122,16 @@ class Thumb(QFrame):
             print("thumb has no pixmap in self.img")
 
     def resize(self):
+        w = THUMB_WIDTH[JsonData.pixmap_size_ind]
+        h = THUMB_HEIGHT[JsonData.pixmap_size_ind]
+        self.setFixedSize(w, h)
+
         if JsonData.name_label_hidden:
             self.img_label.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
             self.name_label.hide()
         else:
             self.img_label.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
             self.name_label.show()
-
-        self.setFixedWidth(THUMB_WIDTH[JsonData.pixmap_size_ind])
 
         # в update_name меняется длина строки в зависимости от JsonData.thumb_size
         self.name_label.update_name(self.rating, self.colors, self.name)

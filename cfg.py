@@ -20,10 +20,13 @@ IMG_SIZE: int = 210
 
 # ширина Pixmap в Thumb
 PIXMAP_SIZE: list = [90, 130, 170, IMG_SIZE]
+
 # ширина целого Thumb исходя из PIXMAP_SIZE
 THUMB_WIDTH: list = [130, 150, 170, IMG_SIZE]
+THUMB_HEIGHT: list = [180, 200, 220, 270]
+
 # ширина текста Thumb исходя из PIXMAP_SIZE
-TEXT_LENGTH: list = [15, 18, 23, 28]
+TEXT_LENGTH: list = [15, 18, 20, 25]
 
 # расстояние в сетке
 GRID_SPACING = 1

@@ -36,6 +36,7 @@ class Grid(BaseGrid):
         self.setWidget(main_wid)
 
     def add_row_spacer(self, row: int, col: int):
+        return
         self.row_spacer = QSpacerItem(0, 0, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         self.grid_layout.addItem(self.row_spacer, row, col)
         self.grid_layout.setRowStretch(row, 1)
