@@ -30,13 +30,15 @@ class WinInfo(QWidget):
                 right_text = "\n".join(right_text)
 
             left_lbl = QLabel(left_text)
-            al = Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignTop
-            self.grid_layout.addWidget(left_lbl, row, 0, alignment=al)
+            flags_l_al = Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignTop
+            self.grid_layout.addWidget(left_lbl, row, 0, alignment=flags_l_al)
 
             right_lbl = QLabel(right_text)
-            right_lbl.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-            al = Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom
-            self.grid_layout.addWidget(right_lbl, row, 1, alignment=al)
+            right_lbl.setCursor(Qt.CursorShape.IBeamCursor)
+            flags_r = Qt.TextInteractionFlag.TextSelectableByMouse
+            right_lbl.setTextInteractionFlags(flags_r)
+            flags_r_al = Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom
+            self.grid_layout.addWidget(right_lbl, row, 1, alignment=flags_r_al)
 
             row += 1
 
