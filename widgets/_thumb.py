@@ -405,17 +405,8 @@ class ThumbFolder(Thumb):
 
  
 class ThumbSearch(Thumb):
-    show_in_folder = pyqtSignal(str)
-
     def __init__(self, src: str, size: int, mod: int, path_to_wid: dict[str, QLabel]):
         super().__init__(src, size, mod, path_to_wid)
-
-    def add_custom_menu_items(self):
-        show_in_folder = QAction("Показать в папке", self)
-        show_in_folder.triggered.connect(lambda: self.show_in_folder.emit(self.src))
-        self.context_menu.addAction(show_in_folder)
-
-        self.context_menu.addSeparator()    
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         self.clicked.emit()
@@ -427,7 +418,7 @@ class ThumbSearch(Thumb):
         context_menu.addSeparator()
 
         show_in_folder = QAction("Показать в папке", self)
-        show_in_folder.triggered.connect(lambda: self.show_in_folder.emit(self.src))
+        show_in_folder.triggered.connect(lambda: SIGNALS.show_in_folder.emit(self.src))
         context_menu.addAction(show_in_folder)
 
         context_menu.exec_(self.mapToGlobal(a0.pos()))

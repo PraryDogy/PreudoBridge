@@ -23,15 +23,12 @@ class BaseMethods:
 
 
 class BaseGrid(QScrollArea, BaseMethods):
-    show_in_folder = pyqtSignal(str)
-
     def __init__(self):
         QScrollArea.__init__(self)
         BaseMethods.__init__(self)
 
 
 class BaseTableView(QTableView, BaseMethods):
-    show_in_folder = pyqtSignal(str)
     level_up = pyqtSignal()
 
     def __init__(self):

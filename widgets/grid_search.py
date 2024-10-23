@@ -204,7 +204,6 @@ class GridSearch(Grid):
         wid.set_colors_from_db(widget_data.colors)
         wid.set_rating_from_db(widget_data.rating)
 
-        wid.show_in_folder.connect(lambda: self.show_in_folder.emit(widget_data.src))
         wid.move_to_wid.connect(lambda w: self.select_new_widget(w))
         wid.clicked.connect(lambda w=wid: self.select_new_widget(w))
 
