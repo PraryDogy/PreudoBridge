@@ -268,46 +268,35 @@ class GridStandart(Grid):
         self.finder_thread.start()
 
     def create_grid(self, finder_items: list):
-        # (путь, размер, дата): QLabel
-        # Для последующей загрузки в LoadImages
         src_size_mod: list[tuple] = []
 
         col_count = Utils.get_clmn_count(self.ww)
         row, col = 0, 0
 
-        # ПОРЯДОК СООТВЕТСТВУЕТ ORDER + SRC по которому нет сортировки
         for name, size, mod, type, colors, rating, src in finder_items:
 
             if os.path.isdir(src):
                 wid = ThumbFolder(src, 0, 0, {})
                 pixmap = QPixmap("images/folder_210.png")
                 wid.set_pixmap(pixmap)
-
                 wid.clicked_folder.connect(self.clicked_folder.emit)
                 wid.add_fav.connect(self.add_fav.emit)
                 wid.del_fav.connect(self.del_fav.emit)
-
-                # у папок нет цветных тегов, но этот метод задает имя
                 wid.set_colors_from_db("")
 
             else:
                 wid = Thumb(src, size, mod, self.path_to_wid)
                 pixmap = QPixmap("images/file_210.png")
                 wid.set_pixmap(pixmap)
-
-                wid.move_to_wid.connect(lambda w: self.select_new_widget(w))
                 wid.set_colors_from_db(colors)
                 wid.set_rating_from_db(rating)
-
+                wid.move_to_wid.connect(lambda w: self.select_new_widget(w))
                 src_size_mod.append((src, size, mod))
 
-            wid.row, wid.col = row, col
             wid.clicked.connect(lambda w=wid: self.select_new_widget(w))
             self.grid_layout.addWidget(wid, row, col)
-            self.cell_to_wid[row, col] = wid
-            self.path_to_wid[src] = wid
 
-            self.sorted_widgets.append(wid)
+            self.add_widget_data(wid, row, col)
 
             col += 1
             if col >= col_count:

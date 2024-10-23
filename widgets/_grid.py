@@ -137,6 +137,13 @@ class Grid(BaseGrid):
                 col = 0
                 row += 1
 
+    def add_widget_data(self, wid: Thumb, row: int, col: int):
+        wid.row, wid.col = row, col
+        self.cell_to_wid[row, col] = wid
+        self.path_to_wid[wid.src] = wid
+        self.sorted_widgets.append(wid)
+
+
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         wid: Thumb | ThumbFolder 
 

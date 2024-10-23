@@ -204,22 +204,15 @@ class GridSearch(Grid):
         wid = ThumbSearch(widget_data.src, widget_data.size, widget_data.mod, self.path_to_wid)
 
         wid.set_pixmap(widget_data.pixmap)
-
-        # устанавливаем аттрибуты для сортировки
         wid.set_colors_from_db(widget_data.colors)
         wid.set_rating_from_db(widget_data.rating)
-        wid.row, wid.col = self.row, self.col
 
         wid.show_in_folder.connect(lambda: self.show_in_folder.emit(widget_data.src))
         wid.move_to_wid.connect(lambda w: self.select_new_widget(w))
         wid.clicked.connect(lambda w=wid: self.select_new_widget(w))
 
+        self.add_widget_data(wid, self.row, self.col)
         self.grid_layout.addWidget(wid, self.row, self.col)
-
-        self.cell_to_wid[self.row, self.col] = wid
-        self.path_to_wid[widget_data.src] = wid
-
-        self.sorted_widgets.append(wid)
 
         self.col += 1
         if self.col >= self.col_count:
