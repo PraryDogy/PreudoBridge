@@ -23,8 +23,6 @@ class BaseMethods:
 
 
 class BaseGrid(QScrollArea, BaseMethods):
-    progressbar_start = pyqtSignal(int)
-    progressbar_value = pyqtSignal(int)
     show_in_folder = pyqtSignal(str)
 
     def __init__(self):
@@ -33,8 +31,6 @@ class BaseGrid(QScrollArea, BaseMethods):
 
 
 class BaseTableView(QTableView, BaseMethods):
-    progressbar_start = pyqtSignal(int)
-    progressbar_value = pyqtSignal(int)
     show_in_folder = pyqtSignal(str)
     level_up = pyqtSignal()
 

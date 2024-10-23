@@ -26,11 +26,10 @@ class CustomSlider(BaseSlider):
 
 class BarBottom(QWidget):
     folder_sym = "\U0001F4C1"
-    progressbar_start = pyqtSignal(int)
-    progressbar_value = pyqtSignal(int)
 
     def __init__(self):
         super().__init__()
+        SIGNALS.progressbar_value.connect(self.progressbar_value)
         self.setFixedHeight(25)
         self.path_label: QWidget = None
 
@@ -41,19 +40,17 @@ class BarBottom(QWidget):
         self._progressbar = QProgressBar()
         self._progressbar.setFixedWidth(100)
         self.h_lay.addWidget(self._progressbar, 0, 1, alignment=Qt.AlignmentFlag.AlignRight)
-        self.progressbar_start.connect(self.start_cmd)
-        self.progressbar_value.connect(self.value_cmd)
 
         self.slider = CustomSlider()
         self.slider.setFixedWidth(70)
         self.h_lay.addWidget(self.slider, 0, 2, alignment=Qt.AlignmentFlag.AlignVCenter)
         self.create_path_label()
 
-    def start_cmd(self, value: int):
-        self._progressbar.setMaximum(value)
-        self._progressbar.show()
+    def progressbar_value(self, value: int):
+        if self._progressbar.isHidden():
+            self._progressbar.setMaximum(value)
+            self._progressbar.show()
 
-    def value_cmd(self, value: int):
         self._progressbar.setValue(value)
 
         if value == 1000000:

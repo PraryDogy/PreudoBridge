@@ -6,9 +6,10 @@ from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtWidgets import QLabel
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import Config, JsonData, IMG_SIZE
+from cfg import IMG_SIZE, Config, JsonData
 from database import CACHE, STATS, Engine
 from fit_img import FitImg
+from signals import SIGNALS
 from utils import Utils
 
 from ._grid import Grid, Thumb
@@ -40,10 +41,6 @@ class LoadImages(QThread):
     # передает обратно (путь, размер, дата): PIXMAP
     # чтобы в основном потоке в словарике найти виджет и применить изображение
     new_widget = pyqtSignal(ImageData)
-
-    # отправляем в основное приложение чтобы показать прогресс
-    progressbar_start = pyqtSignal(int)
-    progressbar_value = pyqtSignal(int)
 
     # флаг проверяется в цикле и если False то цикл прерывается
     stop_thread = pyqtSignal()
@@ -113,7 +110,7 @@ class LoadImages(QThread):
                 self.db_size -= len(db_byte_img)
 
     def create_new_images(self):
-        self.progressbar_start.emit(len(self.src_size_mod))
+        SIGNALS.progressbar_value.emit(len(self.src_size_mod))
         progress_count = 0
         insert_count = 0
 
@@ -149,7 +146,7 @@ class LoadImages(QThread):
                     self.conn.commit()
                     insert_count = 0
 
-                self.progressbar_value.emit(progress_count)
+                SIGNALS.progressbar_value.emit(progress_count)
                 progress_count += 1
 
             except IntegrityError as e:
@@ -168,7 +165,7 @@ class LoadImages(QThread):
                 Utils.print_error(self, e)
 
         # 1 милилон = скрыть прогресс бар согласно его инструкции
-        self.progressbar_value.emit(1000000)
+        SIGNALS.progressbar_value.emit(1000000)
 
     def get_insert_stmt(self, img_bytes, src, size, mod):
         insert = sqlalchemy.insert(CACHE)
@@ -327,8 +324,6 @@ class GridStandart(Grid):
 
     def start_load_images(self, src_size_mod: list[tuple]):
         thread = LoadImages(src_size_mod)
-        thread.progressbar_start.connect(self.progressbar_start.emit)
-        thread.progressbar_value.connect(self.progressbar_value.emit)
         thread.new_widget.connect(lambda image_data: self.set_pixmap(image_data))
         Threads.all.append(thread)
         thread.start()

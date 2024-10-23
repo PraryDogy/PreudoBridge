@@ -174,14 +174,11 @@ class SimpleFileExplorer(QWidget):
             self.grid = GridStandart(width=self.get_grid_width())
             self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
 
-            self.grid.progressbar_start.connect(self.bar_bottom.progressbar_start.emit)
-            self.grid.progressbar_value.connect(self.bar_bottom.progressbar_value.emit)
-
         self.r_lay.addWidget(self.grid, 1, 0)
         self.grid.setFocus()
 
     def grid_close(self):
-        self.grid.progressbar_value.emit(1000000)
+        SIGNALS.progressbar_value.emit(1000000)
         self.grid.disconnect()
         self.grid.close()
 
