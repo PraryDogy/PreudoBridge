@@ -13,10 +13,9 @@ class Signals(QObject):
 
     search_finished = pyqtSignal(object)
     show_in_folder = pyqtSignal(object)
-
     progressbar_value = pyqtSignal(object)
-
     open_path = pyqtSignal(object)
+    move_to_wid = pyqtSignal(object)
 
     def __init__(self) -> None:
         super().__init__()
