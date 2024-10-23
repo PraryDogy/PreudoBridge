@@ -258,10 +258,11 @@ class SimpleFileExplorer(QWidget):
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:  
         if a0.key() in (Qt.Key.Key_Right, Qt.Key.Key_Left, Qt.Key.Key_Space, Qt.Key.Key_Return):
-            self.grid.setFocus()
-            self.grid.keyPressEvent(a0)
+            if not self.grid.hasFocus():
+                self.grid.setFocus()
+                self.grid.keyPressEvent(a0)
 
-        elif a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
+        if a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
             if a0.key() == Qt.Key.Key_F:
                 self.bar_top.search_wid.input_wid.setFocus()
 
