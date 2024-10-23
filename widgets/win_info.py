@@ -34,7 +34,6 @@ class WinInfo(QWidget):
             self.grid_layout.addWidget(left_lbl, row, 0, alignment=flags_l_al)
 
             right_lbl = QLabel(right_text)
-            right_lbl.setCursor(Qt.CursorShape.IBeamCursor)
             flags_r = Qt.TextInteractionFlag.TextSelectableByMouse
             right_lbl.setTextInteractionFlags(flags_r)
             flags_r_al = Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom
