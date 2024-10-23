@@ -22,8 +22,8 @@ IMG_SIZE: int = 210
 # TEXT_LENS Подобрана максимальная длина строки в названии Thumbnail соответствующая IMG_SIZES
 # THUMB_W Подобрана максимальная ширина виджета Thumbnail соответствующая IMG_SIZES
 IMG_SIZES: list = [90, 130, 170, IMG_SIZE]
-THUMB_SIZES: list = [130, 150, 170, IMG_SIZE]
-TEXT_SIZES: list = [16, 20, 23, 28]
+THUMB_WIDTHS: list = [130, 150, 170, IMG_SIZE]
+TEXT_SIZES: list = [15, 18, 23, 28]
 
 GRID_SPACING = 1
 

@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QLabel, QMenu,
                              QVBoxLayout)
 from sqlalchemy.exc import OperationalError
 
-from cfg import IMG_SIZES, TEXT_SIZES, THUMB_SIZES, Config, JsonData
+from cfg import IMG_SIZES, TEXT_SIZES, THUMB_WIDTHS, Config, JsonData
 from database import CACHE, Engine
 from utils import Utils
 
@@ -123,7 +123,7 @@ class Thumb(QFrame):
 
     def resize(self):
         name_label_h = 75
-        w = THUMB_SIZES[IMG_SIZES.index(JsonData.thumb_size)]
+        w = THUMB_WIDTHS[IMG_SIZES.index(JsonData.thumb_size)]
 
         self.setFixedSize(w, JsonData.thumb_size + name_label_h)
 
