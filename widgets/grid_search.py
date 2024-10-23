@@ -189,9 +189,6 @@ class GridSearch(Grid):
         self.col_count = Utils.get_clmn_count(width)
         self.row, self.col = 0, 0
 
-        # clmn_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
-        # self.grid_layout.addItem(clmn_spacer, 0, self.col_count + 1)
-
         self.search_thread = SearchFinder(search_text)
         self.search_thread.add_new_widget.connect(self.add_new_widget)
         self.search_thread.start()
@@ -232,7 +229,7 @@ class GridSearch(Grid):
 
     def resize_grid(self):
         if not self.search_thread.isRunning():
-            super().sort_grid()
+            super().resize_grid()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         try:
