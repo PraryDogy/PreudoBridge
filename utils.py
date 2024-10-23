@@ -13,7 +13,7 @@ from PyQt5.QtCore import QByteArray, Qt
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget
 
-from cfg import JsonData, GRID_SPACING
+from cfg import GRID_SPACING, IMG_SIZES, THUMB_SIZES, JsonData
 
 psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
 psd_logger = logging.getLogger("psd_tools")
@@ -174,7 +174,9 @@ class Utils:
 
     @classmethod
     def get_clmn_count(cls, width: int):
-        return (width + 150) // (JsonData.thumb_size + GRID_SPACING)
+        w = THUMB_SIZES[IMG_SIZES.index(JsonData.thumb_size)]
+        w = w + GRID_SPACING // 2
+        return (width + 150) // w
 
     @classmethod
     def pixmap_scale(cls, pixmap: QPixmap, size: int) -> QPixmap:

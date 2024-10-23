@@ -19,13 +19,13 @@ ORDER: dict[str, dict] = {
 IMG_SIZE: int = 210
 
 # Вариации маленьких картинок, размер меняется на лету при формировании сетки
+# TEXT_LENS Подобрана максимальная длина строки в названии Thumbnail соответствующая IMG_SIZES
+# THUMB_W Подобрана максимальная ширина виджета Thumbnail соответствующая IMG_SIZES
 IMG_SIZES: list = [90, 130, 170, IMG_SIZE]
+THUMB_SIZES: list = [130, 150, 170, IMG_SIZE]
+TEXT_SIZES: list = [16, 20, 23, 28]
 
-# Подобрана максимальная длина строки в названии Thumbnail
-# Соответствующая IMG_SIZES
-TEXT_LENS = [10, 14, 21, 28]
-
-GRID_SPACING = 15
+GRID_SPACING = 1
 
 
 class JsonData:

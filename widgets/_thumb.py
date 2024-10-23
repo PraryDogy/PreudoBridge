@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QLabel, QMenu,
                              QVBoxLayout)
 from sqlalchemy.exc import OperationalError
 
-from cfg import IMG_SIZES, TEXT_LENS, Config, JsonData
+from cfg import IMG_SIZES, TEXT_SIZES, THUMB_SIZES, Config, JsonData
 from database import CACHE, Engine
 from utils import Utils
 
@@ -24,7 +24,7 @@ class NameLabel(QLabel):
     def update_name(self, rating: int, colors: str, name: str) -> list[str]:
 
         ind = IMG_SIZES.index(JsonData.thumb_size)
-        max_row = TEXT_LENS[ind]
+        max_row = TEXT_SIZES[ind]
 
         name_lines = []
 
@@ -122,10 +122,15 @@ class Thumb(QFrame):
             print("thumb has no pixmap in self.img")
 
     def resize(self):
-        text_label_h = 75
-        self.setFixedSize(JsonData.thumb_size, JsonData.thumb_size + text_label_h)
+        name_label_h = 75
+        w = THUMB_SIZES[IMG_SIZES.index(JsonData.thumb_size)]
+
+        self.setFixedSize(w, JsonData.thumb_size + name_label_h)
+
         self.img_label.setFixedHeight(JsonData.thumb_size)
-        self.name_label.setFixedHeight(text_label_h)
+        self.name_label.setFixedHeight(name_label_h)
+
+        # в update_name меняется длина строки в зависимости от JsonData.thumb_size
         self.name_label.update_name(self.rating, self.colors, self.name)
 
     def set_frame(self):
