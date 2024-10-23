@@ -83,8 +83,7 @@ class TreeFavorites(QListWidget):
         self.init_ui()
 
     def init_ui(self):
-        favs: dict = JsonData.favs
-        for src, name in favs.items():
+        for src, name in JsonData.favs.items():
             item = self.add_item(name, src)
 
             if JsonData.root == src:
@@ -92,12 +91,13 @@ class TreeFavorites(QListWidget):
 
     def add_fav_cmd(self, root: str):
         name = os.path.basename(root)
+        JsonData.favs[root] = name
         self.add_item(name, root)
 
-    def add_item(self, name: str, src: str) -> QListWidgetItem:
-        item = FavItem(name, src)
-        item.del_click.connect(lambda: self.del_item(src))
-        item.rename_finished.connect(lambda new_name: self.update_name(src, new_name))
+    def add_item(self, name: str, root: str) -> QListWidgetItem:
+        item = FavItem(name, root)
+        item.del_click.connect(lambda: self.del_item(root))
+        item.rename_finished.connect(lambda new_name: self.update_name(root, new_name))
 
         list_item = QListWidgetItem()
         list_item.setSizeHint(item.sizeHint())
@@ -108,13 +108,11 @@ class TreeFavorites(QListWidget):
         return list_item
 
     def update_name(self, src: str, new_name: str):
-        favs: dict = JsonData.favs
-        if src in favs:
-            favs[src] = new_name
+        if src in JsonData.favs:
+            JsonData.favs[src] = new_name
 
     def del_item(self, src: str):
-        favs: dict = JsonData.favs
-        favs.pop(src)
+        JsonData.favs.pop(src)
         self.clear()
         self.init_ui()
     
