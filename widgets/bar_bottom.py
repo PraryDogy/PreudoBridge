@@ -12,7 +12,6 @@ from ._base import BaseSlider
 
 
 class CustomSlider(BaseSlider):
-    _clicked = pyqtSignal()
 
     def __init__(self):
         super().__init__(orientation=Qt.Orientation.Horizontal, minimum=0, maximum=3)
@@ -23,14 +22,12 @@ class CustomSlider(BaseSlider):
     def change_size(self, value: int):
         self.setValue(value)
         JsonData.thumb_size = PIXMAP_SIZE[value]
-        self._clicked.emit()
-
+        SIGNALS.resize_grid.emit(None)
 
 class BarBottom(QWidget):
     folder_sym = "\U0001F4C1"
     progressbar_start = pyqtSignal(int)
     progressbar_value = pyqtSignal(int)
-    resize_grid = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -49,7 +46,6 @@ class BarBottom(QWidget):
 
         self.slider = CustomSlider()
         self.slider.setFixedWidth(70)
-        self.slider._clicked.connect(self.resize_grid.emit)
         self.h_lay.addWidget(self.slider, 0, 2, alignment=Qt.AlignmentFlag.AlignVCenter)
         self.create_path_label()
 

@@ -109,8 +109,6 @@ class ActionData:
 
 
 class SortTypeBtn(QPushButton):
-    _clicked = pyqtSignal()
-
     def __init__(self, parent: QWidget):
         super().__init__()
         self.setFixedWidth(105)
@@ -149,7 +147,7 @@ class SortTypeBtn(QPushButton):
         JsonData.sort = data_action.sort
         JsonData.reversed = data_action.reversed
         self.setText(data_action.text)
-        self._clicked.emit()
+        SIGNALS.sort_grid.emit(None)
 
 
 class ViewTypeBtn(QTabBar):
@@ -182,7 +180,6 @@ class ViewTypeBtn(QTabBar):
 
 
 class SearchWidget(QWidget):
-    start_search = pyqtSignal(str)
     clear_search = pyqtSignal()
 
     def __init__(self):
@@ -212,7 +209,7 @@ class SearchWidget(QWidget):
         self.search_timer = QTimer(self)
         self.search_timer.setSingleShot(True)
         self.search_timer.timeout.connect(
-            lambda: self.start_search.emit(self.search_text)
+            lambda: SIGNALS.load_search_grid.emit(self.search_text)
             )
         
         self.clear_search.connect(self.costil)
@@ -264,8 +261,6 @@ class ColorLabel(QLabel):
 
 
 class FiltersBtn(QPushButton):
-    _clicked = pyqtSignal()
-
     def __init__(self):
         super().__init__(text="\U000026AB")
         
@@ -336,7 +331,7 @@ class FiltersBtn(QPushButton):
             widget.setStyleSheet("background: #007AFF;")
             widget.is_selected = True
 
-        self._clicked.emit()
+        SIGNALS.filter_grid.emit(None)
 
     def toggle_rating(self, rate: int):
         if rate > 1:
@@ -352,7 +347,7 @@ class FiltersBtn(QPushButton):
             for i in self.rating_wids:
                 i.setStyleSheet("")
 
-        self._clicked.emit()
+        SIGNALS.filter_grid.emit(None)
 
     def press_check(self):
         if self.filter_count == 0:

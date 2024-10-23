@@ -81,16 +81,10 @@ class SimpleFileExplorer(QWidget):
         right_wid.setLayout(self.r_lay)
         
         self.bar_top = BarTop()
-
-        self.bar_top.sort_type_btn._clicked.connect(lambda: self.grid.sort_grid())
-        self.bar_top.filters_btn._clicked.connect(lambda: self.grid.filter_grid())
         self.bar_top.advanced_btn._clicked.connect(self.open_path_btn_cmd)
-        self.bar_top.search_wid.start_search.connect(self.load_search_grid)
-
         self.r_lay.addWidget(self.bar_top, 0, 0, alignment=Qt.AlignmentFlag.AlignTop)
         
         self.bar_bottom = BarBottom()
-        self.bar_bottom.resize_grid.connect(lambda: self.grid.resize_grid())
         self.r_lay.addWidget(self.bar_bottom, 2, 0, alignment=Qt.AlignmentFlag.AlignBottom)
 
         self.scroll_up = QLabel(parent=self, text="\u25B2")
