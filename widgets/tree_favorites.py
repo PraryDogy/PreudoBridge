@@ -142,3 +142,7 @@ class TreeFavorites(QListWidget):
     
     def dragLeaveEvent(self, a0: QDragLeaveEvent | None) -> None:
         return super().dragLeaveEvent(a0)
+
+    def mouseReleaseEvent(self, e: QMouseEvent | None) -> None:
+        curr = self.currentItem()
+        curr.setSelected(False)
