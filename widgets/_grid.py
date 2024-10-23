@@ -2,7 +2,7 @@ import os
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeyEvent, QMouseEvent
-from PyQt5.QtWidgets import QFrame, QGridLayout, QWidget, QSpacerItem, QSizePolicy
+from PyQt5.QtWidgets import QFrame, QGridLayout, QWidget
 
 from cfg import GRID_SPACING, Config, JsonData
 from signals import SIGNALS
@@ -19,7 +19,6 @@ class Grid(BaseGrid):
         self.setWidgetResizable(True)
 
         self.curr_cell: tuple = (0, 0)
-        self.row_spacer: QSpacerItem = None
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.path_to_wid: dict[str, Thumb] = {}
         self.sorted_widgets: list[Thumb | ThumbFolder | ThumbSearch] = []
@@ -34,12 +33,6 @@ class Grid(BaseGrid):
         self.grid_layout.setSpacing(GRID_SPACING)
         self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
         self.setWidget(main_wid)
-
-    def add_row_spacer(self, row: int, col: int):
-        return
-        self.row_spacer = QSpacerItem(0, 0, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
-        self.grid_layout.addItem(self.row_spacer, row, col)
-        self.grid_layout.setRowStretch(row, 1)
 
     def select_new_widget(self, data: tuple | str | Thumb):
 
@@ -139,9 +132,6 @@ class Grid(BaseGrid):
         self.reset_selection()
         self.cell_to_wid.clear()
 
-        if isinstance(self.row_spacer, QSpacerItem):
-            self.grid_layout.removeItem(self.row_spacer)
-
         row, col = 0, 0
 
         for wid in self.sorted_widgets:
@@ -159,8 +149,6 @@ class Grid(BaseGrid):
                 col = 0
                 row += 1
         
-        self.add_row_spacer(row+1, 0)
-
     def add_widget_data(self, wid: Thumb, row: int, col: int):
         wid.row, wid.col = row, col
         self.cell_to_wid[row, col] = wid

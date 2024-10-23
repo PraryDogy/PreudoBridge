@@ -6,7 +6,6 @@ import sqlalchemy
 from numpy import ndarray
 from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
-from PyQt5.QtWidgets import QSizePolicy, QSpacerItem
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import IMG_SIZE, Config, JsonData
@@ -32,7 +31,6 @@ class WidgetData:
 class SearchFinder(QThread):
     _finished = pyqtSignal()
     add_new_widget = pyqtSignal(WidgetData)
-    add_spacer = pyqtSignal()
 
     def __init__(self, search_text: str):
         super().__init__()
@@ -87,8 +85,6 @@ class SearchFinder(QThread):
 
         if self.flag:
             SIGNALS.search_finished.emit(self.search_text)
-
-        self.add_spacer.emit()
 
     def create_wid(self, src: str):
         try:
@@ -193,16 +189,12 @@ class GridSearch(Grid):
         self.col_count = Utils.get_clmn_count(width)
         self.row, self.col = 0, 0
 
-        clmn_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
-        self.grid_layout.addItem(clmn_spacer, 0, self.col_count + 1)
+        # clmn_spacer = QSpacerItem(1, 1, QSizePolicy.Expanding, QSizePolicy.Minimum)
+        # self.grid_layout.addItem(clmn_spacer, 0, self.col_count + 1)
 
         self.search_thread = SearchFinder(search_text)
         self.search_thread.add_new_widget.connect(self.add_new_widget)
-        self.search_thread.add_spacer.connect(self.add_row_spacer_cmd)
         self.search_thread.start()
-
-    def add_row_spacer_cmd(self):
-        super().add_row_spacer(self.row, 0)
 
     def add_new_widget(self, widget_data: WidgetData):
         wid = ThumbSearch(widget_data.src, widget_data.size, widget_data.mod, self.path_to_wid)
