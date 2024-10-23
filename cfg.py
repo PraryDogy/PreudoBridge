@@ -47,7 +47,7 @@ class JsonData:
     clear_db = 5
     tab_bar = 1
     thumb_size = PIXMAP_SIZE[0]
-    name_label_h = 2
+    name_label_h = 1
 
     @classmethod
     def get_data(cls):
