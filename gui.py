@@ -103,9 +103,6 @@ class SimpleFileExplorer(QWidget):
         self.grid: Grid = Grid(self.get_grid_width())
         SIGNALS.load_standart_grid.connect(self.load_standart_grid)
         SIGNALS.load_search_grid.connect(self.load_search_grid)
-        SIGNALS.sort_grid.connect(self.grid.sort_grid)
-        SIGNALS.filter_grid.connect(self.grid.filter_grid)
-
         self.load_standart_grid()
 
     def open_path_btn_cmd(self, filepath: str):

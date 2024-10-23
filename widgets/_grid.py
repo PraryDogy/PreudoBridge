@@ -24,6 +24,8 @@ class Grid(BaseGrid):
 
         self.ww = width
         SIGNALS.resize_grid.connect(lambda: self.resize_grid())
+        SIGNALS.sort_grid.connect(self.sort_grid)
+        SIGNALS.filter_grid.connect(self.filter_grid)
 
         main_wid = QWidget()
         self.grid_layout = QGridLayout(main_wid)
