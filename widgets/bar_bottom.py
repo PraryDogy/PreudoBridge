@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import (QGridLayout, QHBoxLayout, QLabel, QProgressBar,
                              QWidget)
 
 from cfg import PIXMAP_SIZE, JsonData
+from signals import SIGNALS
 
 from ._base import BaseSlider
 
@@ -29,7 +30,6 @@ class BarBottom(QWidget):
     folder_sym = "\U0001F4C1"
     progressbar_start = pyqtSignal(int)
     progressbar_value = pyqtSignal(int)
-    path_click = pyqtSignal()
     resize_grid = pyqtSignal()
 
     def __init__(self):
@@ -103,4 +103,4 @@ class BarBottom(QWidget):
             new_path = rooted[:rooted.index(chunk) + 1]
             new_path = os.path.join(os.sep, *new_path)
             JsonData.root = new_path
-            self.path_click.emit()
+            SIGNALS.load_standart_grid.emit(None)

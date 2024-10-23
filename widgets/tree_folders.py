@@ -5,10 +5,9 @@ from PyQt5.QtWidgets import QAction, QFileSystemModel, QMenu, QTreeView
 
 from cfg import JsonData
 from utils import Utils
-
+from signals import SIGNALS
 
 class TreeFolders(QTreeView):
-    folders_tree_clicked = pyqtSignal(str)
     add_to_favs_clicked = pyqtSignal(str)
     del_favs_clicked = pyqtSignal(str)
 
@@ -33,7 +32,7 @@ class TreeFolders(QTreeView):
     def one_clicked(self, index):
         path = self.c_model.filePath(index)
         self.setCurrentIndex(index)
-        self.folders_tree_clicked.emit(path)
+        SIGNALS.load_standart_grid.emit(path)
         self.expand(index)
 
     def expand_path(self, root: str):

@@ -2,7 +2,7 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QMouseEvent, QWheelEvent
 from PyQt5.QtWidgets import QScrollArea, QSlider, QTableView
 
-from cfg import Config, JsonData
+from signals import SIGNALS
 
 
 class BaseMethods:
@@ -25,11 +25,9 @@ class BaseMethods:
 class BaseGrid(QScrollArea, BaseMethods):
     add_fav = pyqtSignal(str)
     del_fav = pyqtSignal(str)
-    clicked_folder = pyqtSignal(str)
     progressbar_start = pyqtSignal(int)
     progressbar_value = pyqtSignal(int)
     show_in_folder = pyqtSignal(str)
-    level_up = pyqtSignal()
 
     def __init__(self):
         QScrollArea.__init__(self)
@@ -39,7 +37,6 @@ class BaseGrid(QScrollArea, BaseMethods):
 class BaseTableView(QTableView, BaseMethods):
     add_fav = pyqtSignal(str)
     del_fav = pyqtSignal(str)
-    clicked_folder = pyqtSignal(str)
     progressbar_start = pyqtSignal(int)
     progressbar_value = pyqtSignal(int)
     show_in_folder = pyqtSignal(str)

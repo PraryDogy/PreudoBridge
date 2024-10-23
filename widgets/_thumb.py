@@ -12,7 +12,7 @@ from sqlalchemy.exc import OperationalError
 from cfg import PIXMAP_SIZE, TEXT_LENGTH, THUMB_WIDTH, NAME_LABEL_HEIGTH, Config, JsonData
 from database import CACHE, Engine
 from utils import Utils
-
+from signals import SIGNALS
 from .win_info import WinInfo
 
 
@@ -353,7 +353,6 @@ class Thumb(QFrame):
 class ThumbFolder(Thumb):
     add_fav = pyqtSignal(str)
     del_fav = pyqtSignal(str)
-    clicked_folder = pyqtSignal(str)
 
     def __init__(self, src: str, size: int, mod: int, path_to_wid: dict[str, QLabel]):
         super().__init__(src, size, mod, path_to_wid)
@@ -371,11 +370,11 @@ class ThumbFolder(Thumb):
 
     # переназначение метода Thumb
     def view(self):
-        self.clicked_folder.emit(self.src)
+        SIGNALS.load_standart_grid.emit(self.src)
 
     def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
         self.clicked.emit()
-        self.clicked_folder.emit(self.src)
+        SIGNALS.load_standart_grid.emit(self.src)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         self.clicked.emit()

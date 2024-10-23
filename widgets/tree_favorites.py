@@ -7,14 +7,14 @@ from PyQt5.QtGui import (QContextMenuEvent, QDragEnterEvent, QDragLeaveEvent,
 from PyQt5.QtWidgets import (QAction, QLabel, QListWidget, QListWidgetItem,
                              QMenu)
 
-from cfg import Config, JsonData
+from cfg import JsonData
+from signals import SIGNALS
 from utils import Utils
 
 from .win_rename import WinRename
 
 
 class FavItem(QLabel):
-    on_fav_click = pyqtSignal()
     del_click = pyqtSignal()
     rename_finished = pyqtSignal(str)
 
@@ -27,7 +27,7 @@ class FavItem(QLabel):
         self.context_menu = QMenu(self)
 
         view_ac = QAction("Просмотр", self)
-        view_ac.triggered.connect(lambda: self.on_fav_click.emit())
+        view_ac.triggered.connect(lambda: SIGNALS.load_standart_grid.emit(self.src))
         self.context_menu.addAction(view_ac)
 
         open_finder_action = QAction("Показать в Finder", self)
@@ -67,15 +67,13 @@ class FavItem(QLabel):
 
     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
         if ev.button() == Qt.MouseButton.LeftButton:
-            self.on_fav_click.emit()
+            SIGNALS.load_standart_grid.emit(self.src)
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
         self.context_menu.exec_(ev.globalPos())
 
 
 class TreeFavorites(QListWidget):
-    on_fav_clicked = pyqtSignal(str)
-
     def __init__(self):
         super().__init__()
         self.setDragDropMode(QListWidget.DragDropMode.InternalMove)
@@ -94,7 +92,6 @@ class TreeFavorites(QListWidget):
     def add_item(self, name: str, src: str) -> QListWidgetItem:
         item = FavItem(name, src)
         item.del_click.connect(lambda: self.del_item(src))
-        item.on_fav_click.connect(lambda: self.on_fav_clicked.emit(src))
         item.rename_finished.connect(lambda new_name: self.update_name(src, new_name))
 
         list_item = QListWidgetItem()

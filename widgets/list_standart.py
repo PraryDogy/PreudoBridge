@@ -11,6 +11,7 @@ from utils import Utils
 from ._thumb import Thumb
 from ._base import BaseTableView
 from .win_img_view import WinImgView
+from signals import SIGNALS
 
 class Sort:
     column = 0
@@ -18,7 +19,6 @@ class Sort:
 
 
 class ListStandart(BaseTableView):
-    folders_tree_clicked = pyqtSignal(str)
     add_to_favs_clicked = pyqtSignal(str)
     del_favs_clicked = pyqtSignal(str)
 
@@ -52,7 +52,7 @@ class ListStandart(BaseTableView):
 
         if os.path.isdir(path):
             self.setCurrentIndex(index)
-            self.folders_tree_clicked.emit(path)
+            SIGNALS.load_standart_grid.emit(path)
 
         elif path_lower.endswith(Config.IMG_EXT):
             thumbnail = Thumb("", 0, 0, {})

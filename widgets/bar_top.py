@@ -8,10 +8,11 @@ from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
                              QTabBar, QVBoxLayout, QWidget)
 
 from cfg import ORDER, Config, JsonData
+from signals import SIGNALS
 from utils import Utils
 
 from .win_settings import WinSettings
-
+from signals import SIGNALS
 
 class PathFinderThread(QThread):
     _finished = pyqtSignal(str)
@@ -152,8 +153,6 @@ class SortTypeBtn(QPushButton):
 
 
 class ViewTypeBtn(QTabBar):
-    _clicked = pyqtSignal()
-
     def __init__(self):
         super().__init__()
         self.setFixedWidth(90)
@@ -175,7 +174,7 @@ class ViewTypeBtn(QTabBar):
         else:
             self.setCurrentIndex(1)
             JsonData.list_view = True
-        self._clicked.emit()
+        SIGNALS.load_standart_grid.emit(None)
 
     def tabSizeHint(self, index):
         size = QTabBar.tabSizeHint(self, index)
@@ -184,7 +183,6 @@ class ViewTypeBtn(QTabBar):
 
 class SearchWidget(QWidget):
     start_search = pyqtSignal(str)
-    stop_search = pyqtSignal()
     clear_search = pyqtSignal()
 
     def __init__(self):
@@ -250,7 +248,7 @@ class SearchWidget(QWidget):
         else:
             self.clear_search.emit()
             self.clear_btn.hide()
-            self.stop_search.emit()
+            SIGNALS.load_standart_grid.emit(None)
 
     def show_templates(self, a0: QMouseEvent | None) -> None:
         self.templates_menu.exec(self.mapToGlobal(self.rect().bottomLeft()))
@@ -428,7 +426,6 @@ class WinGo(QWidget):
 
 class AdvancedBtn(QPushButton):
     _clicked = pyqtSignal(str)
-    name_label_h_changed = pyqtSignal()
 
     def __init__(self):
         super().__init__("...")
@@ -453,7 +450,6 @@ class AdvancedBtn(QPushButton):
 
     def open_settings_win(self):
         self.win = WinSettings()
-        self.win.name_label_h_changed.connect(self.name_label_h_changed.emit)
         Utils.center_win(Utils.get_main_win(), self.win)
         self.win.show()
 
@@ -465,10 +461,6 @@ class HistoryBtn(QPushButton):
 
 
 class BarTop(QFrame):
-    back = pyqtSignal(str)
-    next = pyqtSignal(str)
-    level_up = pyqtSignal()
-
     def __init__(self):
         super().__init__()
         self.setFixedHeight(40)
@@ -545,7 +537,7 @@ class BarTop(QFrame):
 
     def level_up_cmd(self):
         JsonData.root = os.path.dirname(JsonData.root)
-        self.level_up.emit()
+        SIGNALS.load_standart_grid.emit(None)
 
     def back_cmd(self):
         if self.current_index == 0:
@@ -555,7 +547,7 @@ class BarTop(QFrame):
 
         try:
             path = self.history[self.current_index]
-            self.back.emit(path)
+            SIGNALS.load_standart_grid.emit(path)
         except IndexError:
             pass
 
@@ -567,6 +559,6 @@ class BarTop(QFrame):
 
         try:
             path = self.history[self.current_index]
-            self.next.emit(path)
+            SIGNALS.load_standart_grid.emit(path)
         except IndexError:
             pass

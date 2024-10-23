@@ -279,7 +279,6 @@ class GridStandart(Grid):
                 wid = ThumbFolder(src, 0, 0, {})
                 pixmap = QPixmap("images/folder_210.png")
                 wid.set_pixmap(pixmap)
-                wid.clicked_folder.connect(self.clicked_folder.emit)
                 wid.add_fav.connect(self.add_fav.emit)
                 wid.del_fav.connect(self.del_fav.emit)
                 wid.set_colors_from_db("")

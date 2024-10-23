@@ -9,19 +9,21 @@ from utils import Utils
 
 from ._base import BaseGrid
 from ._thumb import Thumb, ThumbFolder, ThumbSearch
-
+from signals import SIGNALS
 
 class Grid(BaseGrid):
 
     def __init__(self):
         super().__init__()
+        self.setWidgetResizable(True)
 
         self.curr_cell: tuple = (0, 0)
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.path_to_wid: dict[str, Thumb] = {}
         self.sorted_widgets: list[Thumb | ThumbFolder | ThumbSearch] = []
 
-        self.setWidgetResizable(True)
+        self.ww = 0
+        SIGNALS.resize_grid.connect(lambda: self.resize_grid(self.ww))
 
         main_wid = QWidget()
         self.grid_layout = QGridLayout(main_wid)
@@ -116,6 +118,10 @@ class Grid(BaseGrid):
         self.rearrange_grid(width)
 
     def rearrange_grid(self, width: int):
+        # когда меняется размер сетки, этот метод отвечает за перетасовку
+        # виджетов, поэтому отсюда мы отсылаем в инициатор self.ww
+        self.ww = width
+
         self.reset_selection()
         self.cell_to_wid.clear()
 

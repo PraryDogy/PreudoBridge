@@ -1,25 +1,18 @@
-import os
-import sys
-from difflib import SequenceMatcher
 
 import sqlalchemy
-from PyQt5.QtCore import QSize, Qt, QThread, QTimer, pyqtSignal
-from PyQt5.QtGui import QCloseEvent, QCursor, QKeyEvent, QMouseEvent, QPixmap
-from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
-                             QHBoxLayout, QLabel, QLineEdit, QMenu,
-                             QPushButton, QSpacerItem, QTabBar, QVBoxLayout,
-                             QWidget)
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QCloseEvent, QKeyEvent, QPixmap
+from PyQt5.QtWidgets import (QFrame, QGridLayout, QHBoxLayout, QLabel,
+                             QPushButton, QVBoxLayout, QWidget)
 
-from cfg import ORDER, Config, JsonData
-from database import CACHE, STATS, Dbase, Engine
-from utils import Utils
+from cfg import Config, JsonData
+from database import STATS, Dbase, Engine
+from signals import SIGNALS
 
 from ._base import BaseSlider
 
 
 class NameLabelH(QWidget):
-    name_label_h_changed = pyqtSignal()
     def __init__(self):
         super().__init__()
 
@@ -83,7 +76,8 @@ class NameLabelH(QWidget):
         self.set_white(wid)
         JsonData.name_label_h = index
         Config.write_config()
-        self.name_label_h_changed.emit()
+        SIGNALS.resize_grid.emit(None)
+        
 
     def deselect_widgets(self):
         for i in self.findChildren(QWidget):
@@ -91,8 +85,6 @@ class NameLabelH(QWidget):
 
 
 class WinSettings(QWidget):
-    name_label_h_changed = pyqtSignal()
-
     def __init__(self):
         super().__init__()
         
@@ -144,7 +136,6 @@ class WinSettings(QWidget):
         main_lay.addWidget(thumb_type_title)
 
         self.name_label_h = NameLabelH()
-        self.name_label_h.name_label_h_changed.connect(self.name_label_h_changed.emit)
         main_lay.addWidget(self.name_label_h)
 
         main_lay.addStretch()
