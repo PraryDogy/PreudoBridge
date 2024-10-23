@@ -1,18 +1,16 @@
 import os
 from difflib import SequenceMatcher
 
-import sqlalchemy
 from PyQt5.QtCore import QSize, Qt, QThread, QTimer, pyqtSignal
-from PyQt5.QtGui import QCloseEvent, QCursor, QKeyEvent, QMouseEvent
+from PyQt5.QtGui import QCursor, QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
-                             QLineEdit, QMenu, QPushButton, QSlider,
-                             QSpacerItem, QTabBar, QVBoxLayout, QWidget)
+                             QLineEdit, QMenu, QPushButton, QSpacerItem,
+                             QTabBar, QVBoxLayout, QWidget)
 
 from cfg import ORDER, Config, JsonData
-from database import STATS, Dbase, Engine
 from utils import Utils
 
-from ._base import BaseSlider
+from .win_settings import WinSettings
 
 
 class PathFinderThread(QThread):
@@ -428,95 +426,9 @@ class WinGo(QWidget):
         return super().keyPressEvent(a0)
     
 
-class WinSettings(QWidget):
-    def __init__(self):
-        super().__init__()
-        
-        self.setWindowModality(Qt.WindowModality.ApplicationModal)
-        self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowCloseButtonHint)
-        self.setWindowTitle("Настройки")
-        self.setFixedSize(300, 120)
-
-        v_lay = QVBoxLayout()
-        v_lay.setContentsMargins(10, 10, 10, 10)
-        v_lay.setSpacing(10)
-        self.setLayout(v_lay)
-
-        h_wid = QWidget()
-        v_lay.addWidget(h_wid)
-
-        h_lay = QHBoxLayout()
-        h_lay.setContentsMargins(0, 0, 0, 0)
-        h_wid.setLayout(h_lay)
-
-        self.current_size = QLabel("")
-        h_lay.addWidget(self.current_size)
-
-        self.clear_btn = QPushButton("Очистить данные")
-        self.clear_btn.clicked.connect(self.clear_db_cmd)
-        h_lay.addWidget(self.clear_btn)
-        
-        self.slider_values = [2, 5, 10, 100]
-        self.slider = BaseSlider(Qt.Horizontal, 0, len(self.slider_values) - 1)
-        self.slider.setFixedWidth(100)
-        v_lay.addWidget(self.slider)
-
-        self.label = QLabel("", self)
-        v_lay.addWidget(self.label)
-        self.get_current_size()
-
-        v_lay.addStretch(0)
-
-        current = JsonData.clear_db
-        ind = self.slider_values.index(current)
-
-        self.slider.setValue(ind)
-        self.update_label(ind)
-        self.slider.valueChanged.connect(self.update_label)
-
-    def update_label(self, index):
-        value = self.slider_values[index]
-
-        if value == 100:
-            t = "Максимальный размер данных: без лимита"
-        else:
-            t = f"Максимальный размер данных: {value}гб"
-
-        self.label.setText(t)
-        JsonData.clear_db = value
-
-    def get_current_size(self):
-        with Engine.engine.connect() as conn:
-            q = sqlalchemy.select(STATS.c.size).where(STATS.c.name == "main")
-            res = conn.execute(q).scalar() or 0
-
-        res = int(res / (1024))
-        t = f"Данные: {res}кб"
-
-        if res > 1024:
-            res = round(res / (1024), 2)
-            t = f"Данные: {res}мб"
-
-        if res > 1024:
-            res = round(res / (1024), 2)
-            t = f"Данные: {res}гб"
-
-        self.current_size.setText(t)
-
-    def clear_db_cmd(self):
-        if Dbase.clear_db():
-            self.get_current_size()
-
-    def closeEvent(self, a0: QCloseEvent | None) -> None:
-        Config.write_config()
-    
-    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
-        if a0.key() == Qt.Key.Key_Escape:
-            self.close()
-
-
 class AdvancedBtn(QPushButton):
     _clicked = pyqtSignal(str)
+    name_label_h_changed = pyqtSignal()
 
     def __init__(self):
         super().__init__("...")
@@ -541,6 +453,7 @@ class AdvancedBtn(QPushButton):
 
     def open_settings_win(self):
         self.win = WinSettings()
+        self.win.name_label_h_changed.connect(self.name_label_h_changed.emit)
         Utils.center_win(Utils.get_main_win(), self.win)
         self.win.show()
 

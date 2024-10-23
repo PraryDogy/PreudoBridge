@@ -91,6 +91,7 @@ class SimpleFileExplorer(QWidget):
         self.bar_top.view_type_btn._clicked.connect(self.grid_standart_load)
         self.bar_top.filters_btn._clicked.connect(lambda: self.grid.filter_grid(self.get_grid_width()))
         self.bar_top.advanced_btn._clicked.connect(self.open_path_btn_cmd)
+        self.bar_top.advanced_btn.name_label_h_changed.connect(self.grid_standart_load)
         self.bar_top.search_wid.start_search.connect(self.grid_search_load)
         self.bar_top.search_wid.stop_search.connect(self.grid_standart_load)
 
