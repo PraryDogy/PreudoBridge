@@ -25,6 +25,9 @@ class Grid(BaseGrid):
 
         self.ww = width
 
+        # Посколько сетка может множество раз перезагружаться
+        # прежде нужно отключить прошлые подключения чтобы не было
+        # дублирования подклювчений
         for sig in (SIGNALS.resize_grid, SIGNALS.sort_grid, SIGNALS.filter_grid, SIGNALS.move_to_wid):
             try:
                 sig.disconnect()
