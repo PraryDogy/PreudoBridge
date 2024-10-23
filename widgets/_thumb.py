@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QLabel, QMenu,
                              QVBoxLayout, QSizePolicy)
 from sqlalchemy.exc import OperationalError
 
-from cfg import PIXMAP_SIZE, TEXT_LENGTH, Config, JsonData
+from cfg import PIXMAP_SIZE, TEXT_LENGTH, Config, JsonData, THUMB_WIDTH
 from database import CACHE, Engine
 from utils import Utils
 from signals import SIGNALS
@@ -98,7 +98,6 @@ class Thumb(QFrame):
 
         self.img_label = QLabel()
         self.img_label.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
-        self.img_label.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         self.img_label.setContentsMargins(margin, margin, margin, margin)
         v_lay.addWidget(self.img_label)
 
@@ -125,16 +124,22 @@ class Thumb(QFrame):
 
     def resize(self):
         if JsonData.name_label_hidden:
+            self.img_label.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
             self.name_label.hide()
         else:
+            self.img_label.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
             self.name_label.show()
+
+        ind = PIXMAP_SIZE.index(JsonData.thumb_size)
+        self.setFixedWidth(THUMB_WIDTH[ind])
 
         # в update_name меняется длина строки в зависимости от JsonData.thumb_size
         self.name_label.update_name(self.rating, self.colors, self.name)
+        self.adjustSize()
 
     def set_frame(self):
-        self.img_label.setStyleSheet("background: red; border-radius: 4px;")
-        self.name_label.setStyleSheet("background: blue; border-radius: 4px;")
+        self.img_label.setStyleSheet(f"background: {Config.GRAY}; border-radius: 4px;")
+        self.name_label.setStyleSheet(f"background: {Config.GRAY}; border-radius: 4px;")
 
     def set_no_frame(self):
         self.img_label.setStyleSheet("")

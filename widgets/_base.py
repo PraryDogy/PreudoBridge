@@ -2,7 +2,7 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QMouseEvent, QWheelEvent
 from PyQt5.QtWidgets import QScrollArea, QSlider, QTableView
 
-from signals import SIGNALS
+from cfg import Config
 
 
 class BaseMethods:
@@ -45,7 +45,7 @@ class BaseSlider(QSlider):
                 border-radius: 1px;
                 height: 3px;
                 margin: 0px;
-                background-color: rgba(111, 111, 111, 0.5);
+                background-color: {Config.GRAY};
             }}
             QSlider::handle:horizontal {{
                 background-color: rgba(199, 199, 199, 1);

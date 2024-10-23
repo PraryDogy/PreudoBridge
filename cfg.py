@@ -62,6 +62,7 @@ class Config:
 
     JSON_FILE = os.path.join(os.path.expanduser('~'), 'Desktop', 'cfg.json')
     DB_FILE = os.path.join(os.path.expanduser('~'), 'Desktop', 'db.db')
+    GRAY = "rgba(111, 111, 111, 0.5)"
 
     IMG_EXT: tuple = (
         ".jpg", "jpeg", "jfif",
