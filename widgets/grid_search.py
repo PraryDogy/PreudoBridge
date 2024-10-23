@@ -216,7 +216,7 @@ class GridSearch(Grid):
             self.col = 0
             self.row += 1
  
-    def rearrange_grid(self, width: int):
+    def rearrange_grid(self, width: int = None):
         if not self.search_thread.isRunning():
             super().rearrange_grid(width)
     
