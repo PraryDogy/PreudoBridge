@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QLabel, QMenu,
                              QVBoxLayout)
 from sqlalchemy.exc import OperationalError
 
-from cfg import IMG_SIZES, TEXT_SIZES, THUMB_WIDTHS, Config, JsonData
+from cfg import PIXMAP_SIZE, TEXT_LENGTH, THUMB_WIDTH, Config, JsonData
 from database import CACHE, Engine
 from utils import Utils
 
@@ -23,8 +23,8 @@ class NameLabel(QLabel):
 
     def update_name(self, rating: int, colors: str, name: str) -> list[str]:
 
-        ind = IMG_SIZES.index(JsonData.thumb_size)
-        max_row = TEXT_SIZES[ind]
+        ind = PIXMAP_SIZE.index(JsonData.thumb_size)
+        max_row = TEXT_LENGTH[ind]
 
         name_lines = []
 
@@ -123,7 +123,7 @@ class Thumb(QFrame):
 
     def resize(self):
         name_label_h = 75
-        w = THUMB_WIDTHS[IMG_SIZES.index(JsonData.thumb_size)]
+        w = THUMB_WIDTH[PIXMAP_SIZE.index(JsonData.thumb_size)]
 
         self.setFixedSize(w, JsonData.thumb_size + name_label_h)
 

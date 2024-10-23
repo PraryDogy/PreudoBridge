@@ -15,18 +15,23 @@ ORDER: dict[str, dict] = {
         "rating": {"text": "Рейтинг", "index": 5},
         }
 
-# это базовое значение маленьких картинок которые улетают в базу данных
+# это базовое значение Pixmap которые улетают в базу данных
 IMG_SIZE: int = 210
 
-# Вариации маленьких картинок, размер меняется на лету при формировании сетки
-# TEXT_LENS Подобрана максимальная длина строки в названии Thumbnail соответствующая IMG_SIZES
-# THUMB_W Подобрана максимальная ширина виджета Thumbnail соответствующая IMG_SIZES
-IMG_SIZES: list = [90, 130, 170, IMG_SIZE]
-THUMB_WIDTHS: list = [130, 150, 170, IMG_SIZE]
-TEXT_SIZES: list = [15, 18, 23, 28]
+# ширина Pixmap в Thumb
+PIXMAP_SIZE: list = [90, 130, 170, IMG_SIZE]
 
+# ширина целого Thumb исходя из PIXMAP_SIZE
+THUMB_WIDTH: list = [130, 150, 170, IMG_SIZE]
+
+# ширина текста Thumb исходя из PIXMAP_SIZE
+TEXT_LENGTH: list = [15, 18, 23, 28]
+
+# высота целого Thumb исхозя из выбранного индекса в настройках (view_rows)
+THUMB_HEIGHT: list = [174, 198, 230]
+
+# расстояние в сетке
 GRID_SPACING = 1
-
 
 class JsonData:
     root = "/Volumes"
@@ -41,7 +46,8 @@ class JsonData:
     list_view = False
     clear_db = 5
     tab_bar = 1
-    thumb_size = IMG_SIZES[0]
+    thumb_size = PIXMAP_SIZE[0]
+    view_rows = 2
 
     @classmethod
     def get_data(cls):
