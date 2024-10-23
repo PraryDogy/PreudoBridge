@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QLabel, QMenu,
                              QVBoxLayout)
 from sqlalchemy.exc import OperationalError
 
-from cfg import PIXMAP_SIZE, TEXT_LENGTH, THUMB_WIDTH, Config, JsonData
+from cfg import PIXMAP_SIZE, TEXT_LENGTH, THUMB_WIDTH, NAME_LABEL_HEIGTH, Config, JsonData
 from database import CACHE, Engine
 from utils import Utils
 
@@ -90,15 +90,17 @@ class Thumb(QFrame):
         self.img: QPixmap = None
         ############################################################
 
+        mar = 4
+
         v_lay = QVBoxLayout()
         v_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        mar = 4
         v_lay.setContentsMargins(mar, mar, mar, mar)
         v_lay.setSpacing(0)
         self.setLayout(v_lay)
 
         self.img_label = QLabel()
         self.img_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.img_label.setContentsMargins(0, 0, 0, 10)
         v_lay.addWidget(self.img_label)
 
         self.name_label = NameLabel()
@@ -122,7 +124,7 @@ class Thumb(QFrame):
             print("thumb has no pixmap in self.img")
 
     def resize(self):
-        name_label_h = 75
+        name_label_h = NAME_LABEL_HEIGTH[JsonData.name_label_h]
         w = THUMB_WIDTH[PIXMAP_SIZE.index(JsonData.thumb_size)]
 
         self.setFixedSize(w, JsonData.thumb_size + name_label_h)

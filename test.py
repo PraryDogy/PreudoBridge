@@ -22,6 +22,7 @@ class SvgDisplayWidget(QWidget):
 
         col = 0
         first = QWidget()
+        first.setStyleSheet("border: 1px solid transparent;")
         main_layout.addWidget(first, 0 , col)
         first_lay = QVBoxLayout()
         first.setLayout(first_lay)
@@ -32,22 +33,8 @@ class SvgDisplayWidget(QWidget):
         first_lay.addWidget(svg_widget, alignment=Qt.AlignmentFlag.AlignTop)
 
         col += 1
-        sec = QWidget()
-        main_layout.addWidget(sec, 0 , col)
-        sec_lay = QVBoxLayout()
-        sec.setLayout(sec_lay)
-        sec.mouseReleaseEvent = lambda e, col=col: self.select_widget(sec, col)
-
-        svg_widget = QLabel()
-        svg_widget.setPixmap(QPixmap(svg))
-        sec_lay.addWidget(svg_widget, alignment=Qt.AlignmentFlag.AlignTop)
-
-        lbl = QLabel(text=filename)
-        lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        sec_lay.addWidget(lbl, alignment=Qt.AlignmentFlag.AlignBottom)
-
-        col += 1
         third = QWidget()
+        third.setStyleSheet("border: 1px solid transparent;")
         main_layout.addWidget(third, 0 , col)
         third_lay = QVBoxLayout()
         third.setLayout(third_lay)
@@ -61,16 +48,15 @@ class SvgDisplayWidget(QWidget):
         lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         third_lay.addWidget(lbl, alignment=Qt.AlignmentFlag.AlignBottom)
 
-        for i in (first, sec, third):
-            i.adjustSize()
-            print(i.height())
-
-        self.deselect_widgets()
+        if JsonData.name_label_h == 0:
+            first.setStyleSheet("border: 1px solid white;")
+        else:
+            third.setStyleSheet("border: 1px solid white;")
 
     def select_widget(self, wid: QWidget, index: int):
         self.deselect_widgets()
         wid.setStyleSheet("border: 1px solid white;")
-        JsonData.view_rows = index
+        JsonData.name_label_h = index
         Config.write_config()
 
     def deselect_widgets(self):
