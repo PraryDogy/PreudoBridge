@@ -103,6 +103,8 @@ class SimpleFileExplorer(QWidget):
         self.grid: Grid = Grid(self.get_grid_width())
         SIGNALS.load_standart_grid.connect(self.load_standart_grid)
         SIGNALS.load_search_grid.connect(self.load_search_grid)
+        SIGNALS.search_finished.connect(self.search_finished)
+
         self.load_standart_grid()
 
     def open_path_btn_cmd(self, filepath: str):
@@ -130,7 +132,6 @@ class SimpleFileExplorer(QWidget):
         ww = self.get_grid_width()
         self.grid = GridSearch(width=ww, search_text=search_text)
         self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
-        self.grid.search_finished.connect(lambda: self.search_finished(search_text))
         self.grid.show_in_folder.connect(lambda filepath: self.move_to_wid_delayed(filepath))
         self.r_lay.addWidget(self.grid, 1, 0)
         self.grid.setFocus()

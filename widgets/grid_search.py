@@ -9,9 +9,10 @@ from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtWidgets import QSizePolicy, QSpacerItem
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import Config, JsonData, IMG_SIZE
+from cfg import IMG_SIZE, Config, JsonData
 from database import CACHE, STATS, Engine
 from fit_img import FitImg
+from signals import SIGNALS
 from utils import Utils
 
 from ._grid import Grid
@@ -84,7 +85,7 @@ class SearchFinder(QThread):
         self.conn.close()
 
         if self.flag:
-            self._finished.emit()
+            SIGNALS.search_finished.emit(self.search_text)
 
     def create_wid(self, src: str):
         try:
@@ -183,8 +184,6 @@ class SearchFinder(QThread):
 
 
 class GridSearch(Grid):
-    search_finished = pyqtSignal()
-
     def __init__(self, width: int, search_text: str):
         super().__init__(width)
 
@@ -196,7 +195,6 @@ class GridSearch(Grid):
 
         self.search_thread = SearchFinder(search_text)
         self.search_thread.add_new_widget.connect(self.add_new_widget)
-        self.search_thread._finished.connect(self.search_finished.emit)
         self.search_thread.start()
 
     def add_new_widget(self, widget_data: WidgetData):
