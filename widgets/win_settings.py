@@ -12,7 +12,7 @@ from signals import SIGNALS
 from ._base import BaseSlider
 
 
-class NameLabelH(QWidget):
+class NameLabelHidden(QWidget):
     def __init__(self):
         super().__init__()
 
@@ -27,12 +27,11 @@ class NameLabelH(QWidget):
         stars = "★★★★★"
         filename = "ded.jpg"
 
-        col = 0
         simple_view = QWidget()
         simple_view.setObjectName("sett_thumb")
         simple_view.setStyleSheet("#sett_thumb { border: 1px solid transparent; }")
-        simple_view.mouseReleaseEvent = lambda e, col=col: self.select_widget(simple_view, col)
-        main_layout.addWidget(simple_view, 0 , col)
+        simple_view.mouseReleaseEvent = lambda e, b=True: self.select_widget(simple_view, b)
+        main_layout.addWidget(simple_view, 0 , 0)
 
         simple_view_lay = QVBoxLayout()
         simple_view.setLayout(simple_view_lay)
@@ -41,12 +40,11 @@ class NameLabelH(QWidget):
         image_label.setPixmap(QPixmap(svg))
         simple_view_lay.addWidget(image_label, alignment=Qt.AlignmentFlag.AlignTop)
 
-        col += 1
         info_view = QWidget()
         info_view.setObjectName("sett_thumb")
         info_view.setStyleSheet("#sett_thumb { border: 1px solid transparent; }")
-        info_view.mouseReleaseEvent = lambda e, col=col: self.select_widget(info_view, col)
-        main_layout.addWidget(info_view, 0 , col)
+        info_view.mouseReleaseEvent = lambda e, b=False: self.select_widget(info_view, b)
+        main_layout.addWidget(info_view, 0 , 1)
 
         info_view_lay = QVBoxLayout()
         info_view.setLayout(info_view_lay)
@@ -60,7 +58,7 @@ class NameLabelH(QWidget):
         info_view_lay.addWidget(text_label, alignment=Qt.AlignmentFlag.AlignBottom)
         info_view.setObjectName("sett_thumb")
 
-        if JsonData.name_label_h == 0:
+        if JsonData.name_label_hidden == 1:
             self.set_white(simple_view)
         else:
             self.set_white(info_view)
@@ -71,13 +69,12 @@ class NameLabelH(QWidget):
     def set_white(self, wid: QWidget):
         wid.setStyleSheet("#sett_thumb { border: 1px solid white; }")
 
-    def select_widget(self, wid: QWidget, index: int):
+    def select_widget(self, wid: QWidget, b: bool):
         self.deselect_widgets()
         self.set_white(wid)
-        JsonData.name_label_h = index
+        JsonData.name_label_hidden = b
         Config.write_config()
         SIGNALS.resize_grid.emit(None)
-        
 
     def deselect_widgets(self):
         for i in self.findChildren(QWidget):
@@ -135,11 +132,10 @@ class WinSettings(QWidget):
         thumb_type_title = QLabel("Вид")
         main_lay.addWidget(thumb_type_title)
 
-        self.name_label_h = NameLabelH()
-        main_lay.addWidget(self.name_label_h)
+        self.name_label_hidden = NameLabelHidden()
+        main_lay.addWidget(self.name_label_hidden)
 
         main_lay.addStretch()
-
 
     def update_label(self, index):
         value = self.slider_values[index]

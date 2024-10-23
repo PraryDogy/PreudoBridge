@@ -27,9 +27,6 @@ THUMB_WIDTH: list = [130, 150, 170, IMG_SIZE]
 # ширина текста Thumb исходя из PIXMAP_SIZE
 TEXT_LENGTH: list = [15, 18, 23, 28]
 
-# высота текста Thumb исходя из JsonData.view_rows
-NAME_LABEL_HEIGTH: list = [0, 75]
-
 # расстояние в сетке
 GRID_SPACING = 1
 
@@ -47,7 +44,7 @@ class JsonData:
     clear_db = 5
     tab_bar = 1
     thumb_size = PIXMAP_SIZE[0]
-    name_label_h = 1
+    name_label_hidden = False
 
     @classmethod
     def get_data(cls):

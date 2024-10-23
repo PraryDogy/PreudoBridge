@@ -6,10 +6,10 @@ import sqlalchemy
 from PyQt5.QtCore import QMimeData, Qt, QUrl, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QDrag, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QLabel, QMenu,
-                             QVBoxLayout)
+                             QVBoxLayout, QSizePolicy)
 from sqlalchemy.exc import OperationalError
 
-from cfg import PIXMAP_SIZE, TEXT_LENGTH, THUMB_WIDTH, NAME_LABEL_HEIGTH, Config, JsonData
+from cfg import PIXMAP_SIZE, TEXT_LENGTH, Config, JsonData
 from database import CACHE, Engine
 from utils import Utils
 from signals import SIGNALS
@@ -19,7 +19,6 @@ from .win_info import WinInfo
 class NameLabel(QLabel):
     def __init__(self):
         super().__init__()
-        self.setAlignment(Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignCenter)
 
     def update_name(self, rating: int, colors: str, name: str) -> list[str]:
 
@@ -90,23 +89,24 @@ class Thumb(QFrame):
         self.img: QPixmap = None
         ############################################################
 
-        mar = 4
+        margin = 4
 
         v_lay = QVBoxLayout()
-        v_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        v_lay.setContentsMargins(mar, mar, mar, mar)
-        v_lay.setSpacing(0)
+        v_lay.setContentsMargins(margin, margin, margin, margin)
+        v_lay.setSpacing(margin)
         self.setLayout(v_lay)
 
         self.img_label = QLabel()
-        self.img_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.img_label.setContentsMargins(0, 0, 0, 10)
+        self.img_label.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
+        self.img_label.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.img_label.setContentsMargins(margin, margin, margin, margin)
         v_lay.addWidget(self.img_label)
 
         self.name_label = NameLabel()
+        self.name_label.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignBottom)
+        self.name_label.setContentsMargins(margin, margin, margin, margin)
         v_lay.addWidget(self.name_label)
 
-        self.setObjectName("thumb")
         self.set_no_frame()
         self.resize()
 
@@ -124,22 +124,21 @@ class Thumb(QFrame):
             print("thumb has no pixmap in self.img")
 
     def resize(self):
-        name_label_h = NAME_LABEL_HEIGTH[JsonData.name_label_h]
-        w = THUMB_WIDTH[PIXMAP_SIZE.index(JsonData.thumb_size)]
-
-        self.setFixedSize(w, JsonData.thumb_size + name_label_h)
-
-        self.img_label.setFixedHeight(JsonData.thumb_size)
-        self.name_label.setFixedHeight(name_label_h)
+        if JsonData.name_label_hidden:
+            self.name_label.hide()
+        else:
+            self.name_label.show()
 
         # в update_name меняется длина строки в зависимости от JsonData.thumb_size
         self.name_label.update_name(self.rating, self.colors, self.name)
 
     def set_frame(self):
-        self.setStyleSheet("""#thumb { border: 1px solid white; }""")
+        self.img_label.setStyleSheet("background: red; border-radius: 4px;")
+        self.name_label.setStyleSheet("background: blue; border-radius: 4px;")
 
     def set_no_frame(self):
-        self.setStyleSheet("""#thumb { border: 1px solid transparent; }""")
+        self.img_label.setStyleSheet("")
+        self.name_label.setStyleSheet("")
 
     def add_base_actions(self, context_menu: QMenu):
         view_action = QAction("Просмотр", self)
