@@ -178,7 +178,12 @@ class Utils:
 
     @classmethod
     def pixmap_scale(cls, pixmap: QPixmap, size: int) -> QPixmap:
-        return pixmap.scaled(size, size, aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio)
+        return pixmap.scaled(
+            size,
+            size,
+            aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio,
+            transformMode=Qt.TransformationMode.SmoothTransformation
+            )
 
     @classmethod
     def print_error(cls, parent: object, error: Exception):

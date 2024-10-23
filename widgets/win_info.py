@@ -20,9 +20,9 @@ class WinInfo(QWidget):
         for line in text.split("\n"):
             left_text, right_text = line.split(":")
             left_text, right_text = left_text.strip(), right_text.strip()
+            max_row = 40
 
-            if len(right_text) > 50:
-                max_row = 39
+            if len(right_text) > max_row:
                 right_text = [
                     right_text[i:i + max_row]
                     for i in range(0, len(right_text), max_row)
