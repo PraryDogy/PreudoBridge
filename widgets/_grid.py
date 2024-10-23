@@ -19,6 +19,7 @@ class Grid(BaseGrid):
         self.setWidgetResizable(True)
 
         self.curr_cell: tuple = (0, 0)
+        self.row_spacer: QSpacerItem = None
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.path_to_wid: dict[str, Thumb] = {}
         self.sorted_widgets: list[Thumb | ThumbFolder | ThumbSearch] = []
@@ -35,8 +36,8 @@ class Grid(BaseGrid):
         self.setWidget(main_wid)
 
     def add_row_spacer(self, row: int, col: int):
-        spacer = QSpacerItem(0, 0, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
-        self.grid_layout.addItem(spacer, row, col)
+        self.row_spacer = QSpacerItem(0, 0, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.grid_layout.addItem(self.row_spacer, row, col)
         self.grid_layout.setRowStretch(row, 1)
 
     def select_new_widget(self, data: tuple | str | Thumb):
@@ -137,6 +138,9 @@ class Grid(BaseGrid):
         self.reset_selection()
         self.cell_to_wid.clear()
 
+        if isinstance(self.row_spacer, QSpacerItem):
+            self.grid_layout.removeItem(self.row_spacer)
+
         row, col = 0, 0
 
         for wid in self.sorted_widgets:
@@ -153,6 +157,8 @@ class Grid(BaseGrid):
             if col >= col_count:
                 col = 0
                 row += 1
+        
+        self.add_row_spacer(row+1, 0)
 
     def add_widget_data(self, wid: Thumb, row: int, col: int):
         wid.row, wid.col = row, col
