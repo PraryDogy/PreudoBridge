@@ -1,6 +1,28 @@
-from PyQt5.QtGui import QKeyEvent
+from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import QGridLayout, QLabel, QWidget
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QLabel, QMenu, QWidget
+from PyQt5.QtCore import Qt
+
+class CustomLabel(QLabel):
+    def __init__(self, text: str):
+        super().__init__(text)
+
+    def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
+        menu = QMenu(self)
+        select_all_action = menu.addAction("Выделить все")
+        select_all_action.triggered.connect(lambda: self.setSelection(0, len(self.text())))
+        menu.addSeparator()
+        copy_action = menu.addAction("Копировать")
+        copy_action.triggered.connect(self.custom_copy)
+        menu.exec_(ev.globalPos())
+
+    def custom_copy(self):
+        selected_text = self.selectedText()
+        modified_text = selected_text.replace("\n", "")
+        clipboard = QApplication.clipboard()
+        clipboard.setText(modified_text)
+
 
 class WinInfo(QWidget):
     def __init__(self, text: str) -> None:
@@ -29,11 +51,11 @@ class WinInfo(QWidget):
                     ]
                 right_text = "\n".join(right_text)
 
-            left_lbl = QLabel(left_text)
+            left_lbl = CustomLabel(left_text)
             flags_l_al = Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignTop
             self.grid_layout.addWidget(left_lbl, row, 0, alignment=flags_l_al)
 
-            right_lbl = QLabel(right_text)
+            right_lbl = CustomLabel(right_text)
             flags_r = Qt.TextInteractionFlag.TextSelectableByMouse
             right_lbl.setTextInteractionFlags(flags_r)
             flags_r_al = Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom
