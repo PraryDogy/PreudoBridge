@@ -19,9 +19,6 @@ class Sort:
 
 
 class ListStandart(BaseTableView):
-    add_to_favs_clicked = pyqtSignal(str)
-    del_favs_clicked = pyqtSignal(str)
-
     def __init__(self):
         super().__init__()
 
@@ -111,11 +108,11 @@ class ListStandart(BaseTableView):
             favs: dict = JsonData.favs
             if src in favs:
                 fav_action = QAction("Удалить из избранного", self)
-                fav_action.triggered.connect(lambda: self.del_favs_clicked.emit(src))
+                fav_action.triggered.connect(SIGNALS.del_fav.emit(src))
                 menu.addAction(fav_action)
             else:
                 fav_action = QAction("Добавить в избранное", self)
-                fav_action.triggered.connect(lambda: self.add_to_favs_clicked.emit(src))
+                fav_action.triggered.connect(SIGNALS.add_fav.emit(src))
                 menu.addAction(fav_action)
 
         menu.exec_(self.mapToGlobal(event.pos()))

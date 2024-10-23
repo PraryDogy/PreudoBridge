@@ -351,20 +351,17 @@ class Thumb(QFrame):
 
 
 class ThumbFolder(Thumb):
-    add_fav = pyqtSignal(str)
-    del_fav = pyqtSignal(str)
-
     def __init__(self, src: str, size: int, mod: int, path_to_wid: dict[str, QLabel]):
         super().__init__(src, size, mod, path_to_wid)
 
     def fav_cmd(self, offset: int):
         self.fav_action.triggered.disconnect()
         if 0 + offset == 1:
-            self.add_fav.emit(self.src)
+            SIGNALS.add_fav.emit(self.src)
             self.fav_action.setText("Удалить из избранного")
             self.fav_action.triggered.connect(lambda: self.fav_cmd(-1))
         else:
-            self.del_fav.emit(self.src)
+            SIGNALS.del_fav.emit(self.src)
             self.fav_action.setText("Добавить в избранное")
             self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))
 

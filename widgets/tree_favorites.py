@@ -76,6 +76,8 @@ class FavItem(QLabel):
 class TreeFavorites(QListWidget):
     def __init__(self):
         super().__init__()
+        SIGNALS.add_fav.connect(self.add_fav_cmd)
+        SIGNALS.del_fav.connect(self.del_item)
         self.setDragDropMode(QListWidget.DragDropMode.InternalMove)
         self.setAcceptDrops(True)
         self.init_ui()
@@ -88,6 +90,9 @@ class TreeFavorites(QListWidget):
             if JsonData.root == src:
                 self.setCurrentItem(item)
 
+    def add_fav_cmd(self, root: str):
+        name = os.path.basename(root)
+        self.add_item(name, root)
 
     def add_item(self, name: str, src: str) -> QListWidgetItem:
         item = FavItem(name, src)

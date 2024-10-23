@@ -23,8 +23,6 @@ class BaseMethods:
 
 
 class BaseGrid(QScrollArea, BaseMethods):
-    add_fav = pyqtSignal(str)
-    del_fav = pyqtSignal(str)
     progressbar_start = pyqtSignal(int)
     progressbar_value = pyqtSignal(int)
     show_in_folder = pyqtSignal(str)
@@ -35,8 +33,6 @@ class BaseGrid(QScrollArea, BaseMethods):
 
 
 class BaseTableView(QTableView, BaseMethods):
-    add_fav = pyqtSignal(str)
-    del_fav = pyqtSignal(str)
     progressbar_start = pyqtSignal(int)
     progressbar_value = pyqtSignal(int)
     show_in_folder = pyqtSignal(str)

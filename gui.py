@@ -64,8 +64,6 @@ class SimpleFileExplorer(QWidget):
         splitter_wid.setStretchFactor(0, 0)
 
         self.folders_tree_wid = TreeFolders()
-        self.folders_tree_wid.add_to_favs_clicked.connect(self.add_fav_cmd)
-        self.folders_tree_wid.del_favs_clicked.connect(lambda root: self.folders_fav_wid.del_item(root))
         self.bar_tabs.addTab(self.folders_tree_wid, "Папки")
 
         self.folders_fav_wid = TreeFavorites()
@@ -111,12 +109,6 @@ class SimpleFileExplorer(QWidget):
             border-radius: 20px;
             """
             )
-
-    def add_fav_cmd(self, root: str):
-        name = os.path.basename(root)
-        self.folders_fav_wid.add_item(name, root)
-        favs: dict = JsonData.favs
-        favs[root] = name
 
     def open_path_btn_cmd(self, filepath: str):
         if not os.path.exists(filepath):
@@ -183,18 +175,12 @@ class SimpleFileExplorer(QWidget):
         if JsonData.list_view:
             self.grid = ListStandart()
             self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
-
-            self.grid.add_to_favs_clicked.connect(self.add_fav_cmd)
-            self.grid.del_favs_clicked.connect(lambda root: self.folders_fav_wid.del_item(root))
-
         else:
             self.grid = GridStandart(width=self.get_grid_width())
             self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
 
             self.grid.progressbar_start.connect(self.bar_bottom.progressbar_start.emit)
             self.grid.progressbar_value.connect(self.bar_bottom.progressbar_value.emit)
-            self.grid.add_fav.connect(self.add_fav_cmd)
-            self.grid.del_fav.connect(lambda root: self.folders_fav_wid.del_item(root))
 
         self.r_lay.addWidget(self.grid, 1, 0)
         self.grid.setFocus()
