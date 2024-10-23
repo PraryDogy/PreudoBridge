@@ -46,7 +46,7 @@ class SimpleFileExplorer(QWidget):
         self.resize_timer.timeout.connect(lambda: self.grid.rearrange_grid(self.get_grid_width()))
 
         self.migaet_timer = QTimer(parent=self)
-        self.migaet_timer.timeout.connect(self.grid_search_migaet_title)
+        self.migaet_timer.timeout.connect(self.blink_title)
 
         main_lay = QVBoxLayout()
         main_lay.setContentsMargins(5, 5, 5, 5)
@@ -150,19 +150,19 @@ class SimpleFileExplorer(QWidget):
         ww = self.get_grid_width()
         self.grid = GridSearch(width=ww, search_text=search_text)
         self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
-        self.grid.search_finished.connect(lambda: self.grid_search_finished(search_text))
+        self.grid.search_finished.connect(lambda: self.search_finished(search_text))
         self.grid.show_in_folder.connect(lambda filepath: self.move_to_wid_delayed(filepath))
         self.r_lay.addWidget(self.grid, 1, 0)
         self.grid.setFocus()
 
-    def grid_search_migaet_title(self):
+    def blink_title(self):
         if "🟠" in self.windowTitle():
             t = self.windowTitle().replace("🟠", "⚪")
         else:
             t = self.windowTitle().replace("⚪", "🟠")
         self.setWindowTitle(t)
 
-    def grid_search_finished(self, search_text: str):
+    def search_finished(self, search_text: str):
         self.migaet_timer.stop()
         self.setWindowTitle(f"🟢\tРезультаты поиска: \"{search_text}\"")
         self.grid.sort_grid(self.get_grid_width())
@@ -176,13 +176,12 @@ class SimpleFileExplorer(QWidget):
         if root:
             JsonData.root = root
 
-        self.grid_close()
-        
         self.setWindowTitle(os.path.basename(JsonData.root))
+        self.grid_close()
 
         self.bar_top.search_wid.clear_search.emit()
-        self.bar_top.update_history()
         self.bar_top.filters_btn.reset_filters()
+        self.bar_top.update_history()
 
         self.bar_bottom.create_path_label()
 
