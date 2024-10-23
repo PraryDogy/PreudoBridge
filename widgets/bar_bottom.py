@@ -1,11 +1,11 @@
 import os
 
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import (QGridLayout, QHBoxLayout, QLabel, QProgressBar,
                              QWidget)
 
-from cfg import PIXMAP_SIZE, JsonData
+from cfg import JsonData
 from signals import SIGNALS
 
 from ._base import BaseSlider

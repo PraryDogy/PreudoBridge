@@ -13,7 +13,7 @@ from PyQt5.QtCore import QByteArray, Qt
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget
 
-from cfg import GRID_SPACING, PIXMAP_SIZE, THUMB_WIDTH, JsonData
+from cfg import GRID_SPACING, THUMB_WIDTH, JsonData
 
 psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
 psd_logger = logging.getLogger("psd_tools")

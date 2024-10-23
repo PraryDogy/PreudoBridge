@@ -2,7 +2,7 @@ import os
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeyEvent, QMouseEvent
-from PyQt5.QtWidgets import QFrame, QGridLayout, QWidget
+from PyQt5.QtWidgets import QFrame, QGridLayout, QWidget, QSpacerItem, QSizePolicy
 
 from cfg import GRID_SPACING, Config, JsonData
 from signals import SIGNALS
@@ -33,6 +33,10 @@ class Grid(BaseGrid):
         self.grid_layout.setSpacing(GRID_SPACING)
         self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
         self.setWidget(main_wid)
+
+    def add_row_spacer(self, row: int, col: int):
+        spacer = QSpacerItem(0, 0, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.grid_layout.addItem(spacer, row, col)
 
     def select_new_widget(self, data: tuple | str | Thumb):
 
