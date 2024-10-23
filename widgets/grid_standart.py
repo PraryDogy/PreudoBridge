@@ -257,9 +257,7 @@ class LoadFinder(QThread):
 
 class GridStandart(Grid):
     def __init__(self, width: int):
-        super().__init__()
-        self.ww = width
-
+        super().__init__(width)
         # делаем os listdir обход и по сигналу finished
         # запустится создание сетки
         # в конце создания запустится подгрузка изображений

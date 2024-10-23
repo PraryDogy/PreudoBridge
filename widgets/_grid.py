@@ -13,7 +13,7 @@ from signals import SIGNALS
 
 class Grid(BaseGrid):
 
-    def __init__(self):
+    def __init__(self, width: int):
         super().__init__()
         self.setWidgetResizable(True)
 
@@ -22,7 +22,7 @@ class Grid(BaseGrid):
         self.path_to_wid: dict[str, Thumb] = {}
         self.sorted_widgets: list[Thumb | ThumbFolder | ThumbSearch] = []
 
-        self.ww = 0
+        self.ww = width
         SIGNALS.resize_grid.connect(lambda: self.resize_grid())
 
         main_wid = QWidget()

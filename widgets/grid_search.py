@@ -186,8 +186,7 @@ class GridSearch(Grid):
     search_finished = pyqtSignal()
 
     def __init__(self, width: int, search_text: str):
-        super().__init__()
-        self.ww = width
+        super().__init__(width)
 
         self.col_count = Utils.get_clmn_count(width)
         self.row, self.col = 0, 0
