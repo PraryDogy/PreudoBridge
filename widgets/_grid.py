@@ -5,11 +5,12 @@ from PyQt5.QtGui import QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import QFrame, QGridLayout, QWidget
 
 from cfg import GRID_SPACING, Config, JsonData
+from signals import SIGNALS
 from utils import Utils
 
 from ._base import BaseGrid
 from ._thumb import Thumb, ThumbFolder, ThumbSearch
-from signals import SIGNALS
+
 
 class Grid(BaseGrid):
 

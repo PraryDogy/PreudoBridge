@@ -6,13 +6,14 @@ import sqlalchemy
 from PyQt5.QtCore import QMimeData, Qt, QUrl, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QDrag, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QLabel, QMenu,
-                             QVBoxLayout, QSizePolicy)
+                             QSizePolicy, QVBoxLayout)
 from sqlalchemy.exc import OperationalError
 
-from cfg import PIXMAP_SIZE, TEXT_LENGTH, Config, JsonData, THUMB_WIDTH
+from cfg import PIXMAP_SIZE, TEXT_LENGTH, THUMB_WIDTH, Config, JsonData
 from database import CACHE, Engine
-from utils import Utils
 from signals import SIGNALS
+from utils import Utils
+
 from .win_info import WinInfo
 
 
