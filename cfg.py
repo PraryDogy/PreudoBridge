@@ -43,7 +43,7 @@ class JsonData:
     list_view = False
     clear_db = 5
     tab_bar = 1
-    thumb_size = PIXMAP_SIZE[0]
+    pixmap_size_ind = 0
     name_label_hidden = False
 
     @classmethod

@@ -23,8 +23,7 @@ class NameLabel(QLabel):
 
     def update_name(self, rating: int, colors: str, name: str) -> list[str]:
 
-        ind = PIXMAP_SIZE.index(JsonData.thumb_size)
-        max_row = TEXT_LENGTH[ind]
+        max_row = TEXT_LENGTH[JsonData.pixmap_size_ind]
 
         name_lines = []
 
@@ -113,12 +112,12 @@ class Thumb(QFrame):
     # 210 пикселей
     def set_pixmap(self, pixmap: QPixmap):
         self.img = pixmap
-        pixmap = Utils.pixmap_scale(pixmap, JsonData.thumb_size)
+        pixmap = Utils.pixmap_scale(pixmap, PIXMAP_SIZE[JsonData.pixmap_size_ind])
         self.img_label.setPixmap(pixmap)
 
     def resize_pixmap(self):
         if isinstance(self.img, QPixmap):
-            pixmap = Utils.pixmap_scale(self.img, JsonData.thumb_size)
+            pixmap = Utils.pixmap_scale(self.img, PIXMAP_SIZE[JsonData.pixmap_size_ind])
             self.img_label.setPixmap(pixmap)
         else:
             print("thumb has no pixmap in self.img")
@@ -131,8 +130,7 @@ class Thumb(QFrame):
             self.img_label.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
             self.name_label.show()
 
-        ind = PIXMAP_SIZE.index(JsonData.thumb_size)
-        self.setFixedWidth(THUMB_WIDTH[ind])
+        self.setFixedWidth(THUMB_WIDTH[JsonData.pixmap_size_ind])
 
         # в update_name меняется длина строки в зависимости от JsonData.thumb_size
         self.name_label.update_name(self.rating, self.colors, self.name)

@@ -16,12 +16,12 @@ class CustomSlider(BaseSlider):
     def __init__(self):
         super().__init__(orientation=Qt.Orientation.Horizontal, minimum=0, maximum=3)
         self.setFixedWidth(80)
-        self.setValue(PIXMAP_SIZE.index(JsonData.thumb_size))
+        self.setValue(JsonData.pixmap_size_ind)
         self.valueChanged.connect(self.change_size)
     
     def change_size(self, value: int):
         self.setValue(value)
-        JsonData.thumb_size = PIXMAP_SIZE[value]
+        JsonData.pixmap_size_ind = value
         SIGNALS.resize_grid.emit(None)
 
 class BarBottom(QWidget):
