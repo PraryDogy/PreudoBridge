@@ -29,8 +29,6 @@ class BaseGrid(QScrollArea, BaseMethods):
 
 
 class BaseTableView(QTableView, BaseMethods):
-    level_up = pyqtSignal()
-
     def __init__(self):
         QTableView.__init__(self)
         BaseMethods.__init__(self)

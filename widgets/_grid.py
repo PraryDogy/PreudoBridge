@@ -157,9 +157,11 @@ class Grid(BaseGrid):
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         wid: Thumb | ThumbFolder 
 
+        # плюс и минус увеличить и уменьшить сетку
+
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier and a0.key() == Qt.Key.Key_Up:
             JsonData.root = os.path.dirname(JsonData.root)
-            self.level_up.emit()
+            SIGNALS.load_standart_grid.emit(None)
 
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier and a0.key() == Qt.Key.Key_Down:
             wid = self.cell_to_wid.get(self.curr_cell)
