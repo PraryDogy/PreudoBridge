@@ -12,9 +12,6 @@ class BaseMethods:
     def sort_grid(self, *args, **kwargs):
         raise Exception("Переопредели метод sort_grid")
 
-    def move_to_wid(self, *args, **kwargs):
-        raise Exception("Переопредели метод move_to_wid")
-
     def filter_grid(self, *args, **kwargs):
         raise Exception("Переопредели метод filter_grid")
 

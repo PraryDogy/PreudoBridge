@@ -70,9 +70,6 @@ class ListStandart(BaseTableView):
     def sort_grid(self, *args, **kwargs):
         ...
 
-    def move_to_wid(self, *args, **kwargs):
-        ...
-
     def filter_grid(self, *args, **kwargs):
         ...
 
