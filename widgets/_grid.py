@@ -37,6 +37,7 @@ class Grid(BaseGrid):
     def add_row_spacer(self, row: int, col: int):
         spacer = QSpacerItem(0, 0, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         self.grid_layout.addItem(spacer, row, col)
+        self.grid_layout.setRowStretch(row, 1)
 
     def select_new_widget(self, data: tuple | str | Thumb):
 
