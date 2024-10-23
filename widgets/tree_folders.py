@@ -65,11 +65,11 @@ class TreeFolders(QTreeView):
         favs: dict = JsonData.favs
         if src in favs:
             fav_action = QAction("Удалить из избранного", self)
-            fav_action.triggered.connect(SIGNALS.del_fav.emit(src))
+            fav_action.triggered.connect(lambda: SIGNALS.del_fav.emit(src))
             menu.addAction(fav_action)
         else:
             fav_action = QAction("Добавить в избранное", self)
-            fav_action.triggered.connect(SIGNALS.add_fav.emit(src))
+            fav_action.triggered.connect(lambda: SIGNALS.add_fav.emit(src))
             menu.addAction(fav_action)
 
         menu.exec_(self.mapToGlobal(event.pos()))
