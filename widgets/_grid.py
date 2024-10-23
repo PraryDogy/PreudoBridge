@@ -24,9 +24,17 @@ class Grid(BaseGrid):
         self.sorted_widgets: list[Thumb | ThumbFolder | ThumbSearch] = []
 
         self.ww = width
+
+        for sig in (SIGNALS.resize_grid, SIGNALS.sort_grid, SIGNALS.filter_grid, SIGNALS.move_to_wid):
+            try:
+                sig.disconnect()
+            except TypeError:
+                ...
+
         SIGNALS.resize_grid.connect(lambda: self.resize_grid())
         SIGNALS.sort_grid.connect(self.sort_grid)
         SIGNALS.filter_grid.connect(self.filter_grid)
+        SIGNALS.move_to_wid.connect(self.select_new_widget)
 
         main_wid = QWidget()
         self.grid_layout = QGridLayout(main_wid)
@@ -35,7 +43,6 @@ class Grid(BaseGrid):
         self.setWidget(main_wid)
 
     def select_new_widget(self, data: tuple | str | Thumb):
-
         if isinstance(data, Thumb):
             coords = data.row, data.col
             new_wid = data
@@ -49,8 +56,10 @@ class Grid(BaseGrid):
             coords = new_wid.row, new_wid.col
 
         if isinstance(new_wid, Thumb):
+
             prev_wid = self.cell_to_wid.get(self.curr_cell)
             prev_wid.set_no_frame()
+
             new_wid.set_frame()
             self.curr_cell = coords
             self.ensureWidgetVisible(new_wid)

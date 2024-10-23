@@ -15,6 +15,7 @@ from utils import Utils
 from ._grid import Thumb
 from ._svg_widgets import SvgShadowed
 from .win_info import WinInfo
+from signals import SIGNALS
 
 class Shared:
     loaded_images: dict[str, QPixmap] = {}
@@ -220,8 +221,6 @@ class NextImageBtn(SwitchImageBtn):
 
 
 class WinImgView(QWidget):
-    move_to_wid = pyqtSignal(object)
-
     def __init__(self, src: str, path_to_wid: dict[str, Thumb]):
         super().__init__()
         self.src: str = src
@@ -351,7 +350,7 @@ class WinImgView(QWidget):
 
         self.src: str = self.image_paths[new_index]
         self.wid: Thumb = self.path_to_wid.get(self.src)
-        self.move_to_wid.emit(self.wid)
+        SIGNALS.move_to_wid.emit(self.wid)
         self.load_thumbnail()
 
     def switch_img_btn(self, flag: str) -> None:

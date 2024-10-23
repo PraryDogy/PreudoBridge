@@ -58,7 +58,6 @@ class NameLabel(QLabel):
 
 
 class Thumb(QFrame):
-    move_to_wid = pyqtSignal(object)
     clicked = pyqtSignal()
 
     def __init__(self, src: str, size: int, mod: int, path_to_wid: dict[str, QLabel]):
@@ -214,7 +213,6 @@ class Thumb(QFrame):
         from .win_img_view import WinImgView
         self.win = WinImgView(self.src, self.path_to_wid)
         Utils.center_win(parent=Utils.get_main_win(), child=self.win)
-        self.win.move_to_wid.connect(self.move_to_wid.emit)
         self.win.show()
 
     def open_in_app(self, app_path: str):

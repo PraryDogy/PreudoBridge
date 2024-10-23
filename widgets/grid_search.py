@@ -200,7 +200,6 @@ class GridSearch(Grid):
         wid.set_colors_from_db(widget_data.colors)
         wid.set_rating_from_db(widget_data.rating)
 
-        wid.move_to_wid.connect(lambda w: self.select_new_widget(w))
         wid.clicked.connect(lambda w=wid: self.select_new_widget(w))
 
         self.add_widget_data(wid, self.row, self.col)
@@ -218,10 +217,6 @@ class GridSearch(Grid):
     def sort_grid(self):
         if not self.search_thread.isRunning():
             super().sort_grid()
-
-    def move_to_wid(self, width):
-        if not self.search_thread.isRunning():
-            print("search move to wid")
 
     def filter_grid(self):
         if not self.search_thread.isRunning():

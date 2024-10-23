@@ -282,7 +282,6 @@ class GridStandart(Grid):
                 wid.set_pixmap(pixmap)
                 wid.set_colors_from_db(colors)
                 wid.set_rating_from_db(rating)
-                wid.move_to_wid.connect(lambda w: self.select_new_widget(w))
                 src_size_mod.append((src, size, mod))
 
             wid.clicked.connect(lambda w=wid: self.select_new_widget(w))

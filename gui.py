@@ -150,7 +150,7 @@ class SimpleFileExplorer(QWidget):
     def move_to_wid_delayed(self, filepath: str):
         JsonData.root = os.path.dirname(filepath)
         self.load_standart_grid()
-        QTimer.singleShot(2000, lambda: self.grid.select_new_widget(filepath))
+        QTimer.singleShot(1500, lambda: self.grid.select_new_widget(filepath))
 
     def load_standart_grid(self, root: str = None):
         if root:
