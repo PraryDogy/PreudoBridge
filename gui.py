@@ -74,14 +74,12 @@ class SimpleFileExplorer(QWidget):
         splitter_wid.addWidget(right_wid)
         splitter_wid.setStretchFactor(1, 1)
 
-        # self.r_lay = QVBoxLayout()
         self.r_lay = QGridLayout()
         self.r_lay.setContentsMargins(0, 0, 0, 0)
         self.r_lay.setSpacing(0)
         right_wid.setLayout(self.r_lay)
         
         self.bar_top = BarTop()
-        self.bar_top.advanced_btn._clicked.connect(self.open_path_btn_cmd)
         self.r_lay.addWidget(self.bar_top, 0, 0, alignment=Qt.AlignmentFlag.AlignTop)
         
         self.bar_bottom = BarBottom()
@@ -104,11 +102,12 @@ class SimpleFileExplorer(QWidget):
         SIGNALS.load_standart_grid.connect(self.load_standart_grid)
         SIGNALS.load_search_grid.connect(self.load_search_grid)
         SIGNALS.search_finished.connect(self.search_finished)
-        SIGNALS.show_in_folder.connect(lambda filepath: self.move_to_wid_delayed(filepath))
+        SIGNALS.show_in_folder.connect(self.move_to_wid_delayed)
+        SIGNALS.open_path.connect(self.open_path_cmd)
 
         self.load_standart_grid()
 
-    def open_path_btn_cmd(self, filepath: str):
+    def open_path_cmd(self, filepath: str):
         if not os.path.exists(filepath):
             return
 

@@ -369,8 +369,6 @@ class FiltersBtn(QPushButton):
 
 
 class WinGo(QWidget):
-    _closed = pyqtSignal(str)
-
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Перейти к ...")
@@ -390,10 +388,10 @@ class WinGo(QWidget):
 
         go_btn = QPushButton("Перейти")
         go_btn.setFixedWidth(130)
-        go_btn.clicked.connect(self._open_path_btn_cmd)
+        go_btn.clicked.connect(self.open_path_btn_cmd)
         v_lay.addWidget(go_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
-    def _open_path_btn_cmd(self):
+    def open_path_btn_cmd(self):
         path: str = self.input_wid.text()
 
         if not path:
@@ -406,11 +404,11 @@ class WinGo(QWidget):
             self.close()
         else:
             self.path_thread = PathFinderThread(path)
-            self.path_thread._finished.connect(self._finalize)
+            self.path_thread._finished.connect(self.finalize)
             self.path_thread.start()
 
-    def _finalize(self, res: str):
-        self._closed.emit(res)
+    def finalize(self, res: str):
+        SIGNALS.open_path.emit(res)
         self.close()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
@@ -420,8 +418,6 @@ class WinGo(QWidget):
     
 
 class AdvancedBtn(QPushButton):
-    _clicked = pyqtSignal(str)
-
     def __init__(self):
         super().__init__("...")
         self.setFixedWidth(55)
@@ -439,7 +435,6 @@ class AdvancedBtn(QPushButton):
     
     def open_go_win(self):
         self.win = WinGo()
-        self.win._closed.connect(self._clicked.emit)
         Utils.center_win(Utils.get_main_win(), self.win)
         self.win.show()
 
