@@ -35,9 +35,12 @@ class SimpleFileExplorer(QWidget):
     def __init__(self):
         super().__init__()
         self.setMinimumWidth(200)
-        SIGNALS.load_standart_grid.connect(self.load_standart_grid)
-
         self.grid: Grid = Grid()
+
+        SIGNALS.load_standart_grid.connect(self.load_standart_grid)
+        SIGNALS.load_search_grid.connect(self.load_search_grid)
+        SIGNALS.sort_grid.connect(self.grid.sort_grid)
+        SIGNALS.filter_grid.connect(self.grid.filter_grid)
 
         ww, hh = JsonData.ww, JsonData.hh
         self.resize(ww, hh)
@@ -85,15 +88,15 @@ class SimpleFileExplorer(QWidget):
         
         self.bar_top = BarTop()
 
-        self.bar_top.sort_type_btn._clicked.connect(lambda: self.grid.sort_grid(self.get_grid_width()))
-        self.bar_top.filters_btn._clicked.connect(lambda: self.grid.filter_grid(self.get_grid_width()))
+        self.bar_top.sort_type_btn._clicked.connect(lambda: self.grid.sort_grid())
+        self.bar_top.filters_btn._clicked.connect(lambda: self.grid.filter_grid())
         self.bar_top.advanced_btn._clicked.connect(self.open_path_btn_cmd)
-        self.bar_top.search_wid.start_search.connect(self.grid_search_load)
+        self.bar_top.search_wid.start_search.connect(self.load_search_grid)
 
         self.r_lay.addWidget(self.bar_top, 0, 0, alignment=Qt.AlignmentFlag.AlignTop)
         
         self.bar_bottom = BarBottom()
-        self.bar_bottom.resize_grid.connect(lambda: self.grid.resize_grid(self.get_grid_width()))
+        self.bar_bottom.resize_grid.connect(lambda: self.grid.resize_grid())
         self.r_lay.addWidget(self.bar_bottom, 2, 0, alignment=Qt.AlignmentFlag.AlignBottom)
 
         self.load_standart_grid()
@@ -123,7 +126,7 @@ class SimpleFileExplorer(QWidget):
             JsonData.root = filepath
             self.load_standart_grid()
 
-    def grid_search_load(self, search_text: str):
+    def load_search_grid(self, search_text: str):
         self.bar_top.view_type_btn.setCurrentIndex(0)
         JsonData.list_view = False
         self.bar_top.filters_btn.reset_filters()
@@ -150,7 +153,7 @@ class SimpleFileExplorer(QWidget):
     def search_finished(self, search_text: str):
         self.migaet_timer.stop()
         self.setWindowTitle(f"🟢\tРезультаты поиска: \"{search_text}\"")
-        self.grid.sort_grid(self.get_grid_width())
+        self.grid.sort_grid()
 
     def move_to_wid_delayed(self, filepath: str):
         JsonData.root = os.path.dirname(filepath)

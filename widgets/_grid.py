@@ -23,7 +23,7 @@ class Grid(BaseGrid):
         self.sorted_widgets: list[Thumb | ThumbFolder | ThumbSearch] = []
 
         self.ww = 0
-        SIGNALS.resize_grid.connect(lambda: self.resize_grid(self.ww))
+        SIGNALS.resize_grid.connect(lambda: self.resize_grid())
 
         main_wid = QWidget()
         self.grid_layout = QGridLayout(main_wid)
@@ -67,7 +67,7 @@ class Grid(BaseGrid):
                 wid.set_rating_from_db(rating_data.get(rating))
                 self.select_new_widget(self.curr_cell)
 
-    def sort_grid(self, width: int):
+    def sort_grid(self):
         if not self.sorted_widgets:
             return
 
@@ -88,9 +88,9 @@ class Grid(BaseGrid):
             if isinstance(wid, Thumb)
             }
         
-        self.rearrange_grid(width)
+        self.rearrange_grid()
 
-    def filter_grid(self, width: int):
+    def filter_grid(self):
         for wid in self.sorted_widgets:
             show_widget = True
 
@@ -109,23 +109,26 @@ class Grid(BaseGrid):
                 wid.must_hidden = True
                 wid.hide()
 
-        self.rearrange_grid(width)
+        self.rearrange_grid()
 
-    def resize_grid(self, width: int):
+    def resize_grid(self):
         for wid in self.sorted_widgets:
             wid.resize()
             wid.resize_pixmap()
-        self.rearrange_grid(width)
+        self.rearrange_grid()
 
-    def rearrange_grid(self, width: int):
-        # когда меняется размер сетки, этот метод отвечает за перетасовку
+    def rearrange_grid(self, width: int = None):
+        # когда меняется размер окна, этот метод отвечает за перетасовку
         # виджетов, поэтому отсюда мы отсылаем в инициатор self.ww
-        self.ww = width
+        if width:
+            self.ww = width
+            col_count = Utils.get_clmn_count(width)
+        else:
+            col_count = Utils.get_clmn_count(self.ww)
 
         self.reset_selection()
         self.cell_to_wid.clear()
 
-        col_count = Utils.get_clmn_count(width)
         row, col = 0, 0
 
         for wid in self.sorted_widgets:
@@ -148,7 +151,6 @@ class Grid(BaseGrid):
         self.cell_to_wid[row, col] = wid
         self.path_to_wid[wid.src] = wid
         self.sorted_widgets.append(wid)
-
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         wid: Thumb | ThumbFolder 
