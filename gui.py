@@ -172,7 +172,7 @@ class SimpleFileExplorer(QWidget):
         self.grid_standart_load()
         QTimer.singleShot(2000, lambda: self.grid.select_new_widget(filepath))
 
-    def grid_standart_load(self, root: str = None, src: str = None):
+    def grid_standart_load(self, root: str = None):
         if root:
             JsonData.root = root
 
@@ -199,17 +199,13 @@ class SimpleFileExplorer(QWidget):
         else:
             self.grid = GridStandart(width=self.get_grid_width())
             self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
+
             self.grid.progressbar_start.connect(self.bar_bottom.progressbar_start.emit)
             self.grid.progressbar_value.connect(self.bar_bottom.progressbar_value.emit)
-
             self.grid.add_fav.connect(self.add_fav_cmd)
             self.grid.del_fav.connect(lambda root: self.folders_fav_wid.del_item(root))
             self.grid.clicked_folder.connect(lambda root: self.grid_standart_load(root=root))
-
             self.grid.level_up.connect(self.grid_standart_load)
-
-            if src:
-                QTimer.singleShot(2000, lambda: self.grid.select_new_widget(src))
 
         self.r_lay.addWidget(self.grid, 1, 0)
         self.grid.setFocus()
