@@ -129,15 +129,6 @@ class SimpleFileExplorer(QWidget):
         JsonData.root = root
         self.grid_standart_load()
 
-    def bar_top_setDisabled(self, b: bool):
-        self.bar_top.back_btn.setDisabled(b)
-        self.bar_top.next_btn.setDisabled(b)
-        self.bar_top.level_up_btn.setDisabled(b)
-        self.bar_top.advanced_btn.setDisabled(b)
-        self.bar_top.sort_type_btn.setDisabled(b)
-        self.bar_top.filters_btn.setDisabled(b)
-        self.bar_top.view_type_btn.setDisabled(b)
-
     def view_folder_cmd(self, root: str):
         JsonData.root = root
         self.grid_standart_load()
@@ -168,7 +159,6 @@ class SimpleFileExplorer(QWidget):
     def grid_search_load(self, search_text: str):
         self.bar_top.view_type_btn.setCurrentIndex(0)
         JsonData.list_view = False
-        self.bar_top_setDisabled(True)
         self.bar_top.filters_btn.reset_filters()
 
         self.grid.progressbar_value.emit(1000000)
@@ -196,8 +186,6 @@ class SimpleFileExplorer(QWidget):
         self.migaet_timer.stop()
         self.setWindowTitle(f"🟢\tРезультаты поиска: \"{search_text}\"")
         self.grid.sort_grid(self.get_grid_width())
-        self.bar_top_setDisabled(False)
-        self.bar_top.view_type_btn.setDisabled(True)
 
     def move_to_wid_delayed(self, filepath: str):
         JsonData.root = os.path.dirname(filepath)
@@ -213,7 +201,6 @@ class SimpleFileExplorer(QWidget):
 
         self.bar_top.search_wid.clear_search.emit()
         self.bar_top.update_history()
-        self.bar_top_setDisabled(False)
         self.bar_top.filters_btn.reset_filters()
 
         self.bar_bottom.create_path_label()
@@ -223,8 +210,6 @@ class SimpleFileExplorer(QWidget):
         if JsonData.list_view:
             self.grid = ListStandart()
             self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
-            self.bar_top.sort_type_btn.setDisabled(True)
-            self.bar_top.filters_btn.setDisabled(True)
 
             self.grid.add_to_favs_clicked.connect(self.add_fav_cmd)
             self.grid.del_favs_clicked.connect(self.del_fav_cmd)

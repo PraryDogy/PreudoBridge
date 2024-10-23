@@ -230,6 +230,22 @@ class GridSearch(Grid):
         if not self.search_thread.isRunning():
             super().rearrange_grid(width)
     
+    def sort_grid(self, width: int):
+        if not self.search_thread.isRunning():
+            super().sort_grid(width)
+
+    def move_to_wid(self, width):
+        if not self.search_thread.isRunning():
+            super().sort_grid(width)
+
+    def filter_grid(self, width):
+        if not self.search_thread.isRunning():
+            super().sort_grid(width)
+
+    def resize_grid(self, width):
+        if not self.search_thread.isRunning():
+            super().sort_grid(width)
+
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         try:
             self.search_thread.disconnect()
