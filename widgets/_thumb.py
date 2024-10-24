@@ -147,14 +147,11 @@ class Thumb(ThumbVars, QFrame):
         pixmap = Utils.pixmap_scale(pixmap, IMG_LABEL_W_H[JsonData.thumb_w_h_ind])
         self.img_label.setPixmap(pixmap)
 
-    def resize_pixmap(self):
+    def resize(self):
         if isinstance(self.img, QPixmap):
             pixmap = Utils.pixmap_scale(self.img, IMG_LABEL_W_H[JsonData.thumb_w_h_ind])
             self.img_label.setPixmap(pixmap)
-        else:
-            print("thumb has no pixmap in self.img")
 
-    def resize(self):
         main_w = THUMB_W[JsonData.thumb_w_h_ind]
         main_h = THUMB_H[JsonData.thumb_w_h_ind]
         self.setFixedSize(main_w, main_h)
@@ -259,7 +256,7 @@ class Thumb(ThumbVars, QFrame):
         else:
             temp_colors = self.colors.replace(color, "")
 
-        update_db: bool = self.update_data_db(temp_colors, self.rating)
+        update_db: bool = self.update_data_db(colors = temp_colors)
 
         if update_db:
             self.colors = temp_colors
@@ -295,7 +292,7 @@ class Thumb(ThumbVars, QFrame):
         if rate == 1:
             rate = 0
 
-        update_db = self.update_data_db(self.colors, rate)
+        update_db = self.update_data_db(rating=rate)
 
         if update_db:
             self.rating = rate
@@ -312,7 +309,10 @@ class Thumb(ThumbVars, QFrame):
         self.rating = rating or self.rating
         self.set_text()
 
-    def update_data_db(self, colors: str, rating: int):
+    def update_data_db(self, colors: str = None, rating: int = None):
+        colors = self.colors if colors is None else colors
+        rating = self.rating if rating is None else rating
+
         upd_stmt = sqlalchemy.update(CACHE)
         upd_stmt = upd_stmt.where(CACHE.c.src == self.src).values(colors=colors, rating=rating)
 
@@ -369,7 +369,9 @@ class Thumb(ThumbVars, QFrame):
 
 
 class ThumbFolder(Thumb):
-    def __init__(self, src: str, size: int, mod: int, path_to_wid: dict[str, QLabel]):
+    def __init__(self, src: str = None, size: int = None, mod: int = None,
+                 path_to_wid: dict[str, QLabel] = None):
+
         super().__init__(src, size, mod, path_to_wid)
 
     def fav_cmd(self, offset: int):
@@ -423,7 +425,8 @@ class ThumbFolder(Thumb):
 
  
 class ThumbSearch(Thumb):
-    def __init__(self, src: str, size: int, mod: int, path_to_wid: dict[str, QLabel]):
+    def __init__(self, src: str = None, size: int = None, mod: int = None,
+                 path_to_wid: dict[str, QLabel] = None):
         super().__init__(src, size, mod, path_to_wid)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:

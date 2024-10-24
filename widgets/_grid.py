@@ -78,7 +78,7 @@ class Grid(BaseGrid):
         rating_data = {48: 0, 49: 1, 50: 2, 51: 3, 52: 4, 53: 5}
         wid: Thumb = self.cell_to_wid.get(self.curr_cell)
         if isinstance(wid, Thumb):
-            if wid.update_data_db(wid.colors, rating_data.get(rating)):
+            if wid.update_data_db(rating=rating_data.get(rating)):
                 wid.set_colors_rating_db(wid.colors, rating_data.get(rating))
                 self.select_new_widget(self.curr_cell)
 
@@ -129,7 +129,6 @@ class Grid(BaseGrid):
     def resize_grid(self):
         for wid in self.sorted_widgets:
             wid.resize()
-            wid.resize_pixmap()
         self.rearrange_grid()
 
     def rearrange_grid(self, width: int = None):
