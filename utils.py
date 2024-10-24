@@ -174,7 +174,7 @@ class Utils:
 
     @classmethod
     def get_clmn_count(cls, width: int):
-        w = THUMB_W[JsonData.pixmap_size_ind] + GRID_SPACING
+        w = THUMB_W[JsonData.thumb_w_h_ind] + GRID_SPACING
         return (width + 150) // w
 
     @classmethod

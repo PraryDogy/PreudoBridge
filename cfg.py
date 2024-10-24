@@ -19,10 +19,14 @@ ORDER: dict[str, dict] = {
 IMG_SIZE: int = 210
 
 # ширина Pixmap в Thumb
-IMG_LABEL_SIDE: list = [90, 130, 170, IMG_SIZE]
-NAME_LABEL_H: list = [50 for i in range(0, len(IMG_LABEL_SIDE))]
-THUMB_H: list = [IMG_LABEL_SIDE[i] + NAME_LABEL_H[i] + 10 for i in range(0, len(IMG_LABEL_SIDE))]
-THUMB_W: list = [i + 30 for i in IMG_LABEL_SIDE]
+NAME_LABEL_H: int = 35
+COLOR_LABEL_H: int = 15
+IMG_LABEL_W_H: list = [90, 130, 170, IMG_SIZE]
+THUMB_W: list = [i + 30 for i in IMG_LABEL_W_H]
+THUMB_H: list = [
+                IMG_LABEL_W_H[i] + NAME_LABEL_H + COLOR_LABEL_H + 10
+                for i in range(0, len(IMG_LABEL_W_H))
+                ]
 
 # ширина текста Thumb исходя из THUMB_W
 TEXT_LENGTH: list = [15, 21, 26, 32]
@@ -43,7 +47,7 @@ class JsonData:
     list_view = False
     clear_db = 5
     tab_bar = 1
-    pixmap_size_ind = 0
+    thumb_w_h_ind = 0
     name_label_hidden = False
 
     @classmethod

@@ -9,8 +9,8 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QLabel, QMenu,
                              QVBoxLayout)
 from sqlalchemy.exc import OperationalError
 
-from cfg import (IMG_LABEL_SIDE, NAME_LABEL_H, TEXT_LENGTH, THUMB_H, THUMB_W,
-                 Config, JsonData)
+from cfg import (COLOR_LABEL_H, IMG_LABEL_W_H, NAME_LABEL_H, TEXT_LENGTH,
+                 THUMB_H, THUMB_W, Config, JsonData)
 from database import CACHE, Engine
 from signals import SIGNALS
 from utils import Utils
@@ -66,22 +66,20 @@ class ThumbVars:
 
 
 class NameLabel(QLabel):
+    star = "\U00002605"
+
     def __init__(self):
         super().__init__()
 
-    def update_name(self, wid: ThumbVars) -> list[str]:
-        # получается метод вызывается когда устанавливается изображение в виджете
-
-        colors: str = wid.colors
-        rating: str = wid.rating
+    def set_text(self, wid: ThumbVars) -> list[str]:
         name: str | list = wid.name
 
         # Максимальная длина строки исходя из ширины pixmap в Thumb
-        max_row = TEXT_LENGTH[JsonData.pixmap_size_ind]
+        max_row = TEXT_LENGTH[JsonData.thumb_w_h_ind]
         
         # Разбиение имени на строки в зависимости от длины
         if len(name) > max_row:
-            if colors:
+            if wid.rating > 0:
                 # Если есть цветные теги, имя в одну строку
                 name = [f"{name[:max_row - 10]}...{name[-7:]}"]
             else:
@@ -96,23 +94,22 @@ class NameLabel(QLabel):
         else:
             name = [name]
 
-        if rating > 0:
-            name.append("\U00002605" * rating)
-        
-        if colors:
-            name.append(colors)
+        if wid.rating > 0:
+            name.append(self.star * wid.rating)
 
-        # if len(name) < 2:
-        #     name.append(wid.f_size)
-
-        # if len(name) < 3:
-        #     name.append(wid.f_mod)
-
-        while len(name) < 3:
+        while len(name) < 2:
             name.append("")
 
-        # name = sorted(name, key=len, reverse=True)
         self.setText("\n".join(name))
+
+
+class ColorLabel(QLabel):
+    def __init__(self):
+        super().__init__()
+        self.setStyleSheet("font-size: 10px;")
+
+    def set_text(self, wid: ThumbVars):
+        self.setText(wid.colors)
 
 
 class Thumb(ThumbVars, QFrame):
@@ -130,11 +127,15 @@ class Thumb(ThumbVars, QFrame):
 
         self.img_label = QLabel()
         self.img_label.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
-        v_lay.addWidget(self.img_label, alignment=Qt.AlignmentFlag.AlignTop)
+        v_lay.addWidget(self.img_label)
 
         self.name_label = NameLabel()
         self.name_label.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
-        v_lay.addWidget(self.name_label, alignment=Qt.AlignmentFlag.AlignTop)
+        v_lay.addWidget(self.name_label)
+
+        self.color_label = ColorLabel()
+        self.color_label.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
+        v_lay.addWidget(self.color_label)
 
         self.setObjectName("thumbnail")
         self.set_no_frame()
@@ -143,35 +144,28 @@ class Thumb(ThumbVars, QFrame):
     # 210 пикселей
     def set_pixmap(self, pixmap: QPixmap):
         self.img = pixmap
-        pixmap = Utils.pixmap_scale(pixmap, IMG_LABEL_SIDE[JsonData.pixmap_size_ind])
+        pixmap = Utils.pixmap_scale(pixmap, IMG_LABEL_W_H[JsonData.thumb_w_h_ind])
         self.img_label.setPixmap(pixmap)
 
     def resize_pixmap(self):
         if isinstance(self.img, QPixmap):
-            pixmap = Utils.pixmap_scale(self.img, IMG_LABEL_SIDE[JsonData.pixmap_size_ind])
+            pixmap = Utils.pixmap_scale(self.img, IMG_LABEL_W_H[JsonData.thumb_w_h_ind])
             self.img_label.setPixmap(pixmap)
         else:
             print("thumb has no pixmap in self.img")
 
     def resize(self):
-        # ширина как у IMG_LABEL_SIDE + 30 для отступа
-        # высота IMG_LABEL_SIDE + NAME_LABEL_H + 10 для отступа
-        main_w = THUMB_W[JsonData.pixmap_size_ind]
-        main_h = THUMB_H[JsonData.pixmap_size_ind]
+        main_w = THUMB_W[JsonData.thumb_w_h_ind]
+        main_h = THUMB_H[JsonData.thumb_w_h_ind]
         self.setFixedSize(main_w, main_h)
 
-        # ширина виджета как у thumb чтобы не было смещений по горизонтали
-        # высота задана в cfg размер в IMG_LABEL_SIDE
-        img_label_side = IMG_LABEL_SIDE[JsonData.pixmap_size_ind]
+        img_label_side = IMG_LABEL_W_H[JsonData.thumb_w_h_ind]
         self.img_label.setFixedSize(main_w, img_label_side)
 
-        # ширина виджета как у thumb чтобы не было смещений по горизонтали
-        # высота задана в cfg размер в NAME_LABEL_H
-        name_label_h = NAME_LABEL_H[JsonData.pixmap_size_ind]
-        self.name_label.setFixedSize(main_w, name_label_h)
+        self.name_label.setFixedSize(main_w, NAME_LABEL_H)
+        self.name_label.set_text(self)
 
-        # в update_name меняется длина строки в зависимости от JsonData.thumb_size
-        self.name_label.update_name(self)
+        self.color_label.setFixedSize(main_w, COLOR_LABEL_H)
 
         # self.img_label.setStyleSheet("background: gray;")
         # self.name_label.setStyleSheet("background: black;")
@@ -271,7 +265,7 @@ class Thumb(ThumbVars, QFrame):
             self.colors = temp_colors
             key = lambda x: list(Config.COLORS.keys()).index(x)
             self.colors = ''.join(sorted(self.colors, key=key))
-            self.update_name()
+            self.set_text()
 
             for item in menu.children():
                 item: QAction
@@ -292,9 +286,10 @@ class Thumb(ThumbVars, QFrame):
         text = [i for i in text if i]
         return "\n".join(text)
 
-    def update_name(self):
+    def set_text(self):
         self.setToolTip(self.get_info())
-        self.name_label.update_name(self)
+        self.name_label.set_text(self)
+        self.color_label.set_text(self)
 
     def rating_click(self, menu: QMenu, wid: QAction, rate: int):
         if rate == 1:
@@ -304,7 +299,7 @@ class Thumb(ThumbVars, QFrame):
 
         if update_db:
             self.rating = rate
-            self.update_name()
+            self.set_text()
 
             for i in menu.children():
                 i: QAction
@@ -315,7 +310,7 @@ class Thumb(ThumbVars, QFrame):
     def set_colors_rating_db(self, colors: str = None, rating: int = None):
         self.colors = colors or self.colors
         self.rating = rating or self.rating
-        self.update_name()
+        self.set_text()
 
     def update_data_db(self, colors: str, rating: int):
         upd_stmt = sqlalchemy.update(CACHE)
