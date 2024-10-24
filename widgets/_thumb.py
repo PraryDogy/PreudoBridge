@@ -18,11 +18,58 @@ from utils import Utils
 from .win_info import WinInfo
 
 
+class ThumbVars:
+    def __init__(
+            self, src: str = None,
+            size: int = None,
+            mod: int = None,
+            path_to_wid: dict[str, QLabel] = None
+            ):
+
+        super().__init__()
+  
+        ############################################################
+        # path_to_wid для просмотрщика, must_hidden для фильтрации сетки
+        self.path_to_wid: dict[str, QLabel] = {} if path_to_wid is None else path_to_wid
+        self.src: str = "" if src is None else src
+        self.must_hidden: bool = False
+        ############################################################
+        # Данные аттрибуты должны соответстовать ключам в ORDER
+        # так как по этим аттрибутам будет совершаться сортировка сетки
+        # и фильтрация
+        # в Grid ниже будет совершена проверка
+        self.name: str = os.path.split(self.src)[-1]
+        self.type: str = os.path.splitext(self.src)[-1]
+        self.size: int = 0 if size is None else size
+        self.mod: int = 0 if mod is None else mod
+        self.colors: str = ""
+        self.rating: int = 0
+        ############################################################
+        # для навигации по сетке
+        self.row, self.col = 0, 0
+        ############################################################
+        # при изменении размера мы берем это изображение 210 пикселей
+        self.img: QPixmap = None
+        ############################################################
+        _size = round(self.size / (1024**2), 2)
+        if _size < 1000:
+            self.f_size = f"{_size} МБ"
+        else:
+            _size = round(self.size / (1024**3), 2)
+            self.f_size = f"{_size} ГБ"
+
+        if self.mod:
+            str_date = datetime.datetime.fromtimestamp(self.mod).replace(microsecond=0)
+            self.f_mod: str = str_date.strftime("%d.%m.%Y %H-%M")
+        else:
+            self.f_mod = ""
+
+
 class NameLabel(QLabel):
     def __init__(self):
         super().__init__()
 
-    def update_name(self, wid: QFrame) -> list[str]:
+    def update_name(self, wid: ThumbVars) -> list[str]:
         # получается метод вызывается когда устанавливается изображение в виджете
 
         colors: str = wid.colors
@@ -68,49 +115,11 @@ class NameLabel(QLabel):
         self.setText("\n".join(name))
 
 
-class Thumb(QFrame):
+class Thumb(ThumbVars, QFrame):
     clicked = pyqtSignal()
 
     def __init__(self, src: str = None, size: int = None, mod: int = None, path_to_wid: dict[str, QLabel] = None):
-        super().__init__()
-  
-        ############################################################
-        # path_to_wid для просмотрщика, must_hidden для фильтрации сетки
-        self.path_to_wid: dict[str, QLabel] = {} if path_to_wid is None else path_to_wid
-        self.src: str = "" if src is None else src
-        self.must_hidden: bool = False
-        ############################################################
-        # Данные аттрибуты должны соответстовать ключам в ORDER
-        # так как по этим аттрибутам будет совершаться сортировка сетки
-        # и фильтрация
-        # в Grid ниже будет совершена проверка
-        self.name: str = os.path.split(self.src)[-1]
-        self.type: str = os.path.splitext(self.src)[-1]
-        self.size: int = 0 if size is None else size
-        self.mod: int = 0 if mod is None else mod
-        self.colors: str = ""
-        self.rating: int = 0
-        ############################################################
-        # для навигации по сетке
-        self.row, self.col = 0, 0
-        ############################################################
-        # при изменении размера мы берем это изображение 210 пикселей
-        self.img: QPixmap = None
-        ############################################################
-
-        _size = round(self.size / (1024**2), 2)
-        if _size < 1000:
-            self.f_size = f"{_size} МБ"
-        else:
-            _size = round(self.size / (1024**3), 2)
-            self.f_size = f"{_size} ГБ"
-
-        if self.mod:
-            str_date = datetime.datetime.fromtimestamp(self.mod).replace(microsecond=0)
-            self.f_mod: str = str_date.strftime("%d.%m.%Y %H-%M")
-        else:
-            self.f_mod = ""
-
+        super().__init__(src, size, mod, path_to_wid)
         margin = 0
 
         v_lay = QVBoxLayout()
