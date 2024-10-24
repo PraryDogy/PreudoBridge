@@ -130,13 +130,7 @@ class WinSettings(QWidget):
         separator.setFixedWidth(self.width() - 40)
         separator.setFrameShape(QFrame.HLine)  # Горизонтальный разделитель
         separator.setFrameShadow(QFrame.Sunken)  # Внешний вид (утопленный)
-        main_lay.addWidget(separator)
-
-        # thumb_type_title = QLabel("Вид")
-        # main_lay.addWidget(thumb_type_title)
-
-        # self.name_label_hidden = NameLabelHidden()
-        # main_lay.addWidget(self.name_label_hidden)
+        main_lay.addWidget(separator, alignment=Qt.AlignmentFlag.AlignCenter)
 
         main_lay.addStretch()
 
