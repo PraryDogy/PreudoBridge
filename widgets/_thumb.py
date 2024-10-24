@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QLabel, QMenu,
                              QVBoxLayout)
 from sqlalchemy.exc import OperationalError
 
-from cfg import (COLOR_LABEL_H, IMG_LABEL_W_H, NAME_LABEL_H, TEXT_LENGTH,
+from cfg import (COLOR_LABEL_H, PIXMAP_SIZE, NAME_LABEL_H, TEXT_LENGTH,
                  THUMB_H, THUMB_W, Config, JsonData)
 from database import CACHE, Engine
 from signals import SIGNALS
@@ -160,19 +160,19 @@ class Thumb(QFrame, ThumbVars):
     # 210 пикселей
     def set_pixmap(self, pixmap: QPixmap):
         self.img = pixmap
-        pixmap = Utils.pixmap_scale(pixmap, IMG_LABEL_W_H[JsonData.thumb_w_h_ind])
+        pixmap = Utils.pixmap_scale(pixmap, PIXMAP_SIZE[JsonData.thumb_w_h_ind])
         self.img_label.setPixmap(pixmap)
 
     def setup(self):
         if isinstance(self.img, QPixmap):
-            pixmap = Utils.pixmap_scale(self.img, IMG_LABEL_W_H[JsonData.thumb_w_h_ind])
+            pixmap = Utils.pixmap_scale(self.img, PIXMAP_SIZE[JsonData.thumb_w_h_ind])
             self.img_label.setPixmap(pixmap)
 
         main_w = THUMB_W[JsonData.thumb_w_h_ind]
         main_h = THUMB_H[JsonData.thumb_w_h_ind]
         self.setFixedSize(main_w, main_h)
 
-        img_label_side = IMG_LABEL_W_H[JsonData.thumb_w_h_ind]
+        img_label_side = PIXMAP_SIZE[JsonData.thumb_w_h_ind]
         self.img_label.setFixedSize(main_w, img_label_side)
 
         self.name_label.setFixedSize(main_w, NAME_LABEL_H)

@@ -15,20 +15,17 @@ ORDER: dict[str, dict] = {
         "rating": {"text": "Рейтинг", "index": 5},
         }
 
-# это базовое значение Pixmap которые улетают в базу данных
+_MAR = 15
 IMG_SIZE: int = 210
-
-# ширина Pixmap в Thumb
 NAME_LABEL_H: int = 35
 COLOR_LABEL_H: int = 15
-IMG_LABEL_W_H: list = [90, 130, 170, IMG_SIZE]
-THUMB_W: list = [i + 30 for i in IMG_LABEL_W_H]
+PIXMAP_SIZE: list = [90, 130, 170, IMG_SIZE]
+THUMB_W: list = [i + _MAR for i in PIXMAP_SIZE]
 THUMB_H: list = [
-                IMG_LABEL_W_H[i] + NAME_LABEL_H + COLOR_LABEL_H + 10
-                for i in range(0, len(IMG_LABEL_W_H))
+                PIXMAP_SIZE[i] + NAME_LABEL_H + COLOR_LABEL_H + _MAR
+                for i in range(0, len(PIXMAP_SIZE))
                 ]
 
-# ширина текста Thumb исходя из THUMB_W
 TEXT_LENGTH: list = [15, 21, 26, 32]
 
 # расстояние в сетке
