@@ -15,7 +15,7 @@ ORDER: dict[str, dict] = {
         "rating": {"text": "Рейтинг", "index": 5},
         }
 
-_MAR = 15
+_MAR = 23
 IMG_SIZE: int = 210
 NAME_LABEL_H: int = 35
 COLOR_LABEL_H: int = 15
@@ -45,7 +45,6 @@ class JsonData:
     clear_db = 5
     tab_bar = 1
     thumb_w_h_ind = 0
-    name_label_hidden = False
 
     @classmethod
     def get_data(cls):

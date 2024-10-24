@@ -110,7 +110,7 @@ class NameLabel(QLabel):
 class ColorLabel(QLabel):
     def __init__(self):
         super().__init__()
-        self.setStyleSheet("font-size: 10px;")
+        self.setStyleSheet("font-size: 9px;")
 
     def set_text(self, wid: ThumbVars):
         self.setText(wid.colors)
@@ -176,10 +176,8 @@ class Thumb(QFrame, ThumbVars):
         self.img_label.setFixedSize(main_w, img_label_side)
 
         self.name_label.setFixedSize(main_w, NAME_LABEL_H)
-        self.name_label.set_text(self)
-
         self.color_label.setFixedSize(main_w, COLOR_LABEL_H)
-        self.color_label.set_text(self)
+        self.set_text()
 
         # self.img_label.setStyleSheet("background: gray;")
         # self.name_label.setStyleSheet("background: black;")

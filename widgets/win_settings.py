@@ -58,12 +58,10 @@ class NameLabelHidden(QWidget):
         info_view_lay.addWidget(text_label, alignment=Qt.AlignmentFlag.AlignBottom)
         info_view.setObjectName("sett_thumb")
 
-        if JsonData.name_label_hidden:
-            self.set_frame(simple_view)
-            print(1)
-        else:
-            self.set_frame(info_view)
-            print(2)
+        # if JsonData.name_label_hidden:
+        #     self.set_frame(simple_view)
+        # else:
+        #     self.set_frame(info_view)
 
     def set_frame(self, wid: QLabel):
         wid.setStyleSheet(f""" #sett_thumb {{ background: {Config.GRAY}; border-radius: 4px; }}""")
@@ -74,7 +72,7 @@ class NameLabelHidden(QWidget):
     def select_widget(self, wid: QWidget, b: bool):
         self.deselect_widgets()
         self.set_frame(wid)
-        JsonData.name_label_hidden = b
+        # JsonData.name_label_hidden = b
         Config.write_config()
         SIGNALS.resize_grid.emit()
 
