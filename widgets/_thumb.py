@@ -101,17 +101,16 @@ class Thumb(QFrame):
 
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(margin, margin, margin, margin)
+        v_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
         v_lay.setSpacing(margin)
         self.setLayout(v_lay)
 
         self.img_label = QLabel()
         self.img_label.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
-        self.img_label.setContentsMargins(margin, margin, margin, margin)
         v_lay.addWidget(self.img_label)
 
         self.name_label = NameLabel()
         self.name_label.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignBottom)
-        self.name_label.setContentsMargins(margin, margin, margin, margin)
         v_lay.addWidget(self.name_label)
 
         self.setObjectName("thumbnail")
@@ -132,13 +131,15 @@ class Thumb(QFrame):
             print("thumb has no pixmap in self.img")
 
     def resize(self):
-        w = THUMB_WIDTH[JsonData.pixmap_size_ind]
-        h = THUMB_HEIGHT[JsonData.pixmap_size_ind]
-        self.setFixedSize(w, h)
+        main_w = THUMB_WIDTH[JsonData.pixmap_size_ind]
+        main_h = THUMB_HEIGHT[JsonData.pixmap_size_ind]
+        self.setFixedSize(main_w, main_h)
 
         # фиксированный размер img_label чтобы текст не смещал его туда сюда
-        side = PIXMAP_SIZE[JsonData.pixmap_size_ind]
-        self.img_label.setFixedSize(side, side)
+        img_label_h = PIXMAP_SIZE[JsonData.pixmap_size_ind]
+        self.img_label.setFixedSize(img_label_h, img_label_h)
+
+        self.name_label.setFixedHeight(main_h - img_label_h)
 
         if JsonData.name_label_hidden:
             self.name_label.hide()
