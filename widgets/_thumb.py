@@ -155,7 +155,7 @@ class Thumb(QFrame, ThumbVars):
 
         self.setObjectName("thumbnail")
         self.set_no_frame()
-        self.resize()
+        self.setup()
 
     # 210 пикселей
     def set_pixmap(self, pixmap: QPixmap):
@@ -163,7 +163,7 @@ class Thumb(QFrame, ThumbVars):
         pixmap = Utils.pixmap_scale(pixmap, IMG_LABEL_W_H[JsonData.thumb_w_h_ind])
         self.img_label.setPixmap(pixmap)
 
-    def resize(self):
+    def setup(self):
         if isinstance(self.img, QPixmap):
             pixmap = Utils.pixmap_scale(self.img, IMG_LABEL_W_H[JsonData.thumb_w_h_ind])
             self.img_label.setPixmap(pixmap)
@@ -179,6 +179,7 @@ class Thumb(QFrame, ThumbVars):
         self.name_label.set_text(self)
 
         self.color_label.setFixedSize(main_w, COLOR_LABEL_H)
+        self.color_label.set_text(self)
 
         # self.img_label.setStyleSheet("background: gray;")
         # self.name_label.setStyleSheet("background: black;")

@@ -128,7 +128,7 @@ class Grid(BaseGrid):
 
     def resize_grid(self):
         for wid in self.sorted_widgets:
-            wid.resize()
+            wid.setup()
         self.rearrange_grid()
 
     def rearrange_grid(self, width: int = None):
