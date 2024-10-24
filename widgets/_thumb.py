@@ -6,10 +6,11 @@ import sqlalchemy
 from PyQt5.QtCore import QMimeData, Qt, QUrl, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QDrag, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QLabel, QMenu,
-                             QSizePolicy, QVBoxLayout)
+                             QVBoxLayout)
 from sqlalchemy.exc import OperationalError
 
-from cfg import IMG_LABEL_SIDE, TEXT_LENGTH, THUMB_W, THUMB_H, NAME_LABEL_H, Config, JsonData
+from cfg import (IMG_LABEL_SIDE, NAME_LABEL_H, TEXT_LENGTH, THUMB_H, THUMB_W,
+                 Config, JsonData)
 from database import CACHE, Engine
 from signals import SIGNALS
 from utils import Utils
