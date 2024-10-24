@@ -140,7 +140,8 @@ class Thumb(QFrame):
         # ширина виджета как у thumb чтобы не было смещений по горизонтали
         # высота задана в cfg размер в IMG_LABEL_SIDE
         img_label_side = IMG_LABEL_SIDE[JsonData.pixmap_size_ind]
-        self.img_label.setFixedSize(main_w, img_label_side)
+        self.img_label.setFixedSize(main_w - 10, img_label_side)
+        # self.img_label.setStyleSheet("background: black;")
 
         # ширина виджета как у thumb чтобы не было смещений по горизонтали
         # высота задана в cfg размер в NAME_LABEL_H
