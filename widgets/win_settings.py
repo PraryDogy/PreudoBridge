@@ -90,7 +90,7 @@ class WinSettings(QWidget):
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowCloseButtonHint)
         self.setWindowTitle("Настройки")
-        self.setFixedSize(350, 400)
+        self.setFixedSize(350, 150)
 
         main_lay = QVBoxLayout()
         main_lay.setContentsMargins(10, 10, 10, 10)
@@ -127,15 +127,16 @@ class WinSettings(QWidget):
         self.update_label(ind)
 
         separator = QFrame()
+        separator.setFixedWidth(self.width() - 40)
         separator.setFrameShape(QFrame.HLine)  # Горизонтальный разделитель
         separator.setFrameShadow(QFrame.Sunken)  # Внешний вид (утопленный)
         main_lay.addWidget(separator)
 
-        thumb_type_title = QLabel("Вид")
-        main_lay.addWidget(thumb_type_title)
+        # thumb_type_title = QLabel("Вид")
+        # main_lay.addWidget(thumb_type_title)
 
-        self.name_label_hidden = NameLabelHidden()
-        main_lay.addWidget(self.name_label_hidden)
+        # self.name_label_hidden = NameLabelHidden()
+        # main_lay.addWidget(self.name_label_hidden)
 
         main_lay.addStretch()
 
