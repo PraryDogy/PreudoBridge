@@ -51,19 +51,24 @@ class NameLabel(QLabel):
 
                 name = [first_part, second_part]
 
-        if rating > 0:
-            name_lines.append("\U00002605" * rating)
-
-        if colors:
-            name_lines.append(colors)
-
         # Добавляем текстовые строки
         if isinstance(name, str):
             name_lines.append(name)
         else:
-            name_lines.extend(name[:2])  # Добавляем до 2 строк текста
+            name_lines.extend(name)
 
-        # Устанавливаем текст, исключая пустые строки
+        if rating > 0:
+            name_lines.append("\U00002605" * rating)
+        else:
+            name_lines.append("")
+
+        if colors:
+            name_lines.append(colors)
+        else:
+            if len(name_lines) == 2:
+                name_lines.append("")
+
+        name_lines = sorted(name_lines, key=lambda x: len(x), reverse=1)
         self.setText("\n".join(name_lines))
 
 
@@ -106,12 +111,12 @@ class Thumb(QFrame):
         self.setLayout(v_lay)
 
         self.img_label = QLabel()
-        self.img_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        v_lay.addWidget(self.img_label)
+        self.img_label.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
+        v_lay.addWidget(self.img_label, alignment=Qt.AlignmentFlag.AlignTop)
 
         self.name_label = NameLabel()
-        self.name_label.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignBottom)
-        v_lay.addWidget(self.name_label)
+        self.name_label.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
+        v_lay.addWidget(self.name_label, alignment=Qt.AlignmentFlag.AlignTop)
 
         self.setObjectName("thumbnail")
         self.set_no_frame()
@@ -140,21 +145,18 @@ class Thumb(QFrame):
         # ширина виджета как у thumb чтобы не было смещений по горизонтали
         # высота задана в cfg размер в IMG_LABEL_SIDE
         img_label_side = IMG_LABEL_SIDE[JsonData.pixmap_size_ind]
-        self.img_label.setFixedSize(main_w - 10, img_label_side)
-        # self.img_label.setStyleSheet("background: black;")
+        self.img_label.setFixedSize(main_w, img_label_side)
 
         # ширина виджета как у thumb чтобы не было смещений по горизонтали
         # высота задана в cfg размер в NAME_LABEL_H
         name_label_h = NAME_LABEL_H[JsonData.pixmap_size_ind]
         self.name_label.setFixedSize(main_w, name_label_h)
 
-        if JsonData.name_label_hidden:
-            self.name_label.hide()
-        else:
-            self.name_label.show()
-
         # в update_name меняется длина строки в зависимости от JsonData.thumb_size
         self.name_label.update_name(self.rating, self.colors, self.name)
+
+        # self.img_label.setStyleSheet("background: gray;")
+        # self.name_label.setStyleSheet("background: black;")
 
     def set_frame(self):
         self.setStyleSheet(f""" #thumbnail {{ background: {Config.GRAY}; border-radius: 4px; }}""")
