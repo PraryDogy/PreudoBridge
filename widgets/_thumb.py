@@ -68,23 +68,23 @@ class NameLabel(QLabel):
 class Thumb(QFrame):
     clicked = pyqtSignal()
 
-    def __init__(self, src: str = "", size: int = 0, mod: int = 0, path_to_wid: dict[str, QLabel] = {}):
+    def __init__(self, src: str = None, size: int = None, mod: int = None, path_to_wid: dict[str, QLabel] = None):
         super().__init__()
   
         ############################################################
         # path_to_wid для просмотрщика, must_hidden для фильтрации сетки
-        self.path_to_wid: dict[str, QLabel] = path_to_wid or {}
-        self.src: str = src
+        self.path_to_wid: dict[str, QLabel] = {} if path_to_wid is None else path_to_wid
+        self.src: str = "" if src is None else src
         self.must_hidden: bool = False
         ############################################################
         # Данные аттрибуты должны соответстовать ключам в ORDER
         # так как по этим аттрибутам будет совершаться сортировка сетки
         # и фильтрация
         # в Grid ниже будет совершена проверка
-        self.name: str = os.path.split(src)[-1]
-        self.type: str = os.path.splitext(src)[-1]
-        self.size: int = size
-        self.mod: int = mod
+        self.name: str = os.path.split(self.src)[-1]
+        self.type: str = os.path.splitext(self.src)[-1]
+        self.size: int = 0 if size is None else size
+        self.mod: int = 0 if mod is None else mod
         self.colors: str = ""
         self.rating: int = 0
         ############################################################
