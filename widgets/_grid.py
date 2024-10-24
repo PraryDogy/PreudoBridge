@@ -79,7 +79,7 @@ class Grid(BaseGrid):
         wid: Thumb = self.cell_to_wid.get(self.curr_cell)
         if isinstance(wid, Thumb):
             if wid.update_data_db(wid.colors, rating_data.get(rating)):
-                wid.set_rating_from_db(rating_data.get(rating))
+                wid.set_colors_rating_db(wid.colors, rating_data.get(rating))
                 self.select_new_widget(self.curr_cell)
 
     def sort_grid(self):

@@ -64,20 +64,16 @@ class NameLabel(QLabel):
         name = sorted(name, key=len, reverse=True)
         self.setText("\n".join(name))
 
-class Test:
-    count = 0
 
 class Thumb(QFrame):
     clicked = pyqtSignal()
 
-    def __init__(self, src: str, size: int, mod: int, path_to_wid: dict[str, QLabel]):
+    def __init__(self, src: str = "", size: int = 0, mod: int = 0, path_to_wid: dict[str, QLabel] = {}):
         super().__init__()
-
-        Test.count += 1
   
         ############################################################
         # path_to_wid для просмотрщика, must_hidden для фильтрации сетки
-        self.path_to_wid: dict[str, QLabel] = path_to_wid
+        self.path_to_wid: dict[str, QLabel] = path_to_wid or {}
         self.src: str = src
         self.must_hidden: bool = False
         ############################################################

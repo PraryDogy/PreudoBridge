@@ -52,7 +52,7 @@ class ListStandart(BaseTableView):
             SIGNALS.load_standart_grid.emit(path)
 
         elif path_lower.endswith(Config.IMG_EXT):
-            thumbnail = Thumb("", 0, 0, {})
+            thumbnail = Thumb()
             self.win = WinImgView(path, {path: thumbnail})
             self.win.show()
 
