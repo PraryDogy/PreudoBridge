@@ -86,7 +86,7 @@ class Grid(BaseGrid):
         if not self.sorted_widgets:
             return
 
-        if not hasattr(Thumb("", 0, 0, {}), JsonData.sort):
+        if not hasattr(Thumb(), JsonData.sort):
             print("_grid.py > sort_grid > Thumb не имеет атрибута из JsonData.sort")
             quit()
 
