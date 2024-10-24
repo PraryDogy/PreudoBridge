@@ -271,16 +271,25 @@ class GridStandart(Grid):
         for name, size, mod, type, colors, rating, src in finder_items:
 
             if os.path.isdir(src):
-                wid = ThumbFolder(src=src)
-                pixmap = QPixmap("images/folder_210.png")
-                wid.set_pixmap(pixmap)
-                wid.set_colors_rating_db()
+                wid = ThumbFolder(
+                    src=src,
+                    colors=colors,
+                    rating=rating,
+                    size=size,
+                    mod=mod,
+                    pixmap=QPixmap("images/folder_210.png")
+                    )
 
             else:
-                wid = Thumb(src, size, mod, self.path_to_wid)
-                pixmap = QPixmap("images/file_210.png")
-                wid.set_pixmap(pixmap)
-                wid.set_colors_rating_db(colors, rating)
+                wid = Thumb(
+                    src=src, 
+                    size=size, 
+                    mod=mod, 
+                    colors=colors,
+                    rating=rating,
+                    pixmap=QPixmap("images/file_210.png"),
+                    path_to_wid=self.path_to_wid
+                    )
                 src_size_mod.append((src, size, mod))
 
             wid.clicked.connect(lambda w=wid: self.select_new_widget(w))
@@ -330,7 +339,7 @@ class GridStandart(Grid):
         widget = self.path_to_wid.get(image_data.src)
         if isinstance(widget, Thumb):
             if isinstance(image_data.pixmap, QPixmap):
-                widget.set_pixmap(image_data.pixmap)
+                widget.set_pixmap(pixmap=image_data.pixmap)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         # когда убивается этот виджет, все треды безопасно завершатся

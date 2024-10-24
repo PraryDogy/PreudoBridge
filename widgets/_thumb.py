@@ -20,9 +20,13 @@ from .win_info import WinInfo
 
 class ThumbVars:
     def __init__(
-            self, src: str = None,
+            self,
+            src: str = None,
             size: int = None,
             mod: int = None,
+            colors: str = None,
+            rating: int = None,
+            pixmap: QPixmap = None,
             path_to_wid: dict[str, QLabel] = None
             ):
 
@@ -42,14 +46,14 @@ class ThumbVars:
         self.type: str = os.path.splitext(self.src)[-1]
         self.size: int = 0 if size is None else size
         self.mod: int = 0 if mod is None else mod
-        self.colors: str = ""
-        self.rating: int = 0
+        self.colors: str = "" if colors is None else colors
+        self.rating: int = 0 if rating is None else rating
         ############################################################
         # для навигации по сетке
         self.row, self.col = 0, 0
         ############################################################
         # при изменении размера мы берем это изображение 210 пикселей
-        self.img: QPixmap = None
+        self.img: QPixmap = pixmap
         ############################################################
         _size = round(self.size / (1024**2), 2)
         if _size < 1000:
@@ -112,11 +116,23 @@ class ColorLabel(QLabel):
         self.setText(wid.colors)
 
 
-class Thumb(ThumbVars, QFrame):
+class Thumb(QFrame, ThumbVars):
     clicked = pyqtSignal()
 
-    def __init__(self, src: str = None, size: int = None, mod: int = None, path_to_wid: dict[str, QLabel] = None):
-        super().__init__(src, size, mod, path_to_wid)
+    def __init__(
+            self,
+            src: str = None,
+            size: int = None,
+            mod: int = None,
+            colors: str = None,
+            rating: int = None,
+            pixmap: QPixmap = None,
+            path_to_wid: dict[str, QLabel] = None
+            ):
+
+        QFrame.__init__(self)
+        ThumbVars.__init__(self, src, size, mod, colors, rating, pixmap, path_to_wid)
+
         margin = 0
 
         v_lay = QVBoxLayout()
@@ -369,10 +385,18 @@ class Thumb(ThumbVars, QFrame):
 
 
 class ThumbFolder(Thumb):
-    def __init__(self, src: str = None, size: int = None, mod: int = None,
-                 path_to_wid: dict[str, QLabel] = None):
+    def __init__(
+            self, 
+            src: str = None, 
+            size: int = None, 
+            mod: int = None, 
+            colors: str = None, 
+            rating: int = None, 
+            pixmap: QPixmap = None, 
+            path_to_wid: dict[str, QLabel] = None
+            ):
 
-        super().__init__(src, size, mod, path_to_wid)
+        super().__init__(src, size, mod, colors, rating, pixmap, path_to_wid)
 
     def fav_cmd(self, offset: int):
         self.fav_action.triggered.disconnect()
@@ -425,9 +449,18 @@ class ThumbFolder(Thumb):
 
  
 class ThumbSearch(Thumb):
-    def __init__(self, src: str = None, size: int = None, mod: int = None,
-                 path_to_wid: dict[str, QLabel] = None):
-        super().__init__(src, size, mod, path_to_wid)
+    def __init__(
+        self, 
+        src: str = None, 
+        size: int = None, 
+        mod: int = None, 
+        colors: str = None,
+        rating: int = None,
+        pixmap: QPixmap = None,
+        path_to_wid: dict[str, QLabel] = None
+        ):
+
+        super().__init__(src, size, mod, colors, rating, pixmap, path_to_wid)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         self.clicked.emit()

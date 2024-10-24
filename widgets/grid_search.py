@@ -194,13 +194,17 @@ class GridSearch(Grid):
         self.search_thread.start()
 
     def add_new_widget(self, widget_data: WidgetData):
-        wid = ThumbSearch(widget_data.src, widget_data.size, widget_data.mod, self.path_to_wid)
-
-        wid.set_pixmap(widget_data.pixmap)
-        wid.set_colors_rating_db(widget_data.colors, widget_data.rating)
+        wid = ThumbSearch(
+            src=widget_data.src,
+            size=widget_data.size,
+            mod=widget_data.mod,
+            pixmap=widget_data.pixmap,
+            colors=widget_data.colors,
+            rating=widget_data.rating,
+            path_to_wid=self.path_to_wid
+            )
 
         wid.clicked.connect(lambda w=wid: self.select_new_widget(w))
-
         self.add_widget_data(wid, self.row, self.col)
         self.grid_layout.addWidget(wid, self.row, self.col)
 
