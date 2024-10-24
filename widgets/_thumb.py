@@ -104,6 +104,7 @@ class Thumb(QFrame):
         self.name_label.setContentsMargins(margin, margin, margin, margin)
         v_lay.addWidget(self.name_label)
 
+        self.setObjectName("thumbnail")
         self.set_no_frame()
         self.resize()
 
@@ -126,10 +127,10 @@ class Thumb(QFrame):
         self.setFixedSize(w, h)
 
         if JsonData.name_label_hidden:
-            self.img_label.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
+            # self.img_label.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
             self.name_label.hide()
         else:
-            self.img_label.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+            # self.img_label.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
             self.name_label.show()
 
         # в update_name меняется длина строки в зависимости от JsonData.thumb_size
@@ -137,12 +138,10 @@ class Thumb(QFrame):
         self.adjustSize()
 
     def set_frame(self):
-        self.img_label.setStyleSheet(f"background: {Config.GRAY}; border-radius: 4px;")
-        self.name_label.setStyleSheet(f"background: {Config.GRAY}; border-radius: 4px;")
+        self.setStyleSheet(f""" #thumbnail {{ background: {Config.GRAY}; border-radius: 4px; }}""")
 
     def set_no_frame(self):
-        self.img_label.setStyleSheet("")
-        self.name_label.setStyleSheet("")
+        self.setStyleSheet("")
 
     def add_base_actions(self, context_menu: QMenu):
         view_action = QAction("Просмотр", self)
