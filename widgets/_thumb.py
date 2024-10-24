@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QLabel, QMenu,
                              QSizePolicy, QVBoxLayout)
 from sqlalchemy.exc import OperationalError
 
-from cfg import PIXMAP_SIZE, TEXT_LENGTH, THUMB_WIDTH, THUMB_HEIGHT, Config, JsonData
+from cfg import IMG_LABEL_SIDE, TEXT_LENGTH, THUMB_W, THUMB_H, NAME_LABEL_H, Config, JsonData
 from database import CACHE, Engine
 from signals import SIGNALS
 from utils import Utils
@@ -97,7 +97,7 @@ class Thumb(QFrame):
         self.img: QPixmap = None
         ############################################################
 
-        margin = 4
+        margin = 0
 
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(margin, margin, margin, margin)
@@ -106,7 +106,7 @@ class Thumb(QFrame):
         self.setLayout(v_lay)
 
         self.img_label = QLabel()
-        self.img_label.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
+        self.img_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         v_lay.addWidget(self.img_label)
 
         self.name_label = NameLabel()
@@ -120,26 +120,32 @@ class Thumb(QFrame):
     # 210 пикселей
     def set_pixmap(self, pixmap: QPixmap):
         self.img = pixmap
-        pixmap = Utils.pixmap_scale(pixmap, PIXMAP_SIZE[JsonData.pixmap_size_ind])
+        pixmap = Utils.pixmap_scale(pixmap, IMG_LABEL_SIDE[JsonData.pixmap_size_ind])
         self.img_label.setPixmap(pixmap)
 
     def resize_pixmap(self):
         if isinstance(self.img, QPixmap):
-            pixmap = Utils.pixmap_scale(self.img, PIXMAP_SIZE[JsonData.pixmap_size_ind])
+            pixmap = Utils.pixmap_scale(self.img, IMG_LABEL_SIDE[JsonData.pixmap_size_ind])
             self.img_label.setPixmap(pixmap)
         else:
             print("thumb has no pixmap in self.img")
 
     def resize(self):
-        main_w = THUMB_WIDTH[JsonData.pixmap_size_ind]
-        main_h = THUMB_HEIGHT[JsonData.pixmap_size_ind]
+        # ширина как у IMG_LABEL_SIDE + 30 для отступа
+        # высота IMG_LABEL_SIDE + NAME_LABEL_H + 10 для отступа
+        main_w = THUMB_W[JsonData.pixmap_size_ind]
+        main_h = THUMB_H[JsonData.pixmap_size_ind]
         self.setFixedSize(main_w, main_h)
 
-        # фиксированный размер img_label чтобы текст не смещал его туда сюда
-        img_label_h = PIXMAP_SIZE[JsonData.pixmap_size_ind]
-        self.img_label.setFixedSize(img_label_h, img_label_h)
+        # ширина виджета как у thumb чтобы не было смещений по горизонтали
+        # высота задана в cfg размер в IMG_LABEL_SIDE
+        img_label_side = IMG_LABEL_SIDE[JsonData.pixmap_size_ind]
+        self.img_label.setFixedSize(main_w, img_label_side)
 
-        self.name_label.setFixedHeight(main_h - img_label_h)
+        # ширина виджета как у thumb чтобы не было смещений по горизонтали
+        # высота задана в cfg размер в NAME_LABEL_H
+        name_label_h = NAME_LABEL_H[JsonData.pixmap_size_ind]
+        self.name_label.setFixedSize(main_w, name_label_h)
 
         if JsonData.name_label_hidden:
             self.name_label.hide()
@@ -148,7 +154,6 @@ class Thumb(QFrame):
 
         # в update_name меняется длина строки в зависимости от JsonData.thumb_size
         self.name_label.update_name(self.rating, self.colors, self.name)
-        self.adjustSize()
 
     def set_frame(self):
         self.setStyleSheet(f""" #thumbnail {{ background: {Config.GRAY}; border-radius: 4px; }}""")

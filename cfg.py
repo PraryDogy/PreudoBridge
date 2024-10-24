@@ -19,17 +19,16 @@ ORDER: dict[str, dict] = {
 IMG_SIZE: int = 210
 
 # ширина Pixmap в Thumb
-PIXMAP_SIZE: list = [90, 130, 170, IMG_SIZE]
+IMG_LABEL_SIDE: list = [90, 130, 170, IMG_SIZE]
+NAME_LABEL_H: list = [50 for i in range(0, len(IMG_LABEL_SIDE))]
+THUMB_H: list = [IMG_LABEL_SIDE[i] + NAME_LABEL_H[i] + 10 for i in range(0, len(IMG_LABEL_SIDE))]
+THUMB_W: list = [i + 30 for i in IMG_LABEL_SIDE]
 
-# ширина целого Thumb исходя из PIXMAP_SIZE
-THUMB_WIDTH: list = [130, 150, 170, IMG_SIZE]
-THUMB_HEIGHT: list = [180, 200, 220, 270]
-
-# ширина текста Thumb исходя из PIXMAP_SIZE
-TEXT_LENGTH: list = [15, 18, 20, 25]
+# ширина текста Thumb исходя из THUMB_W
+TEXT_LENGTH: list = [15, 21, 26, 32]
 
 # расстояние в сетке
-GRID_SPACING = 1
+GRID_SPACING = 5
 
 class JsonData:
     root = "/Volumes"
