@@ -27,7 +27,7 @@ class NameLabel(QLabel):
 
         colors: str = wid.colors
         rating: str = wid.rating
-        name: str = wid.name
+        name: str | list = wid.name
 
         # Максимальная длина строки исходя из ширины pixmap в Thumb
         max_row = TEXT_LENGTH[JsonData.pixmap_size_ind]
@@ -59,10 +59,16 @@ class NameLabel(QLabel):
         if colors:
             name.append(colors)
 
+        # if len(name) < 2:
+        #     name.append(wid.f_size)
+
+        # if len(name) < 3:
+        #     name.append(wid.f_mod)
+
         while len(name) < 3:
             name.append("")
 
-        name = sorted(name, key=len, reverse=True)
+        # name = sorted(name, key=len, reverse=True)
         self.setText("\n".join(name))
 
 
@@ -95,6 +101,19 @@ class Thumb(QFrame):
         # при изменении размера мы берем это изображение 210 пикселей
         self.img: QPixmap = None
         ############################################################
+
+        _size = round(self.size / (1024**2), 2)
+        if _size < 1000:
+            self.f_size = f"{_size} МБ"
+        else:
+            _size = round(self.size / (1024**3), 2)
+            self.f_size = f"{_size} ГБ"
+
+        if self.mod:
+            str_date = datetime.datetime.fromtimestamp(self.mod).replace(microsecond=0)
+            self.f_mod: str = str_date.strftime("%d.%m.%Y %H-%M")
+        else:
+            self.f_mod = ""
 
         margin = 0
 
@@ -255,27 +274,13 @@ class Thumb(QFrame):
                     item.setChecked(True)
 
     def get_info(self) -> str:
-        _size = round(self.size / (1024**2), 2)
-        if _size < 1000:
-            f_size = f"{_size} МБ"
-        else:
-            _size = round(self.size / (1024**3), 2)
-            f_size = f"{_size} ГБ"
-
         rating = "\U00002605" * self.rating
-
-        if self.mod:
-            mod = datetime.datetime.fromtimestamp(self.mod).replace(microsecond=0)
-            mod = mod.strftime("%d.%m.%Y %H-%M")
-        else:
-            mod = ""
-
         text = [
             f"Имя: {self.name}",
             f"Тип: {self.type}" if self.type else f"Тип: папка",
             f"Путь: {self.src}",
-            f"Размер: {f_size}" if self.size > 0 else "",
-            f"Изменен: {mod}" if mod else "",
+            f"Размер: {self.f_size}" if self.size > 0 else "",
+            f"Изменен: {self.f_mod}" if self.f_mod else "",
             f"Рейтинг: {rating}" if rating else "",
             f"Цвета: {self.colors}" if self.colors else ""
             ]
