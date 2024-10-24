@@ -31,10 +31,6 @@ class NameLabel(QLabel):
 
         # Максимальная длина строки исходя из ширины pixmap в Thumb
         max_row = TEXT_LENGTH[JsonData.pixmap_size_ind]
-
-        # nnm, ext = os.path.splitext(name)
-        # if not ext:
-        #     print(wid.__dict__)
         
         # Разбиение имени на строки в зависимости от длины
         if len(name) > max_row:
