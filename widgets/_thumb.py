@@ -22,28 +22,38 @@ class NameLabel(QLabel):
         super().__init__()
 
     def update_name(self, rating: int, colors: str, name: str) -> list[str]:
+        # максимальная длина строки исходя из ширины pixmap в Thumb
         max_row = TEXT_LENGTH[JsonData.pixmap_size_ind]
-
         name_lines = []
 
-        # Проверяем длину текста и обрезаем, если нужно
         if len(name) > max_row:
-            first_part = name[:max_row]
-            second_part = name[max_row:]
+            # если есть цветные теги то имя файла в 1 строку
+            if colors:
+                # разрезаем имя
+                # было: very_long_name.jpg
+                # стало: very_lo...ame.jpg
+                name_start = name[:max_row - 10]
+                name_end = name[-7:]
+                name = [name_start + "..." + name_end]
+            
+            # если нет цветных тегов то имя файла может быть в 2 строки
+            else:
+                first_part = name[:max_row]
+                second_part = name[max_row:]
 
-            if len(second_part) > max_row:
-                # Обрезаем вторую часть строки с учётом места для троеточия и расширения
-                name_start = second_part[:max_row - 10]  # 4 символа расширения + 3 символа перед расширением + 3 для троеточия
-                name_end = second_part[-7:]  # 3 символа перед расширением + 4 символа расширения
-                second_part = name_start + "..." + name_end
+                if len(second_part) > max_row:
+                    # разрезаем вторую строку
+                    # было: very_long_name.jpg
+                    # стало: very_lo...ame.jpg
+                    name_start = second_part[:max_row - 10]
+                    name_end = second_part[-7:]
+                    second_part = name_start + "..." + name_end
 
-            name = [first_part, second_part]
+                name = [first_part, second_part]
 
-        # Добавляем рейтинг, если задан
         if rating > 0:
             name_lines.append("\U00002605" * rating)
 
-        # Добавляем цвета, если заданы
         if colors:
             name_lines.append(colors)
 
