@@ -34,7 +34,7 @@ class Grid(BaseGrid):
             except TypeError:
                 ...
 
-        SIGNALS.resize_grid.connect(lambda: self.resize_grid())
+        SIGNALS.resize_grid.connect(self.resize_grid)
         SIGNALS.sort_grid.connect(self.sort_grid)
         SIGNALS.filter_grid.connect(self.filter_grid)
         SIGNALS.move_to_wid.connect(self.select_new_widget)
@@ -174,7 +174,7 @@ class Grid(BaseGrid):
 
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier and a0.key() == Qt.Key.Key_Up:
             JsonData.root = os.path.dirname(JsonData.root)
-            SIGNALS.load_standart_grid.emit(None)
+            SIGNALS.load_standart_grid.emit("")
 
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier and a0.key() == Qt.Key.Key_Down:
             wid = self.cell_to_wid.get(self.curr_cell)

@@ -22,7 +22,7 @@ class CustomSlider(BaseSlider):
     def change_size(self, value: int):
         self.setValue(value)
         JsonData.pixmap_size_ind = value
-        SIGNALS.resize_grid.emit(None)
+        SIGNALS.resize_grid.emit()
 
 class BarBottom(QWidget):
     folder_sym = "\U0001F4C1"
@@ -97,4 +97,4 @@ class BarBottom(QWidget):
             new_path = rooted[:rooted.index(chunk) + 1]
             new_path = os.path.join(os.sep, *new_path)
             JsonData.root = new_path
-            SIGNALS.load_standart_grid.emit(None)
+            SIGNALS.load_standart_grid.emit("")

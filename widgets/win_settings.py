@@ -76,7 +76,7 @@ class NameLabelHidden(QWidget):
         self.set_frame(wid)
         JsonData.name_label_hidden = b
         Config.write_config()
-        SIGNALS.resize_grid.emit(None)
+        SIGNALS.resize_grid.emit()
 
     def deselect_widgets(self):
         for i in self.findChildren(QWidget):

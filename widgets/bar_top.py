@@ -147,7 +147,7 @@ class SortTypeBtn(QPushButton):
         JsonData.sort = data_action.sort
         JsonData.reversed = data_action.reversed
         self.setText(data_action.text)
-        SIGNALS.sort_grid.emit(None)
+        SIGNALS.sort_grid.emit()
 
 
 class ViewTypeBtn(QTabBar):
@@ -172,7 +172,7 @@ class ViewTypeBtn(QTabBar):
         else:
             self.setCurrentIndex(1)
             JsonData.list_view = True
-        SIGNALS.load_standart_grid.emit(None)
+        SIGNALS.load_standart_grid.emit("")
 
     def tabSizeHint(self, index):
         size = QTabBar.tabSizeHint(self, index)
@@ -245,7 +245,7 @@ class SearchWidget(QWidget):
         else:
             self.clear_search.emit()
             self.clear_btn.hide()
-            SIGNALS.load_standart_grid.emit(None)
+            SIGNALS.load_standart_grid.emit("")
 
     def show_templates(self, a0: QMouseEvent | None) -> None:
         self.templates_menu.exec(self.mapToGlobal(self.rect().bottomLeft()))
@@ -331,7 +331,7 @@ class FiltersBtn(QPushButton):
             widget.setStyleSheet("background: #007AFF;")
             widget.is_selected = True
 
-        SIGNALS.filter_grid.emit(None)
+        SIGNALS.filter_grid.emit()
 
     def toggle_rating(self, rate: int):
         if rate > 1:
@@ -347,7 +347,7 @@ class FiltersBtn(QPushButton):
             for i in self.rating_wids:
                 i.setStyleSheet("")
 
-        SIGNALS.filter_grid.emit(None)
+        SIGNALS.filter_grid.emit()
 
     def press_check(self):
         if self.filter_count == 0:
@@ -527,7 +527,7 @@ class BarTop(QFrame):
 
     def level_up_cmd(self):
         JsonData.root = os.path.dirname(JsonData.root)
-        SIGNALS.load_standart_grid.emit(None)
+        SIGNALS.load_standart_grid.emit("")
 
     def back_cmd(self):
         if self.current_index == 0:
