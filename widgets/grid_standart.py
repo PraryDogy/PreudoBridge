@@ -274,14 +274,13 @@ class GridStandart(Grid):
                 wid = ThumbFolder(src, 0, 0, {})
                 pixmap = QPixmap("images/folder_210.png")
                 wid.set_pixmap(pixmap)
-                wid.set_colors_from_db("")
+                wid.set_colors_rating_db()
 
             else:
                 wid = Thumb(src, size, mod, self.path_to_wid)
                 pixmap = QPixmap("images/file_210.png")
                 wid.set_pixmap(pixmap)
-                wid.set_colors_from_db(colors)
-                wid.set_rating_from_db(rating)
+                wid.set_colors_rating_db(colors, rating)
                 src_size_mod.append((src, size, mod))
 
             wid.clicked.connect(lambda w=wid: self.select_new_widget(w))

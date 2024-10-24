@@ -21,9 +21,19 @@ class NameLabel(QLabel):
     def __init__(self):
         super().__init__()
 
-    def update_name(self, rating: int, colors: str, name: str) -> list[str]:
+    def update_name(self, wid: QFrame) -> list[str]:
+        # получается метод вызывается когда устанавливается изображение в виджете
+
+        colors: str = wid.colors
+        rating: str = wid.rating
+        name: str = wid.name
+
         # Максимальная длина строки исходя из ширины pixmap в Thumb
         max_row = TEXT_LENGTH[JsonData.pixmap_size_ind]
+
+        # nnm, ext = os.path.splitext(name)
+        # if not ext:
+        #     print(wid.__dict__)
         
         # Разбиение имени на строки в зависимости от длины
         if len(name) > max_row:
@@ -54,12 +64,16 @@ class NameLabel(QLabel):
         name = sorted(name, key=len, reverse=True)
         self.setText("\n".join(name))
 
+class Test:
+    count = 0
 
 class Thumb(QFrame):
     clicked = pyqtSignal()
 
     def __init__(self, src: str, size: int, mod: int, path_to_wid: dict[str, QLabel]):
         super().__init__()
+
+        Test.count += 1
   
         ############################################################
         # path_to_wid для просмотрщика, must_hidden для фильтрации сетки
@@ -136,7 +150,7 @@ class Thumb(QFrame):
         self.name_label.setFixedSize(main_w, name_label_h)
 
         # в update_name меняется длина строки в зависимости от JsonData.thumb_size
-        self.name_label.update_name(self.rating, self.colors, self.name)
+        self.name_label.update_name(self)
 
         # self.img_label.setStyleSheet("background: gray;")
         # self.name_label.setStyleSheet("background: black;")
@@ -273,7 +287,7 @@ class Thumb(QFrame):
 
     def update_name(self):
         self.setToolTip(self.get_info())
-        self.name_label.update_name(self.rating, self.colors, self.name)
+        self.name_label.update_name(self)
 
     def rating_click(self, menu: QMenu, wid: QAction, rate: int):
         if rate == 1:
@@ -291,12 +305,9 @@ class Thumb(QFrame):
             if rate > 0:
                 wid.setChecked(True)
 
-    def set_colors_from_db(self, colors: str):
-        self.colors = colors
-        self.update_name()
-
-    def set_rating_from_db(self, rating: int):
-        self.rating = rating
+    def set_colors_rating_db(self, colors: str = None, rating: int = None):
+        self.colors = colors or self.colors
+        self.rating = rating or self.rating
         self.update_name()
 
     def update_data_db(self, colors: str, rating: int):
