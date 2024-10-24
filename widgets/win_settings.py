@@ -58,27 +58,29 @@ class NameLabelHidden(QWidget):
         info_view_lay.addWidget(text_label, alignment=Qt.AlignmentFlag.AlignBottom)
         info_view.setObjectName("sett_thumb")
 
-        if JsonData.name_label_hidden == 1:
-            self.set_white(simple_view)
+        if JsonData.name_label_hidden:
+            self.set_frame(simple_view)
+            print(1)
         else:
-            self.set_white(info_view)
+            self.set_frame(info_view)
+            print(2)
 
-    def set_transparent(self, wid: QWidget):
-        wid.setStyleSheet("#sett_thumb { border: 1px solid transparent; }")
+    def set_frame(self, wid: QLabel):
+        wid.setStyleSheet(f""" #sett_thumb {{ background: {Config.GRAY}; border-radius: 4px; }}""")
 
-    def set_white(self, wid: QWidget):
-        wid.setStyleSheet("#sett_thumb { border: 1px solid white; }")
+    def set_no_frame(self, wid: QLabel):
+        wid.setStyleSheet("")
 
     def select_widget(self, wid: QWidget, b: bool):
         self.deselect_widgets()
-        self.set_white(wid)
+        self.set_frame(wid)
         JsonData.name_label_hidden = b
         Config.write_config()
         SIGNALS.resize_grid.emit(None)
 
     def deselect_widgets(self):
         for i in self.findChildren(QWidget):
-            self.set_transparent(i)
+            self.set_no_frame(i)
 
 
 class WinSettings(QWidget):
