@@ -136,11 +136,13 @@ class Thumb(QFrame):
         h = THUMB_HEIGHT[JsonData.pixmap_size_ind]
         self.setFixedSize(w, h)
 
+        # фиксированный размер img_label чтобы текст не смещал его туда сюда
+        side = PIXMAP_SIZE[JsonData.pixmap_size_ind]
+        self.img_label.setFixedSize(side, side)
+
         if JsonData.name_label_hidden:
-            # self.img_label.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Minimum)
             self.name_label.hide()
         else:
-            # self.img_label.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
             self.name_label.show()
 
         # в update_name меняется длина строки в зависимости от JsonData.thumb_size
