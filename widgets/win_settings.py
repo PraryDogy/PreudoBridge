@@ -1,13 +1,16 @@
 
+import subprocess
+import webbrowser
+
 import sqlalchemy
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QCloseEvent, QKeyEvent
 from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QPushButton,
                              QVBoxLayout, QWidget)
 
-from cfg import Config, JsonData
+from cfg import Config, JsonData, LINK
 from database import STATS, Dbase, Engine
-import subprocess
+
 from ._base import BaseSlider
 
 
@@ -18,7 +21,7 @@ class WinSettings(QWidget):
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowCloseButtonHint)
         self.setWindowTitle("Настройки")
-        self.setFixedSize(300, 200)
+        self.setFixedSize(350, 200)
 
         main_lay = QVBoxLayout()
         main_lay.setContentsMargins(10, 10, 10, 10)
@@ -60,10 +63,21 @@ class WinSettings(QWidget):
         separator.setFrameShadow(QFrame.Sunken)  # Внешний вид (утопленный)
         main_lay.addWidget(separator, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        open_json_btn = QPushButton("Открыть файл настроек")
-        open_json_btn.setFixedWidth(200)
-        open_json_btn.clicked.connect(self.open_json)
-        main_lay.addWidget(open_json_btn)
+        h_wid = QWidget()
+        main_lay.addWidget(h_wid)
+        h_lay = QHBoxLayout()
+        h_lay.setContentsMargins(0, 15, 0, 15)
+        h_wid.setLayout(h_lay)
+
+        open_json_btn = QPushButton("Файл настроек")
+        open_json_btn.setFixedWidth(150)
+        open_json_btn.clicked.connect(lambda: subprocess.call(["open", Config.JSON_FILE]))
+        h_lay.addWidget(open_json_btn)
+
+        open_json_btn = QPushButton("Обновления")
+        open_json_btn.setFixedWidth(150)
+        open_json_btn.clicked.connect(lambda: webbrowser.open(LINK))
+        h_lay.addWidget(open_json_btn)
 
         main_lay.addStretch()
 
@@ -99,9 +113,6 @@ class WinSettings(QWidget):
     def clear_db_cmd(self):
         if Dbase.clear_db():
             self.get_current_size()
-
-    def open_json(self):
-        subprocess.call(["open", Config.JSON_FILE])
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         Config.write_config()
