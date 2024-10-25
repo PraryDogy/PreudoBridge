@@ -81,7 +81,7 @@ class NameLabel(QLabel):
         name: str | list = wid.name
 
         # Максимальная длина строки исходя из ширины pixmap в Thumb
-        max_row = TEXT_LENGTH[JsonData.thumb_w_h_ind]
+        max_row = TEXT_LENGTH[JsonData.pixmap_size_ind]
         
         # Разбиение имени на строки в зависимости от длины
         if len(name) > max_row:
@@ -102,13 +102,6 @@ class NameLabel(QLabel):
 
         if wid.rating > 0:
             name.append(self.star * wid.rating)
-
-        # если имя папки 1 строчка, то добавляется пустая строка
-        # чтобы в сетке изображение папки не плясало, как это будет
-        # если будет папка с 1 строчкой и папка с 2 строчками
-        if wid.type == "Папка" and len(name) == 1:
-            name.append("")
-
         self.setText("\n".join(name))
 
 
@@ -165,37 +158,39 @@ class Thumb(QFrame, ThumbVars):
     # 210 пикселей
     def set_pixmap(self, pixmap: QPixmap):
         self.img = pixmap
-        pixmap = Utils.pixmap_scale(pixmap, PIXMAP_SIZE[JsonData.thumb_w_h_ind])
+        pixmap = Utils.pixmap_scale(pixmap, PIXMAP_SIZE[JsonData.pixmap_size_ind])
         self.img_label.setPixmap(pixmap)
 
     def setup(self):
         if isinstance(self.img, QPixmap):
-            pixmap = Utils.pixmap_scale(self.img, PIXMAP_SIZE[JsonData.thumb_w_h_ind])
+            pixmap = Utils.pixmap_scale(self.img, PIXMAP_SIZE[JsonData.pixmap_size_ind])
             self.img_label.setPixmap(pixmap)
 
-        thumb_w = sum(
-            (THUMB_W[JsonData.thumb_w_h_ind],
-             MARGIN,
-             ))
+        row_h = 15
 
-        self.set_text()
-        self.adjustSize()
-        color_label_h = sum((self.color_label.height(), 2)) if self.colors else 0
+        thumb_w = sum((
+            THUMB_W[JsonData.pixmap_size_ind],
+            MARGIN,
+            ))
 
         thumb_h = sum((
-            self.img_label.height(),
-            self.name_label.height(),
-            color_label_h,
+            PIXMAP_SIZE[JsonData.pixmap_size_ind],
+            row_h * 2,
+            row_h,
             MARGIN,
             ))
         
+        self.set_text()
+        self.adjustSize()
+
         self.setFixedSize(thumb_w, thumb_h)
-        self.img_label.setFixedSize(thumb_w, self.img_label.height() + MARGIN // 2)
-        self.name_label.setFixedSize(thumb_w, self.name_label.height())
-        self.color_label.setFixedSize(thumb_w, color_label_h)
+        self.img_label.setFixedSize(thumb_w, PIXMAP_SIZE[JsonData.pixmap_size_ind] + 5)
+        self.name_label.setFixedSize(thumb_w, row_h * 2)
+        self.color_label.setFixedSize(thumb_w, row_h)
 
         # self.img_label.setStyleSheet("background: gray;")
         # self.name_label.setStyleSheet("background: black;")
+        # self.color_label.setStyleSheet("background: light-gray;")
 
     def set_frame(self):
         self.setStyleSheet(f""" #thumbnail {{ background: {Config.GRAY}; border-radius: 4px; }}""")
