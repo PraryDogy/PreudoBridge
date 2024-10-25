@@ -33,27 +33,30 @@ class ThumbVars:
   
         ############################################################
         # path_to_wid для просмотрщика, must_hidden для фильтрации сетки
-        self.path_to_wid: dict[str, QLabel] = {} if path_to_wid is None else path_to_wid
-        self.src: str = "" if src is None else src
         self.must_hidden: bool = False
         ############################################################
         # Данные аттрибуты должны соответстовать ключам в ORDER
         # так как по этим аттрибутам будет совершаться сортировка сетки
         # и фильтрация
         # в Grid ниже будет совершена проверка
+        self.path_to_wid: dict[str, QLabel] = {} if path_to_wid is None else path_to_wid
+        self.src: str = "" if src is None else src
         self.name: str = os.path.split(self.src)[-1]
-        self.type: str = os.path.splitext(self.src)[-1]
         self.size: int = 0 if size is None else size
         self.mod: int = 0 if mod is None else mod
         self.colors: str = "" if colors is None else colors
         self.rating: int = 0 if rating is None else rating
+        self.img: QPixmap = pixmap
         ############################################################
         # для навигации по сетке
         self.row, self.col = 0, 0
-        ############################################################
-        # при изменении размера мы берем это изображение 210 пикселей
-        self.img: QPixmap = pixmap
-        ############################################################
+
+        _type: str = os.path.splitext(self.src)[-1]
+        if _type:
+            self.type = _type
+        else:
+            self.type = "Папка"
+
         _size = round(self.size / (1024**2), 2)
         if _size < 1000:
             self.f_size = f"{_size} МБ"
@@ -99,6 +102,12 @@ class NameLabel(QLabel):
 
         if wid.rating > 0:
             name.append(self.star * wid.rating)
+
+        # если имя папки 1 строчка, то добавляется пустая строка
+        # чтобы в сетке изображение папки не плясало, как это будет
+        # если будет папка с 1 строчкой и папка с 2 строчками
+        if wid.type == "Папка" and len(name) == 1:
+            name.append("")
 
         self.setText("\n".join(name))
 
@@ -166,23 +175,24 @@ class Thumb(QFrame, ThumbVars):
 
         thumb_w = sum(
             (THUMB_W[JsonData.thumb_w_h_ind],
-             MARGIN
+             MARGIN,
              ))
 
         self.set_text()
         self.adjustSize()
+        color_label_h = sum((self.color_label.height(), 2)) if self.colors else 0
 
         thumb_h = sum((
             self.img_label.height(),
             self.name_label.height(),
-            self.color_label.height()),
-            MARGIN
-            )
+            color_label_h,
+            MARGIN,
+            ))
         
         self.setFixedSize(thumb_w, thumb_h)
-        self.img_label.setFixedSize(thumb_w, self.img_label.height() + 10)
+        self.img_label.setFixedSize(thumb_w, self.img_label.height() + MARGIN // 2)
         self.name_label.setFixedSize(thumb_w, self.name_label.height())
-        self.color_label.setFixedSize(thumb_w, self.color_label.height() + 2)
+        self.color_label.setFixedSize(thumb_w, color_label_h)
 
         # self.img_label.setStyleSheet("background: gray;")
         # self.name_label.setStyleSheet("background: black;")
@@ -293,7 +303,7 @@ class Thumb(QFrame, ThumbVars):
         rating = "\U00002605" * self.rating
         text = [
             f"Имя: {self.name}",
-            f"Тип: {self.type}" if self.type else f"Тип: папка",
+            f"Тип: {self.type}",
             f"Путь: {self.src}",
             f"Размер: {self.f_size}" if self.size > 0 else "",
             f"Изменен: {self.f_mod}" if self.f_mod else "",
