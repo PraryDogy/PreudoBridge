@@ -522,6 +522,8 @@ class BarTop(QFrame):
             JsonData.root = root
             SIGNALS.load_standart_grid.emit("")
 
+            print(self.history)
+
     def next_cmd(self):
         if self.history:
             JsonData.root = self.history[-1]
