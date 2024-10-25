@@ -171,7 +171,7 @@ class LoadImages(QThread):
 
         src = os.sep + src.strip().strip(os.sep)
         name = os.path.basename(src)
-        type = os.path.splitext(name)[-1]
+        type_ = os.path.splitext(name)[-1]
 
         insert_stmt = sqlalchemy.insert(CACHE)
         return insert_stmt.values(
@@ -180,7 +180,7 @@ class LoadImages(QThread):
             root=os.path.dirname(src),
             catalog="",
             name=name,
-            type=type,
+            type_=type_,
             size=size,
             mod=mod,
             colors="",
@@ -231,7 +231,7 @@ class LoadFinder(QThread):
     def get_items(self) -> list:
 
         order = tuple(ORDER.keys())
-        item = ("name", "type", "size", "mod", "colors", "rating")
+        item = ("name", "type_", "size", "mod", "colors", "rating")
         test = bool(item == order)
 
         if not test:
@@ -251,7 +251,7 @@ class LoadFinder(QThread):
                 stats = os.stat(src)
                 size = stats.st_size
                 mod = stats.st_mtime
-                type = os.path.splitext(name)[1]
+                type_ = os.path.splitext(name)[1]
 
                 if self.db_color_rating.get(src):
                     colors = self.db_color_rating.get(src)[0]
@@ -264,7 +264,7 @@ class LoadFinder(QThread):
                 continue
 
             # проверь соответствие с item до цикла
-            order_data = (name, type, size, mod, colors, rating)
+            order_data = (name, type_, size, mod, colors, rating)
             item: dict = {k: v for k, v in zip(ORDER.keys(), order_data)}
             item.update({"src": src})
 

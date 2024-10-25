@@ -19,7 +19,7 @@ CACHE = sqlalchemy.Table(
     sqlalchemy.Column("root", sqlalchemy.Text),
     sqlalchemy.Column("catalog", sqlalchemy.Text, nullable=False),
     sqlalchemy.Column("name", sqlalchemy.Text, comment="Имя"),
-    sqlalchemy.Column("type", sqlalchemy.Text, comment="Тип"),
+    sqlalchemy.Column("type_", sqlalchemy.Text, comment="Тип"),
     sqlalchemy.Column("size", sqlalchemy.Integer, comment="Размер"),
     sqlalchemy.Column("mod", sqlalchemy.Integer, comment="Дата"),
     sqlalchemy.Column("colors", sqlalchemy.Text, nullable=False, comment="Цвета"),

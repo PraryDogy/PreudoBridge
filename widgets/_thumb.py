@@ -52,11 +52,11 @@ class ThumbVars:
         # для навигации по сетке
         self.row, self.col = 0, 0
 
-        _type: str = os.path.splitext(self.src)[-1]
-        if _type:
-            self.type = _type
+        type_: str = os.path.splitext(self.src)[-1]
+        if type_:
+            self.type_ = type_
         else:
-            self.type = "Папка"
+            self.type_ = "Папка"
 
         _size = round(self.size / (1024**2), 2)
         if _size < 1000:
@@ -301,7 +301,7 @@ class Thumb(QFrame, ThumbVars):
         rating = "\U00002605" * self.rating
         text = [
             f"Имя: {self.name}",
-            f"Тип: {self.type}",
+            f"Тип: {self.type_}",
             f"Путь: {self.src}",
             f"Размер: {self.f_size}" if self.size > 0 else "",
             f"Изменен: {self.f_mod}" if self.f_mod else "",

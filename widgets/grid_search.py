@@ -140,7 +140,7 @@ class SearchFinder(QThread):
 
             src = os.sep + src.strip().strip(os.sep)
             name = os.path.basename(src)
-            type = os.path.splitext(name)[-1]
+            type_ = os.path.splitext(name)[-1]
 
             try:
                 insert_stmt = sqlalchemy.insert(CACHE)
@@ -150,7 +150,7 @@ class SearchFinder(QThread):
                     root=os.path.dirname(src),
                     catalog="",
                     name=name,
-                    type=type,
+                    type_=type_,
                     size=size,
                     mod=mod,
                     colors="",
