@@ -299,6 +299,7 @@ class GridStandart(Grid):
 
     def create_grid(self, finder_items: list[dict]):
         src_size_mod: list[tuple] = []
+        sys_disk = os.sep + "Macintosh HD" + os.sep
 
         col_count = Utils.get_clmn_count(self.ww)
         row, col = 0, 0
@@ -306,13 +307,17 @@ class GridStandart(Grid):
         for data in finder_items:
 
             if os.path.isdir(data.get("src")):
+                if os.path.ismount(data.get("src")) or sys_disk in data.get("src"):
+                    pixmap = QPixmap("images/disk_210.png")
+                else:
+                    pixmap = QPixmap("images/folder_210.png")
                 wid = ThumbFolder(
                     src=data.get("src"),
                     colors=data.get("colors"),
                     rating=data.get("rating"),
                     size=data.get("size"),
                     mod=data.get("mod"),
-                    pixmap=QPixmap("images/folder_210.png")
+                    pixmap=pixmap
                     )
 
             else:
