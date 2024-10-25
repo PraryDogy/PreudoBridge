@@ -102,6 +102,7 @@ class NameLabel(QLabel):
 
         if wid.rating > 0:
             name.append(self.star * wid.rating)
+
         self.setText("\n".join(name))
 
 
