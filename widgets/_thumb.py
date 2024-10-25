@@ -16,7 +16,6 @@ from utils import Utils
 
 from .win_info import WinInfo
 
-
 class ThumbVars:
     def __init__(
             self,

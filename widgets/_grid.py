@@ -5,6 +5,7 @@ from PyQt5.QtGui import QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import QFrame, QGridLayout, QWidget
 
 from cfg import GRID_SPACING, Config, JsonData
+from database import ORDER
 from signals import SIGNALS
 from utils import Utils
 
@@ -12,9 +13,21 @@ from ._base import BaseGrid
 from ._thumb import Thumb, ThumbFolder, ThumbSearch
 
 
+def thumb_order_check():
+    thumb = Thumb()
+    for k, v in ORDER.items():
+        if not hasattr(thumb, k):
+            print("""У Thumb должы быть аттрибуты, соответствующие ORDER из database для бущих сортировок""")
+            print("_grid > thumb_order_check")
+            quit()
+
+
+
 class Grid(BaseGrid):
 
     def __init__(self, width: int):
+        thumb_order_check()
+
         super().__init__()
         self.setWidgetResizable(True)
 

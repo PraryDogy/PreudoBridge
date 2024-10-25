@@ -138,7 +138,7 @@ class SearchFinder(QThread):
 
         if isinstance(db_img, bytes):
 
-            src = src.strip().strip(os.sep)
+            src = os.sep + src.strip().strip(os.sep)
             name = os.path.basename(src)
             type = os.path.splitext(name)[-1]
 

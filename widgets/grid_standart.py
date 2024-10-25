@@ -169,7 +169,7 @@ class LoadImages(QThread):
 
     def get_insert_stmt(self, img_bytes: bytes, src: str, size: int, mod: int):
 
-        src = src.strip().strip(os.sep)
+        src = os.sep + src.strip().strip(os.sep)
         name = os.path.basename(src)
         type = os.path.splitext(name)[-1]
 
