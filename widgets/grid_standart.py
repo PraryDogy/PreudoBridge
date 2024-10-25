@@ -299,7 +299,7 @@ class GridStandart(Grid):
 
     def create_grid(self, finder_items: list[dict]):
         src_size_mod: list[tuple] = []
-        sys_disk = os.sep + "Macintosh HD" + os.sep
+        sys_disk = os.sep + "Macintosh HD"
 
         col_count = Utils.get_clmn_count(self.ww)
         row, col = 0, 0
