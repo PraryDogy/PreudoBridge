@@ -24,7 +24,6 @@ CACHE = sqlalchemy.Table(
     sqlalchemy.Column("mod", sqlalchemy.Integer, comment="Дата"),
     sqlalchemy.Column("colors", sqlalchemy.Text, nullable=False, comment="Цвета"),
     sqlalchemy.Column("rating", sqlalchemy.Integer, nullable=False, comment="Рейтинг")
-
     )
 
 ORDER: dict[dict[str, int]] = {

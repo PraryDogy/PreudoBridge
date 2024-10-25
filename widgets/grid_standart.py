@@ -242,6 +242,7 @@ class LoadFinder(QThread):
                 print("Лишний элемент в item")
             else:
                 print("Новый элемент в ORDER, добавь его в item")
+            quit()
 
         for name in os.listdir(JsonData.root):
 
