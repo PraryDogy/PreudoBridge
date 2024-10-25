@@ -177,7 +177,7 @@ class Utils:
         w = sum((
             THUMB_W[JsonData.pixmap_size_ind],
             GRID_SPACING,
-            MARGIN
+            MARGIN.get("w")
             ))
         return (width + 150) // w
 

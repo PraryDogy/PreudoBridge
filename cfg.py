@@ -15,7 +15,7 @@ ORDER: dict[str, dict] = {
         "rating": {"text": "Рейтинг", "index": 5},
         }
 
-MARGIN = 25
+MARGIN: dict = {"w": 50, "h": 10}
 MAX_SIZE: int = 210
 PIXMAP_SIZE: list = [90, 130, 170, MAX_SIZE]
 THUMB_W: list = [i for i in PIXMAP_SIZE]

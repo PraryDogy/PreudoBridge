@@ -142,6 +142,7 @@ class Thumb(QFrame, ThumbVars):
 
         self.img_label = QLabel()
         self.img_label.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
+        # self.img_label.setContentsMargins(0, 10, 0, 0)
         v_lay.addWidget(self.img_label)
 
         self.name_label = NameLabel()
@@ -167,18 +168,18 @@ class Thumb(QFrame, ThumbVars):
             pixmap = Utils.pixmap_scale(self.img, PIXMAP_SIZE[JsonData.pixmap_size_ind])
             self.img_label.setPixmap(pixmap)
 
-        row_h = 15
+        row_h = 16
 
         thumb_w = sum((
             THUMB_W[JsonData.pixmap_size_ind],
-            MARGIN,
+            MARGIN.get("w"),
             ))
 
         thumb_h = sum((
             PIXMAP_SIZE[JsonData.pixmap_size_ind],
             row_h * 2,
             row_h,
-            MARGIN,
+            MARGIN.get("h"),
             ))
         
         self.set_text()
