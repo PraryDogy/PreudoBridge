@@ -39,14 +39,16 @@ class ThumbVars:
         # так как по этим аттрибутам будет совершаться сортировка сетки
         # и фильтрация
         # в Grid ниже будет совершена проверка
-        self.path_to_wid: dict[str, QLabel] = {} if path_to_wid is None else path_to_wid
+        self.img: QPixmap = pixmap
         self.src: str = "" if src is None else src
+
         self.name: str = os.path.split(self.src)[-1]
         self.size: int = 0 if size is None else size
         self.mod: int = 0 if mod is None else mod
         self.colors: str = "" if colors is None else colors
         self.rating: int = 0 if rating is None else rating
-        self.img: QPixmap = pixmap
+
+        self.path_to_wid: dict[str, QLabel] = {} if path_to_wid is None else path_to_wid
         ############################################################
         # для навигации по сетке
         self.row, self.col = 0, 0

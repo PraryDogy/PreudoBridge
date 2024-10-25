@@ -2,19 +2,6 @@ import json
 import os
 from datetime import date
 
-
-# для сортировки Thumb в сетке
-# имя каждого ключа соответствует аттрибуту Thumb
-
-ORDER: dict[str, dict] = {
-        "name": {"text": "Имя", "index": 0},
-        "size": {"text": "Размер", "index": 1},
-        "mod": {"text": "Дата", "index": 2},
-        "type": {"text": "Тип", "index": 3},
-        "colors": {"text": "Цвета", "index": 4},
-        "rating": {"text": "Рейтинг", "index": 5},
-        }
-
 MARGIN: dict = {"w": 50, "h": 10}
 MAX_SIZE: int = 210
 PIXMAP_SIZE: list = [90, 130, 170, MAX_SIZE]
@@ -28,7 +15,7 @@ class JsonData:
     hh = 700
     ww_im = 700
     hh_im = 500
-    sort = list(ORDER.keys())[0]
+    sort = "name" # database > CACHE > column "name"
     reversed = False
     extra_paths = ["/Studio/PANACEA", "/Studio/MIUZ"]
     favs = {}

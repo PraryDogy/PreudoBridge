@@ -137,15 +137,22 @@ class SearchFinder(QThread):
         db_img: bytes = Utils.image_array_to_bytes(img_array)
 
         if isinstance(db_img, bytes):
+
+            src = src.strip().strip(os.sep)
+            name = os.path.basename(src)
+            type = os.path.splitext(name)[-1]
+
             try:
                 insert_stmt = sqlalchemy.insert(CACHE)
                 insert_stmt = insert_stmt.values(
                     img=db_img,
                     src=src,
                     root=os.path.dirname(src),
+                    catalog="",
+                    name=name,
+                    type=type,
                     size=size,
                     mod=mod,
-                    catalog="",
                     colors="",
                     rating=0
                     )

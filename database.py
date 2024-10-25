@@ -17,13 +17,21 @@ CACHE = sqlalchemy.Table(
     sqlalchemy.Column("img", sqlalchemy.LargeBinary),
     sqlalchemy.Column("src", sqlalchemy.Text, unique=True),
     sqlalchemy.Column("root", sqlalchemy.Text),
-    sqlalchemy.Column("size", sqlalchemy.Integer),
-    sqlalchemy.Column("mod", sqlalchemy.Integer),
     sqlalchemy.Column("catalog", sqlalchemy.Text, nullable=False),
-    sqlalchemy.Column("colors", sqlalchemy.Text, nullable=False),
-    sqlalchemy.Column("rating", sqlalchemy.Integer, nullable=False)
+    sqlalchemy.Column("name", sqlalchemy.Text, comment="Имя"),
+    sqlalchemy.Column("type", sqlalchemy.Text, comment="Тип"),
+    sqlalchemy.Column("size", sqlalchemy.Integer, comment="Размер"),
+    sqlalchemy.Column("mod", sqlalchemy.Integer, comment="Дата"),
+    sqlalchemy.Column("colors", sqlalchemy.Text, nullable=False, comment="Цвета"),
+    sqlalchemy.Column("rating", sqlalchemy.Integer, nullable=False, comment="Рейтинг")
+
     )
 
+ORDER: dict[dict[str, int]] = {
+    clmn.name: {"text": clmn.comment, "index": ind}
+    for ind, clmn in enumerate(CACHE.columns)
+    if clmn.comment
+    }
 
 STATS = sqlalchemy.Table(
     'stats', Engine.metadata,

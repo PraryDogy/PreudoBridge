@@ -167,17 +167,24 @@ class LoadImages(QThread):
         # 1 милилон = скрыть прогресс бар согласно его инструкции
         SIGNALS.progressbar_value.emit(1000000)
 
-    def get_insert_stmt(self, img_bytes, src, size, mod):
-        insert = sqlalchemy.insert(CACHE)
-        return insert.values(
-            img = img_bytes,
-            src = src,
-            root = os.path.dirname(src),
-            size = size,
-            mod = mod,
-            catalog = "",
-            colors = "",
-            rating = 0
+    def get_insert_stmt(self, img_bytes: bytes, src: str, size: int, mod: int):
+
+        src = src.strip().strip(os.sep)
+        name = os.path.basename(src)
+        type = os.path.splitext(name)[-1]
+
+        insert_stmt = sqlalchemy.insert(CACHE)
+        return insert_stmt.values(
+            img=img_bytes,
+            src=src,
+            root=os.path.dirname(src),
+            catalog="",
+            name=name,
+            type=type,
+            size=size,
+            mod=mod,
+            colors="",
+            rating=0
             )
 
     def remove_images(self):
@@ -200,12 +207,13 @@ class LoadFinder(QThread):
     def __init__(self):
         super().__init__()
         self.db_data: dict[str, list] = {}
-        self.finder_items: list[tuple] = []
+        self.finder_items: list[dict] = []
 
     def run(self):
         try:
             self.get_db_data()
             self.get_items()
+            self.sort_items()
         except (PermissionError, FileNotFoundError) as e:
             Utils.print_error(self, e)
             self.finder_items: list = []
@@ -246,10 +254,32 @@ class LoadFinder(QThread):
 
             if src.lower().endswith(Config.IMG_EXT):
                 self.finder_items.append((name, size, mod, filetype, colors, rating, src))
-                continue
+                
 
-            if os.path.isdir(src):
+            elif os.path.isdir(src):
                 self.finder_items.append((name, size, mod, filetype, colors, rating, src))
+
+    def sort_items(self):
+        if not self.finder_items:
+            return
+
+
+        # index = {}
+        # name size mod type colors rating
+
+
+        temp = Thumb()
+        # a = getattr(temp, JsonData.sort)
+        # print(a)
+
+        # if JsonData.sort == "colors":
+        #     key = lambda x: len(getattr(x, JsonData.sort))
+        # else:
+        #     key = lambda x: getattr(x, JsonData.sort)
+        # rev = JsonData.reversed
+        # sorted_widgets = sorted(self.finder_items, key=key, reverse=rev)
+        
+
 
 
 class GridStandart(Grid):

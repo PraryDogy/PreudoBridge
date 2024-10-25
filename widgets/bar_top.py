@@ -7,7 +7,8 @@ from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
                              QLineEdit, QMenu, QPushButton, QSpacerItem,
                              QTabBar, QVBoxLayout, QWidget)
 
-from cfg import ORDER, Config, JsonData
+from cfg import Config, JsonData
+from database import ORDER
 from signals import SIGNALS
 from utils import Utils
 
