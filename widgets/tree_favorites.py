@@ -145,4 +145,5 @@ class TreeFavorites(QListWidget):
 
     def mouseReleaseEvent(self, e: QMouseEvent | None) -> None:
         curr = self.currentItem()
-        curr.setSelected(False)
+        if isinstance(curr, QListWidgetItem):
+            curr.setSelected(False)

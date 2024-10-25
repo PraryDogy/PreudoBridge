@@ -1,84 +1,14 @@
 
 import sqlalchemy
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QCloseEvent, QKeyEvent, QPixmap
-from PyQt5.QtWidgets import (QFrame, QGridLayout, QHBoxLayout, QLabel,
-                             QPushButton, QVBoxLayout, QWidget)
+from PyQt5.QtGui import QCloseEvent, QKeyEvent
+from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QPushButton,
+                             QVBoxLayout, QWidget)
 
 from cfg import Config, JsonData
 from database import STATS, Dbase, Engine
-from signals import SIGNALS
-
+import subprocess
 from ._base import BaseSlider
-
-
-class NameLabelHidden(QWidget):
-    def __init__(self):
-        super().__init__()
-
-        main_layout = QGridLayout()
-        self.setLayout(main_layout)
-        main_layout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
-        main_layout.setContentsMargins(4, 4, 4, 4)
-        main_layout.setSpacing(0)
-
-        svg = "images/ded.jpg"
-        colors = "🔴🟠🟡🟢"
-        stars = "★★★★★"
-        filename = "ded.jpg"
-
-        simple_view = QWidget()
-        simple_view.setObjectName("sett_thumb")
-        simple_view.setStyleSheet("#sett_thumb { border: 1px solid transparent; }")
-        simple_view.mouseReleaseEvent = lambda e, b=True: self.select_widget(simple_view, b)
-        main_layout.addWidget(simple_view, 0 , 0)
-
-        simple_view_lay = QVBoxLayout()
-        simple_view.setLayout(simple_view_lay)
-
-        image_label = QLabel()
-        image_label.setPixmap(QPixmap(svg))
-        simple_view_lay.addWidget(image_label, alignment=Qt.AlignmentFlag.AlignTop)
-
-        info_view = QWidget()
-        info_view.setObjectName("sett_thumb")
-        info_view.setStyleSheet("#sett_thumb { border: 1px solid transparent; }")
-        info_view.mouseReleaseEvent = lambda e, b=False: self.select_widget(info_view, b)
-        main_layout.addWidget(info_view, 0 , 1)
-
-        info_view_lay = QVBoxLayout()
-        info_view.setLayout(info_view_lay)
-
-        image_label = QLabel()
-        image_label.setPixmap(QPixmap(svg))
-        info_view_lay.addWidget(image_label, alignment=Qt.AlignmentFlag.AlignTop)
-
-        text_label = QLabel(text=f"{colors}\n{stars}\n{filename}")
-        text_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        info_view_lay.addWidget(text_label, alignment=Qt.AlignmentFlag.AlignBottom)
-        info_view.setObjectName("sett_thumb")
-
-        # if JsonData.name_label_hidden:
-        #     self.set_frame(simple_view)
-        # else:
-        #     self.set_frame(info_view)
-
-    def set_frame(self, wid: QLabel):
-        wid.setStyleSheet(f""" #sett_thumb {{ background: {Config.GRAY}; border-radius: 4px; }}""")
-
-    def set_no_frame(self, wid: QLabel):
-        wid.setStyleSheet("")
-
-    def select_widget(self, wid: QWidget, b: bool):
-        self.deselect_widgets()
-        self.set_frame(wid)
-        # JsonData.name_label_hidden = b
-        Config.write_config()
-        SIGNALS.resize_grid.emit()
-
-    def deselect_widgets(self):
-        for i in self.findChildren(QWidget):
-            self.set_no_frame(i)
 
 
 class WinSettings(QWidget):
@@ -88,7 +18,7 @@ class WinSettings(QWidget):
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowCloseButtonHint)
         self.setWindowTitle("Настройки")
-        self.setFixedSize(350, 150)
+        self.setFixedSize(300, 200)
 
         main_lay = QVBoxLayout()
         main_lay.setContentsMargins(10, 10, 10, 10)
@@ -130,6 +60,11 @@ class WinSettings(QWidget):
         separator.setFrameShadow(QFrame.Sunken)  # Внешний вид (утопленный)
         main_lay.addWidget(separator, alignment=Qt.AlignmentFlag.AlignCenter)
 
+        open_json_btn = QPushButton("Открыть файл настроек")
+        open_json_btn.setFixedWidth(200)
+        open_json_btn.clicked.connect(self.open_json)
+        main_lay.addWidget(open_json_btn)
+
         main_lay.addStretch()
 
     def update_label(self, index):
@@ -164,6 +99,9 @@ class WinSettings(QWidget):
     def clear_db_cmd(self):
         if Dbase.clear_db():
             self.get_current_size()
+
+    def open_json(self):
+        subprocess.call(["open", Config.JSON_FILE])
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         Config.write_config()
