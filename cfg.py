@@ -6,7 +6,7 @@ MARGIN: dict = {"w": 50, "h": 10}
 MAX_SIZE: int = 210
 PIXMAP_SIZE: list = [90, 130, 170, MAX_SIZE]
 THUMB_W: list = [i for i in PIXMAP_SIZE]
-TEXT_LENGTH: list = [15, 21, 26, 32]
+TEXT_LENGTH: list = [18, 23, 28, 33]
 GRID_SPACING = 5
 
 class JsonData:
