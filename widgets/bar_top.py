@@ -458,7 +458,7 @@ class BarTop(QFrame):
         self.clmn = 0
 
         self.root: str = None
-        self.history: list[str] = [JsonData.root]
+        self.history: list[str] = []
         self.current_index: int = 0
 
         self.grid_layout = QGridLayout()
@@ -479,15 +479,6 @@ class BarTop(QFrame):
         self.clmn += 1
         self.grid_layout.setColumnStretch(self.clmn, 10)
         self.grid_layout.addItem(QSpacerItem(1, 1), 0, self.clmn)
-
-        # self.clmn += 1
-        # self.grid_layout.addItem(QSpacerItem(5, 0), 0, self.clmn)
-
-        self.clmn += 1
-        self.level_up_btn = QPushButton("\u2191")
-        self.level_up_btn.setFixedWidth(60)
-        self.level_up_btn.clicked.connect(self.level_up_cmd)
-        self.grid_layout.addWidget(self.level_up_btn, 0, self.clmn)
 
         self.clmn += 1
         self.view_type_btn = ViewTypeBtn()
@@ -513,43 +504,26 @@ class BarTop(QFrame):
         self.search_wid = SearchWidget()
         self.grid_layout.addWidget(self.search_wid, 0, self.clmn)
 
-    def update_history(self):
-        topbar = self.sender()
-        if isinstance(topbar, BarTop):
-            pos = topbar.mapFromGlobal(QCursor.pos())
-            if isinstance(topbar.childAt(pos), HistoryBtn):
-                return
-
-        self.history.append(JsonData.root)
-        self.current_index = len(self.history) - 1
-
-        if len(self.history) > 50:
-            self.history.pop(0)
+    def reset_history(self):
+        self.history.clear()
 
     def level_up_cmd(self):
         JsonData.root = os.path.dirname(JsonData.root)
         SIGNALS.load_standart_grid.emit("")
 
     def back_cmd(self):
-        if self.current_index == 0:
-            return
-        
-        self.current_index -= 1
+        root = os.path.dirname(JsonData.root)
 
-        try:
-            path = self.history[self.current_index]
-            SIGNALS.load_standart_grid.emit(path)
-        except IndexError:
-            pass
+        if root == os.sep:
+            return
+
+        if root not in self.history:
+            self.history.append(JsonData.root)
+            JsonData.root = root
+            SIGNALS.load_standart_grid.emit("")
 
     def next_cmd(self):
-        if self.current_index == len(self.history) - 1:
-            return
-        
-        self.current_index += 1
-
-        try:
-            path = self.history[self.current_index]
-            SIGNALS.load_standart_grid.emit(path)
-        except IndexError:
-            pass
+        if self.history:
+            JsonData.root = self.history[-1]
+            self.history.pop(-1)
+            SIGNALS.load_standart_grid.emit("")
