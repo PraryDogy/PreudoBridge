@@ -507,10 +507,6 @@ class BarTop(QFrame):
     def reset_history(self):
         self.history.clear()
 
-    def level_up_cmd(self):
-        JsonData.root = os.path.dirname(JsonData.root)
-        SIGNALS.load_standart_grid.emit("")
-
     def back_cmd(self):
         root = os.path.dirname(JsonData.root)
 
@@ -521,8 +517,6 @@ class BarTop(QFrame):
             self.history.append(JsonData.root)
             JsonData.root = root
             SIGNALS.load_standart_grid.emit("")
-
-            print(self.history)
 
     def next_cmd(self):
         if self.history:
