@@ -8,7 +8,7 @@ from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import IMG_SIZE, Config, JsonData
+from cfg import MAX_SIZE, Config, JsonData
 from database import CACHE, STATS, Engine
 from fit_img import FitImg
 from signals import SIGNALS
@@ -163,7 +163,7 @@ class SearchFinder(QThread):
 
     def create_img_array(self, src: str) -> ndarray | None:
         img = Utils.read_image(src)
-        img = FitImg.start(img, IMG_SIZE)
+        img = FitImg.start(img, MAX_SIZE)
         return img
 
     def stop_cmd(self):

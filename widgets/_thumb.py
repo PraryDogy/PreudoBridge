@@ -9,8 +9,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QLabel, QMenu,
                              QVBoxLayout)
 from sqlalchemy.exc import OperationalError
 
-from cfg import (COLOR_LABEL_H, PIXMAP_SIZE, NAME_LABEL_H, TEXT_LENGTH,
-                 THUMB_H, THUMB_W, Config, JsonData)
+from cfg import MARGIN, PIXMAP_SIZE, TEXT_LENGTH, THUMB_W, Config, JsonData
 from database import CACHE, Engine
 from signals import SIGNALS
 from utils import Utils
@@ -101,9 +100,6 @@ class NameLabel(QLabel):
         if wid.rating > 0:
             name.append(self.star * wid.rating)
 
-        while len(name) < 2:
-            name.append("")
-
         self.setText("\n".join(name))
 
 
@@ -168,16 +164,25 @@ class Thumb(QFrame, ThumbVars):
             pixmap = Utils.pixmap_scale(self.img, PIXMAP_SIZE[JsonData.thumb_w_h_ind])
             self.img_label.setPixmap(pixmap)
 
-        main_w = THUMB_W[JsonData.thumb_w_h_ind]
-        main_h = THUMB_H[JsonData.thumb_w_h_ind]
-        self.setFixedSize(main_w, main_h)
+        thumb_w = sum(
+            (THUMB_W[JsonData.thumb_w_h_ind],
+             MARGIN
+             ))
 
-        img_label_side = PIXMAP_SIZE[JsonData.thumb_w_h_ind]
-        self.img_label.setFixedSize(main_w, img_label_side)
-
-        self.name_label.setFixedSize(main_w, NAME_LABEL_H)
-        self.color_label.setFixedSize(main_w, COLOR_LABEL_H)
         self.set_text()
+        self.adjustSize()
+
+        thumb_h = sum((
+            self.img_label.height(),
+            self.name_label.height(),
+            self.color_label.height()),
+            MARGIN
+            )
+        
+        self.setFixedSize(thumb_w, thumb_h)
+        self.img_label.setFixedSize(thumb_w, self.img_label.height() + 10)
+        self.name_label.setFixedSize(thumb_w, self.name_label.height())
+        self.color_label.setFixedSize(thumb_w, self.color_label.height() + 2)
 
         # self.img_label.setStyleSheet("background: gray;")
         # self.name_label.setStyleSheet("background: black;")

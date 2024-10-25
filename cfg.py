@@ -15,20 +15,11 @@ ORDER: dict[str, dict] = {
         "rating": {"text": "Рейтинг", "index": 5},
         }
 
-_MAR = 23
-IMG_SIZE: int = 210
-NAME_LABEL_H: int = 35
-COLOR_LABEL_H: int = 15
-PIXMAP_SIZE: list = [90, 130, 170, IMG_SIZE]
-THUMB_W: list = [i + _MAR for i in PIXMAP_SIZE]
-THUMB_H: list = [
-                PIXMAP_SIZE[i] + NAME_LABEL_H + COLOR_LABEL_H + _MAR
-                for i in range(0, len(PIXMAP_SIZE))
-                ]
-
+MARGIN = 20
+MAX_SIZE: int = 210
+PIXMAP_SIZE: list = [90, 130, 170, MAX_SIZE]
+THUMB_W: list = [i for i in PIXMAP_SIZE]
 TEXT_LENGTH: list = [15, 21, 26, 32]
-
-# расстояние в сетке
 GRID_SPACING = 5
 
 class JsonData:

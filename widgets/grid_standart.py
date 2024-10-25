@@ -6,7 +6,7 @@ from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtWidgets import QLabel
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import IMG_SIZE, Config, JsonData
+from cfg import MAX_SIZE, Config, JsonData
 from database import CACHE, STATS, Engine
 from fit_img import FitImg
 from signals import SIGNALS
@@ -123,7 +123,7 @@ class LoadImages(QThread):
                 continue
 
             img_array = Utils.read_image(src)
-            img_array = FitImg.start(img_array, IMG_SIZE)
+            img_array = FitImg.start(img_array, MAX_SIZE)
             img_bytes: bytes = Utils.image_array_to_bytes(img_array)
 
             pixmap = Utils.pixmap_from_array(img_array)
