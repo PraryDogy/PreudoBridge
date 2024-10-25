@@ -1,8 +1,25 @@
-import os
+from database import ORDER
 
 
-src = "/Users/Loshkarev/Desktop/Снимок экрана 2024-10-25 в 11.09.44.jpg/"
-src = src.strip().strip(os.sep)
-name = os.path.basename(src)
-type = os.path.splitext(name)[-1]
-print(type)
+name = "wefdsf.jpg"
+type = ".jpg"
+size = 7777
+mod = 12312
+colors = "some colors"
+rating = 5
+
+# order_data = (name, type, size, mod, colors, rating)
+# item: dict = {k: v for k, v in zip(ORDER.keys(), order_data)}
+
+item = ("name", "type", "size", "mod", "colors", "rating", "fck")
+order = tuple(ORDER.keys())
+test = bool(item == order)
+
+if not test:
+    print()
+    print("grid_standart > LoadFinder > get_items")
+    print("итератор item не соответствует ORDER")
+    if len(item) > len(order):
+        print("Лишний элемент в item")
+    else:
+        print("Новый элемент в ORDER, добавь его в item")
