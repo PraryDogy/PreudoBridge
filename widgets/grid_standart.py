@@ -281,7 +281,9 @@ class LoadFinder(QThread):
 
         if not hasattr(Thumb(), JsonData.sort):
             print("grid_standart.py > sort_items > Thumb не имеет атрибута из JsonData.sort")
-            quit()
+            print("требуемый аттрибут:", JsonData.sort)
+            JsonData.sort = list(ORDER.keys())[0]
+            print(f"Устанавливаю аттрибут {JsonData.sort}")
 
         key = lambda x: x[JsonData.sort]
         self.finder_items = sorted(self.finder_items, key=key, reverse=JsonData.reversed)
