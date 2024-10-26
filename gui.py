@@ -145,7 +145,7 @@ class SimpleFileExplorer(QWidget):
     def search_finished(self, search_text: str):
         self.migaet_timer.stop()
         self.setWindowTitle(f"🟢\tРезультаты поиска: \"{search_text}\"")
-        self.grid.sort_grid()
+        self.grid.order_grid()
 
     def move_to_wid_delayed(self, filepath: str):
         JsonData.root = os.path.dirname(filepath)

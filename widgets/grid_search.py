@@ -224,9 +224,9 @@ class GridSearch(Grid):
         if not self.search_thread.isRunning():
             super().rearrange_grid(width)
     
-    def sort_grid(self):
+    def order_grid(self):
         if not self.search_thread.isRunning():
-            super().sort_grid()
+            super().order_grid()
 
     def filter_grid(self):
         if not self.search_thread.isRunning():

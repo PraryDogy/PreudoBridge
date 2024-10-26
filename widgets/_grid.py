@@ -48,7 +48,7 @@ class Grid(BaseGrid):
                 ...
 
         SIGNALS.resize_grid.connect(self.resize_grid)
-        SIGNALS.sort_grid.connect(self.sort_grid)
+        SIGNALS.sort_grid.connect(self.order_grid)
         SIGNALS.filter_grid.connect(self.filter_grid)
         SIGNALS.move_to_wid.connect(self.select_new_widget)
 
@@ -95,7 +95,7 @@ class Grid(BaseGrid):
                 wid.set_colors_rating_db(wid.colors, rating_data.get(rating))
                 self.select_new_widget(self.curr_cell)
 
-    def sort_grid(self):
+    def order_grid(self):
         if not self.ordered_widgets:
             return
 

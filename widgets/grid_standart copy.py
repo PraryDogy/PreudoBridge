@@ -365,7 +365,7 @@ class GridStandart(Grid):
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0)
 
-        self.sort_grid()
+        self.order_grid()
 
     def stop_threads(self):
         for i in Threads.all:

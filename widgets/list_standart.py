@@ -67,7 +67,7 @@ class ListStandart(BaseTableView):
     def rearrange_grid(self, *args, **kwargs):
         ...
 
-    def sort_grid(self, *args, **kwargs):
+    def order_grid(self, *args, **kwargs):
         ...
 
     def filter_grid(self, *args, **kwargs):

@@ -9,7 +9,7 @@ class BaseMethods:
     def rearrange_grid(self, *args, **kwargs):
         raise Exception("Переопредели метод resize")
 
-    def sort_grid(self, *args, **kwargs):
+    def order_grid(self, *args, **kwargs):
         raise Exception("Переопредели метод sort_grid")
 
     def filter_grid(self, *args, **kwargs):
