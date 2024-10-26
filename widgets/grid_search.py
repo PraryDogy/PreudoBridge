@@ -42,6 +42,8 @@ class SearchFinder(QThread):
         self.insert_count: int = 0 
         self.db_size: int = 0
 
+        self.pixmap_img = QPixmap("images/file_210.png")
+
     def run(self):
         self.get_db_size()
 
@@ -114,7 +116,7 @@ class SearchFinder(QThread):
                 pixmap = Utils.pixmap_from_array(img_array)
 
         if not pixmap:
-            pixmap = QPixmap("images/file_210.png")
+            pixmap = self.pixmap_img
 
         self.add_new_widget.emit(WidgetData(src, colors, rating, size, mod, pixmap))
         sleep(0.1)
