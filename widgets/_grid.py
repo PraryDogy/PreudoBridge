@@ -5,7 +5,7 @@ from PyQt5.QtGui import QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import QFrame, QGridLayout, QWidget
 
 from cfg import GRID_SPACING, Config, JsonData
-from database import ORDER
+from database import ORDER, OrderItem
 from signals import SIGNALS
 from utils import Utils
 
@@ -34,7 +34,7 @@ class Grid(BaseGrid):
         self.curr_cell: tuple = (0, 0)
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.path_to_wid: dict[str, Thumb] = {}
-        self.ordered_widgets: list[Thumb | ThumbFolder | ThumbSearch] = []
+        self.ordered_widgets: list[OrderItem | Thumb | ThumbFolder | ThumbSearch] = []
 
         self.ww = width
 
@@ -99,20 +99,7 @@ class Grid(BaseGrid):
         if not self.ordered_widgets:
             return
 
-        if not hasattr(Thumb(), JsonData.sort):
-            attributes = list(ORDER.keys())
-            print("_grid.py > sort_grid > Thumb не имеет атрибута из JsonData.sort")
-            print("аттрибут из Json:", JsonData.sort)
-            print("доступные аттрибуты:", *attributes)
-            JsonData.sort = attributes[0]
-            print(f"Устанавливаю аттрибут {JsonData.sort}")
-
-        if JsonData.sort == "colors":
-            key = lambda x: len(getattr(x, JsonData.sort))
-        else:
-            key = lambda x: getattr(x, JsonData.sort)
-        rev = JsonData.reversed
-        self.ordered_widgets = sorted(self.ordered_widgets, key=key, reverse=rev)
+        self.ordered_widgets = OrderItem.order_items(self.ordered_widgets)
         
         self.path_to_wid = {
             wid.src: wid

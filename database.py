@@ -44,28 +44,34 @@ ORDER: dict[dict[str, int]] = {
 # Аттрибуты соответствуют ORDER и CACHE
 # name, type извлекаются из src
 class OrderItem:
-    def __init__(
-            self,
-            src: str = None,
-            size: int = None,
-            mod: int = None,
-            colors: str = None,
-            rating: int = None,
-            ):
-
+    def __init__(self, src: str = None, size: int = None, mod: int = None, colors: str = None, rating: int = None,):
         super().__init__()
+
         self.src: str = "" if src is None else src
-        self.name: str = os.path.split(self.src)[-1]
         self.size: int = 0 if size is None else size
         self.mod: int = 0 if mod is None else mod
         self.colors: str = "" if colors is None else colors
         self.rating: int = 0 if rating is None else rating
+
+        self.name: str = os.path.split(self.src)[-1]
 
         type_: str = os.path.splitext(self.src)[-1]
         if type_ in Config.IMG_EXT:
             self.type_ = type_
         else:
             self.type_ = "Папка"
+
+    @classmethod
+    def order_items(cls, order_items: list[object]):
+
+        if JsonData.sort == "colors":
+            key = lambda x: len(getattr(x, JsonData.sort))
+        else:
+            key = lambda x: getattr(x, JsonData.sort)
+
+        rev = JsonData.reversed
+
+        return sorted(order_items, key=key, reverse=rev)
 
 
 class Dbase:
