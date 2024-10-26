@@ -62,7 +62,7 @@ class OrderItem:
             self.type_ = "Папка"
 
     @classmethod
-    def order_items(cls, order_items: list[object]):
+    def order_items(cls, order_items: list["OrderItem"]) -> list["OrderItem"]:
 
         if JsonData.sort == "colors":
             key = lambda x: len(getattr(x, JsonData.sort))
