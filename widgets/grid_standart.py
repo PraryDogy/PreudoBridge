@@ -262,6 +262,11 @@ class GridStandart(Grid):
         # делаем os listdir обход и по сигналу finished
         # запустится создание сетки
         # в конце создания запустится подгрузка изображений
+
+        self.pixmap_disk: QPixmap = QPixmap("images/disk_210.png")
+        self.pixmap_folder: QPixmap = QPixmap("images/folder_210.png")
+        self.pixmap_img: QPixmap = QPixmap("images/file_210.png")
+
         self.finder_thread = LoadFinder()
         self.finder_thread._finished.connect(self.create_grid)
         self.finder_thread.start()
@@ -279,10 +284,10 @@ class GridStandart(Grid):
             if os.path.isdir(src):
 
                 if os.path.ismount(src) or src == sys_disk:
-                    pixmap = QPixmap("images/disk_210.png")
+                    pixmap = self.pixmap_disk
 
                 else:
-                    pixmap = QPixmap("images/folder_210.png")
+                    pixmap = self.pixmap_folder
 
                 wid = ThumbFolder(
                     src=src,
@@ -300,7 +305,7 @@ class GridStandart(Grid):
                     rating=order_item.rating,
                     size=order_item.size,
                     mod=order_item.mod,
-                    pixmap=QPixmap("images/file_210.png"),
+                    pixmap=self.pixmap_img,
                     path_to_wid=self.path_to_wid
                     )
 
