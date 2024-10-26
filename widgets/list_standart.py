@@ -5,13 +5,14 @@ from PyQt5.QtCore import QDir, Qt
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtWidgets import QAction, QFileSystemModel, QMenu, QTableView
 
-from cfg import Config, JsonData
+from cfg import IMG_EXT, JsonData
+from signals import SIGNALS
 from utils import Utils
 
-from ._thumb import Thumb
 from ._base import BaseTableView
+from ._thumb import Thumb
 from .win_img_view import WinImgView
-from signals import SIGNALS
+
 
 class Sort:
     column = 0
@@ -50,7 +51,7 @@ class ListStandart(BaseTableView):
             self.setCurrentIndex(index)
             SIGNALS.load_standart_grid.emit(path)
 
-        elif path.endswith(Config.IMG_EXT):
+        elif path.endswith(IMG_EXT):
             thumbnail = Thumb()
             self.win = WinImgView(path, {path: thumbnail})
             self.win.show()

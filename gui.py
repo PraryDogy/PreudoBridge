@@ -5,7 +5,7 @@ from PyQt5.QtGui import QCloseEvent, QKeyEvent, QResizeEvent
 from PyQt5.QtWidgets import (QApplication, QGridLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
 
-from cfg import Config, JsonData
+from cfg import IMG_EXT, JsonData
 from signals import SIGNALS
 from utils import Utils
 from widgets._grid import Grid
@@ -112,7 +112,7 @@ class SimpleFileExplorer(QWidget):
             return
 
         if os.path.isfile(filepath):
-            if filepath.endswith(Config.IMG_EXT):
+            if filepath.endswith(IMG_EXT):
                 JsonData.root = os.path.dirname(filepath)
                 self.load_standart_grid()
                 self.move_to_wid_delayed(filepath)
@@ -246,4 +246,4 @@ class CustomApp(QApplication):
         return False
 
     def on_exit(self):
-        Config.write_config()
+        JsonData.write_config()

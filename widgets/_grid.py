@@ -4,8 +4,8 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import QFrame, QGridLayout, QWidget
 
-from cfg import GRID_SPACING, Config, JsonData
-from database import ORDER, OrderItem
+from cfg import GRID_SPACING, Dymanic, JsonData
+from database import OrderItem
 from signals import SIGNALS
 from utils import Utils
 
@@ -13,21 +13,9 @@ from ._base import BaseGrid
 from ._thumb import Thumb, ThumbFolder, ThumbSearch
 
 
-def thumb_order_check():
-    thumb = Thumb()
-    for k, v in ORDER.items():
-        if not hasattr(thumb, k):
-            print("""У Thumb должы быть аттрибуты, соответствующие ORDER из database для бущих сортировок""")
-            print("_grid > thumb_order_check")
-            quit()
-
-
-
 class Grid(BaseGrid):
 
     def __init__(self, width: int):
-        thumb_order_check()
-
         super().__init__()
         self.setWidgetResizable(True)
 
@@ -110,12 +98,12 @@ class Grid(BaseGrid):
         for wid in self.ordered_widgets:
             show_widget = True
 
-            if Config.rating_filter > 0:
-                if not (Config.rating_filter >= wid.rating > 0):
+            if Dymanic.rating_filter > 0:
+                if not (Dymanic.rating_filter >= wid.rating > 0):
                     show_widget = False
 
-            if Config.color_filters:
-                if not any(color for color in wid.colors if color in Config.color_filters):
+            if Dymanic.color_filters:
+                if not any(color for color in wid.colors if color in Dymanic.color_filters):
                     show_widget = False
 
             if show_widget:

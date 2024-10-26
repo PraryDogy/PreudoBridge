@@ -3,7 +3,7 @@ import os
 import sqlalchemy
 from sqlalchemy.exc import OperationalError
 
-from cfg import Config, JsonData, FOLDER
+from cfg import JsonData, FOLDER, DB_FILE, IMG_EXT
 from utils import Utils
 
 
@@ -56,7 +56,7 @@ class OrderItem:
         self.name: str = os.path.split(self.src)[-1]
 
         type_: str = os.path.splitext(self.src)[-1]
-        if type_ in Config.IMG_EXT:
+        if type_ in IMG_EXT:
             self.type_ = type_
         else:
             self.type_ = FOLDER
@@ -86,7 +86,7 @@ class Dbase:
     @classmethod
     def init_db(cls):
         Engine.engine = sqlalchemy.create_engine(
-            f"sqlite:///{Config.DB_FILE}",
+            f"sqlite:///{DB_FILE}",
             connect_args={"check_same_thread": False},
             echo=False
             )
@@ -154,7 +154,7 @@ class Dbase:
 
         if not res:
             print("Не соответствие таблиц, создаю новую дб")
-            os.remove(Config.DB_FILE)
+            os.remove(DB_FILE)
             cls.init_db()
             return
 
@@ -165,6 +165,6 @@ class Dbase:
 
             if not res:
                 print(f"Не соответствие колонок в {table.name}, создаю новую дб")
-                os.remove(Config.DB_FILE)
+                os.remove(DB_FILE)
                 cls.init_db()
                 break

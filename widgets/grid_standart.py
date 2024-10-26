@@ -6,8 +6,8 @@ from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtWidgets import QLabel
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import FOLDER, MAX_SIZE, Config, JsonData
-from database import CACHE, ORDER, STATS, Engine, OrderItem
+from cfg import FOLDER, IMG_EXT, MAX_SIZE, JsonData
+from database import CACHE, STATS, Engine, OrderItem
 from fit_img import FitImg
 from signals import SIGNALS
 from utils import Utils
@@ -242,7 +242,7 @@ class LoadFinder(QThread):
             if name.startswith("."):
                 continue
 
-            if src.endswith(Config.IMG_EXT) or os.path.isdir(src):
+            if src.endswith(IMG_EXT) or os.path.isdir(src):
 
                 try:
                     stats = os.stat(src)

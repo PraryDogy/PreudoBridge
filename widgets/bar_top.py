@@ -2,18 +2,18 @@ import os
 from difflib import SequenceMatcher
 
 from PyQt5.QtCore import QSize, Qt, QThread, QTimer, pyqtSignal
-from PyQt5.QtGui import QCursor, QKeyEvent, QMouseEvent
+from PyQt5.QtGui import QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
                              QLineEdit, QMenu, QPushButton, QSpacerItem,
                              QTabBar, QVBoxLayout, QWidget)
 
-from cfg import Config, JsonData
+from cfg import Dymanic, JsonData, COLORS, IMG_EXT
 from database import ORDER
 from signals import SIGNALS
 from utils import Utils
 
 from .win_settings import WinSettings
-from signals import SIGNALS
+
 
 class PathFinderThread(QThread):
     _finished = pyqtSignal(str)
@@ -223,7 +223,7 @@ class SearchWidget(QWidget):
             "Найти tiff": str((".tif", ".tiff")),
             "Найти psd/psb": str((".psd", ".psb")),
             "Найти raw": str((".nef", ".raw")),
-            "Найти любые фото": str(Config.IMG_EXT)
+            "Найти любые фото": str(IMG_EXT)
             }
 
         for k, v in data.items():
@@ -284,7 +284,7 @@ class FiltersBtn(QPushButton):
 
         self.filter_count = 0
         
-        for color in Config.COLORS:
+        for color in COLORS:
             label = ColorLabel(color)
             label.setFixedSize(20, 20)
             label.mousePressEvent = lambda e, w=label, c=color: self.toggle_color(w, c)
@@ -323,12 +323,12 @@ class FiltersBtn(QPushButton):
     def toggle_color(self, widget: ColorLabel, color: str):
         if widget.is_selected == True:
             self.filter_count -= 1
-            Config.color_filters.remove(color)
+            Dymanic.color_filters.remove(color)
             widget.setStyleSheet("")
             widget.is_selected = False
         else:
             self.filter_count += 1
-            Config.color_filters.append(color)
+            Dymanic.color_filters.append(color)
             widget.setStyleSheet("background: #007AFF;")
             widget.is_selected = True
 
@@ -336,7 +336,7 @@ class FiltersBtn(QPushButton):
 
     def toggle_rating(self, rate: int):
         if rate > 1:
-            Config.rating_filter = rate
+            Dymanic.rating_filter = rate
             self.filter_count += 1
             for i in self.rating_wids[:rate]:
                 i.setStyleSheet("background: #007AFF;")
@@ -344,7 +344,7 @@ class FiltersBtn(QPushButton):
                 i.setStyleSheet("")
         else:
             self.filter_count -= 1
-            Config.rating_filter = 0
+            Dymanic.rating_filter = 0
             for i in self.rating_wids:
                 i.setStyleSheet("")
 
@@ -363,8 +363,8 @@ class FiltersBtn(QPushButton):
             i.setStyleSheet("")
             i.is_selected = False
 
-        Config.color_filters.clear()
-        Config.rating_filter = 0
+        Dymanic.color_filters.clear()
+        Dymanic.rating_filter = 0
         self.filter_count = 0
         self.setDown(False)
 

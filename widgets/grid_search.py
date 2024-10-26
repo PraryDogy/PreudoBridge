@@ -8,7 +8,7 @@ from PyQt5.QtCore import QThread, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import MAX_SIZE, Config, JsonData
+from cfg import IMG_EXT, MAX_SIZE, JsonData
 from database import CACHE, STATS, Engine
 from fit_img import FitImg
 from signals import SIGNALS
@@ -67,7 +67,7 @@ class SearchFinder(QThread):
                 file_path_lower: str = file_path.lower()
 
 
-                if file_path_lower.endswith(Config.IMG_EXT):
+                if file_path_lower.endswith(IMG_EXT):
 
                     if isinstance(self.search_text, tuple):
                         if file_path_lower.endswith(self.search_text):

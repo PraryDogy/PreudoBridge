@@ -9,13 +9,15 @@ from PyQt5.QtGui import (QCloseEvent, QContextMenuEvent, QKeyEvent,
 from PyQt5.QtWidgets import (QAction, QFrame, QHBoxLayout, QLabel, QMenu,
                              QSpacerItem, QVBoxLayout, QWidget)
 
-from cfg import Config, JsonData
+from cfg import COLORS, IMAGE_APPS, JsonData
 from database import CACHE, Engine
+from signals import SIGNALS
 from utils import Utils
+
 from ._grid import Thumb
 from ._svg_widgets import SvgShadowed
 from .win_info import WinInfo
-from signals import SIGNALS
+
 
 class Shared:
     loaded_images: dict[str, QPixmap] = {}
@@ -431,7 +433,7 @@ class WinImgView(QWidget):
         open_menu = QMenu("Открыть в приложении", self)
         context_menu.addMenu(open_menu)
 
-        for name, app_path in Config.image_apps.items():
+        for name, app_path in IMAGE_APPS.items():
             wid = QAction(name, parent=open_menu)
             wid.triggered.connect(lambda e, a=app_path: self.open_default(a))
             open_menu.addAction(wid)
@@ -455,7 +457,7 @@ class WinImgView(QWidget):
         color_menu = QMenu("Цвета", self)
         context_menu.addMenu(color_menu)
 
-        for color, text in Config.COLORS.items():
+        for color, text in COLORS.items():
             wid = QAction(parent=color_menu, text=f"{color} {text}")
             wid.setCheckable(True)
 

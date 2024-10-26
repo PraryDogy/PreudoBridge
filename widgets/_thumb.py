@@ -1,5 +1,4 @@
 import datetime
-import os
 import subprocess
 
 import sqlalchemy
@@ -9,7 +8,8 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QLabel, QMenu,
                              QVBoxLayout)
 from sqlalchemy.exc import OperationalError
 
-from cfg import MARGIN, PIXMAP_SIZE, TEXT_LENGTH, THUMB_W, Config, JsonData
+from cfg import (COLORS, GRAY, IMAGE_APPS, MARGIN, PIXMAP_SIZE, TEXT_LENGTH,
+                 THUMB_W, JsonData)
 from database import CACHE, Engine, OrderItem
 from signals import SIGNALS
 from utils import Utils
@@ -159,7 +159,7 @@ class Thumb(QFrame, OrderItem):
         # self.color_label.setStyleSheet("background: light-gray;")
 
     def set_frame(self):
-        self.setStyleSheet(f""" #thumbnail {{ background: {Config.GRAY}; border-radius: 4px; }}""")
+        self.setStyleSheet(f""" #thumbnail {{ background: {GRAY}; border-radius: 4px; }}""")
 
     def set_no_frame(self):
         self.setStyleSheet("")
@@ -173,7 +173,7 @@ class Thumb(QFrame, OrderItem):
         open_menu = QMenu("Открыть в приложении", self)
         context_menu.addMenu(open_menu)
 
-        for name, app_path in Config.image_apps.items():
+        for name, app_path in IMAGE_APPS.items():
             wid = QAction(name, parent=open_menu)
             wid.triggered.connect(lambda e, a=app_path: self.open_in_app(a))
             open_menu.addAction(wid)
@@ -199,7 +199,7 @@ class Thumb(QFrame, OrderItem):
         color_menu = QMenu("Цвета", self)
         context_menu.addMenu(color_menu)
 
-        for color, text in Config.COLORS.items():
+        for color, text in COLORS.items():
             wid = QAction(parent=color_menu, text=f"{color} {text}")
             wid.setCheckable(True)
 
@@ -251,7 +251,7 @@ class Thumb(QFrame, OrderItem):
 
         if update_db:
             self.colors = temp_colors
-            key = lambda x: list(Config.COLORS.keys()).index(x)
+            key = lambda x: list(COLORS.keys()).index(x)
             self.colors = ''.join(sorted(self.colors, key=key))
             self.set_text()
 

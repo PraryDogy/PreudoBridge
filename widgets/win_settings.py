@@ -8,7 +8,7 @@ from PyQt5.QtGui import QCloseEvent, QKeyEvent
 from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QPushButton,
                              QVBoxLayout, QWidget)
 
-from cfg import Config, JsonData, LINK
+from cfg import JSON_FILE, LINK, Dymanic, JsonData
 from database import STATS, Dbase, Engine
 
 from ._base import BaseSlider
@@ -71,7 +71,7 @@ class WinSettings(QWidget):
 
         open_json_btn = QPushButton("Файл настроек")
         open_json_btn.setFixedWidth(150)
-        open_json_btn.clicked.connect(lambda: subprocess.call(["open", Config.JSON_FILE]))
+        open_json_btn.clicked.connect(lambda: subprocess.call(["open", JSON_FILE]))
         h_lay.addWidget(open_json_btn)
 
         open_json_btn = QPushButton("Обновления")
@@ -115,7 +115,7 @@ class WinSettings(QWidget):
             self.get_current_size()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
-        Config.write_config()
+        JsonData.write_config()
     
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() == Qt.Key.Key_Escape:
