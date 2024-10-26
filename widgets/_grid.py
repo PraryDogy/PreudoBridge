@@ -189,8 +189,9 @@ class Grid(BaseGrid):
         # плюс и минус увеличить и уменьшить сетку
 
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier and a0.key() == Qt.Key.Key_Up:
-            JsonData.root = os.path.dirname(JsonData.root)
-            SIGNALS.load_standart_grid.emit("")
+            root = os.path.dirname(JsonData.root)
+            if root != os.sep:
+                SIGNALS.load_standart_grid.emit(root)
 
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier and a0.key() == Qt.Key.Key_Down:
             wid = self.cell_to_wid.get(self.curr_cell)

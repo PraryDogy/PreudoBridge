@@ -298,7 +298,7 @@ class GridStandart(Grid):
 
     def create_grid(self, finder_items: list[dict]):
         src_size_mod: list[tuple] = []
-        sys_disk = os.sep + "Macintosh HD"
+        sys_disk = os.path.join(os.sep, "Volumes", "Macintosh HD")
 
         col_count = Utils.get_clmn_count(self.ww)
         row, col = 0, 0
@@ -308,7 +308,7 @@ class GridStandart(Grid):
 
             if os.path.isdir(src):
 
-                if os.path.ismount(src) or sys_disk == os.sep:
+                if os.path.ismount(src) or src == sys_disk:
                     pixmap = QPixmap("images/disk_210.png")
 
                 else:
