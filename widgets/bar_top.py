@@ -515,11 +515,9 @@ class BarTop(QFrame):
 
         if root not in self.history:
             self.history.append(JsonData.root)
-            JsonData.root = root
-            SIGNALS.load_standart_grid.emit("")
+            SIGNALS.load_standart_grid.emit(root)
 
     def next_cmd(self):
         if self.history:
-            JsonData.root = self.history[-1]
             self.history.pop(-1)
-            SIGNALS.load_standart_grid.emit("")
+            SIGNALS.load_standart_grid.emit(self.history[-1])
