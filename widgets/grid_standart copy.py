@@ -14,7 +14,7 @@ from utils import Utils
 
 from ._grid import Grid, Thumb
 from ._thumb import ThumbFolder
-from database import ORDER
+from database import ORDER, OrderItem
 
 # Если родительский класс запущенного треда будет закрыт
 # Тред получит сигнал стоп и безопасно завершится
@@ -207,18 +207,18 @@ class LoadFinder(QThread):
     def __init__(self):
         super().__init__()
         self.db_color_rating: dict[str, list] = {}
-        self.finder_items: list[dict] = []
+        self.order_items: list[OrderItem] = []
 
     def run(self):
         try:
             self.get_color_rating()
             self.get_items()
-            self.sort_items()
+            self.order_items = OrderItem.order_items(self.order_items)
         except (PermissionError, FileNotFoundError) as e:
             Utils.print_error(self, e)
-            self.finder_items: list = []
+            self.order_items = []
         
-        self._finished.emit(self.finder_items)
+        self._finished.emit(self.order_items)
 
     def get_color_rating(self):
         q = sqlalchemy.select(CACHE.c.src, CACHE.c.colors, CACHE.c.rating)
@@ -230,66 +230,30 @@ class LoadFinder(QThread):
 
     def get_items(self) -> list:
 
-        order = tuple(ORDER.keys())
-        base_item = ("name", "type_", "size", "mod", "colors", "rating")
-        test = bool(item == order)
-
-        if not test:
-            print()
-            print("grid_standart > LoadFinder > get_items")
-            print("итератор item не соответствует ORDER")
-            if len(item) > len(order):
-                print("Лишний элемент в item")
-            else:
-                print("Новый элемент в ORDER, добавь его в item")
-            quit()
-
         for name in os.listdir(JsonData.root):
 
             src: str = os.path.join(JsonData.root, name)
 
-            try:
-                stats = os.stat(src)
-                size = stats.st_size
-                mod = stats.st_mtime
-                type_ = os.path.splitext(name)[1]
-
-                if self.db_color_rating.get(src):
-                    colors = self.db_color_rating.get(src)[0]
-                    rating = self.db_color_rating.get(src)[1]
-                else:
-                    colors = ""
-                    rating = 0
-
-            except (PermissionError, FileNotFoundError, OSError):
+            if name.startswith("."):
                 continue
 
-            # проверь соответствие с base_item до цикла
-            base_item
-            order_data = (name, type_, size, mod, colors, rating)
-            item: dict = {k: v for k, v in zip(ORDER.keys(), order_data)}
-            item.update({"src": src})
+            if src.lower().endswith(Config.IMG_EXT) or os.path.isdir(src):
 
-            if src.lower().endswith(Config.IMG_EXT):
-                self.finder_items.append(item)
-                
-            elif os.path.isdir(src):
-                self.finder_items.append(item)
+                try:
+                    stats = os.stat(src)
+                except (PermissionError, FileNotFoundError, OSError):
+                    continue
 
-    def sort_items(self):
-        if not self.finder_items:
-            return
+                size = stats.st_size
+                mod = stats.st_mtime
+                colors = ""
+                rating = 0
 
-        if not hasattr(Thumb(), JsonData.sort):
-            attributes = list(ORDER.keys())
-            print("grid_standart.py > sort_items > Thumb не имеет атрибута из JsonData.sort")
-            print("аттрибут из Json:", JsonData.sort)
-            print("доступные аттрибуты:", *attributes)
-            JsonData.sort = attributes[0]
-            print(f"Устанавливаю аттрибут {JsonData.sort}")
+                db_item = self.db_color_rating.get(src)
+                if db_item:
+                    colors, rating = db_item
 
-        key = lambda x: x[JsonData.sort]
-        self.finder_items = sorted(self.finder_items, key=key, reverse=JsonData.reversed)
+                self.order_items.append(OrderItem(src, size, mod, colors, rating))
 
 
 class GridStandart(Grid):
@@ -298,45 +262,54 @@ class GridStandart(Grid):
         # делаем os listdir обход и по сигналу finished
         # запустится создание сетки
         # в конце создания запустится подгрузка изображений
+
+        self.pixmap_disk: QPixmap = QPixmap("images/disk_210.png")
+        self.pixmap_folder: QPixmap = QPixmap("images/folder_210.png")
+        self.pixmap_img: QPixmap = QPixmap("images/file_210.png")
+
         self.finder_thread = LoadFinder()
         self.finder_thread._finished.connect(self.create_grid)
         self.finder_thread.start()
 
-    def create_grid(self, finder_items: list[dict]):
+    def create_grid(self, finder_items: list[OrderItem]):
         src_size_mod: list[tuple] = []
-        sys_disk = os.sep + "Macintosh HD"
+        sys_disk = os.path.join(os.sep, "Volumes", "Macintosh HD")
 
         col_count = Utils.get_clmn_count(self.ww)
         row, col = 0, 0
 
-        for data in finder_items:
+        for order_item in finder_items:
+            src = order_item.src
 
-            if os.path.isdir(data.get("src")):
-                if os.path.ismount(data.get("src")) or sys_disk in data.get("src"):
-                    pixmap = QPixmap("images/disk_210.png")
+            if os.path.isdir(src):
+
+                if os.path.ismount(src) or src == sys_disk:
+                    pixmap = self.pixmap_disk
+
                 else:
-                    pixmap = QPixmap("images/folder_210.png")
+                    pixmap = self.pixmap_folder
+
                 wid = ThumbFolder(
-                    src=data.get("src"),
-                    colors=data.get("colors"),
-                    rating=data.get("rating"),
-                    size=data.get("size"),
-                    mod=data.get("mod"),
+                    src=src,
+                    colors=order_item.colors,
+                    rating=order_item.rating,
+                    size=order_item.size,
+                    mod=order_item.mod,
                     pixmap=pixmap
                     )
 
             else:
                 wid = Thumb(
-                    src=data.get("src"),
-                    colors=data.get("colors"),
-                    rating=data.get("rating"),
-                    size=data.get("size"),
-                    mod=data.get("mod"),
-                    pixmap=QPixmap("images/file_210.png"),
+                    src=src,
+                    colors=order_item.colors,
+                    rating=order_item.rating,
+                    size=order_item.size,
+                    mod=order_item.mod,
+                    pixmap=self.pixmap_img,
                     path_to_wid=self.path_to_wid
                     )
 
-                src_size_mod.append((data.get("src"), data.get("size"), data.get("mod")))
+                src_size_mod.append((order_item.src, order_item.size, order_item.mod))
 
             wid.clicked.connect(lambda w=wid: self.select_new_widget(w))
             self.grid_layout.addWidget(wid, row, col)
