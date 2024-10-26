@@ -50,7 +50,13 @@ class Config:
         ".png",
         ".nef", ".cr2", ".cr3", ".arw", ".raf"
         )
-      
+    
+    IMG_EXT: tuple = tuple(
+        upper_ext
+        for ext in IMG_EXT
+        for upper_ext in (ext, ext.upper())
+        )
+              
     COLORS: dict = {
         "\U0001F534": "Красный",
         "\U0001F535": "Синий",

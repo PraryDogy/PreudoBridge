@@ -48,10 +48,15 @@ class LoadImages(QThread):
     # не используется
     _finished = pyqtSignal()
     
-    def __init__(self, src_size_mod: list[tuple]):
+    def __init__(self, order_items: list[OrderItem]):
         super().__init__()
 
-        self.src_size_mod: list[tuple] = src_size_mod
+        self.src_size_mod: list[tuple] = [
+            (order_item.src, order_item.size, order_item.mod)
+            for order_item in order_items
+            if order_item.type_ != "Папка"
+            ]
+
         self.remove_db_images: list = []
         self.db_images: dict[tuple, bytearray] = {}
         self.flag = True
@@ -237,7 +242,7 @@ class LoadFinder(QThread):
             if name.startswith("."):
                 continue
 
-            if src.lower().endswith(Config.IMG_EXT) or os.path.isdir(src):
+            if src.endswith(Config.IMG_EXT) or os.path.isdir(src):
 
                 try:
                     stats = os.stat(src)
@@ -267,18 +272,21 @@ class GridStandart(Grid):
         self.pixmap_folder: QPixmap = QPixmap("images/folder_210.png")
         self.pixmap_img: QPixmap = QPixmap("images/file_210.png")
 
+        self.order_items: list[OrderItem] = []
+
         self.finder_thread = LoadFinder()
         self.finder_thread._finished.connect(self.create_grid)
         self.finder_thread.start()
 
-    def create_grid(self, finder_items: list[OrderItem]):
-        src_size_mod: list[tuple] = []
+    def create_grid(self, order_items: list[OrderItem]):
+
+        self.order_items = order_items
         sys_disk = os.path.join(os.sep, "Volumes", "Macintosh HD")
 
         col_count = Utils.get_clmn_count(self.ww)
         row, col = 0, 0
 
-        for order_item in finder_items:
+        for order_item in self.order_items:
             src = order_item.src
 
             if os.path.isdir(src):
@@ -309,7 +317,7 @@ class GridStandart(Grid):
                     path_to_wid=self.path_to_wid
                     )
 
-                src_size_mod.append((order_item.src, order_item.size, order_item.mod))
+                # src_size_mod.append((order_item.src, order_item.size, order_item.mod))
 
             wid.clicked.connect(lambda w=wid: self.select_new_widget(w))
             self.grid_layout.addWidget(wid, row, col)
@@ -322,7 +330,7 @@ class GridStandart(Grid):
                 row += 1
 
         if self.cell_to_wid:
-            self.start_load_images(src_size_mod)
+            self.start_load_images()
 
         elif not os.path.exists(JsonData.root):
             t = f"{JsonData.root}\nТакой папки не существует\nПроверьте подключение к сетевому диску"
@@ -348,8 +356,8 @@ class GridStandart(Grid):
             if i.isFinished():
                 Threads.all.remove(i)
 
-    def start_load_images(self, src_size_mod: list[tuple]):
-        thread = LoadImages(src_size_mod)
+    def start_load_images(self):
+        thread = LoadImages(self.order_items)
         thread.new_widget.connect(lambda image_data: self.set_pixmap(image_data))
         Threads.all.append(thread)
         thread.start()
