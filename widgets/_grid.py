@@ -5,7 +5,7 @@ from PyQt5.QtGui import QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import QFrame, QGridLayout, QWidget
 
 from cfg import GRID_SPACING, Config, JsonData
-from database import ORDER, OrderItem
+from database import ORDER
 from signals import SIGNALS
 from utils import Utils
 
@@ -34,7 +34,7 @@ class Grid(BaseGrid):
         self.curr_cell: tuple = (0, 0)
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.path_to_wid: dict[str, Thumb] = {}
-        self.ordered_widgets: list[OrderItem] = []
+        self.ordered_widgets: list[Thumb | ThumbFolder | ThumbSearch] = []
 
         self.ww = width
 
