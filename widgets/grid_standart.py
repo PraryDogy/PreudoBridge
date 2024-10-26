@@ -240,7 +240,9 @@ class LoadFinder(QThread):
             quit()
 
         for name in os.listdir(JsonData.root):
+
             src: str = os.path.join(JsonData.root, name)
+
             if src.lower().endswith(Config.IMG_EXT) or os.path.isdir(src):
 
                 try:
@@ -263,6 +265,7 @@ class LoadFinder(QThread):
 
                 item: dict = {k: v for k, v in zip(ORDER_KEYS, order_data)}
                 item.update({"src": src})
+                self.finder_items.append(item)
 
     def sort_items(self):
         if not self.finder_items:
