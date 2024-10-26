@@ -243,6 +243,9 @@ class LoadFinder(QThread):
 
             src: str = os.path.join(JsonData.root, name)
 
+            if name.startswith("."):
+                continue
+
             if src.lower().endswith(Config.IMG_EXT) or os.path.isdir(src):
 
                 try:
@@ -301,14 +304,18 @@ class GridStandart(Grid):
         row, col = 0, 0
 
         for data in finder_items:
+            src = data.get("src")
 
-            if os.path.isdir(data.get("src")):
-                if os.path.ismount(data.get("src")) or sys_disk in data.get("src"):
+            if os.path.isdir(src):
+
+                if os.path.ismount(src) or sys_disk == os.sep:
                     pixmap = QPixmap("images/disk_210.png")
+
                 else:
                     pixmap = QPixmap("images/folder_210.png")
+
                 wid = ThumbFolder(
-                    src=data.get("src"),
+                    src=src,
                     colors=data.get("colors"),
                     rating=data.get("rating"),
                     size=data.get("size"),
@@ -318,7 +325,7 @@ class GridStandart(Grid):
 
             else:
                 wid = Thumb(
-                    src=data.get("src"),
+                    src=src,
                     colors=data.get("colors"),
                     rating=data.get("rating"),
                     size=data.get("size"),
