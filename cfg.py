@@ -2,6 +2,7 @@ import json
 import os
 from datetime import date
 
+FOLDER: str = "Папка"
 MARGIN: dict = {"w": 50, "h": 10}
 MAX_SIZE: int = 210
 PIXMAP_SIZE: list = [90, 130, 170, MAX_SIZE]

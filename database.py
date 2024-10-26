@@ -3,7 +3,7 @@ import os
 import sqlalchemy
 from sqlalchemy.exc import OperationalError
 
-from cfg import Config, JsonData
+from cfg import Config, JsonData, FOLDER
 from utils import Utils
 
 
@@ -59,7 +59,7 @@ class OrderItem:
         if type_ in Config.IMG_EXT:
             self.type_ = type_
         else:
-            self.type_ = "Папка"
+            self.type_ = FOLDER
 
     @classmethod
     def order_items(cls, order_items: list["OrderItem"]) -> list["OrderItem"]:

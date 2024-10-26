@@ -6,15 +6,15 @@ from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtWidgets import QLabel
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import MAX_SIZE, Config, JsonData
-from database import CACHE, STATS, Engine
+from cfg import FOLDER, MAX_SIZE, Config, JsonData
+from database import CACHE, ORDER, STATS, Engine, OrderItem
 from fit_img import FitImg
 from signals import SIGNALS
 from utils import Utils
 
 from ._grid import Grid, Thumb
 from ._thumb import ThumbFolder
-from database import ORDER, OrderItem
+
 
 # Если родительский класс запущенного треда будет закрыт
 # Тред получит сигнал стоп и безопасно завершится
@@ -54,7 +54,7 @@ class LoadImages(QThread):
         self.src_size_mod: list[tuple] = [
             (order_item.src, order_item.size, order_item.mod)
             for order_item in order_items
-            if order_item.type_ != "Папка"
+            if order_item.type_ != FOLDER
             ]
 
         self.remove_db_images: list = []
