@@ -100,8 +100,12 @@ class Grid(BaseGrid):
             return
 
         if not hasattr(Thumb(), JsonData.sort):
+            attributes = list(ORDER.keys())
             print("_grid.py > sort_grid > Thumb не имеет атрибута из JsonData.sort")
-            quit()
+            print("аттрибут из Json:", JsonData.sort)
+            print("доступные аттрибуты:", *attributes)
+            JsonData.sort = attributes[0]
+            print(f"Устанавливаю аттрибут {JsonData.sort}")
 
         if JsonData.sort == "colors":
             key = lambda x: len(getattr(x, JsonData.sort))
