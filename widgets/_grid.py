@@ -5,7 +5,7 @@ from PyQt5.QtGui import QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import QFrame, QGridLayout, QWidget
 
 from cfg import GRID_SPACING, Config, JsonData
-from database import ORDER
+from database import ORDER, OrderItem
 from signals import SIGNALS
 from utils import Utils
 
@@ -34,7 +34,7 @@ class Grid(BaseGrid):
         self.curr_cell: tuple = (0, 0)
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.path_to_wid: dict[str, Thumb] = {}
-        self.sorted_widgets: list[Thumb | ThumbFolder | ThumbSearch] = []
+        self.ordered_widgets: list[OrderItem] = []
 
         self.ww = width
 
@@ -96,7 +96,7 @@ class Grid(BaseGrid):
                 self.select_new_widget(self.curr_cell)
 
     def sort_grid(self):
-        if not self.sorted_widgets:
+        if not self.ordered_widgets:
             return
 
         if not hasattr(Thumb(), JsonData.sort):
@@ -112,18 +112,18 @@ class Grid(BaseGrid):
         else:
             key = lambda x: getattr(x, JsonData.sort)
         rev = JsonData.reversed
-        self.sorted_widgets = sorted(self.sorted_widgets, key=key, reverse=rev)
+        self.ordered_widgets = sorted(self.ordered_widgets, key=key, reverse=rev)
         
         self.path_to_wid = {
             wid.src: wid
-            for wid in self.sorted_widgets
+            for wid in self.ordered_widgets
             if isinstance(wid, Thumb)
             }
         
         self.rearrange_grid()
 
     def filter_grid(self):
-        for wid in self.sorted_widgets:
+        for wid in self.ordered_widgets:
             show_widget = True
 
             if Config.rating_filter > 0:
@@ -144,7 +144,7 @@ class Grid(BaseGrid):
         self.rearrange_grid()
 
     def resize_grid(self):
-        for wid in self.sorted_widgets:
+        for wid in self.ordered_widgets:
             wid.setup()
         self.rearrange_grid()
 
@@ -162,7 +162,7 @@ class Grid(BaseGrid):
 
         row, col = 0, 0
 
-        for wid in self.sorted_widgets:
+        for wid in self.ordered_widgets:
 
             if wid.must_hidden:
                 continue
@@ -181,7 +181,7 @@ class Grid(BaseGrid):
         wid.row, wid.col = row, col
         self.cell_to_wid[row, col] = wid
         self.path_to_wid[wid.src] = wid
-        self.sorted_widgets.append(wid)
+        self.ordered_widgets.append(wid)
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         wid: Thumb | ThumbFolder 
