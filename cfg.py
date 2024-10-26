@@ -44,7 +44,7 @@ class Config:
     GRAY = "rgba(111, 111, 111, 0.5)"
 
     IMG_EXT: tuple = (
-        ".jpg", "jpeg", "jfif",
+        ".jpg", ".jpeg", ".jfif",
         ".tif", ".tiff",
         ".psd", ".psb",
         ".png",

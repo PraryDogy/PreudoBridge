@@ -26,11 +26,6 @@ CACHE = sqlalchemy.Table(
     sqlalchemy.Column("rating", sqlalchemy.Integer, nullable=False, comment="Рейтинг")
     )
 
-ORDER: dict[dict[str, int]] = {
-    clmn.name: {"text": clmn.comment, "index": ind}
-    for ind, clmn in enumerate(CACHE.columns)
-    if clmn.comment
-    }
 
 STATS = sqlalchemy.Table(
     'stats', Engine.metadata,
@@ -38,6 +33,39 @@ STATS = sqlalchemy.Table(
     sqlalchemy.Column('name', sqlalchemy.Text, unique=True),
     sqlalchemy.Column('size', sqlalchemy.Integer)
     )
+
+ORDER: dict[dict[str, int]] = {
+    clmn.name: {"text": clmn.comment, "index": ind}
+    for ind, clmn in enumerate(CACHE.columns)
+    if clmn.comment
+    }
+
+
+# Аттрибуты соответствуют ORDER и CACHE
+# name, type извлекаются из src
+class OrderItem:
+    def __init__(
+            self,
+            src: str = None,
+            size: int = None,
+            mod: int = None,
+            colors: str = None,
+            rating: int = None,
+            ):
+
+        super().__init__()
+        self.src: str = "" if src is None else src
+        self.name: str = os.path.split(self.src)[-1]
+        self.size: int = 0 if size is None else size
+        self.mod: int = 0 if mod is None else mod
+        self.colors: str = "" if colors is None else colors
+        self.rating: int = 0 if rating is None else rating
+
+        type_: str = os.path.splitext(self.src)[-1]
+        if type_ in Config.IMG_EXT:
+            self.type_ = type_
+        else:
+            self.type_ = "Папка"
 
 
 class Dbase:

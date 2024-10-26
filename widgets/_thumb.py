@@ -10,66 +10,11 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QLabel, QMenu,
 from sqlalchemy.exc import OperationalError
 
 from cfg import MARGIN, PIXMAP_SIZE, TEXT_LENGTH, THUMB_W, Config, JsonData
-from database import CACHE, Engine
+from database import CACHE, Engine, OrderItem
 from signals import SIGNALS
 from utils import Utils
 
 from .win_info import WinInfo
-
-class ThumbVars:
-    def __init__(
-            self,
-            src: str = None,
-            size: int = None,
-            mod: int = None,
-            colors: str = None,
-            rating: int = None,
-            pixmap: QPixmap = None,
-            path_to_wid: dict[str, QLabel] = None
-            ):
-
-        super().__init__()
-  
-        ############################################################
-        # path_to_wid для просмотрщика, must_hidden для фильтрации сетки
-        self.must_hidden: bool = False
-        ############################################################
-        # Данные аттрибуты должны соответстовать ключам в ORDER
-        # так как по этим аттрибутам будет совершаться сортировка сетки
-        # и фильтрация
-        # в Grid ниже будет совершена проверка
-        self.img: QPixmap = pixmap
-        self.src: str = "" if src is None else src
-
-        self.name: str = os.path.split(self.src)[-1]
-        self.size: int = 0 if size is None else size
-        self.mod: int = 0 if mod is None else mod
-        self.colors: str = "" if colors is None else colors
-        self.rating: int = 0 if rating is None else rating
-
-        self.path_to_wid: dict[str, QLabel] = {} if path_to_wid is None else path_to_wid
-        ############################################################
-        # для навигации по сетке
-        self.row, self.col = 0, 0
-
-        type_: str = os.path.splitext(self.src)[-1]
-        if type_:
-            self.type_ = type_
-        else:
-            self.type_ = "Папка"
-
-        size_ = round(self.size / (1024**2), 2)
-        if size_ < 1000:
-            self.f_size = f"{size_} МБ"
-        else:
-            size_ = round(self.size / (1024**3), 2)
-            self.f_size = f"{size_} ГБ"
-
-        if self.mod:
-            str_date = datetime.datetime.fromtimestamp(self.mod).replace(microsecond=0)
-            self.f_mod: str = str_date.strftime("%d.%m.%Y %H-%M")
-        else:
-            self.f_mod = ""
 
 
 class NameLabel(QLabel):
@@ -78,7 +23,7 @@ class NameLabel(QLabel):
     def __init__(self):
         super().__init__()
 
-    def set_text(self, wid: ThumbVars) -> list[str]:
+    def set_text(self, wid: OrderItem) -> list[str]:
         name: str | list = wid.name
 
         # Максимальная длина строки исходя из ширины pixmap в Thumb
@@ -112,11 +57,11 @@ class ColorLabel(QLabel):
         super().__init__()
         self.setStyleSheet("font-size: 9px;")
 
-    def set_text(self, wid: ThumbVars):
+    def set_text(self, wid: OrderItem):
         self.setText(wid.colors)
 
 
-class Thumb(QFrame, ThumbVars):
+class Thumb(QFrame, OrderItem):
     clicked = pyqtSignal()
 
     def __init__(
@@ -131,7 +76,25 @@ class Thumb(QFrame, ThumbVars):
             ):
 
         QFrame.__init__(self)
-        ThumbVars.__init__(self, src, size, mod, colors, rating, pixmap, path_to_wid)
+        OrderItem.__init__(self, src, size, mod, colors, rating)
+
+        self.img: QPixmap = pixmap
+        self.must_hidden: bool = False
+        self.path_to_wid: dict[str, QLabel] = {} if path_to_wid is None else path_to_wid
+        self.row, self.col = 0, 0
+
+        size_ = round(self.size / (1024**2), 2)
+        if size_ < 1000:
+            self.f_size = f"{size_} МБ"
+        else:
+            size_ = round(self.size / (1024**3), 2)
+            self.f_size = f"{size_} ГБ"
+
+        if self.mod:
+            str_date = datetime.datetime.fromtimestamp(self.mod).replace(microsecond=0)
+            self.f_mod: str = str_date.strftime("%d.%m.%Y %H-%M")
+        else:
+            self.f_mod = ""
 
         margin = 0
 
