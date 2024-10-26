@@ -58,12 +58,12 @@ class ThumbVars:
         else:
             self.type_ = "Папка"
 
-        _size = round(self.size / (1024**2), 2)
-        if _size < 1000:
-            self.f_size = f"{_size} МБ"
+        size_ = round(self.size / (1024**2), 2)
+        if size_ < 1000:
+            self.f_size = f"{size_} МБ"
         else:
-            _size = round(self.size / (1024**3), 2)
-            self.f_size = f"{_size} ГБ"
+            size_ = round(self.size / (1024**3), 2)
+            self.f_size = f"{size_} ГБ"
 
         if self.mod:
             str_date = datetime.datetime.fromtimestamp(self.mod).replace(microsecond=0)
