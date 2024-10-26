@@ -45,13 +45,12 @@ class ListStandart(BaseTableView):
     def double_clicked(self, index):
         path = self._model.filePath(index)
         path = os.path.abspath(path)
-        path_lower = path.lower()
 
         if os.path.isdir(path):
             self.setCurrentIndex(index)
             SIGNALS.load_standart_grid.emit(path)
 
-        elif path_lower.endswith(Config.IMG_EXT):
+        elif path.endswith(Config.IMG_EXT):
             thumbnail = Thumb()
             self.win = WinImgView(path, {path: thumbnail})
             self.win.show()

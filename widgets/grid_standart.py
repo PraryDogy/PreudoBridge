@@ -275,10 +275,10 @@ class GridStandart(Grid):
         self.order_items: list[OrderItem] = []
 
         self.finder_thread = LoadFinder()
-        self.finder_thread._finished.connect(self.create_grid)
+        self.finder_thread._finished.connect(self.create_sorted_grid)
         self.finder_thread.start()
 
-    def create_grid(self, order_items: list[OrderItem]):
+    def create_sorted_grid(self, order_items: list[OrderItem]):
 
         self.order_items = order_items
         sys_disk = os.path.join(os.sep, "Volumes", "Macintosh HD")
