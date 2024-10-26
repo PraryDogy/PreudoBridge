@@ -207,16 +207,16 @@ class LoadFinder(QThread):
     def __init__(self):
         super().__init__()
         self.db_color_rating: dict[str, list] = {}
-        self.order_items: list[dict] = []
+        self.order_items: list[OrderItem] = []
 
     def run(self):
         try:
             self.get_color_rating()
             self.get_items()
-            self.sort_items()
+            self.order_items = OrderItem.order_items(self.order_items)
         except (PermissionError, FileNotFoundError) as e:
             Utils.print_error(self, e)
-            self.order_items: list = []
+            self.order_items = []
         
         self._finished.emit(self.order_items)
 
@@ -253,13 +253,7 @@ class LoadFinder(QThread):
                 if db_item:
                     colors, rating = db_item
 
-                item = OrderItem(src, size, mod, colors, rating)
-                self.order_items.append(item)
-
-    def sort_items(self):
-        if not self.order_items:
-            return
-        self.order_items = OrderItem.order_items(self.order_items)
+                self.order_items.append(OrderItem(src, size, mod, colors, rating))
 
 
 class GridStandart(Grid):
