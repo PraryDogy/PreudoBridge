@@ -96,9 +96,6 @@ class Grid(BaseGrid):
                 self.select_new_widget(self.curr_cell)
 
     def order_grid(self):
-        if not self.ordered_widgets:
-            return
-
         self.ordered_widgets = OrderItem.order_items(self.ordered_widgets)
         
         self.path_to_wid = {
