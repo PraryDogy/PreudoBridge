@@ -231,7 +231,7 @@ class LoadFinder(QThread):
     def get_items(self) -> list:
 
         order = tuple(ORDER.keys())
-        item = ("name", "type_", "size", "mod", "colors", "rating")
+        base_item = ("name", "type_", "size", "mod", "colors", "rating")
         test = bool(item == order)
 
         if not test:
@@ -264,7 +264,8 @@ class LoadFinder(QThread):
             except (PermissionError, FileNotFoundError, OSError):
                 continue
 
-            # проверь соответствие с item до цикла
+            # проверь соответствие с base_item до цикла
+            base_item
             order_data = (name, type_, size, mod, colors, rating)
             item: dict = {k: v for k, v in zip(ORDER.keys(), order_data)}
             item.update({"src": src})
