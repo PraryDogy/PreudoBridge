@@ -230,51 +230,39 @@ class LoadFinder(QThread):
 
     def get_items(self) -> list:
 
-        order = tuple(ORDER.keys())
-        base_item = ("name", "type_", "size", "mod", "colors", "rating")
-        test = bool(item == order)
+        ORDER_KEYS = tuple(ORDER.keys())
+        ITERATOR = ("name", "type_", "size", "mod", "colors", "rating")
+        test = bool(ITERATOR == ORDER_KEYS)
 
         if not test:
-            print()
-            print("grid_standart > LoadFinder > get_items")
-            print("итератор item не соответствует ORDER")
-            if len(item) > len(order):
-                print("Лишний элемент в item")
-            else:
-                print("Новый элемент в ORDER, добавь его в item")
+            print("grid standart > LoadFinder > get_items")
+            print("Не совпадает ORDER_KEYS и ITERATOR")
             quit()
 
         for name in os.listdir(JsonData.root):
-
             src: str = os.path.join(JsonData.root, name)
+            if src.lower().endswith(Config.IMG_EXT) or os.path.isdir(src):
 
-            try:
-                stats = os.stat(src)
+                try:
+                    stats = os.stat(src)
+                except (PermissionError, FileNotFoundError, OSError):
+                    continue
+
                 size = stats.st_size
                 mod = stats.st_mtime
                 type_ = os.path.splitext(name)[1]
+                colors = ""
+                rating = 0
 
-                if self.db_color_rating.get(src):
-                    colors = self.db_color_rating.get(src)[0]
-                    rating = self.db_color_rating.get(src)[1]
-                else:
-                    colors = ""
-                    rating = 0
+                db_item = self.db_color_rating.get(src)
+                if db_item:
+                    colors, rating = db_item
 
-            except (PermissionError, FileNotFoundError, OSError):
-                continue
+                ORDER_KEYS
+                order_data = (name, type_, size, mod, colors, rating)
 
-            # проверь соответствие с base_item до цикла
-            base_item
-            order_data = (name, type_, size, mod, colors, rating)
-            item: dict = {k: v for k, v in zip(ORDER.keys(), order_data)}
-            item.update({"src": src})
-
-            if src.lower().endswith(Config.IMG_EXT):
-                self.finder_items.append(item)
-                
-            elif os.path.isdir(src):
-                self.finder_items.append(item)
+                item: dict = {k: v for k, v in zip(ORDER_KEYS, order_data)}
+                item.update({"src": src})
 
     def sort_items(self):
         if not self.finder_items:
