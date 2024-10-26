@@ -63,6 +63,14 @@ class OrderItem:
 
     @classmethod
     def order_items(cls, order_items: list["OrderItem"]) -> list["OrderItem"]:
+        
+        order = list(ORDER.keys())
+
+        if JsonData.sort not in order:
+            print("database > OrderItem > order_items")
+            print("Такой сортировки не существует:", JsonData.sort)
+            print("Применяю сортировку из ORDER:", order[0])
+            JsonData.sort = order[0]
 
         if JsonData.sort == "colors":
             key = lambda x: len(getattr(x, JsonData.sort))
