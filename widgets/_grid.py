@@ -165,9 +165,13 @@ class Grid(BaseGrid):
             if root != os.sep:
                 SIGNALS.load_standart_grid.emit(root)
 
-        if a0.modifiers() & Qt.KeyboardModifier.ControlModifier and a0.key() == Qt.Key.Key_Down:
+        elif a0.modifiers() & Qt.KeyboardModifier.ControlModifier and a0.key() == Qt.Key.Key_Down:
             wid = self.cell_to_wid.get(self.curr_cell)
             wid.view()
+
+        elif a0.modifiers() & Qt.KeyboardModifier.ControlModifier and a0.key() == Qt.Key.Key_I:
+            wid = self.cell_to_wid.get(self.curr_cell)
+            wid.show_info_win()
 
         elif a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
             wid = self.cell_to_wid.get(self.curr_cell)
