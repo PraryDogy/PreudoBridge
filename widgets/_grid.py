@@ -163,6 +163,7 @@ class Grid(BaseGrid):
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier and a0.key() == Qt.Key.Key_Up:
             root = os.path.dirname(JsonData.root)
             if root != os.sep:
+                SIGNALS.new_history.emit(root)
                 SIGNALS.load_standart_grid.emit(root)
 
         elif a0.modifiers() & Qt.KeyboardModifier.ControlModifier and a0.key() == Qt.Key.Key_Down:

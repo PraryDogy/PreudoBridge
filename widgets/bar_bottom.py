@@ -96,4 +96,5 @@ class BarBottom(QWidget):
         if a0.button() == Qt.MouseButton.LeftButton:
             new_path = rooted[:rooted.index(chunk) + 1]
             new_path = os.path.join(os.sep, *new_path)
+            SIGNALS.new_history.emit(new_path)
             SIGNALS.load_standart_grid.emit(new_path)

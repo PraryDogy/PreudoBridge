@@ -450,10 +450,12 @@ class AdvancedBtn(QPushButton):
 class HistoryBtn(QPushButton):
     def __init__(self, text: str):
         super().__init__(text)
-        self.setFixedWidth(60)
+        self.setFixedWidth(50)
 
 
 class BarTop(QFrame):
+    back_sym = "\u25C0"
+    next_sym = "\u25B6"
     def __init__(self):
         super().__init__()
         self.setFixedHeight(40)
@@ -469,13 +471,13 @@ class BarTop(QFrame):
         self.setLayout(self.grid_layout)
 
         self.clmn += 1
-        self.back_btn = HistoryBtn("\u25C0")
-        self.back_btn.clicked.connect(self.back_cmd)
+        self.back_btn = HistoryBtn(self.back_sym)
+        self.back_btn.clicked.connect(lambda: self.move_in_history(-1))
         self.grid_layout.addWidget(self.back_btn, 0, self.clmn)
 
         self.clmn += 1
-        self.next_btn = HistoryBtn("\u25B6")
-        self.next_btn.clicked.connect(self.next_cmd)
+        self.next_btn = HistoryBtn(self.next_sym)
+        self.next_btn.clicked.connect(lambda: self.move_in_history(1))
         self.grid_layout.addWidget(self.next_btn, 0, self.clmn)
 
         self.clmn += 1
@@ -507,18 +509,19 @@ class BarTop(QFrame):
         self.grid_layout.addWidget(self.search_wid, 0, self.clmn)
 
         SIGNALS.new_history.connect(self.new_history)
+        self.new_history(JsonData.root)
 
     def new_history(self, root: str):
         if root == os.sep:
             return
         
-        if root not in self.history:
-            self.history.append(root)
+        self.history.append(root)
 
-    def back_cmd(self):
-        ind = self.history.index(JsonData.root) - 1
-        SIGNALS.load_standart_grid.emit(self.history[ind])
-        print(self.history)
-
-    def next_cmd(self):
-        print(self.history)
+    def move_in_history(self, offset: int):
+        try:
+            ind = self.history.index(JsonData.root) + offset
+            if ind == -1:
+                return
+            SIGNALS.load_standart_grid.emit(self.history[ind])
+        except (ValueError, IndexError):
+            pass
