@@ -521,7 +521,7 @@ class BarTop(QFrame):
             return
         
         self.history.append(root)
-        self.curr_ind = len(self.history)
+        self.curr_ind += 1
 
     def move_in_history(self, offset: int):
         try:
