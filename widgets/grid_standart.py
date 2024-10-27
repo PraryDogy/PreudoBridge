@@ -130,7 +130,7 @@ class LoadImages(QThread):
 
             if isinstance(pixmap, QPixmap):
 
-                self.new_widget.emit(ImageData(src, size))
+                self.new_widget.emit(ImageData(src, pixmap))
 
             try:
                 insert_stmt = self.get_insert_stmt(img_bytes, src, size, mod)
