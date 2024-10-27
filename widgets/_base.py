@@ -6,17 +6,17 @@ from cfg import GRAY
 
 
 class BaseMethods:
-    def rearrange_grid(self, *args, **kwargs):
-        raise Exception("Переопредели метод resize")
-
-    def order_grid(self, *args, **kwargs):
+    def order_(self, *args, **kwargs):
         raise Exception("Переопредели метод sort_grid")
 
-    def filter_grid(self, *args, **kwargs):
+    def filter_(self, *args, **kwargs):
         raise Exception("Переопредели метод filter_grid")
 
-    def resize_grid(self, *args, **kwargs):
+    def resize_(self, *args, **kwargs):
         raise Exception("Переопредели метод resize_grid")
+    
+    def rearrange(self, *args, **kwargs):
+        raise Exception("Переопредели метод rearrange")
 
 
 class BaseGrid(QScrollArea, BaseMethods):

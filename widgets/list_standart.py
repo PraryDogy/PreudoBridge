@@ -64,16 +64,16 @@ class ListStandart(BaseTableView):
     def open_in_finder(self, path: str):
         subprocess.call(["open", "-R", path])
 
-    def rearrange_grid(self, *args, **kwargs):
+    def rearrange(self, *args, **kwargs):
         ...
 
-    def order_grid(self, *args, **kwargs):
+    def order_(self, *args, **kwargs):
         ...
 
-    def filter_grid(self, *args, **kwargs):
+    def filter_(self, *args, **kwargs):
         ...
 
-    def resize_grid(self, *args, **kwargs):
+    def resize_(self, *args, **kwargs):
         ...
 
     def contextMenuEvent(self, event):

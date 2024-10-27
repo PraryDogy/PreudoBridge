@@ -35,9 +35,9 @@ class Grid(BaseGrid):
             except TypeError:
                 ...
 
-        SIGNALS.resize_grid.connect(self.resize_grid)
-        SIGNALS.sort_grid.connect(self.order_grid)
-        SIGNALS.filter_grid.connect(self.filter_grid)
+        SIGNALS.resize_grid.connect(self.resize_)
+        SIGNALS.sort_grid.connect(self.order_)
+        SIGNALS.filter_grid.connect(self.filter_)
         SIGNALS.move_to_wid.connect(self.select_new_widget)
 
         main_wid = QWidget()
@@ -83,7 +83,7 @@ class Grid(BaseGrid):
                 wid.set_colors_rating_db(wid.colors, rating_data.get(rating))
                 self.select_new_widget(self.curr_cell)
 
-    def order_grid(self):
+    def order_(self):
         self.ordered_widgets = OrderItem.order_items(self.ordered_widgets)
         
         self.path_to_wid = {
@@ -92,9 +92,9 @@ class Grid(BaseGrid):
             if isinstance(wid, Thumb)
             }
         
-        self.rearrange_grid()
+        self.rearrange()
 
-    def filter_grid(self):
+    def filter_(self):
         for wid in self.ordered_widgets:
             show_widget = True
 
@@ -113,14 +113,14 @@ class Grid(BaseGrid):
                 wid.must_hidden = True
                 wid.hide()
 
-        self.rearrange_grid()
+        self.rearrange()
 
-    def resize_grid(self):
+    def resize_(self):
         for wid in self.ordered_widgets:
             wid.setup()
-        self.rearrange_grid()
+        self.rearrange()
 
-    def rearrange_grid(self, width: int = None):
+    def rearrange(self, width: int = None):
         # когда меняется размер окна, этот метод отвечает за перетасовку
         # виджетов, поэтому отсюда мы отсылаем в инициатор self.ww
         if width:

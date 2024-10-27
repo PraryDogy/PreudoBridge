@@ -42,7 +42,7 @@ class SimpleFileExplorer(QWidget):
 
         self.resize_timer = QTimer(parent=self)
         self.resize_timer.setSingleShot(True)
-        self.resize_timer.timeout.connect(lambda: self.grid.rearrange_grid(self.get_grid_width()))
+        self.resize_timer.timeout.connect(lambda: self.grid.rearrange(self.get_grid_width()))
 
         self.migaet_timer = QTimer(parent=self)
         self.migaet_timer.timeout.connect(self.blink_title)
@@ -145,7 +145,7 @@ class SimpleFileExplorer(QWidget):
     def search_finished(self, search_text: str):
         self.migaet_timer.stop()
         self.setWindowTitle(f"🟢\tРезультаты поиска: \"{search_text}\"")
-        self.grid.order_grid()
+        self.grid.order_()
 
     def move_to_wid_delayed(self, filepath: str):
         JsonData.root = os.path.dirname(filepath)

@@ -222,21 +222,21 @@ class GridSearch(Grid):
             self.col = 0
             self.row += 1
  
-    def rearrange_grid(self, width: int = None):
+    def rearrange(self, width: int = None):
         if not self.search_thread.isRunning():
-            super().rearrange_grid(width)
+            super().rearrange(width)
     
-    def order_grid(self):
+    def order_(self):
         if not self.search_thread.isRunning():
-            super().order_grid()
+            super().order_()
 
-    def filter_grid(self):
+    def filter_(self):
         if not self.search_thread.isRunning():
-            super().filter_grid()
+            super().filter_()
 
-    def resize_grid(self):
+    def resize_(self):
         if not self.search_thread.isRunning():
-            super().resize_grid()
+            super().resize_()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         try:
