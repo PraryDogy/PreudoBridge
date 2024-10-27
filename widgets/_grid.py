@@ -59,14 +59,15 @@ class Grid(BaseGrid):
             new_wid = self.path_to_wid.get(data)
             coords = new_wid.row, new_wid.col
 
+        prev_wid = self.cell_to_wid.get(self.curr_cell)
+
         if isinstance(new_wid, Thumb):
-
-            prev_wid = self.cell_to_wid.get(self.curr_cell)
             prev_wid.set_no_frame()
-
             new_wid.set_frame()
             self.curr_cell = coords
             self.ensureWidgetVisible(new_wid)
+        else:
+            prev_wid.set_frame()
 
     def reset_selection(self):
         widget = self.cell_to_wid.get(self.curr_cell)
