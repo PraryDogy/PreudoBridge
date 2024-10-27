@@ -454,8 +454,13 @@ class HistoryBtn(QPushButton):
 
 
 class BarTop(QFrame):
-    back_sym = "\u25C0"
-    next_sym = "\u25B6"
+    BACK_SYM = "\u25C0"
+    NEXT_SYM = "\u25B6"
+    UP_SIMPLE = "\u2191"     # ↑
+    UP_DOUBLE = "\u21E7"     # ⇧
+    UP_BOLD = "\u2B06"       # ⬆
+    UP_CURVE = "\u2934"      # ⤴
+
     def __init__(self):
         super().__init__()
         self.setFixedHeight(40)
@@ -471,17 +476,17 @@ class BarTop(QFrame):
         self.setLayout(self.grid_layout)
 
         self.clmn += 1
-        self.back_btn = HistoryBtn(self.back_sym)
+        self.back_btn = HistoryBtn(self.BACK_SYM)
         self.back_btn.clicked.connect(lambda: self.navigate(-1))
         self.grid_layout.addWidget(self.back_btn, 0, self.clmn)
 
         self.clmn += 1
-        self.next_btn = HistoryBtn(self.next_sym)
+        self.next_btn = HistoryBtn(self.NEXT_SYM)
         self.next_btn.clicked.connect(lambda: self.navigate(1))
         self.grid_layout.addWidget(self.next_btn, 0, self.clmn)
 
         self.clmn += 1
-        self.level_up_btn = QPushButton("up")
+        self.level_up_btn = QPushButton(self.UP_CURVE)
         self.level_up_btn.clicked.connect(self.level_up)
         self.grid_layout.addWidget(self.level_up_btn, 0, self.clmn)
 
@@ -526,15 +531,15 @@ class BarTop(QFrame):
 
     def navigate(self, offset: int):
         try:
-            ind = self.index_ + offset
-            if ind == -1:
+            if self.index_ + offset in(-1, len(self.history)):
                 return
-            self.index_ = ind
-            SIGNALS.load_standart_grid.emit(self.history[ind])
+            self.index_ += offset
+            SIGNALS.load_standart_grid.emit(self.history[self.index_])
         except (ValueError, IndexError):
             pass
 
     def level_up(self, e):
         root = os.path.dirname(JsonData.root)
-        SIGNALS.new_history.emit(root)
-        SIGNALS.load_standart_grid.emit(root)
+        if not root == os.sep:
+            SIGNALS.new_history.emit(root)
+            SIGNALS.load_standart_grid.emit(root)
