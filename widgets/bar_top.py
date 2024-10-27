@@ -514,14 +514,15 @@ class BarTop(QFrame):
         self.grid_layout.addWidget(self.search_wid, 0, self.clmn)
 
         SIGNALS.new_history.connect(self.new_history)
-        self.new_history(JsonData.root)
+        SIGNALS.new_history.emit(JsonData.root)
+        self.curr_ind -= 1
 
     def new_history(self, root: str):
         if root == os.sep:
             return
         
         self.history.append(root)
-        self.curr_ind += 1
+        self.curr_ind = len(self.history) - 1
 
     def move_in_history(self, offset: int):
         try:
