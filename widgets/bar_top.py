@@ -487,6 +487,7 @@ class BarTop(QFrame):
 
         self.clmn += 1
         self.level_up_btn = QPushButton(self.UP_CURVE)
+        self.level_up_btn.setFixedWidth(50)
         self.level_up_btn.clicked.connect(self.level_up)
         self.grid_layout.addWidget(self.level_up_btn, 0, self.clmn)
 
