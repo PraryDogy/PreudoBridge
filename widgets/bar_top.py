@@ -526,7 +526,10 @@ class BarTop(QFrame):
     def new_history(self, root: str):
         if root == os.sep:
             return
-        
+
+        if len(self.history) > 100:
+            self.history.pop(-1)
+
         self.history.append(root)
         self.index_ = len(self.history) - 1
 
