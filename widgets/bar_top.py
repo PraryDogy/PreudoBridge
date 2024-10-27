@@ -463,7 +463,7 @@ class BarTop(QFrame):
 
         self.root: str = None
         self.history: list[str] = []
-        self.current_index: int = 0
+        self.curr_ind: int = 0
 
         self.grid_layout = QGridLayout()
         self.grid_layout.setSpacing(10)
@@ -479,6 +479,11 @@ class BarTop(QFrame):
         self.next_btn = HistoryBtn(self.next_sym)
         self.next_btn.clicked.connect(lambda: self.move_in_history(1))
         self.grid_layout.addWidget(self.next_btn, 0, self.clmn)
+
+        self.clmn += 1
+        self.level_up_btn = QPushButton("up")
+        self.level_up_btn.clicked.connect(self.level_up)
+        self.grid_layout.addWidget(self.level_up_btn, 0, self.clmn)
 
         self.clmn += 1
         self.grid_layout.setColumnStretch(self.clmn, 10)
@@ -516,12 +521,19 @@ class BarTop(QFrame):
             return
         
         self.history.append(root)
+        self.curr_ind = len(self.history)
 
     def move_in_history(self, offset: int):
         try:
-            ind = self.history.index(JsonData.root) + offset
+            ind = self.curr_ind + offset
             if ind == -1:
                 return
+            self.curr_ind = ind
             SIGNALS.load_standart_grid.emit(self.history[ind])
         except (ValueError, IndexError):
             pass
+
+    def level_up(self, e):
+        root = os.path.dirname(JsonData.root)
+        SIGNALS.new_history.emit(root)
+        SIGNALS.load_standart_grid.emit(root)
