@@ -61,7 +61,7 @@ class ColorLabel(QLabel):
         self.setText(wid.colors)
 
 
-class Thumb(QFrame, OrderItem):
+class Thumb(OrderItem, QFrame):
     clicked = pyqtSignal()
 
     def __init__(

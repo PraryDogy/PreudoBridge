@@ -41,11 +41,12 @@ ORDER: dict[dict[str, int]] = {
     }
 
 
-# Аттрибуты соответствуют ORDER и CACHE
-# name, type извлекаются из src
 class OrderItem:
-    def __init__(self, src: str = None, size: int = None, mod: int = None, colors: str = None, rating: int = None):
-        self.src: str = "" if src is None else src
+    def __init__(self, src: str, size: int = None, mod: int = None, colors: str = None, rating: int = None):
+
+        super().__init__()
+
+        self.src: str = src
         self.size: int = 0 if size is None else size
         self.mod: int = 0 if mod is None else mod
         self.colors: str = "" if colors is None else colors
