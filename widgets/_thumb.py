@@ -400,7 +400,7 @@ class ThumbFolder(Thumb):
         context_menu = QMenu(parent=self)
 
         view_action = QAction("Просмотр", self)
-        view_action.triggered.connect(lambda: self.clicked_folder.emit(self.src))
+        view_action.triggered.connect(self.view)
         context_menu.addAction(view_action)
 
         show_in_finder_action = QAction("Показать в Finder", self)
