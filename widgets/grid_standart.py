@@ -258,7 +258,8 @@ class LoadFinder(QThread):
                 if db_item:
                     colors, rating = db_item
 
-                self.order_items.append(OrderItem(src, size, mod, colors, rating))
+                item = OrderItem(src, size, mod, colors, rating)
+                self.order_items.append(item)
 
 
 class GridStandart(Grid):
@@ -287,37 +288,34 @@ class GridStandart(Grid):
         row, col = 0, 0
 
         for order_item in self.order_items:
-            src = order_item.src
+    
+            if os.path.isdir(order_item.src):
 
-            if os.path.isdir(src):
-
-                if os.path.ismount(src) or src == sys_disk:
+                if os.path.ismount(order_item.src) or order_item.src == sys_disk:
                     pixmap = self.pixmap_disk
 
                 else:
                     pixmap = self.pixmap_folder
 
                 wid = ThumbFolder(
-                    src=src,
-                    colors=order_item.colors,
-                    rating=order_item.rating,
+                    src=order_item.src,
                     size=order_item.size,
                     mod=order_item.mod,
+                    colors=order_item.colors,
+                    rating=order_item.rating,
                     pixmap=pixmap
                     )
 
             else:
                 wid = Thumb(
-                    src=src,
-                    colors=order_item.colors,
-                    rating=order_item.rating,
+                    src=order_item.src,
                     size=order_item.size,
                     mod=order_item.mod,
+                    colors=order_item.colors,
+                    rating=order_item.rating,
                     pixmap=self.pixmap_img,
                     path_to_wid=self.path_to_wid
                     )
-
-                # src_size_mod.append((order_item.src, order_item.size, order_item.mod))
 
             wid.clicked.connect(lambda w=wid: self.select_new_widget(w))
             self.grid_layout.addWidget(wid, row, col)

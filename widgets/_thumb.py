@@ -66,7 +66,7 @@ class Thumb(QFrame, OrderItem):
 
     def __init__(
             self,
-            src: str = None,
+            src: str,
             size: int = None,
             mod: int = None,
             colors: str = None,
@@ -75,8 +75,8 @@ class Thumb(QFrame, OrderItem):
             path_to_wid: dict[str, QLabel] = None
             ):
 
-        QFrame.__init__(self)
-        OrderItem.__init__(self, src, size, mod, colors, rating)
+        QFrame.__init__(self, parent=None)
+        OrderItem.__init__(self, src=src, size=size, mod=mod, colors=colors, rating=rating)
 
         self.img: QPixmap = pixmap
         self.must_hidden: bool = False
@@ -106,7 +106,6 @@ class Thumb(QFrame, OrderItem):
 
         self.img_label = QLabel()
         self.img_label.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
-        # self.img_label.setContentsMargins(0, 10, 0, 0)
         v_lay.addWidget(self.img_label)
 
         self.name_label = NameLabel()
@@ -362,7 +361,7 @@ class Thumb(QFrame, OrderItem):
 class ThumbFolder(Thumb):
     def __init__(
             self, 
-            src: str = None, 
+            src: str, 
             size: int = None, 
             mod: int = None, 
             colors: str = None, 
@@ -370,8 +369,9 @@ class ThumbFolder(Thumb):
             pixmap: QPixmap = None, 
             path_to_wid: dict[str, QLabel] = None
             ):
-
-        super().__init__(src, size, mod, colors, rating, pixmap, path_to_wid)
+        
+        Thumb.__init__(self, src=src, size=size, mod=mod, colors=colors, rating=rating,
+                         pixmap=pixmap, path_to_wid=path_to_wid)
 
     def fav_cmd(self, offset: int):
         self.fav_action.triggered.disconnect()
@@ -426,7 +426,7 @@ class ThumbFolder(Thumb):
 class ThumbSearch(Thumb):
     def __init__(
         self, 
-        src: str = None, 
+        src: str, 
         size: int = None, 
         mod: int = None, 
         colors: str = None,
@@ -435,7 +435,8 @@ class ThumbSearch(Thumb):
         path_to_wid: dict[str, QLabel] = None
         ):
 
-        super().__init__(src, size, mod, colors, rating, pixmap, path_to_wid)
+        Thumb.__init__(self, src=src, size=size, mod=mod, colors=colors, 
+                         rating=rating, pixmap=pixmap, path_to_wid=path_to_wid)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         self.clicked.emit()
