@@ -264,6 +264,12 @@ class ColorLabel(QLabel):
 
 
 class FiltersBtn(QPushButton):
+    CROSS_MARK = "\u274C"      # ❌ (CROSS MARK)
+    HEAVY_M_X = "\u2716"       # ✖ (HEAVY MULTIPLICATION X)
+    BALLOT_X = "\u2718"        # ✘ (BALLOT X)
+    HEAVY_X = "\u2715"         # ✕ (HEAVY X)
+    BOXED_X = "\u2612"         # ☒ (BOXED X)
+
     def __init__(self):
         super().__init__(text="\U000026AB")
         
@@ -286,12 +292,20 @@ class FiltersBtn(QPushButton):
 
         self.filter_count = 0
         
+        self.color_wids: list[ColorLabel] = []
+
         for color in COLORS:
             label = ColorLabel(color)
             label.setFixedSize(20, 20)
+            # label.setStyleSheet("font-size: 10px;")
             label.mousePressEvent = lambda e, w=label, c=color: self.toggle_color(w, c)
-            label.is_selected = False
             color_lay.addWidget(label)
+            self.color_wids.append(label)
+
+        cancel_color = QLabel(self.HEAVY_X)
+        cancel_color.setFixedSize(20, 20)
+        cancel_color.mousePressEvent = self.cancel_color
+        color_lay.addWidget(cancel_color)
 
         color_lay.addStretch(1)
 
@@ -334,6 +348,15 @@ class FiltersBtn(QPushButton):
             widget.setStyleSheet("background: #007AFF;")
             widget.is_selected = True
 
+        SIGNALS.filter_grid.emit()
+
+    def cancel_color(self, e):
+        for wid in self.color_wids:
+            self.filter_count -= 1
+            wid.setStyleSheet("")
+            wid.is_selected = False
+
+        Dymanic.color_filters.clear()
         SIGNALS.filter_grid.emit()
 
     def toggle_rating(self, rate: int):
