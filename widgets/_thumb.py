@@ -3,7 +3,7 @@ import subprocess
 
 import sqlalchemy
 from PyQt5.QtCore import QMimeData, Qt, QUrl, pyqtSignal
-from PyQt5.QtGui import QContextMenuEvent, QDrag, QMouseEvent, QPixmap
+from PyQt5.QtGui import QContextMenuEvent, QDrag, QMouseEvent, QPixmap, QFont
 from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QLabel, QMenu,
                              QVBoxLayout)
 from sqlalchemy.exc import OperationalError
@@ -198,9 +198,13 @@ class Thumb(OrderItem, QFrame):
         color_menu = QMenu("Цвета", self)
         context_menu.addMenu(color_menu)
 
+        # font = QFont()
+        # font.setPointSize(13)
+
         for color, text in COLORS.items():
             wid = QAction(parent=color_menu, text=f"{color} {text}")
             wid.setCheckable(True)
+            # wid.setFont(font)
 
             if color in self.colors:
                 wid.setChecked(True)
