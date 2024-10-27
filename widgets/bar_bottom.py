@@ -1,14 +1,17 @@
 import os
+import subprocess
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QMouseEvent
-from PyQt5.QtWidgets import (QGridLayout, QHBoxLayout, QLabel, QProgressBar,
-                             QWidget)
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QContextMenuEvent, QMouseEvent
+from PyQt5.QtWidgets import (QAction, QGridLayout, QHBoxLayout, QLabel, QMenu,
+                             QProgressBar, QWidget)
 
-from cfg import JsonData
+from cfg import JsonData, BLUE
 from signals import SIGNALS
+from utils import Utils
 
 from ._base import BaseSlider
+from .win_info import WinInfo
 
 
 class CustomSlider(BaseSlider):
@@ -23,6 +26,49 @@ class CustomSlider(BaseSlider):
         self.setValue(value)
         JsonData.pixmap_size_ind = value
         SIGNALS.resize_grid.emit()
+
+
+class PathLabel(QLabel):
+    _clicked = pyqtSignal()
+
+    def __init__(self, src: str, text: str):
+        super().__init__(text)
+        self.src = src
+        self.setObjectName("path_label")
+
+    def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
+        context_menu = QMenu(parent=self)
+
+        view_action = QAction("Просмотр", self)
+        view_action.triggered.connect(self._clicked.emit)
+        context_menu.addAction(view_action)
+
+        context_menu.addSeparator()
+
+        info = QAction("Инфо", self)
+        info.triggered.connect(self.show_info_win)
+        context_menu.addAction(info)
+
+        show_in_finder_action = QAction("Показать в Finder", self)
+        show_in_finder_action.triggered.connect(self.show_in_finder)
+        context_menu.addAction(show_in_finder_action)
+
+        copy_path = QAction("Скопировать путь до папки", self)
+        copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
+        context_menu.addAction(copy_path)
+
+        self.setStyleSheet(f"#path_label {{ background: {BLUE}; border-radius: 2px; }} ")
+        context_menu.exec_(self.mapToGlobal(ev.pos()))
+        self.setStyleSheet("")
+
+    def show_info_win(self):
+        self.win_info = WinInfo(self.get_info())
+        Utils.center_win(parent=Utils.get_main_win(), child=self.win_info)
+        self.win_info.show()
+
+    def show_in_finder(self):
+        subprocess.call(["open", "-R", self.src])
+
 
 class BarBottom(QWidget):
     folder_sym = "\U0001F4C1"
@@ -68,12 +114,14 @@ class BarBottom(QWidget):
         self.path_label.setLayout(h_lay)
 
         root: str = JsonData.root
-        root = root.strip(os.sep).split(os.sep)
+        root: list = root.strip(os.sep).split(os.sep)
 
         chunks = []
-        for chunk in root:
-            label = QLabel(f"{BarBottom.folder_sym} {chunk} > ")
-            label.mouseReleaseEvent = lambda e, c=chunk: self.new_root(e, root, c)
+        for x, chunk in enumerate(root):
+            src = os.path.join(os.sep, *root[:x + 1])
+            label = PathLabel(src=src, text=f"{BarBottom.folder_sym} {chunk} > ")
+            label.mouseReleaseEvent = lambda e, c=chunk: self.new_root(root, c, e)
+            label._clicked.connect(lambda c=chunk: self.new_root(root, c))
             h_lay.addWidget(label, alignment=Qt.AlignmentFlag.AlignLeft)
             chunks.append(label)
 
@@ -92,8 +140,8 @@ class BarBottom(QWidget):
         chunks.clear()
         self.h_lay.addWidget(self.path_label, 0, 0, alignment=Qt.AlignmentFlag.AlignLeft)
 
-    def new_root(self, a0: QMouseEvent | None, rooted: list, chunk: str):
-        if a0.button() == Qt.MouseButton.LeftButton:
+    def new_root(self, rooted: list, chunk: str, a0: QMouseEvent = None):
+        if a0 is None or a0.button() == Qt.MouseButton.LeftButton:
             new_path = rooted[:rooted.index(chunk) + 1]
             new_path = os.path.join(os.sep, *new_path)
             SIGNALS.new_history.emit(new_path)

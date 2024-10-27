@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
                              QLineEdit, QMenu, QPushButton, QSpacerItem,
                              QTabBar, QVBoxLayout, QWidget)
 
-from cfg import COLORS, IMG_EXT, Dymanic, JsonData
+from cfg import COLORS, IMG_EXT, Dymanic, JsonData, BLUE
 from database import ORDER
 from signals import SIGNALS
 from utils import Utils
@@ -345,7 +345,7 @@ class FiltersBtn(QPushButton):
         else:
             self.filter_count += 1
             Dymanic.color_filters.append(color)
-            widget.setStyleSheet("background: #007AFF;")
+            widget.setStyleSheet(f"background: {BLUE};")
             widget.is_selected = True
 
         SIGNALS.filter_grid.emit()
@@ -364,7 +364,7 @@ class FiltersBtn(QPushButton):
             Dymanic.rating_filter = rate
             self.filter_count += 1
             for i in self.rating_wids[:rate]:
-                i.setStyleSheet("background: #007AFF;")
+                i.setStyleSheet(f"background: {BLUE};")
             for i in self.rating_wids[rate:]:
                 i.setStyleSheet("")
         else:

@@ -8,6 +8,7 @@ APP_VER = "1.0.0"
 JSON_FILE = os.path.join(os.path.expanduser('~'), 'Desktop', 'cfg.json')
 DB_FILE = os.path.join(os.path.expanduser('~'), 'Desktop', 'db.db')
 GRAY = "rgba(111, 111, 111, 0.5)"
+BLUE = "#007AFF"
 
 _IMG_EXT: tuple = (
     ".jpg", ".jpeg", ".jfif",
