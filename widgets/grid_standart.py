@@ -16,23 +16,15 @@ from ._grid import Grid, Thumb
 from ._thumb import ThumbFolder
 
 
-# Если родительский класс запущенного треда будет закрыт
-# Тред получит сигнал стоп и безопасно завершится
 class Threads:
     all: list = []
 
 
-# Данный тред получает на вхол словарик {(путь, размер, дата): виджет для Pixmap}
-# по ключам ищем существующие изображения в БД
-# если есть - подгружаем в сетку
-# если нет - считываем, делаем запись в БД, подгружаем в сетку
-
-
 class ImageData:
-    def __init__(self, src: str, size: int, mod: int, pixmap: QPixmap):
+    __slots__ = ["src", "pixmap"]
+
+    def __init__(self, src: str, pixmap: QPixmap):
         self.src: str = src
-        self.size: int = size
-        self.mod: int = mod
         self.pixmap: QPixmap = pixmap
 
 
@@ -108,7 +100,7 @@ class LoadImages(QThread):
 
             if (db_src, db_size, db_mod) in self.src_size_mod:
                 pixmap: QPixmap = Utils.pixmap_from_bytes(db_byte_img)
-                self.new_widget.emit(ImageData(db_src, db_size, db_mod, pixmap))
+                self.new_widget.emit(ImageData(db_src, pixmap))
                 self.src_size_mod.remove((db_src, db_size, db_mod))
             else:
                 self.remove_db_images.append(db_src)
@@ -138,7 +130,7 @@ class LoadImages(QThread):
 
             if isinstance(pixmap, QPixmap):
 
-                self.new_widget.emit(ImageData(src, size, mod, pixmap))
+                self.new_widget.emit(ImageData(src, size))
 
             try:
                 insert_stmt = self.get_insert_stmt(img_bytes, src, size, mod)

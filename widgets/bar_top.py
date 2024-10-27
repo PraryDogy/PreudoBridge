@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
                              QLineEdit, QMenu, QPushButton, QSpacerItem,
                              QTabBar, QVBoxLayout, QWidget)
 
-from cfg import Dymanic, JsonData, COLORS, IMG_EXT
+from cfg import COLORS, IMG_EXT, Dymanic, JsonData
 from database import ORDER
 from signals import SIGNALS
 from utils import Utils
@@ -103,6 +103,8 @@ class PathFinderThread(QThread):
 
 
 class ActionData:
+    __slots__ = ["sort", "reversed", "text"]
+
     def __init__(self, sort: str | None, reversed: bool, text: str):
         self.sort: str | None = sort
         self.reversed: bool = reversed

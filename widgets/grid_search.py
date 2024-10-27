@@ -19,6 +19,8 @@ from ._thumb import ThumbSearch
 
 
 class WidgetData:
+    __slots__ = ["src", "colors", "rating", "size", "mod", "pixmap"]
+
     def __init__(self, src: str, colors: str, rating: int, size: int, mod: int, pixmap: QPixmap):
         self.src: str = src
         self.colors: str = colors

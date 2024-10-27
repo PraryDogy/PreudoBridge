@@ -6,11 +6,7 @@ from sqlalchemy.exc import OperationalError
 from cfg import DB_FILE, FOLDER, IMG_EXT, JsonData
 from utils import Utils
 
-
 METADATA = sqlalchemy.MetaData()
-
-class Engine:
-    engine: sqlalchemy.Engine = None
 
 
 CACHE = sqlalchemy.Table(
