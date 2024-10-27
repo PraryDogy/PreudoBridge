@@ -8,8 +8,8 @@ from PyQt5.QtGui import QCloseEvent, QKeyEvent
 from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QPushButton,
                              QVBoxLayout, QWidget)
 
-from cfg import JSON_FILE, LINK, Dymanic, JsonData
-from database import STATS, Dbase, Engine
+from cfg import JSON_FILE, LINK, JsonData
+from database import STATS, Dbase
 
 from ._base import BaseSlider
 
@@ -93,7 +93,7 @@ class WinSettings(QWidget):
         JsonData.clear_db = value
 
     def get_current_size(self):
-        with Engine.engine.connect() as conn:
+        with Dbase.engine.connect() as conn:
             q = sqlalchemy.select(STATS.c.size).where(STATS.c.name == "main")
             res = conn.execute(q).scalar() or 0
 

@@ -10,7 +10,7 @@ from sqlalchemy.exc import OperationalError
 
 from cfg import (COLORS, GRAY, IMAGE_APPS, MARGIN, PIXMAP_SIZE, TEXT_LENGTH,
                  THUMB_W, JsonData)
-from database import CACHE, Engine, OrderItem
+from database import CACHE, Dbase, OrderItem
 from signals import SIGNALS
 from utils import Utils
 
@@ -306,7 +306,7 @@ class Thumb(OrderItem, QFrame):
         upd_stmt = sqlalchemy.update(CACHE)
         upd_stmt = upd_stmt.where(CACHE.c.src == self.src).values(colors=colors, rating=rating)
 
-        with Engine.engine.connect() as conn:
+        with Dbase.engine.connect() as conn:
             try:
                 conn.execute(upd_stmt)
                 conn.commit()

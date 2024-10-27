@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QAction, QFrame, QHBoxLayout, QLabel, QMenu,
                              QSpacerItem, QVBoxLayout, QWidget)
 
 from cfg import COLORS, IMAGE_APPS, JsonData
-from database import CACHE, Engine
+from database import CACHE, Dbase
 from signals import SIGNALS
 from utils import Utils
 
@@ -299,7 +299,7 @@ class WinImgView(QWidget):
             self.setWindowTitle("Загрузка")
             q = sqlalchemy.select(CACHE.c.img).filter(CACHE.c.src == self.src)
 
-            with Engine.engine.connect() as conn:
+            with Dbase.engine.connect() as conn:
                 thumbnail = conn.execute(q).scalar() or None
                 if isinstance(thumbnail, bytes):
                     pixmap = QPixmap()

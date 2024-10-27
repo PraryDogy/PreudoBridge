@@ -3,16 +3,18 @@ import os
 import sqlalchemy
 from sqlalchemy.exc import OperationalError
 
-from cfg import JsonData, FOLDER, DB_FILE, IMG_EXT
+from cfg import DB_FILE, FOLDER, IMG_EXT, JsonData
 from utils import Utils
 
 
+METADATA = sqlalchemy.MetaData()
+
 class Engine:
     engine: sqlalchemy.Engine = None
-    metadata = sqlalchemy.MetaData()
+
 
 CACHE = sqlalchemy.Table(
-    "cache", Engine.metadata,
+    "cache", METADATA,
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
     sqlalchemy.Column("img", sqlalchemy.LargeBinary),
     sqlalchemy.Column("src", sqlalchemy.Text, unique=True),
@@ -28,11 +30,12 @@ CACHE = sqlalchemy.Table(
 
 
 STATS = sqlalchemy.Table(
-    'stats', Engine.metadata,
+    'stats', METADATA,
     sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
     sqlalchemy.Column('name', sqlalchemy.Text, unique=True),
     sqlalchemy.Column('size', sqlalchemy.Integer)
     )
+
 
 ORDER: dict[dict[str, int]] = {
     clmn.name: {"text": clmn.comment, "index": ind}
@@ -43,9 +46,7 @@ ORDER: dict[dict[str, int]] = {
 
 class OrderItem:
     def __init__(self, src: str, size: int = None, mod: int = None, colors: str = None, rating: int = None):
-
         super().__init__()
-
         self.src: str = src
         self.size: int = 0 if size is None else size
         self.mod: int = 0 if mod is None else mod
@@ -82,14 +83,16 @@ class OrderItem:
 
 
 class Dbase:
+    engine: sqlalchemy.Engine = None
+
     @classmethod
     def init_db(cls):
-        Engine.engine = sqlalchemy.create_engine(
+        cls.engine = sqlalchemy.create_engine(
             f"sqlite:///{DB_FILE}",
             connect_args={"check_same_thread": False},
             echo=False
             )
-        Engine.metadata.create_all(Engine.engine)
+        METADATA.create_all(cls.engine)
         cls.check_tables()
         cls.check_stats_main()
         cls.check_cache_size()
@@ -99,7 +102,7 @@ class Dbase:
         stmt_select = sqlalchemy.select(STATS).where(STATS.c.name == "main")
         stmt_insert = sqlalchemy.insert(STATS).values(name="main", size=0)
         
-        with Engine.engine.connect() as conn:
+        with cls.engine.connect() as conn:
             result = conn.execute(stmt_select).first()
             if not result:
                 conn.execute(stmt_insert)
@@ -111,7 +114,7 @@ class Dbase:
         q_upd_stats = sqlalchemy.update(STATS).where(STATS.c.name == "main").values(size=0)
         q_del_cache = sqlalchemy.delete(CACHE)
 
-        with Engine.engine.connect() as conn:
+        with cls.engine.connect() as conn:
 
             current_size = conn.execute(q_get_stats).scalar() or 0
             config_size = JsonData.clear_db * (1024**3)
@@ -129,7 +132,7 @@ class Dbase:
         q_del_cache = sqlalchemy.delete(CACHE)
         q_upd_stats = sqlalchemy.update(STATS).where(STATS.c.name == "main").values(size=0)
 
-        with Engine.engine.connect() as conn:
+        with cls.engine.connect() as conn:
             try:
                 conn.execute(q_del_cache)
                 conn.execute(q_upd_stats)
@@ -144,7 +147,7 @@ class Dbase:
 
     @classmethod
     def check_tables(cls):
-        inspector = sqlalchemy.inspect(Engine.engine)
+        inspector = sqlalchemy.inspect(cls.engine)
 
         TABLES = [CACHE, STATS]
 

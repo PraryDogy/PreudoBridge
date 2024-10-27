@@ -9,7 +9,7 @@ from PyQt5.QtGui import QCloseEvent, QPixmap
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import IMG_EXT, MAX_SIZE, JsonData
-from database import CACHE, STATS, Engine
+from database import CACHE, STATS, Dbase
 from fit_img import FitImg
 from signals import SIGNALS
 from utils import Utils
@@ -38,7 +38,7 @@ class SearchFinder(QThread):
         self.search_text: str = search_text
         self.flag: bool = True
 
-        self.conn: sqlalchemy.Connection = Engine.engine.connect()
+        self.conn: sqlalchemy.Connection = Dbase.engine.connect()
         self.insert_count: int = 0 
         self.db_size: int = 0
 

@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QLabel
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import FOLDER, IMG_EXT, MAX_SIZE, JsonData
-from database import CACHE, STATS, Engine, OrderItem
+from database import CACHE, STATS, Dbase, OrderItem
 from fit_img import FitImg
 from signals import SIGNALS
 from utils import Utils
@@ -63,7 +63,7 @@ class LoadImages(QThread):
         self.db_size: int = 0
 
         self.stop_thread.connect(self.stop_thread_cmd)
-        self.conn = Engine.engine.connect()
+        self.conn = Dbase.engine.connect()
 
     def run(self):
         self.get_db_size()
@@ -229,7 +229,7 @@ class LoadFinder(QThread):
         q = sqlalchemy.select(CACHE.c.src, CACHE.c.colors, CACHE.c.rating)
         q = q.where(CACHE.c.root == JsonData.root)
   
-        with Engine.engine.connect() as conn:
+        with Dbase.engine.connect() as conn:
             res = conn.execute(q).fetchall()
             self.db_color_rating = {src: [colors, rating] for src, colors, rating in res}
 
