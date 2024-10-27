@@ -463,7 +463,7 @@ class BarTop(QFrame):
 
         self.root: str = None
         self.history: list[str] = []
-        self.curr_ind: int = 0
+        self.index_: int = 0
 
         self.grid_layout = QGridLayout()
         self.grid_layout.setSpacing(10)
@@ -472,12 +472,12 @@ class BarTop(QFrame):
 
         self.clmn += 1
         self.back_btn = HistoryBtn(self.back_sym)
-        self.back_btn.clicked.connect(lambda: self.move_in_history(-1))
+        self.back_btn.clicked.connect(lambda: self.navigate(-1))
         self.grid_layout.addWidget(self.back_btn, 0, self.clmn)
 
         self.clmn += 1
         self.next_btn = HistoryBtn(self.next_sym)
-        self.next_btn.clicked.connect(lambda: self.move_in_history(1))
+        self.next_btn.clicked.connect(lambda: self.navigate(1))
         self.grid_layout.addWidget(self.next_btn, 0, self.clmn)
 
         self.clmn += 1
@@ -515,21 +515,21 @@ class BarTop(QFrame):
 
         SIGNALS.new_history.connect(self.new_history)
         SIGNALS.new_history.emit(JsonData.root)
-        self.curr_ind -= 1
+        self.index_ -= 1
 
     def new_history(self, root: str):
         if root == os.sep:
             return
         
         self.history.append(root)
-        self.curr_ind = len(self.history) - 1
+        self.index_ = len(self.history) - 1
 
-    def move_in_history(self, offset: int):
+    def navigate(self, offset: int):
         try:
-            ind = self.curr_ind + offset
+            ind = self.index_ + offset
             if ind == -1:
                 return
-            self.curr_ind = ind
+            self.index_ = ind
             SIGNALS.load_standart_grid.emit(self.history[ind])
         except (ValueError, IndexError):
             pass
