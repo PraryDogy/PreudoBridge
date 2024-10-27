@@ -29,6 +29,7 @@ class TreeFolders(QTreeView):
     def one_clicked(self, index):
         path = self.c_model.filePath(index)
         self.setCurrentIndex(index)
+        SIGNALS.new_history.emit(path)
         SIGNALS.load_standart_grid.emit(path)
         self.expand(index)
 

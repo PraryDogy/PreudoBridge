@@ -14,11 +14,11 @@ class Signals(QObject):
 
     add_fav = pyqtSignal(str)
     del_fav = pyqtSignal(str)
-
     search_finished = pyqtSignal(str)
     show_in_folder = pyqtSignal(str)
     progressbar_value = pyqtSignal(int)
     open_path = pyqtSignal(str)
+    new_history = pyqtSignal(str)
 
     def __init__(self) -> None:
         super().__init__()

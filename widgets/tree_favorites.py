@@ -67,6 +67,7 @@ class FavItem(QLabel):
 
     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
         if ev.button() == Qt.MouseButton.LeftButton:
+            SIGNALS.new_history.emit(self.src)
             SIGNALS.load_standart_grid.emit(self.src)
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:

@@ -506,20 +506,19 @@ class BarTop(QFrame):
         self.search_wid = SearchWidget()
         self.grid_layout.addWidget(self.search_wid, 0, self.clmn)
 
-    def reset_history(self):
-        self.history.clear()
+        SIGNALS.new_history.connect(self.new_history)
 
-    def back_cmd(self):
-        root = os.path.dirname(JsonData.root)
-
+    def new_history(self, root: str):
         if root == os.sep:
             return
-
+        
         if root not in self.history:
-            self.history.append(JsonData.root)
-            SIGNALS.load_standart_grid.emit(root)
+            self.history.append(root)
+
+    def back_cmd(self):
+        ind = self.history.index(JsonData.root) - 1
+        SIGNALS.load_standart_grid.emit(self.history[ind])
+        print(self.history)
 
     def next_cmd(self):
-        if self.history:
-            self.history.pop(-1)
-            SIGNALS.load_standart_grid.emit(self.history[-1])
+        print(self.history)

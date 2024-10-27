@@ -386,10 +386,12 @@ class ThumbFolder(Thumb):
 
     # переназначение метода Thumb
     def view(self):
+        SIGNALS.new_history.emit(self.src)
         SIGNALS.load_standart_grid.emit(self.src)
 
     def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
         self.clicked.emit()
+        SIGNALS.new_history.emit(self.src)
         SIGNALS.load_standart_grid.emit(self.src)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
