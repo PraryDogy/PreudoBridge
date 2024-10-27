@@ -25,6 +25,8 @@ class Shared:
 
 
 class ImageData:
+    __slots__ = ["src", "width", "pixmap"]
+    
     def __init__(self, src: str, width: int, pixmap: QPixmap):
         self.src: str = src
         self.width: int = width
