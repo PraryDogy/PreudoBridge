@@ -2,7 +2,7 @@ import json
 import os
 from datetime import date
 
-HOST = ""
+HOST = "app"
 
 APP_NAME = "PseudoBridge"
 APP_VER = "1.0.0"
@@ -113,6 +113,7 @@ class JsonData:
     @classmethod
     def find_img_apps(cls):
         root_path = f"{HOST}/Applications"
+        print(root_path)
 
         names = [
             f"Adobe Photoshop CC {i}"
