@@ -67,7 +67,10 @@ class Grid(BaseGrid):
             self.curr_cell = coords
             self.ensureWidgetVisible(new_wid)
         else:
-            prev_wid.set_frame()
+            try:
+                prev_wid.set_frame()
+            except AttributeError:
+                pass
 
     def reset_selection(self):
         widget = self.cell_to_wid.get(self.curr_cell)
