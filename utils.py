@@ -222,18 +222,15 @@ class Utils:
         print()
 
     @classmethod
-    def get_folder_size_applescript(cls, path: str) -> int | None:
-        script = f'''
-        tell application "Finder"
-            set folderSize to size of (POSIX file "{path}" as alias)
-        end tell
-        return folderSize
-        '''
+    def get_folder_size_applescript(cls, path: str) -> float:
+        applescript_file = "scripts/get_folder_size.scpt"
+        script_command = ['osascript', applescript_file, path]
         try:
-            result = subprocess.check_output(['osascript', '-e', script])
-            # return float(result.strip())
-            print(result)
-            quit()
-            return ""
-        except subprocess.CalledProcessError:
-            return None
+            result = subprocess.check_output(script_command).decode().strip()
+            try:
+                return float(result)
+            except ValueError:
+                return 0
+        except subprocess.CalledProcessError as e:
+            print(f"Error executing AppleScript: {e.output.decode().strip()}")
+            return 0
