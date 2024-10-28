@@ -2,7 +2,7 @@ import json
 import os
 from datetime import date
 
-HOST = "app"
+HOST = ""
 
 APP_NAME = "PseudoBridge"
 APP_VER = "1.0.0"
