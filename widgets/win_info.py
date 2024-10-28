@@ -1,8 +1,9 @@
+from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QContextMenuEvent, QKeyEvent
-from PyQt6.QtWidgets import QGridLayout, QLabel, QWidget
-from PyQt6.QtCore import Qt
-from PyQt6.QtWidgets import QApplication, QLabel, QMenu, QWidget
-from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QApplication, QGridLayout, QLabel, QMenu, QWidget
+
+from ._base import OnlyCloseWin
+
 
 class CustomLabel(QLabel):
     def __init__(self, text: str):
@@ -15,7 +16,7 @@ class CustomLabel(QLabel):
         menu.addSeparator()
         copy_action = menu.addAction("Копировать")
         copy_action.triggered.connect(self.custom_copy)
-        menu.exec_(ev.globalPos())
+        menu.exec(ev.globalPos())
 
     def custom_copy(self):
         selected_text = self.selectedText()
@@ -24,11 +25,9 @@ class CustomLabel(QLabel):
         clipboard.setText(modified_text)
 
 
-class WinInfo(QWidget):
+class WinInfo(OnlyCloseWin):
     def __init__(self, text: str, split_sym: str = "***") -> None:
         super().__init__()
-        self.setWindowModality(Qt.WindowModality.ApplicationModal)
-        self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowCloseButtonHint)
         self.setWindowTitle("Инфо")
 
         self.grid_layout = QGridLayout()

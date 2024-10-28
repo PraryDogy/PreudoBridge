@@ -17,6 +17,7 @@ from utils import Utils
 from ._grid import Thumb
 from ._svg_widgets import SvgShadowed
 from .win_info import WinInfo
+from ._base import BaseWin
 
 
 class Shared:
@@ -224,7 +225,7 @@ class NextImageBtn(SwitchImageBtn):
         super().__init__("next.svg", parent)
 
 
-class WinImgView(QWidget):
+class WinImgView(BaseWin):
     def __init__(self, src: str, path_to_wid: dict[str, Thumb]):
         super().__init__()
         self.src: str = src
@@ -242,7 +243,6 @@ class WinImgView(QWidget):
             if os.path.isfile(i)
             ]
 
-        self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setMinimumSize(QSize(400, 300))
         self.resize(JsonData.ww_im, JsonData.hh_im)
         self.setObjectName("img_view")
@@ -485,5 +485,5 @@ class WinImgView(QWidget):
             wid.triggered.connect(lambda e, w=wid, r=rate: self.rating_click(rating_menu, w, r))
             rating_menu.addAction(wid)
 
-        context_menu.exec_(self.mapToGlobal(a0.pos()))
+        context_menu.exec(self.mapToGlobal(a0.pos()))
     

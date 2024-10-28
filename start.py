@@ -27,7 +27,7 @@ def error_dialog(error_message):
     exit_button.clicked.connect(QApplication.quit)
     error_dialog.addButton(exit_button, QMessageBox.ActionRole)
 
-    error_dialog.exec_()
+    error_dialog.exec()
 
 
 #lib folder appears when we pack this project to .app with py2app
@@ -55,9 +55,9 @@ app = CustomApp(sys.argv)
 translator = QTranslator()
 locale = "ru_RU"
 
-if translator.load(f"qtbase_{locale}", QLibraryInfo.location(QLibraryInfo.TranslationsPath)):
+if translator.load(f"qtbase_{locale}", QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)):
     app.installTranslator(translator)
 
 ex = SimpleFileExplorer()
 ex.show()
-sys.exit(app.exec_())
+sys.exit(app.exec())

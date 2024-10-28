@@ -11,15 +11,12 @@ from PyQt6.QtWidgets import (QFrame, QHBoxLayout, QLabel, QPushButton,
 from cfg import JSON_FILE, LINK, JsonData
 from database import STATS, Dbase
 
-from ._base import BaseSlider
+from ._base import BaseSlider, OnlyCloseWin
 
-
-class WinSettings(QWidget):
+class WinSettings(OnlyCloseWin):
     def __init__(self):
         super().__init__()
         
-        self.setWindowModality(Qt.WindowModality.ApplicationModal)
-        self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowCloseButtonHint)
         self.setWindowTitle("Настройки")
         self.setFixedSize(350, 200)
 

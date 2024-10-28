@@ -59,7 +59,7 @@ class PathLabel(QLabel):
         context_menu.addAction(copy_path)
 
         self.setStyleSheet(f"#path_label {{ background: {BLUE}; border-radius: 2px; }} ")
-        context_menu.exec_(self.mapToGlobal(ev.pos()))
+        context_menu.exec(self.mapToGlobal(ev.pos()))
         self.setStyleSheet("")
 
     def show_info_win(self):

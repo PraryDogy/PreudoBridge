@@ -351,7 +351,7 @@ class Thumb(OrderItem, QFrame):
         self.mime_data.setUrls(url)
 
         self.drag.setMimeData(self.mime_data)
-        self.drag.exec_(Qt.DropAction.CopyAction)
+        self.drag.exec(Qt.DropAction.CopyAction)
 
     def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.LeftButton:
@@ -361,7 +361,7 @@ class Thumb(OrderItem, QFrame):
         self.clicked.emit()
         context_menu = QMenu(self)
         self.add_base_actions(context_menu)
-        context_menu.exec_(self.mapToGlobal(a0.pos()))
+        context_menu.exec(self.mapToGlobal(a0.pos()))
 
 
 class ThumbFolder(Thumb):
@@ -439,7 +439,7 @@ class ThumbFolder(Thumb):
             self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))
             context_menu.addAction(self.fav_action)
 
-        context_menu.exec_(self.mapToGlobal(a0.pos()))
+        context_menu.exec(self.mapToGlobal(a0.pos()))
 
  
 class ThumbSearch(Thumb):
@@ -470,4 +470,4 @@ class ThumbSearch(Thumb):
         show_in_folder.triggered.connect(lambda: SIGNALS.show_in_folder.emit(self.src))
         context_menu.addAction(show_in_folder)
 
-        context_menu.exec_(self.mapToGlobal(a0.pos()))
+        context_menu.exec(self.mapToGlobal(a0.pos()))

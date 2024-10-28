@@ -71,7 +71,7 @@ class FavItem(QLabel):
             SIGNALS.load_standart_grid.emit(self.src)
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
-        self.context_menu.exec_(ev.globalPos())
+        self.context_menu.exec(ev.globalPos())
 
 
 class TreeFavorites(QListWidget):

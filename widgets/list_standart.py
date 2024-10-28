@@ -111,7 +111,7 @@ class ListStandart(BaseTableView):
                 fav_action.triggered.connect(lambda: SIGNALS.add_fav.emit(src))
                 menu.addAction(fav_action)
 
-        menu.exec_(self.mapToGlobal(event.pos()))
+        menu.exec(self.mapToGlobal(event.pos()))
 
     def keyPressEvent(self, e: QKeyEvent | None) -> None:
         if e.key() in (Qt.Key.Key_Return, Qt.Key.Key_Space):
