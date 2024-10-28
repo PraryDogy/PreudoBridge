@@ -77,10 +77,10 @@ class PathLabel(QLabel):
 
             size_ = round(stats.st_size / (1024**2), 2)
             if size_ < 1000:
-                f_size = f"{stats.st_size} МБ"
+                f_size = f"{size_} МБ"
             else:
                 size_ = round(size_ / (1024**3), 2)
-                f_size = f"{stats.st_size} ГБ"
+                f_size = f"{size_} ГБ"
 
             name = "Имя***" + os.path.basename(self.src)
             type = "Тип***" + "Папка"
