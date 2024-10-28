@@ -41,7 +41,7 @@ class WinInfo(WinMinMax):
         for line in text.split("\n"):
             left_text, right_text = line.split(split_sym)
             left_text, right_text = left_text.strip(), right_text.strip()
-            max_row = 40
+            max_row = 38
 
             if len(right_text) > max_row:
                 right_text = [

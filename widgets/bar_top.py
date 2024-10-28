@@ -434,7 +434,8 @@ class WinGo(WinMinMax):
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() == Qt.Key.Key_Escape:
             self.close()
-        return super().keyPressEvent(a0)
+        elif a0.key() == Qt.Key.Key_Return:
+            self.open_path_btn_cmd()
     
 
 class AdvancedBtn(QPushButton):
