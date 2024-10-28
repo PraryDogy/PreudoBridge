@@ -1,9 +1,9 @@
 import os
 import subprocess
 
-from PyQt6.QtCore import QDir, Qt
-from PyQt6.QtGui import QKeyEvent, QFileSystemModel, QAction
-from PyQt6.QtWidgets import  QMenu, QTableView
+from PyQt5.QtCore import QDir, Qt
+from PyQt5.QtGui import QKeyEvent
+from PyQt5.QtWidgets import QAction, QFileSystemModel, QMenu, QTableView
 
 from cfg import IMG_EXT, JsonData
 from signals import SIGNALS
@@ -111,7 +111,7 @@ class ListStandart(BaseTableView):
                 fav_action.triggered.connect(lambda: SIGNALS.add_fav.emit(src))
                 menu.addAction(fav_action)
 
-        menu.exec(self.mapToGlobal(event.pos()))
+        menu.exec_(self.mapToGlobal(event.pos()))
 
     def keyPressEvent(self, e: QKeyEvent | None) -> None:
         if e.key() in (Qt.Key.Key_Return, Qt.Key.Key_Space):

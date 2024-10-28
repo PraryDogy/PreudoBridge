@@ -1,6 +1,6 @@
 from typing import Any
-from PyQt6.QtCore import QObject, pyqtSignal
-from PyQt6.QtWidgets import QWidget
+from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtWidgets import QWidget
 
 class Signals(QObject):
     load_standart_grid = pyqtSignal(str)

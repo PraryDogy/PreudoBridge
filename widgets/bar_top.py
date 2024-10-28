@@ -1,9 +1,9 @@
 import os
 from difflib import SequenceMatcher
 
-from PyQt6.QtCore import QSize, Qt, QThread, QTimer, pyqtSignal
-from PyQt6.QtGui import QKeyEvent, QMouseEvent, QAction
-from PyQt6.QtWidgets import ( QFrame, QGridLayout, QHBoxLayout, QLabel,
+from PyQt5.QtCore import QSize, Qt, QThread, QTimer, pyqtSignal
+from PyQt5.QtGui import QKeyEvent, QMouseEvent
+from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
                              QLineEdit, QMenu, QPushButton, QSpacerItem,
                              QTabBar, QVBoxLayout, QWidget)
 
@@ -11,7 +11,7 @@ from cfg import COLORS, IMG_EXT, Dymanic, JsonData, BLUE, STAR_SYM
 from database import ORDER
 from signals import SIGNALS
 from utils import Utils
-from ._base import OnlyCloseWin
+
 from .win_settings import WinSettings
 
 
@@ -274,7 +274,8 @@ class FiltersBtn(QPushButton):
         super().__init__(text="\U000026AB")
         
         self._menu = QWidget()
-        self._menu.setWindowFlags(Qt.WindowType.Popup)
+        self._menu.setWindowFlags(Qt.Popup)
+        self._menu.closeEvent = lambda e: self.press_check()
 
         self._menu.setLayout(QVBoxLayout())
         self._menu.layout().setContentsMargins(0, 0, 0, 0)
@@ -303,7 +304,7 @@ class FiltersBtn(QPushButton):
 
         cancel_color = QLabel(self.HEAVY_X)
         cancel_color.setFixedSize(20, 20)
-        cancel_color.mousePressEvent = self.reset_colors_cmd
+        cancel_color.mousePressEvent = self.cancel_color
         color_lay.addWidget(cancel_color)
 
         color_lay.addStretch(1)
@@ -335,38 +336,25 @@ class FiltersBtn(QPushButton):
         self._menu.move(self.mapToGlobal(pont))
         self._menu.show()
 
-    def style_btn(self, set_down=True, style=f"color: {BLUE};"):
-
-        if self.filter_count == 0:
-            set_down = False
-            style = ""
-
-        self.setDown(set_down)
-        self.setStyleSheet(style)
-
     def toggle_color(self, widget: ColorLabel, color: str):
         if widget.is_selected == True:
             self.filter_count -= 1
-            self.style_btn()
             Dymanic.color_filters.remove(color)
             widget.setStyleSheet("")
             widget.is_selected = False
         else:
             self.filter_count += 1
-            self.style_btn()
             Dymanic.color_filters.append(color)
             widget.setStyleSheet(f"background: {BLUE};")
             widget.is_selected = True
 
         SIGNALS.filter_grid.emit()
 
-    def reset_colors_cmd(self, e):
+    def cancel_color(self, e):
         for wid in self.color_wids:
+            self.filter_count -= 1
             wid.setStyleSheet("")
             wid.is_selected = False
-
-        self.filter_count -= len(Dymanic.color_filters)
-        self.style_btn()
 
         Dymanic.color_filters.clear()
         SIGNALS.filter_grid.emit()
@@ -375,20 +363,23 @@ class FiltersBtn(QPushButton):
         if rate > 1:
             Dymanic.rating_filter = rate
             self.filter_count += 1
-            self.style_btn()
-
             for i in self.rating_wids[:rate]:
                 i.setStyleSheet(f"background: {BLUE};")
             for i in self.rating_wids[rate:]:
                 i.setStyleSheet("")
         else:
             self.filter_count -= 1
-            self.style_btn()
             Dymanic.rating_filter = 0
             for i in self.rating_wids:
                 i.setStyleSheet("")
 
         SIGNALS.filter_grid.emit()
+
+    def press_check(self):
+        if self.filter_count == 0:
+            self.setDown(False)
+        else:
+            self.setDown(True)
 
     def reset_filters(self):
         for i in self.rating_wids:
@@ -400,13 +391,15 @@ class FiltersBtn(QPushButton):
         Dymanic.color_filters.clear()
         Dymanic.rating_filter = 0
         self.filter_count = 0
-        self.style_btn()
+        self.setDown(False)
 
 
-class WinGo(OnlyCloseWin):
+class WinGo(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Перейти к ...")
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowCloseButtonHint)
         self.setFixedSize(290, 90)
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(10, 10, 10, 10)

@@ -3,20 +3,23 @@ import subprocess
 import webbrowser
 
 import sqlalchemy
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QCloseEvent, QKeyEvent
-from PyQt6.QtWidgets import (QFrame, QHBoxLayout, QLabel, QPushButton,
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QCloseEvent, QKeyEvent
+from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QPushButton,
                              QVBoxLayout, QWidget)
 
 from cfg import JSON_FILE, LINK, JsonData
 from database import STATS, Dbase
 
-from ._base import BaseSlider, OnlyCloseWin
+from ._base import BaseSlider
 
-class WinSettings(OnlyCloseWin):
+
+class WinSettings(QWidget):
     def __init__(self):
         super().__init__()
         
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowCloseButtonHint)
         self.setWindowTitle("Настройки")
         self.setFixedSize(350, 200)
 

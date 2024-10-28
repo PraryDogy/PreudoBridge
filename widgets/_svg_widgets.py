@@ -1,7 +1,7 @@
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QColor
-from PyQt6.QtSvgWidgets import QSvgWidget
-from PyQt6.QtWidgets import QGraphicsDropShadowEffect, QWidget, QHBoxLayout
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QColor
+from PyQt5.QtSvg import QSvgWidget
+from PyQt5.QtWidgets import QGraphicsDropShadowEffect, QWidget, QHBoxLayout
 
 
 class SvgBtn(QWidget):

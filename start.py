@@ -2,7 +2,7 @@ import os
 import sys
 import traceback
 
-from PyQt6.QtWidgets import QApplication, QMessageBox, QPushButton
+from PyQt5.QtWidgets import QApplication, QMessageBox, QPushButton
 
 
 def catch_err(exc_type, exc_value, exc_traceback):
@@ -27,7 +27,7 @@ def error_dialog(error_message):
     exit_button.clicked.connect(QApplication.quit)
     error_dialog.addButton(exit_button, QMessageBox.ActionRole)
 
-    error_dialog.exec()
+    error_dialog.exec_()
 
 
 #lib folder appears when we pack this project to .app with py2app
@@ -42,8 +42,8 @@ if os.path.exists("lib"):
     sys.excepthook = catch_err
 
 
-from PyQt6.QtCore import QLibraryInfo, QTranslator
-from PyQt6.QtWidgets import QApplication
+from PyQt5.QtCore import QLibraryInfo, QTranslator
+from PyQt5.QtWidgets import QApplication
 
 from database import Dbase
 from gui import CustomApp, SimpleFileExplorer
@@ -55,9 +55,9 @@ app = CustomApp(sys.argv)
 translator = QTranslator()
 locale = "ru_RU"
 
-if translator.load(f"qtbase_{locale}", QLibraryInfo.path(QLibraryInfo.LibraryPath.TranslationsPath)):
+if translator.load(f"qtbase_{locale}", QLibraryInfo.location(QLibraryInfo.TranslationsPath)):
     app.installTranslator(translator)
 
 ex = SimpleFileExplorer()
 ex.show()
-sys.exit(app.exec())
+sys.exit(app.exec_())

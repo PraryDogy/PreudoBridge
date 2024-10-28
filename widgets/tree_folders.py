@@ -1,20 +1,18 @@
 import subprocess
 
-from PyQt6.QtCore import QDir
-from PyQt6.QtGui import QAction, QFileSystemModel
-from PyQt6.QtWidgets import QMenu, QTreeView
+from PyQt5.QtCore import QDir, pyqtSignal
+from PyQt5.QtWidgets import QAction, QFileSystemModel, QMenu, QTreeView
 
 from cfg import JsonData
-from signals import SIGNALS
 from utils import Utils
-
+from signals import SIGNALS
 
 class TreeFolders(QTreeView):
     def __init__(self):
         super().__init__()
 
         self.c_model = QFileSystemModel()
-        self.c_model.setFilter(QDir.Filter.AllDirs | QDir.Filter.NoDotAndDotDot)
+        self.c_model.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot)
         self.c_model.setRootPath("/Volumes")
         self.setModel(self.c_model)
         self.setRootIndex(self.c_model.index("/Volumes"))
@@ -75,7 +73,7 @@ class TreeFolders(QTreeView):
             fav_action.triggered.connect(lambda: SIGNALS.add_fav.emit(src))
             menu.addAction(fav_action)
 
-        menu.exec(self.mapToGlobal(event.pos()))
+        menu.exec_(self.mapToGlobal(event.pos()))
 
     def open_in_finder(self, path: str):
         subprocess.call(["open", "-R", path])

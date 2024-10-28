@@ -1,8 +1,8 @@
 import os
 
-from PyQt6.QtCore import QEvent, QObject, Qt, QTimer
-from PyQt6.QtGui import QCloseEvent, QKeyEvent, QResizeEvent
-from PyQt6.QtWidgets import (QApplication, QGridLayout, QLabel, QSplitter,
+from PyQt5.QtCore import QEvent, QObject, Qt, QTimer
+from PyQt5.QtGui import QCloseEvent, QKeyEvent, QResizeEvent
+from PyQt5.QtWidgets import (QApplication, QGridLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import IMG_EXT, JsonData
@@ -52,7 +52,7 @@ class SimpleFileExplorer(QWidget):
         main_lay.setSpacing(0)
         self.setLayout(main_lay)
 
-        splitter_wid = QSplitter(Qt.Orientation.Horizontal)
+        splitter_wid = QSplitter(Qt.Horizontal)
         splitter_wid.splitterMoved.connect(self.resizeEvent)
         main_lay.addWidget(splitter_wid)
 

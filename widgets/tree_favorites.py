@@ -1,10 +1,10 @@
 import os
 import subprocess
 
-from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtGui import (QContextMenuEvent, QDragEnterEvent, QDragLeaveEvent,
-                         QDropEvent, QMouseEvent, QAction)
-from PyQt6.QtWidgets import ( QLabel, QListWidget, QListWidgetItem,
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import (QContextMenuEvent, QDragEnterEvent, QDragLeaveEvent,
+                         QDropEvent, QMouseEvent)
+from PyQt5.QtWidgets import (QAction, QLabel, QListWidget, QListWidgetItem,
                              QMenu)
 
 from cfg import JsonData
@@ -71,7 +71,7 @@ class FavItem(QLabel):
             SIGNALS.load_standart_grid.emit(self.src)
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
-        self.context_menu.exec(ev.globalPos())
+        self.context_menu.exec_(ev.globalPos())
 
 
 class TreeFavorites(QListWidget):

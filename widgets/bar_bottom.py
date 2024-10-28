@@ -2,9 +2,9 @@ import os
 import subprocess
 from datetime import datetime
 
-from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtGui import QContextMenuEvent, QMouseEvent, QAction
-from PyQt6.QtWidgets import ( QGridLayout, QHBoxLayout, QLabel, QMenu,
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QContextMenuEvent, QMouseEvent
+from PyQt5.QtWidgets import (QAction, QGridLayout, QHBoxLayout, QLabel, QMenu,
                              QProgressBar, QWidget)
 
 from cfg import BLUE, JsonData
@@ -59,7 +59,7 @@ class PathLabel(QLabel):
         context_menu.addAction(copy_path)
 
         self.setStyleSheet(f"#path_label {{ background: {BLUE}; border-radius: 2px; }} ")
-        context_menu.exec(self.mapToGlobal(ev.pos()))
+        context_menu.exec_(self.mapToGlobal(ev.pos()))
         self.setStyleSheet("")
 
     def show_info_win(self):

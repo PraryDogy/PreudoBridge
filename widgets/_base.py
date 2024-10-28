@@ -1,6 +1,6 @@
-from PyQt6.QtCore import Qt, pyqtSignal
-from PyQt6.QtGui import QMouseEvent, QWheelEvent
-from PyQt6.QtWidgets import QScrollArea, QSlider, QTableView, QWidget
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QMouseEvent, QWheelEvent
+from PyQt5.QtWidgets import QScrollArea, QSlider, QTableView
 
 from cfg import GRAY
 
@@ -64,16 +64,3 @@ class BaseSlider(QSlider):
 
     def wheelEvent(self, e: QWheelEvent | None) -> None:
         e.ignore()
-
-
-class BaseWin(QWidget):
-    def __init__(self) -> None:
-        super().__init__()
-        self.setWindowModality(Qt.WindowModality.ApplicationModal)
-
-
-class OnlyCloseWin(BaseWin):
-    def __init__(self) -> None:
-        super().__init__()
-        fl = Qt.WindowType.Window | Qt.WindowType.CustomizeWindowHint | Qt.WindowType.WindowCloseButtonHint
-        self.setWindowFlags(fl)

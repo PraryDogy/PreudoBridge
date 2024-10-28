@@ -2,11 +2,11 @@ import os
 import subprocess
 
 import sqlalchemy
-from PyQt6.QtCore import QEvent, QPoint, QSize, Qt, QThread, QTimer, pyqtSignal
-from PyQt6.QtGui import (QCloseEvent, QContextMenuEvent, QKeyEvent,
+from PyQt5.QtCore import QEvent, QPoint, QSize, Qt, QThread, QTimer, pyqtSignal
+from PyQt5.QtGui import (QCloseEvent, QContextMenuEvent, QKeyEvent,
                          QMouseEvent, QPainter, QPaintEvent, QPixmap,
-                         QResizeEvent, QAction)
-from PyQt6.QtWidgets import ( QFrame, QHBoxLayout, QLabel, QMenu,
+                         QResizeEvent)
+from PyQt5.QtWidgets import (QAction, QFrame, QHBoxLayout, QLabel, QMenu,
                              QSpacerItem, QVBoxLayout, QWidget)
 
 from cfg import COLORS, IMAGE_APPS, JsonData, STAR_SYM
@@ -17,7 +17,6 @@ from utils import Utils
 from ._grid import Thumb
 from ._svg_widgets import SvgShadowed
 from .win_info import WinInfo
-from ._base import BaseWin
 
 
 class Shared:
@@ -225,7 +224,7 @@ class NextImageBtn(SwitchImageBtn):
         super().__init__("next.svg", parent)
 
 
-class WinImgView(BaseWin):
+class WinImgView(QWidget):
     def __init__(self, src: str, path_to_wid: dict[str, Thumb]):
         super().__init__()
         self.src: str = src
@@ -243,6 +242,7 @@ class WinImgView(BaseWin):
             if os.path.isfile(i)
             ]
 
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setMinimumSize(QSize(400, 300))
         self.resize(JsonData.ww_im, JsonData.hh_im)
         self.setObjectName("img_view")
@@ -485,5 +485,5 @@ class WinImgView(BaseWin):
             wid.triggered.connect(lambda e, w=wid, r=rate: self.rating_click(rating_menu, w, r))
             rating_menu.addAction(wid)
 
-        context_menu.exec(self.mapToGlobal(a0.pos()))
+        context_menu.exec_(self.mapToGlobal(a0.pos()))
     

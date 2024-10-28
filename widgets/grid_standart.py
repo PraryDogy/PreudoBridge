@@ -1,9 +1,9 @@
 import os
 
 import sqlalchemy
-from PyQt6.QtCore import Qt, QThread, pyqtSignal
-from PyQt6.QtGui import QCloseEvent, QPixmap
-from PyQt6.QtWidgets import QLabel
+from PyQt5.QtCore import Qt, QThread, pyqtSignal
+from PyQt5.QtGui import QCloseEvent, QPixmap
+from PyQt5.QtWidgets import QLabel
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import FOLDER, IMG_EXT, MAX_SIZE, JsonData

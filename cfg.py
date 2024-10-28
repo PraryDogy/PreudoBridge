@@ -3,22 +3,15 @@ import os
 from datetime import date
 
 HOST = ""
+
 APP_NAME = "PseudoBridge"
 APP_VER = "1.0.0"
+
 JSON_FILE = os.path.join(os.path.expanduser('~'), 'Desktop', 'cfg.json')
 DB_FILE = os.path.join(os.path.expanduser('~'), 'Desktop', 'db.db')
 GRAY = "rgba(111, 111, 111, 0.5)"
 BLUE = "#007AFF"
-STAR_SYM = "\U00002605"
-FOLDER: str = "Папка"
-MARGIN: dict = {"w": 50, "h": 10}
-MAX_SIZE: int = 210
-PIXMAP_SIZE: list = [90, 130, 170, MAX_SIZE]
-THUMB_W: list = [i for i in PIXMAP_SIZE]
-TEXT_LENGTH: list = [18, 23, 28, 33]
-GRID_SPACING = 5
-LINK = "https://disk.yandex.ru/d/vYdK8hMwVbkSKQ"
-IMAGE_APPS: dict = {}
+
 _IMG_EXT: tuple = (
     ".jpg", ".jpeg", ".jfif",
     ".tif", ".tiff",
@@ -26,11 +19,13 @@ _IMG_EXT: tuple = (
     ".png",
     ".nef", ".cr2", ".cr3", ".arw", ".raf"
     )
+
 IMG_EXT: tuple = tuple(
     upper_ext
     for ext in _IMG_EXT
     for upper_ext in (ext, ext.upper())
-    )            
+    )
+            
 COLORS: dict = {
     "\U0001F534": "Красный",
     "\U0001F535": "Синий",
@@ -40,7 +35,18 @@ COLORS: dict = {
     "\U0001F7E3": "Фиолетовый",
     "\U0001F7E4": "Коричневый"
     }
+STAR_SYM = "\U00002605"
 
+FOLDER: str = "Папка"
+MARGIN: dict = {"w": 50, "h": 10}
+MAX_SIZE: int = 210
+PIXMAP_SIZE: list = [90, 130, 170, MAX_SIZE]
+THUMB_W: list = [i for i in PIXMAP_SIZE]
+TEXT_LENGTH: list = [18, 23, 28, 33]
+GRID_SPACING = 5
+LINK = "https://disk.yandex.ru/d/vYdK8hMwVbkSKQ"
+
+IMAGE_APPS: dict = {}
 
 class JsonData:
     root = f"{HOST}/Volumes"
@@ -107,7 +113,6 @@ class JsonData:
     @classmethod
     def find_img_apps(cls):
         root_path = f"{HOST}/Applications"
-        print(root_path)
 
         names = [
             f"Adobe Photoshop CC {i}"
