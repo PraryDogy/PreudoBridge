@@ -147,7 +147,6 @@ class Grid(BaseGrid):
 
             self.grid_layout.addWidget(wid, row, col)
             self.cell_to_wid[row, col] = wid
-            wid.path_to_wid = self.path_to_wid
             wid.row, wid.col = row, col
 
             col += 1
