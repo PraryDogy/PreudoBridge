@@ -61,6 +61,7 @@ class ColorLabel(QLabel):
 
 class Thumb(OrderItem, QFrame):
     clicked = pyqtSignal()
+    open_in_view = pyqtSignal()
 
     def __init__(
             self,
@@ -70,7 +71,6 @@ class Thumb(OrderItem, QFrame):
             colors: str = None,
             rating: int = None,
             pixmap: QPixmap = None,
-            path_to_wid: dict[str, QLabel] = None
             ):
 
         QFrame.__init__(self, parent=None)
@@ -78,7 +78,6 @@ class Thumb(OrderItem, QFrame):
 
         self.img: QPixmap = pixmap
         self.must_hidden: bool = False
-        self.path_to_wid: dict[str, QLabel] = {} if path_to_wid is None else path_to_wid
         self.row, self.col = 0, 0
 
         margin = 0
@@ -150,7 +149,7 @@ class Thumb(OrderItem, QFrame):
 
     def add_base_actions(self, context_menu: QMenu):
         view_action = QAction("Просмотр", self)
-        view_action.triggered.connect(self.view)
+        view_action.triggered.connect(self.open_in_view.emit)
         context_menu.addAction(view_action)
 
         # Открыть в приложении
@@ -214,14 +213,6 @@ class Thumb(OrderItem, QFrame):
         self.win_info = WinInfo(self.get_info())
         Utils.center_win(parent=Utils.get_main_win(), child=self.win_info)
         self.win_info.show()
-
-    def view(self):
-        # в win_img_view есть импорт Thumbnail.
-        # избегаем circular import
-        from .win_img_view import WinImgView
-        self.win = WinImgView(self.src, self.path_to_wid)
-        Utils.center_win(parent=Utils.get_main_win(), child=self.win)
-        self.win.show()
 
     def open_in_app(self, app_path: str):
         subprocess.call(["open", "-a", app_path, self.src])
@@ -354,8 +345,7 @@ class Thumb(OrderItem, QFrame):
         self.drag.exec_(Qt.DropAction.CopyAction)
 
     def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
-        if a0.button() == Qt.MouseButton.LeftButton:
-            self.view()
+        self.open_in_view.emit()
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         self.clicked.emit()
@@ -373,11 +363,10 @@ class ThumbFolder(Thumb):
             colors: str = None, 
             rating: int = None, 
             pixmap: QPixmap = None, 
-            path_to_wid: dict[str, QLabel] = None
             ):
         
         Thumb.__init__(self, src=src, size=size, mod=mod, colors=colors, rating=rating,
-                         pixmap=pixmap, path_to_wid=path_to_wid)
+                         pixmap=pixmap)
 
     def fav_cmd(self, offset: int):
         self.fav_action.triggered.disconnect()
@@ -390,20 +379,10 @@ class ThumbFolder(Thumb):
             self.fav_action.setText("Добавить в избранное")
             self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))
 
-    # переназначение метода Thumb
-    def view(self):
-        SIGNALS.new_history.emit(self.src)
-        SIGNALS.load_standart_grid.emit(self.src)
-
     def show_info_win(self):
         self.win_info = WinInfo(self.get_info())
         Utils.center_win(parent=Utils.get_main_win(), child=self.win_info)
         self.win_info.show()
-
-    def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
-        self.clicked.emit()
-        SIGNALS.new_history.emit(self.src)
-        SIGNALS.load_standart_grid.emit(self.src)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         self.clicked.emit()
@@ -411,7 +390,7 @@ class ThumbFolder(Thumb):
         context_menu = QMenu(parent=self)
 
         view_action = QAction("Просмотр", self)
-        view_action.triggered.connect(self.view)
+        view_action.triggered.connect(self.open_in_view.emit)
         context_menu.addAction(view_action)
 
         context_menu.addSeparator()
@@ -451,11 +430,10 @@ class ThumbSearch(Thumb):
         colors: str = None,
         rating: int = None,
         pixmap: QPixmap = None,
-        path_to_wid: dict[str, QLabel] = None
         ):
 
         Thumb.__init__(self, src=src, size=size, mod=mod, colors=colors, 
-                         rating=rating, pixmap=pixmap, path_to_wid=path_to_wid)
+                         rating=rating, pixmap=pixmap)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         self.clicked.emit()

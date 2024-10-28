@@ -306,10 +306,10 @@ class GridStandart(Grid):
                     colors=order_item.colors,
                     rating=order_item.rating,
                     pixmap=self.pixmap_img,
-                    path_to_wid=self.path_to_wid
                     )
 
             wid.clicked.connect(lambda w=wid: self.select_new_widget(w))
+            wid.open_in_view.connect(lambda w=wid: self.open_in_view(w))
             self.grid_layout.addWidget(wid, row, col)
 
             self.add_widget_data(wid, row, col)

@@ -3,7 +3,7 @@ import os
 from datetime import date
 
 HOST = ""
-APP_NAME = "PseudoBridge"
+APP_NAME = "PreudoBridge"
 APP_VER = "1.0.0"
 JSON_FILE = os.path.join(os.path.expanduser('~'), 'Desktop', 'cfg.json')
 DB_FILE = os.path.join(os.path.expanduser('~'), 'Desktop', 'db.db')

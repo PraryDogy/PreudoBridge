@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import QFrame, QGridLayout, QWidget
 
-from cfg import GRID_SPACING, Dymanic, JsonData
+from cfg import GRID_SPACING, Dymanic, JsonData, FOLDER
 from database import OrderItem
 from signals import SIGNALS
 from utils import Utils
@@ -161,6 +161,16 @@ class Grid(BaseGrid):
         self.path_to_wid[wid.src] = wid
         self.ordered_widgets.append(wid)
 
+    def open_in_view(self, wid: Thumb):
+        if wid.type_ == FOLDER:
+            SIGNALS.new_history.emit(wid.src)
+            SIGNALS.load_standart_grid.emit(wid.src)
+        else:
+            from .win_img_view import WinImgView
+            self.win = WinImgView(wid.src, self.path_to_wid)
+            Utils.center_win(parent=Utils.get_main_win(), child=self.win)
+            self.win.show()
+
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         wid: Thumb | ThumbFolder 
 
@@ -174,7 +184,7 @@ class Grid(BaseGrid):
 
         elif a0.modifiers() & Qt.KeyboardModifier.ControlModifier and a0.key() == Qt.Key.Key_Down:
             wid = self.cell_to_wid.get(self.curr_cell)
-            wid.view()
+            self.open_in_view(wid)
 
         elif a0.modifiers() & Qt.KeyboardModifier.ControlModifier and a0.key() == Qt.Key.Key_I:
             wid = self.cell_to_wid.get(self.curr_cell)
@@ -183,7 +193,7 @@ class Grid(BaseGrid):
         elif a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
             wid = self.cell_to_wid.get(self.curr_cell)
             if wid:
-                wid.view()
+                self.open_in_view(wid)
 
         elif a0.key() == Qt.Key.Key_Left:
             coords = (self.curr_cell[0], self.curr_cell[1] - 1)
