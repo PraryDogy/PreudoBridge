@@ -209,10 +209,9 @@ class GridSearch(Grid):
             src=widget_data.src,
             size=widget_data.size,
             mod=widget_data.mod,
-            pixmap=widget_data.pixmap,
             colors=widget_data.colors,
             rating=widget_data.rating,
-            path_to_wid=self.path_to_wid
+            pixmap=widget_data.pixmap,
             )
 
         wid.clicked.connect(lambda w=wid: self.select_new_widget(w))
