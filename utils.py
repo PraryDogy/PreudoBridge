@@ -220,3 +220,17 @@ class Utils:
         print("ERROR:", error_message)
         print("#" * 100)
         print()
+
+    @classmethod
+    def get_folder_size_applescript(cls, path: str) -> int | None:
+        script = f'''
+        tell application "Finder"
+            set folderSize to size of (POSIX file "{path}" as alias)
+        end tell
+        return folderSize
+        '''
+        try:
+            result = subprocess.check_output(['osascript', '-e', script])
+            return float(result.strip())
+        except subprocess.CalledProcessError:
+            return None

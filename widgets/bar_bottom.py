@@ -75,7 +75,8 @@ class PathLabel(QLabel):
             date = datetime.fromtimestamp(stats.st_mtime).replace(microsecond=0)
             date: str = date.strftime("%d.%m.%Y %H:%M")
 
-            size_ = round(stats.st_size / (1024**2), 2)
+            size_ = Utils.get_folder_size_applescript(self.src)
+            # size_ = round(stats.st_size / (1024**2), 2)
             if size_ < 1000:
                 f_size = f"{size_} МБ"
             else:
