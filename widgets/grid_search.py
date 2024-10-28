@@ -214,7 +214,7 @@ class GridSearch(Grid):
             pixmap=widget_data.pixmap,
             )
 
-        wid.clicked.connect(lambda w=wid: self.select_new_widget(w))
+        wid.select.connect(lambda w=wid: self.select_new_widget(w))
         wid.open_in_view.connect(lambda w=wid: self.open_in_view(w))
         self.add_widget_data(wid, self.row, self.col)
         self.grid_layout.addWidget(wid, self.row, self.col)

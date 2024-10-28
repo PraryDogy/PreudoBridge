@@ -308,7 +308,7 @@ class GridStandart(Grid):
                     pixmap=self.pixmap_img,
                     )
 
-            wid.clicked.connect(lambda w=wid: self.select_new_widget(w))
+            wid.select.connect(lambda w=wid: self.select_new_widget(w))
             wid.open_in_view.connect(lambda w=wid: self.open_in_view(w))
             self.grid_layout.addWidget(wid, row, col)
 

@@ -60,7 +60,7 @@ class ColorLabel(QLabel):
 
 
 class Thumb(OrderItem, QFrame):
-    clicked = pyqtSignal()
+    select = pyqtSignal()
     open_in_view = pyqtSignal()
 
     def __init__(
@@ -314,7 +314,7 @@ class Thumb(OrderItem, QFrame):
         return True
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
-        self.clicked.emit()
+        self.select.emit()
 
     def mousePressEvent(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.LeftButton:
@@ -332,7 +332,7 @@ class Thumb(OrderItem, QFrame):
         if distance < QApplication.startDragDistance():
             return
 
-        self.clicked.emit()
+        self.select.emit()
 
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
@@ -348,7 +348,7 @@ class Thumb(OrderItem, QFrame):
         self.open_in_view.emit()
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        self.clicked.emit()
+        self.select.emit()
         context_menu = QMenu(self)
         self.add_base_actions(context_menu)
         context_menu.exec_(self.mapToGlobal(a0.pos()))
@@ -385,7 +385,7 @@ class ThumbFolder(Thumb):
         self.win_info.show()
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        self.clicked.emit()
+        self.select.emit()
 
         context_menu = QMenu(parent=self)
 
@@ -436,7 +436,7 @@ class ThumbSearch(Thumb):
                          rating=rating, pixmap=pixmap)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        self.clicked.emit()
+        self.select.emit()
         
         context_menu = QMenu(parent=self)
 
