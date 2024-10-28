@@ -72,6 +72,8 @@ class Grid(BaseGrid):
             except AttributeError:
                 pass
 
+        self.setFocus()
+
     def reset_selection(self):
         widget = self.cell_to_wid.get(self.curr_cell)
 
