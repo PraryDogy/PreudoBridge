@@ -7,8 +7,8 @@ from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
                              QLineEdit, QMenu, QPushButton, QSpacerItem,
                              QTabBar, QVBoxLayout, QWidget)
 
-from cfg import (BACK_SYM, BLUE, BURGER_SYM, COLORS, CROSS_SYM, GRID_SYM,
-                 HEAVY_X_SYM, IMG_EXT, NEXT_SYM, SIMPLE_CROSS_SYM, STAR_SYM,
+from cfg import (BACK_SYM, BLUE, BURGER_SYM, COLORS, FAT_DOT_SYM, GRID_SYM,
+                 FILTERS_CROSS_SYM, IMG_EXT, NEXT_SYM, SEARCH_CROSS_SYM, STAR_SYM,
                  UP_CURVE, Dymanic, JsonData)
 from database import ORDER
 from signals import SIGNALS
@@ -203,7 +203,7 @@ class SearchWidget(QWidget):
         self.input_wid.mouseDoubleClickEvent = self.show_templates
         v_lay.addWidget(self.input_wid)
 
-        self.clear_btn = QLabel(parent=self, text=SIMPLE_CROSS_SYM)
+        self.clear_btn = QLabel(parent=self, text=SEARCH_CROSS_SYM)
         self.clear_btn.setFixedSize(15, 10)
         self.clear_btn.move(self.input_wid.width() - 20, 8)
         self.clear_btn.hide()
@@ -268,7 +268,7 @@ class ColorLabel(QLabel):
 
 class FiltersBtn(QPushButton):
     def __init__(self):
-        super().__init__(text=CROSS_SYM)
+        super().__init__(text=FAT_DOT_SYM)
         
         self._menu = QWidget()
         self._menu.setWindowFlags(Qt.WindowType.Popup)
@@ -298,7 +298,7 @@ class FiltersBtn(QPushButton):
             color_lay.addWidget(label)
             self.color_wids.append(label)
 
-        cancel_color = QLabel(HEAVY_X_SYM)
+        cancel_color = QLabel(FILTERS_CROSS_SYM)
         cancel_color.setFixedSize(20, 20)
         cancel_color.mousePressEvent = self.cancel_color
         color_lay.addWidget(cancel_color)
