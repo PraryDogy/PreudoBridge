@@ -2,6 +2,8 @@ import json
 import os
 from datetime import date
 
+HOST = ""
+
 APP_NAME = "PseudoBridge"
 APP_VER = "1.0.0"
 
@@ -46,7 +48,7 @@ LINK = "https://disk.yandex.ru/d/vYdK8hMwVbkSKQ"
 IMAGE_APPS: dict = {}
 
 class JsonData:
-    root = "/Volumes"
+    root = f"{HOST}/Volumes"
     ww = 1050
     hh = 700
     ww_im = 700
@@ -109,7 +111,7 @@ class JsonData:
 
     @classmethod
     def find_img_apps(cls):
-        root_path = "/Applications"
+        root_path = f"{HOST}/Applications"
 
         names = [
             f"Adobe Photoshop CC {i}"
@@ -121,7 +123,7 @@ class JsonData:
                 ])
         names.append("Capture One")
         names_app = [i + ".app" for i in names]
-        IMAGE_APPS["Просмотр"] = "/System/Applications/Preview.app"
+        IMAGE_APPS["Просмотр"] = f"{HOST}/System/Applications/Preview.app"
 
         for item in os.listdir(root_path):
             full_path = os.path.join(root_path, item)
