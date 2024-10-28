@@ -393,6 +393,11 @@ class ThumbFolder(Thumb):
         SIGNALS.new_history.emit(self.src)
         SIGNALS.load_standart_grid.emit(self.src)
 
+    def show_info_win(self):
+        self.win_info = WinInfo(self.get_info())
+        Utils.center_win(parent=Utils.get_main_win(), child=self.win_info)
+        self.win_info.show()
+
     def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
         self.clicked.emit()
         SIGNALS.new_history.emit(self.src)
@@ -406,6 +411,12 @@ class ThumbFolder(Thumb):
         view_action = QAction("Просмотр", self)
         view_action.triggered.connect(self.view)
         context_menu.addAction(view_action)
+
+        context_menu.addSeparator()
+
+        info = QAction("Инфо", self)
+        info.triggered.connect(self.show_info_win)
+        context_menu.addAction(info)
 
         show_in_finder_action = QAction("Показать в Finder", self)
         show_in_finder_action.triggered.connect(self.show_in_finder)
