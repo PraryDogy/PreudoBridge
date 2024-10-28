@@ -35,6 +35,7 @@ COLORS: dict = {
     "\U0001F7E3": "Фиолетовый",
     "\U0001F7E4": "Коричневый"
     }
+STAR_SYM = "\U00002605"
 
 FOLDER: str = "Папка"
 MARGIN: dict = {"w": 50, "h": 10}

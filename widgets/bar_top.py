@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
                              QLineEdit, QMenu, QPushButton, QSpacerItem,
                              QTabBar, QVBoxLayout, QWidget)
 
-from cfg import COLORS, IMG_EXT, Dymanic, JsonData, BLUE
+from cfg import COLORS, IMG_EXT, Dymanic, JsonData, BLUE, STAR_SYM
 from database import ORDER
 from signals import SIGNALS
 from utils import Utils
@@ -322,7 +322,7 @@ class FiltersBtn(QPushButton):
         self.rating_wids: list[QLabel] = []
 
         for rate in self.rating_data:
-            label = QLabel("\U00002605")
+            label = QLabel(STAR_SYM)
             label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             label.setFixedSize(20, 20)
             label.mouseReleaseEvent = lambda e, r=rate: self.toggle_rating(r)

@@ -9,7 +9,7 @@ from PyQt5.QtGui import (QCloseEvent, QContextMenuEvent, QKeyEvent,
 from PyQt5.QtWidgets import (QAction, QFrame, QHBoxLayout, QLabel, QMenu,
                              QSpacerItem, QVBoxLayout, QWidget)
 
-from cfg import COLORS, IMAGE_APPS, JsonData
+from cfg import COLORS, IMAGE_APPS, JsonData, STAR_SYM
 from database import CACHE, Dbase
 from signals import SIGNALS
 from utils import Utils
@@ -288,7 +288,7 @@ class WinImgView(QWidget):
     def set_title(self):
         t = ""
         if self.wid.rating > 0:
-            t = "\U00002605" * self.wid.rating + " | "
+            t = STAR_SYM * self.wid.rating + " | "
         if self.wid.colors:
             t = t + self.wid.colors + " | "
         t = t + os.path.basename(self.src)
@@ -476,7 +476,7 @@ class WinImgView(QWidget):
         context_menu.addMenu(rating_menu)
 
         for rate in range(1, 6):
-            wid = QAction(parent=rating_menu, text="\U00002605" * rate)
+            wid = QAction(parent=rating_menu, text=STAR_SYM * rate)
             wid.setCheckable(True)
 
             if self.wid.rating == rate:

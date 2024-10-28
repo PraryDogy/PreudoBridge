@@ -3,13 +3,13 @@ import subprocess
 
 import sqlalchemy
 from PyQt5.QtCore import QMimeData, Qt, QUrl, pyqtSignal
-from PyQt5.QtGui import QContextMenuEvent, QDrag, QMouseEvent, QPixmap, QFont
+from PyQt5.QtGui import QContextMenuEvent, QDrag, QFont, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QLabel, QMenu,
                              QVBoxLayout)
 from sqlalchemy.exc import OperationalError
 
-from cfg import (COLORS, GRAY, IMAGE_APPS, MARGIN, PIXMAP_SIZE, TEXT_LENGTH,
-                 THUMB_W, JsonData)
+from cfg import (COLORS, FOLDER, GRAY, IMAGE_APPS, MARGIN, PIXMAP_SIZE,
+                 TEXT_LENGTH, THUMB_W, JsonData, STAR_SYM)
 from database import CACHE, Dbase, OrderItem
 from signals import SIGNALS
 from utils import Utils
@@ -18,8 +18,6 @@ from .win_info import WinInfo
 
 
 class NameLabel(QLabel):
-    star = "\U00002605"
-
     def __init__(self):
         super().__init__()
 
@@ -47,7 +45,7 @@ class NameLabel(QLabel):
             name = [name]
 
         if wid.rating > 0:
-            name.append(self.star * wid.rating)
+            name.append(STAR_SYM * wid.rating)
 
         self.setText("\n".join(name))
 
@@ -82,19 +80,6 @@ class Thumb(OrderItem, QFrame):
         self.must_hidden: bool = False
         self.path_to_wid: dict[str, QLabel] = {} if path_to_wid is None else path_to_wid
         self.row, self.col = 0, 0
-
-        size_ = round(self.size / (1024**2), 2)
-        if size_ < 1000:
-            self.f_size = f"{size_} МБ"
-        else:
-            size_ = round(self.size / (1024**3), 2)
-            self.f_size = f"{size_} ГБ"
-
-        if self.mod:
-            str_date = datetime.datetime.fromtimestamp(self.mod).replace(microsecond=0)
-            self.f_mod: str = str_date.strftime("%d.%m.%Y %H:%M")
-        else:
-            self.f_mod = ""
 
         margin = 0
 
@@ -216,7 +201,7 @@ class Thumb(OrderItem, QFrame):
         context_menu.addMenu(rating_menu)
 
         for rate in range(1, 6):
-            wid = QAction(parent=rating_menu, text="\U00002605" * rate)
+            wid = QAction(parent=rating_menu, text=STAR_SYM * rate)
             wid.setCheckable(True)
 
             if self.rating == rate:
@@ -264,13 +249,31 @@ class Thumb(OrderItem, QFrame):
                     item.setChecked(True)
 
     def get_info(self) -> str:
-        rating = "\U00002605" * self.rating
+        rating = STAR_SYM * self.rating
+
+        if self.type_ == FOLDER:
+            self.size = Utils.get_folder_size_applescript(self.src)
+            
+        size_ = round(self.size / (1024**2), 2)
+
+        if size_ < 1000:
+            f_size = f"{size_} МБ"
+        else:
+            size_ = round(self.size / (1024**3), 2)
+            f_size = f"{size_} ГБ"
+
+        if self.mod:
+            str_date = datetime.datetime.fromtimestamp(self.mod).replace(microsecond=0)
+            f_mod: str = str_date.strftime("%d.%m.%Y %H:%M")
+        else:
+            self.f_mod = ""
+
         text = [
             f"Имя*** {self.name}",
             f"Тип*** {self.type_}",
             f"Путь*** {self.src}",
-            f"Размер*** {self.f_size}" if self.size > 0 else "",
-            f"Изменен*** {self.f_mod}" if self.f_mod else "",
+            f"Размер*** {f_size}" if self.size > 0 else "",
+            f"Изменен*** {f_mod}" if f_mod else "",
             f"Рейтинг*** {rating}" if rating else "",
             f"Цвета*** {self.colors}" if self.colors else ""
             ]
@@ -278,7 +281,6 @@ class Thumb(OrderItem, QFrame):
         return "\n".join(text)
 
     def set_text(self):
-        self.setToolTip(self.get_info())
         self.name_label.set_text(self)
         self.color_label.set_text(self)
 
