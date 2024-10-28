@@ -1,9 +1,9 @@
 import os
 from difflib import SequenceMatcher
 
-from PyQt5.QtCore import QSize, Qt, QThread, QTimer, pyqtSignal
-from PyQt5.QtGui import QKeyEvent, QMouseEvent
-from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
+from PyQt6.QtCore import QSize, Qt, QThread, QTimer, pyqtSignal
+from PyQt6.QtGui import QKeyEvent, QMouseEvent, QAction
+from PyQt6.QtWidgets import ( QFrame, QGridLayout, QHBoxLayout, QLabel,
                              QLineEdit, QMenu, QPushButton, QSpacerItem,
                              QTabBar, QVBoxLayout, QWidget)
 

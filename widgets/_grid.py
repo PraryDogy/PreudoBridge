@@ -1,8 +1,8 @@
 import os
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QKeyEvent, QMouseEvent
-from PyQt5.QtWidgets import QFrame, QGridLayout, QWidget
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QKeyEvent, QMouseEvent
+from PyQt6.QtWidgets import QFrame, QGridLayout, QWidget
 
 from cfg import GRID_SPACING, Dymanic, JsonData
 from database import OrderItem

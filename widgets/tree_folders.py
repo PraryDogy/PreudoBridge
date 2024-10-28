@@ -1,11 +1,13 @@
 import subprocess
 
-from PyQt5.QtCore import QDir, pyqtSignal
-from PyQt5.QtWidgets import QAction, QFileSystemModel, QMenu, QTreeView
+from PyQt6.QtCore import QDir
+from PyQt6.QtGui import QAction, QFileSystemModel
+from PyQt6.QtWidgets import QMenu, QTreeView
 
 from cfg import JsonData
-from utils import Utils
 from signals import SIGNALS
+from utils import Utils
+
 
 class TreeFolders(QTreeView):
     def __init__(self):

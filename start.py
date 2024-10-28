@@ -2,7 +2,7 @@ import os
 import sys
 import traceback
 
-from PyQt5.QtWidgets import QApplication, QMessageBox, QPushButton
+from PyQt6.QtWidgets import QApplication, QMessageBox, QPushButton
 
 
 def catch_err(exc_type, exc_value, exc_traceback):
@@ -42,8 +42,8 @@ if os.path.exists("lib"):
     sys.excepthook = catch_err
 
 
-from PyQt5.QtCore import QLibraryInfo, QTranslator
-from PyQt5.QtWidgets import QApplication
+from PyQt6.QtCore import QLibraryInfo, QTranslator
+from PyQt6.QtWidgets import QApplication
 
 from database import Dbase
 from gui import CustomApp, SimpleFileExplorer

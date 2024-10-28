@@ -2,11 +2,11 @@ import os
 import subprocess
 
 import sqlalchemy
-from PyQt5.QtCore import QEvent, QPoint, QSize, Qt, QThread, QTimer, pyqtSignal
-from PyQt5.QtGui import (QCloseEvent, QContextMenuEvent, QKeyEvent,
+from PyQt6.QtCore import QEvent, QPoint, QSize, Qt, QThread, QTimer, pyqtSignal
+from PyQt6.QtGui import (QCloseEvent, QContextMenuEvent, QKeyEvent,
                          QMouseEvent, QPainter, QPaintEvent, QPixmap,
-                         QResizeEvent)
-from PyQt5.QtWidgets import (QAction, QFrame, QHBoxLayout, QLabel, QMenu,
+                         QResizeEvent, QAction)
+from PyQt6.QtWidgets import ( QFrame, QHBoxLayout, QLabel, QMenu,
                              QSpacerItem, QVBoxLayout, QWidget)
 
 from cfg import COLORS, IMAGE_APPS, JsonData, STAR_SYM

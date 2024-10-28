@@ -1,8 +1,8 @@
-from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
-from PyQt5.QtWidgets import QGridLayout, QLabel, QWidget
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QLabel, QMenu, QWidget
-from PyQt5.QtCore import Qt
+from PyQt6.QtGui import QContextMenuEvent, QKeyEvent
+from PyQt6.QtWidgets import QGridLayout, QLabel, QWidget
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QApplication, QLabel, QMenu, QWidget
+from PyQt6.QtCore import Qt
 
 class CustomLabel(QLabel):
     def __init__(self, text: str):

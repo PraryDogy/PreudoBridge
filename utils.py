@@ -9,9 +9,9 @@ import numpy as np
 import psd_tools
 import rawpy
 import tifffile
-from PyQt5.QtCore import QByteArray, Qt
-from PyQt5.QtGui import QImage, QPixmap
-from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget
+from PyQt6.QtCore import QByteArray, Qt
+from PyQt6.QtGui import QImage, QPixmap
+from PyQt6.QtWidgets import QApplication, QVBoxLayout, QWidget
 
 from cfg import GRID_SPACING, MARGIN, THUMB_W, JsonData
 

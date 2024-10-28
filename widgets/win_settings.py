@@ -3,9 +3,9 @@ import subprocess
 import webbrowser
 
 import sqlalchemy
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QCloseEvent, QKeyEvent
-from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QPushButton,
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QCloseEvent, QKeyEvent
+from PyQt6.QtWidgets import (QFrame, QHBoxLayout, QLabel, QPushButton,
                              QVBoxLayout, QWidget)
 
 from cfg import JSON_FILE, LINK, JsonData

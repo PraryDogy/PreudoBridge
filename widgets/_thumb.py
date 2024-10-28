@@ -2,9 +2,9 @@ import datetime
 import subprocess
 
 import sqlalchemy
-from PyQt5.QtCore import QMimeData, Qt, QUrl, pyqtSignal
-from PyQt5.QtGui import QContextMenuEvent, QDrag, QFont, QMouseEvent, QPixmap
-from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QLabel, QMenu,
+from PyQt6.QtCore import QMimeData, Qt, QUrl, pyqtSignal
+from PyQt6.QtGui import QContextMenuEvent, QDrag, QAction, QMouseEvent, QPixmap
+from PyQt6.QtWidgets import (QApplication, QFrame, QLabel, QMenu,
                              QVBoxLayout)
 from sqlalchemy.exc import OperationalError
 

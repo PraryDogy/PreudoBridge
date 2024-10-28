@@ -2,9 +2,9 @@ import os
 import subprocess
 from datetime import datetime
 
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QContextMenuEvent, QMouseEvent
-from PyQt5.QtWidgets import (QAction, QGridLayout, QHBoxLayout, QLabel, QMenu,
+from PyQt6.QtCore import Qt, pyqtSignal
+from PyQt6.QtGui import QContextMenuEvent, QMouseEvent, QAction
+from PyQt6.QtWidgets import ( QGridLayout, QHBoxLayout, QLabel, QMenu,
                              QProgressBar, QWidget)
 
 from cfg import BLUE, JsonData

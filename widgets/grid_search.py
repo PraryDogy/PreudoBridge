@@ -4,8 +4,8 @@ from time import sleep
 
 import sqlalchemy
 from numpy import ndarray
-from PyQt5.QtCore import QThread, pyqtSignal
-from PyQt5.QtGui import QCloseEvent, QPixmap
+from PyQt6.QtCore import QThread, pyqtSignal
+from PyQt6.QtGui import QCloseEvent, QPixmap
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import IMG_EXT, MAX_SIZE, JsonData

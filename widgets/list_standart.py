@@ -1,9 +1,9 @@
 import os
 import subprocess
 
-from PyQt5.QtCore import QDir, Qt
-from PyQt5.QtGui import QKeyEvent
-from PyQt5.QtWidgets import QAction, QFileSystemModel, QMenu, QTableView
+from PyQt6.QtCore import QDir, Qt
+from PyQt6.QtGui import QKeyEvent, QFileSystemModel, QAction
+from PyQt6.QtWidgets import  QMenu, QTableView
 
 from cfg import IMG_EXT, JsonData
 from signals import SIGNALS
