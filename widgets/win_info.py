@@ -25,7 +25,7 @@ class CustomLabel(QLabel):
 
 
 class WinInfo(QWidget):
-    def __init__(self, text: str) -> None:
+    def __init__(self, text: str, split_sym: str = "***") -> None:
         super().__init__()
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowCloseButtonHint)
@@ -40,7 +40,7 @@ class WinInfo(QWidget):
         row = 0
 
         for line in text.split("\n"):
-            left_text, right_text = line.split(":")
+            left_text, right_text = line.split(split_sym)
             left_text, right_text = left_text.strip(), right_text.strip()
             max_row = 40
 

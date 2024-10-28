@@ -92,7 +92,7 @@ class Thumb(OrderItem, QFrame):
 
         if self.mod:
             str_date = datetime.datetime.fromtimestamp(self.mod).replace(microsecond=0)
-            self.f_mod: str = str_date.strftime("%d.%m.%Y %H-%M")
+            self.f_mod: str = str_date.strftime("%d.%m.%Y %H:%M")
         else:
             self.f_mod = ""
 
@@ -266,13 +266,13 @@ class Thumb(OrderItem, QFrame):
     def get_info(self) -> str:
         rating = "\U00002605" * self.rating
         text = [
-            f"Имя: {self.name}",
-            f"Тип: {self.type_}",
-            f"Путь: {self.src}",
-            f"Размер: {self.f_size}" if self.size > 0 else "",
-            f"Изменен: {self.f_mod}" if self.f_mod else "",
-            f"Рейтинг: {rating}" if rating else "",
-            f"Цвета: {self.colors}" if self.colors else ""
+            f"Имя*** {self.name}",
+            f"Тип*** {self.type_}",
+            f"Путь*** {self.src}",
+            f"Размер*** {self.f_size}" if self.size > 0 else "",
+            f"Изменен*** {self.f_mod}" if self.f_mod else "",
+            f"Рейтинг*** {rating}" if rating else "",
+            f"Цвета*** {self.colors}" if self.colors else ""
             ]
         text = [i for i in text if i]
         return "\n".join(text)

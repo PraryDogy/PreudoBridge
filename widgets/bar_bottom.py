@@ -1,12 +1,13 @@
 import os
 import subprocess
+from datetime import datetime
 
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QMouseEvent
 from PyQt5.QtWidgets import (QAction, QGridLayout, QHBoxLayout, QLabel, QMenu,
                              QProgressBar, QWidget)
 
-from cfg import JsonData, BLUE
+from cfg import BLUE, JsonData
 from signals import SIGNALS
 from utils import Utils
 
@@ -62,9 +63,34 @@ class PathLabel(QLabel):
         self.setStyleSheet("")
 
     def show_info_win(self):
+        # имя тип путь размер изменен
         self.win_info = WinInfo(self.get_info())
         Utils.center_win(parent=Utils.get_main_win(), child=self.win_info)
         self.win_info.show()
+
+    def get_info(self):
+        try:
+            stats = os.stat(self.src)
+
+            date = datetime.fromtimestamp(stats.st_mtime).replace(microsecond=0)
+            date: str = date.strftime("%d.%m.%Y %H:%M")
+
+            size_ = round(stats.st_size / (1024**2), 2)
+            if size_ < 1000:
+                f_size = f"{stats.st_size} МБ"
+            else:
+                size_ = round(size_ / (1024**3), 2)
+                f_size = f"{stats.st_size} ГБ"
+
+            name = "Имя***" + os.path.basename(self.src)
+            type = "Тип***" + "Папка"
+            path = "Путь***" + self.src
+            size = "Размер***" + f_size
+            date = "Изменен***" + date
+            return "\n".join([name, type, path, size, date])
+
+        except (PermissionError, FileNotFoundError) as e:
+            return "Ошибка данных: нет доступка кт папке"
 
     def show_in_finder(self):
         subprocess.call(["open", "-R", self.src])
