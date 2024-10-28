@@ -7,7 +7,7 @@ from PyQt5.QtGui import QContextMenuEvent, QMouseEvent
 from PyQt5.QtWidgets import (QAction, QGridLayout, QHBoxLayout, QLabel, QMenu,
                              QProgressBar, QWidget)
 
-from cfg import BLUE, JsonData
+from cfg import BLUE, JsonData, FOLDER_SYM
 from signals import SIGNALS
 from utils import Utils
 
@@ -97,8 +97,6 @@ class PathLabel(QLabel):
 
 
 class BarBottom(QWidget):
-    folder_sym = "\U0001F4C1"
-
     def __init__(self):
         super().__init__()
         SIGNALS.progressbar_value.connect(self.progressbar_value)
@@ -145,7 +143,7 @@ class BarBottom(QWidget):
         chunks = []
         for x, chunk in enumerate(root):
             src = os.path.join(os.sep, *root[:x + 1])
-            label = PathLabel(src=src, text=f"{BarBottom.folder_sym} {chunk} > ")
+            label = PathLabel(src=src, text=f"{FOLDER_SYM} {chunk} > ")
             label.mouseReleaseEvent = lambda e, c=chunk: self.new_root(root, c, e)
             label._clicked.connect(lambda c=chunk: self.new_root(root, c))
             h_lay.addWidget(label, alignment=Qt.AlignmentFlag.AlignLeft)

@@ -231,6 +231,9 @@ class Utils:
         '''
         try:
             result = subprocess.check_output(['osascript', '-e', script])
-            return float(result.strip())
+            # return float(result.strip())
+            print(result)
+            quit()
+            return ""
         except subprocess.CalledProcessError:
             return None

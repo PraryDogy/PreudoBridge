@@ -5,7 +5,7 @@ from PyQt5.QtGui import QCloseEvent, QKeyEvent, QResizeEvent
 from PyQt5.QtWidgets import (QApplication, QGridLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
 
-from cfg import IMG_EXT, JsonData
+from cfg import IMG_EXT, UP_ARROW_SYM, JsonData
 from signals import SIGNALS
 from utils import Utils
 from widgets._grid import Grid
@@ -85,7 +85,7 @@ class SimpleFileExplorer(QWidget):
         self.bar_bottom = BarBottom()
         self.r_lay.addWidget(self.bar_bottom, 2, 0, alignment=Qt.AlignmentFlag.AlignBottom)
 
-        self.scroll_up = QLabel(parent=self, text="\u25B2")
+        self.scroll_up = QLabel(parent=self, text=UP_ARROW_SYM)
         self.scroll_up.hide()
         self.scroll_up.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.scroll_up.mouseReleaseEvent = lambda e: self.grid.verticalScrollBar().setValue(0)

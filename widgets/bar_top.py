@@ -7,10 +7,13 @@ from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
                              QLineEdit, QMenu, QPushButton, QSpacerItem,
                              QTabBar, QVBoxLayout, QWidget)
 
-from cfg import COLORS, IMG_EXT, Dymanic, JsonData, BLUE, STAR_SYM
+from cfg import (BACK_SYM, BLUE, BURGER_SYM, COLORS, CROSS_SYM, GRID_SYM,
+                 HEAVY_X_SYM, IMG_EXT, NEXT_SYM, SIMPLE_CROSS_SYM, STAR_SYM,
+                 UP_CURVE, Dymanic, JsonData)
 from database import ORDER
 from signals import SIGNALS
 from utils import Utils
+
 from ._base import WinMinMax
 from .win_settings import WinSettings
 
@@ -158,8 +161,8 @@ class ViewTypeBtn(QTabBar):
         super().__init__()
         self.setFixedWidth(90)
 
-        self.addTab("\U00001392" * 3)
-        self.addTab("\U00002630")
+        self.addTab(GRID_SYM * 3)
+        self.addTab(BURGER_SYM)
 
         if JsonData.list_view:
             self.setCurrentIndex(1)
@@ -200,7 +203,7 @@ class SearchWidget(QWidget):
         self.input_wid.mouseDoubleClickEvent = self.show_templates
         v_lay.addWidget(self.input_wid)
 
-        self.clear_btn = QLabel(parent=self, text="\u2573")
+        self.clear_btn = QLabel(parent=self, text=SIMPLE_CROSS_SYM)
         self.clear_btn.setFixedSize(15, 10)
         self.clear_btn.move(self.input_wid.width() - 20, 8)
         self.clear_btn.hide()
@@ -264,14 +267,8 @@ class ColorLabel(QLabel):
 
 
 class FiltersBtn(QPushButton):
-    CROSS_MARK = "\u274C"      # ❌ (CROSS MARK)
-    HEAVY_M_X = "\u2716"       # ✖ (HEAVY MULTIPLICATION X)
-    BALLOT_X = "\u2718"        # ✘ (BALLOT X)
-    HEAVY_X = "\u2715"         # ✕ (HEAVY X)
-    BOXED_X = "\u2612"         # ☒ (BOXED X)
-
     def __init__(self):
-        super().__init__(text="\U000026AB")
+        super().__init__(text=CROSS_SYM)
         
         self._menu = QWidget()
         self._menu.setWindowFlags(Qt.WindowType.Popup)
@@ -297,12 +294,11 @@ class FiltersBtn(QPushButton):
         for color in COLORS:
             label = ColorLabel(color)
             label.setFixedSize(20, 20)
-            # label.setStyleSheet("font-size: 10px;")
             label.mousePressEvent = lambda e, w=label, c=color: self.toggle_color(w, c)
             color_lay.addWidget(label)
             self.color_wids.append(label)
 
-        cancel_color = QLabel(self.HEAVY_X)
+        cancel_color = QLabel(HEAVY_X_SYM)
         cancel_color.setFixedSize(20, 20)
         cancel_color.mousePressEvent = self.cancel_color
         color_lay.addWidget(cancel_color)
@@ -475,12 +471,6 @@ class HistoryBtn(QPushButton):
 
 
 class BarTop(QFrame):
-    BACK_SYM = "\u25C0"
-    NEXT_SYM = "\u25B6"
-    UP_SIMPLE = "\u2191"     # ↑
-    UP_DOUBLE = "\u21E7"     # ⇧
-    UP_BOLD = "\u2B06"       # ⬆
-    UP_CURVE = "\u2934"      # ⤴
 
     def __init__(self):
         super().__init__()
@@ -497,17 +487,17 @@ class BarTop(QFrame):
         self.setLayout(self.grid_layout)
 
         self.clmn += 1
-        self.back_btn = HistoryBtn(self.BACK_SYM)
+        self.back_btn = HistoryBtn(BACK_SYM)
         self.back_btn.clicked.connect(lambda: self.navigate(-1))
         self.grid_layout.addWidget(self.back_btn, 0, self.clmn)
 
         self.clmn += 1
-        self.next_btn = HistoryBtn(self.NEXT_SYM)
+        self.next_btn = HistoryBtn(NEXT_SYM)
         self.next_btn.clicked.connect(lambda: self.navigate(1))
         self.grid_layout.addWidget(self.next_btn, 0, self.clmn)
 
         self.clmn += 1
-        self.level_up_btn = QPushButton(self.UP_CURVE)
+        self.level_up_btn = QPushButton(UP_CURVE)
         self.level_up_btn.setFixedWidth(50)
         self.level_up_btn.clicked.connect(self.level_up)
         self.grid_layout.addWidget(self.level_up_btn, 0, self.clmn)

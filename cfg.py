@@ -9,8 +9,20 @@ JSON_FILE = os.path.join(os.path.expanduser('~'), 'Desktop', 'cfg.json')
 DB_FILE = os.path.join(os.path.expanduser('~'), 'Desktop', 'db.db')
 
 GRAY = "rgba(111, 111, 111, 0.5)"
-BLUE = "#007AFF"
+BLUE = "rgba(0, 122, 255, 1)"
+
 STAR_SYM = "\U00002605"
+FOLDER_SYM = "\U0001F4C1"
+GRID_SYM = "\U00001392"
+BURGER_SYM = "\U00002630"
+CROSS_SYM = "\U000026AB"
+HEAVY_X_SYM = "\u2715" 
+SIMPLE_CROSS_SYM = "\u2573"
+UP_ARROW_SYM = "\u25B2"
+BACK_SYM = "\u25C0"
+NEXT_SYM = "\u25B6"
+UP_CURVE = "\u2934"      # ⤴
+
 FOLDER: str = "Папка"
 
 MARGIN: dict = {"w": 50, "h": 10}
