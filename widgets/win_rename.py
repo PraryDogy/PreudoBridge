@@ -1,17 +1,15 @@
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtWidgets import QLineEdit, QPushButton, QVBoxLayout, QWidget
+from ._base import WinMinMax
 
-
-class WinRename(QWidget):
+class WinRename(WinMinMax):
     _finished = pyqtSignal(str)
 
     def __init__(self, text: str):
         super().__init__()
         self.setWindowTitle("Переименовать")
         self.setFixedSize(200, 70)
-        self.setWindowModality(Qt.WindowModality.ApplicationModal)
-        self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowCloseButtonHint)
 
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(10, 10, 10, 10)

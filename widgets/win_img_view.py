@@ -9,11 +9,12 @@ from PyQt5.QtGui import (QCloseEvent, QContextMenuEvent, QKeyEvent,
 from PyQt5.QtWidgets import (QAction, QFrame, QHBoxLayout, QLabel, QMenu,
                              QSpacerItem, QVBoxLayout, QWidget)
 
-from cfg import COLORS, IMAGE_APPS, JsonData, STAR_SYM
+from cfg import COLORS, IMAGE_APPS, STAR_SYM, JsonData
 from database import CACHE, Dbase
 from signals import SIGNALS
 from utils import Utils
 
+from ._base import WinBase
 from ._grid import Thumb
 from ._svg_widgets import SvgShadowed
 from .win_info import WinInfo
@@ -224,7 +225,7 @@ class NextImageBtn(SwitchImageBtn):
         super().__init__("next.svg", parent)
 
 
-class WinImgView(QWidget):
+class WinImgView(WinBase):
     def __init__(self, src: str, path_to_wid: dict[str, Thumb]):
         super().__init__()
         self.src: str = src
@@ -242,7 +243,6 @@ class WinImgView(QWidget):
             if os.path.isfile(i)
             ]
 
-        self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setMinimumSize(QSize(400, 300))
         self.resize(JsonData.ww_im, JsonData.hh_im)
         self.setObjectName("img_view")

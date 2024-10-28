@@ -11,15 +11,13 @@ from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QPushButton,
 from cfg import JSON_FILE, LINK, JsonData
 from database import STATS, Dbase
 
-from ._base import BaseSlider
+from ._base import BaseSlider, WinMinMax
 
 
-class WinSettings(QWidget):
+class WinSettings(WinMinMax):
     def __init__(self):
         super().__init__()
         
-        self.setWindowModality(Qt.WindowModality.ApplicationModal)
-        self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowCloseButtonHint)
         self.setWindowTitle("Настройки")
         self.setFixedSize(350, 200)
 
@@ -44,7 +42,7 @@ class WinSettings(QWidget):
         h_lay.addWidget(self.clear_btn)
         
         self.slider_values = [2, 5, 10, 100]
-        self.slider = BaseSlider(Qt.Horizontal, 0, len(self.slider_values) - 1)
+        self.slider = BaseSlider(Qt.Orientation.Horizontal, 0, len(self.slider_values) - 1)
         self.slider.setFixedWidth(100)
         current = JsonData.clear_db
         ind = self.slider_values.index(current)

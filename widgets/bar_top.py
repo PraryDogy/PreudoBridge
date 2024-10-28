@@ -11,7 +11,7 @@ from cfg import COLORS, IMG_EXT, Dymanic, JsonData, BLUE, STAR_SYM
 from database import ORDER
 from signals import SIGNALS
 from utils import Utils
-
+from ._base import WinMinMax
 from .win_settings import WinSettings
 
 
@@ -274,7 +274,7 @@ class FiltersBtn(QPushButton):
         super().__init__(text="\U000026AB")
         
         self._menu = QWidget()
-        self._menu.setWindowFlags(Qt.Popup)
+        self._menu.setWindowFlags(Qt.WindowType.Popup)
         self._menu.closeEvent = lambda e: self.press_check()
 
         self._menu.setLayout(QVBoxLayout())
@@ -394,12 +394,10 @@ class FiltersBtn(QPushButton):
         self.setDown(False)
 
 
-class WinGo(QWidget):
+class WinGo(WinMinMax):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Перейти к ...")
-        self.setWindowModality(Qt.WindowModality.ApplicationModal)
-        self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowCloseButtonHint)
         self.setFixedSize(290, 90)
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(10, 10, 10, 10)

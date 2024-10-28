@@ -52,7 +52,7 @@ class SimpleFileExplorer(QWidget):
         main_lay.setSpacing(0)
         self.setLayout(main_lay)
 
-        splitter_wid = QSplitter(Qt.Horizontal)
+        splitter_wid = QSplitter(Qt.Orientation.Horizontal)
         splitter_wid.splitterMoved.connect(self.resizeEvent)
         main_lay.addWidget(splitter_wid)
 

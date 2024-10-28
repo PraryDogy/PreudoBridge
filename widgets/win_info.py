@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import QGridLayout, QLabel, QWidget
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QApplication, QLabel, QMenu, QWidget
 from PyQt5.QtCore import Qt
+from ._base import WinMinMax
 
 class CustomLabel(QLabel):
     def __init__(self, text: str):
@@ -24,11 +25,9 @@ class CustomLabel(QLabel):
         clipboard.setText(modified_text)
 
 
-class WinInfo(QWidget):
+class WinInfo(WinMinMax):
     def __init__(self, text: str, split_sym: str = "***") -> None:
         super().__init__()
-        self.setWindowModality(Qt.WindowModality.ApplicationModal)
-        self.setWindowFlags(Qt.Window | Qt.CustomizeWindowHint | Qt.WindowCloseButtonHint)
         self.setWindowTitle("Инфо")
 
         self.grid_layout = QGridLayout()
