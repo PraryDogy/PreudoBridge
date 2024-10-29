@@ -272,7 +272,6 @@ class FiltersBtn(QPushButton):
         
         self._menu = QWidget()
         self._menu.setWindowFlags(Qt.WindowType.Popup)
-        self._menu.closeEvent = lambda e: self.press_check()
 
         self._menu.setLayout(QVBoxLayout())
         self._menu.layout().setContentsMargins(0, 0, 0, 0)
@@ -300,12 +299,11 @@ class FiltersBtn(QPushButton):
 
         cancel_color = QLabel(FILTERS_CROSS_SYM)
         cancel_color.setFixedSize(20, 20)
-        cancel_color.mousePressEvent = self.cancel_color
+        cancel_color.mousePressEvent = self.reset_colors_cmd
         color_lay.addWidget(cancel_color)
 
         color_lay.addStretch(1)
 
-        # строчка с рейтингом
 
         raging_wid = QWidget()
         self._menu.layout().addWidget(raging_wid)
@@ -332,25 +330,38 @@ class FiltersBtn(QPushButton):
         self._menu.move(self.mapToGlobal(pont))
         self._menu.show()
 
+    def style_btn(self, set_down=True, style=f"color: {BLUE};"):
+
+        if self.filter_count == 0:
+            set_down = False
+            style = ""
+
+        self.setDown(set_down)
+        self.setStyleSheet(style)
+
     def toggle_color(self, widget: ColorLabel, color: str):
         if widget.is_selected == True:
             self.filter_count -= 1
+            self.style_btn()
             Dymanic.color_filters.remove(color)
             widget.setStyleSheet("")
             widget.is_selected = False
         else:
             self.filter_count += 1
+            self.style_btn()
             Dymanic.color_filters.append(color)
             widget.setStyleSheet(f"background: {BLUE};")
             widget.is_selected = True
 
         SIGNALS.filter_grid.emit()
 
-    def cancel_color(self, e):
+    def reset_colors_cmd(self, e):
         for wid in self.color_wids:
-            self.filter_count -= 1
             wid.setStyleSheet("")
             wid.is_selected = False
+
+        self.filter_count -= len(Dymanic.color_filters)
+        self.style_btn()
 
         Dymanic.color_filters.clear()
         SIGNALS.filter_grid.emit()
@@ -359,23 +370,20 @@ class FiltersBtn(QPushButton):
         if rate > 1:
             Dymanic.rating_filter = rate
             self.filter_count += 1
+            self.style_btn()
+
             for i in self.rating_wids[:rate]:
                 i.setStyleSheet(f"background: {BLUE};")
             for i in self.rating_wids[rate:]:
                 i.setStyleSheet("")
         else:
             self.filter_count -= 1
+            self.style_btn()
             Dymanic.rating_filter = 0
             for i in self.rating_wids:
                 i.setStyleSheet("")
 
         SIGNALS.filter_grid.emit()
-
-    def press_check(self):
-        if self.filter_count == 0:
-            self.setDown(False)
-        else:
-            self.setDown(True)
 
     def reset_filters(self):
         for i in self.rating_wids:
@@ -387,7 +395,7 @@ class FiltersBtn(QPushButton):
         Dymanic.color_filters.clear()
         Dymanic.rating_filter = 0
         self.filter_count = 0
-        self.setDown(False)
+        self.style_btn()
 
 
 class WinGo(WinMinMax):
