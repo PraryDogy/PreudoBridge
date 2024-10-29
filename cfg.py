@@ -6,10 +6,11 @@ _is_docker = os.path.exists('/proc/self/cgroup')
 
 if _is_docker:
     HOST_DESKTOP = "/root/desktop"
+    HOST_APPLICATIONS = "/root/applications"
 else:
     HOST_DESKTOP = os.path.expanduser("~/Desktop")
+    HOST_APPLICATIONS = "/Applications"
 
-HOST_APPLICATIONS = "/root/applications"
 
 APP_NAME = "PreudoBridge"
 APP_VER = "1.0.0"
