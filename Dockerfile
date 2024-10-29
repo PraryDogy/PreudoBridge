@@ -7,6 +7,11 @@ RUN apt-get update && apt-get install -y \
     libdbus-1-3 \
     libxi6 \
     libxrender1 \
+    libx11-xcb1 \
+    libxcb-xinerama0 \
+    libxrandr2 \
+    libxss1 \
+    libglu1-mesa \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /PseudoBridge

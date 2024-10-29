@@ -2,11 +2,21 @@ import json
 import os
 from datetime import date
 
-HOST = ""
+_is_docker = os.path.exists('/proc/self/cgroup')
+
+if _is_docker:
+    HOST_DESKTOP = "/root/desktop"
+else:
+    HOST_DESKTOP = os.path.expanduser("~/Desktop")
+
+HOST_APPLICATIONS = "/root/applications"
+
 APP_NAME = "PreudoBridge"
 APP_VER = "1.0.0"
-JSON_FILE = os.path.join(os.path.expanduser('~'), 'Desktop', 'cfg.json')
-DB_FILE = os.path.join(os.path.expanduser('~'), 'Desktop', 'db.db')
+
+JSON_FILE = os.path.join(HOST_DESKTOP, 'cfg.json')
+DB_FILE = os.path.join(HOST_DESKTOP, 'db.db')
+
 
 GRAY = "rgba(111, 111, 111, 0.5)"
 BLUE = "rgba(0, 122, 255, 1)"
@@ -59,7 +69,7 @@ COLORS: dict = {
 
 
 class JsonData:
-    root = f"{HOST}/Volumes"
+    root = f"/Volumes"
     ww = 1050
     hh = 700
     ww_im = 700
@@ -122,8 +132,6 @@ class JsonData:
 
     @classmethod
     def find_img_apps(cls):
-        root_path = f"{HOST}/Applications"
-
         names = [
             f"Adobe Photoshop CC {i}"
             for i in range(2014, 2020)
@@ -134,10 +142,10 @@ class JsonData:
                 ])
         names.append("Capture One")
         names_app = [i + ".app" for i in names]
-        IMAGE_APPS["Просмотр"] = f"{HOST}/System/Applications/Preview.app"
+        IMAGE_APPS["Просмотр"] = f"/System/Applications/Preview.app"
 
-        for item in os.listdir(root_path):
-            full_path = os.path.join(root_path, item)
+        for item in os.listdir(HOST_APPLICATIONS):
+            full_path = os.path.join(HOST_APPLICATIONS, item)
             app_folder = any(x for x in names if item in x)
             app_app = any(x for x in names_app if item in x)
 

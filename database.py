@@ -8,7 +8,6 @@ from utils import Utils
 
 METADATA = sqlalchemy.MetaData()
 
-
 CACHE = sqlalchemy.Table(
     "cache", METADATA,
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
@@ -24,14 +23,12 @@ CACHE = sqlalchemy.Table(
     sqlalchemy.Column("rating", sqlalchemy.Integer, nullable=False, comment="Рейтинг")
     )
 
-
 STATS = sqlalchemy.Table(
     'stats', METADATA,
     sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
     sqlalchemy.Column('name', sqlalchemy.Text, unique=True),
     sqlalchemy.Column('size', sqlalchemy.Integer)
     )
-
 
 ORDER: dict[dict[str, int]] = {
     clmn.name: {"text": clmn.comment, "index": ind}
