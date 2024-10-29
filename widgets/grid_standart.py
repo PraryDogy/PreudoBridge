@@ -261,8 +261,11 @@ class GridStandart(Grid):
         # запустится создание сетки
         # в конце создания запустится подгрузка изображений
 
+        print("load disk img")
         self.pixmap_disk: QPixmap = QPixmap("images/disk_210.png")
+        print("load folder img")
         self.pixmap_folder: QPixmap = QPixmap("images/folder_210.png")
+        print("load file img")
         self.pixmap_img: QPixmap = QPixmap("images/file_210.png")
 
         self.order_items: list[OrderItem] = []
