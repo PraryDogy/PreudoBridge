@@ -97,9 +97,7 @@ OPTIONS = {"iconfile": ICON_PATH,
                          f"\nCopyright © {YEAR} {COMPANY}."
                          f"\nAll rights reserved.")}}
 
-OPTIONS['includes'] = ['imagecodecs._shared', 'imagecodecs._imcd', 'imagecodecs', 'tifffile']
 sys.argv.append(PY2APP)
-
 
 try:
     remove_trash()
