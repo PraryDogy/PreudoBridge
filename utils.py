@@ -9,6 +9,7 @@ import numpy as np
 import psd_tools
 import rawpy
 import tifffile
+from imagecodecs.imagecodecs import DelayedImportError
 from PyQt5.QtCore import QByteArray, Qt
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget
@@ -57,7 +58,7 @@ class Utils:
                 img = (img/256).astype(dtype="uint8")
             # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             return img
-        except (tifffile.tifffile.TiffFileError, RuntimeError) as e:
+        except (Exception, tifffile.TiffFileError, RuntimeError, DelayedImportError) as e:
             cls.print_error(cls, e)
             return cls.read_psd(path)
 
