@@ -60,10 +60,12 @@ class Utils:
             return img
         except (Exception, tifffile.TiffFileError, RuntimeError, DelayedImportError) as e:
             cls.print_error(cls, e)
+            print("try open tif with PIL")
             return cls.read_tiff_pil(path)
         
     def read_tiff_pil(cls, path: str) -> np.ndarray | None:
         try:
+            print("PIL: try open tif")
             img: Image = Image.open(path)
             # return cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
             return np.array(img)
