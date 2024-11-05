@@ -242,11 +242,12 @@ class SearchWidget(QWidget):
         self.clear_btn.hide()
         self.input_wid.textChanged.connect(self.on_text_changed)
 
-    def on_text_changed(self, text):
+    def on_text_changed(self, text: str):
         self.search_timer.stop()
         if text:
             self.clear_btn.show()
-            self.search_text = text
+            self.search_text = text.strip()
+            print("'", self.search_text)
             self.search_timer.start(1000)
         else:
             self.clear_search.emit()
