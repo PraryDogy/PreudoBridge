@@ -14,13 +14,13 @@ class System_:
         ERROR = traceback.format_exception(*args)
 
         SUMMARY_MSG = "\n".join([*ERROR, STARS, ABOUT])
-        APP_NAME: str = "MiuzCollections"
+        APP_NAME: str = "PreudoBridge"
 
         FILE_: str = os.path.join(
             os.path.expanduser("~"),
             "Library",
             "Application Support",
-            APP_NAME + "QT",
+            APP_NAME,
             "error.txt"
             )
 
