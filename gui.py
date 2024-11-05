@@ -215,6 +215,7 @@ class SimpleFileExplorer(QWidget):
         elif a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
             if a0.key() == Qt.Key.Key_F:
                 self.bar_top.search_wid.input_wid.setFocus()
+                self.bar_top.search_wid.input_wid.selectAll()
 
             elif a0.key() == Qt.Key.Key_W:
                 self.hide()
