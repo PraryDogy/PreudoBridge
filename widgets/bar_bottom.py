@@ -178,8 +178,11 @@ class BarBottom(QWidget):
 
         self.path_label.adjustSize()
         ww = self.path_label.width()
-        while ww > 430:
-            chunks[0].hide()
+        while ww > 530:
+            if len(chunks) == 1:
+                break
+            t = chunks[0].text()[0] + "... > "
+            chunks[0].setText(t)
             chunks.pop(0)
             self.path_label.adjustSize()
             ww = self.path_label.width()
