@@ -221,3 +221,4 @@ class Grid(BaseGrid):
         if isinstance(wid, Thumb):
             wid.set_no_frame()
         self.setFocus()
+        SignalsApp.all.new_path_label.emit("")
