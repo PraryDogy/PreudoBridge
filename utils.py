@@ -10,6 +10,7 @@ import psd_tools
 import rawpy
 import tifffile
 from imagecodecs.imagecodecs import DelayedImportError
+from PIL import Image
 from PyQt5.QtCore import QByteArray, Qt
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget
@@ -56,11 +57,19 @@ class Utils:
             img = tifffile.imread(files=path)[:,:,:3]
             if str(object=img.dtype) != "uint8":
                 img = (img/256).astype(dtype="uint8")
-            # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             return img
         except (Exception, tifffile.TiffFileError, RuntimeError, DelayedImportError) as e:
             cls.print_error(cls, e)
-            return cls.read_psd(path)
+            return cls.read_tiff_pil(path)
+        
+    def read_tiff_pil(cls, path: str) -> np.ndarray | None:
+        try:
+            img: Image = Image.open(path)
+            # return cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+            return np.array(img)
+        except Exception as e:
+            Utils.print_error(parent=cls, error=e)
+            return None
 
     @classmethod
     def read_psd(cls, path: str) -> np.ndarray | None:
