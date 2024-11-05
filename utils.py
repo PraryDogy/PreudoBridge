@@ -62,7 +62,8 @@ class Utils:
             cls.print_error(cls, e)
             print("try open tif with PIL")
             return cls.read_tiff_pil(path)
-        
+    
+    @classmethod
     def read_tiff_pil(cls, path: str) -> np.ndarray | None:
         try:
             print("PIL: try open tif")
