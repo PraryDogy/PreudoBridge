@@ -11,7 +11,7 @@ from cfg import (BACK_SYM, BLUE, BURGER_SYM, COLORS, FAT_DOT_SYM, GRID_SYM,
                  FILTERS_CROSS_SYM, IMG_EXT, NEXT_SYM, SEARCH_CROSS_SYM, STAR_SYM,
                  UP_CURVE, Dymanic, JsonData)
 from database import ORDER
-from signals import SIGNALS
+from signals import SignalsApp
 from utils import Utils
 
 from ._base import WinMinMax
@@ -153,7 +153,7 @@ class SortTypeBtn(QPushButton):
         JsonData.sort = data_action.sort
         JsonData.reversed = data_action.reversed
         self.setText(data_action.text)
-        SIGNALS.sort_grid.emit()
+        SignalsApp.all.sort_grid.emit()
 
 
 class ViewTypeBtn(QTabBar):
@@ -178,7 +178,7 @@ class ViewTypeBtn(QTabBar):
         else:
             self.setCurrentIndex(1)
             JsonData.list_view = True
-        SIGNALS.load_standart_grid.emit("")
+        SignalsApp.all.load_standart_grid.emit("")
 
     def tabSizeHint(self, index):
         size = QTabBar.tabSizeHint(self, index)
@@ -215,7 +215,7 @@ class SearchWidget(QWidget):
         self.search_timer = QTimer(self)
         self.search_timer.setSingleShot(True)
         self.search_timer.timeout.connect(
-            lambda: SIGNALS.load_search_grid.emit(self.search_text)
+            lambda: SignalsApp.all.load_search_grid.emit(self.search_text)
             )
         
         self.clear_search.connect(self.costil)
@@ -251,7 +251,7 @@ class SearchWidget(QWidget):
         else:
             self.clear_search.emit()
             self.clear_btn.hide()
-            SIGNALS.load_standart_grid.emit("")
+            SignalsApp.all.load_standart_grid.emit("")
 
     def show_templates(self, a0: QMouseEvent | None) -> None:
         self.templates_menu.exec(self.mapToGlobal(self.rect().bottomLeft()))
@@ -353,7 +353,7 @@ class FiltersBtn(QPushButton):
             widget.setStyleSheet(f"background: {BLUE};")
             widget.is_selected = True
 
-        SIGNALS.filter_grid.emit()
+        SignalsApp.all.filter_grid.emit()
 
     def reset_colors_cmd(self, e):
         for wid in self.color_wids:
@@ -364,7 +364,7 @@ class FiltersBtn(QPushButton):
         self.style_btn()
 
         Dymanic.color_filters.clear()
-        SIGNALS.filter_grid.emit()
+        SignalsApp.all.filter_grid.emit()
 
     def toggle_rating(self, rate: int):
         if rate > 1:
@@ -383,7 +383,7 @@ class FiltersBtn(QPushButton):
             for i in self.rating_wids:
                 i.setStyleSheet("")
 
-        SIGNALS.filter_grid.emit()
+        SignalsApp.all.filter_grid.emit()
 
     def reset_filters(self):
         for i in self.rating_wids:
@@ -428,7 +428,7 @@ class WinGo(WinMinMax):
         path: str = os.sep + path.strip().strip(os.sep)
 
         if os.path.exists(path):
-            SIGNALS.open_path.emit(path)
+            SignalsApp.all.open_path.emit(path)
             self.close()
         else:
             self.path_thread = PathFinderThread(path)
@@ -436,7 +436,7 @@ class WinGo(WinMinMax):
             self.path_thread.start()
 
     def finalize(self, res: str):
-        SIGNALS.open_path.emit(res)
+        SignalsApp.all.open_path.emit(res)
         self.close()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
@@ -539,8 +539,8 @@ class BarTop(QFrame):
         self.search_wid = SearchWidget()
         self.grid_layout.addWidget(self.search_wid, 0, self.clmn)
 
-        SIGNALS.new_history.connect(self.new_history)
-        SIGNALS.new_history.emit(JsonData.root)
+        SignalsApp.all.new_history.connect(self.new_history)
+        SignalsApp.all.new_history.emit(JsonData.root)
         self.index_ -= 1
 
     def new_history(self, root: str):
@@ -558,12 +558,12 @@ class BarTop(QFrame):
             if self.index_ + offset in(-1, len(self.history)):
                 return
             self.index_ += offset
-            SIGNALS.load_standart_grid.emit(self.history[self.index_])
+            SignalsApp.all.load_standart_grid.emit(self.history[self.index_])
         except (ValueError, IndexError):
             pass
 
     def level_up(self, e):
         root = os.path.dirname(JsonData.root)
         if not root == os.sep:
-            SIGNALS.new_history.emit(root)
-            SIGNALS.load_standart_grid.emit(root)
+            SignalsApp.all.new_history.emit(root)
+            SignalsApp.all.load_standart_grid.emit(root)

@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QFrame, QGridLayout, QWidget
 
 from cfg import GRID_SPACING, Dymanic, JsonData, FOLDER
 from database import OrderItem
-from signals import SIGNALS
+from signals import SignalsApp
 from utils import Utils
 
 from ._base import BaseGrid
@@ -29,16 +29,16 @@ class Grid(BaseGrid):
         # Посколько сетка может множество раз перезагружаться
         # прежде нужно отключить прошлые подключения чтобы не было
         # дублирования подклювчений
-        for sig in (SIGNALS.resize_grid, SIGNALS.sort_grid, SIGNALS.filter_grid, SIGNALS.move_to_wid):
+        for sig in (SignalsApp.all.resize_grid, SignalsApp.all.sort_grid, SignalsApp.all.filter_grid, SignalsApp.all.move_to_wid):
             try:
                 sig.disconnect()
             except TypeError:
                 ...
 
-        SIGNALS.resize_grid.connect(self.resize_)
-        SIGNALS.sort_grid.connect(self.order_)
-        SIGNALS.filter_grid.connect(self.filter_)
-        SIGNALS.move_to_wid.connect(self.select_new_widget)
+        SignalsApp.all.resize_grid.connect(self.resize_)
+        SignalsApp.all.sort_grid.connect(self.order_)
+        SignalsApp.all.filter_grid.connect(self.filter_)
+        SignalsApp.all.move_to_wid.connect(self.select_new_widget)
 
         main_wid = QWidget()
         self.grid_layout = QGridLayout(main_wid)
@@ -162,8 +162,8 @@ class Grid(BaseGrid):
 
     def open_in_view(self, wid: Thumb):
         if wid.type_ == FOLDER:
-            SIGNALS.new_history.emit(wid.src)
-            SIGNALS.load_standart_grid.emit(wid.src)
+            SignalsApp.all.new_history.emit(wid.src)
+            SignalsApp.all.load_standart_grid.emit(wid.src)
         else:
             from .win_img_view import WinImgView
             self.win = WinImgView(wid.src, self.path_to_wid)
@@ -178,8 +178,8 @@ class Grid(BaseGrid):
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier and a0.key() == Qt.Key.Key_Up:
             root = os.path.dirname(JsonData.root)
             if root != os.sep:
-                SIGNALS.new_history.emit(root)
-                SIGNALS.load_standart_grid.emit(root)
+                SignalsApp.all.new_history.emit(root)
+                SignalsApp.all.load_standart_grid.emit(root)
 
         elif a0.modifiers() & Qt.KeyboardModifier.ControlModifier and a0.key() == Qt.Key.Key_Down:
             wid = self.cell_to_wid.get(self.curr_cell)

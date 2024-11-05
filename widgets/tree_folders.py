@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QAction, QFileSystemModel, QMenu, QTreeView
 
 from cfg import JsonData
 from utils import Utils
-from signals import SIGNALS
+from signals import SignalsApp
 
 class TreeFolders(QTreeView):
     def __init__(self):
@@ -29,8 +29,8 @@ class TreeFolders(QTreeView):
     def one_clicked(self, index):
         path = self.c_model.filePath(index)
         self.setCurrentIndex(index)
-        SIGNALS.new_history.emit(path)
-        SIGNALS.load_standart_grid.emit(path)
+        SignalsApp.all.new_history.emit(path)
+        SignalsApp.all.load_standart_grid.emit(path)
         self.expand(index)
 
     def expand_path(self, root: str):
@@ -66,11 +66,11 @@ class TreeFolders(QTreeView):
         favs: dict = JsonData.favs
         if src in favs:
             fav_action = QAction("Удалить из избранного", self)
-            fav_action.triggered.connect(lambda: SIGNALS.del_fav.emit(src))
+            fav_action.triggered.connect(lambda: SignalsApp.all.del_fav.emit(src))
             menu.addAction(fav_action)
         else:
             fav_action = QAction("Добавить в избранное", self)
-            fav_action.triggered.connect(lambda: SIGNALS.add_fav.emit(src))
+            fav_action.triggered.connect(lambda: SignalsApp.all.add_fav.emit(src))
             menu.addAction(fav_action)
 
         menu.exec_(self.mapToGlobal(event.pos()))

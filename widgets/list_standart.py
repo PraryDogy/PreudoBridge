@@ -6,7 +6,7 @@ from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtWidgets import QAction, QFileSystemModel, QMenu, QTableView
 
 from cfg import IMG_EXT, JsonData
-from signals import SIGNALS
+from signals import SignalsApp
 from utils import Utils
 
 from ._base import BaseTableView
@@ -49,7 +49,7 @@ class ListStandart(BaseTableView):
 
         if os.path.isdir(path):
             self.setCurrentIndex(index)
-            SIGNALS.load_standart_grid.emit(path)
+            SignalsApp.all.load_standart_grid.emit(path)
 
         elif path.endswith(IMG_EXT):
             thumbnail = Thumb()
@@ -104,11 +104,11 @@ class ListStandart(BaseTableView):
         if os.path.isdir(src):
             if src in JsonData.favs:
                 fav_action = QAction("Удалить из избранного", self)
-                fav_action.triggered.connect(lambda: SIGNALS.del_fav.emit(src))
+                fav_action.triggered.connect(lambda: SignalsApp.all.del_fav.emit(src))
                 menu.addAction(fav_action)
             else:
                 fav_action = QAction("Добавить в избранное", self)
-                fav_action.triggered.connect(lambda: SIGNALS.add_fav.emit(src))
+                fav_action.triggered.connect(lambda: SignalsApp.all.add_fav.emit(src))
                 menu.addAction(fav_action)
 
         menu.exec_(self.mapToGlobal(event.pos()))

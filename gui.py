@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import (QApplication, QGridLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import IMG_EXT, UP_ARROW_SYM, JsonData
-from signals import SIGNALS
+from signals import SignalsApp
 from utils import Utils
 from widgets._grid import Grid
 from widgets.bar_bottom import BarBottom
@@ -99,11 +99,11 @@ class SimpleFileExplorer(QWidget):
 
         # они должны быть именно тут
         self.grid: Grid = Grid(self.get_grid_width())
-        SIGNALS.load_standart_grid.connect(self.load_standart_grid)
-        SIGNALS.load_search_grid.connect(self.load_search_grid)
-        SIGNALS.search_finished.connect(self.search_finished)
-        SIGNALS.show_in_folder.connect(self.move_to_wid_delayed)
-        SIGNALS.open_path.connect(self.open_path_cmd)
+        SignalsApp.all.load_standart_grid.connect(self.load_standart_grid)
+        SignalsApp.all.load_search_grid.connect(self.load_search_grid)
+        SignalsApp.all.search_finished.connect(self.search_finished)
+        SignalsApp.all.show_in_folder.connect(self.move_to_wid_delayed)
+        SignalsApp.all.open_path.connect(self.open_path_cmd)
 
         self.load_standart_grid()
 
@@ -177,7 +177,7 @@ class SimpleFileExplorer(QWidget):
         self.grid.setFocus()
 
     def grid_close(self):
-        SIGNALS.progressbar_value.emit(1000000)
+        SignalsApp.all.progressbar_value.emit(1000000)
         self.grid.disconnect()
         self.grid.close()
 

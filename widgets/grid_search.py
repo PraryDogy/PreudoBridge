@@ -11,7 +11,7 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 from cfg import IMG_EXT, MAX_SIZE, JsonData
 from database import CACHE, STATS, Dbase
 from fit_img import FitImg
-from signals import SIGNALS
+from signals import SignalsApp
 from utils import Utils
 
 from ._grid import Grid
@@ -88,7 +88,7 @@ class SearchFinder(QThread):
         self.conn.close()
 
         if self.flag:
-            SIGNALS.search_finished.emit(self.search_text)
+            SignalsApp.all.search_finished.emit(self.search_text)
 
     def create_wid(self, src: str):
         try:

@@ -9,7 +9,7 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 from cfg import FOLDER, IMG_EXT, MAX_SIZE, JsonData
 from database import CACHE, STATS, Dbase, OrderItem
 from fit_img import FitImg
-from signals import SIGNALS
+from signals import SignalsApp
 from utils import Utils
 
 from ._grid import Grid, Thumb
@@ -107,7 +107,7 @@ class LoadImages(QThread):
                 self.db_size -= len(db_byte_img)
 
     def create_new_images(self):
-        SIGNALS.progressbar_value.emit(len(self.src_size_mod))
+        SignalsApp.all.progressbar_value.emit(len(self.src_size_mod))
         progress_count = 0
         insert_count = 0
 
@@ -143,7 +143,7 @@ class LoadImages(QThread):
                     self.conn.commit()
                     insert_count = 0
 
-                SIGNALS.progressbar_value.emit(progress_count)
+                SignalsApp.all.progressbar_value.emit(progress_count)
                 progress_count += 1
 
             except IntegrityError as e:
@@ -162,7 +162,7 @@ class LoadImages(QThread):
                 Utils.print_error(self, e)
 
         # 1 милилон = скрыть прогресс бар согласно его инструкции
-        SIGNALS.progressbar_value.emit(1000000)
+        SignalsApp.all.progressbar_value.emit(1000000)
 
     def get_insert_stmt(self, img_bytes: bytes, src: str, size: int, mod: int):
 

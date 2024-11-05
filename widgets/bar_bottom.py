@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QAction, QGridLayout, QHBoxLayout, QLabel, QMenu,
                              QProgressBar, QWidget)
 
 from cfg import BLUE, JsonData, FOLDER_SYM
-from signals import SIGNALS
+from signals import SignalsApp
 from utils import Utils
 
 from ._base import BaseSlider
@@ -26,7 +26,7 @@ class CustomSlider(BaseSlider):
     def change_size(self, value: int):
         self.setValue(value)
         JsonData.pixmap_size_ind = value
-        SIGNALS.resize_grid.emit()
+        SignalsApp.all.resize_grid.emit()
 
 
 class PathLabel(QLabel):
@@ -99,7 +99,7 @@ class PathLabel(QLabel):
 class BarBottom(QWidget):
     def __init__(self):
         super().__init__()
-        SIGNALS.progressbar_value.connect(self.progressbar_value)
+        SignalsApp.all.progressbar_value.connect(self.progressbar_value)
         self.setFixedHeight(25)
         self.path_label: QWidget = None
 
@@ -168,5 +168,5 @@ class BarBottom(QWidget):
         if a0 is None or a0.button() == Qt.MouseButton.LeftButton:
             new_path = rooted[:rooted.index(chunk) + 1]
             new_path = os.path.join(os.sep, *new_path)
-            SIGNALS.new_history.emit(new_path)
-            SIGNALS.load_standart_grid.emit(new_path)
+            SignalsApp.all.new_history.emit(new_path)
+            SignalsApp.all.load_standart_grid.emit(new_path)

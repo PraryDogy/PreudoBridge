@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QAction, QLabel, QListWidget, QListWidgetItem,
                              QMenu)
 
 from cfg import JsonData
-from signals import SIGNALS
+from signals import SignalsApp
 from utils import Utils
 
 from .win_rename import WinRename
@@ -27,7 +27,7 @@ class FavItem(QLabel):
         self.context_menu = QMenu(self)
 
         view_ac = QAction("Просмотр", self)
-        view_ac.triggered.connect(lambda: SIGNALS.load_standart_grid.emit(self.src))
+        view_ac.triggered.connect(lambda: SignalsApp.all.load_standart_grid.emit(self.src))
         self.context_menu.addAction(view_ac)
 
         open_finder_action = QAction("Показать в Finder", self)
@@ -67,8 +67,8 @@ class FavItem(QLabel):
 
     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
         if ev.button() == Qt.MouseButton.LeftButton:
-            SIGNALS.new_history.emit(self.src)
-            SIGNALS.load_standart_grid.emit(self.src)
+            SignalsApp.all.new_history.emit(self.src)
+            SignalsApp.all.load_standart_grid.emit(self.src)
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
         self.context_menu.exec_(ev.globalPos())
@@ -77,8 +77,8 @@ class FavItem(QLabel):
 class TreeFavorites(QListWidget):
     def __init__(self):
         super().__init__()
-        SIGNALS.add_fav.connect(self.add_fav_cmd)
-        SIGNALS.del_fav.connect(self.del_item)
+        SignalsApp.all.add_fav.connect(self.add_fav_cmd)
+        SignalsApp.all.del_fav.connect(self.del_item)
         self.setDragDropMode(QListWidget.DragDropMode.InternalMove)
         self.setAcceptDrops(True)
         self.init_ui()

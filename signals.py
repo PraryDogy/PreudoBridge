@@ -24,4 +24,9 @@ class Signals(QObject):
         super().__init__()
 
 
-SIGNALS = Signals()
+class SignalsApp:
+    all: Signals = None
+
+    @classmethod
+    def init(cls):
+        cls.all = Signals()

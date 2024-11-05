@@ -53,6 +53,8 @@ from PyQt5.QtWidgets import QApplication
 
 from cfg import JsonData
 from database import Dbase
+from gui import SimpleFileExplorer
+from signals import SignalsApp
 from utils import Utils
 
 
@@ -70,12 +72,10 @@ class CustomApp(QApplication):
     def on_exit(self):
         JsonData.write_config()
 
-from gui import SimpleFileExplorer
 
 JsonData.read_json_data()
 JsonData.find_img_apps()
 Dbase.init_db()
-
 app = CustomApp(sys.argv)
 
 translator = QTranslator()
@@ -83,6 +83,7 @@ locale = "ru_RU"
 if translator.load(f"qtbase_{locale}", QLibraryInfo.location(QLibraryInfo.TranslationsPath)):
     app.installTranslator(translator)
 
+SignalsApp.init()
 ex = SimpleFileExplorer()
 ex.show()
 

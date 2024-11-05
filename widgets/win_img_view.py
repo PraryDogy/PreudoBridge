@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (QAction, QFrame, QHBoxLayout, QLabel, QMenu,
 
 from cfg import COLORS, IMAGE_APPS, STAR_SYM, JsonData
 from database import CACHE, Dbase
-from signals import SIGNALS
+from signals import SignalsApp
 from utils import Utils
 
 from ._base import WinBase
@@ -354,7 +354,7 @@ class WinImgView(WinBase):
 
         self.src: str = self.image_paths[new_index]
         self.wid: Thumb = self.path_to_wid.get(self.src)
-        SIGNALS.move_to_wid.emit(self.wid)
+        SignalsApp.all.move_to_wid.emit(self.wid)
         self.load_thumbnail()
 
     def switch_img_btn(self, flag: str) -> None:

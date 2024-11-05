@@ -11,7 +11,7 @@ from sqlalchemy.exc import OperationalError
 from cfg import (COLORS, FOLDER, GRAY, IMAGE_APPS, MARGIN, PIXMAP_SIZE,
                  TEXT_LENGTH, THUMB_W, JsonData, STAR_SYM)
 from database import CACHE, Dbase, OrderItem
-from signals import SIGNALS
+from signals import SignalsApp
 from utils import Utils
 
 from .win_info import WinInfo
@@ -371,11 +371,11 @@ class ThumbFolder(Thumb):
     def fav_cmd(self, offset: int):
         self.fav_action.triggered.disconnect()
         if 0 + offset == 1:
-            SIGNALS.add_fav.emit(self.src)
+            SignalsApp.all.add_fav.emit(self.src)
             self.fav_action.setText("Удалить из избранного")
             self.fav_action.triggered.connect(lambda: self.fav_cmd(-1))
         else:
-            SIGNALS.del_fav.emit(self.src)
+            SignalsApp.all.del_fav.emit(self.src)
             self.fav_action.setText("Добавить в избранное")
             self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))
 
@@ -445,7 +445,7 @@ class ThumbSearch(Thumb):
         context_menu.addSeparator()
 
         show_in_folder = QAction("Показать в папке", self)
-        show_in_folder.triggered.connect(lambda: SIGNALS.show_in_folder.emit(self.src))
+        show_in_folder.triggered.connect(lambda: SignalsApp.all.show_in_folder.emit(self.src))
         context_menu.addAction(show_in_folder)
 
         context_menu.exec_(self.mapToGlobal(a0.pos()))
