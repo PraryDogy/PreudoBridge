@@ -20,9 +20,11 @@ class System_:
             os.path.expanduser("~"),
             "Library",
             "Application Support",
-            APP_NAME,
-            "error.txt"
+            APP_NAME
             )
+
+        os.makedirs(FILE_, exist_ok=True)
+        FILE_ = os.path.join(FILE_, "error.txt")
 
         with open(FILE_, "w")as f:
             f.write(SUMMARY_MSG)
