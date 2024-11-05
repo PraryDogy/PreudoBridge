@@ -98,7 +98,7 @@ class JsonData:
 
         if os.path.exists(JSON_FILE):
 
-            with open(JSON_FILE, 'r') as f:
+            with open(JSON_FILE, 'r', encoding="utf-8") as f:
 
                 try:
                     json_data: dict = json.load(f)
