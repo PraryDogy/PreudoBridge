@@ -486,4 +486,167 @@ class WinImgView(WinBase):
             rating_menu.addAction(wid)
 
         context_menu.exec_(self.mapToGlobal(a0.pos()))
+
+
+class WinImgViewSingle(WinBase):
+    def __init__(self, src: str):
+        super().__init__()
+        self.src: str = src
+
+        self.setMinimumSize(QSize(400, 300))
+        self.resize(JsonData.ww_im, JsonData.hh_im)
+        self.setObjectName("img_view")
+        self.setStyleSheet("""#img_view {background: black;}""")
+        self.setMouseTracking(True)
+        self.installEventFilter(self)
+
+        self.v_layout = QVBoxLayout()
+        self.v_layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(self.v_layout)
+
+        self.mouse_move_timer = QTimer(self)
+        self.mouse_move_timer.setSingleShot(True)
+        self.mouse_move_timer.timeout.connect(self.hide_all_buttons)
+
+        self.img_label = ImageWidget()
+        self.img_label.mouse_moved.connect(self.mouse_moved_cmd)
+        self.v_layout.addWidget(self.img_label)
+
+        self.zoom_btns = ZoomBtns(parent=self)
+        self.zoom_btns.zoomed_in.connect(self.img_label.zoom_in)
+        self.zoom_btns.zoomed_out.connect(self.img_label.zoom_out)
+        self.zoom_btns.zoomed_fit.connect(self.img_label.zoom_reset)
+        self.zoom_btns.press_close.connect(self.close)
+
+        self.hide_all_buttons()
+        self.load_thumbnail()
+
+# SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM
+
+    def open_default(self, app_path: str):
+        subprocess.call(["open", "-a", app_path, self.src])
+
+    def show_in_finder(self):
+        subprocess.call(["open", "-R", self.src])
+
+    def load_thumbnail(self):
+        if self.src not in Shared.loaded_images:
+
+            self.setWindowTitle("Загрузка")
+            q = sqlalchemy.select(CACHE.c.img).filter(CACHE.c.src == self.src)
+
+            with Dbase.engine.connect() as conn:
+                thumbnail = conn.execute(q).scalar() or None
+                if isinstance(thumbnail, bytes):
+                    pixmap = QPixmap()
+                    pixmap.loadFromData(thumbnail)
+                else:
+                    pixmap = QPixmap("images/file_1024.png")
+
+                self.img_label.set_image(pixmap)
+
+        self.load_image_thread()
+
+    def load_image_thread(self):
+        self.setWindowTitle("Загрузка")
+        img_thread = LoadImageThread(self.src)
+        Shared.threads.append(img_thread)
+        img_thread._finished.connect(
+            lambda image_data: self.load_image_finished(img_thread, image_data)
+            )
+        img_thread.start()
+
+    def load_image_finished(self, thread: LoadImageThread, image_data: ImageData):
+        if image_data.width == 0:
+            return
+
+        elif image_data.src != self.src:
+            return
+                        
+        self.img_label.set_image(image_data.pixmap)
+        name = os.path.basename(image_data.src)
+        self.setWindowTitle(name)
+        Shared.threads.remove(thread)
+
+# GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI
+
+    def hide_all_buttons(self):
+        if self.zoom_btns.underMouse():
+            return
+        self.zoom_btns.hide()
+
+    def mouse_moved_cmd(self):
+        self.mouse_move_timer.stop()
+        self.zoom_btns.show()
+        self.mouse_move_timer.start(2000)
+
+    def show_info_win(self):
+        return
+        self.win_info = WinInfo(self.wid.get_info())
+        Utils.center_win(parent=self, child=self.win_info)
+        self.win_info.show()
+
+# EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS 
+
+    def keyPressEvent(self, ev: QKeyEvent | None) -> None:
+        if ev.key() == Qt.Key.Key_Escape:
+            self.close()
+
+        elif ev.key() == Qt.Key.Key_Equal:
+            self.img_label.zoom_in()
+
+        elif ev.key() == Qt.Key.Key_Minus:
+            self.img_label.zoom_out()
+
+        elif ev.key() == Qt.Key.Key_0:
+            self.img_label.zoom_reset()
+
+        elif ev.key() == Qt.Key.Key_Space:
+            self.close()
+
+        # elif ev.modifiers() & Qt.KeyboardModifier.ControlModifier and ev.key() == Qt.Key.Key_I:
+            # self.wid.show_info_win()
+
+        return super().keyPressEvent(ev)
+
+    def resizeEvent(self, a0: QResizeEvent | None) -> None:
+        horizontal_center = a0.size().width() // 2 - self.zoom_btns.width() // 2
+        bottom_window_side = a0.size().height() - self.zoom_btns.height()
+        self.zoom_btns.move(horizontal_center, bottom_window_side - 30)
+
+        JsonData.ww_im = self.width()
+        JsonData.hh_im = self.height()
+
+    def leaveEvent(self, a0: QEvent | None) -> None:
+        self.hide_all_buttons()
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        Shared.loaded_images.clear()
+
+    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+        context_menu = QMenu(self)
+
+        open_menu = QMenu("Открыть в приложении", self)
+        context_menu.addMenu(open_menu)
+
+        for name, app_path in IMAGE_APPS.items():
+            wid = QAction(name, parent=open_menu)
+            wid.triggered.connect(lambda e, a=app_path: self.open_default(a))
+            open_menu.addAction(wid)
+
+        context_menu.addSeparator()
+
+        info = QAction("Инфо", self)
+        info.triggered.connect(self.show_info_win)
+        context_menu.addAction(info)
+
+        show_in_finder_action = QAction("Показать в Finder", self)
+        show_in_finder_action.triggered.connect(self.show_in_finder)
+        context_menu.addAction(show_in_finder_action)
+
+        copy_path = QAction("Скопировать путь до файла", self)
+        copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
+        context_menu.addAction(copy_path)
+
+        context_menu.exec_(self.mapToGlobal(a0.pos()))
     

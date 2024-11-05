@@ -12,6 +12,7 @@ from signals import SignalsApp
 from utils import Utils
 
 from ._base import BaseSlider
+from .win_img_view import WinImgViewSingle
 from .win_info import WinInfo
 
 
@@ -143,17 +144,26 @@ class BarBottom(QWidget):
         if path:
             root: str | list = path
             root = root.strip(os.sep).split(os.sep)
+            is_dir = False
         else:
             root: str | list = JsonData.root
             root = root.strip(os.sep).split(os.sep)
+            is_dir = True
 
         chunks: list[PathLabel] = []
         for x, chunk in enumerate(root):
             src = os.path.join(os.sep, *root[:x + 1])
-            sym = FOLDER_SYM if os.path.isdir(chunk) else FILE_SYM
+            sym = FOLDER_SYM if is_dir else FILE_SYM
+
             label = PathLabel(src=src, text=f"{sym} {chunk} > ")
-            label.mouseReleaseEvent = lambda e, c=chunk: self.new_root(root, c, e)
-            label._clicked.connect(lambda c=chunk: self.new_root(root, c))
+
+            if is_dir:
+                label.mouseDoubleClickEvent = lambda e, c=chunk: self.new_root(root, c, e)
+                label._clicked.connect(lambda c=chunk: self.new_root(root, c))
+            else:
+                cmd = lambda e, s=src: self.img_view(s)
+                label.mouseDoubleClickEvent = cmd
+
             h_lay.addWidget(label, alignment=Qt.AlignmentFlag.AlignLeft)
             chunks.append(label)
 
@@ -178,3 +188,7 @@ class BarBottom(QWidget):
             new_path = os.path.join(os.sep, *new_path)
             SignalsApp.all.new_history.emit(new_path)
             SignalsApp.all.load_standart_grid.emit(new_path)
+
+    def img_view(self, path: str):
+        self.win_img_view = WinImgViewSingle(path)
+        self.win_img_view.show()
