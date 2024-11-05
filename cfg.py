@@ -162,7 +162,3 @@ class JsonData:
 class Dymanic:
     color_filters: list = []
     rating_filter: int = 0
-
-
-JsonData.read_json_data()
-JsonData.find_img_apps()

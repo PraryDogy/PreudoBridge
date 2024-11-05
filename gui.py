@@ -232,18 +232,3 @@ class SimpleFileExplorer(QWidget):
             self.setFocus()
 
         return super().keyPressEvent(a0)
-
-
-class CustomApp(QApplication):
-    def __init__(self, argv: list[str]) -> None:
-        super().__init__(argv)
-        self.aboutToQuit.connect(self.on_exit)
-        self.installEventFilter(self)
-
-    def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
-        if a1.type() == QEvent.Type.ApplicationActivate:
-            Utils.get_main_win().show()
-        return False
-
-    def on_exit(self):
-        JsonData.write_config()
