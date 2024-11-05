@@ -107,7 +107,8 @@ class LoadImages(QThread):
                 self.db_size -= len(db_byte_img)
 
     def create_new_images(self):
-        SignalsApp.all.progressbar_value.emit(len(self.src_size_mod))
+        if self.flag:
+            SignalsApp.all.progressbar_value.emit(len(self.src_size_mod))
         progress_count = 0
         insert_count = 0
 
@@ -143,7 +144,8 @@ class LoadImages(QThread):
                     self.conn.commit()
                     insert_count = 0
 
-                SignalsApp.all.progressbar_value.emit(progress_count)
+                if self.flag:
+                    SignalsApp.all.progressbar_value.emit(progress_count)
                 progress_count += 1
 
             except IntegrityError as e:
@@ -339,6 +341,7 @@ class GridStandart(Grid):
         self.order_()
 
     def stop_threads(self):
+        SignalsApp.all.progressbar_value.emit(1000000)
         for i in Threads.all:
             i: LoadImages
             i.stop_thread.emit()
@@ -347,6 +350,7 @@ class GridStandart(Grid):
                 Threads.all.remove(i)
 
     def start_load_images(self):
+        SignalsApp.all.progressbar_value.emit(0)
         thread = LoadImages(self.order_items)
         thread.new_widget.connect(lambda image_data: self.set_pixmap(image_data))
         Threads.all.append(thread)
