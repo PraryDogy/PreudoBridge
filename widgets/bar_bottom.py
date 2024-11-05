@@ -7,7 +7,7 @@ from PyQt5.QtGui import QContextMenuEvent, QMouseEvent
 from PyQt5.QtWidgets import (QAction, QGridLayout, QHBoxLayout, QLabel, QMenu,
                              QProgressBar, QWidget)
 
-from cfg import BLUE, JsonData, FOLDER_SYM
+from cfg import BLUE, FILE_SYM, FOLDER_SYM, JsonData
 from signals import SignalsApp
 from utils import Utils
 
@@ -114,6 +114,9 @@ class BarBottom(QWidget):
         self.slider = CustomSlider()
         self.slider.setFixedWidth(70)
         self.h_lay.addWidget(self.slider, 0, 2, alignment=Qt.AlignmentFlag.AlignVCenter)
+
+        SignalsApp.all.new_path_label.connect(self.create_path_label)
+
         self.create_path_label()
 
     def progressbar_value(self, value: int):
@@ -127,7 +130,7 @@ class BarBottom(QWidget):
         if value == 1000000:
             self.progressbar.hide()
 
-    def create_path_label(self):
+    def create_path_label(self, path: str = None):
         if isinstance(self.path_label, QWidget):
             self.path_label.close()
 
@@ -137,13 +140,18 @@ class BarBottom(QWidget):
         h_lay.setSpacing(0)
         self.path_label.setLayout(h_lay)
 
-        root: str = JsonData.root
-        root: list = root.strip(os.sep).split(os.sep)
+        if path:
+            root: str | list = path
+            root = root.strip(os.sep).split(os.sep)
+        else:
+            root: str | list = JsonData.root
+            root = root.strip(os.sep).split(os.sep)
 
-        chunks = []
+        chunks: list[PathLabel] = []
         for x, chunk in enumerate(root):
             src = os.path.join(os.sep, *root[:x + 1])
-            label = PathLabel(src=src, text=f"{FOLDER_SYM} {chunk} > ")
+            sym = FOLDER_SYM if os.path.isdir(chunk) else FILE_SYM
+            label = PathLabel(src=src, text=f"{sym} {chunk} > ")
             label.mouseReleaseEvent = lambda e, c=chunk: self.new_root(root, c, e)
             label._clicked.connect(lambda c=chunk: self.new_root(root, c))
             h_lay.addWidget(label, alignment=Qt.AlignmentFlag.AlignLeft)
