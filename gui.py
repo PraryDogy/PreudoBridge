@@ -2,10 +2,10 @@ import os
 
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QCloseEvent, QKeyEvent, QMouseEvent, QResizeEvent
-from PyQt5.QtWidgets import (QApplication, QGridLayout, QLabel, QTabWidget,
-                             QVBoxLayout, QWidget, QHBoxLayout)
+from PyQt5.QtWidgets import (QApplication, QGridLayout, QHBoxLayout, QLabel,
+                             QTabWidget, QVBoxLayout, QWidget)
 
-from cfg import IMG_EXT, UP_ARROW_SYM, JsonData
+from cfg import IMG_EXT, LEFT_MENU_W, UP_ARROW_SYM, JsonData
 from signals import SignalsApp
 from widgets._grid import Grid
 from widgets.bar_bottom import BarBottom
@@ -66,7 +66,7 @@ class SimpleFileExplorer(QWidget):
         splitter_wid.setLayout(splitter_lay)
 
         self.bar_tabs = BarTabs()
-        self.bar_tabs.setFixedWidth(240)
+        self.bar_tabs.setFixedWidth(LEFT_MENU_W)
         splitter_lay.addWidget(self.bar_tabs)
 
         self.folders_tree_wid = TreeFolders()
