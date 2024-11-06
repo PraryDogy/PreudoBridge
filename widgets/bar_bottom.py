@@ -15,7 +15,7 @@ from ._base import BaseSlider
 from .win_img_view import WinImgViewSingle
 from .win_info import WinInfo
 
-ARROW = ">"
+ARROW = " >"
 IMAGES = "images"
 
 DISK_SMALL = os.path.join(IMAGES, "disk_small.png")
