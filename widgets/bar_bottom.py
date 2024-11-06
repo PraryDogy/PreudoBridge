@@ -196,11 +196,17 @@ class BarBottom(QWidget):
                 path_label.mouseDoubleClickEvent = cmd_
                 path_label._clicked.connect(cmd_)
 
-            path_label.setMinimumWidth(1)
-            path_label.setToolTip(src)
-            icon_label.setToolTip(src)
+            path_label.setMinimumWidth(15)
             self.path_lay.addWidget(icon_label)
             self.path_lay.addWidget(path_label)
+
+            cmd_ = lambda e, w=path_label: self.expand_temp(wid=w)
+            path_label.enterEvent = cmd_
+            icon_label.enterEvent = cmd_
+
+            cmd_ = lambda e, w=path_label: self.collapse_temp(wid=w)
+            path_label.leaveEvent = cmd_
+            icon_label.leaveEvent = cmd_
 
             temp.append((icon_label, path_label))
 
@@ -212,13 +218,19 @@ class BarBottom(QWidget):
             second.setPixmap(self.small_icon(DISK_SMALL))
 
         last = temp[-1][1]
-        last.adjustSize()
-        last.setFixedWidth(last.width())
+        # last.adjustSize()
+        # last.setFixedWidth(last.width())
         last.setText(last.text().replace(PathLabel.arrow, ""))
         if os.path.isfile(last.src):
             temp[-1][0].setPixmap(self.small_icon(FILE_SMALL))
 
         temp.clear()
+
+    def expand_temp(self, wid: QLabel | PathLabel):
+        wid.setFixedWidth(wid.sizeHint().width())
+
+    def collapse_temp(self, wid: QLabel | PathLabel):
+        wid.setMinimumWidth(15)
 
     def small_icon(self, path: str):
         return QPixmap(path).scaled(15, 15, transformMode=Qt.TransformationMode.SmoothTransformation)
