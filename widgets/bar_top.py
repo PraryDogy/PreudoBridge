@@ -247,7 +247,7 @@ class SearchWidget(QWidget):
         if text:
             self.clear_btn.show()
             self.search_text = text.strip()
-            print("'", self.search_text)
+            self.input_wid.setText(self.search_text)
             self.search_timer.start(1000)
         else:
             self.clear_search.emit()
