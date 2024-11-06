@@ -186,7 +186,6 @@ class BarBottom(QWidget):
             icon_label.setPixmap(q_folder_small)
 
             path_label = PathLabel(src=src, text=chunk_of_path + PathLabel.arrow)
-            path_label.setMinimumWidth(1)
 
             if is_dir:
                 cmd = lambda e, c=chunk_of_path: self.new_root(rooted=root, chunk=c, a0=e)
@@ -197,6 +196,7 @@ class BarBottom(QWidget):
                 path_label.mouseDoubleClickEvent = cmd_
                 path_label._clicked.connect(cmd_)
 
+            path_label.setMinimumWidth(1)
             path_label.setToolTip(src)
             icon_label.setToolTip(src)
             self.path_lay.addWidget(icon_label)
@@ -212,6 +212,8 @@ class BarBottom(QWidget):
             second.setPixmap(self.small_icon(DISK_SMALL))
 
         last = temp[-1][1]
+        last.adjustSize()
+        last.setFixedWidth(last.width())
         last.setText(last.text().replace(PathLabel.arrow, ""))
         if os.path.isfile(last.src):
             temp[-1][0].setPixmap(self.small_icon(FILE_SMALL))
