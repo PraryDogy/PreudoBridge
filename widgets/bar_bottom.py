@@ -178,7 +178,6 @@ class BarBottom(QWidget):
         q_folder_small: QPixmap = self.small_icon(FOLDER_SMALL)
 
         for x, chunk_of_path in enumerate(root):
-
             src = os.path.join(os.sep, *root[:x + 1])
             is_dir = os.path.isdir(src)
 
@@ -187,6 +186,7 @@ class BarBottom(QWidget):
 
             path_label = PathLabel(src=src, text=chunk_of_path + PathLabel.arrow)
 
+            # Настраиваем события клика
             if is_dir:
                 cmd = lambda e, c=chunk_of_path: self.new_root(rooted=root, chunk=c, a0=e)
                 path_label.mouseReleaseEvent = cmd
@@ -197,19 +197,28 @@ class BarBottom(QWidget):
                 path_label._clicked.connect(cmd_)
 
             path_label.setMinimumWidth(15)
-            self.path_lay.addWidget(icon_label)
-            self.path_lay.addWidget(path_label)
 
+            # Создаем новый виджет для размещения icon_label и path_label
+            item_widget = QWidget()
+            item_layout = QHBoxLayout(item_widget)
+            item_layout.setContentsMargins(0, 0, 0, 0)
+            item_layout.setSpacing(5)
+            item_layout.addWidget(icon_label)
+            item_layout.addWidget(path_label)
+
+            # Добавляем item_widget в основной layout
+            self.path_lay.addWidget(item_widget)
+
+            # Устанавливаем события для анимации изменения ширины
             cmd_ = lambda e, w=path_label: self.expand_temp(wid=w)
-            path_label.enterEvent = cmd_
-            icon_label.enterEvent = cmd_
+            item_widget.enterEvent = cmd_
 
             cmd_ = lambda e, w=path_label: self.collapse_temp(wid=w)
-            path_label.leaveEvent = cmd_
-            icon_label.leaveEvent = cmd_
+            item_widget.leaveEvent = cmd_
 
             temp.append((icon_label, path_label))
 
+        # Настраиваем иконки для первого, второго и последнего элементов
         first = temp[0][0]
         first.setPixmap(self.small_icon(MAC_SMALL))
 
