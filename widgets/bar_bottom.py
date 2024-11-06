@@ -19,6 +19,7 @@ IMAGES = "images"
 DISK_SMALL = os.path.join(IMAGES, "disk_small.png")
 FOLDER_SMALL = os.path.join(IMAGES, "folder_small.png")
 MAC_SMALL = os.path.join(IMAGES, "mac_small.png")
+FILE_SMALL = os.path.join(IMAGES, "file_small.png")
 
 class CustomSlider(BaseSlider):
 
@@ -108,7 +109,7 @@ class BarBottom(QWidget):
         super().__init__()
         SignalsApp.all.progressbar_value.connect(self.progressbar_value)
         self.setFixedHeight(25)
-        self.path_widget: QWidget = None
+        self.path_main_widget: QWidget = None
 
         self.h_lay = QGridLayout()
         self.h_lay.setContentsMargins(10, 2, 10, 2)
@@ -138,16 +139,17 @@ class BarBottom(QWidget):
             self.progressbar.hide()
 
     def create_path_label(self, path: str = None):
-        if isinstance(self.path_widget, QWidget):
-            self.path_widget.close()
+        if isinstance(self.path_main_widget, QWidget):
+            self.path_main_widget.close()
 
-        self.path_widget = QWidget()
+        self.path_main_widget = QWidget()
+        self.h_lay.addWidget(self.path_main_widget, 0, 0, alignment=Qt.AlignmentFlag.AlignLeft)
         h_lay = QHBoxLayout()
         h_lay.setContentsMargins(0, 0, 0, 0)
         h_lay.setSpacing(5)
 
 
-        self.path_widget.setLayout(h_lay)
+        self.path_main_widget.setLayout(h_lay)
 
         if path:
             root: str | list = path
@@ -183,31 +185,34 @@ class BarBottom(QWidget):
 
             path_labels.append((icon_label, path_label))
 
-        # file_label = path_labels[-1]
-        # new_text = file_label.text().replace(">", "").strip()
-        # if os.path.isfile(file_label.src):
-        #     new_text = new_text.replace(FOLDER_SYM, FILE_SYM)
-        # file_label.setText(new_text)
-
-        path_labels[0][0].setPixmap(self.small_icon(MAC_SMALL))
-
-        if len(path_labels) > 1:
-            path_labels[1][0].setPixmap(self.small_icon(DISK_SMALL))
-
         h_lay.addStretch(1)
 
-        # self.path_widget.adjustSize()
-        # ww = self.path_widget.width()
-        # while ww > 530:
-        #     if len(path_labels) == 1:
-        #         break
-        #     t = path_labels[0].text()[0] + " > "
-        #     path_labels[0].setText(t)
-        #     path_labels.pop(0)
-        #     self.path_widget.adjustSize()
-        #     ww = self.path_widget.width()
+        first = path_labels[0][0]
+        first.setPixmap(self.small_icon(MAC_SMALL))
+
+        if len(path_labels) > 1:
+            second = path_labels[1][0]
+            second.setPixmap(self.small_icon(DISK_SMALL))
+
+        last = path_labels[-1][1]
+        last.setText(last.text().replace(PathLabel.arrow, ""))
+        if os.path.isfile(last.src):
+            path_labels[-1][0].setPixmap(self.small_icon(FILE_SMALL))
+
+        self.path_main_widget.adjustSize()
+        ww = self.path_main_widget.width()
+
+        while ww > 530:
+
+            if len(path_labels) == 1:
+                break
+
+            path_labels[0][1].setText(PathLabel.arrow)
+            path_labels.pop(0)
+            self.path_main_widget.adjustSize()
+            ww = self.path_main_widget.width()
+
         path_labels.clear()
-        self.h_lay.addWidget(self.path_widget, 0, 0, alignment=Qt.AlignmentFlag.AlignLeft)
 
     def small_icon(self, path: str):
         return QPixmap(path).scaled(15, 15, transformMode=Qt.TransformationMode.SmoothTransformation)
