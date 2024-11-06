@@ -495,6 +495,11 @@ class BarTop(QFrame):
         self.grid_layout.addWidget(self.level_up_btn, 0, self.clmn)
 
         self.clmn += 1
+        self.go_btn = QPushButton(parent=self, text=">")
+        self.go_btn.clicked.connect(self.open_go_win)
+        self.grid_layout.addWidget(self.go_btn, 0, self.clmn)
+
+        self.clmn += 1
         self.grid_layout.setColumnStretch(self.clmn, 10)
         self.grid_layout.addItem(QSpacerItem(1, 1), 0, self.clmn)
 
@@ -509,11 +514,6 @@ class BarTop(QFrame):
         self.clmn += 1
         self.filters_btn = FiltersBtn()
         self.grid_layout.addWidget(self.filters_btn, 0, self.clmn)
-
-        self.clmn += 1
-        self.go_btn = QPushButton(parent=self, text=">")
-        self.go_btn.clicked.connect(self.open_go_win)
-        self.grid_layout.addWidget(self.go_btn, 0, self.clmn)
 
         self.clmn += 1
         self.sett_btn = QPushButton(parent=self, text=SETT_SYM)
