@@ -7,15 +7,17 @@ from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
                              QLineEdit, QMenu, QPushButton, QSpacerItem,
                              QTabBar, QVBoxLayout, QWidget)
 
-from cfg import (BACK_SYM, BLUE, BURGER_SYM, COLORS, FAT_DOT_SYM, GRID_SYM,
-                 FILTERS_CROSS_SYM, IMG_EXT, NEXT_SYM, SEARCH_CROSS_SYM, STAR_SYM,
-                 UP_CURVE, Dymanic, JsonData)
+from cfg import (BACK_SYM, BLUE, BURGER_SYM, COLORS, FAT_DOT_SYM,
+                 FILTERS_CROSS_SYM, GRID_SYM, IMG_EXT, NEXT_SYM,
+                 SEARCH_CROSS_SYM, STAR_SYM, UP_CURVE, Dymanic, JsonData)
 from database import ORDER
 from signals import SignalsApp
 from utils import Utils
 
 from ._base import WinMinMax
 from .win_settings import WinSettings
+
+SETT_SYM = "\U00002699"
 
 
 class PathFinderThread(QThread):
@@ -509,12 +511,12 @@ class BarTop(QFrame):
         self.grid_layout.addWidget(self.filters_btn, 0, self.clmn)
 
         self.clmn += 1
-        self.go_btn = QPushButton(parent=self, text="Перейти")
+        self.go_btn = QPushButton(parent=self, text=">")
         self.go_btn.clicked.connect(self.open_go_win)
         self.grid_layout.addWidget(self.go_btn, 0, self.clmn)
 
         self.clmn += 1
-        self.sett_btn = QPushButton(parent=self, text="Настройки")
+        self.sett_btn = QPushButton(parent=self, text=SETT_SYM)
         self.sett_btn.clicked.connect(self.open_settings_win)
         self.grid_layout.addWidget(self.sett_btn, 0, self.clmn)
 
