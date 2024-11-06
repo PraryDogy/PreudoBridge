@@ -171,6 +171,12 @@ class ViewTypeBtn(QTabBar):
 
         self.tabBarClicked.connect(self.set_view_cmd)
 
+    def mousePressEvent(self, event: QMouseEvent):
+        if event.button() == Qt.LeftButton:
+            super().mousePressEvent(event)
+        else:
+            event.ignore()
+
     def set_view_cmd(self, index: int):
         if index == 0:
             self.setCurrentIndex(0)
@@ -326,10 +332,11 @@ class FiltersBtn(QPushButton):
         
         rating_lay.addStretch(1)
 
-    def mouseReleaseEvent(self, e):
-        pont = self.rect().bottomLeft()
-        self._menu.move(self.mapToGlobal(pont))
-        self._menu.show()
+    def mouseReleaseEvent(self, e: QMouseEvent):
+        if e.button() == Qt.LeftButton:
+            pont = self.rect().bottomLeft()
+            self._menu.move(self.mapToGlobal(pont))
+            self._menu.show()
 
     def style_btn(self, set_down=True, style=f"color: {BLUE};"):
 
