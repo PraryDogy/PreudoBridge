@@ -126,7 +126,6 @@ class BarBottom(QWidget):
         self.path_lay.setSpacing(5)
         path_main_widget.setLayout(self.path_lay)
 
-
         self.progressbar = QProgressBar()
         self.progressbar.setFixedWidth(100)
         row, col = 1, 0
@@ -138,7 +137,6 @@ class BarBottom(QWidget):
         self.grid_lay.addWidget(self.slider, row, col, alignment=Qt.AlignmentFlag.AlignVCenter)
 
         SignalsApp.all.new_path_label.connect(self.create_path_label)
-        self.path_labels_: list[PathLabel | QLabel] = []
         self.create_path_label()
 
     def progressbar_value(self, value: int):
@@ -189,9 +187,6 @@ class BarBottom(QWidget):
             self.path_lay.addWidget(path_label)
 
             temp.append((icon_label, path_label))
-
-            self.path_labels_.append(icon_label)
-            self.path_labels_.append(path_label)
 
         first = temp[0][0]
         first.setPixmap(self.small_icon(MAC_SMALL))
