@@ -121,19 +121,27 @@ class BarBottom(QWidget):
         row, col, rowspan, colspan = 0, 0, 1, 2
         self.grid_lay.addWidget(path_main_widget, row, col, rowspan, colspan, Qt.AlignmentFlag.AlignLeft)
 
+        sep = QFrame()
+        sep.setStyleSheet("background: rgba(0, 0, 0, 0.2)")
+        sep.setFixedHeight(1)
+        row, col, rowspan, colspan = 1, 0, 1, 2
+        self.grid_lay.addWidget(sep, row, col, rowspan, colspan)
+
         self.path_lay = QHBoxLayout()
         self.path_lay.setContentsMargins(0, 0, 0, 0)
         self.path_lay.setSpacing(5)
         path_main_widget.setLayout(self.path_lay)
 
         self.progressbar = QProgressBar()
+        self.progressbar.setFixedHeight(10)
         self.progressbar.setFixedWidth(100)
-        row, col = 1, 0
+        row, col = 2, 0
         self.grid_lay.addWidget(self.progressbar, row, col, alignment=Qt.AlignmentFlag.AlignRight)
 
         self.slider = CustomSlider()
+        self.slider.setFixedHeight(10)
         self.slider.setFixedWidth(70)
-        row, col = 1, 1
+        row, col = 2, 1
         self.grid_lay.addWidget(self.slider, row, col, alignment=Qt.AlignmentFlag.AlignVCenter)
 
         SignalsApp.all.new_path_label.connect(self.create_path_label)
