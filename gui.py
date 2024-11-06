@@ -66,7 +66,7 @@ class SimpleFileExplorer(QWidget):
         splitter_wid.setLayout(splitter_lay)
 
         self.bar_tabs = BarTabs()
-        self.bar_tabs.setFixedWidth(250)
+        self.bar_tabs.setFixedWidth(240)
         splitter_lay.addWidget(self.bar_tabs)
 
         self.folders_tree_wid = TreeFolders()

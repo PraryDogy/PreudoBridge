@@ -15,6 +15,7 @@ from ._base import BaseSlider
 from .win_img_view import WinImgViewSingle
 from .win_info import WinInfo
 
+ARROW = ">"
 IMAGES = "images"
 
 DISK_SMALL = os.path.join(IMAGES, "disk_small.png")
@@ -39,7 +40,6 @@ class CustomSlider(BaseSlider):
 
 class PathLabel(QLabel):
     _clicked = pyqtSignal(bool)
-    arrow = " > "
 
     def __init__(self, src: str, text: str):
         super().__init__(text)
@@ -191,7 +191,7 @@ class BarBottom(QWidget):
             icon_label = QLabel()
             icon_label.setPixmap(q_folder_small)
 
-            path_label = PathLabel(src=src, text=chunk_of_path + PathLabel.arrow)
+            path_label = PathLabel(src=src, text=chunk_of_path + ARROW)
 
             # Настраиваем события клика
             if is_dir:
@@ -234,7 +234,7 @@ class BarBottom(QWidget):
             second.setPixmap(self.small_icon(DISK_SMALL))
 
         last = temp[-1][1]
-        last.setText(last.text().replace(PathLabel.arrow, ""))
+        last.setText(last.text().replace(ARROW, ""))
         if os.path.isfile(last.src):
             temp[-1][0].setPixmap(self.small_icon(FILE_SMALL))
 
