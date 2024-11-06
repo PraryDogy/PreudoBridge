@@ -201,7 +201,7 @@ class SimpleFileExplorer(QWidget):
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         JsonData.ww = self.geometry().width()
         JsonData.hh = self.geometry().height()
-        self.scroll_up.move(self.width() - 70, self.height() - 90)
+        self.scroll_up.move(self.width() - 70, self.height() - 100)
         self.resize_timer.stop()
         self.resize_timer.start(500)
 
