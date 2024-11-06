@@ -164,7 +164,7 @@ class LoadImages(QThread):
                 Utils.print_error(self, e)
 
         # 1 милилон = скрыть прогресс бар согласно его инструкции
-        SignalsApp.all.progressbar_value.emit(1000000)
+        SignalsApp.all.progressbar_value.emit("hide")
 
     def get_insert_stmt(self, img_bytes: bytes, src: str, size: int, mod: int):
 
@@ -341,7 +341,7 @@ class GridStandart(Grid):
         self.order_()
 
     def stop_threads(self):
-        SignalsApp.all.progressbar_value.emit(1000000)
+        SignalsApp.all.progressbar_value.emit("hide")
         for i in Threads.all:
             i: LoadImages
             i.stop_thread.emit()
@@ -350,7 +350,7 @@ class GridStandart(Grid):
                 Threads.all.remove(i)
 
     def start_load_images(self):
-        SignalsApp.all.progressbar_value.emit(0)
+        SignalsApp.all.progressbar_value.emit("show")
         thread = LoadImages(self.order_items)
         thread.new_widget.connect(lambda image_data: self.set_pixmap(image_data))
         Threads.all.append(thread)

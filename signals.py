@@ -16,7 +16,7 @@ class Signals(QObject):
     del_fav = pyqtSignal(str)
     search_finished = pyqtSignal(str)
     show_in_folder = pyqtSignal(str)
-    progressbar_value = pyqtSignal(int)
+    progressbar_value = pyqtSignal(object)
     open_path = pyqtSignal(str)
     new_history = pyqtSignal(str)
     new_path_label = pyqtSignal(str)

@@ -185,7 +185,7 @@ class SimpleFileExplorer(QWidget):
         self.grid.setFocus()
 
     def grid_close(self):
-        SignalsApp.all.progressbar_value.emit(1000000)
+        SignalsApp.all.progressbar_value.emit("hide")
         self.grid.disconnect()
         self.grid.close()
 

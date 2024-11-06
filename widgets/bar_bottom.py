@@ -154,15 +154,22 @@ class BarBottom(QWidget):
         self.create_path_label()
 
     def progressbar_value(self, value: int):
-        if self.progressbar.isHidden():
-            self.progressbar.setValue(0)
-            self.progressbar.setMaximum(value)
-            self.progressbar.show()
+        # if self.progressbar.isHidden():
+        #     self.progressbar.setValue(0)
+        #     self.progressbar.setMaximum(value)
+        #     self.progressbar.show()
 
-        self.progressbar.setValue(value)
-
-        if value == 1000000:
+        if isinstance(value, int):
+            self.progressbar.setValue(value)
+        elif value == "hide":
             self.progressbar.hide()
+        elif value == "show":
+            self.progressbar.show()
+        else:
+            raise Exception("bar_borrom > progress bar wrong value", value)
+
+        # if value == 1000000:
+            # self.progressbar.hide()
 
     def create_path_label(self, path: str = None):
         Utils.clear_layout(self.path_lay)
