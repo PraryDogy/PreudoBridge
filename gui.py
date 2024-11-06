@@ -1,13 +1,12 @@
 import os
 
-from PyQt5.QtCore import QEvent, QObject, Qt, QTimer
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QCloseEvent, QKeyEvent, QResizeEvent
-from PyQt5.QtWidgets import (QApplication, QGridLayout, QLabel, QSplitter,
-                             QTabWidget, QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QApplication, QGridLayout, QLabel, QTabWidget,
+                             QVBoxLayout, QWidget, QHBoxLayout)
 
 from cfg import IMG_EXT, UP_ARROW_SYM, JsonData
 from signals import SignalsApp
-from utils import Utils
 from widgets._grid import Grid
 from widgets.bar_bottom import BarBottom
 from widgets.bar_top import BarTop
@@ -52,13 +51,17 @@ class SimpleFileExplorer(QWidget):
         main_lay.setSpacing(0)
         self.setLayout(main_lay)
 
-        splitter_wid = QSplitter(Qt.Orientation.Horizontal)
-        splitter_wid.splitterMoved.connect(self.resizeEvent)
+        splitter_wid = QWidget()
         main_lay.addWidget(splitter_wid)
 
+        splitter_lay = QHBoxLayout()
+        splitter_lay.setContentsMargins(0, 0, 0, 0)
+        splitter_lay.setSpacing(0)
+        splitter_wid.setLayout(splitter_lay)
+
         self.bar_tabs = BarTabs()
-        splitter_wid.addWidget(self.bar_tabs)
-        splitter_wid.setStretchFactor(0, 0)
+        self.bar_tabs.setFixedWidth(250)
+        splitter_lay.addWidget(self.bar_tabs)
 
         self.folders_tree_wid = TreeFolders()
         self.bar_tabs.addTab(self.folders_tree_wid, "Папки")
@@ -71,8 +74,7 @@ class SimpleFileExplorer(QWidget):
         self.bar_tabs.load_last_tab()
 
         right_wid = QWidget()
-        splitter_wid.addWidget(right_wid)
-        splitter_wid.setStretchFactor(1, 1)
+        splitter_lay.addWidget(right_wid)
 
         self.r_lay = QGridLayout()
         self.r_lay.setContentsMargins(0, 0, 0, 0)
