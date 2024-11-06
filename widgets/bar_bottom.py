@@ -4,8 +4,8 @@ from datetime import datetime
 
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QMouseEvent, QPixmap
-from PyQt5.QtWidgets import (QAction, QGridLayout, QHBoxLayout, QLabel, QMenu,
-                             QProgressBar, QWidget)
+from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
+                             QMenu, QProgressBar, QWidget)
 
 from cfg import BLUE, JsonData
 from signals import SignalsApp
@@ -16,10 +16,12 @@ from .win_img_view import WinImgViewSingle
 from .win_info import WinInfo
 
 IMAGES = "images"
+
 DISK_SMALL = os.path.join(IMAGES, "disk_small.png")
 FOLDER_SMALL = os.path.join(IMAGES, "folder_small.png")
 MAC_SMALL = os.path.join(IMAGES, "mac_small.png")
 FILE_SMALL = os.path.join(IMAGES, "file_small.png")
+
 
 class CustomSlider(BaseSlider):
 
@@ -108,20 +110,20 @@ class BarBottom(QWidget):
     def __init__(self):
         super().__init__()
         SignalsApp.all.progressbar_value.connect(self.progressbar_value)
-        self.setFixedHeight(25)
+        # self.setFixedHeight(25)
         self.path_main_widget: QWidget = None
 
-        self.h_lay = QGridLayout()
-        self.h_lay.setContentsMargins(10, 2, 10, 2)
-        self.setLayout(self.h_lay)
+        self.grid_lay = QGridLayout()
+        self.grid_lay.setContentsMargins(10, 2, 10, 2)
+        self.setLayout(self.grid_lay)
 
         self.progressbar = QProgressBar()
         self.progressbar.setFixedWidth(100)
-        self.h_lay.addWidget(self.progressbar, 0, 1, alignment=Qt.AlignmentFlag.AlignRight)
+        self.grid_lay.addWidget(self.progressbar, 1, 1, alignment=Qt.AlignmentFlag.AlignRight)
 
         self.slider = CustomSlider()
         self.slider.setFixedWidth(70)
-        self.h_lay.addWidget(self.slider, 0, 2, alignment=Qt.AlignmentFlag.AlignVCenter)
+        self.grid_lay.addWidget(self.slider, 1, 2, alignment=Qt.AlignmentFlag.AlignVCenter)
 
         SignalsApp.all.new_path_label.connect(self.create_path_label)
 
@@ -142,8 +144,10 @@ class BarBottom(QWidget):
         if isinstance(self.path_main_widget, QWidget):
             self.path_main_widget.close()
 
-        self.path_main_widget = QWidget()
-        self.h_lay.addWidget(self.path_main_widget, 0, 0, alignment=Qt.AlignmentFlag.AlignLeft)
+        self.path_main_widget = QFrame()
+        self.path_main_widget.setFrameShape(QFrame.Shape.Box)
+        # self.path_main_widget.setStyleSheet("border-bottom: 1px solid black")
+        self.grid_lay.addWidget(self.path_main_widget, 0, 0, alignment=Qt.AlignmentFlag.AlignLeft)
         h_lay = QHBoxLayout()
         h_lay.setContentsMargins(0, 0, 0, 0)
         h_lay.setSpacing(5)
@@ -159,6 +163,7 @@ class BarBottom(QWidget):
             root = root.strip(os.sep).split(os.sep)
 
         path_labels: list[tuple[QLabel, PathLabel]] = []
+        q_folder_small: QPixmap = self.small_icon(FOLDER_SMALL)
 
         for x, chunk_of_path in enumerate(root):
 
@@ -166,7 +171,7 @@ class BarBottom(QWidget):
             is_dir = os.path.isdir(src)
 
             icon_label = QLabel()
-            icon_label.setPixmap(self.small_icon(FOLDER_SMALL))
+            icon_label.setPixmap(q_folder_small)
 
             path_label = PathLabel(src=src, text=chunk_of_path + PathLabel.arrow)
 
