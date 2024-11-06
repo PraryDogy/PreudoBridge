@@ -168,9 +168,6 @@ class BarBottom(QWidget):
         else:
             raise Exception("bar_borrom > progress bar wrong value", value)
 
-        # if value == 1000000:
-            # self.progressbar.hide()
-
     def create_path_label(self, path: str = None):
         Utils.clear_layout(self.path_lay)
 
