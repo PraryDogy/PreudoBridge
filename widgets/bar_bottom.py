@@ -144,9 +144,7 @@ class BarBottom(QWidget):
         if isinstance(self.path_main_widget, QWidget):
             self.path_main_widget.close()
 
-        self.path_main_widget = QFrame()
-        self.path_main_widget.setFrameShape(QFrame.Shape.Box)
-        # self.path_main_widget.setStyleSheet("border-bottom: 1px solid black")
+        self.path_main_widget = QWidget()
         self.grid_lay.addWidget(self.path_main_widget, 0, 0, alignment=Qt.AlignmentFlag.AlignLeft)
         h_lay = QHBoxLayout()
         h_lay.setContentsMargins(0, 0, 0, 0)
@@ -205,9 +203,9 @@ class BarBottom(QWidget):
             path_labels[-1][0].setPixmap(self.small_icon(FILE_SMALL))
 
         self.path_main_widget.adjustSize()
-        ww = self.path_main_widget.width()
+        ww = self.width()
 
-        while ww > 530:
+        while self.path_main_widget.width() > self.width():
 
             if len(path_labels) == 1:
                 break
@@ -215,7 +213,7 @@ class BarBottom(QWidget):
             path_labels[0][1].setText(PathLabel.arrow)
             path_labels.pop(0)
             self.path_main_widget.adjustSize()
-            ww = self.path_main_widget.width()
+            ww = self.width()
 
         path_labels.clear()
 
