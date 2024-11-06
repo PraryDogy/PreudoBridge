@@ -452,33 +452,6 @@ class WinGo(WinMinMax):
             self.close()
         elif a0.key() == Qt.Key.Key_Return:
             self.open_path_btn_cmd()
-    
-
-class AdvancedBtn(QPushButton):
-    def __init__(self):
-        super().__init__("...")
-        self.setFixedWidth(55)
-
-        menu = QMenu()
-        self.setMenu(menu)
-
-        self.go_action = QAction(parent=self, text="Перейти")
-        self.go_action.triggered.connect(self.open_go_win)
-        menu.addAction(self.go_action)
-
-        self.go_action = QAction(parent=self, text="Настройки")
-        self.go_action.triggered.connect(self.open_settings_win)
-        menu.addAction(self.go_action)
-    
-    def open_go_win(self):
-        self.win = WinGo()
-        Utils.center_win(Utils.get_main_win(), self.win)
-        self.win.show()
-
-    def open_settings_win(self):
-        self.win = WinSettings()
-        Utils.center_win(Utils.get_main_win(), self.win)
-        self.win.show()
 
 
 class HistoryBtn(QPushButton):
@@ -536,8 +509,14 @@ class BarTop(QFrame):
         self.grid_layout.addWidget(self.filters_btn, 0, self.clmn)
 
         self.clmn += 1
-        self.advanced_btn = AdvancedBtn()
-        self.grid_layout.addWidget(self.advanced_btn, 0, self.clmn)
+        self.go_btn = QPushButton(parent=self, text="Перейти")
+        self.go_btn.clicked.connect(self.open_go_win)
+        self.grid_layout.addWidget(self.go_btn, 0, self.clmn)
+
+        self.clmn += 1
+        self.sett_btn = QPushButton(parent=self, text="Настройки")
+        self.sett_btn.clicked.connect(self.open_settings_win)
+        self.grid_layout.addWidget(self.sett_btn, 0, self.clmn)
 
         self.clmn += 1
         self.grid_layout.setColumnStretch(self.clmn, 10)
@@ -550,6 +529,16 @@ class BarTop(QFrame):
         SignalsApp.all.new_history.connect(self.new_history)
         SignalsApp.all.new_history.emit(JsonData.root)
         self.index_ -= 1
+
+    def open_go_win(self):
+        self.win = WinGo()
+        Utils.center_win(Utils.get_main_win(), self.win)
+        self.win.show()
+
+    def open_settings_win(self):
+        self.win = WinSettings()
+        Utils.center_win(Utils.get_main_win(), self.win)
+        self.win.show()
 
     def new_history(self, root: str):
         if root == os.sep:
