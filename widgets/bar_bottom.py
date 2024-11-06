@@ -17,7 +17,7 @@ from .win_info import WinInfo
 
 IMAGES = "images"
 DISK_SMALL = os.path.join(IMAGES, "disk_small.png")
-FOLDER_SNALL = os.path.join(IMAGES, "folder_small.png")
+FOLDER_SMALL = os.path.join(IMAGES, "folder_small.png")
 MAC_SMALL = os.path.join(IMAGES, "mac_small.png")
 
 class CustomSlider(BaseSlider):
@@ -156,8 +156,7 @@ class BarBottom(QWidget):
             root: str | list = JsonData.root
             root = root.strip(os.sep).split(os.sep)
 
-        path_labels: list[PathLabel] = []
-
+        path_labels: list[tuple[QLabel, PathLabel]] = []
 
         for x, chunk_of_path in enumerate(root):
 
@@ -165,8 +164,7 @@ class BarBottom(QWidget):
             is_dir = os.path.isdir(src)
 
             icon_label = QLabel()
-            icon_ = QPixmap(DISK_SMALL).scaled(15, 15, transformMode=Qt.TransformationMode.SmoothTransformation)
-            icon_label.setPixmap(icon_)
+            icon_label.setPixmap(self.small_icon(FOLDER_SMALL))
 
             path_label = PathLabel(src=src, text=chunk_of_path + PathLabel.arrow)
 
@@ -183,7 +181,7 @@ class BarBottom(QWidget):
             h_lay.addWidget(icon_label, alignment=Qt.AlignmentFlag.AlignLeft)
             h_lay.addWidget(path_label, alignment=Qt.AlignmentFlag.AlignLeft)
 
-            path_labels.append(path_label)
+            path_labels.append((icon_label, path_label))
 
         # file_label = path_labels[-1]
         # new_text = file_label.text().replace(">", "").strip()
@@ -191,28 +189,28 @@ class BarBottom(QWidget):
         #     new_text = new_text.replace(FOLDER_SYM, FILE_SYM)
         # file_label.setText(new_text)
 
-        # volumes = path_labels[0]
-        # new_text = volumes.text().replace(FOLDER_SYM, HOME_SYM)
-        # volumes.setText(new_text)
+        path_labels[0][0].setPixmap(self.small_icon(MAC_SMALL))
 
-        # disk = path_labels[1]
-        # new_text = disk.text().replace(FOLDER_SYM)
-        # disk.setText(new_text)
+        if len(path_labels) > 1:
+            path_labels[1][0].setPixmap(self.small_icon(DISK_SMALL))
 
         h_lay.addStretch(1)
 
-        self.path_widget.adjustSize()
-        ww = self.path_widget.width()
-        while ww > 530:
-            if len(path_labels) == 1:
-                break
-            t = path_labels[0].text()[0] + " > "
-            path_labels[0].setText(t)
-            path_labels.pop(0)
-            self.path_widget.adjustSize()
-            ww = self.path_widget.width()
+        # self.path_widget.adjustSize()
+        # ww = self.path_widget.width()
+        # while ww > 530:
+        #     if len(path_labels) == 1:
+        #         break
+        #     t = path_labels[0].text()[0] + " > "
+        #     path_labels[0].setText(t)
+        #     path_labels.pop(0)
+        #     self.path_widget.adjustSize()
+        #     ww = self.path_widget.width()
         path_labels.clear()
         self.h_lay.addWidget(self.path_widget, 0, 0, alignment=Qt.AlignmentFlag.AlignLeft)
+
+    def small_icon(self, path: str):
+        return QPixmap(path).scaled(15, 15, transformMode=Qt.TransformationMode.SmoothTransformation)
 
     def new_root(self, rooted: list, chunk: str, a0: QMouseEvent | bool):
         if a0 is None or a0.button() == Qt.MouseButton.LeftButton:
