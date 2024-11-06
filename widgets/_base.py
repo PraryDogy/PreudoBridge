@@ -36,15 +36,14 @@ class BaseSlider(QSlider):
 
     def __init__(self, orientation: Qt.Orientation, minimum: int, maximum: int):
         super().__init__(orientation=orientation, minimum=minimum, maximum=maximum)
-        self.setContentsMargins(0, 0, 0, 0)
         st = f"""
             QSlider {{
-                background: red;
+                height: 15px;
             }}
             QSlider::groove:horizontal {{
                 border-radius: 1px;
+                margin: 0;
                 height: 3px;
-                margin: 0px;
                 background-color: {GRAY};
             }}
             QSlider::handle:horizontal {{

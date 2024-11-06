@@ -114,7 +114,8 @@ class BarBottom(QWidget):
         path_main_widget: QWidget = None
 
         self.grid_lay = QGridLayout()
-        self.grid_lay.setContentsMargins(10, 2, 10, 2)
+        self.grid_lay.setContentsMargins(10, 5, 10, 0)
+        self.grid_lay.setSpacing(5)
         self.setLayout(self.grid_lay)
 
         path_main_widget = QWidget()
@@ -133,13 +134,12 @@ class BarBottom(QWidget):
         path_main_widget.setLayout(self.path_lay)
 
         self.progressbar = QProgressBar()
-        self.progressbar.setFixedHeight(10)
+        self.progressbar.setFixedHeight(15)
         self.progressbar.setFixedWidth(100)
         row, col = 2, 0
         self.grid_lay.addWidget(self.progressbar, row, col, alignment=Qt.AlignmentFlag.AlignRight)
 
         self.slider = CustomSlider()
-        # self.slider.setFixedHeight(10)
         self.slider.setFixedWidth(70)
         row, col = 2, 1
         self.grid_lay.addWidget(self.slider, row, col, alignment=Qt.AlignmentFlag.AlignVCenter)
@@ -148,6 +148,7 @@ class BarBottom(QWidget):
         self.create_path_label()
 
     def progressbar_value(self, value: int):
+        return
         if self.progressbar.isHidden():
             self.progressbar.setValue(0)
             self.progressbar.setMaximum(value)
