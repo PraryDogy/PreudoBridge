@@ -139,7 +139,7 @@ class BarBottom(QWidget):
         self.grid_lay.addWidget(self.progressbar, row, col, alignment=Qt.AlignmentFlag.AlignRight)
 
         self.slider = CustomSlider()
-        self.slider.setFixedHeight(10)
+        # self.slider.setFixedHeight(10)
         self.slider.setFixedWidth(70)
         row, col = 2, 1
         self.grid_lay.addWidget(self.slider, row, col, alignment=Qt.AlignmentFlag.AlignVCenter)
