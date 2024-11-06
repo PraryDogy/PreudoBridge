@@ -3,11 +3,11 @@ import subprocess
 from datetime import datetime
 
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QContextMenuEvent, QMouseEvent
+from PyQt5.QtGui import QContextMenuEvent, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import (QAction, QGridLayout, QHBoxLayout, QLabel, QMenu,
                              QProgressBar, QWidget)
 
-from cfg import BLUE, FILE_SYM, FOLDER_SYM, JsonData
+from cfg import BLUE, JsonData
 from signals import SignalsApp
 from utils import Utils
 
@@ -15,6 +15,10 @@ from ._base import BaseSlider
 from .win_img_view import WinImgViewSingle
 from .win_info import WinInfo
 
+IMAGES = "images"
+DISK_SMALL = os.path.join(IMAGES, "disk_small.png")
+FOLDER_SNALL = os.path.join(IMAGES, "folder_small.png")
+MAC_SMALL = os.path.join(IMAGES, "mac_small.png")
 
 class CustomSlider(BaseSlider):
 
@@ -32,6 +36,7 @@ class CustomSlider(BaseSlider):
 
 class PathLabel(QLabel):
     _clicked = pyqtSignal(bool)
+    arrow = " > "
 
     def __init__(self, src: str, text: str):
         super().__init__(text)
@@ -56,7 +61,7 @@ class PathLabel(QLabel):
         show_in_finder_action.triggered.connect(self.show_in_finder)
         context_menu.addAction(show_in_finder_action)
 
-        copy_path = QAction("Скопировать путь до папки", self)
+        copy_path = QAction("Скопировать путь", self)
         copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
         context_menu.addAction(copy_path)
 
@@ -103,7 +108,7 @@ class BarBottom(QWidget):
         super().__init__()
         SignalsApp.all.progressbar_value.connect(self.progressbar_value)
         self.setFixedHeight(25)
-        self.path_label: QWidget = None
+        self.path_widget: QWidget = None
 
         self.h_lay = QGridLayout()
         self.h_lay.setContentsMargins(10, 2, 10, 2)
@@ -133,14 +138,16 @@ class BarBottom(QWidget):
             self.progressbar.hide()
 
     def create_path_label(self, path: str = None):
-        if isinstance(self.path_label, QWidget):
-            self.path_label.close()
+        if isinstance(self.path_widget, QWidget):
+            self.path_widget.close()
 
-        self.path_label = QWidget()
+        self.path_widget = QWidget()
         h_lay = QHBoxLayout()
         h_lay.setContentsMargins(0, 0, 0, 0)
-        h_lay.setSpacing(0)
-        self.path_label.setLayout(h_lay)
+        h_lay.setSpacing(5)
+
+
+        self.path_widget.setLayout(h_lay)
 
         if path:
             root: str | list = path
@@ -149,45 +156,63 @@ class BarBottom(QWidget):
             root: str | list = JsonData.root
             root = root.strip(os.sep).split(os.sep)
 
-        chunks: list[PathLabel] = []
-        for x, chunk in enumerate(root):
-            src = os.path.join(os.sep, *root[:x + 1])
+        path_labels: list[PathLabel] = []
 
+
+        for x, chunk_of_path in enumerate(root):
+
+            src = os.path.join(os.sep, *root[:x + 1])
             is_dir = os.path.isdir(src)
 
-            sym = FOLDER_SYM if is_dir else FILE_SYM
-            label = PathLabel(src=src, text=f"{sym} {chunk} > ")
+            icon_label = QLabel()
+            icon_ = QPixmap(DISK_SMALL).scaled(15, 15, transformMode=Qt.TransformationMode.SmoothTransformation)
+            icon_label.setPixmap(icon_)
+
+            path_label = PathLabel(src=src, text=chunk_of_path + PathLabel.arrow)
 
             if is_dir:
-                cmd = lambda e, c=chunk: self.new_root(rooted=root, chunk=c, a0=e)
-                label.mouseDoubleClickEvent = cmd
-                label._clicked.connect(cmd)
+                cmd = lambda e, c=chunk_of_path: self.new_root(rooted=root, chunk=c, a0=e)
+                path_label.mouseReleaseEvent = cmd
+                path_label._clicked.connect(cmd)
 
             else:
                 cmd_ = lambda e, s=src: self.img_view(path=s, a0=e)
-                label.mouseDoubleClickEvent = cmd_
-                label._clicked.connect(cmd_)
+                path_label.mouseDoubleClickEvent = cmd_
+                path_label._clicked.connect(cmd_)
 
-            h_lay.addWidget(label, alignment=Qt.AlignmentFlag.AlignLeft)
-            chunks.append(label)
+            h_lay.addWidget(icon_label, alignment=Qt.AlignmentFlag.AlignLeft)
+            h_lay.addWidget(path_label, alignment=Qt.AlignmentFlag.AlignLeft)
 
-        t = chunks[-1].text().replace(" > ", "")
-        chunks[-1].setText(t)
+            path_labels.append(path_label)
+
+        # file_label = path_labels[-1]
+        # new_text = file_label.text().replace(">", "").strip()
+        # if os.path.isfile(file_label.src):
+        #     new_text = new_text.replace(FOLDER_SYM, FILE_SYM)
+        # file_label.setText(new_text)
+
+        # volumes = path_labels[0]
+        # new_text = volumes.text().replace(FOLDER_SYM, HOME_SYM)
+        # volumes.setText(new_text)
+
+        # disk = path_labels[1]
+        # new_text = disk.text().replace(FOLDER_SYM)
+        # disk.setText(new_text)
 
         h_lay.addStretch(1)
 
-        self.path_label.adjustSize()
-        ww = self.path_label.width()
+        self.path_widget.adjustSize()
+        ww = self.path_widget.width()
         while ww > 530:
-            if len(chunks) == 1:
+            if len(path_labels) == 1:
                 break
-            t = chunks[0].text()[0] + "... > "
-            chunks[0].setText(t)
-            chunks.pop(0)
-            self.path_label.adjustSize()
-            ww = self.path_label.width()
-        chunks.clear()
-        self.h_lay.addWidget(self.path_label, 0, 0, alignment=Qt.AlignmentFlag.AlignLeft)
+            t = path_labels[0].text()[0] + " > "
+            path_labels[0].setText(t)
+            path_labels.pop(0)
+            self.path_widget.adjustSize()
+            ww = self.path_widget.width()
+        path_labels.clear()
+        self.h_lay.addWidget(self.path_widget, 0, 0, alignment=Qt.AlignmentFlag.AlignLeft)
 
     def new_root(self, rooted: list, chunk: str, a0: QMouseEvent | bool):
         if a0 is None or a0.button() == Qt.MouseButton.LeftButton:
