@@ -1,7 +1,7 @@
 import os
 
 from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QCloseEvent, QKeyEvent, QResizeEvent
+from PyQt5.QtGui import QCloseEvent, QKeyEvent, QMouseEvent, QResizeEvent
 from PyQt5.QtWidgets import (QApplication, QGridLayout, QLabel, QTabWidget,
                              QVBoxLayout, QWidget, QHBoxLayout)
 
@@ -28,6 +28,12 @@ class BarTabs(QTabWidget):
     def tab_cmd(self, index: int):
         self.setCurrentIndex(JsonData.tab_bar)
         JsonData.tab_bar = index
+
+    def mouseClickEvent(self, a0: QMouseEvent | None) -> None:
+        if a0.button() == Qt.MouseButton.LeftButton:
+            super().mouseReleaseEvent(a0)
+        else:
+            a0.ignore()
 
 
 class SimpleFileExplorer(QWidget):
