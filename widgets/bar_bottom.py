@@ -218,13 +218,9 @@ class BarBottom(QWidget):
             second.setPixmap(self.small_icon(DISK_SMALL))
 
         last = temp[-1][1]
-        # last.adjustSize()
-        # last.setFixedWidth(last.width())
         last.setText(last.text().replace(PathLabel.arrow, ""))
         if os.path.isfile(last.src):
             temp[-1][0].setPixmap(self.small_icon(FILE_SMALL))
-
-        temp.clear()
 
     def expand_temp(self, wid: QLabel | PathLabel):
         wid.setFixedWidth(wid.sizeHint().width())
