@@ -1,15 +1,27 @@
-from utils import Utils
-from PIL import Image
-import cv2
-import numpy as np
+from PyQt5.QtWidgets import QApplication, QWidget, QHBoxLayout, QLabel, QSizePolicy
+from PyQt5.QtCore import Qt
 
-src = "/Users/Loshkarev/Desktop/lwz test/R2018-RL-0124.tif"
-# img: Image = Image.open(src)
-# img_cv = cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+class MainWindow(QWidget):
+    def __init__(self):
+        super().__init__()
 
-img  = Utils.read_image(src)
+        layout = QHBoxLayout()
 
-# Отобразить изображение
-cv2.imshow("Image", img)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+        # Создание 20 QLabel
+        for i in range(20):
+            label = QLabel(f"Label {i+1}")
+            label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)  # Политика для растяжения
+            layout.addWidget(label)
+
+        # Устанавливаем Layout на окно
+        self.setLayout(layout)
+
+        # Устанавливаем окно с максимальной шириной для содержимого
+        self.setWindowTitle('QLabel on Resize')
+        self.setGeometry(100, 100, 600, 100)  # Начальный размер окна
+        self.setMinimumWidth(100)  # Минимальная ширина окна
+        self.show()
+
+app = QApplication([])
+window = MainWindow()
+app.exec_()

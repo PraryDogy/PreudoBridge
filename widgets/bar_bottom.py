@@ -216,20 +216,6 @@ class BarBottom(QWidget):
 
         temp.clear()
 
-        # path_main_widget.adjustSize()
-        # ww = self.width()
-
-        # while path_main_widget.width > self.width():
-
-        #     if len(path_labels) == 1:
-        #         break
-
-        #     path_labels[0][1].setText(PathLabel.arrow)
-        #     path_labels.pop(0)
-        #     path_main_widget.adjustSize()
-        #     ww = self.width()
-
-
     def small_icon(self, path: str):
         return QPixmap(path).scaled(15, 15, transformMode=Qt.TransformationMode.SmoothTransformation)
 
