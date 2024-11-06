@@ -5,7 +5,7 @@ from datetime import datetime
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
-                             QMenu, QProgressBar, QWidget)
+                             QMenu, QProgressBar, QSizePolicy, QWidget)
 
 from cfg import BLUE, JsonData
 from signals import SignalsApp
@@ -154,7 +154,6 @@ class BarBottom(QWidget):
         self.create_path_label()
 
     def progressbar_value(self, value: int):
-        return
         if self.progressbar.isHidden():
             self.progressbar.setValue(0)
             self.progressbar.setMaximum(value)
@@ -187,6 +186,7 @@ class BarBottom(QWidget):
             icon_label.setPixmap(q_folder_small)
 
             path_label = PathLabel(src=src, text=chunk_of_path + PathLabel.arrow)
+            path_label.setMinimumWidth(1)
 
             if is_dir:
                 cmd = lambda e, c=chunk_of_path: self.new_root(rooted=root, chunk=c, a0=e)
@@ -197,6 +197,8 @@ class BarBottom(QWidget):
                 path_label.mouseDoubleClickEvent = cmd_
                 path_label._clicked.connect(cmd_)
 
+            path_label.setToolTip(src)
+            icon_label.setToolTip(src)
             self.path_lay.addWidget(icon_label)
             self.path_lay.addWidget(path_label)
 
