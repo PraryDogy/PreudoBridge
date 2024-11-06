@@ -192,7 +192,6 @@ class BarBottom(QWidget):
                 cmd = lambda e, c=chunk_of_path: self.new_root(rooted=root, chunk=c, a0=e)
                 path_label.mouseReleaseEvent = cmd
                 path_label._clicked.connect(cmd)
-
             else:
                 cmd_ = lambda e, s=src: self.img_view(path=s, a0=e)
                 path_label.mouseDoubleClickEvent = cmd_
@@ -235,11 +234,12 @@ class BarBottom(QWidget):
         return QPixmap(path).scaled(15, 15, transformMode=Qt.TransformationMode.SmoothTransformation)
 
     def new_root(self, rooted: list, chunk: str, a0: QMouseEvent | bool):
-        if a0 is None or a0.button() == Qt.MouseButton.LeftButton:
-            new_path = rooted[:rooted.index(chunk) + 1]
-            new_path = os.path.join(os.sep, *new_path)
-            SignalsApp.all.new_history.emit(new_path)
-            SignalsApp.all.load_standart_grid.emit(new_path)
+        if isinstance(QMouseEvent, bool) and not a0.button() == Qt.MouseButton.LeftButton:
+            return
+        new_path = rooted[:rooted.index(chunk) + 1]
+        new_path = os.path.join(os.sep, *new_path)
+        SignalsApp.all.new_history.emit(new_path)
+        SignalsApp.all.load_standart_grid.emit(new_path)
 
     def img_view(self, path: str, a0: QMouseEvent | bool):
         self.win_img_view = WinImgViewSingle(path)
