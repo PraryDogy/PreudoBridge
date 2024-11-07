@@ -77,6 +77,7 @@ class PathLabel(QLabel):
         self.setStyleSheet(f"#path_label {{ background: {BLUE}; border-radius: 2px; }} ")
         context_menu.exec_(self.mapToGlobal(ev.pos()))
         self.setStyleSheet("")
+    
 
     def copy_path(self):
         if isinstance(self.obj, Thumb):
@@ -159,11 +160,10 @@ class PathItem(QWidget):
 
     def collapse_temp(self, wid: QLabel | PathLabel):
         wid.setMinimumWidth(15)
-
+ 
     def new_root(self, *args):
         if isinstance(self.obj, Thumb):
-            self.win_img_view = WinImgViewSingle(self.obj.src)
-            self.win_img_view.show()
+            self.obj.open_in_view.emit()
         else:
             SignalsApp.all.new_history.emit(self.obj)
             SignalsApp.all.load_standart_grid.emit(self.obj)
