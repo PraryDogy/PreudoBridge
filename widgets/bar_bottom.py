@@ -7,7 +7,7 @@ from PyQt5.QtGui import QContextMenuEvent, QPixmap
 from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
                              QMenu, QProgressBar, QWidget)
 
-from cfg import BLUE, IMG_EXT, JsonData
+from cfg import BLUE, FOLDER, JsonData
 from signals import SignalsApp
 from utils import Utils
 
@@ -260,7 +260,10 @@ class BarBottom(QWidget):
             path_items[1].icon_label.setPixmap(self.q_disk_small)
 
         if isinstance(obj, Thumb):
-            pixmap = self.small_icon(obj.img)
+            if obj.type_ != FOLDER:
+                pixmap = self.small_icon(obj.img)
+            else:
+                pixmap = self.q_folder_small
             path_item = PathItem(obj, obj.name, pixmap)
             self.path_lay.addWidget(path_item)
             path_items.append(path_item)
