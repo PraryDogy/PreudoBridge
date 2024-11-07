@@ -33,14 +33,15 @@ class Total(QThread):
         self.src = src
 
     def run(self):
-        files = [
-            i 
+        count = sum(
+            1
             for i in os.listdir(self.src)
-            if os.path.isdir(os.path.join(self.src, i))
-            or
-            i.endswith(IMG_EXT)
-            ]
-        self._finished.emit(self.src, len(files))
+            if not i.startswith(".") and (
+                os.path.isdir(os.path.join(self.src, i)) or 
+                i.endswith(IMG_EXT)
+            )
+        )
+        self._finished.emit(self.src, count)
 
 class CustomSlider(BaseSlider):
 
