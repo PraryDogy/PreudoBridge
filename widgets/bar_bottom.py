@@ -218,22 +218,18 @@ class BarBottom(QWidget):
         root: str | list = JsonData.root
         root = root.strip(os.sep).split(os.sep)
 
-        path_labels: list[tuple[QLabel, PathLabel]] = []
+        path_items: list[PathItem] = []
 
         for x, chunk_of_path in enumerate(root):
             src = os.path.join(os.sep, *root[:x + 1])
-            
             path_item = PathItem(src, chunk_of_path, self.q_folder_small)
-
+            path_items.append(path_item)
             self.path_lay.addWidget(path_item)
-            path_labels.append((path_item.icon_label, path_item.path_label))
 
-        # first = path_labels[0][0]
-        # first.setPixmap(self.q_mac_small)
+        path_items[0].icon_label.setPixmap(self.q_mac_small)
 
-        # if len(path_labels) > 1:
-        #     second = path_labels[1][0]
-        #     second.setPixmap(self.q_disk_small)
+        if len(path_items) > 1:
+            path_items[1].icon_label.setPixmap(self.q_disk_small)
 
         # if isinstance(obj, Thumb):
         #     icon_label = QLabel()
