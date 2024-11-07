@@ -96,6 +96,7 @@ class TreeFavorites(QListWidget):
             name = os.path.basename(root)
             JsonData.favs[root] = name
             self.add_widget_item(name, root)
+            JsonData.write_config()
 
     def add_widget_item(self, name: str, root: str) -> QListWidgetItem:
         item = FavItem(name, root)
@@ -115,11 +116,10 @@ class TreeFavorites(QListWidget):
             JsonData.favs[src] = new_name
 
     def del_item(self, src: str):
-        print(src)
-        return
         JsonData.favs.pop(src)
         self.clear()
         self.init_ui()
+        JsonData.write_config()
     
     def dropEvent(self, a0: QDropEvent | None) -> None:
         urls = a0.mimeData().urls()
