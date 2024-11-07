@@ -2,7 +2,7 @@ import os
 import subprocess
 from datetime import datetime
 
-from PyQt5.QtCore import Qt, QThread, pyqtSignal
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QPixmap
 from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
                              QMenu, QProgressBar, QWidget)
@@ -23,25 +23,6 @@ FOLDER_SMALL = os.path.join(IMAGES, "folder_small.png")
 MAC_SMALL = os.path.join(IMAGES, "mac_small.png")
 FILE_SMALL = os.path.join(IMAGES, "file_small.png")
 
-
-
-class Total(QThread):
-    _finished = pyqtSignal(str, int)
-
-    def __init__(self, src: str):
-        super().__init__()
-        self.src = src
-
-    def run(self):
-        count = sum(
-            1
-            for i in os.listdir(self.src)
-            if not i.startswith(".") and (
-                os.path.isdir(os.path.join(self.src, i)) or 
-                i.endswith(IMG_EXT)
-            )
-        )
-        self._finished.emit(self.src, count)
 
 class CustomSlider(BaseSlider):
 
@@ -95,7 +76,6 @@ class PathLabel(QLabel):
         self.setStyleSheet(f"#path_label {{ background: {BLUE}; border-radius: 2px; }} ")
         context_menu.exec_(self.mapToGlobal(ev.pos()))
         self.setStyleSheet("")
-    
 
     def copy_path(self):
         if isinstance(self.obj, Thumb):
@@ -237,7 +217,7 @@ class BarBottom(QWidget):
         self.q_mac_small: QPixmap = self.small_icon(MAC_SMALL)
 
         SignalsApp.all.progressbar_value.connect(self.progressbar_value)
-        SignalsApp.all.new_path_label.connect(self.create_path_labels)
+        SignalsApp.all.create_path_labels.connect(self.create_path_labels)
 
     def small_icon(self, obj: str | QPixmap):
         if isinstance(obj, str):
@@ -255,7 +235,7 @@ class BarBottom(QWidget):
         else:
             raise Exception("bar_borrom > progress bar wrong value", value)
 
-    def create_path_labels(self, obj: Thumb | None):
+    def create_path_labels(self, obj: Thumb | None, count: int | None):
         Utils.clear_layout(self.path_lay)
 
         self.total.setText("Загрузка")
@@ -279,15 +259,8 @@ class BarBottom(QWidget):
             path_item = PathItem(obj, obj.name, pixmap)
             self.path_lay.addWidget(path_item)
             path_items.append(path_item)
-        else:
-            # все файлы а не только фотки
-            self.task = Total(JsonData.root)
-            self.task._finished.connect(self.finished_total)
-            self.task.start()
+        if count:
+            self.total.setText("Всего: " + str(count))
 
         last = path_items[-1].path_label
         last.setText(last.text().replace(ARROW, ""))
-
-    def finished_total(self, src: str, count: int):
-        if src == JsonData.root:
-            self.total.setText("Всего: " + str(count))

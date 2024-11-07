@@ -276,8 +276,8 @@ class GridStandart(Grid):
     def create_sorted_grid(self, order_items: list[OrderItem]):
 
         self.order_items = order_items
+        SignalsApp.all.create_path_labels.emit(None, len(order_items))
         sys_disk = os.path.join(os.sep, "Volumes", "Macintosh HD")
-
         col_count = Utils.get_clmn_count(self.ww)
         row, col = 0, 0
 
@@ -322,7 +322,6 @@ class GridStandart(Grid):
                 row += 1
 
         if self.cell_to_wid:
-            SignalsApp.all.new_path_label.emit(None)
             self.start_load_images()
 
         elif not os.path.exists(JsonData.root):

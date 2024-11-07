@@ -19,7 +19,7 @@ class Signals(QObject):
     progressbar_value = pyqtSignal(object)
     open_path = pyqtSignal(str)
     new_history = pyqtSignal(str)
-    new_path_label = pyqtSignal(object)
+    create_path_labels = pyqtSignal(object, int)
 
     def __init__(self) -> None:
         super().__init__()
