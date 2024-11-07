@@ -123,7 +123,7 @@ class JsonData:
             }
 
         try:
-            with open(JSON_FILE, 'w') as f:
+            with open(JSON_FILE, 'w', encoding="utf-8") as f:
                 json.dump(new_data, f, indent=4, ensure_ascii=False)
             return True
         
