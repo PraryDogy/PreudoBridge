@@ -170,16 +170,15 @@ class SimpleFileExplorer(QWidget):
         self.bar_top.search_wid.clear_search.emit()
         self.bar_top.filters_btn.reset_filters()
 
-        SignalsApp.all.new_path_label.emit(None)
-
-        self.folders_tree_wid.expand_path(JsonData.root)
-
         if JsonData.list_view:
             self.grid = ListStandart()
             self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
         else:
             self.grid = GridStandart(width=self.get_grid_width())
             self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
+
+        self.folders_tree_wid.expand_path(JsonData.root)
+        SignalsApp.all.new_path_label.emit(None, len(self.grid.path_to_wid))
 
         self.r_lay.addWidget(self.grid, 1, 0)
         self.grid.setFocus()

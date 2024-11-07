@@ -167,7 +167,6 @@ class PathItem(QWidget):
         else:
             SignalsApp.all.new_history.emit(self.obj)
             SignalsApp.all.load_standart_grid.emit(self.obj)
-            SignalsApp.all.new_path_label.emit(None)
 
 
 class BarBottom(QWidget):
@@ -195,7 +194,7 @@ class BarBottom(QWidget):
         self.path_lay.setSpacing(5)
         path_main_widget.setLayout(self.path_lay)
 
-        self.total = QLabel("Всего:")
+        self.total = QLabel()
         self.total.setFixedHeight(15)
         row, col = 2, 0
         self.grid_lay.addWidget(self.total, row, col, Qt.AlignmentFlag.AlignLeft)
@@ -221,7 +220,6 @@ class BarBottom(QWidget):
 
         SignalsApp.all.progressbar_value.connect(self.progressbar_value)
         SignalsApp.all.new_path_label.connect(self.create_path_labels)
-        SignalsApp.all.new_path_label.emit(None)
 
     def small_icon(self, obj: str | QPixmap):
         if isinstance(obj, str):
@@ -239,12 +237,12 @@ class BarBottom(QWidget):
         else:
             raise Exception("bar_borrom > progress bar wrong value", value)
 
-    def create_path_labels(self, obj: Thumb | None):
+    def create_path_labels(self, obj: Thumb | None, value: int):
         Utils.clear_layout(self.path_lay)
+        self.total.setText("Всего:" + str(value))
 
         root: str | list = JsonData.root
         root = root.strip(os.sep).split(os.sep)
-        ln = len(root)
         path_items: list[PathItem] = []
 
         for x, name in enumerate(root, start=1):
