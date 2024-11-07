@@ -94,6 +94,11 @@ class TreeFavorites(QListWidget):
             if JsonData.root == src:
                 self.setCurrentItem(item)
 
+    def select_fav(self, src: str):
+        wid = self.wids.get(src)
+        if wid:
+            self.currentItem(wid)
+
     def cmd_(self, flag: str, src: str):
         if flag == "select":
             print("select fav")
