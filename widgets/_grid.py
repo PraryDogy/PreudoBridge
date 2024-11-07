@@ -226,4 +226,4 @@ class Grid(BaseGrid):
         if isinstance(wid, Thumb):
             wid.set_no_frame()
         self.setFocus()
-        SignalsApp.all.create_path_labels.emit(None, None)
+        SignalsApp.all.create_path_labels.emit(JsonData.root, None)
