@@ -236,24 +236,24 @@ class LoadFinder(QThread):
             if name.startswith("."):
                 continue
 
-            if src.endswith(IMG_EXT) or os.path.isdir(src):
+            # if src.endswith(IMG_EXT) or os.path.isdir(src):
 
-                try:
-                    stats = os.stat(src)
-                except (PermissionError, FileNotFoundError, OSError):
-                    continue
+            try:
+                stats = os.stat(src)
+            except (PermissionError, FileNotFoundError, OSError):
+                continue
 
-                size = stats.st_size
-                mod = stats.st_mtime
-                colors = ""
-                rating = 0
+            size = stats.st_size
+            mod = stats.st_mtime
+            colors = ""
+            rating = 0
 
-                db_item = self.db_color_rating.get(src)
-                if db_item:
-                    colors, rating = db_item
+            db_item = self.db_color_rating.get(src)
+            if db_item:
+                colors, rating = db_item
 
-                item = OrderItem(src, size, mod, colors, rating)
-                self.order_items.append(item)
+            item = OrderItem(src, size, mod, colors, rating)
+            self.order_items.append(item)
 
 
 class GridStandart(Grid):
