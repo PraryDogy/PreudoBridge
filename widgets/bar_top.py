@@ -1,7 +1,6 @@
 import os
-from difflib import SequenceMatcher
 
-from PyQt5.QtCore import QSize, Qt, QThread, QTimer, pyqtSignal
+from PyQt5.QtCore import QSize, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
                              QLineEdit, QMenu, QPushButton, QSpacerItem,
@@ -14,97 +13,9 @@ from database import ORDER
 from signals import SignalsApp
 from utils import Utils
 
-from ._base import WinMinMax
 from .win_settings import WinSettings
 
 SETT_SYM = "\U00002699"
-
-
-class PathFinderThread(QThread):
-    _finished = pyqtSignal(str)
-
-    def __init__(self, src: str):
-        super().__init__()
-        self.src: str = src
-        self.result: str = None
-        self.volumes: list[str] = []
-        self.exclude = "/Volumes/Macintosh HD/Volumes/"
-
-    def run(self):
-        self._path_finder()
-        if not self.result:
-            self._finished.emit("")
-        elif self.result in self.volumes:
-            self._finished.emit("")
-        elif self.result:
-            self._finished.emit(self.result)
-
-    def _path_finder(self):
-        src = os.sep + self.src.replace("\\", os.sep).strip().strip(os.sep)
-        src_splited = [i for i in src.split(os.sep) if i]
-
-        self.volumes = [
-            os.path.join("/Volumes", i)
-            for i in os.listdir("/Volumes")
-            ]
-
-        volumes_extra = [
-            os.path.join(vol, *extra.strip().split(os.sep))
-            for extra in JsonData.extra_paths
-            for vol in self.volumes
-            ]
-        
-        self.volumes.extend(volumes_extra)
-
-        # обрезаем входящий путь каждый раз на 1 секцию с конца
-        cut_paths: list = [
-                os.path.join(*src_splited[:i])
-                for i in range(len(src_splited) + 1)
-                if src_splited[:i]
-                ]
-
-        # обрезаем каждый путь на 1 секцию с начала и прибавляем элементы из volumes
-        all_posible_paths: list = []
-
-        for p_path in sorted(cut_paths, key=len, reverse=True):
-            p_path_split = [i for i in p_path.split(os.sep) if i]
-            
-            for share in self.volumes:
-                for i in range(len(p_path_split) + 1):
-
-                    all_posible_paths.append(
-                        os.path.join(share, *p_path_split[i:])
-                        )
-
-        # из всех полученных возможных путей ищем самый подходящий существующий путь
-        for i in sorted(all_posible_paths, key=len, reverse=True):
-            if self.exclude in i:
-                print("ignore strange folder", self.exclude)
-                continue
-            if os.path.exists(i):
-                self.result = i
-                break
-
-        # смотрим совпадает ли последняя секция входящего и полученного пути
-        tail = []
-
-        if self.result:
-            result_tail = self.result.split(os.sep)[-1]
-            if src_splited[-1] != result_tail:
-                try:
-                    tail = src_splited[src_splited.index(result_tail) + 1:]
-                except ValueError:
-                    return
-
-        # пытаемся найти секции пути, написанные с ошибкой
-        for a in tail:
-            dirs = [x for x in os.listdir(self.result)]
-
-            for b in dirs:
-                matcher = SequenceMatcher(None, a, b).ratio()
-                if matcher >= 0.85:
-                    self.result = os.path.join(self.result, b)
-                    break
 
 
 class ActionData:
@@ -408,54 +319,6 @@ class FiltersBtn(QPushButton):
         self.style_btn()
 
 
-class WinGo(WinMinMax):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle("Перейти к ...")
-        self.setFixedSize(290, 90)
-        v_lay = QVBoxLayout()
-        v_lay.setContentsMargins(10, 10, 10, 10)
-        v_lay.setSpacing(10)
-        self.setLayout(v_lay)
-
-        self.input_wid = QLineEdit()
-        self.input_wid.setPlaceholderText("Вставьте путь к файлу/папке")
-        self.input_wid.setStyleSheet("padding-left: 2px;")
-        self.input_wid.setFixedSize(270, 25)
-        v_lay.addWidget(self.input_wid, alignment=Qt.AlignmentFlag.AlignCenter)
-
-        go_btn = QPushButton("Перейти")
-        go_btn.setFixedWidth(130)
-        go_btn.clicked.connect(self.open_path_btn_cmd)
-        v_lay.addWidget(go_btn, alignment=Qt.AlignmentFlag.AlignCenter)
-
-    def open_path_btn_cmd(self):
-        path: str = self.input_wid.text()
-
-        if not path:
-            return
-
-        path: str = os.sep + path.strip().strip(os.sep)
-
-        if os.path.exists(path):
-            SignalsApp.all.open_path.emit(path)
-            self.close()
-        else:
-            self.path_thread = PathFinderThread(path)
-            self.path_thread._finished.connect(self.finalize)
-            self.path_thread.start()
-
-    def finalize(self, res: str):
-        SignalsApp.all.open_path.emit(res)
-        self.close()
-
-    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
-        if a0.key() == Qt.Key.Key_Escape:
-            self.close()
-        elif a0.key() == Qt.Key.Key_Return:
-            self.open_path_btn_cmd()
-
-
 class HistoryBtn(QPushButton):
     def __init__(self, text: str):
         super().__init__(text)
@@ -495,11 +358,6 @@ class BarTop(QFrame):
         self.grid_layout.addWidget(self.level_up_btn, 0, self.clmn)
 
         self.clmn += 1
-        self.go_btn = QPushButton(parent=self, text=">")
-        self.go_btn.clicked.connect(self.open_go_win)
-        self.grid_layout.addWidget(self.go_btn, 0, self.clmn)
-
-        self.clmn += 1
         self.grid_layout.setColumnStretch(self.clmn, 10)
         self.grid_layout.addItem(QSpacerItem(1, 1), 0, self.clmn)
 
@@ -531,11 +389,6 @@ class BarTop(QFrame):
         SignalsApp.all.new_history.connect(self.new_history)
         SignalsApp.all.new_history.emit(JsonData.root)
         self.index_ -= 1
-
-    def open_go_win(self):
-        self.win = WinGo()
-        Utils.center_win(Utils.get_main_win(), self.win)
-        self.win.show()
 
     def open_settings_win(self):
         self.win = WinSettings()
