@@ -57,6 +57,9 @@ class SearchFinder(QThread):
         if isinstance(self.search_text, tuple):
             setattr(self, "is_tuple", True)
 
+        elif isinstance(self.search_text, int):
+            self.search_text = str(self.search_text)
+
         for root, _, files in os.walk(JsonData.root):
             if not self.flag:
                 break
@@ -74,6 +77,7 @@ class SearchFinder(QThread):
                     if hasattr(self, "is_tuple"):
                         if file_path_lower.endswith(self.search_text):
                             self.create_wid(file_path)
+
 
                     elif self.search_text in file:
                         self.create_wid(file_path)
