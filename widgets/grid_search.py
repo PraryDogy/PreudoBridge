@@ -17,6 +17,8 @@ from utils import Utils
 from ._grid import Grid
 from ._thumb import ThumbSearch
 
+SLEEP = 0.1
+
 
 class WidgetData:
     __slots__ = ["src", "colors", "rating", "size", "mod", "pixmap"]
@@ -125,7 +127,7 @@ class SearchFinder(QThread):
             pixmap = self.pixmap_img
 
         self.add_new_widget.emit(WidgetData(src, colors, rating, size, mod, pixmap))
-        sleep(0.1)
+        sleep(SLEEP)
 
     def get_img_data_db(self, src: str) -> dict | None:
         try:
