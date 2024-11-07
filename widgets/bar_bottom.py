@@ -108,7 +108,7 @@ class PathLabel(QLabel):
 
 
 class PathItem(QWidget):
-    def __init__(self, src: str, chunk_of_path: str, pixmap: QPixmap):
+    def __init__(self, src: str, name: str, pixmap: QPixmap):
         super().__init__()
         self.src = src
 
@@ -121,7 +121,7 @@ class PathItem(QWidget):
         self.icon_label.setPixmap(pixmap)
         item_layout.addWidget(self.icon_label)
         
-        self.path_label = PathLabel(src=src, text=chunk_of_path + ARROW)
+        self.path_label = PathLabel(src=src, text=name + ARROW)
         self.path_label.setMinimumWidth(15)
         item_layout.addWidget(self.path_label)
 
