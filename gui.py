@@ -178,7 +178,6 @@ class SimpleFileExplorer(QWidget):
             self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
 
         self.folders_tree_wid.expand_path(JsonData.root)
-        SignalsApp.all.new_path_label.emit(None, len(self.grid.path_to_wid))
 
         self.r_lay.addWidget(self.grid, 1, 0)
         self.grid.setFocus()

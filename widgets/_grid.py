@@ -66,7 +66,7 @@ class Grid(BaseGrid):
             new_wid.set_frame()
             self.curr_cell = coords
             self.ensureWidgetVisible(new_wid)
-            SignalsApp.all.new_path_label.emit(new_wid, len(self.path_to_wid))
+            SignalsApp.all.new_path_label.emit(new_wid, len(self.cell_to_wid))
         else:
             try:
                 prev_wid.set_frame()
@@ -221,4 +221,4 @@ class Grid(BaseGrid):
         if isinstance(wid, Thumb):
             wid.set_no_frame()
         self.setFocus()
-        SignalsApp.all.new_path_label.emit(None, len(self.path_to_wid))
+        SignalsApp.all.new_path_label.emit(None, len(self.cell_to_wid))

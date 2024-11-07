@@ -89,29 +89,29 @@ class PathLabel(QLabel):
         if isinstance(self.obj, Thumb):
             info = self.obj.get_info()
         else:
-            info = self.get_info()
+            info = self.get_info(self.obj)
 
         self.win_info = WinInfo(info)
         Utils.center_win(parent=Utils.get_main_win(), child=self.win_info)
         self.win_info.show()
 
-    def get_info(self):
+    def get_info(self, src: str):
         try:
-            stats = os.stat(self.src)
+            stats = os.stat(src)
 
             date = datetime.fromtimestamp(stats.st_mtime).replace(microsecond=0)
             date: str = date.strftime("%d.%m.%Y %H:%M")
 
-            size_ = Utils.get_folder_size_applescript(self.src)
+            size_ = Utils.get_folder_size_applescript(src)
             if size_ < 1000:
                 f_size = f"{size_} МБ"
             else:
                 size_ = round(size_ / (1024**3), 2)
                 f_size = f"{size_} ГБ"
 
-            name = "Имя***" + os.path.basename(self.src)
+            name = "Имя***" + os.path.basename(src)
             type = "Тип***" + "Папка"
-            path = "Путь***" + self.src
+            path = "Путь***" + src
             size = "Размер***" + f_size
             date = "Изменен***" + date
             return "\n".join([name, type, path, size, date])

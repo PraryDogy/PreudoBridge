@@ -322,6 +322,7 @@ class GridStandart(Grid):
                 row += 1
 
         if self.cell_to_wid:
+            SignalsApp.all.new_path_label.emit(None, len(self.cell_to_wid))
             self.start_load_images()
 
         elif not os.path.exists(JsonData.root):
