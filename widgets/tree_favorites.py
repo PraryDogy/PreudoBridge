@@ -85,17 +85,14 @@ class TreeFavorites(QListWidget):
         self.init_ui()
 
     def init_ui(self):
+        self.wids.clear()
+
         for src, name in JsonData.favs.items():
             item = self.add_widget_item(name, src)
+            self.wids[src] = item
 
             if JsonData.root == src:
                 self.setCurrentItem(item)
-
-    def cmd_wids(self, flag: str, src: str, wid: QListWidgetItem):
-        if flag == "add":
-            self.wids[src] = wid
-        elif flag == "del":
-            self.wids.pop(src)
 
     def cmd_(self, flag: str, src: str):
         if flag == "select":
