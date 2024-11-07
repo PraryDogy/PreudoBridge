@@ -258,6 +258,7 @@ class BarBottom(QWidget):
     def create_path_labels(self, obj: Thumb | None):
         Utils.clear_layout(self.path_lay)
 
+        self.total.setText("Загрузка")
         root: str | list = JsonData.root
         root = root.strip(os.sep).split(os.sep)
         path_items: list[PathItem] = []
@@ -289,4 +290,4 @@ class BarBottom(QWidget):
 
     def finished_total(self, src: str, count: int):
         if src == JsonData.root:
-            self.total.setText("Всего:" + str(count))
+            self.total.setText("Всего: " + str(count))
