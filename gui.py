@@ -119,11 +119,10 @@ class SimpleFileExplorer(QWidget):
         if not os.path.exists(filepath):
             return
 
-        if os.path.isfile(filepath):
-            if filepath.endswith(IMG_EXT):
-                JsonData.root = os.path.dirname(filepath)
-                self.load_standart_grid()
-                self.move_to_wid_delayed(filepath)
+        if filepath.endswith(IMG_EXT):
+            JsonData.root = os.path.dirname(filepath)
+            self.load_standart_grid()
+            self.move_to_wid_delayed(filepath)
         else:
             JsonData.root = filepath
             self.load_standart_grid()

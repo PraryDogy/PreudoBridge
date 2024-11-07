@@ -13,7 +13,7 @@ from signals import SignalsApp
 from utils import Utils
 
 from ._grid import Grid
-from ._thumb import Thumb, ThumbFile, ThumbFolder
+from ._thumb import Thumb, ThumbFolder
 
 
 class Threads:
@@ -236,22 +236,24 @@ class LoadFinder(QThread):
             if name.startswith("."):
                 continue
 
-            try:
-                stats = os.stat(src)
-            except (PermissionError, FileNotFoundError, OSError):
-                continue
+            if src.endswith(IMG_EXT) or os.path.isdir(src):
 
-            size = stats.st_size
-            mod = stats.st_mtime
-            colors = ""
-            rating = 0
+                try:
+                    stats = os.stat(src)
+                except (PermissionError, FileNotFoundError, OSError):
+                    continue
 
-            db_item = self.db_color_rating.get(src)
-            if db_item:
-                colors, rating = db_item
+                size = stats.st_size
+                mod = stats.st_mtime
+                colors = ""
+                rating = 0
 
-            item = OrderItem(src, size, mod, colors, rating)
-            self.order_items.append(item)
+                db_item = self.db_color_rating.get(src)
+                if db_item:
+                    colors, rating = db_item
+
+                item = OrderItem(src, size, mod, colors, rating)
+                self.order_items.append(item)
 
 
 class GridStandart(Grid):
@@ -298,17 +300,8 @@ class GridStandart(Grid):
                     pixmap=folder_pixmap
                     )
 
-            elif order_item.src.endswith(IMG_EXT):
-                wid = Thumb(
-                    src=order_item.src,
-                    size=order_item.size,
-                    mod=order_item.mod,
-                    colors=order_item.colors,
-                    rating=order_item.rating,
-                    pixmap=self.pixmap_img,
-                    )
             else:
-                wid = ThumbFile(
+                wid = Thumb(
                     src=order_item.src,
                     size=order_item.size,
                     mod=order_item.mod,

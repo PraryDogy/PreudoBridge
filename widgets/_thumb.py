@@ -354,51 +354,6 @@ class Thumb(OrderItem, QFrame):
         context_menu.exec_(self.mapToGlobal(a0.pos()))
 
 
-class ThumbFile(Thumb):
-    def __init__(
-            self, 
-            src: str, 
-            size: int = None, 
-            mod: int = None, 
-            colors: str = None, 
-            rating: int = None, 
-            pixmap: QPixmap = None, 
-            ):
-        
-        Thumb.__init__(self, src=src, size=size, mod=mod, colors=colors, rating=rating,
-                         pixmap=pixmap)
-
-    def show_info_win(self):
-        self.win_info = WinInfo(self.get_info())
-        Utils.center_win(parent=Utils.get_main_win(), child=self.win_info)
-        self.win_info.show()
-
-    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        self.select.emit()
-
-        context_menu = QMenu(parent=self)
-
-        view_action = QAction("Открыть", self)
-        view_action.triggered.connect(self.open_in_view.emit)
-        context_menu.addAction(view_action)
-
-        context_menu.addSeparator()
-
-        info = QAction("Инфо", self)
-        info.triggered.connect(self.show_info_win)
-        context_menu.addAction(info)
-
-        show_in_finder_action = QAction("Показать в Finder", self)
-        show_in_finder_action.triggered.connect(self.show_in_finder)
-        context_menu.addAction(show_in_finder_action)
-
-        copy_path = QAction("Скопировать путь до папки", self)
-        copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
-        context_menu.addAction(copy_path)
-
-        context_menu.exec_(self.mapToGlobal(a0.pos()))
-
-
 class ThumbFolder(Thumb):
     def __init__(
             self, 

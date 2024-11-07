@@ -98,8 +98,6 @@ class Grid(BaseGrid):
             wid.src: wid
             for wid in self.ordered_widgets
             if isinstance(wid, Thumb)
-            and
-            wid.src.endswith(IMG_EXT)
             }
         
         self.rearrange()
