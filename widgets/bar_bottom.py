@@ -2,8 +2,8 @@ import os
 import subprocess
 from datetime import datetime
 
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QContextMenuEvent, QMouseEvent, QPixmap
+from PyQt5.QtCore import Qt, pyqtSignal, QThread
+from PyQt5.QtGui import QContextMenuEvent, QPixmap
 from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
                              QMenu, QProgressBar, QSizePolicy, QWidget)
 
@@ -24,6 +24,24 @@ FOLDER_SMALL = os.path.join(IMAGES, "folder_small.png")
 MAC_SMALL = os.path.join(IMAGES, "mac_small.png")
 FILE_SMALL = os.path.join(IMAGES, "file_small.png")
 
+
+
+class Total(QThread):
+    _finished = pyqtSignal(str, int)
+
+    def __init__(self, src: str):
+        super().__init__()
+        self.src = src
+
+    def run(self):
+        count = len([
+            i 
+            for i in os.listdir(self.src)
+            if os.path.isdir(self.src)
+            or
+            self.src.endswith(IMG_EXT)
+            ])
+        self._finished.emit(self.src, count)
 
 class CustomSlider(BaseSlider):
 
@@ -262,8 +280,13 @@ class BarBottom(QWidget):
             path_items.append(path_item)
         else:
             # все файлы а не только фотки
-            self.total.setText("Всего:" + str(len(os.listdir(JsonData.root))))
+            self.task = Total(JsonData.root)
+            self.task._finished.connect(self.finished_total)
+            self.task.start()
 
-        
         last = path_items[-1].path_label
         last.setText(last.text().replace(ARROW, ""))
+
+    def finished_total(self, src: str, count: int):
+        if src == JsonData.root:
+            self.total.setText("Всего:" + str(count))
