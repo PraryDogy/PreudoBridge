@@ -249,7 +249,7 @@ class BarBottom(QWidget):
         path_items: list[PathItem] = []
 
         for x, name in enumerate(root, start=1):
-            src = os.path.join(os.sep, *root[:x + 1])
+            src = os.path.join(os.sep, *root[:x])
             path_item = PathItem(src, name, self.q_folder_small)
             path_items.append(path_item)
             self.path_lay.addWidget(path_item)
