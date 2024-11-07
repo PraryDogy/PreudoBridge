@@ -64,6 +64,7 @@ class FavItem(QLabel):
     def rename_finished_cmd(self, text: str):
         self.setText(text)
         self.rename_finished.emit(text)
+        JsonData.write_config()
 
     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
         if ev.button() == Qt.MouseButton.LeftButton:
