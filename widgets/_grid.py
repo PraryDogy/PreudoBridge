@@ -66,7 +66,7 @@ class Grid(BaseGrid):
             new_wid.set_frame()
             self.curr_cell = coords
             self.ensureWidgetVisible(new_wid)
-            SignalsApp.all.new_path_label.emit(new_wid.src)
+            SignalsApp.all.new_path_label.emit(new_wid)
         else:
             try:
                 prev_wid.set_frame()

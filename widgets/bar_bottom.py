@@ -12,6 +12,7 @@ from signals import SignalsApp
 from utils import Utils
 
 from ._base import BaseSlider
+from ._thumb import Thumb
 from .win_img_view import WinImgViewSingle
 from .win_info import WinInfo
 
@@ -151,7 +152,7 @@ class BarBottom(QWidget):
         self.grid_lay.addWidget(self.slider, row, col, alignment=Qt.AlignmentFlag.AlignVCenter)
 
         SignalsApp.all.new_path_label.connect(self.create_path_label)
-        self.create_path_label()
+        SignalsApp.all.new_path_label.emit(None)
 
     def progressbar_value(self, value: int):
         # if self.progressbar.isHidden():
@@ -168,11 +169,11 @@ class BarBottom(QWidget):
         else:
             raise Exception("bar_borrom > progress bar wrong value", value)
 
-    def create_path_label(self, path: str = None):
+    def create_path_label(self, obj: Thumb | None):
         Utils.clear_layout(self.path_lay)
 
-        if path:
-            root: str | list = path
+        if isinstance(obj, Thumb):
+            root: str | list = obj.src
             root = root.strip(os.sep).split(os.sep)
         else:
             root: str | list = JsonData.root

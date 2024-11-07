@@ -170,7 +170,7 @@ class SimpleFileExplorer(QWidget):
         self.bar_top.search_wid.clear_search.emit()
         self.bar_top.filters_btn.reset_filters()
 
-        self.bar_bottom.create_path_label()
+        SignalsApp.all.new_path_label.emit(None)
 
         self.folders_tree_wid.expand_path(JsonData.root)
 
