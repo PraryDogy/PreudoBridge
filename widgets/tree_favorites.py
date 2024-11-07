@@ -99,7 +99,8 @@ class TreeFavorites(QListWidget):
         if wid:
             self.setCurrentItem(wid)
         else:
-            print("deselect items")
+            self.clearSelection()
+            # self.setCurrentIndex(0)
 
     def cmd_(self, flag: str, src: str):
         if flag == "select":
