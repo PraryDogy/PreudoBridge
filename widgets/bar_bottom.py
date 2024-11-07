@@ -40,7 +40,7 @@ class CustomSlider(BaseSlider):
 
 
 class PathLabel(QLabel):
-    _clicked = pyqtSignal(bool)
+    _open_img_view = pyqtSignal()
 
     def __init__(self, src: str, text: str):
         super().__init__(text)
@@ -51,7 +51,7 @@ class PathLabel(QLabel):
         context_menu = QMenu(parent=self)
 
         view_action = QAction("Просмотр", self)
-        cmd = lambda: self._clicked.emit(True)
+        cmd = lambda: self._open_img_view.emit()
         view_action.triggered.connect(cmd)
         context_menu.addAction(view_action)
 
@@ -125,8 +125,8 @@ class PathItem(QWidget):
         self.path_label.setMinimumWidth(15)
         item_layout.addWidget(self.path_label)
 
-        cmd = lambda e: self.new_root()
-        self.mouseReleaseEvent = cmd
+        self.mouseReleaseEvent = self.new_root
+        self.path_label._open_img_view.connect(self.new_root)
 
         cmd_ = lambda e, w=self.path_label: self.expand_temp(wid=w)
         self.enterEvent = cmd_
@@ -139,7 +139,7 @@ class PathItem(QWidget):
     def collapse_temp(self, wid: QLabel | PathLabel):
         wid.setMinimumWidth(15)
 
-    def new_root(self):
+    def new_root(self, *args):
         SignalsApp.all.new_history.emit(self.src)
         SignalsApp.all.load_standart_grid.emit(self.src)
         SignalsApp.all.new_path_label.emit(None)
