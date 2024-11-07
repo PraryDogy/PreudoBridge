@@ -92,7 +92,9 @@ class TreeFavorites(QListWidget):
                 self.setCurrentItem(item)
 
     def add_fav_cmd(self, root: str):
+        print(root)
         if root not in JsonData.favs:
+            print("add")
             name = os.path.basename(root)
             JsonData.favs[root] = name
             self.add_widget_item(name, root)
