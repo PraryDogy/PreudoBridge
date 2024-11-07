@@ -2,10 +2,10 @@ import os
 import subprocess
 from datetime import datetime
 
-from PyQt5.QtCore import Qt, pyqtSignal, QThread
+from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QPixmap
 from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
-                             QMenu, QProgressBar, QSizePolicy, QWidget)
+                             QMenu, QProgressBar, QWidget)
 
 from cfg import BLUE, IMG_EXT, JsonData
 from signals import SignalsApp
@@ -13,7 +13,6 @@ from utils import Utils
 
 from ._base import BaseSlider
 from ._thumb import Thumb
-from .win_img_view import WinImgViewSingle
 from .win_info import WinInfo
 
 ARROW = " >"
@@ -34,14 +33,14 @@ class Total(QThread):
         self.src = src
 
     def run(self):
-        count = len([
+        files = [
             i 
             for i in os.listdir(self.src)
-            if os.path.isdir(self.src)
+            if os.path.isdir(os.path.join(self.src, i))
             or
-            self.src.endswith(IMG_EXT)
-            ])
-        self._finished.emit(self.src, count)
+            i.endswith(IMG_EXT)
+            ]
+        self._finished.emit(self.src, len(files))
 
 class CustomSlider(BaseSlider):
 
