@@ -120,7 +120,7 @@ class PathItem(QWidget):
         self.icon_label = QLabel()
         self.icon_label.setPixmap(pixmap)
         item_layout.addWidget(self.icon_label)
-
+        
         self.path_label = PathLabel(src=src, text=chunk_of_path + ARROW)
         self.path_label.setMinimumWidth(15)
         item_layout.addWidget(self.path_label)
@@ -140,13 +140,13 @@ class PathItem(QWidget):
         wid.setMinimumWidth(15)
 
     def new_root(self, *args):
-        SignalsApp.all.new_history.emit(self.src)
-        SignalsApp.all.load_standart_grid.emit(self.src)
-        SignalsApp.all.new_path_label.emit(None)
-
-    def img_view(self, path: str, a0: QMouseEvent | bool):
-        self.win_img_view = WinImgViewSingle(path)
-        self.win_img_view.show()
+        if os.path.isdir(self.src):
+            SignalsApp.all.new_history.emit(self.src)
+            SignalsApp.all.load_standart_grid.emit(self.src)
+            SignalsApp.all.new_path_label.emit(None)
+        else:
+            self.win_img_view = WinImgViewSingle(self.src)
+            self.win_img_view.show()
 
 
 class BarBottom(QWidget):
@@ -199,8 +199,11 @@ class BarBottom(QWidget):
         SignalsApp.all.new_path_label.connect(self.create_path_labels)
         SignalsApp.all.new_path_label.emit(None)
 
-    def small_icon(self, path: str):
-        return QPixmap(path).scaled(15, 15, transformMode=Qt.TransformationMode.SmoothTransformation)
+    def small_icon(self, obj: str | QPixmap):
+        if isinstance(obj, str):
+            return QPixmap(obj).scaled(15, 15, transformMode=Qt.TransformationMode.SmoothTransformation)
+        else:
+            return obj.scaled(15, 15, transformMode=Qt.TransformationMode.SmoothTransformation)
 
     def progressbar_value(self, value: int):
         if isinstance(value, int):
@@ -217,12 +220,12 @@ class BarBottom(QWidget):
 
         root: str | list = JsonData.root
         root = root.strip(os.sep).split(os.sep)
-
+        ln = len(root)
         path_items: list[PathItem] = []
 
-        for x, chunk_of_path in enumerate(root):
+        for x, name in enumerate(root, start=1):
             src = os.path.join(os.sep, *root[:x + 1])
-            path_item = PathItem(src, chunk_of_path, self.q_folder_small)
+            path_item = PathItem(src, name, self.q_folder_small)
             path_items.append(path_item)
             self.path_lay.addWidget(path_item)
 
@@ -231,11 +234,11 @@ class BarBottom(QWidget):
         if len(path_items) > 1:
             path_items[1].icon_label.setPixmap(self.q_disk_small)
 
-        # if isinstance(obj, Thumb):
-        #     icon_label = QLabel()
-        #     icon_label.setPixmap(self.small_icon(obj.img))
-
-        # last = temp[-1][1]
-        # last.setText(last.text().replace(ARROW, ""))
-        # if os.path.isfile(last.src):
-        #     temp[-1][0].setPixmap(self.small_icon(FILE_SMALL))
+        if isinstance(obj, Thumb):
+            pixmap = self.small_icon(obj.img)
+            path_item = PathItem(obj.src, obj.name, pixmap)
+            self.path_lay.addWidget(path_item)
+            path_items.append(path_item)
+        
+        last = path_items[-1].path_label
+        last.setText(last.text().replace(ARROW, ""))
