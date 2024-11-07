@@ -218,7 +218,7 @@ class GridSearch(Grid):
         wid.open_in_view.connect(lambda w=wid: self.open_in_view(w))
         self.add_widget_data(wid, self.row, self.col)
         self.grid_layout.addWidget(wid, self.row, self.col)
-        # SignalsApp.all.create_path_labels
+        SignalsApp.all.create_path_labels.emit(JsonData.root, len(self.cell_to_wid))
 
         self.col += 1
         if self.col >= self.col_count:
