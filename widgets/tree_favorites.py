@@ -86,17 +86,18 @@ class TreeFavorites(QListWidget):
 
     def init_ui(self):
         for src, name in JsonData.favs.items():
-            item = self.add_item(name, src)
+            item = self.add_widget_item(name, src)
 
             if JsonData.root == src:
                 self.setCurrentItem(item)
 
     def add_fav_cmd(self, root: str):
-        name = os.path.basename(root)
-        JsonData.favs[root] = name
-        self.add_item(name, root)
+        if root not in JsonData.favs:
+            name = os.path.basename(root)
+            JsonData.favs[root] = name
+            self.add_widget_item(name, root)
 
-    def add_item(self, name: str, root: str) -> QListWidgetItem:
+    def add_widget_item(self, name: str, root: str) -> QListWidgetItem:
         item = FavItem(name, root)
         item.del_click.connect(lambda: self.del_item(root))
         item.rename_finished.connect(lambda new_name: self.update_name(root, new_name))
@@ -114,6 +115,8 @@ class TreeFavorites(QListWidget):
             JsonData.favs[src] = new_name
 
     def del_item(self, src: str):
+        print(src)
+        return
         JsonData.favs.pop(src)
         self.clear()
         self.init_ui()
@@ -121,20 +124,20 @@ class TreeFavorites(QListWidget):
     def dropEvent(self, a0: QDropEvent | None) -> None:
         urls = a0.mimeData().urls()
         if urls:
-            path = os.sep + urls[0].toLocalFile().strip(os.sep)
-            if os.path.isdir(path):
-                name = os.path.basename(path)
-                self.add_item(name, path)
-                JsonData.favs[path] = name
+            root = os.sep + urls[0].toLocalFile().strip(os.sep)
+            if os.path.isdir(root):
+                self.add_fav_cmd(root)
 
         else:
             super().dropEvent(a0)
             new_order = {}
+
             for i in range(self.count()):
                 item = self.item(i)
                 fav_widget = self.itemWidget(item)
                 if isinstance(fav_widget, FavItem):
                     new_order[fav_widget.src] = fav_widget.name
+
             JsonData.favs = new_order
     
     def dragEnterEvent(self, a0: QDragEnterEvent | None) -> None:
