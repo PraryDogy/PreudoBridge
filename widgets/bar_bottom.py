@@ -101,17 +101,57 @@ class PathLabel(QLabel):
             return "\n".join([name, type, path, size, date])
 
         except (PermissionError, FileNotFoundError) as e:
-            return "Ошибка данных: нет доступка кт папке"
+            return "Ошибка данных: нет доступка к папке"
 
     def show_in_finder(self):
         subprocess.call(["open", "-R", self.src])
 
 
+class PathItem(QWidget):
+    def __init__(self, src: str, chunk_of_path: str, pixmap: QPixmap):
+        super().__init__()
+        self.src = src
+
+        item_layout = QHBoxLayout()
+        item_layout.setContentsMargins(0, 0, 0, 0)
+        item_layout.setSpacing(5)
+        self.setLayout(item_layout)
+
+        self.icon_label = QLabel()
+        self.icon_label.setPixmap(pixmap)
+        item_layout.addWidget(self.icon_label)
+
+        self.path_label = PathLabel(src=src, text=chunk_of_path + ARROW)
+        self.path_label.setMinimumWidth(15)
+        item_layout.addWidget(self.path_label)
+
+        cmd = lambda e: self.new_root()
+        self.mouseReleaseEvent = cmd
+
+        cmd_ = lambda e, w=self.path_label: self.expand_temp(wid=w)
+        self.enterEvent = cmd_
+        cmd_ = lambda e, w=self.path_label: self.collapse_temp(wid=w)
+        self.leaveEvent = cmd_
+
+    def expand_temp(self, wid: QLabel | PathLabel):
+        wid.setFixedWidth(wid.sizeHint().width())
+
+    def collapse_temp(self, wid: QLabel | PathLabel):
+        wid.setMinimumWidth(15)
+
+    def new_root(self):
+        SignalsApp.all.new_history.emit(self.src)
+        SignalsApp.all.load_standart_grid.emit(self.src)
+        SignalsApp.all.new_path_label.emit(None)
+
+    def img_view(self, path: str, a0: QMouseEvent | bool):
+        self.win_img_view = WinImgViewSingle(path)
+        self.win_img_view.show()
+
+
 class BarBottom(QWidget):
     def __init__(self):
         super().__init__()
-        SignalsApp.all.progressbar_value.connect(self.progressbar_value)
-        # self.setFixedHeight(25)
         path_main_widget: QWidget = None
 
         self.grid_lay = QGridLayout()
@@ -151,15 +191,18 @@ class BarBottom(QWidget):
         row, col = 2, 2
         self.grid_lay.addWidget(self.slider, row, col, alignment=Qt.AlignmentFlag.AlignVCenter)
 
-        SignalsApp.all.new_path_label.connect(self.create_path_label)
+        self.q_folder_small: QPixmap = self.small_icon(FOLDER_SMALL)
+        self.q_disk_small: QPixmap = self.small_icon(DISK_SMALL)
+        self.q_mac_small: QPixmap = self.small_icon(MAC_SMALL)
+
+        SignalsApp.all.progressbar_value.connect(self.progressbar_value)
+        SignalsApp.all.new_path_label.connect(self.create_path_labels)
         SignalsApp.all.new_path_label.emit(None)
 
-    def progressbar_value(self, value: int):
-        # if self.progressbar.isHidden():
-        #     self.progressbar.setValue(0)
-        #     self.progressbar.setMaximum(value)
-        #     self.progressbar.show()
+    def small_icon(self, path: str):
+        return QPixmap(path).scaled(15, 15, transformMode=Qt.TransformationMode.SmoothTransformation)
 
+    def progressbar_value(self, value: int):
         if isinstance(value, int):
             self.progressbar.setValue(value)
         elif value == "hide":
@@ -169,90 +212,34 @@ class BarBottom(QWidget):
         else:
             raise Exception("bar_borrom > progress bar wrong value", value)
 
-    def create_path_label(self, obj: Thumb | None):
+    def create_path_labels(self, obj: Thumb | None):
         Utils.clear_layout(self.path_lay)
 
-        if isinstance(obj, Thumb):
-            root: str | list = obj.src
-            root = root.strip(os.sep).split(os.sep)
-        else:
-            root: str | list = JsonData.root
-            root = root.strip(os.sep).split(os.sep)
+        root: str | list = JsonData.root
+        root = root.strip(os.sep).split(os.sep)
 
-        temp: list[tuple[QLabel, PathLabel]] = []
-        q_folder_small: QPixmap = self.small_icon(FOLDER_SMALL)
+        path_labels: list[tuple[QLabel, PathLabel]] = []
 
         for x, chunk_of_path in enumerate(root):
             src = os.path.join(os.sep, *root[:x + 1])
-            is_dir = os.path.isdir(src)
+            
+            path_item = PathItem(src, chunk_of_path, self.q_folder_small)
 
-            icon_label = QLabel()
-            icon_label.setPixmap(q_folder_small)
+            self.path_lay.addWidget(path_item)
+            path_labels.append((path_item.icon_label, path_item.path_label))
 
-            path_label = PathLabel(src=src, text=chunk_of_path + ARROW)
+        # first = path_labels[0][0]
+        # first.setPixmap(self.q_mac_small)
 
-            # Настраиваем события клика
-            if is_dir:
-                cmd = lambda e, c=chunk_of_path: self.new_root(rooted=root, chunk=c, a0=e)
-                path_label.mouseReleaseEvent = cmd
-                path_label._clicked.connect(cmd)
-            else:
-                cmd_ = lambda e, s=src: self.img_view(path=s, a0=e)
-                path_label.mouseDoubleClickEvent = cmd_
-                path_label._clicked.connect(cmd_)
+        # if len(path_labels) > 1:
+        #     second = path_labels[1][0]
+        #     second.setPixmap(self.q_disk_small)
 
-            path_label.setMinimumWidth(15)
+        # if isinstance(obj, Thumb):
+        #     icon_label = QLabel()
+        #     icon_label.setPixmap(self.small_icon(obj.img))
 
-            # Создаем новый виджет для размещения icon_label и path_label
-            item_widget = QWidget()
-            item_layout = QHBoxLayout(item_widget)
-            item_layout.setContentsMargins(0, 0, 0, 0)
-            item_layout.setSpacing(5)
-            item_layout.addWidget(icon_label)
-            item_layout.addWidget(path_label)
-
-            # Добавляем item_widget в основной layout
-            self.path_lay.addWidget(item_widget)
-
-            # Устанавливаем события для анимации изменения ширины
-            cmd_ = lambda e, w=path_label: self.expand_temp(wid=w)
-            item_widget.enterEvent = cmd_
-
-            cmd_ = lambda e, w=path_label: self.collapse_temp(wid=w)
-            item_widget.leaveEvent = cmd_
-
-            temp.append((icon_label, path_label))
-
-        # Настраиваем иконки для первого, второго и последнего элементов
-        first = temp[0][0]
-        first.setPixmap(self.small_icon(MAC_SMALL))
-
-        if len(temp) > 1:
-            second = temp[1][0]
-            second.setPixmap(self.small_icon(DISK_SMALL))
-
-        last = temp[-1][1]
-        last.setText(last.text().replace(ARROW, ""))
-        if os.path.isfile(last.src):
-            temp[-1][0].setPixmap(self.small_icon(FILE_SMALL))
-
-    def expand_temp(self, wid: QLabel | PathLabel):
-        wid.setFixedWidth(wid.sizeHint().width())
-
-    def collapse_temp(self, wid: QLabel | PathLabel):
-        wid.setMinimumWidth(15)
-
-    def small_icon(self, path: str):
-        return QPixmap(path).scaled(15, 15, transformMode=Qt.TransformationMode.SmoothTransformation)
-
-    def new_root(self, rooted: list, chunk: str, a0: QMouseEvent | bool):
-        if isinstance(QMouseEvent, bool) and not a0.button() == Qt.MouseButton.LeftButton:
-            return
-        new_path = rooted[:rooted.index(chunk) + 1]
-        new_path = os.path.join(os.sep, *new_path)
-        SignalsApp.all.new_history.emit(new_path)
-        SignalsApp.all.load_standart_grid.emit(new_path)
-
-    def img_view(self, path: str, a0: QMouseEvent | bool):
-        self.win_img_view = WinImgViewSingle(path)
-        self.win_img_view.show()
+        # last = temp[-1][1]
+        # last.setText(last.text().replace(ARROW, ""))
+        # if os.path.isfile(last.src):
+        #     temp[-1][0].setPixmap(self.small_icon(FILE_SMALL))
