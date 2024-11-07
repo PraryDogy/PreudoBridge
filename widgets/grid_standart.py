@@ -236,8 +236,6 @@ class LoadFinder(QThread):
             if name.startswith("."):
                 continue
 
-            # if src.endswith(IMG_EXT) or os.path.isdir(src):
-
             try:
                 stats = os.stat(src)
             except (PermissionError, FileNotFoundError, OSError):
@@ -300,7 +298,7 @@ class GridStandart(Grid):
                     pixmap=pixmap
                     )
 
-            else:
+            elif order_item.src.endswith(IMG_EXT):
                 wid = Thumb(
                     src=order_item.src,
                     size=order_item.size,
@@ -309,6 +307,9 @@ class GridStandart(Grid):
                     rating=order_item.rating,
                     pixmap=self.pixmap_img,
                     )
+            else:
+                print("file thumb", order_item.src)
+                # filethumb
 
             wid.select.connect(lambda w=wid: self.select_new_widget(w))
             wid.open_in_view.connect(lambda w=wid: self.open_in_view(w))
