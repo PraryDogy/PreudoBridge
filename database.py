@@ -47,12 +47,11 @@ class OrderItem:
         self.rating: int = 0 if rating is None else rating
 
         self.name: str = os.path.split(self.src)[-1]
-
-        type_: str = os.path.splitext(self.src)[-1]
-        if type_ in IMG_EXT:
-            self.type_ = type_
-        else:
+        
+        if os.path.isdir(src):
             self.type_ = FOLDER
+        else:
+            self.type_ = os.path.splitext(self.src)[-1]
 
     @classmethod
     def order_items(cls, order_items: list["OrderItem"]) -> list["OrderItem"]:
