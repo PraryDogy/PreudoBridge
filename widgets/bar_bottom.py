@@ -192,6 +192,7 @@ class PathItem(QWidget):
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
         self.drag.setPixmap(self.icon_label.pixmap())
+        self.drag.set
         
         if isinstance(self.obj, Thumb):
             src = self.obj.src
