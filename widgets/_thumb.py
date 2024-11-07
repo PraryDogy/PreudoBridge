@@ -378,7 +378,7 @@ class ThumbFile(Thumb):
 
         context_menu = QMenu(parent=self)
 
-        view_action = QAction("Просмотр", self)
+        view_action = QAction("Открыть", self)
         view_action.triggered.connect(self.open_in_view.emit)
         context_menu.addAction(view_action)
 
@@ -434,7 +434,7 @@ class ThumbFolder(Thumb):
 
         context_menu = QMenu(parent=self)
 
-        view_action = QAction("Просмотр", self)
+        view_action = QAction("Открыть", self)
         view_action.triggered.connect(self.open_in_view.emit)
         context_menu.addAction(view_action)
 
