@@ -7,7 +7,7 @@ from PyQt5.QtGui import QContextMenuEvent, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
                              QMenu, QProgressBar, QSizePolicy, QWidget)
 
-from cfg import BLUE, JsonData
+from cfg import BLUE, IMG_EXT, JsonData
 from signals import SignalsApp
 from utils import Utils
 
@@ -162,8 +162,9 @@ class PathItem(QWidget):
 
     def new_root(self, *args):
         if isinstance(self.obj, Thumb):
-            self.win_img_view = WinImgViewSingle(self.obj.src)
-            self.win_img_view.show()
+            if self.obj.src.endswith(IMG_EXT):
+                self.win_img_view = WinImgViewSingle(self.obj.src)
+                self.win_img_view.show()
         else:
             SignalsApp.all.new_history.emit(self.obj)
             SignalsApp.all.load_standart_grid.emit(self.obj)
