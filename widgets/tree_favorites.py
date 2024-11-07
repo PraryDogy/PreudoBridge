@@ -97,11 +97,13 @@ class TreeFavorites(QListWidget):
     def select_fav(self, src: str):
         wid = self.wids.get(src)
         if wid:
-            self.currentItem(wid)
+            self.setCurrentItem(wid)
+        else:
+            print("deselect items")
 
     def cmd_(self, flag: str, src: str):
         if flag == "select":
-            print("select fav")
+            self.select_fav(src)
         elif flag == "add":
             self.add_fav_cmd(src)
         elif flag == "del":

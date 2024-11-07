@@ -166,6 +166,8 @@ class SimpleFileExplorer(QWidget):
         self.setWindowTitle(os.path.basename(JsonData.root))
         self.grid_close()
 
+        SignalsApp.all.fav_cmd.emit("select", JsonData.root)
+
         self.bar_top.search_wid.clear_search.emit()
         self.bar_top.filters_btn.reset_filters()
 
