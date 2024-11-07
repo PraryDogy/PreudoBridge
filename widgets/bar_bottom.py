@@ -261,7 +261,8 @@ class BarBottom(QWidget):
             self.path_lay.addWidget(path_item)
             path_items.append(path_item)
         else:
-            self.total.setText("Всего: " + str(len(os.listdir(JsonData.root))))
+            # все файлы а не только фотки
+            self.total.setText("Всего:" + str(len(os.listdir(JsonData.root))))
 
         
         last = path_items[-1].path_label
