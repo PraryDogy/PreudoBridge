@@ -15,7 +15,7 @@ from ._base import BaseSlider
 from ._thumb import Thumb
 from .win_info import WinInfo
 
-ARROW = " >"
+ARROW = " \U0000203A"
 IMAGES = "images"
 
 DISK_SMALL = os.path.join(IMAGES, "disk_small.png")
