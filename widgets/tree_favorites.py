@@ -78,8 +78,7 @@ class FavItem(QLabel):
 class TreeFavorites(QListWidget):
     def __init__(self):
         super().__init__()
-        # SignalsApp.all.add_fav.connect(self.add_fav_cmd)
-        # SignalsApp.all.del_fav.connect(self.del_item)
+        self.wids: dict[str, QListWidgetItem] = {}
         SignalsApp.all.fav_cmd.connect(self.cmd_)
         self.setDragDropMode(QListWidget.DragDropMode.InternalMove)
         self.setAcceptDrops(True)
@@ -92,6 +91,12 @@ class TreeFavorites(QListWidget):
             if JsonData.root == src:
                 self.setCurrentItem(item)
 
+    def cmd_wids(self, flag: str, src: str, wid: QListWidgetItem):
+        if flag == "add":
+            self.wids[src] = wid
+        elif flag == "del":
+            self.wids.pop(src)
+
     def cmd_(self, flag: str, src: str):
         if flag == "select":
             print("select fav")
@@ -99,9 +104,10 @@ class TreeFavorites(QListWidget):
             self.add_fav_cmd(src)
         elif flag == "del":
             self.del_item(src)
+        else:
+            raise Exception("tree favorites wrong flag", flag)
 
     def add_fav_cmd(self, src: str):
-        print(src)
         if src not in JsonData.favs:
             name = os.path.basename(src)
             JsonData.favs[src] = name
