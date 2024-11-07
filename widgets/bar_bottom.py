@@ -2,10 +2,10 @@ import os
 import subprocess
 from datetime import datetime
 
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QContextMenuEvent, QPixmap
-from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
-                             QMenu, QProgressBar, QWidget)
+from PyQt5.QtCore import QMimeData, Qt, QUrl, pyqtSignal
+from PyQt5.QtGui import QContextMenuEvent, QDrag, QMouseEvent, QPixmap
+from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
+                             QHBoxLayout, QLabel, QMenu, QProgressBar, QWidget)
 
 from cfg import BLUE, FOLDER, JsonData
 from signals import SignalsApp
@@ -73,8 +73,14 @@ class PathLabel(QLabel):
         copy_path.triggered.connect(self.copy_path)
         context_menu.addAction(copy_path)
 
-        self.setStyleSheet(f"#path_label {{ background: {BLUE}; border-radius: 2px; }} ")
+        self.selected_style()
         context_menu.exec_(self.mapToGlobal(ev.pos()))
+        self.default_style()
+
+    def selected_style(self):
+        self.setStyleSheet(f"#path_label {{ background: {BLUE}; border-radius: 2px; }} ")
+
+    def default_style(self):
         self.setStyleSheet("")
 
     def copy_path(self):
@@ -165,6 +171,39 @@ class PathItem(QWidget):
         else:
             SignalsApp.all.new_history.emit(self.obj)
             SignalsApp.all.load_standart_grid.emit(self.obj)
+
+    def mousePressEvent(self, a0: QMouseEvent | None) -> None:
+        if a0.button() == Qt.MouseButton.LeftButton:
+            self.drag_start_position = a0.pos()
+
+    def mouseMoveEvent(self, a0: QMouseEvent | None) -> None:
+        if a0.button() == Qt.MouseButton.RightButton:
+            return
+        
+        try:
+            distance = (a0.pos() - self.drag_start_position).manhattanLength()
+        except AttributeError:
+            return
+
+        if distance < QApplication.startDragDistance():
+            return
+
+        self.path_label.selected_style()
+        self.drag = QDrag(self)
+        self.mime_data = QMimeData()
+        self.drag.setPixmap(self.icon_label.pixmap())
+        
+        if isinstance(self.obj, Thumb):
+            src = self.obj.src
+        else:
+            src = self.obj
+
+        url = [QUrl.fromLocalFile(src)]
+        self.mime_data.setUrls(url)
+
+        self.drag.setMimeData(self.mime_data)
+        self.drag.exec_(Qt.DropAction.CopyAction)
+        self.path_label.default_style()
 
 
 class BarBottom(QWidget):

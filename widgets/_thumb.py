@@ -3,13 +3,13 @@ import subprocess
 
 import sqlalchemy
 from PyQt5.QtCore import QMimeData, Qt, QUrl, pyqtSignal
-from PyQt5.QtGui import QContextMenuEvent, QDrag, QFont, QMouseEvent, QPixmap
+from PyQt5.QtGui import QContextMenuEvent, QDrag, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QLabel, QMenu,
                              QVBoxLayout)
 from sqlalchemy.exc import OperationalError
 
 from cfg import (COLORS, FOLDER, GRAY, IMAGE_APPS, MARGIN, PIXMAP_SIZE,
-                 TEXT_LENGTH, THUMB_W, JsonData, STAR_SYM)
+                 STAR_SYM, TEXT_LENGTH, THUMB_W, JsonData)
 from database import CACHE, Dbase, OrderItem
 from signals import SignalsApp
 from utils import Utils
