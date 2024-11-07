@@ -12,8 +12,8 @@ from fit_img import FitImg
 from signals import SignalsApp
 from utils import Utils
 
-from ._grid import Grid, Thumb
-from ._thumb import ThumbFolder
+from ._grid import Grid
+from ._thumb import Thumb, ThumbFile, ThumbFolder
 
 
 class Threads:
@@ -284,10 +284,10 @@ class GridStandart(Grid):
             if os.path.isdir(order_item.src):
 
                 if os.path.ismount(order_item.src) or order_item.src == sys_disk:
-                    pixmap = self.pixmap_disk
+                    folder_pixmap = self.pixmap_disk
 
                 else:
-                    pixmap = self.pixmap_folder
+                    folder_pixmap = self.pixmap_folder
 
                 wid = ThumbFolder(
                     src=order_item.src,
@@ -295,7 +295,7 @@ class GridStandart(Grid):
                     mod=order_item.mod,
                     colors=order_item.colors,
                     rating=order_item.rating,
-                    pixmap=pixmap
+                    pixmap=folder_pixmap
                     )
 
             elif order_item.src.endswith(IMG_EXT):
@@ -308,8 +308,14 @@ class GridStandart(Grid):
                     pixmap=self.pixmap_img,
                     )
             else:
-                print("file thumb", order_item.src)
-                # filethumb
+                wid = ThumbFile(
+                    src=order_item.src,
+                    size=order_item.size,
+                    mod=order_item.mod,
+                    colors=order_item.colors,
+                    rating=order_item.rating,
+                    pixmap=self.pixmap_img,
+                    )
 
             wid.select.connect(lambda w=wid: self.select_new_widget(w))
             wid.open_in_view.connect(lambda w=wid: self.open_in_view(w))
