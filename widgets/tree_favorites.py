@@ -78,8 +78,9 @@ class FavItem(QLabel):
 class TreeFavorites(QListWidget):
     def __init__(self):
         super().__init__()
-        SignalsApp.all.add_fav.connect(self.add_fav_cmd)
-        SignalsApp.all.del_fav.connect(self.del_item)
+        # SignalsApp.all.add_fav.connect(self.add_fav_cmd)
+        # SignalsApp.all.del_fav.connect(self.del_item)
+        SignalsApp.all.fav_cmd.connect(self.cmd_)
         self.setDragDropMode(QListWidget.DragDropMode.InternalMove)
         self.setAcceptDrops(True)
         self.init_ui()
@@ -91,18 +92,26 @@ class TreeFavorites(QListWidget):
             if JsonData.root == src:
                 self.setCurrentItem(item)
 
-    def add_fav_cmd(self, root: str):
-        print(root)
-        if root not in JsonData.favs:
-            name = os.path.basename(root)
-            JsonData.favs[root] = name
-            self.add_widget_item(name, root)
+    def cmd_(self, flag: str, src: str):
+        if flag == "select":
+            print("select fav")
+        elif flag == "add":
+            self.add_fav_cmd(src)
+        elif flag == "del":
+            self.del_item(src)
+
+    def add_fav_cmd(self, src: str):
+        print(src)
+        if src not in JsonData.favs:
+            name = os.path.basename(src)
+            JsonData.favs[src] = name
+            self.add_widget_item(name, src)
             JsonData.write_config()
 
-    def add_widget_item(self, name: str, root: str) -> QListWidgetItem:
-        item = FavItem(name, root)
-        item.del_click.connect(lambda: self.del_item(root))
-        item.rename_finished.connect(lambda new_name: self.update_name(root, new_name))
+    def add_widget_item(self, name: str, src: str) -> QListWidgetItem:
+        item = FavItem(name, src)
+        item.del_click.connect(lambda: self.del_item(src))
+        item.rename_finished.connect(lambda new_name: self.update_name(src, new_name))
 
         list_item = QListWidgetItem()
         list_item.setSizeHint(item.sizeHint())
@@ -149,7 +158,7 @@ class TreeFavorites(QListWidget):
     def dragLeaveEvent(self, a0: QDragLeaveEvent | None) -> None:
         return super().dragLeaveEvent(a0)
 
-    def mouseReleaseEvent(self, e: QMouseEvent | None) -> None:
-        curr = self.currentItem()
-        if isinstance(curr, QListWidgetItem):
-            curr.setSelected(False)
+    # def mouseReleaseEvent(self, e: QMouseEvent | None) -> None:
+    #     curr = self.currentItem()
+    #     if isinstance(curr, QListWidgetItem):
+    #         curr.setSelected(False)

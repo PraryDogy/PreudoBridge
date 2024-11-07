@@ -12,8 +12,7 @@ class Signals(QObject):
     filter_grid = pyqtSignal()
     move_to_wid = pyqtSignal(QWidget)
 
-    add_fav = pyqtSignal(str)
-    del_fav = pyqtSignal(str)
+    fav_cmd = pyqtSignal(str, str)
     search_finished = pyqtSignal(str)
     show_in_folder = pyqtSignal(str)
     progressbar_value = pyqtSignal(object)

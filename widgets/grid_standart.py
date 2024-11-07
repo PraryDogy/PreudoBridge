@@ -150,7 +150,7 @@ class LoadImages(QThread):
 
             except IntegrityError as e:
                 Utils.print_error(self, e)
-                continue
+                break
 
             except OperationalError as e:
                 Utils.print_error(self, e)

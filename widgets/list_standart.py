@@ -103,11 +103,11 @@ class ListStandart(BaseTableView):
         if os.path.isdir(src):
             if src in JsonData.favs:
                 fav_action = QAction("Удалить из избранного", self)
-                fav_action.triggered.connect(lambda: SignalsApp.all.del_fav.emit(src))
+                fav_action.triggered.connect(lambda: SignalsApp.all.fav_cmd.emit("del", src))
                 menu.addAction(fav_action)
             else:
                 fav_action = QAction("Добавить в избранное", self)
-                fav_action.triggered.connect(lambda: SignalsApp.all.add_fav.emit(src))
+                fav_action.triggered.connect(lambda: SignalsApp.all.fav_cmd.emit("add", src))
                 menu.addAction(fav_action)
 
         menu.exec_(self.mapToGlobal(event.pos()))
