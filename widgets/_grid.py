@@ -1,10 +1,11 @@
 import os
+import subprocess
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import QFrame, QGridLayout, QWidget
 
-from cfg import GRID_SPACING, Dymanic, JsonData, FOLDER, IMG_EXT
+from cfg import FOLDER, GRID_SPACING, IMG_EXT, Dymanic, JsonData
 from database import OrderItem
 from signals import SignalsApp
 from utils import Utils
@@ -173,6 +174,9 @@ class Grid(BaseGrid):
             self.win = WinImgView(wid.src, self.path_to_wid)
             Utils.center_win(parent=Utils.get_main_win(), child=self.win)
             self.win.show()
+
+        else:
+            subprocess.run(["open", wid.src])
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         wid: Thumb | ThumbFolder 
