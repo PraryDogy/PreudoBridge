@@ -42,13 +42,18 @@ class CustomSlider(BaseSlider):
 class PathLabel(QLabel):
     _open_img_view = pyqtSignal()
 
-    def __init__(self, src: str, text: str):
+    def __init__(self, obj: str | Thumb, text: str):
         super().__init__(text)
-        self.src = src
+        self.obj = obj
         self.setObjectName("path_label")
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
         context_menu = QMenu(parent=self)
+
+        if isinstance(self.obj, Thumb):
+            src = self.obj.src
+        else:
+            src = self.obj
 
         view_action = QAction("Просмотр", self)
         cmd = lambda: self._open_img_view.emit()
@@ -66,16 +71,27 @@ class PathLabel(QLabel):
         context_menu.addAction(show_in_finder_action)
 
         copy_path = QAction("Скопировать путь", self)
-        copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
+        copy_path.triggered.connect(self.copy_path)
         context_menu.addAction(copy_path)
 
         self.setStyleSheet(f"#path_label {{ background: {BLUE}; border-radius: 2px; }} ")
         context_menu.exec_(self.mapToGlobal(ev.pos()))
         self.setStyleSheet("")
 
+    def copy_path(self):
+        if isinstance(self.obj, Thumb):
+            src = self.obj.src
+        else:
+            src = self.obj
+        Utils.copy_path(src)
+
     def show_info_win(self):
-        # имя тип путь размер изменен
-        self.win_info = WinInfo(self.get_info())
+        if isinstance(self.obj, Thumb):
+            info = self.obj.get_info()
+        else:
+            info = self.get_info()
+
+        self.win_info = WinInfo(info)
         Utils.center_win(parent=Utils.get_main_win(), child=self.win_info)
         self.win_info.show()
 
@@ -104,13 +120,17 @@ class PathLabel(QLabel):
             return "Ошибка данных: нет доступка к папке"
 
     def show_in_finder(self):
-        subprocess.call(["open", "-R", self.src])
+        if isinstance(self.obj, Thumb):
+            src = self.obj.src
+        else:
+            src = self.obj
+        subprocess.call(["open", "-R", src])
 
 
 class PathItem(QWidget):
-    def __init__(self, src: str, name: str, pixmap: QPixmap):
+    def __init__(self, obj: str | Thumb, name: str, pixmap: QPixmap):
         super().__init__()
-        self.src = src
+        self.obj = obj
 
         item_layout = QHBoxLayout()
         item_layout.setContentsMargins(0, 0, 0, 0)
@@ -121,7 +141,7 @@ class PathItem(QWidget):
         self.icon_label.setPixmap(pixmap)
         item_layout.addWidget(self.icon_label)
         
-        self.path_label = PathLabel(src=src, text=name + ARROW)
+        self.path_label = PathLabel(obj=obj, text=name + ARROW)
         self.path_label.setMinimumWidth(15)
         item_layout.addWidget(self.path_label)
 
@@ -140,13 +160,13 @@ class PathItem(QWidget):
         wid.setMinimumWidth(15)
 
     def new_root(self, *args):
-        if os.path.isdir(self.src):
-            SignalsApp.all.new_history.emit(self.src)
-            SignalsApp.all.load_standart_grid.emit(self.src)
-            SignalsApp.all.new_path_label.emit(None)
-        else:
-            self.win_img_view = WinImgViewSingle(self.src)
+        if isinstance(self.obj, Thumb):
+            self.win_img_view = WinImgViewSingle(self.obj.src)
             self.win_img_view.show()
+        else:
+            SignalsApp.all.new_history.emit(self.obj)
+            SignalsApp.all.load_standart_grid.emit(self.obj)
+            SignalsApp.all.new_path_label.emit(None)
 
 
 class BarBottom(QWidget):
@@ -236,7 +256,7 @@ class BarBottom(QWidget):
 
         if isinstance(obj, Thumb):
             pixmap = self.small_icon(obj.img)
-            path_item = PathItem(obj.src, obj.name, pixmap)
+            path_item = PathItem(obj, obj.name, pixmap)
             self.path_lay.addWidget(path_item)
             path_items.append(path_item)
         
