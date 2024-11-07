@@ -54,8 +54,8 @@ class SearchFinder(QThread):
         except (ValueError, SyntaxError):
             pass
 
-        if not isinstance(self.search_text, tuple):
-            self.search_text: str = str(self.search_text)
+        if isinstance(self.search_text, tuple):
+            setattr(self, "is_tuple", True)
 
         for root, _, files in os.walk(JsonData.root):
             if not self.flag:
@@ -70,8 +70,8 @@ class SearchFinder(QThread):
 
 
                 if file_path_lower.endswith(IMG_EXT):
-
-                    if isinstance(self.search_text, tuple):
+                                        
+                    if hasattr(self, "is_tuple"):
                         if file_path_lower.endswith(self.search_text):
                             self.create_wid(file_path)
 
@@ -88,7 +88,7 @@ class SearchFinder(QThread):
         self.conn.close()
 
         if self.flag:
-            SignalsApp.all.search_finished.emit(self.search_text)
+            SignalsApp.all.search_finished.emit(str(self.search_text))
 
     def create_wid(self, src: str):
         try:
@@ -218,6 +218,7 @@ class GridSearch(Grid):
         wid.open_in_view.connect(lambda w=wid: self.open_in_view(w))
         self.add_widget_data(wid, self.row, self.col)
         self.grid_layout.addWidget(wid, self.row, self.col)
+        # SignalsApp.all.create_path_labels
 
         self.col += 1
         if self.col >= self.col_count:
