@@ -200,6 +200,8 @@ class GridSearch(Grid):
         self.col_count = Utils.get_clmn_count(width)
         self.row, self.col = 0, 0
 
+        SignalsApp.all.create_path_labels.emit(JsonData.root, 0)
+
         self.search_thread = SearchFinder(search_text)
         self.search_thread.add_new_widget.connect(self.add_new_widget)
         self.search_thread.start()

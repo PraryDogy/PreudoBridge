@@ -1,17 +1,20 @@
 import os
 import subprocess
 from datetime import datetime
+from difflib import SequenceMatcher
 
-from PyQt5.QtCore import QMimeData, Qt, QUrl, pyqtSignal
-from PyQt5.QtGui import QContextMenuEvent, QDrag, QMouseEvent, QPixmap
+from PyQt5.QtCore import QMimeData, Qt, QThread, QUrl, pyqtSignal
+from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
+                         QPixmap)
 from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
-                             QHBoxLayout, QLabel, QMenu, QProgressBar, QWidget)
+                             QHBoxLayout, QLabel, QLineEdit, QMenu,
+                             QProgressBar, QPushButton, QVBoxLayout, QWidget)
 
 from cfg import BLUE, FOLDER, JsonData
 from signals import SignalsApp
 from utils import Utils
 
-from ._base import BaseSlider
+from ._base import BaseSlider, WinMinMax
 from ._thumb import Thumb
 from .win_info import WinInfo
 
@@ -22,6 +25,141 @@ DISK_SMALL = os.path.join(IMAGES, "disk_small.png")
 FOLDER_SMALL = os.path.join(IMAGES, "folder_small.png")
 MAC_SMALL = os.path.join(IMAGES, "mac_small.png")
 FILE_SMALL = os.path.join(IMAGES, "file_small.png")
+
+
+class PathFinderThread(QThread):
+    _finished = pyqtSignal(str)
+
+    def __init__(self, src: str):
+        super().__init__()
+        self.src: str = src
+        self.result: str = None
+        self.volumes: list[str] = []
+        self.exclude = "/Volumes/Macintosh HD/Volumes/"
+
+    def run(self):
+        self._path_finder()
+        if not self.result:
+            self._finished.emit("")
+        elif self.result in self.volumes:
+            self._finished.emit("")
+        elif self.result:
+            self._finished.emit(self.result)
+
+    def _path_finder(self):
+        src = os.sep + self.src.replace("\\", os.sep).strip().strip(os.sep)
+        src_splited = [i for i in src.split(os.sep) if i]
+
+        self.volumes = [
+            os.path.join("/Volumes", i)
+            for i in os.listdir("/Volumes")
+            ]
+
+        volumes_extra = [
+            os.path.join(vol, *extra.strip().split(os.sep))
+            for extra in JsonData.extra_paths
+            for vol in self.volumes
+            ]
+        
+        self.volumes.extend(volumes_extra)
+
+        # обрезаем входящий путь каждый раз на 1 секцию с конца
+        cut_paths: list = [
+                os.path.join(*src_splited[:i])
+                for i in range(len(src_splited) + 1)
+                if src_splited[:i]
+                ]
+
+        # обрезаем каждый путь на 1 секцию с начала и прибавляем элементы из volumes
+        all_posible_paths: list = []
+
+        for p_path in sorted(cut_paths, key=len, reverse=True):
+            p_path_split = [i for i in p_path.split(os.sep) if i]
+            
+            for share in self.volumes:
+                for i in range(len(p_path_split) + 1):
+
+                    all_posible_paths.append(
+                        os.path.join(share, *p_path_split[i:])
+                        )
+
+        # из всех полученных возможных путей ищем самый подходящий существующий путь
+        for i in sorted(all_posible_paths, key=len, reverse=True):
+            if self.exclude in i:
+                print("ignore strange folder", self.exclude)
+                continue
+            if os.path.exists(i):
+                self.result = i
+                break
+
+        # смотрим совпадает ли последняя секция входящего и полученного пути
+        tail = []
+
+        if self.result:
+            result_tail = self.result.split(os.sep)[-1]
+            if src_splited[-1] != result_tail:
+                try:
+                    tail = src_splited[src_splited.index(result_tail) + 1:]
+                except ValueError:
+                    return
+
+        # пытаемся найти секции пути, написанные с ошибкой
+        for a in tail:
+            dirs = [x for x in os.listdir(self.result)]
+
+            for b in dirs:
+                matcher = SequenceMatcher(None, a, b).ratio()
+                if matcher >= 0.85:
+                    self.result = os.path.join(self.result, b)
+                    break
+
+
+class WinGo(WinMinMax):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Перейти к ...")
+        self.setFixedSize(290, 90)
+        v_lay = QVBoxLayout()
+        v_lay.setContentsMargins(10, 10, 10, 10)
+        v_lay.setSpacing(10)
+        self.setLayout(v_lay)
+
+        self.input_wid = QLineEdit()
+        self.input_wid.setPlaceholderText("Вставьте путь к файлу/папке")
+        self.input_wid.setStyleSheet("padding-left: 2px;")
+        self.input_wid.setFixedSize(270, 25)
+        v_lay.addWidget(self.input_wid, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        go_btn = QPushButton("Перейти")
+        go_btn.setFixedWidth(130)
+        go_btn.clicked.connect(self.open_path_btn_cmd)
+        v_lay.addWidget(go_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+
+    def open_path_btn_cmd(self):
+        path: str = self.input_wid.text()
+
+        if not path:
+            return
+
+        path: str = os.sep + path.strip().strip(os.sep)
+
+        if os.path.exists(path):
+            SignalsApp.all.open_path.emit(path)
+            self.close()
+        else:
+            self.path_thread = PathFinderThread(path)
+            self.path_thread._finished.connect(self.finalize)
+            self.path_thread.start()
+
+    def finalize(self, res: str):
+        SignalsApp.all.open_path.emit(res)
+        self.close()
+
+    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
+        if a0.key() == Qt.Key.Key_Escape:
+            self.close()
+        elif a0.key() == Qt.Key.Key_Return:
+            self.open_path_btn_cmd()
 
 
 class CustomSlider(BaseSlider):
@@ -209,6 +347,8 @@ class PathItem(QWidget):
 class BarBottom(QWidget):
     def __init__(self):
         super().__init__()
+        colspan = 0
+
         path_main_widget: QWidget = None
 
         self.grid_lay = QGridLayout()
@@ -216,14 +356,14 @@ class BarBottom(QWidget):
         self.grid_lay.setSpacing(5)
         self.setLayout(self.grid_lay)
 
+        row, col, rowspan = 0, 0, 1
         path_main_widget = QWidget()
-        row, col, rowspan, colspan = 0, 0, 1, 4
         self.grid_lay.addWidget(path_main_widget, row, col, rowspan, colspan, Qt.AlignmentFlag.AlignLeft)
 
+        row, col, rowspan = 1, 0, 1
         sep = QFrame()
         sep.setStyleSheet("background: rgba(0, 0, 0, 0.2)")
         sep.setFixedHeight(1)
-        row, col, rowspan, colspan = 1, 0, 1, 4
         self.grid_lay.addWidget(sep, row, col, rowspan, colspan)
 
         self.path_lay = QHBoxLayout()
@@ -231,24 +371,35 @@ class BarBottom(QWidget):
         self.path_lay.setSpacing(5)
         path_main_widget.setLayout(self.path_lay)
 
+        row, col = 2, 0
+
+        self.go_btn = QLabel(parent=self, text=">")
+        self.go_btn.setFixedSize(15, 15)
+        self.go_btn.mouseReleaseEvent = self.open_go_win
+        self.grid_lay.addWidget(self.go_btn, row, col)
+
+        col += 1
+        colspan += 1
         self.total = QLabel()
         self.total.setFixedHeight(15)
-        row, col = 2, 0
         self.grid_lay.addWidget(self.total, row, col, Qt.AlignmentFlag.AlignLeft)
 
+        col += 1
+        colspan += 1
         self.progressbar = QProgressBar()
         self.progressbar.setFixedSize(100, 10)
-        row, col = 2, 1
         self.grid_lay.addWidget(self.progressbar, row, col)
 
+        col += 1
+        colspan += 1
         h_spacer = QWidget()
         h_spacer.setFixedSize(10, 15)
-        row, col = 2, 2
         self.grid_lay.addWidget(h_spacer, row, col)
 
+        col += 1
+        colspan += 1
         self.slider = CustomSlider()
         self.slider.setFixedSize(70, 15)
-        row, col = 2, 3
         self.grid_lay.addWidget(self.slider, row, col)
 
         self.q_folder_small: QPixmap = self.small_icon(FOLDER_SMALL)
@@ -257,6 +408,11 @@ class BarBottom(QWidget):
 
         SignalsApp.all.progressbar_value.connect(self.progressbar_value)
         SignalsApp.all.create_path_labels.connect(self.create_path_labels)
+
+    def open_go_win(self, *args):
+        self.win = WinGo()
+        Utils.center_win(Utils.get_main_win(), self.win)
+        self.win.show()
 
     def small_icon(self, obj: str | QPixmap):
         if isinstance(obj, str):
