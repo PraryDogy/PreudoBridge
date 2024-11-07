@@ -165,6 +165,8 @@ class PathItem(QWidget):
             if self.obj.src.endswith(IMG_EXT):
                 self.win_img_view = WinImgViewSingle(self.obj.src)
                 self.win_img_view.show()
+            else:
+                subprocess.run(["open", self.obj.src])
         else:
             SignalsApp.all.new_history.emit(self.obj)
             SignalsApp.all.load_standart_grid.emit(self.obj)
