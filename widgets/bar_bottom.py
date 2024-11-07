@@ -237,9 +237,8 @@ class BarBottom(QWidget):
         else:
             raise Exception("bar_borrom > progress bar wrong value", value)
 
-    def create_path_labels(self, obj: Thumb | None, value: int):
+    def create_path_labels(self, obj: Thumb | None):
         Utils.clear_layout(self.path_lay)
-        self.total.setText("Всего:" + str(value))
 
         root: str | list = JsonData.root
         root = root.strip(os.sep).split(os.sep)
@@ -261,6 +260,9 @@ class BarBottom(QWidget):
             path_item = PathItem(obj, obj.name, pixmap)
             self.path_lay.addWidget(path_item)
             path_items.append(path_item)
+        else:
+            self.total.setText("Всего: " + str(len(os.listdir(JsonData.root))))
+
         
         last = path_items[-1].path_label
         last.setText(last.text().replace(ARROW, ""))
