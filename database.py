@@ -11,8 +11,8 @@ METADATA = sqlalchemy.MetaData()
 CACHE = sqlalchemy.Table(
     "cache", METADATA,
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
-    sqlalchemy.Column("img", sqlalchemy.LargeBinary),
     sqlalchemy.Column("src", sqlalchemy.Text, unique=True),
+    sqlalchemy.Column("hash", sqlalchemy.Text),
     sqlalchemy.Column("root", sqlalchemy.Text),
     sqlalchemy.Column("catalog", sqlalchemy.Text, nullable=False),
     sqlalchemy.Column("name", sqlalchemy.Text, comment="Имя"),
