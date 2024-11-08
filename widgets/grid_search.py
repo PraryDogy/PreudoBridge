@@ -44,7 +44,8 @@ class SearchFinder(URunnable):
 
         self.search_text: str = search_text
         self.conn: sqlalchemy.Connection = Dbase.engine.connect()
-        self.insert_count: int = 0 
+        self.insert_count: int = 0
+        self.insert_queries: list[sqlalchemy.Insert] = []
         self.pixmap_img = QPixmap("images/file_210.png")
 
     def run(self):
@@ -66,21 +67,18 @@ class SearchFinder(URunnable):
                 break
 
             for file in files:
+
                 if not self.is_should_run():
                     break
 
-                print(root, file)
-
                 file_path: str = os.path.join(root, file)
                 file_path_lower: str = file_path.lower()
-
 
                 if file_path_lower.endswith(IMG_EXT):
                                         
                     if hasattr(self, "is_tuple"):
                         if file_path_lower.endswith(self.search_text):
                             self.create_wid(file_path)
-
 
                     elif self.search_text in file:
                         self.create_wid(file_path)
@@ -194,6 +192,9 @@ class SearchFinder(URunnable):
         img = Utils.read_image(src)
         img = FitImg.start(img, MAX_SIZE)
         return img
+    
+    def insert_queries_cmd(self):
+        ...
 
 
 class GridSearch(Grid):
