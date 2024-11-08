@@ -59,8 +59,14 @@ class LoadImages(URunnable):
         self.set_is_running(False)
 
     def get_db_dataset(self):
-        q = sqlalchemy.select(CACHE.c.src, CACHE.c.hash_path, CACHE.c.size, CACHE.c.mod)
-        q = q.where(CACHE.c.root == JsonData.root)
+        q = sqlalchemy.select(
+            CACHE.c.src,
+            CACHE.c.hash_path,
+            CACHE.c.size,
+            CACHE.c.mod
+            ).where(
+                CACHE.c.root == JsonData.root
+                )
         res = self.conn.execute(q).fetchall()
 
         self.db_dataset: dict[tuple, str] = {
@@ -103,7 +109,10 @@ class LoadImages(URunnable):
                 pixmap = Utils.pixmap_from_array(small_img_array)
 
                 hashed_path = Utils.get_hash_path(src)
-                Utils.write_image_hash(output_path=hashed_path, array_img=small_img_array)
+                Utils.write_image_hash(
+                    output_path=hashed_path,
+                    array_img=small_img_array
+                    )
 
                 stmt = self.get_insert_stmt(src, hashed_path, size, mod)
                 self.insert_queries.append(stmt)
@@ -131,25 +140,32 @@ class LoadImages(URunnable):
 
         self.conn.commit()
 
-    def get_insert_stmt(self, src: str, hashed_path: str, size: int, mod: int)  -> sqlalchemy.Insert:
+    def get_insert_stmt(
+            self,
+            src: str,
+            hashed_path: str,
+            size: int,
+            mod: int
+            )  -> sqlalchemy.Insert:
 
         src = os.sep + src.strip().strip(os.sep)
         name = os.path.basename(src)
         type_ = os.path.splitext(name)[-1]
 
-        insert_stmt = sqlalchemy.insert(CACHE)
-        return insert_stmt.values(
-            src=src,
-            hash_path=hashed_path,
-            root=os.path.dirname(src),
-            catalog="",
-            name=name,
-            type_=type_,
-            size=size,
-            mod=mod,
-            colors="",
-            rating=0
-            )
+        values = {
+            "src": src,
+            "hash_path": hashed_path,
+            "root": os.path.dirname(src),
+            "catalog": "",
+            "name": name,
+            "type_": type_,
+            "size": size,
+            "mod": mod,
+            "colors": "",
+            "rating": 0
+            }
+
+        return sqlalchemy.insert(CACHE).values(**values)
 
     def remove_images(self):
         try:
