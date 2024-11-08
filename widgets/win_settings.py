@@ -1,17 +1,57 @@
 
+import os
 import subprocess
 import webbrowser
 
-import sqlalchemy
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QKeyEvent
 from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QPushButton,
                              QVBoxLayout, QWidget)
 
-from cfg import JSON_FILE, LINK, JsonData
+from cfg import HASH_DIR, JSON_FILE, LINK, JsonData
 from database import Dbase
+from utils import Threads, URunnable
 
 from ._base import BaseSlider, WinMinMax
+
+
+class WorkerSignals(QObject):
+    _finished = pyqtSignal(str)
+
+
+class GetSizer(URunnable):
+    def __init__(self):
+        super().__init__()
+        self.worker_signals = WorkerSignals()
+
+    def run(self):
+        total_size = 0
+
+        for root, dirs, files in os.walk(HASH_DIR):
+
+            if not self.is_should_run():
+                return
+
+            for file in files:
+
+                if not self.is_should_run():
+                    return
+            
+                file_path = os.path.join(root, file)
+                total_size += os.path.getsize(file_path)
+
+        t = "Не удалось вычислить размер"
+
+        if total_size < 1024:
+            t = f"{total_size} Б"
+        elif total_size < 1024**2:
+            t = f"{total_size / 1024:.2f} КБ"
+        elif total_size < 1024**3:
+            t =  f"{total_size / 1024**2:.2f} МБ"
+        else:
+            t = f"{total_size / 1024**3:.2f} ГБ"
+        
+        self.worker_signals._finished.emit(t)
 
 
 class WinSettings(WinMinMax):
@@ -41,20 +81,6 @@ class WinSettings(WinMinMax):
         self.clear_btn.clicked.connect(self.clear_db_cmd)
         h_lay.addWidget(self.clear_btn)
         
-        self.slider_values = [2, 5, 10, 100]
-        self.slider = BaseSlider(Qt.Orientation.Horizontal, 0, len(self.slider_values) - 1)
-        self.slider.setFixedWidth(100)
-        current = JsonData.clear_db
-        ind = self.slider_values.index(current)
-        self.slider.setValue(ind)
-        self.slider.valueChanged.connect(self.update_label)
-        main_lay.addWidget(self.slider)
-
-        self.label = QLabel("", self)
-        main_lay.addWidget(self.label)
-        self.get_current_size()
-        self.update_label(ind)
-
         separator = QFrame()
         separator.setFixedWidth(self.width() - 40)
         separator.setFrameShape(QFrame.HLine)  # Горизонтальный разделитель
@@ -79,26 +105,23 @@ class WinSettings(WinMinMax):
 
         main_lay.addStretch()
 
-    def update_label(self, index):
-        value = self.slider_values[index]
-
-        if value == 100:
-            t = "Максимальный размер данных: без лимита"
-        else:
-            t = f"Максимальный размер данных: {value}гб"
-
-        self.label.setText(t)
-        JsonData.clear_db = value
+        self.get_current_size()
 
     def get_current_size(self):
-        print("get current size")
+        self.current_size.setText("Загрузка")
 
+        self.task_ = GetSizer()
+        cmd_ = lambda t: self.current_size.setText(t)
+        self.task_.worker_signals._finished.connect(cmd_)
+        Threads.pool.start(self.task_)
 
     def clear_db_cmd(self):
         if Dbase.clear_db():
             self.get_current_size()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
+        if hasattr(self, "task_") and self.task_.is_running():
+            self.task_.should_run_cmd(False)
         JsonData.write_config()
     
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
