@@ -56,7 +56,12 @@ class LoadImages(URunnable):
         self.get_db_dataset()
         self.load_already_images()
         self.remove_images()
+
+        SignalsApp.all.progressbar_value.emit(0)
+        SignalsApp.all.progressbar_value.emit("show")
         self.create_new_images()
+        SignalsApp.all.progressbar_value.emit("hide")
+
         self.insert_queries_cmd()
 
         self.conn.close()
@@ -94,8 +99,6 @@ class LoadImages(URunnable):
                 self.remove_db_images.append((db_src, hash_path))
 
     def create_new_images(self):
-        SignalsApp.all.progressbar_value.emit(0)
-        SignalsApp.all.progressbar_value.emit("show")
         progress_count = 0
 
         for src, size, mod in self.src_size_mod:
@@ -126,7 +129,6 @@ class LoadImages(URunnable):
                 SignalsApp.all.progressbar_value.emit(progress_count)
                 progress_count += 1
 
-        SignalsApp.all.progressbar_value.emit("hide")
 
     def insert_queries_cmd(self):
         for query in self.insert_queries:
