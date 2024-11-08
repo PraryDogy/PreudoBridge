@@ -46,35 +46,37 @@ class LoadImages(URunnable):
         self.remove_db_images: list[tuple[int, str, str]] = []
         self.db_items: dict[tuple, str] = {}
         self.insert_queries: list[sqlalchemy.Insert] = []
-        self.conn = Dbase.engine.connect()
 
     def run(self):
         self.set_is_running(True)
+        SignalsApp.all.progressbar_value.emit(0)
+        SignalsApp.all.progressbar_value.emit("show")
 
         # remove images необходимо выполнять перед insert_queries_cmd
         # т.к. у нас sqlalchemy.update отсутствует
         # и обновление происходит через удаление и добавление заново
-        SignalsApp.all.progressbar_value.emit(0)
-        SignalsApp.all.progressbar_value.emit("show")
         self.get_db_dataset()
         self.compare_db_and_finder_items()
         self.remove_images()
         self.create_new_images()
         self.insert_queries_cmd()
-        self.conn.close()
+
         self.set_is_running(False)
         SignalsApp.all.progressbar_value.emit("hide")
 
     def get_db_dataset(self):
-        q = sqlalchemy.select(
-            CACHE.c.src,
-            CACHE.c.hash_path,
-            CACHE.c.size,
-            CACHE.c.mod
-            ).where(
-                CACHE.c.root == JsonData.root
-                )
-        res = self.conn.execute(q).fetchall()
+
+        with Dbase.engine.connect() as conn:
+
+            q = sqlalchemy.select(
+                CACHE.c.src,
+                CACHE.c.hash_path,
+                CACHE.c.size,
+                CACHE.c.mod
+                ).where(
+                    CACHE.c.root == JsonData.root
+                    )
+            res = conn.execute(q).fetchall()
 
         self.db_items: dict[tuple, str] = {
             (src, size, mod): hash_path
@@ -136,21 +138,24 @@ class LoadImages(URunnable):
                 insert_count += 1
 
     def insert_queries_cmd(self):
-        for query in self.insert_queries:
 
-            try:
-                self.conn.execute(query)
-            
-            except IntegrityError as e:
-                Utils.print_error(self, e)
-                continue
+        with Dbase.engine.connect() as conn:
 
-            except OperationalError as e:
-                Utils.print_error(self, e)
-                self.set_should_run(False)
-                return
+            for query in self.insert_queries:
 
-        self.conn.commit()
+                try:
+                    conn.execute(query)
+                
+                except IntegrityError as e:
+                    Utils.print_error(self, e)
+                    continue
+
+                except OperationalError as e:
+                    Utils.print_error(self, e)
+                    self.set_should_run(False)
+                    return
+
+            conn.commit()
 
     def get_insert_stmt(
             self,
@@ -181,18 +186,19 @@ class LoadImages(URunnable):
 
     def remove_images(self):
 
-        for src, hash_path in self.remove_db_images:
+        with Dbase.engine.connect() as conn:
 
-            print("удаляю", src)
+            for src, hash_path in self.remove_db_images:
+                print("удаляю", src)
 
-            try:
-                q = sqlalchemy.delete(CACHE).where(CACHE.c.src == src)
-                self.conn.execute(q)
-            except OperationalError as e:
-                Utils.print_error(self, e)
-                return
+                try:
+                    q = sqlalchemy.delete(CACHE).where(CACHE.c.src == src)
+                    conn.execute(q)
+                except OperationalError as e:
+                    Utils.print_error(self, e)
+                    return
 
-        self.conn.commit()
+            conn.commit()
 
         for src, hash_path in self.remove_db_images:
             os.remove(hash_path)
