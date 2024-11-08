@@ -3,7 +3,7 @@ import subprocess
 from datetime import datetime
 from difflib import SequenceMatcher
 
-from PyQt5.QtCore import QMimeData, Qt, QThread, QUrl, pyqtSignal
+from PyQt5.QtCore import QMimeData, QRunnable, Qt, QUrl, pyqtSignal
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
                          QPixmap)
 from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
 
 from cfg import BLUE, FOLDER, JsonData
 from signals import SignalsApp
-from utils import Utils
+from utils import Threads, Utils
 
 from ._base import BaseSlider, WinMinMax
 from ._thumb import Thumb
@@ -27,7 +27,7 @@ MAC_SMALL = os.path.join(IMAGES, "mac_small.png")
 FILE_SMALL = os.path.join(IMAGES, "file_small.png")
 
 
-class PathFinderThread(QThread):
+class PathFinderThread(QRunnable):
     _finished = pyqtSignal(str)
 
     def __init__(self, src: str):
@@ -147,9 +147,10 @@ class WinGo(WinMinMax):
             SignalsApp.all.open_path.emit(path)
             self.close()
         else:
-            self.path_thread = PathFinderThread(path)
-            self.path_thread._finished.connect(self.finalize)
-            self.path_thread.start()
+            path_thread = PathFinderThread(path)
+            path_thread._finished.connect(self.finalize)
+            Threads.pool.start(path_thread)
+            # path_thread.start()
 
     def finalize(self, res: str):
         SignalsApp.all.open_path.emit(res)

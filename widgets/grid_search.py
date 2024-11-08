@@ -4,7 +4,7 @@ from time import sleep
 
 import sqlalchemy
 from numpy import ndarray
-from PyQt5.QtCore import QThread, pyqtSignal
+from PyQt5.QtCore import QRunnable, pyqtSignal, QObject
 from PyQt5.QtGui import QCloseEvent, QPixmap
 from sqlalchemy.exc import IntegrityError, OperationalError
 
@@ -12,7 +12,7 @@ from cfg import IMG_EXT, MAX_SIZE, JsonData
 from database import CACHE, STATS, Dbase
 from fit_img import FitImg
 from signals import SignalsApp
-from utils import Utils
+from utils import Threads, Utils
 
 from ._grid import Grid
 from ._thumb import ThumbSearch
@@ -32,15 +32,19 @@ class WidgetData:
         self.pixmap: QPixmap = pixmap
 
 
-class SearchFinder(QThread):
-    _finished = pyqtSignal()
+class WorkerSignals(QObject):
     add_new_widget = pyqtSignal(WidgetData)
 
+
+class SearchFinder(QRunnable):
     def __init__(self, search_text: str):
         super().__init__()
 
+
         self.search_text: str = search_text
-        self.flag: bool = True
+        self.worker_signals = WorkerSignals()
+        self.should_run: bool = True
+        self.is_running: bool = False
 
         self.conn: sqlalchemy.Connection = Dbase.engine.connect()
         self.insert_count: int = 0 
@@ -49,6 +53,7 @@ class SearchFinder(QThread):
         self.pixmap_img = QPixmap("images/file_210.png")
 
     def run(self):
+        self.is_running = True
         self.get_db_size()
 
         try:
@@ -63,11 +68,11 @@ class SearchFinder(QThread):
             self.search_text = str(self.search_text)
 
         for root, _, files in os.walk(JsonData.root):
-            if not self.flag:
+            if not self.should_run:
                 break
 
             for file in files:
-                if not self.flag:
+                if not self.should_run:
                     break
 
                 file_path: str = os.path.join(root, file)
@@ -93,8 +98,10 @@ class SearchFinder(QThread):
         self.update_db_size()
         self.conn.close()
 
-        if self.flag:
+        if self.should_run:
             SignalsApp.all.search_finished.emit(str(self.search_text))
+
+        self.is_running = False
 
     def create_wid(self, src: str):
         try:
@@ -127,7 +134,10 @@ class SearchFinder(QThread):
         if not pixmap:
             pixmap = self.pixmap_img
 
-        self.add_new_widget.emit(WidgetData(src, colors, rating, size, mod, pixmap))
+        self.worker_signals.add_new_widget.emit(
+            WidgetData(src, colors, rating, size, mod, pixmap)
+            )
+
         sleep(SLEEP)
 
     def get_img_data_db(self, src: str) -> dict | None:
@@ -182,8 +192,8 @@ class SearchFinder(QThread):
         img = FitImg.start(img, MAX_SIZE)
         return img
 
-    def stop_cmd(self):
-        self.flag: bool = False
+    def should_run_cmd(self, b: bool):
+        self.should_run: bool = b
 
     def get_db_size(self):
         sel_size = sqlalchemy.select(STATS.c.size).where(STATS.c.name == "main")
@@ -207,9 +217,9 @@ class GridSearch(Grid):
 
         SignalsApp.all.create_path_labels.emit(JsonData.root, 0)
 
-        self.search_thread = SearchFinder(search_text)
-        self.search_thread.add_new_widget.connect(self.add_new_widget)
-        self.search_thread.start()
+        self.task_ = SearchFinder(search_text)
+        self.task_.worker_signals.add_new_widget.connect(self.add_new_widget)
+        Threads.pool.start(self.task_)
 
     def add_new_widget(self, widget_data: WidgetData):
         wid = ThumbSearch(
@@ -233,27 +243,20 @@ class GridSearch(Grid):
             self.row += 1
  
     def rearrange(self, width: int = None):
-        if not self.search_thread.isRunning():
+        if not self.task_.is_running:
             super().rearrange(width)
     
     def order_(self):
-        if not self.search_thread.isRunning():
+        if not self.task_.is_running:
             super().order_()
 
     def filter_(self):
-        if not self.search_thread.isRunning():
+        if not self.task_.is_running:
             super().filter_()
 
     def resize_(self):
-        if not self.search_thread.isRunning():
+        if not self.task_.is_running:
             super().resize_()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
-        try:
-            self.search_thread.disconnect()
-        except TypeError:
-            pass
-
-        # устанавливаем флаг QThread на False чтобы прервать цикл os.walk
-        # происходит session commit и не подается сигнал _finished
-        self.search_thread.stop_cmd()
+        self.task_.should_run_cmd(False)
