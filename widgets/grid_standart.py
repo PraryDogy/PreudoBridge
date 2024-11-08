@@ -43,7 +43,7 @@ class LoadImages(URunnable):
             if order_item.type_ != FOLDER
             ]
 
-        self.remove_db_images: list[tuple[int, str, str]] = []
+        self.remove_db_images: list[tuple[str, str]] = []
         self.db_items: dict[tuple, str] = {}
         self.insert_queries: list[sqlalchemy.Insert] = []
 
