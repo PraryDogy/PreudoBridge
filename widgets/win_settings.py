@@ -67,7 +67,7 @@ class WinSettings(WinMinMax):
         super().__init__()
         
         self.setWindowTitle("Настройки")
-        self.setFixedSize(350, 100)
+        self.setFixedSize(350, 120)
 
         main_lay = QVBoxLayout()
         main_lay.setContentsMargins(10, 10, 10, 10)
