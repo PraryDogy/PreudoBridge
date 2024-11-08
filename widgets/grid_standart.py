@@ -15,6 +15,8 @@ from utils import Threads, URunnable, Utils
 from ._grid import Grid
 from ._thumb import Thumb, ThumbFolder
 
+MAX_QUERIES = 10
+
 
 class ImageData:
     __slots__ = ["src", "pixmap"]
@@ -35,14 +37,14 @@ class LoadImages(URunnable):
 
         self.worker_signals = WorkerSignals()
 
-        self.src_size_mod: list[tuple] = [
+        self.finder_items: list[tuple[int, int, int]] = [
             (order_item.src, order_item.size, order_item.mod)
             for order_item in order_items
             if order_item.type_ != FOLDER
             ]
 
         self.remove_db_images: list[tuple[int, str, str]] = []
-        self.db_dataset: dict[tuple, str] = {}
+        self.db_items: dict[tuple, str] = {}
         self.insert_queries: list[sqlalchemy.Insert] = []
         self.conn = Dbase.engine.connect()
 
@@ -52,20 +54,16 @@ class LoadImages(URunnable):
         # remove images необходимо выполнять перед insert_queries_cmd
         # т.к. у нас sqlalchemy.update отсутствует
         # и обновление происходит через удаление и добавление заново
-
-        self.get_db_dataset()
-        self.load_already_images()
-        self.remove_images()
-
         SignalsApp.all.progressbar_value.emit(0)
         SignalsApp.all.progressbar_value.emit("show")
+        self.get_db_dataset()
+        self.compare_db_and_finder_items()
+        self.remove_images()
         self.create_new_images()
-        SignalsApp.all.progressbar_value.emit("hide")
-
         self.insert_queries_cmd()
-
         self.conn.close()
         self.set_is_running(False)
+        SignalsApp.all.progressbar_value.emit("hide")
 
     def get_db_dataset(self):
         q = sqlalchemy.select(
@@ -78,36 +76,42 @@ class LoadImages(URunnable):
                 )
         res = self.conn.execute(q).fetchall()
 
-        self.db_dataset: dict[tuple, str] = {
+        self.db_items: dict[tuple, str] = {
             (src, size, mod): hash_path
             for src, hash_path, size, mod in res
             }
 
-    def load_already_images(self):
-        for (db_src, db_size, db_mod), hash_path in self.db_dataset.items():
+    def compare_db_and_finder_items(self):
+        for (db_src, db_size, db_mod), hash_path in self.db_items.items():
 
             if not self.is_should_run():
                 break
 
-            if (db_src, db_size, db_mod) in self.src_size_mod:
+            if (db_src, db_size, db_mod) in self.finder_items:
                 img = Utils.read_image_hash(hash_path)
                 pixmap: QPixmap = Utils.pixmap_from_array(img)
                 self.worker_signals.new_widget.emit(ImageData(db_src, pixmap))
-                self.src_size_mod.remove((db_src, db_size, db_mod))
+                self.finder_items.remove((db_src, db_size, db_mod))
 
             else:
                 self.remove_db_images.append((db_src, hash_path))
 
     def create_new_images(self):
         progress_count = 0
+        insert_count = 0
 
-        for src, size, mod in self.src_size_mod:
+        for src, size, mod in self.finder_items:
 
             if not self.is_should_run():
                 break
 
             elif os.path.isdir(src):
                 continue
+
+            if insert_count == MAX_QUERIES:
+                self.insert_queries_cmd()
+                self.insert_queries.clear()
+                insert_count = 0
 
             img_array = Utils.read_image(src)
 
@@ -128,7 +132,7 @@ class LoadImages(URunnable):
                 self.worker_signals.new_widget.emit(ImageData(src, pixmap))
                 SignalsApp.all.progressbar_value.emit(progress_count)
                 progress_count += 1
-
+                insert_count += 1
 
     def insert_queries_cmd(self):
         for query in self.insert_queries:
