@@ -87,7 +87,7 @@ class Dbase:
     @classmethod
     def enable_wal(cls):
         with cls.engine.connect() as conn:
-            conn.execute("PRAGMA journal_mode=WAL;")
+            conn.execute(sqlalchemy.text("PRAGMA journal_mode=WAL"))
         print("database > wal enabled")
 
     @classmethod
