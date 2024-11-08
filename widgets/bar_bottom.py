@@ -436,7 +436,6 @@ class BarBottom(QWidget):
         elif "max " in cmd:
             value = int(cmd.split(" ")[-1])
             self.progressbar.setMaximum(value)
-            print(value)
         else:
             raise Exception("bar_borrom > progress bar wrong cmd", cmd)
 
