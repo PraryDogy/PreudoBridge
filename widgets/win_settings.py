@@ -11,6 +11,7 @@ from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QPushButton,
 
 from cfg import HASH_DIR, JSON_FILE, LINK, JsonData
 from database import Dbase
+from signals import SignalsApp
 from utils import Threads, URunnable
 
 from ._base import WinMinMax
@@ -124,11 +125,11 @@ class WinSettings(WinMinMax):
         Threads.pool.start(self.task_)
 
     def clear_db_cmd(self):
-        if Dbase.clear_db():
-            self.get_current_size()
-
+        Dbase.clear_db()            
         if os.path.exists(HASH_DIR):
             shutil.rmtree(HASH_DIR)
+        self.get_current_size()
+        SignalsApp.all.load_standart_grid.emit("")
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         if hasattr(self, "task_") and self.task_.is_running():
