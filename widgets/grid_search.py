@@ -123,7 +123,10 @@ class SearchFinder(URunnable):
 
         else:
             img_array: ndarray = self.create_img_array(src)
+
+            Threads.get_mutex().lock()
             self.img_data_to_db(src, img_array, size, mod)
+            Threads.get_mutex().unlock()
 
             if isinstance(img_array, ndarray):
                 pixmap = Utils.pixmap_from_array(img_array)
@@ -172,6 +175,7 @@ class SearchFinder(URunnable):
                 colors="",
                 rating=0
                 )
+
             self.conn.execute(insert_stmt)
 
             self.insert_count += 1
@@ -197,12 +201,16 @@ class SearchFinder(URunnable):
         self.db_size: int = self.conn.execute(sel_size).scalar() or 0
 
     def update_db_size(self):
+        Threads.get_mutex().lock()
+
         upd_size = sqlalchemy.update(STATS).where(STATS.c.name == "main").values(size=self.db_size)
         try:
             self.conn.execute(upd_size)
             self.conn.commit()
         except OperationalError as e:
             Utils.print_error(self, e)
+
+        Threads.get_mutex().unlock()
 
 
 class GridSearch(Grid):

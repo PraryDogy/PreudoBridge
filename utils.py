@@ -281,13 +281,17 @@ class Utils:
 
 
 class Threads:
-    mutex: QMutex = None
     pool: QThreadPool = None
+    mutex: QMutex = None
 
     @classmethod
     def init(cls):
         cls.mutex = QMutex()
         cls.pool = QThreadPool().globalInstance()
+
+    @classmethod
+    def get_mutex(cls) -> QMutex:
+        return cls.mutex
 
 
 class WorkerSignals(QObject):
