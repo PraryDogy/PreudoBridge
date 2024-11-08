@@ -1,5 +1,6 @@
 
 import os
+import shutil
 import subprocess
 import webbrowser
 
@@ -12,7 +13,7 @@ from cfg import HASH_DIR, JSON_FILE, LINK, JsonData
 from database import Dbase
 from utils import Threads, URunnable
 
-from ._base import BaseSlider, WinMinMax
+from ._base import WinMinMax
 
 
 class WorkerSignals(QObject):
@@ -27,29 +28,36 @@ class GetSizer(URunnable):
     def run(self):
         total_size = 0
 
-        for root, dirs, files in os.walk(HASH_DIR):
+        if os.path.exists(HASH_DIR):
 
-            if not self.is_should_run():
-                return
-
-            for file in files:
+            for root, dirs, files in os.walk(HASH_DIR):
 
                 if not self.is_should_run():
                     return
-            
-                file_path = os.path.join(root, file)
-                total_size += os.path.getsize(file_path)
 
-        t = "Не удалось вычислить размер"
+                for file in files:
+
+                    if not self.is_should_run():
+                        return
+                
+                    file_path = os.path.join(root, file)
+                    total_size += os.path.getsize(file_path)
+
+        data_size = "Размер данных:"
+
+        t = f"{data_size} {total_size}"
 
         if total_size < 1024:
-            t = f"{total_size} Б"
+            t = f"{data_size} {total_size} Б"
+
         elif total_size < 1024**2:
-            t = f"{total_size / 1024:.2f} КБ"
+            t = f"{data_size} {total_size / 1024:.2f} КБ"
+
         elif total_size < 1024**3:
-            t =  f"{total_size / 1024**2:.2f} МБ"
+            t =  f"{data_size} {total_size / 1024**2:.2f} МБ"
+
         else:
-            t = f"{total_size / 1024**3:.2f} ГБ"
+            t = f"{data_size} {total_size / 1024**3:.2f} ГБ"
         
         self.worker_signals._finished.emit(t)
 
@@ -118,6 +126,9 @@ class WinSettings(WinMinMax):
     def clear_db_cmd(self):
         if Dbase.clear_db():
             self.get_current_size()
+
+        if os.path.exists(HASH_DIR):
+            shutil.rmtree(HASH_DIR)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         if hasattr(self, "task_") and self.task_.is_running():
