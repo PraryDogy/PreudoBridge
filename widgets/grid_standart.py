@@ -131,6 +131,7 @@ class LoadImages(URunnable):
 
                 self.worker_signals.new_widget.emit(ImageData(src, pixmap))
                 SignalsApp.all.progressbar_value.emit(progress_count)
+
                 progress_count += 1
                 insert_count += 1
 
