@@ -119,7 +119,6 @@ class SearchFinder(URunnable):
 
         else:
             img_array: ndarray = self.create_img_array(src)
-
             self.img_data_to_db(src, img_array, size, mod)
 
             if isinstance(img_array, ndarray):
