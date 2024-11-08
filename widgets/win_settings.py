@@ -67,7 +67,7 @@ class WinSettings(WinMinMax):
         super().__init__()
         
         self.setWindowTitle("Настройки")
-        self.setFixedSize(350, 200)
+        self.setFixedSize(350, 100)
 
         main_lay = QVBoxLayout()
         main_lay.setContentsMargins(10, 10, 10, 10)
@@ -98,7 +98,7 @@ class WinSettings(WinMinMax):
         h_wid = QWidget()
         main_lay.addWidget(h_wid)
         h_lay = QHBoxLayout()
-        h_lay.setContentsMargins(0, 15, 0, 15)
+        h_lay.setContentsMargins(0, 0, 0, 0)
         h_wid.setLayout(h_lay)
 
         open_json_btn = QPushButton("Файл настроек")
