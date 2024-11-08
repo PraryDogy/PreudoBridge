@@ -20,9 +20,6 @@ class Signals(QObject):
     new_history = pyqtSignal(str)
     create_path_labels = pyqtSignal(object, object)
 
-    def __init__(self) -> None:
-        super().__init__()
-
 
 class SignalsApp:
     all: Signals = None
