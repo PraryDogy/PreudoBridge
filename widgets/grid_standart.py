@@ -85,6 +85,7 @@ class LoadImages(URunnable):
                 pixmap: QPixmap = Utils.pixmap_from_array(img)
                 self.worker_signals.new_widget.emit(ImageData(db_src, pixmap))
                 self.src_size_mod.remove((db_src, db_size, db_mod))
+
             else:
                 self.remove_db_images.append((db_src, hash_path))
 
