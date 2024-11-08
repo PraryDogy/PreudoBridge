@@ -114,7 +114,7 @@ class SearchFinder(URunnable):
         db_data: dict = self.get_img_data_db(src)
 
         if isinstance(db_data, dict):
-            img = Utils.read_image_hash(db_data.get("hash"))
+            img = Utils.read_image_hash(db_data.get("hash_path"))
             pixmap: QPixmap = Utils.pixmap_from_array(img)
             colors = db_data.get("colors")
             rating = db_data.get("rating")
@@ -138,11 +138,17 @@ class SearchFinder(URunnable):
 
     def get_img_data_db(self, src: str) -> dict | None:
         try:
-            sel_stmt = sqlalchemy.select(CACHE.c.hash_path, CACHE.c.colors, CACHE.c.rating).where(CACHE.c.src == src)
+            sel_stmt = sqlalchemy.select(
+                CACHE.c.hash_path,
+                CACHE.c.colors,
+                CACHE.c.rating
+                ).where(
+                    CACHE.c.src == src
+                    )
             res = self.conn.execute(sel_stmt).first()
 
             if res:
-                return {"hash": res[0], "colors": res[1], "rating": res[2]}
+                return {"hash_path": res[0], "colors": res[1], "rating": res[2]}
             else:
                 return None
 
