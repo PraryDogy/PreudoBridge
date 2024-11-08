@@ -206,7 +206,7 @@ class FiltersBtn(QPushButton):
         color_lay.setSpacing(5)
         self.color_wid.setLayout(color_lay)
 
-        self.filter_count = 0
+        self.enabled_filters = set()
         
         self.color_wids: list[ColorLabel] = []
 
@@ -253,7 +253,7 @@ class FiltersBtn(QPushButton):
 
     def style_btn(self, set_down=True, style=f"color: {BLUE};"):
 
-        if self.filter_count == 0:
+        if not self.enabled_filters:
             set_down = False
             style = ""
 
@@ -262,13 +262,13 @@ class FiltersBtn(QPushButton):
 
     def toggle_color(self, widget: ColorLabel, color: str):
         if widget.is_selected == True:
-            self.filter_count -= 1
+            self.enabled_filters.remove(widget)
             self.style_btn()
             Dymanic.color_filters.remove(color)
             widget.setStyleSheet("")
             widget.is_selected = False
         else:
-            self.filter_count += 1
+            self.enabled_filters.add(widget)
             self.style_btn()
             Dymanic.color_filters.append(color)
             widget.setStyleSheet(f"background: {BLUE};")
@@ -281,7 +281,10 @@ class FiltersBtn(QPushButton):
             wid.setStyleSheet("")
             wid.is_selected = False
 
-        self.filter_count -= len(Dymanic.color_filters)
+        for i in self.enabled_filters:
+            if isinstance(i, ColorLabel):
+                self.enabled_filters.remove(i)
+
         self.style_btn()
 
         Dymanic.color_filters.clear()
@@ -290,7 +293,7 @@ class FiltersBtn(QPushButton):
     def toggle_rating(self, rate: int):
         if rate > 1:
             Dymanic.rating_filter = rate
-            self.filter_count += 1
+            self.enabled_filters.add(0)
             self.style_btn()
 
             for i in self.rating_wids[:rate]:
@@ -298,7 +301,10 @@ class FiltersBtn(QPushButton):
             for i in self.rating_wids[rate:]:
                 i.setStyleSheet("")
         else:
-            self.filter_count -= 1
+
+            if 0 in self.enabled_filters:
+                self.enabled_filters.remove(0)
+
             self.style_btn()
             Dymanic.rating_filter = 0
             for i in self.rating_wids:
@@ -315,7 +321,7 @@ class FiltersBtn(QPushButton):
 
         Dymanic.color_filters.clear()
         Dymanic.rating_filter = 0
-        self.filter_count = 0
+        self.enabled_filters.clear()
         self.style_btn()
 
 
