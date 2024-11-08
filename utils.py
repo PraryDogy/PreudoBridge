@@ -11,7 +11,8 @@ import rawpy
 import tifffile
 from imagecodecs.imagecodecs import DelayedImportError
 from PIL import Image
-from PyQt5.QtCore import QMutex, Qt, QThreadPool
+from PyQt5.QtCore import (QMutex, QObject, QRunnable, Qt, QThreadPool,
+                          pyqtSignal)
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget
 
@@ -287,3 +288,19 @@ class Threads:
     def init(cls):
         cls.mutex = QMutex()
         cls.pool = QThreadPool().globalInstance()
+
+
+class WorkerSignals(QObject):
+    _example = pyqtSignal()
+
+
+class URunnable(QRunnable):
+    def __init__(self, worker_signals: WorkerSignals):
+        super().__init__()
+
+        if not isinstance(worker_signals, WorkerSignals):
+            raise Exception("создай экземпляр WorkerSignals с сигналами и передай в сюда")
+
+        self.worker_signals = worker_signals
+        self.should_run: bool = True
+        self.is_running: bool = False

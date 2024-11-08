@@ -4,7 +4,7 @@ from time import sleep
 
 import sqlalchemy
 from numpy import ndarray
-from PyQt5.QtCore import QRunnable, pyqtSignal, QObject
+from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
 from sqlalchemy.exc import IntegrityError, OperationalError
 
@@ -12,7 +12,7 @@ from cfg import IMG_EXT, MAX_SIZE, JsonData
 from database import CACHE, STATS, Dbase
 from fit_img import FitImg
 from signals import SignalsApp
-from utils import Threads, Utils
+from utils import Threads, URunnable, Utils, WorkerSignals
 
 from ._grid import Grid
 from ._thumb import ThumbSearch
@@ -32,20 +32,17 @@ class WidgetData:
         self.pixmap: QPixmap = pixmap
 
 
-class WorkerSignals(QObject):
+class Signals(WorkerSignals):
     add_new_widget = pyqtSignal(WidgetData)
 
 
-class SearchFinder(QRunnable):
+class SearchFinder(URunnable):
     def __init__(self, search_text: str):
-        super().__init__()
 
+        worker_signals = Signals()
+        super().__init__(worker_signals=worker_signals)
 
         self.search_text: str = search_text
-        self.worker_signals = WorkerSignals()
-        self.should_run: bool = True
-        self.is_running: bool = False
-
         self.conn: sqlalchemy.Connection = Dbase.engine.connect()
         self.insert_count: int = 0 
         self.db_size: int = 0
