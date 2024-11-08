@@ -25,6 +25,7 @@ DISK_SMALL = os.path.join(IMAGES, "disk_small.png")
 FOLDER_SMALL = os.path.join(IMAGES, "folder_small.png")
 MAC_SMALL = os.path.join(IMAGES, "mac_small.png")
 FILE_SMALL = os.path.join(IMAGES, "file_small.png")
+SPARK_SMALL = os.path.join(IMAGES, "spark_small.png")
 
 
 class WorkerSignals(QObject):
@@ -377,7 +378,8 @@ class BarBottom(QWidget):
 
         row, col = 2, 0
 
-        self.go_btn = QLabel(parent=self, text=">")
+        self.go_btn = QLabel()
+        self.go_btn.setPixmap(self.small_icon(SPARK_SMALL))
         self.go_btn.setFixedSize(15, 15)
         self.go_btn.mouseReleaseEvent = self.open_go_win
         self.grid_lay.addWidget(self.go_btn, row, col)
