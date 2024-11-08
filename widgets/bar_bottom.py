@@ -3,7 +3,7 @@ import subprocess
 from datetime import datetime
 from difflib import SequenceMatcher
 
-from PyQt5.QtCore import QMimeData, Qt, QUrl, pyqtSignal
+from PyQt5.QtCore import QMimeData, QObject, Qt, QUrl, pyqtSignal
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
                          QPixmap)
 from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
 
 from cfg import BLUE, FOLDER, JsonData
 from signals import SignalsApp
-from utils import Threads, URunnable, Utils, WorkerSignals
+from utils import Threads, URunnable, Utils
 
 from ._base import BaseSlider, WinMinMax
 from ._thumb import Thumb
@@ -27,15 +27,15 @@ MAC_SMALL = os.path.join(IMAGES, "mac_small.png")
 FILE_SMALL = os.path.join(IMAGES, "file_small.png")
 
 
-class Signals(WorkerSignals):
+class WorkerSignals(QObject):
     _finished = pyqtSignal(str)
 
 
 class PathFinderThread(URunnable):
 
     def __init__(self, src: str):
-        worker_signals = Signals()
-        super().__init__(worker_signals=worker_signals)
+        super().__init__()
+        self.worker_signals = WorkerSignals()
         self.src: str = src
         self.result: str = None
         self.volumes: list[str] = []
@@ -154,7 +154,6 @@ class WinGo(WinMinMax):
             path_thread = PathFinderThread(path)
             path_thread.worker_signals._finished.connect(self.finalize)
             Threads.pool.start(path_thread)
-            # path_thread.start()
 
     def finalize(self, res: str):
         SignalsApp.all.open_path.emit(res)
