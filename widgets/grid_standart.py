@@ -49,7 +49,7 @@ class LoadImages(QThread):
             if order_item.type_ != FOLDER
             ]
 
-        self.remove_db_images: list[tuple[str, str]] = []
+        self.remove_db_images: list[tuple[int, str, str]] = []
         self.db_dataset: dict[tuple, str] = {}
         self.flag = True
         self.db_size: int = 0
@@ -104,7 +104,7 @@ class LoadImages(QThread):
                 self.new_widget.emit(ImageData(db_src, pixmap))
                 self.src_size_mod.remove((db_src, db_size, db_mod))
             else:
-                self.remove_db_images.append((db_src, hash))
+                self.remove_db_images.append((img, db_src, hash))
 
     def create_new_images(self):
         if self.flag:
@@ -141,7 +141,9 @@ class LoadImages(QThread):
 
                 if self.flag:
                     SignalsApp.all.progressbar_value.emit(progress_count)
-                progress_count += 1
+                    progress_count += 1
+
+                self.db_size += Utils.get_bytes_size(img_array)
 
             except IntegrityError as e:
                 if "UNIQUE" in e:
@@ -189,10 +191,11 @@ class LoadImages(QThread):
 
     def remove_images(self):
         try:
-            for src, hash in self.remove_db_images:
+            for array_img, src, hash in self.remove_db_images:
                 q = sqlalchemy.delete(CACHE).where(CACHE.c.src == src)
                 self.conn.execute(q)
                 os.remove(hash)
+                self.db_size -= Utils.get_bytes_size(array_img)
             self.conn.commit()
         except OperationalError as e:
             Utils.print_error(self, e)
