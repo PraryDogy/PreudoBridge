@@ -177,12 +177,16 @@ class LoadImages(URunnable):
     def remove_images(self):
 
         for src, hash_path in self.remove_db_images:
+
+            print("удаляю", src)
+
             try:
                 q = sqlalchemy.delete(CACHE).where(CACHE.c.src == src)
                 self.conn.execute(q)
             except OperationalError as e:
                 Utils.print_error(self, e)
                 return
+
         self.conn.commit()
 
         for src, hash_path in self.remove_db_images:
