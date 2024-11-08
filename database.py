@@ -3,7 +3,7 @@ import os
 import sqlalchemy
 from sqlalchemy.exc import OperationalError
 
-from cfg import DB_FILE, FOLDER, IMG_EXT, JsonData
+from cfg import DB_FILE, FOLDER, JsonData
 from utils import Utils
 
 METADATA = sqlalchemy.MetaData()
@@ -74,11 +74,21 @@ class Dbase:
     def init_db(cls):
         cls.engine = sqlalchemy.create_engine(
             f"sqlite:///{DB_FILE}",
-            connect_args={"check_same_thread": False},
-            echo=False
-            )
+            echo=False,
+            connect_args={
+                "check_same_thread": False,
+                "timeout": 15
+                }
+                )
         METADATA.create_all(cls.engine)
         cls.check_tables()
+        cls.enable_wal()
+
+    @classmethod
+    def enable_wal(cls):
+        with cls.engine.connect() as conn:
+            conn.execute("PRAGMA journal_mode=WAL;")
+        print("database > wal enabled")
 
     @classmethod
     def clear_db(cls):
