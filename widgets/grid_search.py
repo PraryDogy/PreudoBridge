@@ -4,7 +4,7 @@ from time import sleep
 
 import sqlalchemy
 from numpy import ndarray
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
 from sqlalchemy.exc import IntegrityError, OperationalError
 
@@ -72,6 +72,8 @@ class SearchFinder(URunnable):
                 if not self.should_run:
                     break
 
+                print(root, file)
+
                 file_path: str = os.path.join(root, file)
                 file_path_lower: str = file_path.lower()
 
@@ -99,6 +101,7 @@ class SearchFinder(URunnable):
             SignalsApp.all.search_finished.emit(str(self.search_text))
 
         self.is_running = False
+        print("finished")
 
     def create_wid(self, src: str):
         try:
@@ -124,9 +127,7 @@ class SearchFinder(URunnable):
         else:
             img_array: ndarray = self.create_img_array(src)
 
-            Threads.get_mutex().lock()
             self.img_data_to_db(src, img_array, size, mod)
-            Threads.get_mutex().unlock()
 
             if isinstance(img_array, ndarray):
                 pixmap = Utils.pixmap_from_array(img_array)
@@ -201,16 +202,12 @@ class SearchFinder(URunnable):
         self.db_size: int = self.conn.execute(sel_size).scalar() or 0
 
     def update_db_size(self):
-        Threads.get_mutex().lock()
-
         upd_size = sqlalchemy.update(STATS).where(STATS.c.name == "main").values(size=self.db_size)
         try:
             self.conn.execute(upd_size)
             self.conn.commit()
         except OperationalError as e:
             Utils.print_error(self, e)
-
-        Threads.get_mutex().unlock()
 
 
 class GridSearch(Grid):
