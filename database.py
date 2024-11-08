@@ -141,7 +141,7 @@ class Dbase:
     def check_tables(cls):
         inspector = sqlalchemy.inspect(cls.engine)
 
-        TABLES = [CACHE, STATS]
+        TABLES = [CACHE]
 
         db_tables = inspector.get_table_names()
         res: bool = (list(i.name for i in TABLES) == db_tables)
