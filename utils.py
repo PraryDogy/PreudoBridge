@@ -259,6 +259,7 @@ class Utils:
     @classmethod
     def write_image(cls, output_path: str, array_img: np.ndarray) -> bool:
         try:
+            array_img = cv2.cvtColor(array_img, cv2.COLOR_RGB2BGR)
             cv2.imwrite(output_path, array_img)
             return True
         except Exception as e:
@@ -268,7 +269,8 @@ class Utils:
     @classmethod
     def read_image_hash(cls, src: str) -> np.ndarray | None:
         try:
-            return cv2.imread(src, cv2.IMREAD_UNCHANGED)
+            array_img = cv2.imread(src, cv2.IMREAD_UNCHANGED)
+            return cv2.cvtColor(array_img, cv2.COLOR_BGR2RGB)
         except Exception as e:
             cls.print_error(parent=cls, error= e)
             return None

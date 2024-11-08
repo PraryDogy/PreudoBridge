@@ -144,8 +144,11 @@ class LoadImages(QThread):
                 progress_count += 1
 
             except IntegrityError as e:
-                Utils.print_error(self, e)
-                break
+                if "UNIQUE" in e:
+                    print("grid standart -> insert -> uniq src", src)
+                else:
+                    Utils.print_error(self, e)
+                continue
 
             except OperationalError as e:
                 Utils.print_error(self, e)
@@ -156,7 +159,10 @@ class LoadImages(QThread):
             try:
                 self.conn.commit()
             except (IntegrityError, OperationalError) as e:
-                Utils.print_error(self, e)
+                if "UNIQUE" in e:
+                    print("grid standart -> insert -> uniq src", src)
+                else:
+                    Utils.print_error(self, e)
 
         # 1 милилон = скрыть прогресс бар согласно его инструкции
         SignalsApp.all.progressbar_value.emit("hide")
