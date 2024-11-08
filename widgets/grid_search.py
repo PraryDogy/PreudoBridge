@@ -109,7 +109,7 @@ class SearchFinder(URunnable):
         colors: str = ""
         rating: int = 0
 
-        db_data: dict = self.get_img_data_db(src)
+        db_data: dict = self.get_db_data(src)
 
         if isinstance(db_data, dict):
             img = Utils.read_image_hash(db_data.get("hash_path"))
@@ -133,7 +133,7 @@ class SearchFinder(URunnable):
 
         sleep(SLEEP)
 
-    def get_img_data_db(self, src: str) -> dict | None:
+    def get_db_data(self, src: str) -> dict | None:
         try:
             sel_stmt = sqlalchemy.select(
                 CACHE.c.hash_path,
