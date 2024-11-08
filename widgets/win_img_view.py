@@ -299,15 +299,17 @@ class WinImgView(WinBase):
         if self.src not in Shared.loaded_images:
 
             self.setWindowTitle("Загрузка")
-            q = sqlalchemy.select(CACHE.c.img).filter(CACHE.c.src == self.src)
+            q = sqlalchemy.select(CACHE.c.hash).where(CACHE.c.src == self.src)
 
             with Dbase.engine.connect() as conn:
-                thumbnail = conn.execute(q).scalar() or None
-                if isinstance(thumbnail, bytes):
-                    pixmap = QPixmap()
-                    pixmap.loadFromData(thumbnail)
-                else:
-                    pixmap = QPixmap("images/file_1024.png")
+                hash = conn.execute(q).scalar() or None
+                img = Utils.read_image_hash(hash)
+                pixmap = Utils.pixmap_from_array(img)
+                # if isinstance(thumbnail, bytes):
+                #     pixmap = QPixmap()
+                #     pixmap.loadFromData(thumbnail)
+                # else:
+                #     pixmap = QPixmap("images/file_1024.png")
 
                 self.img_label.set_image(pixmap)
 
