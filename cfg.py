@@ -2,22 +2,17 @@ import json
 import os
 from datetime import date
 
-_is_docker = os.path.exists('/proc/self/cgroup')
-
-if _is_docker:
-    HOST_DESKTOP = "/root/desktop"
-    HOST_APPLICATIONS = "/root/applications"
-else:
-    HOST_DESKTOP = os.path.expanduser("~/Desktop")
-    HOST_APPLICATIONS = "/Applications"
-
-
 APP_NAME = "PreudoBridge"
 APP_VER = "1.0.0"
 
-JSON_FILE = os.path.join(HOST_DESKTOP, 'cfg.json')
-DB_FILE = os.path.join(HOST_DESKTOP, 'db.db')
+# ROOT = os.path.expanduser("~/Desktop")
 
+APP_SUPPORT = os.path.expanduser('~/Library/Application Support')
+ROOT = os.path.join(APP_SUPPORT, APP_NAME)
+JSON_FILE = os.path.join(ROOT, 'cfg.json')
+DB_FILE = os.path.join(ROOT, 'db.db')
+
+USER_APPS = "/Applications"
 
 GRAY = "rgba(111, 111, 111, 0.5)"
 BLUE = "rgba(0, 122, 255, 1)"
@@ -145,8 +140,8 @@ class JsonData:
         names_app = [i + ".app" for i in names]
         IMAGE_APPS["Просмотр"] = f"/System/Applications/Preview.app"
 
-        for item in os.listdir(HOST_APPLICATIONS):
-            full_path = os.path.join(HOST_APPLICATIONS, item)
+        for item in os.listdir(USER_APPS):
+            full_path = os.path.join(USER_APPS, item)
             app_folder = any(x for x in names if item in x)
             app_app = any(x for x in names_app if item in x)
 
@@ -158,6 +153,12 @@ class JsonData:
             elif app_app:
                 item = item.replace(".app", "")
                 IMAGE_APPS[item] = full_path
+
+    @classmethod
+    def init(cls):
+        os.makedirs(ROOT, exist_ok=True)
+        cls.read_json_data()
+        cls.find_img_apps()
 
 class Dymanic:
     color_filters: list = []

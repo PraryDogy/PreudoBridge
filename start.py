@@ -75,8 +75,7 @@ class CustomApp(QApplication):
         JsonData.write_config()
 
 
-JsonData.read_json_data()
-JsonData.find_img_apps()
+JsonData.init()
 Dbase.init_db()
 app = CustomApp(sys.argv)
 
