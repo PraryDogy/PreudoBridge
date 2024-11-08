@@ -12,7 +12,7 @@ from cfg import IMG_EXT, MAX_SIZE, JsonData
 from database import CACHE, STATS, Dbase
 from fit_img import FitImg
 from signals import SignalsApp
-from utils import Threads, URunnable, Utils, WorkerSignals
+from utils import QObject, Threads, URunnable, Utils
 
 from ._grid import Grid
 from ._thumb import ThumbSearch
@@ -32,15 +32,15 @@ class WidgetData:
         self.pixmap: QPixmap = pixmap
 
 
-class Signals(WorkerSignals):
+class WorkerSignals(QObject):
     add_new_widget = pyqtSignal(WidgetData)
 
 
 class SearchFinder(URunnable):
     def __init__(self, search_text: str):
+        super().__init__()
 
-        worker_signals = Signals()
-        super().__init__(worker_signals=worker_signals)
+        self.worker_signals = WorkerSignals()
 
         self.search_text: str = search_text
         self.conn: sqlalchemy.Connection = Dbase.engine.connect()
@@ -50,7 +50,7 @@ class SearchFinder(URunnable):
         self.pixmap_img = QPixmap("images/file_210.png")
 
     def run(self):
-        self.is_running = True
+        self.is_running_cmd(True)
         self.get_db_size()
 
         try:
@@ -65,11 +65,11 @@ class SearchFinder(URunnable):
             self.search_text = str(self.search_text)
 
         for root, _, files in os.walk(JsonData.root):
-            if not self.should_run:
+            if not self.is_should_run():
                 break
 
             for file in files:
-                if not self.should_run:
+                if not self.is_should_run():
                     break
 
                 print(root, file)
@@ -97,11 +97,10 @@ class SearchFinder(URunnable):
         self.update_db_size()
         self.conn.close()
 
-        if self.should_run:
+        if self.is_should_run():
             SignalsApp.all.search_finished.emit(str(self.search_text))
 
-        self.is_running = False
-        print("finished")
+        self.is_running_cmd(False)
 
     def create_wid(self, src: str):
         try:
@@ -194,8 +193,7 @@ class SearchFinder(URunnable):
         img = FitImg.start(img, MAX_SIZE)
         return img
 
-    def should_run_cmd(self, b: bool):
-        self.should_run: bool = b
+
 
     def get_db_size(self):
         sel_size = sqlalchemy.select(STATS.c.size).where(STATS.c.name == "main")
@@ -245,19 +243,19 @@ class GridSearch(Grid):
             self.row += 1
  
     def rearrange(self, width: int = None):
-        if not self.task_.is_running:
+        if not self.task_.is_running():
             super().rearrange(width)
     
     def order_(self):
-        if not self.task_.is_running:
+        if not self.task_.is_running():
             super().order_()
 
     def filter_(self):
-        if not self.task_.is_running:
+        if not self.task_.is_running():
             super().filter_()
 
     def resize_(self):
-        if not self.task_.is_running:
+        if not self.task_.is_running():
             super().resize_()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:

@@ -294,17 +294,20 @@ class Threads:
         return cls.mutex
 
 
-class WorkerSignals(QObject):
-    _example = pyqtSignal()
-
-
 class URunnable(QRunnable):
-    def __init__(self, worker_signals: WorkerSignals):
+    def __init__(self):
         super().__init__()
+        self._should_run: bool = True
+        self._is_running: bool = False
 
-        if not isinstance(worker_signals, WorkerSignals):
-            raise Exception("создай экземпляр WorkerSignals с сигналами и передай в сюда")
+    def should_run_cmd(self, b: bool):
+        self._should_run: bool = b
 
-        self.worker_signals = worker_signals
-        self.should_run: bool = True
-        self.is_running: bool = False
+    def is_running_cmd(self, b: bool):
+        self._is_running = b
+
+    def is_should_run(self):
+        return self._should_run
+
+    def is_running(self):
+        return self._is_running
