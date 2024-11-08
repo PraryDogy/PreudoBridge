@@ -137,7 +137,7 @@ class LoadImages(URunnable):
             except OperationalError as e:
                 Utils.print_error(self, e)
                 self.set_should_run(False)
-                break
+                return
 
         self.conn.commit()
 
@@ -169,15 +169,16 @@ class LoadImages(URunnable):
         return sqlalchemy.insert(CACHE).values(**values)
 
     def remove_images(self):
-        try:
-            for src, hash_path in self.remove_db_images:
+        for src, hash_path in self.remove_db_images:
+            try:
                 q = sqlalchemy.delete(CACHE).where(CACHE.c.src == src)
                 self.conn.execute(q)
                 os.remove(hash_path)
-            self.conn.commit()
-        except OperationalError as e:
-            Utils.print_error(self, e)
-            return
+            except OperationalError as e:
+                Utils.print_error(self, e)
+                return
+
+        self.conn.commit()
 
 
 class LoadFinder(URunnable):
