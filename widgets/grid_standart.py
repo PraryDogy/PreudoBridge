@@ -239,9 +239,6 @@ class LoadFinder(QThread):
 class GridStandart(Grid):
     def __init__(self, width: int):
         super().__init__(width)
-        # делаем os listdir обход и по сигналу finished
-        # запустится создание сетки
-        # в конце создания запустится подгрузка изображений
 
         self.pixmap_disk: QPixmap = QPixmap("images/disk_210.png")
         self.pixmap_folder: QPixmap = QPixmap("images/folder_210.png")
