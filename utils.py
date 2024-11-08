@@ -1,5 +1,4 @@
 import hashlib
-import io
 import logging
 import os
 import subprocess
@@ -12,7 +11,7 @@ import rawpy
 import tifffile
 from imagecodecs.imagecodecs import DelayedImportError
 from PIL import Image
-from PyQt5.QtCore import QByteArray, Qt
+from PyQt5.QtCore import QMutex, Qt, QThreadPool
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget
 
@@ -278,3 +277,13 @@ class Utils:
     @classmethod
     def get_bytes_size(cls, image: np.ndarray) -> int:
         return image.nbytes
+
+
+class Threads:
+    mutex: QMutex = None
+    pool: QThreadPool = None
+
+    @classmethod
+    def init(cls):
+        cls.mutex = QMutex()
+        cls.pool = QThreadPool().globalInstance()
