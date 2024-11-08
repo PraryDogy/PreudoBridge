@@ -57,7 +57,7 @@ from cfg import JsonData
 from database import Dbase
 from gui import SimpleFileExplorer
 from signals import SignalsApp
-from utils import Utils
+from utils import Threads, Utils
 
 
 class CustomApp(QApplication):
@@ -79,12 +79,13 @@ JsonData.init()
 Dbase.init_db()
 app = CustomApp(sys.argv)
 
-translator = QTranslator()
-locale = "ru_RU"
-if translator.load(f"qtbase_{locale}", QLibraryInfo.location(QLibraryInfo.TranslationsPath)):
-    app.installTranslator(translator)
+# translator = QTranslator()
+# locale = "ru_RU"
+# if translator.load(f"qtbase_{locale}", QLibraryInfo.location(QLibraryInfo.TranslationsPath)):
+    # app.installTranslator(translator)
 
 SignalsApp.init()
+Threads.init()
 ex = SimpleFileExplorer()
 ex.show()
 
