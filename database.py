@@ -23,13 +23,6 @@ CACHE = sqlalchemy.Table(
     sqlalchemy.Column("rating", sqlalchemy.Integer, nullable=False, comment="Рейтинг")
     )
 
-STATS = sqlalchemy.Table(
-    'stats', METADATA,
-    sqlalchemy.Column('id', sqlalchemy.Integer, primary_key=True),
-    sqlalchemy.Column('name', sqlalchemy.Text, unique=True),
-    sqlalchemy.Column('size', sqlalchemy.Integer)
-    )
-
 ORDER: dict[dict[str, int]] = {
     clmn.name: {"text": clmn.comment, "index": ind}
     for ind, clmn in enumerate(CACHE.columns)
@@ -86,48 +79,14 @@ class Dbase:
             )
         METADATA.create_all(cls.engine)
         cls.check_tables()
-        cls.check_stats_main()
-        cls.check_cache_size()
-
-    @classmethod
-    def check_stats_main(cls):
-        stmt_select = sqlalchemy.select(STATS).where(STATS.c.name == "main")
-        stmt_insert = sqlalchemy.insert(STATS).values(name="main", size=0)
-        
-        with cls.engine.connect() as conn:
-            result = conn.execute(stmt_select).first()
-            if not result:
-                conn.execute(stmt_insert)
-                conn.commit()
-
-    @classmethod
-    def check_cache_size(cls):
-        q_get_stats = sqlalchemy.select(STATS.c.size).where(STATS.c.name == "main")
-        q_upd_stats = sqlalchemy.update(STATS).where(STATS.c.name == "main").values(size=0)
-        q_del_cache = sqlalchemy.delete(CACHE)
-
-        with cls.engine.connect() as conn:
-
-            current_size = conn.execute(q_get_stats).scalar() or 0
-            config_size = JsonData.clear_db * (1024**3)
-
-            if current_size >= config_size:
-
-                conn.execute(q_del_cache)
-                conn.execute(q_upd_stats)
-                conn.commit()
-
-            conn.execute(sqlalchemy.text("VACUUM"))
 
     @classmethod
     def clear_db(cls):
         q_del_cache = sqlalchemy.delete(CACHE)
-        q_upd_stats = sqlalchemy.update(STATS).where(STATS.c.name == "main").values(size=0)
 
         with cls.engine.connect() as conn:
             try:
                 conn.execute(q_del_cache)
-                conn.execute(q_upd_stats)
                 conn.commit()
             except OperationalError as e:
                 Utils.print_error(cls, e)

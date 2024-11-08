@@ -9,7 +9,7 @@ from PyQt5.QtGui import QCloseEvent, QPixmap
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import IMG_EXT, MAX_SIZE, JsonData
-from database import CACHE, STATS, Dbase
+from database import CACHE, Dbase
 from fit_img import FitImg
 from signals import SignalsApp
 from utils import QObject, Threads, URunnable, Utils
@@ -45,13 +45,10 @@ class SearchFinder(URunnable):
         self.search_text: str = search_text
         self.conn: sqlalchemy.Connection = Dbase.engine.connect()
         self.insert_count: int = 0 
-        self.db_size: int = 0
-
         self.pixmap_img = QPixmap("images/file_210.png")
 
     def run(self):
         self.is_running_cmd(True)
-        self.get_db_size()
 
         try:
             self.search_text: tuple = literal_eval(self.search_text)
@@ -94,7 +91,6 @@ class SearchFinder(URunnable):
             except (IntegrityError, OperationalError) as e:
                 Utils.print_error(self, e)
 
-        self.update_db_size()
         self.conn.close()
 
         if self.is_should_run():
@@ -192,20 +188,6 @@ class SearchFinder(URunnable):
         img = Utils.read_image(src)
         img = FitImg.start(img, MAX_SIZE)
         return img
-
-
-
-    def get_db_size(self):
-        sel_size = sqlalchemy.select(STATS.c.size).where(STATS.c.name == "main")
-        self.db_size: int = self.conn.execute(sel_size).scalar() or 0
-
-    def update_db_size(self):
-        upd_size = sqlalchemy.update(STATS).where(STATS.c.name == "main").values(size=self.db_size)
-        try:
-            self.conn.execute(upd_size)
-            self.conn.commit()
-        except OperationalError as e:
-            Utils.print_error(self, e)
 
 
 class GridSearch(Grid):

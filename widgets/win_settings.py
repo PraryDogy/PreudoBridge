@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QPushButton,
                              QVBoxLayout, QWidget)
 
 from cfg import JSON_FILE, LINK, JsonData
-from database import STATS, Dbase
+from database import Dbase
 
 from ._base import BaseSlider, WinMinMax
 
@@ -91,22 +91,8 @@ class WinSettings(WinMinMax):
         JsonData.clear_db = value
 
     def get_current_size(self):
-        with Dbase.engine.connect() as conn:
-            q = sqlalchemy.select(STATS.c.size).where(STATS.c.name == "main")
-            res = conn.execute(q).scalar() or 0
+        print("get current size")
 
-        res = int(res / (1024))
-        t = f"Данные: {res}кб"
-
-        if res > 1024:
-            res = round(res / (1024), 2)
-            t = f"Данные: {res}мб"
-
-        if res > 1024:
-            res = round(res / (1024), 2)
-            t = f"Данные: {res}гб"
-
-        self.current_size.setText(t)
 
     def clear_db_cmd(self):
         if Dbase.clear_db():

@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QLabel
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import FOLDER, IMG_EXT, MAX_SIZE, JsonData
-from database import CACHE, STATS, Dbase, OrderItem
+from database import CACHE, Dbase, OrderItem
 from fit_img import FitImg
 from signals import SignalsApp
 from utils import Utils
@@ -52,35 +52,19 @@ class LoadImages(QThread):
         self.remove_db_images: list[tuple[int, str, str]] = []
         self.db_dataset: dict[tuple, str] = {}
         self.flag = True
-        self.db_size: int = 0
 
         self.stop_thread.connect(self.stop_thread_cmd)
         self.conn = Dbase.engine.connect()
 
     def run(self):
-        self.get_db_size()
 
         self.get_db_dataset()
         self.load_already_images()
         self.create_new_images()
         self.remove_images()
 
-        self.update_db_size()
-
         self.conn.close()
         self._finished.emit()
-
-    def get_db_size(self):
-        sel_size = sqlalchemy.select(STATS.c.size).where(STATS.c.name == "main")
-        self.db_size: int = self.conn.execute(sel_size).scalar() or 0
-
-    def update_db_size(self):
-        upd_size = sqlalchemy.update(STATS).where(STATS.c.name == "main").values(size=self.db_size)
-        try:
-            self.conn.execute(upd_size)
-            self.conn.commit()
-        except OperationalError as e:
-            Utils.print_error(self, e)
 
     def get_db_dataset(self):
         q = sqlalchemy.select(CACHE.c.src, CACHE.c.hash, CACHE.c.size, CACHE.c.mod)
@@ -143,8 +127,6 @@ class LoadImages(QThread):
                     SignalsApp.all.progressbar_value.emit(progress_count)
                     progress_count += 1
 
-                self.db_size += Utils.get_bytes_size(img_array)
-
             except IntegrityError as e:
                 Utils.print_error(self, e)
                 continue
@@ -189,7 +171,6 @@ class LoadImages(QThread):
                 q = sqlalchemy.delete(CACHE).where(CACHE.c.src == src)
                 self.conn.execute(q)
                 os.remove(hash)
-                self.db_size -= Utils.get_bytes_size(array_img)
             self.conn.commit()
         except OperationalError as e:
             Utils.print_error(self, e)
