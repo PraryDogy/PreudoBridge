@@ -355,6 +355,7 @@ class GridStandart(Grid):
                 Threads.all.remove(i)
 
     def start_load_images(self):
+        SignalsApp.all.progressbar_value.emit(0)
         SignalsApp.all.progressbar_value.emit("show")
         thread = LoadImages(self.order_items)
         thread.new_widget.connect(lambda image_data: self.set_pixmap(image_data))
