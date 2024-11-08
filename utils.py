@@ -300,10 +300,10 @@ class URunnable(QRunnable):
         self._should_run: bool = True
         self._is_running: bool = False
 
-    def should_run_cmd(self, b: bool):
+    def set_should_run(self, b: bool):
         self._should_run: bool = b
 
-    def is_running_cmd(self, b: bool):
+    def set_is_running(self, b: bool):
         self._is_running = b
 
     def is_should_run(self):

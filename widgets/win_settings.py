@@ -132,7 +132,7 @@ class WinSettings(WinMinMax):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         if hasattr(self, "task_") and self.task_.is_running():
-            self.task_.should_run_cmd(False)
+            self.task_.set_should_run(False)
         JsonData.write_config()
     
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:

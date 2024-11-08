@@ -48,7 +48,7 @@ class SearchFinder(URunnable):
         self.pixmap_img = QPixmap("images/file_210.png")
 
     def run(self):
-        self.is_running_cmd(True)
+        self.set_is_running(True)
 
         try:
             self.search_text: tuple = literal_eval(self.search_text)
@@ -96,7 +96,7 @@ class SearchFinder(URunnable):
         if self.is_should_run():
             SignalsApp.all.search_finished.emit(str(self.search_text))
 
-        self.is_running_cmd(False)
+        self.set_is_running(False)
 
     def create_wid(self, src: str):
         try:
@@ -241,4 +241,4 @@ class GridSearch(Grid):
             super().resize_()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
-        self.task_.should_run_cmd(False)
+        self.task_.set_should_run(False)

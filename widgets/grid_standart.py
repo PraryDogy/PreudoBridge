@@ -1,7 +1,7 @@
 import os
 
 import sqlalchemy
-from PyQt5.QtCore import Qt, QThread, pyqtSignal
+from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtWidgets import QLabel
 from sqlalchemy.exc import IntegrityError, OperationalError
@@ -10,14 +10,10 @@ from cfg import FOLDER, IMG_EXT, MAX_SIZE, JsonData
 from database import CACHE, Dbase, OrderItem
 from fit_img import FitImg
 from signals import SignalsApp
-from utils import Utils
+from utils import Threads, URunnable, Utils
 
 from ._grid import Grid
 from ._thumb import Thumb, ThumbFolder
-
-
-class Threads:
-    all: list = []
 
 
 class ImageData:
@@ -28,20 +24,16 @@ class ImageData:
         self.pixmap: QPixmap = pixmap
 
 
-class LoadImages(QThread):
-
-    # передает обратно (путь, размер, дата): PIXMAP
-    # чтобы в основном потоке в словарике найти виджет и применить изображение
+class WorkerSignals(QObject):
     new_widget = pyqtSignal(ImageData)
+    _finished = pyqtSignal(list)
 
-    # флаг проверяется в цикле и если False то цикл прерывается
-    stop_thread = pyqtSignal()
 
-    # не используется
-    _finished = pyqtSignal()
-    
+class LoadImages(URunnable):
     def __init__(self, order_items: list[OrderItem]):
         super().__init__()
+
+        self.worker_signals = WorkerSignals()
 
         self.src_size_mod: list[tuple] = [
             (order_item.src, order_item.size, order_item.mod)
@@ -51,12 +43,10 @@ class LoadImages(QThread):
 
         self.remove_db_images: list[tuple[int, str, str]] = []
         self.db_dataset: dict[tuple, str] = {}
-        self.flag = True
-
-        self.stop_thread.connect(self.stop_thread_cmd)
         self.conn = Dbase.engine.connect()
 
     def run(self):
+        self.set_is_running(True)
 
         self.get_db_dataset()
         self.load_already_images()
@@ -64,7 +54,7 @@ class LoadImages(QThread):
         self.remove_images()
 
         self.conn.close()
-        self._finished.emit()
+        self.set_is_running(False)
 
     def get_db_dataset(self):
         q = sqlalchemy.select(CACHE.c.src, CACHE.c.hash, CACHE.c.size, CACHE.c.mod)
@@ -79,26 +69,26 @@ class LoadImages(QThread):
     def load_already_images(self):
         for (db_src, db_size, db_mod), hash in self.db_dataset.items():
 
-            if not self.flag:
+            if not self.is_should_run():
                 break
 
             if (db_src, db_size, db_mod) in self.src_size_mod:
                 img = Utils.read_image_hash(hash)
                 pixmap: QPixmap = Utils.pixmap_from_array(img)
-                self.new_widget.emit(ImageData(db_src, pixmap))
+                self.worker_signals.new_widget.emit(ImageData(db_src, pixmap))
                 self.src_size_mod.remove((db_src, db_size, db_mod))
             else:
                 self.remove_db_images.append((img, db_src, hash))
 
     def create_new_images(self):
-        if self.flag:
+        if self.is_should_run():
             SignalsApp.all.progressbar_value.emit(len(self.src_size_mod))
         progress_count = 0
         insert_count = 0
 
         for src, size, mod in self.src_size_mod:
 
-            if not self.flag:
+            if not self.is_should_run():
                 break
 
             if os.path.isdir(src):
@@ -109,7 +99,7 @@ class LoadImages(QThread):
             pixmap = Utils.pixmap_from_array(img_array)
 
             if isinstance(pixmap, QPixmap):
-                self.new_widget.emit(ImageData(src, pixmap))
+                self.worker_signals.new_widget.emit(ImageData(src, pixmap))
 
             try:
                 hashed_path = Utils.get_hash_path(src)
@@ -123,7 +113,7 @@ class LoadImages(QThread):
 
                 Utils.write_image(output_path=hashed_path, array_img=img_array)
 
-                if self.flag:
+                if self.is_should_run():
                     SignalsApp.all.progressbar_value.emit(progress_count)
                     progress_count += 1
 
@@ -133,7 +123,7 @@ class LoadImages(QThread):
 
             except OperationalError as e:
                 Utils.print_error(self, e)
-                self.stop_thread_cmd()
+                self.set_should_run(False)
                 break
 
         if insert_count > 0:
@@ -176,19 +166,17 @@ class LoadImages(QThread):
             Utils.print_error(self, e)
             return
 
-    def stop_thread_cmd(self):
-        self.flag = False
 
-
-class LoadFinder(QThread):
-    _finished = pyqtSignal(list)
-
+class LoadFinder(URunnable):
     def __init__(self):
         super().__init__()
+        self.worker_signals = WorkerSignals()
         self.db_color_rating: dict[str, list] = {}
         self.order_items: list[OrderItem] = []
 
     def run(self):
+        self.set_is_running(True)
+
         try:
             self.get_color_rating()
             self.get_items()
@@ -197,7 +185,8 @@ class LoadFinder(QThread):
             Utils.print_error(self, e)
             self.order_items = []
         
-        self._finished.emit(self.order_items)
+        self.worker_signals._finished.emit(self.order_items)
+        self.set_is_running(False)
 
     def get_color_rating(self):
         q = sqlalchemy.select(CACHE.c.src, CACHE.c.colors, CACHE.c.rating)
@@ -246,9 +235,9 @@ class GridStandart(Grid):
 
         self.order_items: list[OrderItem] = []
 
-        self.finder_thread = LoadFinder()
-        self.finder_thread._finished.connect(self.create_sorted_grid)
-        self.finder_thread.start()
+        self.finder_task = LoadFinder()
+        self.finder_task.worker_signals._finished.connect(self.create_sorted_grid)
+        Threads.pool.start(self.finder_task)
 
     def create_sorted_grid(self, order_items: list[OrderItem]):
 
@@ -317,22 +306,14 @@ class GridStandart(Grid):
 
         self.order_()
 
-    def stop_threads(self):
-        SignalsApp.all.progressbar_value.emit("hide")
-        for i in Threads.all:
-            i: LoadImages
-            i.stop_thread.emit()
-
-            if i.isFinished():
-                Threads.all.remove(i)
-
     def start_load_images(self):
         SignalsApp.all.progressbar_value.emit(0)
         SignalsApp.all.progressbar_value.emit("show")
-        thread = LoadImages(self.order_items)
-        thread.new_widget.connect(lambda image_data: self.set_pixmap(image_data))
-        Threads.all.append(thread)
-        thread.start()
+
+        self.task_ = LoadImages(self.order_items)
+        cmd_ = lambda image_data: self.set_pixmap(image_data)
+        self.task_.worker_signals.new_widget.connect(cmd_)
+        Threads.pool.start(self.task_)
     
     def set_pixmap(self, image_data: ImageData):
         widget = self.path_to_wid.get(image_data.src)
@@ -341,6 +322,6 @@ class GridStandart(Grid):
                 widget.set_pixmap(pixmap=image_data.pixmap)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
-        # когда убивается этот виджет, все треды безопасно завершатся
-        self.stop_threads()
+        if hasattr(self, "task_") and self.task_.is_running():
+            self.task_.set_should_run(False)
         return super().closeEvent(a0)
