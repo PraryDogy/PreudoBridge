@@ -257,7 +257,7 @@ class Utils:
         return os.path.join(new_path, new_name)
     
     @classmethod
-    def write_image(cls, output_path: str, array_img: np.ndarray) -> bool:
+    def write_image_hash(cls, output_path: str, array_img: np.ndarray) -> bool:
         try:
             array_img = cv2.cvtColor(array_img, cv2.COLOR_RGB2BGR)
             cv2.imwrite(output_path, array_img)

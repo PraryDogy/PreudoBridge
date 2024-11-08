@@ -179,7 +179,7 @@ class SearchFinder(URunnable):
                 self.conn.commit()
                 self.insert_count = 0
 
-            Utils.write_image(output_path=hashed_path, array_img=img_array)
+            Utils.write_image_hash(output_path=hashed_path, array_img=img_array)
 
         except (OperationalError, IntegrityError) as e:
             Utils.print_error(self, e)

@@ -43,6 +43,7 @@ class LoadImages(URunnable):
 
         self.remove_db_images: list[tuple[int, str, str]] = []
         self.db_dataset: dict[tuple, str] = {}
+        self.insert_queries: list[sqlalchemy.Insert] = []
         self.conn = Dbase.engine.connect()
 
     def run(self):
@@ -51,6 +52,7 @@ class LoadImages(URunnable):
         self.get_db_dataset()
         self.load_already_images()
         self.create_new_images()
+        self.insert_queries_cmd()
         self.remove_images()
 
         self.conn.close()
@@ -62,61 +64,62 @@ class LoadImages(URunnable):
         res = self.conn.execute(q).fetchall()
 
         self.db_dataset: dict[tuple, str] = {
-            (src, size, mod): hash
-            for src, hash, size, mod in res
+            (src, size, mod): hash_path
+            for src, hash_path, size, mod in res
             }
 
     def load_already_images(self):
-        for (db_src, db_size, db_mod), hash in self.db_dataset.items():
+        for (db_src, db_size, db_mod), hash_path in self.db_dataset.items():
 
             if not self.is_should_run():
                 break
 
             if (db_src, db_size, db_mod) in self.src_size_mod:
-                img = Utils.read_image_hash(hash)
+                img = Utils.read_image_hash(hash_path)
                 pixmap: QPixmap = Utils.pixmap_from_array(img)
                 self.worker_signals.new_widget.emit(ImageData(db_src, pixmap))
                 self.src_size_mod.remove((db_src, db_size, db_mod))
             else:
-                self.remove_db_images.append((img, db_src, hash))
+                self.remove_db_images.append((db_src, hash_path))
 
     def create_new_images(self):
-        if self.is_should_run():
-            SignalsApp.all.progressbar_value.emit(len(self.src_size_mod))
+        SignalsApp.all.progressbar_value.emit(0)
+        SignalsApp.all.progressbar_value.emit("show")
         progress_count = 0
-        insert_count = 0
 
         for src, size, mod in self.src_size_mod:
 
             if not self.is_should_run():
                 break
 
-            if os.path.isdir(src):
+            elif os.path.isdir(src):
                 continue
 
             img_array = Utils.read_image(src)
-            img_array = FitImg.start(img_array, MAX_SIZE)
-            pixmap = Utils.pixmap_from_array(img_array)
 
-            if isinstance(pixmap, QPixmap):
+            if img_array is not None:
+
+                small_img_array = FitImg.start(img_array, MAX_SIZE)
+                pixmap = Utils.pixmap_from_array(small_img_array)
+
+                hashed_path = Utils.get_hash_path(src)
+                Utils.write_image_hash(output_path=hashed_path, array_img=small_img_array)
+
+                stmt = self.get_insert_stmt(src, hashed_path, size, mod)
+                self.insert_queries.append(stmt)
+
                 self.worker_signals.new_widget.emit(ImageData(src, pixmap))
+                SignalsApp.all.progressbar_value.emit(progress_count)
+                progress_count += 1
+
+        SignalsApp.all.progressbar_value.emit("hide")
+
+    def insert_queries_cmd(self):
+        for query in self.insert_queries:
 
             try:
-                hashed_path = Utils.get_hash_path(src)
-                insert_stmt = self.get_insert_stmt(src, hashed_path, size, mod)
-                self.conn.execute(insert_stmt)
-
-                insert_count += 1
-                if insert_count >= 10:
-                    self.conn.commit()
-                    insert_count = 0
-
-                Utils.write_image(output_path=hashed_path, array_img=img_array)
-
-                if self.is_should_run():
-                    SignalsApp.all.progressbar_value.emit(progress_count)
-                    progress_count += 1
-
+                self.conn.execute(query)
+            
             except IntegrityError as e:
                 Utils.print_error(self, e)
                 continue
@@ -126,16 +129,9 @@ class LoadImages(URunnable):
                 self.set_should_run(False)
                 break
 
-        if insert_count > 0:
-            try:
-                self.conn.commit()
-            except (IntegrityError, OperationalError) as e:
-                Utils.print_error(self, e)
+        self.conn.commit()
 
-        # 1 милилон = скрыть прогресс бар согласно его инструкции
-        SignalsApp.all.progressbar_value.emit("hide")
-
-    def get_insert_stmt(self, src: str, hashed_path: str, size: int, mod: int):
+    def get_insert_stmt(self, src: str, hashed_path: str, size: int, mod: int)  -> sqlalchemy.Insert:
 
         src = os.sep + src.strip().strip(os.sep)
         name = os.path.basename(src)
@@ -157,10 +153,10 @@ class LoadImages(URunnable):
 
     def remove_images(self):
         try:
-            for array_img, src, hash in self.remove_db_images:
+            for src, hash_path in self.remove_db_images:
                 q = sqlalchemy.delete(CACHE).where(CACHE.c.src == src)
                 self.conn.execute(q)
-                os.remove(hash)
+                os.remove(hash_path)
             self.conn.commit()
         except OperationalError as e:
             Utils.print_error(self, e)
@@ -307,9 +303,6 @@ class GridStandart(Grid):
         self.order_()
 
     def start_load_images(self):
-        SignalsApp.all.progressbar_value.emit(0)
-        SignalsApp.all.progressbar_value.emit("show")
-
         self.task_ = LoadImages(self.order_items)
         cmd_ = lambda image_data: self.set_pixmap(image_data)
         self.task_.worker_signals.new_widget.connect(cmd_)
