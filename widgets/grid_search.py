@@ -138,7 +138,7 @@ class SearchFinder(URunnable):
 
     def get_img_data_db(self, src: str) -> dict | None:
         try:
-            sel_stmt = sqlalchemy.select(CACHE.c.hash, CACHE.c.colors, CACHE.c.rating).where(CACHE.c.src == src)
+            sel_stmt = sqlalchemy.select(CACHE.c.hash_path, CACHE.c.colors, CACHE.c.rating).where(CACHE.c.src == src)
             res = self.conn.execute(sel_stmt).first()
 
             if res:
@@ -161,7 +161,7 @@ class SearchFinder(URunnable):
             insert_stmt = sqlalchemy.insert(CACHE)
             insert_stmt = insert_stmt.values(
                 src=src,
-                hash=hashed_path,
+                hash_path=hashed_path,
                 root=os.path.dirname(src),
                 catalog="",
                 name=name,

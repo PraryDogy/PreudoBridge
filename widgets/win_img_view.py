@@ -306,7 +306,7 @@ class WinImgView(WinBase):
         if self.src not in Shared.loaded_images:
 
             self.setWindowTitle("Загрузка")
-            q = sqlalchemy.select(CACHE.c.hash).where(CACHE.c.src == self.src)
+            q = sqlalchemy.select(CACHE.c.hash_path).where(CACHE.c.src == self.src)
 
             with Dbase.engine.connect() as conn:
                 hash = conn.execute(q).scalar() or None
@@ -538,7 +538,7 @@ class WinImgViewSingle(WinBase):
         if self.src not in Shared.loaded_images:
 
             self.setWindowTitle("Загрузка")
-            q = sqlalchemy.select(CACHE.c.hash).where(CACHE.c.src == self.src)
+            q = sqlalchemy.select(CACHE.c.hash_path).where(CACHE.c.src == self.src)
 
             with Dbase.engine.connect() as conn:
                 hash = conn.execute(q).scalar() or None
