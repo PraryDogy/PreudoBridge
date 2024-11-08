@@ -9,6 +9,8 @@ APP_VER = "1.0.0"
 
 APP_SUPPORT = os.path.expanduser('~/Library/Application Support')
 ROOT = os.path.join(APP_SUPPORT, APP_NAME)
+
+HASH_DIR = os.path.join(ROOT, "hashdir")
 JSON_FILE = os.path.join(ROOT, 'cfg.json')
 DB_FILE = os.path.join(ROOT, 'db.db')
 

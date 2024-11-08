@@ -1,3 +1,4 @@
+import hashlib
 import io
 import logging
 import os
@@ -15,7 +16,7 @@ from PyQt5.QtCore import QByteArray, Qt
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget
 
-from cfg import GRID_SPACING, LEFT_MENU_W, MARGIN, THUMB_W, JsonData
+from cfg import GRID_SPACING, HASH_DIR, LEFT_MENU_W, MARGIN, THUMB_W, JsonData
 
 psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
 psd_logger = logging.getLogger("psd_tools")
@@ -247,3 +248,19 @@ class Utils:
         except subprocess.CalledProcessError as e:
             print(f"Error executing AppleScript: {e.output.decode().strip()}")
             return 0
+
+    @classmethod
+    def get_hash_path(src: str) -> str:
+        new_name = hashlib.md5(src.encode('utf-8')).hexdigest() + ".jpg"
+        new_path = os.path.join(HASH_DIR, new_name[:2])
+        os.makedirs(new_path, exist_ok=True)
+        return os.path.join(new_path, new_name)
+    
+    @classmethod
+    def save_image(cls, output_path: str, image: np.ndarray) -> bool:
+        try:
+            cv2.imwrite(output_path, image)
+            return True
+        except Exception as e:
+            cls.print_error(parent=cls, error=e)
+            return False
