@@ -2,7 +2,7 @@ import os
 import subprocess
 
 import sqlalchemy
-from PyQt5.QtCore import QEvent, QPoint, QSize, Qt, QThread, QTimer, pyqtSignal
+from PyQt5.QtCore import QEvent, QPoint, QSize, Qt, QTimer, pyqtSignal, QObject
 from PyQt5.QtGui import (QCloseEvent, QContextMenuEvent, QKeyEvent,
                          QMouseEvent, QPainter, QPaintEvent, QPixmap,
                          QResizeEvent)
@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (QAction, QFrame, QHBoxLayout, QLabel, QMenu,
 from cfg import COLORS, IMAGE_APPS, STAR_SYM, JsonData
 from database import CACHE, Dbase
 from signals import SignalsApp
-from utils import Utils
+from utils import Threads, URunnable, Utils
 
 from ._base import WinBase
 from ._grid import Thumb
@@ -24,7 +24,6 @@ FILE_ = "images/file_1024.png"
 
 class Shared:
     loaded_images: dict[str, QPixmap] = {}
-    threads: list[QThread] = []
 
 
 class ImageData:
@@ -36,17 +35,23 @@ class ImageData:
         self.pixmap: QPixmap = pixmap
 
 
-class LoadImageThread(QThread):
+class WorkerSignals(QObject):
+    _finished = pyqtSignal(ImageData)
+
+
+class LoadImageThread(URunnable):
     _finished = pyqtSignal(ImageData)
 
     def __init__(self, img_src: str):
-        super().__init__(parent=None)
+        super().__init__()
+
+        self.worker_signals = WorkerSignals()
         self.img_src: str = img_src
 
     def run(self):
         if self.img_src not in Shared.loaded_images:
             img_array = Utils.read_image(self.img_src)
-            if img_array is not NotImplemented:
+            if img_array is not None:
                 pixmap = Utils.pixmap_from_array(img_array)
                 Shared.loaded_images[self.img_src] = pixmap
             else:
@@ -59,9 +64,9 @@ class LoadImageThread(QThread):
             Shared.loaded_images.pop(first_img)
 
         if isinstance(pixmap, QPixmap):
-            self._finished.emit(ImageData(self.img_src, pixmap.width(), pixmap))
+            self.worker_signals._finished.emit(ImageData(self.img_src, pixmap.width(), pixmap))
         else:
-            self._finished.emit(ImageData(self.img_src, 0, None))
+            self.worker_signals._finished.emit(ImageData(self.img_src, 0, None))
 
 
 class ImageWidget(QLabel):
@@ -316,14 +321,14 @@ class WinImgView(WinBase):
 
     def load_image_thread(self):
         self.setWindowTitle("Загрузка")
-        img_thread = LoadImageThread(self.src)
-        Shared.threads.append(img_thread)
-        img_thread._finished.connect(
-            lambda image_data: self.load_image_finished(img_thread, image_data)
-            )
-        img_thread.start()
+        self.task_ = LoadImageThread(self.src)
 
-    def load_image_finished(self, thread: LoadImageThread, image_data: ImageData):
+        cmd_ = lambda image_data: self.load_image_finished(image_data)
+        self.task_.worker_signals._finished.connect(cmd_)
+
+        Threads.pool.start(self.task_)
+
+    def load_image_finished(self, image_data: ImageData):
         if image_data.width == 0:
             return
 
@@ -332,7 +337,6 @@ class WinImgView(WinBase):
                         
         self.img_label.set_image(image_data.pixmap)
         self.set_title()
-        Shared.threads.remove(thread)
 
 # GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI
 
@@ -550,14 +554,14 @@ class WinImgViewSingle(WinBase):
 
     def load_image_thread(self):
         self.setWindowTitle("Загрузка")
-        img_thread = LoadImageThread(self.src)
-        Shared.threads.append(img_thread)
-        img_thread._finished.connect(
-            lambda image_data: self.load_image_finished(img_thread, image_data)
-            )
-        img_thread.start()
+        self.task_ = LoadImageThread(self.src)
 
-    def load_image_finished(self, thread: LoadImageThread, image_data: ImageData):
+        cmd_ = lambda image_data: self.load_image_finished(image_data)
+        self.task_.worker_signals._finished.connect(cmd_)
+
+        Threads.pool.start(self.task_)
+
+    def load_image_finished(self, image_data: ImageData):
         if image_data.width == 0:
             return
 
@@ -567,7 +571,6 @@ class WinImgViewSingle(WinBase):
         self.img_label.set_image(image_data.pixmap)
         name = os.path.basename(image_data.src)
         self.setWindowTitle(name)
-        Shared.threads.remove(thread)
 
 # GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI
 
