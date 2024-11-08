@@ -49,11 +49,15 @@ class LoadImages(URunnable):
     def run(self):
         self.set_is_running(True)
 
+        # remove images необходимо выполнять перед insert_queries_cmd
+        # т.к. у нас sqlalchemy.update отсутствует
+        # и обновление происходит через удаление и добавление заново
+
         self.get_db_dataset()
         self.load_already_images()
+        self.remove_images()
         self.create_new_images()
         self.insert_queries_cmd()
-        self.remove_images()
 
         self.conn.close()
         self.set_is_running(False)
