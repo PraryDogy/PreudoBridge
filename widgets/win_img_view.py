@@ -19,6 +19,8 @@ from ._grid import Thumb
 from ._svg_widgets import SvgShadowed
 from .win_info import WinInfo
 
+FILE_ = "images/file_1024.png"
+
 
 class Shared:
     loaded_images: dict[str, QPixmap] = {}
@@ -48,7 +50,7 @@ class LoadImageThread(QThread):
                 pixmap = Utils.pixmap_from_array(img_array)
                 Shared.loaded_images[self.img_src] = pixmap
             else:
-                pixmap = QPixmap("images/file_1024.png")
+                pixmap = QPixmap(FILE_)
         else:
             pixmap = Shared.loaded_images.get(self.img_src)
 
@@ -304,13 +306,10 @@ class WinImgView(WinBase):
             with Dbase.engine.connect() as conn:
                 hash = conn.execute(q).scalar() or None
                 img = Utils.read_image_hash(hash)
-                pixmap = Utils.pixmap_from_array(img)
-                # if isinstance(thumbnail, bytes):
-                #     pixmap = QPixmap()
-                #     pixmap.loadFromData(thumbnail)
-                # else:
-                #     pixmap = QPixmap("images/file_1024.png")
-
+                if img is not None:
+                    pixmap = Utils.pixmap_from_array(img)
+                else:
+                    pixmap = QPixmap(FILE_)
                 self.img_label.set_image(pixmap)
 
         self.load_image_thread()
@@ -543,7 +542,7 @@ class WinImgViewSingle(WinBase):
                     pixmap = QPixmap()
                     pixmap.loadFromData(thumbnail)
                 else:
-                    pixmap = QPixmap("images/file_1024.png")
+                    pixmap = QPixmap(FILE_)
 
                 self.img_label.set_image(pixmap)
 
