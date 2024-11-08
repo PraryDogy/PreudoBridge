@@ -49,20 +49,24 @@ class LoadImages(URunnable):
 
     def run(self):
         self.set_is_running(True)
-        SignalsApp.all.progressbar_value.emit(0)
-        SignalsApp.all.progressbar_value.emit("show")
+
+        self.get_db_dataset()
+        self.compare_db_and_finder_items()
+
+        ln_finder_items = len(self.finder_items)
+        SignalsApp.all.progressbar_cmd.emit("max " + str(ln_finder_items))
+        SignalsApp.all.progressbar_cmd.emit(0)
+        SignalsApp.all.progressbar_cmd.emit("show")
 
         # remove images необходимо выполнять перед insert_queries_cmd
         # т.к. у нас sqlalchemy.update отсутствует
         # и обновление происходит через удаление и добавление заново
-        self.get_db_dataset()
-        self.compare_db_and_finder_items()
         self.remove_images()
         self.create_new_images()
         self.insert_queries_cmd()
 
         self.set_is_running(False)
-        SignalsApp.all.progressbar_value.emit("hide")
+        SignalsApp.all.progressbar_cmd.emit("hide")
 
     def get_db_dataset(self):
 
@@ -132,7 +136,7 @@ class LoadImages(URunnable):
                 self.insert_queries.append(stmt)
 
                 self.worker_signals.new_widget.emit(ImageData(src, pixmap))
-                SignalsApp.all.progressbar_value.emit(progress_count)
+                SignalsApp.all.progressbar_cmd.emit(progress_count)
 
                 progress_count += 1
                 insert_count += 1

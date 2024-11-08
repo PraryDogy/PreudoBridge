@@ -412,7 +412,7 @@ class BarBottom(QWidget):
         self.q_disk_small: QPixmap = self.small_icon(DISK_SMALL)
         self.q_mac_small: QPixmap = self.small_icon(MAC_SMALL)
 
-        SignalsApp.all.progressbar_value.connect(self.progressbar_value)
+        SignalsApp.all.progressbar_cmd.connect(self.progressbar_cmd)
         SignalsApp.all.create_path_labels.connect(self.create_path_labels)
 
     def open_go_win(self, *args):
@@ -426,15 +426,19 @@ class BarBottom(QWidget):
         else:
             return obj.scaled(15, 15, transformMode=Qt.TransformationMode.SmoothTransformation)
 
-    def progressbar_value(self, value: int):
-        if isinstance(value, int):
-            self.progressbar.setValue(value)
-        elif value == "hide":
+    def progressbar_cmd(self, cmd: int | str):
+        if isinstance(cmd, int):
+            self.progressbar.setValue(cmd)
+        elif cmd == "hide":
             self.progressbar.hide()
-        elif value == "show":
+        elif cmd == "show":
             self.progressbar.show()
+        elif "max " in cmd:
+            value = int(cmd.split(" ")[-1])
+            self.progressbar.setMaximum(value)
+            print(value)
         else:
-            raise Exception("bar_borrom > progress bar wrong value", value)
+            raise Exception("bar_borrom > progress bar wrong cmd", cmd)
 
     def create_path_labels(self, obj: Thumb | str, count: int | None):
         Utils.clear_layout(self.path_lay)
