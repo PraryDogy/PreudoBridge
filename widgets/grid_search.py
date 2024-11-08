@@ -112,7 +112,8 @@ class SearchFinder(QThread):
         db_data: dict = self.get_img_data_db(src)
 
         if isinstance(db_data, dict):
-            pixmap: QPixmap = Utils.pixmap_from_bytes(db_data.get("img"))
+            img = Utils.read_image_hash(db_data.get("hash"))
+            pixmap: QPixmap = Utils.pixmap_from_array(img)
             colors = db_data.get("colors")
             rating = db_data.get("rating")
 
@@ -131,11 +132,11 @@ class SearchFinder(QThread):
 
     def get_img_data_db(self, src: str) -> dict | None:
         try:
-            sel_stmt = sqlalchemy.select(CACHE.c.img, CACHE.c.colors, CACHE.c.rating).where(CACHE.c.src == src)
+            sel_stmt = sqlalchemy.select(CACHE.c.hash, CACHE.c.colors, CACHE.c.rating).where(CACHE.c.src == src)
             res = self.conn.execute(sel_stmt).first()
 
             if res:
-                return {"img": res.img, "colors": res.colors, "rating": res.rating}
+                return {"hash": res[0], "colors": res[1], "rating": res[2]}
             else:
                 return None
 
@@ -144,39 +145,37 @@ class SearchFinder(QThread):
             return None
 
     def img_data_to_db(self, src: str, img_array, size: int, mod: int):
-        db_img: bytes = Utils.image_array_to_bytes(img_array)
 
-        if isinstance(db_img, bytes):
+        src = os.sep + src.strip().strip(os.sep)
+        name = os.path.basename(src)
+        type_ = os.path.splitext(name)[-1]
+        hashed_path = Utils.get_hash_path(src)
 
-            src = os.sep + src.strip().strip(os.sep)
-            name = os.path.basename(src)
-            type_ = os.path.splitext(name)[-1]
+        try:
+            insert_stmt = sqlalchemy.insert(CACHE)
+            insert_stmt = insert_stmt.values(
+                src=src,
+                hash=hashed_path,
+                root=os.path.dirname(src),
+                catalog="",
+                name=name,
+                type_=type_,
+                size=size,
+                mod=mod,
+                colors="",
+                rating=0
+                )
+            self.conn.execute(insert_stmt)
 
-            try:
-                insert_stmt = sqlalchemy.insert(CACHE)
-                insert_stmt = insert_stmt.values(
-                    img=db_img,
-                    src=src,
-                    root=os.path.dirname(src),
-                    catalog="",
-                    name=name,
-                    type_=type_,
-                    size=size,
-                    mod=mod,
-                    colors="",
-                    rating=0
-                    )
-                self.conn.execute(insert_stmt)
+            self.insert_count += 1
+            if self.insert_count >= 10:
+                self.conn.commit()
+                self.insert_count = 0
 
-                self.insert_count += 1
-                if self.insert_count >= 10:
-                    self.conn.commit()
-                    self.insert_count = 0
+            Utils.write_image(output_path=hashed_path, array_img=img_array)
 
-                self.db_size += len(db_img)
-
-            except (OperationalError, IntegrityError) as e:
-                Utils.print_error(self, e)
+        except (OperationalError, IntegrityError) as e:
+            Utils.print_error(self, e)
 
     def create_img_array(self, src: str) -> ndarray | None:
         img = Utils.read_image(src)

@@ -49,8 +49,8 @@ class LoadImages(QThread):
             if order_item.type_ != FOLDER
             ]
 
-        self.remove_db_images: list = []
-        self.db_images: dict[tuple, bytearray] = {}
+        self.remove_db_images: list[tuple[str, str]] = []
+        self.db_dataset: dict[tuple, str] = {}
         self.flag = True
         self.db_size: int = 0
 
@@ -60,7 +60,7 @@ class LoadImages(QThread):
     def run(self):
         self.get_db_size()
 
-        self.get_db_images()
+        self.get_db_dataset()
         self.load_already_images()
         self.create_new_images()
         self.remove_images()
@@ -82,29 +82,29 @@ class LoadImages(QThread):
         except OperationalError as e:
             Utils.print_error(self, e)
 
-    def get_db_images(self):
-        q = sqlalchemy.select(CACHE.c.img, CACHE.c.src, CACHE.c.size, CACHE.c.mod)
+    def get_db_dataset(self):
+        q = sqlalchemy.select(CACHE.c.src, CACHE.c.hash, CACHE.c.size, CACHE.c.mod)
         q = q.where(CACHE.c.root == JsonData.root)
         res = self.conn.execute(q).fetchall()
 
-        self.db_images: dict[tuple, bytearray] = {
-            (src, size, mod): img
-            for img, src, size,  mod in res
+        self.db_dataset: dict[tuple, str] = {
+            (src, size, mod): hash
+            for src, hash, size, mod in res
             }
 
     def load_already_images(self):
-        for (db_src, db_size, db_mod), db_byte_img in self.db_images.items():
+        for (db_src, db_size, db_mod), hash in self.db_dataset.items():
 
             if not self.flag:
                 break
 
             if (db_src, db_size, db_mod) in self.src_size_mod:
-                pixmap: QPixmap = Utils.pixmap_from_bytes(db_byte_img)
+                img = Utils.read_image_hash(hash)
+                pixmap: QPixmap = Utils.pixmap_from_array(img)
                 self.new_widget.emit(ImageData(db_src, pixmap))
                 self.src_size_mod.remove((db_src, db_size, db_mod))
             else:
-                self.remove_db_images.append(db_src)
-                self.db_size -= len(db_byte_img)
+                self.remove_db_images.append((db_src, hash))
 
     def create_new_images(self):
         if self.flag:
@@ -122,27 +122,22 @@ class LoadImages(QThread):
 
             img_array = Utils.read_image(src)
             img_array = FitImg.start(img_array, MAX_SIZE)
-            img_bytes: bytes = Utils.image_array_to_bytes(img_array)
-
             pixmap = Utils.pixmap_from_array(img_array)
 
-            if not isinstance(img_bytes, bytes):
-                continue
-
             if isinstance(pixmap, QPixmap):
-
                 self.new_widget.emit(ImageData(src, pixmap))
 
             try:
-                insert_stmt = self.get_insert_stmt(img_bytes, src, size, mod)
+                hashed_path = Utils.get_hash_path(src)
+                insert_stmt = self.get_insert_stmt(src, hashed_path, size, mod)
                 self.conn.execute(insert_stmt)
-
-                self.db_size += len(img_bytes)
 
                 insert_count += 1
                 if insert_count >= 10:
                     self.conn.commit()
                     insert_count = 0
+
+                Utils.write_image(output_path=hashed_path, array_img=img_array)
 
                 if self.flag:
                     SignalsApp.all.progressbar_value.emit(progress_count)
@@ -166,7 +161,7 @@ class LoadImages(QThread):
         # 1 милилон = скрыть прогресс бар согласно его инструкции
         SignalsApp.all.progressbar_value.emit("hide")
 
-    def get_insert_stmt(self, img_bytes: bytes, src: str, size: int, mod: int):
+    def get_insert_stmt(self, src: str, hashed_path: str, size: int, mod: int):
 
         src = os.sep + src.strip().strip(os.sep)
         name = os.path.basename(src)
@@ -174,8 +169,8 @@ class LoadImages(QThread):
 
         insert_stmt = sqlalchemy.insert(CACHE)
         return insert_stmt.values(
-            img=img_bytes,
             src=src,
+            hash=hashed_path,
             root=os.path.dirname(src),
             catalog="",
             name=name,
@@ -188,9 +183,10 @@ class LoadImages(QThread):
 
     def remove_images(self):
         try:
-            for src in self.remove_db_images:
+            for src, hash in self.remove_db_images:
                 q = sqlalchemy.delete(CACHE).where(CACHE.c.src == src)
                 self.conn.execute(q)
+                os.remove(hash)
             self.conn.commit()
         except OperationalError as e:
             Utils.print_error(self, e)

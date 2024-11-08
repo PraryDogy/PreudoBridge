@@ -250,17 +250,25 @@ class Utils:
             return 0
 
     @classmethod
-    def get_hash_path(src: str) -> str:
+    def get_hash_path(cls, src: str) -> str:
         new_name = hashlib.md5(src.encode('utf-8')).hexdigest() + ".jpg"
         new_path = os.path.join(HASH_DIR, new_name[:2])
         os.makedirs(new_path, exist_ok=True)
         return os.path.join(new_path, new_name)
     
     @classmethod
-    def save_image(cls, output_path: str, image: np.ndarray) -> bool:
+    def write_image(cls, output_path: str, array_img: np.ndarray) -> bool:
         try:
-            cv2.imwrite(output_path, image)
+            cv2.imwrite(output_path, array_img)
             return True
         except Exception as e:
             cls.print_error(parent=cls, error=e)
             return False
+        
+    @classmethod
+    def read_image_hash(cls, src: str) -> np.ndarray | None:
+        try:
+            return cv2.imread(src, cv2.IMREAD_UNCHANGED)
+        except Exception as e:
+            cls.print_error(parent=cls, error= e)
+            return None
