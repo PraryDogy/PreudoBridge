@@ -360,6 +360,7 @@ class GridStandart(Grid):
                 widget.set_pixmap(pixmap=image_data.pixmap)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
+        SignalsApp.all.progressbar_cmd.emit("hide")
         if hasattr(self, "task_") and self.task_.is_running():
             self.task_.set_should_run(False)
         return super().closeEvent(a0)
