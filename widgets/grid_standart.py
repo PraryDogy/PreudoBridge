@@ -135,7 +135,6 @@ class LoadImages(URunnable):
                 insert_count += 1
 
     def insert_queries_cmd(self):
-        print("insert queries", len(self.insert_queries))
         for query in self.insert_queries:
 
             try:
