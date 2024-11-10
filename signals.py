@@ -19,6 +19,8 @@ class Signals(QObject):
     new_history = pyqtSignal(str)
     create_path_labels = pyqtSignal(object, object)
 
+    move_slider = pyqtSignal(int)
+
 
 class SignalsApp:
     all: Signals = None

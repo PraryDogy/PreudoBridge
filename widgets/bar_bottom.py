@@ -174,6 +174,7 @@ class CustomSlider(BaseSlider):
         self.setFixedWidth(80)
         self.setValue(JsonData.pixmap_size_ind)
         self.valueChanged.connect(self.change_size)
+        SignalsApp.all.move_slider.connect(self.change_size)
     
     def change_size(self, value: int):
         self.setValue(value)

@@ -195,6 +195,16 @@ class Grid(BaseGrid):
             wid = self.cell_to_wid.get(self.curr_cell)
             wid.show_info_win()
 
+        elif a0.modifiers() & Qt.KeyboardModifier.ControlModifier and a0.key() == Qt.Key.Key_Equal:
+            new_value = JsonData.pixmap_size_ind + 1
+            if new_value <= 3:
+                SignalsApp.all.move_slider.emit(new_value)
+
+        elif a0.modifiers() & Qt.KeyboardModifier.ControlModifier and a0.key() == Qt.Key.Key_Minus:
+            new_value = JsonData.pixmap_size_ind - 1
+            if new_value >= 0:
+                SignalsApp.all.move_slider.emit(new_value)
+
         elif a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
             wid = self.cell_to_wid.get(self.curr_cell)
             if wid:

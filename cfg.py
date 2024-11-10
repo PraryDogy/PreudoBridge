@@ -77,7 +77,6 @@ class JsonData:
     extra_paths = ["/Studio/PANACEA", "/Studio/MIUZ"]
     favs = {}
     list_view = False
-    clear_db = 5
     tab_bar = 1
     pixmap_size_ind = 0
 
