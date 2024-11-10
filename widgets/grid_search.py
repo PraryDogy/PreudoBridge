@@ -4,7 +4,7 @@ from time import sleep
 
 import sqlalchemy
 from numpy import ndarray
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
 from sqlalchemy.exc import IntegrityError, OperationalError
 
@@ -12,7 +12,7 @@ from cfg import IMG_EXT, MAX_SIZE, JsonData
 from database import CACHE, Dbase
 from fit_img import FitImg
 from signals import SignalsApp
-from utils import QObject, Threads, URunnable, Utils
+from utils import URunnable, UThreadPool, Utils
 
 from ._grid import Grid
 from ._thumb import ThumbSearch
@@ -221,7 +221,7 @@ class GridSearch(Grid):
 
         self.task_ = SearchFinder(search_text)
         self.task_.worker_signals.add_new_widget.connect(self.add_new_widget)
-        Threads.pool.start(self.task_)
+        UThreadPool.pool.start(self.task_)
 
     def add_new_widget(self, widget_data: WidgetData):
         wid = ThumbSearch(

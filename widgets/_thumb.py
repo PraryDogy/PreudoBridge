@@ -2,7 +2,7 @@ import datetime
 import subprocess
 
 import sqlalchemy
-from PyQt5.QtCore import QMimeData, Qt, QUrl, pyqtSignal
+from PyQt5.QtCore import QMimeData, QObject, Qt, QUrl, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QDrag, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QLabel, QMenu,
                              QVBoxLayout)
@@ -12,7 +12,7 @@ from cfg import (COLORS, FOLDER, GRAY, IMAGE_APPS, MARGIN, PIXMAP_SIZE,
                  STAR_SYM, TEXT_LENGTH, THUMB_W, JsonData)
 from database import CACHE, Dbase, OrderItem
 from signals import SignalsApp
-from utils import Utils
+from utils import URunnable, UThreadPool, Utils
 
 from .win_info import WinInfo
 
@@ -57,6 +57,34 @@ class ColorLabel(QLabel):
 
     def set_text(self, wid: OrderItem):
         self.setText(wid.colors)
+
+
+class UpdateThumbData(URunnable):
+    def __init__(self, src: str, value_name: str, value: int | str, cmd_: callable):
+        super().__init__()
+
+        self.cmd_ = cmd_
+        self.src = src
+        self.value_name = value_name
+        self.value = value
+
+    def run(self):
+        values_ = {self.value_name: self.value}
+        stmt = sqlalchemy.update(CACHE).where(CACHE.c.src == self.src).values(**values_)
+        conn = Dbase.engine.connect()
+
+        try:
+            conn.execute(stmt)
+            conn.commit()
+            self.finalize()
+        except OperationalError as e:
+            Utils.print_error(self, e)
+            conn.rollback()
+
+        conn.close()
+
+    def finalize(self):
+        self.cmd_()
 
 
 class Thumb(OrderItem, QFrame):
@@ -193,7 +221,7 @@ class Thumb(OrderItem, QFrame):
             if color in self.colors:
                 wid.setChecked(True)
 
-            wid.triggered.connect(lambda e, c=color: self.color_click(color_menu, c))
+            wid.triggered.connect(lambda e, c=color: self.set_colors_cmd(color_menu, c))
             color_menu.addAction(wid)
 
         rating_menu = QMenu("Рейтинг", self)
@@ -206,7 +234,8 @@ class Thumb(OrderItem, QFrame):
             if self.rating == rate:
                 wid.setChecked(True)
 
-            wid.triggered.connect(lambda e, r=rate, w=wid: self.rating_click(rating_menu, w, r))
+            cmd_ = lambda e, r=rate, w=wid: self.rating_click(rating_menu, w, r)
+            wid.triggered.connect(cmd_)
             rating_menu.addAction(wid)
 
     def show_info_win(self):
@@ -219,25 +248,6 @@ class Thumb(OrderItem, QFrame):
 
     def show_in_finder(self):
         subprocess.call(["open", "-R", self.src])
-
-    def color_click(self, menu: QMenu, color: str):
-        if color not in self.colors:
-            temp_colors = self.colors + color
-        else:
-            temp_colors = self.colors.replace(color, "")
-
-        update_db: bool = self.update_data_db(colors = temp_colors)
-
-        if update_db:
-            self.colors = temp_colors
-            key = lambda x: list(COLORS.keys()).index(x)
-            self.colors = ''.join(sorted(self.colors, key=key))
-            self.set_text()
-
-            for item in menu.children():
-                item: QAction
-                if item.text()[0] in self.colors:
-                    item.setChecked(True)
 
     def get_info(self) -> str:
         rating = STAR_SYM * self.rating
@@ -275,43 +285,47 @@ class Thumb(OrderItem, QFrame):
         self.name_label.set_text(self)
         self.color_label.set_text(self)
 
-    def rating_click(self, menu: QMenu, wid: QAction, rate: int):
-        if rate == 1:
-            rate = 0
+    def set_colors_cmd(self, menu: QMenu, color: str):
 
-        update_db = self.update_data_db(rating=rate)
+        if color not in self.colors:
+            temp_colors = self.colors + color
+        else:
+            temp_colors = self.colors.replace(color, "")
 
-        if update_db:
-            self.rating = rate
+        def cmd_():
+            self.colors = temp_colors
+            key = lambda x: list(COLORS.keys()).index(x)
+            self.colors = ''.join(sorted(self.colors, key=key))
+            self.set_text()
+
+            for item in menu.children():
+                item: QAction
+                if item.text()[0] in self.colors:
+                    item.setChecked(True)
+
+        self.update_thumb_data("colors", temp_colors, cmd_)
+
+    def rating_click(self, menu: QMenu, wid: QAction, rating: int):
+        if rating == 1:
+            rating = 0
+
+        def cmd_():
+            self.rating = rating
             self.set_text()
 
             for i in menu.children():
+
                 i: QAction
                 i.setChecked(False)
-            if rate > 0:
+
+            if rating > 0:
                 wid.setChecked(True)
 
-    def set_colors_rating_db(self, colors: str = None, rating: int = None):
-        self.colors = colors or self.colors
-        self.rating = rating or self.rating
-        self.set_text()
+        self.update_thumb_data("rating", rating, cmd_)
 
-    def update_data_db(self, colors: str = None, rating: int = None):
-        colors = self.colors if colors is None else colors
-        rating = self.rating if rating is None else rating
-
-        upd_stmt = sqlalchemy.update(CACHE)
-        upd_stmt = upd_stmt.where(CACHE.c.src == self.src).values(colors=colors, rating=rating)
-
-        with Dbase.engine.connect() as conn:
-            try:
-                conn.execute(upd_stmt)
-                conn.commit()
-            except OperationalError as e:
-                Utils.print_error(self, e)
-                return False
-
-        return True
+    def update_thumb_data(self, value_name: str, value: str | int, cmd_: callable):
+        task_ = UpdateThumbData(self.src, value_name, value, cmd_)
+        UThreadPool.pool.start(task_)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
         self.select.emit()

@@ -113,9 +113,6 @@ class SimpleFileExplorer(QWidget):
         SignalsApp.all.show_in_folder.connect(self.move_to_wid_delayed)
         SignalsApp.all.open_path.connect(self.open_path_cmd)
 
-        from utils import Threads
-        Threads.mutex.lock()
-
         self.load_standart_grid()
 
     def open_path_cmd(self, filepath: str):

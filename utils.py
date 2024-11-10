@@ -11,8 +11,7 @@ import rawpy
 import tifffile
 from imagecodecs.imagecodecs import DelayedImportError
 from PIL import Image
-from PyQt5.QtCore import (QMutex, QObject, QRunnable, Qt, QThreadPool,
-                          pyqtSignal)
+from PyQt5.QtCore import QRunnable, Qt, QThreadPool
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget
 
@@ -280,18 +279,12 @@ class Utils:
         return image.nbytes
 
 
-class Threads:
+class UThreadPool:
     pool: QThreadPool = None
-    mutex: QMutex = None
 
     @classmethod
     def init(cls):
-        cls.mutex = QMutex()
         cls.pool = QThreadPool().globalInstance()
-
-    @classmethod
-    def get_mutex(cls) -> QMutex:
-        return cls.mutex
 
 
 class URunnable(QRunnable):

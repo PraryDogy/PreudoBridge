@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
 
 from cfg import BLUE, FOLDER, JsonData
 from signals import SignalsApp
-from utils import Threads, URunnable, Utils
+from utils import UThreadPool, URunnable, Utils
 
 from ._base import BaseSlider, WinMinMax
 from ._thumb import Thumb
@@ -154,7 +154,7 @@ class WinGo(WinMinMax):
         else:
             path_thread = PathFinderThread(path)
             path_thread.worker_signals._finished.connect(self.finalize)
-            Threads.pool.start(path_thread)
+            UThreadPool.pool.start(path_thread)
 
     def finalize(self, res: str):
         SignalsApp.all.open_path.emit(res)

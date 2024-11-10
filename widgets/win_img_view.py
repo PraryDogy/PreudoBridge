@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (QAction, QFrame, QHBoxLayout, QLabel, QMenu,
 from cfg import COLORS, IMAGE_APPS, STAR_SYM, JsonData
 from database import CACHE, Dbase
 from signals import SignalsApp
-from utils import Threads, URunnable, Utils
+from utils import UThreadPool, URunnable, Utils
 
 from ._base import WinBase
 from ._grid import Thumb
@@ -326,7 +326,7 @@ class WinImgView(WinBase):
         cmd_ = lambda image_data: self.load_image_finished(image_data)
         self.task_.worker_signals._finished.connect(cmd_)
 
-        Threads.pool.start(self.task_)
+        UThreadPool.pool.start(self.task_)
 
     def load_image_finished(self, image_data: ImageData):
         if image_data.width == 0:
@@ -377,7 +377,7 @@ class WinImgView(WinBase):
         self.mouse_move_timer.start(2000)
 
     def color_click(self, menu: QMenu, colors: str):
-        self.wid.color_click(menu, colors)
+        self.wid.set_colors_cmd(menu, colors)
         self.set_title()
 
     def rating_click(self, menu: QMenu, wid: QAction, rate: int):
@@ -559,7 +559,7 @@ class WinImgViewSingle(WinBase):
         cmd_ = lambda image_data: self.load_image_finished(image_data)
         self.task_.worker_signals._finished.connect(cmd_)
 
-        Threads.pool.start(self.task_)
+        UThreadPool.pool.start(self.task_)
 
     def load_image_finished(self, image_data: ImageData):
         if image_data.width == 0:

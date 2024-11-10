@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QPushButton,
 from cfg import HASH_DIR, JSON_FILE, LINK, JsonData
 from database import Dbase
 from signals import SignalsApp
-from utils import Threads, URunnable
+from utils import UThreadPool, URunnable
 
 from ._base import WinMinMax
 
@@ -122,7 +122,7 @@ class WinSettings(WinMinMax):
         self.task_ = GetSizer()
         cmd_ = lambda t: self.current_size.setText(t)
         self.task_.worker_signals._finished.connect(cmd_)
-        Threads.pool.start(self.task_)
+        UThreadPool.pool.start(self.task_)
 
     def clear_db_cmd(self):
         Dbase.clear_db()            

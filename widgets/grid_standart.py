@@ -11,7 +11,7 @@ from cfg import FOLDER, IMG_EXT, MAX_SIZE, JsonData
 from database import CACHE, Dbase, OrderItem
 from fit_img import FitImg
 from signals import SignalsApp
-from utils import Threads, URunnable, Utils
+from utils import UThreadPool, URunnable, Utils
 
 from ._grid import Grid
 from ._thumb import Thumb, ThumbFolder
@@ -286,7 +286,7 @@ class GridStandart(Grid):
 
         self.finder_task = LoadFinder()
         self.finder_task.worker_signals._finished.connect(self.create_sorted_grid)
-        Threads.pool.start(self.finder_task)
+        UThreadPool.pool.start(self.finder_task)
 
     def create_sorted_grid(self, order_items: list[OrderItem]):
 
@@ -359,7 +359,7 @@ class GridStandart(Grid):
         self.task_ = LoadImages(self.order_items)
         cmd_ = lambda image_data: self.set_pixmap(image_data)
         self.task_.worker_signals.new_widget.connect(cmd_)
-        Threads.pool.start(self.task_)
+        UThreadPool.pool.start(self.task_)
     
     def set_pixmap(self, image_data: ImageData):
         widget = self.path_to_wid.get(image_data.src)

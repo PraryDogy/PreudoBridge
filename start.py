@@ -57,7 +57,7 @@ from cfg import JsonData
 from database import Dbase
 from gui import SimpleFileExplorer
 from signals import SignalsApp
-from utils import Threads, Utils
+from utils import UThreadPool, Utils
 
 
 class CustomApp(QApplication):
@@ -85,7 +85,7 @@ app = CustomApp(sys.argv)
     # app.installTranslator(translator)
 
 SignalsApp.init()
-Threads.init()
+UThreadPool.init()
 ex = SimpleFileExplorer()
 ex.show()
 
