@@ -157,6 +157,7 @@ class LoadImages(URunnable):
                     stop_flag = True
                 
                 if stop_flag:
+                    conn.rollback()
                     return None
 
             conn.commit()
