@@ -80,8 +80,8 @@ class UpdateThumbData(URunnable):
             conn.commit()
             self.finalize()
         except (OperationalError, IntegrityError) as e:
-            Utils.print_error(self, e)
             conn.rollback()
+            Utils.print_error(self, e)
 
         conn.close()
 
