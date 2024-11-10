@@ -195,9 +195,17 @@ class SearchFinder(URunnable):
         for stmt, hash_path, small_img_array in self.insert_count_data:
             try:
                 self.conn.execute(stmt)
-                Utils.write_image_hash(hash_path, small_img_array)
             except (IntegrityError, OperationalError) as e:
-                continue
+                Utils.print_error(parent=self, error=e)
+                return None
+
+        self.conn.commit()
+
+        # мы пишем раздельно на диск и дб чтобы дб была занята минимальное время
+        for stmt, hash_path, small_img_array in self.insert_count_data:
+            Utils.write_image_hash(hash_path, small_img_array)
+
+        return True
 
 
 class GridSearch(Grid):
