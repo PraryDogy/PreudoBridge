@@ -63,6 +63,7 @@ class SearchFinder(URunnable):
             self.search_text = str(self.search_text)
 
         for root, _, files in os.walk(JsonData.root):
+
             if not self.is_should_run():
                 break
 
@@ -105,26 +106,24 @@ class SearchFinder(URunnable):
             Utils.print_error(self, e)
             return None
 
-        pixmap: QPixmap = None
-        colors: str = ""
-        rating: int = 0
+        db_data = self.get_db_data(src)
 
-        db_data: dict = self.get_db_data(src)
-
-        if isinstance(db_data, dict):
-            img = Utils.read_image_hash(db_data.get("hash_path"))
-            pixmap: QPixmap = Utils.pixmap_from_array(img)
-            colors = db_data.get("colors")
-            rating = db_data.get("rating")
+        if db_data is not None:
+            small_img_array = Utils.read_image_hash(db_data[0])
+            pixmap: QPixmap = Utils.pixmap_from_array(small_img_array)
+            colors = db_data[1]
+            rating = db_data[2]
 
         else:
-            img_array: ndarray = self.create_img_array(src)
-            self.img_data_to_db(src, img_array, size, mod)
+            img_array = Utils.read_image(src)
+            small_img_array = FitImg.start(img_array, MAX_SIZE)
+            pixmap = Utils.pixmap_from_array(small_img_array)
+            colors: str = ""
+            rating: int = 0
 
-            if isinstance(img_array, ndarray):
-                pixmap = Utils.pixmap_from_array(img_array)
+            self.img_data_to_db(src, small_img_array, size, mod)
 
-        if not pixmap:
+        if pixmap is None:
             pixmap = self.pixmap_img
 
         self.worker_signals.add_new_widget.emit(
@@ -133,7 +132,7 @@ class SearchFinder(URunnable):
 
         sleep(SLEEP)
 
-    def get_db_data(self, src: str) -> dict | None:
+    def get_db_data(self, src: str) -> list[tuple[str, str, int]] | None:
         try:
             sel_stmt = sqlalchemy.select(
                 CACHE.c.hash_path,
@@ -143,11 +142,7 @@ class SearchFinder(URunnable):
                     CACHE.c.src == src
                     )
             res = self.conn.execute(sel_stmt).first()
-
-            if res:
-                return {"hash_path": res[0], "colors": res[1], "rating": res[2]}
-            else:
-                return None
+            return res if res else None
 
         except OperationalError as e:
             Utils.print_error(self, e)
@@ -186,11 +181,6 @@ class SearchFinder(URunnable):
 
         except (OperationalError, IntegrityError) as e:
             Utils.print_error(self, e)
-
-    def create_img_array(self, src: str) -> ndarray | None:
-        img = Utils.read_image(src)
-        img = FitImg.start(img, MAX_SIZE)
-        return img
     
     def insert_queries_cmd(self):
         ...
