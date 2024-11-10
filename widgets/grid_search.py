@@ -198,6 +198,7 @@ class SearchFinder(URunnable):
                 self.conn.execute(stmt)
             except (IntegrityError, OperationalError) as e:
                 Utils.print_error(parent=self, error=e)
+                self.conn.rollback()
                 return None
 
         self.conn.commit()
