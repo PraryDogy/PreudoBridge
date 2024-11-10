@@ -10,8 +10,6 @@ from signals import SignalsApp
 from utils import Utils
 
 from ._base import BaseTableView
-from ._thumb import Thumb
-from .win_img_view import WinImgViewSingle
 
 
 class Sort:
@@ -50,10 +48,6 @@ class ListStandart(BaseTableView):
         if os.path.isdir(path):
             self.setCurrentIndex(index)
             SignalsApp.all.load_standart_grid.emit(path)
-
-        elif path.endswith(IMG_EXT):
-            self.win = WinImgViewSingle(path)
-            self.win.show()
 
     def save_sort_settings(self, index):
         Sort.column = index

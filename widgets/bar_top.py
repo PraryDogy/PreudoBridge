@@ -367,9 +367,9 @@ class BarTop(QFrame):
         self.grid_layout.setColumnStretch(self.clmn, 10)
         self.grid_layout.addItem(QSpacerItem(1, 1), 0, self.clmn)
 
-        # self.clmn += 1
-        # self.view_type_btn = ViewTypeBtn()
-        # self.grid_layout.addWidget(self.view_type_btn, 0, self.clmn)
+        self.clmn += 1
+        self.view_type_btn = ViewTypeBtn()
+        self.grid_layout.addWidget(self.view_type_btn, 0, self.clmn)
 
         self.clmn += 1
         self.sort_type_btn = SortTypeBtn(parent=self)
