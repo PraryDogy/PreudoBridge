@@ -92,18 +92,21 @@ class Dbase:
 
     @classmethod
     def clear_db(cls):
-        q_del_cache = sqlalchemy.delete(CACHE)
+        conn = cls.engine.connect()
 
-        with cls.engine.connect() as conn:
-            try:
-                conn.execute(q_del_cache)
-                conn.commit()
-            except OperationalError as e:
-                Utils.print_error(cls, e)
-                return False
+        try:
+            q_del_cache = sqlalchemy.delete(CACHE)
+            conn.execute(q_del_cache)
 
-            conn.execute(sqlalchemy.text("VACUUM"))
-            
+        except OperationalError as e:
+            Utils.print_error(cls, e)
+            conn.rollback()
+            return False
+
+        conn.commit()
+        conn.execute(sqlalchemy.text("VACUUM"))
+        conn.close()
+
         return True
 
     @classmethod
