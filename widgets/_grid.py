@@ -179,29 +179,31 @@ class Grid(BaseGrid):
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         wid: Thumb | ThumbFolder 
 
-        if a0.modifiers() & Qt.KeyboardModifier.ControlModifier and a0.key() == Qt.Key.Key_Up:
-            root = os.path.dirname(JsonData.root)
-            if root != os.sep:
-                SignalsApp.all.new_history.emit(root)
-                SignalsApp.all.load_standart_grid.emit(root)
+        if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
 
-        elif a0.modifiers() & Qt.KeyboardModifier.ControlModifier and a0.key() == Qt.Key.Key_Down:
-            wid = self.cell_to_wid.get(self.curr_cell)
-            self.open_in_view(wid)
+            if a0.key() == Qt.Key.Key_Up:
+                root = os.path.dirname(JsonData.root)
+                if root != os.sep:
+                    SignalsApp.all.new_history.emit(root)
+                    SignalsApp.all.load_standart_grid.emit(root)
 
-        elif a0.modifiers() & Qt.KeyboardModifier.ControlModifier and a0.key() == Qt.Key.Key_I:
-            wid = self.cell_to_wid.get(self.curr_cell)
-            wid.show_info_win()
+            elif  a0.key() == Qt.Key.Key_Down:
+                wid = self.cell_to_wid.get(self.curr_cell)
+                self.open_in_view(wid)
 
-        elif a0.modifiers() & Qt.KeyboardModifier.ControlModifier and a0.key() == Qt.Key.Key_Equal:
-            new_value = JsonData.pixmap_size_ind + 1
-            if new_value <= 3:
-                SignalsApp.all.move_slider.emit(new_value)
+            elif a0.key() == Qt.Key.Key_I:
+                wid = self.cell_to_wid.get(self.curr_cell)
+                wid.show_info_win()
 
-        elif a0.modifiers() & Qt.KeyboardModifier.ControlModifier and a0.key() == Qt.Key.Key_Minus:
-            new_value = JsonData.pixmap_size_ind - 1
-            if new_value >= 0:
-                SignalsApp.all.move_slider.emit(new_value)
+            elif a0.key() == Qt.Key.Key_Equal:
+                new_value = JsonData.pixmap_size_ind + 1
+                if new_value <= 3:
+                    SignalsApp.all.move_slider.emit(new_value)
+
+            elif a0.key() == Qt.Key.Key_Minus:
+                new_value = JsonData.pixmap_size_ind - 1
+                if new_value >= 0:
+                    SignalsApp.all.move_slider.emit(new_value)
 
         elif a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
             wid = self.cell_to_wid.get(self.curr_cell)
