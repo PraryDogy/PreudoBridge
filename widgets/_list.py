@@ -112,14 +112,16 @@ class ListStandart(BaseTableView):
                 if root != os.sep:
                     SignalsApp.all.new_history.emit(root)
                     SignalsApp.all.load_standart_grid.emit(root)
+                    return
 
             elif a0.key() == Qt.Key.Key_Down:
                 index = self.currentIndex()
                 self.double_clicked(index)
+                return
 
         elif a0.key() in (Qt.Key.Key_Return, Qt.Key.Key_Space):
             index = self.currentIndex()
             self.double_clicked(index)
+            return
 
-        elif a0.key() in (Qt.Key.Key_Up, Qt.Key.Key_Down):
-            return super().keyPressEvent(a0)
+        return super().keyPressEvent(a0)
