@@ -76,23 +76,26 @@ class SearchFinder(URunnable):
                 if not self.is_should_run():
                     break
 
-                file_path: str = os.path.join(root, file)
-                file_path_lower: str = file_path.lower()
-                if file_path_lower.endswith(IMG_EXT):
+                src: str = os.path.join(root, file)
+                src_lower: str = src.lower()
+                if src_lower.endswith(IMG_EXT):
                     
-                    self.create_ = False
+                    self.create_wid = False
 
                     if hasattr(self, "is_tuple"):
-                        if file_path_lower.endswith(self.search_text):
-                            self.create_ = True
+                        if src_lower.endswith(self.search_text):
+                            self.create_wid = True
    
                     elif self.search_text in file:
-                        self.create_ = True
+                        self.create_wid = True
 
-                    
-                    if self.create_:
-                        self.create_wid(file_path)
-                        sleep(SLEEP)
+                    if self.create_wid:
+
+                        stat = self.get_stats(src)
+
+                        if stat:
+                            self.create_wid_cmd(src, stat)
+                            sleep(SLEEP)
 
     def setup_text(self):
         try:
@@ -106,42 +109,53 @@ class SearchFinder(URunnable):
         elif isinstance(self.search_text, int):
             self.search_text = str(self.search_text)
 
-    def create_wid(self, src: str):
+    def get_stats(self, src: str) -> os.stat_result | None:
         try:
-            stats = os.stat(src)
-            size = stats.st_size
-            mod = stats.st_mtime
+            return os.stat(src)
         except (PermissionError, FileNotFoundError) as e:
             Utils.print_error(self, e)
             return None
 
+    def create_wid_cmd(self, src: str, stat: os.stat_result) -> bool:
+
         db_data = self.get_db_data(src)
 
         if db_data is None:
-
             img_array = Utils.read_image(src)
             small_img_array = FitImg.start(img_array, MAX_SIZE)
+
             pixmap = Utils.pixmap_from_array(small_img_array)
             colors: str = ""
             rating: int = 0
-
-            hash_path = Utils.get_hash_path(src)
-            stmt = self.get_insert_query(src, hash_path, size, mod)
-            self.insert_queries.append(stmt)
-            self.hashed_images.append((hash_path, img_array))
+            new_img = True
 
         else:
             small_img_array = Utils.read_image_hash(db_data[0])
+
             pixmap: QPixmap = Utils.pixmap_from_array(small_img_array)
             colors = db_data[1]
             rating = db_data[2]
+            new_img = False
 
         if pixmap is None:
             pixmap = self.pixmap_img
 
-        self.worker_signals.add_new_widget.emit(
-            WidgetData(src, colors, rating, size, mod, pixmap)
+        widget_data = WidgetData(
+            src=src,
+            colors=colors,
+            rating=rating,
+            size=stat.st_size,
+            mod=stat.st_mtime,
+            pixmap=pixmap
             )
+
+        self.worker_signals.add_new_widget.emit(widget_data)
+
+        if new_img:
+            hash_path = Utils.get_hash_path(src)
+            stmt = self.get_insert_query(src, hash_path, stat.st_size, stat.st_mtime)
+            self.insert_queries.append(stmt)
+            self.hashed_images.append((hash_path, img_array))
 
     def get_db_data(self, src: str) -> list[tuple[str, str, int]] | None:
         try:
