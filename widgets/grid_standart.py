@@ -48,6 +48,8 @@ class LoadImages(URunnable):
         self.db_items: dict[tuple, str] = {}
         self.insert_count_data: list[tuple[sqlalchemy.Insert, str, ndarray]] = []
 
+        self.conn = Dbase.engine.connect()
+
     def run(self):
         self.set_is_running(True)
 
@@ -69,19 +71,19 @@ class LoadImages(URunnable):
         self.set_is_running(False)
         SignalsApp.all.progressbar_cmd.emit("hide")
 
+        self.conn.close()
+
     def get_db_dataset(self):
 
-        with Dbase.engine.connect() as conn:
-
-            q = sqlalchemy.select(
-                CACHE.c.src,
-                CACHE.c.hash_path,
-                CACHE.c.size,
-                CACHE.c.mod
-                ).where(
-                    CACHE.c.root == JsonData.root
-                    )
-            res = conn.execute(q).fetchall()
+        q = sqlalchemy.select(
+            CACHE.c.src,
+            CACHE.c.hash_path,
+            CACHE.c.size,
+            CACHE.c.mod
+            ).where(
+                CACHE.c.root == JsonData.root
+                )
+        res = self.conn.execute(q).fetchall()
 
         self.db_items: dict[tuple, str] = {
             (src, size, mod): hash_path
@@ -141,26 +143,25 @@ class LoadImages(URunnable):
 
         stop_flag = False
 
-        with Dbase.engine.connect() as conn:
-            for stmt, hash_path, img_array in self.insert_count_data:
+        for stmt, hash_path, img_array in self.insert_count_data:
 
-                try:
-                    conn.execute(stmt)
+            try:
+                self.conn.execute(stmt)
 
-                except IntegrityError as e:
-                    Utils.print_error(self, e)
-                    stop_flag = True
+            except IntegrityError as e:
+                Utils.print_error(self, e)
+                stop_flag = True
 
-                except OperationalError as e:
-                    Utils.print_error(self, e)
-                    self.set_should_run(False)
-                    stop_flag = True
-                
-                if stop_flag:
-                    conn.rollback()
-                    return None
+            except OperationalError as e:
+                Utils.print_error(self, e)
+                self.set_should_run(False)
+                stop_flag = True
+            
+            if stop_flag:
+                self.conn.rollback()
+                return None
 
-            conn.commit()
+        self.conn.commit()
 
         for stmt_, hash_path, img_array in self.insert_count_data:
             Utils.write_image_hash(hash_path, img_array)
@@ -196,22 +197,23 @@ class LoadImages(URunnable):
 
     def remove_images(self):
 
-        with Dbase.engine.connect() as conn:
+        for src, hash_path in self.remove_db_images:
+            print("удаляю", src)
 
-            for src, hash_path in self.remove_db_images:
-                print("удаляю", src)
+            try:
+                q = sqlalchemy.delete(CACHE).where(CACHE.c.src == src)
+                self.conn.execute(q)
+            except OperationalError as e:
+                Utils.print_error(self, e)
+                self.conn.rollback()
+                return None
 
-                try:
-                    q = sqlalchemy.delete(CACHE).where(CACHE.c.src == src)
-                    conn.execute(q)
-                except OperationalError as e:
-                    Utils.print_error(self, e)
-                    return
-
-            conn.commit()
+        self.conn.commit()
 
         for src, hash_path in self.remove_db_images:
             os.remove(hash_path)
+
+        return True
 
 
 class LoadFinder(URunnable):
