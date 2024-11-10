@@ -161,7 +161,8 @@ class TreeFavorites(QListWidget):
                 if isinstance(fav_widget, FavItem):
                     new_order[fav_widget.src] = fav_widget.name
 
-            JsonData.favs = new_order
+            if new_order:
+                JsonData.favs = new_order
     
     def dragEnterEvent(self, a0: QDragEnterEvent | None) -> None:
         if a0.mimeData().hasUrls():
