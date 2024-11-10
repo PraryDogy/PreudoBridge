@@ -210,31 +210,28 @@ class Thumb(OrderItem, QFrame):
         color_menu = QMenu("Цвета", self)
         context_menu.addMenu(color_menu)
 
-        # font = QFont()
-        # font.setPointSize(13)
-
         for color, text in COLORS.items():
             wid = QAction(parent=color_menu, text=f"{color} {text}")
             wid.setCheckable(True)
-            # wid.setFont(font)
 
             if color in self.colors:
                 wid.setChecked(True)
 
-            wid.triggered.connect(lambda e, c=color: self.set_colors_cmd(color_menu, c))
+            cmd_ = lambda e, c=color: self.set_colors_cmd(c)
+            wid.triggered.connect(cmd_)
             color_menu.addAction(wid)
 
         rating_menu = QMenu("Рейтинг", self)
         context_menu.addMenu(rating_menu)
 
-        for rate in range(1, 6):
-            wid = QAction(parent=rating_menu, text=STAR_SYM * rate)
+        for rating in range(1, 6):
+            wid = QAction(parent=rating_menu, text=STAR_SYM * rating)
             wid.setCheckable(True)
 
-            if self.rating == rate:
+            if self.rating == rating:
                 wid.setChecked(True)
 
-            cmd_ = lambda e, r=rate, w=wid: self.rating_click(rating_menu, w, r)
+            cmd_ = lambda e, r=rating: self.set_rating_cmd(r)
             wid.triggered.connect(cmd_)
             rating_menu.addAction(wid)
 
@@ -285,7 +282,7 @@ class Thumb(OrderItem, QFrame):
         self.name_label.set_text(self)
         self.color_label.set_text(self)
 
-    def set_colors_cmd(self, menu: QMenu, color: str):
+    def set_colors_cmd(self, color: str):
 
         if color not in self.colors:
             temp_colors = self.colors + color
@@ -298,28 +295,15 @@ class Thumb(OrderItem, QFrame):
             self.colors = ''.join(sorted(self.colors, key=key))
             self.set_text()
 
-            for item in menu.children():
-                item: QAction
-                if item.text()[0] in self.colors:
-                    item.setChecked(True)
-
         self.update_thumb_data("colors", temp_colors, cmd_)
 
-    def rating_click(self, menu: QMenu, wid: QAction, rating: int):
+    def set_rating_cmd(self, rating: int):
         if rating == 1:
             rating = 0
 
         def cmd_():
             self.rating = rating
             self.set_text()
-
-            for i in menu.children():
-
-                i: QAction
-                i.setChecked(False)
-
-            if rating > 0:
-                wid.setChecked(True)
 
         self.update_thumb_data("rating", rating, cmd_)
 
