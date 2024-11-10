@@ -376,11 +376,11 @@ class WinImgView(WinBase):
         self.zoom_btns.show()
         self.mouse_move_timer.start(2000)
 
-    def color_click(self, colors: str):
+    def set_colors_cmd(self, colors: str):
         self.wid.set_colors_cmd(colors)
         self.set_title()
 
-    def rating_click(self, rate: int):
+    def set_rating_cmd(self, rate: int):
         self.wid.set_rating_cmd(rate)
         self.set_title()
 
@@ -474,7 +474,7 @@ class WinImgView(WinBase):
             if color in self.wid.colors:
                 wid.setChecked(True)
 
-            cmd_ = lambda e, c=color: self.color_click(c)
+            cmd_ = lambda e, c=color: self.set_colors_cmd(c)
             wid.triggered.connect(cmd_)
             color_menu.addAction(wid)
 
@@ -488,7 +488,7 @@ class WinImgView(WinBase):
             if self.wid.rating == rating:
                 wid.setChecked(True)
 
-            cmd_ = lambda e, r=rating: self.rating_click(r)
+            cmd_ = lambda e, r=rating: self.set_rating_cmd(r)
             wid.triggered.connect(cmd_)
             rating_menu.addAction(wid)
 
