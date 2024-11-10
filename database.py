@@ -81,7 +81,7 @@ class Dbase:
                 }
                 )
         METADATA.create_all(cls.engine)
-        cls.enable_wal()
+        # cls.enable_wal()
         cls.check_tables()
 
     @classmethod
