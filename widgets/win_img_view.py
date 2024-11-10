@@ -301,6 +301,8 @@ class WinImgView(WinBase):
             t = t + self.wid.colors + " | "
         t = t + os.path.basename(self.src)
 
+        print(t)
+
         self.setWindowTitle(t)
 
     def load_thumbnail(self):
@@ -359,8 +361,11 @@ class WinImgView(WinBase):
         new_index: int = (current_index + offset) % total_images
 
         self.src: str = self.image_paths[new_index]
+
+        self.wid.text_changed.disconnect()
         self.wid: Thumb = self.path_to_wid.get(self.src)
         self.wid.text_changed.connect(self.set_title)
+
         SignalsApp.all.move_to_wid.emit(self.wid)
         self.load_thumbnail()
 
