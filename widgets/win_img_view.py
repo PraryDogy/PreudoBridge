@@ -50,6 +50,8 @@ class LoadThumbnail(URunnable):
         q = sqlalchemy.select(CACHE.c.hash_path).where(CACHE.c.src == self.src)
         res = conn.execute(q).scalar() or ""
 
+        conn.close()
+
         img_array = Utils.read_image_hash(res)
 
         if img_array is None:
