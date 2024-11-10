@@ -46,8 +46,7 @@ class SearchFinder(URunnable):
         self.pixmap_img = QPixmap("images/file_210.png")
 
         self.insert_count: int = 0
-        self.insert_queries: list[sqlalchemy.Insert] = []
-        self.hashed_images: list[tuple[str, object]] = []
+        self.insert_count_data: list[tuple[sqlalchemy.Insert, str, ndarray]] = []
 
     def run(self):
         self.set_is_running(True)
@@ -55,10 +54,7 @@ class SearchFinder(URunnable):
         self.walk_dir()
 
         if self.insert_count > 0:
-            try:
-                self.conn.commit()
-            except (IntegrityError, OperationalError) as e:
-                Utils.print_error(self, e)
+            self.insert_count_cmd()
 
         self.conn.close()
 
@@ -154,8 +150,12 @@ class SearchFinder(URunnable):
         if new_img:
             hash_path = Utils.get_hash_path(src)
             stmt = self.get_insert_query(src, hash_path, stat.st_size, stat.st_mtime)
-            self.insert_queries.append(stmt)
-            self.hashed_images.append((hash_path, img_array))
+            self.insert_count_data.append((stmt, hash_path, small_img_array))
+            self.insert_count += 1
+
+        if self.insert_count == 10:
+            self.insert_count_cmd()
+            self.insert_count_data.clear()
 
     def get_db_data(self, src: str) -> list[tuple[str, str, int]] | None:
         try:
@@ -191,44 +191,13 @@ class SearchFinder(URunnable):
             }
         return sqlalchemy.insert(CACHE).values(**values_)
 
-    def insert_queries_cmd(self):
-        ...
-
-
-    # def img_data_to_db(self, src: str, img_array, size: int, mod: int):
-
-    #     src = os.sep + src.strip().strip(os.sep)
-    #     name = os.path.basename(src)
-    #     type_ = os.path.splitext(name)[-1]
-    #     hashed_path = Utils.get_hash_path(src)
-
-    #     try:
-    #         insert_stmt = sqlalchemy.insert(CACHE)
-    #         insert_stmt = insert_stmt.values(
-    #             src=src,
-    #             hash_path=hashed_path,
-    #             root=os.path.dirname(src),
-    #             catalog="",
-    #             name=name,
-    #             type_=type_,
-    #             size=size,
-    #             mod=mod,
-    #             colors="",
-    #             rating=0
-    #             )
-
-    #         self.conn.execute(insert_stmt)
-
-    #         self.insert_count += 1
-    #         if self.insert_count >= 10:
-    #             self.conn.commit()
-    #             self.insert_count = 0
-
-    #         Utils.write_image_hash(output_path=hashed_path, array_img=img_array)
-
-    #     except (OperationalError, IntegrityError) as e:
-    #         Utils.print_error(self, e)
-    
+    def insert_count_cmd(self):
+        for stmt, hash_path, small_img_array in self.insert_count_data:
+            try:
+                self.conn.execute(stmt)
+                Utils.write_image_hash(hash_path, small_img_array)
+            except (IntegrityError, OperationalError) as e:
+                continue
 
 
 class GridSearch(Grid):
