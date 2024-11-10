@@ -51,12 +51,13 @@ class SearchFinder(URunnable):
     def run(self):
         self.set_is_running(True)
         self.setup_text()
+        self.walk_dir()
 
         if self.insert_count > 0:
-                try:
-                    self.conn.commit()
-                except (IntegrityError, OperationalError) as e:
-                    Utils.print_error(self, e)
+            try:
+                self.conn.commit()
+            except (IntegrityError, OperationalError) as e:
+                Utils.print_error(self, e)
 
         self.conn.close()
 
@@ -81,9 +82,11 @@ class SearchFinder(URunnable):
                     if hasattr(self, "is_tuple"):
                         if file_path_lower.endswith(self.search_text):
                             self.create_wid(file_path)
+                            sleep(SLEEP)
 
                     elif self.search_text in file:
                         self.create_wid(file_path)
+                        sleep(SLEEP)
 
     def setup_text(self):
         try:
@@ -129,8 +132,6 @@ class SearchFinder(URunnable):
         self.worker_signals.add_new_widget.emit(
             WidgetData(src, colors, rating, size, mod, pixmap)
             )
-
-        sleep(SLEEP)
 
     def get_db_data(self, src: str) -> list[tuple[str, str, int]] | None:
         try:
