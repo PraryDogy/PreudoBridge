@@ -163,6 +163,8 @@ class SimpleFileExplorer(QWidget):
         if root:
             JsonData.root = root
 
+        print(root)
+
         self.setWindowTitle(os.path.basename(JsonData.root))
         self.grid_close()
 
