@@ -1,6 +1,7 @@
 import os
 
 import sqlalchemy
+from numpy import ndarray
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtWidgets import QLabel
@@ -45,7 +46,7 @@ class LoadImages(URunnable):
 
         self.remove_db_images: list[tuple[str, str]] = []
         self.db_items: dict[tuple, str] = {}
-        self.insert_queries: list[sqlalchemy.Insert] = []
+        self.insert_count_data: list[tuple[sqlalchemy.Insert, str, ndarray]] = []
 
     def run(self):
         self.set_is_running(True)
@@ -63,7 +64,7 @@ class LoadImages(URunnable):
         # и обновление происходит через удаление и добавление заново
         self.remove_images()
         self.create_new_images()
-        self.insert_queries_cmd()
+        self.insert_count_cmd()
 
         self.set_is_running(False)
         SignalsApp.all.progressbar_cmd.emit("hide")
@@ -115,8 +116,8 @@ class LoadImages(URunnable):
                 continue
 
             if insert_count == MAX_QUERIES:
-                self.insert_queries_cmd()
-                self.insert_queries.clear()
+                self.insert_count_cmd()
+                self.insert_count_data.clear()
                 insert_count = 0
 
             img_array = Utils.read_image(src)
@@ -126,14 +127,15 @@ class LoadImages(URunnable):
                 small_img_array = FitImg.start(img_array, MAX_SIZE)
                 pixmap = Utils.pixmap_from_array(small_img_array)
 
-                hashed_path = Utils.get_hash_path(src)
-                Utils.write_image_hash(
-                    output_path=hashed_path,
-                    array_img=small_img_array
-                    )
+                hash_path = Utils.get_hash_path(src)
+                stmt = self.get_insert_stmt(src, hash_path, size, mod)
+                self.insert_count_data.append(stmt, hash_path, small_img_array)
 
-                stmt = self.get_insert_stmt(src, hashed_path, size, mod)
-                self.insert_queries.append(stmt)
+                # Utils.write_image_hash(
+                #     output_path=hashed_path,
+                #     array_img=small_img_array
+                #     )
+
 
                 self.worker_signals.new_widget.emit(ImageData(src, pixmap))
                 SignalsApp.all.progressbar_cmd.emit(progress_count)
@@ -141,25 +143,31 @@ class LoadImages(URunnable):
                 progress_count += 1
                 insert_count += 1
 
-    def insert_queries_cmd(self):
+    def insert_count_cmd(self):
+
+        stop_flag = False
 
         with Dbase.engine.connect() as conn:
-
-            for query in self.insert_queries:
-
+            for stmt, hash_path, img_array in self.insert_count_data:
                 try:
-                    conn.execute(query)
-                
+                    conn.execute(stmt)
+
                 except IntegrityError as e:
                     Utils.print_error(self, e)
-                    continue
 
                 except OperationalError as e:
                     Utils.print_error(self, e)
                     self.set_should_run(False)
-                    return
+                
+                if stop_flag:
+                    return None
 
             conn.commit()
+
+        for stmt_, hash_path, img_array in self.insert_count_data:
+            Utils.write_image_hash(hash_path, img_array)
+
+        return True
 
     def get_insert_stmt(
             self,
