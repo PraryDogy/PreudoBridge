@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (QAction, QFrame, QHBoxLayout, QLabel, QMenu,
 from cfg import COLORS, IMAGE_APPS, STAR_SYM, JsonData
 from database import CACHE, Dbase
 from signals import SignalsApp
-from utils import UThreadPool, URunnable, Utils
+from utils import URunnable, UThreadPool, Utils
 
 from ._base import WinBase
 from ._grid import Thumb
@@ -238,6 +238,7 @@ class WinImgView(WinBase):
         self.src: str = src
 
         self.wid: Thumb = path_to_wid.get(src)
+        self.wid.text_changed.connect(self.set_title)
 
         self.path_to_wid: dict[str, Thumb] = {
             path: wid
@@ -359,6 +360,7 @@ class WinImgView(WinBase):
 
         self.src: str = self.image_paths[new_index]
         self.wid: Thumb = self.path_to_wid.get(self.src)
+        self.wid.text_changed.connect(self.set_title)
         SignalsApp.all.move_to_wid.emit(self.wid)
         self.load_thumbnail()
 
@@ -375,14 +377,6 @@ class WinImgView(WinBase):
         self.next_image_btn.show()
         self.zoom_btns.show()
         self.mouse_move_timer.start(2000)
-
-    def set_colors_cmd(self, colors: str):
-        self.wid.set_colors_cmd(colors)
-        self.set_title()
-
-    def set_rating_cmd(self, rate: int):
-        self.wid.set_rating_cmd(rate)
-        self.set_title()
 
     def show_info_win(self):
         self.win_info = WinInfo(self.wid.get_info())
@@ -474,7 +468,7 @@ class WinImgView(WinBase):
             if color in self.wid.colors:
                 wid.setChecked(True)
 
-            cmd_ = lambda e, c=color: self.set_colors_cmd(c)
+            cmd_ = lambda e, c=color: self.wid.set_color_cmd(c)
             wid.triggered.connect(cmd_)
             color_menu.addAction(wid)
 
@@ -488,7 +482,7 @@ class WinImgView(WinBase):
             if self.wid.rating == rating:
                 wid.setChecked(True)
 
-            cmd_ = lambda e, r=rating: self.set_rating_cmd(r)
+            cmd_ = lambda e, r=rating: self.wid.set_rating_cmd(r)
             wid.triggered.connect(cmd_)
             rating_menu.addAction(wid)
 

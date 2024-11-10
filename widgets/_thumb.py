@@ -90,6 +90,7 @@ class UpdateThumbData(URunnable):
 class Thumb(OrderItem, QFrame):
     select = pyqtSignal()
     open_in_view = pyqtSignal()
+    text_changed = pyqtSignal()
 
     def __init__(
             self,
@@ -217,7 +218,7 @@ class Thumb(OrderItem, QFrame):
             if color in self.colors:
                 wid.setChecked(True)
 
-            cmd_ = lambda e, c=color: self.set_colors_cmd(c)
+            cmd_ = lambda e, c=color: self.set_color_cmd(c)
             wid.triggered.connect(cmd_)
             color_menu.addAction(wid)
 
@@ -281,8 +282,9 @@ class Thumb(OrderItem, QFrame):
     def set_text(self):
         self.name_label.set_text(self)
         self.color_label.set_text(self)
+        self.text_changed.emit()
 
-    def set_colors_cmd(self, color: str):
+    def set_color_cmd(self, color: str):
 
         if color not in self.colors:
             temp_colors = self.colors + color
