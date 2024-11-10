@@ -141,8 +141,7 @@ class SearchFinder(URunnable):
                 ).where(
                     CACHE.c.src == src
                     )
-            res = self.conn.execute(sel_stmt).first()
-            return res if res else None
+            return self.conn.execute(sel_stmt).first()
 
         except OperationalError as e:
             Utils.print_error(self, e)
