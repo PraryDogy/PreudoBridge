@@ -74,6 +74,7 @@ class SearchFinder(URunnable):
 
                 src: str = os.path.join(root, file)
                 src_lower: str = src.lower()
+
                 if src_lower.endswith(IMG_EXT):
                     
                     self.create_wid = False
