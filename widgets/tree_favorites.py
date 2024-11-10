@@ -100,7 +100,6 @@ class TreeFavorites(QListWidget):
             self.setCurrentItem(wid)
         else:
             self.clearSelection()
-            # self.setCurrentIndex(0)
 
     def cmd_(self, flag: str, src: str):
         if flag == "select":
@@ -130,6 +129,8 @@ class TreeFavorites(QListWidget):
         self.addItem(list_item)
         self.setItemWidget(list_item, item)
 
+        self.wids[src] = list_item
+
         return list_item
 
     def update_name(self, src: str, new_name: str):
@@ -146,6 +147,7 @@ class TreeFavorites(QListWidget):
         urls = a0.mimeData().urls()
         if urls:
             root = os.sep + urls[0].toLocalFile().strip(os.sep)
+
             if os.path.isdir(root):
                 self.add_fav_cmd(root)
 
@@ -155,7 +157,7 @@ class TreeFavorites(QListWidget):
 
             for i in range(self.count()):
                 item = self.item(i)
-                fav_widget = self.itemWidget(item)
+                fav_widget: FavItem = self.itemWidget(item)
                 if isinstance(fav_widget, FavItem):
                     new_order[fav_widget.src] = fav_widget.name
 
@@ -168,8 +170,3 @@ class TreeFavorites(QListWidget):
     
     def dragLeaveEvent(self, a0: QDragLeaveEvent | None) -> None:
         return super().dragLeaveEvent(a0)
-
-    # def mouseReleaseEvent(self, e: QMouseEvent | None) -> None:
-    #     curr = self.currentItem()
-    #     if isinstance(curr, QListWidgetItem):
-    #         curr.setSelected(False)
