@@ -30,11 +30,8 @@ class Grid(BaseGrid):
         # Посколько сетка может множество раз перезагружаться
         # прежде нужно отключить прошлые подключения чтобы не было
         # дублирования подклювчений
-        for sig in (SignalsApp.all.resize_grid, SignalsApp.all.sort_grid, SignalsApp.all.filter_grid, SignalsApp.all.move_to_wid):
-            try:
-                sig.disconnect()
-            except TypeError:
-                ...
+
+        SignalsApp.disconnect_()
 
         SignalsApp.all.resize_grid.connect(self.resize_)
         SignalsApp.all.sort_grid.connect(self.order_)

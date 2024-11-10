@@ -10,6 +10,7 @@ class Signals(QObject):
     sort_grid = pyqtSignal()
     filter_grid = pyqtSignal()
     move_to_wid = pyqtSignal(QWidget)
+    # end
 
     fav_cmd = pyqtSignal(str, str)
     search_finished = pyqtSignal(str)
@@ -28,3 +29,21 @@ class SignalsApp:
     @classmethod
     def init(cls):
         cls.all = Signals()
+
+    @classmethod
+    def disconnect_(cls) -> bool:
+
+        recon = (
+            SignalsApp.all.resize_grid,
+            SignalsApp.all.sort_grid,
+            SignalsApp.all.filter_grid,
+            SignalsApp.all.move_to_wid
+            )
+
+        for sig in recon:
+            try:
+                sig.disconnect()
+            except TypeError:
+                return False
+            
+        return True
