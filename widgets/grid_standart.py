@@ -140,25 +140,20 @@ class LoadImages(URunnable):
                 insert_count += 1
 
     def insert_count_cmd(self):
-
-        stop_flag = False
-
         for stmt, hash_path, img_array in self.insert_count_data:
 
             try:
                 self.conn.execute(stmt)
 
             except IntegrityError as e:
+                self.conn.rollback()
                 Utils.print_error(self, e)
-                stop_flag = True
+                continue
 
             except OperationalError as e:
+                self.conn.rollback()
                 Utils.print_error(self, e)
                 self.set_should_run(False)
-                stop_flag = True
-            
-            if stop_flag:
-                self.conn.rollback()
                 return None
 
         self.conn.commit()
@@ -207,6 +202,8 @@ class LoadImages(URunnable):
                 Utils.print_error(self, e)
                 self.conn.rollback()
                 return None
+            except IntegrityError as e:
+                continue
 
         self.conn.commit()
 
