@@ -84,18 +84,13 @@ class Grid(BaseGrid):
             self.curr_cell: tuple = (0, 0)
     
     def set_rating(self, rating: int):
-        return
         rating_data = {48: 0, 49: 1, 50: 2, 51: 3, 52: 4, 53: 5}
         wid: Thumb = self.cell_to_wid.get(self.curr_cell)
 
-        def cmd_():
-            wid.set_colors_rating_db(wid.colors, rating_data.get(rating))
+        if isinstance(wid, Thumb):
+            wid.set_rating_cmd(rating_data.get(rating))
             self.select_new_widget(self.curr_cell)
 
-        if isinstance(wid, Thumb):
-            rating = rating_data.get(rating)
-            wid.update_thumb_data("rating", rating, cmd_)
-  
     def order_(self):
         self.ordered_widgets = OrderItem.order_items(self.ordered_widgets)
         
