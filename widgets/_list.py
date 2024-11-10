@@ -1,9 +1,10 @@
 import os
 import subprocess
 
-from PyQt5.QtCore import QDir, Qt
+from PyQt5.QtCore import QDir, Qt, QItemSelectionModel
 from PyQt5.QtGui import QKeyEvent
-from PyQt5.QtWidgets import QAction, QFileSystemModel, QMenu, QTableView
+from PyQt5.QtWidgets import (QAbstractItemView, QAction, QFileSystemModel,
+                             QMenu, QTableView)
 
 from cfg import IMG_EXT, JsonData
 from signals import SignalsApp
@@ -20,6 +21,11 @@ class Sort:
 class ListStandart(BaseTableView):
     def __init__(self):
         super().__init__()
+        self.setSelectionBehavior(QTableView.SelectRows)
+        self.setSortingEnabled(True)
+        self.verticalHeader().setVisible(False)
+        self.horizontalHeader().sectionClicked.connect(self.save_sort_settings)
+        self.doubleClicked.connect(self.double_clicked)
 
         self._model = QFileSystemModel()
         self._model.setRootPath(JsonData.root)
@@ -28,18 +34,11 @@ class ListStandart(BaseTableView):
         self.setModel(self._model)
         self.setRootIndex(self._model.index(JsonData.root))
 
-        self.setSelectionBehavior(QTableView.SelectRows)
-        self.setSortingEnabled(True)
-        self.verticalHeader().setVisible(False)
         self.sortByColumn(Sort.column, Sort.order)
-
         self.setColumnWidth(0, 250)
         self.setColumnWidth(1, 100)
         self.setColumnWidth(2, 100)
         self.setColumnWidth(3, 150)
-
-        self.horizontalHeader().sectionClicked.connect(self.save_sort_settings)
-        self.doubleClicked.connect(self.double_clicked)
 
     def double_clicked(self, index):
         path = self._model.filePath(index)
@@ -122,3 +121,5 @@ class ListStandart(BaseTableView):
         if a0.key() in (Qt.Key.Key_Return, Qt.Key.Key_Space):
             index = self.currentIndex()
             self.double_clicked(index)
+
+        return super().keyPressEvent(a0)
