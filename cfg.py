@@ -34,9 +34,9 @@ FOLDER: str = "Папка"
 
 MARGIN: dict = {"w": 50, "h": 10}
 MAX_SIZE: int = 210
-PIXMAP_SIZE: list = [95, 130, 170, MAX_SIZE]
+PIXMAP_SIZE: list = [50, 95, 130, 170, MAX_SIZE]
 THUMB_W: list = [i for i in PIXMAP_SIZE]
-TEXT_LENGTH: list = [18, 23, 28, 33]
+TEXT_LENGTH: list = [12, 18, 23, 28, 33]
 GRID_SPACING = 5
 LEFT_MENU_W = 240
 
