@@ -50,7 +50,42 @@ class SearchFinder(URunnable):
 
     def run(self):
         self.set_is_running(True)
+        self.setup_text()
 
+        if self.insert_count > 0:
+                try:
+                    self.conn.commit()
+                except (IntegrityError, OperationalError) as e:
+                    Utils.print_error(self, e)
+
+        self.conn.close()
+
+        if self.is_should_run():
+            SignalsApp.all.search_finished.emit(str(self.search_text))
+
+        self.set_is_running(False)
+
+    def walk_dir(self):
+        for root, _, files in os.walk(JsonData.root):
+            if not self.is_should_run():
+                break
+
+            for file in files:
+                if not self.is_should_run():
+                    break
+
+                file_path: str = os.path.join(root, file)
+                file_path_lower: str = file_path.lower()
+                if file_path_lower.endswith(IMG_EXT):
+                                        
+                    if hasattr(self, "is_tuple"):
+                        if file_path_lower.endswith(self.search_text):
+                            self.create_wid(file_path)
+
+                    elif self.search_text in file:
+                        self.create_wid(file_path)
+
+    def setup_text(self):
         try:
             self.search_text: tuple = literal_eval(self.search_text)
         except (ValueError, SyntaxError):
@@ -61,41 +96,6 @@ class SearchFinder(URunnable):
 
         elif isinstance(self.search_text, int):
             self.search_text = str(self.search_text)
-
-        for root, _, files in os.walk(JsonData.root):
-
-            if not self.is_should_run():
-                break
-
-            for file in files:
-
-                if not self.is_should_run():
-                    break
-
-                file_path: str = os.path.join(root, file)
-                file_path_lower: str = file_path.lower()
-
-                if file_path_lower.endswith(IMG_EXT):
-                                        
-                    if hasattr(self, "is_tuple"):
-                        if file_path_lower.endswith(self.search_text):
-                            self.create_wid(file_path)
-
-                    elif self.search_text in file:
-                        self.create_wid(file_path)
-
-        if self.insert_count > 0:
-            try:
-                self.conn.commit()
-            except (IntegrityError, OperationalError) as e:
-                Utils.print_error(self, e)
-
-        self.conn.close()
-
-        if self.is_should_run():
-            SignalsApp.all.search_finished.emit(str(self.search_text))
-
-        self.set_is_running(False)
 
     def create_wid(self, src: str):
         try:
