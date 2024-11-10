@@ -118,7 +118,7 @@ class ListStandart(BaseTableView):
                 index = self.currentIndex()
                 self.double_clicked(index)
 
-        if a0.key() in (Qt.Key.Key_Return, Qt.Key.Key_Space):
+        elif a0.key() in (Qt.Key.Key_Return, Qt.Key.Key_Space):
             index = self.currentIndex()
             self.double_clicked(index)
 
