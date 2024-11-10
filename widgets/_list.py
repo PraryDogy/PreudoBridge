@@ -121,4 +121,5 @@ class ListStandart(BaseTableView):
             index = self.currentIndex()
             self.double_clicked(index)
 
-        return super().keyPressEvent(a0)
+        elif a0.key() in (Qt.Key.Key_Up, Qt.Key.Key_Down):
+            return super().keyPressEvent(a0)
