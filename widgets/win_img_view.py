@@ -29,44 +29,67 @@ class Shared:
 class ImageData:
     __slots__ = ["src", "width", "pixmap"]
     
-    def __init__(self, src: str, width: int, pixmap: QPixmap):
+    def __init__(self, src: str, pixmap: QPixmap):
         self.src: str = src
-        self.width: int = width
         self.pixmap: QPixmap = pixmap
+        self.width: int = pixmap.width()
 
 
 class WorkerSignals(QObject):
     _finished = pyqtSignal(ImageData)
 
 
-class LoadImageThread(URunnable):
-    _finished = pyqtSignal(ImageData)
+class LoadThumbnail(URunnable):
+    def __init__(self, src: str):
+        super().__init__()
+        self.worker_signals = WorkerSignals()
+        self.src = src
 
-    def __init__(self, img_src: str):
+    def run(self):
+        conn = Dbase.engine.connect()
+
+        q = sqlalchemy.select(CACHE.c.hash_path).where(CACHE.c.src == self.src)
+        res = conn.execute(q).scalar() or ""
+
+        img_array = Utils.read_image_hash(res)
+
+        if img_array is None:
+            pixmap = QPixmap(FILE_)
+        else:
+            pixmap = Utils.pixmap_from_array(img_array)
+
+        image_data = ImageData(self.src, pixmap)
+        self.worker_signals._finished.emit(image_data)
+
+class LoadImage(URunnable):
+
+    def __init__(self, src: str):
         super().__init__()
 
         self.worker_signals = WorkerSignals()
-        self.img_src: str = img_src
+        self.src: str = src
 
     def run(self):
-        if self.img_src not in Shared.loaded_images:
-            img_array = Utils.read_image(self.img_src)
-            if img_array is not None:
-                pixmap = Utils.pixmap_from_array(img_array)
-                Shared.loaded_images[self.img_src] = pixmap
-            else:
+        if self.src not in Shared.loaded_images:
+
+            img_array = Utils.read_image(self.src)
+
+            if img_array is None:
                 pixmap = QPixmap(FILE_)
+
+            else:
+                pixmap = Utils.pixmap_from_array(img_array)
+                Shared.loaded_images[self.src] = pixmap
+
         else:
-            pixmap = Shared.loaded_images.get(self.img_src)
+            pixmap = Shared.loaded_images.get(self.src)
 
         if len(Shared.loaded_images) > 50:
             first_img = list(Shared.loaded_images.keys())[0]
             Shared.loaded_images.pop(first_img)
 
-        if isinstance(pixmap, QPixmap):
-            self.worker_signals._finished.emit(ImageData(self.img_src, pixmap.width(), pixmap))
-        else:
-            self.worker_signals._finished.emit(ImageData(self.img_src, 0, None))
+        image_data = ImageData(self.src, pixmap)
+        self.worker_signals._finished.emit(image_data)
 
 
 class ImageWidget(QLabel):
@@ -305,39 +328,29 @@ class WinImgView(WinBase):
 
     def load_thumbnail(self):
         if self.src not in Shared.loaded_images:
-
             self.setWindowTitle("Загрузка")
-            q = sqlalchemy.select(CACHE.c.hash_path).where(CACHE.c.src == self.src)
+            task_ = LoadThumbnail(self.src)
+            cmd_ = lambda image_data: self.load_thumbnail_finished(image_data)
+            task_.worker_signals._finished.connect(cmd_)
+            UThreadPool.pool.start(task_)
+        else:
+            self.load_image()
 
-            with Dbase.engine.connect() as conn:
-                hash = conn.execute(q).scalar() or None
-                img = Utils.read_image_hash(hash)
-                if img is not None:
-                    pixmap = Utils.pixmap_from_array(img)
-                else:
-                    pixmap = QPixmap(FILE_)
-                self.img_label.set_image(pixmap)
+    def load_thumbnail_finished(self, image_data: ImageData):
+        self.img_label.set_image(image_data.pixmap)
+        self.load_image()
 
-        self.load_image_thread()
-
-    def load_image_thread(self):
-        self.setWindowTitle("Загрузка")
-        self.task_ = LoadImageThread(self.src)
-
+    def load_image(self):
+        task_ = LoadImage(self.src)
         cmd_ = lambda image_data: self.load_image_finished(image_data)
-        self.task_.worker_signals._finished.connect(cmd_)
+        task_.worker_signals._finished.connect(cmd_)
 
-        UThreadPool.pool.start(self.task_)
+        UThreadPool.pool.start(task_)
 
     def load_image_finished(self, image_data: ImageData):
-        if image_data.width == 0:
-            return
-
-        elif image_data.src != self.src:
-            return
-                        
-        self.img_label.set_image(image_data.pixmap)
-        self.set_title()
+        if image_data.src == self.src:
+            self.img_label.set_image(image_data.pixmap)
+            self.set_title()
 
 # GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI
 
@@ -553,12 +566,12 @@ class WinImgViewSingle(WinBase):
 
     def load_image_thread(self):
         self.setWindowTitle("Загрузка")
-        self.task_ = LoadImageThread(self.src)
+        task_ = LoadImage(self.src)
 
         cmd_ = lambda image_data: self.load_image_finished(image_data)
-        self.task_.worker_signals._finished.connect(cmd_)
+        task_.worker_signals._finished.connect(cmd_)
 
-        UThreadPool.pool.start(self.task_)
+        UThreadPool.pool.start(task_)
 
     def load_image_finished(self, image_data: ImageData):
         if image_data.width == 0:
