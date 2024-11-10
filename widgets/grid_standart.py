@@ -131,12 +131,6 @@ class LoadImages(URunnable):
                 stmt = self.get_insert_stmt(src, hash_path, size, mod)
                 self.insert_count_data.append(stmt, hash_path, small_img_array)
 
-                # Utils.write_image_hash(
-                #     output_path=hashed_path,
-                #     array_img=small_img_array
-                #     )
-
-
                 self.worker_signals.new_widget.emit(ImageData(src, pixmap))
                 SignalsApp.all.progressbar_cmd.emit(progress_count)
 
@@ -149,15 +143,18 @@ class LoadImages(URunnable):
 
         with Dbase.engine.connect() as conn:
             for stmt, hash_path, img_array in self.insert_count_data:
+
                 try:
                     conn.execute(stmt)
 
                 except IntegrityError as e:
                     Utils.print_error(self, e)
+                    stop_flag = True
 
                 except OperationalError as e:
                     Utils.print_error(self, e)
                     self.set_should_run(False)
+                    stop_flag = True
                 
                 if stop_flag:
                     return None
