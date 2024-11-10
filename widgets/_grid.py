@@ -167,14 +167,11 @@ class Grid(BaseGrid):
             SignalsApp.all.new_history.emit(wid.src)
             SignalsApp.all.load_standart_grid.emit(wid.src)
 
-        elif wid.src.endswith(IMG_EXT):
+        else:
             from .win_img_view import WinImgView
             self.win = WinImgView(wid.src, self.path_to_wid)
             Utils.center_win(parent=Utils.get_main_win(), child=self.win)
             self.win.show()
-
-        else:
-            subprocess.run(["open", wid.src])
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         wid: Thumb | ThumbFolder 
