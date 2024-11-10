@@ -129,7 +129,7 @@ class LoadImages(URunnable):
 
                 hash_path = Utils.get_hash_path(src)
                 stmt = self.get_insert_stmt(src, hash_path, size, mod)
-                self.insert_count_data.append(stmt, hash_path, small_img_array)
+                self.insert_count_data.append((stmt, hash_path, small_img_array))
 
                 self.worker_signals.new_widget.emit(ImageData(src, pixmap))
                 SignalsApp.all.progressbar_cmd.emit(progress_count)
