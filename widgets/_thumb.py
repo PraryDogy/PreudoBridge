@@ -20,6 +20,7 @@ from .win_info import WinInfo
 class NameLabel(QLabel):
     def __init__(self):
         super().__init__()
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
 
     def set_text(self, wid: OrderItem) -> list[str]:
         name: str | list = wid.name
@@ -54,6 +55,7 @@ class ColorLabel(QLabel):
     def __init__(self):
         super().__init__()
         self.setStyleSheet("font-size: 9px;")
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
 
     def set_text(self, wid: OrderItem):
         self.setText(wid.colors)
@@ -113,7 +115,6 @@ class Thumb(OrderItem, QFrame):
 
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(margin, margin, margin, margin)
-        v_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
         v_lay.setSpacing(margin)
         self.setLayout(v_lay)
 
@@ -122,12 +123,10 @@ class Thumb(OrderItem, QFrame):
         v_lay.addWidget(self.img_label)
 
         self.name_label = NameLabel()
-        self.name_label.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
-        v_lay.addWidget(self.name_label)
+        v_lay.addWidget(self.name_label, Qt.AlignmentFlag.AlignTop)
 
         self.color_label = ColorLabel()
-        self.color_label.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
-        v_lay.addWidget(self.color_label)
+        v_lay.addWidget(self.color_label, Qt.AlignmentFlag.AlignTop)
 
         self.setObjectName("thumbnail")
         self.set_no_frame()
