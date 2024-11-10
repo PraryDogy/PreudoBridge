@@ -32,7 +32,6 @@ class ImageData:
     def __init__(self, src: str, pixmap: QPixmap):
         self.src: str = src
         self.pixmap: QPixmap = pixmap
-        self.width: int = pixmap.width()
 
 
 class WorkerSignals(QObject):
@@ -329,23 +328,24 @@ class WinImgView(WinBase):
     def load_thumbnail(self):
         if self.src not in Shared.loaded_images:
             self.setWindowTitle("Загрузка")
-            task_ = LoadThumbnail(self.src)
+            self.task_ = LoadThumbnail(self.src)
             cmd_ = lambda image_data: self.load_thumbnail_finished(image_data)
-            task_.worker_signals._finished.connect(cmd_)
-            UThreadPool.pool.start(task_)
+            self.task_.worker_signals._finished.connect(cmd_)
+            UThreadPool.pool.start(self.task_)
         else:
             self.load_image()
 
     def load_thumbnail_finished(self, image_data: ImageData):
-        self.img_label.set_image(image_data.pixmap)
-        self.load_image()
+        if image_data.src == self.src:
+            self.img_label.set_image(image_data.pixmap)
+            self.load_image()
 
     def load_image(self):
-        task_ = LoadImage(self.src)
+        self.task_ = LoadImage(self.src)
         cmd_ = lambda image_data: self.load_image_finished(image_data)
-        task_.worker_signals._finished.connect(cmd_)
+        self.task_.worker_signals._finished.connect(cmd_)
 
-        UThreadPool.pool.start(task_)
+        UThreadPool.pool.start(self.task_)
 
     def load_image_finished(self, image_data: ImageData):
         if image_data.src == self.src:
@@ -566,23 +566,18 @@ class WinImgViewSingle(WinBase):
 
     def load_image_thread(self):
         self.setWindowTitle("Загрузка")
-        task_ = LoadImage(self.src)
+        self.task_ = LoadImage(self.src)
 
         cmd_ = lambda image_data: self.load_image_finished(image_data)
-        task_.worker_signals._finished.connect(cmd_)
+        self.task_.worker_signals._finished.connect(cmd_)
 
-        UThreadPool.pool.start(task_)
+        UThreadPool.pool.start(self.task_)
 
     def load_image_finished(self, image_data: ImageData):
-        if image_data.width == 0:
-            return
-
-        elif image_data.src != self.src:
-            return
-                        
-        self.img_label.set_image(image_data.pixmap)
-        name = os.path.basename(image_data.src)
-        self.setWindowTitle(name)
+        if image_data.src == self.src:                
+            self.img_label.set_image(image_data.pixmap)
+            name = os.path.basename(image_data.src)
+            self.setWindowTitle(name)
 
 # GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI
 
