@@ -194,12 +194,20 @@ class SearchFinder(URunnable):
 
     def insert_count_cmd(self):
         for stmt, hash_path, small_img_array in self.insert_count_data:
+
             try:
                 self.conn.execute(stmt)
-            except (IntegrityError, OperationalError) as e:
-                Utils.print_error(parent=self, error=e)
+
+            except IntegrityError as e:
                 self.conn.rollback()
+                Utils.print_error(parent=self, error=e)
+                self.set_should_run(False)
                 return None
+            
+            except OperationalError as e:
+                self.conn.rollback()
+                Utils.print_error(parent=self, error=e)
+                continue
 
         self.conn.commit()
 
