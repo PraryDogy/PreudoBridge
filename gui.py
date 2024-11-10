@@ -12,7 +12,7 @@ from widgets.bar_bottom import BarBottom
 from widgets.bar_top import BarTop
 from widgets.grid_search import GridSearch
 from widgets.grid_standart import GridStandart
-from widgets.list_standart import ListStandart
+from widgets._list import ListStandart
 from widgets.tree_favorites import TreeFavorites
 from widgets.tree_folders import TreeFolders
 

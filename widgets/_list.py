@@ -106,8 +106,19 @@ class ListStandart(BaseTableView):
 
         menu.exec_(self.mapToGlobal(event.pos()))
 
-    def keyPressEvent(self, e: QKeyEvent | None) -> None:
-        if e.key() in (Qt.Key.Key_Return, Qt.Key.Key_Space):
+    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
+        if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
+
+            if a0.key() == Qt.Key.Key_Up:
+                root = os.path.dirname(JsonData.root)
+                if root != os.sep:
+                    SignalsApp.all.new_history.emit(root)
+                    SignalsApp.all.load_standart_grid.emit(root)
+
+            elif a0.key() == Qt.Key.Key_Down:
+                index = self.currentIndex()
+                self.double_clicked(index)
+
+        if a0.key() in (Qt.Key.Key_Return, Qt.Key.Key_Space):
             index = self.currentIndex()
             self.double_clicked(index)
-        return super().keyPressEvent(e)
