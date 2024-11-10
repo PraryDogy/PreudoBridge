@@ -301,8 +301,6 @@ class WinImgView(WinBase):
             t = t + self.wid.colors + " | "
         t = t + os.path.basename(self.src)
 
-        print(t)
-
         self.setWindowTitle(t)
 
     def load_thumbnail(self):
