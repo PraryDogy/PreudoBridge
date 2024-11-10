@@ -63,6 +63,7 @@ class ColorLabel(QLabel):
 
 class UpdateThumbData(URunnable):
     def __init__(self, src: str, value_name: str, value: int | str, cmd_: callable):
+        """value_name: colors, rating"""
         super().__init__()
 
         self.cmd_ = cmd_
@@ -299,8 +300,8 @@ class Thumb(OrderItem, QFrame):
         self.update_thumb_data("colors", temp_colors, cmd_)
 
     def set_rating_cmd(self, rating: int):
-        if rating == 1:
-            rating = 0
+
+        rating = 0 if rating == 1 else rating
 
         def cmd_():
             self.rating = rating
