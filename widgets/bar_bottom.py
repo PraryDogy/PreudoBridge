@@ -10,9 +10,9 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
                              QHBoxLayout, QLabel, QLineEdit, QMenu,
                              QProgressBar, QPushButton, QVBoxLayout, QWidget)
 
-from cfg import BLUE, FOLDER, JsonData
+from cfg import BLUE, FOLDER, MAX_VAR, JsonData
 from signals import SignalsApp
-from utils import UThreadPool, URunnable, Utils
+from utils import URunnable, UThreadPool, Utils
 
 from ._base import BaseSlider, WinMinMax
 from ._thumb import Thumb
@@ -170,7 +170,7 @@ class WinGo(WinMinMax):
 class CustomSlider(BaseSlider):
 
     def __init__(self):
-        super().__init__(orientation=Qt.Orientation.Horizontal, minimum=0, maximum=3)
+        super().__init__(orientation=Qt.Orientation.Horizontal, minimum=0, maximum=MAX_VAR)
         self.setFixedWidth(80)
         self.setValue(JsonData.pixmap_size_ind)
         self.valueChanged.connect(self.change_size)

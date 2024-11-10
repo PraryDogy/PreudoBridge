@@ -43,7 +43,7 @@ class SimpleFileExplorer(QWidget):
 
         ww, hh = JsonData.ww, JsonData.hh
         self.resize(ww, hh)
-        self.setMinimumSize(700, 500)
+        self.setMinimumSize(800, 500)
 
         self.resize_timer = QTimer(parent=self)
         self.resize_timer.setSingleShot(True)

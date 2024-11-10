@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import QFrame, QGridLayout, QWidget
 
-from cfg import FOLDER, GRID_SPACING, IMG_EXT, Dymanic, JsonData
+from cfg import FOLDER, GRID_SPACING, MAX_VAR, Dymanic, JsonData
 from database import OrderItem
 from signals import SignalsApp
 from utils import Utils
@@ -194,7 +194,7 @@ class Grid(BaseGrid):
 
             elif a0.key() == Qt.Key.Key_Equal:
                 new_value = JsonData.pixmap_size_ind + 1
-                if new_value <= 3:
+                if new_value <= MAX_VAR:
                     SignalsApp.all.move_slider.emit(new_value)
 
             elif a0.key() == Qt.Key.Key_Minus:

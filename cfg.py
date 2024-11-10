@@ -39,6 +39,7 @@ THUMB_W: list = [i for i in PIXMAP_SIZE]
 TEXT_LENGTH: list = [12, 18, 23, 28, 33]
 GRID_SPACING = 5
 LEFT_MENU_W = 240
+MAX_VAR = len(PIXMAP_SIZE) - 1
 
 LINK = "https://disk.yandex.ru/d/vYdK8hMwVbkSKQ"
 IMAGE_APPS: dict = {}
