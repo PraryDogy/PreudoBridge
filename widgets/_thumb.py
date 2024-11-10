@@ -6,7 +6,7 @@ from PyQt5.QtCore import QMimeData, QObject, Qt, QUrl, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QDrag, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QLabel, QMenu,
                              QVBoxLayout)
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import (COLORS, FOLDER, GRAY, IMAGE_APPS, MARGIN, PIXMAP_SIZE,
                  STAR_SYM, TEXT_LENGTH, THUMB_W, JsonData)
@@ -79,7 +79,7 @@ class UpdateThumbData(URunnable):
             conn.execute(stmt)
             conn.commit()
             self.finalize()
-        except OperationalError as e:
+        except (OperationalError, IntegrityError) as e:
             Utils.print_error(self, e)
             conn.rollback()
 
