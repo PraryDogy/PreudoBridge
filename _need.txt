@@ -16,3 +16,6 @@ miuz collections
 храни изображения как в этом приложении
 проверка версий: если версия ниже Х, то удаляешь БД, и заливаешь новую БД 
 и hash images
+
+
+/Volumes/Macintosh HD/Users/Morkowik/D esktop/Evgeny/sample images/many_image s/2021-09-08 15-32-03 (B,Radius4,Smoot hing2) 2.jpg

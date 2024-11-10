@@ -5,22 +5,24 @@ from PyQt5.QtWidgets import QApplication, QLabel, QMenu, QWidget
 from PyQt5.QtCore import Qt
 from ._base import WinMinMax
 
+
+STRANGE_SYM = " "
+
+
 class CustomLabel(QLabel):
     def __init__(self, text: str):
         super().__init__(text)
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
+        self.setSelection(0, len(self.text()))
         menu = QMenu(self)
-        select_all_action = menu.addAction("Выделить все")
-        select_all_action.triggered.connect(lambda: self.setSelection(0, len(self.text())))
-        menu.addSeparator()
         copy_action = menu.addAction("Копировать")
         copy_action.triggered.connect(self.custom_copy)
         menu.exec_(ev.globalPos())
 
     def custom_copy(self):
         selected_text = self.selectedText()
-        modified_text = selected_text.replace("\n", "")
+        modified_text = selected_text.replace(STRANGE_SYM, "")
         clipboard = QApplication.clipboard()
         clipboard.setText(modified_text)
 
