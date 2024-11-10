@@ -509,6 +509,8 @@ class WinImgView(WinBase):
 
 class WinImgViewSingle(WinBase):
     def __init__(self, src: str):
+        print("sngle img view")
+        return
         super().__init__()
         self.src: str = src
 
