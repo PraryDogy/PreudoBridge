@@ -28,6 +28,8 @@ FOLDER_ICON = os.path.join(IMAGES, "folder.svg")
 IMG_ICON = os.path.join(IMAGES, "img.svg")
 GOTO_ICON = os.path.join(IMAGES, "goto.svg")
 
+FOLDER_PIXMAP = os.path.join(IMAGES, "folder.png")
+
 class WorkerSignals(QObject):
     _finished = pyqtSignal(str)
 
@@ -168,7 +170,6 @@ class WinGo(WinMinMax):
 
 
 class CustomSlider(BaseSlider):
-
     def __init__(self):
         super().__init__(orientation=Qt.Orientation.Horizontal, minimum=0, maximum=MAX_VAR)
         self.setFixedWidth(80)
@@ -277,10 +278,15 @@ class PathLabel(QLabel):
 
 
 class PathItem(QWidget):
+    mime_img: QPixmap = None
+
     def __init__(self, obj: str | Thumb, name: str, svg_path: str):
         super().__init__()
         self.setFixedHeight(15)
         self.obj = obj
+
+        if self.mime_img is None:
+            self.mime_img = QPixmap(FOLDER_PIXMAP)
 
         item_layout = QHBoxLayout()
         item_layout.setContentsMargins(0, 0, 0, 0)
@@ -338,7 +344,7 @@ class PathItem(QWidget):
         self.path_label.selected_style()
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
-        self.drag.setPixmap(self.icon_label.pixmap())
+        self.drag.setPixmap(self.mime_img)
         
         if isinstance(self.obj, Thumb):
             src = self.obj.src
