@@ -194,10 +194,10 @@ class PathLabel(QLabel):
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
         context_menu = QMenu(parent=self)
 
-        if isinstance(self.obj, Thumb):
-            src = self.obj.src
-        else:
-            src = self.obj
+        # if isinstance(self.obj, Thumb):
+        #     src = self.obj.src
+        # else:
+        #     src = self.obj
 
         view_action = QAction("Просмотр", self)
         cmd = lambda: self._open_img_view.emit()
@@ -278,15 +278,11 @@ class PathLabel(QLabel):
 
 
 class PathItem(QWidget):
-    mime_img: QPixmap = None
 
     def __init__(self, obj: str | Thumb, name: str, svg_path: str):
         super().__init__()
         self.setFixedHeight(15)
         self.obj = obj
-
-        if self.mime_img is None:
-            self.mime_img = QPixmap(FOLDER_PIXMAP)
 
         item_layout = QHBoxLayout()
         item_layout.setContentsMargins(0, 0, 0, 0)
@@ -344,7 +340,9 @@ class PathItem(QWidget):
         self.path_label.selected_style()
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
-        self.drag.setPixmap(self.mime_img)
+
+        # !!!!!!!!!!!!!!!!
+        self.drag.setPixmap(QPixmap(FOLDER_PIXMAP))
         
         if isinstance(self.obj, Thumb):
             src = self.obj.src
@@ -426,12 +424,6 @@ class BarBottom(QWidget):
         self.win = WinGo()
         Utils.center_win(Utils.get_main_win(), self.win)
         self.win.show()
-
-    def small_icon(self, obj: str | QPixmap):
-        if isinstance(obj, str):
-            return QPixmap(obj).scaled(15, 15, transformMode=Qt.TransformationMode.SmoothTransformation)
-        else:
-            return obj.scaled(15, 15, transformMode=Qt.TransformationMode.SmoothTransformation)
 
     def progressbar_cmd(self, cmd: int | str):
         if isinstance(cmd, int):
