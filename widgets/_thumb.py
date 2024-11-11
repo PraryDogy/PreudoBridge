@@ -108,18 +108,15 @@ class Thumb(OrderItem, QFrame):
             mod: int = None,
             colors: str = None,
             rating: int = None,
-            pixmap: QPixmap = None,
             ):
 
         QFrame.__init__(self, parent=None)
         OrderItem.__init__(self, src=src, size=size, mod=mod, colors=colors, rating=rating)
 
-        self.img: QPixmap = pixmap
+        self.img: QPixmap = None
         self.must_hidden: bool = False
         self.row, self.col = 0, 0
-
         margin = 0
-        pixmap_size = PIXMAP_SIZE[JsonData.pixmap_size_ind]
 
         self.v_lay = QVBoxLayout()
         self.v_lay.setContentsMargins(margin, margin, margin, margin)
@@ -374,7 +371,6 @@ class ThumbFolder(Thumb):
             mod: int = None, 
             colors: str = None, 
             rating: int = None, 
-            pixmap: QPixmap = None, 
             ):
         
         Thumb.__init__(
@@ -383,7 +379,7 @@ class ThumbFolder(Thumb):
             size=size,
             mod=mod,
             colors=colors,
-            rating=rating, pixmap=pixmap
+            rating=rating
             )
         
         pixmap_size = PIXMAP_SIZE[JsonData.pixmap_size_ind]
@@ -451,7 +447,6 @@ class ThumbSearch(Thumb):
         mod: int = None, 
         colors: str = None,
         rating: int = None,
-        pixmap: QPixmap = None,
         ):
 
         Thumb.__init__(
@@ -461,7 +456,6 @@ class ThumbSearch(Thumb):
             mod=mod, 
             colors=colors,
             rating=rating, 
-            pixmap=pixmap
             )
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:

@@ -277,11 +277,6 @@ class LoadFinder(URunnable):
 class GridStandart(Grid):
     def __init__(self, width: int):
         super().__init__(width)
-
-        self.pixmap_disk: QPixmap = QPixmap("images/disk_210.png")
-        self.pixmap_folder: QPixmap = QPixmap("images/folder_210.png")
-        self.pixmap_img: QPixmap = QPixmap("images/file_210.png")
-
         self.order_items: list[OrderItem] = []
 
         self.finder_task = LoadFinder()
@@ -300,11 +295,11 @@ class GridStandart(Grid):
     
             if os.path.isdir(order_item.src):
 
-                if os.path.ismount(order_item.src) or order_item.src == sys_disk:
-                    folder_pixmap = self.pixmap_disk
+                # if os.path.ismount(order_item.src) or order_item.src == sys_disk:
+                #     folder_pixmap = self.pixmap_disk
 
-                else:
-                    folder_pixmap = self.pixmap_folder
+                # else:
+                #     folder_pixmap = self.pixmap_folder
 
                 wid = ThumbFolder(
                     src=order_item.src,
@@ -312,7 +307,6 @@ class GridStandart(Grid):
                     mod=order_item.mod,
                     colors=order_item.colors,
                     rating=order_item.rating,
-                    pixmap=folder_pixmap
                     )
 
             else:
@@ -322,7 +316,6 @@ class GridStandart(Grid):
                     mod=order_item.mod,
                     colors=order_item.colors,
                     rating=order_item.rating,
-                    pixmap=self.pixmap_img,
                     )
 
             wid.select.connect(lambda w=wid: self.select_new_widget(w))

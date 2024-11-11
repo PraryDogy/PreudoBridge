@@ -43,7 +43,6 @@ class SearchFinder(URunnable):
         self.worker_signals = WorkerSignals()
         self.search_text: str = search_text
         self.conn: sqlalchemy.Connection = Dbase.engine.connect()
-        self.pixmap_img = QPixmap("images/file_210.png")
 
         self.insert_count: int = 0
         self.insert_count_data: list[tuple[sqlalchemy.Insert, str, ndarray]] = []
@@ -133,9 +132,6 @@ class SearchFinder(URunnable):
             colors = db_data[1]
             rating = db_data[2]
             new_img = False
-
-        if pixmap is None:
-            pixmap = self.pixmap_img
 
         widget_data = WidgetData(
             src=src,
@@ -238,8 +234,10 @@ class GridSearch(Grid):
             mod=widget_data.mod,
             colors=widget_data.colors,
             rating=widget_data.rating,
-            pixmap=widget_data.pixmap,
             )
+        
+        if widget_data.pixmap is not None:
+            wid.set_pixmap(widget_data.pixmap)
 
         wid.select.connect(lambda w=wid: self.select_new_widget(w))
         wid.open_in_view.connect(lambda w=wid: self.open_in_view(w))
