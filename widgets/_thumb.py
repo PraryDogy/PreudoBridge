@@ -1,4 +1,5 @@
 import datetime
+import os
 import subprocess
 
 import sqlalchemy
@@ -16,6 +17,10 @@ from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 from .win_info import WinInfo
+
+IMAGES = "images"
+IMG_ICON = os.path.join(IMAGES, "img.svg")
+FOLDER_ICON = os.path.join(IMAGES, "folder.svg")
 
 
 class NameLabel(QLabel):
@@ -121,11 +126,11 @@ class Thumb(OrderItem, QFrame):
         self.v_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setLayout(self.v_lay)
 
-        self.img_label: QSvgWidget | QLabel = QSvgWidget()
-        self.img_label.renderer().setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
-        self.img_label.load("images/img.svg")
-        self.img_label.setFixedSize(PIXMAP_SIZE[JsonData.pixmap_size_ind], PIXMAP_SIZE[JsonData.pixmap_size_ind])
-        self.v_lay.addWidget(self.img_label, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.img_wid: QSvgWidget | QLabel = QSvgWidget()
+        self.img_wid.renderer().setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
+        self.img_wid.load(IMG_ICON)
+        self.img_wid.setFixedSize(PIXMAP_SIZE[JsonData.pixmap_size_ind], PIXMAP_SIZE[JsonData.pixmap_size_ind])
+        self.v_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.name_label = NameLabel()
         self.v_lay.addWidget(self.name_label, Qt.AlignmentFlag.AlignTop)
@@ -140,23 +145,23 @@ class Thumb(OrderItem, QFrame):
     # 210 пикселей
     def set_pixmap(self, pixmap: QPixmap):
         return
-        self.img_label.deleteLater()
-        self.img_label = QLabel()
-        self.img_label.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
-        self.v_lay.insertWidget(0, self.img_label)
+        self.img_wid.deleteLater()
+        self.img_wid = QLabel()
+        self.img_wid.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
+        self.v_lay.insertWidget(0, self.img_wid)
 
         self.img = pixmap
         pixmap = Utils.pixmap_scale(pixmap, PIXMAP_SIZE[JsonData.pixmap_size_ind])
-        self.img_label.setPixmap(pixmap)
+        self.img_wid.setPixmap(pixmap)
 
     def setup(self):
         pixmap_size = PIXMAP_SIZE[JsonData.pixmap_size_ind]
-
-        if isinstance(self.img_label, QLabel):
+        
+        if isinstance(self.img_wid, QLabel):
             pixmap = Utils.pixmap_scale(self.img, pixmap_size)
-            self.img_label.setPixmap(pixmap)
+            self.img_wid.setPixmap(pixmap)
         else:
-            self.img_label.setFixedSize(pixmap_size, pixmap_size)
+            self.img_wid.setFixedSize(pixmap_size, pixmap_size)
 
         row_h = 16
 
@@ -346,7 +351,7 @@ class Thumb(OrderItem, QFrame):
 
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
-        self.drag.setPixmap(self.img_label.pixmap())
+        self.drag.setPixmap(self.img_wid.pixmap())
         
         url = [QUrl.fromLocalFile(self.src)]
         self.mime_data.setUrls(url)
@@ -375,11 +380,18 @@ class ThumbFolder(Thumb):
             pixmap: QPixmap = None, 
             ):
         
-        Thumb.__init__(self, src=src, size=size, mod=mod, colors=colors, rating=rating,
-                         pixmap=pixmap)
+        Thumb.__init__(
+            self,
+            src=src,
+            size=size,
+            mod=mod,
+            colors=colors,
+            rating=rating, pixmap=pixmap
+            )
         
-        self.img_label.load("images/folder.svg")
-        self.img_label.setFixedSize(PIXMAP_SIZE[JsonData.pixmap_size_ind], PIXMAP_SIZE[JsonData.pixmap_size_ind])
+        pixmap_size = PIXMAP_SIZE[JsonData.pixmap_size_ind]
+        self.img_wid.load(FOLDER_ICON)
+        self.img_wid.setFixedSize(pixmap_size, pixmap_size)
 
     def fav_cmd(self, offset: int):
         self.fav_action.triggered.disconnect()
@@ -396,35 +408,6 @@ class ThumbFolder(Thumb):
         self.win_info = WinInfo(self.get_info())
         Utils.center_win(parent=Utils.get_main_win(), child=self.win_info)
         self.win_info.show()
-
-    def setup(self):
-        if isinstance(self.img, QPixmap):
-            pixmap = Utils.pixmap_scale(self.img, PIXMAP_SIZE[JsonData.pixmap_size_ind])
-
-            if isinstance(self.img_label, QLabel):
-                self.img_label.setPixmap(pixmap)
-
-        row_h = 16
-
-        thumb_w = sum((
-            THUMB_W[JsonData.pixmap_size_ind],
-            MARGIN.get("w"),
-            ))
-
-        thumb_h = sum((
-            PIXMAP_SIZE[JsonData.pixmap_size_ind],
-            row_h * 2,
-            row_h,
-            MARGIN.get("h"),
-            ))
-        
-        self.set_text()
-        self.adjustSize()
-
-        self.setFixedSize(thumb_w, thumb_h)
-        self.img_label.setFixedSize(thumb_w, PIXMAP_SIZE[JsonData.pixmap_size_ind] + 5)
-        self.name_label.setFixedSize(thumb_w, row_h * 2)
-        self.color_label.setFixedSize(thumb_w, row_h)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         self.select.emit()
@@ -474,8 +457,15 @@ class ThumbSearch(Thumb):
         pixmap: QPixmap = None,
         ):
 
-        Thumb.__init__(self, src=src, size=size, mod=mod, colors=colors, 
-                         rating=rating, pixmap=pixmap)
+        Thumb.__init__(
+            self,
+            src=src, 
+            size=size, 
+            mod=mod, 
+            colors=colors,
+            rating=rating, 
+            pixmap=pixmap
+            )
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         self.select.emit()
