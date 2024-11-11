@@ -289,12 +289,12 @@ class PathItem(QWidget):
         item_layout.setSpacing(5)
         self.setLayout(item_layout)
 
-        self.icon_label = QSvgWidget()
-        self.icon_label.load(svg_path)
-        self.icon_label.renderer().setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatioByExpanding)
-        self.icon_label.setFixedSize(15, 15)
+        self.img_wid = QSvgWidget()
+        self.img_wid.load(svg_path)
+        self.img_wid.renderer().setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatioByExpanding)
+        self.img_wid.setFixedSize(15, 15)
 
-        item_layout.addWidget(self.icon_label)
+        item_layout.addWidget(self.img_wid)
         
         self.path_label = PathLabel(obj=obj, text=name + ARROW)
         self.path_label.setMinimumWidth(15)
@@ -455,10 +455,10 @@ class BarBottom(QWidget):
             path_items.append(path_item)
             self.path_lay.addWidget(path_item)
 
-        path_items[0].icon_label.load(COMP_ICON)
+        path_items[0].img_wid.load(COMP_ICON)
 
         if len(path_items) > 1:
-            path_items[1].icon_label.load(HDD_ICON)
+            path_items[1].img_wid.load(HDD_ICON)
 
         if isinstance(obj, Thumb):
             path_item = PathItem(obj, obj.name, IMG_ICON)
