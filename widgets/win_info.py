@@ -10,7 +10,8 @@ import os
 
 STRANGE_SYM = " "
 CALCULATING = "Вычисляю..."
-
+NAMES = ["Имя", "Тип", "Размер", "Место", "Создан", "Изменен"]
+TITLE = "Инфо"
 
 class WorkerSignals(QObject):
     _finished = pyqtSignal(str)
@@ -112,7 +113,7 @@ class CustomLabel(QLabel):
 class WinInfo(WinMinMax):
     def __init__(self, src: str):
         super().__init__()
-        self.setWindowTitle("Инфо")
+        self.setWindowTitle(TITLE)
 
         self.src = src
 
@@ -123,12 +124,11 @@ class WinInfo(WinMinMax):
         self.setLayout(self.grid_layout)
 
         row = 0
-        names = ["имя", "тип", "размер", "место", "создан", "изменен"]
 
         task_ = InfoTask(self.src)
         info = task_.get()
 
-        for name, text in zip(names, info):
+        for name, text in zip(NAMES, info):
 
             left_lbl = CustomLabel(name)
             flags_l_al = Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignTop
