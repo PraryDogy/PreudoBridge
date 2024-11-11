@@ -3,6 +3,7 @@ import logging
 import os
 import subprocess
 import traceback
+from datetime import datetime
 
 import cv2
 import numpy as np
@@ -261,7 +262,7 @@ class Utils:
             return None
 
     @classmethod
-    def get_f_size(cls, path):
+    def get_f_size(cls, path: str) -> str:
         size = os.path.getsize(path)
         if size < 1024:
             return f"{size} байт"
@@ -271,6 +272,11 @@ class Utils:
             return f"{round(size/(pow(1024,2)), 2)} МБ"
         elif size < pow(1024,4):
             return f"{round(size/(pow(1024,3)), 2)} ГБ"
+
+    @classmethod
+    def get_f_date(cls, timestamp_: int) -> str:
+        date = datetime.fromtimestamp(timestamp_).replace(microsecond=0)
+        return date.strftime("%d.%m.%Y %H:%M")
 
 
 class UThreadPool:

@@ -3,7 +3,7 @@ import os
 import sqlalchemy
 from sqlalchemy.exc import OperationalError
 
-from cfg import DB_FILE, FOLDER, JsonData
+from cfg import DB_FILE, FOLDER_TYPE, JsonData
 from utils import Utils
 
 METADATA = sqlalchemy.MetaData()
@@ -42,7 +42,7 @@ class OrderItem:
         self.name: str = os.path.split(self.src)[-1]
         
         if os.path.isdir(src):
-            self.type_ = FOLDER
+            self.type_ = FOLDER_TYPE
         else:
             self.type_ = os.path.splitext(self.src)[-1]
 

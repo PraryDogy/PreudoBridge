@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import QFrame, QGridLayout, QWidget
 
-from cfg import FOLDER, GRID_SPACING, MAX_VAR, Dymanic, JsonData
+from cfg import FOLDER_TYPE, GRID_SPACING, MAX_VAR, Dymanic, JsonData
 from database import OrderItem
 from signals import SignalsApp
 from utils import Utils
@@ -159,7 +159,7 @@ class Grid(GridBase):
         self.ordered_widgets.append(wid)
 
     def open_in_view(self, wid: Thumb):
-        if wid.type_ == FOLDER:
+        if wid.type_ == FOLDER_TYPE:
             SignalsApp.all.new_history.emit(wid.src)
             SignalsApp.all.load_standart_grid.emit(wid.src)
 

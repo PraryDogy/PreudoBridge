@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
                              QHBoxLayout, QLabel, QLineEdit, QMenu,
                              QProgressBar, QPushButton, QVBoxLayout, QWidget)
 
-from cfg import (BLUE, COMP_SVG, FOLDER, FOLDER_SVG, GOTO_SVG, HDD_SVG,
+from cfg import (BLUE, COMP_SVG, FOLDER_TYPE, FOLDER_SVG, GOTO_SVG, HDD_SVG,
                  IMG_SVG, MAX_VAR, JsonData)
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
@@ -217,33 +217,9 @@ class PathLabel(QLabel):
         self.setStyleSheet("")
 
     def show_info_win(self):
-        info = self.get_info()
-
-        self.win_info = WinInfo(info)
+        self.win_info = WinInfo(self.src)
         Utils.center_win(parent=Utils.get_main_win(), child=self.win_info)
         self.win_info.show()
-
-    def get_info(self):
-        try:
-            stats = os.stat(self.src)
-
-            date = datetime.fromtimestamp(stats.st_mtime).replace(microsecond=0)
-            date: str = date.strftime("%d.%m.%Y %H:%M")
-
-            if os.path.isdir(self.src):
-                f_type = FOLDER
-            else:
-                _, f_type = os.path.splitext(self.src)
-
-            name = "Имя***" + os.path.basename(self.src)
-            type_ = "Тип***" + f_type
-            path = "Путь***" + self.src
-            size_ = "Размер***" + Utils.get_f_size(self.src)
-            date = "Изменен***" + date
-            return "\n".join([name, type_, path, size_, date])
-
-        except (PermissionError, FileNotFoundError) as e:
-            return "Ошибка данных: нет доступка к папке"
 
     def show_in_finder(self):
         subprocess.call(["open", "-R", self.src])
@@ -293,6 +269,7 @@ class PathItem(QWidget):
         if os.path.isfile(self.src):
             from .win_img_view import WinImgView
             self.win_ = WinImgView(self.src)
+            Utils.center_win(parent=Utils.get_main_win(), child=self.win_)
             self.win_.show()
         else:
             SignalsApp.all.new_history.emit(self.src)

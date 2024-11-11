@@ -37,7 +37,7 @@ HDD_SVG = os.path.join(IMAGES_DIR, "hdd.svg")
 COMP_SVG = os.path.join(IMAGES_DIR, "computer.svg")
 GOTO_SVG = os.path.join(IMAGES_DIR, "goto.svg")
 
-FOLDER: str = "Папка"
+FOLDER_TYPE: str = "Папка"
 
 MARGIN: dict = {"w": 50, "h": 10}
 MAX_SIZE: int = 210

@@ -397,7 +397,7 @@ class WinImgView(WinBase):
         self.mouse_move_timer.start(2000)
 
     def show_info_win(self):
-        self.win_info = WinInfo(self.wid.get_info())
+        self.win_info = WinInfo(self.src)
         Utils.center_win(parent=self, child=self.win_info)
         self.win_info.show()
 

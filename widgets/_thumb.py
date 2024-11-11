@@ -241,7 +241,7 @@ class Thumb(OrderItem, QFrame):
             rating_menu.addAction(wid)
 
     def show_info_win(self):
-        self.win_info = WinInfo(self.get_info())
+        self.win_info = WinInfo(self.src)
         Utils.center_win(parent=Utils.get_main_win(), child=self.win_info)
         self.win_info.show()
 
@@ -250,35 +250,6 @@ class Thumb(OrderItem, QFrame):
 
     def show_in_finder(self):
         subprocess.call(["open", "-R", self.src])
-
-    def get_info(self) -> str:
-        rating = STAR_SYM * self.rating
-
-        calc = {
-            "КБ": round(self.size / 1024, 2),
-            "МБ": round(self.size / 1024 ** 2, 2),
-            "ГБ": round(self.size / 1024 ** 3, 2)
-            }
-        
-        f_size = Utils.get_f_size(self.src)
-
-        if self.mod:
-            str_date = datetime.datetime.fromtimestamp(self.mod).replace(microsecond=0)
-            f_mod: str = str_date.strftime("%d.%m.%Y %H:%M")
-        else:
-            self.f_mod = ""
-
-        text = [
-            f"Имя*** {self.name}",
-            f"Тип*** {self.type_}",
-            f"Путь*** {self.src}",
-            f"Размер*** {f_size}" if self.size > 0 else "",
-            f"Изменен*** {f_mod}" if f_mod else "",
-            f"Рейтинг*** {rating}" if rating else "",
-            f"Цвета*** {self.colors}" if self.colors else ""
-            ]
-        text = [i for i in text if i]
-        return "\n".join(text)
 
     def set_text(self):
         self.name_label.set_text(self)
@@ -394,7 +365,7 @@ class ThumbFolder(Thumb):
             self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))
 
     def show_info_win(self):
-        self.win_info = WinInfo(self.get_info())
+        self.win_info = WinInfo(self.src)
         Utils.center_win(parent=Utils.get_main_win(), child=self.win_info)
         self.win_info.show()
 

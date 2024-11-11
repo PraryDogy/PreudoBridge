@@ -7,7 +7,7 @@ from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtWidgets import QLabel
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import FOLDER, HDD_SVG, IMG_EXT, MAX_SIZE, JsonData
+from cfg import FOLDER_TYPE, HDD_SVG, IMG_EXT, MAX_SIZE, JsonData
 from database import CACHE, Dbase, OrderItem
 from fit_img import FitImg
 from signals import SignalsApp
@@ -42,7 +42,7 @@ class LoadImages(URunnable):
         self.finder_items: list[tuple[int, int, int]] = [
             (order_item.src, order_item.size, order_item.mod)
             for order_item in order_items
-            if order_item.type_ != FOLDER
+            if order_item.type_ != FOLDER_TYPE
             ]
 
         self.remove_db_images: list[tuple[str, str]] = []
