@@ -19,7 +19,7 @@ from ._grid import Thumb
 from ._svg_widgets import SvgShadowed
 from .win_info import WinInfo
 
-FILE_ = "images/file_1024.png"
+FILE_ = "images/img_big.svg"
 
 
 class Shared:
