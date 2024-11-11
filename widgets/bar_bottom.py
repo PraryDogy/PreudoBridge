@@ -341,8 +341,10 @@ class PathItem(QWidget):
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
 
-        # !!!!!!!!!!!!!!!!
-        self.drag.setPixmap(QPixmap(FOLDER_PIXMAP))
+        if isinstance(self.obj, (str, ThumbFolder)):
+            self.drag.setPixmap(QPixmap(FOLDER_ICON))
+        else:
+            self.drag.setPixmap(QPixmap(IMG_ICON))
         
         if isinstance(self.obj, Thumb):
             src = self.obj.src
@@ -470,17 +472,6 @@ class BarBottom(QWidget):
 
         if isinstance(last.path_label.obj, ThumbFolder):
             last.img_wid.load(FOLDER_ICON)
-
-        # print(last.path_label.obj)
-
-        # t = last.path_label.text()
-
-        # if os.path.isfile(t):
-        #     print("file")
-
-        # # if not last.path_label.text().endswith(IMG_EXT):
-        # #     print(1)
-        # #     last.img_wid.load(FOLDER_ICON)
 
         if count is not None:
             self.total.setText("Всего: " + str(count))
