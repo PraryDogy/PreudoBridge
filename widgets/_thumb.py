@@ -10,17 +10,13 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QLabel, QMenu,
                              QVBoxLayout)
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import (COLORS, FOLDER, GRAY, IMAGE_APPS, MARGIN, PIXMAP_SIZE,
-                 STAR_SYM, TEXT_LENGTH, THUMB_W, JsonData)
+from cfg import (COLORS, FOLDER_SVG, GRAY, IMAGE_APPS, IMG_SVG, MARGIN,
+                 PIXMAP_SIZE, STAR_SYM, TEXT_LENGTH, THUMB_W, JsonData)
 from database import CACHE, Dbase, OrderItem
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 from .win_info import WinInfo
-
-IMAGES = "images"
-IMG_ICON = os.path.join(IMAGES, "img.svg")
-FOLDER_ICON = os.path.join(IMAGES, "folder.svg")
 
 
 class NameLabel(QLabel):
@@ -124,7 +120,7 @@ class Thumb(OrderItem, QFrame):
         self.setLayout(self.v_lay)
 
         self.img_wid: QSvgWidget | QLabel = QSvgWidget()
-        self.img_wid.load(IMG_ICON)
+        self.img_wid.load(IMG_SVG)
         self.img_wid.renderer().setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
         self.v_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
@@ -346,7 +342,7 @@ class Thumb(OrderItem, QFrame):
         if isinstance(self.img_wid, QLabel):
             self.drag.setPixmap(self.img_wid.pixmap())
         else:
-            self.drag.setPixmap(QPixmap(FOLDER_ICON))
+            self.drag.setPixmap(QPixmap(FOLDER_SVG))
         
         url = [QUrl.fromLocalFile(self.src)]
         self.mime_data.setUrls(url)
@@ -384,7 +380,7 @@ class ThumbFolder(Thumb):
             )
         
         pixmap_size = PIXMAP_SIZE[JsonData.pixmap_size_ind]
-        self.img_wid.load(FOLDER_ICON)
+        self.img_wid.load(FOLDER_SVG)
         self.img_wid.setFixedSize(pixmap_size, pixmap_size)
 
     def fav_cmd(self, offset: int):

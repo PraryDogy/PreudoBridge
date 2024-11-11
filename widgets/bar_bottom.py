@@ -11,7 +11,8 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
                              QHBoxLayout, QLabel, QLineEdit, QMenu,
                              QProgressBar, QPushButton, QVBoxLayout, QWidget)
 
-from cfg import BLUE, FOLDER, MAX_VAR, JsonData
+from cfg import (BLUE, COMP_SVG, FOLDER, FOLDER_SVG, GOTO_SVG, HDD_SVG,
+                 IMG_SVG, MAX_VAR, JsonData)
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
@@ -19,13 +20,6 @@ from ._base import BaseSlider, WinMinMax
 from .win_info import WinInfo
 
 ARROW = " \U0000203A"
-IMAGES = "images"
-
-HDD_ICON = os.path.join(IMAGES, "hdd.svg")
-COMP_ICON = os.path.join(IMAGES, "computer.svg")
-FOLDER_ICON = os.path.join(IMAGES, "folder.svg")
-IMG_ICON = os.path.join(IMAGES, "img.svg")
-GOTO_ICON = os.path.join(IMAGES, "goto.svg")
 
 
 class WorkerSignals(QObject):
@@ -325,9 +319,9 @@ class PathItem(QWidget):
         self.mime_data = QMimeData()
 
         if os.path.isfile(self.src):
-            self.drag.setPixmap(QPixmap(IMG_ICON))
+            self.drag.setPixmap(QPixmap(IMG_SVG))
         else:
-            self.drag.setPixmap(QPixmap(FOLDER_ICON))
+            self.drag.setPixmap(QPixmap(FOLDER_SVG))
         
         url = [QUrl.fromLocalFile(self.src)]
         self.mime_data.setUrls(url)
@@ -367,7 +361,7 @@ class BarBottom(QWidget):
         row, col = 2, 0
 
         self.go_btn = QSvgWidget()
-        self.go_btn.load(GOTO_ICON)
+        self.go_btn.load(GOTO_SVG)
         self.go_btn.renderer().setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
         self.go_btn.setFixedSize(15, 15)
         self.go_btn.mouseReleaseEvent = self.open_go_win
@@ -434,18 +428,18 @@ class BarBottom(QWidget):
             path_item = PathItem(src, name)
 
             if x == 1:
-                icon = COMP_ICON
+                icon = COMP_SVG
                 path_item.add_arrow()
             elif x == 2:
-                icon = HDD_ICON
+                icon = HDD_SVG
                 path_item.add_arrow()
             elif x == ln:
                 if os.path.isdir(src):
-                    icon = FOLDER_ICON
+                    icon = FOLDER_SVG
                 else:
-                    icon = IMG_ICON
+                    icon = IMG_SVG
             else:
-                icon = FOLDER_ICON
+                icon = FOLDER_SVG
                 path_item.add_arrow()
 
             path_item.img_wid.load(icon)
@@ -453,7 +447,7 @@ class BarBottom(QWidget):
             self.path_lay.addWidget(path_item)
 
         # if isinstance(obj, Thumb):
-        #     path_item = PathItem(obj, obj.name, IMG_ICON)
+        #     path_item = PathItem(obj, obj.name, IMG_SVG)
         #     self.path_lay.addWidget(path_item)
         #     path_items.append(path_item)
 
@@ -461,7 +455,7 @@ class BarBottom(QWidget):
         # last.path_label.setText(last.path_label.text().replace(ARROW, ""))
 
         # if isinstance(last.path_label.obj, ThumbFolder):
-            # last.img_wid.load(FOLDER_ICON)
+            # last.img_wid.load(FOLDER_SVG)
 
         # if count is not None:
         #     self.total.setText("Всего: " + str(count))

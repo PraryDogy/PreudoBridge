@@ -7,7 +7,7 @@ from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtWidgets import QLabel
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import FOLDER, IMG_EXT, MAX_SIZE, JsonData
+from cfg import FOLDER, HDD_SVG, IMG_EXT, MAX_SIZE, JsonData
 from database import CACHE, Dbase, OrderItem
 from fit_img import FitImg
 from signals import SignalsApp
@@ -18,8 +18,6 @@ from ._grid import Grid
 from ._thumb import Thumb, ThumbFolder
 
 MAX_QUERIES = 10
-IMAGES = "images"
-HDD_ICON = os.path.join(IMAGES, "hdd.svg")
 
 
 class ImageData:
@@ -307,7 +305,7 @@ class GridStandart(Grid):
                     )
 
                 if os.path.ismount(order_item.src) or order_item.src == sys_disk:
-                    wid.img_wid.load(HDD_ICON)
+                    wid.img_wid.load(HDD_SVG)
 
 
             else:

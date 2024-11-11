@@ -30,6 +30,13 @@ BACK_SYM = "\u25C0"
 NEXT_SYM = "\u25B6"
 UP_CURVE = "\u2934" 
 
+IMAGES_DIR = "images"
+IMG_SVG = os.path.join(IMAGES_DIR, "img.svg")
+FOLDER_SVG = os.path.join(IMAGES_DIR, "folder.svg")
+HDD_SVG = os.path.join(IMAGES_DIR, "hdd.svg")
+COMP_SVG = os.path.join(IMAGES_DIR, "computer.svg")
+GOTO_SVG = os.path.join(IMAGES_DIR, "goto.svg")
+
 FOLDER: str = "Папка"
 
 MARGIN: dict = {"w": 50, "h": 10}
