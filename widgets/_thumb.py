@@ -4,6 +4,7 @@ import subprocess
 import sqlalchemy
 from PyQt5.QtCore import QMimeData, QObject, Qt, QUrl, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QDrag, QMouseEvent, QPixmap
+from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QLabel, QMenu,
                              QVBoxLayout)
 from sqlalchemy.exc import IntegrityError, OperationalError
@@ -142,7 +143,9 @@ class Thumb(OrderItem, QFrame):
     def setup(self):
         if isinstance(self.img, QPixmap):
             pixmap = Utils.pixmap_scale(self.img, PIXMAP_SIZE[JsonData.pixmap_size_ind])
-            self.img_label.setPixmap(pixmap)
+
+            if isinstance(self.img_label, QLabel):
+                self.img_label.setPixmap(pixmap)
 
         row_h = 16
 
@@ -365,8 +368,15 @@ class ThumbFolder(Thumb):
             pixmap: QPixmap = None, 
             ):
         
+        pixmap = None
+
         Thumb.__init__(self, src=src, size=size, mod=mod, colors=colors, rating=rating,
                          pixmap=pixmap)
+        
+        self.img_label = QSvgWidget(parent=self)
+        self.img_label.load("images/folder.svg")
+        # self.img_label.setFixedSize(50, 50)
+        
 
     def fav_cmd(self, offset: int):
         self.fav_action.triggered.disconnect()
