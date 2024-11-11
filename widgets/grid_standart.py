@@ -17,6 +17,8 @@ from ._grid import Grid
 from ._thumb import Thumb, ThumbFolder
 
 MAX_QUERIES = 10
+IMAGES = "images"
+HDD_ICON = os.path.join(IMAGES, "hdd.svg")
 
 
 class ImageData:
@@ -295,12 +297,6 @@ class GridStandart(Grid):
     
             if os.path.isdir(order_item.src):
 
-                # if os.path.ismount(order_item.src) or order_item.src == sys_disk:
-                #     folder_pixmap = self.pixmap_disk
-
-                # else:
-                #     folder_pixmap = self.pixmap_folder
-
                 wid = ThumbFolder(
                     src=order_item.src,
                     size=order_item.size,
@@ -308,6 +304,10 @@ class GridStandart(Grid):
                     colors=order_item.colors,
                     rating=order_item.rating,
                     )
+
+                if os.path.ismount(order_item.src) or order_item.src == sys_disk:
+                    wid.img_wid.load(HDD_ICON)
+
 
             else:
                 wid = Thumb(
