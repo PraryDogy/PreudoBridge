@@ -115,20 +115,20 @@ class Thumb(OrderItem, QFrame):
 
         margin = 0
 
-        v_lay = QVBoxLayout()
-        v_lay.setContentsMargins(margin, margin, margin, margin)
-        v_lay.setSpacing(margin)
-        self.setLayout(v_lay)
+        self.v_lay = QVBoxLayout()
+        self.v_lay.setContentsMargins(margin, margin, margin, margin)
+        self.v_lay.setSpacing(margin)
+        self.setLayout(self.v_lay)
 
         self.img_label = QLabel()
         self.img_label.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
-        v_lay.addWidget(self.img_label)
+        self.v_lay.addWidget(self.img_label)
 
         self.name_label = NameLabel()
-        v_lay.addWidget(self.name_label, Qt.AlignmentFlag.AlignTop)
+        self.v_lay.addWidget(self.name_label, Qt.AlignmentFlag.AlignTop)
 
         self.color_label = ColorLabel()
-        v_lay.addWidget(self.color_label, Qt.AlignmentFlag.AlignTop)
+        self.v_lay.addWidget(self.color_label, Qt.AlignmentFlag.AlignTop)
 
         self.setObjectName("thumbnail")
         self.set_no_frame()
@@ -143,9 +143,7 @@ class Thumb(OrderItem, QFrame):
     def setup(self):
         if isinstance(self.img, QPixmap):
             pixmap = Utils.pixmap_scale(self.img, PIXMAP_SIZE[JsonData.pixmap_size_ind])
-
-            if isinstance(self.img_label, QLabel):
-                self.img_label.setPixmap(pixmap)
+            self.img_label.setPixmap(pixmap)
 
         row_h = 16
 
@@ -168,10 +166,6 @@ class Thumb(OrderItem, QFrame):
         self.img_label.setFixedSize(thumb_w, PIXMAP_SIZE[JsonData.pixmap_size_ind] + 5)
         self.name_label.setFixedSize(thumb_w, row_h * 2)
         self.color_label.setFixedSize(thumb_w, row_h)
-
-        # self.img_label.setStyleSheet("background: gray;")
-        # self.name_label.setStyleSheet("background: black;")
-        # self.color_label.setStyleSheet("background: light-gray;")
 
     def set_frame(self):
         self.setStyleSheet(f""" #thumbnail {{ background: {GRAY}; border-radius: 4px; }}""")
@@ -368,15 +362,8 @@ class ThumbFolder(Thumb):
             pixmap: QPixmap = None, 
             ):
         
-        pixmap = None
-
         Thumb.__init__(self, src=src, size=size, mod=mod, colors=colors, rating=rating,
                          pixmap=pixmap)
-        
-        self.img_label = QSvgWidget(parent=self)
-        self.img_label.load("images/folder.svg")
-        # self.img_label.setFixedSize(50, 50)
-        
 
     def fav_cmd(self, offset: int):
         self.fav_action.triggered.disconnect()
@@ -393,6 +380,35 @@ class ThumbFolder(Thumb):
         self.win_info = WinInfo(self.get_info())
         Utils.center_win(parent=Utils.get_main_win(), child=self.win_info)
         self.win_info.show()
+
+    def setup(self):
+        if isinstance(self.img, QPixmap):
+            pixmap = Utils.pixmap_scale(self.img, PIXMAP_SIZE[JsonData.pixmap_size_ind])
+
+            if isinstance(self.img_label, QLabel):
+                self.img_label.setPixmap(pixmap)
+
+        row_h = 16
+
+        thumb_w = sum((
+            THUMB_W[JsonData.pixmap_size_ind],
+            MARGIN.get("w"),
+            ))
+
+        thumb_h = sum((
+            PIXMAP_SIZE[JsonData.pixmap_size_ind],
+            row_h * 2,
+            row_h,
+            MARGIN.get("h"),
+            ))
+        
+        self.set_text()
+        self.adjustSize()
+
+        self.setFixedSize(thumb_w, thumb_h)
+        self.img_label.setFixedSize(thumb_w, PIXMAP_SIZE[JsonData.pixmap_size_ind] + 5)
+        self.name_label.setFixedSize(thumb_w, row_h * 2)
+        self.color_label.setFixedSize(thumb_w, row_h)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         self.select.emit()
