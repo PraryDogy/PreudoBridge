@@ -6,6 +6,7 @@ from difflib import SequenceMatcher
 from PyQt5.QtCore import QMimeData, QObject, Qt, QUrl, pyqtSignal
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
                          QPixmap)
+from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
                              QHBoxLayout, QLabel, QLineEdit, QMenu,
                              QProgressBar, QPushButton, QVBoxLayout, QWidget)
@@ -21,12 +22,11 @@ from .win_info import WinInfo
 ARROW = " \U0000203A"
 IMAGES = "images"
 
-DISK_SMALL = os.path.join(IMAGES, "disk_small.png")
-FOLDER_SMALL = os.path.join(IMAGES, "folder_small.png")
-MAC_SMALL = os.path.join(IMAGES, "mac_small.png")
-FILE_SMALL = os.path.join(IMAGES, "file_small.png")
-SPARK_SMALL = os.path.join(IMAGES, "spark_small.png")
-
+HDD_ICON = os.path.join(IMAGES, "hdd.svg")
+COMP_ICON = os.path.join(IMAGES, "computer.svg")
+FOLDER_ICON = os.path.join(IMAGES, "folder.svg")
+IMG_ICON = os.path.join(IMAGES, "img.svg")
+GOTO_ICON = os.path.join(IMAGES, "goto.svg")
 
 class WorkerSignals(QObject):
     _finished = pyqtSignal(str)
@@ -277,7 +277,7 @@ class PathLabel(QLabel):
 
 
 class PathItem(QWidget):
-    def __init__(self, obj: str | Thumb, name: str, pixmap: QPixmap):
+    def __init__(self, obj: str | Thumb, name: str, svg_path: str):
         super().__init__()
         self.setFixedHeight(15)
         self.obj = obj
@@ -287,8 +287,11 @@ class PathItem(QWidget):
         item_layout.setSpacing(5)
         self.setLayout(item_layout)
 
-        self.icon_label = QLabel()
-        self.icon_label.setPixmap(pixmap)
+        self.icon_label = QSvgWidget()
+        self.icon_label.load(svg_path)
+        self.icon_label.renderer().setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
+        self.icon_label.setFixedSize(15, 15)
+
         item_layout.addWidget(self.icon_label)
         
         self.path_label = PathLabel(obj=obj, text=name + ARROW)
@@ -379,8 +382,9 @@ class BarBottom(QWidget):
 
         row, col = 2, 0
 
-        self.go_btn = QLabel()
-        self.go_btn.setPixmap(self.small_icon(SPARK_SMALL))
+        self.go_btn = QSvgWidget()
+        self.go_btn.load(GOTO_ICON)
+        self.go_btn.renderer().setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
         self.go_btn.setFixedSize(15, 15)
         self.go_btn.mouseReleaseEvent = self.open_go_win
         self.grid_lay.addWidget(self.go_btn, row, col)
@@ -408,10 +412,6 @@ class BarBottom(QWidget):
         self.slider = CustomSlider()
         self.slider.setFixedSize(70, 15)
         self.grid_lay.addWidget(self.slider, row, col)
-
-        self.q_folder_small: QPixmap = self.small_icon(FOLDER_SMALL)
-        self.q_disk_small: QPixmap = self.small_icon(DISK_SMALL)
-        self.q_mac_small: QPixmap = self.small_icon(MAC_SMALL)
 
         SignalsApp.all.progressbar_cmd.connect(self.progressbar_cmd)
         SignalsApp.all.create_path_labels.connect(self.create_path_labels)
@@ -443,8 +443,6 @@ class BarBottom(QWidget):
     def create_path_labels(self, obj: Thumb | str, count: int | None):
         Utils.clear_layout(self.path_lay)
 
-        # self.total.setText("Загрузка")
-
         if isinstance(obj, Thumb):
             root = os.path.dirname(obj.src)
         else:
@@ -455,21 +453,17 @@ class BarBottom(QWidget):
 
         for x, name in enumerate(root, start=1):
             src = os.path.join(os.sep, *root[:x])
-            path_item = PathItem(src, name, self.q_folder_small)
+            path_item = PathItem(src, name, FOLDER_ICON)
             path_items.append(path_item)
             self.path_lay.addWidget(path_item)
 
-        path_items[0].icon_label.setPixmap(self.q_mac_small)
+        path_items[0].icon_label.load(COMP_ICON)
 
         if len(path_items) > 1:
-            path_items[1].icon_label.setPixmap(self.q_disk_small)
+            path_items[1].icon_label.load(HDD_ICON)
 
         if isinstance(obj, Thumb):
-            if obj.type_ != FOLDER:
-                pixmap = self.small_icon(obj.img)
-            else:
-                pixmap = self.q_folder_small
-            path_item = PathItem(obj, obj.name, pixmap)
+            path_item = PathItem(obj, obj.name, IMG_ICON)
             self.path_lay.addWidget(path_item)
             path_items.append(path_item)
 
