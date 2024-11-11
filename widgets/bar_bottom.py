@@ -28,7 +28,6 @@ FOLDER_ICON = os.path.join(IMAGES, "folder.svg")
 IMG_ICON = os.path.join(IMAGES, "img.svg")
 GOTO_ICON = os.path.join(IMAGES, "goto.svg")
 
-FOLDER_PIXMAP = os.path.join(IMAGES, "folder.png")
 
 class WorkerSignals(QObject):
     _finished = pyqtSignal(str)

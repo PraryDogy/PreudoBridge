@@ -21,7 +21,6 @@ from .win_info import WinInfo
 IMAGES = "images"
 IMG_ICON = os.path.join(IMAGES, "img.svg")
 FOLDER_ICON = os.path.join(IMAGES, "folder.svg")
-FOLDER_PNG = os.path.join(IMAGES, "folder.png")
 
 
 class NameLabel(QLabel):
@@ -350,7 +349,7 @@ class Thumb(OrderItem, QFrame):
         if isinstance(self.img_wid, QLabel):
             self.drag.setPixmap(self.img_wid.pixmap())
         else:
-            self.drag.setPixmap(QPixmap(FOLDER_PNG))
+            self.drag.setPixmap(QPixmap(FOLDER_ICON))
         
         url = [QUrl.fromLocalFile(self.src)]
         self.mime_data.setUrls(url)
