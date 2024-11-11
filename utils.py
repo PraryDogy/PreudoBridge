@@ -235,20 +235,6 @@ class Utils:
         print()
 
     @classmethod
-    def get_folder_size_applescript(cls, path: str) -> float:
-        applescript_file = "scripts/get_folder_size.scpt"
-        script_command = ['osascript', applescript_file, path]
-        try:
-            result = subprocess.check_output(script_command).decode().strip()
-            try:
-                return float(result)
-            except ValueError:
-                return 0
-        except subprocess.CalledProcessError as e:
-            print(f"Error executing AppleScript: {e.output.decode().strip()}")
-            return 0
-
-    @classmethod
     def get_hash_path(cls, src: str) -> str:
         new_name = hashlib.md5(src.encode('utf-8')).hexdigest() + ".jpg"
         new_path = os.path.join(HASH_DIR, new_name[:2])

@@ -11,12 +11,11 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
                              QHBoxLayout, QLabel, QLineEdit, QMenu,
                              QProgressBar, QPushButton, QVBoxLayout, QWidget)
 
-from cfg import BLUE, MAX_VAR, JsonData
+from cfg import BLUE, FOLDER, MAX_VAR, JsonData
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 from ._base import BaseSlider, WinMinMax
-from ._thumb import Thumb, ThumbFolder
 from .win_info import WinInfo
 
 ARROW = " \U0000203A"
@@ -185,18 +184,13 @@ class CustomSlider(BaseSlider):
 class PathLabel(QLabel):
     _open_img_view = pyqtSignal()
 
-    def __init__(self, obj: str | Thumb, text: str):
+    def __init__(self, src: str, text: str):
         super().__init__(text)
-        self.obj = obj
+        self.src = src
         self.setObjectName("path_label")
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
         context_menu = QMenu(parent=self)
-
-        # if isinstance(self.obj, Thumb):
-        #     src = self.obj.src
-        # else:
-        #     src = self.obj
 
         view_action = QAction("Просмотр", self)
         cmd = lambda: self._open_img_view.emit()
@@ -209,12 +203,13 @@ class PathLabel(QLabel):
         info.triggered.connect(self.show_info_win)
         context_menu.addAction(info)
 
+        cmd_ = lambda: subprocess.call(["open", "-R", self.src])
         show_in_finder_action = QAction("Показать в Finder", self)
-        show_in_finder_action.triggered.connect(self.show_in_finder)
+        show_in_finder_action.triggered.connect(cmd_)
         context_menu.addAction(show_in_finder_action)
 
         copy_path = QAction("Скопировать путь", self)
-        copy_path.triggered.connect(self.copy_path)
+        copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
         context_menu.addAction(copy_path)
 
         self.selected_style()
@@ -227,61 +222,43 @@ class PathLabel(QLabel):
     def default_style(self):
         self.setStyleSheet("")
 
-    def copy_path(self):
-        if isinstance(self.obj, Thumb):
-            src = self.obj.src
-        else:
-            src = self.obj
-        Utils.copy_path(src)
-
     def show_info_win(self):
-        if isinstance(self.obj, Thumb):
-            info = self.obj.get_info()
-        else:
-            info = self.get_info(self.obj)
+        info = self.get_info()
 
         self.win_info = WinInfo(info)
         Utils.center_win(parent=Utils.get_main_win(), child=self.win_info)
         self.win_info.show()
 
-    def get_info(self, src: str):
+    def get_info(self):
         try:
-            stats = os.stat(src)
+            stats = os.stat(self.src)
 
             date = datetime.fromtimestamp(stats.st_mtime).replace(microsecond=0)
             date: str = date.strftime("%d.%m.%Y %H:%M")
 
-            size_ = Utils.get_folder_size_applescript(src)
-            if size_ < 1000:
-                f_size = f"{size_} МБ"
+            if os.path.isdir(self.src):
+                f_type = FOLDER
             else:
-                size_ = round(size_ / (1024**3), 2)
-                f_size = f"{size_} ГБ"
+                _, f_type = os.path.splitext(self.src)
 
-            name = "Имя***" + os.path.basename(src)
-            type = "Тип***" + "Папка"
-            path = "Путь***" + src
-            size = "Размер***" + f_size
+            name = "Имя***" + os.path.basename(self.src)
+            type_ = "Тип***" + f_type
+            path = "Путь***" + self.src
             date = "Изменен***" + date
-            return "\n".join([name, type, path, size, date])
+            return "\n".join([name, type_, path, date])
 
         except (PermissionError, FileNotFoundError) as e:
             return "Ошибка данных: нет доступка к папке"
 
     def show_in_finder(self):
-        if isinstance(self.obj, Thumb):
-            src = self.obj.src
-        else:
-            src = self.obj
-        subprocess.call(["open", "-R", src])
+        subprocess.call(["open", "-R", self.src])
 
 
 class PathItem(QWidget):
-
-    def __init__(self, obj: str | Thumb, name: str):
+    def __init__(self, src: str, name: str):
         super().__init__()
         self.setFixedHeight(15)
-        self.obj = obj
+        self.src = src
 
         item_layout = QHBoxLayout()
         item_layout.setContentsMargins(0, 0, 0, 0)
@@ -295,7 +272,7 @@ class PathItem(QWidget):
 
         item_layout.addWidget(self.img_wid)
         
-        self.path_label = PathLabel(obj=obj, text=name)
+        self.path_label = PathLabel(src=src, text=name)
         self.path_label.setMinimumWidth(15)
         item_layout.addWidget(self.path_label)
 
@@ -318,11 +295,13 @@ class PathItem(QWidget):
         wid.setMinimumWidth(15)
  
     def new_root(self, *args):
-        if isinstance(self.obj, Thumb):
-            self.obj.open_in_view.emit()
+        if os.path.isfile(self.src):
+            from .win_img_view import WinImgView
+            self.win_ = WinImgView(self.src)
+            self.win_.show()
         else:
-            SignalsApp.all.new_history.emit(self.obj)
-            SignalsApp.all.load_standart_grid.emit(self.obj)
+            SignalsApp.all.new_history.emit(self.src)
+            SignalsApp.all.load_standart_grid.emit(self.src)
 
     def mousePressEvent(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.LeftButton:
@@ -344,17 +323,12 @@ class PathItem(QWidget):
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
 
-        if isinstance(self.obj, (str, ThumbFolder)):
-            self.drag.setPixmap(QPixmap(FOLDER_ICON))
-        else:
+        if os.path.isfile(self.src):
             self.drag.setPixmap(QPixmap(IMG_ICON))
-        
-        if isinstance(self.obj, Thumb):
-            src = self.obj.src
         else:
-            src = self.obj
-
-        url = [QUrl.fromLocalFile(src)]
+            self.drag.setPixmap(QPixmap(FOLDER_ICON))
+        
+        url = [QUrl.fromLocalFile(self.src)]
         self.mime_data.setUrls(url)
 
         self.drag.setMimeData(self.mime_data)
