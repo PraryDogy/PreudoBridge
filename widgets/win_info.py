@@ -9,37 +9,87 @@ from cfg import FOLDER_TYPE
 import os
 
 STRANGE_SYM = " "
+CALCULATING = "Вычисляю..."
 
 
 class WorkerSignals(QObject):
-    _finished = pyqtSignal(list)
+    _finished = pyqtSignal(str)
 
 
-class Info(URunnable):
-
+class FolderSize(URunnable):
     def __init__(self, src: str):
-        """имя тип размер место создан изменен"""
-
         super().__init__()
-        self.worker_signals = WorkerSignals()
         self.src = src
+        self.worker_signals = WorkerSignals()
 
     def run(self):
-        name = os.path.basename(self.src)
+        total = 0
+
+        for root, _, files in os.walk(self.src):
+
+            if not self.is_should_run():
+                return
+
+            for file in files:
+
+                if not self.is_should_run():
+                    return
+
+                src_ = os.path.join(root, file)
+
+                try:
+                    size_ = os.path.getsize(src_)
+                    total += size_
+                except Exception as e:
+                    # Utils.print_error(parent=self, error=e)
+                    ...
+
+        total = Utils.get_f_size(total)
+
+        if self.is_should_run():
+            self.worker_signals._finished.emit(total)
+
+
+class InfoTask:
+    def __init__(self, src: str):
+        super().__init__()
+        self.src = src
+
+    def get(self):
+        is_file = os.path.isfile(self.src)
+
+        name = self.lined_text(os.path.basename(self.src))
         type_ = (
-            os.path.splitext(self.src)[0]
-            if os.path.isfile(self.src)
+            os.path.splitext(self.src)[-1]
+            if is_file
             else
             FOLDER_TYPE
             )
-        size_ = Utils.get_f_size(self.src)
+        size_ = (
+            Utils.get_f_size(os.path.getsize(self.src))
+            if is_file
+            else
+            CALCULATING
+            )
+        src = self.lined_text(self.src)
         stats = os.stat(self.src)
         birth = Utils.get_f_date(stats.st_birthtime)
         mod = Utils.get_f_date(stats.st_mtime)
 
-        info = (name, type_, size_, self.src, birth, mod)
-        self.worker_signals._finished.emit(info)
-    
+        return (name, type_, size_, src, birth, mod)
+
+    def lined_text(self, text: str):
+        max_row = 38
+
+        if len(text) > max_row:
+            text = [
+                text[i:i + max_row]
+                for i in range(0, len(text), max_row)
+                ]
+            return "\n".join(text)
+        else:
+            return text 
+
 
 class CustomLabel(QLabel):
     def __init__(self, text: str = None):
@@ -74,19 +124,25 @@ class WinInfo(WinMinMax):
 
         row = 0
         names = ["имя", "тип", "размер", "место", "создан", "изменен"]
-        self.right_labels: list[CustomLabel] = []
 
-        for name in names:
+        task_ = InfoTask(self.src)
+        info = task_.get()
+
+        for name, text in zip(names, info):
 
             left_lbl = CustomLabel(name)
             flags_l_al = Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignTop
             self.grid_layout.addWidget(left_lbl, row, 0, alignment=flags_l_al)
 
-            right_lbl = CustomLabel()
+            right_lbl = CustomLabel(text)
             flags_r = Qt.TextInteractionFlag.TextSelectableByMouse
             right_lbl.setTextInteractionFlags(flags_r)
             flags_r_al = Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom
             self.grid_layout.addWidget(right_lbl, row, 1, alignment=flags_r_al)
+
+            if text == CALCULATING:
+                setattr(self, "calc", True)
+                setattr(self, "size_label", right_lbl)
 
             row += 1
 
@@ -95,21 +151,23 @@ class WinInfo(WinMinMax):
         self.setMinimumWidth(w)
         self.setFixedHeight(self.height())
         self.resize(self.height(), w)
-
-    def lined_text(self, text: str):
-        max_row = 38
-
-        if len(text) > max_row:
-            text = [
-                text[i:i + max_row]
-                for i in range(0, len(text), max_row)
-                ]
-            return "\n".join(text)
-        else:
-            return text
    
+        if hasattr(self, "calc"):
+            cmd_ = lambda size_: self.finalize(size_)
+            self.task_ = FolderSize(self.src)
+            self.task_.worker_signals._finished.connect(cmd_)
+            UThreadPool.pool.start(self.task_)
+
+    def finalize(self, size_: str):
+        label: CustomLabel = getattr(self, "size_label")
+        label.setText(size_)
+
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() in (Qt.Key.Key_Escape, Qt.Key.Key_Return):
+            
+            if hasattr(self, "task_"):
+                self.task_.set_should_run(False)
+
             self.close()
 
 
