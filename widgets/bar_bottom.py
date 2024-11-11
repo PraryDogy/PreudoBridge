@@ -278,7 +278,7 @@ class PathLabel(QLabel):
 
 class PathItem(QWidget):
 
-    def __init__(self, obj: str | Thumb, name: str, svg_path: str):
+    def __init__(self, obj: str | Thumb, name: str):
         super().__init__()
         self.setFixedHeight(15)
         self.obj = obj
@@ -288,14 +288,14 @@ class PathItem(QWidget):
         item_layout.setSpacing(5)
         self.setLayout(item_layout)
 
+        flag_ = Qt.AspectRatioMode.KeepAspectRatioByExpanding
         self.img_wid = QSvgWidget()
-        self.img_wid.load(svg_path)
-        self.img_wid.renderer().setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatioByExpanding)
+        self.img_wid.renderer().setAspectRatioMode(flag_)
         self.img_wid.setFixedSize(15, 15)
 
         item_layout.addWidget(self.img_wid)
         
-        self.path_label = PathLabel(obj=obj, text=name + ARROW)
+        self.path_label = PathLabel(obj=obj, text=name)
         self.path_label.setMinimumWidth(15)
         item_layout.addWidget(self.path_label)
 
@@ -306,6 +306,13 @@ class PathItem(QWidget):
         self.enterEvent = cmd_
         cmd_ = lambda e, w=self.path_label: self.collapse_temp(wid=w)
         self.leaveEvent = cmd_
+
+    def arrow_cmd(self, add: bool):
+        if add:
+            t = self.path_label.text() + ARROW
+        else:
+            t = self.path_label.text()
+        self.path_label.setText(t)
 
     def expand_temp(self, wid: QLabel | PathLabel):
         wid.setFixedWidth(wid.sizeHint().width())
@@ -448,29 +455,43 @@ class BarBottom(QWidget):
             root = obj
 
         root = root.strip(os.sep).split(os.sep)
+        ln = len(root)
         path_items: list[PathItem] = []
 
         for x, name in enumerate(root, start=1):
+
             src = os.path.join(os.sep, *root[:x])
-            path_item = PathItem(src, name, FOLDER_ICON)
+            path_item = PathItem(src, name)
+
+            if x == 1:
+                icon = COMP_ICON
+                path_item.arrow_cmd(True)
+            elif x == 2:
+                icon = HDD_ICON
+                path_item.arrow_cmd(True)
+            elif x == ln:
+                if os.path.isdir(src):
+                    print("folder", src)
+                else:
+                    print("file")
+            else:
+                icon = FOLDER_ICON
+                path_item.arrow_cmd(True)
+
+            path_item.img_wid.load(icon)
             path_items.append(path_item)
             self.path_lay.addWidget(path_item)
 
-        path_items[0].img_wid.load(COMP_ICON)
+        # if isinstance(obj, Thumb):
+        #     path_item = PathItem(obj, obj.name, IMG_ICON)
+        #     self.path_lay.addWidget(path_item)
+        #     path_items.append(path_item)
 
-        if len(path_items) > 1:
-            path_items[1].img_wid.load(HDD_ICON)
+        # last = path_items[-1]
+        # last.path_label.setText(last.path_label.text().replace(ARROW, ""))
 
-        if isinstance(obj, Thumb):
-            path_item = PathItem(obj, obj.name, IMG_ICON)
-            self.path_lay.addWidget(path_item)
-            path_items.append(path_item)
-
-        last = path_items[-1]
-        last.path_label.setText(last.path_label.text().replace(ARROW, ""))
-
-        if isinstance(last.path_label.obj, ThumbFolder):
-            last.img_wid.load(FOLDER_ICON)
+        # if isinstance(last.path_label.obj, ThumbFolder):
+            # last.img_wid.load(FOLDER_ICON)
 
         if count is not None:
             self.total.setText("Всего: " + str(count))
