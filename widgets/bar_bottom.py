@@ -16,7 +16,7 @@ from cfg import (BLUE, COMP_SVG, FOLDER, FOLDER_SVG, GOTO_SVG, HDD_SVG,
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
-from ._base import BaseSlider, WinMinMax
+from ._base import SliderBase, WinMinMax
 from .win_info import WinInfo
 
 ARROW = " \U0000203A"
@@ -161,7 +161,7 @@ class WinGo(WinMinMax):
             self.open_path_btn_cmd()
 
 
-class CustomSlider(BaseSlider):
+class CustomSlider(SliderBase):
     def __init__(self):
         super().__init__(orientation=Qt.Orientation.Horizontal, minimum=0, maximum=MAX_VAR)
         self.setFixedWidth(80)

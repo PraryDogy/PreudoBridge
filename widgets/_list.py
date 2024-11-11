@@ -9,7 +9,7 @@ from cfg import IMG_EXT, JsonData
 from signals import SignalsApp
 from utils import Utils
 
-from ._base import BaseTableView
+from ._base import TableViewBase
 
 
 class Sort:
@@ -17,7 +17,7 @@ class Sort:
     order = 0
 
 
-class ListStandart(BaseTableView):
+class ListStandart(TableViewBase):
     def __init__(self):
         super().__init__()
         self.setSelectionBehavior(QTableView.SelectRows)

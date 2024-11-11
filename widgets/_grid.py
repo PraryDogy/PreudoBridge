@@ -10,11 +10,11 @@ from database import OrderItem
 from signals import SignalsApp
 from utils import Utils
 
-from ._base import BaseGrid, PathToWid
+from ._base import GridBase, PathToWid
 from ._thumb import Thumb, ThumbFolder, ThumbSearch
 
 
-class Grid(BaseGrid):
+class Grid(GridBase):
 
     def __init__(self, width: int):
         super().__init__()

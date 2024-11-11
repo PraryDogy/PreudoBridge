@@ -19,19 +19,19 @@ class BaseMethods:
         raise Exception("Переопредели метод rearrange")
 
 
-class BaseGrid(QScrollArea, BaseMethods):
+class GridBase(QScrollArea, BaseMethods):
     def __init__(self):
         QScrollArea.__init__(self)
         BaseMethods.__init__(self)
 
 
-class BaseTableView(QTableView, BaseMethods):
+class TableViewBase(QTableView, BaseMethods):
     def __init__(self):
         QTableView.__init__(self)
         BaseMethods.__init__(self)
 
 
-class BaseSlider(QSlider):
+class SliderBase(QSlider):
     _clicked = pyqtSignal()
 
     def __init__(self, orientation: Qt.Orientation, minimum: int, maximum: int):
