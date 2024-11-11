@@ -259,10 +259,18 @@ class Utils:
         except Exception as e:
             cls.print_error(parent=cls, error= e)
             return None
-        
+
     @classmethod
-    def get_bytes_size(cls, image: np.ndarray) -> int:
-        return image.nbytes
+    def get_f_size(cls, path):
+        size = os.path.getsize(path)
+        if size < 1024:
+            return f"{size} байт"
+        elif size < pow(1024,2):
+            return f"{round(size/1024, 2)} КБ"
+        elif size < pow(1024,3):
+            return f"{round(size/(pow(1024,2)), 2)} МБ"
+        elif size < pow(1024,4):
+            return f"{round(size/(pow(1024,3)), 2)} ГБ"
 
 
 class UThreadPool:

@@ -244,8 +244,9 @@ class PathLabel(QLabel):
             name = "Имя***" + os.path.basename(self.src)
             type_ = "Тип***" + f_type
             path = "Путь***" + self.src
+            size_ = "Размер***" + Utils.get_f_size(self.src)
             date = "Изменен***" + date
-            return "\n".join([name, type_, path, date])
+            return "\n".join([name, type_, path, size_, date])
 
         except (PermissionError, FileNotFoundError) as e:
             return "Ошибка данных: нет доступка к папке"

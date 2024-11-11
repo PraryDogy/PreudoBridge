@@ -259,16 +259,13 @@ class Thumb(OrderItem, QFrame):
     def get_info(self) -> str:
         rating = STAR_SYM * self.rating
 
-        if self.type_ == FOLDER:
-            self.size = Utils.get_folder_size_applescript(self.src)
-            
-        size_ = round(self.size / (1024**2), 2)
-
-        if size_ < 1000:
-            f_size = f"{size_} МБ"
-        else:
-            size_ = round(self.size / (1024**3), 2)
-            f_size = f"{size_} ГБ"
+        calc = {
+            "КБ": round(self.size / 1024, 2),
+            "МБ": round(self.size / 1024 ** 2, 2),
+            "ГБ": round(self.size / 1024 ** 3, 2)
+            }
+        
+        f_size = Utils.get_f_size(self.src)
 
         if self.mod:
             str_date = datetime.datetime.fromtimestamp(self.mod).replace(microsecond=0)
