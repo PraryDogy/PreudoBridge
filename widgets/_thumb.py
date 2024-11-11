@@ -1,9 +1,8 @@
 import datetime
-import os
 import subprocess
 
 import sqlalchemy
-from PyQt5.QtCore import QMimeData, QObject, Qt, QUrl, pyqtSignal
+from PyQt5.QtCore import QMimeData, Qt, QUrl, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QDrag, QMouseEvent, QPixmap
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QLabel, QMenu,
