@@ -14,9 +14,9 @@ from database import CACHE, Dbase
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
-from ._base import WinBase
-from ._grid import Thumb
+from ._base import PathToWid, WinBase
 from ._svg_widgets import SvgShadowed
+from ._thumb import Thumb
 from .win_info import WinInfo
 
 FILE_ = "images/img_big.svg"
@@ -257,16 +257,16 @@ class NextImageBtn(SwitchImageBtn):
 
 
 class WinImgView(WinBase):
-    def __init__(self, src: str, path_to_wid: dict[str, Thumb]):
+    def __init__(self, src: str):
         super().__init__()
         self.src: str = src
 
-        self.wid: Thumb = path_to_wid.get(src)
+        self.wid: Thumb = PathToWid.all_.get(src)
         self.wid.text_changed.connect(self.set_title)
 
         self.path_to_wid: dict[str, Thumb] = {
             path: wid
-            for path, wid in path_to_wid.items()
+            for path, wid in PathToWid.all_.items()
             if not wid.must_hidden
             }
 

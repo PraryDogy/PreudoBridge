@@ -18,7 +18,7 @@ class Signals(QObject):
     progressbar_cmd = pyqtSignal(object)
     open_path = pyqtSignal(str)
     new_history = pyqtSignal(str)
-    create_path_labels = pyqtSignal(object, object)
+    create_path_labels = pyqtSignal(object)
 
     move_slider = pyqtSignal(int)
 

@@ -307,11 +307,8 @@ class PathItem(QWidget):
         cmd_ = lambda e, w=self.path_label: self.collapse_temp(wid=w)
         self.leaveEvent = cmd_
 
-    def arrow_cmd(self, add: bool):
-        if add:
-            t = self.path_label.text() + ARROW
-        else:
-            t = self.path_label.text()
+    def add_arrow(self):
+        t = self.path_label.text() + ARROW
         self.path_label.setText(t)
 
     def expand_temp(self, wid: QLabel | PathLabel):
@@ -426,7 +423,7 @@ class BarBottom(QWidget):
         self.grid_lay.addWidget(self.slider, row, col)
 
         SignalsApp.all.progressbar_cmd.connect(self.progressbar_cmd)
-        SignalsApp.all.create_path_labels.connect(self.create_path_labels)
+        SignalsApp.all.create_path_labels.connect(self.path_labels_cmd)
 
     def open_go_win(self, *args):
         self.win = WinGo()
@@ -445,16 +442,14 @@ class BarBottom(QWidget):
             self.progressbar.setMaximum(value)
         else:
             raise Exception("bar_borrom > progress bar wrong cmd", cmd)
+        
+    def path_labels_cmd(self, src: str):
+        self.create_path_labels(src)
 
-    def create_path_labels(self, obj: Thumb | str, count: int | None):
+    def create_path_labels(self, src: str):
         Utils.clear_layout(self.path_lay)
 
-        if isinstance(obj, Thumb):
-            root = os.path.dirname(obj.src)
-        else:
-            root = obj
-
-        root = root.strip(os.sep).split(os.sep)
+        root = src.strip(os.sep).split(os.sep)
         ln = len(root)
         path_items: list[PathItem] = []
 
@@ -465,18 +460,18 @@ class BarBottom(QWidget):
 
             if x == 1:
                 icon = COMP_ICON
-                path_item.arrow_cmd(True)
+                path_item.add_arrow()
             elif x == 2:
                 icon = HDD_ICON
-                path_item.arrow_cmd(True)
+                path_item.add_arrow()
             elif x == ln:
                 if os.path.isdir(src):
-                    print("folder", src)
+                    icon = FOLDER_ICON
                 else:
-                    print("file")
+                    icon = IMG_ICON
             else:
                 icon = FOLDER_ICON
-                path_item.arrow_cmd(True)
+                path_item.add_arrow()
 
             path_item.img_wid.load(icon)
             path_items.append(path_item)
@@ -493,5 +488,5 @@ class BarBottom(QWidget):
         # if isinstance(last.path_label.obj, ThumbFolder):
             # last.img_wid.load(FOLDER_ICON)
 
-        if count is not None:
-            self.total.setText("Всего: " + str(count))
+        # if count is not None:
+        #     self.total.setText("Всего: " + str(count))

@@ -79,3 +79,7 @@ class WinMinMax(WinBase):
         super().__init__()
         fl = Qt.WindowType.Window | Qt.WindowType.CustomizeWindowHint | Qt.WindowType.WindowCloseButtonHint
         self.setWindowFlags(fl)
+
+
+class PathToWid:
+    all_: dict[str, object] = {}

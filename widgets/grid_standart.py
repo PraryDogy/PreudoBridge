@@ -11,8 +11,9 @@ from cfg import FOLDER, IMG_EXT, MAX_SIZE, JsonData
 from database import CACHE, Dbase, OrderItem
 from fit_img import FitImg
 from signals import SignalsApp
-from utils import UThreadPool, URunnable, Utils
+from utils import URunnable, UThreadPool, Utils
 
+from ._base import PathToWid
 from ._grid import Grid
 from ._thumb import Thumb, ThumbFolder
 
@@ -288,7 +289,7 @@ class GridStandart(Grid):
     def create_sorted_grid(self, order_items: list[OrderItem]):
 
         self.order_items = order_items
-        SignalsApp.all.create_path_labels.emit(JsonData.root, len(order_items))
+        SignalsApp.all.create_path_labels.emit(JsonData.root)
         sys_disk = os.path.join(os.sep, "Volumes", "Macintosh HD")
         col_count = Utils.get_clmn_count(self.ww)
         row, col = 0, 0
@@ -355,7 +356,7 @@ class GridStandart(Grid):
         UThreadPool.pool.start(self.task_)
     
     def set_pixmap(self, image_data: ImageData):
-        widget = self.path_to_wid.get(image_data.src)
+        widget = PathToWid.all_.get(image_data.src)
         if isinstance(widget, Thumb):
             if isinstance(image_data.pixmap, QPixmap):
                 widget.set_pixmap(pixmap=image_data.pixmap)

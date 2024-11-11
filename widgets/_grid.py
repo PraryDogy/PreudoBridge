@@ -10,7 +10,7 @@ from database import OrderItem
 from signals import SignalsApp
 from utils import Utils
 
-from ._base import BaseGrid
+from ._base import BaseGrid, PathToWid
 from ._thumb import Thumb, ThumbFolder, ThumbSearch
 
 
@@ -22,7 +22,6 @@ class Grid(BaseGrid):
 
         self.curr_cell: tuple = (0, 0)
         self.cell_to_wid: dict[tuple, Thumb] = {}
-        self.path_to_wid: dict[str, Thumb] = {}
         self.ordered_widgets: list[OrderItem | Thumb | ThumbFolder | ThumbSearch] = []
 
         self.ww = width
@@ -54,7 +53,7 @@ class Grid(BaseGrid):
             new_wid = self.cell_to_wid.get(data)
 
         elif isinstance(data, str):
-            new_wid = self.path_to_wid.get(data)
+            new_wid = PathToWid.all_.get(data)
             coords = new_wid.row, new_wid.col
 
         prev_wid = self.cell_to_wid.get(self.curr_cell)
@@ -64,7 +63,7 @@ class Grid(BaseGrid):
             new_wid.set_frame()
             self.curr_cell = coords
             self.ensureWidgetVisible(new_wid)
-            SignalsApp.all.create_path_labels.emit(new_wid, None)
+            SignalsApp.all.create_path_labels.emit(new_wid.src)
         else:
             try:
                 prev_wid.set_frame()
@@ -91,7 +90,7 @@ class Grid(BaseGrid):
     def order_(self):
         self.ordered_widgets = OrderItem.order_items(self.ordered_widgets)
         
-        self.path_to_wid = {
+        PathToWid.all = {
             wid.src: wid
             for wid in self.ordered_widgets
             if isinstance(wid, Thumb)
@@ -156,7 +155,7 @@ class Grid(BaseGrid):
     def add_widget_data(self, wid: Thumb, row: int, col: int):
         wid.row, wid.col = row, col
         self.cell_to_wid[row, col] = wid
-        self.path_to_wid[wid.src] = wid
+        PathToWid.all_[wid.src] = wid
         self.ordered_widgets.append(wid)
 
     def open_in_view(self, wid: Thumb):
@@ -166,7 +165,7 @@ class Grid(BaseGrid):
 
         else:
             from .win_img_view import WinImgView
-            self.win = WinImgView(wid.src, self.path_to_wid)
+            self.win = WinImgView(wid.src)
             Utils.center_win(parent=Utils.get_main_win(), child=self.win)
             self.win.show()
 
@@ -230,4 +229,4 @@ class Grid(BaseGrid):
         if isinstance(wid, Thumb):
             wid.set_no_frame()
         self.setFocus()
-        SignalsApp.all.create_path_labels.emit(JsonData.root, None)
+        SignalsApp.all.create_path_labels.emit(JsonData.root)
