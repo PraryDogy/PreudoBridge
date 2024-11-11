@@ -468,6 +468,11 @@ class BarBottom(QWidget):
         last = path_items[-1]
         last.path_label.setText(last.path_label.text().replace(ARROW, ""))
 
+        if not isinstance(last.path_label, Thumb):
+            last.img_wid.load(FOLDER_ICON)
+
+        # print(last.path_label.__dict__)
+
         # t = last.path_label.text()
 
         # if os.path.isfile(t):
