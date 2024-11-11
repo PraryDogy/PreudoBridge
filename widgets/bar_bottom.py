@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
                              QHBoxLayout, QLabel, QLineEdit, QMenu,
                              QProgressBar, QPushButton, QVBoxLayout, QWidget)
 
-from cfg import BLUE, FOLDER, MAX_VAR, JsonData
+from cfg import BLUE, MAX_VAR, JsonData
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
@@ -289,7 +289,7 @@ class PathItem(QWidget):
 
         self.icon_label = QSvgWidget()
         self.icon_label.load(svg_path)
-        self.icon_label.renderer().setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
+        self.icon_label.renderer().setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatioByExpanding)
         self.icon_label.setFixedSize(15, 15)
 
         item_layout.addWidget(self.icon_label)
