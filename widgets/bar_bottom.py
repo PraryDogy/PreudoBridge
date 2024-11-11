@@ -465,8 +465,17 @@ class BarBottom(QWidget):
             self.path_lay.addWidget(path_item)
             path_items.append(path_item)
 
-        last = path_items[-1].path_label
-        last.setText(last.text().replace(ARROW, ""))
+        last = path_items[-1]
+        last.path_label.setText(last.path_label.text().replace(ARROW, ""))
+
+        # t = last.path_label.text()
+
+        # if os.path.isfile(t):
+        #     print("file")
+
+        # # if not last.path_label.text().endswith(IMG_EXT):
+        # #     print(1)
+        # #     last.img_wid.load(FOLDER_ICON)
 
         if count is not None:
             self.total.setText("Всего: " + str(count))
