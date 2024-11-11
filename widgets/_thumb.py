@@ -119,24 +119,23 @@ class Thumb(OrderItem, QFrame):
         self.row, self.col = 0, 0
 
         margin = 0
+        pixmap_size = PIXMAP_SIZE[JsonData.pixmap_size_ind]
 
         self.v_lay = QVBoxLayout()
         self.v_lay.setContentsMargins(margin, margin, margin, margin)
         self.v_lay.setSpacing(margin)
-        self.v_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setLayout(self.v_lay)
 
         self.img_wid: QSvgWidget | QLabel = QSvgWidget()
-        self.img_wid.renderer().setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
         self.img_wid.load(IMG_ICON)
-        self.img_wid.setFixedSize(PIXMAP_SIZE[JsonData.pixmap_size_ind], PIXMAP_SIZE[JsonData.pixmap_size_ind])
+        self.img_wid.renderer().setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
         self.v_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.name_label = NameLabel()
-        self.v_lay.addWidget(self.name_label, Qt.AlignmentFlag.AlignTop)
+        self.v_lay.addWidget(self.name_label)
 
         self.color_label = ColorLabel()
-        self.v_lay.addWidget(self.color_label, Qt.AlignmentFlag.AlignTop)
+        self.v_lay.addWidget(self.color_label)
 
         self.setObjectName("thumbnail")
         self.set_no_frame()
@@ -144,25 +143,19 @@ class Thumb(OrderItem, QFrame):
 
     # 210 пикселей
     def set_pixmap(self, pixmap: QPixmap):
-        return
+        flag_ = Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop
+        pixmap_size = PIXMAP_SIZE[JsonData.pixmap_size_ind]
+
         self.img_wid.deleteLater()
         self.img_wid = QLabel()
-        self.img_wid.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
+        self.img_wid.setAlignment(flag_)
         self.v_lay.insertWidget(0, self.img_wid)
 
         self.img = pixmap
-        pixmap = Utils.pixmap_scale(pixmap, PIXMAP_SIZE[JsonData.pixmap_size_ind])
-        self.img_wid.setPixmap(pixmap)
+        self.img_wid.setPixmap(Utils.pixmap_scale(pixmap, pixmap_size))
 
     def setup(self):
         pixmap_size = PIXMAP_SIZE[JsonData.pixmap_size_ind]
-        
-        if isinstance(self.img_wid, QLabel):
-            pixmap = Utils.pixmap_scale(self.img, pixmap_size)
-            self.img_wid.setPixmap(pixmap)
-        else:
-            self.img_wid.setFixedSize(pixmap_size, pixmap_size)
-
         row_h = 16
 
         thumb_w = sum((
@@ -181,9 +174,13 @@ class Thumb(OrderItem, QFrame):
         self.adjustSize()
 
         self.setFixedSize(thumb_w, thumb_h)
-        # self.img_label.setFixedSize(thumb_w, PIXMAP_SIZE[JsonData.pixmap_size_ind] + 5)
         self.name_label.setFixedSize(thumb_w, row_h * 2)
         self.color_label.setFixedSize(thumb_w, row_h)
+
+        if isinstance(self.img_wid, QLabel):
+            self.img_wid.setPixmap( Utils.pixmap_scale(self.img, pixmap_size))
+        else:
+            self.img_wid.setFixedSize(pixmap_size, pixmap_size)
 
     def set_frame(self):
         self.setStyleSheet(f""" #thumbnail {{ background: {GRAY}; border-radius: 4px; }}""")
