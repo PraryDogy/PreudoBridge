@@ -345,7 +345,9 @@ class Thumb(OrderItem, QFrame):
 
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
-        self.drag.setPixmap(self.img_wid.pixmap())
+
+        if isinstance(self.img_wid, QLabel):
+            self.drag.setPixmap(self.img_wid.pixmap())
         
         url = [QUrl.fromLocalFile(self.src)]
         self.mime_data.setUrls(url)
