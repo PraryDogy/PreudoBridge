@@ -16,7 +16,7 @@ from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 from ._base import BaseSlider, WinMinMax
-from ._thumb import Thumb
+from ._thumb import Thumb, ThumbFolder
 from .win_info import WinInfo
 
 ARROW = " \U0000203A"
@@ -468,10 +468,10 @@ class BarBottom(QWidget):
         last = path_items[-1]
         last.path_label.setText(last.path_label.text().replace(ARROW, ""))
 
-        if not isinstance(last.path_label, Thumb):
+        if isinstance(last.path_label.obj, ThumbFolder):
             last.img_wid.load(FOLDER_ICON)
 
-        # print(last.path_label.__dict__)
+        # print(last.path_label.obj)
 
         # t = last.path_label.text()
 
