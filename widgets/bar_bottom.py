@@ -49,9 +49,9 @@ class PathFinderThread(URunnable):
         if not self.result:
             self.worker_signals._finished.emit("")
         elif self.result in self.volumes:
-            self._finished.emit("")
+            self.worker_signals._finished.emit("")
         elif self.result:
-            self._finished.emit(self.result)
+            self.worker_signals._finished.emit(self.result)
 
     def _path_finder(self):
         src = os.sep + self.src.replace("\\", os.sep).strip().strip(os.sep)
