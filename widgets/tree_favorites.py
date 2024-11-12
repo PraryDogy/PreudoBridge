@@ -12,6 +12,7 @@ from signals import SignalsApp
 from utils import Utils
 
 from .win_rename import WinRename
+from ._actions import View, RevealInFinder, CopyPath
 
 
 class FavItem(QLabel):
@@ -24,36 +25,32 @@ class FavItem(QLabel):
         self.src = src
         self.setFixedHeight(25)
 
-        self.context_menu = QMenu(self)
+        self.menu_ = QMenu(self)
 
-        view_ac = QAction("Просмотр", self)
-        view_ac.triggered.connect(lambda: SignalsApp.all.load_standart_grid.emit(self.src))
-        self.context_menu.addAction(view_ac)
+        cmd_ = lambda: SignalsApp.all.load_standart_grid.emit(self.src)
+        view_ac = View(self.menu_, self.src)
+        view_ac._clicked.connect(cmd_)
+        self.menu_.addAction(view_ac)
 
-        open_finder_action = QAction("Показать в Finder", self)
-        open_finder_action.triggered.connect(lambda: self.open_in_finder(src))
-        self.context_menu.addAction(open_finder_action)
+        open_finder_action = RevealInFinder(self.menu_, self.src)
+        self.menu_.addAction(open_finder_action)
 
-        self.context_menu.addSeparator()
+        self.menu_.addSeparator()
 
-        copy_path_action = QAction("Скопировать путь до папки", self)
-        copy_path_action.triggered.connect(lambda: Utils.copy_path(src))
-        self.context_menu.addAction(copy_path_action)
+        copy_path_action = CopyPath(self.menu_, self.src)
+        self.menu_.addAction(copy_path_action)
 
-        self.context_menu.addSeparator()
+        self.menu_.addSeparator()
 
         rename_action = QAction("Переименовать", self)
         rename_action.triggered.connect(self.rename_cmd)
-        self.context_menu.addAction(rename_action)
+        self.menu_.addAction(rename_action)
 
         fav_action = QAction("Удалить", self)
         fav_action.triggered.connect(lambda: self.del_click.emit())
-        self.context_menu.addAction(fav_action)
+        self.menu_.addAction(fav_action)
 
         self.setContentsMargins(10, 0, 10, 0)
-
-    def open_in_finder(self, path: str):
-        subprocess.call(["open", "-R", path])
 
     def rename_cmd(self):
         self.win = WinRename(self.name)
@@ -72,7 +69,7 @@ class FavItem(QLabel):
             SignalsApp.all.load_standart_grid.emit(self.src)
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
-        self.context_menu.exec_(ev.globalPos())
+        self.menu_.exec_(ev.globalPos())
 
 
 class TreeFavorites(QListWidget):
