@@ -13,6 +13,7 @@ from database import CACHE, Dbase, OrderItem
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
+from ._actions import Info, Reveal, CopyPath
 from ._base import USvgWidget
 from .win_info import WinInfo
 
@@ -195,18 +196,13 @@ class Thumb(OrderItem, QFrame):
 
         context_menu.addSeparator()
 
-        info = QAction("Инфо", self)
-        info.triggered.connect(self.show_info_win)
+        info = Info(parent=context_menu, src=self.src)
         context_menu.addAction(info)
 
-        # Показать в Finder
-        show_in_finder_action = QAction("Показать в Finder", self)
-        show_in_finder_action.triggered.connect(self.show_in_finder)
+        show_in_finder_action = Reveal(parent=context_menu, src=self.src)
         context_menu.addAction(show_in_finder_action)
 
-        # Скопировать путь до файла
-        copy_path = QAction("Скопировать путь до файла", self)
-        copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
+        copy_path = CopyPath(parent=context_menu, src=self.src)
         context_menu.addAction(copy_path)
 
         context_menu.addSeparator()
@@ -238,11 +234,6 @@ class Thumb(OrderItem, QFrame):
             cmd_ = lambda e, r=rating: self.set_rating_cmd(r)
             wid.triggered.connect(cmd_)
             rating_menu.addAction(wid)
-
-    def show_info_win(self):
-        self.win_info = WinInfo(self.src)
-        Utils.center_win(parent=Utils.get_main_win(), child=self.win_info)
-        self.win_info.show()
 
     def open_in_app(self, app_path: str):
         subprocess.call(["open", "-a", app_path, self.src])
