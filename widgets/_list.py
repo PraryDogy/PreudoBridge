@@ -1,7 +1,7 @@
 import os
 
-from PyQt5.QtCore import QDir, Qt
-from PyQt5.QtGui import QCloseEvent, QKeyEvent
+from PyQt5.QtCore import QDir, Qt, QPoint
+from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import QFileSystemModel, QMenu, QTableView
 
 from cfg import JsonData
@@ -80,7 +80,7 @@ class ListStandart(QTableView):
 
         return super().closeEvent(a0)
 
-    def contextMenuEvent(self, event):
+    def contextMenuEvent(self, event: QContextMenuEvent):
         index = self.indexAt(event.pos())
         if not index.isValid():
             return
@@ -109,7 +109,9 @@ class ListStandart(QTableView):
                 fav_action._clicked.connect(cmd_)
                 menu.addAction(fav_action)
 
-        menu.exec_(self.mapToGlobal(event.pos()))
+        coords = self.mapToGlobal(event.pos())
+        # coords = QPoint(coords.x(), coords.y() + 30)
+        menu.exec_(coords)
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
