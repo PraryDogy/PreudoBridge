@@ -13,8 +13,8 @@ from database import CACHE, Dbase, OrderItem
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
-from ._actions import (ColorMenu, CopyPath, Info, OpenInApp, RatingMenu,
-                       RevealInFinder, ShowInFolder, View)
+from ._actions import (ColorMenu, CopyPath, FavAdd, FavRemove, Info, OpenInApp,
+                       RatingMenu, RevealInFinder, ShowInFolder, View)
 from ._base import USvgWidget
 
 
@@ -329,36 +329,38 @@ class ThumbFolder(Thumb):
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         self.select.emit()
 
-        context_menu = QMenu(parent=self)
+        menu = QMenu(parent=self)
 
-        view_action = View(parent=context_menu, src=self.src)
+        view_action = View(parent=menu, src=self.src)
         view_action._clicked.connect(self.open_in_view.emit)
-        context_menu.addAction(view_action)
+        menu.addAction(view_action)
 
-        context_menu.addSeparator()
+        menu.addSeparator()
 
-        info = Info(parent=context_menu, src=self.src)
-        context_menu.addAction(info)
+        info = Info(parent=menu, src=self.src)
+        menu.addAction(info)
 
-        show_in_finder_action = RevealInFinder(parent=context_menu, src=self.src)
-        context_menu.addAction(show_in_finder_action)
+        show_in_finder_action = RevealInFinder(parent=menu, src=self.src)
+        menu.addAction(show_in_finder_action)
 
-        copy_path = CopyPath(parent=context_menu, src=self.src)
-        context_menu.addAction(copy_path)
+        copy_path = CopyPath(parent=menu, src=self.src)
+        menu.addAction(copy_path)
 
-        context_menu.addSeparator()
+        menu.addSeparator()
 
         if self.src in JsonData.favs:
-            self.fav_action = QAction("Удалить из избранного", self)
-            self.fav_action.triggered.connect(lambda: self.fav_cmd(-1))
-            context_menu.addAction(self.fav_action)
+            cmd_ = lambda: self.fav_cmd(-1)
+            self.fav_action = FavRemove(menu, self.src)
+            self.fav_action._clicked.connect(cmd_)
+            menu.addAction(self.fav_action)
 
         else:
-            self.fav_action = QAction("Добавить в избранное", self)
-            self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))
-            context_menu.addAction(self.fav_action)
+            cmd_ = lambda: self.fav_cmd(+1)
+            self.fav_action = FavAdd(menu, self.src)
+            self.fav_action._clicked.connect(cmd_)
+            menu.addAction(self.fav_action)
 
-        context_menu.exec_(self.mapToGlobal(a0.pos()))
+        menu.exec_(self.mapToGlobal(a0.pos()))
 
  
 class ThumbSearch(Thumb):

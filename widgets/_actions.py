@@ -16,6 +16,8 @@ OPEN_IN_APP_T = "Открыть в приложении"
 COLORS_T = "Цвета"
 RATING_T = "Рейтинг"
 SHOW_IN_FOLDER_T = "Показать в папке"
+FAV_REMOVE_T = "Удалить из избранного"
+FAV_ADD_T = "Добавить в избранное"
 
 
 class Task_(URunnable):
@@ -80,6 +82,26 @@ class ShowInFolder(UAction):
 
     def __init__(self, parent: QMenu, src: str):
         super().__init__(parent, src, SHOW_IN_FOLDER_T)
+
+    def cmd_(self):
+        self._clicked.emit()
+
+
+class FavRemove(UAction):
+    _clicked = pyqtSignal()
+
+    def __init__(self, parent: QMenu, src: str):
+        super().__init__(parent, src, FAV_REMOVE_T)
+
+    def cmd_(self):
+        self._clicked.emit()
+
+
+class FavAdd(UAction):
+    _clicked = pyqtSignal()
+
+    def __init__(self, parent: QMenu, src: str):
+        super().__init__(parent, src, FAV_ADD_T)
 
     def cmd_(self):
         self._clicked.emit()
