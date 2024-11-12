@@ -287,8 +287,7 @@ class GridStandart(Grid):
     def create_sorted_grid(self, order_items: list[OrderItem]):
 
         self.order_items = order_items
-        SignalsApp.all.path_labels_cmd.emit(JsonData.root)
-        SignalsApp.all.path_labels_cmd.emit(len(order_items))
+        SignalsApp.all.path_labels_cmd.emit({"src": JsonData.root, "total": len(order_items)})
         sys_disk = os.path.join(os.sep, "Volumes", "Macintosh HD")
         col_count = Utils.get_clmn_count(self.ww)
         row, col = 0, 0

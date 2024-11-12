@@ -389,11 +389,13 @@ class BarBottom(QWidget):
         else:
             raise Exception("bar_borrom > progress bar wrong cmd", cmd)
         
-    def path_labels_cmd(self, value: str | int):
-        if isinstance(value, str):
-            self.create_path_labels(value)
-        else:
-            self.total.setText("Всего: " + str(value))
+    def path_labels_cmd(self, data: dict):
+
+        if data.get("src"):
+            self.create_path_labels(data.get("src"))
+
+        if data.get("total"):
+            self.total.setText("Всего: " + str(data.get("total")))
 
     def create_path_labels(self, src: str):
         Utils.clear_layout(self.path_lay)

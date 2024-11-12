@@ -64,7 +64,7 @@ class Grid(GridBase):
             new_wid.set_frame()
             self.curr_cell = coords
             self.ensureWidgetVisible(new_wid)
-            SignalsApp.all.path_labels_cmd.emit(new_wid.src)
+            SignalsApp.all.path_labels_cmd.emit({"src" : new_wid.src})
         else:
             try:
                 prev_wid.set_frame()
@@ -230,4 +230,4 @@ class Grid(GridBase):
         if isinstance(wid, Thumb):
             wid.set_no_frame()
         self.setFocus()
-        SignalsApp.all.path_labels_cmd.emit(JsonData.root)
+        SignalsApp.all.path_labels_cmd.emit({"src": JsonData.root})
