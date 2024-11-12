@@ -395,8 +395,9 @@ class ThumbSearch(Thumb):
 
         context_menu.addSeparator()
 
+        cmd_ = lambda: SignalsApp.all.show_in_folder.emit(self.src)
         show_in_folder = QAction("Показать в папке", self)
-        show_in_folder.triggered.connect(lambda: SignalsApp.all.show_in_folder.emit(self.src))
+        show_in_folder.triggered.connect(cmd_)
         context_menu.addAction(show_in_folder)
 
         context_menu.exec_(self.mapToGlobal(a0.pos()))
