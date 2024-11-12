@@ -346,6 +346,7 @@ class GridStandart(Grid):
             self.grid_layout.addWidget(no_images, 0, 0)
 
         self.order_()
+        self.select_after_list()
 
     def start_load_images(self):
         self.task_ = LoadImages(self.order_items)

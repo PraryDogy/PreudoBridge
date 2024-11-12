@@ -16,6 +16,10 @@ class Sort:
     order = 0
 
 
+class Selected:
+    src: str = None
+
+
 class ListStandart(QTableView):
     def __init__(self):
         QTableView.__init__(self)
@@ -26,6 +30,7 @@ class ListStandart(QTableView):
         self.verticalHeader().setVisible(False)
         self.horizontalHeader().sectionClicked.connect(self.save_sort_settings)
         self.doubleClicked.connect(self.double_clicked)
+        self.clicked.connect(self.one_clicked)
 
         self._model = QFileSystemModel()
         self._model.setRootPath(JsonData.root)
@@ -40,6 +45,11 @@ class ListStandart(QTableView):
         self.setColumnWidth(2, 100)
         self.setColumnWidth(3, 150)
 
+    def one_clicked(self, index):
+        path = self._model.filePath(index)
+        path = os.path.abspath(path)
+        Selected.src = path  
+
     def double_clicked(self, index):
         path = self._model.filePath(index)
         path = os.path.abspath(path)
@@ -47,6 +57,8 @@ class ListStandart(QTableView):
         if os.path.isdir(path):
             self.setCurrentIndex(index)
             SignalsApp.all.load_standart_grid.emit(path)
+        else:
+            Selected.src = path
 
     def save_sort_settings(self, index):
         Sort.column = index

@@ -10,6 +10,7 @@ from signals import SignalsApp
 from utils import Utils
 
 from ._base import BaseMethods
+from ._list import Selected
 from ._thumb import Thumb, ThumbFolder, ThumbSearch
 from .win_img_view import PathToWid
 from .win_info import WinInfo
@@ -171,6 +172,14 @@ class Grid(BaseMethods, QScrollArea):
             self.win = WinImgView(wid.src)
             Utils.center_win(parent=Utils.get_main_win(), child=self.win)
             self.win.show()
+
+    def select_after_list(self):
+        wid = PathToWid.all_.get(Selected.src)
+
+        if isinstance(wid, Thumb):
+            self.select_new_widget(wid)
+            self.ensureWidgetVisible(wid)
+            Selected.src = None
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         wid: Thumb | ThumbFolder 
