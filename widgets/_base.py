@@ -1,5 +1,6 @@
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QMouseEvent, QWheelEvent
+from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import QSlider, QWidget
 
 from cfg import GRAY
@@ -54,6 +55,16 @@ class USlider(QSlider):
 
     def wheelEvent(self, e: QWheelEvent | None) -> None:
         e.ignore()
+
+
+
+class USvgWidget(QSvgWidget):
+    def __init__(self, icon_path: str, size: int, parent: QWidget = None):
+        super().__init__(parent=parent)
+        self.setStyleSheet(f"""background-color: transparent;""")
+        self.renderer().setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
+        self.setFixedSize(size, size)
+        self.load(icon_path)
 
 
 class WinBase(QWidget):
