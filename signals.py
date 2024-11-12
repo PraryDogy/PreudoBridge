@@ -31,7 +31,7 @@ class SignalsApp:
         cls.all = Signals()
 
     @classmethod
-    def disconnect_(cls) -> bool:
+    def disconnect_grid(cls) -> bool:
 
         recon = (
             SignalsApp.all.resize_grid,

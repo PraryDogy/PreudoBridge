@@ -14,6 +14,7 @@ from ._base import GridBase
 from ._thumb import Thumb, ThumbFolder, ThumbSearch
 from .win_img_view import PathToWid
 
+
 class Grid(GridBase):
 
     def __init__(self, width: int):
@@ -23,14 +24,14 @@ class Grid(GridBase):
         self.curr_cell: tuple = (0, 0)
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.ordered_widgets: list[OrderItem | Thumb | ThumbFolder | ThumbSearch] = []
+        PathToWid.all_.clear()
 
         self.ww = width
 
         # Посколько сетка может множество раз перезагружаться
         # прежде нужно отключить прошлые подключения чтобы не было
         # дублирования подклювчений
-
-        SignalsApp.disconnect_()
+        SignalsApp.disconnect_grid()
 
         SignalsApp.all.resize_grid.connect(self.resize_)
         SignalsApp.all.sort_grid.connect(self.order_)
