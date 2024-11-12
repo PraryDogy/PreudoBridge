@@ -13,7 +13,7 @@ from fit_img import FitImg
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
-from ._base import PathToWid
+from .win_img_view import PathToWid
 from ._grid import Grid
 from ._thumb import Thumb, ThumbFolder
 

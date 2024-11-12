@@ -10,9 +10,9 @@ from database import OrderItem
 from signals import SignalsApp
 from utils import Utils
 
-from ._base import GridBase, PathToWid
+from ._base import GridBase
 from ._thumb import Thumb, ThumbFolder, ThumbSearch
-
+from .win_img_view import PathToWid
 
 class Grid(GridBase):
 

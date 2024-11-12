@@ -14,7 +14,7 @@ from database import CACHE, Dbase
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
-from ._base import PathToWid, WinBase
+from ._base import WinBase
 from ._svg_widgets import SvgShadowed
 from ._thumb import Thumb
 from .win_info import WinInfo
@@ -24,6 +24,10 @@ FILE_ = "images/img_big.svg"
 
 class Shared:
     loaded_images: dict[str, QPixmap] = {}
+
+
+class PathToWid:
+    all_: dict[str, object] = {}
 
 
 class ImageData:
