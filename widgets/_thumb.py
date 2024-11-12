@@ -13,7 +13,7 @@ from database import CACHE, Dbase, OrderItem
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
-from ._actions import Info, Reveal, CopyPath
+from ._actions import CopyPath, Info, OpenInApp, Reveal, View
 from ._base import USvgWidget
 from .win_info import WinInfo
 
@@ -181,18 +181,18 @@ class Thumb(OrderItem, QFrame):
         self.setStyleSheet("")
 
     def add_base_actions(self, context_menu: QMenu):
-        view_action = QAction("Просмотр", self)
-        view_action.triggered.connect(self.open_in_view.emit)
+        view_action = View(parent=context_menu, src=self.src)
+        view_action._clicked.connect(self.open_in_view.emit)
         context_menu.addAction(view_action)
 
         # Открыть в приложении
-        open_menu = QMenu("Открыть в приложении", self)
+        open_menu = OpenInApp(parent=context_menu, src=self.src)
         context_menu.addMenu(open_menu)
 
-        for name, app_path in IMAGE_APPS.items():
-            wid = QAction(name, parent=open_menu)
-            wid.triggered.connect(lambda e, a=app_path: self.open_in_app(a))
-            open_menu.addAction(wid)
+        # for name, app_path in IMAGE_APPS.items():
+        #     wid = QAction(name, parent=open_menu)
+        #     wid.triggered.connect(lambda e, a=app_path: self.open_in_app(a))
+        #     open_menu.addAction(wid)
 
         context_menu.addSeparator()
 
@@ -234,9 +234,6 @@ class Thumb(OrderItem, QFrame):
             cmd_ = lambda e, r=rating: self.set_rating_cmd(r)
             wid.triggered.connect(cmd_)
             rating_menu.addAction(wid)
-
-    def open_in_app(self, app_path: str):
-        subprocess.call(["open", "-a", app_path, self.src])
 
     def show_in_finder(self):
         subprocess.call(["open", "-R", self.src])
