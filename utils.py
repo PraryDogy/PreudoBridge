@@ -50,6 +50,7 @@ class Utils:
     def center_win(cls, parent: QWidget, child: QWidget):
         geo = child.geometry()
         geo.moveCenter(parent.geometry().center())
+        child.setGeometry(geo)
 
     @classmethod
     def read_tiff(cls, path: str) -> np.ndarray | None:

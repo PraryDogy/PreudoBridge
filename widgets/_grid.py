@@ -190,7 +190,7 @@ class Grid(BaseMethods, QScrollArea):
             elif a0.key() == Qt.Key.Key_I:
                 wid = self.cell_to_wid.get(self.curr_cell)
                 self.win = WinInfo(wid.src)
-                Utils.center_win(Utils.get_main_win(), self)
+                Utils.center_win(Utils.get_main_win(), self.win)
                 self.win.show()
 
             elif a0.key() == Qt.Key.Key_Equal:
