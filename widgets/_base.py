@@ -1,6 +1,6 @@
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QMouseEvent, QWheelEvent
-from PyQt5.QtWidgets import QScrollArea, QSlider, QTableView, QWidget
+from PyQt5.QtWidgets import QSlider, QWidget
 
 from cfg import GRAY
 
@@ -19,7 +19,7 @@ class BaseMethods:
         raise Exception("Переопредели метод rearrange")
 
 
-class SliderBase(QSlider):
+class USlider(QSlider):
     _clicked = pyqtSignal()
 
     def __init__(self, orientation: Qt.Orientation, minimum: int, maximum: int):
