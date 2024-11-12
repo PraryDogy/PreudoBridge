@@ -1,4 +1,4 @@
-from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
+from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import QGridLayout, QLabel
 from PyQt5.QtCore import Qt, QObject, pyqtSignal
 from PyQt5.QtWidgets import QApplication, QLabel, QMenu
@@ -164,8 +164,9 @@ class WinInfo(WinMinMax):
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() in (Qt.Key.Key_Escape, Qt.Key.Key_Return):
-            
-            if hasattr(self, "task_"):
-                self.task_.set_should_run(False)
-
             self.close()
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        if hasattr(self, "task_"):
+            self.task_.set_should_run(False)
+        return super().closeEvent(a0)

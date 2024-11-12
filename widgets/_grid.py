@@ -12,6 +12,7 @@ from utils import Utils
 from ._base import BaseMethods
 from ._thumb import Thumb, ThumbFolder, ThumbSearch
 from .win_img_view import PathToWid
+from .win_info import WinInfo
 
 
 class Grid(BaseMethods, QScrollArea):
@@ -188,7 +189,9 @@ class Grid(BaseMethods, QScrollArea):
 
             elif a0.key() == Qt.Key.Key_I:
                 wid = self.cell_to_wid.get(self.curr_cell)
-                wid.show_info_win()
+                self.win = WinInfo(wid.src)
+                Utils.center_win(Utils.get_main_win(), self)
+                self.win.show()
 
             elif a0.key() == Qt.Key.Key_Equal:
                 new_value = JsonData.pixmap_size_ind + 1
