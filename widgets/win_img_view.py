@@ -6,8 +6,8 @@ from PyQt5.QtCore import QEvent, QObject, QPoint, QSize, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import (QCloseEvent, QContextMenuEvent, QKeyEvent,
                          QMouseEvent, QPainter, QPaintEvent, QPixmap,
                          QResizeEvent)
-from PyQt5.QtWidgets import (QAction, QFrame, QHBoxLayout, QLabel, QMenu,
-                             QSpacerItem, QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QMenu, QSpacerItem,
+                             QVBoxLayout, QWidget)
 
 from cfg import (CLOSE_SVG, COLORS, IMAGE_APPS, NEXT_SVG, PREV_SVG, STAR_SYM,
                  ZOOM_FIT_SVG, ZOOM_IN_SVG, ZOOM_OUT_SVG, JsonData)
@@ -15,6 +15,8 @@ from database import CACHE, Dbase
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
+from ._actions import (ColorMenu, CopyPath, Info, OpenInApp, RatingMenu,
+                       RevealInFinder, View)
 from ._base import USvgWidget, WinBase
 from ._thumb import Thumb
 from .win_info import WinInfo
@@ -308,12 +310,6 @@ class WinImgView(WinBase):
 
 # SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM
 
-    def open_default(self, app_path: str):
-        subprocess.call(["open", "-a", app_path, self.src])
-
-    def show_in_finder(self):
-        subprocess.call(["open", "-R", self.src])
-
     def set_title(self):
         t = ""
         if self.wid.rating > 0:
@@ -447,58 +443,30 @@ class WinImgView(WinBase):
         Shared.cached_images.clear()
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        context_menu = QMenu(self)
+        menu = QMenu(self)
 
-        open_menu = QMenu("Открыть в приложении", self)
-        context_menu.addMenu(open_menu)
+        open_menu = OpenInApp(menu, self.src)
+        menu.addMenu(open_menu)
 
-        for name, app_path in IMAGE_APPS.items():
-            wid = QAction(name, parent=open_menu)
-            wid.triggered.connect(lambda e, a=app_path: self.open_default(a))
-            open_menu.addAction(wid)
+        menu.addSeparator()
 
-        context_menu.addSeparator()
+        info = Info(menu, self.src)
+        menu.addAction(info)
 
-        info = QAction("Инфо", self)
-        info.triggered.connect(self.show_info_win)
-        context_menu.addAction(info)
+        show_in_finder_action = RevealInFinder(menu, self.src)
+        menu.addAction(show_in_finder_action)
 
-        show_in_finder_action = QAction("Показать в Finder", self)
-        show_in_finder_action.triggered.connect(self.show_in_finder)
-        context_menu.addAction(show_in_finder_action)
+        copy_path = CopyPath(menu, self.src)
+        menu.addAction(copy_path)
 
-        copy_path = QAction("Скопировать путь до файла", self)
-        copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
-        context_menu.addAction(copy_path)
+        menu.addSeparator()
 
-        context_menu.addSeparator()
+        color_menu = ColorMenu(menu, self.src, self.wid.colors)
+        color_menu._clicked.connect(self.wid.set_color_cmd)
+        menu.addMenu(color_menu)
 
-        color_menu = QMenu("Цвета", self)
-        context_menu.addMenu(color_menu)
+        rating_menu = RatingMenu(menu, self.src, self.wid.rating)
+        rating_menu._clicked.connect(self.wid.set_rating_cmd)
+        menu.addMenu(rating_menu)
 
-        for color, text in COLORS.items():
-            wid = QAction(parent=color_menu, text=f"{color} {text}")
-            wid.setCheckable(True)
-
-            if color in self.wid.colors:
-                wid.setChecked(True)
-
-            cmd_ = lambda e, c=color: self.wid.set_color_cmd(c)
-            wid.triggered.connect(cmd_)
-            color_menu.addAction(wid)
-
-        rating_menu = QMenu("Рейтинг", self)
-        context_menu.addMenu(rating_menu)
-
-        for rating in range(1, 6):
-            wid = QAction(parent=rating_menu, text=STAR_SYM * rating)
-            wid.setCheckable(True)
-
-            if self.wid.rating == rating:
-                wid.setChecked(True)
-
-            cmd_ = lambda e, r=rating: self.wid.set_rating_cmd(r)
-            wid.triggered.connect(cmd_)
-            rating_menu.addAction(wid)
-
-        context_menu.exec_(self.mapToGlobal(a0.pos()))
+        menu.exec_(self.mapToGlobal(a0.pos()))

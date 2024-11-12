@@ -1,11 +1,11 @@
-import subprocess
-
-from PyQt5.QtCore import QDir, pyqtSignal
-from PyQt5.QtWidgets import QAction, QFileSystemModel, QMenu, QTreeView
+from PyQt5.QtCore import QDir
+from PyQt5.QtWidgets import QFileSystemModel, QMenu, QTreeView
 
 from cfg import JsonData
-from utils import Utils
 from signals import SignalsApp
+
+from ._actions import CopyPath, FavAdd, FavRemove, RevealInFinder, View
+
 
 class TreeFolders(QTreeView):
     def __init__(self):
@@ -47,33 +47,32 @@ class TreeFolders(QTreeView):
         src = self.c_model.filePath(index)
         index = self.c_model.index(src)
 
-        open_finder_action = QAction("Просмотр", self)
-        open_finder_action.triggered.connect(lambda: self.one_clicked(index))
+        cmd_ = lambda: self.one_clicked(index)
+        open_finder_action = View(menu, src)
+        open_finder_action._clicked.connect(cmd_)
         menu.addAction(open_finder_action)
 
         menu.addSeparator()
 
-        open_finder_action = QAction("Показать в Finder", self)
-        open_finder_action.triggered.connect(lambda: self.open_in_finder(src))
+
+        open_finder_action = RevealInFinder(menu, src)
         menu.addAction(open_finder_action)
 
-        copy_path_action = QAction("Скопировать путь до папки", self)
-        copy_path_action.triggered.connect(lambda: Utils.copy_path(src))
+        copy_path_action = CopyPath(menu, src)
         menu.addAction(copy_path_action)
 
         menu.addSeparator()
 
         favs: dict = JsonData.favs
         if src in favs:
-            fav_action = QAction("Удалить из избранного", self)
-            fav_action.triggered.connect(lambda: SignalsApp.all.fav_cmd.emit("del", src))
+            cmd_ = lambda: SignalsApp.all.fav_cmd.emit("del", src)
+            fav_action = FavRemove(menu, src)
+            fav_action._clicked.connect(cmd_)
             menu.addAction(fav_action)
         else:
-            fav_action = QAction("Добавить в избранное", self)
-            fav_action.triggered.connect(lambda: SignalsApp.all.fav_cmd.emit("add", src))
+            cmd_ = lambda: SignalsApp.all.fav_cmd.emit("add", src)
+            fav_action = FavAdd(menu, src)
+            fav_action._clicked.connect(cmd_)
             menu.addAction(fav_action)
 
         menu.exec_(self.mapToGlobal(event.pos()))
-
-    def open_in_finder(self, path: str):
-        subprocess.call(["open", "-R", path])
