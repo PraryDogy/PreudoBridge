@@ -1,12 +1,10 @@
 import subprocess
 
 from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtWidgets import QAction, QMenu
+from PyQt5.QtWidgets import QAction, QLineEdit, QMenu
 
 from cfg import COLORS, IMAGE_APPS, STAR_SYM
 from utils import URunnable, UThreadPool, Utils
-
-from .win_info import WinInfo
 
 REVEAL_T = "Показать в Finder"
 INFO_T = "Инфо"
@@ -19,6 +17,11 @@ SHOW_IN_FOLDER_T = "Показать в папке"
 FAV_REMOVE_T = "Удалить из избранного"
 FAV_ADD_T = "Добавить в избранное"
 RENAME_T = "Переименовать"
+CUT_T = "Вырезать"
+COPY_T = "Копировать"
+PASTE_T = "Вставить"
+SELECT_ALL_T = "Выделить все"
+
 
 class Task_(URunnable):
     def __init__(self,  cmd_: callable):
@@ -54,6 +57,7 @@ class Info(UAction):
         super().__init__(parent, src, INFO_T)
 
     def cmd_(self):
+        from .win_info import WinInfo
         self.win_info = WinInfo(self.src)
         Utils.center_win(parent=Utils.get_main_win(), child=self.win_info)
         self.win_info.show()
@@ -64,7 +68,7 @@ class CopyPath(UAction):
         super().__init__(parent, src, COPY_PATH_T)
 
     def cmd_(self):
-        Utils.copy_path(self.src)
+        Utils.write_to_clipboard(self.src)
 
 
 class View(UAction):
@@ -175,3 +179,48 @@ class RatingMenu(QMenu):
             wid.triggered.connect(cmd_)
 
             self.addAction(wid)
+
+
+class TextCut(QAction):
+    def __init__(self, parent: QMenu, widget: QLineEdit):
+        super().__init__(parent=parent, text=CUT_T)
+        self.wid = widget
+        self.triggered.connect(self.cmd_)
+
+    def cmd_(self):
+        selection = self.wid.selectedText()
+        text = self.wid.text().replace(selection, "")
+        self.wid.setText(text)
+        Utils.write_to_clipboard(selection)
+
+
+class TextCopy(QAction):
+    def __init__(self, parent: QMenu, widget: QLineEdit):
+        super().__init__(parent=parent, text=COPY_T)
+        self.wid = widget
+        self.triggered.connect(self.cmd_)
+
+    def cmd_(self):
+        selection = self.wid.selectedText()
+        Utils.write_to_clipboard(selection)
+
+
+class TextPaste(QAction):
+    def __init__(self, parent: QMenu, widget: QLineEdit):
+        super().__init__(parent=parent, text=PASTE_T)
+        self.wid = widget
+        self.triggered.connect(self.cmd_)
+
+    def cmd_(self):
+        text = Utils.read_from_clipboard()
+        new_text = self.wid.text() + text
+        self.wid.setText(new_text)
+
+class TextSelectAll(QAction):
+    def __init__(self, parent: QMenu, widget: QLineEdit):
+        super().__init__(parent=parent, text=SELECT_ALL_T)
+        self.wid = widget
+        self.triggered.connect(self.cmd_)
+
+    def cmd_(self):
+        self.wid.selectAll()

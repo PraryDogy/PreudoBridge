@@ -35,11 +35,15 @@ class Utils:
                     cls.clear_layout(item.layout())
 
     @classmethod
-    def copy_path(cls, text: str):
+    def write_to_clipboard(cls, text: str):
         text_bytes = text.encode('utf-8')
         subprocess.run(['pbcopy'], input=text_bytes, check=True)
         return True
-    
+
+    @classmethod
+    def read_from_clipboard(cls):
+        return subprocess.check_output('pbpaste').decode('utf-8')
+
     @classmethod
     def get_main_win(cls, name: str ="SimpleFileExplorer") -> QWidget:
         for i in QApplication.topLevelWidgets():

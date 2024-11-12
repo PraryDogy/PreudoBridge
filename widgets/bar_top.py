@@ -3,8 +3,8 @@ import os
 from PyQt5.QtCore import QSize, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
-                             QLineEdit, QMenu, QPushButton, QSpacerItem,
-                             QTabBar, QVBoxLayout, QWidget)
+                             QMenu, QPushButton, QSpacerItem, QTabBar,
+                             QVBoxLayout, QWidget)
 
 from cfg import (BACK_SYM, BLUE, BURGER_SYM, COLORS, FAT_DOT_SYM,
                  FILTERS_CROSS_SYM, GRID_SYM, IMG_EXT, NEXT_SYM,
@@ -13,6 +13,7 @@ from database import ORDER
 from signals import SignalsApp
 from utils import Utils
 
+from ._base import ULineEdit
 from .win_settings import WinSettings
 
 SETT_SYM = "\U00002699"
@@ -115,7 +116,7 @@ class SearchWidget(QWidget):
         v_lay.setSpacing(0)
         self.setLayout(v_lay)
 
-        self.input_wid = QLineEdit()
+        self.input_wid = ULineEdit()
         self.input_wid.setPlaceholderText("Поиск")
         self.input_wid.setStyleSheet("padding-left: 2px; padding-right: 20px;")
         self.input_wid.setFixedSize(170, 25)

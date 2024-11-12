@@ -6,8 +6,8 @@ from PyQt5.QtCore import QMimeData, QObject, Qt, QUrl, pyqtSignal
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
                          QPixmap)
 from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QHBoxLayout,
-                             QLabel, QLineEdit, QMenu, QProgressBar,
-                             QPushButton, QVBoxLayout, QWidget)
+                             QLabel, QMenu, QProgressBar, QPushButton,
+                             QVBoxLayout, QWidget)
 
 from cfg import (BLUE, COMP_SVG, FOLDER_SVG, GOTO_SVG, HDD_SVG, IMG_SVG,
                  MAX_VAR, JsonData)
@@ -15,7 +15,7 @@ from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 from ._actions import CopyPath, Info, RevealInFinder, View
-from ._base import USlider, USvgWidget, WinMinMax
+from ._base import ULineEdit, USlider, USvgWidget, WinMinMax
 
 ARROW = " \U0000203A"
 
@@ -121,9 +121,8 @@ class WinGo(WinMinMax):
         v_lay.setSpacing(10)
         self.setLayout(v_lay)
 
-        self.input_wid = QLineEdit()
+        self.input_wid = ULineEdit()
         self.input_wid.setPlaceholderText("Вставьте путь к файлу/папке")
-        self.input_wid.setStyleSheet("padding-left: 2px;")
         self.input_wid.setFixedSize(270, 25)
         v_lay.addWidget(self.input_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 

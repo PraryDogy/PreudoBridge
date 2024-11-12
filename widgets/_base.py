@@ -1,9 +1,11 @@
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QCloseEvent, QMouseEvent, QWheelEvent
+from PyQt5.QtGui import QContextMenuEvent, QMouseEvent, QWheelEvent
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import QSlider, QWidget
+from PyQt5.QtWidgets import QLineEdit, QMenu, QSlider, QWidget
 
 from cfg import GRAY
+
+from ._actions import TextCopy, TextCut, TextPaste, TextSelectAll
 
 
 class BaseMethods:
@@ -69,6 +71,31 @@ class USvgWidget(QSvgWidget):
             self.load(kwargs.get("src"))
         if kwargs.get("size"):
             self.setFixedSize(kwargs.get("size"), kwargs.get("size"))
+
+
+class ULineEdit(QLineEdit):
+    def __init__(self):
+        super().__init__()
+        self.setStyleSheet("padding-left: 2px; padding-right: 2px;")
+
+    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+        menu = QMenu()
+
+        cut_a = TextCut(menu, self)
+        menu.addAction(cut_a)
+
+        copy_a = TextCopy(menu, self)
+        menu.addAction(copy_a)
+
+        paste_a = TextPaste(menu, self)
+        menu.addAction(paste_a)
+
+        menu.addSeparator()
+
+        select_all_a = TextSelectAll(menu, self)
+        menu.addAction(select_all_a)
+
+        menu.exec_(self.mapToGlobal(a0.pos()))
 
 
 class WinBase(QWidget):
