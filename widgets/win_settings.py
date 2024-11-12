@@ -12,9 +12,17 @@ from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QPushButton,
 from cfg import HASH_DIR, JSON_FILE, LINK, JsonData
 from database import Dbase
 from signals import SignalsApp
-from utils import UThreadPool, URunnable
+from utils import UThreadPool, URunnable, Utils
 
 from ._base import WinMinMax
+
+LOADING_T = "Вычисляю"
+DATA_T = "Данные"
+SETTINGS_T = "Настройки"
+CLEAR_T = "Очистить"
+JSON_T = "Json"
+UPDATE_T = "Обновления"
+
 
 
 class WorkerSignals(QObject):
@@ -44,22 +52,9 @@ class GetSizer(URunnable):
                     file_path = os.path.join(root, file)
                     total_size += os.path.getsize(file_path)
 
-        data_size = "Размер данных:"
-
-        t = f"{data_size} {total_size}"
-
-        if total_size < 1024:
-            t = f"{data_size} {total_size} Б"
-
-        elif total_size < 1024**2:
-            t = f"{data_size} {total_size / 1024:.2f} КБ"
-
-        elif total_size < 1024**3:
-            t =  f"{data_size} {total_size / 1024**2:.2f} МБ"
-
-        else:
-            t = f"{data_size} {total_size / 1024**3:.2f} ГБ"
-        
+        data_size = DATA_T
+        total_size = Utils.get_f_size(total_size)
+        t = f"{data_size}: {total_size}"       
         self.worker_signals._finished.emit(t)
 
 
@@ -67,8 +62,8 @@ class WinSettings(WinMinMax):
     def __init__(self):
         super().__init__()
         
-        self.setWindowTitle("Настройки")
-        self.setFixedSize(350, 120)
+        self.setWindowTitle(SETTINGS_T)
+        self.setFixedSize(270, 120)
 
         main_lay = QVBoxLayout()
         main_lay.setContentsMargins(10, 10, 10, 10)
@@ -85,8 +80,8 @@ class WinSettings(WinMinMax):
         self.current_size = QLabel("")
         h_lay.addWidget(self.current_size)
 
-        self.clear_btn = QPushButton("Очистить данные")
-        self.clear_btn.setFixedWidth(150)
+        self.clear_btn = QPushButton(CLEAR_T)
+        self.clear_btn.setFixedWidth(110)
         self.clear_btn.clicked.connect(self.clear_db_cmd)
         h_lay.addWidget(self.clear_btn)
         
@@ -102,13 +97,13 @@ class WinSettings(WinMinMax):
         h_lay.setContentsMargins(0, 0, 0, 0)
         h_wid.setLayout(h_lay)
 
-        open_json_btn = QPushButton("Файл настроек")
-        open_json_btn.setFixedWidth(150)
+        open_json_btn = QPushButton(JSON_T)
+        open_json_btn.setFixedWidth(110)
         open_json_btn.clicked.connect(lambda: subprocess.call(["open", JSON_FILE]))
         h_lay.addWidget(open_json_btn)
 
-        open_json_btn = QPushButton("Обновления")
-        open_json_btn.setFixedWidth(150)
+        open_json_btn = QPushButton(UPDATE_T)
+        open_json_btn.setFixedWidth(110)
         open_json_btn.clicked.connect(lambda: webbrowser.open(LINK))
         h_lay.addWidget(open_json_btn)
 
@@ -117,7 +112,7 @@ class WinSettings(WinMinMax):
         self.get_current_size()
 
     def get_current_size(self):
-        self.current_size.setText("Загрузка")
+        self.current_size.setText(LOADING_T)
 
         self.task_ = GetSizer()
         cmd_ = lambda t: self.current_size.setText(t)
