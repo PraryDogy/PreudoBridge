@@ -1,14 +1,13 @@
 import os
-import subprocess
 
 from PyQt5.QtCore import QDir, Qt
 from PyQt5.QtGui import QKeyEvent
-from PyQt5.QtWidgets import QAction, QFileSystemModel, QMenu, QTableView
+from PyQt5.QtWidgets import QFileSystemModel, QMenu, QTableView
 
 from cfg import JsonData
 from signals import SignalsApp
-from utils import Utils
 
+from ._actions import CopyPath, FavAdd, FavRemove, RevealInFinder
 from ._base import BaseMethods
 
 
@@ -54,9 +53,6 @@ class ListStandart(QTableView):
         Sort.order = self.horizontalHeader().sortIndicatorOrder()
         self.sortByColumn(Sort.column, Sort.order)
 
-    def open_in_finder(self, path: str):
-        subprocess.call(["open", "-R", path])
-
     def rearrange(self, *args, **kwargs):
         ...
 
@@ -78,30 +74,24 @@ class ListStandart(QTableView):
         src = self._model.filePath(index)
         index = self._model.index(src)
 
-        open_finder_action = QAction("Просмотр", self)
-        open_finder_action.triggered.connect(lambda: self.double_clicked(index))
+        open_finder_action = RevealInFinder(menu, src)
         menu.addAction(open_finder_action)
 
-        menu.addSeparator()
-
-        open_finder_action = QAction("Показать в Finder", self)
-        open_finder_action.triggered.connect(lambda: self.open_in_finder(src))
-        menu.addAction(open_finder_action)
-
-        copy_path_action = QAction("Скопировать путь до папки", self)
-        copy_path_action.triggered.connect(lambda: Utils.copy_path(src))
+        copy_path_action = CopyPath(menu, src)
         menu.addAction(copy_path_action)
 
         menu.addSeparator()
 
         if os.path.isdir(src):
             if src in JsonData.favs:
-                fav_action = QAction("Удалить из избранного", self)
-                fav_action.triggered.connect(lambda: SignalsApp.all.fav_cmd.emit("del", src))
+                cmd_ = lambda: SignalsApp.all.fav_cmd.emit("del", src)
+                fav_action = FavRemove(menu, src)
+                fav_action._clicked.connect(cmd_)
                 menu.addAction(fav_action)
             else:
-                fav_action = QAction("Добавить в избранное", self)
-                fav_action.triggered.connect(lambda: SignalsApp.all.fav_cmd.emit("add", src))
+                cmd_ = lambda: SignalsApp.all.fav_cmd.emit("add", src)
+                fav_action = FavAdd(menu, src)
+                fav_action._clicked.connect(cmd_)
                 menu.addAction(fav_action)
 
         menu.exec_(self.mapToGlobal(event.pos()))
