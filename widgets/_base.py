@@ -80,5 +80,6 @@ class WinBase(QWidget):
 class WinMinMax(WinBase):
     def __init__(self):
         super().__init__()
-        fl = Qt.WindowType.Window | Qt.WindowType.CustomizeWindowHint | Qt.WindowType.WindowCloseButtonHint
+        fl = Qt.WindowType.Window | Qt.WindowType.CustomizeWindowHint
+        fl = fl  | Qt.WindowType.WindowCloseButtonHint
         self.setWindowFlags(fl)
