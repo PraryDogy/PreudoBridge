@@ -11,8 +11,8 @@ from cfg import JsonData
 from signals import SignalsApp
 from utils import Utils
 
+from ._actions import CopyPath, FavRemove, Rename, RevealInFinder, View
 from .win_rename import WinRename
-from ._actions import View, RevealInFinder, CopyPath, FavRemove
 
 
 class FavItem(QLabel):
@@ -42,8 +42,8 @@ class FavItem(QLabel):
 
         self.menu_.addSeparator()
 
-        rename_action = QAction("Переименовать", self)
-        rename_action.triggered.connect(self.rename_cmd)
+        rename_action = Rename(self.menu_, self.src)
+        rename_action._clicked.connect(self.rename_cmd)
         self.menu_.addAction(rename_action)
 
         cmd_ = lambda: self.del_click.emit()

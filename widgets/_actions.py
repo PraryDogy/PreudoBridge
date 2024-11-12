@@ -18,7 +18,7 @@ RATING_T = "Рейтинг"
 SHOW_IN_FOLDER_T = "Показать в папке"
 FAV_REMOVE_T = "Удалить из избранного"
 FAV_ADD_T = "Добавить в избранное"
-
+RENAME_T = "Переименовать"
 
 class Task_(URunnable):
     def __init__(self,  cmd_: callable):
@@ -92,6 +92,16 @@ class FavRemove(UAction):
 
     def __init__(self, parent: QMenu, src: str):
         super().__init__(parent, src, FAV_REMOVE_T)
+
+    def cmd_(self):
+        self._clicked.emit()
+
+
+class Rename(UAction):
+    _clicked = pyqtSignal()
+
+    def __init__(self, parent: QMenu, src: str):
+        super().__init__(parent, src, RENAME_T)
 
     def cmd_(self):
         self._clicked.emit()
