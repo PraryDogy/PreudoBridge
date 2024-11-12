@@ -5,14 +5,14 @@ from PyQt5.QtGui import QCloseEvent, QKeyEvent, QMouseEvent, QResizeEvent
 from PyQt5.QtWidgets import (QApplication, QGridLayout, QHBoxLayout, QLabel,
                              QTabWidget, QVBoxLayout, QWidget)
 
-from cfg import IMG_EXT, LEFT_MENU_W, UP_ARROW_SYM, JsonData
+from cfg import IMG_EXT, LEFT_MENU_W, UP_ARROW_SYM, Dynamic, JsonData
 from signals import SignalsApp
 from widgets._grid import Grid
+from widgets._list import ListStandart
 from widgets.bar_bottom import BarBottom
 from widgets.bar_top import BarTop
 from widgets.grid_search import GridSearch
 from widgets.grid_standart import GridStandart
-from widgets._list import ListStandart
 from widgets.tree_favorites import TreeFavorites
 from widgets.tree_folders import TreeFolders
 
@@ -129,7 +129,7 @@ class SimpleFileExplorer(QWidget):
 
     def load_search_grid(self, search_text: str):
         self.bar_top.view_type_btn.setCurrentIndex(0)
-        JsonData.list_view = False
+        Dynamic.list_view = False
         self.bar_top.filters_btn.reset_filters()
 
         self.grid_close()
@@ -171,7 +171,7 @@ class SimpleFileExplorer(QWidget):
         self.bar_top.search_wid.clear_search.emit()
         self.bar_top.filters_btn.reset_filters()
 
-        if JsonData.list_view:
+        if Dynamic.list_view:
             self.grid = ListStandart()
             self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
         else:

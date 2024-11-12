@@ -90,7 +90,6 @@ class JsonData:
     reversed = False
     extra_paths = ["/Studio/PANACEA", "/Studio/MIUZ"]
     favs = {}
-    list_view = False
     tab_bar = 1
     pixmap_size_ind = 0
 
@@ -175,6 +174,7 @@ class JsonData:
         cls.read_json_data()
         cls.find_img_apps()
 
-class Dymanic:
+class Dynamic:
     color_filters: list = []
     rating_filter: int = 0
+    list_view = False

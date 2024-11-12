@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import QFrame, QGridLayout, QScrollArea, QWidget
 
-from cfg import FOLDER_TYPE, GRID_SPACING, MAX_VAR, Dymanic, JsonData
+from cfg import FOLDER_TYPE, GRID_SPACING, MAX_VAR, Dynamic, JsonData
 from database import OrderItem
 from signals import SignalsApp
 from utils import Utils
@@ -106,12 +106,12 @@ class Grid(BaseMethods, QScrollArea):
         for wid in self.ordered_widgets:
             show_widget = True
 
-            if Dymanic.rating_filter > 0:
-                if not (Dymanic.rating_filter >= wid.rating > 0):
+            if Dynamic.rating_filter > 0:
+                if not (Dynamic.rating_filter >= wid.rating > 0):
                     show_widget = False
 
-            if Dymanic.color_filters:
-                if not any(color for color in wid.colors if color in Dymanic.color_filters):
+            if Dynamic.color_filters:
+                if not any(color for color in wid.colors if color in Dynamic.color_filters):
                     show_widget = False
 
             if show_widget:

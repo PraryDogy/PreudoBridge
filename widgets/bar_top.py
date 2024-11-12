@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
 
 from cfg import (BACK_SYM, BLUE, BURGER_SYM, COLORS, FAT_DOT_SYM,
                  FILTERS_CROSS_SYM, GRID_SYM, IMG_EXT, NEXT_SYM,
-                 SEARCH_CROSS_SYM, STAR_SYM, UP_CURVE, Dymanic, JsonData)
+                 SEARCH_CROSS_SYM, STAR_SYM, UP_CURVE, Dynamic, JsonData)
 from database import ORDER
 from signals import SignalsApp
 from utils import Utils
@@ -78,7 +78,7 @@ class ViewTypeBtn(QTabBar):
         self.addTab(GRID_SYM * 3)
         self.addTab(BURGER_SYM)
 
-        if JsonData.list_view:
+        if Dynamic.list_view:
             self.setCurrentIndex(1)
         else:
             self.setCurrentIndex(0)
@@ -94,10 +94,10 @@ class ViewTypeBtn(QTabBar):
     def set_view_cmd(self, index: int):
         if index == 0:
             self.setCurrentIndex(0)
-            JsonData.list_view = False
+            Dynamic.list_view = False
         else:
             self.setCurrentIndex(1)
-            JsonData.list_view = True
+            Dynamic.list_view = True
         SignalsApp.all.load_standart_grid.emit("")
 
     def tabSizeHint(self, index):
@@ -265,13 +265,13 @@ class FiltersBtn(QPushButton):
         if widget.is_selected == True:
             self.enabled_filters.remove(widget)
             self.style_btn()
-            Dymanic.color_filters.remove(color)
+            Dynamic.color_filters.remove(color)
             widget.setStyleSheet("")
             widget.is_selected = False
         else:
             self.enabled_filters.add(widget)
             self.style_btn()
-            Dymanic.color_filters.append(color)
+            Dynamic.color_filters.append(color)
             widget.setStyleSheet(f"background: {BLUE};")
             widget.is_selected = True
 
@@ -288,12 +288,12 @@ class FiltersBtn(QPushButton):
 
         self.style_btn()
 
-        Dymanic.color_filters.clear()
+        Dynamic.color_filters.clear()
         SignalsApp.all.filter_grid.emit()
 
     def toggle_rating(self, rate: int):
         if rate > 1:
-            Dymanic.rating_filter = rate
+            Dynamic.rating_filter = rate
             self.enabled_filters.add(0)
             self.style_btn()
 
@@ -307,7 +307,7 @@ class FiltersBtn(QPushButton):
                 self.enabled_filters.remove(0)
 
             self.style_btn()
-            Dymanic.rating_filter = 0
+            Dynamic.rating_filter = 0
             for i in self.rating_wids:
                 i.setStyleSheet("")
 
@@ -320,8 +320,8 @@ class FiltersBtn(QPushButton):
             i.setStyleSheet("")
             i.is_selected = False
 
-        Dymanic.color_filters.clear()
-        Dymanic.rating_filter = 0
+        Dynamic.color_filters.clear()
+        Dynamic.rating_filter = 0
         self.enabled_filters.clear()
         self.style_btn()
 
