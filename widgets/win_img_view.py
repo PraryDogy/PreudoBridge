@@ -9,7 +9,8 @@ from PyQt5.QtGui import (QCloseEvent, QContextMenuEvent, QKeyEvent,
 from PyQt5.QtWidgets import (QAction, QFrame, QHBoxLayout, QLabel, QMenu,
                              QSpacerItem, QVBoxLayout, QWidget)
 
-from cfg import COLORS, IMAGE_APPS, STAR_SYM, JsonData
+from cfg import (CLOSE_SVG, COLORS, IMAGE_APPS, NEXT_SVG, PREV_SVG, STAR_SYM,
+                 ZOOM_FIT_SVG, ZOOM_IN_SVG, ZOOM_OUT_SVG, JsonData)
 from database import CACHE, Dbase
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
@@ -202,22 +203,22 @@ class ZoomBtns(QFrame):
 
         h_layout.addSpacerItem(QSpacerItem(5, 0))
 
-        self.zoom_out = USvgWidget(os.path.join("images", "zoom_out.svg"), 45)
+        self.zoom_out = USvgWidget(src=ZOOM_OUT_SVG, size=45)
         self.zoom_out.mouseReleaseEvent = lambda e: self.zoomed_out.emit()
         h_layout.addWidget(self.zoom_out)
         h_layout.addSpacerItem(QSpacerItem(10, 0))
 
-        self.zoom_in = USvgWidget(os.path.join("images", "zoom_in.svg"), 45)
+        self.zoom_in = USvgWidget(src=ZOOM_IN_SVG, size=45)
         self.zoom_in.mouseReleaseEvent = lambda e: self.zoomed_in.emit()
         h_layout.addWidget(self.zoom_in)
         h_layout.addSpacerItem(QSpacerItem(10, 0))
 
-        self.zoom_fit = USvgWidget(os.path.join("images", "zoom_fit.svg"), 45)
+        self.zoom_fit = USvgWidget(src=ZOOM_IN_SVG, size=45)
         self.zoom_fit.mouseReleaseEvent = lambda e: self.zoomed_fit.emit()
         h_layout.addWidget(self.zoom_fit)
         h_layout.addSpacerItem(QSpacerItem(10, 0))
 
-        self.zoom_close = USvgWidget(os.path.join("images", "zoom_close.svg"), 45)
+        self.zoom_close = USvgWidget(src=CLOSE_SVG, size=45)
         self.zoom_close.mouseReleaseEvent = lambda e: self.press_close.emit()
         h_layout.addWidget(self.zoom_close)
 
@@ -229,7 +230,7 @@ class ZoomBtns(QFrame):
 class SwitchImageBtn(QFrame):
     pressed = pyqtSignal()
 
-    def __init__(self, icon_name: str, parent: QWidget = None) -> None:
+    def __init__(self, src: str, parent: QWidget) -> None:
         super().__init__(parent)
         self.setStyleSheet(
             """
@@ -243,7 +244,7 @@ class SwitchImageBtn(QFrame):
         v_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(v_layout)
 
-        btn = USvgWidget(os.path.join("images", icon_name), 50)
+        btn = USvgWidget(src=src, size=50)
         v_layout.addWidget(btn)
 
         self.mouseReleaseEvent = lambda e: self.pressed.emit()
@@ -251,12 +252,12 @@ class SwitchImageBtn(QFrame):
 
 class PrevImageBtn(SwitchImageBtn):
     def __init__(self, parent: QWidget = None) -> None:
-        super().__init__("prev.svg", parent)
+        super().__init__(PREV_SVG, parent=parent)
 
 
 class NextImageBtn(SwitchImageBtn):
     def __init__(self, parent: QWidget = None) -> None:
-        super().__init__("next.svg", parent)
+        super().__init__(src=NEXT_SVG, parent=parent)
 
 
 class WinImgView(WinBase):

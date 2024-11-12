@@ -1,22 +1,20 @@
 import os
 import subprocess
-from datetime import datetime
 from difflib import SequenceMatcher
 
 from PyQt5.QtCore import QMimeData, QObject, Qt, QUrl, pyqtSignal
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
                          QPixmap)
-from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
                              QHBoxLayout, QLabel, QLineEdit, QMenu,
                              QProgressBar, QPushButton, QVBoxLayout, QWidget)
 
-from cfg import (BLUE, COMP_SVG, FOLDER_TYPE, FOLDER_SVG, GOTO_SVG, HDD_SVG,
-                 IMG_SVG, MAX_VAR, JsonData)
+from cfg import (BLUE, COMP_SVG, FOLDER_SVG, GOTO_SVG, HDD_SVG, IMG_SVG,
+                 MAX_VAR, JsonData)
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
-from ._base import USlider, WinMinMax
+from ._base import USlider, USvgWidget, WinMinMax
 from .win_info import WinInfo
 
 ARROW = " \U0000203A"
@@ -236,10 +234,7 @@ class PathItem(QWidget):
         item_layout.setSpacing(5)
         self.setLayout(item_layout)
 
-        flag_ = Qt.AspectRatioMode.KeepAspectRatioByExpanding
-        self.img_wid = QSvgWidget()
-        self.img_wid.renderer().setAspectRatioMode(flag_)
-        self.img_wid.setFixedSize(15, 15)
+        self.img_wid = USvgWidget(size=15)
 
         item_layout.addWidget(self.img_wid)
         
@@ -337,10 +332,7 @@ class BarBottom(QWidget):
 
         row, col = 2, 0
 
-        self.go_btn = QSvgWidget()
-        self.go_btn.load(GOTO_SVG)
-        self.go_btn.renderer().setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
-        self.go_btn.setFixedSize(15, 15)
+        self.go_btn = USvgWidget(src=GOTO_SVG, size=15)
         self.go_btn.mouseReleaseEvent = self.open_go_win
         self.grid_lay.addWidget(self.go_btn, row, col)
 

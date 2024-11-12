@@ -36,6 +36,12 @@ FOLDER_SVG = os.path.join(IMAGES_DIR, "folder.svg")
 HDD_SVG = os.path.join(IMAGES_DIR, "hdd.svg")
 COMP_SVG = os.path.join(IMAGES_DIR, "computer.svg")
 GOTO_SVG = os.path.join(IMAGES_DIR, "goto.svg")
+ZOOM_OUT_SVG = os.path.join(IMAGES_DIR, "zoom_out.svg")
+ZOOM_IN_SVG = os.path.join(IMAGES_DIR, "zoom_in.svg")
+ZOOM_FIT_SVG = os.path.join(IMAGES_DIR, "zoom_fit.svg")
+CLOSE_SVG = os.path.join(IMAGES_DIR, "zoom_close.svg")
+PREV_SVG = os.path.join(IMAGES_DIR, "prev.svg")
+NEXT_SVG = os.path.join(IMAGES_DIR, "next.svg")
 
 FOLDER_TYPE: str = "Папка"
 

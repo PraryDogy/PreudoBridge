@@ -59,12 +59,16 @@ class USlider(QSlider):
 
 
 class USvgWidget(QSvgWidget):
-    def __init__(self, icon_path: str, size: int, parent: QWidget = None):
-        super().__init__(parent=parent)
+    def __init__(self, **kwargs):
+        """src, size"""
+
+        super().__init__()
         self.setStyleSheet(f"""background-color: transparent;""")
         self.renderer().setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
-        self.setFixedSize(size, size)
-        self.load(icon_path)
+        if kwargs.get("src"):
+            self.load(kwargs.get("src"))
+        if kwargs.get("size"):
+            self.setFixedSize(kwargs.get("size"), kwargs.get("size"))
 
 
 class WinBase(QWidget):

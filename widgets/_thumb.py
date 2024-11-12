@@ -1,10 +1,8 @@
-import datetime
 import subprocess
 
 import sqlalchemy
 from PyQt5.QtCore import QMimeData, Qt, QUrl, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QDrag, QMouseEvent, QPixmap
-from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QLabel, QMenu,
                              QVBoxLayout)
 from sqlalchemy.exc import IntegrityError, OperationalError
@@ -15,6 +13,7 @@ from database import CACHE, Dbase, OrderItem
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
+from ._base import USvgWidget
 from .win_info import WinInfo
 
 
@@ -118,7 +117,7 @@ class Thumb(OrderItem, QFrame):
         self.v_lay.setSpacing(margin)
         self.setLayout(self.v_lay)
 
-        self.img_wid: QSvgWidget | QLabel = QSvgWidget()
+        self.img_wid: USvgWidget | QLabel = USvgWidget()
         self.img_wid.load(IMG_SVG)
         self.img_wid.renderer().setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
         self.v_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
