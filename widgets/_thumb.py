@@ -14,9 +14,8 @@ from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 from ._actions import (ColorMenu, CopyPath, Info, OpenInApp, RatingMenu,
-                       Reveal, View)
+                       RevealInFinder, ShowInFolder, View)
 from ._base import USvgWidget
-from .win_info import WinInfo
 
 
 class NameLabel(QLabel):
@@ -181,35 +180,35 @@ class Thumb(OrderItem, QFrame):
     def set_no_frame(self):
         self.setStyleSheet("")
 
-    def add_base_actions(self, context_menu: QMenu):
+    def add_base_actions(self, menu: QMenu):
 
-        view_action = View(parent=context_menu, src=self.src)
+        view_action = View(parent=menu, src=self.src)
         view_action._clicked.connect(self.open_in_view.emit)
-        context_menu.addAction(view_action)
+        menu.addAction(view_action)
 
-        open_menu = OpenInApp(parent=context_menu, src=self.src)
-        context_menu.addMenu(open_menu)
+        open_menu = OpenInApp(parent=menu, src=self.src)
+        menu.addMenu(open_menu)
 
-        context_menu.addSeparator()
+        menu.addSeparator()
 
-        info = Info(parent=context_menu, src=self.src)
-        context_menu.addAction(info)
+        info = Info(parent=menu, src=self.src)
+        menu.addAction(info)
 
-        show_in_finder_action = Reveal(parent=context_menu, src=self.src)
-        context_menu.addAction(show_in_finder_action)
+        show_in_finder_action = RevealInFinder(parent=menu, src=self.src)
+        menu.addAction(show_in_finder_action)
 
-        copy_path = CopyPath(parent=context_menu, src=self.src)
-        context_menu.addAction(copy_path)
+        copy_path = CopyPath(parent=menu, src=self.src)
+        menu.addAction(copy_path)
 
-        context_menu.addSeparator()
+        menu.addSeparator()
 
-        color_menu = ColorMenu(parent=context_menu, src=self.src, colors=self.colors)
+        color_menu = ColorMenu(parent=menu, src=self.src, colors=self.colors)
         color_menu._clicked.connect(self.set_color_cmd)
-        context_menu.addMenu(color_menu)
+        menu.addMenu(color_menu)
 
-        rating_menu = RatingMenu(parent=context_menu, src=self.src, rating=self.rating)
+        rating_menu = RatingMenu(parent=menu, src=self.src, rating=self.rating)
         rating_menu._clicked.connect(self.set_rating_cmd)
-        context_menu.addMenu(rating_menu)
+        menu.addMenu(rating_menu)
 
     def show_in_finder(self):
         subprocess.call(["open", "-R", self.src])
@@ -327,11 +326,6 @@ class ThumbFolder(Thumb):
             self.fav_action.setText("Добавить в избранное")
             self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))
 
-    def show_info_win(self):
-        self.win_info = WinInfo(self.src)
-        Utils.center_win(parent=Utils.get_main_win(), child=self.win_info)
-        self.win_info.show()
-
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         self.select.emit()
 
@@ -346,7 +340,7 @@ class ThumbFolder(Thumb):
         info = Info(parent=context_menu, src=self.src)
         context_menu.addAction(info)
 
-        show_in_finder_action = Reveal(parent=context_menu, src=self.src)
+        show_in_finder_action = RevealInFinder(parent=context_menu, src=self.src)
         context_menu.addAction(show_in_finder_action)
 
         copy_path = CopyPath(parent=context_menu, src=self.src)
@@ -388,16 +382,14 @@ class ThumbSearch(Thumb):
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         self.select.emit()
-        
-        context_menu = QMenu(parent=self)
-
-        self.add_base_actions(context_menu)
-
-        context_menu.addSeparator()
+    
+        menu_ = QMenu(parent=self)
+        self.add_base_actions(menu_)
+        menu_.addSeparator()
 
         cmd_ = lambda: SignalsApp.all.show_in_folder.emit(self.src)
-        show_in_folder = QAction("Показать в папке", self)
-        show_in_folder.triggered.connect(cmd_)
-        context_menu.addAction(show_in_folder)
+        show_in_folder = ShowInFolder(parent=menu_, src=self.src)
+        show_in_folder._clicked.connect(cmd_)
+        menu_.addAction(show_in_folder)
 
-        context_menu.exec_(self.mapToGlobal(a0.pos()))
+        menu_.exec_(self.mapToGlobal(a0.pos()))

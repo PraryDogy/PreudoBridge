@@ -15,6 +15,7 @@ VIEW_T = "Просмотр"
 OPEN_IN_APP_T = "Открыть в приложении"
 COLORS_T = "Цвета"
 RATING_T = "Рейтинг"
+SHOW_IN_FOLDER_T = "Показать в папке"
 
 
 class Task_(URunnable):
@@ -36,7 +37,7 @@ class UAction(QAction):
         raise Exception("_actions > Переназначь cmd_")
 
 
-class Reveal(UAction):
+class RevealInFinder(UAction):
     def __init__(self, parent: QMenu, src: str):
         super().__init__(parent, src, REVEAL_T)
 
@@ -69,6 +70,16 @@ class View(UAction):
 
     def __init__(self, parent: QMenu, src: str):
         super().__init__(parent, src, VIEW_T)
+
+    def cmd_(self):
+        self._clicked.emit()
+
+
+class ShowInFolder(UAction):
+    _clicked = pyqtSignal()
+
+    def __init__(self, parent: QMenu, src: str):
+        super().__init__(parent, src, SHOW_IN_FOLDER_T)
 
     def cmd_(self):
         self._clicked.emit()
