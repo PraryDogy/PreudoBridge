@@ -13,7 +13,8 @@ from database import CACHE, Dbase, OrderItem
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
-from ._actions import CopyPath, Info, OpenInApp, Reveal, View
+from ._actions import (ColorMenu, CopyPath, Info, OpenInApp, RatingMenu,
+                       Reveal, View)
 from ._base import USvgWidget
 from .win_info import WinInfo
 
@@ -181,18 +182,13 @@ class Thumb(OrderItem, QFrame):
         self.setStyleSheet("")
 
     def add_base_actions(self, context_menu: QMenu):
+
         view_action = View(parent=context_menu, src=self.src)
         view_action._clicked.connect(self.open_in_view.emit)
         context_menu.addAction(view_action)
 
-        # Открыть в приложении
         open_menu = OpenInApp(parent=context_menu, src=self.src)
         context_menu.addMenu(open_menu)
-
-        # for name, app_path in IMAGE_APPS.items():
-        #     wid = QAction(name, parent=open_menu)
-        #     wid.triggered.connect(lambda e, a=app_path: self.open_in_app(a))
-        #     open_menu.addAction(wid)
 
         context_menu.addSeparator()
 
@@ -207,33 +203,13 @@ class Thumb(OrderItem, QFrame):
 
         context_menu.addSeparator()
 
-        color_menu = QMenu("Цвета", self)
+        color_menu = ColorMenu(parent=context_menu, src=self.src, colors=self.colors)
+        color_menu._clicked.connect(self.set_color_cmd)
         context_menu.addMenu(color_menu)
 
-        for color, text in COLORS.items():
-            wid = QAction(parent=color_menu, text=f"{color} {text}")
-            wid.setCheckable(True)
-
-            if color in self.colors:
-                wid.setChecked(True)
-
-            cmd_ = lambda e, c=color: self.set_color_cmd(c)
-            wid.triggered.connect(cmd_)
-            color_menu.addAction(wid)
-
-        rating_menu = QMenu("Рейтинг", self)
+        rating_menu = RatingMenu(parent=context_menu, src=self.src, rating=self.rating)
+        rating_menu._clicked.connect(self.set_rating_cmd)
         context_menu.addMenu(rating_menu)
-
-        for rating in range(1, 6):
-            wid = QAction(parent=rating_menu, text=STAR_SYM * rating)
-            wid.setCheckable(True)
-
-            if self.rating == rating:
-                wid.setChecked(True)
-
-            cmd_ = lambda e, r=rating: self.set_rating_cmd(r)
-            wid.triggered.connect(cmd_)
-            rating_menu.addAction(wid)
 
     def show_in_finder(self):
         subprocess.call(["open", "-R", self.src])

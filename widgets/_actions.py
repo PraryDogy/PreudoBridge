@@ -3,7 +3,7 @@ import subprocess
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QAction, QMenu
 
-from cfg import IMAGE_APPS
+from cfg import COLORS, IMAGE_APPS, STAR_SYM
 from utils import URunnable, UThreadPool, Utils
 
 from .win_info import WinInfo
@@ -13,6 +13,9 @@ INFO_T = "Инфо"
 COPY_PATH_T = "Скопировать путь до файла"
 VIEW_T = "Просмотр"
 OPEN_IN_APP_T = "Открыть в приложении"
+COLORS_T = "Цвета"
+RATING_T = "Рейтинг"
+
 
 class Task_(URunnable):
     def __init__(self,  cmd_: callable):
@@ -85,3 +88,47 @@ class OpenInApp(QMenu):
         cmd_ = lambda: subprocess.call(["open", "-a", app_path, self.src])
         task_ = Task_(cmd_)
         UThreadPool.pool.start(task_)
+
+
+class ColorMenu(QMenu):
+    _clicked = pyqtSignal(str)
+
+    def __init__(self, parent: QMenu, src: str, colors: str):
+        super().__init__(parent=parent, title=COLORS_T)
+        self.src = src
+        self.colors = colors
+
+        for color, text in COLORS.items():
+
+            wid = QAction(parent=self, text=f"{color} {text}")
+            wid.setCheckable(True)
+
+            if color in self.colors:
+                wid.setChecked(True)
+
+            cmd_ = lambda e, c=color: self._clicked.emit(c)
+            wid.triggered.connect(cmd_)
+
+            self.addAction(wid)
+
+
+class RatingMenu(QMenu):
+    _clicked = pyqtSignal(int)
+
+    def __init__(self, parent: QMenu, src: str, rating: int):
+        super().__init__(parent=parent, title=RATING_T)
+        self.src = src
+        self.rating = rating
+
+        for rating in range(1, 6):
+
+            wid = QAction(parent=self, text=STAR_SYM * rating)
+            wid.setCheckable(True)
+
+            if self.rating == rating:
+                wid.setChecked(True)
+
+            cmd_ = lambda e, r=rating: self._clicked.emit(r)
+            wid.triggered.connect(cmd_)
+
+            self.addAction(wid)
