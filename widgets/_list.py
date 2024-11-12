@@ -11,9 +11,10 @@ from ._actions import CopyPath, FavAdd, FavRemove, RevealInFinder
 from ._base import BaseMethods
 
 
-class Sort:
+class Shared:
     column = 0
     order = 0
+    sizes: list = [250, 100, 100, 150]
 
 
 class Selected:
@@ -38,11 +39,9 @@ class ListStandart(QTableView):
         self.setModel(self._model)
         self.setRootIndex(self._model.index(JsonData.root))
 
-        self.sortByColumn(Sort.column, Sort.order)
-        self.setColumnWidth(0, 250)
-        self.setColumnWidth(1, 100)
-        self.setColumnWidth(2, 100)
-        self.setColumnWidth(3, 150)
+        self.sortByColumn(Shared.column, Shared.order)
+        for i in range(0, 4):
+            self.setColumnWidth(i, Shared.sizes[i])
 
     def double_clicked(self, index):
         path = self._model.filePath(index)
@@ -53,9 +52,9 @@ class ListStandart(QTableView):
             SignalsApp.all.load_standart_grid.emit(path)
 
     def save_sort_settings(self, index):
-        Sort.column = index
-        Sort.order = self.horizontalHeader().sortIndicatorOrder()
-        self.sortByColumn(Sort.column, Sort.order)
+        Shared.column = index
+        Shared.order = self.horizontalHeader().sortIndicatorOrder()
+        self.sortByColumn(Shared.column, Shared.order)
 
     def rearrange(self, *args, **kwargs):
         ...
@@ -74,6 +73,8 @@ class ListStandart(QTableView):
         path = self._model.filePath(index)
         path = os.path.abspath(path)
         Selected.src = path
+        Shared.sizes = [self.columnWidth(i) for i in range(0, 4)]
+
         return super().closeEvent(a0)
 
     def contextMenuEvent(self, event):
