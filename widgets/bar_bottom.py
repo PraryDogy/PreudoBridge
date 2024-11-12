@@ -247,8 +247,8 @@ class PathItem(QWidget):
         self.path_label.setMinimumWidth(15)
         item_layout.addWidget(self.path_label)
 
-        self.mouseReleaseEvent = self.new_root
-        self.path_label._open_img_view.connect(self.new_root)
+        self.mouseReleaseEvent = self.view_
+        self.path_label._open_img_view.connect(self.view_)
 
         cmd_ = lambda e, w=self.path_label: self.expand_temp(wid=w)
         self.enterEvent = cmd_
@@ -265,7 +265,7 @@ class PathItem(QWidget):
     def collapse_temp(self, wid: QLabel | PathLabel):
         wid.setMinimumWidth(15)
  
-    def new_root(self, *args):
+    def view_(self, *args):
         if os.path.isfile(self.src):
             from .win_img_view import WinImgView
             self.win_ = WinImgView(self.src)
@@ -369,7 +369,7 @@ class BarBottom(QWidget):
         self.grid_lay.addWidget(self.slider, row, col)
 
         SignalsApp.all.progressbar_cmd.connect(self.progressbar_cmd)
-        SignalsApp.all.create_path_labels.connect(self.path_labels_cmd)
+        SignalsApp.all.path_labels_cmd.connect(self.path_labels_cmd)
 
     def open_go_win(self, *args):
         self.win = WinGo()
@@ -389,8 +389,11 @@ class BarBottom(QWidget):
         else:
             raise Exception("bar_borrom > progress bar wrong cmd", cmd)
         
-    def path_labels_cmd(self, src: str):
-        self.create_path_labels(src)
+    def path_labels_cmd(self, value: str | int):
+        if isinstance(value, str):
+            self.create_path_labels(value)
+        else:
+            self.total.setText("Всего: " + str(value))
 
     def create_path_labels(self, src: str):
         Utils.clear_layout(self.path_lay)
