@@ -1,7 +1,7 @@
 import os
 
 from PyQt5.QtCore import QDir, Qt
-from PyQt5.QtGui import QKeyEvent
+from PyQt5.QtGui import QCloseEvent, QKeyEvent
 from PyQt5.QtWidgets import QFileSystemModel, QMenu, QTableView
 
 from cfg import JsonData
@@ -30,7 +30,6 @@ class ListStandart(QTableView):
         self.verticalHeader().setVisible(False)
         self.horizontalHeader().sectionClicked.connect(self.save_sort_settings)
         self.doubleClicked.connect(self.double_clicked)
-        self.clicked.connect(self.one_clicked)
 
         self._model = QFileSystemModel()
         self._model.setRootPath(JsonData.root)
@@ -45,11 +44,6 @@ class ListStandart(QTableView):
         self.setColumnWidth(2, 100)
         self.setColumnWidth(3, 150)
 
-    def one_clicked(self, index):
-        path = self._model.filePath(index)
-        path = os.path.abspath(path)
-        Selected.src = path  
-
     def double_clicked(self, index):
         path = self._model.filePath(index)
         path = os.path.abspath(path)
@@ -57,8 +51,6 @@ class ListStandart(QTableView):
         if os.path.isdir(path):
             self.setCurrentIndex(index)
             SignalsApp.all.load_standart_grid.emit(path)
-        else:
-            Selected.src = path
 
     def save_sort_settings(self, index):
         Sort.column = index
@@ -76,6 +68,13 @@ class ListStandart(QTableView):
 
     def resize_(self, *args, **kwargs):
         ...
+
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        index = self.currentIndex()
+        path = self._model.filePath(index)
+        path = os.path.abspath(path)
+        Selected.src = path
+        return super().closeEvent(a0)
 
     def contextMenuEvent(self, event):
         index = self.indexAt(event.pos())
