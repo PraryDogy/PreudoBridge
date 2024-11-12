@@ -68,6 +68,9 @@ class ListStandart(QTableView):
     def resize_(self, *args, **kwargs):
         ...
 
+    def select_new_widget(self, *args, **kwargs):
+        ...
+
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         index = self.currentIndex()
         path = self._model.filePath(index)
