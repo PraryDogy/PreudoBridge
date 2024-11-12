@@ -1,7 +1,7 @@
 import os
 
 from PyQt5.QtCore import QSize, Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import QKeyEvent, QMouseEvent
+from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
                              QLineEdit, QMenu, QPushButton, QSpacerItem,
                              QTabBar, QVBoxLayout, QWidget)
