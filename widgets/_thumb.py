@@ -3,8 +3,7 @@ import subprocess
 import sqlalchemy
 from PyQt5.QtCore import QMimeData, Qt, QUrl, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QDrag, QMouseEvent, QPixmap
-from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QLabel, QMenu,
-                             QVBoxLayout)
+from PyQt5.QtWidgets import QApplication, QFrame, QLabel, QMenu, QVBoxLayout
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import (COLORS, FOLDER_SVG, GRAY, IMAGE_APPS, IMG_SVG, MARGIN,
