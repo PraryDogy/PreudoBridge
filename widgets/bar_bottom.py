@@ -5,17 +5,17 @@ from difflib import SequenceMatcher
 from PyQt5.QtCore import QMimeData, QObject, Qt, QUrl, pyqtSignal
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
                          QPixmap)
-from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
-                             QHBoxLayout, QLabel, QLineEdit, QMenu,
-                             QProgressBar, QPushButton, QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QHBoxLayout,
+                             QLabel, QLineEdit, QMenu, QProgressBar,
+                             QPushButton, QVBoxLayout, QWidget)
 
 from cfg import (BLUE, COMP_SVG, FOLDER_SVG, GOTO_SVG, HDD_SVG, IMG_SVG,
                  MAX_VAR, JsonData)
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
+from ._actions import CopyPath, Info, RevealInFinder, View
 from ._base import USlider, USvgWidget, WinMinMax
-from .win_info import WinInfo
 
 ARROW = " \U0000203A"
 
@@ -182,45 +182,34 @@ class PathLabel(QLabel):
         self.setObjectName("path_label")
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
-        context_menu = QMenu(parent=self)
+        menu = QMenu(parent=self)
 
-        view_action = QAction("Просмотр", self)
+        view_action = View(menu, self.src)
         cmd = lambda: self._open_img_view.emit()
-        view_action.triggered.connect(cmd)
-        context_menu.addAction(view_action)
+        view_action._clicked.connect(cmd)
+        menu.addAction(view_action)
 
-        context_menu.addSeparator()
+        menu.addSeparator()
 
-        info = QAction("Инфо", self)
-        info.triggered.connect(self.show_info_win)
-        context_menu.addAction(info)
+        info = Info(menu, self.src)
+        menu.addAction(info)
 
-        cmd_ = lambda: subprocess.call(["open", "-R", self.src])
-        show_in_finder_action = QAction("Показать в Finder", self)
-        show_in_finder_action.triggered.connect(cmd_)
-        context_menu.addAction(show_in_finder_action)
+        show_in_finder_action = RevealInFinder(menu, self.src)
+        menu.addAction(show_in_finder_action)
 
-        copy_path = QAction("Скопировать путь", self)
-        copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
-        context_menu.addAction(copy_path)
+        copy_path = CopyPath(menu, self.src)
+        menu.addAction(copy_path)
 
         self.selected_style()
-        context_menu.exec_(self.mapToGlobal(ev.pos()))
+        menu.exec_(self.mapToGlobal(ev.pos()))
         self.default_style()
 
     def selected_style(self):
-        self.setStyleSheet(f"#path_label {{ background: {BLUE}; border-radius: 2px; }} ")
+        style_ = f"#path_label {{ background: {BLUE}; border-radius: 2px; }} "
+        self.setStyleSheet(style_)
 
     def default_style(self):
         self.setStyleSheet("")
-
-    def show_info_win(self):
-        self.win_info = WinInfo(self.src)
-        Utils.center_win(parent=Utils.get_main_win(), child=self.win_info)
-        self.win_info.show()
-
-    def show_in_finder(self):
-        subprocess.call(["open", "-R", self.src])
 
 
 class PathItem(QWidget):
