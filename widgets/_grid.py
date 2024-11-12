@@ -1,24 +1,25 @@
 import os
-import subprocess
 
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeyEvent, QMouseEvent
-from PyQt5.QtWidgets import QFrame, QGridLayout, QWidget
+from PyQt5.QtWidgets import QFrame, QGridLayout, QScrollArea, QWidget
 
 from cfg import FOLDER_TYPE, GRID_SPACING, MAX_VAR, Dymanic, JsonData
 from database import OrderItem
 from signals import SignalsApp
 from utils import Utils
 
-from ._base import GridBase
+from ._base import BaseMethods
 from ._thumb import Thumb, ThumbFolder, ThumbSearch
 from .win_img_view import PathToWid
 
 
-class Grid(GridBase):
+class Grid(BaseMethods, QScrollArea):
 
     def __init__(self, width: int):
-        super().__init__()
+        QScrollArea.__init__(self)
+        BaseMethods.__init__(self)
+
         self.setWidgetResizable(True)
 
         self.curr_cell: tuple = (0, 0)

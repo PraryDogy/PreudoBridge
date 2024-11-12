@@ -5,11 +5,11 @@ from PyQt5.QtCore import QDir, Qt
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtWidgets import QAction, QFileSystemModel, QMenu, QTableView
 
-from cfg import IMG_EXT, JsonData
+from cfg import JsonData
 from signals import SignalsApp
 from utils import Utils
 
-from ._base import TableViewBase
+from ._base import BaseMethods
 
 
 class Sort:
@@ -17,9 +17,11 @@ class Sort:
     order = 0
 
 
-class ListStandart(TableViewBase):
+class ListStandart(QTableView):
     def __init__(self):
-        super().__init__()
+        QTableView.__init__(self)
+        BaseMethods.__init__(self)
+
         self.setSelectionBehavior(QTableView.SelectRows)
         self.setSortingEnabled(True)
         self.verticalHeader().setVisible(False)
