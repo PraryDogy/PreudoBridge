@@ -12,7 +12,7 @@ from signals import SignalsApp
 from utils import Utils
 
 from .win_rename import WinRename
-from ._actions import View, RevealInFinder, CopyPath
+from ._actions import View, RevealInFinder, CopyPath, FavRemove
 
 
 class FavItem(QLabel):
@@ -46,8 +46,9 @@ class FavItem(QLabel):
         rename_action.triggered.connect(self.rename_cmd)
         self.menu_.addAction(rename_action)
 
-        fav_action = QAction("Удалить", self)
-        fav_action.triggered.connect(lambda: self.del_click.emit())
+        cmd_ = lambda: self.del_click.emit()
+        fav_action = FavRemove(self.menu_, self.src)
+        fav_action._clicked.connect(cmd_)
         self.menu_.addAction(fav_action)
 
         self.setContentsMargins(10, 0, 10, 0)
