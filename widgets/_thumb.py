@@ -337,22 +337,19 @@ class ThumbFolder(Thumb):
 
         context_menu = QMenu(parent=self)
 
-        view_action = QAction("Открыть", self)
-        view_action.triggered.connect(self.open_in_view.emit)
+        view_action = View(parent=context_menu, src=self.src)
+        view_action._clicked.connect(self.open_in_view.emit)
         context_menu.addAction(view_action)
 
         context_menu.addSeparator()
 
-        info = QAction("Инфо", self)
-        info.triggered.connect(self.show_info_win)
+        info = Info(parent=context_menu, src=self.src)
         context_menu.addAction(info)
 
-        show_in_finder_action = QAction("Показать в Finder", self)
-        show_in_finder_action.triggered.connect(self.show_in_finder)
+        show_in_finder_action = Reveal(parent=context_menu, src=self.src)
         context_menu.addAction(show_in_finder_action)
 
-        copy_path = QAction("Скопировать путь до папки", self)
-        copy_path.triggered.connect(lambda: Utils.copy_path(self.src))
+        copy_path = CopyPath(parent=context_menu, src=self.src)
         context_menu.addAction(copy_path)
 
         context_menu.addSeparator()
@@ -361,6 +358,7 @@ class ThumbFolder(Thumb):
             self.fav_action = QAction("Удалить из избранного", self)
             self.fav_action.triggered.connect(lambda: self.fav_cmd(-1))
             context_menu.addAction(self.fav_action)
+
         else:
             self.fav_action = QAction("Добавить в избранное", self)
             self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))

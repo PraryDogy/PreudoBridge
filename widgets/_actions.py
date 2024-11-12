@@ -10,7 +10,7 @@ from .win_info import WinInfo
 
 REVEAL_T = "Показать в Finder"
 INFO_T = "Инфо"
-COPY_PATH_T = "Скопировать путь до файла"
+COPY_PATH_T = "Скопировать путь"
 VIEW_T = "Просмотр"
 OPEN_IN_APP_T = "Открыть в приложении"
 COLORS_T = "Цвета"
