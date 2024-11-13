@@ -99,14 +99,7 @@ class Thumb(OrderItem, QFrame):
     text_changed = pyqtSignal()
     path_to_wid: dict[str, "Thumb"] = {}
 
-    def __init__(
-            self,
-            src: str,
-            size: int = None,
-            mod: int = None,
-            colors: str = None,
-            rating: int = None,
-            ):
+    def __init__(self, src: str, size: int, mod: int, colors: str, rating: int):
 
         QFrame.__init__(self, parent=None)
         OrderItem.__init__(self, src=src, size=size, mod=mod, colors=colors, rating=rating)
@@ -296,23 +289,8 @@ class Thumb(OrderItem, QFrame):
 
 
 class ThumbFolder(Thumb):
-    def __init__(
-            self, 
-            src: str, 
-            size: int = None, 
-            mod: int = None, 
-            colors: str = None, 
-            rating: int = None, 
-            ):
-        
-        Thumb.__init__(
-            self,
-            src=src,
-            size=size,
-            mod=mod,
-            colors=colors,
-            rating=rating
-            )
+    def __init__(self, src: str, size: int, mod: int, colors: str, rating: int):
+        super().__init__(src, size, mod, colors, rating)
         
         pixmap_size = PIXMAP_SIZE[JsonData.pixmap_size_ind]
         self.img_wid.load(FOLDER_SVG)
@@ -367,23 +345,8 @@ class ThumbFolder(Thumb):
 
  
 class ThumbSearch(Thumb):
-    def __init__(
-        self, 
-        src: str, 
-        size: int = None, 
-        mod: int = None, 
-        colors: str = None,
-        rating: int = None,
-        ):
-
-        Thumb.__init__(
-            self,
-            src=src, 
-            size=size, 
-            mod=mod, 
-            colors=colors,
-            rating=rating, 
-            )
+    def __init__(self, src: str, size: int, mod: int, colors: str, rating: int):
+        super().__init__(src, size, mod, colors, rating)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         self.select.emit()
