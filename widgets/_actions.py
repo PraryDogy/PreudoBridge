@@ -58,10 +58,8 @@ class Info(UAction):
         super().__init__(parent, src, INFO_T)
 
     def cmd_(self):
-        from .win_info import WinInfo
-        self.win_info = WinInfo(self.src)
-        Utils.center_win(parent=Utils.get_main_win(), child=self.win_info)
-        self.win_info.show()
+        from ._base import OpenWin
+        OpenWin.info(Utils.get_main_win(), self.src)
 
 
 class CopyPath(UAction):

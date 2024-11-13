@@ -15,7 +15,7 @@ from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 from ._actions import CopyPath, Info, RevealInFinder, View
-from ._base import ULineEdit, USlider, USvgWidget, WinMinMax
+from ._base import ULineEdit, USlider, USvgWidget, WinMinMax, OpenWin
 
 ARROW = " \U0000203A"
 
@@ -251,10 +251,7 @@ class PathItem(QWidget):
  
     def view_(self, *args):
         if os.path.isfile(self.src):
-            from .win_img_view import WinImgView
-            self.win_ = WinImgView(self.src)
-            Utils.center_win(parent=Utils.get_main_win(), child=self.win_)
-            self.win_.show()
+            OpenWin.view(Utils.get_main_win(), self.src)
         else:
             SignalsApp.all.new_history.emit(self.src)
             SignalsApp.all.load_standart_grid.emit(self.src)
