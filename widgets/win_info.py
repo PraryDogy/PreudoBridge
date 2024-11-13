@@ -8,7 +8,6 @@ from utils import Utils, URunnable, UThreadPool
 from cfg import FOLDER_TYPE
 import os
 
-STRANGE_SYM = " "
 CALCULATING = "Вычисляю..."
 NAMES = ["Имя", "Тип", "Размер", "Место", "Создан", "Изменен"]
 TITLE = "Инфо"
@@ -104,8 +103,7 @@ class CustomLabel(QLabel):
         menu.exec_(ev.globalPos())
 
     def custom_copy(self):
-        selected_text = self.selectedText()
-        modified_text = selected_text.replace(STRANGE_SYM, "")
+        modified_text = self.text().replace("\n", "")
         clipboard = QApplication.clipboard()
         clipboard.setText(modified_text)
 
