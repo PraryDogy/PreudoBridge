@@ -17,38 +17,40 @@ from ._actions import (ColorMenu, CopyPath, FavAdd, FavRemove, Info, OpenInApp,
 from ._base import USvgWidget
 
 
-class NameLabel(QLabel):
+class TextLabel(QLabel):
     def __init__(self):
         super().__init__()
         self.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
 
     def set_text(self, wid: OrderItem) -> list[str]:
         name: str | list = wid.name
-
-        # Максимальная длина строки исходя из ширины pixmap в Thumb
         max_row = TEXT_LENGTH[JsonData.pixmap_size_ind]
-        
-        # Разбиение имени на строки в зависимости от длины
+        lines: list[str] = []
+
         if len(name) > max_row:
+
             if wid.rating > 0:
-                # Если есть цветные теги, имя в одну строку
-                name = [f"{name[:max_row - 10]}...{name[-7:]}"]
+                name = self.short_text(name, max_row)
+                lines.append(name)
+
             else:
-                # Иначе имя может быть в 2 строки
-                first_part = name[:max_row]
-                second_part = name[max_row:]
-                
-                if len(second_part) > max_row:
-                    second_part = f"{second_part[:max_row - 10]}...{second_part[-7:]}"
-                
-                name = [first_part, second_part]
+                first_line = name[:max_row]
+                second_line = name[max_row:]
+
+                if len(second_line) > max_row:
+                    second_line = self.short_text(second_line, max_row)
+
+                lines.append(first_line, second_line)
         else:
-            name = [name]
+            name = lines.append(name)
 
         if wid.rating > 0:
-            name.append(STAR_SYM * wid.rating)
+            lines.append(STAR_SYM * wid.rating)
 
-        self.setText("\n".join(name))
+        self.setText("\n".join(lines))
+
+    def short_text(self, text: str, max_row: int):
+        return f"{text[:max_row - 10]}...{text[-7:]}"
 
 
 class ColorLabel(QLabel):
@@ -116,10 +118,9 @@ class Thumb(OrderItem, QFrame):
 
         self.img_wid: USvgWidget | QLabel = USvgWidget()
         self.img_wid.load(IMG_SVG)
-        self.img_wid.renderer().setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
         self.v_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.name_label = NameLabel()
+        self.name_label = TextLabel()
         self.v_lay.addWidget(self.name_label)
 
         self.color_label = ColorLabel()
