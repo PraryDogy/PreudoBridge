@@ -6,8 +6,8 @@ from PyQt5.QtGui import QContextMenuEvent, QDrag, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import QApplication, QFrame, QLabel, QMenu, QVBoxLayout
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import (COLORS, FOLDER_SVG, GRAY, IMAGE_APPS, IMG_SVG, MARGIN,
-                 PIXMAP_SIZE, STAR_SYM, TEXT_LENGTH, THUMB_W, JsonData)
+from cfg import (COLORS, FOLDER_SVG, GRAY, IMG_SVG, MARGIN, PIXMAP_SIZE,
+                 STAR_SYM, TEXT_LENGTH, THUMB_W, JsonData)
 from database import CACHE, Dbase, OrderItem
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
