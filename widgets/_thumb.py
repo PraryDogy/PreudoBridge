@@ -65,9 +65,8 @@ class ColorLabel(QLabel):
 
 class UpdateThumbData(URunnable):
     def __init__(self, src: str, values: dict, cmd_: callable):
-        """value_name: colors, rating"""
-        super().__init__()
 
+        super().__init__()
         self.cmd_ = cmd_
         self.src = src
         self.values = values
