@@ -1,5 +1,4 @@
 import os
-import subprocess
 from difflib import SequenceMatcher
 
 from PyQt5.QtCore import QMimeData, QObject, Qt, QUrl, pyqtSignal
@@ -15,7 +14,7 @@ from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 from ._actions import CopyPath, Info, RevealInFinder, View
-from ._base import ULineEdit, USlider, USvgWidget, WinMinMax, OpenWin
+from ._base import OpenWin, ULineEdit, USlider, USvgWidget, WinMinMax
 
 ARROW = " \U0000203A"
 
