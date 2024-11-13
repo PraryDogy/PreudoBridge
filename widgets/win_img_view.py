@@ -28,10 +28,6 @@ class Shared:
     cached_images: dict[str, QPixmap] = {}
 
 
-class PathToWid:
-    all_: dict[str, Thumb] = {}
-
-
 class ImageData:
     __slots__ = ["src", "width", "pixmap"]
     
@@ -271,11 +267,11 @@ class WinImgView(WinBase):
         self.resize(JsonData.ww_im, JsonData.hh_im)
 
         self.src: str = src
-        self.wid: Thumb = PathToWid.all_.get(src)
+        self.wid: Thumb = Thumb.path_to_wid.get(src)
         self.wid.text_changed.connect(self.set_title)
         self.path_to_wid: dict[str, Thumb] = {
             path: wid
-            for path, wid in PathToWid.all_.items()
+            for path, wid in Thumb.path_to_wid.items()
             if not wid.must_hidden
             }
         self.image_paths: list = [

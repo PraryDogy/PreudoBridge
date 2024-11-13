@@ -16,7 +16,6 @@ from utils import URunnable, UThreadPool, Utils
 
 from ._grid import Grid
 from ._thumb import ThumbSearch
-from .win_img_view import PathToWid
 
 SLEEP = 0.1
 
@@ -242,7 +241,7 @@ class GridSearch(Grid):
         wid.open_in_view.connect(lambda w=wid: self.open_in_view(w))
         self.add_widget_data(wid, self.row, self.col)
         self.grid_layout.addWidget(wid, self.row, self.col)
-        SignalsApp.all.path_labels_cmd.emit({"total": len(PathToWid.all_)})
+        SignalsApp.all.path_labels_cmd.emit({"total": len(ThumbSearch.path_to_wid)})
 
         self.col += 1
         if self.col >= self.col_count:

@@ -95,6 +95,7 @@ class Thumb(OrderItem, QFrame):
     select = pyqtSignal()
     open_in_view = pyqtSignal()
     text_changed = pyqtSignal()
+    path_to_wid: dict[str, "Thumb"] = {}
 
     def __init__(
             self,

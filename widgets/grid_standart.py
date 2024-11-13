@@ -13,7 +13,6 @@ from fit_img import FitImg
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
-from .win_img_view import PathToWid
 from ._grid import Grid
 from ._thumb import Thumb, ThumbFolder
 
@@ -352,7 +351,7 @@ class GridStandart(Grid):
         UThreadPool.pool.start(self.task_)
     
     def set_pixmap(self, image_data: ImageData):
-        widget = PathToWid.all_.get(image_data.src)
+        widget = Thumb.path_to_wid.get(image_data.src)
         if isinstance(widget, Thumb):
             if isinstance(image_data.pixmap, QPixmap):
                 widget.set_pixmap(pixmap=image_data.pixmap)

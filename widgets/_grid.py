@@ -12,13 +12,14 @@ from utils import Utils
 from ._base import BaseMethods
 from ._list import Selected
 from ._thumb import Thumb, ThumbFolder, ThumbSearch
-from .win_img_view import PathToWid
 from .win_info import WinInfo
 
 
 class Grid(BaseMethods, QScrollArea):
 
     def __init__(self, width: int):
+        Thumb.path_to_wid.clear()
+
         QScrollArea.__init__(self)
         BaseMethods.__init__(self)
 
@@ -27,8 +28,6 @@ class Grid(BaseMethods, QScrollArea):
         self.curr_cell: tuple = (0, 0)
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.ordered_widgets: list[OrderItem | Thumb | ThumbFolder | ThumbSearch] = []
-        PathToWid.all_.clear()
-
         self.ww = width
 
         # Посколько сетка может множество раз перезагружаться
@@ -57,7 +56,7 @@ class Grid(BaseMethods, QScrollArea):
             new_wid = self.cell_to_wid.get(data)
 
         elif isinstance(data, str):
-            new_wid = PathToWid.all_.get(data)
+            new_wid = Thumb.path_to_wid.get(data)
             coords = new_wid.row, new_wid.col
 
         prev_wid = self.cell_to_wid.get(self.curr_cell)
@@ -94,7 +93,7 @@ class Grid(BaseMethods, QScrollArea):
     def order_(self):
         self.ordered_widgets = OrderItem.order_items(self.ordered_widgets)
         
-        PathToWid.all = {
+        Thumb.all = {
             wid.src: wid
             for wid in self.ordered_widgets
             if isinstance(wid, Thumb)
@@ -159,7 +158,7 @@ class Grid(BaseMethods, QScrollArea):
     def add_widget_data(self, wid: Thumb, row: int, col: int):
         wid.row, wid.col = row, col
         self.cell_to_wid[row, col] = wid
-        PathToWid.all_[wid.src] = wid
+        Thumb.path_to_wid[wid.src] = wid
         self.ordered_widgets.append(wid)
 
     def open_in_view(self, wid: Thumb):
@@ -174,7 +173,7 @@ class Grid(BaseMethods, QScrollArea):
             self.win.show()
 
     def select_after_list(self):
-        wid = PathToWid.all_.get(Selected.src)
+        wid = Thumb.path_to_wid.get(Selected.src)
 
         if isinstance(wid, Thumb):
             self.select_new_widget(wid)
