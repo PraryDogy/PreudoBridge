@@ -299,7 +299,7 @@ class URunnable(QRunnable):
         self.is_running: bool = False
     
     @staticmethod
-    def set_running_state(method):
+    def set_running_state(method: callable):
 
         def wrapper(self, *args, **kwargs):
             self._is_running = True
