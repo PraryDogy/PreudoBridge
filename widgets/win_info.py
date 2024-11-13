@@ -22,17 +22,18 @@ class FolderSize(URunnable):
         self.src = src
         self.worker_signals = WorkerSignals()
 
+    @URunnable.set_running_state
     def run(self):
         total = 0
 
         for root, _, files in os.walk(self.src):
 
-            if not self.is_should_run():
+            if not self._should_run:
                 return
 
             for file in files:
 
-                if not self.is_should_run():
+                if not self._should_run:
                     return
 
                 src_ = os.path.join(root, file)
@@ -46,7 +47,7 @@ class FolderSize(URunnable):
 
         total = Utils.get_f_size(total)
 
-        if self.is_should_run():
+        if self._should_run:
             self.worker_signals._finished.emit(total)
 
 
@@ -166,5 +167,5 @@ class WinInfo(WinMinMax):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         if hasattr(self, "task_"):
-            self.task_.set_should_run(False)
+            self.task_._should_run = False
         return super().closeEvent(a0)

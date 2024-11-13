@@ -71,6 +71,7 @@ class UpdateThumbData(URunnable):
         self.value_name = value_name
         self.value = value
 
+    @URunnable.set_running_state
     def run(self):
         values_ = {self.value_name: self.value}
         stmt = sqlalchemy.update(CACHE).where(CACHE.c.src == self.src).values(**values_)

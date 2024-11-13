@@ -51,9 +51,8 @@ class LoadImages(URunnable):
 
         self.conn = Dbase.engine.connect()
 
+    @URunnable.set_running_state
     def run(self):
-        self.set_is_running(True)
-
         self.get_db_dataset()
         self.compare_db_and_finder_items()
 
@@ -69,9 +68,7 @@ class LoadImages(URunnable):
         self.create_new_images()
         self.insert_count_cmd()
 
-        self.set_is_running(False)
         SignalsApp.all.progressbar_cmd.emit("hide")
-
         self.conn.close()
 
     def get_db_dataset(self):
@@ -94,7 +91,7 @@ class LoadImages(URunnable):
     def compare_db_and_finder_items(self):
         for (db_src, db_size, db_mod), hash_path in self.db_items.items():
 
-            if not self.is_should_run():
+            if not self._should_run:
                 break
 
             if (db_src, db_size, db_mod) in self.finder_items:
@@ -112,7 +109,7 @@ class LoadImages(URunnable):
 
         for src, size, mod in self.finder_items:
 
-            if not self.is_should_run():
+            if not self._should_run:
                 break
 
             elif os.path.isdir(src):
@@ -154,7 +151,7 @@ class LoadImages(URunnable):
             except OperationalError as e:
                 self.conn.rollback()
                 Utils.print_error(self, e)
-                self.set_should_run(False)
+                self._should_run = False
                 return None
 
         self.conn.commit()
@@ -225,7 +222,7 @@ class LoadFinder(URunnable):
         self.order_items: list[OrderItem] = []
 
     def run(self):
-        self.set_is_running(True)
+        self._is_running = True
 
         try:
             self.get_color_rating()
@@ -236,7 +233,7 @@ class LoadFinder(URunnable):
             self.order_items = []
         
         self.worker_signals._finished.emit(self.order_items)
-        self.set_is_running(False)
+        self._is_running = False
 
     def get_color_rating(self):
         q = sqlalchemy.select(CACHE.c.src, CACHE.c.colors, CACHE.c.rating)
@@ -362,6 +359,6 @@ class GridStandart(Grid):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         SignalsApp.all.progressbar_cmd.emit("hide")
-        if hasattr(self, "task_") and self.task_.is_running():
-            self.task_.set_should_run(False)
+        if hasattr(self, "task_") and self.task_._is_running:
+            self.task_._should_run = False
         return super().closeEvent(a0)

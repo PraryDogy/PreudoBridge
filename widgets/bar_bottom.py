@@ -34,6 +34,7 @@ class PathFinderThread(URunnable):
         self.volumes: list[str] = []
         self.exclude = "/Volumes/Macintosh HD/Volumes/"
 
+    @URunnable.set_running_state
     def run(self):
         self._path_finder()
         if not self.result:

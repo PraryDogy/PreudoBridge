@@ -28,6 +28,7 @@ class Task_(URunnable):
         super().__init__()
         self.cmd_ = cmd_
 
+    @URunnable.set_running_state
     def run(self):
         self.cmd_()
 

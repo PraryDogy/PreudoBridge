@@ -50,6 +50,7 @@ class LoadThumbnail(URunnable):
         self.worker_signals = WorkerSignals()
         self.src = src
 
+    @URunnable.set_running_state
     def run(self):
         conn = Dbase.engine.connect()
 
@@ -75,6 +76,7 @@ class LoadImage(URunnable):
         self.worker_signals = WorkerSignals()
         self.src: str = src
 
+    @URunnable.set_running_state
     def run(self):
         if self.src not in Shared.cached_images:
 

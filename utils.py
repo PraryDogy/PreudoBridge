@@ -297,15 +297,13 @@ class URunnable(QRunnable):
         super().__init__()
         self._should_run: bool = True
         self._is_running: bool = False
+    
+    @staticmethod
+    def set_running_state(method):
 
-    def set_should_run(self, b: bool):
-        self._should_run: bool = b
+        def wrapper(self, *args, **kwargs):
+            self._is_running = True
+            method(self, *args, **kwargs)
+            self._is_running = False
 
-    def set_is_running(self, b: bool):
-        self._is_running = b
-
-    def is_should_run(self):
-        return self._should_run
-
-    def is_running(self):
-        return self._is_running
+        return wrapper
