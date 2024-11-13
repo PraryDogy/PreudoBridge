@@ -36,12 +36,17 @@ class Utils:
 
     @classmethod
     def write_to_clipboard(cls, text: str):
+        clipboard = QApplication.clipboard()
+        clipboard.setText(text)
+        return True
         text_bytes = text.encode('utf-8')
         subprocess.run(['pbcopy'], input=text_bytes, check=True)
         return True
 
     @classmethod
     def read_from_clipboard(cls):
+        clipboard = QApplication.clipboard()
+        return clipboard.text()
         return subprocess.check_output('pbpaste').decode('utf-8')
 
     @classmethod
