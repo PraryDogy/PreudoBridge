@@ -275,6 +275,8 @@ class Utils:
             return f"{round(bytes_size/(pow(1024,2)), 2)} МБ"
         elif bytes_size < pow(1024,4):
             return f"{round(bytes_size/(pow(1024,3)), 2)} ГБ"
+        elif bytes_size < pow(1024,5):
+            return f"{round(bytes_size/(pow(1024,4)), 2)} ТБ"
 
     @classmethod
     def get_f_date(cls, timestamp_: int) -> str:

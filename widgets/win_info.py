@@ -42,7 +42,7 @@ class FolderSize(URunnable):
                     total += size_
                 except Exception as e:
                     # Utils.print_error(parent=self, error=e)
-                    ...
+                    continue
 
         total = Utils.get_f_size(total)
 
