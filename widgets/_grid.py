@@ -10,7 +10,7 @@ from signals import SignalsApp
 from utils import Utils
 
 from ._base import BaseMethods, OpenWin
-from ._list import Selected
+from ._list import ListStandart
 from ._thumb import Thumb, ThumbFolder, ThumbSearch
 
 
@@ -168,12 +168,12 @@ class Grid(BaseMethods, QScrollArea):
             OpenWin.view(Utils.get_main_win(), wid.src)
 
     def select_after_list(self):
-        wid = Thumb.path_to_wid.get(Selected.src)
+        wid = Thumb.path_to_wid.get(ListStandart.last_selection)
 
         if isinstance(wid, Thumb):
             self.select_new_widget(wid)
             self.ensureWidgetVisible(wid)
-            Selected.src = None
+            ListStandart.last_selection = None
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         wid: Thumb | ThumbFolder 

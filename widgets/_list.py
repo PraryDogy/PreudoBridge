@@ -1,6 +1,6 @@
 import os
 
-from PyQt5.QtCore import QDir, Qt, QPoint
+from PyQt5.QtCore import QDir, QPoint, Qt
 from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import QFileSystemModel, QMenu, QTableView
 
@@ -11,17 +11,12 @@ from ._actions import CopyPath, FavAdd, FavRemove, RevealInFinder
 from ._base import BaseMethods
 
 
-class Shared:
-    column = 0
-    order = 0
-    sizes: list = [250, 100, 100, 150]
-
-
-class Selected:
-    src: str = None
-
-
 class ListStandart(QTableView):
+    col: int = 0
+    order: int = 0
+    sizes: list = [250, 100, 100, 150]
+    last_selection: str = None
+
     def __init__(self):
         QTableView.__init__(self)
         BaseMethods.__init__(self)
@@ -39,22 +34,21 @@ class ListStandart(QTableView):
         self.setModel(self._model)
         self.setRootIndex(self._model.index(JsonData.root))
 
-        self.sortByColumn(Shared.column, Shared.order)
+        self.sortByColumn(ListStandart.col, ListStandart.order)
         for i in range(0, 4):
-            self.setColumnWidth(i, Shared.sizes[i])
+            self.setColumnWidth(i, ListStandart.sizes[i])
 
     def double_clicked(self, index):
         path = self._model.filePath(index)
-        path = os.path.abspath(path)
 
         if os.path.isdir(path):
             self.setCurrentIndex(index)
             SignalsApp.all.load_standart_grid.emit(path)
 
     def save_sort_settings(self, index):
-        Shared.column = index
-        Shared.order = self.horizontalHeader().sortIndicatorOrder()
-        self.sortByColumn(Shared.column, Shared.order)
+        ListStandart.col = index
+        ListStandart.order = self.horizontalHeader().sortIndicatorOrder()
+        self.sortByColumn(ListStandart.col, ListStandart.order)
 
     def rearrange(self, *args, **kwargs):
         ...
@@ -75,8 +69,8 @@ class ListStandart(QTableView):
         index = self.currentIndex()
         path = self._model.filePath(index)
         path = os.path.abspath(path)
-        Selected.src = path
-        Shared.sizes = [self.columnWidth(i) for i in range(0, 4)]
+        ListStandart.last_selection = path
+        ListStandart.sizes = [self.columnWidth(i) for i in range(0, 4)]
 
         return super().closeEvent(a0)
 
