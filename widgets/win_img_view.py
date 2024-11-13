@@ -24,10 +24,6 @@ from .win_info import WinInfo
 FILE_ = "images/img_big.svg"
 
 
-class Shared:
-    cached_images: dict[str, QPixmap] = {}
-
-
 class ImageData:
     __slots__ = ["src", "width", "pixmap"]
     
@@ -67,6 +63,8 @@ class LoadThumbnail(URunnable):
 
 
 class LoadImage(URunnable):
+    cache: dict[str, QPixmap] = {}
+
     def __init__(self, src: str):
         super().__init__()
         self.worker_signals = WorkerSignals()
@@ -74,7 +72,7 @@ class LoadImage(URunnable):
 
     @URunnable.set_running_state
     def run(self):
-        if self.src not in Shared.cached_images:
+        if self.src not in self.cache:
 
             img_array = Utils.read_image(self.src)
 
@@ -83,14 +81,14 @@ class LoadImage(URunnable):
 
             else:
                 pixmap = Utils.pixmap_from_array(img_array)
-                Shared.cached_images[self.src] = pixmap
+                self.cache[self.src] = pixmap
 
         else:
-            pixmap = Shared.cached_images.get(self.src)
+            pixmap = self.cache.get(self.src)
 
-        if len(Shared.cached_images) > 50:
-            first_img = list(Shared.cached_images.keys())[0]
-            Shared.cached_images.pop(first_img)
+        if len(self.cache) > 50:
+            first_img = list(self.cache.keys())[0]
+            self.cache.pop(first_img)
 
         image_data = ImageData(self.src, pixmap)
         self.worker_signals._finished.emit(image_data)
@@ -281,14 +279,14 @@ class WinImgView(WinBase):
 
         self.mouse_move_timer = QTimer(self)
         self.mouse_move_timer.setSingleShot(True)
-        self.mouse_move_timer.timeout.connect(self.hide_all_buttons)
+        self.mouse_move_timer.timeout.connect(self.hide_btns)
 
         v_layout = QVBoxLayout()
         v_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(v_layout)
 
         self.img_label = ImageWidget()
-        self.img_label.mouse_moved.connect(self.mouse_moved_cmd)
+        self.img_label.mouse_moved.connect(self.show_btns)
         v_layout.addWidget(self.img_label)
 
         self.prev_btn = PrevImageBtn(self)
@@ -303,7 +301,7 @@ class WinImgView(WinBase):
         self.zoom_btns.cmd_fit.connect(self.img_label.zoom_reset)
         self.zoom_btns.cmd_close.connect(self.close)
 
-        self.hide_all_buttons()
+        self.hide_btns()
         self.load_thumbnail()
 
 # SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM
@@ -319,7 +317,7 @@ class WinImgView(WinBase):
         self.setWindowTitle(t)
 
     def load_thumbnail(self):
-        if self.src not in Shared.cached_images:
+        if self.src not in LoadImage.cache:
             self.setWindowTitle("Загрузка")
             self.task_ = LoadThumbnail(self.src)
             cmd_ = lambda image_data: self.load_thumbnail_finished(image_data)
@@ -347,7 +345,7 @@ class WinImgView(WinBase):
 
 # GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI
 
-    def hide_all_buttons(self):
+    def hide_btns(self):
         for i in (self.prev_btn, self.next_btn, self.zoom_btns):
             if i.underMouse():
                 return
@@ -380,7 +378,7 @@ class WinImgView(WinBase):
             self.switch_img(-1)
         self.img_label.setCursor(Qt.CursorShape.ArrowCursor)
 
-    def mouse_moved_cmd(self):
+    def show_btns(self):
         self.mouse_move_timer.stop()
         self.prev_btn.show()
         self.next_btn.show()
@@ -435,10 +433,10 @@ class WinImgView(WinBase):
         JsonData.hh_im = self.height()
 
     def leaveEvent(self, a0: QEvent | None) -> None:
-        self.hide_all_buttons()
+        self.hide_btns()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
-        Shared.cached_images.clear()
+        LoadImage.cache.clear()
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         menu = QMenu(self)
