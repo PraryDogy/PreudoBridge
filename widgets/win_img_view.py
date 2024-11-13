@@ -1,5 +1,4 @@
 import os
-import subprocess
 
 import sqlalchemy
 from PyQt5.QtCore import QEvent, QObject, QPoint, QSize, Qt, QTimer, pyqtSignal
@@ -9,17 +8,16 @@ from PyQt5.QtGui import (QCloseEvent, QContextMenuEvent, QKeyEvent,
 from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QMenu, QSpacerItem,
                              QVBoxLayout, QWidget)
 
-from cfg import (CLOSE_SVG, COLORS, IMAGE_APPS, NEXT_SVG, PREV_SVG, STAR_SYM,
-                 ZOOM_FIT_SVG, ZOOM_IN_SVG, ZOOM_OUT_SVG, JsonData)
+from cfg import (CLOSE_SVG, NEXT_SVG, PREV_SVG, STAR_SYM, ZOOM_FIT_SVG,
+                 ZOOM_IN_SVG, ZOOM_OUT_SVG, JsonData)
 from database import CACHE, Dbase
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 from ._actions import (ColorMenu, CopyPath, Info, OpenInApp, RatingMenu,
-                       RevealInFinder, View)
-from ._base import USvgWidget, WinBase
+                       RevealInFinder)
+from ._base import OpenWin, USvgWidget, WinBase
 from ._thumb import Thumb
-from .win_info import WinInfo
 
 FILE_ = "images/img_big.svg"
 
@@ -386,9 +384,8 @@ class WinImgView(WinBase):
         self.mouse_move_timer.start(2000)
 
     def show_info_win(self):
-        self.win_info = WinInfo(self.src)
-        Utils.center_win(parent=self, child=self.win_info)
-        self.win_info.show()
+        print(1)
+        OpenWin.info(self, self.src)
 
 # EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS 
 

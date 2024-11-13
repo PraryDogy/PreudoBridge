@@ -9,10 +9,9 @@ from database import OrderItem
 from signals import SignalsApp
 from utils import Utils
 
-from ._base import BaseMethods
+from ._base import BaseMethods, OpenWin
 from ._list import Selected
 from ._thumb import Thumb, ThumbFolder, ThumbSearch
-from .win_info import WinInfo
 
 
 class Grid(BaseMethods, QScrollArea):
@@ -165,12 +164,8 @@ class Grid(BaseMethods, QScrollArea):
         if wid.type_ == FOLDER_TYPE:
             SignalsApp.all.new_history.emit(wid.src)
             SignalsApp.all.load_standart_grid.emit(wid.src)
-
         else:
-            from .win_img_view import WinImgView
-            self.win = WinImgView(wid.src)
-            Utils.center_win(parent=Utils.get_main_win(), child=self.win)
-            self.win.show()
+            OpenWin.view(Utils.get_main_win(), wid.src)
 
     def select_after_list(self):
         wid = Thumb.path_to_wid.get(Selected.src)
@@ -197,9 +192,7 @@ class Grid(BaseMethods, QScrollArea):
 
             elif a0.key() == Qt.Key.Key_I:
                 wid = self.cell_to_wid.get(self.curr_cell)
-                self.win = WinInfo(wid.src)
-                Utils.center_win(Utils.get_main_win(), self.win)
-                self.win.show()
+                OpenWin.info(Utils.get_main_win(), wid.src)
 
             elif a0.key() == Qt.Key.Key_Equal:
                 new_value = JsonData.pixmap_size_ind + 1

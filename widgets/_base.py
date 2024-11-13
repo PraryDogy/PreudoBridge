@@ -4,6 +4,7 @@ from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import QLineEdit, QMenu, QSlider, QWidget
 
 from cfg import GRAY
+from utils import Utils
 
 from ._actions import TextCopy, TextCut, TextPaste, TextSelectAll
 
@@ -110,3 +111,20 @@ class WinMinMax(WinBase):
         fl = Qt.WindowType.Window | Qt.WindowType.CustomizeWindowHint
         fl = fl  | Qt.WindowType.WindowCloseButtonHint
         self.setWindowFlags(fl)
+
+
+class OpenWin:
+
+    @classmethod
+    def info(cls, parent: QWidget, src: str):
+        from .win_info import WinInfo
+        cls.win = WinInfo(src)
+        Utils.center_win(parent, cls.win)
+        cls.win.show()
+
+    @classmethod
+    def view(cls, parent: QWidget, src: str):
+        from .win_img_view import WinImgView
+        cls.win = WinImgView(src)
+        Utils.center_win(parent, cls.win)
+        cls.win.show()
