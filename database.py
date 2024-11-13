@@ -31,13 +31,13 @@ ORDER: dict[dict[str, int]] = {
 
 
 class OrderItem:
-    def __init__(self, src: str, size: int = None, mod: int = None, colors: str = None, rating: int = None):
+    def __init__(self, src: str, size: int, mod: int, colors: str, rating: int):
         super().__init__()
         self.src: str = src
-        self.size: int = 0 if size is None else size
-        self.mod: int = 0 if mod is None else mod
-        self.colors: str = "" if colors is None else colors
-        self.rating: int = 0 if rating is None else rating
+        self.size: int = size
+        self.mod: int = mod
+        self.colors: str = colors
+        self.rating: int = rating
 
         self.name: str = os.path.split(self.src)[-1]
         
