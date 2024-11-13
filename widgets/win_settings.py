@@ -42,12 +42,12 @@ class GetSizer(URunnable):
 
             for root, dirs, files in os.walk(HASH_DIR):
 
-                if not self._should_run:
+                if not self.should_run:
                     return
 
                 for file in files:
 
-                    if not self._should_run:
+                    if not self.should_run:
                         return
                 
                     file_path = os.path.join(root, file)
@@ -128,8 +128,8 @@ class WinSettings(WinMinMax):
         SignalsApp.all.load_standart_grid.emit("")
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
-        if hasattr(self, "task_") and self.task_._is_running:
-            self.task_._should_run = False
+        if hasattr(self, "task_") and self.task_.is_running:
+            self.task_.should_run = False
         JsonData.write_config()
     
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:

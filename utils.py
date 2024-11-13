@@ -295,8 +295,8 @@ class UThreadPool:
 class URunnable(QRunnable):
     def __init__(self):
         super().__init__()
-        self._should_run: bool = True
-        self._is_running: bool = False
+        self.should_run: bool = True
+        self.is_running: bool = False
     
     @staticmethod
     def set_running_state(method):

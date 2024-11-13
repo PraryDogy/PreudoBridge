@@ -58,16 +58,16 @@ class SearchFinder(URunnable):
 
         self.conn.close()
 
-        if self._should_run:
+        if self.should_run:
             SignalsApp.all.search_finished.emit(str(self.search_text))
 
     def walk_dir(self):
         for root, _, files in os.walk(JsonData.root):
-            if not self._should_run:
+            if not self.should_run:
                 break
 
             for file in files:
-                if not self._should_run:
+                if not self.should_run:
                     break
 
                 src: str = os.path.join(root, file)
@@ -196,7 +196,7 @@ class SearchFinder(URunnable):
             except IntegrityError as e:
                 self.conn.rollback()
                 Utils.print_error(parent=self, error=e)
-                self._should_run = False
+                self.should_run = False
                 return None
             
             except OperationalError as e:
@@ -250,20 +250,20 @@ class GridSearch(Grid):
             self.row += 1
  
     def rearrange(self, width: int = None):
-        if not self.task_._is_running:
+        if not self.task_.is_running:
             super().rearrange(width)
     
     def order_(self):
-        if not self.task_._is_running:
+        if not self.task_.is_running:
             super().order_()
 
     def filter_(self):
-        if not self.task_._is_running:
+        if not self.task_.is_running:
             super().filter_()
 
     def resize_(self):
-        if not self.task_._is_running:
+        if not self.task_.is_running:
             super().resize_()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
-        self.task_._should_run = False
+        self.task_.should_run = False
