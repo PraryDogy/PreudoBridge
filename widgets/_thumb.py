@@ -40,7 +40,8 @@ class TextLabel(QLabel):
                 if len(second_line) > max_row:
                     second_line = self.short_text(second_line, max_row)
 
-                lines.append(first_line, second_line)
+                lines.append(first_line)
+                lines.append(second_line)
         else:
             name = lines.append(name)
 
