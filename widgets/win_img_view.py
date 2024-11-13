@@ -8,8 +8,8 @@ from PyQt5.QtGui import (QCloseEvent, QContextMenuEvent, QKeyEvent,
 from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QMenu, QSpacerItem,
                              QVBoxLayout, QWidget)
 
-from cfg import (CLOSE_SVG, NEXT_SVG, PREV_SVG, STAR_SYM, ZOOM_FIT_SVG,
-                 ZOOM_IN_SVG, ZOOM_OUT_SVG, JsonData)
+from cfg import (CLOSE_SVG, IMG_BIG_SVG, NEXT_SVG, PREV_SVG, STAR_SYM,
+                 ZOOM_FIT_SVG, ZOOM_IN_SVG, ZOOM_OUT_SVG, JsonData)
 from database import CACHE, Dbase
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
@@ -18,8 +18,6 @@ from ._actions import (ColorMenu, CopyPath, Info, OpenInApp, RatingMenu,
                        RevealInFinder)
 from ._base import OpenWin, USvgWidget, WinBase
 from ._thumb import Thumb
-
-FILE_ = "images/img_big.svg"
 
 
 class ImageData:
@@ -52,7 +50,7 @@ class LoadThumbnail(URunnable):
         img_array = Utils.read_image_hash(res)
 
         if img_array is None:
-            pixmap = QPixmap(FILE_)
+            pixmap = QPixmap(IMG_BIG_SVG)
         else:
             pixmap = Utils.pixmap_from_array(img_array)
 
@@ -75,7 +73,7 @@ class LoadImage(URunnable):
             img_array = Utils.read_image(self.src)
 
             if img_array is None:
-                pixmap = QPixmap(FILE_)
+                pixmap = QPixmap(IMG_BIG_SVG)
 
             else:
                 pixmap = Utils.pixmap_from_array(img_array)

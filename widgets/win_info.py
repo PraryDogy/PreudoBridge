@@ -1,16 +1,18 @@
-from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QKeyEvent
-from PyQt5.QtWidgets import QGridLayout, QLabel
-from PyQt5.QtCore import Qt, QObject, pyqtSignal
-from PyQt5.QtWidgets import QApplication, QLabel, QMenu
-from PyQt5.QtCore import Qt
-from ._base import WinMinMax
-from utils import Utils, URunnable, UThreadPool
-from cfg import FOLDER_TYPE
 import os
+
+from PyQt5.QtCore import QObject, Qt, pyqtSignal
+from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QKeyEvent
+from PyQt5.QtWidgets import QApplication, QGridLayout, QLabel, QMenu
+
+from cfg import FOLDER_TYPE
+from utils import URunnable, UThreadPool, Utils
+
+from ._base import WinMinMax
 
 CALCULATING = "Вычисляю..."
 NAMES = ["Имя", "Тип", "Размер", "Место", "Создан", "Изменен"]
 TITLE = "Инфо"
+
 
 class WorkerSignals(QObject):
     _finished = pyqtSignal(str)

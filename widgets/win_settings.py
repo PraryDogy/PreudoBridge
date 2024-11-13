@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QPushButton,
 from cfg import HASH_DIR, JSON_FILE, LINK, JsonData
 from database import Dbase
 from signals import SignalsApp
-from utils import UThreadPool, URunnable, Utils
+from utils import URunnable, UThreadPool, Utils
 
 from ._base import WinMinMax
 
@@ -22,7 +22,6 @@ SETTINGS_T = "Настройки"
 CLEAR_T = "Очистить"
 JSON_T = "Json"
 UPDATE_T = "Обновления"
-
 
 
 class WorkerSignals(QObject):
