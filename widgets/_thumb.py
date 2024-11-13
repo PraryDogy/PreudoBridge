@@ -62,19 +62,21 @@ class ColorLabel(QLabel):
 
 
 class UpdateThumbData(URunnable):
-    def __init__(self, src: str, value_name: str, value: int | str, cmd_: callable):
+    def __init__(self, src: str, values: dict, cmd_: callable):
         """value_name: colors, rating"""
         super().__init__()
 
         self.cmd_ = cmd_
         self.src = src
-        self.value_name = value_name
-        self.value = value
+        self.values = values
 
     @URunnable.set_running_state
     def run(self):
-        values_ = {self.value_name: self.value}
-        stmt = sqlalchemy.update(CACHE).where(CACHE.c.src == self.src).values(**values_)
+        stmt = sqlalchemy.update(CACHE).where(
+            CACHE.c.src == self.src
+            ).values(
+                **self.values
+                )
         conn = Dbase.engine.connect()
 
         try:
@@ -232,7 +234,7 @@ class Thumb(OrderItem, QFrame):
             self.colors = ''.join(sorted(self.colors, key=key))
             self.set_text()
 
-        self.update_thumb_data("colors", temp_colors, cmd_)
+        self.update_thumb_data({"colors": temp_colors}, cmd_)
 
     def set_rating_cmd(self, rating: int):
 
@@ -242,10 +244,10 @@ class Thumb(OrderItem, QFrame):
             self.rating = rating
             self.set_text()
 
-        self.update_thumb_data("rating", rating, cmd_)
+        self.update_thumb_data({"rating": rating}, cmd_)
 
-    def update_thumb_data(self, value_name: str, value: str | int, cmd_: callable):
-        task_ = UpdateThumbData(self.src, value_name, value, cmd_)
+    def update_thumb_data(self, values: dict, cmd_: callable):
+        task_ = UpdateThumbData(self.src, values, cmd_)
         UThreadPool.pool.start(task_)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
