@@ -163,16 +163,7 @@ class Utils:
             img = None
 
         return img
-    
-    # @classmethod
-    # def pixmap_from_bytes(cls, image: bytes) -> QPixmap | None:
-    #     if isinstance(image, bytes):
-    #         ba = QByteArray(image)
-    #         pixmap = QPixmap()
-    #         pixmap.loadFromData(ba, "JPEG")
-    #         return pixmap
-    #     return None
-    
+     
     @classmethod
     def pixmap_from_array(cls, image: np.ndarray) -> QPixmap | None:
         if isinstance(image, np.ndarray):
@@ -182,18 +173,6 @@ class Utils:
             return QPixmap.fromImage(qimage)
         else:
             return None
-
-    # @classmethod
-    # def image_array_to_bytes(cls, image: np.ndarray, quality: int = 80) -> bytes | None:
-    #     if isinstance(image, np.ndarray):
-    #         img = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    #         res, buffer = cv2.imencode(".jpeg", img, [int(cv2.IMWRITE_JPEG_QUALITY), quality])
-    #         image_io = io.BytesIO()
-    #         image_io.write(buffer)
-    #         img = image_io.getvalue()
-    #         return img
-    #     else:
-    #         return None
 
     @classmethod
     def get_clmn_count(cls, width: int):
@@ -307,8 +286,8 @@ class URunnable(QRunnable):
     def set_running_state(method: callable):
 
         def wrapper(self, *args, **kwargs):
-            self._is_running = True
+            self.is_running = True
             method(self, *args, **kwargs)
-            self._is_running = False
+            self.is_running = False
 
         return wrapper
