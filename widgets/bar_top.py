@@ -6,103 +6,48 @@ from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
                              QMenu, QPushButton, QSpacerItem, QTabBar,
                              QVBoxLayout, QWidget)
 
-from cfg import (BACK_SYM, BLUE, BURGER_SYM, COLORS, FAT_DOT_SYM,
-                 FILTERS_CROSS_SYM, GRID_SYM, IMG_EXT, NEXT_SYM,
-                 SEARCH_CROSS_SYM, STAR_SYM, UP_CURVE, Dynamic, JsonData)
-from database import ORDER
+from cfg import (BACK_SYM, BLUE, COLORS, FAT_DOT_SYM, FILTERS_CROSS_SYM,
+                 IMG_EXT, NEXT_SYM, SEARCH_CROSS_SYM, SETT_SYM, STAR_SYM,
+                 UP_CURVE, Dynamic, JsonData)
 from signals import SignalsApp
 from utils import Utils
 
 from ._base import ULineEdit
 from .win_settings import WinSettings
 
-SETT_SYM = "\U00002699"
-
-
-# class ActionData:
-#     __slots__ = ["sort", "reversed", "text"]
-
-#     def __init__(self, sort: str | None, reversed: bool, text: str):
-#         self.sort: str | None = sort
-#         self.reversed: bool = reversed
-#         self.text: str = text
-
-
-# class SortTypeBtn(QPushButton):
-#     def __init__(self, parent: QWidget):
+# class ViewTypeBtn(QTabBar):
+#     def __init__(self):
 #         super().__init__()
-#         self.setFixedWidth(105)
-#         self.setStyleSheet("text-align: center;")
+#         self.setFixedWidth(90)
 
-#         data_actions = (
-#             ActionData(None, False, "По возрастанию"),
-#             *(
-#             ActionData(sort=order_key, reversed=False, text=f"{order_dict.get('text')} \U00002191")
-#             for order_key, order_dict in ORDER.items()
-#             ),
-#             ActionData(None, True, "По убыванию"),
-#             *(
-#             ActionData(sort=order_key, reversed=True, text=f"{order_dict.get('text')} \U00002193")
-#             for order_key, order_dict in ORDER.items()
-#             )
-#             )
+#         self.addTab(GRID_SYM * 3)
+#         self.addTab(BURGER_SYM)
 
-#         menu = QMenu()
-#         self.setMenu(menu)
+#         if Dynamic.list_view:
+#             self.setCurrentIndex(1)
+#         else:
+#             self.setCurrentIndex(0)
 
-#         for data_action in data_actions:
-#             action = QAction(parent=self, text=data_action.text)
-#             action.triggered.connect(lambda e, d=data_action: self._action_clicked(d))
+#         self.tabBarClicked.connect(self.set_view_cmd)
 
-#             if data_action.sort == None:
-#                 action.setDisabled(True)
+#     def mousePressEvent(self, event: QMouseEvent):
+#         if event.button() == Qt.LeftButton:
+#             super().mousePressEvent(event)
+#         else:
+#             event.ignore()
 
-#             if data_action.sort == JsonData.sort:
-#                 if data_action.reversed == JsonData.reversed:
-#                     self.setText(data_action.text)
+#     def set_view_cmd(self, index: int):
+#         if index == 0:
+#             self.setCurrentIndex(0)
+#             Dynamic.list_view = False
+#         else:
+#             self.setCurrentIndex(1)
+#             Dynamic.list_view = True
+#         SignalsApp.all.load_standart_grid.emit("")
 
-#             menu.addAction(action)
-
-#     def _action_clicked(self, data_action: ActionData):
-#         JsonData.sort = data_action.sort
-#         JsonData.reversed = data_action.reversed
-#         self.setText(data_action.text)
-#         SignalsApp.all.sort_grid.emit()
-
-
-class ViewTypeBtn(QTabBar):
-    def __init__(self):
-        super().__init__()
-        self.setFixedWidth(90)
-
-        self.addTab(GRID_SYM * 3)
-        self.addTab(BURGER_SYM)
-
-        if Dynamic.list_view:
-            self.setCurrentIndex(1)
-        else:
-            self.setCurrentIndex(0)
-
-        self.tabBarClicked.connect(self.set_view_cmd)
-
-    def mousePressEvent(self, event: QMouseEvent):
-        if event.button() == Qt.LeftButton:
-            super().mousePressEvent(event)
-        else:
-            event.ignore()
-
-    def set_view_cmd(self, index: int):
-        if index == 0:
-            self.setCurrentIndex(0)
-            Dynamic.list_view = False
-        else:
-            self.setCurrentIndex(1)
-            Dynamic.list_view = True
-        SignalsApp.all.load_standart_grid.emit("")
-
-    def tabSizeHint(self, index):
-        size = QTabBar.tabSizeHint(self, index)
-        return QSize(10, size.height())
+#     def tabSizeHint(self, index):
+#         size = QTabBar.tabSizeHint(self, index)
+#         return QSize(10, size.height())
 
 
 class SearchWidget(QWidget):
@@ -368,9 +313,9 @@ class BarTop(QFrame):
         self.grid_layout.setColumnStretch(self.clmn, 10)
         self.grid_layout.addItem(QSpacerItem(1, 1), 0, self.clmn)
 
-        self.clmn += 1
-        self.view_type_btn = ViewTypeBtn()
-        self.grid_layout.addWidget(self.view_type_btn, 0, self.clmn)
+        # self.clmn += 1
+        # self.view_type_btn = ViewTypeBtn()
+        # self.grid_layout.addWidget(self.view_type_btn, 0, self.clmn)
 
         self.clmn += 1
         self.filters_btn = FiltersBtn()

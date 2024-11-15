@@ -3,7 +3,7 @@ import subprocess
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QAction, QLineEdit, QMenu
 
-from cfg import COLORS, IMAGE_APPS, STAR_SYM, JsonData
+from cfg import COLORS, IMAGE_APPS, STAR_SYM, Dynamic, JsonData
 from database import ORDER
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
@@ -29,8 +29,9 @@ ARROW_TOP = "\U00002191"
 ASCENDING_T = "По возрастанию"
 DISCENDING_T = "По убыванию"
 UPDATE_GRID_T = "Обновить"
-# свойства
-# вид
+VIEW_GRID_T = "Вид"
+VIEW_GRID_SET_T = "Сетка"
+VIEW_LIST_SET_T = "Список"
 
 class Task_(URunnable):
     def __init__(self,  cmd_: callable):
@@ -288,3 +289,29 @@ class SortMenu(QMenu):
         JsonData.sort = sort
         JsonData.reversed = reversed
         SignalsApp.all.sort_grid.emit()
+
+
+class ViewGrid(QMenu):
+    def __init__(self, parent: QMenu, src: str):
+        super().__init__(parent=parent, title=VIEW_T)
+        self.src = src
+
+        grid_ = QAction(self, text=VIEW_GRID_SET_T)
+        grid_.triggered.connect(self.cmd_)
+        grid_.setCheckable(True)
+        self.addAction(grid_)
+
+        list_ = QAction(self, text=VIEW_LIST_SET_T)
+        list_.triggered.connect(self.cmd_)
+        list_.setCheckable(True)
+        self.addAction(list_)
+
+        if JsonData.view_mode:
+            grid_.setChecked(True)
+        else:
+            list_.setChecked(False)
+
+
+    def cmd_(self):
+        Dynamic.list_view = not Dynamic.list_view
+        SignalsApp.all.load_standart_grid.emit(self.src)

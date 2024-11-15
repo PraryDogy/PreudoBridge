@@ -29,6 +29,7 @@ UP_ARROW_SYM = "\u25B2"
 BACK_SYM = "\u25C0"
 NEXT_SYM = "\u25B6"
 UP_CURVE = "\u2934" 
+SETT_SYM = "\U00002699"
 
 IMAGES_DIR = "images"
 IMG_SVG = os.path.join(IMAGES_DIR, "img.svg")
@@ -91,7 +92,7 @@ class JsonData:
     reversed = False
     extra_paths = ["/Studio/PANACEA", "/Studio/MIUZ"]
     favs = {}
-    tab_bar = 1
+    view_mode = 1
     pixmap_size_ind = 0
 
     @classmethod
