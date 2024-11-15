@@ -9,7 +9,7 @@ from database import OrderItem
 from signals import SignalsApp
 from utils import Utils
 
-from ._actions import SortMenu, UpdateGrid, ViewGrid
+from ._actions import SortMenu, UpdateGrid, ChangeView
 from ._base import BaseMethods, OpenWin
 from ._list import ListStandart
 from ._thumb import Info, Thumb, ThumbFolder, ThumbSearch
@@ -250,7 +250,7 @@ class Grid(BaseMethods, QScrollArea):
         info = Info(menu, JsonData.root)
         menu.addAction(info)
 
-        change_view = ViewGrid(menu, JsonData.root)
+        change_view = ChangeView(menu, JsonData.root)
         menu.addMenu(change_view)
 
         sort_menu = SortMenu(parent=menu)

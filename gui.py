@@ -128,8 +128,7 @@ class SimpleFileExplorer(QWidget):
             self.load_standart_grid()
 
     def load_search_grid(self, search_text: str):
-        self.bar_top.view_type_btn.setCurrentIndex(0)
-        Dynamic.list_view = False
+        # self.bar_top.view_type_btn.setCurrentIndex(0)
         self.bar_top.filters_btn.reset_filters()
 
         self.grid_close()
@@ -171,10 +170,10 @@ class SimpleFileExplorer(QWidget):
         self.bar_top.search_wid.clear_search.emit()
         self.bar_top.filters_btn.reset_filters()
 
-        if Dynamic.list_view:
+        if JsonData.view_mode == 1:
             self.grid = ListStandart()
             self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
-        else:
+        elif JsonData.view_mode == 0:
             self.grid = GridStandart(width=self.get_grid_width())
             self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
 

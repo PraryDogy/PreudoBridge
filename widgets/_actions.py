@@ -291,27 +291,30 @@ class SortMenu(QMenu):
         SignalsApp.all.sort_grid.emit()
 
 
-class ViewGrid(QMenu):
+class ChangeView(QMenu):
     def __init__(self, parent: QMenu, src: str):
         super().__init__(parent=parent, title=CHANGE_VIEW_T)
         self.src = src
 
         grid_ = QAction(self, text=CHANGE_VIEW_GRID_T)
-        grid_.triggered.connect(self.cmd_)
+        grid_.triggered.connect(self.set_grid)
         grid_.setCheckable(True)
         self.addAction(grid_)
 
         list_ = QAction(self, text=CHANGE_VIEW_LIST_T)
-        list_.triggered.connect(self.cmd_)
+        list_.triggered.connect(self.set_list)
         list_.setCheckable(True)
         self.addAction(list_)
 
-        if JsonData.view_mode:
+        if JsonData.view_mode == 0:
             grid_.setChecked(True)
-        else:
+        elif JsonData.view_mode == 1:
             list_.setChecked(False)
 
+    def set_grid(self):
+        JsonData.view_mode = 0
+        SignalsApp.all.load_standart_grid.emit("")
 
-    def cmd_(self):
-        Dynamic.list_view = not Dynamic.list_view
-        SignalsApp.all.load_standart_grid.emit(self.src)
+    def set_list(self):
+        JsonData.view_mode = 1
+        SignalsApp.all.load_standart_grid.emit("")

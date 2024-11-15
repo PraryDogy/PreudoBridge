@@ -7,7 +7,8 @@ from PyQt5.QtWidgets import QFileSystemModel, QMenu, QTableView
 from cfg import JsonData
 from signals import SignalsApp
 
-from ._actions import CopyPath, FavAdd, FavRemove, RevealInFinder
+from ._actions import (ChangeView, CopyPath, FavAdd, FavRemove, Info,
+                       RevealInFinder)
 from ._base import BaseMethods
 
 
@@ -102,6 +103,12 @@ class ListStandart(QTableView):
                 fav_action = FavAdd(menu, src)
                 fav_action._clicked.connect(cmd_)
                 menu.addAction(fav_action)
+
+
+        menu.addSeparator()
+
+        change_view = ChangeView(menu, JsonData.root)
+        menu.addMenu(change_view)
 
         coords = self.mapToGlobal(event.pos())
         # coords = QPoint(coords.x(), coords.y() + 30)

@@ -179,4 +179,3 @@ class JsonData:
 class Dynamic:
     color_filters: list = []
     rating_filter: int = 0
-    list_view = False

@@ -14,7 +14,7 @@ from utils import URunnable, UThreadPool, Utils
 
 from ._actions import (ColorMenu, CopyPath, FavAdd, FavRemove, Info, OpenInApp,
                        RatingMenu, RevealInFinder, ShowInFolder, SortMenu,
-                       View, ViewGrid)
+                       View, ChangeView)
 from ._base import USvgWidget
 
 
@@ -210,7 +210,7 @@ class Thumb(OrderItem, QFrame):
 
         menu.addSeparator()
 
-        change_view = ViewGrid(menu, self.src)
+        change_view = ChangeView(menu, self.src)
         menu.addMenu(change_view)
 
         sort_menu = SortMenu(parent=menu)
@@ -353,7 +353,7 @@ class ThumbFolder(Thumb):
 
         menu.addSeparator()
 
-        change_view = ViewGrid(menu, self.src)
+        change_view = ChangeView(menu, self.src)
         menu.addMenu(change_view)
         
         sort_menu = SortMenu(parent=menu)
