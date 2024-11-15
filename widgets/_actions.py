@@ -309,7 +309,7 @@ class ChangeView(QMenu):
         if JsonData.view_mode == 0:
             grid_.setChecked(True)
         elif JsonData.view_mode == 1:
-            list_.setChecked(False)
+            list_.setChecked(True)
 
     def set_grid(self):
         JsonData.view_mode = 0
