@@ -135,7 +135,7 @@ class UpdateGrid(UAction):
         super().__init__(parent, src, UPDATE_GRID_T)
 
     def cmd_(self):
-        SignalsApp.all.load_standart_grid.emit(self.src)
+        SignalsApp.all.load_standart_grid.emit("")
 
 
 class OpenInApp(QMenu):
