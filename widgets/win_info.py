@@ -1,17 +1,25 @@
 import os
 
+import sqlalchemy
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QKeyEvent
-from PyQt5.QtWidgets import QApplication, QGridLayout, QLabel, QMenu
+from PyQt5.QtWidgets import QGridLayout, QLabel, QMenu
 
 from cfg import FOLDER_TYPE
+from database import CACHE, Dbase
 from utils import URunnable, UThreadPool, Utils
 
 from ._base import WinMinMax
 
 CALCULATING = "Вычисляю..."
-NAMES = ["Имя", "Тип", "Размер", "Место", "Создан", "Изменен"]
 TITLE = "Инфо"
+NAME_T = "Имя"
+TYPE_T = "Тип"
+SIZE_T = "Размер"
+SRC_T = "Место"
+BITRTH_T = "Создан"
+MOD_T = "Изменен"
+RESOL_T = "Разрешение"
 
 
 class WorkerSignals(QObject):
@@ -58,28 +66,64 @@ class InfoTask:
         super().__init__()
         self.src = src
 
-    def get(self):
+    def get(self) -> dict[str, str| int]:
+        conn = Dbase.engine.connect()
+
+        cols = (
+            CACHE.c.name, CACHE.c.type_, CACHE.c.src,
+            CACHE.c.mod, CACHE.c.resol
+            )
+
+        q = sqlalchemy.select(*cols).where(CACHE.c.src==self.src)
+        res = conn.execute(q).first()
+
+        if res:
+            return self.get_db_info(*res)
+
+        else:
+            return self.get_raw_info()
+
+    def get_db_info(self, name, type_, src, mod, resol):
+
+        res = {
+            NAME_T: self.lined_text(name),
+            TYPE_T: type_,
+            SIZE_T: Utils.get_f_size(os.path.getsize(self.src)),
+            SRC_T: self.lined_text(src),
+            MOD_T: Utils.get_f_date(mod),
+            RESOL_T: resol
+            }
+
+        return res
+
+
+    def get_raw_info(self):
         is_file = os.path.isfile(self.src)
 
-        name = self.lined_text(os.path.basename(self.src))
         type_ = (
             os.path.splitext(self.src)[-1]
             if is_file
             else
             FOLDER_TYPE
             )
+
         size_ = (
             Utils.get_f_size(os.path.getsize(self.src))
             if is_file
             else
             CALCULATING
             )
-        src = self.lined_text(self.src)
-        stats = os.stat(self.src)
-        birth = Utils.get_f_date(stats.st_birthtime)
-        mod = Utils.get_f_date(stats.st_mtime)
 
-        return (name, type_, size_, src, birth, mod)
+        res = {
+            NAME_T: self.lined_text(os.path.basename(self.src)),
+            TYPE_T: type_,
+            SIZE_T: size_,
+            SRC_T: self.lined_text(self.src),
+            MOD_T: Utils.get_f_date(os.stat(self.src).st_mtime),
+            # RESOL_T: resol
+            }
+
+        return res
 
     def lined_text(self, text: str):
         max_row = 38
@@ -91,7 +135,7 @@ class InfoTask:
                 ]
             return "\n".join(text)
         else:
-            return text 
+            return text
 
 
 class CustomLabel(QLabel):
@@ -128,19 +172,19 @@ class WinInfo(WinMinMax):
         task_ = InfoTask(self.src)
         info = task_.get()
 
-        for name, text in zip(NAMES, info):
+        for name, value in info.items():
 
             left_lbl = CustomLabel(name)
             flags_l_al = Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignTop
             self.grid_layout.addWidget(left_lbl, row, 0, alignment=flags_l_al)
 
-            right_lbl = CustomLabel(text)
+            right_lbl = CustomLabel(value)
             flags_r = Qt.TextInteractionFlag.TextSelectableByMouse
             right_lbl.setTextInteractionFlags(flags_r)
             flags_r_al = Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom
             self.grid_layout.addWidget(right_lbl, row, 1, alignment=flags_r_al)
 
-            if text == CALCULATING:
+            if value == CALCULATING:
                 setattr(self, "calc", True)
                 setattr(self, "size_label", right_lbl)
 
