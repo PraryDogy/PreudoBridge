@@ -29,9 +29,9 @@ ARROW_TOP = "\U00002191"
 ASCENDING_T = "По возрастанию"
 DISCENDING_T = "По убыванию"
 UPDATE_GRID_T = "Обновить"
-VIEW_GRID_T = "Вид"
-VIEW_GRID_SET_T = "Сетка"
-VIEW_LIST_SET_T = "Список"
+CHANGE_VIEW_T = "Вид"
+CHANGE_VIEW_GRID_T = "Сетка"
+CHANGE_VIEW_LIST_T = "Список"
 
 class Task_(URunnable):
     def __init__(self,  cmd_: callable):
@@ -293,15 +293,15 @@ class SortMenu(QMenu):
 
 class ViewGrid(QMenu):
     def __init__(self, parent: QMenu, src: str):
-        super().__init__(parent=parent, title=VIEW_T)
+        super().__init__(parent=parent, title=CHANGE_VIEW_T)
         self.src = src
 
-        grid_ = QAction(self, text=VIEW_GRID_SET_T)
+        grid_ = QAction(self, text=CHANGE_VIEW_GRID_T)
         grid_.triggered.connect(self.cmd_)
         grid_.setCheckable(True)
         self.addAction(grid_)
 
-        list_ = QAction(self, text=VIEW_LIST_SET_T)
+        list_ = QAction(self, text=CHANGE_VIEW_LIST_T)
         list_.triggered.connect(self.cmd_)
         list_.setCheckable(True)
         self.addAction(list_)
