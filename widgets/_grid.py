@@ -1,8 +1,8 @@
 import os
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QKeyEvent, QMouseEvent
-from PyQt5.QtWidgets import QFrame, QGridLayout, QScrollArea, QWidget
+from PyQt5.QtGui import QContextMenuEvent, QKeyEvent, QMouseEvent
+from PyQt5.QtWidgets import QFrame, QGridLayout, QMenu, QScrollArea, QWidget
 
 from cfg import FOLDER_TYPE, GRID_SPACING, MAX_VAR, Dynamic, JsonData
 from database import OrderItem
@@ -12,7 +12,7 @@ from utils import Utils
 from ._base import BaseMethods, OpenWin
 from ._list import ListStandart
 from ._thumb import Thumb, ThumbFolder, ThumbSearch
-
+from ._actions import SortMenu
 
 class Grid(BaseMethods, QScrollArea):
 
@@ -236,3 +236,13 @@ class Grid(BaseMethods, QScrollArea):
             wid.set_no_frame()
         self.setFocus()
         SignalsApp.all.path_labels_cmd.emit({"src": JsonData.root})
+
+
+    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+        menu = QMenu(parent=self)
+
+        sort_menu = SortMenu(parent=menu)
+        menu.addMenu(sort_menu)
+
+        menu.exec_(self.mapToGlobal(a0.pos()))
+        # return super().contextMenuEvent(a0)

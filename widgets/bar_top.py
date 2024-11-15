@@ -19,55 +19,55 @@ from .win_settings import WinSettings
 SETT_SYM = "\U00002699"
 
 
-class ActionData:
-    __slots__ = ["sort", "reversed", "text"]
+# class ActionData:
+#     __slots__ = ["sort", "reversed", "text"]
 
-    def __init__(self, sort: str | None, reversed: bool, text: str):
-        self.sort: str | None = sort
-        self.reversed: bool = reversed
-        self.text: str = text
+#     def __init__(self, sort: str | None, reversed: bool, text: str):
+#         self.sort: str | None = sort
+#         self.reversed: bool = reversed
+#         self.text: str = text
 
 
-class SortTypeBtn(QPushButton):
-    def __init__(self, parent: QWidget):
-        super().__init__()
-        self.setFixedWidth(105)
-        self.setStyleSheet("text-align: center;")
+# class SortTypeBtn(QPushButton):
+#     def __init__(self, parent: QWidget):
+#         super().__init__()
+#         self.setFixedWidth(105)
+#         self.setStyleSheet("text-align: center;")
 
-        data_actions = (
-            ActionData(None, False, "По возрастанию"),
-            *(
-            ActionData(sort=order_key, reversed=False, text=f"{order_dict.get('text')} \U00002191")
-            for order_key, order_dict in ORDER.items()
-            ),
-            ActionData(None, True, "По убыванию"),
-            *(
-            ActionData(sort=order_key, reversed=True, text=f"{order_dict.get('text')} \U00002193")
-            for order_key, order_dict in ORDER.items()
-            )
-            )
+#         data_actions = (
+#             ActionData(None, False, "По возрастанию"),
+#             *(
+#             ActionData(sort=order_key, reversed=False, text=f"{order_dict.get('text')} \U00002191")
+#             for order_key, order_dict in ORDER.items()
+#             ),
+#             ActionData(None, True, "По убыванию"),
+#             *(
+#             ActionData(sort=order_key, reversed=True, text=f"{order_dict.get('text')} \U00002193")
+#             for order_key, order_dict in ORDER.items()
+#             )
+#             )
 
-        menu = QMenu()
-        self.setMenu(menu)
+#         menu = QMenu()
+#         self.setMenu(menu)
 
-        for data_action in data_actions:
-            action = QAction(parent=self, text=data_action.text)
-            action.triggered.connect(lambda e, d=data_action: self._action_clicked(d))
+#         for data_action in data_actions:
+#             action = QAction(parent=self, text=data_action.text)
+#             action.triggered.connect(lambda e, d=data_action: self._action_clicked(d))
 
-            if data_action.sort == None:
-                action.setDisabled(True)
+#             if data_action.sort == None:
+#                 action.setDisabled(True)
 
-            if data_action.sort == JsonData.sort:
-                if data_action.reversed == JsonData.reversed:
-                    self.setText(data_action.text)
+#             if data_action.sort == JsonData.sort:
+#                 if data_action.reversed == JsonData.reversed:
+#                     self.setText(data_action.text)
 
-            menu.addAction(action)
+#             menu.addAction(action)
 
-    def _action_clicked(self, data_action: ActionData):
-        JsonData.sort = data_action.sort
-        JsonData.reversed = data_action.reversed
-        self.setText(data_action.text)
-        SignalsApp.all.sort_grid.emit()
+#     def _action_clicked(self, data_action: ActionData):
+#         JsonData.sort = data_action.sort
+#         JsonData.reversed = data_action.reversed
+#         self.setText(data_action.text)
+#         SignalsApp.all.sort_grid.emit()
 
 
 class ViewTypeBtn(QTabBar):
@@ -371,10 +371,6 @@ class BarTop(QFrame):
         self.clmn += 1
         self.view_type_btn = ViewTypeBtn()
         self.grid_layout.addWidget(self.view_type_btn, 0, self.clmn)
-
-        self.clmn += 1
-        self.sort_type_btn = SortTypeBtn(parent=self)
-        self.grid_layout.addWidget(self.sort_type_btn, 0, self.clmn)
 
         self.clmn += 1
         self.filters_btn = FiltersBtn()

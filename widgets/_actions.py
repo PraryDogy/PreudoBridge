@@ -245,29 +245,36 @@ class SortMenu(QMenu):
             text_ = dict_.get("text") + " " + ARROW_TOP
             action_ = QAction(parent=self, text=text_)
             action_.setCheckable(True)
-            self.addAction(action_)
+
+            cmd_ = lambda e, s=true_name, r=False: self.cmd_(s, r)
+            action_.triggered.connect(cmd_)
 
             if JsonData.sort == true_name:
                 if not JsonData.reversed:
                     action_.setChecked(True)
+
+            self.addAction(action_)
 
         discending = QAction(parent=self, text=DISCENDING_T)
         discending.setDisabled(True)
         self.addAction(discending)
 
         for true_name, dict_ in ORDER.items():
+
             text_ = dict_.get("text") + " " + ARROW_DOWN
             action_ = QAction(parent=self, text=text_)
             action_.setCheckable(True)
-            self.addAction(action_)
+
+            cmd_ = lambda e, s=true_name, r=True: self.cmd_(s, r)
+            action_.triggered.connect(cmd_)
 
             if JsonData.sort == true_name:
                 if JsonData.reversed:
                     action_.setChecked(True)
 
+            self.addAction(action_)
 
-    # def _action_clicked(self, data_action: ActionData):
-    #     JsonData.sort = data_action.sort
-    #     JsonData.reversed = data_action.reversed
-    #     self.setText(data_action.text)
-    #     SignalsApp.all.sort_grid.emit()
+    def cmd_(self, sort: str, reversed: bool):
+        JsonData.sort = sort
+        JsonData.reversed = reversed
+        SignalsApp.all.sort_grid.emit()

@@ -213,7 +213,6 @@ class Thumb(OrderItem, QFrame):
         sort_menu = SortMenu(parent=menu)
         menu.addMenu(sort_menu)
 
-
     def show_in_finder(self):
         subprocess.call(["open", "-R", self.src])
 
@@ -348,6 +347,12 @@ class ThumbFolder(Thumb):
             self.fav_action = FavAdd(menu, self.src)
             self.fav_action._clicked.connect(cmd_)
             menu.addAction(self.fav_action)
+
+        menu.addSeparator()
+
+        sort_menu = SortMenu(parent=menu)
+        menu.addMenu(sort_menu)
+
 
         menu.exec_(self.mapToGlobal(a0.pos()))
 
