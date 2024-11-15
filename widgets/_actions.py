@@ -9,7 +9,7 @@ from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 REVEAL_T = "Показать в Finder"
-INFO_T = "Инфо"
+INFO_T = "Свойства"
 COPY_PATH_T = "Скопировать путь"
 VIEW_T = "Просмотр"
 OPEN_IN_APP_T = "Открыть в приложении"
@@ -28,7 +28,9 @@ ARROW_DOWN = "\U00002193"
 ARROW_TOP = "\U00002191"
 ASCENDING_T = "По возрастанию"
 DISCENDING_T = "По убыванию"
-
+UPDATE_GRID_T = "Обновить"
+# свойства
+# вид
 
 class Task_(URunnable):
     def __init__(self,  cmd_: callable):
@@ -125,6 +127,14 @@ class FavAdd(UAction):
 
     def cmd_(self):
         self._clicked.emit()
+
+
+class UpdateGrid(UAction):
+    def __init__(self, parent: QMenu, src: str):
+        super().__init__(parent, src, UPDATE_GRID_T)
+
+    def cmd_(self):
+        SignalsApp.all.load_standart_grid.emit(self.src)
 
 
 class OpenInApp(QMenu):

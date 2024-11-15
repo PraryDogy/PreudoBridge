@@ -9,10 +9,11 @@ from database import OrderItem
 from signals import SignalsApp
 from utils import Utils
 
+from ._actions import SortMenu, UpdateGrid
 from ._base import BaseMethods, OpenWin
 from ._list import ListStandart
-from ._thumb import Thumb, ThumbFolder, ThumbSearch
-from ._actions import SortMenu
+from ._thumb import Info, Thumb, ThumbFolder, ThumbSearch
+
 
 class Grid(BaseMethods, QScrollArea):
 
@@ -240,6 +241,14 @@ class Grid(BaseMethods, QScrollArea):
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         menu = QMenu(parent=self)
+
+        upd_ = UpdateGrid(menu, JsonData.root)
+        menu.addAction(upd_)
+
+        menu.addSeparator()
+
+        info = Info(menu, JsonData.root)
+        menu.addAction(info)
 
         sort_menu = SortMenu(parent=menu)
         menu.addMenu(sort_menu)
