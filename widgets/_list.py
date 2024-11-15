@@ -76,13 +76,18 @@ class ListStandart(QTableView):
         return super().closeEvent(a0)
 
     def contextMenuEvent(self, event: QContextMenuEvent):
+
         index = self.indexAt(event.pos())
         if not index.isValid():
             return
 
         menu = QMenu(self)
+
         src = self._model.filePath(index)
         index = self._model.index(src)
+
+        info = Info(menu, src)
+        menu.addAction(info)
 
         open_finder_action = RevealInFinder(menu, src)
         menu.addAction(open_finder_action)
@@ -103,7 +108,6 @@ class ListStandart(QTableView):
                 fav_action = FavAdd(menu, src)
                 fav_action._clicked.connect(cmd_)
                 menu.addAction(fav_action)
-
 
         menu.addSeparator()
 
