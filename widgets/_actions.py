@@ -3,7 +3,9 @@ import subprocess
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QAction, QLineEdit, QMenu
 
-from cfg import COLORS, IMAGE_APPS, STAR_SYM
+from cfg import COLORS, IMAGE_APPS, STAR_SYM, JsonData
+from database import ORDER
+from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 REVEAL_T = "Показать в Finder"
@@ -21,6 +23,11 @@ CUT_T = "Вырезать"
 COPY_T = "Копировать"
 PASTE_T = "Вставить"
 SELECT_ALL_T = "Выделить все"
+SORT_T = "Сортировать"
+ARROW_DOWN = "\U00002193"
+ARROW_TOP = "\U00002191"
+ASCENDING_T = "По возрастанию"
+DISCENDING_T = "По убыванию"
 
 
 class Task_(URunnable):
@@ -215,6 +222,7 @@ class TextPaste(QAction):
         new_text = self.wid.text() + text
         self.wid.setText(new_text)
 
+
 class TextSelectAll(QAction):
     def __init__(self, parent: QMenu, widget: QLineEdit):
         super().__init__(parent=parent, text=SELECT_ALL_T)
@@ -223,3 +231,43 @@ class TextSelectAll(QAction):
 
     def cmd_(self):
         self.wid.selectAll()
+
+
+class SortMenu(QMenu):
+    def __init__(self, parent: QMenu):
+        super().__init__(parent=parent, title=SORT_T)
+
+        ascending = QAction(parent=self, text=ASCENDING_T)
+        ascending.setDisabled(True)
+        self.addAction(ascending)
+
+        for true_name, dict_ in ORDER.items():
+            text_ = dict_.get("text") + " " + ARROW_TOP
+            action_ = QAction(parent=self, text=text_)
+            action_.setCheckable(True)
+            self.addAction(action_)
+
+            if JsonData.sort == true_name:
+                if not JsonData.reversed:
+                    action_.setChecked(True)
+
+        discending = QAction(parent=self, text=DISCENDING_T)
+        discending.setDisabled(True)
+        self.addAction(discending)
+
+        for true_name, dict_ in ORDER.items():
+            text_ = dict_.get("text") + " " + ARROW_DOWN
+            action_ = QAction(parent=self, text=text_)
+            action_.setCheckable(True)
+            self.addAction(action_)
+
+            if JsonData.sort == true_name:
+                if JsonData.reversed:
+                    action_.setChecked(True)
+
+
+    # def _action_clicked(self, data_action: ActionData):
+    #     JsonData.sort = data_action.sort
+    #     JsonData.reversed = data_action.reversed
+    #     self.setText(data_action.text)
+    #     SignalsApp.all.sort_grid.emit()

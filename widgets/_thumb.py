@@ -13,7 +13,8 @@ from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 from ._actions import (ColorMenu, CopyPath, FavAdd, FavRemove, Info, OpenInApp,
-                       RatingMenu, RevealInFinder, ShowInFolder, View)
+                       RatingMenu, RevealInFinder, ShowInFolder, SortMenu,
+                       View)
 from ._base import USvgWidget
 
 
@@ -206,6 +207,12 @@ class Thumb(OrderItem, QFrame):
         rating_menu = RatingMenu(parent=menu, src=self.src, rating=self.rating)
         rating_menu._clicked.connect(self.set_rating_cmd)
         menu.addMenu(rating_menu)
+
+        menu.addSeparator()
+
+        sort_menu = SortMenu(parent=menu)
+        menu.addMenu(sort_menu)
+
 
     def show_in_finder(self):
         subprocess.call(["open", "-R", self.src])

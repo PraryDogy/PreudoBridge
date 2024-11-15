@@ -10,6 +10,7 @@ METADATA = sqlalchemy.MetaData()
 
 CACHE = sqlalchemy.Table(
     "cache", METADATA,
+    # комменты нужны только для сортировки. где есть коммент - сортировка возможна
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
     sqlalchemy.Column("src", sqlalchemy.Text, unique=True),
     sqlalchemy.Column("hash_path", sqlalchemy.Text),
@@ -19,12 +20,12 @@ CACHE = sqlalchemy.Table(
     sqlalchemy.Column("type_", sqlalchemy.Text, comment="Тип"),
     sqlalchemy.Column("size", sqlalchemy.Integer, comment="Размер"),
     sqlalchemy.Column("mod", sqlalchemy.Integer, comment="Дата"),
-    sqlalchemy.Column("resol", sqlalchemy.Integer, comment="Разрешение"),
+    sqlalchemy.Column("resol", sqlalchemy.Integer),
     sqlalchemy.Column("colors", sqlalchemy.Text, nullable=False, comment="Цвета"),
     sqlalchemy.Column("rating", sqlalchemy.Integer, nullable=False, comment="Рейтинг")
     )
 
-ORDER: dict[dict[str, int]] = {
+ORDER: dict[str, dict[str, int]] = {
     clmn.name: {"text": clmn.comment, "index": ind}
     for ind, clmn in enumerate(CACHE.columns)
     if clmn.comment
