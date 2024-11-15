@@ -126,8 +126,12 @@ class LoadImages(URunnable):
                 small_img_array = FitImg.start(img_array, MAX_SIZE)
                 pixmap = Utils.pixmap_from_array(small_img_array)
 
+                h_, w_ = img_array.shape[:2]
+                resol = f"{w_}x{h_}"
                 hash_path = Utils.get_hash_path(src)
-                stmt = self.get_insert_stmt(src, hash_path, size, mod)
+                args = src, hash_path, size, mod, resol
+
+                stmt = self.get_insert_stmt(*args)
                 self.insert_count_data.append((stmt, hash_path, small_img_array))
 
                 self.worker_signals.new_widget.emit(ImageData(src, pixmap))
@@ -165,7 +169,8 @@ class LoadImages(URunnable):
             src: str,
             hashed_path: str,
             size: int,
-            mod: int
+            mod: int,
+            resol: str,
             )  -> sqlalchemy.Insert:
 
         src = os.sep + src.strip().strip(os.sep)
@@ -181,6 +186,7 @@ class LoadImages(URunnable):
             "type_": type_,
             "size": size,
             "mod": mod,
+            "resol": resol, 
             "colors": "",
             "rating": 0
             }

@@ -19,6 +19,7 @@ CACHE = sqlalchemy.Table(
     sqlalchemy.Column("type_", sqlalchemy.Text, comment="Тип"),
     sqlalchemy.Column("size", sqlalchemy.Integer, comment="Размер"),
     sqlalchemy.Column("mod", sqlalchemy.Integer, comment="Дата"),
+    sqlalchemy.Column("resol", sqlalchemy.Integer, comment="Разрешение"),
     sqlalchemy.Column("colors", sqlalchemy.Text, nullable=False, comment="Цвета"),
     sqlalchemy.Column("rating", sqlalchemy.Integer, nullable=False, comment="Рейтинг")
     )

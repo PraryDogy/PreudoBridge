@@ -144,7 +144,16 @@ class SearchFinder(URunnable):
 
         if new_img:
             hash_path = Utils.get_hash_path(src)
-            stmt = self.get_insert_query(src, hash_path, stat.st_size, stat.st_mtime)
+        
+            if img_array is not None:
+                h_, w_ = img_array.shape[:2]
+            else:
+                h_, w_ = 0, 0
+            resol = f"{w_}x{h_}"
+
+            args = [src, hash_path, stat.st_size, stat.st_mtime, resol]
+            stmt = self.get_insert_query(*args)
+
             self.insert_count_data.append((stmt, hash_path, small_img_array))
             self.insert_count += 1
 
@@ -167,7 +176,8 @@ class SearchFinder(URunnable):
             Utils.print_error(self, e)
             return None
 
-    def get_insert_query(self, src: str, hash_path: str, size: int, mod: int):
+    def get_insert_query(self, src: str, hash_path: str, size: int, mod: int, resol: str):
+
         src = os.sep + src.strip().strip(os.sep)
         name = os.path.basename(src)
         type_ = os.path.splitext(name)[-1]
@@ -181,6 +191,7 @@ class SearchFinder(URunnable):
             "type_": type_,
             "size": size,
             "mod": mod,
+            "resol": resol,
             "colors": "",
             "rating": 0
             }

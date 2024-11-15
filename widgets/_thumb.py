@@ -6,7 +6,7 @@ from PyQt5.QtGui import QContextMenuEvent, QDrag, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import QApplication, QFrame, QLabel, QMenu, QVBoxLayout
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import (COLORS, FOLDER_SVG, GRAY, IMG_SVG, MARGIN, PIXMAP_SIZE,
+from cfg import (BLUE, COLORS, FOLDER_SVG, IMG_SVG, MARGIN, PIXMAP_SIZE,
                  STAR_SYM, TEXT_LENGTH, THUMB_W, JsonData)
 from database import CACHE, Dbase, OrderItem
 from signals import SignalsApp
@@ -172,7 +172,7 @@ class Thumb(OrderItem, QFrame):
             self.img_wid.setFixedSize(pixmap_size, pixmap_size)
 
     def set_frame(self):
-        self.setStyleSheet(f""" #thumbnail {{ background: {GRAY}; border-radius: 4px; }}""")
+        self.setStyleSheet(f""" #thumbnail {{ background: {BLUE}; border-radius: 4px; }}""")
 
     def set_no_frame(self):
         self.setStyleSheet("")
