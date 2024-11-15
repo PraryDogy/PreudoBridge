@@ -107,8 +107,7 @@ class CustomLabel(QLabel):
 
     def custom_copy(self):
         modified_text = self.text().replace("\n", "")
-        clipboard = QApplication.clipboard()
-        clipboard.setText(modified_text)
+        Utils.write_to_clipboard(modified_text)
 
 
 class WinInfo(WinMinMax):
