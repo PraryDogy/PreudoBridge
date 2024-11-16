@@ -77,6 +77,8 @@ class InfoTask:
         q = sqlalchemy.select(*cols).where(CACHE.c.src==self.src)
         res = conn.execute(q).first()
 
+        conn.close()
+
         if res:
             return self.get_db_info(*res)
 
