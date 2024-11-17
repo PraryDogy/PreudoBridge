@@ -14,22 +14,9 @@ class System_:
         ERROR = traceback.format_exception(*args)
 
         SUMMARY_MSG = "\n".join([*ERROR, STARS, ABOUT])
-        APP_NAME: str = "PreudoBridge"
-
-        FILE_: str = os.path.join(
-            os.path.expanduser("~"),
-            "Library",
-            "Application Support",
-            APP_NAME
-            )
-
-        os.makedirs(FILE_, exist_ok=True)
-        FILE_ = os.path.join(FILE_, "error.txt")
-
-        with open(FILE_, "w")as f:
-            f.write(SUMMARY_MSG)
-
-        subprocess.run(["open", FILE_])
+        
+        script = "scripts/error_msg.scpt"
+        subprocess.run(["osascript", script, SUMMARY_MSG])
 
     @classmethod
     def set_plugin_path(cls) -> bool:
