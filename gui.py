@@ -23,11 +23,11 @@ class BarTabs(QTabWidget):
         self.tabBarClicked.connect(self.tab_cmd)
 
     def load_last_tab(self):
-        self.setCurrentIndex(JsonData.view_mode)
+        self.setCurrentIndex(JsonData.left_menu_tab)
 
     def tab_cmd(self, index: int):
-        self.setCurrentIndex(JsonData.view_mode)
-        JsonData.view_mode = index
+        self.setCurrentIndex(JsonData.left_menu_tab)
+        JsonData.left_menu_tab = index
 
     def mouseClickEvent(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.LeftButton:
@@ -170,10 +170,10 @@ class SimpleFileExplorer(QWidget):
         self.bar_top.search_wid.clear_search.emit()
         self.bar_top.filters_btn.reset_filters()
 
-        if JsonData.view_mode == 1:
+        if Dynamic.grid_view_type == 1:
             self.grid = ListStandart()
             self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
-        elif JsonData.view_mode == 0:
+        elif Dynamic.grid_view_type == 0:
             self.grid = GridStandart(width=self.get_grid_width())
             self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
 
@@ -228,11 +228,11 @@ class SimpleFileExplorer(QWidget):
             elif a0.key() == Qt.Key.Key_Q:
                 QApplication.instance().quit()
         
-            # elif a0.key() == Qt.Key.Key_1:
-            #     self.bar_top.view_type_btn.set_view_cmd(0)
+            elif a0.key() == Qt.Key.Key_1:
+                self.bar_top.grid_view_type_btn.set_view_type_cmd(0)
             
-            # elif a0.key() == Qt.Key.Key_2:
-            #     self.bar_top.view_type_btn.set_view_cmd(1)
+            elif a0.key() == Qt.Key.Key_2:
+                self.bar_top.grid_view_type_btn.set_view_type_cmd(1)
 
         elif a0.key() == Qt.Key.Key_Escape:
             self.setFocus()

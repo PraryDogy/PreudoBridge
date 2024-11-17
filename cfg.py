@@ -92,7 +92,7 @@ class JsonData:
     reversed = False
     extra_paths = ["/Studio/PANACEA", "/Studio/MIUZ"]
     favs = {}
-    view_mode = 1
+    left_menu_tab = 0
     pixmap_size_ind = 0
 
     @classmethod
@@ -179,3 +179,4 @@ class JsonData:
 class Dynamic:
     color_filters: list = []
     rating_filter: int = 0
+    grid_view_type: int = 0

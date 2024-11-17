@@ -6,48 +6,55 @@ from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
                              QMenu, QPushButton, QSpacerItem, QTabBar,
                              QVBoxLayout, QWidget)
 
-from cfg import (BACK_SYM, BLUE, COLORS, FAT_DOT_SYM, FILTERS_CROSS_SYM,
-                 IMG_EXT, NEXT_SYM, SEARCH_CROSS_SYM, SETT_SYM, STAR_SYM,
-                 UP_CURVE, Dynamic, JsonData)
+from cfg import (BACK_SYM, BLUE, BURGER_SYM, COLORS, FAT_DOT_SYM,
+                 FILTERS_CROSS_SYM, GRID_SYM, IMG_EXT, NEXT_SYM,
+                 SEARCH_CROSS_SYM, STAR_SYM, UP_CURVE, Dynamic, JsonData)
+from database import ORDER
 from signals import SignalsApp
 from utils import Utils
 
 from ._base import ULineEdit
 from .win_settings import WinSettings
 
-# class ViewTypeBtn(QTabBar):
-#     def __init__(self):
-#         super().__init__()
-#         self.setFixedWidth(90)
+SETT_SYM = "\U00002699"
 
-#         self.addTab(GRID_SYM * 3)
-#         self.addTab(BURGER_SYM)
 
-#         if Dynamic.list_view:
-#             self.setCurrentIndex(1)
-#         else:
-#             self.setCurrentIndex(0)
+class ActionData:
+    __slots__ = ["sort", "reversed", "text"]
 
-#         self.tabBarClicked.connect(self.set_view_cmd)
+    def __init__(self, sort: str | None, reversed: bool, text: str):
+        self.sort: str | None = sort
+        self.reversed: bool = reversed
+        self.text: str = text
 
-#     def mousePressEvent(self, event: QMouseEvent):
-#         if event.button() == Qt.LeftButton:
-#             super().mousePressEvent(event)
-#         else:
-#             event.ignore()
 
-#     def set_view_cmd(self, index: int):
-#         if index == 0:
-#             self.setCurrentIndex(0)
-#             Dynamic.list_view = False
-#         else:
-#             self.setCurrentIndex(1)
-#             Dynamic.list_view = True
-#         SignalsApp.all.load_standart_grid.emit("")
+class ViewTypeBtn(QTabBar):
+    def __init__(self):
+        super().__init__()
+        self.setFixedWidth(90)
 
-#     def tabSizeHint(self, index):
-#         size = QTabBar.tabSizeHint(self, index)
-#         return QSize(10, size.height())
+        self.addTab(GRID_SYM * 3)
+        self.addTab(BURGER_SYM)
+
+        self.setCurrentIndex(0)
+        Dynamic.grid_view_type = 0
+
+        self.tabBarClicked.connect(self.set_view_type_cmd)
+
+    def mousePressEvent(self, event: QMouseEvent):
+        if event.button() == Qt.LeftButton:
+            super().mousePressEvent(event)
+        else:
+            event.ignore()
+
+    def set_view_type_cmd(self, index: int):
+        self.setCurrentIndex(index)
+        Dynamic.grid_view_type = index
+        SignalsApp.all.load_standart_grid.emit("")
+
+    def tabSizeHint(self, index):
+        size = QTabBar.tabSizeHint(self, index)
+        return QSize(10, size.height())
 
 
 class SearchWidget(QWidget):
@@ -313,9 +320,9 @@ class BarTop(QFrame):
         self.grid_layout.setColumnStretch(self.clmn, 10)
         self.grid_layout.addItem(QSpacerItem(1, 1), 0, self.clmn)
 
-        # self.clmn += 1
-        # self.view_type_btn = ViewTypeBtn()
-        # self.grid_layout.addWidget(self.view_type_btn, 0, self.clmn)
+        self.clmn += 1
+        self.grid_view_type_btn = ViewTypeBtn()
+        self.grid_layout.addWidget(self.grid_view_type_btn, 0, self.clmn)
 
         self.clmn += 1
         self.filters_btn = FiltersBtn()

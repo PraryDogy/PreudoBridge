@@ -306,15 +306,15 @@ class ChangeView(QMenu):
         list_.setCheckable(True)
         self.addAction(list_)
 
-        if JsonData.view_mode == 0:
+        if Dynamic.grid_view_type == 0:
             grid_.setChecked(True)
-        elif JsonData.view_mode == 1:
+        elif Dynamic.grid_view_type == 1:
             list_.setChecked(True)
 
     def set_grid(self):
-        JsonData.view_mode = 0
+        Dynamic.grid_view_type = 0
         SignalsApp.all.load_standart_grid.emit("")
 
     def set_list(self):
-        JsonData.view_mode = 1
+        Dynamic.grid_view_type = 1
         SignalsApp.all.load_standart_grid.emit("")
