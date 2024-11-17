@@ -54,7 +54,7 @@ class FavItem(QLabel):
 
     def rename_cmd(self):
         self.win = WinRename(self.name)
-        self.win._finished.connect(self.rename_finished_cmd)
+        self.win.finished_.connect(self.rename_finished_cmd)
         Utils.center_win(Utils.get_main_win(), self.win)
         self.win.show()
 

@@ -9,7 +9,7 @@ OK_T = "Ок"
 
 
 class WinRename(WinMinMax):
-    _finished = pyqtSignal(str)
+    finished_ = pyqtSignal(str)
 
     def __init__(self, text: str):
         super().__init__()
@@ -34,7 +34,7 @@ class WinRename(WinMinMax):
         self.input_wid.setFixedSize(170, 25)
 
     def finish_rename(self):
-        self._finished.emit(self.input_wid.text())
+        self.finished_.emit(self.input_wid.text())
         self.close()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:

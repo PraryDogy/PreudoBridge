@@ -20,14 +20,14 @@ ARROW = " \U0000203A"
 
 
 class WorkerSignals(QObject):
-    _finished = pyqtSignal(str)
+    finished_ = pyqtSignal(str)
 
 
 class PathFinderThread(URunnable):
 
     def __init__(self, src: str):
         super().__init__()
-        self.worker_signals = WorkerSignals()
+        self.signals_ = WorkerSignals()
         self.src: str = src
         self.result: str = None
         self.volumes: list[str] = []
@@ -37,11 +37,11 @@ class PathFinderThread(URunnable):
     def run(self):
         self._path_finder()
         if not self.result:
-            self.worker_signals._finished.emit("")
+            self.signals_.finished_.emit("")
         elif self.result in self.volumes:
-            self.worker_signals._finished.emit("")
+            self.signals_.finished_.emit("")
         elif self.result:
-            self.worker_signals._finished.emit(self.result)
+            self.signals_.finished_.emit(self.result)
 
     def _path_finder(self):
         src = os.sep + self.src.replace("\\", os.sep).strip().strip(os.sep)
@@ -144,7 +144,7 @@ class WinGo(WinMinMax):
             self.close()
         else:
             path_thread = PathFinderThread(path)
-            path_thread.worker_signals._finished.connect(self.finalize)
+            path_thread.signals_.finished_.connect(self.finalize)
             UThreadPool.pool.start(path_thread)
 
     def finalize(self, res: str):

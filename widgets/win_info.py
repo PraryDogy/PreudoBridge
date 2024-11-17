@@ -23,14 +23,14 @@ RESOL_T = "Разрешение"
 
 
 class WorkerSignals(QObject):
-    _finished = pyqtSignal(str)
+    finished_ = pyqtSignal(str)
 
 
 class FolderSize(URunnable):
     def __init__(self, src: str):
         super().__init__()
         self.src = src
-        self.worker_signals = WorkerSignals()
+        self.signals_ = WorkerSignals()
 
     @URunnable.set_running_state
     def run(self):
@@ -58,7 +58,7 @@ class FolderSize(URunnable):
         total = Utils.get_f_size(total)
 
         if self.should_run:
-            self.worker_signals._finished.emit(total)
+            self.signals_.finished_.emit(total)
 
 
 class InfoTask:
@@ -201,7 +201,7 @@ class WinInfo(WinMinMax):
         if hasattr(self, "calc"):
             cmd_ = lambda size_: self.finalize(size_)
             self.task_ = FolderSize(self.src)
-            self.task_.worker_signals._finished.connect(cmd_)
+            self.task_.signals_.finished_.connect(cmd_)
             UThreadPool.pool.start(self.task_)
 
     def finalize(self, size_: str):

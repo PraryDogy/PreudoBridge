@@ -29,14 +29,14 @@ class ImageData:
 
 class WorkerSignals(QObject):
     new_widget = pyqtSignal(ImageData)
-    _finished = pyqtSignal(list)
+    finished_ = pyqtSignal(list)
 
 
 class LoadImages(URunnable):
     def __init__(self, order_items: list[OrderItem]):
         super().__init__()
 
-        self.worker_signals = WorkerSignals()
+        self.signals_ = WorkerSignals()
 
         self.finder_items: list[tuple[int, int, int]] = [
             (order_item.src, order_item.size, order_item.mod)
@@ -96,7 +96,7 @@ class LoadImages(URunnable):
             if (db_src, db_size, db_mod) in self.finder_items:
                 img = Utils.read_image_hash(hash_path)
                 pixmap: QPixmap = Utils.pixmap_from_array(img)
-                self.worker_signals.new_widget.emit(ImageData(db_src, pixmap))
+                self.signals_.new_widget.emit(ImageData(db_src, pixmap))
                 self.finder_items.remove((db_src, db_size, db_mod))
 
             else:
@@ -134,7 +134,7 @@ class LoadImages(URunnable):
                 stmt = self.get_insert_stmt(*args)
                 self.insert_count_data.append((stmt, hash_path, small_img_array))
 
-                self.worker_signals.new_widget.emit(ImageData(src, pixmap))
+                self.signals_.new_widget.emit(ImageData(src, pixmap))
                 SignalsApp.all.progressbar_cmd.emit(progress_count)
 
                 progress_count += 1
@@ -222,7 +222,7 @@ class LoadImages(URunnable):
 class LoadFinder(URunnable):
     def __init__(self):
         super().__init__()
-        self.worker_signals = WorkerSignals()
+        self.signals_ = WorkerSignals()
         self.db_color_rating: dict[str, list] = {}
         self.order_items: list[OrderItem] = []
 
@@ -237,7 +237,7 @@ class LoadFinder(URunnable):
             Utils.print_error(self, e)
             self.order_items = []
         
-        self.worker_signals._finished.emit(self.order_items)
+        self.signals_.finished_.emit(self.order_items)
         self.is_running = False
 
     def get_color_rating(self):
@@ -283,7 +283,7 @@ class GridStandart(Grid):
         self.order_items: list[OrderItem] = []
 
         self.finder_task = LoadFinder()
-        self.finder_task.worker_signals._finished.connect(self.create_sorted_grid)
+        self.finder_task.signals_.finished_.connect(self.create_sorted_grid)
         UThreadPool.pool.start(self.finder_task)
 
     def create_sorted_grid(self, order_items: list[OrderItem]):
@@ -353,7 +353,7 @@ class GridStandart(Grid):
     def start_load_images(self):
         self.task_ = LoadImages(self.order_items)
         cmd_ = lambda image_data: self.set_pixmap(image_data)
-        self.task_.worker_signals.new_widget.connect(cmd_)
+        self.task_.signals_.new_widget.connect(cmd_)
         UThreadPool.pool.start(self.task_)
     
     def set_pixmap(self, image_data: ImageData):

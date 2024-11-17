@@ -29,13 +29,13 @@ class ImageData:
 
 
 class WorkerSignals(QObject):
-    _finished = pyqtSignal(ImageData)
+    finished_ = pyqtSignal(ImageData)
 
 
 class LoadThumbnail(URunnable):
     def __init__(self, src: str):
         super().__init__()
-        self.worker_signals = WorkerSignals()
+        self.signals_ = WorkerSignals()
         self.src = src
 
     @URunnable.set_running_state
@@ -55,7 +55,7 @@ class LoadThumbnail(URunnable):
             pixmap = Utils.pixmap_from_array(img_array)
 
         image_data = ImageData(self.src, pixmap)
-        self.worker_signals._finished.emit(image_data)
+        self.signals_.finished_.emit(image_data)
 
 
 class LoadImage(URunnable):
@@ -63,7 +63,7 @@ class LoadImage(URunnable):
 
     def __init__(self, src: str):
         super().__init__()
-        self.worker_signals = WorkerSignals()
+        self.signals_ = WorkerSignals()
         self.src: str = src
 
     @URunnable.set_running_state
@@ -87,7 +87,7 @@ class LoadImage(URunnable):
             self.cache.pop(first_img)
 
         image_data = ImageData(self.src, pixmap)
-        self.worker_signals._finished.emit(image_data)
+        self.signals_.finished_.emit(image_data)
 
 
 class ImageWidget(QLabel):
@@ -317,7 +317,7 @@ class WinImgView(WinBase):
             self.setWindowTitle("Загрузка")
             self.task_ = LoadThumbnail(self.src)
             cmd_ = lambda image_data: self.load_thumbnail_finished(image_data)
-            self.task_.worker_signals._finished.connect(cmd_)
+            self.task_.signals_.finished_.connect(cmd_)
             UThreadPool.pool.start(self.task_)
         else:
             self.load_image()
@@ -330,7 +330,7 @@ class WinImgView(WinBase):
     def load_image(self):
         self.task_ = LoadImage(self.src)
         cmd_ = lambda image_data: self.load_image_finished(image_data)
-        self.task_.worker_signals._finished.connect(cmd_)
+        self.task_.signals_.finished_.connect(cmd_)
 
         UThreadPool.pool.start(self.task_)
 

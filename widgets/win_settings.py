@@ -25,13 +25,13 @@ UPDATE_T = "Обновления"
 
 
 class WorkerSignals(QObject):
-    _finished = pyqtSignal(str)
+    finished_ = pyqtSignal(str)
 
 
 class GetSizer(URunnable):
     def __init__(self):
         super().__init__()
-        self.worker_signals = WorkerSignals()
+        self.signals_ = WorkerSignals()
 
     @URunnable.set_running_state
     def run(self):
@@ -55,7 +55,7 @@ class GetSizer(URunnable):
         data_size = DATA_T
         total_size = Utils.get_f_size(total_size)
         t = f"{data_size}: {total_size}"       
-        self.worker_signals._finished.emit(t)
+        self.signals_.finished_.emit(t)
 
 
 class WinSettings(WinMinMax):
@@ -116,7 +116,7 @@ class WinSettings(WinMinMax):
 
         self.task_ = GetSizer()
         cmd_ = lambda t: self.current_size.setText(t)
-        self.task_.worker_signals._finished.connect(cmd_)
+        self.task_.signals_.finished_.connect(cmd_)
         UThreadPool.pool.start(self.task_)
 
     def clear_db_cmd(self):

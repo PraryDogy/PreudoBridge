@@ -40,7 +40,7 @@ class SearchFinder(URunnable):
     def __init__(self, search_text: str):
         super().__init__()
 
-        self.worker_signals = WorkerSignals()
+        self.signals_ = WorkerSignals()
         self.search_text: str = search_text
         self.conn: sqlalchemy.Connection = Dbase.engine.connect()
 
@@ -140,7 +140,7 @@ class SearchFinder(URunnable):
             pixmap=pixmap
             )
 
-        self.worker_signals.add_new_widget.emit(widget_data)
+        self.signals_.add_new_widget.emit(widget_data)
 
         if new_img:
             hash_path = Utils.get_hash_path(src)
@@ -233,7 +233,7 @@ class GridSearch(Grid):
         SignalsApp.all.path_labels_cmd.emit({"src": JsonData.root})
 
         self.task_ = SearchFinder(search_text)
-        self.task_.worker_signals.add_new_widget.connect(self.add_new_widget)
+        self.task_.signals_.add_new_widget.connect(self.add_new_widget)
         UThreadPool.pool.start(self.task_)
 
     def add_new_widget(self, widget_data: WidgetData):
