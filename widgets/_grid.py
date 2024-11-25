@@ -1,6 +1,6 @@
 import os
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtGui import QContextMenuEvent, QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import QFrame, QGridLayout, QMenu, QScrollArea, QWidget
 
@@ -9,7 +9,7 @@ from database import OrderItem
 from signals import SignalsApp
 from utils import Utils
 
-from ._actions import SortMenu, UpdateGrid, ChangeView
+from ._actions import ChangeView, SortMenu, UpdateGrid
 from ._base import BaseMethods, OpenWin
 from ._list import ListStandart
 from ._thumb import Info, Thumb, ThumbFolder, ThumbSearch
@@ -66,7 +66,10 @@ class Grid(BaseMethods, QScrollArea):
             new_wid.set_frame()
             self.curr_cell = coords
             self.ensureWidgetVisible(new_wid)
-            SignalsApp.all.path_labels_cmd.emit({"src" : new_wid.src})
+            cmd_ = lambda: SignalsApp.all.path_labels_cmd.emit(
+                {"src" : new_wid.src}
+            )
+            QTimer.singleShot(100, cmd_)
         else:
             try:
                 prev_wid.set_frame()
@@ -236,7 +239,10 @@ class Grid(BaseMethods, QScrollArea):
         if isinstance(wid, Thumb):
             wid.set_no_frame()
         self.setFocus()
-        SignalsApp.all.path_labels_cmd.emit({"src": JsonData.root})
+        cmd_ = lambda: SignalsApp.all.path_labels_cmd.emit(
+            {"src": JsonData.root}
+        )
+        QTimer.singleShot(100, cmd_)
 
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
