@@ -31,6 +31,10 @@ ORDER: dict[str, dict[str, int]] = {
     if clmn.comment
     }
 
+CACHE_CLMNS = [
+    i.name
+    for i in CACHE.columns
+][1:]
 
 class OrderItem:
     def __init__(self, src: str, size: int, mod: int, colors: str, rating: int):
