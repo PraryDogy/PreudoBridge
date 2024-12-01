@@ -167,7 +167,12 @@ class CustomSlider(USlider):
         SignalsApp.all_.move_slider.connect(self.change_size)
     
     def change_size(self, value: int):
+        # отключаем сигнал valueChanged
+        self.blockSignals(True)
         self.setValue(value)
+
+        # Включаем сигнал обратно
+        self.blockSignals(False)
         JsonData.pixmap_size_ind = value
         SignalsApp.all_.resize_grid.emit()
 
