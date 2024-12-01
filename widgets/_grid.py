@@ -132,9 +132,27 @@ class Grid(BaseMethods, QScrollArea):
             wid.setup()
         self.rearrange()
 
+    def reselect(func: callable):
+
+        def wrapper(self, *args, **kwargs):
+            # просто аннотация, простая аннотация не работает
+            assert isinstance(self, Grid)
+            widget = self.cell_to_wid.get(self.curr_cell)
+            if isinstance(widget, QFrame):
+                src = widget.src
+            else:
+                src = None
+            func(self, *args, **kwargs)
+            self.select_new_widget(src)
+
+        return wrapper
+
+    @reselect
     def rearrange(self, width: int = None):
         # этот метод отвечает за перетасовку
         # виджетов, поэтому отсюда мы отсылаем в инициатор self.ww
+        # перетасовка происходит при любом изменении виджета
+
         if width:
             self.ww = width
             col_count = Utils.get_clmn_count(width)
