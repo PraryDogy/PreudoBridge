@@ -9,7 +9,8 @@ from database import OrderItem
 from signals import SignalsApp
 from utils import Utils
 
-from ._actions import ChangeView, SortMenu, UpdateGrid
+from ._actions import (ChangeView, CopyPath, FavAdd, FavRemove, RevealInFinder,
+                       SortMenu, UpdateGrid)
 from ._base import BaseMethods, OpenWin
 from ._list import ListStandart
 from ._thumb import Info, Thumb, ThumbFolder, ThumbSearch
@@ -179,6 +180,17 @@ class Grid(BaseMethods, QScrollArea):
             self.ensureWidgetVisible(wid)
             ListStandart.last_selection = None
 
+    def fav_cmd(self, offset: int):
+        self.fav_action.triggered.disconnect()
+        if 0 + offset == 1:
+            SignalsApp.all_.fav_cmd.emit("add", JsonData.root)
+            self.fav_action.setText("Удалить из избранного")
+            self.fav_action.triggered.connect(lambda: self.fav_cmd(-1))
+        else:
+            SignalsApp.all_.fav_cmd.emit("del", JsonData.root)
+            self.fav_action.setText("Добавить в избранное")
+            self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))
+
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         wid: Thumb | ThumbFolder 
 
@@ -255,6 +267,33 @@ class Grid(BaseMethods, QScrollArea):
 
         info = Info(menu, JsonData.root)
         menu.addAction(info)
+
+        reveal = RevealInFinder(parent=menu, src=JsonData.root)
+        menu.addAction(reveal)
+
+        copy_ = CopyPath(parent=menu, src=JsonData.root)
+        menu.addAction(copy_)
+
+        menu.addSeparator()
+
+        if JsonData.root in JsonData.favs:
+            cmd_ = lambda: self.fav_cmd(-1)
+            self.fav_action = FavRemove(menu, JsonData.root)
+            self.fav_action._clicked.connect(cmd_)
+            menu.addAction(self.fav_action)
+
+        else:
+            cmd_ = lambda: self.fav_cmd(+1)
+            self.fav_action = FavAdd(menu, JsonData.root)
+            self.fav_action._clicked.connect(cmd_)
+            menu.addAction(self.fav_action)
+
+        menu.addSeparator()
+
+        # скопировать путь
+        # сеп
+        # добавить в избранное
+        # сеп
 
         change_view = ChangeView(menu, JsonData.root)
         menu.addMenu(change_view)
