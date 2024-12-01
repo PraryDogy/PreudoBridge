@@ -128,12 +128,16 @@ class SimpleFileExplorer(QWidget):
             self.load_standart_grid()
 
     def load_search_grid(self, search_text: str):
-        # self.bar_top.view_type_btn.setCurrentIndex(0)
         self.bar_top.filters_btn.reset_filters()
 
         self.grid_close()
 
-        self.setWindowTitle(f"🟠\tИдет поиск: \"{search_text}\" в \"{os.path.basename(JsonData.root)}\"")
+        t = [
+            f"🟠\tИдет поиск: \"{search_text}\" в",
+            f"\"{os.path.basename(JsonData.root)}\""
+        ]
+        self.setWindowTitle("".join(t))
+
         self.migaet_timer.start(400)
         ww = self.get_grid_width()
         self.grid = GridSearch(width=ww, search_text=search_text)
@@ -151,7 +155,6 @@ class SimpleFileExplorer(QWidget):
     def search_finished(self, search_text: str):
         self.migaet_timer.stop()
         self.setWindowTitle(f"🟢\tРезультаты поиска: \"{search_text}\"")
-        self.grid.order_()
 
     def move_to_wid_delayed(self, filepath: str):
         JsonData.root = os.path.dirname(filepath)
