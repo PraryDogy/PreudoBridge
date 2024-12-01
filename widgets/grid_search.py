@@ -47,6 +47,8 @@ class SearchFinder(URunnable):
         self.insert_count: int = 0
         self.insert_count_data: list[tuple[sqlalchemy.Insert, str, ndarray]] = []
 
+        ThumbSearch.calculate_size()
+
     @URunnable.set_running_state
     def run(self):
         self.setup_text()
@@ -273,6 +275,7 @@ class GridSearch(Grid):
 
     def resize_(self):
         if not self.task_.is_running:
+            ThumbSearch.calculate_size()
             super().resize_()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
