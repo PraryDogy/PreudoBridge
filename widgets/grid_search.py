@@ -9,7 +9,7 @@ from PyQt5.QtGui import QCloseEvent, QPixmap
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import IMG_EXT, MAX_SIZE, JsonData
-from database import CACHE, Dbase
+from database import CACHE, CACHE_CLMNS, Dbase
 from fit_img import FitImg
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
@@ -46,6 +46,12 @@ class SearchFinder(URunnable):
 
         self.insert_count: int = 0
         self.insert_count_data: list[tuple[sqlalchemy.Insert, str, ndarray]] = []
+
+        # мы проверяем словарик который мы тут создали
+        # на соответствие имени колонок в таблице БД
+        # а то может я создал новые колонки а тут забыл добавить...
+        values = self.get_values(*["" for i in range(0, 7)])
+        assert list(values.keys()) == CACHE_CLMNS
 
         ThumbSearch.calculate_size()
 
@@ -184,7 +190,13 @@ class SearchFinder(URunnable):
         name = os.path.basename(src)
         type_ = os.path.splitext(name)[-1]
 
-        values_ = {
+        args = (src, hash_path, name, type_, size, mod, resol)
+        values_ = self.get_values(*args)
+
+        return sqlalchemy.insert(CACHE).values(**values_)
+
+    def get_values(self, src, hash_path, name, type_, size, mod, resol):
+        return {
             "src": src,
             "hash_path": hash_path,
             "root": os.path.dirname(src),
@@ -197,7 +209,6 @@ class SearchFinder(URunnable):
             "colors": "",
             "rating": 0
             }
-        return sqlalchemy.insert(CACHE).values(**values_)
 
     def insert_count_cmd(self):
         for stmt, hash_path, small_img_array in self.insert_count_data:
