@@ -102,6 +102,11 @@ class Thumb(OrderItem, QFrame):
     text_changed = pyqtSignal()
     path_to_wid: dict[str, "Thumb"] = {}
 
+    thumb_w: int
+    thumb_h: int
+    row_h: int
+    pixmap_size: int
+
     def __init__(self, src: str, size: int, mod: int, colors: str, rating: int):
 
         QFrame.__init__(self, parent=None)
@@ -144,33 +149,35 @@ class Thumb(OrderItem, QFrame):
         self.img = pixmap
         self.img_wid.setPixmap(Utils.pixmap_scale(pixmap, pixmap_size))
 
-    def setup(self):
-        pixmap_size = PIXMAP_SIZE[JsonData.pixmap_size_ind]
-        row_h = 16
+    @classmethod
+    def calculate_size(cls):
+        cls.pixmap_size = PIXMAP_SIZE[JsonData.pixmap_size_ind]
+        cls.row_h = 16
 
-        thumb_w = sum((
+        cls.thumb_w = sum((
             THUMB_W[JsonData.pixmap_size_ind],
             MARGIN.get("w"),
             ))
 
-        thumb_h = sum((
-            pixmap_size,
-            row_h * 2,
-            row_h,
+        cls.thumb_h = sum((
+            cls.pixmap_size,
+            cls.row_h * 2,
+            cls.row_h,
             MARGIN.get("h"),
             ))
-        
+
+    def setup(self):
         self.set_text()
         self.adjustSize()
 
-        self.setFixedSize(thumb_w, thumb_h)
-        self.name_label.setFixedSize(thumb_w, row_h * 2)
-        self.color_label.setFixedSize(thumb_w, row_h)
+        self.setFixedSize(self.thumb_w, self.thumb_h)
+        self.name_label.setFixedSize(self.thumb_w, self.row_h * 2)
+        self.color_label.setFixedSize(self.thumb_w, self.row_h)
 
         if isinstance(self.img_wid, QLabel):
-            self.img_wid.setPixmap( Utils.pixmap_scale(self.img, pixmap_size))
+            self.img_wid.setPixmap(Utils.pixmap_scale(self.img, self.pixmap_size))
         else:
-            self.img_wid.setFixedSize(pixmap_size, pixmap_size)
+            self.img_wid.setFixedSize(self.pixmap_size, self.pixmap_size)
 
     def set_frame(self):
         self.setStyleSheet(f""" #thumbnail {{ background: {BLUE}; border-radius: 4px; }}""")

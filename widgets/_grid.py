@@ -127,6 +127,7 @@ class Grid(BaseMethods, QScrollArea):
         self.rearrange()
 
     def resize_(self):
+        Thumb.calculate_size()
         for wid in self.ordered_widgets:
             wid.setup()
         self.rearrange()

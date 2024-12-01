@@ -294,6 +294,8 @@ class GridStandart(Grid):
         col_count = Utils.get_clmn_count(self.ww)
         row, col = 0, 0
 
+        Thumb.calculate_size()
+
         for order_item in self.order_items:
     
             if os.path.isdir(order_item.src):
