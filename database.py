@@ -148,7 +148,7 @@ class Dbase:
         # проверяю сам себя, все ли колонки учитываются при создании
         # новой записи в БД
         values = cls.get_cache_values(*["" for i in range(0, 7)])
-        assert list(values.keys()) == CACHE_CLMNS
+        assert list(values.keys()) == CACHE_CLMNS, "проверь get_cache_values"
 
     @classmethod
     def get_cache_values(
