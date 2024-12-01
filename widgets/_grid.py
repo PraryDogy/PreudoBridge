@@ -35,10 +35,10 @@ class Grid(BaseMethods, QScrollArea):
         # дублирования подклювчений
         SignalsApp.disconnect_grid()
 
-        SignalsApp.all.resize_grid.connect(self.resize_)
-        SignalsApp.all.sort_grid.connect(self.order_)
-        SignalsApp.all.filter_grid.connect(self.filter_)
-        SignalsApp.all.move_to_wid.connect(self.select_new_widget)
+        SignalsApp.all_.resize_grid.connect(self.resize_)
+        SignalsApp.all_.sort_grid.connect(self.order_)
+        SignalsApp.all_.filter_grid.connect(self.filter_)
+        SignalsApp.all_.move_to_wid.connect(self.select_new_widget)
 
         main_wid = QWidget()
         self.grid_layout = QGridLayout(main_wid)
@@ -66,7 +66,7 @@ class Grid(BaseMethods, QScrollArea):
             new_wid.set_frame()
             self.curr_cell = coords
             self.ensureWidgetVisible(new_wid)
-            cmd_ = lambda: SignalsApp.all.path_labels_cmd.emit(
+            cmd_ = lambda: SignalsApp.all_.path_labels_cmd.emit(
                 {"src" : new_wid.src}
             )
             QTimer.singleShot(100, cmd_)
@@ -166,8 +166,8 @@ class Grid(BaseMethods, QScrollArea):
 
     def open_in_view(self, wid: Thumb):
         if wid.type_ == FOLDER_TYPE:
-            SignalsApp.all.new_history.emit(wid.src)
-            SignalsApp.all.load_standart_grid.emit(wid.src)
+            SignalsApp.all_.new_history.emit(wid.src)
+            SignalsApp.all_.load_standart_grid.emit(wid.src)
         else:
             OpenWin.view(Utils.get_main_win(), wid.src)
 
@@ -187,8 +187,8 @@ class Grid(BaseMethods, QScrollArea):
             if a0.key() == Qt.Key.Key_Up:
                 root = os.path.dirname(JsonData.root)
                 if root != os.sep:
-                    SignalsApp.all.new_history.emit(root)
-                    SignalsApp.all.load_standart_grid.emit(root)
+                    SignalsApp.all_.new_history.emit(root)
+                    SignalsApp.all_.load_standart_grid.emit(root)
 
             elif  a0.key() == Qt.Key.Key_Down:
                 wid = self.cell_to_wid.get(self.curr_cell)
@@ -201,12 +201,12 @@ class Grid(BaseMethods, QScrollArea):
             elif a0.key() == Qt.Key.Key_Equal:
                 new_value = JsonData.pixmap_size_ind + 1
                 if new_value <= MAX_VAR:
-                    SignalsApp.all.move_slider.emit(new_value)
+                    SignalsApp.all_.move_slider.emit(new_value)
 
             elif a0.key() == Qt.Key.Key_Minus:
                 new_value = JsonData.pixmap_size_ind - 1
                 if new_value >= 0:
-                    SignalsApp.all.move_slider.emit(new_value)
+                    SignalsApp.all_.move_slider.emit(new_value)
 
         elif a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
             wid = self.cell_to_wid.get(self.curr_cell)
@@ -239,7 +239,7 @@ class Grid(BaseMethods, QScrollArea):
         if isinstance(wid, Thumb):
             wid.set_no_frame()
         self.setFocus()
-        cmd_ = lambda: SignalsApp.all.path_labels_cmd.emit(
+        cmd_ = lambda: SignalsApp.all_.path_labels_cmd.emit(
             {"src": JsonData.root}
         )
         QTimer.singleShot(100, cmd_)

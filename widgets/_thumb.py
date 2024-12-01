@@ -309,11 +309,11 @@ class ThumbFolder(Thumb):
     def fav_cmd(self, offset: int):
         self.fav_action.triggered.disconnect()
         if 0 + offset == 1:
-            SignalsApp.all.fav_cmd.emit("add", self.src)
+            SignalsApp.all_.fav_cmd.emit("add", self.src)
             self.fav_action.setText("Удалить из избранного")
             self.fav_action.triggered.connect(lambda: self.fav_cmd(-1))
         else:
-            SignalsApp.all.fav_cmd.emit("del", self.src)
+            SignalsApp.all_.fav_cmd.emit("del", self.src)
             self.fav_action.setText("Добавить в избранное")
             self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))
 
@@ -374,7 +374,7 @@ class ThumbSearch(Thumb):
         self.add_base_actions(menu_)
         menu_.addSeparator()
 
-        cmd_ = lambda: SignalsApp.all.show_in_folder.emit(self.src)
+        cmd_ = lambda: SignalsApp.all_.show_in_folder.emit(self.src)
         show_in_folder = ShowInFolder(parent=menu_, src=self.src)
         show_in_folder._clicked.connect(cmd_)
         menu_.addAction(show_in_folder)

@@ -140,7 +140,7 @@ class WinGo(WinMinMax):
         path: str = os.sep + path.strip().strip(os.sep)
 
         if os.path.exists(path):
-            SignalsApp.all.open_path.emit(path)
+            SignalsApp.all_.open_path.emit(path)
             self.close()
         else:
             path_thread = PathFinderThread(path)
@@ -148,7 +148,7 @@ class WinGo(WinMinMax):
             UThreadPool.pool.start(path_thread)
 
     def finalize(self, res: str):
-        SignalsApp.all.open_path.emit(res)
+        SignalsApp.all_.open_path.emit(res)
         self.close()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
@@ -164,12 +164,12 @@ class CustomSlider(USlider):
         self.setFixedWidth(80)
         self.setValue(JsonData.pixmap_size_ind)
         self.valueChanged.connect(self.change_size)
-        SignalsApp.all.move_slider.connect(self.change_size)
+        SignalsApp.all_.move_slider.connect(self.change_size)
     
     def change_size(self, value: int):
         self.setValue(value)
         JsonData.pixmap_size_ind = value
-        SignalsApp.all.resize_grid.emit()
+        SignalsApp.all_.resize_grid.emit()
 
 
 class PathLabel(QLabel):
@@ -252,8 +252,8 @@ class PathItem(QWidget):
         if os.path.isfile(self.src):
             OpenWin.view(Utils.get_main_win(), self.src)
         else:
-            SignalsApp.all.new_history.emit(self.src)
-            SignalsApp.all.load_standart_grid.emit(self.src)
+            SignalsApp.all_.new_history.emit(self.src)
+            SignalsApp.all_.load_standart_grid.emit(self.src)
 
     def mousePressEvent(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.LeftButton:
@@ -345,8 +345,8 @@ class BarBottom(QWidget):
         self.slider.setFixedSize(70, 15)
         self.grid_lay.addWidget(self.slider, row, col)
 
-        SignalsApp.all.progressbar_cmd.connect(self.progressbar_cmd)
-        SignalsApp.all.path_labels_cmd.connect(self.path_labels_cmd)
+        SignalsApp.all_.progressbar_cmd.connect(self.progressbar_cmd)
+        SignalsApp.all_.path_labels_cmd.connect(self.path_labels_cmd)
 
     def open_go_win(self, *args):
         self.win = WinGo()

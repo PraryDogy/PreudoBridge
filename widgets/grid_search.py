@@ -58,7 +58,7 @@ class SearchFinder(URunnable):
         self.conn.close()
 
         if self.should_run:
-            SignalsApp.all.search_finished.emit(str(self.search_text))
+            SignalsApp.all_.search_finished.emit(str(self.search_text))
 
     def walk_dir(self):
         for root, _, files in os.walk(JsonData.root):
@@ -230,7 +230,7 @@ class GridSearch(Grid):
         self.col_count = Utils.get_clmn_count(width)
         self.row, self.col = 0, 0
 
-        SignalsApp.all.path_labels_cmd.emit({"src": JsonData.root})
+        SignalsApp.all_.path_labels_cmd.emit({"src": JsonData.root})
 
         self.task_ = SearchFinder(search_text)
         self.task_.signals_.add_new_widget.connect(self.add_new_widget)
@@ -252,7 +252,7 @@ class GridSearch(Grid):
         wid.open_in_view.connect(lambda w=wid: self.open_in_view(w))
         self.add_widget_data(wid, self.row, self.col)
         self.grid_layout.addWidget(wid, self.row, self.col)
-        SignalsApp.all.path_labels_cmd.emit({"total": len(ThumbSearch.path_to_wid)})
+        SignalsApp.all_.path_labels_cmd.emit({"total": len(ThumbSearch.path_to_wid)})
 
         self.col += 1
         if self.col >= self.col_count:

@@ -24,20 +24,20 @@ class Signals(QObject):
 
 
 class SignalsApp:
-    all: Signals = None
+    all_: Signals = None
 
     @classmethod
     def init(cls):
-        cls.all = Signals()
+        cls.all_ = Signals()
 
     @classmethod
     def disconnect_grid(cls) -> bool:
 
         recon = (
-            SignalsApp.all.resize_grid,
-            SignalsApp.all.sort_grid,
-            SignalsApp.all.filter_grid,
-            SignalsApp.all.move_to_wid
+            SignalsApp.all_.resize_grid,
+            SignalsApp.all_.sort_grid,
+            SignalsApp.all_.filter_grid,
+            SignalsApp.all_.move_to_wid
             )
 
         for sig in recon:

@@ -50,7 +50,7 @@ class ViewTypeBtn(QTabBar):
     def set_view_type_cmd(self, index: int):
         self.setCurrentIndex(index)
         Dynamic.grid_view_type = index
-        SignalsApp.all.load_standart_grid.emit("")
+        SignalsApp.all_.load_standart_grid.emit("")
 
     def tabSizeHint(self, index):
         size = QTabBar.tabSizeHint(self, index)
@@ -87,7 +87,7 @@ class SearchWidget(QWidget):
         self.search_timer = QTimer(self)
         self.search_timer.setSingleShot(True)
         self.search_timer.timeout.connect(
-            lambda: SignalsApp.all.load_search_grid.emit(self.search_text)
+            lambda: SignalsApp.all_.load_search_grid.emit(self.search_text)
             )
         
         self.clear_search.connect(self.costil)
@@ -124,7 +124,7 @@ class SearchWidget(QWidget):
         else:
             self.clear_search.emit()
             self.clear_btn.hide()
-            SignalsApp.all.load_standart_grid.emit("")
+            SignalsApp.all_.load_standart_grid.emit("")
 
     def show_templates(self, a0: QMouseEvent | None) -> None:
         self.templates_menu.exec(self.mapToGlobal(self.rect().bottomLeft()))
@@ -227,7 +227,7 @@ class FiltersBtn(QPushButton):
             widget.setStyleSheet(f"background: {BLUE};")
             widget.is_selected = True
 
-        SignalsApp.all.filter_grid.emit()
+        SignalsApp.all_.filter_grid.emit()
 
     def reset_colors_cmd(self, e):
         for wid in self.color_wids:
@@ -241,7 +241,7 @@ class FiltersBtn(QPushButton):
         self.style_btn()
 
         Dynamic.color_filters.clear()
-        SignalsApp.all.filter_grid.emit()
+        SignalsApp.all_.filter_grid.emit()
 
     def toggle_rating(self, rate: int):
         if rate > 1:
@@ -263,7 +263,7 @@ class FiltersBtn(QPushButton):
             for i in self.rating_wids:
                 i.setStyleSheet("")
 
-        SignalsApp.all.filter_grid.emit()
+        SignalsApp.all_.filter_grid.emit()
 
     def reset_filters(self):
         for i in self.rating_wids:
@@ -341,8 +341,8 @@ class BarTop(QFrame):
         self.search_wid = SearchWidget()
         self.grid_layout.addWidget(self.search_wid, 0, self.clmn)
 
-        SignalsApp.all.new_history.connect(self.new_history)
-        SignalsApp.all.new_history.emit(JsonData.root)
+        SignalsApp.all_.new_history.connect(self.new_history)
+        SignalsApp.all_.new_history.emit(JsonData.root)
         self.index_ -= 1
 
     def open_settings_win(self):
@@ -365,12 +365,12 @@ class BarTop(QFrame):
             if self.index_ + offset in(-1, len(self.history)):
                 return
             self.index_ += offset
-            SignalsApp.all.load_standart_grid.emit(self.history[self.index_])
+            SignalsApp.all_.load_standart_grid.emit(self.history[self.index_])
         except (ValueError, IndexError):
             pass
 
     def level_up(self, e):
         root = os.path.dirname(JsonData.root)
         if not root == os.sep:
-            SignalsApp.all.new_history.emit(root)
-            SignalsApp.all.load_standart_grid.emit(root)
+            SignalsApp.all_.new_history.emit(root)
+            SignalsApp.all_.load_standart_grid.emit(root)

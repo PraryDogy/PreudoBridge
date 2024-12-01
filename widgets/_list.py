@@ -44,7 +44,7 @@ class ListStandart(QTableView):
 
         if os.path.isdir(path):
             self.setCurrentIndex(index)
-            SignalsApp.all.load_standart_grid.emit(path)
+            SignalsApp.all_.load_standart_grid.emit(path)
 
     def save_sort_settings(self, index):
         ListStandart.col = index
@@ -100,12 +100,12 @@ class ListStandart(QTableView):
 
         if os.path.isdir(src):
             if src in JsonData.favs:
-                cmd_ = lambda: SignalsApp.all.fav_cmd.emit("del", src)
+                cmd_ = lambda: SignalsApp.all_.fav_cmd.emit("del", src)
                 fav_action = FavRemove(menu, src)
                 fav_action._clicked.connect(cmd_)
                 menu.addAction(fav_action)
             else:
-                cmd_ = lambda: SignalsApp.all.fav_cmd.emit("add", src)
+                cmd_ = lambda: SignalsApp.all_.fav_cmd.emit("add", src)
                 fav_action = FavAdd(menu, src)
                 fav_action._clicked.connect(cmd_)
                 menu.addAction(fav_action)
@@ -125,8 +125,8 @@ class ListStandart(QTableView):
             if a0.key() == Qt.Key.Key_Up:
                 root = os.path.dirname(JsonData.root)
                 if root != os.sep:
-                    SignalsApp.all.new_history.emit(root)
-                    SignalsApp.all.load_standart_grid.emit(root)
+                    SignalsApp.all_.new_history.emit(root)
+                    SignalsApp.all_.load_standart_grid.emit(root)
                     return
 
             elif a0.key() == Qt.Key.Key_Down:

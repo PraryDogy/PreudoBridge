@@ -107,11 +107,11 @@ class SimpleFileExplorer(QWidget):
 
         # они должны быть именно тут
         self.grid: Grid = Grid(self.get_grid_width())
-        SignalsApp.all.load_standart_grid.connect(self.load_standart_grid)
-        SignalsApp.all.load_search_grid.connect(self.load_search_grid)
-        SignalsApp.all.search_finished.connect(self.search_finished)
-        SignalsApp.all.show_in_folder.connect(self.move_to_wid_delayed)
-        SignalsApp.all.open_path.connect(self.open_path_cmd)
+        SignalsApp.all_.load_standart_grid.connect(self.load_standart_grid)
+        SignalsApp.all_.load_search_grid.connect(self.load_search_grid)
+        SignalsApp.all_.search_finished.connect(self.search_finished)
+        SignalsApp.all_.show_in_folder.connect(self.move_to_wid_delayed)
+        SignalsApp.all_.open_path.connect(self.open_path_cmd)
 
         self.load_standart_grid()
 
@@ -165,7 +165,7 @@ class SimpleFileExplorer(QWidget):
         self.setWindowTitle(os.path.basename(JsonData.root))
         self.grid_close()
 
-        SignalsApp.all.fav_cmd.emit("select", JsonData.root)
+        SignalsApp.all_.fav_cmd.emit("select", JsonData.root)
 
         self.bar_top.search_wid.clear_search.emit()
         self.bar_top.filters_btn.reset_filters()

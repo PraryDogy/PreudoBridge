@@ -135,7 +135,7 @@ class UpdateGrid(UAction):
         super().__init__(parent, src, UPDATE_GRID_T)
 
     def cmd_(self):
-        SignalsApp.all.load_standart_grid.emit("")
+        SignalsApp.all_.load_standart_grid.emit("")
 
 
 class OpenInApp(QMenu):
@@ -248,48 +248,45 @@ class SortMenu(QMenu):
     def __init__(self, parent: QMenu):
         super().__init__(parent=parent, title=SORT_T)
 
-        ascending = QAction(parent=self, text=ASCENDING_T)
-        ascending.setDisabled(True)
-        self.addAction(ascending)
+        asc_cmd = lambda: self.cmd_revers(reversed=False)
+        ascen = QAction(parent=self, text=ASCENDING_T)
+        ascen.rev = False
+        ascen.triggered.connect(asc_cmd)
+
+        desc_cmd = lambda: self.cmd_revers(reversed=True)
+        descen = QAction(parent=self, text=DISCENDING_T)
+        descen.rev = True
+        descen.triggered.connect(desc_cmd)
+
+        for i in (ascen, descen):
+            i.setCheckable(True)
+            self.addAction(i)
+
+            if i.rev == JsonData.reversed:
+                i.setChecked(True)
+
+        self.addSeparator()
 
         for true_name, dict_ in ORDER.items():
-            text_ = dict_.get("text") + " " + ARROW_TOP
+            text_ = dict_.get("text")
             action_ = QAction(parent=self, text=text_)
             action_.setCheckable(True)
 
-            cmd_ = lambda e, s=true_name, r=False: self.cmd_(s, r)
+            cmd_ = lambda e, s=true_name: self.cmd_sort(sort=s)
             action_.triggered.connect(cmd_)
 
             if JsonData.sort == true_name:
-                if not JsonData.reversed:
-                    action_.setChecked(True)
+                action_.setChecked(True)
 
             self.addAction(action_)
 
-        discending = QAction(parent=self, text=DISCENDING_T)
-        discending.setDisabled(True)
-        self.addAction(discending)
-
-        for true_name, dict_ in ORDER.items():
-
-            text_ = dict_.get("text") + " " + ARROW_DOWN
-            action_ = QAction(parent=self, text=text_)
-            action_.setCheckable(True)
-
-            cmd_ = lambda e, s=true_name, r=True: self.cmd_(s, r)
-            action_.triggered.connect(cmd_)
-
-            if JsonData.sort == true_name:
-                if JsonData.reversed:
-                    action_.setChecked(True)
-
-            self.addAction(action_)
-
-    def cmd_(self, sort: str, reversed: bool):
+    def cmd_sort(self, sort: str):
         JsonData.sort = sort
-        JsonData.reversed = reversed
-        SignalsApp.all.sort_grid.emit()
+        SignalsApp.all_.sort_grid.emit()
 
+    def cmd_revers(self, reversed: bool):
+        JsonData.reversed = reversed
+        SignalsApp.all_.sort_grid.emit()
 
 class ChangeView(QMenu):
     def __init__(self, parent: QMenu, src: str):
@@ -313,8 +310,8 @@ class ChangeView(QMenu):
 
     def set_grid(self):
         Dynamic.grid_view_type = 0
-        SignalsApp.all.load_standart_grid.emit("")
+        SignalsApp.all_.load_standart_grid.emit("")
 
     def set_list(self):
         Dynamic.grid_view_type = 1
-        SignalsApp.all.load_standart_grid.emit("")
+        SignalsApp.all_.load_standart_grid.emit("")
