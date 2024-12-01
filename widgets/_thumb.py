@@ -12,9 +12,9 @@ from database import CACHE, Dbase, OrderItem
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
-from ._actions import (ColorMenu, CopyPath, FavAdd, FavRemove, Info, OpenInApp,
-                       RatingMenu, RevealInFinder, ShowInFolder, SortMenu,
-                       View, ChangeView)
+from ._actions import (ChangeView, ColorMenu, CopyPath, FavAdd, FavRemove,
+                       Info, OpenInApp, RatingMenu, RevealInFinder,
+                       ShowInFolder, SortMenu, UpdateGrid, View)
 from ._base import USvgWidget
 
 
@@ -325,6 +325,9 @@ class ThumbFolder(Thumb):
         view_action = View(parent=menu, src=self.src)
         view_action._clicked.connect(self.open_in_view.emit)
         menu.addAction(view_action)
+
+        update_ = UpdateGrid(parent=menu, src=JsonData.root)
+        menu.addAction(update_)
 
         menu.addSeparator()
 
