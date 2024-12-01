@@ -146,18 +146,20 @@ class Grid(BaseMethods, QScrollArea):
 
             # если Thumb не был выделен пользователем вручную
             # то повторного выделения при rearrange не будет
-            if not hasattr(self, SELECTED):
-                return
-            # просто аннотация, простая аннотация не работает
-            assert isinstance(self, Grid)
+            if hasattr(self, SELECTED):
 
-            widget = self.cell_to_wid.get(self.curr_cell)
-            if isinstance(widget, QFrame):
-                src = widget.src
-            else:
-                src = None
+                assert isinstance(self, Grid)
+                widget = self.cell_to_wid.get(self.curr_cell)
+
+                if isinstance(widget, QFrame):
+                    src = widget.src
+                else:
+                    src = None
+
             func(self, *args, **kwargs)
-            self.select_new_widget(src)
+
+            if hasattr(self, SELECTED):
+                self.select_new_widget(src)
 
         return wrapper
 
@@ -287,10 +289,11 @@ class Grid(BaseMethods, QScrollArea):
 
         # клик по пустоте снимает выделение с виджета
         # и чтобы виджет не выделялся при rearrange
-        delattr(self, SELECTED)
+
+        if hasattr(self, SELECTED):
+            delattr(self, SELECTED)
 
         self.setFocus()
-
 
         cmd_ = lambda: SignalsApp.all_.path_labels_cmd.emit(
             {"src": JsonData.root}
