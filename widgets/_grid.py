@@ -15,6 +15,8 @@ from ._base import BaseMethods, OpenWin
 from ._list import ListStandart
 from ._thumb import Info, Thumb, ThumbFolder, ThumbSearch
 
+SELECTED = "selected"
+
 
 class Grid(BaseMethods, QScrollArea):
 
@@ -67,6 +69,11 @@ class Grid(BaseMethods, QScrollArea):
             new_wid.set_frame()
             self.curr_cell = coords
             self.ensureWidgetVisible(new_wid)
+
+            # задаем этот аттрибут чтобы при rearrange сетки выделенный виджет
+            # мог выделиться снова
+            setattr(self, SELECTED, True)
+
             cmd_ = lambda: SignalsApp.all_.path_labels_cmd.emit(
                 {"src" : new_wid.src}
             )
@@ -80,6 +87,7 @@ class Grid(BaseMethods, QScrollArea):
         self.setFocus()
 
     def reset_selection(self):
+
         widget = self.cell_to_wid.get(self.curr_cell)
 
         if isinstance(widget, QFrame):
@@ -133,8 +141,15 @@ class Grid(BaseMethods, QScrollArea):
         self.rearrange()
 
     def reselect(func: callable):
-
+        
         def wrapper(self, *args, **kwargs):
+
+            # если Thumb не был выделен пользователем вручную
+            # то повторного выделения при rearrange не будет
+
+            if not hasattr(self, SELECTED):
+                return
+
             # просто аннотация, простая аннотация не работает
             assert isinstance(self, Grid)
             widget = self.cell_to_wid.get(self.curr_cell)
@@ -267,9 +282,17 @@ class Grid(BaseMethods, QScrollArea):
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
         wid = self.cell_to_wid.get(self.curr_cell)
+
         if isinstance(wid, Thumb):
             wid.set_no_frame()
+
+        # клик по пустоте снимает выделение с виджета
+        # и чтобы виджет не выделялся при rearrange
+        delattr(self, SELECTED)
+
         self.setFocus()
+
+
         cmd_ = lambda: SignalsApp.all_.path_labels_cmd.emit(
             {"src": JsonData.root}
         )
