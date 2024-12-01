@@ -89,6 +89,7 @@ class Dbase:
         METADATA.create_all(cls.engine)
         cls.enable_wal()
         cls.check_tables()
+        cls.check_values()
 
     @classmethod
     def enable_wal(cls):
@@ -140,3 +141,31 @@ class Dbase:
                 os.remove(DB_FILE)
                 cls.init_db()
                 break
+
+
+    @classmethod
+    def check_values(cls):
+        # проверяю сам себя, все ли колонки учитываются при создании
+        # новой записи в БД
+        values = cls.get_cache_values(*[i for i in range(0, 7)])
+        assert list(values.keys()) == CACHE_CLMNS
+
+    @classmethod
+    def get_cache_values(
+        cls, src, hash_path, name, type_, size, mod, resol
+        ) -> dict[str, str]:
+
+        return {
+            "src": src,
+            "hash_path": hash_path,
+            "root": os.path.dirname(src),
+            "catalog": "",
+            "name": name,
+            "type_": type_,
+            "size": size,
+            "mod": mod,
+            "resol": resol,
+            "colors": "",
+            "rating": 0
+            }
+        

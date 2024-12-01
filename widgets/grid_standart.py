@@ -167,7 +167,7 @@ class LoadImages(URunnable):
     def get_insert_stmt(
             self,
             src: str,
-            hashed_path: str,
+            hash_path: str,
             size: int,
             mod: int,
             resol: str,
@@ -177,21 +177,13 @@ class LoadImages(URunnable):
         name = os.path.basename(src)
         type_ = os.path.splitext(name)[-1]
 
-        values = {
-            "src": src,
-            "hash_path": hashed_path,
-            "root": os.path.dirname(src),
-            "catalog": "",
-            "name": name,
-            "type_": type_,
-            "size": size,
-            "mod": mod,
-            "resol": resol, 
-            "colors": "",
-            "rating": 0
-            }
+        args = (src, hash_path, name, type_, size, mod, resol)
+        values_ = Dbase.get_cache_values(*args)
 
-        return sqlalchemy.insert(CACHE).values(**values)
+        return sqlalchemy.insert(CACHE).values(**values_)
+
+    def get_values(self):
+        ...
 
     def remove_images(self):
 

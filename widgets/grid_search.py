@@ -47,12 +47,6 @@ class SearchFinder(URunnable):
         self.insert_count: int = 0
         self.insert_count_data: list[tuple[sqlalchemy.Insert, str, ndarray]] = []
 
-        # мы проверяем словарик который мы тут создали
-        # на соответствие имени колонок в таблице БД
-        # а то может я создал новые колонки а тут забыл добавить...
-        values = self.get_values(*["" for i in range(0, 7)])
-        assert list(values.keys()) == CACHE_CLMNS
-
         ThumbSearch.calculate_size()
 
     @URunnable.set_running_state
@@ -191,24 +185,9 @@ class SearchFinder(URunnable):
         type_ = os.path.splitext(name)[-1]
 
         args = (src, hash_path, name, type_, size, mod, resol)
-        values_ = self.get_values(*args)
+        values_ = Dbase.get_cache_values(*args)
 
         return sqlalchemy.insert(CACHE).values(**values_)
-
-    def get_values(self, src, hash_path, name, type_, size, mod, resol):
-        return {
-            "src": src,
-            "hash_path": hash_path,
-            "root": os.path.dirname(src),
-            "catalog": "",
-            "name": name,
-            "type_": type_,
-            "size": size,
-            "mod": mod,
-            "resol": resol,
-            "colors": "",
-            "rating": 0
-            }
 
     def insert_count_cmd(self):
         for stmt, hash_path, small_img_array in self.insert_count_data:
