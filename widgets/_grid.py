@@ -133,7 +133,7 @@ class Grid(BaseMethods, QScrollArea):
         self.rearrange()
 
     def rearrange(self, width: int = None):
-        # когда меняется размер окна, этот метод отвечает за перетасовку
+        # этот метод отвечает за перетасовку
         # виджетов, поэтому отсюда мы отсылаем в инициатор self.ww
         if width:
             self.ww = width
