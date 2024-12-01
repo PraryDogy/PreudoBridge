@@ -146,12 +146,11 @@ class Grid(BaseMethods, QScrollArea):
 
             # если Thumb не был выделен пользователем вручную
             # то повторного выделения при rearrange не будет
-
             if not hasattr(self, SELECTED):
                 return
-
             # просто аннотация, простая аннотация не работает
             assert isinstance(self, Grid)
+
             widget = self.cell_to_wid.get(self.curr_cell)
             if isinstance(widget, QFrame):
                 src = widget.src
