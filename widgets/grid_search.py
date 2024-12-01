@@ -261,22 +261,22 @@ class GridSearch(Grid):
             self.col = 0
             self.row += 1
  
+        # сортируем сетку после каждого виджета
+        self.order_()
+
     def rearrange(self, width: int = None):
-        if not self.task_.is_running:
-            super().rearrange(width)
+        super().rearrange(width)
     
     def order_(self):
-        if not self.task_.is_running:
-            super().order_()
+        super().order_()
 
     def filter_(self):
         if not self.task_.is_running:
             super().filter_()
 
     def resize_(self):
-        if not self.task_.is_running:
-            ThumbSearch.calculate_size()
-            super().resize_()
+        ThumbSearch.calculate_size()
+        super().resize_()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.task_.should_run = False
