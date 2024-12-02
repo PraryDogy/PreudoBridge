@@ -1,7 +1,7 @@
 import os
 
 from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QContextMenuEvent, QKeyEvent, QMouseEvent
+from PyQt5.QtGui import QContextMenuEvent, QDragEnterEvent, QDropEvent, QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import QFrame, QGridLayout, QMenu, QScrollArea, QWidget
 
 from cfg import FOLDER_TYPE, GRID_SPACING, MAX_VAR, Dynamic, JsonData
@@ -26,6 +26,7 @@ class Grid(BaseMethods, QScrollArea):
         QScrollArea.__init__(self)
         BaseMethods.__init__(self)
 
+        self.setAcceptDrops(True)
         self.setWidgetResizable(True)
 
         self.curr_cell: tuple = (0, 0)
@@ -353,3 +354,12 @@ class Grid(BaseMethods, QScrollArea):
 
         menu.exec_(self.mapToGlobal(a0.pos()))
         # return super().contextMenuEvent(a0)
+
+    def dragEnterEvent(self, a0: QDragEnterEvent | None) -> None:
+        if a0.mimeData().hasText():
+            a0.accept()
+        else:
+            a0.ignore()
+
+    def dropEvent(self, a0: QDropEvent | None) -> None:
+        print(a0.mimeData().text())

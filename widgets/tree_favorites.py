@@ -1,9 +1,9 @@
 import os
 import subprocess
 
-from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import (QContextMenuEvent, QDragEnterEvent, QDragLeaveEvent,
-                         QDropEvent, QMouseEvent)
+from PyQt5.QtCore import QMimeData, Qt, pyqtSignal
+from PyQt5.QtGui import (QContextMenuEvent, QDrag, QDragEnterEvent, QDropEvent,
+                         QMouseEvent)
 from PyQt5.QtWidgets import QLabel, QListWidget, QListWidgetItem, QMenu
 
 from cfg import JsonData
@@ -165,6 +165,19 @@ class TreeFavorites(QListWidget):
         if a0.mimeData().hasUrls():
             a0.acceptProposedAction()
         return super().dragEnterEvent(a0)
-    
-    def dragLeaveEvent(self, a0: QDragLeaveEvent | None) -> None:
-        return super().dragLeaveEvent(a0)
+
+    def mousePressEvent(self, a0: QMouseEvent | None) -> None:
+        if a0.button() == Qt.MouseButton.LeftButton:
+            self.drag_start_position = a0.pos()
+
+    def mouseMoveEvent(self, event: QMouseEvent):
+        item = self.itemAt(event.pos())
+        widget = self.itemWidget(item)
+
+        if isinstance(widget, FavItem):
+            mime_data = QMimeData()
+            mime_data.setText(widget.src)
+
+            drag = QDrag(self)
+            drag.setMimeData(mime_data)
+            drag.exec_(Qt.MoveAction)
