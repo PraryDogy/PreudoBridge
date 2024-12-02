@@ -298,23 +298,30 @@ class Grid(BaseMethods, QScrollArea):
             if wid:
                 self.open_in_view(wid)
 
-        elif a0.key() == Qt.Key.Key_Left:
-            coords = (self.curr_cell[0], self.curr_cell[1] - 1)
+        elif a0.key() in (
+            Qt.Key.Key_Left, Qt.Key.Key_Right, Qt.Key.Key_Up, Qt.Key.Key_Down
+        ):
+
+            offsets = {
+                Qt.Key.Key_Left: (0, -1),
+                Qt.Key.Key_Right: (0, 1),
+                Qt.Key.Key_Up: (-1, 0),
+                Qt.Key.Key_Down: (1, 0)
+            }
+
+            offset = offsets.get(a0.key())
+            coords = (
+                self.curr_cell[0] + offset[0], 
+                self.curr_cell[1] + offset[1]
+            )
+
             self.select_new_widget(coords)
 
-        elif a0.key() == Qt.Key.Key_Right:
-            coords = (self.curr_cell[0], self.curr_cell[1] + 1)
-            self.select_new_widget(coords)
+        elif a0.key() in (
+            Qt.Key.Key_0, Qt.Key.Key_1, Qt.Key.Key_2, Qt.Key.Key_3,
+            Qt.Key.Key_4, Qt.Key.Key_5
+        ):
 
-        elif a0.key() == Qt.Key.Key_Up:
-            coords = (self.curr_cell[0] - 1, self.curr_cell[1])
-            self.select_new_widget(coords)
-
-        elif a0.key() == Qt.Key.Key_Down:
-            coords = (self.curr_cell[0] + 1, self.curr_cell[1])
-            self.select_new_widget(coords)
-
-        elif a0.key() in (Qt.Key.Key_0, Qt.Key.Key_1, Qt.Key.Key_2, Qt.Key.Key_3, Qt.Key.Key_4, Qt.Key.Key_5):
             self.set_rating(a0.key())
         
         return super().keyPressEvent(a0)
