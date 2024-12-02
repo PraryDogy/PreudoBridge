@@ -244,6 +244,26 @@ class Grid(BaseMethods, QScrollArea):
             self.fav_action.setText("Добавить в избранное")
             self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))
 
+    def remove_selection(self):
+        """
+        удаляет только стилистическое выделение
+        но не сбрасывает curr_cell
+        """
+        wid = self.cell_to_wid.get(self.curr_cell)
+
+        if isinstance(wid, Thumb):
+            wid.set_no_frame()
+
+        # клик по пустоте снимает выделение с виджета
+        # и чтобы виджет не выделялся при rearrange
+        if hasattr(self, SELECTED):
+            delattr(self, SELECTED)
+
+        self.setFocus()
+
+        cmd_ = lambda: SignalsApp.all_.path_labels_cmd.emit({"src": JsonData.root})
+        QTimer.singleShot(100, cmd_)
+
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         wid: Thumb | ThumbFolder 
 
@@ -300,26 +320,11 @@ class Grid(BaseMethods, QScrollArea):
         return super().keyPressEvent(a0)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
-        wid = self.cell_to_wid.get(self.curr_cell)
-
-        if isinstance(wid, Thumb):
-            wid.set_no_frame()
-
-        # клик по пустоте снимает выделение с виджета
-        # и чтобы виджет не выделялся при rearrange
-
-        if hasattr(self, SELECTED):
-            delattr(self, SELECTED)
-
-        self.setFocus()
-
-        cmd_ = lambda: SignalsApp.all_.path_labels_cmd.emit(
-            {"src": JsonData.root}
-        )
-        QTimer.singleShot(100, cmd_)
-
+        self.remove_selection()
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+        self.remove_selection()
+
         menu = QMenu(parent=self)
 
         info = Info(menu, JsonData.root)
