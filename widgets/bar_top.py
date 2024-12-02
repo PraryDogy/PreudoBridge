@@ -288,9 +288,9 @@ class HistoryBtns(QTabBar):
 
         self.addTab("")
         self.setTabVisible(1, False)
+        self.fake_click()
 
         self.addTab(NEXT_SYM)
-        self.fake_click()
 
         self.tabBarClicked.connect(self.cmd_)
 
@@ -298,13 +298,13 @@ class HistoryBtns(QTabBar):
         self.setCurrentIndex(1)
 
     def cmd_(self, *args):
-        if args[0] == 1:
+        if args[0] == 0:
             self.clicked_.emit(-1)
         else:
             self.clicked_.emit(1)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
-        QTimer.singleShot(100, self.fake_click)
+        QTimer.singleShot(50, self.fake_click)
         return super().mouseReleaseEvent(a0)
 
 
