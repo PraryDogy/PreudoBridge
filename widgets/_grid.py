@@ -59,8 +59,16 @@ class Grid(BaseMethods, QScrollArea):
             new_wid = self.cell_to_wid.get(data)
 
         elif isinstance(data, str):
+            # мы пытаемся найти виджет по пути к изображению
+            # но сетка может обновиться уже без виджета с таким путем
+
             new_wid = Thumb.path_to_wid.get(data)
-            coords = new_wid.row, new_wid.col
+
+            if new_wid:
+                coords = new_wid.row, new_wid.col
+
+            else:
+                return
 
         prev_wid = self.cell_to_wid.get(self.curr_cell)
 
