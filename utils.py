@@ -16,7 +16,8 @@ from PyQt5.QtCore import QRunnable, Qt, QThreadPool
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget
 
-from cfg import GRID_SPACING, HASH_DIR, LEFT_MENU_W, MARGIN, THUMB_W, JsonData
+from cfg import (GRID_SPACING, HASH_DIR, LEFT_MENU_W, MARGIN, THUMB_W, Dynamic,
+                 JsonData)
 
 psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
 psd_logger = logging.getLogger("psd_tools")
@@ -177,7 +178,7 @@ class Utils:
     @classmethod
     def get_clmn_count(cls, width: int):
         w = sum((
-            THUMB_W[JsonData.pixmap_size_ind],
+            THUMB_W[Dynamic.pixmap_size_ind],
             GRID_SPACING,
             MARGIN.get("w"),
             10

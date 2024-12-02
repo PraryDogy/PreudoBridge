@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QHBoxLayout,
                              QVBoxLayout, QWidget)
 
 from cfg import (BLUE, COMP_SVG, FOLDER_SVG, GOTO_SVG, HDD_SVG, IMG_SVG,
-                 MAX_VAR, JsonData)
+                 MAX_VAR, Dynamic, JsonData)
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
@@ -162,7 +162,7 @@ class CustomSlider(USlider):
     def __init__(self):
         super().__init__(orientation=Qt.Orientation.Horizontal, minimum=0, maximum=MAX_VAR)
         self.setFixedWidth(80)
-        self.setValue(JsonData.pixmap_size_ind)
+        self.setValue(Dynamic.pixmap_size_ind)
         self.valueChanged.connect(self.change_size)
         SignalsApp.all_.move_slider.connect(self.change_size)
     
@@ -173,7 +173,7 @@ class CustomSlider(USlider):
 
         # Включаем сигнал обратно
         self.blockSignals(False)
-        JsonData.pixmap_size_ind = value
+        Dynamic.pixmap_size_ind = value
         SignalsApp.all_.resize_grid.emit()
 
 

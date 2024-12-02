@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QApplication, QFrame, QLabel, QMenu, QVBoxLayout
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import (BLUE, COLORS, FOLDER_SVG, IMG_SVG, MARGIN, PIXMAP_SIZE,
-                 STAR_SYM, TEXT_LENGTH, THUMB_W, JsonData)
+                 STAR_SYM, TEXT_LENGTH, THUMB_W, Dynamic, JsonData)
 from database import CACHE, Dbase, OrderItem
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
@@ -25,7 +25,7 @@ class TextLabel(QLabel):
 
     def set_text(self, wid: OrderItem) -> list[str]:
         name: str | list = wid.name
-        max_row = TEXT_LENGTH[JsonData.pixmap_size_ind]
+        max_row = TEXT_LENGTH[Dynamic.pixmap_size_ind]
         lines: list[str] = []
 
         if len(name) > max_row:
@@ -139,7 +139,7 @@ class Thumb(OrderItem, QFrame):
     # 210 пикселей
     def set_pixmap(self, pixmap: QPixmap):
         flag_ = Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop
-        pixmap_size = PIXMAP_SIZE[JsonData.pixmap_size_ind]
+        pixmap_size = PIXMAP_SIZE[Dynamic.pixmap_size_ind]
 
         self.img_wid.deleteLater()
         self.img_wid = QLabel()
@@ -151,11 +151,11 @@ class Thumb(OrderItem, QFrame):
 
     @classmethod
     def calculate_size(cls):
-        cls.pixmap_size = PIXMAP_SIZE[JsonData.pixmap_size_ind]
+        cls.pixmap_size = PIXMAP_SIZE[Dynamic.pixmap_size_ind]
         cls.row_h = 16
 
         cls.thumb_w = sum((
-            THUMB_W[JsonData.pixmap_size_ind],
+            THUMB_W[Dynamic.pixmap_size_ind],
             MARGIN.get("w"),
             ))
 
@@ -309,7 +309,7 @@ class ThumbFolder(Thumb):
     def __init__(self, src: str, size: int, mod: int, colors: str, rating: int):
         super().__init__(src, size, mod, colors, rating)
         
-        pixmap_size = PIXMAP_SIZE[JsonData.pixmap_size_ind]
+        pixmap_size = PIXMAP_SIZE[Dynamic.pixmap_size_ind]
         self.img_wid.load(FOLDER_SVG)
         self.img_wid.setFixedSize(pixmap_size, pixmap_size)
 

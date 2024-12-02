@@ -23,11 +23,11 @@ class BarTabs(QTabWidget):
         self.tabBarClicked.connect(self.tab_cmd)
 
     def load_last_tab(self):
-        self.setCurrentIndex(JsonData.left_menu_tab)
+        self.setCurrentIndex(Dynamic.left_menu_tab)
 
     def tab_cmd(self, index: int):
-        self.setCurrentIndex(JsonData.left_menu_tab)
-        JsonData.left_menu_tab = index
+        self.setCurrentIndex(Dynamic.left_menu_tab)
+        Dynamic.left_menu_tab = index
 
     def mouseClickEvent(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.LeftButton:

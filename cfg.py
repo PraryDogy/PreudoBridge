@@ -90,8 +90,6 @@ class JsonData:
     reversed = False
     extra_paths = ["/Studio/PANACEA", "/Studio/MIUZ"]
     favs = {}
-    left_menu_tab = 0
-    pixmap_size_ind = 0
 
     @classmethod
     def get_data(cls):
@@ -182,3 +180,5 @@ class Dynamic:
     hh = 700
     ww_im = 700
     hh_im = 500
+    left_menu_tab = 1
+    pixmap_size_ind = 0

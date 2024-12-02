@@ -284,12 +284,12 @@ class Grid(BaseMethods, QScrollArea):
                 OpenWin.info(Utils.get_main_win(), wid.src)
 
             elif a0.key() == Qt.Key.Key_Equal:
-                new_value = JsonData.pixmap_size_ind + 1
+                new_value = Dynamic.pixmap_size_ind + 1
                 if new_value <= MAX_VAR:
                     SignalsApp.all_.move_slider.emit(new_value)
 
             elif a0.key() == Qt.Key.Key_Minus:
-                new_value = JsonData.pixmap_size_ind - 1
+                new_value = Dynamic.pixmap_size_ind - 1
                 if new_value >= 0:
                     SignalsApp.all_.move_slider.emit(new_value)
 
