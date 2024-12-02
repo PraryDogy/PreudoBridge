@@ -81,6 +81,8 @@ COLORS: dict = {
     "\U0001F7E4": "Коричневый"
     }
 
+FAVORITES_NAME = "___favs___"
+
 
 class JsonData:
     root = f"/Volumes"

@@ -6,7 +6,7 @@ from PyQt5.QtGui import (QContextMenuEvent, QDrag, QDragEnterEvent, QDropEvent,
                          QMouseEvent)
 from PyQt5.QtWidgets import QLabel, QListWidget, QListWidgetItem, QMenu
 
-from cfg import JsonData
+from cfg import FAVORITES_NAME, JsonData
 from signals import SignalsApp
 from utils import Utils
 
@@ -75,6 +75,8 @@ class FavItem(QLabel):
 class TreeFavorites(QListWidget):
     def __init__(self):
         super().__init__()
+        self.setObjectName(FAVORITES_NAME)
+
         self.wids: dict[str, QListWidgetItem] = {}
         SignalsApp.all_.fav_cmd.connect(self.cmd_)
         self.setDragDropMode(QListWidget.DragDropMode.InternalMove)

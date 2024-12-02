@@ -1,10 +1,12 @@
 import os
 
 from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QContextMenuEvent, QDragEnterEvent, QDropEvent, QKeyEvent, QMouseEvent
+from PyQt5.QtGui import (QContextMenuEvent, QDragEnterEvent, QDropEvent,
+                         QKeyEvent, QMouseEvent)
 from PyQt5.QtWidgets import QFrame, QGridLayout, QMenu, QScrollArea, QWidget
 
-from cfg import FOLDER_TYPE, GRID_SPACING, MAX_VAR, Dynamic, JsonData
+from cfg import (FAVORITES_NAME, FOLDER_TYPE, GRID_SPACING, MAX_VAR, Dynamic,
+                 JsonData)
 from database import OrderItem
 from signals import SignalsApp
 from utils import Utils
@@ -353,13 +355,13 @@ class Grid(BaseMethods, QScrollArea):
         menu.addMenu(sort_menu)
 
         menu.exec_(self.mapToGlobal(a0.pos()))
-        # return super().contextMenuEvent(a0)
 
     def dragEnterEvent(self, a0: QDragEnterEvent | None) -> None:
-        if a0.mimeData().hasText():
+        if a0.source().objectName() == FAVORITES_NAME:
             a0.accept()
         else:
             a0.ignore()
 
     def dropEvent(self, a0: QDropEvent | None) -> None:
-        print(a0.mimeData().text())
+        src = a0.mimeData().text()
+        SignalsApp.all_.fav_cmd.emit("del", src)
