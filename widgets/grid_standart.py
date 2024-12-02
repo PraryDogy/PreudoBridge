@@ -239,31 +239,31 @@ class LoadFinder(URunnable):
 
     def get_items(self) -> list:
 
-        for name in os.listdir(JsonData.root):
+        with os.scandir(JsonData.root) as entries:
 
-            src: str = os.path.join(JsonData.root, name)
+            for entry in entries:
 
-            if name.startswith("."):
-                continue
-
-            if src.endswith(IMG_EXT) or os.path.isdir(src):
-
-                try:
-                    stats = os.stat(src)
-                except (PermissionError, FileNotFoundError, OSError):
+                if entry.name.startswith("."):
                     continue
 
-                size = stats.st_size
-                mod = stats.st_mtime
-                colors = ""
-                rating = 0
+                if entry.is_dir() or entry.name.endswith(IMG_EXT):
+                    try:
+                        stats = entry.stat()
+                    except (PermissionError, FileNotFoundError, OSError):
+                        continue
 
-                db_item = self.db_color_rating.get(src)
-                if db_item:
-                    colors, rating = db_item
+                    size = stats.st_size
+                    mod = stats.st_mtime
+                    colors = ""
+                    rating = 0
 
-                item = OrderItem(src, size, mod, colors, rating)
-                self.order_items.append(item)
+                    db_item = self.db_color_rating.get(entry.path)
+
+                    if db_item:
+                        colors, rating = db_item
+
+                    item = OrderItem(entry.path, size, mod, colors, rating)
+                    self.order_items.append(item)
 
 
 class GridStandart(Grid):

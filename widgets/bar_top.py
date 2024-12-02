@@ -278,34 +278,29 @@ class FiltersBtn(QPushButton):
         self.style_btn()
 
 
-class HistoryBtns(QTabBar):
+class HistoryBtns(QWidget):
     clicked_ = pyqtSignal(int)
 
     def __init__(self):
         super().__init__()
 
-        self.addTab(BACK_SYM)
+        h_lay = QHBoxLayout()
+        h_lay.setContentsMargins(0, 0, 0, 0)
+        h_lay.setSpacing(0)
 
-        self.addTab("")
-        self.setTabVisible(1, False)
-        self.fake_click()
+        back = QPushButton(BACK_SYM)
+        next = QPushButton(NEXT_SYM)
 
-        self.addTab(NEXT_SYM)
+        for i in (back, next):
+            i.setFixedWidth(40)
 
-        self.tabBarClicked.connect(self.cmd_)
+        back.clicked.connect(lambda: self.clicked_.emit(-1))
+        next.clicked.connect(lambda: self.clicked_.emit(1))
 
-    def fake_click(self):
-        self.setCurrentIndex(1)
+        h_lay.addWidget(back)
+        h_lay.addWidget(next)
 
-    def cmd_(self, *args):
-        if args[0] == 0:
-            self.clicked_.emit(-1)
-        else:
-            self.clicked_.emit(1)
-
-    def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
-        QTimer.singleShot(50, self.fake_click)
-        return super().mouseReleaseEvent(a0)
+        self.setLayout(h_lay)
 
 
 class BarTop(QFrame):
@@ -321,7 +316,7 @@ class BarTop(QFrame):
 
         self.grid_layout = QGridLayout()
         self.grid_layout.setSpacing(10)
-        self.grid_layout.setContentsMargins(5, 0, 0, 0)
+        self.grid_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.grid_layout)
 
         self.clmn += 1
