@@ -333,9 +333,6 @@ class ThumbFolder(Thumb):
         view_action._clicked.connect(self.open_in_view.emit)
         menu.addAction(view_action)
 
-        update_ = UpdateGrid(parent=menu, src=JsonData.root)
-        menu.addAction(update_)
-
         menu.addSeparator()
 
         info = Info(parent=menu, src=self.src)
@@ -362,6 +359,9 @@ class ThumbFolder(Thumb):
             menu.addAction(self.fav_action)
 
         menu.addSeparator()
+
+        update_ = UpdateGrid(parent=menu, src=JsonData.root)
+        menu.addAction(update_)
 
         change_view = ChangeView(menu, self.src)
         menu.addMenu(change_view)

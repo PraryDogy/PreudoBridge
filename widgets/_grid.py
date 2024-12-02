@@ -304,11 +304,6 @@ class Grid(BaseMethods, QScrollArea):
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         menu = QMenu(parent=self)
 
-        upd_ = UpdateGrid(menu, JsonData.root)
-        menu.addAction(upd_)
-
-        menu.addSeparator()
-
         info = Info(menu, JsonData.root)
         menu.addAction(info)
 
@@ -334,10 +329,8 @@ class Grid(BaseMethods, QScrollArea):
 
         menu.addSeparator()
 
-        # скопировать путь
-        # сеп
-        # добавить в избранное
-        # сеп
+        upd_ = UpdateGrid(menu, JsonData.root)
+        menu.addAction(upd_)
 
         change_view = ChangeView(menu, JsonData.root)
         menu.addMenu(change_view)
