@@ -234,11 +234,13 @@ class Grid(BaseMethods, QScrollArea):
     def fav_cmd(self, offset: int):
         self.fav_action.triggered.disconnect()
         if 0 + offset == 1:
-            SignalsApp.all_.fav_cmd.emit("add", JsonData.root)
+
+            SignalsApp.all_.fav_cmd.emit({"cmd": "add", "src": JsonData.root})
             self.fav_action.setText("Удалить из избранного")
             self.fav_action.triggered.connect(lambda: self.fav_cmd(-1))
+
         else:
-            SignalsApp.all_.fav_cmd.emit("del", JsonData.root)
+            SignalsApp.all_.fav_cmd.emit({"cmd": "del", "src": JsonData.root})
             self.fav_action.setText("Добавить в избранное")
             self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))
 
@@ -364,4 +366,4 @@ class Grid(BaseMethods, QScrollArea):
 
     def dropEvent(self, a0: QDropEvent | None) -> None:
         src = a0.mimeData().text()
-        SignalsApp.all_.fav_cmd.emit("del", src)
+        SignalsApp.all_.fav_cmd.emit({"cmd": "del", "src": src})

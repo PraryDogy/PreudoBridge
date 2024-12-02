@@ -100,12 +100,12 @@ class ListStandart(QTableView):
 
         if os.path.isdir(src):
             if src in JsonData.favs:
-                cmd_ = lambda: SignalsApp.all_.fav_cmd.emit("del", src)
+                cmd_ = lambda: SignalsApp.all_.fav_cmd.emit({"cmd": "del", "src": src})
                 fav_action = FavRemove(menu, src)
                 fav_action._clicked.connect(cmd_)
                 menu.addAction(fav_action)
             else:
-                cmd_ = lambda: SignalsApp.all_.fav_cmd.emit("add", src)
+                cmd_ = lambda: SignalsApp.all_.fav_cmd.emit({"cmd": "add", "src": src})
                 fav_action = FavAdd(menu, src)
                 fav_action._clicked.connect(cmd_)
                 menu.addAction(fav_action)

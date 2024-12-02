@@ -316,11 +316,11 @@ class ThumbFolder(Thumb):
     def fav_cmd(self, offset: int):
         self.fav_action.triggered.disconnect()
         if 0 + offset == 1:
-            SignalsApp.all_.fav_cmd.emit("add", self.src)
+            SignalsApp.all_.fav_cmd.emit({"cmd": "add", "src": self.src})
             self.fav_action.setText("Удалить из избранного")
             self.fav_action.triggered.connect(lambda: self.fav_cmd(-1))
         else:
-            SignalsApp.all_.fav_cmd.emit("del", self.src)
+            SignalsApp.all_.fav_cmd.emit({"cmd": "del", "src": self.src})
             self.fav_action.setText("Добавить в избранное")
             self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))
 

@@ -100,15 +100,20 @@ class TreeFavorites(QListWidget):
         else:
             self.clearSelection()
 
-    def cmd_(self, flag: str, src: str):
-        if flag == "select":
-            self.select_fav(src)
-        elif flag == "add":
-            self.add_fav_cmd(src)
-        elif flag == "del":
-            self.del_item(src)
+    def cmd_(self, cmd: dict):
+        """
+        keys:
+        cmd = select or add or remove 
+        src = path to directory 
+        """
+        if cmd.get("cmd") == "select":
+            self.select_fav(cmd.get("src"))
+        elif cmd.get("cmd") == "add":
+            self.add_fav_cmd(cmd.get("src"))
+        elif cmd.get("cmd") == "del":
+            self.del_item(cmd.get("src"))
         else:
-            raise Exception("tree favorites wrong flag", flag)
+            raise Exception("tree favorites wrong flag", cmd.get("cmd"))
 
     def add_fav_cmd(self, src: str):
         if src not in JsonData.favs:

@@ -12,7 +12,7 @@ class Signals(QObject):
     move_to_wid = pyqtSignal(QWidget)
     # end
 
-    fav_cmd = pyqtSignal(str, str)
+    fav_cmd = pyqtSignal(dict)
     search_finished = pyqtSignal(str)
     show_in_folder = pyqtSignal(str)
     progressbar_cmd = pyqtSignal(object)
