@@ -179,8 +179,11 @@ class Utils:
         w = sum((
             THUMB_W[JsonData.pixmap_size_ind],
             GRID_SPACING,
-            MARGIN.get("w")
+            MARGIN.get("w"),
+            10
             ))
+        # 10 пикселей к ширине виджета, чтобы он казался чуть шире
+        # тогда при ресайзе окна позже потребуется новая колонка
         return (width + LEFT_MENU_W) // w
 
     @classmethod
