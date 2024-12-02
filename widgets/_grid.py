@@ -371,11 +371,16 @@ class Grid(BaseMethods, QScrollArea):
         menu.exec_(self.mapToGlobal(a0.pos()))
 
     def dragEnterEvent(self, a0: QDragEnterEvent | None) -> None:
-        if a0.source().objectName() == FAVORITES_NAME:
+        if a0.mimeData():
             a0.accept()
         else:
             a0.ignore()
 
     def dropEvent(self, a0: QDropEvent | None) -> None:
-        src = a0.mimeData().text()
-        SignalsApp.all_.fav_cmd.emit({"cmd": "del", "src": src})
+        if a0.mimeData().hasUrls():
+            print("add file", a0.mimeData().urls())
+
+        # удаляем избранное
+        elif a0.mimeData().hasText():
+            src = a0.mimeData().text()
+            SignalsApp.all_.fav_cmd.emit({"cmd": "del", "src": src})
