@@ -182,9 +182,6 @@ class LoadImages(URunnable):
 
         return sqlalchemy.insert(CACHE).values(**values_)
 
-    def get_values(self):
-        ...
-
     def remove_images(self):
 
         for src, hash_path in self.remove_db_images:
