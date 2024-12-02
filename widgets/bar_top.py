@@ -4,7 +4,7 @@ from PyQt5.QtCore import QSize, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
                              QMenu, QPushButton, QSpacerItem, QTabBar,
-                             QVBoxLayout, QWidget)
+                             QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import (BACK_SYM, BLUE, BURGER_SYM, COLORS, FAT_DOT_SYM,
                  FILTERS_CROSS_SYM, GRID_SYM, IMG_EXT, NEXT_SYM,
@@ -278,10 +278,34 @@ class FiltersBtn(QPushButton):
         self.style_btn()
 
 
-class HistoryBtn(QPushButton):
-    def __init__(self, text: str):
-        super().__init__(text)
-        self.setFixedWidth(50)
+class HistoryBtns(QTabBar):
+    clicked_ = pyqtSignal(int)
+
+    def __init__(self):
+        super().__init__()
+
+        self.addTab(BACK_SYM)
+
+        self.addTab("")
+        self.setTabVisible(1, False)
+
+        self.addTab(NEXT_SYM)
+        self.fake_click()
+
+        self.tabBarClicked.connect(self.cmd_)
+
+    def fake_click(self):
+        self.setCurrentIndex(1)
+
+    def cmd_(self, *args):
+        if args[0] == 1:
+            self.clicked_.emit(-1)
+        else:
+            self.clicked_.emit(1)
+
+    def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
+        QTimer.singleShot(100, self.fake_click)
+        return super().mouseReleaseEvent(a0)
 
 
 class BarTop(QFrame):
@@ -297,18 +321,13 @@ class BarTop(QFrame):
 
         self.grid_layout = QGridLayout()
         self.grid_layout.setSpacing(10)
-        self.grid_layout.setContentsMargins(0, 0, 0, 0)
+        self.grid_layout.setContentsMargins(5, 0, 0, 0)
         self.setLayout(self.grid_layout)
 
         self.clmn += 1
-        self.back_btn = HistoryBtn(BACK_SYM)
-        self.back_btn.clicked.connect(lambda: self.navigate(-1))
-        self.grid_layout.addWidget(self.back_btn, 0, self.clmn)
-
-        self.clmn += 1
-        self.next_btn = HistoryBtn(NEXT_SYM)
-        self.next_btn.clicked.connect(lambda: self.navigate(1))
-        self.grid_layout.addWidget(self.next_btn, 0, self.clmn)
+        self.history_btns = HistoryBtns()
+        self.history_btns.clicked_.connect(self.navigate)
+        self.grid_layout.addWidget(self.history_btns, 0, self.clmn)
 
         self.clmn += 1
         self.level_up_btn = QPushButton(UP_CURVE)
