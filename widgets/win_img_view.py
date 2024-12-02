@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QMenu, QSpacerItem,
                              QVBoxLayout, QWidget)
 
 from cfg import (CLOSE_SVG, IMG_BIG_SVG, NEXT_SVG, PREV_SVG, STAR_SYM,
-                 ZOOM_FIT_SVG, ZOOM_IN_SVG, ZOOM_OUT_SVG, JsonData)
+                 ZOOM_FIT_SVG, ZOOM_IN_SVG, ZOOM_OUT_SVG, Dynamic, JsonData)
 from database import CACHE, Dbase
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
@@ -258,7 +258,7 @@ class WinImgView(WinBase):
     def __init__(self, src: str):
         super().__init__()
         self.setMinimumSize(QSize(400, 300))
-        self.resize(JsonData.ww_im, JsonData.hh_im)
+        self.resize(Dynamic.ww_im, Dynamic.hh_im)
 
         self.src: str = src
         self.wid: Thumb = Thumb.path_to_wid.get(src)
@@ -424,8 +424,8 @@ class WinImgView(WinBase):
         bottom_window_side = a0.size().height() - self.zoom_btns.height()
         self.zoom_btns.move(horizontal_center, bottom_window_side - 30)
 
-        JsonData.ww_im = self.width()
-        JsonData.hh_im = self.height()
+        Dynamic.ww_im = self.width()
+        Dynamic.hh_im = self.height()
 
     def leaveEvent(self, a0: QEvent | None) -> None:
         self.hide_btns()

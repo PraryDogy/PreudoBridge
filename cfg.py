@@ -86,10 +86,6 @@ FAVORITES_NAME = "___favs___"
 
 class JsonData:
     root = f"/Volumes"
-    ww = 1050
-    hh = 700
-    ww_im = 700
-    hh_im = 500
     sort = "name" # database > CACHE > column "name"
     reversed = False
     extra_paths = ["/Studio/PANACEA", "/Studio/MIUZ"]
@@ -182,3 +178,7 @@ class Dynamic:
     color_filters: list = []
     rating_filter: int = 0
     grid_view_type: int = 0
+    ww = 1050
+    hh = 700
+    ww_im = 700
+    hh_im = 500

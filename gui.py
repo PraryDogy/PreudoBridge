@@ -41,7 +41,7 @@ class SimpleFileExplorer(QWidget):
         super().__init__()
         self.setMinimumWidth(200)
 
-        ww, hh = JsonData.ww, JsonData.hh
+        ww, hh = Dynamic.ww, Dynamic.hh
         self.resize(ww, hh)
         self.setMinimumSize(800, 500)
 
@@ -196,11 +196,11 @@ class SimpleFileExplorer(QWidget):
             self.scroll_up.show()
 
     def get_grid_width(self):
-        return JsonData.ww - self.bar_tabs.width() - 180
+        return Dynamic.ww - self.bar_tabs.width() - 180
 
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
-        JsonData.ww = self.geometry().width()
-        JsonData.hh = self.geometry().height()
+        Dynamic.ww = self.geometry().width()
+        Dynamic.hh = self.geometry().height()
         self.scroll_up.move(self.width() - 70, self.height() - 110)
         self.resize_timer.stop()
         self.resize_timer.start(500)
