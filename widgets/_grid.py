@@ -378,7 +378,7 @@ class Grid(BaseMethods, QScrollArea):
 
     def dropEvent(self, a0: QDropEvent | None) -> None:
         if a0.mimeData().hasUrls():
-            print("add file", a0.mimeData().urls())
+            print("скопировать файл в программу")
 
         # удаляем избранное
         elif a0.mimeData().hasText():
