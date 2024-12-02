@@ -201,6 +201,11 @@ class Grid(BaseMethods, QScrollArea):
             if col >= col_count:
                 col = 0
                 row += 1
+
+        Thumb.path_to_wid = {
+            wid.src: wid
+            for coords, wid in self.cell_to_wid.items()
+        }
         
     def add_widget_data(self, wid: Thumb, row: int, col: int):
         wid.row, wid.col = row, col
