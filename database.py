@@ -80,7 +80,7 @@ class Dbase:
     def init_db(cls):
         cls.engine = sqlalchemy.create_engine(
             f"sqlite:///{DB_FILE}",
-            echo=False,
+            echo=True,
             connect_args={
                 "check_same_thread": False,
                 "timeout": 15
