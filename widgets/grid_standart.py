@@ -108,6 +108,7 @@ class LoadImages(URunnable):
 
         for src, size, mod in self.finder_items:
 
+
             if not self.should_run:
                 break
 
