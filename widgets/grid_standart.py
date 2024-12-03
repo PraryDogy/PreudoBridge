@@ -159,6 +159,7 @@ class LoadImages(URunnable):
                 return None
 
         self.conn.commit()
+        print("commited")
 
         for stmt_, hash_path, img_array in self.insert_count_data:
             Utils.write_image_hash(hash_path, img_array)
@@ -204,7 +205,10 @@ class LoadImages(URunnable):
         self.conn.commit()
 
         for src, hash_path in self.remove_db_images:
-            os.remove(hash_path)
+            try:
+                os.remove(hash_path)
+            except (FileNotFoundError):
+                ...
 
         return True
 

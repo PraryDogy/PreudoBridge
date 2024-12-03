@@ -87,15 +87,17 @@ class Dbase:
                 }
                 )
         METADATA.create_all(cls.engine)
-        cls.enable_wal()
+        cls.toggle_wal(False)
         cls.check_tables()
         cls.check_values()
 
     @classmethod
-    def enable_wal(cls):
+    def toggle_wal(cls, value: bool):
         with cls.engine.connect() as conn:
-            conn.execute(sqlalchemy.text("PRAGMA journal_mode=WAL"))
-        print("database > wal enabled")
+            if value:
+                conn.execute(sqlalchemy.text("PRAGMA journal_mode=WAL"))
+            else:
+                conn.execute(sqlalchemy.text("PRAGMA journal_mode=DELETE"))
 
     @classmethod
     def clear_db(cls):
