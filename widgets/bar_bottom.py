@@ -329,6 +329,7 @@ class BarBottom(QWidget):
         col += 1
         colspan += 1
         self.total = QLabel()
+        self.total.mouseReleaseEvent = self.open_go_win
         self.total.setFixedHeight(15)
         self.grid_lay.addWidget(self.total, row, col, Qt.AlignmentFlag.AlignLeft)
 
