@@ -272,7 +272,7 @@ class GridStandart(Grid):
         self.limit = 100
 
         self.finder_task = LoadFinder()
-        self.finder_task.signals_.finished_.connect(self.create_sorted_grid)
+        self.finder_task.signals_.finished_.connect(self.finder_task_fin)
         UThreadPool.pool.start(self.finder_task)
 
         self.verticalScrollBar().valueChanged.connect(self.on_scroll)
@@ -280,21 +280,31 @@ class GridStandart(Grid):
     def on_scroll(self, value: int):
         if value == self.verticalScrollBar().maximum():
             self.offset += self.limit
-            self.create_sorted_grid(self.order_items)
+            self.create_sorted_grid()
 
-    def create_sorted_grid(self, order_items: list[OrderItem]):
+    def finder_task_fin(self, order_items: list[OrderItem]):
 
         self.order_items = order_items
-        SignalsApp.all_.progressbar_cmd.emit({"cmd": "set_max", "value": len(order_items)})
+
+        SignalsApp.all_.progressbar_cmd.emit(
+            {"cmd": "set_max", "value": len(order_items)}
+        )
+
         SignalsApp.all_.progressbar_cmd.emit({"cmd": "set_zero"})
         SignalsApp.all_.progressbar_cmd.emit({"cmd": "show"})
 
-        # куда его?
-        # SignalsApp.all_.progressbar_cmd.emit("hide")
 
         SignalsApp.all_.path_labels_cmd.emit(
             {"src": JsonData.root, "total": len(order_items)}
         )
+
+        self.create_sorted_grid()
+
+    def create_sorted_grid(self):
+
+        # куда его?
+        # SignalsApp.all_.progressbar_cmd.emit("hide")
+
         sys_disk = os.path.join(os.sep, "Volumes", "Macintosh HD")
         col_count = Utils.get_clmn_count(self.ww)
         row, col = 0, 0
