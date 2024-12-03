@@ -85,6 +85,11 @@ class LoadImages(URunnable):
             (src, size, mod): hash_path
             for src, hash_path, size, mod in res
             }
+        
+        # ты передаешь сюда лимитированный order items
+        # а в бд грузится безлимит, соответственно все что 
+        # есть в бд и нет в лимитированном  order items - удаляется
+        # нужно передавать offset
 
     def compare_db_and_finder_items(self):
         for (db_src, db_size, db_mod), hash_path in self.db_items.items():
@@ -100,6 +105,7 @@ class LoadImages(URunnable):
 
             else:
                 self.remove_db_images.append((db_src, hash_path))
+                # print("append")
 
     def create_new_images(self):
         insert_count = 0
@@ -159,7 +165,6 @@ class LoadImages(URunnable):
                 return None
 
         self.conn.commit()
-        print("commited")
 
         for stmt_, hash_path, img_array in self.insert_count_data:
             Utils.write_image_hash(hash_path, img_array)
@@ -291,10 +296,8 @@ class GridStandart(Grid):
         if value == self.verticalScrollBar().maximum():
 
             if self.offset > self.total:
-                print("ты уперся в лимит")
                 return
             else:
-                print(self.offset)
                 self.offset += self.limit
                 self.create_sorted_grid()
 
