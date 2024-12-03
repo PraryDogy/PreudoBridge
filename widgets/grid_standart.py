@@ -287,11 +287,16 @@ class GridStandart(Grid):
         self.verticalScrollBar().valueChanged.connect(self.on_scroll)
 
     def on_scroll(self, value: int):
-        if value == self.verticalScrollBar().maximum():
-            self.offset += self.limit
-            self.create_sorted_grid()
 
-            print(self.offset)
+        if value == self.verticalScrollBar().maximum():
+
+            if self.offset > self.total:
+                print("ты уперся в лимит")
+                return
+            else:
+                print(self.offset)
+                self.offset += self.limit
+                self.create_sorted_grid()
 
     def finder_task_fin(self, order_items: list[OrderItem]):
 
