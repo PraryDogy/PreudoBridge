@@ -47,11 +47,17 @@ class Grid(BaseMethods, QScrollArea):
         SignalsApp.all_.filter_grid.connect(self.filter_)
         SignalsApp.all_.move_to_wid.connect(self.select_new_widget)
 
-        main_wid = QWidget()
-        self.grid_layout = QGridLayout(main_wid)
+        self.main_wid = QWidget()
+
+        flags = Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
+        self.grid_layout = QGridLayout()
         self.grid_layout.setSpacing(GRID_SPACING)
-        self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
-        self.setWidget(main_wid)
+        self.grid_layout.setAlignment(flags)
+
+        self.main_wid.setLayout(self.grid_layout)
+
+    def set_main_wid(self):
+        self.setWidget(self.main_wid)
 
     def select_new_widget(self, data: tuple | str | Thumb):
         if isinstance(data, Thumb):
