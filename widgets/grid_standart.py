@@ -244,7 +244,11 @@ class LoadFinder(URunnable):
   
         with Dbase.engine.connect() as conn:
             res = conn.execute(q).fetchall()
-            self.db_color_rating = {src: [colors, rating] for src, colors, rating in res}
+
+            self.db_color_rating = {
+                src: [colors, rating]
+                for src, colors, rating in res
+            }
 
     def get_items(self) -> list:
 
