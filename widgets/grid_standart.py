@@ -33,11 +33,10 @@ class WorkerSignals(QObject):
 
 
 class LoadImages(URunnable):
-    def __init__(self, order_items: list[OrderItem], offset: int):
+    def __init__(self, order_items: list[OrderItem]):
         super().__init__()
 
         self.signals_ = WorkerSignals()
-        self.offset = offset
         self.finder_items: list[tuple[int, int, int]] = [
             (order_item.src, order_item.size, order_item.mod)
             for order_item in order_items
@@ -88,11 +87,6 @@ class LoadImages(URunnable):
             for src, hash_path, size, mod in db_items
             if src is not None
             }
-        
-        # ты передаешь сюда лимитированный order items
-        # а в бд грузится безлимит, соответственно все что 
-        # есть в бд и нет в лимитированном  order items - удаляется
-        # нужно передавать offset
 
     def compare_db_and_finder_items(self):
         for (db_src, db_size, db_mod), hash_path in self.db_items.items():
@@ -388,7 +382,7 @@ class GridStandart(Grid):
         self.select_after_list()
 
     def start_load_images(self, cut_order_items: list[OrderItem]):
-        self.task_ = LoadImages(order_items=cut_order_items, offset=self.offset)
+        self.task_ = LoadImages(order_items=cut_order_items)
         cmd_ = lambda image_data: self.set_pixmap(image_data)
         self.task_.signals_.new_widget.connect(cmd_)
         UThreadPool.pool.start(self.task_)
