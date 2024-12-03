@@ -68,6 +68,11 @@ class LoadImages(URunnable):
 
         self.conn.close()
 
+        # if self.should_run:
+        #     print("завершено по доброй воле")
+        # else:
+        #     print("принудительно")
+
     def get_db_dataset(self):
 
         db_items: list[tuple] = []
