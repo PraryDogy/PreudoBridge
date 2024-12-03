@@ -379,8 +379,3 @@ class Grid(BaseMethods, QScrollArea):
     def dropEvent(self, a0: QDropEvent | None) -> None:
         if a0.mimeData().hasUrls():
             print("скопировать файл в программу")
-
-        # удаляем избранное
-        elif a0.mimeData().hasText():
-            src = a0.mimeData().text()
-            SignalsApp.all_.fav_cmd.emit({"cmd": "del", "src": src})
