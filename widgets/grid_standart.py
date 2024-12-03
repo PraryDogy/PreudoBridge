@@ -67,6 +67,8 @@ class LoadImages(URunnable):
 
         self.conn.close()
 
+        SignalsApp.all_.progressbar_cmd.emit({"cmd": "hide"})
+
     def get_db_dataset(self):
 
         q = sqlalchemy.select(
@@ -289,10 +291,12 @@ class GridStandart(Grid):
         SignalsApp.all_.progressbar_cmd.emit(
             {"cmd": "set_max", "value": len(order_items)}
         )
-
-        SignalsApp.all_.progressbar_cmd.emit({"cmd": "set_zero"})
-        SignalsApp.all_.progressbar_cmd.emit({"cmd": "show"})
-
+        SignalsApp.all_.progressbar_cmd.emit(
+            {"cmd": "set_zero"}
+        )
+        SignalsApp.all_.progressbar_cmd.emit(
+            {"cmd": "show"}
+        )
 
         SignalsApp.all_.path_labels_cmd.emit(
             {"src": JsonData.root, "total": len(order_items)}
@@ -301,9 +305,6 @@ class GridStandart(Grid):
         self.create_sorted_grid()
 
     def create_sorted_grid(self):
-
-        # куда его?
-        # SignalsApp.all_.progressbar_cmd.emit("hide")
 
         sys_disk = os.path.join(os.sep, "Volumes", "Macintosh HD")
         col_count = Utils.get_clmn_count(self.ww)

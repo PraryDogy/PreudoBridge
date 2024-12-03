@@ -368,10 +368,10 @@ class BarBottom(QWidget):
         cmd = data.get("cmd")
 
         if cmd == "show":
-            self.show()
+            self.progressbar.show()
         
         elif cmd == "hide":
-            self.hide()
+            self.progressbar.hide()
 
         elif cmd == "plus_one":
             value = self.progressbar.value() + 1
