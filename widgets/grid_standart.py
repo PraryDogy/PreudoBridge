@@ -33,11 +33,11 @@ class WorkerSignals(QObject):
 
 
 class LoadImages(URunnable):
-    def __init__(self, order_items: list[OrderItem]):
+    def __init__(self, order_items: list[OrderItem], offset: int):
         super().__init__()
 
         self.signals_ = WorkerSignals()
-
+        self.offset = offset
         self.finder_items: list[tuple[int, int, int]] = [
             (order_item.src, order_item.size, order_item.mod)
             for order_item in order_items
@@ -55,9 +55,6 @@ class LoadImages(URunnable):
         self.get_db_dataset()
         self.compare_db_and_finder_items()
 
-        # ln_finder_items = len(self.finder_items)
-
-
         # remove images необходимо выполнять перед insert_queries_cmd
         # т.к. у нас sqlalchemy.update отсутствует
         # и обновление происходит через удаление и добавление заново
@@ -67,23 +64,29 @@ class LoadImages(URunnable):
 
         self.conn.close()
 
-        # SignalsApp.all_.progressbar_cmd.emit({"cmd": "hide"})
-
     def get_db_dataset(self):
 
-        q = sqlalchemy.select(
-            CACHE.c.src,
-            CACHE.c.hash_path,
-            CACHE.c.size,
-            CACHE.c.mod
-            ).where(
-                CACHE.c.root == JsonData.root
+        db_items: list[tuple] = []
+
+        for src, size, mod in self.finder_items:
+            q = sqlalchemy.select(
+                CACHE.c.src,
+                CACHE.c.hash_path,
+                CACHE.c.size,
+                CACHE.c.mod
                 )
-        res = self.conn.execute(q).fetchall()
+            q = q.where(CACHE.c.src==src)
+            res = self.conn.execute(q).first()
+
+            if res:
+                db_items.append(res)
+            else:
+                print("no")
 
         self.db_items: dict[tuple, str] = {
             (src, size, mod): hash_path
-            for src, hash_path, size, mod in res
+            for src, hash_path, size, mod in db_items
+            if src is not None
             }
         
         # ты передаешь сюда лимитированный order items
@@ -105,7 +108,9 @@ class LoadImages(URunnable):
 
             else:
                 self.remove_db_images.append((db_src, hash_path))
-                # print("append")
+
+        # order items имеют другую сортировку нежели order_items?
+
 
     def create_new_images(self):
         insert_count = 0
@@ -383,7 +388,7 @@ class GridStandart(Grid):
         self.select_after_list()
 
     def start_load_images(self, cut_order_items: list[OrderItem]):
-        self.task_ = LoadImages(cut_order_items)
+        self.task_ = LoadImages(order_items=cut_order_items, offset=self.offset)
         cmd_ = lambda image_data: self.set_pixmap(image_data)
         self.task_.signals_.new_widget.connect(cmd_)
         UThreadPool.pool.start(self.task_)
