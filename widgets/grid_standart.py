@@ -269,23 +269,42 @@ class LoadFinder(URunnable):
 class GridStandart(Grid):
     def __init__(self, width: int):
         super().__init__(width)
+
         self.order_items: list[OrderItem] = []
+
+        self.offset = 0
+        self.limit = 100
 
         self.finder_task = LoadFinder()
         self.finder_task.signals_.finished_.connect(self.create_sorted_grid)
         UThreadPool.pool.start(self.finder_task)
 
+        self.verticalScrollBar().valueChanged.connect(self.on_scroll)
+
+    def on_scroll(self, value: int):
+        if value == self.verticalScrollBar().maximum():
+
+            self.offset += self.limit
+            self.create_sorted_grid(self.order_items)
+
     def create_sorted_grid(self, order_items: list[OrderItem]):
 
         self.order_items = order_items
-        SignalsApp.all_.path_labels_cmd.emit({"src": JsonData.root, "total": len(order_items)})
+
+        SignalsApp.all_.path_labels_cmd.emit(
+            {"src": JsonData.root, "total": len(order_items)}
+        )
         sys_disk = os.path.join(os.sep, "Volumes", "Macintosh HD")
         col_count = Utils.get_clmn_count(self.ww)
         row, col = 0, 0
 
         Thumb.calculate_size()
 
-        for order_item in self.order_items:
+        cut = self.order_items[self.offset:self.offset + self.limit]
+
+        print(len(cut))
+
+        for order_item in cut:
     
             if os.path.isdir(order_item.src):
 
@@ -297,7 +316,11 @@ class GridStandart(Grid):
                     rating=order_item.rating,
                     )
 
-                if os.path.ismount(order_item.src) or order_item.src == sys_disk:
+                if (
+                    os.path.ismount(order_item.src)
+                    or
+                    order_item.src == sys_disk
+                ):
                     wid.img_wid.load(HDD_SVG)
 
 
