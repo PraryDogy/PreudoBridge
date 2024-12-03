@@ -283,7 +283,6 @@ class GridStandart(Grid):
 
     def on_scroll(self, value: int):
         if value == self.verticalScrollBar().maximum():
-
             self.offset += self.limit
             self.create_sorted_grid(self.order_items)
 
@@ -301,8 +300,6 @@ class GridStandart(Grid):
         Thumb.calculate_size()
 
         cut = self.order_items[self.offset:self.offset + self.limit]
-
-        print(len(cut))
 
         for order_item in cut:
     
@@ -345,7 +342,7 @@ class GridStandart(Grid):
                 row += 1
 
         if self.cell_to_wid:
-            self.start_load_images()
+            self.start_load_images(cut)
 
         elif not os.path.exists(JsonData.root):
             t = f"{JsonData.root}\nТакой папки не существует\nПроверьте подключение к сетевому диску"
@@ -364,8 +361,8 @@ class GridStandart(Grid):
         self.order_()
         self.select_after_list()
 
-    def start_load_images(self):
-        self.task_ = LoadImages(self.order_items)
+    def start_load_images(self, cut_order_items: list[OrderItem]):
+        self.task_ = LoadImages(cut_order_items)
         cmd_ = lambda image_data: self.set_pixmap(image_data)
         self.task_.signals_.new_widget.connect(cmd_)
         UThreadPool.pool.start(self.task_)
