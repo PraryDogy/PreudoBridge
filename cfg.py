@@ -17,7 +17,7 @@ DB_FILE = os.path.join(ROOT, 'db.db')
 USER_APPS = "/Applications"
 
 GRAY = "rgba(111, 111, 111, 0.5)"
-BLUE = "rgba(0, 122, 255, 1)"
+BLUE = "rgb(46, 89, 203)"
 
 STAR_SYM = "\U00002605"
 GRID_SYM = "\U00001392"
