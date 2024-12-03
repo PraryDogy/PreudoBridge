@@ -359,19 +359,33 @@ class BarBottom(QWidget):
         Utils.center_win(Utils.get_main_win(), self.win)
         self.win.show()
 
-    def progressbar_cmd(self, cmd: int | str):
-        if isinstance(cmd, int):
-            self.progressbar.setValue(cmd)
-        elif cmd == "hide":
-            self.progressbar.hide()
-        elif cmd == "show":
-            self.progressbar.show()
-        elif "max " in cmd:
-            value = int(cmd.split(" ")[-1])
-            self.progressbar.setMaximum(value)
-        else:
-            raise Exception("bar_borrom > progress bar wrong cmd", cmd)
+    def progressbar_cmd(self, data: dict):
+        """
+        keys: cmd, value
+        cmd: show, hide, plus_one, set_max, set_zero
+        """
+
+        cmd = data.get("cmd")
+
+        if cmd == "show":
+            self.show()
         
+        elif cmd == "hide":
+            self.hide()
+
+        elif cmd == "plus_one":
+            value = self.progressbar.value() + 1
+            self.progressbar.setValue(value)
+
+        elif cmd == "set_max":
+            self.progressbar.setMaximum(data.get("value"))
+
+        elif cmd == "set_zero":
+            self.progressbar.setValue(0)
+
+        else:
+            raise ValueError("bar_borrom > progress bar wrong cmd", data)
+
     def path_labels_cmd(self, data: dict):
 
         if data.get("src"):

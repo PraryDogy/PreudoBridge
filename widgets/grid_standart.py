@@ -55,10 +55,8 @@ class LoadImages(URunnable):
         self.get_db_dataset()
         self.compare_db_and_finder_items()
 
-        ln_finder_items = len(self.finder_items)
-        SignalsApp.all_.progressbar_cmd.emit("max " + str(ln_finder_items))
-        SignalsApp.all_.progressbar_cmd.emit(0)
-        SignalsApp.all_.progressbar_cmd.emit("show")
+        # ln_finder_items = len(self.finder_items)
+
 
         # remove images необходимо выполнять перед insert_queries_cmd
         # т.к. у нас sqlalchemy.update отсутствует
@@ -67,7 +65,6 @@ class LoadImages(URunnable):
         self.create_new_images()
         self.insert_count_cmd()
 
-        SignalsApp.all_.progressbar_cmd.emit("hide")
         self.conn.close()
 
     def get_db_dataset(self):
@@ -103,7 +100,6 @@ class LoadImages(URunnable):
                 self.remove_db_images.append((db_src, hash_path))
 
     def create_new_images(self):
-        progress_count = 0
         insert_count = 0
 
         for src, size, mod in self.finder_items:
@@ -136,9 +132,8 @@ class LoadImages(URunnable):
                 self.insert_count_data.append((stmt, hash_path, small_img_array))
 
                 self.signals_.new_widget.emit(ImageData(src, pixmap))
-                SignalsApp.all_.progressbar_cmd.emit(progress_count)
+                SignalsApp.all_.progressbar_cmd.emit({"cmd": "plus_one"})
 
-                progress_count += 1
                 insert_count += 1
 
     def insert_count_cmd(self):
@@ -290,6 +285,12 @@ class GridStandart(Grid):
     def create_sorted_grid(self, order_items: list[OrderItem]):
 
         self.order_items = order_items
+        SignalsApp.all_.progressbar_cmd.emit({"cmd": "set_max", "value": len(order_items)})
+        SignalsApp.all_.progressbar_cmd.emit({"cmd": "set_zero"})
+        SignalsApp.all_.progressbar_cmd.emit({"cmd": "show"})
+
+        # куда его?
+        # SignalsApp.all_.progressbar_cmd.emit("hide")
 
         SignalsApp.all_.path_labels_cmd.emit(
             {"src": JsonData.root, "total": len(order_items)}
@@ -375,7 +376,7 @@ class GridStandart(Grid):
                 widget.set_pixmap(pixmap=image_data.pixmap)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
-        SignalsApp.all_.progressbar_cmd.emit("hide")
+        SignalsApp.all_.progressbar_cmd.emit({"cmd": "hide"})
         if hasattr(self, "task_") and self.task_.is_running:
             self.task_.should_run = False
         return super().closeEvent(a0)
