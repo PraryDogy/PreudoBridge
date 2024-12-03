@@ -32,6 +32,11 @@ class WorkerSignals(QObject):
     finished_ = pyqtSignal(list)
 
 
+class Flag:
+    can_run = False
+
+
+
 class LoadImages(URunnable):
     def __init__(self, order_items: list[OrderItem]):
         super().__init__()
@@ -79,8 +84,6 @@ class LoadImages(URunnable):
 
             if res:
                 db_items.append(res)
-            else:
-                print("no")
 
         self.db_items: dict[tuple, str] = {
             (src, size, mod): hash_path
