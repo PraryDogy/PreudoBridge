@@ -1,6 +1,6 @@
 import os
 
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import (QContextMenuEvent, QDragEnterEvent, QDropEvent,
                          QKeyEvent, QMouseEvent)
 from PyQt5.QtWidgets import QFrame, QGridLayout, QMenu, QScrollArea, QWidget
@@ -21,6 +21,7 @@ SELECTED = "selected"
 
 
 class Grid(BaseMethods, QScrollArea):
+    rearranged = pyqtSignal()
 
     def __init__(self, width: int):
         Thumb.path_to_wid.clear()
@@ -209,7 +210,9 @@ class Grid(BaseMethods, QScrollArea):
             wid.src: wid
             for coords, wid in self.cell_to_wid.items()
         }
-        
+
+        self.rearranged.emit()
+
     def add_widget_data(self, wid: Thumb, row: int, col: int):
         wid.row, wid.col = row, col
         self.cell_to_wid[row, col] = wid
