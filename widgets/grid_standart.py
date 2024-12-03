@@ -287,6 +287,7 @@ class GridStandart(Grid):
         super().__init__(width)
 
         self.order_items: list[OrderItem] = []
+        self.tasks: list[LoadImages] = []
 
         self.offset = 0
         self.limit = 100
@@ -389,10 +390,11 @@ class GridStandart(Grid):
         self.select_after_list()
 
     def start_load_images(self, cut_order_items: list[OrderItem]):
-        self.task_ = LoadImages(order_items=cut_order_items)
+        task_ = LoadImages(order_items=cut_order_items)
+        self.tasks.append(task_)
         cmd_ = lambda image_data: self.set_pixmap(image_data)
-        self.task_.signals_.new_widget.connect(cmd_)
-        UThreadPool.pool.start(self.task_)
+        task_.signals_.new_widget.connect(cmd_)
+        UThreadPool.pool.start(task_)
     
     def set_pixmap(self, image_data: ImageData):
         widget = Thumb.path_to_wid.get(image_data.src)
@@ -401,7 +403,8 @@ class GridStandart(Grid):
                 widget.set_pixmap(pixmap=image_data.pixmap)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
-        # SignalsApp.all_.progressbar_cmd.emit({"cmd": "hide"})
-        if hasattr(self, "task_") and self.task_.is_running:
-            self.task_.should_run = False
+
+        for i in self.tasks:
+            i.should_run = False
+
         return super().closeEvent(a0)
