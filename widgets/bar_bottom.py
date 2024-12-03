@@ -333,11 +333,11 @@ class BarBottom(QWidget):
         self.total.setFixedHeight(15)
         self.grid_lay.addWidget(self.total, row, col, Qt.AlignmentFlag.AlignLeft)
 
-        col += 1
-        colspan += 1
-        self.progressbar = QProgressBar()
-        self.progressbar.setFixedSize(100, 10)
-        self.grid_lay.addWidget(self.progressbar, row, col)
+        # col += 1
+        # colspan += 1
+        # self.progressbar = QProgressBar()
+        # self.progressbar.setFixedSize(100, 10)
+        # self.grid_lay.addWidget(self.progressbar, row, col)
 
         col += 1
         colspan += 1
@@ -351,7 +351,7 @@ class BarBottom(QWidget):
         self.slider.setFixedSize(70, 15)
         self.grid_lay.addWidget(self.slider, row, col)
 
-        SignalsApp.all_.progressbar_cmd.connect(self.progressbar_cmd)
+        # SignalsApp.all_.progressbar_cmd.connect(self.progressbar_cmd)
         SignalsApp.all_.path_labels_cmd.connect(self.path_labels_cmd)
 
     def open_go_win(self, *args):
@@ -359,32 +359,34 @@ class BarBottom(QWidget):
         Utils.center_win(Utils.get_main_win(), self.win)
         self.win.show()
 
-    def progressbar_cmd(self, data: dict):
-        """
-        keys: cmd, value
-        cmd: show, hide, plus_one, set_max, set_zero
-        """
+    # def progressbar_cmd(self, data: dict):
+    #     """
+    #     keys: cmd, value
+    #     cmd: show, hide, plus_one, set_max, set_zero
+    #     """
 
-        cmd = data.get("cmd")
+    #     print(self.progressbar.value(), self.progressbar.maximum())
 
-        if cmd == "show":
-            self.progressbar.show()
+    #     cmd = data.get("cmd")
+
+    #     if cmd == "show":
+    #         self.progressbar.show()
         
-        elif cmd == "hide":
-            self.progressbar.hide()
+    #     elif cmd == "hide":
+    #         self.progressbar.hide()
 
-        elif cmd == "plus_one":
-            value = self.progressbar.value() + 1
-            self.progressbar.setValue(value)
+    #     elif cmd == "plus_one":
+    #         value = self.progressbar.value() + 1
+    #         self.progressbar.setValue(value)
 
-        elif cmd == "set_max":
-            self.progressbar.setMaximum(data.get("value"))
+    #     elif cmd == "set_max":
+    #         self.progressbar.setMaximum(data.get("value"))
 
-        elif cmd == "set_zero":
-            self.progressbar.setValue(0)
+    #     elif cmd == "set_zero":
+    #         self.progressbar.setValue(0)
 
-        else:
-            raise ValueError("bar_borrom > progress bar wrong cmd", data)
+    #     else:
+    #         raise ValueError("bar_borrom > progress bar wrong cmd", data)
 
     def path_labels_cmd(self, data: dict):
 

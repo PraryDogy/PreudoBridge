@@ -67,7 +67,7 @@ class LoadImages(URunnable):
 
         self.conn.close()
 
-        SignalsApp.all_.progressbar_cmd.emit({"cmd": "hide"})
+        # SignalsApp.all_.progressbar_cmd.emit({"cmd": "hide"})
 
     def get_db_dataset(self):
 
@@ -133,8 +133,11 @@ class LoadImages(URunnable):
                 stmt = self.get_insert_stmt(*args)
                 self.insert_count_data.append((stmt, hash_path, small_img_array))
 
-                self.signals_.new_widget.emit(ImageData(src, pixmap))
-                SignalsApp.all_.progressbar_cmd.emit({"cmd": "plus_one"})
+                try:
+                    self.signals_.new_widget.emit(ImageData(src, pixmap))
+                except RuntimeError:
+                    ...
+                # SignalsApp.all_.progressbar_cmd.emit({"cmd": "plus_one"})
 
                 insert_count += 1
 
@@ -288,15 +291,15 @@ class GridStandart(Grid):
 
         self.order_items = order_items
 
-        SignalsApp.all_.progressbar_cmd.emit(
-            {"cmd": "set_max", "value": len(order_items)}
-        )
-        SignalsApp.all_.progressbar_cmd.emit(
-            {"cmd": "set_zero"}
-        )
-        SignalsApp.all_.progressbar_cmd.emit(
-            {"cmd": "show"}
-        )
+        # SignalsApp.all_.progressbar_cmd.emit(
+        #     {"cmd": "set_max", "value": len(order_items) - 1}
+        # )
+        # SignalsApp.all_.progressbar_cmd.emit(
+        #     {"cmd": "set_zero"}
+        # )
+        # SignalsApp.all_.progressbar_cmd.emit(
+        #     {"cmd": "show"}
+        # )
 
         SignalsApp.all_.path_labels_cmd.emit(
             {"src": JsonData.root, "total": len(order_items)}
@@ -387,7 +390,7 @@ class GridStandart(Grid):
                 widget.set_pixmap(pixmap=image_data.pixmap)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
-        SignalsApp.all_.progressbar_cmd.emit({"cmd": "hide"})
+        # SignalsApp.all_.progressbar_cmd.emit({"cmd": "hide"})
         if hasattr(self, "task_") and self.task_.is_running:
             self.task_.should_run = False
         return super().closeEvent(a0)
