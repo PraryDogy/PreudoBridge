@@ -75,7 +75,7 @@ class SimpleFileExplorer(QWidget):
         self.folders_fav_wid = TreeFavorites()
         self.bar_tabs.addTab(self.folders_fav_wid, "Избранное")
 
-        self.bar_tabs.addTab(QLabel("Тут будут каталоги"), "Каталог")
+        # self.bar_tabs.addTab(QLabel("Тут будут каталоги"), "Каталог")
 
         self.bar_tabs.load_last_tab()
 
