@@ -291,22 +291,15 @@ class GridStandart(Grid):
             self.offset += self.limit
             self.create_sorted_grid()
 
+            print(self.offset)
+
     def finder_task_fin(self, order_items: list[OrderItem]):
 
         self.order_items = order_items
-
-        # SignalsApp.all_.progressbar_cmd.emit(
-        #     {"cmd": "set_max", "value": len(order_items) - 1}
-        # )
-        # SignalsApp.all_.progressbar_cmd.emit(
-        #     {"cmd": "set_zero"}
-        # )
-        # SignalsApp.all_.progressbar_cmd.emit(
-        #     {"cmd": "show"}
-        # )
+        self.total = len(order_items)
 
         SignalsApp.all_.path_labels_cmd.emit(
-            {"src": JsonData.root, "total": len(order_items)}
+            {"src": JsonData.root, "total": self.total}
         )
 
         self.create_sorted_grid()
