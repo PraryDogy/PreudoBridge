@@ -59,3 +59,10 @@
 #     img_array = i.get("res")
 #     cv2.imshow("test", img_array)
 #     cv2.waitKey(0)
+
+
+with open ("requirements.txt", "r") as file:
+    data = file.read()
+
+    for i in data.split("\n"):
+        i = i.split("==")[0]
