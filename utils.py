@@ -86,16 +86,13 @@ class Utils:
             return None
 
     @classmethod
-    def read_psd(cls, path: str) -> np.ndarray | None:
+    def read_psd_pil(cls, path: str) -> np.ndarray | None:
         try:
             img = Image.open(path)
-            
             if img.mode == 'RGBA':
                 img = img.convert('RGB')
-            
             img = np.array(img)
             return img
-
         except Exception as e:
             cls.print_error(cls, e)
             cls.read_psd_tools(path=path)
@@ -106,13 +103,10 @@ class Utils:
         try:
             img = psd_tools.PSDImage.open(fp=path)
             img = img.composite()
-
             if img.mode == 'RGBA':
                 img = img.convert('RGB')
-            
             img = np.array(img)
             return img
-
         except Exception as e:
             cls.print_error(cls, e)
             return None

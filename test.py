@@ -98,5 +98,9 @@ def process_files(src: str):
 
 # src = "/Volumes/Shares/Studio/MIUZ/Photo/Art/Ready/22 Millenium/1 IMG"
 # src = "/Volumes/Shares/Studio/MIUZ/Photo/Art/Ready/4 Royal/1 IMG"
-src = "/Volumes/Shares/Studio/MIUZ/Photo/Art/Ready/1 Solo/1 IMG"
-process_files(src)
+# src = "/Volumes/Shares/Studio/MIUZ/Photo/Art/Ready/1 Solo/1 IMG"
+# process_files(src)
+
+
+# tifffile быстрее чем PIL
+# psd_tools медленнее чем PIL
