@@ -272,7 +272,8 @@ class Utils:
             array_img = cv2.imread(src, cv2.IMREAD_UNCHANGED)
             return cv2.cvtColor(array_img, cv2.COLOR_BGR2RGB)
         except Exception as e:
-            cls.print_error(parent=cls, error= e)
+            # cls.print_error(parent=cls, error= e)
+            print("read img hash error:", src)
             return None
 
     @classmethod
