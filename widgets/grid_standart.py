@@ -234,8 +234,6 @@ class LoadFinder(URunnable):
 
     @URunnable.set_running_state
     def run(self):
-        self.is_running = True
-
         try:
             self.get_color_rating()
             self.get_items()
@@ -245,7 +243,6 @@ class LoadFinder(URunnable):
             self.order_items = []
         
         self.signals_.finished_.emit(self.order_items)
-        self.is_running = False
 
     def get_color_rating(self):
         q = sqlalchemy.select(CACHE.c.src, CACHE.c.colors, CACHE.c.rating)
