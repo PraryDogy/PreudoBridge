@@ -232,16 +232,8 @@ class Utils:
             filename = os.path.basename(filepath)
             line_number = trace.lineno
 
-        class_name = parent.__class__.__name__
-        error_message = str(error)
-
-        print()
-        print("#" * 100)
         print(f"{filepath}:{line_number}")
-        print()
-        print("ERROR:", error_message)
-        print("#" * 100)
-        print()
+        print("ERROR:", str(error))
 
     @classmethod
     def get_hash_path(cls, src: str) -> str:
