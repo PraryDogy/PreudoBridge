@@ -298,6 +298,7 @@ class Total(QFrame):
         super().__init__()
         self.setObjectName("total")
         self.setFixedHeight(15)
+        # self.setFixedWidth(130)
 
         h_lay = QHBoxLayout()
         h_lay.setContentsMargins(2, 0, 2, 0)
@@ -309,12 +310,14 @@ class Total(QFrame):
         self.total_text = QLabel()
         h_lay.addWidget(self.total_text)
 
-        # self.adjustSize()
+        self.adjustSize()
 
-        # self.setSizePolicy(
-        #     QSizePolicy.Policy.Expanding,
-        #     QSizePolicy.Policy.Preferred
-        # )
+        self.setSizePolicy(
+            QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Preferred
+        )
+
+        self.adjustSize()
 
     def enterEvent(self, a0: QEvent | None) -> None:
         self.setStyleSheet(
@@ -361,7 +364,7 @@ class BarBottom(QWidget):
 
         self.total = Total()
         self.total.mouseReleaseEvent = self.open_go_win
-        self.grid_lay.addWidget(self.total, row, col)
+        self.grid_lay.addWidget(self.total, row, col, rowspan, colspan)
 
         col += 1
         colspan += 1
