@@ -91,5 +91,6 @@ def process_files(src: str):
     print(f"Total time for PIL: {pil_tiff_time} seconds")
 
 
-src = "/Volumes/Shares/Studio/MIUZ/Photo/Art/Ready/22 Millenium/1 IMG"
+# src = "/Volumes/Shares/Studio/MIUZ/Photo/Art/Ready/22 Millenium/1 IMG"
+src = "/Volumes/Shares/Studio/MIUZ/Photo/Art/Ready/4 Royal/1 IMG"
 process_files(src)
