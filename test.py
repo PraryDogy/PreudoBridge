@@ -61,17 +61,18 @@ def process_files(src: str):
             # PSD # PSD # PSD # PSD # PSD # PSD # PSD # PSD # PSD # PSD
             if filename.lower().endswith(('.psd', '.psb')):
 
-                continue
+                # continue
 
-                # result_psd = psd_tools_test(file_path)
-                # psd_time += result_psd["timer"]
+                result_psd = psd_tools_test(file_path)
+                psd_time += result_psd["timer"]
                 
-                # result_pil = pil_test(file_path)
-                # pil_psd_time += result_pil["timer"]
+                result_pil = pil_test(file_path)
+                pil_psd_time += result_pil["timer"]
             
 
             # TIFF # TIFF # TIFF # TIFF # TIFF # TIFF # TIFF # TIFF 
-            elif filename.lower().endswith('.tiff', '.tif'):
+            elif filename.lower().endswith(('.tiff', '.tif')):
+                continue
                 result_tiff = read_tiff(file_path)
                 tif_time += result_tiff["timer"]
                 
