@@ -228,7 +228,7 @@ class GridSearch(Grid):
 
         self.task_ = SearchFinder(search_text)
         self.task_.signals_.add_new_widget.connect(self.add_new_widget)
-        UThreadPool.pool.start(self.task_)
+        UThreadPool.start(self.task_)
 
     def add_new_widget(self, widget_data: WidgetData):
         wid = ThumbSearch(

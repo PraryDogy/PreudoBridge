@@ -202,7 +202,7 @@ class WinInfo(WinMinMax):
             cmd_ = lambda size_: self.finalize(size_)
             self.task_ = FolderSize(self.src)
             self.task_.signals_.finished_.connect(cmd_)
-            UThreadPool.pool.start(self.task_)
+            UThreadPool.start(self.task_)
 
     def finalize(self, size_: str):
         label: CustomLabel = getattr(self, "size_label")

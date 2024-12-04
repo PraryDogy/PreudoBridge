@@ -258,7 +258,7 @@ class Thumb(OrderItem, QFrame):
 
     def update_thumb_data(self, values: dict, cmd_: callable):
         task_ = UpdateThumbData(self.src, values, cmd_)
-        UThreadPool.pool.start(task_)
+        UThreadPool.start(task_)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
         self.select.emit()

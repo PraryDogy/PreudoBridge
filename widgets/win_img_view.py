@@ -318,7 +318,7 @@ class WinImgView(WinBase):
             self.task_ = LoadThumbnail(self.src)
             cmd_ = lambda image_data: self.load_thumbnail_finished(image_data)
             self.task_.signals_.finished_.connect(cmd_)
-            UThreadPool.pool.start(self.task_)
+            UThreadPool.start(self.task_)
         else:
             self.load_image()
 
@@ -332,7 +332,7 @@ class WinImgView(WinBase):
         cmd_ = lambda image_data: self.load_image_finished(image_data)
         self.task_.signals_.finished_.connect(cmd_)
 
-        UThreadPool.pool.start(self.task_)
+        UThreadPool.start(self.task_)
 
     def load_image_finished(self, image_data: ImageData):
         if image_data.src == self.src:

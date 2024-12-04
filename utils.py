@@ -294,14 +294,6 @@ class Utils:
         return date.strftime("%d.%m.%Y %H:%M")
 
 
-class UThreadPool:
-    pool: QThreadPool = None
-
-    @classmethod
-    def init(cls):
-        cls.pool = QThreadPool().globalInstance()
-
-
 class URunnable(QRunnable):
     def __init__(self):
         super().__init__()
@@ -317,3 +309,23 @@ class URunnable(QRunnable):
             self.is_running = False
 
         return wrapper
+
+
+class UThreadPool:
+    pool: QThreadPool = None
+    current: list[URunnable] = []
+
+    @classmethod
+    def init(cls):
+        cls.pool = QThreadPool().globalInstance()
+
+    @classmethod
+    def start(cls, runnable: URunnable):
+        cls.current.append(runnable)
+        cls.pool.start(runnable) 
+
+    @classmethod
+    def stop_all(cls):
+        for i in cls.current:
+            i.should_run = False
+            print(i, i.should_run)

@@ -59,6 +59,7 @@ class CustomApp(QApplication):
         return False
 
     def on_exit(self):
+        UThreadPool.stop_all()
         JsonData.write_config()
 
 

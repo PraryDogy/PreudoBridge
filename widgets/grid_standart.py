@@ -299,7 +299,7 @@ class GridStandart(Grid):
 
         self.finder_task = LoadFinder()
         self.finder_task.signals_.finished_.connect(self.finder_task_fin)
-        UThreadPool.pool.start(self.finder_task)
+        UThreadPool.start(self.finder_task)
 
         self.verticalScrollBar().valueChanged.connect(self.on_scroll)
         self.rearranged.connect(self.rearranged_cmd)
@@ -404,7 +404,7 @@ class GridStandart(Grid):
         self.tasks.append(task_)
         cmd_ = lambda image_data: self.set_pixmap(image_data)
         task_.signals_.new_widget.connect(cmd_)
-        UThreadPool.pool.start(task_)
+        UThreadPool.start(task_)
     
     def set_pixmap(self, image_data: ImageData):
         widget = Thumb.path_to_wid.get(image_data.src)
@@ -416,6 +416,5 @@ class GridStandart(Grid):
 
         for i in self.tasks:
             i.should_run = False
-            print(i, i.should_run)
 
         return super().closeEvent(a0)

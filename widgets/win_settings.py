@@ -117,7 +117,7 @@ class WinSettings(WinMinMax):
         self.task_ = GetSizer()
         cmd_ = lambda t: self.current_size.setText(t)
         self.task_.signals_.finished_.connect(cmd_)
-        UThreadPool.pool.start(self.task_)
+        UThreadPool.start(self.task_)
 
     def clear_db_cmd(self):
         Dbase.clear_db()            
