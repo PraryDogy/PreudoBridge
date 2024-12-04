@@ -110,6 +110,7 @@ class Utils:
             cls.print_error(cls, e)
             return None
 
+    @classmethod
     def read_png_pil(cls, path: str) -> np.ndarray | None:
         try:
             img = Image.open(path)
