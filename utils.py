@@ -95,6 +95,7 @@ class Utils:
             return img
         except Exception as e:
             cls.print_error(cls, e)
+            return None
             cls.read_psd_tools(path=path)
 
     @classmethod
@@ -125,6 +126,7 @@ class Utils:
             return img_array
         except Exception as e:
             cls.print_error(cls, e)
+            return None
             cls.read_png_cv2(path)
 
     @classmethod
