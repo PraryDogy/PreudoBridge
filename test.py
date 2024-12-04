@@ -72,7 +72,7 @@ def process_files(src: str):
 
             # TIFF # TIFF # TIFF # TIFF # TIFF # TIFF # TIFF # TIFF 
             elif filename.lower().endswith(('.tiff', '.tif')):
-                continue
+                # continue
                 result_tiff = read_tiff(file_path)
                 tif_time += result_tiff["timer"]
                 
