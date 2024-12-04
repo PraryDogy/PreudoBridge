@@ -87,15 +87,20 @@ YEAR = datetime.now().year # CURRENT YEAR
 BUNDLE_ID = f"com.{SHORT_AUTHOR_NAME}.{APP_NAME}" # DON'T CHANGE IT
 PY2APP = "py2app" # DON'T CHANGE IT
 
-OPTIONS = {"iconfile": ICON_PATH,
-           "plist": {"CFBundleName": APP_NAME,
-                     "CFBundleShortVersionString": APP_VER,
-                     "CFBundleVersion": APP_VER,
-                     "CFBundleIdentifier": BUNDLE_ID,
-                     "NSHumanReadableCopyright": (
-                         f"Created by {AUTHOR}"
-                         f"\nCopyright © {YEAR} {COMPANY}."
-                         f"\nAll rights reserved.")}}
+OPTIONS = {
+    "iconfile": ICON_PATH,
+    "packages": ["typing_extensions"],
+    "plist": {
+        "CFBundleName": APP_NAME,
+        "CFBundleShortVersionString": APP_VER,
+        "CFBundleVersion": APP_VER,
+        "CFBundleIdentifier": BUNDLE_ID,
+        "NSHumanReadableCopyright": (
+            f"Created by {AUTHOR}"
+            f"\nCopyright © {YEAR} {COMPANY}."
+            f"\nAll rights reserved.")
+    }
+}
 
 sys.argv.append(PY2APP)
 
