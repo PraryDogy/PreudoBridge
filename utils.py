@@ -109,19 +109,25 @@ class Utils:
         except Exception as e:
             cls.print_error(cls, e)
             return None
-            
-    @classmethod
-    def read_jpg(cls, path: str) -> np.ndarray | None:
+
+    def read_png_pil(cls, path: str) -> np.ndarray | None:
         try:
-            image = cv2.imread(path, cv2.IMREAD_UNCHANGED)  # Чтение с альфа-каналом
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            return image
-        except (Exception, cv2.error) as e:
+            img = Image.open(path)
+
+            if img.mode == "RGBA":
+                white_background = Image.new("RGBA", img.size, (255, 255, 255))
+                img = Image.alpha_composite(white_background, img)
+                img = img.convert("RGB")
+
+            img_array = np.array(img)
+
+            return img_array
+        except Exception as e:
             cls.print_error(cls, e)
-            return None
-        
+            cls.read_png_cv2(path)
+
     @classmethod
-    def read_png(cls, path: str) -> np.ndarray | None:
+    def read_png_cv2(cls, path: str) -> np.ndarray | None:
         try:
             image = cv2.imread(path, cv2.IMREAD_UNCHANGED)  # Чтение с альфа-каналом
 
@@ -139,7 +145,17 @@ class Utils:
         except Exception as e:
             cls.print_error(cls, e)
             return None
-        
+
+    @classmethod
+    def read_jpg(cls, path: str) -> np.ndarray | None:
+        try:
+            image = cv2.imread(path, cv2.IMREAD_UNCHANGED)  # Чтение с альфа-каналом
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            return image
+        except (Exception, cv2.error) as e:
+            cls.print_error(cls, e)
+            return None
+
     @classmethod
     def read_raw(cls, path: str) -> np.ndarray | None:
         try:
@@ -155,7 +171,7 @@ class Utils:
         src_lower: str = src.lower()
 
         if src_lower.endswith((".psd", ".psb")):
-            img = cls.read_psd_tools(src)
+            img = cls.read_psd_pil(src)
 
         elif src_lower.endswith((".tiff", ".tif")):
             img = cls.read_tiff_tifffile(src)
@@ -164,7 +180,7 @@ class Utils:
             img = cls.read_jpg(src)
 
         elif src_lower.endswith((".png")):
-            img = cls.read_png(src)
+            img = cls.read_png_pil(src)
 
         elif src_lower.endswith((".nef", ".cr2", ".cr3", ".arw", ".raf")):
             img = cls.read_raw(src)
