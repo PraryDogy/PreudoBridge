@@ -232,6 +232,7 @@ class LoadFinder(URunnable):
         self.db_color_rating: dict[str, list] = {}
         self.order_items: list[OrderItem] = []
 
+    @URunnable.set_running_state
     def run(self):
         self.is_running = True
 

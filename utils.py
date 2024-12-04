@@ -321,6 +321,14 @@ class UThreadPool:
 
     @classmethod
     def start(cls, runnable: URunnable):
+
+        for i in cls.current:
+            if not i.is_running:
+                cls.current.remove(i)
+
+        if not runnable.is_running:
+            raise Exception("Нужно добавить к данному URunnable @set_running_state")
+
         cls.current.append(runnable)
         cls.pool.start(runnable) 
 
