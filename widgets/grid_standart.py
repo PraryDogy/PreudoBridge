@@ -416,5 +416,6 @@ class GridStandart(Grid):
 
         for i in self.tasks:
             i.should_run = False
+            print(i, i.should_run)
 
         return super().closeEvent(a0)
