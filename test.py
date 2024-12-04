@@ -83,6 +83,8 @@ def process_files(src: str):
             print(e)
             continue
 
+    print()
+
     print(f"Total time for PSD/PSB (psd-tools): {psd_time} seconds")
     print(f"Total time for PIL: {pil_psd_time} seconds")
 
@@ -91,7 +93,10 @@ def process_files(src: str):
     print(f"Total time for TIFF (tifffile): {tif_time} seconds")
     print(f"Total time for PIL: {pil_tiff_time} seconds")
 
+    print()
+
 
 # src = "/Volumes/Shares/Studio/MIUZ/Photo/Art/Ready/22 Millenium/1 IMG"
-src = "/Volumes/Shares/Studio/MIUZ/Photo/Art/Ready/4 Royal/1 IMG"
+# src = "/Volumes/Shares/Studio/MIUZ/Photo/Art/Ready/4 Royal/1 IMG"
+src = "/Volumes/Shares/Studio/MIUZ/Photo/Art/Ready/1 Solo/1 IMG"
 process_files(src)
