@@ -63,7 +63,7 @@ class Utils:
         child.setGeometry(geo)
 
     @classmethod
-    def read_tiff(cls, path: str) -> np.ndarray | None:
+    def read_tiff_tifffile(cls, path: str) -> np.ndarray | None:
         try:
             img = tifffile.imread(files=path)[:,:,:3]
             if str(object=img.dtype) != "uint8":
@@ -96,7 +96,6 @@ class Utils:
         except Exception as e:
             cls.print_error(cls, e)
             cls.read_psd_tools(path=path)
-
 
     @classmethod
     def read_psd_tools(cls, path: str) -> np.ndarray | None:
@@ -159,7 +158,7 @@ class Utils:
             img = cls.read_psd_tools(src)
 
         elif src_lower.endswith((".tiff", ".tif")):
-            img = cls.read_tiff(src)
+            img = cls.read_tiff_tifffile(src)
 
         elif src_lower.endswith((".jpg", ".jpeg", "jfif")):
             img = cls.read_jpg(src)
