@@ -12,7 +12,7 @@ import rawpy
 import tifffile
 from imagecodecs.imagecodecs import DelayedImportError
 from PIL import Image
-from PyQt5.QtCore import QRunnable, Qt, QThreadPool
+from PyQt5.QtCore import QRunnable, Qt, QThreadPool, QTimer
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget
 
@@ -334,4 +334,8 @@ class UThreadPool:
     def stop_all(cls):
         for i in cls.current:
             i.should_run = False
-            print(i, i.should_run)
+
+        for i in cls.current:
+            if i.should_run:
+                QTimer.singleShot(100, cls.stop_all)
+                return
