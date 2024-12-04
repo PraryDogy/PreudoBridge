@@ -234,8 +234,13 @@ class FiltersBtn(QPushButton):
             wid.setStyleSheet("")
             wid.is_selected = False
 
+        enabled_filters = []
+
         for i in self.enabled_filters:
             if isinstance(i, ColorLabel):
+                enabled_filters.append(i)
+
+        for i in enabled_filters:
                 self.enabled_filters.remove(i)
 
         self.style_btn()
