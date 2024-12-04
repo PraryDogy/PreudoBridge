@@ -66,11 +66,6 @@ JsonData.init()
 Dbase.init_db()
 app = CustomApp(sys.argv)
 
-# translator = QTranslator()
-# locale = "ru_RU"
-# if translator.load(f"qtbase_{locale}", QLibraryInfo.location(QLibraryInfo.TranslationsPath)):
-    # app.installTranslator(translator)
-
 SignalsApp.init()
 UThreadPool.init()
 ex = SimpleFileExplorer()
