@@ -1,14 +1,14 @@
 import os
 from difflib import SequenceMatcher
 
-from PyQt5.QtCore import QMimeData, QObject, Qt, QUrl, pyqtSignal
+from PyQt5.QtCore import QEvent, QMimeData, QObject, Qt, QUrl, pyqtSignal
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
                          QPixmap)
 from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QHBoxLayout,
-                             QLabel, QMenu, QProgressBar, QPushButton,
+                             QLabel, QMenu, QPushButton, QSizePolicy,
                              QVBoxLayout, QWidget)
 
-from cfg import (BLUE, COMP_SVG, FOLDER_SVG, GOTO_SVG, HDD_SVG, IMG_SVG,
+from cfg import (BLUE, COMP_SVG, FOLDER_SVG, GOTO_SVG, GRAY, HDD_SVG, IMG_SVG,
                  MAX_VAR, Dynamic, JsonData)
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
@@ -293,6 +293,43 @@ class PathItem(QWidget):
         self.path_label.default_style()
 
 
+class Total(QFrame):
+    def __init__(self):
+        super().__init__()
+        self.setObjectName("total")
+        self.setFixedHeight(15)
+
+        h_lay = QHBoxLayout()
+        h_lay.setContentsMargins(2, 0, 2, 0)
+        self.setLayout(h_lay)
+
+        self.go_btn = USvgWidget(src=GOTO_SVG, size=13)
+        h_lay.addWidget(self.go_btn)
+
+        self.total_text = QLabel()
+        h_lay.addWidget(self.total_text)
+
+        # self.adjustSize()
+
+        # self.setSizePolicy(
+        #     QSizePolicy.Policy.Expanding,
+        #     QSizePolicy.Policy.Preferred
+        # )
+
+    def enterEvent(self, a0: QEvent | None) -> None:
+        self.setStyleSheet(
+            f"""
+            #total {{
+                background: {GRAY};
+                border-radius: 3px;
+            }}
+            """
+        )
+    
+    def leaveEvent(self, a0: QEvent | None) -> None:
+        self.setStyleSheet("")
+
+
 class BarBottom(QWidget):
     def __init__(self):
         super().__init__()
@@ -322,22 +359,9 @@ class BarBottom(QWidget):
 
         row, col = 2, 0
 
-        self.go_btn = USvgWidget(src=GOTO_SVG, size=15)
-        self.go_btn.mouseReleaseEvent = self.open_go_win
-        self.grid_lay.addWidget(self.go_btn, row, col)
-
-        col += 1
-        colspan += 1
-        self.total = QLabel()
+        self.total = Total()
         self.total.mouseReleaseEvent = self.open_go_win
-        self.total.setFixedHeight(15)
-        self.grid_lay.addWidget(self.total, row, col, Qt.AlignmentFlag.AlignLeft)
-
-        # col += 1
-        # colspan += 1
-        # self.progressbar = QProgressBar()
-        # self.progressbar.setFixedSize(100, 10)
-        # self.grid_lay.addWidget(self.progressbar, row, col)
+        self.grid_lay.addWidget(self.total, row, col)
 
         col += 1
         colspan += 1
@@ -359,42 +383,13 @@ class BarBottom(QWidget):
         Utils.center_win(Utils.get_main_win(), self.win)
         self.win.show()
 
-    # def progressbar_cmd(self, data: dict):
-    #     """
-    #     keys: cmd, value
-    #     cmd: show, hide, plus_one, set_max, set_zero
-    #     """
-
-    #     print(self.progressbar.value(), self.progressbar.maximum())
-
-    #     cmd = data.get("cmd")
-
-    #     if cmd == "show":
-    #         self.progressbar.show()
-        
-    #     elif cmd == "hide":
-    #         self.progressbar.hide()
-
-    #     elif cmd == "plus_one":
-    #         value = self.progressbar.value() + 1
-    #         self.progressbar.setValue(value)
-
-    #     elif cmd == "set_max":
-    #         self.progressbar.setMaximum(data.get("value"))
-
-    #     elif cmd == "set_zero":
-    #         self.progressbar.setValue(0)
-
-    #     else:
-    #         raise ValueError("bar_borrom > progress bar wrong cmd", data)
-
     def path_labels_cmd(self, data: dict):
 
         if data.get("src"):
             self.create_path_labels(data.get("src"))
 
         if data.get("total"):
-            self.total.setText("Всего: " + str(data.get("total")))
+            self.total.total_text.setText("Всего: " + str(data.get("total")))
 
     def create_path_labels(self, src: str):
         Utils.clear_layout(self.path_lay)
