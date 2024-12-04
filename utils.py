@@ -193,11 +193,13 @@ class Utils:
      
     @classmethod
     def pixmap_from_array(cls, image: np.ndarray) -> QPixmap | None:
-        if isinstance(image, np.ndarray):
+
+        if isinstance(image, np.ndarray) and QApplication.instance():
             height, width, channel = image.shape
             bytes_per_line = channel * width
             qimage = QImage(image.tobytes(), width, height, bytes_per_line, QImage.Format.Format_RGB888)
             return QPixmap.fromImage(qimage)
+
         else:
             return None
 
