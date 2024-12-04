@@ -88,6 +88,22 @@ class Utils:
     @classmethod
     def read_psd(cls, path: str) -> np.ndarray | None:
         try:
+            img = Image.open(path)
+            
+            if img.mode == 'RGBA':
+                img = img.convert('RGB')
+            
+            img = np.array(img)
+            return img
+
+        except Exception as e:
+            cls.print_error(cls, e)
+            cls.read_psd_tools(path=path)
+
+
+    @classmethod
+    def read_psd_tools(cls, path: str) -> np.ndarray | None:
+        try:
             img = psd_tools.PSDImage.open(fp=path)
             img = img.composite()
 
@@ -146,7 +162,7 @@ class Utils:
         src_lower: str = src.lower()
 
         if src_lower.endswith((".psd", ".psb")):
-            img = cls.read_psd(src)
+            img = cls.read_psd_tools(src)
 
         elif src_lower.endswith((".tiff", ".tif")):
             img = cls.read_tiff(src)
