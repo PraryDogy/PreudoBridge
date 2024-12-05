@@ -76,8 +76,8 @@ class Utils:
     @classmethod
     def read_tiff_pil(cls, path: str) -> np.ndarray | None:
         try:
-            img: Image = Image.open(path)
-            # return cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
+            img = Image.open(path)
+            img = img.convert("RGB")
             return np.array(img)
         except Exception as e:
             Utils.print_error(parent=cls, error=e)
@@ -87,6 +87,7 @@ class Utils:
     def read_psd_pil(cls, path: str) -> np.ndarray | None:
         try:
             img = Image.open(path)
+            img = img.convert("RGB")
             img = np.array(img)
             return img
         except Exception as e:
@@ -98,8 +99,7 @@ class Utils:
         try:
             img = psd_tools.PSDImage.open(fp=path)
             img = img.composite()
-            if img.mode == 'RGBA':
-                img = img.convert('RGB')
+            img = img.convert('RGB')
             img = np.array(img)
             return img
         except Exception as e:
