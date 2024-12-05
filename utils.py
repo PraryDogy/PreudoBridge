@@ -89,8 +89,6 @@ class Utils:
     def read_psd_pil(cls, path: str) -> np.ndarray | None:
         try:
             img = Image.open(path)
-            if img.mode == 'RGBA':
-                img = img.convert('RGB')
             img = np.array(img)
             return img
         except Exception as e:
@@ -136,8 +134,14 @@ class Utils:
                 alpha_channel = image[:, :, 3] / 255.0
                 rgb_channels = image[:, :, :3]
                 background_color = np.array([255, 255, 255], dtype=np.uint8)
-                background = np.full(rgb_channels.shape, background_color, dtype=np.uint8)
-                converted = (rgb_channels * alpha_channel[:, :, np.newaxis] + background * (1 - alpha_channel[:, :, np.newaxis])).astype(np.uint8)
+                background = np.full(
+                    rgb_channels.shape, background_color, dtype=np.uint8
+                )
+                converted = (
+                    rgb_channels * alpha_channel[:, :, np.newaxis] +
+                    background * (1 - alpha_channel[:, :, np.newaxis])
+                ).astype(np.uint8)
+
             else:
                 converted = image
 

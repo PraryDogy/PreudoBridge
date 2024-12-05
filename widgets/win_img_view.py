@@ -87,7 +87,11 @@ class LoadImage(URunnable):
             self.cache.pop(first_img)
 
         image_data = ImageData(self.src, pixmap)
-        self.signals_.finished_.emit(image_data)
+
+        try:
+            self.signals_.finished_.emit(image_data)
+        except RuntimeError:
+            ...
 
 
 class ImageWidget(QLabel):
