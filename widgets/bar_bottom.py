@@ -6,7 +6,7 @@ from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
                          QPixmap)
 from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QHBoxLayout,
                              QLabel, QMenu, QPushButton, QSizePolicy,
-                             QVBoxLayout, QWidget)
+                             QVBoxLayout, QWidget, QSpacerItem)
 
 from cfg import (BLUE, COMP_SVG, FOLDER_SVG, GOTO_SVG, GRAY, HDD_SVG, IMG_SVG,
                  MAX_VAR, Dynamic, JsonData)
@@ -294,11 +294,12 @@ class PathItem(QWidget):
 
 
 class Total(QFrame):
+    clicked_ = pyqtSignal()
+
     def __init__(self):
         super().__init__()
         self.setObjectName("total")
         self.setFixedHeight(15)
-        # self.setFixedWidth(130)
 
         h_lay = QHBoxLayout()
         h_lay.setContentsMargins(2, 0, 2, 0)
@@ -310,14 +311,8 @@ class Total(QFrame):
         self.total_text = QLabel()
         h_lay.addWidget(self.total_text)
 
-        # self.adjustSize()
-
-        # self.setSizePolicy(
-        #     QSizePolicy.Policy.Expanding,
-        #     QSizePolicy.Policy.Preferred
-        # )
-
-        # self.adjustSize()
+    def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
+        self.clicked_.emit()
 
     def enterEvent(self, a0: QEvent | None) -> None:
         self.setStyleSheet(
@@ -337,6 +332,9 @@ class BarBottom(QWidget):
     def __init__(self):
         super().__init__()
 
+        # потому что в 3 строке 3 виджета: тотал, распорка, слайдер
+        colspan = 2
+
         # 1 строка # 1 строка # 1 строка # 1 строка # 1 строка # 1 строка
 
         grid_lay = QGridLayout()
@@ -344,7 +342,7 @@ class BarBottom(QWidget):
         grid_lay.setSpacing(5)
         self.setLayout(grid_lay)
 
-        row, col, rowspan, colspan = 0, 0, 1, 0
+        row, col, rowspan = 0, 0, 1
         path_wid = QWidget()
         grid_lay.addWidget(
             path_wid,
@@ -360,29 +358,25 @@ class BarBottom(QWidget):
 
         # 2 строка, разделительная линия # 2 строка, разделительная линия
 
-        row, col, rowspan, colspan = 1, 0, 1, 0
+        row, col, rowspan = 1, 0, 1
         sep = QFrame()
         sep.setStyleSheet("background: rgba(0, 0, 0, 0.2)")
         sep.setFixedHeight(1)
         grid_lay.addWidget(sep, row, col, rowspan, colspan)
 
 
-        # 2 строка, "всего" + "перейти"
+        # 2 строка, "всего" + "перейти" # 2 строка, "всего" + "перейти"
 
         row, col = 2, 0
-
         self.total = Total()
-        self.total.mouseReleaseEvent = self.open_go_win
-        grid_lay.addWidget(self.total, row, col, rowspan, colspan)
+        self.total.clicked_.connect(self.open_go_win)
+        grid_lay.addWidget(self.total, row, col)
 
-        col += 1
-        colspan += 1
-        h_spacer = QWidget()
-        h_spacer.setFixedSize(10, 15)
-        grid_lay.addWidget(h_spacer, row, col)
+        row, col = 2, 1
+        spacer = QSpacerItem(0, 0, QSizePolicy.Policy.Expanding)
+        grid_lay.addItem(spacer, row, col)
 
-        col += 1
-        colspan += 1
+        row, col = 2, 2
         self.slider = CustomSlider()
         self.slider.setFixedSize(70, 15)
         grid_lay.addWidget(self.slider, row, col)
