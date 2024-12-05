@@ -310,14 +310,14 @@ class Total(QFrame):
         self.total_text = QLabel()
         h_lay.addWidget(self.total_text)
 
-        self.adjustSize()
+        # self.adjustSize()
 
-        self.setSizePolicy(
-            QSizePolicy.Policy.Expanding,
-            QSizePolicy.Policy.Preferred
-        )
+        # self.setSizePolicy(
+        #     QSizePolicy.Policy.Expanding,
+        #     QSizePolicy.Policy.Preferred
+        # )
 
-        self.adjustSize()
+        # self.adjustSize()
 
     def enterEvent(self, a0: QEvent | None) -> None:
         self.setStyleSheet(
@@ -378,7 +378,6 @@ class BarBottom(QWidget):
         self.slider.setFixedSize(70, 15)
         self.grid_lay.addWidget(self.slider, row, col)
 
-        # SignalsApp.all_.progressbar_cmd.connect(self.progressbar_cmd)
         SignalsApp.all_.path_labels_cmd.connect(self.path_labels_cmd)
 
     def open_go_win(self, *args):
@@ -409,14 +408,17 @@ class BarBottom(QWidget):
             if x == 1:
                 icon = COMP_SVG
                 path_item.add_arrow()
+
             elif x == 2:
                 icon = HDD_SVG
                 path_item.add_arrow()
+
             elif x == ln:
                 if os.path.isdir(src):
                     icon = FOLDER_SVG
                 else:
                     icon = IMG_SVG
+
             else:
                 icon = FOLDER_SVG
                 path_item.add_arrow()
@@ -424,17 +426,3 @@ class BarBottom(QWidget):
             path_item.img_wid.load(icon)
             path_items.append(path_item)
             self.path_lay.addWidget(path_item)
-
-        # if isinstance(obj, Thumb):
-        #     path_item = PathItem(obj, obj.name, IMG_SVG)
-        #     self.path_lay.addWidget(path_item)
-        #     path_items.append(path_item)
-
-        # last = path_items[-1]
-        # last.path_label.setText(last.path_label.text().replace(ARROW, ""))
-
-        # if isinstance(last.path_label.obj, ThumbFolder):
-            # last.img_wid.load(FOLDER_SVG)
-
-        # if count is not None:
-        #     self.total.setText("Всего: " + str(count))
