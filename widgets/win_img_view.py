@@ -50,9 +50,12 @@ class LoadThumbnail(URunnable):
         img_array = Utils.read_image_hash(res)
 
         if img_array is None:
-            pixmap = QPixmap(IMG_BIG_SVG)
+            # pixmap = QPixmap(IMG_BIG_SVG)
+            pixmap = None
         else:
             pixmap = Utils.pixmap_from_array(img_array)
+
+        pixmap = None
 
         image_data = ImageData(self.src, pixmap)
         self.signals_.finished_.emit(image_data)
@@ -301,10 +304,18 @@ class WinImgView(WinBase):
         self.zoom_btns.cmd_fit.connect(self.img_label.zoom_reset)
         self.zoom_btns.cmd_close.connect(self.close)
 
+        self.loading_label = QLabel(parent=self, text="Загрузка...")
+        self.loading_label.hide()
+
         self.hide_btns()
         self.load_thumbnail()
 
 # SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM
+
+    def center_loading_label(self):
+        x = (self.width() - self.loading_label.width()) // 2
+        y = (self.height() - self.loading_label.height()) // 2
+        self.loading_label.move(x, y)
 
     def set_title(self):
         t = ""
@@ -317,31 +328,39 @@ class WinImgView(WinBase):
         self.setWindowTitle(t)
 
     def load_thumbnail(self):
+
+        self.set_title()
+
         if self.src not in LoadImage.cache:
-            self.setWindowTitle("Загрузка")
             self.task_ = LoadThumbnail(self.src)
             cmd_ = lambda image_data: self.load_thumbnail_finished(image_data)
             self.task_.signals_.finished_.connect(cmd_)
             UThreadPool.start(self.task_)
+
         else:
             self.load_image()
 
     def load_thumbnail_finished(self, image_data: ImageData):
-        if image_data.src == self.src:
+        if image_data.pixmap is None:
+            self.loading_label.show()
+
+        elif image_data.src == self.src:
             self.img_label.set_image(image_data.pixmap)
-            self.load_image()
+
+        self.load_image()
 
     def load_image(self):
         self.task_ = LoadImage(self.src)
         cmd_ = lambda image_data: self.load_image_finished(image_data)
         self.task_.signals_.finished_.connect(cmd_)
-
         UThreadPool.start(self.task_)
 
     def load_image_finished(self, image_data: ImageData):
+
+        self.loading_label.hide()
+
         if image_data.src == self.src:
             self.img_label.set_image(image_data.pixmap)
-            self.set_title()
 
 # GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI
 
@@ -427,6 +446,10 @@ class WinImgView(WinBase):
         horizontal_center = a0.size().width() // 2 - self.zoom_btns.width() // 2
         bottom_window_side = a0.size().height() - self.zoom_btns.height()
         self.zoom_btns.move(horizontal_center, bottom_window_side - 30)
+
+        x = (a0.size().width() - self.loading_label.width()) // 2
+        y = (a0.size().height() - self.loading_label.height()) // 2
+        self.loading_label.move(x, y)
 
         Dynamic.ww_im = self.width()
         Dynamic.hh_im = self.height()

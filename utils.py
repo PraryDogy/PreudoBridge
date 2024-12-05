@@ -73,7 +73,6 @@ class Utils:
     @classmethod
     def read_tiff_pil(cls, path: str) -> np.ndarray | None:
         try:
-            print("PIL: try open tif")
             img: Image = Image.open(path)
             # return cv2.cvtColor(np.array(img), cv2.COLOR_RGB2BGR)
             return np.array(img)
