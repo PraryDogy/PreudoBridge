@@ -114,8 +114,8 @@ class Utils:
             if img.mode == "RGBA":
                 white_background = Image.new("RGBA", img.size, (255, 255, 255))
                 img = Image.alpha_composite(white_background, img)
-                img = img.convert("RGB")
 
+            img = img.convert("RGB")
             img_array = np.array(img)
 
             return img_array
