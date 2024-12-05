@@ -336,47 +336,56 @@ class Total(QFrame):
 class BarBottom(QWidget):
     def __init__(self):
         super().__init__()
-        colspan = 0
 
-        path_main_widget: QWidget = None
+        # 1 строка # 1 строка # 1 строка # 1 строка # 1 строка # 1 строка
 
-        self.grid_lay = QGridLayout()
-        self.grid_lay.setContentsMargins(10, 5, 10, 0)
-        self.grid_lay.setSpacing(5)
-        self.setLayout(self.grid_lay)
+        grid_lay = QGridLayout()
+        grid_lay.setContentsMargins(10, 5, 10, 0)
+        grid_lay.setSpacing(5)
+        self.setLayout(grid_lay)
 
-        row, col, rowspan = 0, 0, 1
-        path_main_widget = QWidget()
-        self.grid_lay.addWidget(path_main_widget, row, col, rowspan, colspan, Qt.AlignmentFlag.AlignLeft)
-
-        row, col, rowspan = 1, 0, 1
-        sep = QFrame()
-        sep.setStyleSheet("background: rgba(0, 0, 0, 0.2)")
-        sep.setFixedHeight(1)
-        self.grid_lay.addWidget(sep, row, col, rowspan, colspan)
+        row, col, rowspan, colspan = 0, 0, 1, 0
+        path_wid = QWidget()
+        grid_lay.addWidget(
+            path_wid,
+            row, col,
+            rowspan, colspan,
+            Qt.AlignmentFlag.AlignLeft
+        )
 
         self.path_lay = QHBoxLayout()
         self.path_lay.setContentsMargins(0, 0, 0, 0)
         self.path_lay.setSpacing(5)
-        path_main_widget.setLayout(self.path_lay)
+        path_wid.setLayout(self.path_lay)
+
+        # 2 строка, разделительная линия # 2 строка, разделительная линия
+
+        row, col, rowspan, colspan = 1, 0, 1, 0
+        sep = QFrame()
+        sep.setStyleSheet("background: rgba(0, 0, 0, 0.2)")
+        sep.setFixedHeight(1)
+        grid_lay.addWidget(sep, row, col, rowspan, colspan)
+
+
+        # 2 строка, "всего" + "перейти"
 
         row, col = 2, 0
 
         self.total = Total()
         self.total.mouseReleaseEvent = self.open_go_win
-        self.grid_lay.addWidget(self.total, row, col, rowspan, colspan)
+        grid_lay.addWidget(self.total, row, col, rowspan, colspan)
 
         col += 1
         colspan += 1
         h_spacer = QWidget()
         h_spacer.setFixedSize(10, 15)
-        self.grid_lay.addWidget(h_spacer, row, col)
+        grid_lay.addWidget(h_spacer, row, col)
 
         col += 1
         colspan += 1
         self.slider = CustomSlider()
         self.slider.setFixedSize(70, 15)
-        self.grid_lay.addWidget(self.slider, row, col)
+        grid_lay.addWidget(self.slider, row, col)
 
         SignalsApp.all_.path_labels_cmd.connect(self.path_labels_cmd)
 
