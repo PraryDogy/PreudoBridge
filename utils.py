@@ -287,7 +287,7 @@ class Utils:
         except Exception as e:
             cls.print_error(parent=cls, error=e)
             return False
-        
+        q
     @classmethod
     def read_image_hash(cls, src: str) -> np.ndarray | None:
         try:

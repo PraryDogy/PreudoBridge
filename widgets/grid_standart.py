@@ -238,7 +238,8 @@ class LoadFinder(URunnable):
             self.get_color_rating()
             self.get_items()
             self.order_items = OrderItem.order_items(self.order_items)
-        except (PermissionError, FileNotFoundError) as e:
+
+        except (PermissionError, FileNotFoundError, NotADirectoryError) as e:
             Utils.print_error(self, e)
             self.order_items = []
         
