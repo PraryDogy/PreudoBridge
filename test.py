@@ -61,8 +61,16 @@ def PIL_time(images):
     return end
 
 
-a = cv_time(images)
-b = PIL_time(images)
+# a = cv_time(images)
+# b = PIL_time(images)
 
-print(a)
-print(b)
+# print(a)
+# print(b)
+
+
+import os
+
+volumes = os.path.join(os.sep, "Volumes")
+if os.path.exists(volumes):
+    for i in os.listdir(volumes):
+        src = os.path.join(volumes, i)

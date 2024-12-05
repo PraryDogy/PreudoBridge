@@ -167,10 +167,27 @@ class JsonData:
                 IMAGE_APPS[item] = full_path
 
     @classmethod
+    def get_folder_access(cls):
+        desktop = os.path.expanduser("~/Desktop")
+        downloads = os.path.expanduser("~/Downloads")
+        documents = os.path.expanduser("~/Documents")
+
+        for i in (desktop, downloads, documents):
+            os.stat(i)
+
+        volumes = os.path.join(os.sep, "Volumes")
+        if os.path.exists(volumes):
+            for i in os.listdir(volumes):
+                src = os.path.join(volumes, i)
+                os.stat(src)
+
+
+    @classmethod
     def init(cls):
         os.makedirs(ROOT, exist_ok=True)
         cls.read_json_data()
         cls.find_img_apps()
+        cls.get_folder_access()
 
 class Dynamic:
     color_filters: list = []
