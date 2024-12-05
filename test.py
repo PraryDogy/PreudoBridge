@@ -4,6 +4,7 @@ import numpy as np
 from PIL import Image
 import psd_tools
 import time
+import cv2
 import logging
 
 psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
@@ -11,6 +12,8 @@ psd_logger = logging.getLogger("psd_tools")
 psd_logger.setLevel(logging.CRITICAL)
 
 src = "/Users/Loshkarev/Desktop/PSD"
+src = "/Users/Loshkarev/Desktop/test jpg"
+
 
 images = [
     os.path.join(src, i)
@@ -23,8 +26,19 @@ def psd_tools_time(images):
 
     for i in images:
 
-        img = psd_tools.PSDImage.open(fp=i)
-        img = img.composite()
+        img = cv2.imread(i, cv2.IMREAD_UNCHANGED)
+
+    end = time.time() - start
+    end = round(end, 2)
+
+    return end
+
+
+def cv_time(images):
+    start = time.time()
+
+    for i in images:
+        img = Image.open(i)
         img = np.array(img)
 
     end = time.time() - start
@@ -46,7 +60,7 @@ def PIL_time(images):
     return end
 
 
-a = psd_tools_time(images)
+a = cv_time(images)
 b = PIL_time(images)
 
 print(a)
