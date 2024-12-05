@@ -60,13 +60,16 @@ class Utils:
 
     @classmethod
     def read_tiff_tifffile(cls, path: str) -> np.ndarray | None:
+
+        errs = (tifffile.TiffFileError, RuntimeError, DelayedImportError)
+
         try:
             img = tifffile.imread(files=path)[:,:,:3]
             if str(object=img.dtype) != "uint8":
                 img = (img/256).astype(dtype="uint8")
             return img
-        except (Exception, tifffile.TiffFileError, RuntimeError, DelayedImportError) as e:
-            cls.print_error(cls, e)
+        except (Exception, *errs) as e:
+            # cls.print_error(cls, e)
             print("try open tif with PIL")
             return cls.read_tiff_pil(path)
     

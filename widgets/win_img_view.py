@@ -2,7 +2,7 @@ import os
 
 import sqlalchemy
 from PyQt5.QtCore import QEvent, QObject, QPoint, QSize, Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import (QCloseEvent, QContextMenuEvent, QKeyEvent,
+from PyQt5.QtGui import (QCloseEvent, QColor, QContextMenuEvent, QKeyEvent,
                          QMouseEvent, QPainter, QPaintEvent, QPixmap,
                          QResizeEvent)
 from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QMenu, QSpacerItem,
@@ -50,7 +50,6 @@ class LoadThumbnail(URunnable):
         img_array = Utils.read_image_hash(res)
 
         if img_array is None:
-            # pixmap = QPixmap(IMG_BIG_SVG)
             pixmap = None
         else:
             pixmap = Utils.pixmap_from_array(img_array)
@@ -312,11 +311,6 @@ class WinImgView(WinBase):
 
 # SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM
 
-    def center_loading_label(self):
-        x = (self.width() - self.loading_label.width()) // 2
-        y = (self.height() - self.loading_label.height()) // 2
-        self.loading_label.move(x, y)
-
     def set_title(self):
         t = ""
         if self.wid.rating > 0:
@@ -328,7 +322,7 @@ class WinImgView(WinBase):
         self.setWindowTitle(t)
 
     def load_thumbnail(self):
-
+        self.loading_label.hide()
         self.set_title()
 
         if self.src not in LoadImage.cache:
@@ -341,7 +335,11 @@ class WinImgView(WinBase):
             self.load_image()
 
     def load_thumbnail_finished(self, image_data: ImageData):
+
         if image_data.pixmap is None:
+            pixmap = QPixmap(1, 1)
+            pixmap.fill(QColor(0, 0, 0))
+            self.img_label.set_image(pixmap)
             self.loading_label.show()
 
         elif image_data.src == self.src:
