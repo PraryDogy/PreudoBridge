@@ -13,12 +13,13 @@ psd_logger.setLevel(logging.CRITICAL)
 
 src = "/Users/Loshkarev/Desktop/PSD"
 src = "/Users/Loshkarev/Desktop/test jpg"
-
+src = "/Volumes/Shares/Studio/MIUZ/Photo/Art/Ready/1 Solo/1 IMG"
 
 images = [
     os.path.join(src, i)
     for i in os.listdir(src)
-]
+    if i.endswith((".jpg", ".JPG", ".jpeg", ".JPEG"))
+][:50]
 
 
 def psd_tools_time(images):

@@ -40,15 +40,11 @@ class Utils:
         clipboard = QApplication.clipboard()
         clipboard.setText(text)
         return True
-        text_bytes = text.encode('utf-8')
-        subprocess.run(['pbcopy'], input=text_bytes, check=True)
-        return True
 
     @classmethod
     def read_from_clipboard(cls):
         clipboard = QApplication.clipboard()
         return clipboard.text()
-        return subprocess.check_output('pbpaste').decode('utf-8')
 
     @classmethod
     def get_main_win(cls, name: str ="SimpleFileExplorer") -> QWidget:
@@ -152,7 +148,17 @@ class Utils:
             return None
 
     @classmethod
-    def read_jpg(cls, path: str) -> np.ndarray | None:
+    def read_jpg_pil(cls, path: str) -> np.ndarray | None:
+        try:
+            img = Image.open(path)
+            return np.array(img)
+
+        except Exception as e:
+            cls.print_error(parent=cls, error=e)
+            return None
+
+    @classmethod
+    def read_jpg_cv2(cls, path: str) -> np.ndarray | None:
         try:
             image = cv2.imread(path, cv2.IMREAD_UNCHANGED)  # Чтение с альфа-каналом
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
@@ -184,8 +190,14 @@ class Utils:
         elif src_lower.endswith((".tiff", ".tif")):
             img = cls.read_tiff_tifffile(src)
 
+            if img is None:
+                img = cls.read_tiff_pil(src)
+
         elif src_lower.endswith((".jpg", ".jpeg", "jfif")):
-            img = cls.read_jpg(src)
+            img = cls.read_jpg_pil(src)
+            
+            if img is None:
+                img = cls.read_jpg_cv2(src)
 
         elif src_lower.endswith((".png")):
             img = cls.read_png_pil(src)
