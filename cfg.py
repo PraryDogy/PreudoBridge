@@ -168,18 +168,19 @@ class JsonData:
 
     @classmethod
     def get_folder_access(cls):
+        return
         desktop = os.path.expanduser("~/Desktop")
         downloads = os.path.expanduser("~/Downloads")
         documents = os.path.expanduser("~/Documents")
 
         for i in (desktop, downloads, documents):
-            os.stat(i)
+            os.listdir(i)
 
         volumes = os.path.join(os.sep, "Volumes")
         if os.path.exists(volumes):
             for i in os.listdir(volumes):
                 src = os.path.join(volumes, i)
-                os.stat(src)
+                os.listdir(src)
 
 
     @classmethod
