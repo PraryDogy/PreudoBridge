@@ -54,8 +54,6 @@ class LoadThumbnail(URunnable):
         else:
             pixmap = Utils.pixmap_from_array(img_array)
 
-        pixmap = None
-
         image_data = ImageData(self.src, pixmap)
         self.signals_.finished_.emit(image_data)
 
