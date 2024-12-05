@@ -17,7 +17,7 @@ from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget
 
 from cfg import (GRID_SPACING, HASH_DIR, LEFT_MENU_W, MARGIN, THUMB_W, Dynamic,
-                 JsonData)
+                 JsonData, IMG_EXT)
 
 psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
 psd_logger = logging.getLogger("psd_tools")
@@ -183,38 +183,70 @@ class Utils:
     def read_image(cls, src: str) -> np.ndarray | None:
         src_lower: str = src.lower()
 
-        if src_lower.endswith((".psd")):
-            img = cls.read_psd_pil(src)
+        data = {
+            (".psb"): cls.read_psd_tools,
+            (".tif", ".tiff"): cls.read_tiff_tifffile,
+            (".nef", ".cr2", ".cr3", ".arw", ".raf"): cls.read_raw,
 
-            if img is None:
-                img = cls.read_psd_tools(src)
+            (".psd"): cls.read_psd_pil,
+            (".jpg", ".jpeg", "jfif"): cls.read_jpg_pil,
+            (".png"): cls.read_png_pil
+        }
 
-        elif src_lower.endswith((".psb")):
-            img = cls.read_psd_tools(src)
+        data_none = {
+            (".tif", ".tiff"): cls.read_tiff_pil,
+            (".psd"): cls.read_psd_tools,
+            (".jpg", ".jpeg", "jfif"): cls.read_jpg_cv2,
+            (".png"): cls.read_png_cv2
+        }
 
-        elif src_lower.endswith((".tiff", ".tif")):
-            img = cls.read_tiff_tifffile(src)
+        img = None
 
-            if img is None:
-                img = cls.read_tiff_pil(src)
+        for exts, func in data.items():
+            if src_lower.endswith(exts):
+                img = func(src)
+                break
 
-        elif src_lower.endswith((".jpg", ".jpeg", "jfif")):
-            img = cls.read_jpg_pil(src)
+        if img is None:
+
+            for exts, func in data_none.items():
+                if src_lower.endswith(exts):
+                    img = func(src)
+                    break
             
-            if img is None:
-                img = cls.read_jpg_cv2(src)
 
-        elif src_lower.endswith((".png")):
-            img = cls.read_png_pil(src)
+        # if src_lower.endswith((".psd")):
+        #     img = cls.read_psd_pil(src)
 
-            if img is None:
-                img = cls.read_png_cv2(src)
+        #     if img is None:
+        #         img = cls.read_psd_tools(src)
 
-        elif src_lower.endswith((".nef", ".cr2", ".cr3", ".arw", ".raf")):
-            img = cls.read_raw(src)
+        # elif src_lower.endswith((".psb")):
+        #     img = cls.read_psd_tools(src)
 
-        else:
-            img = None
+        # elif src_lower.endswith((".tiff", ".tif")):
+        #     img = cls.read_tiff_tifffile(src)
+
+        #     if img is None:
+        #         img = cls.read_tiff_pil(src)
+
+        # elif src_lower.endswith((".jpg", ".jpeg", "jfif")):
+        #     img = cls.read_jpg_pil(src)
+            
+        #     if img is None:
+        #         img = cls.read_jpg_cv2(src)
+
+        # elif src_lower.endswith((".png")):
+        #     img = cls.read_png_pil(src)
+
+        #     if img is None:
+        #         img = cls.read_png_cv2(src)
+
+        # elif src_lower.endswith((".nef", ".cr2", ".cr3", ".arw", ".raf")):
+        #     img = cls.read_raw(src)
+
+        # else:
+        #     img = None
 
         return img
      
