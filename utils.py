@@ -183,11 +183,14 @@ class Utils:
     def read_image(cls, src: str) -> np.ndarray | None:
         src_lower: str = src.lower()
 
-        if src_lower.endswith((".psd", ".psb")):
+        if src_lower.endswith((".psd")):
             img = cls.read_psd_pil(src)
 
             if img is None:
                 img = cls.read_psd_tools(src)
+
+        elif src_lower.endswith((".psb")):
+            img = cls.read_psd_tools(src)
 
         elif src_lower.endswith((".tiff", ".tif")):
             img = cls.read_tiff_tifffile(src)
