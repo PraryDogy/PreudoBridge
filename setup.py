@@ -12,7 +12,7 @@ from datetime import datetime
 
 from setuptools import setup
 
-from cfg import APP_NAME, APP_VER
+from cfg import APP_NAME, APP_VER, IMAGES_DIR
 
 # ****************** DON'T CHANGE IT ******************
 
@@ -68,7 +68,7 @@ SHORT_AUTHOR_NAME = "Evlosh" # "Evlosh"
 COMPANY = "MIUZ Diamonds" # "MIUZ Diamonds"
 APP_NAME = APP_NAME
 APP_VER = APP_VER
-ICON_PATH = "icon.icns" # "icon/icon.icns" or "icon.icns"
+ICON_PATH = os.path.join(IMAGES_DIR, "icon.icns")
 MAIN_FILES = ["start.py"] # SINGLE OR MULTIPLE PYTHON FILES
 
 
