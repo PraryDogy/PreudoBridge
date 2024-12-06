@@ -25,6 +25,7 @@ psd_logger.setLevel(logging.CRITICAL)
 
 
 class Err:
+
     @classmethod
     def print_error(cls, parent: object, error: Exception):
         tb = traceback.extract_tb(error.__traceback__)
@@ -65,6 +66,7 @@ class ReadImage(Err):
             img = tifffile.imread(files=path)[:,:,:3]
             if str(object=img.dtype) != "uint8":
                 img = (img/256).astype(dtype="uint8")
+            return img
             return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         except errs as e:
@@ -77,6 +79,7 @@ class ReadImage(Err):
             img = Image.open(path)
             img = img.convert("RGB")
             img = np.array(img)
+            return img
             return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         except Exception as e:
@@ -89,6 +92,7 @@ class ReadImage(Err):
             img = Image.open(path)
             img = img.convert("RGB")
             img = np.array(img)
+            return img
             return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         except Exception as e:
@@ -99,7 +103,9 @@ class ReadImage(Err):
 
         try:
             img = psd_tools.PSDImage.open(fp=path)
-            img = img.numpy(channel="color")
+            img = img.composite()
+            img = np.array(img)
+            return img
             return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         except Exception as e:
@@ -116,6 +122,7 @@ class ReadImage(Err):
 
             img = img.convert("RGB")
             img = np.array(img)
+            return img
             return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         except Exception as e:
@@ -154,6 +161,7 @@ class ReadImage(Err):
         try:
             img = Image.open(path)
             img = np.array(img)
+            return img
             return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         except Exception as e:
@@ -229,6 +237,7 @@ class ReadImage(Err):
 
 
 class Hash(Err):
+
     @classmethod
     def get_hash_path(cls, src: str) -> str:
         new_name = hashlib.md5(src.encode('utf-8')).hexdigest() + ".jpg"
@@ -239,7 +248,8 @@ class Hash(Err):
     @classmethod
     def write_image_hash(cls, output_path: str, array_img: np.ndarray) -> bool:
         try:
-            cv2.imwrite(output_path, array_img)
+            img = cv2.cvtColor(array_img, cv2.COLOR_BGR2RGB)
+            cv2.imwrite(output_path, img)
             return True
         except Exception as e:
             cls.print_error(parent=cls, error=e)
@@ -248,13 +258,47 @@ class Hash(Err):
     @classmethod
     def read_image_hash(cls, src: str) -> np.ndarray | None:
         try:
-            return cv2.imread(src, cv2.IMREAD_UNCHANGED)
+            img = cv2.imread(src, cv2.IMREAD_UNCHANGED)
+            # return img
+            return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         except Exception as e:
             print("read img hash error:", src)
             return None
 
 
-class Utils(ReadImage, Hash, Err):
+class Pixmap:
+
+    @classmethod
+    def pixmap_from_array(cls, image: np.ndarray) -> QPixmap | None:
+
+        if isinstance(image, np.ndarray) and QApplication.instance():
+            height, width, channel = image.shape
+            bytes_per_line = channel * width
+            qimage = QImage(
+                image.tobytes(),
+                width,
+                height,
+                bytes_per_line,
+                QImage.Format.Format_RGB888
+            )
+            return QPixmap.fromImage(qimage)
+
+        else:
+            return None
+
+    @classmethod
+    def pixmap_scale(cls, pixmap: QPixmap, size: int) -> QPixmap:
+
+        return pixmap.scaled(
+            size,
+            size,
+            aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio,
+            transformMode=Qt.TransformationMode.SmoothTransformation
+        )
+    
+
+class Utils(Hash, Pixmap, ReadImage):
+
     @classmethod
     def clear_layout(cls, layout: QVBoxLayout):
         if layout:
@@ -290,18 +334,6 @@ class Utils(ReadImage, Hash, Err):
         child.setGeometry(geo)
      
     @classmethod
-    def pixmap_from_array(cls, image: np.ndarray) -> QPixmap | None:
-
-        if isinstance(image, np.ndarray) and QApplication.instance():
-            height, width, channel = image.shape
-            bytes_per_line = channel * width
-            qimage = QImage(image.tobytes(), width, height, bytes_per_line, QImage.Format.Format_RGB888)
-            return QPixmap.fromImage(qimage)
-
-        else:
-            return None
-
-    @classmethod
     def get_clmn_count(cls, width: int):
         w = sum((
             THUMB_W[Dynamic.pixmap_size_ind],
@@ -312,15 +344,6 @@ class Utils(ReadImage, Hash, Err):
         # 10 пикселей к ширине виджета, чтобы он казался чуть шире
         # тогда при ресайзе окна позже потребуется новая колонка
         return (width + LEFT_MENU_W) // w
-
-    @classmethod
-    def pixmap_scale(cls, pixmap: QPixmap, size: int) -> QPixmap:
-        return pixmap.scaled(
-            size,
-            size,
-            aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio,
-            transformMode=Qt.TransformationMode.SmoothTransformation
-            )
 
     @classmethod
     def get_f_size(cls, bytes_size: int) -> str:
