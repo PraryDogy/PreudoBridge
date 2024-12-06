@@ -24,7 +24,33 @@ psd_logger = logging.getLogger("psd_tools")
 psd_logger.setLevel(logging.CRITICAL)
 
 
-class ReadImage:
+class Err:
+    @classmethod
+    def print_error(cls, parent: object, error: Exception):
+        tb = traceback.extract_tb(error.__traceback__)
+
+        # Попробуем найти первую строчку стека, которая относится к вашему коду.
+        for trace in tb:
+            filepath = trace.filename
+            filename = os.path.basename(filepath)
+            
+            # Если файл - не стандартный модуль, считаем его основным
+            if not filepath.startswith("<") and filename != "site-packages":
+                line_number = trace.lineno
+                break
+        else:
+            # Если не нашли, то берем последний вызов
+            trace = tb[-1]
+            filepath = trace.filename
+            filename = os.path.basename(filepath)
+            line_number = trace.lineno
+
+        print(f"{filepath}:{line_number}")
+        print("ERROR:", str(error))
+
+
+
+class ReadImage(Err):
 
     @classmethod
     def read_tiff_tifffile(cls, path: str) -> np.ndarray | None:
@@ -195,9 +221,35 @@ class ReadImage:
         return img
 
 
+class Hash(Err):
+    @classmethod
+    def get_hash_path(cls, src: str) -> str:
+        new_name = hashlib.md5(src.encode('utf-8')).hexdigest() + ".jpg"
+        new_path = os.path.join(HASH_DIR, new_name[:2])
+        os.makedirs(new_path, exist_ok=True)
+        return os.path.join(new_path, new_name)
+    
+    @classmethod
+    def write_image_hash(cls, output_path: str, array_img: np.ndarray) -> bool:
+        try:
+            array_img = cv2.cvtColor(array_img, cv2.COLOR_RGB2BGR)
+            cv2.imwrite(output_path, array_img)
+            return True
+        except Exception as e:
+            cls.print_error(parent=cls, error=e)
+            return False
+
+    @classmethod
+    def read_image_hash(cls, src: str) -> np.ndarray | None:
+        try:
+            array_img = cv2.imread(src, cv2.IMREAD_UNCHANGED)
+            return cv2.cvtColor(array_img, cv2.COLOR_BGR2RGB)
+        except Exception as e:
+            print("read img hash error:", src)
+            return None
 
 
-class Utils(ReadImage):
+class Utils(ReadImage, Hash, Err):
     @classmethod
     def clear_layout(cls, layout: QVBoxLayout):
         if layout:
@@ -264,56 +316,6 @@ class Utils(ReadImage):
             aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio,
             transformMode=Qt.TransformationMode.SmoothTransformation
             )
-
-    @classmethod
-    def print_error(cls, parent: object, error: Exception):
-        tb = traceback.extract_tb(error.__traceback__)
-
-        # Попробуем найти первую строчку стека, которая относится к вашему коду.
-        for trace in tb:
-            filepath = trace.filename
-            filename = os.path.basename(filepath)
-            
-            # Если файл - не стандартный модуль, считаем его основным
-            if not filepath.startswith("<") and filename != "site-packages":
-                line_number = trace.lineno
-                break
-        else:
-            # Если не нашли, то берем последний вызов
-            trace = tb[-1]
-            filepath = trace.filename
-            filename = os.path.basename(filepath)
-            line_number = trace.lineno
-
-        print(f"{filepath}:{line_number}")
-        print("ERROR:", str(error))
-
-    @classmethod
-    def get_hash_path(cls, src: str) -> str:
-        new_name = hashlib.md5(src.encode('utf-8')).hexdigest() + ".jpg"
-        new_path = os.path.join(HASH_DIR, new_name[:2])
-        os.makedirs(new_path, exist_ok=True)
-        return os.path.join(new_path, new_name)
-    
-    @classmethod
-    def write_image_hash(cls, output_path: str, array_img: np.ndarray) -> bool:
-        try:
-            array_img = cv2.cvtColor(array_img, cv2.COLOR_RGB2BGR)
-            cv2.imwrite(output_path, array_img)
-            return True
-        except Exception as e:
-            cls.print_error(parent=cls, error=e)
-            return False
-        q
-    @classmethod
-    def read_image_hash(cls, src: str) -> np.ndarray | None:
-        try:
-            array_img = cv2.imread(src, cv2.IMREAD_UNCHANGED)
-            return cv2.cvtColor(array_img, cv2.COLOR_BGR2RGB)
-        except Exception as e:
-            # cls.print_error(parent=cls, error= e)
-            print("read img hash error:", src)
-            return None
 
     @classmethod
     def get_f_size(cls, bytes_size: int) -> str:
