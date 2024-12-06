@@ -160,38 +160,38 @@ class ReadImage(Err):
             return cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         except (Exception, cv2.error) as e:
-            cls.print_error(cls, e)
             return None
 
     @classmethod
     def read_raw(cls, path: str) -> np.ndarray | None:
         try:
-            img = rawpy.imread(path).postprocess()
-            # img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-            return img
-        except (rawpy._rawpy.LibRawDataError) as e:
-            cls.print_error(cls, e)
+            return rawpy.imread(path).postprocess()
+
+        except rawpy._rawpy.LibRawDataError as e:
             return None
 
     @classmethod
     def read_image(cls, src: str) -> np.ndarray | None:
         _, ext = os.path.splitext(src)
         ext = ext.lower()
-        img = None
 
         data = {
             ".psb": cls.read_psd_tools,
+            ".psd": cls.read_psd_tools,
+
             ".tif": cls.read_tiff_tifffile,
             ".tiff": cls.read_tiff_tifffile,
+
             ".nef": cls.read_raw,
             ".cr2": cls.read_raw,
             ".cr3": cls.read_raw,
             ".arw": cls.read_raw,
             ".raf": cls.read_raw,
-            ".psd": cls.read_psd_pil,
+
             ".jpg": cls.read_jpg_pil,
             ".jpeg": cls.read_jpg_pil,
             "jfif": cls.read_jpg_pil,
+
             ".png": cls.read_png_pil,
         }
 
@@ -205,17 +205,18 @@ class ReadImage(Err):
             ".png": cls.read_png_cv2,
         }
 
-        read_img_func = data.get(ext)
+        img = None
 
         # если есть подходящее расширение то читаем файл
-        if read_img_func:
-            img = read_img_func(src)
+        if data.get(ext):
+            img = data.get(ext)(src)
+
         else:
             return None
 
         # если прочитать не удалось, то пытаемся прочесть запасными функциями
         if img is None:
-            img = read_img_func
+            img = data_none.get(ext)
 
         # либо None либо ndarray изображение
         return img
