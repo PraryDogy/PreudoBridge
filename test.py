@@ -49,7 +49,7 @@ def test_PIL(images):
 
 
 from utils import ReadImage
-src = "/Users/Loshkarev/Desktop/TEST IMAGES/test png/E01-MLN0436OV.png"
+src = "/Users/Loshkarev/Desktop/TEST IMAGES/test jpg/N01-RL723-WY1000GIA.jpg"
 
-a = ReadImage.read_png_pil(src)
+a = ReadImage.read_jpg_pil(src)
 show_img(a)

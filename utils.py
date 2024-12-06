@@ -153,7 +153,8 @@ class ReadImage(Err):
 
         try:
             img = Image.open(path)
-            return np.array(img)
+            img = np.array(img)
+            return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         except Exception as e:
             return None
@@ -162,8 +163,7 @@ class ReadImage(Err):
     def read_jpg_cv2(cls, path: str) -> np.ndarray | None:
 
         try:
-            image = cv2.imread(path, cv2.IMREAD_UNCHANGED)  # Чтение с альфа-каналом
-            return cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            return cv2.imread(path, cv2.IMREAD_UNCHANGED)
 
         except (Exception, cv2.error) as e:
             return None
