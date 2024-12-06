@@ -124,7 +124,7 @@ class ReadImage(Err):
             return img
 
         except Exception as e:
-            cls.print_error(cls, e)
+            print("error read png pil", str)
             return None
 
     @classmethod
@@ -150,7 +150,7 @@ class ReadImage(Err):
             return converted
 
         except Exception as e:
-            cls.print_error(cls, e)
+            print("error read png cv2", path)
             return None
 
     @classmethod
@@ -268,7 +268,6 @@ class Pixmap:
     def pixmap_from_array(cls, image: np.ndarray) -> QPixmap | None:
 
         if isinstance(image, np.ndarray) and QApplication.instance():
-            print(image.shape)
             height, width, channel = image.shape
             bytes_per_line = channel * width
             qimage = QImage(
