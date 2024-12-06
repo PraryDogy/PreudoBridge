@@ -11,66 +11,49 @@ psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
 psd_logger = logging.getLogger("psd_tools")
 psd_logger.setLevel(logging.CRITICAL)
 
-src = "/Users/Loshkarev/Desktop/PSD"
-src = "/Users/Loshkarev/Desktop/test jpg"
-src = "/Volumes/Shares/Studio/MIUZ/Photo/Art/Ready/1 Solo/1 IMG"
+
+def test_psd_tools(images):
+    start = time.time()
+
+    for i in images:
+        img = psd_tools.PSDImage.open(i)
+        img = img.numpy()[..., :3]
+        # img = np.array(img)
+
+        # cv2.imshow("1", img)
+        # cv2.waitKey(0)
+
+    end = time.time() - start
+    end = round(end, 2)
+
+    return end
+
+
+def test_PIL(images):
+    start = time.time()
+
+    for i in images:
+        img = Image.open(i)
+        img = np.array(img)
+
+    end = time.time() - start
+    end = round(end, 2)
+
+    return end
+
+
+src = "/Users/Loshkarev/Desktop/TEST IMAGES/test big psd"
 
 images = [
     os.path.join(src, i)
     for i in os.listdir(src)
-    if i.endswith((".jpg", ".JPG", ".jpeg", ".JPEG"))
+    # if i.endswith((".jpg", ".JPG", ".jpeg", ".JPEG"))x
+    if i.endswith((".psd", ".PSD", ".psb", ".PSB"))
 ][:50]
 
 
-def psd_tools_time(images):
-    start = time.time()
+a = test_psd_tools(images)
+b = test_PIL(images)
 
-    for i in images:
-
-        img = cv2.imread(i, cv2.IMREAD_UNCHANGED)
-
-    end = time.time() - start
-    end = round(end, 2)
-
-    return end
-
-
-def cv_time(images):
-    start = time.time()
-
-    for i in images:
-        img = Image.open(i)
-        img = np.array(img)
-
-    end = time.time() - start
-    end = round(end, 2)
-
-    return end
-
-
-def PIL_time(images):
-    start = time.time()
-
-    for i in images:
-        img = Image.open(i)
-        img = np.array(img)
-
-    end = time.time() - start
-    end = round(end, 2)
-
-    return end
-
-
-# a = cv_time(images)
-# b = PIL_time(images)
-
-# print(a)
-# print(b)
-
-
-import os
-
-volumes = os.path.join(os.sep, "Volumes")
-if os.path.exists(volumes):
-    for i in os.listdir(volumes):
-        src = os.path.join(volumes, i)
+print(a)
+print(b)

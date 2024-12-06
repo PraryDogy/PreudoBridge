@@ -15,3 +15,6 @@ os walk на scandir
 
 не забудь read img перенести в miuz collections
 cmd k???
+поиск сбросить не по центру
+
+коллекции - открыть с помощью
