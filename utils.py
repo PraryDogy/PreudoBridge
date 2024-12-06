@@ -63,14 +63,12 @@ class ReadImage(Err):
 
         try:
             img = tifffile.imread(files=path)[:,:,:3]
-
             if str(object=img.dtype) != "uint8":
                 img = (img/256).astype(dtype="uint8")
-
             return img
 
         except errs as e:
-            return cls.read_tiff_pil(path)
+            return None
     
     @classmethod
     def read_tiff_pil(cls, path: str) -> np.ndarray | None:
@@ -81,8 +79,6 @@ class ReadImage(Err):
             return np.array(img)
 
         except Exception as e:
-
-            # Utils.print_error(parent=cls, error=e)
             return None
 
     @classmethod
@@ -94,7 +90,6 @@ class ReadImage(Err):
             return np.array(img)
 
         except Exception as e:
-            cls.print_error(cls, e)
             return None
 
     @classmethod
@@ -103,7 +98,6 @@ class ReadImage(Err):
             img = psd_tools.PSDImage.open(fp=path)
             return img.numpy(channel="color")
         except Exception as e:
-            cls.print_error(cls, e)
             return None
 
     @classmethod
@@ -116,9 +110,8 @@ class ReadImage(Err):
                 img = Image.alpha_composite(white_background, img)
 
             img = img.convert("RGB")
-            img_array = np.array(img)
+            return np.array(img)
 
-            return img_array
         except Exception as e:
             cls.print_error(cls, e)
             return None
@@ -143,28 +136,29 @@ class ReadImage(Err):
             else:
                 converted = image
 
-            converted = cv2.cvtColor(converted, cv2.COLOR_BGR2RGB)
-            return converted
+            return cv2.cvtColor(converted, cv2.COLOR_BGR2RGB)
+
         except Exception as e:
             cls.print_error(cls, e)
             return None
 
     @classmethod
     def read_jpg_pil(cls, path: str) -> np.ndarray | None:
+
         try:
             img = Image.open(path)
             return np.array(img)
 
         except Exception as e:
-            cls.print_error(parent=cls, error=e)
             return None
 
     @classmethod
     def read_jpg_cv2(cls, path: str) -> np.ndarray | None:
+
         try:
             image = cv2.imread(path, cv2.IMREAD_UNCHANGED)  # Чтение с альфа-каналом
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            return image
+            return cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
         except (Exception, cv2.error) as e:
             cls.print_error(cls, e)
             return None
