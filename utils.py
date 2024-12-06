@@ -23,40 +23,8 @@ psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
 psd_logger = logging.getLogger("psd_tools")
 psd_logger.setLevel(logging.CRITICAL)
 
-class Utils:
-    @classmethod
-    def clear_layout(cls, layout: QVBoxLayout):
-        if layout:
-            while layout.count():
-                item = layout.takeAt(0)
-                widget = item.widget()
-                if widget:
-                    widget.deleteLater()
-                else:
-                    cls.clear_layout(item.layout())
 
-    @classmethod
-    def write_to_clipboard(cls, text: str):
-        clipboard = QApplication.clipboard()
-        clipboard.setText(text)
-        return True
-
-    @classmethod
-    def read_from_clipboard(cls):
-        clipboard = QApplication.clipboard()
-        return clipboard.text()
-
-    @classmethod
-    def get_main_win(cls, name: str ="SimpleFileExplorer") -> QWidget:
-        for i in QApplication.topLevelWidgets():
-            if name in str(i):
-                return i
-
-    @classmethod
-    def center_win(cls, parent: QWidget, child: QWidget):
-        geo = child.geometry()
-        geo.moveCenter(parent.geometry().center())
-        child.setGeometry(geo)
+class ReadImage:
 
     @classmethod
     def read_tiff_tifffile(cls, path: str) -> np.ndarray | None:
@@ -181,74 +149,88 @@ class Utils:
 
     @classmethod
     def read_image(cls, src: str) -> np.ndarray | None:
-        src_lower: str = src.lower()
+        _, ext = os.path.splitext(src)
+        ext = ext.lower()
+        img = None
 
         data = {
-            (".psb"): cls.read_psd_tools,
-            (".tif", ".tiff"): cls.read_tiff_tifffile,
-            (".nef", ".cr2", ".cr3", ".arw", ".raf"): cls.read_raw,
-
-            (".psd"): cls.read_psd_pil,
-            (".jpg", ".jpeg", "jfif"): cls.read_jpg_pil,
-            (".png"): cls.read_png_pil
+            ".psb": cls.read_psd_tools,
+            ".tif": cls.read_tiff_tifffile,
+            ".tiff": cls.read_tiff_tifffile,
+            ".nef": cls.read_raw,
+            ".cr2": cls.read_raw,
+            ".cr3": cls.read_raw,
+            ".arw": cls.read_raw,
+            ".raf": cls.read_raw,
+            ".psd": cls.read_psd_pil,
+            ".jpg": cls.read_jpg_pil,
+            ".jpeg": cls.read_jpg_pil,
+            "jfif": cls.read_jpg_pil,
+            ".png": cls.read_png_pil,
         }
 
         data_none = {
-            (".tif", ".tiff"): cls.read_tiff_pil,
-            (".psd"): cls.read_psd_tools,
-            (".jpg", ".jpeg", "jfif"): cls.read_jpg_cv2,
-            (".png"): cls.read_png_cv2
+            ".tif": cls.read_tiff_pil,
+            ".tiff": cls.read_tiff_pil,
+            ".psd": cls.read_psd_tools,
+            ".jpg": cls.read_jpg_cv2,
+            ".jpeg": cls.read_jpg_cv2,
+            "jfif": cls.read_jpg_cv2,
+            ".png": cls.read_png_cv2,
         }
 
-        img = None
+        read_img_func = data.get(ext)
 
-        for exts, func in data.items():
-            if src_lower.endswith(exts):
-                img = func(src)
-                break
+        # если есть подходящее расширение то читаем файл
+        if read_img_func:
+            img = read_img_func(src)
+        else:
+            return None
 
+        # если прочитать не удалось, то пытаемся прочесть запасными функциями
         if img is None:
+            img = read_img_func
 
-            for exts, func in data_none.items():
-                if src_lower.endswith(exts):
-                    img = func(src)
-                    break
-            
-
-        # if src_lower.endswith((".psd")):
-        #     img = cls.read_psd_pil(src)
-
-        #     if img is None:
-        #         img = cls.read_psd_tools(src)
-
-        # elif src_lower.endswith((".psb")):
-        #     img = cls.read_psd_tools(src)
-
-        # elif src_lower.endswith((".tiff", ".tif")):
-        #     img = cls.read_tiff_tifffile(src)
-
-        #     if img is None:
-        #         img = cls.read_tiff_pil(src)
-
-        # elif src_lower.endswith((".jpg", ".jpeg", "jfif")):
-        #     img = cls.read_jpg_pil(src)
-            
-        #     if img is None:
-        #         img = cls.read_jpg_cv2(src)
-
-        # elif src_lower.endswith((".png")):
-        #     img = cls.read_png_pil(src)
-
-        #     if img is None:
-        #         img = cls.read_png_cv2(src)
-
-        # elif src_lower.endswith((".nef", ".cr2", ".cr3", ".arw", ".raf")):
-        #     img = cls.read_raw(src)
-
-        # else:
-        #     img = None
-
+        # либо None либо ndarray изображение
         return img
+
+
+
+
+class Utils(ReadImage):
+    @classmethod
+    def clear_layout(cls, layout: QVBoxLayout):
+        if layout:
+            while layout.count():
+                item = layout.takeAt(0)
+                widget = item.widget()
+                if widget:
+                    widget.deleteLater()
+                else:
+                    cls.clear_layout(item.layout())
+
+    @classmethod
+    def write_to_clipboard(cls, text: str):
+        clipboard = QApplication.clipboard()
+        clipboard.setText(text)
+        return True
+
+    @classmethod
+    def read_from_clipboard(cls):
+        clipboard = QApplication.clipboard()
+        return clipboard.text()
+
+    @classmethod
+    def get_main_win(cls, name: str ="SimpleFileExplorer") -> QWidget:
+        for i in QApplication.topLevelWidgets():
+            if name in str(i):
+                return i
+
+    @classmethod
+    def center_win(cls, parent: QWidget, child: QWidget):
+        geo = child.geometry()
+        geo.moveCenter(parent.geometry().center())
+        child.setGeometry(geo)
      
     @classmethod
     def pixmap_from_array(cls, image: np.ndarray) -> QPixmap | None:
