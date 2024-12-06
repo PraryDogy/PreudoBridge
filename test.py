@@ -24,7 +24,7 @@ def test_psd_tools(images):
         img = psd_tools.PSDImage.open(i)
         img = img.numpy(channel="color")
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-        # show_img(img)
+        show_img(img)
 
     end = time.time() - start
     end = round(end, 2)
@@ -38,8 +38,8 @@ def test_PIL(images):
     for i in images:
         img = Image.open(i)
         img = np.array(img)
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        # show_img(img)
+        # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        show_img(img)
 
 
     end = time.time() - start
@@ -48,18 +48,8 @@ def test_PIL(images):
     return end
 
 
-src = "/Users/Loshkarev/Desktop/TEST IMAGES/test big psd"
+from utils import ReadImage
+src = "/Users/Loshkarev/Desktop/TEST IMAGES/test png/E01-MLN0436OV.png"
 
-images = [
-    os.path.join(src, i)
-    for i in os.listdir(src)
-    # if i.endswith((".jpg", ".JPG", ".jpeg", ".JPEG"))x
-    if i.endswith((".psd", ".PSD", ".psb", ".PSB"))
-][:50]
-
-
-a = test_psd_tools(images)
-b = test_PIL(images)
-
-print(a)
-print(b)
+a = ReadImage.read_png_pil(src)
+show_img(a)

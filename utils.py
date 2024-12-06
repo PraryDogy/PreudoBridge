@@ -76,7 +76,8 @@ class ReadImage(Err):
         try:
             img = Image.open(path)
             img = img.convert("RGB")
-            return np.array(img)
+            img = np.array(img)
+            return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         except Exception as e:
             return None
@@ -87,16 +88,20 @@ class ReadImage(Err):
         try:
             img = Image.open(path)
             img = img.convert("RGB")
-            return np.array(img)
+            img = np.array(img)
+            return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         except Exception as e:
             return None
 
     @classmethod
     def read_psd_tools(cls, path: str) -> np.ndarray | None:
+
         try:
             img = psd_tools.PSDImage.open(fp=path)
-            return img.numpy(channel="color")
+            img = img.numpy(channel="color")
+            return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
         except Exception as e:
             return None
 
@@ -110,7 +115,8 @@ class ReadImage(Err):
                 img = Image.alpha_composite(white_background, img)
 
             img = img.convert("RGB")
-            return np.array(img)
+            img = np.array(img)
+            return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         except Exception as e:
             cls.print_error(cls, e)
@@ -136,7 +142,7 @@ class ReadImage(Err):
             else:
                 converted = image
 
-            return cv2.cvtColor(converted, cv2.COLOR_BGR2RGB)
+            return converted
 
         except Exception as e:
             cls.print_error(cls, e)
