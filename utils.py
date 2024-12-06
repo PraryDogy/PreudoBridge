@@ -63,7 +63,9 @@ class ReadImage(Err):
         )
 
         try:
-            img = tifffile.imread(files=path)[:,:,:3]
+            img = tifffile.imread(files=path)
+            img = img[..., :3]
+
             if str(object=img.dtype) != "uint8":
                 img = (img/256).astype(dtype="uint8")
             return img
@@ -102,6 +104,7 @@ class ReadImage(Err):
             img = psd_tools.PSDImage.open(fp=path)
             img = img.composite()
             img = np.array(img)
+            img = img[..., :3]
             return img
 
         except Exception as e:
@@ -177,11 +180,6 @@ class ReadImage(Err):
 
         except rawpy._rawpy.LibRawDataError as e:
             return None
-
-    @classmethod
-    def read_image_for_view(cls, src: str):
-        img = cls.read_image(src)
-        return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
     @classmethod
     def read_image(cls, src: str) -> np.ndarray | None:
@@ -270,6 +268,7 @@ class Pixmap:
     def pixmap_from_array(cls, image: np.ndarray) -> QPixmap | None:
 
         if isinstance(image, np.ndarray) and QApplication.instance():
+            print(image.shape)
             height, width, channel = image.shape
             bytes_per_line = channel * width
             qimage = QImage(

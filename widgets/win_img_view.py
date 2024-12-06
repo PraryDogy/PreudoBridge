@@ -71,7 +71,7 @@ class LoadImage(URunnable):
     def run(self):
         if self.src not in self.cache:
 
-            img_array = Utils.read_image_for_view(self.src)
+            img_array = Utils.read_image(self.src)
 
             if img_array is None:
                 pixmap = None
