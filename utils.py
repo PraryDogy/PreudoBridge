@@ -49,41 +49,50 @@ class Err:
         print("ERROR:", str(error))
 
 
-
 class ReadImage(Err):
 
     @classmethod
     def read_tiff_tifffile(cls, path: str) -> np.ndarray | None:
 
-        errs = (tifffile.TiffFileError, RuntimeError, DelayedImportError)
+        errs = (
+            Exception,
+            tifffile.TiffFileError,
+            RuntimeError,
+            DelayedImportError
+        )
 
         try:
             img = tifffile.imread(files=path)[:,:,:3]
+
             if str(object=img.dtype) != "uint8":
                 img = (img/256).astype(dtype="uint8")
+
             return img
-        except (Exception, *errs) as e:
-            # cls.print_error(cls, e)
-            print("try open tif with PIL")
+
+        except errs as e:
             return cls.read_tiff_pil(path)
     
     @classmethod
     def read_tiff_pil(cls, path: str) -> np.ndarray | None:
+
         try:
             img = Image.open(path)
             img = img.convert("RGB")
             return np.array(img)
+
         except Exception as e:
-            Utils.print_error(parent=cls, error=e)
+
+            # Utils.print_error(parent=cls, error=e)
             return None
 
     @classmethod
     def read_psd_pil(cls, path: str) -> np.ndarray | None:
+
         try:
             img = Image.open(path)
             img = img.convert("RGB")
-            img = np.array(img)
-            return img
+            return np.array(img)
+
         except Exception as e:
             cls.print_error(cls, e)
             return None
@@ -92,10 +101,7 @@ class ReadImage(Err):
     def read_psd_tools(cls, path: str) -> np.ndarray | None:
         try:
             img = psd_tools.PSDImage.open(fp=path)
-            img = img.composite()
-            img = img.convert('RGB')
-            img = np.array(img)
-            return img
+            return img.numpy(channel="color")
         except Exception as e:
             cls.print_error(cls, e)
             return None
