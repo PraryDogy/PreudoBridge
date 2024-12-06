@@ -179,6 +179,11 @@ class ReadImage(Err):
             return None
 
     @classmethod
+    def read_image_for_view(cls, src: str):
+        img = cls.read_image(src)
+        return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+    @classmethod
     def read_image(cls, src: str) -> np.ndarray | None:
         _, ext = os.path.splitext(src)
         ext = ext.lower()

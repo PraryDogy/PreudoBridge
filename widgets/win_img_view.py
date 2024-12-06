@@ -51,6 +51,7 @@ class LoadThumbnail(URunnable):
 
         if img_array is None:
             pixmap = None
+
         else:
             pixmap = Utils.pixmap_from_array(img_array)
 
@@ -70,10 +71,10 @@ class LoadImage(URunnable):
     def run(self):
         if self.src not in self.cache:
 
-            img_array = Utils.read_image(self.src)
+            img_array = Utils.read_image_for_view(self.src)
 
             if img_array is None:
-                pixmap = QPixmap(IMG_BIG_SVG)
+                pixmap = None
 
             else:
                 pixmap = Utils.pixmap_from_array(img_array)
@@ -301,8 +302,8 @@ class WinImgView(WinBase):
         self.zoom_btns.cmd_fit.connect(self.img_label.zoom_reset)
         self.zoom_btns.cmd_close.connect(self.close)
 
-        self.loading_label = QLabel(parent=self, text="Загрузка...")
-        self.loading_label.hide()
+        self.text_label = QLabel(parent=self)
+        self.text_label.hide()
 
         self.hide_btns()
         self.load_thumbnail()
@@ -320,7 +321,7 @@ class WinImgView(WinBase):
         self.setWindowTitle(t)
 
     def load_thumbnail(self):
-        self.loading_label.hide()
+        self.text_label.hide()
         self.set_title()
 
         if self.src not in LoadImage.cache:
@@ -332,13 +333,20 @@ class WinImgView(WinBase):
         else:
             self.load_image()
 
+    def show_text_label(self, text: str):
+        pixmap = QPixmap(1, 1)
+        pixmap.fill(QColor(0, 0, 0))
+        self.img_label.set_image(pixmap)
+        self.text_label.setText(text)
+        self.text_label.show()
+
+    def hide_text_label(self):
+        self.text_label.hide()
+
     def load_thumbnail_finished(self, image_data: ImageData):
 
         if image_data.pixmap is None:
-            pixmap = QPixmap(1, 1)
-            pixmap.fill(QColor(0, 0, 0))
-            self.img_label.set_image(pixmap)
-            self.loading_label.show()
+            self.show_text_label("Загрузка...")
 
         elif image_data.src == self.src:
             self.img_label.set_image(image_data.pixmap)
@@ -353,9 +361,12 @@ class WinImgView(WinBase):
 
     def load_image_finished(self, image_data: ImageData):
 
-        self.loading_label.hide()
+        self.hide_text_label()
 
-        if image_data.src == self.src:
+        if image_data.pixmap is None:
+            self.show_text_label("Ошибка чтения изображения.")
+
+        elif image_data.src == self.src:
             self.img_label.set_image(image_data.pixmap)
 
 # GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI
@@ -443,9 +454,9 @@ class WinImgView(WinBase):
         bottom_window_side = a0.size().height() - self.zoom_btns.height()
         self.zoom_btns.move(horizontal_center, bottom_window_side - 30)
 
-        x = (a0.size().width() - self.loading_label.width()) // 2
-        y = (a0.size().height() - self.loading_label.height()) // 2
-        self.loading_label.move(x, y)
+        x = (a0.size().width() - self.text_label.width()) // 2
+        y = (a0.size().height() - self.text_label.height()) // 2
+        self.text_label.move(x, y)
 
         Dynamic.ww_im = self.width()
         Dynamic.hh_im = self.height()
