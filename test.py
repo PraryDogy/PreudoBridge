@@ -24,7 +24,7 @@ def test_psd_tools(images):
         img = psd_tools.PSDImage.open(i)
         img = img.numpy(channel="color")
         img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
-        show_img(img)
+        # show_img(img)
 
     end = time.time() - start
     end = round(end, 2)
@@ -39,7 +39,7 @@ def test_PIL(images):
         img = Image.open(i)
         img = np.array(img)
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        show_img(img)
+        # show_img(img)
 
 
     end = time.time() - start
