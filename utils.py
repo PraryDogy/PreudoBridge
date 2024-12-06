@@ -65,7 +65,7 @@ class ReadImage(Err):
             img = tifffile.imread(files=path)[:,:,:3]
             if str(object=img.dtype) != "uint8":
                 img = (img/256).astype(dtype="uint8")
-            return img
+            return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         except errs as e:
             return None
