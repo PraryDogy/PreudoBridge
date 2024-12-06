@@ -67,7 +67,6 @@ class ReadImage(Err):
             if str(object=img.dtype) != "uint8":
                 img = (img/256).astype(dtype="uint8")
             return img
-            return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         except errs as e:
             return None
@@ -80,7 +79,6 @@ class ReadImage(Err):
             img = img.convert("RGB")
             img = np.array(img)
             return img
-            return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         except Exception as e:
             return None
@@ -93,7 +91,6 @@ class ReadImage(Err):
             img = img.convert("RGB")
             img = np.array(img)
             return img
-            return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         except Exception as e:
             return None
@@ -106,7 +103,6 @@ class ReadImage(Err):
             img = img.composite()
             img = np.array(img)
             return img
-            return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         except Exception as e:
             return None
@@ -123,7 +119,6 @@ class ReadImage(Err):
             img = img.convert("RGB")
             img = np.array(img)
             return img
-            return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         except Exception as e:
             cls.print_error(cls, e)
@@ -162,7 +157,6 @@ class ReadImage(Err):
             img = Image.open(path)
             img = np.array(img)
             return img
-            return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
         except Exception as e:
             return None
@@ -259,7 +253,6 @@ class Hash(Err):
     def read_image_hash(cls, src: str) -> np.ndarray | None:
         try:
             img = cv2.imread(src, cv2.IMREAD_UNCHANGED)
-            # return img
             return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         except Exception as e:
             print("read img hash error:", src)
