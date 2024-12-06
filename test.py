@@ -48,8 +48,12 @@ def test_PIL(images):
     return end
 
 
-from utils import ReadImage
+from utils import ReadImage, Hash
 src = "/Users/Loshkarev/Desktop/TEST IMAGES/test jpg/N01-RL723-WY1000GIA.jpg"
+dest = "/Users/Loshkarev/Desktop/testttt.jpg"
 
-a = ReadImage.read_jpg_pil(src)
-show_img(a)
+img = ReadImage.read_jpg_pil(src)
+
+show_img(img)
+a = Hash.write_image_hash(output_path=dest, array_img=img)
+# show_img(a)

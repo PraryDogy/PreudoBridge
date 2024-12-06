@@ -239,7 +239,6 @@ class Hash(Err):
     @classmethod
     def write_image_hash(cls, output_path: str, array_img: np.ndarray) -> bool:
         try:
-            array_img = cv2.cvtColor(array_img, cv2.COLOR_RGB2BGR)
             cv2.imwrite(output_path, array_img)
             return True
         except Exception as e:
@@ -249,8 +248,7 @@ class Hash(Err):
     @classmethod
     def read_image_hash(cls, src: str) -> np.ndarray | None:
         try:
-            array_img = cv2.imread(src, cv2.IMREAD_UNCHANGED)
-            return cv2.cvtColor(array_img, cv2.COLOR_BGR2RGB)
+            return cv2.imread(src, cv2.IMREAD_UNCHANGED)
         except Exception as e:
             print("read img hash error:", src)
             return None
