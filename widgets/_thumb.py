@@ -188,15 +188,12 @@ class Thumb(OrderItem, QFrame):
             )
 
     def set_frame(self):
-        self.setStyleSheet(
-            f"""
-            #img_wid {{ background: {BLUE}; border-radius: 4px; }}
-            #text_wid {{ background: {BLUE}; border-radius: 4px; }}
-            """
+        self.text_wid.setStyleSheet(
+            f"""background: {BLUE}; border-radius: 4px;"""
         )
 
     def set_no_frame(self):
-        self.setStyleSheet("")
+        self.text_wid.setStyleSheet("")
 
     def add_base_actions(self, menu: QMenu):
 
