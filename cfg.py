@@ -46,32 +46,12 @@ NEXT_SVG = os.path.join(IMAGES_DIR, "next.svg")
 
 FOLDER_TYPE: str = "Папка"
 
-DB_IMG_SIZE = 210
-
-
 MARGIN: dict = {"w": 50, "h": 10}
-
-
-# Thumbnail # Thumbnail # Thumbnail # Thumbnail # Thumbnail # Thumbnail 
-
-# размер изображения виджета сетки по широкой стороне
-PIXMAP_SIZE: list = [50, 95, 130, 170, 210]
-
-# макс. символов в тексте виджета сетки
-TEXT_LENGTH: list = [17, 18, 23, 28, 33]
-
-# ширина и высота виджета сетки
-THUMB_W: list = [140, 95, 130, 170, 210]
-THUMB_H: list = [90, 95, 130, 170, 210]
-
-ROW_H: int = 16
-
-# Thumbnail end # Thumbnail end # Thumbnail end # Thumbnail end # Thumbnail end
-
-
-# расстояни между виджетами в сетке
+DB_IMG_SIZE: int = 210
+PIXMAP_SIZE: list = [50, 95, 130, 170, DB_IMG_SIZE]
+THUMB_W: list = [i for i in PIXMAP_SIZE]
+TEXT_LENGTH: list = [12, 18, 23, 28, 33]
 GRID_SPACING = 5
-
 LEFT_MENU_W = 240
 MAX_VAR = len(PIXMAP_SIZE) - 1
 
