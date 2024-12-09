@@ -96,6 +96,7 @@ class ReadImage(Err):
             except Exception:
                 return None
 
+
     @classmethod
     def read_psd(cls, path: str) -> np.ndarray | None:
 
@@ -129,15 +130,28 @@ class ReadImage(Err):
                     img = img.composite()
                 else:
                     img = Image.open(psd_file)
-
-                img = img.convert("RGB")
+                    img = img.convert("RGB")
 
             except Exception as e:
 
-                print("utils > error read psd", "src:", path, "channels: ", channels)
+                print("utils > error read psd", "src:", path)
+                print(e)
                 return None
 
             return np.array(img)
+        
+    @classmethod
+    def read_psb(cls, path: str):
+
+        try:
+            img = psd_tools.PSDImage.open(path)
+            img = img.composite()
+            return np.array(img)
+
+        except Exception as e:
+            print("utils > error read psd", "src:", path)
+            print(e)
+            return None
 
     @classmethod
     def read_png(cls, path: str) -> np.ndarray | None:
@@ -181,7 +195,7 @@ class ReadImage(Err):
         ext = ext.lower()
 
         data = {
-            ".psb": cls.read_psd,
+            ".psb": cls.read_psb,
             ".psd": cls.read_psd,
 
             ".tif": cls.read_tiff,
