@@ -3,11 +3,12 @@ import subprocess
 import sqlalchemy
 from PyQt5.QtCore import QMimeData, Qt, QUrl, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QDrag, QMouseEvent, QPixmap
-from PyQt5.QtWidgets import QApplication, QFrame, QLabel, QMenu, QVBoxLayout
+from PyQt5.QtWidgets import (QApplication, QFrame, QLabel, QMenu, QSizePolicy,
+                             QVBoxLayout)
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import (BLUE, COLORS, FOLDER_SVG, IMG_SVG, MARGIN, PIXMAP_SIZE,
-                 STAR_SYM, TEXT_LENGTH, THUMB_W, Dynamic, JsonData)
+from cfg import (BLUE, COLORS, FOLDER_SVG, IMG_SVG, ROW_H, PIXMAP_SIZE,
+                 STAR_SYM, TEXT_LENGTH, THUMB_H, THUMB_W, Dynamic, JsonData)
 from database import CACHE, Dbase, OrderItem
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
@@ -21,7 +22,7 @@ from ._base import USvgWidget
 class TextLabel(QLabel):
     def __init__(self):
         super().__init__()
-        self.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
     def set_text(self, wid: OrderItem) -> list[str]:
         name: str | list = wid.name
@@ -58,8 +59,9 @@ class TextLabel(QLabel):
 class ColorLabel(QLabel):
     def __init__(self):
         super().__init__()
-        self.setStyleSheet("font-size: 9px;")
-        self.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.font_ = "font-size: 9px;"
+        self.setStyleSheet(self.font_)
 
     def set_text(self, wid: OrderItem):
         self.setText(wid.colors)
@@ -122,19 +124,19 @@ class Thumb(OrderItem, QFrame):
         self.v_lay.setSpacing(margin)
         self.setLayout(self.v_lay)
 
+        self.v_lay.setAlignment(
+            Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop
+        )
+
         self.img_wid: USvgWidget | QLabel = USvgWidget()
         self.img_wid.load(IMG_SVG)
         self.v_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.text_wid = TextLabel()
-        self.v_lay.addWidget(self.text_wid)
+        self.v_lay.addWidget(self.text_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.color_label = ColorLabel()
-        self.v_lay.addWidget(self.color_label)
-
-        self.setObjectName("thumbnail")
-        self.img_wid.setObjectName("img_wid")
-        self.text_wid.setObjectName("text_wid")
+        self.v_lay.addWidget(self.color_label, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.set_no_frame()
         self.setup()
@@ -154,47 +156,52 @@ class Thumb(OrderItem, QFrame):
 
     @classmethod
     def calculate_size(cls):
+        cls.row_h = ROW_H
         cls.pixmap_size = PIXMAP_SIZE[Dynamic.pixmap_size_ind]
-        cls.row_h = 16
-
-        cls.thumb_w = sum((
-            THUMB_W[Dynamic.pixmap_size_ind],
-            MARGIN.get("w"),
-            ))
-
-        cls.thumb_h = sum((
-            cls.pixmap_size,
-            cls.row_h * 2,
-            cls.row_h,
-            MARGIN.get("h"),
-            ))
+        cls.thumb_h = THUMB_H[Dynamic.pixmap_size_ind]
+        cls.thumb_w = THUMB_W[Dynamic.pixmap_size_ind]
 
     def setup(self):
-        self.set_text()
-        self.adjustSize()
+        
+        self.text_wid.set_text(self)
+        self.text_wid.adjustSize()
+        self.text_wid.setFixedWidth(self.text_wid.width())
+        self.text_wid.setStyleSheet(self.text_wid.styleSheet())
 
-        self.setFixedSize(self.thumb_w, self.thumb_h)
-
-        self.text_wid.setFixedSize(self.thumb_w, self.row_h * 2)
-        self.color_label.setFixedSize(self.thumb_w, self.row_h)
+        self.color_label.set_text(self)
+        self.color_label.adjustSize()
+        self.color_label.setFixedSize(self.color_label.width(), self.row_h)
+        self.color_label.setStyleSheet(self.color_label.styleSheet())
 
         if isinstance(self.img_wid, QLabel):
             self.img_wid.setPixmap(
                 Utils.pixmap_scale(self.img, self.pixmap_size)
             )
 
-        else:
-            self.img_wid.setFixedSize(
-                self.pixmap_size, self.pixmap_size
-            )
-
-    def set_frame(self):
-        self.text_wid.setStyleSheet(
-            f"""background: {BLUE}; border-radius: 4px;"""
+        self.img_wid.setFixedSize(
+            self.pixmap_size, self.pixmap_size
         )
 
+        self.setFixedWidth(self.thumb_w)
+        self.text_changed.emit()
+        self.setStyleSheet("background: gray;")
+
+    def set_frame(self):
+        style = f"""
+            background: {BLUE};
+            border-radius: 4px;
+        """
+        self.text_wid.setStyleSheet(style)
+
+        if self.color_label.text():
+            self.color_label.setStyleSheet(style + self.color_label.font_)
+
     def set_no_frame(self):
-        self.text_wid.setStyleSheet("")
+        style = ""
+        self.text_wid.setStyleSheet(style)
+
+        if self.color_label.text():
+            self.color_label.setStyleSheet(style + self.color_label.font_)
 
     def add_base_actions(self, menu: QMenu):
 
@@ -237,11 +244,6 @@ class Thumb(OrderItem, QFrame):
     def show_in_finder(self):
         subprocess.call(["open", "-R", self.src])
 
-    def set_text(self):
-        self.text_wid.set_text(self)
-        self.color_label.set_text(self)
-        self.text_changed.emit()
-
     def set_color_cmd(self, color: str):
 
         if color not in self.colors:
@@ -253,9 +255,9 @@ class Thumb(OrderItem, QFrame):
             self.colors = temp_colors
             key = lambda x: list(COLORS.keys()).index(x)
             self.colors = ''.join(sorted(self.colors, key=key))
-            self.set_text()
+            self.setup()
 
-        self.update_thumb_data({"colors": temp_colors}, cmd_)
+        self.update_thumb_data(values={"colors": temp_colors}, cmd_=cmd_)
 
     def set_rating_cmd(self, rating: int):
 
@@ -263,9 +265,9 @@ class Thumb(OrderItem, QFrame):
 
         def cmd_():
             self.rating = rating
-            self.set_text()
+            self.setup()
 
-        self.update_thumb_data({"rating": rating}, cmd_)
+        self.update_thumb_data(values={"rating": rating}, cmd_=cmd_)
 
     def update_thumb_data(self, values: dict, cmd_: callable):
         task_ = UpdateThumbData(self.src, values, cmd_)

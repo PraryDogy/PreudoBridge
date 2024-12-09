@@ -7,7 +7,7 @@ from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtWidgets import QLabel
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import FOLDER_TYPE, HDD_SVG, IMG_EXT, MAX_SIZE, JsonData
+from cfg import FOLDER_TYPE, HDD_SVG, IMG_EXT, JsonData, DB_IMG_SIZE
 from database import CACHE, Dbase, OrderItem
 from fit_img import FitImg
 from signals import SignalsApp
@@ -135,7 +135,7 @@ class LoadImages(URunnable):
 
             if img_array is not None:
 
-                small_img_array = FitImg.start(img_array, MAX_SIZE)
+                small_img_array = FitImg.start(img_array, DB_IMG_SIZE)
                 pixmap = Utils.pixmap_from_array(small_img_array)
 
                 h_, w_ = img_array.shape[:2]
