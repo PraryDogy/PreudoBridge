@@ -130,7 +130,8 @@ class ReadImage(Err):
                     img = img.composite()
                 else:
                     img = Image.open(psd_file)
-                    img = img.convert("RGB")
+
+                img = img.convert("RGB")
 
             except Exception as e:
 

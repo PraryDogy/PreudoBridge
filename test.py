@@ -49,11 +49,9 @@ def test_PIL(images):
 
 
 from utils import ReadImage, Hash
-src = "/Users/Loshkarev/Desktop/TEST IMAGES/test jpg/N01-RL723-WY1000GIA.jpg"
-dest = "/Users/Loshkarev/Desktop/testttt.jpg"
+src = "/Volumes/Macintosh HD/Users/Loshkarev/Desktop/TEST IMAGES/test psd/0152.psd"
 
-img = ReadImage.read_jpg_pil(src)
+img = ReadImage.read_psd(src)
 
-show_img(img)
-a = Hash.write_image_hash(output_path=dest, array_img=img)
-# show_img(a)
+cv2.imshow("123", img)
+cv2.waitKey(0)
