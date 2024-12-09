@@ -126,13 +126,16 @@ class Thumb(OrderItem, QFrame):
         self.img_wid.load(IMG_SVG)
         self.v_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.name_label = TextLabel()
-        self.v_lay.addWidget(self.name_label)
+        self.text_wid = TextLabel()
+        self.v_lay.addWidget(self.text_wid)
 
         self.color_label = ColorLabel()
         self.v_lay.addWidget(self.color_label)
 
         self.setObjectName("thumbnail")
+        self.img_wid.setObjectName("img_wid")
+        self.text_wid.setObjectName("text_wid")
+
         self.set_no_frame()
         self.setup()
 
@@ -171,16 +174,26 @@ class Thumb(OrderItem, QFrame):
         self.adjustSize()
 
         self.setFixedSize(self.thumb_w, self.thumb_h)
-        self.name_label.setFixedSize(self.thumb_w, self.row_h * 2)
+        self.text_wid.setFixedSize(self.thumb_w, self.row_h * 2)
         self.color_label.setFixedSize(self.thumb_w, self.row_h)
 
         if isinstance(self.img_wid, QLabel):
-            self.img_wid.setPixmap(Utils.pixmap_scale(self.img, self.pixmap_size))
+            self.img_wid.setPixmap(
+                Utils.pixmap_scale(self.img, self.pixmap_size)
+            )
+
         else:
-            self.img_wid.setFixedSize(self.pixmap_size, self.pixmap_size)
+            self.img_wid.setFixedSize(
+                self.pixmap_size, self.pixmap_size
+            )
 
     def set_frame(self):
-        self.setStyleSheet(f""" #thumbnail {{ background: {BLUE}; border-radius: 4px; }}""")
+        self.setStyleSheet(
+            f"""
+            #img_wid {{ background: {BLUE}; border-radius: 4px; }}
+            #text_wid {{ background: {BLUE}; border-radius: 4px; }}
+            """
+        )
 
     def set_no_frame(self):
         self.setStyleSheet("")
@@ -227,7 +240,7 @@ class Thumb(OrderItem, QFrame):
         subprocess.call(["open", "-R", self.src])
 
     def set_text(self):
-        self.name_label.set_text(self)
+        self.text_wid.set_text(self)
         self.color_label.set_text(self)
         self.text_changed.emit()
 
