@@ -174,6 +174,7 @@ class Thumb(OrderItem, QFrame):
         self.adjustSize()
 
         self.setFixedSize(self.thumb_w, self.thumb_h)
+
         self.text_wid.setFixedSize(self.thumb_w, self.row_h * 2)
         self.color_label.setFixedSize(self.thumb_w, self.row_h)
 
