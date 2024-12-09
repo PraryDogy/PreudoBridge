@@ -132,6 +132,7 @@ class ReadImage(Err):
                     img = Image.open(psd_file)
 
                 img = img.convert("RGB")
+                return np.array(img)
 
             except Exception as e:
 
@@ -139,7 +140,6 @@ class ReadImage(Err):
                 print(e)
                 return None
 
-            return np.array(img)
         
     @classmethod
     def read_psb(cls, path: str):
