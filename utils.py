@@ -80,9 +80,14 @@ class ReadImage(Err):
                 # Делим на 256, чтобы перевести диапазон [0, 65535] в [0, 255]:
                 # 65535 / 256 ≈ 255 (максимальное значение в uint8).
                 # Приводим типданных массива к uint8.
-                img = (img / 256).astype(dtype="uint8")  
+                img = (img / 256).astype(dtype="uint8")
 
-        except errors:
+            return img
+
+        except errors as e:
+
+            print("error read tiff", path, e)
+
             try:
                 img = Image.open(path)
                 img = img.convert("RGB")
@@ -90,7 +95,6 @@ class ReadImage(Err):
 
             except Exception:
                 return None
-
 
     @classmethod
     def read_psd(cls, path: str) -> np.ndarray | None:
