@@ -8,8 +8,8 @@ from PyQt5.QtGui import (QCloseEvent, QColor, QContextMenuEvent, QKeyEvent,
 from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QMenu, QSpacerItem,
                              QVBoxLayout, QWidget)
 
-from cfg import (CLOSE_SVG, IMG_BIG_SVG, NEXT_SVG, PREV_SVG, STAR_SYM,
-                 ZOOM_FIT_SVG, ZOOM_IN_SVG, ZOOM_OUT_SVG, Dynamic, JsonData)
+from cfg import (CLOSE_SVG, NEXT_SVG, PREV_SVG, STAR_SYM, ZOOM_FIT_SVG,
+                 ZOOM_IN_SVG, ZOOM_OUT_SVG, Dynamic)
 from database import CACHE, Dbase
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils

@@ -43,7 +43,6 @@ ZOOM_FIT_SVG = os.path.join(IMAGES_DIR, "zoom_fit.svg")
 CLOSE_SVG = os.path.join(IMAGES_DIR, "zoom_close.svg")
 PREV_SVG = os.path.join(IMAGES_DIR, "prev.svg")
 NEXT_SVG = os.path.join(IMAGES_DIR, "next.svg")
-IMG_BIG_SVG = os.path.join(IMAGES_DIR, "img_big.svg")
 
 FOLDER_TYPE: str = "Папка"
 
