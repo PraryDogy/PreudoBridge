@@ -32,7 +32,7 @@ class TextWidget(QLabel):
 
     def set_text(self, wid: OrderItem) -> list[str]:
         name: str | list = wid.name
-        max_row = TEXT_LENGTH[Dynamic.pixmap_size_ind]
+        max_row = ThumbData.TEXT_LENGTH[Dynamic.pixmap_size_ind]
         lines: list[str] = []
 
         if len(name) > max_row:
@@ -147,18 +147,6 @@ class Thumb(OrderItem, QFrame):
         self.set_no_frame()
         self.setup()
 
-    # 210 пикселей
-    def set_pixmap(self, pixmap: QPixmap):
-        pixmap_size = PIXMAP_SIZE[Dynamic.pixmap_size_ind]
-
-        self.img_wid.deleteLater()
-        self.img_wid = QLabel()
-        self.img_wid.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.v_lay.insertWidget(0, self.img_wid)
-
-        self.img = pixmap
-        self.img_wid.setPixmap(Utils.pixmap_scale(pixmap, pixmap_size))
-
     @classmethod
     def calculate_size(cls):
         ind = Dynamic.pixmap_size_ind
@@ -168,13 +156,21 @@ class Thumb(OrderItem, QFrame):
         cls.text_wid_h = ThumbData.TEXT_WID_H[ind]
         cls.color_wid_h = ThumbData.COLOR_WID_H[ind]
 
+    def set_pixmap(self, pixmap: QPixmap):
+        self.img_wid.deleteLater()
+        self.img_wid = QLabel()
+        self.v_lay.insertWidget(0, self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        self.img = pixmap
+        self.img_wid.setPixmap(Utils.pixmap_scale(pixmap, self.pixmap_size))
+
     def setup(self):
         self.set_text()
         # self.adjustSize()
 
         self.setFixedSize(self.thumb_w, self.thumb_h)
-        # self.text_wid.setFixedSize(self.thumb_w, self.text_wid_h)
-        # self.color_wid.setFixedSize(self.thumb_w, self.color_wid_h)
+        self.text_wid.setFixedSize(self.thumb_w, self.text_wid_h)
+        self.color_wid.setFixedSize(self.thumb_w, self.color_wid_h)
 
         # if isinstance(self.img_wid, QLabel):
         #     self.img_wid.setPixmap(Utils.pixmap_scale(self.img, self.pixmap_size))
