@@ -128,6 +128,9 @@ class Thumb(OrderItem, QFrame):
         self.v_lay = QVBoxLayout()
         self.v_lay.setContentsMargins(margin, margin, margin, margin)
         self.v_lay.setSpacing(margin)
+
+        self.v_lay.setAlignment(Qt.AlignmentFlag.AlignVCenter)
+
         self.setLayout(self.v_lay)
 
         self.img_wid: USvgWidget | QLabel = USvgWidget()
@@ -135,10 +138,10 @@ class Thumb(OrderItem, QFrame):
         self.v_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.text_wid = TextWidget()
-        self.v_lay.addWidget(self.text_wid)
+        self.v_lay.addWidget(self.text_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.color_wid = ColorLabel()
-        self.v_lay.addWidget(self.color_wid)
+        self.v_lay.addWidget(self.color_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.setObjectName("thumbnail")
         self.set_no_frame()
@@ -146,12 +149,11 @@ class Thumb(OrderItem, QFrame):
 
     # 210 пикселей
     def set_pixmap(self, pixmap: QPixmap):
-        flag_ = Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop
         pixmap_size = PIXMAP_SIZE[Dynamic.pixmap_size_ind]
 
         self.img_wid.deleteLater()
         self.img_wid = QLabel()
-        self.img_wid.setAlignment(flag_)
+        self.img_wid.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.v_lay.insertWidget(0, self.img_wid)
 
         self.img = pixmap
@@ -168,16 +170,16 @@ class Thumb(OrderItem, QFrame):
 
     def setup(self):
         self.set_text()
-        self.adjustSize()
+        # self.adjustSize()
 
         self.setFixedSize(self.thumb_w, self.thumb_h)
-        self.text_wid.setFixedSize(self.thumb_w, self.text_wid_h)
-        self.color_wid.setFixedSize(self.thumb_w, self.color_wid_h)
+        # self.text_wid.setFixedSize(self.thumb_w, self.text_wid_h)
+        # self.color_wid.setFixedSize(self.thumb_w, self.color_wid_h)
 
-        if isinstance(self.img_wid, QLabel):
-            self.img_wid.setPixmap(Utils.pixmap_scale(self.img, self.pixmap_size))
-        else:
-            self.img_wid.setFixedSize(self.pixmap_size, self.pixmap_size)
+        # if isinstance(self.img_wid, QLabel):
+        #     self.img_wid.setPixmap(Utils.pixmap_scale(self.img, self.pixmap_size))
+        # else:
+        #     self.img_wid.setFixedSize(self.pixmap_size, self.pixmap_size)
 
     def set_frame(self):
         self.setStyleSheet(
