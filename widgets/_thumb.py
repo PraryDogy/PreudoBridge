@@ -195,7 +195,7 @@ class Thumb(OrderItem, QFrame):
         )
 
         self.text_wid.setFixedSize(
-            self.thumb_w,
+            self.text_wid.width(),
             self.text_wid.height()
         )
 
