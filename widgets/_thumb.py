@@ -28,7 +28,7 @@ class TextWidget(QLabel):
 
     def set_text(self, wid: OrderItem) -> list[str]:
         name: str | list = wid.name
-        max_row = ThumbData.TEXT_LENGTH[Dynamic.pixmap_size_ind]
+        max_row = ThumbData.MAX_ROW[Dynamic.pixmap_size_ind]
         lines: list[str] = []
 
         if len(name) > max_row:
@@ -211,8 +211,6 @@ class Thumb(OrderItem, QFrame):
                     size=self.pixmap_size
                 )
             )
-
-        # self.setStyleSheet("background: gray;")
 
     def set_frame(self):
         self.text_wid.setStyleSheet(f"background: {BLUE}; {TEXT_FONT}; {RAD}")
