@@ -108,7 +108,6 @@ class Thumb(OrderItem, QFrame):
     pixmap_size = 0
     thumb_w = 0
     thumb_h = 0
-    text_wid_h = 0
     color_wid_h = 0
 
     def __init__(self, src: str, size: int, mod: int, colors: str, rating: int):
@@ -169,8 +168,7 @@ class Thumb(OrderItem, QFrame):
         cls.pixmap_size = ThumbData.PIXMAP_SIZE[ind]
         cls.thumb_w = ThumbData.THUMB_W[ind]
         cls.thumb_h = ThumbData.THUMB_H[ind]
-        cls.text_wid_h = ThumbData.TEXT_WID_H[ind]
-        cls.color_wid_h = ThumbData.COLOR_WID_H[ind]
+        cls.color_wid_h = ThumbData.COLOR_WID_H
 
     def set_pixmap(self, pixmap: QPixmap):
         svg = self.img_wid.findChild(USvgWidget)
