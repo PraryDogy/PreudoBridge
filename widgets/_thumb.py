@@ -129,7 +129,7 @@ class Thumb(OrderItem, QFrame):
         self.v_lay = QVBoxLayout()
         self.v_lay.setContentsMargins(margin, margin, margin, margin)
         self.v_lay.setSpacing(ThumbData.SPACING)
-        self.v_lay.setAlignment(Qt.AlignmentFlag.AlignVCenter)
+        self.v_lay.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.setLayout(self.v_lay)
 
 
@@ -221,11 +221,8 @@ class Thumb(OrderItem, QFrame):
         self.text_wid.setStyleSheet(f"background: {BLUE}; {TEXT_FONT}; {RAD}")
         self.img_wid.setStyleSheet(f"background: {BLUE}; {RAD}")
 
-        if self.colors:
-            self.color_wid.setStyleSheet(f"background: {BLUE}; {COLORS_FONT} {RAD}")
-
     def set_no_frame(self):
-        for i in (self.text_wid, self.color_wid, self.img_wid):
+        for i in (self.text_wid, self.img_wid):
             style = i.styleSheet().replace(BLUE, "transparent")
             i.setStyleSheet(style)
 
@@ -280,6 +277,7 @@ class Thumb(OrderItem, QFrame):
             self.colors = ''.join(sorted(self.colors, key=key))
             self.color_wid.set_text(self)
             self.text_changed.emit()
+            self.setup()
 
         self.update_thumb_data(
             values={"colors": temp_colors},
