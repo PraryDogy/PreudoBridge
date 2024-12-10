@@ -193,10 +193,12 @@ class Thumb(OrderItem, QFrame):
             self.thumb_h
         )
 
+        # фиксированная высота строки цветовых меток чтобы они не обрезались
         self.color_wid.setFixedHeight(
             self.color_wid_h
         )
 
+        # рамка вокруг pixmap при выделении Thumb
         self.img_wid.setFixedSize(
             self.pixmap_size + ThumbData.OFFSET,
             self.pixmap_size + ThumbData.OFFSET
