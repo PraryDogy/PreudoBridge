@@ -138,8 +138,6 @@ class Thumb(OrderItem, QFrame):
         self.setLayout(self.v_lay)
 
 
-        # виджет с изображением # виджет с изображением # виджет с изображением 
-
         self.img_wid = QFrame()
         self.v_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
@@ -151,17 +149,18 @@ class Thumb(OrderItem, QFrame):
         svg_wid = USvgWidget(src=IMG_SVG, size=self.pixmap_size)
         self.img_lay.addWidget(svg_wid)
 
-
-        # виджет с текстом # виджет с текстом # виджет с текстом # виджет с текстом 
-
         self.text_wid = TextWidget()
         self.v_lay.addWidget(self.text_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
-
-        # виджет с цветовыми метками # виджет с цветовыми метками # виджет с цветовыми метками 
-
         self.color_wid = ColorLabel()
         self.v_lay.addWidget(self.color_wid, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        for i in (self.img_wid, self.text_wid, self.color_wid):
+            i.mouseReleaseEvent = self.mouse_release
+            i.mousePressEvent = self.mouse_press
+            i.mouseMoveEvent = self.mouse_move
+            i.mouseDoubleClickEvent = self.mouse_d_click
+            i.contextMenuEvent = self.mouse_r_click
 
         self.set_no_frame()
         self.setup()
@@ -314,14 +313,14 @@ class Thumb(OrderItem, QFrame):
         task_ = UpdateThumbData(self.src, values, cmd_)
         UThreadPool.start(task_)
 
-    def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
+    def mouse_release(self, a0: QMouseEvent | None) -> None:
         self.select.emit()
 
-    def mousePressEvent(self, a0: QMouseEvent | None) -> None:
+    def mouse_press(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.LeftButton:
             self.drag_start_position = a0.pos()
 
-    def mouseMoveEvent(self, a0: QMouseEvent | None) -> None:
+    def mouse_move(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.RightButton:
             return
         
@@ -349,10 +348,10 @@ class Thumb(OrderItem, QFrame):
         self.drag.setMimeData(self.mime_data)
         self.drag.exec_(Qt.DropAction.CopyAction)
 
-    def mouseDoubleClickEvent(self, a0: QMouseEvent | None) -> None:
+    def mouse_d_click(self, a0: QMouseEvent | None) -> None:
         self.open_in_view.emit()
 
-    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+    def mouse_r_click(self, a0: QContextMenuEvent | None) -> None:
         self.select.emit()
         context_menu = QMenu(self)
         self.add_base_actions(context_menu)
