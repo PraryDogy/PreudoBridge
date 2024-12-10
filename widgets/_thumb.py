@@ -26,9 +26,7 @@ RAD = "border-radius: 4px"
 class TextWidget(QLabel):
     def __init__(self):
         super().__init__()
-        self.setAlignment(
-            Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop
-        )
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setStyleSheet(TEXT_FONT)
 
     def set_text(self, wid: OrderItem) -> list[str]:
@@ -67,11 +65,12 @@ class ColorLabel(QLabel):
     def __init__(self):
         super().__init__()
         self.setStyleSheet(COLORS_FONT)
-        self.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
     def set_text(self, wid: OrderItem):
+        self.setMinimumSize(0, 0)
+        self.setMaximumSize(100, 100)
         self.setText(wid.colors)
-
 
 class UpdateThumbData(URunnable):
     def __init__(self, src: str, values: dict, cmd_: callable):
@@ -182,7 +181,9 @@ class Thumb(OrderItem, QFrame):
 
     def setup(self):
 
-        self.set_text()
+        for i in (self.text_wid, self.color_wid):
+            i.set_text(self)
+
         self.adjustSize()
 
         self.setFixedSize(
@@ -214,11 +215,6 @@ class Thumb(OrderItem, QFrame):
                     size=self.pixmap_size
                 )
             )
-        # else:
-        #     self.img_wid.setFixedSize(
-        #         self.pixmap_size + ThumbData.OFFSET,
-        #         self.pixmap_size + ThumbData.OFFSET
-        #     )
 
     def set_frame(self):
         self.text_wid.setStyleSheet(f"background: {BLUE}; {TEXT_FONT}; {RAD}")
@@ -270,11 +266,6 @@ class Thumb(OrderItem, QFrame):
         sort_menu = SortMenu(parent=menu)
         menu.addMenu(sort_menu)
 
-    def set_text(self):
-        self.text_wid.set_text(self)
-        self.color_wid.set_text(self)
-        self.text_changed.emit()
-
     def set_color_cmd(self, color: str):
 
         if color not in self.colors:
@@ -286,7 +277,8 @@ class Thumb(OrderItem, QFrame):
             self.colors = temp_colors
             key = lambda x: list(COLORS.keys()).index(x)
             self.colors = ''.join(sorted(self.colors, key=key))
-            self.set_text()
+            self.color_wid.set_text(self)
+            self.text_changed.emit()
 
         self.update_thumb_data(
             values={"colors": temp_colors},
@@ -299,7 +291,8 @@ class Thumb(OrderItem, QFrame):
 
         def cmd_():
             self.rating = rating
-            self.set_text()
+            self.text_wid.set_text(self)
+            self.text_changed.emit()
 
         self.update_thumb_data(
             values={"rating": rating},
