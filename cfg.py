@@ -46,11 +46,49 @@ NEXT_SVG = os.path.join(IMAGES_DIR, "next.svg")
 
 FOLDER_TYPE: str = "Папка"
 
-MARGIN: dict = {"w": 50, "h": 10}
+
+class Row:
+    _ROW_H = 16
+
+
+class ThumbData:
+
+    # максимальный размер в пикселях по широкой стороне для кешируемого
+    # изображения в папку "hashdir" в AppliactionSupport
+    # кешированные изображения загружаются для отобажения в сетке виджетов
+    DB_PIXMAP_SIZE: int = 210
+
+    # ширина и высота Thumbnail
+    THUMB_H = [70, 115, 150, 190, 230]
+    THUMB_W = [70, 115, 150, 190, 230]
+
+    # максимальный размер в пикселях по широкой стороне для изображения Thu,
+    # должен быть ви
+    PIXMAP_SIZE: list = [50, 95, 130, 170, DB_PIXMAP_SIZE]
+
+    # высота текстовой строки
+    # _ROW_H: int = 16
+
+    # текстовый виджет имеет 2 строки текста
+    TEXT_WID_H = [
+        Row._ROW_H * 2
+        for i in range(0, len(THUMB_W))
+    ]
+
+    # виджет с цветовыми метками имеет только 1 строку
+    COLOR_WID_H = [
+        Row._ROW_H
+        for i in range(0, len(THUMB_W))
+    ]
+
+    TEXT_LENGTH: list = [14, 18, 23, 28, 33]
+
+
 DB_IMG_SIZE: int = 210
 PIXMAP_SIZE: list = [50, 95, 130, 170, DB_IMG_SIZE]
 THUMB_W: list = [i for i in PIXMAP_SIZE]
 TEXT_LENGTH: list = [14, 18, 23, 28, 33]
+
 GRID_SPACING = 5
 LEFT_MENU_W = 240
 MAX_VAR = len(PIXMAP_SIZE) - 1

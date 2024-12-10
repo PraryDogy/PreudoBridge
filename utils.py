@@ -15,7 +15,8 @@ from PyQt5.QtCore import QRunnable, Qt, QThreadPool, QTimer
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget
 
-from cfg import GRID_SPACING, HASH_DIR, LEFT_MENU_W, MARGIN, THUMB_W, Dynamic
+from cfg import (GRID_SPACING, HASH_DIR, LEFT_MENU_W, THUMB_W, Dynamic,
+                 ThumbData, JsonData)
 
 psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
 psd_logger = logging.getLogger("psd_tools")
@@ -324,12 +325,12 @@ class Utils(Hash, Pixmap, ReadImage):
      
     @classmethod
     def get_clmn_count(cls, width: int):
-        w = sum((
-            THUMB_W[Dynamic.pixmap_size_ind],
-            GRID_SPACING,
-            MARGIN.get("w"),
-            10
-            ))
+        w = sum(
+            (
+                ThumbData.THUMB_W[Dynamic.pixmap_size_ind],
+                10
+            )
+        )
         # 10 пикселей к ширине виджета, чтобы он казался чуть шире
         # тогда при ресайзе окна позже потребуется новая колонка
         return (width + LEFT_MENU_W) // w

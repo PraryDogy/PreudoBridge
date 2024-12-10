@@ -6,8 +6,8 @@ from PyQt5.QtGui import QContextMenuEvent, QDrag, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import QApplication, QFrame, QLabel, QMenu, QVBoxLayout
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import (BLUE, COLORS, FOLDER_SVG, IMG_SVG, MARGIN, PIXMAP_SIZE,
-                 STAR_SYM, TEXT_LENGTH, THUMB_W, Dynamic, JsonData)
+from cfg import (BLUE, COLORS, FOLDER_SVG, IMG_SVG, PIXMAP_SIZE, STAR_SYM,
+                 TEXT_LENGTH, THUMB_W, Dynamic, JsonData, ThumbData)
 from database import CACHE, Dbase, OrderItem
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
@@ -16,7 +16,6 @@ from ._actions import (ChangeView, ColorMenu, CopyPath, FavAdd, FavRemove,
                        Info, OpenInApp, RatingMenu, RevealInFinder,
                        ShowInFolder, SortMenu, UpdateGrid, View)
 from ._base import USvgWidget
-
 
 COLORS_FONT = "font-size: 9px;"
 TEXT_FONT = "font-size: 11px;"
@@ -110,10 +109,11 @@ class Thumb(OrderItem, QFrame):
     text_changed = pyqtSignal()
     path_to_wid: dict[str, "Thumb"] = {}
 
-    thumb_w: int
-    thumb_h: int
-    row_h: int
-    pixmap_size: int
+    pixmap_size = 0
+    thumb_w = 0
+    thumb_h = 0
+    text_wid_h = 0
+    color_wid_h = 0
 
     def __init__(self, src: str, size: int, mod: int, colors: str, rating: int):
 
@@ -134,11 +134,11 @@ class Thumb(OrderItem, QFrame):
         self.img_wid.load(IMG_SVG)
         self.v_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.name_label = TextWidget()
-        self.v_lay.addWidget(self.name_label)
+        self.text_wid = TextWidget()
+        self.v_lay.addWidget(self.text_wid)
 
-        self.color_label = ColorLabel()
-        self.v_lay.addWidget(self.color_label)
+        self.color_wid = ColorLabel()
+        self.v_lay.addWidget(self.color_wid)
 
         self.setObjectName("thumbnail")
         self.set_no_frame()
@@ -159,28 +159,20 @@ class Thumb(OrderItem, QFrame):
 
     @classmethod
     def calculate_size(cls):
-        cls.pixmap_size = PIXMAP_SIZE[Dynamic.pixmap_size_ind]
-        cls.row_h = 16
-
-        cls.thumb_w = sum((
-            THUMB_W[Dynamic.pixmap_size_ind],
-            MARGIN.get("w"),
-            ))
-
-        cls.thumb_h = sum((
-            cls.pixmap_size,
-            cls.row_h * 2,
-            cls.row_h,
-            MARGIN.get("h"),
-            ))
+        ind = Dynamic.pixmap_size_ind
+        cls.pixmap_size = ThumbData.PIXMAP_SIZE[ind]
+        cls.thumb_w = ThumbData.THUMB_W[ind]
+        cls.thumb_h = ThumbData.THUMB_H[ind]
+        cls.text_wid_h = ThumbData.TEXT_WID_H[ind]
+        cls.color_wid_h = ThumbData.COLOR_WID_H[ind]
 
     def setup(self):
         self.set_text()
         self.adjustSize()
 
         self.setFixedSize(self.thumb_w, self.thumb_h)
-        self.name_label.setFixedSize(self.thumb_w, self.row_h * 2)
-        self.color_label.setFixedSize(self.thumb_w, self.row_h)
+        self.text_wid.setFixedSize(self.thumb_w, self.text_wid_h)
+        self.color_wid.setFixedSize(self.thumb_w, self.color_wid_h)
 
         if isinstance(self.img_wid, QLabel):
             self.img_wid.setPixmap(Utils.pixmap_scale(self.img, self.pixmap_size))
@@ -188,10 +180,26 @@ class Thumb(OrderItem, QFrame):
             self.img_wid.setFixedSize(self.pixmap_size, self.pixmap_size)
 
     def set_frame(self):
-        self.setStyleSheet(f""" #thumbnail {{ background: {BLUE}; border-radius: 4px; }}""")
+        self.setStyleSheet(
+            f"""
+            #thumbnail
+                {{
+                    border: 1px solid {BLUE};
+                    border-radius: 4px;
+                }}
+            """
+        )
 
     def set_no_frame(self):
-        self.setStyleSheet("")
+        self.setStyleSheet(
+            f"""
+            #thumbnail
+                {{
+                    border: 1px solid transparent;
+                    border-radius: 4px;
+                }}
+            """
+        )
 
     def add_base_actions(self, menu: QMenu):
 
@@ -235,8 +243,8 @@ class Thumb(OrderItem, QFrame):
         subprocess.call(["open", "-R", self.src])
 
     def set_text(self):
-        self.name_label.set_text(self)
-        self.color_label.set_text(self)
+        self.text_wid.set_text(self)
+        self.color_wid.set_text(self)
         self.text_changed.emit()
 
     def set_color_cmd(self, color: str):
