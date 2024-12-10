@@ -7,7 +7,7 @@ from cfg import GRAY
 from utils import Utils
 
 from ._actions import TextCopy, TextCut, TextPaste, TextSelectAll
-
+from typing import Literal
 
 class BaseMethods:
     def order_(self, *args, **kwargs):
@@ -62,7 +62,7 @@ class USlider(QSlider):
 
 
 class USvgWidget(QSvgWidget):
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Literal["src", "size"]):
         """src, size"""
 
         super().__init__()

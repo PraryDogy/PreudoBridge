@@ -128,40 +128,24 @@ class Thumb(OrderItem, QFrame):
         self.v_lay = QVBoxLayout()
         self.v_lay.setContentsMargins(margin, margin, margin, margin)
         self.v_lay.setSpacing(ThumbData.SPACING)
+
         self.v_lay.setAlignment(Qt.AlignmentFlag.AlignVCenter)
+
         self.setLayout(self.v_lay)
 
-
-        # виджет с изображением # виджет с изображением # виджет с изображением 
-
-        self.img_wid = QFrame()
+        self.img_wid: USvgWidget | QLabel = USvgWidget()
+        self.img_wid.load(IMG_SVG)
         self.v_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
-
-        self.img_lay = QVBoxLayout()
-        self.img_lay.setContentsMargins(0, 0, 0, 0)
-        self.img_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.img_wid.setLayout(self.img_lay)
-
-        svg_wid = USvgWidget(src=IMG_SVG, size=self.pixmap_size)
-        self.img_lay.addWidget(svg_wid)
-
-
-        # виджет с текстом # виджет с текстом # виджет с текстом # виджет с текстом 
 
         self.text_wid = TextWidget()
         self.v_lay.addWidget(self.text_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
-
-        # виджет с цветовыми метками # виджет с цветовыми метками # виджет с цветовыми метками 
-
         self.color_wid = ColorLabel()
         self.v_lay.addWidget(self.color_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
+        self.setObjectName("thumbnail")
         self.set_no_frame()
         self.setup()
-
-        # self.setObjectName("thumbnail")
-
 
     @classmethod
     def calculate_size(cls):
@@ -173,23 +157,20 @@ class Thumb(OrderItem, QFrame):
         cls.color_wid_h = ThumbData.COLOR_WID_H[ind]
 
     def set_pixmap(self, pixmap: QPixmap):
-        svg = self.img_wid.findChild(USvgWidget)
-        svg.deleteLater()
-
-        img_wid = QLabel()
-        img_wid.setPixmap(Utils.pixmap_scale(pixmap, self.pixmap_size))
-        self.img_lay.addWidget(img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.img_wid.deleteLater()
+        self.img_wid = QLabel()
+        self.v_lay.insertWidget(0, self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.img = pixmap
+        self.img_wid.setPixmap(Utils.pixmap_scale(pixmap, self.pixmap_size))
 
     def setup(self):
         self.set_text()
-        self.adjustSize()
+        # self.adjustSize()
 
         self.setFixedSize(self.thumb_w, self.thumb_h)
         self.text_wid.setFixedSize(self.thumb_w, self.text_wid_h)
         self.color_wid.setFixedSize(self.thumb_w, self.color_wid_h)
-        self.img_wid.setFixedSize(self.pixmap_size + 4, self.pixmap_size + 4)
 
         # if isinstance(self.img_wid, QLabel):
         #     self.img_wid.setPixmap(Utils.pixmap_scale(self.img, self.pixmap_size))
@@ -209,7 +190,6 @@ class Thumb(OrderItem, QFrame):
 
         self.text_wid.setStyleSheet("background: blue;")
         self.color_wid.setStyleSheet("background: blue;")
-        self.img_wid.setStyleSheet("background: blue;")
 
     def set_no_frame(self):
         self.setStyleSheet(
