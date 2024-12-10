@@ -119,7 +119,14 @@ class Thumb(OrderItem, QFrame):
     def __init__(self, src: str, size: int, mod: int, colors: str, rating: int):
 
         QFrame.__init__(self, parent=None)
-        OrderItem.__init__(self, src=src, size=size, mod=mod, colors=colors, rating=rating)
+        OrderItem.__init__(
+            self,
+            src=src,
+            size=size,
+            mod=mod,
+            colors=colors,
+            rating=rating
+        )
 
         self.img: QPixmap = None
         self.must_hidden: bool = False
