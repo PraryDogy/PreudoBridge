@@ -183,18 +183,20 @@ class Thumb(OrderItem, QFrame):
         self.img = pixmap
 
     def setup(self):
+
         self.set_text()
         self.adjustSize()
 
         self.setFixedSize(self.thumb_w, self.thumb_h)
-        self.text_wid.setFixedSize(self.thumb_w, self.text_wid_h)
-        self.color_wid.setFixedSize(self.thumb_w, self.color_wid_h)
+        self.text_wid.setFixedSize(self.text_wid.width(), self.text_wid_h)
+        self.color_wid.setFixedSize(self.color_wid.width(), self.color_wid_h)
         self.img_wid.setFixedSize(self.pixmap_size + 4, self.pixmap_size + 4)
 
-        # if isinstance(self.img_wid, QLabel):
-        #     self.img_wid.setPixmap(Utils.pixmap_scale(self.img, self.pixmap_size))
-        # else:
-        #     self.img_wid.setFixedSize(self.pixmap_size, self.pixmap_size)
+        img_lbl = self.img_wid.findChild(QLabel)
+        if isinstance(img_lbl, QLabel):
+            img_lbl.setPixmap(Utils.pixmap_scale(self.img, self.pixmap_size))
+        else:
+            self.img_wid.setFixedSize(self.pixmap_size + 4, self.pixmap_size + 4)
 
     def set_frame(self):
         # self.setStyleSheet(
