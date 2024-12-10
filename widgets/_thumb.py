@@ -20,7 +20,6 @@ TEXT_FONT = "font-size: 11px;"
 RAD = "border-radius: 4px"
 
 
-
 class TextWidget(QLabel):
     def __init__(self):
         super().__init__()
@@ -195,7 +194,7 @@ class Thumb(OrderItem, QFrame):
         )
 
         self.text_wid.setFixedSize(
-            self.text_wid.width(),
+            self.thumb_w,
             self.text_wid.height()
         )
 
