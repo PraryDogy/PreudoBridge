@@ -143,7 +143,8 @@ class Thumb(OrderItem, QFrame):
         self.img_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.img_wid.setLayout(self.img_lay)
 
-        svg_wid = USvgWidget(src=IMG_SVG, size=self.pixmap_size)
+        self.svg_path = IMG_SVG
+        svg_wid = USvgWidget(src=self.svg_path, size=self.pixmap_size)
         self.img_lay.addWidget(svg_wid)
 
         self.text_wid = TextWidget()
@@ -339,7 +340,7 @@ class Thumb(OrderItem, QFrame):
         if isinstance(img_wid, QLabel):
             self.drag.setPixmap(img_wid.pixmap())
         else:
-            self.drag.setPixmap(QPixmap(FOLDER_SVG))
+            self.drag.setPixmap(QPixmap(self.svg_path))
         
         url = [QUrl.fromLocalFile(self.src)]
         self.mime_data.setUrls(url)
@@ -361,8 +362,9 @@ class ThumbFolder(Thumb):
     def __init__(self, src: str, size: int, mod: int, colors: str, rating: int):
         super().__init__(src, size, mod, colors, rating)
 
+        self.svg_path = FOLDER_SVG
         img_wid = self.img_wid.findChild(USvgWidget)
-        img_wid.load(FOLDER_SVG)
+        img_wid.load(self.svg_path)
 
     def fav_cmd(self, offset: int):
         self.fav_action.triggered.disconnect()
