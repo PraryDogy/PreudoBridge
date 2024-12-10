@@ -127,7 +127,7 @@ class Thumb(OrderItem, QFrame):
 
         self.v_lay = QVBoxLayout()
         self.v_lay.setContentsMargins(margin, margin, margin, margin)
-        self.v_lay.setSpacing(margin)
+        self.v_lay.setSpacing(ThumbData.SPACING)
 
         self.v_lay.setAlignment(Qt.AlignmentFlag.AlignVCenter)
 
