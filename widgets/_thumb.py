@@ -72,6 +72,7 @@ class ColorLabel(QLabel):
         self.setMaximumSize(100, 100)
         self.setText(wid.colors)
 
+
 class UpdateThumbData(URunnable):
     def __init__(self, src: str, values: dict, cmd_: callable):
 
