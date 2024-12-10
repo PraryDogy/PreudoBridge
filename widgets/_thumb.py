@@ -184,10 +184,9 @@ class Thumb(OrderItem, QFrame):
 
     def setup(self):
 
+        #  при первой инициации нужно установить текст в виджеты
         for i in (self.text_wid, self.color_wid):
             i.set_text(self)
-
-        self.adjustSize()
 
         self.setFixedSize(
             self.thumb_w,
