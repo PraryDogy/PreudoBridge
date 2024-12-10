@@ -88,6 +88,9 @@ class ThumbData:
     # растояние между изображением, текстовым и цветовым виджетами
     SPACING = 2
 
+    # дополнительное пространство вокруг Pixmap
+    OFFSET = 6
+
 
 DB_IMG_SIZE: int = 210
 PIXMAP_SIZE: list = [50, 95, 130, 170, DB_IMG_SIZE]

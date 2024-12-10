@@ -188,16 +188,40 @@ class Thumb(OrderItem, QFrame):
         self.set_text()
         self.adjustSize()
 
-        self.setFixedSize(self.thumb_w, self.thumb_h)
-        self.text_wid.setFixedSize(self.text_wid.width(), self.text_wid_h)
-        self.color_wid.setFixedSize(self.color_wid.width(), self.color_wid_h)
-        self.img_wid.setFixedSize(self.pixmap_size + 4, self.pixmap_size + 4)
+        self.setFixedSize(
+            self.thumb_w,
+            self.thumb_h
+        )
+
+        self.text_wid.setFixedSize(
+            self.text_wid.width(),
+            self.text_wid.height()
+        )
+
+        self.color_wid.setFixedSize(
+            self.color_wid.width(),
+            self.color_wid.height()
+        )
+
+        self.img_wid.setFixedSize(
+            self.pixmap_size + ThumbData.OFFSET,
+            self.pixmap_size + ThumbData.OFFSET
+        )
 
         img_lbl = self.img_wid.findChild(QLabel)
+
         if isinstance(img_lbl, QLabel):
-            img_lbl.setPixmap(Utils.pixmap_scale(self.img, self.pixmap_size))
-        else:
-            self.img_wid.setFixedSize(self.pixmap_size + 4, self.pixmap_size + 4)
+            img_lbl.setPixmap(
+                Utils.pixmap_scale(
+                    pixmap=self.img,
+                    size=self.pixmap_size
+                )
+            )
+        # else:
+        #     self.img_wid.setFixedSize(
+        #         self.pixmap_size + ThumbData.OFFSET,
+        #         self.pixmap_size + ThumbData.OFFSET
+        #     )
 
     def set_frame(self):
         self.text_wid.setStyleSheet(f"background: {BLUE}; {TEXT_FONT}; {RAD}")
@@ -249,9 +273,6 @@ class Thumb(OrderItem, QFrame):
         sort_menu = SortMenu(parent=menu)
         menu.addMenu(sort_menu)
 
-    def show_in_finder(self):
-        subprocess.call(["open", "-R", self.src])
-
     def set_text(self):
         self.text_wid.set_text(self)
         self.color_wid.set_text(self)
@@ -270,7 +291,10 @@ class Thumb(OrderItem, QFrame):
             self.colors = ''.join(sorted(self.colors, key=key))
             self.set_text()
 
-        self.update_thumb_data({"colors": temp_colors}, cmd_)
+        self.update_thumb_data(
+            values={"colors": temp_colors},
+            cmd_=cmd_
+        )
 
     def set_rating_cmd(self, rating: int):
 
@@ -280,7 +304,10 @@ class Thumb(OrderItem, QFrame):
             self.rating = rating
             self.set_text()
 
-        self.update_thumb_data({"rating": rating}, cmd_)
+        self.update_thumb_data(
+            values={"rating": rating},
+            cmd_=cmd_
+        )
 
     def update_thumb_data(self, values: dict, cmd_: callable):
         task_ = UpdateThumbData(self.src, values, cmd_)
