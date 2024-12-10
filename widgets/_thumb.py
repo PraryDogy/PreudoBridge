@@ -334,8 +334,10 @@ class Thumb(OrderItem, QFrame):
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
 
-        if isinstance(self.img_wid, QLabel):
-            self.drag.setPixmap(self.img_wid.pixmap())
+        img_wid = self.img_wid.findChild(QLabel)
+
+        if isinstance(img_wid, QLabel):
+            self.drag.setPixmap(img_wid.pixmap())
         else:
             self.drag.setPixmap(QPixmap(FOLDER_SVG))
         
