@@ -334,10 +334,9 @@ class Thumb(OrderItem, QFrame):
 class ThumbFolder(Thumb):
     def __init__(self, src: str, size: int, mod: int, colors: str, rating: int):
         super().__init__(src, size, mod, colors, rating)
-        
-        pixmap_size = PIXMAP_SIZE[Dynamic.pixmap_size_ind]
-        self.img_wid.load(FOLDER_SVG)
-        self.img_wid.setFixedSize(pixmap_size, pixmap_size)
+
+        img_wid = self.img_wid.findChild(USvgWidget)
+        img_wid.load(FOLDER_SVG)
 
     def fav_cmd(self, offset: int):
         self.fav_action.triggered.disconnect()
