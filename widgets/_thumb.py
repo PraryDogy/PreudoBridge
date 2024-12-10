@@ -161,9 +161,6 @@ class Thumb(OrderItem, QFrame):
         self.set_no_frame()
         self.setup()
 
-        # self.setObjectName("thumbnail")
-
-
     @classmethod
     def calculate_size(cls):
         ind = Dynamic.pixmap_size_ind
@@ -200,7 +197,7 @@ class Thumb(OrderItem, QFrame):
 
         self.color_wid.setFixedSize(
             self.color_wid.width(),
-            self.color_wid.height()
+            self.color_wid_h
         )
 
         self.img_wid.setFixedSize(
