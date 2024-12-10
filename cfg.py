@@ -91,14 +91,9 @@ class ThumbData:
     OFFSET = 6
 
 
-DB_IMG_SIZE: int = 210
-PIXMAP_SIZE: list = [50, 95, 130, 170, DB_IMG_SIZE]
-THUMB_W: list = [i for i in PIXMAP_SIZE]
-TEXT_LENGTH: list = [14, 18, 23, 28, 33]
-
 GRID_SPACING = 5
 LEFT_MENU_W = 240
-MAX_VAR = len(PIXMAP_SIZE) - 1
+MAX_VAR = len(ThumbData.PIXMAP_SIZE) - 1
 
 LINK = "https://disk.yandex.ru/d/vYdK8hMwVbkSKQ"
 IMAGE_APPS: dict = {}

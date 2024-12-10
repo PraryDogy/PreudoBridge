@@ -8,8 +8,8 @@ from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import IMG_EXT, DB_IMG_SIZE, JsonData
-from database import CACHE, CACHE_CLMNS, Dbase
+from cfg import IMG_EXT, JsonData, ThumbData
+from database import CACHE, Dbase
 from fit_img import FitImg
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
@@ -118,7 +118,7 @@ class SearchFinder(URunnable):
 
         if db_data is None:
             img_array = Utils.read_image(src)
-            small_img_array = FitImg.start(img_array, DB_IMG_SIZE)
+            small_img_array = FitImg.start(img_array, ThumbData.DB_PIXMAP_SIZE)
 
             pixmap = Utils.pixmap_from_array(small_img_array)
             colors: str = ""
