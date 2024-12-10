@@ -68,8 +68,6 @@ class ColorLabel(QLabel):
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
     def set_text(self, wid: OrderItem):
-        self.setMinimumSize(0, 0)
-        self.setMaximumSize(100, 100)
         self.setText(wid.colors)
 
 
@@ -282,8 +280,15 @@ class Thumb(OrderItem, QFrame):
             self.colors = temp_colors
             key = lambda x: list(COLORS.keys()).index(x)
             self.colors = ''.join(sorted(self.colors, key=key))
+
+            # сбрасываем фиксированную ширину для изменения текста
+            self.color_wid.setMinimumWidth(0)
+            self.color_wid.setMaximumWidth(50)
             self.color_wid.set_text(self)
+
             self.text_changed.emit()
+
+            # заново собираем размеры виджета с учетом новых цветовых меток
             self.setup()
 
         self.update_thumb_data(
