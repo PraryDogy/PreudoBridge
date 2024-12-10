@@ -18,10 +18,18 @@ from ._actions import (ChangeView, ColorMenu, CopyPath, FavAdd, FavRemove,
 from ._base import USvgWidget
 
 
-class TextLabel(QLabel):
+COLORS_FONT = "font-size: 9px;"
+TEXT_FONT = "font-size: 11px;"
+
+
+
+class TextWidget(QLabel):
     def __init__(self):
         super().__init__()
-        self.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
+        self.setAlignment(
+            Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop
+        )
+        self.setStyleSheet(TEXT_FONT)
 
     def set_text(self, wid: OrderItem) -> list[str]:
         name: str | list = wid.name
@@ -58,7 +66,7 @@ class TextLabel(QLabel):
 class ColorLabel(QLabel):
     def __init__(self):
         super().__init__()
-        self.setStyleSheet("font-size: 9px;")
+        self.setStyleSheet(COLORS_FONT)
         self.setAlignment(Qt.AlignmentFlag.AlignCenter | Qt.AlignmentFlag.AlignTop)
 
     def set_text(self, wid: OrderItem):
@@ -126,7 +134,7 @@ class Thumb(OrderItem, QFrame):
         self.img_wid.load(IMG_SVG)
         self.v_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.name_label = TextLabel()
+        self.name_label = TextWidget()
         self.v_lay.addWidget(self.name_label)
 
         self.color_label = ColorLabel()
