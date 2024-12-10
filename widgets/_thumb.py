@@ -214,7 +214,7 @@ class Thumb(OrderItem, QFrame):
                 )
             )
 
-        self.setStyleSheet("background: gray;")
+        # self.setStyleSheet("background: gray;")
 
     def set_frame(self):
         self.text_wid.setStyleSheet(f"background: {BLUE}; {TEXT_FONT}; {RAD}")
