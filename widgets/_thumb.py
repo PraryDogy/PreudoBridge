@@ -19,6 +19,7 @@ from ._base import USvgWidget
 
 COLORS_FONT = "font-size: 9px;"
 TEXT_FONT = "font-size: 11px;"
+RAD = "border-radius: 4px"
 
 
 
@@ -199,30 +200,16 @@ class Thumb(OrderItem, QFrame):
             self.img_wid.setFixedSize(self.pixmap_size + 4, self.pixmap_size + 4)
 
     def set_frame(self):
-        # self.setStyleSheet(
-        #     f"""
-        #     #thumbnail
-        #         {{
-        #             border: 1px solid {BLUE};
-        #             border-radius: 4px;
-        #         }}
-        #     """
-        # )
+        self.text_wid.setStyleSheet(f"background: {BLUE}; {TEXT_FONT}; {RAD}")
+        self.img_wid.setStyleSheet(f"background: {BLUE}; {RAD}")
 
-        self.text_wid.setStyleSheet("background: blue;")
-        self.color_wid.setStyleSheet("background: blue;")
-        self.img_wid.setStyleSheet("background: blue;")
+        if self.colors:
+            self.color_wid.setStyleSheet(f"background: {BLUE}; {COLORS_FONT} {RAD}")
 
     def set_no_frame(self):
-        self.setStyleSheet(
-            f"""
-            #thumbnail
-                {{
-                    border: 1px solid transparent;
-                    border-radius: 4px;
-                }}
-            """
-        )
+        for i in (self.text_wid, self.color_wid, self.img_wid):
+            style = i.styleSheet().replace(BLUE, "transparent")
+            i.setStyleSheet(style)
 
     def add_base_actions(self, menu: QMenu):
 
