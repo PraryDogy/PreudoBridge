@@ -230,14 +230,25 @@ class Thumb(OrderItem, QFrame):
                 background: {BLUE};
                 {TEXT_FONT};
                 {RAD};
-                padding: 2px;
             """
         )
 
     def set_no_frame(self):
-        for i in (self.text_wid, self.img_wid):
-            style = i.styleSheet().replace(BLUE, "transparent")
-            i.setStyleSheet(style)
+        self.text_wid.setStyleSheet(
+            f"""
+                background: transparent;
+                {TEXT_FONT};
+                {RAD};
+                padding: 2px;
+            """
+        )
+        self.img_wid.setStyleSheet(
+            f"""
+                background: transparent;
+                {TEXT_FONT};
+                {RAD};
+            """
+        )
 
     def add_base_actions(self, menu: QMenu):
 
