@@ -228,6 +228,7 @@ class Thumb(OrderItem, QFrame):
         self.img_wid.setStyleSheet(
             f"""
                 background: {BLUE};
+                "padding: 2px;"
                 {RAD};
             """
         )
