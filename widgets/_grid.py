@@ -1,7 +1,8 @@
 import os
+import shutil
 
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import (QContextMenuEvent, QDragEnterEvent, QDropEvent,
+from PyQt5.QtGui import (QContextMenuEvent, QDrag, QDragEnterEvent, QDropEvent,
                          QKeyEvent, QMouseEvent)
 from PyQt5.QtWidgets import QFrame, QGridLayout, QMenu, QScrollArea, QWidget
 
@@ -385,6 +386,24 @@ class Grid(BaseMethods, QScrollArea):
         else:
             a0.ignore()
 
-    def dropEvent(self, a0: QDropEvent | None) -> None:
-        if a0.mimeData().hasUrls():
-            print("скопировать файл в программу")
+    def dropEvent(self, event: QDropEvent) -> None:
+        # Обработка файлов и папок из события
+        if event.mimeData().hasUrls():
+            urls = event.mimeData().urls()  # Получаем список URL (путь к файлам/папкам)
+            paths = [url.toLocalFile() for url in urls]
+            self.copy_folders(paths)
+            event.acceptProposedAction()
+        else:
+            event.ignore()
+
+    def copy_folders(self, paths):
+        for path in paths:
+
+            if os.path.isdir(path):
+
+                shutil.copytree(path, JsonData.root)
+
+            else:
+                shutil.copy2(path, JsonData.root)
+
+            SignalsApp.all_.load_standart_grid.emit(JsonData.root)
