@@ -210,7 +210,6 @@ class PathItem(QWidget):
     def view_(self, *args):
         if os.path.isfile(self.src):
             OpenWin.view(Utils.get_main_win(), self.src)
-
         else:
             SignalsApp.all_.new_history.emit(self.src)
             SignalsApp.all_.load_standart_grid.emit(self.src)
@@ -420,6 +419,8 @@ class BarBottom(QWidget):
                     icon = IMG_SVG
 
                 path_item.expand()
+                path_item.collapse = lambda *args, **kwargs: None
+                path_item.expand = lambda *args, **kwargs: None
 
             else:
                 icon = FOLDER_SVG
