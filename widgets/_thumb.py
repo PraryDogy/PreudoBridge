@@ -159,8 +159,8 @@ class Thumb(OrderItem, QFrame):
             i.mouseDoubleClickEvent = self.mouse_d_click
             i.contextMenuEvent = self.mouse_r_click
 
-        self.set_no_frame()
         self.setup()
+        self.set_no_frame()
 
     @classmethod
     def calculate_size(cls):
@@ -213,12 +213,25 @@ class Thumb(OrderItem, QFrame):
             )
 
     def set_frame(self):
-        self.text_wid.setStyleSheet(f"background: {BLUE}; {TEXT_FONT}; {RAD}")
-        self.img_wid.setStyleSheet(f"background: {BLUE}; {RAD}")
+        self.text_wid.setStyleSheet(
+            f"""
+                background: {BLUE};
+                {TEXT_FONT};
+                {RAD};
+                padding: 2px;
+            """
+        )
+        self.img_wid.setStyleSheet(
+            f"""
+                background: {BLUE};
+                {RAD};
+            """
+        )
 
     def set_no_frame(self):
         for i in (self.text_wid, self.img_wid):
             style = i.styleSheet().replace(BLUE, "transparent")
+            style = style + "padding: 2px;"
             i.setStyleSheet(style)
 
     def add_base_actions(self, menu: QMenu):
