@@ -172,7 +172,11 @@ class Thumb(OrderItem, QFrame):
 
     def set_pixmap(self, pixmap: QPixmap):
         svg = self.img_wid.findChild(USvgWidget)
-        svg.deleteLater()
+
+        try:
+            svg.deleteLater()
+        except RuntimeError:
+            return
 
         img_wid = QLabel()
         img_wid.setPixmap(Utils.pixmap_scale(pixmap, self.pixmap_size))
