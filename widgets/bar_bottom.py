@@ -214,7 +214,7 @@ class PathItem(QWidget):
             SignalsApp.all_.new_history.emit(self.src)
             SignalsApp.all_.load_standart_grid.emit(self.src)
 
-    def selected_style(self):
+    def solid_style(self):
         self.text_wid.setStyleSheet(
             f"""
                 background: {BLUE};
@@ -284,7 +284,7 @@ class PathItem(QWidget):
         copy_path = CopyPath(menu, self.src)
         menu.addAction(copy_path)
 
-        self.selected_style()
+        self.solid_style()
         menu.exec_(self.mapToGlobal(ev.pos()))
         self.default_style()
 
