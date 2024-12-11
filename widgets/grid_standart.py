@@ -314,7 +314,6 @@ class GridStandart(Grid):
         UThreadPool.start(self.finder_task)
 
         self.verticalScrollBar().valueChanged.connect(self.on_scroll)
-        self.rearranged.connect(self.rearranged_cmd)
 
     def on_scroll(self, value: int):
 
@@ -408,9 +407,6 @@ class GridStandart(Grid):
 
         self.order_()
         self.select_after_list()
-
-    def rearranged_cmd(self):
-        ...
         
     def start_load_images(self, cut_order_items: list[OrderItem]):
         task_ = LoadImages(order_items=cut_order_items)
