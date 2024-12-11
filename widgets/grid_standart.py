@@ -305,7 +305,6 @@ class GridStandart(Grid):
             f"""
                 background: {GRAY_UP_BTN};
                 border-radius: 4px;
-                padding: 2px;
             """
         )
 
