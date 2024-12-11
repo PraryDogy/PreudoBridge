@@ -7,7 +7,7 @@ from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtWidgets import QLabel
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import FOLDER_TYPE, HDD_SVG, IMG_EXT, JsonData, ThumbData
+from cfg import FOLDER_TYPE, HDD_SVG, IMG_EXT, JsonData, ThumbData, GRAY_UP_BTN
 from database import CACHE, Dbase, OrderItem
 from fit_img import FitImg
 from signals import SignalsApp
@@ -296,6 +296,19 @@ class GridStandart(Grid):
         self.offset = 0
         self.limit = 100
 
+        self.loading_lbl = QLabel(text="Загрузка...", parent=self)
+        self.loading_lbl.setStyleSheet(
+            f"""
+                background: {GRAY_UP_BTN};
+                border-radius: 4px;
+                padding: 2px;
+            """
+        )
+
+        # self.window()
+        self.move(100, 100)
+        self.show()
+
         self.finder_task = LoadFinder()
         self.finder_task.signals_.finished_.connect(self.finder_task_fin)
         UThreadPool.start(self.finder_task)
@@ -315,6 +328,7 @@ class GridStandart(Grid):
 
     def finder_task_fin(self, order_items: list[OrderItem]):
 
+        self.loading_lbl.deleteLater()
         self.order_items = order_items
         self.total = len(order_items)
 

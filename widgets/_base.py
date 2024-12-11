@@ -3,7 +3,7 @@ from PyQt5.QtGui import QContextMenuEvent, QMouseEvent, QWheelEvent
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import QLineEdit, QMenu, QSlider, QWidget
 
-from cfg import GRAY
+from cfg import GRAY_SLIDER
 from utils import Utils
 
 from ._actions import TextCopy, TextCut, TextPaste, TextSelectAll
@@ -36,7 +36,7 @@ class USlider(QSlider):
                 border-radius: 1px;
                 margin: 0;
                 height: 3px;
-                background-color: {GRAY};
+                background-color: {GRAY_SLIDER};
             }}
             QSlider::handle:horizontal {{
                 background-color: rgba(199, 199, 199, 1);

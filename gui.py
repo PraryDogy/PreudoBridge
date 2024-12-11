@@ -5,7 +5,7 @@ from PyQt5.QtGui import QCloseEvent, QKeyEvent, QMouseEvent, QResizeEvent
 from PyQt5.QtWidgets import (QApplication, QGridLayout, QHBoxLayout, QLabel,
                              QTabWidget, QVBoxLayout, QWidget)
 
-from cfg import IMG_EXT, LEFT_MENU_W, UP_ARROW_SYM, Dynamic, JsonData
+from cfg import IMG_EXT, LEFT_MENU_W, UP_ARROW_SYM, Dynamic, JsonData, GRAY_UP_BTN
 from signals import SignalsApp
 from widgets._grid import Grid
 from widgets._list import ListStandart
@@ -99,8 +99,8 @@ class SimpleFileExplorer(QWidget):
         self.scroll_up.mouseReleaseEvent = lambda e: self.grid.verticalScrollBar().setValue(0)
         self.scroll_up.setFixedSize(40, 40)
         self.scroll_up.setStyleSheet(
-            """
-            background-color: rgba(128, 128, 128, 0.40);
+            f"""
+            background-color: {GRAY_UP_BTN};
             border-radius: 20px;
             """
             )

@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QHBoxLayout,
                              QLabel, QMenu, QPushButton, QSizePolicy,
                              QVBoxLayout, QWidget, QSpacerItem)
 
-from cfg import (BLUE, COMP_SVG, FOLDER_SVG, GOTO_SVG, GRAY, HDD_SVG, IMG_SVG,
+from cfg import (BLUE, COMP_SVG, FOLDER_SVG, GOTO_SVG, GRAY_SLIDER, HDD_SVG, IMG_SVG,
                  MAX_VAR, Dynamic, JsonData)
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
@@ -318,7 +318,7 @@ class Total(QFrame):
         self.setStyleSheet(
             f"""
             #total {{
-                background: {GRAY};
+                background: {GRAY_SLIDER};
                 border-radius: 3px;
             }}
             """

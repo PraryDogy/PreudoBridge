@@ -8,8 +8,8 @@ from PyQt5.QtGui import (QCloseEvent, QColor, QContextMenuEvent, QKeyEvent,
 from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QMenu, QSpacerItem,
                              QVBoxLayout, QWidget)
 
-from cfg import (CLOSE_SVG, NEXT_SVG, PREV_SVG, STAR_SYM, ZOOM_FIT_SVG,
-                 ZOOM_IN_SVG, ZOOM_OUT_SVG, Dynamic)
+from cfg import (CLOSE_SVG, GRAY_UP_BTN, NEXT_SVG, PREV_SVG, STAR_SYM,
+                 ZOOM_FIT_SVG, ZOOM_IN_SVG, ZOOM_OUT_SVG, Dynamic)
 from database import CACHE, Dbase
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
@@ -190,8 +190,8 @@ class ZoomBtns(QFrame):
     def __init__(self, parent: QWidget = None) -> None:
         super().__init__(parent)
         self.setStyleSheet(
-            """
-            background-color: rgba(128, 128, 128, 0.40);
+            f"""
+            background-color: {GRAY_UP_BTN};
             border-radius: 15px;
             """
             )
@@ -232,8 +232,8 @@ class SwitchImageBtn(QFrame):
     def __init__(self, src: str, parent: QWidget) -> None:
         super().__init__(parent)
         self.setStyleSheet(
-            """
-            background-color: rgba(128, 128, 128, 0.40);
+            f"""
+            background-color: {GRAY_UP_BTN};
             border-radius: 27px;
             """
             )
