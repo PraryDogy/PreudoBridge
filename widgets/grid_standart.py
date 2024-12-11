@@ -243,7 +243,10 @@ class LoadFinder(URunnable):
             Utils.print_error(self, e)
             self.order_items = []
         
-        self.signals_.finished_.emit(self.order_items)
+        try:
+            self.signals_.finished_.emit(self.order_items)
+        except RuntimeError:
+            ...
 
     def get_color_rating(self):
         q = sqlalchemy.select(CACHE.c.src, CACHE.c.colors, CACHE.c.rating)
@@ -297,6 +300,7 @@ class GridStandart(Grid):
         self.limit = 100
 
         self.loading_lbl = QLabel(text="Загрузка...", parent=self)
+        self.loading_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.loading_lbl.setStyleSheet(
             f"""
                 background: {GRAY_UP_BTN};
@@ -305,8 +309,7 @@ class GridStandart(Grid):
             """
         )
 
-        # self.window()
-        self.move(100, 100)
+        Utils.center_win(self, self.loading_lbl)
         self.show()
 
         self.finder_task = LoadFinder()
@@ -427,3 +430,7 @@ class GridStandart(Grid):
             i.should_run = False
 
         return super().closeEvent(a0)
+
+    def resizeEvent(self, a0):
+        Utils.center_win(self, self.loading_lbl)
+        return super().resizeEvent(a0)
