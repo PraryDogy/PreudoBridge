@@ -72,7 +72,6 @@ class ListStandart(QTableView):
         path = os.path.abspath(path)
         ListStandart.last_selection = path
         ListStandart.sizes = [self.columnWidth(i) for i in range(0, 4)]
-
         return super().closeEvent(a0)
 
     def contextMenuEvent(self, event: QContextMenuEvent):

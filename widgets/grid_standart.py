@@ -4,10 +4,11 @@ import sqlalchemy
 from numpy import ndarray
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
+from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import QLabel
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import FOLDER_TYPE, HDD_SVG, IMG_EXT, JsonData, ThumbData, GRAY_UP_BTN
+from cfg import FOLDER_TYPE, GRAY_UP_BTN, HDD_SVG, IMG_EXT, JsonData, ThumbData
 from database import CACHE, Dbase, OrderItem
 from fit_img import FitImg
 from signals import SignalsApp
@@ -362,12 +363,9 @@ class GridStandart(Grid):
                     rating=order_item.rating,
                     )
 
-                if (
-                    os.path.ismount(order_item.src)
-                    or
-                    order_item.src == sys_disk
-                ):
-                    wid.img_wid.load(HDD_SVG)
+                if os.path.ismount(order_item.src) or order_item.src == sys_disk:
+                    img_wid = wid.img_wid.findChild(QSvgWidget)
+                    img_wid.load(HDD_SVG)
 
 
             else:
