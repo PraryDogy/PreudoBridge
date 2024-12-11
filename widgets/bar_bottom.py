@@ -177,46 +177,8 @@ class CustomSlider(USlider):
         SignalsApp.all_.resize_grid.emit()
 
 
-class PathLabel(QLabel):
-    _open_img_view = pyqtSignal()
-
-    def __init__(self, src: str, text: str):
-        super().__init__(text)
-        self.src = src
-        self.setObjectName("path_label")
-
-    def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
-        menu = QMenu(parent=self)
-
-        view_action = View(menu, self.src)
-        cmd = lambda: self._open_img_view.emit()
-        view_action._clicked.connect(cmd)
-        menu.addAction(view_action)
-
-        menu.addSeparator()
-
-        info = Info(menu, self.src)
-        menu.addAction(info)
-
-        show_in_finder_action = RevealInFinder(menu, self.src)
-        menu.addAction(show_in_finder_action)
-
-        copy_path = CopyPath(menu, self.src)
-        menu.addAction(copy_path)
-
-        self.selected_style()
-        menu.exec_(self.mapToGlobal(ev.pos()))
-        self.default_style()
-
-    def selected_style(self):
-        style_ = f"#path_label {{ background: {BLUE}; border-radius: 2px; }} "
-        self.setStyleSheet(style_)
-
-    def default_style(self):
-        self.setStyleSheet("")
-
-
 class PathItem(QWidget):
+
     def __init__(self, src: str, name: str):
         super().__init__()
         self.setFixedHeight(15)
@@ -231,27 +193,19 @@ class PathItem(QWidget):
 
         item_layout.addWidget(self.img_wid)
         
-        self.path_label = PathLabel(src=src, text=name)
-        self.path_label.setMinimumWidth(15)
-        item_layout.addWidget(self.path_label)
-
-        self.mouseReleaseEvent = self.view_
-        self.path_label._open_img_view.connect(self.view_)
-
-        cmd_ = lambda e, w=self.path_label: self.expand_temp(wid=w)
-        self.enterEvent = cmd_
-        cmd_ = lambda e, w=self.path_label: self.collapse_temp(wid=w)
-        self.leaveEvent = cmd_
+        self.text_wid = QLabel(text=name)
+        self.text_wid.setMinimumWidth(15)
+        item_layout.addWidget(self.text_wid)
 
     def add_arrow(self):
-        t = self.path_label.text() + ARROW
-        self.path_label.setText(t)
+        t = self.text_wid.text() + ARROW
+        self.text_wid.setText(t)
 
-    def expand_temp(self, wid: QLabel | PathLabel):
-        wid.setFixedWidth(wid.sizeHint().width())
+    def expand_temp(self):
+        self.text_wid.setFixedWidth(self.text_wid.sizeHint().width())
 
-    def collapse_temp(self, wid: QLabel | PathLabel):
-        wid.setMinimumWidth(15)
+    def collapse_temp(self):
+        self.text_wid.setMinimumWidth(5)
  
     def view_(self, *args):
         if os.path.isfile(self.src):
@@ -259,6 +213,26 @@ class PathItem(QWidget):
         else:
             SignalsApp.all_.new_history.emit(self.src)
             SignalsApp.all_.load_standart_grid.emit(self.src)
+
+    def selected_style(self):
+        self.text_wid.setStyleSheet(
+            f"""
+                background: {BLUE};
+                border-radius: 2px;
+            """
+        )
+
+    def default_style(self):
+        self.text_wid.setStyleSheet("")
+
+    def enterEvent(self, a0):
+        self.expand_temp()
+
+    def leaveEvent(self, a0):
+        self.collapse_temp()
+
+    def mouseReleaseEvent(self, a0):
+        self.view_()
 
     def mousePressEvent(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.LeftButton:
@@ -276,7 +250,7 @@ class PathItem(QWidget):
         if distance < QApplication.startDragDistance():
             return
 
-        self.path_label.selected_style()
+        self.text_wid.selected_style()
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
 
@@ -290,7 +264,29 @@ class PathItem(QWidget):
 
         self.drag.setMimeData(self.mime_data)
         self.drag.exec_(Qt.DropAction.CopyAction)
-        self.path_label.default_style()
+        self.text_wid.default_style()
+
+    def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
+        menu = QMenu(parent=self)
+
+        view_action = View(menu, self.src)
+        view_action._clicked.connect(self.view_)
+        menu.addAction(view_action)
+
+        menu.addSeparator()
+
+        info = Info(menu, self.src)
+        menu.addAction(info)
+
+        show_in_finder_action = RevealInFinder(menu, self.src)
+        menu.addAction(show_in_finder_action)
+
+        copy_path = CopyPath(menu, self.src)
+        menu.addAction(copy_path)
+
+        self.selected_style()
+        menu.exec_(self.mapToGlobal(ev.pos()))
+        self.default_style()
 
 
 class Total(QFrame):
