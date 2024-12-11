@@ -329,7 +329,7 @@ class GridStandart(Grid):
 
     def finder_task_fin(self, order_items: list[OrderItem]):
 
-        self.loading_lbl.deleteLater()
+        self.loading_lbl.hide()
         self.order_items = order_items
         self.total = len(order_items)
 
@@ -425,11 +425,19 @@ class GridStandart(Grid):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
 
+        try:
+            self.loading_lbl.deleteLater()
+        except RuntimeError:
+            ...
+
         for i in self.tasks:
             i.should_run = False
 
         return super().closeEvent(a0)
 
     def resizeEvent(self, a0):
-        Utils.center_win(self, self.loading_lbl)
+        try:
+            Utils.center_win(self, self.loading_lbl)
+        except RuntimeError:
+            ...
         return super().resizeEvent(a0)
