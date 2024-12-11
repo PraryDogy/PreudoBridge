@@ -1,15 +1,16 @@
 import os
 from difflib import SequenceMatcher
 
-from PyQt5.QtCore import QEvent, QMimeData, QObject, Qt, QUrl, pyqtSignal
+from PyQt5.QtCore import (QEvent, QMimeData, QObject, Qt, QTimer, QUrl,
+                          pyqtSignal)
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
                          QPixmap)
 from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QHBoxLayout,
                              QLabel, QMenu, QPushButton, QSizePolicy,
-                             QVBoxLayout, QWidget, QSpacerItem)
+                             QSpacerItem, QVBoxLayout, QWidget)
 
-from cfg import (BLUE, COMP_SVG, FOLDER_SVG, GOTO_SVG, GRAY_SLIDER, HDD_SVG, IMG_SVG,
-                 MAX_VAR, Dynamic, JsonData)
+from cfg import (BLUE, COMP_SVG, FOLDER_SVG, GOTO_SVG, GRAY_SLIDER, HDD_SVG,
+                 IMG_SVG, MAX_VAR, Dynamic, JsonData)
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
@@ -195,7 +196,7 @@ class PathItem(QWidget):
         item_layout.addWidget(self.img_wid)
         
         self.text_wid = QLabel(text=name)
-        self.text_wid.setMinimumWidth(self.min_wid)
+        self.collapse()
         item_layout.addWidget(self.text_wid)
 
     def add_arrow(self):
@@ -204,9 +205,6 @@ class PathItem(QWidget):
 
     def expand(self):
         self.text_wid.setFixedWidth(self.text_wid.sizeHint().width())
-
-    def collapse(self):
-        self.text_wid.setMinimumWidth(self.min_wid)
  
     def view_(self, *args):
         if os.path.isfile(self.src):
@@ -226,11 +224,17 @@ class PathItem(QWidget):
     def default_style(self):
         self.text_wid.setStyleSheet("")
 
+    def collapse(self):
+        try:
+            self.text_wid.setMinimumWidth(self.min_wid)
+        except RuntimeError:
+            ...
+
     def enterEvent(self, a0):
         self.expand()
 
     def leaveEvent(self, a0):
-        self.collapse()
+        QTimer.singleShot(500, self.collapse)
 
     def mouseReleaseEvent(self, a0):
         self.view_()

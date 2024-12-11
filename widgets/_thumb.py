@@ -203,7 +203,7 @@ class Thumb(OrderItem, QFrame):
         # рамка вокруг pixmap при выделении Thumb
         self.img_wid.setFixedSize(
             self.pixmap_size + ThumbData.OFFSET,
-            self.pixmawp_size + ThumbData.OFFSET
+            self.pixmap_size + ThumbData.OFFSET
         )
 
         img_lbl = self.img_wid.findChild(QLabel)
