@@ -1,12 +1,24 @@
-THUMB_W = [10, 20, 30, 40]
+from PyQt5.QtWidgets import QApplication, QLabel, QFrame, QVBoxLayout
+from PyQt5.QtCore import Qt
+
+app = QApplication([])
+frame = QFrame()
+layout = QVBoxLayout(frame)
+label = QLabel("Очень длинный текст, который выходит за границы QFrame.")
+label.setMinimumWidth(10)
+label.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+layout.addWidget(label)
 
 
-_ROW_H: int = 16
-TEXT_WID_H = []
-COLOR_WID_H = []
+# Двигаем текст влево при уменьшении окна
+def adjust_label_position():
+    label_width = label.sizeHint().width()
+    frame_width = frame.width()
+    x_offset = min(0, frame_width - label_width)  # Смещаем влево
+    label.move(x_offset, label.y())
+
+frame.resizeEvent = lambda event: adjust_label_position()
 
 
-
-a = [_ROW_H for i in range(0, len(THUMB_W))]
-
-print(a)
+frame.show()
+app.exec_()

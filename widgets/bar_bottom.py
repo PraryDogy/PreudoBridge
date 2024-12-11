@@ -201,15 +201,16 @@ class PathItem(QWidget):
         t = self.text_wid.text() + ARROW
         self.text_wid.setText(t)
 
-    def expand_temp(self):
+    def expand(self):
         self.text_wid.setFixedWidth(self.text_wid.sizeHint().width())
 
-    def collapse_temp(self):
+    def collapse(self):
         self.text_wid.setMinimumWidth(5)
  
     def view_(self, *args):
         if os.path.isfile(self.src):
             OpenWin.view(Utils.get_main_win(), self.src)
+
         else:
             SignalsApp.all_.new_history.emit(self.src)
             SignalsApp.all_.load_standart_grid.emit(self.src)
@@ -226,10 +227,10 @@ class PathItem(QWidget):
         self.text_wid.setStyleSheet("")
 
     def enterEvent(self, a0):
-        self.expand_temp()
+        self.expand()
 
     def leaveEvent(self, a0):
-        self.collapse_temp()
+        self.collapse()
 
     def mouseReleaseEvent(self, a0):
         self.view_()
@@ -417,6 +418,8 @@ class BarBottom(QWidget):
                     icon = FOLDER_SVG
                 else:
                     icon = IMG_SVG
+
+                path_item.expand()
 
             else:
                 icon = FOLDER_SVG
