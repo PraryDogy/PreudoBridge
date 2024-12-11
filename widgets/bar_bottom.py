@@ -178,6 +178,7 @@ class CustomSlider(USlider):
 
 
 class PathItem(QWidget):
+    min_wid = 5
 
     def __init__(self, src: str, name: str):
         super().__init__()
@@ -194,7 +195,7 @@ class PathItem(QWidget):
         item_layout.addWidget(self.img_wid)
         
         self.text_wid = QLabel(text=name)
-        self.text_wid.setMinimumWidth(15)
+        self.text_wid.setMinimumWidth(self.min_wid)
         item_layout.addWidget(self.text_wid)
 
     def add_arrow(self):
@@ -205,7 +206,7 @@ class PathItem(QWidget):
         self.text_wid.setFixedWidth(self.text_wid.sizeHint().width())
 
     def collapse(self):
-        self.text_wid.setMinimumWidth(5)
+        self.text_wid.setMinimumWidth(self.min_wid)
  
     def view_(self, *args):
         if os.path.isfile(self.src):
