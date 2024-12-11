@@ -418,9 +418,12 @@ class BarBottom(QWidget):
                 else:
                     icon = IMG_SVG
 
+                # последний элемент показывать в полный размер
                 path_item.expand()
-                path_item.collapse = lambda *args, **kwargs: None
-                path_item.expand = lambda *args, **kwargs: None
+
+                # отключаем функции схлопывания и развертывания
+                path_item.enterEvent = lambda *args, **kwargs: None
+                path_item.leaveEvent = lambda *args, **kwargs: None
 
             else:
                 icon = FOLDER_SVG
