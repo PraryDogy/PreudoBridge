@@ -226,7 +226,8 @@ class PathItem(QWidget):
 
     def collapse(self):
         try:
-            self.text_wid.setMinimumWidth(self.min_wid)
+            if not self.text_wid.underMouse():
+                self.text_wid.setMinimumWidth(self.min_wid)
         except RuntimeError:
             ...
 

@@ -60,7 +60,7 @@ class ThumbData:
     DB_PIXMAP_SIZE: int = 210
 
     # ширина и высота Thumbnail
-    THUMB_H = [100, 125, 155, 170, 220]
+    THUMB_H = [110, 125, 155, 170, 220]
     THUMB_W = [120, 140, 140, 150, 185]
 
 
