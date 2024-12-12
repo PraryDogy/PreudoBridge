@@ -772,6 +772,9 @@ class Grid(BaseMethods, QScrollArea):
                 if new_value >= 0:
                     SignalsApp.all_.move_slider.emit(new_value)
 
+            elif a0.key() == Qt.Key.Key_D:
+                self.open_find_here_win()
+
         elif a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
             wid = self.cell_to_wid.get(self.curr_cell)
             if wid:
