@@ -17,6 +17,7 @@ NAME_T = "Имя"
 TYPE_T = "Тип"
 SIZE_T = "Размер"
 SRC_T = "Место"
+HASH_PATH = "Данные"
 BITRTH_T = "Создан"
 MOD_T = "Изменен"
 RESOL_T = "Разрешение"
@@ -71,7 +72,7 @@ class InfoTask:
 
         cols = (
             CACHE.c.name, CACHE.c.type_, CACHE.c.src,
-            CACHE.c.mod, CACHE.c.resol
+            CACHE.c.mod, CACHE.c.resol, CACHE.c.hash_path
             )
 
         q = sqlalchemy.select(*cols).where(CACHE.c.src==self.src)
@@ -85,13 +86,14 @@ class InfoTask:
         else:
             return self.get_raw_info()
 
-    def get_db_info(self, name, type_, src, mod, resol):
+    def get_db_info(self, name, type_, src, mod, resol, hash):
 
         res = {
             NAME_T: self.lined_text(name),
             TYPE_T: type_,
             SIZE_T: Utils.get_f_size(os.path.getsize(self.src)),
             SRC_T: self.lined_text(src),
+            HASH_PATH: self.lined_text(hash),
             MOD_T: Utils.get_f_date(mod),
             RESOL_T: resol
             }
