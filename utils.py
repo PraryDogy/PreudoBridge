@@ -176,6 +176,7 @@ class ReadImage(Err):
 
         try:
             img = Image.open(path)
+            img = img.convert("RGB")
             img = np.array(img)
             return img
 
@@ -223,6 +224,8 @@ class ReadImage(Err):
         else:
             img = None
 
+        print(img.shape)
+
         return img
 
 
@@ -264,8 +267,8 @@ class Pixmap:
             if len(image.shape) == 3:
                 height, width, channel = image.shape
             else:
-                height, width = image.shape
-                channel = 1
+                print("pixmap from array channels trouble", image.shape)
+                return None
 
             bytes_per_line = channel * width
             qimage = QImage(
