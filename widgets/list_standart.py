@@ -19,7 +19,6 @@ from utils import URunnable, UThreadPool, Utils
 from ._actions import CopyPath, FavRemove, Rename, RevealInFinder, View
 from ._finder_items import FinderItems, ImageData, LoadingWid
 from ._grid import Grid
-from ._thumb import Thumb, ThumbFolder
 from .win_rename import WinRename
 
 MAX_QUERIES = 10
@@ -100,7 +99,7 @@ class GridStandart(QListWidget):
         col_count = Utils.get_clmn_count(self.ww)
         row, col = 0, 0
 
-        Thumb.calculate_size()
+        # Thumb.calculate_size()
 
         cut = self.order_items[self.offset:self.offset + self.limit]
 

@@ -15,8 +15,7 @@ from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 from ._finder_items import FinderItems, ImageData, LoadingWid
-from ._grid import Grid
-from ._thumb import Thumb, ThumbFolder
+from ._grid import Grid, Thumb, ThumbFolder
 
 MAX_QUERIES = 10
 

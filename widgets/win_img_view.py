@@ -16,7 +16,7 @@ from utils import URunnable, UThreadPool, Utils
 from ._actions import (ColorMenu, CopyPath, Info, OpenInApp, RatingMenu,
                        RevealInFinder)
 from ._base import OpenWin, USvgWidget, WinBase
-from ._thumb import Thumb
+from ._grid import Thumb
 
 
 class ImageData:

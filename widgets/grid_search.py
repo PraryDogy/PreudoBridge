@@ -14,8 +14,7 @@ from fit_img import FitImg
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
-from ._grid import Grid
-from ._thumb import ThumbSearch
+from ._grid import Grid, ThumbSearch
 
 SLEEP = 0.05
 
