@@ -5,7 +5,7 @@ from PyQt5.QtGui import QCloseEvent, QKeyEvent, QMouseEvent, QResizeEvent
 from PyQt5.QtWidgets import (QApplication, QGridLayout, QHBoxLayout, QLabel,
                              QTabWidget, QVBoxLayout, QWidget)
 
-from cfg import IMG_EXT, LEFT_MENU_W, UP_ARROW_SYM, Dynamic, JsonData, GRAY_UP_BTN
+from cfg import Dynamic, JsonData, Static
 from signals import SignalsApp
 from widgets._grid import Grid
 from widgets._list import ListStandart
@@ -66,7 +66,7 @@ class SimpleFileExplorer(QWidget):
         splitter_wid.setLayout(splitter_lay)
 
         self.bar_tabs = BarTabs()
-        self.bar_tabs.setFixedWidth(LEFT_MENU_W)
+        self.bar_tabs.setFixedWidth(Static.LEFT_MENU_W)
         splitter_lay.addWidget(self.bar_tabs)
 
         self.folders_tree_wid = TreeFolders()
@@ -93,14 +93,14 @@ class SimpleFileExplorer(QWidget):
         self.bar_bottom = BarBottom()
         self.r_lay.addWidget(self.bar_bottom, 2, 0, alignment=Qt.AlignmentFlag.AlignBottom)
 
-        self.scroll_up = QLabel(parent=self, text=UP_ARROW_SYM)
+        self.scroll_up = QLabel(parent=self, text=Static.UP_ARROW_SYM)
         self.scroll_up.hide()
         self.scroll_up.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.scroll_up.mouseReleaseEvent = lambda e: self.grid.verticalScrollBar().setValue(0)
         self.scroll_up.setFixedSize(40, 40)
         self.scroll_up.setStyleSheet(
             f"""
-            background-color: {GRAY_UP_BTN};
+            background-color: {Static.GRAY_UP_BTN};
             border-radius: 20px;
             """
             )
@@ -119,7 +119,7 @@ class SimpleFileExplorer(QWidget):
         if not os.path.exists(filepath):
             return
 
-        if filepath.endswith(IMG_EXT):
+        if filepath.endswith(Static.IMG_EXT):
             JsonData.root = os.path.dirname(filepath)
             self.load_standart_grid()
             self.move_to_wid_delayed(filepath)

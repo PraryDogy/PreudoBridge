@@ -9,7 +9,7 @@ from PyQt5.QtGui import QCloseEvent, QKeyEvent
 from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QPushButton,
                              QVBoxLayout, QWidget)
 
-from cfg import HASH_DIR, JSON_FILE, LINK, JsonData
+from cfg import Static, JsonData
 from database import Dbase
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
@@ -37,9 +37,9 @@ class GetSizer(URunnable):
     def run(self):
         total_size = 0
 
-        if os.path.exists(HASH_DIR):
+        if os.path.exists(Static.HASH_DIR):
 
-            for root, dirs, files in os.walk(HASH_DIR):
+            for root, dirs, files in os.walk(Static.HASH_DIR):
 
                 if not self.should_run:
                     return
@@ -99,12 +99,12 @@ class WinSettings(WinMinMax):
 
         open_json_btn = QPushButton(JSON_T)
         open_json_btn.setFixedWidth(110)
-        open_json_btn.clicked.connect(lambda: subprocess.call(["open", JSON_FILE]))
+        open_json_btn.clicked.connect(lambda: subprocess.call(["open", Static.JSON_FILE]))
         h_lay.addWidget(open_json_btn)
 
         open_json_btn = QPushButton(UPDATE_T)
         open_json_btn.setFixedWidth(110)
-        open_json_btn.clicked.connect(lambda: webbrowser.open(LINK))
+        open_json_btn.clicked.connect(lambda: webbrowser.open(Static.LINK))
         h_lay.addWidget(open_json_btn)
 
         main_lay.addStretch()
@@ -121,8 +121,8 @@ class WinSettings(WinMinMax):
 
     def clear_db_cmd(self):
         Dbase.clear_db()            
-        if os.path.exists(HASH_DIR):
-            shutil.rmtree(HASH_DIR)
+        if os.path.exists(Static.HASH_DIR):
+            shutil.rmtree(Static.HASH_DIR)
         self.get_current_size()
         SignalsApp.all_.load_standart_grid.emit("")
 

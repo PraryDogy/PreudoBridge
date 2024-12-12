@@ -3,7 +3,7 @@ import subprocess
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QAction, QLabel, QLineEdit, QMenu
 
-from cfg import COLORS, IMAGE_APPS, PARAGRAPH_SEP, STAR_SYM, Dynamic, JsonData
+from cfg import Static, Dynamic, JsonData
 from database import ORDER
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
@@ -143,7 +143,7 @@ class OpenInApp(QMenu):
         super().__init__(parent=parent, title=OPEN_IN_APP_T)
         self.src = src
 
-        for name, app_path in IMAGE_APPS.items():
+        for name, app_path in Static.IMAGE_APPS.items():
             wid = QAction(parent=self, text=name)
             wid.triggered.connect(lambda e, a=app_path: self.cmd_(a))
             self.addAction(wid)
@@ -162,7 +162,7 @@ class ColorMenu(QMenu):
         self.src = src
         self.colors = colors
 
-        for color, text in COLORS.items():
+        for color, text in Static.COLORS.items():
 
             wid = QAction(parent=self, text=f"{color} {text}")
             wid.setCheckable(True)
@@ -186,7 +186,7 @@ class RatingMenu(QMenu):
 
         for rating in range(1, 6):
 
-            wid = QAction(parent=self, text=STAR_SYM * rating)
+            wid = QAction(parent=self, text=Static.STAR_SYM * rating)
             wid.setCheckable(True)
 
             if self.rating == rating:
@@ -218,7 +218,7 @@ class CopyText(QAction):
         self.triggered.connect(self.cmd_)
 
     def cmd_(self):
-        selection = self.wid.selectedText().replace(PARAGRAPH_SEP, "")
+        selection = self.wid.selectedText().replace(Static.PARAGRAPH_SEP, "")
         Utils.write_to_clipboard(selection)
 
 

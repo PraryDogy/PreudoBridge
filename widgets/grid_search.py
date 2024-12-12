@@ -8,7 +8,7 @@ from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import IMG_EXT, JsonData, ThumbData
+from cfg import JsonData, Static, ThumbData
 from database import CACHE, Dbase
 from fit_img import FitImg
 from signals import SignalsApp
@@ -74,7 +74,7 @@ class SearchFinder(URunnable):
                 src: str = os.path.join(root, file)
                 src_lower: str = src.lower()
 
-                if src_lower.endswith(IMG_EXT):
+                if src_lower.endswith(Static.IMG_EXT):
                     
                     self.create_wid = False
 

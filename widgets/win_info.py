@@ -5,7 +5,7 @@ from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import QGridLayout, QLabel, QMenu
 
-from cfg import FOLDER_TYPE, PARAGRAPH_SEP
+from cfg import Static
 from database import CACHE, Dbase
 from utils import URunnable, UThreadPool, Utils
 
@@ -111,7 +111,7 @@ class InfoTask:
             os.path.splitext(self.src)[-1]
             if is_file
             else
-            FOLDER_TYPE
+            Static.FOLDER_TYPE
             )
 
         size_ = (
@@ -149,7 +149,7 @@ class CustomLabel(QLabel):
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
 
         self.setSelection(0, len(self.text()))
-        src = self.selectedText().replace(PARAGRAPH_SEP, "")
+        src = self.selectedText().replace(Static.PARAGRAPH_SEP, "")
 
         menu = QMenu(self)
 

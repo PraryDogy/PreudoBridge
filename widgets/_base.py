@@ -1,13 +1,15 @@
+from typing import Literal
+
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QMouseEvent, QWheelEvent
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import QLineEdit, QMenu, QSlider, QWidget
 
-from cfg import GRAY_SLIDER
+from cfg import Static
 from utils import Utils
 
 from ._actions import CopyText, TextCut, TextPaste, TextSelectAll
-from typing import Literal
+
 
 class BaseMethods:
     def order_(self, *args, **kwargs):
@@ -36,7 +38,7 @@ class USlider(QSlider):
                 border-radius: 1px;
                 margin: 0;
                 height: 3px;
-                background-color: {GRAY_SLIDER};
+                background-color: {Static.GRAY_SLIDER};
             }}
             QSlider::handle:horizontal {{
                 background-color: rgba(199, 199, 199, 1);

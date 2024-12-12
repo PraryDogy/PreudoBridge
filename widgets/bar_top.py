@@ -6,10 +6,7 @@ from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
                              QMenu, QPushButton, QSpacerItem, QTabBar,
                              QTabWidget, QVBoxLayout, QWidget)
 
-from cfg import (BACK_SYM, BLUE, BURGER_SYM, COLORS, FAT_DOT_SYM,
-                 FILTERS_CROSS_SYM, GRID_SYM, IMG_EXT, NEXT_SYM,
-                 SEARCH_CROSS_SYM, STAR_SYM, UP_CURVE, Dynamic, JsonData)
-from database import ORDER
+from cfg import Dynamic, JsonData, Static
 from signals import SignalsApp
 from utils import Utils
 
@@ -33,8 +30,8 @@ class ViewTypeBtn(QTabBar):
         super().__init__()
         self.setFixedWidth(90)
 
-        self.addTab(GRID_SYM * 3)
-        self.addTab(BURGER_SYM)
+        self.addTab(Static.GRID_SYM * 3)
+        self.addTab(Static.BURGER_SYM)
 
         self.setCurrentIndex(0)
         Dynamic.grid_view_type = 0
@@ -75,7 +72,7 @@ class SearchWidget(QWidget):
         self.input_wid.mouseDoubleClickEvent = self.show_templates
         v_lay.addWidget(self.input_wid)
 
-        self.clear_btn = QLabel(parent=self, text=SEARCH_CROSS_SYM)
+        self.clear_btn = QLabel(parent=self, text=Static.SEARCH_CROSS_SYM)
         self.clear_btn.setFixedSize(15, 10)
         self.clear_btn.move(self.input_wid.width() - 20, 8)
         self.clear_btn.hide()
@@ -100,7 +97,7 @@ class SearchWidget(QWidget):
             "Найти tiff": str((".tif", ".tiff")),
             "Найти psd/psb": str((".psd", ".psb")),
             "Найти raw": str((".nef", ".raw")),
-            "Найти любые фото": str(IMG_EXT)
+            "Найти любые фото": str(Static.IMG_EXT)
             }
 
         for k, v in data.items():
@@ -141,7 +138,7 @@ class ColorLabel(QLabel):
 
 class FiltersBtn(QPushButton):
     def __init__(self):
-        super().__init__(text=FAT_DOT_SYM)
+        super().__init__(text=Static.FAT_DOT_SYM)
         
         self._menu = QWidget()
         self._menu.setWindowFlags(Qt.WindowType.Popup)
@@ -163,14 +160,14 @@ class FiltersBtn(QPushButton):
         
         self.color_wids: list[ColorLabel] = []
 
-        for color in COLORS:
+        for color in Static.COLORS:
             label = ColorLabel(color)
             label.setFixedSize(20, 20)
             label.mousePressEvent = lambda e, w=label, c=color: self.toggle_color(w, c)
             color_lay.addWidget(label)
             self.color_wids.append(label)
 
-        cancel_color = QLabel(FILTERS_CROSS_SYM)
+        cancel_color = QLabel(Static.FILTERS_CROSS_SYM)
         cancel_color.setFixedSize(20, 20)
         cancel_color.mousePressEvent = self.reset_colors_cmd
         color_lay.addWidget(cancel_color)
@@ -189,7 +186,7 @@ class FiltersBtn(QPushButton):
         self.rating_wids: list[QLabel] = []
 
         for rate in self.rating_data:
-            label = QLabel(STAR_SYM)
+            label = QLabel(Static.STAR_SYM)
             label.setAlignment(Qt.AlignmentFlag.AlignCenter)
             label.setFixedSize(20, 20)
             label.mouseReleaseEvent = lambda e, r=rate: self.toggle_rating(r)
@@ -204,7 +201,7 @@ class FiltersBtn(QPushButton):
             self._menu.move(self.mapToGlobal(pont))
             self._menu.show()
 
-    def style_btn(self, set_down=True, style=f"color: {BLUE};"):
+    def style_btn(self, set_down=True, style=f"color: {Static.BLUE};"):
 
         if not self.enabled_filters:
             set_down = False
@@ -224,7 +221,7 @@ class FiltersBtn(QPushButton):
             self.enabled_filters.add(widget)
             self.style_btn()
             Dynamic.color_filters.append(color)
-            widget.setStyleSheet(f"background: {BLUE};")
+            widget.setStyleSheet(f"background: {Static.BLUE};")
             widget.is_selected = True
 
         SignalsApp.all_.filter_grid.emit()
@@ -255,7 +252,7 @@ class FiltersBtn(QPushButton):
             self.style_btn()
 
             for i in self.rating_wids[:rate]:
-                i.setStyleSheet(f"background: {BLUE};")
+                i.setStyleSheet(f"background: {Static.BLUE};")
             for i in self.rating_wids[rate:]:
                 i.setStyleSheet("")
         else:
@@ -293,8 +290,8 @@ class HistoryBtns(QWidget):
         h_lay.setContentsMargins(0, 0, 0, 0)
         h_lay.setSpacing(0)
 
-        back = QPushButton(BACK_SYM)
-        next = QPushButton(NEXT_SYM)
+        back = QPushButton(Static.BACK_SYM)
+        next = QPushButton(Static.NEXT_SYM)
 
         for i in (back, next):
             i.setFixedWidth(40)
@@ -330,7 +327,7 @@ class BarTop(QFrame):
         self.grid_layout.addWidget(self.history_btns, 0, self.clmn)
 
         self.clmn += 1
-        self.level_up_btn = QPushButton(UP_CURVE)
+        self.level_up_btn = QPushButton(Static.UP_CURVE)
         self.level_up_btn.setFixedWidth(50)
         self.level_up_btn.clicked.connect(self.level_up)
         self.grid_layout.addWidget(self.level_up_btn, 0, self.clmn)

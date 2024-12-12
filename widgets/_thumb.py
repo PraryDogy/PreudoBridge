@@ -4,8 +4,7 @@ from PyQt5.QtGui import QContextMenuEvent, QDrag, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import QApplication, QFrame, QLabel, QMenu, QVBoxLayout
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import (BLUE, COLORS, FOLDER_SVG, IMG_SVG, STAR_SYM, Dynamic,
-                 JsonData, ThumbData)
+from cfg import Dynamic, JsonData, Static, ThumbData
 from database import CACHE, Dbase, OrderItem
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
@@ -50,7 +49,7 @@ class TextWidget(QLabel):
             name = lines.append(name)
 
         if wid.rating > 0:
-            lines.append(STAR_SYM * wid.rating)
+            lines.append(Static.STAR_SYM * wid.rating)
 
         self.setText("\n".join(lines))
 
@@ -142,7 +141,7 @@ class Thumb(OrderItem, QFrame):
         self.img_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.img_wid.setLayout(self.img_lay)
 
-        self.svg_path = IMG_SVG
+        self.svg_path = Static.IMG_SVG
         svg_wid = USvgWidget(src=self.svg_path, size=self.pixmap_size)
         self.img_lay.addWidget(svg_wid)
 
@@ -219,7 +218,7 @@ class Thumb(OrderItem, QFrame):
     def set_frame(self):
         self.text_wid.setStyleSheet(
             f"""
-                background: {BLUE};
+                background: {Static.BLUE};
                 {TEXT_FONT};
                 {RAD};
                 padding: 2px;
@@ -227,7 +226,7 @@ class Thumb(OrderItem, QFrame):
         )
         self.img_wid.setStyleSheet(
             f"""
-                background: {BLUE};
+                background: {Static.BLUE};
                 {TEXT_FONT};
                 {RAD};
             """
@@ -297,7 +296,7 @@ class Thumb(OrderItem, QFrame):
 
         def cmd_():
             self.colors = temp_colors
-            key = lambda x: list(COLORS.keys()).index(x)
+            key = lambda x: list(Static.COLORS.keys()).index(x)
             self.colors = ''.join(sorted(self.colors, key=key))
 
             # сбрасываем фиксированную ширину для изменения текста
@@ -384,7 +383,7 @@ class ThumbFolder(Thumb):
     def __init__(self, src: str, size: int, mod: int, colors: str, rating: int):
         super().__init__(src, size, mod, colors, rating)
 
-        self.svg_path = FOLDER_SVG
+        self.svg_path = Static.FOLDER_SVG
         img_wid = self.img_wid.findChild(USvgWidget)
         img_wid.load(self.svg_path)
 

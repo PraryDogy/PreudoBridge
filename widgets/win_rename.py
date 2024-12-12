@@ -1,6 +1,6 @@
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QKeyEvent
-from PyQt5.QtWidgets import QPushButton, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QPushButton, QVBoxLayout
 
 from ._base import ULineEdit, WinMinMax
 

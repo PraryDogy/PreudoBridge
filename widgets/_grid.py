@@ -6,7 +6,7 @@ from PyQt5.QtGui import (QContextMenuEvent, QDrag, QDragEnterEvent, QDropEvent,
                          QKeyEvent, QMouseEvent)
 from PyQt5.QtWidgets import QFrame, QGridLayout, QMenu, QScrollArea, QWidget
 
-from cfg import FOLDER_TYPE, GRID_SPACING, Dynamic, JsonData, ThumbData
+from cfg import Static, Dynamic, JsonData, ThumbData
 from database import OrderItem
 from signals import SignalsApp
 from utils import Utils
@@ -51,7 +51,7 @@ class Grid(BaseMethods, QScrollArea):
 
         flags = Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
         self.grid_layout = QGridLayout()
-        self.grid_layout.setSpacing(GRID_SPACING)
+        self.grid_layout.setSpacing(Static.GRID_SPACING)
         self.grid_layout.setAlignment(flags)
 
         self.main_wid.setLayout(self.grid_layout)
@@ -226,7 +226,7 @@ class Grid(BaseMethods, QScrollArea):
         self.ordered_widgets.append(wid)
 
     def open_in_view(self, wid: Thumb):
-        if wid.type_ == FOLDER_TYPE:
+        if wid.type_ == Static.FOLDER_TYPE:
             SignalsApp.all_.new_history.emit(wid.src)
             SignalsApp.all_.load_standart_grid.emit(wid.src)
         else:

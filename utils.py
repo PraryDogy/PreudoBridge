@@ -15,7 +15,7 @@ from PyQt5.QtCore import QRunnable, Qt, QThreadPool, QTimer
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget
 
-from cfg import HASH_DIR, LEFT_MENU_W, Dynamic, ThumbData
+from cfg import Dynamic, Static, ThumbData
 
 psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
 psd_logger = logging.getLogger("psd_tools")
@@ -231,7 +231,7 @@ class Hash(Err):
     @classmethod
     def get_hash_path(cls, src: str) -> str:
         new_name = hashlib.md5(src.encode('utf-8')).hexdigest() + ".jpg"
-        new_path = os.path.join(HASH_DIR, new_name[:2])
+        new_path = os.path.join(Static.HASH_DIR, new_name[:2])
         os.makedirs(new_path, exist_ok=True)
         return os.path.join(new_path, new_name)
     
@@ -332,7 +332,7 @@ class Utils(Hash, Pixmap, ReadImage):
         )
         # 10 пикселей к ширине виджета, чтобы он казался чуть шире
         # тогда при ресайзе окна позже потребуется новая колонка
-        return (width + LEFT_MENU_W) // w
+        return (width + Static.LEFT_MENU_W) // w
 
     @classmethod
     def get_f_size(cls, bytes_size: int) -> str:

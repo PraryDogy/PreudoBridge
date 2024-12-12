@@ -8,7 +8,7 @@ from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import QLabel
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import FOLDER_TYPE, GRAY_UP_BTN, HDD_SVG, IMG_EXT, JsonData, ThumbData
+from cfg import Static, JsonData, ThumbData
 from database import CACHE, Dbase, OrderItem
 from fit_img import FitImg
 from signals import SignalsApp
@@ -46,7 +46,7 @@ class LoadImages(URunnable):
         self.finder_items: list[tuple[int, int, int]] = [
             (order_item.src, order_item.size, order_item.mod)
             for order_item in order_items
-            if order_item.type_ != FOLDER_TYPE
+            if order_item.type_ != Static.FOLDER_TYPE
             ]
 
         self.remove_db_images: list[tuple[str, str]] = []
@@ -270,7 +270,7 @@ class LoadFinder(URunnable):
                 if entry.name.startswith("."):
                     continue
 
-                if entry.is_dir() or entry.name.endswith(IMG_EXT):
+                if entry.is_dir() or entry.name.endswith(Static.IMG_EXT):
                     try:
                         stats = entry.stat()
                     except (PermissionError, FileNotFoundError, OSError):
@@ -304,7 +304,7 @@ class GridStandart(Grid):
         self.loading_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.loading_lbl.setStyleSheet(
             f"""
-                background: {GRAY_UP_BTN};
+                background: {Static.GRAY_UP_BTN};
                 border-radius: 4px;
             """
         )
@@ -365,7 +365,7 @@ class GridStandart(Grid):
 
                 if os.path.ismount(order_item.src) or order_item.src == sys_disk:
                     img_wid = wid.img_wid.findChild(QSvgWidget)
-                    img_wid.load(HDD_SVG)
+                    img_wid.load(Static.HDD_SVG)
 
 
             else:

@@ -12,7 +12,7 @@ from datetime import datetime
 
 from setuptools import setup
 
-from cfg import APP_NAME, APP_VER, IMAGES_DIR
+from cfg import Static
 
 # ****************** DON'T CHANGE IT ******************
 
@@ -66,9 +66,9 @@ def include_files(folder_name: str) -> list[str, list]:
 AUTHOR = "Evgeny Loshkarev"  # "Evgeny Loshkarev"
 SHORT_AUTHOR_NAME = "Evlosh" # "Evlosh"
 COMPANY = "MIUZ Diamonds" # "MIUZ Diamonds"
-APP_NAME = APP_NAME
-APP_VER = APP_VER
-ICON_PATH = os.path.join(IMAGES_DIR, "icon.icns")
+APP_NAME = Static.APP_NAME
+APP_VER = Static.APP_VER
+ICON_PATH = os.path.join(Static.IMAGES_DIR, "icon.icns")
 MAIN_FILES = ["start.py"] # SINGLE OR MULTIPLE PYTHON FILES
 
 

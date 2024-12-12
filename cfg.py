@@ -135,9 +135,9 @@ class JsonData:
     @classmethod
     def read_json_data(cls) -> dict:
 
-        if os.path.exists(JSON_FILE):
+        if os.path.exists(Static.JSON_FILE):
 
-            with open(JSON_FILE, 'r', encoding="utf-8") as f:
+            with open(Static.JSON_FILE, 'r', encoding="utf-8") as f:
 
                 try:
                     json_data: dict = json.load(f)
@@ -162,7 +162,7 @@ class JsonData:
             }
 
         try:
-            with open(JSON_FILE, 'w', encoding="utf-8") as f:
+            with open(Static.JSON_FILE, 'w', encoding="utf-8") as f:
                 json.dump(new_data, f, indent=4, ensure_ascii=False)
             return True
         
@@ -182,45 +182,28 @@ class JsonData:
                 ])
         names.append("Capture One")
         names_app = [i + ".app" for i in names]
-        IMAGE_APPS["Просмотр"] = f"/System/Applications/Preview.app"
+        Static.IMAGE_APPS["Просмотр"] = f"/System/Applications/Preview.app"
 
-        for item in os.listdir(USER_APPS):
-            full_path = os.path.join(USER_APPS, item)
+        for item in os.listdir(Static.USER_APPS):
+            full_path = os.path.join(Static.USER_APPS, item)
             app_folder = any(x for x in names if item in x)
             app_app = any(x for x in names_app if item in x)
 
             if app_folder:        
                 app_inside_folder = os.path.join(full_path, item + ".app")
                 if os.path.exists(app_inside_folder):
-                    IMAGE_APPS[item] = app_inside_folder
+                    Static.IMAGE_APPS[item] = app_inside_folder
 
             elif app_app:
                 item = item.replace(".app", "")
-                IMAGE_APPS[item] = full_path
-
-    @classmethod
-    def get_folder_access(cls):
-        return
-        desktop = os.path.expanduser("~/Desktop")
-        downloads = os.path.expanduser("~/Downloads")
-        documents = os.path.expanduser("~/Documents")
-
-        for i in (desktop, downloads, documents):
-            os.listdir(i)
-
-        volumes = os.path.join(os.sep, "Volumes")
-        if os.path.exists(volumes):
-            for i in os.listdir(volumes):
-                src = os.path.join(volumes, i)
-                os.listdir(src)
-
+                Static.IMAGE_APPS[item] = full_path
 
     @classmethod
     def init(cls):
-        os.makedirs(ROOT, exist_ok=True)
+        os.makedirs(Static.ROOT, exist_ok=True)
         cls.read_json_data()
         cls.find_img_apps()
-        cls.get_folder_access()
+
 
 class Dynamic:
     color_filters: list = []

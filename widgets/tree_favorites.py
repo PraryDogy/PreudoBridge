@@ -1,12 +1,11 @@
 import os
-import subprocess
 
-from PyQt5.QtCore import QEvent, QMimeData, Qt, pyqtSignal
-from PyQt5.QtGui import (QContextMenuEvent, QDrag, QDragEnterEvent, QDragLeaveEvent, QDropEvent,
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import (QContextMenuEvent, QDragEnterEvent, QDropEvent,
                          QMouseEvent)
 from PyQt5.QtWidgets import QLabel, QListWidget, QListWidgetItem, QMenu
 
-from cfg import FAVORITES_NAME, JsonData
+from cfg import JsonData
 from signals import SignalsApp
 from utils import Utils
 

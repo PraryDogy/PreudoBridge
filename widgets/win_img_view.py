@@ -8,8 +8,7 @@ from PyQt5.QtGui import (QCloseEvent, QColor, QContextMenuEvent, QKeyEvent,
 from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QMenu, QSpacerItem,
                              QVBoxLayout, QWidget)
 
-from cfg import (CLOSE_SVG, GRAY_UP_BTN, NEXT_SVG, PREV_SVG, STAR_SYM,
-                 ZOOM_FIT_SVG, ZOOM_IN_SVG, ZOOM_OUT_SVG, Dynamic)
+from cfg import Dynamic, Static
 from database import CACHE, Dbase
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
@@ -191,7 +190,7 @@ class ZoomBtns(QFrame):
         super().__init__(parent)
         self.setStyleSheet(
             f"""
-            background-color: {GRAY_UP_BTN};
+            background-color: {Static.GRAY_UP_BTN};
             border-radius: 15px;
             """
             )
@@ -202,22 +201,22 @@ class ZoomBtns(QFrame):
 
         h_layout.addSpacerItem(QSpacerItem(5, 0))
 
-        self.zoom_out = USvgWidget(src=ZOOM_OUT_SVG, size=45)
+        self.zoom_out = USvgWidget(src=Static.ZOOM_OUT_SVG, size=45)
         self.zoom_out.mouseReleaseEvent = lambda e: self.cmd_out.emit()
         h_layout.addWidget(self.zoom_out)
         h_layout.addSpacerItem(QSpacerItem(10, 0))
 
-        self.zoom_in = USvgWidget(src=ZOOM_IN_SVG, size=45)
+        self.zoom_in = USvgWidget(src=Static.ZOOM_IN_SVG, size=45)
         self.zoom_in.mouseReleaseEvent = lambda e: self.cmd_in.emit()
         h_layout.addWidget(self.zoom_in)
         h_layout.addSpacerItem(QSpacerItem(10, 0))
 
-        self.zoom_fit = USvgWidget(src=ZOOM_FIT_SVG, size=45)
+        self.zoom_fit = USvgWidget(src=Static.ZOOM_FIT_SVG, size=45)
         self.zoom_fit.mouseReleaseEvent = lambda e: self.cmd_fit.emit()
         h_layout.addWidget(self.zoom_fit)
         h_layout.addSpacerItem(QSpacerItem(10, 0))
 
-        self.zoom_close = USvgWidget(src=CLOSE_SVG, size=45)
+        self.zoom_close = USvgWidget(src=Static.CLOSE_SVG, size=45)
         self.zoom_close.mouseReleaseEvent = lambda e: self.cmd_close.emit()
         h_layout.addWidget(self.zoom_close)
 
@@ -233,7 +232,7 @@ class SwitchImageBtn(QFrame):
         super().__init__(parent)
         self.setStyleSheet(
             f"""
-            background-color: {GRAY_UP_BTN};
+            background-color: {Static.GRAY_UP_BTN};
             border-radius: 27px;
             """
             )
@@ -251,12 +250,12 @@ class SwitchImageBtn(QFrame):
 
 class PrevImageBtn(SwitchImageBtn):
     def __init__(self, parent: QWidget = None) -> None:
-        super().__init__(PREV_SVG, parent=parent)
+        super().__init__(Static.PREV_SVG, parent=parent)
 
 
 class NextImageBtn(SwitchImageBtn):
     def __init__(self, parent: QWidget = None) -> None:
-        super().__init__(src=NEXT_SVG, parent=parent)
+        super().__init__(src=Static.NEXT_SVG, parent=parent)
 
 
 class WinImgView(WinBase):
@@ -313,7 +312,7 @@ class WinImgView(WinBase):
     def set_title(self):
         t = ""
         if self.wid.rating > 0:
-            t = STAR_SYM * self.wid.rating + " | "
+            t = Static.STAR_SYM * self.wid.rating + " | "
         if self.wid.colors:
             t = t + self.wid.colors + " | "
         t = t + os.path.basename(self.src)

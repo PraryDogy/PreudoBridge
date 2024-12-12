@@ -9,8 +9,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QHBoxLayout,
                              QLabel, QMenu, QPushButton, QSizePolicy,
                              QSpacerItem, QVBoxLayout, QWidget)
 
-from cfg import (BLUE, COMP_SVG, FOLDER_SVG, GOTO_SVG, GRAY_SLIDER, HDD_SVG,
-                 IMG_SVG, Dynamic, JsonData, ThumbData)
+from cfg import Dynamic, JsonData, Static, ThumbData
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
@@ -220,7 +219,7 @@ class PathItem(QWidget):
     def solid_style(self):
         self.text_wid.setStyleSheet(
             f"""
-                background: {BLUE};
+                background: {Static.BLUE};
                 border-radius: 2px;
             """
         )
@@ -265,9 +264,9 @@ class PathItem(QWidget):
         self.mime_data = QMimeData()
 
         if os.path.isfile(self.src):
-            self.drag.setPixmap(QPixmap(IMG_SVG))
+            self.drag.setPixmap(QPixmap(Static.IMG_SVG))
         else:
-            self.drag.setPixmap(QPixmap(FOLDER_SVG))
+            self.drag.setPixmap(QPixmap(Static.FOLDER_SVG))
         
         url = [QUrl.fromLocalFile(self.src)]
         self.mime_data.setUrls(url)
@@ -311,7 +310,7 @@ class Total(QFrame):
         h_lay.setContentsMargins(2, 0, 2, 0)
         self.setLayout(h_lay)
 
-        self.go_btn = USvgWidget(src=GOTO_SVG, size=13)
+        self.go_btn = USvgWidget(src=Static.GOTO_SVG, size=13)
         h_lay.addWidget(self.go_btn)
 
         self.total_text = QLabel()
@@ -324,7 +323,7 @@ class Total(QFrame):
         self.setStyleSheet(
             f"""
             #total {{
-                background: {GRAY_SLIDER};
+                background: {Static.GRAY_SLIDER};
                 border-radius: 3px;
             }}
             """
@@ -415,18 +414,18 @@ class BarBottom(QWidget):
             path_item = PathItem(src, name)
 
             if x == 1:
-                icon = COMP_SVG
+                icon = Static.COMP_SVG
                 path_item.add_arrow()
 
             elif x == 2:
-                icon = HDD_SVG
+                icon = Static.HDD_SVG
                 path_item.add_arrow()
 
             elif x == ln:
                 if os.path.isdir(src):
-                    icon = FOLDER_SVG
+                    icon = Static.FOLDER_SVG
                 else:
-                    icon = IMG_SVG
+                    icon = Static.IMG_SVG
 
                 # последний элемент показывать в полный размер
                 path_item.expand()
@@ -436,7 +435,7 @@ class BarBottom(QWidget):
                 path_item.leaveEvent = lambda *args, **kwargs: None
 
             else:
-                icon = FOLDER_SVG
+                icon = Static.FOLDER_SVG
                 path_item.add_arrow()
 
             path_item.img_wid.load(icon)
