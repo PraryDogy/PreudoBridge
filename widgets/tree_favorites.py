@@ -25,7 +25,7 @@ class FavItem(QLabel):
 
         self.menu_ = QMenu(self)
 
-        cmd_ = lambda: SignalsApp.all_.load_standart_grid.emit(self.src)
+        cmd_ = lambda: SignalsApp.all_.load_normal_mode.emit(self.src)
         view_ac = View(self.menu_, self.src)
         view_ac._clicked.connect(cmd_)
         self.menu_.addAction(view_ac)
@@ -65,7 +65,7 @@ class FavItem(QLabel):
     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
         if ev.button() == Qt.MouseButton.LeftButton:
             SignalsApp.all_.new_history.emit(self.src)
-            SignalsApp.all_.load_standart_grid.emit(self.src)
+            SignalsApp.all_.load_normal_mode.emit(self.src)
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
         self.menu_.exec_(ev.globalPos())

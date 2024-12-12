@@ -47,7 +47,7 @@ class ViewTypeBtn(QTabBar):
     def set_view_type_cmd(self, index: int):
         self.setCurrentIndex(index)
         Dynamic.grid_view_type = index
-        SignalsApp.all_.load_standart_grid.emit("")
+        SignalsApp.all_.load_normal_mode.emit("")
 
     def tabSizeHint(self, index):
         size = QTabBar.tabSizeHint(self, index)
@@ -84,7 +84,7 @@ class SearchWidget(QWidget):
         self.search_timer = QTimer(self)
         self.search_timer.setSingleShot(True)
         self.search_timer.timeout.connect(
-            lambda: SignalsApp.all_.load_search_grid.emit(self.search_text)
+            lambda: SignalsApp.all_.load_search_mode.emit(self.search_text)
             )
         
         self.clear_search.connect(self.costil)
@@ -121,7 +121,7 @@ class SearchWidget(QWidget):
         else:
             self.clear_search.emit()
             self.clear_btn.hide()
-            SignalsApp.all_.load_standart_grid.emit("")
+            SignalsApp.all_.load_normal_mode.emit("")
 
     def show_templates(self, a0: QMouseEvent | None) -> None:
         self.templates_menu.exec(self.mapToGlobal(self.rect().bottomLeft()))
@@ -381,7 +381,7 @@ class BarTop(QFrame):
             if self.index_ + offset in(-1, len(self.history)):
                 return
             self.index_ += offset
-            SignalsApp.all_.load_standart_grid.emit(self.history[self.index_])
+            SignalsApp.all_.load_normal_mode.emit(self.history[self.index_])
         except (ValueError, IndexError):
             pass
 
@@ -389,4 +389,4 @@ class BarTop(QFrame):
         root = os.path.dirname(JsonData.root)
         if not root == os.sep:
             SignalsApp.all_.new_history.emit(root)
-            SignalsApp.all_.load_standart_grid.emit(root)
+            SignalsApp.all_.load_normal_mode.emit(root)

@@ -3,9 +3,10 @@ import os
 import sqlalchemy
 from numpy import ndarray
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
-from PyQt5.QtGui import QCloseEvent, QPixmap
+from PyQt5.QtGui import (QCloseEvent, QContextMenuEvent, QDragEnterEvent,
+                         QDropEvent, QMouseEvent, QPixmap)
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import QLabel
+from PyQt5.QtWidgets import QLabel, QListWidget, QListWidgetItem, QMenu
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import JsonData, Static, ThumbData
@@ -14,9 +15,11 @@ from fit_img import FitImg
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
+from ._actions import CopyPath, FavRemove, Rename, RevealInFinder, View
 from ._finder_items import FinderItems, ImageData, LoadingWid
 from ._grid import Grid
 from ._thumb import Thumb, ThumbFolder
+from .win_rename import WinRename
 
 MAX_QUERIES = 10
 
@@ -34,7 +37,7 @@ NO_IMAGES = [
 NO_IMAGES = "\n".join(NO_IMAGES)
 
 
-class GridStandart(Grid):
+class GridStandart(QListWidget):
     def __init__(self, width: int):
         super().__init__(width)
 

@@ -2,8 +2,8 @@ from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtWidgets import QWidget
 
 class Signals(QObject):
-    load_standart_grid = pyqtSignal(str)
-    load_search_grid = pyqtSignal(str)
+    load_normal_mode = pyqtSignal(str)
+    load_search_mode = pyqtSignal(str)
 
     # эти сигналы переназначаются заново, не забудь отключить прежде
     resize_grid = pyqtSignal()

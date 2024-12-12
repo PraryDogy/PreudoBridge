@@ -228,7 +228,7 @@ class Grid(BaseMethods, QScrollArea):
     def open_in_view(self, wid: Thumb):
         if wid.type_ == Static.FOLDER_TYPE:
             SignalsApp.all_.new_history.emit(wid.src)
-            SignalsApp.all_.load_standart_grid.emit(wid.src)
+            SignalsApp.all_.load_normal_mode.emit(wid.src)
         else:
             OpenWin.view(Utils.get_main_win(), wid.src)
 
@@ -282,7 +282,7 @@ class Grid(BaseMethods, QScrollArea):
                 root = os.path.dirname(JsonData.root)
                 if root != os.sep:
                     SignalsApp.all_.new_history.emit(root)
-                    SignalsApp.all_.load_standart_grid.emit(root)
+                    SignalsApp.all_.load_normal_mode.emit(root)
 
             elif  a0.key() == Qt.Key.Key_Down:
                 wid = self.cell_to_wid.get(self.curr_cell)
