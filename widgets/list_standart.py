@@ -22,7 +22,8 @@ from ._grid import Grid
 from .win_rename import WinRename
 
 MAX_QUERIES = 10
-LIST_ITEM_SIZE = 15
+SVG_SIZE = 15
+LIST_ITEM_H = 30
 
 PATH_NOT_EXISTS = [
     f"{JsonData.root}",
@@ -47,10 +48,10 @@ class ListItem(QWidget):
         self.h_lay.setAlignment(Qt.AlignmentFlag.AlignVCenter)
         self.setLayout(self.h_lay)
 
-        self.svg_wid = QSvgWidget()
-        self.svg_wid.load(svg_path)
-        self.svg_wid.setFixedSize(LIST_ITEM_SIZE, LIST_ITEM_SIZE)
-        self.h_lay.addWidget(self.svg_wid)
+        self.img_wid = QSvgWidget()
+        self.img_wid.load(svg_path)
+        self.img_wid.setFixedSize(SVG_SIZE, SVG_SIZE)
+        self.h_lay.addWidget(self.img_wid)
 
         self.text_wid = QLabel(text=text)
         self.h_lay.addWidget(self.text_wid)
@@ -111,18 +112,8 @@ class ListStandart(QListWidget):
                     svg_path=Static.FOLDER_SVG
                     )
 
-                # wid = ThumbFolder(
-                #     src=order_item.src,
-                #     size=order_item.size,
-                #     mod=order_item.mod,
-                #     colors=order_item.colors,
-                #     rating=order_item.rating,
-                #     )
-
-                # if os.path.ismount(order_item.src) or order_item.src == sys_disk:
-                    # img_wid = wid.img_wid.findChild(QSvgWidget)
-                    # img_wid.load(Static.HDD_SVG)
-
+                if os.path.ismount(order_item.src) or order_item.src == sys_disk:
+                    wid.img_wid.load(Static.HDD_SVG)
 
             else:
 
@@ -132,26 +123,11 @@ class ListStandart(QListWidget):
                 )
 
             list_item = QListWidgetItem()
-            size = QSize(wid.sizeHint().width(), 30)
+            size = QSize(wid.sizeHint().width(), LIST_ITEM_H)
             list_item.setSizeHint(size)
-            # print(wid.sizeHint().height())
 
             self.addItem(list_item)
             self.setItemWidget(list_item, wid)
-
-                # wid = Thumb(
-                    # src=order_item.src,
-                    # size=order_item.size,
-                    # mod=order_item.mod,
-                    # colors=order_item.colors,
-                    # rating=order_item.rating,
-                    # )
-
-            # wid.select.connect(lambda w=wid: self.select_new_widget(w))
-            # wid.open_in_view.connect(lambda w=wid: self.open_in_view(w))
-            # self.grid_layout.addWidget(wid, row, col)
-
-            # self.add_widget_data(wid, row, col)
 
         if not os.path.exists(JsonData.root):
             setattr(self, "no_images", PATH_NOT_EXISTS)
@@ -160,13 +136,7 @@ class ListStandart(QListWidget):
             setattr(self, "no_images", NO_IMAGES)
 
         if hasattr(self, "no_images"):
-            no_images = QLabel(text=getattr(self, "no_images"))
-            no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            # self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            # self.grid_layout.addWidget(no_images, 0, 0)
-
-        # self.order_()
-        # self.select_after_list()
+            print("no images")
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
 
