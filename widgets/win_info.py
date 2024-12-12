@@ -22,6 +22,8 @@ BITRTH_T = "Создан"
 MOD_T = "Изменен"
 RESOL_T = "Разрешение"
 
+MAX_ROW = 50
+
 
 class WorkerSignals(QObject):
     finished_ = pyqtSignal(str)
@@ -124,18 +126,15 @@ class InfoTask:
             SIZE_T: size_,
             SRC_T: self.lined_text(self.src),
             MOD_T: Utils.get_f_date(os.stat(self.src).st_mtime),
-            # RESOL_T: resol
             }
 
         return res
 
     def lined_text(self, text: str):
-        max_row = 38
-
-        if len(text) > max_row:
+        if len(text) > MAX_ROW:
             text = [
-                text[i:i + max_row]
-                for i in range(0, len(text), max_row)
+                text[i:i + MAX_ROW]
+                for i in range(0, len(text), MAX_ROW)
                 ]
             return "\n".join(text)
         else:
@@ -194,11 +193,8 @@ class WinInfo(WinMinMax):
 
             row += 1
 
-        w = 350
         self.adjustSize()
-        self.setMinimumWidth(w)
-        self.setFixedHeight(self.height())
-        self.resize(self.height(), w)
+        self.setFixedSize(self.width(), self.height())
    
         if hasattr(self, "calc"):
             cmd_ = lambda size_: self.finalize(size_)
