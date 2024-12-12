@@ -12,7 +12,7 @@ from ._actions import (ChangeView, CopyPath, FavAdd, FavRemove, Info,
 from ._base import BaseMethods
 
 
-class ListStandart(QTableView):
+class ListFileSystem(QTableView):
     col: int = 0
     order: int = 0
     sizes: list = [250, 100, 100, 150]
@@ -35,9 +35,9 @@ class ListStandart(QTableView):
         self.setModel(self._model)
         self.setRootIndex(self._model.index(JsonData.root))
 
-        self.sortByColumn(ListStandart.col, ListStandart.order)
+        self.sortByColumn(ListFileSystem.col, ListFileSystem.order)
         for i in range(0, 4):
-            self.setColumnWidth(i, ListStandart.sizes[i])
+            self.setColumnWidth(i, ListFileSystem.sizes[i])
 
     def double_clicked(self, index):
         path = self._model.filePath(index)
@@ -47,9 +47,9 @@ class ListStandart(QTableView):
             SignalsApp.all_.load_standart_grid.emit(path)
 
     def save_sort_settings(self, index):
-        ListStandart.col = index
-        ListStandart.order = self.horizontalHeader().sortIndicatorOrder()
-        self.sortByColumn(ListStandart.col, ListStandart.order)
+        ListFileSystem.col = index
+        ListFileSystem.order = self.horizontalHeader().sortIndicatorOrder()
+        self.sortByColumn(ListFileSystem.col, ListFileSystem.order)
 
     def rearrange(self, *args, **kwargs):
         ...
@@ -70,8 +70,8 @@ class ListStandart(QTableView):
         index = self.currentIndex()
         path = self._model.filePath(index)
         path = os.path.abspath(path)
-        ListStandart.last_selection = path
-        ListStandart.sizes = [self.columnWidth(i) for i in range(0, 4)]
+        ListFileSystem.last_selection = path
+        ListFileSystem.sizes = [self.columnWidth(i) for i in range(0, 4)]
         return super().closeEvent(a0)
 
     def contextMenuEvent(self, event: QContextMenuEvent):

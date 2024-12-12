@@ -1,12 +1,15 @@
 import os
 
 import sqlalchemy
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtGui import QPixmap
+from PyQt5.QtWidgets import QLabel, QWidget
 
 from cfg import JsonData, Static
 from database import CACHE, Dbase, OrderItem
 from utils import URunnable, Utils
+
+LOADING_T = "Загрузка..."
 
 
 class ImageData:
@@ -83,3 +86,15 @@ class FinderItems(URunnable):
 
                     item = OrderItem(entry.path, size, mod, colors, rating)
                     self.order_items.append(item)
+
+
+class LoadingWid(QLabel):
+    def __init__(self, parent: QWidget):
+        super().__init__(text=LOADING_T, parent=parent)
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.setStyleSheet(
+            f"""
+                background: {Static.GRAY_UP_BTN};
+                border-radius: 4px;
+            """
+        )

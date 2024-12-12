@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QApplication, QGridLayout, QHBoxLayout, QLabel,
 from cfg import Dynamic, JsonData, Static
 from signals import SignalsApp
 from widgets._grid import Grid
-from widgets._list import ListStandart
+from widgets.list_file_system import ListFileSystem
 from widgets.bar_bottom import BarBottom
 from widgets.bar_top import BarTop
 from widgets.grid_search import GridSearch
@@ -174,7 +174,7 @@ class SimpleFileExplorer(QWidget):
         self.bar_top.filters_btn.reset_filters()
 
         if Dynamic.grid_view_type == 1:
-            self.grid = ListStandart()
+            self.grid = ListFileSystem()
             self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
         elif Dynamic.grid_view_type == 0:
             self.grid = GridStandart(width=self.get_grid_width())

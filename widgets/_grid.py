@@ -14,7 +14,7 @@ from utils import Utils
 from ._actions import (ChangeView, CopyPath, FavAdd, FavRemove, RevealInFinder,
                        SortMenu, UpdateGrid)
 from ._base import BaseMethods, OpenWin
-from ._list import ListStandart
+from .list_file_system import ListFileSystem
 from ._thumb import Info, Thumb, ThumbFolder, ThumbSearch
 
 SELECTED = "selected"
@@ -233,12 +233,12 @@ class Grid(BaseMethods, QScrollArea):
             OpenWin.view(Utils.get_main_win(), wid.src)
 
     def select_after_list(self):
-        wid = Thumb.path_to_wid.get(ListStandart.last_selection)
+        wid = Thumb.path_to_wid.get(ListFileSystem.last_selection)
 
         if isinstance(wid, Thumb):
             self.select_new_widget(wid)
             self.ensureWidgetVisible(wid)
-            ListStandart.last_selection = None
+            ListFileSystem.last_selection = None
 
     def fav_cmd(self, offset: int):
         self.fav_action.triggered.disconnect()

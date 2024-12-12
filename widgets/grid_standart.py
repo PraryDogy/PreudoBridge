@@ -14,7 +14,7 @@ from fit_img import FitImg
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
-from ._finder_items import FinderItems, ImageData
+from ._finder_items import FinderItems, ImageData, LoadingWid
 from ._grid import Grid
 from ._thumb import Thumb, ThumbFolder
 
@@ -223,15 +223,7 @@ class GridStandart(Grid):
         self.offset = 0
         self.limit = 100
 
-        self.loading_lbl = QLabel(text="Загрузка...", parent=self)
-        self.loading_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.loading_lbl.setStyleSheet(
-            f"""
-                background: {Static.GRAY_UP_BTN};
-                border-radius: 4px;
-            """
-        )
-
+        self.loading_lbl = LoadingWid(parent=self)
         Utils.center_win(self, self.loading_lbl)
         self.show()
 
