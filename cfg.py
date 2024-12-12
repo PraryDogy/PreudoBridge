@@ -48,6 +48,35 @@ NEXT_SVG = os.path.join(IMAGES_DIR, "next.svg")
 
 FOLDER_TYPE: str = "Папка"
 
+GRID_SPACING = 5
+LEFT_MENU_W = 240
+
+LINK = "https://disk.yandex.ru/d/vYdK8hMwVbkSKQ"
+IMAGE_APPS: dict = {}
+
+_IMG_EXT: tuple = (
+    ".jpg", ".jpeg", ".jfif",
+    ".tif", ".tiff",
+    ".psd", ".psb",
+    ".png",
+    ".nef", ".cr2", ".cr3", ".arw", ".raf"
+    )
+IMG_EXT: tuple = tuple(
+    upper_ext
+    for ext in _IMG_EXT
+    for upper_ext in (ext, ext.upper())
+    )
+COLORS: dict = {
+    "\U0001F534": "Красный",
+    "\U0001F535": "Синий",
+    "\U0001F7E0": "Оранжевый",
+    "\U0001F7E1": "Желтый",
+    "\U0001F7E2": "Зеленый",
+    "\U0001F7E3": "Фиолетовый",
+    "\U0001F7E4": "Коричневый"
+    }
+
+FAVORITES_NAME = "___favs___"
 
 class Row:
     _ROW_H = 15
@@ -82,38 +111,6 @@ class ThumbData:
 
     # дополнительное пространство вокруг Pixmap
     OFFSET = 6
-
-
-GRID_SPACING = 5
-LEFT_MENU_W = 240
-MAX_VAR = len(ThumbData.PIXMAP_SIZE) - 1
-
-LINK = "https://disk.yandex.ru/d/vYdK8hMwVbkSKQ"
-IMAGE_APPS: dict = {}
-
-_IMG_EXT: tuple = (
-    ".jpg", ".jpeg", ".jfif",
-    ".tif", ".tiff",
-    ".psd", ".psb",
-    ".png",
-    ".nef", ".cr2", ".cr3", ".arw", ".raf"
-    )
-IMG_EXT: tuple = tuple(
-    upper_ext
-    for ext in _IMG_EXT
-    for upper_ext in (ext, ext.upper())
-    )
-COLORS: dict = {
-    "\U0001F534": "Красный",
-    "\U0001F535": "Синий",
-    "\U0001F7E0": "Оранжевый",
-    "\U0001F7E1": "Желтый",
-    "\U0001F7E2": "Зеленый",
-    "\U0001F7E3": "Фиолетовый",
-    "\U0001F7E4": "Коричневый"
-    }
-
-FAVORITES_NAME = "___favs___"
 
 
 class JsonData:

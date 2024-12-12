@@ -6,8 +6,7 @@ from PyQt5.QtGui import (QContextMenuEvent, QDrag, QDragEnterEvent, QDropEvent,
                          QKeyEvent, QMouseEvent)
 from PyQt5.QtWidgets import QFrame, QGridLayout, QMenu, QScrollArea, QWidget
 
-from cfg import (FAVORITES_NAME, FOLDER_TYPE, GRID_SPACING, MAX_VAR, Dynamic,
-                 JsonData)
+from cfg import FOLDER_TYPE, GRID_SPACING, Dynamic, JsonData, ThumbData
 from database import OrderItem
 from signals import SignalsApp
 from utils import Utils
@@ -295,7 +294,7 @@ class Grid(BaseMethods, QScrollArea):
 
             elif a0.key() == Qt.Key.Key_Equal:
                 new_value = Dynamic.pixmap_size_ind + 1
-                if new_value <= MAX_VAR:
+                if new_value <= len(ThumbData.PIXMAP_SIZE) - 1:
                     SignalsApp.all_.move_slider.emit(new_value)
 
             elif a0.key() == Qt.Key.Key_Minus:

@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QHBoxLayout,
                              QSpacerItem, QVBoxLayout, QWidget)
 
 from cfg import (BLUE, COMP_SVG, FOLDER_SVG, GOTO_SVG, GRAY_SLIDER, HDD_SVG,
-                 IMG_SVG, MAX_VAR, Dynamic, JsonData)
+                 IMG_SVG, Dynamic, JsonData, ThumbData)
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
@@ -161,7 +161,11 @@ class WinGo(WinMinMax):
 
 class CustomSlider(USlider):
     def __init__(self):
-        super().__init__(orientation=Qt.Orientation.Horizontal, minimum=0, maximum=MAX_VAR)
+        super().__init__(
+            orientation=Qt.Orientation.Horizontal,
+            minimum=0,
+            maximum=len(ThumbData.PIXMAP_SIZE) - 1
+        )
         self.setFixedWidth(80)
         self.setValue(Dynamic.pixmap_size_ind)
         self.valueChanged.connect(self.change_size)
