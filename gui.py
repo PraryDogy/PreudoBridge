@@ -175,8 +175,8 @@ class SimpleFileExplorer(QWidget):
         self.bar_top.filters_btn.reset_filters()
 
         if Dynamic.grid_view_type == 1:
-            # self.grid = ListFileSystem()
-            self.grid = ListStandart()
+            self.grid = ListFileSystem()
+            # self.grid = ListStandart()
             self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
         elif Dynamic.grid_view_type == 0:
             self.grid = GridStandart(width=self.get_grid_width())
