@@ -224,8 +224,6 @@ class ReadImage(Err):
         else:
             img = None
 
-        print(img.shape)
-
         return img
 
 
