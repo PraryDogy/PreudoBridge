@@ -741,7 +741,11 @@ class Grid(BaseMethods, QScrollArea):
         self.find_here_win.show()
 
     def find_here_cmd(self, text: str):
-        print(text)
+        if text:
+            for path, wid in Thumb.path_to_wid.items():
+                if text in path:
+                    self.select_new_widget(wid)
+                    break
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         wid: Thumb | ThumbFolder 
