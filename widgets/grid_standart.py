@@ -20,6 +20,19 @@ from ._thumb import Thumb, ThumbFolder
 
 MAX_QUERIES = 10
 
+PATH_NOT_EXISTS = [
+    f"{JsonData.root}",
+    "Такой папки не существует",
+    "Проверьте подключение к сетевому диску"
+]
+PATH_NOT_EXISTS = "\n".join(PATH_NOT_EXISTS)
+
+NO_IMAGES = [
+    f"{JsonData.root}",
+    "Нет изображений"
+]
+NO_IMAGES = "\n".join(NO_IMAGES)
+
 
 class WorkerSignals(QObject):
     new_widget = pyqtSignal(ImageData)
@@ -307,15 +320,13 @@ class GridStandart(Grid):
             self.start_load_images(cut)
 
         elif not os.path.exists(JsonData.root):
-            t = f"{JsonData.root}\nТакой папки не существует\nПроверьте подключение к сетевому диску"
-            setattr(self, "no_images", t)
+            setattr(self, "no_images", PATH_NOT_EXISTS)
 
-        else:
-            t = f"{JsonData.root}\nНет изображений"
-            setattr(self, "no_images", t)
+        elif not self.cell_to_wid:
+            setattr(self, "no_images", NO_IMAGES)
 
         if hasattr(self, "no_images"):
-            no_images = QLabel(t)
+            no_images = QLabel(text=getattr(self, "no_images"))
             no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0)
