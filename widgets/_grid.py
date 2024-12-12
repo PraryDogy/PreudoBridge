@@ -734,10 +734,14 @@ class Grid(BaseMethods, QScrollArea):
         cmd_ = lambda: SignalsApp.all_.path_labels_cmd.emit({"src": JsonData.root})
         QTimer.singleShot(100, cmd_)
 
-    def find_here(self, *args):
+    def open_find_here_win(self, *args):
         self.find_here_win = WinFindHere()
+        self.find_here_win.finished_.connect(self.find_here_cmd)
         Utils.center_win(parent=self.window(), child=self.find_here_win)
         self.find_here_win.show()
+
+    def find_here_cmd(self, text: str):
+        print(text)
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         wid: Thumb | ThumbFolder 
@@ -846,7 +850,7 @@ class Grid(BaseMethods, QScrollArea):
         menu.addSeparator()
 
         find_here = FindHere(parent=menu)
-        find_here.clicked_.connect(self.find_here)
+        find_here.clicked_.connect(self.open_find_here_win)
         menu.addAction(find_here)
 
         menu.exec_(self.mapToGlobal(a0.pos()))
