@@ -78,9 +78,6 @@ COLORS: dict = {
 
 FAVORITES_NAME = "___favs___"
 
-class Row:
-    _ROW_H = 15
-
 
 class ThumbData:
 
