@@ -2,81 +2,83 @@ import json
 import os
 from datetime import date
 
-APP_NAME = "PreudoBridge"
-APP_VER = "1.0.0"
 
-APP_SUPPORT = os.path.expanduser('~/Library/Application Support')
-ROOT = os.path.join(APP_SUPPORT, APP_NAME)
+class Static:
+    APP_NAME = "PreudoBridge"
+    APP_VER = "1.0.0"
 
-HASH_DIR = os.path.join(ROOT, "hashdir")
-JSON_FILE = os.path.join(ROOT, 'cfg.json')
-DB_FILE = os.path.join(ROOT, 'db.db')
+    APP_SUPPORT = os.path.expanduser('~/Library/Application Support')
+    ROOT = os.path.join(APP_SUPPORT, APP_NAME)
 
-USER_APPS = "/Applications"
+    HASH_DIR = os.path.join(ROOT, "hashdir")
+    JSON_FILE = os.path.join(ROOT, 'cfg.json')
+    DB_FILE = os.path.join(ROOT, 'db.db')
 
-GRAY_SLIDER = "rgba(111, 111, 111, 0.5)"
-GRAY_UP_BTN = "rgba(128, 128, 128, 0.40)"
-BLUE = "rgb(46, 89, 203)"
+    USER_APPS = "/Applications"
 
-STAR_SYM = "\U00002605"
-GRID_SYM = "\U00001392"
-BURGER_SYM = "\U00002630"
-FAT_DOT_SYM = "\U000026AB"
-FILTERS_CROSS_SYM = "\u2715" 
-SEARCH_CROSS_SYM = "\u2573"
-UP_ARROW_SYM = "\u25B2"
-BACK_SYM = "\u276E"
-NEXT_SYM = "\u276F"
-UP_CURVE = "\u2934" 
-SETT_SYM = "\U00002699"
-PARAGRAPH_SEP = "\u2029"
+    GRAY_SLIDER = "rgba(111, 111, 111, 0.5)"
+    GRAY_UP_BTN = "rgba(128, 128, 128, 0.40)"
+    BLUE = "rgb(46, 89, 203)"
 
-IMAGES_DIR = "images"
-IMG_SVG = os.path.join(IMAGES_DIR, "img.svg")
-FOLDER_SVG = os.path.join(IMAGES_DIR, "folder.svg")
-HDD_SVG = os.path.join(IMAGES_DIR, "hdd.svg")
-COMP_SVG = os.path.join(IMAGES_DIR, "computer.svg")
-GOTO_SVG = os.path.join(IMAGES_DIR, "goto.svg")
-ZOOM_OUT_SVG = os.path.join(IMAGES_DIR, "zoom_out.svg")
-ZOOM_IN_SVG = os.path.join(IMAGES_DIR, "zoom_in.svg")
-ZOOM_FIT_SVG = os.path.join(IMAGES_DIR, "zoom_fit.svg")
-CLOSE_SVG = os.path.join(IMAGES_DIR, "zoom_close.svg")
-PREV_SVG = os.path.join(IMAGES_DIR, "prev.svg")
-NEXT_SVG = os.path.join(IMAGES_DIR, "next.svg")
+    STAR_SYM = "\U00002605"
+    GRID_SYM = "\U00001392"
+    BURGER_SYM = "\U00002630"
+    FAT_DOT_SYM = "\U000026AB"
+    FILTERS_CROSS_SYM = "\u2715" 
+    SEARCH_CROSS_SYM = "\u2573"
+    UP_ARROW_SYM = "\u25B2"
+    BACK_SYM = "\u276E"
+    NEXT_SYM = "\u276F"
+    UP_CURVE = "\u2934" 
+    SETT_SYM = "\U00002699"
+    PARAGRAPH_SEP = "\u2029"
 
-FOLDER_TYPE: str = "Папка"
+    IMAGES_DIR = "images"
+    IMG_SVG = os.path.join(IMAGES_DIR, "img.svg")
+    FOLDER_SVG = os.path.join(IMAGES_DIR, "folder.svg")
+    HDD_SVG = os.path.join(IMAGES_DIR, "hdd.svg")
+    COMP_SVG = os.path.join(IMAGES_DIR, "computer.svg")
+    GOTO_SVG = os.path.join(IMAGES_DIR, "goto.svg")
+    ZOOM_OUT_SVG = os.path.join(IMAGES_DIR, "zoom_out.svg")
+    ZOOM_IN_SVG = os.path.join(IMAGES_DIR, "zoom_in.svg")
+    ZOOM_FIT_SVG = os.path.join(IMAGES_DIR, "zoom_fit.svg")
+    CLOSE_SVG = os.path.join(IMAGES_DIR, "zoom_close.svg")
+    PREV_SVG = os.path.join(IMAGES_DIR, "prev.svg")
+    NEXT_SVG = os.path.join(IMAGES_DIR, "next.svg")
 
-GRID_SPACING = 5
-LEFT_MENU_W = 240
+    FOLDER_TYPE: str = "Папка"
 
-LINK = "https://disk.yandex.ru/d/vYdK8hMwVbkSKQ"
-IMAGE_APPS: dict = {}
+    GRID_SPACING = 5
+    LEFT_MENU_W = 240
 
-_IMG_EXT: tuple = (
-    ".jpg", ".jpeg", ".jfif",
-    ".tif", ".tiff",
-    ".psd", ".psb",
-    ".png",
-    ".nef", ".cr2", ".cr3", ".arw", ".raf"
-    )
+    LINK = "https://disk.yandex.ru/d/vYdK8hMwVbkSKQ"
+    IMAGE_APPS: dict = {}
 
-IMG_EXT: tuple = tuple(
-    upper_ext
-    for ext in _IMG_EXT
-    for upper_ext in (ext, ext.upper())
-    )
+    _IMG_EXT: tuple = (
+        ".jpg", ".jpeg", ".jfif",
+        ".tif", ".tiff",
+        ".psd", ".psb",
+        ".png",
+        ".nef", ".cr2", ".cr3", ".arw", ".raf"
+        )
 
-COLORS: dict = {
-    "\U0001F534": "Красный",
-    "\U0001F535": "Синий",
-    "\U0001F7E0": "Оранжевый",
-    "\U0001F7E1": "Желтый",
-    "\U0001F7E2": "Зеленый",
-    "\U0001F7E3": "Фиолетовый",
-    "\U0001F7E4": "Коричневый"
-    }
+    IMG_EXT: tuple = tuple(
+        upper_ext
+        for ext in _IMG_EXT
+        for upper_ext in (ext, ext.upper())
+        )
 
-FAVORITES_NAME = "___favs___"
+    COLORS: dict = {
+        "\U0001F534": "Красный",
+        "\U0001F535": "Синий",
+        "\U0001F7E0": "Оранжевый",
+        "\U0001F7E1": "Желтый",
+        "\U0001F7E2": "Зеленый",
+        "\U0001F7E3": "Фиолетовый",
+        "\U0001F7E4": "Коричневый"
+        }
+
+    FAVORITES_NAME = "___favs___"
 
 
 class ThumbData:
@@ -112,7 +114,11 @@ class ThumbData:
 
 class JsonData:
     root = f"/Volumes"
-    sort = "name" # database > CACHE > column "name"
+
+    # database > CACHE > column name = "name"
+    # базовая сортировка по имени по возрастанию
+    sort = "name"
+
     reversed = False
     extra_paths = ["/Studio/PANACEA", "/Studio/MIUZ"]
     favs = {}
