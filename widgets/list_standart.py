@@ -6,7 +6,8 @@ from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtGui import (QCloseEvent, QContextMenuEvent, QDragEnterEvent,
                          QDropEvent, QMouseEvent, QPixmap)
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import QLabel, QListWidget, QListWidgetItem, QMenu
+from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QListWidget, QListWidgetItem,
+                             QMenu, QWidget)
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import JsonData, Static, ThumbData
@@ -37,12 +38,26 @@ NO_IMAGES = [
 NO_IMAGES = "\n".join(NO_IMAGES)
 
 
+class ListItem(QWidget):
+    def __init__(self, text: str, svg_path: str):
+        super().__init__()
+
+        self.h_lay = QHBoxLayout()
+        self.setLayout(self.h_lay)
+
+        self.svg_wid = QSvgWidget()
+        self.svg_wid.load(svg_path)
+        self.h_lay.addWidget(self.svg_wid)
+
+        self.text_wid = QLabel(text=text)
+        self.h_lay.addWidget(self.text_wid)
+
+
 class GridStandart(QListWidget):
     def __init__(self, width: int):
         super().__init__(width)
 
         self.order_items: list[OrderItem] = []
-        # self.tasks: list[LoadImages] = []
 
         self.offset = 0
         self.limit = 100
@@ -78,7 +93,6 @@ class GridStandart(QListWidget):
         )
 
         self.create_sorted_grid()
-        self.set_main_wid()
 
     def create_sorted_grid(self):
 
@@ -94,33 +108,50 @@ class GridStandart(QListWidget):
     
             if os.path.isdir(order_item.src):
 
-                wid = ThumbFolder(
-                    src=order_item.src,
-                    size=order_item.size,
-                    mod=order_item.mod,
-                    colors=order_item.colors,
-                    rating=order_item.rating,
+                wid = ListItem(
+                    text=os.path.basename(order_item.src),
+                    svg_path=Static.FOLDER_SVG
                     )
 
-                if os.path.ismount(order_item.src) or order_item.src == sys_disk:
-                    img_wid = wid.img_wid.findChild(QSvgWidget)
-                    img_wid.load(Static.HDD_SVG)
+                # wid = ThumbFolder(
+                #     src=order_item.src,
+                #     size=order_item.size,
+                #     mod=order_item.mod,
+                #     colors=order_item.colors,
+                #     rating=order_item.rating,
+                #     )
+
+                # if os.path.ismount(order_item.src) or order_item.src == sys_disk:
+                    # img_wid = wid.img_wid.findChild(QSvgWidget)
+                    # img_wid.load(Static.HDD_SVG)
 
 
             else:
-                wid = Thumb(
-                    src=order_item.src,
-                    size=order_item.size,
-                    mod=order_item.mod,
-                    colors=order_item.colors,
-                    rating=order_item.rating,
-                    )
 
-            wid.select.connect(lambda w=wid: self.select_new_widget(w))
-            wid.open_in_view.connect(lambda w=wid: self.open_in_view(w))
-            self.grid_layout.addWidget(wid, row, col)
+                wid = ListItem(
+                    text=os.path.basename(order_item.src),
+                    svg_path=Static.IMG_SVG
+                )
 
-            self.add_widget_data(wid, row, col)
+            list_item = QListWidgetItem()
+            list_item.setSizeHint(wid.sizeHint())
+
+            self.addItem(list_item)
+            self.setItemWidget(list_item, wid)
+
+                # wid = Thumb(
+                    # src=order_item.src,
+                    # size=order_item.size,
+                    # mod=order_item.mod,
+                    # colors=order_item.colors,
+                    # rating=order_item.rating,
+                    # )
+
+            # wid.select.connect(lambda w=wid: self.select_new_widget(w))
+            # wid.open_in_view.connect(lambda w=wid: self.open_in_view(w))
+            # self.grid_layout.addWidget(wid, row, col)
+
+            # self.add_widget_data(wid, row, col)
 
             col += 1
             if col >= col_count:
