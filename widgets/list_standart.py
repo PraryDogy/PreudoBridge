@@ -2,7 +2,7 @@ import os
 
 import sqlalchemy
 from numpy import ndarray
-from PyQt5.QtCore import QObject, Qt, pyqtSignal
+from PyQt5.QtCore import QObject, Qt, pyqtSignal, QSize
 from PyQt5.QtGui import (QCloseEvent, QContextMenuEvent, QDragEnterEvent,
                          QDropEvent, QMouseEvent, QPixmap)
 from PyQt5.QtSvg import QSvgWidget
@@ -22,6 +22,7 @@ from ._grid import Grid
 from .win_rename import WinRename
 
 MAX_QUERIES = 10
+LIST_ITEM_SIZE = 15
 
 PATH_NOT_EXISTS = [
     f"{JsonData.root}",
@@ -42,19 +43,22 @@ class ListItem(QWidget):
         super().__init__()
 
         self.h_lay = QHBoxLayout()
+        self.h_lay.setContentsMargins(10, 0, 0, 0)
+        self.h_lay.setAlignment(Qt.AlignmentFlag.AlignVCenter)
         self.setLayout(self.h_lay)
 
         self.svg_wid = QSvgWidget()
         self.svg_wid.load(svg_path)
+        self.svg_wid.setFixedSize(LIST_ITEM_SIZE, LIST_ITEM_SIZE)
         self.h_lay.addWidget(self.svg_wid)
 
         self.text_wid = QLabel(text=text)
         self.h_lay.addWidget(self.text_wid)
 
 
-class GridStandart(QListWidget):
-    def __init__(self, width: int):
-        super().__init__(width)
+class ListStandart(QListWidget):
+    def __init__(self):
+        super().__init__()
 
         self.order_items: list[OrderItem] = []
 
@@ -96,11 +100,6 @@ class GridStandart(QListWidget):
     def create_sorted_grid(self):
 
         sys_disk = os.path.join(os.sep, "Volumes", "Macintosh HD")
-        col_count = Utils.get_clmn_count(self.ww)
-        row, col = 0, 0
-
-        # Thumb.calculate_size()
-
         cut = self.order_items[self.offset:self.offset + self.limit]
 
         for order_item in cut:
@@ -133,7 +132,9 @@ class GridStandart(QListWidget):
                 )
 
             list_item = QListWidgetItem()
-            list_item.setSizeHint(wid.sizeHint())
+            size = QSize(wid.sizeHint().width(), 30)
+            list_item.setSizeHint(size)
+            # print(wid.sizeHint().height())
 
             self.addItem(list_item)
             self.setItemWidget(list_item, wid)
@@ -152,24 +153,19 @@ class GridStandart(QListWidget):
 
             # self.add_widget_data(wid, row, col)
 
-            col += 1
-            if col >= col_count:
-                col = 0
-                row += 1
-
         if not os.path.exists(JsonData.root):
             setattr(self, "no_images", PATH_NOT_EXISTS)
 
-        elif not self.cell_to_wid:
+        elif not self.order_items:
             setattr(self, "no_images", NO_IMAGES)
 
         if hasattr(self, "no_images"):
             no_images = QLabel(text=getattr(self, "no_images"))
             no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.grid_layout.addWidget(no_images, 0, 0)
+            # self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            # self.grid_layout.addWidget(no_images, 0, 0)
 
-        self.order_()
+        # self.order_()
         # self.select_after_list()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
@@ -179,9 +175,6 @@ class GridStandart(QListWidget):
         except RuntimeError:
             ...
 
-        for i in self.tasks:
-            i.should_run = False
-
         return super().closeEvent(a0)
 
     def resizeEvent(self, a0):
@@ -190,3 +183,6 @@ class GridStandart(QListWidget):
         except RuntimeError:
             ...
         return super().resizeEvent(a0)
+    
+    def rearrange(self, *args, **kwargs):
+        print("list standart rearrange")
