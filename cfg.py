@@ -5,8 +5,6 @@ from datetime import date
 APP_NAME = "PreudoBridge"
 APP_VER = "1.0.0"
 
-# ROOT = os.path.expanduser("~/Desktop")
-
 APP_SUPPORT = os.path.expanduser('~/Library/Application Support')
 ROOT = os.path.join(APP_SUPPORT, APP_NAME)
 
@@ -61,11 +59,13 @@ _IMG_EXT: tuple = (
     ".png",
     ".nef", ".cr2", ".cr3", ".arw", ".raf"
     )
+
 IMG_EXT: tuple = tuple(
     upper_ext
     for ext in _IMG_EXT
     for upper_ext in (ext, ext.upper())
     )
+
 COLORS: dict = {
     "\U0001F534": "Красный",
     "\U0001F535": "Синий",
