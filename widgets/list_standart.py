@@ -40,7 +40,7 @@ NO_IMAGES = "\n".join(NO_IMAGES)
 
 
 class ListItem(QWidget):
-    def __init__(self, text: str, svg_path: str):
+    def __init__(self, svg_path: str, order_item: OrderItem):
         super().__init__()
 
         self.h_lay = QHBoxLayout()
@@ -53,7 +53,15 @@ class ListItem(QWidget):
         self.img_wid.setFixedSize(SVG_SIZE, SVG_SIZE)
         self.h_lay.addWidget(self.img_wid)
 
-        self.text_wid = QLabel(text=text)
+        t = [
+                os.path.basename(order_item.src),
+                order_item.colors,
+                Static.STAR_SYM * order_item.rating
+        ]
+
+        t = " ".join(t)
+
+        self.text_wid = QLabel(text=t)
         self.h_lay.addWidget(self.text_wid)
 
 
@@ -108,8 +116,8 @@ class ListStandart(QListWidget):
             if os.path.isdir(order_item.src):
 
                 wid = ListItem(
-                    text=os.path.basename(order_item.src),
-                    svg_path=Static.FOLDER_SVG
+                    svg_path=Static.FOLDER_SVG,
+                    order_item=order_item
                     )
 
                 if os.path.ismount(order_item.src) or order_item.src == sys_disk:
@@ -118,8 +126,8 @@ class ListStandart(QListWidget):
             else:
 
                 wid = ListItem(
-                    text=os.path.basename(order_item.src),
-                    svg_path=Static.IMG_SVG
+                    svg_path=Static.IMG_SVG,
+                    order_item = order_item
                 )
 
             list_item = QListWidgetItem()

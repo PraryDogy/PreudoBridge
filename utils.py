@@ -261,7 +261,12 @@ class Pixmap:
     def pixmap_from_array(cls, image: np.ndarray) -> QPixmap | None:
 
         if isinstance(image, np.ndarray) and QApplication.instance():
-            height, width, channel = image.shape
+            if len(image.shape) == 3:
+                height, width, channel = image.shape
+            else:
+                height, width = image.shape
+                channel = 1
+
             bytes_per_line = channel * width
             qimage = QImage(
                 image.tobytes(),
