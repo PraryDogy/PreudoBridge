@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QLineEdit, QMenu, QSlider, QWidget
 from cfg import GRAY_SLIDER
 from utils import Utils
 
-from ._actions import TextCopy, TextCut, TextPaste, TextSelectAll
+from ._actions import CopyText, TextCut, TextPaste, TextSelectAll
 from typing import Literal
 
 class BaseMethods:
@@ -85,7 +85,7 @@ class ULineEdit(QLineEdit):
         cut_a = TextCut(menu, self)
         menu.addAction(cut_a)
 
-        copy_a = TextCopy(menu, self)
+        copy_a = CopyText(menu, self)
         menu.addAction(copy_a)
 
         paste_a = TextPaste(menu, self)

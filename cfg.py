@@ -31,6 +31,7 @@ BACK_SYM = "\u276E"
 NEXT_SYM = "\u276F"
 UP_CURVE = "\u2934" 
 SETT_SYM = "\U00002699"
+PARAGRAPTH_SEP = "\u2029"
 
 IMAGES_DIR = "images"
 IMG_SVG = os.path.join(IMAGES_DIR, "img.svg")

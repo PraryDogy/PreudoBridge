@@ -1,9 +1,9 @@
 import subprocess
 
 from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtWidgets import QAction, QLineEdit, QMenu
+from PyQt5.QtWidgets import QAction, QLabel, QLineEdit, QMenu
 
-from cfg import COLORS, IMAGE_APPS, STAR_SYM, Dynamic, JsonData
+from cfg import COLORS, IMAGE_APPS, PARAGRAPTH_SEP, STAR_SYM, Dynamic, JsonData
 from database import ORDER
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
@@ -211,14 +211,14 @@ class TextCut(QAction):
         Utils.write_to_clipboard(selection)
 
 
-class TextCopy(QAction):
-    def __init__(self, parent: QMenu, widget: QLineEdit):
+class CopyText(QAction):
+    def __init__(self, parent: QMenu, widget: QLineEdit | QLabel):
         super().__init__(parent=parent, text=COPY_T)
         self.wid = widget
         self.triggered.connect(self.cmd_)
 
     def cmd_(self):
-        selection = self.wid.selectedText()
+        selection = self.wid.selectedText().replace(PARAGRAPTH_SEP, "")
         Utils.write_to_clipboard(selection)
 
 

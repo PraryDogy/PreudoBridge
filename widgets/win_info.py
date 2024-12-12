@@ -5,10 +5,11 @@ from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import QGridLayout, QLabel, QMenu
 
-from cfg import FOLDER_TYPE
+from cfg import FOLDER_TYPE, PARAGRAPTH_SEP
 from database import CACHE, Dbase
 from utils import URunnable, UThreadPool, Utils
 
+from ._actions import CopyText, RevealInFinder
 from ._base import WinMinMax
 
 CALCULATING = "Вычисляю..."
@@ -146,15 +147,27 @@ class CustomLabel(QLabel):
         super().__init__(text)
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
-        self.setSelection(0, len(self.text()))
-        menu = QMenu(self)
-        copy_action = menu.addAction("Копировать")
-        copy_action.triggered.connect(self.custom_copy)
-        menu.exec_(ev.globalPos())
 
-    def custom_copy(self):
-        modified_text = self.text().replace("\n", "")
-        Utils.write_to_clipboard(modified_text)
+        self.setSelection(0, len(self.text()))
+        src = self.selectedText().replace(PARAGRAPTH_SEP, "")
+
+        menu = QMenu(self)
+
+        copy_action = CopyText(parent=menu, widget=self)
+        menu.addAction(copy_action)
+
+        menu.addSeparator()
+
+        reveal_action = RevealInFinder(
+            parent=menu,
+            src=src
+        )
+        menu.addAction(reveal_action)
+
+        if not os.path.exists(src):
+            reveal_action.setDisabled(True)
+
+        menu.exec_(ev.globalPos())
 
 
 class WinInfo(WinMinMax):
