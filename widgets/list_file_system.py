@@ -6,10 +6,12 @@ from PyQt5.QtWidgets import QFileSystemModel, QMenu, QTableView
 
 from cfg import JsonData
 from signals import SignalsApp
+from utils import Utils
 
 from ._actions import (ChangeView, CopyPath, FavAdd, FavRemove, Info,
                        RevealInFinder)
 from ._base import BaseMethods
+from ._finder_items import LoadingWid
 
 
 class ListFileSystem(QTableView):
@@ -21,6 +23,10 @@ class ListFileSystem(QTableView):
     def __init__(self):
         QTableView.__init__(self)
         BaseMethods.__init__(self)
+
+        self.loading_lbl = LoadingWid(parent=self)
+        Utils.center_win(self, self.loading_lbl)
+        self.show()
 
         self.setSelectionBehavior(QTableView.SelectRows)
         self.setSortingEnabled(True)
@@ -38,6 +44,8 @@ class ListFileSystem(QTableView):
         self.sortByColumn(ListFileSystem.col, ListFileSystem.order)
         for i in range(0, 4):
             self.setColumnWidth(i, ListFileSystem.sizes[i])
+
+        self.loading_lbl.hide()
 
     def double_clicked(self, index):
         path = self._model.filePath(index)
