@@ -3,7 +3,7 @@ import subprocess
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QAction, QLabel, QLineEdit, QMenu
 
-from cfg import COLORS, IMAGE_APPS, PARAGRAPTH_SEP, STAR_SYM, Dynamic, JsonData
+from cfg import COLORS, IMAGE_APPS, PARAGRAPH_SEP, STAR_SYM, Dynamic, JsonData
 from database import ORDER
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
@@ -218,7 +218,7 @@ class CopyText(QAction):
         self.triggered.connect(self.cmd_)
 
     def cmd_(self):
-        selection = self.wid.selectedText().replace(PARAGRAPTH_SEP, "")
+        selection = self.wid.selectedText().replace(PARAGRAPH_SEP, "")
         Utils.write_to_clipboard(selection)
 
 
