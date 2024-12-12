@@ -1,18 +1,12 @@
 import os
 
 import sqlalchemy
-from numpy import ndarray
-from PyQt5.QtCore import QObject, Qt, pyqtSignal
-from PyQt5.QtGui import QCloseEvent, QPixmap
-from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import QLabel
-from sqlalchemy.exc import IntegrityError, OperationalError
+from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtGui import QPixmap
 
-from cfg import JsonData, Static, ThumbData
+from cfg import JsonData, Static
 from database import CACHE, Dbase, OrderItem
-from fit_img import FitImg
-from signals import SignalsApp
-from utils import URunnable, UThreadPool, Utils
+from utils import URunnable, Utils
 
 
 class ImageData:
@@ -24,7 +18,6 @@ class ImageData:
 
 
 class WorkerSignals(QObject):
-    new_widget = pyqtSignal(ImageData)
     finished_ = pyqtSignal(list)
 
 

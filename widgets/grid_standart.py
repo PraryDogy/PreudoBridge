@@ -14,29 +14,15 @@ from fit_img import FitImg
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
-from ._finder_items import FinderItems
+from ._finder_items import FinderItems, ImageData
 from ._grid import Grid
 from ._thumb import Thumb, ThumbFolder
 
 MAX_QUERIES = 10
 
 
-class ImageData:
-    __slots__ = ["src", "pixmap"]
-
-    def __init__(self, src: str, pixmap: QPixmap):
-        self.src: str = src
-        self.pixmap: QPixmap = pixmap
-
-
 class WorkerSignals(QObject):
     new_widget = pyqtSignal(ImageData)
-    finished_ = pyqtSignal(list)
-
-
-class Flag:
-    can_run = False
-
 
 
 class LoadImages(URunnable):
