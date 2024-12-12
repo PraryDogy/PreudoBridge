@@ -379,31 +379,3 @@ class Grid(BaseMethods, QScrollArea):
         menu.addMenu(sort_menu)
 
         menu.exec_(self.mapToGlobal(a0.pos()))
-
-    def dragEnterEvent(self, a0: QDragEnterEvent | None) -> None:
-        if a0.mimeData():
-            a0.accept()
-        else:
-            a0.ignore()
-
-    def dropEvent(self, event: QDropEvent) -> None:
-        # Обработка файлов и папок из события
-        if event.mimeData().hasUrls():
-            urls = event.mimeData().urls()  # Получаем список URL (путь к файлам/папкам)
-            paths = [url.toLocalFile() for url in urls]
-            self.copy_folders(paths)
-            event.acceptProposedAction()
-        else:
-            event.ignore()
-
-    def copy_folders(self, paths):
-        for path in paths:
-
-            if os.path.isdir(path):
-
-                shutil.copytree(path, JsonData.root)
-
-            else:
-                shutil.copy2(path, JsonData.root)
-
-            SignalsApp.all_.load_standart_grid.emit(JsonData.root)
