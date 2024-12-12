@@ -2,20 +2,19 @@ import os
 import shutil
 
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import (QContextMenuEvent, QDrag, QDragEnterEvent, QDropEvent,
-                         QKeyEvent, QMouseEvent)
+from PyQt5.QtGui import QContextMenuEvent, QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import QFrame, QGridLayout, QMenu, QScrollArea, QWidget
 
-from cfg import Static, Dynamic, JsonData, ThumbData
+from cfg import Dynamic, JsonData, Static, ThumbData
 from database import OrderItem
 from signals import SignalsApp
 from utils import Utils
 
-from ._actions import (ChangeView, CopyPath, FavAdd, FavRemove, RevealInFinder,
-                       SortMenu, UpdateGrid)
+from ._actions import (ChangeView, CopyPath, FavAdd, FavRemove, Info,
+                       RevealInFinder, SortMenu, UpdateGrid)
 from ._base import BaseMethods, OpenWin
+from ._thumb import Thumb, ThumbFolder, ThumbSearch
 from .list_file_system import ListFileSystem
-from ._thumb import Info, Thumb, ThumbFolder, ThumbSearch
 
 SELECTED = "selected"
 
