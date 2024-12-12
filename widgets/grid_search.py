@@ -243,6 +243,7 @@ class GridSearch(Grid):
 
         wid.select.connect(lambda w=wid: self.select_new_widget(w))
         wid.open_in_view.connect(lambda w=wid: self.open_in_view(w))
+        wid.find_here.connect(self.find_here)
         self.add_widget_data(wid, self.row, self.col)
         self.grid_layout.addWidget(wid, self.row, self.col)
         SignalsApp.all_.path_labels_cmd.emit({"total": len(ThumbSearch.path_to_wid)})
