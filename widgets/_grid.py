@@ -14,10 +14,11 @@ from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 from ._actions import (ChangeView, ColorMenu, CopyPath, FavAdd, FavRemove,
-                       Info, OpenInApp, RatingMenu, RevealInFinder,
+                       FindHere, Info, OpenInApp, RatingMenu, RevealInFinder,
                        ShowInFolder, SortMenu, UpdateGrid, View)
-from ._base import BaseMethods, OpenWin, USvgWidget
+from ._base import BaseMethods, OpenWin, ULineEdit, USvgWidget, WinMinMax
 from .list_file_system import ListFileSystem
+from .win_find_here import WinFindHere
 
 SELECTED = "selected"
 COLORS_FONT = "font-size: 9px;"
@@ -108,6 +109,8 @@ class Thumb(OrderItem, QFrame):
     select = pyqtSignal()
     open_in_view = pyqtSignal()
     text_changed = pyqtSignal()
+    find_here = pyqtSignal()
+
     path_to_wid: dict[str, "Thumb"] = {}
 
     pixmap_size = 0
@@ -292,6 +295,12 @@ class Thumb(OrderItem, QFrame):
 
         sort_menu = SortMenu(parent=menu)
         menu.addMenu(sort_menu)
+
+        menu.addSeparator()
+
+        find_here = FindHere(parent=menu)
+        find_here.clicked_.connect(self.find_here.emit)
+        menu.addAction(find_here)
 
     def set_color_cmd(self, color: str):
 
@@ -725,6 +734,11 @@ class Grid(BaseMethods, QScrollArea):
         cmd_ = lambda: SignalsApp.all_.path_labels_cmd.emit({"src": JsonData.root})
         QTimer.singleShot(100, cmd_)
 
+    def find_here(self, *args):
+        self.find_here_win = WinFindHere()
+        Utils.center_win(parent=self.window(), child=self.find_here_win)
+        self.find_here_win.show()
+
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         wid: Thumb | ThumbFolder 
 
@@ -828,5 +842,11 @@ class Grid(BaseMethods, QScrollArea):
 
         sort_menu = SortMenu(parent=menu)
         menu.addMenu(sort_menu)
+
+        menu.addSeparator()
+
+        find_here = FindHere(parent=menu)
+        find_here.clicked_.connect(self.find_here)
+        menu.addAction(find_here)
 
         menu.exec_(self.mapToGlobal(a0.pos()))

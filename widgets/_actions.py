@@ -32,6 +32,7 @@ UPDATE_GRID_T = "Обновить"
 CHANGE_VIEW_T = "Вид"
 CHANGE_VIEW_GRID_T = "Сетка"
 CHANGE_VIEW_LIST_T = "Список"
+FIND_HERE_T = "Найти здесь"
 
 class Task_(URunnable):
     def __init__(self,  cmd_: callable):
@@ -315,3 +316,11 @@ class ChangeView(QMenu):
     def set_list(self):
         Dynamic.grid_view_type = 1
         SignalsApp.all_.load_normal_mode.emit("")
+
+
+class FindHere(QAction):
+    clicked_ = pyqtSignal()
+
+    def __init__(self, parent: QMenu):
+        super().__init__(parent=parent, text=FIND_HERE_T)
+        self.triggered.connect(self.clicked_.emit)
