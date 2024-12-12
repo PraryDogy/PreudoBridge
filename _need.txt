@@ -13,3 +13,6 @@ cmd k???
 
 в коллекциях в инфо "показать в finder"
 PARAGRAPH_SEP = "\u2029"
+
+COLLECTIONS
+Utils read jpg convert to RGB (grayscale troubles)
