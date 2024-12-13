@@ -406,10 +406,6 @@ class ThumbFolder(Thumb):
         img_wid.load(self.svg_path)
 
         for i in (self.img_wid, self.text_wid, self.color_wid):
-            # i.mouseReleaseEvent = self.mouse_release
-            # i.mousePressEvent = self.mouse_press
-            # i.mouseMoveEvent = self.mouse_move
-            # i.mouseDoubleClickEvent = self.mouse_d_click
             i.contextMenuEvent = self.mouse_r_click
 
     def fav_cmd(self, offset: int):
@@ -481,7 +477,10 @@ class ThumbSearch(Thumb):
     def __init__(self, src: str, size: int, mod: int, colors: str, rating: int):
         super().__init__(src, size, mod, colors, rating)
 
-    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+        for i in (self.img_wid, self.text_wid, self.color_wid):
+            i.contextMenuEvent = self.mouse_r_click
+
+    def mouse_r_click(self, a0: QContextMenuEvent | None) -> None:
         self.select.emit()
     
         menu_ = QMenu(parent=self)
