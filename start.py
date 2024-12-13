@@ -66,6 +66,10 @@ class CustomApp(QApplication):
 
 print("sleep in grid standart")
 
+# import faulthandler
+# faulthandler.enable()
+
+
 try:
     JsonData.init()
     Dbase.init_db()
