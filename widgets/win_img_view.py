@@ -363,16 +363,13 @@ class WinImgView(WinBase):
         UThreadPool.start(self.task_)
 
     def load_image_finished(self, image_data: ImageData):
-
+        self.task_count -= 1
         self.hide_text_label()
-
         if image_data.pixmap is None:
             self.show_text_label("Ошибка чтения изображения.")
-
         elif image_data.src == self.src:
             self.img_label.set_image(image_data.pixmap)
 
-        self.task_count -= 1
 
 # GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI
 
