@@ -298,6 +298,9 @@ class Thumb(OrderItem, QFrame):
 
         menu.addSeparator()
 
+        upd_ = UpdateGrid(menu, JsonData.root)
+        menu.addAction(upd_)
+
         find_here = FindHere(parent=menu)
         find_here.clicked_.connect(self.find_here.emit)
         menu.addAction(find_here)
@@ -402,6 +405,13 @@ class ThumbFolder(Thumb):
         img_wid = self.img_wid.findChild(USvgWidget)
         img_wid.load(self.svg_path)
 
+        for i in (self.img_wid, self.text_wid, self.color_wid):
+            # i.mouseReleaseEvent = self.mouse_release
+            # i.mousePressEvent = self.mouse_press
+            # i.mouseMoveEvent = self.mouse_move
+            # i.mouseDoubleClickEvent = self.mouse_d_click
+            i.contextMenuEvent = self.mouse_r_click
+
     def fav_cmd(self, offset: int):
         self.fav_action.triggered.disconnect()
         if 0 + offset == 1:
@@ -413,7 +423,7 @@ class ThumbFolder(Thumb):
             self.fav_action.setText("Добавить в избранное")
             self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))
 
-    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+    def mouse_r_click(self, a0: QContextMenuEvent | None) -> None:
         self.select.emit()
 
         menu = QMenu(parent=self)
@@ -449,15 +459,20 @@ class ThumbFolder(Thumb):
 
         menu.addSeparator()
 
-        update_ = UpdateGrid(parent=menu, src=JsonData.root)
-        menu.addAction(update_)
-
         change_view = ChangeView(menu, self.src)
         menu.addMenu(change_view)
         
         sort_menu = SortMenu(parent=menu)
         menu.addMenu(sort_menu)
 
+        menu.addSeparator()
+
+        update_ = UpdateGrid(parent=menu, src=JsonData.root)
+        menu.addAction(update_)
+
+        find_here = FindHere(parent=menu)
+        find_here.clicked_.connect(self.find_here.emit)
+        menu.addAction(find_here)
 
         menu.exec_(self.mapToGlobal(a0.pos()))
 
@@ -845,9 +860,6 @@ class Grid(BaseMethods, QScrollArea):
 
         menu.addSeparator()
 
-        upd_ = UpdateGrid(menu, JsonData.root)
-        menu.addAction(upd_)
-
         change_view = ChangeView(menu, JsonData.root)
         menu.addMenu(change_view)
 
@@ -855,6 +867,9 @@ class Grid(BaseMethods, QScrollArea):
         menu.addMenu(sort_menu)
 
         menu.addSeparator()
+
+        upd_ = UpdateGrid(menu, JsonData.root)
+        menu.addAction(upd_)
 
         find_here = FindHere(parent=menu)
         find_here.clicked_.connect(self.open_find_here_win)
