@@ -398,7 +398,11 @@ class BarBottom(QWidget):
 
     def sort_menu(self, *args):
         menu = SortMenu(parent=self.sort_wid)
-        menu.exec_()
+        menu.setWindowFlags(Qt.WindowType.Popup)
+
+        pont = self.sort_wid.rect().bottomLeft()
+        menu.move(self.sort_wid.mapToGlobal(pont))
+        menu.show()
 
     def add_total(self, value: int):
         self.total_text.setText(f"{TOTAL_T}: {str(value)}.")
