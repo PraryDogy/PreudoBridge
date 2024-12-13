@@ -45,8 +45,11 @@ class OrderItem:
         self.colors: str = colors
         self.rating: int = rating
 
+        # Извлечение имени файла из пути (например, "path/to/file.txt" -> "file.txt")
         self.name: str = os.path.split(self.src)[-1]
-        
+            
+        # Проверка: если путь ведёт к директории, то задаём тип FOLDER_TYPE.
+        # Иначе определяем тип по расширению файла (например, ".txt").    
         if os.path.isdir(src):
             self.type_ = Static.FOLDER_TYPE
         else:
@@ -55,31 +58,44 @@ class OrderItem:
     @classmethod
     def order_items(cls, order_items: list["OrderItem"]) -> list["OrderItem"]:
         
+        # Получаем список ключей сортировки из ORDER.
         order = list(ORDER.keys())
 
+        # Проверяем, есть ли заданный метод сортировки в списке доступных.
         if JsonData.sort not in order:
             print("database > OrderItem > order_items")
             print("Такой сортировки не существует:", JsonData.sort)
             print("Применяю сортировку из ORDER:", order[0])
             JsonData.sort = order[0]
 
+        # Если выбранная сортировка — по длине поля colors.
         if JsonData.sort == "colors":
+
+            # Ключ сортировки — длина строки атрибута colors.
             key = lambda x: len(getattr(x, JsonData.sort))
 
         elif JsonData.sort == "name":
+
+            # Используем метод sort_key для корректной обработки имён.
             key = lambda x: cls.sort_key(
                 x=getattr(x, JsonData.sort)
             )
 
+        # Для всех других типов сортировки (например, по числовым атрибутам).
         else:
+
+            # Сортируем по значению соответствующего атрибута объекта.
             key = lambda x: getattr(x, JsonData.sort)
 
+        # Учитываем параметр реверса сортировки.
         rev = JsonData.reversed
 
         return sorted(order_items, key=key, reverse=rev)
 
     @classmethod
     def sort_key(cls, x: str):
+        # Разбиваем строку на части (сначала числа, потом текст).
+        # Если часть — число, то преобразуем в int, иначе задаём бесконечность.
         parts = x.split()
         return int(parts[0]) if parts[0].isdigit() else float('inf')
 
