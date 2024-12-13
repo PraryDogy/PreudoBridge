@@ -21,8 +21,10 @@ ARROW = " \U0000203A"
 
 SORT_T = "Сортировка"
 TOTAL_T = "Всего"
-ASC = "по убыванию"
-DESC = "по возрастанию"
+ASC = "по убыв."
+# ASC = "\u2B23"
+DESC = "по возр."
+# DESC = "\u2B21"
 GO_T = "Перейти"
 
 class WorkerSignals(QObject):
