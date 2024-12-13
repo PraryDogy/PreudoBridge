@@ -259,11 +259,14 @@ class NextImageBtn(SwitchImageBtn):
 
 
 class WinImgView(WinBase):
+    task_count_limit = 10
+
     def __init__(self, src: str):
         super().__init__()
         self.setMinimumSize(QSize(400, 300))
         self.resize(Dynamic.ww_im, Dynamic.hh_im)
 
+        self.task_count = 0
         self.src: str = src
         self.wid: Thumb = Thumb.path_to_wid.get(src)
         self.wid.text_changed.connect(self.set_title)
@@ -353,6 +356,7 @@ class WinImgView(WinBase):
         self.load_image()
 
     def load_image(self):
+        self.task_count += 1
         self.task_ = LoadImage(self.src)
         cmd_ = lambda image_data: self.load_image_finished(image_data)
         self.task_.signals_.finished_.connect(cmd_)
@@ -368,6 +372,8 @@ class WinImgView(WinBase):
         elif image_data.src == self.src:
             self.img_label.set_image(image_data.pixmap)
 
+        self.task_count -= 1
+
 # GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI
 
     def hide_btns(self):
@@ -379,6 +385,9 @@ class WinImgView(WinBase):
         self.next_btn.hide()
 
     def switch_img(self, offset: int):
+        if self.task_count == WinImgView.task_count_limit:
+            return
+
         try:
             current_index: int = self.image_paths.index(self.src)
         except ValueError:
