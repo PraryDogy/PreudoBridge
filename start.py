@@ -60,7 +60,7 @@ class CustomApp(QApplication):
         return False
 
     def on_exit(self):
-        UThreadPool.pool.waitForDone()
+        UThreadPool.stop_all()
         JsonData.write_config()
 
 print("sleep in grid standart")

@@ -387,4 +387,13 @@ class UThreadPool:
 
     @classmethod
     def start(cls, runnable: URunnable):
-        cls.pool.start(runnable) 
+        cls.current.append(runnable)
+        cls.pool.start(runnable)
+
+    @classmethod
+    def stop_all(cls):
+        for i in cls.current:
+            i.should_run = False
+
+        cls.current.clear()
+        cls.pool.waitForDone()
