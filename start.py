@@ -63,18 +63,21 @@ class CustomApp(QApplication):
         UThreadPool.stop_all()
         JsonData.write_config()
 
+try:
+    JsonData.init()
+    Dbase.init_db()
+    app = CustomApp(sys.argv)
 
-JsonData.init()
-Dbase.init_db()
-app = CustomApp(sys.argv)
+    SignalsApp.init()
+    UThreadPool.init()
+    ex = SimpleFileExplorer()
+    ex.show()
 
-SignalsApp.init()
-UThreadPool.init()
-ex = SimpleFileExplorer()
-ex.show()
+    # Запуск приложения
+    exit_code = app.exec()
 
-# Запуск приложения
-exit_code = app.exec()
+    # Завершаем приложение с кодом выхода
+    sys.exit(exit_code)
 
-# Завершаем приложение с кодом выхода
-sys.exit(exit_code)
+except RuntimeError as e:
+    Utils.print_error(parent=None, error=e)
