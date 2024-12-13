@@ -111,6 +111,11 @@ class LoadImages(URunnable):
             else:
                 self.remove_db_images.append((db_src, hash_path))
 
+
+            # времянка # времянка # времянка # времянка # времянка # времянка # времянка # времянка # времянка # времянка 
+            from time import sleep
+            sleep(3)
+
         # order items имеют другую сортировку нежели order_items?
 
 

@@ -188,7 +188,8 @@ class SimpleFileExplorer(QWidget):
         self.grid.setFocus()
 
     def grid_close(self):
-        self.grid.disconnect()
+        # что ты этим имел ввиду # что ты этим имел ввиду # что ты этим имел ввиду # что ты этим имел ввиду
+        # self.grid.disconnect()
         self.grid.close()
 
     def scroll_up_scroll_value(self, value: int):

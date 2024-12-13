@@ -63,6 +63,15 @@ class CustomApp(QApplication):
         UThreadPool.stop_all()
         JsonData.write_config()
 
+import faulthandler
+
+faulthandler.enable()  # by default will dump on sys.stderr, but can also print to a regular file
+
+
+def cause_segfault():  # https://codegolf.stackexchange.com/a/4694/115779
+    import ctypes
+    ctypes.string_at(0)
+
 
 JsonData.init()
 Dbase.init_db()
