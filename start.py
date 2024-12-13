@@ -73,4 +73,8 @@ UThreadPool.init()
 ex = SimpleFileExplorer()
 ex.show()
 
-app.exec()
+# Запуск приложения
+exit_code = app.exec()
+
+# Завершаем приложение с кодом выхода
+sys.exit(exit_code)
