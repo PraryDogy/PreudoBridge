@@ -150,6 +150,7 @@ class CustomLabel(QLabel):
 
         self.setSelection(0, len(self.text()))
         src = self.selectedText().replace(Static.PARAGRAPH_SEP, "")
+        src = src.replace(Static.LINE_FEED, "")
 
         menu = QMenu(self)
 

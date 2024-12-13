@@ -220,6 +220,7 @@ class CopyText(QAction):
 
     def cmd_(self):
         selection = self.wid.selectedText().replace(Static.PARAGRAPH_SEP, "")
+        selection = selection.replace(Static.LINE_FEED, "")
         Utils.write_to_clipboard(selection)
 
 
