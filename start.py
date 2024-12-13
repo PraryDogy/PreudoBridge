@@ -63,6 +63,8 @@ class CustomApp(QApplication):
         UThreadPool.stop_all()
         JsonData.write_config()
 
+print("sleep in grid standart")
+
 try:
     JsonData.init()
     Dbase.init_db()
