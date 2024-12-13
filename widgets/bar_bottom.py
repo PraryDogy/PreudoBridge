@@ -20,10 +20,10 @@ from ._base import OpenWin, ULineEdit, USlider, USvgWidget, WinMinMax
 ARROW = " \U0000203A"
 
 SORT_T = "Сортировка"
-TOTAL_T = "всего"
+TOTAL_T = "Всего"
 ASC = "по убыванию"
 DESC = "по возрастанию"
-
+GO_T = "Перейти"
 
 class WorkerSignals(QObject):
     finished_ = pyqtSignal(str)
@@ -319,19 +319,8 @@ class Total(QFrame):
         self.go_btn = USvgWidget(src=Static.GOTO_SVG, size=13)
         h_lay.addWidget(self.go_btn)
 
-        self.sort_wid = QLabel()
-        h_lay.addWidget(self.sort_wid)
-
-        self.total_text = QLabel()
-        h_lay.addWidget(self.total_text)
-
-    def add_total(self, value: int):
-        self.total_text.setText(f"{TOTAL_T}: {str(value)}")
-
-    def add_sort(self):
-        sort_type = ORDER.get(JsonData.sort).get("text").lower()
-        rev = ASC if JsonData.reversed else DESC
-        self.sort_wid.setText(f"{SORT_T}: {sort_type} ({rev}),")
+        self.go_label = QLabel(text=GO_T)
+        h_lay.addWidget(self.go_label)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
         self.clicked_.emit()
@@ -341,10 +330,10 @@ class BarBottom(QWidget):
     def __init__(self):
         super().__init__()
 
-        # потому что в 3 строке 3 виджета: тотал, распорка, слайдер
+        # количетсво виджетов в 3 строке + 1
         colspan = 6
 
-        # 1 строка # 1 строка # 1 строка # 1 строка # 1 строка # 1 строка
+        # 1 строка путь к файлу или папке
 
         grid_lay = QGridLayout()
         grid_lay.setContentsMargins(10, 5, 10, 0)
@@ -365,7 +354,7 @@ class BarBottom(QWidget):
         self.path_lay.setSpacing(5)
         path_wid.setLayout(self.path_lay)
 
-        # 2 строка, разделительная линия # 2 строка, разделительная линия
+        # 2 строка сепаратор
 
         row, col, rowspan = 1, 0, 1
         sep = QFrame()
@@ -373,8 +362,11 @@ class BarBottom(QWidget):
         sep.setFixedHeight(1)
         grid_lay.addWidget(sep, row, col, rowspan, colspan)
 
+        # 3 строка: перейти, всего, сортировка, слайдер
 
-        # 2 строка: перейти, всего, сортировка, слайдер
+        spacer = QSpacerItem(
+            0, 0, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed
+        )
 
         row, col = 2, 0
         self.total = Total()
@@ -382,15 +374,34 @@ class BarBottom(QWidget):
         grid_lay.addWidget(self.total, row, col)
 
         row, col = 2, 1
-        spacer = QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         grid_lay.addItem(spacer, row, col)
 
+
         row, col = 2, 2
+        self.total_text = QLabel()
+        grid_lay.addWidget(self.total_text, row, col)
+
+        row, col = 2, 3
+        self.sort_wid = QLabel()
+        grid_lay.addWidget(self.sort_wid, row, col)
+
+        row, col = 2, 4
+        grid_lay.addItem(spacer, row, col)
+
+        row, col = 2, 5
         self.slider = CustomSlider()
         self.slider.setFixedSize(70, 15)
         grid_lay.addWidget(self.slider, row, col)
 
         SignalsApp.all_._path_labels_cmd.connect(self.path_labels_cmd)
+
+    def add_total(self, value: int):
+        self.total_text.setText(f"{TOTAL_T}: {str(value)}.")
+
+    def add_sort(self):
+        sort_type = ORDER.get(JsonData.sort).get("text").lower()
+        rev = ASC if JsonData.reversed else DESC
+        self.sort_wid.setText(f"{SORT_T}: {sort_type} ({rev})")
 
     def open_go_win(self, *args):
         self.win = WinGo()
@@ -403,9 +414,9 @@ class BarBottom(QWidget):
             self.create_path_labels(data.get("src"))
 
         if data.get("total"):
-            self.total.add_total(value=data.get("total"))
+            self.add_total(value=data.get("total"))
 
-        self.total.add_sort()
+        self.add_sort()
 
     def create_path_labels(self, src: str):
         Utils.clear_layout(self.path_lay)
