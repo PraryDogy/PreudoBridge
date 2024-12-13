@@ -107,100 +107,106 @@ class OrderItem:
 
 
 class Dbase:
-    engine: sqlalchemy.Engine = None
+    # Это класс для работы с базой данных
+    engine: sqlalchemy.Engine = None  # Инициализация переменной для движка SQLAlchemy.
 
     @classmethod
     def init_db(cls):
+        # Инициализация базы данных, создание соединения и таблиц.
         cls.engine = sqlalchemy.create_engine(
-            f"sqlite:///{Static.DB_FILE}",
-            echo=False,
+            f"sqlite:///{Static.DB_FILE}",  # Используется SQLite база с файлом из Static.DB_FILE.
+            echo=False,  # Отключение логирования SQL запросов.
             connect_args={
-                "check_same_thread": False,
-                "timeout": 15
-                }
-                )
-        METADATA.create_all(cls.engine)
-        cls.toggle_wal(False)
-        cls.check_tables()
-        cls.check_values()
+                "check_same_thread": False,  # Разрешение на использование соединений в разных потоках.
+                "timeout": 15  # Тайм-аут для подключения (15 секунд).
+            }
+        )
+        METADATA.create_all(cls.engine)  # Создание всех таблиц по метаданным.
+        cls.toggle_wal(False)  # Отключаем WAL (write-ahead logging).
+        cls.check_tables()  # Проверка таблиц в базе.
+        cls.check_values()  # Проверка значений в базе.
 
     @classmethod
     def toggle_wal(cls, value: bool):
+        # Переключение режима журнала (WAL или DELETE).
         with cls.engine.connect() as conn:
             if value:
-                conn.execute(sqlalchemy.text("PRAGMA journal_mode=WAL"))
+                conn.execute(sqlalchemy.text("PRAGMA journal_mode=WAL"))  # Включаем WAL.
             else:
-                conn.execute(sqlalchemy.text("PRAGMA journal_mode=DELETE"))
+                conn.execute(sqlalchemy.text("PRAGMA journal_mode=DELETE"))  # Включаем обычный режим.
 
     @classmethod
     def clear_db(cls):
+        # Очищение базы данных, удаление данных из таблицы CACHE.
         conn = cls.engine.connect()
 
         try:
-            q_del_cache = sqlalchemy.delete(CACHE)
-            conn.execute(q_del_cache)
+            q_del_cache = sqlalchemy.delete(CACHE)  # Подготовка запроса на удаление всех данных из таблицы CACHE.
+            conn.execute(q_del_cache)  # Выполнение запроса.
 
         except OperationalError as e:
+            # Обработка ошибок, если возникнут проблемы с удалением.
             Utils.print_error(cls, e)
-            conn.rollback()
+            conn.rollback()  # Откат транзакции.
             return False
 
-        conn.commit()
-        conn.execute(sqlalchemy.text("VACUUM"))
-        conn.close()
+        conn.commit()  # Подтверждение изменений.
+        conn.execute(sqlalchemy.text("VACUUM"))  # Освобождение неиспользуемого пространства.
+        conn.close()  # Закрытие соединения.
 
         return True
 
     @classmethod
     def check_tables(cls):
-        inspector = sqlalchemy.inspect(cls.engine)
+        # Проверка наличия необходимых таблиц в базе данных.
+        inspector = sqlalchemy.inspect(cls.engine)  # Создаём инспектора для проверки базы.
 
-        TABLES = [CACHE]
+        TABLES = [CACHE]  # Список всех нужных таблиц.
 
-        db_tables = inspector.get_table_names()
-        res: bool = (list(i.name for i in TABLES) == db_tables)
+        db_tables = inspector.get_table_names()  # Получаем список таблиц из базы данных.
+        res: bool = (list(i.name for i in TABLES) == db_tables)  # Сравниваем с необходимыми таблицами.
 
         if not res:
+            # Если таблицы не соответствуют, создаём новую базу данных.
             print("Не соответствие таблиц, создаю новую дб")
-            os.remove(Static.DB_FILE)
-            cls.init_db()
+            os.remove(Static.DB_FILE)  # Удаляем старую базу.
+            cls.init_db()  # Инициализируем новую базу.
             return
 
         for table in TABLES:
-            clmns = list(clmn.name for clmn in table.columns)
-            db_clmns = list(clmn.get("name") for clmn in inspector.get_columns(table.name))
-            res = bool(db_clmns == clmns)
+            # Проверка соответствия колонок в таблицах.
+            clmns = list(clmn.name for clmn in table.columns)  # Получаем список нужных колонок.
+            db_clmns = list(clmn.get("name") for clmn in inspector.get_columns(table.name))  # Колонки из базы.
+            res = bool(db_clmns == clmns)  # Сравниваем.
 
             if not res:
+                # Если колонки не соответствуют, создаём новую базу данных.
                 print(f"Не соответствие колонок в {table.name}, создаю новую дб")
-                os.remove(Static.DB_FILE)
-                cls.init_db()
+                os.remove(Static.DB_FILE)  # Удаляем старую базу.
+                cls.init_db()  # Инициализируем новую базу.
                 break
-
 
     @classmethod
     def check_values(cls):
-        # проверяю сам себя, все ли колонки учитываются при создании
-        # новой записи в БД
-        values = cls.get_cache_values(*["" for i in range(0, 7)])
-        assert list(values.keys()) == CACHE_CLMNS, "проверь get_cache_values"
+        # Проверка, что все колонки правильно учитываются при создании новой записи в базе.
+        values = cls.get_cache_values(*["" for i in range(0, 7)])  # Генерация пустых значений для проверки.
+        assert list(values.keys()) == CACHE_CLMNS, "проверь get_cache_values"  # Проверяем соответствие колонок.
 
     @classmethod
     def get_cache_values(
         cls, src, hash_path, name, type_, size, mod, resol
-        ) -> dict[str, str]:
-
+    ) -> dict[str, str]:
+        # Возвращает словарь значений для новой записи в базе данных.
         return {
-            "src": src,
-            "hash_path": hash_path,
-            "root": os.path.dirname(src),
-            "catalog": "",
-            "name": name,
-            "type_": type_,
-            "size": size,
-            "mod": mod,
-            "resol": resol,
-            "colors": "",
-            "rating": 0
-            }
-        
+            "src": src,  # Путь к файлу.
+            "hash_path": hash_path,  # Хэш пути.
+            "root": os.path.dirname(src),  # Корневая директория файла.
+            "catalog": "",  # Каталог (пока пустой).
+            "name": name,  # Имя файла.
+            "type_": type_,  # Тип файла.
+            "size": size,  # Размер файла.
+            "mod": mod,  # Дата изменения файла.
+            "resol": resol,  # Разрешение (если применимо).
+            "colors": "",  # Цвета (пока пустые).
+            "rating": 0  # Рейтинг (по умолчанию 0).
+        }

@@ -267,7 +267,7 @@ class PathItem(QWidget):
         if distance < QApplication.startDragDistance():
             return
 
-        self.text_wid.selected_style()
+        self.solid_style()
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
 
@@ -281,7 +281,7 @@ class PathItem(QWidget):
 
         self.drag.setMimeData(self.mime_data)
         self.drag.exec_(Qt.DropAction.CopyAction)
-        self.text_wid.default_style()
+        self.default_style()
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
         menu = QMenu(parent=self)
