@@ -62,6 +62,7 @@ class CustomApp(QApplication):
     def on_exit(self):
         UThreadPool.stop_all()
         JsonData.write_config()
+        QApplication.instance().quit()
 
 print("sleep in grid standart")
 
@@ -79,7 +80,7 @@ try:
     exit_code = app.exec()
 
     # Завершаем приложение с кодом выхода
-    sys.exit(exit_code)
+    # sys.exit(exit_code)
 
 except RuntimeError as e:
     Utils.print_error(parent=None, error=e)
