@@ -285,6 +285,7 @@ class SortMenu(QMenu):
     def cmd_sort(self, sort: str):
         JsonData.sort = sort
         SignalsApp.all_.sort_grid.emit()
+        SignalsApp.all_.path_labels_cmd.emit({})
 
     def cmd_revers(self, reversed: bool):
         JsonData.reversed = reversed
