@@ -14,7 +14,7 @@ from database import ORDER
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
-from ._actions import CopyPath, Info, RevealInFinder, View
+from ._actions import CopyPath, Info, RevealInFinder, View, SortMenu
 from ._base import OpenWin, ULineEdit, USlider, USvgWidget, WinMinMax
 
 ARROW = " \U0000203A"
@@ -383,6 +383,7 @@ class BarBottom(QWidget):
 
         row, col = 2, 3
         self.sort_wid = QLabel()
+        self.sort_wid.mouseReleaseEvent = self.sort_menu
         grid_lay.addWidget(self.sort_wid, row, col)
 
         row, col = 2, 4
@@ -394,6 +395,10 @@ class BarBottom(QWidget):
         grid_lay.addWidget(self.slider, row, col)
 
         SignalsApp.all_._path_labels_cmd.connect(self.path_labels_cmd)
+
+    def sort_menu(self, *args):
+        menu = SortMenu(parent=self.sort_wid)
+        menu.exec_()
 
     def add_total(self, value: int):
         self.total_text.setText(f"{TOTAL_T}: {str(value)}.")
