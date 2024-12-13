@@ -31,7 +31,9 @@ class Static:
     NEXT_SYM = "\u276F"
     UP_CURVE = "\u2934" 
     SETT_SYM = "\U00002699"
+
     PARAGRAPH_SEP = "\u2029"
+    LINE_FEED  = "\u000a"
 
     IMAGES_DIR = "images"
     IMG_SVG = os.path.join(IMAGES_DIR, "img.svg")
