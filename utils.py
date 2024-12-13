@@ -147,6 +147,7 @@ class ReadImage(Err):
         try:
             img = psd_tools.PSDImage.open(path)
             img = img.composite()
+            img = img.convert("RGB")
             return np.array(img)
 
         except Exception as e:
