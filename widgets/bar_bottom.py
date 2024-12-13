@@ -51,6 +51,7 @@ class PathFinderThread(URunnable):
                 self.signals_.finished_.emit("")
             elif self.result:
                 self.signals_.finished_.emit(self.result)
+
         except RuntimeError as e:
             Utils.print_error(parent=None, error=e)
 
@@ -239,11 +240,8 @@ class PathItem(QWidget):
         self.text_wid.setStyleSheet("")
 
     def collapse(self):
-        try:
-            if not self.text_wid.underMouse():
-                self.text_wid.setMinimumWidth(self.min_wid)
-        except RuntimeError:
-            ...
+        if not self.text_wid.underMouse():
+            self.text_wid.setMinimumWidth(self.min_wid)
 
     def enterEvent(self, a0):
         self.expand()

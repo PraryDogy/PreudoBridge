@@ -147,19 +147,11 @@ class ListStandart(QListWidget):
             print("no images")
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
-
-        try:
-            self.loading_lbl.deleteLater()
-        except RuntimeError:
-            ...
-
+        self.loading_lbl.deleteLater()
         return super().closeEvent(a0)
 
     def resizeEvent(self, a0):
-        try:
-            Utils.center_win(self, self.loading_lbl)
-        except RuntimeError:
-            ...
+        Utils.center_win(self, self.loading_lbl)
         return super().resizeEvent(a0)
     
     def rearrange(self, *args, **kwargs):

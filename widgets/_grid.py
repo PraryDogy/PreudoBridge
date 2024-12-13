@@ -184,10 +184,7 @@ class Thumb(OrderItem, QFrame):
         cls.color_wid_h = ThumbData.COLOR_WID_H
 
     def set_pixmap(self, pixmap: QPixmap):
-        try:
-            self.svg_wid.deleteLater()
-        except RuntimeError:
-            return
+        self.svg_wid.deleteLater()
 
         self.img_wid = QLabel()
         self.img_wid.setPixmap(Utils.pixmap_scale(pixmap, self.pixmap_size))

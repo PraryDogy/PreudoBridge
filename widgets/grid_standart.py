@@ -150,11 +150,7 @@ class LoadImages(URunnable):
                 stmt = self.get_insert_stmt(*args)
                 self.insert_count_data.append((stmt, hash_path, small_img_array))
 
-                try:
-                    self.signals_.new_widget.emit(ImageData(src, pixmap))
-                except RuntimeError:
-                    ...
-                # SignalsApp.all_.progressbar_cmd.emit({"cmd": "plus_one"})
+                self.signals_.new_widget.emit(ImageData(src, pixmap))
 
                 insert_count += 1
 
@@ -352,11 +348,7 @@ class GridStandart(Grid):
                 widget.set_pixmap(pixmap=image_data.pixmap)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
-
-        try:
-            self.loading_lbl.deleteLater()
-        except RuntimeError:
-            ...
+        self.loading_lbl.deleteLater()
 
         for i in self.tasks:
             i.should_run = False
@@ -364,8 +356,5 @@ class GridStandart(Grid):
         return super().closeEvent(a0)
 
     def resizeEvent(self, a0):
-        try:
-            Utils.center_win(self, self.loading_lbl)
-        except RuntimeError:
-            ...
+        Utils.center_win(self, self.loading_lbl)
         return super().resizeEvent(a0)
