@@ -14,3 +14,8 @@ cmd k???
 
 Что дает секция?
 коллекции клик переделать с тумбнаила на имг лбл и текст лбл
+
+
+lldb
+(lldb) target create env/bin/python
+(lldb) run start.py 
