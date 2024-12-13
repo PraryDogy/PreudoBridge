@@ -10,7 +10,9 @@ METADATA = sqlalchemy.MetaData()
 
 CACHE = sqlalchemy.Table(
     "cache", METADATA,
-    # комменты нужны только для сортировки. где есть коммент - сортировка возможна
+    # Определяем таблицу "cache" с её метаданными.
+    # Комментарии колонок используются только для сортировки.
+    # Где есть комментарий — сортировка возможна.
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
     sqlalchemy.Column("src", sqlalchemy.Text, unique=True),
     sqlalchemy.Column("hash_path", sqlalchemy.Text),
@@ -23,18 +25,22 @@ CACHE = sqlalchemy.Table(
     sqlalchemy.Column("resol", sqlalchemy.Integer),
     sqlalchemy.Column("colors", sqlalchemy.Text, nullable=False, comment="Цвета"),
     sqlalchemy.Column("rating", sqlalchemy.Integer, nullable=False, comment="Рейтинг")
-    )
+)
 
+# ORDER создаётся как словарь, где ключ — это имя колонки с комментарием,
+# а значение — словарь с текстом комментария и индексом колонки.
 ORDER: dict[str, dict[str, int]] = {
-    clmn.name: {"text": clmn.comment, "index": ind}
-    for ind, clmn in enumerate(CACHE.columns)
-    if clmn.comment
-    }
+    clmn.name: {"text": clmn.comment, "index": ind}  # Включаем только колонки с комментариями.
+    for ind, clmn in enumerate(CACHE.columns)  # Перебираем все колонки в CACHE.
+    if clmn.comment  # Фильтруем колонки с комментариями.
+}
 
+# Список всех колонок из CACHE, начиная со второй (пропускаем "id").
 CACHE_CLMNS = [
-    i.name
-    for i in CACHE.columns
-][1:]
+    i.name  # Извлекаем имена колонок.
+    for i in CACHE.columns  # Перебираем все колонки.
+][1:]  # Пропускаем первый элемент (id).
+
 
 class OrderItem:
     def __init__(self, src: str, size: int, mod: int, colors: str, rating: int):
