@@ -170,6 +170,8 @@ class Thumb(OrderItem, QFrame):
         self.setup()
         self.set_no_frame()
 
+        # self.setStyleSheet("background: gray;")
+
     @classmethod
     def calculate_size(cls):
         ind = Dynamic.pixmap_size_ind
