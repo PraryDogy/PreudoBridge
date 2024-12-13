@@ -402,5 +402,6 @@ class UThreadPool:
 
         for i in cls.current:
             if i.should_run:
-                QTimer.singleShot(100, cls.stop_all)
-                return
+                print("wait for stop all")
+                cls.stop_all()
+                break
