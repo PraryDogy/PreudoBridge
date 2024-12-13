@@ -42,11 +42,14 @@ class LoadThumbnail(URunnable):
         conn = Dbase.engine.connect()
 
         q = sqlalchemy.select(CACHE.c.hash_path).where(CACHE.c.src == self.src)
-        res = conn.execute(q).scalar() or ""
+        res = conn.execute(q).scalar() or None
 
         conn.close()
 
-        img_array = Utils.read_image_hash(res)
+        if res is not None:
+            img_array = Utils.read_image_hash(res)
+        else:
+            img_array = None
 
         if img_array is None:
             pixmap = None
