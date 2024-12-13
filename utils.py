@@ -401,12 +401,7 @@ class UThreadPool:
 
         for i in cls.current:
             if i.is_running:
-                print(i)
                 i.should_run = False
-
-        for i in cls.current:
-            if i.is_running:
-                print("wait for stop all")
                 run_again = True
                 break
 
