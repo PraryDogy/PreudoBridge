@@ -397,11 +397,12 @@ class UThreadPool:
 
     @classmethod
     def stop_all(cls):
+        return
         for i in cls.current:
             i.should_run = False
 
-        for i in cls.current:
-            if i.should_run:
-                print("wait for stop all")
-                cls.stop_all()
-                break
+        # for i in cls.current:
+            # if i.should_run:
+                # print("wait for stop all")
+                # cls.stop_all()
+                # break
