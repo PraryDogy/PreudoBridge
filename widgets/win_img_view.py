@@ -39,26 +39,31 @@ class LoadThumbnail(URunnable):
 
     @URunnable.set_running_state
     def run(self):
-        conn = Dbase.engine.connect()
+        try:
+            conn = Dbase.engine.connect()
 
-        q = sqlalchemy.select(CACHE.c.hash_path).where(CACHE.c.src == self.src)
-        res = conn.execute(q).scalar() or None
+            q = sqlalchemy.select(CACHE.c.hash_path)
+            q = q.where(CACHE.c.src == self.src)
+            res = conn.execute(q).scalar() or None
 
-        conn.close()
+            conn.close()
 
-        if res is not None:
-            img_array = Utils.read_image_hash(res)
-        else:
-            img_array = None
+            if res is not None:
+                img_array = Utils.read_image_hash(res)
+            else:
+                img_array = None
 
-        if img_array is None:
-            pixmap = None
+            if img_array is None:
+                pixmap = None
 
-        else:
-            pixmap = Utils.pixmap_from_array(img_array)
+            else:
+                pixmap = Utils.pixmap_from_array(img_array)
 
-        image_data = ImageData(self.src, pixmap)
-        self.signals_.finished_.emit(image_data)
+            image_data = ImageData(self.src, pixmap)
+            self.signals_.finished_.emit(image_data)
+
+        except RuntimeError as e:
+            Utils.print_error(parent=None, error=e)
 
 
 class LoadImage(URunnable):
@@ -71,30 +76,31 @@ class LoadImage(URunnable):
 
     @URunnable.set_running_state
     def run(self):
-        if self.src not in self.cache:
+        try:
+            if self.src not in self.cache:
 
-            img_array = Utils.read_image(self.src)
+                img_array = Utils.read_image(self.src)
 
-            if img_array is None:
-                pixmap = None
+                if img_array is None:
+                    pixmap = None
+
+                else:
+                    pixmap = Utils.pixmap_from_array(img_array)
+                    self.cache[self.src] = pixmap
 
             else:
-                pixmap = Utils.pixmap_from_array(img_array)
-                self.cache[self.src] = pixmap
+                pixmap = self.cache.get(self.src)
 
-        else:
-            pixmap = self.cache.get(self.src)
+            if len(self.cache) > 50:
+                first_img = list(self.cache.keys())[0]
+                self.cache.pop(first_img)
 
-        if len(self.cache) > 50:
-            first_img = list(self.cache.keys())[0]
-            self.cache.pop(first_img)
+            image_data = ImageData(self.src, pixmap)
 
-        image_data = ImageData(self.src, pixmap)
-
-        try:
             self.signals_.finished_.emit(image_data)
-        except RuntimeError:
-            ...
+
+        except RuntimeError as e:
+            Utils.print_error(parent=None, error=e)
 
 
 class ImageWidget(QLabel):

@@ -50,16 +50,20 @@ class SearchFinder(URunnable):
 
     @URunnable.set_running_state
     def run(self):
-        self.setup_text()
-        self.walk_dir()
+        try:
+            self.setup_text()
+            self.walk_dir()
 
-        if self.insert_count > 0:
-            self.insert_count_cmd()
+            if self.insert_count > 0:
+                self.insert_count_cmd()
 
-        self.conn.close()
+            self.conn.close()
 
-        if self.should_run:
-            SignalsApp.all_.search_finished.emit(str(self.search_text))
+            if self.should_run:
+                SignalsApp.all_.search_finished.emit(str(self.search_text))
+
+        except RuntimeError as e:
+            Utils.print_error(parent=None, error=e)
 
     def walk_dir(self):
         for root, _, files in os.walk(JsonData.root):

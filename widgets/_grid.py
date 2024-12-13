@@ -102,7 +102,10 @@ class UpdateThumbData(URunnable):
         conn.close()
 
     def finalize(self):
-        self.cmd_()
+        try:
+            self.cmd_()
+        except RuntimeError as e:
+            Utils.print_error(parent=None, error=e)
 
 
 class Thumb(OrderItem, QFrame):

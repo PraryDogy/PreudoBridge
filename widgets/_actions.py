@@ -41,7 +41,10 @@ class Task_(URunnable):
 
     @URunnable.set_running_state
     def run(self):
-        self.cmd_()
+        try:
+            self.cmd_()
+        except RuntimeError as e:
+            Utils.print_error(parent=None, error=e)
 
 
 class UAction(QAction):

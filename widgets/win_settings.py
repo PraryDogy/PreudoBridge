@@ -35,6 +35,12 @@ class GetSizer(URunnable):
 
     @URunnable.set_running_state
     def run(self):
+        try:
+            self.main()
+        except RuntimeError as e:
+            Utils.print_error(parent=None, error=e)
+
+    def main(self):
         total_size = 0
 
         if os.path.exists(Static.HASH_DIR):

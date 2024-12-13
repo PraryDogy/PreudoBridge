@@ -38,6 +38,12 @@ class FolderSize(URunnable):
 
     @URunnable.set_running_state
     def run(self):
+        try:
+            self.main()
+        except RuntimeError as e:
+            Utils.print_error(parent=None, error=e)
+
+    def main(self):
         total = 0
 
         for root, _, files in os.walk(self.src):

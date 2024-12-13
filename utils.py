@@ -388,15 +388,16 @@ class UThreadPool:
     @classmethod
     def start(cls, runnable: URunnable):
 
-        for i in cls.current:
-            if not i.is_running:
-                cls.current.remove(i)
+        # for i in cls.current:
+        #     if not i.is_running:
+        #         cls.current.remove(i)
 
-        cls.current.append(runnable)
+        # cls.current.append(runnable)
         cls.pool.start(runnable) 
 
     @classmethod
     def stop_all(cls):
+        return
         for i in cls.current:
             if i.is_running:
                 i.should_run = False

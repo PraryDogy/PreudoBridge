@@ -43,13 +43,16 @@ class PathFinderThread(URunnable):
 
     @URunnable.set_running_state
     def run(self):
-        self._path_finder()
-        if not self.result:
-            self.signals_.finished_.emit("")
-        elif self.result in self.volumes:
-            self.signals_.finished_.emit("")
-        elif self.result:
-            self.signals_.finished_.emit(self.result)
+        try:
+            self._path_finder()
+            if not self.result:
+                self.signals_.finished_.emit("")
+            elif self.result in self.volumes:
+                self.signals_.finished_.emit("")
+            elif self.result:
+                self.signals_.finished_.emit(self.result)
+        except RuntimeError as e:
+            Utils.print_error(parent=None, error=e)
 
     def _path_finder(self):
         src = os.sep + self.src.replace("\\", os.sep).strip().strip(os.sep)

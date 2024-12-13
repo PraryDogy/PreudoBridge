@@ -56,22 +56,21 @@ class LoadImages(URunnable):
 
     @URunnable.set_running_state
     def run(self):
-        self.get_db_dataset()
-        self.compare_db_and_finder_items()
+        try:
+            self.get_db_dataset()
+            self.compare_db_and_finder_items()
 
-        # remove images необходимо выполнять перед insert_queries_cmd
-        # т.к. у нас sqlalchemy.update отсутствует
-        # и обновление происходит через удаление и добавление заново
-        self.remove_images()
-        self.create_new_images()
-        self.insert_count_cmd()
+            # remove images необходимо выполнять перед insert_queries_cmd
+            # т.к. у нас sqlalchemy.update отсутствует
+            # и обновление происходит через удаление и добавление заново
+            self.remove_images()
+            self.create_new_images()
+            self.insert_count_cmd()
 
-        self.conn.close()
-
-        # if self.should_run:
-        #     print("завершено по доброй воле")
-        # else:
-        #     print("принудительно")
+            self.conn.close()
+        
+        except RuntimeError as e:
+            Utils.print_error(parent=None, error=e)
 
     def get_db_dataset(self):
 
