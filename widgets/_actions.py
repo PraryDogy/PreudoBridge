@@ -290,6 +290,8 @@ class SortMenu(QMenu):
     def cmd_revers(self, reversed: bool):
         JsonData.reversed = reversed
         SignalsApp.all_.sort_grid.emit()
+        SignalsApp.all_._path_labels_cmd.emit({})
+
 
 class ChangeView(QMenu):
     def __init__(self, parent: QMenu, src: str):

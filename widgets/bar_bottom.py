@@ -1,7 +1,7 @@
 import os
 from difflib import SequenceMatcher
 
-from PyQt5.QtCore import (QEvent, QMimeData, QObject, Qt, QTimer, QUrl,
+from PyQt5.QtCore import (QMimeData, QObject, QPoint, Qt, QTimer, QUrl,
                           pyqtSignal)
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
                          QPixmap)
@@ -14,7 +14,7 @@ from database import ORDER
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
-from ._actions import CopyPath, Info, RevealInFinder, View, SortMenu
+from ._actions import CopyPath, Info, RevealInFinder, SortMenu, View
 from ._base import OpenWin, ULineEdit, USlider, USvgWidget, WinMinMax
 
 ARROW = " \U0000203A"
@@ -398,10 +398,14 @@ class BarBottom(QWidget):
 
     def sort_menu(self, *args):
         menu = SortMenu(parent=self.sort_wid)
-        menu.setWindowFlags(Qt.WindowType.Popup)
 
-        pont = self.sort_wid.rect().bottomLeft()
-        menu.move(self.sort_wid.mapToGlobal(pont))
+        widget_top_left = self.sort_wid.rect().topLeft()
+
+        menu_top_left = self.sort_wid.mapToGlobal(
+            widget_top_left) - QPoint(0, menu.sizeHint().height()
+        )
+        menu.move(menu_top_left)
+
         menu.show()
 
     def add_total(self, value: int):
