@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QHBoxLayout,
                              QSpacerItem, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static, ThumbData
+from database import ORDER
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
@@ -17,6 +18,11 @@ from ._actions import CopyPath, Info, RevealInFinder, View
 from ._base import OpenWin, ULineEdit, USlider, USvgWidget, WinMinMax
 
 ARROW = " \U0000203A"
+
+SORT_T = "Сортировка"
+TOTAL_T = "всего"
+ASC = "по убыванию"
+DESC = "по возрастанию"
 
 
 class WorkerSignals(QObject):
@@ -303,34 +309,32 @@ class Total(QFrame):
 
     def __init__(self):
         super().__init__()
-        self.setObjectName("total")
         self.setFixedHeight(15)
 
         h_lay = QHBoxLayout()
         h_lay.setContentsMargins(2, 0, 2, 0)
+        h_lay.setSpacing(5)
         self.setLayout(h_lay)
 
         self.go_btn = USvgWidget(src=Static.GOTO_SVG, size=13)
         h_lay.addWidget(self.go_btn)
 
+        self.sort_wid = QLabel()
+        h_lay.addWidget(self.sort_wid)
+
         self.total_text = QLabel()
         h_lay.addWidget(self.total_text)
 
+    def add_total(self, value: int):
+        self.total_text.setText(f"{TOTAL_T}: {str(value)}")
+
+    def add_sort(self):
+        sort_type = ORDER.get(JsonData.sort).get("text").lower()
+        rev = ASC if JsonData.reversed else DESC
+        self.sort_wid.setText(f"{SORT_T}: {sort_type} ({rev}),")
+
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
         self.clicked_.emit()
-
-    def enterEvent(self, a0: QEvent | None) -> None:
-        self.setStyleSheet(
-            f"""
-            #total {{
-                background: {Static.GRAY_SLIDER};
-                border-radius: 3px;
-            }}
-            """
-        )
-    
-    def leaveEvent(self, a0: QEvent | None) -> None:
-        self.setStyleSheet("")
 
 
 class BarBottom(QWidget):
@@ -338,7 +342,7 @@ class BarBottom(QWidget):
         super().__init__()
 
         # потому что в 3 строке 3 виджета: тотал, распорка, слайдер
-        colspan = 3
+        colspan = 6
 
         # 1 строка # 1 строка # 1 строка # 1 строка # 1 строка # 1 строка
 
@@ -370,7 +374,7 @@ class BarBottom(QWidget):
         grid_lay.addWidget(sep, row, col, rowspan, colspan)
 
 
-        # 2 строка, "всего" + "перейти" # 2 строка, "всего" + "перейти"
+        # 2 строка: перейти, всего, сортировка, слайдер
 
         row, col = 2, 0
         self.total = Total()
@@ -378,7 +382,7 @@ class BarBottom(QWidget):
         grid_lay.addWidget(self.total, row, col)
 
         row, col = 2, 1
-        spacer = QSpacerItem(0, 0, QSizePolicy.Policy.Expanding)
+        spacer = QSpacerItem(1, 1, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         grid_lay.addItem(spacer, row, col)
 
         row, col = 2, 2
@@ -399,7 +403,9 @@ class BarBottom(QWidget):
             self.create_path_labels(data.get("src"))
 
         if data.get("total"):
-            self.total.total_text.setText("Всего: " + str(data.get("total")))
+            self.total.add_total(value=data.get("total"))
+
+        self.total.add_sort()
 
     def create_path_labels(self, src: str):
         Utils.clear_layout(self.path_lay)
