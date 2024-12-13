@@ -387,6 +387,15 @@ class UThreadPool:
 
     @classmethod
     def start(cls, runnable: URunnable):
+
+        new_current = [
+            i
+            for i in cls.current
+            if i.is_running
+        ]
+
+        cls.current = new_current
+    
         cls.current.append(runnable)
         cls.pool.start(runnable)
 
