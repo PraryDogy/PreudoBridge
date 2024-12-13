@@ -65,12 +65,23 @@ class OrderItem:
 
         if JsonData.sort == "colors":
             key = lambda x: len(getattr(x, JsonData.sort))
+
+        elif JsonData.sort == "name":
+            key = lambda x: cls.sort_key(
+                x=getattr(x, JsonData.sort)
+            )
+
         else:
             key = lambda x: getattr(x, JsonData.sort)
 
         rev = JsonData.reversed
 
         return sorted(order_items, key=key, reverse=rev)
+
+    @classmethod
+    def sort_key(cls, x: str):
+        parts = x.split()
+        return int(parts[0]) if parts[0].isdigit() else float('inf')
 
 
 class Dbase:

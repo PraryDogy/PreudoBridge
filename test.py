@@ -1,19 +1,3 @@
-from typing import Dict, Callable
-
-
-def test():
-    print("test")
-
-def best():
-    print("best")
-
-
-tester: Dict[int, Callable] = {
-    1: test,
-    2: best
-}
-
-a = tester.get(1)
-
-if a is not None:
-    a()
+data = ["1 Solo", "2 Redmi", "11 Test"]
+sorted_data = sorted(data, key=lambda x: int(x.split()[0]))
+print(sorted_data)
