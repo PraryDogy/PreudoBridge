@@ -142,17 +142,17 @@ class Thumb(OrderItem, QFrame):
         self.setLayout(self.v_lay)
 
 
-        self.img_wid = QFrame()
-        self.v_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.img_frame = QFrame()
+        self.v_lay.addWidget(self.img_frame, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.img_lay = QVBoxLayout()
-        self.img_lay.setContentsMargins(0, 0, 0, 0)
-        self.img_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.img_wid.setLayout(self.img_lay)
+        self.img_frame_lay = QVBoxLayout()
+        self.img_frame_lay.setContentsMargins(0, 0, 0, 0)
+        self.img_frame_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.img_frame.setLayout(self.img_frame_lay)
 
         self.svg_path = Static.IMG_SVG
-        svg_wid = USvgWidget(src=self.svg_path, size=self.pixmap_size)
-        self.img_lay.addWidget(svg_wid)
+        self.svg_wid = USvgWidget(src=self.svg_path, size=self.pixmap_size)
+        self.img_frame_lay.addWidget(self.svg_wid)
 
         self.text_wid = TextWidget()
         self.v_lay.addWidget(self.text_wid, alignment=Qt.AlignmentFlag.AlignCenter)
@@ -160,7 +160,7 @@ class Thumb(OrderItem, QFrame):
         self.color_wid = ColorLabel()
         self.v_lay.addWidget(self.color_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        for i in (self.img_wid, self.text_wid, self.color_wid):
+        for i in (self.img_frame, self.text_wid, self.color_wid):
             i.mouseReleaseEvent = self.mouse_release
             i.mousePressEvent = self.mouse_press
             i.mouseMoveEvent = self.mouse_move
@@ -179,16 +179,14 @@ class Thumb(OrderItem, QFrame):
         cls.color_wid_h = ThumbData.COLOR_WID_H
 
     def set_pixmap(self, pixmap: QPixmap):
-        svg = self.img_wid.findChild(USvgWidget)
-
         try:
-            svg.deleteLater()
+            self.svg_wid.deleteLater()
         except RuntimeError:
             return
 
-        img_wid = QLabel()
-        img_wid.setPixmap(Utils.pixmap_scale(pixmap, self.pixmap_size))
-        self.img_lay.addWidget(img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.img_wid = QLabel()
+        self.img_wid.setPixmap(Utils.pixmap_scale(pixmap, self.pixmap_size))
+        self.img_frame_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.img = pixmap
 
@@ -209,20 +207,20 @@ class Thumb(OrderItem, QFrame):
         )
 
         # рамка вокруг pixmap при выделении Thumb
-        self.img_wid.setFixedSize(
+        self.img_frame.setFixedSize(
             self.pixmap_size + ThumbData.OFFSET,
             self.pixmap_size + ThumbData.OFFSET
         )
 
-        img_lbl = self.img_wid.findChild(QLabel)
-
-        if isinstance(img_lbl, QLabel):
-            img_lbl.setPixmap(
+        if hasattr(self, "img_wid"):
+            self.img_wid.setPixmap(
                 Utils.pixmap_scale(
                     pixmap=self.img,
                     size=self.pixmap_size
                 )
             )
+        else:
+            self.svg_wid.setFixedSize(self.pixmap_size, self.pixmap_size)
 
     def set_frame(self):
         self.text_wid.setStyleSheet(
@@ -233,7 +231,7 @@ class Thumb(OrderItem, QFrame):
                 padding: 2px;
             """
         )
-        self.img_wid.setStyleSheet(
+        self.img_frame.setStyleSheet(
             f"""
                 background: {Static.BLUE};
                 {TEXT_FONT};
@@ -250,7 +248,7 @@ class Thumb(OrderItem, QFrame):
                 padding: 2px;
             """
         )
-        self.img_wid.setStyleSheet(
+        self.img_frame.setStyleSheet(
             f"""
                 background: transparent;
                 {TEXT_FONT};
@@ -374,7 +372,7 @@ class Thumb(OrderItem, QFrame):
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
 
-        img_wid = self.img_wid.findChild(QLabel)
+        img_wid = self.img_frame.findChild(QLabel)
 
         if isinstance(img_wid, QLabel):
             self.drag.setPixmap(img_wid.pixmap())
@@ -402,10 +400,10 @@ class ThumbFolder(Thumb):
         super().__init__(src, size, mod, colors, rating)
 
         self.svg_path = Static.FOLDER_SVG
-        img_wid = self.img_wid.findChild(USvgWidget)
+        img_wid = self.img_frame.findChild(USvgWidget)
         img_wid.load(self.svg_path)
 
-        for i in (self.img_wid, self.text_wid, self.color_wid):
+        for i in (self.img_frame, self.text_wid, self.color_wid):
             i.contextMenuEvent = self.mouse_r_click
 
     def fav_cmd(self, offset: int):
@@ -477,7 +475,7 @@ class ThumbSearch(Thumb):
     def __init__(self, src: str, size: int, mod: int, colors: str, rating: int):
         super().__init__(src, size, mod, colors, rating)
 
-        for i in (self.img_wid, self.text_wid, self.color_wid):
+        for i in (self.img_frame, self.text_wid, self.color_wid):
             i.contextMenuEvent = self.mouse_r_click
 
     def mouse_r_click(self, a0: QContextMenuEvent | None) -> None:

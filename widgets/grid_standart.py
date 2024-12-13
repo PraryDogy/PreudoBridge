@@ -291,7 +291,7 @@ class GridStandart(Grid):
                     )
 
                 if os.path.ismount(order_item.src) or order_item.src == sys_disk:
-                    img_wid = wid.img_wid.findChild(QSvgWidget)
+                    img_wid = wid.img_frame.findChild(QSvgWidget)
                     img_wid.load(Static.HDD_SVG)
 
 
