@@ -129,9 +129,8 @@ class SimpleFileExplorer(QWidget):
             self.load_standart_grid()
 
     def load_search_grid(self, search_text: str):
+        self.grid.close()
         self.bar_top.filters_btn.reset_filters()
-
-        self.grid_close()
 
         t = [
             f"🟠\tИдет поиск: \"{search_text}\" в",
@@ -163,12 +162,12 @@ class SimpleFileExplorer(QWidget):
         QTimer.singleShot(1500, lambda: self.grid.select_new_widget(filepath))
 
     def load_standart_grid(self, root: str = None):
+        self.grid.close()
+
         if root:
             JsonData.root = root
 
         self.setWindowTitle(os.path.basename(JsonData.root))
-        self.grid_close()
-
         SignalsApp.all_.fav_cmd.emit({"cmd": "select", "src": JsonData.root})
 
         self.bar_top.search_wid.clear_search.emit()
@@ -188,9 +187,9 @@ class SimpleFileExplorer(QWidget):
         self.grid.setFocus()
 
     def grid_close(self):
+        ...
         # что ты этим имел ввиду # что ты этим имел ввиду # что ты этим имел ввиду # что ты этим имел ввиду
         # self.grid.disconnect()
-        self.grid.close()
 
     def scroll_up_scroll_value(self, value: int):
         if value == 0:
