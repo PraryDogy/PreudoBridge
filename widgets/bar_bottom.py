@@ -390,7 +390,7 @@ class BarBottom(QWidget):
         self.slider.setFixedSize(70, 15)
         grid_lay.addWidget(self.slider, row, col)
 
-        SignalsApp.all_.path_labels_cmd.connect(self.path_labels_cmd)
+        SignalsApp.all_._path_labels_cmd.connect(self.path_labels_cmd)
 
     def open_go_win(self, *args):
         self.win = WinGo()

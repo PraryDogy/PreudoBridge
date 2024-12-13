@@ -1,5 +1,6 @@
 from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtWidgets import QWidget
+from typing import Literal
 
 class Signals(QObject):
     load_normal_mode = pyqtSignal(str)
@@ -15,10 +16,9 @@ class Signals(QObject):
     fav_cmd = pyqtSignal(dict)
     search_finished = pyqtSignal(str)
     show_in_folder = pyqtSignal(str)
-    # progressbar_cmd = pyqtSignal(object)
     open_path = pyqtSignal(str)
     new_history = pyqtSignal(str)
-    path_labels_cmd = pyqtSignal(dict)
+    _path_labels_cmd = pyqtSignal(dict)
 
     move_slider = pyqtSignal(int)
 

@@ -261,7 +261,7 @@ class GridStandart(Grid):
         self.order_items = order_items
         self.total = len(order_items)
 
-        SignalsApp.all_.path_labels_cmd.emit(
+        SignalsApp.all_._path_labels_cmd.emit(
             {"src": JsonData.root, "total": self.total}
         )
 
