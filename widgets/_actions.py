@@ -60,8 +60,8 @@ class RevealInFinder(UAction):
 
     def cmd_(self):
         cmd_ = lambda: subprocess.call(["open", "-R", self.src])
-        task_ = Task_(cmd_)
-        UThreadPool.start(task_)
+        self.task_ = Task_(cmd_)
+        UThreadPool.start(self.task_)
 
 
 class Info(UAction):
@@ -151,8 +151,8 @@ class OpenInApp(QMenu):
 
     def cmd_(self, app_path: str):
         cmd_ = lambda: subprocess.call(["open", "-a", app_path, self.src])
-        task_ = Task_(cmd_)
-        UThreadPool.start(task_)
+        self.task_ = Task_(cmd_)
+        UThreadPool.start(self.task_)
 
 
 class ColorMenu(QMenu):

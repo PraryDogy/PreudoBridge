@@ -340,11 +340,11 @@ class GridStandart(Grid):
         self.select_after_list()
         
     def start_load_images(self, cut_order_items: list[OrderItem]):
-        task_ = LoadImages(order_items=cut_order_items)
-        self.tasks.append(task_)
+        self.load_images_task_ = LoadImages(order_items=cut_order_items)
+        self.tasks.append(self.load_images_task_)
         cmd_ = lambda image_data: self.set_pixmap(image_data)
-        task_.signals_.new_widget.connect(cmd_)
-        UThreadPool.start(task_)
+        self.load_images_task_.signals_.new_widget.connect(cmd_)
+        UThreadPool.start(self.load_images_task_)
     
     def set_pixmap(self, image_data: ImageData):
         widget = Thumb.path_to_wid.get(image_data.src)

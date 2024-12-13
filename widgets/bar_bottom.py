@@ -151,9 +151,9 @@ class WinGo(WinMinMax):
             SignalsApp.all_.open_path.emit(path)
             self.close()
         else:
-            path_thread = PathFinderThread(path)
-            path_thread.signals_.finished_.connect(self.finalize)
-            UThreadPool.start(path_thread)
+            self.task_ = PathFinderThread(path)
+            self.task_.signals_.finished_.connect(self.finalize)
+            UThreadPool.start(self.task_)
 
     def finalize(self, res: str):
         SignalsApp.all_.open_path.emit(res)
