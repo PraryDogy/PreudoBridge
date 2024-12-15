@@ -316,46 +316,36 @@ class BarTop(QFrame):
         self.history: list[str] = []
         self.index_: int = 0
 
-        self.grid_layout = QGridLayout()
+        self.grid_layout = QHBoxLayout()
         self.grid_layout.setSpacing(10)
         self.grid_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.grid_layout)
 
-        self.clmn += 1
         self.history_btns = HistoryBtns()
         self.history_btns.clicked_.connect(self.navigate)
-        self.grid_layout.addWidget(self.history_btns, 0, self.clmn)
+        self.grid_layout.addWidget(self.history_btns)
 
-        self.clmn += 1
         self.level_up_btn = QPushButton(Static.UP_CURVE)
         self.level_up_btn.setFixedWidth(50)
         self.level_up_btn.clicked.connect(self.level_up)
-        self.grid_layout.addWidget(self.level_up_btn, 0, self.clmn)
+        self.grid_layout.addWidget(self.level_up_btn)
 
-        self.clmn += 1
-        self.grid_layout.setColumnStretch(self.clmn, 10)
-        self.grid_layout.addItem(QSpacerItem(1, 1), 0, self.clmn)
+        self.grid_layout.addStretch()
 
-        self.clmn += 1
         self.grid_view_type_btn = ViewTypeBtn()
-        self.grid_layout.addWidget(self.grid_view_type_btn, 0, self.clmn)
+        self.grid_layout.addWidget(self.grid_view_type_btn)
 
-        self.clmn += 1
         self.filters_btn = FiltersBtn()
-        self.grid_layout.addWidget(self.filters_btn, 0, self.clmn)
+        self.grid_layout.addWidget(self.filters_btn)
 
-        self.clmn += 1
         self.sett_btn = QPushButton(parent=self, text=SETT_SYM)
         self.sett_btn.clicked.connect(self.open_settings_win)
-        self.grid_layout.addWidget(self.sett_btn, 0, self.clmn)
+        self.grid_layout.addWidget(self.sett_btn)
 
-        self.clmn += 1
-        self.grid_layout.setColumnStretch(self.clmn, 10)
-        self.grid_layout.addItem(QSpacerItem(1, 1), 0, self.clmn)
+        self.grid_layout.addStretch()
 
-        self.clmn += 1
         self.search_wid = SearchWidget()
-        self.grid_layout.addWidget(self.search_wid, 0, self.clmn)
+        self.grid_layout.addWidget(self.search_wid)
 
         SignalsApp.all_.new_history.connect(self.new_history)
         SignalsApp.all_.new_history.emit(JsonData.root)
