@@ -426,7 +426,7 @@ class BarBottom(QWidget):
         self.main_lay.insertWidget(
             0,
             self.path_wid,
-            alignment=Qt.AlignmentFlag.AlignLeft
+            # alignment=Qt.AlignmentFlag.AlignLeft
         )
 
         self.path_lay = QHBoxLayout()
@@ -435,7 +435,6 @@ class BarBottom(QWidget):
         self.path_wid.setLayout(self.path_lay)
 
         root = src.strip(os.sep).split(os.sep)
-        ln = len(root)
         path_items: list[PathItem] = []
 
         for x, name in enumerate(root, start=1):
@@ -451,7 +450,7 @@ class BarBottom(QWidget):
                 icon = Static.HDD_SVG
                 path_item.add_arrow()
 
-            elif x == ln:
+            elif x == len(root):
                 if os.path.isdir(src):
                     icon = Static.FOLDER_SVG
                 else:
@@ -471,3 +470,6 @@ class BarBottom(QWidget):
             path_item.img_wid.load(icon)
             path_items.append(path_item)
             self.path_lay.addWidget(path_item)
+
+
+        self.path_lay.addSpacerItem(self.get_h_spacer())
