@@ -472,5 +472,4 @@ class BarBottom(QWidget):
                 path_item.add_arrow()
 
             path_item.img_wid.load(icon)
-
             self.path_lay.addWidget(path_item)
