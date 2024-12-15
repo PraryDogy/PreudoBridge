@@ -334,7 +334,10 @@ class BarTop(QFrame):
 
         self.grid_view_type_btn = ViewTypeBtn()
         self.main_lay.addWidget(self.grid_view_type_btn)
-        self.grid_view_type_btn.setContentsMargins(0, 0, 0, 0)
+
+        # x = self.grid_view_type_btn.x()
+        # y = self.grid_view_type_btn.y() + 10
+        # self.grid_view_type_btn.move(x, y)
 
         self.filters_btn = FiltersBtn()
         self.main_lay.addWidget(self.filters_btn)
