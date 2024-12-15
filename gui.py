@@ -225,10 +225,10 @@ class SimpleFileExplorer(QWidget):
                 QApplication.instance().quit()
         
             elif a0.key() == Qt.Key.Key_1:
-                self.bar_top.grid_view_type_btn.set_view_type_cmd(0)
+                self.bar_top.view_type_btn.set_view_type_cmd(0)
             
             elif a0.key() == Qt.Key.Key_2:
-                self.bar_top.grid_view_type_btn.set_view_type_cmd(1)
+                self.bar_top.view_type_btn.set_view_type_cmd(1)
 
         elif a0.key() == Qt.Key.Key_Escape:
             self.setFocus()

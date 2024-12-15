@@ -353,6 +353,7 @@ class BarBottom(QWidget):
         bottom_wid = QWidget()
         bottom_lay = QHBoxLayout()
         bottom_lay.setContentsMargins(0, 0, 0, 0)
+        bottom_lay.setSpacing(3)
         bottom_wid.setLayout(bottom_lay)
         self.main_lay.addWidget(bottom_wid)
 

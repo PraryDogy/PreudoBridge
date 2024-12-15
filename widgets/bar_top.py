@@ -332,12 +332,25 @@ class BarTop(QWidget):
 
         self.main_lay.addStretch()
 
-        self.grid_view_type_btn = ViewTypeBtn()
-        self.main_lay.addWidget(self.grid_view_type_btn)
+  
+        # чтобы кнопки смены вида (сетка или список)
+        # стояли вровень с остальными кнопками  в баре
+        # мы прибегаем в созданию родительского виджета и лейаута
+        # для кнопок смены вида
 
-        # x = self.grid_view_type_btn.x()
-        # y = self.grid_view_type_btn.y() + 10
-        # self.grid_view_type_btn.move(x, y)
+        view_type_parent = QWidget()
+        self.level_up_btn.adjustSize()
+        level_up_h = self.level_up_btn.height()
+        view_type_parent.setFixedHeight(level_up_h)
+        self.main_lay.addWidget(view_type_parent)
+
+        view_type_lay = QHBoxLayout()
+        view_type_lay.setContentsMargins(0, 0, 0, 0)
+        view_type_parent.setLayout(view_type_lay)
+
+        self.view_type_btn = ViewTypeBtn()
+        view_type_lay.addWidget(self.view_type_btn)
+
 
         self.filters_btn = FiltersBtn()
         self.main_lay.addWidget(self.filters_btn)
