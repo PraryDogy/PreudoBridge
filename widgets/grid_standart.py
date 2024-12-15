@@ -52,17 +52,14 @@ class LoadImages(URunnable):
         self.db_items: dict[tuple, str] = {}
         self.insert_count_data: list[tuple[sqlalchemy.Insert, str, ndarray]] = []
 
-        # self.conn = Dbase.engine.connect()
+        self.conn = Dbase.engine.connect()
 
     @URunnable.set_running_state
     def run(self):
-        return
         try:
             self.main()
         except RuntimeError as e:
             Utils.print_error(parent=None, error=e)
-
-        print("finished")
 
     def main(self):
         self.get_db_dataset()
