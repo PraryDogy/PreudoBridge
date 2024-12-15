@@ -305,7 +305,7 @@ class HistoryBtns(QWidget):
         self.setLayout(h_lay)
 
 
-class BarTop(QFrame):
+class BarTop(QWidget):
 
     def __init__(self):
         super().__init__()
