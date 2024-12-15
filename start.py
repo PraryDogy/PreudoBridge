@@ -9,9 +9,21 @@ class System_:
     @classmethod
     def catch_error_in_app(cls, exctype, value, tb) -> None:
 
-        STARS = "*" * 40
-        ABOUT = "Отправьте это сообщение в telegram @evlosh или на почту loshkarev@miuz.ru"
+        if exctype == RuntimeError:
+            # в приложении мы игнорируем эту ошибку
+            return
+
         ERROR = "".join(traceback.format_exception(exctype, value, tb))
+
+        ABOUT = [
+            "Отправьте это сообщение в telegram @evlosh",
+            "или на почту loshkarev@miuz.ru"
+        ]
+
+        ABOUT = " ".join(ABOUT)
+
+        STARS = "*" * 40
+
 
         SUMMARY_MSG = "\n".join([ERROR, STARS, ABOUT])
         
@@ -67,7 +79,6 @@ class CustomApp(QApplication):
     def on_exit(self):
         JsonData.write_config()
         UThreadPool.stop_all()
-        # QApplication.instance().quit()
 
 
 print("sleep in grid standart")
