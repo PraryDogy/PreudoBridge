@@ -177,7 +177,7 @@ class SimpleFileExplorer(QWidget):
             self.scroll_up_scroll_value
         )
 
-        self.folders_tree_wid.expand_path(JsonData.root)
+        # self.folders_tree_wid.expand_path(JsonData.root)
 
         self.r_lay.insertWidget(1, self.grid)
         self.grid.setFocus()
