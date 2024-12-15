@@ -76,16 +76,16 @@ class SimpleFileExplorer(QWidget):
         right_wid = QWidget()
         main_lay.addWidget(right_wid)
 
-        self.r_lay = QGridLayout()
+        self.r_lay = QVBoxLayout()
         self.r_lay.setContentsMargins(5, 0, 0, 0)
         self.r_lay.setSpacing(0)
         right_wid.setLayout(self.r_lay)
         
         self.bar_top = BarTop()
-        self.r_lay.addWidget(self.bar_top, 0, 0, alignment=Qt.AlignmentFlag.AlignTop)
+        self.r_lay.addWidget(self.bar_top, alignment=Qt.AlignmentFlag.AlignTop)
         
         self.bar_bottom = BarBottom()
-        self.r_lay.addWidget(self.bar_bottom, 2, 0, alignment=Qt.AlignmentFlag.AlignBottom)
+        self.r_lay.insertWidget(2, self.bar_bottom, alignment=Qt.AlignmentFlag.AlignBottom)
 
         self.scroll_up = QLabel(parent=self, text=Static.UP_ARROW_SYM)
         self.scroll_up.hide()
@@ -135,7 +135,7 @@ class SimpleFileExplorer(QWidget):
         ww = self.get_grid_width()
         self.grid = GridSearch(width=ww, search_text=search_text)
         self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
-        self.r_lay.addWidget(self.grid, 1, 0)
+        self.r_lay.insertWidget(1, self.grid)
         self.grid.setFocus()
 
     def blink_title(self):
@@ -176,13 +176,8 @@ class SimpleFileExplorer(QWidget):
 
         self.folders_tree_wid.expand_path(JsonData.root)
 
-        self.r_lay.addWidget(self.grid, 1, 0)
+        self.r_lay.insertWidget(1, self.grid)
         self.grid.setFocus()
-
-    def grid_close(self):
-        ...
-        # что ты этим имел ввиду # что ты этим имел ввиду # что ты этим имел ввиду # что ты этим имел ввиду
-        # self.grid.disconnect()
 
     def scroll_up_scroll_value(self, value: int):
         if value == 0:
