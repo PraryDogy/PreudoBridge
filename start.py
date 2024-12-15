@@ -7,16 +7,23 @@ import traceback
 class System_:
 
     @classmethod
-    def catch_error(cls, *args) -> None:
+    def catch_error_in_app(cls, exctype, value, tb) -> None:
 
         STARS = "*" * 40
         ABOUT = "Отправьте это сообщение в telegram @evlosh или на почту loshkarev@miuz.ru"
-        ERROR = traceback.format_exception(*args)
+        ERROR = "".join(traceback.format_exception(exctype, value, tb))
 
-        SUMMARY_MSG = "\n".join([*ERROR, STARS, ABOUT])
+        SUMMARY_MSG = "\n".join([ERROR, STARS, ABOUT])
         
         script = "scripts/error_msg.scpt"
         subprocess.run(["osascript", script, SUMMARY_MSG])
+
+    def catch_error_in_proj(exctype, value, tb):
+        if exctype == RuntimeError:
+            error_message = "".join(traceback.format_exception(exctype, value, tb))
+            print(error_message)
+        else:
+            sys.__excepthook__(exctype, value, tb)
 
     @classmethod
     def set_plugin_path(cls) -> bool:
@@ -28,17 +35,15 @@ class System_:
             return True
         else:
             return False
-        
-    @classmethod
-    def set_excepthook(cls) -> None:
-        sys.excepthook = cls.catch_error
 
 
 if System_.set_plugin_path():
-    System_.set_excepthook()
+    sys.excepthook = System_.catch_error_in_app
+else:
+    sys.excepthook = System_.catch_error_in_proj
 
 
-from PyQt5.QtCore import QEvent, QLibraryInfo, QObject, QTranslator
+from PyQt5.QtCore import QEvent, QObject
 from PyQt5.QtWidgets import QApplication
 
 from cfg import JsonData
@@ -65,17 +70,8 @@ class CustomApp(QApplication):
         QApplication.instance().quit()
 
 
-def exception_hook(exctype, value, tb):
-    if exctype == RuntimeError:
-        error_message = "".join(traceback.format_exception(exctype, value, tb))
-        print("RuntimeError перехвачен и обработан:", error_message)
-    else:
-        # Для остальных ошибок вызываем стандартный обработчик
-        sys.__excepthook__(exctype, value, tb)
-
 print("sleep in grid standart")
 
-sys.excepthook = exception_hook
 JsonData.init()
 Dbase.init_db()
 app = CustomApp(sys.argv)
