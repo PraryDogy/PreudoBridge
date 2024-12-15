@@ -114,8 +114,8 @@ class LoadImages(URunnable):
 
 
             # времянка # времянка # времянка # времянка # времянка # времянка # времянка # времянка # времянка # времянка 
-            from time import sleep
-            sleep(1)
+            # from time import sleep
+            # sleep(1)
 
 
     def create_new_images(self):
