@@ -92,8 +92,8 @@ class SimpleFileExplorer(QWidget):
         self.bar_top = BarTop()
         self.r_lay.addWidget(self.bar_top, 0, 0, alignment=Qt.AlignmentFlag.AlignTop)
         
-        # self.bar_bottom = BarBottom()
-        # self.r_lay.addWidget(self.bar_bottom, 2, 0, alignment=Qt.AlignmentFlag.AlignBottom)
+        self.bar_bottom = BarBottom()
+        self.r_lay.addWidget(self.bar_bottom, 2, 0, alignment=Qt.AlignmentFlag.AlignBottom)
 
         self.scroll_up = QLabel(parent=self, text=Static.UP_ARROW_SYM)
         self.scroll_up.hide()

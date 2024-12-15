@@ -66,25 +66,15 @@ class CustomApp(QApplication):
 
 print("sleep in grid standart")
 
-# import faulthandler
-# faulthandler.enable()
 
+JsonData.init()
+Dbase.init_db()
+app = CustomApp(sys.argv)
 
-try:
-    JsonData.init()
-    Dbase.init_db()
-    app = CustomApp(sys.argv)
+SignalsApp.init()
+UThreadPool.init()
+ex = SimpleFileExplorer()
+ex.show()
 
-    SignalsApp.init()
-    UThreadPool.init()
-    ex = SimpleFileExplorer()
-    ex.show()
-
-    # Запуск приложения
-    exit_code = app.exec()
-
-    # Завершаем приложение с кодом выхода
-    # sys.exit(exit_code)
-
-except RuntimeError as e:
-    Utils.print_error(parent=None, error=e)
+# Запуск приложения
+exit_code = app.exec()
