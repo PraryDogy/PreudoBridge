@@ -52,25 +52,30 @@ class LoadImages(URunnable):
         self.db_items: dict[tuple, str] = {}
         self.insert_count_data: list[tuple[sqlalchemy.Insert, str, ndarray]] = []
 
-        self.conn = Dbase.engine.connect()
+        # self.conn = Dbase.engine.connect()
 
     @URunnable.set_running_state
     def run(self):
+        return
         try:
-            self.get_db_dataset()
-            self.compare_db_and_finder_items()
-
-            # remove images необходимо выполнять перед insert_queries_cmd
-            # т.к. у нас sqlalchemy.update отсутствует
-            # и обновление происходит через удаление и добавление заново
-            self.remove_images()
-            self.create_new_images()
-            self.insert_count_cmd()
-
-            self.conn.close()
-        
+            self.main()
         except RuntimeError as e:
             Utils.print_error(parent=None, error=e)
+
+        print("finished")
+
+    def main(self):
+        self.get_db_dataset()
+        self.compare_db_and_finder_items()
+
+        # remove images необходимо выполнять перед insert_queries_cmd
+        # т.к. у нас sqlalchemy.update отсутствует
+        # и обновление происходит через удаление и добавление заново
+        self.remove_images()
+        self.create_new_images()
+        self.insert_count_cmd()
+
+        self.conn.close()
 
     def get_db_dataset(self):
 
@@ -114,8 +119,6 @@ class LoadImages(URunnable):
             # времянка # времянка # времянка # времянка # времянка # времянка # времянка # времянка # времянка # времянка 
             from time import sleep
             sleep(3)
-
-        # order items имеют другую сортировку нежели order_items?
 
 
     def create_new_images(self):

@@ -332,6 +332,7 @@ class Total(QFrame):
 class BarBottom(QWidget):
     def __init__(self):
         super().__init__()
+        self.setFixedHeight(50)
 
         # количество виджетов в 3 строке + 1
         self.colspan = 6
