@@ -64,9 +64,18 @@ class CustomApp(QApplication):
         JsonData.write_config()
         QApplication.instance().quit()
 
+
+def exception_hook(exctype, value, tb):
+    if exctype == RuntimeError:
+        error_message = "".join(traceback.format_exception(exctype, value, tb))
+        print("RuntimeError перехвачен и обработан:", error_message)
+    else:
+        # Для остальных ошибок вызываем стандартный обработчик
+        sys.__excepthook__(exctype, value, tb)
+
 print("sleep in grid standart")
 
-
+sys.excepthook = exception_hook
 JsonData.init()
 Dbase.init_db()
 app = CustomApp(sys.argv)
