@@ -295,6 +295,7 @@ class Pixmap:
 
 class Utils(Hash, Pixmap, ReadImage):
 
+    # вызывает segmentation fault
     @classmethod
     def clear_layout(cls, layout: QVBoxLayout):
         if layout:

@@ -333,40 +333,25 @@ class BarBottom(QWidget):
     def __init__(self):
         super().__init__()
 
-        # количетсво виджетов в 3 строке + 1
-        colspan = 6
+        # количество виджетов в 3 строке + 1
+        self.colspan = 6
 
-        # 1 строка путь к файлу или папке
+        self.grid_lay = QGridLayout()
+        self.grid_lay.setContentsMargins(10, 5, 10, 0)
+        self.grid_lay.setSpacing(5)
+        self.setLayout(self.grid_lay)
 
-        grid_lay = QGridLayout()
-        grid_lay.setContentsMargins(10, 5, 10, 0)
-        grid_lay.setSpacing(5)
-        self.setLayout(grid_lay)
-
-        row, col, rowspan = 0, 0, 1
-        path_wid = QWidget()
-        grid_lay.addWidget(
-            path_wid,
-            row, col,
-            rowspan, colspan,
-            Qt.AlignmentFlag.AlignLeft
-        )
-
-        self.path_lay = QHBoxLayout()
-        self.path_lay.setContentsMargins(0, 0, 0, 0)
-        self.path_lay.setSpacing(5)
-        path_wid.setLayout(self.path_lay)
+        # 1 строка виджет с путями
+        self.create_path_labels(JsonData.root)
 
         # 2 строка сепаратор
-
         row, col, rowspan = 1, 0, 1
         sep = QFrame()
         sep.setStyleSheet("background: rgba(0, 0, 0, 0.2)")
         sep.setFixedHeight(1)
-        grid_lay.addWidget(sep, row, col, rowspan, colspan)
+        self.grid_lay.addWidget(sep, row, col, rowspan, self.colspan)
 
         # 3 строка: перейти, всего, сортировка, слайдер
-
         spacer = QSpacerItem(
             0, 0, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed
         )
@@ -374,28 +359,28 @@ class BarBottom(QWidget):
         row, col = 2, 0
         self.total = Total()
         self.total.clicked_.connect(self.open_go_win)
-        grid_lay.addWidget(self.total, row, col)
+        self.grid_lay.addWidget(self.total, row, col)
 
         row, col = 2, 1
-        grid_lay.addItem(spacer, row, col)
+        self.grid_lay.addItem(spacer, row, col)
 
 
         row, col = 2, 2
         self.total_text = QLabel()
-        grid_lay.addWidget(self.total_text, row, col)
+        self.grid_lay.addWidget(self.total_text, row, col)
 
         row, col = 2, 3
         self.sort_wid = QLabel()
         self.sort_wid.mouseReleaseEvent = self.sort_menu
-        grid_lay.addWidget(self.sort_wid, row, col)
+        self.grid_lay.addWidget(self.sort_wid, row, col)
 
         row, col = 2, 4
-        grid_lay.addItem(spacer, row, col)
+        self.grid_lay.addItem(spacer, row, col)
 
         row, col = 2, 5
         self.slider = CustomSlider()
         self.slider.setFixedSize(70, 15)
-        grid_lay.addWidget(self.slider, row, col)
+        self.grid_lay.addWidget(self.slider, row, col)
 
         SignalsApp.all_._path_labels_cmd.connect(self.path_labels_cmd)
 
@@ -435,7 +420,23 @@ class BarBottom(QWidget):
         self.add_sort()
 
     def create_path_labels(self, src: str):
-        Utils.clear_layout(self.path_lay)
+
+        if hasattr(self, "path_wid"):
+            self.path_wid.deleteLater()
+
+        row, col, rowspan = 0, 0, 1
+        self.path_wid = QWidget()
+        self.grid_lay.addWidget(
+            self.path_wid,
+            row, col,
+            rowspan, self.colspan,
+            Qt.AlignmentFlag.AlignLeft
+        )
+
+        self.path_lay = QHBoxLayout()
+        self.path_lay.setContentsMargins(0, 0, 0, 0)
+        self.path_lay.setSpacing(5)
+        self.path_wid.setLayout(self.path_lay)
 
         root = src.strip(os.sep).split(os.sep)
         ln = len(root)
