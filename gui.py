@@ -45,10 +45,11 @@ class SimpleFileExplorer(QWidget):
         ww, hh = Dynamic.ww, Dynamic.hh
         self.resize(ww, hh)
         self.setMinimumSize(800, 500)
-
+        
+        resize_cmd_ = lambda: self.grid.rearrange(self.get_grid_width())
         self.resize_timer = QTimer(parent=self)
         self.resize_timer.setSingleShot(True)
-        self.resize_timer.timeout.connect(lambda: self.grid.rearrange(self.get_grid_width()))
+        self.resize_timer.timeout.connect(resize_cmd_)
 
         self.migaet_timer = QTimer(parent=self)
         self.migaet_timer.timeout.connect(self.blink_title)
@@ -84,7 +85,7 @@ class SimpleFileExplorer(QWidget):
         splitter_lay.addWidget(right_wid)
 
         self.r_lay = QGridLayout()
-        self.r_lay.setContentsMargins(0, 0, 0, 0)
+        self.r_lay.setContentsMargins(5, 0, 0, 0)
         self.r_lay.setSpacing(0)
         right_wid.setLayout(self.r_lay)
         
