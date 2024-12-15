@@ -366,6 +366,7 @@ class URunnable(QRunnable):
         super().__init__()
         self.should_run: bool = True
         self.is_running: bool = False
+        self.name_: str = None
     
     @staticmethod
     def set_running_state(method: callable):
@@ -376,6 +377,12 @@ class URunnable(QRunnable):
             self.is_running = False
 
         return wrapper
+
+    def get_name(self):
+        return self.name_
+    
+    def set_name(self, text: str):
+        self.name_ = text
 
 
 class UThreadPool:

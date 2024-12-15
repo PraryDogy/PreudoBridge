@@ -31,6 +31,7 @@ NO_IMAGES = [
     "Нет изображений"
 ]
 NO_IMAGES = "\n".join(NO_IMAGES)
+TASK_NAME = "LOAD_IMAGES"
 
 
 class WorkerSignals(QObject):
@@ -336,7 +337,7 @@ class GridStandart(Grid):
         
     def start_load_images(self, cut_order_items: list[OrderItem]):
         self.load_images_task_ = LoadImages(order_items=cut_order_items)
-        self.tasks.append(self.load_images_task_)
+        self.load_images_task_.set_name(text=TASK_NAME)
         cmd_ = lambda image_data: self.set_pixmap(image_data)
         self.load_images_task_.signals_.new_widget.connect(cmd_)
         UThreadPool.start(self.load_images_task_)
@@ -348,10 +349,10 @@ class GridStandart(Grid):
                 widget.set_pixmap(pixmap=image_data.pixmap)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
-        self.loading_lbl.deleteLater()
-
-        for i in self.tasks:
-            i.should_run = False
+        
+        for task in UThreadPool.current:
+            if task.get_name() == TASK_NAME:
+                task.should_run = False
 
         return super().closeEvent(a0)
 
