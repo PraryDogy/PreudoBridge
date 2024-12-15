@@ -155,6 +155,7 @@ class SimpleFileExplorer(QWidget):
         QTimer.singleShot(1500, lambda: self.grid.select_new_widget(filepath))
 
     def load_standart_grid(self, root: str = None):
+
         self.grid.close()
 
         if root:
@@ -168,11 +169,13 @@ class SimpleFileExplorer(QWidget):
 
         if Dynamic.grid_view_type == 1:
             self.grid = ListFileSystem()
-            # self.grid = ListStandart()
-            self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
+
         elif Dynamic.grid_view_type == 0:
             self.grid = GridStandart(width=self.get_grid_width())
-            self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
+
+        self.grid.verticalScrollBar().valueChanged.connect(
+            self.scroll_up_scroll_value
+        )
 
         self.folders_tree_wid.expand_path(JsonData.root)
 
