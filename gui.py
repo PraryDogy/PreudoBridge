@@ -54,22 +54,14 @@ class SimpleFileExplorer(QWidget):
         self.migaet_timer = QTimer(parent=self)
         self.migaet_timer.timeout.connect(self.blink_title)
 
-        main_lay = QVBoxLayout()
+        main_lay = QHBoxLayout()
         main_lay.setContentsMargins(5, 5, 5, 5)
         main_lay.setSpacing(0)
         self.setLayout(main_lay)
 
-        splitter_wid = QWidget()
-        main_lay.addWidget(splitter_wid)
-
-        splitter_lay = QHBoxLayout()
-        splitter_lay.setContentsMargins(0, 0, 0, 0)
-        splitter_lay.setSpacing(0)
-        splitter_wid.setLayout(splitter_lay)
-
         self.bar_tabs = BarTabs()
         self.bar_tabs.setFixedWidth(Static.LEFT_MENU_W)
-        splitter_lay.addWidget(self.bar_tabs)
+        main_lay.addWidget(self.bar_tabs)
 
         self.folders_tree_wid = TreeFolders()
         self.bar_tabs.addTab(self.folders_tree_wid, "Папки")
@@ -82,7 +74,7 @@ class SimpleFileExplorer(QWidget):
         self.bar_tabs.load_last_tab()
 
         right_wid = QWidget()
-        splitter_lay.addWidget(right_wid)
+        main_lay.addWidget(right_wid)
 
         self.r_lay = QGridLayout()
         self.r_lay.setContentsMargins(5, 0, 0, 0)
