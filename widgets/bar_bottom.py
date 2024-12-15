@@ -360,7 +360,7 @@ class BarBottom(QWidget):
         self.go_to_wid.clicked_.connect(self.open_go_win)
         bottom_lay.addWidget(self.go_to_wid)
 
-        bottom_lay.addSpacerItem(self.get_h_spacer())
+        bottom_lay.addStretch()
 
         self.total_text = QLabel()
         bottom_lay.addWidget(self.total_text)
@@ -369,18 +369,13 @@ class BarBottom(QWidget):
         self.sort_wid.mouseReleaseEvent = self.sort_menu
         bottom_lay.addWidget(self.sort_wid)
 
-        bottom_lay.addSpacerItem(self.get_h_spacer())
+        bottom_lay.addStretch()
 
         self.slider = CustomSlider()
         self.slider.setFixedSize(70, 15)
         bottom_lay.addWidget(self.slider)
 
         SignalsApp.all_._path_labels_cmd.connect(self.path_labels_cmd)
-
-    def get_h_spacer(self):
-        return QSpacerItem(
-            0, 0, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Fixed
-        )
 
     def sort_menu(self, *args):
         menu = SortMenu(parent=self.sort_wid)

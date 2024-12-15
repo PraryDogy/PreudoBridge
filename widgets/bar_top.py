@@ -316,36 +316,37 @@ class BarTop(QFrame):
         self.history: list[str] = []
         self.index_: int = 0
 
-        self.grid_layout = QHBoxLayout()
-        self.grid_layout.setSpacing(10)
-        self.grid_layout.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(self.grid_layout)
+        self.main_lay = QHBoxLayout()
+        self.main_lay.setSpacing(10)
+        self.main_lay.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(self.main_lay)
 
         self.history_btns = HistoryBtns()
         self.history_btns.clicked_.connect(self.navigate)
-        self.grid_layout.addWidget(self.history_btns)
+        self.main_lay.addWidget(self.history_btns)
 
         self.level_up_btn = QPushButton(Static.UP_CURVE)
         self.level_up_btn.setFixedWidth(50)
         self.level_up_btn.clicked.connect(self.level_up)
-        self.grid_layout.addWidget(self.level_up_btn)
+        self.main_lay.addWidget(self.level_up_btn)
 
-        self.grid_layout.addStretch()
+        self.main_lay.addStretch()
 
         self.grid_view_type_btn = ViewTypeBtn()
-        self.grid_layout.addWidget(self.grid_view_type_btn)
+        self.main_lay.addWidget(self.grid_view_type_btn)
+        self.grid_view_type_btn.setContentsMargins(0, 0, 0, 0)
 
         self.filters_btn = FiltersBtn()
-        self.grid_layout.addWidget(self.filters_btn)
+        self.main_lay.addWidget(self.filters_btn)
 
         self.sett_btn = QPushButton(parent=self, text=SETT_SYM)
         self.sett_btn.clicked.connect(self.open_settings_win)
-        self.grid_layout.addWidget(self.sett_btn)
+        self.main_lay.addWidget(self.sett_btn)
 
-        self.grid_layout.addStretch()
+        self.main_lay.addStretch()
 
         self.search_wid = SearchWidget()
-        self.grid_layout.addWidget(self.search_wid)
+        self.main_lay.addWidget(self.search_wid)
 
         SignalsApp.all_.new_history.connect(self.new_history)
         SignalsApp.all_.new_history.emit(JsonData.root)
