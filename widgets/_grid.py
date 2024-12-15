@@ -235,7 +235,7 @@ class Thumb(OrderItem, QFrame):
         )
         self.img_frame.setStyleSheet(
             f"""
-                background: {Static.BLUE};
+                background: {Static.GRAY_UP_BTN};
                 {TEXT_FONT};
                 {RAD};
             """
