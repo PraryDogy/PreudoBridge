@@ -207,7 +207,6 @@ class PathItem(QWidget):
         self.setLayout(item_layout)
 
         self.img_wid = USvgWidget(size=15)
-
         item_layout.addWidget(self.img_wid)
         
         self.text_wid = QLabel(text=name)
@@ -333,6 +332,7 @@ class BarBottom(QWidget):
     def __init__(self):
         super().__init__()
         self.setFixedHeight(50)
+        self.current_path: str = None
 
         self.main_lay = QVBoxLayout()
         self.main_lay.setContentsMargins(10, 0, 10, 0)
@@ -419,6 +419,11 @@ class BarBottom(QWidget):
 
     def create_path_labels(self, src: str):
 
+        if src == self.current_path:
+            return
+    
+        self.current_path = src
+
         if hasattr(self, "path_wid"):
             self.path_wid.deleteLater()
 
@@ -426,7 +431,7 @@ class BarBottom(QWidget):
         self.main_lay.insertWidget(
             0,
             self.path_wid,
-            # alignment=Qt.AlignmentFlag.AlignLeft
+            alignment=Qt.AlignmentFlag.AlignLeft
         )
 
         self.path_lay = QHBoxLayout()
@@ -435,7 +440,6 @@ class BarBottom(QWidget):
         self.path_wid.setLayout(self.path_lay)
 
         root = src.strip(os.sep).split(os.sep)
-        path_items: list[PathItem] = []
 
         for x, name in enumerate(root, start=1):
 
@@ -468,8 +472,5 @@ class BarBottom(QWidget):
                 path_item.add_arrow()
 
             path_item.img_wid.load(icon)
-            path_items.append(path_item)
+
             self.path_lay.addWidget(path_item)
-
-
-        self.path_lay.addSpacerItem(self.get_h_spacer())
