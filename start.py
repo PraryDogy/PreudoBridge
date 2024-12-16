@@ -86,6 +86,7 @@ class CustomApp(QApplication):
         self.main_win = main_win
 
     def on_exit(self):
+        # предотвращаем segmentation fault
         self.main_win.user_exit()
         JsonData.write_config()
         UThreadPool.stop_all()

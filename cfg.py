@@ -82,6 +82,7 @@ class Static:
         }
 
     FAVORITES_NAME = "___favs___"
+    MAIN_WIN_NAME = "MainWin"
 
 
 class ThumbData:

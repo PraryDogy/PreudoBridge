@@ -319,9 +319,9 @@ class Utils(Hash, Pixmap, ReadImage):
         return clipboard.text()
 
     @classmethod
-    def get_main_win(cls, name: str ="SimpleFileExplorer") -> QWidget:
+    def get_main_win(cls) -> QWidget:
         for i in QApplication.topLevelWidgets():
-            if name in str(i):
+            if Static.MAIN_WIN_NAME in str(i):
                 return i
 
     @classmethod
