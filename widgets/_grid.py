@@ -531,7 +531,7 @@ class Grid(BaseMethods, QScrollArea):
 
         self.main_wid.setLayout(self.grid_layout)
 
-        # эмуляция RunTime Error
+        # времянка # времянка # времянка # времянка # времянка # времянка # времянка # времянка 
         # self.abc = QLabel()
         # self.abc.deleteLater()
         # QTimer.singleShot(1000, lambda: self.abc.deleteLater())
