@@ -6,6 +6,7 @@ import webbrowser
 
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QKeyEvent
+from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QFrame, QGroupBox, QHBoxLayout, QLabel,
                              QPushButton, QVBoxLayout, QWidget)
 
@@ -24,6 +25,7 @@ JSON_T = "Json"
 UPDATE_T = "Обновления"
 JSON_DESCR = "Открыть файл настроек .json"
 UPDATE_DESCR = "Обновления на Яндекс Диске"
+
 
 class WorkerSignals(QObject):
     finished_ = pyqtSignal(str)
@@ -129,6 +131,23 @@ class Updates(QGroupBox):
         h_lay.addWidget(descr)
 
 
+class About(QGroupBox):
+    def __init__(self):
+        super().__init__()
+
+        h_lay = QHBoxLayout()
+        h_lay.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(h_lay)
+
+        svg_ = QSvgWidget()
+        svg_.load(Static.ICON_SVG)
+        svg_.setFixedSize(70, 70)
+        h_lay.addWidget(svg_)
+
+        descr = QLabel("Об авторе")
+        h_lay.addWidget(descr)
+
+
 class WinSettings(WinMinMax):
     def __init__(self):
         super().__init__()
@@ -152,8 +171,11 @@ class WinSettings(WinMinMax):
         updates_row = Updates()
         main_lay.addWidget(updates_row)
 
+        about_row = About()
+        main_lay.addWidget(about_row)
+
         self.adjustSize()
-        self.setFixedSize(self.width(), self.height())
+        self.setFixedSize(self.width() + 30, self.height())
         self.get_current_size()
 
     def get_current_size(self):
