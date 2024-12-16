@@ -268,7 +268,8 @@ class GridSearch(Grid):
             self.row += 1
  
         # сортируем сетку после каждого виджета
-        # self.order_()
+        if self.total % 10 == 0:
+            self.order_()
 
     def rearrange(self, width: int = None):
         super().rearrange(width)
