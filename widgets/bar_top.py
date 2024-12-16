@@ -47,7 +47,7 @@ class ViewTypeBtn(QTabBar):
     def set_view_type_cmd(self, index: int):
         self.setCurrentIndex(index)
         Dynamic.grid_view_type = index
-        SignalsApp.all_.load_normal_mode.emit("")
+        SignalsApp.all_.load_standart_grid.emit("")
 
     def tabSizeHint(self, index):
         size = QTabBar.tabSizeHint(self, index)
@@ -84,7 +84,7 @@ class SearchWidget(QWidget):
         self.search_timer = QTimer(self)
         self.search_timer.setSingleShot(True)
         self.search_timer.timeout.connect(
-            lambda: SignalsApp.all_.load_search_mode.emit(self.search_text)
+            lambda: SignalsApp.all_.load_search_grid.emit(self.search_text)
             )
         
         self.clear_search.connect(self.costil)
@@ -121,7 +121,7 @@ class SearchWidget(QWidget):
         else:
             self.clear_search.emit()
             self.clear_btn.hide()
-            SignalsApp.all_.load_normal_mode.emit("")
+            SignalsApp.all_.load_standart_grid.emit("")
 
     def show_templates(self, a0: QMouseEvent | None) -> None:
         self.templates_menu.exec(self.mapToGlobal(self.rect().bottomLeft()))
@@ -364,8 +364,8 @@ class BarTop(QWidget):
         self.search_wid = SearchWidget()
         self.main_lay.addWidget(self.search_wid)
 
-        SignalsApp.all_.new_history.connect(self.new_history)
-        SignalsApp.all_.new_history.emit(JsonData.root)
+        SignalsApp.all_.new_history_item.connect(self.new_history)
+        SignalsApp.all_.new_history_item.emit(JsonData.root)
         self.index_ -= 1
 
     def open_settings_win(self):
@@ -388,12 +388,12 @@ class BarTop(QWidget):
             if self.index_ + offset in(-1, len(self.history)):
                 return
             self.index_ += offset
-            SignalsApp.all_.load_normal_mode.emit(self.history[self.index_])
+            SignalsApp.all_.load_standart_grid.emit(self.history[self.index_])
         except (ValueError, IndexError):
             pass
 
     def level_up(self, e):
         root = os.path.dirname(JsonData.root)
         if not root == os.sep:
-            SignalsApp.all_.new_history.emit(root)
-            SignalsApp.all_.load_normal_mode.emit(root)
+            SignalsApp.all_.new_history_item.emit(root)
+            SignalsApp.all_.load_standart_grid.emit(root)

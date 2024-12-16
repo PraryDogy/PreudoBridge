@@ -3,8 +3,8 @@ from PyQt5.QtWidgets import QWidget
 from typing import Literal
 
 class Signals(QObject):
-    load_normal_mode = pyqtSignal(str)
-    load_search_mode = pyqtSignal(str)
+    load_standart_grid = pyqtSignal(str)
+    load_search_grid = pyqtSignal(str)
 
     # эти сигналы переназначаются заново, не забудь отключить прежде
     resize_grid = pyqtSignal()
@@ -17,7 +17,7 @@ class Signals(QObject):
     search_finished = pyqtSignal(str)
     move_to_wid_delayed = pyqtSignal(str)
     open_path = pyqtSignal(str)
-    new_history = pyqtSignal(str)
+    new_history_item = pyqtSignal(str)
     _path_labels_cmd = pyqtSignal(dict)
 
     move_slider = pyqtSignal(int)

@@ -29,8 +29,8 @@ class TreeFolders(QTreeView):
     def one_clicked(self, index):
         path = self.c_model.filePath(index)
         self.setCurrentIndex(index)
-        SignalsApp.all_.new_history.emit(path)
-        SignalsApp.all_.load_normal_mode.emit(path)
+        SignalsApp.all_.new_history_item.emit(path)
+        SignalsApp.all_.load_standart_grid.emit(path)
         self.expand(index)
 
     def expand_path(self, root: str):

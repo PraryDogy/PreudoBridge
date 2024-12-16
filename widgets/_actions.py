@@ -139,7 +139,7 @@ class UpdateGrid(UAction):
         super().__init__(parent, src, UPDATE_GRID_T)
 
     def cmd_(self):
-        SignalsApp.all_.load_normal_mode.emit("")
+        SignalsApp.all_.load_standart_grid.emit("")
 
 
 class OpenInApp(QMenu):
@@ -318,11 +318,11 @@ class ChangeView(QMenu):
 
     def set_grid(self):
         Dynamic.grid_view_type = 0
-        SignalsApp.all_.load_normal_mode.emit("")
+        SignalsApp.all_.load_standart_grid.emit("")
 
     def set_list(self):
         Dynamic.grid_view_type = 1
-        SignalsApp.all_.load_normal_mode.emit("")
+        SignalsApp.all_.load_standart_grid.emit("")
 
 
 class FindHere(QAction):

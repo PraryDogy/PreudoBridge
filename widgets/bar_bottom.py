@@ -223,8 +223,8 @@ class PathItem(QWidget):
         if os.path.isfile(self.src):
             OpenWin.view(Utils.get_main_win(), self.src)
         else:
-            SignalsApp.all_.new_history.emit(self.src)
-            SignalsApp.all_.load_normal_mode.emit(self.src)
+            SignalsApp.all_.new_history_item.emit(self.src)
+            SignalsApp.all_.load_standart_grid.emit(self.src)
 
     def solid_style(self):
         self.text_wid.setStyleSheet(

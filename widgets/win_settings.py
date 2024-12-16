@@ -130,7 +130,7 @@ class WinSettings(WinMinMax):
         if os.path.exists(Static.HASH_DIR):
             shutil.rmtree(Static.HASH_DIR)
         self.get_current_size()
-        SignalsApp.all_.load_normal_mode.emit("")
+        SignalsApp.all_.load_standart_grid.emit("")
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         if hasattr(self, "task_") and self.task_.is_running:
