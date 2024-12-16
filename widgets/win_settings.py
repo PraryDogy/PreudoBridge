@@ -6,10 +6,10 @@ import webbrowser
 
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QKeyEvent
-from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QPushButton,
-                             QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QFrame, QGroupBox, QHBoxLayout, QLabel,
+                             QPushButton, QVBoxLayout, QWidget)
 
-from cfg import Static, JsonData
+from cfg import JsonData, Static
 from database import Dbase
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
@@ -22,7 +22,8 @@ SETTINGS_T = "Настройки"
 CLEAR_T = "Очистить"
 JSON_T = "Json"
 UPDATE_T = "Обновления"
-
+JSON_DESCR = "Открыть файл настроек .json"
+UPDATE_DESCR = "Обновления на Яндекс Диске"
 
 class WorkerSignals(QObject):
     finished_ = pyqtSignal(str)
@@ -71,64 +72,95 @@ class GetSizer(URunnable):
         self.signals_.finished_.emit(t)
 
 
+class DataRow(QGroupBox):
+    clicked_ = pyqtSignal()
+
+    def __init__(self):
+        super().__init__()
+
+        h_lay = QHBoxLayout()
+        h_lay.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(h_lay)
+
+        btn_ = QPushButton(text=CLEAR_T)
+        btn_.setFixedWidth(110)
+        btn_.clicked.connect(self.clicked_.emit)
+
+        h_lay.addWidget(btn_)
+
+        self.descr = QLabel(text=UPDATE_DESCR)
+        h_lay.addWidget(self.descr)
+
+
+class JsonFile(QGroupBox):
+    def __init__(self):
+        super().__init__()
+
+        h_lay = QHBoxLayout()
+        h_lay.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(h_lay)
+
+        btn_ = QPushButton(text=JSON_T)
+        btn_.setFixedWidth(110)
+        btn_.clicked.connect(
+            lambda: subprocess.call(["open", Static.JSON_FILE])
+        )
+        h_lay.addWidget(btn_)
+
+        descr = QLabel(text=JSON_DESCR)
+        h_lay.addWidget(descr)
+
+
+class Updates(QGroupBox):
+    def __init__(self):
+        super().__init__()
+
+        h_lay = QHBoxLayout()
+        h_lay.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(h_lay)
+
+        btn_ = QPushButton(text=UPDATE_T)
+        btn_.setFixedWidth(110)
+        btn_.clicked.connect(lambda: webbrowser.open(Static.LINK))
+
+        h_lay.addWidget(btn_)
+
+        descr = QLabel(text=UPDATE_DESCR)
+        h_lay.addWidget(descr)
+
+
 class WinSettings(WinMinMax):
     def __init__(self):
         super().__init__()
         
         self.setWindowTitle(SETTINGS_T)
-        self.setFixedSize(270, 120)
 
         main_lay = QVBoxLayout()
         main_lay.setContentsMargins(10, 10, 10, 10)
-        main_lay.setSpacing(10)
         self.setLayout(main_lay)
 
         h_wid = QWidget()
         main_lay.addWidget(h_wid)
 
-        h_lay = QHBoxLayout()
-        h_lay.setContentsMargins(0, 0, 0, 0)
-        h_wid.setLayout(h_lay)
+        self.data_row = DataRow()
+        self.data_row.clicked_.connect(self.clear_db_cmd)
+        main_lay.addWidget(self.data_row)
 
-        self.current_size = QLabel("")
-        h_lay.addWidget(self.current_size)
+        json_row = JsonFile()
+        main_lay.addWidget(json_row)
 
-        self.clear_btn = QPushButton(CLEAR_T)
-        self.clear_btn.setFixedWidth(110)
-        self.clear_btn.clicked.connect(self.clear_db_cmd)
-        h_lay.addWidget(self.clear_btn)
-        
-        separator = QFrame()
-        separator.setFixedWidth(self.width() - 40)
-        separator.setFrameShape(QFrame.HLine)  # Горизонтальный разделитель
-        separator.setFrameShadow(QFrame.Sunken)  # Внешний вид (утопленный)
-        main_lay.addWidget(separator, alignment=Qt.AlignmentFlag.AlignCenter)
+        updates_row = Updates()
+        main_lay.addWidget(updates_row)
 
-        h_wid = QWidget()
-        main_lay.addWidget(h_wid)
-        h_lay = QHBoxLayout()
-        h_lay.setContentsMargins(0, 0, 0, 0)
-        h_wid.setLayout(h_lay)
-
-        open_json_btn = QPushButton(JSON_T)
-        open_json_btn.setFixedWidth(110)
-        open_json_btn.clicked.connect(lambda: subprocess.call(["open", Static.JSON_FILE]))
-        h_lay.addWidget(open_json_btn)
-
-        open_json_btn = QPushButton(UPDATE_T)
-        open_json_btn.setFixedWidth(110)
-        open_json_btn.clicked.connect(lambda: webbrowser.open(Static.LINK))
-        h_lay.addWidget(open_json_btn)
-
-        main_lay.addStretch()
-
+        self.adjustSize()
+        self.setFixedSize(self.width(), self.height())
         self.get_current_size()
 
     def get_current_size(self):
-        self.current_size.setText(LOADING_T)
+        self.data_row.descr.setText(LOADING_T)
 
         self.task_ = GetSizer()
-        cmd_ = lambda t: self.current_size.setText(t)
+        cmd_ = lambda t: self.data_row.descr.setText(t)
         self.task_.signals_.finished_.connect(cmd_)
         UThreadPool.start(self.task_)
 
