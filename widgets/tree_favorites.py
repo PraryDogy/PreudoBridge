@@ -185,7 +185,7 @@ class TreeFavorites(QListWidget):
             self.init_ui
         )
 
-        list_item = QListWidgetItem()
+        list_item = QListWidgetItem(parent=self)
         list_item.setSizeHint(item.sizeHint())
 
         self.addItem(list_item)
