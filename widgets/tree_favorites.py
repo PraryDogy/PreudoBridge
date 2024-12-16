@@ -123,8 +123,12 @@ class TreeFavorites(QListWidget):
 
     def add_widget_item(self, name: str, src: str) -> QListWidgetItem:
         item = FavItem(name, src)
-        item.del_click.connect(lambda: self.del_item(src))
-        item.rename_finished.connect(lambda new_name: self.update_name(src, new_name))
+        item.del_click.connect(
+            lambda: self.del_item(src)
+        )
+        item.rename_finished.connect(
+            lambda new_name: self.update_name(src, new_name)
+        )
 
         list_item = QListWidgetItem()
         list_item.setSizeHint(item.sizeHint())
