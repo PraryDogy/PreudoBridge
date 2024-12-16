@@ -175,7 +175,7 @@ class SimpleFileExplorer(QWidget):
             self.scroll_up_scroll_value
         )
 
-        self.folders_tree_wid.expand_path(JsonData.root)
+        # self.folders_tree_wid.expand_path(JsonData.root)
 
         self.r_lay.insertWidget(1, self.grid)
         self.grid.setFocus()
@@ -188,6 +188,11 @@ class SimpleFileExplorer(QWidget):
 
     def get_grid_width(self):
         return Dynamic.ww - self.bar_tabs.width() - 180
+    
+    def user_exit(self):
+        # предотвращает segmentation fault
+        for i in (self.folders_tree_wid, self.folders_fav_wid):
+            i.deleteLater()
 
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         Dynamic.ww = self.geometry().width()

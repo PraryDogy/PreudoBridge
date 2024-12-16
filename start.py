@@ -82,18 +82,23 @@ class CustomApp(QApplication):
             Utils.get_main_win().show()
         return False
 
+    def add_main_win(self, main_win: SimpleFileExplorer):
+        self.main_win = main_win
+
     def on_exit(self):
+        self.main_win.user_exit()
         JsonData.write_config()
         UThreadPool.stop_all()
 
 
 JsonData.init()
 Dbase.init_db()
-app = CustomApp(sys.argv)
+app = CustomApp(argv=sys.argv)
 
 SignalsApp.init()
 UThreadPool.init()
 ex = SimpleFileExplorer()
+app.add_main_win(main_win=ex)
 ex.show()
 
 # Запуск приложения
