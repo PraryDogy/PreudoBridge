@@ -190,8 +190,10 @@ class MainWin(QWidget):
         return Dynamic.ww - self.bar_tabs.width() - 180
     
     def user_exit(self):
+
         # предотвращает segmentation fault
-        for i in (self.folders_tree_wid, self.folders_fav_wid):
+
+        for i in self.findChildren(QWidget):
             i.deleteLater()
 
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
