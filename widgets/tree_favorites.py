@@ -1,4 +1,5 @@
 import os
+from typing import Literal
 
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import (QContextMenuEvent, QDragEnterEvent, QDropEvent,
@@ -98,7 +99,7 @@ class TreeFavorites(QListWidget):
         else:
             self.clearSelection()
 
-    def cmd_(self, cmd: dict):
+    def cmd_(self, cmd: dict[Literal["cmd"], Literal["select", "add", "del"]]):
         """
         keys:
         cmd = select or add or remove 
