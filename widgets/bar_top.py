@@ -138,7 +138,7 @@ class ColorLabel(QLabel):
 
 class FiltersBtn(QPushButton):
     def __init__(self):
-        super().__init__(text=Static.FAT_DOT_SYM)
+        super().__init__(text=Static.STAR_SYM)
         
         self._menu = QWidget()
         self._menu.setWindowFlags(Qt.WindowType.Popup)
