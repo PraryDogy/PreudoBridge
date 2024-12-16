@@ -267,7 +267,7 @@ class GridSearch(Grid):
             self.col = 0
             self.row += 1
  
-        # сортируем сетку после каждого виджета
+        # сортируем сетку после каждого 10 виджета
         if self.total % 10 == 0:
             self.order_()
 
