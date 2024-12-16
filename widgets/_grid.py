@@ -480,6 +480,11 @@ class ThumbSearch(Thumb):
         for i in (self.img_frame, self.text_wid, self.color_wid):
             i.contextMenuEvent = self.mouse_r_click
 
+    def show_in_folder_cmd(self):
+        root = os.path.dirname(self.src)
+        SignalsApp.all_.load_normal_mode.emit(root)
+        SignalsApp.all_.move_to_wid_delayed.emit(self.src)
+
     def mouse_r_click(self, a0: QContextMenuEvent | None) -> None:
         self.select.emit()
     
@@ -487,9 +492,8 @@ class ThumbSearch(Thumb):
         self.add_base_actions(menu_)
         menu_.addSeparator()
 
-        cmd_ = lambda: SignalsApp.all_.show_in_folder.emit(self.src)
         show_in_folder = ShowInFolder(parent=menu_, src=self.src)
-        show_in_folder._clicked.connect(cmd_)
+        show_in_folder._clicked.connect(self.show_in_folder_cmd)
         menu_.addAction(show_in_folder)
 
         menu_.exec_(self.mapToGlobal(a0.pos()))

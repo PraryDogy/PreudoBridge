@@ -104,7 +104,7 @@ class SimpleFileExplorer(QWidget):
         SignalsApp.all_.load_normal_mode.connect(self.load_standart_grid)
         SignalsApp.all_.load_search_mode.connect(self.load_search_grid)
         SignalsApp.all_.search_finished.connect(self.search_finished)
-        SignalsApp.all_.show_in_folder.connect(self.move_to_wid_delayed)
+        SignalsApp.all_.move_to_wid_delayed.connect(self.move_to_wid_delayed)
         SignalsApp.all_.open_path.connect(self.open_path_cmd)
 
         self.load_standart_grid()
@@ -151,7 +151,6 @@ class SimpleFileExplorer(QWidget):
 
     def move_to_wid_delayed(self, filepath: str):
         JsonData.root = os.path.dirname(filepath)
-        self.load_standart_grid()
         QTimer.singleShot(1500, lambda: self.grid.select_new_widget(filepath))
 
     def load_standart_grid(self, root: str = None):

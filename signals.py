@@ -15,7 +15,7 @@ class Signals(QObject):
 
     fav_cmd = pyqtSignal(dict)
     search_finished = pyqtSignal(str)
-    show_in_folder = pyqtSignal(str)
+    move_to_wid_delayed = pyqtSignal(str)
     open_path = pyqtSignal(str)
     new_history = pyqtSignal(str)
     _path_labels_cmd = pyqtSignal(dict)
