@@ -55,7 +55,7 @@ class MainWin(QWidget):
         self.migaet_timer.timeout.connect(self.blink_title)
 
         main_lay = QHBoxLayout()
-        main_lay.setContentsMargins(5, 5, 5, 5)
+        main_lay.setContentsMargins(5, 10, 5, 0)
         main_lay.setSpacing(0)
         self.setLayout(main_lay)
 
@@ -175,7 +175,7 @@ class MainWin(QWidget):
             self.scroll_up_scroll_value
         )
 
-        # self.folders_tree_wid.expand_path(JsonData.root)
+        self.folders_tree_wid.expand_path(JsonData.root)
 
         self.r_lay.insertWidget(1, self.grid)
         self.grid.setFocus()
