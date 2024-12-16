@@ -37,7 +37,6 @@ class FinderItems(URunnable):
             self.get_color_rating()
             self.get_items()
             self.order_items = OrderItem.order_items(self.order_items)
-            self.signals_.finished_.emit(self.order_items)
 
         except (PermissionError, FileNotFoundError, NotADirectoryError) as e:
             Utils.print_error(self, e)
@@ -45,6 +44,8 @@ class FinderItems(URunnable):
         
         except RuntimeError as e:
             Utils.print_error(parent=None, error=e)
+
+        self.signals_.finished_.emit(self.order_items)
 
     def get_color_rating(self):
         q = sqlalchemy.select(CACHE.c.src, CACHE.c.colors, CACHE.c.rating)

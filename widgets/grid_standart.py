@@ -18,19 +18,7 @@ from ._finder_items import FinderItems, ImageData, LoadingWid
 from ._grid import Grid, Thumb, ThumbFolder
 
 MAX_QUERIES = 10
-
-PATH_NOT_EXISTS = [
-    f"{JsonData.root}",
-    "Такой папки не существует",
-    "Проверьте подключение к сетевому диску"
-]
-PATH_NOT_EXISTS = "\n".join(PATH_NOT_EXISTS)
-
-NO_IMAGES = [
-    f"{JsonData.root}",
-    "Нет изображений"
-]
-NO_IMAGES = "\n".join(NO_IMAGES)
+WARN_TEXT = "Нет изображений или нет подключения к диску"
 TASK_NAME = "LOAD_IMAGES"
 
 
@@ -315,10 +303,10 @@ class GridStandart(Grid):
             self.start_load_images(cut)
 
         elif not os.path.exists(JsonData.root):
-            setattr(self, "no_images", PATH_NOT_EXISTS)
+            setattr(self, "no_images", WARN_TEXT)
 
         elif not self.cell_to_wid:
-            setattr(self, "no_images", NO_IMAGES)
+            setattr(self, "no_images", WARN_TEXT)
 
         if hasattr(self, "no_images"):
             no_images = QLabel(text=getattr(self, "no_images"))
