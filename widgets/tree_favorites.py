@@ -17,6 +17,7 @@ from .win_rename import WinRename
 class FavItem(QLabel):
     del_click = pyqtSignal()
     rename_finished = pyqtSignal(str)
+    path_changed = pyqtSignal()
 
     def __init__(self, name: str, src: str):
         super().__init__(text=name)
@@ -89,6 +90,7 @@ class FavItem(QLabel):
                     JsonData.favs[self.src] = self.name
                     JsonData.write_config()
 
+                    self.path_changed.emit()
                     break
 
 
@@ -114,6 +116,7 @@ class TreeFavorites(QListWidget):
         self.init_ui()
 
     def init_ui(self):
+        self.clear()
         self.wids.clear()
 
         for src, name in JsonData.favs.items():
@@ -159,6 +162,9 @@ class TreeFavorites(QListWidget):
         )
         item.rename_finished.connect(
             lambda new_name: self.update_name(src, new_name)
+        )
+        item.path_changed.connect(
+            self.init_ui
         )
 
         list_item = QListWidgetItem()
