@@ -176,6 +176,8 @@ class CustomLabel(QLabel):
 
         menu.exec_(ev.globalPos())
 
+        self.setSelection(0, 0)
+
 
 class WinInfo(WinMinMax):
     def __init__(self, src: str):

@@ -95,7 +95,6 @@ class PathFinderThread(URunnable):
         # из всех полученных возможных путей ищем самый подходящий существующий путь
         for i in sorted(all_posible_paths, key=len, reverse=True):
             if self.exclude in i:
-                print("ignore strange folder", self.exclude)
                 continue
             if os.path.exists(i):
                 self.result = i
