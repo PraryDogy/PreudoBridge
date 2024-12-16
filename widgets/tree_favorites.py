@@ -81,6 +81,9 @@ class FavItem(QLabel):
     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
         if ev.button() == Qt.MouseButton.LeftButton:
 
+            # проверяем, если путь не существует, возможно
+            # он находится на другом сетевом диске
+
             self.try_find_path()
             SignalsApp.all_.new_history_item.emit(self.src)
             SignalsApp.all_.load_standart_grid.emit(self.src)
