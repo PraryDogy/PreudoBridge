@@ -1,19 +1,16 @@
-import os
+d = {1: 1, 2: 2, 3: 3}
 
 
-src = "/Volumes/Macintosh HD/Users/Morkowik/Library/Application Support/CloudDocs/session/1.mp3"
-root = src.strip(os.sep).split(os.sep)
 
-data = {
-    1: "computer",
-    2: "hdd",
-    **{
-        i: "folder"
-        for i in range(3, len(root) + 1)
-    },
-    len(root): "folder" if os.path.isdir(src) else "file"
+old_key = 2
+new_key = 666
+new_value = "q32"
+
+
+v = {
+    (new_key if k == old_key else k): (new_value if k == old_key else v)
+    for k, v in d.items()
 }
 
-for x, path_item in enumerate(root, start=1):
-    item = f"{path_item} : {data.get(x)}"
-    print(item)
+
+print(v)

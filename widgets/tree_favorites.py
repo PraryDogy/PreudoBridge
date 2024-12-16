@@ -65,34 +65,44 @@ class FavItem(QLabel):
         JsonData.write_config()
 
     def try_change_path(self):
+        # Проверяет возможность изменения пути, если текущий путь `self.src` недоступен.
+        #
+        # Метод предназначен для случаев, когда путь из избранного (`self.src`) может существовать 
+        # на другом сетевом диске. Для этого:
+        # 1. Удаляются первые две секции из текущего пути (`/Volumes/ИМЯ_СЕТЕВОГО_ДИСКА`).
+        # 2. Подставляются новые имена сетевых дисков, перечисленных в директории `/Volumes`.
+        # 3. Выполняется проверка существования нового пути.
+        #    Если путь найден:
+        #    - Обновляется словарь избранного (`JsonData.favs`), заменяя старый путь на новый.
+        #    - Сохраняются изменения в конфигурации с помощью `JsonData.write_config`.
+        #    - Вызывается сигнал `self.path_changed` для уведомления о смене пути.
+        #
+        # Если подходящий путь не найден, никаких изменений не производится.
+
 
         if not os.path.exists(self.src):
-            
-            cut = self.src.strip(os.sep).split(os.sep)
-            if len(cut) > 2:
-                cut = cut[2:]
-
-            cut = os.path.join(*cut)
+            cut = os.path.sep.join(
+                self.src.strip(os.path.sep).split(os.path.sep)[2:]
+            )
 
             volumes = [
-                os.path.join(os.sep, "Volumes", i)
-                for i in os.listdir("/Volumes")
+                os.path.join(os.sep, "Volumes", vol)
+                for vol in os.listdir("/Volumes")
             ]
 
-            for i in volumes:
-
-                new_src = os.path.join(i, cut)
+            for volume in volumes:
+                new_src = os.path.join(volume, cut)
 
                 if os.path.exists(new_src):
+                    JsonData.favs = {
+                        (new_src if path == self.src else path): path_name
+                        for path, path_name in JsonData.favs.items()
+                    }
 
-                    JsonData.favs.pop(self.src)
                     self.src = new_src
-                    JsonData.favs[self.src] = self.name
                     JsonData.write_config()
-
                     self.path_changed.emit()
                     break
-
 
     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
         if ev.button() == Qt.MouseButton.LeftButton:
@@ -183,9 +193,8 @@ class TreeFavorites(QListWidget):
 
     def del_item(self, src: str):
         JsonData.favs.pop(src)
-        self.clear()
-        self.init_ui()
         JsonData.write_config()
+        self.init_ui()
     
     def dropEvent(self, a0: QDropEvent | None) -> None:
         urls = a0.mimeData().urls()
