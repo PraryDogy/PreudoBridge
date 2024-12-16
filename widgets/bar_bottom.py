@@ -344,7 +344,17 @@ class BarBottom(QWidget):
         self.setLayout(self.main_lay)
 
         # 1 строка виджет с путями
-        self.create_path_labels(JsonData.root)
+        self.path_wid = QWidget()
+        self.main_lay.insertWidget(
+            0,
+            self.path_wid,
+            alignment=Qt.AlignmentFlag.AlignLeft
+        )
+
+        self.path_lay = QHBoxLayout()
+        self.path_lay.setContentsMargins(0, 0, 0, 0)
+        self.path_lay.setSpacing(5)
+        self.path_wid.setLayout(self.path_lay)
 
         # 2 строка сепаратор
         sep = QFrame()
@@ -380,6 +390,7 @@ class BarBottom(QWidget):
         self.slider.setFixedSize(70, 15)
         bottom_lay.addWidget(self.slider)
 
+        self.create_path_labels(JsonData.root)
         SignalsApp.all_._path_labels_cmd.connect(self.path_labels_cmd)
 
     def sort_menu(self, *args):
@@ -421,24 +432,11 @@ class BarBottom(QWidget):
 
         if src == self.current_path:
             return
-    
+
+        for i in self.path_wid.findChildren(PathItem):
+            i.deleteLater()
+
         self.current_path = src
-
-        if hasattr(self, "path_wid"):
-            self.path_wid.deleteLater()
-
-        self.path_wid = QWidget()
-        self.main_lay.insertWidget(
-            0,
-            self.path_wid,
-            alignment=Qt.AlignmentFlag.AlignLeft
-        )
-
-        self.path_lay = QHBoxLayout()
-        self.path_lay.setContentsMargins(0, 0, 0, 0)
-        self.path_lay.setSpacing(5)
-        self.path_wid.setLayout(self.path_lay)
-
         root = src.strip(os.sep).split(os.sep)
 
         for x, name in enumerate(root, start=1):
