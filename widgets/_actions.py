@@ -365,6 +365,8 @@ class RatingMenu(QMenu):
             self.addAction(wid)
 
 
+# удалить текст из виджета и скопировать в буфер обмена удаленную часть текста
+# только для QLineEdit / QTextEdit
 class TextCut(QAction):
     def __init__(self, parent: QMenu, widget: QLineEdit):
 
@@ -378,38 +380,74 @@ class TextCut(QAction):
 
     def cmd_(self):
         selection = self.wid.selectedText()
+
+        # удаляем выделенный текст из виджета
         text = self.wid.text().replace(selection, "")
         self.wid.setText(text)
-        Utils.write_to_clipboard(selection)
+
+        Utils.write_to_clipboard(
+            text=selection
+        )
 
 
+# Копировать выделенный текст в буфер обмена
+# Допускается QLabel с возможностью выделения текста
 class CopyText(QAction):
     def __init__(self, parent: QMenu, widget: QLineEdit | QLabel):
-        super().__init__(parent=parent, text=COPY_T)
+
+        super().__init__(
+            parent=parent,
+            text=COPY_T
+        )
+
         self.wid = widget
         self.triggered.connect(self.cmd_)
 
     def cmd_(self):
-        selection = self.wid.selectedText().replace(Static.PARAGRAPH_SEP, "")
+        selection = self.wid.selectedText()
+
+        # это два символа, которые в PyQt5 почему то обозначаются
+        # символами параграфа и новой строки
+        # при копировании мы удаляем их, делая копируемый текст
+        # однострочным
+        selection = selection.replace(Static.PARAGRAPH_SEP, "")
         selection = selection.replace(Static.LINE_FEED, "")
-        Utils.write_to_clipboard(selection)
+
+        Utils.write_to_clipboard(
+            text=selection
+        )
 
 
+# Вставить текст, допускается только QLineEdit и QTextEdit
 class TextPaste(QAction):
     def __init__(self, parent: QMenu, widget: QLineEdit):
-        super().__init__(parent=parent, text=PASTE_T)
+
+        super().__init__(
+            parent=parent,
+            text=PASTE_T
+        )
+
         self.wid = widget
         self.triggered.connect(self.cmd_)
 
     def cmd_(self):
         text = Utils.read_from_clipboard()
+
+        # добавляем текст к существующему в виджете тексту
         new_text = self.wid.text() + text
+
         self.wid.setText(new_text)
 
 
+# Выделить весь текст, допускается только QLineEdit и QTextEdit
 class TextSelectAll(QAction):
     def __init__(self, parent: QMenu, widget: QLineEdit):
-        super().__init__(parent=parent, text=SELECT_ALL_T)
+
+        super().__init__(
+            parent=parent,
+            text=SELECT_ALL_T
+        )
+
         self.wid = widget
         self.triggered.connect(self.cmd_)
 
@@ -417,28 +455,71 @@ class TextSelectAll(QAction):
         self.wid.selectAll()
 
 
+# Меню, при помощи которого происходит сортировка
+# сетки виджетов GridStandart / GridSearch
+# Тип сортировки основан на списке ORDER из database.py
+# список ORDER основан на колонках таблицы CACHE
+# например: размер, дата изменения, путь к файлу и т.п.
+# чтобы добавить новый тип сортировки, нужно добавить в CACHE
+# новую колонку, тогда список ORDER автоматически подтянет
+# новый тип сортировки
+# нужно учитывать, что при изменении CACHE нужно либо очищать БД
+# или осуществлять миграцию существующих данных
+
 class SortMenu(QMenu):
     def __init__(self, parent: QMenu):
-        super().__init__(parent=parent, title=SORT_T)
 
-        asc_cmd = lambda: self.cmd_revers(reversed=False)
-        ascen = QAction(parent=self, text=ASCENDING_T)
+        super().__init__(
+            parent=parent,
+            title=SORT_T
+        )
+
+        ascen = QAction(
+            parent=self,
+            text=ASCENDING_T
+        )
+
+        # добавляем свойство прямой / обратной сортировки
+        # прямая сортировка А > Я
         ascen.rev = False
-        ascen.triggered.connect(asc_cmd)
 
-        desc_cmd = lambda: self.cmd_revers(reversed=True)
+        ascen.triggered.connect(
+            lambda: self.cmd_revers(reversed=ascen.rev)
+        )
+
+
         descen = QAction(parent=self, text=DISCENDING_T)
+
+        # добавляем свойство прямой / обратной сортировки
+        # обратная сортировка Я > А
         descen.rev = True
-        descen.triggered.connect(desc_cmd)
+
+        descen.triggered.connect(
+            lambda: self.cmd_revers(reversed=descen.rev)
+        )
 
         for i in (ascen, descen):
+
             i.setCheckable(True)
             self.addAction(i)
 
+            # если свойство rev совпадает с пользовательским свойством reversed
+            # то отмечаем галочкой
+            # JsonData - пользовательские данные из .json файла
             if i.rev == JsonData.reversed:
                 i.setChecked(True)
 
         self.addSeparator()
+
+        # true_name - это имя колонки CACHE
+
+        # dict: text - это текстовое представление, основанное на
+        # комментарии колонки (смотри database.py > ORDER)
+
+        # dict: index - это целое число
+        # по ним осуществляется логика сортировки сетки виджетов
+        # GridStandart / GridSearch
+        # логику сортировки смотри в database.py > OrderItem > order_items
 
         for true_name, dict_ in ORDER.items():
             text_ = dict_.get("text")
