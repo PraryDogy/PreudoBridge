@@ -563,38 +563,65 @@ class SortMenu(QMenu):
         SignalsApp.all_.bar_bottom_cmd.emit({})
 
 
+# показать сетку / список - GridStandart / GridSearch / ListFileSystem
+# list_file_system.py > ListFileSystem
 class ChangeView(QMenu):
     def __init__(self, parent: QMenu, src: str):
-        super().__init__(parent=parent, title=CHANGE_VIEW_T)
+
+        super().__init__(
+            parent=parent,
+            title=CHANGE_VIEW_T
+        )
+
         self.src = src
 
-        grid_ = QAction(self, text=CHANGE_VIEW_GRID_T)
+        # отобразить сеткой
+        grid_ = QAction(
+            parent=self,
+            text=CHANGE_VIEW_GRID_T
+        )
+
         grid_.triggered.connect(self.set_grid)
         grid_.setCheckable(True)
         self.addAction(grid_)
 
-        list_ = QAction(self, text=CHANGE_VIEW_LIST_T)
+        # отобразить списком
+        list_ = QAction(
+            parent=self,
+            text=CHANGE_VIEW_LIST_T
+        )
+
         list_.triggered.connect(self.set_list)
         list_.setCheckable(True)
         self.addAction(list_)
 
+        # grid_view_type отвечает за тип отображения
+        # 0 отображать сеткой, 1 отображать списком
+
         if Dynamic.grid_view_type == 0:
             grid_.setChecked(True)
+
         elif Dynamic.grid_view_type == 1:
             list_.setChecked(True)
 
     def set_grid(self):
         Dynamic.grid_view_type = 0
-        SignalsApp.all_.load_standart_grid.emit("")
+        SignalsApp.all_.load_standart_grid.emit(JsonData.root)
 
     def set_list(self):
         Dynamic.grid_view_type = 1
-        SignalsApp.all_.load_standart_grid.emit("")
+        SignalsApp.all_.load_standart_grid.emit(JsonData.root)
 
 
+# Найти виджет в текущей сетке виджетов по пути к файлу / папке
 class FindHere(QAction):
     clicked_ = pyqtSignal()
 
     def __init__(self, parent: QMenu):
-        super().__init__(parent=parent, text=FIND_HERE_T)
+
+        super().__init__(
+            parent=parent,
+            text=FIND_HERE_T
+        )
+
         self.triggered.connect(self.clicked_.emit)
