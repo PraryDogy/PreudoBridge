@@ -230,8 +230,14 @@ class GridSearch(Grid):
 
         self.col_count = Utils.get_clmn_count(width)
         self.row, self.col = 0, 0
+        self.total = 0
 
-        SignalsApp.all_._path_labels_cmd.emit({"src": JsonData.root})
+        SignalsApp.all_._path_labels_cmd.emit(
+            {
+                "src": JsonData.root,
+                "total": "вычисляю..."
+            }
+        )
 
         self.task_ = SearchFinder(search_text)
         self.task_.signals_.add_new_widget.connect(self.add_new_widget)
@@ -254,7 +260,7 @@ class GridSearch(Grid):
         wid.find_here.connect(self.open_find_here_win)
         self.add_widget_data(wid, self.row, self.col)
         self.grid_layout.addWidget(wid, self.row, self.col)
-        SignalsApp.all_._path_labels_cmd.emit({"total": len(ThumbSearch.path_to_wid)})
+        self.total += 1
 
         self.col += 1
         if self.col >= self.col_count:
@@ -262,7 +268,7 @@ class GridSearch(Grid):
             self.row += 1
  
         # сортируем сетку после каждого виджета
-        self.order_()
+        # self.order_()
 
     def rearrange(self, width: int = None):
         super().rearrange(width)
