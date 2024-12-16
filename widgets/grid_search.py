@@ -66,35 +66,39 @@ class SearchFinder(URunnable):
             Utils.print_error(parent=None, error=e)
 
     def walk_dir(self):
-        for root, _, files in os.walk(JsonData.root):
-            if not self.should_run:
-                break
+        stack = []
+        stack.append(JsonData.root)
 
-            for file in files:
-                if not self.should_run:
-                    break
+        while stack:
+            current_dir = stack.pop()
 
-                src: str = os.path.join(root, file)
-                src_lower: str = src.lower()
+            with os.scandir(current_dir) as entries:
 
-                if src_lower.endswith(Static.IMG_EXT):
-                    
-                    self.create_wid = False
+                for entry in entries:
 
-                    if hasattr(self, "is_tuple"):
-                        if src_lower.endswith(self.search_text):
-                            self.create_wid = True
-   
-                    elif self.search_text in file:
-                        self.create_wid = True
+                    if not self.should_run:
+                        return
 
-                    if self.create_wid:
+                    if entry.is_dir():
+                        stack.append(entry.path)
 
-                        stat = self.get_stats(src)
+                    else:
+                        src_lower: str = entry.path.lower()
 
-                        if stat:
-                            self.create_wid_cmd(src, stat)
-                            sleep(SLEEP)
+                        if src_lower.endswith(Static.IMG_EXT):
+                            
+                            self.create_wid = False
+
+                            if hasattr(self, "is_tuple"):
+                                if src_lower.endswith(self.search_text):
+                                    self.create_wid = True
+        
+                            elif self.search_text in entry.name:
+                                self.create_wid = True
+
+                            if self.create_wid:
+                                self.create_wid_cmd(entry.path, entry.stat())
+                                sleep(SLEEP)
 
     def setup_text(self):
         try:
