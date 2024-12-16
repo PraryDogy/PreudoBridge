@@ -84,7 +84,11 @@ class FavItem(QLabel):
 
                 if os.path.exists(new_src):
 
+                    JsonData.favs.pop(self.src)
                     self.src = new_src
+                    JsonData.favs[self.src] = self.name
+                    JsonData.write_config()
+
                     break
 
 
@@ -92,12 +96,8 @@ class FavItem(QLabel):
         if ev.button() == Qt.MouseButton.LeftButton:
 
             self.try_change_path()
-
-            
             SignalsApp.all_.new_history.emit(self.src)
             SignalsApp.all_.load_normal_mode.emit(self.src)
-
-
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
         self.menu_.exec_(ev.globalPos())
