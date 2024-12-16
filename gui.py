@@ -37,7 +37,7 @@ class BarTabs(QTabWidget):
             a0.ignore()
 
 
-class SimpleFileExplorer(QWidget):
+class MainWin(QWidget):
     def __init__(self):
         super().__init__()
         self.setMinimumWidth(200)

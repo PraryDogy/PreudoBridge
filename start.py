@@ -66,7 +66,7 @@ from PyQt5.QtWidgets import QApplication
 
 from cfg import JsonData
 from database import Dbase
-from gui import SimpleFileExplorer
+from gui import MainWin
 from signals import SignalsApp
 from utils import UThreadPool, Utils
 
@@ -82,7 +82,7 @@ class CustomApp(QApplication):
             Utils.get_main_win().show()
         return False
 
-    def add_main_win(self, main_win: SimpleFileExplorer):
+    def add_main_win(self, main_win: MainWin):
         self.main_win = main_win
 
     def on_exit(self):
@@ -97,9 +97,9 @@ app = CustomApp(argv=sys.argv)
 
 SignalsApp.init()
 UThreadPool.init()
-ex = SimpleFileExplorer()
-app.add_main_win(main_win=ex)
-ex.show()
+main_win = MainWin()
+app.add_main_win(main_win=main_win)
+main_win.show()
 
 # Запуск приложения
 exit_code = app.exec()
