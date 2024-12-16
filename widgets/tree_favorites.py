@@ -60,8 +60,9 @@ class FavItem(QLabel):
             )
 
             volumes = [
-                os.path.join(os.sep, "Volumes", vol)
-                for vol in os.listdir("/Volumes")
+                entry.path
+                for entry in os.scandir("/Volumes")
+                if entry.is_dir()
             ]
 
             for volume in volumes:

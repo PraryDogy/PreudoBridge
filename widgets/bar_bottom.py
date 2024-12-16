@@ -60,9 +60,10 @@ class PathFinderThread(URunnable):
         src_splited = [i for i in src.split(os.sep) if i]
 
         self.volumes = [
-            os.path.join("/Volumes", i)
-            for i in os.listdir("/Volumes")
-            ]
+            entry.path
+            for entry in os.scandir("/Volumes")
+            if entry.is_dir()
+        ]
 
         volumes_extra = [
             os.path.join(vol, *extra.strip().split(os.sep))
@@ -113,7 +114,11 @@ class PathFinderThread(URunnable):
 
         # пытаемся найти секции пути, написанные с ошибкой
         for a in tail:
-            dirs = [x for x in os.listdir(self.result)]
+            dirs = [
+                entry.name
+                for entry in os.scandir(self.result)
+                if entry.is_dir()
+            ]
 
             for b in dirs:
                 matcher = SequenceMatcher(None, a, b).ratio()

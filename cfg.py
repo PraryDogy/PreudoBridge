@@ -177,28 +177,33 @@ class JsonData:
         names = [
             f"Adobe Photoshop CC {i}"
             for i in range(2014, 2020)
-            ]
+        ]
         names.extend([
-                f"Adobe Photoshop {i}"
-                for i in range(2020, date.today().year + 1)
-                ])
+            f"Adobe Photoshop {i}"
+            for i in range(2020, date.today().year + 1)
+        ])
         names.append("Capture One")
         names_app = [i + ".app" for i in names]
         Static.IMAGE_APPS["Просмотр"] = f"/System/Applications/Preview.app"
 
-        for item in os.listdir(Static.USER_APPS):
-            full_path = os.path.join(Static.USER_APPS, item)
-            app_folder = any(x for x in names if item in x)
-            app_app = any(x for x in names_app if item in x)
+        with os.scandir(Static.USER_APPS) as entries:
+            for entry in entries:
+                if not entry.is_dir():
+                    continue
 
-            if app_folder:        
-                app_inside_folder = os.path.join(full_path, item + ".app")
-                if os.path.exists(app_inside_folder):
-                    Static.IMAGE_APPS[item] = app_inside_folder
+                # Проверяем, если имя соответствует папке
+                app_folder = any(entry.name == name for name in names)
+                if app_folder:
+                    app_inside_folder = os.path.join(entry.path, entry.name + ".app")
+                    if os.path.exists(app_inside_folder):
+                        Static.IMAGE_APPS[entry.name] = app_inside_folder
+                    continue
 
-            elif app_app:
-                item = item.replace(".app", "")
-                Static.IMAGE_APPS[item] = full_path
+                # Проверяем, если имя соответствует .app
+                app_app = any(entry.name == name_app for name_app in names_app)
+                if app_app:
+                    item = entry.name.replace(".app", "")
+                    Static.IMAGE_APPS[item] = entry.path
 
     @classmethod
     def init(cls):
