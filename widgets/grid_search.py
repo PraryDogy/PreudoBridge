@@ -16,7 +16,7 @@ from utils import URunnable, UThreadPool, Utils
 
 from ._grid import Grid, ThumbSearch
 
-SLEEP = 0.05
+SLEEP = 0.2
 
 
 class WidgetData:
