@@ -14,7 +14,7 @@ class Signals(QObject):
     # end
 
     fav_cmd = pyqtSignal(dict)
-    search_finished = pyqtSignal(str)
+    set_search_title = pyqtSignal(str)
     move_to_wid_delayed = pyqtSignal(str)
     open_path = pyqtSignal(str)
     new_history_item = pyqtSignal(str)

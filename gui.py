@@ -103,7 +103,7 @@ class SimpleFileExplorer(QWidget):
         self.grid: Grid = Grid(self.get_grid_width())
         SignalsApp.all_.load_standart_grid.connect(self.load_standart_grid)
         SignalsApp.all_.load_search_grid.connect(self.load_search_grid)
-        SignalsApp.all_.search_finished.connect(self.search_finished)
+        SignalsApp.all_.set_search_title.connect(self.search_finished)
         SignalsApp.all_.move_to_wid_delayed.connect(self.move_to_wid_delayed)
         SignalsApp.all_.open_path.connect(self.open_path_cmd)
 

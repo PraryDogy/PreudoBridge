@@ -33,6 +33,7 @@ class WidgetData:
 
 class WorkerSignals(QObject):
     add_new_widget = pyqtSignal(WidgetData)
+    finished_ = pyqtSignal()
 
 
 class SearchFinder(URunnable):
@@ -60,7 +61,9 @@ class SearchFinder(URunnable):
             self.conn.close()
 
             if self.should_run:
-                SignalsApp.all_.search_finished.emit(str(self.search_text))
+                SignalsApp.all_.set_search_title.emit(str(self.search_text))
+
+            self.signals_.finished_.emit()
 
         except RuntimeError as e:
             Utils.print_error(parent=None, error=e)
@@ -235,12 +238,13 @@ class GridSearch(Grid):
         SignalsApp.all_._path_labels_cmd.emit(
             {
                 "src": JsonData.root,
-                "total": "вычисляю..."
+                "total": 0
             }
         )
 
         self.task_ = SearchFinder(search_text)
         self.task_.signals_.add_new_widget.connect(self.add_new_widget)
+        self.task_.signals_.finished_.connect(self.search_fin)
         UThreadPool.start(self.task_)
 
     def add_new_widget(self, widget_data: WidgetData):
@@ -269,7 +273,24 @@ class GridSearch(Grid):
  
         # сортируем сетку после каждого 10 виджета
         if self.total % 10 == 0:
+
             self.order_()
+
+            SignalsApp.all_._path_labels_cmd.emit(
+                {
+                    "total": self.total
+                }
+            )
+
+    def search_fin(self):
+
+        SignalsApp.all_._path_labels_cmd.emit(
+            {
+                "total": self.total
+            }
+        )
+
+        self.order_()
 
     def rearrange(self, width: int = None):
         super().rearrange(width)
