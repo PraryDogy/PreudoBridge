@@ -15,8 +15,8 @@ from .win_rename import WinRename
 
 
 class FavItem(QLabel):
-    del_click = pyqtSignal()
-    rename_finished = pyqtSignal(str)
+    remove_fav_item = pyqtSignal()
+    renamed = pyqtSignal(str)
     path_changed = pyqtSignal()
 
     def __init__(self, name: str, src: str):
@@ -35,10 +35,10 @@ class FavItem(QLabel):
 
     def rename_finished_cmd(self, text: str):
         self.setText(text)
-        self.rename_finished.emit(text)
+        self.renamed.emit(text)
         JsonData.write_config()
 
-    def try_change_path(self):
+    def try_find_path(self):
         # Проверяет возможность изменения пути, если текущий путь `self.src` недоступен.
         #
         # Метод предназначен для случаев, когда путь из избранного (`self.src`) может существовать 
@@ -81,7 +81,7 @@ class FavItem(QLabel):
     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
         if ev.button() == Qt.MouseButton.LeftButton:
 
-            self.try_change_path()
+            self.try_find_path()
             SignalsApp.all_.new_history_item.emit(self.src)
             SignalsApp.all_.load_standart_grid.emit(self.src)
 
@@ -107,7 +107,7 @@ class FavItem(QLabel):
         rename_action._clicked.connect(self.rename_cmd)
         menu_.addAction(rename_action)
 
-        cmd_ = lambda: self.del_click.emit()
+        cmd_ = lambda: self.remove_fav_item.emit()
         fav_action = FavRemove(menu_, self.src)
         fav_action._clicked.connect(cmd_)
         menu_.addAction(fav_action)
@@ -126,11 +126,12 @@ class TreeFavorites(QListWidget):
         self.init_ui()
 
     def init_ui(self):
+
         self.clear()
         self.wids.clear()
 
         for src, name in JsonData.favs.items():
-            item = self.add_widget_item(name, src)
+            item = self.add_fav_widget_item(name, src)
             self.wids[src] = item
 
             if JsonData.root == src:
@@ -152,25 +153,28 @@ class TreeFavorites(QListWidget):
         if cmd.get("cmd") == "select":
             self.select_fav(cmd.get("src"))
         elif cmd.get("cmd") == "add":
-            self.add_fav_cmd(cmd.get("src"))
+            self.add_to_json_favs(cmd.get("src"))
         elif cmd.get("cmd") == "del":
             self.del_item(cmd.get("src"))
         else:
             raise Exception("tree favorites wrong flag", cmd.get("cmd"))
 
-    def add_fav_cmd(self, src: str):
+    def add_to_json_favs(self, src: str):
+
         if src not in JsonData.favs:
+
             name = os.path.basename(src)
             JsonData.favs[src] = name
-            self.add_widget_item(name, src)
+            self.add_fav_widget_item(name, src)
+
             JsonData.write_config()
 
-    def add_widget_item(self, name: str, src: str) -> QListWidgetItem:
+    def add_fav_widget_item(self, name: str, src: str) -> QListWidgetItem:
         item = FavItem(name, src)
-        item.del_click.connect(
+        item.remove_fav_item.connect(
             lambda: self.del_item(src)
         )
-        item.rename_finished.connect(
+        item.renamed.connect(
             lambda new_name: self.update_name(src, new_name)
         )
         item.path_changed.connect(
@@ -202,7 +206,7 @@ class TreeFavorites(QListWidget):
             root = os.sep + urls[0].toLocalFile().strip(os.sep)
 
             if os.path.isdir(root):
-                self.add_fav_cmd(root)
+                self.add_to_json_favs(root)
 
         else:
             super().dropEvent(a0)
