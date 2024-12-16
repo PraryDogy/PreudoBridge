@@ -19,7 +19,7 @@ from ._base import OpenWin, ULineEdit, USlider, USvgWidget, WinMinMax
 
 ARROW = " \U0000203A"
 
-SORT_T = "сортировка"
+SORT_T = "Сортировка"
 TOTAL_T = "Всего"
 ASC = "по убыв."
 # ASC = "\u2B23"
@@ -352,7 +352,7 @@ class BarBottom(QWidget):
         bottom_wid = QWidget()
         bottom_lay = QHBoxLayout()
         bottom_lay.setContentsMargins(0, 0, 0, 0)
-        bottom_lay.setSpacing(3)
+        bottom_lay.setSpacing(10)
         bottom_wid.setLayout(bottom_lay)
         self.main_lay.addWidget(bottom_wid)
 
@@ -390,7 +390,7 @@ class BarBottom(QWidget):
         menu.show()
 
     def add_total(self, value: int):
-        self.total_text.setText(f"{TOTAL_T}: {str(value)};")
+        self.total_text.setText(f"{TOTAL_T}: {str(value)}")
 
     def add_sort(self):
         sort_type = ORDER.get(JsonData.sort).get("text").lower()
