@@ -271,24 +271,44 @@ class OpenInApp(QMenu):
         )
 
 
+# меню с цветовыми метками для _grid.py > Thumb, ThumbSearch
 class ColorMenu(QMenu):
     _clicked = pyqtSignal(str)
 
     def __init__(self, parent: QMenu, src: str, colors: str):
-        super().__init__(parent=parent, title=COLORS_T)
+
+        super().__init__(
+            parent=parent,
+            title=COLORS_T
+        )
+
         self.src = src
+
+        # свойство Thumb, ThumbSearch
+        # цветовые метки для каждого виджета хранятся в базе данных
+        # и подгружаются при создании сетки
         self.colors = colors
 
+        # cfg.py > Static.COLORS заранее предопределенный список
+        # допустимых цветовых меток
+        # в цикле происходит проверка, есть ли цветовая метка
+        # в self.colors (свойство Thumb, ThumbSearch)
+        # если есть, то отмечается setChecked
         for color, text in Static.COLORS.items():
 
-            wid = QAction(parent=self, text=f"{color} {text}")
+            wid = QAction(
+                parent=self,
+                text=f"{color} {text}"
+            )
+
             wid.setCheckable(True)
 
             if color in self.colors:
                 wid.setChecked(True)
 
-            cmd_ = lambda e, c=color: self._clicked.emit(c)
-            wid.triggered.connect(cmd_)
+            wid.triggered.connect(
+                lambda e, c=color: self._clicked.emit(c)
+            )
 
             self.addAction(wid)
 
