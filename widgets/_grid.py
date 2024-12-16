@@ -531,11 +531,6 @@ class Grid(BaseMethods, QScrollArea):
 
         self.main_wid.setLayout(self.grid_layout)
 
-        # времянка # времянка # времянка # времянка # времянка # времянка # времянка # времянка 
-        # self.abc = QLabel()
-        # self.abc.deleteLater()
-        # QTimer.singleShot(1000, lambda: self.abc.deleteLater())
-
     def set_main_wid(self):
         self.setWidget(self.main_wid)
 
