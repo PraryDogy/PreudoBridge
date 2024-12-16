@@ -126,8 +126,7 @@ class SimpleFileExplorer(QWidget):
         self.bar_top.filters_btn.reset_filters()
 
         t = [
-            f"🟠\tИдет поиск: \"{search_text}\" в",
-            f"\"{os.path.basename(JsonData.root)}\""
+            f"🟠\tИдет поиск в \"{os.path.basename(JsonData.root)}\""
         ]
         self.setWindowTitle("".join(t))
 
