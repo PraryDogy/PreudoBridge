@@ -34,6 +34,8 @@ CHANGE_VIEW_GRID_T = "Сетка"
 CHANGE_VIEW_LIST_T = "Список"
 FIND_HERE_T = "Найти здесь"
 
+
+# Общий класс для выполнения действий QAction в отдельном потоке
 class Task_(URunnable):
     def __init__(self,  cmd_: callable):
         super().__init__()
@@ -41,121 +43,232 @@ class Task_(URunnable):
 
     @URunnable.set_running_state
     def run(self):
+
         try:
             self.cmd_()
+
         except RuntimeError as e:
-            Utils.print_error(parent=None, error=e)
+            Utils.print_error(
+                parent=None,
+                error=e
+            )
 
 
+# Базовый QAction с обязательными аргументами
 class UAction(QAction):
     def __init__(self, parent: QMenu, src: str, text: str):
-        super().__init__(parent=parent, text=text)
+
+        super().__init__(
+            parent=parent,
+            text=text
+        )
+
         self.triggered.connect(self.cmd_)
         self.src = src
 
     def cmd_(self):
+        # этот метод обязательно нужно переназначать в дочерних виджетах
         raise Exception("_actions > Переназначь cmd_")
 
 
 class RevealInFinder(UAction):
     def __init__(self, parent: QMenu, src: str):
-        super().__init__(parent, src, REVEAL_T)
 
+        super().__init__(
+            parent=parent,
+            src=src,
+            text=REVEAL_T
+        )
+
+    # показывает в Finder фоном
     def cmd_(self):
-        cmd_ = lambda: subprocess.call(["open", "-R", self.src])
-        self.task_ = Task_(cmd_)
-        UThreadPool.start(self.task_)
+
+        self.task_ = Task_(
+            cmd_=lambda: subprocess.call(["open", "-R", self.src])
+        )
+
+        UThreadPool.start(
+            runnable=self.task_
+        )
 
 
 class Info(UAction):
     def __init__(self, parent: QMenu, src: str):
-        super().__init__(parent, src, INFO_T)
+
+        super().__init__(
+            parent=parent,
+            src=src,
+            text=INFO_T
+        )
 
     def cmd_(self):
+        # импорт должен быть здесь для предотвращения circular import
         from ._base import OpenWin
-        OpenWin.info(Utils.get_main_win(), self.src)
+
+        OpenWin.info(
+            parent=Utils.get_main_win(),
+            src=self.src
+        )
 
 
+# из родительского виджета копирует путь к файлу / папке
 class CopyPath(UAction):
     def __init__(self, parent: QMenu, src: str):
-        super().__init__(parent, src, COPY_PATH_T)
+
+        super().__init__(
+            parent=parent,
+            src=src,
+            text=COPY_PATH_T
+        )
 
     def cmd_(self):
-        Utils.write_to_clipboard(self.src)
+        Utils.write_to_clipboard(
+            text=self.src
+        )
 
-
+# просмотреть - открывает просмотрщик изображений
+# или папку - тогда создается новая сетка Grid в gui.py
+# посколько действие будет разным для файла / папки, здесь
+# используется только сигнал для обозначения, что QAction был нажат
 class View(UAction):
     _clicked = pyqtSignal()
 
     def __init__(self, parent: QMenu, src: str):
-        super().__init__(parent, src, VIEW_T)
+
+        super().__init__(
+            parent=parent,
+            src=src,
+            text=VIEW_T
+        )
 
     def cmd_(self):
         self._clicked.emit()
 
 
+# это действите для GridSearch + Grid > ThumbSearch
+# показать найденный ThumbSearch из GridSearch в родительской GridStandart
 class ShowInFolder(UAction):
     _clicked = pyqtSignal()
 
     def __init__(self, parent: QMenu, src: str):
-        super().__init__(parent, src, SHOW_IN_FOLDER_T)
+
+        super().__init__(
+            parent=parent,
+            src=src,
+            text=SHOW_IN_FOLDER_T
+        )
 
     def cmd_(self):
         self._clicked.emit()
 
 
+# удалить из избранного
+# за избранное отвечает меню слева - tree_favorites > TreeFavorites
 class FavRemove(UAction):
     _clicked = pyqtSignal()
 
     def __init__(self, parent: QMenu, src: str):
-        super().__init__(parent, src, FAV_REMOVE_T)
+        
+        super().__init__(
+            parent=parent,
+            src=src,
+            text=FAV_REMOVE_T
+        )
 
     def cmd_(self):
         self._clicked.emit()
 
 
+# Задать имя элемента в избранном - tree_favorites > TreeFavorites
 class Rename(UAction):
     _clicked = pyqtSignal()
 
     def __init__(self, parent: QMenu, src: str):
-        super().__init__(parent, src, RENAME_T)
+
+        super().__init__(
+            parent=parent,
+            src=src,
+            text=RENAME_T
+        )
 
     def cmd_(self):
         self._clicked.emit()
 
 
+# тоже самое что FavRemove
 class FavAdd(UAction):
     _clicked = pyqtSignal()
 
     def __init__(self, parent: QMenu, src: str):
-        super().__init__(parent, src, FAV_ADD_T)
+        super().__init__(
+            parent=parent,
+            src=src,
+            text=FAV_ADD_T
+        )
 
     def cmd_(self):
         self._clicked.emit()
 
 
+# удаляет текущую сетку - GridStandart / GridSearch
+# создает новую сетку GridStandart
+# это действие нужно если мы знаем, что в папке, которую представляет сетка
+# произошли какие-то изменение вне приложения
+# удаление / добавление / переименование файла и т.п.
 class UpdateGrid(UAction):
     def __init__(self, parent: QMenu, src: str):
-        super().__init__(parent, src, UPDATE_GRID_T)
+
+        super().__init__(
+            parent=parent,
+            src=src,
+            text=UPDATE_GRID_T
+        )
 
     def cmd_(self):
-        SignalsApp.all_.load_standart_grid.emit("")
+        # удалить сетку и создать новую GridStandart
+        # сигнал принимает str, где мы указываем, на основе
+        # какой директории будет создана сетка GridStandart
+        SignalsApp.all_.load_standart_grid.emit(JsonData.root)
 
 
+# Меню со списком приложений, при помощи которых можно открыть изображение
+# Например Photoshop, стандартный просмотрщик Mac Os, Capture One
+# список приложений формируется при инициации приложения
+# смотри cfg.py
 class OpenInApp(QMenu):
     def __init__(self, parent: QMenu, src: str):
-        super().__init__(parent=parent, title=OPEN_IN_APP_T)
+
+        super().__init__(
+            parent=parent,
+            title=OPEN_IN_APP_T
+        )
+
         self.src = src
 
+        # список приложений, сформированный в cfg.py при инициации приложения
         for name, app_path in Static.IMAGE_APPS.items():
-            wid = QAction(parent=self, text=name)
-            wid.triggered.connect(lambda e, a=app_path: self.cmd_(a))
+
+            wid = QAction(
+                parent=self,
+                text=name
+            )
+
+            wid.triggered.connect(
+                lambda e, a=app_path: self.cmd_(app_path=a, e=e)
+            )
+
             self.addAction(wid)
 
-    def cmd_(self, app_path: str):
-        cmd_ = lambda: subprocess.call(["open", "-a", app_path, self.src])
-        self.task_ = Task_(cmd_)
-        UThreadPool.start(self.task_)
+    def cmd_(self, app_path: str, e):
+
+        # открыть в приложении, путь к которому указан в app_path
+        self.task_ = Task_(
+            cmd_=lambda: subprocess.call(["open", "-a", app_path, self.src])
+        )
+
+        UThreadPool.start(
+            runnable=self.task_
+        )
 
 
 class ColorMenu(QMenu):
