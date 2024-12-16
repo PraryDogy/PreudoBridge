@@ -18,7 +18,7 @@ class Signals(QObject):
     move_to_wid_delayed = pyqtSignal(str)
     open_path = pyqtSignal(str)
     new_history_item = pyqtSignal(str)
-    _path_labels_cmd = pyqtSignal(dict)
+    bar_bottom_cmd = pyqtSignal(dict)
 
     move_slider = pyqtSignal(int)
 

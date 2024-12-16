@@ -29,8 +29,8 @@ CACHE = sqlalchemy.Table(
 
 # ORDER создаётся как словарь, где ключ — это имя колонки с комментарием,
 # а значение — словарь с текстом комментария и индексом колонки.
-ORDER: dict[str, dict[str, int]] = {
-    clmn.name: {"text": clmn.comment}  # Включаем только колонки с комментариями.
+ORDER: dict[str, str] = {
+    clmn.name: clmn.comment  # Включаем только колонки с комментариями.
     for ind, clmn in enumerate(CACHE.columns)  # Перебираем все колонки в CACHE.
     if clmn.comment  # Фильтруем колонки с комментариями.
 }

@@ -241,7 +241,7 @@ class GridSearch(Grid):
         self.row, self.col = 0, 0
         self.total = 0
 
-        SignalsApp.all_._path_labels_cmd.emit(
+        SignalsApp.all_.bar_bottom_cmd.emit(
             {
                 "src": JsonData.root,
                 "total": 0
@@ -282,7 +282,7 @@ class GridSearch(Grid):
 
             self.order_()
 
-            SignalsApp.all_._path_labels_cmd.emit(
+            SignalsApp.all_.bar_bottom_cmd.emit(
                 {
                     "total": self.total
                 }
@@ -290,7 +290,7 @@ class GridSearch(Grid):
 
     def search_fin(self):
 
-        SignalsApp.all_._path_labels_cmd.emit(
+        SignalsApp.all_.bar_bottom_cmd.emit(
             {
                 "total": self.total
             }

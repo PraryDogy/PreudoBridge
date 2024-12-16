@@ -100,7 +100,7 @@ class ListStandart(QListWidget):
         self.order_items = order_items
         self.total = len(order_items)
 
-        SignalsApp.all_._path_labels_cmd.emit(
+        SignalsApp.all_.bar_bottom_cmd.emit(
             {"src": JsonData.root, "total": self.total}
         )
 

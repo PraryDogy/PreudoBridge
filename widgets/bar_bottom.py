@@ -391,7 +391,7 @@ class BarBottom(QWidget):
         bottom_lay.addWidget(self.slider)
 
         self.create_path_labels(JsonData.root)
-        SignalsApp.all_._path_labels_cmd.connect(self.path_labels_cmd)
+        SignalsApp.all_.bar_bottom_cmd.connect(self.path_labels_cmd)
 
     def sort_menu(self, *args):
         menu = SortMenu(parent=self.sort_wid)
@@ -409,9 +409,9 @@ class BarBottom(QWidget):
         self.total_text.setText(f"{TOTAL_T}: {str(value)}")
 
     def add_sort(self):
-        sort_type = ORDER.get(JsonData.sort).get("text").lower()
+        order_text_name = ORDER.get(JsonData.sort).lower()
         rev = ASC if JsonData.reversed else DESC
-        self.sort_wid.setText(f"{SORT_T}: {sort_type} ({rev})")
+        self.sort_wid.setText(f"{SORT_T}: {order_text_name} ({rev})")
 
     def open_go_win(self, *args):
         self.win = WinGo()

@@ -511,38 +511,56 @@ class SortMenu(QMenu):
 
         self.addSeparator()
 
-        # true_name - это имя колонки CACHE
+        # true_name - имя колонки CACHE
+        # text_name - текстовое обозначение колонки CACHE, основанное на
+        # комментарии колонки (CACHE.column.comment)
+        # смотри database.py > CACHE
+        for true_name, text_name in ORDER.items():
 
-        # dict: text - это текстовое представление, основанное на
-        # комментарии колонки (смотри database.py > ORDER)
+            action_ = QAction(
+                parent=self,
+                text=text_name
+            )
 
-        # dict: index - это целое число
-        # по ним осуществляется логика сортировки сетки виджетов
-        # GridStandart / GridSearch
-        # логику сортировки смотри в database.py > OrderItem > order_items
-
-        for true_name, dict_ in ORDER.items():
-            text_ = dict_.get("text")
-            action_ = QAction(parent=self, text=text_)
             action_.setCheckable(True)
 
-            cmd_ = lambda e, s=true_name: self.cmd_sort(sort=s)
-            action_.triggered.connect(cmd_)
+            # передаем true_name, чтобы осуществить сортировку сетки
+            # и записать true_name в пользовательские .json настройки
+            action_.triggered.connect(
+                lambda e, s=true_name: self.cmd_sort(true_name=s)
+            )
 
             if JsonData.sort == true_name:
                 action_.setChecked(True)
 
             self.addAction(action_)
 
-    def cmd_sort(self, sort: str):
-        JsonData.sort = sort
+    def cmd_sort(self, true_name: str):
+        # записываем true_name (тип сортировки) в пользовательский .json
+        JsonData.sort = true_name
+
+        # переформируем текущую сетку GridStandart / SearchGrid
+        # с учетом нового типа сортировки
         SignalsApp.all_.sort_grid.emit()
-        SignalsApp.all_._path_labels_cmd.emit({})
+
+        # передаем сигнал в нижний бар
+        # где отображается QLabel с типом сортировки
+        # чтобы он обновил данные
+        # пустой словарь обозначает, что нижний бар обновит данные о сортировке
+        SignalsApp.all_.bar_bottom_cmd.emit({})
 
     def cmd_revers(self, reversed: bool):
         JsonData.reversed = reversed
+
+        # переформируем текущую сетку GridStandart / SearchGrid
+        # с учетом нового типа сортировки
         SignalsApp.all_.sort_grid.emit()
-        SignalsApp.all_._path_labels_cmd.emit({})
+
+        # передаем сигнал в нижний бар
+        # где отображается QLabel с типом сортировки
+        # чтобы он обновил данные
+        # пустой словарь обозначает, что нижний бар обновит данные о сортировке
+        SignalsApp.all_.bar_bottom_cmd.emit({})
 
 
 class ChangeView(QMenu):

@@ -571,7 +571,7 @@ class Grid(BaseMethods, QScrollArea):
             # мог выделиться снова
             setattr(self, SELECTED, True)
 
-            cmd_ = lambda: SignalsApp.all_._path_labels_cmd.emit(
+            cmd_ = lambda: SignalsApp.all_.bar_bottom_cmd.emit(
                 {"src" : new_wid.src}
             )
             QTimer.singleShot(100, cmd_)
@@ -749,7 +749,7 @@ class Grid(BaseMethods, QScrollArea):
 
         self.setFocus()
 
-        cmd_ = lambda: SignalsApp.all_._path_labels_cmd.emit({"src": JsonData.root})
+        cmd_ = lambda: SignalsApp.all_.bar_bottom_cmd.emit({"src": JsonData.root})
         QTimer.singleShot(100, cmd_)
 
     def open_find_here_win(self, *args):
