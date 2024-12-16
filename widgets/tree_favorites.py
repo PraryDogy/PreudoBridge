@@ -63,10 +63,41 @@ class FavItem(QLabel):
         self.rename_finished.emit(text)
         JsonData.write_config()
 
+    def try_change_path(self):
+
+        if not os.path.exists(self.src):
+            
+            cut = self.src.strip(os.sep).split(os.sep)
+            if len(cut) > 2:
+                cut = cut[2:]
+
+            cut = os.path.join(*cut)
+
+            volumes = [
+                os.path.join(os.sep, "Volumes", i)
+                for i in os.listdir("/Volumes")
+            ]
+
+            for i in volumes:
+
+                new_src = os.path.join(i, cut)
+
+                if os.path.exists(new_src):
+
+                    self.src = new_src
+                    break
+
+
     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
         if ev.button() == Qt.MouseButton.LeftButton:
+
+            self.try_change_path()
+
+            
             SignalsApp.all_.new_history.emit(self.src)
             SignalsApp.all_.load_normal_mode.emit(self.src)
+
+
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
         self.menu_.exec_(ev.globalPos())
