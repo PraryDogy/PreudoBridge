@@ -21,36 +21,10 @@ class FavItem(QLabel):
 
     def __init__(self, name: str, src: str):
         super().__init__(text=name)
+
         self.name = name
         self.src = src
         self.setFixedHeight(25)
-
-        self.menu_ = QMenu(self)
-
-        cmd_ = lambda: SignalsApp.all_.load_standart_grid.emit(self.src)
-        view_ac = View(self.menu_, self.src)
-        view_ac._clicked.connect(cmd_)
-        self.menu_.addAction(view_ac)
-
-        open_finder_action = RevealInFinder(self.menu_, self.src)
-        self.menu_.addAction(open_finder_action)
-
-        self.menu_.addSeparator()
-
-        copy_path_action = CopyPath(self.menu_, self.src)
-        self.menu_.addAction(copy_path_action)
-
-        self.menu_.addSeparator()
-
-        rename_action = Rename(self.menu_, self.src)
-        rename_action._clicked.connect(self.rename_cmd)
-        self.menu_.addAction(rename_action)
-
-        cmd_ = lambda: self.del_click.emit()
-        fav_action = FavRemove(self.menu_, self.src)
-        fav_action._clicked.connect(cmd_)
-        self.menu_.addAction(fav_action)
-
         self.setContentsMargins(10, 0, 10, 0)
 
     def rename_cmd(self):
@@ -112,7 +86,33 @@ class FavItem(QLabel):
             SignalsApp.all_.load_standart_grid.emit(self.src)
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
-        self.menu_.exec_(ev.globalPos())
+        menu_ = QMenu(self)
+
+        cmd_ = lambda: SignalsApp.all_.load_standart_grid.emit(self.src)
+        view_ac = View(menu_, self.src)
+        view_ac._clicked.connect(cmd_)
+        menu_.addAction(view_ac)
+
+        open_finder_action = RevealInFinder(menu_, self.src)
+        menu_.addAction(open_finder_action)
+
+        menu_.addSeparator()
+
+        copy_path_action = CopyPath(menu_, self.src)
+        menu_.addAction(copy_path_action)
+
+        menu_.addSeparator()
+
+        rename_action = Rename(menu_, self.src)
+        rename_action._clicked.connect(self.rename_cmd)
+        menu_.addAction(rename_action)
+
+        cmd_ = lambda: self.del_click.emit()
+        fav_action = FavRemove(menu_, self.src)
+        fav_action._clicked.connect(cmd_)
+        menu_.addAction(fav_action)
+
+        menu_.exec_(ev.globalPos())
 
 
 class TreeFavorites(QListWidget):
