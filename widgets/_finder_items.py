@@ -71,7 +71,7 @@ class FinderItems(URunnable):
                 if entry.is_dir() or entry.name.endswith(Static.IMG_EXT):
                     try:
                         stats = entry.stat()
-                    except (PermissionError, FileNotFoundError, OSError):
+                    except Exception:
                         continue
 
                     size = stats.st_size

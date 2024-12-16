@@ -100,8 +100,14 @@ class SearchFinder(URunnable):
                                 self.create_wid = True
 
                             if self.create_wid:
-                                self.create_wid_cmd(entry.path, entry.stat())
-                                sleep(SLEEP)
+                                try:
+                                    self.create_wid_cmd(
+                                        src=entry.path,
+                                        stat=entry.stat()
+                                    )
+                                    sleep(SLEEP)
+                                except Exception:
+                                    ...
 
     def setup_text(self):
         try:

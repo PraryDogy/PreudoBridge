@@ -7,13 +7,14 @@ import webbrowser
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QKeyEvent
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QFrame, QGroupBox, QHBoxLayout, QLabel,
+from PyQt5.QtWidgets import (QSpacerItem, QGroupBox, QHBoxLayout, QLabel,
                              QPushButton, QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
 from database import Dbase
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
+from datetime import datetime
 
 from ._base import WinMinMax
 
@@ -25,6 +26,15 @@ JSON_T = "Json"
 UPDATE_T = "Обновления"
 JSON_DESCR = "Открыть файл настроек .json"
 UPDATE_DESCR = "Обновления на Яндекс Диске"
+LEFT_W = 110
+ICON_W = 70
+
+ABOUT_T = "\n".join(
+    [
+        f"{Static.APP_NAME} {Static.APP_VER}",
+        f"{datetime.now().year} Evgeny Loshakev"
+    ]
+)
 
 
 class WorkerSignals(QObject):
@@ -66,7 +76,10 @@ class GetSizer(URunnable):
                         stack.append(entry.path)
 
                     else:
-                        total_size += entry.stat().st_size
+                        try:
+                            total_size += entry.stat().st_size
+                        except Exception:
+                            ...
 
         data_size = DATA_T
         total_size = Utils.get_f_size(total_size)
@@ -85,7 +98,7 @@ class DataRow(QGroupBox):
         self.setLayout(h_lay)
 
         btn_ = QPushButton(text=CLEAR_T)
-        btn_.setFixedWidth(110)
+        btn_.setFixedWidth(LEFT_W)
         btn_.clicked.connect(self.clicked_.emit)
 
         h_lay.addWidget(btn_)
@@ -103,7 +116,7 @@ class JsonFile(QGroupBox):
         self.setLayout(h_lay)
 
         btn_ = QPushButton(text=JSON_T)
-        btn_.setFixedWidth(110)
+        btn_.setFixedWidth(LEFT_W)
         btn_.clicked.connect(
             lambda: subprocess.call(["open", Static.JSON_FILE])
         )
@@ -122,7 +135,7 @@ class Updates(QGroupBox):
         self.setLayout(h_lay)
 
         btn_ = QPushButton(text=UPDATE_T)
-        btn_.setFixedWidth(110)
+        btn_.setFixedWidth(LEFT_W)
         btn_.clicked.connect(lambda: webbrowser.open(Static.LINK))
 
         h_lay.addWidget(btn_)
@@ -141,10 +154,10 @@ class About(QGroupBox):
 
         svg_ = QSvgWidget()
         svg_.load(Static.ICON_SVG)
-        svg_.setFixedSize(70, 70)
+        svg_.setFixedSize(ICON_W, ICON_W)
         h_lay.addWidget(svg_)
 
-        descr = QLabel("Об авторе")
+        descr = QLabel(ABOUT_T)
         h_lay.addWidget(descr)
 
 

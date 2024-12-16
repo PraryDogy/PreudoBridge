@@ -62,7 +62,10 @@ class FolderSize(URunnable):
                         stack.append(entry.path)
 
                     else:
-                        total += entry.stat().st_size
+                        try:
+                            total += entry.stat().st_size
+                        except Exception:
+                            ...
 
         total = Utils.get_f_size(total)
 
