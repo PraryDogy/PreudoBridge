@@ -45,25 +45,24 @@ class FolderSize(URunnable):
 
     def main(self):
         total = 0
+        stack = []
+        stack.append(self.src)
 
-        for root, _, files in os.walk(self.src):
+        while stack:
+            current_dir = stack.pop()
 
-            if not self.should_run:
-                return
+            with os.scandir(current_dir) as entries:
 
-            for file in files:
+                for entry in entries:
 
-                if not self.should_run:
-                    return
+                    if not self.should_run:
+                        return
 
-                src_ = os.path.join(root, file)
+                    if entry.is_dir():
+                        stack.append(entry.path)
 
-                try:
-                    size_ = os.path.getsize(src_)
-                    total += size_
-                except Exception as e:
-                    # Utils.print_error(parent=self, error=e)
-                    continue
+                    else:
+                        total += entry.stat().st_size
 
         total = Utils.get_f_size(total)
 

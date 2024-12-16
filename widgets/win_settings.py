@@ -41,22 +41,29 @@ class GetSizer(URunnable):
             Utils.print_error(parent=None, error=e)
 
     def main(self):
+
+        if not os.path.exists(Static.HASH_DIR):
+            return
+
         total_size = 0
+        stack = []
+        stack.append(Static.HASH_DIR)
 
-        if os.path.exists(Static.HASH_DIR):
+        while stack:
+            current_dir = stack.pop()
 
-            for root, dirs, files in os.walk(Static.HASH_DIR):
+            with os.scandir(current_dir) as entries:
 
-                if not self.should_run:
-                    return
-
-                for file in files:
+                for entry in entries:
 
                     if not self.should_run:
                         return
-                
-                    file_path = os.path.join(root, file)
-                    total_size += os.path.getsize(file_path)
+
+                    if entry.is_dir():
+                        stack.append(entry.path)
+
+                    else:
+                        total_size += entry.stat().st_size
 
         data_size = DATA_T
         total_size = Utils.get_f_size(total_size)
