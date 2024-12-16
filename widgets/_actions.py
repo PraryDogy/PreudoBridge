@@ -306,6 +306,11 @@ class ColorMenu(QMenu):
             if color in self.colors:
                 wid.setChecked(True)
 
+            # клик возвращает через сигнал цветовую метку
+            # виджет Thumb / ThumbSearch сверит эту метку
+            # со своим списком цветовых меток (self.colors)
+            # и запишет метки в базу данных
+            # у виджета может быть несколько цветовых меток
             wid.triggered.connect(
                 lambda e, c=color: self._clicked.emit(c)
             )
@@ -313,31 +318,61 @@ class ColorMenu(QMenu):
             self.addAction(wid)
 
 
+# меню с рейтингом для _grid.py > Thumb, ThumbSearch
 class RatingMenu(QMenu):
     _clicked = pyqtSignal(int)
 
     def __init__(self, parent: QMenu, src: str, rating: int):
-        super().__init__(parent=parent, title=RATING_T)
+
+        super().__init__(
+            parent=parent,
+            title=RATING_T
+        )
+
         self.src = src
+
+        # свойство Thumb, ThumbSearch
+        # рейтинг для каждого виджета хранится в базе данных
+        # и подгружается при создании сетки
         self.rating = rating
 
+        # рейтинг от 1 до 5 звезд
+        # в цикле происходит проверка, есть ли рейтинг > 0
+        # в self.rating (свойство Thumb, ThumbSearch)
+        # если есть, то отмечается setChecked
+        # 0 возвращает False
         for rating in range(1, 6):
 
-            wid = QAction(parent=self, text=Static.STAR_SYM * rating)
+            wid = QAction(
+                parent=self,
+                text=Static.STAR_SYM * rating
+            )
+
             wid.setCheckable(True)
 
             if self.rating == rating:
                 wid.setChecked(True)
 
-            cmd_ = lambda e, r=rating: self._clicked.emit(r)
-            wid.triggered.connect(cmd_)
+            # клик возвращает через сигнал целое число
+            # соответствующее количеству звезд
+            # например: int(5) это 5 звезд = rating в данном цикле
+            # виджет Thumb / ThumbSearch установит новый рейтинг и 
+            # запишет его в базу данных
+            wid.triggered.connect(
+                lambda e, r=rating: self._clicked.emit(r)
+            )
 
             self.addAction(wid)
 
 
 class TextCut(QAction):
     def __init__(self, parent: QMenu, widget: QLineEdit):
-        super().__init__(parent=parent, text=CUT_T)
+
+        super().__init__(
+            parent=parent,
+            text=CUT_T
+        )
+
         self.wid = widget
         self.triggered.connect(self.cmd_)
 
