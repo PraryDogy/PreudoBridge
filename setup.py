@@ -67,7 +67,7 @@ AUTHOR = "Evgeny Loshkarev"  # "Evgeny Loshkarev"
 SHORT_AUTHOR_NAME = "Evlosh" # "Evlosh"
 COMPANY = "MIUZ Diamonds" # "MIUZ Diamonds"
 APP_NAME = Static.APP_NAME
-APP_VER = Static.APP_VER
+APP_VER = str(Static.APP_VER)
 ICON_PATH = os.path.join(Static.IMAGES_DIR, "icon.icns")
 MAIN_FILES = ["start.py"] # SINGLE OR MULTIPLE PYTHON FILES
 
