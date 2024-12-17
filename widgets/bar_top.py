@@ -2,6 +2,7 @@ import os
 
 from PyQt5.QtCore import QSize, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QMouseEvent
+from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QAction, QHBoxLayout, QLabel, QMenu, QPushButton,
                              QTabBar, QVBoxLayout, QWidget)
 
@@ -131,17 +132,17 @@ class FiltersBtn(QPushButton):
     def __init__(self):
         super().__init__(text=Static.STAR_SYM)
         
-        self._menu = QWidget()
-        self._menu.setWindowFlags(Qt.WindowType.Popup)
+        self.menu_ = QWidget()
+        self.menu_.setWindowFlags(Qt.WindowType.Popup)
 
-        self._menu.setLayout(QVBoxLayout())
-        self._menu.layout().setContentsMargins(0, 0, 0, 0)
-        self._menu.layout().setSpacing(1)
+        self.menu_.setLayout(QVBoxLayout())
+        self.menu_.layout().setContentsMargins(0, 0, 0, 0)
+        self.menu_.layout().setSpacing(1)
 
         # строчка с цветами
 
         self.color_wid = QWidget()
-        self._menu.layout().addWidget(self.color_wid)
+        self.menu_.layout().addWidget(self.color_wid)
         color_lay = QHBoxLayout()
         color_lay.setContentsMargins(3, 3, 3, 3)
         color_lay.setSpacing(5)
@@ -158,20 +159,20 @@ class FiltersBtn(QPushButton):
             color_lay.addWidget(label)
             self.color_wids.append(label)
 
-        cancel_color = QLabel(Static.FILTERS_CROSS_SYM)
-        cancel_color.setFixedSize(20, 20)
+        cancel_color = QSvgWidget()
+        cancel_color.setFixedSize(14, 14)
+        cancel_color.load(Static.CLEAR_SVG)
         cancel_color.mousePressEvent = self.reset_colors_cmd
         color_lay.addWidget(cancel_color)
 
-        color_lay.addStretch(1)
+        color_lay.addStretch()
 
-
-        raging_wid = QWidget()
-        self._menu.layout().addWidget(raging_wid)
+        rating_wid = QWidget()
+        self.menu_.layout().addWidget(rating_wid)
         rating_lay = QHBoxLayout()
         rating_lay.setContentsMargins(3, 3, 3, 3)
         rating_lay.setSpacing(5)
-        raging_wid.setLayout(rating_lay)
+        rating_wid.setLayout(rating_lay)
 
         self.rating_data = {1: False, 2: False,  3: False, 4: False, 5: False}
         self.rating_wids: list[QLabel] = []
@@ -184,13 +185,15 @@ class FiltersBtn(QPushButton):
             rating_lay.addWidget(label)
             self.rating_wids.append(label)
         
-        rating_lay.addStretch(1)
+        rating_lay.addStretch()
+
+        self.menu_.adjustSize()
 
     def mouseReleaseEvent(self, e: QMouseEvent):
         if e.button() == Qt.LeftButton:
             pont = self.rect().bottomLeft()
-            self._menu.move(self.mapToGlobal(pont))
-            self._menu.show()
+            self.menu_.move(self.mapToGlobal(pont))
+            self.menu_.show()
 
     def style_btn(self, set_down=True, style=f"color: {Static.BLUE};"):
 
