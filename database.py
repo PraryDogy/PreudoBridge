@@ -8,6 +8,12 @@ from cfg import Dynamic, JsonData, Static
 from utils import Utils
 
 METADATA = sqlalchemy.MetaData()
+NAME_T = "Имя"
+TYPE_T = "Тип"
+SIZE_T = "Размер"
+MOD_T = "Дата изменения"
+COLORS_T = "Цвета"
+RATING_T = "Рейтинг"
 
 CACHE = sqlalchemy.Table(
     "cache", METADATA,
@@ -19,13 +25,13 @@ CACHE = sqlalchemy.Table(
     sqlalchemy.Column("hash_path", sqlalchemy.Text),
     sqlalchemy.Column("root", sqlalchemy.Text),
     sqlalchemy.Column("catalog", sqlalchemy.Text, nullable=False),
-    sqlalchemy.Column("name", sqlalchemy.Text, comment="Имя"),
-    sqlalchemy.Column("type_", sqlalchemy.Text, comment="Тип"),
-    sqlalchemy.Column("size", sqlalchemy.Integer, comment="Размер"),
-    sqlalchemy.Column("mod", sqlalchemy.Integer, comment="Дата изменения"),
+    sqlalchemy.Column("name", sqlalchemy.Text, comment=NAME_T),
+    sqlalchemy.Column("type_", sqlalchemy.Text, comment=TYPE_T),
+    sqlalchemy.Column("size", sqlalchemy.Integer, comment=SIZE_T),
+    sqlalchemy.Column("mod", sqlalchemy.Integer, comment=MOD_T),
     sqlalchemy.Column("resol", sqlalchemy.Integer),
-    sqlalchemy.Column("colors", sqlalchemy.Text, nullable=False, comment="Цвета"),
-    sqlalchemy.Column("rating", sqlalchemy.Integer, nullable=False, comment="Рейтинг")
+    sqlalchemy.Column("colors", sqlalchemy.Text, nullable=False, comment=COLORS_T),
+    sqlalchemy.Column("rating", sqlalchemy.Integer, nullable=False, comment=RATING_T)
 )
 
 # создаем словарь из колонок таблицы CACHE
