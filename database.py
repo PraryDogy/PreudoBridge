@@ -96,11 +96,21 @@ class OrderItem:
 
         if attr == "colors":
 
-            key = lambda order_item: len(
-                getattr(order_item, attr)
-            )
+            # сортировка по цветовым меткам:
+            # так как аттрибут OrderItem "colors" это список цветовых меток,
+            # то мы производим сортировку по длине списка
+            # а не сортируем по имени
+
+            key = lambda order_item: len(getattr(order_item, attr))
+            return order_items.sort(key=key, reverse=rev)
 
         elif attr == "name":
+
+            # сортировка по имени:
+            # создаем список элементов, у которых в начале числовые символы
+            # и список элементов, у которых в начале нечисловые символы
+            # сортируем каждый список по отдельности
+            # возвращаем объединенный список
 
             nums: list[OrderItem] = []
             abc: list[OrderItem] = []
@@ -113,7 +123,10 @@ class OrderItem:
                 else:
                     abc.append(i)
 
+            # сортировка по числам в начале OrderItem.name
             key_num = lambda order_item: cls.get_nums(order_item)
+
+            # сортировка по OrderItem.name
             key_abc = lambda order_item: getattr(order_item, attr)
 
             nums.sort(key=key_num, reverse=rev)
@@ -124,8 +137,7 @@ class OrderItem:
         else:
 
             key = lambda order_item: getattr(order_item, attr)
-
-        return sorted(order_items, key=key, reverse=rev)
+            return order_items.sort(key=key, reverse=rev)
 
     # извлекаем начальные числа из order_item.name
     # по которым будет сортировка, например: "123 Te99st33" > 123
