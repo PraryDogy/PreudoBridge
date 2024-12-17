@@ -4,7 +4,7 @@ from PyQt5.QtCore import QSize, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QAction, QHBoxLayout, QLabel, QMenu, QPushButton,
-                             QTabBar, QVBoxLayout, QWidget, QSpacerItem)
+                             QTabBar, QVBoxLayout, QWidget, QSpacerItem, QFrame)
 
 from cfg import Dynamic, JsonData, Static
 from signals import SignalsApp
@@ -23,24 +23,37 @@ class ActionData:
         self.text: str = text
 
 
-class BarTopBtn(QSvgWidget):
+class BarTopBtn(QFrame):
     def __init__(self):
         super().__init__()
-        self.setFixedSize(17, 17)
+        self.setObjectName("bar_top_btn")
+        self.setFixedSize(25, 22)
+
+        h_lay = QHBoxLayout()
+        h_lay.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(h_lay)
+
+        self.svg_btn = QSvgWidget()
+        self.svg_btn.setFixedSize(17, 17)
+        h_lay.addWidget(self.svg_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+
         self.setStyleSheet(self.normal_style())
 
+    def load(self, path: str):
+        self.svg_btn.load(path)
+
     def normal_style(self):
-        return """background: transparent;"""
+        return """#bar_top_btn { background: transparent; }"""
 
     def solid_style(self):
-        return f"""background: {Static.GRAY_UP_BTN}; 
-                border-radius: 5px;"""
+        return f"""#bar_top_btn {{ background: {Static.GRAY_UP_BTN}; 
+                border-radius: 5px; }}"""
 
-    # def enterEvent(self, a0):
-    #     self.setStyleSheet(self.solid_style())
+    def enterEvent(self, a0):
+        self.setStyleSheet(self.solid_style())
 
-    # def leaveEvent(self, a0):
-    #     self.setStyleSheet(self.normal_style())
+    def leaveEvent(self, a0):
+        self.setStyleSheet(self.normal_style())
 
 
 class ViewTypeBtn(QTabBar):
@@ -295,31 +308,6 @@ class FiltersBtn(BarTopBtn):
         self.style_btn()
 
 
-class HistoryBtns(QWidget):
-    clicked_ = pyqtSignal(int)
-
-    def __init__(self):
-        super().__init__()
-
-        h_lay = QHBoxLayout()
-        h_lay.setContentsMargins(0, 0, 0, 0)
-        h_lay.setSpacing(0)
-
-        back = BarTopBtn()
-        back.load(Static.NAVIGATE_BACK_SVG)
-
-        next = BarTopBtn()
-        next.load(Static.NAVIGATE_NEXT_SVG)
-
-        # back.clicked.connect(lambda: self.clicked_.emit(-1))
-        # next.clicked.connect(lambda: self.clicked_.emit(1))
-
-        h_lay.addWidget(back)
-        h_lay.addWidget(next)
-
-        self.setLayout(h_lay)
-
-
 class BarTop(QWidget):
 
     def __init__(self):
@@ -338,16 +326,19 @@ class BarTop(QWidget):
 
         back = BarTopBtn()
         back.load(Static.NAVIGATE_BACK_SVG)
+        back.mouseReleaseEvent = lambda e: self.navigate(offset=-1)
+        self.main_lay.addWidget(back)
 
         next = BarTopBtn()
         next.load(Static.NAVIGATE_NEXT_SVG)
-
-        # self.history_btns.clicked_.connect(self.navigate)
-        self.main_lay.addWidget(back)
+        next.mouseReleaseEvent = lambda e: self.navigate(offset=1)
         self.main_lay.addWidget(next)
 
-        # self.level_up_btn.clicked.connect(self.level_up)
+        spacer = QSpacerItem(15, 0)
+        self.main_lay.addSpacerItem(spacer)
+
         self.level_up_btn = BarTopBtn()
+        self.level_up_btn.mouseReleaseEvent = self.level_up
         self.level_up_btn.load(Static.FOLDER_UP_SVG)
         self.main_lay.addWidget(self.level_up_btn)
 
@@ -406,7 +397,7 @@ class BarTop(QWidget):
         except (ValueError, IndexError):
             pass
 
-    def level_up(self, e):
+    def level_up(self, *args):
         root = os.path.dirname(JsonData.root)
         if not root == os.sep:
             SignalsApp.all_.new_history_item.emit(root)
