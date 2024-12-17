@@ -55,7 +55,7 @@ class MainWin(QWidget):
         self.migaet_timer.timeout.connect(self.blink_title)
 
         main_lay = QHBoxLayout()
-        main_lay.setContentsMargins(5, 10, 5, 0)
+        main_lay.setContentsMargins(5, 0, 5, 0)
         main_lay.setSpacing(0)
         self.setLayout(main_lay)
 

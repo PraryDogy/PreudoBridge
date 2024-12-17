@@ -4,7 +4,7 @@ from PyQt5.QtCore import QSize, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QAction, QHBoxLayout, QLabel, QMenu, QPushButton,
-                             QTabBar, QVBoxLayout, QWidget)
+                             QTabBar, QVBoxLayout, QWidget, QSpacerItem)
 
 from cfg import Dynamic, JsonData, Static
 from signals import SignalsApp
@@ -36,11 +36,11 @@ class BarTopBtn(QSvgWidget):
         return f"""background: {Static.GRAY_UP_BTN}; 
                 border-radius: 5px;"""
 
-    def enterEvent(self, a0):
-        self.setStyleSheet(self.solid_style())
+    # def enterEvent(self, a0):
+    #     self.setStyleSheet(self.solid_style())
 
-    def leaveEvent(self, a0):
-        self.setStyleSheet(self.normal_style())
+    # def leaveEvent(self, a0):
+    #     self.setStyleSheet(self.normal_style())
 
 
 class ViewTypeBtn(QTabBar):
@@ -336,12 +336,16 @@ class BarTop(QWidget):
         self.main_lay.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.main_lay)
 
-        self.history_btns = HistoryBtns()
-        self.history_btns.clicked_.connect(self.navigate)
-        self.main_lay.addWidget(self.history_btns)
+        back = BarTopBtn()
+        back.load(Static.NAVIGATE_BACK_SVG)
 
-        # self.level_up_btn = QPushButton(Static.UP_CURVE)
-        # self.level_up_btn.setFixedWidth(50)
+        next = BarTopBtn()
+        next.load(Static.NAVIGATE_NEXT_SVG)
+
+        # self.history_btns.clicked_.connect(self.navigate)
+        self.main_lay.addWidget(back)
+        self.main_lay.addWidget(next)
+
         # self.level_up_btn.clicked.connect(self.level_up)
         self.level_up_btn = BarTopBtn()
         self.level_up_btn.load(Static.FOLDER_UP_SVG)
@@ -357,6 +361,9 @@ class BarTop(QWidget):
         self.list_view.setFixedSize(17, 17)
         self.list_view.load(Static.LIST_VIEW_SVG)
         self.main_lay.addWidget(self.list_view)
+
+        spacer = QSpacerItem(30, 0)
+        self.main_lay.addSpacerItem(spacer)
 
         self.filters_btn = FiltersBtn()
         self.main_lay.addWidget(self.filters_btn)
