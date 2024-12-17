@@ -11,6 +11,19 @@ METADATA = sqlalchemy.MetaData()
 
 TABLE_NAME = "cache"
 
+ID = "id"
+SRC = "src"
+HASH_PATH = "hash_path"
+ROOT = "root"
+CATALOG = "catalog"
+NAME = "name"
+TYPE = "type_"
+SIZE = "size"
+MOD = "mod"
+RESOL = "resol"
+COLORS = "colors"
+RATING = "rating"
+
 NAME_T = "Имя"
 TYPE_T = "Тип"
 SIZE_T = "Размер"
@@ -18,25 +31,24 @@ MOD_T = "Дата изменения"
 COLORS_T = "Цвета"
 RATING_T = "Рейтинг"
 
-
 CACHE = sqlalchemy.Table(
     TABLE_NAME, METADATA,
-    # Определяем таблицу "cache" с её метаданными.
     # Комментарии колонок используются только для сортировки.
     # Где есть комментарий — сортировка возможна.
-    sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
-    sqlalchemy.Column("src", sqlalchemy.Text, unique=True),
-    sqlalchemy.Column("hash_path", sqlalchemy.Text),
-    sqlalchemy.Column("root", sqlalchemy.Text),
-    sqlalchemy.Column("catalog", sqlalchemy.Text, nullable=False),
-    sqlalchemy.Column("name", sqlalchemy.Text, comment=NAME_T),
-    sqlalchemy.Column("type_", sqlalchemy.Text, comment=TYPE_T),
-    sqlalchemy.Column("size", sqlalchemy.Integer, comment=SIZE_T),
-    sqlalchemy.Column("mod", sqlalchemy.Integer, comment=MOD_T),
-    sqlalchemy.Column("resol", sqlalchemy.Integer),
-    sqlalchemy.Column("colors", sqlalchemy.Text, nullable=False, comment=COLORS_T),
-    sqlalchemy.Column("rating", sqlalchemy.Integer, nullable=False, comment=RATING_T)
+    sqlalchemy.Column(ID, sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column(SRC, sqlalchemy.Text, unique=True),
+    sqlalchemy.Column(HASH_PATH, sqlalchemy.Text),
+    sqlalchemy.Column(ROOT, sqlalchemy.Text),
+    sqlalchemy.Column(CATALOG, sqlalchemy.Text, nullable=False),
+    sqlalchemy.Column(NAME, sqlalchemy.Text, comment=NAME_T),
+    sqlalchemy.Column(TYPE, sqlalchemy.Text, comment=TYPE_T),
+    sqlalchemy.Column(SIZE, sqlalchemy.Integer, comment=SIZE_T),
+    sqlalchemy.Column(MOD, sqlalchemy.Integer, comment=MOD_T),
+    sqlalchemy.Column(RESOL, sqlalchemy.Integer),
+    sqlalchemy.Column(COLORS, sqlalchemy.Text, nullable=False, comment=COLORS_T),
+    sqlalchemy.Column(RATING, sqlalchemy.Integer, nullable=False, comment=RATING_T)
 )
+
 
 # создаем словарь из колонок таблицы CACHE
 # ключ - внутреннее имя сортировки
