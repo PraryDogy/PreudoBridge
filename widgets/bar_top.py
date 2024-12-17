@@ -333,7 +333,7 @@ class BarTop(QWidget):
         next.mouseReleaseEvent = lambda e: self.navigate(offset=1)
         self.main_lay.addWidget(next)
 
-        spacer = QSpacerItem(15, 0)
+        spacer = QSpacerItem(10, 0)
         self.main_lay.addSpacerItem(spacer)
 
         self.level_up_btn = BarTopBtn()
@@ -353,8 +353,7 @@ class BarTop(QWidget):
         self.list_view.load(Static.LIST_VIEW_SVG)
         self.main_lay.addWidget(self.list_view)
 
-        spacer = QSpacerItem(30, 0)
-        self.main_lay.addSpacerItem(spacer)
+        self.main_lay.addStretch(1)
 
         self.filters_btn = FiltersBtn()
         self.main_lay.addWidget(self.filters_btn)
@@ -363,8 +362,6 @@ class BarTop(QWidget):
         self.sett_btn.mouseReleaseEvent = self.open_settings_win
         self.sett_btn.load(Static.SETTINGS_SVG)
         self.main_lay.addWidget(self.sett_btn)
-
-        self.main_lay.addStretch(1)
 
         self.search_wid = SearchWidget()
         self.main_lay.addWidget(self.search_wid)
