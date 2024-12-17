@@ -231,3 +231,5 @@ class Dynamic:
     hh_im = 500
     left_menu_tab = 1
     pixmap_size_ind = 0
+    rev: bool = False
+    sort: str = "name"

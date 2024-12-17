@@ -36,11 +36,9 @@ ORDER: dict[str, str] = {
     if clmn.comment  # Фильтруем колонки с комментариями.
 }
 
-# Список всех колонок из CACHE, начиная со второй (пропускаем "id").
-CACHE_CLMNS = [
-    i.name  # Извлекаем имена колонок.
-    for i in CACHE.columns  # Перебираем все колонки.
-][1:]  # Пропускаем первый элемент (id).
+# соответсвуют имени колонки CACHE
+COLORS = "colors"
+NAME = "name"
 
 
 class OrderItem:
@@ -62,37 +60,19 @@ class OrderItem:
         else:
             self.type_ = os.path.splitext(self.src)[-1]
 
-    # как работает сортировка:
-    # у нас есть колонка с именем "size" в таблице CACHE (см. выше)
-    # значит в OrderItem обязан быть аттрибут "size"
-    # пользовательская сортировка так же обязана иметь аттрибут "size"
-    # таким образом, когда пользователь выберет сортировку по размеру
-    # в JsonData.sort запишется имя "size"
-    # далее составляется сетка виджетов Thumb, ThumbFolder, ThumbSearch
-    # которые являются наследниками OrderItem, то есть все они
-    # имеют аттрибут "size"
-    # в данном методе и происходит сортировка по аттрибуту "size"
-    # из OrderItem - он берется методом getattr
-    # ORDER - это список из имен колонок, по котороым можно сортировать сетку
-    # на основке ORDER формируется список доступных вариантов сортировки сетки
 
-    # упрощенно
-    # сортировка "size" > колонка CACHE "size" > есть аттрибут OrderItem "size"
-    # по данному аттрибуту и будет сортировка
+    # Как работает сортировка:
+    # пользователь выбрал сортировку "по размеру"
+    # в Dynamic в аттрибут "sort" записывается значение "size"
+    # CACHE колонка имеет имя "size"
+    # OrderItem имеет аттрибут "size"
+    # на основе аттрибута "size" происходит сортировка списка из OrderItem
 
     @classmethod
     def order_items(cls, order_items: list["OrderItem"]) -> list["OrderItem"]:
         
-        order = list(ORDER.keys())
         attr = JsonData.sort
         rev = JsonData.reversed
-
-        if attr not in order:
-            print("database > OrderItem > order_items")
-            print("Такой сортировки не существует:", JsonData.sort)
-            print("Применяю сортировку из ORDER:", order[0])
-            JsonData.sort = order[0]
-            attr = JsonData.sort
 
         if attr == "colors":
 
@@ -144,99 +124,97 @@ class OrderItem:
     # re.match ищет числа до первого нечислового символа
     @classmethod
     def get_nums(cls, order_item: "OrderItem"):
-        return int(re.match(r'^\d+', order_item.name).group())
+
+        return int(
+            re.match(r'^\d+', order_item.name).group()
+        )
+
 
 class Dbase:
-    # Это класс для работы с базой данных
-    engine: sqlalchemy.Engine = None  # Инициализация переменной для движка SQLAlchemy.
+    engine: sqlalchemy.Engine
 
     @classmethod
     def init_db(cls):
-        # Инициализация базы данных, создание соединения и таблиц.
+
         cls.engine = sqlalchemy.create_engine(
-            f"sqlite:///{Static.DB_FILE}",  # Используется SQLite база с файлом из Static.DB_FILE.
-            echo=False,  # Отключение логирования SQL запросов.
-            connect_args={
-                "check_same_thread": False,  # Разрешение на использование соединений в разных потоках.
-                "timeout": 15  # Тайм-аут для подключения (15 секунд).
+            url = f"sqlite:///{Static.DB_FILE}",
+            echo = False,
+            connect_args = {
+                "check_same_thread": False,
+                "timeout": 15
             }
         )
-        METADATA.create_all(cls.engine)  # Создание всех таблиц по метаданным.
-        cls.toggle_wal(False)  # Отключаем WAL (write-ahead logging).
-        cls.check_tables()  # Проверка таблиц в базе.
-        cls.check_values()  # Проверка значений в базе.
+
+        METADATA.create_all(bind=cls.engine)
+        cls.toggle_wal(value=False)
+        cls.check_get_cache_values()
 
     @classmethod
     def toggle_wal(cls, value: bool):
-        # Переключение режима журнала (WAL или DELETE).
+
+        # WAL это опция с возможностью одновременного чтения и записи
+        # в базу данных
+        # работает так себе, поэтому мы ее выключаем
+    
         with cls.engine.connect() as conn:
+
             if value:
-                conn.execute(sqlalchemy.text("PRAGMA journal_mode=WAL"))  # Включаем WAL.
+                conn.execute(
+                    statement = sqlalchemy.text("PRAGMA journal_mode=WAL")
+                )
+
             else:
-                conn.execute(sqlalchemy.text("PRAGMA journal_mode=DELETE"))  # Включаем обычный режим.
+                conn.execute(
+                    statement = sqlalchemy.text("PRAGMA journal_mode=DELETE")
+                )
 
     @classmethod
     def clear_db(cls):
-        # Очищение базы данных, удаление данных из таблицы CACHE.
+
+        # очистка CACHE, запускается из настроек приложения
+
         conn = cls.engine.connect()
 
         try:
-            q_del_cache = sqlalchemy.delete(CACHE)  # Подготовка запроса на удаление всех данных из таблицы CACHE.
-            conn.execute(q_del_cache)  # Выполнение запроса.
+            q_del_cache = sqlalchemy.delete(CACHE) 
+            conn.execute(q_del_cache)
 
         except OperationalError as e:
-            # Обработка ошибок, если возникнут проблемы с удалением.
+
             Utils.print_error(cls, e)
-            conn.rollback()  # Откат транзакции.
+            conn.rollback()
             return False
 
-        conn.commit()  # Подтверждение изменений.
-        conn.execute(sqlalchemy.text("VACUUM"))  # Освобождение неиспользуемого пространства.
-        conn.close()  # Закрытие соединения.
+        conn.commit()
+        conn.execute(sqlalchemy.text("VACUUM"))
+        conn.close()
 
         return True
 
     @classmethod
-    def check_tables(cls):
-        # Проверка наличия необходимых таблиц в базе данных.
-        inspector = sqlalchemy.inspect(cls.engine)  # Создаём инспектора для проверки базы.
+    def check_get_cache_values(cls):
 
-        TABLES = [CACHE]  # Список всех нужных таблиц.
+        # проверка, что get_cache_values учитывает все колонки из CACHE
+        # запускается один раз при инициации приложения
 
-        db_tables = inspector.get_table_names()  # Получаем список таблиц из базы данных.
-        res: bool = (list(i.name for i in TABLES) == db_tables)  # Сравниваем с необходимыми таблицами.
+        # пустые аргументы, чтобы метод мог вернуть словарь
+        kwargs_ = ["" for i in range(0, 7)]
+        cache_values = cls.get_cache_values(*kwargs_)
+        cache_values = list(cache_values.keys())
 
-        if not res:
-            # Если таблицы не соответствуют, создаём новую базу данных.
-            print("Не соответствие таблиц, создаю новую дб")
-            os.remove(Static.DB_FILE)  # Удаляем старую базу.
-            cls.init_db()  # Инициализируем новую базу.
-            return
+        # все колонки CACHE кроме id
+        clmns = [i.name for i in CACHE.columns][1:]
 
-        for table in TABLES:
-            # Проверка соответствия колонок в таблицах.
-            clmns = list(clmn.name for clmn in table.columns)  # Получаем список нужных колонок.
-            db_clmns = list(clmn.get("name") for clmn in inspector.get_columns(table.name))  # Колонки из базы.
-            res = bool(db_clmns == clmns)  # Сравниваем.
-
-            if not res:
-                # Если колонки не соответствуют, создаём новую базу данных.
-                print(f"Не соответствие колонок в {table.name}, создаю новую дб")
-                os.remove(Static.DB_FILE)  # Удаляем старую базу.
-                cls.init_db()  # Инициализируем новую базу.
-                break
+        assert cache_values == clmns, "проверь get_cache_values"
 
     @classmethod
-    def check_values(cls):
-        # Проверка, что все колонки правильно учитываются при создании новой записи в базе.
-        values = cls.get_cache_values(*["" for i in range(0, 7)])  # Генерация пустых значений для проверки.
-        assert list(values.keys()) == CACHE_CLMNS, "проверь get_cache_values"  # Проверяем соответствие колонок.
+    def get_cache_values(cls, src, hash_path, name, type_, size, mod, resol):
 
-    @classmethod
-    def get_cache_values(
-        cls, src, hash_path, name, type_, size, mod, resol
-    ) -> dict[str, str]:
-        # Возвращает словарь значений для новой записи в базе данных.
+        # метод который получает values для sqlalchemy.insert
+        # словарь соответствует колонкам CACHE
+        # если появится или будет удалена какая-либо колонка CACHE,
+        # здесь это обязательно нужно отобразить
+
         return {
             "src": src,  # Путь к файлу.
             "hash_path": hash_path,  # Хэш пути.
