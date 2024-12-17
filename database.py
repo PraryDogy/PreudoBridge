@@ -8,6 +8,9 @@ from cfg import Dynamic, JsonData, Static
 from utils import Utils
 
 METADATA = sqlalchemy.MetaData()
+
+TABLE_NAME = "cache"
+
 NAME_T = "Имя"
 TYPE_T = "Тип"
 SIZE_T = "Размер"
@@ -15,8 +18,9 @@ MOD_T = "Дата изменения"
 COLORS_T = "Цвета"
 RATING_T = "Рейтинг"
 
+
 CACHE = sqlalchemy.Table(
-    "cache", METADATA,
+    TABLE_NAME, METADATA,
     # Определяем таблицу "cache" с её метаданными.
     # Комментарии колонок используются только для сортировки.
     # Где есть комментарий — сортировка возможна.
