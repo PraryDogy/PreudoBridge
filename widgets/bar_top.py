@@ -235,7 +235,6 @@ class FiltersBtn(BarTopBtn):
             set_down = False
             style = ""
 
-        # self.setDown(set_down)
         self.setStyleSheet(style)
 
     def toggle_color(self, widget: ColorLabel, color: str):
@@ -345,11 +344,12 @@ class BarTop(QWidget):
         self.main_lay.addStretch(1)
 
         self.grid_view = BarTopBtn()
+        self.grid_view.mouseReleaseEvent = lambda e: self.change_view_cmd(index=0)
         self.grid_view.load(Static.GRID_VIEW_SVG)
         self.main_lay.addWidget(self.grid_view)
     
         self.list_view = BarTopBtn()
-        self.list_view.setFixedSize(17, 17)
+        self.list_view.mouseReleaseEvent = lambda e: self.change_view_cmd(index=1)
         self.list_view.load(Static.LIST_VIEW_SVG)
         self.main_lay.addWidget(self.list_view)
 
@@ -359,8 +359,8 @@ class BarTop(QWidget):
         self.filters_btn = FiltersBtn()
         self.main_lay.addWidget(self.filters_btn)
 
-        # self.sett_btn.clicked.connect(self.open_settings_win)
         self.sett_btn = BarTopBtn()
+        self.sett_btn.mouseReleaseEvent = self.open_settings_win
         self.sett_btn.load(Static.SETTINGS_SVG)
         self.main_lay.addWidget(self.sett_btn)
 
@@ -373,7 +373,11 @@ class BarTop(QWidget):
         SignalsApp.all_.new_history_item.emit(JsonData.root)
         self.index_ -= 1
 
-    def open_settings_win(self):
+    def change_view_cmd(self, index: int, *args):
+        Dynamic.grid_view_type = index
+        SignalsApp.all_.load_standart_grid.emit(JsonData.root)
+
+    def open_settings_win(self, *args):
         self.win = WinSettings()
         Utils.center_win(Utils.get_main_win(), self.win)
         self.win.show()
