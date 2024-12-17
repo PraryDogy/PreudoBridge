@@ -64,38 +64,37 @@ class OrderItem:
     @classmethod
     def order_items(cls, order_items: list["OrderItem"]) -> list["OrderItem"]:
         
-        # Получаем список ключей сортировки из ORDER.
         order = list(ORDER.keys())
+        order_item_attr = JsonData.sort
 
-        # Проверяем, есть ли заданный метод сортировки в списке доступных.
-        if JsonData.sort not in order:
+
+        if order_item_attr not in order:
             print("database > OrderItem > order_items")
             print("Такой сортировки не существует:", JsonData.sort)
             print("Применяю сортировку из ORDER:", order[0])
             JsonData.sort = order[0]
+            order_item_attr = JsonData.sort
 
-        # Если выбранная сортировка — по длине поля colors.
-        if JsonData.sort == "colors":
 
-            # Ключ сортировки — длина строки атрибута colors.
-            key = lambda x: len(getattr(x, JsonData.sort))
+        # Аттрибуты OrderItem обязаны совпадать с ORDER.keys()
+        # В JsonData.sort хранится имя аттрибута OrderItem
+        # Таким образом пользователь выбирает сортировку
+        # по имени OrderItem (например "name")
+        # тогда "name" берется для каждого OrderItem методом getattr
+        # например: getattr(OrderItem, "name")
+        # и таким образом происходит сортировка
 
-        # elif JsonData.sort == "name":
+        if order_item_attr == "colors":
 
-            # # Используем метод sort_key для корректной обработки имён.
-            # key = lambda x: cls.sort_key(
-            #     x=getattr(x, JsonData.sort)
-            # )
+            key = lambda order_item: len(
+                getattr(order_item, order_item_attr)
+            )
 
-        # Для всех других типов сортировки (например, по числовым атрибутам).
         else:
 
-            # Сортируем по значению соответствующего атрибута объекта.
-            key = lambda x: getattr(x, JsonData.sort)
+            key = lambda order_item: getattr(order_item, order_item_attr)
 
-        # Учитываем параметр реверса сортировки.
         rev = JsonData.reversed
-
         return sorted(order_items, key=key, reverse=rev)
 
     @classmethod
