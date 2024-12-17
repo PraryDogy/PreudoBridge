@@ -63,11 +63,11 @@ class MainWin(QWidget):
         self.bar_tabs.setFixedWidth(Static.LEFT_MENU_W)
         main_lay.addWidget(self.bar_tabs)
 
-        self.folders_tree_wid = TreeFolders()
-        self.bar_tabs.addTab(self.folders_tree_wid, "Папки")
+        self.tree_folders = TreeFolders()
+        self.bar_tabs.addTab(self.tree_folders, "Папки")
 
-        self.folders_fav_wid = TreeFavorites()
-        self.bar_tabs.addTab(self.folders_fav_wid, "Избранное")
+        self.tree_favorites = TreeFavorites()
+        self.bar_tabs.addTab(self.tree_favorites, "Избранное")
 
         # self.bar_tabs.addTab(QLabel("Тут будут каталоги"), "Каталог")
 
@@ -175,7 +175,7 @@ class MainWin(QWidget):
             self.scroll_up_scroll_value
         )
 
-        self.folders_tree_wid.expand_path(JsonData.root)
+        self.tree_folders.expand_path(JsonData.root)
 
         self.r_lay.insertWidget(1, self.grid)
         self.grid.setFocus()
@@ -193,8 +193,21 @@ class MainWin(QWidget):
 
         # предотвращает segmentation fault
 
+        wids = (
+            self.scroll_up,
+            self.tree_favorites,
+            self.tree_folders,
+            self.bar_tabs,
+            self.bar_top,
+            self.grid,
+            self.bar_bottom
+            )
+        
+        for i in wids:
+            i.close()
+
         for i in self.findChildren(QWidget):
-            i.deleteLater()
+            i.close()
 
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         Dynamic.ww = self.geometry().width()
