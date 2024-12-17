@@ -407,8 +407,8 @@ class BarBottom(QWidget):
         self.total_text.setText(f"{TOTAL_T}: {str(value)}")
 
     def add_sort(self):
-        order_text_name = ORDER.get(JsonData.sort).lower()
-        rev = ASC if JsonData.reversed else DESC
+        order_text_name = ORDER.get(Dynamic.sort).lower()
+        rev = ASC if Dynamic.rev else DESC
         self.sort_wid.setText(f"{SORT_T}: {order_text_name} ({rev})")
 
     def open_go_win(self, *args):

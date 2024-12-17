@@ -504,7 +504,7 @@ class SortMenu(QMenu):
             # если свойство rev совпадает с пользовательским свойством reversed
             # то отмечаем галочкой
             # JsonData - пользовательские данные из .json файла
-            if i.rev == JsonData.reversed:
+            if i.rev == Dynamic.rev:
                 i.setChecked(True)
 
         self.addSeparator()
@@ -528,14 +528,14 @@ class SortMenu(QMenu):
                 lambda e, s=true_name: self.cmd_sort(true_name=s)
             )
 
-            if JsonData.sort == true_name:
+            if Dynamic.sort == true_name:
                 action_.setChecked(True)
 
             self.addAction(action_)
 
     def cmd_sort(self, true_name: str):
         # записываем true_name (тип сортировки) в пользовательский .json
-        JsonData.sort = true_name
+        Dynamic.sort = true_name
 
         # переформируем текущую сетку GridStandart / SearchGrid
         # с учетом нового типа сортировки
@@ -548,7 +548,7 @@ class SortMenu(QMenu):
         SignalsApp.all_.bar_bottom_cmd.emit({})
 
     def cmd_revers(self, reversed: bool):
-        JsonData.reversed = reversed
+        Dynamic.rev = reversed
 
         # переформируем текущую сетку GridStandart / SearchGrid
         # с учетом нового типа сортировки

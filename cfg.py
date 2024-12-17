@@ -125,12 +125,6 @@ class ThumbData:
 
 class JsonData:
     root = f"/Volumes"
-
-    # database > CACHE > column name = "name"
-    # базовая сортировка по имени по возрастанию
-    sort = "name"
-
-    reversed = False
     extra_paths = ["/Studio/PANACEA", "/Studio/MIUZ"]
     favs = {}
 

@@ -4,7 +4,7 @@ import re
 import sqlalchemy
 from sqlalchemy.exc import OperationalError
 
-from cfg import JsonData, Static
+from cfg import Dynamic, JsonData, Static
 from utils import Utils
 
 METADATA = sqlalchemy.MetaData()
@@ -73,8 +73,8 @@ class OrderItem:
     @classmethod
     def order_items(cls, order_items: list["OrderItem"]) -> list["OrderItem"]:
         
-        attr = JsonData.sort
-        rev = JsonData.reversed
+        attr = Dynamic.sort
+        rev = Dynamic.rev
 
         if attr == SORT_BY_COLORS:
 
@@ -84,7 +84,8 @@ class OrderItem:
             # а не сортируем по имени
 
             key = lambda order_item: len(getattr(order_item, attr))
-            return order_items.sort(key=key, reverse=rev)
+            order_items.sort(key=key, reverse=rev)
+            return order_items
 
         elif attr == SORT_BY_NAME:
 
@@ -119,7 +120,8 @@ class OrderItem:
         else:
 
             key = lambda order_item: getattr(order_item, attr)
-            return order_items.sort(key=key, reverse=rev)
+            order_items.sort(key=key, reverse=rev)
+            return order_items
 
     # извлекаем начальные числа из order_item.name
     # по которым будет сортировка, например: "123 Te99st33" > 123
