@@ -24,12 +24,12 @@ RESOL = "resol"
 COLORS = "colors"
 RATING = "rating"
 
-NAME_T = "Имя"
-TYPE_T = "Тип"
-SIZE_T = "Размер"
-MOD_T = "Дата изменения"
-COLORS_T = "Цвета"
-RATING_T = "Рейтинг"
+NAME_ = "Имя"
+TYPE_ = "Тип"
+SIZE_ = "Размер"
+MOD_ = "Дата изменения"
+COLORS_ = "Цвета"
+RATING_ = "Рейтинг"
 
 CACHE = sqlalchemy.Table(
     TABLE_NAME, METADATA,
@@ -40,13 +40,13 @@ CACHE = sqlalchemy.Table(
     sqlalchemy.Column(HASH_PATH, sqlalchemy.Text),
     sqlalchemy.Column(ROOT, sqlalchemy.Text),
     sqlalchemy.Column(CATALOG, sqlalchemy.Text, nullable=False),
-    sqlalchemy.Column(NAME, sqlalchemy.Text, comment=NAME_T),
-    sqlalchemy.Column(TYPE, sqlalchemy.Text, comment=TYPE_T),
-    sqlalchemy.Column(SIZE, sqlalchemy.Integer, comment=SIZE_T),
-    sqlalchemy.Column(MOD, sqlalchemy.Integer, comment=MOD_T),
+    sqlalchemy.Column(NAME, sqlalchemy.Text, comment=NAME_),
+    sqlalchemy.Column(TYPE, sqlalchemy.Text, comment=TYPE_),
+    sqlalchemy.Column(SIZE, sqlalchemy.Integer, comment=SIZE_),
+    sqlalchemy.Column(MOD, sqlalchemy.Integer, comment=MOD_),
     sqlalchemy.Column(RESOL, sqlalchemy.Integer),
-    sqlalchemy.Column(COLORS, sqlalchemy.Text, nullable=False, comment=COLORS_T),
-    sqlalchemy.Column(RATING, sqlalchemy.Integer, nullable=False, comment=RATING_T)
+    sqlalchemy.Column(COLORS, sqlalchemy.Text, nullable=False, comment=COLORS_),
+    sqlalchemy.Column(RATING, sqlalchemy.Integer, nullable=False, comment=RATING_)
 )
 
 
@@ -59,10 +59,6 @@ ORDER: dict[str, str] = {
     for clmn in CACHE.columns
     if clmn.comment
 }
-
-# соответсвуют имени колонки CACHE
-SORT_BY_COLORS = "colors"
-SORT_BY_NAME = "name"
 
 
 class OrderItem:
@@ -98,7 +94,7 @@ class OrderItem:
         attr = Dynamic.sort
         rev = Dynamic.rev
 
-        if attr == SORT_BY_COLORS:
+        if attr == COLORS:
 
             # сортировка по цветовым меткам:
             # так как аттрибут OrderItem "colors" это список цветовых меток,
@@ -109,7 +105,7 @@ class OrderItem:
             order_items.sort(key=key, reverse=rev)
             return order_items
 
-        elif attr == SORT_BY_NAME:
+        elif attr == NAME:
 
             # сортировка по имени:
             # создаем список элементов, у которых в начале числовые символы
@@ -242,15 +238,15 @@ class Dbase:
         # здесь это обязательно нужно отобразить
 
         return {
-            "src": src,  # Путь к файлу.
-            "hash_path": hash_path,  # Хэш пути.
-            "root": os.path.dirname(src),  # Корневая директория файла.
-            "catalog": "",  # Каталог (пока пустой).
-            "name": name,  # Имя файла.
-            "type_": type_,  # Тип файла.
-            "size": size,  # Размер файла.
-            "mod": mod,  # Дата изменения файла.
-            "resol": resol,  # Разрешение (если применимо).
-            "colors": "",  # Цвета (пока пустые).
-            "rating": 0  # Рейтинг (по умолчанию 0).
+            SRC: src,  # Путь к файлу.
+            HASH_PATH: hash_path,  # Хэш пути.
+            ROOT: os.path.dirname(src),  # Корневая директория файла.
+            CATALOG: "",  # Каталог (пока пустой).
+            NAME: name,  # Имя файла.
+            TYPE: type_,  # Тип файла.
+            SIZE: size,  # Размер файла.
+            MOD: mod,  # Дата изменения файла.
+            RESOL: resol,  # Разрешение (если применимо).
+            COLORS: "",  # Цвета (пока пустые).
+            RATING: 0  # Рейтинг (по умолчанию 0).
         }
