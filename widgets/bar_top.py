@@ -66,14 +66,9 @@ class SearchWidget(QWidget):
 
         self.search_wid = ULineEdit()
         self.search_wid.setPlaceholderText("Поиск")
-        self.search_wid.setStyleSheet("padding-left: 2px; padding-right: 20px;")
-        self.search_wid.setFixedSize(170, 24)
+        self.search_wid.setFixedWidth(170)
         self.search_wid.mouseDoubleClickEvent = self.show_templates
         self.search_wid.clear_btn_vcenter()
-        self.search_wid.clear_btn_cmd(
-            cmd=lambda e: self.search_wid.clear()
-        )
-        self.search_wid.clear_btn.hide()
         v_lay.addWidget(self.search_wid)
 
         self.search_wid.textChanged.connect(self.on_text_changed)

@@ -19,9 +19,12 @@ class WinFindHere(WinMinMax):
         self.setLayout(v_lay)
 
         self.text_edit = ULineEdit()
-        self.text_edit.setFixedHeight(25)
         self.text_edit.setPlaceholderText(FIND_HERE_PLACEHOLDER)
+        self.text_edit.setFixedWidth(200)
+        self.text_edit.clear_btn_vcenter()
         v_lay.addWidget(self.text_edit)
+
+        self.text_edit.clear_btn_vcenter()
 
         ok_btn = QPushButton(text="Ок")
         ok_btn.setFixedWidth(90)

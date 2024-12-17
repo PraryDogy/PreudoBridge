@@ -139,8 +139,9 @@ class WinGo(WinMinMax):
 
         self.input_wid = ULineEdit()
         self.input_wid.setPlaceholderText("Вставьте путь к файлу/папке")
-        self.input_wid.setFixedSize(270, 25)
+        self.input_wid.setFixedWidth(270)
         v_lay.addWidget(self.input_wid, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.input_wid.clear_btn_vcenter()
 
         go_btn = QPushButton("Перейти")
         go_btn.setFixedWidth(130)

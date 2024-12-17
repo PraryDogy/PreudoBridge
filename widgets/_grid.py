@@ -16,7 +16,7 @@ from utils import URunnable, UThreadPool, Utils
 from ._actions import (ChangeView, ColorMenu, CopyPath, FavAdd, FavRemove,
                        FindHere, Info, OpenInApp, RatingMenu, RevealInFinder,
                        ShowInFolder, SortMenu, UpdateGrid, View)
-from ._base import BaseMethods, OpenWin, ULineEdit, USvgWidget, WinMinMax
+from ._base import BaseMethods, OpenWin, USvgWidget
 from .list_file_system import ListFileSystem
 from .win_find_here import WinFindHere
 
