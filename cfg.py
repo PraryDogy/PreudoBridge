@@ -24,7 +24,6 @@ class Static:
     STAR_SYM = "\U00002605" # ★
     GRID_SYM = "\U00001392" # ᎒
     BURGER_SYM = "\U00002630" # ☰
-    FILTERS_CROSS_SYM = "\u2715" # ✕
     UP_ARROW_SYM = "\u25B2" # ▲
     BACK_SYM = "\u276E" # ❮
     NEXT_SYM = "\u276F" # ❯
