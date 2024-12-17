@@ -65,61 +65,68 @@ class OrderItem:
     def order_items(cls, order_items: list["OrderItem"]) -> list["OrderItem"]:
         
         order = list(ORDER.keys())
-        order_item_attr = JsonData.sort
-        rev = JsonData.revesrsed
+        attr = JsonData.sort
+        rev = JsonData.reversed
 
-        if order_item_attr not in order:
+        if attr not in order:
             print("database > OrderItem > order_items")
             print("Такой сортировки не существует:", JsonData.sort)
             print("Применяю сортировку из ORDER:", order[0])
             JsonData.sort = order[0]
-            order_item_attr = JsonData.sort
+            attr = JsonData.sort
 
 
-        # Аттрибуты OrderItem обязаны совпадать с ORDER.keys()
-        # В JsonData.sort хранится имя аттрибута OrderItem
-        # Таким образом пользователь выбирает сортировку
-        # по имени OrderItem (например "name")
-        # тогда "name" берется для каждого OrderItem методом getattr
-        # например: getattr(OrderItem, "name")
-        # и таким образом происходит сортировка
+        # как работает сортировка:
+        # у нас есть колонка с именем "size" в таблице CACHE (см. выше)
+        # значит в OrderItem обязан быть аттрибут "size"
+        # пользовательская сортировка так же обязана иметь аттрибут "size"
+        # таким образом, когда пользователь выберет сортировку по размеру
+        # в JsonData.sort запишется имя "size"
+        # далее составляется сетка виджетов Thumb, ThumbFolder, ThumbSearch
+        # которые являются наследниками OrderItem, то есть все они
+        # имеют аттрибут "size"
+        # в данном методе и происходит сортировка по аттрибуту "size"
+        # из OrderItem - он берется методом getattr
+        # ORDER - это список из имен колонок, по котороым можно сортировать сетку
+        # на основке ORDER формируется список доступных вариантов сортировки сетки
 
-        if order_item_attr == "colors":
+        if attr == "colors":
 
             key = lambda order_item: len(
-                getattr(order_item, order_item_attr)
+                getattr(order_item, attr)
             )
 
-        elif order_item_attr == "name":
-            numbered = [
-                i
-                for i in order_items
-                if i.name[0].isdigit()
-            ]
+        elif attr == "name":
 
-            alphabetic = [
-                i
-                for i in order_items
-                if not i.name.isdigit()
-            ]
+            nums: list[OrderItem] = []
+            abc: list[OrderItem] = []
 
-            numbered.sort(key=lambda order_itemL , reverse=rev)
-            alphabetic.sort(key=lambda order_item: order_item.name, reverse=rev)
+            for i in order_items:
 
-            return numbered.extend(alphabetic)
+                if i.name[0].isdigit():
+                    nums.append(i)
+
+                else:
+                    abc.append(i)
+
+            key_num = lambda order_item: cls.custom_key(order_item)
+            key_abc = lambda order_item: getattr(order_item, attr)
+
+            nums.sort(key=key_num, reverse=rev)
+            abc.sort(key=key_abc, reverse=rev)
+
+            return [*nums, *abc]
 
         else:
 
-            key = lambda order_item: getattr(order_item, order_item_attr)
+            key = lambda order_item: getattr(order_item, attr)
 
         return sorted(order_items, key=key, reverse=rev)
 
     @classmethod
     def custom_key(cls, order_item: "OrderItem"):
         name = order_item.name
-        is_digit = str(name)[0].isdigit() if isinstance(name, str) else False
-        return (not is_digit, name)
-
+        return int(name[0])
 
 class Dbase:
     # Это класс для работы с базой данных
