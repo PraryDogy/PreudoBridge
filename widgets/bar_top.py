@@ -12,8 +12,6 @@ from utils import Utils
 from ._base import ULineEdit
 from .win_settings import WinSettings
 
-SETT_SYM = "\U00002699"
-
 
 class ActionData:
     __slots__ = ["sort", "reversed", "text"]
@@ -348,7 +346,7 @@ class BarTop(QWidget):
         self.filters_btn = FiltersBtn()
         self.main_lay.addWidget(self.filters_btn)
 
-        self.sett_btn = QPushButton(parent=self, text=SETT_SYM)
+        self.sett_btn = QPushButton(parent=self, text=Static.GEAR_SYM)
         self.sett_btn.clicked.connect(self.open_settings_win)
         self.main_lay.addWidget(self.sett_btn)
 

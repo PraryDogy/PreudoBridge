@@ -17,14 +17,11 @@ from utils import URunnable, UThreadPool, Utils
 from ._actions import CopyPath, Info, RevealInFinder, SortMenu, View
 from ._base import OpenWin, ULineEdit, USlider, USvgWidget, WinMinMax
 
-ARROW = " \U0000203A"
 
 SORT_T = "Сортировка"
 TOTAL_T = "Всего"
 ASC = "по убыв."
-# ASC = "\u2B23"
 DESC = "по возр."
-# DESC = "\u2B21"
 GO_T = "Перейти"
 
 class WorkerSignals(QObject):
@@ -219,7 +216,7 @@ class PathItem(QWidget):
         item_layout.addWidget(self.text_wid)
 
     def add_arrow(self):
-        t = self.text_wid.text() + ARROW
+        t = self.text_wid.text() + " " + Static.ARROW_RIGHT
         self.text_wid.setText(t)
 
     def expand(self):

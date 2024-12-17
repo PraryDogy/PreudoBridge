@@ -20,6 +20,7 @@ class Static:
     GRAY_UP_BTN = "rgba(128, 128, 128, 0.40)"
     BLUE = "rgb(46, 89, 203)"
 
+    ARROW_RIGHT = " \U0000203A" # ›
     STAR_SYM = "\U00002605" # ★
     GRID_SYM = "\U00001392" # ᎒
     BURGER_SYM = "\U00002630" # ☰
