@@ -69,49 +69,47 @@ class SearchFinder(URunnable):
             Utils.print_error(parent=None, error=e)
 
     def walk_dir(self):
-        stack = []
-        stack.append(JsonData.root)
+        stack = [JsonData.root]
 
         while stack:
             current_dir = stack.pop()
 
+            if not self.should_run:
+                return
+
             try:
                 with os.scandir(current_dir) as entries:
-
                     for entry in entries:
-
                         if not self.should_run:
                             return
 
                         if entry.is_dir():
                             stack.append(entry.path)
+                            continue
 
-                        else:
-                            src_lower: str = entry.path.lower()
+                        if not entry.path.lower().endswith(Static.IMG_EXT):
+                            continue
 
-                            if src_lower.endswith(Static.IMG_EXT):
-                                
-                                self.create_wid = False
+                        if self._should_create_wid(entry):
+                            self._process_entry(entry)
 
-                                if hasattr(self, "is_tuple"):
-                                    if src_lower.endswith(self.search_text):
-                                        self.create_wid = True
-            
-                                elif self.search_text in entry.name:
-                                    self.create_wid = True
+            except FileNotFoundError:
+                pass
+            except Exception:
+                pass
 
-                                if self.create_wid:
-                                    try:
-                                        self.create_wid_cmd(
-                                            src=entry.path,
-                                            stat=entry.stat()
-                                        )
-                                        sleep(SLEEP)
-                                    except Exception:
-                                        ...
-            except (FileNotFoundError, Exception):
-                ...
+    def _should_create_wid(self, entry: os.DirEntry):
+        src_lower: str = entry.path.lower()
+        if hasattr(self, "is_tuple") and src_lower.endswith(self.search_text):
+            return True
+        return self.search_text in entry.name
 
+    def _process_entry(self, entry):
+        try:
+            self.create_wid_cmd(src=entry.path, stat=entry.stat())
+            sleep(SLEEP)
+        except Exception:
+            pass
 
     def setup_text(self):
         try:
