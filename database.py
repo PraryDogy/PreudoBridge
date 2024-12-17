@@ -1,9 +1,10 @@
 import os
+import re
 
 import sqlalchemy
 from sqlalchemy.exc import OperationalError
 
-from cfg import Static, JsonData
+from cfg import JsonData, Static
 from utils import Utils
 
 METADATA = sqlalchemy.MetaData()
@@ -112,7 +113,7 @@ class OrderItem:
                 else:
                     abc.append(i)
 
-            key_num = lambda order_item: cls.custom_key(order_item)
+            key_num = lambda order_item: cls.get_nums(order_item)
             key_abc = lambda order_item: getattr(order_item, attr)
 
             nums.sort(key=key_num, reverse=rev)
@@ -126,16 +127,12 @@ class OrderItem:
 
         return sorted(order_items, key=key, reverse=rev)
 
+    # извлекаем начальные числа из order_item.name
+    # по которым будет сортировка, например: "123 Te99st33" > 123
+    # re.match ищет числа до первого нечислового символа
     @classmethod
-    def custom_key(cls, order_item: "OrderItem"):
-        nums = []
-
-        for i in order_item.name:
-            if i.isdigit():
-                nums.append(i)
-            else:
-                break
-        return int("".join(nums))
+    def get_nums(cls, order_item: "OrderItem"):
+        return int(re.match(r'^\d+', order_item.name).group())
 
 class Dbase:
     # Это класс для работы с базой данных
