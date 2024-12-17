@@ -76,7 +76,7 @@ class OrderItem:
     # на основке ORDER формируется список доступных вариантов сортировки сетки
 
     # упрощенно
-    # сортировка "size" > есть колонка CACHE "size" > есть аттрибут OrderItem "size"
+    # сортировка "size" > колонка CACHE "size" > есть аттрибут OrderItem "size"
     # по данному аттрибуту и будет сортировка
 
     @classmethod
@@ -128,8 +128,14 @@ class OrderItem:
 
     @classmethod
     def custom_key(cls, order_item: "OrderItem"):
-        name = order_item.name
-        return int(name[0])
+        nums = []
+
+        for i in order_item.name:
+            if i.isdigit():
+                nums.append(i)
+            else:
+                break
+        return int("".join(nums))
 
 class Dbase:
     # Это класс для работы с базой данных
