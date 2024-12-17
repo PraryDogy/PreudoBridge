@@ -75,39 +75,43 @@ class SearchFinder(URunnable):
         while stack:
             current_dir = stack.pop()
 
-            with os.scandir(current_dir) as entries:
+            try:
+                with os.scandir(current_dir) as entries:
 
-                for entry in entries:
+                    for entry in entries:
 
-                    if not self.should_run:
-                        return
+                        if not self.should_run:
+                            return
 
-                    if entry.is_dir():
-                        stack.append(entry.path)
+                        if entry.is_dir():
+                            stack.append(entry.path)
 
-                    else:
-                        src_lower: str = entry.path.lower()
+                        else:
+                            src_lower: str = entry.path.lower()
 
-                        if src_lower.endswith(Static.IMG_EXT):
-                            
-                            self.create_wid = False
+                            if src_lower.endswith(Static.IMG_EXT):
+                                
+                                self.create_wid = False
 
-                            if hasattr(self, "is_tuple"):
-                                if src_lower.endswith(self.search_text):
+                                if hasattr(self, "is_tuple"):
+                                    if src_lower.endswith(self.search_text):
+                                        self.create_wid = True
+            
+                                elif self.search_text in entry.name:
                                     self.create_wid = True
-        
-                            elif self.search_text in entry.name:
-                                self.create_wid = True
 
-                            if self.create_wid:
-                                try:
-                                    self.create_wid_cmd(
-                                        src=entry.path,
-                                        stat=entry.stat()
-                                    )
-                                    sleep(SLEEP)
-                                except Exception:
-                                    ...
+                                if self.create_wid:
+                                    try:
+                                        self.create_wid_cmd(
+                                            src=entry.path,
+                                            stat=entry.stat()
+                                        )
+                                        sleep(SLEEP)
+                                    except Exception:
+                                        ...
+            except (FileNotFoundError, Exception):
+                ...
+
 
     def setup_text(self):
         try:
