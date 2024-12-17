@@ -27,17 +27,20 @@ class BarTopBtn(QSvgWidget):
     def __init__(self):
         super().__init__()
         self.setFixedSize(17, 17)
+        self.setStyleSheet(self.normal_style())
+
+    def normal_style(self):
+        return """background: transparent;"""
+
+    def solid_style(self):
+        return f"""background: {Static.GRAY_UP_BTN}; 
+                border-radius: 5px;"""
 
     def enterEvent(self, a0):
-        self.setStyleSheet(
-            f"""
-                background: {Static.GRAY_UP_BTN};
-                border-radius: 5px;
-            """
-        )
+        self.setStyleSheet(self.solid_style())
 
     def leaveEvent(self, a0):
-        self.setStyleSheet("")
+        self.setStyleSheet(self.normal_style())
 
 
 class ViewTypeBtn(QTabBar):
