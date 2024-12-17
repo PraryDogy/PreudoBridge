@@ -64,20 +64,19 @@ class SearchWidget(QWidget):
         v_lay.setSpacing(0)
         self.setLayout(v_lay)
 
-        self.input_wid = ULineEdit()
-        self.input_wid.setPlaceholderText("Поиск")
-        self.input_wid.setStyleSheet("padding-left: 2px; padding-right: 20px;")
-        self.input_wid.setFixedSize(170, 25)
-        self.input_wid.mouseDoubleClickEvent = self.show_templates
-        v_lay.addWidget(self.input_wid)
+        self.search_wid = ULineEdit()
+        self.search_wid.setPlaceholderText("Поиск")
+        self.search_wid.setStyleSheet("padding-left: 2px; padding-right: 20px;")
+        self.search_wid.setFixedSize(170, 24)
+        self.search_wid.mouseDoubleClickEvent = self.show_templates
+        self.search_wid.clear_btn_vcenter()
+        self.search_wid.clear_btn_cmd(
+            cmd=lambda e: self.search_wid.clear()
+        )
+        self.search_wid.clear_btn.hide()
+        v_lay.addWidget(self.search_wid)
 
-        self.clear_btn = QLabel(parent=self, text=Static.SEARCH_CROSS_SYM)
-        self.clear_btn.setFixedSize(15, 10)
-        self.clear_btn.move(self.input_wid.width() - 20, 8)
-        self.clear_btn.hide()
-        self.clear_btn.mouseReleaseEvent = lambda e: self.input_wid.clear()
-
-        self.input_wid.textChanged.connect(self.on_text_changed)
+        self.search_wid.textChanged.connect(self.on_text_changed)
         self.search_text: str = None
 
         self.search_timer = QTimer(self)
@@ -105,28 +104,28 @@ class SearchWidget(QWidget):
             self.templates_menu.addAction(action)
 
     def costil(self):
-        self.input_wid.disconnect()
-        self.input_wid.clear()
-        self.clear_btn.hide()
-        self.input_wid.textChanged.connect(self.on_text_changed)
+        self.search_wid.disconnect()
+        self.search_wid.clear()
+        self.search_wid.clear_btn.hide()
+        self.search_wid.textChanged.connect(self.on_text_changed)
 
     def on_text_changed(self, text: str):
         self.search_timer.stop()
         if text:
-            self.clear_btn.show()
+            self.search_wid.clear_btn.show()
             self.search_text = text.strip()
-            self.input_wid.setText(self.search_text)
+            self.search_wid.setText(self.search_text)
             self.search_timer.start(1000)
         else:
             self.clear_search.emit()
-            self.clear_btn.hide()
+            self.search_wid.clear_btn.hide()
             SignalsApp.all_.load_standart_grid.emit("")
 
     def show_templates(self, a0: QMouseEvent | None) -> None:
         self.templates_menu.exec(self.mapToGlobal(self.rect().bottomLeft()))
     
     def action_cmd(self, text: str):
-        self.input_wid.setText(text)
+        self.search_wid.setText(text)
 
 
 class ColorLabel(QLabel):

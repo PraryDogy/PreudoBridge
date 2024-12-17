@@ -79,7 +79,19 @@ class USvgWidget(QSvgWidget):
 class ULineEdit(QLineEdit):
     def __init__(self):
         super().__init__()
-        self.setStyleSheet("padding-left: 2px; padding-right: 2px;")
+        self.setStyleSheet("padding-left: 2px; padding-right: 16px;")
+
+        self.clear_btn = QSvgWidget(parent=self)
+        self.clear_btn.load(Static.CLEAR_SVG)
+        self.clear_btn.setFixedSize(14, 14)
+
+    def clear_btn_cmd(self, cmd: callable):
+        self.clear_btn.mouseReleaseEvent = cmd
+
+    def clear_btn_vcenter(self):
+        x = self.width() - self.clear_btn.width() - 6
+        y = (self.height() - self.clear_btn.height()) // 2
+        self.clear_btn.move(x, y)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         menu = QMenu()
