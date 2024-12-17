@@ -2,9 +2,8 @@ import os
 
 from PyQt5.QtCore import QSize, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QMouseEvent
-from PyQt5.QtWidgets import (QAction, QFrame, QGridLayout, QHBoxLayout, QLabel,
-                             QMenu, QPushButton, QSpacerItem, QTabBar,
-                             QTabWidget, QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QAction, QHBoxLayout, QLabel, QMenu, QPushButton,
+                             QTabBar, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static
 from signals import SignalsApp

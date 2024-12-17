@@ -47,6 +47,7 @@ class Static:
     PREV_SVG = os.path.join(IMAGES_DIR, "prev.svg")
     NEXT_SVG = os.path.join(IMAGES_DIR, "next.svg")
     ICON_SVG = os.path.join(IMAGES_DIR, "icon.svg")
+    CLEAR_SVG = os.path.join(IMAGES_DIR, "clear.svg")
 
     FOLDER_TYPE: str = "Папка"
 
