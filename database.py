@@ -28,17 +28,19 @@ CACHE = sqlalchemy.Table(
     sqlalchemy.Column("rating", sqlalchemy.Integer, nullable=False, comment="Рейтинг")
 )
 
-# ORDER создаётся как словарь, где ключ — это имя колонки с комментарием,
-# а значение — словарь с текстом комментария и индексом колонки.
+# создаем словарь из колонок таблицы CACHE
+# ключ - внутреннее имя сортировки
+# значение из комментария - текстовое имя сортировки
+# на основке ORDER фомируется виджет со списком видов сортировки
 ORDER: dict[str, str] = {
-    clmn.name: clmn.comment  # Включаем только колонки с комментариями.
-    for ind, clmn in enumerate(CACHE.columns)  # Перебираем все колонки в CACHE.
-    if clmn.comment  # Фильтруем колонки с комментариями.
+    clmn.name: clmn.comment
+    for clmn in CACHE.columns
+    if clmn.comment
 }
 
 # соответсвуют имени колонки CACHE
-COLORS = "colors"
-NAME = "name"
+SORT_BY_COLORS = "colors"
+SORT_BY_NAME = "name"
 
 
 class OrderItem:
@@ -74,7 +76,7 @@ class OrderItem:
         attr = JsonData.sort
         rev = JsonData.reversed
 
-        if attr == "colors":
+        if attr == SORT_BY_COLORS:
 
             # сортировка по цветовым меткам:
             # так как аттрибут OrderItem "colors" это список цветовых меток,
@@ -84,7 +86,7 @@ class OrderItem:
             key = lambda order_item: len(getattr(order_item, attr))
             return order_items.sort(key=key, reverse=rev)
 
-        elif attr == "name":
+        elif attr == SORT_BY_NAME:
 
             # сортировка по имени:
             # создаем список элементов, у которых в начале числовые символы
