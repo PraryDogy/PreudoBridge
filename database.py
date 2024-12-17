@@ -66,7 +66,7 @@ class OrderItem:
         
         order = list(ORDER.keys())
         order_item_attr = JsonData.sort
-
+        rev = JsonData.revesrsed
 
         if order_item_attr not in order:
             print("database > OrderItem > order_items")
@@ -90,19 +90,35 @@ class OrderItem:
                 getattr(order_item, order_item_attr)
             )
 
+        elif order_item_attr == "name":
+            numbered = [
+                i
+                for i in order_items
+                if i.name[0].isdigit()
+            ]
+
+            alphabetic = [
+                i
+                for i in order_items
+                if not i.name.isdigit()
+            ]
+
+            numbered.sort(key=lambda order_itemL , reverse=rev)
+            alphabetic.sort(key=lambda order_item: order_item.name, reverse=rev)
+
+            return numbered.extend(alphabetic)
+
         else:
 
             key = lambda order_item: getattr(order_item, order_item_attr)
 
-        rev = JsonData.reversed
         return sorted(order_items, key=key, reverse=rev)
 
     @classmethod
-    def sort_key(cls, x: str):
-        # Разбиваем строку на части (сначала числа, потом текст).
-        # Если часть — число, то преобразуем в int, иначе задаём бесконечность.
-        parts = x.split()
-        return int(parts[0]) if parts[0].isdigit() else float('inf')
+    def custom_key(cls, order_item: "OrderItem"):
+        name = order_item.name
+        is_digit = str(name)[0].isdigit() if isinstance(name, str) else False
+        return (not is_digit, name)
 
 
 class Dbase:
