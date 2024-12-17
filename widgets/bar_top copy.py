@@ -23,23 +23,6 @@ class ActionData:
         self.text: str = text
 
 
-class BarTopBtn(QSvgWidget):
-    def __init__(self):
-        super().__init__()
-        self.setFixedSize(17, 17)
-
-    def enterEvent(self, a0):
-        self.setStyleSheet(
-            f"""
-                background: {Static.GRAY_UP_BTN};
-                border-radius: 5px;
-            """
-        )
-
-    def leaveEvent(self, a0):
-        self.setStyleSheet("")
-
-
 class ViewTypeBtn(QTabBar):
     def __init__(self):
         super().__init__()
@@ -145,10 +128,9 @@ class ColorLabel(QLabel):
         self.is_selected = False
 
 
-class FiltersBtn(BarTopBtn):
+class FiltersBtn(QPushButton):
     def __init__(self):
-        super().__init__()
-        self.load(Static.RATING_SVG)
+        super().__init__(text=Static.STAR_SYM)
         
         self.menu_ = QWidget()
         self.menu_.setWindowFlags(Qt.WindowType.Popup)
@@ -219,7 +201,7 @@ class FiltersBtn(BarTopBtn):
             set_down = False
             style = ""
 
-        # self.setDown(set_down)
+        self.setDown(set_down)
         self.setStyleSheet(style)
 
     def toggle_color(self, widget: ColorLabel, color: str):
@@ -302,14 +284,14 @@ class HistoryBtns(QWidget):
         h_lay.setContentsMargins(0, 0, 0, 0)
         h_lay.setSpacing(0)
 
-        back = BarTopBtn()
-        back.load(Static.NAVIGATE_BACK_SVG)
+        back = QPushButton(Static.BACK_SYM)
+        next = QPushButton(Static.NEXT_SYM)
 
-        next = BarTopBtn()
-        next.load(Static.NAVIGATE_NEXT_SVG)
+        for i in (back, next):
+            i.setFixedWidth(40)
 
-        # back.clicked.connect(lambda: self.clicked_.emit(-1))
-        # next.clicked.connect(lambda: self.clicked_.emit(1))
+        back.clicked.connect(lambda: self.clicked_.emit(-1))
+        next.clicked.connect(lambda: self.clicked_.emit(1))
 
         h_lay.addWidget(back)
         h_lay.addWidget(next)
@@ -337,33 +319,41 @@ class BarTop(QWidget):
         self.history_btns.clicked_.connect(self.navigate)
         self.main_lay.addWidget(self.history_btns)
 
-        # self.level_up_btn = QPushButton(Static.UP_CURVE)
-        # self.level_up_btn.setFixedWidth(50)
-        # self.level_up_btn.clicked.connect(self.level_up)
-        self.level_up_btn = BarTopBtn()
-        self.level_up_btn.load(Static.FOLDER_UP_SVG)
+        self.level_up_btn = QPushButton(Static.UP_CURVE)
+        self.level_up_btn.setFixedWidth(50)
+        self.level_up_btn.clicked.connect(self.level_up)
         self.main_lay.addWidget(self.level_up_btn)
 
-        self.main_lay.addStretch(1)
+        self.main_lay.addStretch()
 
-        self.grid_view = BarTopBtn()
-        self.grid_view.load(Static.GRID_VIEW_SVG)
-        self.main_lay.addWidget(self.grid_view)
-    
-        self.list_view = BarTopBtn()
-        self.list_view.setFixedSize(17, 17)
-        self.list_view.load(Static.LIST_VIEW_SVG)
-        self.main_lay.addWidget(self.list_view)
+  
+        # чтобы кнопки смены вида (сетка или список)
+        # стояли вровень с остальными кнопками  в баре
+        # мы прибегаем в созданию родительского виджета и лейаута
+        # для кнопок смены вида
+
+        view_type_parent = QWidget()
+        self.level_up_btn.adjustSize()
+        level_up_h = self.level_up_btn.height()
+        view_type_parent.setFixedHeight(level_up_h)
+        self.main_lay.addWidget(view_type_parent)
+
+        view_type_lay = QHBoxLayout()
+        view_type_lay.setContentsMargins(0, 0, 0, 0)
+        view_type_parent.setLayout(view_type_lay)
+
+        self.view_type_btn = ViewTypeBtn()
+        view_type_lay.addWidget(self.view_type_btn)
+
 
         self.filters_btn = FiltersBtn()
         self.main_lay.addWidget(self.filters_btn)
 
-        # self.sett_btn.clicked.connect(self.open_settings_win)
-        self.sett_btn = BarTopBtn()
-        self.sett_btn.load(Static.SETTINGS_SVG)
+        self.sett_btn = QPushButton(parent=self, text=Static.GEAR_SYM)
+        self.sett_btn.clicked.connect(self.open_settings_win)
         self.main_lay.addWidget(self.sett_btn)
 
-        self.main_lay.addStretch(1)
+        self.main_lay.addStretch()
 
         self.search_wid = SearchWidget()
         self.main_lay.addWidget(self.search_wid)

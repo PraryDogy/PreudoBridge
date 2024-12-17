@@ -48,6 +48,14 @@ class Static:
     ICON_SVG = os.path.join(IMAGES_DIR, "icon.svg")
     CLEAR_SVG = os.path.join(IMAGES_DIR, "clear.svg")
 
+    FOLDER_UP_SVG = os.path.join(IMAGES_DIR, "folder_up.svg")
+    GRID_VIEW_SVG = os.path.join(IMAGES_DIR, "grid_view.svg")
+    LIST_VIEW_SVG = os.path.join(IMAGES_DIR, "list_view.svg")
+    NAVIGATE_BACK_SVG = os.path.join(IMAGES_DIR, "navigate_back.svg")
+    NAVIGATE_NEXT_SVG = os.path.join(IMAGES_DIR, "navigate_next.svg")
+    RATING_SVG = os.path.join(IMAGES_DIR, "rating.svg")
+    SETTINGS_SVG = os.path.join(IMAGES_DIR, "settings.svg")
+
     FOLDER_TYPE: str = "Папка"
 
     GRID_SPACING = 5
