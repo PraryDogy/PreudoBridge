@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QPushButton, QVBoxLayout, QLabel
 from ._base import WinMinMax
 
 OK_T = "Ок"
+COPYING = "Копирую"
 
 
 class WinWarn(WinMinMax):
@@ -39,6 +40,8 @@ class WinWarn(WinMinMax):
 class WinCopy(WinMinMax):
 
     def __init__(self, text: str):
+        text = f"{COPYING} {text}"
+
         super().__init__()
 
         v_lay = QVBoxLayout()
