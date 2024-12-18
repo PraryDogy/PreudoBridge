@@ -34,6 +34,7 @@ CHANGE_VIEW_LIST_T = "Список"
 FIND_HERE_T = "Найти здесь"
 CREATE_FOLDER_T = "Создать папку"
 NEW_FOLDER_T = "Новая папка"
+NEW_FOLDER_WARN = "Папка с таким именем уже существует"
 
 
 # Общий класс для выполнения действий QAction в отдельном потоке
@@ -663,5 +664,12 @@ class CreateFolder(QAction):
 
         else:
 
-            from ._base import WinMinMax
-            self.win = Win
+            from .win_warn import WinWarn
+            self.win_warn = WinWarn(text=NEW_FOLDER_WARN)
+
+            Utils.center_win(
+                parent=self.window,
+                child=self.win_warn
+            )
+
+            self.win_warn.show()
