@@ -10,7 +10,7 @@ from cfg import Dynamic, JsonData, Static
 from signals import SignalsApp
 from utils import Utils
 
-from ._base import ULineEdit
+from ._base import ULineEdit, UFrame
 from .win_settings import WinSettings
 
 
@@ -23,10 +23,9 @@ class ActionData:
         self.text: str = text
 
 
-class BarTopBtn(QFrame):
+class BarTopBtn(UFrame):
     def __init__(self):
         super().__init__()
-        self.setObjectName("bar_top_btn")
         self.setFixedSize(25, 22)
 
         h_lay = QHBoxLayout()
@@ -37,25 +36,10 @@ class BarTopBtn(QFrame):
         self.svg_btn.setFixedSize(17, 17)
         h_lay.addWidget(self.svg_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.setStyleSheet(self.normal_style())
-
     def load(self, path: str):
         self.svg_btn.load(path)
 
-    def normal_style(self):
-        return """#bar_top_btn { background: transparent; }"""
-
-    def solid_style(self):
-        return f"""#bar_top_btn {{ background: {Static.GRAY_UP_BTN}; 
-                border-radius: 5px; }}"""
-
-    def enterEvent(self, a0):
-        self.setStyleSheet(self.solid_style())
-
-    def leaveEvent(self, a0):
-        self.setStyleSheet(self.normal_style())
-
-
+ 
 class ViewTypeBtn(QTabBar):
     def __init__(self):
         super().__init__()

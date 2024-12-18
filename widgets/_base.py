@@ -3,7 +3,7 @@ from typing import Literal
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QMouseEvent, QWheelEvent
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import QLineEdit, QMenu, QSlider, QWidget
+from PyQt5.QtWidgets import QLineEdit, QMenu, QSlider, QWidget, QFrame
 
 from cfg import Static
 from utils import Utils
@@ -156,3 +156,33 @@ class OpenWin:
         cls.win = WinImgView(src)
         Utils.center_win(parent, cls.win)
         cls.win.show()
+
+
+class UFrame(QFrame):
+    def __init__(self):
+        super().__init__()
+        self.setObjectName("bar_top_btn")
+        self.setStyleSheet(
+            self.normal_style()
+        )
+
+    def normal_style(self):
+        return f"""#bar_top_btn {{
+                        background: transparent;
+                }}"""
+
+    def solid_style(self):
+        return f"""#bar_top_btn {{
+                        background: {Static.GRAY_UP_BTN}; 
+                        border-radius: 5px;
+                }}"""
+
+    def enterEvent(self, a0):
+        self.setStyleSheet(
+            self.solid_style()
+        )
+
+    def leaveEvent(self, a0):
+        self.setStyleSheet(
+            self.normal_style()
+        )
