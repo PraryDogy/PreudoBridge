@@ -183,6 +183,7 @@ class UFrame(QFrame):
         )
 
     def leaveEvent(self, a0):
+
         self.setStyleSheet(
             self.normal_style()
         )

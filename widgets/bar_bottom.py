@@ -364,9 +364,9 @@ class SortFrame(UFrame):
             widget_top_left) - QPoint(0, menu.sizeHint().height()
         )
 
-        menu.aboutToHide.connect(self.normal_style)
         menu.move(menu_top_left)
-        menu.show()
+        menu.exec_()
+        super().leaveEvent(a0=a0)
 
 
 class BarBottom(QWidget):
