@@ -955,17 +955,24 @@ class Grid(BaseMethods, QScrollArea):
             pos = a0.pos()
             global_pos = self.mapToGlobal(pos)
             widget = QApplication.widgetAt(global_pos)
+            dest = None
+
 
             if isinstance(widget, USvgWidget):
                 widget = widget.parent().parent()
 
-            if isinstance(widget, (ThumbFolder, USvgWidget)):
-                
+            if isinstance(widget, ThumbFolder):
+                dest = widget.src
+
+            elif isinstance(widget, QWidget):
+                dest = JsonData.root
+            
+            if dest:
                 for i in urls:
 
                     self.task_ = FileCopyThread(
                         src=i,
-                        dest=widget.src
+                        dest=dest
                         )
                     
                     UThreadPool.start(runnable=self.task_)
