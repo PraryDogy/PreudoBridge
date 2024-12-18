@@ -1,7 +1,8 @@
 import os
+import shutil
 
 import sqlalchemy
-from PyQt5.QtCore import QMimeData, Qt, QTimer, QUrl, pyqtSignal
+from PyQt5.QtCore import QMimeData, QObject, Qt, QTimer, QUrl, pyqtSignal
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
                          QPixmap)
 from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel, QMenu,
@@ -25,6 +26,76 @@ SELECTED = "selected"
 COLORS_FONT = "font-size: 9px;"
 TEXT_FONT = "font-size: 11px;"
 RAD = "border-radius: 4px"
+
+
+class UpdateThumbData(URunnable):
+    def __init__(self, src: str, values: dict, cmd_: callable):
+
+        super().__init__()
+        self.cmd_ = cmd_
+        self.src = src
+        self.values = values
+
+    @URunnable.set_running_state
+    def run(self):
+        stmt = sqlalchemy.update(CACHE).where(
+            CACHE.c.src == self.src
+            ).values(
+                **self.values
+                )
+        conn = Dbase.engine.connect()
+
+        try:
+            conn.execute(stmt)
+            conn.commit()
+            self.finalize()
+        except (OperationalError, IntegrityError) as e:
+            conn.rollback()
+            Utils.print_error(self, e)
+
+        conn.close()
+
+    def finalize(self):
+        try:
+            self.cmd_()
+        except RuntimeError as e:
+            Utils.print_error(parent=None, error=e)
+
+
+class WorkerSignals(QObject):
+    finished = pyqtSignal(str)
+
+
+class FileCopyThread(URunnable):
+
+    def __init__(self, src: str, dest: str):
+        super().__init__()
+        self.signals_ = WorkerSignals()
+
+        self.src = src
+        self.dest = dest
+
+    @URunnable.set_running_state
+    def run(self):
+
+        try:
+            self.main()
+        except (RuntimeError, Exception) as e:
+            print("grid error copy file / folder", e)
+
+    def main(self):
+
+        if os.path.isdir(self.src):
+
+            destination_folder = os.path.join(self.dest, os.path.basename(self.src))
+            final_dest = shutil.copytree(self.src, destination_folder)
+
+        elif os.path.isfile(self.src):
+
+            final_dest = shutil.copy(self.src, self.dest)
+
+        self.signals_.finished.emit(final_dest)
+
 
 
 class TextWidget(QLabel):
@@ -73,40 +144,6 @@ class ColorLabel(QLabel):
 
     def set_text(self, wid: OrderItem):
         self.setText(wid.colors)
-
-
-class UpdateThumbData(URunnable):
-    def __init__(self, src: str, values: dict, cmd_: callable):
-
-        super().__init__()
-        self.cmd_ = cmd_
-        self.src = src
-        self.values = values
-
-    @URunnable.set_running_state
-    def run(self):
-        stmt = sqlalchemy.update(CACHE).where(
-            CACHE.c.src == self.src
-            ).values(
-                **self.values
-                )
-        conn = Dbase.engine.connect()
-
-        try:
-            conn.execute(stmt)
-            conn.commit()
-            self.finalize()
-        except (OperationalError, IntegrityError) as e:
-            conn.rollback()
-            Utils.print_error(self, e)
-
-        conn.close()
-
-    def finalize(self):
-        try:
-            self.cmd_()
-        except RuntimeError as e:
-            Utils.print_error(parent=None, error=e)
 
 
 class Thumb(OrderItem, QFrame):
@@ -893,3 +930,42 @@ class Grid(BaseMethods, QScrollArea):
         menu.addAction(find_here)
 
         menu.exec_(self.mapToGlobal(a0.pos()))
+
+    def dragMoveEvent(self, a0):
+        pos = a0.pos()
+        global_pos = self.mapToGlobal(pos)
+        widget = QApplication.widgetAt(global_pos) 
+
+        if isinstance(widget, ThumbFolder):
+            self.select_new_widget(data=widget)
+
+    def dragEnterEvent(self, a0):
+        a0.acceptProposedAction()
+
+    def dropEvent(self, a0):
+
+        if a0.mimeData().hasUrls():
+
+            urls = (
+                i.toLocalFile()
+                for i in a0.mimeData().urls()
+                if i
+            )
+
+            pos = a0.pos()
+            global_pos = self.mapToGlobal(pos)
+            widget = QApplication.widgetAt(global_pos)
+
+            if isinstance(widget, USvgWidget):
+                widget = widget.parent().parent()
+
+            if isinstance(widget, (ThumbFolder, USvgWidget)):
+                
+                for i in urls:
+
+                    self.task_ = FileCopyThread(
+                        src=i,
+                        dest=widget.src
+                        )
+                    
+                    UThreadPool.start(runnable=self.task_)
