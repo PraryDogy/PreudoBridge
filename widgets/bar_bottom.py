@@ -308,7 +308,7 @@ class PathItem(QWidget):
         self.default_style()
 
 
-class GoToWid(UFrame):
+class GoToFrame(UFrame):
     clicked_ = pyqtSignal()
 
     def __init__(self):
@@ -408,9 +408,9 @@ class BarBottom(QWidget):
         bottom_wid.setLayout(bottom_lay)
         self.main_lay.addWidget(bottom_wid)
 
-        self.go_to_wid = GoToWid()
-        self.go_to_wid.clicked_.connect(self.open_go_win)
-        bottom_lay.addWidget(self.go_to_wid)
+        self.go_to_frame = GoToFrame()
+        self.go_to_frame.clicked_.connect(self.open_go_win)
+        bottom_lay.addWidget(self.go_to_frame)
 
         bottom_lay.addStretch()
 
