@@ -35,6 +35,7 @@ FIND_HERE_T = "Найти здесь"
 CREATE_FOLDER_T = "Создать папку"
 NEW_FOLDER_T = "Новая папка"
 NEW_FOLDER_WARN = "Папка с таким именем уже существует"
+DELETE_T = "Удалить"
 
 
 # Общий класс для выполнения действий QAction в отдельном потоке
@@ -673,3 +674,19 @@ class CreateFolder(QAction):
             )
 
             self.win_warn.show()
+
+
+class DeleteFinderItem(QAction):
+    def __init__(self, menu: QMenu, path: str):
+
+        super().__init__(parent=menu, text=DELETE_T)
+
+        result = subprocess.run(
+            ['rm', '-rf', path],
+            check=True,
+            text=True,
+            stderr=subprocess.PIPE
+        )
+
+        if result.returncode == 0:
+            SignalsApp.all_.load_standart_grid(JsonData.root)
