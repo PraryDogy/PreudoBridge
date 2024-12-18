@@ -334,6 +334,41 @@ class GoToWid(UFrame):
         self.clicked_.emit()
 
 
+class SortFrame(UFrame):
+    def __init__(self):
+        super().__init__()
+        h_lay = QHBoxLayout()
+        h_lay.setContentsMargins(2, 0, 2, 0)
+        self.setLayout(h_lay)
+
+        self.sort_wid = QLabel()
+        h_lay.addWidget(self.sort_wid)
+
+    def add_sort(self):
+        # получаем текстовое имя сортировки на основе внутреннего имени сортировки
+        order = ORDER.get(Dynamic.sort)
+        order = order.lower()
+
+        # получаем текстовое имя обратной или прямой сортировки
+        rev = ASC if Dynamic.rev else DESC
+
+        self.sort_wid.setText(f"{SORT_T}: {order} ({rev})")
+
+    def mouseReleaseEvent(self, a0: QMouseEvent):
+
+        menu = SortMenu(parent=self)
+
+        widget_top_left = self.rect().topLeft()
+
+        menu_top_left = self.mapToGlobal(
+            widget_top_left) - QPoint(0, menu.sizeHint().height()
+        )
+
+        menu.aboutToHide.connect(self.normal_style)
+        menu.move(menu_top_left)
+        menu.show()
+
+
 class BarBottom(QWidget):
     def __init__(self):
         super().__init__()
@@ -382,9 +417,8 @@ class BarBottom(QWidget):
         self.total_text = QLabel()
         bottom_lay.addWidget(self.total_text)
 
-        self.sort_wid = QLabel()
-        self.sort_wid.mouseReleaseEvent = self.sort_menu
-        bottom_lay.addWidget(self.sort_wid)
+        self.sort_frame = SortFrame()
+        bottom_lay.addWidget(self.sort_frame)
 
         bottom_lay.addStretch()
 
@@ -395,25 +429,8 @@ class BarBottom(QWidget):
         self.create_path_labels(JsonData.root)
         SignalsApp.all_.bar_bottom_cmd.connect(self.path_labels_cmd)
 
-    def sort_menu(self, *args):
-        menu = SortMenu(parent=self.sort_wid)
-
-        widget_top_left = self.sort_wid.rect().topLeft()
-
-        menu_top_left = self.sort_wid.mapToGlobal(
-            widget_top_left) - QPoint(0, menu.sizeHint().height()
-        )
-        menu.move(menu_top_left)
-
-        menu.show()
-
     def add_total(self, value: int):
         self.total_text.setText(f"{TOTAL_T}: {str(value)}")
-
-    def add_sort(self):
-        order_text_name = ORDER.get(Dynamic.sort).lower()
-        rev = ASC if Dynamic.rev else DESC
-        self.sort_wid.setText(f"{SORT_T}: {order_text_name} ({rev})")
 
     def open_go_win(self, *args):
         self.win = WinGo()
@@ -428,7 +445,7 @@ class BarBottom(QWidget):
         if data.get("total"):
             self.add_total(value=data.get("total"))
 
-        self.add_sort()
+        self.sort_frame.add_sort()
 
     def create_path_labels(self, src: str):
 
