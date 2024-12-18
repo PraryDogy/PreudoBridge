@@ -1,6 +1,8 @@
+import os
+
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeyEvent
-from PyQt5.QtWidgets import QPushButton, QVBoxLayout, QLabel
+from PyQt5.QtWidgets import QLabel, QPushButton, QVBoxLayout
 
 from ._base import WinMinMax
 
@@ -39,10 +41,16 @@ class WinWarn(WinMinMax):
 
 class WinCopy(WinMinMax):
 
-    def __init__(self, text: str):
-        text = f"{COPYING} {text}"
+    def __init__(self, src: str, dest: str):
+
+        src = os.path.basename(src.strip(os.sep))
+        dest = os.path.basename(dest.strip(os.sep))
+
+        text = f"{COPYING} {src} в {dest}"
 
         super().__init__()
+
+        self.setWindowModality(Qt.WindowModality.WindowModal)
 
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(10, 10, 10, 10)
@@ -55,9 +63,9 @@ class WinCopy(WinMinMax):
         self.adjustSize()
         self.setFixedSize(self.width(), self.height())
 
-    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
-        if a0.key() == Qt.Key.Key_Escape:
-            self.close()
-        elif a0.key() == Qt.Key.Key_Return:
-            self.close()
-        return super().keyPressEvent(a0)
+    # def keyPressEvent(self, a0: QKeyEvent | None) -> None:
+    #     if a0.key() == Qt.Key.Key_Escape:
+    #         self.close()
+    #     elif a0.key() == Qt.Key.Key_Return:
+    #         self.close()
+    #     return super().keyPressEvent(a0)

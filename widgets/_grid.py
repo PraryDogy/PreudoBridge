@@ -64,7 +64,7 @@ class UpdateThumbData(URunnable):
 
 
 class WorkerSignals(QObject):
-    finished = pyqtSignal(str)
+    finished_ = pyqtSignal(str)
 
 
 class FileCopyThread(URunnable):
@@ -95,7 +95,7 @@ class FileCopyThread(URunnable):
 
             final_dest = shutil.copy(self.src, self.dest)
 
-        self.signals_.finished.emit(final_dest)
+        self.signals_.finished_.emit(final_dest)
 
 
 
@@ -969,11 +969,24 @@ class Grid(BaseMethods, QScrollArea):
                 dest = JsonData.root
             
             if dest:
-                for i in urls:
+                for url_ in urls:
 
                     self.task_ = FileCopyThread(
-                        src=i,
+                        src=url_,
                         dest=dest
                         )
                     
+                    self.win_copy = WinCopy(
+                        src=url_,
+                        dest=dest
+                    )
+
+                    Utils.center_win(
+                        parent=self.window(),
+                        child=self.win_copy
+                    )
+
+                    self.task_.signals_.finished_.connect(self.win_copy.close)
+
+                    self.win_copy.show()
                     UThreadPool.start(runnable=self.task_)
