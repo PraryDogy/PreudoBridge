@@ -317,10 +317,10 @@ class BarTop(QWidget):
         next.mouseReleaseEvent = lambda e: self.navigate(offset=1)
         self.main_lay.addWidget(next)
 
-        self.level_up_btn = BarTopBtn()
-        self.level_up_btn.mouseReleaseEvent = self.level_up
-        self.level_up_btn.load(Static.FOLDER_UP_SVG)
-        self.main_lay.addWidget(self.level_up_btn)
+        self.folder_up_btn = BarTopBtn()
+        self.folder_up_btn.mouseReleaseEvent = self.level_up
+        self.folder_up_btn.load(Static.FOLDER_UP_SVG)
+        self.main_lay.addWidget(self.folder_up_btn)
 
         self.main_lay.addStretch(1)
 
