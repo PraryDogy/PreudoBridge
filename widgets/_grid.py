@@ -992,7 +992,15 @@ class Grid(BaseMethods, QScrollArea):
                         child=self.win_copy
                     )
 
-                    self.task_.signals_.finished_.connect(self.win_copy.close)
+                    self.task_.signals_.finished_.connect(
+                        self.win_copy.close
+                    )
+
+                    self.task_.signals_.finished_.connect(
+                        lambda: SignalsApp.all_.load_standart_grid.emit(
+                            JsonData.root
+                        )
+                    )
 
                     self.win_copy.show()
                     UThreadPool.start(runnable=self.task_)
