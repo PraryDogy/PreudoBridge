@@ -317,9 +317,6 @@ class BarTop(QWidget):
         next.mouseReleaseEvent = lambda e: self.navigate(offset=1)
         self.main_lay.addWidget(next)
 
-        spacer = QSpacerItem(10, 0)
-        self.main_lay.addSpacerItem(spacer)
-
         self.level_up_btn = BarTopBtn()
         self.level_up_btn.mouseReleaseEvent = self.level_up
         self.level_up_btn.load(Static.FOLDER_UP_SVG)
