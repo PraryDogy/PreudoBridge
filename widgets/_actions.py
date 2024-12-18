@@ -663,4 +663,5 @@ class CreateFolder(QAction):
 
         else:
 
-            ...
+            from ._base import WinMinMax
+            self.win = Win
