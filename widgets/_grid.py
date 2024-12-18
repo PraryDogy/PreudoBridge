@@ -73,7 +73,7 @@ class FileCopyThread(URunnable):
         self.signals_ = WorkerSignals()
 
         self.src = os.sep + src.strip(os.sep)
-        self.dest = dest
+        self.dest = os.sep + dest.strip(os.sep)
 
     @URunnable.set_running_state
     def run(self):
