@@ -680,13 +680,35 @@ class DeleteFinderItem(QAction):
     def __init__(self, menu: QMenu, path: str):
 
         super().__init__(parent=menu, text=DELETE_T)
+        self.triggered.connect(self.move_to_trash)
+        self.path = path
+
+
+    def cmd_(self, *args):
 
         result = subprocess.run(
-            ['rm', '-rf', path],
+            ['rm', '-rf', self.path],
             check=True,
             text=True,
             stderr=subprocess.PIPE
         )
 
         if result.returncode == 0:
-            SignalsApp.all_.load_standart_grid(JsonData.root)
+            SignalsApp.all_.load_standart_grid.emit(JsonData.root)
+
+    def move_to_trash(self, *args):
+
+        try:
+
+            applescript = f"""
+            tell application "Finder"
+                set theItem to POSIX file "{self.path}" as alias
+                move theItem to trash
+            end tell
+            """
+
+            subprocess.run(["osascript", "-e", applescript], check=True)
+            SignalsApp.all_.load_standart_grid.emit(JsonData.root)
+
+        except subprocess.CalledProcessError as e:
+            print(f"Ошибка при перемещении в корзину: {e}")

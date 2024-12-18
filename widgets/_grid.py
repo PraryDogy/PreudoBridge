@@ -17,7 +17,7 @@ from utils import URunnable, UThreadPool, Utils
 from ._actions import (ChangeView, ColorMenu, CopyPath, CreateFolder, FavAdd,
                        FavRemove, FindHere, Info, OpenInApp, RatingMenu,
                        RevealInFinder, ShowInFolder, SortMenu, UpdateGrid,
-                       View)
+                       View, DeleteFinderItem)
 from ._base import BaseMethods, OpenWin, USvgWidget
 from .list_file_system import ListFileSystem
 from .win_find_here import WinFindHere
@@ -344,6 +344,9 @@ class Thumb(OrderItem, QFrame):
         find_here.clicked_.connect(self.find_here.emit)
         menu.addAction(find_here)
 
+        delete_item = DeleteFinderItem(menu=menu, path=self.src)
+        menu.addAction(delete_item)
+
     def set_color_cmd(self, color: str):
 
         if color not in self.colors:
@@ -508,6 +511,9 @@ class ThumbFolder(Thumb):
         find_here = FindHere(parent=menu)
         find_here.clicked_.connect(self.find_here.emit)
         menu.addAction(find_here)
+
+        delete_item = DeleteFinderItem(menu=menu, path=self.src)
+        menu.addAction(delete_item)
 
         menu.exec_(self.mapToGlobal(a0.pos()))
 
