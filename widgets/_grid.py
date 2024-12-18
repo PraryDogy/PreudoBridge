@@ -13,9 +13,10 @@ from database import CACHE, Dbase, OrderItem
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
-from ._actions import (ChangeView, ColorMenu, CopyPath, FavAdd, FavRemove,
-                       FindHere, Info, OpenInApp, RatingMenu, RevealInFinder,
-                       ShowInFolder, SortMenu, UpdateGrid, View)
+from ._actions import (ChangeView, ColorMenu, CopyPath, CreateFolder, FavAdd,
+                       FavRemove, FindHere, Info, OpenInApp, RatingMenu,
+                       RevealInFinder, ShowInFolder, SortMenu, UpdateGrid,
+                       View)
 from ._base import BaseMethods, OpenWin, USvgWidget
 from .list_file_system import ListFileSystem
 from .win_find_here import WinFindHere
@@ -705,9 +706,14 @@ class Grid(BaseMethods, QScrollArea):
         self.ordered_widgets.append(wid)
 
     def open_in_view(self, wid: Thumb):
-        if wid.type_ == Static.FOLDER_TYPE:
+
+        if wid is None:
+            return
+
+        elif wid.type_ == Static.FOLDER_TYPE:
             SignalsApp.all_.new_history_item.emit(wid.src)
             SignalsApp.all_.load_standart_grid.emit(wid.src)
+
         else:
             OpenWin.view(Utils.get_main_win(), wid.src)
 
@@ -837,6 +843,14 @@ class Grid(BaseMethods, QScrollArea):
         self.remove_selection()
 
         menu = QMenu(parent=self)
+
+        create_folder = CreateFolder(
+            menu=menu,
+            window=self.window()
+        )
+        menu.addAction(create_folder)
+
+        menu.addSeparator()
 
         info = Info(menu, JsonData.root)
         menu.addAction(info)

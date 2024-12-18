@@ -1,9 +1,10 @@
+import os
 import subprocess
 
 from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtWidgets import QAction, QLabel, QLineEdit, QMenu
+from PyQt5.QtWidgets import QAction, QLabel, QLineEdit, QMenu, QWidget
 
-from cfg import Static, Dynamic, JsonData
+from cfg import Dynamic, JsonData, Static
 from database import ORDER
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
@@ -31,6 +32,8 @@ CHANGE_VIEW_T = "Вид"
 CHANGE_VIEW_GRID_T = "Сетка"
 CHANGE_VIEW_LIST_T = "Список"
 FIND_HERE_T = "Найти здесь"
+CREATE_FOLDER_T = "Создать папку"
+NEW_FOLDER_T = "Новая папка"
 
 
 # Общий класс для выполнения действий QAction в отдельном потоке
@@ -623,3 +626,41 @@ class FindHere(QAction):
         )
 
         self.triggered.connect(self.clicked_.emit)
+
+
+class CreateFolder(QAction):
+    
+    def __init__(self, menu: QMenu, window: QWidget):
+        super().__init__(
+            parent=menu,
+            text=CREATE_FOLDER_T
+        )
+
+        self.window = window
+        self.triggered.connect(self.cmd_)
+
+    def cmd_(self, *args):
+
+        from .win_rename import WinRename
+
+        self.win_ = WinRename(text=NEW_FOLDER_T)
+        self.win_.finished_.connect(self.rename_finished)
+
+        Utils.center_win(
+            parent=self.window,
+            child=self.win_
+        )
+
+        self.win_.show()
+
+    def rename_finished(self, text: str):
+        new_path = os.path.join(JsonData.root, text)
+
+        if not os.path.exists(new_path):
+            os.makedirs(new_path)
+            SignalsApp.all_.load_standart_grid.emit(JsonData.root)
+            SignalsApp.all_.move_to_wid_delayed.emit(new_path)
+
+        else:
+
+            ...
