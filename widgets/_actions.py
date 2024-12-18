@@ -680,7 +680,7 @@ class DeleteFinderItem(QAction):
     def __init__(self, menu: QMenu, path: str):
 
         super().__init__(parent=menu, text=DELETE_T)
-        self.triggered.connect(self.move_to_trash)
+        self.triggered.connect(self.run_task)
         self.path = path
 
 
@@ -695,6 +695,10 @@ class DeleteFinderItem(QAction):
 
         if result.returncode == 0:
             SignalsApp.all_.load_standart_grid.emit(JsonData.root)
+
+    def run_task(self, *args):
+        self.task_ = Task_(cmd_=self.move_to_trash)
+        UThreadPool.start(runnable=self.task_)
 
     def move_to_trash(self, *args):
 
