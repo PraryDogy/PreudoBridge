@@ -337,12 +337,12 @@ class BarTop(QWidget):
         self.filters_btn = FiltersBtn()
         self.main_lay.addWidget(self.filters_btn)
 
-        self.main_lay.addStretch(1)
-
         self.sett_btn = BarTopBtn()
         self.sett_btn.mouseReleaseEvent = self.open_settings_win
         self.sett_btn.load(Static.SETTINGS_SVG)
         self.main_lay.addWidget(self.sett_btn)
+
+        self.main_lay.addStretch(1)
 
         self.search_wid = SearchWidget()
         self.main_lay.addWidget(self.search_wid)
