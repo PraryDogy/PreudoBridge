@@ -34,3 +34,27 @@ class WinWarn(WinMinMax):
         elif a0.key() == Qt.Key.Key_Return:
             self.close()
         return super().keyPressEvent(a0)
+    
+
+class WinCopy(WinMinMax):
+
+    def __init__(self, text: str):
+        super().__init__()
+
+        v_lay = QVBoxLayout()
+        v_lay.setContentsMargins(10, 10, 10, 10)
+        v_lay.setSpacing(10)
+        self.setLayout(v_lay)
+
+        descr = QLabel(text=text)
+        v_lay.addWidget(descr)
+
+        self.adjustSize()
+        self.setFixedSize(self.width(), self.height())
+
+    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
+        if a0.key() == Qt.Key.Key_Escape:
+            self.close()
+        elif a0.key() == Qt.Key.Key_Return:
+            self.close()
+        return super().keyPressEvent(a0)

@@ -664,7 +664,7 @@ class CreateFolder(QAction):
 
         else:
 
-            from .win_warn import WinWarn
+            from .win_sys import WinWarn
             self.win_warn = WinWarn(text=NEW_FOLDER_WARN)
 
             Utils.center_win(
