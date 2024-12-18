@@ -21,6 +21,7 @@ from ._actions import (ChangeView, ColorMenu, CopyPath, CreateFolder, FavAdd,
 from ._base import BaseMethods, OpenWin, USvgWidget
 from .list_file_system import ListFileSystem
 from .win_find_here import WinFindHere
+from .win_sys import WinCopy
 
 SELECTED = "selected"
 COLORS_FONT = "font-size: 9px;"
