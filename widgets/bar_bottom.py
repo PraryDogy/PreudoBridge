@@ -15,14 +15,14 @@ from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 from ._actions import CopyPath, Info, RevealInFinder, SortMenu, View
-from ._base import OpenWin, ULineEdit, USlider, USvgWidget, WinMinMax
-
+from ._base import OpenWin, UFrame, ULineEdit, USlider, USvgWidget, WinMinMax
 
 SORT_T = "Сортировка"
 TOTAL_T = "Всего"
 ASC = "по убыв."
 DESC = "по возр."
 GO_T = "Перейти"
+
 
 class WorkerSignals(QObject):
     finished_ = pyqtSignal(str)
@@ -308,23 +308,27 @@ class PathItem(QWidget):
         self.default_style()
 
 
-class GoToWid(QFrame):
+class GoToWid(UFrame):
     clicked_ = pyqtSignal()
 
     def __init__(self):
         super().__init__()
-        self.setFixedHeight(15)
 
         h_lay = QHBoxLayout()
-        h_lay.setContentsMargins(2, 0, 2, 0)
+        h_lay.setContentsMargins(2, 2, 2, 2)
+        h_lay.setAlignment(
+            Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignLeft
+        )
         h_lay.setSpacing(5)
         self.setLayout(h_lay)
 
-        self.go_btn = USvgWidget(src=Static.GOTO_SVG, size=13)
+        self.go_btn = USvgWidget(src=Static.GOTO_SVG, size=14)
         h_lay.addWidget(self.go_btn)
 
         self.go_label = QLabel(text=GO_T)
         h_lay.addWidget(self.go_label)
+
+        self.adjustSize()
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
         self.clicked_.emit()
