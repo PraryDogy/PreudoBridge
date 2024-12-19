@@ -4,7 +4,8 @@ from typing import Literal
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import (QContextMenuEvent, QDragEnterEvent, QDropEvent,
                          QMouseEvent)
-from PyQt5.QtWidgets import QLabel, QListWidget, QListWidgetItem, QMenu
+from PyQt5.QtWidgets import (QApplication, QLabel, QListWidget,
+                             QListWidgetItem, QMenu)
 
 from cfg import JsonData
 from signals import SignalsApp
@@ -205,12 +206,20 @@ class TreeFavorites(QListWidget):
         self.init_ui()
     
     def dropEvent(self, a0: QDropEvent | None) -> None:
+
+
+        text = a0.mimeData().text()
+        print(text)
+
         urls = a0.mimeData().urls()
         if urls:
             root = os.sep + urls[0].toLocalFile().strip(os.sep)
 
             if os.path.isdir(root):
                 self.add_to_json_favs(root)
+
+            elif os.path.isfile(root):
+                print("eto fail")
 
         else:
             super().dropEvent(a0)
@@ -226,6 +235,17 @@ class TreeFavorites(QListWidget):
                 JsonData.favs = new_order
     
     def dragEnterEvent(self, a0: QDragEnterEvent | None) -> None:
-        if a0.mimeData().hasUrls():
-            a0.acceptProposedAction()
+        a0.acceptProposedAction()
         return super().dragEnterEvent(a0)
+
+    def dragMoveEvent(self, e):
+        pos = e.pos()
+        global_pos = self.mapToGlobal(pos)
+        widget = QApplication.widgetAt(global_pos)
+
+        if isinstance(widget, FavItem):
+            list_item = self.wids[widget.src]
+            self.setCurrentItem(list_item)
+
+
+        return super().dragMoveEvent(e)
