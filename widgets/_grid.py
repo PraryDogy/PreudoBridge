@@ -539,9 +539,16 @@ class FileCopyThread(URunnable):
         if os.path.isfile(self.src):
             new_src: str = shutil.copy(self.src, self.dest)
             new_src = os.sep + new_src.strip(os.sep)
-            self.migrate_data(new_src=new_src)
 
-    def migrate_data(self, new_src: str):
+            self.migrate_data(
+                old_src = self.src,
+                new_src = new_src
+            )
+
+
+    # этот метод пойдет в отдельный класс, т.к. будет нужен для реализации
+    # копировать вставить хоткеями
+    def migrate_data(self, old_src: str, new_src: str):
         wid = Thumb.path_to_wid.get(self.src)
         if wid and (wid.colors or wid.rating):
 
