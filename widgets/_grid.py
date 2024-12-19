@@ -27,6 +27,7 @@ SELECTED = "selected"
 COLORS_FONT = "font-size: 9px;"
 TEXT_FONT = "font-size: 11px;"
 RAD = "border-radius: 4px"
+IMG_WID_ATTR = "img_wid"
 
 
 class UpdateThumbData(URunnable):
@@ -253,7 +254,7 @@ class Thumb(OrderItem, QFrame):
             self.pixmap_size + ThumbData.OFFSET
         )
 
-        if hasattr(self, "img_wid"):
+        if hasattr(self, IMG_WID_ATTR):
             self.img_wid.setPixmap(
                 Utils.pixmap_scale(
                     pixmap=self.img,
@@ -420,15 +421,13 @@ class Thumb(OrderItem, QFrame):
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
 
-        img_wid = self.img_frame.findChild(QLabel)
-
-        if isinstance(img_wid, QLabel):
-            self.drag.setPixmap(img_wid.pixmap())
+        if hasattr(self, IMG_WID_ATTR):
+            self.drag.setPixmap(self.img_wid.pixmap())
         else:
             self.drag.setPixmap(QPixmap(self.svg_path))
         
-        url = [QUrl.fromLocalFile(self.src)]
-        self.mime_data.setUrls(url)
+        urls = [QUrl.fromLocalFile(self.src)]
+        self.mime_data.setText(self.src)        
 
         self.drag.setMimeData(self.mime_data)
         self.drag.exec_(Qt.DropAction.CopyAction)
@@ -955,60 +954,58 @@ class Grid(BaseMethods, QScrollArea):
 
     def dropEvent(self, a0):
 
+        pos = a0.pos()
+        global_pos = self.mapToGlobal(pos)
+        widget = QApplication.widgetAt(global_pos)
+
+        dest = None
+
+        # Thumb / ThumbFolder > QFrame (self.img_wid) > USvgWiаdget
+        if isinstance(widget, USvgWidget):
+            widget = widget.parent().parent()
+
+        if isinstance(widget, ThumbFolder):
+            dest = widget.src
+
+        elif isinstance(widget, QWidget):
+            dest = JsonData.root
+
+
         if a0.mimeData().hasUrls():
+            print("is external item")
+        
+        elif a0.mimeData().hasText():
+            print("is widget")
 
-            urls = (
-                i.toLocalFile()
-                for i in a0.mimeData().urls()
-                if i
-            )
+        return
+        
+        if dest:
+            for url_ in urls:
 
-            pos = a0.pos()
-            global_pos = self.mapToGlobal(pos)
-            widget = QApplication.widgetAt(global_pos)
-            dest = None
-
-            # Thumb / ThumbFolder > QFrame (self.img_wid) > USvgWiаdget
-            if isinstance(widget, USvgWidget):
-                widget = widget.parent().parent()
-
-            if isinstance(widget, ThumbFolder):
-                dest = widget.src
-
-            # elif isinstance(widget, QWidget):
-            #     dest = JsonData.root
-
-            # print(dest, JsonData.root)
-
-            
-            
-            if dest:
-                for url_ in urls:
-
-                    self.task_ = FileCopyThread(
-                        src=url_,
-                        dest=dest
-                        )
-                    
-                    self.win_copy = WinCopy(
-                        src=url_,
-                        dest=dest
+                self.task_ = FileCopyThread(
+                    src=url_,
+                    dest=dest
                     )
+                
+                self.win_copy = WinCopy(
+                    src=url_,
+                    dest=dest
+                )
 
-                    Utils.center_win(
-                        parent=self.window(),
-                        child=self.win_copy
+                Utils.center_win(
+                    parent=self.window(),
+                    child=self.win_copy
+                )
+
+                self.task_.signals_.finished_.connect(
+                    self.win_copy.close
+                )
+
+                self.task_.signals_.finished_.connect(
+                    lambda: SignalsApp.all_.load_standart_grid.emit(
+                        JsonData.root
                     )
+                )
 
-                    self.task_.signals_.finished_.connect(
-                        self.win_copy.close
-                    )
-
-                    self.task_.signals_.finished_.connect(
-                        lambda: SignalsApp.all_.load_standart_grid.emit(
-                            JsonData.root
-                        )
-                    )
-
-                    self.win_copy.show()
-                    UThreadPool.start(runnable=self.task_)
+                self.win_copy.show()
+                UThreadPool.start(runnable=self.task_)
