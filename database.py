@@ -223,7 +223,7 @@ class Dbase:
         # запускается один раз при инициации приложения
 
         # пустые аргументы, чтобы метод мог вернуть словарь
-        kwargs_ = ["" for i in range(0, 7)]
+        kwargs_ = ["" for i in range(0, 5)]
         cache_values = cls.get_cache_values(*kwargs_)
         cache_values = list(cache_values.keys())
 
