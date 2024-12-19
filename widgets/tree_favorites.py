@@ -247,5 +247,7 @@ class TreeFavorites(QListWidget):
             list_item = self.wids[widget.src]
             self.setCurrentItem(list_item)
 
+            # копирование файла
+
 
         return super().dragMoveEvent(e)
