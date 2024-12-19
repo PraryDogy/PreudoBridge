@@ -64,42 +64,6 @@ class UpdateThumbData(URunnable):
             Utils.print_error(parent=None, error=e)
 
 
-class WorkerSignals(QObject):
-    finished_ = pyqtSignal(str)
-
-
-class FileCopyThread(URunnable):
-
-    def __init__(self, src: str, dest: str):
-        super().__init__()
-        self.signals_ = WorkerSignals()
-
-        self.src = os.sep + src.strip(os.sep)
-        self.dest = os.sep + dest.strip(os.sep)
-
-    @URunnable.set_running_state
-    def run(self):
-
-        try:
-            self.main()
-        except (RuntimeError, Exception) as e:
-            print("grid error copy file / folder", e)
-
-    def main(self):
-
-        if os.path.isdir(self.src):
-
-            destination_folder = os.path.join(self.dest, os.path.basename(self.src))
-            final_dest = shutil.copytree(self.src, destination_folder)
-
-        elif os.path.isfile(self.src):
-
-            final_dest = shutil.copy(self.src, self.dest)
-
-        self.signals_.finished_.emit(final_dest)
-
-
-
 class TextWidget(QLabel):
     def __init__(self):
         super().__init__()
@@ -547,6 +511,46 @@ class ThumbSearch(Thumb):
         menu_.exec_(self.mapToGlobal(a0.pos()))
 
 
+class WorkerSignals(QObject):
+    finished_ = pyqtSignal()
+
+
+class FileCopyThread(URunnable):
+
+    def __init__(self, src: str, dest: str):
+        super().__init__()
+        self.signals_ = WorkerSignals()
+
+        self.src = os.sep + src.strip(os.sep)
+        self.dest = os.sep + dest.strip(os.sep)
+
+    @URunnable.set_running_state
+    def run(self):
+
+        try:
+            self.main()
+        except (RuntimeError, Exception) as e:
+            print("grid error copy file / folder", e)
+
+        self.signals_.finished_.emit()
+
+
+    def main(self):
+
+        wid = Thumb.path_to_wid.get(self.src)
+
+        if wid:
+            print(wid.colors, wid.rating)
+
+
+        if os.path.isdir(self.src):
+            destination_folder = os.path.join(self.dest, os.path.basename(self.src))
+            shutil.copytree(self.src, destination_folder)
+
+        elif os.path.isfile(self.src):
+            shutil.copy(self.src, self.dest)
+
+
 class Grid(BaseMethods, QScrollArea):
     rearranged = pyqtSignal()
 
@@ -954,10 +958,14 @@ class Grid(BaseMethods, QScrollArea):
 
     def dropEvent(self, a0):
 
+        # вычисляем, на какой виджет был перетянут объект
+        # допустимы ThumbFolder, GridStandart(QWidget)
         pos = a0.pos()
         global_pos = self.mapToGlobal(pos)
         widget = QApplication.widgetAt(global_pos)
 
+        # место, куда будет скопирован перетянутый объект,
+        # ThumbFolder.src или JsonData.root
         dest = None
 
         # Thumb / ThumbFolder > QFrame (self.img_wid) > USvgWiаdget
@@ -977,15 +985,23 @@ class Grid(BaseMethods, QScrollArea):
         # то это данные, перетянутые из виджета Thumb.
 
         if a0.mimeData().hasUrls():
-            print("is external item")
+            urls = [
+                i.toLocalFile()
+                for i in a0.mimeData().urls()
+            ]
         
         elif a0.mimeData().hasText():
-            print("is widget")
-
-        return
+            urls = [
+                a0.mimeData().text()
+            ]
         
         if dest:
+
             for url_ in urls:
+
+                if os.path.isdir(url_):
+                    continue
+
 
                 self.task_ = FileCopyThread(
                     src=url_,
