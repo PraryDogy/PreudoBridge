@@ -554,6 +554,7 @@ class FileCopyThread(URunnable):
             new_data = conn.execute(q).first()
 
             if new_data:
+
                 q = sqlalchemy.delete(CACHE).where(CACHE.c.src == new_src)
 
                 try:
