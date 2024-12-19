@@ -10,14 +10,14 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel, QMenu,
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Dynamic, JsonData, Static, ThumbData
-from database import CACHE, Dbase, OrderItem
+from database import CACHE, ColumnNames, Dbase, OrderItem
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
-from ._actions import (ChangeView, ColorMenu, CopyPath, CreateFolder, FavAdd,
-                       FavRemove, FindHere, Info, OpenInApp, RatingMenu,
-                       RevealInFinder, ShowInFolder, SortMenu, UpdateGrid,
-                       View, DeleteFinderItem)
+from ._actions import (ChangeView, ColorMenu, CopyPath, CreateFolder,
+                       DeleteFinderItem, FavAdd, FavRemove, FindHere, Info,
+                       OpenInApp, RatingMenu, RevealInFinder, ShowInFolder,
+                       SortMenu, UpdateGrid, View)
 from ._base import BaseMethods, OpenWin, USvgWidget
 from .list_file_system import ListFileSystem
 from .win_find_here import WinFindHere
@@ -339,7 +339,7 @@ class Thumb(OrderItem, QFrame):
             self.setup()
 
         self.update_thumb_data(
-            values={"colors": temp_colors},
+            values={ColumnNames.COLORS: temp_colors},
             cmd_=cmd_
         )
 
@@ -353,7 +353,7 @@ class Thumb(OrderItem, QFrame):
             self.text_changed.emit()
 
         self.update_thumb_data(
-            values={"rating": rating},
+            values={ColumnNames.RATING: rating},
             cmd_=cmd_
         )
 
@@ -534,21 +534,73 @@ class FileCopyThread(URunnable):
 
         self.signals_.finished_.emit()
 
-
     def main(self):
 
+        if os.path.isfile(self.src):
+            new_src: str = shutil.copy(self.src, self.dest)
+            new_src = os.sep + new_src.strip(os.sep)
+            self.migrate_data(new_src=new_src)
+
+    def migrate_data(self, new_src: str):
         wid = Thumb.path_to_wid.get(self.src)
+        if wid and (wid.colors or wid.rating):
 
-        if wid:
-            print(wid.colors, wid.rating)
+            conn = Dbase.engine.connect()
+
+            # если приложение уже успело создать запись в БД о новом объекте
+            # удалим эту запись, т.к. стандартно запись в БД происходит
+            # с пустыми значениями COLORS и RATING
+            q = sqlalchemy.select(CACHE).where(CACHE.c.src == new_src)
+            new_data = conn.execute(q).first()
+
+            if new_data:
+                q = sqlalchemy.delete(CACHE).where(CACHE.c.src == new_src)
+
+                try:
+                    conn.execute(q)
+                    conn.commit()
+
+                except (IntegrityError, OperationalError) as e:
+                    conn.rollback()
+                    print("grid.py > FileCopyThread > delete from DB", e)
 
 
-        if os.path.isdir(self.src):
-            destination_folder = os.path.join(self.dest, os.path.basename(self.src))
-            shutil.copytree(self.src, destination_folder)
+            # если в БД есть данные об исходном объекте, создаем
+            # данные на их основе для нового объекта
+            q = sqlalchemy.select(CACHE).where(CACHE.c.src == self.src)
+            old_data = conn.execute(q).mappings().first()
 
-        elif os.path.isfile(self.src):
-            shutil.copy(self.src, self.dest)
+            if old_data:
+
+                old_hash_path = old_data.get(ColumnNames.HASH_PATH)
+                new_hash_path = Utils.create_hash_path(new_src)
+                
+                shutil.copy(old_hash_path, new_hash_path)
+
+                new_values = {
+                    ColumnNames.SRC: new_src,
+                    ColumnNames.HASH_PATH: new_hash_path,
+                    ColumnNames.ROOT: os.path.dirname(new_src),
+                    ColumnNames.CATALOG: "",
+                    ColumnNames.NAME: os.path.basename(new_src),
+                    ColumnNames.TYPE: os.path.splitext(new_src)[1],
+                    ColumnNames.SIZE: old_data.get(ColumnNames.SIZE),
+                    ColumnNames.MOD: old_data.get(ColumnNames.MOD),
+                    ColumnNames.RESOL: old_data.get(ColumnNames.RESOL),
+                    ColumnNames.COLORS: old_data.get(ColumnNames.COLORS),
+                    ColumnNames.RATING: old_data.get(ColumnNames.RATING)
+                }
+
+                q = sqlalchemy.insert(CACHE).values(new_values)
+
+                try:
+                    conn.execute(q)
+                    conn.commit()
+                except (IntegrityError, OperationalError) as e:
+                    print("grid.py > FileCopyThread > insert to DB", e)
+                    conn.rollback()
+
+            conn.close()
 
 
 class Grid(BaseMethods, QScrollArea):

@@ -8,45 +8,48 @@ from cfg import Dynamic, JsonData, Static
 from utils import Utils
 
 METADATA = sqlalchemy.MetaData()
-
 TABLE_NAME = "cache"
 
-ID = "id"
-SRC = "src"
-HASH_PATH = "hash_path"
-ROOT = "root"
-CATALOG = "catalog"
-NAME = "name"
-TYPE = "type_"
-SIZE = "size"
-MOD = "mod"
-RESOL = "resol"
-COLORS = "colors"
-RATING = "rating"
+class ColumnNames:
+    ID = "id"
+    SRC = "src"
+    HASH_PATH = "hash_path"
+    ROOT = "root"
+    CATALOG = "catalog"
+    NAME = "name"
+    TYPE = "type_"
+    SIZE = "size"
+    MOD = "mod"
+    RESOL = "resol"
+    COLORS = "colors"
+    RATING = "rating"
 
-NAME_ = "Имя"
-TYPE_ = "Тип"
-SIZE_ = "Размер"
-MOD_ = "Дата изменения"
-COLORS_ = "Цвета"
-RATING_ = "Рейтинг"
+
+class ColumnsComments:
+    NAME_ = "Имя"
+    TYPE_ = "Тип"
+    SIZE_ = "Размер"
+    MOD_ = "Дата изменения"
+    COLORS_ = "Цвета"
+    RATING_ = "Рейтинг"
+
 
 CACHE = sqlalchemy.Table(
     TABLE_NAME, METADATA,
     # Комментарии колонок используются только для сортировки.
     # Где есть комментарий — сортировка возможна.
-    sqlalchemy.Column(ID, sqlalchemy.Integer, primary_key=True),
-    sqlalchemy.Column(SRC, sqlalchemy.Text, unique=True),
-    sqlalchemy.Column(HASH_PATH, sqlalchemy.Text),
-    sqlalchemy.Column(ROOT, sqlalchemy.Text),
-    sqlalchemy.Column(CATALOG, sqlalchemy.Text, nullable=False),
-    sqlalchemy.Column(NAME, sqlalchemy.Text, comment=NAME_),
-    sqlalchemy.Column(TYPE, sqlalchemy.Text, comment=TYPE_),
-    sqlalchemy.Column(SIZE, sqlalchemy.Integer, comment=SIZE_),
-    sqlalchemy.Column(MOD, sqlalchemy.Integer, comment=MOD_),
-    sqlalchemy.Column(RESOL, sqlalchemy.Integer),
-    sqlalchemy.Column(COLORS, sqlalchemy.Text, nullable=False, comment=COLORS_),
-    sqlalchemy.Column(RATING, sqlalchemy.Integer, nullable=False, comment=RATING_)
+    sqlalchemy.Column(ColumnNames.ID, sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column(ColumnNames.SRC, sqlalchemy.Text, unique=True),
+    sqlalchemy.Column(ColumnNames.HASH_PATH, sqlalchemy.Text),
+    sqlalchemy.Column(ColumnNames.ROOT, sqlalchemy.Text),
+    sqlalchemy.Column(ColumnNames.CATALOG, sqlalchemy.Text, nullable=False),
+    sqlalchemy.Column(ColumnNames.NAME, sqlalchemy.Text, comment=ColumnsComments.NAME_),
+    sqlalchemy.Column(ColumnNames.TYPE, sqlalchemy.Text, comment=ColumnsComments.TYPE_),
+    sqlalchemy.Column(ColumnNames.SIZE, sqlalchemy.Integer, comment=ColumnsComments.SIZE_),
+    sqlalchemy.Column(ColumnNames.MOD, sqlalchemy.Integer, comment=ColumnsComments.MOD_),
+    sqlalchemy.Column(ColumnNames.RESOL, sqlalchemy.Integer),
+    sqlalchemy.Column(ColumnNames.COLORS, sqlalchemy.Text, nullable=False, comment=ColumnsComments.COLORS_),
+    sqlalchemy.Column(ColumnNames.RATING, sqlalchemy.Integer, nullable=False, comment=ColumnsComments.RATING_)
 )
 
 
@@ -94,7 +97,7 @@ class OrderItem:
         attr = Dynamic.sort
         rev = Dynamic.rev
 
-        if attr == COLORS:
+        if attr == ColumnNames.COLORS:
 
             # сортировка по цветовым меткам:
             # так как аттрибут OrderItem "colors" это список цветовых меток,
@@ -105,7 +108,7 @@ class OrderItem:
             order_items.sort(key=key, reverse=rev)
             return order_items
 
-        elif attr == NAME:
+        elif attr == ColumnNames.NAME:
 
             # сортировка по имени:
             # создаем список элементов, у которых в начале числовые символы
@@ -230,7 +233,7 @@ class Dbase:
         assert cache_values == clmns, "проверь get_cache_values"
 
     @classmethod
-    def get_cache_values(cls, src, hash_path, name, type_, size, mod, resol):
+    def get_cache_values(cls, src, hash_path, size, mod, resol):
 
         # метод который получает values для sqlalchemy.insert
         # словарь соответствует колонкам CACHE
@@ -238,15 +241,15 @@ class Dbase:
         # здесь это обязательно нужно отобразить
 
         return {
-            SRC: src,  # Путь к файлу.
-            HASH_PATH: hash_path,  # Хэш пути.
-            ROOT: os.path.dirname(src),  # Корневая директория файла.
-            CATALOG: "",  # Каталог (пока пустой).
-            NAME: name,  # Имя файла.
-            TYPE: type_,  # Тип файла.
-            SIZE: size,  # Размер файла.
-            MOD: mod,  # Дата изменения файла.
-            RESOL: resol,  # Разрешение (если применимо).
-            COLORS: "",  # Цвета (пока пустые).
-            RATING: 0  # Рейтинг (по умолчанию 0).
+            ColumnNames.SRC: src,
+            ColumnNames.HASH_PATH: hash_path,
+            ColumnNames.ROOT: os.path.dirname(src),
+            ColumnNames.CATALOG: "",
+            ColumnNames.NAME: os.path.basename(src),
+            ColumnNames.TYPE: os.path.splitext(src)[1],
+            ColumnNames.SIZE: size,
+            ColumnNames.MOD: mod,
+            ColumnNames.RESOL: resol, 
+            ColumnNames.COLORS: "",
+            ColumnNames.RATING: 0
         }

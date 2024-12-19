@@ -127,7 +127,7 @@ class LoadImages(URunnable):
 
                 h_, w_ = img_array.shape[:2]
                 resol = f"{w_}x{h_}"
-                hash_path = Utils.get_hash_path(src)
+                hash_path = Utils.create_hash_path(src)
                 args = src, hash_path, size, mod, resol
 
                 stmt = self.get_insert_stmt(*args)
@@ -171,11 +171,7 @@ class LoadImages(URunnable):
             )  -> sqlalchemy.Insert:
 
         src = os.sep + src.strip().strip(os.sep)
-        name = os.path.basename(src)
-        type_ = os.path.splitext(name)[-1]
-
-        args = (src, hash_path, name, type_, size, mod, resol)
-        values_ = Dbase.get_cache_values(*args)
+        values_ = Dbase.get_cache_values(src, hash_path, size, mod, resol)
 
         return sqlalchemy.insert(CACHE).values(**values_)
 

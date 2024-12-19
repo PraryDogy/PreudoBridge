@@ -163,7 +163,7 @@ class SearchFinder(URunnable):
         self.signals_.add_new_widget.emit(widget_data)
 
         if new_img:
-            hash_path = Utils.get_hash_path(src)
+            hash_path = Utils.create_hash_path(src)
         
             if img_array is not None:
                 h_, w_ = img_array.shape[:2]
@@ -199,11 +199,7 @@ class SearchFinder(URunnable):
     def get_insert_query(self, src: str, hash_path: str, size: int, mod: int, resol: str):
 
         src = os.sep + src.strip().strip(os.sep)
-        name = os.path.basename(src)
-        type_ = os.path.splitext(name)[-1]
-
-        args = (src, hash_path, name, type_, size, mod, resol)
-        values_ = Dbase.get_cache_values(*args)
+        values_ = Dbase.get_cache_values(src, hash_path, size, mod, resol)
 
         return sqlalchemy.insert(CACHE).values(**values_)
 

@@ -231,7 +231,7 @@ class ReadImage(Err):
 class Hash(Err):
 
     @classmethod
-    def get_hash_path(cls, src: str) -> str:
+    def create_hash_path(cls, src: str) -> str:
         new_name = hashlib.md5(src.encode('utf-8')).hexdigest() + ".jpg"
         new_path = os.path.join(Static.HASH_DIR, new_name[:2])
         os.makedirs(new_path, exist_ok=True)
