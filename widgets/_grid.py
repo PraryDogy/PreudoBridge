@@ -586,7 +586,11 @@ class FileCopyThread(URunnable):
                     ColumnNames.NAME: os.path.basename(new_src),
                     ColumnNames.TYPE: os.path.splitext(new_src)[1],
                     ColumnNames.SIZE: old_data.get(ColumnNames.SIZE),
-                    ColumnNames.MOD: old_data.get(ColumnNames.MOD),
+
+                    # мы берем новую дату изменения
+                    # т.к. она меняется после копирования
+                    ColumnNames.MOD: os.stat(new_src).st_mtime,
+
                     ColumnNames.RESOL: old_data.get(ColumnNames.RESOL),
                     ColumnNames.COLORS: old_data.get(ColumnNames.COLORS),
                     ColumnNames.RATING: old_data.get(ColumnNames.RATING)

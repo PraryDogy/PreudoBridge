@@ -101,6 +101,11 @@ class LoadImages(URunnable):
             else:
                 self.remove_db_images.append((db_src, hash_path))
 
+            print("*" * 50)
+            print(self.finder_items)
+            print(self.db_items)
+            print("*" * 50)
+
     def create_new_images(self):
         insert_count = 0
 
