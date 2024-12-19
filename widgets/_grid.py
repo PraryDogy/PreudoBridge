@@ -970,6 +970,11 @@ class Grid(BaseMethods, QScrollArea):
         elif isinstance(widget, QWidget):
             dest = JsonData.root
 
+        # Определяем источник данных:
+        # Если в mimeData содержится URL, значит, данные были перетянуты
+        # извне приложения (например, из Finder).
+        # Если mimeData содержит только обычный текст (plain text),
+        # то это данные, перетянутые из виджета Thumb.
 
         if a0.mimeData().hasUrls():
             print("is external item")
