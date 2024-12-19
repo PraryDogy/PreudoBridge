@@ -233,7 +233,7 @@ class Thumb(OrderItem, QFrame):
 
     def setup(self):
 
-        #  при первой инициации нужно установить текст в виджеты
+        # при первой инициации нужно установить текст в виджеты
         for i in (self.text_wid, self.color_wid):
             i.set_text(self)
 
@@ -264,6 +264,7 @@ class Thumb(OrderItem, QFrame):
             self.svg_wid.setFixedSize(self.pixmap_size, self.pixmap_size)
 
     def set_frame(self):
+
         self.text_wid.setStyleSheet(
             f"""
                 background: {Static.BLUE};
@@ -272,6 +273,7 @@ class Thumb(OrderItem, QFrame):
                 padding: 2px;
             """
         )
+
         self.img_frame.setStyleSheet(
             f"""
                 background: {Static.GRAY_UP_BTN};
@@ -281,6 +283,7 @@ class Thumb(OrderItem, QFrame):
         )
 
     def set_no_frame(self):
+    
         self.text_wid.setStyleSheet(
             f"""
                 background: transparent;
@@ -289,6 +292,7 @@ class Thumb(OrderItem, QFrame):
                 padding: 2px;
             """
         )
+    
         self.img_frame.setStyleSheet(
             f"""
                 background: transparent;
@@ -964,15 +968,19 @@ class Grid(BaseMethods, QScrollArea):
             widget = QApplication.widgetAt(global_pos)
             dest = None
 
-
+            # Thumb / ThumbFolder > QFrame (self.img_wid) > USvgWiаdget
             if isinstance(widget, USvgWidget):
                 widget = widget.parent().parent()
 
             if isinstance(widget, ThumbFolder):
                 dest = widget.src
 
-            elif isinstance(widget, QWidget):
-                dest = JsonData.root
+            # elif isinstance(widget, QWidget):
+            #     dest = JsonData.root
+
+            # print(dest, JsonData.root)
+
+            
             
             if dest:
                 for url_ in urls:
