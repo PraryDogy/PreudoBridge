@@ -1,11 +1,13 @@
 import os
 import subprocess
 
+import sqlalchemy
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QAction, QLabel, QLineEdit, QMenu, QWidget
+from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Dynamic, JsonData, Static
-from database import ORDER
+from database import CACHE, ORDER, Dbase
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
@@ -716,3 +718,15 @@ class DeleteFinderItem(QAction):
 
         except subprocess.CalledProcessError as e:
             print(f"Ошибка при перемещении в корзину: {e}")
+
+        conn = Dbase.engine.connect()
+        q = sqlalchemy.delete(CACHE).where(CACHE.c.src == self.path)
+
+        try:
+            conn.execute(q)
+
+        except (OperationalError, IntegrityError) as e:
+            conn.rollback()
+            print("actions.py error delete from db DeleteFinderItem", e)
+
+        conn.close()
