@@ -774,7 +774,11 @@ class Grid(BaseMethods, QScrollArea):
         coords = list(self.cell_to_wid)
         start_ind = coords.index(self.curr_cell)
         end_ind = coords.index((wid.row, wid.col)) + 1
-        coords = coords[start_ind:end_ind]
+
+        if start_ind > end_ind:
+            coords = coords[end_ind - 1 : start_ind]
+        else:
+            coords = coords[start_ind : end_ind]
 
         for i in coords:
             wid_ = self.cell_to_wid[i]
