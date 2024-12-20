@@ -139,12 +139,6 @@ class SearchWidget(QWidget):
         self.search_wid.setText(text)
 
 
-class ColorLabel(QLabel):
-    def __init__(self, text: str):
-        super().__init__(text)
-        self.is_selected = False
-
-
 class FiltersBtn(BarTopBtn):
     def __init__(self):
         super().__init__()
@@ -158,32 +152,6 @@ class FiltersBtn(BarTopBtn):
         self.menu_.layout().setSpacing(1)
 
         # строчка с цветами
-
-        self.color_wid = QWidget()
-        self.menu_.layout().addWidget(self.color_wid)
-        color_lay = QHBoxLayout()
-        color_lay.setContentsMargins(3, 3, 3, 3)
-        color_lay.setSpacing(5)
-        self.color_wid.setLayout(color_lay)
-
-        self.enabled_filters = set()
-        
-        self.color_wids: list[ColorLabel] = []
-
-        for color in Static.COLORS:
-            label = ColorLabel(color)
-            label.setFixedSize(20, 20)
-            label.mousePressEvent = lambda e, w=label, c=color: self.toggle_color(w, c)
-            color_lay.addWidget(label)
-            self.color_wids.append(label)
-
-        cancel_color = QSvgWidget()
-        cancel_color.setFixedSize(14, 14)
-        cancel_color.load(Static.CLEAR_SVG)
-        cancel_color.mousePressEvent = self.reset_colors_cmd
-        color_lay.addWidget(cancel_color)
-
-        color_lay.addStretch()
 
         rating_wid = QWidget()
         self.menu_.layout().addWidget(rating_wid)
@@ -203,8 +171,6 @@ class FiltersBtn(BarTopBtn):
             rating_lay.addWidget(label)
             self.rating_wids.append(label)
         
-        rating_lay.addStretch()
-
         self.menu_.adjustSize()
 
     def mouseReleaseEvent(self, e: QMouseEvent):
@@ -213,65 +179,15 @@ class FiltersBtn(BarTopBtn):
             self.menu_.move(self.mapToGlobal(pont))
             self.menu_.show()
 
-    def style_btn(self, set_down=True, style=f"color: {Static.BLUE};"):
-
-        if not self.enabled_filters:
-            set_down = False
-            style = ""
-
-        self.setStyleSheet(style)
-
-    def toggle_color(self, widget: ColorLabel, color: str):
-        if widget.is_selected == True:
-            self.enabled_filters.remove(widget)
-            self.style_btn()
-            Dynamic.color_filters.remove(color)
-            widget.setStyleSheet("")
-            widget.is_selected = False
-        else:
-            self.enabled_filters.add(widget)
-            self.style_btn()
-            Dynamic.color_filters.append(color)
-            widget.setStyleSheet(f"background: {Static.BLUE};")
-            widget.is_selected = True
-
-        SignalsApp.all_.filter_grid.emit()
-
-    def reset_colors_cmd(self, e):
-        for wid in self.color_wids:
-            wid.setStyleSheet("")
-            wid.is_selected = False
-
-        enabled_filters = []
-
-        for i in self.enabled_filters:
-            if isinstance(i, ColorLabel):
-                enabled_filters.append(i)
-
-        for i in enabled_filters:
-                self.enabled_filters.remove(i)
-
-        self.style_btn()
-
-        Dynamic.color_filters.clear()
-        SignalsApp.all_.filter_grid.emit()
-
     def toggle_rating(self, rate: int):
         if rate > 1:
             Dynamic.rating_filter = rate
-            self.enabled_filters.add(0)
-            self.style_btn()
 
             for i in self.rating_wids[:rate]:
                 i.setStyleSheet(f"background: {Static.BLUE};")
             for i in self.rating_wids[rate:]:
                 i.setStyleSheet("")
         else:
-
-            if 0 in self.enabled_filters:
-                self.enabled_filters.remove(0)
-
-            self.style_btn()
             Dynamic.rating_filter = 0
             for i in self.rating_wids:
                 i.setStyleSheet("")
@@ -281,14 +197,8 @@ class FiltersBtn(BarTopBtn):
     def reset_filters(self):
         for i in self.rating_wids:
             i.setStyleSheet("")
-        for i in self.color_wid.findChildren(QLabel):
-            i.setStyleSheet("")
-            i.is_selected = False
 
-        Dynamic.color_filters.clear()
         Dynamic.rating_filter = 0
-        self.enabled_filters.clear()
-        self.style_btn()
 
 
 class BarTop(QWidget):

@@ -20,11 +20,10 @@ SLEEP = 0.2
 
 
 class WidgetData:
-    __slots__ = ["src", "colors", "rating", "size", "mod", "pixmap"]
+    __slots__ = ["src", "rating", "size", "mod", "pixmap"]
 
-    def __init__(self, src: str, colors: str, rating: int, size: int, mod: int, pixmap: QPixmap):
+    def __init__(self, src: str, rating: int, size: int, mod: int, pixmap: QPixmap):
         self.src: str = src
-        self.colors: str = colors
         self.rating: int = rating
         self.size: int = size
         self.mod: int = mod
@@ -139,7 +138,6 @@ class SearchFinder(URunnable):
             small_img_array = FitImg.start(img_array, ThumbData.DB_PIXMAP_SIZE)
 
             pixmap = Utils.pixmap_from_array(small_img_array)
-            colors: str = ""
             rating: int = 0
             new_img = True
 
@@ -147,13 +145,11 @@ class SearchFinder(URunnable):
             small_img_array = Utils.read_image_hash(db_data[0])
 
             pixmap: QPixmap = Utils.pixmap_from_array(small_img_array)
-            colors = db_data[1]
             rating = db_data[2]
             new_img = False
 
         widget_data = WidgetData(
             src=src,
-            colors=colors,
             rating=rating,
             size=stat.st_size,
             mod=stat.st_mtime,
@@ -185,7 +181,6 @@ class SearchFinder(URunnable):
         try:
             sel_stmt = sqlalchemy.select(
                 CACHE.c.hash_path,
-                CACHE.c.colors,
                 CACHE.c.rating
                 ).where(
                     CACHE.c.src == src
@@ -256,7 +251,6 @@ class GridSearch(Grid):
             src=widget_data.src,
             size=widget_data.size,
             mod=widget_data.mod,
-            colors=widget_data.colors,
             rating=widget_data.rating,
             )
         

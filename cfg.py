@@ -81,16 +81,6 @@ class Static:
         for upper_ext in (ext, ext.upper())
         )
 
-    COLORS: dict = {
-        "\U0001F534": "Красный",
-        "\U0001F535": "Синий",
-        "\U0001F7E0": "Оранжевый",
-        "\U0001F7E1": "Желтый",
-        "\U0001F7E2": "Зеленый",
-        "\U0001F7E3": "Фиолетовый",
-        "\U0001F7E4": "Коричневый"
-        }
-
     FAVORITES_NAME = "___favs___"
     MAIN_WIN_NAME = "MainWin"
 
@@ -237,7 +227,6 @@ class JsonData:
 
 
 class Dynamic:
-    color_filters: list = []
     rating_filter: int = 0
     grid_view_type: int = 0
     ww = 1050

@@ -55,7 +55,6 @@ class ListItem(QWidget):
 
         t = [
                 os.path.basename(order_item.src),
-                order_item.colors,
                 Static.STAR_SYM * order_item.rating
         ]
 
