@@ -801,7 +801,7 @@ class Grid(BaseMethods, QScrollArea):
             self.fav_action.setText("Добавить в избранное")
             self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))
 
-    def remove_selection(self):
+    def remove_wid_frame(self):
         """
         удаляет только стилистическое выделение
         но не сбрасывает curr_cell
@@ -900,10 +900,10 @@ class Grid(BaseMethods, QScrollArea):
         return super().keyPressEvent(a0)
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
-        self.remove_selection()
+        self.remove_wid_frame()
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        self.remove_selection()
+        self.remove_wid_frame()
 
         menu = QMenu(parent=self)
 
@@ -1010,6 +1010,7 @@ class Grid(BaseMethods, QScrollArea):
 
             for url_ in urls:
 
+                # папки мы пока не умеем копировать
                 if os.path.isdir(url_):
                     continue
 
