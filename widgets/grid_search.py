@@ -146,7 +146,8 @@ class SearchFinder(URunnable):
             small_img_array = Utils.read_image_hash(db_data[0])
 
             pixmap: QPixmap = Utils.pixmap_from_array(small_img_array)
-            rating = db_data[2]
+            # db_data возвращает кортеж: путь к файлу, рейтинг
+            rating = db_data[-1]
             new_img = False
 
         widget_data = WidgetData(
