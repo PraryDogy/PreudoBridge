@@ -99,6 +99,7 @@ class SearchFinder(URunnable):
 
     def _should_create_wid(self, entry: os.DirEntry):
         src_lower: str = entry.path.lower()
+
         if hasattr(self, "is_tuple") and src_lower.endswith(self.search_text):
             return True
         return self.search_text in entry.name
