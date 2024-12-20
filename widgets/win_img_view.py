@@ -13,8 +13,7 @@ from database import CACHE, Dbase
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
-from ._actions import (ColorMenu, CopyPath, Info, OpenInApp, RatingMenu,
-                       RevealInFinder)
+from ._actions import CopyPath, Info, OpenInApp, RatingMenu, RevealInFinder
 from ._base import OpenWin, USvgWidget, WinBase
 from ._grid import Thumb
 
@@ -325,8 +324,6 @@ class WinImgView(WinBase):
         t = ""
         if self.wid.rating > 0:
             t = Static.STAR_SYM * self.wid.rating + " | "
-        if self.wid.colors:
-            t = t + self.wid.colors + " | "
         t = t + os.path.basename(self.src)
 
         self.setWindowTitle(t)
@@ -499,10 +496,6 @@ class WinImgView(WinBase):
         menu.addAction(copy_path)
 
         menu.addSeparator()
-
-        color_menu = ColorMenu(menu, self.src, self.wid.colors)
-        color_menu._clicked.connect(self.wid.set_color_cmd)
-        menu.addMenu(color_menu)
 
         rating_menu = RatingMenu(menu, self.src, self.wid.rating)
         rating_menu._clicked.connect(self.wid.set_rating_cmd)

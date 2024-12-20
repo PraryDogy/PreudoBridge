@@ -28,13 +28,13 @@ class FinderItems(URunnable):
     def __init__(self):
         super().__init__()
         self.signals_ = WorkerSignals()
-        self.db_color_rating: dict[str, list] = {}
+        self.db_rating: dict[str, int] = {}
         self.order_items: list[OrderItem] = []
 
     @URunnable.set_running_state
     def run(self):
         try:
-            self.get_color_rating()
+            self.get_rating()
             self.get_items()
             self.order_items = OrderItem.order_items(self.order_items)
             self.signals_.finished_.emit(self.order_items)
@@ -47,16 +47,16 @@ class FinderItems(URunnable):
             ...
 
 
-    def get_color_rating(self):
-        q = sqlalchemy.select(CACHE.c.src, CACHE.c.colors, CACHE.c.rating)
+    def get_rating(self):
+        q = sqlalchemy.select(CACHE.c.src, CACHE.c.rating)
         q = q.where(CACHE.c.root == JsonData.root)
   
         with Dbase.engine.connect() as conn:
             res = conn.execute(q).fetchall()
 
-            self.db_color_rating = {
-                src: [colors, rating]
-                for src, colors, rating in res
+            self.db_rating = {
+                src: rating
+                for src, rating in res
             }
 
     def get_items(self) -> list:
@@ -76,15 +76,14 @@ class FinderItems(URunnable):
 
                     size = stats.st_size
                     mod = stats.st_mtime
-                    colors = ""
                     rating = 0
 
-                    db_item = self.db_color_rating.get(entry.path)
+                    db_item = self.db_rating.get(entry.path)
 
                     if db_item:
-                        colors, rating = db_item
+                        rating = db_item
 
-                    item = OrderItem(entry.path, size, mod, colors, rating)
+                    item = OrderItem(entry.path, size, mod, rating)
                     self.order_items.append(item)
 
 

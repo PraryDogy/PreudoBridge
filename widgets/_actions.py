@@ -16,7 +16,6 @@ INFO_T = "Свойства"
 COPY_PATH_T = "Скопировать путь"
 VIEW_T = "Просмотр"
 OPEN_IN_APP_T = "Открыть в приложении"
-COLORS_T = "Цвета"
 RATING_T = "Рейтинг"
 SHOW_IN_FOLDER_T = "Показать в папке"
 FAV_REMOVE_T = "Удалить из избранного"
@@ -274,53 +273,6 @@ class OpenInApp(QMenu):
         UThreadPool.start(
             runnable=self.task_
         )
-
-
-# меню с цветовыми метками для _grid.py > Thumb, ThumbSearch
-class ColorMenu(QMenu):
-    _clicked = pyqtSignal(str)
-
-    def __init__(self, parent: QMenu, src: str, colors: str):
-
-        super().__init__(
-            parent=parent,
-            title=COLORS_T
-        )
-
-        self.src = src
-
-        # свойство Thumb, ThumbSearch
-        # цветовые метки для каждого виджета хранятся в базе данных
-        # и подгружаются при создании сетки
-        self.colors = colors
-
-        # cfg.py > Static.COLORS заранее предопределенный список
-        # допустимых цветовых меток
-        # в цикле происходит проверка, есть ли цветовая метка
-        # в self.colors (свойство Thumb, ThumbSearch)
-        # если есть, то отмечается setChecked
-        for color, text in Static.COLORS.items():
-
-            wid = QAction(
-                parent=self,
-                text=f"{color} {text}"
-            )
-
-            wid.setCheckable(True)
-
-            if color in self.colors:
-                wid.setChecked(True)
-
-            # клик возвращает через сигнал цветовую метку
-            # виджет Thumb / ThumbSearch сверит эту метку
-            # со своим списком цветовых меток (self.colors)
-            # и запишет метки в базу данных
-            # у виджета может быть несколько цветовых меток
-            wid.triggered.connect(
-                lambda e, c=color: self._clicked.emit(c)
-            )
-
-            self.addAction(wid)
 
 
 # меню с рейтингом для _grid.py > Thumb, ThumbSearch

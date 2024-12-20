@@ -263,14 +263,13 @@ class GridStandart(Grid):
         cut = self.order_items[self.offset:self.offset + self.limit]
 
         for order_item in cut:
-    
+
             if os.path.isdir(order_item.src):
 
                 wid = ThumbFolder(
                     src=order_item.src,
                     size=order_item.size,
                     mod=order_item.mod,
-                    colors=order_item.colors,
                     rating=order_item.rating,
                     )
 
@@ -284,7 +283,6 @@ class GridStandart(Grid):
                     src=order_item.src,
                     size=order_item.size,
                     mod=order_item.mod,
-                    colors=order_item.colors,
                     rating=order_item.rating,
                     )
 

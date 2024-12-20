@@ -14,18 +14,17 @@ from database import CACHE, ColumnNames, Dbase, OrderItem
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
-from ._actions import (ChangeView, ColorMenu, CopyPath, CreateFolder,
-                       DeleteFinderItem, FavAdd, FavRemove, FindHere, Info,
-                       OpenInApp, RatingMenu, RevealInFinder, ShowInFolder,
-                       SortMenu, UpdateGrid, View)
+from ._actions import (ChangeView, CopyPath, CreateFolder, DeleteFinderItem,
+                       FavAdd, FavRemove, FindHere, Info, OpenInApp,
+                       RatingMenu, RevealInFinder, ShowInFolder, SortMenu,
+                       UpdateGrid, View)
 from ._base import BaseMethods, OpenWin, USvgWidget
 from .list_file_system import ListFileSystem
 from .win_find_here import WinFindHere
 from .win_sys import WinCopy
 
 SELECTED = "selected"
-COLORS_FONT = "font-size: 9px;"
-TEXT_FONT = "font-size: 11px;"
+FONT_SIZE = "font-size: 11px;"
 RAD = "border-radius: 4px"
 IMG_WID_ATTR = "img_wid"
 
@@ -68,7 +67,7 @@ class TextWidget(QLabel):
     def __init__(self):
         super().__init__()
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.setStyleSheet(TEXT_FONT)
+        self.setStyleSheet(FONT_SIZE)
 
     def set_text(self, wid: OrderItem) -> list[str]:
         name: str | list = wid.name
@@ -77,24 +76,17 @@ class TextWidget(QLabel):
 
         if len(name) > max_row:
 
-            if wid.rating > 0:
-                name = self.short_text(name, max_row)
-                lines.append(name)
+            first_line = name[:max_row]
+            second_line = name[max_row:]
 
-            else:
-                first_line = name[:max_row]
-                second_line = name[max_row:]
+            if len(second_line) > max_row:
+                second_line = self.short_text(second_line, max_row)
 
-                if len(second_line) > max_row:
-                    second_line = self.short_text(second_line, max_row)
+            lines.append(first_line)
+            lines.append(second_line)
 
-                lines.append(first_line)
-                lines.append(second_line)
         else:
             name = lines.append(name)
-
-        if wid.rating > 0:
-            lines.append(Static.STAR_SYM * wid.rating)
 
         self.setText("\n".join(lines))
 
@@ -102,14 +94,15 @@ class TextWidget(QLabel):
         return f"{text[:max_row - 10]}...{text[-7:]}"
 
 
-class ColorLabel(QLabel):
+class RatingWid(QLabel):
     def __init__(self):
         super().__init__()
-        self.setStyleSheet(COLORS_FONT)
+        self.setStyleSheet(FONT_SIZE)
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
     def set_text(self, wid: OrderItem):
-        self.setText(wid.colors)
+        text = Static.STAR_SYM * wid.rating
+        self.setText(text)
 
 
 class Thumb(OrderItem, QFrame):
@@ -123,19 +116,12 @@ class Thumb(OrderItem, QFrame):
     pixmap_size = 0
     thumb_w = 0
     thumb_h = 0
-    color_wid_h = 0
+    rating_wid_h = 0
 
-    def __init__(self, src: str, size: int, mod: int, colors: str, rating: int):
+    def __init__(self, src: str, size: int, mod: int, rating: int):
 
         QFrame.__init__(self, parent=None)
-        OrderItem.__init__(
-            self,
-            src=src,
-            size=size,
-            mod=mod,
-            colors=colors,
-            rating=rating
-        )
+        OrderItem.__init__(self, src=src, size=size, mod=mod, rating=rating)
 
         self.img: QPixmap = None
         self.must_hidden: bool = False
@@ -164,10 +150,10 @@ class Thumb(OrderItem, QFrame):
         self.text_wid = TextWidget()
         self.v_lay.addWidget(self.text_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.color_wid = ColorLabel()
-        self.v_lay.addWidget(self.color_wid, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.rating_wid = RatingWid()
+        self.v_lay.addWidget(self.rating_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        for i in (self.img_frame, self.text_wid, self.color_wid):
+        for i in (self.img_frame, self.text_wid, self.rating_wid):
             i.mouseReleaseEvent = self.mouse_release
             i.mousePressEvent = self.mouse_press
             i.mouseMoveEvent = self.mouse_move
@@ -185,7 +171,7 @@ class Thumb(OrderItem, QFrame):
         cls.pixmap_size = ThumbData.PIXMAP_SIZE[ind]
         cls.thumb_w = ThumbData.THUMB_W[ind]
         cls.thumb_h = ThumbData.THUMB_H[ind]
-        cls.color_wid_h = ThumbData.COLOR_WID_H
+        cls.rating_wid_h = ThumbData.RATING_WID_H
 
     def set_pixmap(self, pixmap: QPixmap):
         self.svg_wid.deleteLater()
@@ -199,7 +185,7 @@ class Thumb(OrderItem, QFrame):
     def setup(self):
 
         # при первой инициации нужно установить текст в виджеты
-        for i in (self.text_wid, self.color_wid):
+        for i in (self.text_wid, self.rating_wid):
             i.set_text(self)
 
         self.setFixedSize(
@@ -208,8 +194,8 @@ class Thumb(OrderItem, QFrame):
         )
 
         # фиксированная высота строки цветовых меток чтобы они не обрезались
-        self.color_wid.setFixedHeight(
-            self.color_wid_h
+        self.rating_wid.setFixedHeight(
+            self.rating_wid_h
         )
 
         # рамка вокруг pixmap при выделении Thumb
@@ -233,7 +219,7 @@ class Thumb(OrderItem, QFrame):
         self.text_wid.setStyleSheet(
             f"""
                 background: {Static.BLUE};
-                {TEXT_FONT};
+                {FONT_SIZE};
                 {RAD};
                 padding: 2px;
             """
@@ -242,7 +228,7 @@ class Thumb(OrderItem, QFrame):
         self.img_frame.setStyleSheet(
             f"""
                 background: {Static.GRAY_UP_BTN};
-                {TEXT_FONT};
+                {FONT_SIZE};
                 {RAD};
             """
         )
@@ -252,7 +238,7 @@ class Thumb(OrderItem, QFrame):
         self.text_wid.setStyleSheet(
             f"""
                 background: transparent;
-                {TEXT_FONT};
+                {FONT_SIZE};
                 {RAD};
                 padding: 2px;
             """
@@ -261,7 +247,7 @@ class Thumb(OrderItem, QFrame):
         self.img_frame.setStyleSheet(
             f"""
                 background: transparent;
-                {TEXT_FONT};
+                {FONT_SIZE};
                 {RAD};
             """
         )
@@ -288,10 +274,6 @@ class Thumb(OrderItem, QFrame):
 
         menu.addSeparator()
 
-        color_menu = ColorMenu(parent=menu, src=self.src, colors=self.colors)
-        color_menu._clicked.connect(self.set_color_cmd)
-        menu.addMenu(color_menu)
-
         rating_menu = RatingMenu(parent=menu, src=self.src, rating=self.rating)
         rating_menu._clicked.connect(self.set_rating_cmd)
         menu.addMenu(rating_menu)
@@ -315,33 +297,6 @@ class Thumb(OrderItem, QFrame):
 
         delete_item = DeleteFinderItem(menu=menu, path=self.src)
         menu.addAction(delete_item)
-
-    def set_color_cmd(self, color: str):
-
-        if color not in self.colors:
-            temp_colors = self.colors + color
-        else:
-            temp_colors = self.colors.replace(color, "")
-
-        def cmd_():
-            self.colors = temp_colors
-            key = lambda x: list(Static.COLORS.keys()).index(x)
-            self.colors = ''.join(sorted(self.colors, key=key))
-
-            # сбрасываем фиксированную ширину для изменения текста
-            self.color_wid.setMinimumWidth(0)
-            self.color_wid.setMaximumWidth(50)
-            self.color_wid.set_text(self)
-
-            self.text_changed.emit()
-
-            # заново собираем размеры виджета с учетом новых цветовых меток
-            self.setup()
-
-        self.update_thumb_data(
-            values={ColumnNames.COLORS: temp_colors},
-            cmd_=cmd_
-        )
 
     def set_rating_cmd(self, rating: int):
 
@@ -407,14 +362,14 @@ class Thumb(OrderItem, QFrame):
 
 
 class ThumbFolder(Thumb):
-    def __init__(self, src: str, size: int, mod: int, colors: str, rating: int):
-        super().__init__(src, size, mod, colors, rating)
+    def __init__(self, src: str, size: int, mod: int, rating: int):
+        super().__init__(src, size, mod, rating)
 
         self.svg_path = Static.FOLDER_SVG
         img_wid = self.img_frame.findChild(USvgWidget)
         img_wid.load(self.svg_path)
 
-        for i in (self.img_frame, self.text_wid, self.color_wid):
+        for i in (self.img_frame, self.text_wid, self.rating_wid):
             i.contextMenuEvent = self.mouse_r_click
 
     def fav_cmd(self, offset: int):
@@ -486,10 +441,10 @@ class ThumbFolder(Thumb):
 
  
 class ThumbSearch(Thumb):
-    def __init__(self, src: str, size: int, mod: int, colors: str, rating: int):
-        super().__init__(src, size, mod, colors, rating)
+    def __init__(self, src: str, size: int, mod: int, rating: int):
+        super().__init__(src, size, mod, rating)
 
-        for i in (self.img_frame, self.text_wid, self.color_wid):
+        for i in (self.img_frame, self.text_wid, self.rating_wid):
             i.contextMenuEvent = self.mouse_r_click
 
     def show_in_folder_cmd(self):
@@ -550,13 +505,13 @@ class FileCopyThread(URunnable):
     # копировать вставить хоткеями
     def migrate_data(self, old_src: str, new_src: str):
         wid = Thumb.path_to_wid.get(self.src)
-        if wid and (wid.colors or wid.rating):
+        if wid and wid.rating:
 
             conn = Dbase.engine.connect()
 
             # если приложение уже успело создать запись в БД о новом объекте
             # удалим эту запись, т.к. стандартно запись в БД происходит
-            # с пустыми значениями COLORS и RATING
+            # с пустыми значениями RATING
             q = sqlalchemy.select(CACHE).where(CACHE.c.src == new_src)
             new_data = conn.execute(q).first()
 
@@ -599,7 +554,6 @@ class FileCopyThread(URunnable):
                     ColumnNames.MOD: os.stat(new_src).st_mtime,
 
                     ColumnNames.RESOL: old_data.get(ColumnNames.RESOL),
-                    ColumnNames.COLORS: old_data.get(ColumnNames.COLORS),
                     ColumnNames.RATING: old_data.get(ColumnNames.RATING)
                 }
 
@@ -732,10 +686,6 @@ class Grid(BaseMethods, QScrollArea):
 
             if Dynamic.rating_filter > 0:
                 if not (Dynamic.rating_filter >= wid.rating > 0):
-                    show_widget = False
-
-            if Dynamic.color_filters:
-                if not any(color for color in wid.colors if color in Dynamic.color_filters):
                     show_widget = False
 
             if show_widget:

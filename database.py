@@ -21,7 +21,6 @@ class ColumnNames:
     SIZE = "size"
     MOD = "mod"
     RESOL = "resol"
-    COLORS = "colors"
     RATING = "rating"
 
 
@@ -30,7 +29,6 @@ class ColumnsComments:
     TYPE_ = "Тип"
     SIZE_ = "Размер"
     MOD_ = "Дата изменения"
-    COLORS_ = "Цвета"
     RATING_ = "Рейтинг"
 
 
@@ -48,7 +46,6 @@ CACHE = sqlalchemy.Table(
     sqlalchemy.Column(ColumnNames.SIZE, sqlalchemy.Integer, comment=ColumnsComments.SIZE_),
     sqlalchemy.Column(ColumnNames.MOD, sqlalchemy.Integer, comment=ColumnsComments.MOD_),
     sqlalchemy.Column(ColumnNames.RESOL, sqlalchemy.Integer),
-    sqlalchemy.Column(ColumnNames.COLORS, sqlalchemy.Text, nullable=False, comment=ColumnsComments.COLORS_),
     sqlalchemy.Column(ColumnNames.RATING, sqlalchemy.Integer, nullable=False, comment=ColumnsComments.RATING_)
 )
 
@@ -65,12 +62,11 @@ ORDER: dict[str, str] = {
 
 
 class OrderItem:
-    def __init__(self, src: str, size: int, mod: int, colors: str, rating: int):
+    def __init__(self, src: str, size: int, mod: int, rating: int):
         super().__init__()
         self.src: str = src
         self.size: int = size
         self.mod: int = mod
-        self.colors: str = colors
         self.rating: int = rating
 
         # Извлечение имени файла из пути (например, "path/to/file.txt" -> "file.txt")
@@ -97,18 +93,7 @@ class OrderItem:
         attr = Dynamic.sort
         rev = Dynamic.rev
 
-        if attr == ColumnNames.COLORS:
-
-            # сортировка по цветовым меткам:
-            # так как аттрибут OrderItem "colors" это список цветовых меток,
-            # то мы производим сортировку по длине списка
-            # а не сортируем по имени
-
-            key = lambda order_item: len(getattr(order_item, attr))
-            order_items.sort(key=key, reverse=rev)
-            return order_items
-
-        elif attr == ColumnNames.NAME:
+        if attr == ColumnNames.NAME:
 
             # сортировка по имени:
             # создаем список элементов, у которых в начале числовые символы
@@ -250,6 +235,5 @@ class Dbase:
             ColumnNames.SIZE: size,
             ColumnNames.MOD: mod,
             ColumnNames.RESOL: resol, 
-            ColumnNames.COLORS: "",
             ColumnNames.RATING: 0
         }
