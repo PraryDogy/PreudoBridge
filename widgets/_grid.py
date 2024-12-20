@@ -109,6 +109,8 @@ class Thumb(OrderItem, QFrame):
     clicked_ = pyqtSignal()
     control_clicked = pyqtSignal()
     shift_clicked = pyqtSignal()
+    mouse_moved = pyqtSignal()
+
     open_in_view = pyqtSignal()
     text_changed = pyqtSignal()
     find_here = pyqtSignal()
@@ -157,7 +159,7 @@ class Thumb(OrderItem, QFrame):
         for i in (self.img_frame, self.text_wid, self.rating_wid):
             i.mouseReleaseEvent = self.mouse_release
             i.mousePressEvent = self.mouse_press
-            i.mouseMoveEvent = self.mouse_move
+            i.mouseMoveEvent = lambda e: self.mouse_moved.emit()
             i.mouseDoubleClickEvent = self.mouse_double_click
             i.contextMenuEvent = self.mouse_r_click
 
@@ -878,15 +880,6 @@ class Grid(BaseMethods, QScrollArea):
         menu.addAction(find_here)
 
         menu.exec_(self.mapToGlobal(a0.pos()))
-
-    # def dragEnterEvent(self, a0):
-    #     a0.acceptProposedAction()
-    #     return super().dragEnterEvent(a0)
-
-    def mouseMoveEvent(self, event):
-        """Инициализируем процесс перетаскивания"""
-        if event.buttons() & Qt.LeftButton:
-            self.start_drag()
 
     def start_drag(self):
         drag = QDrag(self)
