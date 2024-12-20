@@ -46,7 +46,7 @@ class WinCopy(WinMinMax):
         src = os.path.basename(src.strip(os.sep))
         dest = os.path.basename(dest.strip(os.sep))
 
-        text = f"{COPYING} {src} в {dest}"
+        text = f"{src} в {dest}"
 
         super().__init__()
         self.setWindowTitle(COPYING)
