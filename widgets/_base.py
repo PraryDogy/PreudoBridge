@@ -29,7 +29,7 @@ class UMenu(QMenu):
         if a0.button() == Qt.MouseButton.RightButton:
             a0.ignore()
         else:
-            super().mousePressEvent(a0)
+            super().mouseReleaseEvent(a0)
 
 
 class USlider(QSlider):
