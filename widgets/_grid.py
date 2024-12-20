@@ -562,10 +562,6 @@ class Grid(BaseMethods, QScrollArea):
 
             self.selected_widgets = [new_wid]
 
-            # задаем этот аттрибут чтобы при rearrange сетки выделенный виджет
-            # мог выделиться снова
-            setattr(self, SELECTED, True)
-
             # через таймер чтобы функция не блокировалась зажатой клавишей мыши
             cmd_ = lambda: SignalsApp.all_.bar_bottom_cmd.emit(
                 {ColumnNames.SRC : new_wid.src}
@@ -630,30 +626,6 @@ class Grid(BaseMethods, QScrollArea):
             wid.setup()
         self.rearrange()
 
-    def reselect(func: callable):
-        
-        def wrapper(self, *args, **kwargs):
-
-            # если Thumb не был выделен пользователем вручную
-            # то повторного выделения при rearrange не будет
-            if hasattr(self, SELECTED):
-
-                assert isinstance(self, Grid)
-                widget = self.cell_to_wid.get(self.curr_cell)
-
-                if isinstance(widget, QFrame):
-                    src = widget.src
-                else:
-                    src = None
-
-            func(self, *args, **kwargs)
-
-            if hasattr(self, SELECTED):
-                self.select_wid(src)
-
-        return wrapper
-
-    @reselect
     def rearrange(self, width: int = None):
         # этот метод отвечает за перетасовку
         # виджетов, поэтому отсюда мы отсылаем в инициатор self.ww
@@ -735,11 +707,6 @@ class Grid(BaseMethods, QScrollArea):
 
         if isinstance(wid, Thumb):
             wid.set_no_frame()
-
-        # клик по пустоте снимает выделение с виджета
-        # и чтобы виджет не выделялся при rearrange
-        if hasattr(self, SELECTED):
-            delattr(self, SELECTED)
 
         self.setFocus()
 
