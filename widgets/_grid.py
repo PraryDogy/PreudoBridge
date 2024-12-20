@@ -507,7 +507,7 @@ class Grid(BaseMethods, QScrollArea):
         SignalsApp.all_.resize_grid.connect(self.resize_)
         SignalsApp.all_.sort_grid.connect(self.order_)
         SignalsApp.all_.filter_grid.connect(self.filter_)
-        SignalsApp.all_.move_to_wid.connect(self.select_new_widget)
+        SignalsApp.all_.move_to_wid.connect(self.select_wid)
 
         self.main_wid = QWidget()
 
@@ -521,16 +521,21 @@ class Grid(BaseMethods, QScrollArea):
     def set_main_wid(self):
         self.setWidget(self.main_wid)
 
-    def select_new_widget(self, data: tuple | str | Thumb):
+    def select_wid(self, data: tuple | str | Thumb):
+
+        # thumb прилетает по клику мыши
         if isinstance(data, Thumb):
             coords = data.row, data.col
             new_wid = data
 
+        # кортеж по навигационным клавишам
         elif isinstance(data, tuple):
             coords = data
             new_wid = self.cell_to_wid.get(data)
 
+        # путь к фото из просмотрщика
         elif isinstance(data, str):
+
             # мы пытаемся найти виджет по пути к изображению
             # но сетка может обновиться уже без виджета с таким путем
 
@@ -545,19 +550,28 @@ class Grid(BaseMethods, QScrollArea):
         prev_wid = self.cell_to_wid.get(self.curr_cell)
 
         if isinstance(new_wid, Thumb):
+
             prev_wid.set_no_frame()
             new_wid.set_frame()
+
             self.curr_cell = coords
             self.ensureWidgetVisible(new_wid)
+
+            for i in self.selected_widgets:
+                i.set_no_frame()
+
+            self.selected_widgets = [new_wid]
 
             # задаем этот аттрибут чтобы при rearrange сетки выделенный виджет
             # мог выделиться снова
             setattr(self, SELECTED, True)
 
+            # через таймер чтобы функция не блокировалась зажатой клавишей мыши
             cmd_ = lambda: SignalsApp.all_.bar_bottom_cmd.emit(
-                {"src" : new_wid.src}
+                {ColumnNames.SRC : new_wid.src}
             )
             QTimer.singleShot(100, cmd_)
+
         else:
             try:
                 prev_wid.set_frame()
@@ -580,7 +594,7 @@ class Grid(BaseMethods, QScrollArea):
 
         if isinstance(wid, Thumb):
             wid.set_rating_cmd(rating_data.get(rating))
-            self.select_new_widget(self.curr_cell)
+            self.select_wid(self.curr_cell)
 
     def order_(self):
         self.ordered_widgets = OrderItem.order_items(self.ordered_widgets)
@@ -635,7 +649,7 @@ class Grid(BaseMethods, QScrollArea):
             func(self, *args, **kwargs)
 
             if hasattr(self, SELECTED):
-                self.select_new_widget(src)
+                self.select_wid(src)
 
         return wrapper
 
@@ -699,7 +713,7 @@ class Grid(BaseMethods, QScrollArea):
         wid = Thumb.path_to_wid.get(ListFileSystem.last_selection)
 
         if isinstance(wid, Thumb):
-            self.select_new_widget(wid)
+            self.select_wid(wid)
             self.ensureWidgetVisible(wid)
             ListFileSystem.last_selection = None
 
@@ -717,10 +731,6 @@ class Grid(BaseMethods, QScrollArea):
             self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))
 
     def remove_wid_frame(self):
-        """
-        удаляет только стилистическое выделение
-        но не сбрасывает curr_cell
-        """
         wid = self.cell_to_wid.get(self.curr_cell)
 
         if isinstance(wid, Thumb):
@@ -746,7 +756,7 @@ class Grid(BaseMethods, QScrollArea):
         if text:
             for path, wid in Thumb.path_to_wid.items():
                 if text in path:
-                    self.select_new_widget(wid)
+                    self.select_wid(wid)
                     break
 
     def control_clicked(self, wid: Thumb):
@@ -760,6 +770,21 @@ class Grid(BaseMethods, QScrollArea):
 
     def shift_clicked(self, wid: Thumb):
         ...
+
+    def start_drag(self):
+        drag = QDrag(self)
+        mime_data = QMimeData()
+
+        urls = [
+            QUrl.fromLocalFile(wid.src)
+            for wid in self.selected_widgets
+        ]
+
+        mime_data.setUrls(urls)
+        drag.setPixmap(QPixmap(Static.IMG_SVG))
+        drag.setMimeData(mime_data)
+
+        drag.exec_(Qt.CopyAction)
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         wid: Thumb | ThumbFolder 
@@ -815,7 +840,7 @@ class Grid(BaseMethods, QScrollArea):
                 self.curr_cell[1] + offset[1]
             )
 
-            self.select_new_widget(coords)
+            self.select_wid(coords)
 
         elif a0.key() in (
             Qt.Key.Key_0, Qt.Key.Key_1, Qt.Key.Key_2, Qt.Key.Key_3,
@@ -881,16 +906,7 @@ class Grid(BaseMethods, QScrollArea):
 
         menu.exec_(self.mapToGlobal(a0.pos()))
 
-    def start_drag(self):
-        drag = QDrag(self)
-        mime_data = QMimeData()
-
-        urls = [
-            QUrl.fromLocalFile(wid.src)
-            for wid in self.selected_widgets
-        ]
-
-        mime_data.setUrls(urls)
-        drag.setMimeData(mime_data)
-
-        drag.exec_(Qt.CopyAction)
+    def mouseReleaseEvent(self, a0):
+        for i in self.selected_widgets:
+            i.set_no_frame()
+        self.selected_widgets.clear()

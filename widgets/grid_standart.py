@@ -286,7 +286,7 @@ class GridStandart(Grid):
                     rating=order_item.rating,
                     )
 
-            wid.clicked_.connect(lambda w=wid: self.select_new_widget(w))
+            wid.clicked_.connect(lambda w=wid: self.select_wid(w))
             wid.control_clicked.connect(lambda w=wid: self.control_clicked(w))
             wid.shift_clicked.connect(lambda w=wid: self.shift_clicked(w))
             wid.open_in_view.connect(lambda w=wid: self.open_in_view(w))
