@@ -1058,6 +1058,10 @@ class Grid(BaseMethods, QScrollArea):
             urls = [
                 a0.mimeData().text()
             ]
+
+            if not isinstance(widget, ThumbFolder):
+                print("перетягивание на самого себя")
+                return
         
         if dest:
 
@@ -1086,11 +1090,13 @@ class Grid(BaseMethods, QScrollArea):
                     self.win_copy.close
                 )
 
-                self.task_.signals_.finished_.connect(
-                    lambda: SignalsApp.all_.load_standart_grid.emit(
-                        JsonData.root
+                if dest != JsonData.root:
+
+                    self.task_.signals_.finished_.connect(
+                        lambda: SignalsApp.all_.load_standart_grid.emit(
+                            JsonData.root
+                        )
                     )
-                )
 
                 self.win_copy.show()
                 UThreadPool.start(runnable=self.task_)
