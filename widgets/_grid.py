@@ -799,9 +799,6 @@ class Grid(BaseMethods, QScrollArea):
         
         return super().keyPressEvent(a0)
 
-    def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
-        self.remove_wid_frame()
-
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         self.remove_wid_frame()
 
@@ -856,3 +853,13 @@ class Grid(BaseMethods, QScrollArea):
         menu.addAction(find_here)
 
         menu.exec_(self.mapToGlobal(a0.pos()))
+
+    def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
+        self.remove_wid_frame()
+
+        if a0.button() & Qt.MouseButton.LeftButton:
+    
+            if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
+                ...
+            elif a0.modifiers() & Qt.KeyboardModifier.ShiftModifier:
+                ...
