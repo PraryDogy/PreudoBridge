@@ -12,7 +12,7 @@ from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 REVEAL_T = "Показать в Finder"
-INFO_T = "Свойства"
+INFO_T = "Инфо"
 COPY_PATH_T = "Скопировать путь"
 VIEW_T = "Просмотр"
 OPEN_IN_APP_T = "Открыть в приложении"

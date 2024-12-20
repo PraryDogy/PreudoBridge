@@ -273,21 +273,6 @@ class Thumb(OrderItem, QFrame):
 
         menu.addSeparator()
 
-        change_view = ChangeView(menu, self.src)
-        menu.addMenu(change_view)
-
-        sort_menu = SortMenu(parent=menu)
-        menu.addMenu(sort_menu)
-
-        menu.addSeparator()
-
-        upd_ = UpdateGrid(menu, JsonData.root)
-        menu.addAction(upd_)
-
-        find_here = FindHere(parent=menu)
-        find_here.clicked_.connect(self.find_here.emit)
-        menu.addAction(find_here)
-
         delete_item = DeleteFinderItem(menu=menu, path=self.src)
         menu.addAction(delete_item)
 
@@ -411,21 +396,6 @@ class ThumbFolder(Thumb):
             menu.addAction(self.fav_action)
 
         menu.addSeparator()
-
-        change_view = ChangeView(menu, self.src)
-        menu.addMenu(change_view)
-        
-        sort_menu = SortMenu(parent=menu)
-        menu.addMenu(sort_menu)
-
-        menu.addSeparator()
-
-        update_ = UpdateGrid(parent=menu, src=JsonData.root)
-        menu.addAction(update_)
-
-        find_here = FindHere(parent=menu)
-        find_here.clicked_.connect(self.find_here.emit)
-        menu.addAction(find_here)
 
         delete_item = DeleteFinderItem(menu=menu, path=self.src)
         menu.addAction(delete_item)
