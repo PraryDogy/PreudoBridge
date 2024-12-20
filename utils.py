@@ -1,6 +1,7 @@
 import hashlib
 import logging
 import os
+import subprocess
 import traceback
 from datetime import datetime
 
@@ -359,6 +360,19 @@ class Utils(Hash, Pixmap, ReadImage):
     def get_f_date(cls, timestamp_: int) -> str:
         date = datetime.fromtimestamp(timestamp_).replace(microsecond=0)
         return date.strftime("%d.%m.%Y %H:%M")
+    
+    @classmethod
+    def rm_rf(cls, path: str):
+
+        result = subprocess.run(
+            ['rm', '-rf', path],
+            check=True,
+            text=True,
+            stderr=subprocess.PIPE
+        )
+
+        if result.returncode == 0:
+            print("rm -rf успешно завершен", path)
 
 
 class URunnable(QRunnable):

@@ -1,7 +1,10 @@
 import json
 import os
+import subprocess
 from datetime import date
 
+HEX = "c3b020ccf4682b3cf0763d473e0d9747"
+HEX_DEFAULT = "ZERO"
 
 class Static:
     APP_NAME = "PreudoBridge"
@@ -113,9 +116,6 @@ class ThumbData:
     # количеством символов в тексте данных виджетов
     MAX_ROW: list = [20, 20, 25, 28, 32]
 
-    # виджет с цветовыми метками имеет только 1 строку высотой 16 пикселей
-    RATING_WID_H = 16
-
     # растояние между изображением, текстовым и цветовым виджетами
     SPACING = 2
 
@@ -124,6 +124,7 @@ class ThumbData:
 
 
 class JsonData:
+    hex = HEX_DEFAULT
     root = f"/Volumes"
     extra_paths = ["/Studio/PANACEA", "/Studio/MIUZ"]
     favs = {}
@@ -209,9 +210,29 @@ class JsonData:
                     Static.IMAGE_APPS[item] = entry.path
 
     @classmethod
+    def ver_check(cls):
+        # если hex равен HEX_DEFAULT значит в json файле еще не было
+        # hex ключа
+        # если cls.hex - это hex, подтянутый из json, не совпадает
+        # с базовым HEX
+        # сделать ...
+        if cls.hex == HEX_DEFAULT or cls.hex != HEX:
+
+            # в последние разы мы выпиливали цветовые метки из проекта
+            # поэтому нам важно создать чистую БД без меток
+            # для этого мы удаляем старые пользотвательские БД
+            subprocess.run(['rm', '-rf', Static.DB_FILE])
+            subprocess.run(['rm', '-rf', Static.HASH_DIR])
+
+            # устанавливаем актуальный hex
+            cls.hex = HEX
+
+    @classmethod
     def init(cls):
         os.makedirs(Static.ROOT, exist_ok=True)
         cls.read_json_data()
+        cls.ver_check()
+        cls.write_config()
         cls.find_img_apps()
 
 

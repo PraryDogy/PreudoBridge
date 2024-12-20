@@ -116,7 +116,6 @@ class Thumb(OrderItem, QFrame):
     pixmap_size = 0
     thumb_w = 0
     thumb_h = 0
-    rating_wid_h = 0
 
     def __init__(self, src: str, size: int, mod: int, rating: int):
 
@@ -171,7 +170,6 @@ class Thumb(OrderItem, QFrame):
         cls.pixmap_size = ThumbData.PIXMAP_SIZE[ind]
         cls.thumb_w = ThumbData.THUMB_W[ind]
         cls.thumb_h = ThumbData.THUMB_H[ind]
-        cls.rating_wid_h = ThumbData.RATING_WID_H
 
     def set_pixmap(self, pixmap: QPixmap):
         self.svg_wid.deleteLater()
@@ -191,11 +189,6 @@ class Thumb(OrderItem, QFrame):
         self.setFixedSize(
             self.thumb_w,
             self.thumb_h
-        )
-
-        # фиксированная высота строки цветовых меток чтобы они не обрезались
-        self.rating_wid.setFixedHeight(
-            self.rating_wid_h
         )
 
         # рамка вокруг pixmap при выделении Thumb
