@@ -156,7 +156,7 @@ class Thumb(OrderItem, QFrame):
             i.mouseReleaseEvent = self.mouse_release
             i.mousePressEvent = self.mouse_press
             i.mouseMoveEvent = self.mouse_move
-            i.mouseDoubleClickEvent = self.mouse_d_click
+            i.mouseDoubleClickEvent = self.mouse_double_click
             i.contextMenuEvent = self.mouse_r_click
 
         self.setup()
@@ -329,7 +329,7 @@ class Thumb(OrderItem, QFrame):
         self.drag.setMimeData(self.mime_data)
         self.drag.exec_(Qt.DropAction.CopyAction)
 
-    def mouse_d_click(self, a0: QMouseEvent | None) -> None:
+    def mouse_double_click(self, a0: QMouseEvent | None) -> None:
         self.open_in_view.emit()
 
     def mouse_r_click(self, a0: QContextMenuEvent | None) -> None:
@@ -854,12 +854,27 @@ class Grid(BaseMethods, QScrollArea):
 
         menu.exec_(self.mapToGlobal(a0.pos()))
 
-    def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
-        self.remove_wid_frame()
+    def dragEnterEvent(self, a0):
+        a0.acceptProposedAction()
+        return super().dragEnterEvent(a0)
 
-        if a0.button() & Qt.MouseButton.LeftButton:
+    def dragMoveEvent(self, a0):
+
+        print(123)
+
+        return super().dragMoveEvent(a0)
+
+    # def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
+    #     self.remove_wid_frame()
+
+    #     if a0.button() & Qt.MouseButton.LeftButton:
     
-            if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
-                ...
-            elif a0.modifiers() & Qt.KeyboardModifier.ShiftModifier:
-                ...
+    #         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
+    #             wid = self.childAt(a0.pos())
+
+    #             print(wid)
+
+
+
+    #         elif a0.modifiers() & Qt.KeyboardModifier.ShiftModifier:
+    #             ...
