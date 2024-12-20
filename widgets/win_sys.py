@@ -49,7 +49,8 @@ class WinCopy(WinMinMax):
         text = f"{COPYING} {src} в {dest}"
 
         super().__init__()
-
+        self.setWindowTitle(COPYING)
+        self.setWindowFlag(Qt.WindowType.WindowCloseButtonHint, False)
         self.setWindowModality(Qt.WindowModality.WindowModal)
 
         v_lay = QVBoxLayout()

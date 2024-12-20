@@ -482,6 +482,11 @@ class FileCopyThread(URunnable):
 
         self.signals_.finished_.emit()
 
+        # если мы находимся в папке, куда были скопированы объекты
+        if self.dest == JsonData.root:
+            print(1)
+            SignalsApp.all_.load_standart_grid.emit(JsonData.root)
+
     def main(self):
 
         if os.path.isfile(self.src):
@@ -971,13 +976,16 @@ class Grid(BaseMethods, QScrollArea):
         global_pos = self.mapToGlobal(pos)
         widget = QApplication.widgetAt(global_pos)
 
-        # место, куда будет скопирован перетянутый объект,
-        # ThumbFolder.src или JsonData.root
-        dest = None
 
         # Thumb / ThumbFolder > QFrame (self.img_wid) > USvgWiаdget
         if isinstance(widget, USvgWidget):
             widget = widget.parent().parent()
+
+        # путь назначения: если объект был перетянут на ThumbFolder,
+        # то забираем путь назначения из аттрибута src,
+        # если объект был перетянут на QWidget,
+        # то забираем путь из JsonData.root
+        dest = None
 
         if isinstance(widget, ThumbFolder):
             dest = widget.src
@@ -991,22 +999,13 @@ class Grid(BaseMethods, QScrollArea):
         # Если mimeData содержит только обычный текст (plain text),
         # то это данные, перетянутые из виджета Thumb.
 
-        if a0.mimeData().hasUrls():
-            urls = [
-                i.toLocalFile()
-                for i in a0.mimeData().urls()
-            ]
+        urls = [
+            i.toLocalFile()
+            for i in a0.mimeData().urls()
+        ]
         
-        elif a0.mimeData().hasText():
-            urls = [
-                a0.mimeData().text()
-            ]
 
-            if not isinstance(widget, ThumbFolder):
-                print("перетягивание на самого себя")
-                return
-        
-        if dest:
+        if dest and urls:
 
             for url_ in urls:
 
@@ -1030,16 +1029,8 @@ class Grid(BaseMethods, QScrollArea):
                 )
 
                 self.task_.signals_.finished_.connect(
-                    self.win_copy.close
+                    lambda: QTimer.singleShot(1000, self.win_copy.close)
                 )
-
-                if dest != JsonData.root:
-
-                    self.task_.signals_.finished_.connect(
-                        lambda: SignalsApp.all_.load_standart_grid.emit(
-                            JsonData.root
-                        )
-                    )
 
                 self.win_copy.show()
                 UThreadPool.start(runnable=self.task_)
