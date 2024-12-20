@@ -768,8 +768,18 @@ class Grid(BaseMethods, QScrollArea):
             self.selected_widgets.append(wid)
             wid.set_frame()
 
+        self.curr_cell = wid.row, wid.col
+
     def shift_clicked(self, wid: Thumb):
-        ...
+        coords = list(self.cell_to_wid)
+        start_ind = coords.index(self.curr_cell)
+        end_ind = coords.index((wid.row, wid.col)) + 1
+        coords = coords[start_ind:end_ind]
+
+        for i in coords:
+            wid_ = self.cell_to_wid[i]
+            wid_.set_frame()
+            self.selected_widgets.append(wid_)
 
     def drag_event(self, wid: Thumb):
         drag = QDrag(self)
