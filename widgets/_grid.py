@@ -1000,10 +1000,11 @@ class Grid(BaseMethods, QScrollArea):
         # то это данные, перетянутые из виджета Thumb.
 
         urls = [
-            i.toLocalFile()
+            Utils.get_path_with_volumes(
+                i.toLocalFile()
+            )
             for i in a0.mimeData().urls()
         ]
-        
 
         if dest and urls:
 
@@ -1012,6 +1013,12 @@ class Grid(BaseMethods, QScrollArea):
                 if os.path.isdir(url_):
                     continue
 
+
+                elif url_ in Thumb.path_to_wid:
+                    print("atata to self")
+                    continue
+
+                continue
 
                 self.task_ = FileCopyThread(
                     src=url_,

@@ -21,7 +21,8 @@ from cfg import Dynamic, Static, ThumbData
 psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
 psd_logger = logging.getLogger("psd_tools")
 psd_logger.setLevel(logging.CRITICAL)
-
+VOLUMES = "Volumes"
+USERS = "Users"
 
 class Err:
 
@@ -373,6 +374,16 @@ class Utils(Hash, Pixmap, ReadImage):
 
         if result.returncode == 0:
             print("rm -rf успешно завершен", path)
+
+    @classmethod
+    def get_path_with_volumes(cls, path: str):
+
+        if path.startswith(os.sep + USERS + os.sep):
+            for i in  os.scandir(os.sep + VOLUMES):
+                return i.path + path
+
+        else:
+            return path
 
 
 class URunnable(QRunnable):
