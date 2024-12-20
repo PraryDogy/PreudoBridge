@@ -62,11 +62,4 @@ class WinCopy(WinMinMax):
         v_lay.addWidget(descr)
 
         self.adjustSize()
-        self.setFixedSize(self.width(), self.height())
-
-    # def keyPressEvent(self, a0: QKeyEvent | None) -> None:
-    #     if a0.key() == Qt.Key.Key_Escape:
-    #         self.close()
-    #     elif a0.key() == Qt.Key.Key_Return:
-    #         self.close()
-    #     return super().keyPressEvent(a0)
+        self.setFixedSize(300, 50)
