@@ -1013,9 +1013,8 @@ class Grid(BaseMethods, QScrollArea):
                 if os.path.isdir(url_):
                     continue
 
-
+                # пресекаем попытку скопировать обхект в самого себя
                 elif url_ in Thumb.path_to_wid:
-                    print("atata to self")
                     continue
 
                 continue
