@@ -378,6 +378,9 @@ class Utils(Hash, Pixmap, ReadImage):
     @classmethod
     def get_path_with_volumes(cls, path: str):
 
+        # делаем возврат пути при первой итерации, потому что 
+        # Macintosh HD всегда первый, а он то нам и нужен 
+
         if path.startswith(os.sep + USERS + os.sep):
             for i in  os.scandir(os.sep + VOLUMES):
                 return i.path + path
