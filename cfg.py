@@ -224,7 +224,7 @@ class JsonData:
             subprocess.run(['rm', '-rf', Static.DB_FILE])
             subprocess.run(['rm', '-rf', Static.HASH_DIR])
 
-            # устанавливаем актуальный hex
+            # устанавливаем актуальный hex 
             cls.hex = HEX
 
     @classmethod
