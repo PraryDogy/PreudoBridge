@@ -771,7 +771,7 @@ class Grid(BaseMethods, QScrollArea):
     def shift_clicked(self, wid: Thumb):
         ...
 
-    def start_drag(self):
+    def drag_event(self, wid: Thumb):
         drag = QDrag(self)
         mime_data = QMimeData()
 
@@ -780,11 +780,13 @@ class Grid(BaseMethods, QScrollArea):
             for wid in self.selected_widgets
         ]
 
+        pixmap_ = QPixmap(Static.IMG_SVG)
         mime_data.setUrls(urls)
-        drag.setPixmap(QPixmap(Static.IMG_SVG))
+        drag.setPixmap(pixmap_)
         drag.setMimeData(mime_data)
+        drag.setHotSpot(wid.pos())
 
-        drag.exec_(Qt.CopyAction)
+        drag.exec_(Qt.DropAction.CopyAction)
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         wid: Thumb | ThumbFolder 

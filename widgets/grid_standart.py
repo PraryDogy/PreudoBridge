@@ -291,7 +291,7 @@ class GridStandart(Grid):
             wid.shift_clicked.connect(lambda w=wid: self.shift_clicked(w))
             wid.open_in_view.connect(lambda w=wid: self.open_in_view(w))
             wid.find_here.connect(self.open_find_here_win)
-            wid.mouse_moved.connect(self.start_drag)
+            wid.mouse_moved.connect(lambda w=wid: self.drag_event(w))
             self.grid_layout.addWidget(wid, row, col)
 
             self.add_widget_data(wid, row, col)
