@@ -339,7 +339,7 @@ class Thumb(OrderItem, QFrame):
             self.drag.setPixmap(QPixmap(self.svg_path))
         
         urls = [QUrl.fromLocalFile(self.src)]
-        self.mime_data.setText(self.src)        
+        self.mime_data.setUrls(urls)
 
         self.drag.setMimeData(self.mime_data)
         self.drag.exec_(Qt.DropAction.CopyAction)
