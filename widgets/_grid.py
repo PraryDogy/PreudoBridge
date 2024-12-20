@@ -778,12 +778,14 @@ class Grid(BaseMethods, QScrollArea):
         if start_ind > end_ind:
             coords = coords[end_ind - 1 : start_ind]
         else:
-            coords = coords[start_ind : end_ind]
+            coords = coords[start_ind: end_ind]
 
         for i in coords:
             wid_ = self.cell_to_wid[i]
             wid_.set_frame()
-            self.selected_widgets.append(wid_)
+
+            if wid_ not in self.selected_widgets:
+                self.selected_widgets.append(wid_)
 
     def drag_event(self, wid: Thumb):
         drag = QDrag(self)
@@ -798,7 +800,6 @@ class Grid(BaseMethods, QScrollArea):
         mime_data.setUrls(urls)
         drag.setPixmap(pixmap_)
         drag.setMimeData(mime_data)
-        drag.setHotSpot(wid.pos())
 
         drag.exec_(Qt.DropAction.CopyAction)
 
