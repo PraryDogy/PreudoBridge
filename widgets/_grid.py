@@ -106,7 +106,9 @@ class RatingWid(QLabel):
 
 
 class Thumb(OrderItem, QFrame):
-    select = pyqtSignal()
+    clicked_ = pyqtSignal()
+    control_clicked = pyqtSignal()
+    shift_clicked = pyqtSignal()
     open_in_view = pyqtSignal()
     text_changed = pyqtSignal()
     find_here = pyqtSignal()
@@ -295,7 +297,17 @@ class Thumb(OrderItem, QFrame):
         UThreadPool.start(self.task_)
 
     def mouse_release(self, a0: QMouseEvent | None) -> None:
-        self.select.emit()
+
+        if a0.button() & Qt.MouseButton.LeftButton:
+    
+            if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
+                self.control_clicked.emit()
+
+            elif a0.modifiers() & Qt.KeyboardModifier.ShiftModifier:
+                self.shift_clicked.emit()
+
+            else:
+                self.clicked_.emit()
 
     def mouse_press(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.LeftButton:
@@ -313,7 +325,7 @@ class Thumb(OrderItem, QFrame):
         if distance < QApplication.startDragDistance():
             return
 
-        self.select.emit()
+        self.clicked_.emit()
 
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
@@ -333,7 +345,7 @@ class Thumb(OrderItem, QFrame):
         self.open_in_view.emit()
 
     def mouse_r_click(self, a0: QContextMenuEvent | None) -> None:
-        self.select.emit()
+        self.clicked_.emit()
         context_menu = UMenu(self)
         self.add_base_actions(context_menu)
         context_menu.exec_(self.mapToGlobal(a0.pos()))
@@ -362,7 +374,7 @@ class ThumbFolder(Thumb):
             self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))
 
     def mouse_r_click(self, a0: QContextMenuEvent | None) -> None:
-        self.select.emit()
+        self.clicked_.emit()
 
         menu = UMenu(parent=self)
 
@@ -416,7 +428,7 @@ class ThumbSearch(Thumb):
         SignalsApp.all_.move_to_wid_delayed.emit(self.src)
 
     def mouse_r_click(self, a0: QContextMenuEvent | None) -> None:
-        self.select.emit()
+        self.clicked_.emit()
     
         menu_ = UMenu(parent=self)
         self.add_base_actions(menu_)
@@ -479,6 +491,7 @@ class Grid(BaseMethods, QScrollArea):
         self.setAcceptDrops(True)
         self.setWidgetResizable(True)
 
+        self.selected_widgets: list[Thumb] = []
         self.curr_cell: tuple = (0, 0)
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.ordered_widgets: list[OrderItem | Thumb | ThumbFolder | ThumbSearch] = []
@@ -734,6 +747,18 @@ class Grid(BaseMethods, QScrollArea):
                     self.select_new_widget(wid)
                     break
 
+    def control_clicked(self, wid: Thumb):
+        if wid in self.selected_widgets:
+            self.selected_widgets.remove(wid)
+            wid.set_no_frame()
+
+        else:
+            self.selected_widgets.append(wid)
+            wid.set_frame()
+
+    def shift_clicked(self, wid: Thumb):
+        ...
+
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         wid: Thumb | ThumbFolder 
 
@@ -854,27 +879,25 @@ class Grid(BaseMethods, QScrollArea):
 
         menu.exec_(self.mapToGlobal(a0.pos()))
 
-    def dragEnterEvent(self, a0):
-        a0.acceptProposedAction()
-        return super().dragEnterEvent(a0)
+    # def dragEnterEvent(self, a0):
+    #     a0.acceptProposedAction()
+    #     return super().dragEnterEvent(a0)
 
-    def dragMoveEvent(self, a0):
+    def mouseMoveEvent(self, event):
+        """Инициализируем процесс перетаскивания"""
+        if event.buttons() & Qt.LeftButton:
+            self.start_drag()
 
-        print(123)
+    def start_drag(self):
+        drag = QDrag(self)
+        mime_data = QMimeData()
 
-        return super().dragMoveEvent(a0)
+        urls = [
+            QUrl.fromLocalFile(wid.src)
+            for wid in self.selected_widgets
+        ]
 
-    # def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
-    #     self.remove_wid_frame()
+        mime_data.setUrls(urls)
+        drag.setMimeData(mime_data)
 
-    #     if a0.button() & Qt.MouseButton.LeftButton:
-    
-    #         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
-    #             wid = self.childAt(a0.pos())
-
-    #             print(wid)
-
-
-
-    #         elif a0.modifiers() & Qt.KeyboardModifier.ShiftModifier:
-    #             ...
+        drag.exec_(Qt.CopyAction)
