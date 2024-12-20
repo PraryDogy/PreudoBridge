@@ -683,6 +683,3 @@ class DeleteFinderItem(QAction):
             print("actions.py error delete from db DeleteFinderItem", e)
 
         conn.close()
-
-"/Volumes/Macintosh HD/Users/Loshkarev/Desktop/_test folder/batat4240_Minimalistic_side-view_of_three_blue_cable_cars_on_re_bf5645e2-6392-49b9-8f07-750d179b155d.png"
-"/Volumes/Macintosh HD/Users/Loshkarev/Desktop/_test folder/batat4240_Minimalistic_side-view_of_three_blue_cable_cars_on_re_bf5645e2-6392-49b9-8f07-750d179b155d.png"
