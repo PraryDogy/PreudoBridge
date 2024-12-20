@@ -460,7 +460,7 @@ class ThumbSearch(Thumb):
 
 
 class WorkerSignals(QObject):
-    finished_ = pyqtSignal()
+    finished_ = pyqtSignal(dict)
 
 
 class FileCopyThread(URunnable):
@@ -476,95 +476,95 @@ class FileCopyThread(URunnable):
     def run(self):
 
         try:
-            self.main()
-        except (RuntimeError, Exception) as e:
-            print("grid error copy file / folder", e)
 
-        self.signals_.finished_.emit()
+            if os.path.isfile(self.src):
 
-        # если мы находимся в папке, куда были скопированы объекты
-        if self.dest == JsonData.root:
-            print(1)
-            SignalsApp.all_.load_standart_grid.emit(JsonData.root)
+                new_src: str = shutil.copy(self.src, self.dest)
+                new_src = os.sep + new_src.strip(os.sep)
+                stats = os.stat(new_src)
 
-    def main(self):
-
-        if os.path.isfile(self.src):
-            new_src: str = shutil.copy(self.src, self.dest)
-            new_src = os.sep + new_src.strip(os.sep)
-
-            self.migrate_data(
-                old_src = self.src,
-                new_src = new_src
-            )
-
-
-    # этот метод пойдет в отдельный класс, т.к. будет нужен для реализации
-    # копировать вставить хоткеями
-    def migrate_data(self, old_src: str, new_src: str):
-        wid = Thumb.path_to_wid.get(self.src)
-        if wid and wid.rating:
-
-            conn = Dbase.engine.connect()
-
-            # если приложение уже успело создать запись в БД о новом объекте
-            # удалим эту запись, т.к. стандартно запись в БД происходит
-            # с пустыми значениями RATING
-            q = sqlalchemy.select(CACHE).where(CACHE.c.src == new_src)
-            new_data = conn.execute(q).first()
-
-            if new_data:
-
-                q = sqlalchemy.delete(CACHE).where(CACHE.c.src == new_src)
-
-                try:
-                    conn.execute(q)
-                    conn.commit()
-
-                except (IntegrityError, OperationalError) as e:
-                    conn.rollback()
-                    print("grid.py > FileCopyThread > delete from DB", e)
-
-
-            # если в БД есть данные об исходном объекте, создаем
-            # данные на их основе для нового объекта
-            q = sqlalchemy.select(CACHE).where(CACHE.c.src == self.src)
-            old_data = conn.execute(q).mappings().first()
-
-            if old_data:
-
-                old_hash_path = old_data.get(ColumnNames.HASH_PATH)
-                new_hash_path = Utils.create_hash_path(new_src)
-                
-                shutil.copy(old_hash_path, new_hash_path)
-
-                new_values = {
+                values = {
                     ColumnNames.SRC: new_src,
-                    ColumnNames.HASH_PATH: new_hash_path,
-                    ColumnNames.ROOT: os.path.dirname(new_src),
-                    ColumnNames.CATALOG: "",
-                    ColumnNames.NAME: os.path.basename(new_src),
-                    ColumnNames.TYPE: os.path.splitext(new_src)[1],
-                    ColumnNames.SIZE: old_data.get(ColumnNames.SIZE),
-
-                    # мы берем новую дату изменения
-                    # т.к. она меняется после копирования
-                    ColumnNames.MOD: os.stat(new_src).st_mtime,
-
-                    ColumnNames.RESOL: old_data.get(ColumnNames.RESOL),
-                    ColumnNames.RATING: old_data.get(ColumnNames.RATING)
+                    ColumnNames.SIZE: stats.st_size,
+                    ColumnNames.MOD: stats.st_mtime,
+                    ColumnNames.RATING: 0
                 }
 
-                q = sqlalchemy.insert(CACHE).values(new_values)
+                self.signals_.finished_.emit(values)
 
-                try:
-                    conn.execute(q)
-                    conn.commit()
-                except (IntegrityError, OperationalError) as e:
-                    print("grid.py > FileCopyThread > insert to DB", e)
-                    conn.rollback()
+        except (RuntimeError, Exception) as e:
+            print("grid error copy file / folder", e)
+            self.signals_.finished_.emit({})
 
-            conn.close()
+
+    # копировать рейтинг плохая практика
+    # 
+    # # этот метод пойдет в отдельный класс, т.к. будет нужен для реализации
+    # # копировать вставить хоткеями
+    # def migrate_data(self, old_src: str, new_src: str):
+    #     wid = Thumb.path_to_wid.get(self.src)
+    #     if wid and wid.rating:
+
+    #         conn = Dbase.engine.connect()
+
+    #         # если приложение уже успело создать запись в БД о новом объекте
+    #         # удалим эту запись, т.к. стандартно запись в БД происходит
+    #         # с пустыми значениями RATING
+    #         q = sqlalchemy.select(CACHE).where(CACHE.c.src == new_src)
+    #         new_data = conn.execute(q).first()
+
+    #         if new_data:
+
+    #             q = sqlalchemy.delete(CACHE).where(CACHE.c.src == new_src)
+
+    #             try:
+    #                 conn.execute(q)
+    #                 conn.commit()
+
+    #             except (IntegrityError, OperationalError) as e:
+    #                 conn.rollback()
+    #                 print("grid.py > FileCopyThread > delete from DB", e)
+
+
+    #         # если в БД есть данные об исходном объекте, создаем
+    #         # данные на их основе для нового объекта
+    #         q = sqlalchemy.select(CACHE).where(CACHE.c.src == self.src)
+    #         old_data = conn.execute(q).mappings().first()
+
+    #         if old_data:
+
+    #             old_hash_path = old_data.get(ColumnNames.HASH_PATH)
+    #             new_hash_path = Utils.create_hash_path(new_src)
+                
+    #             shutil.copy(old_hash_path, new_hash_path)
+
+    #             new_values = {
+    #                 ColumnNames.SRC: new_src,
+    #                 ColumnNames.HASH_PATH: new_hash_path,
+    #                 ColumnNames.ROOT: os.path.dirname(new_src),
+    #                 ColumnNames.CATALOG: "",
+    #                 ColumnNames.NAME: os.path.basename(new_src),
+    #                 ColumnNames.TYPE: os.path.splitext(new_src)[1],
+    #                 ColumnNames.SIZE: old_data.get(ColumnNames.SIZE),
+
+    #                 # мы берем новую дату изменения
+    #                 # т.к. она меняется после копирования
+    #                 ColumnNames.MOD: os.stat(new_src).st_mtime,
+
+    #                 ColumnNames.RESOL: old_data.get(ColumnNames.RESOL),
+    #                 ColumnNames.RATING: old_data.get(ColumnNames.RATING)
+    #             }
+
+    #             q = sqlalchemy.insert(CACHE).values(new_values)
+
+    #             try:
+    #                 conn.execute(q)
+    #                 conn.commit()
+    #             except (IntegrityError, OperationalError) as e:
+    #                 print("grid.py > FileCopyThread > insert to DB", e)
+    #                 conn.rollback()
+
+            # conn.close()
 
 
 class Grid(BaseMethods, QScrollArea):
@@ -956,88 +956,3 @@ class Grid(BaseMethods, QScrollArea):
         menu.addAction(find_here)
 
         menu.exec_(self.mapToGlobal(a0.pos()))
-
-    def dragMoveEvent(self, a0):
-        pos = a0.pos()
-        global_pos = self.mapToGlobal(pos)
-        widget = QApplication.widgetAt(global_pos) 
-
-        if isinstance(widget, ThumbFolder):
-            self.select_new_widget(data=widget)
-
-    def dragEnterEvent(self, a0):
-        a0.acceptProposedAction()
-
-    def dropEvent(self, a0):
-
-        # вычисляем, на какой виджет был перетянут объект
-        # допустимы ThumbFolder, GridStandart(QWidget)
-        pos = a0.pos()
-        global_pos = self.mapToGlobal(pos)
-        widget = QApplication.widgetAt(global_pos)
-
-
-        # Thumb / ThumbFolder > QFrame (self.img_wid) > USvgWiаdget
-        if isinstance(widget, USvgWidget):
-            widget = widget.parent().parent()
-
-        # путь назначения: если объект был перетянут на ThumbFolder,
-        # то забираем путь назначения из аттрибута src,
-        # если объект был перетянут на QWidget,
-        # то забираем путь из JsonData.root
-        dest = None
-
-        if isinstance(widget, ThumbFolder):
-            dest = widget.src
-
-        elif isinstance(widget, QWidget):
-            dest = JsonData.root
-
-        # Определяем источник данных:
-        # Если в mimeData содержится URL, значит, данные были перетянуты
-        # извне приложения (например, из Finder).
-        # Если mimeData содержит только обычный текст (plain text),
-        # то это данные, перетянутые из виджета Thumb.
-
-        urls = [
-            Utils.get_path_with_volumes(
-                i.toLocalFile()
-            )
-            for i in a0.mimeData().urls()
-        ]
-
-        if dest and urls:
-
-            for url_ in urls:
-
-                # папки мы пока не умеем копировать
-                if os.path.isdir(url_):
-                    continue
-
-                # пресекаем попытку скопировать обхект в самого себя
-                elif url_ in Thumb.path_to_wid:
-                    continue
-
-                continue
-
-                self.task_ = FileCopyThread(
-                    src=url_,
-                    dest=dest
-                    )
-                
-                self.win_copy = WinCopy(
-                    src=url_,
-                    dest=dest
-                )
-
-                Utils.center_win(
-                    parent=self.window(),
-                    child=self.win_copy
-                )
-
-                self.task_.signals_.finished_.connect(
-                    lambda: QTimer.singleShot(1000, self.win_copy.close)
-                )
-
-                self.win_copy.show()
-                UThreadPool.start(runnable=self.task_)
