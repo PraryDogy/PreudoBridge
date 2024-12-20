@@ -297,7 +297,7 @@ class Thumb(OrderItem, QFrame):
 
         def cmd_():
             self.rating = rating
-            self.text_wid.set_text(self)
+            self.rating_wid.set_text(wid=self)
             self.text_changed.emit()
 
         self.update_thumb_data(
