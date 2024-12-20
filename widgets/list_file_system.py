@@ -1,8 +1,8 @@
 import os
 
-from PyQt5.QtCore import QDir, QPoint, Qt
+from PyQt5.QtCore import QDir, Qt
 from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QKeyEvent
-from PyQt5.QtWidgets import QFileSystemModel, QMenu, QTableView
+from PyQt5.QtWidgets import QFileSystemModel, QTableView
 
 from cfg import JsonData
 from signals import SignalsApp
@@ -10,7 +10,7 @@ from utils import Utils
 
 from ._actions import (ChangeView, CopyPath, FavAdd, FavRemove, Info,
                        RevealInFinder)
-from ._base import BaseMethods
+from ._base import BaseMethods, UMenu
 from ._finder_items import LoadingWid
 
 
@@ -89,7 +89,7 @@ class ListFileSystem(QTableView):
         if not index.isValid():
             return
 
-        menu = QMenu(self)
+        menu = UMenu(self)
 
         src = self._model.filePath(index)
         index = self._model.index(src)

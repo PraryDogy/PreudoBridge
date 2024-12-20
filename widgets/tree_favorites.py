@@ -4,14 +4,14 @@ from typing import Literal
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import (QContextMenuEvent, QDragEnterEvent, QDropEvent,
                          QMouseEvent)
-from PyQt5.QtWidgets import (QApplication, QLabel, QListWidget,
-                             QListWidgetItem, QMenu)
+from PyQt5.QtWidgets import QApplication, QLabel, QListWidget, QListWidgetItem
 
 from cfg import JsonData
 from signals import SignalsApp
 from utils import Utils
 
 from ._actions import CopyPath, FavRemove, Rename, RevealInFinder, View
+from ._base import UMenu
 from .win_rename import WinRename
 
 
@@ -91,7 +91,7 @@ class FavItem(QLabel):
             SignalsApp.all_.load_standart_grid.emit(self.src)
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
-        menu_ = QMenu(self)
+        menu_ = UMenu(self)
 
         cmd_ = lambda: SignalsApp.all_.load_standart_grid.emit(self.src)
         view_ac = View(menu_, self.src)

@@ -3,13 +3,15 @@ import subprocess
 
 import sqlalchemy
 from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtWidgets import QAction, QLabel, QLineEdit, QMenu, QWidget
+from PyQt5.QtWidgets import QAction, QLabel, QLineEdit, QWidget
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Dynamic, JsonData, Static
 from database import CACHE, ORDER, Dbase
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
+
+from ._base import OpenWin, UMenu
 
 REVEAL_T = "Показать в Finder"
 INFO_T = "Инфо"
@@ -60,7 +62,7 @@ class Task_(URunnable):
 
 # Базовый QAction с обязательными аргументами
 class UAction(QAction):
-    def __init__(self, parent: QMenu, src: str, text: str):
+    def __init__(self, parent: UMenu, src: str, text: str):
 
         super().__init__(
             parent=parent,
@@ -76,7 +78,7 @@ class UAction(QAction):
 
 
 class RevealInFinder(UAction):
-    def __init__(self, parent: QMenu, src: str):
+    def __init__(self, parent: UMenu, src: str):
 
         super().__init__(
             parent=parent,
@@ -97,7 +99,7 @@ class RevealInFinder(UAction):
 
 
 class Info(UAction):
-    def __init__(self, parent: QMenu, src: str):
+    def __init__(self, parent: UMenu, src: str):
 
         super().__init__(
             parent=parent,
@@ -106,9 +108,6 @@ class Info(UAction):
         )
 
     def cmd_(self):
-        # импорт должен быть здесь для предотвращения circular import
-        from ._base import OpenWin
-
         OpenWin.info(
             parent=Utils.get_main_win(),
             src=self.src
@@ -117,7 +116,7 @@ class Info(UAction):
 
 # из родительского виджета копирует путь к файлу / папке
 class CopyPath(UAction):
-    def __init__(self, parent: QMenu, src: str):
+    def __init__(self, parent: UMenu, src: str):
 
         super().__init__(
             parent=parent,
@@ -137,7 +136,7 @@ class CopyPath(UAction):
 class View(UAction):
     _clicked = pyqtSignal()
 
-    def __init__(self, parent: QMenu, src: str):
+    def __init__(self, parent: UMenu, src: str):
 
         super().__init__(
             parent=parent,
@@ -154,7 +153,7 @@ class View(UAction):
 class ShowInFolder(UAction):
     _clicked = pyqtSignal()
 
-    def __init__(self, parent: QMenu, src: str):
+    def __init__(self, parent: UMenu, src: str):
 
         super().__init__(
             parent=parent,
@@ -171,7 +170,7 @@ class ShowInFolder(UAction):
 class FavRemove(UAction):
     _clicked = pyqtSignal()
 
-    def __init__(self, parent: QMenu, src: str):
+    def __init__(self, parent: UMenu, src: str):
         
         super().__init__(
             parent=parent,
@@ -187,7 +186,7 @@ class FavRemove(UAction):
 class Rename(UAction):
     _clicked = pyqtSignal()
 
-    def __init__(self, parent: QMenu, src: str):
+    def __init__(self, parent: UMenu, src: str):
 
         super().__init__(
             parent=parent,
@@ -203,7 +202,7 @@ class Rename(UAction):
 class FavAdd(UAction):
     _clicked = pyqtSignal()
 
-    def __init__(self, parent: QMenu, src: str):
+    def __init__(self, parent: UMenu, src: str):
         super().__init__(
             parent=parent,
             src=src,
@@ -220,7 +219,7 @@ class FavAdd(UAction):
 # произошли какие-то изменение вне приложения
 # удаление / добавление / переименование файла и т.п.
 class UpdateGrid(UAction):
-    def __init__(self, parent: QMenu, src: str):
+    def __init__(self, parent: UMenu, src: str):
 
         super().__init__(
             parent=parent,
@@ -239,8 +238,8 @@ class UpdateGrid(UAction):
 # Например Photoshop, стандартный просмотрщик Mac Os, Capture One
 # список приложений формируется при инициации приложения
 # смотри cfg.py
-class OpenInApp(QMenu):
-    def __init__(self, parent: QMenu, src: str):
+class OpenInApp(UMenu):
+    def __init__(self, parent: UMenu, src: str):
 
         super().__init__(
             parent=parent,
@@ -276,10 +275,10 @@ class OpenInApp(QMenu):
 
 
 # меню с рейтингом для _grid.py > Thumb, ThumbSearch
-class RatingMenu(QMenu):
+class RatingMenu(UMenu):
     _clicked = pyqtSignal(int)
 
-    def __init__(self, parent: QMenu, src: str, rating: int):
+    def __init__(self, parent: UMenu, src: str, rating: int):
 
         super().__init__(
             parent=parent,
@@ -325,7 +324,7 @@ class RatingMenu(QMenu):
 # удалить текст из виджета и скопировать в буфер обмена удаленную часть текста
 # только для QLineEdit / QTextEdit
 class TextCut(QAction):
-    def __init__(self, parent: QMenu, widget: QLineEdit):
+    def __init__(self, parent: UMenu, widget: QLineEdit):
 
         super().__init__(
             parent=parent,
@@ -350,7 +349,7 @@ class TextCut(QAction):
 # Копировать выделенный текст в буфер обмена
 # Допускается QLabel с возможностью выделения текста
 class CopyText(QAction):
-    def __init__(self, parent: QMenu, widget: QLineEdit | QLabel):
+    def __init__(self, parent: UMenu, widget: QLineEdit | QLabel):
 
         super().__init__(
             parent=parent,
@@ -377,7 +376,7 @@ class CopyText(QAction):
 
 # Вставить текст, допускается только QLineEdit и QTextEdit
 class TextPaste(QAction):
-    def __init__(self, parent: QMenu, widget: QLineEdit):
+    def __init__(self, parent: UMenu, widget: QLineEdit):
 
         super().__init__(
             parent=parent,
@@ -398,7 +397,7 @@ class TextPaste(QAction):
 
 # Выделить весь текст, допускается только QLineEdit и QTextEdit
 class TextSelectAll(QAction):
-    def __init__(self, parent: QMenu, widget: QLineEdit):
+    def __init__(self, parent: UMenu, widget: QLineEdit):
 
         super().__init__(
             parent=parent,
@@ -423,8 +422,8 @@ class TextSelectAll(QAction):
 # нужно учитывать, что при изменении CACHE нужно либо очищать БД
 # или осуществлять миграцию существующих данных
 
-class SortMenu(QMenu):
-    def __init__(self, parent: QMenu):
+class SortMenu(UMenu):
+    def __init__(self, parent: UMenu):
 
         super().__init__(
             parent=parent,
@@ -522,8 +521,8 @@ class SortMenu(QMenu):
 
 # показать сетку / список - GridStandart / GridSearch / ListFileSystem
 # list_file_system.py > ListFileSystem
-class ChangeView(QMenu):
-    def __init__(self, parent: QMenu, src: str):
+class ChangeView(UMenu):
+    def __init__(self, parent: UMenu, src: str):
 
         super().__init__(
             parent=parent,
@@ -574,7 +573,7 @@ class ChangeView(QMenu):
 class FindHere(QAction):
     clicked_ = pyqtSignal()
 
-    def __init__(self, parent: QMenu):
+    def __init__(self, parent: UMenu):
 
         super().__init__(
             parent=parent,
@@ -586,7 +585,7 @@ class FindHere(QAction):
 
 class CreateFolder(QAction):
     
-    def __init__(self, menu: QMenu, window: QWidget):
+    def __init__(self, menu: UMenu, window: QWidget):
         super().__init__(
             parent=menu,
             text=CREATE_FOLDER_T
@@ -631,7 +630,7 @@ class CreateFolder(QAction):
 
 
 class DeleteFinderItem(QAction):
-    def __init__(self, menu: QMenu, path: str):
+    def __init__(self, menu: UMenu, path: str):
 
         super().__init__(parent=menu, text=DELETE_T)
         self.triggered.connect(self.run_task)

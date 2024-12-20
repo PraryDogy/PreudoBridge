@@ -3,14 +3,14 @@ import os
 import sqlalchemy
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QKeyEvent
-from PyQt5.QtWidgets import QGridLayout, QLabel, QMenu
+from PyQt5.QtWidgets import QGridLayout, QLabel
 
 from cfg import Static
 from database import CACHE, Dbase
 from utils import URunnable, UThreadPool, Utils
 
 from ._actions import CopyText, RevealInFinder
-from ._base import WinMinMax
+from ._base import UMenu, WinMinMax
 
 CALCULATING = "Вычисляю..."
 TITLE = "Инфо"
@@ -160,7 +160,7 @@ class CustomLabel(QLabel):
         src = self.selectedText().replace(Static.PARAGRAPH_SEP, "")
         src = src.replace(Static.LINE_FEED, "")
 
-        menu = QMenu(self)
+        menu = UMenu(self)
 
         copy_action = CopyText(parent=menu, widget=self)
         menu.addAction(copy_action)

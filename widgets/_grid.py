@@ -5,7 +5,7 @@ import sqlalchemy
 from PyQt5.QtCore import QMimeData, QObject, Qt, QTimer, QUrl, pyqtSignal
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
                          QPixmap)
-from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel, QMenu,
+from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
                              QScrollArea, QVBoxLayout, QWidget)
 from sqlalchemy.exc import IntegrityError, OperationalError
 
@@ -18,7 +18,7 @@ from ._actions import (ChangeView, CopyPath, CreateFolder, DeleteFinderItem,
                        FavAdd, FavRemove, FindHere, Info, OpenInApp,
                        RatingMenu, RevealInFinder, ShowInFolder, SortMenu,
                        UpdateGrid, View)
-from ._base import BaseMethods, OpenWin, USvgWidget
+from ._base import BaseMethods, OpenWin, USvgWidget, UMenu
 from .list_file_system import ListFileSystem
 from .win_find_here import WinFindHere
 from .win_sys import WinCopy
@@ -245,7 +245,7 @@ class Thumb(OrderItem, QFrame):
             """
         )
 
-    def add_base_actions(self, menu: QMenu):
+    def add_base_actions(self, menu: UMenu):
 
         view_action = View(parent=menu, src=self.src)
         view_action._clicked.connect(self.open_in_view.emit)
@@ -334,7 +334,7 @@ class Thumb(OrderItem, QFrame):
 
     def mouse_r_click(self, a0: QContextMenuEvent | None) -> None:
         self.select.emit()
-        context_menu = QMenu(self)
+        context_menu = UMenu(self)
         self.add_base_actions(context_menu)
         context_menu.exec_(self.mapToGlobal(a0.pos()))
 
@@ -364,7 +364,7 @@ class ThumbFolder(Thumb):
     def mouse_r_click(self, a0: QContextMenuEvent | None) -> None:
         self.select.emit()
 
-        menu = QMenu(parent=self)
+        menu = UMenu(parent=self)
 
         view_action = View(parent=menu, src=self.src)
         view_action._clicked.connect(self.open_in_view.emit)
@@ -418,7 +418,7 @@ class ThumbSearch(Thumb):
     def mouse_r_click(self, a0: QContextMenuEvent | None) -> None:
         self.select.emit()
     
-        menu_ = QMenu(parent=self)
+        menu_ = UMenu(parent=self)
         self.add_base_actions(menu_)
         menu_.addSeparator()
 
@@ -805,7 +805,7 @@ class Grid(BaseMethods, QScrollArea):
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         self.remove_wid_frame()
 
-        menu = QMenu(parent=self)
+        menu = UMenu(parent=self)
 
         create_folder = CreateFolder(
             menu=menu,

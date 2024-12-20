@@ -8,8 +8,6 @@ from PyQt5.QtWidgets import QLineEdit, QMenu, QSlider, QWidget, QFrame
 from cfg import Static
 from utils import Utils
 
-from ._actions import CopyText, TextCut, TextPaste, TextSelectAll
-
 
 class BaseMethods:
     def order_(self, *args, **kwargs):
@@ -23,6 +21,15 @@ class BaseMethods:
     
     def rearrange(self, *args, **kwargs):
         raise Exception("Переопредели метод rearrange")
+
+
+class UMenu(QMenu):
+
+    def mouseReleaseEvent(self, a0):
+        if a0.button() == Qt.MouseButton.RightButton:
+            a0.ignore()
+        else:
+            super().mousePressEvent(a0)
 
 
 class USlider(QSlider):
@@ -108,7 +115,11 @@ class ULineEdit(QLineEdit):
         self.clear_btn.move(x, y)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        menu = QMenu()
+
+        # предотвращаем круговой импорт
+        from ._actions import CopyText, TextCut, TextPaste, TextSelectAll
+
+        menu = UMenu()
 
         cut_a = TextCut(menu, self)
         menu.addAction(cut_a)

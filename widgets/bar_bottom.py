@@ -6,8 +6,8 @@ from PyQt5.QtCore import (QMimeData, QObject, QPoint, Qt, QTimer, QUrl,
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
                          QPixmap)
 from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QHBoxLayout,
-                             QLabel, QMenu, QPushButton, QSizePolicy,
-                             QSpacerItem, QVBoxLayout, QWidget)
+                             QLabel, QPushButton, QSizePolicy, QSpacerItem,
+                             QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static, ThumbData
 from database import ORDER
@@ -15,7 +15,8 @@ from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 from ._actions import CopyPath, Info, RevealInFinder, SortMenu, View
-from ._base import OpenWin, UFrame, ULineEdit, USlider, USvgWidget, WinMinMax
+from ._base import (OpenWin, UFrame, ULineEdit, UMenu, USlider, USvgWidget,
+                    WinMinMax)
 
 SORT_T = "Сортировка"
 TOTAL_T = "Всего"
@@ -286,7 +287,7 @@ class PathItem(QWidget):
         self.default_style()
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
-        menu = QMenu(parent=self)
+        menu = UMenu(parent=self)
 
         view_action = View(menu, self.src)
         view_action._clicked.connect(self.view_)

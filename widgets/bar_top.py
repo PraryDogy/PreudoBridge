@@ -3,14 +3,14 @@ import os
 from PyQt5.QtCore import QSize, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QAction, QHBoxLayout, QLabel, QMenu, QPushButton,
-                             QTabBar, QVBoxLayout, QWidget, QSpacerItem, QFrame)
+from PyQt5.QtWidgets import (QAction, QHBoxLayout, QLabel, QTabBar,
+                             QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static
 from signals import SignalsApp
 from utils import Utils
 
-from ._base import ULineEdit, UFrame
+from ._base import UFrame, ULineEdit, UMenu
 from .win_settings import WinSettings
 
 
@@ -98,7 +98,7 @@ class SearchWidget(QWidget):
         
         self.clear_search.connect(self.costil)
 
-        self.templates_menu = QMenu()
+        self.templates_menu = UMenu()
 
         data = {
             "Найти jpg": str((".jpg", ".jpeg", "jfif")),

@@ -5,7 +5,7 @@ from PyQt5.QtCore import QEvent, QObject, QPoint, QSize, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import (QCloseEvent, QColor, QContextMenuEvent, QKeyEvent,
                          QMouseEvent, QPainter, QPaintEvent, QPixmap,
                          QResizeEvent)
-from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QMenu, QSpacerItem,
+from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QSpacerItem,
                              QVBoxLayout, QWidget)
 
 from cfg import Dynamic, Static
@@ -14,7 +14,7 @@ from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 from ._actions import CopyPath, Info, OpenInApp, RatingMenu, RevealInFinder
-from ._base import OpenWin, USvgWidget, WinBase
+from ._base import OpenWin, UMenu, USvgWidget, WinBase
 from ._grid import Thumb
 
 
@@ -479,7 +479,7 @@ class WinImgView(WinBase):
         LoadImage.cache.clear()
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        menu = QMenu(self)
+        menu = UMenu(self)
 
         open_menu = OpenInApp(menu, self.src)
         menu.addMenu(open_menu)

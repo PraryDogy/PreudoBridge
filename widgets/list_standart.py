@@ -1,25 +1,17 @@
 import os
 
-import sqlalchemy
-from numpy import ndarray
-from PyQt5.QtCore import QObject, Qt, pyqtSignal, QSize
-from PyQt5.QtGui import (QCloseEvent, QContextMenuEvent, QDragEnterEvent,
-                         QDropEvent, QMouseEvent, QPixmap)
+from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtGui import QCloseEvent
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QListWidget, QListWidgetItem,
-                             QMenu, QWidget)
-from sqlalchemy.exc import IntegrityError, OperationalError
+                             QWidget)
 
-from cfg import JsonData, Static, ThumbData
-from database import CACHE, Dbase, OrderItem
-from fit_img import FitImg
+from cfg import JsonData, Static
+from database import OrderItem
 from signals import SignalsApp
-from utils import URunnable, UThreadPool, Utils
+from utils import UThreadPool, Utils
 
-from ._actions import CopyPath, FavRemove, Rename, RevealInFinder, View
-from ._finder_items import FinderItems, ImageData, LoadingWid
-from ._grid import Grid
-from .win_rename import WinRename
+from ._finder_items import FinderItems, LoadingWid
 
 MAX_QUERIES = 10
 SVG_SIZE = 15
