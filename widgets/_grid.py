@@ -157,11 +157,11 @@ class Thumb(OrderItem, QFrame):
         self.v_lay.addWidget(self.rating_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
         for i in (self.img_frame, self.text_wid, self.rating_wid):
-            i.mouseReleaseEvent = self.mouse_release
-            i.mousePressEvent = self.mouse_press
-            i.mouseMoveEvent = lambda e: self.mouse_moved.emit()
-            i.mouseDoubleClickEvent = self.mouse_double_click
-            i.contextMenuEvent = self.mouse_r_click
+            i.mouseReleaseEvent = self.mouse_release_ev
+            i.mousePressEvent = self.mouse_press_ev
+            i.mouseMoveEvent = self.mouse_move_ev
+            i.mouseDoubleClickEvent = self.mouse_double_click_ev
+            i.contextMenuEvent = self.context_menu_ev
 
         self.setup()
         self.set_no_frame()
@@ -298,7 +298,7 @@ class Thumb(OrderItem, QFrame):
         self.task_ = UpdateThumbData(self.src, values, cmd_)
         UThreadPool.start(self.task_)
 
-    def mouse_release(self, a0: QMouseEvent | None) -> None:
+    def mouse_release_ev(self, a0: QMouseEvent | None) -> None:
 
         if a0.button() & Qt.MouseButton.LeftButton:
     
@@ -311,11 +311,12 @@ class Thumb(OrderItem, QFrame):
             else:
                 self.clicked_.emit()
 
-    def mouse_press(self, a0: QMouseEvent | None) -> None:
+    def mouse_press_ev(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.LeftButton:
             self.drag_start_position = a0.pos()
 
-    def mouse_move(self, a0: QMouseEvent | None) -> None:
+    def mouse_move_ev(self, a0: QMouseEvent | None) -> None:
+
         if a0.button() == Qt.MouseButton.RightButton:
             return
         
@@ -327,26 +328,12 @@ class Thumb(OrderItem, QFrame):
         if distance < QApplication.startDragDistance():
             return
 
-        self.clicked_.emit()
+        self.mouse_moved.emit()
 
-        self.drag = QDrag(self)
-        self.mime_data = QMimeData()
-
-        if hasattr(self, IMG_WID_ATTR):
-            self.drag.setPixmap(self.img_wid.pixmap())
-        else:
-            self.drag.setPixmap(QPixmap(self.svg_path))
-        
-        urls = [QUrl.fromLocalFile(self.src)]
-        self.mime_data.setUrls(urls)
-
-        self.drag.setMimeData(self.mime_data)
-        self.drag.exec_(Qt.DropAction.CopyAction)
-
-    def mouse_double_click(self, a0: QMouseEvent | None) -> None:
+    def mouse_double_click_ev(self, a0: QMouseEvent | None) -> None:
         self.open_in_view.emit()
 
-    def mouse_r_click(self, a0: QContextMenuEvent | None) -> None:
+    def context_menu_ev(self, a0: QContextMenuEvent | None) -> None:
         self.clicked_.emit()
         context_menu = UMenu(self)
         self.add_base_actions(context_menu)
@@ -755,6 +742,7 @@ class Grid(BaseMethods, QScrollArea):
                 self.selected_widgets.append(wid_)
 
     def drag_event(self, wid: Thumb):
+
         drag = QDrag(self)
         mime_data = QMimeData()
 
