@@ -27,7 +27,7 @@ SELECTED = "selected"
 FONT_SIZE = "font-size: 11px;"
 RAD = "border-radius: 4px"
 IMG_WID_ATTR = "img_wid"
-GRID_HAS_SELECTED_WID = "sel"
+HAS_SEL_WID = "has_sel_wid"
 
 
 class UpdateThumbData(URunnable):
@@ -313,17 +313,12 @@ class Thumb(OrderItem, QFrame):
 
     def mouse_press_ev(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.LeftButton:
-            self.drag_start_position = a0.pos()
+            self.start_pos = a0.pos()
 
     def mouse_move_ev(self, a0: QMouseEvent | None) -> None:
-
-        if a0.button() == Qt.MouseButton.RightButton:
-            return
         
-        try:
-            distance = (a0.pos() - self.drag_start_position).manhattanLength()
-        except AttributeError:
-            return
+        if hasattr(self, "start_pos"):
+            distance = (a0.pos() - self.start_pos).manhattanLength()
 
         if distance < QApplication.startDragDistance():
             return
@@ -521,7 +516,7 @@ class Grid(BaseMethods, QScrollArea):
                 i.set_no_frame()
 
             self.selected_widgets = [new_wid]
-            setattr(self, GRID_HAS_SELECTED_WID, True)
+            setattr(self, HAS_SEL_WID, True)
 
             # через таймер чтобы функция не блокировалась зажатой клавишей мыши
             cmd_ = lambda: SignalsApp.all_.bar_bottom_cmd.emit(
@@ -675,7 +670,7 @@ class Grid(BaseMethods, QScrollArea):
 
     def shift_clicked(self, wid: Thumb):
 
-        if not hasattr(self, GRID_HAS_SELECTED_WID):
+        if not hasattr(self, HAS_SEL_WID):
             self.select_one_wid(
                 coords=(wid.row, wid.col)
             )
@@ -857,5 +852,5 @@ class Grid(BaseMethods, QScrollArea):
 
         self.selected_widgets.clear()
 
-        if hasattr(self, GRID_HAS_SELECTED_WID):
-            delattr(self, GRID_HAS_SELECTED_WID)
+        if hasattr(self, HAS_SEL_WID):
+            delattr(self, HAS_SEL_WID)
