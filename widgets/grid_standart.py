@@ -250,7 +250,6 @@ class GridStandart(Grid):
         )
 
         self.create_sorted_grid()
-        self.set_main_wid()
 
     def create_sorted_grid(self):
 

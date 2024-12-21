@@ -497,6 +497,7 @@ class Grid(BaseMethods, QScrollArea):
         SignalsApp.all_.move_to_wid.connect(self.select_wid)
 
         self.main_wid = QWidget()
+        self.setWidget(self.main_wid)
 
         flags = Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
         self.grid_layout = QGridLayout()
@@ -504,9 +505,6 @@ class Grid(BaseMethods, QScrollArea):
         self.grid_layout.setAlignment(flags)
 
         self.main_wid.setLayout(self.grid_layout)
-
-    def set_main_wid(self):
-        self.setWidget(self.main_wid)
 
     def select_wid(self, data: tuple | str | Thumb):
 
