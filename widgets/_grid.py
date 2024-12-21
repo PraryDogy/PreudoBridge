@@ -681,21 +681,17 @@ class Grid(BaseMethods, QScrollArea):
             )
             return
 
-        # определяем срез виджетов, которые должны быть выделены
         coords = list(self.cell_to_wid)
-
-        # стартовая точка это виджет, на который был произведен первый клик
+        shift_coords = []
         start_ind = coords.index(self.curr_cell)
-
-        # 
         end_ind = coords.index((wid.row, wid.col)) + 1
 
         if start_ind > end_ind:
-            coords = coords[end_ind - 1 : start_ind]
+            shift_coords = coords[end_ind - 1 : start_ind]
         else:
-            coords = coords[start_ind: end_ind]
+            shift_coords = coords[start_ind: end_ind]
 
-        for i in coords:
+        for i in shift_coords:
             wid_ = self.cell_to_wid.get(i)
             wid_.set_frame()
 
