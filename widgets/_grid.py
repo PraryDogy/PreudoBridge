@@ -27,7 +27,7 @@ SELECTED = "selected"
 FONT_SIZE = "font-size: 11px;"
 RAD = "border-radius: 4px"
 IMG_WID_ATTR = "img_wid"
-GRID_HAS_SELECTED_WID = None
+GRID_HAS_SELECTED_WID = "sel"
 
 
 class UpdateThumbData(URunnable):
@@ -533,7 +533,8 @@ class Grid(BaseMethods, QScrollArea):
         rating_data = {48: 0, 49: 1, 50: 2, 51: 3, 52: 4, 53: 5}
 
         for i in self.selected_widgets:
-            i.set_rating_cmd(rating_data.get(rating))
+            if i.type_ != Static.FOLDER_TYPE:
+                i.set_rating_cmd(rating_data.get(rating))
 
     def order_(self):
         self.ordered_widgets = OrderItem.order_items(self.ordered_widgets)
