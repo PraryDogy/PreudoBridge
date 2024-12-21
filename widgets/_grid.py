@@ -27,6 +27,7 @@ SELECTED = "selected"
 FONT_SIZE = "font-size: 11px;"
 RAD = "border-radius: 4px"
 IMG_WID_ATTR = "img_wid"
+SHIFT = "__shift__"
 
 
 class UpdateThumbData(URunnable):
@@ -672,6 +673,13 @@ class Grid(BaseMethods, QScrollArea):
 
     def shift_clicked(self, wid: Thumb):
 
+        if not hasattr(self, SHIFT):
+            setattr(self, SHIFT, True)
+            self.select_one_wid(
+                coords=(wid.row, wid.col)
+            )
+            return
+
         # определяем срез виджетов, которые должны быть выделены
         coords = list(self.cell_to_wid)
 
@@ -841,6 +849,11 @@ class Grid(BaseMethods, QScrollArea):
         menu.exec_(self.mapToGlobal(a0.pos()))
 
     def mouseReleaseEvent(self, a0):
+
         for i in self.selected_widgets:
             i.set_no_frame()
+
         self.selected_widgets.clear()
+
+        if hasattr(self, SHIFT):
+            delattr(self, SHIFT)
