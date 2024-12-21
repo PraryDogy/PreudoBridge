@@ -493,7 +493,7 @@ class Grid(BaseMethods, QScrollArea):
         SignalsApp.all_.resize_grid.connect(self.resize_)
         SignalsApp.all_.sort_grid.connect(self.order_)
         SignalsApp.all_.filter_grid.connect(self.filter_)
-        SignalsApp.all_.move_to_wid.connect(self.select_wid)
+        SignalsApp.all_.move_to_wid.connect(self.select_one_wid)
 
         self.main_wid = QWidget()
         self.setWidget(self.main_wid)
@@ -505,14 +505,12 @@ class Grid(BaseMethods, QScrollArea):
 
         self.main_wid.setLayout(self.grid_layout)
 
-    def select_wid(self, coords: tuple):
+    def select_one_wid(self, coords: tuple):
 
         new_wid = self.cell_to_wid.get(coords)
-        prev_wid = self.cell_to_wid.get(self.curr_cell)
 
-        if isinstance(new_wid, Thumb):
+        if new_wid:
 
-            prev_wid.set_no_frame()
             new_wid.set_frame()
 
             self.curr_cell = coords
@@ -528,22 +526,6 @@ class Grid(BaseMethods, QScrollArea):
                 {ColumnNames.SRC : new_wid.src}
             )
             QTimer.singleShot(100, cmd_)
-
-        else:
-            try:
-                prev_wid.set_frame()
-            except AttributeError:
-                pass
-
-        self.setFocus()
-
-    def reset_selection(self):
-
-        widget = self.cell_to_wid.get(self.curr_cell)
-
-        if isinstance(widget, QFrame):
-            widget.set_no_frame()
-            self.curr_cell: tuple = (0, 0)
     
     def set_rating(self, rating: int):
         rating_data = {48: 0, 49: 1, 50: 2, 51: 3, 52: 4, 53: 5}
@@ -551,7 +533,7 @@ class Grid(BaseMethods, QScrollArea):
 
         if isinstance(wid, Thumb):
             wid.set_rating_cmd(rating_data.get(rating))
-            self.select_wid(self.curr_cell)
+            self.select_one_wid(self.curr_cell)
 
     def order_(self):
         self.ordered_widgets = OrderItem.order_items(self.ordered_widgets)
@@ -595,8 +577,10 @@ class Grid(BaseMethods, QScrollArea):
         else:
             col_count = Utils.get_clmn_count(self.ww)
 
-        self.reset_selection()
         self.cell_to_wid.clear()
+        self.curr_cell = (0, 0)
+        for i in self.selected_widgets:
+            i.set_no_frame()
 
         row, col = 0, 0
 
@@ -646,7 +630,7 @@ class Grid(BaseMethods, QScrollArea):
         wid = Thumb.path_to_wid.get(ListFileSystem.last_selection)
 
         if isinstance(wid, Thumb):
-            self.select_wid(wid)
+            self.select_one_wid(wid)
             self.ensureWidgetVisible(wid)
             ListFileSystem.last_selection = None
 
@@ -689,10 +673,11 @@ class Grid(BaseMethods, QScrollArea):
         if text:
             for path, wid in Thumb.path_to_wid.items():
                 if text in path:
-                    self.select_wid(wid)
+                    self.select_one_wid(wid)
                     break
 
     def control_clicked(self, wid: Thumb):
+
         if wid in self.selected_widgets:
             self.selected_widgets.remove(wid)
             wid.set_no_frame()
@@ -701,11 +686,17 @@ class Grid(BaseMethods, QScrollArea):
             self.selected_widgets.append(wid)
             wid.set_frame()
 
-        self.curr_cell = wid.row, wid.col
+        self.curr_cell = (wid.row, wid.col)
 
     def shift_clicked(self, wid: Thumb):
+
+        # определяем срез виджетов, которые должны быть выделены
         coords = list(self.cell_to_wid)
+
+        # стартовая точка это виджет, на который был произведен первый клик
         start_ind = coords.index(self.curr_cell)
+
+        # 
         end_ind = coords.index((wid.row, wid.col)) + 1
 
         if start_ind > end_ind:
@@ -714,7 +705,7 @@ class Grid(BaseMethods, QScrollArea):
             coords = coords[start_ind: end_ind]
 
         for i in coords:
-            wid_ = self.cell_to_wid[i]
+            wid_ = self.cell_to_wid.get(i)
             wid_.set_frame()
 
             if wid_ not in self.selected_widgets:
@@ -791,7 +782,7 @@ class Grid(BaseMethods, QScrollArea):
                 self.curr_cell[1] + offset[1]
             )
 
-            self.select_wid(coords)
+            self.select_one_wid(coords)
 
         elif a0.key() in (
             Qt.Key.Key_0, Qt.Key.Key_1, Qt.Key.Key_2, Qt.Key.Key_3,

@@ -257,7 +257,7 @@ class GridSearch(Grid):
         if widget_data.pixmap is not None:
             wid.set_pixmap(widget_data.pixmap)
 
-        wid.clicked_.connect(lambda w=wid: self.select_wid(w))
+        wid.clicked_.connect(lambda w=wid: self.select_one_wid(w))
         wid.open_in_view.connect(lambda w=wid: self.open_in_view(w))
         self.add_widget_data(wid, self.row, self.col)
         self.grid_layout.addWidget(wid, self.row, self.col)

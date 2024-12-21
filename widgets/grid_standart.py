@@ -288,15 +288,15 @@ class GridStandart(Grid):
             coords = (row, col)
 
             wid.clicked_.connect(
-                lambda c=coords: self.select_wid(coords=c)
+                lambda c=coords: self.select_one_wid(coords=c)
             )
         
             wid.control_clicked.connect(
-                lambda c=coords: self.control_clicked(coords=c)
+                lambda w=wid: self.control_clicked(wid=w)
             )
 
             wid.shift_clicked.connect(
-                lambda c=coords: self.shift_clicked(coords=c)
+                lambda w=wid: self.shift_clicked(wid=w)
             )
 
             wid.open_in_view.connect(

@@ -150,7 +150,7 @@ class MainWin(QWidget):
 
     def move_to_wid_delayed(self, filepath: str):
         JsonData.root = os.path.dirname(filepath)
-        QTimer.singleShot(1500, lambda: self.grid.select_wid(filepath))
+        QTimer.singleShot(1500, lambda: self.grid.select_one_wid(filepath))
 
     def load_standart_grid(self, root: str = None):
 
