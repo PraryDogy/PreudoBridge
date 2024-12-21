@@ -614,9 +614,6 @@ class Grid(BaseMethods, QScrollArea):
         self.rearrange()
 
     def rearrange(self, width: int = None):
-        # этот метод отвечает за перетасовку
-        # виджетов, поэтому отсюда мы отсылаем в инициатор self.ww
-        # перетасовка происходит при любом изменении виджета
 
         if width:
             self.ww = width
@@ -666,7 +663,10 @@ class Grid(BaseMethods, QScrollArea):
             SignalsApp.all_.load_standart_grid.emit(wid.src)
 
         else:
-            OpenWin.view(Utils.get_main_win(), wid.src)
+            OpenWin.view(
+                parent=self.window(),
+                src=wid.src
+            )
 
     def select_after_list(self):
         wid = Thumb.path_to_wid.get(ListFileSystem.last_selection)
