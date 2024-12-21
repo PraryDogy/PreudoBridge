@@ -529,11 +529,9 @@ class Grid(BaseMethods, QScrollArea):
     
     def set_rating(self, rating: int):
         rating_data = {48: 0, 49: 1, 50: 2, 51: 3, 52: 4, 53: 5}
-        wid: Thumb = self.cell_to_wid.get(self.curr_cell)
 
-        if isinstance(wid, Thumb):
-            wid.set_rating_cmd(rating_data.get(rating))
-            self.select_one_wid(self.curr_cell)
+        for i in self.selected_widgets:
+            i.set_rating_cmd(rating_data.get(rating))
 
     def order_(self):
         self.ordered_widgets = OrderItem.order_items(self.ordered_widgets)
