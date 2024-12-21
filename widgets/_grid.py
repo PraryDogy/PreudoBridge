@@ -693,9 +693,9 @@ class Grid(BaseMethods, QScrollArea):
 
         for i in shift_coords:
             wid_ = self.cell_to_wid.get(i)
-            wid_.set_frame()
 
             if wid_ not in self.selected_widgets:
+                wid_.set_frame()
                 self.selected_widgets.append(wid_)
 
     def drag_event(self, wid: Thumb):
