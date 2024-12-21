@@ -27,7 +27,7 @@ SELECTED = "selected"
 FONT_SIZE = "font-size: 11px;"
 RAD = "border-radius: 4px"
 IMG_WID_ATTR = "img_wid"
-SHIFT = "__shift__"
+GRID_HAS_SELECTED_WID = None
 
 
 class UpdateThumbData(URunnable):
@@ -521,6 +521,7 @@ class Grid(BaseMethods, QScrollArea):
                 i.set_no_frame()
 
             self.selected_widgets = [new_wid]
+            setattr(self, GRID_HAS_SELECTED_WID, True)
 
             # через таймер чтобы функция не блокировалась зажатой клавишей мыши
             cmd_ = lambda: SignalsApp.all_.bar_bottom_cmd.emit(
@@ -673,8 +674,7 @@ class Grid(BaseMethods, QScrollArea):
 
     def shift_clicked(self, wid: Thumb):
 
-        if not hasattr(self, SHIFT):
-            setattr(self, SHIFT, True)
+        if not hasattr(self, GRID_HAS_SELECTED_WID):
             self.select_one_wid(
                 coords=(wid.row, wid.col)
             )
@@ -702,6 +702,11 @@ class Grid(BaseMethods, QScrollArea):
                 self.selected_widgets.append(wid_)
 
     def drag_event(self, wid: Thumb):
+
+        if not self.selected_widgets:
+            self.select_one_wid(
+                coords=(wid.row, wid.col)
+            )
 
         drag = QDrag(self)
         mime_data = QMimeData()
@@ -855,5 +860,5 @@ class Grid(BaseMethods, QScrollArea):
 
         self.selected_widgets.clear()
 
-        if hasattr(self, SHIFT):
-            delattr(self, SHIFT)
+        if hasattr(self, GRID_HAS_SELECTED_WID):
+            delattr(self, GRID_HAS_SELECTED_WID)
