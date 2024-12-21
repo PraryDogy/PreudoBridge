@@ -259,7 +259,6 @@ class GridSearch(Grid):
 
         wid.clicked_.connect(lambda w=wid: self.select_wid(w))
         wid.open_in_view.connect(lambda w=wid: self.open_in_view(w))
-        wid.find_here.connect(self.open_find_here_win)
         self.add_widget_data(wid, self.row, self.col)
         self.grid_layout.addWidget(wid, self.row, self.col)
         self.total += 1

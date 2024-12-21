@@ -113,7 +113,6 @@ class Thumb(OrderItem, QFrame):
 
     open_in_view = pyqtSignal()
     text_changed = pyqtSignal()
-    find_here = pyqtSignal()
 
     path_to_wid: dict[str, "Thumb"] = {}
 
@@ -506,23 +505,9 @@ class Grid(BaseMethods, QScrollArea):
 
         self.main_wid.setLayout(self.grid_layout)
 
-    def select_wid(self, data: tuple | str | Thumb):
+    def select_wid(self, coords: tuple):
 
-        # thumb прилетает по клику мыши
-        if isinstance(data, Thumb):
-            coords = data.row, data.col
-            new_wid = data
-
-        # кортеж по навигационным клавишам
-        elif isinstance(data, tuple):
-            coords = data
-            new_wid = self.cell_to_wid.get(data)
-
-        # путь к фото из просмотрщика
-        elif isinstance(data, str):
-            new_wid = Thumb.path_to_wid.get(data)
-            coords = new_wid.row, new_wid.col
-
+        new_wid = self.cell_to_wid.get(coords)
         prev_wid = self.cell_to_wid.get(self.curr_cell)
 
         if isinstance(new_wid, Thumb):

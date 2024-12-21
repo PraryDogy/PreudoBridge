@@ -285,15 +285,35 @@ class GridStandart(Grid):
                     rating=order_item.rating,
                     )
 
-            wid.clicked_.connect(lambda w=wid: self.select_wid(w))
-            wid.control_clicked.connect(lambda w=wid: self.control_clicked(w))
-            wid.shift_clicked.connect(lambda w=wid: self.shift_clicked(w))
-            wid.open_in_view.connect(lambda w=wid: self.open_in_view(w))
-            wid.find_here.connect(self.open_find_here_win)
-            wid.mouse_moved.connect(lambda w=wid: self.drag_event(w))
-            self.grid_layout.addWidget(wid, row, col)
+            coords = (row, col)
 
-            self.add_widget_data(wid, row, col)
+            wid.clicked_.connect(
+                lambda c=coords: self.select_wid(coords=c)
+            )
+        
+            wid.control_clicked.connect(
+                lambda c=coords: self.control_clicked(coords=c)
+            )
+
+            wid.shift_clicked.connect(
+                lambda c=coords: self.shift_clicked(coords=c)
+            )
+
+            wid.open_in_view.connect(
+                lambda w=wid: self.open_in_view(wid=w)
+            )
+
+            wid.mouse_moved.connect(
+                lambda w=wid: self.drag_event(wid=w)
+            )
+
+            self.add_widget_data(
+                wid=wid,
+                row=row,
+                col=col
+            )
+
+            self.grid_layout.addWidget(wid, row, col)
 
             col += 1
             if col >= col_count:
