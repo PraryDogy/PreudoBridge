@@ -647,22 +647,6 @@ class Grid(BaseMethods, QScrollArea):
             self.fav_action.setText("Добавить в избранное")
             self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))
 
-    def remove_wid_frame(self):
-        wid = self.cell_to_wid.get(self.curr_cell)
-
-        if isinstance(wid, Thumb):
-            wid.set_no_frame()
-
-        self.setFocus()
-
-        cmd_ = lambda: SignalsApp.all_.bar_bottom_cmd.emit(
-            {
-                "src": JsonData.root
-            }
-        )
-
-        QTimer.singleShot(100, cmd_)
-
     def open_find_here_win(self, *args):
         self.find_here_win = WinFindHere()
         self.find_here_win.finished_.connect(self.find_here_cmd)
@@ -794,7 +778,17 @@ class Grid(BaseMethods, QScrollArea):
         return super().keyPressEvent(a0)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        self.remove_wid_frame()
+
+        for i in self.selected_widgets:
+            i.set_no_frame()
+
+        cmd_ = lambda: SignalsApp.all_.bar_bottom_cmd.emit(
+            {
+                "src": JsonData.root
+            }
+        )
+
+        QTimer.singleShot(100, cmd_)
 
         menu = UMenu(parent=self)
 
