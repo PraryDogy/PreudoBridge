@@ -228,7 +228,7 @@ class BarTop(QWidget):
         self.main_lay.addWidget(next)
 
         self.folder_up_btn = BarTopBtn()
-        self.folder_up_btn.mouseReleaseEvent = self.level_up
+        self.folder_up_btn.mouseReleaseEvent = self.folder_up_cmd
         self.folder_up_btn.load(Static.FOLDER_UP_SVG)
         self.main_lay.addWidget(self.folder_up_btn)
 
@@ -289,7 +289,8 @@ class BarTop(QWidget):
         except (ValueError, IndexError):
             pass
 
-    def level_up(self, *args):
+    def folder_up_cmd(self, *args):
+        old_root = JsonData.root
         root = os.path.dirname(JsonData.root)
         if not root == os.sep:
             SignalsApp.all_.new_history_item.emit(root)
