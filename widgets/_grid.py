@@ -697,7 +697,12 @@ class Grid(BaseMethods, QScrollArea):
 
         self.setFocus()
 
-        cmd_ = lambda: SignalsApp.all_.bar_bottom_cmd.emit({"src": JsonData.root})
+        cmd_ = lambda: SignalsApp.all_.bar_bottom_cmd.emit(
+            {
+                "src": JsonData.root
+            }
+        )
+
         QTimer.singleShot(100, cmd_)
 
     def open_find_here_win(self, *args):
