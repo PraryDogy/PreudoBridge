@@ -721,6 +721,7 @@ class Grid(BaseMethods, QScrollArea):
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
 
             if a0.key() == Qt.Key.Key_Up:
+                old_root = JsonData.root
                 root = os.path.dirname(JsonData.root)
                 if root != os.sep:
                     SignalsApp.all_.new_history_item.emit(root)
