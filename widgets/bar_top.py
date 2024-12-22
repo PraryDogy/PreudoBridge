@@ -134,8 +134,21 @@ class FiltersBtn(BarTopBtn):
         rating_lay.setSpacing(5)
         rating_wid.setLayout(rating_lay)
 
-        self.rating_data = {1: False, 2: False,  3: False, 4: False, 5: False}
+        self.rating_data = {
+            1: False,
+            2: False,
+            3: False,
+            4: False,
+            5: False
+        }
+
         self.rating_wids: list[QLabel] = []
+
+        reset_rating = QLabel(Static.LINE_SYM)
+        reset_rating.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        reset_rating.setFixedSize(20, 20)
+        reset_rating.mouseReleaseEvent = lambda e: self.reset_filters()
+        rating_lay.addWidget(reset_rating)
 
         for rate in self.rating_data:
             label = QLabel(Static.STAR_SYM)
@@ -154,25 +167,23 @@ class FiltersBtn(BarTopBtn):
             self.menu_.show()
 
     def toggle_rating(self, rate: int):
-        if rate > 1:
-            Dynamic.rating_filter = rate
+        Dynamic.rating_filter = rate
 
-            for i in self.rating_wids[:rate]:
-                i.setStyleSheet(f"background: {Static.BLUE};")
-            for i in self.rating_wids[rate:]:
-                i.setStyleSheet("")
-        else:
-            Dynamic.rating_filter = 0
-            for i in self.rating_wids:
-                i.setStyleSheet("")
+        for i in self.rating_wids[:rate]:
+            i.setStyleSheet(f"background: {Static.BLUE};")
+        for i in self.rating_wids[rate:]:
+            i.setStyleSheet("")
 
         SignalsApp.instance.filter_grid.emit()
 
     def reset_filters(self):
+
+        Dynamic.rating_filter = 0
+
         for i in self.rating_wids:
             i.setStyleSheet("")
 
-        Dynamic.rating_filter = 0
+        SignalsApp.instance.filter_grid.emit()
 
 
 class BarTop(QWidget):
