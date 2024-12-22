@@ -105,7 +105,6 @@ class MainWin(QWidget):
         SignalsApp.instance.load_standart_grid.connect(self.load_standart_grid)
         SignalsApp.instance.load_search_grid.connect(self.load_search_grid)
         SignalsApp.instance.set_search_title.connect(self.search_finished)
-        SignalsApp.instance.move_to_wid_delayed.connect(self.move_to_wid_delayed)
         SignalsApp.instance.open_path.connect(self.open_path_cmd)
 
         SignalsApp.instance.load_standart_grid_cmd(
@@ -160,10 +159,6 @@ class MainWin(QWidget):
     def search_finished(self, search_text: str):
         self.migaet_timer.stop()
         self.setWindowTitle(f"🟢\tРезультаты поиска: \"{search_text}\"")
-
-    def move_to_wid_delayed(self, filepath: str):
-        JsonData.root = os.path.dirname(filepath)
-        QTimer.singleShot(1500, lambda: self.grid.select_one_wid(filepath))
 
     def load_standart_grid(self, data: dict):
 

@@ -620,11 +620,10 @@ class CreateFolder(QAction):
 
         if not os.path.exists(new_path):
             os.makedirs(new_path)
-            # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ 
-            SignalsApp.instance.move_to_wid_delayed.emit(new_path)
+
             SignalsApp.instance.load_standart_grid_cmd(
                 path=JsonData.root,
-                prev_path=None
+                prev_path=new_path
             )
 
 

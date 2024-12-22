@@ -422,12 +422,11 @@ class ThumbSearch(Thumb):
             i.contextMenuEvent = self.mouse_r_click
 
     def show_in_folder_cmd(self):
-        # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ 
+
         SignalsApp.instance.load_standart_grid_cmd(
             path=os.path.dirname(self.src),
-            prev_path=None
+            prev_path=self.src
         )
-        SignalsApp.instance.move_to_wid_delayed.emit(self.src)
 
     def mouse_r_click(self, a0: QContextMenuEvent | None) -> None:
         self.clicked_.emit()

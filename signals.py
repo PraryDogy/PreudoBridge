@@ -15,7 +15,6 @@ class Signals(QObject):
 
     fav_cmd = pyqtSignal(dict)
     set_search_title = pyqtSignal(str)
-    move_to_wid_delayed = pyqtSignal(str)
     open_path = pyqtSignal(str)
     new_history_item = pyqtSignal(str)
     bar_bottom_cmd = pyqtSignal(dict)
