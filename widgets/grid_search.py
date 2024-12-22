@@ -60,7 +60,7 @@ class SearchFinder(URunnable):
             self.conn.close()
 
             if self.should_run:
-                SignalsApp.all_.set_search_title.emit(str(self.search_text))
+                SignalsApp.instance.set_search_title.emit(str(self.search_text))
 
             self.signals_.finished_.emit()
 
@@ -234,7 +234,7 @@ class GridSearch(Grid):
         self.row, self.col = 0, 0
         self.total = 0
 
-        SignalsApp.all_.bar_bottom_cmd.emit(
+        SignalsApp.instance.bar_bottom_cmd.emit(
             {
                 "src": JsonData.root,
                 "total": 0
@@ -296,7 +296,7 @@ class GridSearch(Grid):
 
             self.order_()
 
-            SignalsApp.all_.bar_bottom_cmd.emit(
+            SignalsApp.instance.bar_bottom_cmd.emit(
                 {
                     "total": self.total
                 }
@@ -304,7 +304,7 @@ class GridSearch(Grid):
 
     def search_fin(self):
 
-        SignalsApp.all_.bar_bottom_cmd.emit(
+        SignalsApp.instance.bar_bottom_cmd.emit(
             {
                 "total": self.total
             }

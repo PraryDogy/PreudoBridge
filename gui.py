@@ -8,14 +8,14 @@ from PyQt5.QtWidgets import (QApplication, QGridLayout, QHBoxLayout, QLabel,
 from cfg import Dynamic, JsonData, Static
 from signals import SignalsApp
 from widgets._grid import Grid
-from widgets.list_file_system import ListFileSystem
-from widgets.list_standart import ListStandart
 from widgets.bar_bottom import BarBottom
 from widgets.bar_top import BarTop
 from widgets.grid_search import GridSearch
 from widgets.grid_standart import GridStandart
+from widgets.list_file_system import ListFileSystem
 from widgets.tree_favorites import TreeFavorites
 from widgets.tree_folders import TreeFolders
+from typing import Literal
 
 
 class BarTabs(QTabWidget):
@@ -101,13 +101,17 @@ class MainWin(QWidget):
 
         # они должны быть именно тут
         self.grid: Grid = Grid(self.get_grid_width())
-        SignalsApp.all_.load_standart_grid.connect(self.load_standart_grid)
-        SignalsApp.all_.load_search_grid.connect(self.load_search_grid)
-        SignalsApp.all_.set_search_title.connect(self.search_finished)
-        SignalsApp.all_.move_to_wid_delayed.connect(self.move_to_wid_delayed)
-        SignalsApp.all_.open_path.connect(self.open_path_cmd)
 
-        self.load_standart_grid()
+        SignalsApp.instance.load_standart_grid.connect(self.load_standart_grid)
+        SignalsApp.instance.load_search_grid.connect(self.load_search_grid)
+        SignalsApp.instance.set_search_title.connect(self.search_finished)
+        SignalsApp.instance.move_to_wid_delayed.connect(self.move_to_wid_delayed)
+        SignalsApp.instance.open_path.connect(self.open_path_cmd)
+
+        SignalsApp.instance.load_standart_grid_cmd(
+            path=JsonData.root,
+            prev_path=None
+        )
 
     def open_path_cmd(self, filepath: str):
         if not os.path.exists(filepath):
@@ -115,11 +119,20 @@ class MainWin(QWidget):
 
         if filepath.endswith(Static.IMG_EXT):
             JsonData.root = os.path.dirname(filepath)
-            self.load_standart_grid()
+            
+            SignalsApp.instance.load_standart_grid_cmd(
+                path=JsonData.root,
+                prev_path=None
+            )
+
             self.move_to_wid_delayed(filepath)
         else:
             JsonData.root = filepath
-            self.load_standart_grid()
+
+            SignalsApp.instance.load_standart_grid_cmd(
+                path=JsonData.root,
+                prev_path=None
+            )
 
     def load_search_grid(self, search_text: str):
         self.grid.close()
@@ -152,16 +165,14 @@ class MainWin(QWidget):
         JsonData.root = os.path.dirname(filepath)
         QTimer.singleShot(1500, lambda: self.grid.select_one_wid(filepath))
 
-    def load_standart_grid(self, root: str = None):
+    def load_standart_grid(self, data: dict):
+
+        JsonData.root = data.get("path")
+        prev_path = data.get("prev_path")
 
         self.grid.close()
-
-        if root:
-            JsonData.root = root
-
         self.setWindowTitle(os.path.basename(JsonData.root))
-        SignalsApp.all_.fav_cmd.emit({"cmd": "select", "src": JsonData.root})
-
+        SignalsApp.instance.fav_cmd.emit({"cmd": "select", "src": JsonData.root})
         self.bar_top.search_wid.clear_search.emit()
         self.bar_top.filters_btn.reset_filters()
 

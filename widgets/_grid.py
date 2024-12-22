@@ -18,7 +18,7 @@ from ._actions import (ChangeView, CopyPath, CreateFolder, DeleteFinderItem,
                        FavAdd, FavRemove, FindHere, Info, OpenInApp,
                        RatingMenu, RevealInFinder, ShowInFolder, SortMenu,
                        UpdateGrid, View)
-from ._base import BaseMethods, OpenWin, USvgWidget, UMenu
+from ._base import BaseMethods, OpenWin, UMenu, USvgWidget
 from .list_file_system import ListFileSystem
 from .win_find_here import WinFindHere
 from .win_sys import WinCopy
@@ -364,11 +364,11 @@ class ThumbFolder(Thumb):
     def fav_cmd(self, offset: int):
         self.fav_action.triggered.disconnect()
         if 0 + offset == 1:
-            SignalsApp.all_.fav_cmd.emit({"cmd": "add", "src": self.src})
+            SignalsApp.instance.fav_cmd.emit({"cmd": "add", "src": self.src})
             self.fav_action.setText("Удалить из избранного")
             self.fav_action.triggered.connect(lambda: self.fav_cmd(-1))
         else:
-            SignalsApp.all_.fav_cmd.emit({"cmd": "del", "src": self.src})
+            SignalsApp.instance.fav_cmd.emit({"cmd": "del", "src": self.src})
             self.fav_action.setText("Добавить в избранное")
             self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))
 
@@ -422,9 +422,12 @@ class ThumbSearch(Thumb):
             i.contextMenuEvent = self.mouse_r_click
 
     def show_in_folder_cmd(self):
-        root = os.path.dirname(self.src)
-        SignalsApp.all_.load_standart_grid.emit(root)
-        SignalsApp.all_.move_to_wid_delayed.emit(self.src)
+        # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ 
+        SignalsApp.instance.load_standart_grid_cmd(
+            path=os.path.dirname(self.src),
+            prev_path=None
+        )
+        SignalsApp.instance.move_to_wid_delayed.emit(self.src)
 
     def mouse_r_click(self, a0: QContextMenuEvent | None) -> None:
         self.clicked_.emit()
@@ -501,10 +504,10 @@ class Grid(BaseMethods, QScrollArea):
         # дублирования подклювчений
         SignalsApp.disconnect_grid()
 
-        SignalsApp.all_.resize_grid.connect(self.resize_)
-        SignalsApp.all_.sort_grid.connect(self.order_)
-        SignalsApp.all_.filter_grid.connect(self.filter_)
-        SignalsApp.all_.move_to_wid.connect(self.select_one_wid)
+        SignalsApp.instance.resize_grid.connect(self.resize_)
+        SignalsApp.instance.sort_grid.connect(self.order_)
+        SignalsApp.instance.filter_grid.connect(self.filter_)
+        SignalsApp.instance.move_to_wid.connect(self.select_one_wid)
 
         self.main_wid = QWidget()
         self.setWidget(self.main_wid)
@@ -534,7 +537,7 @@ class Grid(BaseMethods, QScrollArea):
         setattr(self, HAS_SEL_WID, True)
 
         # через таймер чтобы функция не блокировалась зажатой клавишей мыши
-        cmd_ = lambda: SignalsApp.all_.bar_bottom_cmd.emit(
+        cmd_ = lambda: SignalsApp.instance.bar_bottom_cmd.emit(
             {ColumnNames.SRC : wid.src}
         )
         QTimer.singleShot(100, cmd_)
@@ -621,8 +624,12 @@ class Grid(BaseMethods, QScrollArea):
             return
 
         elif wid.type_ == Static.FOLDER_TYPE:
-            SignalsApp.all_.new_history_item.emit(wid.src)
-            SignalsApp.all_.load_standart_grid.emit(wid.src)
+            
+            SignalsApp.instance.new_history_item.emit(wid.src)
+            SignalsApp.instance.load_standart_grid_cmd(
+                path=wid.src,
+                prev_path=None
+            )
 
         else:
             OpenWin.view(
@@ -642,12 +649,12 @@ class Grid(BaseMethods, QScrollArea):
         self.fav_action.triggered.disconnect()
         if 0 + offset == 1:
 
-            SignalsApp.all_.fav_cmd.emit({"cmd": "add", "src": JsonData.root})
+            SignalsApp.instance.fav_cmd.emit({"cmd": "add", "src": JsonData.root})
             self.fav_action.setText("Удалить из избранного")
             self.fav_action.triggered.connect(lambda: self.fav_cmd(-1))
 
         else:
-            SignalsApp.all_.fav_cmd.emit({"cmd": "del", "src": JsonData.root})
+            SignalsApp.instance.fav_cmd.emit({"cmd": "del", "src": JsonData.root})
             self.fav_action.setText("Добавить в избранное")
             self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))
 
@@ -725,11 +732,17 @@ class Grid(BaseMethods, QScrollArea):
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
 
             if a0.key() == Qt.Key.Key_Up:
-                old_root = JsonData.root
+
                 root = os.path.dirname(JsonData.root)
+
+                # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ 
+
                 if root != os.sep:
-                    SignalsApp.all_.new_history_item.emit(root)
-                    SignalsApp.all_.load_standart_grid.emit(root)
+                    SignalsApp.instance.new_history_item.emit(root)
+                    SignalsApp.instance.load_standart_grid_cmd(
+                        path=root,
+                        prev_path=None
+                    )
 
             elif  a0.key() == Qt.Key.Key_Down:
                 wid = self.cell_to_wid.get(self.curr_cell)
@@ -742,12 +755,12 @@ class Grid(BaseMethods, QScrollArea):
             elif a0.key() == Qt.Key.Key_Equal:
                 new_value = Dynamic.pixmap_size_ind + 1
                 if new_value <= len(ThumbData.PIXMAP_SIZE) - 1:
-                    SignalsApp.all_.move_slider.emit(new_value)
+                    SignalsApp.instance.move_slider.emit(new_value)
 
             elif a0.key() == Qt.Key.Key_Minus:
                 new_value = Dynamic.pixmap_size_ind - 1
                 if new_value >= 0:
-                    SignalsApp.all_.move_slider.emit(new_value)
+                    SignalsApp.instance.move_slider.emit(new_value)
 
             elif a0.key() == Qt.Key.Key_D:
                 self.open_find_here_win()
@@ -786,7 +799,7 @@ class Grid(BaseMethods, QScrollArea):
         for i in self.selected_widgets:
             i.set_no_frame()
 
-        cmd_ = lambda: SignalsApp.all_.bar_bottom_cmd.emit(
+        cmd_ = lambda: SignalsApp.instance.bar_bottom_cmd.emit(
             {
                 "src": JsonData.root
             }

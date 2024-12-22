@@ -228,10 +228,11 @@ class UpdateGrid(UAction):
         )
 
     def cmd_(self):
-        # удалить сетку и создать новую GridStandart
-        # сигнал принимает str, где мы указываем, на основе
-        # какой директории будет создана сетка GridStandart
-        SignalsApp.all_.load_standart_grid.emit(JsonData.root)
+
+        SignalsApp.instance.load_standart_grid_cmd(
+            path=JsonData.root,
+            prev_path=None
+        )
 
 
 # Меню со списком приложений, при помощи которых можно открыть изображение
@@ -497,26 +498,26 @@ class SortMenu(UMenu):
 
         # переформируем текущую сетку GridStandart / SearchGrid
         # с учетом нового типа сортировки
-        SignalsApp.all_.sort_grid.emit()
+        SignalsApp.instance.sort_grid.emit()
 
         # передаем сигнал в нижний бар
         # где отображается QLabel с типом сортировки
         # чтобы он обновил данные
         # пустой словарь обозначает, что нижний бар обновит данные о сортировке
-        SignalsApp.all_.bar_bottom_cmd.emit({})
+        SignalsApp.instance.bar_bottom_cmd.emit({})
 
     def cmd_revers(self, reversed: bool):
         Dynamic.rev = reversed
 
         # переформируем текущую сетку GridStandart / SearchGrid
         # с учетом нового типа сортировки
-        SignalsApp.all_.sort_grid.emit()
+        SignalsApp.instance.sort_grid.emit()
 
         # передаем сигнал в нижний бар
         # где отображается QLabel с типом сортировки
         # чтобы он обновил данные
         # пустой словарь обозначает, что нижний бар обновит данные о сортировке
-        SignalsApp.all_.bar_bottom_cmd.emit({})
+        SignalsApp.instance.bar_bottom_cmd.emit({})
 
 
 # показать сетку / список - GridStandart / GridSearch / ListFileSystem
@@ -562,11 +563,17 @@ class ChangeView(UMenu):
 
     def set_grid(self):
         Dynamic.grid_view_type = 0
-        SignalsApp.all_.load_standart_grid.emit(JsonData.root)
+        SignalsApp.instance.load_standart_grid_cmd(
+            path=JsonData.root,
+            prev_path=None
+        )
 
     def set_list(self):
         Dynamic.grid_view_type = 1
-        SignalsApp.all_.load_standart_grid.emit(JsonData.root)
+        SignalsApp.instance.load_standart_grid_cmd(
+            path=JsonData.root,
+            prev_path=None
+        )
 
 
 # Найти виджет в текущей сетке виджетов по пути к файлу / папке
@@ -613,8 +620,13 @@ class CreateFolder(QAction):
 
         if not os.path.exists(new_path):
             os.makedirs(new_path)
-            SignalsApp.all_.load_standart_grid.emit(JsonData.root)
-            SignalsApp.all_.move_to_wid_delayed.emit(new_path)
+            # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ # ДОБАВЬ 
+            SignalsApp.instance.move_to_wid_delayed.emit(new_path)
+            SignalsApp.instance.load_standart_grid_cmd(
+                path=JsonData.root,
+                prev_path=None
+            )
+
 
         else:
 
@@ -647,7 +659,10 @@ class DeleteFinderItem(QAction):
         )
 
         if result.returncode == 0:
-            SignalsApp.all_.load_standart_grid.emit(JsonData.root)
+            SignalsApp.instance.load_standart_grid_cmd(
+                path=JsonData.root,
+                prev_path=None
+            )
 
     def run_task(self, *args):
         self.task_ = Task_(cmd_=self.move_to_trash)
@@ -657,6 +672,8 @@ class DeleteFinderItem(QAction):
 
         try:
 
+            # ПЕРЕМЕСТИ # ПЕРЕМЕСТИ # ПЕРЕМЕСТИ # ПЕРЕМЕСТИ # ПЕРЕМЕСТИ # ПЕРЕМЕСТИ # ПЕРЕМЕСТИ # ПЕРЕМЕСТИ # ПЕРЕМЕСТИ # ПЕРЕМЕСТИ 
+
             applescript = f"""
             tell application "Finder"
                 set theItem to POSIX file "{self.path}" as alias
@@ -665,7 +682,11 @@ class DeleteFinderItem(QAction):
             """
 
             subprocess.run(["osascript", "-e", applescript], check=True)
-            SignalsApp.all_.load_standart_grid.emit(JsonData.root)
+
+            SignalsApp.instance.load_standart_grid_cmd(
+                path=JsonData.root,
+                prev_path=None
+            )
 
         except subprocess.CalledProcessError as e:
             print(f"Ошибка при перемещении в корзину: {e}")

@@ -5,9 +5,8 @@ from PyQt5.QtCore import (QMimeData, QObject, QPoint, Qt, QTimer, QUrl,
                           pyqtSignal)
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
                          QPixmap)
-from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QHBoxLayout,
-                             QLabel, QPushButton, QSizePolicy, QSpacerItem,
-                             QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
+                             QPushButton, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static, ThumbData
 from database import ORDER
@@ -155,7 +154,7 @@ class WinGo(WinMinMax):
         path: str = os.sep + path.strip().strip(os.sep)
 
         if os.path.exists(path):
-            SignalsApp.all_.open_path.emit(path)
+            SignalsApp.instance.open_path.emit(path)
             self.close()
         else:
             self.task_ = PathFinderThread(path)
@@ -163,7 +162,7 @@ class WinGo(WinMinMax):
             UThreadPool.start(self.task_)
 
     def finalize(self, res: str):
-        SignalsApp.all_.open_path.emit(res)
+        SignalsApp.instance.open_path.emit(res)
         self.close()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
@@ -183,7 +182,7 @@ class CustomSlider(USlider):
         self.setFixedWidth(80)
         self.setValue(Dynamic.pixmap_size_ind)
         self.valueChanged.connect(self.change_size)
-        SignalsApp.all_.move_slider.connect(self.change_size)
+        SignalsApp.instance.move_slider.connect(self.change_size)
     
     def change_size(self, value: int):
         # отключаем сигнал valueChanged
@@ -193,7 +192,7 @@ class CustomSlider(USlider):
         # Включаем сигнал обратно
         self.blockSignals(False)
         Dynamic.pixmap_size_ind = value
-        SignalsApp.all_.resize_grid.emit()
+        SignalsApp.instance.resize_grid.emit()
 
 
 class PathItem(QWidget):
@@ -227,8 +226,11 @@ class PathItem(QWidget):
         if os.path.isfile(self.src):
             OpenWin.view(Utils.get_main_win(), self.src)
         else:
-            SignalsApp.all_.new_history_item.emit(self.src)
-            SignalsApp.all_.load_standart_grid.emit(self.src)
+            SignalsApp.instance.new_history_item.emit(self.src)
+            SignalsApp.instance.load_standart_grid_cmd(
+                path=self.src,
+                prev_path=None
+            )
 
     def solid_style(self):
         self.text_wid.setStyleSheet(
@@ -428,7 +430,7 @@ class BarBottom(QWidget):
         bottom_lay.addWidget(self.slider)
 
         self.create_path_labels(JsonData.root)
-        SignalsApp.all_.bar_bottom_cmd.connect(self.path_labels_cmd)
+        SignalsApp.instance.bar_bottom_cmd.connect(self.path_labels_cmd)
 
     def add_total(self, value: int):
         self.total_text.setText(f"{TOTAL_T}: {str(value)}")

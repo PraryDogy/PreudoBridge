@@ -87,13 +87,21 @@ class FavItem(QLabel):
             # он находится на другом сетевом диске
 
             self.try_find_path()
-            SignalsApp.all_.new_history_item.emit(self.src)
-            SignalsApp.all_.load_standart_grid.emit(self.src)
+            SignalsApp.instance.new_history_item.emit(self.src)
+
+            SignalsApp.instance.load_standart_grid_cmd(
+                path=self.src,
+                prev_path=None
+            )
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
         menu_ = UMenu(self)
 
-        cmd_ = lambda: SignalsApp.all_.load_standart_grid.emit(self.src)
+        cmd_ = lambda: SignalsApp.instance.load_standart_grid_cmd(
+            path=self.src,
+            prev_path=None
+        )
+
         view_ac = View(menu_, self.src)
         view_ac._clicked.connect(cmd_)
         menu_.addAction(view_ac)
@@ -125,7 +133,7 @@ class TreeFavorites(QListWidget):
         super().__init__()
 
         self.wids: dict[str, QListWidgetItem] = {}
-        SignalsApp.all_.fav_cmd.connect(self.cmd_)
+        SignalsApp.instance.fav_cmd.connect(self.cmd_)
         self.setDragDropMode(QListWidget.DragDropMode.InternalMove)
         self.setAcceptDrops(True)
         self.init_ui()

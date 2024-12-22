@@ -1,9 +1,9 @@
 from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtWidgets import QWidget
-from typing import Literal
+
 
 class Signals(QObject):
-    load_standart_grid = pyqtSignal(str)
+    load_standart_grid = pyqtSignal(dict)
     load_search_grid = pyqtSignal(str)
 
     # эти сигналы переназначаются заново, не забудь отключить прежде
@@ -22,22 +22,31 @@ class Signals(QObject):
 
     move_slider = pyqtSignal(int)
 
+    def load_standart_grid_cmd(self, path: str, prev_path: str | None):
+
+        data = {
+            "path": path,
+            "prev_path": prev_path
+        }
+
+        self.load_standart_grid.emit(data)
+
 
 class SignalsApp:
-    all_: Signals = None
+    instance: Signals = None
 
     @classmethod
     def init(cls):
-        cls.all_ = Signals()
+        cls.instance = Signals()
 
     @classmethod
     def disconnect_grid(cls) -> bool:
 
         recon = (
-            SignalsApp.all_.resize_grid,
-            SignalsApp.all_.sort_grid,
-            SignalsApp.all_.filter_grid,
-            SignalsApp.all_.move_to_wid
+            SignalsApp.instance.resize_grid,
+            SignalsApp.instance.sort_grid,
+            SignalsApp.instance.filter_grid,
+            SignalsApp.instance.move_to_wid
             )
 
         for sig in recon:

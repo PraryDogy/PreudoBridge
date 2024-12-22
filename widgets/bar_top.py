@@ -62,7 +62,10 @@ class ViewTypeBtn(QTabBar):
     def set_view_type_cmd(self, index: int):
         self.setCurrentIndex(index)
         Dynamic.grid_view_type = index
-        SignalsApp.all_.load_standart_grid.emit("")
+        SignalsApp.instance.load_standart_grid_cmd(
+            path=JsonData.root,
+            prev_path=None
+        )
 
     def tabSizeHint(self, index):
         size = QTabBar.tabSizeHint(self, index)
@@ -93,7 +96,7 @@ class SearchWidget(QWidget):
         self.search_timer = QTimer(self)
         self.search_timer.setSingleShot(True)
         self.search_timer.timeout.connect(
-            lambda: SignalsApp.all_.load_search_grid.emit(self.search_text)
+            lambda: SignalsApp.instance.load_search_grid.emit(self.search_text)
             )
         
         self.clear_search.connect(self.costil)
@@ -130,7 +133,10 @@ class SearchWidget(QWidget):
         else:
             self.clear_search.emit()
             self.search_wid.clear_btn.hide()
-            SignalsApp.all_.load_standart_grid.emit("")
+            SignalsApp.instance.load_standart_grid_cmd(
+                path=JsonData.root,
+                prev_path=None
+            )
 
     def show_templates(self, a0: QMouseEvent | None) -> None:
         self.templates_menu.exec(self.mapToGlobal(self.rect().bottomLeft()))
@@ -192,7 +198,7 @@ class FiltersBtn(BarTopBtn):
             for i in self.rating_wids:
                 i.setStyleSheet("")
 
-        SignalsApp.all_.filter_grid.emit()
+        SignalsApp.instance.filter_grid.emit()
 
     def reset_filters(self):
         for i in self.rating_wids:
@@ -257,13 +263,16 @@ class BarTop(QWidget):
         self.search_wid = SearchWidget()
         self.main_lay.addWidget(self.search_wid)
 
-        SignalsApp.all_.new_history_item.connect(self.new_history)
-        SignalsApp.all_.new_history_item.emit(JsonData.root)
+        SignalsApp.instance.new_history_item.connect(self.new_history)
+        SignalsApp.instance.new_history_item.emit(JsonData.root)
         self.index_ -= 1
 
     def change_view_cmd(self, index: int, *args):
         Dynamic.grid_view_type = index
-        SignalsApp.all_.load_standart_grid.emit(JsonData.root)
+        SignalsApp.instance.load_standart_grid_cmd(
+            path=JsonData.root,
+            prev_path=None
+        )
 
     def open_settings_win(self, *args):
         self.win = WinSettings()
@@ -285,7 +294,10 @@ class BarTop(QWidget):
             if self.index_ + offset in(-1, len(self.history)):
                 return
             self.index_ += offset
-            SignalsApp.all_.load_standart_grid.emit(self.history[self.index_])
+            SignalsApp.instance.load_standart_grid_cmd(
+                path=self.history[self.index_],
+                prev_path=None
+            )
         except (ValueError, IndexError):
             pass
 
@@ -293,5 +305,8 @@ class BarTop(QWidget):
         old_root = JsonData.root
         root = os.path.dirname(JsonData.root)
         if not root == os.sep:
-            SignalsApp.all_.new_history_item.emit(root)
-            SignalsApp.all_.load_standart_grid.emit(root)
+            SignalsApp.instance.new_history_item.emit(root)
+            SignalsApp.instance.load_standart_grid_cmd(
+                path=root,
+                prev_path=None
+            )

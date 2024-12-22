@@ -405,7 +405,7 @@ class WinImgView(WinBase):
         self.wid: Thumb = self.path_to_wid.get(self.src)
         self.wid.text_changed.connect(self.set_title)
 
-        SignalsApp.all_.move_to_wid.emit(self.wid)
+        SignalsApp.instance.move_to_wid.emit(self.wid)
         self.load_thumbnail()
 
     def switch_img_btn(self, flag: str) -> None:
