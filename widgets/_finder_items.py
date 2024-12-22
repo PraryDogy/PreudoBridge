@@ -62,7 +62,7 @@ class FinderItems(URunnable):
                 for src, rating in res
             }
 
-    def get_items(self) -> list:
+    def get_items(self) -> list[OrderItem]:
 
         with os.scandir(JsonData.root) as entries:
 
