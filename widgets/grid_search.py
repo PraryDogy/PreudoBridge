@@ -257,12 +257,36 @@ class GridSearch(Grid):
         if widget_data.pixmap is not None:
             wid.set_pixmap(widget_data.pixmap)
 
-        wid.clicked_.connect(lambda w=wid: self.select_one_wid(w))
-        wid.open_in_view.connect(lambda w=wid: self.open_in_view(w))
-        self.add_widget_data(wid, self.row, self.col)
-        self.grid_layout.addWidget(wid, self.row, self.col)
-        self.total += 1
+        coords = self.row, self.col
+        wid.clicked_.connect(
+            lambda c=coords: self.select_one_wid(coords=c)
+        )
 
+        wid.control_clicked.connect(
+            lambda w=wid: self.control_clicked(wid=w)
+        )
+
+        wid.shift_clicked.connect(
+            lambda w=wid: self.shift_clicked(wid=w)
+        )
+
+        wid.open_in_view.connect(
+            lambda w=wid: self.open_in_view(wid=w)
+        )
+
+        wid.mouse_moved.connect(
+            lambda w=wid: self.drag_event(wid=w)
+        )
+
+        self.add_widget_data(
+            wid=wid,
+            row=self.row,
+            col=self.col
+        )
+
+        self.grid_layout.addWidget(wid, self.row, self.col)
+
+        self.total += 1
         self.col += 1
         if self.col >= self.col_count:
             self.col = 0
