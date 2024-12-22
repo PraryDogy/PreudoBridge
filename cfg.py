@@ -25,14 +25,8 @@ class Static:
 
     ARROW_RIGHT = " \U0000203A" # ›
     STAR_SYM = "\U00002605" # ★
-    GRID_SYM = "\U00001392" # ᎒
-    BURGER_SYM = "\U00002630" # ☰
     UP_ARROW_SYM = "\u25B2" # ▲
-    BACK_SYM = "\u276E" # ❮
-    NEXT_SYM = "\u276F" # ❯
-    UP_CURVE = "\u2934" # ⤴
-    GEAR_SYM = "\U00002699" # ⚙
-
+    CROSS_SYM = "\U00002A2F" # ⨯
     PARAGRAPH_SEP = "\u2029"
     LINE_FEED  = "\u000a"
 

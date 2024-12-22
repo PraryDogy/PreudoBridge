@@ -40,38 +40,6 @@ class BarTopBtn(UFrame):
         self.svg_btn.load(path)
 
  
-class ViewTypeBtn(QTabBar):
-    def __init__(self):
-        super().__init__()
-        self.setFixedWidth(90)
-
-        self.addTab(Static.GRID_SYM * 3)
-        self.addTab(Static.BURGER_SYM)
-
-        self.setCurrentIndex(0)
-        Dynamic.grid_view_type = 0
-
-        self.tabBarClicked.connect(self.set_view_type_cmd)
-
-    def mousePressEvent(self, event: QMouseEvent):
-        if event.button() == Qt.LeftButton:
-            super().mousePressEvent(event)
-        else:
-            event.ignore()
-
-    def set_view_type_cmd(self, index: int):
-        self.setCurrentIndex(index)
-        Dynamic.grid_view_type = index
-        SignalsApp.instance.load_standart_grid_cmd(
-            path=JsonData.root,
-            prev_path=None
-        )
-
-    def tabSizeHint(self, index):
-        size = QTabBar.tabSizeHint(self, index)
-        return QSize(10, size.height())
-
-
 class SearchWidget(QWidget):
     clear_search = pyqtSignal()
 
