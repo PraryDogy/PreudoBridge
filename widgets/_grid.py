@@ -848,6 +848,13 @@ class Grid(BaseMethods, QScrollArea):
 
     def mouseReleaseEvent(self, a0):
 
+        if a0.modifiers() in (
+            Qt.KeyboardModifier.ShiftModifier,
+            Qt.KeyboardModifier.ControlModifier
+        ):
+            
+            return
+
         for i in self.selected_widgets:
             i.set_no_frame()
 
