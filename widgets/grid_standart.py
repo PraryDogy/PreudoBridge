@@ -210,8 +210,12 @@ class LoadImages(URunnable):
 
 
 class GridStandart(Grid):
-    def __init__(self, width: int):
-        super().__init__(width)
+    def __init__(self, width: int, prev_path: str = None):
+
+        super().__init__(
+            width=width,
+            prev_path=prev_path
+        )
 
         self.order_items: list[OrderItem] = []
         self.tasks: list[LoadImages] = []

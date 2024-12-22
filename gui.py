@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (QApplication, QGridLayout, QHBoxLayout, QLabel,
 
 from cfg import Dynamic, JsonData, Static
 from signals import SignalsApp
-from widgets._grid import Grid
+from widgets._grid import Grid, Thumb
 from widgets.bar_bottom import BarBottom
 from widgets.bar_top import BarTop
 from widgets.grid_search import GridSearch
@@ -168,7 +168,6 @@ class MainWin(QWidget):
     def load_standart_grid(self, data: dict):
 
         JsonData.root = data.get("path")
-        prev_path = data.get("prev_path")
 
         self.grid.close()
         self.setWindowTitle(os.path.basename(JsonData.root))
@@ -180,7 +179,11 @@ class MainWin(QWidget):
             self.grid = ListFileSystem()
 
         elif Dynamic.grid_view_type == 0:
-            self.grid = GridStandart(width=self.get_grid_width())
+
+            self.grid = GridStandart(
+                width=self.get_grid_width(),
+                prev_path=data.get("prev_path")
+            )
 
         self.grid.verticalScrollBar().valueChanged.connect(
             self.scroll_up_scroll_value
@@ -190,6 +193,9 @@ class MainWin(QWidget):
 
         self.r_lay.insertWidget(1, self.grid)
         self.grid.setFocus()
+
+        prev_path = data.get("prev_path")
+        wid = Thumb.path_to_wid.get(prev_path)
 
     def scroll_up_scroll_value(self, value: int):
         if value == 0:

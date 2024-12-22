@@ -482,9 +482,8 @@ class FileCopyThread(URunnable):
 
 
 class Grid(BaseMethods, QScrollArea):
-    rearranged = pyqtSignal()
 
-    def __init__(self, width: int):
+    def __init__(self, width: int, prev_path: str = None):
         Thumb.path_to_wid.clear()
 
         QScrollArea.__init__(self)
@@ -493,6 +492,7 @@ class Grid(BaseMethods, QScrollArea):
         self.setAcceptDrops(True)
         self.setWidgetResizable(True)
 
+        self.prev_path = prev_path
         self.selected_widgets: list[Thumb] = []
         self.curr_cell: tuple = (0, 0)
         self.cell_to_wid: dict[tuple, Thumb] = {}
@@ -610,7 +610,9 @@ class Grid(BaseMethods, QScrollArea):
             for coords, wid in self.cell_to_wid.items()
         }
 
-        self.rearranged.emit()
+        if self.prev_path:
+            wid = Thumb.path_to_wid.get(self.prev_path)
+            self.select_one_wid(wid=wid)
 
     def add_widget_data(self, wid: Thumb, row: int, col: int):
         wid.row, wid.col = row, col

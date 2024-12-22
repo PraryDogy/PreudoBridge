@@ -302,11 +302,15 @@ class BarTop(QWidget):
             pass
 
     def folder_up_cmd(self, *args):
+
         old_root = JsonData.root
         root = os.path.dirname(JsonData.root)
+
         if not root == os.sep:
+
             SignalsApp.instance.new_history_item.emit(root)
+
             SignalsApp.instance.load_standart_grid_cmd(
                 path=root,
-                prev_path=None
+                prev_path=old_root
             )
