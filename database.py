@@ -141,12 +141,10 @@ class OrderItem:
 
 
 class Dbase:
-    engine: sqlalchemy.Engine
 
-    @classmethod
-    def init_db(cls, path: str):
+    def init_db(self, path: str) -> sqlalchemy.Engine:
 
-        cls.engine = sqlalchemy.create_engine(
+        engine = sqlalchemy.create_engine(
             url = f"sqlite:///{path}",
             echo = False,
             connect_args = {
@@ -155,35 +153,14 @@ class Dbase:
             }
         )
 
-        METADATA.create_all(bind=cls.engine)
-        cls.toggle_wal(value=False)
-        cls.check_get_cache_values()
+        METADATA.create_all(bind=engine)
+        return engine
 
-    @classmethod
-    def toggle_wal(cls, value: bool):
-
-        # WAL это опция с возможностью одновременного чтения и записи
-        # в базу данных
-        # работает так себе, поэтому мы ее выключаем
-    
-        with cls.engine.connect() as conn:
-
-            if value:
-                conn.execute(
-                    statement = sqlalchemy.text("PRAGMA journal_mode=WAL")
-                )
-
-            else:
-                conn.execute(
-                    statement = sqlalchemy.text("PRAGMA journal_mode=DELETE")
-                )
-
-    @classmethod
-    def clear_db(cls):
+    def clear_db(self, engine: sqlalchemy.Engine):
 
         # очистка CACHE, запускается из настроек приложения
 
-        conn = cls.engine.connect()
+        conn = engine.connect()
 
         try:
             q_del_cache = sqlalchemy.delete(CACHE) 
@@ -191,7 +168,7 @@ class Dbase:
 
         except OperationalError as e:
 
-            Utils.print_error(cls, e)
+            Utils.print_error(self, e)
             conn.rollback()
             return False
 
@@ -201,24 +178,7 @@ class Dbase:
 
         return True
 
-    @classmethod
-    def check_get_cache_values(cls):
-
-        # проверка, что get_cache_values учитывает все колонки из CACHE
-        # запускается один раз при инициации приложения
-
-        # пустые аргументы, чтобы метод мог вернуть словарь
-        kwargs_ = ["" for i in range(0, 5)]
-        cache_values = cls.get_cache_values(*kwargs_)
-        cache_values = list(cache_values.keys())
-
-        # все колонки CACHE кроме id
-        clmns = [i.name for i in CACHE.columns][1:]
-
-        assert cache_values == clmns, "проверь get_cache_values"
-
-    @classmethod
-    def get_cache_values(cls, src, hash_path, size, mod, resol):
+    def get_cache_values(self, src, hash_path, size, mod, resol):
 
         # метод который получает values для sqlalchemy.insert
         # словарь соответствует колонкам CACHE

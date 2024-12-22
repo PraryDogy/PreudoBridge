@@ -41,10 +41,7 @@ class LoadImages(URunnable):
         self.db_items: dict[tuple, str] = {}
         self.insert_count_data: list[tuple[sqlalchemy.Insert, str, ndarray]] = []
 
-        db = os.path.join(JsonData.root, Static.DB_FILENAME)
-        self.dbase = Dbase()
-        engine = self.dbase.init_db(path=db)
-        self.conn = engine.connect()
+        self.conn = Dbase.engine.connect()
 
     @URunnable.set_running_state
     def run(self):
@@ -174,7 +171,7 @@ class LoadImages(URunnable):
             )  -> sqlalchemy.Insert:
 
         src = os.sep + src.strip().strip(os.sep)
-        values_ = self.dbase.get_cache_values(src, hash_path, size, mod, resol)
+        values_ = Dbase.get_cache_values(src, hash_path, size, mod, resol)
 
         return sqlalchemy.insert(CACHE).values(**values_)
 

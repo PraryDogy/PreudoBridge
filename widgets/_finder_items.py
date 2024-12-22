@@ -31,6 +31,9 @@ class FinderItems(URunnable):
         self.db_rating: dict[str, int] = {}
         self.order_items: list[OrderItem] = []
 
+        db = os.path.join(JsonData.root, Static.DB_FILENAME)
+        self.engine = Dbase().init_db(path=db)
+
     @URunnable.set_running_state
     def run(self):
         try:
@@ -51,7 +54,7 @@ class FinderItems(URunnable):
         q = sqlalchemy.select(CACHE.c.src, CACHE.c.rating)
         q = q.where(CACHE.c.root == JsonData.root)
   
-        with Dbase.engine.connect() as conn:
+        with self.engine.connect() as conn:
             res = conn.execute(q).fetchall()
 
             self.db_rating = {
