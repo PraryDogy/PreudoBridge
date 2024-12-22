@@ -83,7 +83,7 @@ class LoadImages(URunnable):
                 if was_modified:
 
                     try:
-                        pixmap = self.src_update(
+                        pixmap = self.db_update(
                             db_item=db_item
                         )
 
@@ -146,7 +146,7 @@ class LoadImages(URunnable):
 
         return False
 
-    def src_update(self, db_item: tuple) -> QPixmap:
+    def db_update(self, db_item: tuple) -> QPixmap:
 
         src, hash_path, size, mod = db_item
         os.remove(hash_path)
