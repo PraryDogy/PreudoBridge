@@ -257,9 +257,8 @@ class GridSearch(Grid):
         if widget_data.pixmap is not None:
             wid.set_pixmap(widget_data.pixmap)
 
-        coords = (self.row, self.col)
         wid.clicked_.connect(
-            lambda c=coords: self.select_one_wid(coords=c)
+            lambda w=wid: self.select_one_wid(wid=w)
         )
 
         wid.control_clicked.connect(

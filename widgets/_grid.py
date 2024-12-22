@@ -501,28 +501,28 @@ class Grid(BaseMethods, QScrollArea):
 
         self.main_wid.setLayout(self.grid_layout)
 
-    def select_one_wid(self, coords: tuple):
+    def select_one_wid(self, wid: Thumb):
 
-        new_wid = self.cell_to_wid.get(coords)
+        # важно передать сюда именно виджет, который содержит row, col
+        # а не напрямую передавать row, col, так как при rearrange
+        # row col виджета будут меняться
 
-        if new_wid:
+        wid.set_frame()
 
-            new_wid.set_frame()
+        self.curr_cell = (wid.row, wid.col)
+        self.ensureWidgetVisible(wid)
 
-            self.curr_cell = coords
-            self.ensureWidgetVisible(new_wid)
+        for i in self.selected_widgets:
+            i.set_no_frame()
 
-            for i in self.selected_widgets:
-                i.set_no_frame()
+        self.selected_widgets = [wid]
+        setattr(self, HAS_SEL_WID, True)
 
-            self.selected_widgets = [new_wid]
-            setattr(self, HAS_SEL_WID, True)
-
-            # через таймер чтобы функция не блокировалась зажатой клавишей мыши
-            cmd_ = lambda: SignalsApp.all_.bar_bottom_cmd.emit(
-                {ColumnNames.SRC : new_wid.src}
-            )
-            QTimer.singleShot(100, cmd_)
+        # через таймер чтобы функция не блокировалась зажатой клавишей мыши
+        cmd_ = lambda: SignalsApp.all_.bar_bottom_cmd.emit(
+            {ColumnNames.SRC : wid.src}
+        )
+        QTimer.singleShot(100, cmd_)
     
     def set_rating(self, rating: int):
         rating_data = {48: 0, 49: 1, 50: 2, 51: 3, 52: 4, 53: 5}
@@ -671,9 +671,7 @@ class Grid(BaseMethods, QScrollArea):
     def shift_clicked(self, wid: Thumb):
 
         if not hasattr(self, HAS_SEL_WID):
-            self.select_one_wid(
-                coords=(wid.row, wid.col)
-            )
+            self.select_one_wid(wid)
             return
 
         coords = list(self.cell_to_wid)
@@ -696,9 +694,7 @@ class Grid(BaseMethods, QScrollArea):
     def drag_event(self, wid: Thumb):
 
         if not self.selected_widgets:
-            self.select_one_wid(
-                coords=(wid.row, wid.col)
-            )
+            self.select_one_wid(wid)
 
         drag = QDrag(self)
         mime_data = QMimeData()
@@ -770,7 +766,9 @@ class Grid(BaseMethods, QScrollArea):
                 self.curr_cell[1] + offset[1]
             )
 
-            self.select_one_wid(coords)
+            wid = self.cell_to_wid.get(coords)
+            if wid:
+                self.select_one_wid(wid=wid)
 
         elif a0.key() in (
             Qt.Key.Key_0, Qt.Key.Key_1, Qt.Key.Key_2, Qt.Key.Key_3,

@@ -285,9 +285,8 @@ class GridStandart(Grid):
                     rating=order_item.rating,
                     )
 
-            coords = (row, col)
             wid.clicked_.connect(
-                lambda c=coords: self.select_one_wid(coords=c)
+                lambda w=wid: self.select_one_wid(wid=w)
             )
         
             wid.control_clicked.connect(
