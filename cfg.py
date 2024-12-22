@@ -26,7 +26,7 @@ class Static:
     ARROW_RIGHT = " \U0000203A" # ›
     STAR_SYM = "\U00002605" # ★
     UP_ARROW_SYM = "\u25B2" # ▲
-    CROSS_SYM = "\U00002A2F" # ⨯
+    LINE_SYM = "\U00002014" # —
     PARAGRAPH_SEP = "\u2029"
     LINE_FEED  = "\u000a"
 

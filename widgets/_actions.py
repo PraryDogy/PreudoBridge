@@ -295,7 +295,7 @@ class RatingMenu(UMenu):
 
         cancel_ = QAction(
             parent=self,
-            text=Static.CROSS_SYM
+            text=Static.LINE_SYM
         )
 
         cancel_.triggered.connect(
