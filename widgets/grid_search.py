@@ -313,19 +313,5 @@ class GridSearch(Grid):
 
         self.order_()
 
-    def rearrange(self, width: int = None):
-        super().rearrange(width)
-    
-    def order_(self):
-        super().order_()
-
-    def filter_(self):
-        if not self.task_.is_running:
-            super().filter_()
-
-    def resize_(self):
-        ThumbSearch.calculate_size()
-        super().resize_()
-
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.task_.should_run = False
