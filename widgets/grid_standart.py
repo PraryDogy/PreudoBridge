@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import QLabel
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import JsonData, Static, ThumbData
-from database import CACHE, Dbase, OrderItem
+from database import CACHE, Dbase, OrderItem, ColumnNames
 from fit_img import FitImg
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
@@ -31,15 +31,11 @@ class LoadImages(URunnable):
         super().__init__()
 
         self.signals_ = WorkerSignals()
-        self.finder_items = [
-            (order_item.src, order_item.size, order_item.mod)
-            for order_item in order_items
-            if order_item.type_ != Static.FOLDER_TYPE
-            ]
+        self.order_items = order_items
 
-        self.remove_db_images: list[tuple[str, str]] = []
-        self.db_items: dict[tuple, str] = {}
-        self.insert_count_data: list[tuple[sqlalchemy.Insert, str, ndarray]] = []
+        # self.remove_db_images: list[tuple[str, str]] = []
+        # self.db_items: dict[tuple, str] = {}
+        # self.insert_count_data: list[tuple[sqlalchemy.Insert, str, ndarray]] = []
 
         db = os.path.join(JsonData.root, Static.DB_FILENAME)
         self.dbase = Dbase()
@@ -66,145 +62,111 @@ class LoadImages(URunnable):
 
         self.conn.close()
 
-    def get_db_dataset(self):
+    def new_meth(self):
 
-        db_items: list[tuple] = []
+        for item in self.order_items:
+            
+            db_item = self.src_load_db(
+                item=item
+            )
 
-        for src, size, mod in self.finder_items:
-            q = sqlalchemy.select(
-                CACHE.c.src,
-                CACHE.c.hash_path,
-                CACHE.c.size,
-                CACHE.c.mod
+            if db_item:
+
+                was_modified = self.src_was_modified(
+                    item=item,
+                    db_item=db_item
                 )
-            q = q.where(CACHE.c.src==src)
-            res = self.conn.execute(q).first()
 
-            if res:
-                db_items.append(res)
+                if was_modified:
 
-        self.db_items: dict[tuple, str] = {
-            (src, size, mod): hash_path
-            for src, hash_path, size, mod in db_items
-            if src is not None
-            }
+                    try:
+                        pixmap = self.src_update(
+                            db_item=db_item
+                        )
 
-    def compare_db_and_finder_items(self):
-        for (db_src, db_size, db_mod), hash_path in self.db_items.items():
+                        image_data = ImageData(
+                            src=item.src,
+                            pixmap=pixmap
+                        )
 
-            if not self.should_run:
-                break
+                        self.signals_.new_widget.emit(image_data)
 
-            if (db_src, db_size, db_mod) in self.finder_items:
-                img = Utils.read_image_hash(hash_path)
-                pixmap: QPixmap = Utils.pixmap_from_array(img)
-                self.signals_.new_widget.emit(ImageData(db_src, pixmap))
-                self.finder_items.remove((db_src, db_size, db_mod))
+                    except Exception as e:
+                        Utils.print_error(parent=self, error=e)
+                        continue
 
-            else:
-                self.remove_db_images.append((db_src, hash_path))
+    def src_load_db(self, item: OrderItem):
 
-    def create_new_images(self):
-        insert_count = 0
+        q = sqlalchemy.select(
+            CACHE.c.src,
+            CACHE.c.hash_path,
+            CACHE.c.size,
+            CACHE.c.mod
+        )
 
-        for src, size, mod in self.finder_items:
+        q = q.where(
+            CACHE.c.src == item.src
+        )
 
+        return self.conn.execute(q).first()
 
-            if not self.should_run:
-                break
+    def src_was_modified(self, item: OrderItem, db_item: tuple):
 
-            elif os.path.isdir(src):
-                continue
+        src, hash_path, size, mod = db_item
 
-            if insert_count == MAX_QUERIES:
-                self.insert_count_cmd()
-                self.insert_count_data.clear()
-                insert_count = 0
+        if mod != item.mod:
+            return True
 
-            img_array = Utils.read_image(src)
+        else:
+            return False
 
-            if img_array is not None:
+    def src_update(self, db_item: tuple) -> QPixmap:
 
-                small_img_array = FitImg.start(img_array, ThumbData.DB_PIXMAP_SIZE)
-                pixmap = Utils.pixmap_from_array(small_img_array)
+        src, hash_path, size, mod = db_item
+        os.remove(hash_path)
 
-                h_, w_ = img_array.shape[:2]
-                resol = f"{w_}x{h_}"
-                hash_path = Utils.create_hash_path(src)
-                args = src, hash_path, size, mod, resol
+        stats = os.stat(src)
+        new_size = stats.st_size
+        new_mod = stats.st_mtime
 
-                stmt = self.get_insert_stmt(*args)
-                self.insert_count_data.append((stmt, hash_path, small_img_array))
+        new_hash_path = Utils.create_hash_path(
+            src=src
+        )
 
-                self.signals_.new_widget.emit(ImageData(src, pixmap))
+        img_array = Utils.read_image(
+            full_src=src
+        )
+        
+        h_, w_ = img_array.shape[:2]
+        new_resol = f"{w_}x{h_}"
 
-                insert_count += 1
+        values = {
+            ColumnNames.HASH_PATH: new_hash_path,
+            ColumnNames.SIZE: new_size,
+            ColumnNames.MOD: new_mod,
+            ColumnNames.RESOL: new_resol
+        }
 
-    def insert_count_cmd(self):
-        for stmt, hash_path, img_array in self.insert_count_data:
-
-            try:
-                self.conn.execute(stmt)
-
-            except IntegrityError as e:
-                self.conn.rollback()
-                Utils.print_error(self, e)
-                continue
-
-            except OperationalError as e:
-                self.conn.rollback()
-                Utils.print_error(self, e)
-                self.should_run = False
-                return None
-
+        q = sqlalchemy.update(CACHE).where(CACHE.c.src == src)
+        q = q.values(**values)
+        self.conn.execute(q)
         self.conn.commit()
 
-        for stmt_, hash_path, img_array in self.insert_count_data:
-            Utils.write_image_hash(hash_path, img_array)
+        small_img_array = FitImg.start(
+            image=img_array, 
+            size=ThumbData.DB_PIXMAP_SIZE
+        )
 
-        return True
+        Utils.write_image_hash(
+            output_path=new_hash_path,
+            array_img=small_img_array
+        )
 
-    def get_insert_stmt(
-            self,
-            src: str,
-            hash_path: str,
-            size: int,
-            mod: int,
-            resol: str,
-            )  -> sqlalchemy.Insert:
+        return Utils.pixmap_from_array(small_img_array)
 
-        src = os.sep + src.strip().strip(os.sep)
-        values_ = self.dbase.get_cache_values(src, hash_path, size, mod, resol)
 
-        return sqlalchemy.insert(CACHE).values(**values_)
-
-    def remove_images(self):
-
-        for src, hash_path in self.remove_db_images:
-
-            try:
-                q = sqlalchemy.delete(CACHE).where(CACHE.c.src == src)
-                self.conn.execute(q)
-
-            except IntegrityError as e:
-                self.conn.rollback()
-                Utils.print_error(self, e)
-                continue
-
-            except OperationalError as e:
-                self.conn.rollback()
-                Utils.print_error(self, e)
-                return None
-
-        self.conn.commit()
-
-        for src, hash_path in self.remove_db_images:
-            try:
-                os.remove(hash_path)
-            except (FileNotFoundError):
-                ...
-
-        return True
+    def load_img(self):
+        ...
 
 
 class GridStandart(Grid):
