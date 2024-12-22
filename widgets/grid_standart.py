@@ -286,7 +286,6 @@ class GridStandart(Grid):
                     )
 
             coords = (row, col)
-
             wid.clicked_.connect(
                 lambda c=coords: self.select_one_wid(coords=c)
             )
