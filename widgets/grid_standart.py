@@ -1,4 +1,5 @@
 import os
+from typing import Literal
 
 import sqlalchemy
 from numpy import ndarray
@@ -9,7 +10,7 @@ from PyQt5.QtWidgets import QLabel
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import JsonData, Static, ThumbData
-from database import CACHE, Dbase, OrderItem, ColumnNames
+from database import CACHE, ColumnNames, Dbase, OrderItem
 from fit_img import FitImg
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
@@ -72,9 +73,10 @@ class LoadImages(URunnable):
 
             if db_item:
 
-                was_modified = self.src_was_modified(
+                was_modified = self.was_modified(
                     item=item,
-                    db_item=db_item
+                    db_item=db_item,
+                    attrs=[ColumnNames.MOD]
                 )
 
                 if was_modified:
@@ -107,6 +109,8 @@ class LoadImages(URunnable):
                     )
 
                     self.signals_.new_widget.emit(image_data)
+
+
     
     def size_mod_load_db(self, item: OrderItem):
         q = sqlalchemy.select(
@@ -141,15 +145,21 @@ class LoadImages(URunnable):
 
         return self.conn.execute(q).first()
 
-    def src_was_modified(self, item: OrderItem, db_item: tuple):
+    def was_modified(self, item: OrderItem, db_item: tuple, attrs: list[str]):
 
         src, hash_path, size, mod = db_item
 
-        if mod != item.mod:
-            return True
+        db_item_dict = {
+            ColumnNames.SRC: src,
+            ColumnNames.SIZE: size,
+            ColumnNames.MOD: mod
+        }
 
-        else:
-            return False
+        for attr in attrs:
+            if getattr(item, attr) != db_item_dict.get(attr):
+                return True
+
+        return False
 
     def src_update(self, db_item: tuple) -> QPixmap:
 
