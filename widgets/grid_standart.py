@@ -67,8 +67,9 @@ class LoadImages(URunnable):
 
         for item in self.order_items:
             
-            db_item = self.src_load_db(
-                item=item
+            db_item = self.load_db_item(
+                item=item,
+                where_stmts=[CACHE.c.src == item.src]
             )
 
             if db_item:
@@ -109,28 +110,13 @@ class LoadImages(URunnable):
                     )
 
                     self.signals_.new_widget.emit(image_data)
+            
+            elif not db_item:
+                ...
 
 
     
-    def size_mod_load_db(self, item: OrderItem):
-        q = sqlalchemy.select(
-            CACHE.c.src,
-            CACHE.c.hash_path,
-            CACHE.c.size,
-            CACHE.c.mod
-        )
-
-        q = q.where(
-            CACHE.c.mod == item.mod,
-        )
-
-        q = q.where(
-            CACHE.c.size == item.size
-        )
-
-        return self.conn.execute(q).first()
-
-    def src_load_db(self, item: OrderItem):
+    def load_db_item(self, where_stmts: list):
 
         q = sqlalchemy.select(
             CACHE.c.src,
@@ -139,13 +125,12 @@ class LoadImages(URunnable):
             CACHE.c.mod
         )
 
-        q = q.where(
-            CACHE.c.src == item.src
-        )
+        for stmt in where_stmts:
+            q = q.where(stmt)
 
         return self.conn.execute(q).first()
 
-    def was_modified(self, item: OrderItem, db_item: tuple, attrs: list[str]):
+    def was_modifired(self, item: OrderItem, db_item: tuple, attrs: list[str]):
 
         src, hash_path, size, mod = db_item
 
