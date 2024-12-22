@@ -107,6 +107,24 @@ class LoadImages(URunnable):
                     )
 
                     self.signals_.new_widget.emit(image_data)
+    
+    def size_mod_load_db(self, item: OrderItem):
+        q = sqlalchemy.select(
+            CACHE.c.src,
+            CACHE.c.hash_path,
+            CACHE.c.size,
+            CACHE.c.mod
+        )
+
+        q = q.where(
+            CACHE.c.mod == item.mod,
+        )
+
+        q = q.where(
+            CACHE.c.size == item.size
+        )
+
+        return self.conn.execute(q).first()
 
     def src_load_db(self, item: OrderItem):
 
