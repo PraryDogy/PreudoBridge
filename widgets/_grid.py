@@ -29,6 +29,22 @@ RAD = "border-radius: 4px"
 IMG_WID_ATTR = "img_wid"
 HAS_SEL_WID = "has_sel_wid"
 
+KEY_RATING = {
+    Qt.Key.Key_0: 0,
+    Qt.Key.Key_1: 1,
+    Qt.Key.Key_2: 2,
+    Qt.Key.Key_3: 3,
+    Qt.Key.Key_4: 4,
+    Qt.Key.Key_5: 5
+}
+
+KEY_NAVI = {
+    Qt.Key.Key_Left: (0, -1),
+    Qt.Key.Key_Right: (0, 1),
+    Qt.Key.Key_Up: (-1, 0),
+    Qt.Key.Key_Down: (1, 0)
+}
+
 
 class UpdateThumbData(URunnable):
     def __init__(self, src: str, values: dict, cmd_: callable):
@@ -524,13 +540,6 @@ class Grid(BaseMethods, QScrollArea):
         )
         QTimer.singleShot(100, cmd_)
     
-    def set_rating(self, rating: int):
-        rating_data = {48: 0, 49: 1, 50: 2, 51: 3, 52: 4, 53: 5}
-
-        for i in self.selected_widgets:
-            if i.type_ != Static.FOLDER_TYPE:
-                i.set_rating_cmd(rating_data.get(rating))
-
     def order_(self):
         self.ordered_widgets = OrderItem.order_items(self.ordered_widgets)
         
@@ -749,33 +758,27 @@ class Grid(BaseMethods, QScrollArea):
             if wid:
                 self.open_in_view(wid)
 
-        elif a0.key() in (
-            Qt.Key.Key_Left, Qt.Key.Key_Right, Qt.Key.Key_Up, Qt.Key.Key_Down
-        ):
+        elif a0.key() in KEY_NAVI:
 
-            offsets = {
-                Qt.Key.Key_Left: (0, -1),
-                Qt.Key.Key_Right: (0, 1),
-                Qt.Key.Key_Up: (-1, 0),
-                Qt.Key.Key_Down: (1, 0)
-            }
+            offset = KEY_NAVI.get(a0.key())
 
-            offset = offsets.get(a0.key())
             coords = (
                 self.curr_cell[0] + offset[0], 
                 self.curr_cell[1] + offset[1]
             )
 
             wid = self.cell_to_wid.get(coords)
+
             if wid:
                 self.select_one_wid(wid=wid)
 
-        elif a0.key() in (
-            Qt.Key.Key_0, Qt.Key.Key_1, Qt.Key.Key_2, Qt.Key.Key_3,
-            Qt.Key.Key_4, Qt.Key.Key_5
-        ):
+        elif a0.key() in KEY_RATING:
+    
+            rating = KEY_RATING.get(a0.key())
 
-            self.set_rating(a0.key())
+            for i in self.selected_widgets:
+                if i.type_ != Static.FOLDER_TYPE:
+                    i.set_rating_cmd(rating=rating)
         
         return super().keyPressEvent(a0)
 
