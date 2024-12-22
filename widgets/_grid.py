@@ -522,14 +522,12 @@ class Grid(BaseMethods, QScrollArea):
         # а не напрямую передавать row, col, так как при rearrange
         # row col виджета будут меняться
 
-        wid.set_frame()
-
-        self.curr_cell = (wid.row, wid.col)
-        self.ensureWidgetVisible(wid)
-
         for i in self.selected_widgets:
             i.set_no_frame()
 
+        wid.set_frame()
+        self.curr_cell = (wid.row, wid.col)
+        self.ensureWidgetVisible(wid)
         self.selected_widgets = [wid]
         setattr(self, HAS_SEL_WID, True)
 
