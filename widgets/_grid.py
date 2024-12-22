@@ -740,13 +740,13 @@ class Grid(BaseMethods, QScrollArea):
 
                 if root != os.sep:
                     SignalsApp.instance.new_history_item.emit(root)
-                    
+
                     SignalsApp.instance.load_standart_grid_cmd(
                         path=root,
                         prev_path=old_root
                     )
 
-            elif  a0.key() == Qt.Key.Key_Down:
+            elif a0.key() == Qt.Key.Key_Down:
                 wid = self.cell_to_wid.get(self.curr_cell)
                 self.open_in_view(wid)
 
