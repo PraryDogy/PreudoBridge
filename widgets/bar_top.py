@@ -170,7 +170,14 @@ class FiltersBtn(BarTopBtn):
         Dynamic.rating_filter = rate
 
         for i in self.rating_wids[:rate]:
-            i.setStyleSheet(f"background: {Static.BLUE};")
+
+            i.setStyleSheet(
+                f"""
+                    background: {Static.BLUE};
+                    border-radius: 3px;
+                """
+            )
+
         for i in self.rating_wids[rate:]:
             i.setStyleSheet("")
 
