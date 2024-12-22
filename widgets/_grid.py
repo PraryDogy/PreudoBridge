@@ -739,6 +739,7 @@ class Grid(BaseMethods, QScrollArea):
                 root = os.path.dirname(JsonData.root)
 
                 if root != os.sep:
+
                     SignalsApp.instance.new_history_item.emit(root)
 
                     SignalsApp.instance.load_standart_grid_cmd(
