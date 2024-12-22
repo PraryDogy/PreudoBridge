@@ -298,8 +298,6 @@ class Thumb(OrderItem, QFrame):
 
     def set_rating_cmd(self, rating: int):
 
-        rating = 0 if rating == 1 else rating
-
         def cmd_():
             self.rating = rating
             self.rating_wid.set_text(wid=self)

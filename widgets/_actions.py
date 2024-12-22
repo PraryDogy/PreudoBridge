@@ -293,6 +293,16 @@ class RatingMenu(UMenu):
         # и подгружается при создании сетки
         self.rating = rating
 
+        cancel_ = QAction(
+            parent=self,
+            text=Static.CROSS_SYM
+        )
+
+        cancel_.triggered.connect(
+            lambda: self._clicked.emit(0)
+        )
+        self.addAction(cancel_)
+
         # рейтинг от 1 до 5 звезд
         # в цикле происходит проверка, есть ли рейтинг > 0
         # в self.rating (свойство Thumb, ThumbSearch)
@@ -625,7 +635,6 @@ class CreateFolder(QAction):
                 path=JsonData.root,
                 prev_path=new_path
             )
-
 
         else:
 
