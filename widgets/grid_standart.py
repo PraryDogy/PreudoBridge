@@ -95,6 +95,19 @@ class LoadImages(URunnable):
                         Utils.print_error(parent=self, error=e)
                         continue
 
+                elif not was_modified:
+
+                    pixmap = self.src_load_img(
+                        db_item=db_item
+                    )
+
+                    image_data = ImageData(
+                        src=item.src,
+                        pixmap=pixmap
+                    )
+
+                    self.signals_.new_widget.emit(image_data)
+
     def src_load_db(self, item: OrderItem):
 
         q = sqlalchemy.select(
@@ -162,11 +175,16 @@ class LoadImages(URunnable):
             array_img=small_img_array
         )
 
-        return Utils.pixmap_from_array(small_img_array)
+        return Utils.pixmap_from_array(image=small_img_array)
 
 
-    def load_img(self):
-        ...
+    def src_load_img(self, db_item: tuple):
+        src, hash_path, size, mod = db_item
+        img_array = Utils.read_image_hash(
+            src=src
+        )
+
+        return Utils.pixmap_from_array(image=img_array)
 
 
 class GridStandart(Grid):
