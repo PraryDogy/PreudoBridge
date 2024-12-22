@@ -31,7 +31,7 @@ class LoadImages(URunnable):
         super().__init__()
 
         self.signals_ = WorkerSignals()
-        self.finder_items: list[tuple[int, int, int]] = [
+        self.finder_items = [
             (order_item.src, order_item.size, order_item.mod)
             for order_item in order_items
             if order_item.type_ != Static.FOLDER_TYPE
