@@ -5,7 +5,7 @@ from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import QGridLayout, QLabel
 
-from cfg import Static
+from cfg import JsonData, Static
 from database import CACHE, Dbase
 from utils import URunnable, UThreadPool, Utils
 
@@ -79,7 +79,10 @@ class InfoTask:
         self.src = src
 
     def get(self) -> dict[str, str| int]:
-        conn = Dbase.engine.connect()
+        db = os.path.join(JsonData.root, Static.DB_FILENAME)
+        dbase = Dbase()
+        engine = dbase.create_engine(path=db)
+        conn = engine.connect()
 
         cols = (
             CACHE.c.name, CACHE.c.type_, CACHE.c.src,

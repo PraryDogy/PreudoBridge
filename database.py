@@ -142,7 +142,7 @@ class OrderItem:
 
 class Dbase:
 
-    def init_db(self, path: str) -> sqlalchemy.Engine:
+    def create_engine(self, path: str) -> sqlalchemy.Engine:
 
         engine = sqlalchemy.create_engine(
             url = f"sqlite:///{path}",

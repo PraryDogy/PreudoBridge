@@ -8,7 +8,7 @@ from PyQt5.QtGui import (QCloseEvent, QColor, QContextMenuEvent, QKeyEvent,
 from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QSpacerItem,
                              QVBoxLayout, QWidget)
 
-from cfg import Dynamic, Static
+from cfg import Dynamic, Static, JsonData
 from database import CACHE, Dbase
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
@@ -39,7 +39,10 @@ class LoadThumbnail(URunnable):
     @URunnable.set_running_state
     def run(self):
         try:
-            conn = Dbase.engine.connect()
+            db = os.path.join(JsonData.root, Static.DB_FILENAME)
+            dbase = Dbase()
+            engine = dbase.create_engine(path=db)
+            conn = engine.connect()
 
             q = sqlalchemy.select(CACHE.c.hash_path)
             q = q.where(CACHE.c.src == self.src)

@@ -61,7 +61,11 @@ class UpdateThumbData(URunnable):
             ).values(
                 **self.values
                 )
-        conn = Dbase.engine.connect()
+        
+        db = os.path.join(JsonData.root, Static.DB_FILENAME)
+        dbase = Dbase()
+        engine = dbase.create_engine(path=db)
+        conn = engine.connect()
 
         try:
             conn.execute(stmt)

@@ -32,7 +32,7 @@ class FinderItems(URunnable):
         self.order_items: list[OrderItem] = []
 
         db = os.path.join(JsonData.root, Static.DB_FILENAME)
-        self.engine = Dbase().init_db(path=db)
+        self.engine = Dbase().create_engine(path=db)
 
     @URunnable.set_running_state
     def run(self):

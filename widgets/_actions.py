@@ -699,7 +699,10 @@ class DeleteFinderItem(QAction):
         except subprocess.CalledProcessError as e:
             print(f"Ошибка при перемещении в корзину: {e}")
 
-        conn = Dbase.engine.connect()
+        db = os.path.join(JsonData.root, Static.DB_FILENAME)
+        dbase = Dbase()
+        engine = dbase.create_engine(path=db)
+        conn = engine.connect()
         q = sqlalchemy.delete(CACHE).where(CACHE.c.src == self.path)
 
         try:
