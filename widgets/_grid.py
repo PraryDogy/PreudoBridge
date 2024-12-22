@@ -503,8 +503,6 @@ class Grid(BaseMethods, QScrollArea):
 
     def select_one_wid(self, coords: tuple):
 
-        print(coords)
-
         new_wid = self.cell_to_wid.get(coords)
 
         if new_wid:
