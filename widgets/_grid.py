@@ -333,8 +333,7 @@ class Thumb(OrderItem, QFrame):
 
     def mouse_move_ev(self, a0: QMouseEvent | None) -> None:
         
-        if hasattr(self, "start_pos"):
-            distance = (a0.pos() - self.start_pos).manhattanLength()
+        distance = (a0.pos() - self.start_pos).manhattanLength()
 
         if distance < QApplication.startDragDistance():
             return
@@ -702,7 +701,7 @@ class Grid(BaseMethods, QScrollArea):
 
     def drag_event(self, wid: Thumb):
 
-        if not self.selected_widgets:
+        if len(self.selected_widgets) < 2:
             self.select_one_wid(wid)
 
         drag = QDrag(self)
