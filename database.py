@@ -4,7 +4,7 @@ import re
 import sqlalchemy
 from sqlalchemy.exc import OperationalError
 
-from cfg import Dynamic, JsonData, Static
+from cfg import Dynamic, Static
 from utils import Utils
 
 METADATA = sqlalchemy.MetaData()
