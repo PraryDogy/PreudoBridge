@@ -209,6 +209,11 @@ class MainWin(QWidget):
         for i in self.findChildren(QWidget):
             i.close()
 
+        a = QApplication.instance().children()
+        for i in a:
+            del(i)
+        
+
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         Dynamic.ww = self.geometry().width()
         Dynamic.hh = self.geometry().height()
