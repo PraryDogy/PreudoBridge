@@ -144,10 +144,10 @@ class Dbase:
     engine: sqlalchemy.Engine
 
     @classmethod
-    def init_db(cls, path: str):
+    def init_db(cls):
 
         cls.engine = sqlalchemy.create_engine(
-            url = f"sqlite:///{path}",
+            url = f"sqlite:///{Static.DB_FILE}",
             echo = False,
             connect_args = {
                 "check_same_thread": False,
