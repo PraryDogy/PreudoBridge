@@ -135,11 +135,8 @@ class FiltersBtn(BarTopBtn):
         rating_wid.setLayout(rating_lay)
 
         self.rating_data = {
-            1: False,
-            2: False,
-            3: False,
-            4: False,
-            5: False
+            i: False
+            for i in range(1, 6)
         }
 
         self.rating_wids: list[QLabel] = []
