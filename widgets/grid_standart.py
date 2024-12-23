@@ -62,7 +62,7 @@ class LoadImages(URunnable):
 
     def main(self):
         self.process_order_items()
-        # self.process_removed_items()
+        self.process_removed_items()
         self.conn.close()
 
     def process_order_items(self):
@@ -70,24 +70,15 @@ class LoadImages(URunnable):
         for order_item in self.order_items:
             
             try:
-                pixmap = self.create_pixmap(
-                    order_item=order_item
-                )
-
-                image_data = ImageData(
-                    src=order_item.src,
-                    pixmap=pixmap
-                )
-
-                self.signals_.new_widget.emit(image_data)
+                self.create_image_data(order_item=order_item)
 
             except Exception as e:
                 Utils.print_error(parent=self, error=e)
                 continue
 
-    def create_pixmap(self, order_item: OrderItem):
+    def create_image_data(self, order_item: OrderItem):
         
-        db_item = self.load_db_item(
+        db_item, rating = self.load_db_item(
             order_item=order_item,
         )
 
@@ -98,16 +89,11 @@ class LoadImages(URunnable):
                 row_id=db_item
             )
 
-            rating = "RATING FROM db ite,"
-
-
         elif db_item is None:
             # print("insert", order_item.name)
             img_array = self.insert_db_item(
                 order_item=order_item
             )
-
-            rating = 0
         
         elif isinstance(db_item, bytes):
             # print("already", order_item.name)
@@ -115,17 +101,21 @@ class LoadImages(URunnable):
                 blob=db_item
             )
 
-            rating = "from db item"
-
         if isinstance(img_array, np.ndarray):
 
             pixmap = Utils.pixmap_from_array(
                 image=img_array
             )
 
-            return pixmap
+            image_data = ImageData(
+                src=order_item.src,
+                pixmap=pixmap,
+                rating=rating
+            )
 
-    def load_db_item(self, order_item: OrderItem) -> int | bytearray | None:
+            self.signals_.new_widget.emit(image_data)
+
+    def load_db_item(self, order_item: OrderItem):
         """
         Загружает элемент из базы данных на основе имени файла, даты изменения и размера.
 
@@ -187,7 +177,7 @@ class LoadImages(URunnable):
             )
 
         # ничего не найдено
-        return None
+        return (None, None)
 
     def update_db_item(self, order_item: OrderItem, row_id: int) -> np.ndarray:
 
