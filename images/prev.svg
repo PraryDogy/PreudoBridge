@@ -1,10 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Generator: Adobe Illustrator 28.3.0, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
-<svg version="1.1" id="Слой_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 viewBox="0 0 48 48" style="enable-background:new 0 0 48 48;" xml:space="preserve">
-<style type="text/css">
-	.st0{fill:#FFFFFF;}
-</style>
-<path class="st0" d="M29,31.8L21.2,24v-0.1l7.6-7.6c0.8-0.8,0.9-2.2,0-3c-0.8-0.7-1.9-0.7-2.7,0.1L17,22.6c-0.8,0.8-0.8,2.1,0,2.9
-	l9.1,9.1c0.7,0.7,1.9,0.9,2.7,0.3C29.8,34,29.8,32.6,29,31.8z"/>
+<svg width="150" height="150" viewBox="0 0 150 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_28602_20)">
+<circle cx="75" cy="75" r="75" transform="matrix(-1 0 0 1 150 0)" fill="#808080" fill-opacity="0.4"/>
+<path d="M97.4316 40.3784L62.7161 75.0938V75.5389L96.5414 109.364C100.102 112.925 100.547 119.156 96.5414 122.716C92.9809 125.832 88.0851 125.832 84.5245 122.271L44.0232 81.3248C40.4627 77.7642 40.4627 71.9783 44.0232 68.4177L84.5245 27.9164C87.64 24.8009 92.9809 23.9108 96.5414 26.5812C100.992 30.5868 100.992 36.8178 97.4316 40.3784Z" fill="white"/>
+</g>
+<defs>
+<clipPath id="clip0_28602_20">
+<rect width="150" height="150" fill="white" transform="matrix(-1 0 0 1 150 0)"/>
+</clipPath>
+</defs>
 </svg>

@@ -242,12 +242,6 @@ class SwitchImageBtn(QFrame):
 
     def __init__(self, src: str, parent: QWidget) -> None:
         super().__init__(parent)
-        self.setStyleSheet(
-            f"""
-            background-color: {Static.GRAY_UP_BTN};
-            border-radius: 27px;
-            """
-            )
         self.setFixedSize(54, 54)
 
         v_layout = QVBoxLayout()
