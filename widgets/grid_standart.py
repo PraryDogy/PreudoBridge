@@ -87,13 +87,19 @@ class LoadImages(URunnable):
                 row_id=db_item
             )
 
+            # print("update", order_item.name)
+
         elif db_item is None:
+
+            # print("insert", order_item.name)
 
             img_array = self.insert_db_item(
                 order_item=order_item
             )
         
         elif isinstance(db_item, bytes):
+
+            # print("already", order_item.name)
 
             img_array = Utils.bytes_to_array(
                 blob=db_item
@@ -241,8 +247,8 @@ class LoadImages(URunnable):
         stats = os.stat(order_item.src)
         height, width = img_array.shape[:2]
 
-        new_size = stats.st_size
-        new_mod = stats.st_mtime
+        new_size = int(stats.st_size)
+        new_mod = int(stats.st_mtime)
         new_resol = f"{width}x{height}"
 
         return new_size, new_mod, new_resol
