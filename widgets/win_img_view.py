@@ -31,10 +31,11 @@ class WorkerSignals(QObject):
 
 
 class LoadThumbnail(URunnable):
-    def __init__(self, name: str):
+    def __init__(self, src: str):
         super().__init__()
         self.signals_ = WorkerSignals()
-        self.name = name
+        self.src = os.sep + src.strip(os.sep)
+        self.name = os.path.basename(self.src)
 
     @URunnable.set_running_state
     def run(self):
@@ -44,14 +45,14 @@ class LoadThumbnail(URunnable):
             engine = dbase.create_engine(path=db)
             conn = engine.connect()
 
-            q = sqlalchemy.select(CACHE.c.hash_path)
+            q = sqlalchemy.select(CACHE.c.img)
             q = q.where(CACHE.c.name == self.name)
             res = conn.execute(q).scalar() or None
 
             conn.close()
 
             if res is not None:
-                img_array = Utils.read_image_hash(res)
+                img_array = Utils.bytes_to_array(res)
             else:
                 img_array = None
 
@@ -337,11 +338,8 @@ class WinImgView(WinBase):
 
         if self.src not in LoadImage.cache:
 
-            name = os.sep + self.src.strip(os.sep)
-            name = os.path.basename(name)
-
             self.task_ = LoadThumbnail(
-                name=name
+                src=self.src
             )
 
             cmd_ = lambda image_data: self.load_thumbnail_finished(
