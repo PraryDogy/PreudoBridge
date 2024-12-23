@@ -87,8 +87,21 @@ class LoadImages(URunnable):
 
 
     def load_db_item(self, order_item: OrderItem) -> int | bytearray | None:
+        """
+        Загружает элемент из базы данных на основе имени файла, даты изменения и размера.
 
-        # src упразднен, т.к. БД есть в каждой папке, где достаточно имени файла
+        Логика работы:
+        1. Если запись найдена по имени файла:
+        - Если дата изменения отличается, возвращается ID записи для обновления.
+        - Если дата изменения совпадает, возвращается изображение в виде байт.
+        2. Если запись не найдена по имени файла:
+        - Ищется запись по дате изменения и размеру.
+        - Если найдена, возвращается ID записи для обновления.
+        - Если не найдена, возвращается None.
+
+        :param order_item: Объект OrderItem, содержащий информацию о файле.
+        :return: ID записи (int), изображение (bytearray) или None, если запись не найдена.
+        """
 
         select_stmt = sqlalchemy.select(
             CACHE.c.id,
@@ -97,36 +110,37 @@ class LoadImages(URunnable):
             CACHE.c.mod
         )
 
+        # Проверка по имени файла
         where_stmt = select_stmt.where(CACHE.c.name == order_item.name)
         res_by_src = self.conn.execute(where_stmt).mappings().first()
 
-        # имя файла не менялось, но изменилось содержимое файла
-        # возвращаем ID записи для обновления
-        if res_by_src and res_by_src.get(ColumnNames.MOD) != order_item.mod:
-            return res_by_src.get(ColumnNames.ID)
-        
-        # имя файла не менялось и дата изменения не менялась
-        # возвращаем bytes изображение
-        elif res_by_src and res_by_src.get(ColumnNames.MOD) == order_item.mod:
+        # Запись найдена
+        if res_by_src:
+            # Дата изменения в order_item и записи БД не совпадают
+            if res_by_src.get(ColumnNames.MOD) != order_item.mod:
+                # Нужно обновить запись БД
+                return res_by_src.get(ColumnNames.ID)
+            # Записи совпадают, возвращаем изображение bytearray
             return res_by_src.get(ColumnNames.IMG)
 
-        # запись по имени файла не найдена, возможно файл был переименован
-        # ищем по вторичноым признакам: дата изменения и размер
-        elif not res_by_src:
+        # Запись по имени файла не найдена, возможно файл был переименован,
+        # но содержимое файла не менялось
+        # Пытаемся найти в БД запись по размеру и дате изменения order_item
+        and_stmt = sqlalchemy.and_(
+            CACHE.c.mod == order_item.mod,
+            CACHE.c.size == order_item.size
+        )
+        where_and_stmt = select_stmt.where(and_stmt)
+        res_by_mod = self.conn.execute(where_and_stmt).mappings().first()
 
-            where_stmt = select_stmt.where(CACHE.c.mod == order_item.mod)
-            where_stmt = select_stmt.where(CACHE.c.size == order_item.size)
-            res_by_mod = self.conn.execute(where_stmt).mappings().first()
-
-        # если запись найдена по вторичным признакам, возвращаем ID записи
-        # для обновления
+        # Если запись найдена, значит файл действительно был переименован
+        # возвращаем ID для обновления записи
         if res_by_mod:
             return res_by_mod.get(ColumnNames.ID)
 
-        # если запись не найдена по вторичным признакам,
-        # возвращаем None
-        elif not res_by_src:
-            return None
+        # ничего не найдено
+        return None
+
         
     def db_update(self, db_item: tuple) -> QPixmap:
 
