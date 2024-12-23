@@ -25,12 +25,12 @@ SQL_ERRORS = (IntegrityError, OperationalError)
 
 
 class ImageData:
-    __slots__ = ["src", "pixmap"]
+    __slots__ = ["src", "pixmap", "rating"]
 
-    def __init__(self, src: str, pixmap: QPixmap):
-        self.src: str = src
-        self.pixmap: QPixmap = pixmap
-
+    def __init__(self, src: str, pixmap: QPixmap, rating: int):
+        self.src = src
+        self.pixmap = pixmap
+        self.rating = rating
 
 
 class WorkerSignals(QObject):
