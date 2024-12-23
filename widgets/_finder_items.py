@@ -6,7 +6,7 @@ from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QLabel, QWidget
 
 from cfg import JsonData, Static
-from database import CACHE, Dbase, OrderItem
+from database import CACHE, ColumnNames, Dbase, OrderItem
 from utils import URunnable, Utils
 
 LOADING_T = "Загрузка..."
@@ -28,7 +28,6 @@ class FinderItems(URunnable):
     def __init__(self):
         super().__init__()
         self.signals_ = WorkerSignals()
-        self.db_rating: dict[str, int] = {}
         self.order_items: list[OrderItem] = []
 
         db = os.path.join(JsonData.root, Static.DB_FILENAME)
@@ -36,10 +35,17 @@ class FinderItems(URunnable):
 
     @URunnable.set_running_state
     def run(self):
+
         try:
-            self.get_rating()
-            self.get_items()
-            self.order_items = OrderItem.order_items(self.order_items)
+
+            self.get_items(
+                db_rating=self.get_rating()
+            )
+
+            self.order_items = OrderItem.order_items(
+                order_items=self.order_items
+            )
+
             self.signals_.finished_.emit(self.order_items)
 
         except (PermissionError, FileNotFoundError, NotADirectoryError) as e:
@@ -49,20 +55,20 @@ class FinderItems(URunnable):
         except RuntimeError as e:
             ...
 
-
     def get_rating(self):
-        q = sqlalchemy.select(CACHE.c.src, CACHE.c.rating)
-        q = q.where(CACHE.c.root == JsonData.root)
-  
+
+        q = sqlalchemy.select(CACHE.c.name, CACHE.c.rating)
+
         with self.engine.connect() as conn:
+
             res = conn.execute(q).fetchall()
 
-            self.db_rating = {
-                src: rating
-                for src, rating in res
+            return {
+                name: rating
+                for name, rating in res
             }
 
-    def get_items(self) -> list[OrderItem]:
+    def get_items(self, db_ratings: dict) -> list[OrderItem]:
 
         with os.scandir(JsonData.root) as entries:
 
@@ -79,12 +85,9 @@ class FinderItems(URunnable):
 
                     size = stats.st_size
                     mod = stats.st_mtime
-                    rating = 0
 
-                    db_item = self.db_rating.get(entry.path)
-
-                    if db_item:
-                        rating = db_item
+                    db_rating = db_ratings.get(entry.name)
+                    rating = 0 if db_rating is None else db_rating
 
                     item = OrderItem(entry.path, size, mod, rating)
                     self.order_items.append(item)
