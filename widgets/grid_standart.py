@@ -92,29 +92,30 @@ class LoadImages(URunnable):
         )
 
         if isinstance(db_item, int):
-
+            # print("update", order_item.name)
             img_array = self.update_db_item(
                 order_item=order_item,
                 row_id=db_item
             )
 
-            # print("update", order_item.name)
+            rating = "RATING FROM db ite,"
+
 
         elif db_item is None:
-
             # print("insert", order_item.name)
-
             img_array = self.insert_db_item(
                 order_item=order_item
             )
+
+            rating = 0
         
         elif isinstance(db_item, bytes):
-
             # print("already", order_item.name)
-
             img_array = Utils.bytes_to_array(
                 blob=db_item
             )
+
+            rating = "from db item"
 
         if isinstance(img_array, np.ndarray):
 
@@ -145,7 +146,8 @@ class LoadImages(URunnable):
             CACHE.c.id,
             CACHE.c.img,
             CACHE.c.size,
-            CACHE.c.mod
+            CACHE.c.mod,
+            CACHE.c.rating
         )
 
         # Проверка по имени файла
@@ -154,12 +156,20 @@ class LoadImages(URunnable):
 
         # Запись найдена
         if res_by_src:
-            # Дата изменения в order_item и записи БД не совпадают
+
+            # даты изменения не совпадают, обновляем запись
             if res_by_src.get(ColumnNames.MOD) != order_item.mod:
-                # Нужно обновить запись БД
-                return res_by_src.get(ColumnNames.ID)
-            # Записи совпадают, возвращаем изображение bytearray
-            return res_by_src.get(ColumnNames.IMG)
+
+                return (
+                    res_by_src.get(ColumnNames.ID),
+                    res_by_src.get(ColumnNames.RATING)
+                )
+
+            # даты изменения совпадают
+            return (
+                res_by_src.get(ColumnNames.IMG),
+                res_by_src.get(ColumnNames.RATING)
+            )
 
         # Запись по имени файла не найдена, возможно файл был переименован,
         # но содержимое файла не менялось
@@ -171,7 +181,10 @@ class LoadImages(URunnable):
         # Если запись найдена, значит файл действительно был переименован
         # возвращаем ID для обновления записи
         if size_mod_res:
-            return size_mod_res.get(ColumnNames.ID)
+            return (
+                size_mod_res.get(ColumnNames.ID),
+                res_by_src.get(ColumnNames.RATING)
+            )
 
         # ничего не найдено
         return None
