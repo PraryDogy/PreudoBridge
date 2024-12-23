@@ -13,7 +13,6 @@ class Static:
     APP_SUPPORT = os.path.expanduser('~/Library/Application Support')
     ROOT = os.path.join(APP_SUPPORT, APP_NAME)
 
-    HASH_DIR = os.path.join(ROOT, "hashdir")
     JSON_FILE = os.path.join(ROOT, 'cfg.json')
     DB_FILE = os.path.join(ROOT, 'db.db')
     DB_FILENAME = ".preudobridge.db"
@@ -82,8 +81,6 @@ class Static:
 
 class ThumbData:
 
-    # максимальный размер в пикселях по широкой стороне для кешируемого
-    # изображения в папку "hashdir" в AppliactionSupport
     # кешированные изображения загружаются для отобажения в сетке виджетов
     DB_PIXMAP_SIZE: int = 210
 
@@ -196,21 +193,8 @@ class JsonData:
 
     @classmethod
     def ver_check(cls):
-        # если hex равен HEX_DEFAULT значит в json файле еще не было
-        # hex ключа
-        # если cls.hex - это hex, подтянутый из json, не совпадает
-        # с базовым HEX
-        # сделать ...
         if cls.hex == HEX_DEFAULT or cls.hex != HEX:
-
-            # в последние разы мы выпиливали цветовые метки из проекта
-            # поэтому нам важно создать чистую БД без меток
-            # для этого мы удаляем старые пользотвательские БД
-            subprocess.run(['rm', '-rf', Static.DB_FILE])
-            subprocess.run(['rm', '-rf', Static.HASH_DIR])
-
-            # устанавливаем актуальный hex 
-            cls.hex = HEX
+            ...
 
     @classmethod
     def init(cls):
