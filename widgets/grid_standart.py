@@ -71,7 +71,7 @@ class LoadImages(URunnable):
                 self.signals_.new_widget.emit(image_data)
 
             except Exception as e:
-                # Utils.print_error(parent=self, error=e)
+                Utils.print_error(parent=self, error=e)
                 continue
 
     def create_pixmap(self, order_item: OrderItem):
