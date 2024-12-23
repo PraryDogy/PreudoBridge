@@ -9,6 +9,7 @@ from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import QLabel
 from sqlalchemy.exc import IntegrityError, OperationalError
 
+import numpy as np
 from cfg import JsonData, Static, ThumbData
 from database import CACHE, ColumnNames, Dbase, OrderItem
 from fit_img import FitImg
@@ -21,6 +22,7 @@ from ._grid import Grid, Thumb, ThumbFolder
 MAX_QUERIES = 10
 WARN_TEXT = "Нет изображений или нет подключения к диску"
 TASK_NAME = "LOAD_IMAGES"
+NEED_UPDATE = "need_update"
 
 
 class WorkerSignals(QObject):
@@ -72,80 +74,69 @@ class LoadImages(URunnable):
                 where_stmts=[CACHE.c.src == item.src]
             )
 
-            if db_item:
-
-                was_modified = self.was_modified(
-                    item=item,
-                    db_item=db_item,
-                    attrs=[ColumnNames.MOD]
-                )
-
-                if was_modified:
-
-                    try:
-                        pixmap = self.db_update(
-                            db_item=db_item
-                        )
-
-                        image_data = ImageData(
-                            src=item.src,
-                            pixmap=pixmap
-                        )
-
-                        self.signals_.new_widget.emit(image_data)
-
-                    except Exception as e:
-                        Utils.print_error(parent=self, error=e)
-                        continue
-
-                elif not was_modified:
-
-                    pixmap = self.src_load_img(
-                        db_item=db_item
-                    )
-
-                    image_data = ImageData(
-                        src=item.src,
-                        pixmap=pixmap
-                    )
-
-                    self.signals_.new_widget.emit(image_data)
-            
-            elif not db_item:
+            if isinstance(db_item, int):
                 ...
+                # обновить БД, вернется img array
+
+            elif isinstance(db_item, None):
+                ...
+                # вставить БД, вернется img array
+            
+            elif isinstance(db_item, bytearray):
+                ...
+                # вернется bytearray
+
+            if isinstance(..., np.ndarray):
+                ...
+                # ndarray > pixmap
+
+            elif isinstance(..., bytearray):
+                ...
+                # bytearray > pixmap
 
 
-    
-    def load_db_item(self, where_stmts: list):
+    def load_db_item(self, order_item: OrderItem) -> int | bytearray | None:
 
-        q = sqlalchemy.select(
-            CACHE.c.src,
-            CACHE.c.hash_path,
+        # src упразднен, т.к. БД есть в каждой папке, где достаточно имени файла
+
+        select_stmt = sqlalchemy.select(
+            CACHE.c.id,
+            CACHE.c.img,
             CACHE.c.size,
             CACHE.c.mod
         )
 
-        for stmt in where_stmts:
-            q = q.where(stmt)
+        where_stmt = select_stmt.where(CACHE.c.name == order_item.name)
+        res_by_src = self.conn.execute(where_stmt).mappings().first()
 
-        return self.conn.execute(q).first()
+        # имя файла не менялось, но изменилось содержимое файла
+        # возвращаем ID записи для обновления
+        if res_by_src and res_by_src.get(ColumnNames.MOD) != order_item.mod:
+            return res_by_src.get(ColumnNames.ID)
+        
+        # имя файла не менялось и дата изменения не менялась
+        # возвращаем bytes изображение
+        elif res_by_src and res_by_src.get(ColumnNames.MOD) == order_item.mod:
+            return res_by_src.get(ColumnNames.IMG)
 
-    def was_modifired(self, item: OrderItem, db_item: tuple, attrs: list[str]):
+        # запись по имени файла не найдена, возможно файл был переименован
+        # ищем по вторичноым признакам: дата изменения и размер
+        elif not res_by_src:
 
-        src, hash_path, size, mod = db_item
+            where_stmt = select_stmt.where(CACHE.c.mod == order_item.mod)
+            where_stmt = select_stmt.where(CACHE.c.size == order_item.size)
+            res_by_mod = self.conn.execute(where_stmt).mappings().first()
 
-        db_item_dict = {
-            ColumnNames.SRC: src,
-            ColumnNames.SIZE: size,
-            ColumnNames.MOD: mod
-        }
+        # если запись найдена по вторичным признакам, возвращаем ID записи
+        # для обновления
+        if res_by_mod:
+            return res_by_mod.get(ColumnNames.ID)
 
-        for attr in attrs:
-            if getattr(item, attr) != db_item_dict.get(attr):
-                return True
-
-        return False
-
+        # если запись не найдена по вторичным признакам,
+        # возвращаем None
+        elif not res_by_src:
+            return None
+        
     def db_update(self, db_item: tuple) -> QPixmap:
 
         src, hash_path, size, mod = db_item

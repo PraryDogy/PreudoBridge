@@ -12,16 +12,14 @@ TABLE_NAME = "cache"
 
 class ColumnNames:
     ID = "id"
-    SRC = "src"
-    HASH_PATH = "hash_path"
-    ROOT = "root"
-    CATALOG = "catalog"
+    IMG = "img"
     NAME = "name"
     TYPE = "type_"
     SIZE = "size"
     MOD = "mod"
-    RESOL = "resol"
     RATING = "rating"
+    RESOL = "resol"
+    CATALOG = "catalog"
 
 
 class ColumnsComments:
@@ -37,16 +35,14 @@ CACHE = sqlalchemy.Table(
     # Комментарии колонок используются только для сортировки.
     # Где есть комментарий — сортировка возможна.
     sqlalchemy.Column(ColumnNames.ID, sqlalchemy.Integer, primary_key=True),
-    sqlalchemy.Column(ColumnNames.SRC, sqlalchemy.Text, unique=True),
-    sqlalchemy.Column(ColumnNames.HASH_PATH, sqlalchemy.Text),
-    sqlalchemy.Column(ColumnNames.ROOT, sqlalchemy.Text),
-    sqlalchemy.Column(ColumnNames.CATALOG, sqlalchemy.Text, nullable=False),
+    sqlalchemy.Column(ColumnNames.IMG, sqlalchemy.BLOB),
     sqlalchemy.Column(ColumnNames.NAME, sqlalchemy.Text, comment=ColumnsComments.NAME_),
     sqlalchemy.Column(ColumnNames.TYPE, sqlalchemy.Text, comment=ColumnsComments.TYPE_),
     sqlalchemy.Column(ColumnNames.SIZE, sqlalchemy.Integer, comment=ColumnsComments.SIZE_),
     sqlalchemy.Column(ColumnNames.MOD, sqlalchemy.Integer, comment=ColumnsComments.MOD_),
+    sqlalchemy.Column(ColumnNames.RATING, sqlalchemy.Integer, comment=ColumnsComments.RATING_),
     sqlalchemy.Column(ColumnNames.RESOL, sqlalchemy.Integer),
-    sqlalchemy.Column(ColumnNames.RATING, sqlalchemy.Integer, nullable=False, comment=ColumnsComments.RATING_)
+    sqlalchemy.Column(ColumnNames.CATALOG, sqlalchemy.Text),
 )
 
 
@@ -186,9 +182,6 @@ class Dbase:
         # здесь это обязательно нужно отобразить
 
         return {
-            ColumnNames.SRC: src,
-            ColumnNames.HASH_PATH: hash_path,
-            ColumnNames.ROOT: os.path.dirname(src),
             ColumnNames.CATALOG: "",
             ColumnNames.NAME: os.path.basename(src),
             ColumnNames.TYPE: os.path.splitext(src)[1],
