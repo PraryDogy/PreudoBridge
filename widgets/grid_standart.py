@@ -1,4 +1,5 @@
 import os
+import traceback
 from typing import Literal
 
 import numpy as np
@@ -73,7 +74,8 @@ class LoadImages(URunnable):
                 self.create_image_data(order_item=order_item)
 
             except Exception as e:
-                Utils.print_error(parent=self, error=e)
+                # Utils.print_error(parent=self, error=e)
+                print(traceback.format_exc())
                 continue
 
     def create_image_data(self, order_item: OrderItem):
@@ -173,7 +175,7 @@ class LoadImages(URunnable):
         if size_mod_res:
             return (
                 size_mod_res.get(ColumnNames.ID),
-                res_by_src.get(ColumnNames.RATING)
+                size_mod_res.get(ColumnNames.RATING)
             )
 
         # ничего не найдено
@@ -455,10 +457,16 @@ class GridStandart(Grid):
         UThreadPool.start(self.load_images_task_)
     
     def set_pixmap(self, image_data: ImageData):
+
         widget = Thumb.path_to_wid.get(image_data.src)
+
         if isinstance(widget, Thumb):
+
             if isinstance(image_data.pixmap, QPixmap):
                 widget.set_pixmap(pixmap=image_data.pixmap)
+
+            if isinstance(image_data.rating, int):
+                widget.set_rating_cmd(rating=image_data.rating)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         
