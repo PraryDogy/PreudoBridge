@@ -52,7 +52,7 @@ class LoadImages(URunnable):
     @URunnable.set_running_state
     def run(self):
 
-        # чтобы не создавать пустуб ДБ в пустых или папочных директориях
+        # чтобы не создавать пустую ДБ в пустых или папочных директориях
 
         if not self.order_items:
             return
