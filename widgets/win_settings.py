@@ -37,76 +37,6 @@ ABOUT_T = "\n".join(
 )
 
 
-class WorkerSignals(QObject):
-    finished_ = pyqtSignal(str)
-
-
-class GetSizer(URunnable):
-    def __init__(self):
-        super().__init__()
-        self.signals_ = WorkerSignals()
-
-    @URunnable.set_running_state
-    def run(self):
-        try:
-            self.main()
-        except RuntimeError as e:
-            Utils.print_error(parent=None, error=e)
-
-    def main(self):
-
-        if not os.path.exists(Static.HASH_DIR):
-            return
-
-        total_size = 0
-        stack = []
-        stack.append(Static.HASH_DIR)
-
-        while stack:
-            current_dir = stack.pop()
-
-            with os.scandir(current_dir) as entries:
-
-                for entry in entries:
-
-                    if not self.should_run:
-                        return
-
-                    if entry.is_dir():
-                        stack.append(entry.path)
-
-                    else:
-                        try:
-                            total_size += entry.stat().st_size
-                        except Exception:
-                            ...
-
-        data_size = DATA_T
-        total_size = Utils.get_f_size(total_size)
-        t = f"{data_size}: {total_size}"       
-        self.signals_.finished_.emit(t)
-
-
-class DataRow(QGroupBox):
-    clicked_ = pyqtSignal()
-
-    def __init__(self):
-        super().__init__()
-
-        h_lay = QHBoxLayout()
-        h_lay.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(h_lay)
-
-        btn_ = QPushButton(text=CLEAR_T)
-        btn_.setFixedWidth(LEFT_W)
-        btn_.clicked.connect(self.clicked_.emit)
-
-        h_lay.addWidget(btn_)
-
-        self.descr = QLabel(text=UPDATE_DESCR)
-        h_lay.addWidget(self.descr)
-
-
 class JsonFile(QGroupBox):
     def __init__(self):
         super().__init__()
@@ -174,10 +104,6 @@ class WinSettings(WinMinMax):
         h_wid = QWidget()
         main_lay.addWidget(h_wid)
 
-        self.data_row = DataRow()
-        self.data_row.clicked_.connect(self.clear_db_cmd)
-        main_lay.addWidget(self.data_row)
-
         json_row = JsonFile()
         main_lay.addWidget(json_row)
 
@@ -189,26 +115,6 @@ class WinSettings(WinMinMax):
 
         self.adjustSize()
         self.setFixedSize(self.width() + 30, self.height())
-        self.get_current_size()
-
-    def get_current_size(self):
-        self.data_row.descr.setText(LOADING_T)
-
-        self.task_ = GetSizer()
-        cmd_ = lambda t: self.data_row.descr.setText(t)
-        self.task_.signals_.finished_.connect(cmd_)
-        UThreadPool.start(self.task_)
-
-    def clear_db_cmd(self):
-        Dbase.clear_db()            
-        if os.path.exists(Static.HASH_DIR):
-            shutil.rmtree(Static.HASH_DIR)
-        self.get_current_size()
-
-        SignalsApp.instance.load_standart_grid_cmd(
-            path=JsonData.root,
-            prev_path=None
-        )
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         if hasattr(self, "task_") and self.task_.is_running:
