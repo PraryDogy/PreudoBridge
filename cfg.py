@@ -14,7 +14,6 @@ class Static:
     ROOT = os.path.join(APP_SUPPORT, APP_NAME)
 
     JSON_FILE = os.path.join(ROOT, 'cfg.json')
-    DB_FILE = os.path.join(ROOT, 'db.db')
     DB_FILENAME = ".preudobridge.db"
 
     USER_APPS = "/Applications"
