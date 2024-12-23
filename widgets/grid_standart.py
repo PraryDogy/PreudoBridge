@@ -36,7 +36,11 @@ class LoadImages(URunnable):
         super().__init__()
 
         self.signals_ = WorkerSignals()
-        self.order_items = order_items
+        self.order_items = [
+            i
+            for i in order_items
+            if i.type_ != Static.FOLDER_TYPE
+        ]
 
         db = os.path.join(JsonData.root, Static.DB_FILENAME)
         self.dbase = Dbase()
