@@ -49,13 +49,19 @@ class LoadImages(URunnable):
             if i.type_ != Static.FOLDER_TYPE
         ]
 
+    @URunnable.set_running_state
+    def run(self):
+
+        # чтобы не создавать пустуб ДБ в пустых или папочных директориях
+
+        if not self.order_items:
+            return
+
         db = os.path.join(JsonData.root, Static.DB_FILENAME)
         self.dbase = Dbase()
         engine = self.dbase.create_engine(path=db)
         self.conn = engine.connect()
 
-    @URunnable.set_running_state
-    def run(self):
         try:
             self.main()
         except RuntimeError as e:
