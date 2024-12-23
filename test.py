@@ -1,14 +1,6 @@
-def test(text):
-    print(text)
-
-def test_secont(text):
-    print(text)
-
-def multiple(text):
+def read_any():
     ...
 
 
-multiple = test
-
-
-multiple(text=123)
+if read_any:
+    print(1)

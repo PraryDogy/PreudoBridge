@@ -254,7 +254,7 @@ class LoadImages(URunnable):
     def get_bytes_ndarray(self, order_item: OrderItem):
 
         img_array = Utils.read_image(
-            full_src=order_item.src
+            path=order_item.src
         )
 
         img_array = FitImg.start(

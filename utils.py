@@ -193,10 +193,14 @@ class ReadImage(Err):
 
         except rawpy._rawpy.LibRawDataError as e:
             return None
+        
+    @classmethod
+    def read_any(cls, path: str) -> np.ndarray | None:
+        ...
 
     @classmethod
-    def read_image(cls, full_src: str) -> np.ndarray | None:
-        _, ext = os.path.splitext(full_src)
+    def read_image(cls, path: str) -> np.ndarray | None:
+        _, ext = os.path.splitext(path)
         ext = ext.lower()
 
         data = {
@@ -219,15 +223,14 @@ class ReadImage(Err):
             ".png": cls.read_png,
         }
 
-        read_img_func = data.get(ext)
+        fn = data.get(ext)
 
-        if read_img_func:
-            img = read_img_func(full_src)
+        if fn:
+            cls.read_any = fn
+            return cls.read_any(path=path)
 
         else:
-            img = None
-
-        return img
+            return None
 
 
 class ImgConvert(Err):
