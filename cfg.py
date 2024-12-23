@@ -201,6 +201,8 @@ class JsonData:
                 if i.path != Static.JSON_FILE:
                     subprocess.call(["rm", "-rf", i.path])
 
+            cls.hex = HEX
+
     @classmethod
     def init(cls):
         os.makedirs(Static.ROOT, exist_ok=True)
