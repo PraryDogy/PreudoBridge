@@ -178,8 +178,8 @@ class LoadImages(URunnable):
                 size_mod_res.get(ColumnNames.RATING)
             )
 
-        # ничего не найдено
-        return (None, None)
+        # ничего не найдено, значит это будет новая запись и рейтинг 0
+        return (None, 0)
 
     def update_db_item(self, order_item: OrderItem, row_id: int) -> np.ndarray:
 
