@@ -23,6 +23,8 @@ MAX_QUERIES = 10
 WARN_TEXT = "Нет изображений или нет подключения к диску"
 TASK_NAME = "LOAD_IMAGES"
 NEED_UPDATE = "need_update"
+BYTES_IMG = "bytes_img"
+ARRAY_IMG = "array_img"
 
 
 class WorkerSignals(QObject):
@@ -70,12 +72,17 @@ class LoadImages(URunnable):
 
 
             elif isinstance(db_item, None):
-                ...
-                # вставить БД, вернется img array
+
+                img_array = self.insert_db_item(
+                    order_item=order_item
+                )
             
             elif isinstance(db_item, bytearray):
-                ...
-                # вернется bytearray
+
+                img_array = Utils.bytes_to_array(
+                    blob=db_item
+                )
+
 
             if isinstance(..., np.ndarray):
                 ...
@@ -143,25 +150,14 @@ class LoadImages(URunnable):
 
     def update_db_item(self, order_item: OrderItem, row_id: int) -> np.ndarray:
 
-        img_array = Utils.read_image(
-            full_src=order_item.src
+        bytes_img, img_array = self.get_bytes_ndarray(
+            order_item=order_item
         )
 
-        img_array = FitImg.start(
-            image=img_array,
-            size=ThumbData.DB_PIXMAP_SIZE
-        )
-
-        bytes_img = Utils.numpy_to_bytes(
+        new_size, new_mod, new_resol = self.get_stats(
+            order_item=order_item,
             img_array=img_array
         )
-
-        stats = os.stat(order_item.src)
-        height, width = img_array.shape[:2]
-
-        new_size = stats.st_size
-        new_mod = stats.st_mtime
-        new_resol = f"{width}x{height}"
 
         values = {
             ColumnNames.IMG: bytes_img,
@@ -181,25 +177,14 @@ class LoadImages(URunnable):
 
     def insert_db_item(self, order_item: OrderItem) -> np.ndarray:
 
-        img_array = Utils.read_image(
-            full_src=order_item.src
+        bytes_img, img_array = self.get_bytes_ndarray(
+            order_item=order_item
         )
 
-        img_array = FitImg.start(
-            image=img_array,
-            size=ThumbData.DB_PIXMAP_SIZE
-        )
-
-        bytes_img = Utils.numpy_to_bytes(
+        new_size, new_mod, new_resol = self.get_stats(
+            order_item=order_item,
             img_array=img_array
         )
-
-        stats = os.stat(order_item.src)
-        height, width = img_array.shape[:2]
-
-        new_size = stats.st_size
-        new_mod = stats.st_mtime
-        new_resol = f"{width}x{height}"
 
         values = {
             ColumnNames.IMG: bytes_img,
@@ -219,6 +204,34 @@ class LoadImages(URunnable):
         self.conn.commit()
 
         return img_array
+    
+    def get_bytes_ndarray(self, order_item: OrderItem):
+
+        img_array = Utils.read_image(
+            full_src=order_item.src
+        )
+
+        img_array = FitImg.start(
+            image=img_array,
+            size=ThumbData.DB_PIXMAP_SIZE
+        )
+
+        bytes_img = Utils.numpy_to_bytes(
+            img_array=img_array
+        )
+
+        return bytes_img, img_array
+    
+    def get_stats(self, order_item: OrderItem, img_array: np.ndarray):
+
+        stats = os.stat(order_item.src)
+        height, width = img_array.shape[:2]
+
+        new_size = stats.st_size
+        new_mod = stats.st_mtime
+        new_resol = f"{width}x{height}"
+
+        return new_size, new_mod, new_resol
 
 
 class GridStandart(Grid):
