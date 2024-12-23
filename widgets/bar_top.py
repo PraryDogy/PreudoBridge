@@ -71,7 +71,7 @@ class SearchWidget(QWidget):
 
         self.templates_menu = UMenu()
 
-        for template, text in Static.SEARCH_TEMPLATES.items():
+        for text, template in Static.SEARCH_TEMPLATES.items():
             action = QAction(parent=self, text=text)
 
             action.triggered.connect(

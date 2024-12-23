@@ -78,13 +78,14 @@ class Static:
     MAIN_WIN_NAME = "MainWin"
 
     SEARCH_TEMPLATES = {
-        (".jpg", ".jpeg", "jfif"): "Найти jpg",
-        (".png",): "Найти png",
-        (".tif", ".tiff"): "Найти tiff",
-        (".psd", ".psb"): "Найти psd/psb",
-        (".nef", ".raw"): "Найти raw",
-        IMG_EXT: "Найти любые фото"
+        "Найти jpg": (".jpg", ".jpeg", "jfif"),
+        "Найти png": (".png"),
+        "Найти tiff": (".tif", ".tiff"),
+        "Найти psd/psb": (".psd", ".psb"),
+        "Найти raw": (".nef", ".raw"),
+        "Найти любые фото": IMG_EXT
     }
+
 
 
 class ThumbData:

@@ -41,11 +41,13 @@ class SearchFinder(URunnable):
         super().__init__()
 
         self.signals_ = WorkerSignals()
-        self.search_text: str = search_text
-        self.conn: sqlalchemy.Connection = Dbase.engine.connect()
+        self.search_text: str = str(search_text)
+        self.extensions: tuple = None
 
-        self.insert_count: int = 0
-        self.insert_count_data: list[tuple[sqlalchemy.Insert, str, ndarray]] = []
+        # self.conn: sqlalchemy.Connection = Dbase.engine.connect()
+
+        # self.insert_count: int = 0
+        # self.insert_count_data: list[tuple[sqlalchemy.Insert, str, ndarray]] = []
 
     @URunnable.set_running_state
     def run(self):
@@ -53,31 +55,41 @@ class SearchFinder(URunnable):
             self.setup_text()
             self.walk_dir()
 
-            if self.insert_count > 0:
-                self.insert_count_cmd()
+            # if self.should_run:
+                # SignalsApp.instance.set_search_title.emit(str(self.search_text))
 
-            self.conn.close()
-
-            if self.should_run:
-                SignalsApp.instance.set_search_title.emit(str(self.search_text))
-
-            self.signals_.finished_.emit()
+            # self.signals_.finished_.emit()
 
         except RuntimeError as e:
             Utils.print_error(parent=None, error=e)
 
     def setup_text(self):
-
-        if self.search_text in Static.SEARCH_TEMPLATES:
-
-            setattr(
-                self,
-                SEARCH_TEMPLATE,
-                Static.SEARCH_TEMPLATES.get(self.search_text)
-            )
-
+        extensions = Static.SEARCH_TEMPLATES.get(self.search_text)
+        if extensions:
+            self.extensions = extensions
+            self.process_entry = self.process_extensions
         else:
-            self.search_text = str(self.search_text)
+            self.process_entry = self.process_text
+
+    def process_entry(self, entry: os.DirEntry):
+        ...
+
+    def process_extensions(self, entry: os.DirEntry):
+        path = entry.path
+        path: str = path.lower()
+        if path.endswith(self.extensions):
+            return True
+        else:
+            return False
+
+    def process_text(self, entry: os.DirEntry):
+        filename, _ = os.path.splitext(entry.name)
+        filename: str = filename.lower()
+        search_text: str = self.search_text.lower()
+        if filename in search_text or search_text in filename:
+            return True
+        else:
+            return False
 
     def walk_dir(self):
 
@@ -90,7 +102,9 @@ class SearchFinder(URunnable):
                 return
 
             with os.scandir(current_dir) as entries:
+
                 for entry in entries:
+
                     if not self.should_run:
                         return
 
@@ -98,25 +112,10 @@ class SearchFinder(URunnable):
                         stack.append(entry.path)
                         continue
 
-                    if not entry.path.lower().endswith(Static.IMG_EXT):
-                        continue
+                    if self.process_entry(entry=entry):
+                        print(entry.name)
 
-                    if self.text_found(path=entry):
-                        self._process_entry(entry)
 
-    def text_found(self, entry: os.DirEntry):
-
-        src_lower = entry.path.lower()
-        exts = getattr(self, SEARCH_TEMPLATE)
-
-        if hasattr(SEARCH_TEMPLATE) and src_lower.endswith(exts):
-            return True
-
-        else:
-            return self.search_text in entry.name
-
-    def _process_entry(self, entry):
-        ...
 
 
     #     try:
