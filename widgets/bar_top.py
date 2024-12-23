@@ -71,18 +71,13 @@ class SearchWidget(QWidget):
 
         self.templates_menu = UMenu()
 
-        data = {
-            "Найти jpg": str((".jpg", ".jpeg", "jfif")),
-            "Найти png": str((".png")),
-            "Найти tiff": str((".tif", ".tiff")),
-            "Найти psd/psb": str((".psd", ".psb")),
-            "Найти raw": str((".nef", ".raw")),
-            "Найти любые фото": str(Static.IMG_EXT)
-            }
+        for template, text in Static.SEARCH_TEMPLATES.items():
+            action = QAction(parent=self, text=text)
 
-        for k, v in data.items():
-            action = QAction(parent=self, text=k)
-            action.triggered.connect(lambda e, xx=v: self.action_cmd(xx))
+            action.triggered.connect(
+                lambda e, xx=text: self.action_cmd(xx)
+            )
+
             self.templates_menu.addAction(action)
 
     def costil(self):

@@ -77,6 +77,15 @@ class Static:
     FAVORITES_NAME = "___favs___"
     MAIN_WIN_NAME = "MainWin"
 
+    SEARCH_TEMPLATES = {
+        (".jpg", ".jpeg", "jfif"): "Найти jpg",
+        (".png",): "Найти png",
+        (".tif", ".tiff"): "Найти tiff",
+        (".psd", ".psb"): "Найти psd/psb",
+        (".nef", ".raw"): "Найти raw",
+        IMG_EXT: "Найти любые фото"
+    }
+
 
 class ThumbData:
 

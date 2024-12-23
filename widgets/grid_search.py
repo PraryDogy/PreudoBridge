@@ -17,6 +17,7 @@ from utils import URunnable, UThreadPool, Utils
 from ._grid import Grid, ThumbSearch
 
 SLEEP = 0.2
+SEARCH_TEMPLATE = "search_template"
 
 
 class WidgetData:
@@ -65,6 +66,19 @@ class SearchFinder(URunnable):
         except RuntimeError as e:
             Utils.print_error(parent=None, error=e)
 
+    def setup_text(self):
+
+        if self.search_text in Static.SEARCH_TEMPLATES:
+
+            setattr(
+                self,
+                SEARCH_TEMPLATE,
+                Static.SEARCH_TEMPLATES.get(self.search_text)
+            )
+
+        else:
+            self.search_text = str(self.search_text)
+
     def walk_dir(self):
         stack = [JsonData.root]
 
@@ -102,18 +116,6 @@ class SearchFinder(URunnable):
             sleep(SLEEP)
         except Exception:
             pass
-
-    def setup_text(self):
-        try:
-            self.search_text: tuple = literal_eval(self.search_text)
-        except (ValueError, SyntaxError):
-            pass
-
-        if isinstance(self.search_text, tuple):
-            setattr(self, "is_tuple", True)
-
-        elif isinstance(self.search_text, int):
-            self.search_text = str(self.search_text)
 
     def get_stats(self, src: str) -> os.stat_result | None:
         try:
