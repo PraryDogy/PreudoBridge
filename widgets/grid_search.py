@@ -74,26 +74,20 @@ class SearchFinder(URunnable):
             if not self.should_run:
                 return
 
-            try:
-                with os.scandir(current_dir) as entries:
-                    for entry in entries:
-                        if not self.should_run:
-                            return
+            with os.scandir(current_dir) as entries:
+                for entry in entries:
+                    if not self.should_run:
+                        return
 
-                        if entry.is_dir():
-                            stack.append(entry.path)
-                            continue
+                    if entry.is_dir():
+                        stack.append(entry.path)
+                        continue
 
-                        if not entry.path.lower().endswith(Static.IMG_EXT):
-                            continue
+                    if not entry.path.lower().endswith(Static.IMG_EXT):
+                        continue
 
-                        if self._should_create_wid(entry):
-                            self._process_entry(entry)
-
-            except FileNotFoundError:
-                pass
-            except Exception:
-                pass
+                    if self._should_create_wid(entry):
+                        self._process_entry(entry)
 
     def _should_create_wid(self, entry: os.DirEntry):
         src_lower: str = entry.path.lower()
