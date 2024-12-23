@@ -3,7 +3,7 @@ import os
 import subprocess
 from datetime import date
 
-HEX = "c3b020ccf4682b3cf0763d473e0d9747"
+HEX = "85d3b3a7ed89b1d7bd6e94524005ca81"
 HEX_DEFAULT = "ZERO"
 
 class Static:
@@ -194,7 +194,12 @@ class JsonData:
     @classmethod
     def ver_check(cls):
         if cls.hex == HEX_DEFAULT or cls.hex != HEX:
-            ...
+            
+            # удаляем все кроме json за ненужностью
+
+            for i in os.scandir(Static.ROOT):
+                if i.path != Static.JSON_FILE:
+                    subprocess.call(["rm", "-rf", i.path])
 
     @classmethod
     def init(cls):
