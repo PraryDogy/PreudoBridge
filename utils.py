@@ -235,16 +235,28 @@ class ImgConvert(Err):
 
     @classmethod
     def bytes_to_array(cls, blob: bytes) -> np.ndarray:
-        with io.BytesIO(blob) as buffer:
-            image = Image.open(buffer)
-            return np.array(image)
+
+        try:
+            with io.BytesIO(blob) as buffer:
+                image = Image.open(buffer)
+                return np.array(image)
+            
+        except Exception as e:
+            Utils.print_error(parent=cls, error=e)
+            return None
 
     @classmethod
     def numpy_to_bytes(cls, img_array: np.ndarray) -> bytes:
-        with io.BytesIO() as buffer:
-            image = Image.fromarray(img_array)
-            image.save(buffer, format="JPEG")
-            return buffer.getvalue()
+
+        try:
+            with io.BytesIO() as buffer:
+                image = Image.fromarray(img_array)
+                image.save(buffer, format="JPEG")
+                return buffer.getvalue()
+            
+        except Exception as e:
+            Utils.print_error(parent=cls, error=e)
+            return None
 
 
 # УДАЛИТЬ # УДАЛИТЬ # УДАЛИТЬ # УДАЛИТЬ # УДАЛИТЬ # УДАЛИТЬ # УДАЛИТЬ # УДАЛИТЬ # УДАЛИТЬ 

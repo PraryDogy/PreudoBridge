@@ -54,16 +54,20 @@ class LoadImages(URunnable):
 
     def load_update_insert_images(self):
 
-        for item in self.order_items:
+        for order_item in self.order_items:
             
             db_item = self.load_db_item(
-                item=item,
-                where_stmts=[CACHE.c.src == item.src]
+                item=order_item,
+                where_stmts=[CACHE.c.src == order_item.src]
             )
 
             if isinstance(db_item, int):
-                ...
-                # обновить БД, вернется img array
+
+                img_array = self.update_db_item(
+                    order_item=order_item,
+                    row_id=db_item
+                )
+
 
             elif isinstance(db_item, None):
                 ...
@@ -137,59 +141,84 @@ class LoadImages(URunnable):
         # ничего не найдено
         return None
 
-        
-    def db_update(self, db_item: tuple) -> QPixmap:
-
-        src, hash_path, size, mod = db_item
-        os.remove(hash_path)
-
-        stats = os.stat(src)
-        new_size = stats.st_size
-        new_mod = stats.st_mtime
-
-        new_hash_path = Utils.create_hash_path(
-            src=src
-        )
+    def update_db_item(self, order_item: OrderItem, row_id: int) -> np.ndarray:
 
         img_array = Utils.read_image(
-            full_src=src
+            full_src=order_item.src
         )
-        
-        h_, w_ = img_array.shape[:2]
-        new_resol = f"{w_}x{h_}"
+
+        img_array = FitImg.start(
+            image=img_array,
+            size=ThumbData.DB_PIXMAP_SIZE
+        )
+
+        bytes_img = Utils.numpy_to_bytes(
+            img_array=img_array
+        )
+
+        stats = os.stat(order_item.src)
+        height, width = img_array.shape[:2]
+
+        new_size = stats.st_size
+        new_mod = stats.st_mtime
+        new_resol = f"{width}x{height}"
 
         values = {
-            ColumnNames.HASH_PATH: new_hash_path,
+            ColumnNames.IMG: bytes_img,
             ColumnNames.SIZE: new_size,
             ColumnNames.MOD: new_mod,
             ColumnNames.RESOL: new_resol
         }
 
-        q = sqlalchemy.update(CACHE).where(CACHE.c.src == src)
+        q = sqlalchemy.update(CACHE).where(CACHE.c.id == row_id)
         q = q.values(**values)
+
         self.conn.execute(q)
         self.conn.commit()
 
-        small_img_array = FitImg.start(
-            image=img_array, 
+        return img_array
+
+
+    def insert_db_item(self, order_item: OrderItem) -> np.ndarray:
+
+        img_array = Utils.read_image(
+            full_src=order_item.src
+        )
+
+        img_array = FitImg.start(
+            image=img_array,
             size=ThumbData.DB_PIXMAP_SIZE
         )
 
-        Utils.write_image_hash(
-            output_path=new_hash_path,
-            array_img=small_img_array
+        bytes_img = Utils.numpy_to_bytes(
+            img_array=img_array
         )
 
-        return Utils.pixmap_from_array(image=small_img_array)
+        stats = os.stat(order_item.src)
+        height, width = img_array.shape[:2]
 
+        new_size = stats.st_size
+        new_mod = stats.st_mtime
+        new_resol = f"{width}x{height}"
 
-    def src_load_img(self, db_item: tuple):
-        src, hash_path, size, mod = db_item
-        img_array = Utils.read_image_hash(
-            src=src
-        )
+        values = {
+            ColumnNames.IMG: bytes_img,
+            ColumnNames.NAME: order_item.name,
+            ColumnNames.TYPE: order_item.type_,
+            ColumnNames.SIZE: new_size,
+            ColumnNames.MOD: new_mod,
+            ColumnNames.RATING: 0,
+            ColumnNames.RESOL: new_resol,
+            ColumnNames.CATALOG: ""
+        }
 
-        return Utils.pixmap_from_array(image=img_array)
+        q = sqlalchemy.insert(CACHE)
+        q = q.values(**values)
+
+        self.conn.execute(q)
+        self.conn.commit()
+
+        return img_array
 
 
 class GridStandart(Grid):
