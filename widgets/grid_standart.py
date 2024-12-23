@@ -16,12 +16,21 @@ from fit_img import FitImg
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
-from ._finder_items import FinderItems, ImageData, LoadingWid
+from ._finder_items import FinderItems, LoadingWid
 from ._grid import Grid, Thumb, ThumbFolder
 
 WARN_TEXT = "Нет изображений или нет подключения к диску"
 TASK_NAME = "LOAD_IMAGES"
 SQL_ERRORS = (IntegrityError, OperationalError)
+
+
+class ImageData:
+    __slots__ = ["src", "pixmap"]
+
+    def __init__(self, src: str, pixmap: QPixmap):
+        self.src: str = src
+        self.pixmap: QPixmap = pixmap
+
 
 
 class WorkerSignals(QObject):

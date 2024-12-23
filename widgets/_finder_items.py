@@ -12,14 +12,6 @@ from utils import URunnable, Utils
 LOADING_T = "Загрузка..."
 
 
-class ImageData:
-    __slots__ = ["src", "pixmap"]
-
-    def __init__(self, src: str, pixmap: QPixmap):
-        self.src: str = src
-        self.pixmap: QPixmap = pixmap
-
-
 class WorkerSignals(QObject):
     finished_ = pyqtSignal(list)
 
