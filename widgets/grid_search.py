@@ -101,10 +101,10 @@ class SearchFinder(URunnable):
                     if not entry.path.lower().endswith(Static.IMG_EXT):
                         continue
 
-                    if self._should_create_wid(path=entry):
+                    if self.text_found(path=entry):
                         self._process_entry(entry)
 
-    def _should_create_wid(self, entry: os.DirEntry):
+    def text_found(self, entry: os.DirEntry):
 
         src_lower = entry.path.lower()
         exts = getattr(self, SEARCH_TEMPLATE)
@@ -116,113 +116,116 @@ class SearchFinder(URunnable):
             return self.search_text in entry.name
 
     def _process_entry(self, entry):
-        try:
-            self.create_wid_cmd(src=entry.path, stat=entry.stat())
-            sleep(SLEEP)
-        except Exception:
-            pass
+        ...
 
-    def get_stats(self, src: str) -> os.stat_result | None:
-        try:
-            return os.stat(src)
-        except (PermissionError, FileNotFoundError) as e:
-            Utils.print_error(self, e)
-            return None
 
-    def create_wid_cmd(self, src: str, stat: os.stat_result) -> bool:
+    #     try:
+    #         self.create_wid_cmd(src=entry.path, stat=entry.stat())
+    #         sleep(SLEEP)
+    #     except Exception:
+    #         pass
 
-        db_data = self.get_db_data(src)
+    # def get_stats(self, src: str) -> os.stat_result | None:
+    #     try:
+    #         return os.stat(src)
+    #     except (PermissionError, FileNotFoundError) as e:
+    #         Utils.print_error(self, e)
+    #         return None
 
-        if db_data is None:
-            img_array = Utils.read_image(src)
-            small_img_array = FitImg.start(img_array, ThumbData.DB_PIXMAP_SIZE)
+    # def create_wid_cmd(self, src: str, stat: os.stat_result) -> bool:
 
-            pixmap = Utils.pixmap_from_array(small_img_array)
-            rating: int = 0
-            new_img = True
+    #     db_data = self.get_db_data(src)
 
-        else:
-            small_img_array = Utils.read_image_hash(db_data[0])
+    #     if db_data is None:
+    #         img_array = Utils.read_image(src)
+    #         small_img_array = FitImg.start(img_array, ThumbData.DB_PIXMAP_SIZE)
 
-            pixmap: QPixmap = Utils.pixmap_from_array(small_img_array)
-            # db_data возвращает кортеж: путь к файлу, рейтинг
-            rating = db_data[-1]
-            new_img = False
+    #         pixmap = Utils.pixmap_from_array(small_img_array)
+    #         rating: int = 0
+    #         new_img = True
 
-        widget_data = WidgetData(
-            src=src,
-            rating=rating,
-            size=stat.st_size,
-            mod=stat.st_mtime,
-            pixmap=pixmap
-            )
+    #     else:
+    #         small_img_array = Utils.read_image_hash(db_data[0])
 
-        self.signals_.add_new_widget.emit(widget_data)
+    #         pixmap: QPixmap = Utils.pixmap_from_array(small_img_array)
+    #         # db_data возвращает кортеж: путь к файлу, рейтинг
+    #         rating = db_data[-1]
+    #         new_img = False
 
-        if new_img:
-            hash_path = Utils.create_hash_path(src)
+    #     widget_data = WidgetData(
+    #         src=src,
+    #         rating=rating,
+    #         size=stat.st_size,
+    #         mod=stat.st_mtime,
+    #         pixmap=pixmap
+    #         )
+
+    #     self.signals_.add_new_widget.emit(widget_data)
+
+    #     if new_img:
+    #         hash_path = Utils.create_hash_path(src)
         
-            if img_array is not None:
-                h_, w_ = img_array.shape[:2]
-            else:
-                h_, w_ = 0, 0
-            resol = f"{w_}x{h_}"
+    #         if img_array is not None:
+    #             h_, w_ = img_array.shape[:2]
+    #         else:
+    #             h_, w_ = 0, 0
+    #         resol = f"{w_}x{h_}"
 
-            args = [src, hash_path, stat.st_size, stat.st_mtime, resol]
-            stmt = self.get_insert_query(*args)
+    #         args = [src, hash_path, stat.st_size, stat.st_mtime, resol]
+    #         stmt = self.get_insert_query(*args)
 
-            self.insert_count_data.append((stmt, hash_path, small_img_array))
-            self.insert_count += 1
+    #         self.insert_count_data.append((stmt, hash_path, small_img_array))
+    #         self.insert_count += 1
 
-        if self.insert_count == 10:
-            self.insert_count_cmd()
-            self.insert_count_data.clear()
+    #     if self.insert_count == 10:
+    #         self.insert_count_cmd()
+    #         self.insert_count_data.clear()
 
-    def get_db_data(self, src: str) -> list[tuple[str, str, int]] | None:
-        try:
-            sel_stmt = sqlalchemy.select(
-                CACHE.c.hash_path,
-                CACHE.c.rating
-                ).where(
-                    CACHE.c.src == src
-                    )
-            return self.conn.execute(sel_stmt).first()
+    # def get_db_data(self, src: str) -> list[tuple[str, str, int]] | None:
+    #     try:
+    #         sel_stmt = sqlalchemy.select(
+    #             CACHE.c.hash_path,
+    #             CACHE.c.rating
+    #             ).where(
+    #                 CACHE.c.src == src
+    #                 )
+    #         return self.conn.execute(sel_stmt).first()
 
-        except OperationalError as e:
-            Utils.print_error(self, e)
-            return None
+    #     except OperationalError as e:
+    #         Utils.print_error(self, e)
+    #         return None
 
-    def get_insert_query(self, src: str, hash_path: str, size: int, mod: int, resol: str):
+    # def get_insert_query(self, src: str, hash_path: str, size: int, mod: int, resol: str):
 
-        src = os.sep + src.strip().strip(os.sep)
-        values_ = Dbase.get_cache_values(src, hash_path, size, mod, resol)
+    #     src = os.sep + src.strip().strip(os.sep)
+    #     values_ = Dbase.get_cache_values(src, hash_path, size, mod, resol)
 
-        return sqlalchemy.insert(CACHE).values(**values_)
+    #     return sqlalchemy.insert(CACHE).values(**values_)
 
-    def insert_count_cmd(self):
-        for stmt, hash_path, small_img_array in self.insert_count_data:
+    # def insert_count_cmd(self):
+    #     for stmt, hash_path, small_img_array in self.insert_count_data:
 
-            try:
-                self.conn.execute(stmt)
+    #         try:
+    #             self.conn.execute(stmt)
 
-            except IntegrityError as e:
-                self.conn.rollback()
-                Utils.print_error(parent=self, error=e)
-                self.should_run = False
-                return None
+    #         except IntegrityError as e:
+    #             self.conn.rollback()
+    #             Utils.print_error(parent=self, error=e)
+    #             self.should_run = False
+    #             return None
             
-            except OperationalError as e:
-                self.conn.rollback()
-                Utils.print_error(parent=self, error=e)
-                continue
+    #         except OperationalError as e:
+    #             self.conn.rollback()
+    #             Utils.print_error(parent=self, error=e)
+    #             continue
 
-        self.conn.commit()
+    #     self.conn.commit()
 
-        # мы пишем раздельно на диск и дб чтобы дб была занята минимальное время
-        for stmt, hash_path, small_img_array in self.insert_count_data:
-            Utils.write_image_hash(hash_path, small_img_array)
+    #     # мы пишем раздельно на диск и дб чтобы дб была занята минимальное время
+    #     for stmt, hash_path, small_img_array in self.insert_count_data:
+    #         Utils.write_image_hash(hash_path, small_img_array)
 
-        return True
+    #     return True
 
 
 class GridSearch(Grid):
