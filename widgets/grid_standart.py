@@ -53,7 +53,7 @@ class LoadImages(URunnable):
 
     def main(self):
         self.process_order_items()
-        self.process_removed_items()
+        # self.process_removed_items()
         self.conn.close()
 
     def process_order_items(self):
@@ -155,12 +155,9 @@ class LoadImages(URunnable):
         # Запись по имени файла не найдена, возможно файл был переименован,
         # но содержимое файла не менялось
         # Пытаемся найти в БД запись по размеру и дате изменения order_item
-        and_stmt = sqlalchemy.and_(
-            CACHE.c.mod == order_item.mod,
-            CACHE.c.size == order_item.size
-        )
-        where_and_stmt = select_stmt.where(and_stmt)
-        res_by_mod = self.conn.execute(where_and_stmt).mappings().first()
+        where_mod = select_stmt.where(CACHE.c.mod == order_item.mod)
+        where_mod_size = where_mod.where(CACHE.c.size == order_item.size)
+        res_by_mod = self.conn.execute(where_mod_size).mappings().first()
 
         # Если запись найдена, значит файл действительно был переименован
         # возвращаем ID для обновления записи
@@ -182,6 +179,7 @@ class LoadImages(URunnable):
         )
 
         values = {
+            ColumnNames.NAME: order_item.name,
             ColumnNames.IMG: bytes_img,
             ColumnNames.SIZE: new_size,
             ColumnNames.MOD: new_mod,
