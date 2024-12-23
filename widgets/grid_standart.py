@@ -36,10 +36,6 @@ class LoadImages(URunnable):
         self.signals_ = WorkerSignals()
         self.order_items = order_items
 
-        # self.remove_db_images: list[tuple[str, str]] = []
-        # self.db_items: dict[tuple, str] = {}
-        # self.insert_count_data: list[tuple[sqlalchemy.Insert, str, ndarray]] = []
-
         db = os.path.join(JsonData.root, Static.DB_FILENAME)
         self.dbase = Dbase()
         engine = self.dbase.create_engine(path=db)
