@@ -25,6 +25,7 @@ TASK_NAME = "LOAD_IMAGES"
 NEED_UPDATE = "need_update"
 BYTES_IMG = "bytes_img"
 ARRAY_IMG = "array_img"
+SQL_ERRORS = (IntegrityError, OperationalError)
 
 
 class WorkerSignals(QObject):
@@ -268,7 +269,7 @@ class LoadImages(URunnable):
         try:
             self.conn.execute(query)
             self.conn.commit()
-        except (IntegrityError, OperationalError) as e:
+        except SQL_ERRORS as e:
             Utils.print_error(parent=self, error=e)
             self.conn.rollback()
 
@@ -296,7 +297,7 @@ class LoadImages(URunnable):
             try:
                 self.conn.execute(q)
 
-            except (OperationalError, IntegrityError) as e:
+            except SQL_ERRORS as e:
                 Utils.print_error(parent=self, error=e)
                 self.conn.rollback()
                 continue
@@ -304,7 +305,7 @@ class LoadImages(URunnable):
         try:
             self.conn.commit()
 
-        except (OperationalError, IntegrityError) as e:
+        except SQL_ERRORS as e:
             Utils.print_error(parent=self, error=e)
             self.conn.rollback()
 
