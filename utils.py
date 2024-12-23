@@ -1,4 +1,5 @@
 import hashlib
+import io
 import logging
 import os
 import subprocess
@@ -230,6 +231,23 @@ class ReadImage(Err):
         return img
 
 
+class ImgConvert(Err):
+
+    @classmethod
+    def bytes_to_array(cls, blob: bytes) -> np.ndarray:
+        with io.BytesIO(blob) as buffer:
+            image = Image.open(buffer)
+            return np.array(image)
+
+    @classmethod
+    def numpy_to_bytes(cls, img_array: np.ndarray) -> bytes:
+        with io.BytesIO() as buffer:
+            image = Image.fromarray(img_array)
+            image.save(buffer, format="JPEG")
+            return buffer.getvalue()
+
+
+# УДАЛИТЬ # УДАЛИТЬ # УДАЛИТЬ # УДАЛИТЬ # УДАЛИТЬ # УДАЛИТЬ # УДАЛИТЬ # УДАЛИТЬ # УДАЛИТЬ 
 class Hash(Err):
 
     @classmethod
@@ -259,7 +277,7 @@ class Hash(Err):
             return None
 
 
-class Pixmap:
+class Pixmap(Err):
 
     @classmethod
     def pixmap_from_array(cls, image: np.ndarray) -> QPixmap | None:
@@ -295,7 +313,7 @@ class Pixmap:
         )
     
 
-class Utils(Hash, Pixmap, ReadImage):
+class Utils(Hash, Pixmap, ReadImage, ImgConvert):
 
     # вызывает segmentation fault
     @classmethod
