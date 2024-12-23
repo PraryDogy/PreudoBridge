@@ -193,8 +193,11 @@ class LoadImages(URunnable):
         q = sqlalchemy.update(CACHE).where(CACHE.c.id == row_id)
         q = q.values(**values)
 
-        self.conn.execute(q)
-        self.conn.commit()
+        # пытаемся вставить запись в БД, но если не выходит
+        # все равно отдаем изображение
+        self.execute_query(
+            query=q
+        )
 
         return img_array
 
@@ -224,8 +227,11 @@ class LoadImages(URunnable):
         q = sqlalchemy.insert(CACHE)
         q = q.values(**values)
 
-        self.conn.execute(q)
-        self.conn.commit()
+        # пытаемся вставить запись в БД, но если не выходит
+        # все равно отдаем изображение
+        self.execute_query(
+            query=q
+        )
 
         return img_array
     
@@ -256,6 +262,13 @@ class LoadImages(URunnable):
         new_resol = f"{width}x{height}"
 
         return new_size, new_mod, new_resol
+    
+    def execute_query(self, query):
+        try:
+            self.conn.execute(query)
+            self.conn.commit()
+        except (IntegrityError, OperationalError) as e:
+            Utils.print_error(parent=self, error=e)
 
 
 class GridStandart(Grid):
