@@ -269,6 +269,43 @@ class LoadImages(URunnable):
             self.conn.commit()
         except (IntegrityError, OperationalError) as e:
             Utils.print_error(parent=self, error=e)
+            self.conn.rollback()
+
+    def process_removed_items(self):
+
+        q = sqlalchemy.select(CACHE.c.id, CACHE.c.name)
+        res = self.conn.execute(q).fetchall()
+
+        order_items = [
+            i.name
+            for i in self.order_items
+        ]
+
+        del_items: list[int] = []
+
+        for id, name in res:
+            if name not in order_items:
+                del_items.append(id)
+
+        for id_ in del_items:
+
+            q = sqlalchemy.delete(CACHE)
+            q = q.where(CACHE.c.id == id_)
+
+            try:
+                self.conn.execute(q)
+
+            except (OperationalError, IntegrityError) as e:
+                Utils.print_error(parent=self, error=e)
+                self.conn.rollback()
+                continue
+
+        try:
+            self.conn.commit()
+
+        except (OperationalError, IntegrityError) as e:
+            Utils.print_error(parent=self, error=e)
+            self.conn.rollback()
 
 
 class GridStandart(Grid):
