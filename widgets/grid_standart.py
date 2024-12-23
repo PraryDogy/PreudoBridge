@@ -87,19 +87,13 @@ class LoadImages(URunnable):
                 row_id=db_item
             )
 
-            # print("update", order_item.name)
-
         elif db_item is None:
-
-            # print("insert", order_item.name)
 
             img_array = self.insert_db_item(
                 order_item=order_item
             )
         
         elif isinstance(db_item, bytes):
-
-            # print("already", order_item.name)
 
             img_array = Utils.bytes_to_array(
                 blob=db_item
