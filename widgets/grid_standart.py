@@ -1,6 +1,7 @@
 import os
 from typing import Literal
 
+import numpy as np
 import sqlalchemy
 from numpy import ndarray
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
@@ -9,7 +10,6 @@ from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import QLabel
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-import numpy as np
 from cfg import JsonData, Static, ThumbData
 from database import CACHE, ColumnNames, Dbase, OrderItem
 from fit_img import FitImg
@@ -19,12 +19,8 @@ from utils import URunnable, UThreadPool, Utils
 from ._finder_items import FinderItems, ImageData, LoadingWid
 from ._grid import Grid, Thumb, ThumbFolder
 
-MAX_QUERIES = 10
 WARN_TEXT = "Нет изображений или нет подключения к диску"
 TASK_NAME = "LOAD_IMAGES"
-NEED_UPDATE = "need_update"
-BYTES_IMG = "bytes_img"
-ARRAY_IMG = "array_img"
 SQL_ERRORS = (IntegrityError, OperationalError)
 
 
