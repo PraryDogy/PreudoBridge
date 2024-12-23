@@ -51,47 +51,63 @@ class LoadImages(URunnable):
             Utils.print_error(parent=None, error=e)
 
     def main(self):
-        self.load_update_insert_images()
+        self.process_order_items()
         self.conn.close()
 
-    def load_update_insert_images(self):
+    def process_order_items(self):
 
         for order_item in self.order_items:
             
-            db_item = self.load_db_item(
-                item=order_item,
-                where_stmts=[CACHE.c.src == order_item.src]
-            )
-
-            if isinstance(db_item, int):
-
-                img_array = self.update_db_item(
-                    order_item=order_item,
-                    row_id=db_item
-                )
-
-
-            elif isinstance(db_item, None):
-
-                img_array = self.insert_db_item(
+            try:
+                pixmap = self.create_pixmap(
                     order_item=order_item
                 )
-            
-            elif isinstance(db_item, bytearray):
 
-                img_array = Utils.bytes_to_array(
-                    blob=db_item
+                image_data = ImageData(
+                    src=order_item.src,
+                    pixmap=pixmap
                 )
 
+                self.signals_.new_widget.emit(image_data)
 
-            if isinstance(..., np.ndarray):
-                ...
-                # ndarray > pixmap
+            except Exception as e:
+                Utils.print_error(parent=self, error=e)
+                continue
 
-            elif isinstance(..., bytearray):
-                ...
-                # bytearray > pixmap
+    def create_pixmap(self, order_item: OrderItem):
+        
+        db_item = self.load_db_item(
+            item=order_item,
+            where_stmts=[CACHE.c.src == order_item.src]
+        )
 
+        if isinstance(db_item, int):
+
+            img_array = self.update_db_item(
+                order_item=order_item,
+                row_id=db_item
+            )
+
+
+        elif isinstance(db_item, None):
+
+            img_array = self.insert_db_item(
+                order_item=order_item
+            )
+        
+        elif isinstance(db_item, bytearray):
+
+            img_array = Utils.bytes_to_array(
+                blob=db_item
+            )
+
+        if isinstance(img_array, np.ndarray):
+
+            pixmap = Utils.pixmap_from_array(
+                image=img_array
+            )
+
+            return pixmap
 
     def load_db_item(self, order_item: OrderItem) -> int | bytearray | None:
         """
