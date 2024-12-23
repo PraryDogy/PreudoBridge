@@ -448,44 +448,6 @@ class ThumbSearch(Thumb):
         menu_.exec_(self.mapToGlobal(a0.pos()))
 
 
-class WorkerSignals(QObject):
-    finished_ = pyqtSignal(dict)
-
-
-class FileCopyThread(URunnable):
-
-    def __init__(self, src: str, dest: str):
-        super().__init__()
-        self.signals_ = WorkerSignals()
-
-        self.src = os.sep + src.strip(os.sep)
-        self.dest = os.sep + dest.strip(os.sep)
-
-    @URunnable.set_running_state
-    def run(self):
-
-        try:
-
-            if os.path.isfile(self.src):
-
-                new_src: str = shutil.copy(self.src, self.dest)
-                new_src = os.sep + new_src.strip(os.sep)
-                stats = os.stat(new_src)
-
-                values = {
-                    ColumnNames.SRC: new_src,
-                    ColumnNames.SIZE: stats.st_size,
-                    ColumnNames.MOD: stats.st_mtime,
-                    ColumnNames.RATING: 0
-                }
-
-                self.signals_.finished_.emit(values)
-
-        except (RuntimeError, Exception) as e:
-            print("grid error copy file / folder", e)
-            self.signals_.finished_.emit({})
-
-
 class Grid(BaseMethods, QScrollArea):
 
     def __init__(self, width: int, prev_path: str = None):
@@ -541,7 +503,7 @@ class Grid(BaseMethods, QScrollArea):
 
         # через таймер чтобы функция не блокировалась зажатой клавишей мыши
         cmd_ = lambda: SignalsApp.instance.bar_bottom_cmd.emit(
-            {ColumnNames.SRC : wid.src}
+            {"src" : wid.src}
         )
         QTimer.singleShot(100, cmd_)
     

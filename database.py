@@ -61,8 +61,8 @@ class OrderItem:
     def __init__(self, src: str, size: int, mod: int, rating: int):
         super().__init__()
         self.src: str = src
-        self.size: int = size
-        self.mod: int = mod
+        self.size: int = int(size)
+        self.mod: int = int(mod)
         self.rating: int = rating
 
         # Извлечение имени файла из пути (например, "path/to/file.txt" -> "file.txt")

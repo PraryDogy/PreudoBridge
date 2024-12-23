@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
                              QPushButton, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static, ThumbData
-from database import ORDER
+from database import ORDER, ColumnNames
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
