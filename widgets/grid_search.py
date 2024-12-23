@@ -46,8 +46,6 @@ class SearchFinder(URunnable):
         self.insert_count: int = 0
         self.insert_count_data: list[tuple[sqlalchemy.Insert, str, ndarray]] = []
 
-        ThumbSearch.calculate_size()
-
     @URunnable.set_running_state
     def run(self):
         try:
@@ -240,6 +238,8 @@ class GridSearch(Grid):
                 "total": 0
             }
         )
+
+        ThumbSearch.calculate_size()
 
         self.task_ = SearchFinder(search_text)
         self.task_.signals_.add_new_widget.connect(self.add_new_widget)
