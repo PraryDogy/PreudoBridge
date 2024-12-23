@@ -155,14 +155,14 @@ class LoadImages(URunnable):
         # Запись по имени файла не найдена, возможно файл был переименован,
         # но содержимое файла не менялось
         # Пытаемся найти в БД запись по размеру и дате изменения order_item
-        where_mod = select_stmt.where(CACHE.c.mod == order_item.mod)
-        where_mod_size = where_mod.where(CACHE.c.size == order_item.size)
-        res_by_mod = self.conn.execute(where_mod_size).mappings().first()
+        mod_stmt = select_stmt.where(CACHE.c.mod == order_item.mod)
+        size_mod_stmt = mod_stmt.where(CACHE.c.size == order_item.size)
+        size_mod_res = self.conn.execute(size_mod_stmt).mappings().first()
 
         # Если запись найдена, значит файл действительно был переименован
         # возвращаем ID для обновления записи
-        if res_by_mod:
-            return res_by_mod.get(ColumnNames.ID)
+        if size_mod_res:
+            return size_mod_res.get(ColumnNames.ID)
 
         # ничего не найдено
         return None
