@@ -53,19 +53,10 @@ class LoadImages(URunnable):
             Utils.print_error(parent=None, error=e)
 
     def main(self):
-        self.get_db_dataset()
-        self.compare_db_and_finder_items()
-
-        # remove images необходимо выполнять перед insert_queries_cmd
-        # т.к. у нас sqlalchemy.update отсутствует
-        # и обновление происходит через удаление и добавление заново
-        self.remove_images()
-        self.create_new_images()
-        self.insert_count_cmd()
-
+        self.load_update_insert_images()
         self.conn.close()
 
-    def new_meth(self):
+    def load_update_insert_images(self):
 
         for item in self.order_items:
             
