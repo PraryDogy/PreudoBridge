@@ -80,6 +80,7 @@ class SearchFinder(URunnable):
             self.search_text = str(self.search_text)
 
     def walk_dir(self):
+
         stack = [JsonData.root]
 
         while stack:
@@ -100,15 +101,19 @@ class SearchFinder(URunnable):
                     if not entry.path.lower().endswith(Static.IMG_EXT):
                         continue
 
-                    if self._should_create_wid(entry):
+                    if self._should_create_wid(path=entry):
                         self._process_entry(entry)
 
     def _should_create_wid(self, entry: os.DirEntry):
-        src_lower: str = entry.path.lower()
 
-        if hasattr(self, "is_tuple") and src_lower.endswith(self.search_text):
+        src_lower = entry.path.lower()
+        exts = getattr(self, SEARCH_TEMPLATE)
+
+        if hasattr(SEARCH_TEMPLATE) and src_lower.endswith(exts):
             return True
-        return self.search_text in entry.name
+
+        else:
+            return self.search_text in entry.name
 
     def _process_entry(self, entry):
         try:
