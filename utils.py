@@ -1,4 +1,3 @@
-import hashlib
 import io
 import logging
 import os
@@ -259,36 +258,6 @@ class ImgConvert(Err):
             return None
 
 
-# УДАЛИТЬ # УДАЛИТЬ # УДАЛИТЬ # УДАЛИТЬ # УДАЛИТЬ # УДАЛИТЬ # УДАЛИТЬ # УДАЛИТЬ # УДАЛИТЬ 
-class Hash(Err):
-
-    @classmethod
-    def create_hash_path(cls, src: str) -> str:
-        new_name = hashlib.md5(src.encode('utf-8')).hexdigest() + ".jpg"
-        new_path = os.path.join(Static.HASH_DIR, new_name[:2])
-        os.makedirs(new_path, exist_ok=True)
-        return os.path.join(new_path, new_name)
-    
-    @classmethod
-    def write_image_hash(cls, output_path: str, array_img: np.ndarray) -> bool:
-        try:
-            img = cv2.cvtColor(array_img, cv2.COLOR_BGR2RGB)
-            cv2.imwrite(output_path, img)
-            return True
-        except Exception as e:
-            cls.print_error(parent=cls, error=e)
-            return False
-
-    @classmethod
-    def read_image_hash(cls, src: str) -> np.ndarray | None:
-        try:
-            img = cv2.imread(src, cv2.IMREAD_UNCHANGED)
-            return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        except Exception as e:
-            print("read img hash error:", src)
-            return None
-
-
 class Pixmap(Err):
 
     @classmethod
@@ -325,7 +294,7 @@ class Pixmap(Err):
         )
     
 
-class Utils(Hash, Pixmap, ReadImage, ImgConvert):
+class Utils(Pixmap, ReadImage, ImgConvert):
 
     # вызывает segmentation fault
     @classmethod

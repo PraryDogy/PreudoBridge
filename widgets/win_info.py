@@ -18,7 +18,6 @@ NAME_T = "Имя"
 TYPE_T = "Тип"
 SIZE_T = "Размер"
 SRC_T = "Место"
-HASH_PATH = "Данные"
 BITRTH_T = "Создан"
 MOD_T = "Изменен"
 RESOL_T = "Разрешение"
@@ -76,7 +75,9 @@ class FolderSize(URunnable):
 class InfoTask:
     def __init__(self, src: str):
         super().__init__()
-        self.src = src
+        self.src = os.sep + src.strip(os.sep)
+        self.name = os.path.basename(self.src)
+
 
     def get(self) -> dict[str, str| int]:
         db = os.path.join(JsonData.root, Static.DB_FILENAME)
@@ -85,11 +86,13 @@ class InfoTask:
         conn = engine.connect()
 
         cols = (
-            CACHE.c.name, CACHE.c.type_, CACHE.c.src,
-            CACHE.c.mod, CACHE.c.resol, CACHE.c.hash_path
+            CACHE.c.name,
+            CACHE.c.type_,
+            CACHE.c.mod,
+            CACHE.c.resol
             )
 
-        q = sqlalchemy.select(*cols).where(CACHE.c.src==self.src)
+        q = sqlalchemy.select(*cols).where(CACHE.c.name==self.name)
         res = conn.execute(q).first()
 
         conn.close()
@@ -100,16 +103,15 @@ class InfoTask:
         else:
             return self.get_raw_info()
 
-    def get_db_info(self, name, type_, src, mod, resol, hash):
+    def get_db_info(self, name, type_, mod, resol):
 
         res = {
-            NAME_T: self.lined_text(name),
+            NAME_T: self.lined_text(text=name),
             TYPE_T: type_,
             SIZE_T: Utils.get_f_size(os.path.getsize(self.src)),
-            SRC_T: self.lined_text(src),
-            HASH_PATH: self.lined_text(hash),
             MOD_T: Utils.get_f_date(mod),
-            RESOL_T: resol
+            RESOL_T: resol,
+            SRC_T: self.lined_text(text=self.src)
             }
 
         return res

@@ -173,20 +173,3 @@ class Dbase:
         conn.close()
 
         return True
-
-    def get_cache_values(self, src, hash_path, size, mod, resol):
-
-        # метод который получает values для sqlalchemy.insert
-        # словарь соответствует колонкам CACHE
-        # если появится или будет удалена какая-либо колонка CACHE,
-        # здесь это обязательно нужно отобразить
-
-        return {
-            ColumnNames.CATALOG: "",
-            ColumnNames.NAME: os.path.basename(src),
-            ColumnNames.TYPE: os.path.splitext(src)[1],
-            ColumnNames.SIZE: size,
-            ColumnNames.MOD: mod,
-            ColumnNames.RESOL: resol, 
-            ColumnNames.RATING: 0
-        }
