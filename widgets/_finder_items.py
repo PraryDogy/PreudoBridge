@@ -39,7 +39,7 @@ class FinderItems(URunnable):
         try:
 
             self.get_items(
-                db_rating=self.get_rating()
+                db_ratings=self.get_rating()
             )
 
             self.order_items = OrderItem.order_items(

@@ -654,23 +654,7 @@ class DeleteFinderItem(QAction):
 
         super().__init__(parent=menu, text=DELETE_T)
         self.triggered.connect(self.run_task)
-        self.path = path
-
-
-    def cmd_(self, *args):
-
-        result = subprocess.run(
-            ['rm', '-rf', self.path],
-            check=True,
-            text=True,
-            stderr=subprocess.PIPE
-        )
-
-        if result.returncode == 0:
-            SignalsApp.instance.load_standart_grid_cmd(
-                path=JsonData.root,
-                prev_path=None
-            )
+        self.path = os.sep + path.strip(os.sep)
 
     def run_task(self, *args):
         self.task_ = Task_(cmd_=self.move_to_trash)
@@ -703,7 +687,9 @@ class DeleteFinderItem(QAction):
         dbase = Dbase()
         engine = dbase.create_engine(path=db)
         conn = engine.connect()
-        q = sqlalchemy.delete(CACHE).where(CACHE.c.src == self.path)
+        name = os.path.basename(self.path)
+
+        q = sqlalchemy.delete(CACHE).where(CACHE.c.name == name)
 
         try:
             conn.execute(q)

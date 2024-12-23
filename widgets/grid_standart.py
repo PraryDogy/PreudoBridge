@@ -71,14 +71,13 @@ class LoadImages(URunnable):
                 self.signals_.new_widget.emit(image_data)
 
             except Exception as e:
-                Utils.print_error(parent=self, error=e)
+                # Utils.print_error(parent=self, error=e)
                 continue
 
     def create_pixmap(self, order_item: OrderItem):
         
         db_item = self.load_db_item(
-            item=order_item,
-            where_stmts=[CACHE.c.src == order_item.src]
+            order_item=order_item,
         )
 
         if isinstance(db_item, int):
@@ -88,14 +87,13 @@ class LoadImages(URunnable):
                 row_id=db_item
             )
 
-
-        elif isinstance(db_item, None):
+        elif db_item is None:
 
             img_array = self.insert_db_item(
                 order_item=order_item
             )
         
-        elif isinstance(db_item, bytearray):
+        elif isinstance(db_item, bytes):
 
             img_array = Utils.bytes_to_array(
                 blob=db_item

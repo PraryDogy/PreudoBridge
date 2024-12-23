@@ -47,20 +47,18 @@ KEY_NAVI = {
 
 
 class UpdateThumbData(URunnable):
-    def __init__(self, src: str, values: dict, cmd_: callable):
+    def __init__(self, name: str, values: dict, cmd_: callable):
 
         super().__init__()
         self.cmd_ = cmd_
-        self.src = src
+        self.name = name
         self.values = values
 
     @URunnable.set_running_state
     def run(self):
-        stmt = sqlalchemy.update(CACHE).where(
-            CACHE.c.src == self.src
-            ).values(
-                **self.values
-                )
+        stmt = sqlalchemy.update(CACHE)
+        stmt = stmt.where(CACHE.c.name == self.name)
+        stmt = stmt.values(**self.values)
         
         db = os.path.join(JsonData.root, Static.DB_FILENAME)
         dbase = Dbase()
@@ -313,7 +311,13 @@ class Thumb(OrderItem, QFrame):
         )
 
     def update_thumb_data(self, values: dict, cmd_: callable):
-        self.task_ = UpdateThumbData(self.src, values, cmd_)
+
+        self.task_ = UpdateThumbData(
+            name=self.name,
+            values=values,
+            cmd_=cmd_
+        )
+
         UThreadPool.start(self.task_)
 
     def mouse_release_ev(self, a0: QMouseEvent | None) -> None:
