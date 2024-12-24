@@ -22,13 +22,14 @@ class FinderItems(URunnable):
         self.signals_ = WorkerSignals()
         self.order_items: list[OrderItem] = []
 
-        db = os.path.join(JsonData.root, Static.DB_FILENAME)
-        self.engine = Dbase().create_engine(path=db)
-
     @URunnable.set_running_state
     def run(self):
 
         try:
+
+            db = os.path.join(JsonData.root, Static.DB_FILENAME)
+            dbase = Dbase()
+            self.engine = dbase.create_engine(path=db)
 
             self.get_items(
                 db_ratings=self.get_rating()
@@ -40,12 +41,16 @@ class FinderItems(URunnable):
 
             self.signals_.finished_.emit(self.order_items)
 
-        except (PermissionError, FileNotFoundError, NotADirectoryError) as e:
-            self.order_items = []
-            self.signals_.finished_.emit(self.order_items)
+        # except (PermissionError, FileNotFoundError, NotADirectoryError) as e:
+        #     self.order_items = []
+        #     self.signals_.finished_.emit(self.order_items)
         
         except RuntimeError as e:
             ...
+
+        except Exception as e:
+            self.order_items = []
+            self.signals_.finished_.emit(self.order_items)
 
     def get_rating(self):
 
