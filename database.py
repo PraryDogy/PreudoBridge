@@ -142,19 +142,39 @@ class OrderItem:
 
 class Dbase:
 
-    def create_engine(self, path: str) -> sqlalchemy.Engine:
+    def __init__(self):
+        self.conn_count = 0
+        self.conn_max = 5
+
+    def create_engine(self, path: str) -> sqlalchemy.Engine | None:
+
+        if self.conn_count >= self.conn_max:
+            return None
 
         engine = sqlalchemy.create_engine(
-            url = f"sqlite:///{path}",
-            echo = False,
-            connect_args = {
+            f"sqlite:///{path}",
+            echo=False,
+            connect_args={
                 "check_same_thread": False,
                 "timeout": 15
             }
         )
 
         METADATA.create_all(bind=engine)
-        return engine
+
+        print("try connect")
+
+        try:
+            conn = engine.connect()
+            q = sqlalchemy.select(CACHE)
+            conn.execute(q).first()
+            conn.close()
+            self.conn_count += 1
+            return engine
+        except Exception:
+            if os.path.exists(path):
+                os.remove(path)
+            return self.create_engine(path=path)
 
     def clear_db(self, engine: sqlalchemy.Engine):
 
