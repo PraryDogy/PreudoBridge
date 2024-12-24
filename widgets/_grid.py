@@ -686,7 +686,7 @@ class Grid(BaseMethods, QScrollArea):
         key = [False, False]
 
         result_map = {
-            (True, True): QPixmap(Static.IMG_SVG),
+            (True, True): QPixmap(Static.FOLDER_FILE_SVG),
             (True, False): QPixmap(Static.FOLDER_SVG),
             (False, True): QPixmap(Static.IMG_SVG)
         }

@@ -32,6 +32,7 @@ class Static:
     IMAGES_DIR = "images"
     IMG_SVG = os.path.join(IMAGES_DIR, "img.svg")
     FOLDER_SVG = os.path.join(IMAGES_DIR, "folder.svg")
+    FOLDER_FILE_SVG = os.path.join(IMAGES_DIR, "folder_file.svg")
     HDD_SVG = os.path.join(IMAGES_DIR, "hdd.svg")
     COMP_SVG = os.path.join(IMAGES_DIR, "computer.svg")
     GOTO_SVG = os.path.join(IMAGES_DIR, "goto.svg")
