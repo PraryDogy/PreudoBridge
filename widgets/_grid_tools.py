@@ -40,16 +40,22 @@ class GridTools:
                 row_id=db_item
             )
 
+            # print("update")
+
         elif db_item is None:
             img_array = cls.insert_db_item(
                 conn=conn,
                 order_item=order_item
             )
+
+            # print("insert")
         
         elif isinstance(db_item, bytes):
             img_array = Utils.bytes_to_array(
                 blob=db_item
             )
+
+            # print("already")
 
         if isinstance(img_array, np.ndarray):
 
