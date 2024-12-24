@@ -290,7 +290,7 @@ class Thumb(OrderItem, QFrame):
         menu.addSeparator()
 
         rating_menu = RatingMenu(parent=menu, src=self.src, rating=self.rating)
-        rating_menu._clicked.connect(self.set_rating_cmd)
+        rating_menu._clicked.connect(self.set_new_rating)
         menu.addMenu(rating_menu)
 
         menu.addSeparator()
@@ -298,23 +298,26 @@ class Thumb(OrderItem, QFrame):
         delete_item = DeleteFinderItem(menu=menu, path=self.src)
         menu.addAction(delete_item)
 
-    def set_rating_cmd(self, rating: int):
+    def set_rating(self, rating: int):
+
+        self.rating = rating
+        self.rating_wid.set_text(wid=self)
+        self.text_changed.emit()
+
+    def set_new_rating(self, rating: int):
+
+        self.rating = rating
+        self.rating_wid.set_text(wid=self)
+        self.text_changed.emit()
 
         def cmd_():
             self.rating = rating
             self.rating_wid.set_text(wid=self)
             self.text_changed.emit()
 
-        self.update_thumb_data(
-            values={ColumnNames.RATING: rating},
-            cmd_=cmd_
-        )
-
-    def update_thumb_data(self, values: dict, cmd_: callable):
-
         self.task_ = UpdateThumbData(
             name=self.name,
-            values=values,
+            values={ColumnNames.RATING: rating},
             cmd_=cmd_
         )
 
@@ -777,7 +780,7 @@ class Grid(BaseMethods, QScrollArea):
 
             for i in self.selected_widgets:
                 if i.type_ != Static.FOLDER_TYPE:
-                    i.set_rating_cmd(rating=rating)
+                    i.set_new_rating(rating=rating)
         
         return super().keyPressEvent(a0)
 

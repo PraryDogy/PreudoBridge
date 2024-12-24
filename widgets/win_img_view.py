@@ -506,7 +506,7 @@ class WinImgView(WinBase):
         menu.addSeparator()
 
         rating_menu = RatingMenu(menu, self.src, self.wid.rating)
-        rating_menu._clicked.connect(self.wid.set_rating_cmd)
+        rating_menu._clicked.connect(self.wid.set_new_rating)
         menu.addMenu(rating_menu)
 
         menu.exec_(self.mapToGlobal(a0.pos()))

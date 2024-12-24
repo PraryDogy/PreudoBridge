@@ -265,7 +265,7 @@ class GridStandart(Grid):
                 widget.set_pixmap(pixmap=order_item.pixmap_)
 
             if isinstance(order_item.rating, int):
-                widget.set_rating_cmd(rating=order_item.rating)
+                widget.set_rating(rating=order_item.rating)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         
