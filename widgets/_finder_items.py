@@ -45,12 +45,10 @@ class FinderItems(URunnable):
                 order_items=order_items
             )
 
-            print(len(order_items))
-
             self.signals_.finished_.emit(order_items)
         
         except SQL_ERRORS as e:
-            print("sql error")
+            print(e)
             order_items = self.get_items_no_db()
             order_items = OrderItem.order_items(order_items=order_items)
             self.signals_.finished_.emit(order_items)
