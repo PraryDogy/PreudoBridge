@@ -36,10 +36,13 @@ class FinderItems(URunnable):
             elif not self.need_db:
 
                 db_path = os.path.join(JsonData.root, Static.DB_FILENAME)
+                
                 if os.path.exists(db_path):
-
-                    os.remove(db_path)
-                    print("remove empty db")
+                    try:
+                        os.remove(db_path)
+                        print("remove empty db")
+                    except Exception as e:
+                        print(e)
 
             order_items = OrderItem.order_items(
                 order_items=order_items
