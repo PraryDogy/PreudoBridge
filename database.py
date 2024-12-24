@@ -174,25 +174,3 @@ class Dbase:
             if os.path.exists(path):
                 os.remove(path)
             self.create_engine(path=path)
-
-    def clear_db(self, engine: sqlalchemy.Engine):
-
-        # очистка CACHE, запускается из настроек приложения
-
-        conn = engine.connect()
-
-        try:
-            q_del_cache = sqlalchemy.delete(CACHE) 
-            conn.execute(q_del_cache)
-
-        except OperationalError as e:
-
-            Utils.print_error(self, e)
-            conn.rollback()
-            return False
-
-        conn.commit()
-        conn.execute(sqlalchemy.text("VACUUM"))
-        conn.close()
-
-        return True
