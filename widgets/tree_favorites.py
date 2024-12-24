@@ -215,21 +215,8 @@ class TreeFavorites(QListWidget):
     
     def dropEvent(self, a0: QDropEvent | None) -> None:
 
-
-        text = a0.mimeData().text()
-        print(text)
-
         urls = a0.mimeData().urls()
-        if urls:
-            root = os.sep + urls[0].toLocalFile().strip(os.sep)
-
-            if os.path.isdir(root):
-                self.add_to_json_favs(root)
-
-            elif os.path.isfile(root):
-                print("eto fail")
-
-        else:
+        if not urls:
             super().dropEvent(a0)
             new_order = {}
 
@@ -241,21 +228,3 @@ class TreeFavorites(QListWidget):
 
             if new_order:
                 JsonData.favs = new_order
-    
-    def dragEnterEvent(self, a0: QDragEnterEvent | None) -> None:
-        a0.acceptProposedAction()
-        return super().dragEnterEvent(a0)
-
-    def dragMoveEvent(self, e):
-        pos = e.pos()
-        global_pos = self.mapToGlobal(pos)
-        widget = QApplication.widgetAt(global_pos)
-
-        if isinstance(widget, FavItem):
-            list_item = self.wids[widget.src]
-            self.setCurrentItem(list_item)
-
-            # копирование файла
-
-
-        return super().dragMoveEvent(e)
