@@ -92,7 +92,9 @@ class InfoTask:
             CACHE.c.resol
             )
 
-        q = sqlalchemy.select(*cols).where(CACHE.c.name==self.name)
+        q = sqlalchemy.select(*cols)
+        q = q.where(CACHE.c.name == Utils.hash_filename(filename=self.name))
+
         res = conn.execute(q).first()
 
         conn.close()

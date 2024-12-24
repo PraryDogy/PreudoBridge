@@ -46,7 +46,7 @@ class LoadThumbnail(URunnable):
             conn = engine.connect()
 
             q = sqlalchemy.select(CACHE.c.img)
-            q = q.where(CACHE.c.name == self.name)
+            q = q.where(CACHE.c.name == Utils.hash_filename(filename=self.name))
             res = conn.execute(q).scalar() or None
 
             conn.close()

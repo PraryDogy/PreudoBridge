@@ -689,7 +689,8 @@ class DeleteFinderItem(QAction):
         conn = engine.connect()
         name = os.path.basename(self.path)
 
-        q = sqlalchemy.delete(CACHE).where(CACHE.c.name == name)
+        q = sqlalchemy.delete(CACHE)
+        q = q.where(CACHE.c.name == Utils.hash_filename(filename=name))
 
         try:
             conn.execute(q)

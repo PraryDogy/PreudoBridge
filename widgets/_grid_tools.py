@@ -82,10 +82,9 @@ class GridTools:
             CACHE.c.rating
         )
 
-        hash_name = Utils.hash_filename(filename=order_item.name)
-
-        # Проверка по hash имени файла
-        where_stmt = select_stmt.where(CACHE.c.name == hash_name)
+        where_stmt = select_stmt.where(
+            CACHE.c.name == Utils.hash_filename(filename=order_item.name)
+        )
         res_by_src = conn.execute(where_stmt).mappings().first()
 
         # Запись найдена

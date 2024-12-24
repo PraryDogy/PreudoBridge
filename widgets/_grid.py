@@ -51,13 +51,13 @@ class UpdateThumbData(URunnable):
 
         super().__init__()
         self.cmd_ = cmd_
-        self.name = Utils.hash_filename(filename=name)
+        self.name = name
         self.values = values
 
     @URunnable.set_running_state
     def run(self):
         stmt = sqlalchemy.update(CACHE)
-        stmt = stmt.where(CACHE.c.name == self.name)
+        stmt = stmt.where(CACHE.c.name == Utils.hash_filename(filename=self.name))
         stmt = stmt.values(**self.values)
         
         db = os.path.join(JsonData.root, Static.DB_FILENAME)
