@@ -36,11 +36,11 @@ class SearchFinder(URunnable):
             self.setup_text()
             self.scandir_main()
 
-            # if self.should_run:
+            if self.should_run:
 
-            #     SignalsApp.instance.set_search_title.emit(
-            #         self.search_text
-            #     )
+                SignalsApp.instance.set_search_title.emit(
+                    self.search_text
+                )
 
             self.signals_.finished_.emit()
 
