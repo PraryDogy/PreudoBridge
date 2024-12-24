@@ -1,14 +1,76 @@
-import sqlalchemy
+import os
 
+import numpy as np
+from PyQt5.QtGui import QPixmap
+from sqlalchemy import Connection, insert, select, update
+from sqlalchemy.exc import IntegrityError, OperationalError
+
+from cfg import ThumbData
 from database import CACHE, ColumnNames, OrderItem
+from fit_img import FitImg
+from utils import Utils
+
+SQL_ERRORS = (IntegrityError, OperationalError)
 
 
+class ImageData:
+    __slots__ = ["src", "pixmap", "rating"]
+
+    def __init__(self, src: str, pixmap: QPixmap, rating: int):
+        self.src = src
+        self.pixmap = pixmap
+        self.rating = rating
+
+        
 class GridTools:
 
     @classmethod
-    def load_db_item(cls, conn: sqlalchemy.Connection, order_item: OrderItem):
+    def create_image_data(cls, conn: Connection, order_item: OrderItem):
+        
+        db_item, rating = GridTools.load_db_item(
+            conn=conn,
+            order_item=order_item,
+        )
 
-        select_stmt = sqlalchemy.select(
+        if isinstance(db_item, int):
+            img_array = cls.update_db_item(
+                conn=conn,
+                order_item=order_item,
+                row_id=db_item
+            )
+
+        elif db_item is None:
+            img_array = cls.insert_db_item(
+                conn=conn,
+                order_item=order_item
+            )
+        
+        elif isinstance(db_item, bytes):
+            img_array = Utils.bytes_to_array(
+                blob=db_item
+            )
+
+        if isinstance(img_array, np.ndarray):
+
+            pixmap = Utils.pixmap_from_array(
+                image=img_array
+            )
+
+            image_data = ImageData(
+                src=order_item.src,
+                pixmap=pixmap,
+                rating=rating
+            )
+
+            return image_data
+        
+        else:
+            return None
+
+    @classmethod
+    def load_db_item(cls, conn: Connection, order_item: OrderItem):
+
+        select_stmt = select(
             CACHE.c.id,
             CACHE.c.img,
             CACHE.c.size,
@@ -54,3 +116,102 @@ class GridTools:
 
         # ничего не найдено, значит это будет новая запись и рейтинг 0
         return (None, 0)
+    
+    @classmethod
+    def update_db_item(cls, conn: Connection, order_item: OrderItem, row_id: int) -> np.ndarray:
+
+        bytes_img, img_array = cls.get_bytes_ndarray(
+            order_item=order_item
+        )
+
+        new_size, new_mod, new_resol = cls.get_stats(
+            order_item=order_item,
+            img_array=img_array
+        )
+
+        values = {
+            ColumnNames.NAME: order_item.name,
+            ColumnNames.IMG: bytes_img,
+            ColumnNames.SIZE: new_size,
+            ColumnNames.MOD: new_mod,
+            ColumnNames.RESOL: new_resol
+        }
+
+        q = update(CACHE).where(CACHE.c.id == row_id)
+        q = q.values(**values)
+
+        # пытаемся вставить запись в БД, но если не выходит
+        # все равно отдаем изображение
+        cls.execute_query(conn=conn, query=q)
+
+        return img_array
+
+    @classmethod
+    def insert_db_item(cls, conn: Connection, order_item: OrderItem) -> np.ndarray:
+
+        bytes_img, img_array = cls.get_bytes_ndarray(
+            order_item=order_item
+        )
+
+        new_size, new_mod, new_resol = cls.get_stats(
+            order_item=order_item,
+            img_array=img_array
+        )
+
+        values = {
+            ColumnNames.IMG: bytes_img,
+            ColumnNames.NAME: order_item.name,
+            ColumnNames.TYPE: order_item.type_,
+            ColumnNames.SIZE: new_size,
+            ColumnNames.MOD: new_mod,
+            ColumnNames.RATING: 0,
+            ColumnNames.RESOL: new_resol,
+            ColumnNames.CATALOG: ""
+        }
+
+        q = insert(CACHE)
+        q = q.values(**values)
+
+        # пытаемся вставить запись в БД, но если не выходит
+        # все равно отдаем изображение
+        cls.execute_query(conn=conn, query=q)
+        return img_array
+    
+    @classmethod
+    def get_bytes_ndarray(cls, order_item: OrderItem):
+
+        img_array = Utils.read_image(
+            path=order_item.src
+        )
+
+        img_array = FitImg.start(
+            image=img_array,
+            size=ThumbData.DB_PIXMAP_SIZE
+        )
+
+        bytes_img = Utils.numpy_to_bytes(
+            img_array=img_array
+        )
+
+        return bytes_img, img_array
+    
+    @classmethod
+    def get_stats(cls, order_item: OrderItem, img_array: np.ndarray):
+
+        stats = os.stat(order_item.src)
+        height, width = img_array.shape[:2]
+
+        new_size = int(stats.st_size)
+        new_mod = int(stats.st_mtime)
+        new_resol = f"{width}x{height}"
+
+        return new_size, new_mod, new_resol
+    
+    @classmethod
+    def execute_query(cls, conn: Connection, query):
+        try:
+            conn.execute(query)
+            conn.commit()
+        except SQL_ERRORS as e:
+            Utils.print_error(parent=cls, error=e)
+            conn.rollback()

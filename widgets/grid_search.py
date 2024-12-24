@@ -9,16 +9,17 @@ from PyQt5.QtGui import QCloseEvent, QPixmap
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import JsonData, Static, ThumbData
-from database import CACHE, Dbase
+from database import CACHE, Dbase, OrderItem
 from fit_img import FitImg
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 from ._grid import Grid, ThumbSearch
+from ._grid_tools import GridTools
 
 SLEEP = 0.2
 SEARCH_TEMPLATE = "search_template"
-
+SQL_ERRORS = (IntegrityError, OperationalError)
 
 class WidgetData:
     __slots__ = ["src", "rating", "size", "mod", "pixmap"]
@@ -43,11 +44,6 @@ class SearchFinder(URunnable):
         self.signals_ = WorkerSignals()
         self.search_text: str = str(search_text)
         self.extensions: tuple = None
-
-        # self.conn: sqlalchemy.Connection = Dbase.engine.connect()
-
-        # self.insert_count: int = 0
-        # self.insert_count_data: list[tuple[sqlalchemy.Insert, str, ndarray]] = []
 
     @URunnable.set_running_state
     def run(self):
@@ -130,7 +126,22 @@ class SearchFinder(URunnable):
 
 
     def file_db_check(self, conn: sqlalchemy.Connection, entry: os.DirEntry):
-        ...
+        
+        stat = entry.stat()
+
+        order_item = OrderItem(
+            src=entry.path,
+            size=stat.st_size,
+            mod=stat.st_mtime,
+            rating=0
+        )
+
+        rating, item = GridTools.load_db_item(
+            conn=conn,
+            order_item=order_item
+        )
+
+        print(rating, item)
 
 
 

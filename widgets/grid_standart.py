@@ -19,20 +19,11 @@ from utils import URunnable, UThreadPool, Utils
 
 from ._finder_items import FinderItems, LoadingWid
 from ._grid import Grid, Thumb, ThumbFolder
-from ._grid_tools import GridTools
+from ._grid_tools import GridTools, ImageData
 
 WARN_TEXT = "Нет изображений или нет подключения к диску"
 TASK_NAME = "LOAD_IMAGES"
 SQL_ERRORS = (IntegrityError, OperationalError)
-
-
-class ImageData:
-    __slots__ = ["src", "pixmap", "rating"]
-
-    def __init__(self, src: str, pixmap: QPixmap, rating: int):
-        self.src = src
-        self.pixmap = pixmap
-        self.rating = rating
 
 
 class WorkerSignals(QObject):
@@ -78,154 +69,19 @@ class LoadImages(URunnable):
         for order_item in self.order_items:
             
             try:
-                self.create_image_data(order_item=order_item)
+
+                image_data = GridTools.create_image_data(
+                    conn=self.conn,
+                    order_item=order_item
+                )
+
+                if image_data:
+                    self.signals_.new_widget.emit(image_data)
 
             except Exception as e:
                 # Utils.print_error(parent=self, error=e)
                 print(traceback.format_exc())
                 continue
-
-    def create_image_data(self, order_item: OrderItem):
-        
-        db_item, rating = GridTools.load_db_item(
-            conn=self.conn,
-            order_item=order_item,
-        )
-
-        if isinstance(db_item, int):
-            # print("update", order_item.name)
-            img_array = self.update_db_item(
-                order_item=order_item,
-                row_id=db_item
-            )
-
-        elif db_item is None:
-            # print("insert", order_item.name)
-            img_array = self.insert_db_item(
-                order_item=order_item
-            )
-        
-        elif isinstance(db_item, bytes):
-            # print("already", order_item.name)
-            img_array = Utils.bytes_to_array(
-                blob=db_item
-            )
-
-        if isinstance(img_array, np.ndarray):
-
-            pixmap = Utils.pixmap_from_array(
-                image=img_array
-            )
-
-            image_data = ImageData(
-                src=order_item.src,
-                pixmap=pixmap,
-                rating=rating
-            )
-
-            self.signals_.new_widget.emit(image_data)
-
-    def load_db_item(self): ...
-
-    def update_db_item(self, order_item: OrderItem, row_id: int) -> np.ndarray:
-
-        bytes_img, img_array = self.get_bytes_ndarray(
-            order_item=order_item
-        )
-
-        new_size, new_mod, new_resol = self.get_stats(
-            order_item=order_item,
-            img_array=img_array
-        )
-
-        values = {
-            ColumnNames.NAME: order_item.name,
-            ColumnNames.IMG: bytes_img,
-            ColumnNames.SIZE: new_size,
-            ColumnNames.MOD: new_mod,
-            ColumnNames.RESOL: new_resol
-        }
-
-        q = sqlalchemy.update(CACHE).where(CACHE.c.id == row_id)
-        q = q.values(**values)
-
-        # пытаемся вставить запись в БД, но если не выходит
-        # все равно отдаем изображение
-        self.execute_query(
-            query=q
-        )
-
-        return img_array
-
-
-    def insert_db_item(self, order_item: OrderItem) -> np.ndarray:
-
-        bytes_img, img_array = self.get_bytes_ndarray(
-            order_item=order_item
-        )
-
-        new_size, new_mod, new_resol = self.get_stats(
-            order_item=order_item,
-            img_array=img_array
-        )
-
-        values = {
-            ColumnNames.IMG: bytes_img,
-            ColumnNames.NAME: order_item.name,
-            ColumnNames.TYPE: order_item.type_,
-            ColumnNames.SIZE: new_size,
-            ColumnNames.MOD: new_mod,
-            ColumnNames.RATING: 0,
-            ColumnNames.RESOL: new_resol,
-            ColumnNames.CATALOG: ""
-        }
-
-        q = sqlalchemy.insert(CACHE)
-        q = q.values(**values)
-
-        # пытаемся вставить запись в БД, но если не выходит
-        # все равно отдаем изображение
-        self.execute_query(
-            query=q
-        )
-
-        return img_array
-    
-    def get_bytes_ndarray(self, order_item: OrderItem):
-
-        img_array = Utils.read_image(
-            path=order_item.src
-        )
-
-        img_array = FitImg.start(
-            image=img_array,
-            size=ThumbData.DB_PIXMAP_SIZE
-        )
-
-        bytes_img = Utils.numpy_to_bytes(
-            img_array=img_array
-        )
-
-        return bytes_img, img_array
-    
-    def get_stats(self, order_item: OrderItem, img_array: np.ndarray):
-
-        stats = os.stat(order_item.src)
-        height, width = img_array.shape[:2]
-
-        new_size = int(stats.st_size)
-        new_mod = int(stats.st_mtime)
-        new_resol = f"{width}x{height}"
-
-        return new_size, new_mod, new_resol
-    
-    def execute_query(self, query):
-        try:
-            self.conn.execute(query)
-            self.conn.commit()
-        except SQL_ERRORS as e:
-            Utils.print_error(parent=self, error=e)
-            self.conn.rollback()
 
     def process_removed_items(self):
 
