@@ -55,10 +55,11 @@ class LoadImages(URunnable):
         except RuntimeError as e:
             Utils.print_error(parent=None, error=e)
 
+        self.conn.close()
+
     def main(self):
         self.process_order_items()
         self.process_removed_items()
-        self.conn.close()
 
     def process_order_items(self):
 
