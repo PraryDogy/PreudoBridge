@@ -57,7 +57,7 @@ class LoadImages(URunnable):
 
     def main(self):
         self.process_order_items()
-        # self.process_removed_items()
+        self.process_removed_items()
         self.conn.close()
 
     def process_order_items(self):
@@ -75,8 +75,8 @@ class LoadImages(URunnable):
                     self.signals_.new_widget.emit(new_order_item)
 
             except Exception as e:
-                # Utils.print_error(parent=self, error=e)
-                print(traceback.format_exc())
+                Utils.print_error(parent=self, error=e)
+                # print(traceback.format_exc())
                 continue
 
     def process_removed_items(self):
@@ -85,7 +85,7 @@ class LoadImages(URunnable):
         res = self.conn.execute(q).fetchall()
 
         order_items = [
-            i.name
+            Utils.hash_filename(filename=i.name)
             for i in self.order_items
         ]
 

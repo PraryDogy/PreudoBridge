@@ -26,7 +26,7 @@ class ActionData:
 class BarTopBtn(UFrame):
     def __init__(self):
         super().__init__()
-        self.setFixedSize(25, 22)
+        self.setFixedSize(45, 35)
 
         h_lay = QHBoxLayout()
         h_lay.setContentsMargins(0, 0, 0, 0)
