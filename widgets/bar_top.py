@@ -153,14 +153,16 @@ class FiltersBtn(BarTopBtn):
             self.rating_wids.append(label)
         
         self.menu_.adjustSize()
+        self.menu_.closeEvent = self.menu_close_cmd
+
+    def menu_close_cmd(self, *args):
+        super().leaveEvent(args)
 
     def mouseReleaseEvent(self, e: QMouseEvent):
         if e.button() == Qt.LeftButton:
             pont = self.rect().bottomLeft()
             self.menu_.move(self.mapToGlobal(pont))
             self.menu_.show()
-
-        super().leaveEvent(a0=e)
 
     def toggle_rating(self, rate: int):
         Dynamic.rating_filter = rate
