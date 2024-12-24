@@ -109,6 +109,8 @@ class SearchWidget(QWidget):
 
 
 class FiltersBtn(BarTopBtn):
+    size_ = 30
+
     def __init__(self):
         super().__init__()
         self.load(Static.RATING_SVG)
@@ -138,14 +140,14 @@ class FiltersBtn(BarTopBtn):
 
         reset_rating = QLabel(Static.LINE_SYM)
         reset_rating.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        reset_rating.setFixedSize(20, 20)
+        reset_rating.setFixedSize(self.size_, self.size_)
         reset_rating.mouseReleaseEvent = lambda e: self.reset_filters()
         rating_lay.addWidget(reset_rating)
 
         for rate in self.rating_data:
             label = QLabel(Static.STAR_SYM)
             label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            label.setFixedSize(20, 20)
+            label.setFixedSize(self.size_, self.size_)
             label.mouseReleaseEvent = lambda e, r=rate: self.toggle_rating(r)
             rating_lay.addWidget(label)
             self.rating_wids.append(label)
