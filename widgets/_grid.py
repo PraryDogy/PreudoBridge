@@ -681,14 +681,26 @@ class Grid(BaseMethods, QScrollArea):
         drag = QDrag(self)
         mime_data = QMimeData()
 
-        urls = [
-            QUrl.fromLocalFile(wid.src)
-            for wid in self.selected_widgets
-        ]
+        urls = []
 
-        pixmap_ = QPixmap(Static.IMG_SVG)
+        key = [False, False]
+
+        result_map = {
+            (True, True): QPixmap(Static.IMG_SVG),
+            (True, False): QPixmap(Static.FOLDER_SVG),
+            (False, True): QPixmap(Static.IMG_SVG)
+        }
+
+        for wid_ in self.selected_widgets:
+            urls.append(QUrl.fromLocalFile(wid_.src))
+
+            if wid_.type_ == Static.FOLDER_TYPE:
+                key[0] = True
+            else:
+                key[1] = True
+
         mime_data.setUrls(urls)
-        drag.setPixmap(pixmap_)
+        drag.setPixmap(result_map.get(tuple(key)))
         drag.setMimeData(mime_data)
 
         drag.exec_(Qt.DropAction.CopyAction)
