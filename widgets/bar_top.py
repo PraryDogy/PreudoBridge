@@ -197,7 +197,7 @@ class BarTop(QWidget):
         self.index_: int = 0
 
         self.main_lay = QHBoxLayout()
-        self.main_lay.setSpacing(10)
+        self.main_lay.setSpacing(0)
         self.main_lay.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.main_lay)
 
