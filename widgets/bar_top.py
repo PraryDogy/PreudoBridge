@@ -158,6 +158,8 @@ class FiltersBtn(BarTopBtn):
             self.menu_.move(self.mapToGlobal(pont))
             self.menu_.show()
 
+        super().leaveEvent(a0=e)
+
     def toggle_rating(self, rate: int):
         Dynamic.rating_filter = rate
 
