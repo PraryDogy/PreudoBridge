@@ -22,46 +22,69 @@ class FinderItems(URunnable):
     def __init__(self):
         super().__init__()
         self.signals_ = WorkerSignals()
-        self.order_items: list[OrderItem] = []
+        self.need_db = False
 
     @URunnable.set_running_state
     def run(self):
 
         try:
+            order_items = self.get_order_items()
 
-            db = os.path.join(JsonData.root, Static.DB_FILENAME)
-            dbase = Dbase()
-            self.engine = dbase.create_engine(path=db)
-            self.get_items(db_ratings=self.get_rating())
-            self.order_items = OrderItem.order_items(
-                order_items=self.order_items
+            if self.need_db:
+                order_items = self.set_rating(order_items=order_items)
+
+            elif not self.need_db:
+
+                db_path = os.path.join(JsonData.root, Static.DB_FILENAME)
+                if os.path.exists(db_path):
+
+                    os.remove(db_path)
+                    print("remove empty db")
+
+            order_items = OrderItem.order_items(
+                order_items=order_items
             )
-            self.signals_.finished_.emit(self.order_items)
+
+            self.signals_.finished_.emit(order_items)
         
         except SQL_ERRORS as e:
-            self.get_items_no_db()
-            self.order_items = OrderItem.order_items(
-                order_items=self.order_items
-            )
-            self.signals_.finished_.emit(self.order_items)
+            order_items = self.get_items_no_db()
+            order_items = OrderItem.order_items(order_items=order_items)
+            self.signals_.finished_.emit(order_items)
 
         except Exception as e:
             ...
 
-    def get_rating(self):
+    def set_rating(self, order_items: list[OrderItem]):
+
+        db = os.path.join(JsonData.root, Static.DB_FILENAME)
+        dbase = Dbase()
+        engine = dbase.create_engine(path=db)
+        conn = engine.connect()
 
         q = sqlalchemy.select(CACHE.c.name, CACHE.c.rating)
+        res = conn.execute(q).fetchall()
+        res = {
+            name: rating
+            for name, rating in res
+        }
 
-        with self.engine.connect() as conn:
+        for i in order_items:
 
-            res = conn.execute(q).fetchall()
+            name = Utils.hash_filename(filename=i.name)
 
-            return {
-                name: rating
-                for name, rating in res
-            }
+            if name in res:
 
-    def get_items(self, db_ratings: dict) -> list[OrderItem]:
+                print(i.rating)
+                i.rating = res.get(name)
+                print(i.rating)
+
+        return order_items
+
+    def get_order_items(self) -> list[OrderItem]:
+
+
+        order_items: list[OrderItem] = []
 
         with os.scandir(JsonData.root) as entries:
 
@@ -70,22 +93,31 @@ class FinderItems(URunnable):
                 if entry.name.startswith("."):
                     continue
 
-                if entry.is_dir() or entry.name.endswith(Static.IMG_EXT):
+                if entry.is_dir():
                     try:
                         stats = entry.stat()
                     except Exception:
                         continue
 
-                    size = stats.st_size
-                    mod = stats.st_mtime
+                elif entry.name.endswith(Static.IMG_EXT):
+                    try:
+                        stats = entry.stat()
+                        self.need_db = True
+                    except Exception:
+                        continue
 
-                    db_rating = db_ratings.get(entry.name)
-                    rating = 0 if db_rating is None else db_rating
+                size = stats.st_size
+                mod = stats.st_mtime
 
-                    item = OrderItem(entry.path, size, mod, rating)
-                    self.order_items.append(item)
+                item = OrderItem(entry.path, size, mod, 0)
+                order_items.append(item)
 
-    def get_items_no_db(self):
+        return order_items
+
+    def get_items_no_db(self) -> list[OrderItem]:
+        
+        order_items = []
+
         with os.scandir(JsonData.root) as entries:
 
             for entry in entries:
@@ -94,19 +126,10 @@ class FinderItems(URunnable):
                     continue
 
                 if entry.is_dir() or entry.name.endswith(Static.IMG_EXT):
-                    # try:
-                    #     stats = entry.stat()
-                    # except Exception:
-                    #     continue
-
-                    # size = stats.st_size
-                    # mod = stats.st_mtime
-
-                    # db_rating = db_ratings.get(entry.name)
-                    # rating = 0 if db_rating is None else db_rating
-
                     item = OrderItem(entry.path, 0, 0, 0)
-                    self.order_items.append(item)
+                    order_items.append(item)
+
+        return order_items
 
 
 class LoadingWid(QLabel):
