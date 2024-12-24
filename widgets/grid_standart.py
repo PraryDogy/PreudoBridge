@@ -57,7 +57,7 @@ class LoadImages(URunnable):
 
     def main(self):
         self.process_order_items()
-        self.process_removed_items()
+        # self.process_removed_items()
         self.conn.close()
 
     def process_order_items(self):

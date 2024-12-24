@@ -23,7 +23,7 @@ class GridTools:
         )
 
         if isinstance(db_item, int):
-            # print("update")
+            print("update")
             img_array = cls.update_db_item(
                 conn=conn,
                 order_item=order_item,
