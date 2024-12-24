@@ -1,8 +1,7 @@
 import os
-import shutil
 
 import sqlalchemy
-from PyQt5.QtCore import QMimeData, QObject, Qt, QTimer, QUrl, pyqtSignal
+from PyQt5.QtCore import QMimeData, Qt, QTimer, QUrl, pyqtSignal
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
                          QPixmap)
 from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
@@ -21,13 +20,13 @@ from ._actions import (ChangeView, CopyPath, CreateFolder, DeleteFinderItem,
 from ._base import BaseMethods, OpenWin, UMenu, USvgWidget
 from .list_file_system import ListFileSystem
 from .win_find_here import WinFindHere
-from .win_sys import WinCopy
 
 SELECTED = "selected"
 FONT_SIZE = "font-size: 11px;"
 RAD = "border-radius: 4px"
 IMG_WID_ATTR = "img_wid"
 HAS_SEL_WID = "has_sel_wid"
+SQL_ERRORS = (OperationalError, IntegrityError)
 
 KEY_RATING = {
     Qt.Key.Key_0: 0,
@@ -63,15 +62,18 @@ class UpdateThumbData(URunnable):
         db = os.path.join(JsonData.root, Static.DB_FILENAME)
         dbase = Dbase()
         engine = dbase.create_engine(path=db)
-        conn = engine.connect()
 
-        print(db)
+        if engine is None:
+            return
+
+        conn = engine.connect()
 
         try:
             conn.execute(stmt)
             conn.commit()
             self.finalize()
-        except (OperationalError, IntegrityError) as e:
+
+        except SQL_ERRORS as e:
             conn.rollback()
             Utils.print_error(self, e)
 
