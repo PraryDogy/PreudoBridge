@@ -16,6 +16,17 @@ class GridTools:
 
     @classmethod
     def update_order_item(cls, conn: Connection, order_item: OrderItem):
+
+        try:
+            return cls.update_order_item_(conn, order_item)
+
+        except Exception as e:
+            Utils.print_error(parent=cls, error=e)
+            print(order_item.src)
+            return None
+
+    @classmethod
+    def update_order_item_(cls, conn: Connection, order_item: OrderItem):
         
         db_item, rating = GridTools.load_db_item(
             conn=conn,
