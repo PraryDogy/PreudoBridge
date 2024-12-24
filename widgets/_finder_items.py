@@ -45,15 +45,18 @@ class FinderItems(URunnable):
                 order_items=order_items
             )
 
+            print(len(order_items))
+
             self.signals_.finished_.emit(order_items)
         
         except SQL_ERRORS as e:
+            print("sql error")
             order_items = self.get_items_no_db()
             order_items = OrderItem.order_items(order_items=order_items)
             self.signals_.finished_.emit(order_items)
 
         except Exception as e:
-            ...
+            print(e)
 
     def set_rating(self, order_items: list[OrderItem]):
 
@@ -75,9 +78,9 @@ class FinderItems(URunnable):
 
             if name in res:
 
-                print(i.rating)
+                # print(i.rating)
                 i.rating = res.get(name)
-                print(i.rating)
+                # print(i.rating)
 
         return order_items
 
@@ -105,6 +108,9 @@ class FinderItems(URunnable):
                         self.need_db = True
                     except Exception:
                         continue
+
+                else:
+                    continue
 
                 size = stats.st_size
                 mod = stats.st_mtime
