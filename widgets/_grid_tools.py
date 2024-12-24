@@ -23,6 +23,7 @@ class GridTools:
         )
 
         if isinstance(db_item, int):
+            # print("update")
             img_array = cls.update_db_item(
                 conn=conn,
                 order_item=order_item,
@@ -30,12 +31,14 @@ class GridTools:
             )
 
         elif db_item is None:
+            # print("insert")
             img_array = cls.insert_db_item(
                 conn=conn,
                 order_item=order_item
             )
         
         elif isinstance(db_item, bytes):
+            # print("already")
             img_array = Utils.bytes_to_array(
                 blob=db_item
             )
@@ -80,11 +83,12 @@ class GridTools:
                     res_by_src.get(ColumnNames.RATING)
                 )
 
-            # даты изменения совпадают
-            return (
-                res_by_src.get(ColumnNames.IMG),
-                res_by_src.get(ColumnNames.RATING)
-            )
+            else:
+                # даты изменения совпадают
+                return (
+                    res_by_src.get(ColumnNames.IMG),
+                    res_by_src.get(ColumnNames.RATING)
+                )
 
         # Запись по имени файла не найдена, возможно файл был переименован,
         # но содержимое файла не менялось
