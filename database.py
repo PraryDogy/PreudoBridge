@@ -162,12 +162,18 @@ class Dbase:
         )
 
         try:
+            # счетчик должен идти первым, потому что уже на инструкции
+            # metadata.create_all уже может возникнуть ошибка
+
             self.conn_count += 1
             METADATA.create_all(bind=engine)
             conn = engine.connect()
+
+            # проверяем доступность БД и соответствие таблицы
             q = sqlalchemy.select(CACHE)
             conn.execute(q).first()
             conn.close()
+
             return engine
 
         except SQL_ERRORS:
