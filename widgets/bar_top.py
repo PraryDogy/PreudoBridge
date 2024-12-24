@@ -117,6 +117,7 @@ class FiltersBtn(BarTopBtn):
         
         self.menu_ = QWidget()
         self.menu_.setWindowFlags(Qt.WindowType.Popup)
+        self.menu_.closeEvent = self.menu_close_cmd
 
         self.menu_.setLayout(QVBoxLayout())
         self.menu_.layout().setContentsMargins(0, 0, 0, 0)
@@ -152,9 +153,6 @@ class FiltersBtn(BarTopBtn):
             rating_lay.addWidget(label)
             self.rating_wids.append(label)
         
-        self.menu_.adjustSize()
-        self.menu_.closeEvent = self.menu_close_cmd
-
     def menu_close_cmd(self, *args):
         super().leaveEvent(args)
 
