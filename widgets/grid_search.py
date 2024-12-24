@@ -53,7 +53,7 @@ class SearchFinder(URunnable):
     def run(self):
         try:
             self.setup_text()
-            self.walk_dir()
+            self.scandir_main()
 
             # if self.should_run:
                 # SignalsApp.instance.set_search_title.emit(str(self.search_text))
@@ -71,8 +71,7 @@ class SearchFinder(URunnable):
         else:
             self.process_entry = self.process_text
 
-    def process_entry(self, entry: os.DirEntry):
-        ...
+    def process_entry(self, entry: os.DirEntry): ...
 
     def process_extensions(self, entry: os.DirEntry):
         path = entry.path
@@ -91,7 +90,21 @@ class SearchFinder(URunnable):
         else:
             return False
 
-    def walk_dir(self):
+    def file_check(self, entry: os.DirEntry):
+        root = os.path.dirname(entry.path)
+        db = os.path.join(root, Static.DB_FILENAME)
+
+        if os.path.exists(db):
+            ...
+            # подключаемся к дб
+            # проверяем существование файла
+            # делаем update / insert
+
+        elif not os.path.exists(db):
+            ...
+            # не существует дб
+
+    def scandir_main(self):
 
         stack = [JsonData.root]
 
@@ -113,7 +126,8 @@ class SearchFinder(URunnable):
                         continue
 
                     if self.process_entry(entry=entry):
-                        print(entry.name)
+                        # print(entry.name)
+                        ...
 
 
 
