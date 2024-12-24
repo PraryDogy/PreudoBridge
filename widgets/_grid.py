@@ -23,11 +23,9 @@ from .list_file_system import ListFileSystem
 from .win_find_here import WinFindHere
 from .win_sys import WinCopy
 
-SELECTED = "selected"
 FONT_SIZE = "font-size: 11px;"
 RAD = "border-radius: 4px"
 IMG_WID_ATTR = "img_wid"
-HAS_SEL_WID = "has_sel_wid"
 
 KEY_RATING = {
     Qt.Key.Key_0: 0,
@@ -499,7 +497,6 @@ class Grid(BaseMethods, QScrollArea):
         self.curr_cell = (wid.row, wid.col)
         self.ensureWidgetVisible(wid)
         self.selected_widgets = [wid]
-        setattr(self, HAS_SEL_WID, True)
 
         # через таймер чтобы функция не блокировалась зажатой клавишей мыши
         cmd_ = lambda: SignalsApp.instance.bar_bottom_cmd.emit(
@@ -652,10 +649,6 @@ class Grid(BaseMethods, QScrollArea):
 
     def shift_clicked(self, wid: Thumb):
 
-        if not hasattr(self, HAS_SEL_WID):
-            self.select_one_wid(wid)
-            return
-
         coords = list(self.cell_to_wid)
         shift_coords = []
         start_ind = coords.index(self.curr_cell)
@@ -745,6 +738,12 @@ class Grid(BaseMethods, QScrollArea):
             elif a0.key() == Qt.Key.Key_D:
                 self.open_find_here_win()
 
+            elif a0.key() == Qt.Key.Key_A:
+                self.curr_cell = (0, 0)
+                last_key = list(self.cell_to_wid)[-1]
+                last_wid = self.cell_to_wid.get(last_key)
+                self.shift_clicked(wid=last_wid)
+
         elif a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
             wid = self.cell_to_wid.get(self.curr_cell)
             if wid:
@@ -780,9 +779,7 @@ class Grid(BaseMethods, QScrollArea):
             i.set_no_frame()
 
         cmd_ = lambda: SignalsApp.instance.bar_bottom_cmd.emit(
-            {
-                "src": JsonData.root
-            }
+            {"src": JsonData.root}
         )
 
         QTimer.singleShot(100, cmd_)
@@ -852,6 +849,3 @@ class Grid(BaseMethods, QScrollArea):
             i.set_no_frame()
 
         self.selected_widgets.clear()
-
-        if hasattr(self, HAS_SEL_WID):
-            delattr(self, HAS_SEL_WID)
