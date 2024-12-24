@@ -23,7 +23,6 @@ class GridTools:
         )
 
         if isinstance(db_item, int):
-            print("update")
             img_array = cls.update_db_item(
                 conn=conn,
                 order_item=order_item,
@@ -31,14 +30,12 @@ class GridTools:
             )
 
         elif db_item is None:
-            # print("insert")
             img_array = cls.insert_db_item(
                 conn=conn,
                 order_item=order_item
             )
         
         elif isinstance(db_item, bytes):
-            # print("already")
             img_array = Utils.bytes_to_array(
                 blob=db_item
             )
@@ -68,8 +65,10 @@ class GridTools:
             CACHE.c.rating
         )
 
-        # Проверка по имени файла
-        where_stmt = select_stmt.where(CACHE.c.name == order_item.name)
+        hash_name = Utils.hash_filename(filename=order_item.name)
+
+        # Проверка по hash имени файла
+        where_stmt = select_stmt.where(CACHE.c.name == hash_name)
         res_by_src = conn.execute(where_stmt).mappings().first()
 
         # Запись найдена
@@ -120,8 +119,10 @@ class GridTools:
             img_array=img_array
         )
 
+        new_name = Utils.hash_filename(filename=order_item.name)
+
         values = {
-            ColumnNames.NAME: order_item.name,
+            ColumnNames.NAME: new_name,
             ColumnNames.IMG: bytes_img,
             ColumnNames.SIZE: new_size,
             ColumnNames.MOD: new_mod,
@@ -149,9 +150,11 @@ class GridTools:
             img_array=img_array
         )
 
+        new_name = Utils.hash_filename(filename=order_item.name)
+
         values = {
             ColumnNames.IMG: bytes_img,
-            ColumnNames.NAME: order_item.name,
+            ColumnNames.NAME: new_name,
             ColumnNames.TYPE: order_item.type_,
             ColumnNames.SIZE: new_size,
             ColumnNames.MOD: new_mod,

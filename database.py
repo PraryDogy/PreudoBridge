@@ -67,7 +67,7 @@ class OrderItem:
         self.rating: int = rating
 
         # Извлечение имени файла из пути (например, "path/to/file.txt" -> "file.txt")
-        self.name: str = os.path.split(self.src)[-1]
+        self.name: str = os.path.split(self.src)[-1].strip()
             
         # Проверка: если путь ведёт к директории, то задаём тип FOLDER_TYPE.
         # Иначе определяем тип по расширению файла (например, ".txt").    

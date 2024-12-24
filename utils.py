@@ -1,3 +1,4 @@
+import hashlib
 import io
 import logging
 import os
@@ -5,7 +6,6 @@ import subprocess
 import traceback
 from datetime import datetime
 
-import cv2
 import numpy as np
 import psd_tools
 import rawpy
@@ -390,6 +390,10 @@ class Utils(Pixmap, ReadImage, ImgConvert):
         else:
             return path
 
+    @classmethod
+    def hash_filename(cls, filename: str):
+        """Возвращает хэш имени файла."""
+        return hashlib.md5(filename.encode('utf-8')).hexdigest()
 
 class URunnable(QRunnable):
     def __init__(self):
