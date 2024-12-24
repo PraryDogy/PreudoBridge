@@ -169,7 +169,7 @@ class FiltersBtn(BarTopBtn):
 
             i.setStyleSheet(
                 f"""
-                    background: {Static.BLUE};
+                    background: {Static.GRAY_SLIDER};
                     border-radius: 3px;
                 """
             )
