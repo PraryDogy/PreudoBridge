@@ -43,6 +43,10 @@ class LoadThumbnail(URunnable):
             db = os.path.join(JsonData.root, Static.DB_FILENAME)
             dbase = Dbase()
             engine = dbase.create_engine(path=db)
+
+            if engine is None:
+                return
+
             conn = engine.connect()
 
             q = sqlalchemy.select(CACHE.c.img)

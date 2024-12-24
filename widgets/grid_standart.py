@@ -48,6 +48,10 @@ class LoadImages(URunnable):
         db = os.path.join(JsonData.root, Static.DB_FILENAME)
         self.dbase = Dbase()
         engine = self.dbase.create_engine(path=db)
+
+        if engine is None:
+            return
+
         self.conn = engine.connect()
 
         try:

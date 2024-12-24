@@ -176,7 +176,10 @@ class Dbase:
 
             return engine
 
-        except SQL_ERRORS:
+        except SQL_ERRORS as e:
+
+            print("database engine error", path)
+
             if os.path.exists(path):
                 os.remove(path)
             self.create_engine(path=path)
