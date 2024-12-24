@@ -51,7 +51,7 @@ class UpdateThumbData(URunnable):
 
         super().__init__()
         self.cmd_ = cmd_
-        self.name = name
+        self.name = Utils.hash_filename(filename=name)
         self.values = values
 
     @URunnable.set_running_state
@@ -64,6 +64,8 @@ class UpdateThumbData(URunnable):
         dbase = Dbase()
         engine = dbase.create_engine(path=db)
         conn = engine.connect()
+
+        print(db)
 
         try:
             conn.execute(stmt)
