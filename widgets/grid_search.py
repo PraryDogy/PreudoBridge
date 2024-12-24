@@ -1,16 +1,12 @@
 import os
-from ast import literal_eval
-from time import sleep
+import traceback
 
-import sqlalchemy
-from numpy import ndarray
 from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import JsonData, Static, ThumbData
-from database import CACHE, Dbase, OrderItem
-from fit_img import FitImg
+from cfg import JsonData, Static
+from database import Dbase, OrderItem
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
@@ -21,19 +17,9 @@ SLEEP = 0.2
 SEARCH_TEMPLATE = "search_template"
 SQL_ERRORS = (IntegrityError, OperationalError)
 
-class WidgetData:
-    __slots__ = ["src", "rating", "size", "mod", "pixmap"]
-
-    def __init__(self, src: str, rating: int, size: int, mod: int, pixmap: QPixmap):
-        self.src: str = src
-        self.rating: int = rating
-        self.size: int = size
-        self.mod: int = mod
-        self.pixmap: QPixmap = pixmap
-
 
 class WorkerSignals(QObject):
-    add_new_widget = pyqtSignal(WidgetData)
+    new_widget = pyqtSignal(OrderItem)
     finished_ = pyqtSignal()
 
 
@@ -108,24 +94,10 @@ class SearchFinder(URunnable):
                         continue
 
                     if self.process_entry(entry=entry):
-                        self.file_check(entry=entry)
+                        self.process_img(entry=entry)
                         
 
-    def file_check(self, entry: os.DirEntry):
-        root = os.path.dirname(entry.path)
-        db = os.path.join(root, Static.DB_FILENAME)
-
-        dbase = Dbase()
-        engine = dbase.create_engine(path=db)
-        conn = engine.connect()
-
-        pixmap = self.file_db_check(
-            conn=conn,
-            entry=entry
-        )
-
-
-    def file_db_check(self, conn: sqlalchemy.Connection, entry: os.DirEntry):
+    def process_img(self, entry: os.DirEntry):
         
         stat = entry.stat()
 
@@ -136,12 +108,26 @@ class SearchFinder(URunnable):
             rating=0
         )
 
-        rating, item = GridTools.load_db_item(
-            conn=conn,
-            order_item=order_item
-        )
+        root = os.path.dirname(entry.path)
+        db = os.path.join(root, Static.DB_FILENAME)
+        dbase = Dbase()
+        engine = dbase.create_engine(path=db)
+        conn = engine.connect()
 
-        print(rating, item)
+        try:
+
+            new_order_item = GridTools.update_order_item(
+                conn=conn,
+                order_item=order_item
+            )
+
+            if new_order_item:
+                self.signals_.new_widget.emit(new_order_item)
+
+        except Exception as e:
+            # Utils.print_error(parent=self, error=e)
+            print(traceback.format_exc())
+
 
 
 
@@ -163,20 +149,20 @@ class GridSearch(Grid):
         ThumbSearch.calculate_size()
 
         self.task_ = SearchFinder(search_text)
-        self.task_.signals_.add_new_widget.connect(self.add_new_widget)
+        self.task_.signals_.new_widget.connect(self.add_new_widget)
         self.task_.signals_.finished_.connect(self.search_fin)
         UThreadPool.start(self.task_)
 
-    def add_new_widget(self, widget_data: WidgetData):
+    def add_new_widget(self, order_item: OrderItem):
         wid = ThumbSearch(
-            src=widget_data.src,
-            size=widget_data.size,
-            mod=widget_data.mod,
-            rating=widget_data.rating,
+            src=order_item.src,
+            size=order_item.size,
+            mod=order_item.mod,
+            rating=order_item.rating,
             )
         
-        if widget_data.pixmap is not None:
-            wid.set_pixmap(widget_data.pixmap)
+        if isinstance(order_item.pixmap_, QPixmap):
+            wid.set_pixmap(order_item.pixmap_)
 
         wid.clicked_.connect(
             lambda w=wid: self.select_one_wid(wid=w)

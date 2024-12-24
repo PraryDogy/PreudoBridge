@@ -1,25 +1,21 @@
 import os
 import traceback
-from typing import Literal
 
-import numpy as np
 import sqlalchemy
-from numpy import ndarray
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import QLabel
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import JsonData, Static, ThumbData
-from database import CACHE, ColumnNames, Dbase, OrderItem
-from fit_img import FitImg
+from cfg import JsonData, Static
+from database import CACHE, Dbase, OrderItem
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 from ._finder_items import FinderItems, LoadingWid
 from ._grid import Grid, Thumb, ThumbFolder
-from ._grid_tools import GridTools, ImageData
+from ._grid_tools import GridTools
 
 WARN_TEXT = "Нет изображений или нет подключения к диску"
 TASK_NAME = "LOAD_IMAGES"
@@ -27,7 +23,7 @@ SQL_ERRORS = (IntegrityError, OperationalError)
 
 
 class WorkerSignals(QObject):
-    new_widget = pyqtSignal(ImageData)
+    new_widget = pyqtSignal(OrderItem)
 
 
 class LoadImages(URunnable):
@@ -70,13 +66,13 @@ class LoadImages(URunnable):
             
             try:
 
-                image_data = GridTools.create_image_data(
+                new_order_item = GridTools.update_order_item(
                     conn=self.conn,
                     order_item=order_item
                 )
 
-                if image_data:
-                    self.signals_.new_widget.emit(image_data)
+                if new_order_item:
+                    self.signals_.new_widget.emit(new_order_item)
 
             except Exception as e:
                 # Utils.print_error(parent=self, error=e)
@@ -258,17 +254,17 @@ class GridStandart(Grid):
         self.load_images_task_.signals_.new_widget.connect(cmd_)
         UThreadPool.start(self.load_images_task_)
     
-    def set_pixmap(self, image_data: ImageData):
+    def set_pixmap(self, order_item: OrderItem):
 
-        widget = Thumb.path_to_wid.get(image_data.src)
+        widget = Thumb.path_to_wid.get(order_item.src)
 
         if isinstance(widget, Thumb):
 
-            if isinstance(image_data.pixmap, QPixmap):
-                widget.set_pixmap(pixmap=image_data.pixmap)
+            if isinstance(order_item.pixmap_, QPixmap):
+                widget.set_pixmap(pixmap=order_item.pixmap_)
 
-            if isinstance(image_data.rating, int):
-                widget.set_rating_cmd(rating=image_data.rating)
+            if isinstance(order_item.rating, int):
+                widget.set_rating_cmd(rating=order_item.rating)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         

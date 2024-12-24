@@ -1,7 +1,6 @@
 import os
 
 import numpy as np
-from PyQt5.QtGui import QPixmap
 from sqlalchemy import Connection, insert, select, update
 from sqlalchemy.exc import IntegrityError, OperationalError
 
@@ -13,19 +12,19 @@ from utils import Utils
 SQL_ERRORS = (IntegrityError, OperationalError)
 
 
-class ImageData:
-    __slots__ = ["src", "pixmap", "rating"]
+# class ImageData:
+#     __slots__ = ["src", "pixmap", "rating"]
 
-    def __init__(self, src: str, pixmap: QPixmap, rating: int):
-        self.src = src
-        self.pixmap = pixmap
-        self.rating = rating
+#     def __init__(self, src: str, pixmap: QPixmap, rating: int):
+#         self.src = src
+#         self.pixmap = pixmap
+#         self.rating = rating
 
         
 class GridTools:
 
     @classmethod
-    def create_image_data(cls, conn: Connection, order_item: OrderItem):
+    def update_order_item(cls, conn: Connection, order_item: OrderItem):
         
         db_item, rating = GridTools.load_db_item(
             conn=conn,
@@ -56,13 +55,10 @@ class GridTools:
                 image=img_array
             )
 
-            image_data = ImageData(
-                src=order_item.src,
-                pixmap=pixmap,
-                rating=rating
-            )
+            order_item.pixmap_ = pixmap
+            order_item.rating = rating
 
-            return image_data
+            return order_item
         
         else:
             return None

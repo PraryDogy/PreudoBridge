@@ -2,6 +2,7 @@ import os
 import re
 
 import sqlalchemy
+from PyQt5.QtGui import QPixmap
 from sqlalchemy.exc import OperationalError
 
 from cfg import Dynamic, Static
@@ -74,6 +75,9 @@ class OrderItem:
             self.type_ = Static.FOLDER_TYPE
         else:
             self.type_ = os.path.splitext(self.src)[-1]
+
+        # промежуточный аттрибут, нужен для GridSearch
+        self.pixmap_: QPixmap = None
 
 
     # Как работает сортировка:
