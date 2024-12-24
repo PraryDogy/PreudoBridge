@@ -139,7 +139,7 @@ class SearchFinder(URunnable):
             # Utils.print_error(parent=self, error=e)
             print(traceback.format_exc())
 
-
+        conn.close()
 
 
 class GridSearch(Grid):
