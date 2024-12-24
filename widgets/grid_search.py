@@ -14,7 +14,6 @@ from ._grid import Grid, ThumbSearch
 from ._grid_tools import GridTools
 
 SLEEP = 0.2
-SEARCH_TEMPLATE = "search_template"
 SQL_ERRORS = (IntegrityError, OperationalError)
 
 
@@ -70,7 +69,7 @@ class SearchFinder(URunnable):
         filename, _ = os.path.splitext(entry.name)
         filename: str = filename.lower()
         search_text: str = self.search_text.lower()
-        if filename in search_text or search_text in filename:
+        if filename == search_text:
             return True
         else:
             return False
@@ -152,10 +151,7 @@ class GridSearch(Grid):
         self.total = 0
 
         SignalsApp.instance.bar_bottom_cmd.emit(
-            {
-                "src": JsonData.root,
-                "total": 0
-            }
+            {"src": JsonData.root, "total": str(self.total)}
         )
 
         ThumbSearch.calculate_size()
@@ -216,17 +212,13 @@ class GridSearch(Grid):
             self.order_()
 
             SignalsApp.instance.bar_bottom_cmd.emit(
-                {
-                    "total": self.total
-                }
+                {"total": str(self.total)}
             )
 
     def search_fin(self):
 
         SignalsApp.instance.bar_bottom_cmd.emit(
-            {
-                "total": self.total
-            }
+            {"total": str(self.total)}
         )
 
         self.order_()

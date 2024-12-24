@@ -447,7 +447,6 @@ class BarBottom(QWidget):
 
         if data.get("total"):
             self.add_total(value=data.get("total"))
-
         self.sort_frame.add_sort()
 
     def create_path_labels(self, src: str):
