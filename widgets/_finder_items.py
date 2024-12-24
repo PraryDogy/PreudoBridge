@@ -5,11 +5,13 @@ from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QLabel, QWidget
 
+from sqlalchemy.exc import OperationalError, IntegrityError
 from cfg import JsonData, Static
 from database import CACHE, ColumnNames, Dbase, OrderItem
 from utils import URunnable, Utils
 
 LOADING_T = "Загрузка..."
+SQL_ERRORS = (IntegrityError, OperationalError)
 
 
 class WorkerSignals(QObject):
@@ -30,27 +32,21 @@ class FinderItems(URunnable):
             db = os.path.join(JsonData.root, Static.DB_FILENAME)
             dbase = Dbase()
             self.engine = dbase.create_engine(path=db)
-
-            self.get_items(
-                db_ratings=self.get_rating()
-            )
-
+            self.get_items(db_ratings=self.get_rating())
             self.order_items = OrderItem.order_items(
                 order_items=self.order_items
             )
-
             self.signals_.finished_.emit(self.order_items)
-
-        # except (PermissionError, FileNotFoundError, NotADirectoryError) as e:
-        #     self.order_items = []
-        #     self.signals_.finished_.emit(self.order_items)
         
-        except RuntimeError as e:
-            ...
+        except SQL_ERRORS as e:
+            self.get_items_no_db()
+            self.order_items = OrderItem.order_items(
+                order_items=self.order_items
+            )
+            self.signals_.finished_.emit(self.order_items)
 
         except Exception as e:
-            self.order_items = []
-            self.signals_.finished_.emit(self.order_items)
+            ...
 
     def get_rating(self):
 
@@ -87,6 +83,29 @@ class FinderItems(URunnable):
                     rating = 0 if db_rating is None else db_rating
 
                     item = OrderItem(entry.path, size, mod, rating)
+                    self.order_items.append(item)
+
+    def get_items_no_db(self):
+        with os.scandir(JsonData.root) as entries:
+
+            for entry in entries:
+
+                if entry.name.startswith("."):
+                    continue
+
+                if entry.is_dir() or entry.name.endswith(Static.IMG_EXT):
+                    # try:
+                    #     stats = entry.stat()
+                    # except Exception:
+                    #     continue
+
+                    # size = stats.st_size
+                    # mod = stats.st_mtime
+
+                    # db_rating = db_ratings.get(entry.name)
+                    # rating = 0 if db_rating is None else db_rating
+
+                    item = OrderItem(entry.path, 0, 0, 0)
                     self.order_items.append(item)
 
 
