@@ -11,15 +11,6 @@ from utils import Utils
 
 SQL_ERRORS = (IntegrityError, OperationalError)
 
-
-# class ImageData:
-#     __slots__ = ["src", "pixmap", "rating"]
-
-#     def __init__(self, src: str, pixmap: QPixmap, rating: int):
-#         self.src = src
-#         self.pixmap = pixmap
-#         self.rating = rating
-
         
 class GridTools:
 

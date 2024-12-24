@@ -38,9 +38,12 @@ class SearchFinder(URunnable):
             self.scandir_main()
 
             # if self.should_run:
-                # SignalsApp.instance.set_search_title.emit(str(self.search_text))
 
-            # self.signals_.finished_.emit()
+            #     SignalsApp.instance.set_search_title.emit(
+            #         self.search_text
+            #     )
+
+            self.signals_.finished_.emit()
 
         except RuntimeError as e:
             Utils.print_error(parent=None, error=e)
@@ -81,21 +84,30 @@ class SearchFinder(URunnable):
 
             if not self.should_run:
                 return
+            
+            try:
+                self.scan_current_dir(
+                    current_dir=current_dir,
+                    stack=stack
+                )
 
-            with os.scandir(current_dir) as entries:
+            except Exception as e:
+                continue
 
-                for entry in entries:
+    def scan_current_dir(self, current_dir, stack: list):
 
-                    if not self.should_run:
-                        return
+        with os.scandir(current_dir) as entries:
+            for entry in entries:
 
-                    if entry.is_dir():
-                        stack.append(entry.path)
-                        continue
+                if not self.should_run:
+                    return
 
-                    if self.process_entry(entry=entry):
-                        self.process_img(entry=entry)
-                        
+                if entry.is_dir():
+                    stack.append(entry.path)
+                    continue
+
+                if self.process_entry(entry=entry):
+                    self.process_img(entry=entry)
 
     def process_img(self, entry: os.DirEntry):
         
