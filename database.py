@@ -3,13 +3,14 @@ import re
 
 import sqlalchemy
 from PyQt5.QtGui import QPixmap
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Dynamic, Static
 from utils import Utils
 
 METADATA = sqlalchemy.MetaData()
 TABLE_NAME = "cache"
+SQL_ERRORS = (OperationalError, IntegrityError)
 
 class ColumnNames:
     ID = "id"
@@ -148,7 +149,7 @@ class Dbase:
 
     def create_engine(self, path: str) -> sqlalchemy.Engine | None:
 
-        if self.conn_count >= self.conn_max:
+        if self.conn_count == self.conn_max:
             return None
 
         engine = sqlalchemy.create_engine(
@@ -160,21 +161,19 @@ class Dbase:
             }
         )
 
-        METADATA.create_all(bind=engine)
-
-        print("try connect")
-
         try:
+            self.conn_count += 1
+            METADATA.create_all(bind=engine)
             conn = engine.connect()
             q = sqlalchemy.select(CACHE)
             conn.execute(q).first()
             conn.close()
-            self.conn_count += 1
             return engine
-        except Exception:
+
+        except SQL_ERRORS:
             if os.path.exists(path):
                 os.remove(path)
-            return self.create_engine(path=path)
+            self.create_engine(path=path)
 
     def clear_db(self, engine: sqlalchemy.Engine):
 
