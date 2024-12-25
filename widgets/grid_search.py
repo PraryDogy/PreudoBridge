@@ -1,5 +1,6 @@
 import os
 import traceback
+from difflib import SequenceMatcher
 
 from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
@@ -58,6 +59,9 @@ class SearchFinder(URunnable):
         else:
             self.process_entry = self.process_text
 
+    def word_similarity(self, word1: str, word2: str) -> float:
+        return SequenceMatcher(None, word1, word2).ratio()
+
     def process_entry(self, entry: os.DirEntry): ...
 
     def process_extensions(self, entry: os.DirEntry):
@@ -72,7 +76,8 @@ class SearchFinder(URunnable):
         filename, _ = os.path.splitext(entry.name)
         filename: str = filename.lower()
         search_text: str = self.search_text.lower()
-        if filename == search_text:
+
+        if self.word_similarity(word1=filename, word2=search_text) > 0.9:
             return True
         else:
             return False
