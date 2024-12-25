@@ -1,7 +1,7 @@
 import os
 import shutil
 
-from PyQt5.QtCore import Qt, QThread, pyqtSignal
+from PyQt5.QtCore import Qt, QThread, pyqtSignal, QTimer
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import QHBoxLayout, QProgressBar, QWidget
 
@@ -103,7 +103,7 @@ class WinCopyFiles(QWidget):
              prev_path=None
         )
 
-        self.close()
+        QTimer.singleShot(1000, self.close)
 
     def close_thread(self, *args):
         if self.task_.isRunning():
