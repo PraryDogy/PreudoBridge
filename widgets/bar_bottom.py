@@ -383,7 +383,9 @@ class BarBottom(QWidget):
     def __init__(self):
         super().__init__()
         self.setFixedHeight(50)
+        self.setAcceptDrops(True)
         self.current_path: str = None
+        self.path_item_list: list[PathItem] = []
 
         self.main_lay = QVBoxLayout()
         self.main_lay.setContentsMargins(10, 0, 10, 0)
@@ -458,8 +460,10 @@ class BarBottom(QWidget):
         if src == self.current_path:
             return
 
-        for i in self.path_wid.findChildren(PathItem):
+        for i in self.path_item_list:
             i.deleteLater()
+
+        self.path_item_list.clear()
 
         self.current_path = src
         root = src.strip(os.sep).split(os.sep)
@@ -494,5 +498,29 @@ class BarBottom(QWidget):
                 icon = Static.FOLDER_SVG
                 path_item.add_arrow()
 
+            self.path_item_list.append(path_item)
             path_item.img_wid.load(icon)
             self.path_lay.addWidget(path_item)
+
+    def dragEnterEvent(self, a0):
+        a0.acceptProposedAction()
+
+    def dragLeaveEvent(self, a0):
+        for i in self.path_item_list:
+            i.collapse()
+            i.default_style()
+
+    def dragMoveEvent(self, a0):
+        wid = self.childAt(a0.pos())
+        
+        if isinstance(wid, (USvgWidget, QLabel)):
+            wid = wid.parent()
+
+        if isinstance(wid, PathItem):
+            
+            for i in self.path_item_list:
+                i.collapse()
+                i.default_style()
+
+            wid.expand()
+            wid.solid_style()
