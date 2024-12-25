@@ -63,7 +63,7 @@ class FinderItems(URunnable):
         engine = dbase.create_engine(path=db)
 
         if engine is None:
-            return
+            return order_items
 
         conn = engine.connect()
 

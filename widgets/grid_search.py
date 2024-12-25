@@ -141,6 +141,7 @@ class SearchFinder(URunnable):
             engine = dbase.create_engine(path=new_db_path)
 
             if engine is None:
+                self.signals_.new_widget.emit(order_item)
                 return
             
             self.db_path = new_db_path
@@ -163,8 +164,8 @@ class SearchFinder(URunnable):
                 self.signals_.new_widget.emit(new_order_item)
 
         except Exception as e:
-            # Utils.print_error(parent=self, error=e)
-            print(traceback.format_exc())
+            Utils.print_error(parent=self, error=e)
+            self.signals_.new_widget.emit(order_item)
 
 
 class GridSearch(Grid):
