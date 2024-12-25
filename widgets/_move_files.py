@@ -3,10 +3,9 @@ import shutil
 
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QDialog, QHBoxLayout, QLabel, QProgressBar,
-                             QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import QHBoxLayout, QProgressBar, QWidget
 
-from cfg import Static, JsonData
+from cfg import JsonData, Static
 from signals import SignalsApp
 
 
