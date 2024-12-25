@@ -101,7 +101,7 @@ class WinCopyFiles(QWidget):
                 prev_path=None
             )
 
-        # QTimer.singleShot(1000, self.close)
+        QTimer.singleShot(1000, self.close)
 
     def close_thread(self, *args):
         self.task_.should_run = False
