@@ -27,6 +27,8 @@ RAD = "border-radius: 4px"
 IMG_WID_ATTR = "img_wid_attr"
 HAS_SEL_WID = "has_sel_wid"
 SQL_ERRORS = (OperationalError, IntegrityError)
+WID_UNDER_MOUSE = "win_under_mouse"
+MOVE_FILES = "Перемещаю..."
 
 KEY_RATING = {
     Qt.Key.Key_0: 0,
@@ -879,3 +881,45 @@ class Grid(BaseMethods, QScrollArea):
 
         if hasattr(self, HAS_SEL_WID):
             delattr(self, HAS_SEL_WID)
+
+    def dragEnterEvent(self, a0):
+        a0.acceptProposedAction()
+
+    def dragMoveEvent(self, a0):
+        wid = self.childAt(a0.pos())
+        
+        if isinstance(wid, QFrame):
+            wid = wid.parent()
+
+        elif isinstance(wid, USvgWidget):
+            wid = wid.parent().parent()
+
+        elif isinstance(wid, QWidget):
+            for i in self.selected_widgets:
+                i.set_no_frame()
+
+            if hasattr(self, WID_UNDER_MOUSE):
+                delattr(self, WID_UNDER_MOUSE)
+
+        if isinstance(wid, ThumbFolder):
+            self.select_one_wid(wid)
+            setattr(self, WID_UNDER_MOUSE, wid)
+            a0.acceptProposedAction()
+
+    def dropEvent(self, a0):
+        if hasattr(self, WID_UNDER_MOUSE):
+            wid: ThumbFolder = getattr(self, WID_UNDER_MOUSE)
+
+            urls = [
+                i.toLocalFile()
+                for i in a0.mimeData().urls()
+            ]
+
+            from .copy_files import ProgressDialog
+
+            self.dia = ProgressDialog(
+                files_and_folders=urls,
+                destination=wid.src,
+                title=MOVE_FILES
+            )
+            self.dia.show()
