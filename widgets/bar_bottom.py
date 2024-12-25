@@ -22,7 +22,7 @@ TOTAL_T = "Всего"
 ASC = "по убыв."
 DESC = "по возр."
 GO_T = "Перейти"
-MOVE_FILES = "Перемещаю..."
+COPY_FILES = "Копирую..."
 
 class WorkerSignals(QObject):
     finished_ = pyqtSignal(str)
@@ -540,7 +540,7 @@ class BarBottom(QWidget):
             self.dia = WinCopyFiles(
                 items=urls,
                 dest=wid.src,
-                title=MOVE_FILES
+                title=COPY_FILES
             )
             self.dia.show()
 

@@ -29,7 +29,7 @@ IMG_WID_ATTR = "img_wid_attr"
 HAS_SEL_WID = "has_sel_wid"
 SQL_ERRORS = (OperationalError, IntegrityError)
 WID_UNDER_MOUSE = "win_under_mouse"
-MOVE_FILES = "Перемещаю..."
+COPY_FILES = "Копирую..."
 
 KEY_RATING = {
     Qt.Key.Key_0: 0,
@@ -945,7 +945,7 @@ class Grid(BaseMethods, QScrollArea):
             self.dia = WinCopyFiles(
                 items=urls,
                 dest=dest,
-                title=MOVE_FILES
+                title=COPY_FILES
             )
 
             self.dia.show()

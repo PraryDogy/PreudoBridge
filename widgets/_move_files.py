@@ -13,7 +13,7 @@ from signals import SignalsApp
 
 class FileMoverThread(QThread):
     progress = pyqtSignal(int)
-    finished = pyqtSignal()
+    finished_ = pyqtSignal(int)
 
     def __init__(self, items: list, dest: str):
 
@@ -21,6 +21,7 @@ class FileMoverThread(QThread):
 
         self.items = items
         self.dest = dest
+        self.counter = 0
 
     def run(self):
 
@@ -30,13 +31,14 @@ class FileMoverThread(QThread):
 
             try:
                 self.move_item(item=item, destination=self.dest)
+                self.counter += 1
             except (shutil.SameFileError, IsADirectoryError):
                  ...
 
             progress_percent = int(((index + 1) / total_items) * 100)
             self.progress.emit(progress_percent)
 
-        self.finished.emit()
+        self.finished_.emit(self.counter)
 
     @staticmethod
     def move_item(item, destination):
@@ -89,19 +91,23 @@ class WinCopyFiles(QWidget):
         )
 
         self.task_.progress.connect(self.update_progress)
-        self.task_.finished.connect(self.on_finished)
+        self.task_.finished_.connect(self.on_finished)
 
         self.task_.start()
 
     def update_progress(self, value):
         self.progress_bar.setValue(value)
 
-    def on_finished(self):
+    def on_finished(self, counter: int):
 
-        SignalsApp.instance.load_standart_grid_cmd(
-             path=JsonData.root,
-             prev_path=None
-        )
+        if counter > 0:
+
+            print(counter)
+
+            SignalsApp.instance.load_standart_grid_cmd(
+                path=JsonData.root,
+                prev_path=None
+            )
 
         QTimer.singleShot(1000, self.close)
 
