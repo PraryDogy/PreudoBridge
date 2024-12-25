@@ -932,7 +932,13 @@ class Grid(BaseMethods, QScrollArea):
             urls: list[str] = []
 
             for i in a0.mimeData().urls():
+
                 src = i.toLocalFile()
+
+                # нельзя копировать папку файл в самого себя
+                if src in Thumb.path_to_wid:
+                    return
+
                 if os.path.isdir(src) or src.endswith(Static.IMG_EXT):
                     urls.append(src)
 
