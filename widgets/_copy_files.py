@@ -47,9 +47,6 @@ class FileMoverThread(URunnable):
                 shutil.copy(item, path)
                 self.counter += 1
 
-                from time import sleep
-                sleep(3)
-
             except (shutil.SameFileError, IsADirectoryError):
                  ...
 
