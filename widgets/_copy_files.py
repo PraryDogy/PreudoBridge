@@ -30,8 +30,17 @@ class FileMoverThread(QThread):
         for index, item in enumerate(self.items):
 
             try:
-                self.move_item(item=item, destination=self.dest)
+
+                shutil.copy(
+                   item,
+                    os.path.join(self.dest, os.path.basename(item))
+                )
+
                 self.counter += 1
+
+                # from time import sleep
+                # sleep(2)
+
             except (shutil.SameFileError, IsADirectoryError):
                  ...
 
