@@ -362,16 +362,20 @@ class SortFrame(UFrame):
 
     def mouseReleaseEvent(self, a0: QMouseEvent):
 
-        menu = SortMenu(parent=self)
+        menu_ = SortMenu(parent=self)
 
-        widget_top_left = self.rect().topLeft()
+        widget_rect = self.rect()
+        menu_size = menu_.sizeHint()
 
-        menu_top_left = self.mapToGlobal(
-            widget_top_left) - QPoint(0, menu.sizeHint().height()
+        centered = QPoint(
+            menu_size.width() // 2,
+            menu_size.height() + self.height() // 2
         )
 
-        menu.move(menu_top_left)
-        menu.exec_()
+        menu_center_top = self.mapToGlobal(widget_rect.center()) - centered
+
+        menu_.move(menu_center_top)
+        menu_.exec_()
         super().leaveEvent(a0=a0)
 
 
