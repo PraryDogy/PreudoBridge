@@ -185,7 +185,7 @@ class UFrame(QFrame):
     def solid_style(self):
         return f"""#bar_top_btn {{
                         background: {Static.GRAY_UP_BTN}; 
-                        border-radius: 5px;
+                        border-radius: 7px;
                 }}"""
 
     def enterEvent(self, a0):
