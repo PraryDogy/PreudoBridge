@@ -28,7 +28,10 @@ class FileMoverThread(QThread):
 
         for index, item in enumerate(self.items):
 
-            self.move_item(item=item, destination=self.dest)
+            try:
+                self.move_item(item=item, destination=self.dest)
+            except (shutil.SameFileError, IsADirectoryError):
+                 ...
 
             progress_percent = int(((index + 1) / total_items) * 100)
             self.progress.emit(progress_percent)
