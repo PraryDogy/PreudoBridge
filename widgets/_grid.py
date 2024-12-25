@@ -931,4 +931,4 @@ class Grid(BaseMethods, QScrollArea):
 
             self.dia = WinCopyFiles(mime_data=a0.mimeData(), dest=dest)
             Utils.center_win(parent=self.window(), child=self.dia)
-            self.dia.show()
+            QTimer.singleShot(1000, self.dia.custom_show)
