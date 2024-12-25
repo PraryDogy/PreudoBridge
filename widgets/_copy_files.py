@@ -2,16 +2,18 @@ import os
 import shutil
 
 from PyQt5.QtCore import QMimeData, QObject, Qt, QTimer, pyqtSignal
-from PyQt5.QtWidgets import QHBoxLayout, QLabel, QPushButton, QWidget
+from PyQt5.QtWidgets import QVBoxLayout, QLabel, QPushButton, QWidget
 
 from cfg import JsonData, Static
 from signals import SignalsApp
 from utils import URunnable, UThreadPool
 
-COPY_T = "Копирую"
+COPY_TITLE = "Пожалуйста, подождите"
+COPY_T = "копирую"
 FROM_T = "из"
 PREPARING_T = "Подготовка..."
 CANCEL_T = "Отмена"
+MAX_T = 35
 
 
 class WorkerSignals(QObject):
@@ -26,7 +28,7 @@ class CopyFilesThread(URunnable):
         super().__init__()
 
         self.signals_ = WorkerSignals()
-        self.dest = dest
+        self.dest = os.sep + dest.strip(os.sep)
         self.counter = 0
         self.items: list[str] = []
 
@@ -37,7 +39,7 @@ class CopyFilesThread(URunnable):
 
     @URunnable.set_running_state
     def run(self):
-        total_items = len(self.items)
+        total = len(self.items)
         for index, item in enumerate(self.items, start=1):
 
             if not self.should_run:
@@ -52,7 +54,12 @@ class CopyFilesThread(URunnable):
             except (shutil.SameFileError, IsADirectoryError):
                  ...
 
-            t = f"{COPY_T} {index} {FROM_T} {total_items}"
+            filename = os.path.basename(item)
+            t = f"{index} {FROM_T} {total}: {COPY_T} {filename}"
+
+            if len(t) > MAX_T:
+                t = t[:MAX_T] + "..."
+
             self.signals_.progress.emit(t)
 
         self.signals_.finished_.emit(self.counter)
@@ -62,15 +69,15 @@ class WinCopyFiles(QWidget):
     def __init__(self, mime_data: QMimeData, dest: str):
         super().__init__()
 
-        self.setWindowTitle(COPY_T)
-        self.setFixedSize(250, 60)
+        self.setWindowTitle(COPY_TITLE)
+        self.setFixedSize(300, 70)
 
         fl = Qt.WindowType.Window | Qt.WindowType.CustomizeWindowHint
         fl = fl  | Qt.WindowType.WindowCloseButtonHint
         self.setWindowFlags(fl)
 
-        h_lay = QHBoxLayout(self)
-        h_lay.setContentsMargins(15, 0, 15, 0)
+        h_lay = QVBoxLayout(self)
+        h_lay.setContentsMargins(15, 10, 15, 10)
         self.setLayout(h_lay)
 
         self.progress_label = QLabel(text=PREPARING_T)
@@ -79,7 +86,7 @@ class WinCopyFiles(QWidget):
         self.cancel_button = QPushButton(text=CANCEL_T)
         self.cancel_button.setFixedWidth(100)
         self.cancel_button.clicked.connect(self.close_thread)
-        h_lay.addWidget(self.cancel_button)
+        h_lay.addWidget(self.cancel_button, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.task_ = CopyFilesThread(mime_data=mime_data,dest=dest)
         self.task_.signals_.progress.connect(self.update_progress)
@@ -98,8 +105,8 @@ class WinCopyFiles(QWidget):
                 prev_path=None
             )
 
-        QTimer.singleShot(1000, self.close)
+        QTimer.singleShot(200, self.close)
 
     def close_thread(self, *args):
         self.task_.should_run = False
-        QTimer.singleShot(1000, self.close)
+        QTimer.singleShot(200, self.close)
