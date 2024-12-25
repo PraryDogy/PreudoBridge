@@ -89,7 +89,7 @@ class ULineEdit(QLineEdit):
     def __init__(self):
         super().__init__()
         self.setStyleSheet("padding-left: 2px; padding-right: 18px;")
-        self.setFixedHeight(26)
+        self.setFixedHeight(30)
 
         self.clear_btn = QSvgWidget(parent=self)
         self.clear_btn.load(Static.CLEAR_SVG)
