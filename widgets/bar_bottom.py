@@ -23,7 +23,6 @@ TOTAL_T = "Всего"
 ASC = "по убыв."
 DESC = "по возр."
 GO_T = "Перейти"
-COPY_FILES = "Копирую..."
 CURR_WID = "curr_wid"
 
 class WorkerSignals(QObject):
@@ -532,16 +531,7 @@ class BarBottom(QWidget):
         if hasattr(self, CURR_WID):
             wid: PathItem = getattr(self, CURR_WID)
 
-            urls: list[str] = []
-
-            for i in a0.mimeData().urls():
-
-                src = i.toLocalFile()
-
-                if os.path.isdir(src) or src.endswith(Static.IMG_EXT):
-                    urls.append(src)
-
-            self.dia = WinCopyFiles(items=urls, dest= wid.src, title=COPY_FILES)
+            self.dia = WinCopyFiles(mime_data=a0.mimeData(), dest= wid.src)
             Utils.center_win(parent=self.window(), child=self.dia)
             self.dia.show()
             delattr(self, CURR_WID)

@@ -1,10 +1,10 @@
 import os
 import shutil
 
-from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QObject
+from PyQt5.QtCore import QMimeData, QObject, Qt, QTimer, pyqtSignal
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QPushButton, QWidget
 
-from cfg import JsonData
+from cfg import JsonData, Static
 from signals import SignalsApp
 from utils import URunnable, UThreadPool
 
@@ -21,17 +21,21 @@ class WorkerSignals(QObject):
     finished_ = pyqtSignal(int)
 
 
-class FileMoverThread(URunnable):
+class CopyFilesThread(URunnable):
 
-    def __init__(self, items: list, dest: str):
+    def __init__(self, mime_data: QMimeData, dest: str):
 
         super().__init__()
 
         self.signals_ = WorkerSignals()
-
-        self.items = items
         self.dest = dest
         self.counter = 0
+        self.items: list[str] = []
+
+        for i in mime_data.urls():
+            src = i.toLocalFile()
+            if os.path.isdir(src) or src.endswith(Static.IMG_EXT):
+                self.items.append(src)
 
     @URunnable.set_running_state
     def run(self):
@@ -57,10 +61,10 @@ class FileMoverThread(URunnable):
 
 
 class WinCopyFiles(QWidget):
-    def __init__(self, items: list, dest: str, title: str):
+    def __init__(self, mime_data: QMimeData, dest: str):
         super().__init__()
 
-        self.setWindowTitle(title)
+        self.setWindowTitle(COPY_T)
         self.setFixedSize(250, 60)
 
         fl = Qt.WindowType.Window | Qt.WindowType.CustomizeWindowHint
@@ -79,14 +83,9 @@ class WinCopyFiles(QWidget):
         self.cancel_button.clicked.connect(self.close_thread)
         h_lay.addWidget(self.cancel_button)
 
-        self.task_ = FileMoverThread(
-            items=items,
-            dest=dest
-        )
-
+        self.task_ = CopyFilesThread(mime_data=mime_data,dest=dest)
         self.task_.signals_.progress.connect(self.update_progress)
         self.task_.signals_.finished_.connect(self.on_finished)
-
         UThreadPool.start(runnable=self.task_)
 
     def update_progress(self, text: str):

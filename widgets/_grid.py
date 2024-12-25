@@ -29,7 +29,6 @@ IMG_WID_ATTR = "img_wid_attr"
 HAS_SEL_WID = "has_sel_wid"
 SQL_ERRORS = (OperationalError, IntegrityError)
 WID_UNDER_MOUSE = "win_under_mouse"
-COPY_FILES = "Копирую..."
 
 KEY_RATING = {
     Qt.Key.Key_0: 0,
@@ -919,6 +918,7 @@ class Grid(BaseMethods, QScrollArea):
             a0.acceptProposedAction()
 
     def dropEvent(self, a0):
+
         if hasattr(self, WID_UNDER_MOUSE):
             
             wid: ThumbFolder | QWidget = getattr(self, WID_UNDER_MOUSE)
@@ -928,16 +928,7 @@ class Grid(BaseMethods, QScrollArea):
 
             elif isinstance(wid, GridWid):
                 dest = JsonData.root
-            
-            urls: list[str] = []
 
-            for i in a0.mimeData().urls():
-
-                src = i.toLocalFile()
-
-                if os.path.isdir(src) or src.endswith(Static.IMG_EXT):
-                    urls.append(src)
-
-            self.dia = WinCopyFiles(items=urls, dest=dest, title=COPY_FILES)
+            self.dia = WinCopyFiles(mime_data=a0.mimeData(), dest=dest)
             Utils.center_win(parent=self.window(), child=self.dia)
             self.dia.show()
