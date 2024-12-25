@@ -915,7 +915,7 @@ class Grid(BaseMethods, QScrollArea):
                 for i in a0.mimeData().urls()
             ]
 
-            from .copy_files import ProgressDialog
+            from ._move_files import ProgressDialog
 
             self.dia = ProgressDialog(
                 items=urls,
