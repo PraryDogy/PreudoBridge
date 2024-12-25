@@ -918,8 +918,8 @@ class Grid(BaseMethods, QScrollArea):
             from .copy_files import ProgressDialog
 
             self.dia = ProgressDialog(
-                files_and_folders=urls,
-                destination=wid.src,
+                items=urls,
+                dest=wid.src,
                 title=MOVE_FILES
             )
             self.dia.show()

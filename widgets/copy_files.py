@@ -3,56 +3,67 @@ import shutil
 
 from PyQt5.QtCore import Qt, QThread, pyqtSignal
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QApplication, QDialog, QLabel, QProgressBar,
-                             QPushButton, QVBoxLayout, QHBoxLayout)
+from PyQt5.QtWidgets import (QDialog, QHBoxLayout, QLabel, QProgressBar,
+                             QVBoxLayout, QWidget)
 
-from cfg import Static
+from cfg import Static, JsonData
+from signals import SignalsApp
 
 
 class FileMoverThread(QThread):
-    progress = pyqtSignal(int)  # Сигнал для обновления прогресса
-    finished = pyqtSignal()    # Сигнал, что работа завершена
+    progress = pyqtSignal(int)
+    finished = pyqtSignal()
 
-    def __init__(self, files_and_folders, destination):
+    def __init__(self, items: list, dest: str):
+
         super().__init__()
-        self.files_and_folders = files_and_folders
-        self.destination = destination
+
+        self.items = items
+        self.dest = dest
 
     def run(self):
-        total_items = len(self.files_and_folders)
-        for index, item in enumerate(self.files_and_folders):
-            self.move_item(item, self.destination)
+
+        total_items = len(self.items)
+
+        for index, item in enumerate(self.items):
+
+            self.move_item(item=item, destination=self.dest)
+
             progress_percent = int(((index + 1) / total_items) * 100)
             self.progress.emit(progress_percent)
 
-        from time import sleep
-        sleep(3)
         self.finished.emit()
 
     @staticmethod
     def move_item(item, destination):
-        # Если это файл
+
         if os.path.isfile(item):
-            shutil.move(item, os.path.join(destination, os.path.basename(item)))
-        # Если это папка
+            shutil.move(
+                item,
+                os.path.join(destination, os.path.basename(item))
+            )
+
         elif os.path.isdir(item):
-            shutil.move(item, os.path.join(destination, os.path.basename(item)))
+            shutil.move(
+                item,
+                os.path.join(destination, os.path.basename(item))
+            )
 
 
-class ProgressDialog(QDialog):
-    def __init__(self, files_and_folders: list, destination: str, title: str):
+class ProgressDialog(QWidget):
+    def __init__(self, items: list, dest: str, title: str):
         super().__init__()
 
         self.setWindowTitle(title)
-        self.setFixedSize(300, 100)
+        self.setFixedSize(300, 60)
         self.setWindowFlag(Qt.WindowType.CustomizeWindowHint, True)
         self.setWindowFlag(Qt.WindowType.WindowCloseButtonHint, False)
 
         h_lay = QHBoxLayout(self)
+        h_lay.setContentsMargins(15, 0, 15, 0)
         self.setLayout(h_lay)
 
         self.progress_bar = QProgressBar(self)
-        self.progress_bar.setRange(0, 0)
         h_lay.addWidget(self.progress_bar)
 
         self.cancel_button = QSvgWidget()
@@ -61,21 +72,35 @@ class ProgressDialog(QDialog):
         self.cancel_button.mouseReleaseEvent = self.close_thread
         h_lay.addWidget(self.cancel_button)
 
-        self.task_ = FileMoverThread(files_and_folders, destination)
+
+        if len(items) == 1 and os.path.isfile(items[0]):
+                    self.progress_bar.setRange(0, 0)
+        elif len(items) > 1:
+            self.progress_bar.setMinimum(0)
+            self.progress_bar.setMaximum(100)
+
+        self.task_ = FileMoverThread(
+            items=items,
+            dest=dest
+        )
+
         self.task_.progress.connect(self.update_progress)
         self.task_.finished.connect(self.on_finished)
 
-        # Подключаем кнопку "Отмена"
-        # self.cancel_button.clicked.connect(self.close_thread)
-
-        # Запускаем поток
         # self.task_.start()
+
 
     def update_progress(self, value):
         self.progress_bar.setValue(value)
 
     def on_finished(self):
-        ...
+
+        SignalsApp.instance.load_standart_grid_cmd(
+             path=JsonData.root,
+             prev_path=None
+        )
+
+        self.close()
 
     def close_thread(self, *args):
         if self.task_.isRunning():
