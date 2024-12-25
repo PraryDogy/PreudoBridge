@@ -1,18 +1,22 @@
 import os
 import shutil
 
-from PyQt5.QtCore import Qt, QThread, pyqtSignal, QTimer
+from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import QHBoxLayout, QProgressBar, QWidget
+from PyQt5.QtWidgets import QHBoxLayout, QWidget, QLabel, QPushButton
 
 from cfg import JsonData, Static
 from signals import SignalsApp
 
 # URUNNABLE # URUNNABLE # URUNNABLE # URUNNABLE # URUNNABLE # URUNNABLE # URUNNABLE 
 
+COPY_T = "Копирую"
+FROM_T = "из"
+PREPARING_T = "Подготовка..."
+CANCEL_T = "Отмена"
 
 class FileMoverThread(QThread):
-    progress = pyqtSignal(int)
+    progress = pyqtSignal(str)
     finished_ = pyqtSignal(int)
 
     def __init__(self, items: list, dest: str):
@@ -24,45 +28,21 @@ class FileMoverThread(QThread):
         self.counter = 0
 
     def run(self):
-
         total_items = len(self.items)
-
-        for index, item in enumerate(self.items):
+        for index, item in enumerate(self.items, start=1):
 
             try:
-
-                shutil.copy(
-                   item,
-                    os.path.join(self.dest, os.path.basename(item))
-                )
-
+                path = os.path.join(self.dest, os.path.basename(item))
+                shutil.copy(item, path)
                 self.counter += 1
-
-                # from time import sleep
-                # sleep(2)
 
             except (shutil.SameFileError, IsADirectoryError):
                  ...
 
-            progress_percent = int(((index + 1) / total_items) * 100)
-            self.progress.emit(progress_percent)
+            t = f"{COPY_T} {index} {FROM_T} {total_items}"
+            self.progress.emit(t)
 
         self.finished_.emit(self.counter)
-
-    @staticmethod
-    def move_item(item, destination):
-
-        if os.path.isfile(item):
-            shutil.copy(
-                item,
-                os.path.join(destination, os.path.basename(item))
-            )
-
-        elif os.path.isdir(item):
-            shutil.copy(
-                item,
-                os.path.join(destination, os.path.basename(item))
-            )
 
 
 class WinCopyFiles(QWidget):
@@ -70,7 +50,7 @@ class WinCopyFiles(QWidget):
         super().__init__()
 
         self.setWindowTitle(title)
-        self.setFixedSize(300, 60)
+        self.setFixedSize(250, 60)
 
         fl = Qt.WindowType.Window | Qt.WindowType.CustomizeWindowHint
         fl = fl  | Qt.WindowType.WindowCloseButtonHint
@@ -80,21 +60,13 @@ class WinCopyFiles(QWidget):
         h_lay.setContentsMargins(15, 0, 15, 0)
         self.setLayout(h_lay)
 
-        self.progress_bar = QProgressBar(self)
-        h_lay.addWidget(self.progress_bar)
+        self.progress_label = QLabel(text=PREPARING_T)
+        h_lay.addWidget(self.progress_label)
 
-        self.cancel_button = QSvgWidget()
-        self.cancel_button.load(Static.CLEAR_SVG)
-        self.cancel_button.setFixedSize(16, 16)
-        self.cancel_button.mouseReleaseEvent = self.close_thread
+        self.cancel_button = QPushButton(text=CANCEL_T)
+        self.cancel_button.setFixedWidth(100)
+        self.cancel_button.clicked.connect(self.close_thread)
         h_lay.addWidget(self.cancel_button)
-
-
-        if len(items) == 1 and os.path.isfile(items[0]):
-                    self.progress_bar.setRange(0, 0)
-        elif len(items) > 1:
-            self.progress_bar.setMinimum(0)
-            self.progress_bar.setMaximum(100)
 
         self.task_ = FileMoverThread(
             items=items,
@@ -106,21 +78,19 @@ class WinCopyFiles(QWidget):
 
         self.task_.start()
 
-    def update_progress(self, value):
-        self.progress_bar.setValue(value)
+    def update_progress(self, text: str):
+        self.progress_label.setText(text)
 
     def on_finished(self, counter: int):
 
         if counter > 0:
-
-            print(counter)
 
             SignalsApp.instance.load_standart_grid_cmd(
                 path=JsonData.root,
                 prev_path=None
             )
 
-        QTimer.singleShot(1000, self.close)
+        # QTimer.singleShot(1000, self.close)
 
     def close_thread(self, *args):
         if self.task_.isRunning():
