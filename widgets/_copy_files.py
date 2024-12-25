@@ -62,8 +62,10 @@ class WinCopyFiles(QWidget):
 
         self.setWindowTitle(title)
         self.setFixedSize(300, 60)
-        self.setWindowFlag(Qt.WindowType.CustomizeWindowHint, True)
-        self.setWindowFlag(Qt.WindowType.WindowCloseButtonHint, False)
+
+        fl = Qt.WindowType.Window | Qt.WindowType.CustomizeWindowHint
+        fl = fl  | Qt.WindowType.WindowCloseButtonHint
+        self.setWindowFlags(fl)
 
         h_lay = QHBoxLayout(self)
         h_lay.setContentsMargins(15, 0, 15, 0)

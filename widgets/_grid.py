@@ -18,7 +18,7 @@ from ._actions import (ChangeView, CopyPath, CreateFolder, DeleteFinderItem,
                        RatingMenu, RevealInFinder, ShowInFolder, SortMenu,
                        UpdateGrid, View)
 from ._base import BaseMethods, OpenWin, UMenu, USvgWidget
-from ._move_files import WinCopyFiles
+from ._copy_files import WinCopyFiles
 from .list_file_system import ListFileSystem
 from .win_find_here import WinFindHere
 
@@ -934,10 +934,6 @@ class Grid(BaseMethods, QScrollArea):
             for i in a0.mimeData().urls():
 
                 src = i.toLocalFile()
-
-                # нельзя копировать папку файл в самого себя
-                if src in Thumb.path_to_wid:
-                    return
 
                 if os.path.isdir(src) or src.endswith(Static.IMG_EXT):
                     urls.append(src)
