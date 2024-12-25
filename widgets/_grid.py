@@ -18,6 +18,7 @@ from ._actions import (ChangeView, CopyPath, CreateFolder, DeleteFinderItem,
                        RatingMenu, RevealInFinder, ShowInFolder, SortMenu,
                        UpdateGrid, View)
 from ._base import BaseMethods, OpenWin, UMenu, USvgWidget
+from ._move_files import WinCopyFiles
 from .list_file_system import ListFileSystem
 from .win_find_here import WinFindHere
 
@@ -469,6 +470,11 @@ class ThumbSearch(Thumb):
         menu_.exec_(self.mapToGlobal(a0.pos()))
 
 
+class GridWid(QWidget):
+    def __init__(self):
+        super().__init__()
+
+
 class Grid(BaseMethods, QScrollArea):
 
     def __init__(self, width: int, prev_path: str = None):
@@ -497,7 +503,7 @@ class Grid(BaseMethods, QScrollArea):
         SignalsApp.instance.filter_grid.connect(self.filter_)
         SignalsApp.instance.move_to_wid.connect(self.select_one_wid)
 
-        self.main_wid = QWidget()
+        self.main_wid = GridWid()
         self.setWidget(self.main_wid)
 
         flags = Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
@@ -898,33 +904,42 @@ class Grid(BaseMethods, QScrollArea):
         elif isinstance(wid, USvgWidget):
             wid = wid.parent().parent()
 
-        elif isinstance(wid, QWidget):
-            for i in self.selected_widgets:
-                if i.type_ == Static.FOLDER_TYPE:
-                    i.set_no_frame()
-
-            if hasattr(self, WID_UNDER_MOUSE):
-                delattr(self, WID_UNDER_MOUSE)
-
         if isinstance(wid, ThumbFolder):
             self.select_one_wid(wid)
             setattr(self, WID_UNDER_MOUSE, wid)
             a0.acceptProposedAction()
 
+        elif isinstance(wid, GridWid):
+
+            for i in self.selected_widgets:
+                if i.type_ == Static.FOLDER_TYPE:
+                    i.set_no_frame()
+
+            setattr(self, WID_UNDER_MOUSE, wid)
+            a0.acceptProposedAction()
+
     def dropEvent(self, a0):
         if hasattr(self, WID_UNDER_MOUSE):
-            wid: ThumbFolder = getattr(self, WID_UNDER_MOUSE)
+            
+            wid: ThumbFolder | QWidget = getattr(self, WID_UNDER_MOUSE)
 
-            urls = [
-                i.toLocalFile()
-                for i in a0.mimeData().urls()
-            ]
+            if isinstance(wid, ThumbFolder):
+                dest = wid.src
 
-            from ._move_files import ProgressDialog
+            elif isinstance(wid, GridWid):
+                dest = JsonData.root
+            
+            urls: list[str] = []
 
-            self.dia = ProgressDialog(
+            for i in a0.mimeData().urls():
+                src = i.toLocalFile()
+                if os.path.isdir(src) or src.endswith(Static.IMG_EXT):
+                    urls.append(src)
+
+            self.dia = WinCopyFiles(
                 items=urls,
-                dest=wid.src,
+                dest=dest,
                 title=MOVE_FILES
             )
+
             self.dia.show()

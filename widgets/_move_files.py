@@ -39,19 +39,19 @@ class FileMoverThread(QThread):
     def move_item(item, destination):
 
         if os.path.isfile(item):
-            shutil.move(
+            shutil.copy(
                 item,
                 os.path.join(destination, os.path.basename(item))
             )
 
         elif os.path.isdir(item):
-            shutil.move(
+            shutil.copy(
                 item,
                 os.path.join(destination, os.path.basename(item))
             )
 
 
-class ProgressDialog(QWidget):
+class WinCopyFiles(QWidget):
     def __init__(self, items: list, dest: str, title: str):
         super().__init__()
 

@@ -535,9 +535,9 @@ class BarBottom(QWidget):
                 for i in a0.mimeData().urls()
             ]
 
-            from ._move_files import ProgressDialog
+            from ._move_files import WinCopyFiles
 
-            self.dia = ProgressDialog(
+            self.dia = WinCopyFiles(
                 items=urls,
                 dest=wid.src,
                 title=MOVE_FILES
