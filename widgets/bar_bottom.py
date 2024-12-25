@@ -9,13 +9,14 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
                              QPushButton, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static, ThumbData
-from database import ORDER, ColumnNames
+from database import ORDER
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 from ._actions import CopyPath, Info, RevealInFinder, SortMenu, View
 from ._base import (OpenWin, UFrame, ULineEdit, UMenu, USlider, USvgWidget,
                     WinMinMax)
+from ._copy_files import WinCopyFiles
 
 SORT_T = "Сортировка"
 TOTAL_T = "Всего"
@@ -23,6 +24,7 @@ ASC = "по убыв."
 DESC = "по возр."
 GO_T = "Перейти"
 COPY_FILES = "Копирую..."
+CURR_WID = "curr_wid"
 
 class WorkerSignals(QObject):
     finished_ = pyqtSignal(str)
@@ -524,24 +526,22 @@ class BarBottom(QWidget):
             
             wid.expand()
             wid.solid_style()
-            setattr(self, "curr_wid", wid)
+            setattr(self, CURR_WID, wid)
 
     def dropEvent(self, a0):
-        if hasattr(self, "curr_wid"):
-            wid: PathItem = getattr(self, "curr_wid")
+        if hasattr(self, CURR_WID):
+            wid: PathItem = getattr(self, CURR_WID)
 
-            urls = [
-                i.toLocalFile()
-                for i in a0.mimeData().urls()
-            ]
+            urls: list[str] = []
 
-            from ._copy_files import WinCopyFiles
+            for i in a0.mimeData().urls():
 
-            self.dia = WinCopyFiles(
-                items=urls,
-                dest=wid.src,
-                title=COPY_FILES
-            )
+                src = i.toLocalFile()
+
+                if os.path.isdir(src) or src.endswith(Static.IMG_EXT):
+                    urls.append(src)
+
+            self.dia = WinCopyFiles(items=urls, dest= wid.src, title=COPY_FILES)
+            Utils.center_win(parent=self.window(), child=self.dia)
             self.dia.show()
-
-            delattr(self, "curr_wid")
+            delattr(self, CURR_WID)
