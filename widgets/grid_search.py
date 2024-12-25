@@ -30,6 +30,9 @@ class SearchFinder(URunnable):
         self.search_text: str = str(search_text)
         self.extensions: tuple = None
 
+        self.db_path: str = None
+        self.conn = None
+
     @URunnable.set_running_state
     def run(self):
         try:
@@ -120,19 +123,34 @@ class SearchFinder(URunnable):
         )
 
         root = os.path.dirname(entry.path)
-        db = os.path.join(root, Static.DB_FILENAME)
-        dbase = Dbase()
-        engine = dbase.create_engine(path=db)
+        new_db_path = os.path.join(root, Static.DB_FILENAME)
 
-        if engine is None:
-            return
+        # сравниваем предыдущий путь к БД и новый путь к БД
+        # если пути совпадают, значит мы находимся в прошлой директории
+        # и не нужно создавать новое подключение к БД
 
-        conn = engine.connect()
+        if new_db_path != self.db_path:
+
+            # создаем движок для БД в новой директории
+            dbase = Dbase()
+            engine = dbase.create_engine(path=new_db_path)
+
+            if engine is None:
+                return
+            
+            self.db_path = new_db_path
+
+            # закрываем старое соединение
+            if self.conn:
+                self.conn.close()
+
+            # создаем новое соединение
+            self.conn = engine.connect()
 
         try:
 
             new_order_item = GridTools.update_order_item(
-                conn=conn,
+                conn=self.conn,
                 order_item=order_item
             )
 
@@ -142,8 +160,6 @@ class SearchFinder(URunnable):
         except Exception as e:
             # Utils.print_error(parent=self, error=e)
             print(traceback.format_exc())
-
-        conn.close()
 
 
 class GridSearch(Grid):
