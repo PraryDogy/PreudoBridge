@@ -1,12 +1,12 @@
 import os
 import shutil
 
-from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal
-from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import QHBoxLayout, QWidget, QLabel, QPushButton
+from PyQt5.QtCore import Qt, QTimer, pyqtSignal, QObject
+from PyQt5.QtWidgets import QHBoxLayout, QLabel, QPushButton, QWidget
 
-from cfg import JsonData, Static
+from cfg import JsonData
 from signals import SignalsApp
+from utils import URunnable, UThreadPool
 
 # URUNNABLE # URUNNABLE # URUNNABLE # URUNNABLE # URUNNABLE # URUNNABLE # URUNNABLE 
 
@@ -15,34 +15,48 @@ FROM_T = "из"
 PREPARING_T = "Подготовка..."
 CANCEL_T = "Отмена"
 
-class FileMoverThread(QThread):
+
+class WorkerSignals(QObject):
     progress = pyqtSignal(str)
     finished_ = pyqtSignal(int)
+
+
+class FileMoverThread(URunnable):
 
     def __init__(self, items: list, dest: str):
 
         super().__init__()
 
+        self.signals_ = WorkerSignals()
+
         self.items = items
         self.dest = dest
         self.counter = 0
 
+    @URunnable.set_running_state
     def run(self):
         total_items = len(self.items)
         for index, item in enumerate(self.items, start=1):
+
+            if not self.should_run:
+                self.signals_.finished_.emit(self.counter)
+                return
 
             try:
                 path = os.path.join(self.dest, os.path.basename(item))
                 shutil.copy(item, path)
                 self.counter += 1
 
+                from time import sleep
+                sleep(3)
+
             except (shutil.SameFileError, IsADirectoryError):
                  ...
 
             t = f"{COPY_T} {index} {FROM_T} {total_items}"
-            self.progress.emit(t)
+            self.signals_.progress.emit(t)
 
-        self.finished_.emit(self.counter)
+        self.signals_.finished_.emit(self.counter)
 
 
 class WinCopyFiles(QWidget):
@@ -73,10 +87,10 @@ class WinCopyFiles(QWidget):
             dest=dest
         )
 
-        self.task_.progress.connect(self.update_progress)
-        self.task_.finished_.connect(self.on_finished)
+        self.task_.signals_.progress.connect(self.update_progress)
+        self.task_.signals_.finished_.connect(self.on_finished)
 
-        self.task_.start()
+        UThreadPool.start(runnable=self.task_)
 
     def update_progress(self, text: str):
         self.progress_label.setText(text)
@@ -93,6 +107,5 @@ class WinCopyFiles(QWidget):
         # QTimer.singleShot(1000, self.close)
 
     def close_thread(self, *args):
-        if self.task_.isRunning():
-            self.task_.terminate()
+        self.task_.should_run = False
         QTimer.singleShot(1000, self.close)
