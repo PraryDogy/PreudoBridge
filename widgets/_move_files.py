@@ -108,4 +108,4 @@ class WinCopyFiles(QWidget):
     def close_thread(self, *args):
         if self.task_.isRunning():
             self.task_.terminate()
-        self.close()
+        QTimer.singleShot(1000, self.close)
