@@ -85,7 +85,7 @@ class InfoTask:
         engine = dbase.create_engine(path=db)
 
         if engine is None:
-            return
+            return self.get_raw_info()
 
         conn = engine.connect()
 

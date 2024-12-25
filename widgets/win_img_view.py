@@ -45,6 +45,8 @@ class LoadThumbnail(URunnable):
             engine = dbase.create_engine(path=db)
 
             if engine is None:
+                image_data = ImageData(src=self.src, pixmap=None)
+                self.signals_.finished_.emit(image_data)
                 return
 
             conn = engine.connect()
@@ -66,7 +68,7 @@ class LoadThumbnail(URunnable):
             else:
                 pixmap = Utils.pixmap_from_array(img_array)
 
-            image_data = ImageData(self.src, pixmap)
+            image_data = ImageData(src=self.src, pixmap=pixmap)
             self.signals_.finished_.emit(image_data)
 
         except RuntimeError as e:
