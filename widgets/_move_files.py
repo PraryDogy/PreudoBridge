@@ -86,8 +86,7 @@ class ProgressDialog(QWidget):
         self.task_.progress.connect(self.update_progress)
         self.task_.finished.connect(self.on_finished)
 
-        # self.task_.start()
-
+        self.task_.start()
 
     def update_progress(self, value):
         self.progress_bar.setValue(value)
