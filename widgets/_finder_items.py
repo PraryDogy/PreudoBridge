@@ -9,6 +9,7 @@ from sqlalchemy.exc import OperationalError, IntegrityError
 from cfg import JsonData, Static
 from database import CACHE, ColumnNames, Dbase, OrderItem
 from utils import URunnable, Utils
+from ._base import Sort
 
 LOADING_T = "Загрузка..."
 SQL_ERRORS = (IntegrityError, OperationalError)
@@ -44,16 +45,13 @@ class FinderItems(URunnable):
                     except Exception as e:
                         print(e)
 
-            order_items = OrderItem.order_items(
-                order_items=order_items
-            )
-
+            order_items = Sort.sort_order_items(order_items=order_items)
             self.signals_.finished_.emit(order_items)
         
         except SQL_ERRORS as e:
             print(e)
             order_items = self.get_items_no_db()
-            order_items = OrderItem.order_items(order_items=order_items)
+            order_items = Sort.sort_order_items(order_items=order_items)
             self.signals_.finished_.emit(order_items)
 
         except Exception as e:

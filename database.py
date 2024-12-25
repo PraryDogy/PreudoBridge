@@ -81,66 +81,6 @@ class OrderItem:
         self.pixmap_: QPixmap = None
 
 
-    # Как работает сортировка:
-    # пользователь выбрал сортировку "по размеру"
-    # в Dynamic в аттрибут "sort" записывается значение "size"
-    # CACHE колонка имеет имя "size"
-    # OrderItem имеет аттрибут "size"
-    # на основе аттрибута "size" происходит сортировка списка из OrderItem
-
-    @classmethod
-    def order_items(cls, order_items: list["OrderItem"]) -> list["OrderItem"]:
-        
-        attr = Dynamic.sort
-        rev = Dynamic.rev
-
-        if attr == ColumnNames.NAME:
-
-            # сортировка по имени:
-            # создаем список элементов, у которых в начале числовые символы
-            # и список элементов, у которых в начале нечисловые символы
-            # сортируем каждый список по отдельности
-            # возвращаем объединенный список
-
-            nums: list[OrderItem] = []
-            abc: list[OrderItem] = []
-
-            for i in order_items:
-
-                if i.name[0].isdigit():
-                    nums.append(i)
-
-                else:
-                    abc.append(i)
-
-            # сортировка по числам в начале OrderItem.name
-            key_num = lambda order_item: cls.get_nums(order_item)
-
-            # сортировка по OrderItem.name
-            key_abc = lambda order_item: getattr(order_item, attr)
-
-            nums.sort(key=key_num, reverse=rev)
-            abc.sort(key=key_abc, reverse=rev)
-
-            return [*nums, *abc]
-
-        else:
-
-            key = lambda order_item: getattr(order_item, attr)
-            order_items.sort(key=key, reverse=rev)
-            return order_items
-
-    # извлекаем начальные числа из order_item.name
-    # по которым будет сортировка, например: "123 Te99st33" > 123
-    # re.match ищет числа до первого нечислового символа
-    @classmethod
-    def get_nums(cls, order_item: "OrderItem"):
-
-        return int(
-            re.match(r'^\d+', order_item.name).group()
-        )
-
-
 class Dbase:
 
     def __init__(self):

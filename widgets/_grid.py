@@ -17,7 +17,7 @@ from ._actions import (ChangeView, CopyPath, CreateFolder, DeleteFinderItem,
                        FavAdd, FavRemove, FindHere, Info, OpenInApp,
                        RatingMenu, RevealInFinder, ShowInFolder, SortMenu,
                        UpdateGrid, View)
-from ._base import BaseMethods, OpenWin, UMenu, USvgWidget
+from ._base import BaseMethods, OpenWin, Sort, UMenu, USvgWidget
 from .list_file_system import ListFileSystem
 from .win_find_here import WinFindHere
 
@@ -515,7 +515,10 @@ class Grid(BaseMethods, QScrollArea):
         QTimer.singleShot(100, cmd_)
     
     def order_(self):
-        self.ordered_widgets = OrderItem.order_items(self.ordered_widgets)
+
+        self.ordered_widgets = Sort.sort_order_items(
+            order_items=self.ordered_widgets
+        )
         
         Thumb.all = {
             wid.src: wid
