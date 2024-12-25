@@ -24,7 +24,7 @@ from .win_find_here import WinFindHere
 SELECTED = "selected"
 FONT_SIZE = "font-size: 11px;"
 RAD = "border-radius: 4px"
-IMG_WID_ATTR = "img_wid"
+IMG_WID_ATTR = "img_wid_attr"
 HAS_SEL_WID = "has_sel_wid"
 SQL_ERRORS = (OperationalError, IntegrityError)
 
@@ -201,10 +201,18 @@ class Thumb(OrderItem, QFrame):
         self.svg_wid.deleteLater()
 
         self.img_wid = QLabel()
-        self.img_wid.setPixmap(Utils.pixmap_scale(pixmap, self.pixmap_size))
-        self.img_frame_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        self.img_wid.setPixmap(
+            Utils.pixmap_scale(pixmap, Thumb.pixmap_size)
+        )
+    
+        self.img_frame_lay.addWidget(
+            self.img_wid,
+            alignment=Qt.AlignmentFlag.AlignCenter
+        )
 
         self.img = pixmap
+        setattr(self, IMG_WID_ATTR, True)
 
     def setup(self):
 
@@ -213,25 +221,29 @@ class Thumb(OrderItem, QFrame):
             i.set_text(self)
 
         self.setFixedSize(
-            self.thumb_w,
-            self.thumb_h
+            Thumb.thumb_w,
+            Thumb.thumb_h
         )
 
         # рамка вокруг pixmap при выделении Thumb
         self.img_frame.setFixedSize(
-            self.pixmap_size + ThumbData.OFFSET,
-            self.pixmap_size + ThumbData.OFFSET
+            Thumb.pixmap_size + ThumbData.OFFSET,
+            Thumb.pixmap_size + ThumbData.OFFSET
         )
 
         if hasattr(self, IMG_WID_ATTR):
+
             self.img_wid.setPixmap(
                 Utils.pixmap_scale(
                     pixmap=self.img,
-                    size=self.pixmap_size
+                    size=Thumb.pixmap_size
                 )
             )
         else:
-            self.svg_wid.setFixedSize(self.pixmap_size, self.pixmap_size)
+            self.svg_wid.setFixedSize(
+                Thumb.pixmap_size,
+                Thumb.pixmap_size
+            )
 
     def set_frame(self):
 
