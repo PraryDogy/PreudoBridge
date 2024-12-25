@@ -8,8 +8,6 @@ from cfg import JsonData, Static
 from signals import SignalsApp
 from utils import URunnable, UThreadPool
 
-# URUNNABLE # URUNNABLE # URUNNABLE # URUNNABLE # URUNNABLE # URUNNABLE # URUNNABLE 
-
 COPY_T = "Копирую"
 FROM_T = "из"
 PREPARING_T = "Подготовка..."
