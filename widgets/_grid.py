@@ -938,10 +938,6 @@ class Grid(BaseMethods, QScrollArea):
                 if os.path.isdir(src) or src.endswith(Static.IMG_EXT):
                     urls.append(src)
 
-            self.dia = WinCopyFiles(
-                items=urls,
-                dest=dest,
-                title=COPY_FILES
-            )
-
+            self.dia = WinCopyFiles(items=urls, dest=dest, title=COPY_FILES)
+            Utils.center_win(parent=self.window(), child=self.dia)
             self.dia.show()
