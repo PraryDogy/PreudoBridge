@@ -522,9 +522,12 @@ class Grid(BaseMethods, QScrollArea):
         self.selected_widgets = [wid]
         setattr(self, HAS_SEL_WID, True)
 
+        self.set_bottom_path(src=wid.src)
+
+    def set_bottom_path(self, src: str):
         # через таймер чтобы функция не блокировалась зажатой клавишей мыши
         cmd_ = lambda: SignalsApp.instance.bar_bottom_cmd.emit(
-            {"src" : wid.src}
+            {"src" : src}
         )
         QTimer.singleShot(100, cmd_)
     
@@ -878,6 +881,7 @@ class Grid(BaseMethods, QScrollArea):
             i.set_no_frame()
 
         self.selected_widgets.clear()
+        self.set_bottom_path(src=JsonData.root)
 
         if hasattr(self, HAS_SEL_WID):
             delattr(self, HAS_SEL_WID)
