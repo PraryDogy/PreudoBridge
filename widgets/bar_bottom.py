@@ -22,7 +22,7 @@ TOTAL_T = "Всего"
 ASC = "по убыв."
 DESC = "по возр."
 GO_T = "Перейти"
-
+MOVE_FILES = "Перемещаю..."
 
 class WorkerSignals(QObject):
     finished_ = pyqtSignal(str)
@@ -521,6 +521,27 @@ class BarBottom(QWidget):
             for i in self.path_item_list:
                 i.collapse()
                 i.default_style()
-
+            
             wid.expand()
             wid.solid_style()
+            setattr(self, "curr_wid", wid)
+
+    def dropEvent(self, a0):
+        if hasattr(self, "curr_wid"):
+            wid: PathItem = getattr(self, "curr_wid")
+
+            urls = [
+                i.toLocalFile()
+                for i in a0.mimeData().urls()
+            ]
+
+            from ._move_files import ProgressDialog
+
+            self.dia = ProgressDialog(
+                items=urls,
+                dest=wid.src,
+                title=MOVE_FILES
+            )
+            self.dia.show()
+
+            delattr(self, "curr_wid")

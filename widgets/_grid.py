@@ -896,7 +896,8 @@ class Grid(BaseMethods, QScrollArea):
 
         elif isinstance(wid, QWidget):
             for i in self.selected_widgets:
-                i.set_no_frame()
+                if i.type_ == Static.FOLDER_TYPE:
+                    i.set_no_frame()
 
             if hasattr(self, WID_UNDER_MOUSE):
                 delattr(self, WID_UNDER_MOUSE)
