@@ -344,6 +344,9 @@ class SortFrame(UFrame):
         h_lay.setContentsMargins(2, 0, 2, 0)
         self.setLayout(h_lay)
 
+        self.total_text = QLabel()
+        h_lay.addWidget(self.total_text)
+
         self.sort_wid = QLabel()
         h_lay.addWidget(self.sort_wid)
 
@@ -417,9 +420,6 @@ class BarBottom(QWidget):
 
         bottom_lay.addStretch()
 
-        self.total_text = QLabel()
-        bottom_lay.addWidget(self.total_text)
-
         self.sort_frame = SortFrame()
         bottom_lay.addWidget(self.sort_frame)
 
@@ -433,7 +433,7 @@ class BarBottom(QWidget):
         SignalsApp.instance.bar_bottom_cmd.connect(self.path_labels_cmd)
 
     def add_total(self, value: int):
-        self.total_text.setText(f"{TOTAL_T}: {str(value)}")
+        self.sort_frame.total_text.setText(f"{TOTAL_T}: {str(value)}")
 
     def open_go_win(self, *args):
         self.win = WinGo()
