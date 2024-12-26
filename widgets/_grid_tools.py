@@ -47,7 +47,7 @@ class GridTools:
                 row_id=db_item
             )
 
-            # print("update")
+            print("update")
 
         elif db_item is None:
 
@@ -58,14 +58,14 @@ class GridTools:
                 order_item=order_item
             )
 
-            # print("insert")
+            print("insert")
         
         elif isinstance(db_item, bytes):
             img_array = Utils.bytes_to_array(
                 blob=db_item
             )
 
-            # print("already")
+            print("already")
 
         if isinstance(img_array, np.ndarray):
 
@@ -97,10 +97,7 @@ class GridTools:
         )
         res_by_src = conn.execute(where_stmt).mappings().first()
 
-        if res_by_src:
-            print("res", Utils.hash_filename(order_item.name))
-
-        # Запись найдена
+        # Запись по имени файла найдена 
         if res_by_src:
 
             # даты изменения не совпадают, обновляем запись
@@ -117,31 +114,24 @@ class GridTools:
                     res_by_src.get(ColumnNames.RATING)
                 )
 
-        # # Запись по имени файла не найдена, возможно файл был переименован,
-        # # но содержимое файла не менялось
-        # # Пытаемся найти в БД запись по размеру и дате изменения order_item
-        # mod_stmt = select_stmt.where(CACHE.c.mod == order_item.mod)
-        # size_mod_stmt = mod_stmt.where(CACHE.c.size == order_item.size)
-        # size_mod_res = conn.execute(size_mod_stmt).mappings().first()
+        where_stmt_sec = select_stmt.where(
+            CACHE.c.partial_hash == Utils.get_partial_hash(file_path=order_item.src)
+        )
+        res_by_hash = conn.execute(where_stmt).mappings().first()
 
-        # # Если запись найдена, значит файл действительно был переименован
-        # # возвращаем ID для обновления записи
-
-        # # print("name not ok")
-
-        # if size_mod_res:
-        #     return (
-        #         size_mod_res.get(ColumnNames.ID),
-        #         size_mod_res.get(ColumnNames.RATING)
-        #     )
-
-        # ничего не найдено, значит это будет новая запись и рейтинг 0
-        return (None, 0)
+        # Если запись найдена, значит файл действительно был переименован
+        # возвращаем ID для обновления записи
+        if res_by_hash:
+            return (
+                res_by_hash.get(ColumnNames.ID),
+                res_by_hash.get(ColumnNames.RATING)
+            )
+        
+        else:
+            return (None, 0)
     
     @classmethod
     def update_db_item(cls, conn: Connection, order_item: OrderItem, row_id: int) -> np.ndarray:
-
-        
 
         bytes_img, img_array = cls.get_bytes_ndarray(
             order_item=order_item
@@ -153,13 +143,15 @@ class GridTools:
         )
 
         new_name = Utils.hash_filename(filename=order_item.name)
+        partial_hash = Utils.get_partial_hash(file_path=order_item.src)
 
         values = {
             ColumnNames.NAME: new_name,
             ColumnNames.IMG: bytes_img,
             ColumnNames.SIZE: new_size,
             ColumnNames.MOD: new_mod,
-            ColumnNames.RESOL: new_resol
+            ColumnNames.RESOL: new_resol,
+            ColumnNames.PARTIAL_HASH: partial_hash
         }
 
         q = update(CACHE).where(CACHE.c.id == row_id)
@@ -184,6 +176,7 @@ class GridTools:
         )
 
         new_name = Utils.hash_filename(filename=order_item.name)
+        partial_hash = Utils.get_partial_hash(file_path=order_item.src)
 
         values = {
             ColumnNames.IMG: bytes_img,
@@ -193,7 +186,8 @@ class GridTools:
             ColumnNames.MOD: new_mod,
             ColumnNames.RATING: 0,
             ColumnNames.RESOL: new_resol,
-            ColumnNames.CATALOG: ""
+            ColumnNames.CATALOG: "",
+            ColumnNames.PARTIAL_HASH: partial_hash
         }
 
         q = insert(CACHE)
