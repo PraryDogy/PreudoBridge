@@ -21,30 +21,14 @@ class FinderItems(URunnable):
     def __init__(self):
         super().__init__()
         self.signals_ = WorkerSignals()
-        self.need_db = False
 
     @URunnable.set_running_state
     def run(self):
 
         try:
             order_items = self.get_order_items()
-
-            if self.need_db:
-                order_items = self.set_rating(order_items=order_items)
-
-            # elif not self.need_db:
-
-            #     db_path = os.path.join(JsonData.root, Static.DB_FILENAME)
-                
-            #     if os.path.exists(db_path):
-            #         try:
-            #             os.remove(db_path)
-            #             print("remove empty db")
-            #         except Exception as e:
-            #             print(e)
-
+            order_items = self.set_rating(order_items=order_items)
             order_items = OrderItem.sort_items(order_items=order_items)
-
             self.signals_.finished_.emit(order_items)
         
         except SQL_ERRORS as e:
@@ -74,6 +58,8 @@ class FinderItems(URunnable):
             for name, rating in res
         }
 
+        print(res.items())
+
         for i in order_items:
 
             name = Utils.hash_filename(filename=i.name)
@@ -98,16 +84,9 @@ class FinderItems(URunnable):
                 if entry.name.startswith("."):
                     continue
 
-                if entry.is_dir():
+                if entry.is_dir() or entry.name.endswith(Static.IMG_EXT):
                     try:
                         stats = entry.stat()
-                    except Exception:
-                        continue
-
-                elif entry.name.endswith(Static.IMG_EXT):
-                    try:
-                        stats = entry.stat()
-                        self.need_db = True
                     except Exception:
                         continue
 
