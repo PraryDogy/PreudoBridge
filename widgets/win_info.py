@@ -6,7 +6,7 @@ from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import QGridLayout, QLabel
 
 from cfg import JsonData, Static
-from database import CACHE, Dbase
+from database import CACHE, ColumnNames, Dbase
 from utils import URunnable, UThreadPool, Utils
 
 from ._actions import CopyText, RevealInFinder
@@ -78,7 +78,6 @@ class InfoTask:
         self.src = os.sep + src.strip(os.sep)
         self.name = os.path.basename(self.src)
 
-
     def get(self) -> dict[str, str| int]:
         db = os.path.join(JsonData.root, Static.DB_FILENAME)
         dbase = Dbase()
@@ -88,35 +87,26 @@ class InfoTask:
             return self.get_raw_info()
 
         conn = engine.connect()
-
-        cols = (
-            CACHE.c.name,
-            CACHE.c.type_,
-            CACHE.c.mod,
-            CACHE.c.resol
-            )
-
+        cols = (CACHE.c.type_, CACHE.c.mod, CACHE.c.size, CACHE.c.resol)
         q = sqlalchemy.select(*cols)
         q = q.where(CACHE.c.name == Utils.hash_filename(filename=self.name))
-
-        res = conn.execute(q).first()
-
+        res = conn.execute(q).mappings().first()
         conn.close()
 
         if res:
-            return self.get_db_info(*res)
+            return self.get_db_info(res=res)
 
         else:
             return self.get_raw_info()
 
-    def get_db_info(self, name, type_, mod, resol):
+    def get_db_info(self, res: dict):
 
         res = {
-            NAME_T: self.lined_text(text=name),
-            TYPE_T: type_,
-            SIZE_T: Utils.get_f_size(os.path.getsize(self.src)),
-            MOD_T: Utils.get_f_date(mod),
-            RESOL_T: resol,
+            NAME_T: self.lined_text(text=self.name),
+            TYPE_T: res.get(ColumnNames.TYPE),
+            SIZE_T: Utils.get_f_size(res.get(ColumnNames.SIZE)),
+            MOD_T: Utils.get_f_date(res.get(ColumnNames.MOD)),
+            RESOL_T: res.get(ColumnNames.RESOL),
             SRC_T: self.lined_text(text=self.src)
             }
 
