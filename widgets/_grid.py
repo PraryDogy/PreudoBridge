@@ -435,6 +435,12 @@ class ThumbFolder(Thumb):
 
         menu.addSeparator()
 
+        rating_menu = RatingMenu(parent=menu, src=self.src, rating=self.rating)
+        rating_menu._clicked.connect(self.set_new_rating)
+        menu.addMenu(rating_menu)
+
+        menu.addSeparator()
+
         delete_item = DeleteFinderItem(menu=menu, path=self.src)
         menu.addAction(delete_item)
 
