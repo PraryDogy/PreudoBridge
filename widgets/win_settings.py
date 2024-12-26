@@ -24,7 +24,7 @@ SETTINGS_T = "Настройки"
 CLEAR_T = "Очистить"
 JSON_T = "Json"
 UPDATE_T = "Обновления"
-JSON_DESCR = "Открыть файл настроек .json"
+JSON_DESCR = "Открыть текстовый файл настроек"
 UPDATE_DESCR = "Обновления на Яндекс Диске"
 LEFT_W = 110
 ICON_W = 70
@@ -98,7 +98,7 @@ class WinSettings(WinMinMax):
         self.setWindowTitle(SETTINGS_T)
 
         main_lay = QVBoxLayout()
-        main_lay.setContentsMargins(10, 10, 10, 10)
+        main_lay.setContentsMargins(10, 0, 10, 15)
         self.setLayout(main_lay)
 
         h_wid = QWidget()
