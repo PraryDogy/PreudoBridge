@@ -21,6 +21,7 @@ class ColumnNames:
     RATING = "rating"
     RESOL = "resol"
     CATALOG = "catalog"
+    PARTIAL_HASH = "partial_hash"
 
 
 class ColumnsComments:
@@ -43,7 +44,8 @@ CACHE = sqlalchemy.Table(
     sqlalchemy.Column(ColumnNames.MOD, sqlalchemy.Integer, comment=ColumnsComments.MOD_),
     sqlalchemy.Column(ColumnNames.RATING, sqlalchemy.Integer, comment=ColumnsComments.RATING_),
     sqlalchemy.Column(ColumnNames.RESOL, sqlalchemy.Integer),
-    sqlalchemy.Column(ColumnNames.CATALOG, sqlalchemy.Text)
+    sqlalchemy.Column(ColumnNames.CATALOG, sqlalchemy.Text),
+    sqlalchemy.Column(ColumnNames.PARTIAL_HASH, sqlalchemy.text)
 )
 
 

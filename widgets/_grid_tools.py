@@ -105,16 +105,12 @@ class GridTools:
 
             # даты изменения не совпадают, обновляем запись
             if res_by_src.get(ColumnNames.MOD) != order_item.mod:
-
-                # print("mod", res_by_src.get(ColumnNames.MOD), order_item.mod)
-
                 return (
                     res_by_src.get(ColumnNames.ID),
                     res_by_src.get(ColumnNames.RATING)
                 )
 
             else:
-                # print("dates ok")
                 # даты изменения совпадают
                 return (
                     res_by_src.get(ColumnNames.IMG),
