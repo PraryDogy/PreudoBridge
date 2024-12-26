@@ -47,7 +47,7 @@ class GridTools:
                 row_id=db_item
             )
 
-            print("update")
+            # print("update")
 
         elif db_item is None:
 
@@ -58,14 +58,14 @@ class GridTools:
                 order_item=order_item
             )
 
-            print("insert")
+            # print("insert")
         
         elif isinstance(db_item, bytes):
             img_array = Utils.bytes_to_array(
                 blob=db_item
             )
 
-            print("already")
+            # print("already")
 
         if isinstance(img_array, np.ndarray):
 
