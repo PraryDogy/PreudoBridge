@@ -397,7 +397,7 @@ class Utils(Pixmap, ReadImage, ImgConvert):
         return hashlib.md5(filename.encode('utf-8')).hexdigest()
     
     @classmethod
-    def get_key(cls):
+    def get_token(cls):
         return secrets.token_hex(70)
 
 class URunnable(QRunnable):
