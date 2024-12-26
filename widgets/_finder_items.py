@@ -58,8 +58,6 @@ class FinderItems(URunnable):
             for name, rating in res
         }
 
-        print(res.items())
-
         for i in order_items:
 
             name = Utils.hash_filename(filename=i.name)

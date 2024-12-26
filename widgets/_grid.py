@@ -805,8 +805,7 @@ class Grid(BaseMethods, QScrollArea):
             rating = KEY_RATING.get(a0.key())
 
             for i in self.selected_widgets:
-                if i.type_ != Static.FOLDER_TYPE:
-                    i.set_new_rating(rating=rating)
+                i.set_new_rating(rating=rating)
         
         return super().keyPressEvent(a0)
 
