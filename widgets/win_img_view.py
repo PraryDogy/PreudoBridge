@@ -8,7 +8,7 @@ from PyQt5.QtGui import (QCloseEvent, QColor, QContextMenuEvent, QKeyEvent,
 from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QSpacerItem,
                              QVBoxLayout, QWidget)
 
-from cfg import Dynamic, Static, JsonData
+from cfg import Dynamic, JsonData, Static
 from database import CACHE, Dbase
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
@@ -16,6 +16,15 @@ from utils import URunnable, UThreadPool, Utils
 from ._actions import CopyPath, Info, OpenInApp, RatingMenu, RevealInFinder
 from ._base import OpenWin, UMenu, USvgWidget, WinBase
 from ._grid import Thumb
+
+KEY_RATING = {
+    Qt.Key.Key_0: 0,
+    Qt.Key.Key_1: 1,
+    Qt.Key.Key_2: 2,
+    Qt.Key.Key_3: 3,
+    Qt.Key.Key_4: 4,
+    Qt.Key.Key_5: 5
+}
 
 
 class ImageData:
@@ -464,8 +473,14 @@ class WinImgView(WinBase):
         elif ev.key() == Qt.Key.Key_Space:
             self.close()
 
-        elif ev.modifiers() & Qt.KeyboardModifier.ControlModifier and ev.key() == Qt.Key.Key_I:
-            self.show_info_win()
+        elif ev.key() in KEY_RATING:
+            rating = KEY_RATING.get(ev.key())
+            self.wid.set_new_rating(rating=rating)
+            self.set_title()
+
+        elif ev.modifiers() & Qt.KeyboardModifier.ControlModifier:
+            if ev.key() == Qt.Key.Key_I:
+                self.show_info_win()
 
         return super().keyPressEvent(ev)
 
