@@ -27,6 +27,12 @@ class GridTools:
 
     @classmethod
     def update_order_item_(cls, conn: Connection, order_item: OrderItem):
+
+        # ошибка логики в том, что мы пытаемся загрузить запись
+        # которой еще нет в БД (загрузка по имени)
+        # и тогда происходит загрузка по "дата изменения + размер"
+        # а дата изменения и размер могут быть одинаковыми у нескольких
+        # записей
         
         db_item, rating = GridTools.load_db_item(
             conn=conn,
@@ -34,6 +40,7 @@ class GridTools:
         )
 
         if isinstance(db_item, int):
+
             img_array = cls.update_db_item(
                 conn=conn,
                 order_item=order_item,
@@ -43,6 +50,9 @@ class GridTools:
             # print("update")
 
         elif db_item is None:
+
+            print(order_item.name)
+
             img_array = cls.insert_db_item(
                 conn=conn,
                 order_item=order_item
@@ -87,11 +97,16 @@ class GridTools:
         )
         res_by_src = conn.execute(where_stmt).mappings().first()
 
+        if res_by_src:
+            print("res", Utils.hash_filename(order_item.name))
+
         # Запись найдена
         if res_by_src:
 
             # даты изменения не совпадают, обновляем запись
             if res_by_src.get(ColumnNames.MOD) != order_item.mod:
+
+                # print("mod", res_by_src.get(ColumnNames.MOD), order_item.mod)
 
                 return (
                     res_by_src.get(ColumnNames.ID),
@@ -99,32 +114,38 @@ class GridTools:
                 )
 
             else:
+                # print("dates ok")
                 # даты изменения совпадают
                 return (
                     res_by_src.get(ColumnNames.IMG),
                     res_by_src.get(ColumnNames.RATING)
                 )
 
-        # Запись по имени файла не найдена, возможно файл был переименован,
-        # но содержимое файла не менялось
-        # Пытаемся найти в БД запись по размеру и дате изменения order_item
-        mod_stmt = select_stmt.where(CACHE.c.mod == order_item.mod)
-        size_mod_stmt = mod_stmt.where(CACHE.c.size == order_item.size)
-        size_mod_res = conn.execute(size_mod_stmt).mappings().first()
+        # # Запись по имени файла не найдена, возможно файл был переименован,
+        # # но содержимое файла не менялось
+        # # Пытаемся найти в БД запись по размеру и дате изменения order_item
+        # mod_stmt = select_stmt.where(CACHE.c.mod == order_item.mod)
+        # size_mod_stmt = mod_stmt.where(CACHE.c.size == order_item.size)
+        # size_mod_res = conn.execute(size_mod_stmt).mappings().first()
 
-        # Если запись найдена, значит файл действительно был переименован
-        # возвращаем ID для обновления записи
-        if size_mod_res:
-            return (
-                size_mod_res.get(ColumnNames.ID),
-                size_mod_res.get(ColumnNames.RATING)
-            )
+        # # Если запись найдена, значит файл действительно был переименован
+        # # возвращаем ID для обновления записи
+
+        # # print("name not ok")
+
+        # if size_mod_res:
+        #     return (
+        #         size_mod_res.get(ColumnNames.ID),
+        #         size_mod_res.get(ColumnNames.RATING)
+        #     )
 
         # ничего не найдено, значит это будет новая запись и рейтинг 0
         return (None, 0)
     
     @classmethod
     def update_db_item(cls, conn: Connection, order_item: OrderItem, row_id: int) -> np.ndarray:
+
+        
 
         bytes_img, img_array = cls.get_bytes_ndarray(
             order_item=order_item
