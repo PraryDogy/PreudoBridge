@@ -2,7 +2,6 @@ import hashlib
 import io
 import logging
 import os
-import secrets
 import subprocess
 import traceback
 from datetime import datetime
@@ -395,10 +394,7 @@ class Utils(Pixmap, ReadImage, ImgConvert):
     def hash_filename(cls, filename: str):
         """Возвращает хэш имени файла."""
         return hashlib.md5(filename.encode('utf-8')).hexdigest()
-    
-    @classmethod
-    def get_token(cls):
-        return secrets.token_hex(70)
+
 
 class URunnable(QRunnable):
     def __init__(self):
