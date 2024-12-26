@@ -1,12 +1,4 @@
-from database import Dbase, CACHE
-import os
-import sqlalchemy
+import secrets
 
-pa = "test/db.db"
+key = secrets.token_hex(50)
 
-
-dbase = Dbase()
-
-engine = dbase.create_engine(pa)
-
-print(engine)
