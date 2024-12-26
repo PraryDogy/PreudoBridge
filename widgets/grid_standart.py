@@ -34,7 +34,7 @@ class LoadImages(URunnable):
         self.order_items = [
             i
             for i in order_items
-            if i.type_ != Static.FOLDER_TYPE
+            # if i.type_ != Static.FOLDER_TYPE
         ]
 
     @URunnable.set_running_state
@@ -63,7 +63,7 @@ class LoadImages(URunnable):
 
     def main(self):
         self.process_order_items()
-        # self.process_removed_items()
+        self.process_removed_items()
 
     def process_order_items(self):
 

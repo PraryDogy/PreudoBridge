@@ -4,29 +4,105 @@ import numpy as np
 from sqlalchemy import Connection, insert, select, update
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import ThumbData
+from cfg import ThumbData, Static
 from database import CACHE, ColumnNames, OrderItem
 from fit_img import FitImg
 from utils import Utils
 
 SQL_ERRORS = (IntegrityError, OperationalError)
 
+
+class FolderTools:
+
+    @classmethod
+    def update_folder_order_item(cls, conn: Connection, order_item: OrderItem):
+
+        order_item, rating = cls.load_folder(conn=conn, order_item=order_item)
+
+        if rating is None:
+            cls.insert_folder(conn=conn, order_item=order_item)
+            return order_item
         
-class GridTools:
+        else:
+            order_item.rating == rating
+            return order_item
+
+    @classmethod
+    def load_folder(cls, conn: Connection, order_item: OrderItem):
+        select_stmt = select(CACHE.c.rating)
+
+        where_stmt = select_stmt.where(
+            CACHE.c.name == Utils.hash_filename(filename=order_item.name)
+        )
+
+        res_by_src = conn.execute(where_stmt).mappings().first()
+
+        if res_by_src:
+            return (order_item, res_by_src.get(ColumnNames.RATING))
+        else:
+            return (order_item, None)
+
+    @classmethod
+    def insert_folder(cls, conn: Connection, order_item: OrderItem):
+
+        new_name = Utils.hash_filename(filename=order_item.name)
+
+        values = {
+            ColumnNames.NAME: new_name,
+            ColumnNames.TYPE: order_item.type_,
+            ColumnNames.RATING: 0,
+        }
+
+        q = insert(CACHE).values(**values)
+        cls.execute_query(conn=conn, query=q)
+
+    @classmethod
+    def update_folder(cls, conn: Connection, order_item: OrderItem):
+
+        new_name = Utils.hash_filename(filename=order_item.name)
+
+        values = {
+            ColumnNames.NAME: new_name,
+            ColumnNames.TYPE: order_item.type_,
+            ColumnNames.RATING: 0,
+        }
+
+        q = update(CACHE).values(**values).where(CACHE.c.name == new_name)
+        cls.execute_query(conn=conn, query=q)
+
+    @classmethod
+    def execute_query(cls, conn: Connection, query):
+        try:
+            conn.execute(query)
+            conn.commit()
+        except SQL_ERRORS as e:
+            Utils.print_error(parent=cls, error=e)
+            conn.rollback()
+
+
+class GridTools(FolderTools):
 
     @classmethod
     def update_order_item(cls, conn: Connection, order_item: OrderItem):
 
+        # print(order_item.src)s
+
         try:
-            return cls.update_order_item_(conn, order_item)
+
+            if order_item.type_ == Static.FOLDER_TYPE:
+                return cls.update_folder_order_item(conn=conn, order_item=order_item)
+            else:
+                return cls.update_file_order_item(conn=conn, order_item=order_item)
 
         except Exception as e:
-            Utils.print_error(parent=cls, error=e)
-            print(order_item.src)
+            import traceback
+            print(traceback.format_exc())
+            # Utils.print_error(parent=cls, error=e)
+            # print(order_item.src)
             return None
 
     @classmethod
-    def update_order_item_(cls, conn: Connection, order_item: OrderItem):
+    def update_file_order_item(cls, conn: Connection, order_item: OrderItem):
 
         # ошибка логики в том, что мы пытаемся загрузить запись
         # которой еще нет в БД (загрузка по имени)
@@ -34,44 +110,29 @@ class GridTools:
         # а дата изменения и размер могут быть одинаковыми у нескольких
         # записей
         
-        db_item, rating = GridTools.load_db_item(
+        img_array = None
+
+
+        db_item, rating = GridTools.load_file(
             conn=conn,
             order_item=order_item,
         )
 
         if isinstance(db_item, int):
-
-            img_array = cls.update_db_item(
+            img_array = cls.update_file(
                 conn=conn,
                 order_item=order_item,
                 row_id=db_item
             )
 
-            # print("update")
-
         elif db_item is None:
-
-            print(order_item.name)
-
-            img_array = cls.insert_db_item(
-                conn=conn,
-                order_item=order_item
-            )
-
-            # print("insert")
+            img_array = cls.insert_file(conn=conn, order_item=order_item)
         
         elif isinstance(db_item, bytes):
-            img_array = Utils.bytes_to_array(
-                blob=db_item
-            )
-
-            # print("already")
+            img_array = Utils.bytes_to_array(blob=db_item)
 
         if isinstance(img_array, np.ndarray):
-
-            pixmap = Utils.pixmap_from_array(
-                image=img_array
-            )
+            pixmap = Utils.pixmap_from_array(image=img_array)
 
             order_item.pixmap_ = pixmap
             order_item.rating = rating
@@ -82,7 +143,7 @@ class GridTools:
             return None
 
     @classmethod
-    def load_db_item(cls, conn: Connection, order_item: OrderItem):
+    def load_file(cls, conn: Connection, order_item: OrderItem):
 
         select_stmt = select(
             CACHE.c.id,
@@ -117,7 +178,7 @@ class GridTools:
         where_stmt_sec = select_stmt.where(
             CACHE.c.partial_hash == Utils.get_partial_hash(file_path=order_item.src)
         )
-        res_by_hash = conn.execute(where_stmt).mappings().first()
+        res_by_hash = conn.execute(where_stmt_sec).mappings().first()
 
         # Если запись найдена, значит файл действительно был переименован
         # возвращаем ID для обновления записи
@@ -131,7 +192,7 @@ class GridTools:
             return (None, 0)
     
     @classmethod
-    def update_db_item(cls, conn: Connection, order_item: OrderItem, row_id: int) -> np.ndarray:
+    def update_file(cls, conn: Connection, order_item: OrderItem, row_id: int) -> np.ndarray:
 
         bytes_img, img_array = cls.get_bytes_ndarray(
             order_item=order_item
@@ -164,7 +225,7 @@ class GridTools:
         return img_array
 
     @classmethod
-    def insert_db_item(cls, conn: Connection, order_item: OrderItem) -> np.ndarray:
+    def insert_file(cls, conn: Connection, order_item: OrderItem) -> np.ndarray:
 
         bytes_img, img_array = cls.get_bytes_ndarray(
             order_item=order_item
@@ -228,11 +289,3 @@ class GridTools:
 
         return new_size, new_mod, new_resol
     
-    @classmethod
-    def execute_query(cls, conn: Connection, query):
-        try:
-            conn.execute(query)
-            conn.commit()
-        except SQL_ERRORS as e:
-            Utils.print_error(parent=cls, error=e)
-            conn.rollback()
