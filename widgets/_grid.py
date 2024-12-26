@@ -764,7 +764,9 @@ class Grid(BaseMethods, QScrollArea):
             elif a0.key() == Qt.Key.Key_I:
                 wid = self.cell_to_wid.get(self.curr_cell)
                 if wid:
-                    OpenWin.info(Utils.get_main_win(), wid.src)
+                    OpenWin.info(parent=self.window(), src=wid.src)
+                else:
+                    OpenWin.info(parent=self.window(), src=JsonData.root)
 
             elif a0.key() == Qt.Key.Key_Equal:
                 new_value = Dynamic.pixmap_size_ind + 1
