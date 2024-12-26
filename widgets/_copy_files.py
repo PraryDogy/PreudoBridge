@@ -72,6 +72,8 @@ class WinCopyFiles(QWidget):
         self.setWindowTitle(COPY_TITLE)
         self.setFixedSize(300, 70)
 
+        self.dest = dest
+
         fl = Qt.WindowType.Window | Qt.WindowType.CustomizeWindowHint
         fl = fl  | Qt.WindowType.WindowCloseButtonHint
         self.setWindowFlags(fl)
@@ -98,7 +100,7 @@ class WinCopyFiles(QWidget):
 
     def on_finished(self, counter: int):
 
-        if counter > 0:
+        if counter > 0 and JsonData.root == self.dest:
 
             SignalsApp.instance.load_standart_grid_cmd(
                 path=JsonData.root,
