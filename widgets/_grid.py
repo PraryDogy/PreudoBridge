@@ -26,7 +26,6 @@ SELECTED = "selected"
 FONT_SIZE = "font-size: 11px;"
 RAD = "border-radius: 4px"
 IMG_WID_ATTR = "img_wid_attr"
-HAS_SEL_WID = "has_sel_wid"
 SQL_ERRORS = (OperationalError, IntegrityError)
 WID_UNDER_MOUSE = "win_under_mouse"
 
@@ -493,7 +492,7 @@ class Grid(BaseMethods, QScrollArea):
 
         self.prev_path = prev_path
         self.selected_widgets: list[Thumb] = []
-        self.curr_cell: tuple = (0, 0)
+        self.curr_cell: tuple = None
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.ordered_widgets: list[OrderItem | Thumb | ThumbFolder | ThumbSearch] = []
         self.ww = width
@@ -531,8 +530,6 @@ class Grid(BaseMethods, QScrollArea):
         self.curr_cell = (wid.row, wid.col)
         self.ensureWidgetVisible(wid)
         self.selected_widgets = [wid]
-        setattr(self, HAS_SEL_WID, True)
-
         self.set_bottom_path(src=wid.src)
 
     def set_bottom_path(self, src: str):
@@ -585,7 +582,7 @@ class Grid(BaseMethods, QScrollArea):
             col_count = Utils.get_clmn_count(self.ww)
 
         self.cell_to_wid.clear()
-        self.curr_cell = (0, 0)
+        self.curr_cell = None
         for i in self.selected_widgets:
             i.set_no_frame()
 
@@ -687,7 +684,7 @@ class Grid(BaseMethods, QScrollArea):
 
     def shift_clicked(self, wid: Thumb):
 
-        if not hasattr(self, HAS_SEL_WID):
+        if self.curr_cell is None:
             self.select_one_wid(wid)
             return
 
@@ -761,11 +758,13 @@ class Grid(BaseMethods, QScrollArea):
 
             elif a0.key() == Qt.Key.Key_Down:
                 wid = self.cell_to_wid.get(self.curr_cell)
-                self.open_in_view(wid)
+                if wid:
+                    self.open_in_view(wid)
 
             elif a0.key() == Qt.Key.Key_I:
                 wid = self.cell_to_wid.get(self.curr_cell)
-                OpenWin.info(Utils.get_main_win(), wid.src)
+                if wid:
+                    OpenWin.info(Utils.get_main_win(), wid.src)
 
             elif a0.key() == Qt.Key.Key_Equal:
                 new_value = Dynamic.pixmap_size_ind + 1
@@ -795,6 +794,9 @@ class Grid(BaseMethods, QScrollArea):
         elif a0.key() in KEY_NAVI:
 
             offset = KEY_NAVI.get(a0.key())
+
+            if self.curr_cell is None:
+                self.curr_cell = (0, 0)
 
             coords = (
                 self.curr_cell[0] + offset[0], 
@@ -892,9 +894,7 @@ class Grid(BaseMethods, QScrollArea):
 
         self.selected_widgets.clear()
         self.set_bottom_path(src=JsonData.root)
-
-        if hasattr(self, HAS_SEL_WID):
-            delattr(self, HAS_SEL_WID)
+        self.curr_cell = None
 
     def dragEnterEvent(self, a0):
         a0.acceptProposedAction()
