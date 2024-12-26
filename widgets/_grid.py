@@ -687,18 +687,21 @@ class Grid(BaseMethods, QScrollArea):
         if self.curr_cell is None:
             self.select_one_wid(wid)
             return
-
+        
         coords = list(self.cell_to_wid)
-        shift_coords = []
-        start_ind = coords.index(self.curr_cell)
-        end_ind = coords.index((wid.row, wid.col)) + 1
 
-        if start_ind > end_ind:
-            shift_coords = coords[end_ind - 1 : start_ind]
+        if coords.index((wid.row, wid.col)) > coords.index(self.curr_cell):
+            start = coords.index(self.curr_cell)
+            end = coords.index((wid.row, wid.col))
+            coords = coords[start : end + 1]
+
         else:
-            shift_coords = coords[start_ind: end_ind]
+            start = coords.index((wid.row, wid.col))
+            end = coords.index(self.curr_cell)
+            coords = coords[start : end]
 
-        for i in shift_coords:
+        for i in coords:
+
             wid_ = self.cell_to_wid.get(i)
 
             if wid_ not in self.selected_widgets:
