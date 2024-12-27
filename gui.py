@@ -15,7 +15,7 @@ from widgets.grid_standart import GridStandart
 from widgets.list_file_system import ListFileSystem
 from widgets.tree_favorites import TreeFavorites
 from widgets.tree_folders import TreeFolders
-from typing import Literal
+from widgets.win_img_view import LoadImage
 
 
 class BarTabs(QTabWidget):
@@ -163,7 +163,7 @@ class MainWin(QWidget):
     def load_standart_grid(self, data: dict):
 
         JsonData.root = data.get("path")
-
+        LoadImage.cache.clear()
         self.grid.close()
         self.setWindowTitle(os.path.basename(JsonData.root))
         SignalsApp.instance.fav_cmd.emit({"cmd": "select", "src": JsonData.root})
