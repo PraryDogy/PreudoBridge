@@ -777,7 +777,7 @@ class Grid(BaseMethods, QScrollArea):
         menu.addSeparator()
 
         rating_menu = RatingMenu(parent=menu, src=wid.src, rating=wid.rating)
-        # rating_menu._clicked.connect(self.set_new_rating)
+        rating_menu._clicked.connect(self.set_rating_wid)
         menu.addMenu(rating_menu)
 
         menu.addSeparator()
@@ -786,6 +786,11 @@ class Grid(BaseMethods, QScrollArea):
         menu.addAction(delete_item)
 
         menu.exec_(QCursor.pos())
+
+    def set_rating_wid(self, rating: int):
+
+        for i in self.selected_widgets:
+            i.set_new_rating(rating=rating)
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         wid: Thumb | ThumbFolder 
@@ -863,9 +868,7 @@ class Grid(BaseMethods, QScrollArea):
         elif a0.key() in KEY_RATING:
     
             rating = KEY_RATING.get(a0.key())
-
-            for i in self.selected_widgets:
-                i.set_new_rating(rating=rating)
+            self.set_rating_wid(rating=rating)
         
         return super().keyPressEvent(a0)
 
