@@ -660,7 +660,11 @@ class DeleteFinderItem(QAction):
 
         super().__init__(parent=menu, text=DELETE_T)
         self.triggered.connect(self.run_task)
-        self.path = os.sep + path.strip(os.sep)
+
+        if isinstance(path, str):
+            self.files = [path]
+        else:
+            self.files = path
 
     def run_task(self, *args):
         self.task_ = Task_(cmd_=self.move_to_trash)
@@ -669,17 +673,9 @@ class DeleteFinderItem(QAction):
     def move_to_trash(self, *args):
 
         try:
-
-            # ПЕРЕМЕСТИ # ПЕРЕМЕСТИ # ПЕРЕМЕСТИ # ПЕРЕМЕСТИ # ПЕРЕМЕСТИ # ПЕРЕМЕСТИ # ПЕРЕМЕСТИ # ПЕРЕМЕСТИ # ПЕРЕМЕСТИ # ПЕРЕМЕСТИ 
-
-            applescript = f"""
-            tell application "Finder"
-                set theItem to POSIX file "{self.path}" as alias
-                move theItem to trash
-            end tell
-            """
-
-            subprocess.run(["osascript", "-e", applescript], check=True)
+            subprocess.run(
+                ["osascript", Static.REMOVE_SCPT] + self.files
+            )
 
             SignalsApp.instance.load_standart_grid_cmd(
                 path=JsonData.root,

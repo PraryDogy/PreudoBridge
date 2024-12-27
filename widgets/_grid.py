@@ -383,7 +383,7 @@ class ThumbFolder(Thumb):
         img_wid = self.img_frame.findChild(USvgWidget)
         img_wid.load(self.svg_path)
 
- 
+
 class ThumbSearch(Thumb):
     def __init__(self, src: str, size: int, mod: int, rating: int):
         super().__init__(src, size, mod, rating)
@@ -711,7 +711,7 @@ class Grid(BaseMethods, QScrollArea):
 
             menu.addSeparator()
 
-        delete_item = DeleteFinderItem(menu=menu, path=wid.src)
+        delete_item = DeleteFinderItem(menu=menu, path=files)
         menu.addAction(delete_item)
 
         menu.show_custom()

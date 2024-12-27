@@ -31,6 +31,7 @@ class Static:
 
     SCRIPTS_DIR = "scripts"
     REVEAL_SCPT = os.path.join(SCRIPTS_DIR, "reveal_files.scpt")
+    REMOVE_SCPT = os.path.join(SCRIPTS_DIR, "remove_files.scpt")
 
     IMAGES_DIR = "images"
     IMG_SVG = os.path.join(IMAGES_DIR, "img.svg")
