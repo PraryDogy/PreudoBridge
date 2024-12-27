@@ -212,6 +212,10 @@ class GridSearch(Grid):
             lambda w=wid: self.shift_clicked(wid=w)
         )
 
+        wid.r_clicked.connect(
+            lambda w=wid: self.context_thumb(wid=w)
+        )
+
         wid.open_in_view.connect(
             lambda w=wid: self.open_in_view(wid=w)
         )

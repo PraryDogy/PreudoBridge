@@ -416,17 +416,7 @@ class ThumbSearch(Thumb):
         )
 
     def mouse_r_click(self, a0: QContextMenuEvent | None) -> None:
-        self.clicked_.emit()
-    
-        menu_ = UMenu(parent=self)
-        self.add_base_actions(menu_)
-        menu_.addSeparator()
-
-        show_in_folder = ShowInFolder(parent=menu_, src=self.src)
-        show_in_folder._clicked.connect(self.show_in_folder_cmd)
-        menu_.addAction(show_in_folder)
-
-        menu_.exec_(self.mapToGlobal(a0.pos()))
+        self.r_clicked.emit()
 
 
 class GridWid(QWidget):
@@ -689,7 +679,7 @@ class Grid(BaseMethods, QScrollArea):
 
         drag.exec_(Qt.DropAction.CopyAction)
 
-    def context_thumb(self, wid: Thumb):
+    def context_thumb(self, wid: Thumb | ThumbFolder | ThumbSearch):
 
         if wid not in self.selected_widgets:
             self.select_one_wid(wid=wid)
@@ -742,6 +732,14 @@ class Grid(BaseMethods, QScrollArea):
         menu.addMenu(rating_menu)
 
         menu.addSeparator()
+
+        if isinstance(wid, ThumbSearch):
+
+            show_in_folder = ShowInFolder(parent=menu, src=wid.src)
+            show_in_folder._clicked.connect(wid.show_in_folder_cmd)
+            menu.addAction(show_in_folder)
+
+            menu.addSeparator()
 
         delete_item = DeleteFinderItem(menu=menu, path=wid.src)
         menu.addAction(delete_item)
