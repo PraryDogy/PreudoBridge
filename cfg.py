@@ -29,6 +29,9 @@ class Static:
     PARAGRAPH_SEP = "\u2029"
     LINE_FEED  = "\u000a"
 
+    SCRIPTS_DIR = "scripts"
+    REVEAL_SCPT = os.path.join(SCRIPTS_DIR, "reveal_files.scpt")
+
     IMAGES_DIR = "images"
     IMG_SVG = os.path.join(IMAGES_DIR, "img.svg")
     FOLDER_SVG = os.path.join(IMAGES_DIR, "folder.svg")

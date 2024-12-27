@@ -133,6 +133,7 @@ class Thumb(OrderItem, QFrame):
     clicked_ = pyqtSignal()
     control_clicked = pyqtSignal()
     shift_clicked = pyqtSignal()
+    r_clicked = pyqtSignal(object)
     mouse_moved = pyqtSignal()
 
     open_in_view = pyqtSignal()
@@ -370,10 +371,11 @@ class Thumb(OrderItem, QFrame):
         self.open_in_view.emit()
 
     def context_menu_ev(self, a0: QContextMenuEvent | None) -> None:
-        self.clicked_.emit()
-        context_menu = UMenu(self)
-        self.add_base_actions(context_menu)
-        context_menu.exec_(self.mapToGlobal(a0.pos()))
+        self.r_clicked.emit(a0)
+        # self.clicked_.emit()
+        # context_menu = UMenu(self)
+        # self.add_base_actions(context_menu)
+        # context_menu.exec_(self.mapToGlobal(a0.pos()))
 
 
 class ThumbFolder(Thumb):
@@ -741,8 +743,49 @@ class Grid(BaseMethods, QScrollArea):
 
         drag.exec_(Qt.DropAction.CopyAction)
 
-    def context_thumb(self, wid: Thumb):
-        ...
+    def context_thumb(self, wid: Thumb, a0):
+
+        if not self.selected_widgets:
+            self.select_one_wid(wid=wid)
+
+        files = [
+            i.src
+            for i in self.selected_widgets
+        ]
+
+        menu = UMenu()
+
+        view_action = View(parent=menu, src=wid.src)
+        # view_action._clicked.connect(self.open_in_view.emit)
+        menu.addAction(view_action)
+
+        open_menu = OpenInApp(parent=menu, src=wid.src)
+        menu.addMenu(open_menu)
+
+        menu.addSeparator()
+
+        info = Info(parent=menu, src=wid.src)
+        menu.addAction(info)
+
+        show_in_finder_action = RevealInFinder(parent=menu, src=files)
+        menu.addAction(show_in_finder_action)
+
+        copy_path = CopyPath(parent=menu, src=wid.src)
+        menu.addAction(copy_path)
+
+        menu.addSeparator()
+
+        rating_menu = RatingMenu(parent=menu, src=wid.src, rating=wid.rating)
+        # rating_menu._clicked.connect(self.set_new_rating)
+        menu.addMenu(rating_menu)
+
+        menu.addSeparator()
+
+        delete_item = DeleteFinderItem(menu=menu, path=wid.src)
+        menu.addAction(delete_item)
+
+        wid.set_frame()
+        menu.exec_(self.mapToGlobal(a0.pos()))
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         wid: Thumb | ThumbFolder 

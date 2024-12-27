@@ -213,6 +213,10 @@ class GridStandart(Grid):
                 lambda w=wid: self.shift_clicked(wid=w)
             )
 
+            wid.r_clicked.connect(
+                lambda a0, w=wid: self.context_thumb(wid=w, a0=a0)
+            )
+
             wid.open_in_view.connect(
                 lambda w=wid: self.open_in_view(wid=w)
             )

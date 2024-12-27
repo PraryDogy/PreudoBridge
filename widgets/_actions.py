@@ -80,17 +80,23 @@ class UAction(QAction):
 class RevealInFinder(UAction):
     def __init__(self, parent: UMenu, src: str):
 
-        super().__init__(
-            parent=parent,
-            src=src,
-            text=REVEAL_T
-        )
+        super().__init__(parent=parent, src=src, text=REVEAL_T)
+
+        if isinstance(src, str):
+            self.files = [src]
+
+        else:
+            self.files = src
 
     # показывает в Finder фоном
     def cmd_(self):
 
+        print(self.files)
+
         self.task_ = Task_(
-            cmd_=lambda: subprocess.call(["open", "-R", self.src])
+            cmd_=lambda: subprocess.run(
+                ["osascript", Static.REVEAL_SCPT] + self.files
+            )
         )
 
         UThreadPool.start(
