@@ -757,7 +757,7 @@ class Grid(BaseMethods, QScrollArea):
         menu = UMenu()
 
         view_action = View(parent=menu, src=wid.src)
-        # view_action._clicked.connect(self.open_in_view.emit)
+        view_action._clicked.connect(lambda: self.open_in_view(wid=wid))
         menu.addAction(view_action)
 
         open_menu = OpenInApp(parent=menu, src=wid.src)
