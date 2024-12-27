@@ -383,36 +383,10 @@ class ThumbFolder(Thumb):
         img_wid = self.img_frame.findChild(USvgWidget)
         img_wid.load(self.svg_path)
 
-        for i in (self.img_frame, self.text_wid, self.rating_wid):
-            i.contextMenuEvent = self.mouse_r_click
-
-    def fav_cmd(self, offset: int):
-
-        if 0 + offset == 1:
-            SignalsApp.instance.fav_cmd.emit({"cmd": "add", "src": self.src})
-        else:
-            SignalsApp.instance.fav_cmd.emit({"cmd": "del", "src": self.src})
-
-    def mouse_r_click(self, a0: QContextMenuEvent | None) -> None:
-        self.r_clicked.emit()
-
  
 class ThumbSearch(Thumb):
     def __init__(self, src: str, size: int, mod: int, rating: int):
         super().__init__(src, size, mod, rating)
-
-        for i in (self.img_frame, self.text_wid, self.rating_wid):
-            i.contextMenuEvent = self.mouse_r_click
-
-    def show_in_folder_cmd(self):
-
-        SignalsApp.instance.load_standart_grid_cmd(
-            path=os.path.dirname(self.src),
-            prev_path=self.src
-        )
-
-    def mouse_r_click(self, a0: QContextMenuEvent | None) -> None:
-        self.r_clicked.emit()
 
 
 class GridWid(QWidget):
@@ -586,11 +560,11 @@ class Grid(BaseMethods, QScrollArea):
             self.ensureWidgetVisible(wid)
             ListFileSystem.last_selection = None
 
-    def fav_cmd(self, offset: int):
+    def fav_cmd(self, offset: int, src: str):
         if 0 + offset == 1:
-            SignalsApp.instance.fav_cmd.emit({"cmd": "add", "src": JsonData.root})
+            SignalsApp.instance.fav_cmd.emit({"cmd": "add", "src": src})
         else:
-            SignalsApp.instance.fav_cmd.emit({"cmd": "del", "src": JsonData.root})
+            SignalsApp.instance.fav_cmd.emit({"cmd": "del", "src": src})
 
     def open_find_here_win(self, *args):
         self.find_here_win = WinFindHere()
@@ -710,13 +684,13 @@ class Grid(BaseMethods, QScrollArea):
         if wid.type_ == Static.FOLDER_TYPE:
 
             if wid.src in JsonData.favs:
-                cmd_ = lambda: wid.fav_cmd(-1)
+                cmd_ = lambda: self.fav_cmd(offset=-1, src=wid.src)
                 fav_action = FavRemove(menu, wid.src)
                 fav_action._clicked.connect(cmd_)
                 menu.addAction(fav_action)
 
             else:
-                cmd_ = lambda: wid.fav_cmd(+1)
+                cmd_ = lambda: self.fav_cmd(offset=1, src=wid.src)
                 fav_action = FavAdd(menu, wid.src)
                 fav_action._clicked.connect(cmd_)
                 menu.addAction(fav_action)
