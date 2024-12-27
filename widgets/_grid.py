@@ -709,7 +709,7 @@ class Grid(BaseMethods, QScrollArea):
                 wid_.set_frame()
                 self.selected_widgets.append(wid_)
 
-    def drag_event(self, wid: Thumb):
+    def drag_thumb(self, wid: Thumb):
 
         if len(self.selected_widgets) < 2:
             self.select_one_wid(wid)
@@ -740,6 +740,9 @@ class Grid(BaseMethods, QScrollArea):
         drag.setMimeData(mime_data)
 
         drag.exec_(Qt.DropAction.CopyAction)
+
+    def context_thumb(self, wid: Thumb):
+        ...
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         wid: Thumb | ThumbFolder 

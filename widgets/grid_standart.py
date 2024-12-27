@@ -218,7 +218,7 @@ class GridStandart(Grid):
             )
 
             wid.mouse_moved.connect(
-                lambda w=wid: self.drag_event(wid=w)
+                lambda w=wid: self.drag_thumb(wid=w)
             )
 
             self.add_widget_data(
