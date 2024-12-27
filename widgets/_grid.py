@@ -387,15 +387,11 @@ class ThumbFolder(Thumb):
             i.contextMenuEvent = self.mouse_r_click
 
     def fav_cmd(self, offset: int):
-        self.fav_action.triggered.disconnect()
+
         if 0 + offset == 1:
             SignalsApp.instance.fav_cmd.emit({"cmd": "add", "src": self.src})
-            self.fav_action.setText("Удалить из избранного")
-            self.fav_action.triggered.connect(lambda: self.fav_cmd(-1))
         else:
             SignalsApp.instance.fav_cmd.emit({"cmd": "del", "src": self.src})
-            self.fav_action.setText("Добавить в избранное")
-            self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))
 
     def mouse_r_click(self, a0: QContextMenuEvent | None) -> None:
         self.r_clicked.emit()
@@ -714,16 +710,16 @@ class Grid(BaseMethods, QScrollArea):
         if wid.type_ == Static.FOLDER_TYPE:
 
             if wid.src in JsonData.favs:
-                cmd_ = lambda: self.fav_cmd(-1)
-                self.fav_action = FavRemove(menu, wid.src)
-                self.fav_action._clicked.connect(cmd_)
-                menu.addAction(self.fav_action)
+                cmd_ = lambda: wid.fav_cmd(-1)
+                fav_action = FavRemove(menu, wid.src)
+                fav_action._clicked.connect(cmd_)
+                menu.addAction(fav_action)
 
             else:
-                cmd_ = lambda: self.fav_cmd(+1)
-                self.fav_action = FavAdd(menu, wid.src)
-                self.fav_action._clicked.connect(cmd_)
-                menu.addAction(self.fav_action)
+                cmd_ = lambda: wid.fav_cmd(+1)
+                fav_action = FavAdd(menu, wid.src)
+                fav_action._clicked.connect(cmd_)
+                menu.addAction(fav_action)
 
             menu.addSeparator()
 
