@@ -172,6 +172,7 @@ class SearchFinder(URunnable):
 class GridSearch(Grid):
     def __init__(self, width: int, search_text: str):
         super().__init__(width)
+        self.setAcceptDrops(False)
 
         self.col_count = Utils.get_clmn_count(width)
         self.row, self.col = 0, 0
