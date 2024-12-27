@@ -373,10 +373,6 @@ class Thumb(OrderItem, QFrame):
 
     def context_menu_ev(self, a0: QContextMenuEvent | None) -> None:
         self.r_clicked.emit()
-        # self.clicked_.emit()
-        # context_menu = UMenu(self)
-        # self.add_base_actions(context_menu)
-        # context_menu.exec_(self.mapToGlobal(a0.pos()))
 
 
 class ThumbFolder(Thumb):
@@ -402,51 +398,7 @@ class ThumbFolder(Thumb):
             self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))
 
     def mouse_r_click(self, a0: QContextMenuEvent | None) -> None:
-        self.clicked_.emit()
-
-        menu = UMenu(parent=self)
-
-        view_action = View(parent=menu, src=self.src)
-        view_action._clicked.connect(self.open_in_view.emit)
-        menu.addAction(view_action)
-
-        menu.addSeparator()
-
-        info = Info(parent=menu, src=self.src)
-        menu.addAction(info)
-
-        show_in_finder_action = RevealInFinder(parent=menu, src=self.src)
-        menu.addAction(show_in_finder_action)
-
-        copy_path = CopyPath(parent=menu, src=self.src)
-        menu.addAction(copy_path)
-
-        menu.addSeparator()
-
-        if self.src in JsonData.favs:
-            cmd_ = lambda: self.fav_cmd(-1)
-            self.fav_action = FavRemove(menu, self.src)
-            self.fav_action._clicked.connect(cmd_)
-            menu.addAction(self.fav_action)
-
-        else:
-            cmd_ = lambda: self.fav_cmd(+1)
-            self.fav_action = FavAdd(menu, self.src)
-            self.fav_action._clicked.connect(cmd_)
-            menu.addAction(self.fav_action)
-
-        menu.addSeparator()
-
-        rating_menu = RatingMenu(parent=menu, src=self.src, rating=self.rating)
-        rating_menu._clicked.connect(self.set_new_rating)
-        menu.addMenu(rating_menu)
-
-        menu.addSeparator()
-
-        delete_item = DeleteFinderItem(menu=menu, path=self.src)
-        menu.addAction(delete_item)
-
-        menu.exec_(self.mapToGlobal(a0.pos()))
+        self.r_clicked.emit()
 
  
 class ThumbSearch(Thumb):
@@ -649,17 +601,10 @@ class Grid(BaseMethods, QScrollArea):
             ListFileSystem.last_selection = None
 
     def fav_cmd(self, offset: int):
-        self.fav_action.triggered.disconnect()
         if 0 + offset == 1:
-
             SignalsApp.instance.fav_cmd.emit({"cmd": "add", "src": JsonData.root})
-            self.fav_action.setText("Удалить из избранного")
-            self.fav_action.triggered.connect(lambda: self.fav_cmd(-1))
-
         else:
             SignalsApp.instance.fav_cmd.emit({"cmd": "del", "src": JsonData.root})
-            self.fav_action.setText("Добавить в избранное")
-            self.fav_action.triggered.connect(lambda: self.fav_cmd(+1))
 
     def open_find_here_win(self, *args):
         self.find_here_win = WinFindHere()
@@ -775,6 +720,22 @@ class Grid(BaseMethods, QScrollArea):
         menu.addAction(copy_path)
 
         menu.addSeparator()
+
+        if wid.type_ == Static.FOLDER_TYPE:
+
+            if wid.src in JsonData.favs:
+                cmd_ = lambda: self.fav_cmd(-1)
+                self.fav_action = FavRemove(menu, wid.src)
+                self.fav_action._clicked.connect(cmd_)
+                menu.addAction(self.fav_action)
+
+            else:
+                cmd_ = lambda: self.fav_cmd(+1)
+                self.fav_action = FavAdd(menu, wid.src)
+                self.fav_action._clicked.connect(cmd_)
+                menu.addAction(self.fav_action)
+
+            menu.addSeparator()
 
         rating_menu = RatingMenu(parent=menu, src=wid.src, rating=wid.rating)
         rating_menu._clicked.connect(self.set_rating_wid)
