@@ -785,7 +785,7 @@ class Grid(BaseMethods, QScrollArea):
         delete_item = DeleteFinderItem(menu=menu, path=wid.src)
         menu.addAction(delete_item)
 
-        menu.exec_(QCursor.pos())
+        menu.show_custom()
 
     def set_rating_wid(self, rating: int):
 

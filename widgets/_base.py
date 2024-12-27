@@ -1,7 +1,7 @@
 from typing import Literal
 
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import QContextMenuEvent, QMouseEvent, QWheelEvent
+from PyQt5.QtGui import QContextMenuEvent, QCursor, QMouseEvent, QWheelEvent
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import QFrame, QLineEdit, QMenu, QSlider, QWidget
 
@@ -30,6 +30,9 @@ class UMenu(QMenu):
             a0.ignore()
         else:
             super().mouseReleaseEvent(a0)
+
+    def show_custom(self):
+        self.exec_(QCursor.pos())
 
 
 class USlider(QSlider):
