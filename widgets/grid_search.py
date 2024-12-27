@@ -77,7 +77,8 @@ class SearchFinder(URunnable):
         filename: str = filename.lower()
         search_text: str = self.search_text.lower()
 
-        if self.word_similarity(word1=filename, word2=search_text) > 0.9 or search_text in filename:
+        # if self.word_similarity(word1=filename, word2=search_text) > 0.9 or search_text in filename:
+        if search_text in filename:
             return True
         else:
             return False
