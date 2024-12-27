@@ -3,7 +3,7 @@ import os
 import sqlalchemy
 from PyQt5.QtCore import QMimeData, Qt, QTimer, QUrl, pyqtSignal
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
-                         QPixmap)
+                         QPixmap, QCursor)
 from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
                              QScrollArea, QVBoxLayout, QWidget)
 from sqlalchemy.exc import IntegrityError, OperationalError
@@ -133,7 +133,7 @@ class Thumb(OrderItem, QFrame):
     clicked_ = pyqtSignal()
     control_clicked = pyqtSignal()
     shift_clicked = pyqtSignal()
-    r_clicked = pyqtSignal(object)
+    r_clicked = pyqtSignal()
     mouse_moved = pyqtSignal()
 
     open_in_view = pyqtSignal()
@@ -359,11 +359,12 @@ class Thumb(OrderItem, QFrame):
             self.start_pos = a0.pos()
 
     def mouse_move_ev(self, a0: QMouseEvent | None) -> None:
-        
-        distance = (a0.pos() - self.start_pos).manhattanLength()
 
-        if distance < QApplication.startDragDistance():
-            return
+        if hasattr(self, "start_pos"):
+            distance = (a0.pos() - self.start_pos).manhattanLength()
+
+            if distance < QApplication.startDragDistance():
+                return
 
         self.mouse_moved.emit()
 
@@ -371,7 +372,7 @@ class Thumb(OrderItem, QFrame):
         self.open_in_view.emit()
 
     def context_menu_ev(self, a0: QContextMenuEvent | None) -> None:
-        self.r_clicked.emit(a0)
+        self.r_clicked.emit()
         # self.clicked_.emit()
         # context_menu = UMenu(self)
         # self.add_base_actions(context_menu)
@@ -743,9 +744,9 @@ class Grid(BaseMethods, QScrollArea):
 
         drag.exec_(Qt.DropAction.CopyAction)
 
-    def context_thumb(self, wid: Thumb, a0):
+    def context_thumb(self, wid: Thumb):
 
-        if not self.selected_widgets:
+        if wid not in self.selected_widgets:
             self.select_one_wid(wid=wid)
 
         files = [
@@ -784,8 +785,7 @@ class Grid(BaseMethods, QScrollArea):
         delete_item = DeleteFinderItem(menu=menu, path=wid.src)
         menu.addAction(delete_item)
 
-        wid.set_frame()
-        menu.exec_(self.mapToGlobal(a0.pos()))
+        menu.exec_(QCursor.pos())
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         wid: Thumb | ThumbFolder 
