@@ -658,10 +658,15 @@ class Grid(BaseMethods, QScrollArea):
         if wid not in self.selected_widgets:
             self.select_one_wid(wid=wid)
 
-        files = [
-            i.src
+        # files = [
+        #     i.src
+        #     for i in self.selected_widgets
+        # ]
+
+        objects = {
+            i.src: i.rating
             for i in self.selected_widgets
-        ]
+        }
 
         menu = UMenu()
 
@@ -677,7 +682,7 @@ class Grid(BaseMethods, QScrollArea):
         info = Info(parent=menu, src=wid.src)
         menu.addAction(info)
 
-        show_in_finder_action = RevealInFinder(parent=menu, src=files)
+        show_in_finder_action = RevealInFinder(parent=menu, src=objects)
         menu.addAction(show_in_finder_action)
 
         copy_path = CopyPath(parent=menu, src=wid.src)
@@ -715,12 +720,12 @@ class Grid(BaseMethods, QScrollArea):
 
             menu.addSeparator()
 
-        delete_item = DeleteFinderItem(menu=menu, path=files)
+        delete_item = DeleteFinderItem(menu=menu, path=objects)
         menu.addAction(delete_item)
 
         menu.addSeparator()
 
-        copy_obj = CopyObj(parent=menu, files=files)
+        copy_obj = CopyObj(parent=menu, files=objects)
         menu.addAction(copy_obj)
 
         menu.show_custom()
@@ -927,6 +932,6 @@ class Grid(BaseMethods, QScrollArea):
             elif isinstance(wid, GridWid):
                 dest = JsonData.root
 
-            self.dia = WinCopyFiles(mime_data=a0.mimeData(), dest=dest)
+            self.dia = WinCopyFiles(objects=a0.mimeData(), dest=dest)
             Utils.center_win(parent=self.window(), child=self.dia)
             QTimer.singleShot(1000, self.dia.custom_show)

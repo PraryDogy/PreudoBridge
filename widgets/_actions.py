@@ -2,7 +2,7 @@ import os
 import subprocess
 
 import sqlalchemy
-from PyQt5.QtCore import pyqtSignal, QMimeData
+from PyQt5.QtCore import QMimeData, pyqtSignal
 from PyQt5.QtWidgets import QAction, QLabel, QLineEdit, QWidget
 from sqlalchemy.exc import IntegrityError, OperationalError
 
@@ -12,6 +12,7 @@ from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 from ._base import OpenWin, UMenu
+from ._copy_files import WinCopyFiles
 
 REVEAL_T = "Показать в Finder"
 INFO_T = "Инфо"
@@ -710,19 +711,29 @@ class DeleteFinderItem(QAction):
 
 
 class CopyObj(QAction):
-    def __init__(self, parent: UMenu, files: QMimeData | list):
+    objects: dict[str, int] = {}
+
+    def __init__(self, parent: UMenu, files: dict[str, int]):
 
         super().__init__(parent=parent, text=COPY_T)
         self.triggered.connect(self.cmd_)
         self.files = files
 
     def cmd_(self):
-        
-        if isinstance(self.files, QMimeData):
+        for src, rating in self.files.items():
+            CopyObj.objects[src] = rating
 
-            self.files = [
-                i.toLocalFile()
-                for i in self.files.urls()
-            ]
 
-        print(self.files)
+class PasteObj(QAction):
+
+    def __init__(self, parent: UMenu, dest: str):
+
+        super().__init__(parent=parent, text=PASTE_T)
+        self.dest = dest
+        self.triggered.connect(self.cmd_)
+
+    def cmd_(self):
+        self.win_copy = WinCopyFiles(
+            objects=...,
+            dest=...
+        )

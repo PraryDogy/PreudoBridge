@@ -23,7 +23,7 @@ class WorkerSignals(QObject):
 
 class CopyFilesThread(URunnable):
 
-    def __init__(self, mime_data: QMimeData, dest: str):
+    def __init__(self, objects: QMimeData | list, dest: str):
 
         super().__init__()
 
@@ -32,10 +32,16 @@ class CopyFilesThread(URunnable):
         self.counter = 0
         self.items: list[str] = []
 
-        for i in mime_data.urls():
-            src = i.toLocalFile()
-            if os.path.isdir(src) or src.endswith(Static.IMG_EXT):
-                self.items.append(src)
+        if isinstance(objects, QMimeData):
+
+            for i in objects.urls():
+                src = i.toLocalFile()
+                if os.path.isdir(src) or src.endswith(Static.IMG_EXT):
+                    self.items.append(src)
+
+        else:
+            
+            self.items = objects
 
     @URunnable.set_running_state
     def run(self):
@@ -66,7 +72,7 @@ class CopyFilesThread(URunnable):
 
 
 class WinCopyFiles(QWidget):
-    def __init__(self, mime_data: QMimeData, dest: str):
+    def __init__(self, objects: QMimeData | list, dest: str):
         super().__init__()
 
         self.setWindowTitle(COPY_TITLE)
@@ -90,7 +96,7 @@ class WinCopyFiles(QWidget):
         self.cancel_button.clicked.connect(self.close_thread)
         h_lay.addWidget(self.cancel_button, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.task_ = CopyFilesThread(mime_data=mime_data,dest=dest)
+        self.task_ = CopyFilesThread(objects=objects,dest=dest)
         self.task_.signals_.progress.connect(self.update_progress)
         self.task_.signals_.finished_.connect(self.on_finished)
         UThreadPool.start(runnable=self.task_)

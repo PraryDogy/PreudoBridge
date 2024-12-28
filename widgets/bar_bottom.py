@@ -531,7 +531,7 @@ class BarBottom(QWidget):
         if hasattr(self, CURR_WID):
             wid: PathItem = getattr(self, CURR_WID)
 
-            self.dia = WinCopyFiles(mime_data=a0.mimeData(), dest= wid.src)
+            self.dia = WinCopyFiles(objects=a0.mimeData(), dest= wid.src)
             Utils.center_win(parent=self.window(), child=self.dia)
             QTimer.singleShot(1000, self.dia.custom_show)
             delattr(self, CURR_WID)
