@@ -932,6 +932,21 @@ class Grid(BaseMethods, QScrollArea):
             elif isinstance(wid, GridWid):
                 dest = JsonData.root
 
-            self.dia = WinCopyFiles(objects=a0.mimeData(), dest=dest)
+            objects = {
+                i.toLocalFile() : Thumb.path_to_wid[i.toLocalFile()].rating
+                for i in a0.mimeData().urls()
+            }
+
+            objects: dict[str, int]
+
+            for i in a0.mimeData().urls():
+                src = i.toLocalFile()
+                wid = Thumb.path_to_wid.get(src)
+                if wid:
+                    object[src] = wid.rating
+                else:
+                    object[src] = 0
+
+            self.dia = WinCopyFiles(objects=objects, dest=dest)
             Utils.center_win(parent=self.window(), child=self.dia)
             QTimer.singleShot(1000, self.dia.custom_show)

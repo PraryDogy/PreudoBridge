@@ -18,49 +18,42 @@ MAX_T = 35
 
 class WorkerSignals(QObject):
     progress = pyqtSignal(str)
-    finished_ = pyqtSignal(int)
+    finished_ = pyqtSignal(dict)
 
 
 class CopyFilesThread(URunnable):
 
-    def __init__(self, objects: QMimeData | list, dest: str):
+    def __init__(self, objects: dict[str, int], dest: str):
 
         super().__init__()
 
         self.signals_ = WorkerSignals()
         self.dest = os.sep + dest.strip(os.sep)
         self.counter = 0
-        self.items: list[str] = []
-
-        if isinstance(objects, QMimeData):
-
-            for i in objects.urls():
-                src = i.toLocalFile()
-                if os.path.isdir(src) or src.endswith(Static.IMG_EXT):
-                    self.items.append(src)
-
-        else:
-            
-            self.items = objects
+        self.objects = objects
+        self.new_objects: dict[str, int] = {}
 
     @URunnable.set_running_state
     def run(self):
-        total = len(self.items)
-        for index, item in enumerate(self.items, start=1):
+
+        total = len(self.objects)
+
+        for index, (src, rating) in enumerate(self.objects.items(), start=1):
 
             if not self.should_run:
                 self.signals_.finished_.emit(self.counter)
                 return
 
             try:
-                path = os.path.join(self.dest, os.path.basename(item))
-                shutil.copy(item, path)
+                path = os.path.join(self.dest, os.path.basename(src))
+                new_src = shutil.copy(src, path)
+                self.new_objects[new_src] = rating
                 self.counter += 1
 
             except (shutil.SameFileError, IsADirectoryError):
                  ...
 
-            filename = os.path.basename(item)
+            filename = os.path.basename(src)
             t = f"{index} {FROM_T} {total}: {COPY_T} {filename}"
 
             if len(t) > MAX_T:
@@ -68,11 +61,11 @@ class CopyFilesThread(URunnable):
 
             self.signals_.progress.emit(t)
 
-        self.signals_.finished_.emit(self.counter)
+        self.signals_.finished_.emit(self.new_objects)
 
 
 class WinCopyFiles(QWidget):
-    def __init__(self, objects: QMimeData | list, dest: str):
+    def __init__(self, objects: dict[str, int], dest: str):
         super().__init__()
 
         self.setWindowTitle(COPY_TITLE)
@@ -104,9 +97,9 @@ class WinCopyFiles(QWidget):
     def update_progress(self, text: str):
         self.progress_label.setText(text)
 
-    def on_finished(self, counter: int):
+    def on_finished(self, objects: dict[str, int]):
 
-        if counter > 0 and JsonData.root == self.dest:
+        if len(objects) > 0 and JsonData.root == self.dest:
 
             SignalsApp.instance.load_standart_grid_cmd(
                 path=JsonData.root,
