@@ -2,8 +2,8 @@ import os
 
 import sqlalchemy
 from PyQt5.QtCore import QMimeData, Qt, QTimer, QUrl, pyqtSignal
-from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
-                         QPixmap, QCursor)
+from PyQt5.QtGui import (QContextMenuEvent, QCursor, QDrag, QKeyEvent,
+                         QMouseEvent, QPixmap)
 from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
                              QScrollArea, QVBoxLayout, QWidget)
 from sqlalchemy.exc import IntegrityError, OperationalError
@@ -13,10 +13,10 @@ from database import CACHE, ColumnNames, Dbase, OrderItem
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
-from ._actions import (ChangeView, CopyPath, CreateFolder, DeleteFinderItem,
-                       FavAdd, FavRemove, FindHere, Info, OpenInApp,
-                       RatingMenu, RevealInFinder, ShowInFolder, SortMenu,
-                       UpdateGrid, View)
+from ._actions import (ChangeView, CopyObj, CopyPath, CreateFolder,
+                       DeleteFinderItem, FavAdd, FavRemove, FindHere, Info,
+                       OpenInApp, RatingMenu, RevealInFinder, ShowInFolder,
+                       SortMenu, UpdateGrid, View)
 from ._base import BaseMethods, OpenWin, UMenu, USvgWidget
 from ._copy_files import WinCopyFiles
 from .list_file_system import ListFileSystem
@@ -717,6 +717,11 @@ class Grid(BaseMethods, QScrollArea):
 
         delete_item = DeleteFinderItem(menu=menu, path=files)
         menu.addAction(delete_item)
+
+        menu.addSeparator()
+
+        copy_obj = CopyObj(parent=menu, files=files)
+        menu.addAction(copy_obj)
 
         menu.show_custom()
 

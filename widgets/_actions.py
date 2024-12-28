@@ -709,10 +709,20 @@ class DeleteFinderItem(QAction):
         conn.close()
 
 
-# class CopyObj(QAction):
-#     def __init__(self, ...):
-#         super().__init__(text=COPY_T)
-#         self.triggered.connect(self.cmd_)
+class CopyObj(QAction):
+    def __init__(self, parent: UMenu, files: QMimeData | list):
 
-#     def cmd_(self):
-#         ...
+        super().__init__(parent=parent, text=COPY_T)
+        self.triggered.connect(self.cmd_)
+        self.files = files
+
+    def cmd_(self):
+        
+        if isinstance(self.files, QMimeData):
+
+            self.files = [
+                i.toLocalFile()
+                for i in self.files.urls()
+            ]
+
+        print(self.files)
