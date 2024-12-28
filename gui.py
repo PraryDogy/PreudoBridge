@@ -16,7 +16,7 @@ from widgets.list_file_system import ListFileSystem
 from widgets.tree_favorites import TreeFavorites
 from widgets.tree_folders import TreeFolders
 from widgets.win_img_view import LoadImage
-
+from widgets.tree_tags import TreeTags
 
 class BarTabs(QTabWidget):
     def __init__(self):
@@ -59,9 +59,17 @@ class MainWin(QWidget):
         main_lay.setSpacing(0)
         self.setLayout(main_lay)
 
+        left_wid = QWidget()
+        left_wid.setFixedWidth(Static.LEFT_MENU_W)
+        main_lay.addWidget(left_wid)
+        left_v_lay = QVBoxLayout()
+        left_v_lay.setContentsMargins(0, 0, 0, 5)
+        left_v_lay.setSpacing(5)
+        left_wid.setLayout(left_v_lay)
+
         self.bar_tabs = BarTabs()
         self.bar_tabs.setFixedWidth(Static.LEFT_MENU_W)
-        main_lay.addWidget(self.bar_tabs)
+        left_v_lay.addWidget(self.bar_tabs)
 
         self.tree_folders = TreeFolders()
         self.bar_tabs.addTab(self.tree_folders, "Папки")
@@ -69,7 +77,8 @@ class MainWin(QWidget):
         self.tree_favorites = TreeFavorites()
         self.bar_tabs.addTab(self.tree_favorites, "Избранное")
 
-        # self.bar_tabs.addTab(QLabel("Тут будут каталоги"), "Каталог")
+        tree_tags = TreeTags()
+        left_v_lay.addWidget(tree_tags)
 
         self.bar_tabs.load_last_tab()
 
