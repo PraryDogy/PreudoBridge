@@ -108,87 +108,6 @@ class SearchWidget(QWidget):
         self.search_wid.setText(text)
 
 
-class FiltersBtn(BarTopBtn):
-    size_ = 30
-
-    def __init__(self):
-        super().__init__()
-        self.load(Static.RATING_SVG)
-        
-        self.menu_ = QWidget()
-        self.menu_.setWindowFlags(Qt.WindowType.Popup)
-        self.menu_.closeEvent = self.menu_close_cmd
-
-        self.menu_.setLayout(QVBoxLayout())
-        self.menu_.layout().setContentsMargins(0, 0, 0, 0)
-        self.menu_.layout().setSpacing(1)
-
-        # строчка с цветами
-
-        rating_wid = QWidget()
-        self.menu_.layout().addWidget(rating_wid)
-        rating_lay = QHBoxLayout()
-        rating_lay.setContentsMargins(3, 3, 3, 3)
-        rating_lay.setSpacing(5)
-        rating_wid.setLayout(rating_lay)
-
-        self.rating_data = {
-            i: False
-            for i in range(1, 6)
-        }
-
-        self.rating_wids: list[QLabel] = []
-
-        reset_rating = QLabel(Static.LINE_SYM)
-        reset_rating.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        reset_rating.setFixedSize(self.size_, self.size_)
-        reset_rating.mouseReleaseEvent = lambda e: self.reset_filters()
-        rating_lay.addWidget(reset_rating)
-
-        for rate in self.rating_data:
-            label = QLabel(Static.STAR_SYM)
-            label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            label.setFixedSize(self.size_, self.size_)
-            label.mouseReleaseEvent = lambda e, r=rate: self.toggle_rating(r)
-            rating_lay.addWidget(label)
-            self.rating_wids.append(label)
-        
-    def menu_close_cmd(self, *args):
-        super().leaveEvent(args)
-
-    def mouseReleaseEvent(self, e: QMouseEvent):
-        if e.button() == Qt.LeftButton:
-            pont = self.rect().bottomLeft()
-            self.menu_.move(self.mapToGlobal(pont))
-            self.menu_.show()
-
-    def toggle_rating(self, rate: int):
-        Dynamic.rating_filter = rate
-
-        for i in self.rating_wids[:rate]:
-
-            i.setStyleSheet(
-                f"""
-                    background: {Static.GRAY_SLIDER};
-                    border-radius: 3px;
-                """
-            )
-
-        for i in self.rating_wids[rate:]:
-            i.setStyleSheet("")
-
-        SignalsApp.instance.filter_grid.emit()
-
-    def reset_filters(self):
-
-        Dynamic.rating_filter = 0
-
-        for i in self.rating_wids:
-            i.setStyleSheet("")
-
-        SignalsApp.instance.filter_grid.emit()
-
-
 class BarTop(QWidget):
 
     def __init__(self):
@@ -231,9 +150,6 @@ class BarTop(QWidget):
         self.list_view.mouseReleaseEvent = lambda e: self.change_view_cmd(index=1)
         self.list_view.load(Static.LIST_VIEW_SVG)
         self.main_lay.addWidget(self.list_view)
-
-        self.filters_btn = FiltersBtn()
-        self.main_lay.addWidget(self.filters_btn)
 
         self.sett_btn = BarTopBtn()
         self.sett_btn.mouseReleaseEvent = self.open_settings_win

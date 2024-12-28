@@ -22,7 +22,7 @@ class TreeTags(QListWidget):
             Qt.ScrollBarPolicy.ScrollBarAlwaysOff
         )
 
-        self.setFixedHeight(170)
+        self.setFixedHeight(160)
         item_size = QSize(self.width(), 25)
 
         zero_item = UItem()
@@ -68,3 +68,6 @@ class TreeTags(QListWidget):
         Dynamic.rating_filter = rating
         SignalsApp.instance.filter_grid.emit()
 
+    def reset(self):
+        Dynamic.rating_filter = 0
+        self.setCurrentRow(0)

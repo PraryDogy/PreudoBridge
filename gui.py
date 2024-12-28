@@ -77,8 +77,8 @@ class MainWin(QWidget):
         self.tree_favorites = TreeFavorites()
         self.bar_tabs.addTab(self.tree_favorites, "Избранное")
 
-        tree_tags = TreeTags()
-        left_v_lay.addWidget(tree_tags)
+        self.tree_tags = TreeTags()
+        left_v_lay.addWidget(self.tree_tags)
 
         self.bar_tabs.load_last_tab()
 
@@ -177,7 +177,7 @@ class MainWin(QWidget):
         self.setWindowTitle(os.path.basename(JsonData.root))
         SignalsApp.instance.fav_cmd.emit({"cmd": "select", "src": JsonData.root})
         self.bar_top.search_wid.clear_search.emit()
-        self.bar_top.filters_btn.reset_filters()
+        self.tree_tags.reset()
 
         if Dynamic.grid_view_type == 1:
             self.grid = ListFileSystem()
