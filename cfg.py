@@ -48,6 +48,8 @@ class Static:
     NEXT_SVG = os.path.join(IMAGES_DIR, "next.svg")
     ICON_SVG = os.path.join(IMAGES_DIR, "icon.svg")
     CLEAR_SVG = os.path.join(IMAGES_DIR, "clear.svg")
+    HIDE_SVG = os.path.join(IMAGES_DIR, "hide.svg")
+    SHOW_SVG = os.path.join(IMAGES_DIR, "show.svg")
 
     FOLDER_UP_SVG = os.path.join(IMAGES_DIR, "folder_up.svg")
     GRID_VIEW_SVG = os.path.join(IMAGES_DIR, "grid_view.svg")

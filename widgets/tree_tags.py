@@ -50,7 +50,11 @@ class TreeTags(QListWidget):
             return
 
         menu = UMenu()
+
         enable_action = QAction(text="Включить")
+
+        if Dynamic.rating_filter == item.rating:
+            enable_action.setDisabled(True)
 
         enable_action.triggered.connect(
             lambda: self.item_cmd(rating=item.rating)

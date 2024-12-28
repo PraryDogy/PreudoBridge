@@ -1,7 +1,8 @@
 import os
 
-from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QKeyEvent, QMouseEvent, QResizeEvent
+from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QApplication, QGridLayout, QHBoxLayout, QLabel,
                              QTabWidget, QVBoxLayout, QWidget)
 
@@ -15,8 +16,9 @@ from widgets.grid_standart import GridStandart
 from widgets.list_file_system import ListFileSystem
 from widgets.tree_favorites import TreeFavorites
 from widgets.tree_folders import TreeFolders
-from widgets.win_img_view import LoadImage
 from widgets.tree_tags import TreeTags
+from widgets.win_img_view import LoadImage
+
 
 class BarTabs(QTabWidget):
     def __init__(self):
@@ -35,6 +37,37 @@ class BarTabs(QTabWidget):
             super().mouseReleaseEvent(a0)
         else:
             a0.ignore()
+
+
+class ShowHideTags(QWidget):
+    clicked_ = pyqtSignal()
+    def __init__(self):
+        super().__init__()
+
+        v_lay = QVBoxLayout()
+        v_lay.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(v_lay)
+
+        self.svg = QSvgWidget()
+        self.svg.setFixedSize(20, 20)
+        self.svg.load(Static.HIDE_SVG)
+        v_lay.addWidget(self.svg, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        self.hide_svg = True
+
+    def mouseReleaseEvent(self, a0):
+
+        if a0.button() == Qt.MouseButton.LeftButton:
+
+            if self.hide_svg:
+                self.svg.load(Static.SHOW_SVG)
+                self.hide_svg = False
+
+            else:
+                self.svg.load(Static.HIDE_SVG)
+                self.hide_svg = True
+
+            self.clicked_.emit()
 
 
 class MainWin(QWidget):
@@ -77,8 +110,12 @@ class MainWin(QWidget):
         self.tree_favorites = TreeFavorites()
         self.bar_tabs.addTab(self.tree_favorites, "Избранное")
 
+        show_hide_tags_btn = ShowHideTags()
+        show_hide_tags_btn.clicked_.connect(self.show_hide_tags)
+        left_v_lay.addWidget(show_hide_tags_btn)
+
         self.tree_tags = TreeTags()
-        left_v_lay.addWidget(self.tree_tags)
+        left_v_lay.addWidget(self.tree_tags, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.bar_tabs.load_last_tab()
 
@@ -120,6 +157,12 @@ class MainWin(QWidget):
             path=JsonData.root,
             prev_path=None
         )
+
+    def show_hide_tags(self):
+        if self.tree_tags.isHidden():
+            self.tree_tags.show()
+        else:
+            self.tree_tags.hide()
 
     def open_path_cmd(self, filepath: str):
         if not os.path.exists(filepath):
