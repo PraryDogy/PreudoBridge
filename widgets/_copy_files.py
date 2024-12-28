@@ -46,9 +46,6 @@ class DbTools:
                 rating = rating
             )
 
-
-            print(order_item.__dict__)
-
             cls.process_item(conn=conn, order_item=order_item)
 
     @classmethod
