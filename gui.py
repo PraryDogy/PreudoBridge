@@ -188,7 +188,7 @@ class MainWin(QWidget):
 
     def load_search_grid(self, search_text: str):
         self.grid.close()
-        self.bar_top.filters_btn.reset_filters()
+        self.tree_tags.reset()
 
         t = [
             f"🟠\tИдет поиск в \"{os.path.basename(JsonData.root)}\""

@@ -2,7 +2,7 @@ import os
 import subprocess
 
 import sqlalchemy
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSignal, QMimeData
 from PyQt5.QtWidgets import QAction, QLabel, QLineEdit, QWidget
 from sqlalchemy.exc import IntegrityError, OperationalError
 
@@ -707,3 +707,12 @@ class DeleteFinderItem(QAction):
             print("actions.py error delete from db DeleteFinderItem", e)
 
         conn.close()
+
+
+# class CopyObj(QAction):
+#     def __init__(self, ...):
+#         super().__init__(text=COPY_T)
+#         self.triggered.connect(self.cmd_)
+
+#     def cmd_(self):
+#         ...
