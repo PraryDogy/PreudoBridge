@@ -43,6 +43,7 @@ class ShowHideTags(QWidget):
     clicked_ = pyqtSignal()
     def __init__(self):
         super().__init__()
+        self.setFixedHeight(22)
 
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(0, 0, 0, 0)
@@ -97,7 +98,7 @@ class MainWin(QWidget):
         main_lay.addWidget(left_wid)
         left_v_lay = QVBoxLayout()
         left_v_lay.setContentsMargins(0, 0, 0, 5)
-        left_v_lay.setSpacing(5)
+        left_v_lay.setSpacing(0)
         left_wid.setLayout(left_v_lay)
 
         self.bar_tabs = BarTabs()
