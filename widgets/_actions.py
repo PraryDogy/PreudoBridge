@@ -79,7 +79,7 @@ class UAction(QAction):
 
 
 class RevealInFinder(UAction):
-    def __init__(self, parent: UMenu, src: str):
+    def __init__(self, parent: UMenu, src: str | dict):
 
         super().__init__(parent=parent, src=src, text=REVEAL_T)
 
@@ -87,12 +87,10 @@ class RevealInFinder(UAction):
             self.files = [src]
 
         else:
-            self.files = src
+            self.files = [k for k, v in src.items()]
 
     # показывает в Finder фоном
     def cmd_(self):
-
-        print(self.files)
 
         self.task_ = Task_(
             cmd_=lambda: subprocess.run(
@@ -657,7 +655,7 @@ class CreateFolder(QAction):
 
 
 class DeleteFinderItem(QAction):
-    def __init__(self, menu: UMenu, path: str):
+    def __init__(self, menu: UMenu, path: str | dict):
 
         super().__init__(parent=menu, text=DELETE_T)
         self.triggered.connect(self.run_task)
@@ -665,7 +663,7 @@ class DeleteFinderItem(QAction):
         if isinstance(path, str):
             self.files = [path]
         else:
-            self.files = path
+            self.files = [k for k, v in path.items()]
 
     def run_task(self, *args):
         self.task_ = Task_(cmd_=self.move_to_trash)
