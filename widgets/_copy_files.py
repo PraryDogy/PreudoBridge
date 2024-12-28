@@ -60,9 +60,19 @@ class DbTools:
         row_id = conn.execute(q).scalar() or None
 
         if row_id:
-            GridTools.update_file(conn=conn, order_item=order_item, row_id=row_id)
+            GridTools.update_file(
+                conn=conn,
+                order_item=order_item,
+                row_id=row_id,
+                rating=order_item.rating
+            )
+
         else:
-            GridTools.insert_file(conn=conn, order_item=order_item)
+            GridTools.insert_file(
+                conn=conn,
+                order_item=order_item,
+                rating=order_item.rating
+            )
 
 
 class WorkerSignals(QObject):

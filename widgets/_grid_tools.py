@@ -198,7 +198,10 @@ class GridTools(FolderTools):
             return (None, 0)
     
     @classmethod
-    def update_file(cls, conn: Connection, order_item: OrderItem, row_id: int) -> np.ndarray:
+    def update_file(
+        cls, conn: Connection, order_item: OrderItem, row_id: int,
+        rating: int = None
+        ) -> np.ndarray:
 
         bytes_img, img_array = cls.get_bytes_ndarray(
             order_item=order_item
@@ -221,6 +224,9 @@ class GridTools(FolderTools):
             ColumnNames.PARTIAL_HASH: partial_hash
         }
 
+        if rating:
+            values[ColumnNames.RATING] = rating
+
         q = update(CACHE).where(CACHE.c.id == row_id)
         q = q.values(**values)
 
@@ -231,7 +237,10 @@ class GridTools(FolderTools):
         return img_array
 
     @classmethod
-    def insert_file(cls, conn: Connection, order_item: OrderItem) -> np.ndarray:
+    def insert_file(
+        cls, conn: Connection, order_item: OrderItem,
+        rating: int = None
+        ) -> np.ndarray:
 
         bytes_img, img_array = cls.get_bytes_ndarray(
             order_item=order_item
@@ -256,6 +265,9 @@ class GridTools(FolderTools):
             ColumnNames.CATALOG: "",
             ColumnNames.PARTIAL_HASH: partial_hash
         }
+
+        if rating:
+            values[ColumnNames.RATING] = rating
 
         q = insert(CACHE)
         q = q.values(**values)
