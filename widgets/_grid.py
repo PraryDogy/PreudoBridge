@@ -441,6 +441,10 @@ class Grid(BaseMethods, QScrollArea):
         for i in self.selected_widgets:
             i.set_no_frame()
 
+        if wid is None:
+            print("select one wid, wid is none")
+            return
+
         wid.set_frame()
         self.curr_cell = (wid.row, wid.col)
         self.ensureWidgetVisible(wid)
