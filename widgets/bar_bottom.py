@@ -17,6 +17,7 @@ from ._actions import CopyPath, Info, RevealInFinder, SortMenu, View
 from ._base import (OpenWin, UFrame, ULineEdit, UMenu, USlider, USvgWidget,
                     WinMinMax)
 from ._copy_files import WinCopyFiles
+from ._grid import Thumb
 
 SORT_T = "Сортировка"
 TOTAL_T = "Всего"
@@ -531,7 +532,22 @@ class BarBottom(QWidget):
         if hasattr(self, CURR_WID):
             wid: PathItem = getattr(self, CURR_WID)
 
-            self.dia = WinCopyFiles(objects=a0.mimeData(), dest= wid.src)
+            objects = {
+                i.toLocalFile() : Thumb.path_to_wid[i.toLocalFile()].rating
+                for i in a0.mimeData().urls()
+            }
+
+            objects: dict[str, int]
+
+            for i in a0.mimeData().urls():
+                src = i.toLocalFile()
+                thumb_wid = Thumb.path_to_wid.get(src)
+                if thumb_wid:
+                    objects[src] = thumb_wid.rating
+                else:
+                    objects[src] = 0
+
+            self.dia = WinCopyFiles(objects=objects, dest=wid.src)
             Utils.center_win(parent=self.window(), child=self.dia)
             QTimer.singleShot(1000, self.dia.custom_show)
             delattr(self, CURR_WID)

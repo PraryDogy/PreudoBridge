@@ -941,9 +941,9 @@ class Grid(BaseMethods, QScrollArea):
 
             for i in a0.mimeData().urls():
                 src = i.toLocalFile()
-                wid = Thumb.path_to_wid.get(src)
-                if wid:
-                    object[src] = wid.rating
+                thumb_wid = Thumb.path_to_wid.get(src)
+                if thumb_wid:
+                    object[src] = thumb_wid.rating
                 else:
                     object[src] = 0
 
