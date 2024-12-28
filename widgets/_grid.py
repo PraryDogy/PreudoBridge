@@ -943,9 +943,9 @@ class Grid(BaseMethods, QScrollArea):
                 src = i.toLocalFile()
                 thumb_wid = Thumb.path_to_wid.get(src)
                 if thumb_wid:
-                    object[src] = thumb_wid.rating
+                    objects[src] = thumb_wid.rating
                 else:
-                    object[src] = 0
+                    objects[src] = 0
 
             self.dia = WinCopyFiles(objects=objects, dest=dest)
             Utils.center_win(parent=self.window(), child=self.dia)

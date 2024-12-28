@@ -4,7 +4,7 @@ import re
 import sqlalchemy
 from PyQt5.QtGui import QPixmap
 from sqlalchemy.exc import IntegrityError, OperationalError
-
+import traceback
 from cfg import Dynamic, Static
 
 METADATA = sqlalchemy.MetaData()
@@ -151,6 +151,10 @@ class Dbase:
 
         if self.conn_count == self.conn_max:
             return None
+        
+        elif os.path.isdir(path):
+            print("Путь к БД должен быть файлом, а не папкой")
+            return
 
         engine = sqlalchemy.create_engine(
             f"sqlite:///{path}",
@@ -177,9 +181,9 @@ class Dbase:
             return engine
 
         except SQL_ERRORS as e:
-
-            print("database engine error", path)
+            print(traceback.format_exc())
 
             if os.path.exists(path):
                 os.remove(path)
+
             self.create_engine(path=path)

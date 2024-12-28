@@ -1,12 +1,16 @@
 import os
 import shutil
 
-from PyQt5.QtCore import QMimeData, QObject, Qt, QTimer, pyqtSignal
-from PyQt5.QtWidgets import QVBoxLayout, QLabel, QPushButton, QWidget
+import sqlalchemy
+from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
+from PyQt5.QtWidgets import QLabel, QPushButton, QVBoxLayout, QWidget
 
 from cfg import JsonData, Static
+from database import CACHE, Dbase, OrderItem
 from signals import SignalsApp
-from utils import URunnable, UThreadPool
+from utils import URunnable, UThreadPool, Utils
+
+from ._grid_tools import GridTools
 
 COPY_TITLE = "Пожалуйста, подождите"
 COPY_T = "копирую"
@@ -14,6 +18,51 @@ FROM_T = "из"
 PREPARING_T = "Подготовка..."
 CANCEL_T = "Отмена"
 MAX_T = 35
+
+
+class DbTools:
+
+    @classmethod
+    def process_objects(cls, objects: dict[str, int], dest: str):
+        
+        db = os.path.join(dest, Static.DB_FILENAME)
+        dbase = Dbase()
+        engine = dbase.create_engine(path=db)
+
+        if engine is None:
+            return
+
+        conn = engine.connect()
+
+        for src, rating in objects.items():
+
+            # размер и дату ставим 0, так как новые данные поступят
+            # из GridTools
+
+            order_item = OrderItem(
+                src = src,
+                size = 0,
+                mod = 0,
+                rating = rating
+            )
+
+
+            print(order_item.__dict__)
+
+            cls.process_item(conn=conn, order_item=order_item)
+
+    @classmethod
+    def process_item(cls, conn: sqlalchemy.Connection, order_item: OrderItem):
+
+        filename = os.path.basename(order_item.src)
+        q = sqlalchemy.select(CACHE.c.id)
+        q = q.where(CACHE.c.name == Utils.hash_filename(filename=filename))
+        row_id = conn.execute(q).scalar() or None
+
+        if row_id:
+            GridTools.update_file(conn=conn, order_item=order_item, row_id=row_id)
+        else:
+            GridTools.insert_file(conn=conn, order_item=order_item)
 
 
 class WorkerSignals(QObject):
@@ -62,6 +111,11 @@ class CopyFilesThread(URunnable):
             self.signals_.progress.emit(t)
 
         self.signals_.finished_.emit(self.new_objects)
+
+        DbTools().process_objects(
+            objects = self.new_objects,
+            dest = self.dest
+            )
 
 
 class WinCopyFiles(QWidget):
