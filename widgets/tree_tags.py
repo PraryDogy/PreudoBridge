@@ -1,6 +1,9 @@
-from PyQt5.QtWidgets import QListWidget, QMenu, QListWidgetItem, QAction
-from PyQt5.QtCore import Qt, QSize
-from cfg import Static
+from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtWidgets import QAction, QListWidget, QListWidgetItem, QMenu
+
+from cfg import Dynamic, Static
+from signals import SignalsApp
+
 from ._base import UMenu
 
 
@@ -62,5 +65,6 @@ class TreeTags(QListWidget):
         )
 
     def item_cmd(self, rating: int):
-        print(rating)
+        Dynamic.rating_filter = rating
+        SignalsApp.instance.filter_grid.emit()
 
