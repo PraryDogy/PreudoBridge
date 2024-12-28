@@ -532,12 +532,7 @@ class BarBottom(QWidget):
         if hasattr(self, CURR_WID):
             wid: PathItem = getattr(self, CURR_WID)
 
-            objects = {
-                i.toLocalFile() : Thumb.path_to_wid[i.toLocalFile()].rating
-                for i in a0.mimeData().urls()
-            }
-
-            objects: dict[str, int]
+            objects: dict[str, int] = {}
 
             for i in a0.mimeData().urls():
                 src = i.toLocalFile()

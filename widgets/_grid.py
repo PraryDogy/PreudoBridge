@@ -932,12 +932,7 @@ class Grid(BaseMethods, QScrollArea):
             elif isinstance(wid, GridWid):
                 dest = JsonData.root
 
-            objects = {
-                i.toLocalFile() : Thumb.path_to_wid[i.toLocalFile()].rating
-                for i in a0.mimeData().urls()
-            }
-
-            objects: dict[str, int]
+            objects: dict[str, int] = {}
 
             for i in a0.mimeData().urls():
                 src = i.toLocalFile()
