@@ -3,7 +3,7 @@ from typing import Literal
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QCursor, QMouseEvent, QWheelEvent
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import QFrame, QLineEdit, QMenu, QSlider, QWidget
+from PyQt5.QtWidgets import QFrame, QLineEdit, QMenu, QSlider, QWidget, QTextEdit
 
 from cfg import Static
 from utils import Utils
@@ -139,6 +139,36 @@ class ULineEdit(QLineEdit):
         menu.addAction(select_all_a)
 
         menu.exec_(self.mapToGlobal(a0.pos()))
+
+
+class UTextEdit(QTextEdit):
+    def __init__(self):
+        super().__init__()
+        # self.setStyleSheet("padding-left: 2px; padding-right: 18px;")
+
+    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+
+        # предотвращаем круговой импорт
+        from ._actions import CopyText, TextCut, TextPaste, TextSelectAll
+
+        menu = UMenu()
+
+        cut_a = TextCut(menu, self)
+        menu.addAction(cut_a)
+
+        copy_a = CopyText(menu, self)
+        menu.addAction(copy_a)
+
+        paste_a = TextPaste(menu, self)
+        menu.addAction(paste_a)
+
+        menu.addSeparator()
+
+        select_all_a = TextSelectAll(menu, self)
+        menu.addAction(select_all_a)
+
+        menu.exec_(self.mapToGlobal(a0.pos()))
+
 
 
 class WinBase(QWidget):

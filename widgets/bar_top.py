@@ -3,16 +3,18 @@ import os
 from PyQt5.QtCore import QSize, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QAction, QHBoxLayout, QLabel, QTabBar,
-                             QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QAction, QGroupBox, QHBoxLayout, QLabel,
+                             QPushButton, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static
 from signals import SignalsApp
 from utils import Utils
 
-from ._base import UFrame, ULineEdit, UMenu
+from ._base import UFrame, ULineEdit, UMenu, UTextEdit, WinMinMax
 from .win_settings import WinSettings
 
+SEARCH_PLACE = "Место поиска:"
+LIST_FILES = "Список файлов (по одному в строке):"
 
 class ActionData:
     __slots__ = ["sort", "reversed", "text"]
@@ -38,6 +40,46 @@ class BarTopBtn(UFrame):
 
     def load(self, path: str):
         self.svg_btn.load(path)
+
+
+class ListWin(WinMinMax):
+    def __init__(self):
+        super().__init__()
+        self.setFixedSize(570, 500)
+        v_lay = QVBoxLayout()
+        self.setLayout(v_lay)
+
+        first_row = QGroupBox()
+        v_lay.addWidget(first_row)
+        first_lay = QVBoxLayout()
+        first_row.setLayout(first_lay)
+        first_title = QLabel(text=SEARCH_PLACE)
+        first_lay.addWidget(first_title)
+        first_lbl = QLabel(text=JsonData.root)
+        first_lay.addWidget(first_lbl)
+
+        inp_label = QLabel(text=LIST_FILES)
+        v_lay.addWidget(inp_label)
+
+        inputs = UTextEdit()
+        v_lay.addWidget(inputs)
+
+        btns_wid = QWidget()
+        v_lay.addWidget(btns_wid)
+        btns_lay = QHBoxLayout()
+        btns_wid.setLayout(btns_lay)
+
+        btns_lay.addStretch()
+
+        ok_btn = QPushButton(text="Ок")
+        ok_btn.setFixedWidth(100)
+        btns_lay.addWidget(ok_btn)
+
+        can_btn = QPushButton(text="Отмена")
+        can_btn.setFixedWidth(100)
+        btns_lay.addWidget(can_btn)
+
+        btns_lay.addStretch()
 
  
 class SearchWidget(QWidget):
@@ -112,8 +154,9 @@ class SearchWidget(QWidget):
         self.search_wid.setText(text)
 
     def search_list_cmd(self):
-        self.search_wid.setText(Static.SEARCH_LIST)
-        print("show window")
+        self.list_win = ListWin()
+        Utils.center_win(parent=self.window(), child=self.list_win)
+        self.list_win.show()
 
 
 class BarTop(QWidget):

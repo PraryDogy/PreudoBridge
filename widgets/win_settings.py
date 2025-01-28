@@ -1,20 +1,14 @@
-
-import os
-import shutil
 import subprocess
 import webbrowser
+from datetime import datetime
 
-from PyQt5.QtCore import QObject, Qt, pyqtSignal
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QCloseEvent, QKeyEvent
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QSpacerItem, QGroupBox, QHBoxLayout, QLabel,
-                             QPushButton, QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QGroupBox, QHBoxLayout, QLabel, QPushButton,
+                             QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
-from database import Dbase
-from signals import SignalsApp
-from utils import URunnable, UThreadPool, Utils
-from datetime import datetime
 
 from ._base import WinMinMax
 
