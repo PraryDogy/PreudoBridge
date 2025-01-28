@@ -715,7 +715,7 @@ class Grid(BaseMethods, QScrollArea):
         if isinstance(wid, ThumbSearch):
 
             show_in_folder = ShowInFolder(parent=menu, src=wid.src)
-            show_in_folder._clicked.connect(wid.show_in_folder_cmd)
+            # show_in_folder._clicked.connect(wid.show_in_folder_cmd)
             menu.addAction(show_in_folder)
 
             menu.addSeparator()

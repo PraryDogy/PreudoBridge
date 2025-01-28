@@ -181,7 +181,8 @@ class Dbase:
             return engine
 
         except SQL_ERRORS as e:
-            print(traceback.format_exc())
+            # print(traceback.format_exc())
+            print("create engine error")
 
             if os.path.exists(path):
                 os.remove(path)
