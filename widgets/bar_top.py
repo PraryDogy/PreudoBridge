@@ -90,11 +90,20 @@ class ListWin(WinMinMax):
 
     def ok_cmd(self, *args):
         search_list = self.inputs.toPlainText()
-        Static.SEARCH_LIST = [
+        search_list = [
             i.strip().lower()
             for i in search_list.split("\n")
             if i
         ]
+
+        Static.SEARCH_LIST.clear()
+
+        for i in search_list:
+            filename, ext = os.path.splitext(i)
+            Static.SEARCH_LIST.append(filename)
+
+        print(Static.SEARCH_LIST)
+
         self.ok_pressed.emit()
         self.close()
 
