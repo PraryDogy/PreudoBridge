@@ -83,4 +83,45 @@ def find_and_copy_files():
         print("\n".join(miss_files))
 
 
-find_and_copy_files()
+def compare():
+    input("Скопируйте путь к папке с найденными файлами и нажмите Enter...")
+    dest_folder = read_clipboard()
+    print("Папка с найденными файлами:", dest_folder)
+
+    print("")
+    input("Скопируйте список файлов (по одному имени в строке) и нажмите Enter...")
+    text = read_clipboard()
+
+    src_filenames: list[str] = []
+
+    for i in text.split("\n"):
+
+        filename = i.strip()
+        filename, _ = os.path.splitext(filename)
+
+        if filename:
+            src_filenames.append(filename)
+
+    dest_filenames: list[str] = []
+
+    for i in os.listdir(dest_folder):
+
+        filename = i.strip()
+        filename, _ = os.path.splitext(filename)
+
+        if filename:
+            dest_filenames.append(filename)
+
+    for i in src_filenames:
+        if i not in dest_filenames:
+            print("Не найден:", i)
+
+
+print("1 для поиска, 2 для сравнения")
+a = input()
+
+if a == "1":
+    find_and_copy_files()
+
+else:
+    compare()
