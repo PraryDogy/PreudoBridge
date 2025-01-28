@@ -47,7 +47,7 @@ def find_and_copy_files():
     else:
         print("Нет списка файлов")
         return
-
+    
     for root, _, files in os.walk(src_folder):
         for full_filename in files:
 
@@ -69,7 +69,11 @@ def find_and_copy_files():
     miss_files = []
 
     for i in src_files:
-        if i.lower() not in dest_files_lower:
+
+        filename, ext = os.path.splitext(i)
+        filename_lower = filename.lower()
+
+        if filename_lower.lower() not in dest_files_lower:
             miss_files.append(str(i))
     
     if miss_files:
@@ -78,4 +82,14 @@ def find_and_copy_files():
         print("\n".join(miss_files))
 
 
-find_and_copy_files()
+# find_and_copy_files()
+
+
+src = "/Users/Loshkarev/Desktop/Новая папка"
+
+files = [
+    i
+    for i in os.listdir(src)
+]
+
+print(files)
