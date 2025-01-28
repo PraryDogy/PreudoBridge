@@ -47,6 +47,8 @@ class ListWin(WinMinMax):
         super().__init__()
         self.setFixedSize(570, 500)
         v_lay = QVBoxLayout()
+        v_lay.setContentsMargins(10, 5, 10, 5)
+        v_lay.setSpacing(10)
         self.setLayout(v_lay)
 
         first_row = QGroupBox()
@@ -67,6 +69,7 @@ class ListWin(WinMinMax):
         btns_wid = QWidget()
         v_lay.addWidget(btns_wid)
         btns_lay = QHBoxLayout()
+        btns_lay.setContentsMargins(0, 0, 0, 0)
         btns_wid.setLayout(btns_lay)
 
         btns_lay.addStretch()
@@ -76,10 +79,15 @@ class ListWin(WinMinMax):
         btns_lay.addWidget(ok_btn)
 
         can_btn = QPushButton(text="Отмена")
+        can_btn.clicked.connect(self.close)
         can_btn.setFixedWidth(100)
         btns_lay.addWidget(can_btn)
 
         btns_lay.addStretch()
+
+    def keyPressEvent(self, a0):
+        if a0.key() == Qt.Key.Key_Escape:
+            self.close()
 
  
 class SearchWidget(QWidget):
