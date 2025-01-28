@@ -62,19 +62,19 @@ def find_and_copy_files():
                 shutil.copy(source_path, dest_folder)
                 print(f"Copied: {full_filename}")
 
-    dest_files_lower = []
+    dest_filenames_lower = []
 
     for i in os.listdir(dest_folder):
         filename, _ = os.path.splitext(i)
         filename_lower = filename.lower()
-        dest_files_lower.append(filename_lower)
+        dest_filenames_lower.append(filename_lower)
 
     miss_files = []
 
     for i in src_filenames:
 
         filename_lower = filename.lower()
-        if filename_lower not in dest_files_lower:
+        if filename_lower not in dest_filenames_lower:
             miss_files.append(str(i))
     
     if miss_files:
