@@ -242,9 +242,6 @@ class MainWin(QWidget):
         self.r_lay.insertWidget(1, self.grid)
         self.grid.setFocus()
 
-        prev_path = data.get("prev_path")
-        wid = Thumb.path_to_wid.get(prev_path)
-
     def scroll_up_scroll_value(self, value: int):
         if value == 0:
             self.scroll_up.hide()
