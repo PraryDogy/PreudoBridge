@@ -38,7 +38,8 @@ class FinderItems(URunnable):
             self.signals_.finished_.emit(order_items)
 
         except Exception as e:
-            print(e)
+            order_items = []
+            self.signals_.finished_.emit(order_items)
 
     def set_rating(self, order_items: list[OrderItem]):
 
