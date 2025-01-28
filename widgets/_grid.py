@@ -726,7 +726,7 @@ class Grid(BaseMethods, QScrollArea):
         menu.addSeparator()
 
         copy_obj = CopyObj(parent=menu, files=objects)
-        menu.addAction(copy_obj)
+        # menu.addAction(copy_obj)
 
         menu.show_custom()
 
