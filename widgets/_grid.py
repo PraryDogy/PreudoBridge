@@ -388,6 +388,13 @@ class ThumbSearch(Thumb):
     def __init__(self, src: str, size: int, mod: int, rating: int):
         super().__init__(src, size, mod, rating)
 
+    def show_in_folder_cmd(self):
+        root = os.path.dirname(self.src)
+        SignalsApp.instance.load_standart_grid_cmd(
+            path=root,
+            prev_path=self.src
+        )
+
 
 class GridWid(QWidget):
     def __init__(self):
@@ -715,7 +722,7 @@ class Grid(BaseMethods, QScrollArea):
         if isinstance(wid, ThumbSearch):
 
             show_in_folder = ShowInFolder(parent=menu, src=wid.src)
-            # show_in_folder._clicked.connect(wid.show_in_folder_cmd)
+            show_in_folder._clicked.connect(wid.show_in_folder_cmd)
             menu.addAction(show_in_folder)
 
             menu.addSeparator()
