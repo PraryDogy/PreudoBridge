@@ -80,6 +80,10 @@ class SearchWidget(QWidget):
 
             self.templates_menu.addAction(action)
 
+        search_list = QAction(parent=self, text=Static.SEARCH_LIST)
+        search_list.triggered.connect(self.search_list_cmd)
+        self.templates_menu.addAction(search_list)
+
     def costil(self):
         self.search_wid.disconnect()
         self.search_wid.clear()
@@ -106,6 +110,10 @@ class SearchWidget(QWidget):
     
     def action_cmd(self, text: str):
         self.search_wid.setText(text)
+
+    def search_list_cmd(self):
+        self.search_wid.setText(Static.SEARCH_LIST)
+        print("show window")
 
 
 class BarTop(QWidget):

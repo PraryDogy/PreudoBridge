@@ -53,9 +53,14 @@ class SearchFinder(URunnable):
 
     def setup_text(self):
         extensions = Static.SEARCH_TEMPLATES.get(self.search_text)
+
         if extensions:
             self.extensions = extensions
             self.process_entry = self.process_extensions
+
+        elif self.search_text == Static.SEARCH_LIST:
+            print("найти по списку")
+
         else:
             self.process_entry = self.process_text
 
