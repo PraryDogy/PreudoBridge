@@ -855,13 +855,13 @@ class Grid(BaseMethods, QScrollArea):
         menu.addSeparator()
 
         if JsonData.root in JsonData.favs:
-            cmd_ = lambda: self.fav_cmd(-1)
+            cmd_ = lambda: self.fav_cmd(offset=-1, src=JsonData.root)
             self.fav_action = FavRemove(menu, JsonData.root)
             self.fav_action._clicked.connect(cmd_)
             menu.addAction(self.fav_action)
 
         else:
-            cmd_ = lambda: self.fav_cmd(+1)
+            cmd_ = lambda: self.fav_cmd(offset=+1, src=JsonData.root)
             self.fav_action = FavAdd(menu, JsonData.root)
             self.fav_action._clicked.connect(cmd_)
             menu.addAction(self.fav_action)
