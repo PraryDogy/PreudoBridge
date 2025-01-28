@@ -1,6 +1,6 @@
 import os
 
-from PyQt5.QtCore import QSize, Qt, QTimer, pyqtSignal
+from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QAction, QGroupBox, QHBoxLayout, QLabel,
@@ -43,6 +43,8 @@ class BarTopBtn(UFrame):
 
 
 class ListWin(WinMinMax):
+    ok_pressed = pyqtSignal()
+
     def __init__(self):
         super().__init__()
         self.setFixedSize(570, 500)
@@ -63,8 +65,8 @@ class ListWin(WinMinMax):
         inp_label = QLabel(text=LIST_FILES)
         v_lay.addWidget(inp_label)
 
-        inputs = UTextEdit()
-        v_lay.addWidget(inputs)
+        self.inputs = UTextEdit()
+        v_lay.addWidget(self.inputs)
 
         btns_wid = QWidget()
         v_lay.addWidget(btns_wid)
@@ -75,6 +77,7 @@ class ListWin(WinMinMax):
         btns_lay.addStretch()
 
         ok_btn = QPushButton(text="Ок")
+        ok_btn.clicked.connect(self.ok_cmd)
         ok_btn.setFixedWidth(100)
         btns_lay.addWidget(ok_btn)
 
@@ -84,6 +87,16 @@ class ListWin(WinMinMax):
         btns_lay.addWidget(can_btn)
 
         btns_lay.addStretch()
+
+    def ok_cmd(self, *args):
+        search_list = self.inputs.toPlainText()
+        Static.SEARCH_LIST = [
+            i.strip().lower()
+            for i in search_list.split("\n")
+            if i
+        ]
+        self.ok_pressed.emit()
+        self.close()
 
     def keyPressEvent(self, a0):
         if a0.key() == Qt.Key.Key_Escape:
@@ -130,7 +143,7 @@ class SearchWidget(QWidget):
 
             self.templates_menu.addAction(action)
 
-        search_list = QAction(parent=self, text=Static.SEARCH_LIST)
+        search_list = QAction(parent=self, text=Static.SEARCH_LIST_TEXT)
         search_list.triggered.connect(self.search_list_cmd)
         self.templates_menu.addAction(search_list)
 
@@ -163,8 +176,12 @@ class SearchWidget(QWidget):
 
     def search_list_cmd(self):
         self.list_win = ListWin()
+        self.list_win.ok_pressed.connect(self.list_win_cmd)
         Utils.center_win(parent=self.window(), child=self.list_win)
         self.list_win.show()
+
+    def list_win_cmd(self, *args):
+        self.search_wid.setText(Static.SEARCH_LIST_TEXT)
 
 
 class BarTop(QWidget):

@@ -93,7 +93,8 @@ class Static:
         "Найти любые фото": IMG_EXT
     }
 
-    SEARCH_LIST = "Найти по списку"
+    SEARCH_LIST_TEXT = "Найти по списку"
+    SEARCH_LIST = []
 
 
 class ThumbData:

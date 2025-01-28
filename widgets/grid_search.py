@@ -58,8 +58,8 @@ class SearchFinder(URunnable):
             self.extensions = extensions
             self.process_entry = self.process_extensions
 
-        elif self.search_text == Static.SEARCH_LIST:
-            print("найти по списку")
+        elif self.search_text == Static.SEARCH_LIST_TEXT:
+            self.process_entry = self.process_list
 
         else:
             self.process_entry = self.process_text
@@ -84,6 +84,15 @@ class SearchFinder(URunnable):
 
         # if self.word_similarity(word1=filename, word2=search_text) > 0.9 or search_text in filename:
         if search_text in filename:
+            return True
+        else:
+            return False
+        
+    def process_list(self, entry: os.DirEntry):
+        filename, _ = os.path.splitext(entry.name)
+        filename: str = filename.lower()
+
+        if filename in Static.SEARCH_LIST:
             return True
         else:
             return False
