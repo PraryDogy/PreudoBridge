@@ -494,7 +494,7 @@ class Grid(BaseMethods, QScrollArea):
 
         self.rearrange()
 
-    def resize_(self):
+    def resize_(self, width: int = None):
 
         wid_src_list = []
 
@@ -504,7 +504,8 @@ class Grid(BaseMethods, QScrollArea):
         Thumb.calculate_size()
         for wid in self.ordered_widgets:
             wid.setup()
-        self.rearrange()
+
+        self.rearrange(width=width)
 
         for src, wid in Thumb.path_to_wid.items():
             if src in wid_src_list:

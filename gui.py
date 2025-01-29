@@ -81,7 +81,7 @@ class MainWin(QWidget):
         self.setMinimumSize(800, 500)
         
         # resize_cmd_ = lambda: self.grid.rearrange(self.get_grid_width())
-        resize_cmd_ = lambda: self.grid.resize_()
+        resize_cmd_ = lambda: self.grid.resize_(width=self.get_grid_width())
         self.resize_timer = QTimer(parent=self)
         self.resize_timer.setSingleShot(True)
         self.resize_timer.timeout.connect(resize_cmd_)
