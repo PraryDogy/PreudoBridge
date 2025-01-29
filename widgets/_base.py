@@ -144,6 +144,7 @@ class ULineEdit(QLineEdit):
 class UTextEdit(QTextEdit):
     def __init__(self):
         super().__init__()
+        self.setAcceptRichText(False)
         # self.setStyleSheet("padding-left: 2px; padding-right: 18px;")
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
