@@ -369,7 +369,7 @@ class TextCut(QAction):
 # Копировать выделенный текст в буфер обмена
 # Допускается QLabel с возможностью выделения текста
 class CopyText(QAction):
-    def __init__(self, parent: UMenu, widget: QLineEdit | QLabel):
+    def __init__(self, parent: UMenu, widget: QLineEdit | QLabel | QTextEdit):
 
         super().__init__(
             parent=parent,
@@ -380,7 +380,12 @@ class CopyText(QAction):
         self.triggered.connect(self.cmd_)
 
     def cmd_(self):
-        selection = self.wid.selectedText()
+
+        if isinstance(self.wid, QTextEdit):
+            selection = self.wid.textCursor().selectedText()
+
+        else:
+            selection = self.wid.selectedText()
 
         # это два символа, которые в PyQt5 почему то обозначаются
         # символами параграфа и новой строки
@@ -396,7 +401,7 @@ class CopyText(QAction):
 
 # Вставить текст, допускается только QLineEdit и QTextEdit
 class TextPaste(QAction):
-    def __init__(self, parent: UMenu, widget: QLineEdit):
+    def __init__(self, parent: UMenu, widget: QLineEdit | QTextEdit):
 
         super().__init__(
             parent=parent,
@@ -409,8 +414,11 @@ class TextPaste(QAction):
     def cmd_(self):
         text = Utils.read_from_clipboard()
 
-        # добавляем текст к существующему в виджете тексту
-        new_text = self.wid.text() + text
+        if isinstance(self.wid, QTextEdit):
+            cursor = self.wid.textCursor()
+            cursor.insertText(text)
+        else:
+            new_text = self.wid.text() + text
 
         self.wid.setText(new_text)
 
