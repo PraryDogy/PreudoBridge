@@ -101,14 +101,30 @@ class InfoTask:
 
     def get_db_info(self, res: dict):
 
-        res = {
-            NAME_T: self.lined_text(text=self.name),
-            TYPE_T: res.get(ColumnNames.TYPE),
-            SIZE_T: Utils.get_f_size(res.get(ColumnNames.SIZE)),
-            MOD_T: Utils.get_f_date(res.get(ColumnNames.MOD)),
-            RESOL_T: res.get(ColumnNames.RESOL),
-            SRC_T: self.lined_text(text=self.src)
-            }
+        if res.get(ColumnNames.TYPE) == Static.FOLDER_TYPE:
+
+            mod = Utils.get_f_date(
+                timestamp_ = os.stat(self.src).st_mtime
+            )
+
+            res = {
+                NAME_T: self.lined_text(text=self.name),
+                TYPE_T: res.get(ColumnNames.TYPE),
+                SIZE_T: "0",
+                MOD_T: mod,
+                SRC_T: self.lined_text(text=self.src)
+                }
+        
+        else:
+
+            res = {
+                NAME_T: self.lined_text(text=self.name),
+                TYPE_T: res.get(ColumnNames.TYPE),
+                SIZE_T: Utils.get_f_size(res.get(ColumnNames.SIZE)),
+                MOD_T: Utils.get_f_date(res.get(ColumnNames.MOD)),
+                RESOL_T: res.get(ColumnNames.RESOL),
+                SRC_T: self.lined_text(text=self.src)
+                }
 
         return res
 
