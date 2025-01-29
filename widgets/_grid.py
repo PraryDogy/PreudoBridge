@@ -466,6 +466,7 @@ class Grid(BaseMethods, QScrollArea):
         QTimer.singleShot(100, cmd_)
     
     def order_(self):
+
         self.ordered_widgets = OrderItem.sort_items(self.ordered_widgets)
         
         Thumb.all = {
@@ -878,6 +879,12 @@ class Grid(BaseMethods, QScrollArea):
 
         upd_ = UpdateGrid(menu, JsonData.root)
         menu.addAction(upd_)
+
+        # col_count это аттрибут GridSearch
+        # переназначаем действие QAction
+        if hasattr(self, "col_count"):
+            upd_.disconnect()
+            upd_.triggered.connect(self.order_)
 
         find_here = FindHere(parent=menu)
         find_here.clicked_.connect(self.open_find_here_win)
