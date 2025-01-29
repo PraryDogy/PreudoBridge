@@ -102,8 +102,6 @@ class ListWin(WinMinMax):
             filename, ext = os.path.splitext(i)
             Static.SEARCH_LIST.append(filename)
 
-        print(Static.SEARCH_LIST)
-
         self.ok_pressed.emit()
         self.close()
 

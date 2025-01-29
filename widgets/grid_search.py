@@ -82,7 +82,6 @@ class SearchFinder(URunnable):
         filename: str = filename.lower()
         search_text: str = self.search_text.lower()
 
-        # if self.word_similarity(word1=filename, word2=search_text) > 0.9 or search_text in filename:
         if search_text in filename:
             return True
         else:
@@ -252,22 +251,15 @@ class GridSearch(Grid):
             self.col = 0
             self.row += 1
  
-        # сортируем сетку после каждого 10 виджета
-        if self.total % 10 == 0:
-
-            self.order_()
-
+        if self.total % 2 == 0:
             SignalsApp.instance.bar_bottom_cmd.emit(
                 {"total": str(self.total)}
             )
 
     def search_fin(self):
-
         SignalsApp.instance.bar_bottom_cmd.emit(
             {"total": str(self.total)}
         )
-
-        self.order_()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.task_.should_run = False
