@@ -2,8 +2,8 @@ import os
 import subprocess
 
 import sqlalchemy
-from PyQt5.QtCore import QMimeData, pyqtSignal
-from PyQt5.QtWidgets import QAction, QLabel, QLineEdit, QWidget
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtWidgets import QAction, QLabel, QLineEdit, QTextEdit, QWidget
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Dynamic, JsonData, Static
@@ -340,7 +340,7 @@ class RatingMenu(UMenu):
 # удалить текст из виджета и скопировать в буфер обмена удаленную часть текста
 # только для QLineEdit / QTextEdit
 class TextCut(QAction):
-    def __init__(self, parent: UMenu, widget: QLineEdit):
+    def __init__(self, parent: UMenu, widget: QLineEdit | QTextEdit):
 
         super().__init__(
             parent=parent,
@@ -351,11 +351,15 @@ class TextCut(QAction):
         self.triggered.connect(self.cmd_)
 
     def cmd_(self):
-        selection = self.wid.selectedText()
 
-        # удаляем выделенный текст из виджета
-        text = self.wid.text().replace(selection, "")
-        self.wid.setText(text)
+        if isinstance(self.wid, QLineEdit):
+            selection = self.wid.selectedText()
+            text = self.wid.text().replace(selection, "")
+            self.wid.setText(text)
+
+        elif isinstance(self.wid, QTextEdit):
+            selection = self.wid.textCursor().selectedText()
+            self.wid.textCursor().removeSelectedText()
 
         Utils.write_to_clipboard(
             text=selection
