@@ -110,7 +110,7 @@ class InfoTask:
             res = {
                 NAME_T: self.lined_text(text=self.name),
                 TYPE_T: res.get(ColumnNames.TYPE),
-                SIZE_T: "0",
+                SIZE_T: CALCULATING,
                 MOD_T: mod,
                 SRC_T: self.lined_text(text=self.src)
                 }
