@@ -1,5 +1,6 @@
-a = [1, 2, 3, 4, 5]
-a = [str(i) for i in a]
+from utils import Utils
 
+src = "/Users/Loshkarev/Desktop/1027.psd"
+img = Utils.read_tiff(src)
 
-print("\n".join(a))
+print(type(img))

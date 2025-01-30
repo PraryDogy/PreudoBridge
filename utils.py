@@ -143,7 +143,7 @@ class ReadImage(Err):
             except Exception as e:
 
                 # print("utils > error read psd", "src:", path)
-                # print(e)
+                print(e)
                 return None
 
         
