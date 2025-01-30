@@ -175,10 +175,10 @@ class MainWin(QWidget):
             
             SignalsApp.instance.load_standart_grid_cmd(
                 path=JsonData.root,
-                prev_path=None
+                prev_path=filepath
             )
 
-            self.move_to_wid_delayed(filepath)
+            # self.move_to_wid_delayed(filepath)
         else:
             JsonData.root = filepath
 

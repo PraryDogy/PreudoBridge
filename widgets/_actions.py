@@ -40,6 +40,7 @@ CREATE_FOLDER_T = "Создать папку"
 NEW_FOLDER_T = "Новая папка"
 NEW_FOLDER_WARN = "Папка с таким именем уже существует"
 DELETE_T = "Удалить"
+CLEAR_DATA_T = "Очистить данные"
 
 
 # Общий класс для выполнения действий QAction в отдельном потоке
@@ -747,3 +748,19 @@ class PasteObj(QAction):
             objects=...,
             dest=...
         )
+
+
+class ClearData(QAction):
+    def __init__(self, parent: UMenu):
+        super().__init__(parent=parent, text=CLEAR_DATA_T)
+        self.triggered.connect(self.cmd_)
+
+    def cmd_(self, *args):
+        db = os.path.join(JsonData.root, Static.DB_FILENAME)
+
+        if os.path.exists(db):
+            os.remove(db)
+            SignalsApp.instance.load_standart_grid_cmd(
+                path=JsonData.root,
+                prev_path=None
+            )

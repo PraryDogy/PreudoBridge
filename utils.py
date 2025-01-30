@@ -131,15 +131,19 @@ class ReadImage(Err):
                     img = psd_tools.PSDImage.open(psd_file)
                     img = img.composite()
                 else:
-                    img = Image.open(psd_file)
+                    try:
+                        img = Image.open(psd_file)
+                    except Exception as e:
+                        img = psd_tools.PSDImage.open(psd_file)
+                        img = img.composite()  
 
                 img = img.convert("RGB")
                 return np.array(img)
 
             except Exception as e:
 
-                print("utils > error read psd", "src:", path)
-                print(e)
+                # print("utils > error read psd", "src:", path)
+                # print(e)
                 return None
 
         

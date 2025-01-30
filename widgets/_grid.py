@@ -16,7 +16,7 @@ from utils import URunnable, UThreadPool, Utils
 from ._actions import (ChangeView, CopyObj, CopyPath, CreateFolder,
                        DeleteFinderItem, FavAdd, FavRemove, FindHere, Info,
                        OpenInApp, RatingMenu, RevealInFinder, ShowInFolder,
-                       SortMenu, UpdateGrid, View)
+                       SortMenu, UpdateGrid, View, ClearData)
 from ._base import BaseMethods, OpenWin, UMenu, USvgWidget
 from ._copy_files import WinCopyFiles
 from .list_file_system import ListFileSystem
@@ -887,6 +887,9 @@ class Grid(BaseMethods, QScrollArea):
         menu.addMenu(sort_menu)
 
         menu.addSeparator()
+
+        clear_data = ClearData(parent=menu)
+        menu.addAction(clear_data)
 
         upd_ = UpdateGrid(menu, JsonData.root)
         menu.addAction(upd_)
