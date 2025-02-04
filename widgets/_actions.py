@@ -420,8 +420,7 @@ class TextPaste(QAction):
             cursor.insertText(text)
         else:
             new_text = self.wid.text() + text
-
-        self.wid.setText(new_text)
+            self.wid.setText(new_text)
 
 
 # Выделить весь текст, допускается только QLineEdit и QTextEdit
