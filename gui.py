@@ -311,10 +311,10 @@ class MainWin(QWidget):
                 QApplication.instance().quit()
         
             elif a0.key() == Qt.Key.Key_1:
-                self.bar_top.view_type_btn.set_view_type_cmd(0)
+                self.bar_top.change_view_cmd(index=0)
             
             elif a0.key() == Qt.Key.Key_2:
-                self.bar_top.view_type_btn.set_view_type_cmd(1)
+                self.bar_top.change_view_cmd(index=1)
 
         elif a0.key() == Qt.Key.Key_Escape:
             self.setFocus()
