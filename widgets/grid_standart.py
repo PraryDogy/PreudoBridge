@@ -91,6 +91,7 @@ class LoadImages(URunnable):
             res = self.conn.execute(q).fetchall()
         except SQL_ERRORS as e:
             Utils.print_error(parent=self, error=e)
+            
             return
 
         order_items = [
