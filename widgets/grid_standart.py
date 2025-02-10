@@ -86,8 +86,12 @@ class LoadImages(URunnable):
 
     def process_removed_items(self):
 
-        q = sqlalchemy.select(CACHE.c.id, CACHE.c.name)
-        res = self.conn.execute(q).fetchall()
+        try:
+            q = sqlalchemy.select(CACHE.c.id, CACHE.c.name)
+            res = self.conn.execute(q).fetchall()
+        except SQL_ERRORS as e:
+            Utils.print_error(parent=self, error=e)
+            return
 
         order_items = [
             Utils.hash_filename(filename=i.name)

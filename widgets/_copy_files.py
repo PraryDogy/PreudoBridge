@@ -138,6 +138,8 @@ class WinCopyFiles(QWidget):
         fl = fl  | Qt.WindowType.WindowCloseButtonHint
         self.setWindowFlags(fl)
 
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
+
         h_lay = QVBoxLayout(self)
         h_lay.setContentsMargins(15, 10, 15, 10)
         self.setLayout(h_lay)
