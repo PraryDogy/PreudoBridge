@@ -166,13 +166,13 @@ class TreeFavorites(QListWidget):
         if cmd.get("cmd") == "select":
             self.select_fav(cmd.get("src"))
         elif cmd.get("cmd") == "add":
-            self.add_to_json_favs(cmd.get("src"))
+            self.add_to_favs_main(cmd.get("src"))
         elif cmd.get("cmd") == "del":
             self.del_item(cmd.get("src"))
         else:
             raise Exception("tree favorites wrong flag", cmd.get("cmd"))
 
-    def add_to_json_favs(self, src: str):
+    def add_to_favs_main(self, src: str):
 
         if src not in JsonData.favs:
 
@@ -238,4 +238,4 @@ class TreeFavorites(QListWidget):
             
             if url_ not in JsonData.favs:
 
-                self.add_to_json_favs(src=url_)
+                self.add_to_favs_main(src=url_)
