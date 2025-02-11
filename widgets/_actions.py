@@ -525,7 +525,10 @@ class SortMenu(UMenu):
 
         # переформируем текущую сетку GridStandart / SearchGrid
         # с учетом нового типа сортировки
-        SignalsApp.instance.sort_grid.emit()
+        SignalsApp.instance.load_standart_grid_cmd(
+            path=JsonData.root,
+            prev_path=None
+        )
 
         # передаем сигнал в нижний бар
         # где отображается QLabel с типом сортировки
@@ -538,7 +541,10 @@ class SortMenu(UMenu):
 
         # переформируем текущую сетку GridStandart / SearchGrid
         # с учетом нового типа сортировки
-        SignalsApp.instance.sort_grid.emit()
+        SignalsApp.instance.load_standart_grid_cmd(
+            path=JsonData.root,
+            prev_path=None
+        )
 
         # передаем сигнал в нижний бар
         # где отображается QLabel с типом сортировки

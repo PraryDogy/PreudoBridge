@@ -269,16 +269,20 @@ class GridStandart(Grid):
         UThreadPool.start(self.load_images_task_)
     
     def set_pixmap(self, order_item: OrderItem):
+        try:
 
-        widget = Thumb.path_to_wid.get(order_item.src)
+            widget = Thumb.path_to_wid.get(order_item.src)
 
-        if isinstance(widget, Thumb):
+            if isinstance(widget, Thumb):
 
-            if isinstance(order_item.pixmap_, QPixmap):
-                widget.set_pixmap(pixmap=order_item.pixmap_)
+                if isinstance(order_item.pixmap_, QPixmap):
+                    widget.set_pixmap(pixmap=order_item.pixmap_)
 
-            if isinstance(order_item.rating, int):
-                widget.set_rating(rating=order_item.rating)
+                if isinstance(order_item.rating, int):
+                    widget.set_rating(rating=order_item.rating)
+
+        except RuntimeError:
+            ...
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         

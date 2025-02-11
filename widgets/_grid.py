@@ -425,7 +425,6 @@ class Grid(BaseMethods, QScrollArea):
         SignalsApp.disconnect_grid()
 
         SignalsApp.instance.resize_grid.connect(self.resize_)
-        SignalsApp.instance.sort_grid.connect(self.order_)
         SignalsApp.instance.filter_grid.connect(self.filter_)
         SignalsApp.instance.move_to_wid.connect(self.select_one_wid)
 

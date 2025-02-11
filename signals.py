@@ -8,7 +8,6 @@ class Signals(QObject):
 
     # эти сигналы переназначаются заново, не забудь отключить прежде
     resize_grid = pyqtSignal()
-    sort_grid = pyqtSignal()
     filter_grid = pyqtSignal()
     move_to_wid = pyqtSignal(QWidget)
     # end
@@ -43,7 +42,6 @@ class SignalsApp:
 
         recon = (
             SignalsApp.instance.resize_grid,
-            SignalsApp.instance.sort_grid,
             SignalsApp.instance.filter_grid,
             SignalsApp.instance.move_to_wid
             )
