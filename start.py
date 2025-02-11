@@ -93,7 +93,6 @@ class CustomApp(QApplication):
 
 
 JsonData.init()
-# Dbase.init_db()
 app = CustomApp(argv=sys.argv)
 
 SignalsApp.init()

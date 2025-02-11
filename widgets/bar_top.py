@@ -166,7 +166,7 @@ class SearchWidget(QWidget):
             self.search_wid.clear_btn.show()
             self.search_text = text.strip()
             self.search_wid.setText(self.search_text)
-            self.search_timer.start(1000)
+            self.search_timer.start(1500)
         else:
             self.clear_search.emit()
             self.search_wid.clear_btn.hide()
