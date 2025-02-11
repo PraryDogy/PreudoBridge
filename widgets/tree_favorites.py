@@ -236,6 +236,9 @@ class TreeFavorites(QListWidget):
             url_ = urls[-1].toLocalFile()
             url_ = os.sep + url_.strip(os.sep)
             
-            if url_ not in JsonData.favs:
-
+            if url_ not in JsonData.favs and os.path.isdir(url_):
                 self.add_to_favs_main(src=url_)
+
+        # for i in a0.mimeData().formats():
+        #     a = a0.mimeData().data(i)
+        #     print(a)
