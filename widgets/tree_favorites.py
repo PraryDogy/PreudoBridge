@@ -239,6 +239,3 @@ class TreeFavorites(QListWidget):
             if url_ not in JsonData.favs:
 
                 self.add_to_favs_main(src=url_)
-
-
-            print(url_)
