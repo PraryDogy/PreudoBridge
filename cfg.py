@@ -8,7 +8,7 @@ HEX_DEFAULT = "ZERO"
 
 class Static:
     APP_NAME = "PreudoBridge"
-    APP_VER = 1.2
+    APP_VER = 1.5
 
     APP_SUPPORT = os.path.expanduser('~/Library/Application Support')
     ROOT = os.path.join(APP_SUPPORT, APP_NAME)
@@ -96,6 +96,12 @@ class Static:
     SEARCH_LIST_TEXT = "Найти по списку"
     SEARCH_LIST = []
 
+    udpdate_file_paths = [
+        '/Volumes/Shares/Studio/MIUZ/Photo/Art/Raw/2024/soft/PreudoBridge.zip',
+        '/Volumes/Shares-1/Studio/MIUZ/Photo/Art/Raw/2024/soft/PreudoBridge.zip',
+        '/Volumes/Shares-2/Studio/MIUZ/Photo/Art/Raw/2024/soft/PreudoBridge.zip',
+        '/Volumes/Shares-3/Studio/MIUZ/Photo/Art/Raw/2024/soft/PreudoBridge.zip',
+        ]
 
 class ThumbData:
 

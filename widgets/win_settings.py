@@ -1,14 +1,16 @@
+import os
+import shutil
 import subprocess
-import webbrowser
 from datetime import datetime
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import QObject, Qt, pyqtSignal, QTimer
 from PyQt5.QtGui import QCloseEvent, QKeyEvent
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QGroupBox, QHBoxLayout, QLabel, QPushButton,
                              QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
+from utils import URunnable, UThreadPool
 
 from ._base import WinMinMax
 
@@ -18,8 +20,11 @@ SETTINGS_T = "Настройки"
 CLEAR_T = "Очистить"
 JSON_T = "Json"
 UPDATE_T = "Обновления"
+UPDATE_WAIT_T = "Подождите"
+UPDATE_ERROR_T = "Ошибка"
 JSON_DESCR = "Открыть текстовый файл настроек"
-UPDATE_DESCR = "Обновления на Яндекс Диске"
+UPDATE_DESCR = "Скачать обновления"
+UPDATE_DESCR_ERR = "Нет подключения к диску"
 LEFT_W = 110
 ICON_W = 70
 
@@ -50,6 +55,29 @@ class JsonFile(QGroupBox):
         h_lay.addWidget(descr)
 
 
+class WorkerSignals(QObject):
+    finished_ = pyqtSignal(bool)
+
+
+class DownloadUpdate(URunnable):
+    def __init__(self):
+        super().__init__()
+        self.signals_ = WorkerSignals()
+
+    def run(self):
+        for i in Static.udpdate_file_paths:
+            if os.path.exists(i):
+
+                dest = shutil.copy2(
+                    src=i,
+                    dst=os.path.expanduser("~/Downloads")
+                )
+                subprocess.run(["open", "-R", dest])
+                self.signals_.finished_.emit(True)
+                return
+
+        self.signals_.finished_.emit(False)
+
 class Updates(QGroupBox):
     def __init__(self):
         super().__init__()
@@ -58,14 +86,29 @@ class Updates(QGroupBox):
         h_lay.setContentsMargins(0, 0, 0, 0)
         self.setLayout(h_lay)
 
-        btn_ = QPushButton(text=UPDATE_T)
-        btn_.setFixedWidth(LEFT_W)
-        btn_.clicked.connect(lambda: webbrowser.open(Static.LINK))
+        self.btn_ = QPushButton(text=UPDATE_T)
+        self.btn_.setFixedWidth(LEFT_W)
+        self.btn_.clicked.connect(self.update_cmd)
 
-        h_lay.addWidget(btn_)
+        h_lay.addWidget(self.btn_)
 
-        descr = QLabel(text=UPDATE_DESCR)
-        h_lay.addWidget(descr)
+        self.descr = QLabel(text=UPDATE_DESCR)
+        h_lay.addWidget(self.descr)
+
+    def update_cmd(self, *args):
+        self.btn_.setText(UPDATE_WAIT_T)
+        self.task_ = DownloadUpdate()
+        self.task_.signals_.finished_.connect(self.update_cmd_fin)
+        UThreadPool.start(runnable=self.task_)
+
+    def update_cmd_fin(self, arg: bool):
+        if arg:
+            self.btn_.setText(UPDATE_T)
+        else:
+            self.btn_.setText(UPDATE_ERROR_T)
+            self.descr.setText(UPDATE_DESCR_ERR)
+            QTimer.singleShot(1500, lambda: self.btn_.setText(UPDATE_T))
+            QTimer.singleShot(1500, lambda: self.descr.setText(UPDATE_DESCR))
 
 
 class About(QGroupBox):
