@@ -212,10 +212,14 @@ class TreeFavorites(QListWidget):
         JsonData.favs.pop(src)
         JsonData.write_config()
         self.init_ui()
+
+    def dragEnterEvent(self, e):
+        e.acceptProposedAction()
     
     def dropEvent(self, a0: QDropEvent | None) -> None:
 
         urls = a0.mimeData().urls()
+
         if not urls:
             super().dropEvent(a0)
             new_order = {}
@@ -228,3 +232,10 @@ class TreeFavorites(QListWidget):
 
             if new_order:
                 JsonData.favs = new_order
+
+        else:
+            url_ = urls[-1].toLocalFile()
+            
+            if url_ not in JsonData.favs:
+
+                self.add_to_json_favs(src=url_)
