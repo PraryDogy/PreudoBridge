@@ -2,9 +2,8 @@ import os
 from typing import Literal
 
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import (QContextMenuEvent, QDragEnterEvent, QDropEvent,
-                         QMouseEvent)
-from PyQt5.QtWidgets import QApplication, QLabel, QListWidget, QListWidgetItem
+from PyQt5.QtGui import QContextMenuEvent, QDropEvent, QMouseEvent
+from PyQt5.QtWidgets import QLabel, QListWidget, QListWidgetItem
 
 from cfg import JsonData
 from signals import SignalsApp
@@ -235,7 +234,11 @@ class TreeFavorites(QListWidget):
 
         else:
             url_ = urls[-1].toLocalFile()
+            url_ = os.sep + url_.strip(os.sep)
             
             if url_ not in JsonData.favs:
 
                 self.add_to_favs_main(src=url_)
+
+
+            print(url_)
