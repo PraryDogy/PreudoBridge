@@ -65,7 +65,7 @@ class DownloadUpdate(URunnable):
         self.signals_ = WorkerSignals()
 
     def run(self):
-        for i in Static.udpdate_file_paths:
+        for i in JsonData.udpdate_file_paths:
             if os.path.exists(i):
 
                 dest = shutil.copy2(

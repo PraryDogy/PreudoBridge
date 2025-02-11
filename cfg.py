@@ -96,12 +96,6 @@ class Static:
     SEARCH_LIST_TEXT = "Найти по списку"
     SEARCH_LIST = []
 
-    udpdate_file_paths = [
-        '/Volumes/Shares/Studio/MIUZ/Photo/Art/Raw/2024/soft/PreudoBridge.zip',
-        '/Volumes/Shares-1/Studio/MIUZ/Photo/Art/Raw/2024/soft/PreudoBridge.zip',
-        '/Volumes/Shares-2/Studio/MIUZ/Photo/Art/Raw/2024/soft/PreudoBridge.zip',
-        '/Volumes/Shares-3/Studio/MIUZ/Photo/Art/Raw/2024/soft/PreudoBridge.zip',
-        ]
 
 class ThumbData:
 
@@ -134,6 +128,13 @@ class JsonData:
     root = f"/Volumes"
     extra_paths = ["/Studio/PANACEA", "/Studio/MIUZ"]
     favs = {}
+
+    udpdate_file_paths = [
+        '/Volumes/Shares/Studio/MIUZ/Photo/Art/Raw/2024/soft/PreudoBridge.zip',
+        '/Volumes/Shares-1/Studio/MIUZ/Photo/Art/Raw/2024/soft/PreudoBridge.zip',
+        '/Volumes/Shares-2/Studio/MIUZ/Photo/Art/Raw/2024/soft/PreudoBridge.zip',
+        '/Volumes/Shares-3/Studio/MIUZ/Photo/Art/Raw/2024/soft/PreudoBridge.zip',
+        ]
 
     @classmethod
     def get_data(cls):
