@@ -505,7 +505,7 @@ class WinImgView(WinBase):
         self.hide_btns()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
-        # LoadImage.cache.clear()
+        LoadImage.cache.clear()
         ...
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
