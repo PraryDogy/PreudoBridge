@@ -483,4 +483,4 @@ class UThreadPool:
             i.should_run = False
 
         cls.current.clear()
-        cls.pool.waitForDone()
+        # cls.pool.waitForDone()

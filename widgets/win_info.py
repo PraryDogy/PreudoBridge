@@ -5,7 +5,7 @@ from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import QGridLayout, QLabel
 
-from cfg import JsonData, Static
+from cfg import JsonData, Static, Dynamic
 from database import CACHE, ColumnNames, Dbase
 from utils import URunnable, UThreadPool, Utils
 
@@ -93,7 +93,7 @@ class InfoTask:
         res = conn.execute(q).mappings().first()
         conn.close()
 
-        if res:
+        if res and not Dynamic.busy_db:
             return self.get_db_info(res=res)
 
         else:
