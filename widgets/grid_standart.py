@@ -269,7 +269,6 @@ class GridStandart(Grid):
         self.select_after_list()
         
     def start_load_images(self, cut_order_items: list[OrderItem]):
-        return
         self.load_images_task_ = LoadImages(order_items=cut_order_items)
         self.load_images_task_.set_name(text=TASK_NAME)
         cmd_ = lambda image_data: self.set_pixmap(image_data)
