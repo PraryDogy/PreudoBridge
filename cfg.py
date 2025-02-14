@@ -248,3 +248,4 @@ class Dynamic:
     pixmap_size_ind = 0
     rev: bool = False
     sort: str = "name"
+    busy_db: bool = False

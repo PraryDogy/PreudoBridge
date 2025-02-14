@@ -1,5 +1,4 @@
 import os
-import traceback
 
 import sqlalchemy
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
@@ -8,7 +7,7 @@ from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import QLabel
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import JsonData, Static
+from cfg import Dynamic, JsonData, Static
 from database import CACHE, Dbase, OrderItem
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
@@ -87,8 +86,10 @@ class LoadImages(URunnable):
     def process_removed_items(self):
 
         try:
+            Dynamic.busy_db = True
             q = sqlalchemy.select(CACHE.c.id, CACHE.c.name)
             res = self.conn.execute(q).fetchall()
+            Dynamic.busy_db = False
         except SQL_ERRORS as e:
             Utils.print_error(parent=self, error=e)
             
@@ -111,7 +112,9 @@ class LoadImages(URunnable):
             q = q.where(CACHE.c.id == id_)
 
             try:
+                Dynamic.busy_db = True
                 self.conn.execute(q)
+                Dynamic.busy_db = False
 
             except SQL_ERRORS as e:
                 Utils.print_error(parent=self, error=e)
@@ -119,7 +122,9 @@ class LoadImages(URunnable):
                 continue
 
         try:
+            Dynamic.busy_db = True
             self.conn.commit()
+            Dynamic.busy_db = False
 
         except SQL_ERRORS as e:
             Utils.print_error(parent=self, error=e)
