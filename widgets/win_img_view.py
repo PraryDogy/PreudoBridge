@@ -349,7 +349,7 @@ class WinImgView(WinBase):
         self.text_label.hide()
         self.set_title()
 
-        if self.src not in LoadImage.cache:
+        if self.src not in LoadImage.cache and not Dynamic.busy_db:
 
             self.task_ = LoadThumbnail(
                 src=self.src
