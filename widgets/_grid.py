@@ -412,6 +412,10 @@ class Grid(BaseMethods, QScrollArea):
         self.setAcceptDrops(True)
         self.setWidgetResizable(True)
 
+        self.load_images_timer = QTimer(self)
+        self.load_images_timer.setSingleShot(True)
+        self.load_images_timer.timeout.connect(self.load_images_cmd)
+
         self.prev_path = prev_path
         self.selected_widgets: list[Thumb] = []
         self.curr_cell: tuple = None
@@ -437,6 +441,20 @@ class Grid(BaseMethods, QScrollArea):
         self.grid_layout.setAlignment(flags)
 
         self.main_wid.setLayout(self.grid_layout)
+
+        self.verticalScrollBar().valueChanged.connect(self.scroll_changed)
+
+    def scroll_changed(self, *args):
+        self.load_images_timer.stop()
+        self.load_images_timer.start(1000)
+
+    def load_images_cmd(self):
+        visible_widgets = []
+        
+        for widget in self.main_wid.findChildren(Thumb):
+            if not widget.visibleRegion().isEmpty():
+                visible_widgets.append(widget)
+
 
     def select_one_wid(self, wid: Thumb):
 
