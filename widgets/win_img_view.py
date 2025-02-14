@@ -124,9 +124,6 @@ class LoadImage(URunnable):
         except RuntimeError as e:
             Utils.print_error(parent=None, error=e)
 
-    def resize_img(self):
-        s
-
 
 class ImageWidget(QLabel):
     mouse_moved = pyqtSignal()
