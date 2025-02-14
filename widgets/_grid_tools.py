@@ -4,7 +4,7 @@ import numpy as np
 from sqlalchemy import Connection, insert, select, update
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import ThumbData, Static
+from cfg import ThumbData, Static, Dynamic
 from database import CACHE, ColumnNames, OrderItem
 from fit_img import FitImg
 from utils import Utils
@@ -89,16 +89,18 @@ class GridTools(FolderTools):
 
         try:
 
+            Dynamic.busy_db = True
+
             if order_item.type_ == Static.FOLDER_TYPE:
-                return cls.update_folder_order_item(conn=conn, order_item=order_item)
+                item = cls.update_folder_order_item(conn=conn, order_item=order_item)
             else:
-                return cls.update_file_order_item(conn=conn, order_item=order_item)
+                item = cls.update_file_order_item(conn=conn, order_item=order_item)
+            
+            Dynamic.busy_db = False
+            return item
 
         except Exception as e:
-            import traceback
-            print(traceback.format_exc())
-            # Utils.print_error(parent=cls, error=e)
-            # print(order_item.src)
+            Dynamic.busy_db = False
             return None
 
     @classmethod

@@ -329,7 +329,7 @@ class WinImgView(WinBase):
         self.zoom_btns.cmd_fit.connect(self.img_label.zoom_reset)
         self.zoom_btns.cmd_close.connect(self.close)
 
-        self.text_label = QLabel(parent=self)
+        self.text_label = QLabel(parent=self.img_label)
         self.text_label.hide()
 
         self.hide_btns()
@@ -366,6 +366,7 @@ class WinImgView(WinBase):
             )
 
         else:
+            self.show_text_label(text="Загрузка...")
             self.load_image()
 
     def show_text_label(self, text: str):
