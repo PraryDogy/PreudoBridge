@@ -53,20 +53,17 @@ class LoadImages(URunnable):
 
         self.conn = engine.connect()
 
-        try:
-            self.main()
-        except RuntimeError as e:
-            Utils.print_error(parent=None, error=e)
-
-        self.conn.close()
-
-    def main(self):
         self.process_order_items()
         self.process_removed_items()
+
+        self.conn.close()
 
     def process_order_items(self):
 
         for order_item in self.order_items:
+
+            if not self.should_run:
+                return
             
             try:
 
@@ -78,9 +75,11 @@ class LoadImages(URunnable):
                 if new_order_item:
                     self.signals_.new_widget.emit(new_order_item)
 
+            except RuntimeError:
+                return
+
             except Exception as e:
                 Utils.print_error(parent=self, error=e)
-                # print(traceback.format_exc())
                 continue
 
     def process_removed_items(self):
@@ -107,6 +106,9 @@ class LoadImages(URunnable):
                 del_items.append(id)
 
         for id_ in del_items:
+
+            if not self.should_run:
+                return
 
             q = sqlalchemy.delete(CACHE)
             q = q.where(CACHE.c.id == id_)
