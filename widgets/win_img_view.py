@@ -98,6 +98,10 @@ class LoadImage(URunnable):
             if self.src not in self.cache:
 
                 img_array = Utils.read_image(self.src)
+                img_array = Utils.resize_img(img_array=img_array, percent=40)
+
+                # size_mb = img_array.nbytes / (1024 * 1024)
+                # print(size_mb)
 
                 if img_array is None:
                     pixmap = None
@@ -119,6 +123,9 @@ class LoadImage(URunnable):
 
         except RuntimeError as e:
             Utils.print_error(parent=None, error=e)
+
+    def resize_img(self):
+        s
 
 
 class ImageWidget(QLabel):

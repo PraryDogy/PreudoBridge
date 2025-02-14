@@ -15,7 +15,7 @@ from PIL import Image
 from PyQt5.QtCore import QRunnable, Qt, QThreadPool, QTimer
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget
-
+import cv2
 from cfg import Dynamic, Static, ThumbData
 
 psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
@@ -234,6 +234,13 @@ class ReadImage(Err):
 
         else:
             return None
+        
+    @classmethod
+    def resize_img(cls, img_array: np.ndarray, percent: int = 50) -> np.ndarray:
+        percent = 50
+        width = int(img_array.shape[1] * percent / 100)
+        height = int(img_array.shape[0] * percent / 100)
+        return cv2.resize(img_array, (width, height), interpolation=cv2.INTER_AREA)
 
 
 class ImgConvert(Err):
