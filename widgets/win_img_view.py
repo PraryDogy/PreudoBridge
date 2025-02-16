@@ -1,3 +1,4 @@
+import gc
 import os
 
 import sqlalchemy
@@ -97,8 +98,11 @@ class LoadImage(URunnable):
         try:
             if self.src not in self.cache:
 
-                img_array = Utils.read_image(self.src)
-                img_array = Utils.resize_img(img_array=img_array, percent=40)
+                img_array_src = Utils.read_image(self.src)
+                img_array = Utils.resize_img(img_array=img_array_src, percent=40)
+
+                del img_array_src
+                gc.collect()
 
                 # size_mb = img_array.nbytes / (1024 * 1024)
                 # print(size_mb)

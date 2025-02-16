@@ -1,10 +1,11 @@
+import gc
 import os
 
 import numpy as np
 from sqlalchemy import Connection, insert, select, update
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import ThumbData, Static, Dynamic
+from cfg import Dynamic, Static, ThumbData
 from database import CACHE, ColumnNames, OrderItem
 from fit_img import FitImg
 from utils import Utils
@@ -292,6 +293,7 @@ class GridTools(FolderTools):
         )
 
         del img_array_src
+        gc.collect()
 
         bytes_img = Utils.numpy_to_bytes(
             img_array=img_array
