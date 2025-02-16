@@ -282,14 +282,16 @@ class GridTools(FolderTools):
     @classmethod
     def get_bytes_ndarray(cls, order_item: OrderItem):
 
-        img_array = Utils.read_image(
+        img_array_src = Utils.read_image(
             path=order_item.src
         )
 
         img_array = FitImg.start(
-            image=img_array,
+            image=img_array_src,
             size=ThumbData.DB_PIXMAP_SIZE
         )
+
+        del img_array_src
 
         bytes_img = Utils.numpy_to_bytes(
             img_array=img_array
