@@ -3,13 +3,14 @@ import shutil
 import subprocess
 from datetime import datetime
 
-from PyQt5.QtCore import QObject, Qt, pyqtSignal, QTimer
+from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QKeyEvent
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QGroupBox, QHBoxLayout, QLabel, QPushButton,
                              QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
+from signals import SignalsApp
 from utils import URunnable, UThreadPool
 
 from ._base import WinMinMax
@@ -27,6 +28,8 @@ UPDATE_DESCR = "Скачать обновления"
 UPDATE_DESCR_ERR = "Нет подключения к диску"
 LEFT_W = 110
 ICON_W = 70
+CLEAR_DATA_T = "Очистить"
+CLEAR_DATA_DESCR = "Очистить данные в этой папке"
 
 ABOUT_T = "\n".join(
     [
@@ -34,6 +37,33 @@ ABOUT_T = "\n".join(
         f"{datetime.now().year} Evgeny Loshakev"
     ]
 )
+
+
+class ClearData(QGroupBox):
+    def __init__(self):
+        super().__init__()
+
+        h_lay = QHBoxLayout()
+        h_lay.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(h_lay)
+
+        btn_ = QPushButton(text=CLEAR_DATA_T)
+        btn_.clicked.connect(self.cmd_)
+        btn_.setFixedWidth(LEFT_W)
+        h_lay.addWidget(btn_)
+
+        descr = QLabel(text=CLEAR_DATA_DESCR)
+        h_lay.addWidget(descr)
+
+    def cmd_(self, *args):
+        db = os.path.join(JsonData.root, Static.DB_FILENAME)
+
+        if os.path.exists(db):
+            os.remove(db)
+            SignalsApp.instance.load_standart_grid_cmd(
+                path=JsonData.root,
+                prev_path=None
+            )
 
 
 class JsonFile(QGroupBox):
@@ -77,6 +107,7 @@ class DownloadUpdate(URunnable):
                 return
 
         self.signals_.finished_.emit(False)
+
 
 class Updates(QGroupBox):
     def __init__(self):
@@ -140,6 +171,9 @@ class WinSettings(WinMinMax):
 
         h_wid = QWidget()
         main_lay.addWidget(h_wid)
+
+        clear_data_row = ClearData()
+        main_lay.addWidget(clear_data_row)
 
         json_row = JsonFile()
         main_lay.addWidget(json_row)

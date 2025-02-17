@@ -14,13 +14,12 @@ from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 from ._actions import (ChangeView, CopyObj, CopyPath, CreateFolder,
-                       DeleteFinderItem, FavAdd, FavRemove, FindHere, Info,
-                       OpenInApp, RatingMenu, RevealInFinder, ShowInFolder,
-                       SortMenu, UpdateGrid, View, ClearData)
+                       DeleteFinderItem, FavAdd, FavRemove, Info, OpenInApp,
+                       RatingMenu, RevealInFinder, ShowInFolder, SortMenu,
+                       UpdateGrid, View)
 from ._base import BaseMethods, OpenWin, UMenu, USvgWidget
 from ._copy_files import WinCopyFiles
 from .list_file_system import ListFileSystem
-from .win_find_here import WinFindHere
 
 SELECTED = "selected"
 FONT_SIZE = "font-size: 11px;"
@@ -606,19 +605,6 @@ class Grid(BaseMethods, QScrollArea):
         else:
             SignalsApp.instance.fav_cmd.emit({"cmd": "del", "src": src})
 
-    def open_find_here_win(self, *args):
-        self.find_here_win = WinFindHere()
-        self.find_here_win.finished_.connect(self.find_here_cmd)
-        Utils.center_win(parent=self.window(), child=self.find_here_win)
-        self.find_here_win.show()
-
-    def find_here_cmd(self, text: str):
-        if text:
-            for path, wid in Thumb.path_to_wid.items():
-                if text in path:
-                    self.select_one_wid(wid)
-                    break
-
     def control_clicked(self, wid: Thumb):
 
         if wid in self.selected_widgets:
@@ -905,9 +891,6 @@ class Grid(BaseMethods, QScrollArea):
 
         menu.addSeparator()
 
-        # clear_data = ClearData(parent=menu)
-        # menu.addAction(clear_data)
-
         upd_ = UpdateGrid(menu, JsonData.root)
         menu.addAction(upd_)
 
@@ -916,10 +899,6 @@ class Grid(BaseMethods, QScrollArea):
         if hasattr(self, "col_count"):
             upd_.disconnect()
             upd_.triggered.connect(self.order_)
-
-        # find_here = FindHere(parent=menu)
-        # find_here.clicked_.connect(self.open_find_here_win)
-        # menu.addAction(find_here)
 
         menu.exec_(self.mapToGlobal(a0.pos()))
 
