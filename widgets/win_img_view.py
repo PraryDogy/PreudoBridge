@@ -98,14 +98,7 @@ class LoadImage(URunnable):
         try:
             if self.src not in self.cache:
 
-                img_array_src = Utils.read_image(self.src)
-                img_array = Utils.resize_img(img_array=img_array_src, percent=40)
-
-                del img_array_src
-                gc.collect()
-
-                # size_mb = img_array.nbytes / (1024 * 1024)
-                # print(size_mb)
+                img_array = Utils.read_image(self.src)
 
                 if img_array is None:
                     pixmap = None
@@ -113,6 +106,9 @@ class LoadImage(URunnable):
                 else:
                     pixmap = Utils.pixmap_from_array(img_array)
                     self.cache[self.src] = pixmap
+
+                del img_array
+                gc.collect()
 
             else:
                 pixmap = self.cache.get(self.src)

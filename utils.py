@@ -234,13 +234,6 @@ class ReadImage(Err):
 
         else:
             return None
-        
-    @classmethod
-    def resize_img(cls, img_array: np.ndarray, percent: int = 50) -> np.ndarray:
-        percent = 50
-        width = int(img_array.shape[1] * percent / 100)
-        height = int(img_array.shape[0] * percent / 100)
-        return cv2.resize(img_array, (width, height), interpolation=cv2.INTER_AREA)
 
 
 class ImgConvert(Err):
