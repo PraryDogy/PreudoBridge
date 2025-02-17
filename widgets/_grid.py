@@ -905,8 +905,8 @@ class Grid(BaseMethods, QScrollArea):
 
         menu.addSeparator()
 
-        clear_data = ClearData(parent=menu)
-        menu.addAction(clear_data)
+        # clear_data = ClearData(parent=menu)
+        # menu.addAction(clear_data)
 
         upd_ = UpdateGrid(menu, JsonData.root)
         menu.addAction(upd_)
@@ -917,9 +917,9 @@ class Grid(BaseMethods, QScrollArea):
             upd_.disconnect()
             upd_.triggered.connect(self.order_)
 
-        find_here = FindHere(parent=menu)
-        find_here.clicked_.connect(self.open_find_here_win)
-        menu.addAction(find_here)
+        # find_here = FindHere(parent=menu)
+        # find_here.clicked_.connect(self.open_find_here_win)
+        # menu.addAction(find_here)
 
         menu.exec_(self.mapToGlobal(a0.pos()))
 

@@ -56,19 +56,20 @@ class ShowHideTags(QWidget):
 
         self.hide_svg = True
 
+    def click_cmd(self):
+        if self.hide_svg:
+            self.svg.load(Static.SHOW_SVG)
+            self.hide_svg = False
+
+        else:
+            self.svg.load(Static.HIDE_SVG)
+            self.hide_svg = True
+
+        self.clicked_.emit()
+
     def mouseReleaseEvent(self, a0):
-
         if a0.button() == Qt.MouseButton.LeftButton:
-
-            if self.hide_svg:
-                self.svg.load(Static.SHOW_SVG)
-                self.hide_svg = False
-
-            else:
-                self.svg.load(Static.HIDE_SVG)
-                self.hide_svg = True
-
-            self.clicked_.emit()
+            self.click_cmd()
 
 
 class MainWin(QWidget):
@@ -118,6 +119,8 @@ class MainWin(QWidget):
 
         self.tree_tags = TreeTags()
         left_v_lay.addWidget(self.tree_tags, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        show_hide_tags_btn.click_cmd()
 
         self.bar_tabs.load_last_tab()
 
