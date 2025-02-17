@@ -1,4 +1,5 @@
 import os
+import subprocess
 from difflib import SequenceMatcher
 
 from PyQt5.QtCore import (QMimeData, QObject, QPoint, Qt, QTimer, QUrl,
@@ -155,17 +156,21 @@ class WinGo(WinMinMax):
 
         go_btn = QPushButton(GO_T)
         go_btn.setFixedWidth(120)
-        go_btn.clicked.connect(self.open_path_btn_cmd)
+        go_btn.clicked.connect(
+            lambda: self.open_path_btn_cmd(flag=None)
+        )
         h_lay.addWidget(go_btn)
 
         go_finder_btn = QPushButton(FINDER_T)
         go_finder_btn.setFixedWidth(120)
-        # go_finder_btn.clicked.connect(self.open_path_btn_cmd)
+        go_finder_btn.clicked.connect(
+            lambda: self.open_path_btn_cmd(flag=FINDER_T)
+        )
         h_lay.addWidget(go_finder_btn)
 
         h_lay.addStretch()
 
-    def open_path_btn_cmd(self):
+    def open_path_btn_cmd(self, flag: str):
         path: str = self.input_wid.text()
 
         if not path:
@@ -174,16 +179,30 @@ class WinGo(WinMinMax):
         path: str = os.sep + path.strip().strip(os.sep)
 
         if os.path.exists(path):
-            SignalsApp.instance.open_path.emit(path)
+            if flag == FINDER_T:
+                self.open_finder(dest=path)
+            else:
+                SignalsApp.instance.open_path.emit(path)
             self.close()
 
         else:
             self.task_ = PathFinderThread(path)
-            self.task_.signals_.finished_.connect(self.finalize)
+            self.task_.signals_.finished_.connect(
+                lambda dest: self.finalize(dest=dest, flag=flag)
+            )
             UThreadPool.start(self.task_)
 
-    def finalize(self, res: str):
-        SignalsApp.instance.open_path.emit(res)
+    def open_finder(self, dest: str):
+        try:
+            subprocess.Popen(["open", "-R", dest])
+        except Exception as e:
+            print(e)
+
+    def finalize(self, dest: str, flag: str):
+        if flag == FINDER_T:
+            self.open_finder(dest=dest)
+        else:
+            SignalsApp.instance.open_path.emit(dest)
         self.close()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
