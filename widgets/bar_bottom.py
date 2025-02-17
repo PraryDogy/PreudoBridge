@@ -25,6 +25,7 @@ ASC = "по убыв."
 DESC = "по возр."
 GO_T = "Перейти"
 CURR_WID = "curr_wid"
+FINDER_T = "Finder"
 
 class WorkerSignals(QObject):
     finished_ = pyqtSignal(str)
@@ -142,10 +143,27 @@ class WinGo(WinMinMax):
         v_lay.addWidget(self.input_wid, alignment=Qt.AlignmentFlag.AlignCenter)
         self.input_wid.clear_btn_vcenter()
 
-        go_btn = QPushButton("Перейти")
-        go_btn.setFixedWidth(130)
+        h_wid = QWidget()
+        v_lay.addWidget(h_wid)
+
+        h_lay = QHBoxLayout()
+        h_lay.setContentsMargins(0, 0, 0, 0)
+        h_lay.setSpacing(10)
+        h_wid.setLayout(h_lay)
+
+        h_lay.addStretch()
+
+        go_btn = QPushButton(GO_T)
+        go_btn.setFixedWidth(120)
         go_btn.clicked.connect(self.open_path_btn_cmd)
-        v_lay.addWidget(go_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+        h_lay.addWidget(go_btn)
+
+        go_finder_btn = QPushButton(FINDER_T)
+        go_finder_btn.setFixedWidth(120)
+        # go_finder_btn.clicked.connect(self.open_path_btn_cmd)
+        h_lay.addWidget(go_finder_btn)
+
+        h_lay.addStretch()
 
     def open_path_btn_cmd(self):
         path: str = self.input_wid.text()
@@ -158,6 +176,7 @@ class WinGo(WinMinMax):
         if os.path.exists(path):
             SignalsApp.instance.open_path.emit(path)
             self.close()
+
         else:
             self.task_ = PathFinderThread(path)
             self.task_.signals_.finished_.connect(self.finalize)
