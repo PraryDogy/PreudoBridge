@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QFrame, QLineEdit, QMenu, QSlider, QWidget, QTextEdi
 
 from cfg import Static
 from utils import Utils
-
+import gc
 
 class BaseMethods:
     def order_(self, *args, **kwargs):
@@ -198,9 +198,15 @@ class OpenWin:
     @classmethod
     def view(cls, parent: QWidget, src: str):
         from .win_img_view import WinImgView
-        cls.win = WinImgView(src)
-        Utils.center_win(parent, cls.win)
-        cls.win.show()
+        win = WinImgView(src)
+        Utils.center_win(parent, win)
+        win.closed_.connect(lambda: cls.view_closed(win=win))
+        win.show()
+
+    @classmethod
+    def view_closed(cls, win: QWidget):
+        del win
+        gc.collect()
 
 
 class UFrame(QFrame):

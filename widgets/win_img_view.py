@@ -285,6 +285,7 @@ class NextImageBtn(SwitchImageBtn):
 
 class WinImgView(WinBase):
     task_count_limit = 10
+    closed_ = pyqtSignal()
 
     def __init__(self, src: str):
         super().__init__()
@@ -511,7 +512,7 @@ class WinImgView(WinBase):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         LoadImage.cache.clear()
-        ...
+        self.closed_.emit()
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         menu = UMenu(self)
