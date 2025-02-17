@@ -696,8 +696,9 @@ class Grid(BaseMethods, QScrollArea):
         view_action._clicked.connect(lambda: self.open_in_view(wid=wid))
         menu.addAction(view_action)
 
-        open_menu = OpenInApp(parent=menu, src=wid.src)
-        menu.addMenu(open_menu)
+        if wid.type_ != Static.FOLDER_TYPE:
+            open_menu = OpenInApp(parent=menu, src=wid.src)
+            menu.addMenu(open_menu)
 
         menu.addSeparator()
 
