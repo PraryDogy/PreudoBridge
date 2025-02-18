@@ -292,8 +292,9 @@ class GridTools(FolderTools):
             size=ThumbData.DB_PIXMAP_SIZE
         )
 
+        img_array_src = None
         del img_array_src
-        gc.collect()
+        # gc.collect()
 
         bytes_img = Utils.numpy_to_bytes(
             img_array=img_array

@@ -1,3 +1,4 @@
+import gc
 import os
 
 import sqlalchemy
@@ -23,6 +24,7 @@ SQL_ERRORS = (IntegrityError, OperationalError)
 
 class WorkerSignals(QObject):
     new_widget = pyqtSignal(OrderItem)
+    finished_ = pyqtSignal()
 
 
 class LoadImages(URunnable):
@@ -57,6 +59,11 @@ class LoadImages(URunnable):
         self.process_removed_items()
 
         self.conn.close()
+
+        try:
+            self.signals_.finished_.emit()
+        except RuntimeError:
+            ...
 
     def process_order_items(self):
 
@@ -169,6 +176,9 @@ class GridStandart(Grid):
 
     def finder_task_fin(self, order_items: list[OrderItem]):
 
+        del self.finder_task
+        gc.collect()
+
         self.loading_lbl.hide()
         self.order_items = order_items
         self.total = len(order_items)
@@ -271,10 +281,20 @@ class GridStandart(Grid):
     def start_load_images(self, cut_order_items: list[OrderItem]):
         self.load_images_task_ = LoadImages(order_items=cut_order_items)
         self.load_images_task_.set_name(text=TASK_NAME)
-        cmd_ = lambda image_data: self.set_pixmap(image_data)
-        self.load_images_task_.signals_.new_widget.connect(cmd_)
+        self.load_images_task_.signals_.new_widget.connect(
+            lambda image_data: self.set_pixmap(image_data)
+        )
+        self.load_images_task_.signals_.finished_.connect(
+            lambda: self.remove_load_images(task=self.load_images_task_)
+        )
         UThreadPool.start(self.load_images_task_)
     
+
+    def remove_load_images(self, task: LoadImages):
+
+        del task
+        gc.collect()
+
     def set_pixmap(self, order_item: OrderItem):
         try:
 
