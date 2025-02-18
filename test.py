@@ -130,6 +130,7 @@ class PathFinder:
         return new_paths
 
 src = "sb01/Shares/Studio/MIUZ/Photo/Art/Raw/2025/02 - Февраль"
+src = "/Volumes/Macintosh HD/Users/Loshkarev/Downloads/14 02 25 PR"
 
 res = PathFinder.get_path(path=src)
 print()
