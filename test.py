@@ -25,21 +25,29 @@ class PathFinder:
 
         res = cls.check_for_exists(paths=paths)
 
-        if res:
+        if res in volumes:
+            return None
+
+        elif res:
             return res
         
-        # см. аннотацию метода del_from_end
-        paths = [
-            ended_path
-            for path_ in paths
-            for ended_path in cls.del_from_end(path=path_)
-        ]
+        else:
+            # см. аннотацию метода del_from_end
+            paths = [
+                ended_path
+                for path_ in paths
+                for ended_path in cls.del_from_end(path=path_)
+            ]
 
-        paths.sort(key=len, reverse=True)
-        
-        res = cls.check_for_exists(paths=paths)
+            paths.sort(key=len, reverse=True)
+            
+            res = cls.check_for_exists(paths=paths)
 
-        return res
+            if res in volumes:
+                return None
+            
+            elif res:
+                return res
 
     @classmethod
     def get_volumes(cls) -> list[str]:
@@ -130,7 +138,8 @@ class PathFinder:
         return new_paths
 
 src = "sb01/Shares/Studio/MIUZ/Photo/Art/Raw/2025/02 - Февраль"
-src = "/Volumes/Macintosh HD/Users/Loshkarev/Downloads/14 02 25 PR"
+src = "https://chatgpt.com/c/67b435a3-5670-800d-9f33-5a4285b19d66"
+# src = "dsfdsfsdd"
 
 res = PathFinder.get_path(path=src)
 print()

@@ -1,6 +1,5 @@
 import os
 import subprocess
-from difflib import SequenceMatcher
 
 from PyQt5.QtCore import (QMimeData, QObject, QPoint, Qt, QTimer, QUrl,
                           pyqtSignal)
@@ -12,7 +11,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
 from cfg import Dynamic, JsonData, Static, ThumbData
 from database import ORDER
 from signals import SignalsApp
-from utils import URunnable, UThreadPool, Utils
+from utils import PathFinder, URunnable, UThreadPool, Utils
 
 from ._actions import CopyPath, Info, RevealInFinder, SortMenu, View
 from ._base import (OpenWin, UFrame, ULineEdit, UMenu, USlider, USvgWidget,
@@ -38,94 +37,20 @@ class PathFinderThread(URunnable):
         super().__init__()
         self.signals_ = WorkerSignals()
         self.src: str = src
-        self.result: str = None
-        self.volumes: list[str] = []
-        self.exclude = "/Volumes/Macintosh HD/Volumes/"
 
     @URunnable.set_running_state
     def run(self):
         try:
-            self._path_finder()
-            if not self.result:
+            result = PathFinder.get_result(path=self.src)
+
+            if not result:
                 self.signals_.finished_.emit("")
-            elif self.result in self.volumes:
-                self.signals_.finished_.emit("")
-            elif self.result:
-                self.signals_.finished_.emit(self.result)
+            
+            else:
+                self.signals_.finished_.emit(result)
 
         except RuntimeError as e:
             Utils.print_error(parent=None, error=e)
-
-    def _path_finder(self):
-        src = os.sep + self.src.replace("\\", os.sep).strip().strip(os.sep)
-        src_splited = [i for i in src.split(os.sep) if i]
-
-        self.volumes = [
-            entry.path
-            for entry in os.scandir("/Volumes")
-            if entry.is_dir()
-        ]
-
-        volumes_extra = [
-            os.path.join(vol, *extra.strip().split(os.sep))
-            for extra in JsonData.extra_paths
-            for vol in self.volumes
-            ]
-        
-        self.volumes.extend(volumes_extra)
-
-        # обрезаем входящий путь каждый раз на 1 секцию с конца
-        cut_paths: list = [
-                os.path.join(*src_splited[:i])
-                for i in range(len(src_splited) + 1)
-                if src_splited[:i]
-                ]
-
-        # обрезаем каждый путь на 1 секцию с начала и прибавляем элементы из volumes
-        all_posible_paths: list = []
-
-        for p_path in sorted(cut_paths, key=len, reverse=True):
-            p_path_split = [i for i in p_path.split(os.sep) if i]
-            
-            for share in self.volumes:
-                for i in range(len(p_path_split) + 1):
-
-                    all_posible_paths.append(
-                        os.path.join(share, *p_path_split[i:])
-                        )
-
-        # из всех полученных возможных путей ищем самый подходящий существующий путь
-        for i in sorted(all_posible_paths, key=len, reverse=True):
-            if self.exclude in i:
-                continue
-            if os.path.exists(i):
-                self.result = i
-                break
-
-        # смотрим совпадает ли последняя секция входящего и полученного пути
-        tail = []
-
-        if self.result:
-            result_tail = self.result.split(os.sep)[-1]
-            if src_splited[-1] != result_tail:
-                try:
-                    tail = src_splited[src_splited.index(result_tail) + 1:]
-                except ValueError:
-                    return
-
-        # пытаемся найти секции пути, написанные с ошибкой
-        for a in tail:
-            dirs = [
-                entry.name
-                for entry in os.scandir(self.result)
-                if entry.is_dir()
-            ]
-
-            for b in dirs:
-                matcher = SequenceMatcher(None, a, b).ratio()
-                if matcher >= 0.85:
-                    self.result = os.path.join(self.result, b)
-                    break
 
 
 class WinGo(WinMinMax):
@@ -170,27 +95,38 @@ class WinGo(WinMinMax):
 
         h_lay.addStretch()
 
+        self.paste_path()
+
+    def paste_path(self):
+        clipboard = Utils.read_from_clipboard()
+        task = PathFinderThread(src=clipboard)
+        task.signals_.finished_.connect(self.paste_path_fin)
+        UThreadPool.start(runnable=task)
+
+    def paste_path_fin(self, result: str | None):
+        if result:
+            self.input_wid.setText(result)
+
     def open_path_btn_cmd(self, flag: str):
         path: str = self.input_wid.text()
+        task = PathFinderThread(src=path)
+        task.signals_.finished_.connect(
+            lambda result: self.finalize(result=result, flag=flag)
+        )
+        UThreadPool.start(runnable=task)
 
-        if not path:
+    def finalize(self, result: str, flag: str):
+
+        if not result:
             return
 
-        path: str = os.sep + path.strip().strip(os.sep)
-
-        if os.path.exists(path):
-            if flag == FINDER_T:
-                self.open_finder(dest=path)
-            else:
-                SignalsApp.instance.open_path.emit(path)
-            self.close()
+        if flag == FINDER_T:
+            self.open_finder(dest=result)
 
         else:
-            self.task_ = PathFinderThread(path)
-            self.task_.signals_.finished_.connect(
-                lambda dest: self.finalize(dest=dest, flag=flag)
-            )
-            UThreadPool.start(self.task_)
+            SignalsApp.instance.open_path.emit(result)
+
+        self.close()
 
     def open_finder(self, dest: str):
         try:
@@ -198,18 +134,9 @@ class WinGo(WinMinMax):
         except Exception as e:
             print(e)
 
-    def finalize(self, dest: str, flag: str):
-        if flag == FINDER_T:
-            self.open_finder(dest=dest)
-        else:
-            SignalsApp.instance.open_path.emit(dest)
-        self.close()
-
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() == Qt.Key.Key_Escape:
             self.close()
-        elif a0.key() == Qt.Key.Key_Return:
-            self.open_path_btn_cmd()
 
 
 class CustomSlider(USlider):
