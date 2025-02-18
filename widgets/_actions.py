@@ -12,7 +12,6 @@ from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 from ._base import OpenWin, UMenu
-from ._copy_files import WinCopyFiles
 
 REVEAL_T = "Показать в Finder"
 INFO_T = "Инфо"
@@ -707,32 +706,3 @@ class DeleteFinderItem(QAction):
             print("actions.py error delete from db DeleteFinderItem", e)
 
         conn.close()
-
-
-class CopyObj(QAction):
-    objects: dict[str, int] = {}
-
-    def __init__(self, parent: UMenu, files: dict[str, int]):
-
-        super().__init__(parent=parent, text=COPY_T)
-        self.triggered.connect(self.cmd_)
-        self.files = files
-
-    def cmd_(self):
-        for src, rating in self.files.items():
-            CopyObj.objects[src] = rating
-
-
-class PasteObj(QAction):
-
-    def __init__(self, parent: UMenu, dest: str):
-
-        super().__init__(parent=parent, text=PASTE_T)
-        self.dest = dest
-        self.triggered.connect(self.cmd_)
-
-    def cmd_(self):
-        self.win_copy = WinCopyFiles(
-            objects=...,
-            dest=...
-        )

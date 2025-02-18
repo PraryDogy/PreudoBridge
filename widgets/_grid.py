@@ -2,7 +2,7 @@ import os
 
 import sqlalchemy
 from PyQt5.QtCore import QMimeData, Qt, QTimer, QUrl, pyqtSignal
-from PyQt5.QtGui import (QContextMenuEvent, QCursor, QDrag, QKeyEvent,
+from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent,
                          QMouseEvent, QPixmap)
 from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
                              QScrollArea, QVBoxLayout, QWidget)
@@ -13,12 +13,11 @@ from database import CACHE, ColumnNames, Dbase, OrderItem
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
-from ._actions import (ChangeView, CopyObj, CopyPath, CreateFolder,
-                       DeleteFinderItem, FavAdd, FavRemove, Info, OpenInApp,
+from ._actions import (ChangeView, CopyPath, CreateFolder,
+                       FavAdd, FavRemove, Info, OpenInApp,
                        RatingMenu, RevealInFinder, ShowInFolder, SortMenu,
                        UpdateGrid, View)
 from ._base import BaseMethods, OpenWin, UMenu, USvgWidget
-from ._copy_files import WinCopyFiles
 from .list_file_system import ListFileSystem
 
 SELECTED = "selected"
@@ -309,11 +308,6 @@ class Thumb(OrderItem, QFrame):
         rating_menu = RatingMenu(parent=menu, src=self.src, rating=self.rating)
         rating_menu._clicked.connect(self.set_new_rating)
         menu.addMenu(rating_menu)
-
-        menu.addSeparator()
-
-        delete_item = DeleteFinderItem(menu=menu, path=self.src)
-        menu.addAction(delete_item)
 
     def set_rating(self, rating: int):
 
@@ -743,14 +737,7 @@ class Grid(BaseMethods, QScrollArea):
 
             menu.addSeparator()
 
-        delete_item = DeleteFinderItem(menu=menu, path=objects)
-        menu.addAction(delete_item)
-
         menu.addSeparator()
-
-        copy_obj = CopyObj(parent=menu, files=objects)
-        # menu.addAction(copy_obj)
-
         menu.show_custom()
 
     def set_rating_wid(self, rating: int):
@@ -918,55 +905,3 @@ class Grid(BaseMethods, QScrollArea):
         self.selected_widgets.clear()
         self.set_bottom_path(src=JsonData.root)
         self.curr_cell = None
-
-    def dragEnterEvent(self, a0):
-        a0.acceptProposedAction()
-
-    def dragMoveEvent(self, a0):
-        wid = self.childAt(a0.pos())
-        
-        if isinstance(wid, QFrame):
-            wid = wid.parent()
-
-        elif isinstance(wid, USvgWidget):
-            wid = wid.parent().parent()
-
-        if isinstance(wid, ThumbFolder):
-            self.select_one_wid(wid)
-            setattr(self, WID_UNDER_MOUSE, wid)
-            a0.acceptProposedAction()
-
-        elif isinstance(wid, GridWid):
-
-            for i in self.selected_widgets:
-                if i.type_ == Static.FOLDER_TYPE:
-                    i.set_no_frame()
-
-            setattr(self, WID_UNDER_MOUSE, wid)
-            a0.acceptProposedAction()
-
-    def dropEvent(self, a0):
-
-        if hasattr(self, WID_UNDER_MOUSE):
-            
-            wid: ThumbFolder | QWidget = getattr(self, WID_UNDER_MOUSE)
-
-            if isinstance(wid, ThumbFolder):
-                dest = wid.src
-
-            elif isinstance(wid, GridWid):
-                dest = JsonData.root
-
-            objects: dict[str, int] = {}
-
-            for i in a0.mimeData().urls():
-                src = i.toLocalFile()
-                thumb_wid = Thumb.path_to_wid.get(src)
-                if thumb_wid:
-                    objects[src] = thumb_wid.rating
-                else:
-                    objects[src] = 0
-
-            self.dia = WinCopyFiles(objects=objects, dest=dest)
-            Utils.center_win(parent=self.window(), child=self.dia)
-            QTimer.singleShot(1000, self.dia.custom_show)

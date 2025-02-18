@@ -16,7 +16,6 @@ from utils import PathFinder, URunnable, UThreadPool, Utils
 from ._actions import CopyPath, Info, RevealInFinder, SortMenu, View
 from ._base import (OpenWin, UFrame, ULineEdit, UMenu, USlider, USvgWidget,
                     WinMinMax)
-from ._copy_files import WinCopyFiles
 from ._grid import Thumb
 
 SORT_T = "Сортировка"
@@ -468,46 +467,3 @@ class BarBottom(QWidget):
             self.path_item_list.append(path_item)
             path_item.img_wid.load(icon)
             self.path_lay.addWidget(path_item)
-
-    def dragEnterEvent(self, a0):
-        a0.acceptProposedAction()
-
-    def dragLeaveEvent(self, a0):
-        for i in self.path_item_list:
-            i.collapse()
-            i.default_style()
-
-    def dragMoveEvent(self, a0):
-        wid = self.childAt(a0.pos())
-        
-        if isinstance(wid, (USvgWidget, QLabel)):
-            wid = wid.parent()
-
-        if isinstance(wid, PathItem):
-            
-            for i in self.path_item_list:
-                i.collapse()
-                i.default_style()
-            
-            wid.expand()
-            wid.solid_style()
-            setattr(self, CURR_WID, wid)
-
-    def dropEvent(self, a0):
-        if hasattr(self, CURR_WID):
-            wid: PathItem = getattr(self, CURR_WID)
-
-            objects: dict[str, int] = {}
-
-            for i in a0.mimeData().urls():
-                src = i.toLocalFile()
-                thumb_wid = Thumb.path_to_wid.get(src)
-                if thumb_wid:
-                    objects[src] = thumb_wid.rating
-                else:
-                    objects[src] = 0
-
-            self.dia = WinCopyFiles(objects=objects, dest=wid.src)
-            Utils.center_win(parent=self.window(), child=self.dia)
-            QTimer.singleShot(1000, self.dia.custom_show)
-            delattr(self, CURR_WID)
