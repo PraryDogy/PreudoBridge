@@ -486,11 +486,11 @@ class PathFinder:
     @classmethod
     def get_result(cls, path: str) -> str | None:
 
-        if os.path.exists(path):
-            return path
-
         # удаляем новые строки, лишние слешы
         prepared = cls.prepare_path(path=path)
+
+        if os.path.exists(prepared):
+            return prepared
 
         # превращаем путь в список 
         splited = cls.path_to_list(path=prepared)
