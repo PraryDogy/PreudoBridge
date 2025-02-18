@@ -489,7 +489,10 @@ class PathFinder:
         # удаляем новые строки, лишние слешы
         prepared = cls.prepare_path(path=path)
 
-        if os.path.exists(prepared):
+        if not prepared:
+            return None
+
+        elif os.path.exists(prepared):
             return prepared
 
         # превращаем путь в список 
@@ -539,8 +542,10 @@ class PathFinder:
     def prepare_path(cls, path: str) -> str:
         path = path.replace("\\", os.sep)
         path = path.strip()
-        path = os.sep + path.strip(os.sep)
-        return path
+        if path:
+            return os.sep + path.strip(os.sep)
+        else:
+            return None
 
     @classmethod
     def path_to_list(cls, path: str) -> list[str]:
