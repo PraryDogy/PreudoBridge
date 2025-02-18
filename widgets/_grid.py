@@ -2,8 +2,8 @@ import os
 
 import sqlalchemy
 from PyQt5.QtCore import QMimeData, Qt, QTimer, QUrl, pyqtSignal
-from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent,
-                         QMouseEvent, QPixmap)
+from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
+                         QPixmap)
 from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
                              QScrollArea, QVBoxLayout, QWidget)
 from sqlalchemy.exc import IntegrityError, OperationalError
@@ -13,10 +13,9 @@ from database import CACHE, ColumnNames, Dbase, OrderItem
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
-from ._actions import (ChangeView, CopyPath, CreateFolder,
-                       FavAdd, FavRemove, Info, OpenInApp,
-                       RatingMenu, RevealInFinder, ShowInFolder, SortMenu,
-                       UpdateGrid, View)
+from ._actions import (ChangeView, CopyPath, FavAdd, FavRemove, Info,
+                       OpenInApp, RatingMenu, RevealInFinder, ShowInFolder,
+                       SortMenu, UpdateGrid, View)
 from ._base import BaseMethods, OpenWin, UMenu, USvgWidget
 from .list_file_system import ListFileSystem
 
@@ -837,14 +836,6 @@ class Grid(BaseMethods, QScrollArea):
         QTimer.singleShot(100, cmd_)
 
         menu = UMenu(parent=self)
-
-        create_folder = CreateFolder(
-            menu=menu,
-            window=self.window()
-        )
-        menu.addAction(create_folder)
-
-        menu.addSeparator()
 
         info = Info(menu, JsonData.root)
         menu.addAction(info)
