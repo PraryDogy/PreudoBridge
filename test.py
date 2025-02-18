@@ -20,16 +20,15 @@ class PathFinder:
         # игнорируем /Volumes/Macintosh HD
         volumes = cls.get_volumes()[1:]
 
-        # формируем список путей, добавляя к усеченным вариантам исходного
-        # пути разные корневые тома Volumes.
+        # см. аннотацию add_to_start
         paths = cls.add_to_start(splited_path=splited, volumes=volumes)
-
 
         res = cls.check_for_exists(paths=paths)
 
         if res:
             return res
         
+        # см. аннотацию метода del_from_end
         paths = [
             ended_path
             for path_ in paths
@@ -68,14 +67,6 @@ class PathFinder:
     @classmethod
     def add_to_start(cls, splited_path: list, volumes: list[str]) -> list[str]:
         """
-        Формирует список путей, добавляя к усеченным вариантам исходного пути разные корневые тома.
-
-        Алгоритм работы:
-        1. Для каждого элемента из volumes:
-        - Создается копия splited_path.
-        - Поэтапно удаляются начальные элементы splited_path
-        - К splited_path добавляется элемент из Volumes 
-
         Пример:
         >>> splited_path = ["Volumes", "Shares-1", "Studio", "MIUZ", "Photo", "Art", "Raw", "2025"]
         >>> volumes = ["/Volumes/Shares", "/Volumes/Shares-1"]
@@ -83,10 +74,14 @@ class PathFinder:
             '/Volumes/Shares/Studio/MIUZ/Photo/Art/Raw/2025',
             '/Volumes/Shares/MIUZ/Photo/Art/Raw/2025',
             '/Volumes/Shares/Photo/Art/Raw/2025',
+            '/Volumes/Shares/Art/Raw/2025',
+            '/Volumes/Shares/Raw/2025',
+            '/Volumes/Shares/2025',
             ...
             '/Volumes/Shares-1/Studio/MIUZ/Photo/Art/Raw/2025',
             '/Volumes/Shares-1/MIUZ/Photo/Art/Raw/2025',
             '/Volumes/Shares-1/Photo/Art/Raw/2025',
+            ...
         ]
         """
         new_paths = []
@@ -112,7 +107,20 @@ class PathFinder:
     
     @classmethod
     def del_from_end(cls, path: str) -> list[str]:
-
+        """
+        Пример:
+        >>> path: "/sbc01/Shares/Studio/MIUZ/Photo/Art/Raw/2025"
+        [
+            "/sbc01/Shares/Studio/MIUZ/Photo/Art/Raw/2025",
+            "/sbc01/Shares/Studio/MIUZ/Photo/Art/Raw",
+            "/sbc01/Shares/Studio/MIUZ/Photo/Art",
+            "/sbc01/Shares/Studio/MIUZ/Photo",
+            "/sbc01/Shares/Studio/MIUZ",
+            "/sbc01/Shares/Studio",
+            "/sbc01/Shares",
+            "/sbc01",
+        ]
+        """
         new_paths = []
 
         while path != os.sep:
