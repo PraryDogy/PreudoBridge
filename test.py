@@ -3,17 +3,44 @@ import os
 
 class PathFinder:
     VOLUMES = os.sep + "Volumes"
-    EXTRA_PATHS = [
-
-    ]
+    EXTRA_PATHS = []
 
     @classmethod
     def get_path(cls, path: str) -> str | None:
+
+        if os.path.exists(path):
+            return path
+
+        # удаляем новые строки, лишние слешы
         prepared = cls.prepare_path(path=path)
+
+        # превращаем путь в список 
         splited = cls.path_to_list(path=prepared)
-        volumes = cls.get_volumes()
-        started = cls.add_to_start(splited_path=splited, volumes=volumes)
-        return started
+
+        # игнорируем /Volumes/Macintosh HD
+        volumes = cls.get_volumes()[1:]
+
+        # формируем список путей, добавляя к усеченным вариантам исходного
+        # пути разные корневые тома Volumes.
+        paths = cls.add_to_start(splited_path=splited, volumes=volumes)
+
+
+        res = cls.check_for_exists(paths=paths)
+
+        if res:
+            return res
+        
+        paths = [
+            ended_path
+            for path_ in paths
+            for ended_path in cls.del_from_end(path=path_)
+        ]
+
+        paths.sort(key=len, reverse=True)
+        
+        res = cls.check_for_exists(paths=paths)
+
+        return res
 
     @classmethod
     def get_volumes(cls) -> list[str]:
@@ -40,7 +67,28 @@ class PathFinder:
 
     @classmethod
     def add_to_start(cls, splited_path: list, volumes: list[str]) -> list[str]:
+        """
+        Формирует список путей, добавляя к усеченным вариантам исходного пути разные корневые тома.
 
+        Алгоритм работы:
+        1. Для каждого элемента из volumes:
+        - Создается копия splited_path.
+        - Поэтапно удаляются начальные элементы splited_path
+        - К splited_path добавляется элемент из Volumes 
+
+        Пример:
+        >>> splited_path = ["Volumes", "Shares-1", "Studio", "MIUZ", "Photo", "Art", "Raw", "2025"]
+        >>> volumes = ["/Volumes/Shares", "/Volumes/Shares-1"]
+        [
+            '/Volumes/Shares/Studio/MIUZ/Photo/Art/Raw/2025',
+            '/Volumes/Shares/MIUZ/Photo/Art/Raw/2025',
+            '/Volumes/Shares/Photo/Art/Raw/2025',
+            ...
+            '/Volumes/Shares-1/Studio/MIUZ/Photo/Art/Raw/2025',
+            '/Volumes/Shares-1/MIUZ/Photo/Art/Raw/2025',
+            '/Volumes/Shares-1/Photo/Art/Raw/2025',
+        ]
+        """
         new_paths = []
 
         for vol in volumes:
@@ -61,9 +109,21 @@ class PathFinder:
             if os.path.exists(i):
                 return i
         return None
+    
+    @classmethod
+    def del_from_end(cls, path: str) -> list[str]:
 
-src = "/Volumes/Shares/Studio/MIUZ/Photo/Art/Raw/2025/02 - Февраль"
+        new_paths = []
+
+        while path != os.sep:
+            new_paths.append(path)
+            path, _ = os.path.split(path)
+
+        return new_paths
+
+src = "sb01/Shares/Studio/MIUZ/Photo/Art/Raw/2025/02 - Февраль"
+
 res = PathFinder.get_path(path=src)
-
-for i in res:
-    print(i)
+print()
+print(res)
+print()
