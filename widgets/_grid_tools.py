@@ -165,9 +165,6 @@ class GridTools(FolderTools):
         )
         res_by_src = conn.execute(where_stmt).mappings().first()
 
-        if not res_by_src:
-            print(order_item.name)
-
         # Запись по имени файла найдена 
         if res_by_src:
 
