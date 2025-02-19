@@ -100,6 +100,7 @@ class LoadImages(URunnable):
                 continue
 
     def process_removed_items(self):
+        return
         try:
             Dynamic.busy_db = True
             q = sqlalchemy.select(CACHE.c.id, CACHE.c.partial_hash)
