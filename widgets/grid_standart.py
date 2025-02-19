@@ -101,6 +101,7 @@ class LoadImages(URunnable):
                 continue
 
     def process_removed_items(self):
+        return
 
         try:
             Dynamic.busy_db = True

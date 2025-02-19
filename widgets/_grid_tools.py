@@ -138,7 +138,7 @@ class GridTools(FolderTools):
         elif isinstance(db_item, bytes):
             img_array = Utils.bytes_to_array(blob=db_item)
 
-            print("already", order_item.name)
+            # print("already")
 
         if isinstance(img_array, np.ndarray):
             pixmap = Utils.pixmap_from_array(image=img_array)
@@ -278,6 +278,7 @@ class GridTools(FolderTools):
         # пытаемся вставить запись в БД, но если не выходит
         # все равно отдаем изображение
         cls.execute_query(conn=conn, query=q)
+
         return img_array
     
     @classmethod
