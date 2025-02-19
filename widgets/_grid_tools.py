@@ -161,28 +161,29 @@ class GridTools(FolderTools):
         )
 
         where_stmt = select_stmt.where(
-            CACHE.c.partial_hash == Utils.get_partial_hash(file_path=order_item.src)
+            CACHE.c.name == Utils.hash_filename(filename=order_item.name)
         )
-        res_by_src = conn.execute(where_stmt).mappings().first()
+        res_by_name = conn.execute(where_stmt).mappings().first()
 
         # Запись по имени файла найдена 
-        if res_by_src:
+        if res_by_name:
 
             # даты изменения не совпадают, обновляем запись
-            if res_by_src.get(ColumnNames.MOD) != order_item.mod:
+            if res_by_name.get(ColumnNames.MOD) != order_item.mod:
                 return (
-                    res_by_src.get(ColumnNames.ID),
-                    res_by_src.get(ColumnNames.RATING)
+                    res_by_name.get(ColumnNames.ID),
+                    res_by_name.get(ColumnNames.RATING)
                 )
 
             else:
                 # даты изменения совпадают
                 return (
-                    res_by_src.get(ColumnNames.IMG),
-                    res_by_src.get(ColumnNames.RATING)
+                    res_by_name.get(ColumnNames.IMG),
+                    res_by_name.get(ColumnNames.RATING)
                 )
 
         else:
+            print(order_item.name)
             return (None, 0)
     
     @classmethod
