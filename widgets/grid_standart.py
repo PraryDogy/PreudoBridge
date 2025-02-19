@@ -100,11 +100,9 @@ class LoadImages(URunnable):
                 continue
 
     def process_removed_items(self):
-        return
-
         try:
             Dynamic.busy_db = True
-            q = sqlalchemy.select(CACHE.c.id, CACHE.c.name)
+            q = sqlalchemy.select(CACHE.c.id, CACHE.c.partial_hash)
             res = self.conn.execute(q).fetchall()
             Dynamic.busy_db = False
         except SQL_ERRORS as e:
@@ -112,16 +110,34 @@ class LoadImages(URunnable):
             
             return
 
-        order_items = [
-            Utils.hash_filename(filename=i.name)
+        order_items_partial_hash = [
+            Utils.get_partial_hash(file_path=i.src)
             for i in self.order_items
         ]
 
         del_items: list[int] = []
 
-        for id, name in res:
-            if name not in order_items:
-                del_items.append(id)
+        for id_, partial_hash_ in res:
+            if partial_hash_ not in order_items_partial_hash:
+                del_items.append(id_)
+
+        # test = [
+        #     part_hash
+        #     for _, part_hash in res
+        # ]
+
+
+        # test = set(test)
+        # order_items_partial_hash = set(order_items_partial_hash)
+
+        # a = test - order_items_partial_hash
+        # b = order_items_partial_hash - test
+
+        # print(a)
+        # print(b)
+
+
+        return
 
         for id_ in del_items:
 
