@@ -304,6 +304,7 @@ class GridStandart(Grid):
 
         self.order_()
         self.select_after_list()
+        self.load_images_timer.start(1000)
         
     def run_load_images_thread(self, cut_order_items: list[OrderItem]):
 
@@ -316,11 +317,11 @@ class GridStandart(Grid):
             lambda image_data: self.set_pixmap(image_data)
         )
         thread_.signals_.finished_.connect(
-            lambda: self.del_load_images_thread(thread_=thread_)
+            lambda: self.finalize_load_images_thread(thread_=thread_)
         )
         UThreadPool.start(thread_)
     
-    def del_load_images_thread(self, thread_: LoadImages):
+    def finalize_load_images_thread(self, thread_: LoadImages):
         self.load_images_threads.remove(thread_)
         del thread_
         gc.collect()
