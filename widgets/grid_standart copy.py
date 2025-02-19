@@ -20,9 +20,6 @@ from ._grid_tools import GridTools
 WARN_TEXT = "Нет изображений или нет подключения к диску"
 TASK_NAME = "LOAD_IMAGES"
 SQL_ERRORS = (IntegrityError, OperationalError)
-JPG_EXTS: tuple = (".jpg", ".jpeg", ".jfif", "png")
-TIFF_EXTS: tuple = (".tif", ".tiff")
-PSD_EXTS: tuple = (".psd", ".psb")
 
 
 class WorkerSignals(QObject):
@@ -35,8 +32,11 @@ class LoadImages(URunnable):
         super().__init__()
 
         self.signals_ = WorkerSignals()
-        self.order_items = order_items
-        self.order_items.sort(key=self.order_priority)
+        self.order_items = [
+            i
+            for i in order_items
+            # if i.type_ != Static.FOLDER_TYPE
+        ]
 
     @URunnable.set_running_state
     def run(self):
@@ -64,15 +64,6 @@ class LoadImages(URunnable):
             self.signals_.finished_.emit()
         except RuntimeError:
             ...
-
-    def order_priority(self, item):
-        if item.type_ in JPG_EXTS:
-            return 0  # Высший приоритет (сначала JPG и PNG)
-        elif item.type_ in TIFF_EXTS:
-            return 1  # Затем TIFF
-        elif item.type_ in PSD_EXTS:
-            return 2  # Потом PSD
-        return 3  # Все остальные типы
 
     def process_order_items(self):
 
@@ -159,8 +150,7 @@ class GridStandart(Grid):
 
         self.load_images_timer = QTimer(self)
         self.load_images_timer.setSingleShot(True)
-        self.load_images_timer.timeout.connect(self.load_visible_images)
-        self.load_images_threads: list[LoadImages] = []
+        self.load_images_timer.timeout.connect(self.load_images_cmd)
 
         self.order_items: list[OrderItem] = []
         self.tasks: list[LoadImages] = []
@@ -172,37 +162,26 @@ class GridStandart(Grid):
         Utils.center_win(self, self.loading_lbl)
         self.show()
 
-        self.finder_thread = FinderItems()
-        self.finder_thread.signals_.finished_.connect(self.finder_thread_fin)
-        UThreadPool.start(self.finder_thread)
-        self.verticalScrollBar().valueChanged.connect(self.on_scroll_changed)
+        self.finder_task = FinderItems()
+        self.finder_task.signals_.finished_.connect(self.finder_task_fin)
+        UThreadPool.start(self.finder_task)
+        self.verticalScrollBar().valueChanged.connect(self.on_scroll)
 
-    def load_visible_images(self):
-        visible_widgets: list[Thumb] = []
+    def load_images_cmd(self):
+        visible_widgets = []
         
         for widget in self.main_wid.findChildren(Thumb):
             if not widget.visibleRegion().isEmpty():
                 visible_widgets.append(widget)
 
-        ordered_items = [
-            OrderItem(
-                src=i.src,
-                size=i.size,
-                mod=i.mod,
-                rating=i.rating
-            )
-            for i in visible_widgets
-        ]
+        
 
-        self.run_load_images_thread(cut_order_items=ordered_items)
-
-    def on_scroll_changed(self, value: int):
+    def on_scroll(self, value: int):
 
         if value == self.verticalScrollBar().maximum():
 
             if self.offset > self.total:
                 return
-
             else:
                 self.offset += self.limit
                 self.create_sorted_grid()
@@ -210,9 +189,9 @@ class GridStandart(Grid):
         self.load_images_timer.stop()
         self.load_images_timer.start(1000)
 
-    def finder_thread_fin(self, order_items: list[OrderItem]):
+    def finder_task_fin(self, order_items: list[OrderItem]):
 
-        del self.finder_thread
+        del self.finder_task
         gc.collect()
 
         self.loading_lbl.hide()
@@ -296,8 +275,17 @@ class GridStandart(Grid):
                 col = 0
                 row += 1
 
-        if not os.path.exists(JsonData.root) or not self.cell_to_wid:
-            no_images = QLabel(text=WARN_TEXT)
+        if self.cell_to_wid:
+            self.start_load_images(cut)
+
+        elif not os.path.exists(JsonData.root):
+            setattr(self, "no_images", WARN_TEXT)
+
+        elif not self.cell_to_wid:
+            setattr(self, "no_images", WARN_TEXT)
+
+        if hasattr(self, "no_images"):
+            no_images = QLabel(text=getattr(self, "no_images"))
             no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0)
@@ -305,24 +293,20 @@ class GridStandart(Grid):
         self.order_()
         self.select_after_list()
         
-    def run_load_images_thread(self, cut_order_items: list[OrderItem]):
-
-        for i in self.load_images_threads:
-            i.should_run = False
-
-        thread_ = LoadImages(order_items=cut_order_items)
-        self.load_images_threads.append(thread_)
-        thread_.signals_.new_widget.connect(
+    def start_load_images(self, cut_order_items: list[OrderItem]):
+        self.load_images_task_ = LoadImages(order_items=cut_order_items)
+        self.load_images_task_.set_name(text=TASK_NAME)
+        self.load_images_task_.signals_.new_widget.connect(
             lambda image_data: self.set_pixmap(image_data)
         )
-        thread_.signals_.finished_.connect(
-            lambda: self.del_load_images_thread(thread_=thread_)
+        self.load_images_task_.signals_.finished_.connect(
+            lambda: self.remove_load_images(task=self.load_images_task_)
         )
-        UThreadPool.start(thread_)
+        UThreadPool.start(self.load_images_task_)
     
-    def del_load_images_thread(self, thread_: LoadImages):
-        self.load_images_threads.remove(thread_)
-        del thread_
+
+    def remove_load_images(self, task: LoadImages):
+        del task
         gc.collect()
 
     def set_pixmap(self, order_item: OrderItem):
@@ -343,8 +327,9 @@ class GridStandart(Grid):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         
-        for i in self.load_images_threads:
-            i.should_run = False
+        for task in UThreadPool.current:
+            if task.get_name() == TASK_NAME:
+                task.should_run = False
 
         return super().closeEvent(a0)
 
