@@ -138,7 +138,7 @@ class GridTools(FolderTools):
         elif isinstance(db_item, bytes):
             img_array = Utils.bytes_to_array(blob=db_item)
 
-            # print("already")
+            print("already", order_item.name)
 
         if isinstance(img_array, np.ndarray):
             pixmap = Utils.pixmap_from_array(image=img_array)
