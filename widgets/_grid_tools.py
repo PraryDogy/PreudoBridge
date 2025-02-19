@@ -86,8 +86,6 @@ class GridTools(FolderTools):
     @classmethod
     def update_order_item(cls, conn: Connection, order_item: OrderItem):
 
-        # print(order_item.src)s
-
         try:
 
             Dynamic.busy_db = True
@@ -163,9 +161,12 @@ class GridTools(FolderTools):
         )
 
         where_stmt = select_stmt.where(
-            CACHE.c.name == Utils.hash_filename(filename=order_item.name)
+            CACHE.c.partial_hash == Utils.get_partial_hash(file_path=order_item.src)
         )
         res_by_src = conn.execute(where_stmt).mappings().first()
+
+        if not res_by_src:
+            print(order_item.name)
 
         # Запись по имени файла найдена 
         if res_by_src:

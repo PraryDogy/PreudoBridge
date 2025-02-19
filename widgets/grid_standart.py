@@ -80,7 +80,6 @@ class LoadImages(URunnable):
         for order_item in self.order_items:
 
             if not self.should_run:
-                print("stop")
                 return
             
             try:
