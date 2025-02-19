@@ -20,7 +20,7 @@ from ._grid_tools import GridTools
 WARN_TEXT = "Нет изображений или нет подключения к диску"
 TASK_NAME = "LOAD_IMAGES"
 SQL_ERRORS = (IntegrityError, OperationalError)
-JPG_EXTS: tuple = (".jpg", ".jpeg", ".jfif", "png")
+JPG_PNG_EXTS: tuple = (".jpg", ".jpeg", ".jfif", "png")
 TIFF_EXTS: tuple = (".tif", ".tiff")
 PSD_EXTS: tuple = (".psd", ".psb")
 
@@ -65,20 +65,21 @@ class LoadImages(URunnable):
         except RuntimeError:
             ...
 
-    def order_priority(self, item):
-        if item.type_ in JPG_EXTS:
-            return 0  # Высший приоритет (сначала JPG и PNG)
+    def order_priority(self, item:OrderItem):
+        if item.type_ in JPG_PNG_EXTS:
+            return 0
         elif item.type_ in TIFF_EXTS:
-            return 1  # Затем TIFF
+            return 1
         elif item.type_ in PSD_EXTS:
-            return 2  # Потом PSD
-        return 3  # Все остальные типы
+            return 2
+        return 3
 
     def process_order_items(self):
 
         for order_item in self.order_items:
 
             if not self.should_run:
+                print("stop")
                 return
             
             try:
