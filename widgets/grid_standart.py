@@ -117,7 +117,20 @@ class LoadImages(URunnable):
 
         del_items: list[int] = []
 
+        # у тебя order_items это только виджеты в зоне видимости
+        # тогда как ты загружаешь всю БД для директории
+        # получается когда ты обходишь БД, то конечно же БД элемента нет
+        # в order_items
+
         for id_, partial_hash_ in res:
+
+            try:
+                print(order_items_partial_hash.index(partial_hash_))
+            except ValueError:
+                print(partial_hash_)
+                # print(order_items_partial_hash)
+                continue
+
             if partial_hash_ not in order_items_partial_hash:
                 del_items.append(id_)
 
