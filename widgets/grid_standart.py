@@ -36,7 +36,8 @@ class LoadImages(URunnable):
 
         self.signals_ = WorkerSignals()
         self.order_items = order_items
-        self.order_items.sort(key=self.order_priority)
+        key_ = lambda x: (self.order_priority(item=x), x.size)
+        self.order_items.sort(key=key_)
 
     @URunnable.set_running_state
     def run(self):
