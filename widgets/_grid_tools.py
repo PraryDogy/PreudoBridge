@@ -182,19 +182,6 @@ class GridTools(FolderTools):
                     res_by_src.get(ColumnNames.RATING)
                 )
 
-        where_stmt_sec = select_stmt.where(
-            CACHE.c.partial_hash == Utils.get_partial_hash(file_path=order_item.src)
-        )
-        res_by_hash = conn.execute(where_stmt_sec).mappings().first()
-
-        # Если запись найдена, значит файл действительно был переименован
-        # возвращаем ID для обновления записи
-        if res_by_hash:
-            return (
-                res_by_hash.get(ColumnNames.ID),
-                res_by_hash.get(ColumnNames.RATING)
-            )
-        
         else:
             return (None, 0)
     
