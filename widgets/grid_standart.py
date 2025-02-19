@@ -2,7 +2,7 @@ import gc
 import os
 
 import sqlalchemy
-from PyQt5.QtCore import QObject, Qt, pyqtSignal
+from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import QLabel
@@ -148,6 +148,10 @@ class GridStandart(Grid):
             prev_path=prev_path
         )
 
+        self.load_images_timer = QTimer(self)
+        self.load_images_timer.setSingleShot(True)
+        self.load_images_timer.timeout.connect(self.load_images_cmd)
+
         self.order_items: list[OrderItem] = []
         self.tasks: list[LoadImages] = []
 
@@ -161,8 +165,16 @@ class GridStandart(Grid):
         self.finder_task = FinderItems()
         self.finder_task.signals_.finished_.connect(self.finder_task_fin)
         UThreadPool.start(self.finder_task)
-
         self.verticalScrollBar().valueChanged.connect(self.on_scroll)
+
+    def load_images_cmd(self):
+        visible_widgets = []
+        
+        for widget in self.main_wid.findChildren(Thumb):
+            if not widget.visibleRegion().isEmpty():
+                visible_widgets.append(widget)
+
+        print(len(visible_widgets))
 
     def on_scroll(self, value: int):
 
@@ -173,6 +185,9 @@ class GridStandart(Grid):
             else:
                 self.offset += self.limit
                 self.create_sorted_grid()
+
+        self.load_images_timer.stop()
+        self.load_images_timer.start(1000)
 
     def finder_task_fin(self, order_items: list[OrderItem]):
 
@@ -291,7 +306,6 @@ class GridStandart(Grid):
     
 
     def remove_load_images(self, task: LoadImages):
-
         del task
         gc.collect()
 
