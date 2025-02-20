@@ -513,11 +513,14 @@ class Grid(BaseMethods, QScrollArea):
 
                     wid_value = wid.rating // 10
 
+                    if wid_value == 0:
+                        wid_value = 9
+
                     if wid_value != Dynamic.rating_filter:
                         show_widget = False
 
                 else:
-                    wid_value = wid.rating // 10
+                    wid_value = wid.rating % 10
                     if wid_value != Dynamic.rating_filter:
                         show_widget = False
 
