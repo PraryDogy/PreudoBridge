@@ -14,9 +14,10 @@ from database import CACHE, Dbase
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
-from ._actions import CopyPath, Info, OpenInApp, RatingMenu, RevealInFinder
+from ._actions import (CopyPath, Info, OpenInApp, RatingMenu, RevealInFinder,
+                       TagMenu)
 from ._base import OpenWin, UMenu, USvgWidget, WinBase
-from ._grid import Thumb, RATINGS, KEY_RATING
+from ._grid import KEY_RATING, RATINGS, Thumb
 
 
 class ImageData:
@@ -529,4 +530,8 @@ class WinImgView(WinBase):
         rating_menu._clicked.connect(self.wid.set_new_rating)
         menu.addMenu(rating_menu)
 
-        menu.exec_(self.mapToGlobal(a0.pos()))
+        tags_menu = TagMenu(parent=menu, src=self.wid.src, rating=self.wid.rating)
+        tags_menu._clicked.connect(self.wid.set_new_rating)
+        menu.addMenu(tags_menu)
+
+        menu.show_custom()
