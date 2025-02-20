@@ -911,8 +911,10 @@ class Grid(BaseMethods, QScrollArea):
                     self.selected_widgets.append(clicked_wid)
 
         elif a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
-            clicked_wid = self.cell_to_wid.get(self.curr_cell)
+            clicked_wid = self.selected_widgets[-1]
             if clicked_wid:
+                self.clear_selected_widgets()
+                self.select_one_wid(wid=clicked_wid)
                 self.view_thumb_cmd(clicked_wid)
 
         elif a0.key() in KEY_NAVI:
