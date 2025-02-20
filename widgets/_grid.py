@@ -567,8 +567,6 @@ class Grid(BaseMethods, QScrollArea):
             col_count = Utils.get_clmn_count(self.ww)
 
         self.cell_to_wid.clear()
-        self.clear_selected_widgets()
-
         row, col = 0, 0
 
         for wid in self.ordered_widgets:
