@@ -474,6 +474,8 @@ class Grid(BaseMethods, QScrollArea):
         if wid is None:
             return
 
+        self.clear_selected_widgets()
+
         wid.set_frame()
         self.selected_widgets.append(wid)
         self.ensureWidgetVisible(wid)
@@ -791,14 +793,12 @@ class Grid(BaseMethods, QScrollArea):
             elif a0.key() == Qt.Key.Key_Down:
                 clicked_wid = self.selected_widgets[-1]
                 if clicked_wid:
-                    self.clear_selected_widgets()
                     self.select_one_wid(wid=clicked_wid)
                     self.view_thumb_cmd(clicked_wid)
 
             elif a0.key() == Qt.Key.Key_I:
                 clicked_wid = self.selected_widgets[-1]
                 if clicked_wid:
-                    self.clear_selected_widgets()
                     self.select_one_wid(wid=clicked_wid)
                     OpenWin.info(parent=self.window(), src=clicked_wid.src)
                 else:
@@ -821,11 +821,11 @@ class Grid(BaseMethods, QScrollArea):
                     self.selected_widgets.append(clicked_wid)
 
         elif a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
-            clicked_wid = self.selected_widgets[-1]
-            if clicked_wid:
-                self.clear_selected_widgets()
-                self.select_one_wid(wid=clicked_wid)
-                self.view_thumb_cmd(clicked_wid)
+            if self.selected_widgets:
+                clicked_wid = self.selected_widgets[-1]
+                if clicked_wid:
+                    self.select_one_wid(wid=clicked_wid)
+                    self.view_thumb_cmd(clicked_wid)
 
         elif a0.key() in KEY_NAVI:
 
@@ -849,7 +849,6 @@ class Grid(BaseMethods, QScrollArea):
             clicked_wid = self.cell_to_wid.get(coords)
 
             if clicked_wid:
-                self.clear_selected_widgets()
                 self.select_one_wid(wid=clicked_wid)
 
         elif a0.key() in KEY_RATING:
