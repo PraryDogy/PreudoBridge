@@ -342,7 +342,6 @@ class Thumb(OrderItem, QFrame):
 
     def set_new_rating(self, value: int):
 
-
         if value > 5:
             rating = self.rating % 10
             tag = value
@@ -509,8 +508,16 @@ class Grid(BaseMethods, QScrollArea):
             show_widget = True
 
             if Dynamic.rating_filter > 0:
-                if not (Dynamic.rating_filter >= wid.rating > 0):
-                    show_widget = False
+
+                if Dynamic.rating_filter > 5:
+                    print(wid.ratings)
+                    wid_value = wid.rating % 10
+                    if wid_value != Dynamic.rating_filter:
+                        show_widget = False
+                else:
+                    wid_value = wid.rating // 10
+                    if wid_value != Dynamic.rating_filter:
+                        show_widget = False
 
             if show_widget:
                 wid.must_hidden = False

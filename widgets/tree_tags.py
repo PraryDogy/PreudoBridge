@@ -27,7 +27,7 @@ class TreeTags(QListWidget):
             Qt.ScrollBarPolicy.ScrollBarAlwaysOff
         )
 
-        self.setFixedHeight(160)
+        self.setFixedHeight(260)
         item_size = QSize(self.width(), 25)
 
         # копия механик из _actions.py > TagsMenu
@@ -43,7 +43,6 @@ class TreeTags(QListWidget):
             REVIEW_T_: 7,
             APPROVED_T_: 8
         }
-
         # конец копии
 
         zero_item = UItem()
@@ -56,6 +55,13 @@ class TreeTags(QListWidget):
             item = UItem()
             item.rating = i
             item.setText(Static.STAR_SYM * i)
+            item.setSizeHint(item_size)
+            self.addItem(item)
+
+        for text, int_ in actions.items():
+            item = UItem()
+            item.rating = int_
+            item.setText(text)
             item.setSizeHint(item_size)
             self.addItem(item)
 
@@ -85,8 +91,17 @@ class TreeTags(QListWidget):
         menu.show_custom()
 
     def handle_item_click(self, item: UItem):
+
+        if item.rating > 5:
+            value = item.rating % 10
+        else:
+            value = item.rating
+
+
+        print(value)
+
         self.item_cmd(
-            rating=item.rating
+            rating=value
         )
 
     def item_cmd(self, rating: int):
