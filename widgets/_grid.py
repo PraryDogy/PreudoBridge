@@ -511,6 +511,14 @@ class Grid(BaseMethods, QScrollArea):
 
                 if Dynamic.rating_filter > 5:
 
+                    # 6, 7, 8, 9 - теги
+                    # получаем первую цифру из рейтинга,
+                    # которая соответствует значению тега
+                    # в старых версиях рейтинг однозначный, поэтому 
+                    # мы получем ноль при делении. тогда присваиваем 
+                    # значение тега 9, что соответствует "без тегов"
+                    # например значение 65: 6 - тег, а 5 - рейтинг
+                    # значение 5: 0 - тег, а 5 - рейтинг
                     wid_value = wid.rating // 10
 
                     if wid_value == 0:
@@ -520,6 +528,9 @@ class Grid(BaseMethods, QScrollArea):
                         show_widget = False
 
                 else:
+                    # 0, 1, 2, 3, 4, 5 - рейтинг
+                    # получаем вторую цифру, которая соответствует значению
+                    # рейтинга
                     wid_value = wid.rating % 10
                     if wid_value != Dynamic.rating_filter:
                         show_widget = False
