@@ -213,30 +213,6 @@ class GridSearch(Grid):
         if isinstance(order_item.pixmap_, QPixmap):
             wid.set_pixmap(order_item.pixmap_)
 
-        wid.clicked_.connect(
-            lambda w=wid: self.select_one_wid(wid=w)
-        )
-
-        wid.control_clicked.connect(
-            lambda w=wid: self.control_clicked(wid=w)
-        )
-
-        wid.shift_clicked.connect(
-            lambda w=wid: self.shift_clicked(wid=w)
-        )
-
-        wid.r_clicked.connect(
-            lambda w=wid: self.thumb_context_actions(wid=w)
-        )
-
-        wid.open_in_view.connect(
-            lambda w=wid: self.view_thumb_cmd(wid=w)
-        )
-
-        wid.mouse_moved.connect(
-            lambda w=wid: self.drag_thumb(wid=w)
-        )
-
         self.add_widget_data(
             wid=wid,
             row=self.row,
