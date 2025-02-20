@@ -16,7 +16,7 @@ from utils import URunnable, UThreadPool, Utils
 
 from ._actions import CopyPath, Info, OpenInApp, RatingMenu, RevealInFinder
 from ._base import OpenWin, UMenu, USvgWidget, WinBase
-from ._grid import Thumb, Grid
+from ._grid import Thumb, RATINGS
 
 KEY_RATING = {
     Qt.Key.Key_0: 0,
@@ -342,7 +342,7 @@ class WinImgView(WinBase):
     def set_title(self):
         t = ""
         if self.wid.rating > 0:
-            t = Static.STAR_SYM * self.wid.rating + " | "
+            t = RATINGS[self.wid.rating] + " | "
         t = t + os.path.basename(self.src)
 
         self.setWindowTitle(t)
