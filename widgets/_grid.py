@@ -32,7 +32,11 @@ KEY_RATING = {
     Qt.Key.Key_2: 2,
     Qt.Key.Key_3: 3,
     Qt.Key.Key_4: 4,
-    Qt.Key.Key_5: 5
+    Qt.Key.Key_5: 5,
+    Qt.Key.Key_6: 6,
+    Qt.Key.Key_7: 7,
+    Qt.Key.Key_8: 8,
+    Qt.Key.Key_9: 9
 }
 
 KEY_NAVI = {
@@ -40,6 +44,58 @@ KEY_NAVI = {
     Qt.Key.Key_Right: (0, 1),
     Qt.Key.Key_Up: (-1, 0),
     Qt.Key.Key_Down: (1, 0)
+}
+
+RED_DOT = "🔴"
+YELLOW_DOT = "🟡"
+GREEN_DOT = "🟢"
+STAR = "★"
+
+RED_DOT = "🔴"
+YELLOW_DOT = "🟡"
+GREEN_DOT = "🟢"
+STAR = "★"
+
+RATINGS = {
+    0: "",
+    1: STAR,
+    2: STAR * 2,
+    3: STAR * 3,
+    4: STAR * 4,
+    5: STAR * 5,
+
+    6: RED_DOT,
+    7: YELLOW_DOT,
+    8: GREEN_DOT,
+    9: "",
+
+    60: RED_DOT,
+    61: RED_DOT + STAR,
+    62: RED_DOT + STAR * 2,
+    63: RED_DOT + STAR * 3,
+    64: RED_DOT + STAR * 4,
+    65: RED_DOT + STAR * 5,
+
+    70: YELLOW_DOT,
+    71: YELLOW_DOT + STAR,
+    72: YELLOW_DOT + STAR * 2,
+    73: YELLOW_DOT + STAR * 3,
+    74: YELLOW_DOT + STAR * 4,
+    75: YELLOW_DOT + STAR * 5,
+
+    80: GREEN_DOT,
+    81: GREEN_DOT + STAR,
+    82: GREEN_DOT + STAR * 2,
+    83: GREEN_DOT + STAR * 3,
+    84: GREEN_DOT + STAR * 4,
+    85: GREEN_DOT + STAR * 5,
+
+    90: "",
+    91: STAR,
+    92: STAR * 2,
+    93: STAR * 3,
+    94: STAR * 4,
+    95: STAR * 5,
 }
 
 
@@ -122,7 +178,7 @@ class RatingWid(QLabel):
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
     def set_text(self, wid: OrderItem):
-        text = Static.STAR_SYM * wid.rating
+        text = RATINGS[wid.rating].strip()
         self.setText(text)
 
 
@@ -309,25 +365,36 @@ class Thumb(OrderItem, QFrame):
         menu.addMenu(rating_menu)
 
     def set_rating(self, rating: int):
-
+        # устанавливается значение из бд
         self.rating = rating
         self.rating_wid.set_text(wid=self)
         self.text_changed.emit()
 
-    def set_new_rating(self, rating: int):
+    def set_new_rating(self, value: int):
 
-        self.rating = rating
+
+        if value > 5:
+            rating = self.rating % 10
+            tag = value
+        else:
+            tag = self.rating // 10
+            rating = value
+
+        total = tag * 10 + rating
+
+
+        self.rating = total
         self.rating_wid.set_text(wid=self)
         self.text_changed.emit()
 
         def cmd_():
-            self.rating = rating
+            self.rating = total
             self.rating_wid.set_text(wid=self)
             self.text_changed.emit()
 
         self.task_ = UpdateThumbData(
             name=self.name,
-            values={ColumnNames.RATING: rating},
+            values={ColumnNames.RATING: total},
             cmd_=cmd_
         )
 
@@ -654,11 +721,6 @@ class Grid(BaseMethods, QScrollArea):
         if wid not in self.selected_widgets:
             self.select_one_wid(wid=wid)
 
-        # files = [
-        #     i.src
-        #     for i in self.selected_widgets
-        # ]
-
         objects = {
             i.src: i.rating
             for i in self.selected_widgets
@@ -723,7 +785,7 @@ class Grid(BaseMethods, QScrollArea):
     def set_rating_wid(self, rating: int):
 
         for i in self.selected_widgets:
-            i.set_new_rating(rating=rating)
+            i.set_new_rating(value=rating)
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         wid: Thumb | ThumbFolder 

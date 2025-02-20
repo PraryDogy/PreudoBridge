@@ -481,7 +481,7 @@ class WinImgView(WinBase):
 
         elif ev.key() in KEY_RATING:
             rating = KEY_RATING.get(ev.key())
-            self.wid.set_new_rating(rating=rating)
+            self.wid.set_new_rating(value=rating)
             self.set_title()
 
         elif ev.modifiers() & Qt.KeyboardModifier.ControlModifier:
