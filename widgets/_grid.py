@@ -15,7 +15,7 @@ from utils import URunnable, UThreadPool, Utils
 
 from ._actions import (ChangeView, CopyPath, FavAdd, FavRemove, Info,
                        OpenInApp, RatingMenu, RevealInFinder, ShowInFolder,
-                       SortMenu, UpdateGrid, View)
+                       SortMenu, TagMenu, UpdateGrid, View)
 from ._base import BaseMethods, OpenWin, UMenu, USvgWidget
 from .list_file_system import ListFileSystem
 
@@ -359,6 +359,10 @@ class Thumb(OrderItem, QFrame):
         rating_menu = RatingMenu(parent=menu, src=self.src, rating=self.rating)
         rating_menu._clicked.connect(self.set_new_rating)
         menu.addMenu(rating_menu)
+
+        tags_menu = TagMenu(parent=menu, src=self.src, rating=self.rating)
+        tags_menu._clicked.connect(self.set_new_rating)
+        menu.addMenu(tags_menu)
 
     def set_rating(self, rating: int):
         # устанавливается значение из бд
@@ -764,6 +768,10 @@ class Grid(BaseMethods, QScrollArea):
         rating_menu = RatingMenu(parent=menu, src=wid.src, rating=wid.rating)
         rating_menu._clicked.connect(self.set_rating_wid)
         menu.addMenu(rating_menu)
+
+        tags_menu = TagMenu(parent=menu, src=wid.src, rating=wid.rating)
+        tags_menu._clicked.connect(wid.set_new_rating)
+        menu.addMenu(tags_menu)
 
         menu.addSeparator()
 

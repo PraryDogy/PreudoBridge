@@ -38,6 +38,7 @@ CREATE_FOLDER_T = "Создать папку"
 NEW_FOLDER_T = "Новая папка"
 NEW_FOLDER_WARN = "Папка с таким именем уже существует"
 DELETE_T = "Удалить"
+TAGS_T = "Теги"
 
 
 # Общий класс для выполнения действий QAction в отдельном потоке
@@ -294,6 +295,7 @@ class RatingMenu(UMenu):
         # свойство Thumb, ThumbSearch
         # рейтинг для каждого виджета хранится в базе данных
         # и подгружается при создании сетки
+        rating = rating % 10
         self.rating = rating
 
         cancel_ = QAction(
@@ -330,6 +332,58 @@ class RatingMenu(UMenu):
             # запишет его в базу данных
             wid.triggered.connect(
                 lambda e, r=rating: self._clicked.emit(r)
+            )
+
+            self.addAction(wid)
+
+
+# меню с тегами для _grid.py > Thumb, ThumbSearch
+class TagMenu(UMenu):
+    _clicked = pyqtSignal(int)
+
+    def __init__(self, parent: UMenu, src: str, rating: int):
+
+        super().__init__(
+            parent=parent,
+            title=TAGS_T
+        )
+
+        self.src = src
+        rating = rating // 10
+
+        LINE_SYM = Static.LINE_SYM + " " + "Без тегов"
+        RED_DOT = "⚠" + " " + "Отказано"
+        YELLOW_DOT = "◌"  + " " + "На модерации"
+        GREEN_DOT = "✓"  + " " + "Одобрено"
+
+        actions = {
+            RED_DOT: 6,
+            YELLOW_DOT: 7,
+            GREEN_DOT: 8
+        }
+        
+        no_tag = QAction(parent=self, text=LINE_SYM)
+        no_tag.triggered.connect(
+            lambda e: self._clicked.emit(9)
+        )
+        no_tag.setCheckable(True)
+        self.addAction(no_tag)
+
+
+        for sym, int_ in actions.items():
+
+            wid = QAction(
+                parent=self,
+                text=sym
+            )
+
+            wid.setCheckable(True)
+
+            if rating == int_:
+                wid.setChecked(True)
+
+            wid.triggered.connect(
+                lambda e, r=int_: self._clicked.emit(r)
             )
 
             self.addAction(wid)
