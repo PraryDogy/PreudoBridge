@@ -838,15 +838,15 @@ class Grid(BaseMethods, QScrollArea):
 
         if JsonData.root in JsonData.favs:
             cmd_ = lambda: self.fav_cmd(offset=-1, src=JsonData.root)
-            self.fav_action = FavRemove(menu, JsonData.root)
-            self.fav_action._clicked.connect(cmd_)
-            menu.addAction(self.fav_action)
+            fav_action = FavRemove(menu, JsonData.root)
+            fav_action._clicked.connect(cmd_)
+            menu.addAction(fav_action)
 
         else:
             cmd_ = lambda: self.fav_cmd(offset=+1, src=JsonData.root)
-            self.fav_action = FavAdd(menu, JsonData.root)
-            self.fav_action._clicked.connect(cmd_)
-            menu.addAction(self.fav_action)
+            fav_action = FavAdd(menu, JsonData.root)
+            fav_action._clicked.connect(cmd_)
+            menu.addAction(fav_action)
 
         menu.addSeparator()
 
@@ -868,7 +868,6 @@ class Grid(BaseMethods, QScrollArea):
             upd_.triggered.connect(self.order_)
 
     def set_rating_wid(self, rating: int):
-
         for i in self.selected_widgets:
             i.set_new_rating(value=rating)
 
@@ -1064,3 +1063,11 @@ class Grid(BaseMethods, QScrollArea):
         else:
             self.clear_selected_widgets()
             self.add_and_select_widget(wid=clicked_wid)
+
+    def mouseDoubleClickEvent(self, a0):
+        clicked_wid = self.get_wid_under_mouse(a0=a0)
+
+        if clicked_wid:
+            self.clear_selected_widgets()
+            self.add_and_select_widget(wid=clicked_wid)
+            self.open_in_view(wid=clicked_wid)
