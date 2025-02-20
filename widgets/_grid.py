@@ -229,17 +229,8 @@ class RatingWid(QLabel):
 
 
 class Thumb(OrderItem, QFrame):
-    # clicked_ = pyqtSignal()
-    # control_clicked = pyqtSignal()
-    # shift_clicked = pyqtSignal()
-    # r_clicked = pyqtSignal()
-    # mouse_moved = pyqtSignal()
-
-    # open_in_view = pyqtSignal()
     text_changed = pyqtSignal()
-
     path_to_wid: dict[str, "Thumb"] = {}
-
     pixmap_size = 0
     thumb_w = 0
     thumb_h = 0
@@ -278,13 +269,6 @@ class Thumb(OrderItem, QFrame):
 
         self.rating_wid = RatingWid()
         self.v_lay.addWidget(self.rating_wid, alignment=Qt.AlignmentFlag.AlignCenter)
-
-        # for i in (self.img_frame, self.text_wid, self.rating_wid):
-        #     i.mouseReleaseEvent = self.mouse_release_ev
-        #     i.mousePressEvent = self.mouse_press_ev
-        #     i.mouseMoveEvent = self.mouse_move_ev
-        #     i.mouseDoubleClickEvent = self.mouse_double_click_ev
-        #     i.contextMenuEvent = self.context_menu_ev
 
         self.setup()
         self.set_no_frame()
@@ -418,39 +402,6 @@ class Thumb(OrderItem, QFrame):
         )
 
         UThreadPool.start(self.task_)
-
-    # def mouse_release_ev(self, a0: QMouseEvent | None) -> None:
-
-    #     if a0.button() & Qt.MouseButton.LeftButton:
-    
-    #         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
-    #             self.control_clicked.emit()
-
-    #         elif a0.modifiers() & Qt.KeyboardModifier.ShiftModifier:
-    #             self.shift_clicked.emit()
-
-    #         else:
-    #             self.clicked_.emit()
-
-    # def mouse_press_ev(self, a0: QMouseEvent | None) -> None:
-    #     if a0.button() == Qt.MouseButton.LeftButton:
-    #         self.start_pos = a0.pos()
-
-    # def mouse_move_ev(self, a0: QMouseEvent | None) -> None:
-
-    #     if hasattr(self, "start_pos"):
-    #         distance = (a0.pos() - self.start_pos).manhattanLength()
-
-    #         if distance < QApplication.startDragDistance():
-    #             return
-
-    #     self.mouse_moved.emit()
-
-    # def mouse_double_click_ev(self, a0: QMouseEvent | None) -> None:
-    #     self.open_in_view.emit()
-
-    # def context_menu_ev(self, a0: QContextMenuEvent | None) -> None:
-    #     self.r_clicked.emit()
 
 
 class ThumbFolder(Thumb):
