@@ -30,8 +30,16 @@ class Static:
     LINE_FEED  = "\u000a"
 
     DEINED_SYM = "⚠"
+    # DEINED_SYM = "🔴"
     REVIEW_SYM = "◌"
-    APPROVED_T = "✓"
+    # REVIEW_SYM = "🟡"
+    APPROVED_SYM = "✓"
+    # APPROVED_SYM = "🟢"
+
+    NO_TAGS_T = "Без тегов"
+    DEINED_T = "Отказано"
+    REVIEW_T = "Модерация"
+    APPROVED_T = "Одобрено"
 
     SCRIPTS_DIR = "scripts"
     REVEAL_SCPT = os.path.join(SCRIPTS_DIR, "reveal_files.scpt")

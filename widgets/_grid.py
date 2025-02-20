@@ -68,7 +68,7 @@ RATINGS = {
     # теги
     6: Static.DEINED_SYM,
     7: Static.REVIEW_SYM,
-    8: Static.APPROVED_T,
+    8: Static.APPROVED_SYM,
     9: "",
 
     60: Static.DEINED_SYM,
@@ -85,12 +85,12 @@ RATINGS = {
     74: Static.REVIEW_SYM + Static.STAR_SYM * 4,
     75: Static.REVIEW_SYM + Static.STAR_SYM * 5,
 
-    80: Static.APPROVED_T,
-    81: Static.APPROVED_T + Static.STAR_SYM,
-    82: Static.APPROVED_T + Static.STAR_SYM * 2,
-    83: Static.APPROVED_T + Static.STAR_SYM * 3,
-    84: Static.APPROVED_T + Static.STAR_SYM * 4,
-    85: Static.APPROVED_T + Static.STAR_SYM * 5,
+    80: Static.APPROVED_SYM,
+    81: Static.APPROVED_SYM + Static.STAR_SYM,
+    82: Static.APPROVED_SYM + Static.STAR_SYM * 2,
+    83: Static.APPROVED_SYM + Static.STAR_SYM * 3,
+    84: Static.APPROVED_SYM + Static.STAR_SYM * 4,
+    85: Static.APPROVED_SYM + Static.STAR_SYM * 5,
 
 }
 
@@ -475,7 +475,6 @@ class Grid(BaseMethods, QScrollArea):
             i.set_no_frame()
 
         if wid is None:
-            print("select one wid, wid is none")
             return
 
         wid.set_frame()
