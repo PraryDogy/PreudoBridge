@@ -651,7 +651,7 @@ class Grid(BaseMethods, QScrollArea):
         Thumb.path_to_wid[wid.src] = wid
         self.ordered_widgets.append(wid)
 
-    def open_in_view(self, wid: Thumb):
+    def view_thumb_cmd(self, wid: Thumb):
 
         if wid is None:
             return
@@ -735,7 +735,7 @@ class Grid(BaseMethods, QScrollArea):
         }
 
         view_action = View(parent=menu, src=wid.src)
-        view_action._clicked.connect(lambda: self.open_in_view(wid=wid))
+        view_action._clicked.connect(lambda: self.view_thumb_cmd(wid=wid))
         menu.addAction(view_action)
 
         if wid.type_ != Static.FOLDER_TYPE:
@@ -860,7 +860,7 @@ class Grid(BaseMethods, QScrollArea):
             wid.set_frame()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
-        wid: Thumb | ThumbFolder 
+        clicked_wid: Thumb | ThumbFolder 
 
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
 
@@ -879,14 +879,18 @@ class Grid(BaseMethods, QScrollArea):
                     )
 
             elif a0.key() == Qt.Key.Key_Down:
-                wid = self.cell_to_wid.get(self.curr_cell)
-                if wid:
-                    self.open_in_view(wid)
+                clicked_wid = self.selected_widgets[-1]
+                if clicked_wid:
+                    self.clear_selected_widgets()
+                    self.select_one_wid(wid=clicked_wid)
+                    self.view_thumb_cmd(clicked_wid)
 
             elif a0.key() == Qt.Key.Key_I:
-                wid = self.cell_to_wid.get(self.curr_cell)
-                if wid:
-                    OpenWin.info(parent=self.window(), src=wid.src)
+                clicked_wid = self.selected_widgets[-1]
+                if clicked_wid:
+                    self.clear_selected_widgets()
+                    self.select_one_wid(wid=clicked_wid)
+                    OpenWin.info(parent=self.window(), src=clicked_wid.src)
                 else:
                     OpenWin.info(parent=self.window(), src=JsonData.root)
 
@@ -900,19 +904,16 @@ class Grid(BaseMethods, QScrollArea):
                 if new_value >= 0:
                     SignalsApp.instance.move_slider.emit(new_value)
 
-            elif a0.key() == Qt.Key.Key_D:
-                self.open_find_here_win()
-
             elif a0.key() == Qt.Key.Key_A:
-                self.selected_widgets.clear()
-                for cell, wid in self.cell_to_wid.items():
-                    wid.set_frame()
-                    self.selected_widgets.append(wid)
+                self.clear_selected_widgets()
+                for cell, clicked_wid in self.cell_to_wid.items():
+                    clicked_wid.set_frame()
+                    self.selected_widgets.append(clicked_wid)
 
         elif a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
-            wid = self.cell_to_wid.get(self.curr_cell)
-            if wid:
-                self.open_in_view(wid)
+            clicked_wid = self.cell_to_wid.get(self.curr_cell)
+            if clicked_wid:
+                self.view_thumb_cmd(clicked_wid)
 
         elif a0.key() in KEY_NAVI:
 
@@ -926,10 +927,10 @@ class Grid(BaseMethods, QScrollArea):
                 self.curr_cell[1] + offset[1]
             )
 
-            wid = self.cell_to_wid.get(coords)
+            clicked_wid = self.cell_to_wid.get(coords)
 
-            if wid:
-                self.select_one_wid(wid=wid)
+            if clicked_wid:
+                self.select_one_wid(wid=clicked_wid)
 
         elif a0.key() in KEY_RATING:
     
@@ -1037,7 +1038,7 @@ class Grid(BaseMethods, QScrollArea):
         if clicked_wid:
             self.clear_selected_widgets()
             self.add_and_select_widget(wid=clicked_wid)
-            self.open_in_view(wid=clicked_wid)
+            self.view_thumb_cmd(wid=clicked_wid)
 
     def mousePressEvent(self, a0):
         if a0.button() != Qt.MouseButton.LeftButton:

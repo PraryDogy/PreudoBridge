@@ -230,7 +230,7 @@ class GridSearch(Grid):
         )
 
         wid.open_in_view.connect(
-            lambda w=wid: self.open_in_view(wid=w)
+            lambda w=wid: self.view_thumb_cmd(wid=w)
         )
 
         wid.mouse_moved.connect(
