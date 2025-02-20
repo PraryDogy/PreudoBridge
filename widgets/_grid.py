@@ -908,7 +908,6 @@ class Grid(BaseMethods, QScrollArea):
                 for cell, wid in self.cell_to_wid.items():
                     wid.set_frame()
                     self.selected_widgets.append(wid)
-                    
 
         elif a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
             wid = self.cell_to_wid.get(self.curr_cell)
