@@ -46,14 +46,10 @@ KEY_NAVI = {
     Qt.Key.Key_Down: (1, 0)
 }
 
-RED_DOT = "🔴"
-YELLOW_DOT = "🟡"
-GREEN_DOT = "🟢"
-STAR = "★"
 
-RED_DOT = "🔴"
-YELLOW_DOT = "🟡"
-GREEN_DOT = "🟢"
+RED_DOT = "⚠"
+YELLOW_DOT = "◌"
+GREEN_DOT = "✓"
 STAR = "★"
 
 RATINGS = {
