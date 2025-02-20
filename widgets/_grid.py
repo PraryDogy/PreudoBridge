@@ -136,6 +136,26 @@ class UpdateThumbData(URunnable):
             Utils.print_error(parent=None, error=e)
 
 
+class ImgFrame(QFrame):
+    def __init__(self):
+        super().__init__()
+
+    def mouseReleaseEvent(self, a0):
+        return super().mouseReleaseEvent(a0)
+    
+    def mousePressEvent(self, a0):
+        return super().mousePressEvent(a0)
+
+    def mouseMoveEvent(self, a0):
+        return super().mouseMoveEvent(a0)
+    
+    def mouseDoubleClickEvent(self, a0):
+        return super().mouseDoubleClickEvent(a0)
+    
+    def contextMenuEvent(self, a0):
+        return super().contextMenuEvent(a0)
+
+
 class TextWidget(QLabel):
     def __init__(self):
         super().__init__()
@@ -166,6 +186,21 @@ class TextWidget(QLabel):
     def short_text(self, text: str, max_row: int):
         return f"{text[:max_row - 10]}...{text[-7:]}"
 
+    def mouseReleaseEvent(self, a0):
+        return super().mouseReleaseEvent(a0)
+    
+    def mousePressEvent(self, a0):
+        return super().mousePressEvent(a0)
+
+    def mouseMoveEvent(self, a0):
+        return super().mouseMoveEvent(a0)
+    
+    def mouseDoubleClickEvent(self, a0):
+        return super().mouseDoubleClickEvent(a0)
+    
+    def contextMenuEvent(self, a0):
+        return super().contextMenuEvent(a0)
+
 
 class RatingWid(QLabel):
     def __init__(self):
@@ -177,15 +212,30 @@ class RatingWid(QLabel):
         text = RATINGS[wid.rating].strip()
         self.setText(text)
 
+    def mouseReleaseEvent(self, a0):
+        return super().mouseReleaseEvent(a0)
+    
+    def mousePressEvent(self, a0):
+        return super().mousePressEvent(a0)
+
+    def mouseMoveEvent(self, a0):
+        return super().mouseMoveEvent(a0)
+    
+    def mouseDoubleClickEvent(self, a0):
+        return super().mouseDoubleClickEvent(a0)
+    
+    def contextMenuEvent(self, a0):
+        return super().contextMenuEvent(a0)
+
 
 class Thumb(OrderItem, QFrame):
-    clicked_ = pyqtSignal()
-    control_clicked = pyqtSignal()
-    shift_clicked = pyqtSignal()
-    r_clicked = pyqtSignal()
-    mouse_moved = pyqtSignal()
+    # clicked_ = pyqtSignal()
+    # control_clicked = pyqtSignal()
+    # shift_clicked = pyqtSignal()
+    # r_clicked = pyqtSignal()
+    # mouse_moved = pyqtSignal()
 
-    open_in_view = pyqtSignal()
+    # open_in_view = pyqtSignal()
     text_changed = pyqtSignal()
 
     path_to_wid: dict[str, "Thumb"] = {}
@@ -211,7 +261,7 @@ class Thumb(OrderItem, QFrame):
         self.setLayout(self.v_lay)
 
 
-        self.img_frame = QFrame()
+        self.img_frame = ImgFrame()
         self.v_lay.addWidget(self.img_frame, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.img_frame_lay = QVBoxLayout()
@@ -229,12 +279,12 @@ class Thumb(OrderItem, QFrame):
         self.rating_wid = RatingWid()
         self.v_lay.addWidget(self.rating_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        for i in (self.img_frame, self.text_wid, self.rating_wid):
-            i.mouseReleaseEvent = self.mouse_release_ev
-            i.mousePressEvent = self.mouse_press_ev
-            i.mouseMoveEvent = self.mouse_move_ev
-            i.mouseDoubleClickEvent = self.mouse_double_click_ev
-            i.contextMenuEvent = self.context_menu_ev
+        # for i in (self.img_frame, self.text_wid, self.rating_wid):
+        #     i.mouseReleaseEvent = self.mouse_release_ev
+        #     i.mousePressEvent = self.mouse_press_ev
+        #     i.mouseMoveEvent = self.mouse_move_ev
+        #     i.mouseDoubleClickEvent = self.mouse_double_click_ev
+        #     i.contextMenuEvent = self.context_menu_ev
 
         self.setup()
         self.set_no_frame()
@@ -369,38 +419,38 @@ class Thumb(OrderItem, QFrame):
 
         UThreadPool.start(self.task_)
 
-    def mouse_release_ev(self, a0: QMouseEvent | None) -> None:
+    # def mouse_release_ev(self, a0: QMouseEvent | None) -> None:
 
-        if a0.button() & Qt.MouseButton.LeftButton:
+    #     if a0.button() & Qt.MouseButton.LeftButton:
     
-            if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
-                self.control_clicked.emit()
+    #         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
+    #             self.control_clicked.emit()
 
-            elif a0.modifiers() & Qt.KeyboardModifier.ShiftModifier:
-                self.shift_clicked.emit()
+    #         elif a0.modifiers() & Qt.KeyboardModifier.ShiftModifier:
+    #             self.shift_clicked.emit()
 
-            else:
-                self.clicked_.emit()
+    #         else:
+    #             self.clicked_.emit()
 
-    def mouse_press_ev(self, a0: QMouseEvent | None) -> None:
-        if a0.button() == Qt.MouseButton.LeftButton:
-            self.start_pos = a0.pos()
+    # def mouse_press_ev(self, a0: QMouseEvent | None) -> None:
+    #     if a0.button() == Qt.MouseButton.LeftButton:
+    #         self.start_pos = a0.pos()
 
-    def mouse_move_ev(self, a0: QMouseEvent | None) -> None:
+    # def mouse_move_ev(self, a0: QMouseEvent | None) -> None:
 
-        if hasattr(self, "start_pos"):
-            distance = (a0.pos() - self.start_pos).manhattanLength()
+    #     if hasattr(self, "start_pos"):
+    #         distance = (a0.pos() - self.start_pos).manhattanLength()
 
-            if distance < QApplication.startDragDistance():
-                return
+    #         if distance < QApplication.startDragDistance():
+    #             return
 
-        self.mouse_moved.emit()
+    #     self.mouse_moved.emit()
 
-    def mouse_double_click_ev(self, a0: QMouseEvent | None) -> None:
-        self.open_in_view.emit()
+    # def mouse_double_click_ev(self, a0: QMouseEvent | None) -> None:
+    #     self.open_in_view.emit()
 
-    def context_menu_ev(self, a0: QContextMenuEvent | None) -> None:
-        self.r_clicked.emit()
+    # def context_menu_ev(self, a0: QContextMenuEvent | None) -> None:
+    #     self.r_clicked.emit()
 
 
 class ThumbFolder(Thumb):
@@ -471,16 +521,12 @@ class Grid(BaseMethods, QScrollArea):
         # а не напрямую передавать row, col, так как при rearrange
         # row col виджета будут меняться
 
-        for i in self.selected_widgets:
-            i.set_no_frame()
-
         if wid is None:
             return
 
         wid.set_frame()
-        self.curr_cell = (wid.row, wid.col)
+        self.selected_widgets.append(wid)
         self.ensureWidgetVisible(wid)
-        self.selected_widgets = [wid]
         self.set_bottom_path(src=wid.src)
 
     def set_bottom_path(self, src: str):
@@ -708,17 +754,17 @@ class Grid(BaseMethods, QScrollArea):
 
         drag.exec_(Qt.DropAction.CopyAction)
 
-    def context_thumb(self, wid: Thumb | ThumbFolder | ThumbSearch):
+    def thumb_context_actions(self, menu: UMenu, wid: Thumb):
 
-        if wid not in self.selected_widgets:
-            self.select_one_wid(wid=wid)
+        urls = [
+            i.src
+            for i in self.selected_widgets
+        ]
 
         objects = {
             i.src: i.rating
             for i in self.selected_widgets
         }
-
-        menu = UMenu()
 
         view_action = View(parent=menu, src=wid.src)
         view_action._clicked.connect(lambda: self.open_in_view(wid=wid))
@@ -776,12 +822,75 @@ class Grid(BaseMethods, QScrollArea):
             menu.addSeparator()
 
         menu.addSeparator()
-        menu.show_custom()
+
+    def grid_context_actions(self, menu: UMenu):
+
+        info = Info(menu, JsonData.root)
+        menu.addAction(info)
+
+        reveal = RevealInFinder(parent=menu, src=JsonData.root)
+        menu.addAction(reveal)
+
+        copy_ = CopyPath(parent=menu, src=JsonData.root)
+        menu.addAction(copy_)
+
+        menu.addSeparator()
+
+        if JsonData.root in JsonData.favs:
+            cmd_ = lambda: self.fav_cmd(offset=-1, src=JsonData.root)
+            self.fav_action = FavRemove(menu, JsonData.root)
+            self.fav_action._clicked.connect(cmd_)
+            menu.addAction(self.fav_action)
+
+        else:
+            cmd_ = lambda: self.fav_cmd(offset=+1, src=JsonData.root)
+            self.fav_action = FavAdd(menu, JsonData.root)
+            self.fav_action._clicked.connect(cmd_)
+            menu.addAction(self.fav_action)
+
+        menu.addSeparator()
+
+        change_view = ChangeView(menu, JsonData.root)
+        menu.addMenu(change_view)
+
+        sort_menu = SortMenu(parent=menu)
+        menu.addMenu(sort_menu)
+
+        menu.addSeparator()
+
+        upd_ = UpdateGrid(menu, JsonData.root)
+        menu.addAction(upd_)
+
+        # col_count это аттрибут GridSearch
+        # переназначаем действие upd_ (обновить сетку) на grid order
+        if hasattr(self, "col_count"):
+            upd_.disconnect()
+            upd_.triggered.connect(self.order_)
 
     def set_rating_wid(self, rating: int):
 
         for i in self.selected_widgets:
             i.set_new_rating(value=rating)
+
+    def get_wid_under_mouse(self, a0: QMouseEvent) -> None | Thumb:
+        wid = QApplication.widgetAt(a0.globalPos())
+
+        if isinstance(wid, (TextWidget, RatingWid, ImgFrame)):
+            return wid.parent()
+        elif isinstance(wid, (QLabel, USvgWidget)):
+            return wid.parent().parent()
+        else:
+            return None
+        
+    def clear_selected_widgets(self):
+        for i in self.selected_widgets:
+            i.set_no_frame()
+        self.selected_widgets.clear()
+
+    def add_and_select_widget(self, wid: Thumb):
+        if isinstance(wid, Thumb):
+            self.selected_widgets.append(wid)
+            wid.set_frame()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         wid: Thumb | ThumbFolder 
@@ -865,9 +974,6 @@ class Grid(BaseMethods, QScrollArea):
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
 
-        for i in self.selected_widgets:
-            i.set_no_frame()
-
         cmd_ = lambda: SignalsApp.instance.bar_bottom_cmd.emit(
             {"src": JsonData.root}
         )
@@ -875,63 +981,86 @@ class Grid(BaseMethods, QScrollArea):
         QTimer.singleShot(100, cmd_)
 
         menu = UMenu(parent=self)
+        clicked_wid = self.get_wid_under_mouse(a0=a0)
 
-        info = Info(menu, JsonData.root)
-        menu.addAction(info)
+        # клик по пустому пространству
+        if not clicked_wid:
+            self.clear_selected_widgets()
+            self.grid_context_actions(menu=menu)
 
-        reveal = RevealInFinder(parent=menu, src=JsonData.root)
-        menu.addAction(reveal)
-
-        copy_ = CopyPath(parent=menu, src=JsonData.root)
-        menu.addAction(copy_)
-
-        menu.addSeparator()
-
-        if JsonData.root in JsonData.favs:
-            cmd_ = lambda: self.fav_cmd(offset=-1, src=JsonData.root)
-            self.fav_action = FavRemove(menu, JsonData.root)
-            self.fav_action._clicked.connect(cmd_)
-            menu.addAction(self.fav_action)
-
+        # клик по виджету
         else:
-            cmd_ = lambda: self.fav_cmd(offset=+1, src=JsonData.root)
-            self.fav_action = FavAdd(menu, JsonData.root)
-            self.fav_action._clicked.connect(cmd_)
-            menu.addAction(self.fav_action)
 
-        menu.addSeparator()
+            # если не было выделено ни одного виджет ранее
+            # то выделяем кликнутый
+            if not self.selected_widgets:
+                self.add_and_select_widget(wid=clicked_wid)
 
-        change_view = ChangeView(menu, JsonData.root)
-        menu.addMenu(change_view)
+            # если есть выделенные виджеты, но кликнутый виджет не выделены
+            # то снимаем выделение с других и выделяем кликнутый
+            elif clicked_wid not in self.selected_widgets:
+                self.clear_selected_widgets()
+                self.add_and_select_widget(wid=clicked_wid)
 
-        sort_menu = SortMenu(parent=menu)
-        menu.addMenu(sort_menu)
+            self.thumb_context_actions(menu=menu, wid=clicked_wid)
 
-        menu.addSeparator()
+        menu.show_custom()
 
-        upd_ = UpdateGrid(menu, JsonData.root)
-        menu.addAction(upd_)
+    def mouseReleaseEvent(self, a0: QMouseEvent):
 
-        # col_count это аттрибут GridSearch
-        # переназначаем действие QAction
-        if hasattr(self, "col_count"):
-            upd_.disconnect()
-            upd_.triggered.connect(self.order_)
-
-        menu.exec_(self.mapToGlobal(a0.pos()))
-
-    def mouseReleaseEvent(self, a0):
-
-        if a0.modifiers() in (
-            Qt.KeyboardModifier.ShiftModifier,
-            Qt.KeyboardModifier.ControlModifier
-        ):
-            
+        if a0.button() != Qt.MouseButton.LeftButton:
             return
 
-        for i in self.selected_widgets:
-            i.set_no_frame()
+        clicked_wid = self.get_wid_under_mouse(a0=a0)
 
-        self.selected_widgets.clear()
-        self.set_bottom_path(src=JsonData.root)
-        self.curr_cell = None
+        if not isinstance(clicked_wid, Thumb):
+            self.clear_selected_widgets()
+            return
+
+        if a0.modifiers() == Qt.KeyboardModifier.ShiftModifier:
+
+            # шифт клик: если не было выделенных виджетов
+            if not self.selected_widgets:
+
+                self.add_and_select_widget(wid=clicked_wid)
+
+            # шифт клик: если уже был выделен один / несколько виджетов
+            else:
+
+                coords = list(self.cell_to_wid)
+                start_pos = (self.selected_widgets[-1].row, self.selected_widgets[-1].col)
+
+                # шифт клик: слева направо (по возрастанию)
+                if coords.index((clicked_wid.row, clicked_wid.col)) > coords.index(start_pos):
+                    start = coords.index(start_pos)
+                    end = coords.index((clicked_wid.row, clicked_wid.col))
+                    coords = coords[start : end + 1]
+
+                # шифт клик: справа налево (по убыванию)
+                else:
+                    start = coords.index((clicked_wid.row, clicked_wid.col))
+                    end = coords.index(start_pos)
+                    coords = coords[start : end]
+
+                # выделяем виджеты по срезу координат coords
+                for i in coords:
+
+                    wid_ = self.cell_to_wid.get(i)
+
+                    if wid_ not in self.selected_widgets:
+                        self.add_and_select_widget(wid=wid_)
+
+        elif a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
+
+            # комманд клик: был выделен виджет, снять выделение
+            if clicked_wid in self.selected_widgets:
+                self.selected_widgets.remove(clicked_wid)
+                clicked_wid.set_no_frame()
+
+            # комманд клик: виджет не был виделен, выделить
+            else:
+                self.add_and_select_widget(wid=clicked_wid)
+
+        else:
+            self.clear_selected_widgets()
+            self.add_and_select_widget(wid=clicked_wid)

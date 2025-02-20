@@ -185,7 +185,6 @@ class GridTools(FolderTools):
                 )
 
         else:
-            print(order_item.name)
             return (None, 0)
     
     @classmethod

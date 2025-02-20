@@ -291,29 +291,29 @@ class GridStandart(Grid):
                     rating=order_item.rating,
                     )
 
-            wid.clicked_.connect(
-                lambda w=wid: self.select_one_wid(wid=w)
-            )
+            # wid.clicked_.connect(
+            #     lambda w=wid: self.select_one_wid(wid=w)
+            # )
         
-            wid.control_clicked.connect(
-                lambda w=wid: self.control_clicked(wid=w)
-            )
+            # wid.control_clicked.connect(
+            #     lambda w=wid: self.control_clicked(wid=w)
+            # )
 
-            wid.shift_clicked.connect(
-                lambda w=wid: self.shift_clicked(wid=w)
-            )
+            # wid.shift_clicked.connect(
+            #     lambda w=wid: self.shift_clicked(wid=w)
+            # )
 
-            wid.r_clicked.connect(
-                lambda w=wid: self.context_thumb(wid=w)
-            )
+            # wid.r_clicked.connect(
+            #     lambda w=wid: self.context_thumb(wid=w)
+            # )
 
-            wid.open_in_view.connect(
-                lambda w=wid: self.open_in_view(wid=w)
-            )
+            # wid.open_in_view.connect(
+            #     lambda w=wid: self.open_in_view(wid=w)
+            # )
 
-            wid.mouse_moved.connect(
-                lambda w=wid: self.drag_thumb(wid=w)
-            )
+            # wid.mouse_moved.connect(
+            #     lambda w=wid: self.drag_thumb(wid=w)
+            # )
 
             self.add_widget_data(
                 wid=wid,
