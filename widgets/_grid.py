@@ -921,17 +921,25 @@ class Grid(BaseMethods, QScrollArea):
 
             offset = KEY_NAVI.get(a0.key())
 
-            if self.curr_cell is None:
-                self.curr_cell = (0, 0)
+            # если не выделено ни одного виджета
+            if not self.selected_widgets:
+                wid = self.cell_to_wid.get((0, 0))
+            else:
+                wid = self.selected_widgets[-1]
+
+            # если нет даже первого виджета значит сетка пуста
+            if not wid:
+                return
 
             coords = (
-                self.curr_cell[0] + offset[0], 
-                self.curr_cell[1] + offset[1]
+                wid.row + offset[0], 
+                wid.col + offset[1]
             )
 
             clicked_wid = self.cell_to_wid.get(coords)
 
             if clicked_wid:
+                self.clear_selected_widgets()
                 self.select_one_wid(wid=clicked_wid)
 
         elif a0.key() in KEY_RATING:
