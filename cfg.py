@@ -29,6 +29,10 @@ class Static:
     PARAGRAPH_SEP = "\u2029"
     LINE_FEED  = "\u000a"
 
+    RED_DOT = "⚠"
+    YELLOW_DOT = "◌"
+    GREEN_DOT = "✓"
+
     SCRIPTS_DIR = "scripts"
     REVEAL_SCPT = os.path.join(SCRIPTS_DIR, "reveal_files.scpt")
     REMOVE_SCPT = os.path.join(SCRIPTS_DIR, "remove_files.scpt")

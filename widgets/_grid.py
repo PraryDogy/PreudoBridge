@@ -46,52 +46,52 @@ KEY_NAVI = {
     Qt.Key.Key_Down: (1, 0)
 }
 
-
-RED_DOT = "⚠"
-YELLOW_DOT = "◌"
-GREEN_DOT = "✓"
-STAR = "★"
-
 RATINGS = {
+    # для старого рейтинга, когда число рейтинга было от 0 до 5
     0: "",
-    1: STAR,
-    2: STAR * 2,
-    3: STAR * 3,
-    4: STAR * 4,
-    5: STAR * 5,
+    1: Static.STAR_SYM,
+    2: Static.STAR_SYM * 2,
+    3: Static.STAR_SYM * 3,
+    4: Static.STAR_SYM * 4,
+    5: Static.STAR_SYM * 5,
 
-    6: RED_DOT,
-    7: YELLOW_DOT,
-    8: GREEN_DOT,
+    # для нового рейтинга, где первое число - тег, второе - рейтинг
+    # 6, 7, 8 - теги
+    # 9 - без тега
+    90: "",
+    91: Static.STAR_SYM,
+    92: Static.STAR_SYM * 2,
+    93: Static.STAR_SYM * 3,
+    94: Static.STAR_SYM * 4,
+    95: Static.STAR_SYM * 5,
+    
+    # теги
+    6: Static.RED_DOT,
+    7: Static.YELLOW_DOT,
+    8: Static.GREEN_DOT,
     9: "",
 
-    60: RED_DOT,
-    61: RED_DOT + STAR,
-    62: RED_DOT + STAR * 2,
-    63: RED_DOT + STAR * 3,
-    64: RED_DOT + STAR * 4,
-    65: RED_DOT + STAR * 5,
+    60: Static.RED_DOT,
+    61: Static.RED_DOT + Static.STAR_SYM,
+    62: Static.RED_DOT + Static.STAR_SYM * 2,
+    63: Static.RED_DOT + Static.STAR_SYM * 3,
+    64: Static.RED_DOT + Static.STAR_SYM * 4,
+    65: Static.RED_DOT + Static.STAR_SYM * 5,
 
-    70: YELLOW_DOT,
-    71: YELLOW_DOT + STAR,
-    72: YELLOW_DOT + STAR * 2,
-    73: YELLOW_DOT + STAR * 3,
-    74: YELLOW_DOT + STAR * 4,
-    75: YELLOW_DOT + STAR * 5,
+    70: Static.YELLOW_DOT,
+    71: Static.YELLOW_DOT + Static.STAR_SYM,
+    72: Static.YELLOW_DOT + Static.STAR_SYM * 2,
+    73: Static.YELLOW_DOT + Static.STAR_SYM * 3,
+    74: Static.YELLOW_DOT + Static.STAR_SYM * 4,
+    75: Static.YELLOW_DOT + Static.STAR_SYM * 5,
 
-    80: GREEN_DOT,
-    81: GREEN_DOT + STAR,
-    82: GREEN_DOT + STAR * 2,
-    83: GREEN_DOT + STAR * 3,
-    84: GREEN_DOT + STAR * 4,
-    85: GREEN_DOT + STAR * 5,
+    80: Static.GREEN_DOT,
+    81: Static.GREEN_DOT + Static.STAR_SYM,
+    82: Static.GREEN_DOT + Static.STAR_SYM * 2,
+    83: Static.GREEN_DOT + Static.STAR_SYM * 3,
+    84: Static.GREEN_DOT + Static.STAR_SYM * 4,
+    85: Static.GREEN_DOT + Static.STAR_SYM * 5,
 
-    90: "",
-    91: STAR,
-    92: STAR * 2,
-    93: STAR * 3,
-    94: STAR * 4,
-    95: STAR * 5,
 }
 
 
