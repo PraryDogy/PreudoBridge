@@ -39,6 +39,10 @@ NEW_FOLDER_T = "Новая папка"
 NEW_FOLDER_WARN = "Папка с таким именем уже существует"
 DELETE_T = "Удалить"
 TAGS_T = "Теги"
+NO_TAGS_T = "Без тегов"
+DEINED_T = "Отказано"
+REVIEW_T = "На модерации"
+APPROVED_T = "Одобрено"
 
 
 # Общий класс для выполнения действий QAction в отдельном потоке
@@ -351,24 +355,17 @@ class TagMenu(UMenu):
         self.src = src
         rating = rating // 10
 
-        LINE_SYM = Static.LINE_SYM + " " + "Без тегов"
-        RED_DOT = "⚠" + " " + "Отказано"
-        YELLOW_DOT = "◌"  + " " + "На модерации"
-        GREEN_DOT = "✓"  + " " + "Одобрено"
+        NO_TAGS_T_ = Static.LINE_SYM + " " + NO_TAGS_T
+        DEINED_T_ = Static.DEINED_SYM + " " + DEINED_T
+        REVIEW_T_ = Static.REVIEW_SYM  + " " + REVIEW_T
+        APPROVED_T_ = Static.APPROVED_T  + " " + APPROVED_T
 
         actions = {
-            RED_DOT: 6,
-            YELLOW_DOT: 7,
-            GREEN_DOT: 8
+            NO_TAGS_T_: 9,
+            DEINED_T_: 6,
+            REVIEW_T_: 7,
+            APPROVED_T_: 8
         }
-        
-        no_tag = QAction(parent=self, text=LINE_SYM)
-        no_tag.triggered.connect(
-            lambda e: self._clicked.emit(9)
-        )
-        no_tag.setCheckable(True)
-        self.addAction(no_tag)
-
 
         for sym, int_ in actions.items():
 
