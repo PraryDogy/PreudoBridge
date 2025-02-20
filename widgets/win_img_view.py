@@ -16,16 +16,7 @@ from utils import URunnable, UThreadPool, Utils
 
 from ._actions import CopyPath, Info, OpenInApp, RatingMenu, RevealInFinder
 from ._base import OpenWin, UMenu, USvgWidget, WinBase
-from ._grid import Thumb, RATINGS
-
-KEY_RATING = {
-    Qt.Key.Key_0: 0,
-    Qt.Key.Key_1: 1,
-    Qt.Key.Key_2: 2,
-    Qt.Key.Key_3: 3,
-    Qt.Key.Key_4: 4,
-    Qt.Key.Key_5: 5
-}
+from ._grid import Thumb, RATINGS, KEY_RATING
 
 
 class ImageData:
