@@ -722,38 +722,6 @@ class Grid(BaseMethods, QScrollArea):
                 wid_.set_frame()
                 self.selected_widgets.append(wid_)
 
-    def drag_thumb(self, wid: Thumb):
-
-        if len(self.selected_widgets) < 2:
-            self.select_one_wid(wid)
-
-        drag = QDrag(self)
-        mime_data = QMimeData()
-
-        urls = []
-
-        key = [False, False]
-
-        result_map = {
-            (True, True): QPixmap(Static.FOLDER_FILE_SVG),
-            (True, False): QPixmap(Static.FOLDER_SVG),
-            (False, True): QPixmap(Static.IMG_SVG)
-        }
-
-        for wid_ in self.selected_widgets:
-            urls.append(QUrl.fromLocalFile(wid_.src))
-
-            if wid_.type_ == Static.FOLDER_TYPE:
-                key[0] = True
-            else:
-                key[1] = True
-
-        mime_data.setUrls(urls)
-        drag.setPixmap(result_map.get(tuple(key)))
-        drag.setMimeData(mime_data)
-
-        drag.exec_(Qt.DropAction.CopyAction)
-
     def thumb_context_actions(self, menu: UMenu, wid: Thumb):
 
         urls = [
@@ -1071,3 +1039,44 @@ class Grid(BaseMethods, QScrollArea):
             self.clear_selected_widgets()
             self.add_and_select_widget(wid=clicked_wid)
             self.open_in_view(wid=clicked_wid)
+
+    def mousePressEvent(self, a0):
+        if a0.button() != Qt.MouseButton.LeftButton:
+            return
+        self.drag_start_position = a0.pos()
+        return super().mousePressEvent(a0)
+    
+    def mouseMoveEvent(self, a0):
+
+        distance = (a0.pos() - self.drag_start_position).manhattanLength()
+
+        if distance < QApplication.startDragDistance():
+            return
+        
+        wid = self.get_wid_under_mouse(a0=a0)
+
+        if wid and wid not in self.selected_widgets:
+            self.clear_selected_widgets()
+            self.add_and_select_widget(wid=wid)
+
+        urls = [
+            i.src
+            for i in self.selected_widgets
+        ]
+
+        self.drag = QDrag(self)
+        self.mime_data = QMimeData()
+        img_ = QPixmap(Static.FILE_SVG).scaled(60, 60)
+        self.drag.setPixmap(img_)
+        
+        urls = [
+            QUrl.fromLocalFile(i)
+            for i in urls
+            ]
+
+        self.mime_data.setUrls(urls)
+
+        self.drag.setMimeData(self.mime_data)
+        self.drag.exec_(Qt.DropAction.CopyAction)
+
+        return super().mouseMoveEvent(a0)
