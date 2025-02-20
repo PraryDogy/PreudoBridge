@@ -97,9 +97,6 @@ class TreeTags(QListWidget):
         else:
             value = item.rating
 
-
-        print(value)
-
         self.item_cmd(
             rating=value
         )
