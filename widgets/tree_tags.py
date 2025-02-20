@@ -6,12 +6,17 @@ from signals import SignalsApp
 
 from ._base import UMenu
 
+# копия механик из _actions.py > TagsMenu
+NO_TAGS_T = "Без тегов"
+DEINED_T = "Отказано"
+REVIEW_T = "На модерации"
+APPROVED_T = "Одобрено"
+# конец копии
 
 class UItem(QListWidgetItem):
     def __init__(self):
         super().__init__()
         self.rating: int
-
 
 
 class TreeTags(QListWidget):
@@ -24,6 +29,22 @@ class TreeTags(QListWidget):
 
         self.setFixedHeight(160)
         item_size = QSize(self.width(), 25)
+
+        # копия механик из _actions.py > TagsMenu
+
+        NO_TAGS_T_ = Static.LINE_SYM + " " + NO_TAGS_T
+        DEINED_T_ = Static.DEINED_SYM + " " + DEINED_T
+        REVIEW_T_ = Static.REVIEW_SYM  + " " + REVIEW_T
+        APPROVED_T_ = Static.APPROVED_T  + " " + APPROVED_T
+
+        actions = {
+            NO_TAGS_T_: 9,
+            DEINED_T_: 6,
+            REVIEW_T_: 7,
+            APPROVED_T_: 8
+        }
+
+        # конец копии
 
         zero_item = UItem()
         zero_item.rating = 0

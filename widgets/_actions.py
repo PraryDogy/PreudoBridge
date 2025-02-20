@@ -39,10 +39,13 @@ NEW_FOLDER_T = "Новая папка"
 NEW_FOLDER_WARN = "Папка с таким именем уже существует"
 DELETE_T = "Удалить"
 TAGS_T = "Теги"
+
+# копия механик из tree_tags.py > TreeTags
 NO_TAGS_T = "Без тегов"
 DEINED_T = "Отказано"
 REVIEW_T = "На модерации"
 APPROVED_T = "Одобрено"
+# конец копии
 
 
 # Общий класс для выполнения действий QAction в отдельном потоке
@@ -355,6 +358,7 @@ class TagMenu(UMenu):
         self.src = src
         rating = rating // 10
 
+        # копия механик из tree_tags.py > TreeTags
         NO_TAGS_T_ = Static.LINE_SYM + " " + NO_TAGS_T
         DEINED_T_ = Static.DEINED_SYM + " " + DEINED_T
         REVIEW_T_ = Static.REVIEW_SYM  + " " + REVIEW_T
@@ -366,6 +370,8 @@ class TagMenu(UMenu):
             REVIEW_T_: 7,
             APPROVED_T_: 8
         }
+
+        # конец копии
 
         for sym, int_ in actions.items():
 
