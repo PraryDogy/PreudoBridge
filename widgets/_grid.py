@@ -443,7 +443,6 @@ class Grid(BaseMethods, QScrollArea):
 
         self.prev_path = prev_path
         self.selected_widgets: list[Thumb] = []
-        self.curr_cell: tuple = None
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.ordered_widgets: list[OrderItem | Thumb | ThumbFolder | ThumbSearch] = []
         self.ww = width
@@ -566,9 +565,7 @@ class Grid(BaseMethods, QScrollArea):
             col_count = Utils.get_clmn_count(self.ww)
 
         self.cell_to_wid.clear()
-        self.curr_cell = None
-        for i in self.selected_widgets:
-            i.set_no_frame()
+        self.clear_selected_widgets()
 
         row, col = 0, 0
 
@@ -634,44 +631,6 @@ class Grid(BaseMethods, QScrollArea):
             SignalsApp.instance.fav_cmd.emit({"cmd": "add", "src": src})
         else:
             SignalsApp.instance.fav_cmd.emit({"cmd": "del", "src": src})
-
-    def control_clicked(self, wid: Thumb):
-
-        if wid in self.selected_widgets:
-            self.selected_widgets.remove(wid)
-            wid.set_no_frame()
-
-        else:
-            self.selected_widgets.append(wid)
-            wid.set_frame()
-
-        self.curr_cell = (wid.row, wid.col)
-
-    def shift_clicked(self, wid: Thumb):
-
-        if self.curr_cell is None:
-            self.select_one_wid(wid)
-            return
-        
-        coords = list(self.cell_to_wid)
-
-        if coords.index((wid.row, wid.col)) > coords.index(self.curr_cell):
-            start = coords.index(self.curr_cell)
-            end = coords.index((wid.row, wid.col))
-            coords = coords[start : end + 1]
-
-        else:
-            start = coords.index((wid.row, wid.col))
-            end = coords.index(self.curr_cell)
-            coords = coords[start : end]
-
-        for i in coords:
-
-            wid_ = self.cell_to_wid.get(i)
-
-            if wid_ not in self.selected_widgets:
-                wid_.set_frame()
-                self.selected_widgets.append(wid_)
 
     def thumb_context_actions(self, menu: UMenu, wid: Thumb):
 
