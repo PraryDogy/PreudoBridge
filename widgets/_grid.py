@@ -334,36 +334,6 @@ class Thumb(OrderItem, QFrame):
             """
         )
 
-    def add_base_actions(self, menu: UMenu):
-
-        view_action = View(parent=menu, src=self.src)
-        view_action._clicked.connect(self.open_in_view.emit)
-        menu.addAction(view_action)
-
-        open_menu = OpenInApp(parent=menu, src=self.src)
-        menu.addMenu(open_menu)
-
-        menu.addSeparator()
-
-        info = Info(parent=menu, src=self.src)
-        menu.addAction(info)
-
-        show_in_finder_action = RevealInFinder(parent=menu, src=self.src)
-        menu.addAction(show_in_finder_action)
-
-        copy_path = CopyPath(parent=menu, src=self.src)
-        menu.addAction(copy_path)
-
-        menu.addSeparator()
-
-        rating_menu = RatingMenu(parent=menu, src=self.src, rating=self.rating)
-        rating_menu._clicked.connect(self.set_new_rating)
-        menu.addMenu(rating_menu)
-
-        tags_menu = TagMenu(parent=menu, src=self.src, rating=self.rating)
-        tags_menu._clicked.connect(self.set_new_rating)
-        menu.addMenu(tags_menu)
-
     def set_rating(self, rating: int):
         # устанавливается значение из бд
         self.rating = rating
