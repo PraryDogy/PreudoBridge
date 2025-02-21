@@ -36,14 +36,13 @@ class Static:
     APPROVED_SYM = "✓"
     # APPROVED_SYM = "🟢"
 
-    NO_TAGS_T = "Без тегов"
-    DEINED_T = "Отказано"
+    NO_TAGS_T = "Без меток"
+    DEINED_T = "Отклонено"
     REVIEW_T = "Модерация"
     APPROVED_T = "Принято"
 
     SCRIPTS_DIR = "scripts"
     REVEAL_SCPT = os.path.join(SCRIPTS_DIR, "reveal_files.scpt")
-    REMOVE_SCPT = os.path.join(SCRIPTS_DIR, "remove_files.scpt")
 
     IMAGES_DIR = "images"
     IMG_SVG = os.path.join(IMAGES_DIR, "img.svg")
