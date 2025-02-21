@@ -7,12 +7,12 @@ from cfg import Dynamic, JsonData, Static
 from database import ORDER
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
-
+import os
 from ._base import OpenWin, UMenu
 
-REVEAL_T = "Показать выделенных объекты в Finder"
+REVEAL_T = "Показать выделенные объекты в Finder"
 INFO_T = "Инфо"
-COPY_PATH_T = "Скопировать путь выделенных объектов"
+COPY_PATH_T = "Скопировать путь до выделенных объектов"
 VIEW_T = "Просмотр"
 OPEN_IN_APP_T = "Открыть в приложении"
 RATING_T = "Рейтинг выделенных объектов"
@@ -76,6 +76,7 @@ class UAction(QAction):
 
 class RevealInFinder(UAction):
     def __init__(self, parent: UMenu, src: str | list[str]):
+
         t = f"{REVEAL_T} ({len(src)})"
         super().__init__(parent=parent, src=src, text=t)
 
@@ -84,8 +85,17 @@ class RevealInFinder(UAction):
         else:
             self.files = src
 
+        if len(self.files) == 1:
+            if os.path.isdir(self.files[0]):
+                self.is_dir = True
+
     # показывает в Finder фоном
     def cmd_(self):
+
+        if hasattr(self, "is_dir"):
+            print(self.src[0])
+            subprocess.Popen(["open", self.files[0]])
+            return
 
         self.task_ = Task_(
             cmd_=lambda: subprocess.run(
