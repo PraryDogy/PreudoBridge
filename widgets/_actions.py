@@ -13,12 +13,12 @@ from utils import URunnable, UThreadPool, Utils
 
 from ._base import OpenWin, UMenu
 
-REVEAL_T = "Показать выбранные объекты в Finder"
+REVEAL_T = "Показать выделенных объекты в Finder"
 INFO_T = "Инфо"
 COPY_PATH_T = "Скопировать путь"
 VIEW_T = "Просмотр"
 OPEN_IN_APP_T = "Открыть в приложении"
-RATING_T = "Рейтинг"
+RATING_T = "Рейтинг выделенных объектов"
 SHOW_IN_FOLDER_T = "Показать в папке"
 FAV_REMOVE_T = "Удалить из избранного"
 FAV_ADD_T = "Добавить в избранное"
@@ -38,7 +38,7 @@ CREATE_FOLDER_T = "Создать папку"
 NEW_FOLDER_T = "Новая папка"
 NEW_FOLDER_WARN = "Папка с таким именем уже существует"
 DELETE_T = "Удалить"
-TAGS_T = "Теги"
+TAGS_T = "Метка выделенных объектов"
 
 
 # Общий класс для выполнения действий QAction в отдельном потоке
@@ -282,14 +282,18 @@ class OpenInApp(UMenu):
 class RatingMenu(UMenu):
     _clicked = pyqtSignal(int)
 
-    def __init__(self, parent: UMenu, src: str, rating: int):
+    def __init__(self, parent: UMenu, src: str | list, rating: int):
+
+        if isinstance(src, str):
+            src = [src]
+
+        t = f"{RATING_T} ({len(src)})"
 
         super().__init__(
             parent=parent,
-            title=RATING_T
+            title=t
         )
 
-        self.src = src
 
         # свойство Thumb, ThumbSearch
         # рейтинг для каждого виджета хранится в базе данных
@@ -342,12 +346,16 @@ class TagMenu(UMenu):
 
     def __init__(self, parent: UMenu, src: str, rating: int):
 
+        if isinstance(src, str):
+            src = [src]
+
+        t = f"{TAGS_T} ({len(src)})"
+
         super().__init__(
             parent=parent,
-            title=TAGS_T
+            title=t
         )
 
-        self.src = src
         rating = rating // 10
 
         # копия механик из tree_tags.py > TreeTags

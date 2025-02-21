@@ -676,11 +676,11 @@ class Grid(BaseMethods, QScrollArea):
 
             menu.addSeparator()
 
-        rating_menu = RatingMenu(parent=menu, src=wid.src, rating=wid.rating)
+        rating_menu = RatingMenu(parent=menu, src=urls, rating=wid.rating)
         rating_menu._clicked.connect(self.set_rating_wid)
         menu.addMenu(rating_menu)
 
-        tags_menu = TagMenu(parent=menu, src=wid.src, rating=wid.rating)
+        tags_menu = TagMenu(parent=menu, src=urls, rating=wid.rating)
         tags_menu._clicked.connect(wid.set_new_rating)
         menu.addMenu(tags_menu)
 
