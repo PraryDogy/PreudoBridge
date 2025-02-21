@@ -955,6 +955,7 @@ class Grid(BaseMethods, QScrollArea):
     def mousePressEvent(self, a0):
         if a0.button() != Qt.MouseButton.LeftButton:
             return
+
         self.drag_start_position = a0.pos()
         return super().mousePressEvent(a0)
     
@@ -966,6 +967,9 @@ class Grid(BaseMethods, QScrollArea):
             return
         
         wid = self.get_wid_under_mouse(a0=a0)
+
+        if wid is None:
+            return
 
         if wid and wid not in self.selected_widgets:
             self.clear_selected_widgets()
