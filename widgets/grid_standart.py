@@ -100,6 +100,12 @@ class LoadImages(URunnable):
                 continue
 
     def process_removed_items(self):
+
+        # у тебя order_items это только виджеты в зоне видимости
+        # тогда как ты загружаешь всю БД для директории
+        # получается когда ты обходишь БД, то конечно же БД элемента нет
+        # в order_items
+
         return
         try:
             Dynamic.busy_db = True
@@ -108,7 +114,6 @@ class LoadImages(URunnable):
             Dynamic.busy_db = False
         except SQL_ERRORS as e:
             Utils.print_error(parent=self, error=e)
-            
             return
 
         order_items_partial_hash = [
@@ -117,11 +122,6 @@ class LoadImages(URunnable):
         ]
 
         del_items: list[int] = []
-
-        # у тебя order_items это только виджеты в зоне видимости
-        # тогда как ты загружаешь всю БД для директории
-        # получается когда ты обходишь БД, то конечно же БД элемента нет
-        # в order_items
 
         for id_, partial_hash_ in res:
 
@@ -134,24 +134,6 @@ class LoadImages(URunnable):
 
             if partial_hash_ not in order_items_partial_hash:
                 del_items.append(id_)
-
-        # test = [
-        #     part_hash
-        #     for _, part_hash in res
-        # ]
-
-
-        # test = set(test)
-        # order_items_partial_hash = set(order_items_partial_hash)
-
-        # a = test - order_items_partial_hash
-        # b = order_items_partial_hash - test
-
-        # print(a)
-        # print(b)
-
-
-        return
 
         for id_ in del_items:
 
@@ -194,7 +176,6 @@ class GridStandart(Grid):
         self.load_images_timer.timeout.connect(self.load_visible_images)
         self.load_images_threads: list[LoadImages] = []
 
-        self.order_items: list[OrderItem] = []
         self.tasks: list[LoadImages] = []
 
         self.offset = 0
@@ -230,14 +211,14 @@ class GridStandart(Grid):
 
     def on_scroll_changed(self, value: int):
 
-        if value == self.verticalScrollBar().maximum():
+        # if value == self.verticalScrollBar().maximum():
 
-            if self.offset > self.total:
-                return
+        #     if self.offset > self.total:
+        #         return
 
-            else:
-                self.offset += self.limit
-                self.create_sorted_grid()
+        #     else:
+        #         self.offset += self.limit
+        #         self.create_sorted_grid()
 
         self.load_images_timer.stop()
         self.load_images_timer.start(1000)
@@ -248,16 +229,11 @@ class GridStandart(Grid):
         gc.collect()
 
         self.loading_lbl.hide()
-        self.order_items = order_items
-        self.total = len(order_items)
+        total = len(order_items)
 
         SignalsApp.instance.bar_bottom_cmd.emit(
-            {"src": JsonData.root, "total": self.total}
+            {"src": JsonData.root, "total": total}
         )
-
-        self.create_sorted_grid()
-
-    def create_sorted_grid(self):
 
         sys_disk = os.path.join(os.sep, "Volumes", "Macintosh HD")
         col_count = Utils.get_clmn_count(self.ww)
@@ -265,9 +241,7 @@ class GridStandart(Grid):
 
         Thumb.calculate_size()
 
-        cut = self.order_items[self.offset:self.offset + self.limit]
-
-        for order_item in cut:
+        for order_item in order_items:
 
             if os.path.isdir(order_item.src):
 
@@ -291,36 +265,7 @@ class GridStandart(Grid):
                     rating=order_item.rating,
                     )
 
-            # wid.clicked_.connect(
-            #     lambda w=wid: self.select_one_wid(wid=w)
-            # )
-        
-            # wid.control_clicked.connect(
-            #     lambda w=wid: self.control_clicked(wid=w)
-            # )
-
-            # wid.shift_clicked.connect(
-            #     lambda w=wid: self.shift_clicked(wid=w)
-            # )
-
-            # wid.r_clicked.connect(
-            #     lambda w=wid: self.context_thumb(wid=w)
-            # )
-
-            # wid.open_in_view.connect(
-            #     lambda w=wid: self.open_in_view(wid=w)
-            # )
-
-            # wid.mouse_moved.connect(
-            #     lambda w=wid: self.drag_thumb(wid=w)
-            # )
-
-            self.add_widget_data(
-                wid=wid,
-                row=row,
-                col=col
-            )
-
+            self.add_widget_data(wid=wid, row=row, col=col)
             self.grid_layout.addWidget(wid, row, col)
 
             col += 1
