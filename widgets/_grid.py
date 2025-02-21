@@ -655,7 +655,7 @@ class Grid(BaseMethods, QScrollArea):
         show_in_finder_action = RevealInFinder(parent=menu, src=urls)
         menu.addAction(show_in_finder_action)
 
-        copy_path = CopyPath(parent=menu, src=wid.src)
+        copy_path = CopyPath(parent=menu, src=urls)
         menu.addAction(copy_path)
 
         menu.addSeparator()

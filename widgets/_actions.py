@@ -12,7 +12,7 @@ from ._base import OpenWin, UMenu
 
 REVEAL_T = "Показать выделенных объекты в Finder"
 INFO_T = "Инфо"
-COPY_PATH_T = "Скопировать путь"
+COPY_PATH_T = "Скопировать путь выделенных объектов"
 VIEW_T = "Просмотр"
 OPEN_IN_APP_T = "Открыть в приложении"
 RATING_T = "Рейтинг выделенных объектов"
@@ -115,19 +115,27 @@ class Info(UAction):
 
 
 # из родительского виджета копирует путь к файлу / папке
-class CopyPath(UAction):
-    def __init__(self, parent: UMenu, src: str):
+class CopyPath(QAction):
+    def __init__(self, parent: UMenu, src: str | str):
+
+        if isinstance(src, str):
+            src = [src]
+
+        t = f"{COPY_PATH_T} ({len(src)})"
 
         super().__init__(
             parent=parent,
-            src=src,
-            text=COPY_PATH_T
+            text=t
         )
 
-    def cmd_(self):
-        Utils.write_to_clipboard(
-            text=self.src
-        )
+        self.src = src
+        self.triggered.connect(self.cmd_)
+
+    def cmd_(self, *args):
+        data = "\n".join(self.src)
+        print(data)
+        Utils.write_to_clipboard(text=data)
+
 
 # просмотреть - открывает просмотрщик изображений
 # или папку - тогда создается новая сетка Grid в gui.py
