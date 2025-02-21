@@ -55,10 +55,7 @@ class LoadImages(URunnable):
             return
 
         self.conn = engine.connect()
-
         self.process_order_items()
-        self.process_removed_items()
-
         self.conn.close()
 
         try:
@@ -98,69 +95,6 @@ class LoadImages(URunnable):
             except Exception as e:
                 Utils.print_error(parent=self, error=e)
                 continue
-
-    def process_removed_items(self):
-
-        # у тебя order_items это только виджеты в зоне видимости
-        # тогда как ты загружаешь всю БД для директории
-        # получается когда ты обходишь БД, то конечно же БД элемента нет
-        # в order_items
-
-        return
-        try:
-            Dynamic.busy_db = True
-            q = sqlalchemy.select(CACHE.c.id, CACHE.c.partial_hash)
-            res = self.conn.execute(q).fetchall()
-            Dynamic.busy_db = False
-        except SQL_ERRORS as e:
-            Utils.print_error(parent=self, error=e)
-            return
-
-        order_items_partial_hash = [
-            Utils.get_partial_hash(file_path=i.src)
-            for i in self.order_items
-        ]
-
-        del_items: list[int] = []
-
-        for id_, partial_hash_ in res:
-
-            try:
-                print(order_items_partial_hash.index(partial_hash_))
-            except ValueError:
-                print(partial_hash_)
-                # print(order_items_partial_hash)
-                continue
-
-            if partial_hash_ not in order_items_partial_hash:
-                del_items.append(id_)
-
-        for id_ in del_items:
-
-            if not self.should_run:
-                return
-
-            q = sqlalchemy.delete(CACHE)
-            q = q.where(CACHE.c.id == id_)
-
-            try:
-                Dynamic.busy_db = True
-                self.conn.execute(q)
-                Dynamic.busy_db = False
-
-            except SQL_ERRORS as e:
-                Utils.print_error(parent=self, error=e)
-                self.conn.rollback()
-                continue
-
-        try:
-            Dynamic.busy_db = True
-            self.conn.commit()
-            Dynamic.busy_db = False
-
-        except SQL_ERRORS as e:
-            Utils.print_error(parent=self, error=e)
-            self.conn.rollback()
 
 
 class GridStandart(Grid):
