@@ -77,23 +77,23 @@ class UAction(QAction):
 class RevealInFinder(UAction):
     def __init__(self, parent: UMenu, src: str | list[str]):
 
-        t = f"{REVEAL_T} ({len(src)})"
-        super().__init__(parent=parent, src=src, text=t)
-
         if isinstance(src, str):
             self.files = [src]
         else:
             self.files = src
 
+        t = f"{REVEAL_T} ({len(self.files)})"
+
         if len(self.files) == 1:
             if os.path.isdir(self.files[0]):
                 self.is_dir = True
+
+        super().__init__(parent=parent, src=src, text=t)
 
     # показывает в Finder фоном
     def cmd_(self):
 
         if hasattr(self, "is_dir"):
-            print(self.src[0])
             subprocess.Popen(["open", self.files[0]])
             return
 
