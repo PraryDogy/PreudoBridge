@@ -39,7 +39,7 @@ class Static:
     NO_TAGS_T = "Без тегов"
     DEINED_T = "Отказано"
     REVIEW_T = "Модерация"
-    APPROVED_T = "Одобрено"
+    APPROVED_T = "Принято"
 
     SCRIPTS_DIR = "scripts"
     REVEAL_SCPT = os.path.join(SCRIPTS_DIR, "reveal_files.scpt")

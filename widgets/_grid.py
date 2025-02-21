@@ -66,26 +66,26 @@ RATINGS = {
     95: Static.STAR_SYM * 5,
     
     # теги
-    6: Static.DEINED_SYM,
-    7: Static.REVIEW_SYM,
-    8: Static.APPROVED_SYM,
+    6: Static.DEINED_SYM + " " + Static.DEINED_T,
+    7: Static.REVIEW_SYM + " " + Static.REVIEW_T,
+    8: Static.APPROVED_SYM + " " + Static.APPROVED_T,
     9: "",
 
-    60: Static.DEINED_SYM,
+    60: Static.DEINED_SYM + " " + Static.DEINED_T,
     61: Static.DEINED_SYM + " " + Static.STAR_SYM,
     62: Static.DEINED_SYM + " " + Static.STAR_SYM * 2,
     63: Static.DEINED_SYM + " " + Static.STAR_SYM * 3,
     64: Static.DEINED_SYM + " " + Static.STAR_SYM * 4,
     65: Static.DEINED_SYM + " " + Static.STAR_SYM * 5,
 
-    70: Static.REVIEW_SYM,
+    70: Static.REVIEW_SYM + " " + Static.REVIEW_T,
     71: Static.REVIEW_SYM + " " + Static.STAR_SYM,
     72: Static.REVIEW_SYM + " " + Static.STAR_SYM * 2,
     73: Static.REVIEW_SYM + " " + Static.STAR_SYM * 3,
     74: Static.REVIEW_SYM + " " + Static.STAR_SYM * 4,
     75: Static.REVIEW_SYM + " " + Static.STAR_SYM * 5,
 
-    80: Static.APPROVED_SYM,
+    80: Static.APPROVED_SYM + " " + Static.APPROVED_T,
     81: Static.APPROVED_SYM + " " + Static.STAR_SYM,
     82: Static.APPROVED_SYM + " " + Static.STAR_SYM * 2,
     83: Static.APPROVED_SYM + " " + Static.STAR_SYM * 3,
