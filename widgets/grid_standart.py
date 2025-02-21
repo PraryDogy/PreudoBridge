@@ -109,11 +109,8 @@ class GridStandart(Grid):
         self.load_images_timer.setSingleShot(True)
         self.load_images_timer.timeout.connect(self.load_visible_images)
         self.load_images_threads: list[LoadImages] = []
-
+        self.verticalScrollBar().valueChanged.connect(self.on_scroll_changed)
         self.tasks: list[LoadImages] = []
-
-        self.offset = 0
-        self.limit = 100
 
         self.loading_lbl = LoadingWid(parent=self)
         Utils.center_win(self, self.loading_lbl)
@@ -122,7 +119,6 @@ class GridStandart(Grid):
         self.finder_thread = FinderItems()
         self.finder_thread.signals_.finished_.connect(self.finder_thread_fin)
         UThreadPool.start(self.finder_thread)
-        self.verticalScrollBar().valueChanged.connect(self.on_scroll_changed)
 
     def load_visible_images(self):
         visible_widgets: list[Thumb] = []
@@ -144,16 +140,6 @@ class GridStandart(Grid):
         self.run_load_images_thread(cut_order_items=ordered_items)
 
     def on_scroll_changed(self, value: int):
-
-        # if value == self.verticalScrollBar().maximum():
-
-        #     if self.offset > self.total:
-        #         return
-
-        #     else:
-        #         self.offset += self.limit
-        #         self.create_sorted_grid()
-
         self.load_images_timer.stop()
         self.load_images_timer.start(1000)
 
