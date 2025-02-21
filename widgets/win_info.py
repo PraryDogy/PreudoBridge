@@ -184,10 +184,7 @@ class CustomLabel(QLabel):
 
         menu.addSeparator()
 
-        reveal_action = RevealInFinder(
-            parent=menu,
-            src=src
-        )
+        reveal_action = RevealInFinder(parent=menu, src=src)
         menu.addAction(reveal_action)
 
         if not os.path.exists(src):

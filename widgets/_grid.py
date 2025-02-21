@@ -639,11 +639,6 @@ class Grid(BaseMethods, QScrollArea):
             for i in self.selected_widgets
         ]
 
-        objects = {
-            i.src: i.rating
-            for i in self.selected_widgets
-        }
-
         view_action = View(parent=menu, src=wid.src)
         view_action._clicked.connect(lambda: self.view_thumb_cmd(wid=wid))
         menu.addAction(view_action)
@@ -657,7 +652,7 @@ class Grid(BaseMethods, QScrollArea):
         info = Info(parent=menu, src=wid.src)
         menu.addAction(info)
 
-        show_in_finder_action = RevealInFinder(parent=menu, src=objects)
+        show_in_finder_action = RevealInFinder(parent=menu, src=urls)
         menu.addAction(show_in_finder_action)
 
         copy_path = CopyPath(parent=menu, src=wid.src)

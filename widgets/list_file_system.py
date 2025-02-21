@@ -100,7 +100,7 @@ class ListFileSystem(QTableView):
         info = Info(menu, src)
         menu.addAction(info)
 
-        open_finder_action = RevealInFinder(menu, src)
+        open_finder_action = RevealInFinder(parent=menu, src=src)
         menu.addAction(open_finder_action)
 
         copy_path_action = CopyPath(menu, src)

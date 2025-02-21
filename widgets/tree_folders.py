@@ -60,8 +60,7 @@ class TreeFolders(QTreeView):
 
         menu.addSeparator()
 
-
-        open_finder_action = RevealInFinder(menu, src)
+        open_finder_action = RevealInFinder(menu=menu, src=src)
         menu.addAction(open_finder_action)
 
         copy_path_action = CopyPath(menu, src)

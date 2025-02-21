@@ -518,7 +518,7 @@ class WinImgView(WinBase):
         info = Info(menu, self.src)
         menu.addAction(info)
 
-        show_in_finder_action = RevealInFinder(menu, self.src)
+        show_in_finder_action = RevealInFinder(menu=menu, src=self.src)
         menu.addAction(show_in_finder_action)
 
         copy_path = CopyPath(menu, self.src)

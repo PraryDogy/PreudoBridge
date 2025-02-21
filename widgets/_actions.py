@@ -13,7 +13,7 @@ from utils import URunnable, UThreadPool, Utils
 
 from ._base import OpenWin, UMenu
 
-REVEAL_T = "Показать в Finder"
+REVEAL_T = "Показать выбранные объекты в Finder"
 INFO_T = "Инфо"
 COPY_PATH_T = "Скопировать путь"
 VIEW_T = "Просмотр"
@@ -78,15 +78,14 @@ class UAction(QAction):
 
 
 class RevealInFinder(UAction):
-    def __init__(self, parent: UMenu, src: str | dict):
-
-        super().__init__(parent=parent, src=src, text=REVEAL_T)
+    def __init__(self, parent: UMenu, src: str | list[str]):
+        t = f"{REVEAL_T} ({len(src)})"
+        super().__init__(parent=parent, src=src, text=t)
 
         if isinstance(src, str):
             self.files = [src]
-
         else:
-            self.files = [k for k, v in src.items()]
+            self.files = src
 
     # показывает в Finder фоном
     def cmd_(self):

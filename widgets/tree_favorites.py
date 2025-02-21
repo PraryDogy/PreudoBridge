@@ -105,7 +105,7 @@ class FavItem(QLabel):
         view_ac._clicked.connect(cmd_)
         menu_.addAction(view_ac)
 
-        open_finder_action = RevealInFinder(menu_, self.src)
+        open_finder_action = RevealInFinder(parent=menu_, src=self.src)
         menu_.addAction(open_finder_action)
 
         menu_.addSeparator()
