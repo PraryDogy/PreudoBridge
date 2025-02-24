@@ -202,22 +202,27 @@ class ReadImage(Err):
             elif thumb.format == rawpy.ThumbFormat.BITMAP:
                 img = Image.fromarray(thumb.data)
 
-            try:
-                exif = img._getexif()
+            assert isinstance(img, Image.Image)
+            exif = img.info
+            print(exif)
 
-                if exif:
-                    for tag, value in exif.items():
-                        if ExifTags.TAGS.get(tag) == "Orientation":
-                            if value == 3:
-                                img = img.rotate(180, expand=True)
-                            elif value == 6:
-                                img = img.rotate(270, expand=True)
-                            elif value == 8:
-                                img = img.rotate(90, expand=True)
-                            break
-            except Exception:
-                ...
+            # try:
+            #     exif = img._getexif()
 
+            #     print(exif)
+
+            #     if exif:
+            #         for tag, value in exif.items():
+            #             if ExifTags.TAGS.get(tag) == "Orientation":
+            #                 if value == 3:
+            #                     img = img.rotate(180, expand=True)
+            #                 elif value == 6:
+            #                     img = img.rotate(270, expand=True)
+            #                 elif value == 8:
+            #                     img = img.rotate(90, expand=True)
+            #                 break
+            # except Exception:
+            #     ...
             return np.array(img)
 
         except (Exception, rawpy._rawpy.LibRawDataError) as e:
