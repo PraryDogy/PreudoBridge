@@ -607,10 +607,9 @@ class Grid(BaseMethods, QScrollArea):
         elif wid.type_ == Static.FOLDER_TYPE:
             
             SignalsApp.instance.new_history_item.emit(wid.src)
-            SignalsApp.instance.load_standart_grid_cmd(
-                path=wid.src,
-                prev_path=None
-            )
+
+            cmd_ = lambda: SignalsApp.instance.load_standart_grid_cmd(path=wid.src, prev_path=None)
+            QTimer.singleShot(100, cmd_)
 
         else:
             OpenWin.view(
@@ -893,10 +892,13 @@ class Grid(BaseMethods, QScrollArea):
         clicked_wid = self.get_wid_under_mouse(a0=a0)
 
         if not isinstance(clicked_wid, Thumb):
+            print("release event, not grid")
             self.clear_selected_widgets()
             return
         
         if a0.modifiers() == Qt.KeyboardModifier.ShiftModifier:
+
+            print("release event, shift")
 
             # шифт клик: если не было выделенных виджетов
             if not self.selected_widgets:
@@ -931,6 +933,8 @@ class Grid(BaseMethods, QScrollArea):
 
         elif a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
 
+            print("release event, control")
+
             # комманд клик: был выделен виджет, снять выделение
             if clicked_wid in self.selected_widgets:
                 self.selected_widgets.remove(clicked_wid)
@@ -941,14 +945,20 @@ class Grid(BaseMethods, QScrollArea):
                 self.add_and_select_widget(wid=clicked_wid)
 
         else:
+
+            print("release event, simple")
+
             self.clear_selected_widgets()
             self.add_and_select_widget(wid=clicked_wid)
+            # self.select_one_wid(wid=clicked_wid)
 
     def mouseDoubleClickEvent(self, a0):
         clicked_wid = self.get_wid_under_mouse(a0=a0)
 
         if clicked_wid:
             self.view_thumb_cmd(wid=clicked_wid)
+
+        print("double click")
 
     def mousePressEvent(self, a0):
         if a0.button() != Qt.MouseButton.LeftButton:
