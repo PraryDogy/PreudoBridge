@@ -895,7 +895,7 @@ class Grid(BaseMethods, QScrollArea):
         if not isinstance(clicked_wid, Thumb):
             self.clear_selected_widgets()
             return
-
+        
         if a0.modifiers() == Qt.KeyboardModifier.ShiftModifier:
 
             # шифт клик: если не было выделенных виджетов
