@@ -892,13 +892,10 @@ class Grid(BaseMethods, QScrollArea):
         clicked_wid = self.get_wid_under_mouse(a0=a0)
 
         if not isinstance(clicked_wid, Thumb):
-            print("release event, not grid")
             self.clear_selected_widgets()
             return
         
         if a0.modifiers() == Qt.KeyboardModifier.ShiftModifier:
-
-            print("release event, shift")
 
             # шифт клик: если не было выделенных виджетов
             if not self.selected_widgets:
@@ -933,8 +930,6 @@ class Grid(BaseMethods, QScrollArea):
 
         elif a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
 
-            print("release event, control")
-
             # комманд клик: был выделен виджет, снять выделение
             if clicked_wid in self.selected_widgets:
                 self.selected_widgets.remove(clicked_wid)
@@ -945,8 +940,6 @@ class Grid(BaseMethods, QScrollArea):
                 self.add_and_select_widget(wid=clicked_wid)
 
         else:
-
-            print("release event, simple")
 
             self.clear_selected_widgets()
             self.add_and_select_widget(wid=clicked_wid)
