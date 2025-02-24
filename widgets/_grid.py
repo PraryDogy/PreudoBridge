@@ -948,8 +948,6 @@ class Grid(BaseMethods, QScrollArea):
         clicked_wid = self.get_wid_under_mouse(a0=a0)
 
         if clicked_wid:
-            self.clear_selected_widgets()
-            self.add_and_select_widget(wid=clicked_wid)
             self.view_thumb_cmd(wid=clicked_wid)
 
     def mousePressEvent(self, a0):
