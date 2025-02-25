@@ -15,8 +15,8 @@ from utils import URunnable, UThreadPool, Utils
 
 from ._actions import (ChangeView, CopyFilesAction, CopyPath, FavAdd,
                        FavRemove, Info, OpenInApp, PasteFilesAction,
-                       RatingMenu, RevealInFinder, ShowInFolder, SortMenu,
-                       TagMenu, UpdateGrid, View)
+                       RatingMenu, RemoveFilesAction, RevealInFinder,
+                       ShowInFolder, SortMenu, TagMenu, UpdateGrid, View)
 from ._base import BaseMethods, OpenWin, UMenu, USvgWidget
 from .copy_files import WinCopyFiles
 from .list_file_system import ListFileSystem
@@ -713,6 +713,9 @@ class Grid(BaseMethods, QScrollArea):
             menu.addSeparator()
 
         menu.addSeparator()
+
+        remove_files = RemoveFilesAction(parent=menu, urls=urls)
+        menu.addAction(remove_files)
 
     def grid_context_actions(self, menu: UMenu):
 

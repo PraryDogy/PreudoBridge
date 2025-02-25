@@ -35,10 +35,11 @@ CHANGE_VIEW_LIST_T = "Список"
 CREATE_FOLDER_T = "Создать папку"
 NEW_FOLDER_T = "Новая папка"
 NEW_FOLDER_WARN = "Папка с таким именем уже существует"
-DELETE_T = "Удалить"
 TAGS_T = "Метка выделенных объектов"
 COPY_FILES_T = "Копировать выделенные объекты"
 PASTE_FILES_T = "Вставить объекты"
+DELETE_FILES_T = "Удалить выделенные объекты"
+
 
 # Общий класс для выполнения действий QAction в отдельном потоке
 class Task_(URunnable):
@@ -701,6 +702,19 @@ class PasteFilesAction(QAction):
         t = f"{PASTE_FILES_T} ({len(Dynamic.files_to_copy)})"
         super().__init__(parent=parent, text=t)
         self.triggered.connect(self.cmd_)
+
+    def cmd_(self, *args):
+        self.clicked_.emit()
+
+class RemoveFilesAction(QAction):
+    clicked_ = pyqtSignal()
+
+    def __init__(self, parent: UMenu, urls: list[str]):
+
+        t = f"{DELETE_FILES_T} ({len(urls)})"
+        super().__init__(parent=parent, text=t)
+        self.triggered.connect(self.cmd_)
+        self.files = urls
 
     def cmd_(self, *args):
         self.clicked_.emit()
