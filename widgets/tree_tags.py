@@ -21,7 +21,7 @@ class TreeTags(QListWidget):
             Qt.ScrollBarPolicy.ScrollBarAlwaysOff
         )
 
-        self.setFixedHeight(260)
+        self.setFixedHeight(230)
         item_size = QSize(self.width(), 25)
 
         # копия механик из _actions.py > TagsMenu
