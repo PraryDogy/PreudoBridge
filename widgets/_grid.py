@@ -18,7 +18,7 @@ from ._actions import (ChangeView, CopyFilesAction, CopyPath, FavAdd,
                        RatingMenu, RemoveFilesAction, RevealInFinder,
                        ShowInFolder, SortMenu, TagMenu, UpdateGrid, View)
 from ._base import BaseMethods, OpenWin, UMenu, USvgWidget
-from .copy_files import WinCopyFiles
+from .win_copy_files import WinCopyFiles
 from .list_file_system import ListFileSystem
 
 SELECTED = "selected"
