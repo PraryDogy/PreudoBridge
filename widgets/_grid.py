@@ -783,8 +783,6 @@ class Grid(BaseMethods, QScrollArea):
         for i in self.selected_widgets:
             Dynamic.files_to_copy.append(i.src)
 
-        print(Dynamic.files_to_copy)
-
     def paste_files(self):
         self.win_copy = WinCopyFiles()
         self.win_copy.show()

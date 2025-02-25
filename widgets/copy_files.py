@@ -1,14 +1,14 @@
 import os
 import shutil
 
-from PyQt5.QtCore import QObject, QRunnable, Qt, pyqtSignal
-from PyQt5.QtGui import QKeyEvent
+from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtWidgets import QLabel, QPushButton, QVBoxLayout
 
 from cfg import Dynamic, JsonData, Static
+from signals import SignalsApp
 from utils import URunnable, UThreadPool
 
-from ._base import ULineEdit, WinMinMax
+from ._base import WinMinMax
 
 PREPARING_T = "Подготовка"
 COPYING_T = "Копирую файлы"
@@ -82,6 +82,11 @@ class WinCopyFiles(WinMinMax):
         self.close()
 
     def finished_task(self):
+        SignalsApp.instance.load_standart_grid_cmd(
+            path=JsonData.root,
+            prev_path=None
+        )
+
         del self.task_
         self.close()
 
