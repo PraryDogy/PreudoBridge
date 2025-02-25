@@ -1,3 +1,4 @@
+import os
 import subprocess
 
 from PyQt5.QtCore import pyqtSignal
@@ -7,7 +8,7 @@ from cfg import Dynamic, JsonData, Static
 from database import ORDER
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
-import os
+
 from ._base import OpenWin, UMenu
 
 REVEAL_T = "Показать выделенные объекты в Finder"
@@ -36,7 +37,7 @@ NEW_FOLDER_T = "Новая папка"
 NEW_FOLDER_WARN = "Папка с таким именем уже существует"
 DELETE_T = "Удалить"
 TAGS_T = "Метка выделенных объектов"
-
+COPY_FILES_T = "Копировать выделенные объекты"
 
 # Общий класс для выполнения действий QAction в отдельном потоке
 class Task_(URunnable):
@@ -676,3 +677,10 @@ class ChangeView(UMenu):
             path=JsonData.root,
             prev_path=None
         )
+
+
+class CopyFilesAction(QAction):
+    def __init__(self, parent: UMenu):
+
+        t = f"{COPY_FILES_T} ({len(Dynamic.files_to_copy)})"
+        super().__init__(parent=parent, text=t)
