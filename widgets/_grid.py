@@ -473,10 +473,9 @@ class Grid(BaseMethods, QScrollArea):
         # с которого не снять выделение
         # короче попробуй сразу подключить mouseReleaseEvent и открой 
         # любую папку с кучей файлов
-        QTimer.singleShot(1000, self.set_mouseReleaseEvent)
+        QTimer.singleShot(200, self.set_mouseReleaseEvent)
         
     def set_mouseReleaseEvent(self):
-        print(12)
         self.mouseReleaseEvent = self.custom_mouseReleaseEvent
 
     def select_one_wid(self, wid: Thumb):
@@ -619,7 +618,7 @@ class Grid(BaseMethods, QScrollArea):
             return
 
         elif wid.type_ == Static.FOLDER_TYPE:
-            
+            self.mouseReleaseEvent = None
             SignalsApp.instance.new_history_item.emit(wid.src)
             SignalsApp.instance.load_standart_grid_cmd(path=wid.src, prev_path=None)
             # cmd_ = lambda: SignalsApp.instance.load_standart_grid_cmd(path=wid.src, prev_path=None)
