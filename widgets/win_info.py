@@ -5,8 +5,8 @@ from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import QGridLayout, QLabel
 
-from cfg import JsonData, Static, Dynamic
-from database import CACHE, ColumnNames, Dbase
+from cfg import Dynamic, JsonData, Static
+from database import CACHE, ColumnNames, Dbase, OrderItem
 from utils import URunnable, UThreadPool, Utils
 
 from ._actions import CopyText, RevealInFinder
@@ -22,31 +22,46 @@ BITRTH_T = "Создан"
 MOD_T = "Изменен"
 RESOL_T = "Разрешение"
 UNDEFINED = "Неизвестно"
-
 MAX_ROW = 50
-
 
 class WorkerSignals(QObject):
     finished_ = pyqtSignal(str)
 
 
-class FolderSize(URunnable):
-    def __init__(self, src: str):
+class CalculatingTask(URunnable):
+    def __init__(self, order_item: OrderItem):
         super().__init__()
-        self.src = src
+        self.order_item = order_item
         self.signals_ = WorkerSignals()
 
     @URunnable.set_running_state
     def run(self):
         try:
-            self.main()
-        except RuntimeError as e:
+            if self.order_item.type_ == Static.FOLDER_TYPE:
+                res = self.get_folder_size()
+            else:
+                res = self.get_img_resol()
+
+            self.signals_.finished_.emit(res)
+
+        except Exception as e:
             Utils.print_error(parent=None, error=e)
 
-    def main(self):
+    def get_img_resol(self):
+        img_ = Utils.read_image(path=self.order_item.src)
+
+        if img_ is not None and len(img_.shape) > 1:
+            h, w = img_.shape[0], img_.shape[1]
+            resol= f"{w}x{h}"
+        else:
+            resol = UNDEFINED
+
+        return resol
+
+    def get_folder_size(self):
         total = 0
         stack = []
-        stack.append(self.src)
+        stack.append(self.order_item.src)
 
         while stack:
             current_dir = stack.pop()
@@ -70,51 +85,34 @@ class FolderSize(URunnable):
         total = Utils.get_f_size(total)
 
         if self.should_run:
-            self.signals_.finished_.emit(total)
+            return total
 
 
 class InfoTask:
-    def __init__(self, src: str):
+    def __init__(self, order_item: OrderItem):
         super().__init__()
-        self.src = os.sep + src.strip(os.sep)
-        self.name = os.path.basename(self.src)
+        self.order_item = order_item
 
     def get(self) -> dict[str, str| int]:
-        return self.get_raw_info()
-    
-    def get_raw_info(self):
-        is_file = os.path.isfile(self.src)
-
-        type_ = (
-            os.path.splitext(self.src)[-1]
-            if is_file
-            else
-            Static.FOLDER_TYPE
-            )
-
         size_ = (
-            Utils.get_f_size(os.path.getsize(self.src))
-            if is_file
+            Utils.get_f_size(os.path.getsize(self.order_item.src))
+            if self.order_item.type_ != Static.FOLDER_TYPE
             else
             CALCULATING
             )
 
-        img_ = Utils.read_image(path=self.src)
-
-        if img_ is not None and len(img_.shape) > 1:
-            h, w = img_.shape[0], img_.shape[1]
-            resol= f"{w}x{h}"
-        else:
-            resol = UNDEFINED
-
         res = {
-            NAME_T: self.lined_text(os.path.basename(self.src)),
-            TYPE_T: type_,
+            NAME_T: self.lined_text(os.path.basename(self.order_item.src)),
+            TYPE_T: self.order_item.type_,
+            MOD_T: Utils.get_f_date(os.stat(self.order_item.src).st_mtime),
+            SRC_T: self.lined_text(self.order_item.src),
             SIZE_T: size_,
-            MOD_T: Utils.get_f_date(os.stat(self.src).st_mtime),
-            RESOL_T: resol,
-            SRC_T: self.lined_text(self.src),
             }
+        
+        if self.order_item.type_ != Static.FOLDER_TYPE:
+            res.update(
+                {RESOL_T: CALCULATING}
+            )
 
         return res
 
@@ -171,11 +169,11 @@ class WinInfo(WinMinMax):
         self.setLayout(self.grid_layout)
 
         row = 0
+        order_item = OrderItem(src=self.src, mod=0, size=0, rating=0)
+        info_ = InfoTask(order_item=order_item)
+        info_ = info_.get()
 
-        task_ = InfoTask(self.src)
-        info = task_.get()
-
-        for name, value in info.items():
+        for name, value in info_.items():
 
             left_lbl = CustomLabel(name)
             flags_l_al = Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignTop
@@ -187,24 +185,23 @@ class WinInfo(WinMinMax):
             flags_r_al = Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom
             self.grid_layout.addWidget(right_lbl, row, 1, alignment=flags_r_al)
 
-            if value == CALCULATING:
-                setattr(self, "calc", True)
-                setattr(self, "size_label", right_lbl)
-
             row += 1
 
         self.adjustSize()
         self.setFixedSize(self.width(), self.height())
-   
-        if hasattr(self, "calc"):
-            cmd_ = lambda size_: self.finalize(size_)
-            self.task_ = FolderSize(self.src)
-            self.task_.signals_.finished_.connect(cmd_)
-            UThreadPool.start(self.task_)
 
-    def finalize(self, size_: str):
-        label: CustomLabel = getattr(self, "size_label")
-        label.setText(size_)
+        cmd_ = lambda result: self.finalize(result=result)
+        self.task_ = CalculatingTask(order_item=order_item)
+        self.task_.signals_.finished_.connect(cmd_)
+        UThreadPool.start(runnable=self.task_)
+
+    def finalize(self, result: str):
+        # лейбл с динамической переменной у нас всегда самый последний в
+        # списке виджетов
+        # то есть разрешение фотографии или размер папки
+        # смотри InfoTask - как формируется результат
+        label = self.findChildren(CustomLabel)[-1]
+        label.setText(result)
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() in (Qt.Key.Key_Escape, Qt.Key.Key_Return):
