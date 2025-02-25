@@ -21,6 +21,7 @@ SRC_T = "Место"
 BITRTH_T = "Создан"
 MOD_T = "Изменен"
 RESOL_T = "Разрешение"
+UNDEFINED = "Неизвестно"
 
 MAX_ROW = 50
 
@@ -79,56 +80,8 @@ class InfoTask:
         self.name = os.path.basename(self.src)
 
     def get(self) -> dict[str, str| int]:
-        db = os.path.join(JsonData.root, Static.DB_FILENAME)
-        dbase = Dbase()
-        engine = dbase.create_engine(path=db)
-
-        if engine is None:
-            return self.get_raw_info()
-
-        conn = engine.connect()
-        cols = (CACHE.c.type_, CACHE.c.mod, CACHE.c.size, CACHE.c.resol)
-        q = sqlalchemy.select(*cols)
-        q = q.where(CACHE.c.name == Utils.hash_filename(filename=self.name))
-        res = conn.execute(q).mappings().first()
-        conn.close()
-
-        if res and not Dynamic.busy_db:
-            return self.get_db_info(res=res)
-
-        else:
-            return self.get_raw_info()
-
-    def get_db_info(self, res: dict):
-
-        if res.get(ColumnNames.TYPE) == Static.FOLDER_TYPE:
-
-            mod = Utils.get_f_date(
-                timestamp_ = os.stat(self.src).st_mtime
-            )
-
-            res = {
-                NAME_T: self.lined_text(text=self.name),
-                TYPE_T: res.get(ColumnNames.TYPE),
-                SIZE_T: CALCULATING,
-                MOD_T: mod,
-                SRC_T: self.lined_text(text=self.src)
-                }
-        
-        else:
-
-            res = {
-                NAME_T: self.lined_text(text=self.name),
-                TYPE_T: res.get(ColumnNames.TYPE),
-                SIZE_T: Utils.get_f_size(res.get(ColumnNames.SIZE)),
-                MOD_T: Utils.get_f_date(res.get(ColumnNames.MOD)),
-                RESOL_T: res.get(ColumnNames.RESOL),
-                SRC_T: self.lined_text(text=self.src)
-                }
-
-        return res
-
-
+        return self.get_raw_info()
+    
     def get_raw_info(self):
         is_file = os.path.isfile(self.src)
 
@@ -146,12 +99,21 @@ class InfoTask:
             CALCULATING
             )
 
+        img_ = Utils.read_image(path=self.src)
+
+        if img_ is not None and len(img_.shape) > 1:
+            h, w = img_.shape[0], img_.shape[1]
+            resol= f"{w}x{h}"
+        else:
+            resol = UNDEFINED
+
         res = {
             NAME_T: self.lined_text(os.path.basename(self.src)),
             TYPE_T: type_,
             SIZE_T: size_,
-            SRC_T: self.lined_text(self.src),
             MOD_T: Utils.get_f_date(os.stat(self.src).st_mtime),
+            RESOL_T: resol,
+            SRC_T: self.lined_text(self.src),
             }
 
         return res
