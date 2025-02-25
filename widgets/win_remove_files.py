@@ -12,43 +12,54 @@ from utils import URunnable, UThreadPool
 
 from ._base import WinMinMax
 
-REMOVE_T = "Удалить безвозвратно выделенные объекты?"
+REMOVE_T = "Удалить безвозвратно объекты"
 OK_T = "Ок"
 CANCEL_T = "Отмена"
 ATTENTION_T = "Внимание!"
+
 
 class WorkerSignals(QObject):
     finished_ = pyqtSignal()
 
 
-class DeleteFilesTask(URunnable):
+class RemoveFilesTask(URunnable):
     def __init__(self, urls: list[str]):
         super().__init__()
+        self.signals_ = WorkerSignals()
         self.urls = urls
 
     @URunnable.set_running_state
     def run(self):
-        subprocess.run(["rm", "-rf"] + self.urls, check=True)
-        SignalsApp.instance.load_standart_grid_cmd(
-            path=JsonData.root,
-            prev_path=None
-        )
+        try:
+            subprocess.run(["rm", "-rf"] + self.urls, check=True)
+
+            SignalsApp.instance.load_standart_grid_cmd(
+                path=JsonData.root,
+                prev_path=None
+            )
+            
+            self.signals_.finished_.emit()
+
+        except Exception as e:
+            ...
 
 
 class WinRemoveFiles(WinMinMax):
-    finished_ = pyqtSignal(str)
 
-    def __init__(self):
+    def __init__(self, urls: list[str]):
         super().__init__()
-        self.setFixedSize(310, 80)
+        self.setFixedSize(250, 70)
         self.setWindowTitle(ATTENTION_T)
+
+        self.urls = urls
 
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(10, 10, 10, 10)
-        v_lay.setSpacing(10)
+        v_lay.setSpacing(5)
         self.setLayout(v_lay)
 
-        question = QLabel(text=REMOVE_T)
+        t = f"{REMOVE_T} ({len(urls)})?"
+        question = QLabel(text=t)
         v_lay.addWidget(question)
 
         h_wid = QWidget()
@@ -59,13 +70,23 @@ class WinRemoveFiles(WinMinMax):
         h_wid.setLayout(h_lay)
 
         ok_btn = QPushButton(text=OK_T)
-        ok_btn.setFixedWidth(100)
+        ok_btn.clicked.connect(self.cmd_)
+        ok_btn.setFixedWidth(90)
         h_lay.addWidget(ok_btn)
 
         can_btn = QPushButton(text=CANCEL_T)
         can_btn.clicked.connect(self.close)
-        can_btn.setFixedWidth(100)
+        can_btn.setFixedWidth(90)
         h_lay.addWidget(can_btn)
+
+    def cmd_(self, *args):
+        self.task_ = RemoveFilesTask(urls=self.urls)
+        self.task_.signals_.finished_.connect(self.finalize)
+        UThreadPool.start(runnable=self.task_)
+
+    def finalize(self, *args):
+        del self.task_
+        self.close()
 
     def keyPressEvent(self, a0):
         if a0.key() == Qt.Key.Key_Escape:

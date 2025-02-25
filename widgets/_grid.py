@@ -716,7 +716,7 @@ class Grid(BaseMethods, QScrollArea):
         menu.addSeparator()
 
         remove_files = RemoveFilesAction(parent=menu, urls=urls)
-        remove_files.clicked_.connect(self.remove_files_cmd)
+        remove_files.clicked_.connect(lambda: self.remove_files_cmd(urls=urls))
         menu.addAction(remove_files)
 
     def grid_context_actions(self, menu: UMenu):
@@ -802,8 +802,8 @@ class Grid(BaseMethods, QScrollArea):
         self.win_copy = WinCopyFiles()
         self.win_copy.show()
 
-    def remove_files_cmd(self):
-        self.rem_win = WinRemoveFiles()
+    def remove_files_cmd(self, urls: list[str]):
+        self.rem_win = WinRemoveFiles(urls=urls)
         self.rem_win.show()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
