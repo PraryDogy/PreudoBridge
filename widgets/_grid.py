@@ -17,6 +17,7 @@ from ._actions import (ChangeView, CopyPath, FavAdd, FavRemove, Info,
                        OpenInApp, RatingMenu, RevealInFinder, ShowInFolder,
                        SortMenu, TagMenu, UpdateGrid, View)
 from ._base import BaseMethods, OpenWin, UMenu, USvgWidget
+from .copy_files import WinCopyFiles
 from .list_file_system import ListFileSystem
 
 SELECTED = "selected"
@@ -776,10 +777,28 @@ class Grid(BaseMethods, QScrollArea):
             self.selected_widgets.append(wid)
             wid.set_frame()
 
+    def create_files_to_copy(self):
+        Dynamic.files_to_copy.clear()
+
+        for i in self.selected_widgets:
+            Dynamic.files_to_copy.append(i.src)
+
+        print(Dynamic.files_to_copy)
+
+    def paste_files(self):
+        self.win_copy = WinCopyFiles()
+        self.win_copy.show()
+
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         clicked_wid: Thumb | ThumbFolder 
 
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
+
+            if a0.key() == Qt.Key.Key_V:
+                self.paste_files()
+
+            elif a0.key() == Qt.Key.Key_C:
+                self.create_files_to_copy()
 
             if a0.key() == Qt.Key.Key_Up:
 

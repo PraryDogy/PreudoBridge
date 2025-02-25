@@ -163,10 +163,9 @@ class MainWin(QWidget):
             prev_path=None
         )
 
-        from widgets.copy_files import WinCopyFiles
-        self.wn = WinCopyFiles()
-        # self.wn.show()
-        QTimer.singleShot(200, lambda: self.wn.show())
+        # from widgets.copy_files import WinCopyFiles
+        # self.wn = WinCopyFiles()
+        # QTimer.singleShot(200, lambda: self.wn.show())
 
     def show_hide_tags(self):
         if self.tree_tags.isHidden():

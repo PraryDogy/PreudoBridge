@@ -32,18 +32,18 @@ class FileCopyWorker(URunnable):
         for index, file in enumerate(Dynamic.files_to_copy, start=1):
 
             if not self.should_run:
-                self.signals.finished_.emit(new_paths)
+                self.signals_.finished_.emit(new_paths)
                 return
 
             if os.path.isfile(file):
-                self.signals.progress.emit(f"Копирую {index} из {total_files}")
+                self.signals_.progress.emit(f"Копирую {index} из {total_files}")
                 new_path = shutil.copy2(
                     file,
                     os.path.join(JsonData.root, os.path.basename(file))
                 )
                 new_paths.append(new_path)
         
-        self.signals.finished_.emit(new_paths)
+        self.signals_.finished_.emit(new_paths)
 
 
 class WinCopyFiles(WinMinMax):
@@ -68,17 +68,22 @@ class WinCopyFiles(WinMinMax):
         self.cancel_btn.setFixedWidth(100)
         v_lay.addWidget(self.cancel_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
+        self.task_ = None
+
         if Dynamic.files_to_copy:
             self.task_ = FileCopyWorker()
             self.task_.signals_.progress.connect(self.set_progress)
-            self.task_.signals_.finished_.connect(self.finished_)
+            self.task_.signals_.finished_.connect(self.finished_task)
             UThreadPool.start(runnable=self.task_)
 
     def cancel_cmd(self, *args):
-        self.task_.should_run = False
+        if self.task_:
+            self.task_.should_run = False
+        self.close()
 
     def finished_task(self):
         del self.task_
+        self.close()
 
     def set_progress(self, text: str):
         self.copy_label.setText(text)
