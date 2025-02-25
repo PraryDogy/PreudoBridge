@@ -18,8 +18,9 @@ from ._actions import (ChangeView, CopyFilesAction, CopyPath, FavAdd,
                        RatingMenu, RemoveFilesAction, RevealInFinder,
                        ShowInFolder, SortMenu, TagMenu, UpdateGrid, View)
 from ._base import BaseMethods, OpenWin, UMenu, USvgWidget
-from .win_copy_files import WinCopyFiles
 from .list_file_system import ListFileSystem
+from .win_copy_files import WinCopyFiles
+from .win_remove_files import WinRemoveFiles
 
 SELECTED = "selected"
 FONT_SIZE = "font-size: 11px;"
@@ -715,6 +716,7 @@ class Grid(BaseMethods, QScrollArea):
         menu.addSeparator()
 
         remove_files = RemoveFilesAction(parent=menu, urls=urls)
+        remove_files.clicked_.connect(self.remove_files_cmd)
         menu.addAction(remove_files)
 
     def grid_context_actions(self, menu: UMenu):
@@ -799,6 +801,10 @@ class Grid(BaseMethods, QScrollArea):
     def paste_files(self):
         self.win_copy = WinCopyFiles()
         self.win_copy.show()
+
+    def remove_files_cmd(self):
+        self.rem_win = WinRemoveFiles()
+        self.rem_win.show()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         clicked_wid: Thumb | ThumbFolder 
