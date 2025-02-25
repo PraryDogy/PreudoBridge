@@ -13,9 +13,10 @@ from database import CACHE, ColumnNames, Dbase, OrderItem
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
-from ._actions import (ChangeView, CopyPath, FavAdd, FavRemove, Info,
-                       OpenInApp, RatingMenu, RevealInFinder, ShowInFolder,
-                       SortMenu, TagMenu, UpdateGrid, View)
+from ._actions import (ChangeView, CopyFilesAction, CopyPath, FavAdd,
+                       FavRemove, Info, OpenInApp, PasteFilesAction,
+                       RatingMenu, RevealInFinder, ShowInFolder, SortMenu,
+                       TagMenu, UpdateGrid, View)
 from ._base import BaseMethods, OpenWin, UMenu, USvgWidget
 from .copy_files import WinCopyFiles
 from .list_file_system import ListFileSystem
@@ -671,6 +672,10 @@ class Grid(BaseMethods, QScrollArea):
         copy_path = CopyPath(parent=menu, src=urls)
         menu.addAction(copy_path)
 
+        copy_files = CopyFilesAction(parent=menu, urls=urls)
+        copy_files.clicked_.connect(self.copy_files)
+        menu.addAction(copy_files)
+
         menu.addSeparator()
 
         if wid.type_ == Static.FOLDER_TYPE:
@@ -744,6 +749,11 @@ class Grid(BaseMethods, QScrollArea):
 
         menu.addSeparator()
 
+        if Dynamic.files_to_copy:
+            paste_files = PasteFilesAction(parent=menu)
+            paste_files.clicked_.connect(self.paste_files)
+            menu.addAction(paste_files)
+
         upd_ = UpdateGrid(menu, JsonData.root)
         menu.addAction(upd_)
 
@@ -777,7 +787,7 @@ class Grid(BaseMethods, QScrollArea):
             self.selected_widgets.append(wid)
             wid.set_frame()
 
-    def create_files_to_copy(self):
+    def copy_files(self):
         Dynamic.files_to_copy.clear()
 
         for i in self.selected_widgets:
@@ -796,7 +806,7 @@ class Grid(BaseMethods, QScrollArea):
                 self.paste_files()
 
             elif a0.key() == Qt.Key.Key_C:
-                self.create_files_to_copy()
+                self.copy_files()
 
             if a0.key() == Qt.Key.Key_Up:
 
