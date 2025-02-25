@@ -465,6 +465,20 @@ class Grid(BaseMethods, QScrollArea):
         self.grid_layout.setAlignment(flags)
         self.main_wid.setLayout(self.grid_layout)
 
+        # отложенное подключение клика мышки нужно для того
+        # избежать бага выделения виджета, когда кликаешь на папку
+        # описание бага:
+        # когда кликаешь на папку, формируется новая сетка StandatGrid
+        # и в том месте, где был клик по папке, выделяется новый виджет
+        # с которого не снять выделение
+        # короче попробуй сразу подключить mouseReleaseEvent и открой 
+        # любую папку с кучей файлов
+        QTimer.singleShot(1000, self.set_mouseReleaseEvent)
+        
+    def set_mouseReleaseEvent(self):
+        print(12)
+        self.mouseReleaseEvent = self.custom_mouseReleaseEvent
+
     def select_one_wid(self, wid: Thumb):
 
         # важно передать сюда именно виджет, который содержит row, col
@@ -607,9 +621,9 @@ class Grid(BaseMethods, QScrollArea):
         elif wid.type_ == Static.FOLDER_TYPE:
             
             SignalsApp.instance.new_history_item.emit(wid.src)
-
-            cmd_ = lambda: SignalsApp.instance.load_standart_grid_cmd(path=wid.src, prev_path=None)
-            QTimer.singleShot(100, cmd_)
+            SignalsApp.instance.load_standart_grid_cmd(path=wid.src, prev_path=None)
+            # cmd_ = lambda: SignalsApp.instance.load_standart_grid_cmd(path=wid.src, prev_path=None)
+            # QTimer.singleShot(100, cmd_)
 
         else:
             OpenWin.view(
@@ -884,7 +898,7 @@ class Grid(BaseMethods, QScrollArea):
 
         menu.show_custom()
 
-    def mouseReleaseEvent(self, a0: QMouseEvent):
+    def custom_mouseReleaseEvent(self, a0: QMouseEvent):
 
         if a0.button() != Qt.MouseButton.LeftButton:
             return
