@@ -203,13 +203,24 @@ class ReadImage(Err):
                 img = Image.fromarray(thumb.data)
 
             assert isinstance(img, Image.Image)
-            exif = img.info
-            print(exif)
 
-            # try:
-            #     exif = img._getexif()
+            try:
+                exif = img.getexif()
 
-            #     print(exif)
+                orientation_tag = 274  # Код тега Orientation
+                if orientation_tag in exif:
+                    orientation = exif[orientation_tag]
+                    
+                    # Коррекция поворота на основе EXIF-ориентации
+                    if orientation == 3:
+                        img = img.rotate(180, expand=True)
+                    elif orientation == 6:
+                        img = img.rotate(270, expand=True)
+                    elif orientation == 8:
+                        img = img.rotate(90, expand=True)
+
+            except Exception as e:
+                print(e)
 
             #     if exif:
             #         for tag, value in exif.items():

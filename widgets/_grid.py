@@ -951,8 +951,6 @@ class Grid(BaseMethods, QScrollArea):
         if clicked_wid:
             self.view_thumb_cmd(wid=clicked_wid)
 
-        print("double click")
-
     def mousePressEvent(self, a0):
         if a0.button() != Qt.MouseButton.LeftButton:
             return
