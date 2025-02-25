@@ -225,7 +225,9 @@ class MainWin(QWidget):
         self.setWindowTitle(os.path.basename(JsonData.root))
         SignalsApp.instance.fav_cmd.emit({"cmd": "select", "src": JsonData.root})
         self.bar_top.search_wid.clear_search.emit()
-        self.tree_tags.reset()
+
+        # отключили сброс фильтров
+        # self.tree_tags.reset()
 
         if Dynamic.grid_view_type == 1:
             self.grid = ListFileSystem()

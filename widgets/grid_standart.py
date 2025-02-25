@@ -201,6 +201,10 @@ class GridStandart(Grid):
 
         self.order_()
         self.select_after_list()
+
+        if Dynamic.rating_filter > 0:
+            self.filter_()
+
         self.load_images_timer.start(100)
         
     def run_load_images_thread(self, cut_order_items: list[OrderItem]):
