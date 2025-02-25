@@ -26,13 +26,13 @@ class TreeTags(QListWidget):
 
         # копия механик из _actions.py > TagsMenu
 
-        NO_TAGS_T_ = Static.LINE_SYM + " " + Static.NO_TAGS_T
+        # NO_TAGS_T_ = Static.LINE_SYM + " " + Static.NO_TAGS_T
         DEINED_T_ = Static.DEINED_SYM + " " + Static.DEINED_T
         REVIEW_T_ = Static.REVIEW_SYM  + " " + Static.REVIEW_T
         APPROVED_T_ = Static.APPROVED_SYM  + " " + Static.APPROVED_T
 
         actions = {
-            NO_TAGS_T_: 9,
+            # NO_TAGS_T_: 9,
             DEINED_T_: 6,
             REVIEW_T_: 7,
             APPROVED_T_: 8
