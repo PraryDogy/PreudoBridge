@@ -128,6 +128,9 @@ class FavItem(QLabel):
 
 
 class TreeFavorites(QListWidget):
+    LIST_ITEM = "list_item"
+    FAV_ITEM = "fav_item"
+
     def __init__(self):
         super().__init__()
 
@@ -143,7 +146,8 @@ class TreeFavorites(QListWidget):
         self.wids.clear()
 
         for src, name in JsonData.favs.items():
-            item = self.add_fav_widget_item(name, src)
+            result = self.add_fav_widget_item(name, src)
+            item: QListWidgetItem = result[self.LIST_ITEM]
             self.wids[src] = item
 
             if JsonData.root == src:
@@ -177,31 +181,33 @@ class TreeFavorites(QListWidget):
 
             name = os.path.basename(src)
             JsonData.favs[src] = name
-            self.add_fav_widget_item(name, src)
-
+            result = self.add_fav_widget_item(name, src)
             JsonData.write_config()
 
-    def add_fav_widget_item(self, name: str, src: str) -> QListWidgetItem:
-        item = FavItem(name, src)
-        item.remove_fav_item.connect(
+            fav_item: FavItem = result[self.FAV_ITEM]
+            fav_item.rename_cmd()
+
+    def add_fav_widget_item(self, name: str, src: str) -> dict:
+        fav_item = FavItem(name, src)
+        fav_item.remove_fav_item.connect(
             lambda: self.del_item(src)
         )
-        item.renamed.connect(
+        fav_item.renamed.connect(
             lambda new_name: self.update_name(src, new_name)
         )
-        item.path_changed.connect(
+        fav_item.path_changed.connect(
             self.init_ui
         )
 
         list_item = QListWidgetItem(parent=self)
-        list_item.setSizeHint(item.sizeHint())
+        list_item.setSizeHint(fav_item.sizeHint())
 
         self.addItem(list_item)
-        self.setItemWidget(list_item, item)
+        self.setItemWidget(list_item, fav_item)
 
         self.wids[src] = list_item
 
-        return list_item
+        return {self.LIST_ITEM: list_item, self.FAV_ITEM: fav_item}
 
     def update_name(self, src: str, new_name: str):
         if src in JsonData.favs:
