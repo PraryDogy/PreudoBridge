@@ -148,6 +148,16 @@ class GridStandart(Grid):
         del self.finder_thread
         gc.collect()
 
+
+        # print(order_items)
+
+        if not order_items:
+            no_images = QLabel(text=WARN_TEXT)
+            no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.grid_layout.addWidget(no_images, 0, 0)
+            return
+
         self.loading_lbl.hide()
         total = len(order_items)
 
@@ -160,6 +170,11 @@ class GridStandart(Grid):
         row, col = 0, 0
 
         Thumb.calculate_size()
+
+        size = 50
+        chunked_order_items = [
+            order_items[i:i + size] for i in range(0, len(order_items), size)
+        ]
 
         for order_item in order_items:
 
@@ -192,12 +207,6 @@ class GridStandart(Grid):
             if col >= col_count:
                 col = 0
                 row += 1
-
-        if not os.path.exists(JsonData.root) or not self.cell_to_wid:
-            no_images = QLabel(text=WARN_TEXT)
-            no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.grid_layout.addWidget(no_images, 0, 0)
 
         self.order_()
         self.select_after_list()
