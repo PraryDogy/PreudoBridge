@@ -624,8 +624,6 @@ class Grid(BaseMethods, QScrollArea):
             self.mouseReleaseEvent = None
             SignalsApp.instance.new_history_item.emit(wid.src)
             SignalsApp.instance.load_standart_grid_cmd(path=wid.src, prev_path=None)
-            # cmd_ = lambda: SignalsApp.instance.load_standart_grid_cmd(path=wid.src, prev_path=None)
-            # QTimer.singleShot(100, cmd_)
 
         else:
             OpenWin.view(
@@ -654,11 +652,7 @@ class Grid(BaseMethods, QScrollArea):
             for i in self.selected_widgets
         ]
 
-        cmd_ = lambda: SignalsApp.instance.bar_bottom_cmd.emit(
-            {"src": wid.src}
-        )
-
-        QTimer.singleShot(100, cmd_)
+        self.set_bottom_path(src=wid.src)
 
         view_action = View(parent=menu, src=wid.src)
         view_action._clicked.connect(lambda: self.view_thumb_cmd(wid=wid))
@@ -727,11 +721,7 @@ class Grid(BaseMethods, QScrollArea):
 
     def grid_context_actions(self, menu: UMenu):
 
-        cmd_ = lambda: SignalsApp.instance.bar_bottom_cmd.emit(
-            {"src": JsonData.root}
-        )
-
-        QTimer.singleShot(100, cmd_)
+        self.set_bottom_path(src=JsonData.root)
 
         info = Info(menu, JsonData.root)
         menu.addAction(info)
@@ -948,6 +938,7 @@ class Grid(BaseMethods, QScrollArea):
 
         if not isinstance(clicked_wid, Thumb):
             self.clear_selected_widgets()
+            self.set_bottom_path(src=JsonData.root)
             return
         
         if a0.modifiers() == Qt.KeyboardModifier.ShiftModifier:
@@ -993,12 +984,13 @@ class Grid(BaseMethods, QScrollArea):
             # комманд клик: виджет не был виделен, выделить
             else:
                 self.add_and_select_widget(wid=clicked_wid)
+                self.set_bottom_path(src=clicked_wid.src)
 
         else:
 
             self.clear_selected_widgets()
             self.add_and_select_widget(wid=clicked_wid)
-            # self.select_one_wid(wid=clicked_wid)
+            self.select_one_wid(wid=clicked_wid)
 
     def mouseDoubleClickEvent(self, a0):
         clicked_wid = self.get_wid_under_mouse(a0=a0)
