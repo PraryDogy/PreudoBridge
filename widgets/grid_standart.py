@@ -148,16 +148,6 @@ class GridStandart(Grid):
         del self.finder_thread
         gc.collect()
 
-
-        # print(order_items)
-
-        if not order_items:
-            no_images = QLabel(text=WARN_TEXT)
-            no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.grid_layout.addWidget(no_images, 0, 0)
-            return
-
         self.loading_lbl.hide()
         total = len(order_items)
 
@@ -170,6 +160,13 @@ class GridStandart(Grid):
         row, col = 0, 0
 
         Thumb.calculate_size()
+
+        if not order_items:
+            no_images = QLabel(text=WARN_TEXT)
+            no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.grid_layout.addWidget(no_images, 0, 0)
+            return
 
         size = 50
         chunked_order_items = [
