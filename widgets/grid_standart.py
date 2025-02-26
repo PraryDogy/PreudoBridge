@@ -157,7 +157,6 @@ class GridStandart(Grid):
 
         sys_disk = os.path.join(os.sep, "Volumes", "Macintosh HD")
         col_count = Utils.get_clmn_count(self.ww)
-        row, col = 0, 0
 
         Thumb.calculate_size()
 
@@ -169,7 +168,8 @@ class GridStandart(Grid):
             return
 
         size = 50
-        chunked_order_items = [
+        self.row, self.col = 0, 0
+        self.chunked_order_items = [
             order_items[i:i + size] for i in range(0, len(order_items), size)
         ]
 
@@ -197,13 +197,13 @@ class GridStandart(Grid):
                     rating=order_item.rating,
                     )
 
-            self.add_widget_data(wid=wid, row=row, col=col)
-            self.grid_layout.addWidget(wid, row, col)
+            self.add_widget_data(wid=wid, row=self.row, col=self.col)
+            self.grid_layout.addWidget(wid, self.row, self.col)
 
-            col += 1
-            if col >= col_count:
-                col = 0
-                row += 1
+            self.col += 1
+            if self.col >= col_count:
+                self.col = 0
+                self.row += 1
 
         self.order_()
         self.select_after_list()
