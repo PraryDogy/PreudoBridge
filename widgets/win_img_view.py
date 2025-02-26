@@ -61,6 +61,7 @@ class LoadThumbnail(URunnable):
 
             if res is not None:
                 img_array = Utils.bytes_to_array(res)
+                img_array = Utils.desaturate_image(image=img_array, factor=0.2)
             else:
                 img_array = None
 
@@ -91,6 +92,7 @@ class LoadImage(URunnable):
             if self.src not in self.cache:
 
                 img_array = Utils.read_image(self.src)
+                img_array = Utils.desaturate_image(image=img_array, factor=0.2)
 
                 if img_array is None:
                     pixmap = None

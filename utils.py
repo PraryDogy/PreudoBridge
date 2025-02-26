@@ -466,6 +466,17 @@ class Utils(Pixmap, ReadImage, ImgConvert):
         # Возвращаем итоговый хеш в шестнадцатеричном формате.
         return hash_func.hexdigest()
 
+    @classmethod
+    def desaturate_image(cls, image: np.ndarray, factor=0.2):
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        return cv2.addWeighted(
+            image,
+            1 - factor,
+            cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR),
+            factor,
+            0
+        )
+
 
 class URunnable(QRunnable):
     def __init__(self):
