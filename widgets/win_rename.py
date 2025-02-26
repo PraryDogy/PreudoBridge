@@ -5,7 +5,8 @@ from PyQt5.QtWidgets import QPushButton, QVBoxLayout
 from ._base import ULineEdit, WinMinMax
 
 RENAME_PLACEHOLDER = "Введите текст"
-OK_T = "Ок"
+OK_T = "Задать имя"
+TITLE_T = "Переименовать"
 
 
 class WinRename(WinMinMax):
@@ -13,7 +14,9 @@ class WinRename(WinMinMax):
 
     def __init__(self, text: str):
         super().__init__()
-        self.setFixedSize(200, 70)
+        # self.setFixedSize(200, 80)
+        self.resize(200, 80)
+        self.setWindowTitle(TITLE_T)
 
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(10, 10, 10, 10)
@@ -30,7 +33,7 @@ class WinRename(WinMinMax):
 
         self.ok_btn = QPushButton(text=OK_T)
         self.ok_btn.clicked.connect(self.finish_rename)
-        self.ok_btn.setFixedWidth(100)
+        self.ok_btn.setFixedWidth(110)
         v_lay.addWidget(self.ok_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
     def finish_rename(self):
