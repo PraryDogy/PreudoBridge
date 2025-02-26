@@ -167,11 +167,7 @@ class GridStandart(Grid):
             self.grid_layout.addWidget(no_images, 0, 0)
             return
 
-        size = 50
-        self.row, self.col = 0, 0
-        self.chunked_order_items = [
-            order_items[i:i + size] for i in range(0, len(order_items), size)
-        ]
+        row, col = 0, 0
 
         for order_item in order_items:
 
@@ -197,13 +193,13 @@ class GridStandart(Grid):
                     rating=order_item.rating,
                     )
 
-            self.add_widget_data(wid=wid, row=self.row, col=self.col)
-            self.grid_layout.addWidget(wid, self.row, self.col)
+            self.add_widget_data(wid=wid, row=row, col=col)
+            self.grid_layout.addWidget(wid, row, col)
 
-            self.col += 1
-            if self.col >= col_count:
-                self.col = 0
-                self.row += 1
+            col += 1
+            if col >= col_count:
+                col = 0
+                row += 1
 
         self.order_()
         self.select_after_list()
