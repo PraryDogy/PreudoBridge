@@ -222,7 +222,13 @@ class MainWin(QWidget):
         JsonData.root = data.get("path")
         LoadImage.cache.clear()
         self.grid.close()
-        self.setWindowTitle(os.path.basename(JsonData.root))
+
+        if JsonData.root in JsonData.favs:
+            title = JsonData.favs[JsonData.root]
+        else:
+            title = os.path.basename(JsonData.root)
+
+        self.setWindowTitle(title)
         SignalsApp.instance.fav_cmd.emit({"cmd": "select", "src": JsonData.root})
         self.bar_top.search_wid.clear_search.emit()
 
