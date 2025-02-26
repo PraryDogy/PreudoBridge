@@ -223,10 +223,15 @@ class MainWin(QWidget):
         LoadImage.cache.clear()
         self.grid.close()
 
+        base_name = os.path.basename(JsonData.root)
         if JsonData.root in JsonData.favs:
-            title = JsonData.favs[JsonData.root]
+            fav = JsonData.favs[JsonData.root]
+            if fav != base_name:
+                title = f"{base_name} ({JsonData.favs[JsonData.root]})"
+            else:
+                title = base_name
         else:
-            title = os.path.basename(JsonData.root)
+            title = base_name
 
         self.setWindowTitle(title)
         SignalsApp.instance.fav_cmd.emit({"cmd": "select", "src": JsonData.root})
