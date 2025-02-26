@@ -654,6 +654,12 @@ class Grid(BaseMethods, QScrollArea):
             for i in self.selected_widgets
         ]
 
+        cmd_ = lambda: SignalsApp.instance.bar_bottom_cmd.emit(
+            {"src": wid.src}
+        )
+
+        QTimer.singleShot(100, cmd_)
+
         view_action = View(parent=menu, src=wid.src)
         view_action._clicked.connect(lambda: self.view_thumb_cmd(wid=wid))
         menu.addAction(view_action)
@@ -720,6 +726,12 @@ class Grid(BaseMethods, QScrollArea):
         menu.addAction(remove_files)
 
     def grid_context_actions(self, menu: UMenu):
+
+        cmd_ = lambda: SignalsApp.instance.bar_bottom_cmd.emit(
+            {"src": JsonData.root}
+        )
+
+        QTimer.singleShot(100, cmd_)
 
         info = Info(menu, JsonData.root)
         menu.addAction(info)
@@ -900,12 +912,6 @@ class Grid(BaseMethods, QScrollArea):
         return super().keyPressEvent(a0)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-
-        cmd_ = lambda: SignalsApp.instance.bar_bottom_cmd.emit(
-            {"src": JsonData.root}
-        )
-
-        QTimer.singleShot(100, cmd_)
 
         menu = UMenu(parent=self)
         clicked_wid = self.get_wid_under_mouse(a0=a0)
