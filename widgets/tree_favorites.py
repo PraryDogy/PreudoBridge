@@ -178,14 +178,17 @@ class TreeFavorites(QListWidget):
     def add_to_favs_main(self, src: str):
 
         if src not in JsonData.favs:
-
+            cmd_ = lambda name: self.add_to_favs_main_fin(src=src, name=name)
             name = os.path.basename(src)
+            self.set_name_win = WinRename(text=name)
+            self.set_name_win.finished_.connect(cmd_)
+            Utils.center_win(parent=self.window(), child=self.set_name_win)
+            self.set_name_win.show()
+
+    def add_to_favs_main_fin(self, src: str, name: str):
             JsonData.favs[src] = name
             result = self.add_fav_widget_item(name, src)
             JsonData.write_config()
-
-            fav_item: FavItem = result[self.FAV_ITEM]
-            fav_item.rename_cmd()
 
     def add_fav_widget_item(self, name: str, src: str) -> dict:
         fav_item = FavItem(name, src)
