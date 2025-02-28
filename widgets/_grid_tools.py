@@ -73,33 +73,27 @@ class FolderTools:
 
     @classmethod
     def execute_query(cls, conn: Connection, query):
+        Dynamic.busy_db = True
         try:
             conn.execute(query)
             conn.commit()
         except SQL_ERRORS as e:
             Utils.print_error(parent=cls, error=e)
             conn.rollback()
+        Dynamic.busy_db = False
 
 
 class GridTools(FolderTools):
 
     @classmethod
     def update_order_item(cls, conn: Connection, order_item: OrderItem):
-
         try:
-
-            Dynamic.busy_db = True
-
             if order_item.type_ == Static.FOLDER_TYPE:
                 item = cls.update_folder_order_item(conn=conn, order_item=order_item)
             else:
                 item = cls.update_file_order_item(conn=conn, order_item=order_item)
-            
-            Dynamic.busy_db = False
             return item
-
         except Exception as e:
-            Dynamic.busy_db = False
             return None
 
     @classmethod
@@ -113,11 +107,12 @@ class GridTools(FolderTools):
         
         img_array = None
 
-
+        Dynamic.busy_db = True
         db_item, rating = GridTools.load_file(
             conn=conn,
             order_item=order_item,
         )
+        Dynamic.busy_db = False
 
         if isinstance(db_item, int):
             img_array = cls.update_file(

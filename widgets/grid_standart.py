@@ -1,12 +1,10 @@
 import gc
 import os
 
-import sqlalchemy
 from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import QLabel
-from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Dynamic, JsonData, Static
 from database import CACHE, Dbase, OrderItem
@@ -19,7 +17,6 @@ from ._grid_tools import GridTools
 
 WARN_TEXT = "Нет изображений или нет подключения к диску"
 TASK_NAME = "LOAD_IMAGES"
-SQL_ERRORS = (IntegrityError, OperationalError)
 JPG_PNG_EXTS: tuple = (".jpg", ".jpeg", ".jfif", "png")
 TIFF_EXTS: tuple = (".tif", ".tiff")
 PSD_EXTS: tuple = (".psd", ".psb")

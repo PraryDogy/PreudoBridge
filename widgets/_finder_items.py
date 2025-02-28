@@ -5,7 +5,7 @@ from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtWidgets import QLabel, QWidget
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import JsonData, Static
+from cfg import JsonData, Static, Dynamic
 from database import CACHE, Dbase, OrderItem
 from utils import URunnable, Utils
 
@@ -52,12 +52,14 @@ class FinderItems(URunnable):
 
         conn = engine.connect()
 
+        Dynamic.busy_db = True
         q = sqlalchemy.select(CACHE.c.name, CACHE.c.rating)
         res = conn.execute(q).fetchall()
         res = {
             name: rating
             for name, rating in res
         }
+        Dynamic.busy_db = False
 
         for i in order_items:
 
