@@ -202,7 +202,7 @@ class ImageWidget(QLabel):
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         self.w, self.h = self.width(), self.height()
         self.update()
-        # return super().resizeEvent(a0)
+        return super().resizeEvent(a0)
 
 
 class ZoomBtns(QFrame):
@@ -286,6 +286,11 @@ class WinImgView(WinBase):
         super().__init__()
         self.setMinimumSize(QSize(400, 300))
         self.resize(Dynamic.ww_im, Dynamic.hh_im)
+        self.setObjectName("win_img_view")
+        self.setStyleSheet("#win_img_view {background: black}")
+        QTimer.singleShot(100, lambda: self.init_ui(src=src))
+
+    def init_ui(self, src: str):
 
         self.task_count = 0
         self.src: str = src
@@ -329,7 +334,9 @@ class WinImgView(WinBase):
         self.text_label.hide()
 
         self.hide_btns()
-        QTimer.singleShot(200, self.load_thumbnail)
+        self.resize(Dynamic.ww_im + 1, Dynamic.hh_im + 1)
+
+        QTimer.singleShot(50, self.load_thumbnail)
 
 # SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM
 
@@ -485,7 +492,13 @@ class WinImgView(WinBase):
         return super().keyPressEvent(ev)
 
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
-        vertical_center = a0.size().height() // 2 - self.next_btn.height() // 2
+        # у нас отложенная инициация дочерних виджетов, поэтому при инициации
+        # окна вылезет ошибка аттрибута
+        try:
+            vertical_center = a0.size().height() // 2 - self.next_btn.height() // 2
+        except AttributeError:
+            return
+
         right_window_side = a0.size().width() - self.next_btn.width()
         self.prev_btn.move(30, vertical_center)
         self.next_btn.move(right_window_side - 30, vertical_center)
@@ -500,6 +513,8 @@ class WinImgView(WinBase):
 
         Dynamic.ww_im = self.width()
         Dynamic.hh_im = self.height()
+
+        return super().resizeEvent(a0)
 
     def leaveEvent(self, a0: QEvent | None) -> None:
         self.hide_btns()
