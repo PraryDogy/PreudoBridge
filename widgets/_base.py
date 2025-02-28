@@ -191,17 +191,17 @@ class OpenWin:
     @classmethod
     def info(cls, parent: QWidget, src: str):
         from .win_info import WinInfo
-        cls.win = WinInfo(src)
-        Utils.center_win(parent, cls.win)
-        cls.win.show()
+        cls.win_info = WinInfo(src)
+        Utils.center_win(parent, cls.win_info)
+        cls.win_info.show()
 
     @classmethod
     def view(cls, parent: QWidget, src: str):
         from .win_img_view import WinImgView
-        win = WinImgView(src)
-        Utils.center_win(parent, win)
-        win.closed_.connect(lambda: cls.view_closed(win=win))
-        win.show()
+        cls.win_img_view = WinImgView(src)
+        Utils.center_win(parent, cls.win_img_view)
+        cls.win_img_view.closed_.connect(lambda: cls.view_closed(win=cls.win_img_view))
+        cls.win_img_view.show()
 
     @classmethod
     def view_closed(cls, win: QWidget):
