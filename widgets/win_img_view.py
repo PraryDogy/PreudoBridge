@@ -447,7 +447,6 @@ class WinImgView(WinBase):
         self.mouse_move_timer.start(2000)
 
     def show_info_win(self):
-        print(1)
         OpenWin.info(self, self.src)
 
 # EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS 
