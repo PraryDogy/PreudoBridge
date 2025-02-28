@@ -97,10 +97,9 @@ class LoadImages(URunnable):
 class GridStandart(Grid):
     def __init__(self, width: int, prev_path: str = None):
 
-        super().__init__(
-            width=width,
-            prev_path=prev_path
-        )
+        super().__init__(width=width, prev_path=prev_path)
+
+        self.loaded_images: list[str] = []
 
         self.load_images_timer = QTimer(self)
         self.load_images_timer.setSingleShot(True)
@@ -132,7 +131,10 @@ class GridStandart(Grid):
                 rating=i.rating
             )
             for i in visible_widgets
+            if i.src not in self.loaded_images
         ]
+
+        print(len(ordered_items))
 
         self.run_load_images_thread(cut_order_items=ordered_items)
 
@@ -238,6 +240,8 @@ class GridStandart(Grid):
 
                 if isinstance(order_item.rating, int):
                     widget.set_rating(rating=order_item.rating)
+
+                self.loaded_images.append(order_item.src)
 
         except RuntimeError:
             ...
