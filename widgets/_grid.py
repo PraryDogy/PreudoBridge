@@ -626,10 +626,8 @@ class Grid(BaseMethods, QScrollArea):
             SignalsApp.instance.load_standart_grid_cmd(path=wid.src, prev_path=None)
 
         else:
-            OpenWin.view(
-                parent=self.window(),
-                src=wid.src
-            )
+            cmd = lambda: OpenWin.view(parent=self.window(), src=wid.src)
+            QTimer.singleShot(100, cmd)
 
     def select_after_list(self):
         wid = Thumb.path_to_wid.get(ListFileSystem.last_selection)
