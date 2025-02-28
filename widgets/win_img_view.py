@@ -329,7 +329,7 @@ class WinImgView(WinBase):
         self.text_label.hide()
 
         self.hide_btns()
-        self.load_thumbnail()
+        QTimer.singleShot(200, self.load_thumbnail)
 
 # SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM
 
