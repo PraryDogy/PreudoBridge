@@ -336,7 +336,7 @@ class WinImgView(WinBase):
         self.hide_btns()
         self.resize(Dynamic.ww_im + 1, Dynamic.hh_im + 1)
 
-        QTimer.singleShot(50, self.load_thumbnail)
+        QTimer.singleShot(100 , self.load_thumbnail)
 
 # SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM
 
