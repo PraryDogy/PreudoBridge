@@ -6,7 +6,7 @@ from PyQt5.QtCore import (QMimeData, QObject, QPoint, Qt, QTimer, QUrl,
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
                          QPixmap)
 from PyQt5.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
-                             QPushButton, QVBoxLayout, QWidget)
+                             QPushButton, QVBoxLayout, QWidget, QAction)
 
 from cfg import Dynamic, JsonData, Static, ThumbData
 from database import ORDER
@@ -25,6 +25,7 @@ DESC = "по возр."
 GO_T = "Перейти"
 CURR_WID = "curr_wid"
 FINDER_T = "Finder"
+GO_PLACEGOLDER = "Вставьте путь к файлу/папке"
 
 class WorkerSignals(QObject):
     finished_ = pyqtSignal(str)
@@ -52,6 +53,29 @@ class PathFinderThread(URunnable):
             Utils.print_error(parent=None, error=e)
 
 
+class GoLineEdit(ULineEdit):
+    ww = 270
+
+    def __init__(self):
+        super().__init__()
+        self.setPlaceholderText(GO_PLACEGOLDER)
+        self.setFixedWidth(GoLineEdit.ww)
+        self.clear_btn_vcenter()
+
+    def mouseDoubleClickEvent(self, a0):
+
+        menu = UMenu(parent=self)
+
+        for i in Dynamic.go_paths:
+            action_ = QAction(parent=menu, text=i)
+            action_.triggered.connect(lambda e, tt=i: self.setText(tt))
+            menu.addAction(action_)
+        
+        menu.exec_(self.mapToGlobal(self.rect().bottomLeft()))
+
+        return super().mouseDoubleClickEvent(a0)
+
+
 class WinGo(WinMinMax):
     def __init__(self):
         super().__init__()
@@ -62,11 +86,8 @@ class WinGo(WinMinMax):
         v_lay.setSpacing(10)
         self.setLayout(v_lay)
 
-        self.input_wid = ULineEdit()
-        self.input_wid.setPlaceholderText("Вставьте путь к файлу/папке")
-        self.input_wid.setFixedWidth(270)
+        self.input_wid = GoLineEdit()
         v_lay.addWidget(self.input_wid, alignment=Qt.AlignmentFlag.AlignCenter)
-        self.input_wid.clear_btn_vcenter()
 
         h_wid = QWidget()
         v_lay.addWidget(h_wid)
@@ -108,6 +129,7 @@ class WinGo(WinMinMax):
 
     def open_path_btn_cmd(self, flag: str):
         path: str = self.input_wid.text()
+        Dynamic.go_paths.append(path)
         task = PathFinderThread(src=path)
         task.signals_.finished_.connect(
             lambda result: self.finalize(result=result, flag=flag)
