@@ -62,13 +62,18 @@ class GoLineEdit(ULineEdit):
         self.setFixedWidth(GoLineEdit.ww)
         self.clear_btn_vcenter()
 
+    def clicked_(self, text: str):
+        self.clear()
+        self.setText(text)
+        QTimer.singleShot(10, self.deselect)
+
     def mouseDoubleClickEvent(self, a0):
 
         menu = UMenu(parent=self)
 
         for i in Dynamic.go_paths:
             action_ = QAction(parent=menu, text=i)
-            action_.triggered.connect(lambda e, tt=i: self.setText(tt))
+            action_.triggered.connect(lambda e, tt=i: self.clicked_(text=tt))
             menu.addAction(action_)
         
         menu.exec_(self.mapToGlobal(self.rect().bottomLeft()))
@@ -115,30 +120,30 @@ class WinGo(WinMinMax):
 
         h_lay.addStretch()
 
-        self.paste_path()
-
-    def paste_path(self):
         clipboard = Utils.read_from_clipboard()
         task = PathFinderThread(src=clipboard)
-        task.signals_.finished_.connect(self.paste_path_fin)
+        task.signals_.finished_.connect(self.first_load_final)
         UThreadPool.start(runnable=task)
 
-    def paste_path_fin(self, result: str | None):
+    def first_load_final(self, result: str | None):
         if result:
             self.input_wid.setText(result)
 
     def open_path_btn_cmd(self, flag: str):
         path: str = self.input_wid.text()
-        Dynamic.go_paths.append(path)
         task = PathFinderThread(src=path)
         task.signals_.finished_.connect(
             lambda result: self.finalize(result=result, flag=flag)
         )
         UThreadPool.start(runnable=task)
 
+        if path not in Dynamic.go_paths:
+            Dynamic.go_paths.append(path)
+
     def finalize(self, result: str, flag: str):
 
         if not result:
+            self.close()
             return
 
         if flag == FINDER_T:
