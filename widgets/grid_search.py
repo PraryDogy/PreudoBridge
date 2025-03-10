@@ -6,8 +6,9 @@ from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import JsonData, Static
+from cfg import JsonData, Static, ThumbData
 from database import Dbase, OrderItem
+from fit_img import FitImg
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
@@ -134,6 +135,14 @@ class SearchFinder(URunnable):
         
         stat = entry.stat()
 
+        img_array = Utils.read_image(path=entry.path)
+        img_array = FitImg.start(
+            image=img_array,
+            size=ThumbData.DB_PIXMAP_SIZE
+        )
+
+        pixmap = Utils.pixmap_from_array(image=img_array)
+
         order_item = OrderItem(
             src=entry.path,
             size=stat.st_size,
@@ -141,42 +150,10 @@ class SearchFinder(URunnable):
             rating=0
         )
 
-        root = os.path.dirname(entry.path)
-        new_db_path = os.path.join(root, Static.DB_FILENAME)
-
-        # сравниваем предыдущий путь к БД и новый путь к БД
-        # если пути совпадают, значит мы находимся в прошлой директории
-        # и не нужно создавать новое подключение к БД
-
-        if new_db_path != self.db_path:
-
-            # создаем движок для БД в новой директории
-            dbase = Dbase()
-            engine = dbase.create_engine(path=new_db_path)
-
-            if engine is None:
-                self.signals_.new_widget.emit(order_item)
-                return
-            
-            self.db_path = new_db_path
-
-            # закрываем старое соединение
-            if self.conn:
-                self.conn.close()
-
-            # создаем новое соединение
-            self.conn = engine.connect()
+        order_item.pixmap_ = pixmap
 
         try:
-
-            new_order_item = GridTools.update_order_item(
-                conn=self.conn,
-                order_item=order_item
-            )
-
-            if new_order_item:
-                self.signals_.new_widget.emit(new_order_item)
-
+            self.signals_.new_widget.emit(order_item)
         except Exception as e:
             Utils.print_error(parent=self, error=e)
             self.signals_.new_widget.emit(order_item)
