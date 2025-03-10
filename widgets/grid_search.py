@@ -142,6 +142,7 @@ class SearchFinder(URunnable):
         )
 
         pixmap = Utils.pixmap_from_array(image=img_array)
+        del img_array
 
         order_item = OrderItem(
             src=entry.path,
