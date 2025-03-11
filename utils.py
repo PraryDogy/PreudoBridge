@@ -222,21 +222,26 @@ class ReadImage(Err):
             except Exception as e:
                 print(e)
 
-            #     if exif:
-            #         for tag, value in exif.items():
-            #             if ExifTags.TAGS.get(tag) == "Orientation":
-            #                 if value == 3:
-            #                     img = img.rotate(180, expand=True)
-            #                 elif value == 6:
-            #                     img = img.rotate(270, expand=True)
-            #                 elif value == 8:
-            #                     img = img.rotate(90, expand=True)
-            #                 break
-            # except Exception:
-            #     ...
             return np.array(img)
 
         except (Exception, rawpy._rawpy.LibRawDataError) as e:
+            return None
+
+    @classmethod
+    def read_movie(cls, path: str, time_sec=1) -> np.ndarray | None:
+        try:
+            cap = cv2.VideoCapture(path)
+            cap.set(cv2.CAP_PROP_POS_MSEC, time_sec * 1000)
+            success, frame = cap.read()
+            cap.release()
+
+            if success:
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                return frame
+            else:
+                return None
+
+        except Exception:
             return None
 
     @classmethod
@@ -250,7 +255,6 @@ class ReadImage(Err):
 
         data = {
             ".psb": cls.read_psb,
-            # ".psd": cls.read_psd,
             ".psd": cls.read_psb,
 
             ".tif": cls.read_tiff,
@@ -267,6 +271,9 @@ class ReadImage(Err):
             "jfif": cls.read_jpg,
 
             ".png": cls.read_png,
+
+            ".mov": cls.read_movie,
+            ".mp4": cls.read_movie
         }
 
         fn = data.get(ext)

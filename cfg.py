@@ -83,9 +83,10 @@ class Static:
         ".tif", ".tiff",
         ".psd", ".psb",
         ".png",
-        ".nef", ".cr2", ".cr3", ".arw", ".raf"
+        ".nef", ".cr2", ".cr3", ".arw", ".raf",
+        ".mov", ".mp4"
         )
-
+    
     IMG_EXT: tuple = tuple(
         upper_ext
         for ext in _IMG_EXT
