@@ -85,14 +85,15 @@ class FinderItems(URunnable):
                 if entry.name.startswith("."):
                     continue
 
-                if entry.is_dir() or entry.name.endswith(Static.IMG_EXT):
-                    try:
-                        stats = entry.stat()
-                    except Exception:
-                        continue
+                # if entry.is_dir() or entry.name.endswith(Static.IMG_EXT):
 
-                else:
+                try:
+                    stats = entry.stat()
+                except Exception:
                     continue
+
+                # else:
+                #     continue
 
                 size = stats.st_size
                 mod = stats.st_mtime

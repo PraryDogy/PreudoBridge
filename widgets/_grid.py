@@ -263,7 +263,11 @@ class Thumb(OrderItem, QFrame):
         self.img_frame_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.img_frame.setLayout(self.img_frame_lay)
 
-        self.svg_path = Static.IMG_SVG
+        if self.type_ in Static.IMG_EXT:
+            self.svg_path = Static.IMG_SVG
+        else:
+            self.svg_path = Static.FILE_SVG
+
         self.svg_wid = USvgWidget(src=self.svg_path, size=self.pixmap_size)
         self.img_frame_lay.addWidget(self.svg_wid)
 

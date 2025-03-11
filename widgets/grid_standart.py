@@ -76,6 +76,9 @@ class LoadImages(URunnable):
             if not self.should_run:
                 return
             
+            if order_item.type_ not in Static.IMG_EXT:
+                continue
+            
             try:
 
                 new_order_item = GridTools.update_order_item(
@@ -133,8 +136,6 @@ class GridStandart(Grid):
             for i in visible_widgets
             if i.src not in self.loaded_images
         ]
-
-        print(len(ordered_items))
 
         self.run_load_images_thread(cut_order_items=ordered_items)
 

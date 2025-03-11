@@ -19,6 +19,8 @@ from ._actions import (CopyPath, Info, OpenInApp, RatingMenu, RevealInFinder,
 from ._base import OpenWin, UMenu, USvgWidget, WinBase
 from ._grid import KEY_RATING, RATINGS, Thumb
 
+LOADING_T = "Загрузка..."
+
 
 class ImageData:
     __slots__ = ["src", "width", "pixmap"]
@@ -303,7 +305,7 @@ class WinImgView(WinBase):
             }
         self.image_paths: list = [
             i for i in self.path_to_wid.keys()
-            if os.path.isfile(i)
+            if os.path.isfile(i) and i.endswith(Static.IMG_EXT)
             ]
 
         self.mouse_move_timer = QTimer(self)
@@ -336,7 +338,11 @@ class WinImgView(WinBase):
         self.hide_btns()
         self.resize(Dynamic.ww_im + 1, Dynamic.hh_im + 1)
 
-        QTimer.singleShot(100 , self.load_thumbnail)
+        self.text_label.hide()
+        self.set_title()
+
+        if self.src.endswith(Static.IMG_EXT):
+            QTimer.singleShot(100 , self.load_thumbnail)
 
 # SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM
 
@@ -349,8 +355,6 @@ class WinImgView(WinBase):
         self.setWindowTitle(t)
 
     def load_thumbnail(self):
-        self.text_label.hide()
-        self.set_title()
 
         if self.src not in LoadImage.cache and not Dynamic.busy_db:
 
@@ -369,7 +373,7 @@ class WinImgView(WinBase):
             )
 
         else:
-            self.show_text_label(text="Загрузка...")
+            self.show_text_label(text=LOADING_T)
             self.load_image()
 
     def show_text_label(self, text: str):
@@ -385,7 +389,7 @@ class WinImgView(WinBase):
     def load_thumbnail_finished(self, image_data: ImageData):
 
         if image_data.pixmap is None:
-            self.show_text_label("Загрузка...")
+            self.show_text_label(LOADING_T)
 
         elif image_data.src == self.src:
             self.img_label.set_image(image_data.pixmap)
@@ -437,6 +441,9 @@ class WinImgView(WinBase):
         self.wid.text_changed.connect(self.set_title)
 
         SignalsApp.instance.move_to_wid.emit(self.wid)
+
+        self.text_label.hide()
+        self.set_title()
         self.load_thumbnail()
 
     def switch_img_btn(self, flag: str) -> None:
