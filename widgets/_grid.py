@@ -660,7 +660,7 @@ class Grid(BaseMethods, QScrollArea):
         view_action._clicked.connect(lambda: self.view_thumb_cmd(wid=wid))
         menu.addAction(view_action)
 
-        if wid.type_ != Static.FOLDER_TYPE:
+        if wid.type_ in Static.IMG_EXT:
             open_menu = OpenInApp(parent=menu, src=wid.src)
             menu.addMenu(open_menu)
 
