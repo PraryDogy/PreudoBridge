@@ -697,15 +697,16 @@ class Grid(BaseMethods, QScrollArea):
 
             menu.addSeparator()
 
-        rating_menu = RatingMenu(parent=menu, src=urls, rating=wid.rating)
-        rating_menu._clicked.connect(self.set_rating_wid)
-        menu.addMenu(rating_menu)
+        if wid.type_ in Static.IMG_EXT:
+            rating_menu = RatingMenu(parent=menu, src=urls, rating=wid.rating)
+            rating_menu._clicked.connect(self.set_rating_wid)
+            menu.addMenu(rating_menu)
 
-        tags_menu = TagMenu(parent=menu, src=urls, rating=wid.rating)
-        tags_menu._clicked.connect(wid.set_new_rating)
-        menu.addMenu(tags_menu)
+            tags_menu = TagMenu(parent=menu, src=urls, rating=wid.rating)
+            tags_menu._clicked.connect(wid.set_new_rating)
+            menu.addMenu(tags_menu)
 
-        menu.addSeparator()
+            menu.addSeparator()
 
         if isinstance(wid, ThumbSearch):
 
@@ -774,7 +775,8 @@ class Grid(BaseMethods, QScrollArea):
 
     def set_rating_wid(self, rating: int):
         for i in self.selected_widgets:
-            i.set_new_rating(value=rating)
+            if i.type_ in Static.IMG_EXT:
+                i.set_new_rating(value=rating)
 
     def get_wid_under_mouse(self, a0: QMouseEvent) -> None | Thumb:
         wid = QApplication.widgetAt(a0.globalPos())
