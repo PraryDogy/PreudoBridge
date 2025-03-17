@@ -512,6 +512,8 @@ class Utils(Pixmap, ReadImage, ImgConvert):
         
         painter.end()
 
+        Static.ICONS_LIST[new_filename] = new_path
+
         return new_path
 
 class URunnable(QRunnable):
