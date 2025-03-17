@@ -61,13 +61,12 @@ class Static:
     CLEAR_SVG = os.path.join(IMAGES_DIR, "clear.svg")
     HIDE_SVG = os.path.join(IMAGES_DIR, "hide.svg")
     SHOW_SVG = os.path.join(IMAGES_DIR, "show.svg")
-
+    GENERIC_SVG = os.path.join(IMAGES_DIR, "generic.svg")
     FOLDER_UP_SVG = os.path.join(IMAGES_DIR, "folder_up.svg")
     GRID_VIEW_SVG = os.path.join(IMAGES_DIR, "grid_view.svg")
     LIST_VIEW_SVG = os.path.join(IMAGES_DIR, "list_view.svg")
     NAVIGATE_BACK_SVG = os.path.join(IMAGES_DIR, "navigate_back.svg")
     NAVIGATE_NEXT_SVG = os.path.join(IMAGES_DIR, "navigate_next.svg")
-    RATING_SVG = os.path.join(IMAGES_DIR, "rating.svg")
     SETTINGS_SVG = os.path.join(IMAGES_DIR, "settings.svg")
 
     FOLDER_TYPE: str = "Папка"
