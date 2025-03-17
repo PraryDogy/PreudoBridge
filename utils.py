@@ -12,9 +12,10 @@ import psd_tools
 import rawpy
 import tifffile
 from imagecodecs.imagecodecs import DelayedImportError
-from PIL import ExifTags, Image
-from PyQt5.QtCore import QRunnable, Qt, QThreadPool, QTimer
-from PyQt5.QtGui import QImage, QPixmap
+from PIL import Image
+from PyQt5.QtCore import QRect, QRectF, QRunnable, QSize, Qt, QThreadPool
+from PyQt5.QtGui import QColor, QFont, QImage, QPainter, QPixmap
+from PyQt5.QtSvg import QSvgGenerator, QSvgRenderer
 from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget
 
 from cfg import Dynamic, Static, ThumbData
@@ -484,6 +485,60 @@ class Utils(Pixmap, ReadImage, ImgConvert):
             0
         )
 
+    # @classmethod
+    # def create_generic(cls, file_extension: str):
+
+    #     # открываем стандартную иконку для замены текста
+    #     with open(Static.GENERIC_SVG, "r") as svg_file:
+    #         old_svg_text = svg_file.read()
+
+    #     # в иконке содержится специальный текст для замены
+    #     replaceable_text = ".EXT"
+
+    #     # удаляем точку и делаем капслок
+    #     new_text = file_extension.replace(".", "").upper()
+    #     new_svg_text = old_svg_text.replace(replaceable_text, new_text)
+    #     new_filename = file_extension.replace(".", "") + ".svg"
+    #     new_icon_path = os.path.join(
+    #         Static.ICONS_DIR,
+    #         new_filename
+    #         )
+
+    #     with open(new_icon_path, "w") as svg_file:
+    #         svg_file.write(new_svg_text)
+
+    #     Static.ICONS_LIST[new_filename] = new_icon_path
+
+    #     return new_icon_path
+
+    @classmethod
+    def create_generic(cls, file_extension: str):
+        renderer = QSvgRenderer(Static.FILE_SVG)
+        width = 133
+        height = 133
+
+        new_text = file_extension.replace(".", "")[:4]
+        new_filename = file_extension.replace(".", "") + ".svg"
+        new_path = os.path.join(Static.ICONS_DIR, new_filename)
+
+        # Создаем генератор SVG
+        generator = QSvgGenerator()
+        generator.setFileName(new_path)
+        generator.setSize(QSize(width, height))
+        generator.setViewBox(QRect(0, 0, width, height))
+
+        # Рисуем на новом SVG с добавлением текста
+        painter = QPainter(generator)
+        renderer.render(painter)  # Рисуем исходный SVG
+        
+        # Добавляем текст
+        painter.setPen(QColor(71, 84, 103))  # Цвет текста
+        painter.setFont(QFont("Arial", 20, QFont.Bold))
+        painter.drawText(QRectF(0, 90, width, 30), Qt.AlignCenter, new_text)
+        
+        painter.end()
+
+        return new_path
 
 class URunnable(QRunnable):
     def __init__(self):

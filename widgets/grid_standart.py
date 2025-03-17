@@ -12,7 +12,7 @@ from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 from ._finder_items import FinderItems, LoadingWid
-from ._grid import Grid, Thumb, ThumbFolder
+from ._grid import Grid, Thumb, ThumbFolder, ThumbGeneric
 from ._grid_tools import GridTools
 
 WARN_TEXT = "Нет изображений или нет подключения к диску"
@@ -185,8 +185,16 @@ class GridStandart(Grid):
                     img_wid.load(Static.HDD_SVG)
 
 
-            else:
+            elif order_item.name.endswith(Static.IMG_EXT):
                 wid = Thumb(
+                    src=order_item.src,
+                    size=order_item.size,
+                    mod=order_item.mod,
+                    rating=order_item.rating,
+                    )
+                
+            else:
+              wid = ThumbGeneric(
                     src=order_item.src,
                     size=order_item.size,
                     mod=order_item.mod,

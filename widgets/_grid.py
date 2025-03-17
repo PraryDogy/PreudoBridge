@@ -263,10 +263,7 @@ class Thumb(OrderItem, QFrame):
         self.img_frame_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.img_frame.setLayout(self.img_frame_lay)
 
-        if self.type_ in Static.IMG_EXT:
-            self.svg_path = Static.IMG_SVG
-        else:
-            self.svg_path = Static.FILE_SVG
+        self.svg_path = Static.IMG_SVG
 
         self.svg_wid = USvgWidget(src=self.svg_path, size=self.pixmap_size)
         self.img_frame_lay.addWidget(self.svg_wid)
@@ -409,6 +406,28 @@ class Thumb(OrderItem, QFrame):
         )
 
         UThreadPool.start(self.task_)
+
+
+class ThumbGeneric(Thumb):
+    def __init__(self, src: str, size: int, mod: int, rating: int):
+        super().__init__(src, size, mod, rating)
+
+        if self.type_:
+            svg_filename = self.type_.replace(".", "") + ".svg"
+            svg_path = Static.ICONS_LIST.get(svg_filename)
+
+            if svg_path:
+                self.svg_path = svg_path
+
+            else:
+                svg_path = Utils.create_generic(file_extension=self.type_)
+                self.svg_path = svg_path
+
+        else:
+            self.svg_path = Static.FILE_SVG
+
+        img_wid = self.img_frame.findChild(USvgWidget)
+        img_wid.load(self.svg_path)
 
 
 class ThumbFolder(Thumb):

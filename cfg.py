@@ -13,6 +13,7 @@ class Static:
     APP_SUPPORT = os.path.expanduser('~/Library/Application Support')
     ROOT = os.path.join(APP_SUPPORT, APP_NAME)
 
+    ICONS_DIR = os.path.join(ROOT, "icons")
     JSON_FILE = os.path.join(ROOT, 'cfg.json')
     DB_FILENAME = ".preudobridge.db"
 
@@ -106,6 +107,7 @@ class Static:
 
     SEARCH_LIST_TEXT = "Найти по списку"
     SEARCH_LIST = []
+    ICONS_LIST: dict[str, str] = {}
 
 
 class ThumbData:
@@ -240,12 +242,20 @@ class JsonData:
             cls.hex = HEX
 
     @classmethod
+    def load_generic_icons(cls):
+        os.makedirs(Static.ICONS_DIR, exist_ok=True)
+        for entry in os.scandir(Static.ICONS_DIR):
+            if entry.name.endswith(".svg"):
+                Static.ICONS_LIST[entry.name] = entry.path
+
+    @classmethod
     def init(cls):
         os.makedirs(Static.ROOT, exist_ok=True)
         cls.read_json_data()
         cls.ver_check()
         cls.write_config()
         cls.find_img_apps()
+        cls.load_generic_icons()
 
 
 class Dynamic:
