@@ -8,7 +8,7 @@ HEX_DEFAULT = "ZERO"
 
 class Static:
     APP_NAME = "PreudoBridge"
-    APP_VER = 1.75
+    APP_VER = 1.9
 
     APP_SUPPORT = os.path.expanduser('~/Library/Application Support')
     ROOT = os.path.join(APP_SUPPORT, APP_NAME)

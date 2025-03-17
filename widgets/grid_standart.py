@@ -137,7 +137,7 @@ class GridStandart(Grid):
             if i.src not in self.loaded_images
         ]
 
-        # self.run_load_images_thread(cut_order_items=ordered_items)
+        self.run_load_images_thread(cut_order_items=ordered_items)
 
     def on_scroll_changed(self, value: int):
         self.load_images_timer.stop()
