@@ -277,8 +277,8 @@ class Thumb(OrderItem, QFrame):
         else:
             self.svg_path = Static.FILE_SVG
 
-        self.svg_wid = USvgWidget(src=self.svg_path, size=self.pixmap_size)
-        self.img_frame_lay.addWidget(self.svg_wid)
+        self.img_wid = USvgWidget(src=self.svg_path, size=self.pixmap_size)
+        self.img_frame_lay.addWidget(self.img_wid)
 
         self.text_wid = TextWidget()
         self.v_lay.addWidget(self.text_wid, alignment=Qt.AlignmentFlag.AlignCenter)
@@ -299,7 +299,7 @@ class Thumb(OrderItem, QFrame):
         cls.thumb_h = ThumbData.THUMB_H[ind]
 
     def set_pixmap(self, pixmap: QPixmap):
-        self.svg_wid.deleteLater()
+        self.img_wid.deleteLater()
 
         self.img_wid = QLabel()
 
@@ -341,7 +341,7 @@ class Thumb(OrderItem, QFrame):
                 )
             )
         else:
-            self.svg_wid.setFixedSize(
+            self.img_wid.setFixedSize(
                 Thumb.pixmap_size,
                 Thumb.pixmap_size
             )
@@ -847,10 +847,11 @@ class Grid(BaseMethods, QScrollArea):
                     )
 
             elif a0.key() == Qt.Key.Key_Down:
-                clicked_wid = self.selected_widgets[-1]
-                if clicked_wid:
-                    self.select_one_wid(wid=clicked_wid)
-                    self.view_thumb_cmd(clicked_wid)
+                if self.selected_widgets:
+                    clicked_wid = self.selected_widgets[-1]
+                    if clicked_wid:
+                        self.select_one_wid(wid=clicked_wid)
+                        self.view_thumb_cmd(clicked_wid)
 
             elif a0.key() == Qt.Key.Key_I:
                 clicked_wid = self.selected_widgets[-1]
@@ -1041,8 +1042,14 @@ class Grid(BaseMethods, QScrollArea):
 
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
+
+        if isinstance(wid.img_wid, USvgWidget):
+            USvgWidget
+
         img_ = QPixmap(Static.FILE_SVG).scaled(60, 60)
         self.drag.setPixmap(img_)
+
+        print(wid.img_wid)
         
         urls = [
             QUrl.fromLocalFile(i)
