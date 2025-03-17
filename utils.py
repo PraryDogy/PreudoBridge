@@ -485,32 +485,6 @@ class Utils(Pixmap, ReadImage, ImgConvert):
             0
         )
 
-    # @classmethod
-    # def create_generic(cls, file_extension: str):
-
-    #     # открываем стандартную иконку для замены текста
-    #     with open(Static.GENERIC_SVG, "r") as svg_file:
-    #         old_svg_text = svg_file.read()
-
-    #     # в иконке содержится специальный текст для замены
-    #     replaceable_text = ".EXT"
-
-    #     # удаляем точку и делаем капслок
-    #     new_text = file_extension.replace(".", "").upper()
-    #     new_svg_text = old_svg_text.replace(replaceable_text, new_text)
-    #     new_filename = file_extension.replace(".", "") + ".svg"
-    #     new_icon_path = os.path.join(
-    #         Static.ICONS_DIR,
-    #         new_filename
-    #         )
-
-    #     with open(new_icon_path, "w") as svg_file:
-    #         svg_file.write(new_svg_text)
-
-    #     Static.ICONS_LIST[new_filename] = new_icon_path
-
-    #     return new_icon_path
-
     @classmethod
     def create_generic(cls, file_extension: str):
         renderer = QSvgRenderer(Static.FILE_SVG)
@@ -533,7 +507,7 @@ class Utils(Pixmap, ReadImage, ImgConvert):
         
         # Добавляем текст
         painter.setPen(QColor(71, 84, 103))  # Цвет текста
-        painter.setFont(QFont("Arial", 20, QFont.Bold))
+        painter.setFont(QFont("Arial", 29, QFont.Bold))
         painter.drawText(QRectF(0, 90, width, 30), Qt.AlignCenter, new_text)
         
         painter.end()
