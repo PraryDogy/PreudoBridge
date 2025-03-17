@@ -491,7 +491,7 @@ class Utils(Pixmap, ReadImage, ImgConvert):
         width = 133
         height = 133
 
-        new_text = file_extension.replace(".", "")[:4]
+        new_text = file_extension.replace(".", "")[:4].upper()
         new_filename = file_extension.replace(".", "") + ".svg"
         new_path = os.path.join(Static.ICONS_DIR, new_filename)
 
@@ -508,7 +508,7 @@ class Utils(Pixmap, ReadImage, ImgConvert):
         # Добавляем текст
         painter.setPen(QColor(71, 84, 103))  # Цвет текста
         painter.setFont(QFont("Arial", 29, QFont.Bold))
-        painter.drawText(QRectF(0, 90, width, 30), Qt.AlignCenter, new_text)
+        painter.drawText(QRectF(0, 75, width, 30), Qt.AlignCenter, new_text)
         
         painter.end()
 
