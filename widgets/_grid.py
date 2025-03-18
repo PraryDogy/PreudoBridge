@@ -28,6 +28,7 @@ RAD = "border-radius: 4px"
 IMG_WID_ATTR = "img_wid_attr"
 SQL_ERRORS = (OperationalError, IntegrityError)
 WID_UNDER_MOUSE = "win_under_mouse"
+GRID_SPACING = 5
 
 KEY_RATING = {
     Qt.Key.Key_0: 0,
@@ -477,7 +478,7 @@ class Grid(BaseMethods, QScrollArea):
 
         flags = Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
         self.grid_layout = QGridLayout()
-        self.grid_layout.setSpacing(Static.GRID_SPACING)
+        self.grid_layout.setSpacing(GRID_SPACING)
         self.grid_layout.setAlignment(flags)
         self.main_wid.setLayout(self.grid_layout)
 

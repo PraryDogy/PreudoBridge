@@ -64,7 +64,6 @@ class Static:
     TAGS_REVIEW = "Модерация"
     TAGS_APPROWED = "Принято"
 
-    GRID_SPACING = 5
     LEFT_MENU_W = 240
 
     LINK = "https://disk.yandex.ru/d/vYdK8hMwVbkSKQ"
@@ -86,7 +85,7 @@ class Static:
     )
 
     FAVORITES_NAME = "___favs___"
-    MAIN_WIN_NAME = "MainWin" # имя соответствует классу Gui > MainWin
+    MAIN_WIN_NAME = "MainWin" # имя класса главного окна в gui.py
 
     SEARCH_TEMPLATES = {
         "Найти jpg": (".jpg", ".jpeg", "jfif"),
