@@ -10,39 +10,13 @@ class Static:
     APP_NAME = "PreudoBridge"
     APP_VER = 1.9
 
-    APP_SUPPORT = os.path.expanduser('~/Library/Application Support')
-    ROOT = os.path.join(APP_SUPPORT, APP_NAME)
-
-    ICONS_DIR = os.path.join(ROOT, "icons")
-    JSON_FILE = os.path.join(ROOT, 'cfg.json')
-    DB_FILENAME = ".preudobridge.db"
-
-    USER_APPS = "/Applications"
-
-    GRAY_SLIDER = "rgba(111, 111, 111, 0.5)"
-    GRAY_UP_BTN = "rgba(128, 128, 128, 0.40)"
-    BLUE = "rgb(46, 89, 203)"
-
-    ARROW_RIGHT = " \U0000203A" # ›
-    STAR_SYM = "\U00002605" # ★
-    UP_ARROW_SYM = "\u25B2" # ▲
-    LINE_SYM = "\U00002014" # —
-    PARAGRAPH_SEP = "\u2029"
-    LINE_FEED  = "\u000a"
-
-    DEINED_SYM = "⚠"
-    # DEINED_SYM = "🔴"
-    REVIEW_SYM = "◌"
-    # REVIEW_SYM = "🟡"
-    APPROVED_SYM = "✓"
-    # APPROVED_SYM = "🟢"
-
-    NO_TAGS_T = "Без меток"
-    DEINED_T = "Отклонено"
-    REVIEW_T = "Модерация"
-    APPROVED_T = "Принято"
-
+    USER_SETTINGS_DIR = os.path.expanduser('~/Library/Application Support')
+    APP_SUPPORT_APP = os.path.join(USER_SETTINGS_DIR, APP_NAME)
+    ICONS_DIR = os.path.join(APP_SUPPORT_APP, "icons")
     SCRIPTS_DIR = "scripts"
+    JSON_FILE = os.path.join(APP_SUPPORT_APP, 'cfg.json')
+    USER_APPS_DIR = "/Applications"
+
     REVEAL_SCPT = os.path.join(SCRIPTS_DIR, "reveal_files.scpt")
 
     IMAGES_DIR = "images"
@@ -70,7 +44,25 @@ class Static:
     NAVIGATE_NEXT_SVG = os.path.join(IMAGES_DIR, "navigate_next.svg")
     SETTINGS_SVG = os.path.join(IMAGES_DIR, "settings.svg")
 
+    DB_FILENAME = ".preudobridge.db"
     FOLDER_TYPE: str = "Папка"
+
+    GRAY_GLOBAL = "rgba(128, 128, 128, 0.40)"
+    BLUE_GLOBAL = "rgb(46, 89, 203)"
+
+    STAR_SYM = "\U00002605" # ★
+    LINE_LONG_SYM = "\U00002014" # —
+    PARAGRAPH_SEP = "\u2029" # символ PyQt5, который равен новой строке
+    LINE_FEED  = "\u000a" # символ PyQt5, который равен новой строке
+
+    DEINED_SYM = "⚠"
+    REVIEW_SYM = "◌"
+    APPROVED_SYM = "✓"
+
+    TAGS_NO_TAGS = "Без меток"
+    TAGS_DEINED = "Отклонено"
+    TAGS_REVIEW = "Модерация"
+    TAGS_APPROWED = "Принято"
 
     GRID_SPACING = 5
     LEFT_MENU_W = 240
@@ -78,23 +70,23 @@ class Static:
     LINK = "https://disk.yandex.ru/d/vYdK8hMwVbkSKQ"
     IMAGE_APPS: dict = {}
 
-    _IMG_EXT: tuple = (
+    IMG_EXT: tuple = (
         ".jpg", ".jpeg", ".jfif",
         ".tif", ".tiff",
         ".psd", ".psb",
         ".png",
         ".nef", ".cr2", ".cr3", ".arw", ".raf",
-        ".mov", ".mp4"
-        )
-    
-    IMG_EXT: tuple = tuple(
-        upper_ext
-        for ext in _IMG_EXT
-        for upper_ext in (ext, ext.upper())
-        )
+        ".mov", ".mp4",
+        ".JPG", ".JPEG", ".JFIF",
+        ".TIF", ".TIFF",
+        ".PSD", ".PSB",
+        ".PNG",
+        ".NEF", ".CR2", ".CR3", ".ARW", ".RAF",
+        ".MOV", ".MP4"
+    )
 
     FAVORITES_NAME = "___favs___"
-    MAIN_WIN_NAME = "MainWin"
+    MAIN_WIN_NAME = "MainWin" # имя соответствует классу Gui > MainWin
 
     SEARCH_TEMPLATES = {
         "Найти jpg": (".jpg", ".jpeg", "jfif"),
@@ -210,7 +202,7 @@ class JsonData:
         names_app = [i + ".app" for i in names]
         Static.IMAGE_APPS["Просмотр"] = f"/System/Applications/Preview.app"
 
-        with os.scandir(Static.USER_APPS) as entries:
+        with os.scandir(Static.USER_APPS_DIR) as entries:
             for entry in entries:
                 if not entry.is_dir():
                     continue
@@ -235,7 +227,7 @@ class JsonData:
             
             # удаляем все кроме json за ненужностью
 
-            for i in os.scandir(Static.ROOT):
+            for i in os.scandir(Static.APP_SUPPORT_APP):
                 if i.path != Static.JSON_FILE:
                     subprocess.call(["rm", "-rf", i.path])
 
@@ -250,7 +242,7 @@ class JsonData:
 
     @classmethod
     def init(cls):
-        os.makedirs(Static.ROOT, exist_ok=True)
+        os.makedirs(Static.APP_SUPPORT_APP, exist_ok=True)
         cls.read_json_data()
         cls.ver_check()
         cls.write_config()

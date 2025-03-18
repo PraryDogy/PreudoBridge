@@ -3,12 +3,12 @@ import os
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QKeyEvent, QMouseEvent, QResizeEvent
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QApplication, QGridLayout, QHBoxLayout, QLabel,
+from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel,
                              QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static
 from signals import SignalsApp
-from widgets._grid import Grid, Thumb
+from widgets._grid import Grid
 from widgets.bar_bottom import BarBottom
 from widgets.bar_top import BarTop
 from widgets.grid_search import GridSearch
@@ -18,6 +18,8 @@ from widgets.tree_favorites import TreeFavorites
 from widgets.tree_folders import TreeFolders
 from widgets.tree_tags import TreeTags
 from widgets.win_img_view import LoadImage
+
+ARROW_UP = "\u25B2" # ▲
 
 
 class BarTabs(QTabWidget):
@@ -74,6 +76,16 @@ class ShowHideTags(QWidget):
 
 class MainWin(QWidget):
     def __init__(self):
+
+        if not self.__class__.__name__ == Static.MAIN_WIN_NAME:
+
+            text = (
+                f"gui.py > имя класса {self.__class__.__name__}",
+                f"должно соответствовать cfg.py > MAIN_WIN_NAME ({Static.MAIN_WIN_NAME})"
+            )
+
+            raise Exception ("\n".join(text))
+
         super().__init__()
         self.setMinimumWidth(200)
 
@@ -138,14 +150,14 @@ class MainWin(QWidget):
         self.bar_bottom = BarBottom()
         self.r_lay.insertWidget(2, self.bar_bottom, alignment=Qt.AlignmentFlag.AlignBottom)
 
-        self.scroll_up = QLabel(parent=self, text=Static.UP_ARROW_SYM)
+        self.scroll_up = QLabel(parent=self, text=ARROW_UP)
         self.scroll_up.hide()
         self.scroll_up.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.scroll_up.mouseReleaseEvent = lambda e: self.grid.verticalScrollBar().setValue(0)
         self.scroll_up.setFixedSize(40, 40)
         self.scroll_up.setStyleSheet(
             f"""
-            background-color: {Static.GRAY_UP_BTN};
+            background-color: {Static.GRAY_GLOBAL};
             border-radius: 20px;
             """
             )

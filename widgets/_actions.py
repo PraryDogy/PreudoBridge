@@ -321,7 +321,7 @@ class RatingMenu(UMenu):
 
         cancel_ = QAction(
             parent=self,
-            text=Static.LINE_SYM
+            text=Static.LINE_LONG_SYM
         )
 
         cancel_.triggered.connect(
@@ -377,10 +377,10 @@ class TagMenu(UMenu):
         rating = rating // 10
 
         # копия механик из tree_tags.py > TreeTags
-        NO_TAGS_T_ = Static.LINE_SYM + " " + Static.NO_TAGS_T
-        DEINED_T_ = Static.DEINED_SYM + " " + Static.DEINED_T
-        REVIEW_T_ = Static.REVIEW_SYM  + " " + Static.REVIEW_T
-        APPROVED_T_ = Static.APPROVED_SYM  + " " + Static.APPROVED_T
+        NO_TAGS_T_ = Static.LINE_LONG_SYM + " " + Static.TAGS_NO_TAGS
+        DEINED_T_ = Static.DEINED_SYM + " " + Static.TAGS_DEINED
+        REVIEW_T_ = Static.REVIEW_SYM  + " " + Static.TAGS_REVIEW
+        APPROVED_T_ = Static.APPROVED_SYM  + " " + Static.TAGS_APPROWED
 
         actions = {
             NO_TAGS_T_: 9,

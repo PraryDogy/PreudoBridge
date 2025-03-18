@@ -127,7 +127,7 @@ class LoadingWid(QLabel):
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setStyleSheet(
             f"""
-                background: {Static.GRAY_UP_BTN};
+                background: {Static.GRAY_GLOBAL};
                 border-radius: 4px;
             """
         )

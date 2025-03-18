@@ -27,9 +27,9 @@ class TreeTags(QListWidget):
         # копия механик из _actions.py > TagsMenu
 
         # NO_TAGS_T_ = Static.LINE_SYM + " " + Static.NO_TAGS_T
-        DEINED_T_ = Static.DEINED_SYM + " " + Static.DEINED_T
-        REVIEW_T_ = Static.REVIEW_SYM  + " " + Static.REVIEW_T
-        APPROVED_T_ = Static.APPROVED_SYM  + " " + Static.APPROVED_T
+        DEINED_T_ = Static.DEINED_SYM + " " + Static.TAGS_DEINED
+        REVIEW_T_ = Static.REVIEW_SYM  + " " + Static.TAGS_REVIEW
+        APPROVED_T_ = Static.APPROVED_SYM  + " " + Static.TAGS_APPROWED
 
         actions = {
             # NO_TAGS_T_: 9,
@@ -41,7 +41,7 @@ class TreeTags(QListWidget):
 
         zero_item = UItem()
         zero_item.rating = 0
-        zero_item.setText(Static.LINE_SYM)
+        zero_item.setText(Static.LINE_LONG_SYM)
         zero_item.setSizeHint(item_size)
         self.addItem(zero_item)
 

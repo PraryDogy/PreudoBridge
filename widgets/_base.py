@@ -48,7 +48,7 @@ class USlider(QSlider):
                 border-radius: 1px;
                 margin: 0;
                 height: 3px;
-                background-color: {Static.GRAY_SLIDER};
+                background-color: rgba(111, 111, 111, 0.5);
             }}
             QSlider::handle:horizontal {{
                 background-color: rgba(199, 199, 199, 1);
@@ -224,7 +224,7 @@ class UFrame(QFrame):
 
     def solid_style(self):
         return f"""#bar_top_btn {{
-                        background: {Static.GRAY_UP_BTN}; 
+                        background: {Static.GRAY_GLOBAL}; 
                         border-radius: 7px;
                 }}"""
 

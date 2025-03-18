@@ -217,7 +217,7 @@ class ZoomBtns(QFrame):
         super().__init__(parent)
         self.setStyleSheet(
             f"""
-            background-color: {Static.GRAY_UP_BTN};
+            background-color: {Static.GRAY_GLOBAL};
             border-radius: 15px;
             """
             )

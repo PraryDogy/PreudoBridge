@@ -26,6 +26,8 @@ GO_T = "Перейти"
 CURR_WID = "curr_wid"
 FINDER_T = "Finder"
 GO_PLACEGOLDER = "Вставьте путь к файлу/папке"
+ARROW_RIGHT = " \U0000203A" # ›
+
 
 class WorkerSignals(QObject):
     finished_ = pyqtSignal(str)
@@ -209,7 +211,7 @@ class PathItem(QWidget):
         item_layout.addWidget(self.text_wid)
 
     def add_arrow(self):
-        t = self.text_wid.text() + " " + Static.ARROW_RIGHT
+        t = self.text_wid.text() + " " + ARROW_RIGHT
         self.text_wid.setText(t)
 
     def expand(self):
@@ -228,7 +230,7 @@ class PathItem(QWidget):
     def solid_style(self):
         self.text_wid.setStyleSheet(
             f"""
-                background: {Static.BLUE};
+                background: {Static.BLUE_GLOBAL};
                 border-radius: 2px;
             """
         )

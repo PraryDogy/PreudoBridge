@@ -69,26 +69,26 @@ RATINGS = {
     95: Static.STAR_SYM * 5,
     
     # теги
-    6: Static.DEINED_SYM + " " + Static.DEINED_T,
-    7: Static.REVIEW_SYM + " " + Static.REVIEW_T,
-    8: Static.APPROVED_SYM + " " + Static.APPROVED_T,
+    6: Static.DEINED_SYM + " " + Static.TAGS_DEINED,
+    7: Static.REVIEW_SYM + " " + Static.TAGS_REVIEW,
+    8: Static.APPROVED_SYM + " " + Static.TAGS_APPROWED,
     9: "",
 
-    60: Static.DEINED_SYM + " " + Static.DEINED_T,
+    60: Static.DEINED_SYM + " " + Static.TAGS_DEINED,
     61: Static.DEINED_SYM + " " + Static.STAR_SYM,
     62: Static.DEINED_SYM + " " + Static.STAR_SYM * 2,
     63: Static.DEINED_SYM + " " + Static.STAR_SYM * 3,
     64: Static.DEINED_SYM + " " + Static.STAR_SYM * 4,
     65: Static.DEINED_SYM + " " + Static.STAR_SYM * 5,
 
-    70: Static.REVIEW_SYM + " " + Static.REVIEW_T,
+    70: Static.REVIEW_SYM + " " + Static.TAGS_REVIEW,
     71: Static.REVIEW_SYM + " " + Static.STAR_SYM,
     72: Static.REVIEW_SYM + " " + Static.STAR_SYM * 2,
     73: Static.REVIEW_SYM + " " + Static.STAR_SYM * 3,
     74: Static.REVIEW_SYM + " " + Static.STAR_SYM * 4,
     75: Static.REVIEW_SYM + " " + Static.STAR_SYM * 5,
 
-    80: Static.APPROVED_SYM + " " + Static.APPROVED_T,
+    80: Static.APPROVED_SYM + " " + Static.TAGS_APPROWED,
     81: Static.APPROVED_SYM + " " + Static.STAR_SYM,
     82: Static.APPROVED_SYM + " " + Static.STAR_SYM * 2,
     83: Static.APPROVED_SYM + " " + Static.STAR_SYM * 3,
@@ -350,7 +350,7 @@ class Thumb(OrderItem, QFrame):
 
         self.text_wid.setStyleSheet(
             f"""
-                background: {Static.BLUE};
+                background: {Static.BLUE_GLOBAL};
                 {FONT_SIZE};
                 {RAD};
                 padding: 2px;
@@ -359,7 +359,7 @@ class Thumb(OrderItem, QFrame):
 
         self.img_frame.setStyleSheet(
             f"""
-                background: {Static.GRAY_UP_BTN};
+                background: {Static.GRAY_GLOBAL};
                 {FONT_SIZE};
                 {RAD};
             """
