@@ -26,25 +26,31 @@ class FileCopyWorker(URunnable):
         self.signals_ = WorderSignals()
 
     @URunnable.set_running_state
-    def run(self):        
+    def run(self):    
         new_paths = []
         total_files = len(Dynamic.files_to_copy)
-        for index, file in enumerate(Dynamic.files_to_copy, start=1):
+        for index, object_path in enumerate(Dynamic.files_to_copy, start=1):
 
             if not self.should_run:
                 self.signals_.finished_.emit(new_paths)
                 return
 
-            if os.path.isfile(file):
-                self.signals_.progress.emit(f"Копирую {index} из {total_files}")
-                old_file = os.path.join(JsonData.root, os.path.basename(file))
+            self.signals_.progress.emit(f"Копирую {index} из {total_files}")
+            dest = os.path.join(JsonData.root, os.path.basename(object_path))
 
+            if os.path.isfile(object_path):
                 try:
-                    new_path = shutil.copy2(file, old_file)
-                    new_paths.append(new_path)
+                    shutil.copy2(object_path, dest)
+                    new_paths.append(dest)
                 except shutil.SameFileError as e:
                     print("files copy error", e)
-        
+            else:
+                try:
+                    shutil.copytree(object_path, dest)
+                    new_paths.append(dest)
+                except Exception as e:
+                    print("files copy copytree error", e)
+    
         self.signals_.finished_.emit(new_paths)
 
 
