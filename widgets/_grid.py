@@ -20,6 +20,7 @@ from ._actions import (ChangeView, CopyFilesAction, CopyPath, FavAdd,
 from ._base import BaseMethods, OpenWin, UMenu, USvgWidget
 from .list_file_system import ListFileSystem
 from .win_copy_files import WinCopyFiles
+import subprocess
 from .win_remove_files import WinRemoveFiles
 
 SELECTED = "selected"
@@ -639,9 +640,12 @@ class Grid(BaseMethods, QScrollArea):
             SignalsApp.instance.new_history_item.emit(wid.src)
             SignalsApp.instance.load_standart_grid_cmd(path=wid.src, prev_path=None)
 
-        else:
+        elif wid.type_ in Static.IMG_EXT:
             cmd = lambda: OpenWin.view(parent=self.window(), src=wid.src)
             QTimer.singleShot(100, cmd)
+
+        else:
+            subprocess.Popen(["open", wid.src])
 
     def select_after_list(self):
         wid = Thumb.path_to_wid.get(ListFileSystem.last_selection)
