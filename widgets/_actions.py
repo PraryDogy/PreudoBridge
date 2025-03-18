@@ -706,6 +706,7 @@ class PasteFilesAction(QAction):
     def cmd_(self, *args):
         self.clicked_.emit()
 
+
 class RemoveFilesAction(QAction):
     clicked_ = pyqtSignal()
 

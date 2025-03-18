@@ -37,11 +37,13 @@ class FileCopyWorker(URunnable):
 
             if os.path.isfile(file):
                 self.signals_.progress.emit(f"Копирую {index} из {total_files}")
-                new_path = shutil.copy2(
-                    file,
-                    os.path.join(JsonData.root, os.path.basename(file))
-                )
-                new_paths.append(new_path)
+                old_file = os.path.join(JsonData.root, os.path.basename(file))
+
+                try:
+                    new_path = shutil.copy2(file, old_file)
+                    new_paths.append(new_path)
+                except shutil.SameFileError as e:
+                    print("files copy error", e)
         
         self.signals_.finished_.emit(new_paths)
 
@@ -81,10 +83,11 @@ class WinCopyFiles(WinMinMax):
             self.task_.should_run = False
         self.close()
 
-    def finished_task(self):
+    def finished_task(self, new_paths: list[str]):
+
         SignalsApp.instance.load_standart_grid_cmd(
             path=JsonData.root,
-            prev_path=None
+            prev_path=new_paths
         )
 
         del self.task_

@@ -619,10 +619,20 @@ class Grid(BaseMethods, QScrollArea):
             for coords, wid in self.cell_to_wid.items()
         }
 
-        if self.prev_path:
+        if isinstance(self.prev_path, str):
             wid = Thumb.path_to_wid.get(self.prev_path)
             self.select_one_wid(wid=wid)
             QTimer.singleShot(500, lambda: self.ensureWidgetVisible(wid))
+
+        elif isinstance(self.prev_path, (tuple, list)):
+            widgets = [
+                Thumb.path_to_wid.get(i)
+                for i in self.prev_path
+            ]
+
+            for i in widgets:
+                self.selected_widgets.append(i)
+                i.set_frame()
 
     def add_widget_data(self, wid: Thumb, row: int, col: int):
         wid.row, wid.col = row, col
