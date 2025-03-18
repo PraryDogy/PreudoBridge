@@ -43,6 +43,8 @@ class Static:
     NAVIGATE_BACK_SVG = os.path.join(IMAGES_DIR, "navigate_back.svg")
     NAVIGATE_NEXT_SVG = os.path.join(IMAGES_DIR, "navigate_next.svg")
     SETTINGS_SVG = os.path.join(IMAGES_DIR, "settings.svg")
+    COPY_FILES_SVG = os.path.join(IMAGES_DIR, "copy_files.svg")
+    COPY_FILES_PNG = os.path.join(IMAGES_DIR, "copy_files.svg")
 
     DB_FILENAME = ".preudobridge.db"
     FOLDER_TYPE: str = "Папка"

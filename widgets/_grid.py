@@ -1047,7 +1047,7 @@ class Grid(BaseMethods, QScrollArea):
         if isinstance(wid.img_wid, USvgWidget):
             USvgWidget
 
-        img_ = QPixmap(Static.FILE_SVG).scaled(60, 60)
+        img_ = QPixmap(Static.COPY_FILES_PNG)
         self.drag.setPixmap(img_)
         
         urls = [
