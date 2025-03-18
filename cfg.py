@@ -67,7 +67,6 @@ class Static:
     LEFT_MENU_W = 240
 
     LINK = "https://disk.yandex.ru/d/vYdK8hMwVbkSKQ"
-    IMAGE_APPS: dict = {}
 
     IMG_EXT: tuple = (
         ".jpg", ".jpeg", ".jfif",
@@ -181,37 +180,12 @@ class JsonData:
             return False
 
     @classmethod
-    def find_img_apps(cls):
-        names = [
-            f"Adobe Photoshop CC {i}"
-            for i in range(2014, 2020)
-        ]
-        names.extend([
-            f"Adobe Photoshop {i}"
-            for i in range(2020, date.today().year + 1)
-        ])
-        names.append("Capture One")
-        names_app = [i + ".app" for i in names]
-        Static.IMAGE_APPS["Просмотр"] = f"/System/Applications/Preview.app"
+    def setup_open_with_apps(cls):
+        for entry in os.scandir(Static.USER_APPS_DIR):
+            if entry.name.endswith((".app", ".APP")):
+                Dynamic.OPEN_WITH_APPS[entry.name] = entry.path
 
-        with os.scandir(Static.USER_APPS_DIR) as entries:
-            for entry in entries:
-                if not entry.is_dir():
-                    continue
-
-                # Проверяем, если имя соответствует папке
-                app_folder = any(entry.name == name for name in names)
-                if app_folder:
-                    app_inside_folder = os.path.join(entry.path, entry.name + ".app")
-                    if os.path.exists(app_inside_folder):
-                        Static.IMAGE_APPS[entry.name] = app_inside_folder
-                    continue
-
-                # Проверяем, если имя соответствует .app
-                app_app = any(entry.name == name_app for name_app in names_app)
-                if app_app:
-                    item = entry.name.replace(".app", "")
-                    Static.IMAGE_APPS[item] = entry.path
+        Dynamic.OPEN_WITH_APPS = dict(sorted(Dynamic.OPEN_WITH_APPS.items()))
 
     @classmethod
     def ver_check(cls):
@@ -226,7 +200,7 @@ class JsonData:
             cls.hex = HEX
 
     @classmethod
-    def load_generic_icons(cls):
+    def setup_generic_icons(cls):
         os.makedirs(Static.ICONS_DIR, exist_ok=True)
         for entry in os.scandir(Static.ICONS_DIR):
             if entry.name.endswith(".svg"):
@@ -238,8 +212,8 @@ class JsonData:
         cls.read_json_data()
         cls.ver_check()
         cls.write_config()
-        cls.find_img_apps()
-        cls.load_generic_icons()
+        cls.setup_open_with_apps()
+        cls.setup_generic_icons()
 
 
 class Dynamic:
@@ -258,3 +232,4 @@ class Dynamic:
     go_paths: list[str] = []
     SEARCH_LIST = [] #
     GENERIC_ICONS: dict[str, str] = {}
+    OPEN_WITH_APPS: dict[str, str] = {}

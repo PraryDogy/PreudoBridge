@@ -271,7 +271,7 @@ class OpenInApp(UMenu):
         self.src = src
 
         # список приложений, сформированный в cfg.py при инициации приложения
-        for name, app_path in Static.IMAGE_APPS.items():
+        for name, app_path in Dynamic.OPEN_WITH_APPS.items():
 
             wid = QAction(
                 parent=self,
