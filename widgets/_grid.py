@@ -1049,8 +1049,6 @@ class Grid(BaseMethods, QScrollArea):
 
         img_ = QPixmap(Static.FILE_SVG).scaled(60, 60)
         self.drag.setPixmap(img_)
-
-        print(wid.img_wid)
         
         urls = [
             QUrl.fromLocalFile(i)
