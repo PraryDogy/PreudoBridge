@@ -707,7 +707,7 @@ class Grid(BaseMethods, QScrollArea):
 
             menu.addSeparator()
 
-        if wid.type_ in Static.IMG_EXT:
+        if wid.type_ in (*Static.IMG_EXT, Static.FOLDER_TYPE):
             rating_menu = RatingMenu(parent=menu, src=urls, rating=wid.rating)
             rating_menu._clicked.connect(self.set_rating_wid)
             menu.addMenu(rating_menu)
@@ -785,7 +785,7 @@ class Grid(BaseMethods, QScrollArea):
 
     def set_rating_wid(self, rating: int):
         for i in self.selected_widgets:
-            if i.type_ in Static.IMG_EXT:
+            if i.type_ in (*Static.IMG_EXT, Static.FOLDER_TYPE):
                 i.set_new_rating(value=rating)
 
     def get_wid_under_mouse(self, a0: QMouseEvent) -> None | Thumb:
@@ -910,7 +910,7 @@ class Grid(BaseMethods, QScrollArea):
                 self.select_one_wid(wid=clicked_wid)
 
         elif a0.key() in KEY_RATING:
-    
+
             rating = KEY_RATING.get(a0.key())
             self.set_rating_wid(rating=rating)
         
