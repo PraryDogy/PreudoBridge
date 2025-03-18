@@ -512,7 +512,7 @@ class Utils(Pixmap, ReadImage, ImgConvert):
         
         painter.end()
 
-        Static.ICONS_LIST[new_filename] = new_path
+        Dynamic.GENERIC_ICONS[new_filename] = new_path
 
         return new_path
 

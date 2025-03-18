@@ -266,7 +266,7 @@ class Thumb(OrderItem, QFrame):
 
         if self.type_:
             svg_filename = self.type_.replace(".", "") + ".svg"
-            svg_path = Static.ICONS_LIST.get(svg_filename)
+            svg_path = Dynamic.GENERIC_ICONS.get(svg_filename)
 
             if svg_path:
                 self.svg_path = svg_path

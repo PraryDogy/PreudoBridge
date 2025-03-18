@@ -96,11 +96,11 @@ class ListWin(WinMinMax):
             if i
         ]
 
-        Static.SEARCH_LIST.clear()
+        Dynamic.SEARCH_LIST.clear()
 
         for i in search_list:
             filename, ext = os.path.splitext(i)
-            Static.SEARCH_LIST.append(filename)
+            Dynamic.SEARCH_LIST.append(filename)
 
         self.ok_pressed.emit()
         self.close()

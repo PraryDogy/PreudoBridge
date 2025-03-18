@@ -1,12 +1,11 @@
 import os
-import traceback
 from difflib import SequenceMatcher
 
 from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import JsonData, Static, ThumbData
+from cfg import JsonData, Static, ThumbData, Dynamic
 from database import Dbase, OrderItem
 from fit_img import FitImg
 from signals import SignalsApp
@@ -92,7 +91,7 @@ class SearchFinder(URunnable):
         filename, _ = os.path.splitext(entry.name)
         filename: str = filename.lower()
 
-        if filename in Static.SEARCH_LIST:
+        if filename in Dynamic.SEARCH_LIST:
             return True
         else:
             return False

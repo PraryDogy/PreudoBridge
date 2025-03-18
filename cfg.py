@@ -84,7 +84,6 @@ class Static:
         ".MOV", ".MP4"
     )
 
-    FAVORITES_NAME = "___favs___"
     MAIN_WIN_NAME = "MainWin" # имя класса главного окна в gui.py
 
     SEARCH_TEMPLATES = {
@@ -97,8 +96,6 @@ class Static:
     }
 
     SEARCH_LIST_TEXT = "Найти по списку"
-    SEARCH_LIST = []
-    ICONS_LIST: dict[str, str] = {}
 
 
 class ThumbData:
@@ -237,7 +234,7 @@ class JsonData:
         os.makedirs(Static.ICONS_DIR, exist_ok=True)
         for entry in os.scandir(Static.ICONS_DIR):
             if entry.name.endswith(".svg"):
-                Static.ICONS_LIST[entry.name] = entry.path
+                Dynamic.GENERIC_ICONS[entry.name] = entry.path
 
     @classmethod
     def init(cls):
@@ -263,3 +260,5 @@ class Dynamic:
     busy_db: bool = False
     files_to_copy: list[str] = []
     go_paths: list[str] = []
+    SEARCH_LIST = [] #
+    GENERIC_ICONS: dict[str, str] = {}
