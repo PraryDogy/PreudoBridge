@@ -272,7 +272,7 @@ class GridTools(FolderTools):
 
         img_array = FitImg.start(
             image=img_array_src,
-            size=ThumbData.DB_PIXMAP_SIZE
+            size=ThumbData.DB_IMAGE_SIZE
         )
 
         img_array_src = None

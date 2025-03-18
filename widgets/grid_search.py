@@ -137,7 +137,7 @@ class SearchFinder(URunnable):
         img_array = Utils.read_image(path=entry.path)
         img_array = FitImg.start(
             image=img_array,
-            size=ThumbData.DB_PIXMAP_SIZE
+            size=ThumbData.DB_IMAGE_SIZE
         )
 
         pixmap = Utils.pixmap_from_array(image=img_array)
