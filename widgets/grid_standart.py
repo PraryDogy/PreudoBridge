@@ -15,7 +15,7 @@ from ._finder_items import FinderItems, LoadingWid
 from ._grid import Grid, Thumb, ThumbFolder
 from ._grid_tools import GridTools
 
-WARN_TEXT = "Нет изображений или нет подключения к диску"
+WARN_TEXT = "Папка пуста или нет подключения к диску"
 TASK_NAME = "LOAD_IMAGES"
 JPG_PNG_EXTS: tuple = (".jpg", ".jpeg", ".jfif", "png")
 TIFF_EXTS: tuple = (".tif", ".tiff")

@@ -634,6 +634,9 @@ class Grid(BaseMethods, QScrollArea):
                 self.selected_widgets.append(i)
                 i.set_frame()
 
+            QTimer.singleShot(500, lambda: self.ensureWidgetVisible(widgets[0]))
+
+
     def add_widget_data(self, wid: Thumb, row: int, col: int):
         wid.row, wid.col = row, col
         self.cell_to_wid[row, col] = wid

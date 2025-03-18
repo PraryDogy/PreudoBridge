@@ -26,7 +26,7 @@ PATH_NOT_EXISTS = "\n".join(PATH_NOT_EXISTS)
 
 NO_IMAGES = [
     f"{JsonData.root}",
-    "Нет изображений"
+    "Папка пуста"
 ]
 NO_IMAGES = "\n".join(NO_IMAGES)
 
