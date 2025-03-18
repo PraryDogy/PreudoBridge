@@ -1,12 +1,12 @@
 import os
 
-import sqlalchemy
+
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QKeyEvent
-from PyQt5.QtWidgets import QGridLayout, QLabel
+from PyQt5.QtWidgets import QGridLayout, QLabel, QAction
 
-from cfg import Dynamic, JsonData, Static
-from database import CACHE, ColumnNames, Dbase, OrderItem
+from cfg import Static
+from database import OrderItem
 from utils import URunnable, UThreadPool, Utils
 
 from ._actions import CopyText, RevealInFinder
@@ -23,6 +23,7 @@ MOD_T = "Изменен"
 RESOL_T = "Разрешение"
 UNDEFINED = "Неизвестно"
 MAX_ROW = 50
+SELECT_ALL_T = "Выделить все"
 
 class WorkerSignals(QObject):
     finished_ = pyqtSignal(str)
@@ -131,10 +132,12 @@ class CustomLabel(QLabel):
     def __init__(self, text: str = None):
         super().__init__(text)
 
+    def select_all_cmd(self, *args):
+        self.setSelection(0, len(self.text()))
+
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
 
-        self.setSelection(0, len(self.text()))
-        src = self.selectedText().replace(Static.PARAGRAPH_SEP, "")
+        src = self.text().replace(Static.PARAGRAPH_SEP, "")
         src = src.replace(Static.LINE_FEED, "")
 
         menu = UMenu(self)
@@ -142,17 +145,17 @@ class CustomLabel(QLabel):
         copy_action = CopyText(parent=menu, widget=self)
         menu.addAction(copy_action)
 
-        menu.addSeparator()
+        select_all_act = QAction(parent=menu, text=SELECT_ALL_T)
+        select_all_act.triggered.connect(self.select_all_cmd)
+        menu.addAction(select_all_act)
 
-        reveal_action = RevealInFinder(parent=menu, src=src)
-        menu.addAction(reveal_action)
+        if os.path.exists(src):
+            menu.addSeparator()
 
-        if not os.path.exists(src):
-            reveal_action.setDisabled(True)
+            reveal_action = RevealInFinder(parent=menu, src=src)
+            menu.addAction(reveal_action)
 
         menu.exec_(ev.globalPos())
-
-        self.setSelection(0, 0)
 
 
 class WinInfo(WinMinMax):
