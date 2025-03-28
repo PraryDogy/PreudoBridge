@@ -1050,7 +1050,7 @@ class Grid(BaseMethods, QScrollArea):
         if wid is None:
             return
 
-        if wid and wid not in self.selected_widgets:
+        if wid not in self.selected_widgets:
             self.clear_selected_widgets()
             self.add_and_select_widget(wid=wid)
 
@@ -1073,7 +1073,9 @@ class Grid(BaseMethods, QScrollArea):
             for i in urls
             ]
 
-        self.mime_data.setUrls(urls)
+        if urls:
+            self.mime_data.setUrls(urls)
+            self.set_bottom_path(wid.src)
 
         self.drag.setMimeData(self.mime_data)
         self.drag.exec_(Qt.DropAction.CopyAction)
