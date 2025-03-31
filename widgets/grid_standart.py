@@ -116,7 +116,7 @@ class GridStandart(Grid):
         self.show()
 
         self.finder_thread = FinderItems()
-        self.finder_thread.signals_.finished_.connect(self.finder_thread_fin)
+        self.finder_thread.signals_.finished_.connect(self.finder_thread_finalize)
         UThreadPool.start(self.finder_thread)
 
     def load_visible_images(self):
@@ -143,7 +143,12 @@ class GridStandart(Grid):
         self.load_images_timer.stop()
         self.load_images_timer.start(1000)
 
-    def finder_thread_fin(self, order_items: list[OrderItem]):
+    # def finder_thread_finalize(self, *args):
+    #     print(args)
+    #     return
+
+    def finder_thread_finalize(self, items: tuple[list[OrderItem]]):
+        order_items, new_items = items
 
         del self.finder_thread
         gc.collect()
@@ -192,6 +197,9 @@ class GridStandart(Grid):
                     mod=order_item.mod,
                     rating=order_item.rating,
                     )
+            
+            if order_item in new_items:
+                wid.set_green_text()
 
             self.add_widget_data(wid=wid, row=row, col=col)
             self.grid_layout.addWidget(wid, row, col)

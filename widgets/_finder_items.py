@@ -14,7 +14,7 @@ SQL_ERRORS = (IntegrityError, OperationalError)
 
 
 class WorkerSignals(QObject):
-    finished_ = pyqtSignal(list)
+    finished_ = pyqtSignal(tuple)
 
 
 class FinderItems(URunnable):
@@ -27,9 +27,9 @@ class FinderItems(URunnable):
 
         try:
             order_items = self.get_order_items()
-            order_items = self.set_rating(order_items=order_items)
+            order_items, new_items = self.set_rating(order_items=order_items)
             order_items = OrderItem.sort_items(order_items=order_items)
-            self.signals_.finished_.emit(order_items)
+            self.signals_.finished_.emit((order_items, new_items))
         
         except SQL_ERRORS as e:
             print(e)
@@ -61,12 +61,16 @@ class FinderItems(URunnable):
         }
         Dynamic.busy_db = False
 
+        new_files = []
+
         for i in order_items:
             name = Utils.hash_filename(filename=i.name)
             if name in res:
                 i.rating = res.get(name)
+            else:
+                new_files.append(i)
 
-        return order_items
+        return order_items, new_files
 
     def get_order_items(self) -> list[OrderItem]:
 
