@@ -197,6 +197,8 @@ class GridStandart(Grid):
             if order_item in new_items:
                 wid.set_green_text()
 
+            wid.set_green_text()
+
             self.add_widget_data(wid=wid, row=row, col=col)
             self.grid_layout.addWidget(wid, row, col)
 
