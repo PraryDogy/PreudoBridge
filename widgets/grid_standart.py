@@ -143,10 +143,6 @@ class GridStandart(Grid):
         self.load_images_timer.stop()
         self.load_images_timer.start(1000)
 
-    # def finder_thread_finalize(self, *args):
-    #     print(args)
-    #     return
-
     def finder_thread_finalize(self, items: tuple[list[OrderItem]]):
         order_items, new_items = items
 
