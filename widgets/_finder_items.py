@@ -62,14 +62,9 @@ class FinderItems(URunnable):
         Dynamic.busy_db = False
 
         for i in order_items:
-
             name = Utils.hash_filename(filename=i.name)
-
             if name in res:
-
-                # print(i.rating)
                 i.rating = res.get(name)
-                # print(i.rating)
 
         return order_items
 
