@@ -300,9 +300,6 @@ class Thumb(OrderItem, QFrame):
         cls.thumb_w = ThumbData.THUMB_W[ind]
         cls.thumb_h = ThumbData.THUMB_H[ind]
 
-    def set_green_text(self):
-        self.text_wid.setStyleSheet("color: green;")
-
     def set_pixmap(self, pixmap: QPixmap):
         self.img_wid.deleteLater()
 
@@ -351,6 +348,17 @@ class Thumb(OrderItem, QFrame):
                 Thumb.pixmap_size
             )
 
+    def set_green_text(self):
+        self.text_wid.setStyleSheet(
+            f"""
+                background: transparent;
+                {FONT_SIZE};
+                {RAD};
+                padding: 2px;
+                color: green;
+            """
+        )
+
     def set_frame(self):
 
         self.text_wid.setStyleSheet(
@@ -371,7 +379,6 @@ class Thumb(OrderItem, QFrame):
         )
 
     def set_no_frame(self):
-    
         self.text_wid.setStyleSheet(
             f"""
                 background: transparent;
