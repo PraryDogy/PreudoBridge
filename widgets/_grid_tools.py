@@ -13,7 +13,20 @@ from utils import Utils
 SQL_ERRORS = (IntegrityError, OperationalError)
 
 
-class FolderTools:
+class CommitTool:
+    @classmethod
+    def run(cls, conn: Connection, query):
+        Dynamic.busy_db = True
+        try:
+            conn.execute(query)
+            conn.commit()
+        except SQL_ERRORS as e:
+            Utils.print_error(parent=cls, error=e)
+            conn.rollback()
+        Dynamic.busy_db = False
+
+
+class AnyOrderItem(CommitTool):
 
     @classmethod
     def update_any_order_item(cls, conn: Connection, order_item: OrderItem):
@@ -55,7 +68,7 @@ class FolderTools:
         }
 
         q = insert(CACHE).values(**values)
-        cls.execute_query(conn=conn, query=q)
+        cls.run(conn=conn, query=q)
 
     @classmethod
     def update_order_item(cls, conn: Connection, order_item: OrderItem):
@@ -69,21 +82,10 @@ class FolderTools:
         }
 
         q = update(CACHE).values(**values).where(CACHE.c.name == new_name)
-        cls.execute_query(conn=conn, query=q)
-
-    @classmethod
-    def execute_query(cls, conn: Connection, query):
-        Dynamic.busy_db = True
-        try:
-            conn.execute(query)
-            conn.commit()
-        except SQL_ERRORS as e:
-            Utils.print_error(parent=cls, error=e)
-            conn.rollback()
-        Dynamic.busy_db = False
+        cls.run(conn=conn, query=q)
 
 
-class GridTools(FolderTools):
+class GridTools(AnyOrderItem):
 
     @classmethod
     def update_order_item(cls, conn: Connection, order_item: OrderItem):
@@ -221,7 +223,7 @@ class GridTools(FolderTools):
 
         # пытаемся вставить запись в БД, но если не выходит
         # все равно отдаем изображение
-        cls.execute_query(conn=conn, query=q)
+        cls.run(conn=conn, query=q)
 
         return img_array
 
@@ -263,7 +265,7 @@ class GridTools(FolderTools):
 
         # пытаемся вставить запись в БД, но если не выходит
         # все равно отдаем изображение
-        cls.execute_query(conn=conn, query=q)
+        cls.run(conn=conn, query=q)
 
         return img_array
     
