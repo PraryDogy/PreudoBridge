@@ -204,7 +204,12 @@ class WinInfo(WinMinMax):
         # то есть разрешение фотографии или размер папки
         # смотри InfoTask - как формируется результат
         label = self.findChildren(CustomLabel)[-1]
+        left_label = self.findChildren(CustomLabel)[-2]
         label.setText(result)
+
+        if result == UNDEFINED:
+            for i in (label, left_label):
+                i.setText("")
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() in (Qt.Key.Key_Escape, Qt.Key.Key_Return):

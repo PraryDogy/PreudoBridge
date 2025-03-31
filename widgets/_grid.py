@@ -468,6 +468,8 @@ class Grid(BaseMethods, QScrollArea):
 
         self.setAcceptDrops(True)
         self.setWidgetResizable(True)
+        self.horizontalScrollBar().setDisabled(True)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         self.prev_path = prev_path
         self.selected_widgets: list[Thumb] = []
