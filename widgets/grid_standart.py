@@ -75,10 +75,7 @@ class LoadImages(URunnable):
 
             if not self.should_run:
                 return
-            
-            if order_item.type_ not in (*Static.IMG_EXT, Static.FOLDER_TYPE):
-                continue
-            
+                        
             try:
 
                 new_order_item = GridTools.update_order_item(

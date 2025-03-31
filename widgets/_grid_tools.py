@@ -16,12 +16,12 @@ SQL_ERRORS = (IntegrityError, OperationalError)
 class FolderTools:
 
     @classmethod
-    def update_folder_order_item(cls, conn: Connection, order_item: OrderItem):
+    def update_any_order_item(cls, conn: Connection, order_item: OrderItem):
 
-        order_item, rating = cls.load_folder(conn=conn, order_item=order_item)
+        order_item, rating = cls.load_order_item(conn=conn, order_item=order_item)
 
         if rating is None:
-            cls.insert_folder(conn=conn, order_item=order_item)
+            cls.insert_order_item(conn=conn, order_item=order_item)
             return order_item
         
         else:
@@ -29,7 +29,7 @@ class FolderTools:
             return order_item
 
     @classmethod
-    def load_folder(cls, conn: Connection, order_item: OrderItem):
+    def load_order_item(cls, conn: Connection, order_item: OrderItem):
         select_stmt = select(CACHE.c.rating)
 
         where_stmt = select_stmt.where(
@@ -44,7 +44,7 @@ class FolderTools:
             return (order_item, None)
 
     @classmethod
-    def insert_folder(cls, conn: Connection, order_item: OrderItem):
+    def insert_order_item(cls, conn: Connection, order_item: OrderItem):
 
         new_name = Utils.hash_filename(filename=order_item.name)
 
@@ -58,7 +58,7 @@ class FolderTools:
         cls.execute_query(conn=conn, query=q)
 
     @classmethod
-    def update_folder(cls, conn: Connection, order_item: OrderItem):
+    def update_order_item(cls, conn: Connection, order_item: OrderItem):
 
         new_name = Utils.hash_filename(filename=order_item.name)
 
@@ -87,11 +87,15 @@ class GridTools(FolderTools):
 
     @classmethod
     def update_order_item(cls, conn: Connection, order_item: OrderItem):
+
         try:
             if order_item.type_ == Static.FOLDER_TYPE:
-                item = cls.update_folder_order_item(conn=conn, order_item=order_item)
-            else:
+                item = cls.update_any_order_item(conn=conn, order_item=order_item)
+            elif order_item.type_ in Static.IMG_EXT:
                 item = cls.update_file_order_item(conn=conn, order_item=order_item)
+            else:
+                ...
+                item = cls.update_any_order_item(conn=conn, order_item=order_item)
             return item
         except Exception as e:
             return None
