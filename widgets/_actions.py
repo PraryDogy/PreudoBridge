@@ -11,12 +11,12 @@ from utils import URunnable, UThreadPool, Utils
 
 from ._base import OpenWin, UMenu
 
-REVEAL_T = "Показать выделенные объекты в Finder"
+REVEAL_T = "Показать в Finder"
 INFO_T = "Инфо"
-COPY_PATH_T = "Скопировать путь до выделенных объектов"
+COPY_PATH_T = "Скопировать путь"
 VIEW_T = "Просмотр"
 OPEN_IN_APP_T = "Открыть в приложении"
-RATING_T = "Рейтинг выделенных объектов"
+RATING_T = "Рейтинг"
 SHOW_IN_FOLDER_T = "Показать в папке"
 FAV_REMOVE_T = "Удалить из избранного"
 FAV_ADD_T = "Добавить в избранное"
@@ -35,10 +35,10 @@ CHANGE_VIEW_LIST_T = "Список"
 CREATE_FOLDER_T = "Создать папку"
 NEW_FOLDER_T = "Новая папка"
 NEW_FOLDER_WARN = "Папка с таким именем уже существует"
-TAGS_T = "Метка выделенных объектов"
-COPY_FILES_T = "Копировать выделенные объекты"
+TAGS_T = "Метки"
+COPY_FILES_T = "Копировать"
 PASTE_FILES_T = "Вставить объекты"
-DELETE_FILES_T = "Удалить выделенные объекты"
+DELETE_FILES_T = "Удалить"
 
 
 # Общий класс для выполнения действий QAction в отдельном потоке
