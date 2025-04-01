@@ -852,6 +852,7 @@ class Grid(BaseMethods, QScrollArea):
 
     def remove_files_cmd(self, urls: list[str]):
         self.rem_win = WinRemoveFiles(urls=urls)
+        Utils.center_win(parent=self.window(), child=self.rem_win)
         self.rem_win.show()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
