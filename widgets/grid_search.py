@@ -1,22 +1,25 @@
 import os
 from difflib import SequenceMatcher
 
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtCore import QObject, pyqtSignal, Qt
 from PyQt5.QtGui import QCloseEvent, QPixmap
+from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QPushButton
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import JsonData, Static, ThumbData, Dynamic
-from database import Dbase, OrderItem
+from database import OrderItem
 from fit_img import FitImg
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 from ._grid import Grid, ThumbSearch
 from ._grid_tools import GridTools
+from ._base import WinMinMax, USvgWidget
 
 SLEEP = 0.2
 SQL_ERRORS = (IntegrityError, OperationalError)
-
+ATTENTION_T = "Внимание!"
+MISSED_FILES = "Не найдены файлы:"
 
 class WorkerSignals(QObject):
     new_widget = pyqtSignal(OrderItem)
@@ -159,6 +162,52 @@ class SearchFinder(URunnable):
             self.signals_.new_widget.emit(order_item)
 
 
+class WinMissedFiles(WinMinMax):
+    def __init__(self, files: list[str]):
+        super().__init__()
+        self.setWindowTitle(ATTENTION_T)
+        self.setMinimumWidth(300)
+
+        v_lay = QVBoxLayout()
+        v_lay.setContentsMargins(10, 5, 10, 5)
+        self.setLayout(v_lay)
+
+        first_row_wid = QWidget()
+        v_lay.addWidget(first_row_wid)
+        first_row_lay = QHBoxLayout()
+        first_row_lay.setContentsMargins(0, 0, 0, 0)
+        first_row_wid.setLayout(first_row_lay)
+
+        warn = USvgWidget(src=Static.WARNING_SVG, size=50)
+        first_row_lay.addWidget(warn)
+
+        str_files = "\n".join(files)
+        t = f"{MISSED_FILES}\n{str_files}"
+        question = QLabel(text=t)
+        first_row_lay.addWidget(question)
+
+        h_wid = QWidget()
+        v_lay.addWidget(h_wid)
+        h_lay = QHBoxLayout()
+        h_lay.setContentsMargins(0, 0, 0, 0)
+        h_lay.setSpacing(10)
+        h_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        h_wid.setLayout(h_lay)
+
+        ok_btn = QPushButton(text="Ок")
+        ok_btn.clicked.connect(self.close)
+        ok_btn.setFixedWidth(90)
+        h_lay.addWidget(ok_btn)
+
+        self.adjustSize()
+        self.setFixedSize(self.width(), self.height())
+
+    def keyPressEvent(self, a0):
+        if a0.key() == Qt.Key.Key_Escape:
+            self.close()
+        return super().keyPressEvent(a0)
+    
+
 class GridSearch(Grid):
     def __init__(self, width: int, search_text: str):
         super().__init__(width)
@@ -213,6 +262,22 @@ class GridSearch(Grid):
         SignalsApp.instance.bar_bottom_cmd.emit(
             {"total": str(self.total)}
         )
+
+        done_src = [
+            os.path.splitext(i.name)[0]
+            for i in self.cell_to_wid.values()
+        ]
+
+        missed_files = [
+            i
+            for i in Dynamic.SEARCH_LIST
+            if i not in done_src
+        ]
+
+        if missed_files:
+            self.win = WinMissedFiles(files=missed_files)
+            Utils.center_win(parent=self.window(), child=self.win)
+            self.win.show()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.task_.should_run = False
