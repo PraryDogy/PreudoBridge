@@ -169,6 +169,7 @@ class MainWin(QWidget):
         SignalsApp.instance.load_search_grid.connect(self.load_search_grid)
         SignalsApp.instance.set_search_title.connect(self.search_finished)
         SignalsApp.instance.open_path.connect(self.open_path_cmd)
+        SignalsApp.instance.load_any_grid.connect(self.load_any_grid)
 
         SignalsApp.instance.load_standart_grid_cmd(
             path=JsonData.root,
@@ -228,6 +229,12 @@ class MainWin(QWidget):
     def search_finished(self, search_text: str):
         self.migaet_timer.stop()
         self.setWindowTitle(f"🟢\tРезультаты поиска: \"{search_text}\"")
+
+    def load_any_grid(self, data: dict):
+        if isinstance(self.grid, GridSearch):
+            print("grid search")
+        else:
+            self.load_standart_grid(data=dict)
 
     def load_standart_grid(self, data: dict):
 

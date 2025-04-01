@@ -216,3 +216,4 @@ class GridSearch(Grid):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.task_.should_run = False
+

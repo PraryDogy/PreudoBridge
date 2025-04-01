@@ -595,11 +595,16 @@ class SortMenu(UMenu):
         # записываем true_name (тип сортировки) в пользовательский .json
         Dynamic.sort = true_name
 
-        # переформируем текущую сетку GridStandart / SearchGrid
-        # с учетом нового типа сортировки
-        SignalsApp.instance.load_standart_grid_cmd(
-            path=JsonData.root,
-            prev_path=None
+        # SignalsApp.instance.load_standart_grid_cmd(
+        #     path=JsonData.root,
+        #     prev_path=None
+        # )
+
+        SignalsApp.instance.load_any_grid.emit(
+            {
+                "path": JsonData.root,
+                "prev_path": None
+            }
         )
 
         # передаем сигнал в нижний бар
