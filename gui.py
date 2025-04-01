@@ -232,12 +232,11 @@ class MainWin(QWidget):
 
     def load_any_grid(self, data: dict):
         if isinstance(self.grid, GridSearch):
-            print("grid search")
+            self.grid.order_()
         else:
-            self.load_standart_grid(data=dict)
+            self.load_standart_grid(data=data)
 
     def load_standart_grid(self, data: dict):
-
         JsonData.root = data.get("path")
         LoadImage.cache.clear()
         self.grid.close()

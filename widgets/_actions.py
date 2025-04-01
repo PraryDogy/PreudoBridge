@@ -594,39 +594,13 @@ class SortMenu(UMenu):
     def cmd_sort(self, true_name: str):
         # записываем true_name (тип сортировки) в пользовательский .json
         Dynamic.sort = true_name
-
-        # SignalsApp.instance.load_standart_grid_cmd(
-        #     path=JsonData.root,
-        #     prev_path=None
-        # )
-
-        SignalsApp.instance.load_any_grid.emit(
-            {
-                "path": JsonData.root,
-                "prev_path": None
-            }
-        )
-
-        # передаем сигнал в нижний бар
-        # где отображается QLabel с типом сортировки
-        # чтобы он обновил данные
-        # пустой словарь обозначает, что нижний бар обновит данные о сортировке
+        SignalsApp.instance.load_any_grid.emit({"path": JsonData.root, "prev_path": None})
         SignalsApp.instance.bar_bottom_cmd.emit({})
 
     def cmd_revers(self, reversed: bool):
+        # записываем порядок сортировки в пользовательский .json
         Dynamic.rev = reversed
-
-        # переформируем текущую сетку GridStandart / SearchGrid
-        # с учетом нового типа сортировки
-        SignalsApp.instance.load_standart_grid_cmd(
-            path=JsonData.root,
-            prev_path=None
-        )
-
-        # передаем сигнал в нижний бар
-        # где отображается QLabel с типом сортировки
-        # чтобы он обновил данные
-        # пустой словарь обозначает, что нижний бар обновит данные о сортировке
+        SignalsApp.instance.load_any_grid.emit({"path": JsonData.root, "prev_path": None})
         SignalsApp.instance.bar_bottom_cmd.emit({})
 
 
