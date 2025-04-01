@@ -1,16 +1,13 @@
-import os
-import shutil
 import subprocess
 
-from PyQt5.QtCore import QObject, QRunnable, Qt, pyqtSignal
+from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
-
-from cfg import Dynamic, JsonData, Static
+from cfg import JsonData, Static
 from signals import SignalsApp
 from utils import URunnable, UThreadPool
 
-from ._base import WinMinMax
+from ._base import WinMinMax, USvgWidget
 
 REMOVE_T = "Удалить безвозвратно объекты"
 OK_T = "Ок"
@@ -45,10 +42,9 @@ class RemoveFilesTask(URunnable):
 
 
 class WinRemoveFiles(WinMinMax):
-
     def __init__(self, urls: list[str]):
         super().__init__()
-        self.setFixedSize(250, 70)
+        # self.setFixedSize(250, 70)
         self.setWindowTitle(ATTENTION_T)
 
         self.urls = urls
@@ -58,9 +54,18 @@ class WinRemoveFiles(WinMinMax):
         v_lay.setSpacing(5)
         self.setLayout(v_lay)
 
+        first_row_wid = QWidget()
+        v_lay.addWidget(first_row_wid)
+        first_row_lay = QHBoxLayout()
+        first_row_lay.setContentsMargins(0, 0, 0, 0)
+        first_row_wid.setLayout(first_row_lay)
+
+        warn = USvgWidget(src=Static.WARNING_SVG, size=50)
+        first_row_lay.addWidget(warn)
+
         t = f"{REMOVE_T} ({len(urls)})?"
         question = QLabel(text=t)
-        v_lay.addWidget(question)
+        first_row_lay.addWidget(question)
 
         h_wid = QWidget()
         v_lay.addWidget(h_wid)
@@ -78,6 +83,9 @@ class WinRemoveFiles(WinMinMax):
         can_btn.clicked.connect(self.close)
         can_btn.setFixedWidth(90)
         h_lay.addWidget(can_btn)
+
+        self.adjustSize()
+        self.setFixedSize(self.width(), self.height())
 
     def cmd_(self, *args):
         self.task_ = RemoveFilesTask(urls=self.urls)
