@@ -35,11 +35,13 @@ class FinderItems(URunnable):
             print(e)
             order_items = self.get_items_no_db()
             order_items = OrderItem.sort_items(order_items=order_items)
-            self.signals_.finished_.emit(order_items)
+            new_items = []
+            self.signals_.finished_.emit((order_items, new_items))
 
         except Exception as e:
             order_items = []
-            self.signals_.finished_.emit(order_items)
+            new_items = []
+            self.signals_.finished_.emit((order_items, new_items))
 
     def set_rating(self, order_items: list[OrderItem]):
 
