@@ -50,8 +50,8 @@ class WinRemoveFiles(WinMinMax):
         self.urls = urls
 
         v_lay = QVBoxLayout()
-        v_lay.setContentsMargins(10, 10, 10, 10)
-        v_lay.setSpacing(5)
+        v_lay.setContentsMargins(10, 5, 10, 5)
+        # v_lay.setSpacing(5)
         self.setLayout(v_lay)
 
         first_row_wid = QWidget()
@@ -71,6 +71,7 @@ class WinRemoveFiles(WinMinMax):
         v_lay.addWidget(h_wid)
         h_lay = QHBoxLayout()
         h_lay.setContentsMargins(0, 0, 0, 0)
+        h_lay.setSpacing(10)
         h_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
         h_wid.setLayout(h_lay)
 
