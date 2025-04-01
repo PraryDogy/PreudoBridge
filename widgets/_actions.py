@@ -452,9 +452,10 @@ class CopyText(QAction):
 
     def cmd_(self):
 
+        print(self.wid, type)
+
         if isinstance(self.wid, QTextEdit):
             selection = self.wid.textCursor().selectedText()
-
         else:
             selection = self.wid.selectedText()
 

@@ -1,25 +1,27 @@
 import os
 from difflib import SequenceMatcher
 
-from PyQt5.QtCore import QObject, pyqtSignal, Qt
-from PyQt5.QtGui import QCloseEvent, QPixmap
-from PyQt5.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QPushButton
+from PyQt5.QtCore import QObject, Qt, pyqtSignal
+from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QPixmap
+from PyQt5.QtWidgets import (QAction, QHBoxLayout, QLabel, QPushButton,
+                             QVBoxLayout, QWidget)
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import JsonData, Static, ThumbData, Dynamic
+from cfg import Dynamic, JsonData, Static, ThumbData
 from database import OrderItem
 from fit_img import FitImg
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
+from ._actions import CopyText
+from ._base import UMenu, USvgWidget, WinMinMax
 from ._grid import Grid, ThumbSearch
-from ._grid_tools import GridTools
-from ._base import WinMinMax, USvgWidget
 
 SLEEP = 0.2
 SQL_ERRORS = (IntegrityError, OperationalError)
 ATTENTION_T = "Внимание!"
 MISSED_FILES = "Не найдены файлы:"
+SELECT_ALL_T = "Выделить все"
 
 class WorkerSignals(QObject):
     new_widget = pyqtSignal(OrderItem)
@@ -188,10 +190,11 @@ class WinMissedFiles(WinMinMax):
 
         str_files = "\n".join(files)
         t = f"{MISSED_FILES}\n{str_files}"
-        question = QLabel(text=t)
-        question.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-        question.setCursor(Qt.CursorShape.IBeamCursor)
-        first_row_lay.addWidget(question)
+        self.label_ = QLabel(text=t)
+        self.label_.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        self.label_.setCursor(Qt.CursorShape.IBeamCursor)
+        self.label_.contextMenuEvent = self.contextMenuEvent
+        first_row_lay.addWidget(self.label_)
 
         h_wid = QWidget()
         v_lay.addWidget(h_wid)
@@ -208,6 +211,24 @@ class WinMissedFiles(WinMinMax):
 
         self.adjustSize()
         self.setFixedSize(self.width(), self.height())
+
+    def select_all_cmd(self, *args):
+        self.label_.setSelection(0, len(self.label_.text()))
+
+    def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
+
+        src = self.label_.text().replace(Static.PARAGRAPH_SEP, "")
+        src = src.replace(Static.LINE_FEED, "")
+
+        menu = UMenu(self)
+
+        copy_action = CopyText(parent=menu, widget=self.label_)
+        menu.addAction(copy_action)
+
+        select_all_act = QAction(parent=menu, text=SELECT_ALL_T)
+        select_all_act.triggered.connect(self.select_all_cmd)
+        menu.addAction(select_all_act)
+        menu.show_custom()
 
     def keyPressEvent(self, a0):
         if a0.key() == Qt.Key.Key_Escape:
