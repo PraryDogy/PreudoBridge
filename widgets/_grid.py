@@ -847,6 +847,7 @@ class Grid(BaseMethods, QScrollArea):
     def paste_files(self):
         self.win_copy = WinCopyFiles()
         self.win_copy.show()
+        Dynamic.files_to_copy.clear()
 
     def remove_files_cmd(self, urls: list[str]):
         self.rem_win = WinRemoveFiles(urls=urls)
