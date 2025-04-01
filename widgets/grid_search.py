@@ -256,10 +256,6 @@ class GridSearch(Grid):
         self.task_.signals_.finished_.connect(self.search_fin)
         UThreadPool.start(self.task_)
 
-        self.win = WinMissedFiles(files=["agsdgsd", "sdgdsgdfs", "etgwef32fgerv"])
-        Utils.center_win(parent=self.window(), child=self.win)
-        self.win.show()
-
     def add_new_widget(self, order_item: OrderItem):
         wid = ThumbSearch(
             src=order_item.src,
