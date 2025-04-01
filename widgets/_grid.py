@@ -447,9 +447,8 @@ class ThumbSearch(Thumb):
 
     def show_in_folder_cmd(self):
         root = os.path.dirname(self.src)
-        SignalsApp.instance.load_standart_grid_cmd(
-            path=root,
-            prev_path=self.src
+        SignalsApp.instance.load_standart_grid.emit(
+            {"path": root, "prev_path": self.src}
         )
 
 
@@ -664,7 +663,9 @@ class Grid(BaseMethods, QScrollArea):
         elif wid.type_ == Static.FOLDER_TYPE:
             self.mouseReleaseEvent = None
             SignalsApp.instance.new_history_item.emit(wid.src)
-            SignalsApp.instance.load_standart_grid_cmd(path=wid.src, prev_path=None)
+            SignalsApp.instance.load_standart_grid.emit(
+                {"path": wid.src, "prev_path": None}
+            )
 
         elif wid.type_ in Static.IMG_EXT:
             cmd = lambda: OpenWin.view(parent=self.window(), src=wid.src)
@@ -870,12 +871,9 @@ class Grid(BaseMethods, QScrollArea):
                 root = os.path.dirname(JsonData.root)
 
                 if root != os.sep:
-
                     SignalsApp.instance.new_history_item.emit(root)
-
-                    SignalsApp.instance.load_standart_grid_cmd(
-                        path=root,
-                        prev_path=old_root
+                    SignalsApp.instance.load_standart_grid.emit(
+                        {"path": root, "prev_path": old_root}
                     )
 
             elif a0.key() == Qt.Key.Key_Down:

@@ -170,9 +170,8 @@ class SearchWidget(QWidget):
         else:
             self.clear_search.emit()
             self.search_wid.clear_btn.hide()
-            SignalsApp.instance.load_standart_grid_cmd(
-                path=JsonData.root,
-                prev_path=None
+            SignalsApp.instance.load_standart_grid.emit(
+                {"path": JsonData.root, "prev_path": None}
             )
 
     def show_templates(self, a0: QMouseEvent | None) -> None:
@@ -250,9 +249,8 @@ class BarTop(QWidget):
 
     def change_view_cmd(self, index: int, *args):
         Dynamic.grid_view_type = index
-        SignalsApp.instance.load_standart_grid_cmd(
-            path=JsonData.root,
-            prev_path=None
+        SignalsApp.instance.load_standart_grid.emit(
+            {"path": JsonData.root, "prev_path": None}
         )
 
     def open_settings_win(self, *args):
@@ -275,9 +273,8 @@ class BarTop(QWidget):
             if self.index_ + offset in(-1, len(self.history)):
                 return
             self.index_ += offset
-            SignalsApp.instance.load_standart_grid_cmd(
-                path=self.history[self.index_],
-                prev_path=None
+            SignalsApp.instance.load_standart_grid.emit(
+                {"path": self.history[self.index_], "prev_path": None}
             )
         except (ValueError, IndexError):
             pass
@@ -288,10 +285,7 @@ class BarTop(QWidget):
         root = os.path.dirname(JsonData.root)
 
         if not root == os.sep:
-
             SignalsApp.instance.new_history_item.emit(root)
-
-            SignalsApp.instance.load_standart_grid_cmd(
-                path=root,
-                prev_path=old_root
+            SignalsApp.instance.load_standart_grid.emit(
+                {"path": root, "prev_path": old_root}
             )

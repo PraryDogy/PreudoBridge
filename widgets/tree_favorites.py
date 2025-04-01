@@ -87,19 +87,16 @@ class FavItem(QLabel):
 
             self.try_find_path()
             SignalsApp.instance.new_history_item.emit(self.src)
-
-            SignalsApp.instance.load_standart_grid_cmd(
-                path=self.src,
-                prev_path=None
+            SignalsApp.instance.load_standart_grid.emit(
+                {"path": self.src, "prev_path": None}
             )
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
         menu_ = UMenu(self)
 
-        cmd_ = lambda: SignalsApp.instance.load_standart_grid_cmd(
-            path=self.src,
-            prev_path=None
-        )
+        cmd_ = lambda: SignalsApp.instance.load_standart_grid.emit(
+                        {"path": self.src, "prev_path": None}
+                    )
 
         view_ac = View(menu_, self.src)
         view_ac._clicked.connect(cmd_)

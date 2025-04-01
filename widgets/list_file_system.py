@@ -52,9 +52,8 @@ class ListFileSystem(QTableView):
 
         if os.path.isdir(path):
             self.setCurrentIndex(index)
-            SignalsApp.instance.load_standart_grid_cmd(
-                path=path,
-                prev_path=None
+            SignalsApp.instance.load_standart_grid.emit(
+                {"path": path, "prev_path": None}
             )
 
     def save_sort_settings(self, index):
@@ -136,9 +135,8 @@ class ListFileSystem(QTableView):
                 root = os.path.dirname(JsonData.root)
                 if root != os.sep:
                     SignalsApp.instance.new_history_item.emit(root)
-                    SignalsApp.instance.load_standart_grid_cmd(
-                        path=root,
-                        prev_path=None
+                    SignalsApp.instance.load_standart_grid.emit(
+                        {"path": root, "prev_path": None}
                     )
                     return
 

@@ -60,11 +60,9 @@ class ClearData(QGroupBox):
 
         if os.path.exists(db):
             os.remove(db)
-            SignalsApp.instance.load_standart_grid_cmd(
-                path=JsonData.root,
-                prev_path=None
+            SignalsApp.instance.load_standart_grid.emit(
+                {"path": JsonData.root, "prev_path": None}
             )
-
 
 class JsonFile(QGroupBox):
     def __init__(self):

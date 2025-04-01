@@ -222,9 +222,8 @@ class PathItem(QWidget):
             OpenWin.view(Utils.get_main_win(), self.src)
         else:
             SignalsApp.instance.new_history_item.emit(self.src)
-            SignalsApp.instance.load_standart_grid_cmd(
-                path=self.src,
-                prev_path=None
+            SignalsApp.instance.load_standart_grid.emit(
+                {"path": self.src, "prev_path": None}
             )
 
     def solid_style(self):

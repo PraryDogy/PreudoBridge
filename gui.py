@@ -171,10 +171,7 @@ class MainWin(QWidget):
         SignalsApp.instance.open_path.connect(self.open_path_cmd)
         SignalsApp.instance.load_any_grid.connect(self.load_any_grid)
 
-        SignalsApp.instance.load_standart_grid_cmd(
-            path=JsonData.root,
-            prev_path=None
-        )
+        SignalsApp.instance.load_standart_grid.emit({"path": JsonData.root, "prev_path": None})
 
     def show_hide_tags(self):
         if self.tree_tags.isHidden():
@@ -188,19 +185,13 @@ class MainWin(QWidget):
 
         if filepath.endswith(Static.IMG_EXT):
             JsonData.root = os.path.dirname(filepath)
-            
-            SignalsApp.instance.load_standart_grid_cmd(
-                path=JsonData.root,
-                prev_path=filepath
+            SignalsApp.instance.load_standart_grid.emit(
+                {"path": JsonData.root, "prev_path": filepath}
             )
-
-            # self.move_to_wid_delayed(filepath)
         else:
             JsonData.root = filepath
-
-            SignalsApp.instance.load_standart_grid_cmd(
-                path=JsonData.root,
-                prev_path=None
+            SignalsApp.instance.load_standart_grid.emit(
+                {"path": JsonData.root, "prev_path": None}
             )
 
     def load_search_grid(self, search_text: str):

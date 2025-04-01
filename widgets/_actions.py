@@ -249,10 +249,8 @@ class UpdateGrid(UAction):
         )
 
     def cmd_(self):
-
-        SignalsApp.instance.load_standart_grid_cmd(
-            path=JsonData.root,
-            prev_path=None
+        SignalsApp.instance.load_standart_grid.emit(
+            {"path": JsonData.root, "prev_path": None}
         )
 
 
@@ -647,16 +645,14 @@ class ChangeView(UMenu):
 
     def set_grid(self):
         Dynamic.grid_view_type = 0
-        SignalsApp.instance.load_standart_grid_cmd(
-            path=JsonData.root,
-            prev_path=None
+        SignalsApp.instance.load_standart_grid.emit(
+            {"path": JsonData.root, "prev_path": None}
         )
 
     def set_list(self):
         Dynamic.grid_view_type = 1
-        SignalsApp.instance.load_standart_grid_cmd(
-            path=JsonData.root,
-            prev_path=None
+        SignalsApp.instance.load_standart_grid.emit(
+            {"path": JsonData.root, "prev_path": None}
         )
 
 

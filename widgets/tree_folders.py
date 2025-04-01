@@ -31,10 +31,8 @@ class TreeFolders(QTreeView):
         path = self.c_model.filePath(index)
         self.setCurrentIndex(index)
         SignalsApp.instance.new_history_item.emit(path)
-
-        SignalsApp.instance.load_standart_grid_cmd(
-            path=path,
-            prev_path=None
+        SignalsApp.instance.load_standart_grid.emit(
+            {"path": path, "prev_path": None}
         )
 
         self.expand(index)
