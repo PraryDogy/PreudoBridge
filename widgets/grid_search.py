@@ -70,9 +70,9 @@ class SearchFinder(URunnable):
     def word_similarity(self, word1: str, word2: str) -> float:
         return SequenceMatcher(None, word1, word2).ratio()
 
-    def process_entry(self, entry: os.DirEntry): ...
+    def process_entry(self, entry: os.DirEntry, *args): ...
 
-    def process_extensions(self, entry: os.DirEntry):
+    def process_extensions(self, entry: os.DirEntry, *args):
         path = entry.path
         path: str = path.lower()
         if path.endswith(self.extensions):
@@ -80,7 +80,7 @@ class SearchFinder(URunnable):
         else:
             return False
 
-    def process_text(self, entry: os.DirEntry):
+    def process_text(self, entry: os.DirEntry, *args):
         filename, _ = os.path.splitext(entry.name)
         filename: str = filename.lower()
         search_text: str = self.search_text.lower()
@@ -90,11 +90,15 @@ class SearchFinder(URunnable):
         else:
             return False
         
-    def process_list(self, entry: os.DirEntry):
+    def process_list(self, entry: os.DirEntry, *args):
+        """
+        os.DirEntry, Dynamic.SEARCH_LIST with lowercase
+        """
         filename, _ = os.path.splitext(entry.name)
-        filename: str = filename.lower()
+        filename_lower: str = filename.lower()
+        lower_search_list = args[-1]
 
-        if filename in Dynamic.SEARCH_LIST:
+        if filename_lower in lower_search_list:
             return True
         else:
             return False
@@ -119,6 +123,7 @@ class SearchFinder(URunnable):
                 continue
 
     def scan_current_dir(self, current_dir, stack: list):
+        search_list_lower = [i.lower() for i in Dynamic.SEARCH_LIST]
 
         with os.scandir(current_dir) as entries:
             for entry in entries:
@@ -130,7 +135,7 @@ class SearchFinder(URunnable):
                     stack.append(entry.path)
                     continue
 
-                if self.process_entry(entry=entry):
+                if self.process_entry(entry, search_list_lower):
                     self.process_img(entry=entry)
 
     def process_img(self, entry: os.DirEntry):
@@ -184,6 +189,8 @@ class WinMissedFiles(WinMinMax):
         str_files = "\n".join(files)
         t = f"{MISSED_FILES}\n{str_files}"
         question = QLabel(text=t)
+        question.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
+        question.setCursor(Qt.CursorShape.IBeamCursor)
         first_row_lay.addWidget(question)
 
         h_wid = QWidget()
@@ -227,6 +234,10 @@ class GridSearch(Grid):
         self.task_.signals_.new_widget.connect(self.add_new_widget)
         self.task_.signals_.finished_.connect(self.search_fin)
         UThreadPool.start(self.task_)
+
+        self.win = WinMissedFiles(files=["agsdgsd", "sdgdsgdfs", "etgwef32fgerv"])
+        Utils.center_win(parent=self.window(), child=self.win)
+        self.win.show()
 
     def add_new_widget(self, order_item: OrderItem):
         wid = ThumbSearch(

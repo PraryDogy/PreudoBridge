@@ -91,7 +91,7 @@ class ListWin(WinMinMax):
     def ok_cmd(self, *args):
         search_list = self.inputs.toPlainText()
         search_list = [
-            i.strip().lower()
+            i.strip()
             for i in search_list.split("\n")
             if i
         ]
