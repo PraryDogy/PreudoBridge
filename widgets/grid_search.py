@@ -4,7 +4,7 @@ from difflib import SequenceMatcher
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QPixmap
 from PyQt5.QtWidgets import (QAction, QHBoxLayout, QLabel, QPushButton,
-                             QVBoxLayout, QWidget)
+                             QScrollArea, QVBoxLayout, QWidget)
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Dynamic, JsonData, Static, ThumbData
@@ -14,7 +14,7 @@ from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 from ._actions import CopyText
-from ._base import UMenu, USvgWidget, WinMinMax
+from ._base import UMenu, USvgWidget, WinMinMax, UTextEdit
 from ._grid import Grid, ThumbSearch
 
 SLEEP = 0.2
@@ -173,7 +173,8 @@ class WinMissedFiles(WinMinMax):
     def __init__(self, files: list[str]):
         super().__init__()
         self.setWindowTitle(ATTENTION_T)
-        self.setMinimumWidth(300)
+        self.setMinimumSize(300, 300)
+        self.resize(300, 400)
 
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(10, 5, 10, 5)
@@ -188,13 +189,14 @@ class WinMissedFiles(WinMinMax):
         warn = USvgWidget(src=Static.WARNING_SVG, size=50)
         first_row_lay.addWidget(warn)
 
-        str_files = "\n".join(files)
-        t = f"{MISSED_FILES}\n{str_files}"
-        self.label_ = QLabel(text=t)
-        self.label_.setTextInteractionFlags(Qt.TextInteractionFlag.TextSelectableByMouse)
-        self.label_.setCursor(Qt.CursorShape.IBeamCursor)
-        self.label_.contextMenuEvent = self.contextMenuEvent
-        first_row_lay.addWidget(self.label_)
+        label_ = QLabel(text=MISSED_FILES)
+        first_row_lay.addWidget(label_)
+
+        scrollable = UTextEdit()
+        scrollable.setText("\n".join(files))
+        scrollable.setReadOnly(True)
+        scrollable.setCursor(Qt.CursorShape.IBeamCursor)
+        v_lay.addWidget(scrollable)
 
         h_wid = QWidget()
         v_lay.addWidget(h_wid)
@@ -208,27 +210,6 @@ class WinMissedFiles(WinMinMax):
         ok_btn.clicked.connect(self.close)
         ok_btn.setFixedWidth(90)
         h_lay.addWidget(ok_btn)
-
-        self.adjustSize()
-        self.setFixedSize(self.width(), self.height())
-
-    def select_all_cmd(self, *args):
-        self.label_.setSelection(0, len(self.label_.text()))
-
-    def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
-
-        src = self.label_.text().replace(Static.PARAGRAPH_SEP, "")
-        src = src.replace(Static.LINE_FEED, "")
-
-        menu = UMenu(self)
-
-        copy_action = CopyText(parent=menu, widget=self.label_)
-        menu.addAction(copy_action)
-
-        select_all_act = QAction(parent=menu, text=SELECT_ALL_T)
-        select_all_act.triggered.connect(self.select_all_cmd)
-        menu.addAction(select_all_act)
-        menu.show_custom()
 
     def keyPressEvent(self, a0):
         if a0.key() == Qt.Key.Key_Escape:
