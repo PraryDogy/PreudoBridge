@@ -1,10 +1,11 @@
 import os
 from difflib import SequenceMatcher
+from time import sleep
 
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
-from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QPixmap
-from PyQt5.QtWidgets import (QAction, QHBoxLayout, QLabel, QPushButton,
-                             QScrollArea, QVBoxLayout, QWidget)
+from PyQt5.QtGui import QCloseEvent, QPixmap
+from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
+                             QWidget)
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Dynamic, JsonData, Static, ThumbData
@@ -13,8 +14,7 @@ from fit_img import FitImg
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
-from ._actions import CopyText
-from ._base import UMenu, USvgWidget, WinMinMax, UTextEdit
+from ._base import USvgWidget, UTextEdit, WinMinMax
 from ._grid import Grid, ThumbSearch
 
 SLEEP = 0.2
@@ -38,6 +38,8 @@ class SearchFinder(URunnable):
 
         self.db_path: str = None
         self.conn = None
+
+        self.pause = False
 
     @URunnable.set_running_state
     def run(self):
@@ -115,6 +117,9 @@ class SearchFinder(URunnable):
             if not self.should_run:
                 return
             
+            while self.pause:
+                sleep(1)
+
             try:
                 self.scan_current_dir(
                     current_dir=current_dir,
@@ -132,6 +137,9 @@ class SearchFinder(URunnable):
 
                 if not self.should_run:
                     return
+
+                while self.pause:
+                    sleep(1)
 
                 if entry.is_dir():
                     stack.append(entry.path)
