@@ -447,9 +447,7 @@ class ThumbSearch(Thumb):
 
     def show_in_folder_cmd(self):
         root = os.path.dirname(self.src)
-        SignalsApp.instance.load_standart_grid.emit(
-            {"path": root, "prev_path": self.src}
-        )
+        SignalsApp.instance.load_standart_grid.emit((root, self.src))
 
 
 class GridWid(QWidget):
@@ -661,9 +659,7 @@ class Grid(BaseMethods, QScrollArea):
         elif wid.type_ == Static.FOLDER_TYPE:
             self.mouseReleaseEvent = None
             SignalsApp.instance.new_history_item.emit(wid.src)
-            SignalsApp.instance.load_standart_grid.emit(
-                {"path": wid.src, "prev_path": None}
-            )
+            SignalsApp.instance.load_standart_grid.emit((wid.src, None))
 
         elif wid.type_ in Static.IMG_EXT:
             cmd = lambda: OpenWin.view(parent=self.window(), src=wid.src)
@@ -682,9 +678,9 @@ class Grid(BaseMethods, QScrollArea):
 
     def fav_cmd(self, offset: int, src: str):
         if 0 + offset == 1:
-            SignalsApp.instance.fav_cmd.emit({"cmd": "add", "src": src})
+            SignalsApp.instance.fav_cmd.emit(("add", src))
         else:
-            SignalsApp.instance.fav_cmd.emit({"cmd": "del", "src": src})
+            SignalsApp.instance.fav_cmd.emit(("del", src))
 
     def thumb_context_actions(self, menu: UMenu, wid: Thumb):
 
@@ -872,9 +868,7 @@ class Grid(BaseMethods, QScrollArea):
 
                 if root != os.sep:
                     SignalsApp.instance.new_history_item.emit(root)
-                    SignalsApp.instance.load_standart_grid.emit(
-                        {"path": root, "prev_path": old_root}
-                    )
+                    SignalsApp.instance.load_standart_grid.emit((root, old_root))
 
             elif a0.key() == Qt.Key.Key_Down:
                 if self.selected_widgets:

@@ -90,10 +90,7 @@ class WinCopyFiles(WinMinMax):
         self.close()
 
     def finished_task(self, new_paths: list[str]):
-        SignalsApp.instance.load_standart_grid.emit(
-            {"path": JsonData.root, "prev_path": new_paths}
-        )
-
+        SignalsApp.instance.load_standart_grid.emit((JsonData.root, new_paths))
         del self.task_
         self.close()
 

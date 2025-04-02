@@ -249,9 +249,7 @@ class UpdateGrid(UAction):
         )
 
     def cmd_(self):
-        SignalsApp.instance.load_standart_grid.emit(
-            {"path": JsonData.root, "prev_path": None}
-        )
+        SignalsApp.instance.load_standart_grid.emit((JsonData.root, None))
 
 
 # Меню со списком приложений, при помощи которых можно открыть изображение
@@ -593,13 +591,13 @@ class SortMenu(UMenu):
     def cmd_sort(self, true_name: str):
         # записываем true_name (тип сортировки) в пользовательский .json
         Dynamic.sort = true_name
-        SignalsApp.instance.load_any_grid.emit({"path": JsonData.root, "prev_path": None})
+        SignalsApp.instance.load_any_grid.emit((JsonData.root, None))
         SignalsApp.instance.bar_bottom_cmd.emit((None, None))
 
     def cmd_revers(self, reversed: bool):
         # записываем порядок сортировки в пользовательский .json
         Dynamic.rev = reversed
-        SignalsApp.instance.load_any_grid.emit({"path": JsonData.root, "prev_path": None})
+        SignalsApp.instance.load_any_grid.emit((JsonData.root, None))
         SignalsApp.instance.bar_bottom_cmd.emit((None, None))
 
 
@@ -646,15 +644,11 @@ class ChangeView(UMenu):
 
     def set_grid(self):
         Dynamic.grid_view_type = 0
-        SignalsApp.instance.load_standart_grid.emit(
-            {"path": JsonData.root, "prev_path": None}
-        )
+        SignalsApp.instance.load_standart_grid.emit((JsonData.root, None))
 
     def set_list(self):
         Dynamic.grid_view_type = 1
-        SignalsApp.instance.load_standart_grid.emit(
-            {"path": JsonData.root, "prev_path": None}
-        )
+        SignalsApp.instance.load_standart_grid.emit((JsonData.root, None))
 
 
 class CopyFilesAction(QAction):

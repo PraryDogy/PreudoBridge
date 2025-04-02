@@ -87,17 +87,12 @@ class FavItem(QLabel):
 
             self.try_find_path()
             SignalsApp.instance.new_history_item.emit(self.src)
-            SignalsApp.instance.load_standart_grid.emit(
-                {"path": self.src, "prev_path": None}
-            )
+            SignalsApp.instance.load_standart_grid.emit((self.src, None))
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
         menu_ = UMenu(self)
 
-        cmd_ = lambda: SignalsApp.instance.load_standart_grid.emit(
-                        {"path": self.src, "prev_path": None}
-                    )
-
+        cmd_ = lambda: SignalsApp.instance.load_standart_grid.emit((self.src, None))
         view_ac = View(menu_, self.src)
         view_ac._clicked.connect(cmd_)
         menu_.addAction(view_ac)
@@ -157,18 +152,15 @@ class TreeFavorites(QListWidget):
         else:
             self.clearSelection()
 
-    def cmd_(self, cmd: dict[Literal["cmd"], Literal["select", "add", "del"]]):
-        """
-        keys:
-        cmd = select or add or remove 
-        src = path to directory 
-        """
-        if cmd.get("cmd") == "select":
-            self.select_fav(cmd.get("src"))
-        elif cmd.get("cmd") == "add":
-            self.add_to_favs_main(cmd.get("src"))
-        elif cmd.get("cmd") == "del":
-            self.del_item(cmd.get("src"))
+    def cmd_(self, data: tuple):
+        cmd, src = data
+
+        if cmd == "select":
+            self.select_fav(src)
+        elif cmd == "add":
+            self.add_to_favs_main(src)
+        elif cmd == "del":
+            self.del_item(src)
         else:
             raise Exception("tree favorites wrong flag", cmd.get("cmd"))
 

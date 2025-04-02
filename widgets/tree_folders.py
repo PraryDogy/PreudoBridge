@@ -31,9 +31,7 @@ class TreeFolders(QTreeView):
         path = self.c_model.filePath(index)
         self.setCurrentIndex(index)
         SignalsApp.instance.new_history_item.emit(path)
-        SignalsApp.instance.load_standart_grid.emit(
-            {"path": path, "prev_path": None}
-        )
+        SignalsApp.instance.load_standart_grid.emit((path, None))
 
         self.expand(index)
 
@@ -68,12 +66,12 @@ class TreeFolders(QTreeView):
 
         favs: dict = JsonData.favs
         if src in favs:
-            cmd_ = lambda: SignalsApp.instance.fav_cmd.emit({"cmd": "del", "src": src})
+            cmd_ = lambda: SignalsApp.instance.fav_cmd.emit(("del", "src"))
             fav_action = FavRemove(menu, src)
             fav_action._clicked.connect(cmd_)
             menu.addAction(fav_action)
         else:
-            cmd_ = lambda: SignalsApp.instance.fav_cmd.emit({"cmd": "add", "src": src})
+            cmd_ = lambda: SignalsApp.instance.fav_cmd.emit(("add", "src"))
             fav_action = FavAdd(menu, src)
             fav_action._clicked.connect(cmd_)
             menu.addAction(fav_action)

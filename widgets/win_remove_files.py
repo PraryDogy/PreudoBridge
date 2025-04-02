@@ -30,10 +30,7 @@ class RemoveFilesTask(URunnable):
         try:
             subprocess.run(["rm", "-rf"] + self.urls, check=True)
 
-            SignalsApp.instance.load_standart_grid.emit(
-                {"path": JsonData.root, "prev_path": None}
-            )
-            
+            SignalsApp.instance.load_standart_grid.emit((JsonData.root, None))
             self.signals_.finished_.emit()
 
         except Exception as e:

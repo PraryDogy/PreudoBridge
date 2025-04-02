@@ -171,7 +171,7 @@ class MainWin(QWidget):
         SignalsApp.instance.open_path.connect(self.open_path_cmd)
         SignalsApp.instance.load_any_grid.connect(self.load_any_grid)
 
-        SignalsApp.instance.load_standart_grid.emit({"path": JsonData.root, "prev_path": None})
+        SignalsApp.instance.load_standart_grid.emit((JsonData.root, None))
 
     def show_hide_tags(self):
         if self.tree_tags.isHidden():
@@ -185,14 +185,10 @@ class MainWin(QWidget):
 
         if filepath.endswith(Static.IMG_EXT):
             JsonData.root = os.path.dirname(filepath)
-            SignalsApp.instance.load_standart_grid.emit(
-                {"path": JsonData.root, "prev_path": filepath}
-            )
+            SignalsApp.instance.load_standart_grid.emit((JsonData.root, filepath))
         else:
             JsonData.root = filepath
-            SignalsApp.instance.load_standart_grid.emit(
-                {"path": JsonData.root, "prev_path": None}
-            )
+            SignalsApp.instance.load_standart_grid.emit((JsonData.root, None))
 
     def load_search_grid(self, search_text: str):
         self.grid.close()
@@ -221,14 +217,15 @@ class MainWin(QWidget):
         self.migaet_timer.stop()
         self.setWindowTitle(f"🟢\tРезультаты поиска: \"{search_text}\"")
 
-    def load_any_grid(self, data: dict):
+    def load_any_grid(self, data: tuple):
         if isinstance(self.grid, GridSearch):
             self.grid.order_()
         else:
-            self.load_standart_grid(data=data)
+            self.load_standart_grid(data)
 
-    def load_standart_grid(self, data: dict):
-        JsonData.root = data.get("path")
+    def load_standart_grid(self, data: tuple):
+        path_for_grid, path_for_select = data
+        JsonData.root = path_for_grid
         LoadImage.cache.clear()
         self.grid.close()
 
@@ -243,21 +240,15 @@ class MainWin(QWidget):
             title = base_name
 
         self.setWindowTitle(title)
-        SignalsApp.instance.fav_cmd.emit({"cmd": "select", "src": JsonData.root})
+        SignalsApp.instance.fav_cmd.emit(("select", JsonData.root))
         self.bar_top.search_wid.clear_search.emit()
-
-        # отключили сброс фильтров
-        # self.tree_tags.reset()
 
         if Dynamic.grid_view_type == 1:
             self.grid = ListFileSystem()
 
         elif Dynamic.grid_view_type == 0:
 
-            self.grid = GridStandart(
-                width=self.get_grid_width(),
-                prev_path=data.get("prev_path")
-            )
+            self.grid = GridStandart(self.get_grid_width(), path_for_select)
 
         self.grid.verticalScrollBar().valueChanged.connect(
             self.scroll_up_scroll_value
