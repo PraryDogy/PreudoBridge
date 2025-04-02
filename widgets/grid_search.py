@@ -284,21 +284,25 @@ class GridSearch(Grid):
     def search_fin(self):
         SignalsApp.instance.bar_bottom_cmd.emit((None, self.total))
 
-        done_src = [
-            os.path.splitext(i.name)[0]
-            for i in self.cell_to_wid.values()
-        ]
+        if Dynamic.SEARCH_LIST:
 
-        missed_files = [
-            i
-            for i in Dynamic.SEARCH_LIST
-            if i not in done_src
-        ]
+            done_src = [
+                os.path.splitext(i.name)[0]
+                for i in self.cell_to_wid.values()
+            ]
 
-        if missed_files:
-            self.win = WinMissedFiles(files=missed_files)
-            Utils.center_win(parent=self.window(), child=self.win)
-            self.win.show()
+            missed_files = [
+                i
+                for i in Dynamic.SEARCH_LIST
+                if i not in done_src
+            ]
+
+            if missed_files:
+                self.win = WinMissedFiles(files=missed_files)
+                Utils.center_win(parent=self.window(), child=self.win)
+                self.win.show()
+
+            Dynamic.SEARCH_LIST.clear()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.task_.should_run = False
