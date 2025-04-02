@@ -16,7 +16,7 @@ from utils import URunnable, UThreadPool, Utils
 from ._actions import (ChangeView, CopyFilesAction, CopyPath, FavAdd,
                        FavRemove, Info, OpenInApp, PasteFilesAction,
                        RatingMenu, RemoveFilesAction, RevealInFinder,
-                       ShowInFolder, SortMenu, TagMenu, UpdateGrid, View)
+                       ShowInFolder, SortMenu, TagMenu, UpdateGrid, View, OpenDefault)
 from ._base import BaseMethods, OpenWin, UMenu, USvgWidget
 from .list_file_system import ListFileSystem
 from .win_copy_files import WinCopyFiles
@@ -696,6 +696,9 @@ class Grid(BaseMethods, QScrollArea):
         menu.addAction(view_action)
 
         if wid.type_ != Static.FOLDER_TYPE:
+            open_default = OpenDefault(parent=menu, src=wid.src)
+            menu.addAction(open_default)
+
             open_menu = OpenInApp(parent=menu, src=wid.src)
             menu.addMenu(open_menu)
 

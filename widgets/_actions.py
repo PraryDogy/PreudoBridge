@@ -39,6 +39,7 @@ TAGS_T = "Метки"
 COPY_FILES_T = "Копировать"
 PASTE_FILES_T = "Вставить объекты"
 DELETE_FILES_T = "Удалить"
+OPEN_DEFAULT_T = "Открыть по умолчанию"
 
 
 # Общий класс для выполнения действий QAction в отдельном потоке
@@ -290,6 +291,14 @@ class OpenInApp(UMenu):
         UThreadPool.start(
             runnable=self.task_
         )
+
+
+class OpenDefault(QAction):
+    def __init__(self, parent: UMenu, src: str):
+        super().__init__(parent=parent, text=OPEN_DEFAULT_T)
+
+        cmd = lambda: subprocess.call(["open", src])
+        self.triggered.connect(cmd)
 
 
 # меню с рейтингом для _grid.py > Thumb, ThumbSearch
