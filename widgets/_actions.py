@@ -260,25 +260,17 @@ class UpdateGrid(UAction):
 class OpenInApp(UMenu):
     def __init__(self, parent: UMenu, src: str):
 
-        super().__init__(
-            parent=parent,
-            title=OPEN_IN_APP_T
-        )
-
+        super().__init__(parent=parent, title=OPEN_IN_APP_T)
         self.src = src
 
+        open_default = QAction(parent=parent, text=OPEN_DEFAULT_T)
+        self.addAction(open_default)
+        self.addSeparator()
+    
         # список приложений, сформированный в cfg.py при инициации приложения
         for name, app_path in Dynamic.OPEN_WITH_APPS.items():
-
-            wid = QAction(
-                parent=self,
-                text=name
-            )
-
-            wid.triggered.connect(
-                lambda e, a=app_path: self.cmd_(app_path=a, e=e)
-            )
-
+            wid = QAction(parent=self, text=name)
+            wid.triggered.connect(lambda e, a=app_path: self.cmd_(app_path=a, e=e))
             self.addAction(wid)
 
     def cmd_(self, app_path: str, e):
@@ -291,14 +283,6 @@ class OpenInApp(UMenu):
         UThreadPool.start(
             runnable=self.task_
         )
-
-
-class OpenDefault(QAction):
-    def __init__(self, parent: UMenu, src: str):
-        super().__init__(parent=parent, text=OPEN_DEFAULT_T)
-
-        cmd = lambda: subprocess.call(["open", src])
-        self.triggered.connect(cmd)
 
 
 # меню с рейтингом для _grid.py > Thumb, ThumbSearch
