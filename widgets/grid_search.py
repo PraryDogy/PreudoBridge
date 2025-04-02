@@ -245,10 +245,7 @@ class GridSearch(Grid):
         self.row, self.col = 0, 0
         self.total = 0
 
-        SignalsApp.instance.bar_bottom_cmd.emit(
-            {"src": JsonData.root, "total": str(self.total)}
-        )
-
+        SignalsApp.instance.bar_bottom_cmd.emit((JsonData.root, self.total))
         ThumbSearch.calculate_size()
 
         self.task_ = SearchFinder(search_text)
@@ -282,14 +279,10 @@ class GridSearch(Grid):
             self.row += 1
  
         if self.total % 2 == 0:
-            SignalsApp.instance.bar_bottom_cmd.emit(
-                {"total": str(self.total)}
-            )
+            SignalsApp.instance.bar_bottom_cmd.emit((None, self.total))
 
     def search_fin(self):
-        SignalsApp.instance.bar_bottom_cmd.emit(
-            {"total": str(self.total)}
-        )
+        SignalsApp.instance.bar_bottom_cmd.emit((None, self.total))
 
         done_src = [
             os.path.splitext(i.name)[0]

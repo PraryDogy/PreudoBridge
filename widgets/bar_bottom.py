@@ -440,13 +440,12 @@ class BarBottom(QWidget):
         Utils.center_win(Utils.get_main_win(), self.win)
         self.win.show()
 
-    def path_labels_cmd(self, data: dict):
-
-        if data.get("src"):
-            self.create_path_labels(data.get("src"))
-
-        if data.get("total"):
-            self.add_total(value=data.get("total"))
+    def path_labels_cmd(self, data: tuple):
+        src, total = data
+        if src:
+            self.create_path_labels(src)
+        if total:
+            self.add_total(total)
         self.sort_frame.add_sort()
 
     def create_path_labels(self, src: str):

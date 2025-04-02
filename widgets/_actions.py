@@ -594,13 +594,13 @@ class SortMenu(UMenu):
         # записываем true_name (тип сортировки) в пользовательский .json
         Dynamic.sort = true_name
         SignalsApp.instance.load_any_grid.emit({"path": JsonData.root, "prev_path": None})
-        SignalsApp.instance.bar_bottom_cmd.emit({})
+        SignalsApp.instance.bar_bottom_cmd.emit((None, None))
 
     def cmd_revers(self, reversed: bool):
         # записываем порядок сортировки в пользовательский .json
         Dynamic.rev = reversed
         SignalsApp.instance.load_any_grid.emit({"path": JsonData.root, "prev_path": None})
-        SignalsApp.instance.bar_bottom_cmd.emit({})
+        SignalsApp.instance.bar_bottom_cmd.emit((None, None))
 
 
 # показать сетку / список - GridStandart / GridSearch / ListFileSystem

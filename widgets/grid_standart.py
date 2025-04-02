@@ -150,10 +150,7 @@ class GridStandart(Grid):
         self.loading_lbl.hide()
         total = len(order_items)
 
-        SignalsApp.instance.bar_bottom_cmd.emit(
-            {"src": JsonData.root, "total": total}
-        )
-
+        SignalsApp.instance.bar_bottom_cmd.emit((JsonData.root, total))
         sys_disk = os.path.join(os.sep, "Volumes", "Macintosh HD")
         col_count = Utils.get_clmn_count(self.ww)
 

@@ -91,10 +91,7 @@ class ListStandart(QListWidget):
         self.order_items = order_items
         self.total = len(order_items)
 
-        SignalsApp.instance.bar_bottom_cmd.emit(
-            {"src": JsonData.root, "total": self.total}
-        )
-
+        SignalsApp.instance.bar_bottom_cmd.emit((JsonData.root, self.total))
         self.create_sorted_grid()
 
     def create_sorted_grid(self):

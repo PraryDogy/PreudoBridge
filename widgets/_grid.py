@@ -525,9 +525,7 @@ class Grid(BaseMethods, QScrollArea):
 
     def set_bottom_path(self, src: str):
         # через таймер чтобы функция не блокировалась зажатой клавишей мыши
-        cmd_ = lambda: SignalsApp.instance.bar_bottom_cmd.emit(
-            {"src" : src}
-        )
+        cmd_ = lambda: SignalsApp.instance.bar_bottom_cmd.emit((src, None))
         QTimer.singleShot(100, cmd_)
     
     def order_(self):

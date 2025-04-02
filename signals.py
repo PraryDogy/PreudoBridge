@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QWidget
 
 
 class Signals(QObject):
-    bar_bottom_cmd = pyqtSignal(dict)  
+    bar_bottom_cmd = pyqtSignal(tuple)  
     fav_cmd = pyqtSignal(dict)  
     filter_grid = pyqtSignal()  
     load_any_grid = pyqtSignal(dict)  
@@ -18,10 +18,8 @@ class Signals(QObject):
 
 
 class SignalsApp:
-    instance: Signals = None
-
     """
-    bar_bottom_cmd: dict {"src": str (path), "total": int}  
+    bar_bottom_cmd: (str(path) | None, int(total grid widgets count) | None)
     fav_cmd: dict {"cmd": "select" or "add" or "del", "src": str (path)}  
     filter_grid: None  
     load_any_grid: dict {"path": str, "prev_path": str or None}  
@@ -34,6 +32,7 @@ class SignalsApp:
     resize_grid: None  
     set_search_title: str (text)  
     """
+    instance: Signals = None
 
     @classmethod
     def init(cls):
