@@ -112,7 +112,7 @@ class ListFileSystem(QTableView):
                 fav_action._clicked.connect(cmd_)
                 menu.addAction(fav_action)
             else:
-                cmd_ = SignalsApp.instance.fav_cmd.emit(("add", src))
+                cmd_ = lambda: SignalsApp.instance.fav_cmd.emit(("add", src))
                 fav_action = FavAdd(menu, src)
                 fav_action._clicked.connect(cmd_)
                 menu.addAction(fav_action)
@@ -122,9 +122,7 @@ class ListFileSystem(QTableView):
         change_view = ChangeView(menu, JsonData.root)
         menu.addMenu(change_view)
 
-        coords = self.mapToGlobal(event.pos())
-        # coords = QPoint(coords.x(), coords.y() + 30)
-        menu.exec_(coords)
+        menu.show_custom()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
