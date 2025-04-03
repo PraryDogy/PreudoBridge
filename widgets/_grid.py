@@ -603,7 +603,7 @@ class Grid(BaseMethods, QScrollArea):
         else:
             col_count = Utils.get_clmn_count(self.ww)
 
-        print(col_count)
+        print(width, col_count)
 
         self.cell_to_wid.clear()
         row, col = 0, 0
