@@ -3,7 +3,7 @@ import os
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QKeyEvent, QMouseEvent, QResizeEvent
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel,
+from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static
@@ -107,16 +107,19 @@ class MainWin(QWidget):
         main_lay.setSpacing(0)
         self.setLayout(main_lay)
 
+        splitter = QSplitter()
+        main_lay.addWidget(splitter)
+
         left_wid = QWidget()
-        left_wid.setFixedWidth(Static.LEFT_MENU_W)
-        main_lay.addWidget(left_wid)
+        # left_wid.setFixedWidth(Static.LEFT_MENU_W)
+        splitter.addWidget(left_wid)
         left_v_lay = QVBoxLayout()
         left_v_lay.setContentsMargins(0, 0, 0, 5)
         left_v_lay.setSpacing(0)
         left_wid.setLayout(left_v_lay)
 
         self.bar_tabs = BarTabs()
-        self.bar_tabs.setFixedWidth(Static.LEFT_MENU_W)
+        # self.bar_tabs.setFixedWidth(Static.LEFT_MENU_W)
         left_v_lay.addWidget(self.bar_tabs)
 
         self.tree_folders = TreeFolders()
@@ -137,7 +140,7 @@ class MainWin(QWidget):
         self.bar_tabs.load_last_tab()
 
         right_wid = QWidget()
-        main_lay.addWidget(right_wid)
+        splitter.addWidget(right_wid)
 
         self.r_lay = QVBoxLayout()
         self.r_lay.setContentsMargins(5, 0, 0, 0)

@@ -126,6 +126,9 @@ class TreeFavorites(QListWidget):
     def __init__(self):
         super().__init__()
 
+        self.horizontalScrollBar().setDisabled(True)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+
         self.wids: dict[str, QListWidgetItem] = {}
         SignalsApp.instance.fav_cmd.connect(self.cmd_)
         self.setDragDropMode(QListWidget.DragDropMode.InternalMove)

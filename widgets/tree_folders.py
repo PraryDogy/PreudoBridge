@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QDir
+from PyQt5.QtCore import QDir, Qt
 from PyQt5.QtWidgets import QFileSystemModel, QTreeView
 
 from cfg import JsonData
@@ -11,6 +11,9 @@ from ._base import UMenu
 class TreeFolders(QTreeView):
     def __init__(self):
         super().__init__()
+
+        self.horizontalScrollBar().setDisabled(True)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         self.c_model = QFileSystemModel()
         self.c_model.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot)

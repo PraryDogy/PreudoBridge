@@ -596,14 +596,11 @@ class Grid(BaseMethods, QScrollArea):
                 wid.set_frame()
 
     def rearrange(self, width: int = None):
-
         if width:
             self.ww = width
             col_count = Utils.get_clmn_count(width)
         else:
             col_count = Utils.get_clmn_count(self.ww)
-
-        print(width, col_count)
 
         self.cell_to_wid.clear()
         row, col = 0, 0
