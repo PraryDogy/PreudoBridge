@@ -65,8 +65,8 @@ class ListWin(WinMinMax):
         inp_label = QLabel(text=LIST_FILES)
         v_lay.addWidget(inp_label)
 
-        self.inputs = UTextEdit()
-        v_lay.addWidget(self.inputs)
+        self.input_ = UTextEdit()
+        v_lay.addWidget(self.input_)
 
         btns_wid = QWidget()
         v_lay.addWidget(btns_wid)
@@ -89,7 +89,7 @@ class ListWin(WinMinMax):
         btns_lay.addStretch()
 
     def ok_cmd(self, *args):
-        search_list = self.inputs.toPlainText()
+        search_list = self.input_.toPlainText()
         search_list = [
             i.strip()
             for i in search_list.split("\n")
@@ -141,7 +141,7 @@ class SearchWidget(QWidget):
 
         self.templates_menu = UMenu()
 
-        for text, template in Static.SEARCH_TEMPLATES.items():
+        for text, template in Static.SEARCH_EXTENSIONS.items():
             action = QAction(parent=self, text=text)
 
             action.triggered.connect(

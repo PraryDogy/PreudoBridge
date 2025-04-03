@@ -31,49 +31,42 @@ class WorkerSignals(QObject):
 class SearchFinder(URunnable):
     def __init__(self, search_text: str):
         super().__init__()
-
         self.signals_ = WorkerSignals()
         self.search_text: str = str(search_text)
         self.extensions: tuple = None
-
         self.db_path: str = None
         self.conn = None
-
         self.pause = False
 
     @URunnable.set_running_state
     def run(self):
         try:
             self.setup_text()
-            self.scandir_main()
-
+            self.scandir_recursive()
             if self.should_run:
-
-                SignalsApp.instance.set_search_title.emit(
-                    self.search_text
-                )
-
+                SignalsApp.instance.set_search_title.emit(self.search_text)
             self.signals_.finished_.emit()
-
         except RuntimeError as e:
             Utils.print_error(parent=None, error=e)
 
     def setup_text(self):
-        extensions = Static.SEARCH_TEMPLATES.get(self.search_text)
-
+        # Ожидается текст из поиска либо в свободной форме,
+        # либо в виде шаблона. Проверяем, является ли текст шаблоном
+        extensions = Static.SEARCH_EXTENSIONS.get(self.search_text)
         if extensions:
             self.extensions = extensions
             self.process_entry = self.process_extensions
 
+        # Если текст из поиска соотвествует шаблонку "поиск по списку",
+        # чтобы искать сразу несколько файлов
         elif self.search_text == Static.SEARCH_LIST_TEXT:
             self.process_entry = self.process_list
 
+        # Простой поиск
         else:
             self.process_entry = self.process_text
 
-    def word_similarity(self, word1: str, word2: str) -> float:
-        return SequenceMatcher(None, word1, word2).ratio()
-
+    # базовый метод обработки os.DirEntry
     def process_entry(self, entry: os.DirEntry, *args): ...
 
     def process_extensions(self, entry: os.DirEntry, *args):
@@ -88,63 +81,62 @@ class SearchFinder(URunnable):
         filename, _ = os.path.splitext(entry.name)
         filename: str = filename.lower()
         search_text: str = self.search_text.lower()
-
         if search_text in filename:
             return True
         else:
             return False
         
     def process_list(self, entry: os.DirEntry, *args):
-        """
-        os.DirEntry, Dynamic.SEARCH_LIST with lowercase
-        """
         filename, _ = os.path.splitext(entry.name)
         filename_lower: str = filename.lower()
         lower_search_list = args[-1]
-
         if filename_lower in lower_search_list:
             return True
         else:
             return False
 
-    def scandir_main(self):
+    def scandir_recursive(self):
+        # Инициализируем стек с корневым каталогом
+        dirs_list = [JsonData.root]
 
-        stack = [JsonData.root]
-
-        while stack:
-            current_dir = stack.pop()
-
+        while dirs_list:
+            # Удаляем последний элемент из списка
+            # Функция возвращает удаленный элемент
+            current_dir = dirs_list.pop()
             if not self.should_run:
                 return
-            
             while self.pause:
                 sleep(1)
-
             try:
-                self.scan_current_dir(
-                    current_dir=current_dir,
-                    stack=stack
-                )
-
+                # Сканируем текущий каталог и добавляем новые пути в стек
+                self.scan_current_dir(dir=current_dir, dirs_list=dirs_list)
             except Exception as e:
                 continue
 
-    def scan_current_dir(self, current_dir, stack: list):
+    def scan_current_dir(self, dir: str, dirs_list: list):
+        # Формируем список искомых имен в нижнем регистре (если задан SEARCH_LIST).
+        # Этот список используется при поиске по заранее заданному списку.
+        # Если SEARCH_LIST пуст, search_list_lower тоже будет пустым
+        # и будет проигнорирован функцией process_entry.
         search_list_lower = [i.lower() for i in Dynamic.SEARCH_LIST]
 
-        with os.scandir(current_dir) as entries:
+        with os.scandir(dir) as entries:
             for entry in entries:
-
                 if not self.should_run:
                     return
-
                 while self.pause:
                     sleep(1)
-
+                # Если это директория, добавляем ее в dirs list
+                # чтобы позже обойти ее в scan_current_dir
                 if entry.is_dir():
-                    stack.append(entry.path)
+                    dirs_list.append(entry.path)
                     continue
-
+                # Передаем DirEntry и список имен для обработки в process_enry.
+                # При этом неважно, пуст список или нет, т.к. при поиске
+                # по списку на process_entry назначается функция, которая
+                # сможет обработать этот список, в иных случаях на 
+                # process_entry назначаются функции, которые проигнорируют
+                # этот список
                 if self.process_entry(entry, search_list_lower):
                     self.process_img(entry=entry)
 

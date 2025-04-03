@@ -88,7 +88,7 @@ class Static:
 
     MAIN_WIN_NAME = "MainWin" # имя класса главного окна в gui.py
 
-    SEARCH_TEMPLATES = {
+    SEARCH_EXTENSIONS = {
         "Найти jpg": (".jpg", ".jpeg", "jfif"),
         "Найти png": (".png"),
         "Найти tiff": (".tif", ".tiff"),
@@ -233,6 +233,6 @@ class Dynamic:
     busy_db: bool = False
     files_to_copy: list[str] = []
     go_paths: list[str] = []
-    SEARCH_LIST = [] #
+    SEARCH_LIST = []
     GENERIC_ICONS: dict[str, str] = {}
     OPEN_WITH_APPS: dict[str, str] = {}
