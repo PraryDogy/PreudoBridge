@@ -2,7 +2,7 @@ import os
 from difflib import SequenceMatcher
 from time import sleep
 
-from PyQt5.QtCore import QObject, Qt, pyqtSignal
+from PyQt5.QtCore import QObject, Qt, pyqtSignal, QTimer
 from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
@@ -108,6 +108,7 @@ class SearchFinder(URunnable):
             if not self.should_run:
                 return
             while self.pause:
+                print("pause")
                 sleep(1)
             try:
                 # Сканируем текущий каталог и добавляем новые пути в стек
@@ -126,6 +127,7 @@ class SearchFinder(URunnable):
                 if not self.should_run:
                     return
                 while self.pause:
+                    print("pause")
                     sleep(1)
                 # Если это директория, добавляем ее в dirs_list, чтобы позже
                 # обойти эту директорию в scan_current_dir
@@ -221,6 +223,10 @@ class GridSearch(Grid):
         self.row, self.col = 0, 0
         self.total = 0
 
+        self.pause_timer = QTimer(self)
+        self.pause_timer.timeout.connect(self.remove_pause)
+        self.pause_timer.setSingleShot(True)
+
         SignalsApp.instance.bar_bottom_cmd.emit((JsonData.root, self.total))
         ThumbSearch.calculate_size()
 
@@ -282,4 +288,31 @@ class GridSearch(Grid):
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.task_.should_run = False
+        self.task_.pause = False
 
+    def order_(self):
+        self.task_.pause = True
+        super().order_()
+        self.pause_timer.stop()
+        self.pause_timer.start(2000)
+
+    def filter_(self):
+        self.task_.pause = True
+        super().filter_()
+        self.pause_timer.stop()
+        self.pause_timer.start(2000)
+
+    def resize_(self, width: int = None):
+        self.task_.pause = True
+        super().resize_(self.width())
+        self.pause_timer.stop()
+        self.pause_timer.start(2000)
+
+    # def rearrange(self, width: int = None):
+    #     self.task_.pause = True
+    #     super().rearrange(self.width())
+    #     self.pause_timer.stop()
+    #     self.pause_timer.start(2000)
+
+    def remove_pause(self):
+        self.task_.pause = False

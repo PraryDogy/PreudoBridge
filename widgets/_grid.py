@@ -580,7 +580,6 @@ class Grid(BaseMethods, QScrollArea):
         self.rearrange()
 
     def resize_(self, width: int = None):
-
         wid_src_list = []
 
         for i in self.selected_widgets:
@@ -603,6 +602,8 @@ class Grid(BaseMethods, QScrollArea):
             col_count = Utils.get_clmn_count(width)
         else:
             col_count = Utils.get_clmn_count(self.ww)
+
+        print(col_count)
 
         self.cell_to_wid.clear()
         row, col = 0, 0
