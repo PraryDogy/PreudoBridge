@@ -5,7 +5,7 @@ from time import sleep
 from PyQt5.QtCore import QObject, Qt, pyqtSignal, QTimer
 from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
-                             QWidget)
+                             QWidget, QFrame)
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Dynamic, JsonData, Static, ThumbData
@@ -23,6 +23,8 @@ ATTENTION_T = "Внимание!"
 MISSED_FILES = "Не найдены файлы:"
 SELECT_ALL_T = "Выделить все"
 NO_RESULT = "Ничего не найдено"
+SEARCHING = "Идет поиск"
+STOP = "Стоп"
 
 class WorkerSignals(QObject):
     new_widget = pyqtSignal(OrderItem)
@@ -213,17 +215,40 @@ class WinMissedFiles(WinMinMax):
         return super().keyPressEvent(a0)
     
 
+class TopLabel(QFrame):
+    cancel_clicked = pyqtSignal()
+
+    def __init__(self, parent):
+        super().__init__(parent=parent)
+        self.setObjectName("test")
+        self.setStyleSheet(
+            f"#test {{ background: {Static.BLUE_GLOBAL}; border-radius: 7px; }}"
+        )
+
+        h_lay = QHBoxLayout()
+        h_lay.setContentsMargins(5, 0, 5, 0)
+        h_lay.setSpacing(10)
+        self.setLayout(h_lay)
+
+        label = QLabel(text=SEARCHING)
+        label.setFixedHeight(20)
+        h_lay.addWidget(label)
+
+        can_btn = QPushButton(text=STOP)
+        can_btn.clicked.connect(self.cancel_clicked.emit)
+        can_btn.setFixedWidth(90)
+        h_lay.addWidget(can_btn)
+
+        self.resize(170, 30)
+
+
 class GridSearch(Grid):
     def __init__(self, width: int, search_text: str):
         super().__init__(width)
         self.setAcceptDrops(False)
 
-        self.top_label = QLabel(parent=self, text="Идет поиск")
-        self.top_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.top_label.setStyleSheet(
-            f"background: {Static.BLUE_GLOBAL}; border-radius: 5px;"
-        )
-        self.top_label.resize(100, 25)
+        self.top_label = TopLabel(parent=self)
+        self.top_label.cancel_clicked.connect(self.cancel_cmd)
         self.top_label.show()
 
         self.col_count = Utils.get_clmn_count(width)
@@ -300,10 +325,6 @@ class GridSearch(Grid):
 
             Dynamic.SEARCH_LIST.clear()
 
-    def closeEvent(self, a0: QCloseEvent | None) -> None:
-        self.task_.should_run = False
-        self.task_.pause = False
-
     def order_(self):
         self.task_.pause = True
         super().order_()
@@ -331,7 +352,16 @@ class GridSearch(Grid):
     def remove_pause(self):
         self.task_.pause = False
 
+    def cancel_cmd(self, *args):
+        self.top_label.hide()
+        self.task_.should_run = False
+        self.search_fin()
+
     def resizeEvent(self, a0):
-        x, y = (a0.size().width() // 2) - 60, 10
+        x, y = (a0.size().width() // 2) - 100, 10
         self.top_label.move(x, y)
         return super().resizeEvent(a0)
+    
+    def closeEvent(self, a0: QCloseEvent | None) -> None:
+        self.task_.should_run = False
+        self.task_.pause = False
