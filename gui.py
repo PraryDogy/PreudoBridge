@@ -145,7 +145,7 @@ class MainWin(QWidget):
         splitter.setSizes([Static.LEFT_MENU_W, self.width() - Static.LEFT_MENU_W])
 
         self.r_lay = QVBoxLayout()
-        self.r_lay.setContentsMargins(5, 0, 0, 0)
+        self.r_lay.setContentsMargins(0, 0, 0, 0)
         self.r_lay.setSpacing(0)
         right_wid.setLayout(self.r_lay)
         
