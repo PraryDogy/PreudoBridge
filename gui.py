@@ -111,7 +111,6 @@ class MainWin(QWidget):
         main_lay.addWidget(splitter)
 
         left_wid = QWidget()
-        # left_wid.setFixedWidth(Static.LEFT_MENU_W)
         splitter.addWidget(left_wid)
         left_v_lay = QVBoxLayout()
         left_v_lay.setContentsMargins(0, 0, 0, 5)
@@ -119,7 +118,6 @@ class MainWin(QWidget):
         left_wid.setLayout(left_v_lay)
 
         self.bar_tabs = BarTabs()
-        # self.bar_tabs.setFixedWidth(Static.LEFT_MENU_W)
         left_v_lay.addWidget(self.bar_tabs)
 
         self.tree_folders = TreeFolders()
@@ -141,6 +139,10 @@ class MainWin(QWidget):
 
         right_wid = QWidget()
         splitter.addWidget(right_wid)
+
+        splitter.setStretchFactor(0, 0)
+        splitter.setStretchFactor(1, 1)
+        splitter.setSizes([Static.LEFT_MENU_W, self.width() - Static.LEFT_MENU_W])
 
         self.r_lay = QVBoxLayout()
         self.r_lay.setContentsMargins(5, 0, 0, 0)
