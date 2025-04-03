@@ -67,9 +67,10 @@ class SearchFinder(URunnable):
             self.process_entry = self.process_text
 
     # базовый метод обработки os.DirEntry
-    def process_entry(self, entry: os.DirEntry, *args): ...
+    def process_entry(self, entry: os.DirEntry, search_list_lower: list[str]): ...
 
-    def process_extensions(self, entry: os.DirEntry, *args):
+    def process_extensions(self, entry: os.DirEntry, search_list_lower: list[str]):
+        # Поиск файлов с определенным расширением.
         path = entry.path
         path: str = path.lower()
         if path.endswith(self.extensions):
@@ -77,7 +78,8 @@ class SearchFinder(URunnable):
         else:
             return False
 
-    def process_text(self, entry: os.DirEntry, *args):
+    def process_text(self, entry: os.DirEntry, search_list_lower: list[str]):
+        # Поиск файлов с именем.
         filename, _ = os.path.splitext(entry.name)
         filename: str = filename.lower()
         search_text: str = self.search_text.lower()
@@ -86,17 +88,17 @@ class SearchFinder(URunnable):
         else:
             return False
         
-    def process_list(self, entry: os.DirEntry, *args):
+    def process_list(self, entry: os.DirEntry, search_list_lower: list[str]):
+        # Поиск нескольких файлов
         filename, _ = os.path.splitext(entry.name)
         filename_lower: str = filename.lower()
-        lower_search_list = args[-1]
-        if filename_lower in lower_search_list:
+        if filename_lower in search_list_lower:
             return True
         else:
             return False
 
     def scandir_recursive(self):
-        # Инициализируем стек с корневым каталогом
+        # Инициализируем список с корневым каталогом
         dirs_list = [JsonData.root]
 
         while dirs_list:
@@ -114,10 +116,9 @@ class SearchFinder(URunnable):
                 continue
 
     def scan_current_dir(self, dir: str, dirs_list: list):
-        # Формируем список искомых имен в нижнем регистре (если задан SEARCH_LIST).
-        # Этот список используется при поиске по заранее заданному списку.
-        # Если SEARCH_LIST пуст, search_list_lower тоже будет пустым
-        # и будет проигнорирован функцией process_entry.
+        # Формируем список имен файлом в нижнем регистре из SEARCH_LIST.
+        # Если SEARCH_LIST пуст, значит осуществляется поиск по расширениям
+        # или поиск по тексту
         search_list_lower = [i.lower() for i in Dynamic.SEARCH_LIST]
 
         with os.scandir(dir) as entries:
@@ -126,8 +127,8 @@ class SearchFinder(URunnable):
                     return
                 while self.pause:
                     sleep(1)
-                # Если это директория, добавляем ее в dirs list
-                # чтобы позже обойти ее в scan_current_dir
+                # Если это директория, добавляем ее в dirs_list, чтобы позже
+                # обойти эту директорию в scan_current_dir
                 if entry.is_dir():
                     dirs_list.append(entry.path)
                     continue
@@ -136,32 +137,26 @@ class SearchFinder(URunnable):
                 # по списку на process_entry назначается функция, которая
                 # сможет обработать этот список, в иных случаях на 
                 # process_entry назначаются функции, которые проигнорируют
-                # этот список
+                # этот список читай setup_text.
                 if self.process_entry(entry, search_list_lower):
                     self.process_img(entry=entry)
 
     def process_img(self, entry: os.DirEntry):
-        
         stat = entry.stat()
-
         img_array = Utils.read_image(path=entry.path)
         img_array = FitImg.start(
             image=img_array,
             size=ThumbData.DB_IMAGE_SIZE
         )
-
         pixmap = Utils.pixmap_from_array(image=img_array)
         del img_array
-
         order_item = OrderItem(
             src=entry.path,
             size=stat.st_size,
             mod=stat.st_mtime,
             rating=0
         )
-
         order_item.pixmap_ = pixmap
-
         try:
             self.signals_.new_widget.emit(order_item)
         except Exception as e:
