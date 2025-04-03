@@ -1043,7 +1043,10 @@ class Grid(BaseMethods, QScrollArea):
     
     def mouseMoveEvent(self, a0):
 
-        distance = (a0.pos() - self.drag_start_position).manhattanLength()
+        try:
+            distance = (a0.pos() - self.drag_start_position).manhattanLength()
+        except AttributeError:
+            return
 
         if distance < QApplication.startDragDistance():
             return

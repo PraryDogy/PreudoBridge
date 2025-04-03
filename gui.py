@@ -99,9 +99,6 @@ class MainWin(QWidget):
         self.resize_timer.setSingleShot(True)
         self.resize_timer.timeout.connect(resize_cmd_)
 
-        self.migaet_timer = QTimer(parent=self)
-        self.migaet_timer.timeout.connect(self.blink_title)
-
         main_lay = QHBoxLayout()
         main_lay.setContentsMargins(5, 0, 5, 0)
         main_lay.setSpacing(0)
@@ -172,7 +169,6 @@ class MainWin(QWidget):
 
         SignalsApp.instance.load_standart_grid.connect(self.load_standart_grid)
         SignalsApp.instance.load_search_grid.connect(self.load_search_grid)
-        SignalsApp.instance.set_search_title.connect(self.search_finished)
         SignalsApp.instance.open_path.connect(self.open_path_cmd)
         SignalsApp.instance.load_any_grid.connect(self.load_any_grid)
 
@@ -198,29 +194,11 @@ class MainWin(QWidget):
     def load_search_grid(self, search_text: str):
         self.grid.close()
         self.tree_tags.reset()
-
-        t = [
-            f"🟠\tИдет поиск в \"{os.path.basename(JsonData.root)}\""
-        ]
-        self.setWindowTitle("".join(t))
-
-        self.migaet_timer.start(400)
         ww = self.get_grid_width()
         self.grid = GridSearch(width=ww, search_text=search_text)
         self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
         self.r_lay.insertWidget(1, self.grid)
         self.grid.setFocus()
-
-    def blink_title(self):
-        if "🟠" in self.windowTitle():
-            t = self.windowTitle().replace("🟠", "⚪")
-        else:
-            t = self.windowTitle().replace("⚪", "🟠")
-        self.setWindowTitle(t)
-
-    def search_finished(self, search_text: str):
-        self.migaet_timer.stop()
-        self.setWindowTitle(f"🟢\tРезультаты поиска: \"{search_text}\"")
 
     def load_any_grid(self, data: tuple):
         if isinstance(self.grid, GridSearch):

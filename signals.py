@@ -14,7 +14,6 @@ class Signals(QObject):
     new_history_item = pyqtSignal(str)  
     open_path = pyqtSignal(str)  
     resize_grid = pyqtSignal()  
-    set_search_title = pyqtSignal(str)  
 
 
 class SignalsApp:

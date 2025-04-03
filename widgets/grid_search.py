@@ -22,6 +22,7 @@ SQL_ERRORS = (IntegrityError, OperationalError)
 ATTENTION_T = "Внимание!"
 MISSED_FILES = "Не найдены файлы:"
 SELECT_ALL_T = "Выделить все"
+NO_RESULT = "Ничего не найдено"
 
 class WorkerSignals(QObject):
     new_widget = pyqtSignal(OrderItem)
@@ -43,8 +44,6 @@ class SearchFinder(URunnable):
         try:
             self.setup_text()
             self.scandir_recursive()
-            if self.should_run:
-                SignalsApp.instance.set_search_title.emit(self.search_text)
             self.signals_.finished_.emit()
         except RuntimeError as e:
             Utils.print_error(parent=None, error=e)
@@ -219,6 +218,14 @@ class GridSearch(Grid):
         super().__init__(width)
         self.setAcceptDrops(False)
 
+        self.top_label = QLabel(parent=self, text="Идет поиск")
+        self.top_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.top_label.setStyleSheet(
+            f"background: {Static.BLUE_GLOBAL}; border-radius: 5px;"
+        )
+        self.top_label.resize(100, 25)
+        self.top_label.show()
+
         self.col_count = Utils.get_clmn_count(width)
         self.row, self.col = 0, 0
         self.total = 0
@@ -265,8 +272,15 @@ class GridSearch(Grid):
 
     def search_fin(self):
         SignalsApp.instance.bar_bottom_cmd.emit((None, self.total))
+        self.top_label.hide()
 
-        if Dynamic.SEARCH_LIST:
+        if not self.cell_to_wid:
+            no_images = QLabel(text=NO_RESULT)
+            no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.grid_layout.addWidget(no_images, 0, 0)
+
+        elif Dynamic.SEARCH_LIST:
 
             done_src = [
                 os.path.splitext(i.name)[0]
@@ -308,11 +322,16 @@ class GridSearch(Grid):
         self.pause_timer.stop()
         self.pause_timer.start(2000)
 
-    # def rearrange(self, width: int = None):
-    #     self.task_.pause = True
-    #     super().rearrange(self.width())
-    #     self.pause_timer.stop()
-    #     self.pause_timer.start(2000)
+    def rearrange(self, width: int = None):
+        self.task_.pause = True
+        super().rearrange(self.width())
+        self.pause_timer.stop()
+        self.pause_timer.start(2000)
 
     def remove_pause(self):
         self.task_.pause = False
+
+    def resizeEvent(self, a0):
+        x, y = (a0.size().width() // 2) - 60, 10
+        self.top_label.move(x, y)
+        return super().resizeEvent(a0)
