@@ -79,6 +79,10 @@ class FavItem(QLabel):
                     self.path_changed.emit()
                     break
 
+    def view_fav(self):
+        SignalsApp.instance.new_history_item.emit(self.src)
+        SignalsApp.instance.load_standart_grid.emit((self.src, None))
+
     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
         if ev.button() == Qt.MouseButton.LeftButton:
 
@@ -86,15 +90,13 @@ class FavItem(QLabel):
             # он находится на другом сетевом диске
 
             self.try_find_path()
-            SignalsApp.instance.new_history_item.emit(self.src)
-            SignalsApp.instance.load_standart_grid.emit((self.src, None))
+            self.view_fav()
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
         menu_ = UMenu(self)
 
-        cmd_ = lambda: SignalsApp.instance.load_standart_grid.emit((self.src, None))
         view_ac = View(menu_, self.src)
-        view_ac._clicked.connect(cmd_)
+        view_ac._clicked.connect(self.view_fav)
         menu_.addAction(view_ac)
 
         open_finder_action = RevealInFinder(parent=menu_, src=self.src)
@@ -239,7 +241,3 @@ class TreeFavorites(QListWidget):
             
             if url_ not in JsonData.favs and os.path.isdir(url_):
                 self.add_to_favs_main(src=url_)
-
-        # for i in a0.mimeData().formats():
-        #     a = a0.mimeData().data(i)
-        #     print(a)
