@@ -18,7 +18,7 @@ CANCEL_T = "Отмена"
 class WorderSignals(QObject):
     finished_ = pyqtSignal(list)  # Сигнал с результатами (новыми путями к файлам)
     progress = pyqtSignal(str)  # Сигнал для передачи статуса копирования
-
+    same_place = pyqtSignal()
 
 class FileCopyWorker(URunnable):
     def __init__(self):
@@ -41,7 +41,8 @@ class FileCopyWorker(URunnable):
             dest = os.path.join(JsonData.root, os.path.basename(object_path))
 
             if object_path == dest:
-                break
+                self.signals_.same_place.emit()
+                return
 
             if os.path.isfile(object_path):
                 try:
@@ -88,6 +89,7 @@ class WinCopyFiles(WinMinMax):
             self.task_ = FileCopyWorker()
             self.task_.signals_.progress.connect(self.set_progress)
             self.task_.signals_.finished_.connect(self.finished_task)
+            self.task_.signals_.same_place.connect(self.cancel_cmd)
             UThreadPool.start(runnable=self.task_)
 
     def cancel_cmd(self, *args):
