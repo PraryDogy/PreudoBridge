@@ -24,6 +24,7 @@ SELECT_ALL_T = "Выделить все"
 NO_RESULT = "Ничего не найдено"
 SEARCHING = "Идет поиск"
 STOP = "Стоп"
+RESIZE_TIMER_COUNT = 700
 
 class WorkerSignals(QObject):
     new_widget = pyqtSignal(OrderItem)
@@ -336,21 +337,21 @@ class GridSearch(Grid):
         super().order_()
         self.rearrange()
         self.pause_timer.stop()
-        self.pause_timer.start(2000)
+        self.pause_timer.start(RESIZE_TIMER_COUNT)
 
     def filter_(self):
         self.task_.pause = True
         super().filter_()
         self.rearrange()
         self.pause_timer.stop()
-        self.pause_timer.start(2000)
+        self.pause_timer.start(RESIZE_TIMER_COUNT)
 
     def resize_(self):
         self.task_.pause = True
         super().resize_()
         self.rearrange()
         self.pause_timer.stop()
-        self.pause_timer.start(2000)
+        self.pause_timer.start(RESIZE_TIMER_COUNT)
 
     def rearrange(self):
         # нам нужно вычислить новое количество колонок, актуальную строку
