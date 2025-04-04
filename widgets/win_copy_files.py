@@ -40,6 +40,9 @@ class FileCopyWorker(URunnable):
             object_path = os.sep + object_path.strip().strip(os.sep)
             dest = os.path.join(JsonData.root, os.path.basename(object_path))
 
+            if object_path == dest:
+                break
+
             if os.path.isfile(object_path):
                 try:
                     shutil.copy2(object_path, dest)
