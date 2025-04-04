@@ -1,11 +1,10 @@
 import os
-from difflib import SequenceMatcher
 from time import sleep
 
-from PyQt5.QtCore import QObject, Qt, pyqtSignal, QTimer
-from PyQt5.QtGui import QCloseEvent, QPixmap
-from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
-                             QWidget, QFrame)
+from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
+from PyQt5.QtGui import QCloseEvent, QColor, QPixmap
+from PyQt5.QtWidgets import (QFrame, QGraphicsDropShadowEffect, QHBoxLayout,
+                             QLabel, QPushButton, QVBoxLayout, QWidget)
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Dynamic, JsonData, Static, ThumbData
@@ -17,7 +16,6 @@ from utils import URunnable, UThreadPool, Utils
 from ._base import USvgWidget, UTextEdit, WinMinMax
 from ._grid import Grid, ThumbSearch
 
-SLEEP = 0.2
 SQL_ERRORS = (IntegrityError, OperationalError)
 ATTENTION_T = "Внимание!"
 MISSED_FILES = "Не найдены файлы:"
@@ -109,7 +107,6 @@ class SearchFinder(URunnable):
             if not self.should_run:
                 return
             while self.pause:
-                print("pause")
                 sleep(1)
             try:
                 # Сканируем текущий каталог и добавляем новые пути в стек
@@ -128,7 +125,6 @@ class SearchFinder(URunnable):
                 if not self.should_run:
                     return
                 while self.pause:
-                    print("pause")
                     sleep(1)
                 # Если это директория, добавляем ее в dirs_list, чтобы позже
                 # обойти эту директорию в scan_current_dir
@@ -165,6 +161,7 @@ class SearchFinder(URunnable):
         except Exception as e:
             Utils.print_error(parent=self, error=e)
             self.signals_.new_widget.emit(order_item)
+        sleep(0.3)
 
 
 class WinMissedFiles(WinMinMax):
@@ -241,6 +238,13 @@ class TopLabel(QFrame):
 
         self.resize(170, 30)
 
+        shadow = QGraphicsDropShadowEffect()
+        shadow.setBlurRadius(30)
+        shadow.setXOffset(0)
+        shadow.setYOffset(2)
+        shadow.setColor(QColor(0, 0, 0, 150))
+
+        self.setGraphicsEffect(shadow)
 
 class GridSearch(Grid):
     def __init__(self, width: int, search_text: str):
