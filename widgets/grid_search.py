@@ -161,7 +161,7 @@ class SearchFinder(URunnable):
         except Exception as e:
             Utils.print_error(parent=self, error=e)
             self.signals_.new_widget.emit(order_item)
-        sleep(0.3)
+        sleep(0.1)
 
 
 class WinMissedFiles(WinMinMax):
@@ -341,15 +341,15 @@ class GridSearch(Grid):
         self.pause_timer.stop()
         self.pause_timer.start(2000)
 
-    def resize_(self, width: int = None):
+    def resize_(self):
         self.task_.pause = True
         super().resize_()
         self.pause_timer.stop()
         self.pause_timer.start(2000)
 
-    def rearrange(self, width: int = None):
+    def rearrange(self):
         self.task_.pause = True
-        super().rearrange(self.width())
+        super().rearrange()
         self.pause_timer.stop()
         self.pause_timer.start(2000)
 

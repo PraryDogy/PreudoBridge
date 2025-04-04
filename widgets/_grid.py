@@ -579,7 +579,7 @@ class Grid(BaseMethods, QScrollArea):
 
         self.rearrange()
 
-    def resize_(self, width: int = None):
+    def resize_(self):
         wid_src_list = []
 
         for i in self.selected_widgets:
@@ -589,18 +589,15 @@ class Grid(BaseMethods, QScrollArea):
         for wid in self.ordered_widgets:
             wid.setup()
 
-        self.rearrange(width=width)
+        self.rearrange()
 
         for src, wid in Thumb.path_to_wid.items():
             if src in wid_src_list:
                 wid.set_frame()
 
-    def rearrange(self, width: int = None):
-        if width:
-            self.ww = width
-            col_count = Utils.get_clmn_count(width)
-        else:
-            col_count = Utils.get_clmn_count(self.ww)
+    def rearrange(self):
+        col_count = self.width() // Thumb.thumb_w
+        self.ww = self.width()
 
         self.cell_to_wid.clear()
         row, col = 0, 0
