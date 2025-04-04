@@ -622,6 +622,7 @@ class PathFinder:
     def prepare_path(cls, path: str) -> str:
         path = path.replace("\\", os.sep)
         path = path.strip()
+        path = path.strip("'").strip('"') # ковычки
         if path:
             return os.sep + path.strip(os.sep)
         else:
