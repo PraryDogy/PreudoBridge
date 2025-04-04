@@ -163,7 +163,7 @@ class MainWin(QWidget):
             )
 
         # они должны быть именно тут
-        self.grid: Grid = Grid(self.get_grid_width())
+        self.grid: Grid = Grid()
 
         SignalsApp.instance.load_standart_grid.connect(self.load_standart_grid)
         SignalsApp.instance.load_search_grid.connect(self.load_search_grid)
@@ -196,8 +196,7 @@ class MainWin(QWidget):
     def load_search_grid(self, search_text: str):
         self.grid.close()
         self.tree_tags.reset()
-        ww = self.get_grid_width()
-        self.grid = GridSearch(width=ww, search_text=search_text)
+        self.grid = GridSearch(search_text=search_text)
         self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
         self.r_lay.insertWidget(1, self.grid)
         self.grid.setFocus()
@@ -234,7 +233,7 @@ class MainWin(QWidget):
 
         elif Dynamic.grid_view_type == 0:
 
-            self.grid = GridStandart(self.get_grid_width(), path_for_select)
+            self.grid = GridStandart(path_for_select)
 
         self.grid.verticalScrollBar().valueChanged.connect(
             self.scroll_up_scroll_value
@@ -250,9 +249,6 @@ class MainWin(QWidget):
             self.scroll_up.hide()
         else:
             self.scroll_up.show()
-
-    def get_grid_width(self):
-        return Dynamic.ww - self.bar_tabs.width() - 180
     
     def user_exit(self):
 

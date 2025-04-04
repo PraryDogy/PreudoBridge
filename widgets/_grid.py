@@ -458,7 +458,7 @@ class GridWid(QWidget):
 
 class Grid(BaseMethods, QScrollArea):
 
-    def __init__(self, width: int, prev_path: str = None):
+    def __init__(self, prev_path: str = None):
         Thumb.path_to_wid.clear()
 
         QScrollArea.__init__(self)
@@ -594,16 +594,6 @@ class Grid(BaseMethods, QScrollArea):
 
     def rearrange(self):
         col_count = self.width() // Thumb.thumb_w
-
-        # если это сетка GridSearch, то нужно обязательно установить значение
-        # аттрибута self.col_count, так как SearchGrid по этому параметру
-        # ставятся новые виджеты в сетку.
-        # Важно: col_count в этом методе и self.col_count в SearchGrid - 
-        # это разные аттрибуты, но должны иметь одинаковое значение.
-        if hasattr(self, COL_COUNT):
-            setattr(self, COL_COUNT, col_count)
-            print(getattr(self, COL_COUNT))
-
         self.cell_to_wid.clear()
         row, col = 0, 0
 

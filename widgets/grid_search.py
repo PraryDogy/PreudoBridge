@@ -247,8 +247,8 @@ class TopLabel(QFrame):
         self.setGraphicsEffect(shadow)
 
 class GridSearch(Grid):
-    def __init__(self, width: int, search_text: str):
-        super().__init__(width)
+    def __init__(self, search_text: str):
+        super().__init__()
         self.setAcceptDrops(False)
 
         self.top_label = TopLabel(parent=self)
@@ -333,23 +333,31 @@ class GridSearch(Grid):
         self.task_.pause = True
         self.col_count = self.width() // Thumb.thumb_w
         super().order_()
-        super().rearrange()
+        self.rearrange()
         self.pause_timer.stop()
         self.pause_timer.start(2000)
 
     def filter_(self):
         self.task_.pause = True
         super().filter_()
-        super().rearrange()
+        self.rearrange()
         self.pause_timer.stop()
         self.pause_timer.start(2000)
 
     def resize_(self):
         self.task_.pause = True
         super().resize_()
-        super().rearrange()
+        self.rearrange()
         self.pause_timer.stop()
         self.pause_timer.start(2000)
+
+    def rearrange(self):
+        # нам нужно вычислить новое количество колонок, актуальную строку
+        # и столбец для вставки нового виджета
+        self.col_count = self.width() // Thumb.thumb_w
+        self.row = len(self.cell_to_wid) // self.col_count
+        self.col = len(self.cell_to_wid) % self.col_count
+        super().rearrange()
 
     def remove_pause(self):
         self.task_.pause = False

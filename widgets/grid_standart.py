@@ -96,9 +96,8 @@ class LoadImages(URunnable):
 
 
 class GridStandart(Grid):
-    def __init__(self, width: int, prev_path: str = None):
-
-        super().__init__(width=width, prev_path=prev_path)
+    def __init__(self, prev_path: str = None):
+        super().__init__(prev_path=prev_path)
 
         self.loaded_images: list[str] = []
 
