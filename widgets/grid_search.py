@@ -14,7 +14,7 @@ from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 from ._base import USvgWidget, UTextEdit, WinMinMax
-from ._grid import Grid, ThumbSearch
+from ._grid import Grid, ThumbSearch, Thumb
 
 SQL_ERRORS = (IntegrityError, OperationalError)
 ATTENTION_T = "Внимание!"
@@ -255,7 +255,7 @@ class GridSearch(Grid):
         self.top_label.cancel_clicked.connect(self.cancel_cmd)
         self.top_label.show()
 
-        self.col_count = Utils.get_clmn_count(width)
+        self.col_count = self.width() // Thumb.thumb_w
         self.row, self.col = 0, 0
         self.total = 0
 
