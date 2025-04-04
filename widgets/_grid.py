@@ -6,7 +6,7 @@ from PyQt5.QtCore import QMimeData, Qt, QTimer, QUrl, pyqtSignal
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
                          QPixmap)
 from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
-                             QScrollArea, QVBoxLayout, QWidget)
+                             QScrollArea, QSplitter, QVBoxLayout, QWidget)
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Dynamic, JsonData, Static, ThumbData
@@ -504,7 +504,14 @@ class Grid(BaseMethods, QScrollArea):
         # короче попробуй сразу подключить mouseReleaseEvent и открой 
         # любую папку с кучей файлов
         QTimer.singleShot(200, self.set_mouseReleaseEvent)
-        
+
+    def get_col_count(self):
+        win_ww = self.window().width()
+        splitter = self.window().findChild(QSplitter)
+        left_menu: QWidget = splitter.children()[1]
+        left_menu_ww = left_menu.width()
+        return (win_ww - left_menu_ww) // Thumb.thumb_w
+
     def set_mouseReleaseEvent(self):
         self.mouseReleaseEvent = self.custom_mouseReleaseEvent
 
@@ -594,6 +601,7 @@ class Grid(BaseMethods, QScrollArea):
 
     def rearrange(self):
         col_count = self.width() // Thumb.thumb_w
+        col_count = self.get_col_count()
         self.cell_to_wid.clear()
         row, col = 0, 0
 

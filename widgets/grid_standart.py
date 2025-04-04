@@ -154,6 +154,7 @@ class GridStandart(Grid):
         sys_disk = os.path.join(os.sep, "Volumes", "Macintosh HD")
         Thumb.calculate_size()
         col_count = self.width() // Thumb.thumb_w
+        col_count = self.get_col_count()
 
         if not order_items:
             no_images = QLabel(text=WARN_TEXT)
