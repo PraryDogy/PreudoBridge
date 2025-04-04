@@ -473,11 +473,14 @@ class Grid(BaseMethods, QScrollArea):
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.ordered_widgets: list[OrderItem | Thumb | ThumbFolder | ThumbSearch] = []
 
-        # Посколько сетка может множество раз перезагружаться
-        # прежде нужно отключить прошлые подключения чтобы не было
-        # дублирования подклювчений
-        # SignalsApp.disconnect_grid()
+        # Посколько часто создается новый экземпляр класса Grid,
+        # то каждый из них подключается к глобальным сигналам.
+        # Тогда каждый вызов этого глобального сигнала происходит множество раз.
+        # Чтобы этого избежать, сначала удаляем прошлые подключения к
+        # глобальным сигналам.
+        SignalsApp.remove_grid_connections()
 
+        SignalsApp.instance.rearrange_grid.connect(self.rearrange)
         SignalsApp.instance.resize_grid.connect(self.resize_)
         SignalsApp.instance.filter_grid.connect(self.filter_)
         SignalsApp.instance.move_to_wid.connect(self.select_one_wid)

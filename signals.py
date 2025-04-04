@@ -12,7 +12,8 @@ class Signals(QObject):
     move_slider = pyqtSignal(int)  
     move_to_wid = pyqtSignal(QWidget)  
     new_history_item = pyqtSignal(str)  
-    open_path = pyqtSignal(str)  
+    open_path = pyqtSignal(str)
+    rearrange_grid = pyqtSignal() 
     resize_grid = pyqtSignal()  
 
 
@@ -38,9 +39,10 @@ class SignalsApp:
         cls.instance = Signals()
 
     @classmethod
-    def disconnect_grid(cls) -> bool:
+    def remove_grid_connections(cls) -> bool:
 
         recon = (
+            SignalsApp.instance.rearrange_grid,
             SignalsApp.instance.resize_grid,
             SignalsApp.instance.filter_grid,
             SignalsApp.instance.move_to_wid

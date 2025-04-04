@@ -98,6 +98,7 @@ class TreeTags(QListWidget):
     def item_cmd(self, rating: int):
         Dynamic.rating_filter = rating
         SignalsApp.instance.filter_grid.emit()
+        SignalsApp.instance.rearrange_grid.emit()
 
     def reset(self):
         Dynamic.rating_filter = 0

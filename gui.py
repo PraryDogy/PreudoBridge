@@ -93,10 +93,9 @@ class MainWin(QWidget):
         self.resize(ww, hh)
         self.setMinimumSize(800, 500)
         
-        resize_cmd_ = lambda: self.grid.resize_()
         self.resize_timer = QTimer(parent=self)
         self.resize_timer.setSingleShot(True)
-        self.resize_timer.timeout.connect(resize_cmd_)
+        self.resize_timer.timeout.connect(self.resize_timer_cmd)
 
         main_lay = QHBoxLayout()
         main_lay.setContentsMargins(5, 0, 5, 0)
@@ -172,6 +171,10 @@ class MainWin(QWidget):
         SignalsApp.instance.load_any_grid.connect(self.load_any_grid)
 
         SignalsApp.instance.load_standart_grid.emit((JsonData.root, None))
+
+    def resize_timer_cmd(self):
+        self.grid.resize_()
+        self.grid.rearrange()
 
     def show_hide_tags(self):
         if self.tree_tags.isHidden():

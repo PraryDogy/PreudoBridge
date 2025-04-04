@@ -188,6 +188,7 @@ class CustomSlider(USlider):
         self.blockSignals(False)
         Dynamic.pixmap_size_ind = value
         SignalsApp.instance.resize_grid.emit()
+        SignalsApp.instance.rearrange_grid.emit()
 
 
 class PathItem(QWidget):
