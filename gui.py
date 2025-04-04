@@ -103,6 +103,7 @@ class MainWin(QWidget):
         self.setLayout(main_lay)
 
         splitter = QSplitter()
+        splitter.splitterMoved.connect(lambda: self.resize_timer.start(500))
         main_lay.addWidget(splitter)
 
         left_wid = QWidget()
