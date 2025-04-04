@@ -14,7 +14,7 @@ from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 from ._base import USvgWidget, UTextEdit, WinMinMax
-from ._grid import Grid, ThumbSearch, Thumb
+from ._grid import Grid, ThumbSearch, Thumb, COL_COUNT
 
 SQL_ERRORS = (IntegrityError, OperationalError)
 ATTENTION_T = "Внимание!"
@@ -331,6 +331,7 @@ class GridSearch(Grid):
 
     def order_(self):
         self.task_.pause = True
+        self.col_count = self.width() // Thumb.thumb_w
         super().order_()
         super().rearrange()
         self.pause_timer.stop()

@@ -30,6 +30,7 @@ IMG_WID_ATTR = "img_wid_attr"
 SQL_ERRORS = (OperationalError, IntegrityError)
 WID_UNDER_MOUSE = "win_under_mouse"
 GRID_SPACING = 5
+COL_COUNT = "col_count"
 
 KEY_RATING = {
     Qt.Key.Key_0: 0,
@@ -594,6 +595,15 @@ class Grid(BaseMethods, QScrollArea):
     def rearrange(self):
         col_count = self.width() // Thumb.thumb_w
 
+        # если это сетка GridSearch, то нужно обязательно установить значение
+        # аттрибута self.col_count, так как SearchGrid по этому параметру
+        # ставятся новые виджеты в сетку.
+        # Важно: col_count в этом методе и self.col_count в SearchGrid - 
+        # это разные аттрибуты, но должны иметь одинаковое значение.
+        if hasattr(self, COL_COUNT):
+            setattr(self, COL_COUNT, col_count)
+            print(getattr(self, COL_COUNT))
+
         self.cell_to_wid.clear()
         row, col = 0, 0
 
@@ -633,6 +643,8 @@ class Grid(BaseMethods, QScrollArea):
 
             if widgets:
                 QTimer.singleShot(500, lambda: self.ensureWidgetVisible(widgets[0]))
+        
+        return col_count
 
 
     def add_widget_data(self, wid: Thumb, row: int, col: int):
@@ -796,7 +808,7 @@ class Grid(BaseMethods, QScrollArea):
         # переназначаем действие QAction upd_ - обновить сетку, загрузив ее заново,
         # на order_, чтобы сетка не перезагружалась, а происходила сортировка
         # без перезагрузки
-        if hasattr(self, "col_count"):
+        if hasattr(self, COL_COUNT):
             upd_.disconnect()
             upd_.triggered.connect(self.order_)
             upd_.triggered.connect(self.rearrange)
