@@ -389,18 +389,6 @@ class Utils(Pixmap, ReadImage, ImgConvert):
         child.setGeometry(geo)
      
     @classmethod
-    def get_clmn_count(cls, width: int):
-        w = sum(
-            (
-                ThumbData.THUMB_W[Dynamic.pixmap_size_ind],
-                10
-            )
-        )
-        # 10 пикселей к ширине виджета, чтобы он казался чуть шире
-        # тогда при ресайзе окна позже потребуется новая колонка
-        return (width + Static.LEFT_MENU_W) // w
-
-    @classmethod
     def get_f_size(cls, bytes_size: int) -> str:
         if bytes_size < 1024:
             return f"{bytes_size} байт"
