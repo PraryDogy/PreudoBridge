@@ -202,6 +202,7 @@ class MainWin(QWidget):
     def load_any_grid(self, data: tuple):
         if isinstance(self.grid, GridSearch):
             self.grid.order_()
+            self.grid.rearrange()
         else:
             self.load_standart_grid(data)
 

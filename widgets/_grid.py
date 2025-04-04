@@ -476,7 +476,7 @@ class Grid(BaseMethods, QScrollArea):
         # Посколько сетка может множество раз перезагружаться
         # прежде нужно отключить прошлые подключения чтобы не было
         # дублирования подклювчений
-        SignalsApp.disconnect_grid()
+        # SignalsApp.disconnect_grid()
 
         SignalsApp.instance.resize_grid.connect(self.resize_)
         SignalsApp.instance.filter_grid.connect(self.filter_)
@@ -535,8 +535,6 @@ class Grid(BaseMethods, QScrollArea):
             if isinstance(wid, Thumb)
             }
         
-        self.rearrange()
-
     def filter_(self):
         for wid in self.ordered_widgets:
             show_widget = True
@@ -576,8 +574,6 @@ class Grid(BaseMethods, QScrollArea):
                 wid.must_hidden = True
                 wid.hide()
 
-        self.rearrange()
-
     def resize_(self):
         wid_src_list = []
 
@@ -587,8 +583,6 @@ class Grid(BaseMethods, QScrollArea):
         Thumb.calculate_size()
         for wid in self.ordered_widgets:
             wid.setup()
-
-        self.rearrange()
 
         for src, wid in Thumb.path_to_wid.items():
             if src in wid_src_list:
@@ -796,10 +790,13 @@ class Grid(BaseMethods, QScrollArea):
         menu.addAction(upd_)
 
         # col_count это аттрибут GridSearch
-        # переназначаем действие upd_ (обновить сетку) на grid order
+        # переназначаем действие QAction upd_ - обновить сетку, загрузив ее заново,
+        # на order_, чтобы сетка не перезагружалась, а происходила сортировка
+        # без перезагрузки
         if hasattr(self, "col_count"):
             upd_.disconnect()
             upd_.triggered.connect(self.order_)
+            upd_.triggered.connect(self.rearrange)
 
     def set_rating_wid(self, rating: int):
         for i in self.selected_widgets:

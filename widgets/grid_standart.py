@@ -200,10 +200,12 @@ class GridStandart(Grid):
                 row += 1
 
         self.order_()
+        self.rearrange()
         self.select_after_list()
 
         if Dynamic.rating_filter > 0:
             self.filter_()
+            self.rearrange()
 
         self.load_images_timer.start(100)
         

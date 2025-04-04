@@ -332,23 +332,20 @@ class GridSearch(Grid):
     def order_(self):
         self.task_.pause = True
         super().order_()
+        super().rearrange()
         self.pause_timer.stop()
         self.pause_timer.start(2000)
 
     def filter_(self):
         self.task_.pause = True
         super().filter_()
+        super().rearrange()
         self.pause_timer.stop()
         self.pause_timer.start(2000)
 
     def resize_(self):
         self.task_.pause = True
         super().resize_()
-        self.pause_timer.stop()
-        self.pause_timer.start(2000)
-
-    def rearrange(self):
-        self.task_.pause = True
         super().rearrange()
         self.pause_timer.stop()
         self.pause_timer.start(2000)
