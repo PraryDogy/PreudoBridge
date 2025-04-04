@@ -29,13 +29,15 @@ class FileCopyWorker(URunnable):
     def run(self):    
         new_paths = []
         total_files = len(Dynamic.files_to_copy)
+
         for index, object_path in enumerate(Dynamic.files_to_copy, start=1):
 
             if not self.should_run:
-                self.signals_.finished_.emit(new_paths)
-                return
+                break
 
             self.signals_.progress.emit(f"Копирую {index} из {total_files}")
+
+            object_path = os.sep + object_path.strip().strip(os.sep)
             dest = os.path.join(JsonData.root, os.path.basename(object_path))
 
             if os.path.isfile(object_path):
@@ -52,6 +54,7 @@ class FileCopyWorker(URunnable):
                     print("files copy copytree error", e)
     
         self.signals_.finished_.emit(new_paths)
+        Dynamic.files_to_copy.clear()
 
 
 class WinCopyFiles(WinMinMax):
