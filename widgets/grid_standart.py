@@ -14,6 +14,7 @@ from utils import URunnable, UThreadPool, Utils
 from ._finder_items import FinderItems, LoadingWid
 from ._grid import Grid, Thumb, ThumbFolder
 from ._grid_tools import GridTools
+from .win_copy_files import WinCopyFiles
 
 WARN_TEXT = "Папка пуста или нет подключения к диску"
 TASK_NAME = "LOAD_IMAGES"
@@ -256,3 +257,18 @@ class GridStandart(Grid):
     def resizeEvent(self, a0):
         Utils.center_win(self, self.loading_lbl)
         return super().resizeEvent(a0)
+    
+    def dragEnterEvent(self, a0):
+        if a0.mimeData().hasUrls():
+            a0.acceptProposedAction()
+        return super().dragEnterEvent(a0)
+    
+    def dropEvent(self, a0):
+        Dynamic.files_to_copy = [i.toLocalFile() for i in a0.mimeData().urls()]
+
+        if Dynamic.files_to_copy:
+            self.win_copy = WinCopyFiles()
+            self.win_copy.show()
+            Dynamic.files_to_copy.clear()
+
+        return super().dropEvent(a0)
