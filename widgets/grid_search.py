@@ -257,7 +257,6 @@ class GridSearch(Grid):
         self.top_label.cancel_clicked.connect(self.cancel_cmd)
         self.top_label.show()
 
-        self.col_count = self.width() // Thumb.thumb_w
         self.col_count = self.get_col_count()
         self.row, self.col = 0, 0
         self.total = 0
@@ -334,7 +333,6 @@ class GridSearch(Grid):
 
     def order_(self):
         self.task_.pause = True
-        self.col_count = self.width() // Thumb.thumb_w
         self.col_count = self.get_col_count()
         super().order_()
         self.rearrange()
@@ -358,7 +356,6 @@ class GridSearch(Grid):
     def rearrange(self):
         # нам нужно вычислить новое количество колонок, актуальную строку
         # и столбец для вставки нового виджета
-        self.col_count = self.width() // Thumb.thumb_w
         self.col_count = self.get_col_count()
         self.row = len(self.cell_to_wid) // self.col_count
         self.col = len(self.cell_to_wid) % self.col_count

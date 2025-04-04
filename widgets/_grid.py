@@ -600,7 +600,6 @@ class Grid(BaseMethods, QScrollArea):
                 wid.set_frame()
 
     def rearrange(self):
-        col_count = self.width() // Thumb.thumb_w
         col_count = self.get_col_count()
         self.cell_to_wid.clear()
         row, col = 0, 0
