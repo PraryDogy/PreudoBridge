@@ -1092,7 +1092,3 @@ class Grid(BaseMethods, QScrollArea):
 
         return super().mouseMoveEvent(a0)
     
-    # def resizeEvent(self, a0):
-    #     print(self.width(), a0.size().width())
-    #     self.resize_()
-    #     return super().resizeEvent(a0)
