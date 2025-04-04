@@ -152,9 +152,8 @@ class GridStandart(Grid):
 
         SignalsApp.instance.bar_bottom_cmd.emit((JsonData.root, total))
         sys_disk = os.path.join(os.sep, "Volumes", "Macintosh HD")
-        col_count = Utils.get_clmn_count(self.ww)
-
         Thumb.calculate_size()
+        col_count = self.width() // Thumb.thumb_w
 
         if not order_items:
             no_images = QLabel(text=WARN_TEXT)

@@ -472,7 +472,6 @@ class Grid(BaseMethods, QScrollArea):
         self.selected_widgets: list[Thumb] = []
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.ordered_widgets: list[OrderItem | Thumb | ThumbFolder | ThumbSearch] = []
-        self.ww = width
 
         # Посколько сетка может множество раз перезагружаться
         # прежде нужно отключить прошлые подключения чтобы не было
@@ -597,7 +596,6 @@ class Grid(BaseMethods, QScrollArea):
 
     def rearrange(self):
         col_count = self.width() // Thumb.thumb_w
-        self.ww = self.width()
 
         self.cell_to_wid.clear()
         row, col = 0, 0
