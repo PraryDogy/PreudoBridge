@@ -4,7 +4,8 @@ from time import sleep
 from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QColor, QPixmap
 from PyQt5.QtWidgets import (QFrame, QGraphicsDropShadowEffect, QHBoxLayout,
-                             QLabel, QPushButton, QVBoxLayout, QWidget)
+                             QLabel, QPushButton, QSizePolicy, QVBoxLayout,
+                             QWidget)
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Dynamic, JsonData, Static, ThumbData
@@ -14,7 +15,7 @@ from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 from ._base import USvgWidget, UTextEdit, WinMinMax
-from ._grid import Grid, ThumbSearch, Thumb, COL_COUNT
+from ._grid import COL_COUNT, Grid, Thumb, ThumbSearch
 
 SQL_ERRORS = (IntegrityError, OperationalError)
 ATTENTION_T = "Внимание!"
@@ -370,6 +371,7 @@ class GridSearch(Grid):
     def resizeEvent(self, a0):
         x, y = (a0.size().width() // 2) - 100, 10
         self.top_label.move(x, y)
+        self.resize_()
         return super().resizeEvent(a0)
     
     def closeEvent(self, a0: QCloseEvent | None) -> None:
