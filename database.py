@@ -145,7 +145,7 @@ class Dbase:
 
     def __init__(self):
         self.conn_count = 0
-        self.conn_max = 5
+        self.conn_max = 3
 
     def create_engine(self, path: str) -> sqlalchemy.Engine | None:
 
@@ -182,7 +182,7 @@ class Dbase:
 
         except SQL_ERRORS as e:
             # print(traceback.format_exc())
-            print("create engine error")
+            print("create engine error", e)
 
             if os.path.exists(path):
                 os.remove(path)
