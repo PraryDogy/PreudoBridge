@@ -2,7 +2,7 @@ import os
 import shutil
 
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
-from PyQt5.QtWidgets import QLabel, QProgressBar, QPushButton, QHBoxLayout
+from PyQt5.QtWidgets import QLabel, QProgressBar, QPushButton, QHBoxLayout, QVBoxLayout, QWidget
 
 from cfg import Dynamic, JsonData, Static
 from signals import SignalsApp
@@ -18,6 +18,7 @@ CANCEL_T = "Отмена"
 class WorderSignals(QObject):
     finished_ = pyqtSignal(list)  # Сигнал с результатами (новыми путями к файлам)
     progress = pyqtSignal(int)  # Сигнал для передачи значения прогрессбара
+    progress_text = pyqtSignal(str)
     total = pyqtSignal(int)  # Сигнал для передачи суммарного значения прогрессбара
 
 class FileCopyWorker(URunnable):
@@ -41,6 +42,7 @@ class FileCopyWorker(URunnable):
             
             try:
                 self.signals_.progress.emit(x)
+                self.signals_.progress_text.emit(f"{COPYING_T} {x} из {total}")
             except RuntimeError:
                 ...
 
@@ -126,37 +128,56 @@ class WinCopyFiles(WinMinMax):
 
     def __init__(self):
         super().__init__()
-        self.setWindowFlag(Qt.WindowCloseButtonHint, False)
-        self.setFixedSize(250, 70)
+        self.setFixedSize(280, 55)
         self.setWindowTitle(COPYING_T)
 
-        v_lay = QHBoxLayout()
-        v_lay.setContentsMargins(10, 10, 10, 10)
-        v_lay.setSpacing(10)
+        v_lay = QVBoxLayout()
+        v_lay.setContentsMargins(15, 5, 15, 5)
+        v_lay.setSpacing(0)
         self.setLayout(v_lay)
 
-        self.progressbar = QProgressBar()
-        v_lay.addWidget(self.progressbar)
+        first_row = QWidget()
+        v_lay.addWidget(first_row)
+        first_lay = QHBoxLayout()
+        first_lay.setContentsMargins(0, 0, 0, 0)
+        first_row.setLayout(first_lay)
 
-        self.cancel_btn = USvgWidget(src=Static.CLEAR_SVG, size=16)
-        self.cancel_btn.mouseReleaseEvent = self.cancel_cmd
-        v_lay.addWidget(self.cancel_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+        lbl = QLabel(text=PREPARING_T)
+        first_lay.addWidget(lbl)
+
+        second_row = QWidget()
+        v_lay.addWidget(second_row)
+        second_lay = QHBoxLayout()
+        second_lay.setContentsMargins(0, 0, 0, 0)
+        second_lay.setSpacing(10)
+        second_row.setLayout(second_lay)
+
+        progressbar = QProgressBar()
+        second_lay.addWidget(progressbar)
+
+        cancel_btn = USvgWidget(src=Static.CLEAR_SVG, size=16)
+        cancel_btn.mouseReleaseEvent = self.cancel_cmd
+        second_lay.addWidget(cancel_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.task_ = None
 
         if Dynamic.files_to_copy:
             self.task_ = FileCopyWorker()
-            self.task_.signals_.total.connect(lambda value: self.progressbar.setMaximum(value))
-            self.task_.signals_.progress.connect(lambda value: self.progressbar.setValue(value))
+            self.task_.signals_.total.connect(progressbar.setMaximum)
+            self.task_.signals_.progress.connect(progressbar.setValue)
+            self.task_.signals_.progress_text.connect(lbl.setText)
             self.task_.signals_.finished_.connect(self.finished_task)
             UThreadPool.start(runnable=self.task_)
 
     def cancel_cmd(self, *args):
-        if self.task_:
-            self.task_.should_run = False
         self.close()
 
     def finished_task(self, new_paths: list[str]):
+        self.close()
         SignalsApp.instance.load_standart_grid.emit((JsonData.root, new_paths))
         del self.task_
+
+    def closeEvent(self, a0):
+        if self.task_:
+            self.task_.should_run = False
         self.close()

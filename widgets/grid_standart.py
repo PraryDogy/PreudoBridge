@@ -268,6 +268,7 @@ class GridStandart(Grid):
 
         if Dynamic.files_to_copy:
             self.win_copy = WinCopyFiles()
+            Utils.center_win(self.window(), self.win_copy)
             self.win_copy.show()
 
         return super().dropEvent(a0)
