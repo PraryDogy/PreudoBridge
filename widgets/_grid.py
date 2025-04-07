@@ -506,11 +506,16 @@ class Grid(BaseMethods, QScrollArea):
         QTimer.singleShot(200, self.set_mouseReleaseEvent)
 
     def get_col_count(self):
-        win_ww = self.window().width()
-        splitter = self.window().findChild(QSplitter)
-        left_menu: QWidget = splitter.children()[1]
-        left_menu_ww = left_menu.width()
-        return (win_ww - left_menu_ww) // Thumb.thumb_w
+        main_win = Utils.get_main_win()
+        win_ww = main_win.width()
+        splitter = main_win.findChild(QSplitter)
+        if splitter:
+            left_menu: QWidget = splitter.children()[1]
+            left_menu_ww = left_menu.width()
+            return (win_ww - left_menu_ww) // Thumb.thumb_w
+        else:
+            print("no splitter")
+            return 1
 
     def set_mouseReleaseEvent(self):
         self.mouseReleaseEvent = self.custom_mouseReleaseEvent
