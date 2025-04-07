@@ -28,7 +28,7 @@ class FinderItems(URunnable):
             order_items = self.get_order_items()
             conn = self.create_connection()
             if conn:
-                order_items, new_items = self.set_rating(order_items=order_items)
+                order_items, new_items = self.set_rating(conn, order_items)
             else:
                 order_items, new_items = self.get_items_no_db()
         except SQL_ERRORS as e:
@@ -38,7 +38,8 @@ class FinderItems(URunnable):
             print(e)
             order_items, new_items = [], []
 
-        order_items = OrderItem.sort_items(order_items=order_items)
+        order_items = OrderItem.sort_items(order_items)
+        new_items = OrderItem.sort_items(new_items)
         self.signals_.finished_.emit((order_items, new_items))
 
     def create_connection(self) -> sqlalchemy.Connection | None:
