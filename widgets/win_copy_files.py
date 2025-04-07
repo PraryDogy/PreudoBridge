@@ -2,13 +2,13 @@ import os
 import shutil
 
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
-from PyQt5.QtWidgets import QLabel, QPushButton, QVBoxLayout
+from PyQt5.QtWidgets import QLabel, QProgressBar, QPushButton, QHBoxLayout
 
 from cfg import Dynamic, JsonData, Static
 from signals import SignalsApp
 from utils import URunnable, UThreadPool
 
-from ._base import WinMinMax
+from ._base import USvgWidget, WinMinMax
 
 PREPARING_T = "Подготовка"
 COPYING_T = "Копирую файлы"
@@ -17,8 +17,8 @@ CANCEL_T = "Отмена"
 
 class WorderSignals(QObject):
     finished_ = pyqtSignal(list)  # Сигнал с результатами (новыми путями к файлам)
-    progress = pyqtSignal(str)  # Сигнал для передачи статуса копирования
-    same_place = pyqtSignal()
+    progress = pyqtSignal(int)  # Сигнал для передачи значения прогрессбара
+    total = pyqtSignal(int)  # Сигнал для передачи суммарного значения прогрессбара
 
 class FileCopyWorker(URunnable):
     def __init__(self):
@@ -29,11 +29,20 @@ class FileCopyWorker(URunnable):
     def run(self):    
         new_paths = self.create_new_paths()
         total = len(new_paths)
+        try:
+            self.signals_.total.emit(total)
+        except RuntimeError:
+            ...
 
         for x, (old_filepath, new_filepath) in enumerate(new_paths, start=1):
 
             if not self.should_run:
                 break
+            
+            try:
+                self.signals_.progress.emit(x)
+            except RuntimeError:
+                ...
 
             new_folders, tail = os.path.split(new_filepath)
             os.makedirs(new_folders, exist_ok=True)
@@ -47,7 +56,10 @@ class FileCopyWorker(URunnable):
         # создаем список путей к виджетам в сетке для выделения
         paths_for_selection = self.collapse_to_root_dirs(new_paths, JsonData.root)
 
-        self.signals_.finished_.emit(list(paths_for_selection))
+        try:
+            self.signals_.finished_.emit(list(paths_for_selection))
+        except RuntimeError:
+            ...
         Dynamic.files_to_copy.clear()
 
     def collapse_to_root_dirs(self, new_paths: list[tuple[str, str]], root: str):
@@ -118,26 +130,25 @@ class WinCopyFiles(WinMinMax):
         self.setFixedSize(250, 70)
         self.setWindowTitle(COPYING_T)
 
-        v_lay = QVBoxLayout()
+        v_lay = QHBoxLayout()
         v_lay.setContentsMargins(10, 10, 10, 10)
         v_lay.setSpacing(10)
         self.setLayout(v_lay)
 
-        self.copy_label = QLabel(text=PREPARING_T)
-        v_lay.addWidget(self.copy_label)
+        self.progressbar = QProgressBar()
+        v_lay.addWidget(self.progressbar)
 
-        self.cancel_btn = QPushButton(text=CANCEL_T)
-        self.cancel_btn.clicked.connect(self.cancel_cmd)
-        self.cancel_btn.setFixedWidth(100)
+        self.cancel_btn = USvgWidget(src=Static.CLEAR_SVG, size=16)
+        self.cancel_btn.mouseReleaseEvent = self.cancel_cmd
         v_lay.addWidget(self.cancel_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.task_ = None
 
         if Dynamic.files_to_copy:
             self.task_ = FileCopyWorker()
-            self.task_.signals_.progress.connect(self.set_progress)
+            self.task_.signals_.total.connect(lambda value: self.progressbar.setMaximum(value))
+            self.task_.signals_.progress.connect(lambda value: self.progressbar.setValue(value))
             self.task_.signals_.finished_.connect(self.finished_task)
-            self.task_.signals_.same_place.connect(self.cancel_cmd)
             UThreadPool.start(runnable=self.task_)
 
     def cancel_cmd(self, *args):
@@ -149,6 +160,3 @@ class WinCopyFiles(WinMinMax):
         SignalsApp.instance.load_standart_grid.emit((JsonData.root, new_paths))
         del self.task_
         self.close()
-
-    def set_progress(self, text: str):
-        self.copy_label.setText(text)
