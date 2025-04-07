@@ -640,8 +640,12 @@ class Grid(BaseMethods, QScrollArea):
             ]
 
             for i in widgets:
-                self.selected_widgets.append(i)
-                i.set_frame()
+
+                try:
+                    i.set_frame()
+                    self.selected_widgets.append(i)
+                except AttributeError:
+                    continue
 
             if widgets:
                 QTimer.singleShot(500, lambda: self.ensureWidgetVisible(widgets[0]))
