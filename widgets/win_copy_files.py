@@ -16,10 +16,10 @@ CANCEL_T = "Отмена"
 
 
 class WorderSignals(QObject):
-    finished_ = pyqtSignal(list)  # Сигнал с результатами (новыми путями к файлам)
-    set_value_progress = pyqtSignal(int)  # Сигнал для передачи значения прогрессбара
+    finished_ = pyqtSignal(list)
+    set_value_progress = pyqtSignal(int)
     set_text_progress = pyqtSignal(str)
-    set_max_progress = pyqtSignal(int)  # Сигнал для передачи суммарного значения прогрессбара
+    set_max_progress = pyqtSignal(int)
 
 class FileCopyWorker(URunnable):
     def __init__(self):
@@ -102,6 +102,20 @@ class FileCopyWorker(URunnable):
             ...
 
     def collapse_to_root_dirs(self, new_paths: list[tuple[str, str]], root: str):
+        # Например мы копируем папки test_images и abs_images с рабочего стола в папку загрузок
+        # Внутри test_images и abs есть разные файлы и папки
+        # 
+        # /Users/Some_user/Desktop/test_images/path/to/file.jpg
+        # /Users/Some_user/Desktop/test_images/path/to/file 2.jpg
+        # /Users/Some_user/Desktop/test_images/path/to/file 2.jpg
+        # 
+        # /Users/Some_user/Desktop/abs_images/path/to/file.jpg
+        # /Users/Some_user/Desktop/abs_imagesges/path/to/file 2.jpg
+        # /Users/Some_user/Desktop/abs_images/path/to/file 2.jpg
+        # 
+        # Наша задача получить сет из следующих элементов:
+        # /Users/Some_user/Downloasd/test_images
+        # /Users/Some_user/Downloads/abs_image
         result = set()
         for old_path, new_path in new_paths:
             rel = os.path.relpath(new_path, root)
@@ -137,7 +151,6 @@ class FileCopyWorker(URunnable):
         - Берётся относительный путь файла относительно родительской папки src_dir
         - Этот относительный путь добавляется к пути назначения dest
         """
-
         stack = [src_dir]
         new_paths: list[tuple[str, str]] = []
 
