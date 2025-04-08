@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QLabel, QProgressBar, QPushButton, QHBoxLayout, QVBo
 
 from cfg import Dynamic, JsonData, Static
 from signals import SignalsApp
-from utils import URunnable, UThreadPool
+from utils import URunnable, UThreadPool, Utils
 
 from ._base import USvgSqareWidget, WinMinMax
 
@@ -17,9 +17,9 @@ CANCEL_T = "Отмена"
 
 class WorderSignals(QObject):
     finished_ = pyqtSignal(list)  # Сигнал с результатами (новыми путями к файлам)
-    progress = pyqtSignal(int)  # Сигнал для передачи значения прогрессбара
-    progress_text = pyqtSignal(str)
-    total = pyqtSignal(int)  # Сигнал для передачи суммарного значения прогрессбара
+    set_value_progress = pyqtSignal(int)  # Сигнал для передачи значения прогрессбара
+    set_text_progress = pyqtSignal(str)
+    set_max_progress = pyqtSignal(int)  # Сигнал для передачи суммарного значения прогрессбара
 
 class FileCopyWorker(URunnable):
     def __init__(self):
@@ -29,28 +29,28 @@ class FileCopyWorker(URunnable):
     @URunnable.set_running_state
     def run(self):    
         new_paths = self.create_new_paths()
-        total = len(new_paths)
+
+        total_bytes = sum([os.path.getsize(old_path)for old_path, new_path in new_paths])
+        total_mb = int(total_bytes / (1024 * 1024))
         try:
-            self.signals_.total.emit(total)
+            self.signals_.set_max_progress.emit(total_mb)
         except RuntimeError:
             ...
 
-        for x, (old_filepath, new_filepath) in enumerate(new_paths, start=1):
+        self.copied_bytes = 0
+        self.total_f_size = Utils.get_f_size(total_bytes)
+
+        for src, dest in new_paths:
 
             if not self.should_run:
                 break
             
-            try:
-                self.signals_.progress.emit(x)
-                self.signals_.progress_text.emit(f"{COPYING_T} {x} из {total}")
-            except RuntimeError:
-                ...
-
-            new_folders, tail = os.path.split(new_filepath)
+            new_folders, tail = os.path.split(dest)
             os.makedirs(new_folders, exist_ok=True)
 
             try:
-                shutil.copy2(old_filepath, new_filepath)
+                # shutil.copy2(old_filepath, new_filepath)
+                self.copy_by_bytes(src, dest)
             except Exception as e:
                 print("win copy files > copy file error", e)
                 continue
@@ -63,6 +63,30 @@ class FileCopyWorker(URunnable):
         except RuntimeError:
             ...
         Dynamic.files_to_copy.clear()
+
+    def copy_by_bytes(self, src: str, dest: str):
+        buffer_size = 1024 * 1024  # 1 MB
+
+        try:
+            with open(src, 'rb') as fsrc, open(dest, 'wb') as fdest:
+                while self.should_run:
+                    buf = fsrc.read(buffer_size)
+                    if not buf:
+                        break
+                    fdest.write(buf)
+                    self.copied_bytes += len(buf)
+                    self.report_progress()
+        except Exception as e:
+            print(e)
+
+    def report_progress(self):
+        try:
+            copied_mb = int(self.copied_bytes / (1024 * 1024))
+            self.signals_.set_value_progress.emit(copied_mb)
+            copied_f_size = Utils.get_f_size(self.copied_bytes)
+            self.signals_.set_text_progress.emit(f"{COPYING_T} {copied_f_size} из {self.total_f_size}")
+        except RuntimeError:
+            ...
 
     def collapse_to_root_dirs(self, new_paths: list[tuple[str, str]], root: str):
         result = set()
@@ -129,7 +153,7 @@ class WinCopyFiles(WinMinMax):
 
     def __init__(self):
         super().__init__()
-        self.setFixedSize(280, 75)
+        self.setFixedSize(400, 75)
         self.setWindowTitle(COPYING_T)
 
         main_lay = QHBoxLayout()
@@ -178,11 +202,17 @@ class WinCopyFiles(WinMinMax):
 
         if Dynamic.files_to_copy:
             self.task_ = FileCopyWorker()
-            self.task_.signals_.total.connect(progressbar.setMaximum)
-            self.task_.signals_.progress.connect(progressbar.setValue)
-            self.task_.signals_.progress_text.connect(lbl.setText)
+            self.task_.signals_.set_max_progress.connect(lambda value: self.test(progressbar, value))
+            self.task_.signals_.set_value_progress.connect(lambda value: self.test_rwo(progressbar, value))
+            self.task_.signals_.set_text_progress.connect(lbl.setText)
             self.task_.signals_.finished_.connect(self.finished_task)
             UThreadPool.start(runnable=self.task_)
+
+    def test(self, progress: QProgressBar, value):
+        progress.setMaximum(abs(value))
+
+    def test_rwo(self, progress: QProgressBar, value):
+        progress.setValue(value)
 
     def cancel_cmd(self, *args):
         self.close()
