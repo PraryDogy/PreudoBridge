@@ -18,7 +18,7 @@ from ._actions import (ChangeView, CopyFilesAction, CopyPath, FavAdd,
                        FavRemove, Info, OpenInApp, PasteFilesAction,
                        RatingMenu, RemoveFilesAction, RevealInFinder,
                        ShowInFolder, SortMenu, TagMenu, UpdateGrid, View)
-from ._base import BaseMethods, OpenWin, UMenu, USvgWidget
+from ._base import BaseMethods, OpenWin, UMenu, USvgSqareWidget
 from .list_file_system import ListFileSystem
 from .win_copy_files import WinCopyFiles
 from .win_remove_files import WinRemoveFiles
@@ -280,7 +280,7 @@ class Thumb(OrderItem, QFrame):
         else:
             self.svg_path = Static.FILE_SVG
 
-        self.img_wid = USvgWidget(src=self.svg_path, size=self.pixmap_size)
+        self.img_wid = USvgSqareWidget(src=self.svg_path, size=self.pixmap_size)
         self.img_frame_lay.addWidget(self.img_wid)
 
         self.text_wid = TextWidget()
@@ -438,7 +438,7 @@ class ThumbFolder(Thumb):
         super().__init__(src, size, mod, rating)
 
         self.svg_path = Static.FOLDER_SVG
-        img_wid = self.img_frame.findChild(USvgWidget)
+        img_wid = self.img_frame.findChild(USvgSqareWidget)
         img_wid.load(self.svg_path)
 
 
@@ -829,7 +829,7 @@ class Grid(BaseMethods, QScrollArea):
 
         if isinstance(wid, (TextWidget, RatingWid, ImgFrame)):
             return wid.parent()
-        elif isinstance(wid, (QLabel, USvgWidget)):
+        elif isinstance(wid, (QLabel, USvgSqareWidget)):
             return wid.parent().parent()
         else:
             return None
@@ -1081,8 +1081,8 @@ class Grid(BaseMethods, QScrollArea):
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
 
-        if isinstance(wid.img_wid, USvgWidget):
-            USvgWidget
+        if isinstance(wid.img_wid, USvgSqareWidget):
+            USvgSqareWidget
 
         img_ = QPixmap(Static.COPY_FILES_PNG)
         self.drag.setPixmap(img_)

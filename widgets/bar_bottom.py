@@ -14,7 +14,7 @@ from signals import SignalsApp
 from utils import PathFinder, URunnable, UThreadPool, Utils
 
 from ._actions import CopyPath, Info, RevealInFinder, SortMenu, View
-from ._base import (OpenWin, UFrame, ULineEdit, UMenu, USlider, USvgWidget,
+from ._base import (OpenWin, UFrame, ULineEdit, UMenu, USlider, USvgSqareWidget,
                     WinMinMax)
 from ._grid import Thumb
 
@@ -204,7 +204,7 @@ class PathItem(QWidget):
         item_layout.setSpacing(5)
         self.setLayout(item_layout)
 
-        self.img_wid = USvgWidget(size=15)
+        self.img_wid = USvgSqareWidget(size=15)
         item_layout.addWidget(self.img_wid)
         
         self.text_wid = QLabel(text=name)
@@ -318,7 +318,7 @@ class GoToFrame(UFrame):
         h_lay.setSpacing(5)
         self.setLayout(h_lay)
 
-        self.go_btn = USvgWidget(src=Static.GOTO_SVG, size=14)
+        self.go_btn = USvgSqareWidget(src=Static.GOTO_SVG, size=14)
         h_lay.addWidget(self.go_btn)
 
         self.go_label = QLabel(text=GO_T)

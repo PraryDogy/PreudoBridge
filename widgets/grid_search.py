@@ -14,7 +14,7 @@ from fit_img import FitImg
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
-from ._base import USvgWidget, UTextEdit, WinMinMax
+from ._base import USvgSqareWidget, UTextEdit, WinMinMax
 from ._grid import COL_COUNT, Grid, Thumb, ThumbSearch
 
 SQL_ERRORS = (IntegrityError, OperationalError)
@@ -183,7 +183,7 @@ class WinMissedFiles(WinMinMax):
         first_row_lay.setContentsMargins(0, 0, 0, 0)
         first_row_wid.setLayout(first_row_lay)
 
-        warn = USvgWidget(src=Static.WARNING_SVG, size=50)
+        warn = USvgSqareWidget(src=Static.WARNING_SVG, size=50)
         first_row_lay.addWidget(warn)
 
         label_ = QLabel(text=MISSED_FILES)

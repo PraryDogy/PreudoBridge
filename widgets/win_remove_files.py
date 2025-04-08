@@ -7,7 +7,7 @@ from cfg import JsonData, Static
 from signals import SignalsApp
 from utils import URunnable, UThreadPool
 
-from ._base import WinMinMax, USvgWidget
+from ._base import WinMinMax, USvgSqareWidget
 
 REMOVE_T = "Удалить безвозвратно объекты"
 OK_T = "Ок"
@@ -56,7 +56,7 @@ class WinRemoveFiles(WinMinMax):
         first_row_lay.setContentsMargins(0, 0, 0, 0)
         first_row_wid.setLayout(first_row_lay)
 
-        warn = USvgWidget(src=Static.WARNING_SVG, size=50)
+        warn = USvgSqareWidget(src=Static.WARNING_SVG, size=50)
         first_row_lay.addWidget(warn)
 
         t = f"{REMOVE_T} ({len(urls)})?"

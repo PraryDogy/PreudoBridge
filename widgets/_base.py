@@ -73,17 +73,15 @@ class USlider(QSlider):
 
 
 
-class USvgWidget(QSvgWidget):
-    def __init__(self, **kwargs: Literal["src", "size"]):
-        """src, size"""
-
+class USvgSqareWidget(QSvgWidget):
+    def __init__(self, src: str = None, size: int = None):
         super().__init__()
         self.setStyleSheet(f"""background-color: transparent;""")
         self.renderer().setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
-        if kwargs.get("src"):
-            self.load(kwargs.get("src"))
-        if kwargs.get("size"):
-            self.setFixedSize(kwargs.get("size"), kwargs.get("size"))
+        if src:
+            self.load(src)
+        if size:
+            self.setFixedSize(size, size)
 
 
 class ULineEdit(QLineEdit):
