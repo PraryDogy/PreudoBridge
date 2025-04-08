@@ -89,38 +89,39 @@ class FileCopyWorker(URunnable):
         Возвращает кортеж: исходный путь файла, финальный путь файла
         """
         filename = os.path.basename(file)
-        return (file, os.path.join(dest, filename)
-)
-    def scan_folder(self, folder: str, dest: str):
+        return (file, os.path.join(dest, filename))
+
+    def scan_folder(self, src_dir: str, dest: str):
         """
-        Рекурсивно сканирует заданную папку (folder).   
-        Возвращает список кортежей: исходный путь файла,
-        финальный путь (dest: куда копировать файл).
+        Рекурсивно сканирует папку src_dir.
+        Возвращает список кортежей: (путь к исходному файлу, путь назначения).
+
+        Путь назначения формируется так:
+        - Берётся относительный путь файла относительно родительской папки src_dir
+        - Этот относительный путь добавляется к пути назначения dest
         """
-        stack = [folder]
-        file_paths: list[tuple[str, str]] = []
+
+        stack = [src_dir]
+        new_paths: list[tuple[str, str]] = []
+
+        src_dir = os.sep + src_dir.strip(os.sep)
+        dest = os.sep + dest.strip(os.sep)
+
+        # Родительская папка от src_dir — нужна, чтобы определить
+        # относительный путь каждого файла внутри src_dir
+        parent = os.path.dirname(src_dir)
 
         while stack:
-            current_fir = stack.pop()
-            for entry in os.scandir(current_fir):
-                if entry.is_dir():
-                    stack.append(entry.path)
+            current_dir = stack.pop()
+            for dir_entry in os.scandir(current_dir):
+                if dir_entry.is_dir():
+                    stack.append(dir_entry.path)
                 else:
-                    # Получаем родительскую директорию исходного пути
-                    # В данном случае это путь к директории, в которой находится исходная папка folder
-                    parent = os.path.dirname(folder)
-                    
-                    # Получаем относительный путь от исходной директории до текущего файла
-                    # Этот шаг нужен, чтобы понять, как файл "расположен" относительно папки folder
-                    rel_path = os.path.relpath(entry.path, parent)
-                    
-                    # Формируем полный путь для назначения
-                    # Здесь мы соединяем путь назначения (dest_dir) с относительным путем,
-                    # полученным в предыдущем шаге, чтобы сохранить структуру директорий
-                    full_dest = os.path.join(dest, rel_path)
-                    file_paths.append((entry.path, full_dest))
+                    rel_path = dir_entry.path.split(parent)[-1]
+                    new_path = dest + rel_path
+                    new_paths.append((dir_entry.path, new_path))
 
-        return file_paths
+        return new_paths
 
 
 class WinCopyFiles(WinMinMax):
