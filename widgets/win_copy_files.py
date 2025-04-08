@@ -175,13 +175,13 @@ class WinCopyFiles(WinMinMax):
 
         self.task_ = None
 
-        # if Dynamic.files_to_copy:
-        #     self.task_ = FileCopyWorker()
-        #     self.task_.signals_.total.connect(progressbar.setMaximum)
-        #     self.task_.signals_.progress.connect(progressbar.setValue)
-        #     self.task_.signals_.progress_text.connect(lbl.setText)
-        #     self.task_.signals_.finished_.connect(self.finished_task)
-        #     UThreadPool.start(runnable=self.task_)
+        if Dynamic.files_to_copy:
+            self.task_ = FileCopyWorker()
+            self.task_.signals_.total.connect(progressbar.setMaximum)
+            self.task_.signals_.progress.connect(progressbar.setValue)
+            self.task_.signals_.progress_text.connect(lbl.setText)
+            self.task_.signals_.finished_.connect(self.finished_task)
+            UThreadPool.start(runnable=self.task_)
 
     def cancel_cmd(self, *args):
         self.close()
