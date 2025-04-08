@@ -116,6 +116,9 @@ class FileCopyWorker(URunnable):
         # Наша задача получить сет из следующих элементов:
         # /Users/Some_user/Downloasd/test_images
         # /Users/Some_user/Downloads/abs_image
+        # 
+        # Сет передается в сигнал finished, где _grid.py выделит виджеты в
+        # сетке, соответствующие директориям в сете.
         result = set()
         for old_path, new_path in new_paths:
             rel = os.path.relpath(new_path, root)

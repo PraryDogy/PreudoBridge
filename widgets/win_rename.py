@@ -1,12 +1,17 @@
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QKeyEvent
-from PyQt5.QtWidgets import QPushButton, QVBoxLayout
+from PyQt5.QtWidgets import QPushButton, QVBoxLayout, QLabel, QWidget, QHBoxLayout
 
 from ._base import ULineEdit, WinMinMax
 
 RENAME_PLACEHOLDER = "Введите текст"
 OK_T = "Ок"
+CANCEL_T = "Отмена"
 TITLE_T = "Задайте имя"
+DESCR_T = (
+    "Придумайте имя для закладки.*",
+    "*Необзательно."
+)
 
 
 class WinRename(WinMinMax):
@@ -14,26 +19,45 @@ class WinRename(WinMinMax):
 
     def __init__(self, text: str):
         super().__init__()
-        self.resize(250, 80)
+        self.setFixedSize(300, 110)
         self.setWindowTitle(TITLE_T)
 
         v_lay = QVBoxLayout()
-        v_lay.setContentsMargins(10, 10, 10, 10)
-        v_lay.setSpacing(10)
+        v_lay.setContentsMargins(5, 5, 5, 5)
+        v_lay.setSpacing(5)
         self.setLayout(v_lay)
 
+        descr = QLabel("\n".join(DESCR_T))
+        v_lay.addWidget(descr)
+
         self.input_wid = ULineEdit() 
+        self.input_wid.setFixedWidth(self.width() - 10)
         self.input_wid.setPlaceholderText(RENAME_PLACEHOLDER)
-        self.input_wid.setFixedWidth(230)
         self.input_wid.setText(text)
         self.input_wid.selectAll()
         self.input_wid.clear_btn_vcenter()
         v_lay.addWidget(self.input_wid)
 
+        h_wid = QWidget()
+        v_lay.addWidget(h_wid)
+        h_lay = QHBoxLayout()
+        h_lay.setContentsMargins(0, 0, 0, 0)
+        h_lay.setSpacing(10)
+        h_wid.setLayout(h_lay)
+
+        h_lay.addStretch()
+
         self.ok_btn = QPushButton(text=OK_T)
         self.ok_btn.clicked.connect(self.finish_rename)
-        self.ok_btn.setFixedWidth(110)
-        v_lay.addWidget(self.ok_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.ok_btn.setFixedWidth(90)
+        h_lay.addWidget(self.ok_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        cancel_btn = QPushButton(text=CANCEL_T)
+        cancel_btn.clicked.connect(self.close)
+        cancel_btn.setFixedWidth(90)
+        h_lay.addWidget(cancel_btn)
+
+        h_lay.addStretch()
 
     def finish_rename(self):
         self.finished_.emit(self.input_wid.text())
