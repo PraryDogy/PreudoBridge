@@ -30,14 +30,21 @@ class FileCopyWorker(URunnable):
     def run(self):    
         new_paths = self.create_new_paths()
 
+        # общий размер всех файлов в байтах
         total_bytes = sum([os.path.getsize(old_path)for old_path, new_path in new_paths])
+
+        # общий размер всех файлов в МБ для установки максимального
+        # значения QProgressbar (в байтах плохо работает)
         total_mb = int(total_bytes / (1024 * 1024))
         try:
             self.signals_.set_max_progress.emit(total_mb)
         except RuntimeError:
             ...
 
+        # сколько уже скопировано в байтах
         self.copied_bytes = 0
+        
+        # байты переводим в читаемый f string
         self.total_f_size = Utils.get_f_size(total_bytes)
 
         for src, dest in new_paths:
@@ -45,11 +52,11 @@ class FileCopyWorker(URunnable):
             if not self.should_run:
                 break
             
+            # создаем древо папок как в исходной папке
             new_folders, tail = os.path.split(dest)
             os.makedirs(new_folders, exist_ok=True)
 
             try:
-                # shutil.copy2(old_filepath, new_filepath)
                 self.copy_by_bytes(src, dest)
             except Exception as e:
                 print("win copy files > copy file error", e)
@@ -74,6 +81,7 @@ class FileCopyWorker(URunnable):
                     if not buf:
                         break
                     fdest.write(buf)
+                    # прибавляем в байтах сколько уже скопировано
                     self.copied_bytes += len(buf)
                     self.report_progress()
         except Exception as e:
@@ -81,9 +89,14 @@ class FileCopyWorker(URunnable):
 
     def report_progress(self):
         try:
+            # сколько уже скопировано в байтах переводим в МБ, потому что
+            # максимальное число QProgressbar задано тоже в МБ
             copied_mb = int(self.copied_bytes / (1024 * 1024))
             self.signals_.set_value_progress.emit(copied_mb)
+
+            # байты переводим в читаемый f string
             copied_f_size = Utils.get_f_size(self.copied_bytes)
+
             self.signals_.set_text_progress.emit(f"{COPYING_T} {copied_f_size} из {self.total_f_size}")
         except RuntimeError:
             ...
