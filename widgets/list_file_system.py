@@ -21,6 +21,7 @@ class ListFileSystem(QTableView):
     last_selection: str = None
     new_history_item = pyqtSignal(str)
     fav_cmd_sig = pyqtSignal(tuple)
+    load_st_grid_sig = pyqtSignal(tuple)
 
     def __init__(self):
         QTableView.__init__(self)
@@ -121,7 +122,8 @@ class ListFileSystem(QTableView):
 
         menu.addSeparator()
 
-        change_view = ChangeView(menu, JsonData.root)
+        change_view = ChangeView(menu)
+        change_view.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
         menu.addMenu(change_view)
 
         menu.show_custom()

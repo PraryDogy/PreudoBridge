@@ -161,8 +161,8 @@ class MainWin(QWidget):
         self.bar_top.level_up.connect(self.level_up_cmd)
         self.bar_top.change_view.connect(self.change_view_cmd)
         self.bar_top.start_search.connect(self.load_search_grid)
-        self.bar_top.clear_search.connect(lambda: self.load_standart_grid((self.main_dir, None)))
-        self.bar_top.navigate.connect(lambda dir: self.load_standart_grid((dir, None)))
+        self.bar_top.clear_search.connect(lambda: self.load_st_grid_cmd((self.main_dir, None)))
+        self.bar_top.navigate.connect(lambda dir: self.load_st_grid_cmd((dir, None)))
         self.bar_top.new_history_item_cmd(self.main_dir)
         self.r_lay.insertWidget(0, self.bar_top)
         self.tree_folders.new_history_item.connect(self.bar_top.new_history_item_cmd)
@@ -187,23 +187,23 @@ class MainWin(QWidget):
         # они должны быть именно тут
         self.grid: Grid = Grid()
 
-        SignalsApp.instance.load_standart_grid.connect(self.load_standart_grid)
+        SignalsApp.instance.load_standart_grid.connect(self.load_st_grid_cmd)
         SignalsApp.instance.load_search_grid.connect(self.load_search_grid)
         SignalsApp.instance.open_path.connect(self.open_path_cmd)
         SignalsApp.instance.load_any_grid.connect(self.load_any_grid)
 
-        SignalsApp.instance.load_standart_grid.emit((JsonData.root, None))
+        SignalsApp.instance.load_standart_grid.emit((self.main_dir, None))
 
     def level_up_cmd(self, *args):
         new_main_dir = os.path.dirname(self.main_dir)
         if new_main_dir != os.sep:
-            self.load_standart_grid((new_main_dir, None))
+            self.load_st_grid_cmd((new_main_dir, None))
             self.bar_top.new_history_item_cmd(new_main_dir)
             self.main_dir = new_main_dir
 
     def change_view_cmd(self, index: int):
         self.view_index = index
-        self.load_standart_grid((self.main_dir, None))
+        self.load_st_grid_cmd((self.main_dir, None))
 
     def resize_timer_cmd(self):
         self.grid.resize_()
@@ -220,11 +220,11 @@ class MainWin(QWidget):
             return
 
         if filepath.endswith(Static.IMG_EXT):
-            JsonData.root = os.path.dirname(filepath)
-            SignalsApp.instance.load_standart_grid.emit((JsonData.root, filepath))
+            self.main_dir = os.path.dirname(filepath)
+            SignalsApp.instance.load_standart_grid.emit((self.main_dir, filepath))
         else:
-            JsonData.root = filepath
-            SignalsApp.instance.load_standart_grid.emit((JsonData.root, None))
+            self.main_dir = filepath
+            SignalsApp.instance.load_standart_grid.emit((self.main_dir, None))
 
     def load_search_grid(self, search_text: str):
         self.grid.close()
@@ -241,29 +241,32 @@ class MainWin(QWidget):
             self.grid.order_()
             self.grid.rearrange()
         else:
-            self.load_standart_grid(data)
+            self.load_st_grid_cmd(data)
 
-    def load_standart_grid(self, data: tuple):
+    def load_st_grid_cmd(self, data: tuple):
         """
-        self.main_dir, path to widget for select widget
+        new_main_dir (self.main_dir), path to widget for select widget
         """
-        path_for_grid, path_for_select = data
-        JsonData.root = path_for_grid
+        new_main_dir, path_for_select = data
+
+        if new_main_dir:
+            self.main_dir = new_main_dir
+
         LoadImage.cache.clear()
         self.grid.close()
 
-        base_name = os.path.basename(JsonData.root)
-        if JsonData.root in JsonData.favs:
-            fav = JsonData.favs[JsonData.root]
+        base_name = os.path.basename(self.main_dir)
+        if self.main_dir in JsonData.favs:
+            fav = JsonData.favs[self.main_dir]
             if fav != base_name:
-                title = f"{base_name} ({JsonData.favs[JsonData.root]})"
+                title = f"{base_name} ({JsonData.favs[self.main_dir]})"
             else:
                 title = base_name
         else:
             title = base_name
 
         self.setWindowTitle(title)
-        self.tree_favorites.fav_cmd(("select", JsonData.root))
+        self.tree_favorites.fav_cmd(("select", self.main_dir))
         # self.bar_top.search_wid.clear_search.emit()
 
         if self.view_index == 0:
@@ -275,12 +278,13 @@ class MainWin(QWidget):
         self.grid.new_history_item.connect(self.bar_top.new_history_item_cmd)
         self.grid.bar_bottom_update.connect(self.bar_bottom.update_bar_cmd)
         self.grid.fav_cmd_sig.connect(self.tree_favorites.fav_cmd)
+        self.grid.load_st_grid_sig.connect(self.load_st_grid_cmd)
 
         self.grid.verticalScrollBar().valueChanged.connect(
             self.scroll_up_scroll_value
         )
 
-        self.tree_folders.expand_path(JsonData.root)
+        self.tree_folders.expand_path(self.main_dir)
 
         self.r_lay.insertWidget(1, self.grid)
         self.grid.setFocus()

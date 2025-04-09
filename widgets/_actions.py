@@ -240,17 +240,9 @@ class FavAdd(UAction):
 # это действие нужно если мы знаем, что в папке, которую представляет сетка
 # произошли какие-то изменение вне приложения
 # удаление / добавление / переименование файла и т.п.
-class UpdateGrid(UAction):
-    def __init__(self, parent: UMenu, src: str):
-
-        super().__init__(
-            parent=parent,
-            src=src,
-            text=UPDATE_GRID_T
-        )
-
-    def cmd_(self):
-        SignalsApp.instance.load_standart_grid.emit((JsonData.root, None))
+class UpdateGrid(QAction):
+    def __init__(self, parent: UMenu):
+        super().__init__(parent=parent, text=UPDATE_GRID_T)
 
 
 # Меню со списком приложений, при помощи которых можно открыть изображение
@@ -515,6 +507,7 @@ class TextSelectAll(QAction):
 
 class SortMenu(UMenu):
     bar_bottom_update = pyqtSignal(tuple)
+    load_st_grid_sig = pyqtSignal(tuple)
 
     def __init__(self, parent: UMenu):
 
@@ -587,43 +580,34 @@ class SortMenu(UMenu):
     def cmd_sort(self, true_name: str):
         # записываем true_name (тип сортировки) в пользовательский .json
         Dynamic.sort = true_name
-        SignalsApp.instance.load_any_grid.emit((JsonData.root, None))
+        self.load_st_grid_sig.emit((None, None))
         self.bar_bottom_update.emit((None, None))
 
     def cmd_revers(self, reversed: bool):
         # записываем порядок сортировки в пользовательский .json
         Dynamic.rev = reversed
-        SignalsApp.instance.load_any_grid.emit((JsonData.root, None))
+        self.load_st_grid_sig.emit((None, None))
         self.bar_bottom_update.emit((None, None))
 
 
 # показать сетку / список - GridStandart / GridSearch / ListFileSystem
 # list_file_system.py > ListFileSystem
 class ChangeView(UMenu):
-    def __init__(self, parent: UMenu, src: str):
+    load_st_grid_sig = pyqtSignal(tuple)
 
-        super().__init__(
-            parent=parent,
-            title=CHANGE_VIEW_T
-        )
+    def __init__(self, parent: UMenu):
 
-        self.src = src
+        super().__init__(parent=parent, title=CHANGE_VIEW_T)
 
         # отобразить сеткой
-        grid_ = QAction(
-            parent=self,
-            text=CHANGE_VIEW_GRID_T
-        )
+        grid_ = QAction(parent=self, text=CHANGE_VIEW_GRID_T)
 
         grid_.triggered.connect(self.set_grid)
         grid_.setCheckable(True)
         self.addAction(grid_)
 
         # отобразить списком
-        list_ = QAction(
-            parent=self,
-            text=CHANGE_VIEW_LIST_T
-        )
+        list_ = QAction(parent=self, text=CHANGE_VIEW_LIST_T)
 
         list_.triggered.connect(self.set_list)
         list_.setCheckable(True)
@@ -640,11 +624,11 @@ class ChangeView(UMenu):
 
     def set_grid(self):
         Dynamic.grid_view_type = 0
-        SignalsApp.instance.load_standart_grid.emit((JsonData.root, None))
+        self.load_st_grid_sig.emit((None, None))
 
     def set_list(self):
         Dynamic.grid_view_type = 1
-        SignalsApp.instance.load_standart_grid.emit((JsonData.root, None))
+        self.load_st_grid_sig.emit((None, None))
 
 
 class CopyFilesAction(QAction):

@@ -460,6 +460,7 @@ class Grid(BaseMethods, QScrollArea):
     new_history_item = pyqtSignal(str)
     bar_bottom_update = pyqtSignal(tuple)
     fav_cmd_sig = pyqtSignal(tuple)
+    load_st_grid_sig = pyqtSignal(tuple)
 
     def __init__(self, prev_path: str = None):
         Thumb.path_to_wid.clear()
@@ -797,11 +798,13 @@ class Grid(BaseMethods, QScrollArea):
 
         menu.addSeparator()
 
-        change_view = ChangeView(menu, JsonData.root)
+        change_view = ChangeView(menu)
+        change_view.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
         menu.addMenu(change_view)
 
         sort_menu = SortMenu(parent=menu)
         sort_menu.bar_bottom_update.connect(self.bar_bottom_update.emit)
+        sort_menu.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
         menu.addMenu(sort_menu)
 
         menu.addSeparator()
@@ -811,7 +814,8 @@ class Grid(BaseMethods, QScrollArea):
             paste_files.clicked_.connect(self.paste_files)
             menu.addAction(paste_files)
 
-        upd_ = UpdateGrid(menu, JsonData.root)
+        upd_ = UpdateGrid(menu)
+        upd_.triggered.connect(lambda: self.load_st_grid_sig.emit((None, None)))
         menu.addAction(upd_)
 
         # col_count это аттрибут GridSearch
