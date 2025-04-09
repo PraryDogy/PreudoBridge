@@ -462,7 +462,7 @@ class Grid(BaseMethods, QScrollArea):
     fav_cmd_sig = pyqtSignal(tuple)
     load_st_grid_sig = pyqtSignal(tuple)
 
-    def __init__(self, prev_path: str = None):
+    def __init__(self, main_dir: str, prev_path: str = None):
         Thumb.path_to_wid.clear()
 
         QScrollArea.__init__(self)
@@ -473,6 +473,7 @@ class Grid(BaseMethods, QScrollArea):
         self.horizontalScrollBar().setDisabled(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
+        self.main_dir = main_dir
         self.prev_path = prev_path
         self.selected_widgets: list[Thumb] = []
         self.cell_to_wid: dict[tuple, Thumb] = {}
@@ -771,28 +772,28 @@ class Grid(BaseMethods, QScrollArea):
 
     def grid_context_actions(self, menu: UMenu):
 
-        self.set_bottom_path(src=JsonData.root)
+        self.set_bottom_path(src=self.main_dir)
 
-        info = Info(menu, JsonData.root)
+        info = Info(menu, self.main_dir)
         menu.addAction(info)
 
-        reveal = RevealInFinder(parent=menu, src=JsonData.root)
+        reveal = RevealInFinder(parent=menu, src=self.main_dir)
         menu.addAction(reveal)
 
-        copy_ = CopyPath(parent=menu, src=JsonData.root)
+        copy_ = CopyPath(parent=menu, src=self.main_dir)
         menu.addAction(copy_)
 
         menu.addSeparator()
 
-        if JsonData.root in JsonData.favs:
-            cmd_ = lambda: self.fav_cmd(offset=-1, src=JsonData.root)
-            fav_action = FavRemove(menu, JsonData.root)
+        if self.main_dir in JsonData.favs:
+            cmd_ = lambda: self.fav_cmd(offset=-1, src=self.main_dir)
+            fav_action = FavRemove(menu, self.main_dir)
             fav_action._clicked.connect(cmd_)
             menu.addAction(fav_action)
 
         else:
-            cmd_ = lambda: self.fav_cmd(offset=+1, src=JsonData.root)
-            fav_action = FavAdd(menu, JsonData.root)
+            cmd_ = lambda: self.fav_cmd(offset=+1, src=self.main_dir)
+            fav_action = FavAdd(menu, self.main_dir)
             fav_action._clicked.connect(cmd_)
             menu.addAction(fav_action)
 
@@ -882,12 +883,12 @@ class Grid(BaseMethods, QScrollArea):
 
             if a0.key() == Qt.Key.Key_Up:
 
-                old_root = JsonData.root
-                root = os.path.dirname(JsonData.root)
+                old_root = self.main_dir
+                root = os.path.dirname(self.main_dir)
 
                 if root != os.sep:
                     self.new_history_item.emit(root)
-                    SignalsApp.instance.load_standart_grid.emit((root, old_root))
+                    self.load_st_grid_sig.emit((root, old_root))
 
             elif a0.key() == Qt.Key.Key_Down:
                 if self.selected_widgets:
@@ -902,7 +903,7 @@ class Grid(BaseMethods, QScrollArea):
                     self.select_one_wid(wid=clicked_wid)
                     OpenWin.info(parent=self.window(), src=clicked_wid.src)
                 else:
-                    OpenWin.info(parent=self.window(), src=JsonData.root)
+                    OpenWin.info(parent=self.window(), src=self.main_dir)
 
             elif a0.key() == Qt.Key.Key_Equal:
                 new_value = Dynamic.pixmap_size_ind + 1
@@ -995,7 +996,7 @@ class Grid(BaseMethods, QScrollArea):
 
         if not isinstance(clicked_wid, Thumb):
             self.clear_selected_widgets()
-            self.set_bottom_path(src=JsonData.root)
+            self.set_bottom_path(src=self.main_dir)
             return
         
         if a0.modifiers() == Qt.KeyboardModifier.ShiftModifier:
