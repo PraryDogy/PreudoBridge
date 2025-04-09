@@ -3,7 +3,6 @@ from PyQt5.QtWidgets import QWidget
 
 
 class Signals(QObject):
-    bar_bottom_cmd = pyqtSignal(tuple)  
     fav_cmd = pyqtSignal(tuple)  
     filter_grid = pyqtSignal()  
     load_any_grid = pyqtSignal(tuple)  

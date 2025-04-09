@@ -232,6 +232,7 @@ class MainWin(QWidget):
         self.grid.close()
         self.tree_tags.reset()
         self.grid = GridSearch(search_text=search_text)
+        self.grid.bar_bottom_update.connect(self.bar_bottom.update_bar_cmd)
         self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
         self.r_lay.insertWidget(1, self.grid)
         self.grid.setFocus()
@@ -274,6 +275,7 @@ class MainWin(QWidget):
 
         cmd_ = lambda dir: self.bar_top.new_history_item_cmd(dir)
         self.grid.new_history_item.connect(cmd_)
+        self.grid.bar_bottom_update.connect(self.bar_bottom.update_bar_cmd)
 
         self.grid.verticalScrollBar().valueChanged.connect(
             self.scroll_up_scroll_value

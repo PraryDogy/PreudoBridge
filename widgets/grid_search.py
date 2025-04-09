@@ -249,6 +249,8 @@ class TopLabel(QFrame):
         self.setGraphicsEffect(shadow)
 
 class GridSearch(Grid):
+    bar_bottom_update = pyqtSignal(tuple)
+
     def __init__(self, search_text: str):
         super().__init__()
         self.setAcceptDrops(False)
@@ -265,7 +267,7 @@ class GridSearch(Grid):
         self.pause_timer.timeout.connect(self.remove_pause)
         self.pause_timer.setSingleShot(True)
 
-        SignalsApp.instance.bar_bottom_cmd.emit((JsonData.root, self.total))
+        self.bar_bottom_update.emit((JsonData.root, self.total))
         ThumbSearch.calculate_size()
 
         self.task_ = SearchFinder(search_text)
@@ -299,10 +301,10 @@ class GridSearch(Grid):
             self.row += 1
  
         if self.total % 2 == 0:
-            SignalsApp.instance.bar_bottom_cmd.emit((None, self.total))
+            self.bar_bottom_update.emit((None, self.total))
 
     def search_fin(self):
-        SignalsApp.instance.bar_bottom_cmd.emit((None, self.total))
+        self.bar_bottom_update.emit((None, self.total))
         self.top_label.hide()
 
         if not self.cell_to_wid:

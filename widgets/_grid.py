@@ -458,6 +458,7 @@ class GridWid(QWidget):
 
 class Grid(BaseMethods, QScrollArea):
     new_history_item = pyqtSignal(str)
+    bar_bottom_update = pyqtSignal(tuple)
 
     def __init__(self, prev_path: str = None):
         Thumb.path_to_wid.clear()
@@ -539,7 +540,7 @@ class Grid(BaseMethods, QScrollArea):
 
     def set_bottom_path(self, src: str):
         # через таймер чтобы функция не блокировалась зажатой клавишей мыши
-        cmd_ = lambda: SignalsApp.instance.bar_bottom_cmd.emit((src, None))
+        cmd_ = lambda: self.bar_bottom_update.emit((src, None))
         QTimer.singleShot(100, cmd_)
     
     def order_(self):
@@ -799,6 +800,7 @@ class Grid(BaseMethods, QScrollArea):
         menu.addMenu(change_view)
 
         sort_menu = SortMenu(parent=menu)
+        sort_menu.bar_bottom_update.connect(self.bar_bottom_update.emit)
         menu.addMenu(sort_menu)
 
         menu.addSeparator()

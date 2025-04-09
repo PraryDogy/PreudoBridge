@@ -514,6 +514,8 @@ class TextSelectAll(QAction):
 # или осуществлять миграцию существующих данных
 
 class SortMenu(UMenu):
+    bar_bottom_update = pyqtSignal(tuple)
+
     def __init__(self, parent: UMenu):
 
         super().__init__(
@@ -586,13 +588,13 @@ class SortMenu(UMenu):
         # записываем true_name (тип сортировки) в пользовательский .json
         Dynamic.sort = true_name
         SignalsApp.instance.load_any_grid.emit((JsonData.root, None))
-        SignalsApp.instance.bar_bottom_cmd.emit((None, None))
+        self.bar_bottom_update.emit((None, None))
 
     def cmd_revers(self, reversed: bool):
         # записываем порядок сортировки в пользовательский .json
         Dynamic.rev = reversed
         SignalsApp.instance.load_any_grid.emit((JsonData.root, None))
-        SignalsApp.instance.bar_bottom_cmd.emit((None, None))
+        self.bar_bottom_update.emit((None, None))
 
 
 # показать сетку / список - GridStandart / GridSearch / ListFileSystem

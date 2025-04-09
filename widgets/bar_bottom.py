@@ -332,6 +332,8 @@ class GoToFrame(UFrame):
 
 
 class SortFrame(UFrame):
+    bar_bottom_update = pyqtSignal(tuple)
+
     def __init__(self):
         super().__init__()
         h_lay = QHBoxLayout()
@@ -357,6 +359,7 @@ class SortFrame(UFrame):
     def mouseReleaseEvent(self, a0: QMouseEvent):
 
         menu_ = SortMenu(parent=self)
+        menu_.bar_bottom_update.connect(self.bar_bottom_update.emit)
 
         widget_rect = self.rect()
         menu_size = menu_.sizeHint()
@@ -423,6 +426,7 @@ class BarBottom(QWidget):
         bottom_lay.addStretch()
 
         self.sort_frame = SortFrame()
+        self.sort_frame.bar_bottom_update.connect(self.update_bar_cmd)
         bottom_lay.addWidget(self.sort_frame)
 
         bottom_lay.addStretch()
@@ -432,7 +436,6 @@ class BarBottom(QWidget):
         bottom_lay.addWidget(self.slider)
 
         self.create_path_labels(JsonData.root)
-        SignalsApp.instance.bar_bottom_cmd.connect(self.path_labels_cmd)
 
     def add_total(self, value: int):
         self.sort_frame.total_text.setText(f"{TOTAL_T}: {str(value)}")
@@ -442,7 +445,7 @@ class BarBottom(QWidget):
         Utils.center_win(Utils.get_main_win(), self.win)
         self.win.show()
 
-    def path_labels_cmd(self, data: tuple):
+    def update_bar_cmd(self, data: tuple):
         src, total = data
         if src:
             self.create_path_labels(src)
