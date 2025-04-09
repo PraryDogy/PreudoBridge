@@ -18,6 +18,7 @@ class FavItem(QLabel):
     remove_fav_item = pyqtSignal()
     renamed = pyqtSignal(str)
     path_changed = pyqtSignal()
+    new_history_item = pyqtSignal(str)
 
     def __init__(self, name: str, src: str):
         super().__init__(text=name)
@@ -80,7 +81,7 @@ class FavItem(QLabel):
                     break
 
     def view_fav(self):
-        SignalsApp.instance.new_history_item.emit(self.src)
+        self.new_history_item.emit(self.src)
         SignalsApp.instance.load_standart_grid.emit((self.src, None))
 
     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
@@ -124,6 +125,7 @@ class FavItem(QLabel):
 class TreeFavorites(QListWidget):
     LIST_ITEM = "list_item"
     FAV_ITEM = "fav_item"
+    new_history_item = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -186,6 +188,7 @@ class TreeFavorites(QListWidget):
 
     def add_fav_widget_item(self, name: str, src: str) -> dict:
         fav_item = FavItem(name, src)
+        fav_item.new_history_item.connect(self.new_history_item)
         fav_item.remove_fav_item.connect(
             lambda: self.del_item(src)
         )

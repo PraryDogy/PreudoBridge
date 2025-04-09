@@ -11,7 +11,6 @@ class Signals(QObject):
     load_standart_grid = pyqtSignal(tuple)  
     move_slider = pyqtSignal(int)  
     move_to_wid = pyqtSignal(QWidget)  
-    new_history_item = pyqtSignal(str)  
     open_path = pyqtSignal(str)
     rearrange_grid = pyqtSignal() 
     resize_grid = pyqtSignal()  

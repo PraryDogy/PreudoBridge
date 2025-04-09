@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QDir, Qt
+from PyQt5.QtCore import QDir, Qt, pyqtSignal
 from PyQt5.QtWidgets import QFileSystemModel, QTreeView
 
 from cfg import JsonData
@@ -9,6 +9,8 @@ from ._base import UMenu
 
 
 class TreeFolders(QTreeView):
+    new_history_item = pyqtSignal(str)
+
     def __init__(self):
         super().__init__()
 
@@ -33,7 +35,7 @@ class TreeFolders(QTreeView):
     def one_clicked(self, index):
         path = self.c_model.filePath(index)
         self.setCurrentIndex(index)
-        SignalsApp.instance.new_history_item.emit(path)
+        self.new_history_item.emit(path)
         SignalsApp.instance.load_standart_grid.emit((path, None))
 
         self.expand(index)

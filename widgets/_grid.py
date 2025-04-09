@@ -457,6 +457,7 @@ class GridWid(QWidget):
 
 
 class Grid(BaseMethods, QScrollArea):
+    new_history_item = pyqtSignal(str)
 
     def __init__(self, prev_path: str = None):
         Thumb.path_to_wid.clear()
@@ -666,7 +667,7 @@ class Grid(BaseMethods, QScrollArea):
 
         elif wid.type_ == Static.FOLDER_TYPE:
             self.mouseReleaseEvent = None
-            SignalsApp.instance.new_history_item.emit(wid.src)
+            self.new_history_item.emit(wid.src)
             SignalsApp.instance.load_standart_grid.emit((wid.src, None))
 
         elif wid.type_ in Static.IMG_EXT:
@@ -878,7 +879,7 @@ class Grid(BaseMethods, QScrollArea):
                 root = os.path.dirname(JsonData.root)
 
                 if root != os.sep:
-                    SignalsApp.instance.new_history_item.emit(root)
+                    self.new_history_item.emit(root)
                     SignalsApp.instance.load_standart_grid.emit((root, old_root))
 
             elif a0.key() == Qt.Key.Key_Down:

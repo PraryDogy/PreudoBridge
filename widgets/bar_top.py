@@ -7,7 +7,6 @@ from PyQt5.QtWidgets import (QAction, QGroupBox, QHBoxLayout, QLabel,
                              QPushButton, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static
-from signals import SignalsApp
 from utils import Utils
 
 from ._base import UFrame, ULineEdit, UMenu, UTextEdit, WinMinMax
@@ -26,6 +25,8 @@ class ActionData:
 
 
 class BarTopBtn(UFrame):
+    clicked = pyqtSignal()
+
     def __init__(self):
         super().__init__()
         self.setFixedSize(45, 35)
@@ -40,6 +41,10 @@ class BarTopBtn(UFrame):
 
     def load(self, path: str):
         self.svg_btn.load(path)
+
+    def mouseReleaseEvent(self, a0):
+        self.clicked.emit()
+        return super().mouseReleaseEvent(a0)
 
 
 class ListWin(WinMinMax):
@@ -112,6 +117,7 @@ class ListWin(WinMinMax):
  
 class SearchWidget(QWidget):
     clear_search = pyqtSignal()
+    start_search = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -133,11 +139,7 @@ class SearchWidget(QWidget):
 
         self.search_timer = QTimer(self)
         self.search_timer.setSingleShot(True)
-        self.search_timer.timeout.connect(
-            lambda: SignalsApp.instance.load_search_grid.emit(self.search_text)
-            )
-        
-        self.clear_search.connect(self.costil)
+        self.search_timer.timeout.connect(lambda: self.start_search.emit(self.search_text))
 
         self.templates_menu = UMenu()
 
@@ -168,9 +170,9 @@ class SearchWidget(QWidget):
             self.search_wid.setText(self.search_text)
             self.search_timer.start(1500)
         else:
-            self.clear_search.emit()
+            self.costil()
             self.search_wid.clear_btn.hide()
-            SignalsApp.instance.load_standart_grid.emit((JsonData.root, None))
+            self.clear_search.emit()
 
     def show_templates(self, a0: QMouseEvent | None) -> None:
         self.templates_menu.exec(self.mapToGlobal(self.rect().bottomLeft()))
@@ -189,6 +191,11 @@ class SearchWidget(QWidget):
 
 
 class BarTop(QWidget):
+    level_up = pyqtSignal()
+    change_view = pyqtSignal(int)
+    start_search = pyqtSignal(str)
+    clear_search = pyqtSignal()
+    navigate = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -206,30 +213,30 @@ class BarTop(QWidget):
 
         back = BarTopBtn()
         back.load(Static.NAVIGATE_BACK_SVG)
-        back.mouseReleaseEvent = lambda e: self.navigate(offset=-1)
+        back.clicked.connect(lambda: self.navigate_cmd(offset=-1))
         self.main_lay.addWidget(back)
 
         next = BarTopBtn()
         next.load(Static.NAVIGATE_NEXT_SVG)
-        next.mouseReleaseEvent = lambda e: self.navigate(offset=1)
+        next.clicked.connect(lambda: self.navigate_cmd(offset=1))
         self.main_lay.addWidget(next)
 
-        self.folder_up_btn = BarTopBtn()
-        self.folder_up_btn.mouseReleaseEvent = self.folder_up_cmd
-        self.folder_up_btn.load(Static.FOLDER_UP_SVG)
-        self.main_lay.addWidget(self.folder_up_btn)
+        level_up_btn = BarTopBtn()
+        level_up_btn.clicked.connect(self.level_up.emit)
+        level_up_btn.load(Static.FOLDER_UP_SVG)
+        self.main_lay.addWidget(level_up_btn)
 
         self.main_lay.addStretch(1)
 
-        self.grid_view = BarTopBtn()
-        self.grid_view.mouseReleaseEvent = lambda e: self.change_view_cmd(index=0)
-        self.grid_view.load(Static.GRID_VIEW_SVG)
-        self.main_lay.addWidget(self.grid_view)
+        grid_view_btn = BarTopBtn()
+        grid_view_btn.clicked.connect(lambda: self.change_view.emit(0))
+        grid_view_btn.load(Static.GRID_VIEW_SVG)
+        self.main_lay.addWidget(grid_view_btn)
     
-        self.list_view = BarTopBtn()
-        self.list_view.mouseReleaseEvent = lambda e: self.change_view_cmd(index=1)
-        self.list_view.load(Static.LIST_VIEW_SVG)
-        self.main_lay.addWidget(self.list_view)
+        list_view_btn = BarTopBtn()
+        list_view_btn.clicked.connect(lambda: self.change_view.emit(1))
+        list_view_btn.load(Static.LIST_VIEW_SVG)
+        self.main_lay.addWidget(list_view_btn)
 
         self.sett_btn = BarTopBtn()
         self.sett_btn.mouseReleaseEvent = self.open_settings_win
@@ -238,46 +245,34 @@ class BarTop(QWidget):
 
         self.main_lay.addStretch(1)
 
-        self.search_wid = SearchWidget()
-        self.main_lay.addWidget(self.search_wid)
+        search_wid = SearchWidget()
+        search_wid.start_search.connect(self.start_search.emit)
+        search_wid.clear_search.connect(self.clear_search.emit)
+        self.main_lay.addWidget(search_wid)
 
-        SignalsApp.instance.new_history_item.connect(self.new_history)
-        SignalsApp.instance.new_history_item.emit(JsonData.root)
         self.index_ -= 1
-
-    def change_view_cmd(self, index: int, *args):
-        Dynamic.grid_view_type = index
-        SignalsApp.instance.load_standart_grid.emit((JsonData.root, None))
 
     def open_settings_win(self, *args):
         self.win = WinSettings()
         Utils.center_win(Utils.get_main_win(), self.win)
         self.win.show()
 
-    def new_history(self, root: str):
-        if root == os.sep:
+    def new_history_item_cmd(self, dir: str):
+        if dir == os.sep:
             return
 
         if len(self.history) > 100:
             self.history.pop(-1)
 
-        self.history.append(root)
+        self.history.append(dir)
         self.index_ = len(self.history) - 1
 
-    def navigate(self, offset: int):
+    def navigate_cmd(self, offset: int):
         try:
             if self.index_ + offset in(-1, len(self.history)):
                 return
             self.index_ += offset
-            SignalsApp.instance.load_standart_grid.emit((self.history[self.index_], None))
-        except (ValueError, IndexError):
-            pass
-
-    def folder_up_cmd(self, *args):
-
-        old_root = JsonData.root
-        root = os.path.dirname(JsonData.root)
-
-        if not root == os.sep:
-            SignalsApp.instance.new_history_item.emit(root)
-            SignalsApp.instance.load_standart_grid.emit((root, old_root))
+            new_main_dir = self.history[self.index_]
+            self.navigate.emit(new_main_dir)
+        except (ValueError, IndexError) as e:
+            print("bar top > navigate cmd > error", e)

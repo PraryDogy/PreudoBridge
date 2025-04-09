@@ -87,8 +87,19 @@ class MainWin(QWidget):
             raise Exception ("\n".join(text))
 
         super().__init__()
-        self.setMinimumWidth(200)
 
+        # начальная папка при открытии окна это папка Загрузки
+        volume = None
+        for i in os.scandir("/Volumes"):
+            volume = i.path
+            break
+        self.main_dir = os.path.join(os.path.expanduser("~"), "Downloads")
+        self.main_dir = volume + self.main_dir
+
+        # индекс 0 просмотр сеткой, индекс 1 просмотр списком
+        self.view_index = 0
+
+        self.setMinimumWidth(200)
         ww, hh = Dynamic.ww, Dynamic.hh
         self.resize(ww, hh)
         self.setMinimumSize(800, 500)
@@ -117,9 +128,13 @@ class MainWin(QWidget):
         left_v_lay.addWidget(self.bar_tabs)
 
         self.tree_folders = TreeFolders()
+        cmd = lambda dir: self.bar_top.new_history_item_cmd(dir)
+        self.tree_folders.new_history_item.connect(cmd)
         self.bar_tabs.addTab(self.tree_folders, "Папки")
 
         self.tree_favorites = TreeFavorites()
+        cmd = lambda dir: self.bar_top.new_history_item_cmd(dir)
+        self.tree_favorites.new_history_item.connect(cmd)
         self.bar_tabs.addTab(self.tree_favorites, "Избранное")
 
         show_hide_tags_btn = ShowHideTags()
@@ -127,7 +142,7 @@ class MainWin(QWidget):
         left_v_lay.addWidget(show_hide_tags_btn)
 
         self.tree_tags = TreeTags()
-        left_v_lay.addWidget(self.tree_tags, alignment=Qt.AlignmentFlag.AlignCenter)
+        left_v_lay.addWidget(self.tree_tags)
 
         show_hide_tags_btn.click_cmd()
 
@@ -146,10 +161,18 @@ class MainWin(QWidget):
         right_wid.setLayout(self.r_lay)
         
         self.bar_top = BarTop()
-        self.r_lay.addWidget(self.bar_top, alignment=Qt.AlignmentFlag.AlignTop)
+        self.bar_top.level_up.connect(self.level_up_cmd)
+        self.bar_top.change_view.connect(self.change_view_cmd)
+        self.bar_top.start_search.connect(self.load_search_grid)
+        self.bar_top.clear_search.connect(lambda: self.load_standart_grid((self.main_dir, None)))
+        self.bar_top.navigate.connect(lambda dir: self.load_standart_grid((dir, None)))
+        self.bar_top.new_history_item_cmd(self.main_dir)
+        self.r_lay.insertWidget(0, self.bar_top)
         
         self.bar_bottom = BarBottom()
-        self.r_lay.insertWidget(2, self.bar_bottom, alignment=Qt.AlignmentFlag.AlignBottom)
+        cmd_ = lambda dir: self.bar_top.new_history_item_cmd(dir)
+        self.bar_bottom.new_history_item.connect(cmd_)
+        self.r_lay.insertWidget(2, self.bar_bottom)
 
         self.scroll_up = QLabel(parent=self, text=ARROW_UP)
         self.scroll_up.hide()
@@ -172,6 +195,17 @@ class MainWin(QWidget):
         SignalsApp.instance.load_any_grid.connect(self.load_any_grid)
 
         SignalsApp.instance.load_standart_grid.emit((JsonData.root, None))
+
+    def level_up_cmd(self, *args):
+        new_main_dir = os.path.dirname(self.main_dir)
+        if new_main_dir != os.sep:
+            self.load_standart_grid((new_main_dir, None))
+            self.bar_top.new_history_item_cmd(new_main_dir)
+            self.main_dir = new_main_dir
+
+    def change_view_cmd(self, index: int):
+        self.view_index = index
+        self.load_standart_grid((self.main_dir, None))
 
     def resize_timer_cmd(self):
         self.grid.resize_()
@@ -210,6 +244,9 @@ class MainWin(QWidget):
             self.load_standart_grid(data)
 
     def load_standart_grid(self, data: tuple):
+        """
+        self.main_dir, path to widget for select widget
+        """
         path_for_grid, path_for_select = data
         JsonData.root = path_for_grid
         LoadImage.cache.clear()
@@ -227,14 +264,16 @@ class MainWin(QWidget):
 
         self.setWindowTitle(title)
         SignalsApp.instance.fav_cmd.emit(("select", JsonData.root))
-        self.bar_top.search_wid.clear_search.emit()
+        # self.bar_top.search_wid.clear_search.emit()
 
-        if Dynamic.grid_view_type == 1:
+        if self.view_index == 0:
+            self.grid = GridStandart(path_for_select)
+
+        elif self.view_index == 1:
             self.grid = ListFileSystem()
 
-        elif Dynamic.grid_view_type == 0:
-
-            self.grid = GridStandart(path_for_select)
+        cmd_ = lambda dir: self.bar_top.new_history_item_cmd(dir)
+        self.grid.new_history_item.connect(cmd_)
 
         self.grid.verticalScrollBar().valueChanged.connect(
             self.scroll_up_scroll_value
@@ -275,7 +314,6 @@ class MainWin(QWidget):
         for i in a:
             del(i)
         
-
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         Dynamic.ww = self.geometry().width()
         Dynamic.hh = self.geometry().height()

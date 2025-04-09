@@ -1,6 +1,6 @@
 import os
 
-from PyQt5.QtCore import QDir, Qt
+from PyQt5.QtCore import QDir, Qt, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import QFileSystemModel, QTableView
 
@@ -19,6 +19,7 @@ class ListFileSystem(QTableView):
     order: int = 0
     sizes: list = [250, 100, 100, 150]
     last_selection: str = None
+    new_history_item = pyqtSignal(str)
 
     def __init__(self):
         QTableView.__init__(self)
@@ -130,7 +131,7 @@ class ListFileSystem(QTableView):
             if a0.key() == Qt.Key.Key_Up:
                 root = os.path.dirname(JsonData.root)
                 if root != os.sep:
-                    SignalsApp.instance.new_history_item.emit(root)
+                    self.new_history_item.emit(root)
                     SignalsApp.instance.load_standart_grid.emit((root, None))
                     return
 
