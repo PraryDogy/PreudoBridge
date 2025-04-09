@@ -20,6 +20,7 @@ class ListFileSystem(QTableView):
     sizes: list = [250, 100, 100, 150]
     last_selection: str = None
     new_history_item = pyqtSignal(str)
+    fav_cmd_sig = pyqtSignal(tuple)
 
     def __init__(self):
         QTableView.__init__(self)
@@ -108,12 +109,12 @@ class ListFileSystem(QTableView):
 
         if os.path.isdir(src):
             if src in JsonData.favs:
-                cmd_ = lambda: SignalsApp.instance.fav_cmd.emit(("del", src))
+                cmd_ = lambda: self.fav_cmd_sig.emit(("del", src))
                 fav_action = FavRemove(menu, src)
                 fav_action._clicked.connect(cmd_)
                 menu.addAction(fav_action)
             else:
-                cmd_ = lambda: SignalsApp.instance.fav_cmd.emit(("add", src))
+                cmd_ = lambda: self.fav_cmd_sig.emit(("add", src))
                 fav_action = FavAdd(menu, src)
                 fav_action._clicked.connect(cmd_)
                 menu.addAction(fav_action)

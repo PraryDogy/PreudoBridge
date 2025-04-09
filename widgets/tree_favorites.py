@@ -134,7 +134,6 @@ class TreeFavorites(QListWidget):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         self.wids: dict[str, QListWidgetItem] = {}
-        SignalsApp.instance.fav_cmd.connect(self.cmd_)
         self.setDragDropMode(QListWidget.DragDropMode.InternalMove)
         self.setAcceptDrops(True)
         self.init_ui()
@@ -159,7 +158,7 @@ class TreeFavorites(QListWidget):
         else:
             self.clearSelection()
 
-    def cmd_(self, data: tuple):
+    def fav_cmd(self, data: tuple):
         cmd, src = data
 
         if cmd == "select":

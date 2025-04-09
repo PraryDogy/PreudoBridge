@@ -459,6 +459,7 @@ class GridWid(QWidget):
 class Grid(BaseMethods, QScrollArea):
     new_history_item = pyqtSignal(str)
     bar_bottom_update = pyqtSignal(tuple)
+    fav_cmd_sig = pyqtSignal(tuple)
 
     def __init__(self, prev_path: str = None):
         Thumb.path_to_wid.clear()
@@ -688,9 +689,9 @@ class Grid(BaseMethods, QScrollArea):
 
     def fav_cmd(self, offset: int, src: str):
         if 0 + offset == 1:
-            SignalsApp.instance.fav_cmd.emit(("add", src))
+            self.fav_cmd_sig.emit(("add", src))
         else:
-            SignalsApp.instance.fav_cmd.emit(("del", src))
+            self.fav_cmd_sig.emit("del", src)
 
     def thumb_context_actions(self, menu: UMenu, wid: Thumb):
 

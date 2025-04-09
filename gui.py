@@ -128,14 +128,11 @@ class MainWin(QWidget):
         left_v_lay.addWidget(self.bar_tabs)
 
         self.tree_folders = TreeFolders()
-        cmd = lambda dir: self.bar_top.new_history_item_cmd(dir)
-        self.tree_folders.new_history_item.connect(cmd)
         self.bar_tabs.addTab(self.tree_folders, "Папки")
 
         self.tree_favorites = TreeFavorites()
-        cmd = lambda dir: self.bar_top.new_history_item_cmd(dir)
-        self.tree_favorites.new_history_item.connect(cmd)
         self.bar_tabs.addTab(self.tree_favorites, "Избранное")
+        self.tree_folders.fav_cmd_sig.connect(self.tree_favorites.fav_cmd)
 
         show_hide_tags_btn = ShowHideTags()
         show_hide_tags_btn.clicked_.connect(self.show_hide_tags)
@@ -168,10 +165,11 @@ class MainWin(QWidget):
         self.bar_top.navigate.connect(lambda dir: self.load_standart_grid((dir, None)))
         self.bar_top.new_history_item_cmd(self.main_dir)
         self.r_lay.insertWidget(0, self.bar_top)
+        self.tree_folders.new_history_item.connect(self.bar_top.new_history_item_cmd)
+        self.tree_favorites.new_history_item.connect(self.bar_top.new_history_item_cmd)
         
         self.bar_bottom = BarBottom()
-        cmd_ = lambda dir: self.bar_top.new_history_item_cmd(dir)
-        self.bar_bottom.new_history_item.connect(cmd_)
+        self.bar_bottom.new_history_item.connect(self.bar_top.new_history_item_cmd)
         self.r_lay.insertWidget(2, self.bar_bottom)
 
         self.scroll_up = QLabel(parent=self, text=ARROW_UP)
@@ -233,6 +231,7 @@ class MainWin(QWidget):
         self.tree_tags.reset()
         self.grid = GridSearch(search_text=search_text)
         self.grid.bar_bottom_update.connect(self.bar_bottom.update_bar_cmd)
+        self.grid.fav_cmd_sig.connect(self.tree_favorites.fav_cmd)
         self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
         self.r_lay.insertWidget(1, self.grid)
         self.grid.setFocus()
@@ -264,7 +263,7 @@ class MainWin(QWidget):
             title = base_name
 
         self.setWindowTitle(title)
-        SignalsApp.instance.fav_cmd.emit(("select", JsonData.root))
+        self.tree_favorites.fav_cmd(("select", JsonData.root))
         # self.bar_top.search_wid.clear_search.emit()
 
         if self.view_index == 0:
@@ -273,9 +272,9 @@ class MainWin(QWidget):
         elif self.view_index == 1:
             self.grid = ListFileSystem()
 
-        cmd_ = lambda dir: self.bar_top.new_history_item_cmd(dir)
-        self.grid.new_history_item.connect(cmd_)
+        self.grid.new_history_item.connect(self.bar_top.new_history_item_cmd)
         self.grid.bar_bottom_update.connect(self.bar_bottom.update_bar_cmd)
+        self.grid.fav_cmd_sig.connect(self.tree_favorites.fav_cmd)
 
         self.grid.verticalScrollBar().valueChanged.connect(
             self.scroll_up_scroll_value
