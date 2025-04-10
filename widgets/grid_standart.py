@@ -214,7 +214,7 @@ class GridStandart(Grid):
         for i in self.load_images_threads:
             i.should_run = False
 
-        thread_ = LoadImages(order_items=cut_order_items)
+        thread_ = LoadImages(self.main_dir, cut_order_items)
         self.load_images_threads.append(thread_)
         thread_.signals_.new_widget.connect(
             lambda image_data: self.set_pixmap(image_data)

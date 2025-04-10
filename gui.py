@@ -88,13 +88,7 @@ class MainWin(QWidget):
 
         super().__init__()
 
-        # начальная папка при открытии окна это папка Загрузки
-        volume = None
-        for i in os.scandir("/Volumes"):
-            volume = i.path
-            break
-        self.main_dir = os.path.join(os.path.expanduser("~"), "Downloads")
-        self.main_dir = volume + self.main_dir
+        self.main_dir = JsonData.root
 
         # индекс 0 просмотр сеткой, индекс 1 просмотр списком
         self.view_index = 0
@@ -107,6 +101,8 @@ class MainWin(QWidget):
         self.resize_timer = QTimer(parent=self)
         self.resize_timer.setSingleShot(True)
         self.resize_timer.timeout.connect(self.resize_timer_cmd)
+
+        self.grid: Grid = Grid(self.main_dir)
 
         main_lay = QHBoxLayout()
         main_lay.setContentsMargins(5, 0, 5, 0)
@@ -211,11 +207,7 @@ class MainWin(QWidget):
             )
 
         # они должны быть именно тут
-        self.grid: Grid = Grid()
-
-        SignalsApp.instance.load_search_grid.connect(self.load_search_grid)
-        SignalsApp.instance.load_any_grid.connect(self.load_any_grid)
-
+        # self.grid: Grid = Grid()
         self.load_st_grid_cmd((self.main_dir, None))
 
     def clear_data_cmd(self):

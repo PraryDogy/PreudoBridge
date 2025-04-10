@@ -4,7 +4,6 @@ from PyQt5.QtWidgets import QWidget
 
 class Signals(QObject):
     load_any_grid = pyqtSignal(tuple)  
-    load_search_grid = pyqtSignal(str)  
 
 
 class SignalsApp:
