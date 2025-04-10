@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QSize, Qt
+from PyQt5.QtCore import QSize, Qt, pyqtSignal
 from PyQt5.QtWidgets import QAction, QListWidget, QListWidgetItem, QMenu
 
 from cfg import Dynamic, Static
@@ -14,6 +14,9 @@ class UItem(QListWidgetItem):
 
 
 class MenuTags(QListWidget):
+    filter_grid_sig = pyqtSignal()
+    rearrange_grid_sig = pyqtSignal()
+
     def __init__(self):
         super().__init__()
 
@@ -97,8 +100,8 @@ class MenuTags(QListWidget):
 
     def item_cmd(self, rating: int):
         Dynamic.rating_filter = rating
-        SignalsApp.instance.filter_grid.emit()
-        SignalsApp.instance.rearrange_grid.emit()
+        self.filter_grid_sig.emit()
+        self.rearrange_grid_sig.emit()
 
     def reset(self):
         Dynamic.rating_filter = 0

@@ -3,14 +3,11 @@ from PyQt5.QtWidgets import QWidget
 
 
 class Signals(QObject):
-    filter_grid = pyqtSignal()  
     load_any_grid = pyqtSignal(tuple)  
     load_search_grid = pyqtSignal(str)  
     move_slider = pyqtSignal(int)  
     move_to_wid = pyqtSignal(QWidget)  
     open_path = pyqtSignal(str)
-    rearrange_grid = pyqtSignal() 
-    resize_grid = pyqtSignal()  
 
 
 class SignalsApp:
@@ -38,9 +35,6 @@ class SignalsApp:
     def remove_grid_connections(cls) -> bool:
 
         recon = (
-            SignalsApp.instance.rearrange_grid,
-            SignalsApp.instance.resize_grid,
-            SignalsApp.instance.filter_grid,
             SignalsApp.instance.move_to_wid
             )
 

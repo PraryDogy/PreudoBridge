@@ -168,6 +168,9 @@ class WinGo(WinMinMax):
 
 
 class CustomSlider(USlider):
+    resize_grid_sig = pyqtSignal()
+    rearrange_grid_sig = pyqtSignal()
+
     def __init__(self):
         super().__init__(
             orientation=Qt.Orientation.Horizontal,
@@ -187,8 +190,8 @@ class CustomSlider(USlider):
         # Включаем сигнал обратно
         self.blockSignals(False)
         Dynamic.pixmap_size_ind = value
-        SignalsApp.instance.resize_grid.emit()
-        SignalsApp.instance.rearrange_grid.emit()
+        self.resize_grid_sig.emit()
+        self.rearrange_grid_sig.emit()
 
 
 class PathItem(QWidget):
@@ -380,6 +383,8 @@ class SortFrame(UFrame):
 class BarBottom(QWidget):
     new_history_item = pyqtSignal(str)
     load_st_grid_sig = pyqtSignal(tuple)
+    resize_grid_sig = pyqtSignal()
+    rearrange_grid_sig = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -434,6 +439,8 @@ class BarBottom(QWidget):
         bottom_lay.addStretch()
 
         self.slider = CustomSlider()
+        self.slider.resize_grid_sig.connect(self.resize_grid_sig.emit)
+        self.slider.rearrange_grid_sig.connect(self.rearrange_grid_sig.emit)
         self.slider.setFixedSize(70, 15)
         bottom_lay.addWidget(self.slider)
 

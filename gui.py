@@ -141,8 +141,10 @@ class MainWin(QWidget):
         show_hide_tags_btn.clicked_.connect(self.show_hide_tags)
         left_v_lay.addWidget(show_hide_tags_btn)
 
-        self.tree_tags = MenuTags()
-        left_v_lay.addWidget(self.tree_tags)
+        self.menu_tags = MenuTags()
+        self.menu_tags.filter_grid_sig.connect(self.grid.filter_)
+        self.menu_tags.rearrange_grid_sig.connect(self.grid.rearrange)
+        left_v_lay.addWidget(self.menu_tags)
 
         show_hide_tags_btn.click_cmd()
 
@@ -191,6 +193,8 @@ class MainWin(QWidget):
         self.bar_bottom.set_new_path(self.main_dir)
         self.bar_bottom.new_history_item.connect(self.bar_top.new_history_item_cmd)
         self.bar_bottom.load_st_grid_sig.connect(self.load_st_grid_cmd)
+        self.bar_bottom.resize_grid_sig.connect(self.grid.resize_)
+        self.bar_bottom.rearrange_grid_sig.connect(self.grid.rearrange)
         self.r_lay.insertWidget(2, self.bar_bottom)
 
         self.scroll_up = QLabel(parent=self, text=ARROW_UP)
@@ -236,10 +240,10 @@ class MainWin(QWidget):
         self.grid.rearrange()
 
     def show_hide_tags(self):
-        if self.tree_tags.isHidden():
-            self.tree_tags.show()
+        if self.menu_tags.isHidden():
+            self.menu_tags.show()
         else:
-            self.tree_tags.hide()
+            self.menu_tags.hide()
 
     def open_path_cmd(self, filepath: str):
         if not os.path.exists(filepath):
@@ -254,7 +258,7 @@ class MainWin(QWidget):
 
     def load_search_grid(self, search_text: str):
         self.grid.close()
-        self.tree_tags.reset()
+        self.menu_tags.reset()
         self.grid = GridSearch(self.main_dir, search_text, None)
         self.grid.bar_bottom_update.connect(self.bar_bottom.update_bar_cmd)
         self.grid.fav_cmd_sig.connect(self.menu_favs.fav_cmd)
