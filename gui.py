@@ -240,7 +240,7 @@ class MainWin(QWidget):
     def load_search_grid(self, search_text: str):
         self.grid.close()
         self.tree_tags.reset()
-        self.grid = GridSearch(search_text=search_text)
+        self.grid = GridSearch(self.main_dir, search_text, None)
         self.grid.bar_bottom_update.connect(self.bar_bottom.update_bar_cmd)
         self.grid.fav_cmd_sig.connect(self.tree_favorites.fav_cmd)
         self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
@@ -281,10 +281,10 @@ class MainWin(QWidget):
         # self.bar_top.search_wid.clear_search.emit()
 
         if self.view_index == 0:
-            self.grid = GridStandart(path_for_select)
+            self.grid = GridStandart(self.main_dir, path_for_select)
 
         elif self.view_index == 1:
-            self.grid = ListFileSystem()
+            self.grid = ListFileSystem(self.main_dir)
 
         self.grid.new_history_item.connect(self.bar_top.new_history_item_cmd)
         self.grid.bar_bottom_update.connect(self.bar_bottom.update_bar_cmd)

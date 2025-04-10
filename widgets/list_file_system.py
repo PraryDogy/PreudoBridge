@@ -23,9 +23,11 @@ class ListFileSystem(QTableView):
     fav_cmd_sig = pyqtSignal(tuple)
     load_st_grid_sig = pyqtSignal(tuple)
 
-    def __init__(self):
+    def __init__(self, main_dir: str):
         QTableView.__init__(self)
         BaseMethods.__init__(self)
+
+        self.main_dir = main_dir
 
         self.loading_lbl = LoadingWid(parent=self)
         Utils.center_win(self, self.loading_lbl)
@@ -38,11 +40,11 @@ class ListFileSystem(QTableView):
         self.doubleClicked.connect(self.double_clicked)
 
         self._model = QFileSystemModel()
-        self._model.setRootPath(JsonData.root)
+        self._model.setRootPath(self.main_dir)
         self._model.setFilter(QDir.NoDotAndDotDot | QDir.AllEntries)
 
         self.setModel(self._model)
-        self.setRootIndex(self._model.index(JsonData.root))
+        self.setRootIndex(self._model.index(self.main_dir))
 
         self.sortByColumn(ListFileSystem.col, ListFileSystem.order)
         for i in range(0, 4):
@@ -132,7 +134,7 @@ class ListFileSystem(QTableView):
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
 
             if a0.key() == Qt.Key.Key_Up:
-                root = os.path.dirname(JsonData.root)
+                root = os.path.dirname(self.main_dir)
                 if root != os.sep:
                     self.new_history_item.emit(root)
                     SignalsApp.instance.load_standart_grid.emit((root, None))
