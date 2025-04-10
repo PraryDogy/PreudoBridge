@@ -507,7 +507,8 @@ class TextSelectAll(QAction):
 
 class SortMenu(UMenu):
     bar_bottom_update = pyqtSignal(tuple)
-    load_st_grid_sig = pyqtSignal(tuple)
+    order_grid_sig = pyqtSignal()
+    rearrange_grid_sig = pyqtSignal()
 
     def __init__(self, parent: UMenu):
 
@@ -580,13 +581,17 @@ class SortMenu(UMenu):
     def cmd_sort(self, true_name: str):
         # записываем true_name (тип сортировки) в пользовательский .json
         Dynamic.sort = true_name
-        self.load_st_grid_sig.emit((None, None))
+        # self.load_st_grid_sig.emit((None, None))
+        self.order_grid_sig.emit()
+        self.rearrange_grid_sig.emit()
         self.bar_bottom_update.emit((None, None))
 
     def cmd_revers(self, reversed: bool):
         # записываем порядок сортировки в пользовательский .json
         Dynamic.rev = reversed
-        self.load_st_grid_sig.emit((None, None))
+        # self.load_st_grid_sig.emit((None, None))
+        self.order_grid_sig.emit()
+        self.rearrange_grid_sig.emit()
         self.bar_bottom_update.emit((None, None))
 
 

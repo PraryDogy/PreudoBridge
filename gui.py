@@ -191,6 +191,7 @@ class MainWin(QWidget):
         self.bar_bottom.new_history_item.connect(self.bar_top.new_history_item_cmd)
         self.bar_bottom.load_st_grid_sig.connect(self.load_st_grid_cmd)
         self.bar_bottom.resize_grid_sig.connect(lambda: self.grid.resize_())
+        self.bar_bottom.order_grid_sig.connect(lambda: self.grid.order_())
         self.bar_bottom.rearrange_grid_sig.connect(lambda: self.grid.rearrange())
         self.bar_bottom.open_path_sig.connect(self.open_path_cmd)
         self.r_lay.insertWidget(2, self.bar_bottom)

@@ -774,7 +774,8 @@ class Grid(QScrollArea):
 
         sort_menu = SortMenu(parent=menu)
         sort_menu.bar_bottom_update.connect(self.bar_bottom_update.emit)
-        sort_menu.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
+        sort_menu.order_grid_sig.connect(self.order_)
+        sort_menu.rearrange_grid_sig.connect(self.rearrange)
         menu.addMenu(sort_menu)
 
         menu.addSeparator()

@@ -340,6 +340,8 @@ class GoToFrame(UFrame):
 
 class SortFrame(UFrame):
     bar_bottom_update = pyqtSignal(tuple)
+    order_grid_sig = pyqtSignal()
+    rearrange_grid_sig = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -367,6 +369,8 @@ class SortFrame(UFrame):
 
         menu_ = SortMenu(parent=self)
         menu_.bar_bottom_update.connect(self.bar_bottom_update.emit)
+        menu_.order_grid_sig.connect(self.order_grid_sig.emit)
+        menu_.rearrange_grid_sig.connect(self.rearrange_grid_sig)
 
         widget_rect = self.rect()
         menu_size = menu_.sizeHint()
@@ -387,6 +391,7 @@ class BarBottom(QWidget):
     new_history_item = pyqtSignal(str)
     load_st_grid_sig = pyqtSignal(tuple)
     resize_grid_sig = pyqtSignal()
+    order_grid_sig = pyqtSignal()
     rearrange_grid_sig = pyqtSignal()
     open_path_sig = pyqtSignal(str)
 
@@ -438,6 +443,8 @@ class BarBottom(QWidget):
 
         self.sort_frame = SortFrame()
         self.sort_frame.bar_bottom_update.connect(self.update_bar_cmd)
+        self.sort_frame.order_grid_sig.connect(self.order_grid_sig.emit)
+        self.sort_frame.rearrange_grid_sig.connect(self.rearrange_grid_sig.emit)
         bottom_lay.addWidget(self.sort_frame)
 
         bottom_lay.addStretch()
