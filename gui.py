@@ -139,8 +139,8 @@ class MainWin(QWidget):
         left_v_lay.addWidget(show_hide_tags_btn)
 
         self.menu_tags = MenuTags()
-        self.menu_tags.filter_grid_sig.connect(self.grid.filter_)
-        self.menu_tags.rearrange_grid_sig.connect(self.grid.rearrange)
+        self.menu_tags.filter_grid_sig.connect(lambda: self.grid.filter_())
+        self.menu_tags.rearrange_grid_sig.connect(lambda: self.grid.rearrange())
         left_v_lay.addWidget(self.menu_tags)
 
         show_hide_tags_btn.click_cmd()
