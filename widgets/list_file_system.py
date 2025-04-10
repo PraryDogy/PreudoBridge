@@ -105,6 +105,9 @@ class ListFileSystem(QTableView):
         src = self._model.filePath(index)
         index = self._model.index(src)
 
+        if not src:
+            src = self.main_dir
+
         info = Info(menu, src)
         menu.addAction(info)
 
@@ -156,4 +159,4 @@ class ListFileSystem(QTableView):
             self.double_clicked(index)
             return
 
-        return super().keyPressEvent(a0)
+        return super().keyPressEvent(a0)()
