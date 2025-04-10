@@ -267,7 +267,7 @@ class GridStandart(Grid):
         Dynamic.files_to_copy = [i.toLocalFile() for i in a0.mimeData().urls()]
 
         if Dynamic.files_to_copy:
-            self.win_copy = WinCopyFiles()
+            self.win_copy = WinCopyFiles(self.main_dir)
             self.win_copy.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
             Utils.center_win(self.window(), self.win_copy)
             self.win_copy.show()
