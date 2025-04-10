@@ -65,7 +65,7 @@ class FileCopyWorker(URunnable):
                 continue
 
         # создаем список путей к виджетам в сетке для выделения
-        paths_for_selection = self.collapse_to_root_dirs(new_paths, JsonData.root)
+        paths_for_selection = self.collapse_to_root_dirs(new_paths, self.main_dir)
 
         try:
             self.signals_.finished_.emit(list(paths_for_selection))
@@ -134,9 +134,9 @@ class FileCopyWorker(URunnable):
         for i in Dynamic.files_to_copy:
             i = os.sep + i.strip(os.sep)
             if os.path.isdir(i):
-                new_paths.extend(self.scan_folder(i, JsonData.root))
+                new_paths.extend(self.scan_folder(i, self.main_dir))
             else:
-                new_paths.append(self.single_file(i, JsonData.root))
+                new_paths.append(self.single_file(i, self.main_dir))
 
         return new_paths
 
@@ -178,8 +178,9 @@ class FileCopyWorker(URunnable):
 class WinCopyFiles(WinMinMax):
     finished_ = pyqtSignal(str)
 
-    def __init__(self):
+    def __init__(self, main_dir: str):
         super().__init__()
+        self.main_dir = main_dir
         self.setFixedSize(400, 75)
         self.setWindowTitle(COPYING_T)
 
@@ -228,7 +229,7 @@ class WinCopyFiles(WinMinMax):
         self.task_ = None
 
         if Dynamic.files_to_copy:
-            self.task_ = FileCopyWorker()
+            self.task_ = FileCopyWorker(self.main_dir)
             self.task_.signals_.set_max_progress.connect(lambda value: self.test(progressbar, value))
             self.task_.signals_.set_value_progress.connect(lambda value: self.test_rwo(progressbar, value))
             self.task_.signals_.set_text_progress.connect(lbl.setText)
@@ -246,7 +247,7 @@ class WinCopyFiles(WinMinMax):
 
     def finished_task(self, new_paths: list[str]):
         self.close()
-        SignalsApp.instance.load_standart_grid.emit((JsonData.root, new_paths))
+        SignalsApp.instance.load_standart_grid.emit((self.main_dir, new_paths))
         del self.task_
 
     def closeEvent(self, a0):
