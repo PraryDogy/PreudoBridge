@@ -94,11 +94,7 @@ class ListFileSystem(QTableView):
         return super().closeEvent(a0)
 
     def contextMenuEvent(self, event: QContextMenuEvent):
-
         index = self.indexAt(event.pos())
-
-        # if not index.isValid():
-        #     return
 
         menu = UMenu(self)
 
