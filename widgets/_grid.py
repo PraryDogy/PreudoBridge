@@ -846,6 +846,11 @@ class Grid(QScrollArea):
             Dynamic.files_to_copy.append(i.src)
 
     def paste_files(self):
+
+        print(Dynamic.files_to_copy)
+        print(self.main_dir)
+        return
+
         if Dynamic.files_to_copy:
             self.win_copy = WinCopyFiles(self.main_dir)
             self.win_copy.load_st_grid_sig.connect(self.load_st_grid_sig.emit)

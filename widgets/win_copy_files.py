@@ -50,6 +50,8 @@ class FileCopyWorker(URunnable):
         self.total_f_size = Utils.get_f_size(total_bytes)
 
         for src, dest in new_paths:
+            print("отключено копирование")
+            continue
 
             if not self.should_run:
                 break
