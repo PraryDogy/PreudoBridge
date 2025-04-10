@@ -1,5 +1,4 @@
 import os
-from typing import Literal
 
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QDropEvent, QMouseEvent
@@ -126,18 +125,23 @@ class MenuFavs(QListWidget):
     LIST_ITEM = "list_item"
     FAV_ITEM = "fav_item"
     new_history_item = pyqtSignal(str)
-
+    get_main_dir = pyqtSignal()
 
     def __init__(self):
         super().__init__()
-
+        self.main_dir = None
         self.horizontalScrollBar().setDisabled(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         self.wids: dict[str, QListWidgetItem] = {}
         self.setDragDropMode(QListWidget.DragDropMode.InternalMove)
         self.setAcceptDrops(True)
+
+        self.get_main_dir.emit()
         self.init_ui()
+
+    def set_main_dir(self, main_dir: str):
+        self.main_dir = main_dir
 
     def init_ui(self):
 
@@ -149,7 +153,7 @@ class MenuFavs(QListWidget):
             item: QListWidgetItem = result[self.LIST_ITEM]
             self.wids[src] = item
 
-            if JsonData.root == src:
+            if self.main_dir == src:
                 self.setCurrentItem(item)
 
     def select_fav(self, src: str):
@@ -195,9 +199,7 @@ class MenuFavs(QListWidget):
         fav_item.renamed.connect(
             lambda new_name: self.update_name(src, new_name)
         )
-        fav_item.path_changed.connect(
-            self.init_ui
-        )
+        fav_item.path_changed.connect(self.path_changed)
 
         list_item = QListWidgetItem(parent=self)
         list_item.setSizeHint(fav_item.sizeHint())
@@ -209,6 +211,10 @@ class MenuFavs(QListWidget):
 
         return {self.LIST_ITEM: list_item, self.FAV_ITEM: fav_item}
 
+    def path_changed(self):
+        self.get_main_dir.emit()
+        self.init_ui()
+
     def update_name(self, src: str, new_name: str):
         if src in JsonData.favs:
             JsonData.favs[src] = new_name
@@ -216,6 +222,7 @@ class MenuFavs(QListWidget):
     def del_item(self, src: str):
         JsonData.favs.pop(src)
         JsonData.write_config()
+        self.get_main_dir.emit()
         self.init_ui()
 
     def dragEnterEvent(self, e):

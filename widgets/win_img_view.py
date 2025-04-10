@@ -44,7 +44,7 @@ class LoadThumbnail(URunnable):
     @URunnable.set_running_state
     def run(self):
         try:
-            db = os.path.join(JsonData.root, Static.DB_FILENAME)
+            db = os.path.join(os.path.dirname(self.src), Static.DB_FILENAME)
             dbase = Dbase()
             engine = dbase.create_engine(path=db)
 

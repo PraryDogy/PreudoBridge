@@ -22,7 +22,7 @@ from widgets.win_img_view import LoadImage
 ARROW_UP = "\u25B2" # ▲
 
 
-class BarTabs(QTabWidget):
+class MenuTabs(QTabWidget):
     def __init__(self):
         super().__init__()
         self.tabBarClicked.connect(self.tab_cmd)
@@ -124,15 +124,17 @@ class MainWin(QWidget):
         left_v_lay.setSpacing(0)
         left_wid.setLayout(left_v_lay)
 
-        self.bar_tabs = BarTabs()
-        left_v_lay.addWidget(self.bar_tabs)
+        self.menu_tabs = MenuTabs()
+        left_v_lay.addWidget(self.menu_tabs)
 
-        self.tree_folders = MenuTree()
-        self.bar_tabs.addTab(self.tree_folders, "Папки")
+        self.menu_tree = MenuTree()
+        self.menu_tabs.addTab(self.menu_tree, "Папки")
 
-        self.tree_favorites = MenuFavs()
-        self.bar_tabs.addTab(self.tree_favorites, "Избранное")
-        self.tree_folders.fav_cmd_sig.connect(self.tree_favorites.fav_cmd)
+        self.menu_favs = MenuFavs()
+        cmd = lambda: self.menu_favs.set_main_dir(self.main_dir)
+        self.menu_favs.get_main_dir.connect(cmd)
+        self.menu_tabs.addTab(self.menu_favs, "Избранное")
+        self.menu_tree.fav_cmd_sig.connect(self.menu_favs.fav_cmd)
 
         show_hide_tags_btn = ShowHideTags()
         show_hide_tags_btn.clicked_.connect(self.show_hide_tags)
@@ -143,7 +145,7 @@ class MainWin(QWidget):
 
         show_hide_tags_btn.click_cmd()
 
-        self.bar_tabs.load_last_tab()
+        self.menu_tabs.load_last_tab()
 
         right_wid = QWidget()
         splitter.addWidget(right_wid)
@@ -174,8 +176,8 @@ class MainWin(QWidget):
         self.bar_top.list_win_opened.connect(lambda: self.bar_top.set_path_list_win(self.main_dir))
         self.bar_top.new_history_item_cmd(self.main_dir)
         self.r_lay.insertWidget(0, self.bar_top)
-        self.tree_folders.new_history_item.connect(self.bar_top.new_history_item_cmd)
-        self.tree_favorites.new_history_item.connect(self.bar_top.new_history_item_cmd)
+        self.menu_tree.new_history_item.connect(self.bar_top.new_history_item_cmd)
+        self.menu_favs.new_history_item.connect(self.bar_top.new_history_item_cmd)
         
         self.bar_bottom = BarBottom()
         # устанавливаем изначальный путь в нижний бар
@@ -242,7 +244,7 @@ class MainWin(QWidget):
         self.tree_tags.reset()
         self.grid = GridSearch(self.main_dir, search_text, None)
         self.grid.bar_bottom_update.connect(self.bar_bottom.update_bar_cmd)
-        self.grid.fav_cmd_sig.connect(self.tree_favorites.fav_cmd)
+        self.grid.fav_cmd_sig.connect(self.menu_favs.fav_cmd)
         self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
         self.r_lay.insertWidget(1, self.grid)
         self.grid.setFocus()
@@ -277,7 +279,7 @@ class MainWin(QWidget):
             title = base_name
 
         self.setWindowTitle(title)
-        self.tree_favorites.fav_cmd(("select", self.main_dir))
+        self.menu_favs.fav_cmd(("select", self.main_dir))
         # self.bar_top.search_wid.clear_search.emit()
 
         if self.view_index == 0:
@@ -288,14 +290,14 @@ class MainWin(QWidget):
 
         self.grid.new_history_item.connect(self.bar_top.new_history_item_cmd)
         self.grid.bar_bottom_update.connect(self.bar_bottom.update_bar_cmd)
-        self.grid.fav_cmd_sig.connect(self.tree_favorites.fav_cmd)
+        self.grid.fav_cmd_sig.connect(self.menu_favs.fav_cmd)
         self.grid.load_st_grid_sig.connect(self.load_st_grid_cmd)
 
         self.grid.verticalScrollBar().valueChanged.connect(
             self.scroll_up_scroll_value
         )
 
-        self.tree_folders.expand_path(self.main_dir)
+        self.menu_tree.expand_path(self.main_dir)
 
         self.r_lay.insertWidget(1, self.grid)
         self.grid.setFocus()
@@ -312,9 +314,9 @@ class MainWin(QWidget):
 
         wids = (
             self.scroll_up,
-            self.tree_favorites,
-            self.tree_folders,
-            self.bar_tabs,
+            self.menu_favs,
+            self.menu_tree,
+            self.menu_tabs,
             self.bar_top,
             self.grid,
             self.bar_bottom
