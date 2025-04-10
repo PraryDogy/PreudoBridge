@@ -659,7 +659,7 @@ class Grid(BaseMethods, QScrollArea):
         if 0 + offset == 1:
             self.fav_cmd_sig.emit(("add", src))
         else:
-            self.fav_cmd_sig.emit("del", src)
+            self.fav_cmd_sig.emit(("del", src))
 
     def thumb_context_actions(self, menu: UMenu, wid: Thumb):
 

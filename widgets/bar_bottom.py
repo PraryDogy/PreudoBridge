@@ -181,7 +181,6 @@ class CustomSlider(USlider):
         self.setFixedWidth(80)
         self.setValue(Dynamic.pixmap_size_ind)
         self.valueChanged.connect(self.move_slider_cmd)
-        # SignalsApp.instance.move_slider.connect(self.move_slider_cmd)
     
     def move_slider_cmd(self, value: int):
         # отключаем сигнал valueChanged
