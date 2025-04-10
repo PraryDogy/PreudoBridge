@@ -20,17 +20,17 @@ class WorkerSignals(QObject):
 
 
 class RemoveFilesTask(URunnable):
-    def __init__(self, urls: list[str]):
+    def __init__(self, main_dir: str, urls: list[str]):
         super().__init__()
         self.signals_ = WorkerSignals()
+        self.main_dir = main_dir
         self.urls = urls
 
     @URunnable.set_running_state
     def run(self):
         try:
             subprocess.run(["rm", "-rf"] + self.urls, check=True)
-
-            SignalsApp.instance.load_standart_grid.emit((JsonData.root, None))
+            SignalsApp.instance.load_standart_grid.emit((self.main_dir, None))
             self.signals_.finished_.emit()
 
         except Exception as e:
@@ -38,16 +38,14 @@ class RemoveFilesTask(URunnable):
 
 
 class WinRemoveFiles(WinMinMax):
-    def __init__(self, urls: list[str]):
+    def __init__(self, main_dir: str, urls: list[str]):
         super().__init__()
-        # self.setFixedSize(250, 70)
         self.setWindowTitle(ATTENTION_T)
-
         self.urls = urls
+        self.main_dir = main_dir
 
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(10, 5, 10, 5)
-        # v_lay.setSpacing(5)
         self.setLayout(v_lay)
 
         first_row_wid = QWidget()
@@ -85,7 +83,7 @@ class WinRemoveFiles(WinMinMax):
         self.setFixedSize(self.width(), self.height())
 
     def cmd_(self, *args):
-        self.task_ = RemoveFilesTask(urls=self.urls)
+        self.task_ = RemoveFilesTask(self.main_dir, self.urls)
         self.task_.signals_.finished_.connect(self.finalize)
         UThreadPool.start(runnable=self.task_)
 

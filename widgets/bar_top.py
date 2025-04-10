@@ -199,6 +199,7 @@ class BarTop(QWidget):
     clear_search = pyqtSignal()
     navigate = pyqtSignal(str)
     list_win_opened = pyqtSignal()
+    clear_data_clicked = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -261,9 +262,10 @@ class BarTop(QWidget):
             print("bar top > set list win title", e)
 
     def open_settings_win(self, *args):
-        self.win = WinSettings()
-        Utils.center_win(Utils.get_main_win(), self.win)
-        self.win.show()
+        self.sett_win = WinSettings()
+        self.sett_win.clear_data_clicked.connect(self.clear_data_clicked.emit)
+        Utils.center_win(Utils.get_main_win(), self.sett_win)
+        self.sett_win.show()
 
     def new_history_item_cmd(self, dir: str):
         if dir == os.sep:

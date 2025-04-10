@@ -40,6 +40,8 @@ ABOUT_T = "\n".join(
 
 
 class ClearData(QGroupBox):
+    clear_data_clicked = pyqtSignal()
+
     def __init__(self):
         super().__init__()
 
@@ -48,19 +50,12 @@ class ClearData(QGroupBox):
         self.setLayout(h_lay)
 
         btn_ = QPushButton(text=CLEAR_DATA_T)
-        btn_.clicked.connect(self.cmd_)
+        btn_.clicked.connect(self.clear_data_clicked.emit)
         btn_.setFixedWidth(LEFT_W)
         h_lay.addWidget(btn_)
 
         descr = QLabel(text=CLEAR_DATA_DESCR)
         h_lay.addWidget(descr)
-
-    def cmd_(self, *args):
-        db = os.path.join(JsonData.root, Static.DB_FILENAME)
-
-        if os.path.exists(db):
-            os.remove(db)
-            SignalsApp.instance.load_standart_grid.emit((JsonData.root, None))
 
 
 class JsonFile(QGroupBox):
@@ -157,9 +152,10 @@ class About(QGroupBox):
 
 
 class WinSettings(WinMinMax):
+    clear_data_clicked = pyqtSignal()
+
     def __init__(self):
         super().__init__()
-        
         self.setWindowTitle(SETTINGS_T)
 
         main_lay = QVBoxLayout()
@@ -169,17 +165,18 @@ class WinSettings(WinMinMax):
         h_wid = QWidget()
         main_lay.addWidget(h_wid)
 
-        clear_data_row = ClearData()
-        main_lay.addWidget(clear_data_row)
+        clear_data_wid = ClearData()
+        clear_data_wid.clear_data_clicked.connect(self.clear_data_clicked.emit)
+        main_lay.addWidget(clear_data_wid)
 
-        json_row = JsonFile()
-        main_lay.addWidget(json_row)
+        json_wid = JsonFile()
+        main_lay.addWidget(json_wid)
 
-        updates_row = Updates()
-        main_lay.addWidget(updates_row)
+        updates_wid = Updates()
+        main_lay.addWidget(updates_wid)
 
-        about_row = About()
-        main_lay.addWidget(about_row)
+        about_wid = About()
+        main_lay.addWidget(about_wid)
 
         self.adjustSize()
         self.setFixedSize(self.width() + 30, self.height())

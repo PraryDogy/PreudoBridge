@@ -173,15 +173,21 @@ class MainWin(QWidget):
         # в виджете поиска был выбран шаблон "Поиск по списку"
         # при открытиии окна Поиск по списку отображаем директорию
         # в которой будет произведен поиск
+        # мы не можем сюда перенсти фунеционал целого окна list_win
+        # проще постфактум установить текст для лейбла в этом окне
         self.bar_top.list_win_opened.connect(lambda: self.bar_top.set_path_list_win(self.main_dir))
+        # было открыто окно настроек и был клик "очистить данные в этой папке"
+        self.bar_top.clear_data_clicked.connect(self.clear_data_cmd)
+        # добавляем текущую директорию в историю
         self.bar_top.new_history_item_cmd(self.main_dir)
         self.r_lay.insertWidget(0, self.bar_top)
+        # после инициации bartop можем подключать сигналы, ссылающиеся на него
         self.menu_tree.new_history_item.connect(self.bar_top.new_history_item_cmd)
         self.menu_favs.new_history_item.connect(self.bar_top.new_history_item_cmd)
         
         self.bar_bottom = BarBottom()
         # устанавливаем изначальный путь в нижний бар
-        self.bar_bottom.set_new_path((self.main_dir))
+        self.bar_bottom.set_new_path(self.main_dir)
         self.bar_bottom.new_history_item.connect(self.bar_top.new_history_item_cmd)
         self.r_lay.insertWidget(2, self.bar_bottom)
 
@@ -206,6 +212,12 @@ class MainWin(QWidget):
         SignalsApp.instance.load_any_grid.connect(self.load_any_grid)
 
         SignalsApp.instance.load_standart_grid.emit((self.main_dir, None))
+
+    def clear_data_cmd(self):
+        db = os.path.join(self.main_dir, Static.DB_FILENAME)
+        if os.path.exists(db):
+            os.remove(db)
+            self.load_st_grid_cmd((self.main_dir, None))
 
     def level_up_cmd(self, *args):
         new_main_dir = os.path.dirname(self.main_dir)

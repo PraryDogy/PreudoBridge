@@ -21,9 +21,11 @@ class WorderSignals(QObject):
     set_text_progress = pyqtSignal(str)
     set_max_progress = pyqtSignal(int)
 
+
 class FileCopyWorker(URunnable):
-    def __init__(self):
+    def __init__(self, main_dir: str):
         super().__init__()
+        self.main_dir = main_dir
         self.signals_ = WorderSignals()
 
     @URunnable.set_running_state

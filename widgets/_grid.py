@@ -854,7 +854,7 @@ class Grid(BaseMethods, QScrollArea):
             self.win_copy.show()
 
     def remove_files_cmd(self, urls: list[str]):
-        self.rem_win = WinRemoveFiles(urls=urls)
+        self.rem_win = WinRemoveFiles(self.main_dir, urls)
         Utils.center_win(parent=self.window(), child=self.rem_win)
         self.rem_win.show()
 
