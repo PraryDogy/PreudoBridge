@@ -176,7 +176,7 @@ class FileCopyWorker(URunnable):
 
 
 class WinCopyFiles(WinMinMax):
-    load_st_grid_sig = pyqtSignal()
+    load_st_grid_sig = pyqtSignal(tuple)
 
     def __init__(self, main_dir: str):
         super().__init__()
