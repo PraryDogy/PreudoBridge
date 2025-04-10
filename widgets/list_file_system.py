@@ -28,11 +28,12 @@ class ListFileSystem(QTableView):
     move_slider_sig = pyqtSignal(int)
     change_view_sig = pyqtSignal(int)
 
-    def __init__(self, main_dir: str):
+    def __init__(self, main_dir: str, view_index: int):
         QTableView.__init__(self)
         BaseMethods.__init__(self)
 
         self.main_dir = main_dir
+        self.view_index = view_index
 
         self.loading_lbl = LoadingWid(parent=self)
         Utils.center_win(self, self.loading_lbl)
@@ -96,8 +97,8 @@ class ListFileSystem(QTableView):
 
         index = self.indexAt(event.pos())
 
-        if not index.isValid():
-            return
+        # if not index.isValid():
+        #     return
 
         menu = UMenu(self)
 
@@ -129,8 +130,8 @@ class ListFileSystem(QTableView):
 
         menu.addSeparator()
 
-        change_view = ChangeView(menu)
-        change_view.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
+        change_view = ChangeView(menu, self.view_index)
+        change_view.change_view_sig.connect(self.change_view_sig.emit)
         menu.addMenu(change_view)
 
         menu.show_custom()

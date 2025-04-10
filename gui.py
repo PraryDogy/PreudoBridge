@@ -297,7 +297,7 @@ class MainWin(QWidget):
             self.grid = GridStandart(self.main_dir, self.view_index, path_for_select)
 
         elif self.view_index == 1:
-            self.grid = ListFileSystem(self.main_dir)
+            self.grid = ListFileSystem(self.main_dir, self.view_index)
 
         self.grid.new_history_item.connect(self.bar_top.new_history_item_cmd)
         self.grid.bar_bottom_update.connect(self.bar_bottom.update_bar_cmd)
