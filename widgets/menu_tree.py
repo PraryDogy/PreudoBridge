@@ -63,7 +63,7 @@ class MenuTree(QTreeView):
 
         menu.addSeparator()
 
-        open_finder_action = RevealInFinder(menu=menu, src=src)
+        open_finder_action = RevealInFinder(menu, src)
         menu.addAction(open_finder_action)
 
         copy_path_action = CopyPath(menu, src)
@@ -73,12 +73,12 @@ class MenuTree(QTreeView):
 
         favs: dict = JsonData.favs
         if src in favs:
-            cmd_ = lambda: self.fav_cmd_sig.emit(("del", "src"))
+            cmd_ = lambda: self.fav_cmd_sig.emit(("del", src))
             fav_action = FavRemove(menu, src)
             fav_action._clicked.connect(cmd_)
             menu.addAction(fav_action)
         else:
-            cmd_ = lambda: self.fav_cmd_sig.emit(("add", "src"))
+            cmd_ = lambda: self.fav_cmd_sig.emit(("add", src))
             fav_action = FavAdd(menu, src)
             fav_action._clicked.connect(cmd_)
             menu.addAction(fav_action)
