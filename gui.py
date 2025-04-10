@@ -169,6 +169,8 @@ class MainWin(QWidget):
         self.tree_favorites.new_history_item.connect(self.bar_top.new_history_item_cmd)
         
         self.bar_bottom = BarBottom()
+        # устанавливаем изначальный путь в нижний бар
+        self.bar_bottom.set_new_path((self.main_dir))
         self.bar_bottom.new_history_item.connect(self.bar_top.new_history_item_cmd)
         self.r_lay.insertWidget(2, self.bar_bottom)
 

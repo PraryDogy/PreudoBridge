@@ -250,8 +250,6 @@ class TopLabel(QFrame):
         self.setGraphicsEffect(shadow)
 
 class GridSearch(Grid):
-    bar_bottom_update = pyqtSignal(tuple)
-
     def __init__(self, main_dir: str, search_text: str, prev_path: str = None):
         super().__init__(main_dir, prev_path)
         self.setAcceptDrops(False)

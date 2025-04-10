@@ -435,8 +435,6 @@ class BarBottom(QWidget):
         self.slider.setFixedSize(70, 15)
         bottom_lay.addWidget(self.slider)
 
-        self.create_path_labels(JsonData.root)
-
     def add_total(self, value: int):
         self.sort_frame.total_text.setText(f"{TOTAL_T}: {str(value)}")
 
@@ -446,28 +444,26 @@ class BarBottom(QWidget):
         self.win.show()
 
     def update_bar_cmd(self, data: tuple):
+        # dir: str, total: int
+        # требуется кортеж, потому что данный метод вызывается через сигнал
+        # через который можно передать только кортеж
         src, total = data
         if src:
-            self.create_path_labels(src)
+            self.set_new_path(src)
         if total:
             self.add_total(total)
         self.sort_frame.add_sort()
 
-    def create_path_labels(self, src: str):
-
+    def set_new_path(self, src: str):
         if src == self.current_path:
             return
-
         for i in self.path_item_list:
             i.deleteLater()
-
         self.path_item_list.clear()
-
         self.current_path = src
         root = src.strip(os.sep).split(os.sep)
 
         for x, name in enumerate(root, start=1):
-
             src = os.path.join(os.sep, *root[:x])
             path_item = PathItem(src, name)
             cmd_ = lambda dir: self.new_history_item.emit(dir)
