@@ -283,6 +283,7 @@ class WinImgView(WinBase):
     task_count_limit = 10
     switch_image_sig = pyqtSignal(object)
     closed_ = pyqtSignal()
+    move_to_wid_sig = pyqtSignal(object)
 
     def __init__(self, src: str):
         super().__init__()
@@ -440,7 +441,7 @@ class WinImgView(WinBase):
         self.wid: Thumb = self.path_to_wid.get(self.src)
         self.wid.text_changed.connect(self.set_title)
 
-        SignalsApp.instance.move_to_wid.emit(self.wid)
+        self.move_to_wid_sig.emit(self.wid)
 
         self.text_label.hide()
         self.set_title()

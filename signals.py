@@ -5,9 +5,6 @@ from PyQt5.QtWidgets import QWidget
 class Signals(QObject):
     load_any_grid = pyqtSignal(tuple)  
     load_search_grid = pyqtSignal(str)  
-    move_slider = pyqtSignal(int)  
-    move_to_wid = pyqtSignal(QWidget)  
-    open_path = pyqtSignal(str)
 
 
 class SignalsApp:
@@ -35,7 +32,6 @@ class SignalsApp:
     def remove_grid_connections(cls) -> bool:
 
         recon = (
-            SignalsApp.instance.move_to_wid
             )
 
         for sig in recon:

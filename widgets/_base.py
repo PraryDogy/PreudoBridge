@@ -193,19 +193,6 @@ class OpenWin:
         Utils.center_win(parent, cls.win_info)
         cls.win_info.show()
 
-    @classmethod
-    def view(cls, parent: QWidget, src: str):
-        from .win_img_view import WinImgView
-        cls.win_img_view = WinImgView(src)
-        Utils.center_win(parent, cls.win_img_view)
-        cls.win_img_view.closed_.connect(lambda: cls.view_closed(win=cls.win_img_view))
-        cls.win_img_view.show()
-
-    @classmethod
-    def view_closed(cls, win: QWidget):
-        del win
-        gc.collect()
-
 
 class UFrame(QFrame):
     def __init__(self):

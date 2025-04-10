@@ -442,6 +442,7 @@ class Grid(BaseMethods, QScrollArea):
     bar_bottom_update = pyqtSignal(tuple)
     fav_cmd_sig = pyqtSignal(tuple)
     load_st_grid_sig = pyqtSignal(tuple)
+    move_slider_sig = pyqtSignal(int)
 
     def __init__(self, main_dir: str, prev_path: str = None):
         Thumb.path_to_wid.clear()
@@ -459,8 +460,6 @@ class Grid(BaseMethods, QScrollArea):
         self.selected_widgets: list[Thumb] = []
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.ordered_widgets: list[Thumb] = []
-
-        SignalsApp.instance.move_to_wid.connect(self.select_one_wid)
 
         self.main_wid = GridWid()
         self.setWidget(self.main_wid)
@@ -639,8 +638,11 @@ class Grid(BaseMethods, QScrollArea):
             self.load_st_grid_sig.emit((wid.src, None))
 
         elif wid.type_ in Static.IMG_EXT:
-            cmd = lambda: OpenWin.view(parent=self.window(), src=wid.src)
-            QTimer.singleShot(100, cmd)
+            from .win_img_view import WinImgView
+            self.win_img_view = WinImgView(wid.src)
+            self.win_img_view.move_to_wid_sig.connect(self.select_one_wid)
+            Utils.center_win(self.window(), self.win_img_view)
+            self.win_img_view.show()
 
         else:
             subprocess.Popen(["open", wid.src])
@@ -890,12 +892,12 @@ class Grid(BaseMethods, QScrollArea):
             elif a0.key() == Qt.Key.Key_Equal:
                 new_value = Dynamic.pixmap_size_ind + 1
                 if new_value <= len(ThumbData.PIXMAP_SIZE) - 1:
-                    SignalsApp.instance.move_slider.emit(new_value)
+                    self.move_slider_sig.emit(new_value)
 
             elif a0.key() == Qt.Key.Key_Minus:
                 new_value = Dynamic.pixmap_size_ind - 1
                 if new_value >= 0:
-                    SignalsApp.instance.move_slider.emit(new_value)
+                    self.move_slider_sig.emit(new_value)
 
             elif a0.key() == Qt.Key.Key_A:
                 self.clear_selected_widgets()

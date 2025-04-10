@@ -195,6 +195,7 @@ class MainWin(QWidget):
         self.bar_bottom.load_st_grid_sig.connect(self.load_st_grid_cmd)
         self.bar_bottom.resize_grid_sig.connect(self.grid.resize_)
         self.bar_bottom.rearrange_grid_sig.connect(self.grid.rearrange)
+        self.bar_bottom.open_path_sig.connect(self.open_path_cmd)
         self.r_lay.insertWidget(2, self.bar_bottom)
 
         self.scroll_up = QLabel(parent=self, text=ARROW_UP)
@@ -213,7 +214,6 @@ class MainWin(QWidget):
         self.grid: Grid = Grid()
 
         SignalsApp.instance.load_search_grid.connect(self.load_search_grid)
-        SignalsApp.instance.open_path.connect(self.open_path_cmd)
         SignalsApp.instance.load_any_grid.connect(self.load_any_grid)
 
         self.load_st_grid_cmd((self.main_dir, None))
@@ -262,6 +262,7 @@ class MainWin(QWidget):
         self.grid = GridSearch(self.main_dir, search_text, None)
         self.grid.bar_bottom_update.connect(self.bar_bottom.update_bar_cmd)
         self.grid.fav_cmd_sig.connect(self.menu_favs.fav_cmd)
+        self.grid.move_slider_sig.connect(self.bar_bottom.slider.move_slider_cmd)
         self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
         self.r_lay.insertWidget(1, self.grid)
         self.grid.setFocus()
@@ -309,6 +310,7 @@ class MainWin(QWidget):
         self.grid.bar_bottom_update.connect(self.bar_bottom.update_bar_cmd)
         self.grid.fav_cmd_sig.connect(self.menu_favs.fav_cmd)
         self.grid.load_st_grid_sig.connect(self.load_st_grid_cmd)
+        self.grid.move_slider_sig.connect(self.bar_bottom.slider.move_slider_cmd)
 
         self.grid.verticalScrollBar().valueChanged.connect(
             self.scroll_up_scroll_value

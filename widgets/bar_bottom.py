@@ -84,6 +84,8 @@ class GoLineEdit(ULineEdit):
 
 
 class WinGo(WinMinMax):
+    open_path_sig = pyqtSignal(str)
+
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Перейти к ...")
@@ -150,9 +152,8 @@ class WinGo(WinMinMax):
 
         if flag == FINDER_T:
             self.open_finder(dest=result)
-
         else:
-            SignalsApp.instance.open_path.emit(result)
+            self.open_path_sig.emit(result)
 
         self.close()
 
@@ -179,10 +180,10 @@ class CustomSlider(USlider):
         )
         self.setFixedWidth(80)
         self.setValue(Dynamic.pixmap_size_ind)
-        self.valueChanged.connect(self.change_size)
-        SignalsApp.instance.move_slider.connect(self.change_size)
+        self.valueChanged.connect(self.move_slider_cmd)
+        # SignalsApp.instance.move_slider.connect(self.move_slider_cmd)
     
-    def change_size(self, value: int):
+    def move_slider_cmd(self, value: int):
         # отключаем сигнал valueChanged
         self.blockSignals(True)
         self.setValue(value)
@@ -225,7 +226,10 @@ class PathItem(QWidget):
  
     def view_(self, *args):
         if os.path.isfile(self.src):
-            OpenWin.view(Utils.get_main_win(), self.src)
+            from .win_img_view import WinImgView
+            self.win_img_view = WinImgView(self.src)
+            Utils.center_win(self.window(), self.win_img_view)
+            self.win_img_view.show()
         else:
             self.new_history_item.emit(self.src)
             self.load_st_grid_sig.emit((self.src, None))
@@ -385,6 +389,7 @@ class BarBottom(QWidget):
     load_st_grid_sig = pyqtSignal(tuple)
     resize_grid_sig = pyqtSignal()
     rearrange_grid_sig = pyqtSignal()
+    open_path_sig = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -448,9 +453,10 @@ class BarBottom(QWidget):
         self.sort_frame.total_text.setText(f"{TOTAL_T}: {str(value)}")
 
     def open_go_win(self, *args):
-        self.win = WinGo()
-        Utils.center_win(Utils.get_main_win(), self.win)
-        self.win.show()
+        self.win_go = WinGo()
+        self.win_go.open_path_sig.connect(self.open_path_sig.emit)
+        Utils.center_win(Utils.get_main_win(), self.win_go)
+        self.win_go.show()
 
     def update_bar_cmd(self, data: tuple):
         # dir: str, total: int
