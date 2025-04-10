@@ -2,7 +2,7 @@ import os
 import subprocess
 
 import sqlalchemy
-from PyQt5.QtCore import QMimeData, Qt, QTimer, QUrl, pyqtSignal
+from PyQt5.QtCore import QMimeData, QObject, Qt, QTimer, QUrl, pyqtSignal
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
                          QPixmap)
 from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Dynamic, JsonData, Static, ThumbData
-from database import CACHE, ColumnNames, Dbase, OrderItem
+from database import CACHE, Dbase, OrderItem
 from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
@@ -101,45 +101,41 @@ RATINGS = {
 }
 
 
-class UpdateThumbData(URunnable):
-    def __init__(self, name: str, values: dict, cmd_: callable):
+class WorkerSignals(QObject):
+    finished_ = pyqtSignal()
 
+
+class SetDbRating(URunnable):
+    def __init__(self, order_item: OrderItem, new_rating: int):
         super().__init__()
-        self.cmd_ = cmd_
-        self.name = name
-        self.values = values
+        self.order_item = order_item
+        self.new_rating = new_rating
+        self.signals_ = WorkerSignals()
 
     @URunnable.set_running_state
-    def run(self):
-        stmt = sqlalchemy.update(CACHE)
-        stmt = stmt.where(CACHE.c.name == Utils.hash_filename(filename=self.name))
-        stmt = stmt.values(**self.values)
-        
+    def run(self):        
         db = os.path.join(JsonData.root, Static.DB_FILENAME)
         dbase = Dbase()
         engine = dbase.create_engine(path=db)
-
         if engine is None:
             return
 
         conn = engine.connect()
+        hash_filename = Utils.get_hash_filename(self.order_item.name)
+        stmt = sqlalchemy.update(CACHE)
+        stmt = stmt.where(CACHE.c.name==hash_filename)
+        stmt = stmt.values(rating=self.new_rating)
 
         try:
             conn.execute(stmt)
             conn.commit()
-            self.finalize()
+            self.signals_.finished_.emit()
 
         except SQL_ERRORS as e:
             conn.rollback()
             Utils.print_error(self, e)
 
         conn.close()
-
-    def finalize(self):
-        try:
-            self.cmd_()
-        except RuntimeError as e:
-            Utils.print_error(parent=None, error=e)
 
 
 class ImgFrame(QFrame):
@@ -235,6 +231,8 @@ class RatingWid(QLabel):
 
 
 class Thumb(OrderItem, QFrame):
+    # Сигнал нужен, чтобы менялся заголовок в просмотрщике изображений
+    # При изменении рейтинга или меток
     text_changed = pyqtSignal()
     path_to_wid: dict[str, "Thumb"] = {}
     pixmap_size = 0
@@ -397,40 +395,20 @@ class Thumb(OrderItem, QFrame):
             """
         )
 
-    def set_rating(self, rating: int):
+    def set_db_rating(self, rating: int):
         # устанавливается значение из бд
         self.rating = rating
         self.rating_wid.set_text(wid=self)
         self.text_changed.emit()
 
-    def set_new_rating(self, value: int):
-
-        if value > 5:
+    def calculate_new_rating(self, new_rating: int):
+        if new_rating > 5:
             rating = self.rating % 10
-            tag = value
+            tag = new_rating
         else:
             tag = self.rating // 10
-            rating = value
-
-        total = tag * 10 + rating
-
-
-        self.rating = total
-        self.rating_wid.set_text(wid=self)
-        self.text_changed.emit()
-
-        def cmd_():
-            self.rating = total
-            self.rating_wid.set_text(wid=self)
-            self.text_changed.emit()
-
-        self.task_ = UpdateThumbData(
-            name=self.name,
-            values={ColumnNames.RATING: total},
-            cmd_=cmd_
-        )
-
-        UThreadPool.start(self.task_)
+            rating = new_rating
+        return tag * 10 + rating
 
 
 class ThumbFolder(Thumb):
@@ -747,11 +725,11 @@ class Grid(BaseMethods, QScrollArea):
 
         if wid.type_ in (*Static.IMG_EXT, Static.FOLDER_TYPE):
             rating_menu = RatingMenu(parent=menu, src=urls, rating=wid.rating)
-            rating_menu._clicked.connect(self.set_rating_wid)
+            rating_menu._clicked.connect(self.set_new_rating)
             menu.addMenu(rating_menu)
 
             tags_menu = TagMenu(parent=menu, src=urls, rating=wid.rating)
-            tags_menu._clicked.connect(wid.set_new_rating)
+            tags_menu._clicked.connect(self.set_new_rating)
             menu.addMenu(tags_menu)
 
             menu.addSeparator()
@@ -828,10 +806,26 @@ class Grid(BaseMethods, QScrollArea):
             upd_.triggered.connect(self.order_)
             upd_.triggered.connect(self.rearrange)
 
-    def set_rating_wid(self, rating: int):
-        for i in self.selected_widgets:
-            if i.type_ in (*Static.IMG_EXT, Static.FOLDER_TYPE):
-                i.set_new_rating(value=rating)
+    def set_new_rating(self, new_rating: int):
+        # устанавливает рейтинг для выделенных в сетке виджетов
+        for wid in self.selected_widgets:
+            if wid.type_ in (*Static.IMG_EXT, Static.FOLDER_TYPE):
+                if new_rating > 5:
+                    rating = wid.rating % 10
+                    tag = new_rating
+                else:
+                    tag = wid.rating // 10
+                    rating = new_rating
+                new_rating = tag * 10 + rating
+                self.task_ = SetDbRating(wid, new_rating)
+                cmd_ = lambda: self.set_new_rating_fin(wid, new_rating)
+                self.task_.signals_.finished_.connect(cmd_)
+                UThreadPool.start(self.task_)
+
+    def set_new_rating_fin(self, wid: Thumb, new_rating: int):
+        wid.rating = new_rating
+        wid.rating_wid.set_text(wid=self)
+        wid.text_changed.emit()
 
     def get_wid_under_mouse(self, a0: QMouseEvent) -> None | Thumb:
         wid = QApplication.widgetAt(a0.globalPos())
@@ -955,7 +949,7 @@ class Grid(BaseMethods, QScrollArea):
         elif a0.key() in KEY_RATING:
 
             rating = KEY_RATING.get(a0.key())
-            self.set_rating_wid(rating=rating)
+            self.set_new_rating(rating=rating)
         
         return super().keyPressEvent(a0)
 

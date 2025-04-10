@@ -46,7 +46,7 @@ class AnyOrderItem(CommitTool):
         select_stmt = select(CACHE.c.rating)
 
         where_stmt = select_stmt.where(
-            CACHE.c.name == Utils.hash_filename(filename=order_item.name)
+            CACHE.c.name == Utils.get_hash_filename(filename=order_item.name)
         )
 
         res_by_src = conn.execute(where_stmt).mappings().first()
@@ -59,7 +59,7 @@ class AnyOrderItem(CommitTool):
     @classmethod
     def insert_order_item(cls, conn: Connection, order_item: OrderItem):
 
-        new_name = Utils.hash_filename(filename=order_item.name)
+        new_name = Utils.get_hash_filename(filename=order_item.name)
 
         values = {
             ColumnNames.NAME: new_name,
@@ -73,7 +73,7 @@ class AnyOrderItem(CommitTool):
     @classmethod
     def update_order_item(cls, conn: Connection, order_item: OrderItem):
 
-        new_name = Utils.hash_filename(filename=order_item.name)
+        new_name = Utils.get_hash_filename(filename=order_item.name)
 
         values = {
             ColumnNames.NAME: new_name,
@@ -162,7 +162,7 @@ class GridTools(AnyOrderItem):
         )
 
         where_stmt = select_stmt.where(
-            CACHE.c.name == Utils.hash_filename(filename=order_item.name)
+            CACHE.c.name == Utils.get_hash_filename(filename=order_item.name)
         )
         res_by_name = conn.execute(where_stmt).mappings().first()
 
@@ -203,7 +203,7 @@ class GridTools(AnyOrderItem):
             img_array=img_array
         )
 
-        new_name = Utils.hash_filename(filename=order_item.name)
+        new_name = Utils.get_hash_filename(filename=order_item.name)
         partial_hash = Utils.get_partial_hash(file_path=order_item.src)
 
         values = {
@@ -242,7 +242,7 @@ class GridTools(AnyOrderItem):
             img_array=img_array
         )
 
-        new_name = Utils.hash_filename(filename=order_item.name)
+        new_name = Utils.get_hash_filename(filename=order_item.name)
         partial_hash = Utils.get_partial_hash(file_path=order_item.src)
 
         values = {

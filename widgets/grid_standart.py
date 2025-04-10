@@ -240,7 +240,7 @@ class GridStandart(Grid):
                     widget.set_pixmap(pixmap=order_item.pixmap_)
 
                 if isinstance(order_item.rating, int):
-                    widget.set_rating(rating=order_item.rating)
+                    widget.set_db_rating(rating=order_item.rating)
 
                 self.loaded_images.append(order_item.src)
 

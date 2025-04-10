@@ -62,7 +62,7 @@ class FinderItems(URunnable):
         Dynamic.busy_db = False
         new_files = []
         for i in order_items:
-            name = Utils.hash_filename(filename=i.name)
+            name = Utils.get_hash_filename(filename=i.name)
             if name in res:
                 i.rating = res.get(name)
             else:

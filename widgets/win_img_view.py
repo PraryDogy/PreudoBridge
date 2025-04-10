@@ -56,7 +56,7 @@ class LoadThumbnail(URunnable):
             conn = engine.connect()
 
             q = sqlalchemy.select(CACHE.c.img)
-            q = q.where(CACHE.c.name == Utils.hash_filename(filename=self.name))
+            q = q.where(CACHE.c.name == Utils.get_hash_filename(filename=self.name))
             res = conn.execute(q).scalar() or None
 
             conn.close()
@@ -489,7 +489,7 @@ class WinImgView(WinBase):
 
         elif ev.key() in KEY_RATING:
             rating = KEY_RATING.get(ev.key())
-            self.wid.set_new_rating(value=rating)
+            self.wid.calculate_new_rating(new_rating=rating)
             self.set_title()
 
         elif ev.modifiers() & Qt.KeyboardModifier.ControlModifier:
@@ -550,11 +550,11 @@ class WinImgView(WinBase):
         menu.addSeparator()
 
         rating_menu = RatingMenu(menu, self.src, self.wid.rating)
-        rating_menu._clicked.connect(self.wid.set_new_rating)
+        rating_menu._clicked.connect(self.wid.calculate_new_rating)
         menu.addMenu(rating_menu)
 
         tags_menu = TagMenu(parent=menu, src=self.wid.src, rating=self.wid.rating)
-        tags_menu._clicked.connect(self.wid.set_new_rating)
+        tags_menu._clicked.connect(self.wid.calculate_new_rating)
         menu.addMenu(tags_menu)
 
         menu.show_custom()

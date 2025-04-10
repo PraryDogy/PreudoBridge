@@ -433,7 +433,7 @@ class Utils(Pixmap, ReadImage, ImgConvert):
             return path
 
     @classmethod
-    def hash_filename(cls, filename: str):
+    def get_hash_filename(cls, filename: str):
         return hashlib.md5(filename.encode('utf-8')).hexdigest()
     
     @classmethod
