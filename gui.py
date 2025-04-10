@@ -14,9 +14,9 @@ from widgets.bar_top import BarTop
 from widgets.grid_search import GridSearch
 from widgets.grid_standart import GridStandart
 from widgets.list_file_system import ListFileSystem
-from widgets.tree_favorites import TreeFavorites
-from widgets.tree_folders import TreeFolders
-from widgets.tree_tags import TreeTags
+from widgets.menu_favs import MenuFavs
+from widgets.menu_tree import MenuTree
+from widgets.menu_tags import MenuTags
 from widgets.win_img_view import LoadImage
 
 ARROW_UP = "\u25B2" # ▲
@@ -127,10 +127,10 @@ class MainWin(QWidget):
         self.bar_tabs = BarTabs()
         left_v_lay.addWidget(self.bar_tabs)
 
-        self.tree_folders = TreeFolders()
+        self.tree_folders = MenuTree()
         self.bar_tabs.addTab(self.tree_folders, "Папки")
 
-        self.tree_favorites = TreeFavorites()
+        self.tree_favorites = MenuFavs()
         self.bar_tabs.addTab(self.tree_favorites, "Избранное")
         self.tree_folders.fav_cmd_sig.connect(self.tree_favorites.fav_cmd)
 
@@ -138,7 +138,7 @@ class MainWin(QWidget):
         show_hide_tags_btn.clicked_.connect(self.show_hide_tags)
         left_v_lay.addWidget(show_hide_tags_btn)
 
-        self.tree_tags = TreeTags()
+        self.tree_tags = MenuTags()
         left_v_lay.addWidget(self.tree_tags)
 
         show_hide_tags_btn.click_cmd()

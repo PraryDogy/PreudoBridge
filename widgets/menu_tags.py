@@ -13,7 +13,7 @@ class UItem(QListWidgetItem):
         self.rating: int
 
 
-class TreeTags(QListWidget):
+class MenuTags(QListWidget):
     def __init__(self):
         super().__init__()
 
