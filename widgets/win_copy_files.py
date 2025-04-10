@@ -30,7 +30,15 @@ class FileCopyWorker(URunnable):
 
     @URunnable.set_running_state
     def run(self):    
-        new_paths = self.create_new_paths()
+
+        try:
+            new_paths = self.create_new_paths()
+        except OSError as e:
+            print("win copy files", e)
+            new_paths = None
+
+        if not new_paths:
+            return
 
         # общий размер всех файлов в байтах
         total_bytes = sum([os.path.getsize(old_path)for old_path, new_path in new_paths])
@@ -50,8 +58,6 @@ class FileCopyWorker(URunnable):
         self.total_f_size = Utils.get_f_size(total_bytes)
 
         for src, dest in new_paths:
-            print("отключено копирование")
-            continue
 
             if not self.should_run:
                 break
