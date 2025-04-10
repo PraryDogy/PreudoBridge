@@ -942,7 +942,7 @@ class Grid(QScrollArea):
         elif a0.key() in KEY_RATING:
 
             rating = KEY_RATING.get(a0.key())
-            self.set_new_rating(rating=rating)
+            self.set_new_rating(rating)
         
         return super().keyPressEvent(a0)
 
