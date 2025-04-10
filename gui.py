@@ -225,7 +225,6 @@ class MainWin(QWidget):
             self.main_dir = new_main_dir
 
     def change_view_cmd(self, index: int):
-        print(index)
         self.view_index = index
         self.load_st_grid_cmd((self.main_dir, None))
 
