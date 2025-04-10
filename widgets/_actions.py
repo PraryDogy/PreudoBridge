@@ -595,8 +595,7 @@ class SortMenu(UMenu):
 class ChangeView(UMenu):
     change_view_sig = pyqtSignal(int)
 
-    def __init__(self, parent: UMenu):
-
+    def __init__(self, parent: UMenu, view_index: int):
         super().__init__(parent=parent, title=CHANGE_VIEW_T)
 
         # отобразить сеткой
@@ -616,11 +615,11 @@ class ChangeView(UMenu):
         # grid_view_type отвечает за тип отображения
         # 0 отображать сеткой, 1 отображать списком
 
-        # if Dynamic.grid_view_type == 0:
-        #     grid_.setChecked(True)
+        if view_index == 0:
+            grid_.setChecked(True)
 
-        # elif Dynamic.grid_view_type == 1:
-        #     list_.setChecked(True)
+        elif view_index == 1:
+            list_.setChecked(True)
 
 
 class CopyFilesAction(QAction):

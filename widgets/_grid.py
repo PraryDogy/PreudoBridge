@@ -445,7 +445,7 @@ class Grid(QScrollArea):
     move_slider_sig = pyqtSignal(int)
     change_view_sig = pyqtSignal(int)
 
-    def __init__(self, main_dir: str, prev_path: str = None):
+    def __init__(self, main_dir: str, view_index: int, prev_path: str = None):
         Thumb.path_to_wid.clear()
 
         QScrollArea.__init__(self)
@@ -458,6 +458,7 @@ class Grid(QScrollArea):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         self.main_dir = main_dir
+        self.view_index = view_index
         self.prev_path = prev_path
         self.selected_widgets: list[Thumb] = []
         self.cell_to_wid: dict[tuple, Thumb] = {}
@@ -767,7 +768,7 @@ class Grid(QScrollArea):
 
         menu.addSeparator()
 
-        change_view = ChangeView(menu)
+        change_view = ChangeView(menu, self.view_index)
         change_view.change_view_sig.connect(self.change_view_sig.emit)
         menu.addMenu(change_view)
 

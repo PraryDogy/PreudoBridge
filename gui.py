@@ -102,7 +102,7 @@ class MainWin(QWidget):
         self.resize_timer.setSingleShot(True)
         self.resize_timer.timeout.connect(self.resize_timer_cmd)
 
-        self.grid: Grid = Grid(self.main_dir)
+        self.grid: Grid = Grid(self.main_dir, self.view_index)
 
         main_lay = QHBoxLayout()
         main_lay.setContentsMargins(5, 0, 5, 0)
@@ -252,7 +252,7 @@ class MainWin(QWidget):
     def load_search_grid(self, search_text: str):
         self.grid.close()
         self.menu_tags.reset()
-        self.grid = GridSearch(self.main_dir, search_text, None)
+        self.grid = GridSearch(self.main_dir, self.view_index, search_text, None)
         self.grid.bar_bottom_update.connect(self.bar_bottom.update_bar_cmd)
         self.grid.fav_cmd_sig.connect(self.menu_favs.fav_cmd)
         self.grid.move_slider_sig.connect(self.bar_bottom.slider.move_slider_cmd)
@@ -294,7 +294,7 @@ class MainWin(QWidget):
         # self.bar_top.search_wid.clear_search.emit()
 
         if self.view_index == 0:
-            self.grid = GridStandart(self.main_dir, path_for_select)
+            self.grid = GridStandart(self.main_dir, self.view_index, path_for_select)
 
         elif self.view_index == 1:
             self.grid = ListFileSystem(self.main_dir)
