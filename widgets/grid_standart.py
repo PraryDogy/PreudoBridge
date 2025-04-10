@@ -113,8 +113,8 @@ class GridStandart(Grid):
         Utils.center_win(self, self.loading_lbl)
         self.show()
 
-        self.finder_thread = FinderItems()
-        self.finder_thread.signals_.finished_.connect(self.finder_thread_finalize)
+        self.finder_thread = FinderItems(self.main_dir)
+        self.finder_thread.signals_.finished_.connect(self.finder_thread_fin)
         UThreadPool.start(self.finder_thread)
 
     def load_visible_images(self):
@@ -141,7 +141,7 @@ class GridStandart(Grid):
         self.load_images_timer.stop()
         self.load_images_timer.start(1000)
 
-    def finder_thread_finalize(self, items: tuple[list[OrderItem]]):
+    def finder_thread_fin(self, items: tuple[list[OrderItem]]):
         order_items, new_items = items
 
         del self.finder_thread

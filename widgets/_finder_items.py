@@ -18,9 +18,10 @@ class WorkerSignals(QObject):
 
 
 class FinderItems(URunnable):
-    def __init__(self):
+    def __init__(self, main_dir: str):
         super().__init__()
         self.signals_ = WorkerSignals()
+        self.main_dir = main_dir
 
     @URunnable.set_running_state
     def run(self):
@@ -43,7 +44,7 @@ class FinderItems(URunnable):
         self.signals_.finished_.emit((order_items, new_items))
 
     def create_connection(self) -> sqlalchemy.Connection | None:
-        db = os.path.join(JsonData.root, Static.DB_FILENAME)
+        db = os.path.join(self.main_dir, Static.DB_FILENAME)
         dbase = Dbase()
         engine = dbase.create_engine(path=db)
         if engine is None:
@@ -72,7 +73,7 @@ class FinderItems(URunnable):
 
     def get_order_items(self) -> list[OrderItem]:
         order_items: list[OrderItem] = []
-        with os.scandir(JsonData.root) as entries:
+        with os.scandir(self.main_dir) as entries:
             for entry in entries:
                 if entry.name.startswith("."):
                     continue
@@ -88,7 +89,7 @@ class FinderItems(URunnable):
 
     def get_items_no_db(self):
         order_items = []
-        with os.scandir(JsonData.root) as entries:
+        with os.scandir(self.main_dir) as entries:
             for entry in entries:
                 if entry.name.startswith("."):
                     continue
