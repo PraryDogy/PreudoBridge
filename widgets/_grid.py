@@ -106,15 +106,16 @@ class WorkerSignals(QObject):
 
 
 class SetDbRating(URunnable):
-    def __init__(self, order_item: OrderItem, new_rating: int):
+    def __init__(self, main_dir: str, order_item: OrderItem, new_rating: int):
         super().__init__()
         self.order_item = order_item
         self.new_rating = new_rating
+        self.main_dir = main_dir
         self.signals_ = WorkerSignals()
 
     @URunnable.set_running_state
     def run(self):        
-        db = os.path.join(JsonData.root, Static.DB_FILENAME)
+        db = os.path.join(self.main_dir, Static.DB_FILENAME)
         dbase = Dbase()
         engine = dbase.create_engine(path=db)
         if engine is None:
@@ -455,7 +456,7 @@ class Grid(BaseMethods, QScrollArea):
         self.prev_path = prev_path
         self.selected_widgets: list[Thumb] = []
         self.cell_to_wid: dict[tuple, Thumb] = {}
-        self.ordered_widgets: list[OrderItem | Thumb | ThumbFolder | ThumbSearch] = []
+        self.ordered_widgets: list[Thumb] = []
 
         # Посколько часто создается новый экземпляр класса Grid,
         # то каждый из них подключается к глобальным сигналам.
@@ -537,11 +538,8 @@ class Grid(BaseMethods, QScrollArea):
     def filter_(self):
         for wid in self.ordered_widgets:
             show_widget = True
-
             if Dynamic.rating_filter > 0:
-
                 if Dynamic.rating_filter > 5:
-
                     # 6, 7, 8, 9 - теги
                     # получаем первую цифру из рейтинга,
                     # которая соответствует значению тега
@@ -551,13 +549,10 @@ class Grid(BaseMethods, QScrollArea):
                     # например значение 65: 6 - тег, а 5 - рейтинг
                     # значение 5: 0 - тег, а 5 - рейтинг
                     wid_value = wid.rating // 10
-
                     if wid_value == 0:
                         wid_value = 9
-
                     if wid_value != Dynamic.rating_filter:
                         show_widget = False
-
                 else:
                     # 0, 1, 2, 3, 4, 5 - рейтинг
                     # получаем вторую цифру, которая соответствует значению
@@ -565,7 +560,6 @@ class Grid(BaseMethods, QScrollArea):
                     wid_value = wid.rating % 10
                     if wid_value != Dynamic.rating_filter:
                         show_widget = False
-
             if show_widget:
                 wid.must_hidden = False
                 wid.show()
@@ -817,7 +811,7 @@ class Grid(BaseMethods, QScrollArea):
                     tag = wid.rating // 10
                     rating = new_rating
                 new_rating = tag * 10 + rating
-                self.task_ = SetDbRating(wid, new_rating)
+                self.task_ = SetDbRating(self.main_dir, wid, new_rating)
                 cmd_ = lambda: self.set_new_rating_fin(wid, new_rating)
                 self.task_.signals_.finished_.connect(cmd_)
                 UThreadPool.start(self.task_)
