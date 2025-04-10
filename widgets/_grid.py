@@ -809,13 +809,13 @@ class Grid(QScrollArea):
                     rating = new_rating
                 new_rating = tag * 10 + rating
                 self.task_ = SetDbRating(self.main_dir, wid, new_rating)
-                cmd_ = lambda: self.set_new_rating_fin(wid, new_rating)
+                cmd_ = lambda w=wid: self.set_new_rating_fin(w, new_rating)
                 self.task_.signals_.finished_.connect(cmd_)
                 UThreadPool.start(self.task_)
 
     def set_new_rating_fin(self, wid: Thumb, new_rating: int):
         wid.rating = new_rating
-        wid.rating_wid.set_text(wid=self)
+        wid.rating_wid.set_text(wid=wid)
         wid.text_changed.emit()
 
     def get_wid_under_mouse(self, a0: QMouseEvent) -> None | Thumb:
