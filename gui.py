@@ -128,11 +128,12 @@ class MainWin(QWidget):
         left_v_lay.addWidget(self.menu_tabs)
 
         self.menu_tree = MenuTree()
+        self.menu_tree.load_st_grid_sig.connect(self.load_st_grid_cmd)
         self.menu_tabs.addTab(self.menu_tree, "Папки")
 
         self.menu_favs = MenuFavs()
-        cmd = lambda: self.menu_favs.set_main_dir(self.main_dir)
-        self.menu_favs.get_main_dir.connect(cmd)
+        self.menu_favs.init_ui_sig.connect(lambda: self.menu_favs.init_ui(self.main_dir))
+        self.menu_favs.load_st_grid_sig.connect(self.load_st_grid_cmd)
         self.menu_tabs.addTab(self.menu_favs, "Избранное")
         self.menu_tree.fav_cmd_sig.connect(self.menu_favs.fav_cmd)
 
@@ -189,6 +190,7 @@ class MainWin(QWidget):
         # устанавливаем изначальный путь в нижний бар
         self.bar_bottom.set_new_path(self.main_dir)
         self.bar_bottom.new_history_item.connect(self.bar_top.new_history_item_cmd)
+        self.bar_bottom.load_st_grid_sig.connect(self.load_st_grid_cmd)
         self.r_lay.insertWidget(2, self.bar_bottom)
 
         self.scroll_up = QLabel(parent=self, text=ARROW_UP)
@@ -206,12 +208,11 @@ class MainWin(QWidget):
         # они должны быть именно тут
         self.grid: Grid = Grid()
 
-        SignalsApp.instance.load_standart_grid.connect(self.load_st_grid_cmd)
         SignalsApp.instance.load_search_grid.connect(self.load_search_grid)
         SignalsApp.instance.open_path.connect(self.open_path_cmd)
         SignalsApp.instance.load_any_grid.connect(self.load_any_grid)
 
-        SignalsApp.instance.load_standart_grid.emit((self.main_dir, None))
+        self.load_st_grid_cmd((self.main_dir, None))
 
     def clear_data_cmd(self):
         db = os.path.join(self.main_dir, Static.DB_FILENAME)
@@ -246,10 +247,10 @@ class MainWin(QWidget):
 
         if filepath.endswith(Static.IMG_EXT):
             self.main_dir = os.path.dirname(filepath)
-            SignalsApp.instance.load_standart_grid.emit((self.main_dir, filepath))
+            self.load_st_grid_cmd((self.main_dir, filepath))
         else:
             self.main_dir = filepath
-            SignalsApp.instance.load_standart_grid.emit((self.main_dir, None))
+            self.load_st_grid_cmd((self.main_dir, None))
 
     def load_search_grid(self, search_text: str):
         self.grid.close()

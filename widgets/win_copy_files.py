@@ -176,7 +176,7 @@ class FileCopyWorker(URunnable):
 
 
 class WinCopyFiles(WinMinMax):
-    finished_ = pyqtSignal(str)
+    load_st_grid_sig = pyqtSignal()
 
     def __init__(self, main_dir: str):
         super().__init__()
@@ -247,7 +247,7 @@ class WinCopyFiles(WinMinMax):
 
     def finished_task(self, new_paths: list[str]):
         self.close()
-        SignalsApp.instance.load_standart_grid.emit((self.main_dir, new_paths))
+        self.load_st_grid_sig.emit((self.main_dir, new_paths))
         del self.task_
 
     def closeEvent(self, a0):

@@ -422,12 +422,14 @@ class ThumbFolder(Thumb):
 
 
 class ThumbSearch(Thumb):
+    load_st_grid_sig = pyqtSignal(tuple)
+
     def __init__(self, src: str, size: int, mod: int, rating: int):
         super().__init__(src, size, mod, rating)
 
     def show_in_folder_cmd(self):
         root = os.path.dirname(self.src)
-        SignalsApp.instance.load_standart_grid.emit((root, self.src))
+        self.load_st_grid_sig.emit((root, self.src))
 
 
 class GridWid(QWidget):
@@ -644,7 +646,7 @@ class Grid(BaseMethods, QScrollArea):
         elif wid.type_ == Static.FOLDER_TYPE:
             self.mouseReleaseEvent = None
             self.new_history_item.emit(wid.src)
-            SignalsApp.instance.load_standart_grid.emit((wid.src, None))
+            self.load_st_grid_sig.emit((wid.src, None))
 
         elif wid.type_ in Static.IMG_EXT:
             cmd = lambda: OpenWin.view(parent=self.window(), src=wid.src)
@@ -850,11 +852,13 @@ class Grid(BaseMethods, QScrollArea):
     def paste_files(self):
         if Dynamic.files_to_copy:
             self.win_copy = WinCopyFiles()
+            self.win_copy.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
             Utils.center_win(self.window(), self.win_copy)
             self.win_copy.show()
 
     def remove_files_cmd(self, urls: list[str]):
         self.rem_win = WinRemoveFiles(self.main_dir, urls)
+        self.rem_win.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
         Utils.center_win(parent=self.window(), child=self.rem_win)
         self.rem_win.show()
 

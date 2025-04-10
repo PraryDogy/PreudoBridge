@@ -17,6 +17,7 @@ ATTENTION_T = "Внимание!"
 
 class WorkerSignals(QObject):
     finished_ = pyqtSignal()
+    load_st_grid_sig = pyqtSignal(tuple)
 
 
 class RemoveFilesTask(URunnable):
@@ -30,7 +31,7 @@ class RemoveFilesTask(URunnable):
     def run(self):
         try:
             subprocess.run(["rm", "-rf"] + self.urls, check=True)
-            SignalsApp.instance.load_standart_grid.emit((self.main_dir, None))
+            self.signals_.load_st_grid_sig.emit((self.main_dir, None))
             self.signals_.finished_.emit()
 
         except Exception as e:
@@ -38,6 +39,8 @@ class RemoveFilesTask(URunnable):
 
 
 class WinRemoveFiles(WinMinMax):
+    load_st_grid_sig = pyqtSignal(tuple)
+
     def __init__(self, main_dir: str, urls: list[str]):
         super().__init__()
         self.setWindowTitle(ATTENTION_T)
@@ -84,6 +87,7 @@ class WinRemoveFiles(WinMinMax):
 
     def cmd_(self, *args):
         self.task_ = RemoveFilesTask(self.main_dir, self.urls)
+        self.task_.signals_.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
         self.task_.signals_.finished_.connect(self.finalize)
         UThreadPool.start(runnable=self.task_)
 

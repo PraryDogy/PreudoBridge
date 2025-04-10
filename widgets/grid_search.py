@@ -282,6 +282,8 @@ class GridSearch(Grid):
             rating=order_item.rating,
             )
         
+        wid.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
+        
         if isinstance(order_item.pixmap_, QPixmap):
             wid.set_pixmap(order_item.pixmap_)
 

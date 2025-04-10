@@ -18,6 +18,7 @@ class FavItem(QLabel):
     renamed = pyqtSignal(str)
     path_changed = pyqtSignal()
     new_history_item = pyqtSignal(str)
+    load_st_grid_sig = pyqtSignal(tuple)
 
     def __init__(self, name: str, src: str):
         super().__init__(text=name)
@@ -81,7 +82,7 @@ class FavItem(QLabel):
 
     def view_fav(self):
         self.new_history_item.emit(self.src)
-        SignalsApp.instance.load_standart_grid.emit((self.src, None))
+        self.load_st_grid_sig.emit((self.src, None))
 
     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
         if ev.button() == Qt.MouseButton.LeftButton:
@@ -125,25 +126,20 @@ class MenuFavs(QListWidget):
     LIST_ITEM = "list_item"
     FAV_ITEM = "fav_item"
     new_history_item = pyqtSignal(str)
-    get_main_dir = pyqtSignal()
+    load_st_grid_sig = pyqtSignal(tuple)
+    init_ui_sig = pyqtSignal()
 
     def __init__(self):
         super().__init__()
-        self.main_dir = None
         self.horizontalScrollBar().setDisabled(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         self.wids: dict[str, QListWidgetItem] = {}
         self.setDragDropMode(QListWidget.DragDropMode.InternalMove)
         self.setAcceptDrops(True)
+        self.init_ui_sig.emit()
 
-        self.get_main_dir.emit()
-        self.init_ui()
-
-    def set_main_dir(self, main_dir: str):
-        self.main_dir = main_dir
-
-    def init_ui(self):
+    def init_ui(self, main_dir: str):
 
         self.clear()
         self.wids.clear()
@@ -153,7 +149,7 @@ class MenuFavs(QListWidget):
             item: QListWidgetItem = result[self.LIST_ITEM]
             self.wids[src] = item
 
-            if self.main_dir == src:
+            if main_dir == src:
                 self.setCurrentItem(item)
 
     def select_fav(self, src: str):
@@ -193,13 +189,14 @@ class MenuFavs(QListWidget):
     def add_fav_widget_item(self, name: str, src: str) -> dict:
         fav_item = FavItem(name, src)
         fav_item.new_history_item.connect(self.new_history_item)
+        fav_item.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
         fav_item.remove_fav_item.connect(
             lambda: self.del_item(src)
         )
         fav_item.renamed.connect(
             lambda new_name: self.update_name(src, new_name)
         )
-        fav_item.path_changed.connect(self.path_changed)
+        fav_item.path_changed.connect(self.init_ui_sig.emit)
 
         list_item = QListWidgetItem(parent=self)
         list_item.setSizeHint(fav_item.sizeHint())
@@ -211,10 +208,6 @@ class MenuFavs(QListWidget):
 
         return {self.LIST_ITEM: list_item, self.FAV_ITEM: fav_item}
 
-    def path_changed(self):
-        self.get_main_dir.emit()
-        self.init_ui()
-
     def update_name(self, src: str, new_name: str):
         if src in JsonData.favs:
             JsonData.favs[src] = new_name
@@ -222,8 +215,7 @@ class MenuFavs(QListWidget):
     def del_item(self, src: str):
         JsonData.favs.pop(src)
         JsonData.write_config()
-        self.get_main_dir.emit()
-        self.init_ui()
+        self.init_ui_sig.emit()
 
     def dragEnterEvent(self, e):
         e.acceptProposedAction()

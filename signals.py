@@ -6,7 +6,6 @@ class Signals(QObject):
     filter_grid = pyqtSignal()  
     load_any_grid = pyqtSignal(tuple)  
     load_search_grid = pyqtSignal(str)  
-    load_standart_grid = pyqtSignal(tuple)  
     move_slider = pyqtSignal(int)  
     move_to_wid = pyqtSignal(QWidget)  
     open_path = pyqtSignal(str)

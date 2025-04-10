@@ -57,7 +57,7 @@ class ListFileSystem(QTableView):
 
         if os.path.isdir(path):
             self.setCurrentIndex(index)
-            SignalsApp.instance.load_standart_grid.emit((path, None))
+            self.load_st_grid_sig.emit((path, None))
 
     def save_sort_settings(self, index):
         ListFileSystem.col = index
@@ -137,7 +137,7 @@ class ListFileSystem(QTableView):
                 root = os.path.dirname(self.main_dir)
                 if root != os.sep:
                     self.new_history_item.emit(root)
-                    SignalsApp.instance.load_standart_grid.emit((root, None))
+                    self.load_st_grid_sig.emit((root, None))
                     return
 
             elif a0.key() == Qt.Key.Key_Down:

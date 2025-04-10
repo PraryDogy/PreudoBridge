@@ -11,6 +11,7 @@ from ._base import UMenu
 class MenuTree(QTreeView):
     new_history_item = pyqtSignal(str)
     fav_cmd_sig = pyqtSignal(tuple)
+    load_st_grid_sig = pyqtSignal(tuple)
 
     def __init__(self):
         super().__init__()
@@ -37,7 +38,7 @@ class MenuTree(QTreeView):
         path = self.c_model.filePath(index)
         self.setCurrentIndex(index)
         self.new_history_item.emit(path)
-        SignalsApp.instance.load_standart_grid.emit((path, None))
+        self.load_st_grid_sig.emit((path, None))
 
         self.expand(index)
 

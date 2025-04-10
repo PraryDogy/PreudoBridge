@@ -194,6 +194,7 @@ class CustomSlider(USlider):
 class PathItem(QWidget):
     min_wid = 5
     new_history_item = pyqtSignal(str)
+    load_st_grid_sig = pyqtSignal(tuple)
 
     def __init__(self, src: str, name: str):
         super().__init__()
@@ -224,7 +225,7 @@ class PathItem(QWidget):
             OpenWin.view(Utils.get_main_win(), self.src)
         else:
             self.new_history_item.emit(self.src)
-            SignalsApp.instance.load_standart_grid.emit((self.src, None))
+            self.load_st_grid_sig.emit((self.src, None))
 
     def solid_style(self):
         self.text_wid.setStyleSheet(
@@ -378,6 +379,7 @@ class SortFrame(UFrame):
 
 class BarBottom(QWidget):
     new_history_item = pyqtSignal(str)
+    load_st_grid_sig = pyqtSignal(tuple)
 
     def __init__(self):
         super().__init__()
@@ -468,6 +470,7 @@ class BarBottom(QWidget):
             path_item = PathItem(src, name)
             cmd_ = lambda dir: self.new_history_item.emit(dir)
             path_item.new_history_item.connect(cmd_)
+            path_item.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
 
             if x == 1:
                 icon = Static.COMP_SVG
