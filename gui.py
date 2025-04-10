@@ -225,6 +225,7 @@ class MainWin(QWidget):
             self.main_dir = new_main_dir
 
     def change_view_cmd(self, index: int):
+        print(index)
         self.view_index = index
         self.load_st_grid_cmd((self.main_dir, None))
 
@@ -304,6 +305,7 @@ class MainWin(QWidget):
         self.grid.fav_cmd_sig.connect(self.menu_favs.fav_cmd)
         self.grid.load_st_grid_sig.connect(self.load_st_grid_cmd)
         self.grid.move_slider_sig.connect(self.bar_bottom.slider.move_slider_cmd)
+        self.grid.change_view_sig.connect(self.change_view_cmd)
 
         self.grid.verticalScrollBar().valueChanged.connect(
             self.scroll_up_scroll_value

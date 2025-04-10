@@ -11,14 +11,13 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Dynamic, JsonData, Static, ThumbData
 from database import CACHE, Dbase, OrderItem
-from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 from ._actions import (ChangeView, CopyFilesAction, CopyPath, FavAdd,
                        FavRemove, Info, OpenInApp, PasteFilesAction,
                        RatingMenu, RemoveFilesAction, RevealInFinder,
                        ShowInFolder, SortMenu, TagMenu, UpdateGrid, View)
-from ._base import BaseMethods, OpenWin, UMenu, USvgSqareWidget
+from ._base import BaseMethods, BaseSignals, OpenWin, UMenu, USvgSqareWidget
 from .list_file_system import ListFileSystem
 from .win_copy_files import WinCopyFiles
 from .win_remove_files import WinRemoveFiles
@@ -437,18 +436,21 @@ class GridWid(QWidget):
         super().__init__()
 
 
-class Grid(BaseMethods, QScrollArea):
+class Grid(QScrollArea):
+    # сигналы должны быть идентичны list file system.py > ListFileSystem
     new_history_item = pyqtSignal(str)
-    bar_bottom_update = pyqtSignal(tuple)
     fav_cmd_sig = pyqtSignal(tuple)
     load_st_grid_sig = pyqtSignal(tuple)
+    bar_bottom_update = pyqtSignal(tuple)
     move_slider_sig = pyqtSignal(int)
+    change_view_sig = pyqtSignal(int)
 
     def __init__(self, main_dir: str, prev_path: str = None):
         Thumb.path_to_wid.clear()
 
         QScrollArea.__init__(self)
         BaseMethods.__init__(self)
+        # BaseSignals.__init__(self)
 
         self.setAcceptDrops(True)
         self.setWidgetResizable(True)
@@ -766,7 +768,7 @@ class Grid(BaseMethods, QScrollArea):
         menu.addSeparator()
 
         change_view = ChangeView(menu)
-        change_view.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
+        change_view.change_view_sig.connect(self.change_view_sig.emit)
         menu.addMenu(change_view)
 
         sort_menu = SortMenu(parent=menu)

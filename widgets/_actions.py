@@ -593,7 +593,7 @@ class SortMenu(UMenu):
 # показать сетку / список - GridStandart / GridSearch / ListFileSystem
 # list_file_system.py > ListFileSystem
 class ChangeView(UMenu):
-    load_st_grid_sig = pyqtSignal(tuple)
+    change_view_sig = pyqtSignal(int)
 
     def __init__(self, parent: UMenu):
 
@@ -602,33 +602,25 @@ class ChangeView(UMenu):
         # отобразить сеткой
         grid_ = QAction(parent=self, text=CHANGE_VIEW_GRID_T)
 
-        grid_.triggered.connect(self.set_grid)
+        grid_.triggered.connect(lambda: self.change_view_sig.emit(0))
         grid_.setCheckable(True)
         self.addAction(grid_)
 
         # отобразить списком
         list_ = QAction(parent=self, text=CHANGE_VIEW_LIST_T)
 
-        list_.triggered.connect(self.set_list)
+        list_.triggered.connect(lambda: self.change_view_sig.emit(1))
         list_.setCheckable(True)
         self.addAction(list_)
 
         # grid_view_type отвечает за тип отображения
         # 0 отображать сеткой, 1 отображать списком
 
-        if Dynamic.grid_view_type == 0:
-            grid_.setChecked(True)
+        # if Dynamic.grid_view_type == 0:
+        #     grid_.setChecked(True)
 
-        elif Dynamic.grid_view_type == 1:
-            list_.setChecked(True)
-
-    def set_grid(self):
-        Dynamic.grid_view_type = 0
-        self.load_st_grid_sig.emit((None, None))
-
-    def set_list(self):
-        Dynamic.grid_view_type = 1
-        self.load_st_grid_sig.emit((None, None))
+        # elif Dynamic.grid_view_type == 1:
+        #     list_.setChecked(True)
 
 
 class CopyFilesAction(QAction):

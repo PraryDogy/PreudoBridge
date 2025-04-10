@@ -10,7 +10,7 @@ from utils import Utils
 
 from ._actions import (ChangeView, CopyPath, FavAdd, FavRemove, Info,
                        RevealInFinder)
-from ._base import BaseMethods, UMenu
+from ._base import BaseMethods, UMenu, BaseSignals
 from ._finder_items import LoadingWid
 
 
@@ -19,9 +19,14 @@ class ListFileSystem(QTableView):
     order: int = 0
     sizes: list = [250, 100, 100, 150]
     last_selection: str = None
+
+    # сигналы должны быть идентичны grid.py > Grid
     new_history_item = pyqtSignal(str)
     fav_cmd_sig = pyqtSignal(tuple)
     load_st_grid_sig = pyqtSignal(tuple)
+    bar_bottom_update = pyqtSignal(tuple)
+    move_slider_sig = pyqtSignal(int)
+    change_view_sig = pyqtSignal(int)
 
     def __init__(self, main_dir: str):
         QTableView.__init__(self)

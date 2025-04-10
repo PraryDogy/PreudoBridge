@@ -1,13 +1,12 @@
-from typing import Literal
-
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QCursor, QMouseEvent, QWheelEvent
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import QFrame, QLineEdit, QMenu, QSlider, QWidget, QTextEdit
+from PyQt5.QtWidgets import (QFrame, QLineEdit, QMenu, QSlider, QTextEdit,
+                             QWidget)
 
 from cfg import Static
 from utils import Utils
-import gc
+
 
 class BaseMethods:
     def order_(self, *args, **kwargs):
@@ -21,6 +20,15 @@ class BaseMethods:
     
     def rearrange(self, *args, **kwargs):
         raise Exception("Переопредели метод rearrange")
+
+
+class BaseSignals(QObject):
+    new_history_item = pyqtSignal(str)
+    bar_bottom_update = pyqtSignal(tuple)
+    fav_cmd_sig = pyqtSignal(tuple)
+    load_st_grid_sig = pyqtSignal(tuple)
+    move_slider_sig = pyqtSignal(int)
+    change_view_sig = pyqtSignal(int)
 
 
 class UMenu(QMenu):
@@ -70,7 +78,6 @@ class USlider(QSlider):
 
     def wheelEvent(self, e: QWheelEvent | None) -> None:
         e.ignore()
-
 
 
 class USvgSqareWidget(QSvgWidget):
@@ -167,7 +174,6 @@ class UTextEdit(QTextEdit):
         menu.addAction(select_all_a)
 
         menu.exec_(self.mapToGlobal(a0.pos()))
-
 
 
 class WinBase(QWidget):
