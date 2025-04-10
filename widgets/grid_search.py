@@ -32,7 +32,7 @@ class WorkerSignals(QObject):
 
 
 class SearchFinder(URunnable):
-    def __init__(self, search_text: str):
+    def __init__(self, main_dir: str, search_text: str):
         super().__init__()
         self.signals_ = WorkerSignals()
         self.search_text: str = str(search_text)
@@ -40,6 +40,7 @@ class SearchFinder(URunnable):
         self.db_path: str = None
         self.conn = None
         self.pause = False
+        self.main_dir = main_dir
 
     @URunnable.set_running_state
     def run(self):
@@ -100,7 +101,7 @@ class SearchFinder(URunnable):
 
     def scandir_recursive(self):
         # Инициализируем список с корневым каталогом
-        dirs_list = [JsonData.root]
+        dirs_list = [self.main_dir]
 
         while dirs_list:
             # Удаляем последний элемент из списка
@@ -251,8 +252,8 @@ class TopLabel(QFrame):
 class GridSearch(Grid):
     bar_bottom_update = pyqtSignal(tuple)
 
-    def __init__(self, search_text: str):
-        super().__init__()
+    def __init__(self, main_dir: str, search_text: str, prev_path: str = None):
+        super().__init__(main_dir, prev_path)
         self.setAcceptDrops(False)
 
         self.top_label = TopLabel(parent=self)
@@ -267,10 +268,10 @@ class GridSearch(Grid):
         self.pause_timer.timeout.connect(self.remove_pause)
         self.pause_timer.setSingleShot(True)
 
-        self.bar_bottom_update.emit((JsonData.root, self.total))
+        self.bar_bottom_update.emit((self.main_dir, self.total))
         ThumbSearch.calculate_size()
 
-        self.task_ = SearchFinder(search_text)
+        self.task_ = SearchFinder(self.main_dir, search_text)
         self.task_.signals_.new_widget.connect(self.add_new_widget)
         self.task_.signals_.finished_.connect(self.search_fin)
         UThreadPool.start(self.task_)

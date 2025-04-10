@@ -29,10 +29,10 @@ class WorkerSignals(QObject):
 
 
 class LoadImages(URunnable):
-    def __init__(self, order_items: list[OrderItem]):
+    def __init__(self, main_dir: str, order_items: list[OrderItem]):
         super().__init__()
-
         self.signals_ = WorkerSignals()
+        self.main_dir = main_dir
         self.order_items = order_items
         # key_ = lambda x: (self.order_priority(item=x), x.size)
         key_ = lambda x: x.size
@@ -46,7 +46,7 @@ class LoadImages(URunnable):
         if not self.order_items:
             return
 
-        db = os.path.join(JsonData.root, Static.DB_FILENAME)
+        db = os.path.join(self.main_dir, Static.DB_FILENAME)
         self.dbase = Dbase()
         engine = self.dbase.create_engine(path=db)
 
@@ -97,8 +97,8 @@ class LoadImages(URunnable):
 
 
 class GridStandart(Grid):
-    def __init__(self, prev_path: str = None):
-        super().__init__(prev_path=prev_path)
+    def __init__(self, main_dir: str, prev_path: str = None):
+        super().__init__(main_dir, prev_path)
 
         self.loaded_images: list[str] = []
 
@@ -150,7 +150,7 @@ class GridStandart(Grid):
         self.loading_lbl.hide()
         total = len(order_items)
 
-        self.bar_bottom_update.emit((JsonData.root, total))
+        self.bar_bottom_update.emit((self.main_dir, total))
         sys_disk = os.path.join(os.sep, "Volumes", "Macintosh HD")
         Thumb.calculate_size()
         col_count = self.get_col_count()
