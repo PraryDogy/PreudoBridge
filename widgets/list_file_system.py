@@ -155,4 +155,4 @@ class ListFileSystem(QTableView):
             self.double_clicked(index)
             return
 
-        return super().keyPressEvent(a0)()
+        return super().keyPressEvent(a0)
