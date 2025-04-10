@@ -128,6 +128,7 @@ class MainWin(QWidget):
         self.menu_tabs.addTab(self.menu_tree, "Папки")
 
         self.menu_favs = MenuFavs()
+        self.menu_favs.init_ui(self.main_dir)
         self.menu_favs.init_ui_sig.connect(lambda: self.menu_favs.init_ui(self.main_dir))
         self.menu_favs.load_st_grid_sig.connect(self.load_st_grid_cmd)
         self.menu_tabs.addTab(self.menu_favs, "Избранное")

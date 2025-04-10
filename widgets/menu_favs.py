@@ -140,7 +140,6 @@ class MenuFavs(QListWidget):
         self.init_ui_sig.emit()
 
     def init_ui(self, main_dir: str):
-
         self.clear()
         self.wids.clear()
 
