@@ -266,6 +266,14 @@ class GridStandart(Grid):
     def dropEvent(self, a0):
         Dynamic.files_to_copy = [i.toLocalFile() for i in a0.mimeData().urls()]
 
+        for i in Dynamic.files_to_copy:
+            # убираем отовсюду диски Volumes
+            i = Utils.users_path(i)
+            main_dir = Utils.users_path(self.main_dir)
+            if os.path.commonpath([i, main_dir]) == main_dir:
+                print("Нельзя копировать в себя")
+                return
+
         if Dynamic.files_to_copy:
             self.win_copy = WinCopyFiles(self.main_dir)
             self.win_copy.load_st_grid_sig.connect(self.load_st_grid_sig.emit)

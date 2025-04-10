@@ -847,9 +847,13 @@ class Grid(QScrollArea):
 
     def paste_files(self):
 
-        print(Dynamic.files_to_copy)
-        print(self.main_dir)
-        return
+        for i in Dynamic.files_to_copy:
+            # убираем отовсюду диски Volumes
+            i = Utils.users_path(i)
+            main_dir = Utils.users_path(self.main_dir)
+            if os.path.commonpath([i, main_dir]) == main_dir:
+                print("Нельзя копировать в себя")
+                return
 
         if Dynamic.files_to_copy:
             self.win_copy = WinCopyFiles(self.main_dir)

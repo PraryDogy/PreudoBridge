@@ -420,17 +420,14 @@ class Utils(Pixmap, ReadImage, ImgConvert):
             print("rm -rf успешно завершен", path)
 
     @classmethod
-    def get_path_with_volumes(cls, path: str):
-
-        # делаем возврат пути при первой итерации, потому что 
-        # Macintosh HD всегда первый, а он то нам и нужен 
-
-        if path.startswith(os.sep + USERS + os.sep):
-            for i in  os.scandir(os.sep + VOLUMES):
-                return i.path + path
-
-        else:
-            return path
+    def users_path(cls, path: str):
+        path = os.sep + path.strip(os.sep)
+        users = os.sep + "Users" + os.sep
+        volumes = os.sep + "Volumes" + os.sep
+        if users in path and path.startswith(volumes):
+            splited = path.split(os.sep)[3:]
+            return os.path.join(os.sep, *splited)
+        return path
 
     @classmethod
     def get_hash_filename(cls, filename: str):
