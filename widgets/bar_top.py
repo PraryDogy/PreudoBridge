@@ -64,8 +64,8 @@ class ListWin(WinMinMax):
         first_row.setLayout(first_lay)
         first_title = QLabel(text=SEARCH_PLACE)
         first_lay.addWidget(first_title)
-        first_lbl = QLabel(text=JsonData.root)
-        first_lay.addWidget(first_lbl)
+        self.path_label = QLabel()
+        first_lay.addWidget(self.path_label)
 
         inp_label = QLabel(text=LIST_FILES)
         v_lay.addWidget(inp_label)
@@ -118,6 +118,7 @@ class ListWin(WinMinMax):
 class SearchWidget(QWidget):
     clear_search = pyqtSignal()
     start_search = pyqtSignal(str)
+    list_win_opened = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -183,6 +184,7 @@ class SearchWidget(QWidget):
     def search_list_cmd(self):
         self.list_win = ListWin()
         self.list_win.ok_pressed.connect(self.list_win_cmd)
+        self.list_win_opened.emit()
         Utils.center_win(parent=self.window(), child=self.list_win)
         self.list_win.show()
 
@@ -196,13 +198,12 @@ class BarTop(QWidget):
     start_search = pyqtSignal(str)
     clear_search = pyqtSignal()
     navigate = pyqtSignal(str)
+    list_win_opened = pyqtSignal()
 
     def __init__(self):
         super().__init__()
         self.setFixedHeight(40)
-        self.clmn = 0
 
-        self.root: str = None
         self.history: list[str] = []
         self.index_: int = 0
 
@@ -245,12 +246,19 @@ class BarTop(QWidget):
 
         self.main_lay.addStretch(1)
 
-        search_wid = SearchWidget()
-        search_wid.start_search.connect(self.start_search.emit)
-        search_wid.clear_search.connect(self.clear_search.emit)
-        self.main_lay.addWidget(search_wid)
+        self.search_wid = SearchWidget()
+        self.search_wid.start_search.connect(self.start_search.emit)
+        self.search_wid.clear_search.connect(self.clear_search.emit)
+        self.search_wid.list_win_opened.connect(self.list_win_opened.emit)
+        self.main_lay.addWidget(self.search_wid)
 
         self.index_ -= 1
+
+    def set_path_list_win(self, main_dir: str):
+        try:
+            self.search_wid.list_win.path_label.setText(main_dir)
+        except RuntimeError as e:
+            print("bar top > set list win title", e)
 
     def open_settings_win(self, *args):
         self.win = WinSettings()

@@ -158,11 +158,20 @@ class MainWin(QWidget):
         right_wid.setLayout(self.r_lay)
         
         self.bar_top = BarTop()
+        # перейти на директорию выше
         self.bar_top.level_up.connect(self.level_up_cmd)
+        # изменить отображение сетка/список
         self.bar_top.change_view.connect(self.change_view_cmd)
+        # начать поиск
         self.bar_top.start_search.connect(self.load_search_grid)
+        # очистить поиск, загрузить стандартную сетку с текущей директорией
         self.bar_top.clear_search.connect(lambda: self.load_st_grid_cmd((self.main_dir, None)))
+        # перейти вперед/назад по истории посещений
         self.bar_top.navigate.connect(lambda dir: self.load_st_grid_cmd((dir, None)))
+        # в виджете поиска был выбран шаблон "Поиск по списку"
+        # при открытиии окна Поиск по списку отображаем директорию
+        # в которой будет произведен поиск
+        self.bar_top.list_win_opened.connect(lambda: self.bar_top.set_path_list_win(self.main_dir))
         self.bar_top.new_history_item_cmd(self.main_dir)
         self.r_lay.insertWidget(0, self.bar_top)
         self.tree_folders.new_history_item.connect(self.bar_top.new_history_item_cmd)
