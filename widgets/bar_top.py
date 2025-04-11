@@ -230,6 +230,11 @@ class BarTop(QWidget):
 
         self.main_lay.addStretch(1)
 
+        self.new_win_btn = BarTopBtn()
+        self.new_win_btn.mouseReleaseEvent = self.new_win_cmd
+        self.new_win_btn.load(Static.NEW_WIN_SVG)
+        self.main_lay.addWidget(self.new_win_btn)
+
         grid_view_btn = BarTopBtn()
         grid_view_btn.clicked.connect(lambda: self.change_view.emit(0))
         grid_view_btn.load(Static.GRID_VIEW_SVG)
@@ -254,6 +259,11 @@ class BarTop(QWidget):
         self.main_lay.addWidget(self.search_wid)
 
         self.index_ -= 1
+
+    def new_win_cmd(self, *args):
+        from gui import MainWin
+        self.new_win = MainWin()
+        self.new_win.show()
 
     def set_path_list_win(self, main_dir: str):
         try:
