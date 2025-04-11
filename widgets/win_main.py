@@ -261,11 +261,13 @@ class WinMain(QWidget):
         self.grid.close()
         self.menu_tags.reset()
         self.grid = GridSearch(self.main_dir, self.view_index, search_text, None)
+        # нужно сразу добавлять в окно, чтобы у виджета появился родитель
+        # тогда во всех эвентах правильно сработает self.grid.window()
+        self.r_lay.insertWidget(1, self.grid)
         self.grid.bar_bottom_update.connect(self.bar_bottom.update_bar_cmd)
         self.grid.fav_cmd_sig.connect(self.menu_favs.fav_cmd)
         self.grid.move_slider_sig.connect(self.bar_bottom.slider.move_slider_cmd)
         self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
-        self.r_lay.insertWidget(1, self.grid)
         self.grid.setFocus()
 
     def load_any_grid(self, data: tuple):
@@ -299,6 +301,8 @@ class WinMain(QWidget):
 
         self.setWindowTitle(title)
         self.menu_favs.fav_cmd(("select", self.main_dir))
+
+        # появляется рекурсия, нужна отладка
         # self.bar_top.search_wid.clear_search.emit()
 
         if self.view_index == 0:
@@ -306,6 +310,10 @@ class WinMain(QWidget):
 
         elif self.view_index == 1:
             self.grid = GridList(self.main_dir, self.view_index)
+
+        # нужно сразу добавлять в окно, чтобы у виджета появился родитель
+        # тогда во всех эвентах правильно сработает self.grid.window()
+        self.r_lay.insertWidget(1, self.grid)
 
         self.grid.new_history_item.connect(self.bar_top.new_history_item_cmd)
         self.grid.bar_bottom_update.connect(self.bar_bottom.update_bar_cmd)
@@ -319,8 +327,6 @@ class WinMain(QWidget):
         )
 
         self.menu_tree.expand_path(self.main_dir)
-
-        self.r_lay.insertWidget(1, self.grid)
         self.grid.setFocus()
 
     def scroll_up_scroll_value(self, value: int):

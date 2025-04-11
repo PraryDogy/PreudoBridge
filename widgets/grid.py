@@ -429,11 +429,6 @@ class ThumbSearch(Thumb):
         self.load_st_grid_sig.emit((root, self.src))
 
 
-class GridWid(QWidget):
-    def __init__(self):
-        super().__init__()
-
-
 class Grid(QScrollArea):
     # сигналы должны быть идентичны list file system.py > ListFileSystem
     new_history_item = pyqtSignal(str)
@@ -460,7 +455,7 @@ class Grid(QScrollArea):
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.ordered_widgets: list[Thumb] = []
 
-        self.main_wid = GridWid()
+        self.main_wid = QWidget()
         self.setWidget(self.main_wid)
 
         flags = Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
