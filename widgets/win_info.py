@@ -9,8 +9,8 @@ from cfg import Static
 from database import OrderItem
 from utils import URunnable, UThreadPool, Utils
 
-from ._actions import CopyText, RevealInFinder
-from ._base import UMenu, WinMinMax
+from .actions import CopyText, RevealInFinder
+from ._base_widgets import UMenu, WinMinMax
 
 CALCULATING = "Вычисляю..."
 TITLE = "Инфо"

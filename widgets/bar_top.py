@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QAction, QGroupBox, QHBoxLayout, QLabel,
 from cfg import Dynamic, JsonData, Static
 from utils import Utils
 
-from ._base import UFrame, ULineEdit, UMenu, UTextEdit, WinMinMax
+from ._base_widgets import UFrame, ULineEdit, UMenu, UTextEdit, WinMinMax
 from .win_settings import WinSettings
 
 SEARCH_PLACE = "Место поиска:"

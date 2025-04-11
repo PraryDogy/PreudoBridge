@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
 from cfg import Static
 from utils import URunnable, UThreadPool
 
-from ._base import USvgSqareWidget, WinMinMax
+from ._base_widgets import USvgSqareWidget, WinMinMax
 
 REMOVE_T = "Удалить безвозвратно объекты"
 OK_T = "Ок"

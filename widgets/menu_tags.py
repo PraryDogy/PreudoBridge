@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QAction, QListWidget, QListWidgetItem, QMenu
 
 from cfg import Dynamic, Static
 
-from ._base import UMenu
+from ._base_widgets import UMenu
 
 
 class UItem(QListWidgetItem):

@@ -125,7 +125,7 @@ class ULineEdit(QLineEdit):
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
 
         # предотвращаем круговой импорт
-        from ._actions import CopyText, TextCut, TextPaste, TextSelectAll
+        from .actions import CopyText, TextCut, TextPaste, TextSelectAll
 
         menu = UMenu()
 
@@ -155,7 +155,7 @@ class UTextEdit(QTextEdit):
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
 
         # предотвращаем круговой импорт
-        from ._actions import CopyText, TextCut, TextPaste, TextSelectAll
+        from .actions import CopyText, TextCut, TextPaste, TextSelectAll
 
         menu = UMenu()
 

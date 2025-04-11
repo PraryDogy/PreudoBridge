@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
 
 from cfg import Dynamic, JsonData, Static
 from utils import Utils
-from widgets._grid import Grid
+from widgets.grid import Grid
 from widgets.bar_bottom import BarBottom
 from widgets.bar_top import BarTop
 from widgets.grid_list import GridList

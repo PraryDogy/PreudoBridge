@@ -12,8 +12,8 @@ from cfg import Dynamic, Static, ThumbData
 from database import ORDER
 from utils import PathFinder, URunnable, UThreadPool, Utils
 
-from ._actions import CopyPath, Info, RevealInFinder, SortMenu, View
-from ._base import (UFrame, ULineEdit, UMenu, USlider, USvgSqareWidget,
+from .actions import CopyPath, Info, RevealInFinder, SortMenu, View
+from ._base_widgets import (UFrame, ULineEdit, UMenu, USlider, USvgSqareWidget,
                     WinMinMax)
 
 SORT_T = "Сортировка"

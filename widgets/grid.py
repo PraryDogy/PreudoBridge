@@ -13,11 +13,11 @@ from cfg import Dynamic, JsonData, Static, ThumbData
 from database import CACHE, Dbase, OrderItem
 from utils import URunnable, UThreadPool, Utils
 
-from ._actions import (ChangeView, CopyFilesAction, CopyPath, FavAdd,
+from .actions import (ChangeView, CopyFilesAction, CopyPath, FavAdd,
                        FavRemove, Info, OpenInApp, PasteFilesAction,
                        RatingMenu, RemoveFilesAction, RevealInFinder,
                        ShowInFolder, SortMenu, TagMenu, UpdateGrid, View)
-from ._base import BaseMethods, OpenWin, UMenu, USvgSqareWidget
+from ._base_widgets import BaseMethods, OpenWin, UMenu, USvgSqareWidget
 from .win_copy_files import WinCopyFiles
 from .win_remove_files import WinRemoveFiles
 

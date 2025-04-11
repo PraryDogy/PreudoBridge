@@ -7,10 +7,10 @@ from PyQt5.QtWidgets import QFileSystemModel, QTableView
 from cfg import JsonData
 from utils import Utils
 
-from ._actions import (ChangeView, CopyPath, FavAdd, FavRemove, Info,
+from .actions import (ChangeView, CopyPath, FavAdd, FavRemove, Info,
                        RevealInFinder)
-from ._base import BaseMethods, UMenu
-from ._finder_items import LoadingWid
+from ._base_widgets import BaseMethods, UMenu
+from .finder_items import LoadingWid
 
 
 class GridList(QTableView):

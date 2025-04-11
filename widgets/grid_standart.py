@@ -10,9 +10,9 @@ from cfg import Dynamic, Static
 from database import Dbase, OrderItem
 from utils import URunnable, UThreadPool, Utils
 
-from ._finder_items import FinderItems, LoadingWid
-from ._grid import Grid, Thumb, ThumbFolder
-from ._grid_tools import GridTools
+from .finder_items import FinderItems, LoadingWid
+from .grid import Grid, Thumb, ThumbFolder
+from .grid_tools import GridTools
 from .win_copy_files import WinCopyFiles
 
 WARN_TEXT = "Папка пуста или нет подключения к диску"

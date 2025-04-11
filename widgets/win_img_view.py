@@ -13,10 +13,10 @@ from cfg import Dynamic, Static
 from database import CACHE, Dbase
 from utils import URunnable, UThreadPool, Utils
 
-from ._actions import (CopyPath, Info, OpenInApp, RatingMenu, RevealInFinder,
+from .actions import (CopyPath, Info, OpenInApp, RatingMenu, RevealInFinder,
                        TagMenu)
-from ._base import OpenWin, UMenu, USvgSqareWidget, WinBase
-from ._grid import KEY_RATING, RATINGS, Thumb
+from ._base_widgets import OpenWin, UMenu, USvgSqareWidget, WinBase
+from .grid import KEY_RATING, RATINGS, Thumb
 
 LOADING_T = "Загрузка..."
 

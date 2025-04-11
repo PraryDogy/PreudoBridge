@@ -12,8 +12,8 @@ from database import OrderItem
 from fit_img import FitImg
 from utils import URunnable, UThreadPool, Utils
 
-from ._base import USvgSqareWidget, UTextEdit, WinMinMax
-from ._grid import Grid, ThumbSearch
+from ._base_widgets import USvgSqareWidget, UTextEdit, WinMinMax
+from .grid import Grid, ThumbSearch
 
 SQL_ERRORS = (IntegrityError, OperationalError)
 ATTENTION_T = "Внимание!"

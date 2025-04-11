@@ -3,8 +3,8 @@ from PyQt5.QtWidgets import QFileSystemModel, QTreeView
 
 from cfg import JsonData
 
-from ._actions import CopyPath, FavAdd, FavRemove, RevealInFinder, View
-from ._base import UMenu
+from .actions import CopyPath, FavAdd, FavRemove, RevealInFinder, View
+from ._base_widgets import UMenu
 
 
 class MenuTree(QTreeView):

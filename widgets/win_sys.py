@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QLabel, QPushButton, QVBoxLayout
 
 from utils import Utils
 
-from ._base import WinMinMax
+from ._base_widgets import WinMinMax
 
 OK_T = "Ок"
 COPYING = "Копирую"

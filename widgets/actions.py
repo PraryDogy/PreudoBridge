@@ -8,7 +8,7 @@ from cfg import Dynamic, Static
 from database import ORDER
 from utils import URunnable, UThreadPool, Utils
 
-from ._base import OpenWin, UMenu
+from ._base_widgets import OpenWin, UMenu
 
 REVEAL_T = "Показать в Finder"
 INFO_T = "Инфо"

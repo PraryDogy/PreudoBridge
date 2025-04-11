@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QVBoxLayout,
 from cfg import Dynamic, Static
 from utils import URunnable, UThreadPool, Utils
 
-from ._base import USvgSqareWidget, WinMinMax
+from ._base_widgets import USvgSqareWidget, WinMinMax
 
 PREPARING_T = "Подготовка"
 COPYING_T = "Копирую файлы"
