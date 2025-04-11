@@ -551,6 +551,10 @@ class PathFinder:
         path = path.strip("'").strip('"') # кавычки
         path = Utils.normalize_slash(path)
 
+        # если это локальный путь начинающийся с /Users/Username, то меняем его
+        # на /Volumes/Macintosh HD/Users/Username
+        path = Utils.add_volumes(path)
+
         if not path:
             return None
 
@@ -558,7 +562,7 @@ class PathFinder:
 
         # игнорируем /Volumes/Macintosh HD
         volumes = [i.path for i in os.scandir(os.sep + Static.VOLUMES)]
-        volumes.remove(Utils.get_system_volume())
+        # volumes.remove(Utils.get_system_volume())
 
         # см. аннотацию add_to_start
         paths = cls.add_to_start(splited_path=splited, volumes=volumes)
