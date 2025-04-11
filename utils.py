@@ -414,16 +414,6 @@ class Utils(Pixmap, ReadImage, ImgConvert):
         if path.startswith(os.path.expanduser("~")):
             return Utils.get_system_volume() + path
         return path
-
-    @classmethod
-    def users_path(cls, path: str):
-        path = cls.normalize_slash(path)
-        users = os.sep + Static.USERS + os.sep
-        volumes = os.sep + Static.VOLUMES + os.sep
-        if users in path and path.startswith(volumes):
-            splited = path.split(os.sep)[3:]
-            return os.path.join(os.sep, *splited)
-        return path
     
     @classmethod
     def get_system_volume(cls):

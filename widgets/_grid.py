@@ -846,12 +846,13 @@ class Grid(QScrollArea):
             Dynamic.files_to_copy.append(i.src)
 
     def paste_files(self):
-
+        main_dir_ = Utils.add_volumes(self.main_dir)
         for i in Dynamic.files_to_copy:
-            # убираем отовсюду диски Volumes
-            i = Utils.users_path(i)
-            main_dir = Utils.users_path(self.main_dir)
-            if os.path.commonpath([i, main_dir]) == main_dir:
+            # Если путь начинается с /Users/Username, то делаем абсолютный путь
+            # /Volumes/Macintosh HD/Users/Username
+            i = Utils.normalize_slash(i)
+            i = Utils.add_volumes(i)
+            if os.path.commonpath([i, main_dir_]) == main_dir_:
                 print("Нельзя копировать в себя")
                 return
 
