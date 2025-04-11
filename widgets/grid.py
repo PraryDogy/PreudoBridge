@@ -480,7 +480,9 @@ class Grid(QScrollArea):
         QTimer.singleShot(200, self.set_mouseReleaseEvent)
 
     def get_col_count(self):
-        main_win = Utils.get_main_win()
+        main_win = self.window()
+        print(main_win)
+
         win_ww = main_win.width()
         splitter = main_win.findChild(QSplitter)
         if splitter:
