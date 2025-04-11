@@ -559,10 +559,7 @@ class PathFinder:
             return None
 
         splited = [i for i in path.split(os.sep) if i]
-
-        # игнорируем /Volumes/Macintosh HD
         volumes = [i.path for i in os.scandir(os.sep + Static.VOLUMES)]
-        # volumes.remove(Utils.get_system_volume())
 
         # см. аннотацию add_to_start
         paths = cls.add_to_start(splited_path=splited, volumes=volumes)
