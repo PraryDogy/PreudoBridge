@@ -184,14 +184,6 @@ class JsonData:
             return False
 
     @classmethod
-    def setup_open_with_apps(cls):
-        for entry in os.scandir(Static.USER_APPS_DIR):
-            if entry.name.endswith((".app", ".APP")):
-                Dynamic.OPEN_WITH_APPS[entry.name] = entry.path
-
-        Dynamic.OPEN_WITH_APPS = dict(sorted(Dynamic.OPEN_WITH_APPS.items()))
-
-    @classmethod
     def ver_check(cls):
         if cls.hex == HEX_DEFAULT or cls.hex != HEX:
             
@@ -216,7 +208,6 @@ class JsonData:
         cls.read_json_data()
         cls.ver_check()
         cls.write_config()
-        cls.setup_open_with_apps()
         cls.setup_generic_icons()
 
 
@@ -236,4 +227,4 @@ class Dynamic:
     go_paths: list[str] = []
     SEARCH_LIST = []
     GENERIC_ICONS: dict[str, str] = {}
-    OPEN_WITH_APPS: dict[str, str] = {}
+    

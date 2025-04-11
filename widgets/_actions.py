@@ -261,7 +261,7 @@ class OpenInApp(UMenu):
         
         self.apps: dict[str, str] = {}
         self.setup_open_with_apps()
-        self.apps = dict(sorted(Dynamic.OPEN_WITH_APPS.items()))
+        self.apps = dict(sorted(self.apps.items()))
 
         # список приложений, сформированный в cfg.py при инициации приложения
         for name, app_path in self.apps.items():
