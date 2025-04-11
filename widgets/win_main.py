@@ -388,7 +388,23 @@ class WinMain(QWidget):
                 self.bar_top.search_wid.search_wid.selectAll()
 
             elif a0.key() == Qt.Key.Key_W:
-                self.hide()
+                active_win = QApplication.activeWindow()
+                wins = [
+                    i
+                    for i in QApplication.topLevelWidgets()
+                    if isinstance(i, WinMain)
+                ]
+
+                if len(wins) > 1:
+                    active_win.deleteLater()
+                else:
+                    self.hide()
+
+                wins = [
+                    i
+                    for i in QApplication.topLevelWidgets()
+                    if isinstance(i, WinMain)
+                ]
 
             elif a0.key() == Qt.Key.Key_Q:
                 QApplication.instance().quit()
