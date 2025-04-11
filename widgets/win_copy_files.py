@@ -288,7 +288,6 @@ class WinCopyFiles(WinMinMax):
         right_side_lay.addStretch()
 
         self.task_ = None
-        return
 
         if Dynamic.files_to_copy:
             self.task_ = FileCopyWorker(self.main_dir)
