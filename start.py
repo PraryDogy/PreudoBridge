@@ -63,7 +63,7 @@ faulthandler.enable()
 
 
 from PyQt5.QtCore import QEvent, QObject
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QWidget
 
 from cfg import JsonData
 from database import Dbase
@@ -74,31 +74,34 @@ from utils import UThreadPool, Utils
 class CustomApp(QApplication):
     def __init__(self, argv: list[str]) -> None:
         super().__init__(argv)
+
+        self.first_win = WinMain()
+        self.first_win.show()
+
         self.aboutToQuit.connect(self.on_exit)
         self.installEventFilter(self)
 
     def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
         if a1.type() == QEvent.Type.ApplicationActivate:
-            Utils.get_main_win().show()
+            for i in self.topLevelWidgets():
+                if isinstance(i, WinMain):
+                    i.show()
         return False
-
-    def add_main_win(self, main_win: WinMain):
-        self.main_win = main_win
 
     def on_exit(self):
         # предотвращаем segmentation fault
-        self.main_win.user_exit()
+        self.first_win.user_exit()
         JsonData.write_config()
         UThreadPool.stop_all()
 
 
 JsonData.init()
+UThreadPool.init()
 app = CustomApp(argv=sys.argv)
 
-UThreadPool.init()
-win_main = WinMain()
-app.add_main_win(main_win=win_main)
-win_main.show()
+# win_main = WinMain()
+# app.add_main_win(main_win=win_main)
+# win_main.show()
 
 # Запуск приложения
 exit_code = app.exec()
