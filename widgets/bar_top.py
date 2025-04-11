@@ -276,7 +276,7 @@ class BarTop(QWidget):
     def open_settings_win(self, *args):
         self.sett_win = WinSettings()
         self.sett_win.clear_data_clicked.connect(self.clear_data_clicked.emit)
-        Utils.center_win(Utils.get_main_win(), self.sett_win)
+        Utils.center_win(self.window(), self.sett_win)
         self.sett_win.show()
 
     def new_history_item_cmd(self, dir: str):

@@ -455,7 +455,7 @@ class BarBottom(QWidget):
     def open_go_win(self, *args):
         self.win_go = WinGo()
         self.win_go.open_path_sig.connect(self.open_path_sig.emit)
-        Utils.center_win(Utils.get_main_win(), self.win_go)
+        Utils.center_win(self.window(), self.win_go)
         self.win_go.show()
 
     def update_bar_cmd(self, data: tuple):
