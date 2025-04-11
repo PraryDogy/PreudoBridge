@@ -196,6 +196,7 @@ class PathItem(QWidget):
     min_wid = 5
     new_history_item = pyqtSignal(str)
     load_st_grid_sig = pyqtSignal(tuple)
+    open_img_view = pyqtSignal(str)
 
     def __init__(self, src: str, name: str):
         super().__init__()
@@ -223,10 +224,7 @@ class PathItem(QWidget):
  
     def view_(self, *args):
         if os.path.isfile(self.src):
-            from .win_img_view import WinImgView
-            self.win_img_view = WinImgView(self.src)
-            Utils.center_win(self.window(), self.win_img_view)
-            self.win_img_view.show()
+            self.open_img_view.emit(self.src)
         else:
             self.new_history_item.emit(self.src)
             self.load_st_grid_sig.emit((self.src, None))
@@ -389,6 +387,7 @@ class BarBottom(QWidget):
     order_grid_sig = pyqtSignal()
     rearrange_grid_sig = pyqtSignal()
     open_path_sig = pyqtSignal(str)
+    open_img_view = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -485,6 +484,7 @@ class BarBottom(QWidget):
             cmd_ = lambda dir: self.new_history_item.emit(dir)
             path_item.new_history_item.connect(cmd_)
             path_item.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
+            path_item.open_img_view.connect(self.open_img_view.emit)
 
             if x == 1:
                 icon = Static.COMP_SVG

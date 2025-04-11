@@ -7,10 +7,11 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static
+from database import OrderItem
 from utils import Utils
-from widgets.grid import Grid
 from widgets.bar_bottom import BarBottom
 from widgets.bar_top import BarTop
+from widgets.grid import Grid
 from widgets.grid_list import GridList
 from widgets.grid_search import GridSearch
 from widgets.grid_standart import GridStandart
@@ -90,7 +91,6 @@ class MainWin(QWidget):
 
         self.main_dir = os.path.expanduser("~/Downloads")
         self.main_dir = Utils.add_system_volume(self.main_dir)
-        print(self.main_dir)
 
         # индекс 0 просмотр сеткой, индекс 1 просмотр списком
         self.view_index = 0
@@ -196,6 +196,7 @@ class MainWin(QWidget):
         self.bar_bottom.order_grid_sig.connect(lambda: self.grid.order_())
         self.bar_bottom.rearrange_grid_sig.connect(lambda: self.grid.rearrange())
         self.bar_bottom.open_path_sig.connect(self.open_path_cmd)
+        self.bar_bottom.open_img_view.connect(self.open_img_view_cmd)
         self.r_lay.insertWidget(2, self.bar_bottom)
 
         self.scroll_up = QLabel(parent=self, text=ARROW_UP)
@@ -213,6 +214,10 @@ class MainWin(QWidget):
         # они должны быть именно тут
         # self.grid: Grid = Grid()
         self.load_st_grid_cmd((self.main_dir, None))
+
+    def open_img_view_cmd(self, path: str):
+        order_item = OrderItem(path, 0, 0, 0)
+        self.grid.view_thumb_cmd(order_item)
 
     def clear_data_cmd(self):
         db = os.path.join(self.main_dir, Static.DB_FILENAME)

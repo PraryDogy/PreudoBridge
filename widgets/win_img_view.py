@@ -284,23 +284,21 @@ class WinImgView(WinBase):
     closed_ = pyqtSignal()
     move_to_wid_sig = pyqtSignal(object)
 
-    def __init__(self, src: str):
+    def __init__(self, src: str, path_to_wid: dict[str, Thumb]):
         super().__init__()
         self.setMinimumSize(QSize(400, 300))
         self.resize(Dynamic.ww_im, Dynamic.hh_im)
         self.setObjectName("win_img_view")
         self.setStyleSheet("#win_img_view {background: black}")
-        QTimer.singleShot(100, lambda: self.init_ui(src=src))
 
-    def init_ui(self, src: str):
-
+        self.path_to_wid = path_to_wid
         self.task_count = 0
         self.src: str = src
-        self.wid: Thumb = Thumb.path_to_wid.get(src)
+        self.wid: Thumb = self.path_to_wid.get(src)
         self.wid.text_changed.connect(self.set_title)
         self.path_to_wid: dict[str, Thumb] = {
             path: wid
-            for path, wid in Thumb.path_to_wid.items()
+            for path, wid in self.path_to_wid.items()
             if not wid.must_hidden
             }
         self.image_paths: list = [

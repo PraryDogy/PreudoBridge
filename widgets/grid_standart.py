@@ -230,7 +230,7 @@ class GridStandart(Grid):
     def set_pixmap(self, order_item: OrderItem):
         try:
 
-            widget = Thumb.path_to_wid.get(order_item.src)
+            widget = self.path_to_wid.get(order_item.src)
 
             if isinstance(widget, Thumb):
 

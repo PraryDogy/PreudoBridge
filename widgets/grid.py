@@ -141,20 +141,20 @@ class ImgFrame(QFrame):
     def __init__(self):
         super().__init__()
 
-    def mouseReleaseEvent(self, a0):
-        return super().mouseReleaseEvent(a0)
+    # def mouseReleaseEvent(self, a0):
+    #     return super().mouseReleaseEvent(a0)
     
-    def mousePressEvent(self, a0):
-        return super().mousePressEvent(a0)
+    # def mousePressEvent(self, a0):
+    #     return super().mousePressEvent(a0)
 
-    def mouseMoveEvent(self, a0):
-        return super().mouseMoveEvent(a0)
+    # def mouseMoveEvent(self, a0):
+    #     return super().mouseMoveEvent(a0)
     
-    def mouseDoubleClickEvent(self, a0):
-        return super().mouseDoubleClickEvent(a0)
+    # def mouseDoubleClickEvent(self, a0):
+    #     return super().mouseDoubleClickEvent(a0)
     
-    def contextMenuEvent(self, a0):
-        return super().contextMenuEvent(a0)
+    # def contextMenuEvent(self, a0):
+    #     return super().contextMenuEvent(a0)
 
 
 class TextWidget(QLabel):
@@ -187,20 +187,20 @@ class TextWidget(QLabel):
     def short_text(self, text: str, max_row: int):
         return f"{text[:max_row - 10]}...{text[-7:]}"
 
-    def mouseReleaseEvent(self, a0):
-        return super().mouseReleaseEvent(a0)
+    # def mouseReleaseEvent(self, a0):
+    #     return super().mouseReleaseEvent(a0)
     
-    def mousePressEvent(self, a0):
-        return super().mousePressEvent(a0)
+    # def mousePressEvent(self, a0):
+    #     return super().mousePressEvent(a0)
 
-    def mouseMoveEvent(self, a0):
-        return super().mouseMoveEvent(a0)
+    # def mouseMoveEvent(self, a0):
+    #     return super().mouseMoveEvent(a0)
     
-    def mouseDoubleClickEvent(self, a0):
-        return super().mouseDoubleClickEvent(a0)
+    # def mouseDoubleClickEvent(self, a0):
+    #     return super().mouseDoubleClickEvent(a0)
     
-    def contextMenuEvent(self, a0):
-        return super().contextMenuEvent(a0)
+    # def contextMenuEvent(self, a0):
+    #     return super().contextMenuEvent(a0)
 
 
 class RatingWid(QLabel):
@@ -213,27 +213,26 @@ class RatingWid(QLabel):
         text = RATINGS[wid.rating].strip()
         self.setText(text)
 
-    def mouseReleaseEvent(self, a0):
-        return super().mouseReleaseEvent(a0)
+    # def mouseReleaseEvent(self, a0):
+    #     return super().mouseReleaseEvent(a0)
     
-    def mousePressEvent(self, a0):
-        return super().mousePressEvent(a0)
+    # def mousePressEvent(self, a0):
+    #     return super().mousePressEvent(a0)
 
-    def mouseMoveEvent(self, a0):
-        return super().mouseMoveEvent(a0)
+    # def mouseMoveEvent(self, a0):
+    #     return super().mouseMoveEvent(a0)
     
-    def mouseDoubleClickEvent(self, a0):
-        return super().mouseDoubleClickEvent(a0)
+    # def mouseDoubleClickEvent(self, a0):
+    #     return super().mouseDoubleClickEvent(a0)
     
-    def contextMenuEvent(self, a0):
-        return super().contextMenuEvent(a0)
+    # def contextMenuEvent(self, a0):
+    #     return super().contextMenuEvent(a0)
 
 
 class Thumb(OrderItem, QFrame):
     # Сигнал нужен, чтобы менялся заголовок в просмотрщике изображений
     # При изменении рейтинга или меток
     text_changed = pyqtSignal()
-    path_to_wid: dict[str, "Thumb"] = {}
     pixmap_size = 0
     thumb_w = 0
     thumb_h = 0
@@ -445,20 +444,18 @@ class Grid(QScrollArea):
     change_view_sig = pyqtSignal(int)
 
     def __init__(self, main_dir: str, view_index: int, prev_path: str = None):
-        Thumb.path_to_wid.clear()
-
         QScrollArea.__init__(self)
         BaseMethods.__init__(self)
-        # BaseSignals.__init__(self)
 
         self.setAcceptDrops(True)
         self.setWidgetResizable(True)
         self.horizontalScrollBar().setDisabled(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-
+        
         self.main_dir = main_dir
         self.view_index = view_index
         self.prev_path = prev_path
+        self.path_to_wid: dict[str, Thumb] = {}
         self.selected_widgets: list[Thumb] = []
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.ordered_widgets: list[Thumb] = []
@@ -570,7 +567,7 @@ class Grid(QScrollArea):
         for wid in self.ordered_widgets:
             wid.setup()
 
-        for src, wid in Thumb.path_to_wid.items():
+        for src, wid in self.path_to_wid.items():
             if src in wid_src_list:
                 wid.set_frame()
 
@@ -593,19 +590,19 @@ class Grid(QScrollArea):
                 col = 0
                 row += 1
 
-        Thumb.path_to_wid = {
+        self.path_to_wid = {
             wid.src: wid
             for coords, wid in self.cell_to_wid.items()
         }
 
         if isinstance(self.prev_path, str):
-            wid = Thumb.path_to_wid.get(self.prev_path)
+            wid = self.path_to_wid.get(self.prev_path)
             self.select_one_wid(wid=wid)
             QTimer.singleShot(500, lambda: self.ensureWidgetVisible(wid))
 
         elif isinstance(self.prev_path, (tuple, list)):
             widgets = [
-                Thumb.path_to_wid.get(i)
+                self.path_to_wid.get(i)
                 for i in self.prev_path
             ]
 
@@ -626,10 +623,10 @@ class Grid(QScrollArea):
     def add_widget_data(self, wid: Thumb, row: int, col: int):
         wid.row, wid.col = row, col
         self.cell_to_wid[row, col] = wid
-        Thumb.path_to_wid[wid.src] = wid
+        self.path_to_wid[wid.src] = wid
         self.ordered_widgets.append(wid)
 
-    def view_thumb_cmd(self, wid: Thumb):
+    def view_thumb_cmd(self, wid: OrderItem):
 
         if wid is None:
             return
@@ -641,7 +638,7 @@ class Grid(QScrollArea):
 
         elif wid.type_ in Static.IMG_EXT:
             from .win_img_view import WinImgView
-            self.win_img_view = WinImgView(wid.src)
+            self.win_img_view = WinImgView(wid.src, self.path_to_wid)
             self.win_img_view.move_to_wid_sig.connect(self.select_one_wid)
             Utils.center_win(self.window(), self.win_img_view)
             self.win_img_view.show()
