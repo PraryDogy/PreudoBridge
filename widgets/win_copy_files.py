@@ -110,7 +110,7 @@ class FileCopyWorker(URunnable):
             # байты переводим в читаемый f string
             copied_f_size = Utils.get_f_size(self.copied_bytes)
 
-            text = f"{COPYING_T} {copied_f_size} из {self.total_f_size}"
+            text = f"{copied_f_size} из {self.total_f_size}"
             self.signals_.set_text_progress.emit(text)
         except RuntimeError:
             ...
@@ -253,37 +253,36 @@ class WinCopyFiles(WinMinMax):
 
         right_side_lay.addStretch()
 
-        first_row = QWidget()
-        right_side_lay.addWidget(first_row)
-        first_lay = QHBoxLayout()
-        first_lay.setContentsMargins(0, 0, 0, 0)
-        first_row.setLayout(first_lay)
-
-        lbl = QLabel(text=PREPARING_T)
-        first_lay.addWidget(lbl)
-
-        second_row = QWidget()
-        right_side_lay.addWidget(second_row)
-        second_lay = QHBoxLayout()
-        second_lay.setContentsMargins(0, 0, 0, 0)
-        second_lay.setSpacing(10)
-        second_row.setLayout(second_lay)
-
-        progressbar = QProgressBar()
-        second_lay.addWidget(progressbar)
-
-        cancel_btn = USvgSqareWidget(src=Static.CLEAR_SVG, size=16)
-        cancel_btn.mouseReleaseEvent = self.cancel_cmd
-        second_lay.addWidget(cancel_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+        # first_row = QWidget()
+        # right_side_lay.addWidget(first_row)
+        # first_lay = QHBoxLayout()
+        # first_lay.setContentsMargins(0, 0, 0, 0)
+        # first_row.setLayout(first_lay)
 
         src = min(Dynamic.files_to_copy, key=len)
         src = os.path.dirname(Utils.normalize_slash(src))
         src = os.path.basename(src)
         dest = os.path.basename(self.main_dir)
-
         t = f"Копирую из \"{src}\" в \"{dest}\""
         bottom_lbl = QLabel(t)
         right_side_lay.addWidget(bottom_lbl)
+
+        progressbar_row = QWidget()
+        right_side_lay.addWidget(progressbar_row)
+        progressbar_lay = QHBoxLayout()
+        progressbar_lay.setContentsMargins(0, 0, 0, 0)
+        progressbar_lay.setSpacing(10)
+        progressbar_row.setLayout(progressbar_lay)
+
+        progressbar = QProgressBar()
+        progressbar_lay.addWidget(progressbar)
+
+        cancel_btn = USvgSqareWidget(src=Static.CLEAR_SVG, size=16)
+        cancel_btn.mouseReleaseEvent = self.cancel_cmd
+        progressbar_lay.addWidget(cancel_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        size_mb_lbl = QLabel(text=PREPARING_T)
+        right_side_lay.addWidget(size_mb_lbl)
 
         right_side_lay.addStretch()
 
@@ -293,7 +292,7 @@ class WinCopyFiles(WinMinMax):
             self.task_ = FileCopyWorker(self.main_dir)
             self.task_.signals_.set_max_progress.connect(lambda value: self.set_max(progressbar, value))
             self.task_.signals_.set_value_progress.connect(lambda value: self.set_value(progressbar, value))
-            self.task_.signals_.set_text_progress.connect(lbl.setText)
+            self.task_.signals_.set_text_progress.connect(size_mb_lbl.setText)
             self.task_.signals_.finished_.connect(self.finished_task)
             self.task_.signals_.error_win_sig.connect(self.error_win_sig.emit)
             UThreadPool.start(runnable=self.task_)
