@@ -410,7 +410,7 @@ class Utils(Pixmap, ReadImage, ImgConvert):
         return os.sep + path.strip(os.sep)
 
     @classmethod
-    def add_volumes(cls, path: str):
+    def add_system_volume(cls, path: str):
         if path.startswith(os.path.expanduser("~")):
             return Utils.get_system_volume() + path
         return path
@@ -553,7 +553,7 @@ class PathFinder:
 
         # если это локальный путь начинающийся с /Users/Username, то меняем его
         # на /Volumes/Macintosh HD/Users/Username
-        path = Utils.add_volumes(path)
+        path = Utils.add_system_volume(path)
 
         if not path:
             return None

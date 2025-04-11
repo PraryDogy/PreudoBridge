@@ -259,11 +259,13 @@ class BarTop(QWidget):
         self.main_lay.addWidget(self.search_wid)
 
         self.index_ -= 1
+        self.other_wins: list[QWidget] = []
 
     def new_win_cmd(self, *args):
         from gui import MainWin
-        self.new_win = MainWin()
-        self.new_win.show()
+        new_win = MainWin()
+        new_win.show()
+        self.other_wins.append(new_win)
 
     def set_path_list_win(self, main_dir: str):
         try:

@@ -127,8 +127,6 @@ class ThumbData:
 
 class JsonData:
     hex = HEX_DEFAULT
-    root = f"/Volumes"
-    extra_paths = ["/Studio/PANACEA", "/Studio/MIUZ"]
     favs = {}
 
     udpdate_file_paths = [

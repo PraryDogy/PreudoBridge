@@ -7,15 +7,16 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static
+from utils import Utils
 from widgets._grid import Grid
 from widgets.bar_bottom import BarBottom
 from widgets.bar_top import BarTop
+from widgets.grid_list import GridList
 from widgets.grid_search import GridSearch
 from widgets.grid_standart import GridStandart
-from widgets.grid_list import GridList
 from widgets.menu_favs import MenuFavs
-from widgets.menu_tree import MenuTree
 from widgets.menu_tags import MenuTags
+from widgets.menu_tree import MenuTree
 from widgets.win_img_view import LoadImage
 
 ARROW_UP = "\u25B2" # ▲
@@ -87,7 +88,9 @@ class MainWin(QWidget):
 
         super().__init__()
 
-        self.main_dir = JsonData.root
+        self.main_dir = os.path.expanduser("~/Downloads")
+        self.main_dir = Utils.add_system_volume(self.main_dir)
+        print(self.main_dir)
 
         # индекс 0 просмотр сеткой, индекс 1 просмотр списком
         self.view_index = 0
