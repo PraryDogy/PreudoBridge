@@ -4,6 +4,8 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtWidgets import QLabel, QPushButton, QVBoxLayout
 
+from utils import Utils
+
 from ._base import WinMinMax
 
 OK_T = "Ок"
@@ -43,8 +45,8 @@ class WinCopy(WinMinMax):
 
     def __init__(self, src: str, dest: str):
 
-        src = os.path.basename(src.strip(os.sep))
-        dest = os.path.basename(dest.strip(os.sep))
+        src = os.path.basename(Utils.normalize_slash(src))
+        dest = os.path.basename(Utils.normalize_slash(dest))
 
         text = f"{src} в {dest}"
 

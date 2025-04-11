@@ -420,8 +420,12 @@ class Utils(Pixmap, ReadImage, ImgConvert):
             print("rm -rf успешно завершен", path)
 
     @classmethod
+    def normalize_slash(cls, path: str):
+        return os.sep + path.strip(os.sep)
+
+    @classmethod
     def users_path(cls, path: str):
-        path = os.sep + path.strip(os.sep)
+        path = cls.normalize_slash(path)
         users = os.sep + "Users" + os.sep
         volumes = os.sep + "Volumes" + os.sep
         if users in path and path.startswith(volumes):
@@ -621,7 +625,7 @@ class PathFinder:
         path = path.strip()
         path = path.strip("'").strip('"') # ковычки
         if path:
-            return os.sep + path.strip(os.sep)
+            return Utils.normalize_slash(path)
         else:
             return None
 

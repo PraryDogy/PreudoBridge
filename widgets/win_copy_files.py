@@ -142,7 +142,7 @@ class FileCopyWorker(URunnable):
         new_paths: list[tuple[str, str]] = []
 
         for i in Dynamic.files_to_copy:
-            i = os.sep + i.strip(os.sep)
+            i = Utils.normalize_slash(i)
             if os.path.isdir(i):
                 new_paths.extend(self.scan_folder(i, self.main_dir))
             else:
@@ -165,8 +165,8 @@ class FileCopyWorker(URunnable):
         stack = [src_dir]
         new_paths: list[tuple[str, str]] = []
 
-        src_dir = os.sep + src_dir.strip(os.sep)
-        dest = os.sep + dest.strip(os.sep)
+        src_dir = Utils.normalize_slash(src_dir)
+        dest = Utils.normalize_slash(dest)
 
         # Родительская папка от src_dir — нужна, чтобы определить
         # относительный путь каждого файла внутри src_dir

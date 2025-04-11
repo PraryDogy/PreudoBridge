@@ -38,7 +38,7 @@ class LoadThumbnail(URunnable):
     def __init__(self, src: str):
         super().__init__()
         self.signals_ = WorkerSignals()
-        self.src = os.sep + src.strip(os.sep)
+        self.src = Utils.normalize_slash(self.src)
         self.name = os.path.basename(self.src)
 
     @URunnable.set_running_state

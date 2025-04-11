@@ -238,7 +238,7 @@ class MenuFavs(QListWidget):
 
         else:
             url_ = urls[-1].toLocalFile()
-            url_ = os.sep + url_.strip(os.sep)
+            url_ = Utils.normalize_slash(url_)
             
             if url_ not in JsonData.favs and os.path.isdir(url_):
                 self.add_to_favs_main(src=url_)
