@@ -481,7 +481,6 @@ class Grid(QScrollArea):
 
     def get_col_count(self):
         main_win = self.window()
-        print(main_win)
 
         win_ww = main_win.width()
         splitter = main_win.findChild(QSplitter)

@@ -358,7 +358,7 @@ class WinMain(QWidget):
         Dynamic.hh = self.geometry().height()
         self.scroll_up.move(self.width() - 70, self.height() - 110)
         self.resize_timer.stop()
-        self.resize_timer.start(500)
+        self.resize_timer.start(100)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.hide()
