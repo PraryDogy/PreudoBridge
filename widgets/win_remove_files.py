@@ -98,4 +98,7 @@ class WinRemoveFiles(WinMinMax):
     def keyPressEvent(self, a0):
         if a0.key() == Qt.Key.Key_Escape:
             self.close()
+
+        elif a0.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
+            self.cmd_()
         return super().keyPressEvent(a0)

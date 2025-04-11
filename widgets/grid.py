@@ -903,6 +903,10 @@ class Grid(QScrollArea):
                     clicked_wid.set_frame()
                     self.selected_widgets.append(clicked_wid)
 
+            elif a0.key() == Qt.Key.Key_Backspace:
+                urls = [i.src for i in self.selected_widgets]
+                self.remove_files_cmd(urls)
+
         elif a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
             if self.selected_widgets:
                 clicked_wid = self.selected_widgets[-1]

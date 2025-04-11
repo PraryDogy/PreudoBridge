@@ -329,6 +329,7 @@ class WinMain(QWidget):
 
         self.menu_tree.expand_path(self.main_dir)
         self.grid.setFocus()
+        self.window().raise_()
 
     def scroll_up_scroll_value(self, value: int):
         if value == 0:
