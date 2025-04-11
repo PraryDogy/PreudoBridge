@@ -18,7 +18,7 @@ from .actions import (ChangeView, CopyFilesAction, CopyPath, FavAdd,
                        RatingMenu, RemoveFilesAction, RevealInFinder,
                        ShowInFolder, SortMenu, TagMenu, UpdateGrid, View)
 from ._base_widgets import BaseMethods, OpenWin, UMenu, USvgSqareWidget
-from .win_copy_files import WinCopyFiles
+from .win_copy_files import WinCopyFiles, ErrorWin
 from .win_remove_files import WinRemoveFiles
 
 SELECTED = "selected"
@@ -843,8 +843,15 @@ class Grid(QScrollArea):
         if Dynamic.files_to_copy:
             self.win_copy = WinCopyFiles(self.main_dir)
             self.win_copy.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
+            self.win_copy.error_win_sig.connect(self.error_win_cmd)
             Utils.center_win(self.window(), self.win_copy)
             self.win_copy.show()
+
+    def error_win_cmd(self):
+        self.win_copy.close()
+        self.error_win = ErrorWin()
+        Utils.center_win(self.window(), self.error_win)
+        self.error_win.show()
 
     def remove_files_cmd(self, urls: list[str]):
         self.rem_win = WinRemoveFiles(self.main_dir, urls)

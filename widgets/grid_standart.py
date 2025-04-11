@@ -13,7 +13,7 @@ from utils import URunnable, UThreadPool, Utils
 from .finder_items import FinderItems, LoadingWid
 from .grid import Grid, Thumb, ThumbFolder
 from .grid_tools import GridTools
-from .win_copy_files import WinCopyFiles
+from .win_copy_files import WinCopyFiles, ErrorWin
 
 WARN_TEXT = "Папка пуста или нет подключения к диску"
 TASK_NAME = "LOAD_IMAGES"
@@ -277,7 +277,14 @@ class GridStandart(Grid):
         if Dynamic.files_to_copy:
             self.win_copy = WinCopyFiles(self.main_dir)
             self.win_copy.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
+            self.win_copy.error_win_sig.connect(self.error_win_cmd)
             Utils.center_win(self.window(), self.win_copy)
             self.win_copy.show()
 
         return super().dropEvent(a0)
+    
+    def error_win_cmd(self):
+        self.win_copy.close()
+        self.error_win = ErrorWin()
+        Utils.center_win(self.window(), self.error_win)
+        self.error_win.show()

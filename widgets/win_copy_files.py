@@ -2,16 +2,19 @@ import os
 
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QVBoxLayout,
-                             QWidget)
+                             QWidget, QPushButton)
 
 from cfg import Dynamic, Static
-from utils import URunnable, UThreadPool, Utils
+from utils import URunnable, Utils, UThreadPool
 
 from ._base_widgets import USvgSqareWidget, WinMinMax
 
 PREPARING_T = "Подготовка"
 COPYING_T = "Копирую файлы"
 CANCEL_T = "Отмена"
+ERROR_DESCR_T = "Произошла ошибка при копировании"
+ERROR_TITLE = "Ошибка"
+
 
 
 class WorderSignals(QObject):
@@ -19,6 +22,7 @@ class WorderSignals(QObject):
     set_value_progress = pyqtSignal(int)
     set_text_progress = pyqtSignal(str)
     set_max_progress = pyqtSignal(int)
+    error_win_sig = pyqtSignal()
 
 
 class FileCopyWorker(URunnable):
@@ -29,12 +33,11 @@ class FileCopyWorker(URunnable):
 
     @URunnable.set_running_state
     def run(self):    
-
         try:
             new_paths = self.create_new_paths()
         except OSError as e:
             print("win copy files", e)
-            self.finalize([])
+            self.signals_.error_win_sig.emit()
             return
 
         # общий размер всех файлов в байтах
@@ -184,8 +187,48 @@ class FileCopyWorker(URunnable):
         return new_paths
 
 
+class ErrorWin(WinMinMax):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle(ERROR_TITLE)
+
+        main_lay = QVBoxLayout(self)
+        main_lay.setContentsMargins(10, 10, 10, 10)
+        main_lay.setSpacing(0)
+        self.setLayout(main_lay)
+
+        h_wid = QWidget()
+        main_lay.addWidget(h_wid)
+
+        h_lay = QHBoxLayout()
+        h_lay.setContentsMargins(0, 0, 0, 0)
+        h_lay.setSpacing(10)
+        h_wid.setLayout(h_lay)
+
+        warn = USvgSqareWidget(Static.WARNING_SVG, 50)
+        h_lay.addWidget(warn)
+
+        test_two = QLabel(ERROR_DESCR_T)
+        h_lay.addWidget(test_two)
+
+        ok_btn = QPushButton("Ок")
+        ok_btn.clicked.connect(self.close)
+        ok_btn.setFixedWidth(90)
+        main_lay.addWidget(ok_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        self.adjustSize()
+
+    def keyPressEvent(self, a0):
+        if a0.key() == Qt.Key.Key_Escape:
+            self.close()
+        elif a0.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
+            self.close()
+        return super().keyPressEvent(a0)
+
+
 class WinCopyFiles(WinMinMax):
     load_st_grid_sig = pyqtSignal(tuple)
+    error_win_sig = pyqtSignal()
 
     def __init__(self, main_dir: str):
         super().__init__()
@@ -239,16 +282,17 @@ class WinCopyFiles(WinMinMax):
 
         if Dynamic.files_to_copy:
             self.task_ = FileCopyWorker(self.main_dir)
-            self.task_.signals_.set_max_progress.connect(lambda value: self.test(progressbar, value))
-            self.task_.signals_.set_value_progress.connect(lambda value: self.test_rwo(progressbar, value))
+            self.task_.signals_.set_max_progress.connect(lambda value: self.set_max(progressbar, value))
+            self.task_.signals_.set_value_progress.connect(lambda value: self.set_value(progressbar, value))
             self.task_.signals_.set_text_progress.connect(lbl.setText)
             self.task_.signals_.finished_.connect(self.finished_task)
+            self.task_.signals_.error_win_sig.connect(self.error_win_sig.emit)
             UThreadPool.start(runnable=self.task_)
 
-    def test(self, progress: QProgressBar, value):
+    def set_max(self, progress: QProgressBar, value):
         progress.setMaximum(abs(value))
 
-    def test_rwo(self, progress: QProgressBar, value):
+    def set_value(self, progress: QProgressBar, value):
         progress.setValue(value)
 
     def cancel_cmd(self, *args):
