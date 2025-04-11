@@ -514,12 +514,6 @@ class URunnable(QRunnable):
 
         return wrapper
 
-    def get_name(self):
-        return self.name_
-    
-    def set_name(self, text: str):
-        self.name_ = text
-
 
 class UThreadPool:
     pool: QThreadPool = None
