@@ -258,12 +258,21 @@ class OpenInApp(UMenu):
         open_default.triggered.connect(self.cmd_default)
         self.addAction(open_default)
         self.addSeparator()
-    
+        
+        self.apps: dict[str, str] = {}
+        self.setup_open_with_apps()
+        self.apps = dict(sorted(Dynamic.OPEN_WITH_APPS.items()))
+
         # список приложений, сформированный в cfg.py при инициации приложения
-        for name, app_path in Dynamic.OPEN_WITH_APPS.items():
+        for name, app_path in self.apps.items():
             wid = QAction(parent=self, text=name)
             wid.triggered.connect(lambda e, a=app_path: self.cmd_(app_path=a, e=e))
             self.addAction(wid)
+
+    def setup_open_with_apps(self):
+        for entry in os.scandir(Static.USER_APPS_DIR):
+            if entry.name.endswith((".app", ".APP")):
+                self.apps[entry.name] = entry.path
 
     def cmd_(self, app_path: str, e):
         # открыть в приложении, путь к которому указан в app_path
