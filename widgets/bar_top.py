@@ -267,6 +267,8 @@ class BarTop(QWidget):
     def new_win_cmd(self, *args):
         from widgets.win_main import WinMain
         new_win = WinMain()
+        x, y = self.window().x(), self.window().y()
+        new_win.move(x + 20, y + 20)
         new_win.show()
         self.other_wins.append(new_win)
 
