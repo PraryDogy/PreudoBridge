@@ -276,9 +276,19 @@ class WinCopyFiles(WinMinMax):
         cancel_btn.mouseReleaseEvent = self.cancel_cmd
         second_lay.addWidget(cancel_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
+        src = min(Dynamic.files_to_copy, key=len)
+        src = os.path.dirname(Utils.normalize_slash(src))
+        src = os.path.basename(src)
+        dest = os.path.basename(self.main_dir)
+
+        t = f"Копирую из \"{src}\" в \"{dest}\""
+        bottom_lbl = QLabel(t)
+        right_side_lay.addWidget(bottom_lbl)
+
         right_side_lay.addStretch()
 
         self.task_ = None
+        return
 
         if Dynamic.files_to_copy:
             self.task_ = FileCopyWorker(self.main_dir)
@@ -288,6 +298,8 @@ class WinCopyFiles(WinMinMax):
             self.task_.signals_.finished_.connect(self.finished_task)
             self.task_.signals_.error_win_sig.connect(self.error_win_sig.emit)
             UThreadPool.start(runnable=self.task_)
+
+        self.adjustSize()
 
     def set_max(self, progress: QProgressBar, value):
         progress.setMaximum(abs(value))
