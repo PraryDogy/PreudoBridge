@@ -189,7 +189,6 @@ class JsonData:
     def init(cls):
         os.makedirs(Static.APP_SUPPORT_APP, exist_ok=True)
         cls.read_json_data()
-        cls.ver_check()
         cls.write_config()
         cls.setup_generic_icons()
 
