@@ -271,10 +271,13 @@ class OpenInApp(UMenu):
 
     def setup_open_with_apps(self):
         for entry in os.scandir(Static.USER_APPS_DIR):
-            if entry.name.endswith((".app", ".APP")):
+            if entry.name.endswith((".app", ".APP")) or entry.is_dir():
                 self.apps[entry.name] = entry.path
 
     def cmd_(self, app_path: str, e):
+
+        # subprocess.call(["open", "-a", app_path, self.src])
+
         # открыть в приложении, путь к которому указан в app_path
         self.task_ = Task_(
             cmd_=lambda: subprocess.call(["open", "-a", app_path, self.src]))
