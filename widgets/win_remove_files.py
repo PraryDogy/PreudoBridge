@@ -3,11 +3,11 @@ import subprocess
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
-from cfg import JsonData, Static
-from signals import SignalsApp
+
+from cfg import Static
 from utils import URunnable, UThreadPool
 
-from ._base import WinMinMax, USvgSqareWidget
+from ._base import USvgSqareWidget, WinMinMax
 
 REMOVE_T = "Удалить безвозвратно объекты"
 OK_T = "Ок"

@@ -1,11 +1,10 @@
 import os
-import shutil
 
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
-from PyQt5.QtWidgets import QLabel, QProgressBar, QPushButton, QHBoxLayout, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QVBoxLayout,
+                             QWidget)
 
-from cfg import Dynamic, JsonData, Static
-from signals import SignalsApp
+from cfg import Dynamic, Static
 from utils import URunnable, UThreadPool, Utils
 
 from ._base import USvgSqareWidget, WinMinMax

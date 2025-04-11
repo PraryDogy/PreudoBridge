@@ -17,8 +17,7 @@ from ._actions import (ChangeView, CopyFilesAction, CopyPath, FavAdd,
                        FavRemove, Info, OpenInApp, PasteFilesAction,
                        RatingMenu, RemoveFilesAction, RevealInFinder,
                        ShowInFolder, SortMenu, TagMenu, UpdateGrid, View)
-from ._base import BaseMethods, BaseSignals, OpenWin, UMenu, USvgSqareWidget
-from .list_file_system import ListFileSystem
+from ._base import BaseMethods, OpenWin, UMenu, USvgSqareWidget
 from .win_copy_files import WinCopyFiles
 from .win_remove_files import WinRemoveFiles
 
@@ -649,14 +648,6 @@ class Grid(QScrollArea):
 
         else:
             subprocess.Popen(["open", wid.src])
-
-    def select_after_list(self):
-        wid = Thumb.path_to_wid.get(ListFileSystem.last_selection)
-
-        if isinstance(wid, Thumb):
-            self.select_one_wid(wid)
-            self.ensureWidgetVisible(wid)
-            ListFileSystem.last_selection = None
 
     def fav_cmd(self, offset: int, src: str):
         if 0 + offset == 1:

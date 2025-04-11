@@ -2,7 +2,6 @@ from PyQt5.QtCore import QSize, Qt, pyqtSignal
 from PyQt5.QtWidgets import QAction, QListWidget, QListWidgetItem, QMenu
 
 from cfg import Dynamic, Static
-from signals import SignalsApp
 
 from ._base import UMenu
 

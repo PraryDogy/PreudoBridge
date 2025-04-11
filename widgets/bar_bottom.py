@@ -5,18 +5,16 @@ from PyQt5.QtCore import (QMimeData, QObject, QPoint, Qt, QTimer, QUrl,
                           pyqtSignal)
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
                          QPixmap)
-from PyQt5.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
-                             QPushButton, QVBoxLayout, QWidget, QAction)
+from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QHBoxLayout,
+                             QLabel, QPushButton, QVBoxLayout, QWidget)
 
-from cfg import Dynamic, JsonData, Static, ThumbData
+from cfg import Dynamic, Static, ThumbData
 from database import ORDER
-from signals import SignalsApp
 from utils import PathFinder, URunnable, UThreadPool, Utils
 
 from ._actions import CopyPath, Info, RevealInFinder, SortMenu, View
-from ._base import (OpenWin, UFrame, ULineEdit, UMenu, USlider, USvgSqareWidget,
+from ._base import (UFrame, ULineEdit, UMenu, USlider, USvgSqareWidget,
                     WinMinMax)
-from ._grid import Thumb
 
 SORT_T = "Сортировка"
 TOTAL_T = "Всего"

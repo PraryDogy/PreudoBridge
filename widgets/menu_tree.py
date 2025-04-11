@@ -2,7 +2,6 @@ from PyQt5.QtCore import QDir, Qt, pyqtSignal
 from PyQt5.QtWidgets import QFileSystemModel, QTreeView
 
 from cfg import JsonData
-from signals import SignalsApp
 
 from ._actions import CopyPath, FavAdd, FavRemove, RevealInFinder, View
 from ._base import UMenu

@@ -5,20 +5,18 @@ from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import QFileSystemModel, QTableView
 
 from cfg import JsonData
-from signals import SignalsApp
 from utils import Utils
 
 from ._actions import (ChangeView, CopyPath, FavAdd, FavRemove, Info,
                        RevealInFinder)
-from ._base import BaseMethods, UMenu, BaseSignals
+from ._base import BaseMethods, UMenu
 from ._finder_items import LoadingWid
 
 
-class ListFileSystem(QTableView):
+class GridList(QTableView):
     col: int = 0
     order: int = 0
     sizes: list = [250, 100, 100, 150]
-    last_selection: str = None
 
     # сигналы должны быть идентичны grid.py > Grid
     new_history_item = pyqtSignal(str)
@@ -52,9 +50,9 @@ class ListFileSystem(QTableView):
         self.setModel(self._model)
         self.setRootIndex(self._model.index(self.main_dir))
 
-        self.sortByColumn(ListFileSystem.col, ListFileSystem.order)
+        self.sortByColumn(GridList.col, GridList.order)
         for i in range(0, 4):
-            self.setColumnWidth(i, ListFileSystem.sizes[i])
+            self.setColumnWidth(i, GridList.sizes[i])
 
         self.loading_lbl.hide()
 
@@ -66,9 +64,9 @@ class ListFileSystem(QTableView):
             self.load_st_grid_sig.emit((path, None))
 
     def save_sort_settings(self, index):
-        ListFileSystem.col = index
-        ListFileSystem.order = self.horizontalHeader().sortIndicatorOrder()
-        self.sortByColumn(ListFileSystem.col, ListFileSystem.order)
+        GridList.col = index
+        GridList.order = self.horizontalHeader().sortIndicatorOrder()
+        self.sortByColumn(GridList.col, GridList.order)
 
     def rearrange(self, *args, **kwargs):
         ...
@@ -89,8 +87,7 @@ class ListFileSystem(QTableView):
         index = self.currentIndex()
         path = self._model.filePath(index)
         path = os.path.abspath(path)
-        ListFileSystem.last_selection = path
-        ListFileSystem.sizes = [self.columnWidth(i) for i in range(0, 4)]
+        GridList.sizes = [self.columnWidth(i) for i in range(0, 4)]
         return super().closeEvent(a0)
 
     def contextMenuEvent(self, event: QContextMenuEvent):

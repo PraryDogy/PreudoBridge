@@ -6,9 +6,8 @@ from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import QLabel
 
-from cfg import Dynamic, JsonData, Static
-from database import CACHE, Dbase, OrderItem
-from signals import SignalsApp
+from cfg import Dynamic, Static
+from database import Dbase, OrderItem
 from utils import URunnable, UThreadPool, Utils
 
 from ._finder_items import FinderItems, LoadingWid
@@ -201,7 +200,6 @@ class GridStandart(Grid):
 
         self.order_()
         self.rearrange()
-        self.select_after_list()
 
         if Dynamic.rating_filter > 0:
             self.filter_()

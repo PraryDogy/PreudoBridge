@@ -10,7 +10,6 @@ from PyQt5.QtWidgets import (QGroupBox, QHBoxLayout, QLabel, QPushButton,
                              QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
-from signals import SignalsApp
 from utils import URunnable, UThreadPool
 
 from ._base import WinMinMax

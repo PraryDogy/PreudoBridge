@@ -7,13 +7,12 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static
-from signals import SignalsApp
 from widgets._grid import Grid
 from widgets.bar_bottom import BarBottom
 from widgets.bar_top import BarTop
 from widgets.grid_search import GridSearch
 from widgets.grid_standart import GridStandart
-from widgets.list_file_system import ListFileSystem
+from widgets.grid_list import GridList
 from widgets.menu_favs import MenuFavs
 from widgets.menu_tree import MenuTree
 from widgets.menu_tags import MenuTags
@@ -298,7 +297,7 @@ class MainWin(QWidget):
             self.grid = GridStandart(self.main_dir, self.view_index, path_for_select)
 
         elif self.view_index == 1:
-            self.grid = ListFileSystem(self.main_dir, self.view_index)
+            self.grid = GridList(self.main_dir, self.view_index)
 
         self.grid.new_history_item.connect(self.bar_top.new_history_item_cmd)
         self.grid.bar_bottom_update.connect(self.bar_bottom.update_bar_cmd)

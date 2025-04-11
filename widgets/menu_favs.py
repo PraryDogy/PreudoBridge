@@ -5,7 +5,6 @@ from PyQt5.QtGui import QContextMenuEvent, QDropEvent, QMouseEvent
 from PyQt5.QtWidgets import QLabel, QListWidget, QListWidgetItem
 
 from cfg import JsonData
-from signals import SignalsApp
 from utils import Utils
 
 from ._actions import CopyPath, FavRemove, Rename, RevealInFinder, View

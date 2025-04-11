@@ -9,9 +9,8 @@ from PyQt5.QtGui import (QCloseEvent, QColor, QContextMenuEvent, QKeyEvent,
 from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QSpacerItem,
                              QVBoxLayout, QWidget)
 
-from cfg import Dynamic, JsonData, Static
+from cfg import Dynamic, Static
 from database import CACHE, Dbase
-from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 from ._actions import (CopyPath, Info, OpenInApp, RatingMenu, RevealInFinder,

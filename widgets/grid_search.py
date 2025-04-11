@@ -4,18 +4,16 @@ from time import sleep
 from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QColor, QPixmap
 from PyQt5.QtWidgets import (QFrame, QGraphicsDropShadowEffect, QHBoxLayout,
-                             QLabel, QPushButton, QSizePolicy, QVBoxLayout,
-                             QWidget)
+                             QLabel, QPushButton, QVBoxLayout, QWidget)
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import Dynamic, JsonData, Static, ThumbData
+from cfg import Dynamic, Static, ThumbData
 from database import OrderItem
 from fit_img import FitImg
-from signals import SignalsApp
 from utils import URunnable, UThreadPool, Utils
 
 from ._base import USvgSqareWidget, UTextEdit, WinMinMax
-from ._grid import COL_COUNT, Grid, Thumb, ThumbSearch
+from ._grid import Grid, ThumbSearch
 
 SQL_ERRORS = (IntegrityError, OperationalError)
 ATTENTION_T = "Внимание!"

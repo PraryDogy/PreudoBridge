@@ -58,6 +58,7 @@ else:
 
 
 import faulthandler
+
 faulthandler.enable()
 
 
@@ -67,7 +68,6 @@ from PyQt5.QtWidgets import QApplication
 from cfg import JsonData
 from database import Dbase
 from gui import MainWin
-from signals import SignalsApp
 from utils import UThreadPool, Utils
 
 
@@ -95,7 +95,6 @@ class CustomApp(QApplication):
 JsonData.init()
 app = CustomApp(argv=sys.argv)
 
-SignalsApp.init()
 UThreadPool.init()
 main_win = MainWin()
 app.add_main_win(main_win=main_win)
