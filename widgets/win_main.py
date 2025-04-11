@@ -169,7 +169,7 @@ class WinMain(QWidget):
         # начать поиск
         self.bar_top.start_search.connect(self.load_search_grid)
         # очистить поиск, загрузить стандартную сетку с текущей директорией
-        self.bar_top.clear_search.connect(lambda: self.load_st_grid_cmd((self.main_dir, None)))
+        self.bar_top.search_was_cleaned.connect(lambda: self.load_st_grid_cmd((self.main_dir, None)))
         # перейти вперед/назад по истории посещений
         self.bar_top.navigate.connect(lambda dir: self.load_st_grid_cmd((dir, None)))
         # в виджете поиска был выбран шаблон "Поиск по списку"
@@ -303,7 +303,8 @@ class WinMain(QWidget):
         self.menu_favs.fav_cmd(("select", self.main_dir))
 
         # появляется рекурсия, нужна отладка
-        # self.bar_top.search_wid.clear_search.emit()
+        # self.bar_top.search_wid.search_was_cleaned.emit()
+        self.bar_top.search_wid.clear_without_signal()
 
         if self.view_index == 0:
             self.grid = GridStandart(self.main_dir, self.view_index, path_for_select)

@@ -116,7 +116,7 @@ class ListWin(WinMinMax):
 
  
 class SearchWidget(QWidget):
-    clear_search = pyqtSignal()
+    search_was_cleaned = pyqtSignal()
     start_search = pyqtSignal(str)
     list_win_opened = pyqtSignal()
 
@@ -157,10 +157,13 @@ class SearchWidget(QWidget):
         search_list.triggered.connect(self.search_list_cmd)
         self.templates_menu.addAction(search_list)
 
-    def costil(self):
+    def clear_without_signal(self):
+        # отключаем сигналы, чтобы при очистке виджета не запустился
+        # on_text_changed и поиск пустышки
         self.search_wid.disconnect()
         self.search_wid.clear()
         self.search_wid.clear_btn.hide()
+        # подключаем назад
         self.search_wid.textChanged.connect(self.on_text_changed)
 
     def on_text_changed(self, text: str):
@@ -171,9 +174,9 @@ class SearchWidget(QWidget):
             self.search_wid.setText(self.search_text)
             self.search_timer.start(1500)
         else:
-            self.costil()
+            self.clear_without_signal()
             self.search_wid.clear_btn.hide()
-            self.clear_search.emit()
+            self.search_was_cleaned.emit()
 
     def show_templates(self, a0: QMouseEvent | None) -> None:
         self.templates_menu.exec(self.mapToGlobal(self.rect().bottomLeft()))
@@ -196,7 +199,7 @@ class BarTop(QWidget):
     level_up = pyqtSignal()
     change_view = pyqtSignal(int)
     start_search = pyqtSignal(str)
-    clear_search = pyqtSignal()
+    search_was_cleaned = pyqtSignal()
     navigate = pyqtSignal(str)
     list_win_opened = pyqtSignal()
     clear_data_clicked = pyqtSignal()
@@ -254,7 +257,7 @@ class BarTop(QWidget):
 
         self.search_wid = SearchWidget()
         self.search_wid.start_search.connect(self.start_search.emit)
-        self.search_wid.clear_search.connect(self.clear_search.emit)
+        self.search_wid.search_was_cleaned.connect(self.search_was_cleaned.emit)
         self.search_wid.list_win_opened.connect(self.list_win_opened.emit)
         self.main_lay.addWidget(self.search_wid)
 
