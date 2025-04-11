@@ -353,18 +353,6 @@ class Pixmap(Err):
 
 class Utils(Pixmap, ReadImage, ImgConvert):
 
-    # вызывает segmentation fault
-    @classmethod
-    def clear_layout(cls, layout: QVBoxLayout):
-        if layout:
-            while layout.count():
-                item = layout.takeAt(0)
-                widget = item.widget()
-                if widget:
-                    widget.deleteLater()
-                else:
-                    cls.clear_layout(item.layout())
-
     @classmethod
     def write_to_clipboard(cls, text: str):
         clipboard = QApplication.clipboard()
@@ -432,6 +420,12 @@ class Utils(Pixmap, ReadImage, ImgConvert):
             splited = path.split(os.sep)[3:]
             return os.path.join(os.sep, *splited)
         return path
+    
+    @classmethod
+    def get_system_volume(cls):
+        for i in os.scandir("/Volumes"):
+            if os.path.exists(i.path + Static.APP_SUPPORT_APP):
+                return i.path
 
     @classmethod
     def get_hash_filename(cls, filename: str):
