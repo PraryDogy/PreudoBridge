@@ -75,7 +75,7 @@ class ShowHideTags(QWidget):
             self.click_cmd()
 
 
-class MainWin(QWidget):
+class WinMain(QWidget):
     def __init__(self):
 
         if not self.__class__.__name__ == Static.MAIN_WIN_NAME:

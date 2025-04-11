@@ -67,7 +67,7 @@ from PyQt5.QtWidgets import QApplication
 
 from cfg import JsonData
 from database import Dbase
-from gui import MainWin
+from widgets.win_main import WinMain
 from utils import UThreadPool, Utils
 
 
@@ -82,7 +82,7 @@ class CustomApp(QApplication):
             Utils.get_main_win().show()
         return False
 
-    def add_main_win(self, main_win: MainWin):
+    def add_main_win(self, main_win: WinMain):
         self.main_win = main_win
 
     def on_exit(self):
@@ -96,9 +96,9 @@ JsonData.init()
 app = CustomApp(argv=sys.argv)
 
 UThreadPool.init()
-main_win = MainWin()
-app.add_main_win(main_win=main_win)
-main_win.show()
+win_main = WinMain()
+app.add_main_win(main_win=win_main)
+win_main.show()
 
 # Запуск приложения
 exit_code = app.exec()
