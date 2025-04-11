@@ -49,6 +49,8 @@ class Static:
 
     DB_FILENAME = ".preudobridge.db"
     FOLDER_TYPE: str = "Папка"
+    VOLUMES: str = "Volumes"
+    USERS: str = "Users"
 
     GRAY_GLOBAL = "rgba(128, 128, 128, 0.40)"
     BLUE_GLOBAL = "rgb(46, 89, 203)"

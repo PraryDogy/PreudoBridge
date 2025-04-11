@@ -151,7 +151,7 @@ class GridStandart(Grid):
         total = len(order_items)
 
         self.bar_bottom_update.emit((self.main_dir, total))
-        sys_disk = os.path.join(os.sep, "Volumes", "Macintosh HD")
+        sys_disk = Utils.get_system_volume()
         Thumb.calculate_size()
         col_count = self.get_col_count()
 

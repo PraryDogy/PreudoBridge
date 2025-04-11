@@ -1,10 +1,13 @@
 import os
 from cfg import Static
+from utils import Utils
 
 
-def test():
-    for i in os.scandir("/Volumes"):
-        if os.path.exists(i.path + Static.APP_SUPPORT_APP):
-            return i.path
-        
-print(test())
+
+volumes = [
+    i.path
+    for i in os.scandir(os.sep + "Volumes")
+]
+volumes.remove(Utils.get_system_volume())
+
+print(volumes)

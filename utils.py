@@ -23,8 +23,6 @@ from cfg import Dynamic, Static, ThumbData
 psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
 psd_logger = logging.getLogger("psd_tools")
 psd_logger.setLevel(logging.CRITICAL)
-VOLUMES = "Volumes"
-USERS = "Users"
 
 class Err:
 
@@ -414,8 +412,8 @@ class Utils(Pixmap, ReadImage, ImgConvert):
     @classmethod
     def users_path(cls, path: str):
         path = cls.normalize_slash(path)
-        users = os.sep + "Users" + os.sep
-        volumes = os.sep + "Volumes" + os.sep
+        users = os.sep + Static.USERS + os.sep
+        volumes = os.sep + Static.VOLUMES + os.sep
         if users in path and path.startswith(volumes):
             splited = path.split(os.sep)[3:]
             return os.path.join(os.sep, *splited)
@@ -423,7 +421,7 @@ class Utils(Pixmap, ReadImage, ImgConvert):
     
     @classmethod
     def get_system_volume(cls):
-        for i in os.scandir("/Volumes"):
+        for i in os.scandir(os.sep + Static.VOLUMES):
             if os.path.exists(i.path + Static.APP_SUPPORT_APP):
                 return i.path
 
@@ -555,8 +553,6 @@ class UThreadPool:
 
 
 class PathFinder:
-    VOLUMES = os.sep + "Volumes"
-    EXTRA_PATHS = []
 
     @classmethod
     def get_result(cls, path: str) -> str | None:
@@ -571,11 +567,11 @@ class PathFinder:
         splited = [i for i in path.split(os.sep) if i]
 
         # игнорируем /Volumes/Macintosh HD
-        volumes = cls.get_volumes()[1:]
+        volumes = [i.path for i in os.scandir(os.sep + Static.VOLUMES)]
+        volumes.remove(Utils.get_system_volume())
 
         # см. аннотацию add_to_start
         paths = cls.add_to_start(splited_path=splited, volumes=volumes)
-
         res = cls.check_for_exists(paths=paths)
 
         if res in volumes:
@@ -593,7 +589,6 @@ class PathFinder:
             ]
 
             paths.sort(key=len, reverse=True)
-            
             res = cls.check_for_exists(paths=paths)
 
             if res in volumes:
@@ -601,29 +596,7 @@ class PathFinder:
             
             elif res:
                 return res
-
-    @classmethod
-    def get_volumes(cls) -> list[str]:
-        return [
-            entry.path
-            for entry in os.scandir(cls.VOLUMES)
-            if entry.is_dir()
-        ]
     
-    @classmethod
-    def prepare_path(cls, path: str) -> str:
-        path = path.replace("\\", os.sep)
-        path = path.strip()
-        path = path.strip("'").strip('"') # ковычки
-        if path:
-            return Utils.normalize_slash(path)
-        else:
-            return None
-
-    @classmethod
-    def path_to_list(cls, path: str) -> list[str]:
-        return [i for i in path.split(os.sep) if i]
-
     @classmethod
     def add_to_start(cls, splited_path: list, volumes: list[str]) -> list[str]:
         """
