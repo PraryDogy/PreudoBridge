@@ -1,13 +1,9 @@
 import os
-from cfg import Static
 from utils import Utils
 
+src = "/Users/Loshkarev/Downloads/R01-MLN1265-450-0002.png"
 
+if src.startswith(os.path.expanduser("~")):
+    src = Utils.get_system_volume() + src
 
-volumes = [
-    i.path
-    for i in os.scandir(os.sep + "Volumes")
-]
-volumes.remove(Utils.get_system_volume())
-
-print(volumes)
+print(src)

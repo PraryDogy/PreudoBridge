@@ -410,6 +410,12 @@ class Utils(Pixmap, ReadImage, ImgConvert):
         return os.sep + path.strip(os.sep)
 
     @classmethod
+    def add_volumes(cls, path: str):
+        if path.startswith(os.path.expanduser("~")):
+            return Utils.get_system_volume() + path
+        return path
+
+    @classmethod
     def users_path(cls, path: str):
         path = cls.normalize_slash(path)
         users = os.sep + Static.USERS + os.sep
