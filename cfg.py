@@ -1,14 +1,10 @@
 import json
 import os
-import subprocess
-from datetime import date
 
-HEX = "85d3b3a7ed89b1d7bd6e94524005ca81"
-HEX_DEFAULT = "ZERO"
 
 class Static:
     APP_NAME = "PreudoBridge"
-    APP_VER = 1.99
+    APP_VER = 2.01
 
     USER_SETTINGS_DIR = os.path.expanduser('~/Library/Application Support')
     APP_SUPPORT_APP = os.path.join(USER_SETTINGS_DIR, APP_NAME)
@@ -126,7 +122,6 @@ class ThumbData:
 
 
 class JsonData:
-    hex = HEX_DEFAULT
     favs = {}
 
     udpdate_file_paths = [
@@ -184,18 +179,6 @@ class JsonData:
             return False
 
     @classmethod
-    def ver_check(cls):
-        if cls.hex == HEX_DEFAULT or cls.hex != HEX:
-            
-            # удаляем все кроме json за ненужностью
-
-            for i in os.scandir(Static.APP_SUPPORT_APP):
-                if i.path != Static.JSON_FILE:
-                    subprocess.call(["rm", "-rf", i.path])
-
-            cls.hex = HEX
-
-    @classmethod
     def setup_generic_icons(cls):
         os.makedirs(Static.ICONS_DIR, exist_ok=True)
         for entry in os.scandir(Static.ICONS_DIR):
@@ -227,4 +210,3 @@ class Dynamic:
     go_paths: list[str] = []
     SEARCH_LIST = []
     GENERIC_ICONS: dict[str, str] = {}
-    
