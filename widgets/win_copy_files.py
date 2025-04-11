@@ -35,9 +35,7 @@ class FileCopyWorker(URunnable):
             new_paths = self.create_new_paths()
         except OSError as e:
             print("win copy files", e)
-            new_paths = None
-
-        if not new_paths:
+            self.finalize([])
             return
 
         # общий размер всех файлов в байтах
@@ -73,10 +71,13 @@ class FileCopyWorker(URunnable):
                 continue
 
         # создаем список путей к виджетам в сетке для выделения
-        paths_for_selection = self.collapse_to_root_dirs(new_paths, self.main_dir)
+        paths = self.get_final_paths(new_paths, self.main_dir)
+        paths = list(paths)
+        self.finalize(paths)
 
+    def finalize(self, paths: list[str]):
         try:
-            self.signals_.finished_.emit(list(paths_for_selection))
+            self.signals_.finished_.emit(paths)
         except RuntimeError:
             ...
         Dynamic.files_to_copy.clear()
@@ -107,11 +108,12 @@ class FileCopyWorker(URunnable):
             # байты переводим в читаемый f string
             copied_f_size = Utils.get_f_size(self.copied_bytes)
 
-            self.signals_.set_text_progress.emit(f"{COPYING_T} {copied_f_size} из {self.total_f_size}")
+            text = f"{COPYING_T} {copied_f_size} из {self.total_f_size}"
+            self.signals_.set_text_progress.emit(text)
         except RuntimeError:
             ...
 
-    def collapse_to_root_dirs(self, new_paths: list[tuple[str, str]], root: str):
+    def get_final_paths(self, new_paths: list[tuple[str, str]], root: str):
         # Например мы копируем папки test_images и abs_images с рабочего стола в папку загрузок
         # Внутри test_images и abs есть разные файлы и папки
         # 
