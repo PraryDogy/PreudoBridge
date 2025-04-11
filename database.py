@@ -4,8 +4,9 @@ import re
 import sqlalchemy
 from PyQt5.QtGui import QPixmap
 from sqlalchemy.exc import IntegrityError, OperationalError
-import traceback
+
 from cfg import Dynamic, Static
+from utils import Utils
 
 METADATA = sqlalchemy.MetaData()
 TABLE_NAME = "cache"
@@ -63,20 +64,20 @@ ORDER: dict[str, str] = {
 class OrderItem:
     def __init__(self, src: str, size: int, mod: int, rating: int):
         super().__init__()
-        self.src: str = src
+        self.src: str = Utils.normalize_slash(src)
         self.size: int = int(size)
         self.mod: int = int(mod)
         self.rating: int = rating
 
         # Извлечение имени файла из пути (например, "path/to/file.txt" -> "file.txt")
-        self.name: str = os.path.split(self.src)[-1].strip()
+        self.name: str = os.path.basename(self.src)
             
         # Проверка: если путь ведёт к директории, то задаём тип FOLDER_TYPE.
         # Иначе определяем тип по расширению файла (например, ".txt").    
         if os.path.isdir(src):
             self.type_ = Static.FOLDER_TYPE
         else:
-            self.type_ = os.path.splitext(self.src)[-1]
+            _, self.type_ = os.path.splitext(self.src)
 
         # промежуточный аттрибут, нужен для GridSearch
         self.pixmap_: QPixmap = None

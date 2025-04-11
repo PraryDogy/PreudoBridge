@@ -566,18 +566,15 @@ class PathFinder:
 
     @classmethod
     def get_result(cls, path: str) -> str | None:
+        path = path.strip()
+        path = path.replace("\\", os.sep)
+        path = path.strip("'").strip('"') # кавычки
+        path = Utils.normalize_slash(path)
 
-        # удаляем новые строки, лишние слешы
-        prepared = cls.prepare_path(path=path)
-
-        if not prepared:
+        if not path:
             return None
 
-        elif os.path.exists(prepared):
-            return prepared
-
-        # превращаем путь в список 
-        splited = cls.path_to_list(path=prepared)
+        splited = [i for i in path.split(os.sep) if i]
 
         # игнорируем /Volumes/Macintosh HD
         volumes = cls.get_volumes()[1:]
@@ -631,11 +628,7 @@ class PathFinder:
 
     @classmethod
     def path_to_list(cls, path: str) -> list[str]:
-        return [
-            i
-            for i in path.split(os.sep)
-            if i
-        ]
+        return [i for i in path.split(os.sep) if i]
 
     @classmethod
     def add_to_start(cls, splited_path: list, volumes: list[str]) -> list[str]:
