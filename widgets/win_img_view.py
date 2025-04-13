@@ -539,7 +539,7 @@ class WinImgView(WinBase):
 
         menu.addSeparator()
 
-        info = Info(menu, self.src)
+        info = Info(menu)
         info.triggered.connect(lambda: self.win_info_cmd(self.src))
         menu.addAction(info)
 

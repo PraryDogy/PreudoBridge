@@ -107,7 +107,7 @@ class GridList(QTableView):
         if not src:
             src = self.main_dir
 
-        info = Info(menu, src)
+        info = Info(menu)
         info.triggered.connect(lambda: self.win_info_cmd(src))
         menu.addAction(info)
 

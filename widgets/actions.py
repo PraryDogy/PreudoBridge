@@ -112,8 +112,8 @@ class RevealInFinder(UAction):
 
 
 class Info(QAction):
-    def __init__(self, parent: UMenu, src: str):
-        super().__init__(parent, INFO_T)
+    def __init__(self, parent: UMenu):
+        super().__init__(parent=parent, text=INFO_T)
 
 
 # из родительского виджета копирует путь к файлу / папке

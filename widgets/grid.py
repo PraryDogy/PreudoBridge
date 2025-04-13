@@ -673,7 +673,7 @@ class Grid(QScrollArea):
 
         menu.addSeparator()
 
-        info = Info(parent=menu, src=wid.src)
+        info = Info(menu)
         info.triggered.connect(lambda: self.win_info_cmd(wid.src))
         menu.addAction(info)
 
@@ -734,7 +734,7 @@ class Grid(QScrollArea):
 
         self.set_bottom_path(src=self.main_dir)
 
-        info = Info(menu, self.main_dir)
+        info = Info(menu)
         info.triggered.connect(lambda: self.win_info_cmd(self.main_dir))
         menu.addAction(info)
 

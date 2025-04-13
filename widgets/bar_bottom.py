@@ -297,7 +297,7 @@ class PathItem(QWidget):
 
         menu.addSeparator()
 
-        info = Info(menu, self.src)
+        info = Info(menu)
         info.triggered.connect(self.win_info_cmd)
         menu.addAction(info)
 
