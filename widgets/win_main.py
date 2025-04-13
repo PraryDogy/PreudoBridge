@@ -288,6 +288,7 @@ class WinMain(QWidget):
         LoadImage.cache.clear()
         self.grid.close()
 
+        # Заголовок окна
         # Берем последнюю секцию директории для заголовка окна
         # далее "секция"
         base_name = os.path.basename(self.main_dir)
@@ -301,7 +302,8 @@ class WinMain(QWidget):
             if fav != base_name:
                 title = f"{base_name} ({JsonData.favs[self.main_dir]})"
 
-            # А иначе: "Секция"
+            # Если имя в избранном == "секция", то заголовок такой:
+            # "Секция"
             else:
                 title = base_name
 
