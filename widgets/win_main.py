@@ -271,13 +271,6 @@ class WinMain(QWidget):
         self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
         self.grid.setFocus()
 
-    def load_any_grid(self, data: tuple):
-        if isinstance(self.grid, GridSearch):
-            self.grid.order_()
-            self.grid.rearrange()
-        else:
-            self.load_st_grid_cmd(data)
-
     def load_st_grid_cmd(self, data: tuple):
         new_main_dir, path_for_select = data
 
