@@ -395,16 +395,28 @@ class Utils(Pixmap, ReadImage, ImgConvert):
 
     @classmethod
     def normalize_slash(cls, path: str):
+        """
+        Убирает последний слеш, оставляет первый
+        """
         return os.sep + path.strip(os.sep)
 
     @classmethod
     def add_system_volume(cls, path: str):
+        """
+        Добавляет /Volumes/Macintosh HD (или иное имя системного диска),
+        если директория начинается с /Users/../.../...
+        """
         if path.startswith(os.path.expanduser("~")):
             return Utils.get_system_volume() + path
         return path
     
     @classmethod
     def get_system_volume(cls):
+        """
+        Получает путь к системному диску /Volumes/Macintosh HD (или иное имя)
+        """
+        # Сканируем все диски
+        # Тот диск, где есть директория ApplicationSupport, является системным
         for i in os.scandir(os.sep + Static.VOLUMES):
             if os.path.exists(i.path + Static.APP_SUPPORT_APP):
                 return i.path

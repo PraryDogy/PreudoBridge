@@ -201,9 +201,10 @@ class WinMain(QWidget):
             """
             )
 
-        # они должны быть именно тут
-        # self.grid: Grid = Grid()
         self.load_st_grid_cmd((self.main_dir, None))
+
+    def setup_signals(self):
+        ...
 
     def open_img_view_cmd(self, path: str):
         order_item = OrderItem(path, 0, 0, 0)
