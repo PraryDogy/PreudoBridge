@@ -178,25 +178,26 @@ class WinMain(QWidget):
         self.resize_timer.timeout.connect(self.resize_timer_cmd)
         self.splitter.splitterMoved.connect(lambda: self.resize_timer.start(WinMain.resize_ms))
 
-        self.menu_tree.load_st_grid_sig.connect(self.load_st_grid_cmd)
-        self.menu_tree.fav_cmd_sig.connect(self.menu_favs.fav_cmd)
-        self.menu_tree.new_history_item.connect(self.bar_top.new_history_item_cmd)
-        self.menu_favs.new_history_item.connect(self.bar_top.new_history_item_cmd)
+        self.menu_tree.load_st_grid_sig.connect(lambda data: self.load_st_grid_cmd(data))
+        self.menu_tree.fav_cmd_sig.connect(lambda data: self.menu_favs.fav_cmd(data))
+        self.menu_tree.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
+        self.menu_favs.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
 
+        # Перезагружает меню избранного, выделяя текущую self.main_dir
         self.menu_favs.init_ui_sig.connect(lambda: self.menu_favs.init_ui(self.main_dir))
-        self.menu_favs.load_st_grid_sig.connect(self.load_st_grid_cmd)
+        self.menu_favs.load_st_grid_sig.connect(lambda data: self.load_st_grid_cmd(data))
 
-        self.tags_btn.clicked_.connect(self.tags_btn_cmd)
+        self.tags_btn.clicked_.connect(lambda: self.tags_btn_cmd())
 
         self.menu_tags.filter_grid_sig.connect(lambda: self.grid.filter_())
         self.menu_tags.rearrange_grid_sig.connect(lambda: self.grid.rearrange())
 
         # перейти на директорию выше
-        self.bar_top.level_up.connect(self.level_up_cmd)
+        self.bar_top.level_up.connect(lambda args: self.level_up_cmd(args))
         # изменить отображение сетка/список
-        self.bar_top.change_view.connect(self.change_view_cmd)
+        self.bar_top.change_view.connect(lambda index: self.change_view_cmd(index))
         # начать поиск
-        self.bar_top.start_search.connect(self.load_search_grid)
+        self.bar_top.start_search.connect(lambda text: self.load_search_grid(text))
         # очистить поиск, загрузить стандартную сетку с текущей директорией
         self.bar_top.search_was_cleaned.connect(lambda: self.load_st_grid_cmd((self.main_dir, None)))
         # перейти вперед/назад по истории посещений
@@ -208,15 +209,15 @@ class WinMain(QWidget):
         # проще постфактум установить текст для лейбла в этом окне
         self.bar_top.list_win_opened.connect(lambda: self.bar_top.set_path_list_win(self.main_dir))
         # было открыто окно настроек и был клик "очистить данные в этой папке"
-        self.bar_top.clear_data_clicked.connect(self.clear_data_cmd)
+        self.bar_top.clear_data_clicked.connect(lambda: self.clear_data_cmd())
 
-        self.bar_bottom.new_history_item.connect(self.bar_top.new_history_item_cmd)
-        self.bar_bottom.load_st_grid_sig.connect(self.load_st_grid_cmd)
+        self.bar_bottom.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
+        self.bar_bottom.load_st_grid_sig.connect(lambda data: self.load_st_grid_cmd(data))
         self.bar_bottom.resize_grid_sig.connect(lambda: self.grid.resize_())
         self.bar_bottom.order_grid_sig.connect(lambda: self.grid.order_())
         self.bar_bottom.rearrange_grid_sig.connect(lambda: self.grid.rearrange())
-        self.bar_bottom.open_path_sig.connect(self.open_path_cmd)
-        self.bar_bottom.open_img_view.connect(self.open_img_view_cmd)
+        self.bar_bottom.open_path_sig.connect(lambda filepath: self.open_path_cmd(filepath))
+        self.bar_bottom.open_img_view.connect(lambda path: self.open_img_view_cmd(path))
 
     def open_img_view_cmd(self, path: str):
         order_item = OrderItem(path, 0, 0, 0)
