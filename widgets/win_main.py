@@ -260,6 +260,12 @@ class WinMain(QWidget):
             self.main_dir = filepath
             self.load_st_grid_cmd((self.main_dir, None))
 
+    def setup_grid_signals(self):
+        self.grid.bar_bottom_update.connect(self.bar_bottom.update_bar_cmd)
+        self.grid.fav_cmd_sig.connect(self.menu_favs.fav_cmd)
+        self.grid.move_slider_sig.connect(self.bar_bottom.slider.move_slider_cmd)
+        self.grid.verticalScrollBar().valueChanged.connect(self.sctoll_up_show_hide)
+
     def load_search_grid(self, search_text: str):
         self.grid.close()
         self.menu_tags.reset()
@@ -267,10 +273,8 @@ class WinMain(QWidget):
         # нужно сразу добавлять в окно, чтобы у виджета появился родитель
         # тогда во всех эвентах правильно сработает self.grid.window()
         self.r_lay.insertWidget(1, self.grid)
-        self.grid.bar_bottom_update.connect(self.bar_bottom.update_bar_cmd)
-        self.grid.fav_cmd_sig.connect(self.menu_favs.fav_cmd)
-        self.grid.move_slider_sig.connect(self.bar_bottom.slider.move_slider_cmd)
-        self.grid.verticalScrollBar().valueChanged.connect(self.sctoll_up_show_hide)
+        self.setup_grid_signals()
+        self.window().raise_()
         self.grid.setFocus()
 
     def load_st_grid_cmd(self, data: tuple):
@@ -307,21 +311,13 @@ class WinMain(QWidget):
         # нужно сразу добавлять в окно, чтобы у виджета появился родитель
         # тогда во всех эвентах правильно сработает self.grid.window()
         self.r_lay.insertWidget(1, self.grid)
-
+        self.setup_grid_signals()
         self.grid.new_history_item.connect(self.bar_top.new_history_item_cmd)
-        self.grid.bar_bottom_update.connect(self.bar_bottom.update_bar_cmd)
-        self.grid.fav_cmd_sig.connect(self.menu_favs.fav_cmd)
         self.grid.load_st_grid_sig.connect(self.load_st_grid_cmd)
-        self.grid.move_slider_sig.connect(self.bar_bottom.slider.move_slider_cmd)
         self.grid.change_view_sig.connect(self.change_view_cmd)
-
-        self.grid.verticalScrollBar().valueChanged.connect(
-            self.sctoll_up_show_hide
-        )
-
         self.menu_tree.expand_path(self.main_dir)
-        self.grid.setFocus()
         self.window().raise_()
+        self.grid.setFocus()
 
     def sctoll_up_show_hide(self, value: int):
         if value == 0:
