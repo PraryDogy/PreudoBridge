@@ -92,8 +92,10 @@ class WinMain(QWidget):
         
         self.resize_timer = QTimer(parent=self)
         self.resize_timer.setSingleShot(True)
-        self.resize_timer.timeout.connect(self.resize_timer_cmd)
 
+        # инициируем пустую сетку, чтобы работали все методы сетки, например
+        # grid.close(), и не пришлось бы каждый раз проверять
+        # if hasattr(self, "grid")
         self.grid: Grid = Grid(self.main_dir, self.view_index)
 
         main_lay = QHBoxLayout()
@@ -101,12 +103,11 @@ class WinMain(QWidget):
         main_lay.setSpacing(0)
         self.setLayout(main_lay)
 
-        splitter = QSplitter()
-        splitter.splitterMoved.connect(lambda: self.resize_timer.start(500))
-        main_lay.addWidget(splitter)
+        self.splitter = QSplitter()
+        main_lay.addWidget(self.splitter)
 
         left_wid = QWidget()
-        splitter.addWidget(left_wid)
+        self.splitter.addWidget(left_wid)
         left_v_lay = QVBoxLayout()
         left_v_lay.setContentsMargins(0, 0, 0, 5)
         left_v_lay.setSpacing(0)
@@ -116,35 +117,28 @@ class WinMain(QWidget):
         left_v_lay.addWidget(self.menu_tabs)
 
         self.menu_tree = MenuTree()
-        self.menu_tree.load_st_grid_sig.connect(self.load_st_grid_cmd)
         self.menu_tabs.addTab(self.menu_tree, "Папки")
 
         self.menu_favs = MenuFavs()
         self.menu_favs.init_ui(self.main_dir)
-        self.menu_favs.init_ui_sig.connect(lambda: self.menu_favs.init_ui(self.main_dir))
-        self.menu_favs.load_st_grid_sig.connect(self.load_st_grid_cmd)
         self.menu_tabs.addTab(self.menu_favs, "Избранное")
-        self.menu_tree.fav_cmd_sig.connect(self.menu_favs.fav_cmd)
 
-        show_hide_tags_btn = TagsBtn()
-        show_hide_tags_btn.clicked_.connect(self.show_hide_tags)
-        left_v_lay.addWidget(show_hide_tags_btn)
+        self.tags_btn = TagsBtn()
+        left_v_lay.addWidget(self.tags_btn)
 
         self.menu_tags = MenuTags()
-        self.menu_tags.filter_grid_sig.connect(lambda: self.grid.filter_())
-        self.menu_tags.rearrange_grid_sig.connect(lambda: self.grid.rearrange())
         left_v_lay.addWidget(self.menu_tags)
 
-        show_hide_tags_btn.click_cmd()
+        self.tags_btn.click_cmd()
 
         self.menu_tabs.load_last_tab()
 
         right_wid = QWidget()
-        splitter.addWidget(right_wid)
+        self.splitter.addWidget(right_wid)
 
-        splitter.setStretchFactor(0, 0)
-        splitter.setStretchFactor(1, 1)
-        splitter.setSizes([Static.LEFT_MENU_W, self.width() - Static.LEFT_MENU_W])
+        self.splitter.setStretchFactor(0, 0)
+        self.splitter.setStretchFactor(1, 1)
+        self.splitter.setSizes([Static.LEFT_MENU_W, self.width() - Static.LEFT_MENU_W])
 
         self.r_lay = QVBoxLayout()
         self.r_lay.setContentsMargins(0, 0, 0, 0)
@@ -152,6 +146,47 @@ class WinMain(QWidget):
         right_wid.setLayout(self.r_lay)
         
         self.bar_top = BarTop()
+        # добавляем текущую директорию в историю
+        self.bar_top.new_history_item_cmd(self.main_dir)
+        self.r_lay.insertWidget(0, self.bar_top)
+        
+        self.bar_bottom = BarBottom()
+        # устанавливаем изначальный путь в нижний бар
+        self.bar_bottom.set_new_path(self.main_dir)
+        self.r_lay.insertWidget(2, self.bar_bottom)
+
+        self.scroll_up = QLabel(parent=self, text=ARROW_UP)
+        self.scroll_up.hide()
+        self.scroll_up.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.scroll_up.mouseReleaseEvent = lambda e: self.grid.verticalScrollBar().setValue(0)
+        self.scroll_up.setFixedSize(40, 40)
+        self.scroll_up.setStyleSheet(
+            f"""
+            background-color: {Static.GRAY_GLOBAL};
+            border-radius: 20px;
+            """
+            )
+
+        self.setup_signals()
+        self.load_st_grid_cmd((self.main_dir, None))
+
+    def setup_signals(self):
+        self.resize_timer.timeout.connect(self.resize_timer_cmd)
+        self.splitter.splitterMoved.connect(lambda: self.resize_timer.start(500))
+
+        self.menu_tree.load_st_grid_sig.connect(self.load_st_grid_cmd)
+        self.menu_tree.fav_cmd_sig.connect(self.menu_favs.fav_cmd)
+        self.menu_tree.new_history_item.connect(self.bar_top.new_history_item_cmd)
+        self.menu_favs.new_history_item.connect(self.bar_top.new_history_item_cmd)
+
+        self.menu_favs.init_ui_sig.connect(lambda: self.menu_favs.init_ui(self.main_dir))
+        self.menu_favs.load_st_grid_sig.connect(self.load_st_grid_cmd)
+
+        self.tags_btn.clicked_.connect(self.tags_btn_cmd)
+
+        self.menu_tags.filter_grid_sig.connect(lambda: self.grid.filter_())
+        self.menu_tags.rearrange_grid_sig.connect(lambda: self.grid.rearrange())
+
         # перейти на директорию выше
         self.bar_top.level_up.connect(self.level_up_cmd)
         # изменить отображение сетка/список
@@ -170,16 +205,7 @@ class WinMain(QWidget):
         self.bar_top.list_win_opened.connect(lambda: self.bar_top.set_path_list_win(self.main_dir))
         # было открыто окно настроек и был клик "очистить данные в этой папке"
         self.bar_top.clear_data_clicked.connect(self.clear_data_cmd)
-        # добавляем текущую директорию в историю
-        self.bar_top.new_history_item_cmd(self.main_dir)
-        self.r_lay.insertWidget(0, self.bar_top)
-        # после инициации bartop можем подключать сигналы, ссылающиеся на него
-        self.menu_tree.new_history_item.connect(self.bar_top.new_history_item_cmd)
-        self.menu_favs.new_history_item.connect(self.bar_top.new_history_item_cmd)
-        
-        self.bar_bottom = BarBottom()
-        # устанавливаем изначальный путь в нижний бар
-        self.bar_bottom.set_new_path(self.main_dir)
+
         self.bar_bottom.new_history_item.connect(self.bar_top.new_history_item_cmd)
         self.bar_bottom.load_st_grid_sig.connect(self.load_st_grid_cmd)
         self.bar_bottom.resize_grid_sig.connect(lambda: self.grid.resize_())
@@ -187,24 +213,6 @@ class WinMain(QWidget):
         self.bar_bottom.rearrange_grid_sig.connect(lambda: self.grid.rearrange())
         self.bar_bottom.open_path_sig.connect(self.open_path_cmd)
         self.bar_bottom.open_img_view.connect(self.open_img_view_cmd)
-        self.r_lay.insertWidget(2, self.bar_bottom)
-
-        self.scroll_up = QLabel(parent=self, text=ARROW_UP)
-        self.scroll_up.hide()
-        self.scroll_up.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.scroll_up.mouseReleaseEvent = lambda e: self.grid.verticalScrollBar().setValue(0)
-        self.scroll_up.setFixedSize(40, 40)
-        self.scroll_up.setStyleSheet(
-            f"""
-            background-color: {Static.GRAY_GLOBAL};
-            border-radius: 20px;
-            """
-            )
-
-        self.load_st_grid_cmd((self.main_dir, None))
-
-    def setup_signals(self):
-        ...
 
     def open_img_view_cmd(self, path: str):
         order_item = OrderItem(path, 0, 0, 0)
@@ -231,7 +239,7 @@ class WinMain(QWidget):
         self.grid.resize_()
         self.grid.rearrange()
 
-    def show_hide_tags(self):
+    def tags_btn_cmd(self):
         if self.menu_tags.isHidden():
             self.menu_tags.show()
         else:
