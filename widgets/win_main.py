@@ -301,7 +301,6 @@ class WinMain(QWidget):
         self.menu_favs.fav_cmd(("select", self.main_dir))
 
         # появляется рекурсия, нужна отладка
-        # self.bar_top.search_wid.search_was_cleaned.emit()
         self.bar_top.search_wid.clear_without_signal()
 
         if self.view_index == 0:
