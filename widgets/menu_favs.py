@@ -158,6 +158,9 @@ class MenuFavs(QListWidget):
             self.clearSelection()
 
     def fav_cmd(self, data: tuple):
+        """
+        args: ("select"/"add"/"del", path)
+        """
         cmd, src = data
 
         if cmd == "select":

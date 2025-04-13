@@ -283,6 +283,7 @@ class WinMain(QWidget):
         if new_main_dir:
             self.main_dir = new_main_dir
 
+        # очищаем предзагруженные в просмотрщике изображения
         LoadImage.cache.clear()
         self.grid.close()
 
