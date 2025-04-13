@@ -248,7 +248,7 @@ class TopLabel(QFrame):
         self.setGraphicsEffect(shadow)
 
 class GridSearch(Grid):
-    def __init__(self, main_dir: str, view_index: int, search_text: str, path_for_select: str = None):
+    def __init__(self, main_dir: str, view_index: int, path_for_select: str, search_text: str):
         super().__init__(main_dir, view_index, path_for_select)
         self.setAcceptDrops(False)
 

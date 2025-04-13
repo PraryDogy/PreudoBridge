@@ -261,7 +261,7 @@ class WinMain(QWidget):
     def load_search_grid(self, search_text: str):
         self.grid.close()
         self.menu_tags.reset()
-        self.grid = GridSearch(self.main_dir, self.view_index, search_text, None)
+        self.grid = GridSearch(self.main_dir, self.view_index, None, search_text)
         # нужно сразу добавлять в окно, чтобы у виджета появился родитель
         # тогда во всех эвентах правильно сработает self.grid.window()
         self.r_lay.insertWidget(1, self.grid)

@@ -439,7 +439,7 @@ class Grid(QScrollArea):
     move_slider_sig = pyqtSignal(int)
     change_view_sig = pyqtSignal(int)
 
-    def __init__(self, main_dir: str, view_index: int, path_for_select: str = None):
+    def __init__(self, main_dir: str, view_index: int, path_for_select: str):
         QScrollArea.__init__(self)
         BaseMethods.__init__(self)
 
