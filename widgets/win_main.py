@@ -262,10 +262,10 @@ class WinMain(QWidget):
             self.load_st_grid_cmd((self.main_dir, None))
 
     def setup_grid_signals(self):
-        self.grid.bar_bottom_update.connect(self.bar_bottom.update_bar_cmd)
-        self.grid.fav_cmd_sig.connect(self.menu_favs.fav_cmd)
-        self.grid.move_slider_sig.connect(self.bar_bottom.slider.move_slider_cmd)
-        self.grid.verticalScrollBar().valueChanged.connect(self.sctoll_up_show_hide)
+        self.grid.bar_bottom_update.connect(lambda data: self.bar_bottom.update_bar_cmd(data))
+        self.grid.fav_cmd_sig.connect(lambda data: self.menu_favs.fav_cmd(data))
+        self.grid.move_slider_sig.connect(lambda value: self.bar_bottom.slider.move_slider_cmd(value))
+        self.grid.verticalScrollBar().valueChanged.connect(lambda value: self.scroll_up_show_hide(value))
 
     def load_search_grid(self, search_text: str):
         self.grid.close()
@@ -288,20 +288,30 @@ class WinMain(QWidget):
         LoadImage.cache.clear()
         self.grid.close()
 
+        # Берем последнюю секцию директории для заголовка окна
+        # далее "секция"
         base_name = os.path.basename(self.main_dir)
+
+        # Если текущая директория в избранном, то берем имя в избранном
         if self.main_dir in JsonData.favs:
             fav = JsonData.favs[self.main_dir]
+
+            # Если имя в избранном не совпадает с "секцией", то заголовок такой:
+            # Имя в избранном: "Секция"
             if fav != base_name:
                 title = f"{base_name} ({JsonData.favs[self.main_dir]})"
+
+            # А иначе: "Секция"
             else:
                 title = base_name
+
+        # Если директория не в избранном, то заголовок такой: "Секция"
         else:
             title = base_name
 
         self.setWindowTitle(title)
         self.menu_favs.fav_cmd(("select", self.main_dir))
 
-        # появляется рекурсия, нужна отладка
         self.bar_top.search_wid.clear_without_signal()
 
         if self.view_index == 0:
@@ -321,7 +331,7 @@ class WinMain(QWidget):
         self.window().raise_()
         self.grid.setFocus()
 
-    def sctoll_up_show_hide(self, value: int):
+    def scroll_up_show_hide(self, value: int):
         if value == 0:
             self.scroll_up.hide()
         else:
