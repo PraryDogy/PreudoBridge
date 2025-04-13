@@ -23,7 +23,7 @@ from widgets.win_img_view import LoadImage
 ARROW_UP = "\u25B2" # ▲
 
 
-class MenuTabs(QTabWidget):
+class TabsWidget(QTabWidget):
     def __init__(self):
         super().__init__()
         self.tabBarClicked.connect(self.tab_cmd)
@@ -42,7 +42,7 @@ class MenuTabs(QTabWidget):
             a0.ignore()
 
 
-class ShowHideTags(QWidget):
+class TagsBtn(QWidget):
     clicked_ = pyqtSignal()
     def __init__(self):
         super().__init__()
@@ -122,7 +122,7 @@ class WinMain(QWidget):
         left_v_lay.setSpacing(0)
         left_wid.setLayout(left_v_lay)
 
-        self.menu_tabs = MenuTabs()
+        self.menu_tabs = TabsWidget()
         left_v_lay.addWidget(self.menu_tabs)
 
         self.menu_tree = MenuTree()
@@ -136,7 +136,7 @@ class WinMain(QWidget):
         self.menu_tabs.addTab(self.menu_favs, "Избранное")
         self.menu_tree.fav_cmd_sig.connect(self.menu_favs.fav_cmd)
 
-        show_hide_tags_btn = ShowHideTags()
+        show_hide_tags_btn = TagsBtn()
         show_hide_tags_btn.clicked_.connect(self.show_hide_tags)
         left_v_lay.addWidget(show_hide_tags_btn)
 
