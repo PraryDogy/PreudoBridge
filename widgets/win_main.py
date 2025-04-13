@@ -76,6 +76,8 @@ class TagsBtn(QWidget):
 
 
 class WinMain(QWidget):
+    resize_ms = 100
+
     def __init__(self):
         super().__init__()
 
@@ -172,7 +174,7 @@ class WinMain(QWidget):
 
     def setup_signals(self):
         self.resize_timer.timeout.connect(self.resize_timer_cmd)
-        self.splitter.splitterMoved.connect(lambda: self.resize_timer.start(500))
+        self.splitter.splitterMoved.connect(lambda: self.resize_timer.start(WinMain.resize_ms))
 
         self.menu_tree.load_st_grid_sig.connect(self.load_st_grid_cmd)
         self.menu_tree.fav_cmd_sig.connect(self.menu_favs.fav_cmd)
@@ -277,9 +279,6 @@ class WinMain(QWidget):
             self.load_st_grid_cmd(data)
 
     def load_st_grid_cmd(self, data: tuple):
-        """
-        new_main_dir (self.main_dir), path to widget for select widget
-        """
         new_main_dir, path_for_select = data
 
         if new_main_dir:
@@ -365,7 +364,7 @@ class WinMain(QWidget):
         Dynamic.hh = self.geometry().height()
         self.scroll_up.move(self.width() - 70, self.height() - 110)
         self.resize_timer.stop()
-        self.resize_timer.start(100)
+        self.resize_timer.start(WinMain.resize_ms)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         self.hide()

@@ -439,7 +439,7 @@ class Grid(QScrollArea):
     move_slider_sig = pyqtSignal(int)
     change_view_sig = pyqtSignal(int)
 
-    def __init__(self, main_dir: str, view_index: int, prev_path: str = None):
+    def __init__(self, main_dir: str, view_index: int, path_for_select: str = None):
         QScrollArea.__init__(self)
         BaseMethods.__init__(self)
 
@@ -450,7 +450,7 @@ class Grid(QScrollArea):
         
         self.main_dir = main_dir
         self.view_index = view_index
-        self.prev_path = prev_path
+        self.path_for_select = path_for_select
         self.path_to_wid: dict[str, Thumb] = {}
         self.selected_widgets: list[Thumb] = []
         self.cell_to_wid: dict[tuple, Thumb] = {}
@@ -592,15 +592,15 @@ class Grid(QScrollArea):
             for coords, wid in self.cell_to_wid.items()
         }
 
-        if isinstance(self.prev_path, str):
-            wid = self.path_to_wid.get(self.prev_path)
+        if isinstance(self.path_for_select, str):
+            wid = self.path_to_wid.get(self.path_for_select)
             self.select_one_wid(wid=wid)
             QTimer.singleShot(500, lambda: self.ensureWidgetVisible(wid))
 
-        elif isinstance(self.prev_path, (tuple, list)):
+        elif isinstance(self.path_for_select, (tuple, list)):
             widgets = [
                 self.path_to_wid.get(i)
-                for i in self.prev_path
+                for i in self.path_for_select
             ]
 
             for i in widgets:
