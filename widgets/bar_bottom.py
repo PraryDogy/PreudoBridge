@@ -247,7 +247,7 @@ class PathItem(QWidget):
 
     def win_info_cmd(self):
         self.win_info = WinInfo(self.src)
-        Utils.center_win(self.window(), self.win_info)
+        self.win_info.center(self.window())
         self.win_info.show()
 
     def enterEvent(self, a0):
