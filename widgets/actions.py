@@ -8,7 +8,7 @@ from cfg import Dynamic, Static
 from database import ORDER
 from utils import URunnable, UThreadPool, Utils
 
-from ._base_widgets import OpenWin, UMenu
+from ._base_widgets import UMenu
 
 REVEAL_T = "Показать в Finder"
 INFO_T = "Инфо"
@@ -111,20 +111,9 @@ class RevealInFinder(UAction):
         )
 
 
-class Info(UAction):
+class Info(QAction):
     def __init__(self, parent: UMenu, src: str):
-
-        super().__init__(
-            parent=parent,
-            src=src,
-            text=INFO_T
-        )
-
-    def cmd_(self):
-        OpenWin.info(
-            parent=Utils.get_main_win(),
-            src=self.src
-        )
+        super().__init__(parent, INFO_T)
 
 
 # из родительского виджета копирует путь к файлу / папке

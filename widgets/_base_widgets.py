@@ -32,7 +32,6 @@ class BaseSignals(QObject):
 
 
 class UMenu(QMenu):
-
     def mouseReleaseEvent(self, a0):
         if a0.button() == Qt.MouseButton.RightButton:
             a0.ignore()
@@ -181,6 +180,11 @@ class WinBase(QWidget):
         super().__init__()
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
 
+    def center(self, parent: QWidget):
+        geo = self.geometry()
+        geo.moveCenter(parent.geometry().center())
+        self.setGeometry(geo)
+
 
 class WinMinMax(WinBase):
     def __init__(self):
@@ -188,16 +192,6 @@ class WinMinMax(WinBase):
         fl = Qt.WindowType.Window | Qt.WindowType.CustomizeWindowHint
         fl = fl  | Qt.WindowType.WindowCloseButtonHint
         self.setWindowFlags(fl)
-
-
-class OpenWin:
-
-    @classmethod
-    def info(cls, parent: QWidget, src: str):
-        from .win_info import WinInfo
-        cls.win_info = WinInfo(src)
-        Utils.center_win(parent, cls.win_info)
-        cls.win_info.show()
 
 
 class UFrame(QFrame):

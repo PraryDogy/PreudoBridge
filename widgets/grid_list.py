@@ -7,10 +7,11 @@ from PyQt5.QtWidgets import QFileSystemModel, QTableView
 from cfg import JsonData
 from utils import Utils
 
-from .actions import (ChangeView, CopyPath, FavAdd, FavRemove, Info,
-                       RevealInFinder)
 from ._base_widgets import BaseMethods, UMenu
+from .actions import (ChangeView, CopyPath, FavAdd, FavRemove, Info,
+                      RevealInFinder)
 from .finder_items import LoadingWid
+from .win_info import WinInfo
 
 
 class GridList(QTableView):
@@ -83,6 +84,11 @@ class GridList(QTableView):
     def select_new_widget(self, *args, **kwargs):
         ...
 
+    def win_info_cmd(self, src: str):
+        self.win_info = WinInfo(src)
+        Utils.center_win(self.window(), self.win_info)
+        self.win_info.show()
+
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         index = self.currentIndex()
         path = self._model.filePath(index)
@@ -102,6 +108,7 @@ class GridList(QTableView):
             src = self.main_dir
 
         info = Info(menu, src)
+        info.triggered.connect(lambda: self.win_info_cmd(src))
         menu.addAction(info)
 
         open_finder_action = RevealInFinder(parent=menu, src=src)

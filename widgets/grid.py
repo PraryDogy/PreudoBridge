@@ -13,12 +13,13 @@ from cfg import Dynamic, JsonData, Static, ThumbData
 from database import CACHE, Dbase, OrderItem
 from utils import URunnable, UThreadPool, Utils
 
-from .actions import (ChangeView, CopyFilesAction, CopyPath, FavAdd,
-                       FavRemove, Info, OpenInApp, PasteFilesAction,
-                       RatingMenu, RemoveFilesAction, RevealInFinder,
-                       ShowInFolder, SortMenu, TagMenu, UpdateGrid, View)
-from ._base_widgets import BaseMethods, OpenWin, UMenu, USvgSqareWidget
-from .win_copy_files import WinCopyFiles, ErrorWin
+from ._base_widgets import BaseMethods, UMenu, USvgSqareWidget
+from .actions import (ChangeView, CopyFilesAction, CopyPath, FavAdd, FavRemove,
+                      Info, OpenInApp, PasteFilesAction, RatingMenu,
+                      RemoveFilesAction, RevealInFinder, ShowInFolder,
+                      SortMenu, TagMenu, UpdateGrid, View)
+from .win_copy_files import ErrorWin, WinCopyFiles
+from .win_info import WinInfo
 from .win_remove_files import WinRemoveFiles
 
 SELECTED = "selected"
@@ -648,6 +649,11 @@ class Grid(QScrollArea):
         else:
             self.fav_cmd_sig.emit(("del", src))
 
+    def win_info_cmd(self, src: str):
+        self.win_info = WinInfo(src)
+        Utils.center_win(self.window(), self.win_info)
+        self.win_info.show()
+
     def thumb_context_actions(self, menu: UMenu, wid: Thumb):
 
         urls = [
@@ -668,6 +674,7 @@ class Grid(QScrollArea):
         menu.addSeparator()
 
         info = Info(parent=menu, src=wid.src)
+        info.triggered.connect(lambda: self.win_info_cmd(wid.src))
         menu.addAction(info)
 
         show_in_finder_action = RevealInFinder(parent=menu, src=urls)
@@ -728,6 +735,7 @@ class Grid(QScrollArea):
         self.set_bottom_path(src=self.main_dir)
 
         info = Info(menu, self.main_dir)
+        info.triggered.connect(lambda: self.win_info_cmd(self.main_dir))
         menu.addAction(info)
 
         reveal = RevealInFinder(parent=menu, src=self.main_dir)
@@ -890,9 +898,9 @@ class Grid(QScrollArea):
                 clicked_wid = self.selected_widgets[-1]
                 if clicked_wid:
                     self.select_one_wid(wid=clicked_wid)
-                    OpenWin.info(parent=self.window(), src=clicked_wid.src)
+                    self.win_info_cmd(clicked_wid.src)
                 else:
-                    OpenWin.info(parent=self.window(), src=self.main_dir)
+                    self.win_info_cmd(self.main_dir)
 
             elif a0.key() == Qt.Key.Key_Equal:
                 new_value = Dynamic.pixmap_size_ind + 1

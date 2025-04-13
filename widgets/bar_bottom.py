@@ -12,9 +12,10 @@ from cfg import Dynamic, Static, ThumbData
 from database import ORDER
 from utils import PathFinder, URunnable, UThreadPool, Utils
 
-from .actions import CopyPath, Info, RevealInFinder, SortMenu, View
 from ._base_widgets import (UFrame, ULineEdit, UMenu, USlider, USvgSqareWidget,
-                    WinMinMax)
+                            WinMinMax)
+from .actions import CopyPath, Info, RevealInFinder, SortMenu, View
+from .win_info import WinInfo
 
 SORT_T = "Сортировка"
 TOTAL_T = "Всего"
@@ -244,6 +245,11 @@ class PathItem(QWidget):
         if not self.text_wid.underMouse():
             self.text_wid.setMinimumWidth(self.min_wid)
 
+    def win_info_cmd(self):
+        self.win_info = WinInfo(self.src)
+        Utils.center_win(self.window(), self.win_info)
+        self.win_info.show()
+
     def enterEvent(self, a0):
         self.expand()
 
@@ -292,6 +298,7 @@ class PathItem(QWidget):
         menu.addSeparator()
 
         info = Info(menu, self.src)
+        info.triggered.connect(self.win_info_cmd)
         menu.addAction(info)
 
         show_in_finder_action = RevealInFinder(menu, self.src)

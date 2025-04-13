@@ -13,10 +13,11 @@ from cfg import Dynamic, Static
 from database import CACHE, Dbase
 from utils import URunnable, UThreadPool, Utils
 
+from ._base_widgets import UMenu, USvgSqareWidget, WinBase
 from .actions import (CopyPath, Info, OpenInApp, RatingMenu, RevealInFinder,
-                       TagMenu)
-from ._base_widgets import OpenWin, UMenu, USvgSqareWidget, WinBase
+                      TagMenu)
 from .grid import KEY_RATING, RATINGS, Thumb
+from .win_info import WinInfo
 
 LOADING_T = "Загрузка..."
 
@@ -458,8 +459,10 @@ class WinImgView(WinBase):
         self.zoom_btns.show()
         self.mouse_move_timer.start(2000)
 
-    def show_info_win(self):
-        OpenWin.info(self, self.src)
+    def win_info_cmd(self, src: str):
+        self.win_info = WinInfo(src)
+        Utils.center_win(self, self.win_info)
+        self.win_info.show()
 
 # EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS 
 
@@ -492,7 +495,7 @@ class WinImgView(WinBase):
 
         elif ev.modifiers() & Qt.KeyboardModifier.ControlModifier:
             if ev.key() == Qt.Key.Key_I:
-                self.show_info_win()
+                self.win_info_cmd(self.src)
 
         return super().keyPressEvent(ev)
 
@@ -537,6 +540,7 @@ class WinImgView(WinBase):
         menu.addSeparator()
 
         info = Info(menu, self.src)
+        info.triggered.connect(lambda: self.win_info_cmd(self.src))
         menu.addAction(info)
 
         show_in_finder_action = RevealInFinder(parent=menu, src=self.src)
