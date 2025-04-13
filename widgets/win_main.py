@@ -98,7 +98,7 @@ class WinMain(QWidget):
         # инициируем пустую сетку, чтобы работали все методы сетки, например
         # grid.close(), и не пришлось бы каждый раз проверять
         # if hasattr(self, "grid")
-        self.grid: Grid = Grid(self.main_dir, self.view_index)
+        self.grid: Grid = Grid(self.main_dir, self.view_index, None)
 
         main_lay = QHBoxLayout()
         main_lay.setContentsMargins(5, 0, 5, 0)
