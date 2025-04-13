@@ -109,7 +109,7 @@ class GridStandart(Grid):
         self.tasks: list[LoadImages] = []
 
         self.loading_lbl = LoadingWid(parent=self)
-        Utils.center_win(self, self.loading_lbl)
+        self.loading_lbl.center(self)
         self.show()
 
         self.finder_thread = FinderItems(self.main_dir)
@@ -253,7 +253,7 @@ class GridStandart(Grid):
         return super().closeEvent(a0)
 
     def resizeEvent(self, a0):
-        Utils.center_win(self, self.loading_lbl)
+        self.loading_lbl.center(self)
         return super().resizeEvent(a0)
     
     def dragEnterEvent(self, a0):
@@ -275,16 +275,16 @@ class GridStandart(Grid):
                 return
 
         if Dynamic.files_to_copy:
-            self.win_copy = WinCopyFiles(self.main_dir)
-            self.win_copy.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
-            self.win_copy.error_win_sig.connect(self.error_win_cmd)
-            Utils.center_win(self.window(), self.win_copy)
-            self.win_copy.show()
+            self.win_copy_files_win = WinCopyFiles(self.main_dir)
+            self.win_copy_files_win.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
+            self.win_copy_files_win.error_win_sig.connect(self.error_win_cmd)
+            self.win_copy_files_win.center(self.window())
+            self.win_copy_files_win.show()
 
         return super().dropEvent(a0)
     
     def error_win_cmd(self):
-        self.win_copy.close()
+        self.win_copy_files_win.close()
         self.error_win = ErrorWin()
-        Utils.center_win(self.window(), self.error_win)
+        self.error_win.center(self.window())
         self.error_win.show()

@@ -326,9 +326,9 @@ class GridSearch(Grid):
             ]
 
             if missed_files:
-                self.win = WinMissedFiles(files=missed_files)
-                Utils.center_win(parent=self.window(), child=self.win)
-                self.win.show()
+                self.win_missed_files = WinMissedFiles(files=missed_files)
+                self.win_missed_files.center(self.window())
+                self.win_missed_files.show()
 
             Dynamic.SEARCH_LIST.clear()
 

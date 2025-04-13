@@ -35,7 +35,7 @@ class GridList(QTableView):
         self.view_index = view_index
 
         self.loading_lbl = LoadingWid(parent=self)
-        Utils.center_win(self, self.loading_lbl)
+        self.loading_lbl.center(self)
         self.show()
 
         self.setSelectionBehavior(QTableView.SelectRows)
@@ -86,7 +86,7 @@ class GridList(QTableView):
 
     def win_info_cmd(self, src: str):
         self.win_info = WinInfo(src)
-        Utils.center_win(self.window(), self.win_info)
+        self.win_info.center(self.window())
         self.win_info.show()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:

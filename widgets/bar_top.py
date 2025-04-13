@@ -188,7 +188,7 @@ class SearchWidget(QWidget):
         self.list_win = ListWin()
         self.list_win.ok_pressed.connect(self.list_win_cmd)
         self.list_win_opened.emit()
-        Utils.center_win(parent=self.window(), child=self.list_win)
+        self.list_win.center(self.window())
         self.list_win.show()
 
     def list_win_cmd(self, *args):
@@ -281,7 +281,7 @@ class BarTop(QWidget):
     def open_settings_win(self, *args):
         self.sett_win = WinSettings()
         self.sett_win.clear_data_clicked.connect(self.clear_data_clicked.emit)
-        Utils.center_win(self.window(), self.sett_win)
+        self.sett_win.center(self.window())
         self.sett_win.show()
 
     def new_history_item_cmd(self, dir: str):

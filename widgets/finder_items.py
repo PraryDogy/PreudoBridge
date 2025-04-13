@@ -109,3 +109,8 @@ class LoadingWid(QLabel):
                 border-radius: 4px;
             """
         )
+
+    def center(self, parent: QWidget):
+        geo = self.geometry()
+        geo.moveCenter(parent.geometry().center())
+        self.setGeometry(geo)

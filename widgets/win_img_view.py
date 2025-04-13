@@ -461,7 +461,7 @@ class WinImgView(WinBase):
 
     def win_info_cmd(self, src: str):
         self.win_info = WinInfo(src)
-        Utils.center_win(self, self.win_info)
+        self.win_info.center(self)
         self.win_info.show()
 
 # EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS 

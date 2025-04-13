@@ -637,7 +637,7 @@ class Grid(QScrollArea):
             from .win_img_view import WinImgView
             self.win_img_view = WinImgView(wid.src, self.path_to_wid)
             self.win_img_view.move_to_wid_sig.connect(self.select_one_wid)
-            Utils.center_win(self.window(), self.win_img_view)
+            self.win_img_view.center(self.window())
             self.win_img_view.show()
 
         else:
@@ -651,7 +651,7 @@ class Grid(QScrollArea):
 
     def win_info_cmd(self, src: str):
         self.win_info = WinInfo(src)
-        Utils.center_win(self.window(), self.win_info)
+        self.win_info.center(self.window())
         self.win_info.show()
 
     def thumb_context_actions(self, menu: UMenu, wid: Thumb):
@@ -852,19 +852,19 @@ class Grid(QScrollArea):
             self.win_copy = WinCopyFiles(self.main_dir)
             self.win_copy.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
             self.win_copy.error_win_sig.connect(self.error_win_cmd)
-            Utils.center_win(self.window(), self.win_copy)
+            self.win_copy.center(self.window())
             self.win_copy.show()
 
     def error_win_cmd(self):
         self.win_copy.close()
         self.error_win = ErrorWin()
-        Utils.center_win(self.window(), self.error_win)
+        self.error_win.center(self.window())
         self.error_win.show()
 
     def remove_files_cmd(self, urls: list[str]):
         self.rem_win = WinRemoveFiles(self.main_dir, urls)
         self.rem_win.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
-        Utils.center_win(parent=self.window(), child=self.rem_win)
+        self.rem_win.center(self.window())
         self.rem_win.show()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:

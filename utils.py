@@ -16,9 +16,9 @@ from PIL import Image
 from PyQt5.QtCore import QRect, QRectF, QRunnable, QSize, Qt, QThreadPool
 from PyQt5.QtGui import QColor, QFont, QImage, QPainter, QPixmap
 from PyQt5.QtSvg import QSvgGenerator, QSvgRenderer
-from PyQt5.QtWidgets import QApplication, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QApplication
 
-from cfg import Dynamic, Static, ThumbData
+from cfg import Dynamic, Static
 
 psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
 psd_logger = logging.getLogger("psd_tools")
@@ -362,12 +362,6 @@ class Utils(Pixmap, ReadImage, ImgConvert):
         clipboard = QApplication.clipboard()
         return clipboard.text()
 
-    @classmethod
-    def center_win(cls, parent: QWidget, child: QWidget):
-        geo = child.geometry()
-        geo.moveCenter(parent.geometry().center())
-        child.setGeometry(geo)
-     
     @classmethod
     def get_f_size(cls, bytes_size: int) -> str:
         if bytes_size < 1024:

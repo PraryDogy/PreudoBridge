@@ -28,10 +28,10 @@ class FavItem(QLabel):
         self.setContentsMargins(10, 0, 10, 0)
 
     def rename_cmd(self):
-        self.win = WinRename(self.name)
-        self.win.finished_.connect(self.rename_finished_cmd)
-        Utils.center_win(self.window(), self.win)
-        self.win.show()
+        self.win_rename = WinRename(self.name)
+        self.win_rename.finished_.connect(self.rename_finished_cmd)
+        self.win_rename.center(self.window())
+        self.win_rename.show()
 
     def rename_finished_cmd(self, text: str):
         self.setText(text)
@@ -174,10 +174,10 @@ class MenuFavs(QListWidget):
         if src not in JsonData.favs:
             cmd_ = lambda name: self.add_to_favs_main_fin(src=src, name=name)
             name = os.path.basename(src)
-            self.set_name_win = WinRename(text=name)
-            self.set_name_win.finished_.connect(cmd_)
-            Utils.center_win(parent=self.window(), child=self.set_name_win)
-            self.set_name_win.show()
+            self.win_set_name = WinRename(text=name)
+            self.win_set_name.finished_.connect(cmd_)
+            self.win_set_name.center(self.window())
+            self.win_set_name.show()
 
     def add_to_favs_main_fin(self, src: str, name: str):
             JsonData.favs[src] = name
