@@ -140,7 +140,9 @@ class WinMain(QWidget):
 
         self.splitter.setStretchFactor(0, 0)
         self.splitter.setStretchFactor(1, 1)
-        self.splitter.setSizes([Static.LEFT_MENU_W, self.width() - Static.LEFT_MENU_W])
+        self.splitter.setSizes(
+            [Static.LEFT_MENU_W, self.width() - Static.LEFT_MENU_W]
+        )
 
         self.r_lay = QVBoxLayout()
         self.r_lay.setContentsMargins(0, 0, 0, 0)
@@ -268,7 +270,7 @@ class WinMain(QWidget):
         self.grid.bar_bottom_update.connect(self.bar_bottom.update_bar_cmd)
         self.grid.fav_cmd_sig.connect(self.menu_favs.fav_cmd)
         self.grid.move_slider_sig.connect(self.bar_bottom.slider.move_slider_cmd)
-        self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_scroll_value)
+        self.grid.verticalScrollBar().valueChanged.connect(self.sctoll_up_show_hide)
         self.grid.setFocus()
 
     def load_st_grid_cmd(self, data: tuple):
@@ -314,14 +316,14 @@ class WinMain(QWidget):
         self.grid.change_view_sig.connect(self.change_view_cmd)
 
         self.grid.verticalScrollBar().valueChanged.connect(
-            self.scroll_up_scroll_value
+            self.sctoll_up_show_hide
         )
 
         self.menu_tree.expand_path(self.main_dir)
         self.grid.setFocus()
         self.window().raise_()
 
-    def scroll_up_scroll_value(self, value: int):
+    def sctoll_up_show_hide(self, value: int):
         if value == 0:
             self.scroll_up.hide()
         else:
