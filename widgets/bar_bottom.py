@@ -13,7 +13,7 @@ from database import ORDER
 from utils import PathFinder, URunnable, UThreadPool, Utils
 
 from ._base_widgets import (UFrame, ULineEdit, UMenu, USlider, USvgSqareWidget,
-                            WinMinMax)
+                            WinMinMaxDisabled)
 from .actions import CopyPath, Info, RevealInFinder, SortMenu, View
 from .win_info import WinInfo
 
@@ -82,7 +82,7 @@ class GoLineEdit(ULineEdit):
         return super().mouseDoubleClickEvent(a0)
 
 
-class WinGo(WinMinMax):
+class WinGo(WinMinMaxDisabled):
     open_path_sig = pyqtSignal(str)
 
     def __init__(self):

@@ -12,7 +12,7 @@ from database import OrderItem
 from fit_img import FitImg
 from utils import URunnable, UThreadPool, Utils
 
-from ._base_widgets import USvgSqareWidget, UTextEdit, WinMinMax
+from ._base_widgets import USvgSqareWidget, UTextEdit, WinMinMaxDisabled
 from .grid import Grid, ThumbSearch
 
 SQL_ERRORS = (IntegrityError, OperationalError)
@@ -165,7 +165,7 @@ class SearchFinder(URunnable):
         sleep(0.1)
 
 
-class WinMissedFiles(WinMinMax):
+class WinMissedFiles(WinMinMaxDisabled):
     def __init__(self, files: list[str]):
         super().__init__()
         self.setWindowTitle(ATTENTION_T)

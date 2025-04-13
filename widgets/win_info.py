@@ -10,7 +10,7 @@ from database import OrderItem
 from utils import URunnable, UThreadPool, Utils
 
 from .actions import CopyText, RevealInFinder
-from ._base_widgets import UMenu, WinMinMax
+from ._base_widgets import UMenu, WinMinMaxDisabled
 
 CALCULATING = "Вычисляю..."
 TITLE = "Инфо"
@@ -158,7 +158,7 @@ class CustomLabel(QLabel):
         menu.exec_(ev.globalPos())
 
 
-class WinInfo(WinMinMax):
+class WinInfo(WinMinMaxDisabled):
     def __init__(self, src: str):
         super().__init__()
         self.setWindowTitle(TITLE)

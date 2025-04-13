@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QAction, QGroupBox, QHBoxLayout, QLabel,
 from cfg import Dynamic, JsonData, Static
 from utils import Utils
 
-from ._base_widgets import UFrame, ULineEdit, UMenu, UTextEdit, WinMinMax
+from ._base_widgets import UFrame, ULineEdit, UMenu, UTextEdit, WinMinMaxDisabled
 from .win_settings import WinSettings
 
 SEARCH_PLACE = "Место поиска:"
@@ -47,7 +47,7 @@ class BarTopBtn(UFrame):
         return super().mouseReleaseEvent(a0)
 
 
-class ListWin(WinMinMax):
+class ListWin(WinMinMaxDisabled):
     ok_pressed = pyqtSignal()
 
     def __init__(self):
