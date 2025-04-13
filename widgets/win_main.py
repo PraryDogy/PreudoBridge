@@ -77,16 +77,6 @@ class TagsBtn(QWidget):
 
 class WinMain(QWidget):
     def __init__(self):
-
-        if not self.__class__.__name__ == Static.MAIN_WIN_NAME:
-
-            text = (
-                f"gui.py > имя класса {self.__class__.__name__}",
-                f"должно соответствовать cfg.py > MAIN_WIN_NAME ({Static.MAIN_WIN_NAME})"
-            )
-
-            raise Exception ("\n".join(text))
-
         super().__init__()
 
         self.main_dir = os.path.expanduser("~/Downloads")

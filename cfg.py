@@ -85,8 +85,6 @@ class Static:
         ".MOV", ".MP4"
     )
 
-    MAIN_WIN_NAME = "WinMain" # имя класса главного окна в gui.py
-
     SEARCH_EXTENSIONS = {
         "Найти jpg": (".jpg", ".jpeg", "jfif"),
         "Найти png": (".png"),

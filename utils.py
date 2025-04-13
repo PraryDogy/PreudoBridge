@@ -363,12 +363,6 @@ class Utils(Pixmap, ReadImage, ImgConvert):
         return clipboard.text()
 
     @classmethod
-    def get_main_win(cls) -> QWidget:
-        for i in QApplication.topLevelWidgets():
-            if Static.MAIN_WIN_NAME in str(i):
-                return i
-
-    @classmethod
     def center_win(cls, parent: QWidget, child: QWidget):
         geo = child.geometry()
         geo.moveCenter(parent.geometry().center())
