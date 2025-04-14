@@ -38,56 +38,26 @@ class FavItem(QLabel):
         self.renamed.emit(text)
         JsonData.write_config()
 
-    def try_find_path(self):
-        # Проверяет возможность изменения пути, если текущий путь `self.src` недоступен.
-        #
-        # Метод предназначен для случаев, когда путь из избранного (`self.src`) может существовать 
-        # на другом сетевом диске. Для этого:
-        # 1. Удаляются первые две секции из текущего пути (`/Volumes/ИМЯ_СЕТЕВОГО_ДИСКА`).
-        # 2. Подставляются новые имена сетевых дисков, перечисленных в директории `/Volumes`.
-        # 3. Выполняется проверка существования нового пути.
-        #    Если путь найден:
-        #    - Обновляется словарь избранного (`JsonData.favs`), заменяя старый путь на новый.
-        #    - Сохраняются изменения в конфигурации с помощью `JsonData.write_config`.
-        #    - Вызывается сигнал `self.path_changed` для уведомления о смене пути.
-        #
-        # Если подходящий путь не найден, никаких изменений не производится.
-        if not os.path.exists(self.src):
-            cut = os.path.sep.join(
-                self.src.strip(os.path.sep).split(os.path.sep)[2:]
-            )
-
-            volumes = [
-                entry.path
-                for entry in os.scandir(Static.VOLUMES)
-                if entry.is_dir()
-            ]
-
-            for volume in volumes:
-                new_src = os.path.join(volume, cut)
-
-                if os.path.exists(new_src):
-                    JsonData.favs = {
-                        (new_src if path == self.src else path): path_name
-                        for path, path_name in JsonData.favs.items()
-                    }
-
-                    self.src = new_src
-                    JsonData.write_config()
-                    self.path_changed.emit()
-                    break
-
     def view_fav(self):
         self.new_history_item.emit(self.src)
         self.load_st_grid_sig.emit((self.src, None))
 
     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
         if ev.button() == Qt.MouseButton.LeftButton:
+            fixed_path = Utils.fix_path_prefix(self.src)
+            if fixed_path:
 
-            # проверяем, если путь не существует, возможно
-            # он находится на другом сетевом диске
+                # удаляем из избранного старый айтем с неверной директорией
+                JsonData.favs.pop(self.src)
 
-            self.try_find_path()
+                # добавляем новый айтем
+                JsonData.favs[fixed_path] = self.name
+                self.src = fixed_path
+                JsonData.write_config()
+
+                # подаем сигнал в родительский виджет для обновления ui
+                self.path_changed.emit()
+
             self.view_fav()
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:

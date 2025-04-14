@@ -411,7 +411,7 @@ class Utils(Pixmap, ReadImage, ImgConvert):
         return path
     
     @classmethod
-    def find_new_volume(cls, path: str):
+    def fix_path_prefix(cls, path: str):
         """
         Устраняет проблему с изменяющимся префиксом пути к сетевому диску,
         например:   
