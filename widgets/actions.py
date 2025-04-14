@@ -188,32 +188,22 @@ class OpenInApp(UMenu):
 
 # меню с рейтингом для _grid.py > Thumb, ThumbSearch
 class RatingMenu(UMenu):
-    _clicked = pyqtSignal(int)
+    new_rating = pyqtSignal(int)
 
-    def __init__(self, parent: UMenu, src: str | list, rating: int):
-
-        if isinstance(src, str):
-            src = [src]
-
-        t = f"{RATING_T} ({len(src)})"
-
-        super().__init__(
-            parent=parent,
-            title=t
-        )
-
+    def __init__(self, parent: UMenu, urls: str | list, current_rating: int):
+        if isinstance(urls, str):
+            urls = [urls]
+        t = f"{RATING_T} ({len(urls)})"
+        super().__init__(t, parent)
 
         # свойство Thumb, ThumbSearch
         # рейтинг для каждого виджета хранится в базе данных
         # и подгружается при создании сетки
-        rating = rating % 10
-        self.rating = rating
+        current_rating = current_rating % 10
+        self.rating = current_rating
 
         cancel_ = QAction(Static.LINE_LONG_SYM, self)
-
-        cancel_.triggered.connect(
-            lambda: self._clicked.emit(0)
-        )
+        cancel_.triggered.connect(lambda: self.new_rating.emit(0))
         self.addAction(cancel_)
 
         # рейтинг от 1 до 5 звезд
@@ -221,12 +211,11 @@ class RatingMenu(UMenu):
         # в self.rating (свойство Thumb, ThumbSearch)
         # если есть, то отмечается setChecked
         # 0 возвращает False
-        for rating in range(1, 6):
-
-            wid = QAction(Static.STAR_SYM * rating, self)
+        for current_rating in range(1, 6):
+            wid = QAction(Static.STAR_SYM * current_rating, self)
             wid.setCheckable(True)
 
-            if self.rating == rating:
+            if self.rating == current_rating:
                 wid.setChecked(True)
 
             # клик возвращает через сигнал целое число
@@ -234,10 +223,8 @@ class RatingMenu(UMenu):
             # например: int(5) это 5 звезд = rating в данном цикле
             # виджет Thumb / ThumbSearch установит новый рейтинг и 
             # запишет его в базу данных
-            wid.triggered.connect(
-                lambda e, r=rating: self._clicked.emit(r)
-            )
-
+            cmd_ = lambda e, r=current_rating: self.new_rating.emit(r)
+            wid.triggered.connect(cmd_)
             self.addAction(wid)
 
 

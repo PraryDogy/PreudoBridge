@@ -552,7 +552,7 @@ class WinImgView(WinBase):
         menu.addSeparator()
 
         rating_menu = RatingMenu(menu, self.src, self.wid.rating)
-        rating_menu._clicked.connect(self.wid.calculate_new_rating)
+        rating_menu.new_rating.connect(self.wid.calculate_new_rating)
         menu.addMenu(rating_menu)
 
         tags_menu = TagMenu(parent=menu, src=self.wid.src, rating=self.wid.rating)

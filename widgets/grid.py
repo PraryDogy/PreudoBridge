@@ -709,8 +709,8 @@ class Grid(QScrollArea):
             menu.addSeparator()
 
         if wid.type_ in (*Static.IMG_EXT, Static.FOLDER_TYPE):
-            rating_menu = RatingMenu(parent=menu, src=urls, rating=wid.rating)
-            rating_menu._clicked.connect(self.set_new_rating)
+            rating_menu = RatingMenu(parent=menu, urls=urls, current_rating=wid.rating)
+            rating_menu.new_rating.connect(self.set_new_rating)
             menu.addMenu(rating_menu)
 
             tags_menu = TagMenu(parent=menu, src=urls, rating=wid.rating)
