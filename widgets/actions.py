@@ -122,8 +122,6 @@ class CopyPath(QAction):
 
 
 class View(QAction):
-    _clicked = pyqtSignal()
-
     def __init__(self, parent: UMenu):
         super().__init__(VIEW_T, parent)
 
@@ -151,7 +149,7 @@ class OpenInApp(UMenu):
         self.src = src
 
         open_default = QAction(OPEN_DEFAULT_T, parent)
-        open_default.triggered.connect(self.cmd_default)
+        open_default.triggered.connect(self.open_default_cmd)
         self.addAction(open_default)
         self.addSeparator()
         
@@ -162,7 +160,8 @@ class OpenInApp(UMenu):
 
         for name, app_path in self.apps.items():
             wid = QAction(name, self)
-            wid.triggered.connect(lambda e, a=app_path: self.cmd_(app_path=a, e=e))
+            cmd_ = lambda e, app_path=app_path: self.open_in_app_cmd(app_path)
+            wid.triggered.connect(cmd_)
             self.addAction(wid)
 
     def setup_open_with_apps(self):
@@ -175,20 +174,16 @@ class OpenInApp(UMenu):
                     if sub_entry.name.endswith((".APP", ".app")):
                         self.apps[sub_entry.name] = sub_entry.path
 
-
-    def cmd_(self, app_path: str, e):
-
-        # subprocess.call(["open", "-a", app_path, self.src])
-
+    def open_in_app_cmd(self, app_path: str):
         # открыть в приложении, путь к которому указан в app_path
-        self.task_ = Task_(
-            cmd_=lambda: subprocess.call(["open", "-a", app_path, self.src]))
+        cmd_=lambda: subprocess.call(["open", "-a", app_path, self.src])
+        self.task_ = Task_(cmd_)
+        UThreadPool.start(self.task_)
 
-        UThreadPool.start(runnable=self.task_)
-
-    def cmd_default(self):
-        self.task_ = Task_(cmd_=lambda: subprocess.call(["open",  self.src]))
-        UThreadPool.start(runnable=self.task_)
+    def open_default_cmd(self):
+        cmd_=lambda: subprocess.call(["open",  self.src])
+        self.task_ = Task_(cmd_)
+        UThreadPool.start(self.task_)
 
 
 # меню с рейтингом для _grid.py > Thumb, ThumbSearch
