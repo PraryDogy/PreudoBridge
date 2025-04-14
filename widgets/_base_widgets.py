@@ -5,7 +5,6 @@ from PyQt5.QtWidgets import (QFrame, QLineEdit, QMenu, QSlider, QTextEdit,
                              QWidget)
 
 from cfg import Static
-from utils import Utils
 
 
 class BaseMethods:

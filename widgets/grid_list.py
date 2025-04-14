@@ -28,8 +28,7 @@ class GridList(QTableView):
     change_view_sig = pyqtSignal(int)
 
     def __init__(self, main_dir: str, view_index: int):
-        QTableView.__init__(self)
-        BaseMethods.__init__(self)
+        super().__init__()
 
         self.main_dir = main_dir
         self.view_index = view_index

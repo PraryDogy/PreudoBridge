@@ -14,7 +14,7 @@ from cfg import Dynamic, JsonData, Static, ThumbData
 from database import CACHE, Dbase, OrderItem
 from utils import URunnable, UThreadPool, Utils
 
-from ._base_widgets import BaseMethods, UMenu, USvgSqareWidget
+from ._base_widgets import UMenu, USvgSqareWidget
 from .actions import (ChangeViewMenu, CopyPath, FavAdd, FavRemove, Info,
                       OpenInApp, RatingMenu, RevealInFinder, SortMenu, TagMenu,
                       View)
@@ -445,8 +445,7 @@ class Grid(QScrollArea):
     change_view_sig = pyqtSignal(int)
 
     def __init__(self, main_dir: str, view_index: int, path_for_select: str):
-        QScrollArea.__init__(self)
-        BaseMethods.__init__(self)
+        super().__init__()
 
         self.setAcceptDrops(True)
         self.setWidgetResizable(True)
