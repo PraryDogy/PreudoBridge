@@ -122,7 +122,6 @@ class WinMain(QWidget):
         self.menu_tabs.addTab(self.menu_tree, "Папки")
 
         self.menu_favs = MenuFavs()
-        self.menu_favs.init_ui(self.main_dir)
         self.menu_tabs.addTab(self.menu_favs, "Избранное")
 
         self.tags_btn = TagsBtn()
@@ -183,8 +182,7 @@ class WinMain(QWidget):
         self.menu_tree.fav_cmd_sig.connect(lambda data: self.menu_favs.fav_cmd(data))
         self.menu_tree.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
 
-        # Перезагружает меню избранного, выделяя текущую self.main_dir
-        self.menu_favs.init_ui_sig.connect(lambda: self.menu_favs.init_ui(self.main_dir))
+        self.menu_favs.set_main_dir_sig.connect(lambda: self.menu_favs.set_main_dir(self.main_dir))
         self.menu_favs.load_st_grid_sig.connect(lambda data: self.load_st_grid_cmd(data))
         self.menu_favs.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
 
