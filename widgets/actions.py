@@ -230,20 +230,13 @@ class RatingMenu(UMenu):
 
 # меню с тегами для _grid.py > Thumb, ThumbSearch
 class TagMenu(UMenu):
-    _clicked = pyqtSignal(int)
+    new_tag = pyqtSignal(int)
 
-    def __init__(self, parent: UMenu, src: str, rating: int):
-
-        if isinstance(src, str):
-            src = [src]
-
-        t = f"{TAGS_T} ({len(src)})"
-
-        super().__init__(
-            parent=parent,
-            title=t
-        )
-
+    def __init__(self, parent: UMenu, urls: str, rating: int):
+        if isinstance(urls, str):
+            urls = [urls]
+        t = f"{TAGS_T} ({len(urls)})"
+        super().__init__(t, parent)
         rating = rating // 10
 
         # копия механик из tree_tags.py > TreeTags
@@ -263,28 +256,22 @@ class TagMenu(UMenu):
         for sym, int_ in actions.items():
             wid = QAction(sym, parent)
             wid.setCheckable(True)
-
             if rating == int_:
                 wid.setChecked(True)
-
-            wid.triggered.connect(
-                lambda e, r=int_: self._clicked.emit(r)
-            )
-
+            cmd_ = lambda e, r=int_: self.new_tag.emit(r)
+            wid.triggered.connect(cmd_)
             self.addAction(wid)
 
 
 # удалить текст из виджета и скопировать в буфер обмена удаленную часть текста
 # только для QLineEdit / QTextEdit
-class TextCut(QAction):
+class CutText(QAction):
     def __init__(self, parent: UMenu, widget: QLineEdit | QTextEdit):
-
         super().__init__(CUT_T, parent)
         self.wid = widget
         self.triggered.connect(self.cmd_)
 
     def cmd_(self):
-
         if isinstance(self.wid, QLineEdit):
             selection = self.wid.selectedText()
             text = self.wid.text().replace(selection, "")
@@ -294,24 +281,18 @@ class TextCut(QAction):
             selection = self.wid.textCursor().selectedText()
             self.wid.textCursor().removeSelectedText()
 
-        Utils.write_to_clipboard(
-            text=selection
-        )
+        Utils.write_to_clipboard(selection)
 
 
 # Копировать выделенный текст в буфер обмена
 # Допускается QLabel с возможностью выделения текста
 class CopyText(QAction):
     def __init__(self, parent: UMenu, widget: QLineEdit | QLabel | QTextEdit):
-
         super().__init__(COPY_T, parent)
         self.wid = widget
         self.triggered.connect(self.cmd_)
 
     def cmd_(self):
-
-        print(self.wid, type)
-
         if isinstance(self.wid, QTextEdit):
             selection = self.wid.textCursor().selectedText()
         else:
@@ -323,16 +304,12 @@ class CopyText(QAction):
         # однострочным
         selection = selection.replace(Static.PARAGRAPH_SEP, "")
         selection = selection.replace(Static.LINE_FEED, "")
-
-        Utils.write_to_clipboard(
-            text=selection
-        )
+        Utils.write_to_clipboard(selection)
 
 
 # Вставить текст, допускается только QLineEdit и QTextEdit
-class TextPaste(QAction):
+class PasteText(QAction):
     def __init__(self, parent: UMenu, widget: QLineEdit | QTextEdit):
-
         super().__init__(PASTE_T, parent)
         self.wid = widget
         self.triggered.connect(self.cmd_)
@@ -350,14 +327,10 @@ class TextPaste(QAction):
 
 # Выделить весь текст, допускается только QLineEdit и QTextEdit
 class TextSelectAll(QAction):
-    def __init__(self, parent: UMenu, widget: QLineEdit):
-
+    def __init__(self, parent: UMenu, widget: QLineEdit | QTextEdit):
         super().__init__(SELECT_ALL_T, parent)
         self.wid = widget
-        self.triggered.connect(self.cmd_)
-
-    def cmd_(self):
-        self.wid.selectAll()
+        self.triggered.connect(lambda: self.wid.selectAll())
 
 
 # Меню, при помощи которого происходит сортировка
@@ -370,41 +343,27 @@ class TextSelectAll(QAction):
 # новый тип сортировки
 # нужно учитывать, что при изменении CACHE нужно либо очищать БД
 # или осуществлять миграцию существующих данных
-
 class SortMenu(UMenu):
     bar_bottom_update = pyqtSignal(tuple)
     order_grid_sig = pyqtSignal()
     rearrange_grid_sig = pyqtSignal()
 
     def __init__(self, parent: UMenu):
+        super().__init__(SORT_T, parent)
 
-        super().__init__(
-            parent=parent,
-            title=SORT_T
-        )
-
-        ascen = QAction(ASCENDING_T, self)
+        ascending = QAction(ASCENDING_T, self)
         # добавляем свойство прямой / обратной сортировки
         # прямая сортировка А > Я
-        ascen.rev = False
+        ascending.rev = False
+        ascending.triggered.connect(lambda: self.cmd_revers(ascending.rev))
 
-        ascen.triggered.connect(
-            lambda: self.cmd_revers(reversed=ascen.rev)
-        )
-
-
-        descen = QAction(DISCENDING_T, self)
-
+        descending = QAction(DISCENDING_T, self)
         # добавляем свойство прямой / обратной сортировки
         # обратная сортировка Я > А
-        descen.rev = True
+        descending.rev = True
+        descending.triggered.connect(lambda: self.cmd_revers(descending.rev))
 
-        descen.triggered.connect(
-            lambda: self.cmd_revers(reversed=descen.rev)
-        )
-
-        for i in (ascen, descen):
-
+        for i in (ascending, descending):
             i.setCheckable(True)
             self.addAction(i)
 
@@ -427,9 +386,8 @@ class SortMenu(UMenu):
 
             # передаем true_name, чтобы осуществить сортировку сетки
             # и записать true_name в пользовательские .json настройки
-            action_.triggered.connect(
-                lambda e, s=true_name: self.cmd_sort(true_name=s)
-            )
+            cmd_ = lambda e, true_name=true_name: self.cmd_sort(true_name)
+            action_.triggered.connect(cmd_)
 
             if Dynamic.sort == true_name:
                 action_.setChecked(True)
@@ -439,7 +397,6 @@ class SortMenu(UMenu):
     def cmd_sort(self, true_name: str):
         # записываем true_name (тип сортировки) в пользовательский .json
         Dynamic.sort = true_name
-        # self.load_st_grid_sig.emit((None, None))
         self.order_grid_sig.emit()
         self.rearrange_grid_sig.emit()
         self.bar_bottom_update.emit((None, None))

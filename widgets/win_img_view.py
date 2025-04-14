@@ -555,8 +555,8 @@ class WinImgView(WinBase):
         rating_menu.new_rating.connect(self.wid.calculate_new_rating)
         menu.addMenu(rating_menu)
 
-        tags_menu = TagMenu(parent=menu, src=self.wid.src, rating=self.wid.rating)
-        tags_menu._clicked.connect(self.wid.calculate_new_rating)
+        tags_menu = TagMenu(parent=menu, urls=self.wid.src, rating=self.wid.rating)
+        tags_menu.new_tag.connect(self.wid.calculate_new_rating)
         menu.addMenu(tags_menu)
 
         menu.show_custom()
