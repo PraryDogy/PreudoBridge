@@ -138,10 +138,6 @@ class CopyPath(QAction):
         Utils.write_to_clipboard(text=data)
 
 
-# просмотреть - открывает просмотрщик изображений
-# или папку - тогда создается новая сетка Grid в gui.py
-# посколько действие будет разным для файла / папки, здесь
-# используется только сигнал для обозначения, что QAction был нажат
 class View(QAction):
     _clicked = pyqtSignal()
 
@@ -149,38 +145,9 @@ class View(QAction):
         super().__init__(parent=parent, text=VIEW_T)
 
 
-# это действите для GridSearch + Grid > ThumbSearch
-# показать найденный ThumbSearch из GridSearch в родительской GridStandart
-class ShowInFolder(UAction):
-    _clicked = pyqtSignal()
-
-    def __init__(self, parent: UMenu, src: str):
-
-        super().__init__(
-            parent=parent,
-            src=src,
-            text=SHOW_IN_FOLDER_T
-        )
-
-    def cmd_(self):
-        self._clicked.emit()
-
-
-# удалить из избранного
-# за избранное отвечает меню слева - tree_favorites > TreeFavorites
-class FavRemove(UAction):
-    _clicked = pyqtSignal()
-
-    def __init__(self, parent: UMenu, src: str):
-        
-        super().__init__(
-            parent=parent,
-            src=src,
-            text=FAV_REMOVE_T
-        )
-
-    def cmd_(self):
-        self._clicked.emit()
+class FavRemove(QAction):
+    def __init__(self, parent: UMenu):
+        super().__init__(parent=parent, text=FAV_REMOVE_T)
 
 
 # Задать имя элемента в избранном - tree_favorites > TreeFavorites

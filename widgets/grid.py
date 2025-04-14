@@ -5,8 +5,9 @@ import sqlalchemy
 from PyQt5.QtCore import QMimeData, QObject, Qt, QTimer, QUrl, pyqtSignal
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
                          QPixmap)
-from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
-                             QScrollArea, QSplitter, QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
+                             QLabel, QScrollArea, QSplitter, QVBoxLayout,
+                             QWidget)
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Dynamic, JsonData, Static, ThumbData
@@ -16,8 +17,8 @@ from utils import URunnable, UThreadPool, Utils
 from ._base_widgets import BaseMethods, UMenu, USvgSqareWidget
 from .actions import (ChangeView, CopyFilesAction, CopyPath, FavAdd, FavRemove,
                       Info, OpenInApp, PasteFilesAction, RatingMenu,
-                      RemoveFilesAction, RevealInFinder, ShowInFolder,
-                      SortMenu, TagMenu, UpdateGrid, View)
+                      RemoveFilesAction, RevealInFinder, SortMenu, TagMenu,
+                      UpdateGrid, View)
 from .win_copy_files import ErrorWin, WinCopyFiles
 from .win_info import WinInfo
 from .win_remove_files import WinRemoveFiles
@@ -30,6 +31,7 @@ SQL_ERRORS = (OperationalError, IntegrityError)
 WID_UNDER_MOUSE = "win_under_mouse"
 GRID_SPACING = 5
 COL_COUNT = "col_count"
+SHOW_IN_FOLDER = "Показать в папке"
 
 KEY_RATING = {
     Qt.Key.Key_0: 0,
@@ -693,8 +695,8 @@ class Grid(QScrollArea):
 
             if wid.src in JsonData.favs:
                 cmd_ = lambda: self.fav_cmd(offset=-1, src=wid.src)
-                fav_action = FavRemove(menu, wid.src)
-                fav_action._clicked.connect(cmd_)
+                fav_action = FavRemove(menu)
+                fav_action.triggered.connect(cmd_)
                 menu.addAction(fav_action)
 
             else:
@@ -718,8 +720,8 @@ class Grid(QScrollArea):
 
         if isinstance(wid, ThumbSearch):
 
-            show_in_folder = ShowInFolder(parent=menu, src=wid.src)
-            show_in_folder._clicked.connect(wid.show_in_folder_cmd)
+            show_in_folder = QAction(parent=menu, text=SHOW_IN_FOLDER)
+            show_in_folder.triggered.connect(wid.show_in_folder_cmd)
             menu.addAction(show_in_folder)
 
             menu.addSeparator()
@@ -748,8 +750,8 @@ class Grid(QScrollArea):
 
         if self.main_dir in JsonData.favs:
             cmd_ = lambda: self.fav_cmd(offset=-1, src=self.main_dir)
-            fav_action = FavRemove(menu, self.main_dir)
-            fav_action._clicked.connect(cmd_)
+            fav_action = FavRemove(menu)
+            fav_action.triggered.connect(cmd_)
             menu.addAction(fav_action)
 
         else:

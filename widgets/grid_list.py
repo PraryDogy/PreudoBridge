@@ -122,8 +122,8 @@ class GridList(QTableView):
         if os.path.isdir(src):
             if src in JsonData.favs:
                 cmd_ = lambda: self.fav_cmd_sig.emit(("del", src))
-                fav_action = FavRemove(menu, src)
-                fav_action._clicked.connect(cmd_)
+                fav_action = FavRemove(menu)
+                fav_action.triggered.connect(cmd_)
                 menu.addAction(fav_action)
             else:
                 cmd_ = lambda: self.fav_cmd_sig.emit(("add", src))

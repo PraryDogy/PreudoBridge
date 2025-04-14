@@ -86,8 +86,8 @@ class FavItem(QLabel):
         menu_.addAction(rename_action)
 
         cmd_ = lambda: self.remove_fav_item.emit()
-        fav_action = FavRemove(menu_, self.src)
-        fav_action._clicked.connect(cmd_)
+        fav_action = FavRemove(menu_)
+        fav_action.triggered.connect(cmd_)
         menu_.addAction(fav_action)
 
         menu_.exec_(ev.globalPos())
