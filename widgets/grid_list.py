@@ -6,25 +6,17 @@ from PyQt5.QtWidgets import QFileSystemModel, QTableView
 
 from cfg import JsonData
 
-from ._base_widgets import UMenu
+from ._base_widgets import UMenu, UTableView
 from .actions import (ChangeViewMenu, CopyPath, FavAdd, FavRemove, Info,
                       RevealInFinder)
 from .finder_items import LoadingWid
 from .win_info import WinInfo
 
 
-class GridList(QTableView):
+class GridList(UTableView):
     col: int = 0
     order: int = 0
     sizes: list = [250, 100, 100, 150]
-
-    # сигналы должны быть идентичны grid.py > Grid
-    new_history_item = pyqtSignal(str)
-    fav_cmd_sig = pyqtSignal(tuple)
-    load_st_grid_sig = pyqtSignal(tuple)
-    bar_bottom_update = pyqtSignal(tuple)
-    move_slider_sig = pyqtSignal(int)
-    change_view_sig = pyqtSignal(int)
 
     def __init__(self, main_dir: str, view_index: int):
         super().__init__()
@@ -135,7 +127,7 @@ class GridList(QTableView):
         change_view.change_view_sig.connect(self.change_view_sig.emit)
         menu.addMenu(change_view)
 
-        menu.show_custom()
+        menu.show_()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:

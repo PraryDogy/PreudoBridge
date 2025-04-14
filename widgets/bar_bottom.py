@@ -78,7 +78,6 @@ class GoLineEdit(ULineEdit):
             menu.addAction(action_)
         
         menu.exec_(self.mapToGlobal(self.rect().bottomLeft()))
-
         return super().mouseDoubleClickEvent(a0)
 
 
@@ -308,7 +307,7 @@ class PathItem(QWidget):
         menu.addAction(copy_path)
 
         self.solid_style()
-        menu.exec_(self.mapToGlobal(ev.pos()))
+        menu.show_()
         self.default_style()
 
 
@@ -381,7 +380,6 @@ class SortFrame(UFrame):
         )
 
         menu_center_top = self.mapToGlobal(widget_rect.center()) - centered
-
         menu_.move(menu_center_top)
         menu_.exec_()
         super().leaveEvent(a0=a0)

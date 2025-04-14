@@ -1,13 +1,13 @@
-from PyQt5.QtCore import QObject, Qt, pyqtSignal
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QCursor, QMouseEvent, QWheelEvent
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QFrame, QLineEdit, QMenu, QSlider, QTextEdit,
-                             QWidget)
+from PyQt5.QtWidgets import (QFrame, QLineEdit, QMenu, QScrollArea, QSlider,
+                             QTableView, QTextEdit, QWidget)
 
 from cfg import Static
 
 
-class BaseMethods:
+class UMethods:
     def order_(self, *args, **kwargs):
         raise Exception("Переопредели метод sort_grid")
 
@@ -21,31 +21,45 @@ class BaseMethods:
         raise Exception("Переопредели метод rearrange")
 
 
-class BaseSignals(QObject):
+# Сигналы в UScrollArea и UTableView должны быть идентичны
+
+class UScrollArea(QScrollArea, UMethods):
     new_history_item = pyqtSignal(str)
     bar_bottom_update = pyqtSignal(tuple)
     fav_cmd_sig = pyqtSignal(tuple)
     load_st_grid_sig = pyqtSignal(tuple)
     move_slider_sig = pyqtSignal(int)
     change_view_sig = pyqtSignal(int)
+    def __init__(self):
+        super().__init__()
+
+
+class UTableView(QTableView, UMethods):
+    new_history_item = pyqtSignal(str)
+    bar_bottom_update = pyqtSignal(tuple)
+    fav_cmd_sig = pyqtSignal(tuple)
+    load_st_grid_sig = pyqtSignal(tuple)
+    move_slider_sig = pyqtSignal(int)
+    change_view_sig = pyqtSignal(int)
+    def __init__(self):
+        super().__init__()
 
 
 class UMenu(QMenu):
+    def show_(self):
+        self.exec_(QCursor.pos())
+
     def mouseReleaseEvent(self, a0):
         if a0.button() == Qt.MouseButton.RightButton:
             a0.ignore()
         else:
             super().mouseReleaseEvent(a0)
 
-    def show_custom(self):
-        self.exec_(QCursor.pos())
-
 
 class USlider(QSlider):
-    _clicked = pyqtSignal()
-
     def __init__(self, orientation: Qt.Orientation, minimum: int, maximum: int):
-        super().__init__(orientation=orientation, minimum=minimum, maximum=maximum)
+        super().__init__(orientation=orientation, parent=None, minimum=minimum, maximum=maximum)
+
         st = f"""
             QSlider {{
                 height: 15px;
@@ -121,7 +135,6 @@ class ULineEdit(QLineEdit):
         self.clear_btn.move(x, y)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-
         # предотвращаем круговой импорт
         from .actions import CopyText, CutText, PasteText, TextSelectAll
 
@@ -141,7 +154,7 @@ class ULineEdit(QLineEdit):
         select_all_a = TextSelectAll(menu, self)
         menu.addAction(select_all_a)
 
-        menu.exec_(self.mapToGlobal(a0.pos()))
+        menu.show_()
 
 
 class UTextEdit(QTextEdit):
@@ -151,7 +164,6 @@ class UTextEdit(QTextEdit):
         # self.setStyleSheet("padding-left: 2px; padding-right: 18px;")
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-
         # предотвращаем круговой импорт
         from .actions import CopyText, CutText, PasteText, TextSelectAll
 
@@ -171,26 +183,7 @@ class UTextEdit(QTextEdit):
         select_all_a = TextSelectAll(menu, self)
         menu.addAction(select_all_a)
 
-        menu.exec_(self.mapToGlobal(a0.pos()))
-
-
-class WinBase(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.setWindowModality(Qt.WindowModality.ApplicationModal)
-
-    def center(self, parent: QWidget):
-        geo = self.geometry()
-        geo.moveCenter(parent.geometry().center())
-        self.setGeometry(geo)
-
-
-class WinMinMaxDisabled(WinBase):
-    def __init__(self):
-        super().__init__()
-        fl = Qt.WindowType.Window | Qt.WindowType.CustomizeWindowHint
-        fl = fl  | Qt.WindowType.WindowCloseButtonHint
-        self.setWindowFlags(fl)
+        menu.show_()
 
 
 class UFrame(QFrame):
@@ -222,3 +215,22 @@ class UFrame(QFrame):
         self.setStyleSheet(
             self.normal_style()
         )
+
+
+class WinBase(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
+
+    def center(self, parent: QWidget):
+        geo = self.geometry()
+        geo.moveCenter(parent.geometry().center())
+        self.setGeometry(geo)
+
+
+class WinMinMaxDisabled(WinBase):
+    def __init__(self):
+        super().__init__()
+        fl = Qt.WindowType.Window | Qt.WindowType.CustomizeWindowHint
+        fl = fl  | Qt.WindowType.WindowCloseButtonHint
+        self.setWindowFlags(fl)

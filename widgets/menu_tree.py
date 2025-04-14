@@ -82,4 +82,4 @@ class MenuTree(QTreeView):
             fav_action.triggered.connect(cmd_)
             menu.addAction(fav_action)
 
-        menu.exec_(self.mapToGlobal(event.pos()))
+        menu.show_()

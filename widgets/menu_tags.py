@@ -86,7 +86,7 @@ class MenuTags(QListWidget):
         )
 
         menu.addAction(enable_action)
-        menu.show_custom()
+        menu.show_()
 
     def handle_item_click(self, item: UItem):
 

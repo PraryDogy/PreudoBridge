@@ -559,4 +559,4 @@ class WinImgView(WinBase):
         tags_menu.new_tag.connect(self.wid.calculate_new_rating)
         menu.addMenu(tags_menu)
 
-        menu.show_custom()
+        menu.show_()

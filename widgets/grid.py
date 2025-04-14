@@ -14,7 +14,7 @@ from cfg import Dynamic, JsonData, Static, ThumbData
 from database import CACHE, Dbase, OrderItem
 from utils import URunnable, UThreadPool, Utils
 
-from ._base_widgets import UMenu, USvgSqareWidget
+from ._base_widgets import UMenu, UScrollArea, USvgSqareWidget
 from .actions import (ChangeViewMenu, CopyPath, FavAdd, FavRemove, Info,
                       OpenInApp, RatingMenu, RevealInFinder, SortMenu, TagMenu,
                       View)
@@ -435,15 +435,7 @@ class ThumbSearch(Thumb):
         self.load_st_grid_sig.emit((root, self.src))
 
 
-class Grid(QScrollArea):
-    # сигналы должны быть идентичны list file system.py > ListFileSystem
-    new_history_item = pyqtSignal(str)
-    fav_cmd_sig = pyqtSignal(tuple)
-    load_st_grid_sig = pyqtSignal(tuple)
-    bar_bottom_update = pyqtSignal(tuple)
-    move_slider_sig = pyqtSignal(int)
-    change_view_sig = pyqtSignal(int)
-
+class Grid(UScrollArea):
     def __init__(self, main_dir: str, view_index: int, path_for_select: str):
         super().__init__()
 
@@ -990,7 +982,7 @@ class Grid(QScrollArea):
 
             self.thumb_context_actions(menu=menu, wid=clicked_wid)
 
-        menu.show_custom()
+        menu.show_()
 
     def custom_mouseReleaseEvent(self, a0: QMouseEvent):
 
