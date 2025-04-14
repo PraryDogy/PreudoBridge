@@ -288,7 +288,6 @@ class WinMain(QWidget):
         if not os.path.exists(self.main_dir):
             fixed_path = Utils.fix_path_prefix(self.main_dir)
             if fixed_path:
-                print(fixed_path, self.main_dir)
                 self.main_dir = fixed_path
 
         # очищаем предзагруженные в просмотрщике изображения
