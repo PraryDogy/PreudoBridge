@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QDropEvent, QMouseEvent
 from PyQt5.QtWidgets import QLabel, QListWidget, QListWidgetItem
 
-from cfg import JsonData
+from cfg import JsonData, Static
 from utils import Utils
 
 from .actions import CopyPath, FavRemove, Rename, RevealInFinder, View
@@ -52,8 +52,6 @@ class FavItem(QLabel):
         #    - Вызывается сигнал `self.path_changed` для уведомления о смене пути.
         #
         # Если подходящий путь не найден, никаких изменений не производится.
-
-
         if not os.path.exists(self.src):
             cut = os.path.sep.join(
                 self.src.strip(os.path.sep).split(os.path.sep)[2:]
@@ -61,7 +59,7 @@ class FavItem(QLabel):
 
             volumes = [
                 entry.path
-                for entry in os.scandir("/Volumes")
+                for entry in os.scandir(Static.VOLUMES)
                 if entry.is_dir()
             ]
 
