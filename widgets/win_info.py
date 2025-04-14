@@ -151,7 +151,7 @@ class CustomLabel(QLabel):
         if os.path.exists(src):
             menu.addSeparator()
 
-            reveal_action = RevealInFinder(parent=menu, src=src)
+            reveal_action = RevealInFinder(menu, src)
             menu.addAction(reveal_action)
 
         menu.exec_(ev.globalPos())

@@ -73,38 +73,29 @@ class UAction(QAction):
         raise Exception("_actions > Переназначь cmd_")
 
 
-class RevealInFinder(UAction):
-    def __init__(self, parent: UMenu, src: str | list[str]):
-
-        if isinstance(src, str):
-            self.files = [src]
+class RevealInFinder(QAction):
+    def __init__(self, parent: UMenu, urls: str | list[str]):
+        if isinstance(urls, str):
+            self.urls = [urls]
         else:
-            self.files = src
+            self.urls = urls
+        t = f"{REVEAL_T} ({len(self.urls)})"
+        super().__init__(t, parent)
 
-        t = f"{REVEAL_T} ({len(self.files)})"
+        # если в сетке выделена одна папка, то открываем ее в Finder
+        # если выделено более 1 папки/файла, то делаем Reveal 
+        if len(self.urls) == 1 and os.path.isdir(self.urls[0]):
+                self.triggered.connect(self.dir_cmd)
+        else:
+            self.triggered.connect(self.files_cmd)
 
-        if len(self.files) == 1:
-            if os.path.isdir(self.files[0]):
-                self.is_dir = True
+    def dir_cmd(self):
+        subprocess.Popen(["open", self.urls[0]])
 
-        super().__init__(parent=parent, src=src, text=t)
-
-    # показывает в Finder фоном
-    def cmd_(self):
-
-        if hasattr(self, "is_dir"):
-            subprocess.Popen(["open", self.files[0]])
-            return
-
-        self.task_ = Task_(
-            cmd_=lambda: subprocess.run(
-                ["osascript", Static.REVEAL_SCPT] + self.files
-            )
-        )
-
-        UThreadPool.start(
-            runnable=self.task_
-        )
+    def files_cmd(self):        
+        cmd_=lambda: subprocess.run(["osascript", Static.REVEAL_SCPT] + self.urls)
+        self.task_ = Task_(cmd_)
+        UThreadPool.start(self.task_)
 
 
 class Info(QAction):

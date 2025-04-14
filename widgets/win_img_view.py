@@ -543,7 +543,7 @@ class WinImgView(WinBase):
         info.triggered.connect(lambda: self.win_info_cmd(self.src))
         menu.addAction(info)
 
-        show_in_finder_action = RevealInFinder(parent=menu, src=self.src)
+        show_in_finder_action = RevealInFinder(menu, self.src)
         menu.addAction(show_in_finder_action)
 
         copy_path = CopyPath(menu, self.src)

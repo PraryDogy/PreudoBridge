@@ -111,7 +111,7 @@ class GridList(QTableView):
         info.triggered.connect(lambda: self.win_info_cmd(src))
         menu.addAction(info)
 
-        open_finder_action = RevealInFinder(parent=menu, src=src)
+        open_finder_action = RevealInFinder(menu, src)
         menu.addAction(open_finder_action)
 
         copy_path_action = CopyPath(menu, src)

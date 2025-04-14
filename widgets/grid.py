@@ -680,13 +680,13 @@ class Grid(QScrollArea):
         info.triggered.connect(lambda: self.win_info_cmd(wid.src))
         menu.addAction(info)
 
-        show_in_finder_action = RevealInFinder(parent=menu, src=urls)
+        show_in_finder_action = RevealInFinder(menu, urls)
         menu.addAction(show_in_finder_action)
 
-        copy_path = CopyPath(parent=menu, src=urls)
+        copy_path = CopyPath(menu, urls)
         menu.addAction(copy_path)
 
-        copy_files = CopyFilesAction(parent=menu, urls=urls)
+        copy_files = CopyFilesAction(menu, urls)
         copy_files.clicked_.connect(self.copy_files)
         menu.addAction(copy_files)
 
@@ -741,7 +741,7 @@ class Grid(QScrollArea):
         info.triggered.connect(lambda: self.win_info_cmd(self.main_dir))
         menu.addAction(info)
 
-        reveal = RevealInFinder(parent=menu, src=self.main_dir)
+        reveal = RevealInFinder(menu, self.main_dir)
         menu.addAction(reveal)
 
         copy_ = CopyPath(parent=menu, src=self.main_dir)
