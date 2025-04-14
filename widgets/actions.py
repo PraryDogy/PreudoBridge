@@ -260,8 +260,14 @@ class OpenInApp(UMenu):
 
     def setup_open_with_apps(self):
         for entry in os.scandir(Static.USER_APPS_DIR):
-            if entry.name.endswith((".app", ".APP")) or entry.is_dir():
+            if entry.name.endswith((".APP", ".app")):
                 self.apps[entry.name] = entry.path
+
+            elif entry.is_dir():
+                for sub_entry in os.scandir(entry.path):
+                    if sub_entry.name.endswith((".APP", ".app")):
+                        self.apps[sub_entry.name] = sub_entry.path
+
 
     def cmd_(self, app_path: str, e):
 
