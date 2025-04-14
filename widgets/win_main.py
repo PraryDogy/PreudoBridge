@@ -375,8 +375,18 @@ class WinMain(QWidget):
         self.resize_timer.start(WinMain.resize_ms)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
-        self.hide()
-        a0.ignore()
+        active_win = QApplication.activeWindow()
+        wins = [
+            i
+            for i in QApplication.topLevelWidgets()
+            if isinstance(i, WinMain)
+        ]
+
+        if len(wins) > 1:
+            active_win.deleteLater()
+        else:
+            self.hide()
+            a0.ignore()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:  
         if a0.key() in (Qt.Key.Key_Right, Qt.Key.Key_Left, Qt.Key.Key_Space, Qt.Key.Key_Return):
@@ -406,12 +416,6 @@ class WinMain(QWidget):
                     active_win.deleteLater()
                 else:
                     self.hide()
-
-                wins = [
-                    i
-                    for i in QApplication.topLevelWidgets()
-                    if isinstance(i, WinMain)
-                ]
 
             elif a0.key() == Qt.Key.Key_Q:
                 QApplication.instance().quit()
