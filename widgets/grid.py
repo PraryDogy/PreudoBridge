@@ -15,7 +15,7 @@ from database import CACHE, Dbase, OrderItem
 from utils import URunnable, UThreadPool, Utils
 
 from ._base_widgets import BaseMethods, UMenu, USvgSqareWidget
-from .actions import (ChangeView, CopyFilesAction, CopyPath, FavAdd, FavRemove,
+from .actions import (ChangeViewMenu, CopyFilesAction, CopyPath, FavAdd, FavRemove,
                       Info, OpenInApp, PasteFilesAction, RatingMenu,
                       RemoveFilesAction, RevealInFinder, SortMenu, TagMenu,
                       View)
@@ -763,7 +763,7 @@ class Grid(QScrollArea):
 
         menu.addSeparator()
 
-        change_view = ChangeView(menu, self.view_index)
+        change_view = ChangeViewMenu(menu, self.view_index)
         change_view.change_view_sig.connect(self.change_view_sig.emit)
         menu.addMenu(change_view)
 

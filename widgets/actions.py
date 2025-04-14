@@ -412,29 +412,26 @@ class SortMenu(UMenu):
 
 # показать сетку / список - GridStandart / GridSearch / ListFileSystem
 # list_file_system.py > ListFileSystem
-class ChangeView(UMenu):
+class ChangeViewMenu(UMenu):
     change_view_sig = pyqtSignal(int)
 
     def __init__(self, parent: UMenu, view_index: int):
-        super().__init__(parent=parent, title=CHANGE_VIEW_T)
+        super().__init__(CHANGE_VIEW_T, parent)
 
         # отобразить сеткой
         grid_ = QAction(CHANGE_VIEW_GRID_T, self)
-
         grid_.triggered.connect(lambda: self.change_view_sig.emit(0))
         grid_.setCheckable(True)
         self.addAction(grid_)
 
         # отобразить списком
         list_ = QAction(CHANGE_VIEW_LIST_T, self)
-
         list_.triggered.connect(lambda: self.change_view_sig.emit(1))
         list_.setCheckable(True)
         self.addAction(list_)
 
         # grid_view_type отвечает за тип отображения
         # 0 отображать сеткой, 1 отображать списком
-
         if view_index == 0:
             grid_.setChecked(True)
 

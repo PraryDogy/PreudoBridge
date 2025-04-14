@@ -8,7 +8,7 @@ from cfg import JsonData
 from utils import Utils
 
 from ._base_widgets import BaseMethods, UMenu
-from .actions import (ChangeView, CopyPath, FavAdd, FavRemove, Info,
+from .actions import (ChangeViewMenu, CopyPath, FavAdd, FavRemove, Info,
                       RevealInFinder)
 from .finder_items import LoadingWid
 from .win_info import WinInfo
@@ -133,7 +133,7 @@ class GridList(QTableView):
 
         menu.addSeparator()
 
-        change_view = ChangeView(menu, self.view_index)
+        change_view = ChangeViewMenu(menu, self.view_index)
         change_view.change_view_sig.connect(self.change_view_sig.emit)
         menu.addMenu(change_view)
 
