@@ -264,6 +264,7 @@ class WinMain(QWidget):
         self.grid.bar_bottom_update.connect(lambda data: self.bar_bottom.update_bar_cmd(data))
         self.grid.fav_cmd_sig.connect(lambda data: self.menu_favs.fav_cmd(data))
         self.grid.move_slider_sig.connect(lambda value: self.bar_bottom.slider.move_slider_cmd(value))
+        self.grid.load_st_grid_sig.connect(lambda data: self.load_st_grid_cmd(data))
         self.grid.verticalScrollBar().valueChanged.connect(lambda value: self.scroll_up_show_hide(value))
 
     def load_search_grid(self, search_text: str):
@@ -331,7 +332,6 @@ class WinMain(QWidget):
         self.r_lay.insertWidget(1, self.grid)
         self.setup_grid_signals()
         self.grid.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
-        self.grid.load_st_grid_sig.connect(lambda data: self.load_st_grid_cmd(data))
         self.grid.change_view_sig.connect(lambda index: self.change_view_cmd(index))
         self.menu_tree.expand_path(self.main_dir)
         self.window().raise_()

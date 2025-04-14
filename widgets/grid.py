@@ -715,7 +715,8 @@ class Grid(UScrollArea):
         if isinstance(wid, ThumbSearch):
 
             show_in_folder = QAction(SHOW_IN_FOLDER, menu)
-            show_in_folder.triggered.connect(wid.show_in_folder_cmd)
+            cmd_ = lambda: self.testrt(wid)
+            show_in_folder.triggered.connect(cmd_)
             menu.addAction(show_in_folder)
 
             menu.addSeparator()
@@ -725,6 +726,10 @@ class Grid(UScrollArea):
         remove_files = QAction(REMOVE_FILES_T, menu)
         remove_files.triggered.connect(lambda: self.remove_files_cmd(urls))
         menu.addAction(remove_files)
+
+    def testrt(self, wid: Thumb):
+        new_main_dir = os.path.dirname(wid.src)
+        self.load_st_grid_sig.emit((new_main_dir, wid.src))
 
     def grid_context_actions(self, menu: UMenu):
 
