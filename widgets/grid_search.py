@@ -83,19 +83,20 @@ class SearchFinder(URunnable):
         filename, _ = os.path.splitext(entry.name)
         filename: str = filename.lower()
         search_text: str = self.search_text.lower()
+
         if search_text in filename:
             return True
         else:
             return False
         
     def process_list(self, entry: os.DirEntry, search_list_lower: list[str]):
-        # Поиск нескольких файлов
         filename, _ = os.path.splitext(entry.name)
-        filename_lower: str = filename.lower()
-        if filename_lower in search_list_lower:
-            return True
-        else:
-            return False
+        filename: str = filename.lower()
+
+        for item in search_list_lower:
+            if filename in item or item in filename:
+                return True
+        return False
 
     def scandir_recursive(self):
         # Инициализируем список с корневым каталогом
