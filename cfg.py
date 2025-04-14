@@ -4,7 +4,7 @@ import os
 
 class Static:
     APP_NAME = "PreudoBridge"
-    APP_VER = 2.01
+    APP_VER = 2.02
 
     USER_SETTINGS_DIR = os.path.expanduser('~/Library/Application Support')
     APP_SUPPORT_APP = os.path.join(USER_SETTINGS_DIR, APP_NAME)
