@@ -663,8 +663,8 @@ class Grid(QScrollArea):
 
         self.set_bottom_path(src=wid.src)
 
-        view_action = View(parent=menu, src=wid.src)
-        view_action._clicked.connect(lambda: self.view_thumb_cmd(wid=wid))
+        view_action = View(menu)
+        view_action.triggered.connect(lambda: self.view_thumb_cmd(wid))
         menu.addAction(view_action)
 
         if wid.type_ != Static.FOLDER_TYPE:

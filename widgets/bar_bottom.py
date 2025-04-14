@@ -291,8 +291,8 @@ class PathItem(QWidget):
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
         menu = UMenu(parent=self)
 
-        view_action = View(menu, self.src)
-        view_action._clicked.connect(self.view_)
+        view_action = View(menu)
+        view_action.triggered.connect(self.view_)
         menu.addAction(view_action)
 
         menu.addSeparator()

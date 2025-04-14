@@ -135,7 +135,6 @@ class CopyPath(QAction):
 
     def cmd_(self, *args):
         data = "\n".join(self.src)
-        print(data)
         Utils.write_to_clipboard(text=data)
 
 
@@ -143,19 +142,11 @@ class CopyPath(QAction):
 # или папку - тогда создается новая сетка Grid в gui.py
 # посколько действие будет разным для файла / папки, здесь
 # используется только сигнал для обозначения, что QAction был нажат
-class View(UAction):
+class View(QAction):
     _clicked = pyqtSignal()
 
-    def __init__(self, parent: UMenu, src: str):
-
-        super().__init__(
-            parent=parent,
-            src=src,
-            text=VIEW_T
-        )
-
-    def cmd_(self):
-        self._clicked.emit()
+    def __init__(self, parent: UMenu):
+        super().__init__(parent=parent, text=VIEW_T)
 
 
 # это действите для GridSearch + Grid > ThumbSearch

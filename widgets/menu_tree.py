@@ -56,8 +56,8 @@ class MenuTree(QTreeView):
         index = self.c_model.index(src)
 
         cmd_ = lambda: self.one_clicked(index)
-        open_finder_action = View(menu, src)
-        open_finder_action._clicked.connect(cmd_)
+        open_finder_action = View(menu)
+        open_finder_action.triggered.connect(cmd_)
         menu.addAction(open_finder_action)
 
         menu.addSeparator()
