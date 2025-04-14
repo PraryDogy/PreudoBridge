@@ -1,16 +1,15 @@
 import os
 
-
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QKeyEvent
-from PyQt5.QtWidgets import QGridLayout, QLabel, QAction
+from PyQt5.QtWidgets import QAction, QGridLayout, QLabel
 
 from cfg import Static
 from database import OrderItem
 from utils import URunnable, UThreadPool, Utils
 
-from .actions import CopyText, RevealInFinder
 from ._base_widgets import UMenu, WinMinMaxDisabled
+from .actions import CopyText, RevealInFinder
 
 CALCULATING = "Вычисляю..."
 TITLE = "Инфо"
@@ -145,7 +144,7 @@ class CustomLabel(QLabel):
         copy_action = CopyText(parent=menu, widget=self)
         menu.addAction(copy_action)
 
-        select_all_act = QAction(parent=menu, text=SELECT_ALL_T)
+        select_all_act = QAction(SELECT_ALL_T, menu)
         select_all_act.triggered.connect(self.select_all_cmd)
         menu.addAction(select_all_act)
 

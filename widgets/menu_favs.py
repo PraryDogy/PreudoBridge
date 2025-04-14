@@ -83,7 +83,7 @@ class FavItem(QLabel):
 
         menu_.addSeparator()
 
-        rename_action = QAction(parent=menu_, text=RENAME_T)
+        rename_action = QAction(RENAME_T, menu_)
         rename_action.triggered.connect(self.rename_cmd)
         menu_.addAction(rename_action)
 

@@ -5,6 +5,8 @@ from cfg import Dynamic, Static
 
 from ._base_widgets import UMenu
 
+ENABLE_T = "Включить"
+
 
 class UItem(QListWidgetItem):
     def __init__(self):
@@ -74,7 +76,7 @@ class MenuTags(QListWidget):
 
         menu = UMenu()
 
-        enable_action = QAction(text="Включить")
+        enable_action = QAction(ENABLE_T, menu)
 
         if Dynamic.rating_filter == item.rating:
             enable_action.setDisabled(True)

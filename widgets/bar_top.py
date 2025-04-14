@@ -145,7 +145,7 @@ class SearchWidget(QWidget):
         self.templates_menu = UMenu()
 
         for text, template in Static.SEARCH_EXTENSIONS.items():
-            action = QAction(parent=self, text=text)
+            action = QAction(text, self)
 
             action.triggered.connect(
                 lambda e, xx=text: self.action_cmd(xx)
@@ -153,7 +153,7 @@ class SearchWidget(QWidget):
 
             self.templates_menu.addAction(action)
 
-        search_list = QAction(parent=self, text=Static.SEARCH_LIST_TEXT)
+        search_list = QAction(Static.SEARCH_LIST_TEXT, self)
         search_list.triggered.connect(self.search_list_cmd)
         self.templates_menu.addAction(search_list)
 

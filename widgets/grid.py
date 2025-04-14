@@ -721,7 +721,7 @@ class Grid(QScrollArea):
 
         if isinstance(wid, ThumbSearch):
 
-            show_in_folder = QAction(parent=menu, text=SHOW_IN_FOLDER)
+            show_in_folder = QAction(SHOW_IN_FOLDER, menu)
             show_in_folder.triggered.connect(wid.show_in_folder_cmd)
             menu.addAction(show_in_folder)
 
@@ -780,7 +780,7 @@ class Grid(QScrollArea):
             paste_files.clicked_.connect(self.paste_files)
             menu.addAction(paste_files)
 
-        upd_ = QAction(parent=menu, text=UPDATE_GRID_T)
+        upd_ = QAction(UPDATE_GRID_T, menu)
         upd_.triggered.connect(lambda: self.load_st_grid_sig.emit((None, None)))
         menu.addAction(upd_)
 

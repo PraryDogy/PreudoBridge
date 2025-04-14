@@ -73,7 +73,7 @@ class GoLineEdit(ULineEdit):
         menu = UMenu(parent=self)
 
         for i in Dynamic.go_paths:
-            action_ = QAction(parent=menu, text=i)
+            action_ = QAction(i, menu)
             action_.triggered.connect(lambda e, tt=i: self.clicked_(text=tt))
             menu.addAction(action_)
         

@@ -63,11 +63,7 @@ class Task_(URunnable):
 # Базовый QAction с обязательными аргументами
 class UAction(QAction):
     def __init__(self, parent: UMenu, src: str, text: str):
-
-        super().__init__(
-            parent=parent,
-            text=text
-        )
+        super().__init__(text, parent)
 
         self.triggered.connect(self.cmd_)
         self.src = src
@@ -113,7 +109,7 @@ class RevealInFinder(UAction):
 
 class Info(QAction):
     def __init__(self, parent: UMenu):
-        super().__init__(parent=parent, text=INFO_T)
+        super().__init__(INFO_T, parent)
 
 
 # из родительского виджета копирует путь к файлу / папке
@@ -125,11 +121,7 @@ class CopyPath(QAction):
 
         t = f"{COPY_PATH_T} ({len(src)})"
 
-        super().__init__(
-            parent=parent,
-            text=t
-        )
-
+        super().__init__(t, parent)
         self.src = src
         self.triggered.connect(self.cmd_)
 
@@ -142,17 +134,17 @@ class View(QAction):
     _clicked = pyqtSignal()
 
     def __init__(self, parent: UMenu):
-        super().__init__(parent=parent, text=VIEW_T)
+        super().__init__(VIEW_T, parent)
 
 
 class FavRemove(QAction):
     def __init__(self, parent: UMenu):
-        super().__init__(parent=parent, text=FAV_REMOVE_T)
+        super().__init__(FAV_REMOVE_T, parent)
 
 
 class FavAdd(QAction):
     def __init__(self, parent: UMenu):
-        super().__init__(parent=parent, text=FAV_ADD_T)
+        super().__init__(FAV_ADD_T, parent)
 
 
 # Меню со списком приложений, при помощи которых можно открыть изображение
@@ -167,7 +159,7 @@ class OpenInApp(UMenu):
         super().__init__(parent=parent, title=OPEN_IN_APP_T)
         self.src = src
 
-        open_default = QAction(parent=parent, text=OPEN_DEFAULT_T)
+        open_default = QAction(OPEN_DEFAULT_T, parent)
         open_default.triggered.connect(self.cmd_default)
         self.addAction(open_default)
         self.addSeparator()
@@ -178,7 +170,7 @@ class OpenInApp(UMenu):
         self.apps = dict(list(self.apps.items())[:OpenInApp.LIMIT])
 
         for name, app_path in self.apps.items():
-            wid = QAction(parent=self, text=name)
+            wid = QAction(name, self)
             wid.triggered.connect(lambda e, a=app_path: self.cmd_(app_path=a, e=e))
             self.addAction(wid)
 
@@ -231,10 +223,7 @@ class RatingMenu(UMenu):
         rating = rating % 10
         self.rating = rating
 
-        cancel_ = QAction(
-            parent=self,
-            text=Static.LINE_LONG_SYM
-        )
+        cancel_ = QAction(Static.LINE_LONG_SYM, self)
 
         cancel_.triggered.connect(
             lambda: self._clicked.emit(0)
@@ -248,11 +237,7 @@ class RatingMenu(UMenu):
         # 0 возвращает False
         for rating in range(1, 6):
 
-            wid = QAction(
-                parent=self,
-                text=Static.STAR_SYM * rating
-            )
-
+            wid = QAction(Static.STAR_SYM * rating, self)
             wid.setCheckable(True)
 
             if self.rating == rating:
@@ -300,16 +285,10 @@ class TagMenu(UMenu):
             REVIEW_T_: 7,
             APPROVED_T_: 8
         }
-
         # конец копии
 
         for sym, int_ in actions.items():
-
-            wid = QAction(
-                parent=self,
-                text=sym
-            )
-
+            wid = QAction(sym, parent)
             wid.setCheckable(True)
 
             if rating == int_:
@@ -327,11 +306,7 @@ class TagMenu(UMenu):
 class TextCut(QAction):
     def __init__(self, parent: UMenu, widget: QLineEdit | QTextEdit):
 
-        super().__init__(
-            parent=parent,
-            text=CUT_T
-        )
-
+        super().__init__(CUT_T, parent)
         self.wid = widget
         self.triggered.connect(self.cmd_)
 
@@ -356,11 +331,7 @@ class TextCut(QAction):
 class CopyText(QAction):
     def __init__(self, parent: UMenu, widget: QLineEdit | QLabel | QTextEdit):
 
-        super().__init__(
-            parent=parent,
-            text=COPY_T
-        )
-
+        super().__init__(COPY_T, parent)
         self.wid = widget
         self.triggered.connect(self.cmd_)
 
@@ -389,11 +360,7 @@ class CopyText(QAction):
 class TextPaste(QAction):
     def __init__(self, parent: UMenu, widget: QLineEdit | QTextEdit):
 
-        super().__init__(
-            parent=parent,
-            text=PASTE_T
-        )
-
+        super().__init__(PASTE_T, parent)
         self.wid = widget
         self.triggered.connect(self.cmd_)
 
@@ -412,11 +379,7 @@ class TextPaste(QAction):
 class TextSelectAll(QAction):
     def __init__(self, parent: UMenu, widget: QLineEdit):
 
-        super().__init__(
-            parent=parent,
-            text=SELECT_ALL_T
-        )
-
+        super().__init__(SELECT_ALL_T, parent)
         self.wid = widget
         self.triggered.connect(self.cmd_)
 
@@ -447,11 +410,7 @@ class SortMenu(UMenu):
             title=SORT_T
         )
 
-        ascen = QAction(
-            parent=self,
-            text=ASCENDING_T
-        )
-
+        ascen = QAction(ASCENDING_T, self)
         # добавляем свойство прямой / обратной сортировки
         # прямая сортировка А > Я
         ascen.rev = False
@@ -461,7 +420,7 @@ class SortMenu(UMenu):
         )
 
 
-        descen = QAction(parent=self, text=DISCENDING_T)
+        descen = QAction(DISCENDING_T, self)
 
         # добавляем свойство прямой / обратной сортировки
         # обратная сортировка Я > А
@@ -490,11 +449,7 @@ class SortMenu(UMenu):
         # смотри database.py > CACHE
         for true_name, text_name in ORDER.items():
 
-            action_ = QAction(
-                parent=self,
-                text=text_name
-            )
-
+            action_ = QAction(text_name, self)
             action_.setCheckable(True)
 
             # передаем true_name, чтобы осуществить сортировку сетки
@@ -534,14 +489,14 @@ class ChangeView(UMenu):
         super().__init__(parent=parent, title=CHANGE_VIEW_T)
 
         # отобразить сеткой
-        grid_ = QAction(parent=self, text=CHANGE_VIEW_GRID_T)
+        grid_ = QAction(CHANGE_VIEW_GRID_T, self)
 
         grid_.triggered.connect(lambda: self.change_view_sig.emit(0))
         grid_.setCheckable(True)
         self.addAction(grid_)
 
         # отобразить списком
-        list_ = QAction(parent=self, text=CHANGE_VIEW_LIST_T)
+        list_ = QAction(CHANGE_VIEW_LIST_T, self)
 
         list_.triggered.connect(lambda: self.change_view_sig.emit(1))
         list_.setCheckable(True)
@@ -563,7 +518,7 @@ class CopyFilesAction(QAction):
     def __init__(self, parent: UMenu, urls: list[str]):
 
         t = f"{COPY_FILES_T} ({len(urls)})"
-        super().__init__(parent=parent, text=t)
+        super().__init__(t, parent)
         self.triggered.connect(self.cmd_)
 
     def cmd_(self, *args):
@@ -576,7 +531,7 @@ class PasteFilesAction(QAction):
     def __init__(self, parent: UMenu):
 
         t = f"{PASTE_FILES_T} ({len(Dynamic.files_to_copy)})"
-        super().__init__(parent=parent, text=t)
+        super().__init__(t, parent)
         self.triggered.connect(self.cmd_)
 
     def cmd_(self, *args):
@@ -589,7 +544,7 @@ class RemoveFilesAction(QAction):
     def __init__(self, parent: UMenu, urls: list[str]):
 
         t = f"{DELETE_FILES_T} ({len(urls)})"
-        super().__init__(parent=parent, text=t)
+        super().__init__(t, parent)
         self.triggered.connect(self.cmd_)
         self.files = urls
 
