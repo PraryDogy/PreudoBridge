@@ -701,8 +701,8 @@ class Grid(QScrollArea):
 
             else:
                 cmd_ = lambda: self.fav_cmd(offset=1, src=wid.src)
-                fav_action = FavAdd(menu, wid.src)
-                fav_action._clicked.connect(cmd_)
+                fav_action = FavAdd(menu)
+                fav_action.triggered.connect(cmd_)
                 menu.addAction(fav_action)
 
             menu.addSeparator()
@@ -756,8 +756,8 @@ class Grid(QScrollArea):
 
         else:
             cmd_ = lambda: self.fav_cmd(offset=+1, src=self.main_dir)
-            fav_action = FavAdd(menu, self.main_dir)
-            fav_action._clicked.connect(cmd_)
+            fav_action = FavAdd(menu)
+            fav_action.triggered.connect(cmd_)
             menu.addAction(fav_action)
 
         menu.addSeparator()

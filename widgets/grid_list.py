@@ -127,8 +127,8 @@ class GridList(QTableView):
                 menu.addAction(fav_action)
             else:
                 cmd_ = lambda: self.fav_cmd_sig.emit(("add", src))
-                fav_action = FavAdd(menu, src)
-                fav_action._clicked.connect(cmd_)
+                fav_action = FavAdd(menu)
+                fav_action.triggered.connect(cmd_)
                 menu.addAction(fav_action)
 
         menu.addSeparator()

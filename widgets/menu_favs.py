@@ -2,14 +2,16 @@ import os
 
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QDropEvent, QMouseEvent
-from PyQt5.QtWidgets import QLabel, QListWidget, QListWidgetItem
+from PyQt5.QtWidgets import QAction, QLabel, QListWidget, QListWidgetItem
 
 from cfg import JsonData, Static
 from utils import Utils
 
-from .actions import CopyPath, FavRemove, Rename, RevealInFinder, View
 from ._base_widgets import UMenu
+from .actions import CopyPath, FavRemove, RevealInFinder, View
 from .win_rename import WinRename
+
+RENAME_T = "Переименовать"
 
 
 class FavItem(QLabel):
@@ -81,8 +83,8 @@ class FavItem(QLabel):
 
         menu_.addSeparator()
 
-        rename_action = Rename(menu_, self.src)
-        rename_action._clicked.connect(self.rename_cmd)
+        rename_action = QAction(parent=menu_, text=RENAME_T)
+        rename_action.triggered.connect(self.rename_cmd)
         menu_.addAction(rename_action)
 
         cmd_ = lambda: self.remove_fav_item.emit()

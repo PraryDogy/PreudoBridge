@@ -150,35 +150,9 @@ class FavRemove(QAction):
         super().__init__(parent=parent, text=FAV_REMOVE_T)
 
 
-# Задать имя элемента в избранном - tree_favorites > TreeFavorites
-class Rename(UAction):
-    _clicked = pyqtSignal()
-
-    def __init__(self, parent: UMenu, src: str):
-
-        super().__init__(
-            parent=parent,
-            src=src,
-            text=RENAME_T
-        )
-
-    def cmd_(self):
-        self._clicked.emit()
-
-
-# тоже самое что FavRemove
-class FavAdd(UAction):
-    _clicked = pyqtSignal()
-
-    def __init__(self, parent: UMenu, src: str):
-        super().__init__(
-            parent=parent,
-            src=src,
-            text=FAV_ADD_T
-        )
-
-    def cmd_(self):
-        self._clicked.emit()
+class FavAdd(QAction):
+    def __init__(self, parent: UMenu):
+        super().__init__(parent=parent, text=FAV_ADD_T)
 
 
 # удаляет текущую сетку - GridStandart / GridSearch
