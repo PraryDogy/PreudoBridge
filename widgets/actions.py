@@ -238,6 +238,8 @@ class UpdateGrid(QAction):
 # список приложений формируется при инициации приложения
 # смотри cfg.py
 class OpenInApp(UMenu):
+    LIMIT = 50
+
     def __init__(self, parent: UMenu, src: str):
 
         super().__init__(parent=parent, title=OPEN_IN_APP_T)
@@ -251,8 +253,8 @@ class OpenInApp(UMenu):
         self.apps: dict[str, str] = {}
         self.setup_open_with_apps()
         self.apps = dict(sorted(self.apps.items()))
+        self.apps = dict(list(self.apps.items())[:OpenInApp.LIMIT])
 
-        # список приложений, сформированный в cfg.py при инициации приложения
         for name, app_path in self.apps.items():
             wid = QAction(parent=self, text=name)
             wid.triggered.connect(lambda e, a=app_path: self.cmd_(app_path=a, e=e))
