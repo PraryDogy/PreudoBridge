@@ -18,7 +18,7 @@ from ._base_widgets import BaseMethods, UMenu, USvgSqareWidget
 from .actions import (ChangeView, CopyFilesAction, CopyPath, FavAdd, FavRemove,
                       Info, OpenInApp, PasteFilesAction, RatingMenu,
                       RemoveFilesAction, RevealInFinder, SortMenu, TagMenu,
-                      UpdateGrid, View)
+                      View)
 from .win_copy_files import ErrorWin, WinCopyFiles
 from .win_info import WinInfo
 from .win_remove_files import WinRemoveFiles
@@ -32,6 +32,7 @@ WID_UNDER_MOUSE = "win_under_mouse"
 GRID_SPACING = 5
 COL_COUNT = "col_count"
 SHOW_IN_FOLDER = "Показать в папке"
+UPDATE_GRID_T = "Обновить"
 
 KEY_RATING = {
     Qt.Key.Key_0: 0,
@@ -779,7 +780,7 @@ class Grid(QScrollArea):
             paste_files.clicked_.connect(self.paste_files)
             menu.addAction(paste_files)
 
-        upd_ = UpdateGrid(menu)
+        upd_ = QAction(parent=menu, text=UPDATE_GRID_T)
         upd_.triggered.connect(lambda: self.load_st_grid_sig.emit((None, None)))
         menu.addAction(upd_)
 

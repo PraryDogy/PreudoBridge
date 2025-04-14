@@ -155,16 +155,6 @@ class FavAdd(QAction):
         super().__init__(parent=parent, text=FAV_ADD_T)
 
 
-# удаляет текущую сетку - GridStandart / GridSearch
-# создает новую сетку GridStandart
-# это действие нужно если мы знаем, что в папке, которую представляет сетка
-# произошли какие-то изменение вне приложения
-# удаление / добавление / переименование файла и т.п.
-class UpdateGrid(QAction):
-    def __init__(self, parent: UMenu):
-        super().__init__(parent=parent, text=UPDATE_GRID_T)
-
-
 # Меню со списком приложений, при помощи которых можно открыть изображение
 # Например Photoshop, стандартный просмотрщик Mac Os, Capture One
 # список приложений формируется при инициации приложения
