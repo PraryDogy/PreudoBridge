@@ -172,6 +172,7 @@ class WinMain(QWidget):
             )
 
         self.setup_signals()
+        self.tags_btn_cmd()
         self.load_st_grid_cmd((self.main_dir, None))
 
     def setup_signals(self):
