@@ -5,9 +5,8 @@ from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import QFileSystemModel, QTableView
 
 from cfg import JsonData
-from utils import Utils
 
-from ._base_widgets import BaseMethods, UMenu
+from ._base_widgets import UMenu
 from .actions import (ChangeViewMenu, CopyPath, FavAdd, FavRemove, Info,
                       RevealInFinder)
 from .finder_items import LoadingWid
