@@ -285,6 +285,11 @@ class WinMain(QWidget):
         if new_main_dir:
             self.main_dir = new_main_dir
 
+        if not os.path.exists(self.main_dir):
+            fixed_path = Utils.fix_path_prefix(self.main_dir)
+            if fixed_path:
+                self.main_dir = fixed_path
+
         # очищаем предзагруженные в просмотрщике изображения
         LoadImage.cache.clear()
         self.grid.close()

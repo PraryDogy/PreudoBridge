@@ -44,19 +44,17 @@ class FavItem(QLabel):
 
     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
         if ev.button() == Qt.MouseButton.LeftButton:
-            fixed_path = Utils.fix_path_prefix(self.src)
-            if fixed_path:
-
-                # удаляем из избранного старый айтем с неверной директорией
-                JsonData.favs.pop(self.src)
-
-                # добавляем новый айтем
-                JsonData.favs[fixed_path] = self.name
-                self.src = fixed_path
-                JsonData.write_config()
-
-                # подаем сигнал в родительский виджет для обновления ui
-                self.path_changed.emit()
+            if not os.path.exists(self.src):
+                fixed_path = Utils.fix_path_prefix(self.src)
+                if fixed_path:
+                    # удаляем из избранного старый айтем с неверной директорией
+                    JsonData.favs.pop(self.src)
+                    # добавляем новый айтем
+                    JsonData.favs[fixed_path] = self.name
+                    self.src = fixed_path
+                    JsonData.write_config()
+                    # подаем сигнал в родительский виджет для обновления ui
+                    self.path_changed.emit()
 
             self.view_fav()
 
