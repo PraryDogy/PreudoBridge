@@ -194,7 +194,7 @@ class WinMain(QWidget):
         self.menu_tags.rearrange_grid_sig.connect(lambda: self.grid.rearrange())
 
         # перейти на директорию выше
-        self.bar_top.level_up.connect(lambda args: self.level_up_cmd(args))
+        self.bar_top.level_up.connect(lambda: self.level_up_cmd())
         # изменить отображение сетка/список
         self.bar_top.change_view.connect(lambda index: self.change_view_cmd(index))
         # начать поиск
@@ -230,7 +230,7 @@ class WinMain(QWidget):
             os.remove(db)
             self.load_st_grid_cmd((self.main_dir, None))
 
-    def level_up_cmd(self, *args):
+    def level_up_cmd(self):
         new_main_dir = os.path.dirname(self.main_dir)
         if new_main_dir != os.sep:
             self.load_st_grid_cmd((new_main_dir, None))
