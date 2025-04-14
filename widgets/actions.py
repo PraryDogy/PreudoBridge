@@ -16,10 +16,8 @@ COPY_PATH_T = "Скопировать путь"
 VIEW_T = "Просмотр"
 OPEN_IN_APP_T = "Открыть в приложении"
 RATING_T = "Рейтинг"
-SHOW_IN_FOLDER_T = "Показать в папке"
 FAV_REMOVE_T = "Удалить из избранного"
 FAV_ADD_T = "Добавить в избранное"
-RENAME_T = "Переименовать"
 CUT_T = "Вырезать"
 COPY_T = "Копировать"
 PASTE_T = "Вставить"
@@ -27,17 +25,10 @@ SELECT_ALL_T = "Выделить все"
 SORT_T = "Сортировать"
 ASCENDING_T = "По возрастанию"
 DISCENDING_T = "По убыванию"
-UPDATE_GRID_T = "Обновить"
 CHANGE_VIEW_T = "Вид"
 CHANGE_VIEW_GRID_T = "Сетка"
 CHANGE_VIEW_LIST_T = "Список"
-CREATE_FOLDER_T = "Создать папку"
-NEW_FOLDER_T = "Новая папка"
-NEW_FOLDER_WARN = "Папка с таким именем уже существует"
 TAGS_T = "Метки"
-COPY_FILES_T = "Копировать"
-PASTE_FILES_T = "Вставить объекты"
-DELETE_FILES_T = "Удалить"
 OPEN_DEFAULT_T = "По умолчанию"
 
 
@@ -49,28 +40,10 @@ class Task_(URunnable):
 
     @URunnable.set_running_state
     def run(self):
-
         try:
             self.cmd_()
-
         except RuntimeError as e:
-            Utils.print_error(
-                parent=None,
-                error=e
-            )
-
-
-# Базовый QAction с обязательными аргументами
-class UAction(QAction):
-    def __init__(self, parent: UMenu, src: str, text: str):
-        super().__init__(text, parent)
-
-        self.triggered.connect(self.cmd_)
-        self.src = src
-
-    def cmd_(self):
-        # этот метод обязательно нужно переназначать в дочерних виджетах
-        raise Exception("_actions > Переназначь cmd_")
+            Utils.print_error(None, e)
 
 
 class RevealInFinder(QAction):
@@ -437,43 +410,3 @@ class ChangeViewMenu(UMenu):
 
         elif view_index == 1:
             list_.setChecked(True)
-
-
-class CopyFilesAction(QAction):
-    clicked_ = pyqtSignal()
-
-    def __init__(self, parent: UMenu, urls: list[str]):
-
-        t = f"{COPY_FILES_T} ({len(urls)})"
-        super().__init__(t, parent)
-        self.triggered.connect(self.cmd_)
-
-    def cmd_(self, *args):
-        self.clicked_.emit()
-
-
-class PasteFilesAction(QAction):
-    clicked_ = pyqtSignal()
-
-    def __init__(self, parent: UMenu):
-
-        t = f"{PASTE_FILES_T} ({len(Dynamic.files_to_copy)})"
-        super().__init__(t, parent)
-        self.triggered.connect(self.cmd_)
-
-    def cmd_(self, *args):
-        self.clicked_.emit()
-
-
-class RemoveFilesAction(QAction):
-    clicked_ = pyqtSignal()
-
-    def __init__(self, parent: UMenu, urls: list[str]):
-
-        t = f"{DELETE_FILES_T} ({len(urls)})"
-        super().__init__(t, parent)
-        self.triggered.connect(self.cmd_)
-        self.files = urls
-
-    def cmd_(self, *args):
-        self.clicked_.emit()

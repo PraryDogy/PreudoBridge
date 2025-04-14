@@ -15,9 +15,8 @@ from database import CACHE, Dbase, OrderItem
 from utils import URunnable, UThreadPool, Utils
 
 from ._base_widgets import BaseMethods, UMenu, USvgSqareWidget
-from .actions import (ChangeViewMenu, CopyFilesAction, CopyPath, FavAdd, FavRemove,
-                      Info, OpenInApp, PasteFilesAction, RatingMenu,
-                      RemoveFilesAction, RevealInFinder, SortMenu, TagMenu,
+from .actions import (ChangeViewMenu, CopyPath, FavAdd, FavRemove, Info,
+                      OpenInApp, RatingMenu, RevealInFinder, SortMenu, TagMenu,
                       View)
 from .win_copy_files import ErrorWin, WinCopyFiles
 from .win_info import WinInfo
@@ -33,6 +32,9 @@ GRID_SPACING = 5
 COL_COUNT = "col_count"
 SHOW_IN_FOLDER = "Показать в папке"
 UPDATE_GRID_T = "Обновить"
+COPY_FILES_T = "Копировать"
+PASTE_FILES_T = "Вставить объекты"
+REMOVE_FILES_T = "Удалить"
 
 KEY_RATING = {
     Qt.Key.Key_0: 0,
@@ -671,7 +673,7 @@ class Grid(QScrollArea):
         menu.addAction(view_action)
 
         if wid.type_ != Static.FOLDER_TYPE:
-            open_menu = OpenInApp(parent=menu, src=wid.src)
+            open_menu = OpenInApp(menu, wid.src)
             menu.addMenu(open_menu)
 
         menu.addSeparator()
@@ -686,8 +688,8 @@ class Grid(QScrollArea):
         copy_path = CopyPath(menu, urls)
         menu.addAction(copy_path)
 
-        copy_files = CopyFilesAction(menu, urls)
-        copy_files.clicked_.connect(self.copy_files)
+        copy_files = QAction(f"{COPY_FILES_T} ({len(urls)})", menu)
+        copy_files.triggered.connect(self.copy_files)
         menu.addAction(copy_files)
 
         menu.addSeparator()
@@ -729,8 +731,8 @@ class Grid(QScrollArea):
 
         menu.addSeparator()
 
-        remove_files = RemoveFilesAction(parent=menu, urls=urls)
-        remove_files.clicked_.connect(lambda: self.remove_files_cmd(urls=urls))
+        remove_files = QAction(REMOVE_FILES_T, menu)
+        remove_files.triggered.connect(lambda: self.remove_files_cmd(urls))
         menu.addAction(remove_files)
 
     def grid_context_actions(self, menu: UMenu):
@@ -776,8 +778,8 @@ class Grid(QScrollArea):
         menu.addSeparator()
 
         if Dynamic.files_to_copy:
-            paste_files = PasteFilesAction(parent=menu)
-            paste_files.clicked_.connect(self.paste_files)
+            paste_files = QAction(PASTE_FILES_T, menu)
+            paste_files.triggered.connect(self.paste_files)
             menu.addAction(paste_files)
 
         upd_ = QAction(UPDATE_GRID_T, menu)
