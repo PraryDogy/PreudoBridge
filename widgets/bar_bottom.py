@@ -35,6 +35,15 @@ class WorkerSignals(QObject):
 class PathFinderThread(URunnable):
 
     def __init__(self, src: str):
+        """
+        Входящий путь к файлу папке проходит через PathFinder, корректируется
+        при необходимости. Например:
+        - Входящий путь /Volumes/Shares-1/file.txt
+        - У отправившего пользователя есть подключенный общий диск Shares-1
+        - У принявшего пользователя (нашего) диск значится как Shares-2
+        - PathFinder поймет это и скорректирует путь
+        - /Volumes/Shares-2/file.txt
+        """
         super().__init__()
         self.signals_ = WorkerSignals()
         self.src: str = src
@@ -43,10 +52,8 @@ class PathFinderThread(URunnable):
     def run(self):
         try:
             result = PathFinder.get_result(path=self.src)
-
             if not result:
                 self.signals_.finished_.emit("")
-            
             else:
                 self.signals_.finished_.emit(result)
 
@@ -63,28 +70,18 @@ class GoLineEdit(ULineEdit):
         self.setFixedWidth(GoLineEdit.ww)
         self.clear_btn_vcenter()
 
-    def clicked_(self, text: str):
-        self.clear()
-        self.setText(text)
-        QTimer.singleShot(10, self.deselect)
-
-    def mouseDoubleClickEvent(self, a0):
-
-        menu = UMenu(parent=self)
-
-        for i in Dynamic.go_paths:
-            action_ = QAction(i, menu)
-            action_.triggered.connect(lambda e, tt=i: self.clicked_(text=tt))
-            menu.addAction(action_)
-        
-        menu.exec_(self.mapToGlobal(self.rect().bottomLeft()))
-        return super().mouseDoubleClickEvent(a0)
-
 
 class WinGo(WinMinMaxDisabled):
     open_path_sig = pyqtSignal(str)
 
     def __init__(self):
+        """
+        Окно перейти:
+        - поле ввода
+        - кнопка "Перейти" - переход к директории внутри приложения, отобразится
+        новая сетка с указанным путем
+        - кнопка "Finder" - путь откроется в Finder
+        """
         super().__init__()
         self.setWindowTitle("Перейти к ...")
         self.setFixedSize(290, 90)
@@ -122,40 +119,53 @@ class WinGo(WinMinMaxDisabled):
 
         h_lay.addStretch()
 
+        # при инициации окна пытаемся считать буфер обмена, если там есть
+        # путь, то вставляем его в поле ввода
         clipboard = Utils.read_from_clipboard()
         task = PathFinderThread(src=clipboard)
         task.signals_.finished_.connect(self.first_load_final)
         UThreadPool.start(runnable=task)
 
     def first_load_final(self, result: str | None):
+        """
+        Завершение PathFinderThread при инициации окна
+        """
         if result:
             self.input_wid.setText(result)
 
     def open_path_btn_cmd(self, flag: str):
+        """
+        Общий метод для кнопок "Перейти" и "Finder"
+        - flag None означает переход к указанном пути внутри приложения,
+        загрузится новая сетка по указанному пути
+        - flag FINDER_T откроет Finder по указанному пути
+        """
         path: str = self.input_wid.text()
         task = PathFinderThread(src=path)
-        task.signals_.finished_.connect(
-            lambda result: self.finalize(result=result, flag=flag)
-        )
+        cmd_ = lambda result: self.finalize(result, flag)
+        task.signals_.finished_.connect(cmd_)
         UThreadPool.start(runnable=task)
 
-        if path not in Dynamic.go_paths:
-            Dynamic.go_paths.append(path)
-
     def finalize(self, result: str, flag: str):
-
+        """
+        - result - полученный путь из PathFinderThread
+        - flag None означает переход к указанном пути внутри приложения,
+        загрузится новая сетка по указанному пути
+        - flag FINDER_T откроет Finder по указанному пути
+        """
         if not result:
             self.close()
             return
-
         if flag == FINDER_T:
             self.open_finder(dest=result)
         else:
             self.open_path_sig.emit(result)
-
         self.close()
 
     def open_finder(self, dest: str):
+        """
+        Открыть указанный путь в Finder
+        """
         try:
             subprocess.Popen(["open", "-R", dest])
         except Exception as e:
@@ -171,6 +181,14 @@ class CustomSlider(USlider):
     rearrange_grid_sig = pyqtSignal()
 
     def __init__(self):
+        """
+        Слайдер с пользовательским стилем
+        - 4 позиции
+        - каждая позиция отвечает за свой размер виджета сетки
+        - при смене позиции слайдера произойзет изменение размеров виджетов сетки
+        и перетасовка с учетом новых размеров:
+        изменится число столбцов и строк в сетке
+        """
         super().__init__(
             orientation=Qt.Orientation.Horizontal,
             minimum=0,
@@ -181,6 +199,13 @@ class CustomSlider(USlider):
         self.valueChanged.connect(self.move_slider_cmd)
     
     def move_slider_cmd(self, value: int):
+        """
+        Перемещение слайдера происходит:
+        - При клике мыши (valueChanged)
+        - При нажатии cmd + и cmd -
+        - Чтобы действие не задваивалось, сначала отключается сигнал valueChanged,
+        затем происходит изменение размеров сетки и обратное подключение сетки
+        """
         # отключаем сигнал valueChanged
         self.blockSignals(True)
         self.setValue(value)
