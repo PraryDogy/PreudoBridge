@@ -221,7 +221,5 @@ class Dynamic:
     files_to_copy: list[str] = []
     SEARCH_LIST = []
 
-    # {"SVG_png.svg": path_to_svg, ...}
-    # ключ такого формата необходим, так как он является одновременно и именем
-    # файла в директории GENERIC_ICONS
+    # [path_to_svg_icon, ...] в GENERIC_ICONS
     GENERIC_ICON_PATHS: list[str] = []
