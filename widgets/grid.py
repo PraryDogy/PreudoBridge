@@ -14,7 +14,7 @@ from cfg import Dynamic, JsonData, Static, ThumbData
 from database import CACHE, Dbase, OrderItem
 from utils import URunnable, UThreadPool, Utils
 
-from ._base_widgets import UMenu, UScrollArea, USvgSqareWidget
+from ._base_widgets import UMenu, UScrollArea
 from .actions import (ChangeViewMenu, CopyPath, FavAdd, FavRemove, Info,
                       OpenInApp, RatingMenu, RevealInFinder, SortMenu, TagMenu,
                       View)
