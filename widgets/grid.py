@@ -254,36 +254,15 @@ class Thumb(BaseItem, QFrame):
         )
         self.img = pixmap
 
-    def setup(self):
+    def setup_child_widgets(self):
         for i in (self.text_wid, self.rating_wid):
             i.set_text(self)
 
         self.setFixedSize(Thumb.thumb_w, Thumb.thumb_h)
-
+        self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
         # рамка вокруг pixmap при выделении Thumb
-        self.img_frame.setFixedSize(
-            Thumb.pixmap_size + ThumbData.OFFSET,
-            Thumb.pixmap_size + ThumbData.OFFSET
-        )
-
-        self.img_wid.setFixedSize(
-            Thumb.pixmap_size,
-            Thumb.pixmap_size
-        )
-
-        # if hasattr(self, IMG_WID_ATTR):
-
-        #     self.img_wid.setPixmap(
-        #         Utils.pixmap_scale(
-        #             pixmap=self.img,
-        #             size=Thumb.pixmap_size
-        #         )
-        #     )
-        # else:
-        #     self.img_wid.setFixedSize(
-        #         Thumb.pixmap_size,
-        #         Thumb.pixmap_size
-        #     )
+        frame_size = Thumb.pixmap_size + ThumbData.OFFSET
+        self.img_frame.setFixedSize(frame_size, frame_size)
 
     def set_green_text(self):
         self.text_wid.setStyleSheet(
@@ -483,7 +462,7 @@ class Grid(UScrollArea):
 
         Thumb.calculate_size()
         for wid in self.ordered_widgets:
-            wid.setup()
+            wid.setup_child_widgets()
 
         for src, wid in self.path_to_wid.items():
             if src in wid_src_list:

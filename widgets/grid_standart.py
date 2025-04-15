@@ -162,7 +162,7 @@ class GridStandart(Grid):
             thumb.set_src()
             thumb.set_name()
             thumb.set_file_type()
-            thumb.setup()
+            thumb.setup_child_widgets()
             thumb.set_no_frame()
 
             if order_item.src.count(os.sep) == 2:
