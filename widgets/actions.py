@@ -201,7 +201,7 @@ class RatingMenu(UMenu):
             self.addAction(wid)
 
 
-# меню с тегами для _grid.py > Thumb, ThumbSearch
+# меню с тегами для _grid.py > Thumb
 class TagMenu(UMenu):
     new_tag = pyqtSignal(int)
 

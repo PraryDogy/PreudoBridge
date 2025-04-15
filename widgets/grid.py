@@ -339,17 +339,6 @@ class Thumb(BaseItem, QFrame):
         return tag * 10 + rating
 
 
-class ThumbSearch(Thumb):
-    load_st_grid_sig = pyqtSignal(tuple)
-
-    def __init__(self, src: str, size: int, mod: int, rating: int):
-        super().__init__(src, size, mod, rating)
-
-    def load_st_grid_cmd(self):
-        root = os.path.dirname(self.src)
-        self.load_st_grid_sig.emit((root, self.src))
-
-
 class Grid(UScrollArea):
     def __init__(self, main_dir: str, view_index: int, path_for_select: str):
         super().__init__()
