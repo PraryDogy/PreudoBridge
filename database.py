@@ -45,6 +45,7 @@ CACHE = sqlalchemy.Table(
 # И текстовое отображение этого параметр
 # Если присвоить значение параметру Dynamic.sort = ColumnNames.TYPE
 # То произойдет сортировка из базы данных по столбцу ColumnNames.TYPE
+# Строгая типизация словаря принята для читаемости
 ORDER_DICT: dict[str, str] = {
     ColumnNames.NAME : "Имя",
     ColumnNames.TYPE : "Тип",
