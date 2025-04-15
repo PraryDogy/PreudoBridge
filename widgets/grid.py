@@ -256,12 +256,22 @@ class Thumb(BaseItem, QFrame):
         self.img = pixmap
 
     def setup_child_widgets(self):
+        """
+        Устанавливает фиксированные размеры для дочерних виджетов Thumb     
+        Устанавливает текст в дочерних виджетах в соответствии с размерами  
+        Устанавливает изображение в дочерних виджетах в соответствии в размерами
+        """
+
         for i in (self.text_wid, self.rating_wid):
             i.set_text(self)
 
         self.setFixedSize(Thumb.thumb_w, Thumb.thumb_h)
         self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
         self.img_frame.setFixedSize(Thumb.img_frame_size, Thumb.img_frame_size)
+
+        if self.get_pixmap_storage():
+            pixmap =  Utils.pixmap_scale(self.get_pixmap_storage(), Thumb.pixmap_size)
+            self.img_wid.setPixmap(pixmap)
 
     def set_green_text(self):
         self.text_wid.setStyleSheet(
