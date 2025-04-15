@@ -276,7 +276,6 @@ class Thumb(BaseItem, QFrame):
         )
 
     def set_frame(self):
-
         self.text_wid.setStyleSheet(
             f"""
                 background: {Static.BLUE_GLOBAL};
@@ -285,7 +284,6 @@ class Thumb(BaseItem, QFrame):
                 padding: 2px;
             """
         )
-
         self.img_frame.setStyleSheet(
             f"""
                 background: {Static.GRAY_GLOBAL};
@@ -303,7 +301,6 @@ class Thumb(BaseItem, QFrame):
                 padding: 2px;
             """
         )
-    
         self.img_frame.setStyleSheet(
             f"""
                 background: transparent;
