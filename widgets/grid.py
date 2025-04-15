@@ -25,7 +25,6 @@ from .win_remove_files import WinRemoveFiles
 SELECTED = "selected"
 FONT_SIZE = "font-size: 11px;"
 RAD = "border-radius: 4px"
-IMG_WID_ATTR = "img_wid_attr"
 SQL_ERRORS = (OperationalError, IntegrityError)
 WID_UNDER_MOUSE = "win_under_mouse"
 GRID_SPACING = 5
@@ -232,7 +231,6 @@ class Thumb(OrderItem, QFrame):
         self.rating_wid = RatingWid()
         self.v_lay.addWidget(self.rating_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.setup()
         self.set_no_frame()
 
         # self.setStyleSheet("background: gray;")
@@ -248,7 +246,7 @@ class Thumb(OrderItem, QFrame):
         self.img_wid.load(path)
         self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
 
-    def set_pixmap(self, pixmap: QPixmap):
+    def set_image(self, pixmap: QPixmap):
         self.img_wid.deleteLater()
         self.img_wid = QLabel()
         self.img_wid.setPixmap(
@@ -259,18 +257,12 @@ class Thumb(OrderItem, QFrame):
             alignment=Qt.AlignmentFlag.AlignCenter
         )
         self.img = pixmap
-        setattr(self, IMG_WID_ATTR, True)
 
     def setup(self):
-
-        # при первой инициации нужно установить текст в виджеты
         for i in (self.text_wid, self.rating_wid):
             i.set_text(self)
 
-        self.setFixedSize(
-            Thumb.thumb_w,
-            Thumb.thumb_h
-        )
+        self.setFixedSize(Thumb.thumb_w, Thumb.thumb_h)
 
         # рамка вокруг pixmap при выделении Thumb
         self.img_frame.setFixedSize(
@@ -278,19 +270,24 @@ class Thumb(OrderItem, QFrame):
             Thumb.pixmap_size + ThumbData.OFFSET
         )
 
-        if hasattr(self, IMG_WID_ATTR):
+        self.img_wid.setFixedSize(
+            Thumb.pixmap_size,
+            Thumb.pixmap_size
+        )
 
-            self.img_wid.setPixmap(
-                Utils.pixmap_scale(
-                    pixmap=self.img,
-                    size=Thumb.pixmap_size
-                )
-            )
-        else:
-            self.img_wid.setFixedSize(
-                Thumb.pixmap_size,
-                Thumb.pixmap_size
-            )
+        # if hasattr(self, IMG_WID_ATTR):
+
+        #     self.img_wid.setPixmap(
+        #         Utils.pixmap_scale(
+        #             pixmap=self.img,
+        #             size=Thumb.pixmap_size
+        #         )
+        #     )
+        # else:
+        #     self.img_wid.setFixedSize(
+        #         Thumb.pixmap_size,
+        #         Thumb.pixmap_size
+        #     )
 
     def set_green_text(self):
         self.text_wid.setStyleSheet(

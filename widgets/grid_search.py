@@ -160,7 +160,7 @@ class SearchFinder(URunnable):
         order_item.set_src()
         order_item.set_name()
         order_item.set_file_type()
-        order_item.pixmap_ = pixmap
+        order_item.pixmap_storage = pixmap
         try:
             self.signals_.new_widget.emit(order_item)
         except Exception as e:

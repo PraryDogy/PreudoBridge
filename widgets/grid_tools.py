@@ -96,8 +96,8 @@ class GridTools(AnyOrderItem):
             elif order_item.type_ in Static.IMG_EXT:
                 item = cls.update_file_order_item(conn=conn, order_item=order_item)
             else:
-                ...
                 item = cls.update_any_order_item(conn=conn, order_item=order_item)
+
             return item
         except Exception as e:
             return None
@@ -142,7 +142,7 @@ class GridTools(AnyOrderItem):
         if isinstance(img_array, np.ndarray):
             pixmap = Utils.pixmap_from_array(image=img_array)
 
-            order_item.pixmap_ = pixmap
+            order_item.pixmap_storage = pixmap
             order_item.rating = rating
 
             return order_item

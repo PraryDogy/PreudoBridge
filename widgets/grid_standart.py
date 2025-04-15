@@ -179,6 +179,11 @@ class GridStandart(Grid):
                 rating=order_item.rating,
                 )
             
+            wid.set_src()
+            wid.set_name()
+            wid.set_file_type()
+            wid.setup()
+
             if order_item.src.count(os.sep) == 2:
                 wid.set_svg_icon(Static.HDD_SVG)
 
@@ -231,17 +236,12 @@ class GridStandart(Grid):
 
     def set_pixmap(self, order_item: OrderItem):
         try:
-
             widget = self.path_to_wid.get(order_item.src)
-
-            if isinstance(widget, Thumb):
-
-                if isinstance(order_item.pixmap_, QPixmap):
-                    widget.set_pixmap(pixmap=order_item.pixmap_)
-
+            if widget:
+                if isinstance(order_item.pixmap_storage, QPixmap):
+                    widget.set_image(order_item.pixmap_storage)
                 if isinstance(order_item.rating, int):
                     widget.set_db_rating(rating=order_item.rating)
-
                 self.loaded_images.append(order_item.src)
 
         except RuntimeError:

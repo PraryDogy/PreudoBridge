@@ -73,9 +73,9 @@ class OrderItem:
         self.mod: int = int(mod)
         self.rating: int = rating
 
-        self.type_ = None
+        self.type_: str = None
         self.name: str = None
-        self.pixmap_: QPixmap = None
+        self.pixmap_storage: QPixmap = None
 
     def set_src(self):
         self.src = Utils.normalize_slash(self.src)
