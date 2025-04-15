@@ -27,8 +27,6 @@ class ColumnNames:
 
 CACHE = sqlalchemy.Table(
     TABLE_NAME, METADATA,
-    # Комментарии колонок используются только для сортировки.
-    # Где есть комментарий — сортировка возможна.
     sqlalchemy.Column(ColumnNames.ID, sqlalchemy.Integer, primary_key=True),
     sqlalchemy.Column(ColumnNames.IMG, sqlalchemy.BLOB),
     sqlalchemy.Column(ColumnNames.NAME, sqlalchemy.Text),
@@ -45,6 +43,8 @@ CACHE = sqlalchemy.Table(
 # Служит для отображения типа сортировки
 # Имя столбца базы данных соответствует параметру cfg.py > Dynamic.sort
 # И текстовое отображение этого параметр
+# Если присвоить значение параметру Dynamic.sort = ColumnNames.TYPE
+# То произойдет сортировка из базы данных по столбцу ColumnNames.TYPE
 ORDER_DICT: dict[str, str] = {
     ColumnNames.NAME : "Имя",
     ColumnNames.TYPE : "Тип",
