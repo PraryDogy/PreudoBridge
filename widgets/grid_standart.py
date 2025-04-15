@@ -11,7 +11,7 @@ from database import Dbase, OrderItem
 from utils import URunnable, UThreadPool, Utils
 
 from .finder_items import FinderItems, LoadingWid
-from .grid import Grid, Thumb, ThumbFolder
+from .grid import Grid, Thumb
 from .grid_tools import GridTools
 from .win_copy_files import WinCopyFiles, ErrorWin
 

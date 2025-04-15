@@ -401,15 +401,6 @@ class Thumb(OrderItem, QFrame):
         return tag * 10 + rating
 
 
-class ThumbFolder(Thumb):
-    def __init__(self, src: str, size: int, mod: int, rating: int):
-        super().__init__(src, size, mod, rating)
-
-        # self.svg_path = Static.FOLDER_SVG
-        # img_wid = self.img_frame.findChild(USvgSqareWidget)
-        # img_wid.load(self.svg_path)
-
-
 class ThumbSearch(Thumb):
     load_st_grid_sig = pyqtSignal(tuple)
 
@@ -855,7 +846,7 @@ class Grid(UScrollArea):
         self.rem_win.show()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
-        clicked_wid: Thumb | ThumbFolder 
+        clicked_wid: Thumb
 
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
 
