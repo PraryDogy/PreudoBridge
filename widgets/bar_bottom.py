@@ -482,6 +482,7 @@ class BarBottom(QWidget):
         self.path_item_list.clear()
         self.current_path = src
         root = src.strip(os.sep).split(os.sep)
+        limit = 40
 
         for x, name in enumerate(root, start=1):
             src = os.path.join(os.sep, *root[:x])
@@ -504,6 +505,9 @@ class BarBottom(QWidget):
                     icon = Static.FOLDER_SVG
                 else:
                     icon = Static.IMG_SVG
+
+                if len(name) > limit:
+                    path_item.text_wid.setText(name[:limit] + "...")
 
                 # последний элемент показывать в полный размер
                 path_item.expand()
