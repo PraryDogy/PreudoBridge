@@ -1,11 +1,11 @@
 import os
 
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
-from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QVBoxLayout,
-                             QWidget, QPushButton)
+from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QPushButton,
+                             QVBoxLayout, QWidget)
 
 from cfg import Dynamic, Static
-from utils import URunnable, Utils, UThreadPool
+from utils import URunnable, UThreadPool, Utils
 
 from ._base_widgets import USvgSqareWidget, WinMinMaxDisabled
 
@@ -14,7 +14,6 @@ COPYING_T = "Копирую файлы"
 CANCEL_T = "Отмена"
 ERROR_DESCR_T = "Произошла ошибка при копировании"
 ERROR_TITLE = "Ошибка"
-
 
 
 class WorderSignals(QObject):
@@ -241,7 +240,7 @@ class WinCopyFiles(WinMinMaxDisabled):
         main_lay.setSpacing(5)
         self.setLayout(main_lay)
 
-        left_side_icon = USvgSqareWidget(src=Static.COPY_FILES_SVG, size=50)
+        left_side_icon = USvgSqareWidget(Static.COPY_FILES_SVG, 50)
         main_lay.addWidget(left_side_icon)
 
         right_side_wid = QWidget()
@@ -253,17 +252,15 @@ class WinCopyFiles(WinMinMaxDisabled):
 
         right_side_lay.addStretch()
 
-        # first_row = QWidget()
-        # right_side_lay.addWidget(first_row)
-        # first_lay = QHBoxLayout()
-        # first_lay.setContentsMargins(0, 0, 0, 0)
-        # first_row.setLayout(first_lay)
-
         src = min(Dynamic.files_to_copy, key=len)
         src = os.path.dirname(Utils.normalize_slash(src))
         src = os.path.basename(src)
         dest = os.path.basename(self.main_dir)
-        t = f"Копирую из \"{src}\" в \"{dest}\""
+
+        src = self.limit_string(src)
+        dest = self.limit_string(dest)
+
+        t = f"Из \"{src}\" в \"{dest}\""
         bottom_lbl = QLabel(t)
         right_side_lay.addWidget(bottom_lbl)
 
@@ -298,6 +295,11 @@ class WinCopyFiles(WinMinMaxDisabled):
             UThreadPool.start(runnable=self.task_)
 
         self.adjustSize()
+
+    def limit_string(self, text: str, limit: int = 15):
+        if len(text) > limit:
+            return text[:limit] + "..."
+        return text
 
     def set_max(self, progress: QProgressBar, value):
         progress.setMaximum(abs(value))
