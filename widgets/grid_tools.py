@@ -6,9 +6,10 @@ from sqlalchemy import Connection, insert, select, update
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Dynamic, Static, ThumbData
-from database import CACHE, ColumnNames, OrderItem
+from database import CACHE, ColumnNames
 from fit_img import FitImg
 from utils import Utils
+from .grid import Thumb
 
 SQL_ERRORS = (IntegrityError, OperationalError)
 
@@ -29,7 +30,7 @@ class CommitTool:
 class AnyOrderItem(CommitTool):
 
     @classmethod
-    def update_any_order_item(cls, conn: Connection, order_item: OrderItem):
+    def update_any_order_item(cls, conn: Connection, order_item: Thumb):
 
         order_item, rating = cls.load_order_item(conn=conn, order_item=order_item)
 
@@ -42,7 +43,7 @@ class AnyOrderItem(CommitTool):
             return order_item
 
     @classmethod
-    def load_order_item(cls, conn: Connection, order_item: OrderItem):
+    def load_order_item(cls, conn: Connection, order_item: Thumb):
         select_stmt = select(CACHE.c.rating)
 
         where_stmt = select_stmt.where(
@@ -57,7 +58,7 @@ class AnyOrderItem(CommitTool):
             return (order_item, None)
 
     @classmethod
-    def insert_order_item(cls, conn: Connection, order_item: OrderItem):
+    def insert_order_item(cls, conn: Connection, order_item: Thumb):
 
         new_name = Utils.get_hash_filename(filename=order_item.name)
 
@@ -71,7 +72,7 @@ class AnyOrderItem(CommitTool):
         cls.run(conn=conn, query=q)
 
     @classmethod
-    def update_order_item(cls, conn: Connection, order_item: OrderItem):
+    def update_order_item(cls, conn: Connection, order_item: Thumb):
 
         new_name = Utils.get_hash_filename(filename=order_item.name)
 
@@ -88,7 +89,7 @@ class AnyOrderItem(CommitTool):
 class GridTools(AnyOrderItem):
 
     @classmethod
-    def update_order_item(cls, conn: Connection, order_item: OrderItem):
+    def update_order_item(cls, conn: Connection, order_item: Thumb):
 
         try:
             if order_item.type_ == Static.FOLDER_TYPE:
@@ -100,10 +101,13 @@ class GridTools(AnyOrderItem):
 
             return item
         except Exception as e:
+            import traceback
+            # print(traceback.format_exc())
+            # print("grid tools", e)
             return None
 
     @classmethod
-    def update_file_order_item(cls, conn: Connection, order_item: OrderItem):
+    def update_file_order_item(cls, conn: Connection, order_item: Thumb):
 
         # ошибка логики в том, что мы пытаемся загрузить запись
         # которой еще нет в БД (загрузка по имени)
@@ -151,7 +155,7 @@ class GridTools(AnyOrderItem):
             return None
 
     @classmethod
-    def load_file(cls, conn: Connection, order_item: OrderItem):
+    def load_file(cls, conn: Connection, order_item: Thumb):
 
         select_stmt = select(
             CACHE.c.id,
@@ -190,7 +194,7 @@ class GridTools(AnyOrderItem):
     
     @classmethod
     def update_file(
-        cls, conn: Connection, order_item: OrderItem, row_id: int,
+        cls, conn: Connection, order_item: Thumb, row_id: int,
         rating: int = None
         ) -> np.ndarray:
 
@@ -229,7 +233,7 @@ class GridTools(AnyOrderItem):
 
     @classmethod
     def insert_file(
-        cls, conn: Connection, order_item: OrderItem,
+        cls, conn: Connection, order_item: Thumb,
         rating: int = None
         ) -> np.ndarray:
 
@@ -270,7 +274,7 @@ class GridTools(AnyOrderItem):
         return img_array
     
     @classmethod
-    def get_bytes_ndarray(cls, order_item: OrderItem):
+    def get_bytes_ndarray(cls, order_item: Thumb):
 
         img_array_src = Utils.read_image(
             path=order_item.src
@@ -292,7 +296,7 @@ class GridTools(AnyOrderItem):
         return bytes_img, img_array
     
     @classmethod
-    def get_stats(cls, order_item: OrderItem, img_array: np.ndarray):
+    def get_stats(cls, order_item: Thumb, img_array: np.ndarray):
 
         stats = os.stat(order_item.src)
         height, width = img_array.shape[:2]

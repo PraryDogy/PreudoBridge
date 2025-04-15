@@ -28,21 +28,21 @@ class WorkerSignals(QObject):
 
 
 class LoadImages(URunnable):
-    def __init__(self, main_dir: str, order_items: list[OrderItem]):
+    def __init__(self, main_dir: str, thumbs: list[Thumb]):
         super().__init__()
         self.signals_ = WorkerSignals()
         self.main_dir = main_dir
-        self.order_items = order_items
+        self.thumbs = thumbs
         # key_ = lambda x: (self.order_priority(item=x), x.size)
         key_ = lambda x: x.size
-        self.order_items.sort(key=key_)
+        self.thumbs.sort(key=key_)
 
     @URunnable.set_running_state
     def run(self):
 
         # чтобы не создавать пустую ДБ в пустых или папочных директориях
 
-        if not self.order_items:
+        if not self.thumbs:
             return
 
         db = os.path.join(self.main_dir, Static.DB_FILENAME)
@@ -72,20 +72,20 @@ class LoadImages(URunnable):
 
     def process_order_items(self):
 
-        for order_item in self.order_items:
+        for order_item in self.thumbs:
 
             if not self.should_run:
                 return
                         
             try:
 
-                new_order_item = GridTools.update_order_item(
+                updated_order_item = GridTools.update_order_item(
                     conn=self.conn,
                     order_item=order_item
                 )
 
-                if new_order_item:
-                    self.signals_.new_widget.emit(new_order_item)
+                if updated_order_item:
+                    self.signals_.new_widget.emit(updated_order_item)
 
             except RuntimeError:
                 return
@@ -123,18 +123,13 @@ class GridStandart(Grid):
             if not widget.visibleRegion().isEmpty():
                 visible_widgets.append(widget)
 
-        ordered_items = [
-            OrderItem(
-                src=i.src,
-                size=i.size,
-                mod=i.mod,
-                rating=i.rating
-            )
+        thumbs = [
+            i
             for i in visible_widgets
             if i.src not in self.loaded_images
         ]
 
-        self.run_load_images_thread(cut_order_items=ordered_items)
+        self.run_load_images_thread(thumbs)
 
     def on_scroll_changed(self, value: int):
         self.load_images_timer.stop()
@@ -214,15 +209,15 @@ class GridStandart(Grid):
 
         self.load_images_timer.start(100)
         
-    def run_load_images_thread(self, cut_order_items: list[OrderItem]):
+    def run_load_images_thread(self, thumbs: list[Thumb]):
 
         for i in self.load_images_threads:
             i.should_run = False
 
-        thread_ = LoadImages(self.main_dir, cut_order_items)
+        thread_ = LoadImages(self.main_dir, thumbs)
         self.load_images_threads.append(thread_)
         thread_.signals_.new_widget.connect(
-            lambda image_data: self.set_pixmap(image_data)
+            lambda image_data: self.set_image(image_data)
         )
         thread_.signals_.finished_.connect(
             lambda: self.finalize_load_images_thread(thread_=thread_)
@@ -234,7 +229,7 @@ class GridStandart(Grid):
         del thread_
         gc.collect()
 
-    def set_pixmap(self, order_item: OrderItem):
+    def set_image(self, order_item: Thumb):
         try:
             widget = self.path_to_wid.get(order_item.src)
             if widget:
