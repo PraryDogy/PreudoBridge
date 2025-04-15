@@ -289,7 +289,7 @@ class GridSearch(Grid):
         generic_icon_path = Utils.get_generic_icon_path(base_item.type_)
 
         if not generic_icon_path in Dynamic.GENERIC_ICON_PATHS:
-            Utils.create_generic_icon(base_item.type_)
+            generic_icon_path = Utils.create_generic_icon(base_item.type_)
 
         if base_item.src.count(os.sep) == 2:
             thumb.set_svg_icon(Static.HDD_SVG)
