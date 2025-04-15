@@ -407,7 +407,7 @@ class ThumbSearch(Thumb):
     def __init__(self, src: str, size: int, mod: int, rating: int):
         super().__init__(src, size, mod, rating)
 
-    def show_in_folder_cmd(self):
+    def load_st_grid_cmd(self):
         root = os.path.dirname(self.src)
         self.load_st_grid_sig.emit((root, self.src))
 
