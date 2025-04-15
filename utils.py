@@ -486,7 +486,7 @@ class Utils(Pixmap, ReadImage, ImgConvert):
         """
         Возвращает путь к файлу svg иконки
         """
-        filename = Static.SVG + file_extension.replace(".", "_") + ".svg"
+        filename = Static.SVG + "_" + file_extension.replace(".", "") + ".svg"
         return os.path.join(Static.GENERIC_ICONS_DIR, filename)
 
     @classmethod
