@@ -13,7 +13,7 @@ from fit_img import FitImg
 from utils import URunnable, UThreadPool, Utils
 
 from ._base_widgets import USvgSqareWidget, UTextEdit, WinMinMaxDisabled
-from .grid import Grid, ThumbSearch
+from .grid import Grid, Thumb
 
 SQL_ERRORS = (IntegrityError, OperationalError)
 ATTENTION_T = "Внимание!"
@@ -269,15 +269,17 @@ class GridSearch(Grid):
         self.pause_timer.setSingleShot(True)
 
         self.bar_bottom_update.emit((self.main_dir, self.total))
-        ThumbSearch.calculate_size()
+        Thumb.calculate_size()
 
         self.task_ = SearchFinder(self.main_dir, search_text)
         self.task_.signals_.new_widget.connect(self.add_new_widget)
         self.task_.signals_.finished_.connect(self.search_fin)
         UThreadPool.start(self.task_)
 
+        self.is_grid_search = True
+
     def add_new_widget(self, base_item: BaseItem):
-        thumb = ThumbSearch(base_item.src, base_item.size, base_item.mod, base_item.rating)
+        thumb = Thumb(base_item.src, base_item.size, base_item.mod, base_item.rating)
         thumb.set_src()
         thumb.set_name()
         thumb.set_file_type()

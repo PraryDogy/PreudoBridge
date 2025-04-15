@@ -28,7 +28,6 @@ RAD = "border-radius: 4px"
 SQL_ERRORS = (OperationalError, IntegrityError)
 WID_UNDER_MOUSE = "win_under_mouse"
 GRID_SPACING = 5
-COL_COUNT = "col_count"
 SHOW_IN_FOLDER = "Показать в папке"
 UPDATE_GRID_T = "Обновить"
 COPY_FILES_T = "Копировать"
@@ -359,7 +358,8 @@ class Grid(UScrollArea):
         self.setWidgetResizable(True)
         self.horizontalScrollBar().setDisabled(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        
+
+        self.is_grid_search: bool = False
         self.main_dir = main_dir
         self.view_index = view_index
         self.path_for_select = path_for_select
@@ -628,13 +628,11 @@ class Grid(UScrollArea):
 
             menu.addSeparator()
 
-        if isinstance(wid, ThumbSearch):
-
+        if self.is_grid_search:
             show_in_folder = QAction(SHOW_IN_FOLDER, menu)
-            cmd_ = lambda: self.testrt(wid)
+            cmd_ = lambda: self.show_in_folder_cmd(wid)
             show_in_folder.triggered.connect(cmd_)
             menu.addAction(show_in_folder)
-
             menu.addSeparator()
 
         menu.addSeparator()
@@ -643,7 +641,7 @@ class Grid(UScrollArea):
         remove_files.triggered.connect(lambda: self.remove_files_cmd(urls))
         menu.addAction(remove_files)
 
-    def testrt(self, wid: Thumb):
+    def show_in_folder_cmd(self, wid: Thumb):
         new_main_dir = os.path.dirname(wid.src)
         self.load_st_grid_sig.emit((new_main_dir, wid.src))
 
@@ -702,7 +700,7 @@ class Grid(UScrollArea):
         # переназначаем действие QAction upd_ - обновить сетку, загрузив ее заново,
         # на order_, чтобы сетка не перезагружалась, а происходила сортировка
         # без перезагрузки
-        if hasattr(self, COL_COUNT):
+        if self.is_grid_search:
             upd_.disconnect()
             upd_.triggered.connect(self.order_)
             upd_.triggered.connect(self.rearrange)

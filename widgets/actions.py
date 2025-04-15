@@ -159,7 +159,7 @@ class OpenInApp(UMenu):
         UThreadPool.start(self.task_)
 
 
-# меню с рейтингом для _grid.py > Thumb, ThumbSearch
+# меню с рейтингом для _grid.py > Thumb
 class RatingMenu(UMenu):
     new_rating = pyqtSignal(int)
 
@@ -169,7 +169,7 @@ class RatingMenu(UMenu):
         t = f"{RATING_T} ({len(urls)})"
         super().__init__(t, parent)
 
-        # свойство Thumb, ThumbSearch
+        # свойство Thumb
         # рейтинг для каждого виджета хранится в базе данных
         # и подгружается при создании сетки
         current_rating = current_rating % 10
@@ -181,7 +181,7 @@ class RatingMenu(UMenu):
 
         # рейтинг от 1 до 5 звезд
         # в цикле происходит проверка, есть ли рейтинг > 0
-        # в self.rating (свойство Thumb, ThumbSearch)
+        # в self.rating (свойство Thumb)
         # если есть, то отмечается setChecked
         # 0 возвращает False
         for current_rating in range(1, 6):
@@ -194,7 +194,7 @@ class RatingMenu(UMenu):
             # клик возвращает через сигнал целое число
             # соответствующее количеству звезд
             # например: int(5) это 5 звезд = rating в данном цикле
-            # виджет Thumb / ThumbSearch установит новый рейтинг и 
+            # виджет Thumb установит новый рейтинг и 
             # запишет его в базу данных
             cmd_ = lambda e, r=current_rating: self.new_rating.emit(r)
             wid.triggered.connect(cmd_)
