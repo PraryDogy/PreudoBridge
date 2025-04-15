@@ -149,6 +149,8 @@ class GridStandart(Grid):
 
         row, col = 0, 0
 
+
+        # создаем генерик иконки если не было
         exts = {i.type_ for i in order_items}
         for ext in exts:
             icon_path = Utils.get_generic_icon_path(ext)

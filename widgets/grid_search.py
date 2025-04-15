@@ -276,26 +276,35 @@ class GridSearch(Grid):
         self.task_.signals_.finished_.connect(self.search_fin)
         UThreadPool.start(self.task_)
 
-    def add_new_widget(self, order_item: BaseItem):
-        wid = ThumbSearch(
-            src=order_item.src,
-            size=order_item.size,
-            mod=order_item.mod,
-            rating=order_item.rating,
-            )
-        
-        wid.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
-        
-        # if isinstance(order_item.pixmap_, QPixmap):
-        #     wid.set_pixmap(order_item.pixmap_)
+    def add_new_widget(self, base_item: BaseItem):
+        thumb = ThumbSearch(base_item.src, base_item.size, base_item.mod, base_item.rating)
+        thumb.set_src()
+        thumb.set_name()
+        thumb.set_file_type()
+        thumb.setup_child_widgets()
+        thumb.set_no_frame()
 
-        self.add_widget_data(
-            wid=wid,
-            row=self.row,
-            col=self.col
-        )
+        generic_icon_path = Utils.get_generic_icon_path(base_item.type_)
 
-        self.grid_layout.addWidget(wid, self.row, self.col)
+        if not generic_icon_path in Dynamic.GENERIC_ICON_PATHS:
+            Utils.create_generic_icon(base_item.type_)
+
+        if base_item.src.count(os.sep) == 2:
+            thumb.set_svg_icon(Static.HDD_SVG)
+
+        elif base_item.type_ == Static.FOLDER_TYPE:
+            thumb.set_svg_icon(Static.FOLDER_SVG)
+
+        else:
+            thumb.set_svg_icon(generic_icon_path)
+
+        thumb.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
+        
+        if base_item.pixmap_storage:
+            thumb.set_image(base_item.pixmap_storage)
+
+        self.add_widget_data(thumb, self.row, self.col)
+        self.grid_layout.addWidget(thumb, self.row, self.col)
 
         self.total += 1
         self.col += 1
