@@ -6,9 +6,10 @@ from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtWidgets import QLabel
 
 from cfg import Dynamic, Static
-from database import Dbase, BaseItem
+from database import Dbase
 from utils import URunnable, UThreadPool, Utils
 
+from ._base_widgets import BaseItem
 from .finder_items import FinderItems, LoadingWid
 from .grid import Grid, Thumb
 from .grid_tools import GridTools

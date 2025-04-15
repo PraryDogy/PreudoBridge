@@ -5,9 +5,11 @@ from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtWidgets import QLabel, QWidget
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import Static, Dynamic
-from database import CACHE, Dbase, BaseItem
+from cfg import Dynamic, Static
+from database import CACHE, Dbase
 from utils import URunnable, Utils
+
+from ._base_widgets import BaseItem
 
 LOADING_T = "Загрузка..."
 SQL_ERRORS = (IntegrityError, OperationalError)

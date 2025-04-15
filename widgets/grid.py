@@ -11,10 +11,10 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Dynamic, JsonData, Static, ThumbData
-from database import CACHE, Dbase, BaseItem
+from database import CACHE, Dbase
 from utils import URunnable, UThreadPool, Utils
 
-from ._base_widgets import UMenu, UScrollArea
+from ._base_widgets import BaseItem, UMenu, UScrollArea
 from .actions import (ChangeViewMenu, CopyPath, FavAdd, FavRemove, Info,
                       OpenInApp, RatingMenu, RevealInFinder, SortMenu, TagMenu,
                       View)

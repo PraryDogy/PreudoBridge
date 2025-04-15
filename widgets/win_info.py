@@ -5,10 +5,9 @@ from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import QAction, QGridLayout, QLabel
 
 from cfg import Static
-from database import BaseItem
 from utils import URunnable, UThreadPool, Utils
 
-from ._base_widgets import UMenu, WinMinMaxDisabled
+from ._base_widgets import BaseItem, UMenu, WinMinMaxDisabled
 from .actions import CopyText, RevealInFinder
 
 CALCULATING = "Вычисляю..."

@@ -8,11 +8,11 @@ from PyQt5.QtWidgets import (QFrame, QGraphicsDropShadowEffect, QHBoxLayout,
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Dynamic, Static, ThumbData
-from database import BaseItem
 from fit_img import FitImg
 from utils import URunnable, UThreadPool, Utils
 
-from ._base_widgets import USvgSqareWidget, UTextEdit, WinMinMaxDisabled
+from ._base_widgets import (BaseItem, USvgSqareWidget, UTextEdit,
+                            WinMinMaxDisabled)
 from .grid import Grid, Thumb
 
 SQL_ERRORS = (IntegrityError, OperationalError)

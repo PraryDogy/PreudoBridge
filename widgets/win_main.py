@@ -7,18 +7,19 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static
-from database import BaseItem
 from utils import Utils
-from widgets.bar_bottom import BarBottom
-from widgets.bar_top import BarTop
-from widgets.grid import Grid
-from widgets.grid_list import GridList
-from widgets.grid_search import GridSearch
-from widgets.grid_standart import GridStandart
-from widgets.menu_favs import MenuFavs
-from widgets.menu_tags import MenuTags
-from widgets.menu_tree import MenuTree
-from widgets.win_img_view import LoadImage
+
+from ._base_widgets import BaseItem
+from .bar_bottom import BarBottom
+from .bar_top import BarTop
+from .grid import Grid
+from .grid_list import GridList
+from .grid_search import GridSearch
+from .grid_standart import GridStandart
+from .menu_favs import MenuFavs
+from .menu_tags import MenuTags
+from .menu_tree import MenuTree
+from .win_img_view import LoadImage
 
 ARROW_UP = "\u25B2" # ▲
 
