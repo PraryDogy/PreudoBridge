@@ -399,7 +399,6 @@ class BarBottom(QWidget):
         self.setFixedHeight(50)
         self.setAcceptDrops(True)
         self.current_path: str = None
-        self.path_item_list: list[PathItem] = []
 
         self.main_lay = QVBoxLayout()
         self.main_lay.setContentsMargins(10, 0, 10, 0)
@@ -408,11 +407,7 @@ class BarBottom(QWidget):
 
         # 1 строка виджет с путями
         self.path_wid = QWidget()
-        self.main_lay.insertWidget(
-            0,
-            self.path_wid,
-            alignment=Qt.AlignmentFlag.AlignLeft
-        )
+        self.main_lay.insertWidget(0, self.path_wid, alignment=Qt.AlignmentFlag.AlignLeft)
 
         self.path_lay = QHBoxLayout()
         self.path_lay.setContentsMargins(0, 0, 0, 0)
@@ -455,38 +450,53 @@ class BarBottom(QWidget):
         bottom_lay.addWidget(self.slider)
 
     def add_total(self, value: int):
+        """
+        Отображает общее число виджетов в сетке
+        """
         self.sort_frame.total_text.setText(f"{TOTAL_T}: {str(value)}")
 
     def open_go_win(self, *args):
+        """
+        Открывает окно "перейти к"  
+        В окне можно вставить путь к папке файлу и нажать "Перейти" или "Finder"    
+        В первом случае будет переход внутри приложения, во втором откроется Finder
+        """
         self.win_go = WinGo()
         self.win_go.open_path_sig.connect(self.open_path_sig.emit)
         self.win_go.center(self.window())
         self.win_go.show()
 
     def update_bar_cmd(self, data: tuple):
-        # dir: str, total: int
-        # требуется кортеж, потому что данный метод вызывается через сигнал
-        # через который можно передать только кортеж
-        src, total = data
-        if src:
-            self.set_new_path(src)
+        """  
+        (Путь сетки / папки / файла, общее число виджетов в сетке)  
+        Можно передать None в оба аргумента     
+        Первый аргумент - текущая директория / путь к папке / файлу     
+        Если выделить виджет в сетке, нижний бар отобразит путь к виджету   
+        Если ничего не выделено, то отображается текущая директория сетки   
+        """
+        dir, total = data
+        if dir:
+            self.set_new_path(dir)
         if total:
             self.add_total(total)
         self.sort_frame.add_sort()
 
-    def set_new_path(self, src: str):
-        if src == self.current_path:
+    def set_new_path(self, dir: str):
+        """
+        Отобразить новый путь сетки / папки / файла     
+        src: путь сетки / папки / файла
+        """
+        if dir == self.current_path:
             return
-        for i in self.path_item_list:
+        for i in self.findChildren(PathItem):
             i.deleteLater()
-        self.path_item_list.clear()
-        self.current_path = src
-        root = src.strip(os.sep).split(os.sep)
+        self.current_path = dir
+        root = dir.strip(os.sep).split(os.sep)
         limit = 40
 
         for x, name in enumerate(root, start=1):
-            src = os.path.join(os.sep, *root[:x])
-            path_item = PathItem(src, name)
+            dir = os.path.join(os.sep, *root[:x])
+            path_item = PathItem(dir, name)
             cmd_ = lambda dir: self.new_history_item.emit(dir)
             path_item.new_history_item.connect(cmd_)
             path_item.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
@@ -501,10 +511,11 @@ class BarBottom(QWidget):
                 path_item.add_arrow()
 
             elif x == len(root):
-                if os.path.isdir(src):
+                if os.path.isdir(dir):
                     icon = Static.FOLDER_SVG
                 else:
-                    icon = Static.IMG_SVG
+                    _, ext = os.path.splitext(dir)
+                    icon = Utils.get_generic_icon_path(ext)
 
                 if len(name) > limit:
                     path_item.text_wid.setText(name[:limit] + "...")
@@ -520,6 +531,5 @@ class BarBottom(QWidget):
                 icon = Static.FOLDER_SVG
                 path_item.add_arrow()
 
-            self.path_item_list.append(path_item)
             path_item.img_wid.load(icon)
             self.path_lay.addWidget(path_item)
