@@ -220,6 +220,9 @@ class WinMain(QWidget):
 
     def open_img_view_cmd(self, path: str):
         order_item = OrderItem(path, 0, 0, 0)
+        order_item.set_src()
+        order_item.set_name()
+        order_item.set_file_type()
         self.grid.view_thumb_cmd(order_item)
 
     def clear_data_cmd(self):

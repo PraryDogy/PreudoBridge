@@ -171,8 +171,11 @@ class WinInfo(WinMinMaxDisabled):
         self.setLayout(self.grid_layout)
 
         row = 0
-        order_item = OrderItem(src=self.src, mod=0, size=0, rating=0)
-        info_ = InfoTask(order_item=order_item)
+        order_item = OrderItem(self.src, 0, 0, 0)
+        order_item.set_src()
+        order_item.set_name()
+        order_item.set_file_type()
+        info_ = InfoTask(order_item)
         info_ = info_.get()
 
         for name, value in info_.items():

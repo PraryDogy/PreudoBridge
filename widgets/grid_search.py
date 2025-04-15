@@ -157,6 +157,9 @@ class SearchFinder(URunnable):
             mod=stat.st_mtime,
             rating=0
         )
+        order_item.set_src()
+        order_item.set_name()
+        order_item.set_file_type()
         order_item.pixmap_ = pixmap
         try:
             self.signals_.new_widget.emit(order_item)
@@ -283,8 +286,8 @@ class GridSearch(Grid):
         
         wid.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
         
-        if isinstance(order_item.pixmap_, QPixmap):
-            wid.set_pixmap(order_item.pixmap_)
+        # if isinstance(order_item.pixmap_, QPixmap):
+        #     wid.set_pixmap(order_item.pixmap_)
 
         self.add_widget_data(
             wid=wid,

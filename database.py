@@ -63,24 +63,33 @@ ORDER: dict[str, str] = {
 
 class OrderItem:
     def __init__(self, src: str, size: int, mod: int, rating: int):
+        """
+        Обязательно задать параметры: set_src, set_name, set_file_type
+        """
         super().__init__()
-        self.src: str = Utils.normalize_slash(src)
+        self.src: str = src
+
         self.size: int = int(size)
         self.mod: int = int(mod)
         self.rating: int = rating
 
-        # Извлечение имени файла из пути (например, "path/to/file.txt" -> "file.txt")
-        self.name: str = os.path.basename(self.src)
-            
+        self.type_ = None
+        self.name: str = None
+        self.pixmap_: QPixmap = None
+
+    def set_src(self):
+        self.src = Utils.normalize_slash(self.src)
+
+    def set_name(self):
+        self.name = os.path.basename(self.src)
+
+    def set_file_type(self):
         # Проверка: если путь ведёт к директории, то задаём тип FOLDER_TYPE.
         # Иначе определяем тип по расширению файла (например, ".txt").    
-        if os.path.isdir(src):
+        if os.path.isdir(self.src):
             self.type_ = Static.FOLDER_TYPE
         else:
             _, self.type_ = os.path.splitext(self.src)
-
-        # промежуточный аттрибут, нужен для GridSearch
-        self.pixmap_: QPixmap = None
 
     # Как работает сортировка:
     # пользователь выбрал сортировку "по размеру"
