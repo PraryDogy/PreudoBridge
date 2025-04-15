@@ -434,7 +434,12 @@ class SortFrame(UFrame):
         self.sort_wid.setText(f"{SORT_T}: {order} ({rev})")
 
     def mouseReleaseEvent(self, a0: QMouseEvent):
-
+        """
+        При клике на выбранный пункт меню произойдет:
+        - Обновится нижний бар
+        - Сортировка сетки
+        - Перетасовка сетки
+        """
         menu_ = SortMenu(parent=self)
         menu_.bar_bottom_update.connect(self.bar_bottom_update.emit)
         menu_.order_grid_sig.connect(self.order_grid_sig.emit)
@@ -448,6 +453,7 @@ class SortFrame(UFrame):
             menu_size.height() + self.height() // 2
         )
 
+        # меню всплывает точно над данным виджетом
         menu_center_top = self.mapToGlobal(widget_rect.center()) - centered
         menu_.move(menu_center_top)
         menu_.exec_()
