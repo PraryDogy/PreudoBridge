@@ -3,7 +3,9 @@ class A:
         """Привет"""
         super().__init__()
 
-class B:
+class B(A):
     def __init__(self):
-        """Дополнение"""
+        print(A.__init__.__doc__)
         super().__init__()
+
+B()

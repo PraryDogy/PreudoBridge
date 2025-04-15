@@ -66,8 +66,6 @@ class BaseItem:
         """
         Обязательно задать параметры:   
         set_src, set_name, set_file_type    
-        Если это Thumb, дополнительно задать параметры:  
-        setup_child_widgets, set_no_frame
         """
         super().__init__()
         self.src: str = src
