@@ -301,6 +301,7 @@ class GridSearch(Grid):
             thumb.set_svg_icon(generic_icon_path)
         
         if base_item.get_pixmap_storage():
+            thumb.set_pixmap_storage(base_item.get_pixmap_storage())
             thumb.set_image(base_item.get_pixmap_storage())
 
         self.add_widget_data(thumb, self.row, self.col)
