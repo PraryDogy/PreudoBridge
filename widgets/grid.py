@@ -193,21 +193,6 @@ class TextWidget(QLabel):
     def short_text(self, text: str, max_row: int):
         return f"{text[:max_row - 10]}...{text[-7:]}"
 
-    # def mouseReleaseEvent(self, a0):
-    #     return super().mouseReleaseEvent(a0)
-    
-    # def mousePressEvent(self, a0):
-    #     return super().mousePressEvent(a0)
-
-    # def mouseMoveEvent(self, a0):
-    #     return super().mouseMoveEvent(a0)
-    
-    # def mouseDoubleClickEvent(self, a0):
-    #     return super().mouseDoubleClickEvent(a0)
-    
-    # def contextMenuEvent(self, a0):
-    #     return super().contextMenuEvent(a0)
-
 
 class RatingWid(QLabel):
     def __init__(self):
@@ -218,21 +203,6 @@ class RatingWid(QLabel):
     def set_text(self, wid: OrderItem):
         text = RATINGS[wid.rating].strip()
         self.setText(text)
-
-    # def mouseReleaseEvent(self, a0):
-    #     return super().mouseReleaseEvent(a0)
-    
-    # def mousePressEvent(self, a0):
-    #     return super().mousePressEvent(a0)
-
-    # def mouseMoveEvent(self, a0):
-    #     return super().mouseMoveEvent(a0)
-    
-    # def mouseDoubleClickEvent(self, a0):
-    #     return super().mouseDoubleClickEvent(a0)
-    
-    # def contextMenuEvent(self, a0):
-    #     return super().contextMenuEvent(a0)
 
 
 class Thumb(OrderItem, QFrame):
