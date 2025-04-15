@@ -293,6 +293,7 @@ class Thumb(BaseItem, QFrame):
                 padding: 2px;
             """
         )
+
         self.img_frame.setStyleSheet(
             f"""
                 background: {Static.GRAY_GLOBAL};
