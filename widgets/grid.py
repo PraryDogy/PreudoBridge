@@ -147,21 +147,6 @@ class ImgFrame(QFrame):
     def __init__(self):
         super().__init__()
 
-    # def mouseReleaseEvent(self, a0):
-    #     return super().mouseReleaseEvent(a0)
-    
-    # def mousePressEvent(self, a0):
-    #     return super().mousePressEvent(a0)
-
-    # def mouseMoveEvent(self, a0):
-    #     return super().mouseMoveEvent(a0)
-    
-    # def mouseDoubleClickEvent(self, a0):
-    #     return super().mouseDoubleClickEvent(a0)
-    
-    # def contextMenuEvent(self, a0):
-    #     return super().contextMenuEvent(a0)
-
 
 class TextWidget(QLabel):
     def __init__(self):
