@@ -5,7 +5,7 @@ from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtWidgets import QLabel, QWidget
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import JsonData, Static, Dynamic
+from cfg import Static, Dynamic
 from database import CACHE, Dbase, OrderItem
 from utils import URunnable, Utils
 

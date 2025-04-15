@@ -22,7 +22,7 @@ PSD_EXTS: tuple = (".psd", ".psb")
 
 
 class WorkerSignals(QObject):
-    new_widget = pyqtSignal(OrderItem)
+    new_widget = pyqtSignal(Thumb)
     finished_ = pyqtSignal()
 
 
@@ -60,7 +60,7 @@ class LoadImages(URunnable):
         except RuntimeError:
             ...
 
-    def order_priority(self, item:OrderItem):
+    def order_priority(self, item: Thumb):
         if item.type_ in JPG_PNG_EXTS:
             return 0
         elif item.type_ in TIFF_EXTS:
@@ -144,7 +144,6 @@ class GridStandart(Grid):
         total = len(order_items)
 
         self.bar_bottom_update.emit((self.main_dir, total))
-        sys_disk = Utils.get_system_volume()
         Thumb.calculate_size()
         col_count = self.get_col_count()
 
