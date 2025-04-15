@@ -196,6 +196,8 @@ class Thumb(BaseItem, QFrame):
     pixmap_size = 0
     thumb_w = 0
     thumb_h = 0
+    img_frame_obj_name = "img_frame"
+    text_wid_obj_name = "text_frame"
 
     def __init__(self, src: str, size: int, mod: int, rating: int):
         QFrame.__init__(self, parent=None)
@@ -213,7 +215,7 @@ class Thumb(BaseItem, QFrame):
         self.setLayout(self.v_lay)
 
         self.img_frame = ImgFrame()
-        self.img_frame.setObjectName("img_frame")
+        self.img_frame.setObjectName(Thumb.img_frame_obj_name)
         self.v_lay.addWidget(self.img_frame, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.img_frame_lay = QVBoxLayout()
@@ -225,6 +227,7 @@ class Thumb(BaseItem, QFrame):
         self.img_frame_lay.addWidget(self.img_wid)
 
         self.text_wid = TextWidget()
+        self.text_wid.setObjectName(Thumb.text_wid_obj_name)
         self.v_lay.addWidget(self.text_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.rating_wid = RatingWid()
@@ -275,29 +278,33 @@ class Thumb(BaseItem, QFrame):
             self.img_wid.setPixmap(pixmap)
 
     def set_green_text(self):
-        self.text_wid.setStyleSheet(
+        self.setStyleSheet(
             f"""
+            #{Thumb.text_wid_obj_name} {{
                 background: transparent;
                 {FONT_SIZE};
                 {RAD};
                 padding: 2px;
                 color: green;
+            }}
             """
         )
 
     def set_frame(self):
-        self.text_wid.setStyleSheet(
+        self.setStyleSheet(
             f"""
+            #{Thumb.text_wid_obj_name} {{
                 background: {Static.BLUE_GLOBAL};
                 {FONT_SIZE};
                 {RAD};
                 padding: 2px;
+            }}
             """
         )
 
         self.img_frame.setStyleSheet(
             f"""
-            #img_frame {{
+            #{Thumb.img_frame_obj_name} {{
                 background: {Static.GRAY_GLOBAL};
                 {FONT_SIZE};
                 {RAD};
@@ -306,17 +313,19 @@ class Thumb(BaseItem, QFrame):
         )
 
     def set_no_frame(self):
-        self.text_wid.setStyleSheet(
+        self.setStyleSheet(
             f"""
+            #{Thumb.text_wid_obj_name} {{
                 background: transparent;
                 {FONT_SIZE};
                 {RAD};
                 padding: 2px;
+            }}
             """
         )
         self.setStyleSheet(
             f"""
-            #img_frame {{
+            #{Thumb.img_frame_obj_name} {{
                 background: transparent;
                 {FONT_SIZE};
                 {RAD};
