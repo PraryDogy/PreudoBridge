@@ -1,4 +1,3 @@
-import gc
 import os
 
 import numpy as np
@@ -9,6 +8,7 @@ from cfg import Dynamic, Static, ThumbData
 from database import CACHE, ColumnNames
 from fit_img import FitImg
 from utils import Utils
+
 from .grid import Thumb
 
 SQL_ERRORS = (IntegrityError, OperationalError)
@@ -102,6 +102,7 @@ class GridTools(AnyOrderItem):
             return item
         except Exception as e:
             import traceback
+
             # print(traceback.format_exc())
             # print("grid tools", e)
             return None
