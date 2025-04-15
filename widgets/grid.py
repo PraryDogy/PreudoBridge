@@ -109,9 +109,9 @@ class WorkerSignals(QObject):
 
 
 class SetDbRating(URunnable):
-    def __init__(self, main_dir: str, order_item: BaseItem, new_rating: int):
+    def __init__(self, main_dir: str, base_item: BaseItem, new_rating: int):
         super().__init__()
-        self.order_item = order_item
+        self.base_item = base_item
         self.new_rating = new_rating
         self.main_dir = main_dir
         self.signals_ = WorkerSignals()
@@ -125,7 +125,7 @@ class SetDbRating(URunnable):
             return
 
         conn = engine.connect()
-        hash_filename = Utils.get_hash_filename(self.order_item.name)
+        hash_filename = Utils.get_hash_filename(self.base_item.name)
         stmt = sqlalchemy.update(CACHE)
         stmt = stmt.where(CACHE.c.name==hash_filename)
         stmt = stmt.values(rating=self.new_rating)

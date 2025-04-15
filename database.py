@@ -80,6 +80,20 @@ class BaseItem:
         self.name: str = None
         self.pixmap_storage: QPixmap = None
 
+    def set_pixmap_storage(self, pixmap: QPixmap):
+        """
+        Данный аттрибут нужен для обмена QPixmap между родительским BaseItem
+        и наследуемым классом
+        """
+        self.pixmap_storage = pixmap
+
+    def get_pixmap_storage(self):
+        """
+        Данный аттрибут нужен для обмена QPixmap между родительским BaseItem
+        и наследуемым классом
+        """
+        return self.pixmap_storage
+
     def set_src(self):
         self.src = Utils.normalize_slash(self.src)
 
@@ -102,7 +116,7 @@ class BaseItem:
     # на основе аттрибута "size" происходит сортировка списка из OrderItem
 
     @classmethod
-    def sort_items(cls, order_items: list["BaseItem"]) -> list["BaseItem"]:
+    def sort_items(cls, base_items: list["BaseItem"]) -> list["BaseItem"]:
         
         attr = Dynamic.sort
         rev = Dynamic.rev
@@ -118,7 +132,7 @@ class BaseItem:
             nums: list[BaseItem] = []
             abc: list[BaseItem] = []
 
-            for i in order_items:
+            for i in base_items:
 
                 if i.name[0].isdigit():
                     nums.append(i)
@@ -127,10 +141,10 @@ class BaseItem:
                     abc.append(i)
 
             # сортировка по числам в начале OrderItem.name
-            key_num = lambda order_item: cls.get_nums(order_item)
+            key_num = lambda base_item: cls.get_nums(base_item)
 
             # сортировка по OrderItem.name
-            key_abc = lambda order_item: getattr(order_item, attr)
+            key_abc = lambda base_item: getattr(base_item, attr)
 
             nums.sort(key=key_num, reverse=rev)
             abc.sort(key=key_abc, reverse=rev)
@@ -139,18 +153,18 @@ class BaseItem:
 
         else:
 
-            key = lambda order_item: getattr(order_item, attr)
-            order_items.sort(key=key, reverse=rev)
-            return order_items
+            key = lambda base_item: getattr(base_item, attr)
+            base_items.sort(key=key, reverse=rev)
+            return base_items
 
-    # извлекаем начальные числа из order_item.name
+    # извлекаем начальные числа из base_item.name
     # по которым будет сортировка, например: "123 Te99st33" > 123
     # re.match ищет числа до первого нечислового символа
     @classmethod
-    def get_nums(cls, order_item: "BaseItem"):
+    def get_nums(cls, base_item: "BaseItem"):
 
         return int(
-            re.match(r'^\d+', order_item.name).group()
+            re.match(r'^\d+', base_item.name).group()
         )
 
 

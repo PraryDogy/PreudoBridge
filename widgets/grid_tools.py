@@ -30,41 +30,41 @@ class CommitTool:
 class AnyOrderItem(CommitTool):
 
     @classmethod
-    def update_any_order_item(cls, conn: Connection, order_item: Thumb):
+    def update_any_base_item(cls, conn: Connection, base_item: Thumb):
 
-        order_item, rating = cls.load_order_item(conn=conn, order_item=order_item)
+        base_item, rating = cls.load_base_item(conn=conn, base_item=base_item)
 
         if rating is None:
-            cls.insert_order_item(conn=conn, order_item=order_item)
-            return order_item
+            cls.insert_base_item(conn=conn, base_item=base_item)
+            return base_item
         
         else:
-            order_item.rating == rating
-            return order_item
+            base_item.rating == rating
+            return base_item
 
     @classmethod
-    def load_order_item(cls, conn: Connection, order_item: Thumb):
+    def load_base_item(cls, conn: Connection, base_item: Thumb):
         select_stmt = select(CACHE.c.rating)
 
         where_stmt = select_stmt.where(
-            CACHE.c.name == Utils.get_hash_filename(filename=order_item.name)
+            CACHE.c.name == Utils.get_hash_filename(filename=base_item.name)
         )
 
         res_by_src = conn.execute(where_stmt).mappings().first()
 
         if res_by_src:
-            return (order_item, res_by_src.get(ColumnNames.RATING))
+            return (base_item, res_by_src.get(ColumnNames.RATING))
         else:
-            return (order_item, None)
+            return (base_item, None)
 
     @classmethod
-    def insert_order_item(cls, conn: Connection, order_item: Thumb):
+    def insert_base_item(cls, conn: Connection, base_item: Thumb):
 
-        new_name = Utils.get_hash_filename(filename=order_item.name)
+        new_name = Utils.get_hash_filename(filename=base_item.name)
 
         values = {
             ColumnNames.NAME: new_name,
-            ColumnNames.TYPE: order_item.type_,
+            ColumnNames.TYPE: base_item.type_,
             ColumnNames.RATING: 0,
         }
 
@@ -72,13 +72,13 @@ class AnyOrderItem(CommitTool):
         cls.run(conn=conn, query=q)
 
     @classmethod
-    def update_thumb(cls, conn: Connection, order_item: Thumb):
+    def update_thumb(cls, conn: Connection, base_item: Thumb):
 
-        new_name = Utils.get_hash_filename(filename=order_item.name)
+        new_name = Utils.get_hash_filename(filename=base_item.name)
 
         values = {
             ColumnNames.NAME: new_name,
-            ColumnNames.TYPE: order_item.type_,
+            ColumnNames.TYPE: base_item.type_,
             ColumnNames.RATING: 0,
         }
 
@@ -89,15 +89,15 @@ class AnyOrderItem(CommitTool):
 class GridTools(AnyOrderItem):
 
     @classmethod
-    def update_thumb(cls, conn: Connection, order_item: Thumb):
+    def update_thumb(cls, conn: Connection, base_item: Thumb):
 
         try:
-            if order_item.type_ == Static.FOLDER_TYPE:
-                item = cls.update_any_order_item(conn=conn, order_item=order_item)
-            elif order_item.type_ in Static.IMG_EXT:
-                item = cls.update_file_order_item(conn=conn, order_item=order_item)
+            if base_item.type_ == Static.FOLDER_TYPE:
+                item = cls.update_any_base_item(conn=conn, base_item=base_item)
+            elif base_item.type_ in Static.IMG_EXT:
+                item = cls.update_file_base_item(conn=conn, base_item=base_item)
             else:
-                item = cls.update_any_order_item(conn=conn, order_item=order_item)
+                item = cls.update_any_base_item(conn=conn, base_item=base_item)
 
             return item
         except Exception as e:
@@ -108,7 +108,7 @@ class GridTools(AnyOrderItem):
             return None
 
     @classmethod
-    def update_file_order_item(cls, conn: Connection, order_item: Thumb):
+    def update_file_base_item(cls, conn: Connection, base_item: Thumb):
 
         # ошибка логики в том, что мы пытаемся загрузить запись
         # которой еще нет в БД (загрузка по имени)
@@ -121,21 +121,21 @@ class GridTools(AnyOrderItem):
         Dynamic.busy_db = True
         db_item, rating = GridTools.load_file(
             conn=conn,
-            order_item=order_item,
+            base_item=base_item,
         )
         Dynamic.busy_db = False
 
         if isinstance(db_item, int):
             img_array = cls.update_file(
                 conn=conn,
-                order_item=order_item,
+                base_item=base_item,
                 row_id=db_item
             )
 
             # print("update")
 
         elif db_item is None:
-            img_array = cls.insert_file(conn=conn, order_item=order_item)
+            img_array = cls.insert_file(conn=conn, base_item=base_item)
 
             # print("insert")
         
@@ -147,16 +147,16 @@ class GridTools(AnyOrderItem):
         if isinstance(img_array, np.ndarray):
             pixmap = Utils.pixmap_from_array(image=img_array)
 
-            order_item.pixmap_storage = pixmap
-            order_item.rating = rating
+            base_item.set_pixmap_storage(pixmap)
+            base_item.rating = rating
 
-            return order_item
+            return base_item
         
         else:
             return None
 
     @classmethod
-    def load_file(cls, conn: Connection, order_item: Thumb):
+    def load_file(cls, conn: Connection, base_item: Thumb):
 
         select_stmt = select(
             CACHE.c.id,
@@ -167,7 +167,7 @@ class GridTools(AnyOrderItem):
         )
 
         where_stmt = select_stmt.where(
-            CACHE.c.name == Utils.get_hash_filename(filename=order_item.name)
+            CACHE.c.name == Utils.get_hash_filename(filename=base_item.name)
         )
         res_by_name = conn.execute(where_stmt).mappings().first()
 
@@ -177,7 +177,7 @@ class GridTools(AnyOrderItem):
         if res_by_name:
 
             # даты изменения не совпадают, обновляем запись
-            if res_by_name.get(ColumnNames.MOD) != order_item.mod:
+            if res_by_name.get(ColumnNames.MOD) != base_item.mod:
                 return (
                     res_by_name.get(ColumnNames.ID),
                     res_by_name.get(ColumnNames.RATING)
@@ -195,21 +195,21 @@ class GridTools(AnyOrderItem):
     
     @classmethod
     def update_file(
-        cls, conn: Connection, order_item: Thumb, row_id: int,
+        cls, conn: Connection, base_item: Thumb, row_id: int,
         rating: int = None
         ) -> np.ndarray:
 
         bytes_img, img_array = cls.get_bytes_ndarray(
-            order_item=order_item
+            base_item=base_item
         )
 
         new_size, new_mod, new_resol = cls.get_stats(
-            order_item=order_item,
+            base_item=base_item,
             img_array=img_array
         )
 
-        new_name = Utils.get_hash_filename(filename=order_item.name)
-        partial_hash = Utils.get_partial_hash(file_path=order_item.src)
+        new_name = Utils.get_hash_filename(filename=base_item.name)
+        partial_hash = Utils.get_partial_hash(file_path=base_item.src)
 
         values = {
             ColumnNames.NAME: new_name,
@@ -234,26 +234,26 @@ class GridTools(AnyOrderItem):
 
     @classmethod
     def insert_file(
-        cls, conn: Connection, order_item: Thumb,
+        cls, conn: Connection, base_item: Thumb,
         rating: int = None
         ) -> np.ndarray:
 
         bytes_img, img_array = cls.get_bytes_ndarray(
-            order_item=order_item
+            base_item=base_item
         )
 
         new_size, new_mod, new_resol = cls.get_stats(
-            order_item=order_item,
+            base_item=base_item,
             img_array=img_array
         )
 
-        new_name = Utils.get_hash_filename(filename=order_item.name)
-        partial_hash = Utils.get_partial_hash(file_path=order_item.src)
+        new_name = Utils.get_hash_filename(filename=base_item.name)
+        partial_hash = Utils.get_partial_hash(file_path=base_item.src)
 
         values = {
             ColumnNames.IMG: bytes_img,
             ColumnNames.NAME: new_name,
-            ColumnNames.TYPE: order_item.type_,
+            ColumnNames.TYPE: base_item.type_,
             ColumnNames.SIZE: new_size,
             ColumnNames.MOD: new_mod,
             ColumnNames.RATING: 0,
@@ -275,10 +275,10 @@ class GridTools(AnyOrderItem):
         return img_array
     
     @classmethod
-    def get_bytes_ndarray(cls, order_item: Thumb):
+    def get_bytes_ndarray(cls, base_item: Thumb):
 
         img_array_src = Utils.read_image(
-            path=order_item.src
+            path=base_item.src
         )
 
         img_array = FitImg.start(
@@ -297,9 +297,9 @@ class GridTools(AnyOrderItem):
         return bytes_img, img_array
     
     @classmethod
-    def get_stats(cls, order_item: Thumb, img_array: np.ndarray):
+    def get_stats(cls, base_item: Thumb, img_array: np.ndarray):
 
-        stats = os.stat(order_item.src)
+        stats = os.stat(base_item.src)
         height, width = img_array.shape[:2]
 
         new_size = int(stats.st_size)

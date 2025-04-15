@@ -29,15 +29,15 @@ class WorkerSignals(QObject):
 
 
 class CalculatingTask(URunnable):
-    def __init__(self, order_item: BaseItem):
+    def __init__(self, base_item: BaseItem):
         super().__init__()
-        self.order_item = order_item
+        self.base_item = base_item
         self.signals_ = WorkerSignals()
 
     @URunnable.set_running_state
     def run(self):
         try:
-            if self.order_item.type_ == Static.FOLDER_TYPE:
+            if self.base_item.type_ == Static.FOLDER_TYPE:
                 res = self.get_folder_size()
             else:
                 res = self.get_img_resol()
@@ -48,7 +48,7 @@ class CalculatingTask(URunnable):
             Utils.print_error(parent=None, error=e)
 
     def get_img_resol(self):
-        img_ = Utils.read_image(path=self.order_item.src)
+        img_ = Utils.read_image(path=self.base_item.src)
 
         if img_ is not None and len(img_.shape) > 1:
             h, w = img_.shape[0], img_.shape[1]
@@ -61,7 +61,7 @@ class CalculatingTask(URunnable):
     def get_folder_size(self):
         total = 0
         stack = []
-        stack.append(self.order_item.src)
+        stack.append(self.base_item.src)
 
         while stack:
             current_dir = stack.pop()
@@ -89,27 +89,27 @@ class CalculatingTask(URunnable):
 
 
 class InfoTask:
-    def __init__(self, order_item: BaseItem):
+    def __init__(self, base_item: BaseItem):
         super().__init__()
-        self.order_item = order_item
+        self.base_item = base_item
 
     def get(self) -> dict[str, str| int]:
         size_ = (
-            Utils.get_f_size(os.path.getsize(self.order_item.src))
-            if self.order_item.type_ != Static.FOLDER_TYPE
+            Utils.get_f_size(os.path.getsize(self.base_item.src))
+            if self.base_item.type_ != Static.FOLDER_TYPE
             else
             CALCULATING
             )
 
         res = {
-            NAME_T: self.lined_text(os.path.basename(self.order_item.src)),
-            TYPE_T: self.order_item.type_,
-            MOD_T: Utils.get_f_date(os.stat(self.order_item.src).st_mtime),
-            SRC_T: self.lined_text(self.order_item.src),
+            NAME_T: self.lined_text(os.path.basename(self.base_item.src)),
+            TYPE_T: self.base_item.type_,
+            MOD_T: Utils.get_f_date(os.stat(self.base_item.src).st_mtime),
+            SRC_T: self.lined_text(self.base_item.src),
             SIZE_T: size_,
             }
         
-        if self.order_item.type_ != Static.FOLDER_TYPE:
+        if self.base_item.type_ != Static.FOLDER_TYPE:
             res.update(
                 {RESOL_T: CALCULATING}
             )
@@ -171,11 +171,11 @@ class WinInfo(WinMinMaxDisabled):
         self.setLayout(self.grid_layout)
 
         row = 0
-        order_item = BaseItem(self.src, 0, 0, 0)
-        order_item.set_src()
-        order_item.set_name()
-        order_item.set_file_type()
-        info_ = InfoTask(order_item)
+        base_item = BaseItem(self.src, 0, 0, 0)
+        base_item.set_src()
+        base_item.set_name()
+        base_item.set_file_type()
+        info_ = InfoTask(base_item)
         info_ = info_.get()
 
         for name, value in info_.items():
@@ -196,7 +196,7 @@ class WinInfo(WinMinMaxDisabled):
         self.setFixedSize(self.width(), self.height())
 
         cmd_ = lambda result: self.finalize(result=result)
-        self.task_ = CalculatingTask(order_item=order_item)
+        self.task_ = CalculatingTask(base_item=base_item)
         self.task_.signals_.finished_.connect(cmd_)
         UThreadPool.start(runnable=self.task_)
 

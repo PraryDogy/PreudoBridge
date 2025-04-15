@@ -219,11 +219,11 @@ class WinMain(QWidget):
         self.bar_bottom.open_img_view.connect(lambda path: self.open_img_view_cmd(path))
 
     def open_img_view_cmd(self, path: str):
-        order_item = BaseItem(path, 0, 0, 0)
-        order_item.set_src()
-        order_item.set_name()
-        order_item.set_file_type()
-        self.grid.view_thumb_cmd(order_item)
+        base_item = BaseItem(path, 0, 0, 0)
+        base_item.set_src()
+        base_item.set_name()
+        base_item.set_file_type()
+        self.grid.view_thumb_cmd(base_item)
 
     def clear_data_cmd(self):
         db = os.path.join(self.main_dir, Static.DB_FILENAME)

@@ -151,21 +151,21 @@ class SearchFinder(URunnable):
         )
         pixmap = Utils.pixmap_from_array(image=img_array)
         del img_array
-        order_item = BaseItem(
+        base_item = BaseItem(
             src=entry.path,
             size=stat.st_size,
             mod=stat.st_mtime,
             rating=0
         )
-        order_item.set_src()
-        order_item.set_name()
-        order_item.set_file_type()
-        order_item.pixmap_storage = pixmap
+        base_item.set_src()
+        base_item.set_name()
+        base_item.set_file_type()
+        base_item.set_pixmap_storage(pixmap)
         try:
-            self.signals_.new_widget.emit(order_item)
+            self.signals_.new_widget.emit(base_item)
         except Exception as e:
             Utils.print_error(parent=self, error=e)
-            self.signals_.new_widget.emit(order_item)
+            self.signals_.new_widget.emit(base_item)
         sleep(0.1)
 
 
@@ -300,8 +300,8 @@ class GridSearch(Grid):
 
         thumb.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
         
-        if base_item.pixmap_storage:
-            thumb.set_image(base_item.pixmap_storage)
+        if base_item.get_pixmap_storage():
+            thumb.set_image(base_item.get_pixmap_storage())
 
         self.add_widget_data(thumb, self.row, self.col)
         self.grid_layout.addWidget(thumb, self.row, self.col)

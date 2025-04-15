@@ -128,19 +128,19 @@ class GridStandart(Grid):
         self.load_images_timer.start(1000)
 
     def finder_thread_fin(self, items: tuple[list[BaseItem]]):
-        order_items, new_items = items
+        base_items, new_items = items
 
         del self.finder_thread
         gc.collect()
 
         self.loading_lbl.hide()
-        total = len(order_items)
+        total = len(base_items)
 
         self.bar_bottom_update.emit((self.main_dir, total))
         Thumb.calculate_size()
         col_count = self.get_col_count()
 
-        if not order_items:
+        if not base_items:
             no_images = QLabel(text=WARN_TEXT)
             no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -151,33 +151,33 @@ class GridStandart(Grid):
 
 
         # создаем генерик иконки если не было
-        exts = {i.type_ for i in order_items}
+        exts = {i.type_ for i in base_items}
         for ext in exts:
             icon_path = Utils.get_generic_icon_path(ext)
             if icon_path not in Dynamic.GENERIC_ICON_PATHS:
                 path_to_svg = Utils.create_generic_icon(ext)
                 Dynamic.GENERIC_ICON_PATHS.append(path_to_svg)
 
-        for order_item in order_items:
+        for base_item in base_items:
 
-            thumb = Thumb(order_item.src, order_item.size, order_item.mod, order_item.rating)
+            thumb = Thumb(base_item.src, base_item.size, base_item.mod, base_item.rating)
             thumb.set_src()
             thumb.set_name()
             thumb.set_file_type()
             thumb.setup_child_widgets()
             thumb.set_no_frame()
 
-            if order_item.src.count(os.sep) == 2:
+            if base_item.src.count(os.sep) == 2:
                 thumb.set_svg_icon(Static.HDD_SVG)
 
-            elif order_item.type_ == Static.FOLDER_TYPE:
+            elif base_item.type_ == Static.FOLDER_TYPE:
                 thumb.set_svg_icon(Static.FOLDER_SVG)
 
             else:
-                icon_path = Utils.get_generic_icon_path(order_item.type_)
+                icon_path = Utils.get_generic_icon_path(base_item.type_)
                 thumb.set_svg_icon(icon_path)
             
-            if order_item in new_items:
+            if base_item in new_items:
                 thumb.set_green_text()
 
             self.add_widget_data(wid=thumb, row=row, col=col)
@@ -217,15 +217,15 @@ class GridStandart(Grid):
         del thread_
         gc.collect()
 
-    def set_image(self, order_item: Thumb):
+    def set_image(self, base_item: Thumb):
         try:
-            widget = self.path_to_wid.get(order_item.src)
+            widget = self.path_to_wid.get(base_item.src)
             if widget:
-                if isinstance(order_item.pixmap_storage, QPixmap):
-                    widget.set_image(order_item.pixmap_storage)
-                if isinstance(order_item.rating, int):
-                    widget.set_db_rating(rating=order_item.rating)
-                self.loaded_images.append(order_item.src)
+                if base_item.get_pixmap_storage():
+                    widget.set_image(base_item.get_pixmap_storage())
+                if isinstance(base_item.rating, int):
+                    widget.set_db_rating(rating=base_item.rating)
+                self.loaded_images.append(base_item.src)
 
         except RuntimeError:
             ...

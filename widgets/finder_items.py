@@ -26,22 +26,22 @@ class FinderItems(URunnable):
     @URunnable.set_running_state
     def run(self):
         try:
-            order_items = self.get_order_items()
+            base_items = self.get_base_items()
             conn = self.create_connection()
             if conn:
-                order_items, new_items = self.set_rating(conn, order_items)
+                base_items, new_items = self.set_rating(conn, base_items)
             else:
-                order_items, new_items = self.get_items_no_db()
+                base_items, new_items = self.get_items_no_db()
         except SQL_ERRORS as e:
             print(e)
-            order_items, new_items = self.get_items_no_db()
+            base_items, new_items = self.get_items_no_db()
         except Exception as e:
             print(e)
-            order_items, new_items = [], []
+            base_items, new_items = [], []
 
-        order_items = BaseItem.sort_items(order_items)
+        base_items = BaseItem.sort_items(base_items)
         new_items = BaseItem.sort_items(new_items)
-        self.signals_.finished_.emit((order_items, new_items))
+        self.signals_.finished_.emit((base_items, new_items))
 
     def create_connection(self) -> sqlalchemy.Connection | None:
         db = os.path.join(self.main_dir, Static.DB_FILENAME)
@@ -52,7 +52,7 @@ class FinderItems(URunnable):
         else:
             return engine.connect()
 
-    def set_rating(self, conn: sqlalchemy.Connection, order_items: list[BaseItem]):
+    def set_rating(self, conn: sqlalchemy.Connection, base_items: list[BaseItem]):
         Dynamic.busy_db = True
         q = sqlalchemy.select(CACHE.c.name, CACHE.c.rating)
         res = conn.execute(q).fetchall()
@@ -62,17 +62,17 @@ class FinderItems(URunnable):
         }
         Dynamic.busy_db = False
         new_files = []
-        for i in order_items:
+        for i in base_items:
             name = Utils.get_hash_filename(filename=i.name)
             if name in res:
                 i.rating = res.get(name)
             else:
                 new_files.append(i)
 
-        return order_items, new_files
+        return base_items, new_files
 
-    def get_order_items(self) -> list[BaseItem]:
-        order_items: list[BaseItem] = []
+    def get_base_items(self) -> list[BaseItem]:
+        base_items: list[BaseItem] = []
         with os.scandir(self.main_dir) as entries:
             for entry in entries:
                 if entry.name.startswith("."):
@@ -87,11 +87,11 @@ class FinderItems(URunnable):
                 item.set_src()
                 item.set_name()
                 item.set_file_type()
-                order_items.append(item)
-        return order_items
+                base_items.append(item)
+        return base_items
 
     def get_items_no_db(self):
-        order_items = []
+        base_items = []
         with os.scandir(self.main_dir) as entries:
             for entry in entries:
                 if entry.name.startswith("."):
@@ -101,8 +101,8 @@ class FinderItems(URunnable):
                     item.set_src()
                     item.set_name()
                     item.set_file_type()
-                    order_items.append(item)
-        return order_items, []
+                    base_items.append(item)
+        return base_items, []
 
 
 class LoadingWid(QLabel):
