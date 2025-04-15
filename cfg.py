@@ -8,7 +8,7 @@ class Static:
 
     USER_SETTINGS_DIR = os.path.expanduser('~/Library/Application Support')
     APP_SUPPORT_APP = os.path.join(USER_SETTINGS_DIR, APP_NAME)
-    ICONS_DIR = os.path.join(APP_SUPPORT_APP, "icons")
+    GENERIC_ICONS_DIR = os.path.join(APP_SUPPORT_APP, "icons")
     SCRIPTS_DIR = "scripts"
     JSON_FILE = os.path.join(APP_SUPPORT_APP, 'cfg.json')
     USER_APPS_DIR = "/Applications"
@@ -48,6 +48,7 @@ class Static:
     FOLDER_TYPE: str = "Папка"
     VOLUMES: str = "Volumes"
     USERS: str = "Users"
+    SVG = "SVG"
 
     GRAY_GLOBAL = "rgba(128, 128, 128, 0.40)"
     BLUE_GLOBAL = "rgb(46, 89, 203)"
@@ -178,10 +179,10 @@ class JsonData:
 
     @classmethod
     def setup_generic_icons(cls):
-        os.makedirs(Static.ICONS_DIR, exist_ok=True)
-        for entry in os.scandir(Static.ICONS_DIR):
+        os.makedirs(Static.GENERIC_ICONS_DIR, exist_ok=True)
+        for entry in os.scandir(Static.GENERIC_ICONS_DIR):
             if entry.name.endswith(".svg"):
-                Dynamic.GENERIC_ICONS[entry.name] = entry.path
+                Dynamic.GENERIC_ICON_PATHS.append(entry.path)
 
     @classmethod
     def init(cls):
@@ -206,4 +207,8 @@ class Dynamic:
     files_to_copy: list[str] = []
     go_paths: list[str] = []
     SEARCH_LIST = []
-    GENERIC_ICONS: dict[str, str] = {}
+
+    # {"SVG_png.svg": path_to_svg, ...}
+    # ключ такого формата необходим, так как он является одновременно и именем
+    # файла в директории GENERIC_ICONS
+    GENERIC_ICON_PATHS: list[str] = []

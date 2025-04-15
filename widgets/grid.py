@@ -5,9 +5,9 @@ import sqlalchemy
 from PyQt5.QtCore import QMimeData, QObject, Qt, QTimer, QUrl, pyqtSignal
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
                          QPixmap)
+from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
-                             QLabel, QScrollArea, QSplitter, QVBoxLayout,
-                             QWidget)
+                             QLabel, QSplitter, QVBoxLayout, QWidget)
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Dynamic, JsonData, Static, ThumbData
@@ -268,21 +268,7 @@ class Thumb(OrderItem, QFrame):
         self.img_frame_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.img_frame.setLayout(self.img_frame_lay)
 
-        if self.type_:
-            svg_filename = self.type_.replace(".", "") + ".svg"
-            svg_path = Dynamic.GENERIC_ICONS.get(svg_filename)
-
-            if svg_path:
-                self.svg_path = svg_path
-
-            else:
-                svg_path = Utils.create_generic(file_extension=self.type_)
-                self.svg_path = svg_path
-
-        else:
-            self.svg_path = Static.FILE_SVG
-
-        self.img_wid = USvgSqareWidget(src=self.svg_path, size=self.pixmap_size)
+        self.img_wid = QSvgWidget()
         self.img_frame_lay.addWidget(self.img_wid)
 
         self.text_wid = TextWidget()
@@ -303,20 +289,20 @@ class Thumb(OrderItem, QFrame):
         cls.thumb_w = ThumbData.THUMB_W[ind]
         cls.thumb_h = ThumbData.THUMB_H[ind]
 
+    def set_svg_icon(self, path: str):
+        self.img_wid.load(path)
+        self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
+
     def set_pixmap(self, pixmap: QPixmap):
         self.img_wid.deleteLater()
-
         self.img_wid = QLabel()
-
         self.img_wid.setPixmap(
             Utils.pixmap_scale(pixmap, Thumb.pixmap_size)
         )
-    
         self.img_frame_lay.addWidget(
             self.img_wid,
             alignment=Qt.AlignmentFlag.AlignCenter
         )
-
         self.img = pixmap
         setattr(self, IMG_WID_ATTR, True)
 
@@ -419,9 +405,9 @@ class ThumbFolder(Thumb):
     def __init__(self, src: str, size: int, mod: int, rating: int):
         super().__init__(src, size, mod, rating)
 
-        self.svg_path = Static.FOLDER_SVG
-        img_wid = self.img_frame.findChild(USvgSqareWidget)
-        img_wid.load(self.svg_path)
+        # self.svg_path = Static.FOLDER_SVG
+        # img_wid = self.img_frame.findChild(USvgSqareWidget)
+        # img_wid.load(self.svg_path)
 
 
 class ThumbSearch(Thumb):
@@ -817,7 +803,7 @@ class Grid(UScrollArea):
 
         if isinstance(wid, (TextWidget, RatingWid, ImgFrame)):
             return wid.parent()
-        elif isinstance(wid, (QLabel, USvgSqareWidget)):
+        elif isinstance(wid, (QLabel, QSvgWidget)):
             return wid.parent().parent()
         else:
             return None
@@ -1091,9 +1077,6 @@ class Grid(UScrollArea):
 
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
-
-        if isinstance(wid.img_wid, USvgSqareWidget):
-            USvgSqareWidget
 
         img_ = QPixmap(Static.COPY_FILES_PNG)
         self.drag.setPixmap(img_)

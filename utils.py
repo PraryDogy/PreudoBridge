@@ -482,18 +482,33 @@ class Utils(Pixmap, ReadImage, ImgConvert):
         )
 
     @classmethod
-    def create_generic(cls, file_extension: str):
+    def get_generic_icon_path(cls, file_extension: str):
+        """
+        Возвращает путь к файлу svg иконки
+        """
+        filename = Static.SVG + file_extension.replace(".", "_") + ".svg"
+        return os.path.join(Static.GENERIC_ICONS_DIR, filename)
+
+    @classmethod
+    def create_generic_icon(cls, file_extension: str):
+        """
+        file_extension: ".jpg", ".png", и т.п.    
+        Возвращает: path to svg_icon
+        """
         renderer = QSvgRenderer(Static.FILE_SVG)
         width = 133
         height = 133
 
+        # удаляем точку, делаем максимум 4 символа и капс
+        # для размещения текста на иконку
         new_text = file_extension.replace(".", "")[:4].upper()
-        new_filename = file_extension.replace(".", "") + ".svg"
-        new_path = os.path.join(Static.ICONS_DIR, new_filename)
+        path_to_svg = Utils.get_generic_icon_path(file_extension)
 
         # Создаем генератор SVG
         generator = QSvgGenerator()
-        generator.setFileName(new_path)
+
+        # Задаем имя файла по последней секции пути к svg
+        generator.setFileName(path_to_svg)
         generator.setSize(QSize(width, height))
         generator.setViewBox(QRect(0, 0, width, height))
 
@@ -505,12 +520,9 @@ class Utils(Pixmap, ReadImage, ImgConvert):
         painter.setPen(QColor(71, 84, 103))  # Цвет текста
         painter.setFont(QFont("Arial", 29, QFont.Bold))
         painter.drawText(QRectF(0, 75, width, 30), Qt.AlignCenter, new_text)
-        
         painter.end()
 
-        Dynamic.GENERIC_ICONS[new_filename] = new_path
-
-        return new_path
+        return path_to_svg
 
 class URunnable(QRunnable):
     def __init__(self):

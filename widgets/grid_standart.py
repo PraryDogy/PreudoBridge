@@ -163,29 +163,29 @@ class GridStandart(Grid):
 
         row, col = 0, 0
 
+        exts = {i.type_ for i in order_items}
+        for ext in exts:
+            icon_path = Utils.get_generic_icon_path(ext)
+            if icon_path not in Dynamic.GENERIC_ICON_PATHS:
+                path_to_svg = Utils.create_generic_icon(ext)
+                Dynamic.GENERIC_ICON_PATHS.append(path_to_svg)
+
         for order_item in order_items:
 
-            if os.path.isdir(order_item.src):
-
-                wid = ThumbFolder(
-                    src=order_item.src,
-                    size=order_item.size,
-                    mod=order_item.mod,
-                    rating=order_item.rating,
-                    )
-
-                if os.path.ismount(order_item.src) or order_item.src == sys_disk:
-                    img_wid = wid.img_frame.findChild(QSvgWidget)
-                    img_wid.load(Static.HDD_SVG)
-
-
+            wid = Thumb(
+                src=order_item.src,
+                size=order_item.size,
+                mod=order_item.mod,
+                rating=order_item.rating,
+                )
+            
+            if wid.type_ == Static.FOLDER_TYPE:
+                wid.set_svg_icon(Static.FOLDER_SVG)
+            
             else:
-                wid = Thumb(
-                    src=order_item.src,
-                    size=order_item.size,
-                    mod=order_item.mod,
-                    rating=order_item.rating,
-                    )
+                icon = Utils.get_generic_icon_path(order_item.type_)
+                icon = Dynamic.GENERIC_ICON_PATHS.get(icon)
+                wid.set_svg_icon(icon)
             
             if order_item in new_items:
                 wid.set_green_text()
