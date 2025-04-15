@@ -199,6 +199,17 @@ class PathItem(QWidget):
     open_img_view = pyqtSignal(str)
 
     def __init__(self, src: str, name: str):
+        """
+        Этот виджет - часть группы виджетов PathItem, которые в сумме отображают
+        указанный путь  
+        Например: /путь/до/файла.txt    
+        Указанный путь будет разбит на секции, которые отображаются в виде PathItem     
+        Мы получим группу виджетов PathItem (имя - путь),   
+        где каждый видждет PathItem будет кликабельным и открывать соответсвующий путь  
+        путь - /путь    
+        до - /путь/до   
+        файла.txt - /путь/до/файла.txt  
+        """
         super().__init__()
         self.setFixedHeight(15)
         self.src = src
@@ -216,13 +227,25 @@ class PathItem(QWidget):
         item_layout.addWidget(self.text_wid)
 
     def add_arrow(self):
+        """
+        Добавляет к тексту виджета ">"
+        """
         t = self.text_wid.text() + " " + ARROW_RIGHT
         self.text_wid.setText(t)
 
     def expand(self):
+        """
+        Показывает виджет в полную длину
+        """
         self.text_wid.setFixedWidth(self.text_wid.sizeHint().width())
  
     def view_(self, *args):
+        """
+        При двойном клике на виджет или вызове контестного
+        меню пункта "Просмотр"  
+        Для файлов будет открыт просмотрщик     
+        Для папок будет загружена новая сетка с указанной директорией
+        """
         if os.path.isfile(self.src):
             self.open_img_view.emit(self.src)
         else:
@@ -230,6 +253,9 @@ class PathItem(QWidget):
             self.load_st_grid_sig.emit((self.src, None))
 
     def solid_style(self):
+        """
+        Выделяет виджет синим цветом
+        """
         self.text_wid.setStyleSheet(
             f"""
                 background: {Static.BLUE_GLOBAL};
@@ -238,31 +264,62 @@ class PathItem(QWidget):
         )
 
     def default_style(self):
+        """
+        Сбрасывает стиль
+        """
         self.text_wid.setStyleSheet("")
 
     def collapse(self):
+        """
+        Схлопывает виджет до указанной минимальной длины, если
+        виджет находится не под курсором мыши
+        """
         if not self.text_wid.underMouse():
             self.text_wid.setMinimumWidth(self.min_wid)
 
     def win_info_cmd(self):
+        """
+        Открывает меню информации о файле / папке
+        """
         self.win_info = WinInfo(self.src)
         self.win_info.center(self.window())
         self.win_info.show()
 
     def enterEvent(self, a0):
+        """
+        Раскрывает виджет на всю его длину при наведении мыши
+        """
         self.expand()
 
     def leaveEvent(self, a0):
+        """
+        Отложено схолпывает виджет до указанной минимальной длины
+        """
         QTimer.singleShot(500, self.collapse)
 
     def mouseReleaseEvent(self, a0):
-        self.view_()
+        """
+        Открывает просмотрщик для файлов или загружает новую сетку для папок
+        по левому клику мыши
+        """
+        if a0.button() == Qt.MouseButton.LeftButton:
+            self.view_()
 
     def mousePressEvent(self, a0: QMouseEvent | None) -> None:
+        """
+        Начать перемещение виджета
+        """
         if a0.button() == Qt.MouseButton.LeftButton:
             self.drag_start_position = a0.pos()
 
     def mouseMoveEvent(self, a0: QMouseEvent | None) -> None:
+        """
+        Можно перетащить виджет:        
+        На меню избранного в приложении, в случае если это директория,
+        будет добавлено новое избранное     
+        На сетку - ничего не будет      
+        Вне приложения, будет скопирована папка / файл в место назначения
+        """
         if a0.button() == Qt.MouseButton.RightButton:
             return
         
@@ -522,7 +579,6 @@ class BarBottom(QWidget):
 
                 # последний элемент показывать в полный размер
                 path_item.expand()
-
                 # отключаем функции схлопывания и развертывания
                 path_item.enterEvent = lambda *args, **kwargs: None
                 path_item.leaveEvent = lambda *args, **kwargs: None
