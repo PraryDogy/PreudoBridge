@@ -432,7 +432,7 @@ class Utils(Pixmap, ReadImage, ImgConvert):
     @classmethod
     def get_system_volume(cls):
         """
-        Получает путь к системному диску /Volumes/Macintosh HD (или иное имя)
+        Возвращает путь к системному диску /Volumes/Macintosh HD (или иное имя)
         """
         # Сканируем все диски
         # Тот диск, где есть директория ApplicationSupport, является системным

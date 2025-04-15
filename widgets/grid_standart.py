@@ -179,13 +179,15 @@ class GridStandart(Grid):
                 rating=order_item.rating,
                 )
             
-            if wid.type_ == Static.FOLDER_TYPE:
+            if order_item.src.count(os.sep) == 2:
+                wid.set_svg_icon(Static.HDD_SVG)
+
+            elif order_item.type_ == Static.FOLDER_TYPE:
                 wid.set_svg_icon(Static.FOLDER_SVG)
-            
+
             else:
-                icon = Utils.get_generic_icon_path(order_item.type_)
-                icon = Dynamic.GENERIC_ICON_PATHS.get(icon)
-                wid.set_svg_icon(icon)
+                icon_path = Utils.get_generic_icon_path(order_item.type_)
+                wid.set_svg_icon(icon_path)
             
             if order_item in new_items:
                 wid.set_green_text()
