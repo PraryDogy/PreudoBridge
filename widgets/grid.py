@@ -213,6 +213,7 @@ class Thumb(BaseItem, QFrame):
         self.setLayout(self.v_lay)
 
         self.img_frame = ImgFrame()
+        self.img_frame.setObjectName("img_frame")
         self.v_lay.addWidget(self.img_frame, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.img_frame_lay = QVBoxLayout()
@@ -296,9 +297,11 @@ class Thumb(BaseItem, QFrame):
 
         self.img_frame.setStyleSheet(
             f"""
+            #img_frame {{
                 background: {Static.GRAY_GLOBAL};
                 {FONT_SIZE};
                 {RAD};
+            }}
             """
         )
 
@@ -311,11 +314,13 @@ class Thumb(BaseItem, QFrame):
                 padding: 2px;
             """
         )
-        self.img_frame.setStyleSheet(
+        self.setStyleSheet(
             f"""
+            #img_frame {{
                 background: transparent;
                 {FONT_SIZE};
                 {RAD};
+            }}
             """
         )
 
