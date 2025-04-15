@@ -235,6 +235,7 @@ class Thumb(BaseItem, QFrame):
     def calculate_size(cls):
         ind = Dynamic.pixmap_size_ind
         cls.pixmap_size = ThumbData.PIXMAP_SIZE[ind]
+        cls.img_frame_size = Thumb.pixmap_size + ThumbData.OFFSET
         cls.thumb_w = ThumbData.THUMB_W[ind]
         cls.thumb_h = ThumbData.THUMB_H[ind]
 
@@ -260,9 +261,7 @@ class Thumb(BaseItem, QFrame):
 
         self.setFixedSize(Thumb.thumb_w, Thumb.thumb_h)
         self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
-        # рамка вокруг pixmap при выделении Thumb
-        frame_size = Thumb.pixmap_size + ThumbData.OFFSET
-        self.img_frame.setFixedSize(frame_size, frame_size)
+        self.img_frame.setFixedSize(Thumb.img_frame_size, Thumb.img_frame_size)
 
     def set_green_text(self):
         self.text_wid.setStyleSheet(
