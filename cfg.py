@@ -129,6 +129,8 @@ class JsonData:
         '/Volumes/Shares-2/Studio/MIUZ/Photo/Art/Raw/2024/soft/PreudoBridge.zip',
         '/Volumes/Shares-3/Studio/MIUZ/Photo/Art/Raw/2024/soft/PreudoBridge.zip',
         ]
+    
+    generic_icons_removed = False
 
     @classmethod
     def get_data(cls):
@@ -185,12 +187,24 @@ class JsonData:
                 Dynamic.GENERIC_ICON_PATHS.append(entry.path)
 
     @classmethod
+    def do_before_start(cls):
+        if JsonData.generic_icons_removed == False:
+            for entry in os.scandir(Static.GENERIC_ICONS_DIR):
+                if not entry.name.startswith(Static.SVG + "_"):
+                    os.remove(entry.path)
+            JsonData.generic_icons_removed = True
+
+    @classmethod
     def init(cls):
         os.makedirs(Static.APP_SUPPORT_APP, exist_ok=True)
         cls.read_json_data()
         cls.write_config()
         cls.setup_generic_icons()
 
+        try:
+            cls.do_before_start()
+        except Exception as e:
+            print("do before start", e)
 
 class Dynamic:
     rating_filter: int = 0
