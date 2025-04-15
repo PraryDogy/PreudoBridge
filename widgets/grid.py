@@ -229,8 +229,6 @@ class Thumb(BaseItem, QFrame):
         self.rating_wid = RatingWid()
         self.v_lay.addWidget(self.rating_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.set_no_frame()
-
         # self.setStyleSheet("background: gray;")
 
     @classmethod

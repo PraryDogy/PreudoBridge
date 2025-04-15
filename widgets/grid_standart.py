@@ -163,6 +163,7 @@ class GridStandart(Grid):
             thumb.set_name()
             thumb.set_file_type()
             thumb.setup()
+            thumb.set_no_frame()
 
             if order_item.src.count(os.sep) == 2:
                 thumb.set_svg_icon(Static.HDD_SVG)
