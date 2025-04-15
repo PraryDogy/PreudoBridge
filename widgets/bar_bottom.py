@@ -372,6 +372,10 @@ class GoToFrame(UFrame):
     clicked_ = pyqtSignal()
 
     def __init__(self):
+        """
+        Виджет, который открывает окно "Перейти", чтобы перейти к файлу / папке
+        внутри приложения или в Finder
+        """
         super().__init__()
 
         h_lay = QHBoxLayout()
@@ -391,7 +395,8 @@ class GoToFrame(UFrame):
         self.adjustSize()
 
     def mouseReleaseEvent(self, a0: QMouseEvent | None) -> None:
-        self.clicked_.emit()
+        if a0.button() == Qt.MouseButton.LeftButton:
+            self.clicked_.emit()
 
 
 class SortFrame(UFrame):
