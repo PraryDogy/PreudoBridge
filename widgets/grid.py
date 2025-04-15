@@ -281,6 +281,7 @@ class Thumb(BaseItem, QFrame):
         if self.get_pixmap_storage():
             pixmap =  Utils.pixmap_scale(self.get_pixmap_storage(), Thumb.pixmap_size)
             self.img_wid.setPixmap(pixmap)
+            self.img_wid.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
     def set_green_text(self):
         self.setStyleSheet(
