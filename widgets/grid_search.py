@@ -299,8 +299,6 @@ class GridSearch(Grid):
 
         else:
             thumb.set_svg_icon(generic_icon_path)
-
-        thumb.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
         
         if base_item.get_pixmap_storage():
             thumb.set_image(base_item.get_pixmap_storage())
