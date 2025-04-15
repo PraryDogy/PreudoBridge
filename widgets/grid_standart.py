@@ -22,7 +22,7 @@ PSD_EXTS: tuple = (".psd", ".psb")
 
 
 class WorkerSignals(QObject):
-    new_widget = pyqtSignal(Thumb)
+    update_thumb = pyqtSignal(Thumb)
     finished_ = pyqtSignal()
 
 
@@ -52,7 +52,7 @@ class LoadImages(URunnable):
             return
 
         self.conn = engine.connect()
-        self.process_order_items()
+        self.process_thumbs()
         self.conn.close()
 
         try:
@@ -69,23 +69,16 @@ class LoadImages(URunnable):
             return 2
         return 3
 
-    def process_order_items(self):
-
-        for order_item in self.thumbs:
+    def process_thumbs(self):
+        for thumb in self.thumbs:
 
             if not self.should_run:
                 return
                         
             try:
-
-                updated_order_item = GridTools.update_order_item(
-                    conn=self.conn,
-                    order_item=order_item
-                )
-
-                if updated_order_item:
-                    self.signals_.new_widget.emit(updated_order_item)
-
+                updated_thumb = GridTools.update_thumb(self.conn, thumb)
+                if updated_thumb:
+                    self.signals_.update_thumb.emit(updated_thumb)
             except RuntimeError:
                 return
 
@@ -165,33 +158,27 @@ class GridStandart(Grid):
 
         for order_item in order_items:
 
-            wid = Thumb(
-                src=order_item.src,
-                size=order_item.size,
-                mod=order_item.mod,
-                rating=order_item.rating,
-                )
-            
-            wid.set_src()
-            wid.set_name()
-            wid.set_file_type()
-            wid.setup()
+            thumb = Thumb(order_item.src, order_item.size, order_item.mod, order_item.rating)
+            thumb.set_src()
+            thumb.set_name()
+            thumb.set_file_type()
+            thumb.setup()
 
             if order_item.src.count(os.sep) == 2:
-                wid.set_svg_icon(Static.HDD_SVG)
+                thumb.set_svg_icon(Static.HDD_SVG)
 
             elif order_item.type_ == Static.FOLDER_TYPE:
-                wid.set_svg_icon(Static.FOLDER_SVG)
+                thumb.set_svg_icon(Static.FOLDER_SVG)
 
             else:
                 icon_path = Utils.get_generic_icon_path(order_item.type_)
-                wid.set_svg_icon(icon_path)
+                thumb.set_svg_icon(icon_path)
             
             if order_item in new_items:
-                wid.set_green_text()
+                thumb.set_green_text()
 
-            self.add_widget_data(wid=wid, row=row, col=col)
-            self.grid_layout.addWidget(wid, row, col)
+            self.add_widget_data(wid=thumb, row=row, col=col)
+            self.grid_layout.addWidget(thumb, row, col)
 
             col += 1
             if col >= col_count:
@@ -214,7 +201,7 @@ class GridStandart(Grid):
 
         thread_ = LoadImages(self.main_dir, thumbs)
         self.load_images_threads.append(thread_)
-        thread_.signals_.new_widget.connect(
+        thread_.signals_.update_thumb.connect(
             lambda image_data: self.set_image(image_data)
         )
         thread_.signals_.finished_.connect(

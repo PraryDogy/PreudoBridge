@@ -1,6 +1,9 @@
-test =  {}
+class A:
+    def __init__(self):
+        """Привет"""
+        super().__init__()
 
-test["AAA"] = 1
-test["aaa"] = 2
-
-print(test)
+class B:
+    def __init__(self):
+        """Дополнение"""
+        super().__init__()

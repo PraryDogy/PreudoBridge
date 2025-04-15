@@ -64,7 +64,10 @@ ORDER: dict[str, str] = {
 class OrderItem:
     def __init__(self, src: str, size: int, mod: int, rating: int):
         """
-        Обязательно задать параметры: set_src, set_name, set_file_type
+        Обязательно задать параметры:   
+        set_src, set_name, set_file_type    
+        Если это Thumb, дополнительно задать параметр:
+        setup
         """
         super().__init__()
         self.src: str = src

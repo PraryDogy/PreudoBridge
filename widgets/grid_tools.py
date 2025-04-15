@@ -72,7 +72,7 @@ class AnyOrderItem(CommitTool):
         cls.run(conn=conn, query=q)
 
     @classmethod
-    def update_order_item(cls, conn: Connection, order_item: Thumb):
+    def update_thumb(cls, conn: Connection, order_item: Thumb):
 
         new_name = Utils.get_hash_filename(filename=order_item.name)
 
@@ -89,7 +89,7 @@ class AnyOrderItem(CommitTool):
 class GridTools(AnyOrderItem):
 
     @classmethod
-    def update_order_item(cls, conn: Connection, order_item: Thumb):
+    def update_thumb(cls, conn: Connection, order_item: Thumb):
 
         try:
             if order_item.type_ == Static.FOLDER_TYPE:

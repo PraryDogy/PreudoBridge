@@ -198,7 +198,6 @@ class Thumb(OrderItem, QFrame):
     thumb_h = 0
 
     def __init__(self, src: str, size: int, mod: int, rating: int):
-
         QFrame.__init__(self, parent=None)
         OrderItem.__init__(self, src=src, size=size, mod=mod, rating=rating)
 
@@ -212,7 +211,6 @@ class Thumb(OrderItem, QFrame):
         self.v_lay.setSpacing(ThumbData.SPACING)
         self.v_lay.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.setLayout(self.v_lay)
-
 
         self.img_frame = ImgFrame()
         self.v_lay.addWidget(self.img_frame, alignment=Qt.AlignmentFlag.AlignCenter)
