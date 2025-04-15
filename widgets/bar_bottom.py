@@ -470,6 +470,12 @@ class BarBottom(QWidget):
     open_img_view = pyqtSignal(str)
 
     def __init__(self):
+        """
+        Нижний бар, состав:     
+        - Группа виджетов PathItem (читай описание PathItem)  
+        - Разделительная линия    
+        - Виджет "перейти", меню сортировки, слайдер для изменения размеров сетки
+        """
         super().__init__()
         self.setFixedHeight(50)
         self.setAcceptDrops(True)
@@ -496,7 +502,6 @@ class BarBottom(QWidget):
         self.main_lay.addWidget(sep)
 
         # 3 строка: перейти, всего, сортировка, слайдер
-
         bottom_wid = QWidget()
         bottom_lay = QHBoxLayout()
         bottom_lay.setContentsMargins(0, 0, 0, 0)
