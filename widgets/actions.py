@@ -5,7 +5,7 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QAction, QLabel, QLineEdit, QTextEdit, QWidget
 
 from cfg import Dynamic, Static
-from database import ORDER
+from database import ORDER_DICT
 from utils import URunnable, UThreadPool, Utils
 
 from ._base_widgets import UMenu
@@ -352,7 +352,7 @@ class SortMenu(UMenu):
         # text_name - текстовое обозначение колонки CACHE, основанное на
         # комментарии колонки (CACHE.column.comment)
         # смотри database.py > CACHE
-        for true_name, text_name in ORDER.items():
+        for true_name, text_name in ORDER_DICT.items():
 
             action_ = QAction(text_name, self)
             action_.setCheckable(True)

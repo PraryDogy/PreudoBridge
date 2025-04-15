@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QHBoxLayout,
                              QLabel, QPushButton, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, Static, ThumbData
-from database import ORDER
+from database import ORDER_DICT
 from utils import PathFinder, URunnable, UThreadPool, Utils
 
 from ._base_widgets import (UFrame, ULineEdit, UMenu, USlider, USvgSqareWidget,
@@ -405,6 +405,9 @@ class SortFrame(UFrame):
     rearrange_grid_sig = pyqtSignal()
 
     def __init__(self):
+        """
+        Виджет с раскрывающимся меню, которое предлагает сортировку сетки
+        """
         super().__init__()
         h_lay = QHBoxLayout()
         h_lay.setContentsMargins(2, 0, 2, 0)
@@ -416,9 +419,13 @@ class SortFrame(UFrame):
         self.sort_wid = QLabel()
         h_lay.addWidget(self.sort_wid)
 
-    def add_sort(self):
+    def setup(self):
+        """
+        Отображает текст на основе типа сортировки, например:   
+        Сортировка: имя (по возраст.)
+        """
         # получаем текстовое имя сортировки на основе внутреннего имени сортировки
-        order = ORDER.get(Dynamic.sort)
+        order = ORDER_DICT.get(Dynamic.sort)
         order = order.lower()
 
         # получаем текстовое имя обратной или прямой сортировки
@@ -541,7 +548,7 @@ class BarBottom(QWidget):
             self.set_new_path(dir)
         if total:
             self.add_total(total)
-        self.sort_frame.add_sort()
+        self.sort_frame.setup()
 
     def set_new_path(self, dir: str):
         """
