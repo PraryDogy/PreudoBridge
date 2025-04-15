@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static
-from database import OrderItem
+from database import BaseItem
 from utils import Utils
 from widgets.bar_bottom import BarBottom
 from widgets.bar_top import BarTop
@@ -219,7 +219,7 @@ class WinMain(QWidget):
         self.bar_bottom.open_img_view.connect(lambda path: self.open_img_view_cmd(path))
 
     def open_img_view_cmd(self, path: str):
-        order_item = OrderItem(path, 0, 0, 0)
+        order_item = BaseItem(path, 0, 0, 0)
         order_item.set_src()
         order_item.set_name()
         order_item.set_file_type()

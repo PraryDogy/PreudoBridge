@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Dynamic, JsonData, Static, ThumbData
-from database import CACHE, Dbase, OrderItem
+from database import CACHE, Dbase, BaseItem
 from utils import URunnable, UThreadPool, Utils
 
 from ._base_widgets import UMenu, UScrollArea
@@ -109,7 +109,7 @@ class WorkerSignals(QObject):
 
 
 class SetDbRating(URunnable):
-    def __init__(self, main_dir: str, order_item: OrderItem, new_rating: int):
+    def __init__(self, main_dir: str, order_item: BaseItem, new_rating: int):
         super().__init__()
         self.order_item = order_item
         self.new_rating = new_rating
@@ -153,7 +153,7 @@ class TextWidget(QLabel):
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setStyleSheet(FONT_SIZE)
 
-    def set_text(self, wid: OrderItem) -> list[str]:
+    def set_text(self, wid: BaseItem) -> list[str]:
         name: str | list = wid.name
         max_row = ThumbData.MAX_ROW[Dynamic.pixmap_size_ind]
         lines: list[str] = []
@@ -184,12 +184,12 @@ class RatingWid(QLabel):
         self.setStyleSheet(FONT_SIZE)
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-    def set_text(self, wid: OrderItem):
+    def set_text(self, wid: BaseItem):
         text = RATINGS[wid.rating].strip()
         self.setText(text)
 
 
-class Thumb(OrderItem, QFrame):
+class Thumb(BaseItem, QFrame):
     # Сигнал нужен, чтобы менялся заголовок в просмотрщике изображений
     # При изменении рейтинга или меток
     text_changed = pyqtSignal()
@@ -199,7 +199,7 @@ class Thumb(OrderItem, QFrame):
 
     def __init__(self, src: str, size: int, mod: int, rating: int):
         QFrame.__init__(self, parent=None)
-        OrderItem.__init__(self, src=src, size=size, mod=mod, rating=rating)
+        BaseItem.__init__(self, src=src, size=size, mod=mod, rating=rating)
 
         self.img: QPixmap = None
         self.must_hidden: bool = False
@@ -437,7 +437,7 @@ class Grid(UScrollArea):
     
     def order_(self):
 
-        self.ordered_widgets = OrderItem.sort_items(self.ordered_widgets)
+        self.ordered_widgets = BaseItem.sort_items(self.ordered_widgets)
         
         Thumb.all = {
             wid.src: wid
@@ -546,7 +546,7 @@ class Grid(UScrollArea):
         self.path_to_wid[wid.src] = wid
         self.ordered_widgets.append(wid)
 
-    def view_thumb_cmd(self, wid: OrderItem):
+    def view_thumb_cmd(self, wid: BaseItem):
 
         if wid is None:
             return

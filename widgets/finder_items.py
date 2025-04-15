@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QLabel, QWidget
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Static, Dynamic
-from database import CACHE, Dbase, OrderItem
+from database import CACHE, Dbase, BaseItem
 from utils import URunnable, Utils
 
 LOADING_T = "Загрузка..."
@@ -39,8 +39,8 @@ class FinderItems(URunnable):
             print(e)
             order_items, new_items = [], []
 
-        order_items = OrderItem.sort_items(order_items)
-        new_items = OrderItem.sort_items(new_items)
+        order_items = BaseItem.sort_items(order_items)
+        new_items = BaseItem.sort_items(new_items)
         self.signals_.finished_.emit((order_items, new_items))
 
     def create_connection(self) -> sqlalchemy.Connection | None:
@@ -52,7 +52,7 @@ class FinderItems(URunnable):
         else:
             return engine.connect()
 
-    def set_rating(self, conn: sqlalchemy.Connection, order_items: list[OrderItem]):
+    def set_rating(self, conn: sqlalchemy.Connection, order_items: list[BaseItem]):
         Dynamic.busy_db = True
         q = sqlalchemy.select(CACHE.c.name, CACHE.c.rating)
         res = conn.execute(q).fetchall()
@@ -71,8 +71,8 @@ class FinderItems(URunnable):
 
         return order_items, new_files
 
-    def get_order_items(self) -> list[OrderItem]:
-        order_items: list[OrderItem] = []
+    def get_order_items(self) -> list[BaseItem]:
+        order_items: list[BaseItem] = []
         with os.scandir(self.main_dir) as entries:
             for entry in entries:
                 if entry.name.startswith("."):
@@ -83,7 +83,7 @@ class FinderItems(URunnable):
                     continue
                 size = stats.st_size
                 mod = stats.st_mtime
-                item = OrderItem(entry.path, size, mod, 0)
+                item = BaseItem(entry.path, size, mod, 0)
                 item.set_src()
                 item.set_name()
                 item.set_file_type()
@@ -97,7 +97,7 @@ class FinderItems(URunnable):
                 if entry.name.startswith("."):
                     continue
                 if entry.is_dir() or entry.name.endswith(Static.IMG_EXT):
-                    item = OrderItem(entry.path, 0, 0, 0)
+                    item = BaseItem(entry.path, 0, 0, 0)
                     item.set_src()
                     item.set_name()
                     item.set_file_type()

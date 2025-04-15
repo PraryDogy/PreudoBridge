@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QFrame, QGraphicsDropShadowEffect, QHBoxLayout,
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Dynamic, Static, ThumbData
-from database import OrderItem
+from database import BaseItem
 from fit_img import FitImg
 from utils import URunnable, UThreadPool, Utils
 
@@ -25,7 +25,7 @@ STOP = "Стоп"
 RESIZE_TIMER_COUNT = 700
 
 class WorkerSignals(QObject):
-    new_widget = pyqtSignal(OrderItem)
+    new_widget = pyqtSignal(BaseItem)
     finished_ = pyqtSignal()
 
 
@@ -151,7 +151,7 @@ class SearchFinder(URunnable):
         )
         pixmap = Utils.pixmap_from_array(image=img_array)
         del img_array
-        order_item = OrderItem(
+        order_item = BaseItem(
             src=entry.path,
             size=stat.st_size,
             mod=stat.st_mtime,
@@ -276,7 +276,7 @@ class GridSearch(Grid):
         self.task_.signals_.finished_.connect(self.search_fin)
         UThreadPool.start(self.task_)
 
-    def add_new_widget(self, order_item: OrderItem):
+    def add_new_widget(self, order_item: BaseItem):
         wid = ThumbSearch(
             src=order_item.src,
             size=order_item.size,

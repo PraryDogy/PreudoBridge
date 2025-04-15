@@ -5,7 +5,7 @@ from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import QAction, QGridLayout, QLabel
 
 from cfg import Static
-from database import OrderItem
+from database import BaseItem
 from utils import URunnable, UThreadPool, Utils
 
 from ._base_widgets import UMenu, WinMinMaxDisabled
@@ -29,7 +29,7 @@ class WorkerSignals(QObject):
 
 
 class CalculatingTask(URunnable):
-    def __init__(self, order_item: OrderItem):
+    def __init__(self, order_item: BaseItem):
         super().__init__()
         self.order_item = order_item
         self.signals_ = WorkerSignals()
@@ -89,7 +89,7 @@ class CalculatingTask(URunnable):
 
 
 class InfoTask:
-    def __init__(self, order_item: OrderItem):
+    def __init__(self, order_item: BaseItem):
         super().__init__()
         self.order_item = order_item
 
@@ -171,7 +171,7 @@ class WinInfo(WinMinMaxDisabled):
         self.setLayout(self.grid_layout)
 
         row = 0
-        order_item = OrderItem(self.src, 0, 0, 0)
+        order_item = BaseItem(self.src, 0, 0, 0)
         order_item.set_src()
         order_item.set_name()
         order_item.set_file_type()

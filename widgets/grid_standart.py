@@ -6,7 +6,7 @@ from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtWidgets import QLabel
 
 from cfg import Dynamic, Static
-from database import Dbase, OrderItem
+from database import Dbase, BaseItem
 from utils import URunnable, UThreadPool, Utils
 
 from .finder_items import FinderItems, LoadingWid
@@ -127,7 +127,7 @@ class GridStandart(Grid):
         self.load_images_timer.stop()
         self.load_images_timer.start(1000)
 
-    def finder_thread_fin(self, items: tuple[list[OrderItem]]):
+    def finder_thread_fin(self, items: tuple[list[BaseItem]]):
         order_items, new_items = items
 
         del self.finder_thread

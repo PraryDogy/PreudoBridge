@@ -61,7 +61,7 @@ ORDER: dict[str, str] = {
 }
 
 
-class OrderItem:
+class BaseItem:
     def __init__(self, src: str, size: int, mod: int, rating: int):
         """
         Обязательно задать параметры:   
@@ -102,7 +102,7 @@ class OrderItem:
     # на основе аттрибута "size" происходит сортировка списка из OrderItem
 
     @classmethod
-    def sort_items(cls, order_items: list["OrderItem"]) -> list["OrderItem"]:
+    def sort_items(cls, order_items: list["BaseItem"]) -> list["BaseItem"]:
         
         attr = Dynamic.sort
         rev = Dynamic.rev
@@ -115,8 +115,8 @@ class OrderItem:
             # сортируем каждый список по отдельности
             # возвращаем объединенный список
 
-            nums: list[OrderItem] = []
-            abc: list[OrderItem] = []
+            nums: list[BaseItem] = []
+            abc: list[BaseItem] = []
 
             for i in order_items:
 
@@ -147,7 +147,7 @@ class OrderItem:
     # по которым будет сортировка, например: "123 Te99st33" > 123
     # re.match ищет числа до первого нечислового символа
     @classmethod
-    def get_nums(cls, order_item: "OrderItem"):
+    def get_nums(cls, order_item: "BaseItem"):
 
         return int(
             re.match(r'^\d+', order_item.name).group()
