@@ -44,8 +44,8 @@ class PathFinder:
         volumes = [i.path for i in os.scandir(os.sep + Static.VOLUMES)]
 
         # см. аннотацию add_to_start
-        paths = cls.add_to_start(splited_path=splited, volumes=volumes)
-        res = cls.check_for_exists(paths=paths)
+        paths = cls.add_to_start(splited, volumes)
+        res = cls.check_for_exists(paths)
 
         if res in volumes:
             return None
@@ -62,7 +62,7 @@ class PathFinder:
             ]
 
             paths.sort(key=len, reverse=True)
-            res = cls.check_for_exists(paths=paths)
+            res = cls.check_for_exists(paths)
 
             if res in volumes:
                 return None
