@@ -1,12 +1,7 @@
 import os
-import re
 
 import sqlalchemy
-from PyQt5.QtGui import QPixmap
 from sqlalchemy.exc import IntegrityError, OperationalError
-
-from cfg import Dynamic, Static
-from utils import Utils
 
 METADATA = sqlalchemy.MetaData()
 TABLE_NAME = "cache"
