@@ -23,7 +23,6 @@ CURR_WID = "curr_wid"
 FINDER_T = "Finder"
 GO_PLACEGOLDER = "Вставьте путь к файлу/папке"
 ARROW_RIGHT = " \U0000203A" # ›
-GO_LINE_EDIT_W = 270
 
 
 class PathFinder:
@@ -166,15 +165,7 @@ class PathFinderThread(URunnable):
             Utils.print_error(parent=None, error=e)
 
 
-class GoLineEdit(ULineEdit):
-    def __init__(self):
-        super().__init__()
-        self.setPlaceholderText(GO_PLACEGOLDER)
-        self.setFixedWidth(GO_LINE_EDIT_W)
-        self.clear_btn_vcenter()
-
-
-class GoWin(MinMaxDisabledWin):
+class GoToWin(MinMaxDisabledWin):
     open_path_sig = pyqtSignal(str)
 
     def __init__(self):
@@ -193,7 +184,11 @@ class GoWin(MinMaxDisabledWin):
         v_lay.setSpacing(10)
         self.setLayout(v_lay)
 
-        self.input_wid = GoLineEdit()
+        self.input_wid = ULineEdit()
+        self.input_wid.setPlaceholderText(GO_PLACEGOLDER)
+        self.input_wid.setFixedWidth(270)
+        self.input_wid.clear_btn_vcenter()
+
         v_lay.addWidget(self.input_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
         h_wid = QWidget()
@@ -208,15 +203,13 @@ class GoWin(MinMaxDisabledWin):
 
         go_btn = QPushButton(GO_T)
         go_btn.setFixedWidth(120)
-        go_btn.clicked.connect(
-            lambda: self.open_path_btn_cmd(flag=None)
-        )
+        go_btn.clicked.connect(lambda: self.open_path_btn_cmd(None))
         h_lay.addWidget(go_btn)
 
         go_finder_btn = QPushButton(FINDER_T)
         go_finder_btn.setFixedWidth(120)
         go_finder_btn.clicked.connect(
-            lambda: self.open_path_btn_cmd(flag=FINDER_T)
+            lambda: self.open_path_btn_cmd(FINDER_T)
         )
         h_lay.addWidget(go_finder_btn)
 
@@ -279,48 +272,7 @@ class GoWin(MinMaxDisabledWin):
             self.close()
 
 
-class CustomSlider(USlider):
-    resize_grid_sig = pyqtSignal()
-    rearrange_grid_sig = pyqtSignal()
-
-    def __init__(self):
-        """
-        Слайдер с пользовательским стилем
-        - 4 позиции
-        - каждая позиция отвечает за свой размер виджета сетки
-        - при смене позиции слайдера произойзет изменение размеров виджетов сетки
-        и перетасовка с учетом новых размеров:
-        изменится число столбцов и строк в сетке
-        """
-        super().__init__(
-            orientation=Qt.Orientation.Horizontal,
-            minimum=0,
-            maximum=len(ThumbData.PIXMAP_SIZE) - 1
-        )
-        self.setFixedWidth(80)
-        self.setValue(Dynamic.pixmap_size_ind)
-        self.valueChanged.connect(self.move_slider_cmd)
-    
-    def move_slider_cmd(self, value: int):
-        """
-        Перемещение слайдера происходит:
-        - При клике мыши (valueChanged)
-        - При нажатии cmd + и cmd -
-        - Чтобы действие не задваивалось, сначала отключается сигнал valueChanged,
-        затем происходит изменение размеров сетки и обратное подключение сетки
-        """
-        # отключаем сигнал valueChanged
-        self.blockSignals(True)
-        self.setValue(value)
-
-        # Включаем сигнал обратно
-        self.blockSignals(False)
-        Dynamic.pixmap_size_ind = value
-        self.resize_grid_sig.emit()
-        self.rearrange_grid_sig.emit()
-
-
-class GoToFrame(UFrame):
+class GoToBtn(UFrame):
     clicked_ = pyqtSignal()
 
     def __init__(self):
@@ -352,7 +304,6 @@ class GoToFrame(UFrame):
 
 
 class SortFrame(UFrame):
-    bar_bottom_update = pyqtSignal(tuple)
     order_grid_sig = pyqtSignal()
     rearrange_grid_sig = pyqtSignal()
 
@@ -411,6 +362,47 @@ class SortFrame(UFrame):
         super().leaveEvent(a0=a0)
 
 
+class CustomSlider(USlider):
+    resize_grid_sig = pyqtSignal()
+    rearrange_grid_sig = pyqtSignal()
+
+    def __init__(self):
+        """
+        Слайдер с пользовательским стилем
+        - 4 позиции
+        - каждая позиция отвечает за свой размер виджета сетки
+        - при смене позиции слайдера произойзет изменение размеров виджетов сетки
+        и перетасовка с учетом новых размеров:
+        изменится число столбцов и строк в сетке
+        """
+        super().__init__(
+            orientation=Qt.Orientation.Horizontal,
+            minimum=0,
+            maximum=len(ThumbData.PIXMAP_SIZE) - 1
+        )
+        self.setFixedWidth(80)
+        self.setValue(Dynamic.pixmap_size_ind)
+        self.valueChanged.connect(self.move_slider_cmd)
+    
+    def move_slider_cmd(self, value: int):
+        """
+        Перемещение слайдера происходит:
+        - При клике мыши (valueChanged)
+        - При нажатии cmd + и cmd -
+        - Чтобы действие не задваивалось, сначала отключается сигнал valueChanged,
+        затем происходит изменение размеров сетки и обратное подключение сетки
+        """
+        # отключаем сигнал valueChanged
+        self.blockSignals(True)
+        self.setValue(value)
+
+        # Включаем сигнал обратно
+        self.blockSignals(False)
+        Dynamic.pixmap_size_ind = value
+        self.resize_grid_sig.emit()
+        self.rearrange_grid_sig.emit()
+
+
 class SortBar(QWidget):
     def __init__(self):
         super().__init__()
@@ -422,7 +414,7 @@ class SortBar(QWidget):
         bottom_wid.setLayout(bottom_lay)
         self.main_lay.addWidget(bottom_wid)
 
-        self.go_to_frame = GoToFrame()
+        self.go_to_frame = GoToBtn()
         self.go_to_frame.clicked_.connect(self.open_go_win)
         bottom_lay.addWidget(self.go_to_frame)
 
@@ -455,7 +447,7 @@ class SortBar(QWidget):
         В окне можно вставить путь к папке файлу и нажать "Перейти" или "Finder"    
         В первом случае будет переход внутри приложения, во втором откроется Finder
         """
-        self.win_go = GoWin()
+        self.win_go = GoToWin()
         self.win_go.open_path_sig.connect(self.open_path_sig.emit)
         self.win_go.center(self.window())
         self.win_go.show()
