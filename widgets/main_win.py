@@ -154,10 +154,10 @@ class MainWin(QWidget):
         self.bar_top.new_history_item_cmd(self.main_dir)
         self.r_lay.insertWidget(0, self.bar_top)
         
-        self.bar_bottom = PathBar()
+        self.path_bar = PathBar()
         # устанавливаем изначальный путь в нижний бар
-        self.bar_bottom.set_new_path(self.main_dir)
-        self.r_lay.insertWidget(2, self.bar_bottom)
+        self.path_bar.set_new_path(self.main_dir)
+        self.r_lay.insertWidget(2, self.path_bar)
 
         self.scroll_up = QLabel(parent=self, text=ARROW_UP)
         self.scroll_up.hide()
@@ -209,15 +209,12 @@ class MainWin(QWidget):
         # проще постфактум установить текст для лейбла в этом окне
         self.bar_top.list_win_opened.connect(lambda: self.bar_top.set_path_list_win(self.main_dir))
         # было открыто окно настроек и был клик "очистить данные в этой папке"
-        self.bar_top.clear_data_clicked.connect(lambda: self.clear_data_cmd())
+        self.bar_top.clear_data_clicked.connect(lambda: self.remove_db_cmd())
 
-        self.bar_bottom.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
-        self.bar_bottom.load_st_grid_sig.connect(lambda data: self.load_st_grid_cmd(data))
-        self.bar_bottom.resize_grid_sig.connect(lambda: self.grid.resize_())
-        self.bar_bottom.order_grid_sig.connect(lambda: self.grid.order_())
-        self.bar_bottom.rearrange_grid_sig.connect(lambda: self.grid.rearrange())
-        self.bar_bottom.open_path_sig.connect(lambda filepath: self.open_path_cmd(filepath))
-        self.bar_bottom.open_img_view.connect(lambda path: self.open_img_view_cmd(path))
+        self.path_bar.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
+        self.path_bar.load_st_grid_sig.connect(lambda data: self.load_st_grid_cmd(data))
+        self.path_bar.resize_grid_sig.connect(lambda: self.grid.resize_())
+        self.path_bar.open_img_view.connect(lambda path: self.open_img_view_cmd(path))
 
     def open_img_view_cmd(self, path: str):
         base_item = BaseItem(path, 0, 0, 0)
@@ -226,7 +223,10 @@ class MainWin(QWidget):
         base_item.set_file_type()
         self.grid.view_thumb_cmd(base_item)
 
-    def clear_data_cmd(self):
+    def remove_db_cmd(self):
+        """
+        Удаляет базу данных в текущей директории
+        """
         db = os.path.join(self.main_dir, Static.DB_FILENAME)
         if os.path.exists(db):
             os.remove(db)
@@ -265,9 +265,9 @@ class MainWin(QWidget):
             self.load_st_grid_cmd((self.main_dir, None))
 
     def setup_grid_signals(self):
-        self.grid.bar_bottom_update.connect(lambda: self.bar_bottom.update_path_bar_cmd(self.main_dir))
+        self.grid.bar_bottom_update.connect(lambda: self.path_bar.update_path_bar_cmd(self.main_dir))
         self.grid.fav_cmd_sig.connect(lambda data: self.menu_favs.fav_cmd(data))
-        self.grid.move_slider_sig.connect(lambda value: self.bar_bottom.slider.move_slider_cmd(value))
+        self.grid.move_slider_sig.connect(lambda value: self.path_bar.slider.move_slider_cmd(value))
         self.grid.load_st_grid_sig.connect(lambda data: self.load_st_grid_cmd(data))
         self.grid.verticalScrollBar().valueChanged.connect(lambda value: self.scroll_up_show_hide(value))
 
@@ -358,7 +358,7 @@ class MainWin(QWidget):
             self.menu_tabs,
             self.bar_top,
             self.grid,
-            self.bar_bottom
+            self.path_bar
             )
         
         for i in wids:
