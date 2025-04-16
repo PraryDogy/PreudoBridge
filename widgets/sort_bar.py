@@ -12,7 +12,7 @@ from utils import URunnable, UThreadPool, Utils
 
 from ._base_widgets import (MinMaxDisabledWin, UFrame, ULineEdit, UMenu,
                             USlider, USvgSqareWidget)
-from .actions import SortMenuBtn
+from .actions import SortMenu
 
 SORT_T = "Сортировка"
 TOTAL_T = "Всего"
@@ -303,7 +303,7 @@ class GoToBtn(UFrame):
             self.clicked_.emit()
 
 
-class SortMenuBtn(UFrame):
+class SortMenuFrame(UFrame):
     order_grid_sig = pyqtSignal()
     rearrange_grid_sig = pyqtSignal()
 
@@ -343,7 +343,7 @@ class SortMenuBtn(UFrame):
         - Сортировка сетки
         - Перетасовка сетки
         """
-        menu_ = SortMenuBtn(parent=self)
+        menu_ = SortMenu(self)
         menu_.order_grid_sig.connect(self.order_grid_sig.emit)
         menu_.rearrange_grid_sig.connect(self.rearrange_grid_sig)
 
@@ -420,7 +420,7 @@ class SortBar(QWidget):
 
         self.main_lay.addStretch()
 
-        self.sort_frame = SortMenuBtn()
+        self.sort_frame = SortMenuFrame()
         self.sort_frame.order_grid_sig.connect(self.order_grid_sig.emit)
         self.sort_frame.rearrange_grid_sig.connect(self.rearrange_grid_sig.emit)
         self.main_lay.addWidget(self.sort_frame)

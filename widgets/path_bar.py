@@ -1,16 +1,14 @@
 import os
 
-from PyQt5.QtCore import QMimeData, QPoint, Qt, QTimer, QUrl, pyqtSignal
+from PyQt5.QtCore import QMimeData, Qt, QTimer, QUrl, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QDrag, QMouseEvent, QPixmap
-from PyQt5.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
-                             QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import QApplication, QHBoxLayout, QLabel, QWidget
 
-from cfg import Dynamic, Static
-from database import ORDER_DICT
+from cfg import Static
 from utils import Utils
 
-from ._base_widgets import UFrame, UMenu, USvgSqareWidget
-from .actions import CopyPath, Info, RevealInFinder, SortMenuBtn, View
+from ._base_widgets import UMenu, USvgSqareWidget
+from .actions import CopyPath, Info, RevealInFinder, View
 from .info_win import InfoWin
 
 SORT_T = "Сортировка"
