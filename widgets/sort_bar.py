@@ -399,21 +399,20 @@ class CustomSlider(USlider):
     
     def move_slider_cmd(self, value: int):
         """
-        Перемещение слайдера происходит:
-        - При клике мыши (valueChanged)
-        - При нажатии cmd + и cmd -
-        - Чтобы действие не задваивалось, сначала отключается сигнал valueChanged,
-        затем происходит изменение размеров сетки и обратное подключение сетки
+        Обрабатывает изменение слайдера при его перемещении мышью.
+        Обновляет размер виджетов и инициирует перетасовку сетки.
         """
-        # отключаем сигнал valueChanged
-        self.blockSignals(True)
-        self.setValue(value)
-
-        # Включаем сигнал обратно
-        self.blockSignals(False)
         Dynamic.pixmap_size_ind = value
         self.resize_grid_sig.emit()
         self.rearrange_grid_sig.emit()
+
+    def move_from_keyboard(self, value: int):
+        """
+        Обрабатывает изменение слайдера при нажатии Cmd+ или Cmd-.
+        Вызывает `setValue`, что автоматически обновляет размер виджетов
+        и сетки через `move_slider_cmd`.
+        """
+        self.setValue(value)
 
 
 class SortBar(QWidget):
@@ -423,6 +422,14 @@ class SortBar(QWidget):
     rearrange_grid_sig = pyqtSignal()
 
     def __init__(self):
+        """
+        Состав:
+
+        - Кнопка "Перейти" — открывает окно "Перейти к";
+        - Кнопка "Всего виджетов / Тип сортировки" — открывает меню сортировки;
+        - Слайдер — изменяет размер виджетов в сетке.
+        """
+
         super().__init__()
         self.setFixedHeight(25)
         self.main_lay = QHBoxLayout()
