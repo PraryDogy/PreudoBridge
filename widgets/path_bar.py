@@ -237,7 +237,6 @@ class PathBar(QWidget):
         # self.main_lay.addWidget(sep)
 
     def path_bar_update_cmd(self, dir: str):
-        print(dir)
         """  
         Путь сетки / папки / файла
         Можно передать None

@@ -416,7 +416,6 @@ class Grid(UScrollArea):
         self.path_bar_update_cmd(src=wid.src)
 
     def path_bar_update_cmd(self, src: str):
-        print(src)
         # через таймер чтобы функция не блокировалась зажатой клавишей мыши
         cmd_ = lambda: self.path_bar_update.emit(src)
         QTimer.singleShot(100, cmd_)
