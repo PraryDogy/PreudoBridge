@@ -268,10 +268,17 @@ class UFrame(QFrame):
 
 class WinBase(QWidget):
     def __init__(self):
+        """
+        Окно на основе QWidget с флагом ApplicationModal.  
+        Оно блокирует взаимодействие с другими окнами приложения, пока открыто.
+        """
         super().__init__()
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
 
     def center(self, parent: QWidget):
+        """
+        Центрирует текущее окно относительно родительского окна.
+        """
         geo = self.geometry()
         geo.moveCenter(parent.geometry().center())
         self.setGeometry(geo)
@@ -279,6 +286,10 @@ class WinBase(QWidget):
 
 class MinMaxDisabledWin(WinBase):
     def __init__(self):
+        """
+        Окно без кнопок свернуть и развернуть.  
+        Оставлена только кнопка закрытия.
+        """
         super().__init__()
         fl = Qt.WindowType.Window | Qt.WindowType.CustomizeWindowHint
         fl = fl  | Qt.WindowType.WindowCloseButtonHint
