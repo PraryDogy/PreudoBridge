@@ -201,7 +201,6 @@ class PathItem(QWidget):
 class PathBar(QWidget):
     new_history_item = pyqtSignal(str)
     load_st_grid_sig = pyqtSignal(tuple)
-    resize_grid_sig = pyqtSignal()
     open_img_view = pyqtSignal(str)
 
     def __init__(self):
