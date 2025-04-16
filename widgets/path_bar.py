@@ -222,14 +222,6 @@ class PathBar(QWidget):
         self.main_lay.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.setLayout(self.main_lay)
 
-        # self.path_wid = QWidget()
-        # self.main_lay.insertWidget(0, self.path_wid, alignment=Qt.AlignmentFlag.AlignLeft)
-
-        # self.path_lay = QHBoxLayout()
-        # self.path_lay.setContentsMargins(0, 0, 0, 0)
-        # self.path_lay.setSpacing(5)
-        # self.path_wid.setLayout(self.path_lay)
-
         # 2 строка сепаратор
         # sep = QFrame()
         # sep.setStyleSheet("background: rgba(0, 0, 0, 0.2)")
