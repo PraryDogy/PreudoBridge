@@ -319,6 +319,7 @@ class TextSelectAll(QAction):
 class SortMenu(UMenu):
     order_grid_sig = pyqtSignal()
     rearrange_grid_sig = pyqtSignal()
+    update_sort_bar_sig = pyqtSignal()
 
     def __init__(self, parent: UMenu):
         super().__init__(SORT_T, parent)

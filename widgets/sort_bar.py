@@ -345,7 +345,8 @@ class SortMenuFrame(UFrame):
         """
         menu_ = SortMenu(self)
         menu_.order_grid_sig.connect(self.order_grid_sig.emit)
-        menu_.rearrange_grid_sig.connect(self.rearrange_grid_sig)
+        menu_.rearrange_grid_sig.connect(self.rearrange_grid_sig.emit)
+        menu_.update_sort_bar_sig.connect(self.setup)
 
         widget_rect = self.rect()
         menu_size = menu_.sizeHint()
@@ -405,6 +406,8 @@ class CustomSlider(USlider):
 
 class SortBar(QWidget):
     load_st_grid_sig = pyqtSignal(tuple)
+    order_grid_sig = pyqtSignal()
+    rearrange_grid_sig = pyqtSignal()
 
     def __init__(self):
         super().__init__()
