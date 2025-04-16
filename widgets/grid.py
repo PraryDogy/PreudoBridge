@@ -16,7 +16,7 @@ from utils import URunnable, UThreadPool, Utils
 
 from ._base_widgets import BaseItem, UMenu, UScrollArea
 from .actions import (ChangeViewMenu, CopyPath, FavAdd, FavRemove, Info,
-                      OpenInApp, RatingMenu, RevealInFinder, SortMenu, TagMenu,
+                      OpenInApp, RatingMenu, RevealInFinder, SortMenuBtn, TagMenu,
                       View)
 from .copy_files_win import ErrorWin, CopyFilesWin
 from .info_win import InfoWin
@@ -675,7 +675,7 @@ class Grid(UScrollArea):
         change_view.change_view_sig.connect(self.change_view_sig.emit)
         menu.addMenu(change_view)
 
-        sort_menu = SortMenu(parent=menu)
+        sort_menu = SortMenuBtn(parent=menu)
         sort_menu.order_grid_sig.connect(self.order_)
         sort_menu.rearrange_grid_sig.connect(self.rearrange)
         menu.addMenu(sort_menu)

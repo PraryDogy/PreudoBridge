@@ -10,7 +10,7 @@ from database import ORDER_DICT
 from utils import Utils
 
 from ._base_widgets import UFrame, UMenu, USvgSqareWidget
-from .actions import CopyPath, Info, RevealInFinder, SortMenu, View
+from .actions import CopyPath, Info, RevealInFinder, SortMenuBtn, View
 from .info_win import InfoWin
 
 SORT_T = "Сортировка"

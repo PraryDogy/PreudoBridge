@@ -12,7 +12,7 @@ from utils import URunnable, UThreadPool, Utils
 
 from ._base_widgets import (MinMaxDisabledWin, UFrame, ULineEdit, UMenu,
                             USlider, USvgSqareWidget)
-from .actions import SortMenu
+from .actions import SortMenuBtn
 
 SORT_T = "Сортировка"
 TOTAL_T = "Всего"
@@ -166,7 +166,7 @@ class PathFinderThread(URunnable):
 
 
 class GoToWin(MinMaxDisabledWin):
-    open_path_sig = pyqtSignal(str)
+    load_st_grid_sig = pyqtSignal(tuple)
 
     def __init__(self):
         """
@@ -253,9 +253,9 @@ class GoToWin(MinMaxDisabledWin):
             self.close()
             return
         if flag == FINDER_T:
-            self.open_finder(dest=result)
+            self.open_finder(result)
         else:
-            self.open_path_sig.emit(result)
+            self.load_st_grid_sig.emit((result, None))
         self.close()
 
     def open_finder(self, dest: str):
@@ -303,7 +303,7 @@ class GoToBtn(UFrame):
             self.clicked_.emit()
 
 
-class SortFrame(UFrame):
+class SortMenuBtn(UFrame):
     order_grid_sig = pyqtSignal()
     rearrange_grid_sig = pyqtSignal()
 
@@ -343,7 +343,7 @@ class SortFrame(UFrame):
         - Сортировка сетки
         - Перетасовка сетки
         """
-        menu_ = SortMenu(parent=self)
+        menu_ = SortMenuBtn(parent=self)
         menu_.order_grid_sig.connect(self.order_grid_sig.emit)
         menu_.rearrange_grid_sig.connect(self.rearrange_grid_sig)
 
@@ -404,42 +404,40 @@ class CustomSlider(USlider):
 
 
 class SortBar(QWidget):
+    load_st_grid_sig = pyqtSignal(tuple)
+
     def __init__(self):
         super().__init__()
 
-        bottom_wid = QWidget()
-        bottom_lay = QHBoxLayout()
-        bottom_lay.setContentsMargins(0, 0, 0, 0)
-        bottom_lay.setSpacing(10)
-        bottom_wid.setLayout(bottom_lay)
-        self.main_lay.addWidget(bottom_wid)
+        self.main_lay = QHBoxLayout()
+        self.main_lay.setContentsMargins(0, 0, 0, 0)
+        self.main_lay.setSpacing(10)
+        self.setLayout(self.main_lay)
 
         self.go_to_frame = GoToBtn()
         self.go_to_frame.clicked_.connect(self.open_go_win)
-        bottom_lay.addWidget(self.go_to_frame)
+        self.main_lay.addWidget(self.go_to_frame)
 
-        bottom_lay.addStretch()
+        self.main_lay.addStretch()
 
-        self.sort_frame = SortFrame()
-        self.sort_frame.bar_bottom_update.connect(self.update_bar_cmd)
+        self.sort_frame = SortMenuBtn()
         self.sort_frame.order_grid_sig.connect(self.order_grid_sig.emit)
         self.sort_frame.rearrange_grid_sig.connect(self.rearrange_grid_sig.emit)
-        bottom_lay.addWidget(self.sort_frame)
+        self.main_lay.addWidget(self.sort_frame)
 
-        bottom_lay.addStretch()
+        self.main_lay.addStretch()
 
         self.slider = CustomSlider()
         self.slider.resize_grid_sig.connect(self.resize_grid_sig.emit)
         self.slider.rearrange_grid_sig.connect(self.rearrange_grid_sig.emit)
         self.slider.setFixedSize(70, 15)
-        bottom_lay.addWidget(self.slider)
+        self.main_lay.addWidget(self.slider)
 
     def add_total(self, value: int):
         """
         Отображает общее число виджетов в сетке
         """
         self.sort_frame.total_text.setText(f"{TOTAL_T}: {str(value)}")
-
 
     def open_go_win(self, *args):
         """
@@ -448,6 +446,6 @@ class SortBar(QWidget):
         В первом случае будет переход внутри приложения, во втором откроется Finder
         """
         self.win_go = GoToWin()
-        self.win_go.open_path_sig.connect(self.open_path_sig.emit)
+        self.win_go.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
         self.win_go.center(self.window())
         self.win_go.show()

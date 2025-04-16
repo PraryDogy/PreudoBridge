@@ -316,7 +316,7 @@ class TextSelectAll(QAction):
 # новый тип сортировки
 # нужно учитывать, что при изменении CACHE нужно либо очищать БД
 # или осуществлять миграцию существующих данных
-class SortMenu(UMenu):
+class SortMenuBtn(UMenu):
     order_grid_sig = pyqtSignal()
     rearrange_grid_sig = pyqtSignal()
 
