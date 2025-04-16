@@ -174,7 +174,7 @@ class GoLineEdit(ULineEdit):
         self.clear_btn_vcenter()
 
 
-class WinGo(MinMaxDisabledWin):
+class GoWin(MinMaxDisabledWin):
     open_path_sig = pyqtSignal(str)
 
     def __init__(self):
@@ -455,7 +455,7 @@ class SortBar(QWidget):
         В окне можно вставить путь к папке файлу и нажать "Перейти" или "Finder"    
         В первом случае будет переход внутри приложения, во втором откроется Finder
         """
-        self.win_go = WinGo()
+        self.win_go = GoWin()
         self.win_go.open_path_sig.connect(self.open_path_sig.emit)
         self.win_go.center(self.window())
         self.win_go.show()
