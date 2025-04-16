@@ -255,7 +255,13 @@ class GoToWin(MinMaxDisabledWin):
         if flag == FINDER_T:
             self.open_finder(result)
         else:
-            self.load_st_grid_sig.emit((result, None))
+            if os.path.isfile(result):
+                main_dir = os.path.dirname(result)
+                select_path = result
+            else:
+                main_dir = result
+                select_path = None
+            self.load_st_grid_sig.emit((main_dir, select_path))
         self.close()
 
     def open_finder(self, dest: str):
