@@ -220,13 +220,7 @@ class PathBar(QWidget):
         self.main_lay.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.setLayout(self.main_lay)
 
-        # 2 строка сепаратор
-        # sep = QFrame()
-        # sep.setStyleSheet("background: rgba(0, 0, 0, 0.2)")
-        # sep.setFixedHeight(1)
-        # self.main_lay.addWidget(sep)
-
-    def path_bar_update_cmd(self, dir: str):
+    def setup(self, dir: str):
         """  
         Путь сетки / папки / файла
         Можно передать None
