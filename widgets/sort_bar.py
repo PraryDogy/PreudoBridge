@@ -167,7 +167,6 @@ class PathFinderThread(URunnable):
 
 
 class GoLineEdit(ULineEdit):
-
     def __init__(self):
         super().__init__()
         self.setPlaceholderText(GO_PLACEGOLDER)
