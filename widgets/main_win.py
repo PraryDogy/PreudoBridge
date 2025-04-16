@@ -3,23 +3,23 @@ import os
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QKeyEvent, QMouseEvent, QResizeEvent
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
-                             QTabWidget, QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
+                             QSplitter, QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static
 from utils import Utils
 
 from ._base_widgets import BaseItem
-from .path_bar import PathBar
-from .top_bar import TopBar
+from .favs_menu import FavsMenu
 from .grid import Grid
 from .grid_list import GridList
 from .grid_search import GridSearch
 from .grid_standart import GridStandart
-from .favs_menu import FavsMenu
-from .tags_menu import TagsMenu
-from .tree_menu import TreeMenu
 from .img_view_win import LoadImage
+from .path_bar import PathBar
+from .tags_menu import TagsMenu
+from .top_bar import TopBar
+from .tree_menu import TreeMenu
 
 ARROW_UP = "\u25B2" # ▲
 
@@ -153,11 +153,23 @@ class MainWin(QWidget):
         # добавляем текущую директорию в историю
         self.bar_top.new_history_item_cmd(self.main_dir)
         self.r_lay.insertWidget(0, self.bar_top)
-        
+
+        # тут будет сортбар
+        # .insertWidget(1, self.bar_top)
+
+        # тут сетка
+        # .insertWidget(2, self.bar_top)
+
+        # 2 сепаратор
+        sep = QFrame()
+        sep.setStyleSheet("background: rgba(0, 0, 0, 0.2)")
+        sep.setFixedHeight(1)
+        self.r_lay.insertWidget(3, sep)
+
         self.path_bar = PathBar()
         # устанавливаем изначальный путь в нижний бар
         self.path_bar.set_new_path(self.main_dir)
-        self.r_lay.insertWidget(2, self.path_bar)
+        self.r_lay.insertWidget(4, self.path_bar)
 
         self.scroll_up = QLabel(parent=self, text=ARROW_UP)
         self.scroll_up.hide()
