@@ -228,22 +228,22 @@ class ZoomBtns(QFrame):
 
         h_layout.addSpacerItem(QSpacerItem(5, 0))
 
-        self.zoom_out = USvgSqareWidget(src=Static.ZOOM_OUT_SVG, size=45)
+        self.zoom_out = USvgSqareWidget(Static.ZOOM_OUT_SVG, 45)
         self.zoom_out.mouseReleaseEvent = lambda e: self.cmd_out.emit()
         h_layout.addWidget(self.zoom_out)
         h_layout.addSpacerItem(QSpacerItem(10, 0))
 
-        self.zoom_in = USvgSqareWidget(src=Static.ZOOM_IN_SVG, size=45)
+        self.zoom_in = USvgSqareWidget(Static.ZOOM_IN_SVG, 45)
         self.zoom_in.mouseReleaseEvent = lambda e: self.cmd_in.emit()
         h_layout.addWidget(self.zoom_in)
         h_layout.addSpacerItem(QSpacerItem(10, 0))
 
-        self.zoom_fit = USvgSqareWidget(src=Static.ZOOM_FIT_SVG, size=45)
+        self.zoom_fit = USvgSqareWidget(Static.ZOOM_FIT_SVG, 45)
         self.zoom_fit.mouseReleaseEvent = lambda e: self.cmd_fit.emit()
         h_layout.addWidget(self.zoom_fit)
         h_layout.addSpacerItem(QSpacerItem(10, 0))
 
-        self.zoom_close = USvgSqareWidget(src=Static.CLOSE_SVG, size=45)
+        self.zoom_close = USvgSqareWidget(Static.CLOSE_SVG, 45)
         self.zoom_close.mouseReleaseEvent = lambda e: self.cmd_close.emit()
         h_layout.addWidget(self.zoom_close)
 
@@ -263,7 +263,7 @@ class SwitchImageBtn(QFrame):
         v_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(v_layout)
 
-        btn = USvgSqareWidget(src=src, size=50)
+        btn = USvgSqareWidget(src, 50)
         v_layout.addWidget(btn)
 
         self.mouseReleaseEvent = lambda e: self.pressed.emit()

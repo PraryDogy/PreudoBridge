@@ -49,7 +49,7 @@ class PathItem(QWidget):
         item_layout.setSpacing(5)
         self.setLayout(item_layout)
 
-        self.img_wid = USvgSqareWidget(size=15)
+        self.img_wid = USvgSqareWidget(None, 15)
         item_layout.addWidget(self.img_wid)
         
         self.text_wid = QLabel(text=name)

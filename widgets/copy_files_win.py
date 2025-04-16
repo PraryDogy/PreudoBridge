@@ -274,7 +274,7 @@ class CopyFilesWin(MinMaxDisabledWin):
         progressbar = QProgressBar()
         progressbar_lay.addWidget(progressbar)
 
-        cancel_btn = USvgSqareWidget(src=Static.CLEAR_SVG, size=16)
+        cancel_btn = USvgSqareWidget(Static.CLEAR_SVG, 16)
         cancel_btn.mouseReleaseEvent = self.cancel_cmd
         progressbar_lay.addWidget(cancel_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 

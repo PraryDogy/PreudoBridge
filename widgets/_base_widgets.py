@@ -14,6 +14,9 @@ from utils import Utils
 
 
 class UMethods:
+    """
+    Базовые методы для GridStandart, GridSearch и GridList
+    """
     def order_(self, *args, **kwargs):
         raise Exception("Переопредели метод sort_grid")
 
@@ -38,6 +41,9 @@ class UScrollArea(QScrollArea, UMethods):
     move_slider_sig = pyqtSignal(int)
     change_view_sig = pyqtSignal(int)
     def __init__(self):
+        """
+        Базовый виджет с необходимыми сигналами для GridSearch и GridStandart
+        """
         super().__init__()
 
 
@@ -50,10 +56,16 @@ class UTableView(QTableView, UMethods):
     move_slider_sig = pyqtSignal(int)
     change_view_sig = pyqtSignal(int)
     def __init__(self):
+        """
+        Базовый виджет с необходимыми сигналами для GridList
+        """
         super().__init__()
 
 
 class UMenu(QMenu):
+    """
+    Кастомное контекстное меню: отключен правый клик, упрощен метод отображения
+    """
     def show_(self):
         self.exec_(QCursor.pos())
 
@@ -66,7 +78,15 @@ class UMenu(QMenu):
 
 class USlider(QSlider):
     def __init__(self, orientation: Qt.Orientation, minimum: int, maximum: int):
-        super().__init__(orientation=orientation, parent=None, minimum=minimum, maximum=maximum)
+        """
+        Базовый слайдер с пользовательским стилем   
+        Игнорирует правые клики     
+        Игнорирует колесико мыши
+        """
+        super().__init__()
+        self.setOrientation(orientation)
+        self.setMinimum(minimum)
+        self.setMaximum(maximum)
 
         st = f"""
             QSlider {{
@@ -101,14 +121,16 @@ class USlider(QSlider):
 
 
 class USvgSqareWidget(QSvgWidget):
-    def __init__(self, src: str = None, size: int = None):
+    def __init__(self, src: str, size: int):
+        """
+        Квадратный Svg виджет
+        """
         super().__init__()
         self.setStyleSheet(f"""background-color: transparent;""")
         self.renderer().setAspectRatioMode(Qt.AspectRatioMode.KeepAspectRatio)
+        self.setFixedSize(size, size)
         if src:
             self.load(src)
-        if size:
-            self.setFixedSize(size, size)
 
 
 class ULineEdit(QLineEdit):
