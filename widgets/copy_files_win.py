@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QPushButton,
 from cfg import Dynamic, Static
 from utils import URunnable, UThreadPool, Utils
 
-from ._base_widgets import USvgSqareWidget, WinMinMaxDisabled
+from ._base_widgets import USvgSqareWidget, MinMaxDisabledWin
 
 PREPARING_T = "Подготовка"
 COPYING_T = "Копирую файлы"
@@ -186,7 +186,7 @@ class FileCopyWorker(URunnable):
         return new_paths
 
 
-class ErrorWin(WinMinMaxDisabled):
+class ErrorWin(MinMaxDisabledWin):
     def __init__(self):
         super().__init__()
         self.setWindowTitle(ERROR_TITLE)
@@ -225,7 +225,7 @@ class ErrorWin(WinMinMaxDisabled):
         return super().keyPressEvent(a0)
 
 
-class WinCopyFiles(WinMinMaxDisabled):
+class CopyFilesWin(MinMaxDisabledWin):
     load_st_grid_sig = pyqtSignal(tuple)
     error_win_sig = pyqtSignal()
 

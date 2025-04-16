@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QAction, QGridLayout, QLabel
 from cfg import Static
 from utils import URunnable, UThreadPool, Utils
 
-from ._base_widgets import BaseItem, UMenu, WinMinMaxDisabled
+from ._base_widgets import BaseItem, UMenu, MinMaxDisabledWin
 from .actions import CopyText, RevealInFinder
 
 CALCULATING = "Вычисляю..."
@@ -126,7 +126,7 @@ class InfoTask:
             return text
 
 
-class CustomLabel(QLabel):
+class SelectableLabel(QLabel):
     def __init__(self, text: str = None):
         super().__init__(text)
 
@@ -156,7 +156,7 @@ class CustomLabel(QLabel):
         menu.exec_(ev.globalPos())
 
 
-class WinInfo(WinMinMaxDisabled):
+class InfoWin(MinMaxDisabledWin):
     def __init__(self, src: str):
         super().__init__()
         self.setWindowTitle(TITLE)
@@ -179,11 +179,11 @@ class WinInfo(WinMinMaxDisabled):
 
         for name, value in info_.items():
 
-            left_lbl = CustomLabel(name)
+            left_lbl = SelectableLabel(name)
             flags_l_al = Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignTop
             self.grid_layout.addWidget(left_lbl, row, 0, alignment=flags_l_al)
 
-            right_lbl = CustomLabel(value)
+            right_lbl = SelectableLabel(value)
             flags_r = Qt.TextInteractionFlag.TextSelectableByMouse
             right_lbl.setTextInteractionFlags(flags_r)
             flags_r_al = Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom
@@ -204,8 +204,8 @@ class WinInfo(WinMinMaxDisabled):
         # списке виджетов
         # то есть разрешение фотографии или размер папки
         # смотри InfoTask - как формируется результат
-        label = self.findChildren(CustomLabel)[-1]
-        left_label = self.findChildren(CustomLabel)[-2]
+        label = self.findChildren(SelectableLabel)[-1]
+        left_label = self.findChildren(SelectableLabel)[-2]
         label.setText(result)
 
         if result == UNDEFINED:

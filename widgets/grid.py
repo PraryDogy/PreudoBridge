@@ -18,9 +18,9 @@ from ._base_widgets import BaseItem, UMenu, UScrollArea
 from .actions import (ChangeViewMenu, CopyPath, FavAdd, FavRemove, Info,
                       OpenInApp, RatingMenu, RevealInFinder, SortMenu, TagMenu,
                       View)
-from .win_copy_files import ErrorWin, WinCopyFiles
-from .win_info import WinInfo
-from .win_remove_files import WinRemoveFiles
+from .copy_files_win import ErrorWin, CopyFilesWin
+from .info_win import InfoWin
+from .remove_files_win import RemoveFilesWin
 
 SELECTED = "selected"
 FONT_SIZE = "font-size: 11px;"
@@ -542,8 +542,8 @@ class Grid(UScrollArea):
             self.load_st_grid_sig.emit((wid.src, None))
 
         elif wid.type_ in Static.IMG_EXT:
-            from .win_img_view import WinImgView
-            self.win_img_view = WinImgView(wid.src, self.path_to_wid)
+            from .img_view_win import ImgViewWin
+            self.win_img_view = ImgViewWin(wid.src, self.path_to_wid)
             self.win_img_view.move_to_wid_sig.connect(self.select_one_wid)
             self.win_img_view.center(self.window())
             self.win_img_view.show()
@@ -558,7 +558,7 @@ class Grid(UScrollArea):
             self.fav_cmd_sig.emit(("del", src))
 
     def win_info_cmd(self, src: str):
-        self.win_info = WinInfo(src)
+        self.win_info = InfoWin(src)
         self.win_info.center(self.window())
         self.win_info.show()
 
@@ -760,7 +760,7 @@ class Grid(UScrollArea):
                 return
 
         if Dynamic.files_to_copy:
-            self.win_copy = WinCopyFiles(self.main_dir)
+            self.win_copy = CopyFilesWin(self.main_dir)
             self.win_copy.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
             self.win_copy.error_win_sig.connect(self.error_win_cmd)
             self.win_copy.center(self.window())
@@ -773,7 +773,7 @@ class Grid(UScrollArea):
         self.error_win.show()
 
     def remove_files_cmd(self, urls: list[str]):
-        self.rem_win = WinRemoveFiles(self.main_dir, urls)
+        self.rem_win = RemoveFilesWin(self.main_dir, urls)
         self.rem_win.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
         self.rem_win.center(self.window())
         self.rem_win.show()

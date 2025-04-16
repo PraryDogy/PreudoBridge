@@ -14,7 +14,7 @@ class UItem(QListWidgetItem):
         self.rating: int
 
 
-class MenuTags(QListWidget):
+class TagsMenu(QListWidget):
     filter_grid_sig = pyqtSignal()
     rearrange_grid_sig = pyqtSignal()
 

@@ -9,7 +9,7 @@ from utils import Utils
 
 from ._base_widgets import UMenu
 from .actions import CopyPath, FavRemove, RevealInFinder, View
-from .win_rename import WinRename
+from .rename_win import RenameWin
 
 RENAME_T = "Переименовать"
 
@@ -30,7 +30,7 @@ class FavItem(QLabel):
         self.setContentsMargins(10, 0, 10, 0)
 
     def rename_cmd(self):
-        self.win_rename = WinRename(self.name)
+        self.win_rename = RenameWin(self.name)
         self.win_rename.finished_.connect(self.rename_finished_cmd)
         self.win_rename.center(self.window())
         self.win_rename.show()
@@ -95,7 +95,7 @@ class FavItem(QLabel):
         menu_.exec_(ev.globalPos())
 
 
-class MenuFavs(QListWidget):
+class FavsMenu(QListWidget):
     LIST_ITEM = "list_item"
     FAV_ITEM = "fav_item"
     new_history_item = pyqtSignal(str)
@@ -156,7 +156,7 @@ class MenuFavs(QListWidget):
         if src not in JsonData.favs:
             cmd_ = lambda name: self.add_to_favs_main_fin(src=src, name=name)
             name = os.path.basename(src)
-            self.win_set_name = WinRename(text=name)
+            self.win_set_name = RenameWin(text=name)
             self.win_set_name.finished_.connect(cmd_)
             self.win_set_name.center(self.window())
             self.win_set_name.show()

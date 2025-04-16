@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (QGroupBox, QHBoxLayout, QLabel, QPushButton,
 from cfg import JsonData, Static
 from utils import URunnable, UThreadPool
 
-from ._base_widgets import WinMinMaxDisabled
+from ._base_widgets import MinMaxDisabledWin
 
 LOADING_T = "Вычисляю"
 DATA_T = "Данные"
@@ -150,7 +150,7 @@ class About(QGroupBox):
         h_lay.addWidget(descr)
 
 
-class WinSettings(WinMinMaxDisabled):
+class SettingsWin(MinMaxDisabledWin):
     clear_data_clicked = pyqtSignal()
 
     def __init__(self):

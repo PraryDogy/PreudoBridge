@@ -67,7 +67,7 @@ from PyQt5.QtWidgets import QApplication, QWidget
 
 from cfg import JsonData
 from database import Dbase
-from widgets.win_main import WinMain
+from widgets.main_win import MainWin
 from utils import UThreadPool, Utils
 
 
@@ -75,7 +75,7 @@ class CustomApp(QApplication):
     def __init__(self, argv: list[str]) -> None:
         super().__init__(argv)
 
-        self.first_win = WinMain()
+        self.first_win = MainWin()
         self.first_win.show()
 
         self.aboutToQuit.connect(self.on_exit)
@@ -84,7 +84,7 @@ class CustomApp(QApplication):
     def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
         if a1.type() == QEvent.Type.ApplicationActivate:
             for i in self.topLevelWidgets():
-                if isinstance(i, WinMain):
+                if isinstance(i, MainWin):
                     i.show()
         return False
 

@@ -17,7 +17,7 @@ from ._base_widgets import UMenu, USvgSqareWidget, WinBase
 from .actions import (CopyPath, Info, OpenInApp, RatingMenu, RevealInFinder,
                       TagMenu)
 from .grid import KEY_RATING, RATINGS, Thumb
-from .win_info import WinInfo
+from .info_win import InfoWin
 
 LOADING_T = "Загрузка..."
 
@@ -279,7 +279,7 @@ class NextImageBtn(SwitchImageBtn):
         super().__init__(src=Static.NEXT_SVG, parent=parent)
 
 
-class WinImgView(WinBase):
+class ImgViewWin(WinBase):
     task_count_limit = 10
     switch_image_sig = pyqtSignal(object)
     closed_ = pyqtSignal()
@@ -422,7 +422,7 @@ class WinImgView(WinBase):
         self.next_btn.hide()
 
     def switch_img(self, offset: int):
-        if self.task_count == WinImgView.task_count_limit:
+        if self.task_count == ImgViewWin.task_count_limit:
             return
 
         try:
@@ -460,7 +460,7 @@ class WinImgView(WinBase):
         self.mouse_move_timer.start(2000)
 
     def win_info_cmd(self, src: str):
-        self.win_info = WinInfo(src)
+        self.win_info = InfoWin(src)
         self.win_info.center(self)
         self.win_info.show()
 

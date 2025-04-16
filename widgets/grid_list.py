@@ -10,7 +10,7 @@ from ._base_widgets import UMenu, UTableView
 from .actions import (ChangeViewMenu, CopyPath, FavAdd, FavRemove, Info,
                       RevealInFinder)
 from .finder_items import LoadingWid
-from .win_info import WinInfo
+from .info_win import InfoWin
 
 
 class GridList(UTableView):
@@ -75,7 +75,7 @@ class GridList(UTableView):
         ...
 
     def win_info_cmd(self, src: str):
-        self.win_info = WinInfo(src)
+        self.win_info = InfoWin(src)
         self.win_info.center(self.window())
         self.win_info.show()
 

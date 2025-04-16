@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
 from cfg import Static
 from utils import URunnable, UThreadPool
 
-from ._base_widgets import USvgSqareWidget, WinMinMaxDisabled
+from ._base_widgets import USvgSqareWidget, MinMaxDisabledWin
 
 REMOVE_T = "Удалить безвозвратно объекты"
 OK_T = "Ок"
@@ -38,7 +38,7 @@ class RemoveFilesTask(URunnable):
             ...
 
 
-class WinRemoveFiles(WinMinMaxDisabled):
+class RemoveFilesWin(MinMaxDisabledWin):
     load_st_grid_sig = pyqtSignal(tuple)
 
     def __init__(self, main_dir: str, urls: list[str]):

@@ -13,9 +13,9 @@ from database import ORDER_DICT
 from utils import PathFinder, URunnable, UThreadPool, Utils
 
 from ._base_widgets import (UFrame, ULineEdit, UMenu, USlider, USvgSqareWidget,
-                            WinMinMaxDisabled)
+                            MinMaxDisabledWin)
 from .actions import CopyPath, Info, RevealInFinder, SortMenu, View
-from .win_info import WinInfo
+from .info_win import InfoWin
 
 SORT_T = "Сортировка"
 TOTAL_T = "Всего"
@@ -71,7 +71,7 @@ class GoLineEdit(ULineEdit):
         self.clear_btn_vcenter()
 
 
-class WinGo(WinMinMaxDisabled):
+class WinGo(MinMaxDisabledWin):
     open_path_sig = pyqtSignal(str)
 
     def __init__(self):
@@ -306,7 +306,7 @@ class PathItem(QWidget):
         """
         Открывает меню информации о файле / папке
         """
-        self.win_info = WinInfo(self.src)
+        self.win_info = InfoWin(self.src)
         self.win_info.center(self.window())
         self.win_info.show()
 
@@ -485,7 +485,7 @@ class SortFrame(UFrame):
         super().leaveEvent(a0=a0)
 
 
-class BarBottom(QWidget):
+class BottomBar(QWidget):
     new_history_item = pyqtSignal(str)
     load_st_grid_sig = pyqtSignal(tuple)
     resize_grid_sig = pyqtSignal()

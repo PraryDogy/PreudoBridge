@@ -7,7 +7,7 @@ from .actions import CopyPath, FavAdd, FavRemove, RevealInFinder, View
 from ._base_widgets import UMenu
 
 
-class MenuTree(QTreeView):
+class TreeMenu(QTreeView):
     new_history_item = pyqtSignal(str)
     fav_cmd_sig = pyqtSignal(tuple)
     load_st_grid_sig = pyqtSignal(tuple)

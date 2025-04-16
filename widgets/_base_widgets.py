@@ -234,7 +234,7 @@ class WinBase(QWidget):
         self.setGeometry(geo)
 
 
-class WinMinMaxDisabled(WinBase):
+class MinMaxDisabledWin(WinBase):
     def __init__(self):
         super().__init__()
         fl = Qt.WindowType.Window | Qt.WindowType.CustomizeWindowHint

@@ -10,16 +10,16 @@ from cfg import Dynamic, JsonData, Static
 from utils import Utils
 
 from ._base_widgets import BaseItem
-from .bar_bottom import BarBottom
-from .bar_top import BarTop
+from .bottom_bar import BottomBar
+from .top_bar import TopBar
 from .grid import Grid
 from .grid_list import GridList
 from .grid_search import GridSearch
 from .grid_standart import GridStandart
-from .menu_favs import MenuFavs
-from .menu_tags import MenuTags
-from .menu_tree import MenuTree
-from .win_img_view import LoadImage
+from .favs_menu import FavsMenu
+from .tags_menu import TagsMenu
+from .tree_menu import TreeMenu
+from .img_view_win import LoadImage
 
 ARROW_UP = "\u25B2" # ▲
 
@@ -76,7 +76,7 @@ class TagsBtn(QWidget):
             self.click_cmd()
 
 
-class WinMain(QWidget):
+class MainWin(QWidget):
     resize_ms = 100
 
     def __init__(self):
@@ -119,16 +119,16 @@ class WinMain(QWidget):
         self.menu_tabs = TabsWidget()
         left_v_lay.addWidget(self.menu_tabs)
 
-        self.menu_tree = MenuTree()
+        self.menu_tree = TreeMenu()
         self.menu_tabs.addTab(self.menu_tree, "Папки")
 
-        self.menu_favs = MenuFavs()
+        self.menu_favs = FavsMenu()
         self.menu_tabs.addTab(self.menu_favs, "Избранное")
 
         self.tags_btn = TagsBtn()
         left_v_lay.addWidget(self.tags_btn)
 
-        self.menu_tags = MenuTags()
+        self.menu_tags = TagsMenu()
         left_v_lay.addWidget(self.menu_tags)
 
         self.tags_btn.click_cmd()
@@ -149,12 +149,12 @@ class WinMain(QWidget):
         self.r_lay.setSpacing(0)
         right_wid.setLayout(self.r_lay)
         
-        self.bar_top = BarTop()
+        self.bar_top = TopBar()
         # добавляем текущую директорию в историю
         self.bar_top.new_history_item_cmd(self.main_dir)
         self.r_lay.insertWidget(0, self.bar_top)
         
-        self.bar_bottom = BarBottom()
+        self.bar_bottom = BottomBar()
         # устанавливаем изначальный путь в нижний бар
         self.bar_bottom.set_new_path(self.main_dir)
         self.r_lay.insertWidget(2, self.bar_bottom)
@@ -177,7 +177,7 @@ class WinMain(QWidget):
 
     def setup_signals(self):
         self.resize_timer.timeout.connect(self.resize_timer_cmd)
-        self.splitter.splitterMoved.connect(lambda: self.resize_timer.start(WinMain.resize_ms))
+        self.splitter.splitterMoved.connect(lambda: self.resize_timer.start(MainWin.resize_ms))
 
         self.menu_tree.load_st_grid_sig.connect(lambda data: self.load_st_grid_cmd(data))
         self.menu_tree.fav_cmd_sig.connect(lambda data: self.menu_favs.fav_cmd(data))
@@ -376,14 +376,14 @@ class WinMain(QWidget):
         Dynamic.hh = self.geometry().height()
         self.scroll_up.move(self.width() - 70, self.height() - 110)
         self.resize_timer.stop()
-        self.resize_timer.start(WinMain.resize_ms)
+        self.resize_timer.start(MainWin.resize_ms)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
         active_win = QApplication.activeWindow()
         wins = [
             i
             for i in QApplication.topLevelWidgets()
-            if isinstance(i, WinMain)
+            if isinstance(i, MainWin)
         ]
 
         if len(wins) > 1:
@@ -413,7 +413,7 @@ class WinMain(QWidget):
                 wins = [
                     i
                     for i in QApplication.topLevelWidgets()
-                    if isinstance(i, WinMain)
+                    if isinstance(i, MainWin)
                 ]
 
                 if len(wins) > 1:

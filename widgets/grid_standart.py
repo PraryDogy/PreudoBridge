@@ -13,7 +13,7 @@ from ._base_widgets import BaseItem
 from .finder_items import FinderItems, LoadingWid
 from .grid import Grid, Thumb
 from .grid_tools import GridTools
-from .win_copy_files import ErrorWin, WinCopyFiles
+from .copy_files_win import ErrorWin, CopyFilesWin
 
 WARN_TEXT = "Папка пуста или нет подключения к диску"
 TASK_NAME = "LOAD_IMAGES"
@@ -261,7 +261,7 @@ class GridStandart(Grid):
                 return
 
         if Dynamic.files_to_copy:
-            self.win_copy_files_win = WinCopyFiles(self.main_dir)
+            self.win_copy_files_win = CopyFilesWin(self.main_dir)
             self.win_copy_files_win.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
             self.win_copy_files_win.error_win_sig.connect(self.error_win_cmd)
             self.win_copy_files_win.center(self.window())

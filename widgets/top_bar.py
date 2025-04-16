@@ -9,8 +9,8 @@ from PyQt5.QtWidgets import (QAction, QGroupBox, QHBoxLayout, QLabel,
 from cfg import Dynamic, JsonData, Static
 from utils import Utils
 
-from ._base_widgets import UFrame, ULineEdit, UMenu, UTextEdit, WinMinMaxDisabled
-from .win_settings import WinSettings
+from ._base_widgets import UFrame, ULineEdit, UMenu, UTextEdit, MinMaxDisabledWin
+from .settings_win import SettingsWin
 
 SEARCH_PLACE = "Место поиска:"
 LIST_FILES = "Список файлов (по одному в строке):"
@@ -47,7 +47,7 @@ class BarTopBtn(UFrame):
         return super().mouseReleaseEvent(a0)
 
 
-class ListWin(WinMinMaxDisabled):
+class ListWin(MinMaxDisabledWin):
     ok_pressed = pyqtSignal()
 
     def __init__(self):
@@ -195,7 +195,7 @@ class SearchWidget(QWidget):
         self.search_wid.setText(Static.SEARCH_LIST_TEXT)
 
 
-class BarTop(QWidget):
+class TopBar(QWidget):
     level_up = pyqtSignal()
     change_view = pyqtSignal(int)
     start_search = pyqtSignal(str)
@@ -265,8 +265,8 @@ class BarTop(QWidget):
         self.other_wins: list[QWidget] = []
 
     def new_win_cmd(self, *args):
-        from widgets.win_main import WinMain
-        new_win = WinMain()
+        from widgets.main_win import MainWin
+        new_win = MainWin()
         x, y = self.window().x(), self.window().y()
         new_win.move(x + 20, y + 20)
         new_win.show()
@@ -279,7 +279,7 @@ class BarTop(QWidget):
             print("bar top > set list win title", e)
 
     def open_settings_win(self, *args):
-        self.sett_win = WinSettings()
+        self.sett_win = SettingsWin()
         self.sett_win.clear_data_clicked.connect(self.clear_data_clicked.emit)
         self.sett_win.center(self.window())
         self.sett_win.show()
