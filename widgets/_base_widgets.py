@@ -135,6 +135,13 @@ class USvgSqareWidget(QSvgWidget):
 
 class ULineEdit(QLineEdit):
     def __init__(self):
+        """
+        Виджет однострочного ввода текста   
+        Пользовательское контекстное меню: вырезать, копировать, вставить, выделить все     
+        Кнопка "стереть" справа внутри поля ввода текста    
+        Необходимо установить фиксированную ширину виджета и вызвать
+        метод clear_btn_vcenter, чтобы кнока "стереть" заняла нужное положение
+        """
         super().__init__()
         self.setStyleSheet("padding-left: 2px; padding-right: 18px;")
         self.setFixedHeight(30)
@@ -154,6 +161,9 @@ class ULineEdit(QLineEdit):
         self.clear_btn.hide()
 
     def text_changed(self):
+        """
+        Если есть хотя бы 1 символ в поле ввода текста, будет показана кнопка "стереть"
+        """
         if self.text():
             self.clear_btn.show()
         else:
@@ -168,7 +178,7 @@ class ULineEdit(QLineEdit):
         self.clear_btn.move(x, y)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        # предотвращаем круговой импорт
+        # Предотвращаем круговой импорт, т.к. в actions.py есть импорт UMenu
         from .actions import CopyText, CutText, PasteText, TextSelectAll
 
         menu = UMenu()
@@ -192,12 +202,17 @@ class ULineEdit(QLineEdit):
 
 class UTextEdit(QTextEdit):
     def __init__(self):
+        """
+        Виджет многострочного ввода текста  
+        Пользовательское контекстное меню: вырезать, копировать, вставить, выделить все     
+        Допускается только простой текст, форматирование текста при вставке
+        будет удалено
+        """
         super().__init__()
         self.setAcceptRichText(False)
-        # self.setStyleSheet("padding-left: 2px; padding-right: 18px;")
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        # предотвращаем круговой импорт
+        # Предотвращаем круговой импорт, т.к. в actions.py есть импорт UMenu
         from .actions import CopyText, CutText, PasteText, TextSelectAll
 
         menu = UMenu()
@@ -220,34 +235,35 @@ class UTextEdit(QTextEdit):
 
 
 class UFrame(QFrame):
+    object_name = "bar_top_btn"
+
     def __init__(self):
+        """
+        Стандартный QFrame с пользовательским стилем:   
+        При наведении курсора мыши на виджет, он принимает выделенный стиль
+        """
         super().__init__()
-        self.setObjectName("bar_top_btn")
+        self.setObjectName(UFrame.object_name)
         self.setStyleSheet(
             self.normal_style()
         )
 
     def normal_style(self):
-        return f"""#bar_top_btn {{
+        return f"""#{UFrame.object_name} {{
                         background: transparent;
                 }}"""
 
     def solid_style(self):
-        return f"""#bar_top_btn {{
+        return f"""#{UFrame.object_name} {{
                         background: {Static.GRAY_GLOBAL}; 
                         border-radius: 7px;
                 }}"""
 
     def enterEvent(self, a0):
-        self.setStyleSheet(
-            self.solid_style()
-        )
+        self.setStyleSheet(self.solid_style())
 
     def leaveEvent(self, a0):
-
-        self.setStyleSheet(
-            self.normal_style()
-        )
+        self.setStyleSheet(self.normal_style())
 
 
 class WinBase(QWidget):
