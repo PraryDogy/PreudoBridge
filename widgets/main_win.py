@@ -10,7 +10,7 @@ from cfg import Dynamic, JsonData, Static
 from utils import Utils
 
 from ._base_widgets import BaseItem
-from .bottom_bar import BottomBar
+from .path_bar import PathBar
 from .top_bar import TopBar
 from .grid import Grid
 from .grid_list import GridList
@@ -154,7 +154,7 @@ class MainWin(QWidget):
         self.bar_top.new_history_item_cmd(self.main_dir)
         self.r_lay.insertWidget(0, self.bar_top)
         
-        self.bar_bottom = BottomBar()
+        self.bar_bottom = PathBar()
         # устанавливаем изначальный путь в нижний бар
         self.bar_bottom.set_new_path(self.main_dir)
         self.r_lay.insertWidget(2, self.bar_bottom)
@@ -265,7 +265,7 @@ class MainWin(QWidget):
             self.load_st_grid_cmd((self.main_dir, None))
 
     def setup_grid_signals(self):
-        self.grid.bar_bottom_update.connect(lambda data: self.bar_bottom.update_bar_cmd(data))
+        self.grid.bar_bottom_update.connect(lambda data: self.bar_bottom.update_path_bar_cmd(data))
         self.grid.fav_cmd_sig.connect(lambda data: self.menu_favs.fav_cmd(data))
         self.grid.move_slider_sig.connect(lambda value: self.bar_bottom.slider.move_slider_cmd(value))
         self.grid.load_st_grid_sig.connect(lambda data: self.load_st_grid_cmd(data))
