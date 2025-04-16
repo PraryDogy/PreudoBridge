@@ -32,6 +32,7 @@ class UMethods:
 class UScrollArea(QScrollArea, UMethods):
     new_history_item = pyqtSignal(str)
     path_bar_update = pyqtSignal(str)
+    sort_bar_update = pyqtSignal(int)
     fav_cmd_sig = pyqtSignal(tuple)
     load_st_grid_sig = pyqtSignal(tuple)
     move_slider_sig = pyqtSignal(int)
@@ -42,7 +43,8 @@ class UScrollArea(QScrollArea, UMethods):
 
 class UTableView(QTableView, UMethods):
     new_history_item = pyqtSignal(str)
-    bar_bottom_update = pyqtSignal(tuple)
+    path_bar_update = pyqtSignal(tuple)
+    sort_bar_update = pyqtSignal(int)
     fav_cmd_sig = pyqtSignal(tuple)
     load_st_grid_sig = pyqtSignal(tuple)
     move_slider_sig = pyqtSignal(int)
