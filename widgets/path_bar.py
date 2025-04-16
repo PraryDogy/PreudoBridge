@@ -210,7 +210,7 @@ class PathBar(QWidget):
         - Группа виджетов PathItem (читай описание PathItem)  
         """
         super().__init__()
-        self.setFixedHeight(20)
+        self.setFixedHeight(25)
         self.setAcceptDrops(True)
         self.current_path: str = None
 

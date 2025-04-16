@@ -17,6 +17,7 @@ from .grid_search import GridSearch
 from .grid_standart import GridStandart
 from .img_view_win import LoadImage
 from .path_bar import PathBar
+from .sort_bar import SortBar
 from .tags_menu import TagsMenu
 from .top_bar import TopBar
 from .tree_menu import TreeMenu
@@ -154,23 +155,21 @@ class MainWin(QWidget):
         self.bar_top.new_history_item_cmd(self.main_dir)
         self.r_lay.insertWidget(0, self.bar_top)
 
-        # тут будет сортбар
-        # .insertWidget(1, self.bar_top)
+        self.path_bar = PathBar()
+        # устанавливаем изначальный путь в нижний бар
+        self.path_bar.set_new_path(self.main_dir)
+        self.r_lay.insertWidget(2, self.path_bar)
 
-        # тут сетка
-        # .insertWidget(2, self.bar_top)
-
-        # 2 сепаратор
         sep = QFrame()
         sep.setStyleSheet("background: rgba(0, 0, 0, 0.2)")
         sep.setFixedHeight(1)
         self.r_lay.insertWidget(3, sep)
 
-        self.path_bar = PathBar()
-        # устанавливаем изначальный путь в нижний бар
-        self.path_bar.set_new_path(self.main_dir)
-        self.r_lay.insertWidget(4, self.path_bar)
+        # сортбар
+        self.sort_bar = SortBar()
+        self.r_lay.insertWidget(4, self.sort_bar)
 
+  
         self.scroll_up = QLabel(parent=self, text=ARROW_UP)
         self.scroll_up.hide()
         self.scroll_up.setAlignment(Qt.AlignmentFlag.AlignCenter)

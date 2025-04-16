@@ -407,14 +407,15 @@ class CustomSlider(USlider):
 class SortBar(QWidget):
     load_st_grid_sig = pyqtSignal(tuple)
     order_grid_sig = pyqtSignal()
+    resize_grid_sig = pyqtSignal()
     rearrange_grid_sig = pyqtSignal()
 
     def __init__(self):
         super().__init__()
-
+        self.setFixedHeight(25)
         self.main_lay = QHBoxLayout()
         self.main_lay.setContentsMargins(0, 0, 0, 0)
-        self.main_lay.setSpacing(10)
+        self.main_lay.setSpacing(5)
         self.setLayout(self.main_lay)
 
         self.go_to_frame = GoToBtn()
