@@ -303,7 +303,7 @@ class GoToBtn(UFrame):
             self.clicked_.emit()
 
 
-class SortMenuFrame(UFrame):
+class SortMenuBtn(UFrame):
     order_grid_sig = pyqtSignal()
     rearrange_grid_sig = pyqtSignal()
 
@@ -322,7 +322,7 @@ class SortMenuFrame(UFrame):
         self.sort_wid = QLabel()
         h_lay.addWidget(self.sort_wid)
 
-    def setup(self):
+    def set_sort_text(self):
         """
         Отображает текст на основе типа сортировки, например:   
         Сортировка: имя (по возраст.)
@@ -336,6 +336,12 @@ class SortMenuFrame(UFrame):
 
         self.sort_wid.setText(f"{SORT_T}: {order} ({rev})")
 
+    def set_total_text(self, value: int):
+        """
+        Отображает общее число виджетов в сетке
+        """
+        self.total_text.setText(f"{TOTAL_T}: {str(value)}")
+
     def mouseReleaseEvent(self, a0: QMouseEvent):
         """
         При клике на выбранный пункт меню произойдет:
@@ -346,7 +352,7 @@ class SortMenuFrame(UFrame):
         menu_ = SortMenu(self)
         menu_.order_grid_sig.connect(self.order_grid_sig.emit)
         menu_.rearrange_grid_sig.connect(self.rearrange_grid_sig.emit)
-        menu_.update_sort_bar_sig.connect(self.setup)
+        menu_.update_sort_bar_sig.connect(self.set_sort_text)
 
         widget_rect = self.rect()
         menu_size = menu_.sizeHint()
@@ -424,7 +430,7 @@ class SortBar(QWidget):
 
         self.main_lay.addStretch()
 
-        self.sort_frame = SortMenuFrame()
+        self.sort_frame = SortMenuBtn()
         self.sort_frame.order_grid_sig.connect(self.order_grid_sig.emit)
         self.sort_frame.rearrange_grid_sig.connect(self.rearrange_grid_sig.emit)
         self.main_lay.addWidget(self.sort_frame)
@@ -437,11 +443,9 @@ class SortBar(QWidget):
         self.slider.setFixedSize(70, 15)
         self.main_lay.addWidget(self.slider)
 
-    def add_total(self, value: int):
-        """
-        Отображает общее число виджетов в сетке
-        """
-        self.sort_frame.total_text.setText(f"{TOTAL_T}: {str(value)}")
+    def setup(self, value: int):
+        self.sort_frame.set_sort_text()
+        self.sort_frame.set_total_text(value)
 
     def open_go_win(self, *args):
         """

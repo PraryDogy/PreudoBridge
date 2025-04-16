@@ -169,7 +169,6 @@ class MainWin(QWidget):
         self.sort_bar = SortBar()
         self.r_lay.insertWidget(4, self.sort_bar)
 
-  
         self.scroll_up = QLabel(parent=self, text=ARROW_UP)
         self.scroll_up.hide()
         self.scroll_up.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -278,7 +277,7 @@ class MainWin(QWidget):
     def setup_grid_signals(self):
         self.grid.path_bar_update.connect(lambda dir: self.path_bar.path_bar_update_cmd(dir))
         self.grid.fav_cmd_sig.connect(lambda data: self.menu_favs.fav_cmd(data))
-        self.grid.move_slider_sig.connect(lambda value: self.path_bar.slider.move_slider_cmd(value))
+        # self.grid.move_slider_sig.connect(lambda value: self.path_bar.slider.move_slider_cmd(value))
         self.grid.load_st_grid_sig.connect(lambda data: self.load_st_grid_cmd(data))
         self.grid.verticalScrollBar().valueChanged.connect(lambda value: self.scroll_up_show_hide(value))
 
@@ -333,7 +332,6 @@ class MainWin(QWidget):
 
         self.setWindowTitle(title)
         self.menu_favs.fav_cmd(("select", self.main_dir))
-
         self.bar_top.search_wid.clear_without_signal()
 
         if self.view_index == 0:
