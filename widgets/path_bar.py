@@ -215,13 +215,14 @@ class PathBar(QWidget):
         - Группа виджетов PathItem (читай описание PathItem)  
         """
         super().__init__()
-        self.setFixedHeight(50)
+        self.setFixedHeight(20)
         self.setAcceptDrops(True)
         self.current_path: str = None
 
         self.main_lay = QHBoxLayout()
-        self.main_lay.setContentsMargins(10, 0, 10, 0)
-        self.main_lay.setSpacing(0)
+        self.main_lay.setContentsMargins(0, 0, 0, 0)
+        self.main_lay.setSpacing(5)
+        self.main_lay.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.setLayout(self.main_lay)
 
         # self.path_wid = QWidget()

@@ -265,7 +265,7 @@ class MainWin(QWidget):
             self.load_st_grid_cmd((self.main_dir, None))
 
     def setup_grid_signals(self):
-        self.grid.bar_bottom_update.connect(lambda data: self.bar_bottom.update_path_bar_cmd(data))
+        self.grid.bar_bottom_update.connect(lambda: self.bar_bottom.update_path_bar_cmd(self.main_dir))
         self.grid.fav_cmd_sig.connect(lambda data: self.menu_favs.fav_cmd(data))
         self.grid.move_slider_sig.connect(lambda value: self.bar_bottom.slider.move_slider_cmd(value))
         self.grid.load_st_grid_sig.connect(lambda data: self.load_st_grid_cmd(data))
