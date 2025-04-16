@@ -413,11 +413,12 @@ class Grid(UScrollArea):
         wid.set_frame()
         self.selected_widgets.append(wid)
         self.ensureWidgetVisible(wid)
-        self.set_bottom_path(src=wid.src)
+        self.path_bar_update_cmd(src=wid.src)
 
-    def set_bottom_path(self, src: str):
+    def path_bar_update_cmd(self, src: str):
+        print(src)
         # через таймер чтобы функция не блокировалась зажатой клавишей мыши
-        cmd_ = lambda: self.bar_bottom_update.emit((src, None))
+        cmd_ = lambda: self.path_bar_update.emit(src)
         QTimer.singleShot(100, cmd_)
     
     def order_(self):
@@ -569,7 +570,7 @@ class Grid(UScrollArea):
             for i in self.selected_widgets
         ]
 
-        self.set_bottom_path(src=wid.src)
+        self.path_bar_update_cmd(wid.src)
 
         view_action = View(menu)
         view_action.triggered.connect(lambda: self.view_thumb_cmd(wid))
@@ -643,7 +644,7 @@ class Grid(UScrollArea):
 
     def grid_context_actions(self, menu: UMenu):
 
-        self.set_bottom_path(src=self.main_dir)
+        self.path_bar_update_cmd(self.main_dir)
 
         info = Info(menu)
         info.triggered.connect(lambda: self.win_info_cmd(self.main_dir))
@@ -676,7 +677,6 @@ class Grid(UScrollArea):
         menu.addMenu(change_view)
 
         sort_menu = SortMenu(parent=menu)
-        sort_menu.bar_bottom_update.connect(self.bar_bottom_update.emit)
         sort_menu.order_grid_sig.connect(self.order_)
         sort_menu.rearrange_grid_sig.connect(self.rearrange)
         menu.addMenu(sort_menu)
@@ -908,7 +908,7 @@ class Grid(UScrollArea):
 
         if not isinstance(clicked_wid, Thumb):
             self.clear_selected_widgets()
-            self.set_bottom_path(src=self.main_dir)
+            self.path_bar_update_cmd(self.main_dir)
             return
         
         if a0.modifiers() == Qt.KeyboardModifier.ShiftModifier:
@@ -954,7 +954,7 @@ class Grid(UScrollArea):
             # комманд клик: виджет не был виделен, выделить
             else:
                 self.add_and_select_widget(wid=clicked_wid)
-                self.set_bottom_path(src=clicked_wid.src)
+                self.path_bar_update_cmd(clicked_wid.src)
 
         else:
 
@@ -1012,7 +1012,7 @@ class Grid(UScrollArea):
 
         if urls:
             self.mime_data.setUrls(urls)
-            self.set_bottom_path(wid.src)
+            self.path_bar_update_cmd(wid.src)
 
         self.drag.setMimeData(self.mime_data)
         self.drag.exec_(Qt.DropAction.CopyAction)

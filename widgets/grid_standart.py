@@ -137,7 +137,7 @@ class GridStandart(Grid):
         self.loading_lbl.hide()
         total = len(base_items)
 
-        self.bar_bottom_update.emit((self.main_dir, total))
+        self.path_bar_update.emit(self.main_dir)
         Thumb.calculate_size()
         col_count = self.get_col_count()
 

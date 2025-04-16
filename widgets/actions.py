@@ -317,7 +317,6 @@ class TextSelectAll(QAction):
 # нужно учитывать, что при изменении CACHE нужно либо очищать БД
 # или осуществлять миграцию существующих данных
 class SortMenu(UMenu):
-    bar_bottom_update = pyqtSignal(tuple)
     order_grid_sig = pyqtSignal()
     rearrange_grid_sig = pyqtSignal()
 
@@ -372,7 +371,6 @@ class SortMenu(UMenu):
         Dynamic.sort = true_name
         self.order_grid_sig.emit()
         self.rearrange_grid_sig.emit()
-        self.bar_bottom_update.emit((None, None))
 
     def cmd_revers(self, reversed: bool):
         # записываем порядок сортировки в пользовательский .json
@@ -380,7 +378,6 @@ class SortMenu(UMenu):
         # self.load_st_grid_sig.emit((None, None))
         self.order_grid_sig.emit()
         self.rearrange_grid_sig.emit()
-        self.bar_bottom_update.emit((None, None))
 
 
 # показать сетку / список - GridStandart / GridSearch / ListFileSystem

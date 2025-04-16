@@ -287,7 +287,6 @@ class SortFrame(UFrame):
         - Перетасовка сетки
         """
         menu_ = SortMenu(parent=self)
-        menu_.bar_bottom_update.connect(self.bar_bottom_update.emit)
         menu_.order_grid_sig.connect(self.order_grid_sig.emit)
         menu_.rearrange_grid_sig.connect(self.rearrange_grid_sig)
 

@@ -268,7 +268,7 @@ class GridSearch(Grid):
         self.pause_timer.timeout.connect(self.remove_pause)
         self.pause_timer.setSingleShot(True)
 
-        self.bar_bottom_update.emit((self.main_dir, self.total))
+        self.path_bar_update.emit(self.main_dir)
         Thumb.calculate_size()
 
         self.task_ = SearchFinder(self.main_dir, search_text)
@@ -314,10 +314,11 @@ class GridSearch(Grid):
             self.row += 1
  
         if self.total % 2 == 0:
-            self.bar_bottom_update.emit((None, self.total))
+            # TOTAL
+            ...
 
     def search_fin(self):
-        self.bar_bottom_update.emit((None, self.total))
+        # TOTAL
         self.top_label.hide()
 
         if not self.cell_to_wid:
