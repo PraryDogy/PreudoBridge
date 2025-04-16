@@ -27,7 +27,6 @@ GO_LINE_EDIT_W = 270
 
 
 class PathFinder:
-
     @classmethod
     def get_result(cls, path: str) -> str | None:
         path = path.strip()
@@ -130,11 +129,9 @@ class PathFinder:
         ]
         """
         new_paths = []
-
         while path != os.sep:
             new_paths.append(path)
             path, _ = os.path.split(path)
-
         return new_paths
     
 
