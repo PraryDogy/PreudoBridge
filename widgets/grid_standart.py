@@ -191,6 +191,7 @@ class GridStandart(Grid):
 
         self.order_()
         self.rearrange()
+        self.sort_bar_update.emit(len(base_items))
 
         if Dynamic.rating_filter > 0:
             self.filter_()

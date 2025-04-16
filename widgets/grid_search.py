@@ -313,12 +313,9 @@ class GridSearch(Grid):
             self.col = 0
             self.row += 1
  
-        if self.total % 2 == 0:
-            # TOTAL
-            ...
+        self.sort_bar_update.emit(self.total)
 
     def search_fin(self):
-        # TOTAL
         self.top_label.hide()
 
         if not self.cell_to_wid:
