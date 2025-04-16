@@ -678,6 +678,7 @@ class Grid(UScrollArea):
         sort_menu = SortMenu(parent=menu)
         sort_menu.order_grid_sig.connect(self.order_)
         sort_menu.rearrange_grid_sig.connect(self.rearrange)
+        sort_menu.sort_bar_update_sig.connect(self.sort_bar_update.emit)
         menu.addMenu(sort_menu)
 
         menu.addSeparator()
