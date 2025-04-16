@@ -426,7 +426,7 @@ class SortBar(QWidget):
         super().__init__()
         self.setFixedHeight(25)
         self.main_lay = QHBoxLayout()
-        self.main_lay.setContentsMargins(0, 0, 0, 0)
+        self.main_lay.setContentsMargins(0, 0, 10, 0)
         self.main_lay.setSpacing(5)
         self.setLayout(self.main_lay)
 
