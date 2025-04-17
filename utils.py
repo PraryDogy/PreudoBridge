@@ -178,7 +178,6 @@ class ReadImage(Err):
 
     @classmethod
     def read_jpg(cls, path: str) -> np.ndarray | None:
-
         try:
             img = Image.open(path)
             img = img.convert("RGB")
@@ -186,6 +185,7 @@ class ReadImage(Err):
             return img
 
         except Exception as e:
+            print("read jpg error", e)
             return None
 
     @classmethod
@@ -267,7 +267,7 @@ class ReadImage(Err):
 
             ".jpg": cls.read_jpg,
             ".jpeg": cls.read_jpg,
-            "jfif": cls.read_jpg,
+            ".jfif": cls.read_jpg,
 
             ".png": cls.read_png,
 

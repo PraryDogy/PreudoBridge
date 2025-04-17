@@ -1,9 +1,12 @@
-from database import ORDER_DICT
-from widgets._base_widgets import BaseItem
+src = "/Volumes/Macintosh HD/Users/Loshkarev/Downloads/Фото.jfif"
 
+from utils import Utils
 
-a = BaseItem("/test/file.txt", 0, 0, 0)
+a = Utils.read_image(src)
 
-for k, v in ORDER_DICT.items():
-    if not hasattr(a, k):
-        print(k)
+from PIL import Image
+import numpy as np
+# Открытие JFIF изображения
+image = Image.open(src).convert("RGB")
+img = np.array(image)
+image.show()
