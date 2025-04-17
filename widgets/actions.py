@@ -30,7 +30,6 @@ CHANGE_VIEW_LIST_T = "Список"
 TAGS_T = "Метки"
 OPEN_DEFAULT_T = "По умолчанию"
 
-
 # Общий класс для выполнения действий QAction в отдельном потоке
 class Task_(URunnable):
     def __init__(self,  cmd_: callable):
@@ -408,3 +407,9 @@ class ChangeViewMenu(UMenu):
 
         elif view_index == 1:
             list_.setChecked(True)
+
+
+class OpenInWindow(QAction):
+    text_ = "Открыть в новом окне"
+    def __init__(self, parent: UMenu):
+        super().__init__(OpenInWindow.text_, parent)
