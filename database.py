@@ -47,6 +47,7 @@ ORDER_DICT: dict[str, str] = {
     ColumnNames.SIZE : "Размер",
     ColumnNames.MOD : "Дата изменения",
     ColumnNames.RATING : "Рейтинг",
+    ColumnNames.CATALOG: "Каталог"
 }
 
 

@@ -63,12 +63,12 @@ faulthandler.enable()
 
 
 from PyQt5.QtCore import QEvent, QObject
-from PyQt5.QtWidgets import QApplication, QWidget
+from PyQt5.QtWidgets import QApplication
 
 from cfg import JsonData
-from database import Dbase
 from widgets.main_win import MainWin
-from utils import UThreadPool, Utils
+from utils import UThreadPool
+from widgets._base_widgets import BaseItem
 
 
 class CustomApp(QApplication):
@@ -95,13 +95,9 @@ class CustomApp(QApplication):
         UThreadPool.stop_all()
 
 
+BaseItem.check()
 JsonData.init()
 UThreadPool.init()
 app = CustomApp(argv=sys.argv)
-
-# win_main = WinMain()
-# app.add_main_win(main_win=win_main)
-# win_main.show()
-
 # Запуск приложения
 exit_code = app.exec()

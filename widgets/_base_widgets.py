@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QFrame, QLineEdit, QMenu, QScrollArea, QSlider,
                              QTableView, QTextEdit, QWidget)
 
 from cfg import Dynamic, Static
-from database import ColumnNames
+from database import ORDER_DICT, ColumnNames
 from utils import Utils
 
 
@@ -312,6 +312,8 @@ class BaseItem:
         - Этот экземпляр передаётся в основной поток через сигнал.
         - В основном потоке создаётся экземпляр класса Thumb (из модуля grid.py).
         - Атрибут name у Thumb устанавливается на основе значения BaseItem.name ("TEST").
+
+        Аттрибуты класса BaseItem должны соответствовать database.py > ORDER_DICT
         """
         super().__init__()
         self.src: str = src
@@ -347,6 +349,29 @@ class BaseItem:
             self.type_ = Static.FOLDER_TYPE
         else:
             _, self.type_ = os.path.splitext(self.src)
+
+    @classmethod
+    def check(cls):
+        """
+        Проверяет, содержит ли экземпляр BaseItem все атрибуты, 
+        имена которых указаны в ключах словаря ORDER_DICT.
+
+        Ключи ORDER_DICT соответствуют именам столбцов базы данных 
+        и используются для последующей сортировки по этим полям.
+        """
+        base_item = BaseItem("/no/path/file.txt", 0, 0, 0)
+        for column_name, text_name in ORDER_DICT.items():
+            if not hasattr(base_item, column_name):
+                t = [
+                    "",
+                    "", 
+                    "base_widgets.py > BaseItem",
+                    "В BaseItem не хватает аттрибута, который есть в ORDER_DICT",
+                    f"Аттрибут: {column_name}",
+                    ""
+                ]
+                error_text = "\n".join(t)
+                raise Exception (error_text)
 
     @classmethod
     def sort_items(cls, base_items: list["BaseItem"]) -> list["BaseItem"]:
