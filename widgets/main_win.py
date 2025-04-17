@@ -261,7 +261,7 @@ class MainWin(QWidget):
     def level_up_cmd(self):
         new_main_dir = os.path.dirname(self.main_dir)
         if new_main_dir != os.sep:
-            self.load_st_grid_cmd((new_main_dir, None))
+            self.load_st_grid_cmd((new_main_dir, self.main_dir))
             self.bar_top.new_history_item_cmd(new_main_dir)
             self.main_dir = new_main_dir
 
