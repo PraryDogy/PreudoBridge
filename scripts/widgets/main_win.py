@@ -109,6 +109,7 @@ class MainWin(QWidget):
         self.setLayout(main_lay)
 
         self.splitter = QSplitter()
+        self.splitter.setHandleWidth(12)
         main_lay.addWidget(self.splitter)
 
         left_wid = QWidget()
