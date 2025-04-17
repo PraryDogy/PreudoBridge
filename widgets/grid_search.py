@@ -149,7 +149,6 @@ class SearchFinder(URunnable):
                     self.process_img(entry=entry)
 
     def process_img(self, entry: os.DirEntry):
-        stat = entry.stat()
         img_array = Utils.read_image(path=entry.path)
         img_array = FitImg.start(
             image=img_array,
@@ -157,16 +156,14 @@ class SearchFinder(URunnable):
         )
         pixmap = Utils.pixmap_from_array(image=img_array)
         del img_array
-        base_item = BaseItem(
-            src=entry.path,
-            size=stat.st_size,
-            mod=stat.st_mtime,
-            rating=0
-        )
+
+        base_item = BaseItem(entry.path, 0)
         base_item.set_src()
         base_item.set_name()
         base_item.set_file_type()
+        base_item.set_stat()
         base_item.set_pixmap_storage(pixmap)
+
         try:
             self.signals_.new_widget.emit(base_item)
         except Exception as e:

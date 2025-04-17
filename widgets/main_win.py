@@ -245,10 +245,11 @@ class MainWin(QWidget):
         self.sort_bar.load_st_grid_sig.connect(lambda data: self.load_st_grid_cmd(data))
 
     def open_img_view_cmd(self, path: str):
-        base_item = BaseItem(path, 0, 0, 0)
+        base_item = BaseItem(path, 0)
         base_item.set_src()
         base_item.set_name()
         base_item.set_file_type()
+        base_item.set_stat()
         self.grid.view_thumb_cmd(base_item)
 
     def remove_db_cmd(self):

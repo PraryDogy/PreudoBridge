@@ -170,10 +170,11 @@ class InfoWin(MinMaxDisabledWin):
         self.setLayout(self.grid_layout)
 
         row = 0
-        base_item = BaseItem(self.src, 0, 0, 0)
+        base_item = BaseItem(self.src, 0)
         base_item.set_src()
         base_item.set_name()
         base_item.set_file_type()
+        base_item.set_stat()
         info_ = InfoTask(base_item)
         info_ = info_.get()
 
