@@ -86,10 +86,7 @@ class FinderItems(URunnable):
                 size = stats.st_size
                 mod = stats.st_mtime
                 item = BaseItem(entry.path, 0)
-                item.set_src()
-                item.set_name()
-                item.set_file_type()
-                item.set_stat()
+                item.setup()
                 base_items.append(item)
         return base_items
 
@@ -101,10 +98,7 @@ class FinderItems(URunnable):
                     continue
                 if entry.is_dir() or entry.name.endswith(Static.IMG_EXT):
                     item = BaseItem(entry.path, 0)
-                    item.set_src()
-                    item.set_name()
-                    item.set_file_type()
-                    item.set_stat()
+                    item.setup()
                     base_items.append(item)
         return base_items, []
 

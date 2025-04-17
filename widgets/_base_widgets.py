@@ -323,10 +323,7 @@ class BaseItem:
     def __init__(self, src: str, rating: int):
         """
         Обязательные параметры для инициализации: 
-        - set_src
-        - set_name
-        - set_file_type
-        - set_stat
+        - setup()
 
         Базовый виджет, предшественник grid.py > Thumb.
         Используется для передачи данных между потоками и функциями.
@@ -343,13 +340,12 @@ class BaseItem:
         """
         super().__init__()
         self.src: str = src
+        self.name: str = None
+        self.type_: str = None
         self.rating: int = rating
-
-        self.size: int = None
         self.mod: int = None
         self.birth: int = None
-        self.type_: str = None
-        self.name: str = None
+        self.size: int = None
         self.pixmap_storage: QPixmap = None
 
     def set_pixmap_storage(self, pixmap: QPixmap):
@@ -364,19 +360,13 @@ class BaseItem:
         """
         return self.pixmap_storage
 
-    def set_src(self):
+    def setup(self):
         self.src = Utils.normalize_slash(self.src)
-
-    def set_name(self):
         self.name = os.path.basename(self.src)
-
-    def set_file_type(self):  
         if os.path.isdir(self.src):
             self.type_ = Static.FOLDER_TYPE
         else:
             _, self.type_ = os.path.splitext(self.src)
-
-    def set_stat(self):
         stat = os.stat(self.src)
         self.mod = stat.st_mtime
         self.birth = stat.st_birthtime
