@@ -89,10 +89,13 @@ class CustomApp(QApplication):
         return False
 
     def on_exit(self):
-        # предотвращаем segmentation fault
-        self.first_win.user_exit()
-        JsonData.write_config()
-        UThreadPool.stop_all()
+        try:
+            # предотвращаем segmentation fault
+            self.first_win.user_exit()
+            JsonData.write_config()
+            UThreadPool.stop_all()
+        except Exception as e:
+            print("start > on exit", e)
 
 
 BaseItem.check()

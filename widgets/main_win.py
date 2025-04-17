@@ -393,7 +393,6 @@ class MainWin(QWidget):
         self.resize_timer.start(MainWin.resize_ms)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
-        active_win = QApplication.activeWindow()
         wins = [
             i
             for i in QApplication.topLevelWidgets()
@@ -401,7 +400,7 @@ class MainWin(QWidget):
         ]
 
         if len(wins) > 1:
-            active_win.deleteLater()
+            self.deleteLater()
         else:
             self.hide()
             a0.ignore()
@@ -423,17 +422,18 @@ class MainWin(QWidget):
                 self.bar_top.search_wid.search_wid.selectAll()
 
             elif a0.key() == Qt.Key.Key_W:
-                active_win = QApplication.activeWindow()
-                wins = [
-                    i
-                    for i in QApplication.topLevelWidgets()
-                    if isinstance(i, MainWin)
-                ]
+                self.close()
+                # active_win = QApplication.activeWindow()
+                # wins = [
+                #     i
+                #     for i in QApplication.topLevelWidgets()
+                #     if isinstance(i, MainWin)
+                # ]
 
-                if len(wins) > 1:
-                    active_win.deleteLater()
-                else:
-                    self.hide()
+                # if len(wins) > 1:
+                #     active_win.deleteLater()
+                # else:
+                #     self.hide()
 
             elif a0.key() == Qt.Key.Key_Q:
                 QApplication.instance().quit()
