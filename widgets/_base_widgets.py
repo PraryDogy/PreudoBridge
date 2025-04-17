@@ -348,13 +348,6 @@ class BaseItem:
         else:
             _, self.type_ = os.path.splitext(self.src)
 
-    # Как работает сортировка:
-    # пользователь выбрал сортировку "по размеру"
-    # в Dynamic в аттрибут "sort" записывается значение "size"
-    # CACHE колонка имеет имя "size"
-    # OrderItem имеет аттрибут "size"
-    # на основе аттрибута "size" происходит сортировка списка из OrderItem
-
     @classmethod
     def sort_items(cls, base_items: list["BaseItem"]) -> list["BaseItem"]:
         """
