@@ -47,6 +47,7 @@ class UScrollArea(QScrollArea, UMethods):
         Базовый виджет с необходимыми сигналами для GridSearch и GridStandart
         """
         super().__init__()
+        self.setStyleSheet("QScrollArea { border: none; }")
 
 
 class UTableView(QTableView, UMethods):
