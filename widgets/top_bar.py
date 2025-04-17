@@ -70,6 +70,7 @@ class ListWin(MinMaxDisabledWin):
         first_lay.addWidget(self.path_label)
 
         self.checkbox = QCheckBox(" Точное соответствие")
+        self.checkbox.setChecked(Dynamic.EXACT_SEARCH)
         self.checkbox.stateChanged.connect(self.on_state_change)
         v_lay.addWidget(self.checkbox)
 
