@@ -278,45 +278,12 @@ class PathBar(QWidget):
                     icon = Utils.get_generic_icon_path(ext)
                 last_item.img_wid.load(icon)
 
+            text_ = last_item.text_wid.text()
+            if len(text_) > PathBar.last_item_limit:
+                path_item.text_wid.setText(text_[:PathBar.last_item_limit] + "...")
+
             last_item.del_arrow()
             last_item.expand()
             last_item.enterEvent = lambda *args, **kwargs: None
             last_item.leaveEvent = lambda *args, **kwargs: None
-
-            if len(name) > PathBar.last_item_limit:
-                path_item.text_wid.setText(name[:PathBar.last_item_limit] + "...")
-
-
-
-
-            # if x == 1:
-            #     icon = Static.COMP_SVG
-            #     path_item.add_arrow()
-
-            # elif x == 2:
-            #     icon = Static.HDD_SVG
-            #     path_item.add_arrow()
-
-            # elif x == len(root):
-            #     if os.path.isdir(dir):
-            #         icon = Static.FOLDER_SVG
-            #     else:
-            #         _, ext = os.path.splitext(dir)
-            #         icon = Utils.get_generic_icon_path(ext)
-
-            #     if len(name) > limit:
-            #         path_item.text_wid.setText(name[:limit] + "...")
-
-            #     # последний элемент показывать в полный размер
-            #     path_item.expand()
-            #     # отключаем функции схлопывания и развертывания
-            #     path_item.enterEvent = lambda *args, **kwargs: None
-            #     path_item.leaveEvent = lambda *args, **kwargs: None
-
-            # else:
-            #     icon = Static.FOLDER_SVG
-            #     path_item.add_arrow()
-
-            # path_item.img_wid.load(icon)
-
 
