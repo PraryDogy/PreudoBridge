@@ -796,12 +796,11 @@ class Grid(UScrollArea):
 
             if a0.key() == Qt.Key.Key_Up:
 
-                old_root = self.main_dir
                 root = os.path.dirname(self.main_dir)
 
                 if root != os.sep:
                     self.new_history_item.emit(root)
-                    self.load_st_grid_sig.emit((root, old_root))
+                    self.load_st_grid_sig.emit((root, None))
 
             elif a0.key() == Qt.Key.Key_Down:
                 if self.selected_widgets:

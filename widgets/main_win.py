@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
 from cfg import Dynamic, JsonData, Static
 from utils import Utils
 
-from ._base_widgets import BaseItem
+from ._base_widgets import BaseItem, USep
 from .favs_menu import FavsMenu
 from .grid import Grid
 from .grid_list import GridList
@@ -79,6 +79,7 @@ class TagsBtn(QWidget):
 
 class MainWin(QWidget):
     resize_ms = 100
+    grid_insert_num = 2
 
     def __init__(self, dir: str = None):
         super().__init__()
@@ -101,11 +102,6 @@ class MainWin(QWidget):
         
         self.resize_timer = QTimer(parent=self)
         self.resize_timer.setSingleShot(True)
-
-        # инициируем пустую сетку, чтобы работали все методы сетки, например
-        # grid.close(), и не пришлось бы каждый раз проверять
-        # if hasattr(self, "grid")
-        self.grid: Grid = Grid(self.main_dir, self.view_index, None)
 
         main_lay = QHBoxLayout()
         main_lay.setContentsMargins(5, 0, 5, 0)
@@ -160,19 +156,29 @@ class MainWin(QWidget):
         self.bar_top.new_history_item_cmd(self.main_dir)
         self.r_lay.insertWidget(0, self.bar_top)
 
+        sep_one = USep()
+        self.r_lay.insertWidget(1, sep_one)
+
+        # инициируем пустую сетку, чтобы работали все методы сетки, например
+        # grid.close(), и не пришлось бы каждый раз проверять
+        # if hasattr(self, "grid")
+        self.grid: Grid = Grid(self.main_dir, self.view_index, None)
+        self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
+
+        sep_two = USep()
+        self.r_lay.insertWidget(3, sep_two)
+
         self.path_bar = PathBar()
         # устанавливаем изначальный путь в нижний бар
         self.path_bar.set_new_path(self.main_dir)
-        self.r_lay.insertWidget(2, self.path_bar)
+        self.r_lay.insertWidget(4, self.path_bar)
 
-        sep = QFrame()
-        sep.setStyleSheet("background: rgba(0, 0, 0, 0.2)")
-        sep.setFixedHeight(1)
-        self.r_lay.insertWidget(3, sep)
+        sep = USep()
+        self.r_lay.insertWidget(5, sep)
 
         # сортбар
         self.sort_bar = SortBar()
-        self.r_lay.insertWidget(4, self.sort_bar)
+        self.r_lay.insertWidget(6, self.sort_bar)
 
         self.scroll_up = QLabel(parent=self, text=ARROW_UP)
         self.scroll_up.hide()
@@ -307,7 +313,7 @@ class MainWin(QWidget):
         self.grid = GridSearch(self.main_dir, self.view_index, None, search_text)
         # нужно сразу добавлять в окно, чтобы у виджета появился родитель
         # тогда во всех эвентах правильно сработает self.grid.window()
-        self.r_lay.insertWidget(1, self.grid)
+        self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
         self.setup_grid_signals()
         self.window().raise_()
         self.grid.setFocus()
@@ -362,7 +368,7 @@ class MainWin(QWidget):
 
         # нужно сразу добавлять в окно, чтобы у виджета появился родитель
         # тогда во всех эвентах правильно сработает self.grid.window()
-        self.r_lay.insertWidget(1, self.grid)
+        self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
         self.setup_grid_signals()
         self.grid.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
         self.grid.change_view_sig.connect(lambda index: self.change_view_cmd(index))

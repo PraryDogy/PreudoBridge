@@ -454,3 +454,10 @@ class BaseItem:
         Например: "123 Te99st33" → 123
         """
         return int(re.match(r'^\d+', base_item.name).group())
+    
+
+class USep(QFrame):
+    def __init__(self):
+        super().__init__()
+        self.setStyleSheet("background: rgba(0, 0, 0, 0.2)")
+        self.setFixedHeight(1)
