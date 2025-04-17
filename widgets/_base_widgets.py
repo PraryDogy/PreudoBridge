@@ -408,12 +408,10 @@ class BaseItem:
 
         if attr == Sort.name:
 
-            # сортировка по имени:
-            # создаем список элементов, у которых в начале числовые символы
-            # и список элементов, у которых в начале нечисловые символы
-            # сортируем каждый список по отдельности
-            # возвращаем объединенный список
-
+            # Особый случай: сортировка по имени
+            # Разделяем элементы на две группы:
+            # - те, чьё имя начинается с цифры (nums)
+            # - все остальные (abc)
             nums: list[BaseItem] = []
             abc: list[BaseItem] = []
 
@@ -425,29 +423,28 @@ class BaseItem:
                 else:
                     abc.append(i)
 
-            # сортировка по числам
+            # Сортировка числовых имён по значению начальных цифр
             key_num = lambda base_item: cls.get_nums(base_item)
 
-            # сортировка а-я
+            # Сортировка остальных по алфавиту (по атрибуту 'name')
             key_abc = lambda base_item: getattr(base_item, attr)
 
             nums.sort(key=key_num, reverse=rev)
             abc.sort(key=key_abc, reverse=rev)
 
+            # Объединяем отсортированные списки: сначала числовые, потом буквенные
             return [*nums, *abc]
 
         else:
-
+            # Обычная сортировка по значению заданного атрибута
             key = lambda base_item: getattr(base_item, attr)
             base_items.sort(key=key, reverse=rev)
             return base_items
 
-    # извлекаем начальные числа из base_item.name
-    # по которым будет сортировка, например: "123 Te99st33" > 123
-    # re.match ищет числа до первого нечислового символа
     @classmethod
     def get_nums(cls, base_item: "BaseItem"):
-
-        return int(
-            re.match(r'^\d+', base_item.name).group()
-        )
+        """
+        Извлекает начальные числа из имени base_item для числовой сортировки.
+        Например: "123 Te99st33" → 123
+        """
+        return int(re.match(r'^\d+', base_item.name).group())
