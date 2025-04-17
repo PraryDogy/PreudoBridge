@@ -9,7 +9,7 @@ from utils import URunnable, UThreadPool
 
 from ._base_widgets import USvgSqareWidget, MinMaxDisabledWin
 
-REMOVE_T = "Удалить безвозвратно объекты"
+REMOVE_T = "Переместить в корзину объекты"
 OK_T = "Ок"
 CANCEL_T = "Отмена"
 ATTENTION_T = "Внимание!"
