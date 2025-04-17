@@ -322,8 +322,8 @@ class Sort:
 class BaseItem:
     def __init__(self, src: str, rating: int):
         """
-        Обязательные параметры для инициализации: 
-        - setup()
+        Желательные параметры для инициализации: 
+        - setup
 
         Базовый виджет, предшественник grid.py > Thumb.
         Используется для передачи данных между потоками и функциями.
@@ -361,6 +361,9 @@ class BaseItem:
         return self.pixmap_storage
 
     def setup(self):
+        """
+        Устанавливает параметры: src, name, type_, mod, birth, size
+        """
         self.src = Utils.normalize_slash(self.src)
         self.name = os.path.basename(self.src)
         if os.path.isdir(self.src):

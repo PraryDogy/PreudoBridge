@@ -79,12 +79,6 @@ class FinderItems(URunnable):
             for entry in entries:
                 if entry.name.startswith("."):
                     continue
-                try:
-                    stats = entry.stat()
-                except Exception:
-                    continue
-                size = stats.st_size
-                mod = stats.st_mtime
                 item = BaseItem(entry.path, 0)
                 item.setup()
                 base_items.append(item)

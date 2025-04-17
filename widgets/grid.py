@@ -198,15 +198,14 @@ class Thumb(BaseItem, QFrame):
     img_obj_name = "img_frame"
     text_obj_name = "text_frame_"
 
-    def __init__(self, src: str, size: int, mod: int, rating: int):
+    def __init__(self, src: str, rating: int):
         """
         Обязательно задать параметры:   
-        set_src, set_name, set_file_type,   
-        setup_child_widgets, set_no_frame 
+        setup, setup_child_widgets, set_no_frame 
         """
 
         QFrame.__init__(self, parent=None)
-        BaseItem.__init__(self, src=src, size=size, mod=mod, rating=rating)
+        BaseItem.__init__(self, src, rating)
 
         self.img: QPixmap = None
         self.must_hidden: bool = False

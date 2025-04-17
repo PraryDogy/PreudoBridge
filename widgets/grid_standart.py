@@ -161,10 +161,8 @@ class GridStandart(Grid):
 
         for base_item in base_items:
 
-            thumb = Thumb(base_item.src, base_item.size, base_item.mod, base_item.rating)
+            thumb = Thumb(base_item.src, base_item.rating)
             thumb.setup()
-            thumb.set_name()
-            thumb.set_file_type()
             thumb.setup_child_widgets()
             thumb.set_no_frame()
 
