@@ -14,6 +14,7 @@ class Static:
     USER_APPS_DIR = "/Applications"
 
     REVEAL_SCPT = os.path.join(SCRIPTS_DIR, "reveal_files.scpt")
+    REMOVE_FILES_SCPT = os.path.join(SCRIPTS_DIR, "remove_files.scpt")
 
     IMAGES_DIR = "images"
     IMG_SVG = os.path.join(IMAGES_DIR, "img.svg")

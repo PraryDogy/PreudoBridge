@@ -30,8 +30,10 @@ class RemoveFilesTask(URunnable):
     @URunnable.set_running_state
     def run(self):
         try:
-            subprocess.run(["rm", "-rf"] + self.urls, check=True)
-            self.signals_.load_st_grid_sig.emit((self.main_dir, None))
+            command = ["osascript", Static.REMOVE_FILES_SCPT] + self.urls
+            subprocess.run(command)
+            # subprocess.run(["rm", "-rf"] + self.urls, check=True)
+            # self.signals_.load_st_grid_sig.emit((self.main_dir, None))
             self.signals_.finished_.emit()
 
         except Exception as e:
@@ -40,6 +42,7 @@ class RemoveFilesTask(URunnable):
 
 class RemoveFilesWin(MinMaxDisabledWin):
     load_st_grid_sig = pyqtSignal(tuple)
+    removed_widgets = pyqtSignal(list)
 
     def __init__(self, main_dir: str, urls: list[str]):
         super().__init__()
@@ -87,7 +90,7 @@ class RemoveFilesWin(MinMaxDisabledWin):
 
     def cmd_(self, *args):
         self.task_ = RemoveFilesTask(self.main_dir, self.urls)
-        self.task_.signals_.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
+        # self.task_.signals_.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
         self.task_.signals_.finished_.connect(self.finalize)
         UThreadPool.start(runnable=self.task_)
 
