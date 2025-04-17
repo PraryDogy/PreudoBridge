@@ -779,9 +779,26 @@ class Grid(UScrollArea):
 
     def remove_files_cmd(self, urls: list[str]):
         self.rem_win = RemoveFilesWin(self.main_dir, urls)
-        self.rem_win.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
+        self.rem_win.finished_.connect(lambda urls: self.remove_files_fin(urls))
         self.rem_win.center(self.window())
         self.rem_win.show()
+
+    def remove_files_fin(self, urls: list[str]):
+        for i in urls:
+            thumb = self.path_to_wid.get(i)
+            if thumb:
+                # удаляем виджет из сетки координат
+                self.cell_to_wid.pop((thumb.row, thumb.col))
+                # удаляем виджет из списка путей
+                self.path_to_wid.pop(i)
+                # удаляем из сортированных виджетов
+                self.ordered_widgets.remove(thumb)
+                # удаляем из выделенных виджетов
+                self.selected_widgets.remove(thumb)
+                # уничтожаем виджет
+                thumb.deleteLater()
+
+        self.rearrange()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         clicked_wid: Thumb

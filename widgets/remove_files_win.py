@@ -42,7 +42,7 @@ class RemoveFilesTask(URunnable):
 
 class RemoveFilesWin(MinMaxDisabledWin):
     load_st_grid_sig = pyqtSignal(tuple)
-    removed_widgets = pyqtSignal(list)
+    finished_ = pyqtSignal(list)
 
     def __init__(self, main_dir: str, urls: list[str]):
         super().__init__()
@@ -95,6 +95,7 @@ class RemoveFilesWin(MinMaxDisabledWin):
         UThreadPool.start(runnable=self.task_)
 
     def finalize(self, *args):
+        self.finished_.emit(self.urls)
         del self.task_
         self.close()
 
