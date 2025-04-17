@@ -351,7 +351,7 @@ class SortMenu(UMenu):
         # text_name - текстовое обозначение колонки CACHE, основанное на
         # комментарии колонки (CACHE.column.comment)
         # смотри database.py > CACHE
-        for true_name, text_name in Sort.order_dict.items():
+        for true_name, text_name in Sort.items.items():
 
             action_ = QAction(text_name, self)
             action_.setCheckable(True)

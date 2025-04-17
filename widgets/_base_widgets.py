@@ -297,12 +297,18 @@ class MinMaxDisabledWin(WinBase):
 
 
 class Sort:
-    order_dict: dict[str, str] = {
-        "name" : "Имя",
-        "type_" : "Тип",
-        "size" : "Размер",
-        "mod" : "Дата изменения",
-        "rating" : "Рейтинг"
+    name = "name"
+    type_ = "type_"
+    size = "size"
+    mod = "mod"
+    rating = "rating"
+
+    items: dict[str, str] = {
+        name : "Имя",
+        type_ : "Тип",
+        size : "Размер",
+        mod : "Дата изменения",
+        rating : "Рейтинг"
     }
 
 
@@ -322,6 +328,9 @@ class BaseItem:
         - Этот экземпляр передаётся в основной поток через сигнал.
         - В основном потоке создаётся экземпляр класса Thumb (из модуля grid.py).
         - Атрибут name у Thumb устанавливается на основе значения BaseItem.name ("TEST").
+
+        В BaseItem обязаны присутствовать все аттрибуты, соответствующие
+        ключам Sort.items
         """
         super().__init__()
         self.src: str = src
@@ -362,19 +371,19 @@ class BaseItem:
     def check(cls):
         """
         Проверяет, содержит ли экземпляр BaseItem все атрибуты, 
-        имена которых указаны в ключах словаря ORDER_DICT.
+        имена которых указаны в ключах словаря Sort.items.
 
-        Ключи ORDER_DICT соответствуют именам столбцов базы данных 
-        и используются для последующей сортировки по этим полям.
+        Это необходимо для корректной сортировки, так как она выполняется 
+        по атрибутам, соответствующим ключам Sort.items.
         """
         base_item = BaseItem("/no/path/file.txt", 0, 0, 0)
-        for column_name, _ in Sort.order_dict.items():
+        for column_name, _ in Sort.items.items():
             if not hasattr(base_item, column_name):
                 t = [
                     "",
                     "", 
                     "base_widgets.py > BaseItem",
-                    "В BaseItem не хватает аттрибута, который есть в ORDER_DICT",
+                    "В BaseItem не хватает аттрибута из Sort.items",
                     f"Аттрибут: {column_name}",
                     ""
                 ]
@@ -384,21 +393,20 @@ class BaseItem:
     @classmethod
     def sort_items(cls, base_items: list["BaseItem"]) -> list["BaseItem"]:
         """
-        Сортировка списка BaseItem по заданному аттрибуту BaseItem.
-        Например:
-        - Пользователь выбрал в меню тип сортировки "По размеру" из меню
-        actions.py > SortMenu
-        - SortMenu строится на основе ORDER_DICT из database.py, где
-        ключ: имя столбца базы данных, значение: текстовое отображение ключа
-        - Например значение "По размеру" соответствует ключу "size", который
-        является именем столбца "size" в базе данных
-        - В BaseItem есть все аттрибуты, соответствующие ключам 
+        Выполняет сортировку списка объектов BaseItem по заданному атрибуту.
+
+        Пример:
+        - Пользователь выбирает тип сортировки, например "По размеру", в меню SortMenu (actions.py).
+        - SortMenu формируется на основе словаря Sort.items.
+        - Выбранный пункт "По размеру" соответствует ключу "size" в Sort.items.
+        - Ключ "size" — это имя атрибута в классе BaseItem.
+        - Таким образом, сортировка осуществляется по значению атрибута "size" у объектов BaseItem.
         """
         
         attr = Dynamic.sort
         rev = Dynamic.rev
 
-        if attr == ColumnNames.NAME:
+        if attr == Sort.name:
 
             # сортировка по имени:
             # создаем список элементов, у которых в начале числовые символы
@@ -417,10 +425,10 @@ class BaseItem:
                 else:
                     abc.append(i)
 
-            # сортировка по числам в начале OrderItem.name
+            # сортировка по числам
             key_num = lambda base_item: cls.get_nums(base_item)
 
-            # сортировка по OrderItem.name
+            # сортировка а-я
             key_abc = lambda base_item: getattr(base_item, attr)
 
             nums.sort(key=key_num, reverse=rev)

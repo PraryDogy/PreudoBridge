@@ -333,7 +333,7 @@ class SortMenuBtn(UFrame):
         Сортировка: имя (по возраст.)
         """
         # получаем текстовое имя сортировки на основе внутреннего имени сортировки
-        order = Sort.order_dict.get(Dynamic.sort)
+        order = Sort.items.get(Dynamic.sort)
         order = order.lower()
 
         # получаем текстовое имя обратной или прямой сортировки
