@@ -201,6 +201,7 @@ class MainWin(QWidget):
         self.menu_favs.set_main_dir_sig.connect(lambda: self.menu_favs.set_main_dir(self.main_dir))
         self.menu_favs.load_st_grid_sig.connect(lambda data: self.load_st_grid_cmd(data))
         self.menu_favs.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
+        self.menu_favs.open_in_new_win.connect(lambda dir: self.open_in_new_window_cmd(dir))
 
         self.tags_btn.clicked_.connect(lambda: self.tags_btn_cmd())
 

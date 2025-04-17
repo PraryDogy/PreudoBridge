@@ -4,11 +4,11 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QDropEvent, QMouseEvent
 from PyQt5.QtWidgets import QAction, QLabel, QListWidget, QListWidgetItem
 
-from cfg import JsonData, Static
+from cfg import JsonData
 from utils import Utils
 
 from ._base_widgets import UMenu
-from .actions import CopyPath, FavRemove, RevealInFinder, View
+from .actions import CopyPath, FavRemove, OpenInWindow, RevealInFinder, View
 from .rename_win import RenameWin
 
 RENAME_T = "Переименовать"
@@ -20,6 +20,7 @@ class FavItem(QLabel):
     path_changed = pyqtSignal()
     new_history_item = pyqtSignal(str)
     load_st_grid_sig = pyqtSignal(tuple)
+    open_in_new_win = pyqtSignal(str)
 
     def __init__(self, name: str, src: str):
         super().__init__(text=name)
@@ -73,6 +74,10 @@ class FavItem(QLabel):
         view_ac.triggered.connect(self.view_fav)
         menu_.addAction(view_ac)
 
+        open_new_win = OpenInWindow(menu_)
+        open_new_win.triggered.connect(lambda: self.open_in_new_win.emit(self.src))
+        menu_.addAction(open_new_win)
+
         open_finder_action = RevealInFinder(menu_, self.src)
         menu_.addAction(open_finder_action)
 
@@ -101,6 +106,7 @@ class FavsMenu(QListWidget):
     new_history_item = pyqtSignal(str)
     load_st_grid_sig = pyqtSignal(tuple)
     set_main_dir_sig = pyqtSignal()
+    open_in_new_win = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -174,9 +180,8 @@ class FavsMenu(QListWidget):
         fav_item = FavItem(name, src)
         fav_item.new_history_item.connect(self.new_history_item)
         fav_item.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
-        fav_item.remove_fav_item.connect(
-            lambda: self.del_item(src)
-        )
+        fav_item.remove_fav_item.connect(lambda: self.del_item(src))
+        fav_item.open_in_new_win.connect(lambda dir: self.open_in_new_win.emit(dir))
         fav_item.renamed.connect(
             lambda new_name: self.update_name(src, new_name)
         )
