@@ -299,8 +299,19 @@ class MinMaxDisabledWin(WinBase):
 class BaseItem:
     def __init__(self, src: str, size: int, mod: int, rating: int):
         """
-        Обязательно задать параметры:   
-        set_src, set_name, set_file_type    
+        Обязательные параметры для инициализации: 
+        - set_src
+        - set_name
+        - set_file_type
+
+        Базовый виджет, предшественник grid.py > Thumb.
+        Используется для передачи данных между потоками и функциями.
+
+        Пример использования:
+        - В дополнительном потоке создаётся экземпляр класса BaseItem, которому присваивается имя "TEST" через атрибут name.
+        - Этот экземпляр передаётся в основной поток через сигнал.
+        - В основном потоке создаётся экземпляр класса Thumb (из модуля grid.py).
+        - Атрибут name у Thumb устанавливается на основе значения BaseItem.name ("TEST").
         """
         super().__init__()
         self.src: str = src
@@ -315,15 +326,13 @@ class BaseItem:
 
     def set_pixmap_storage(self, pixmap: QPixmap):
         """
-        Данный аттрибут нужен для обмена QPixmap между родительским BaseItem
-        и наследуемым классом
+        Сохраняет QPixmap, переданный, например, из дополнительного потока в основной.
         """
         self.pixmap_storage = pixmap
 
     def get_pixmap_storage(self):
         """
-        Данный аттрибут нужен для обмена QPixmap между родительским BaseItem
-        и наследуемым классом
+        Возвращает ранее сохранённый QPixmap.
         """
         return self.pixmap_storage
 
@@ -333,9 +342,7 @@ class BaseItem:
     def set_name(self):
         self.name = os.path.basename(self.src)
 
-    def set_file_type(self):
-        # Проверка: если путь ведёт к директории, то задаём тип FOLDER_TYPE.
-        # Иначе определяем тип по расширению файла (например, ".txt").    
+    def set_file_type(self):  
         if os.path.isdir(self.src):
             self.type_ = Static.FOLDER_TYPE
         else:
@@ -350,6 +357,17 @@ class BaseItem:
 
     @classmethod
     def sort_items(cls, base_items: list["BaseItem"]) -> list["BaseItem"]:
+        """
+        Сортировка списка BaseItem по заданному аттрибуту BaseItem.
+        Например:
+        - Пользователь выбрал в меню тип сортировки "По размеру" из меню
+        actions.py > SortMenu
+        - SortMenu строится на основе ORDER_DICT из database.py, где
+        ключ: имя столбца базы данных, значение: текстовое отображение ключа
+        - Например значение "По размеру" соответствует ключу "size", который
+        является именем столбца "size" в базе данных
+        - 
+        """
         
         attr = Dynamic.sort
         rev = Dynamic.rev
