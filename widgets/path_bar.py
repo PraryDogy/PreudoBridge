@@ -28,7 +28,7 @@ class PathItem(QWidget):
     load_st_grid_sig = pyqtSignal(tuple)
     open_img_view = pyqtSignal(str)
 
-    def __init__(self, src: str, name: str):
+    def __init__(self, dir: str, name: str):
         """
         Этот виджет - часть группы виджетов PathItem, которые в сумме отображают
         указанный путь  
@@ -42,7 +42,7 @@ class PathItem(QWidget):
         """
         super().__init__()
         self.setFixedHeight(15)
-        self.src = src
+        self.dir = dir
 
         item_layout = QHBoxLayout()
         item_layout.setContentsMargins(0, 0, 0, 0)
@@ -63,6 +63,13 @@ class PathItem(QWidget):
         t = self.text_wid.text() + " " + ARROW_RIGHT
         self.text_wid.setText(t)
 
+    def del_arrow(self):
+        """
+        Удаляет ">"
+        """
+        t = self.text_wid.text().replace(ARROW_RIGHT, "")
+        self.text_wid.setText(t)
+
     def expand(self):
         """
         Показывает виджет в полную длину
@@ -76,11 +83,11 @@ class PathItem(QWidget):
         Для файлов будет открыт просмотрщик     
         Для папок будет загружена новая сетка с указанной директорией
         """
-        if os.path.isfile(self.src):
-            self.open_img_view.emit(self.src)
+        if os.path.isfile(self.dir):
+            self.open_img_view.emit(self.dir)
         else:
-            self.new_history_item.emit(self.src)
-            self.load_st_grid_sig.emit((self.src, None))
+            self.new_history_item.emit(self.dir)
+            self.load_st_grid_sig.emit((self.dir, None))
 
     def solid_style(self):
         """
@@ -111,7 +118,7 @@ class PathItem(QWidget):
         """
         Открывает меню информации о файле / папке
         """
-        self.win_info = InfoWin(self.src)
+        self.win_info = InfoWin(self.dir)
         self.win_info.center(self.window())
         self.win_info.show()
 
@@ -167,7 +174,7 @@ class PathItem(QWidget):
 
         self.drag.setPixmap(QPixmap(Static.COPY_FILES_PNG))
         
-        url = [QUrl.fromLocalFile(self.src)]
+        url = [QUrl.fromLocalFile(self.dir)]
         self.mime_data.setUrls(url)
 
         self.drag.setMimeData(self.mime_data)
@@ -187,10 +194,10 @@ class PathItem(QWidget):
         info.triggered.connect(self.win_info_cmd)
         menu.addAction(info)
 
-        show_in_finder_action = RevealInFinder(menu, self.src)
+        show_in_finder_action = RevealInFinder(menu, self.dir)
         menu.addAction(show_in_finder_action)
 
-        copy_path = CopyPath(menu, self.src)
+        copy_path = CopyPath(menu, self.dir)
         menu.addAction(copy_path)
 
         self.solid_style()
@@ -202,6 +209,7 @@ class PathBar(QWidget):
     new_history_item = pyqtSignal(str)
     load_st_grid_sig = pyqtSignal(tuple)
     open_img_view = pyqtSignal(str)
+    last_item_limit = 40
 
     def __init__(self):
         """
@@ -240,7 +248,6 @@ class PathBar(QWidget):
             i.deleteLater()
         self.current_path = dir
         root = dir.strip(os.sep).split(os.sep)
-        limit = 40
         path_items: dict[int, PathItem] = {}
 
         for x, name in enumerate(root, start=1):
@@ -250,38 +257,66 @@ class PathBar(QWidget):
             path_item.new_history_item.connect(cmd_)
             path_item.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
             path_item.open_img_view.connect(self.open_img_view.emit)
-
+            path_item.img_wid.load(Static.FOLDER_SVG)
+            path_item.add_arrow()
             path_items[x] = path_item
+            self.main_lay.addWidget(path_item)
 
+        path_items.get(1).img_wid.load(Static.COMP_SVG)
 
+        if path_items.get(2):
+            path_items.get(2).img_wid.load(Static.HDD_SVG)
 
-            if x == 1:
-                icon = Static.COMP_SVG
-                path_item.add_arrow()
+        last_item = path_items.get(len(root))
+        if last_item:
 
-            elif x == 2:
-                icon = Static.HDD_SVG
-                path_item.add_arrow()
-
-            elif x == len(root):
-                if os.path.isdir(dir):
+            if len(root) > 2:
+                if os.path.isdir(last_item.dir):
                     icon = Static.FOLDER_SVG
                 else:
                     _, ext = os.path.splitext(dir)
                     icon = Utils.get_generic_icon_path(ext)
+                last_item.img_wid.load(icon)
 
-                if len(name) > limit:
-                    path_item.text_wid.setText(name[:limit] + "...")
+            last_item.del_arrow()
+            last_item.expand()
+            last_item.enterEvent = lambda *args, **kwargs: None
+            last_item.leaveEvent = lambda *args, **kwargs: None
 
-                # последний элемент показывать в полный размер
-                path_item.expand()
-                # отключаем функции схлопывания и развертывания
-                path_item.enterEvent = lambda *args, **kwargs: None
-                path_item.leaveEvent = lambda *args, **kwargs: None
+            if len(name) > PathBar.last_item_limit:
+                path_item.text_wid.setText(name[:PathBar.last_item_limit] + "...")
 
-            else:
-                icon = Static.FOLDER_SVG
-                path_item.add_arrow()
 
-            path_item.img_wid.load(icon)
-            self.main_lay.addWidget(path_item)
+
+
+            # if x == 1:
+            #     icon = Static.COMP_SVG
+            #     path_item.add_arrow()
+
+            # elif x == 2:
+            #     icon = Static.HDD_SVG
+            #     path_item.add_arrow()
+
+            # elif x == len(root):
+            #     if os.path.isdir(dir):
+            #         icon = Static.FOLDER_SVG
+            #     else:
+            #         _, ext = os.path.splitext(dir)
+            #         icon = Utils.get_generic_icon_path(ext)
+
+            #     if len(name) > limit:
+            #         path_item.text_wid.setText(name[:limit] + "...")
+
+            #     # последний элемент показывать в полный размер
+            #     path_item.expand()
+            #     # отключаем функции схлопывания и развертывания
+            #     path_item.enterEvent = lambda *args, **kwargs: None
+            #     path_item.leaveEvent = lambda *args, **kwargs: None
+
+            # else:
+            #     icon = Static.FOLDER_SVG
+            #     path_item.add_arrow()
+
+            # path_item.img_wid.load(icon)
+
+
