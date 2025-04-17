@@ -3,13 +3,14 @@ import os
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QAction, QGroupBox, QHBoxLayout, QLabel,
-                             QPushButton, QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QAction, QCheckBox, QGroupBox, QHBoxLayout,
+                             QLabel, QPushButton, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static
 from utils import Utils
 
-from ._base_widgets import UFrame, ULineEdit, UMenu, UTextEdit, MinMaxDisabledWin
+from ._base_widgets import (MinMaxDisabledWin, UFrame, ULineEdit, UMenu,
+                            UTextEdit)
 from .settings_win import SettingsWin
 
 SEARCH_PLACE = "Место поиска:"
@@ -67,6 +68,10 @@ class ListWin(MinMaxDisabledWin):
         self.path_label = QLabel()
         first_lay.addWidget(self.path_label)
 
+        self.checkbox = QCheckBox(" Точное соответствие")
+        self.checkbox.stateChanged.connect(self.on_state_change)
+        v_lay.addWidget(self.checkbox)
+
         inp_label = QLabel(text=LIST_FILES)
         v_lay.addWidget(inp_label)
 
@@ -92,6 +97,9 @@ class ListWin(MinMaxDisabledWin):
         btns_lay.addWidget(can_btn)
 
         btns_lay.addStretch()
+
+    def on_state_change(self, *args):
+        print(args)
 
     def ok_cmd(self, *args):
         search_list = self.input_.toPlainText()
