@@ -793,11 +793,12 @@ class Grid(UScrollArea):
                 self.path_to_wid.pop(i)
                 # удаляем из сортированных виджетов
                 self.ordered_widgets.remove(thumb)
-                # удаляем из выделенных виджетов
-                self.selected_widgets.remove(thumb)
                 # уничтожаем виджет
                 thumb.deleteLater()
 
+        for i in self.selected_widgets:
+            i.set_no_frame()
+        self.selected_widgets.clear()
         self.rearrange()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
