@@ -80,11 +80,16 @@ class TagsBtn(QWidget):
 class MainWin(QWidget):
     resize_ms = 100
 
-    def __init__(self):
+    def __init__(self, dir: str = None):
         super().__init__()
 
-        self.main_dir = os.path.expanduser("~/Downloads")
-        self.main_dir = Utils.add_system_volume(self.main_dir)
+        if dir:
+            self.main_dir = dir
+        else:
+            self.main_dir = os.path.expanduser("~/Downloads")
+            self.main_dir = Utils.add_system_volume(self.main_dir)
+
+        self.main_win_list: list[MainWin] = []
 
         # индекс 0 просмотр сеткой, индекс 1 просмотр списком
         self.view_index = 0
@@ -220,6 +225,7 @@ class MainWin(QWidget):
         self.bar_top.list_win_opened.connect(lambda: self.bar_top.set_path_list_win(self.main_dir))
         # было открыто окно настроек и был клик "очистить данные в этой папке"
         self.bar_top.clear_data_clicked.connect(lambda: self.remove_db_cmd())
+        self.bar_top.open_in_new_win.connect(lambda dir: self.open_in_new_window_cmd(dir))
 
         self.path_bar.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
         self.path_bar.load_st_grid_sig.connect(lambda data: self.load_st_grid_cmd(data))
@@ -278,6 +284,13 @@ class MainWin(QWidget):
             self.main_dir = filepath
             self.load_st_grid_cmd((self.main_dir, None))
 
+    def open_in_new_window_cmd(self, dir: str):
+        new_win = MainWin(dir)
+        x, y = self.window().x(), self.window().y()
+        new_win.move(x + 20, y + 20)
+        new_win.show()
+        self.main_win_list.append(new_win)
+
     def setup_grid_signals(self):
         self.grid.sort_bar_update.connect(lambda value: self.sort_bar.setup(value))
         self.grid.path_bar_update.connect(lambda dir: self.path_bar.setup(dir))
@@ -285,6 +298,7 @@ class MainWin(QWidget):
         self.grid.move_slider_sig.connect(lambda value: self.sort_bar.slider.move_from_keyboard(value))
         self.grid.load_st_grid_sig.connect(lambda data: self.load_st_grid_cmd(data))
         self.grid.verticalScrollBar().valueChanged.connect(lambda value: self.scroll_up_show_hide(value))
+        self.grid.open_in_new_window.connect(lambda dir: self.open_in_new_window_cmd(dir))
 
     def load_search_grid(self, search_text: str):
         self.grid.close()

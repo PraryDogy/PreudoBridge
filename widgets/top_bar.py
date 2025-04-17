@@ -217,6 +217,7 @@ class TopBar(QWidget):
     navigate = pyqtSignal(str)
     list_win_opened = pyqtSignal()
     clear_data_clicked = pyqtSignal()
+    open_in_new_win = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -248,7 +249,7 @@ class TopBar(QWidget):
         self.main_lay.addStretch(1)
 
         self.new_win_btn = BarTopBtn()
-        self.new_win_btn.mouseReleaseEvent = self.new_win_cmd
+        self.new_win_btn.mouseReleaseEvent = lambda: self.open_in_new_win.emit("")
         self.new_win_btn.load(Static.NEW_WIN_SVG)
         self.main_lay.addWidget(self.new_win_btn)
 
@@ -276,15 +277,6 @@ class TopBar(QWidget):
         self.main_lay.addWidget(self.search_wid)
 
         self.index_ -= 1
-        self.other_wins: list[QWidget] = []
-
-    def new_win_cmd(self, *args):
-        from widgets.main_win import MainWin
-        new_win = MainWin()
-        x, y = self.window().x(), self.window().y()
-        new_win.move(x + 20, y + 20)
-        new_win.show()
-        self.other_wins.append(new_win)
 
     def set_path_list_win(self, main_dir: str):
         try:

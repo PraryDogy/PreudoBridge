@@ -17,7 +17,7 @@ from utils import URunnable, UThreadPool, Utils
 from ._base_widgets import BaseItem, UMenu, UScrollArea
 from .actions import (ChangeViewMenu, CopyPath, FavAdd, FavRemove, Info,
                       OpenInApp, RatingMenu, RevealInFinder, SortMenu, TagMenu,
-                      View)
+                      View, OpenInWindow)
 from .copy_files_win import ErrorWin, CopyFilesWin
 from .info_win import InfoWin
 from .remove_files_win import RemoveFilesWin
@@ -578,6 +578,11 @@ class Grid(UScrollArea):
         if wid.type_ != Static.FOLDER_TYPE:
             open_menu = OpenInApp(menu, wid.src)
             menu.addMenu(open_menu)
+        else:
+            new_window = OpenInWindow(menu)
+            cmd_ = lambda: self.open_in_new_window.emit(wid.src)
+            new_window.triggered.connect(cmd_)
+            menu.addAction(new_window)
 
         menu.addSeparator()
 

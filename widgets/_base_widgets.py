@@ -40,6 +40,8 @@ class UScrollArea(QScrollArea, UMethods):
     load_st_grid_sig = pyqtSignal(tuple)
     move_slider_sig = pyqtSignal(int)
     change_view_sig = pyqtSignal(int)
+    open_in_new_window = pyqtSignal(str)
+
     def __init__(self):
         """
         Базовый виджет с необходимыми сигналами для GridSearch и GridStandart
@@ -55,6 +57,8 @@ class UTableView(QTableView, UMethods):
     load_st_grid_sig = pyqtSignal(tuple)
     move_slider_sig = pyqtSignal(int)
     change_view_sig = pyqtSignal(int)
+    open_in_new_window = pyqtSignal(str)
+
     def __init__(self):
         """
         Базовый виджет с необходимыми сигналами для GridList
