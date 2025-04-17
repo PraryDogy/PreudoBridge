@@ -241,6 +241,7 @@ class PathBar(QWidget):
         self.current_path = dir
         root = dir.strip(os.sep).split(os.sep)
         limit = 40
+        path_items: dict[int, PathItem] = {}
 
         for x, name in enumerate(root, start=1):
             dir = os.path.join(os.sep, *root[:x])
@@ -249,6 +250,10 @@ class PathBar(QWidget):
             path_item.new_history_item.connect(cmd_)
             path_item.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
             path_item.open_img_view.connect(self.open_img_view.emit)
+
+            path_items[x] = path_item
+
+
 
             if x == 1:
                 icon = Static.COMP_SVG
