@@ -286,10 +286,10 @@ class MainWin(QWidget):
 
     def open_in_new_window_cmd(self, dir: str):
         new_win = MainWin(dir)
+        self.main_win_list.append(new_win)
         x, y = self.window().x(), self.window().y()
         new_win.move(x + 20, y + 20)
         new_win.show()
-        self.main_win_list.append(new_win)
 
     def setup_grid_signals(self):
         self.grid.sort_bar_update.connect(lambda value: self.sort_bar.setup(value))

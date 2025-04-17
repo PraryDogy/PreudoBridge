@@ -249,7 +249,7 @@ class TopBar(QWidget):
         self.main_lay.addStretch(1)
 
         self.new_win_btn = BarTopBtn()
-        self.new_win_btn.mouseReleaseEvent = lambda: self.open_in_new_win.emit("")
+        self.new_win_btn.mouseReleaseEvent = lambda e: self.open_in_new_win.emit("")
         self.new_win_btn.load(Static.NEW_WIN_SVG)
         self.main_lay.addWidget(self.new_win_btn)
 
