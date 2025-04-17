@@ -219,6 +219,7 @@ class Dynamic:
     sort: str = "name"
     busy_db: bool = False
     files_to_copy: list[str] = []
+    EXACT_SEARCH = False
     SEARCH_LIST = []
 
     # [path_to_svg_icon, ...] в GENERIC_ICONS

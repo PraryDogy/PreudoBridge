@@ -89,13 +89,19 @@ class SearchFinder(URunnable):
         else:
             return False
         
-    def process_list(self, entry: os.DirEntry, search_list_lower: list[str]):
+    def process_list(self, entry: os.DirEntry, search_list_lower: list[str]) -> bool:
         filename, _ = os.path.splitext(entry.name)
         filename: str = filename.lower()
 
-        for item in search_list_lower:
-            if filename in item or item in filename:
-                return True
+        if Dynamic.EXACT_SEARCH:
+            for item in search_list_lower:
+                if filename == item:
+                    return True
+        else:
+            for item in search_list_lower:
+                if filename in item or item in filename:
+                    return True
+        
         return False
 
     def scandir_recursive(self):

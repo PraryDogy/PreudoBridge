@@ -53,6 +53,7 @@ class ListWin(MinMaxDisabledWin):
 
     def __init__(self):
         super().__init__()
+
         self.setFixedSize(570, 500)
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(10, 5, 10, 5)
@@ -98,8 +99,12 @@ class ListWin(MinMaxDisabledWin):
 
         btns_lay.addStretch()
 
-    def on_state_change(self, *args):
-        print(args)
+    def on_state_change(self, value: int):
+        data = {
+            0: False,
+            2: True
+        }
+        Dynamic.EXACT_SEARCH = data.get(value)
 
     def ok_cmd(self, *args):
         search_list = self.input_.toPlainText()
