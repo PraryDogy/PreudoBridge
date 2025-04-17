@@ -7,10 +7,9 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
 
 from cfg import Dynamic, Static, ThumbData
-from database import ORDER_DICT
 from utils import URunnable, UThreadPool, Utils
 
-from ._base_widgets import (MinMaxDisabledWin, UFrame, ULineEdit, UMenu,
+from ._base_widgets import (MinMaxDisabledWin, Sort, UFrame, ULineEdit, UMenu,
                             USlider, USvgSqareWidget)
 from .actions import SortMenu
 
@@ -334,7 +333,7 @@ class SortMenuBtn(UFrame):
         Сортировка: имя (по возраст.)
         """
         # получаем текстовое имя сортировки на основе внутреннего имени сортировки
-        order = ORDER_DICT.get(Dynamic.sort)
+        order = Sort.order_dict.get(Dynamic.sort)
         order = order.lower()
 
         # получаем текстовое имя обратной или прямой сортировки

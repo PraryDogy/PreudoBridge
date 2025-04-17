@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QFrame, QLineEdit, QMenu, QScrollArea, QSlider,
                              QTableView, QTextEdit, QWidget)
 
 from cfg import Dynamic, Static
-from database import ORDER_DICT, ColumnNames
+from database import ColumnNames
 from utils import Utils
 
 
@@ -296,6 +296,16 @@ class MinMaxDisabledWin(WinBase):
         self.setWindowFlags(fl)
 
 
+class Sort:
+    order_dict: dict[str, str] = {
+        "name" : "Имя",
+        "type_" : "Тип",
+        "size" : "Размер",
+        "mod" : "Дата изменения",
+        "rating" : "Рейтинг"
+    }
+
+
 class BaseItem:
     def __init__(self, src: str, size: int, mod: int, rating: int):
         """
@@ -312,8 +322,6 @@ class BaseItem:
         - Этот экземпляр передаётся в основной поток через сигнал.
         - В основном потоке создаётся экземпляр класса Thumb (из модуля grid.py).
         - Атрибут name у Thumb устанавливается на основе значения BaseItem.name ("TEST").
-
-        Аттрибуты класса BaseItem должны соответствовать database.py > ORDER_DICT
         """
         super().__init__()
         self.src: str = src
@@ -360,7 +368,7 @@ class BaseItem:
         и используются для последующей сортировки по этим полям.
         """
         base_item = BaseItem("/no/path/file.txt", 0, 0, 0)
-        for column_name, text_name in ORDER_DICT.items():
+        for column_name, _ in Sort.order_dict.items():
             if not hasattr(base_item, column_name):
                 t = [
                     "",
@@ -384,7 +392,7 @@ class BaseItem:
         ключ: имя столбца базы данных, значение: текстовое отображение ключа
         - Например значение "По размеру" соответствует ключу "size", который
         является именем столбца "size" в базе данных
-        - 
+        - В BaseItem есть все аттрибуты, соответствующие ключам 
         """
         
         attr = Dynamic.sort
