@@ -35,24 +35,7 @@ CACHE = sqlalchemy.Table(
 )
 
 
-# Служит для отображения типа сортировки
-# Имя столбца базы данных соответствует параметру cfg.py > Dynamic.sort
-# И текстовое отображение этого параметр
-# Если присвоить значение параметру Dynamic.sort = ColumnNames.TYPE
-# То произойдет сортировка из базы данных по столбцу ColumnNames.TYPE
-# Строгая типизация словаря принята для читаемости
-ORDER_DICT: dict[str, str] = {
-    ColumnNames.NAME : "Имя",
-    ColumnNames.TYPE : "Тип",
-    ColumnNames.SIZE : "Размер",
-    ColumnNames.MOD : "Дата изменения",
-    ColumnNames.RATING : "Рейтинг",
-    ColumnNames.CATALOG: "Каталог"
-}
-
-
 class Dbase:
-
     def __init__(self):
         self.conn_count = 0
         self.conn_max = 3
