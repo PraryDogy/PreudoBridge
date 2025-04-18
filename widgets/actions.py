@@ -409,7 +409,7 @@ class ChangeViewMenu(UMenu):
             list_.setChecked(True)
 
 
-class OpenInWindow(QAction):
+class OpenInNewWindow(QAction):
     text_ = "Открыть в новом окне"
     def __init__(self, parent: UMenu):
-        super().__init__(OpenInWindow.text_, parent)
+        super().__init__(OpenInNewWindow.text_, parent)

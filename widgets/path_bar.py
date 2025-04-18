@@ -8,7 +8,7 @@ from cfg import Static
 from utils import Utils
 
 from ._base_widgets import UMenu, USvgSqareWidget
-from .actions import CopyPath, Info, RevealInFinder, View
+from .actions import CopyPath, Info, RevealInFinder, View, OpenInNewWindow
 from .info_win import InfoWin
 
 SORT_T = "Сортировка"
@@ -27,6 +27,7 @@ class PathItem(QWidget):
     new_history_item = pyqtSignal(str)
     load_st_grid_sig = pyqtSignal(tuple)
     open_img_view = pyqtSignal(str)
+    open_in_new_window = pyqtSignal(str)
 
     def __init__(self, dir: str, name: str):
         """
@@ -188,6 +189,10 @@ class PathItem(QWidget):
         view_action.triggered.connect(self.view_)
         menu.addAction(view_action)
 
+        new_win = OpenInNewWindow(menu)
+        new_win.triggered.connect(lambda: self.open_in_new_window.emit(self.dir))
+        menu.addAction(new_win)
+
         menu.addSeparator()
 
         info = Info(menu)
@@ -209,6 +214,7 @@ class PathBar(QWidget):
     new_history_item = pyqtSignal(str)
     load_st_grid_sig = pyqtSignal(tuple)
     open_img_view = pyqtSignal(str)
+    open_in_new_window = pyqtSignal(str)
     last_item_limit = 40
 
     def __init__(self):
@@ -257,6 +263,7 @@ class PathBar(QWidget):
             path_item.new_history_item.connect(cmd_)
             path_item.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
             path_item.open_img_view.connect(self.open_img_view.emit)
+            path_item.open_in_new_window.connect(lambda dir: self.open_in_new_window.emit(dir))
             path_item.img_wid.load(Static.FOLDER_SVG)
             path_item.add_arrow()
             path_items[x] = path_item

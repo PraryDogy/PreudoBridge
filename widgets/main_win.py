@@ -238,6 +238,7 @@ class MainWin(QWidget):
         self.path_bar.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
         self.path_bar.load_st_grid_sig.connect(lambda data: self.load_st_grid_cmd(data))
         self.path_bar.open_img_view.connect(lambda path: self.open_img_view_cmd(path))
+        self.path_bar.open_in_new_window.connect(lambda dir: self.open_in_new_window_cmd(dir))
 
         self.sort_bar.resize_grid_sig.connect(lambda: self.grid.resize_())
         self.sort_bar.rearrange_grid_sig.connect(lambda: self.grid.rearrange())

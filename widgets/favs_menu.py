@@ -8,7 +8,7 @@ from cfg import JsonData
 from utils import Utils
 
 from ._base_widgets import UMenu
-from .actions import CopyPath, FavRemove, OpenInWindow, RevealInFinder, View
+from .actions import CopyPath, FavRemove, OpenInNewWindow, RevealInFinder, View
 from .rename_win import RenameWin
 
 RENAME_T = "Переименовать"
@@ -74,7 +74,7 @@ class FavItem(QLabel):
         view_ac.triggered.connect(self.view_fav)
         menu_.addAction(view_ac)
 
-        open_new_win = OpenInWindow(menu_)
+        open_new_win = OpenInNewWindow(menu_)
         open_new_win.triggered.connect(lambda: self.open_in_new_win.emit(self.src))
         menu_.addAction(open_new_win)
 
