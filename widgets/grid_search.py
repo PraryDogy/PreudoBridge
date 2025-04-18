@@ -60,6 +60,10 @@ class SearchFinder(URunnable):
         # Если текст из поиска соотвествует шаблонку "поиск по списку",
         # чтобы искать сразу несколько файлов
         elif self.search_text == Static.SEARCH_LIST_TEXT:
+            if Dynamic.EXACT_SEARCH:
+                self.process_list = self.proc_list_exactly
+            else:
+                self.process_list = self.proc_list_free
             self.process_entry = self.process_list
 
         # Простой поиск
@@ -88,21 +92,25 @@ class SearchFinder(URunnable):
             return True
         else:
             return False
-        
-    def process_list(self, entry: os.DirEntry, search_list_lower: list[str]) -> bool:
+
+    def proc_list_exactly(self, entry: os.DirEntry, search_list_lower: list[str]):
         filename, _ = os.path.splitext(entry.name)
         filename: str = filename.lower()
-
-        if Dynamic.EXACT_SEARCH:
-            for item in search_list_lower:
-                if filename == item:
-                    return True
-        else:
-            for item in search_list_lower:
-                if filename in item or item in filename:
-                    return True
-        
+        for item in search_list_lower:
+            if filename == item:
+                return True
         return False
+
+    def proc_list_free(self, entry: os.DirEntry, search_list_lower: list[str]):
+        filename, _ = os.path.splitext(entry.name)
+        filename: str = filename.lower()
+        for item in search_list_lower:
+            if filename in item or item in filename:
+                return True
+        return False
+
+    def process_list(self, entry: os.DirEntry, search_list_lower: list[str]) -> bool:
+        ...
 
     def scandir_recursive(self):
         # Инициализируем список с корневым каталогом
