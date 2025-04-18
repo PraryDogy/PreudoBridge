@@ -190,9 +190,14 @@ class JsonData:
 
         from utils import Utils
         path = Utils.get_generic_icon_path(Static.FOLDER_TYPE)
-        same_size = os.path.getsize(Static.FOLDER_SVG) == os.path.getsize(path)
-        if not os.path.exists(Static.FOLDER_SVG) or not same_size:
+
+        if not os.path.exists(path):
             shutil.copyfile(Static.FOLDER_SVG, path)
+
+        elif os.path.getsize(Static.FOLDER_SVG) != os.path.getsize(path):
+            shutil.copyfile(Static.FOLDER_SVG, path)
+
+        Dynamic.GENERIC_ICON_PATHS.append(path)
 
     @classmethod
     def do_before_start(cls):
