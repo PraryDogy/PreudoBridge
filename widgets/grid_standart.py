@@ -167,9 +167,6 @@ class GridStandart(Grid):
             if base_item.src.count(os.sep) == 2:
                 thumb.set_svg_icon(Static.HDD_SVG)
 
-            elif base_item.type_ == Static.FOLDER_TYPE:
-                thumb.set_svg_icon(Static.FOLDER_SVG)
-
             else:
                 icon_path = Utils.get_generic_icon_path(base_item.type_)
                 thumb.set_svg_icon(icon_path)

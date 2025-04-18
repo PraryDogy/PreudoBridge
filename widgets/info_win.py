@@ -88,6 +88,8 @@ class CalculatingTask(URunnable):
 
 
 class InfoTask:
+    ru = "Папка"
+
     def __init__(self, base_item: BaseItem):
         super().__init__()
         self.base_item = base_item
@@ -99,10 +101,16 @@ class InfoTask:
             else
             CALCULATING
             )
+        
+        type_t_ = (
+            self.base_item.type_
+            if self.base_item.type_ != Static.FOLDER_TYPE
+            else InfoTask.ru
+        )
 
         res = {
             NAME_T: self.lined_text(os.path.basename(self.base_item.src)),
-            TYPE_T: self.base_item.type_,
+            TYPE_T: type_t_,
             MOD_T: Utils.get_f_date(os.stat(self.base_item.src).st_mtime),
             SRC_T: self.lined_text(self.base_item.src),
             SIZE_T: size_,
