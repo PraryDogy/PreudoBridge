@@ -178,7 +178,7 @@ class InfoWin(MinMaxDisabledWin):
         self.setLayout(self.grid_layout)
 
         row = 0
-        base_item = BaseItem(self.src, 0)
+        base_item = BaseItem(self.src)
         base_item.setup()
         info_ = InfoTask(base_item)
         info_ = info_.get()

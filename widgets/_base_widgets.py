@@ -320,7 +320,7 @@ class Sort:
 
 
 class BaseItem:
-    def __init__(self, src: str, rating: int):
+    def __init__(self, src: str, rating: int = 0):
         """
         Желательные параметры для инициализации: 
         - setup
@@ -384,7 +384,7 @@ class BaseItem:
         Это необходимо для корректной сортировки, так как она выполняется 
         по атрибутам, соответствующим ключам Sort.items.
         """
-        base_item = BaseItem("/no/path/file.txt", 0)
+        base_item = BaseItem("/no/path/file.txt")
         for column_name, _ in Sort.items.items():
             if not hasattr(base_item, column_name):
                 t = [

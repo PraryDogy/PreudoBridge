@@ -157,7 +157,7 @@ class SearchFinder(URunnable):
         pixmap = Utils.pixmap_from_array(image=img_array)
         del img_array
 
-        base_item = BaseItem(entry.path, 0)
+        base_item = BaseItem(entry.path)
         base_item.setup()
         base_item.set_pixmap_storage(pixmap)
 
