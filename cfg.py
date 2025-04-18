@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 
 
 class Static:
@@ -46,7 +47,7 @@ class Static:
     NEW_WIN_SVG = os.path.join(IMAGES_DIR, "new_win.svg")
 
     DB_FILENAME = ".preudobridge.db"
-    FOLDER_TYPE: str = "Папка"
+    FOLDER_TYPE: str = "folder"
     VOLUMES: str = "Volumes"
     USERS: str = "Users"
     SVG = "SVG"
@@ -186,6 +187,12 @@ class JsonData:
         for entry in os.scandir(Static.GENERIC_ICONS_DIR):
             if entry.name.endswith(".svg"):
                 Dynamic.GENERIC_ICON_PATHS.append(entry.path)
+
+        from utils import Utils
+        path = Utils.get_generic_icon_path(Static.FOLDER_TYPE)
+        same_size = os.path.getsize(Static.FOLDER_SVG) == os.path.getsize(path)
+        if not os.path.exists(Static.FOLDER_SVG) or not same_size:
+            shutil.copyfile(Static.FOLDER_SVG, path)
 
     @classmethod
     def do_before_start(cls):

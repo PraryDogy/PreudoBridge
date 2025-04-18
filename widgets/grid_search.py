@@ -292,9 +292,6 @@ class GridSearch(Grid):
         if base_item.src.count(os.sep) == 2:
             thumb.set_svg_icon(Static.HDD_SVG)
 
-        elif base_item.type_ == Static.FOLDER_TYPE:
-            thumb.set_svg_icon(Static.FOLDER_SVG)
-
         else:
             thumb.set_svg_icon(generic_icon_path)
         
