@@ -305,6 +305,7 @@ class MainWin(QWidget):
         self.grid.load_st_grid_sig.connect(lambda data: self.load_st_grid_cmd(data))
         self.grid.verticalScrollBar().valueChanged.connect(lambda value: self.scroll_up_show_hide(value))
         self.grid.open_in_new_window.connect(lambda dir: self.open_in_new_window_cmd(dir))
+        self.grid.level_up.connect(lambda: self.level_up_cmd())
 
     def load_search_grid(self, search_text: str):
         self.grid.close()

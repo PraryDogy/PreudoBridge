@@ -6,8 +6,7 @@ from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QAction, QCheckBox, QGroupBox, QHBoxLayout,
                              QLabel, QPushButton, QVBoxLayout, QWidget)
 
-from cfg import Dynamic, JsonData, Static
-from utils import Utils
+from cfg import Dynamic, Static
 
 from ._base_widgets import (MinMaxDisabledWin, UFrame, ULineEdit, UMenu,
                             UTextEdit)

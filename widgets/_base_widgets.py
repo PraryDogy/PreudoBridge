@@ -41,6 +41,7 @@ class UScrollArea(QScrollArea, UMethods):
     move_slider_sig = pyqtSignal(int)
     change_view_sig = pyqtSignal(int)
     open_in_new_window = pyqtSignal(str)
+    level_up = pyqtSignal()
 
     def __init__(self):
         """
@@ -59,6 +60,7 @@ class UTableView(QTableView, UMethods):
     move_slider_sig = pyqtSignal(int)
     change_view_sig = pyqtSignal(int)
     open_in_new_window = pyqtSignal(str)
+    level_up = pyqtSignal()
 
     def __init__(self):
         """
