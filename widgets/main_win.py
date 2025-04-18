@@ -204,6 +204,7 @@ class MainWin(QWidget):
         self.menu_tree.load_st_grid_sig.connect(lambda data: self.load_st_grid_cmd(data))
         self.menu_tree.fav_cmd_sig.connect(lambda data: self.menu_favs.fav_cmd(data))
         self.menu_tree.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
+        self.menu_tree.open_in_new_window.connect(lambda dir: self.open_in_new_window_cmd(dir))
 
         self.menu_favs.set_main_dir_sig.connect(lambda: self.menu_favs.set_main_dir(self.main_dir))
         self.menu_favs.load_st_grid_sig.connect(lambda data: self.load_st_grid_cmd(data))

@@ -189,9 +189,10 @@ class PathItem(QWidget):
         view_action.triggered.connect(self.view_)
         menu.addAction(view_action)
 
-        new_win = OpenInNewWindow(menu)
-        new_win.triggered.connect(lambda: self.open_in_new_window.emit(self.dir))
-        menu.addAction(new_win)
+        if os.path.isdir(self.dir):
+            new_win = OpenInNewWindow(menu)
+            new_win.triggered.connect(lambda: self.open_in_new_window.emit(self.dir))
+            menu.addAction(new_win)
 
         menu.addSeparator()
 

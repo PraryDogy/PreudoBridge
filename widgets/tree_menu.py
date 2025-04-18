@@ -3,14 +3,15 @@ from PyQt5.QtWidgets import QFileSystemModel, QTreeView
 
 from cfg import JsonData
 
-from .actions import CopyPath, FavAdd, FavRemove, RevealInFinder, View
+from .actions import CopyPath, FavAdd, FavRemove, RevealInFinder, View, OpenInNewWindow
 from ._base_widgets import UMenu
-
+import os
 
 class TreeMenu(QTreeView):
     new_history_item = pyqtSignal(str)
     fav_cmd_sig = pyqtSignal(tuple)
     load_st_grid_sig = pyqtSignal(tuple)
+    open_in_new_window = pyqtSignal(str)
 
     def __init__(self):
         super().__init__()
@@ -59,6 +60,11 @@ class TreeMenu(QTreeView):
         open_finder_action = View(menu)
         open_finder_action.triggered.connect(cmd_)
         menu.addAction(open_finder_action)
+
+        if os.path.isdir(src):
+            new_win = OpenInNewWindow(menu)
+            new_win.triggered.connect(lambda: self.open_in_new_window.emit(src))
+            menu.addAction(new_win)
 
         menu.addSeparator()
 
