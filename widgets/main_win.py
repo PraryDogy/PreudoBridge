@@ -374,6 +374,9 @@ class MainWin(QWidget):
         self.setup_grid_signals()
         self.grid.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
         self.grid.change_view_sig.connect(lambda index: self.change_view_cmd(index))
+        if isinstance(self.grid, GridStandart):
+            cmd_ = lambda urls: self.grid.force_load_images_cmd(urls)
+            self.grid.force_load_images_sig.connect(cmd_)
         self.menu_tree.expand_path(self.main_dir)
         self.window().raise_()
         self.grid.setFocus()

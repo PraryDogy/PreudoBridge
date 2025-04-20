@@ -289,6 +289,8 @@ class Thumb(BaseItem, QFrame):
 
 
 class Grid(UScrollArea):
+    force_load_images_sig = pyqtSignal(list)
+
     def __init__(self, main_dir: str, view_index: int, path_for_select: str):
         super().__init__()
         self.setAcceptDrops(True)
@@ -776,12 +778,14 @@ class Grid(UScrollArea):
             wid.setup_attrs()
             wid.setup_child_widgets()
             wid.set_no_frame()
+            wid.set_svg_icon(Utils.get_generic_icon_path(wid.type_))
             row, col = list(self.cell_to_wid.keys())[-1]
             new_row, new_col = row + 1, col + 1
             self.grid_layout.addWidget(wid, new_row, new_col)
             self.add_widget_data(wid, new_row, new_col)
         self.order_()
         self.rearrange()
+        self.force_load_images_sig.emit(urls)
 
     def error_win_cmd(self):
         """
