@@ -248,7 +248,7 @@ class MainWin(QWidget):
 
     def open_img_view_cmd(self, path: str):
         base_item = BaseItem(path)
-        base_item.setup()
+        base_item.setup_attrs()
         self.grid.view_thumb_cmd(base_item)
 
     def remove_db_cmd(self):

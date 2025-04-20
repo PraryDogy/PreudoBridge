@@ -179,7 +179,7 @@ class InfoWin(MinMaxDisabledWin):
 
         row = 0
         base_item = BaseItem(self.src)
-        base_item.setup()
+        base_item.setup_attrs()
         info_ = InfoTask(base_item)
         info_ = info_.get()
 

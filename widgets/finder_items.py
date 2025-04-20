@@ -84,7 +84,7 @@ class FinderItems(URunnable):
                 if entry.name.startswith("."):
                     continue
                 item = BaseItem(entry.path)
-                item.setup()
+                item.setup_attrs()
                 base_items.append(item)
         return base_items
 
@@ -96,7 +96,7 @@ class FinderItems(URunnable):
                     continue
                 if entry.is_dir() or entry.name.endswith(Static.IMG_EXT):
                     item = BaseItem(entry.path)
-                    item.setup()
+                    item.setup_attrs()
                     base_items.append(item)
         return base_items, []
 

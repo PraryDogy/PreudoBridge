@@ -160,7 +160,7 @@ class GridStandart(Grid):
         for base_item in base_items:
 
             thumb = Thumb(base_item.src, base_item.rating)
-            thumb.setup()
+            thumb.setup_attrs()
             thumb.setup_child_widgets()
             thumb.set_no_frame()
 

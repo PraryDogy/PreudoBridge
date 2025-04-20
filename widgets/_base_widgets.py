@@ -362,7 +362,7 @@ class BaseItem:
         """
         return self.pixmap_storage
 
-    def setup(self):
+    def setup_attrs(self):
         """
         Устанавливает параметры: src, name, type_, mod, birth, size, rating
         """

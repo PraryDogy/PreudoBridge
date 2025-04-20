@@ -166,7 +166,7 @@ class SearchFinder(URunnable):
         del img_array
 
         base_item = BaseItem(entry.path)
-        base_item.setup()
+        base_item.setup_attrs()
         base_item.set_pixmap_storage(pixmap)
 
         try:
@@ -288,7 +288,7 @@ class GridSearch(Grid):
 
     def add_new_widget(self, base_item: BaseItem):
         thumb = Thumb(base_item.src, base_item.rating)
-        thumb.setup()
+        thumb.setup_attrs()
         thumb.setup_child_widgets()
         thumb.set_no_frame()
 
