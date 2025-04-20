@@ -170,7 +170,6 @@ class RatingMenu(UMenu):
         # свойство Thumb
         # рейтинг для каждого виджета хранится в базе данных
         # и подгружается при создании сетки
-        current_rating = current_rating % 10
         self.rating = current_rating
 
         cancel_ = QAction(Static.LINE_LONG_SYM, self)
