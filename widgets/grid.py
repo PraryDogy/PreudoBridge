@@ -862,8 +862,7 @@ class Grid(UScrollArea):
 
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
             if a0.key() == Qt.Key.Key_C:
-                if not self.is_grid_search:
-                    self.setup_copy_files_list()
+                self.setup_copy_files_list()
 
             elif a0.key() == Qt.Key.Key_V:
                 if not self.is_grid_search:
@@ -1083,6 +1082,9 @@ class Grid(UScrollArea):
         return super().dragEnterEvent(a0)
     
     def dropEvent(self, a0):
+        if self.is_grid_search:
+            return
+
         self.urls_to_copy.clear()
         self.urls_to_copy = [i.toLocalFile() for i in a0.mimeData().urls()]
 
@@ -1095,7 +1097,7 @@ class Grid(UScrollArea):
                 print("Нельзя копировать в себя")
                 return
 
-        if self.urls_to_copy and not self.is_grid_search:
+        if self.urls_to_copy:
             self.paste_files()
 
         return super().dropEvent(a0)
