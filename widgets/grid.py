@@ -417,7 +417,7 @@ class Grid(UScrollArea):
 
     def rearrange(self):
         """
-        Перетасосывает виджеты в сетке на основе новых условий.     
+        Перетасовывает виджеты в сетке на основе новых условий.     
         Например был изменен размер виджета Thumb с 10x10 на 15x15,     
         соответственно число столбцов и строк в сетке виджетов Thumb    
         должно измениться, и для этого вызывается метод rearrange
@@ -482,13 +482,22 @@ class Grid(UScrollArea):
         return col_count
 
     def add_widget_data(self, wid: Thumb, row: int, col: int):
+        """
+        Добавляет данные о виджете в необходимые списки и словари,
+        а так же устанавливает аттрибуты Thumb: row, col
+        """
         wid.row, wid.col = row, col
         self.cell_to_wid[row, col] = wid
         self.path_to_wid[wid.src] = wid
         self.ordered_widgets.append(wid)
 
     def view_thumb_cmd(self, wid: BaseItem):
-
+        """
+        Просмотр виджета:
+        - папка: откроется новая сетка виджетов соответствующая директории папки
+        - изображение: откроется внутренний просмотрщик изображений
+        - другие файлы: откроется программа по умолчанию
+        """
         if wid is None:
             return
 
@@ -498,9 +507,10 @@ class Grid(UScrollArea):
             self.load_st_grid_sig.emit((wid.src, None))
 
         elif wid.type_ in Static.IMG_EXT:
+            # избегаем ошибки кругового импорта
             from .img_view_win import ImgViewWin
             self.win_img_view = ImgViewWin(wid.src, self.path_to_wid)
-            self.win_img_view.move_to_wid_sig.connect(self.select_one_wid)
+            self.win_img_view.move_to_wid_sig.connect(lambda wid: self.select_one_wid(wid))
             self.win_img_view.new_rating.connect(lambda value: self.set_new_rating(value))
             self.win_img_view.center(self.window())
             self.win_img_view.show()
