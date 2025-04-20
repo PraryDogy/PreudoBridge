@@ -356,8 +356,8 @@ class Grid(UScrollArea):
 
     def select_one_wid(self, wid: Thumb):
         """
-        Очищает выделение со всех выделенных виджетов.  
-        Выделяет виджет, переданный в аргументе.
+        Очищает визуальное выделение с выделенных виджетов и очищает список.  
+        Выделяет виджет, добавляет его в список выделенных виджетов.
         """
         if wid is None:
             return
@@ -996,12 +996,10 @@ class Grid(UScrollArea):
     def mousePressEvent(self, a0):
         if a0.button() != Qt.MouseButton.LeftButton:
             return
-
         self.drag_start_position = a0.pos()
         return super().mousePressEvent(a0)
     
     def mouseMoveEvent(self, a0):
-
         try:
             distance = (a0.pos() - self.drag_start_position).manhattanLength()
         except AttributeError:
@@ -1010,14 +1008,13 @@ class Grid(UScrollArea):
         if distance < QApplication.startDragDistance():
             return
         
-        wid = self.get_wid_under_mouse(a0=a0)
+        wid = self.get_wid_under_mouse(a0)
 
         if wid is None:
             return
 
         if wid not in self.selected_widgets:
-            self.clear_selected_widgets()
-            self.select_widget(wid=wid)
+            self.select_one_wid(wid)
 
         urls = [
             i.src
