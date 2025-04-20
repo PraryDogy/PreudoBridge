@@ -769,6 +769,12 @@ class Grid(UScrollArea):
             self.win_copy.show()
 
     def paste_files_fin(self, urls: list[str]):
+        """
+        Заменяет существующие виджеты сетки новыми, если совпадают пути к файлу / папке.    
+        Добавляет новые виджеты в сетку.    
+        Сортирует сетку, перетасовывает сетку.   
+        Испускет сигнал принудительной загрузки изображений для скопированных виджетов.
+        """
         for dir in urls:
             if dir in self.path_to_wid:
                 wid = self.remove_widget_data(dir)
