@@ -69,12 +69,6 @@ class FileCopyWorker(URunnable):
 
             try:
                 self.copy_by_bytes(src, dest)
-
-                full_src = Utils.add_system_volume(src)
-                full_dest = Utils.add_system_volume(dest)
-                if macintosh_hd in full_src and macintosh_hd in full_dest:
-                    os.remove(src)
-
             except Exception as e:
                 print("win copy files > copy file error", e)
                 continue

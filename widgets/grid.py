@@ -760,10 +760,23 @@ class Grid(UScrollArea):
 
         if Dynamic.files_to_copy:
             self.win_copy = CopyFilesWin(self.main_dir)
-            self.win_copy.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
+            # self.win_copy.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
+            self.win_copy.load_st_grid_sig.connect(self.paste_files_fin)
             self.win_copy.error_win_sig.connect(self.error_win_cmd)
             self.win_copy.center(self.window())
             self.win_copy.show()
+
+    def paste_files_fin(self):
+        # return
+        for dir in Dynamic.files_to_copy:
+            if dir in self.path_to_wid:
+                self.remove_widget_data(dir)
+            wid = Thumb(dir)
+            row, col = list(self.cell_to_wid.keys())[-1]
+            self.grid_layout.addWidget(wid, row+1, col+1)
+            self.add_widget_data(wid, row+1, col+1)
+        self.order_()
+        self.rearrange()
 
     def error_win_cmd(self):
         """
@@ -798,7 +811,7 @@ class Grid(UScrollArea):
             # удаляем виджет из сетки координат
             self.cell_to_wid.pop((wid.row, wid.col))
             # удаляем виджет из списка путей
-            self.path_to_wid.pop(wid)
+            self.path_to_wid.pop(dir)
             # удаляем из сортированных виджетов
             self.ordered_widgets.remove(wid)
             return wid
