@@ -287,20 +287,11 @@ class Thumb(BaseItem, QFrame):
             """
         )
 
-    def set_db_rating(self, rating: int):
+    def set_rating_from_db(self, rating: int):
         # устанавливается значение из бд
         self.rating = rating % 10
         self.rating_wid.set_text(self)
         self.text_changed.emit()
-
-    def calculate_new_rating(self, new_rating: int):
-        if new_rating > 5:
-            rating = self.rating % 10
-            tag = new_rating
-        else:
-            tag = self.rating // 10
-            rating = new_rating
-        return tag * 10 + rating
 
 
 class Grid(UScrollArea):
@@ -400,27 +391,8 @@ class Grid(UScrollArea):
         for wid in self.ordered_widgets:
             show_widget = True
             if Dynamic.rating_filter > 0:
-                if Dynamic.rating_filter > 5:
-                    # 6, 7, 8, 9 - теги
-                    # получаем первую цифру из рейтинга,
-                    # которая соответствует значению тега
-                    # в старых версиях рейтинг однозначный, поэтому 
-                    # мы получем ноль при делении. тогда присваиваем 
-                    # значение тега 9, что соответствует "без тегов"
-                    # например значение 65: 6 - тег, а 5 - рейтинг
-                    # значение 5: 0 - тег, а 5 - рейтинг
-                    wid_value = wid.rating // 10
-                    if wid_value == 0:
-                        wid_value = 9
-                    if wid_value != Dynamic.rating_filter:
-                        show_widget = False
-                else:
-                    # 0, 1, 2, 3, 4, 5 - рейтинг
-                    # получаем вторую цифру, которая соответствует значению
-                    # рейтинга
-                    wid_value = wid.rating % 10
-                    if wid_value != Dynamic.rating_filter:
-                        show_widget = False
+                if wid.rating != Dynamic.rating_filter:
+                    show_widget = False
             if show_widget:
                 wid.must_hidden = False
                 wid.show()
