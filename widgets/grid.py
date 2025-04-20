@@ -336,6 +336,10 @@ class Grid(UScrollArea):
         QTimer.singleShot(200, self.set_mouseReleaseEvent)
 
     def get_col_count(self):
+        """
+        Получает количество столбцов для сетки по формуле:  
+        Ширина окна минус ширина левого виджета в сплиттере (левое меню)
+        """
         main_win = self.window()
 
         win_ww = main_win.width()
@@ -382,6 +386,13 @@ class Grid(UScrollArea):
         self.ordered_widgets = BaseItem.sort_items(self.ordered_widgets)
                 
     def filter_(self):
+        """
+        Скрывает виджеты, не соответствующие установленному фильтру.    
+        Например, если фильтр установлен "отобразить 5 звезд",     
+        то будут отображены только виджеты с рейтингом 5, остальные скрыты,     
+        но не удалены.  
+        Необходимо затем вызвать метод rearrange
+        """
         for wid in self.ordered_widgets:
             show_widget = True
             if Dynamic.rating_filter > 0:
@@ -395,31 +406,41 @@ class Grid(UScrollArea):
                 wid.hide()
 
     def resize_(self):
-        wid_src_list = []
-
-        for i in self.selected_widgets:
-            wid_src_list.append(i.src)
-
+        """
+        Изменяет размер виджетов Thumb. Подготавливает дочерние виджеты Thumb
+        к новым размерам.   
+        Необходимо затем вызвать метод rearrange
+        """
         Thumb.calculate_size()
         for wid in self.ordered_widgets:
             wid.setup_child_widgets()
 
-        for src, wid in self.path_to_wid.items():
-            if src in wid_src_list:
-                wid.set_frame()
-
     def rearrange(self):
+        """
+        Перетасосывает виджеты в сетке на основе новых условий.     
+        Например был изменен размер виджета Thumb с 10x10 на 15x15,     
+        соответственно число столбцов и строк в сетке виджетов Thumb    
+        должно измениться, и для этого вызывается метод rearrange
+        """
         col_count = self.get_col_count()
+
+        # очищаем cell_to_wid, чтобы заполнить этот словарь новыми координатами
         self.cell_to_wid.clear()
         row, col = 0, 0
 
+        # проходим циклом по отсортированным виджетам
         for wid in self.ordered_widgets:
 
+            # соответствует методу filter_ (смотри выше)
             if wid.must_hidden:
                 continue
 
             self.grid_layout.addWidget(wid, row, col)
+
+            # добавляем новые координаты в словарь
             self.cell_to_wid[row, col] = wid
+
+            # меняем аттрибуты строки и столбца в виджете Thumb
             wid.row, wid.col = row, col
 
             col += 1
@@ -427,35 +448,38 @@ class Grid(UScrollArea):
                 col = 0
                 row += 1
 
+        # формируем новый словарь путь к файлу: виджет Thumb
+        # на основе cell_to_wid, чтобы пропустить скрытые виджеты
         self.path_to_wid = {
             wid.src: wid
             for coords, wid in self.cell_to_wid.items()
         }
 
+        # если в сетку был передан аттрибут path_for_select,
+        # то после того, как сетка виджетов была сформирована,
+        # будет выделен виджет, который ищется в path_to_wid
         if isinstance(self.path_for_select, str):
             wid = self.path_to_wid.get(self.path_for_select)
             self.select_one_wid(wid=wid)
             QTimer.singleShot(500, lambda: self.ensureWidgetVisible(wid))
 
+        # тоже самое, но будет выделено сразу несколько виджетов
         elif isinstance(self.path_for_select, (tuple, list)):
             widgets = [
                 self.path_to_wid.get(i)
                 for i in self.path_for_select
             ]
-
             for i in widgets:
-
                 try:
                     i.set_frame()
                     self.selected_widgets.append(i)
                 except AttributeError:
                     continue
-
             if widgets:
-                QTimer.singleShot(500, lambda: self.ensureWidgetVisible(widgets[0]))
+                cmd_ = lambda: self.ensureWidgetVisible(widgets[0])
+                QTimer.singleShot(500, cmd_)
         
         return col_count
-
 
     def add_widget_data(self, wid: Thumb, row: int, col: int):
         wid.row, wid.col = row, col
