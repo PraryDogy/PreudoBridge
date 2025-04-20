@@ -291,7 +291,6 @@ class Thumb(BaseItem, QFrame):
 class Grid(UScrollArea):
     def __init__(self, main_dir: str, view_index: int, path_for_select: str):
         super().__init__()
-
         self.setAcceptDrops(True)
         self.setWidgetResizable(True)
         self.horizontalScrollBar().setDisabled(True)
@@ -537,7 +536,7 @@ class Grid(UScrollArea):
         self.win_info.center(self.window())
         self.win_info.show()
 
-    def thumb_context_actions(self, menu: UMenu, wid: Thumb):
+    def thumb_context(self, menu: UMenu, wid: Thumb):
         # собираем пути к файлам / папкам у выделенных виджетов
         urls = [i.src for i in self.selected_widgets]
 
@@ -595,6 +594,7 @@ class Grid(UScrollArea):
 
             menu.addSeparator()
 
+        # is grid search устанавливается на True при инициации GridSearch
         if self.is_grid_search:
             show_in_folder = QAction(SHOW_IN_FOLDER, menu)
             cmd_ = lambda: self.show_in_folder_cmd(wid)
@@ -609,11 +609,14 @@ class Grid(UScrollArea):
         menu.addAction(remove_files)
 
     def show_in_folder_cmd(self, wid: Thumb):
+        """
+        В сетке GridSearch к каждому Thumb добавляется пункт "Показать в папке"     
+        Загружает сетку GridStandart с указанным путем к файлу / папке
+        """
         new_main_dir = os.path.dirname(wid.src)
         self.load_st_grid_sig.emit((new_main_dir, wid.src))
 
-    def grid_context_actions(self, menu: UMenu):
-
+    def grid_context(self, menu: UMenu):
         self.path_bar_update_cmd(self.main_dir)
 
         info = Info(menu)
@@ -662,15 +665,6 @@ class Grid(UScrollArea):
         upd_ = QAction(UPDATE_GRID_T, menu)
         upd_.triggered.connect(lambda: self.load_st_grid_sig.emit((None, None)))
         menu.addAction(upd_)
-
-        # col_count это аттрибут GridSearch
-        # переназначаем действие QAction upd_ - обновить сетку, загрузив ее заново,
-        # на order_, чтобы сетка не перезагружалась, а происходила сортировка
-        # без перезагрузки
-        if self.is_grid_search:
-            upd_.disconnect()
-            upd_.triggered.connect(self.order_)
-            upd_.triggered.connect(self.rearrange)
 
     def set_new_rating(self, new_rating: int):
         # устанавливает рейтинг для выделенных в сетке виджетов
@@ -854,7 +848,7 @@ class Grid(UScrollArea):
         # клик по пустому пространству
         if not clicked_wid:
             self.clear_selected_widgets()
-            self.grid_context_actions(menu=menu)
+            self.grid_context(menu=menu)
 
         # клик по виджету
         else:
@@ -870,7 +864,7 @@ class Grid(UScrollArea):
                 self.clear_selected_widgets()
                 self.add_and_select_widget(wid=clicked_wid)
 
-            self.thumb_context_actions(menu=menu, wid=clicked_wid)
+            self.thumb_context(menu=menu, wid=clicked_wid)
 
         menu.show_()
 
