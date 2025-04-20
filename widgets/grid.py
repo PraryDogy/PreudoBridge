@@ -144,8 +144,8 @@ class RatingWid(QLabel):
         try:
             text = RATINGS.get(wid.rating).strip()
             self.setText(text)
-        except Exception:
-            print(wid.rating)
+        except Exception as e:
+            print(wid.rating, e)
 
 
 class Thumb(BaseItem, QFrame):
