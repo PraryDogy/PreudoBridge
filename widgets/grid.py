@@ -141,13 +141,11 @@ class RatingWid(QLabel):
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
     def set_text(self, wid: BaseItem):
-        # мы отключаем отображение рейтинга для старого двузначного формата
-        # рейтинг будет исправляться в finder_items 
-        if wid.rating > 9:
-            print("зловредный рейтинг", wid.rating)
-            return
-        text = RATINGS.get(wid.rating).strip()
-        self.setText(text)
+        try:
+            text = RATINGS.get(wid.rating).strip()
+            self.setText(text)
+        except Exception:
+            print(wid.rating)
 
 
 class Thumb(BaseItem, QFrame):
@@ -165,7 +163,6 @@ class Thumb(BaseItem, QFrame):
         Обязательно задать параметры:   
         setup, setup_child_widgets, set_no_frame 
         """
-
         QFrame.__init__(self, parent=None)
         BaseItem.__init__(self, src, rating)
 
@@ -231,7 +228,6 @@ class Thumb(BaseItem, QFrame):
         Устанавливает текст в дочерних виджетах в соответствии с размерами  
         Устанавливает изображение в дочерних виджетах в соответствии в размерами
         """
-
         for i in (self.text_wid, self.rating_wid):
             i.set_text(self)
 
@@ -293,8 +289,8 @@ class Thumb(BaseItem, QFrame):
 
     def set_db_rating(self, rating: int):
         # устанавливается значение из бд
-        self.rating = rating
-        self.rating_wid.set_text(wid=self)
+        self.rating = rating % 10
+        self.rating_wid.set_text(self)
         self.text_changed.emit()
 
     def calculate_new_rating(self, new_rating: int):
@@ -515,6 +511,7 @@ class Grid(UScrollArea):
             from .img_view_win import ImgViewWin
             self.win_img_view = ImgViewWin(wid.src, self.path_to_wid)
             self.win_img_view.move_to_wid_sig.connect(self.select_one_wid)
+            self.win_img_view.new_rating.connect(lambda value: self.set_new_rating(value))
             self.win_img_view.center(self.window())
             self.win_img_view.show()
 

@@ -283,6 +283,7 @@ class ImgViewWin(WinBase):
     switch_image_sig = pyqtSignal(object)
     closed_ = pyqtSignal()
     move_to_wid_sig = pyqtSignal(object)
+    new_rating = pyqtSignal(int)
 
     def __init__(self, src: str, path_to_wid: dict[str, Thumb]):
         super().__init__()
@@ -489,7 +490,7 @@ class ImgViewWin(WinBase):
 
         elif ev.key() in KEY_RATING:
             rating = KEY_RATING.get(ev.key())
-            self.wid.calculate_new_rating(new_rating=rating)
+            self.new_rating.emit(rating)
             self.set_title()
 
         elif ev.modifiers() & Qt.KeyboardModifier.ControlModifier:
@@ -551,7 +552,7 @@ class ImgViewWin(WinBase):
         menu.addSeparator()
 
         rating_menu = RatingMenu(menu, self.src, self.wid.rating)
-        rating_menu.new_rating.connect(self.wid.calculate_new_rating)
+        rating_menu.new_rating.connect(lambda value: self.new_rating.emit(value))
         menu.addMenu(rating_menu)
 
         menu.show_()
