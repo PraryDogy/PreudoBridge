@@ -377,6 +377,9 @@ class BaseItem:
         self.birth = stat.st_birthtime
         self.size = stat.st_size
 
+        # Поправка старой системы рейтинга, когда рейтинг был двузначным
+        self.rating = self.rating % 10
+
     @classmethod
     def check(cls):
         """
