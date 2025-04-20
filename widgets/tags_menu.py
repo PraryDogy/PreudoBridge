@@ -67,15 +67,7 @@ class TagsMenu(QListWidget):
         menu.show_()
 
     def handle_item_click(self, item: UItem):
-
-        if item.rating > 5:
-            value = item.rating % 10
-        else:
-            value = item.rating
-
-        self.item_cmd(
-            rating=value
-        )
+        self.item_cmd(item.rating)
 
     def item_cmd(self, rating: int):
         Dynamic.rating_filter = rating
