@@ -363,9 +363,9 @@ class MainWin(QWidget):
         self.bar_top.search_wid.clear_without_signal()
 
         if self.view_index == 0:
-            # без аннотации пропадет ссылка на force_load_images_cmd
             self.grid = GridStandart(self.main_dir, self.view_index, path_for_select)
-            self.grid: GridStandartr
+            # без аннотации пропадет ссылка на force_load_images_cmd
+            self.grid: GridStandart
             cmd_ = lambda urls: self.grid.force_load_images_cmd(urls)
             self.grid.force_load_images_sig.connect(cmd_)
 
