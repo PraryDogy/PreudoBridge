@@ -409,10 +409,10 @@ class Grid(UScrollArea):
         self.mouseReleaseEvent = self.custom_mouseReleaseEvent
 
     def select_one_wid(self, wid: Thumb):
-        # важно передать сюда именно виджет, который содержит row, col
-        # а не напрямую передавать row, col, так как при rearrange
-        # row col виджета будут меняться
-
+        """
+        Очищает выделение со всех выделенных виджетов.  
+        Выделяет виджет, переданный в аргументе.
+        """
         if wid is None:
             return
 
@@ -421,23 +421,23 @@ class Grid(UScrollArea):
         wid.set_frame()
         self.selected_widgets.append(wid)
         self.ensureWidgetVisible(wid)
-        self.path_bar_update_cmd(src=wid.src)
+        self.path_bar_update_cmd(wid.src)
 
     def path_bar_update_cmd(self, src: str):
-        # через таймер чтобы функция не блокировалась зажатой клавишей мыши
+        """
+        Указывает новый путь для path_bar.py > PathBar.  
+        Действие отложено по таймеру, т.к. без таймера действие может быть
+        заблокировано например контекстным меню
+        """
         cmd_ = lambda: self.path_bar_update.emit(src)
         QTimer.singleShot(100, cmd_)
     
     def order_(self):
-
+        """
+        Сортирует виджеты по аттрибуту BaseItem / Thumb
+        """
         self.ordered_widgets = BaseItem.sort_items(self.ordered_widgets)
-        
-        Thumb.all = {
-            wid.src: wid
-            for wid in self.ordered_widgets
-            if isinstance(wid, Thumb)
-            }
-        
+                
     def filter_(self):
         for wid in self.ordered_widgets:
             show_widget = True
