@@ -14,8 +14,7 @@ from database import CACHE, Dbase
 from utils import URunnable, UThreadPool, Utils
 
 from ._base_widgets import UMenu, USvgSqareWidget, WinBase
-from .actions import (CopyPath, Info, OpenInApp, RatingMenu, RevealInFinder,
-                      TagMenu)
+from .actions import CopyPath, Info, OpenInApp, RatingMenu, RevealInFinder
 from .grid import KEY_RATING, RATINGS, Thumb
 from .info_win import InfoWin
 
@@ -554,9 +553,5 @@ class ImgViewWin(WinBase):
         rating_menu = RatingMenu(menu, self.src, self.wid.rating)
         rating_menu.new_rating.connect(self.wid.calculate_new_rating)
         menu.addMenu(rating_menu)
-
-        tags_menu = TagMenu(parent=menu, urls=self.wid.src, rating=self.wid.rating)
-        tags_menu.new_tag.connect(self.wid.calculate_new_rating)
-        menu.addMenu(tags_menu)
 
         menu.show_()

@@ -28,20 +28,6 @@ class TagsMenu(QListWidget):
         self.setFixedHeight(230)
         item_size = QSize(self.width(), 25)
 
-        # копия механик из _actions.py > TagsMenu
-
-        # NO_TAGS_T_ = Static.LINE_SYM + " " + Static.NO_TAGS_T
-        DEINED_T_ = Static.DEINED_SYM + " " + Static.TAGS_DEINED
-        REVIEW_T_ = Static.REVIEW_SYM  + " " + Static.TAGS_REVIEW
-        APPROVED_T_ = Static.APPROVED_SYM  + " " + Static.TAGS_APPROWED
-
-        actions = {
-            # NO_TAGS_T_: 9,
-            DEINED_T_: 6,
-            REVIEW_T_: 7,
-            APPROVED_T_: 8
-        }
-        # конец копии
 
         zero_item = UItem()
         zero_item.rating = 0
@@ -56,19 +42,11 @@ class TagsMenu(QListWidget):
             item.setSizeHint(item_size)
             self.addItem(item)
 
-        for text, int_ in actions.items():
-            item = UItem()
-            item.rating = int_
-            item.setText(text)
-            item.setSizeHint(item_size)
-            self.addItem(item)
-
         self.setContextMenuPolicy(Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
         self.itemClicked.connect(self.handle_item_click)
 
     def show_context_menu(self, position):
-
         item: UItem = self.itemAt(position)
 
         if not item:

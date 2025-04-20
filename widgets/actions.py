@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QAction, QLabel, QLineEdit, QTextEdit, QWidget
 from cfg import Dynamic, Static
 from utils import URunnable, UThreadPool, Utils
 
-from ._base_widgets import UMenu, Sort
+from ._base_widgets import Sort, UMenu
 
 REVEAL_T = "Показать в Finder"
 INFO_T = "Инфо"
@@ -195,41 +195,6 @@ class RatingMenu(UMenu):
             # виджет Thumb установит новый рейтинг и 
             # запишет его в базу данных
             cmd_ = lambda e, r=current_rating: self.new_rating.emit(r)
-            wid.triggered.connect(cmd_)
-            self.addAction(wid)
-
-
-# меню с тегами для _grid.py > Thumb
-class TagMenu(UMenu):
-    new_tag = pyqtSignal(int)
-
-    def __init__(self, parent: UMenu, urls: str, rating: int):
-        if isinstance(urls, str):
-            urls = [urls]
-        t = f"{TAGS_T} ({len(urls)})"
-        super().__init__(t, parent)
-        rating = rating // 10
-
-        # копия механик из tree_tags.py > TreeTags
-        NO_TAGS_T_ = Static.LINE_LONG_SYM + " " + Static.TAGS_NO_TAGS
-        DEINED_T_ = Static.DEINED_SYM + " " + Static.TAGS_DEINED
-        REVIEW_T_ = Static.REVIEW_SYM  + " " + Static.TAGS_REVIEW
-        APPROVED_T_ = Static.APPROVED_SYM  + " " + Static.TAGS_APPROWED
-
-        actions = {
-            NO_TAGS_T_: 9,
-            DEINED_T_: 6,
-            REVIEW_T_: 7,
-            APPROVED_T_: 8
-        }
-        # конец копии
-
-        for sym, int_ in actions.items():
-            wid = QAction(sym, parent)
-            wid.setCheckable(True)
-            if rating == int_:
-                wid.setChecked(True)
-            cmd_ = lambda e, r=int_: self.new_tag.emit(r)
             wid.triggered.connect(cmd_)
             self.addAction(wid)
 

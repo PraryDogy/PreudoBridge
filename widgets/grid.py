@@ -16,9 +16,9 @@ from utils import URunnable, UThreadPool, Utils
 
 from ._base_widgets import BaseItem, UMenu, UScrollArea
 from .actions import (ChangeViewMenu, CopyPath, FavAdd, FavRemove, Info,
-                      OpenInApp, RatingMenu, RevealInFinder, SortMenu, TagMenu,
-                      View, OpenInNewWindow)
-from .copy_files_win import ErrorWin, CopyFilesWin
+                      OpenInApp, OpenInNewWindow, RatingMenu, RevealInFinder,
+                      SortMenu, View)
+from .copy_files_win import CopyFilesWin, ErrorWin
 from .info_win import InfoWin
 from .remove_files_win import RemoveFilesWin
 
@@ -41,10 +41,6 @@ KEY_RATING = {
     Qt.Key.Key_3: 3,
     Qt.Key.Key_4: 4,
     Qt.Key.Key_5: 5,
-    Qt.Key.Key_6: 6,
-    Qt.Key.Key_7: 7,
-    Qt.Key.Key_8: 8,
-    Qt.Key.Key_9: 9
 }
 
 KEY_NAVI = {
@@ -55,51 +51,12 @@ KEY_NAVI = {
 }
 
 RATINGS = {
-    # для старого рейтинга, когда число рейтинга было от 0 до 5
     0: "",
     1: Static.STAR_SYM,
     2: Static.STAR_SYM * 2,
     3: Static.STAR_SYM * 3,
     4: Static.STAR_SYM * 4,
     5: Static.STAR_SYM * 5,
-
-    # для нового рейтинга, где первое число - тег, второе - рейтинг
-    # 6, 7, 8 - теги
-    # 9 - без тега
-    90: "",
-    91: Static.STAR_SYM,
-    92: Static.STAR_SYM * 2,
-    93: Static.STAR_SYM * 3,
-    94: Static.STAR_SYM * 4,
-    95: Static.STAR_SYM * 5,
-    
-    # теги
-    6: Static.DEINED_SYM + " " + Static.TAGS_DEINED,
-    7: Static.REVIEW_SYM + " " + Static.TAGS_REVIEW,
-    8: Static.APPROVED_SYM + " " + Static.TAGS_APPROWED,
-    9: "",
-
-    60: Static.DEINED_SYM + " " + Static.TAGS_DEINED,
-    61: Static.DEINED_SYM + " " + Static.STAR_SYM,
-    62: Static.DEINED_SYM + " " + Static.STAR_SYM * 2,
-    63: Static.DEINED_SYM + " " + Static.STAR_SYM * 3,
-    64: Static.DEINED_SYM + " " + Static.STAR_SYM * 4,
-    65: Static.DEINED_SYM + " " + Static.STAR_SYM * 5,
-
-    70: Static.REVIEW_SYM + " " + Static.TAGS_REVIEW,
-    71: Static.REVIEW_SYM + " " + Static.STAR_SYM,
-    72: Static.REVIEW_SYM + " " + Static.STAR_SYM * 2,
-    73: Static.REVIEW_SYM + " " + Static.STAR_SYM * 3,
-    74: Static.REVIEW_SYM + " " + Static.STAR_SYM * 4,
-    75: Static.REVIEW_SYM + " " + Static.STAR_SYM * 5,
-
-    80: Static.APPROVED_SYM + " " + Static.TAGS_APPROWED,
-    81: Static.APPROVED_SYM + " " + Static.STAR_SYM,
-    82: Static.APPROVED_SYM + " " + Static.STAR_SYM * 2,
-    83: Static.APPROVED_SYM + " " + Static.STAR_SYM * 3,
-    84: Static.APPROVED_SYM + " " + Static.STAR_SYM * 4,
-    85: Static.APPROVED_SYM + " " + Static.STAR_SYM * 5,
-
 }
 
 
@@ -184,7 +141,10 @@ class RatingWid(QLabel):
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
     def set_text(self, wid: BaseItem):
-        text = RATINGS[wid.rating].strip()
+        if wid.rating > 9:
+            print("зловредный рейтинг", wid.rating)
+            return
+        text = RATINGS.get(wid.rating).strip()
         self.setText(text)
 
 
@@ -631,10 +591,6 @@ class Grid(UScrollArea):
             rating_menu.new_rating.connect(self.set_new_rating)
             menu.addMenu(rating_menu)
 
-            tags_menu = TagMenu(parent=menu, urls=urls, rating=wid.rating)
-            tags_menu.new_tag.connect(self.set_new_rating)
-            menu.addMenu(tags_menu)
-
             menu.addSeparator()
 
         if self.is_grid_search:
@@ -718,13 +674,6 @@ class Grid(UScrollArea):
         # устанавливает рейтинг для выделенных в сетке виджетов
         for wid in self.selected_widgets:
             if wid.type_ in (*Static.IMG_EXT, Static.FOLDER_TYPE):
-                if new_rating > 5:
-                    rating = wid.rating % 10
-                    tag = new_rating
-                else:
-                    tag = wid.rating // 10
-                    rating = new_rating
-                new_rating = tag * 10 + rating
                 self.task_ = SetDbRating(self.main_dir, wid, new_rating)
                 cmd_ = lambda w=wid: self.set_new_rating_fin(w, new_rating)
                 self.task_.signals_.finished_.connect(cmd_)
@@ -890,7 +839,6 @@ class Grid(UScrollArea):
                 self.select_one_wid(wid=clicked_wid)
 
         elif a0.key() in KEY_RATING:
-
             rating = KEY_RATING.get(a0.key())
             self.set_new_rating(rating)
         

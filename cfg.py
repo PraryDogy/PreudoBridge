@@ -60,15 +60,6 @@ class Static:
     PARAGRAPH_SEP = "\u2029" # символ PyQt5, который равен новой строке
     LINE_FEED  = "\u000a" # символ PyQt5, который равен новой строке
 
-    DEINED_SYM = "⚠"
-    REVIEW_SYM = "◌"
-    APPROVED_SYM = "✓"
-
-    TAGS_NO_TAGS = "Без меток"
-    TAGS_DEINED = "Отклонено"
-    TAGS_REVIEW = "Модерация"
-    TAGS_APPROWED = "Принято"
-
     LEFT_MENU_W = 240
 
     LINK = "https://disk.yandex.ru/d/vYdK8hMwVbkSKQ"
