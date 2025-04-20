@@ -571,7 +571,7 @@ class Grid(UScrollArea):
         menu.addAction(copy_path)
 
         copy_files = QAction(f"{COPY_FILES_T} ({len(urls)})", menu)
-        copy_files.triggered.connect(self.copy_files)
+        copy_files.triggered.connect(self.setup_copy_files_list)
         menu.addAction(copy_files)
 
         menu.addSeparator()
@@ -673,7 +673,11 @@ class Grid(UScrollArea):
         menu.addAction(upd_)
 
     def set_new_rating(self, new_rating: int):
-        # устанавливает рейтинг для выделенных в сетке виджетов
+        """
+        Устанавливает рейтинг для выделенных в сетке виджетов:
+        - Делается запись в базу данных через QRunnable
+        - При успешной записи QRunnable испускает сигнал finished
+        """
         for wid in self.selected_widgets:
             if wid.type_ in (*Static.IMG_EXT, Static.FOLDER_TYPE):
                 self.task_ = SetDbRating(self.main_dir, wid, new_rating)
@@ -682,13 +686,24 @@ class Grid(UScrollArea):
                 UThreadPool.start(self.task_)
 
     def set_new_rating_fin(self, wid: Thumb, new_rating: int):
+        """
+        Устанавливает визуальный рейтинг и аттрибут рейтинга для Thumb при  
+        успешной записи в базу данных
+        """
         wid.rating = new_rating
         wid.rating_wid.set_text(wid=wid)
         wid.text_changed.emit()
 
     def get_wid_under_mouse(self, a0: QMouseEvent) -> None | Thumb:
+        """
+        Получает виджет Thumb, по которому произошел клик.  
+        Клик засчитывается, если он произошел по дочерним виджетам Thumb:   
+        TextWidget, RatingWid, ImgFrame     
+        QLabel и QSvgWidget являются дочерними виджетами ImgFrame, поэтому  
+        в случае клика по ним, возвращается .parent().parent()
+        """
         wid = QApplication.widgetAt(a0.globalPos())
-
+        
         if isinstance(wid, (TextWidget, RatingWid, ImgFrame)):
             return wid.parent()
         elif isinstance(wid, (QLabel, QSvgWidget)):
@@ -697,18 +712,29 @@ class Grid(UScrollArea):
             return None
         
     def clear_selected_widgets(self):
+        """
+        Очищает список выделенных виджетов и снимает визуальное выделение с них
+        """
         for i in self.selected_widgets:
             i.set_no_frame()
         self.selected_widgets.clear()
 
-    def add_and_select_widget(self, wid: Thumb):
+    def select_widget(self, wid: Thumb):
+        """
+        Добавляет виджет в список выделенных виджетов и выделяет виджет визуально.  
+        Метод похож на select_one_widget, но поддерживает выделение нескольких  
+        виджетов.
+        """
         if isinstance(wid, Thumb):
             self.selected_widgets.append(wid)
             wid.set_frame()
 
-    def copy_files(self):
+    def setup_copy_files_list(self):
+        """
+        Очищает список путей к файлам / папкам для последующего копирования.    
+        Формирует новый список на основе списка выделенных виджетов Thumb
+        """
         Dynamic.files_to_copy.clear()
-
         for i in self.selected_widgets:
             Dynamic.files_to_copy.append(i.src)
 
@@ -769,7 +795,7 @@ class Grid(UScrollArea):
                 self.paste_files()
 
             elif a0.key() == Qt.Key.Key_C:
-                self.copy_files()
+                self.setup_copy_files_list()
 
             if a0.key() == Qt.Key.Key_Up:
                 self.level_up.emit()
@@ -862,13 +888,13 @@ class Grid(UScrollArea):
             # если не было выделено ни одного виджет ранее
             # то выделяем кликнутый
             if not self.selected_widgets:
-                self.add_and_select_widget(wid=clicked_wid)
+                self.select_widget(wid=clicked_wid)
 
             # если есть выделенные виджеты, но кликнутый виджет не выделены
             # то снимаем выделение с других и выделяем кликнутый
             elif clicked_wid not in self.selected_widgets:
                 self.clear_selected_widgets()
-                self.add_and_select_widget(wid=clicked_wid)
+                self.select_widget(wid=clicked_wid)
 
             self.thumb_context(menu=menu, wid=clicked_wid)
 
@@ -891,7 +917,7 @@ class Grid(UScrollArea):
             # шифт клик: если не было выделенных виджетов
             if not self.selected_widgets:
 
-                self.add_and_select_widget(wid=clicked_wid)
+                self.select_widget(wid=clicked_wid)
 
             # шифт клик: если уже был выделен один / несколько виджетов
             else:
@@ -917,7 +943,7 @@ class Grid(UScrollArea):
                     wid_ = self.cell_to_wid.get(i)
 
                     if wid_ not in self.selected_widgets:
-                        self.add_and_select_widget(wid=wid_)
+                        self.select_widget(wid=wid_)
 
         elif a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
 
@@ -928,13 +954,13 @@ class Grid(UScrollArea):
 
             # комманд клик: виджет не был виделен, выделить
             else:
-                self.add_and_select_widget(wid=clicked_wid)
+                self.select_widget(wid=clicked_wid)
                 self.path_bar_update_cmd(clicked_wid.src)
 
         else:
 
             self.clear_selected_widgets()
-            self.add_and_select_widget(wid=clicked_wid)
+            self.select_widget(wid=clicked_wid)
             self.select_one_wid(wid=clicked_wid)
 
     def mouseDoubleClickEvent(self, a0):
@@ -967,7 +993,7 @@ class Grid(UScrollArea):
 
         if wid not in self.selected_widgets:
             self.clear_selected_widgets()
-            self.add_and_select_widget(wid=wid)
+            self.select_widget(wid=wid)
 
         urls = [
             i.src
