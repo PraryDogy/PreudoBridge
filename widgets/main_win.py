@@ -92,6 +92,10 @@ class MainWin(QWidget):
 
         self.main_win_list: list[MainWin] = []
 
+        # список к папкам / файлам, которые нужно скопировать из GridSearch
+        # в GridStandart
+        self.urls_to_copy: list[str] = []
+
         # индекс 0 просмотр сеткой, индекс 1 просмотр списком
         self.view_index = 0
 
@@ -313,6 +317,7 @@ class MainWin(QWidget):
         self.grid.close()
         self.menu_tags.reset()
         self.grid = GridSearch(self.main_dir, self.view_index, None, search_text)
+        self.grid.urls_to_copy_sig.connect(lambda urls: self.urls_to_copy_cmd(urls))
         # нужно сразу добавлять в окно, чтобы у виджета появился родитель
         # тогда во всех эвентах правильно сработает self.grid.window()
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
@@ -369,6 +374,13 @@ class MainWin(QWidget):
             cmd_ = lambda urls: self.grid.force_load_images_cmd(urls)
             self.grid.force_load_images_sig.connect(cmd_)
 
+            # если в сетке были скопированы виджеты
+            # то в основное окно был передан сигнал со списком путей к файлам / папкам
+            # для копирования, который в свою очередь пойдет в GridStandart
+            if self.urls_to_copy:
+                self.grid.urls_to_copy = [i for i in self.urls_to_copy]
+                self.urls_to_copy.clear()
+
         elif self.view_index == 1:
             self.grid = GridList(self.main_dir, self.view_index)
 
@@ -381,6 +393,9 @@ class MainWin(QWidget):
         self.menu_tree.expand_path(self.main_dir)
         self.window().raise_()
         self.grid.setFocus()
+
+    def urls_to_copy_cmd(self, urls: list[str]):
+        self.urls_to_copy = urls
 
     def scroll_up_show_hide(self, value: int):
         if value == 0:

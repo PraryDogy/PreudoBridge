@@ -290,6 +290,7 @@ class Thumb(BaseItem, QFrame):
 
 class Grid(UScrollArea):
     force_load_images_sig = pyqtSignal(list)
+    urls_to_copy_sig = pyqtSignal(list)
 
     def __init__(self, main_dir: str, view_index: int, path_for_select: str):
         super().__init__()
@@ -630,6 +631,11 @@ class Grid(UScrollArea):
         self.urls_to_copy.clear()
         for i in self.selected_widgets:
             self.urls_to_copy.append(i.src)
+
+        # если это сетка поиска, то передадим список к файлам / папкам 
+        # в главное окно, а оттуда в GridStandart
+        if self.is_grid_search:
+            self.urls_to_copy_sig.emit(self.urls_to_copy)
 
     def paste_files(self):
         """
