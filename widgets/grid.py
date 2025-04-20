@@ -665,7 +665,7 @@ class Grid(UScrollArea):
 
         menu.addSeparator()
 
-        if Dynamic.files_to_copy:
+        if Dynamic.files_to_copy and not self.is_grid_search:
             paste_files = QAction(PASTE_FILES_T, menu)
             paste_files.triggered.connect(self.paste_files)
             menu.addAction(paste_files)
