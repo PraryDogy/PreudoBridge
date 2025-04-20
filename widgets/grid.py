@@ -794,7 +794,7 @@ class Grid(UScrollArea):
             # правильное значение строки и столбца
             row, col = list(self.cell_to_wid.keys())[-1]
             new_row, new_col = row + 1, col + 1
-            self.add_widget_data(wid, new_row, new_col)к
+            self.add_widget_data(wid, new_row, new_col)
             self.grid_layout.addWidget(wid, new_row, new_col)
         self.order_()
         self.rearrange()
