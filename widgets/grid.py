@@ -158,7 +158,7 @@ class Thumb(BaseItem, QFrame):
     img_obj_name = "img_frame"
     text_obj_name = "text_frame_"
 
-    def __init__(self, src: str, rating: int):
+    def __init__(self, src: str, rating: int = 0):
         """
         Обязательно задать параметры:   
         setup, setup_child_widgets, set_no_frame 
