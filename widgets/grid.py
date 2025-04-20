@@ -1077,3 +1077,25 @@ class Grid(UScrollArea):
 
         return super().mouseMoveEvent(a0)
     
+    def dragEnterEvent(self, a0):
+        if a0.mimeData().hasUrls():
+            a0.acceptProposedAction()
+        return super().dragEnterEvent(a0)
+    
+    def dropEvent(self, a0):
+        Dynamic.files_to_copy = [i.toLocalFile() for i in a0.mimeData().urls()]
+
+        main_dir_ = Utils.add_system_volume(self.main_dir)
+        for i in Dynamic.files_to_copy:
+            # Если путь начинается с /Users/Username, то делаем абсолютный путь
+            # /Volumes/Macintosh HD/Users/Username
+            i = Utils.normalize_slash(i)
+            i = Utils.add_system_volume(i)
+            if os.path.commonpath([i, main_dir_]) == main_dir_:
+                print("Нельзя копировать в себя")
+                return
+
+        if Dynamic.files_to_copy and not self.is_grid_search:
+            self.paste_files()
+
+        return super().dropEvent(a0)

@@ -242,37 +242,3 @@ class GridStandart(Grid):
     def resizeEvent(self, a0):
         self.loading_lbl.center(self)
         return super().resizeEvent(a0)
-    
-    def dragEnterEvent(self, a0):
-        if a0.mimeData().hasUrls():
-            a0.acceptProposedAction()
-        return super().dragEnterEvent(a0)
-    
-    def dropEvent(self, a0):
-        Dynamic.files_to_copy = [i.toLocalFile() for i in a0.mimeData().urls()]
-
-        main_dir_ = Utils.add_system_volume(self.main_dir)
-        for i in Dynamic.files_to_copy:
-            # Если путь начинается с /Users/Username, то делаем абсолютный путь
-            # /Volumes/Macintosh HD/Users/Username
-            i = Utils.normalize_slash(i)
-            i = Utils.add_system_volume(i)
-            if os.path.commonpath([i, main_dir_]) == main_dir_:
-                print("Нельзя копировать в себя")
-                return
-
-        if Dynamic.files_to_copy:
-            urls = Dynamic.files_to_copy
-            self.win_copy_files_win = CopyFilesWin(self.main_dir, urls)
-            self.win_copy_files_win.finished_.connect(lambda urls: self.force_load_images_sig.emit(urls))
-            self.win_copy_files_win.error_win_sig.connect(self.error_win_cmd)
-            self.win_copy_files_win.center(self.window())
-            self.win_copy_files_win.show()
-
-        return super().dropEvent(a0)
-    
-    def error_win_cmd(self):
-        self.win_copy_files_win.close()
-        self.error_win = ErrorWin()
-        self.error_win.center(self.window())
-        self.error_win.show()
