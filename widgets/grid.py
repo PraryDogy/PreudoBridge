@@ -700,6 +700,10 @@ class Grid(UScrollArea):
         # чтобы прогрузить изображения для вставленных виджетов.
         self.force_load_images_sig.emit(urls)
 
+        # очищает список копируемых urls, чтобы предотвратить многократную вставку
+        # неизвестно нужно ли
+        self.urls_to_copy.clear()
+
     def error_win_cmd(self):
         """
         Открывает окно ошибки копирования файлов
