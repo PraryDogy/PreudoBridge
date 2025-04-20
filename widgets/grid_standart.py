@@ -261,8 +261,9 @@ class GridStandart(Grid):
                 return
 
         if Dynamic.files_to_copy:
-            self.win_copy_files_win = CopyFilesWin(self.main_dir)
-            self.win_copy_files_win.finished_.connect(self.load_st_grid_sig.emit)
+            urls = Dynamic.files_to_copy
+            self.win_copy_files_win = CopyFilesWin(self.main_dir, urls)
+            self.win_copy_files_win.finished_.connect(lambda urls: self.force_load_images_sig.emit(urls))
             self.win_copy_files_win.error_win_sig.connect(self.error_win_cmd)
             self.win_copy_files_win.center(self.window())
             self.win_copy_files_win.show()
