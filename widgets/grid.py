@@ -537,6 +537,9 @@ class Grid(UScrollArea):
         self.win_info.show()
 
     def thumb_context(self, menu: UMenu, wid: Thumb):
+        """
+        Контекстное меню Thumb
+        """
         # собираем пути к файлам / папкам у выделенных виджетов
         urls = [i.src for i in self.selected_widgets]
 
@@ -617,6 +620,9 @@ class Grid(UScrollArea):
         self.load_st_grid_sig.emit((new_main_dir, wid.src))
 
     def grid_context(self, menu: UMenu):
+        """
+        Контекстное меню Grid
+        """
         self.path_bar_update_cmd(self.main_dir)
 
         info = Info(menu)
