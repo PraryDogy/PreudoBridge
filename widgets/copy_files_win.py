@@ -4,10 +4,10 @@ from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QPushButton,
                              QVBoxLayout, QWidget)
 
-from cfg import Dynamic, Static
+from cfg import Static
 from utils import URunnable, UThreadPool, Utils
 
-from ._base_widgets import USvgSqareWidget, MinMaxDisabledWin
+from ._base_widgets import MinMaxDisabledWin, USvgSqareWidget
 
 PREPARING_T = "Подготовка"
 COPYING_T = "Копирую файлы"
@@ -25,9 +25,10 @@ class WorderSignals(QObject):
 
 
 class FileCopyWorker(URunnable):
-    def __init__(self, main_dir: str):
+    def __init__(self, main_dir: str, urls: list[str]):
         super().__init__()
         self.main_dir = main_dir
+        self.urls = urls
         self.signals_ = WorderSignals()
 
     @URunnable.set_running_state
@@ -78,12 +79,11 @@ class FileCopyWorker(URunnable):
         paths = list(paths)
         self.finalize(paths)
 
-    def finalize(self, paths: list[str]):
+    def finalize(self, urls: list[str]):
         try:
-            self.signals_.finished_.emit(paths)
+            self.signals_.finished_.emit(urls)
         except RuntimeError:
             ...
-        Dynamic.files_to_copy.clear()
 
     def copy_by_bytes(self, src: str, dest: str):
         buffer_size = 1024 * 1024  # 1 MB
@@ -144,7 +144,7 @@ class FileCopyWorker(URunnable):
     def create_new_paths(self):
         new_paths: list[tuple[str, str]] = []
 
-        for i in Dynamic.files_to_copy:
+        for i in self.urls:
             i = Utils.normalize_slash(i)
             if os.path.isdir(i):
                 new_paths.extend(self.scan_folder(i, self.main_dir))
@@ -228,12 +228,13 @@ class ErrorWin(MinMaxDisabledWin):
 
 
 class CopyFilesWin(MinMaxDisabledWin):
-    load_st_grid_sig = pyqtSignal(tuple)
+    finished_ = pyqtSignal(list)
     error_win_sig = pyqtSignal()
 
-    def __init__(self, main_dir: str):
+    def __init__(self, main_dir: str, urls: list[str]):
         super().__init__()
         self.main_dir = main_dir
+        self.urls = urls
         self.setFixedSize(400, 75)
         self.setWindowTitle(COPYING_T)
 
@@ -254,7 +255,7 @@ class CopyFilesWin(MinMaxDisabledWin):
 
         right_side_lay.addStretch()
 
-        src = min(Dynamic.files_to_copy, key=len)
+        src = min(self.urls, key=len)
         src = os.path.dirname(Utils.normalize_slash(src))
         src = os.path.basename(src)
         dest = os.path.basename(self.main_dir)
@@ -287,12 +288,12 @@ class CopyFilesWin(MinMaxDisabledWin):
 
         self.task_ = None
 
-        if Dynamic.files_to_copy:
-            self.task_ = FileCopyWorker(self.main_dir)
+        if self.urls:
+            self.task_ = FileCopyWorker(self.main_dir, urls)
             self.task_.signals_.set_max_progress.connect(lambda value: self.set_max(progressbar, value))
             self.task_.signals_.set_value_progress.connect(lambda value: self.set_value(progressbar, value))
             self.task_.signals_.set_text_progress.connect(size_mb_lbl.setText)
-            self.task_.signals_.finished_.connect(self.finished_task)
+            self.task_.signals_.finished_.connect(lambda urls: self.finished_task(urls))
             self.task_.signals_.error_win_sig.connect(self.error_win_sig.emit)
             UThreadPool.start(runnable=self.task_)
 
@@ -312,9 +313,9 @@ class CopyFilesWin(MinMaxDisabledWin):
     def cancel_cmd(self, *args):
         self.close()
 
-    def finished_task(self, new_paths: list[str]):
+    def finished_task(self, urls: list[str]):
         self.close()
-        self.load_st_grid_sig.emit((self.main_dir, new_paths))
+        self.finished_.emit(urls)
         del self.task_
 
     def closeEvent(self, a0):
