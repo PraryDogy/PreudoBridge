@@ -519,22 +519,27 @@ class Grid(UScrollArea):
             subprocess.Popen(["open", wid.src])
 
     def fav_cmd(self, offset: int, src: str):
+        """
+        Добавляет / удаляет папку в меню избранного. Аргументы:
+        - offset: -1 (удалить из избранного) или 1(добавить в избранное)
+        - src: путь к папке
+        """
         if 0 + offset == 1:
             self.fav_cmd_sig.emit(("add", src))
         else:
             self.fav_cmd_sig.emit(("del", src))
 
     def win_info_cmd(self, src: str):
+        """
+        Открыть окно информации о файле / папке
+        """
         self.win_info = InfoWin(src)
         self.win_info.center(self.window())
         self.win_info.show()
 
     def thumb_context_actions(self, menu: UMenu, wid: Thumb):
-
-        urls = [
-            i.src
-            for i in self.selected_widgets
-        ]
+        # собираем пути к файлам / папкам у выделенных виджетов
+        urls = [i.src for i in self.selected_widgets]
 
         self.path_bar_update_cmd(wid.src)
 
@@ -570,13 +575,11 @@ class Grid(UScrollArea):
         menu.addSeparator()
 
         if wid.type_ == Static.FOLDER_TYPE:
-
             if wid.src in JsonData.favs:
                 cmd_ = lambda: self.fav_cmd(offset=-1, src=wid.src)
                 fav_action = FavRemove(menu)
                 fav_action.triggered.connect(cmd_)
                 menu.addAction(fav_action)
-
             else:
                 cmd_ = lambda: self.fav_cmd(offset=1, src=wid.src)
                 fav_action = FavAdd(menu)
