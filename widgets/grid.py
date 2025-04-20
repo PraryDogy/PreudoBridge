@@ -357,10 +357,20 @@ class Grid(UScrollArea):
         self.is_grid_search: bool = False
         self.main_dir = main_dir
         self.view_index = view_index
+
+        # для выделения виджета после формирования / перетасовки сетки
         self.path_for_select = path_for_select
+
+        # путь к файлу - виджет
         self.path_to_wid: dict[str, Thumb] = {}
+
+        # выделенные в сетке виджеты
         self.selected_widgets: list[Thumb] = []
+
+        # (строка, столбец) - виджет
         self.cell_to_wid: dict[tuple, Thumb] = {}
+
+        # виджеты с порядком сортировки
         self.ordered_widgets: list[Thumb] = []
 
         self.main_wid = QWidget()
@@ -399,7 +409,6 @@ class Grid(UScrollArea):
         self.mouseReleaseEvent = self.custom_mouseReleaseEvent
 
     def select_one_wid(self, wid: Thumb):
-
         # важно передать сюда именно виджет, который содержит row, col
         # а не напрямую передавать row, col, так как при rearrange
         # row col виджета будут меняться
