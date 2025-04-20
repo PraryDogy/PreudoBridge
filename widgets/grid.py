@@ -695,6 +695,9 @@ class Grid(UScrollArea):
             self.grid_layout.addWidget(wid, new_row, new_col)
         self.order_()
         self.rearrange()
+        # испускает сигнал со списком Urls в MainWin, и MainWin
+        # инициирует метод force_load_images_cmd в GridStandart,
+        # чтобы прогрузить изображения для вставленных виджетов.
         self.force_load_images_sig.emit(urls)
 
     def error_win_cmd(self):
