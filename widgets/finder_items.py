@@ -55,6 +55,10 @@ class FinderItems(URunnable):
             return engine.connect()
 
     def set_rating(self, conn: sqlalchemy.Connection, base_items: list[BaseItem]):
+        """
+        Устанавливает рейтинг для BaseItem, который затем передастся в Thumb    
+        Рейтинг берется из базы данных
+        """
         Dynamic.busy_db = True
         q = sqlalchemy.select(CACHE.c.name, CACHE.c.rating)
         res = conn.execute(q).fetchall()
