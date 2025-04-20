@@ -374,9 +374,13 @@ class MainWin(QWidget):
             cmd_ = lambda urls: self.grid.force_load_images_cmd(urls)
             self.grid.force_load_images_sig.connect(cmd_)
 
-            # если в сетке были скопированы виджеты
-            # то в основное окно был передан сигнал со списком путей к файлам / папкам
-            # для копирования, который в свою очередь пойдет в GridStandart
+            # если в сетке GridSearch были скопированы виджеты
+            # то сетка испустит сигнал со списком url для копирования в
+            # в основное окно в переменную self.urls_to_copy
+            # при инициации GridStandrt, если urls_to_copy будет не пуст,
+            # то передастся список urls to copy
+            # таким образом произойдет обмен списком urls для копирования
+            # из GridSearch в GridStandart
             if self.urls_to_copy:
                 self.grid.urls_to_copy = [i for i in self.urls_to_copy]
                 self.urls_to_copy.clear()
