@@ -222,7 +222,6 @@ class Dynamic:
     rev: bool = False
     sort: str = "name"
     busy_db: bool = False
-    files_to_copy: list[str] = []
     EXACT_SEARCH = False
     SEARCH_LIST = []
 

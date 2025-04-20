@@ -298,6 +298,7 @@ class Grid(UScrollArea):
         self.horizontalScrollBar().setDisabled(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
+        self.urls_to_copy: list[str] = []
         self.is_grid_search: bool = False
         self.main_dir = main_dir
         self.view_index = view_index
@@ -626,9 +627,9 @@ class Grid(UScrollArea):
         Очищает список путей к файлам / папкам для последующего копирования.    
         Формирует новый список на основе списка выделенных виджетов Thumb
         """
-        Dynamic.files_to_copy.clear()
+        self.urls_to_copy.clear()
         for i in self.selected_widgets:
-            Dynamic.files_to_copy.append(i.src)
+            self.urls_to_copy.append(i.src)
 
     def paste_files(self):
         """
@@ -643,16 +644,15 @@ class Grid(UScrollArea):
         """
         main_dir_ = Utils.normalize_slash(self.main_dir)
         main_dir_ = Utils.add_system_volume(main_dir_)
-        for i in Dynamic.files_to_copy:
+        for i in self.urls_to_copy:
             i = Utils.normalize_slash(i)
             i = Utils.add_system_volume(i)
             if os.path.commonpath([i, main_dir_]) == main_dir_:
                 print("Нельзя копировать в себя")
                 return
 
-        if Dynamic.files_to_copy:
-            urls = Dynamic.files_to_copy
-            self.win_copy = CopyFilesWin(self.main_dir, urls)
+        if self.urls_to_copy:
+            self.win_copy = CopyFilesWin(self.main_dir, self.urls_to_copy)
             self.win_copy.finished_.connect(lambda urls: self.paste_files_fin(urls))
             self.win_copy.error_win_sig.connect(self.error_win_cmd)
             self.win_copy.center(self.window())
@@ -791,7 +791,7 @@ class Grid(UScrollArea):
 
         menu.addSeparator()
 
-        if Dynamic.files_to_copy and not self.is_grid_search:
+        if self.urls_to_copy and not self.is_grid_search:
             paste_files = QAction(PASTE_FILES_T, menu)
             paste_files.triggered.connect(self.paste_files)
             menu.addAction(paste_files)
@@ -1083,18 +1083,19 @@ class Grid(UScrollArea):
         return super().dragEnterEvent(a0)
     
     def dropEvent(self, a0):
-        Dynamic.files_to_copy = [i.toLocalFile() for i in a0.mimeData().urls()]
+        self.urls_to_copy.clear()
+        self.urls_to_copy = [i.toLocalFile() for i in a0.mimeData().urls()]
 
         main_dir_ = Utils.normalize_slash(self.main_dir)
         main_dir_ = Utils.add_system_volume(main_dir_)
-        for i in Dynamic.files_to_copy:
+        for i in self.urls_to_copy:
             i = Utils.normalize_slash(i)
             i = Utils.add_system_volume(i)
             if os.path.commonpath([i, main_dir_]) == main_dir_:
                 print("Нельзя копировать в себя")
                 return
 
-        if Dynamic.files_to_copy and not self.is_grid_search:
+        if self.urls_to_copy and not self.is_grid_search:
             self.paste_files()
 
         return super().dropEvent(a0)
