@@ -141,6 +141,8 @@ class RatingWid(QLabel):
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
     def set_text(self, wid: BaseItem):
+        # мы отключаем отображение рейтинга для старого двузначного формата
+        # рейтинг будет исправляться в finder_items 
         if wid.rating > 9:
             print("зловредный рейтинг", wid.rating)
             return
