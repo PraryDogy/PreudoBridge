@@ -739,10 +739,19 @@ class Grid(UScrollArea):
             Dynamic.files_to_copy.append(i.src)
 
     def paste_files(self):
-        main_dir_ = Utils.add_system_volume(self.main_dir)
+        """
+        Вставляет файлы на основе списка Dynamic.files_to_copy в текущую директорию.    
+        Открывает окно копирования файлов.  
+        Запускает QRunnable для копирования файлов. Испускает сигналы:
+        - error win sig при ошибке копирования, откроется окно ошибки
+        - load_st_grid загрузит новую сетку GridStandart с учетом новых Thumb     
+        
+        Предотвращает вставку в саму себя.  
+        Например нельзя скопировать Downloads в Downloads.
+        """
+        main_dir_ = Utils.normalize_slash(self.main_dir)
+        main_dir_ = Utils.add_system_volume(main_dir_)
         for i in Dynamic.files_to_copy:
-            # Если путь начинается с /Users/Username, то делаем абсолютный путь
-            # /Volumes/Macintosh HD/Users/Username
             i = Utils.normalize_slash(i)
             i = Utils.add_system_volume(i)
             if os.path.commonpath([i, main_dir_]) == main_dir_:
@@ -757,29 +766,56 @@ class Grid(UScrollArea):
             self.win_copy.show()
 
     def error_win_cmd(self):
+        """
+        Открывает окно ошибки копирования файлов
+        """
         self.win_copy.close()
         self.error_win = ErrorWin()
         self.error_win.center(self.window())
         self.error_win.show()
 
     def remove_files_cmd(self, urls: list[str]):
+        """
+        Окно удаления выделенных виджетов, на основе которых формируется список     
+        файлов для удаления.    
+        Запускается apple script remove_files.scpt через subprocess через QRunnable,
+        чтобы переместить файлы в корзину, а не удалять их безвозвратно.
+        Окно испускет сигнал finished, что ведет к методу remove files fin
+        """
         self.rem_win = RemoveFilesWin(self.main_dir, urls)
         self.rem_win.finished_.connect(lambda urls: self.remove_files_fin(urls))
         self.rem_win.center(self.window())
         self.rem_win.show()
 
+    def remove_widget_data(self, dir: str) -> Thumb | None:
+        """
+        Удаляет данные о виджете из необходимых списков и словарей.     
+        Порядок удаления важен. Не менять.  
+        Возвращет найденный виджет на основе пути к файлу / папке или None
+        """
+        wid: Thumb = self.path_to_wid.get(dir)
+        if wid:
+            # удаляем виджет из сетки координат
+            self.cell_to_wid.pop((wid.row, wid.col))
+            # удаляем виджет из списка путей
+            self.path_to_wid.pop(wid)
+            # удаляем из сортированных виджетов
+            self.ordered_widgets.remove(wid)
+            return wid
+        else:
+            return None
+
     def remove_files_fin(self, urls: list[str]):
+        """
+        Удаляет виджеты и данные о виджетах на основе получанного списка url.   
+        Снимает визуальное выделение с выделенных виджетов.     
+        Очищает список выделенных вижетов.  
+        Запускает перетасовку сетки.    
+        """
         for i in urls:
-            thumb = self.path_to_wid.get(i)
-            if thumb:
-                # удаляем виджет из сетки координат
-                self.cell_to_wid.pop((thumb.row, thumb.col))
-                # удаляем виджет из списка путей
-                self.path_to_wid.pop(i)
-                # удаляем из сортированных виджетов
-                self.ordered_widgets.remove(thumb)
-                # уничтожаем виджет
-                thumb.deleteLater()
+            wid = self.remove_widget_data(i)
+            if wid:
+                wid.deleteLater()
 
         for i in self.selected_widgets:
             i.set_no_frame()
@@ -801,16 +837,17 @@ class Grid(UScrollArea):
                 self.level_up.emit()
 
             elif a0.key() == Qt.Key.Key_Down:
+                # если есть выделенные виджеты, то берется url последнего из списка
                 if self.selected_widgets:
                     clicked_wid = self.selected_widgets[-1]
                     if clicked_wid:
-                        self.select_one_wid(wid=clicked_wid)
+                        self.select_one_wid(clicked_wid)
                         self.view_thumb_cmd(clicked_wid)
 
             elif a0.key() == Qt.Key.Key_I:
                 clicked_wid = self.selected_widgets[-1]
                 if clicked_wid:
-                    self.select_one_wid(wid=clicked_wid)
+                    self.select_one_wid(clicked_wid)
                     self.win_info_cmd(clicked_wid.src)
                 else:
                     self.win_info_cmd(self.main_dir)
@@ -843,7 +880,6 @@ class Grid(UScrollArea):
                     self.view_thumb_cmd(clicked_wid)
 
         elif a0.key() in KEY_NAVI:
-
             offset = KEY_NAVI.get(a0.key())
 
             # если не выделено ни одного виджета
@@ -873,39 +909,34 @@ class Grid(UScrollArea):
         return super().keyPressEvent(a0)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-
         menu = UMenu(parent=self)
         clicked_wid = self.get_wid_under_mouse(a0=a0)
 
         # клик по пустому пространству
         if not clicked_wid:
             self.clear_selected_widgets()
-            self.grid_context(menu=menu)
+            self.grid_context(menu)
 
         # клик по виджету
         else:
-
             # если не было выделено ни одного виджет ранее
             # то выделяем кликнутый
             if not self.selected_widgets:
-                self.select_widget(wid=clicked_wid)
-
+                self.select_widget(clicked_wid)
             # если есть выделенные виджеты, но кликнутый виджет не выделены
             # то снимаем выделение с других и выделяем кликнутый
             elif clicked_wid not in self.selected_widgets:
                 self.clear_selected_widgets()
-                self.select_widget(wid=clicked_wid)
-
-            self.thumb_context(menu=menu, wid=clicked_wid)
+                self.select_widget(clicked_wid)
+            self.thumb_context(menu, clicked_wid)
 
         menu.show_()
 
     def custom_mouseReleaseEvent(self, a0: QMouseEvent):
-
         if a0.button() != Qt.MouseButton.LeftButton:
             return
 
-        clicked_wid = self.get_wid_under_mouse(a0=a0)
+        clicked_wid = self.get_wid_under_mouse(a0)
 
         if not isinstance(clicked_wid, Thumb):
             self.clear_selected_widgets()
@@ -913,12 +944,9 @@ class Grid(UScrollArea):
             return
         
         if a0.modifiers() == Qt.KeyboardModifier.ShiftModifier:
-
             # шифт клик: если не было выделенных виджетов
             if not self.selected_widgets:
-
-                self.select_widget(wid=clicked_wid)
-
+                self.select_widget(clicked_wid)
             # шифт клик: если уже был выделен один / несколько виджетов
             else:
 
@@ -939,9 +967,7 @@ class Grid(UScrollArea):
 
                 # выделяем виджеты по срезу координат coords
                 for i in coords:
-
                     wid_ = self.cell_to_wid.get(i)
-
                     if wid_ not in self.selected_widgets:
                         self.select_widget(wid=wid_)
 
@@ -958,16 +984,14 @@ class Grid(UScrollArea):
                 self.path_bar_update_cmd(clicked_wid.src)
 
         else:
-
-            self.clear_selected_widgets()
-            self.select_widget(wid=clicked_wid)
-            self.select_one_wid(wid=clicked_wid)
+            # self.clear_selected_widgets()
+            # self.select_widget(clicked_wid)
+            self.select_one_wid(clicked_wid)
 
     def mouseDoubleClickEvent(self, a0):
         clicked_wid = self.get_wid_under_mouse(a0=a0)
-
         if clicked_wid:
-            self.view_thumb_cmd(wid=clicked_wid)
+            self.view_thumb_cmd(clicked_wid)
 
     def mousePressEvent(self, a0):
         if a0.button() != Qt.MouseButton.LeftButton:

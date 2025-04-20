@@ -404,7 +404,7 @@ class Utils(Pixmap, ReadImage, ImgConvert):
     def add_system_volume(cls, path: str):
         """
         Добавляет /Volumes/Macintosh HD (или иное имя системного диска),
-        если директория начинается с /Users/../.../...
+        если директория локальная - т.е. начинается с /Users/Username/...
         """
         if path.startswith(os.path.expanduser("~")):
             return Utils.get_system_volume() + path
