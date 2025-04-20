@@ -17,7 +17,7 @@ from .copy_files_win import ErrorWin, CopyFilesWin
 
 WARN_TEXT = "Папка пуста или нет подключения к диску"
 TASK_NAME = "LOAD_IMAGES"
-JPG_PNG_EXTS: tuple = (".jpg", ".jpeg", ".jfif", "png")
+JPG_PNG_EXTS: tuple = (".jpg", ".jpeg", ".jfif", ".png")
 TIFF_EXTS: tuple = (".tif", ".tiff")
 PSD_EXTS: tuple = (".psd", ".psb")
 
