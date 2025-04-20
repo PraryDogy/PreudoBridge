@@ -218,8 +218,6 @@ class GridStandart(Grid):
             if widget:
                 if base_item.get_pixmap_storage():
                     widget.set_image(base_item.get_pixmap_storage())
-                if isinstance(base_item.rating, int):
-                    widget.set_rating_from_db(base_item.rating)
                 self.loaded_images.append(base_item.src)
 
         except RuntimeError:

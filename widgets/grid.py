@@ -287,12 +287,6 @@ class Thumb(BaseItem, QFrame):
             """
         )
 
-    def set_rating_from_db(self, rating: int):
-        # устанавливается значение из бд
-        self.rating = rating % 10
-        self.rating_wid.set_text(self)
-        self.text_changed.emit()
-
 
 class Grid(UScrollArea):
     def __init__(self, main_dir: str, view_index: int, path_for_select: str):
