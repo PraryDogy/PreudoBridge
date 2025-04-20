@@ -25,7 +25,7 @@ class TagsMenu(QListWidget):
             Qt.ScrollBarPolicy.ScrollBarAlwaysOff
         )
 
-        self.setFixedHeight(230)
+        self.setFixedHeight(155)
         item_size = QSize(self.width(), 25)
 
 
