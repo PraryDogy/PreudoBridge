@@ -161,7 +161,7 @@ class Thumb(BaseItem, QFrame):
     def __init__(self, src: str, rating: int = 0):
         """
         Обязательно задать параметры:   
-        setup, setup_child_widgets, set_no_frame 
+        setup_attrs, setup_child_widgets, set_no_frame 
         """
         QFrame.__init__(self, parent=None)
         BaseItem.__init__(self, src, rating)
@@ -761,23 +761,26 @@ class Grid(UScrollArea):
         if Dynamic.files_to_copy:
             urls = Dynamic.files_to_copy
             self.win_copy = CopyFilesWin(self.main_dir, urls)
-            self.win_copy.finished_.connect(self.paste_files_fin)
+            self.win_copy.finished_.connect(lambda urls: self.paste_files_fin(urls))
             self.win_copy.error_win_sig.connect(self.error_win_cmd)
             self.win_copy.center(self.window())
             self.win_copy.show()
 
-    def paste_files_fin(self):
-        # return
-        print(len(self.path_to_wid))
-        for dir in Dynamic.files_to_copy:
+    def paste_files_fin(self, urls: list[str]):
+        for dir in urls:
             if dir in self.path_to_wid:
-                self.remove_widget_data(dir)
+                wid = self.remove_widget_data(dir)
+                if wid:
+                    wid.deleteLater()
             wid = Thumb(dir)
+            wid.setup_attrs()
+            wid.setup_child_widgets()
+            wid.set_no_frame()
             row, col = list(self.cell_to_wid.keys())[-1]
-            self.grid_layout.addWidget(wid, row+1, col+1)
-            self.add_widget_data(wid, row+1, col+1)
-        print(len(self.path_to_wid))
-        # self.order_()
+            new_row, new_col = row + 1, col + 1
+            self.grid_layout.addWidget(wid, new_row, new_col)
+            self.add_widget_data(wid, new_row, new_col)
+        self.order_()
         self.rearrange()
 
     def error_win_cmd(self):
