@@ -433,7 +433,7 @@ class Grid(UScrollArea):
         # проходим циклом по отсортированным виджетам
         for wid in self.ordered_widgets:
 
-            # соответствует методу filter_ (смотри выше)
+            # соответствует методу filter_ (смотри метод filter_)
             if wid.must_hidden:
                 continue
 
