@@ -532,7 +532,7 @@ class ImgViewWin(WinBase):
         self.closed_.emit()
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        menu = UMenu(self)
+        menu = UMenu(parent=self)
 
         open_menu = OpenInApp(menu, self.src)
         menu.addMenu(open_menu)

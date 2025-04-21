@@ -937,7 +937,7 @@ class Grid(UScrollArea):
         return super().keyPressEvent(a0)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        menu_ = UMenu()
+        menu_ = UMenu(parent=self)
         clicked_wid = self.get_wid_under_mouse(a0)
 
         # клик по пустому пространству

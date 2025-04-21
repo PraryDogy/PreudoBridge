@@ -52,7 +52,7 @@ class TagsMenu(QListWidget):
         if not item:
             return
 
-        menu = UMenu()
+        menu = UMenu(parent=self)
 
         enable_action = QAction(ENABLE_T, menu)
 

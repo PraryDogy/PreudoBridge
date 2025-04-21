@@ -146,7 +146,7 @@ class SelectableLabel(QLabel):
         src = self.text().replace(Static.PARAGRAPH_SEP, "")
         src = src.replace(Static.LINE_FEED, "")
 
-        menu = UMenu(self)
+        menu = UMenu(parent=self)
 
         copy_action = CopyText(parent=menu, widget=self)
         menu.addAction(copy_action)

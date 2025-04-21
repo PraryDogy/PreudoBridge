@@ -89,7 +89,7 @@ class GridList(UTableView):
     def contextMenuEvent(self, event: QContextMenuEvent):
         index = self.indexAt(event.pos())
 
-        menu = UMenu(self)
+        menu = UMenu(parent=self)
 
         src = self._model.filePath(index)
         index = self._model.index(src)

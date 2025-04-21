@@ -155,7 +155,7 @@ class SearchWidget(QWidget):
         self.search_timer.setSingleShot(True)
         self.search_timer.timeout.connect(lambda: self.start_search.emit(self.search_text))
 
-        self.templates_menu = UMenu()
+        self.templates_menu = UMenu(parent=self)
 
         for text, template in Static.SEARCH_EXTENSIONS.items():
             action = QAction(text, self)

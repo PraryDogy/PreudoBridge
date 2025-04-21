@@ -52,7 +52,7 @@ class TreeMenu(QTreeView):
         if not index.isValid():
             return
 
-        menu = UMenu(self)
+        menu = UMenu(parent=self)
         src = self.c_model.filePath(index)
         index = self.c_model.index(src)
 

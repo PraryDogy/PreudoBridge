@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
 from cfg import Dynamic, Static, ThumbData
 from utils import URunnable, UThreadPool, Utils
 
-from ._base_widgets import (MinMaxDisabledWin, Sort, UFrame, ULineEdit, UMenu,
+from ._base_widgets import (MinMaxDisabledWin, Sort, UFrame, ULineEdit,
                             USlider, USvgSqareWidget)
 from .actions import SortMenu
 
