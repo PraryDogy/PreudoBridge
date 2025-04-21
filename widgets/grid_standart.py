@@ -66,7 +66,7 @@ class LoadImages(URunnable):
                 return
                         
             try:
-                updated_thumb = GridTools.update_thumb(self.conn, thumb)
+                updated_thumb = GridTools.check_db_record(self.conn, thumb)
                 if updated_thumb:
                     self.signals_.update_thumb.emit(updated_thumb)
             except RuntimeError:

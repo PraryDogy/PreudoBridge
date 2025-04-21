@@ -1,6 +1,7 @@
 import os
 
 import numpy as np
+from PyQt5.QtGui import QPixmap
 from sqlalchemy import Connection, insert, select, update
 from sqlalchemy.exc import IntegrityError, OperationalError
 
@@ -30,18 +31,22 @@ class Tools:
 class AnyBaseItem:
 
     @classmethod
-    def check_any_base_item(cls, conn: Connection, base_item: Thumb):
+    def load_db_record(cls, conn: Connection, base_item: Thumb):
         """
         Проверяет, есть ли запись в базе данных об этом Thumb по имени.    
         Если записи нет, делает запись.
         Thumb: любой файл, кроме файлов изображений и папок.
         """
-        if not cls.load_base_item(conn, base_item):
-            cls.insert_base_item(conn, base_item)
+        if not cls.load_from_db(conn, base_item):
+            cls.insert_new_record(conn, base_item)
         return base_item        
 
     @classmethod
-    def load_base_item(cls, conn: Connection, base_item: Thumb):
+    def load_from_db(cls, conn: Connection, base_item: Thumb):
+        """
+        Загружает id записи (столбец не принципиален) с условием по имени.  
+        Возвращает True если запись есть, иначе False.
+        """
         select_stmt = select(CACHE.c.id)
         where_stmt = select_stmt.where(CACHE.c.name == Utils.get_hash_filename(base_item.name))
         res_by_src = conn.execute(where_stmt).mappings().first()
@@ -51,7 +56,10 @@ class AnyBaseItem:
             return False
 
     @classmethod
-    def insert_base_item(cls, conn: Connection, base_item: Thumb):
+    def insert_new_record(cls, conn: Connection, base_item: Thumb):
+        """
+        Новая запись в базу данных.
+        """
         new_name = Utils.get_hash_filename(filename=base_item.name)
 
         values = {
@@ -67,55 +75,24 @@ class AnyBaseItem:
 class ImageBaseItem:
 
     @classmethod
-    def update_file_base_item(cls, conn: Connection, base_item: Thumb):
+    def load_db_record(cls, conn: Connection, base_item: Thumb) -> QPixmap | None:
 
-        # ошибка логики в том, что мы пытаемся загрузить запись
-        # которой еще нет в БД (загрузка по имени)
-        # и тогда происходит загрузка по "дата изменения + размер"
-        # а дата изменения и размер могут быть одинаковыми у нескольких
-        # записей
-        
         img_array = None
-
         Dynamic.busy_db = True
-        db_item, rating = GridTools.load_file(
-            conn=conn,
-            base_item=base_item,
-        )
+        img_array = cls.check_db_record(conn, base_item)
         Dynamic.busy_db = False
-
-        if isinstance(db_item, int):
-            img_array = cls.update_file(
-                conn=conn,
-                base_item=base_item,
-                row_id=db_item
-            )
-
-            # print("update")
-
-        elif db_item is None:
-            img_array = cls.insert_file(conn=conn, base_item=base_item)
-
-            # print("insert")
-        
-        elif isinstance(db_item, bytes):
-            img_array = Utils.bytes_to_array(blob=db_item)
-
-            # print("already")
-
         if isinstance(img_array, np.ndarray):
             pixmap = Utils.pixmap_from_array(image=img_array)
-
             base_item.set_pixmap_storage(pixmap)
-            base_item.rating = rating
-
             return base_item
-        
         else:
             return None
 
     @classmethod
-    def load_file(cls, conn: Connection, base_item: Thumb):
+    def check_db_record(cls, conn: Connection, base_item: Thumb) -> np.ndarray | None:
+        """
+        Загружает данные о Thumb из базы данных.
+        """
 
         select_stmt = select(
             CACHE.c.id,
@@ -130,46 +107,25 @@ class ImageBaseItem:
         )
         res_by_name = conn.execute(where_stmt).mappings().first()
 
-        # Запись по имени файла найдена 
-        # Нужна проверка именно по хеш-имени, а не по хеш-содержимому,
-        # чтобы не пришлось открывать каждый файл для проверки 
         if res_by_name:
-
-            # даты изменения не совпадают, обновляем запись
             if res_by_name.get(ColumnNames.MOD) != base_item.mod:
-                return (
-                    res_by_name.get(ColumnNames.ID),
-                    res_by_name.get(ColumnNames.RATING)
-                )
-
+                return cls.update_db_record(conn, base_item, res_by_name.get(ColumnNames.ID))
             else:
-                # даты изменения совпадают
-                return (
-                    res_by_name.get(ColumnNames.IMG),
-                    res_by_name.get(ColumnNames.RATING)
-                )
-
+                return None
         else:
-            return (None, 0)
+            return cls.insert_db_record(conn, base_item)
     
     @classmethod
-    def update_file(
-        cls, conn: Connection, base_item: Thumb, row_id: int,
-        rating: int = None
-        ) -> np.ndarray:
-
-        bytes_img, img_array = cls.get_bytes_ndarray(
-            base_item=base_item
-        )
-
-        new_size, new_mod, new_resol = cls.get_stats(
-            base_item=base_item,
-            img_array=img_array
-        )
-
+    def update_db_record(cls, conn: Connection, base_item: Thumb, row_id: int) -> np.ndarray:
+        """
+        Обновляет запись в базе данных:     
+        имя, изображение bytes, размер, дата изменения, разрешение, хеш 10мб
+        """
+        img_array = cls.get_small_ndarray_img(base_item.src)
+        bytes_img = Utils.numpy_to_bytes(img_array)
+        new_size, new_mod, new_resol = cls.get_stats(base_item.src, img_array)
         new_name = Utils.get_hash_filename(filename=base_item.name)
         partial_hash = Utils.get_partial_hash(file_path=base_item.src)
-
         values = {
             ColumnNames.NAME: new_name,
             ColumnNames.IMG: bytes_img,
@@ -178,37 +134,18 @@ class ImageBaseItem:
             ColumnNames.RESOL: new_resol,
             ColumnNames.PARTIAL_HASH: partial_hash
         }
-
-        if rating:
-            values[ColumnNames.RATING] = rating
-
         q = update(CACHE).where(CACHE.c.id == row_id)
         q = q.values(**values)
-
-        # пытаемся вставить запись в БД, но если не выходит
-        # все равно отдаем изображение
-        cls.run(conn=conn, query=q)
-
+        Tools.commit_(conn, q)
         return img_array
 
     @classmethod
-    def insert_file(
-        cls, conn: Connection, base_item: Thumb,
-        rating: int = None
-        ) -> np.ndarray:
-
-        bytes_img, img_array = cls.get_bytes_ndarray(
-            base_item=base_item
-        )
-
-        new_size, new_mod, new_resol = cls.get_stats(
-            base_item=base_item,
-            img_array=img_array
-        )
-
+    def insert_db_record(cls, conn: Connection, base_item: Thumb) -> np.ndarray:
+        img_array = cls.get_small_ndarray_img(base_item.src)
+        bytes_img = Utils.numpy_to_bytes(img_array)
+        new_size, new_mod, new_resol = cls.get_stats(base_item.src, img_array)
         new_name = Utils.get_hash_filename(filename=base_item.name)
         partial_hash = Utils.get_partial_hash(file_path=base_item.src)
-
         values = {
             ColumnNames.IMG: bytes_img,
             ColumnNames.NAME: new_name,
@@ -220,66 +157,47 @@ class ImageBaseItem:
             ColumnNames.CATALOG: "",
             ColumnNames.PARTIAL_HASH: partial_hash
         }
-
-        if rating:
-            values[ColumnNames.RATING] = rating
-
-        q = insert(CACHE)
-        q = q.values(**values)
-
-        # пытаемся вставить запись в БД, но если не выходит
-        # все равно отдаем изображение
-        cls.run(conn=conn, query=q)
-
+        q = insert(CACHE).values(**values)
+        Tools.commit_(conn, q)
         return img_array
     
     @classmethod
-    def get_bytes_ndarray(cls, base_item: Thumb):
-
-        img_array_src = Utils.read_image(
-            path=base_item.src
-        )
-
-        img_array = FitImg.start(
-            image=img_array_src,
-            size=ThumbData.DB_IMAGE_SIZE
-        )
-
+    def get_small_ndarray_img(cls, src: str) -> np.ndarray:
+        img_array_src = Utils.read_image(src)
+        img_array = FitImg.start(img_array_src, ThumbData.DB_IMAGE_SIZE)
         img_array_src = None
         del img_array_src
-        # gc.collect()
-
-        bytes_img = Utils.numpy_to_bytes(
-            img_array=img_array
-        )
-
-        return bytes_img, img_array
+        return img_array
     
     @classmethod
-    def get_stats(cls, base_item: Thumb, img_array: np.ndarray):
-
-        stats = os.stat(base_item.src)
+    def get_stats(cls, src: str, img_array: np.ndarray):
+        """
+        Возвращает: размер, дату изменения, разрешение
+        """
+        stats = os.stat(src)
         height, width = img_array.shape[:2]
-
         new_size = int(stats.st_size)
         new_mod = int(stats.st_mtime)
         new_resol = f"{width}x{height}"
-
         return new_size, new_mod, new_resol
     
 
 class GridTools:
 
     @classmethod
-    def update_thumb(cls, conn: Connection, base_item: Thumb):
+    def check_db_record(cls, conn: Connection, base_item: Thumb):
         """
-        Обновляет / загружает из базы данных для Thumb
+        Если Thumb является папкой или любым файлом, кроме изображений,     
+        то проверяет наличие в базе данных, если записи нет, делает запись  
+        в базу данных об объекте.   
+        Если Thumb является изображением, то сверяет Thumb с базой данных,  
+        создает / обновляет запись.
         """
         try:
             if base_item.type_ not in Static.IMG_EXT:
-                item = ImageBaseItem.update_file_base_item(conn, base_item)
+                item = ImageBaseItem.load_db_record(conn, base_item)
             else:
-                item = AnyBaseItem.check_any_base_item(conn, base_item)
+                item = AnyBaseItem.load_db_record(conn, base_item)
             return item
         except Exception as e:
             return None
