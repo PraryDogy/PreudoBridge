@@ -14,9 +14,9 @@ from .grid import Thumb
 SQL_ERRORS = (IntegrityError, OperationalError)
 
 
-class CommitTool:
+class Tools:
     @classmethod
-    def run(cls, conn: Connection, query):
+    def commit_(cls, conn: Connection, query):
         Dynamic.busy_db = True
         try:
             conn.execute(query)
@@ -27,18 +27,22 @@ class CommitTool:
         Dynamic.busy_db = False
 
 
-class AnyBaseItem(CommitTool):
+class AnyBaseItem:
 
     @classmethod
-    def update_any_base_item(cls, conn: Connection, base_item: Thumb):
-        already_in_db = cls.load_base_item(conn, base_item)
-        if not already_in_db:
+    def check_any_base_item(cls, conn: Connection, base_item: Thumb):
+        """
+        Проверяет, есть ли запись в базе данных об этом Thumb по имени.    
+        Если записи нет, делает запись.
+        Thumb: любой файл, кроме файлов изображений и папок.
+        """
+        if not cls.load_base_item(conn, base_item):
             cls.insert_base_item(conn, base_item)
         return base_item        
 
     @classmethod
     def load_base_item(cls, conn: Connection, base_item: Thumb):
-        select_stmt = select(CACHE.c.rating)
+        select_stmt = select(CACHE.c.id)
         where_stmt = select_stmt.where(CACHE.c.name == Utils.get_hash_filename(base_item.name))
         res_by_src = conn.execute(where_stmt).mappings().first()
         if res_by_src:
@@ -48,7 +52,6 @@ class AnyBaseItem(CommitTool):
 
     @classmethod
     def insert_base_item(cls, conn: Connection, base_item: Thumb):
-
         new_name = Utils.get_hash_filename(filename=base_item.name)
 
         values = {
@@ -58,42 +61,10 @@ class AnyBaseItem(CommitTool):
         }
 
         q = insert(CACHE).values(**values)
-        cls.run(conn=conn, query=q)
-
-    @classmethod
-    def update_thumb(cls, conn: Connection, base_item: Thumb):
-
-        new_name = Utils.get_hash_filename(filename=base_item.name)
-
-        values = {
-            ColumnNames.NAME: new_name,
-            ColumnNames.TYPE: base_item.type_,
-            ColumnNames.RATING: 0,
-        }
-
-        q = update(CACHE).values(**values).where(CACHE.c.name == new_name)
-        cls.run(conn=conn, query=q)
+        Tools.commit_(conn, q)
 
 
-class GridTools(AnyBaseItem):
-
-    @classmethod
-    def update_thumb(cls, conn: Connection, base_item: Thumb):
-
-        try:
-            if base_item.type_ == Static.FOLDER_TYPE:
-                item = cls.update_any_base_item(conn, base_item)
-            elif base_item.type_ in Static.IMG_EXT:
-                item = cls.update_file_base_item(conn, base_item)
-            else:
-                item = cls.update_any_base_item(conn, base_item)
-
-            return item
-        except Exception as e:
-            # import traceback
-            # print(traceback.format_exc())
-            # print("grid tools", e)
-            return None
+class ImageBaseItem:
 
     @classmethod
     def update_file_base_item(cls, conn: Connection, base_item: Thumb):
@@ -296,3 +267,19 @@ class GridTools(AnyBaseItem):
 
         return new_size, new_mod, new_resol
     
+
+class GridTools:
+
+    @classmethod
+    def update_thumb(cls, conn: Connection, base_item: Thumb):
+        """
+        Обновляет / загружает из базы данных для Thumb
+        """
+        try:
+            if base_item.type_ not in Static.IMG_EXT:
+                item = ImageBaseItem.update_file_base_item(conn, base_item)
+            else:
+                item = AnyBaseItem.check_any_base_item(conn, base_item)
+            return item
+        except Exception as e:
+            return None
