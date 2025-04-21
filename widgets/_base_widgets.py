@@ -42,7 +42,6 @@ class UScrollArea(QScrollArea, UMethods):
     change_view_sig = pyqtSignal(int)
     open_in_new_window = pyqtSignal(str)
     level_up = pyqtSignal()
-
     force_load_images_sig = pyqtSignal(list)
     urls_to_copy_sig = pyqtSignal(list)
 
@@ -56,7 +55,7 @@ class UScrollArea(QScrollArea, UMethods):
 
 class UTableView(QTableView, UMethods):
     new_history_item = pyqtSignal(str)
-    path_bar_update = pyqtSignal(tuple)
+    path_bar_update = pyqtSignal(str)
     sort_bar_update = pyqtSignal(object)
     fav_cmd_sig = pyqtSignal(tuple)
     load_st_grid_sig = pyqtSignal(tuple)
@@ -64,7 +63,6 @@ class UTableView(QTableView, UMethods):
     change_view_sig = pyqtSignal(int)
     open_in_new_window = pyqtSignal(str)
     level_up = pyqtSignal()
-
     force_load_images_sig = pyqtSignal(list)
     urls_to_copy_sig = pyqtSignal(list)
 
