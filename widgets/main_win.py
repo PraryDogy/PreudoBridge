@@ -377,7 +377,7 @@ class MainWin(QWidget):
             # таким образом произойдет обмен списком urls для копирования
             # из GridSearch в GridStandart
             if self.urls_to_copy:
-                self.grid.urls_to_copy = [i for i in self.urls_to_copy]
+                self.grid.set_urls_to_copy([i for i in self.urls_to_copy])
                 self.urls_to_copy.clear()
 
         elif self.view_index == 1:

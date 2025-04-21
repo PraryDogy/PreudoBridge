@@ -334,6 +334,12 @@ class Grid(UScrollArea):
         # короче попробуй сразу подключить mouseReleaseEvent и открой 
         # любую папку с кучей файлов
         QTimer.singleShot(200, self.set_mouseReleaseEvent)
+    
+    def set_urls_to_copy(self, urls: list[str]):
+        """
+        Устанавливает список url для копирования /вставки
+        """
+        self.urls_to_copy = urls
 
     def get_col_count(self):
         """
@@ -699,7 +705,7 @@ class Grid(UScrollArea):
 
         # очищает список копируемых urls, чтобы предотвратить многократную вставку
         # неизвестно нужно ли
-        self.urls_to_copy.clear()
+        # self.urls_to_copy.clear()
 
     def error_win_cmd(self):
         """
