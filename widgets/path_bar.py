@@ -276,10 +276,13 @@ class PathBar(QWidget):
             path_items.get(2).img_wid.load(Static.HDD_SVG)
 
         last_item = path_items.get(len(root))
+
         if last_item:
 
             if len(root) > 2:
-                if os.path.isdir(last_item.dir):
+                if not os.path.exists(last_item.dir):
+                    icon = Static.QUESTION_SVG
+                elif os.path.isdir(last_item.dir):
                     icon = Static.FOLDER_SVG
                 else:
                     _, ext = os.path.splitext(dir)

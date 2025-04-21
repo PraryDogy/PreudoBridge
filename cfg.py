@@ -45,6 +45,7 @@ class Static:
     COPY_FILES_PNG = os.path.join(IMAGES_DIR, "copy_files.svg")
     WARNING_SVG = os.path.join(IMAGES_DIR, "warning.svg")
     NEW_WIN_SVG = os.path.join(IMAGES_DIR, "new_win.svg")
+    QUESTION_SVG = os.path.join(IMAGES_DIR, "question.svg")
 
     DB_FILENAME = ".preudobridge.db"
     FOLDER_TYPE: str = "folder"
