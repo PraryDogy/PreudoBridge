@@ -5,17 +5,15 @@ from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QColor
 from PyQt5.QtWidgets import (QFrame, QGraphicsDropShadowEffect, QHBoxLayout,
                              QLabel, QPushButton, QVBoxLayout, QWidget)
-from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Dynamic, Static, ThumbData
 from fit_img import FitImg
 from utils import URunnable, UThreadPool, Utils
 
-from ._base_widgets import (BaseItem, USvgSqareWidget, UTextEdit,
-                            MinMaxDisabledWin)
+from ._base_widgets import (BaseItem, MinMaxDisabledWin, USvgSqareWidget,
+                            UTextEdit)
 from .grid import Grid, Thumb
 
-SQL_ERRORS = (IntegrityError, OperationalError)
 ATTENTION_T = "Внимание!"
 MISSED_FILES = "Не найдены файлы:"
 SELECT_ALL_T = "Выделить все"

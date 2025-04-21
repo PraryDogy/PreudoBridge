@@ -1,4 +1,5 @@
 import os
+from time import sleep
 
 import sqlalchemy
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
@@ -13,7 +14,7 @@ from ._base_widgets import BaseItem
 
 LOADING_T = "Загрузка..."
 SQL_ERRORS = (IntegrityError, OperationalError)
-
+SLEEP_VALUE = 1
 
 class WorkerSignals(QObject):
     finished_ = pyqtSignal(tuple)
@@ -59,14 +60,19 @@ class FinderItems(URunnable):
         Устанавливает рейтинг для BaseItem, который затем передастся в Thumb    
         Рейтинг берется из базы данных
         """
+        while Dynamic.busy_db:
+            sleep(SLEEP_VALUE)
         Dynamic.busy_db = True
+
         q = sqlalchemy.select(CACHE.c.name, CACHE.c.rating)
         res = conn.execute(q).fetchall()
         res = {
             name: rating
             for name, rating in res
         }
+
         Dynamic.busy_db = False
+
         new_files = []
         for i in base_items:
             name = Utils.get_hash_filename(filename=i.name)

@@ -1,11 +1,12 @@
 import gc
 import os
+from time import sleep
 
 import numpy as np
 from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtWidgets import QLabel
-from sqlalchemy import Connection, insert, select, update
+from sqlalchemy import Connection, CursorResult, insert, select, update
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Dynamic, Static, ThumbData
@@ -23,22 +24,47 @@ JPG_PNG_EXTS: tuple = (".jpg", ".jpeg", ".jfif", ".png")
 TIFF_EXTS: tuple = (".tif", ".tiff")
 PSD_EXTS: tuple = (".psd", ".psb")
 SQL_ERRORS = (IntegrityError, OperationalError)
-
+SLEEP_VALUE = 1
 
 class DbTools:
+    """
+    QRunnable
+    """
     @classmethod
     def commit_(cls, conn: Connection, query):
+        """
+        Коммит с учетом ожидания db_busy
+        """
+        while Dynamic.busy_db:
+            sleep(SLEEP_VALUE)
         Dynamic.busy_db = True
+
         try:
             conn.execute(query)
             conn.commit()
         except SQL_ERRORS as e:
             Utils.print_error(parent=cls, error=e)
             conn.rollback()
+
         Dynamic.busy_db = False
+
+    @classmethod
+    def execute_(cls, conn: Connection, query) -> CursorResult:
+        """
+        Для чтения с базы данных с учетом ожидания busy db
+        """
+        while Dynamic.busy_db:
+            sleep(SLEEP_VALUE)
+        Dynamic.busy_db = True
+        res = conn.execute(query)
+        Dynamic.busy_db = False
+        return res
 
 
 class AnyBaseItem:
+    """
+    QRunnable
+    """
 
     @classmethod
     def check_db_record(cls, conn: Connection, thumb: Thumb) -> None:
@@ -56,9 +82,9 @@ class AnyBaseItem:
         Загружает id записи (столбец не принципиален) с условием по имени.  
         Возвращает True если запись есть, иначе False.
         """
-        select_stmt = select(CACHE.c.id)
-        where_stmt = select_stmt.where(CACHE.c.name == Utils.get_hash_filename(thumb.name))
-        res_by_src = conn.execute(where_stmt).mappings().first()
+        stmt = select(CACHE.c.id)
+        stmt = stmt.where(CACHE.c.name == Utils.get_hash_filename(thumb.name))
+        res_by_src = DbTools.execute_(conn, stmt).mappings().first()
         if res_by_src:
             return True
         else:
@@ -82,13 +108,15 @@ class AnyBaseItem:
 
 
 class ImageBaseItem:
+    """
+    QRunnable
+    """
 
     @classmethod
     def get_pixmap(cls, conn: Connection, thumb: Thumb) -> QPixmap:
         """
         Возвращает QPixmap либо из базы данных, либо созданный из изображения.
         """
-        Dynamic.busy_db = True
         img_array = cls.get_img_array(conn, thumb)
         return Utils.pixmap_from_array(img_array)
 
@@ -98,7 +126,7 @@ class ImageBaseItem:
         Загружает данные о Thumb из базы данных. Возвращает np.ndarray
         """
 
-        select_stmt = select(
+        stmt = select(
             CACHE.c.id,
             CACHE.c.img,
             CACHE.c.size,
@@ -106,10 +134,10 @@ class ImageBaseItem:
             CACHE.c.rating
         )
 
-        where_stmt = select_stmt.where(
+        stmt = stmt.where(
             CACHE.c.name == Utils.get_hash_filename(thumb.name)
         )
-        res_by_name = conn.execute(where_stmt).mappings().first()
+        res_by_name = DbTools.execute_(conn, stmt).mappings().first()
 
         if res_by_name:
             if res_by_name.get(ColumnNames.MOD) != int(thumb.mod):

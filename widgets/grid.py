@@ -1,5 +1,6 @@
 import os
 import subprocess
+from time import sleep
 
 import sqlalchemy
 from PyQt5.QtCore import QMimeData, QObject, Qt, QTimer, QUrl, pyqtSignal
@@ -33,6 +34,7 @@ UPDATE_GRID_T = "Обновить"
 COPY_FILES_T = "Скопировать объекты"
 PASTE_FILES_T = "Вставить объекты"
 REMOVE_FILES_T = "Удалить"
+SLEEP_VALUE = 1
 
 KEY_RATING = {
     Qt.Key.Key_0: 0,
@@ -74,6 +76,10 @@ class SetDbRating(URunnable):
 
     @URunnable.set_running_state
     def run(self):        
+        while Dynamic.busy_db:
+            sleep(SLEEP_VALUE)
+        Dynamic.busy_db = True
+
         db = os.path.join(self.main_dir, Static.DB_FILENAME)
         dbase = Dbase()
         engine = dbase.create_engine(path=db)
@@ -96,6 +102,7 @@ class SetDbRating(URunnable):
             Utils.print_error(self, e)
 
         conn.close()
+        Dynamic.busy_db = False
 
 
 class ImgFrame(QFrame):
