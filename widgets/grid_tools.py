@@ -174,24 +174,3 @@ class ImageBaseItem:
         new_mod = int(stats.st_mtime)
         new_resol = f"{width}x{height}"
         return new_size, new_mod, new_resol
-    
-
-class GridTools:
-
-    @classmethod
-    def check_db_record(cls, conn: Connection, thumb: Thumb):
-        """
-        Если Thumb является папкой или любым файлом, кроме изображений,     
-        то проверяет наличие в базе данных, если записи нет, делает запись  
-        в базу данных об объекте.   
-        Если Thumb является изображением, то сверяет Thumb с базой данных,  
-        создает / обновляет запись.
-        """
-        try:
-            if thumb.type_ not in Static.IMG_EXT:
-                item = ImageBaseItem.get_pixmap(conn, thumb)
-            else:
-                item = AnyBaseItem.check_db_record(conn, thumb)
-            return item
-        except Exception as e:
-            return None
