@@ -812,7 +812,7 @@ class Grid(UScrollArea):
         успешной записи в базу данных
         """
         wid.rating = new_rating
-        wid.rating_wid.set_text(wid=wid)
+        wid.rating_wid.set_text(new_rating)
         wid.text_changed.emit()
 
     def get_wid_under_mouse(self, a0: QMouseEvent) -> None | Thumb:
