@@ -242,12 +242,3 @@ class GridStandart(Grid):
     def resizeEvent(self, a0):
         self.loading_lbl.center(self)
         return super().resizeEvent(a0)
-
-    def contextMenuEvent(self, a0):
-        from PyQt5.QtWidgets import QAction
-        super().contextMenuEvent(a0)
-
-        before = self.context_menu.actions()[-3]
-        print(before.text())
-
-        self.context_menu.show_()
