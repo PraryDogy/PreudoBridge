@@ -786,7 +786,7 @@ class Grid(UScrollArea):
             self.context_menu.addAction(fav_action)
 
         else:
-            cmd_ = lambda: self.fav_cmd(offset=+1, src=self.main_dir)
+            cmd_ = lambda: self.fav_cmd(+1, self.main_dir)
             fav_action = FavAdd(self.context_menu)
             fav_action.triggered.connect(cmd_)
             self.context_menu.addAction(fav_action)
@@ -958,7 +958,7 @@ class Grid(UScrollArea):
         return super().keyPressEvent(a0)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        self.context_menu = UMenu(self)
+        self.context_menu = UMenu()
         clicked_wid = self.get_wid_under_mouse(a0)
 
         # клик по пустому пространству
