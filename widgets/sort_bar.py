@@ -309,7 +309,7 @@ class GoToBtn(UFrame):
 
 
 class SortMenuBtn(UFrame):
-    order_grid_sig = pyqtSignal()
+    sort_grid_sig = pyqtSignal()
     rearrange_grid_sig = pyqtSignal()
 
     def __init__(self):
@@ -333,13 +333,13 @@ class SortMenuBtn(UFrame):
         Сортировка: имя (по возраст.)
         """
         # получаем текстовое имя сортировки на основе внутреннего имени сортировки
-        order = Sort.items.get(Dynamic.sort)
-        order = order.lower()
+        sort_ = Sort.items.get(Dynamic.sort)
+        sort_ = sort_.lower()
 
         # получаем текстовое имя обратной или прямой сортировки
         rev = ASC if Dynamic.rev else DESC
 
-        self.sort_wid.setText(f"{SORT_T}: {order} ({rev})")
+        self.sort_wid.setText(f"{SORT_T}: {sort_} ({rev})")
 
     def set_total_text(self, value: int):
         """
@@ -355,7 +355,7 @@ class SortMenuBtn(UFrame):
         - Перетасовка сетки
         """
         menu_ = SortMenu(self)
-        menu_.order_grid_sig.connect(self.order_grid_sig.emit)
+        menu_.sort_grid_sig.connect(self.sort_grid_sig.emit)
         menu_.rearrange_grid_sig.connect(self.rearrange_grid_sig.emit)
         menu_.sort_bar_update_sig.connect(self.set_sort_text)
 
@@ -416,7 +416,7 @@ class CustomSlider(USlider):
 
 class SortBar(QWidget):
     load_st_grid_sig = pyqtSignal(tuple)
-    order_grid_sig = pyqtSignal()
+    sort_grid_sig = pyqtSignal()
     resize_grid_sig = pyqtSignal()
     rearrange_grid_sig = pyqtSignal()
 
@@ -443,7 +443,7 @@ class SortBar(QWidget):
         self.main_lay.addStretch()
 
         self.sort_frame = SortMenuBtn()
-        self.sort_frame.order_grid_sig.connect(self.order_grid_sig.emit)
+        self.sort_frame.sort_grid_sig.connect(self.sort_grid_sig.emit)
         self.sort_frame.rearrange_grid_sig.connect(self.rearrange_grid_sig.emit)
         self.main_lay.addWidget(self.sort_frame)
 

@@ -247,7 +247,7 @@ class MainWin(QWidget):
 
         self.sort_bar.resize_grid_sig.connect(lambda: self.grid.resize_())
         self.sort_bar.rearrange_grid_sig.connect(lambda: self.grid.rearrange())
-        self.sort_bar.order_grid_sig.connect(lambda: self.grid.order_())
+        self.sort_bar.sort_grid_sig.connect(lambda: self.grid.sort_())
         self.sort_bar.load_st_grid_sig.connect(lambda data: self.load_st_grid_cmd(data))
 
     def open_img_view_cmd(self, path: str):

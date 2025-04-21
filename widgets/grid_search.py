@@ -347,10 +347,10 @@ class GridSearch(Grid):
 
             Dynamic.SEARCH_LIST.clear()
 
-    def order_(self):
+    def sort_(self):
         self.task_.pause = True
         self.col_count = self.get_col_count()
-        super().order_()
+        super().sort_()
         self.rearrange()
         self.pause_timer.stop()
         self.pause_timer.start(RESIZE_TIMER_COUNT)

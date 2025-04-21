@@ -314,7 +314,7 @@ class Grid(UScrollArea):
         self.cell_to_wid: dict[tuple, Thumb] = {}
 
         # виджеты с порядком сортировки
-        self.ordered_widgets: list[Thumb] = []
+        self.sorted_widgets: list[Thumb] = []
 
         self.main_wid = QWidget()
         self.setWidget(self.main_wid)
@@ -379,11 +379,11 @@ class Grid(UScrollArea):
         cmd_ = lambda: self.path_bar_update.emit(src)
         QTimer.singleShot(100, cmd_)
     
-    def order_(self):
+    def sort_(self):
         """
         Сортирует виджеты по аттрибуту BaseItem / Thumb
         """
-        self.ordered_widgets = BaseItem.sort_items(self.ordered_widgets)
+        self.sorted_widgets = BaseItem.sort_items(self.sorted_widgets)
                 
     def filter_(self):
         """
@@ -393,7 +393,7 @@ class Grid(UScrollArea):
         но не удалены.  
         Необходимо затем вызвать метод rearrange
         """
-        for wid in self.ordered_widgets:
+        for wid in self.sorted_widgets:
             show_widget = True
             if Dynamic.rating_filter > 0:
                 if wid.rating != Dynamic.rating_filter:
@@ -412,7 +412,7 @@ class Grid(UScrollArea):
         Необходимо затем вызвать метод rearrange
         """
         Thumb.calculate_size()
-        for wid in self.ordered_widgets:
+        for wid in self.sorted_widgets:
             wid.setup_child_widgets()
 
     def rearrange(self):
@@ -429,7 +429,7 @@ class Grid(UScrollArea):
         row, col = 0, 0
 
         # проходим циклом по отсортированным виджетам
-        for wid in self.ordered_widgets:
+        for wid in self.sorted_widgets:
 
             # соответствует методу filter_ (смотри метод filter_)
             if wid.must_hidden:
@@ -489,7 +489,7 @@ class Grid(UScrollArea):
         wid.row, wid.col = row, col
         self.cell_to_wid[row, col] = wid
         self.path_to_wid[wid.src] = wid
-        self.ordered_widgets.append(wid)
+        self.sorted_widgets.append(wid)
 
     def view_thumb_cmd(self, wid: BaseItem):
         """
@@ -690,7 +690,7 @@ class Grid(UScrollArea):
             new_row, new_col = row + 1, col + 1
             self.add_widget_data(wid, new_row, new_col)
             self.grid_layout.addWidget(wid, new_row, new_col)
-        self.order_()
+        self.sort_()
         self.rearrange()
         # испускает сигнал со списком Urls в MainWin, и MainWin
         # инициирует метод force_load_images_cmd в GridStandart,
@@ -736,7 +736,7 @@ class Grid(UScrollArea):
             # удаляем виджет из списка путей
             self.path_to_wid.pop(dir)
             # удаляем из сортированных виджетов
-            self.ordered_widgets.remove(wid)
+            self.sorted_widgets.remove(wid)
             return wid
         else:
             return None
@@ -795,7 +795,7 @@ class Grid(UScrollArea):
         menu_.addMenu(change_view)
 
         sort_menu = SortMenu(menu_)
-        sort_menu.order_grid_sig.connect(self.order_)
+        sort_menu.sort_grid_sig.connect(self.sort_)
         sort_menu.rearrange_grid_sig.connect(self.rearrange)
         sort_menu.sort_bar_update_sig.connect(self.sort_bar_update.emit)
         menu_.addMenu(sort_menu)

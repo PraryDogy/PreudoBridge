@@ -34,7 +34,6 @@ class LoadImages(URunnable):
         self.signals_ = WorkerSignals()
         self.main_dir = main_dir
         self.thumbs = thumbs
-        # key_ = lambda x: (self.order_priority(item=x), x.size)
         key_ = lambda x: x.size
         self.thumbs.sort(key=key_)
 
@@ -61,15 +60,6 @@ class LoadImages(URunnable):
             self.signals_.finished_.emit()
         except RuntimeError:
             ...
-
-    def order_priority(self, item: Thumb):
-        if item.type_ in JPG_PNG_EXTS:
-            return 0
-        elif item.type_ in TIFF_EXTS:
-            return 1
-        elif item.type_ in PSD_EXTS:
-            return 2
-        return 3
 
     def process_thumbs(self):
         for thumb in self.thumbs:
@@ -191,7 +181,7 @@ class GridStandart(Grid):
                 col = 0
                 row += 1
 
-        self.order_()
+        self.sort_()
         self.rearrange()
         self.sort_bar_update.emit(len(base_items))
 

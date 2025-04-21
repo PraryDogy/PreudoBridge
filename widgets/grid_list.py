@@ -62,7 +62,7 @@ class GridList(UTableView):
     def rearrange(self, *args, **kwargs):
         ...
 
-    def order_(self, *args, **kwargs):
+    def sort_(self, *args, **kwargs):
         ...
 
     def filter_(self, *args, **kwargs):

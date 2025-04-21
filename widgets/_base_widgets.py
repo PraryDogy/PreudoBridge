@@ -17,7 +17,7 @@ class UMethods:
     """
     Базовые методы для GridStandart, GridSearch и GridList
     """
-    def order_(self, *args, **kwargs):
+    def sort_(self, *args, **kwargs):
         raise Exception("Переопредели метод sort_grid")
 
     def filter_(self, *args, **kwargs):

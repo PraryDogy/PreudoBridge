@@ -260,7 +260,6 @@ class PasteText(QAction):
             self.wid.setText(new_text)
 
 
-# Выделить весь текст, допускается только QLineEdit и QTextEdit
 class TextSelectAll(QAction):
     def __init__(self, parent: UMenu, widget: QLineEdit | QTextEdit):
         super().__init__(SELECT_ALL_T, parent)
@@ -268,18 +267,8 @@ class TextSelectAll(QAction):
         self.triggered.connect(lambda: self.wid.selectAll())
 
 
-# Меню, при помощи которого происходит сортировка
-# сетки виджетов GridStandart / GridSearch
-# Тип сортировки основан на списке ORDER из database.py
-# список ORDER основан на колонках таблицы CACHE
-# например: размер, дата изменения, путь к файлу и т.п.
-# чтобы добавить новый тип сортировки, нужно добавить в CACHE
-# новую колонку, тогда список ORDER автоматически подтянет
-# новый тип сортировки
-# нужно учитывать, что при изменении CACHE нужно либо очищать БД
-# или осуществлять миграцию существующих данных
 class SortMenu(UMenu):
-    order_grid_sig = pyqtSignal()
+    sort_grid_sig = pyqtSignal()
     rearrange_grid_sig = pyqtSignal()
     sort_bar_update_sig = pyqtSignal(object)
 
@@ -332,14 +321,14 @@ class SortMenu(UMenu):
     def cmd_sort(self, true_name: str):
         # записываем true_name (тип сортировки) в пользовательский .json
         Dynamic.sort = true_name
-        self.order_grid_sig.emit()
+        self.sort_grid_sig.emit()
         self.rearrange_grid_sig.emit()
         self.sort_bar_update_sig.emit(None)
 
     def cmd_revers(self, reversed: bool):
         # записываем порядок сортировки в пользовательский .json
         Dynamic.rev = reversed
-        self.order_grid_sig.emit()
+        self.sort_grid_sig.emit()
         self.rearrange_grid_sig.emit()
         self.sort_bar_update_sig.emit(None)
 

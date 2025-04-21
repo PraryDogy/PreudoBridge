@@ -16,7 +16,7 @@ ERROR_DESCR_T = "Произошла ошибка при копировании"
 ERROR_TITLE = "Ошибка"
 
 
-class WorderSignals(QObject):
+class WorkerSignals(QObject):
     finished_ = pyqtSignal(list)
     set_value_progress = pyqtSignal(int)
     set_text_progress = pyqtSignal(str)
@@ -29,7 +29,7 @@ class FileCopyWorker(URunnable):
         super().__init__()
         self.main_dir = main_dir
         self.urls = urls
-        self.signals_ = WorderSignals()
+        self.signals_ = WorkerSignals()
 
     @URunnable.set_running_state
     def run(self):    
