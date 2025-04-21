@@ -70,9 +70,14 @@ class UTableView(QTableView, UMethods):
 
 
 class UMenu(QMenu):
-    """
-    Кастомное контекстное меню: отключен правый клик, упрощен метод отображения
-    """
+
+    def __init__(self):
+        super().__init__()
+        """
+        Кастомное контекстное меню:
+        - отключен правый клик
+        - show_: открывает контекстное меню по месту клика
+        """
     def show_(self):
         self.exec_(QCursor.pos())
 

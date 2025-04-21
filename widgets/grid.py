@@ -540,7 +540,7 @@ class Grid(UScrollArea):
         self.win_info.center(self.window())
         self.win_info.show()
 
-    def thumb_context(self, menu: UMenu, wid: Thumb):
+    def thumb_context(self, wid: Thumb):
         """
         Контекстное меню Thumb
         """
@@ -549,71 +549,71 @@ class Grid(UScrollArea):
 
         self.path_bar_update_cmd(wid.src)
 
-        view_action = View(menu)
+        view_action = View(self.context_menu)
         view_action.triggered.connect(lambda: self.view_thumb_cmd(wid))
-        menu.addAction(view_action)
+        self.context_menu.addAction(view_action)
 
         if wid.type_ != Static.FOLDER_TYPE:
-            open_menu = OpenInApp(menu, wid.src)
-            menu.addMenu(open_menu)
+            open_menu = OpenInApp(self.context_menu, wid.src)
+            self.context_menu.addMenu(open_menu)
         else:
-            new_window = OpenInNewWindow(menu)
+            new_window = OpenInNewWindow(self.context_menu)
             cmd_ = lambda: self.open_in_new_window.emit(wid.src)
             new_window.triggered.connect(cmd_)
-            menu.addAction(new_window)
+            self.context_menu.addAction(new_window)
 
-        menu.addSeparator()
+        self.context_menu.addSeparator()
 
-        info = Info(menu)
+        info = Info(self.context_menu)
         info.triggered.connect(lambda: self.win_info_cmd(wid.src))
-        menu.addAction(info)
+        self.context_menu.addAction(info)
 
-        show_in_finder_action = RevealInFinder(menu, urls)
-        menu.addAction(show_in_finder_action)
+        show_in_finder_action = RevealInFinder(self.context_menu, urls)
+        self.context_menu.addAction(show_in_finder_action)
 
-        copy_path = CopyPath(menu, urls)
-        menu.addAction(copy_path)
+        copy_path = CopyPath(self.context_menu, urls)
+        self.context_menu.addAction(copy_path)
 
-        copy_files = QAction(f"{COPY_FILES_T} ({len(urls)})", menu)
+        copy_files = QAction(f"{COPY_FILES_T} ({len(urls)})", self.context_menu)
         copy_files.triggered.connect(self.setup_copy_files_list)
-        menu.addAction(copy_files)
+        self.context_menu.addAction(copy_files)
 
-        menu.addSeparator()
+        self.context_menu.addSeparator()
 
         if wid.type_ == Static.FOLDER_TYPE:
             if wid.src in JsonData.favs:
                 cmd_ = lambda: self.fav_cmd(offset=-1, src=wid.src)
-                fav_action = FavRemove(menu)
+                fav_action = FavRemove(self.context_menu)
                 fav_action.triggered.connect(cmd_)
-                menu.addAction(fav_action)
+                self.context_menu.addAction(fav_action)
             else:
                 cmd_ = lambda: self.fav_cmd(offset=1, src=wid.src)
-                fav_action = FavAdd(menu)
+                fav_action = FavAdd(self.context_menu)
                 fav_action.triggered.connect(cmd_)
-                menu.addAction(fav_action)
+                self.context_menu.addAction(fav_action)
 
-            menu.addSeparator()
+            self.context_menu.addSeparator()
 
         if wid.type_ in (*Static.IMG_EXT, Static.FOLDER_TYPE):
-            rating_menu = RatingMenu(parent=menu, urls=urls, current_rating=wid.rating)
+            rating_menu = RatingMenu(parent=self.context_menu, urls=urls, current_rating=wid.rating)
             rating_menu.new_rating.connect(self.set_new_rating)
-            menu.addMenu(rating_menu)
+            self.context_menu.addMenu(rating_menu)
 
-            menu.addSeparator()
+            self.context_menu.addSeparator()
 
         # is grid search устанавливается на True при инициации GridSearch
         if self.is_grid_search:
-            show_in_folder = QAction(SHOW_IN_FOLDER, menu)
+            show_in_folder = QAction(SHOW_IN_FOLDER, self.context_menu)
             cmd_ = lambda: self.show_in_folder_cmd(wid)
             show_in_folder.triggered.connect(cmd_)
-            menu.addAction(show_in_folder)
-            menu.addSeparator()
+            self.context_menu.addAction(show_in_folder)
+            self.context_menu.addSeparator()
 
-        menu.addSeparator()
+        self.context_menu.addSeparator()
 
-        remove_files = QAction(REMOVE_FILES_T, menu)
+        remove_files = QAction(REMOVE_FILES_T, self.context_menu)
         remove_files.triggered.connect(lambda: self.remove_files_cmd(urls))
-        menu.addAction(remove_files)
+        self.context_menu.addAction(remove_files)
 
     def show_in_folder_cmd(self, wid: Thumb):
         """
@@ -761,58 +761,58 @@ class Grid(UScrollArea):
         self.selected_widgets.clear()
         self.rearrange()
 
-    def grid_context(self, menu: UMenu):
+    def grid_context(self):
         """
         Контекстное меню Grid
         """
         self.path_bar_update_cmd(self.main_dir)
 
-        info = Info(menu)
+        info = Info(self.context_menu)
         info.triggered.connect(lambda: self.win_info_cmd(self.main_dir))
-        menu.addAction(info)
+        self.context_menu.addAction(info)
 
-        reveal = RevealInFinder(menu, self.main_dir)
-        menu.addAction(reveal)
+        reveal = RevealInFinder(self.context_menu, self.main_dir)
+        self.context_menu.addAction(reveal)
 
-        copy_ = CopyPath(parent=menu, src=self.main_dir)
-        menu.addAction(copy_)
+        copy_ = CopyPath(self.context_menu, self.main_dir)
+        self.context_menu.addAction(copy_)
 
-        menu.addSeparator()
+        self.context_menu.addSeparator()
 
         if self.main_dir in JsonData.favs:
-            cmd_ = lambda: self.fav_cmd(offset=-1, src=self.main_dir)
-            fav_action = FavRemove(menu)
+            cmd_ = lambda: self.fav_cmd(-1, self.main_dir)
+            fav_action = FavRemove(self.context_menu)
             fav_action.triggered.connect(cmd_)
-            menu.addAction(fav_action)
+            self.context_menu.addAction(fav_action)
 
         else:
             cmd_ = lambda: self.fav_cmd(offset=+1, src=self.main_dir)
-            fav_action = FavAdd(menu)
+            fav_action = FavAdd(self.context_menu)
             fav_action.triggered.connect(cmd_)
-            menu.addAction(fav_action)
+            self.context_menu.addAction(fav_action)
 
-        menu.addSeparator()
+        self.context_menu.addSeparator()
 
-        change_view = ChangeViewMenu(menu, self.view_index)
+        change_view = ChangeViewMenu(self.context_menu, self.view_index)
         change_view.change_view_sig.connect(self.change_view_sig.emit)
-        menu.addMenu(change_view)
+        self.context_menu.addMenu(change_view)
 
-        sort_menu = SortMenu(parent=menu)
+        sort_menu = SortMenu(self.context_menu)
         sort_menu.order_grid_sig.connect(self.order_)
         sort_menu.rearrange_grid_sig.connect(self.rearrange)
         sort_menu.sort_bar_update_sig.connect(self.sort_bar_update.emit)
-        menu.addMenu(sort_menu)
+        self.context_menu.addMenu(sort_menu)
 
-        menu.addSeparator()
+        self.context_menu.addSeparator()
 
         if self.urls_to_copy and not self.is_grid_search:
-            paste_files = QAction(PASTE_FILES_T, menu)
+            paste_files = QAction(PASTE_FILES_T, self.context_menu)
             paste_files.triggered.connect(self.paste_files)
-            menu.addAction(paste_files)
+            self.context_menu.addAction(paste_files)
 
-        upd_ = QAction(UPDATE_GRID_T, menu)
+        upd_ = QAction(UPDATE_GRID_T, self.context_menu)
         upd_.triggered.connect(lambda: self.load_st_grid_sig.emit((None, None)))
-        menu.addAction(upd_)
+        self.context_menu.addAction(upd_)
 
     def set_new_rating(self, new_rating: int):
         """
@@ -958,13 +958,13 @@ class Grid(UScrollArea):
         return super().keyPressEvent(a0)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        menu = UMenu(parent=self)
-        clicked_wid = self.get_wid_under_mouse(a0=a0)
+        self.context_menu = UMenu(self)
+        clicked_wid = self.get_wid_under_mouse(a0)
 
         # клик по пустому пространству
         if not clicked_wid:
             self.clear_selected_widgets()
-            self.grid_context(menu)
+            self.grid_context()
 
         # клик по виджету
         else:
@@ -977,9 +977,10 @@ class Grid(UScrollArea):
             elif clicked_wid not in self.selected_widgets:
                 self.clear_selected_widgets()
                 self.select_widget(clicked_wid)
-            self.thumb_context(menu, clicked_wid)
+            self.thumb_context(clicked_wid)
 
-        menu.show_()
+        return super().contextMenuEvent(a0)
+        # self.context_menu.show_()
 
     def custom_mouseReleaseEvent(self, a0: QMouseEvent):
         if a0.button() != Qt.MouseButton.LeftButton:
