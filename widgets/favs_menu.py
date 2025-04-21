@@ -68,7 +68,7 @@ class FavItem(QLabel):
             self.view_fav()
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
-        menu_ = UMenu(self)
+        menu_ = UMenu(parent=self)
 
         view_ac = View(menu_)
         view_ac.triggered.connect(self.view_fav)
