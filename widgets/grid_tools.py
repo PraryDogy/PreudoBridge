@@ -97,16 +97,19 @@ class ImageBaseItem:
         )
 
         where_stmt = select_stmt.where(
-            CACHE.c.name == Utils.get_hash_filename(filename=thumb.name)
+            CACHE.c.name == Utils.get_hash_filename(thumb.name)
         )
         res_by_name = conn.execute(where_stmt).mappings().first()
 
         if res_by_name:
-            if res_by_name.get(ColumnNames.MOD) != thumb.mod:
+            if res_by_name.get(ColumnNames.MOD) != int(thumb.mod):
+                # print("даты не совпадают", res_by_name.get(ColumnNames.MOD), thumb.mod)
                 return cls.update_db_record(conn, thumb, res_by_name.get(ColumnNames.ID))
             else:
+                # print("ok", thumb.src)
                 return Utils.bytes_to_array(res_by_name.get(ColumnNames.IMG))
         else:
+            # print("new_record", thumb.src)
             return cls.insert_db_record(conn, thumb)
     
     @classmethod
