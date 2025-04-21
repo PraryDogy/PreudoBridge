@@ -289,6 +289,8 @@ class Thumb(BaseItem, QFrame):
 
 
 class Grid(UScrollArea):
+    urls_to_copy: list[str] = []
+
     def __init__(self, main_dir: str, view_index: int, url_for_select: str):
         super().__init__()
         self.setAcceptDrops(True)
@@ -624,13 +626,13 @@ class Grid(UScrollArea):
         Очищает список путей к файлам / папкам для последующего копирования.    
         Формирует новый список на основе списка выделенных виджетов Thumb
         """
-        Dynamic.urls_to_copy.clear()
+        Grid.urls_to_copy.clear()
         for i in self.selected_widgets:
-            Dynamic.urls_to_copy.append(i.src)
+            Grid.urls_to_copy.append(i.src)
 
     def paste_files(self):
         """
-        Вставляет файлы на основе списка Dynamic.urls_to_copy в текущую директорию.    
+        Вставляет файлы на основе списка Grid.urls_to_copy в текущую директорию.    
         Открывает окно копирования файлов.  
         Запускает QRunnable для копирования файлов. Испускает сигналы:
         - error win sig при ошибке копирования, откроется окно ошибки
@@ -641,14 +643,14 @@ class Grid(UScrollArea):
         """
         main_dir_ = Utils.normalize_slash(self.main_dir)
         main_dir_ = Utils.add_system_volume(main_dir_)
-        for i in Dynamic.urls_to_copy:
+        for i in Grid.urls_to_copy:
             i = Utils.normalize_slash(i)
             i = Utils.add_system_volume(i)
             if os.path.commonpath([i, main_dir_]) == main_dir_:
                 print("Нельзя копировать в себя")
                 return
 
-        self.win_copy = CopyFilesWin(self.main_dir, Dynamic.urls_to_copy)
+        self.win_copy = CopyFilesWin(self.main_dir, Grid.urls_to_copy)
         self.win_copy.finished_.connect(lambda urls: self.paste_files_fin(urls))
         self.win_copy.error_win_sig.connect(self.error_win_cmd)
         self.win_copy.center(self.window())
@@ -688,7 +690,7 @@ class Grid(UScrollArea):
         # инициирует метод force_load_images_cmd в GridStandart,
         # чтобы прогрузить изображения для вставленных виджетов.
         self.force_load_images_sig.emit(urls)
-        Dynamic.urls_to_copy.clear()
+        Grid.urls_to_copy.clear()
 
     def error_win_cmd(self):
         """
@@ -791,7 +793,7 @@ class Grid(UScrollArea):
 
         menu_.addSeparator()
 
-        if Dynamic.urls_to_copy and not self.is_grid_search:
+        if Grid.urls_to_copy and not self.is_grid_search:
             paste_files = QAction(PASTE_FILES_T, menu_)
             paste_files.triggered.connect(self.paste_files)
             menu_.addAction(paste_files)
@@ -1084,10 +1086,10 @@ class Grid(UScrollArea):
         return super().dragEnterEvent(a0)
     
     def dropEvent(self, a0):
-        Dynamic.urls_to_copy.clear()
-        Dynamic.urls_to_copy = [i.toLocalFile() for i in a0.mimeData().urls()]
+        Grid.urls_to_copy.clear()
+        Grid.urls_to_copy = [i.toLocalFile() for i in a0.mimeData().urls()]
 
-        if Dynamic.urls_to_copy:
+        if Grid.urls_to_copy:
             self.paste_files()
 
         return super().dropEvent(a0)

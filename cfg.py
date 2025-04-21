@@ -227,5 +227,3 @@ class Dynamic:
 
     # [path_to_svg_icon, ...] в GENERIC_ICONS
     GENERIC_ICON_PATHS: list[str] = []
-
-    urls_to_copy: list[str] = []
