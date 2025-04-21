@@ -296,7 +296,6 @@ class Grid(UScrollArea):
         self.horizontalScrollBar().setDisabled(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
-        self.urls_to_copy: list[str] = []
         self.is_grid_search: bool = False
         self.main_dir = main_dir
         self.view_index = view_index
@@ -335,12 +334,6 @@ class Grid(UScrollArea):
         # любую папку с кучей файлов
         QTimer.singleShot(200, self.set_mouseReleaseEvent)
     
-    def set_urls_to_copy(self, urls: list[str]):
-        """
-        Устанавливает список url для копирования /вставки
-        """
-        self.urls_to_copy = urls
-
     def get_col_count(self):
         """
         Получает количество столбцов для сетки по формуле:  
@@ -578,7 +571,7 @@ class Grid(UScrollArea):
         menu_.addAction(copy_path)
 
         copy_files = QAction(f"{COPY_FILES_T} ({len(urls)})", menu_)
-        copy_files.triggered.connect(self.setup_copy_files_list)
+        copy_files.triggered.connect(self.setup_urls_to_copy)
         menu_.addAction(copy_files)
 
         menu_.addSeparator()
@@ -626,24 +619,18 @@ class Grid(UScrollArea):
         new_main_dir = os.path.dirname(wid.src)
         self.load_st_grid_sig.emit((new_main_dir, wid.src))
 
-    def setup_copy_files_list(self):
+    def setup_urls_to_copy(self):
         """
         Очищает список путей к файлам / папкам для последующего копирования.    
         Формирует новый список на основе списка выделенных виджетов Thumb
         """
-        self.urls_to_copy.clear()
+        Dynamic.urls_to_copy.clear()
         for i in self.selected_widgets:
-            self.urls_to_copy.append(i.src)
-
-        # если это сетка GridSearch, то передадим список url в MainWin,
-        # а оттуда в GridStandart. Таким образом можно скопировать urls
-        # из GridSearch и вставить в GridStandart
-        if self.is_grid_search:
-            self.urls_to_copy_sig.emit(self.urls_to_copy)
+            Dynamic.urls_to_copy.append(i.src)
 
     def paste_files(self):
         """
-        Вставляет файлы на основе списка urls_to_copy в текущую директорию.    
+        Вставляет файлы на основе списка Dynamic.urls_to_copy в текущую директорию.    
         Открывает окно копирования файлов.  
         Запускает QRunnable для копирования файлов. Испускает сигналы:
         - error win sig при ошибке копирования, откроется окно ошибки
@@ -654,19 +641,18 @@ class Grid(UScrollArea):
         """
         main_dir_ = Utils.normalize_slash(self.main_dir)
         main_dir_ = Utils.add_system_volume(main_dir_)
-        for i in self.urls_to_copy:
+        for i in Dynamic.urls_to_copy:
             i = Utils.normalize_slash(i)
             i = Utils.add_system_volume(i)
             if os.path.commonpath([i, main_dir_]) == main_dir_:
                 print("Нельзя копировать в себя")
                 return
 
-        if self.urls_to_copy:
-            self.win_copy = CopyFilesWin(self.main_dir, self.urls_to_copy)
-            self.win_copy.finished_.connect(lambda urls: self.paste_files_fin(urls))
-            self.win_copy.error_win_sig.connect(self.error_win_cmd)
-            self.win_copy.center(self.window())
-            self.win_copy.show()
+        self.win_copy = CopyFilesWin(self.main_dir, Dynamic.urls_to_copy)
+        self.win_copy.finished_.connect(lambda urls: self.paste_files_fin(urls))
+        self.win_copy.error_win_sig.connect(self.error_win_cmd)
+        self.win_copy.center(self.window())
+        self.win_copy.show()
 
     def paste_files_fin(self, urls: list[str]):
         """
@@ -702,10 +688,7 @@ class Grid(UScrollArea):
         # инициирует метод force_load_images_cmd в GridStandart,
         # чтобы прогрузить изображения для вставленных виджетов.
         self.force_load_images_sig.emit(urls)
-
-        # очищает список копируемых urls, чтобы предотвратить многократную вставку
-        # неизвестно нужно ли
-        # self.urls_to_copy.clear()
+        Dynamic.urls_to_copy.clear()
 
     def error_win_cmd(self):
         """
@@ -808,7 +791,7 @@ class Grid(UScrollArea):
 
         menu_.addSeparator()
 
-        if self.urls_to_copy and not self.is_grid_search:
+        if Dynamic.urls_to_copy and not self.is_grid_search:
             paste_files = QAction(PASTE_FILES_T, menu_)
             paste_files.triggered.connect(self.paste_files)
             menu_.addAction(paste_files)
@@ -879,7 +862,7 @@ class Grid(UScrollArea):
 
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
             if a0.key() == Qt.Key.Key_C:
-                self.setup_copy_files_list()
+                self.setup_urls_to_copy()
 
             elif a0.key() == Qt.Key.Key_V:
                 if not self.is_grid_search:
@@ -1101,19 +1084,10 @@ class Grid(UScrollArea):
         return super().dragEnterEvent(a0)
     
     def dropEvent(self, a0):
-        self.urls_to_copy.clear()
-        self.urls_to_copy = [i.toLocalFile() for i in a0.mimeData().urls()]
+        Dynamic.urls_to_copy.clear()
+        Dynamic.urls_to_copy = [i.toLocalFile() for i in a0.mimeData().urls()]
 
-        main_dir_ = Utils.normalize_slash(self.main_dir)
-        main_dir_ = Utils.add_system_volume(main_dir_)
-        for i in self.urls_to_copy:
-            i = Utils.normalize_slash(i)
-            i = Utils.add_system_volume(i)
-            if os.path.commonpath([i, main_dir_]) == main_dir_:
-                print("Нельзя копировать в себя")
-                return
-
-        if self.urls_to_copy:
+        if Dynamic.urls_to_copy:
             self.paste_files()
 
         return super().dropEvent(a0)

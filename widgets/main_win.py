@@ -92,10 +92,6 @@ class MainWin(QWidget):
 
         self.main_win_list: list[MainWin] = []
 
-        # список к папкам / файлам, которые нужно скопировать из GridSearch
-        # в GridStandart
-        self.urls_to_copy: list[str] = []
-
         # индекс 0 просмотр сеткой, индекс 1 просмотр списком
         self.view_index = 0
 
@@ -315,7 +311,6 @@ class MainWin(QWidget):
         self.grid.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
         self.grid.change_view_sig.connect(lambda index: self.change_view_cmd(index))
         self.grid.force_load_images_sig.connect(lambda urls: self.grid.force_load_images_cmd(urls))
-        self.grid.urls_to_copy_sig.connect(lambda urls: self.set_urls_to_copy(urls))
 
     def load_search_grid(self, search_text: str):
         self.grid.close()
@@ -368,16 +363,6 @@ class MainWin(QWidget):
 
         if self.view_index == 0:
             self.grid = GridStandart(self.main_dir, self.view_index, path_for_select)
-            # если в сетке GridSearch были скопированы виджеты
-            # то сетка испустит сигнал со списком url для копирования в
-            # в основное окно в переменную self.urls_to_copy
-            # при инициации GridStandrt, если urls_to_copy будет не пуст,
-            # то передастся список urls to copy
-            # таким образом произойдет обмен списком urls для копирования
-            # из GridSearch в GridStandart
-            if self.urls_to_copy:
-                self.grid.set_urls_to_copy([i for i in self.urls_to_copy])
-                self.urls_to_copy.clear()
 
         elif self.view_index == 1:
             self.grid = GridList(self.main_dir, self.view_index)
@@ -389,9 +374,6 @@ class MainWin(QWidget):
         self.menu_tree.expand_path(self.main_dir)
         self.window().raise_()
         self.grid.setFocus()
-
-    def set_urls_to_copy(self, urls: list[str]):
-        self.urls_to_copy = urls
 
     def scroll_up_show_hide(self, value: int):
         if value == 0:
