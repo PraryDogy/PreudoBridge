@@ -60,9 +60,6 @@ class FinderItems(URunnable):
         Устанавливает рейтинг для BaseItem, который затем передастся в Thumb    
         Рейтинг берется из базы данных
         """
-        while Dynamic.busy_db:
-            sleep(SLEEP_VALUE)
-        Dynamic.busy_db = True
 
         q = sqlalchemy.select(CACHE.c.name, CACHE.c.rating)
         res = conn.execute(q).fetchall()

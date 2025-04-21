@@ -8,6 +8,8 @@ from PyQt5.QtGui import (QContextMenuEvent, QCursor, QMouseEvent, QPixmap,
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QFrame, QLineEdit, QMenu, QScrollArea, QSlider,
                              QTableView, QTextEdit, QWidget)
+from sqlalchemy import Connection, CursorResult
+from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Dynamic, Static
 from utils import Utils
@@ -477,7 +479,7 @@ class USep(QFrame):
         self.setFixedHeight(1)
 
 
-class Db:
+class __DbTools__:
     sleep_value = 1
 
     @staticmethod
@@ -491,3 +493,26 @@ class Db:
             finally:
                 Dynamic.busy_db = False
         return wrapper
+
+
+class Db:    
+    @classmethod
+    @__DbTools__.wait_for_db
+    def commit_(cls, conn: Connection, query):
+        """
+        Коммит с учетом ожидания db_busy
+        """
+        try:
+            conn.execute(query)
+            conn.commit()
+        except (IntegrityError, OperationalError) as e:
+            Utils.print_error(parent=cls, error=e)
+            conn.rollback()
+
+    @classmethod
+    @__DbTools__.wait_for_db
+    def execute_(cls, conn: Connection, query) -> CursorResult:
+        """
+        Для чтения с базы данных с учетом ожидания busy db
+        """
+        return conn.execute(query)

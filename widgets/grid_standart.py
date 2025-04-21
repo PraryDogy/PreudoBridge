@@ -26,40 +26,6 @@ PSD_EXTS: tuple = (".psd", ".psb")
 SQL_ERRORS = (IntegrityError, OperationalError)
 SLEEP_VALUE = 1
 
-class DbTools:
-    """
-    QRunnable
-    """
-    @classmethod
-    def commit_(cls, conn: Connection, query):
-        """
-        Коммит с учетом ожидания db_busy
-        """
-        while Dynamic.busy_db:
-            sleep(SLEEP_VALUE)
-        Dynamic.busy_db = True
-
-        try:
-            conn.execute(query)
-            conn.commit()
-        except SQL_ERRORS as e:
-            Utils.print_error(parent=cls, error=e)
-            conn.rollback()
-
-        Dynamic.busy_db = False
-
-    @classmethod
-    def execute_(cls, conn: Connection, query) -> CursorResult:
-        """
-        Для чтения с базы данных с учетом ожидания busy db
-        """
-        while Dynamic.busy_db:
-            sleep(SLEEP_VALUE)
-        Dynamic.busy_db = True
-        res = conn.execute(query)
-        Dynamic.busy_db = False
-        return res
-
 
 class AnyBaseItem:
     """
