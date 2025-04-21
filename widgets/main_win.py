@@ -167,7 +167,7 @@ class MainWin(QWidget):
         # инициируем пустую сетку, чтобы работали все методы сетки, например
         # grid.close(), и не пришлось бы каждый раз проверять
         # if hasattr(self, "grid")
-        self.grid: Grid = Grid(self.main_dir, self.view_index, None)
+        self.grid = Grid(self.main_dir, self.view_index, None)
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
 
         sep_two = USep()

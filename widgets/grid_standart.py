@@ -115,6 +115,14 @@ class GridStandart(Grid):
 
         self.run_load_images_thread(thumbs)
 
+    def force_load_images_cmd(self, urls: list[str]):
+        thumbs: list[Thumb] = [
+            self.path_to_wid.get(url)
+            for url in urls
+            if url in self.path_to_wid
+        ]
+        self.run_load_images_thread(thumbs)
+
     def on_scroll_changed(self, value: int):
         self.load_images_timer.stop()
         self.load_images_timer.start(1000)
