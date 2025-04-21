@@ -153,9 +153,8 @@ class GridStandart(Grid):
             if icon_path not in Dynamic.GENERIC_ICON_PATHS:
                 path_to_svg = Utils.create_generic_icon(ext)
                 Dynamic.GENERIC_ICON_PATHS.append(path_to_svg)
-
+            
         for base_item in base_items:
-
             thumb = Thumb(base_item.src, base_item.rating)
             thumb.setup_attrs()
             thumb.setup_child_widgets()

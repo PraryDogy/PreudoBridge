@@ -109,8 +109,8 @@ class TextWidget(QLabel):
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setStyleSheet(FONT_SIZE)
 
-    def set_text(self, wid: BaseItem) -> list[str]:
-        name: str | list = wid.name
+    def set_text(self, name: str) -> list[str]:
+        name: str | list = name
         max_row = ThumbData.MAX_ROW[Dynamic.pixmap_size_ind]
         lines: list[str] = []
 
@@ -140,12 +140,12 @@ class RatingWid(QLabel):
         self.setStyleSheet(FONT_SIZE)
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-    def set_text(self, wid: BaseItem):
+    def set_text(self, rating: int):
         try:
-            text = RATINGS.get(wid.rating).strip()
+            text = RATINGS.get(rating).strip()
             self.setText(text)
         except Exception as e:
-            print(wid.rating, e)
+            print(rating, e)
 
 
 class Thumb(BaseItem, QFrame):
@@ -228,8 +228,9 @@ class Thumb(BaseItem, QFrame):
         Устанавливает текст в дочерних виджетах в соответствии с размерами  
         Устанавливает изображение в дочерних виджетах в соответствии в размерами
         """
-        for i in (self.text_wid,):
-            i.set_text(self)
+        print(self.rating)
+        self.text_wid.set_text(self.name)
+        self.rating_wid.set_text(self.rating)
 
         self.setFixedSize(Thumb.thumb_w, Thumb.thumb_h)
         self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
@@ -413,8 +414,7 @@ class Grid(UScrollArea):
         Необходимо затем вызвать метод rearrange
         """
         Thumb.calculate_size()
-        for wid in self.sorted_widgets:
-            print(wid.rating)
+        for cell, wid in self.cell_to_wid.items():
             wid.setup_attrs()
             wid.setup_child_widgets()
 
