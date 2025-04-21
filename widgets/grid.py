@@ -414,7 +414,7 @@ class Grid(UScrollArea):
         """
         Thumb.calculate_size()
         for cell, wid in self.cell_to_wid.items():
-            wid.setup_attrs()
+            # wid.setup_attrs()
             wid.setup_child_widgets()
 
     def rearrange(self):

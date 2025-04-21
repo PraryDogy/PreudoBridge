@@ -198,7 +198,7 @@ class GridStandart(Grid):
             lambda image_data: self.set_image(image_data)
         )
         thread_.signals_.finished_.connect(
-            lambda: self.finalize_load_images_thread(thread_=thread_)
+            lambda: self.finalize_load_images_thread(thread_)
         )
         UThreadPool.start(thread_)
     
