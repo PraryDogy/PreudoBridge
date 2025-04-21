@@ -285,25 +285,25 @@ class ImgViewWin(WinBase):
     move_to_wid_sig = pyqtSignal(object)
     new_rating = pyqtSignal(int)
 
-    def __init__(self, src: str, path_to_wid: dict[str, Thumb]):
+    def __init__(self, src: str, url_to_wid: dict[str, Thumb]):
         super().__init__()
         self.setMinimumSize(QSize(400, 300))
         self.resize(Dynamic.ww_im, Dynamic.hh_im)
         self.setObjectName("win_img_view")
         self.setStyleSheet("#win_img_view {background: black}")
 
-        self.path_to_wid = path_to_wid
+        self.url_to_wid = url_to_wid
         self.task_count = 0
         self.src: str = src
-        self.wid: Thumb = self.path_to_wid.get(src)
+        self.wid: Thumb = self.url_to_wid.get(src)
         self.wid.text_changed.connect(self.set_title)
-        self.path_to_wid: dict[str, Thumb] = {
+        self.url_to_wid: dict[str, Thumb] = {
             path: wid
-            for path, wid in self.path_to_wid.items()
+            for path, wid in self.url_to_wid.items()
             if not wid.must_hidden
             }
         self.image_paths: list = [
-            i for i in self.path_to_wid.keys()
+            i for i in self.url_to_wid.keys()
             if os.path.isfile(i) and i.endswith(Static.IMG_EXT)
             ]
 
@@ -436,7 +436,7 @@ class ImgViewWin(WinBase):
         self.src: str = self.image_paths[new_index]
 
         self.wid.text_changed.disconnect()
-        self.wid: Thumb = self.path_to_wid.get(self.src)
+        self.wid: Thumb = self.url_to_wid.get(self.src)
         self.wid.text_changed.connect(self.set_title)
 
         self.move_to_wid_sig.emit(self.wid)

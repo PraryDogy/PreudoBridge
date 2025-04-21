@@ -306,7 +306,7 @@ class Grid(UScrollArea):
         self.url_for_select = url_for_select
 
         # url файла / папки - виджет
-        self.path_to_wid: dict[str, Thumb] = {}
+        self.url_to_wid: dict[str, Thumb] = {}
 
         # выделенные в сетке виджеты
         self.selected_widgets: list[Thumb] = []
@@ -451,23 +451,23 @@ class Grid(UScrollArea):
 
         # формируем новый словарь путь к файлу: виджет Thumb
         # на основе cell_to_wid, чтобы пропустить скрытые виджеты
-        self.path_to_wid = {
+        self.url_to_wid = {
             wid.src: wid
             for coords, wid in self.cell_to_wid.items()
         }
 
-        # если в сетку был передан аттрибут path_for_select,
+        # если в сетку был передан аттрибут url_for_select,
         # то после того, как сетка виджетов была сформирована,
-        # будет выделен виджет, который ищется в path_to_wid
+        # будет выделен виджет, который ищется в url_to_wid
         if isinstance(self.url_for_select, str):
-            wid = self.path_to_wid.get(self.url_for_select)
+            wid = self.url_to_wid.get(self.url_for_select)
             self.select_one_wid(wid=wid)
             QTimer.singleShot(500, lambda: self.ensureWidgetVisible(wid))
 
         # тоже самое, но будет выделено сразу несколько виджетов
         elif isinstance(self.url_for_select, (tuple, list)):
             widgets = [
-                self.path_to_wid.get(i)
+                self.url_to_wid.get(i)
                 for i in self.url_for_select
             ]
             for i in widgets:
@@ -489,7 +489,7 @@ class Grid(UScrollArea):
         """
         wid.row, wid.col = row, col
         self.cell_to_wid[row, col] = wid
-        self.path_to_wid[wid.src] = wid
+        self.url_to_wid[wid.src] = wid
         self.sorted_widgets.append(wid)
 
     def view_thumb_cmd(self, wid: BaseItem):
@@ -510,7 +510,7 @@ class Grid(UScrollArea):
         elif wid.type_ in Static.IMG_EXT:
             # избегаем ошибки кругового импорта
             from .img_view_win import ImgViewWin
-            self.win_img_view = ImgViewWin(wid.src, self.path_to_wid)
+            self.win_img_view = ImgViewWin(wid.src, self.url_to_wid)
             self.win_img_view.move_to_wid_sig.connect(lambda wid: self.select_one_wid(wid))
             self.win_img_view.new_rating.connect(lambda value: self.set_new_rating(value))
             self.win_img_view.center(self.window())
@@ -666,7 +666,7 @@ class Grid(UScrollArea):
         for dir in urls:
             # если url есть в списке path to wid, то удаляем информацию о виджете
             # и сам виджет из сетки
-            if dir in self.path_to_wid:
+            if dir in self.url_to_wid:
                 wid = self.remove_widget_data(dir)
                 if wid:
                     wid.deleteLater()
@@ -720,12 +720,12 @@ class Grid(UScrollArea):
         Порядок удаления важен. Не менять.  
         Возвращет найденный виджет на основе url или None
         """
-        wid: Thumb = self.path_to_wid.get(dir)
+        wid: Thumb = self.url_to_wid.get(dir)
         if wid:
             # удаляем виджет из сетки координат
             self.cell_to_wid.pop((wid.row, wid.col))
             # удаляем виджет из списка путей
-            self.path_to_wid.pop(dir)
+            self.url_to_wid.pop(dir)
             # удаляем из сортированных виджетов
             self.sorted_widgets.remove(wid)
             return wid

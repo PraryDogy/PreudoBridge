@@ -115,9 +115,9 @@ class GridStandart(Grid):
 
     def force_load_images_cmd(self, urls: list[str]):
         thumbs: list[Thumb] = [
-            self.path_to_wid.get(url)
+            self.url_to_wid.get(url)
             for url in urls
-            if url in self.path_to_wid
+            if url in self.url_to_wid
         ]
         self.run_load_images_thread(thumbs)
 
@@ -211,7 +211,7 @@ class GridStandart(Grid):
 
     def set_image(self, base_item: Thumb):
         try:
-            widget = self.path_to_wid.get(base_item.src)
+            widget = self.url_to_wid.get(base_item.src)
             if widget:
                 if base_item.get_pixmap_storage():
                     widget.set_image(base_item.get_pixmap_storage())
