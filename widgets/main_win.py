@@ -312,7 +312,6 @@ class MainWin(QWidget):
         self.grid.verticalScrollBar().valueChanged.connect(lambda value: self.scroll_up_show_hide(value))
         self.grid.open_in_new_window.connect(lambda dir: self.open_in_new_window_cmd(dir))
         self.grid.level_up.connect(lambda: self.level_up_cmd())
-
         self.grid.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
         self.grid.change_view_sig.connect(lambda index: self.change_view_cmd(index))
         self.grid.force_load_images_sig.connect(lambda urls: self.grid.force_load_images_cmd(urls))
