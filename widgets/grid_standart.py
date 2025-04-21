@@ -261,27 +261,29 @@ class GridStandart(Grid):
         self.loading_lbl = LoadingWid(parent=self)
         self.loading_lbl.center(self)
         self.show()
-
-        self.finder_thread = FinderItems(self.main_dir)
-        self.finder_thread.signals_.finished_.connect(self.finder_thread_fin)
-        UThreadPool.start(self.finder_thread)
+        self.load_finder_items()
 
     def load_visible_images(self):
+        """
+        Составляет список Thumb виджетов, которые находятся в зоне видимости.   
+        Запускает загрузку изображений через QRunnable
+        """
         visible_widgets: list[Thumb] = []
-        
         for widget in self.main_wid.findChildren(Thumb):
             if not widget.visibleRegion().isEmpty():
                 visible_widgets.append(widget)
-
         thumbs = [
             i
             for i in visible_widgets
             if i.src not in self.loaded_images
         ]
-
         self.run_load_images_thread(thumbs)
 
     def force_load_images_cmd(self, urls: list[str]):
+        """
+        Находит виджеты Thumb по url.   
+        Принудительно запускает загрузку изображений через QRunnable
+        """
         thumbs: list[Thumb] = [
             self.url_to_wid.get(url)
             for url in urls
@@ -290,15 +292,39 @@ class GridStandart(Grid):
         self.run_load_images_thread(thumbs)
 
     def on_scroll_changed(self, value: int):
+        """
+        При сколлинге запускается таймер    
+        Запускается load visible images
+        """
         self.load_images_timer.stop()
         self.load_images_timer.start(1000)
 
-    def finder_thread_fin(self, items: tuple[list[BaseItem]]):
-        base_items, new_items = items
+    def load_finder_items(self):
+        """
+        QRunnable   
+        Обходит заданную директорию os scandir.      
+        Генерирует на основе содержимого директории список BaseItem.    
+        Проверяет на наличие BaseItem в базе данных.          
+        Загружает рейтинг BaseItem из базы данных, если имеется.     
+        Испускает сигнал finished_, который содержит кортеж:
+        - список всех BaseItem
+        - список новых BaseItem, которых не было в базе данных
+        """
+        self.finder_thread = FinderItems(self.main_dir)
+        self.finder_thread.signals_.finished_.connect(self.finalize_finder_items)
+        UThreadPool.start(self.finder_thread)
 
+    def finalize_finder_items(self, items: tuple[list[BaseItem]]):
+        """
+        Принудительно удаляет QRunnable.    
+        Обходит список BaseItem, формируя сетку виджетов Thumb.     
+        Делает текст зеленым, если BaseItem есть в списке new_items
+        (читай load finder items).    
+        Запускает таймер для load visible images
+        """
+        base_items, new_items = items
         del self.finder_thread
         gc.collect()
-
         self.loading_lbl.hide()
         self.path_bar_update.emit(self.main_dir)
         Thumb.calculate_size()
@@ -312,7 +338,6 @@ class GridStandart(Grid):
             return
 
         row, col = 0, 0
-
 
         # создаем генерик иконки если не было
         exts = {i.type_ for i in base_items}
@@ -357,6 +382,12 @@ class GridStandart(Grid):
         self.load_images_timer.start(100)
         
     def run_load_images_thread(self, thumbs: list[Thumb]):
+        """
+        QRunnable   
+        Запускает загрузку изображений для списка Thumb.    
+        Изоражения загружаются из базы данных или берутся из заданной
+        директории, если их нет в базе данных.
+        """
         for i in self.load_images_threads:
             i.should_run = False
 
@@ -371,11 +402,18 @@ class GridStandart(Grid):
         UThreadPool.start(thread_)
     
     def finalize_load_images_thread(self, thread_: LoadImages):
+        """
+        Принудительно удаляет QRunnable
+        """
         self.load_images_threads.remove(thread_)
         del thread_
         gc.collect()
 
     def set_thumb_image(self, thumb: Thumb):
+        """
+        Получает QPixmap из хранилища Thumb.    
+        Устанавливает QPixmap в Thumb для отображения в сетке.
+        """
         try:
             pixmap = thumb.get_pixmap_storage()
             if thumb in self.sorted_widgets and pixmap:
@@ -385,10 +423,11 @@ class GridStandart(Grid):
             ...
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
-        
+        """
+        Останавливает все QRunnable 
+        """
         for i in self.load_images_threads:
             i.should_run = False
-
         return super().closeEvent(a0)
 
     def resizeEvent(self, a0):
