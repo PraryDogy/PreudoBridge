@@ -189,6 +189,11 @@ class WorkerSignals(QObject):
 
 class LoadImages(URunnable):
     def __init__(self, main_dir: str, thumbs: list[Thumb]):
+        """
+        QRunnable   
+        Сортирует список Thumb по размеру по возрастанию для ускорения загрузки
+        Загружает изображения из базы данных или создает новые
+        """
         super().__init__()
         self.signals_ = WorkerSignals()
         self.main_dir = main_dir
@@ -198,6 +203,11 @@ class LoadImages(URunnable):
 
     @URunnable.set_running_state
     def run(self):
+        """
+        Создает подключение к базе данных   
+        Запускает обход списка Thumb для загрузки изображений   
+        Испускает сигнал finished_
+        """
         if not self.thumbs:
             return
 
@@ -218,6 +228,11 @@ class LoadImages(URunnable):
             ...
 
     def process_thumbs(self):
+        """
+        Обходит циклом список Thumb     
+        Пытается загрузить изображение из базы данных или создает новое,
+        чтобы передать его в Thumb
+        """
         for thumb in self.thumbs:
 
             if not self.should_run:
@@ -240,6 +255,21 @@ class LoadImages(URunnable):
 
 class GridStandart(Grid):
     def __init__(self, main_dir: str, view_index: int, url_for_select: str):
+        """
+        Стандартная сетка виджетов.
+
+        Параметры:
+        - main_dir: Основная директория, содержимое которой будет отображено в виде сетки (Thumb).
+        - view_index: Режим отображения. 
+            0 — сетка, 
+            1 — список. 
+            Значение передаётся в родительский виджет для корректной работы, например, в actions.py > ChangeViewMenu.
+        - url_for_select: Путь к файлу или папке, который должен быть выделен после загрузки содержимого.
+            Например: 
+            main_dir — папка "Загрузки", 
+            url_for_select — "изображение 1.jpg". 
+            После загрузки виджет, соответствующий пути "Загрузки/изображение 1.jpg", будет найден и выделен.
+        """
         super().__init__(main_dir, view_index, url_for_select)
         self.loaded_images: list[str] = []
         self.load_images_threads: list[LoadImages] = []
