@@ -414,6 +414,7 @@ class Grid(UScrollArea):
         """
         Thumb.calculate_size()
         for wid in self.sorted_widgets:
+            print(wid.rating)
             wid.setup_attrs()
             wid.setup_child_widgets()
 
