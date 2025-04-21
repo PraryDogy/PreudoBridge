@@ -93,16 +93,15 @@ class GridTools(AnyOrderItem):
 
         try:
             if base_item.type_ == Static.FOLDER_TYPE:
-                item = cls.update_any_base_item(conn=conn, base_item=base_item)
+                item = cls.update_any_base_item(conn, base_item)
             elif base_item.type_ in Static.IMG_EXT:
-                item = cls.update_file_base_item(conn=conn, base_item=base_item)
+                item = cls.update_file_base_item(conn, base_item)
             else:
-                item = cls.update_any_base_item(conn=conn, base_item=base_item)
+                item = cls.update_any_base_item(conn, base_item)
 
             return item
         except Exception as e:
-            import traceback
-
+            # import traceback
             # print(traceback.format_exc())
             # print("grid tools", e)
             return None
