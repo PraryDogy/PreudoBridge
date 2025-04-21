@@ -76,33 +76,19 @@ class SetDbRating(URunnable):
 
     @URunnable.set_running_state
     def run(self):        
-        while Dynamic.busy_db:
-            sleep(SLEEP_VALUE)
-        Dynamic.busy_db = True
-
         db = os.path.join(self.main_dir, Static.DB_FILENAME)
         dbase = Dbase()
         engine = dbase.create_engine(path=db)
         if engine is None:
             return
-
         conn = engine.connect()
         hash_filename = Utils.get_hash_filename(self.base_item.name)
         stmt = sqlalchemy.update(CACHE)
         stmt = stmt.where(CACHE.c.name==hash_filename)
         stmt = stmt.values(rating=self.new_rating)
-
-        try:
-            conn.execute(stmt)
-            conn.commit()
-            self.signals_.finished_.emit()
-
-        except SQL_ERRORS as e:
-            conn.rollback()
-            Utils.print_error(self, e)
-
+        Dbase.commit_(conn, stmt)
+        self.signals_.finished_.emit()
         conn.close()
-        Dynamic.busy_db = False
 
 
 class ImgFrame(QFrame):

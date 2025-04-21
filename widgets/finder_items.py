@@ -1,5 +1,4 @@
 import os
-from time import sleep
 
 import sqlalchemy
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
@@ -61,14 +60,9 @@ class FinderItems(URunnable):
         Рейтинг берется из базы данных
         """
 
-        q = sqlalchemy.select(CACHE.c.name, CACHE.c.rating)
-        res = conn.execute(q).fetchall()
-        res = {
-            name: rating
-            for name, rating in res
-        }
-
-        Dynamic.busy_db = False
+        stmt = sqlalchemy.select(CACHE.c.name, CACHE.c.rating)
+        res = Dbase.execute_(conn, stmt).fetchall()
+        res = {name: rating for name, rating in res}
 
         new_files = []
         for i in base_items:

@@ -356,20 +356,10 @@ class ImgViewWin(WinBase):
     def load_thumbnail(self):
 
         if self.src not in LoadImage.cache and not Dynamic.busy_db:
-
-            self.task_ = LoadThumbnail(
-                src=self.src
-            )
-
-            cmd_ = lambda image_data: self.load_thumbnail_finished(
-                image_data=image_data
-            )
-
+            self.task_ = LoadThumbnail(self.src)
+            cmd_ = lambda image_data: self.load_thumbnail_finished(image_data)
             self.task_.signals_.finished_.connect(cmd_)
-
-            UThreadPool.start(
-                runnable=self.task_
-            )
+            UThreadPool.start(self.task_)
 
         else:
             self.show_text_label(text=LOADING_T)
