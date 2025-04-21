@@ -315,7 +315,7 @@ class MainWin(QWidget):
         self.grid.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
         self.grid.change_view_sig.connect(lambda index: self.change_view_cmd(index))
         self.grid.force_load_images_sig.connect(lambda urls: self.grid.force_load_images_cmd(urls))
-        self.grid.urls_to_copy_sig.connect(lambda urls: self.urls_to_copy_cmd(urls))
+        self.grid.urls_to_copy_sig.connect(lambda urls: self.set_urls_to_copy(urls))
 
     def load_search_grid(self, search_text: str):
         self.grid.close()
@@ -390,7 +390,7 @@ class MainWin(QWidget):
         self.window().raise_()
         self.grid.setFocus()
 
-    def urls_to_copy_cmd(self, urls: list[str]):
+    def set_urls_to_copy(self, urls: list[str]):
         self.urls_to_copy = urls
 
     def scroll_up_show_hide(self, value: int):
