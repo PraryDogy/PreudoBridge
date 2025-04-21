@@ -31,24 +31,23 @@ class Tools:
 class AnyBaseItem:
 
     @classmethod
-    def load_db_record(cls, conn: Connection, base_item: Thumb):
+    def check_db_record(cls, conn: Connection, thumb: Thumb) -> None:
         """
         Проверяет, есть ли запись в базе данных об этом Thumb по имени.    
         Если записи нет, делает запись.
         Thumb: любой файл, кроме файлов изображений и папок.
         """
-        if not cls.load_from_db(conn, base_item):
-            cls.insert_new_record(conn, base_item)
-        return base_item        
+        if not cls.load_from_db(conn, thumb):
+            cls.insert_new_record(conn, thumb)
 
     @classmethod
-    def load_from_db(cls, conn: Connection, base_item: Thumb):
+    def load_from_db(cls, conn: Connection, thumb: Thumb):
         """
         Загружает id записи (столбец не принципиален) с условием по имени.  
         Возвращает True если запись есть, иначе False.
         """
         select_stmt = select(CACHE.c.id)
-        where_stmt = select_stmt.where(CACHE.c.name == Utils.get_hash_filename(base_item.name))
+        where_stmt = select_stmt.where(CACHE.c.name == Utils.get_hash_filename(thumb.name))
         res_by_src = conn.execute(where_stmt).mappings().first()
         if res_by_src:
             return True
@@ -56,15 +55,15 @@ class AnyBaseItem:
             return False
 
     @classmethod
-    def insert_new_record(cls, conn: Connection, base_item: Thumb):
+    def insert_new_record(cls, conn: Connection, thumb: Thumb):
         """
         Новая запись в базу данных.
         """
-        new_name = Utils.get_hash_filename(filename=base_item.name)
+        new_name = Utils.get_hash_filename(filename=thumb.name)
 
         values = {
             ColumnNames.NAME: new_name,
-            ColumnNames.TYPE: base_item.type_,
+            ColumnNames.TYPE: thumb.type_,
             ColumnNames.RATING: 0,
         }
 
@@ -75,23 +74,15 @@ class AnyBaseItem:
 class ImageBaseItem:
 
     @classmethod
-    def load_db_record(cls, conn: Connection, base_item: Thumb) -> QPixmap | None:
-
-        img_array = None
+    def get_pixmap(cls, conn: Connection, thumb: Thumb) -> QPixmap:
         Dynamic.busy_db = True
-        img_array = cls.check_db_record(conn, base_item)
-        Dynamic.busy_db = False
-        if isinstance(img_array, np.ndarray):
-            pixmap = Utils.pixmap_from_array(image=img_array)
-            base_item.set_pixmap_storage(pixmap)
-            return base_item
-        else:
-            return None
+        img_array = cls.check_db_record(conn, thumb)
+        return Utils.pixmap_from_array(img_array)
 
     @classmethod
-    def check_db_record(cls, conn: Connection, base_item: Thumb) -> np.ndarray | None:
+    def check_db_record(cls, conn: Connection, thumb: Thumb) -> np.ndarray:
         """
-        Загружает данные о Thumb из базы данных.
+        Загружает данные о Thumb из базы данных. Возвращает np.ndarray
         """
 
         select_stmt = select(
@@ -103,29 +94,29 @@ class ImageBaseItem:
         )
 
         where_stmt = select_stmt.where(
-            CACHE.c.name == Utils.get_hash_filename(filename=base_item.name)
+            CACHE.c.name == Utils.get_hash_filename(filename=thumb.name)
         )
         res_by_name = conn.execute(where_stmt).mappings().first()
 
         if res_by_name:
-            if res_by_name.get(ColumnNames.MOD) != base_item.mod:
-                return cls.update_db_record(conn, base_item, res_by_name.get(ColumnNames.ID))
+            if res_by_name.get(ColumnNames.MOD) != thumb.mod:
+                return cls.update_db_record(conn, thumb, res_by_name.get(ColumnNames.ID))
             else:
-                return None
+                return Utils.bytes_to_array(res_by_name.get(ColumnNames.IMG))
         else:
-            return cls.insert_db_record(conn, base_item)
+            return cls.insert_db_record(conn, thumb)
     
     @classmethod
-    def update_db_record(cls, conn: Connection, base_item: Thumb, row_id: int) -> np.ndarray:
+    def update_db_record(cls, conn: Connection, thumb: Thumb, row_id: int) -> np.ndarray:
         """
         Обновляет запись в базе данных:     
         имя, изображение bytes, размер, дата изменения, разрешение, хеш 10мб
         """
-        img_array = cls.get_small_ndarray_img(base_item.src)
+        img_array = cls.get_small_ndarray_img(thumb.src)
         bytes_img = Utils.numpy_to_bytes(img_array)
-        new_size, new_mod, new_resol = cls.get_stats(base_item.src, img_array)
-        new_name = Utils.get_hash_filename(filename=base_item.name)
-        partial_hash = Utils.get_partial_hash(file_path=base_item.src)
+        new_size, new_mod, new_resol = cls.get_stats(thumb.src, img_array)
+        new_name = Utils.get_hash_filename(filename=thumb.name)
+        partial_hash = Utils.get_partial_hash(file_path=thumb.src)
         values = {
             ColumnNames.NAME: new_name,
             ColumnNames.IMG: bytes_img,
@@ -140,16 +131,16 @@ class ImageBaseItem:
         return img_array
 
     @classmethod
-    def insert_db_record(cls, conn: Connection, base_item: Thumb) -> np.ndarray:
-        img_array = cls.get_small_ndarray_img(base_item.src)
+    def insert_db_record(cls, conn: Connection, thumb: Thumb) -> np.ndarray:
+        img_array = cls.get_small_ndarray_img(thumb.src)
         bytes_img = Utils.numpy_to_bytes(img_array)
-        new_size, new_mod, new_resol = cls.get_stats(base_item.src, img_array)
-        new_name = Utils.get_hash_filename(filename=base_item.name)
-        partial_hash = Utils.get_partial_hash(file_path=base_item.src)
+        new_size, new_mod, new_resol = cls.get_stats(thumb.src, img_array)
+        new_name = Utils.get_hash_filename(filename=thumb.name)
+        partial_hash = Utils.get_partial_hash(file_path=thumb.src)
         values = {
             ColumnNames.IMG: bytes_img,
             ColumnNames.NAME: new_name,
-            ColumnNames.TYPE: base_item.type_,
+            ColumnNames.TYPE: thumb.type_,
             ColumnNames.SIZE: new_size,
             ColumnNames.MOD: new_mod,
             ColumnNames.RATING: 0,
@@ -185,7 +176,7 @@ class ImageBaseItem:
 class GridTools:
 
     @classmethod
-    def check_db_record(cls, conn: Connection, base_item: Thumb):
+    def check_db_record(cls, conn: Connection, thumb: Thumb):
         """
         Если Thumb является папкой или любым файлом, кроме изображений,     
         то проверяет наличие в базе данных, если записи нет, делает запись  
@@ -194,10 +185,10 @@ class GridTools:
         создает / обновляет запись.
         """
         try:
-            if base_item.type_ not in Static.IMG_EXT:
-                item = ImageBaseItem.load_db_record(conn, base_item)
+            if thumb.type_ not in Static.IMG_EXT:
+                item = ImageBaseItem.get_pixmap(conn, thumb)
             else:
-                item = AnyBaseItem.load_db_record(conn, base_item)
+                item = AnyBaseItem.check_db_record(conn, thumb)
             return item
         except Exception as e:
             return None

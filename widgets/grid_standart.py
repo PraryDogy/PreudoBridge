@@ -12,7 +12,7 @@ from utils import URunnable, UThreadPool, Utils
 from ._base_widgets import BaseItem
 from .finder_items import FinderItems, LoadingWid
 from .grid import Grid, Thumb
-from .grid_tools import GridTools
+from .grid_tools import AnyBaseItem, ImageBaseItem
 
 WARN_TEXT = "Папка пуста или нет подключения к диску"
 TASK_NAME = "LOAD_IMAGES"
@@ -66,9 +66,12 @@ class LoadImages(URunnable):
                 return
                         
             try:
-                updated_thumb = GridTools.check_db_record(self.conn, thumb)
-                if updated_thumb:
-                    self.signals_.update_thumb.emit(updated_thumb)
+                if thumb.type_ not in Static.IMG_EXT:
+                    AnyBaseItem.check_db_record(self.conn, thumb)
+                else:
+                    pixmap = ImageBaseItem.get_pixmap(self.conn, thumb)
+                    thumb.set_pixmap_storage(pixmap)
+                    self.signals_.update_thumb.emit(thumb)
             except RuntimeError:
                 return
 
