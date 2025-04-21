@@ -1,6 +1,5 @@
 import gc
 import os
-from time import sleep
 
 import numpy as np
 from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
