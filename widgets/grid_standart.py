@@ -246,4 +246,8 @@ class GridStandart(Grid):
     def contextMenuEvent(self, a0):
         from PyQt5.QtWidgets import QAction
         super().contextMenuEvent(a0)
+
+        before = self.context_menu.actions()[-3]
+        print(before.text())
+
         self.context_menu.show_()
