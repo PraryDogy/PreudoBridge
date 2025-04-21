@@ -1,7 +1,11 @@
 import os
+from time import sleep
 
 import sqlalchemy
 from sqlalchemy.exc import IntegrityError, OperationalError
+
+from cfg import Dynamic
+from utils import Utils
 
 METADATA = sqlalchemy.MetaData()
 TABLE_NAME = "cache"
@@ -34,6 +38,22 @@ CACHE = sqlalchemy.Table(
     sqlalchemy.Column(ColumnNames.PARTIAL_HASH, sqlalchemy.Text)
 )
 
+
+class DbaseTools:
+    sleep_value = 1
+
+    @staticmethod
+    def wait_for_db(func):
+        def wrapper(*args, **kwargs):
+            while Dynamic.busy_db:
+                sleep(DbaseTools.sleep_value)
+            Dynamic.busy_db = True
+            try:
+                return func(*args, **kwargs)
+            finally:
+                Dynamic.busy_db = False
+        return wrapper
+    
 
 class Dbase:
     def __init__(self):
@@ -81,3 +101,24 @@ class Dbase:
                 os.remove(path)
 
             self.create_engine(path=path)
+
+    @classmethod
+    @DbaseTools.wait_for_db
+    def commit_(cls, conn: sqlalchemy.Connection, query) -> None:
+        """
+        Коммит с учетом ожидания db_busy
+        """
+        try:
+            conn.execute(query)
+            conn.commit()
+        except SQL_ERRORS as e:
+            Utils.print_error(cls, e)
+            conn.rollback()
+
+    @classmethod
+    @DbaseTools.wait_for_db
+    def execute_(cls, conn: sqlalchemy.Connection, query) -> sqlalchemy.CursorResult:
+        """
+        Для чтения с базы данных с учетом ожидания busy db
+        """
+        return conn.execute(query)

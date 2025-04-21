@@ -6,7 +6,7 @@ import numpy as np
 from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtWidgets import QLabel
-from sqlalchemy import Connection, CursorResult, insert, select, update
+from sqlalchemy import Connection, insert, select, update
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Dynamic, Static, ThumbData
@@ -50,7 +50,7 @@ class AnyBaseItem:
         """
         stmt = select(CACHE.c.id)
         stmt = stmt.where(CACHE.c.name == Utils.get_hash_filename(thumb.name))
-        res_by_src = DbTools.execute_(conn, stmt).mappings().first()
+        res_by_src = Dbase.execute_(conn, stmt).mappings().first()
         if res_by_src:
             return True
         else:
@@ -70,7 +70,7 @@ class AnyBaseItem:
         }
 
         q = insert(CACHE).values(**values)
-        DbTools.commit_(conn, q)
+        Dbase.commit_(conn, q)
 
 
 class ImageBaseItem:
@@ -103,7 +103,7 @@ class ImageBaseItem:
         stmt = stmt.where(
             CACHE.c.name == Utils.get_hash_filename(thumb.name)
         )
-        res_by_name = DbTools.execute_(conn, stmt).mappings().first()
+        res_by_name = Dbase.execute_(conn, stmt).mappings().first()
 
         if res_by_name:
             if res_by_name.get(ColumnNames.MOD) != int(thumb.mod):
@@ -137,7 +137,7 @@ class ImageBaseItem:
         }
         q = update(CACHE).where(CACHE.c.id == row_id)
         q = q.values(**values)
-        DbTools.commit_(conn, q)
+        Dbase.commit_(conn, q)
         return img_array
 
     @classmethod
@@ -159,7 +159,7 @@ class ImageBaseItem:
             ColumnNames.PARTIAL_HASH: partial_hash
         }
         q = insert(CACHE).values(**values)
-        DbTools.commit_(conn, q)
+        Dbase.commit_(conn, q)
         return img_array
     
     @classmethod
