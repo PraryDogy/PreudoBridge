@@ -198,7 +198,7 @@ class GridStandart(Grid):
         thread_ = LoadImages(self.main_dir, thumbs)
         self.load_images_threads.append(thread_)
         thread_.signals_.update_thumb.connect(
-            lambda image_data: self.set_image(image_data)
+            lambda image_data: self.set_thumb_image(image_data)
         )
         thread_.signals_.finished_.connect(
             lambda: self.finalize_load_images_thread(thread_)
@@ -210,14 +210,12 @@ class GridStandart(Grid):
         del thread_
         gc.collect()
 
-    def set_image(self, base_item: Thumb):
+    def set_thumb_image(self, thumb: Thumb):
         try:
-            widget = self.url_to_wid.get(base_item.src)
-            if widget:
-                if base_item.get_pixmap_storage():
-                    widget.set_image(base_item.get_pixmap_storage())
-                self.loaded_images.append(base_item.src)
-
+            pixmap = thumb.get_pixmap_storage()
+            if thumb in self.sorted_widgets and pixmap:
+                thumb.set_image(pixmap)
+                self.loaded_images.append(thumb.src)
         except RuntimeError:
             ...
 
