@@ -5,7 +5,7 @@ import shutil
 
 class Static:
     APP_NAME = "PreudoBridge"
-    APP_VER = 2.05
+    APP_VER = 2.10
 
     USER_SETTINGS_DIR = os.path.expanduser('~/Library/Application Support')
     APP_SUPPORT_APP = os.path.join(USER_SETTINGS_DIR, APP_NAME)
@@ -177,7 +177,7 @@ class JsonData:
         os.makedirs(Static.GENERIC_ICONS_DIR, exist_ok=True)
         for entry in os.scandir(Static.GENERIC_ICONS_DIR):
             if entry.name.endswith(".svg"):
-                Dynamic.GENERIC_ICON_PATHS.append(entry.path)
+                Dynamic.generic_icon_paths.append(entry.path)
 
         from utils import Utils
         path = Utils.get_generic_icon_path(Static.FOLDER_TYPE)
@@ -188,7 +188,7 @@ class JsonData:
         elif os.path.getsize(Static.FOLDER_SVG) != os.path.getsize(path):
             shutil.copyfile(Static.FOLDER_SVG, path)
 
-        Dynamic.GENERIC_ICON_PATHS.append(path)
+        Dynamic.generic_icon_paths.append(path)
 
     @classmethod
     def do_before_start(cls):
@@ -222,8 +222,7 @@ class Dynamic:
     rev: bool = False
     sort: str = "name"
     busy_db: bool = False
-    EXACT_SEARCH = False
-    SEARCH_LIST = []
-
+    exactly_search = False
+    search_filename_list = []
     # [path_to_svg_icon, ...] в GENERIC_ICONS
-    GENERIC_ICON_PATHS: list[str] = []
+    generic_icon_paths: list[str] = []

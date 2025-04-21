@@ -69,7 +69,7 @@ class ListWin(MinMaxDisabledWin):
         first_lay.addWidget(self.path_label)
 
         self.checkbox = QCheckBox(" Точное соответствие")
-        self.checkbox.setChecked(Dynamic.EXACT_SEARCH)
+        self.checkbox.setChecked(Dynamic.exactly_search)
         self.checkbox.stateChanged.connect(self.on_state_change)
         v_lay.addWidget(self.checkbox)
 
@@ -104,7 +104,7 @@ class ListWin(MinMaxDisabledWin):
             0: False,
             2: True
         }
-        Dynamic.EXACT_SEARCH = data.get(value)
+        Dynamic.exactly_search = data.get(value)
 
     def ok_cmd(self, *args):
         search_list = self.input_.toPlainText()
@@ -114,11 +114,11 @@ class ListWin(MinMaxDisabledWin):
             if i
         ]
 
-        Dynamic.SEARCH_LIST.clear()
+        Dynamic.search_filename_list.clear()
 
         for i in search_list:
             filename, ext = os.path.splitext(i)
-            Dynamic.SEARCH_LIST.append(filename)
+            Dynamic.search_filename_list.append(filename)
 
         self.ok_pressed.emit()
         self.close()

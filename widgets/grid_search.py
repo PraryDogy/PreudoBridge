@@ -60,7 +60,7 @@ class SearchFinder(URunnable):
         # Если текст из поиска соотвествует шаблонку "поиск по списку",
         # чтобы искать сразу несколько файлов
         elif self.search_text == Static.SEARCH_LIST_TEXT:
-            if Dynamic.EXACT_SEARCH:
+            if Dynamic.exactly_search:
                 self.process_list = self.proc_list_exactly
             else:
                 self.process_list = self.proc_list_free
@@ -134,7 +134,7 @@ class SearchFinder(URunnable):
         # Формируем список имен файлом в нижнем регистре из SEARCH_LIST.
         # Если SEARCH_LIST пуст, значит осуществляется поиск по расширениям
         # или поиск по тексту
-        search_list_lower = [i.lower() for i in Dynamic.SEARCH_LIST]
+        search_list_lower = [i.lower() for i in Dynamic.search_filename_list]
 
         with os.scandir(dir) as entries:
             for entry in entries:
@@ -294,7 +294,7 @@ class GridSearch(Grid):
 
         generic_icon_path = Utils.get_generic_icon_path(base_item.type_)
 
-        if not generic_icon_path in Dynamic.GENERIC_ICON_PATHS:
+        if not generic_icon_path in Dynamic.generic_icon_paths:
             generic_icon_path = Utils.create_generic_icon(base_item.type_)
 
         if base_item.src.count(os.sep) == 2:
@@ -327,7 +327,7 @@ class GridSearch(Grid):
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0)
 
-        elif Dynamic.SEARCH_LIST:
+        elif Dynamic.search_filename_list:
 
             done_src = [
                 os.path.splitext(i.name)[0]
@@ -336,7 +336,7 @@ class GridSearch(Grid):
 
             missed_files = [
                 i
-                for i in Dynamic.SEARCH_LIST
+                for i in Dynamic.search_filename_list
                 if i not in done_src
             ]
 
@@ -345,7 +345,7 @@ class GridSearch(Grid):
                 self.win_missed_files.center(self.window())
                 self.win_missed_files.show()
 
-            Dynamic.SEARCH_LIST.clear()
+            Dynamic.search_filename_list.clear()
 
     def sort_(self):
         self.task_.pause = True

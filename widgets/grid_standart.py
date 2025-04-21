@@ -153,9 +153,9 @@ class GridStandart(Grid):
         exts = {i.type_ for i in base_items}
         for ext in exts:
             icon_path = Utils.get_generic_icon_path(ext)
-            if icon_path not in Dynamic.GENERIC_ICON_PATHS:
+            if icon_path not in Dynamic.generic_icon_paths:
                 path_to_svg = Utils.create_generic_icon(ext)
-                Dynamic.GENERIC_ICON_PATHS.append(path_to_svg)
+                Dynamic.generic_icon_paths.append(path_to_svg)
             
         for base_item in base_items:
             thumb = Thumb(base_item.src, base_item.rating)
