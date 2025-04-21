@@ -27,35 +27,24 @@ class CommitTool:
         Dynamic.busy_db = False
 
 
-class AnyOrderItem(CommitTool):
+class AnyBaseItem(CommitTool):
 
     @classmethod
     def update_any_base_item(cls, conn: Connection, base_item: Thumb):
-
-        base_item, rating = cls.load_base_item(conn=conn, base_item=base_item)
-
-        if rating is None:
-            cls.insert_base_item(conn=conn, base_item=base_item)
-            return base_item
-        
-        else:
-            base_item.rating == rating
-            return base_item
+        already_in_db = cls.load_base_item(conn, base_item)
+        if not already_in_db:
+            cls.insert_base_item(conn, base_item)
+        return base_item        
 
     @classmethod
     def load_base_item(cls, conn: Connection, base_item: Thumb):
         select_stmt = select(CACHE.c.rating)
-
-        where_stmt = select_stmt.where(
-            CACHE.c.name == Utils.get_hash_filename(filename=base_item.name)
-        )
-
+        where_stmt = select_stmt.where(CACHE.c.name == Utils.get_hash_filename(base_item.name))
         res_by_src = conn.execute(where_stmt).mappings().first()
-
         if res_by_src:
-            return (base_item, res_by_src.get(ColumnNames.RATING))
+            return True
         else:
-            return (base_item, None)
+            return False
 
     @classmethod
     def insert_base_item(cls, conn: Connection, base_item: Thumb):
@@ -86,7 +75,7 @@ class AnyOrderItem(CommitTool):
         cls.run(conn=conn, query=q)
 
 
-class GridTools(AnyOrderItem):
+class GridTools(AnyBaseItem):
 
     @classmethod
     def update_thumb(cls, conn: Connection, base_item: Thumb):
