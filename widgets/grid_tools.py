@@ -75,6 +75,9 @@ class ImageBaseItem:
 
     @classmethod
     def get_pixmap(cls, conn: Connection, thumb: Thumb) -> QPixmap:
+        """
+        Возвращает QPixmap либо из базы данных, либо созданный из изображения.
+        """
         Dynamic.busy_db = True
         img_array = cls.check_db_record(conn, thumb)
         return Utils.pixmap_from_array(img_array)
