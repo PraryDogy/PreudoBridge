@@ -461,7 +461,7 @@ class Grid(UScrollArea):
         # будет выделен виджет, который ищется в url_to_wid
         if isinstance(self.url_for_select, str):
             wid = self.url_to_wid.get(self.url_for_select)
-            self.select_one_wid(wid=wid)
+            self.select_one_wid(wid)
             QTimer.singleShot(500, lambda: self.ensureWidgetVisible(wid))
 
         # тоже самое, но будет выделено сразу несколько виджетов
