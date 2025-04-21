@@ -189,7 +189,6 @@ class GridStandart(Grid):
         self.load_images_timer.start(100)
         
     def run_load_images_thread(self, thumbs: list[Thumb]):
-
         for i in self.load_images_threads:
             i.should_run = False
 

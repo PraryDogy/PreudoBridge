@@ -228,7 +228,6 @@ class Thumb(BaseItem, QFrame):
         Устанавливает текст в дочерних виджетах в соответствии с размерами  
         Устанавливает изображение в дочерних виджетах в соответствии в размерами
         """
-        print(self.rating)
         self.text_wid.set_text(self.name)
         self.rating_wid.set_text(self.rating)
 
