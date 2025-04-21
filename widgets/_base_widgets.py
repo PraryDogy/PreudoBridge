@@ -71,8 +71,8 @@ class UTableView(QTableView, UMethods):
 
 class UMenu(QMenu):
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, title: str = None, parent: QWidget = None):
+        super().__init__(title, parent)
         """
         Кастомное контекстное меню:
         - отключен правый клик
