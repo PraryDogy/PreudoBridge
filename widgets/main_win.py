@@ -313,11 +313,15 @@ class MainWin(QWidget):
         self.grid.open_in_new_window.connect(lambda dir: self.open_in_new_window_cmd(dir))
         self.grid.level_up.connect(lambda: self.level_up_cmd())
 
+        self.grid.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
+        self.grid.change_view_sig.connect(lambda index: self.change_view_cmd(index))
+        self.grid.force_load_images_sig.connect(lambda urls: self.grid.force_load_images_cmd(urls))
+        self.grid.urls_to_copy_sig.connect(lambda urls: self.urls_to_copy_cmd(urls))
+
     def load_search_grid(self, search_text: str):
         self.grid.close()
         self.menu_tags.reset()
         self.grid = GridSearch(self.main_dir, self.view_index, None, search_text)
-        self.grid.urls_to_copy_sig.connect(lambda urls: self.urls_to_copy_cmd(urls))
         # нужно сразу добавлять в окно, чтобы у виджета появился родитель
         # тогда во всех эвентах правильно сработает self.grid.window()
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
@@ -344,36 +348,27 @@ class MainWin(QWidget):
         # Берем последнюю секцию директории для заголовка окна
         # далее "секция"
         base_name = os.path.basename(self.main_dir)
-
         # Если текущая директория в избранном, то берем имя в избранном
         if self.main_dir in JsonData.favs:
             fav = JsonData.favs[self.main_dir]
-
             # Если имя в избранном не совпадает с "секцией", то заголовок такой:
             # Имя в избранном: "Секция"
             if fav != base_name:
                 title = f"{base_name} ({JsonData.favs[self.main_dir]})"
-
             # Если имя в избранном == "секция", то заголовок такой:
             # "Секция"
             else:
                 title = base_name
-
         # Если директория не в избранном, то заголовок такой: "Секция"
         else:
             title = base_name
-
         self.setWindowTitle(title)
+
         self.menu_favs.fav_cmd(("select", self.main_dir))
         self.bar_top.search_wid.clear_without_signal()
 
         if self.view_index == 0:
             self.grid = GridStandart(self.main_dir, self.view_index, path_for_select)
-            # без аннотации пропадет ссылка на force_load_images_cmd
-            self.grid: GridStandart
-            cmd_ = lambda urls: self.grid.force_load_images_cmd(urls)
-            self.grid.force_load_images_sig.connect(cmd_)
-
             # если в сетке GridSearch были скопированы виджеты
             # то сетка испустит сигнал со списком url для копирования в
             # в основное окно в переменную self.urls_to_copy
@@ -392,8 +387,6 @@ class MainWin(QWidget):
         # тогда во всех эвентах правильно сработает self.grid.window()
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
         self.setup_grid_signals()
-        self.grid.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
-        self.grid.change_view_sig.connect(lambda index: self.change_view_cmd(index))
         self.menu_tree.expand_path(self.main_dir)
         self.window().raise_()
         self.grid.setFocus()

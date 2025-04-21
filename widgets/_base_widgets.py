@@ -43,6 +43,9 @@ class UScrollArea(QScrollArea, UMethods):
     open_in_new_window = pyqtSignal(str)
     level_up = pyqtSignal()
 
+    force_load_images_sig = pyqtSignal(list)
+    urls_to_copy_sig = pyqtSignal(list)
+
     def __init__(self):
         """
         Базовый виджет с необходимыми сигналами для GridSearch и GridStandart
@@ -61,6 +64,9 @@ class UTableView(QTableView, UMethods):
     change_view_sig = pyqtSignal(int)
     open_in_new_window = pyqtSignal(str)
     level_up = pyqtSignal()
+
+    force_load_images_sig = pyqtSignal(list)
+    urls_to_copy_sig = pyqtSignal(list)
 
     def __init__(self):
         """

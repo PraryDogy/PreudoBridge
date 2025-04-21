@@ -289,10 +289,7 @@ class Thumb(BaseItem, QFrame):
 
 
 class Grid(UScrollArea):
-    force_load_images_sig = pyqtSignal(list)
-    urls_to_copy_sig = pyqtSignal(list)
-
-    def __init__(self, main_dir: str, view_index: int, path_for_select: str):
+    def __init__(self, main_dir: str, view_index: int, url_for_select: str):
         super().__init__()
         self.setAcceptDrops(True)
         self.setWidgetResizable(True)
@@ -305,7 +302,7 @@ class Grid(UScrollArea):
         self.view_index = view_index
 
         # для выделения виджета после формирования / перетасовки сетки
-        self.path_for_select = path_for_select
+        self.url_for_select = url_for_select
 
         # url файла / папки - виджет
         self.path_to_wid: dict[str, Thumb] = {}
@@ -461,16 +458,16 @@ class Grid(UScrollArea):
         # если в сетку был передан аттрибут path_for_select,
         # то после того, как сетка виджетов была сформирована,
         # будет выделен виджет, который ищется в path_to_wid
-        if isinstance(self.path_for_select, str):
-            wid = self.path_to_wid.get(self.path_for_select)
+        if isinstance(self.url_for_select, str):
+            wid = self.path_to_wid.get(self.url_for_select)
             self.select_one_wid(wid=wid)
             QTimer.singleShot(500, lambda: self.ensureWidgetVisible(wid))
 
         # тоже самое, но будет выделено сразу несколько виджетов
-        elif isinstance(self.path_for_select, (tuple, list)):
+        elif isinstance(self.url_for_select, (tuple, list)):
             widgets = [
                 self.path_to_wid.get(i)
-                for i in self.path_for_select
+                for i in self.url_for_select
             ]
             for i in widgets:
                 try:
