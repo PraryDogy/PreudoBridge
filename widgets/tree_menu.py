@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QFileSystemModel, QTreeView
 from cfg import JsonData
 
 from .actions import CopyPath, FavAdd, FavRemove, RevealInFinder, View, OpenInNewWindow
-from ._base_widgets import UMenu
+from ._base_items import UMenu
 import os
 
 class TreeMenu(QTreeView):

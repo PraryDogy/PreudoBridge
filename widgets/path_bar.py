@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QApplication, QHBoxLayout, QLabel, QWidget
 from cfg import Static
 from utils import Utils
 
-from ._base_widgets import UMenu, USvgSqareWidget
+from ._base_items import UMenu, USvgSqareWidget
 from .actions import CopyPath, Info, RevealInFinder, View, OpenInNewWindow
 from .info_win import InfoWin
 

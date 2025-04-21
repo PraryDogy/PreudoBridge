@@ -2,7 +2,7 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtWidgets import QPushButton, QVBoxLayout, QLabel, QWidget, QHBoxLayout
 
-from ._base_widgets import ULineEdit, MinMaxDisabledWin
+from ._base_items import ULineEdit, MinMaxDisabledWin
 
 RENAME_PLACEHOLDER = "Введите текст"
 OK_T = "Ок"

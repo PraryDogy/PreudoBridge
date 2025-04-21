@@ -14,7 +14,7 @@ from database import CACHE, ColumnNames, Dbase
 from fit_img import FitImg
 from utils import URunnable, UThreadPool, Utils
 
-from ._base_widgets import BaseItem
+from ._base_items import BaseItem
 from .finder_items import FinderItems, LoadingWid
 from .grid import Grid, Thumb
 

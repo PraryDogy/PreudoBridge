@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QFileSystemModel, QTableView
 
 from cfg import JsonData
 
-from ._base_widgets import UMenu, UTableView
+from ._base_items import UMenu, UTableView
 from .actions import (ChangeViewMenu, CopyPath, FavAdd, FavRemove, Info,
                       RevealInFinder)
 from .finder_items import LoadingWid

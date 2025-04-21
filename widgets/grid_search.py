@@ -10,7 +10,7 @@ from cfg import Dynamic, Static, ThumbData
 from fit_img import FitImg
 from utils import URunnable, UThreadPool, Utils
 
-from ._base_widgets import (BaseItem, MinMaxDisabledWin, USvgSqareWidget,
+from ._base_items import (BaseItem, MinMaxDisabledWin, USvgSqareWidget,
                             UTextEdit)
 from .grid import Grid, Thumb
 

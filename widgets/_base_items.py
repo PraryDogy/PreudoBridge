@@ -1,5 +1,6 @@
 import os
 import re
+from time import sleep
 
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import (QContextMenuEvent, QCursor, QMouseEvent, QPixmap,
@@ -9,7 +10,6 @@ from PyQt5.QtWidgets import (QFrame, QLineEdit, QMenu, QScrollArea, QSlider,
                              QTableView, QTextEdit, QWidget)
 
 from cfg import Dynamic, Static
-from database import ColumnNames
 from utils import Utils
 
 
@@ -475,3 +475,19 @@ class USep(QFrame):
         super().__init__()
         self.setStyleSheet("background: rgba(0, 0, 0, 0.2)")
         self.setFixedHeight(1)
+
+
+class Db:
+    sleep_value = 1
+
+    @staticmethod
+    def wait_for_db(func):
+        def wrapper(*args, **kwargs):
+            while Dynamic.busy_db:
+                sleep(Db.sleep_value)
+            Dynamic.busy_db = True
+            try:
+                return func(*args, **kwargs)
+            finally:
+                Dynamic.busy_db = False
+        return wrapper

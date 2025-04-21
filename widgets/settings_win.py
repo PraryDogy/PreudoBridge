@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (QGroupBox, QHBoxLayout, QLabel, QPushButton,
 from cfg import JsonData, Static
 from utils import URunnable, UThreadPool
 
-from ._base_widgets import MinMaxDisabledWin
+from ._base_items import MinMaxDisabledWin
 
 LOADING_T = "Вычисляю"
 DATA_T = "Данные"

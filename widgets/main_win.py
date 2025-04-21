@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
 from cfg import Dynamic, JsonData, Static
 from utils import Utils
 
-from ._base_widgets import BaseItem, USep
+from ._base_items import BaseItem, USep
 from .favs_menu import FavsMenu
 from .grid import Grid
 from .grid_list import GridList

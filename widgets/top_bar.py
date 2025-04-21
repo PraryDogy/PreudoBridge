@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QAction, QCheckBox, QGroupBox, QHBoxLayout,
 
 from cfg import Dynamic, Static
 
-from ._base_widgets import (MinMaxDisabledWin, UFrame, ULineEdit, UMenu,
+from ._base_items import (MinMaxDisabledWin, UFrame, ULineEdit, UMenu,
                             UTextEdit)
 from .settings_win import SettingsWin
 

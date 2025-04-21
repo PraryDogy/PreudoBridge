@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
 from cfg import Static
 from utils import URunnable, UThreadPool
 
-from ._base_widgets import USvgSqareWidget, MinMaxDisabledWin
+from ._base_items import USvgSqareWidget, MinMaxDisabledWin
 
 REMOVE_T = "Переместить в корзину объекты"
 OK_T = "Ок"

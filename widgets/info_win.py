@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QAction, QGridLayout, QLabel
 from cfg import Static
 from utils import URunnable, UThreadPool, Utils
 
-from ._base_widgets import BaseItem, UMenu, MinMaxDisabledWin
+from ._base_items import BaseItem, UMenu, MinMaxDisabledWin
 from .actions import CopyText, RevealInFinder
 
 CALCULATING = "Вычисляю..."

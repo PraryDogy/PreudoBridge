@@ -13,7 +13,7 @@ from cfg import Dynamic, Static
 from database import CACHE, Dbase
 from utils import URunnable, UThreadPool, Utils
 
-from ._base_widgets import UMenu, USvgSqareWidget, WinBase
+from ._base_items import UMenu, USvgSqareWidget, WinBase
 from .actions import CopyPath, Info, OpenInApp, RatingMenu, RevealInFinder
 from .grid import KEY_RATING, RATINGS, Thumb
 from .info_win import InfoWin

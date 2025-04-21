@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QAction, QLabel, QListWidget, QListWidgetItem
 from cfg import JsonData
 from utils import Utils
 
-from ._base_widgets import UMenu
+from ._base_items import UMenu
 from .actions import CopyPath, FavRemove, OpenInNewWindow, RevealInFinder, View
 from .rename_win import RenameWin
 

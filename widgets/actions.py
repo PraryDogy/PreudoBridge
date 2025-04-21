@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QAction, QLabel, QLineEdit, QTextEdit, QWidget
 from cfg import Dynamic, Static
 from utils import URunnable, UThreadPool, Utils
 
-from ._base_widgets import Sort, UMenu
+from ._base_items import Sort, UMenu
 
 REVEAL_T = "Показать в Finder"
 INFO_T = "Инфо"

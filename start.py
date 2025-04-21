@@ -68,7 +68,7 @@ from PyQt5.QtWidgets import QApplication
 from cfg import JsonData
 from widgets.main_win import MainWin
 from utils import UThreadPool
-from widgets._base_widgets import BaseItem
+from widgets._base_items import BaseItem
 
 
 class CustomApp(QApplication):

@@ -10,7 +10,7 @@ from cfg import Dynamic, Static
 from database import CACHE, Dbase
 from utils import URunnable, Utils
 
-from ._base_widgets import BaseItem
+from ._base_items import BaseItem
 
 LOADING_T = "Загрузка..."
 SQL_ERRORS = (IntegrityError, OperationalError)
