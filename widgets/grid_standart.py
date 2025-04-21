@@ -2,7 +2,7 @@ import gc
 import os
 
 from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import QCloseEvent, QPixmap
+from PyQt5.QtGui import QCloseEvent
 from PyQt5.QtWidgets import QLabel
 
 from cfg import Dynamic, Static
@@ -10,11 +10,9 @@ from database import Dbase
 from utils import URunnable, UThreadPool, Utils
 
 from ._base_widgets import BaseItem
-from .copy_files_win import CopyFilesWin, ErrorWin
 from .finder_items import FinderItems, LoadingWid
 from .grid import Grid, Thumb
 from .grid_tools import GridTools
-from .remove_files_win import RemoveFilesWin
 
 WARN_TEXT = "Папка пуста или нет подключения к диску"
 TASK_NAME = "LOAD_IMAGES"

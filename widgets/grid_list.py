@@ -1,6 +1,6 @@
 import os
 
-from PyQt5.QtCore import QDir, Qt, pyqtSignal
+from PyQt5.QtCore import QDir, Qt
 from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import QFileSystemModel, QTableView
 

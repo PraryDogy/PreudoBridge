@@ -2,7 +2,7 @@ import os
 from time import sleep
 
 from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import QCloseEvent, QColor, QPixmap
+from PyQt5.QtGui import QCloseEvent, QColor
 from PyQt5.QtWidgets import (QFrame, QGraphicsDropShadowEffect, QHBoxLayout,
                              QLabel, QPushButton, QVBoxLayout, QWidget)
 from sqlalchemy.exc import IntegrityError, OperationalError
