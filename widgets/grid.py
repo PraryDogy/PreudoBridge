@@ -636,20 +636,11 @@ class Grid(UScrollArea):
         Открывает окно копирования файлов.  
         Запускает QRunnable для копирования файлов. Испускает сигналы:
         - error win sig при ошибке копирования, откроется окно ошибки
-        - load_st_grid загрузит новую сетку GridStandart с учетом новых Thumb     
+        - finished_ добавит в сетку новые Thumb
         
         Предотвращает вставку в саму себя.  
         Например нельзя скопировать Downloads в Downloads.
         """
-        main_dir_ = Utils.normalize_slash(self.main_dir)
-        main_dir_ = Utils.add_system_volume(main_dir_)
-        for i in Grid.urls_to_copy:
-            i = Utils.normalize_slash(i)
-            i = Utils.add_system_volume(i)
-            if os.path.commonpath([i, main_dir_]) == main_dir_:
-                print("Нельзя копировать в себя")
-                return
-
         self.win_copy = CopyFilesWin(self.main_dir, Grid.urls_to_copy)
         self.win_copy.finished_.connect(lambda urls: self.paste_files_fin(urls))
         self.win_copy.error_win_sig.connect(self.error_win_cmd)
@@ -1088,6 +1079,15 @@ class Grid(UScrollArea):
     def dropEvent(self, a0):
         Grid.urls_to_copy.clear()
         Grid.urls_to_copy = [i.toLocalFile() for i in a0.mimeData().urls()]
+
+        main_dir_ = Utils.normalize_slash(self.main_dir)
+        main_dir_ = Utils.add_system_volume(main_dir_)
+        for i in Grid.urls_to_copy:
+            i = Utils.normalize_slash(i)
+            i = Utils.add_system_volume(i)
+            if os.path.commonpath([i, main_dir_]) == main_dir_:
+                print("Нельзя копировать в себя")
+                return
 
         if Grid.urls_to_copy:
             self.paste_files()
