@@ -63,7 +63,6 @@ class UTableView(QTableView, UMethods):
     open_in_new_window = pyqtSignal(str)
     level_up = pyqtSignal()
     force_load_images_sig = pyqtSignal(list)
-    urls_to_copy_sig = pyqtSignal(list)
 
     def __init__(self):
         """
