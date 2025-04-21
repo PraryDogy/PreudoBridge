@@ -248,15 +248,12 @@ class LoadImages(URunnable):
 class GridStandart(Grid):
     def __init__(self, main_dir: str, view_index: int, url_for_select: str):
         super().__init__(main_dir, view_index, url_for_select)
-
         self.loaded_images: list[str] = []
-
+        self.load_images_threads: list[LoadImages] = []
         self.load_images_timer = QTimer(self)
         self.load_images_timer.setSingleShot(True)
         self.load_images_timer.timeout.connect(self.load_visible_images)
-        self.load_images_threads: list[LoadImages] = []
         self.verticalScrollBar().valueChanged.connect(self.on_scroll_changed)
-        self.tasks: list[LoadImages] = []
 
         self.loading_lbl = LoadingWid(parent=self)
         self.loading_lbl.center(self)
