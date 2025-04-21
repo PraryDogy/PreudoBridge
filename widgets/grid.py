@@ -30,7 +30,7 @@ WID_UNDER_MOUSE = "win_under_mouse"
 GRID_SPACING = 5
 SHOW_IN_FOLDER = "Показать в папке"
 UPDATE_GRID_T = "Обновить"
-COPY_FILES_T = "Копировать объекты"
+COPY_FILES_T = "Скопировать объекты"
 PASTE_FILES_T = "Вставить объекты"
 REMOVE_FILES_T = "Удалить"
 
