@@ -15,7 +15,7 @@ from .grid import Thumb
 SQL_ERRORS = (IntegrityError, OperationalError)
 
 
-class Tools:
+class DbTools:
     @classmethod
     def commit_(cls, conn: Connection, query):
         Dynamic.busy_db = True
@@ -37,11 +37,11 @@ class AnyBaseItem:
         Если записи нет, делает запись.
         Thumb: любой файл, кроме файлов изображений и папок.
         """
-        if not cls.load_from_db(conn, thumb):
+        if not cls.load_db_record(conn, thumb):
             cls.insert_new_record(conn, thumb)
 
     @classmethod
-    def load_from_db(cls, conn: Connection, thumb: Thumb):
+    def load_db_record(cls, conn: Connection, thumb: Thumb):
         """
         Загружает id записи (столбец не принципиален) с условием по имени.  
         Возвращает True если запись есть, иначе False.
@@ -68,7 +68,7 @@ class AnyBaseItem:
         }
 
         q = insert(CACHE).values(**values)
-        Tools.commit_(conn, q)
+        DbTools.commit_(conn, q)
 
 
 class ImageBaseItem:
@@ -79,11 +79,11 @@ class ImageBaseItem:
         Возвращает QPixmap либо из базы данных, либо созданный из изображения.
         """
         Dynamic.busy_db = True
-        img_array = cls.check_db_record(conn, thumb)
+        img_array = cls.get_img_array(conn, thumb)
         return Utils.pixmap_from_array(img_array)
 
     @classmethod
-    def check_db_record(cls, conn: Connection, thumb: Thumb) -> np.ndarray:
+    def get_img_array(cls, conn: Connection, thumb: Thumb) -> np.ndarray:
         """
         Загружает данные о Thumb из базы данных. Возвращает np.ndarray
         """
@@ -130,7 +130,7 @@ class ImageBaseItem:
         }
         q = update(CACHE).where(CACHE.c.id == row_id)
         q = q.values(**values)
-        Tools.commit_(conn, q)
+        DbTools.commit_(conn, q)
         return img_array
 
     @classmethod
@@ -152,7 +152,7 @@ class ImageBaseItem:
             ColumnNames.PARTIAL_HASH: partial_hash
         }
         q = insert(CACHE).values(**values)
-        Tools.commit_(conn, q)
+        DbTools.commit_(conn, q)
         return img_array
     
     @classmethod
