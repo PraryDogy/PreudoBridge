@@ -155,7 +155,8 @@ class SearchWidget(QWidget):
 
     def clear_without_signal(self):
         """
-        Очищает поле ввода
+        - Очищает поле ввода
+        - Срабатывает сигнал textChanged > on_text_changed
         """
         self.search_wid.clear()
 
@@ -230,7 +231,7 @@ class SearchWidget(QWidget):
         """
         - Устанавливает значение search_list_local
         - Устанавливает текст в поле ввода
-        - Автоматически запускается onTextChanged > self.prepare_text
+        - Срабатывает сигнал textChanged -> on_text_changed
         """
         self.search_list_local = search_list
         self.search_wid.setText(SearchItem.SEARCH_LIST_TEXT)
