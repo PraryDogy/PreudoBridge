@@ -55,15 +55,19 @@ class UScrollArea(QScrollArea, UMethods):
 
 
 class UTableView(QTableView, UMethods):
+    # путь к папке
     new_history_item = pyqtSignal(str)
+    # путь к папке
     path_bar_update = pyqtSignal(str)
-
     # целое число или None для обновления числа "Всего" в SortBar
     sort_bar_update = pyqtSignal(object)
-
+    # "select" / "add" / "del", путь к папке
     fav_cmd_sig = pyqtSignal(tuple)
+    # путь к папке, путь к файлу / папке для выделения в сетке GridStandart
     load_st_grid_sig = pyqtSignal(tuple)
+    # 1-4
     move_slider_sig = pyqtSignal(int)
+    # 0 отобразить сеткой, 1 отобразить списком
     change_view_sig = pyqtSignal(int)
     open_in_new_window = pyqtSignal(str)
     level_up = pyqtSignal()
