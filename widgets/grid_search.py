@@ -127,6 +127,7 @@ class SearchFinder(URunnable):
     def scandir_recursive(self):
         # Инициализируем список с корневым каталогом
         dirs_list = [self.main_dir]
+        search_list_lower = [i.lower() for i in self.search_item.get_search_list()]
 
         while dirs_list:
             # Удаляем последний элемент из списка
@@ -138,11 +139,11 @@ class SearchFinder(URunnable):
                 sleep(1)
             try:
                 # Сканируем текущий каталог и добавляем новые пути в стек
-                self.scan_current_dir(current_dir, dirs_list)
+                self.scan_current_dir(current_dir, dirs_list, search_list_lower)
             except Exception as e:
                 continue
 
-    def scan_current_dir(self, dir: str, dirs_list: list):
+    def scan_current_dir(self, dir: str, dirs_list: list, search_list_lower: list[str]):
         # Формируем список имен файлом в нижнем регистре из SEARCH_LIST.
         # Если SEARCH_LIST пуст, значит осуществляется поиск по расширениям
         # или поиск по тексту
@@ -166,7 +167,7 @@ class SearchFinder(URunnable):
                 # process_entry назначаются функции, которые проигнорируют
                 # этот список читай setup_text.
                 if self.process_entry(entry, search_list_lower):
-                    self.process_img(entry=entry)
+                    self.process_img(entry)
 
     def process_img(self, entry: os.DirEntry):
         img_array = Utils.read_image(path=entry.path)
