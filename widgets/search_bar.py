@@ -12,6 +12,8 @@ class SearchBar(QFrame):
         super().__init__()
         self.setFixedHeight(40)
 
+        self.exactly_search = False
+
         h_lay = QHBoxLayout()
         h_lay.setContentsMargins(0, 0, 0, 0)
         h_lay.setSpacing(10)
@@ -23,9 +25,12 @@ class SearchBar(QFrame):
 
     def on_state_change(self, value: int):
         data = {0: False, 2: True}
-        Dynamic.exactly_search = data.get(value)
+        self.exactly_search = data.get(value)
         self.start_new_search.emit()
 
+    def get_exactly_search(self):
+        return self.exactly_search
+
     def show(self):
-        self.checkbox.setChecked(Dynamic.exactly_search)
+        self.checkbox.setChecked(self.exactly_search)
         return super().show()
