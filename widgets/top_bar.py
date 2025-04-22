@@ -154,15 +154,21 @@ class SearchWidget(QWidget):
         self.search_list_local: list[str] = []
 
     def clear_without_signal(self):
-        # отключаем сигналы, чтобы при очистке виджета не запустился
-        # on_text_changed и поиск пустышки
+        """
+        Очищает поле ввода, временно отключив сигнал textChanged,
+        чтобы избежать рекурсии 
+        Заново подключает textChanged
+        """
         self.search_wid.disconnect()
         self.search_wid.clear()
         self.search_wid.clear_btn.hide()
-        # подключаем назад
         self.search_wid.textChanged.connect(self.on_text_changed)
 
     def on_text_changed(self, text: str):
+        """
+        Обрабатывает сигнал textChanged   
+        Отложенно запускает prepare_text
+        """
         if text:
             self.search_text = text
             self.input_timer.stop()
