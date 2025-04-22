@@ -235,6 +235,8 @@ class MainWin(QWidget):
         self.bar_top.clear_data_clicked.connect(lambda: self.remove_db_cmd())
         self.bar_top.open_in_new_win.connect(lambda dir: self.open_in_new_window_cmd(dir))
 
+        self.search_bar.start_new_search.connect(lambda: self.search_bar_cmd())
+
         self.path_bar.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
         self.path_bar.load_st_grid_sig.connect(lambda data: self.load_st_grid_cmd(data))
         self.path_bar.open_img_view.connect(lambda path: self.open_img_view_cmd(path))
@@ -297,6 +299,9 @@ class MainWin(QWidget):
         x, y = self.window().x(), self.window().y()
         new_win.move(x + 20, y + 20)
         new_win.show()
+
+    def search_bar_cmd(self):
+        ...
 
     def setup_grid_signals(self):
         self.grid.sort_bar_update.connect(lambda value: self.sort_bar.setup(value))
