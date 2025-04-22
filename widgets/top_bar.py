@@ -118,11 +118,12 @@ class ListWin(MinMaxDisabledWin):
  
 class SearchWidget(QWidget):
     search_was_cleaned = pyqtSignal()
-    start_search = pyqtSignal(str)
+    start_search = pyqtSignal()
     list_win_opened = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self, search_item: SearchItem):
         super().__init__()
+        self.search_item = search_item
 
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(0, 0, 0, 0)
@@ -141,7 +142,7 @@ class SearchWidget(QWidget):
 
         self.search_timer = QTimer(self)
         self.search_timer.setSingleShot(True)
-        self.search_timer.timeout.connect(lambda: self.start_search.emit(self.search_text))
+        self.search_timer.timeout.connect(lambda: self.search_timer_cmd())
 
         self.templates_menu = UMenu(parent=self)
 
@@ -157,6 +158,10 @@ class SearchWidget(QWidget):
         search_list = QAction(Static.SEARCH_LIST_TEXT, self)
         search_list.triggered.connect(self.search_list_cmd)
         self.templates_menu.addAction(search_list)
+
+    def search_timer_cmd(self):
+        self.search_item.search_text = self.search_text
+        self.start_search.emit()
 
     def clear_without_signal(self):
         # отключаем сигналы, чтобы при очистке виджета не запустился
@@ -178,6 +183,7 @@ class SearchWidget(QWidget):
             self.clear_without_signal()
             self.search_wid.clear_btn.hide()
             self.search_was_cleaned.emit()
+            self.search_item.reset()
 
     def show_templates(self, a0: QMouseEvent | None) -> None:
         self.templates_menu.exec(self.mapToGlobal(self.rect().bottomLeft()))
@@ -199,7 +205,7 @@ class SearchWidget(QWidget):
 class TopBar(QWidget):
     level_up = pyqtSignal()
     change_view = pyqtSignal(int)
-    start_search = pyqtSignal(str)
+    start_search = pyqtSignal()
     search_was_cleaned = pyqtSignal()
     navigate = pyqtSignal(str)
     list_win_opened = pyqtSignal()
@@ -258,7 +264,7 @@ class TopBar(QWidget):
 
         self.main_lay.addStretch(1)
 
-        self.search_wid = SearchWidget()
+        self.search_wid = SearchWidget(self.search_item)
         self.search_wid.start_search.connect(self.start_search.emit)
         self.search_wid.search_was_cleaned.connect(self.search_was_cleaned.emit)
         self.search_wid.list_win_opened.connect(self.list_win_opened.emit)

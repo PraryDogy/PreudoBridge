@@ -483,16 +483,16 @@ class SearchItem:
     def __init__(self):
         super().__init__()
 
-        self.text: str = None
+        self.search_text: str = None
         self.search_extensions: str = None
         self.search_list: list[str] = None
         self.exactly: bool = False
 
     def set_text(self, text: str):
-        self.text = text
+        self.search_text = text
     
     def get_text(self):
-        return self.text
+        return self.search_text
     
     def set_search_extenstions(self, template: str):
         self.search_extensions = template
@@ -511,3 +511,8 @@ class SearchItem:
 
     def get_exactly(self):
         return self.exactly
+    
+    def reset(self):
+        self.search_text = None
+        self.search_list = None
+        self.search_extensions = None

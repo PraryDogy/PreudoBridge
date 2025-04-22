@@ -155,7 +155,7 @@ class MainWin(QWidget):
         self.r_lay.setSpacing(0)
         right_wid.setLayout(self.r_lay)
         
-        self.bar_top = TopBar()
+        self.bar_top = TopBar(self.search_item)
         # добавляем текущую директорию в историю
         self.bar_top.new_history_item_cmd(self.main_dir)
         sep_one = USep()
@@ -222,7 +222,7 @@ class MainWin(QWidget):
         # изменить отображение сетка/список
         self.bar_top.change_view.connect(lambda index: self.change_view_cmd(index))
         # начать поиск
-        self.bar_top.start_search.connect(lambda text: self.load_search_grid(text))
+        self.bar_top.start_search.connect(lambda: self.load_search_grid())
         # очистить поиск, загрузить стандартную сетку с текущей директорией
         self.bar_top.search_was_cleaned.connect(lambda: self.load_st_grid_cmd((self.main_dir, None)))
         # перейти вперед/назад по истории посещений
