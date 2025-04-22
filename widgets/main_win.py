@@ -232,7 +232,7 @@ class MainWin(QWidget):
         # в которой будет произведен поиск
         # мы не можем сюда перенсти фунеционал целого окна list_win
         # проще постфактум установить текст для лейбла в этом окне
-        self.bar_top.list_win_opened.connect(lambda: self.bar_top.set_main_dir(self.main_dir))
+        self.bar_top.get_main_dir.connect(lambda: self.bar_top.set_main_dir(self.main_dir))
         # было открыто окно настроек и был клик "очистить данные в этой папке"
         self.bar_top.clear_data_clicked.connect(lambda: self.remove_db_cmd())
         self.bar_top.open_in_new_win.connect(lambda dir: self.open_in_new_window_cmd(dir))

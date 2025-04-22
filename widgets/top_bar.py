@@ -57,7 +57,7 @@ class BarTopBtn(UFrame):
 
 
 class ListWin(MinMaxDisabledWin):
-    ok_pressed = pyqtSignal()
+    finished_ = pyqtSignal(list)
 
     def __init__(self, search_item: SearchItem):
         super().__init__()
@@ -112,15 +112,13 @@ class ListWin(MinMaxDisabledWin):
             if i
         ]
 
-        search_list: list[str] = []
+        new_search_list: list[str] = []
 
         for i in search_list:
             filename, ext = os.path.splitext(i)
-            search_list.append(filename)
+            new_search_list.append(filename)
 
-        self.search_item.set_search_list(search_list)
-
-        self.ok_pressed.emit()
+        self.finished_.emit(new_search_list)
         self.close()
 
     def keyPressEvent(self, a0):
@@ -131,7 +129,7 @@ class ListWin(MinMaxDisabledWin):
 class SearchWidget(QWidget):
     search_was_cleaned = pyqtSignal()
     start_search = pyqtSignal()
-    list_win_opened = pyqtSignal()
+    get_main_dir = pyqtSignal()
 
     def __init__(self, search_item: SearchItem):
         super().__init__()
@@ -168,7 +166,7 @@ class SearchWidget(QWidget):
             self.templates_menu.addAction(action)
 
         search_list = QAction(SEARCH_LIST_TEXT, self)
-        search_list.triggered.connect(self.search_list_cmd)
+        search_list.triggered.connect(self.open_search_list_win)
         self.templates_menu.addAction(search_list)
 
     def search_timer_cmd(self):
@@ -209,15 +207,16 @@ class SearchWidget(QWidget):
     def action_cmd(self, text: str):
         self.search_wid.setText(text)
 
-    def search_list_cmd(self):
+    def open_search_list_win(self):
         self.list_win = ListWin(self.search_item)
-        self.list_win.ok_pressed.connect(self.list_win_cmd)
-        self.list_win_opened.emit()
+        self.list_win.finished_.connect(lambda search_list: self.list_win_finished(search_list))
+        self.get_main_dir.emit()
         self.list_win.center(self.window())
         self.list_win.show()
 
-    def list_win_cmd(self, *args):
+    def list_win_finished(self, search_list: list[str]):
         self.search_wid.setText(SEARCH_LIST_TEXT)
+        self.search_item.set_search_list(search_list)
 
 
 class TopBar(QWidget):
@@ -226,7 +225,7 @@ class TopBar(QWidget):
     start_search = pyqtSignal()
     search_was_cleaned = pyqtSignal()
     navigate = pyqtSignal(str)
-    list_win_opened = pyqtSignal()
+    get_main_dir = pyqtSignal()
     clear_data_clicked = pyqtSignal()
     open_in_new_win = pyqtSignal(str)
 
@@ -285,7 +284,7 @@ class TopBar(QWidget):
         self.search_wid = SearchWidget(self.search_item)
         self.search_wid.start_search.connect(self.start_search.emit)
         self.search_wid.search_was_cleaned.connect(self.search_was_cleaned.emit)
-        self.search_wid.list_win_opened.connect(self.list_win_opened.emit)
+        self.search_wid.get_main_dir.connect(self.get_main_dir.emit)
         self.main_lay.addWidget(self.search_wid)
 
         self.index_ -= 1
