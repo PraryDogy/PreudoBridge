@@ -66,7 +66,7 @@ class FinderItems(URunnable):
 
         new_files = []
         for i in base_items:
-            name = Utils.get_hash_filename(filename=i.name)
+            name = Utils.get_hash_filename(i.name)
             if name in res:
                 i.rating = res.get(name)
             else:

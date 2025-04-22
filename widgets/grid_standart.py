@@ -376,6 +376,9 @@ class GridStandart(Grid):
             if base_item.src.count(os.sep) == 2:
                 thumb.set_svg_icon(Static.HDD_SVG)
 
+            elif base_item.name.endswith((".app", ".APP")):
+                thumb.set_svg_icon("/Users/Loshkarev/Library/Application Support/PreudoBridge/icons/SVG_app.svg")
+
             else:
                 icon_path = Utils.get_generic_icon_path(base_item.type_)
                 thumb.set_svg_icon(icon_path)
