@@ -204,5 +204,4 @@ class Dynamic:
     pixmap_size_ind = 0
     rev: bool = False
     sort: str = "name"
-    # [path_to_svg_icon, ...] в GENERIC_ICONS
     generic_icon_paths: list[str] = []
