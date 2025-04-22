@@ -4,15 +4,16 @@ from PyQt5.QtWidgets import (QCheckBox, QFrame, QHBoxLayout, QVBoxLayout,
 
 from cfg import Dynamic
 
+from ._base_items import SearchItem
+
 
 class SearchBar(QFrame):
-    start_new_search = pyqtSignal()
+    toggle_exactly = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self, search_item: SearchItem):
         super().__init__()
         self.setFixedHeight(40)
-
-        self.exactly_search = False
+        self.search_item = search_item
 
         h_lay = QHBoxLayout()
         h_lay.setContentsMargins(0, 0, 0, 0)
@@ -25,12 +26,10 @@ class SearchBar(QFrame):
 
     def on_state_change(self, value: int):
         data = {0: False, 2: True}
-        self.exactly_search = data.get(value)
-        self.start_new_search.emit()
-
-    def get_exactly_search(self):
-        return self.exactly_search
+        new_value = data.get(value)
+        self.search_item.exactly = new_value
+        self.toggle_exactly.emit()
 
     def show(self):
-        self.checkbox.setChecked(self.exactly_search)
+        self.checkbox.setChecked(self.search_item.exactly)
         return super().show()

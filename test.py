@@ -1,9 +1,26 @@
-from pathlib import Path
+class Test:
+    def __init__(self):
+        super().__init__()
+        self.value = 0
 
-src = "/Volumes/Shares/Studio/MIUZ/Photo/Art/Raw/2024/soft/Outline.app"
+
+class Child:
+    def __init__(self, test: Test):
+        super().__init__()
+        self.test = test
+
+    def change_test_value(self):
+        self.test.value = 1000
 
 
-import os
-c = os.path.splitext(src)
+class MainWid:
+    def __init__(self):
+        super().__init__()
+        self.test_item = Test()
+        self.child_item = Child(self.test_item)
 
-print(c)
+
+main = MainWid()
+main.child_item.change_test_value()
+
+print(main.test_item.value)

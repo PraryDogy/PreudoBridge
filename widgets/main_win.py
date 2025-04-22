@@ -159,7 +159,7 @@ class MainWin(QWidget):
         # добавляем текущую директорию в историю
         self.bar_top.new_history_item_cmd(self.main_dir)
         sep_one = USep()
-        self.search_bar = SearchBar()
+        self.search_bar = SearchBar(self.search_item)
         self.search_bar_sep = USep()
         # инициируем пустую сетку, чтобы работали все методы сетки, например
         # grid.close(), и не пришлось бы каждый раз проверять
