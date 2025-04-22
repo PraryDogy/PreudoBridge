@@ -80,15 +80,6 @@ class Static:
         ".MOV", ".MP4"
     )
 
-    SEARCH_EXTENSIONS = {
-        "Найти jpg": (".jpg", ".jpeg", "jfif"),
-        "Найти png": (".png"),
-        "Найти tiff": (".tif", ".tiff"),
-        "Найти psd/psb": (".psd", ".psb"),
-        "Найти raw": (".nef", ".raw"),
-        "Найти любые фото": IMG_EXT
-    }
-
     SEARCH_LIST_TEXT = "Найти по списку"
 
 

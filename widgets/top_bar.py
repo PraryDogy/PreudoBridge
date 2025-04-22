@@ -14,6 +14,14 @@ from .settings_win import SettingsWin
 
 SEARCH_PLACE = "Место поиска:"
 LIST_FILES = "Список файлов (по одному в строке):"
+SEARCH_EXTENSIONS = {
+    "Найти jpg": (".jpg", ".jpeg", "jfif"),
+    "Найти png": (".png"),
+    "Найти tiff": (".tif", ".tiff"),
+    "Найти psd/psb": (".psd", ".psb"),
+    "Найти raw": (".nef", ".raw"),
+    "Найти любые фото": Static.IMG_EXT
+}
 
 class ActionData:
     __slots__ = ["sort", "reversed", "text"]
@@ -146,7 +154,7 @@ class SearchWidget(QWidget):
 
         self.templates_menu = UMenu(parent=self)
 
-        for text, template in Static.SEARCH_EXTENSIONS.items():
+        for text, _ in SEARCH_EXTENSIONS.items():
             action = QAction(text, self)
 
             action.triggered.connect(
@@ -160,8 +168,6 @@ class SearchWidget(QWidget):
         self.templates_menu.addAction(search_list)
 
     def search_timer_cmd(self):
-        self.search_item.reset()
-        self.search_item.search_text = self.search_text
         self.start_search.emit()
 
     def clear_without_signal(self):
@@ -179,6 +185,13 @@ class SearchWidget(QWidget):
             self.search_wid.clear_btn.show()
             self.search_text = text.strip()
             self.search_wid.setText(self.search_text)
+            self.search_item.reset()
+
+            if text in SEARCH_EXTENSIONS:
+                self.search_item.set_search_extenstions(SEARCH_EXTENSIONS.get(text))
+            else:
+                self.search_item.set_search_text(self.search_text)
+
             self.search_timer.start(1500)
         else:
             self.clear_without_signal()

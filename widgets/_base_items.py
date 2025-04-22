@@ -488,7 +488,7 @@ class SearchItem:
         self.search_list: list[str] = None
         self.exactly: bool = False
 
-    def set_text(self, text: str):
+    def set_search_text(self, text: str):
         self.search_text = text
     
     def get_text(self):
