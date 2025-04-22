@@ -77,6 +77,8 @@ class TagsBtn(QWidget):
 class MainWin(QWidget):
     resize_ms = 100
     grid_insert_num = 4
+    width_ = 1050
+    height_ = 700
 
     def __init__(self, dir: str = None):
         super().__init__()
@@ -93,8 +95,7 @@ class MainWin(QWidget):
         self.view_index = 0
 
         self.setMinimumWidth(200)
-        ww, hh = Dynamic.ww, Dynamic.hh
-        self.resize(ww, hh)
+        self.resize(MainWin.width_, MainWin.height_)
         self.setMinimumSize(800, 500)
         
         self.resize_timer = QTimer(parent=self)
@@ -413,8 +414,8 @@ class MainWin(QWidget):
             del(i)
         
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
-        Dynamic.ww = self.geometry().width()
-        Dynamic.hh = self.geometry().height()
+        MainWin.width_ = self.geometry().width()
+        MainWin.height_ = self.geometry().height()
         self.scroll_up.move(self.width() - 70, self.height() - 110)
         self.resize_timer.stop()
         self.resize_timer.start(MainWin.resize_ms)

@@ -201,8 +201,6 @@ class JsonData:
 
 class Dynamic:
     rating_filter: int = 0
-    ww = 1050
-    hh = 700
     pixmap_size_ind = 0
     rev: bool = False
     sort: str = "name"
