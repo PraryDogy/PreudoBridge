@@ -94,6 +94,8 @@ class SearchFinder(URunnable):
 
         if self.compare_words(search_text, filename) > SearchFinder.search_value:
             return True
+        elif search_text in filename or filename in search_text:
+            return True
         else:
             return False
         
@@ -121,6 +123,8 @@ class SearchFinder(URunnable):
         filename: str = filename.lower()
         for item in search_list_lower:
             if self.compare_words(item, filename) > SearchFinder.search_value:
+                return True
+            elif item in filename or filename in item:
                 return True
         return False
 
@@ -257,13 +261,15 @@ class GridSearch(Grid):
     def start_search(self):
         self.path_bar_update.emit(self.main_dir)
         Thumb.calculate_size()
+        self.is_grid_search = True
+
+        print(self.search_item.exactly)
 
         self.task_ = SearchFinder(self.main_dir, self.search_item)
         self.task_.signals_.new_widget.connect(self.add_new_widget)
         self.task_.signals_.finished_.connect(self.search_fin)
         UThreadPool.start(self.task_)
 
-        self.is_grid_search = True
 
     def add_new_widget(self, base_item: BaseItem):
         thumb = Thumb(base_item.src, base_item.rating)

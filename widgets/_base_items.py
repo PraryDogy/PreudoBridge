@@ -516,3 +516,4 @@ class SearchItem:
         self.search_text = None
         self.search_list = None
         self.search_extensions = None
+        self.exactly = False
