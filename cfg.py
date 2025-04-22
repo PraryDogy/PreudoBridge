@@ -203,8 +203,6 @@ class Dynamic:
     rating_filter: int = 0
     ww = 1050
     hh = 700
-    ww_im = 700
-    hh_im = 500
     pixmap_size_ind = 0
     rev: bool = False
     sort: str = "name"

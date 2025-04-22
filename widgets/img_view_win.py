@@ -284,11 +284,12 @@ class ImgViewWin(WinBase):
     closed_ = pyqtSignal()
     move_to_wid_sig = pyqtSignal(object)
     new_rating = pyqtSignal(int)
+    width_, height_ = 700, 500
 
     def __init__(self, src: str, url_to_wid: dict[str, Thumb]):
         super().__init__()
         self.setMinimumSize(QSize(400, 300))
-        self.resize(Dynamic.ww_im, Dynamic.hh_im)
+        self.resize(ImgViewWin.width_, ImgViewWin.height_)
         self.setObjectName("win_img_view")
         self.setStyleSheet("#win_img_view {background: black}")
 
@@ -335,7 +336,7 @@ class ImgViewWin(WinBase):
         self.text_label.hide()
 
         self.hide_btns()
-        self.resize(Dynamic.ww_im + 1, Dynamic.hh_im + 1)
+        self.resize(ImgViewWin.width_ + 1, ImgViewWin.height_ + 1)
 
         self.text_label.hide()
         self.set_title()
@@ -509,8 +510,8 @@ class ImgViewWin(WinBase):
         y = (a0.size().height() - self.text_label.height()) // 2
         self.text_label.move(x, y)
 
-        Dynamic.ww_im = self.width()
-        Dynamic.hh_im = self.height()
+        ImgViewWin.width_ = self.width()
+        ImgViewWin.height_ = self.height()
 
         return super().resizeEvent(a0)
 
