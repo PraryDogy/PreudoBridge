@@ -144,11 +144,6 @@ class SearchFinder(URunnable):
                 continue
 
     def scan_current_dir(self, dir: str, dirs_list: list, search_list_lower: list[str]):
-        # Формируем список имен файлом в нижнем регистре из SEARCH_LIST.
-        # Если SEARCH_LIST пуст, значит осуществляется поиск по расширениям
-        # или поиск по тексту
-        search_list_lower = [i.lower() for i in self.search_item.get_search_list()]
-
         with os.scandir(dir) as entries:
             for entry in entries:
                 if not self.should_run:
