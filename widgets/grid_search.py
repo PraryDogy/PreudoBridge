@@ -267,6 +267,7 @@ class GridSearch(Grid):
         # get_col_count найдет родительское окно GridSearch
         self.col_count = self.get_col_count()
 
+        self.sort_bar_update.emit(0)
         self.path_bar_update.emit(self.main_dir)
         Thumb.calculate_size()
         self.is_grid_search = True
