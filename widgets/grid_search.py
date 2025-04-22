@@ -13,6 +13,7 @@ from utils import URunnable, UThreadPool, Utils
 from ._base_items import (BaseItem, MinMaxDisabledWin, USvgSqareWidget,
                             UTextEdit)
 from .grid import Grid, Thumb
+from difflib import SequenceMatcher
 
 ATTENTION_T = "Внимание!"
 MISSED_FILES = "Не найдены файлы:"
@@ -28,6 +29,8 @@ class WorkerSignals(QObject):
 
 
 class SearchFinder(URunnable):
+    search_value = 0.70
+
     def __init__(self, main_dir: str, search_text: str):
         super().__init__()
         self.signals_ = WorkerSignals()
@@ -45,7 +48,10 @@ class SearchFinder(URunnable):
             self.scandir_recursive()
             self.signals_.finished_.emit()
         except RuntimeError as e:
-            Utils.print_error(parent=None, error=e)
+            Utils.print_error(None, e)
+
+    def compare_words(self, word1: str, word2: str):
+        return SequenceMatcher(None, word1, word2).ratio()
 
     def setup_text(self):
         # Ожидается текст из поиска либо в свободной форме,
@@ -86,6 +92,11 @@ class SearchFinder(URunnable):
         filename: str = filename.lower()
         search_text: str = self.search_text.lower()
 
+        if self.compare_words(search_text, filename) > SearchFinder.search_value:
+            return True
+        else:
+            return False
+
         if search_text in filename:
             return True
         else:
@@ -103,9 +114,12 @@ class SearchFinder(URunnable):
         filename, _ = os.path.splitext(entry.name)
         filename: str = filename.lower()
         for item in search_list_lower:
-            if filename in item or item in filename:
+            if self.compare_words(item, filename) > SearchFinder.search_value:
                 return True
         return False
+            # if filename in item or item in filename:
+                # return True
+        # return False
 
     def process_list(self, entry: os.DirEntry, search_list_lower: list[str]) -> bool:
         ...
