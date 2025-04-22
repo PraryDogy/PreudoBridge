@@ -237,7 +237,7 @@ class MainWin(QWidget):
         self.bar_top.clear_data_clicked.connect(lambda: self.remove_db_cmd())
         self.bar_top.open_in_new_win.connect(lambda dir: self.open_in_new_window_cmd(dir))
 
-        self.search_bar.start_new_search.connect(lambda: self.search_bar_cmd())
+        self.search_bar.toggle_exactly.connect(lambda: self.load_search_grid())
 
         self.path_bar.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
         self.path_bar.load_st_grid_sig.connect(lambda data: self.load_st_grid_cmd(data))
@@ -302,9 +302,6 @@ class MainWin(QWidget):
         new_win.move(x + 20, y + 20)
         new_win.show()
 
-    def search_bar_cmd(self):
-        self.load_search_grid(self.bar_top.get_search_text())
-
     def setup_grid_signals(self):
         self.grid.sort_bar_update.connect(lambda value: self.sort_bar.setup(value))
         self.grid.path_bar_update.connect(lambda dir: self.path_bar.setup(dir))
@@ -318,19 +315,22 @@ class MainWin(QWidget):
         self.grid.change_view_sig.connect(lambda index: self.change_view_cmd(index))
         self.grid.force_load_images_sig.connect(lambda urls: self.grid.force_load_images_cmd(urls))
 
-    def load_search_grid(self, search_text: str):
+    def load_search_grid(self):
         self.grid.close()
         self.menu_tags.reset()
         self.grid = GridSearch(self.main_dir, self.view_index, None)
         # нужно сразу добавлять в окно, чтобы у виджета появился родитель
         # тогда во всех эвентах правильно сработает self.grid.window()
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
+
         self.search_bar.show()
         self.search_bar_sep.show()
         self.setup_grid_signals()
         self.window().raise_()
+
         self.grid.setFocus()
-        self.grid.start_search(self.search_item)
+        self.grid.set_search_item(self.search_item)
+        self.grid.start_search()
 
     def load_st_grid_cmd(self, data: tuple):
         new_main_dir, path_for_select = data
