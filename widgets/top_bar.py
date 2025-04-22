@@ -41,9 +41,13 @@ class ListWin(MinMaxDisabledWin):
     LIST_FILES = "Список файлов (по одному в строке):"
     finished_ = pyqtSignal(list)
 
-    def __init__(self, search_item: SearchItem):
+    def __init__(self):
+        """
+        Окно ввода списка файлов папок для дальнейшего поиска
+        Каждый файл с новой строки
+        Позволяет поиску искать сразу множество файлов и папок
+        """
         super().__init__()
-        self.search_item = search_item
 
         self.setFixedSize(570, 500)
         v_lay = QVBoxLayout()
@@ -87,20 +91,13 @@ class ListWin(MinMaxDisabledWin):
         btns_lay.addStretch()
 
     def ok_cmd(self, *args):
+        """
+        Преобразует текст в список  
+        Испускает сигнал finished_ с подготовленным списком
+        """
         search_list = self.input_.toPlainText()
-        search_list = [
-            i.strip()
-            for i in search_list.split("\n")
-            if i
-        ]
-
-        new_search_list: list[str] = []
-
-        for i in search_list:
-            filename, ext = os.path.splitext(i)
-            new_search_list.append(filename)
-
-        self.finished_.emit(new_search_list)
+        search_list = [i.strip() for i in search_list.split("\n") if i]
+        self.finished_.emit(search_list)
         self.close()
 
     def keyPressEvent(self, a0):
@@ -228,7 +225,7 @@ class SearchWidget(QWidget):
         - Открывает окно для ввода списка файлов / папок для поиска   
         - Испускает сигнал finished со списком файлов из окна ввода
         """
-        self.list_win = ListWin(self.search_item)
+        self.list_win = ListWin()
         self.list_win.finished_.connect(lambda search_list: self.list_win_finished(search_list))
         self.get_main_dir.emit()
         self.list_win.center(self.window())
