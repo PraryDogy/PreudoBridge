@@ -238,7 +238,7 @@ class WinMissedFiles(MinMaxDisabledWin):
 
 
 class GridSearch(Grid):
-    def __init__(self, main_dir: str, view_index: int, url_for_select: str, search_text: str):
+    def __init__(self, main_dir: str, view_index: int, url_for_select: str):
         super().__init__(main_dir, view_index, url_for_select)
         self.setAcceptDrops(False)
 
@@ -250,6 +250,7 @@ class GridSearch(Grid):
         self.pause_timer.timeout.connect(self.remove_pause)
         self.pause_timer.setSingleShot(True)
 
+    def start_search(self, search_text: str, exactly: bool):
         self.path_bar_update.emit(self.main_dir)
         Thumb.calculate_size()
 
