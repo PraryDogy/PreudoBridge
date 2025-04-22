@@ -301,7 +301,7 @@ class MainWin(QWidget):
         new_win.show()
 
     def search_bar_cmd(self):
-        ...
+        self.load_search_grid(self.bar_top.get_search_text())
 
     def setup_grid_signals(self):
         self.grid.sort_bar_update.connect(lambda value: self.sort_bar.setup(value))
