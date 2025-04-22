@@ -12,9 +12,6 @@ from ._base_items import (MinMaxDisabledWin, SearchItem, UFrame, ULineEdit,
                           UMenu, UTextEdit)
 from .settings_win import SettingsWin
 
-SEARCH_PLACE = "Место поиска:"
-LIST_FILES = "Список файлов (по одному в строке):"
-
 
 class BarTopBtn(UFrame):
     clicked = pyqtSignal()
@@ -40,6 +37,8 @@ class BarTopBtn(UFrame):
 
 
 class ListWin(MinMaxDisabledWin):
+    SEARCH_PLACE = "Место поиска:"
+    LIST_FILES = "Список файлов (по одному в строке):"
     finished_ = pyqtSignal(list)
 
     def __init__(self, search_item: SearchItem):
@@ -56,12 +55,12 @@ class ListWin(MinMaxDisabledWin):
         v_lay.addWidget(first_row)
         first_lay = QVBoxLayout()
         first_row.setLayout(first_lay)
-        first_title = QLabel(text=SEARCH_PLACE)
+        first_title = QLabel(ListWin.SEARCH_PLACE)
         first_lay.addWidget(first_title)
         self.main_dir_label = QLabel()
         first_lay.addWidget(self.main_dir_label)
 
-        inp_label = QLabel(LIST_FILES)
+        inp_label = QLabel(ListWin.LIST_FILES)
         v_lay.addWidget(inp_label)
 
         self.input_ = UTextEdit()
