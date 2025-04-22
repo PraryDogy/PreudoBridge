@@ -513,6 +513,10 @@ class SearchItem:
         return self.exactly
     
     def reset(self):
+        """
+        search_text, search_list, search_extensions = None
+        search.exactly = False
+        """
         self.search_text = None
         self.search_list = None
         self.search_extensions = None

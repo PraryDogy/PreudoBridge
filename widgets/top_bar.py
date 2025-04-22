@@ -160,6 +160,7 @@ class SearchWidget(QWidget):
         self.templates_menu.addAction(search_list)
 
     def search_timer_cmd(self):
+        self.search_item.reset()
         self.search_item.search_text = self.search_text
         self.start_search.emit()
 
@@ -271,9 +272,6 @@ class TopBar(QWidget):
         self.main_lay.addWidget(self.search_wid)
 
         self.index_ -= 1
-
-    def get_search_text(self):
-        return self.search_wid.search_text
 
     def set_main_dir(self, main_dir: str):
         try:
