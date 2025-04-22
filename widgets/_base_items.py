@@ -374,10 +374,13 @@ class BaseItem:
         """
         self.src = Utils.normalize_slash(self.src)
         self.name = os.path.basename(self.src)
-        if os.path.isdir(self.src):
-            self.type_ = Static.FOLDER_TYPE
+
+        _, ext = os.path.splitext(self.src)
+        if ext:
+            self.type_ = ext
         else:
-            _, self.type_ = os.path.splitext(self.src)
+            self.type_ = Static.FOLDER_TYPE
+
         stat = os.stat(self.src)
         self.mod = stat.st_mtime
         self.birth = stat.st_birthtime
