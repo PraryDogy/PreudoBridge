@@ -155,14 +155,9 @@ class SearchWidget(QWidget):
 
     def clear_without_signal(self):
         """
-        Очищает поле ввода, временно отключив сигнал textChanged,
-        чтобы избежать рекурсии 
-        Заново подключает textChanged
+        Очищает поле ввода
         """
-        self.search_wid.disconnect()
         self.search_wid.clear()
-        self.search_wid.clear_btn.hide()
-        self.search_wid.textChanged.connect(self.on_text_changed)
 
     def on_text_changed(self, text: str):
         """
@@ -174,7 +169,6 @@ class SearchWidget(QWidget):
             self.input_timer.stop()
             self.input_timer.start(1500)
         else:
-            self.clear_without_signal()
             self.search_wid.clear_btn.hide()
             self.search_was_cleaned.emit()
             self.search_item.reset()
