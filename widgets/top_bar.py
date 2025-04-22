@@ -3,10 +3,10 @@ import os
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QAction, QCheckBox, QGroupBox, QHBoxLayout,
-                             QLabel, QPushButton, QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QAction, QGroupBox, QHBoxLayout, QLabel,
+                             QPushButton, QVBoxLayout, QWidget)
 
-from cfg import Dynamic, Static
+from cfg import Static
 
 from ._base_items import (MinMaxDisabledWin, SearchItem, UFrame, ULineEdit,
                           UMenu, UTextEdit)
@@ -14,15 +14,7 @@ from .settings_win import SettingsWin
 
 SEARCH_PLACE = "Место поиска:"
 LIST_FILES = "Список файлов (по одному в строке):"
-SEARCH_LIST_TEXT = "Найти по списку"
-SEARCH_EXTENSIONS = {
-    "Найти jpg": (".jpg", ".jpeg", "jfif"),
-    "Найти png": (".png"),
-    "Найти tiff": (".tif", ".tiff"),
-    "Найти psd/psb": (".psd", ".psb"),
-    "Найти raw": (".nef", ".raw"),
-    "Найти любые фото": Static.IMG_EXT
-}
+
 
 class ActionData:
     __slots__ = ["sort", "reversed", "text"]
@@ -156,7 +148,7 @@ class SearchWidget(QWidget):
 
         self.templates_menu = UMenu(parent=self)
 
-        for text, _ in SEARCH_EXTENSIONS.items():
+        for text, _ in SearchItem.SEARCH_EXTENSIONS.items():
             action = QAction(text, self)
 
             action.triggered.connect(
@@ -165,7 +157,7 @@ class SearchWidget(QWidget):
 
             self.templates_menu.addAction(action)
 
-        search_list = QAction(SEARCH_LIST_TEXT, self)
+        search_list = QAction(SearchItem.SEARCH_LIST_TEXT, self)
         search_list.triggered.connect(self.open_search_list_win)
         self.templates_menu.addAction(search_list)
 
@@ -189,8 +181,10 @@ class SearchWidget(QWidget):
             self.search_wid.setText(self.search_text)
             self.search_item.reset()
 
-            if text in SEARCH_EXTENSIONS:
-                self.search_item.set_search_extenstions(SEARCH_EXTENSIONS.get(text))
+            if text in SearchItem.SEARCH_EXTENSIONS:
+                self.search_item.set_search_extenstions(
+                    SearchItem.SEARCH_EXTENSIONS.get(text)
+                )
             else:
                 self.search_item.set_search_text(self.search_text)
 
@@ -215,7 +209,7 @@ class SearchWidget(QWidget):
         self.list_win.show()
 
     def list_win_finished(self, search_list: list[str]):
-        self.search_wid.setText(SEARCH_LIST_TEXT)
+        self.search_wid.setText(SearchItem.SEARCH_LIST_TEXT)
         self.search_item.set_search_list(search_list)
 
 

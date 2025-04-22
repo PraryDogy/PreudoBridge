@@ -480,6 +480,16 @@ class USep(QFrame):
 
 
 class SearchItem:
+    SEARCH_LIST_TEXT = "Найти по списку"
+    SEARCH_EXTENSIONS = {
+        "Найти jpg": (".jpg", ".jpeg", "jfif"),
+        "Найти png": (".png"),
+        "Найти tiff": (".tif", ".tiff"),
+        "Найти psd/psb": (".psd", ".psb"),
+        "Найти raw": (".nef", ".raw"),
+        "Найти любые фото": Static.IMG_EXT
+    }
+
     def __init__(self):
         super().__init__()
 
