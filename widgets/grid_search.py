@@ -44,7 +44,6 @@ class SearchFinder(URunnable):
     @URunnable.set_running_state
     def run(self):
         try:
-            print(self.search_item.__dict__)
             self.setup_search()
             self.scandir_recursive()
             self.signals_.finished_.emit()
@@ -55,21 +54,26 @@ class SearchFinder(URunnable):
         return SequenceMatcher(None, word1, word2).ratio()
 
     def setup_search(self):
+        if self.search_item.get_search_list():
+            if self.search_item.get_exactly():
+                self.process_entry = self.proc_list_exactly
+            else:
+                self.process_entry = self.proc_list_free
 
-        if self.search_item.get_search_text():
+        elif self.search_item.get_search_extensions():
+            self.process_entry = self.process_extensions
+
+        # последним мы проверяем search item search text, так как search text
+        # есть и при поиске по шаблонам и при поиске по списку
+        elif self.search_item.get_search_text():
             if self.search_item.get_exactly():
                 self.process_entry = self.process_text_exactly
             else:
                 self.process_entry = self.process_text_free
 
-        elif self.search_item.get_search_extensions():
-            self.process_entry = self.process_extensions
 
-        elif self.search_item.get_search_list():
-            if self.search_item.get_exactly():
-                self.process_entry = self.proc_list_exactly
-            else:
-                self.process_entry = self.proc_list_free
+
+
 
     # базовый метод обработки os.DirEntry
     def process_entry(self, entry: os.DirEntry, search_list_lower: list[str]): ...
