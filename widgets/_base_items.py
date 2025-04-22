@@ -478,3 +478,36 @@ class USep(QFrame):
         self.setStyleSheet("background: rgba(0, 0, 0, 0.2)")
         self.setFixedHeight(1)
 
+
+class SearchItem:
+    def __init__(self):
+        super().__init__()
+
+        self.text: str = None
+        self.template: str = None
+        self.search_list: list[str] = None
+        self.exactly: bool = False
+
+    def set_text(self, text: str):
+        self.text = text
+    
+    def get_text(self):
+        return self.text
+    
+    def set_template(self, template: str):
+        self.template = template
+
+    def get_template(self):
+        return self.template
+    
+    def set_search_list(self, search_list: list[str]):
+        self.search_list = search_list
+
+    def get_search_list(self):
+        return self.search_list
+    
+    def set_exactly(self, exactly: bool):
+        self.exactly = exactly
+
+    def get_exactly(self):
+        return self.exactly
