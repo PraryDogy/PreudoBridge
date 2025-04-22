@@ -109,8 +109,15 @@ class ListWin(MinMaxDisabledWin):
 
  
 class SearchWidget(QWidget):
+
+    # в MainWin посылается сигнал для загрузки GridStandart
     search_was_cleaned = pyqtSignal()
+
+    # в MainWin посылается сигнал для загрузки GridSearch
     start_search = pyqtSignal()
+
+    # в MainWin посылается запрос в виде сигнала, чтобы передать в виджет
+    # актуальную self.main_dir, чтобы отобразить ее в ListWin
     get_main_dir = pyqtSignal()
 
     def __init__(self, search_item: SearchItem):
