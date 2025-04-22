@@ -14,6 +14,7 @@ from .settings_win import SettingsWin
 
 SEARCH_PLACE = "Место поиска:"
 LIST_FILES = "Список файлов (по одному в строке):"
+SEARCH_LIST_TEXT = "Найти по списку"
 SEARCH_EXTENSIONS = {
     "Найти jpg": (".jpg", ".jpeg", "jfif"),
     "Найти png": (".png"),
@@ -163,7 +164,7 @@ class SearchWidget(QWidget):
 
             self.templates_menu.addAction(action)
 
-        search_list = QAction(Static.SEARCH_LIST_TEXT, self)
+        search_list = QAction(SEARCH_LIST_TEXT, self)
         search_list.triggered.connect(self.search_list_cmd)
         self.templates_menu.addAction(search_list)
 
@@ -213,7 +214,7 @@ class SearchWidget(QWidget):
         self.list_win.show()
 
     def list_win_cmd(self, *args):
-        self.search_wid.setText(Static.SEARCH_LIST_TEXT)
+        self.search_wid.setText(SEARCH_LIST_TEXT)
 
 
 class TopBar(QWidget):
