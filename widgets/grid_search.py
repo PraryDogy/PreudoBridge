@@ -55,24 +55,20 @@ class SearchFinder(URunnable):
 
     def setup_search(self):
 
-        if self.search_item.get_text():
-            self.search_text = self.search_item.get_text()
+        if self.search_item.get_search_text():
             if self.search_item.get_exactly():
                 self.process_entry = self.process_text_exactly
             else:
                 self.process_entry = self.process_text_free
 
         elif self.search_item.get_search_extensions():
-            self.extensions = self.search_item.get_search_extensions()
             self.process_entry = self.process_extensions
 
         elif self.search_item.get_search_list():
-            self.search_list = self.search_item.get_search_list()
             if self.search_item.get_exactly():
                 self.process_entry = self.proc_list_exactly
             else:
                 self.process_entry = self.proc_list_free
-            self.process_entry = self.process_list
 
     # базовый метод обработки os.DirEntry
     def process_entry(self, entry: os.DirEntry, search_list_lower: list[str]): ...
@@ -81,7 +77,7 @@ class SearchFinder(URunnable):
         # Поиск файлов с определенным расширением.
         path = entry.path
         path: str = path.lower()
-        if path.endswith(self.extensions):
+        if path.endswith(self.search_item.get_search_extensions()):
             return True
         else:
             return False
@@ -90,7 +86,7 @@ class SearchFinder(URunnable):
         # Поиск файлов с именем.
         filename, _ = os.path.splitext(entry.name)
         filename: str = filename.lower()
-        search_text: str = self.search_text.lower()
+        search_text: str = self.search_item.get_search_text().lower()
 
         if self.compare_words(search_text, filename) > SearchFinder.search_value:
             return True
@@ -103,7 +99,7 @@ class SearchFinder(URunnable):
         # Поиск файлов с именем.
         filename, _ = os.path.splitext(entry.name)
         filename: str = filename.lower()
-        search_text: str = self.search_text.lower()
+        search_text: str = self.search_item.get_search_text().lower()
 
         if filename == search_text:
             return True
@@ -142,7 +138,7 @@ class SearchFinder(URunnable):
                 sleep(1)
             try:
                 # Сканируем текущий каталог и добавляем новые пути в стек
-                self.scan_current_dir(dir=current_dir, dirs_list=dirs_list)
+                self.scan_current_dir(current_dir, dirs_list)
             except Exception as e:
                 continue
 
@@ -150,7 +146,7 @@ class SearchFinder(URunnable):
         # Формируем список имен файлом в нижнем регистре из SEARCH_LIST.
         # Если SEARCH_LIST пуст, значит осуществляется поиск по расширениям
         # или поиск по тексту
-        search_list_lower = [i.lower() for i in Dynamic.search_filename_list]
+        search_list_lower = [i.lower() for i in self.search_item.get_search_list()]
 
         with os.scandir(dir) as entries:
             for entry in entries:
@@ -311,7 +307,7 @@ class GridSearch(Grid):
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0)
 
-        elif Dynamic.search_filename_list:
+        elif self.search_item.get_search_list():
 
             done_src = [
                 os.path.splitext(i.name)[0]
@@ -320,7 +316,7 @@ class GridSearch(Grid):
 
             missed_files = [
                 i
-                for i in Dynamic.search_filename_list
+                for i in self.search_item.get_search_list()
                 if i not in done_src
             ]
 
@@ -329,7 +325,7 @@ class GridSearch(Grid):
                 self.win_missed_files.center(self.window())
                 self.win_missed_files.show()
 
-            Dynamic.search_filename_list.clear()
+            # Dynamic.search_filename_list.clear()
 
     def sort_(self):
         self.task_.pause = True

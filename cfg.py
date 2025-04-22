@@ -212,6 +212,5 @@ class Dynamic:
     sort: str = "name"
     busy_db: bool = False
     exactly_search = False
-    search_filename_list = []
     # [path_to_svg_icon, ...] в GENERIC_ICONS
     generic_icon_paths: list[str] = []

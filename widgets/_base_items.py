@@ -491,7 +491,7 @@ class SearchItem:
     def set_search_text(self, text: str):
         self.search_text = text
     
-    def get_text(self):
+    def get_search_text(self):
         return self.search_text
     
     def set_search_extenstions(self, template: str):

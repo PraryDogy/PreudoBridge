@@ -59,8 +59,9 @@ class BarTopBtn(UFrame):
 class ListWin(MinMaxDisabledWin):
     ok_pressed = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self, search_item: SearchItem):
         super().__init__()
+        self.search_item = search_item
 
         self.setFixedSize(570, 500)
         v_lay = QVBoxLayout()
@@ -111,11 +112,11 @@ class ListWin(MinMaxDisabledWin):
             if i
         ]
 
-        Dynamic.search_filename_list.clear()
+        self.search_item.search_list.clear()
 
         for i in search_list:
             filename, ext = os.path.splitext(i)
-            Dynamic.search_filename_list.append(filename)
+            self.search_item.search_list.append(filename)
 
         self.ok_pressed.emit()
         self.close()
