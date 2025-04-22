@@ -251,7 +251,7 @@ class GridSearch(Grid):
         self.search_item: SearchItem = None
         self.setAcceptDrops(False)
 
-        self.col_count = self.get_col_count()
+        # self.col_count = 0
         self.row, self.col = 0, 0
         self.total = 0
         self.task_: SearchFinder = None
@@ -264,6 +264,10 @@ class GridSearch(Grid):
         self.search_item = search_item
 
     def start_search(self):
+        # обязательно делать именно после инициации, так как только тогда
+        # get_col_count найдет родительское окно GridSearch
+        self.col_count = self.get_col_count()
+
         self.path_bar_update.emit(self.main_dir)
         Thumb.calculate_size()
         self.is_grid_search = True

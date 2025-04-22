@@ -338,6 +338,7 @@ class Grid(UScrollArea):
 
         win_ww = main_win.width()
         splitter = main_win.findChild(QSplitter)
+
         if splitter:
             left_menu: QWidget = splitter.children()[1]
             left_menu_ww = left_menu.width()
