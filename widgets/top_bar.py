@@ -16,15 +16,6 @@ SEARCH_PLACE = "Место поиска:"
 LIST_FILES = "Список файлов (по одному в строке):"
 
 
-class ActionData:
-    __slots__ = ["sort", "reversed", "text"]
-
-    def __init__(self, sort: str | None, reversed: bool, text: str):
-        self.sort: str | None = sort
-        self.reversed: bool = reversed
-        self.text: str = text
-
-
 class BarTopBtn(UFrame):
     clicked = pyqtSignal()
 
