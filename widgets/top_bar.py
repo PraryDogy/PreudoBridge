@@ -142,7 +142,7 @@ class SearchWidget(QWidget):
             action = QAction(text, self)
 
             action.triggered.connect(
-                lambda e, xx=text: self.action_cmd(xx)
+                lambda e, xx=text: self.search_wid.setText(xx)
             )
 
             self.templates_menu.addAction(action)
@@ -150,6 +150,8 @@ class SearchWidget(QWidget):
         search_list = QAction(SearchItem.SEARCH_LIST_TEXT, self)
         search_list.triggered.connect(self.open_search_list_win)
         self.templates_menu.addAction(search_list)
+
+        self.search_list_local: list[str] = []
 
     def clear_without_signal(self):
         # отключаем сигналы, чтобы при очистке виджета не запустился
@@ -172,7 +174,20 @@ class SearchWidget(QWidget):
             self.search_item.reset()
 
     def prepare_text(self):
-        print("pre")
+        """
+        - Отображает кнопку "стереть"
+        - Подготавливает текст для поиска
+        - Сбрасывает SearchItem для новых данных
+        - Устанавливает текст в поле ввода
+        - Устанавливает соответствующие тексту параметры:
+            - Если текст равен ключу из SearchItem.SEARCH_EXTENSIONS,   
+            устанавливает значение в SearchItem.search_extensions
+            - Если текст равен SearchItem.SEARCH_LIST, присваивает значение
+            из окна ввода ListWin в SearchItem.search_list
+            - В остальных случаях устанавливает текст в поле ввода и присваивает
+            текст в SearchItem.search_text
+        - Испускает сигнал start_search
+        """
         self.search_wid.clear_btn.show()
         self.search_text = self.search_text.strip()
         self.search_wid.setText(self.search_text)
@@ -183,12 +198,7 @@ class SearchWidget(QWidget):
             self.search_item.set_search_extenstions(extensions)
 
         elif self.search_text == SearchItem.SEARCH_LIST_TEXT:
-            # если текст поиска равнозначен текстовому выражению SEARCH_LIST_TEXT
-            # то ничего делать не нужно, так как в SearchItem.search_list
-            # уже было установлено значение через list_win_finished
-            # данный код оставлен для соблюдения логики
-            # self.search_item.set_search_list(...)
-            ...
+            self.search_item.set_search_list(self.search_list_local)
 
         else:
             self.search_item.set_search_text(self.search_text)
@@ -196,12 +206,20 @@ class SearchWidget(QWidget):
         self.start_search.emit()
 
     def show_templates(self, a0: QMouseEvent | None) -> None:
+        """
+        Смотри формирование меню в инициаторе   
+        Открывает меню на основе SearchItem.SEARCH_EXTENSIONS   
+        При клике на пункт меню устанавливает:  
+        - в окно поиска текст ключа из SearchItem.SEARCH_EXTENSIONS
+        - в SearchItem.search_extensions значение соответствующего ключа    
+        """
         self.templates_menu.exec(self.mapToGlobal(self.rect().bottomLeft()))
-    
-    def action_cmd(self, text: str):
-        self.search_wid.setText(text)
 
     def open_search_list_win(self):
+        """
+        - Открывает окно для ввода списка файлов / папок для поиска   
+        - Испускает сигнал finished со списком файлов из окна ввода
+        """
         self.list_win = ListWin(self.search_item)
         self.list_win.finished_.connect(lambda search_list: self.list_win_finished(search_list))
         self.get_main_dir.emit()
@@ -209,8 +227,13 @@ class SearchWidget(QWidget):
         self.list_win.show()
 
     def list_win_finished(self, search_list: list[str]):
+        """
+        - Устанавливает значение search_list_local
+        - Устанавливает текст в поле ввода
+        - Автоматически запускается onTextChanged > self.prepare_text
+        """
+        self.search_list_local = search_list
         self.search_wid.setText(SearchItem.SEARCH_LIST_TEXT)
-        self.search_item.set_search_list(search_list)
 
 
 class TopBar(QWidget):
