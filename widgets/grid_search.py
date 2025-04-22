@@ -319,10 +319,7 @@ class GridSearch(Grid):
 
         elif self.search_item.get_search_list():
 
-            done_src = [
-                os.path.splitext(i.name)[0]
-                for i in self.cell_to_wid.values()
-            ]
+            done_src = [i.name for i in self.cell_to_wid.values()]
 
             missed_files = [
                 i
@@ -334,8 +331,6 @@ class GridSearch(Grid):
                 self.win_missed_files = WinMissedFiles(files=missed_files)
                 self.win_missed_files.center(self.window())
                 self.win_missed_files.show()
-
-            # Dynamic.search_filename_list.clear()
 
     def sort_(self):
         self.task_.pause = True
