@@ -282,11 +282,11 @@ class UFrame(QFrame):
 class WinBase(QWidget):
     def __init__(self):
         """
-        Окно на основе QWidget с флагом ApplicationModal.  
-        Оно блокирует взаимодействие с другими окнами приложения, пока открыто.
+        Окно QWidget с функцией "center", которая выравнивает окно по центру
+        относительно родительского.
         """
         super().__init__()
-        self.setWindowModality(Qt.WindowModality.ApplicationModal)
+        # self.setWindowModality(Qt.WindowModality.ApplicationModal)
 
     def center(self, parent: QWidget):
         """
