@@ -79,6 +79,8 @@ class MainWin(QWidget):
     grid_insert_num = 4
     width_ = 1050
     height_ = 700
+    min_width_ = 800
+    min_height_ = 500
 
     def __init__(self, dir: str = None):
         super().__init__()
@@ -94,9 +96,8 @@ class MainWin(QWidget):
         # индекс 0 просмотр сеткой, индекс 1 просмотр списком
         self.view_index = 0
 
-        self.setMinimumWidth(200)
+        self.setMinimumSize(MainWin.min_width_, MainWin.min_height_)
         self.resize(MainWin.width_, MainWin.height_)
-        self.setMinimumSize(800, 500)
         
         self.resize_timer = QTimer(parent=self)
         self.resize_timer.setSingleShot(True)
