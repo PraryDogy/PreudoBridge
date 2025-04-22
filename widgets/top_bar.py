@@ -132,10 +132,6 @@ class SearchWidget(QWidget):
         self.search_wid.textChanged.connect(self.on_text_changed)
         self.search_text: str = None
 
-        self.search_timer = QTimer(self)
-        self.search_timer.setSingleShot(True)
-        self.search_timer.timeout.connect(lambda: self.search_timer_cmd())
-
         self.input_timer = QTimer(self)
         self.input_timer.setSingleShot(True)
         self.input_timer.timeout.connect(self.prepare_text)
@@ -155,9 +151,6 @@ class SearchWidget(QWidget):
         search_list.triggered.connect(self.open_search_list_win)
         self.templates_menu.addAction(search_list)
 
-    def search_timer_cmd(self):
-        self.start_search.emit()
-
     def clear_without_signal(self):
         # отключаем сигналы, чтобы при очистке виджета не запустился
         # on_text_changed и поиск пустышки
@@ -168,31 +161,28 @@ class SearchWidget(QWidget):
         self.search_wid.textChanged.connect(self.on_text_changed)
 
     def on_text_changed(self, text: str):
-        self.search_text = text
-        self.input_timer.stop()
-        self.input_timer.start(1500)
-
-    def prepare_text(self):
-        self.search_timer.stop()
-        if self.search_text:
-            self.search_wid.clear_btn.show()
-            self.search_text = self.search_text.strip()
-            self.search_wid.setText(self.search_text)
-            self.search_item.reset()
-
-            if self.search_text in SearchItem.SEARCH_EXTENSIONS:
-                self.search_item.set_search_extenstions(
-                    SearchItem.SEARCH_EXTENSIONS.get(self.search_text)
-                )
-            else:
-                self.search_item.set_search_text(self.search_text)
-
-            self.search_timer.start(1500)
+        if text:
+            self.search_text = text
+            self.input_timer.stop()
+            self.input_timer.start(1500)
         else:
             self.clear_without_signal()
             self.search_wid.clear_btn.hide()
             self.search_was_cleaned.emit()
             self.search_item.reset()
+
+    def prepare_text(self):
+        self.search_wid.clear_btn.show()
+        self.search_text = self.search_text.strip()
+        self.search_wid.setText(self.search_text)
+        self.search_item.reset()
+        if self.search_text in SearchItem.SEARCH_EXTENSIONS:
+            self.search_item.set_search_extenstions(
+                SearchItem.SEARCH_EXTENSIONS.get(self.search_text)
+            )
+        else:
+            self.search_item.set_search_text(self.search_text)
+        self.start_search.emit()
 
     def show_templates(self, a0: QMouseEvent | None) -> None:
         self.templates_menu.exec(self.mapToGlobal(self.rect().bottomLeft()))
