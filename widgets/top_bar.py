@@ -112,11 +112,13 @@ class ListWin(MinMaxDisabledWin):
             if i
         ]
 
-        self.search_item.search_list.clear()
+        search_list: list[str] = []
 
         for i in search_list:
             filename, ext = os.path.splitext(i)
-            self.search_item.search_list.append(filename)
+            search_list.append(filename)
+
+        self.search_item.set_search_list(search_list)
 
         self.ok_pressed.emit()
         self.close()
@@ -208,7 +210,7 @@ class SearchWidget(QWidget):
         self.search_wid.setText(text)
 
     def search_list_cmd(self):
-        self.list_win = ListWin()
+        self.list_win = ListWin(self.search_item)
         self.list_win.ok_pressed.connect(self.list_win_cmd)
         self.list_win_opened.emit()
         self.list_win.center(self.window())
