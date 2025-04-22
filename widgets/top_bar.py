@@ -8,8 +8,8 @@ from PyQt5.QtWidgets import (QAction, QCheckBox, QGroupBox, QHBoxLayout,
 
 from cfg import Dynamic, Static
 
-from ._base_items import (MinMaxDisabledWin, UFrame, ULineEdit, UMenu,
-                            UTextEdit)
+from ._base_items import (MinMaxDisabledWin, SearchItem, UFrame, ULineEdit,
+                          UMenu, UTextEdit)
 from .settings_win import SettingsWin
 
 SEARCH_PLACE = "Место поиска:"
@@ -65,8 +65,8 @@ class ListWin(MinMaxDisabledWin):
         first_row.setLayout(first_lay)
         first_title = QLabel(text=SEARCH_PLACE)
         first_lay.addWidget(first_title)
-        self.path_label = QLabel()
-        first_lay.addWidget(self.path_label)
+        self.main_dir_label = QLabel()
+        first_lay.addWidget(self.main_dir_label)
 
         inp_label = QLabel(LIST_FILES)
         v_lay.addWidget(inp_label)
@@ -206,8 +206,9 @@ class TopBar(QWidget):
     clear_data_clicked = pyqtSignal()
     open_in_new_win = pyqtSignal(str)
 
-    def __init__(self):
+    def __init__(self, search_item: SearchItem):
         super().__init__()
+        self.search_item - SearchItem()
         self.setFixedHeight(40)
 
         self.history: list[str] = []
@@ -268,9 +269,9 @@ class TopBar(QWidget):
     def get_search_text(self):
         return self.search_wid.search_text
 
-    def set_path_list_win(self, main_dir: str):
+    def set_main_dir(self, main_dir: str):
         try:
-            self.search_wid.list_win.path_label.setText(main_dir)
+            self.search_wid.list_win.main_dir_label.setText(main_dir)
         except RuntimeError as e:
             print("bar top > set list win title", e)
 
