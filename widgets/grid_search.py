@@ -89,7 +89,7 @@ class SearchFinder(URunnable):
 
     def process_text_free(self, entry: os.DirEntry, search_list_lower: list[str]):
         # Поиск файлов с именем.
-        filename, _ = os.path.splitext(entry.name)
+        filename: str = entry.name
         filename: str = filename.lower()
         search_text: str = self.search_item.get_search_text().lower()
 
@@ -102,7 +102,7 @@ class SearchFinder(URunnable):
         
     def process_text_exactly(self, entry: os.DirEntry, search_list_lower: list[str]):
         # Поиск файлов с именем.
-        filename, _ = os.path.splitext(entry.name)
+        filename: str = entry.name
         filename: str = filename.lower()
         search_text: str = self.search_item.get_search_text().lower()
 
@@ -112,7 +112,7 @@ class SearchFinder(URunnable):
             return False
 
     def proc_list_exactly(self, entry: os.DirEntry, search_list_lower: list[str]):
-        filename, _ = os.path.splitext(entry.name)
+        filename: str = entry.name
         filename: str = filename.lower()
         for item in search_list_lower:
             if filename == item:
@@ -120,7 +120,7 @@ class SearchFinder(URunnable):
         return False
 
     def proc_list_free(self, entry: os.DirEntry, search_list_lower: list[str]):
-        filename, _ = os.path.splitext(entry.name)
+        filename: str = entry.name
         filename: str = filename.lower()
         for item in search_list_lower:
             if self.compare_words(item, filename) > SearchFinder.search_value:
