@@ -34,7 +34,10 @@ class UMethods:
 class UScrollArea(QScrollArea, UMethods):
     new_history_item = pyqtSignal(str)
     path_bar_update = pyqtSignal(str)
+
+    # целое число или None для обновления числа "Всего" в SortBar
     sort_bar_update = pyqtSignal(object)
+
     fav_cmd_sig = pyqtSignal(tuple)
     load_st_grid_sig = pyqtSignal(tuple)
     move_slider_sig = pyqtSignal(int)
@@ -54,7 +57,10 @@ class UScrollArea(QScrollArea, UMethods):
 class UTableView(QTableView, UMethods):
     new_history_item = pyqtSignal(str)
     path_bar_update = pyqtSignal(str)
+
+    # целое число или None для обновления числа "Всего" в SortBar
     sort_bar_update = pyqtSignal(object)
+
     fav_cmd_sig = pyqtSignal(tuple)
     load_st_grid_sig = pyqtSignal(tuple)
     move_slider_sig = pyqtSignal(int)
