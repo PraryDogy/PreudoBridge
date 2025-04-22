@@ -1,19 +1,19 @@
 import os
+from difflib import SequenceMatcher
 from time import sleep
 
 from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import QCloseEvent, QColor
-from PyQt5.QtWidgets import (QFrame, QGraphicsDropShadowEffect, QHBoxLayout,
-                             QLabel, QPushButton, QVBoxLayout, QWidget)
+from PyQt5.QtGui import QCloseEvent
+from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
+                             QWidget)
 
 from cfg import Dynamic, Static, ThumbData
 from fit_img import FitImg
 from utils import URunnable, UThreadPool, Utils
 
-from ._base_items import (BaseItem, MinMaxDisabledWin, USvgSqareWidget,
-                            UTextEdit)
+from ._base_items import (BaseItem, MinMaxDisabledWin, SearchItem,
+                          USvgSqareWidget, UTextEdit)
 from .grid import Grid, Thumb
-from difflib import SequenceMatcher
 
 ATTENTION_T = "Внимание!"
 MISSED_FILES = "Не найдены файлы:"
@@ -31,20 +31,20 @@ class WorkerSignals(QObject):
 class SearchFinder(URunnable):
     search_value = 0.70
 
-    def __init__(self, main_dir: str, search_text: str):
+    def __init__(self, main_dir: str, search_item: SearchItem):
         super().__init__()
         self.signals_ = WorkerSignals()
-        self.search_text: str = str(search_text)
-        self.extensions: tuple = None
+        self.main_dir = main_dir
+        self.search_item = search_item
+
         self.db_path: str = None
         self.conn = None
         self.pause = False
-        self.main_dir = main_dir
 
     @URunnable.set_running_state
     def run(self):
         try:
-            self.setup_text()
+            self.setup_search()
             self.scandir_recursive()
             self.signals_.finished_.emit()
         except RuntimeError as e:
@@ -53,26 +53,26 @@ class SearchFinder(URunnable):
     def compare_words(self, word1: str, word2: str):
         return SequenceMatcher(None, word1, word2).ratio()
 
-    def setup_text(self):
-        # Ожидается текст из поиска либо в свободной форме,
-        # либо в виде шаблона. Проверяем, является ли текст шаблоном
-        extensions = Static.SEARCH_EXTENSIONS.get(self.search_text)
-        if extensions:
-            self.extensions = extensions
+    def setup_search(self):
+
+        if self.search_item.get_text():
+            self.search_text = self.search_item.get_text()
+            if self.search_item.get_exactly():
+                self.process_entry = self.process_text_exactly
+            else:
+                self.process_entry = self.process_text_free
+
+        elif self.search_item.get_search_extensions():
+            self.extensions = self.search_item.get_search_extensions()
             self.process_entry = self.process_extensions
 
-        # Если текст из поиска соотвествует шаблонку "поиск по списку",
-        # чтобы искать сразу несколько файлов
-        elif self.search_text == Static.SEARCH_LIST_TEXT:
-            if Dynamic.exactly_search:
-                self.process_list = self.proc_list_exactly
+        elif self.search_item.get_search_list():
+            self.search_list = self.search_item.get_search_list()
+            if self.search_item.get_exactly():
+                self.process_entry = self.proc_list_exactly
             else:
-                self.process_list = self.proc_list_free
+                self.process_entry = self.proc_list_free
             self.process_entry = self.process_list
-
-        # Простой поиск
-        else:
-            self.process_entry = self.process_text
 
     # базовый метод обработки os.DirEntry
     def process_entry(self, entry: os.DirEntry, search_list_lower: list[str]): ...
@@ -86,7 +86,7 @@ class SearchFinder(URunnable):
         else:
             return False
 
-    def process_text(self, entry: os.DirEntry, search_list_lower: list[str]):
+    def process_text_free(self, entry: os.DirEntry, search_list_lower: list[str]):
         # Поиск файлов с именем.
         filename, _ = os.path.splitext(entry.name)
         filename: str = filename.lower()
@@ -96,8 +96,14 @@ class SearchFinder(URunnable):
             return True
         else:
             return False
+        
+    def process_text_exactly(self, entry: os.DirEntry, search_list_lower: list[str]):
+        # Поиск файлов с именем.
+        filename, _ = os.path.splitext(entry.name)
+        filename: str = filename.lower()
+        search_text: str = self.search_text.lower()
 
-        if search_text in filename:
+        if filename == search_text:
             return True
         else:
             return False
@@ -117,12 +123,6 @@ class SearchFinder(URunnable):
             if self.compare_words(item, filename) > SearchFinder.search_value:
                 return True
         return False
-            # if filename in item or item in filename:
-                # return True
-        # return False
-
-    def process_list(self, entry: os.DirEntry, search_list_lower: list[str]) -> bool:
-        ...
 
     def scandir_recursive(self):
         # Инициализируем список с корневым каталогом
@@ -250,11 +250,11 @@ class GridSearch(Grid):
         self.pause_timer.timeout.connect(self.remove_pause)
         self.pause_timer.setSingleShot(True)
 
-    def start_search(self, search_text: str, exactly: bool):
+    def start_search(self, search_item: SearchItem):
         self.path_bar_update.emit(self.main_dir)
         Thumb.calculate_size()
 
-        self.task_ = SearchFinder(self.main_dir, search_text)
+        self.task_ = SearchFinder(self.main_dir, search_item)
         self.task_.signals_.new_widget.connect(self.add_new_widget)
         self.task_.signals_.finished_.connect(self.search_fin)
         UThreadPool.start(self.task_)

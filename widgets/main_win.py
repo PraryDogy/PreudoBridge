@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
 from cfg import Dynamic, JsonData, Static
 from utils import Utils
 
-from ._base_items import BaseItem, USep
+from ._base_items import BaseItem, SearchItem, USep
 from .favs_menu import FavsMenu
 from .grid import Grid
 from .grid_list import GridList
@@ -103,6 +103,8 @@ class MainWin(QWidget):
         
         self.resize_timer = QTimer(parent=self)
         self.resize_timer.setSingleShot(True)
+        
+        self.search_item = SearchItem()
 
         main_lay = QHBoxLayout()
         main_lay.setContentsMargins(5, 0, 5, 0)
@@ -319,7 +321,7 @@ class MainWin(QWidget):
     def load_search_grid(self, search_text: str):
         self.grid.close()
         self.menu_tags.reset()
-        self.grid = GridSearch(self.main_dir, self.view_index, None, search_text)
+        self.grid = GridSearch(self.main_dir, self.view_index, None)
         # нужно сразу добавлять в окно, чтобы у виджета появился родитель
         # тогда во всех эвентах правильно сработает self.grid.window()
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
@@ -328,6 +330,7 @@ class MainWin(QWidget):
         self.setup_grid_signals()
         self.window().raise_()
         self.grid.setFocus()
+        self.grid.start_search(self.search_item)
 
     def load_st_grid_cmd(self, data: tuple):
         new_main_dir, path_for_select = data
