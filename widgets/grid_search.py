@@ -254,6 +254,7 @@ class GridSearch(Grid):
         self.col_count = self.get_col_count()
         self.row, self.col = 0, 0
         self.total = 0
+        self.task_: SearchFinder = None
 
         self.pause_timer = QTimer(self)
         self.pause_timer.timeout.connect(self.remove_pause)
@@ -363,17 +364,19 @@ class GridSearch(Grid):
         super().rearrange()
 
     def remove_pause(self):
-        self.task_.pause = False
+        if self.task_:
+            self.task_.pause = False
 
     def cancel_cmd(self, *args):
-        self.task_.should_run = False
-        self.search_fin()
+        if self.task_:
+            self.task_.should_run = False
+            self.search_fin()
 
     def resizeEvent(self, a0):
-        x, y = (a0.size().width() // 2) - 100, 10
         self.resize_()
         return super().resizeEvent(a0)
     
     def closeEvent(self, a0: QCloseEvent | None) -> None:
-        self.task_.should_run = False
-        self.task_.pause = False
+        if self.task_:
+            self.task_.should_run = False
+            self.task_.pause = False
