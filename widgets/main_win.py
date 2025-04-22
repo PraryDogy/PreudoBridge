@@ -31,12 +31,8 @@ class TabsWidget(QTabWidget):
         super().__init__()
         self.tabBarClicked.connect(self.tab_cmd)
 
-    def load_last_tab(self):
-        self.setCurrentIndex(Dynamic.left_menu_tab)
-
     def tab_cmd(self, index: int):
-        self.setCurrentIndex(Dynamic.left_menu_tab)
-        Dynamic.left_menu_tab = index
+        self.setCurrentIndex(index)
 
     def mouseClickEvent(self, a0: QMouseEvent | None) -> None:
         if a0.button() == Qt.MouseButton.LeftButton:
@@ -139,8 +135,6 @@ class MainWin(QWidget):
 
         self.tags_btn.click_cmd()
 
-        self.menu_tabs.load_last_tab()
-
         right_wid = QWidget()
         self.splitter.addWidget(right_wid)
 
@@ -182,6 +176,8 @@ class MainWin(QWidget):
         self.r_lay.insertWidget(7, sep)
         self.r_lay.insertWidget(8, self.sort_bar)
 
+        # после добавления вкладок можем установить индекс
+        self.menu_tabs.setCurrentIndex(1)
         self.scroll_up = QLabel(parent=self, text=ARROW_UP)
         self.scroll_up.hide()
         self.scroll_up.setAlignment(Qt.AlignmentFlag.AlignCenter)

@@ -201,12 +201,10 @@ class JsonData:
 
 class Dynamic:
     rating_filter: int = 0
-    grid_view_type: int = 0
     ww = 1050
     hh = 700
     ww_im = 700
     hh_im = 500
-    left_menu_tab = 1
     pixmap_size_ind = 0
     rev: bool = False
     sort: str = "name"
