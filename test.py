@@ -1,6 +1,11 @@
+from pathlib import Path
 
-a = 70
-b = 83
-c = 94
+src = "/Volumes/Shares/Studio/MIUZ/Photo/Art/Raw/2024/soft/Outline.app"
 
-print(c%10)
+
+
+p = Path(src)
+is_dir = p.is_dir()
+is_file = p.is_file()
+
+print(is_dir, is_file)
