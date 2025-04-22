@@ -136,6 +136,10 @@ class SearchWidget(QWidget):
         self.search_timer.setSingleShot(True)
         self.search_timer.timeout.connect(lambda: self.search_timer_cmd())
 
+        self.input_timer = QTimer(self)
+        self.input_timer.setSingleShot(True)
+        self.input_timer.timeout.connect(self.prepare_text)
+
         self.templates_menu = UMenu(parent=self)
 
         for text, _ in SearchItem.SEARCH_EXTENSIONS.items():
@@ -164,16 +168,21 @@ class SearchWidget(QWidget):
         self.search_wid.textChanged.connect(self.on_text_changed)
 
     def on_text_changed(self, text: str):
+        self.search_text = text
+        self.input_timer.stop()
+        self.input_timer.start(1500)
+
+    def prepare_text(self):
         self.search_timer.stop()
-        if text:
+        if self.search_text:
             self.search_wid.clear_btn.show()
-            self.search_text = text.strip()
+            self.search_text = self.search_text.strip()
             self.search_wid.setText(self.search_text)
             self.search_item.reset()
 
-            if text in SearchItem.SEARCH_EXTENSIONS:
+            if self.search_text in SearchItem.SEARCH_EXTENSIONS:
                 self.search_item.set_search_extenstions(
-                    SearchItem.SEARCH_EXTENSIONS.get(text)
+                    SearchItem.SEARCH_EXTENSIONS.get(self.search_text)
                 )
             else:
                 self.search_item.set_search_text(self.search_text)
