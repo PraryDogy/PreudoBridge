@@ -65,12 +65,15 @@ class UTableView(QTableView, UMethods):
     fav_cmd_sig = pyqtSignal(tuple)
     # путь к папке, путь к файлу / папке для выделения в сетке GridStandart
     load_st_grid_sig = pyqtSignal(tuple)
-    # 1-4
+    # 0-3, всего 4 положения слайдера для изменения размера виджетов Thumb в сетке
     move_slider_sig = pyqtSignal(int)
     # 0 отобразить сеткой, 1 отобразить списком
     change_view_sig = pyqtSignal(int)
+    # путь к папке
     open_in_new_window = pyqtSignal(str)
+    # перейти на уровень вверх
     level_up = pyqtSignal()
+    # список url (путь к папке / файлу)
     force_load_images_sig = pyqtSignal(list)
 
     def __init__(self):
