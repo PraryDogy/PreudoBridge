@@ -172,16 +172,27 @@ class SearchWidget(QWidget):
             self.search_item.reset()
 
     def prepare_text(self):
+        print("pre")
         self.search_wid.clear_btn.show()
         self.search_text = self.search_text.strip()
         self.search_wid.setText(self.search_text)
         self.search_item.reset()
+
         if self.search_text in SearchItem.SEARCH_EXTENSIONS:
-            self.search_item.set_search_extenstions(
-                SearchItem.SEARCH_EXTENSIONS.get(self.search_text)
-            )
+            extensions = SearchItem.SEARCH_EXTENSIONS.get(self.search_text)
+            self.search_item.set_search_extenstions(extensions)
+
+        elif self.search_text == SearchItem.SEARCH_LIST_TEXT:
+            # если текст поиска равнозначен текстовому выражению SEARCH_LIST_TEXT
+            # то ничего делать не нужно, так как в SearchItem.search_list
+            # уже было установлено значение через list_win_finished
+            # данный код оставлен для соблюдения логики
+            # self.search_item.set_search_list(...)
+            ...
+
         else:
             self.search_item.set_search_text(self.search_text)
+
         self.start_search.emit()
 
     def show_templates(self, a0: QMouseEvent | None) -> None:
