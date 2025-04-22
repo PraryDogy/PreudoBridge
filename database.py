@@ -40,18 +40,19 @@ CACHE = sqlalchemy.Table(
 
 
 class DbaseTools:
-    sleep_value = 1
+    sleep_value: int = 1
+    busy_db: bool = False
 
     @staticmethod
     def wait_for_db(func):
         def wrapper(*args, **kwargs):
-            while Dynamic.busy_db:
+            while DbaseTools.busy_db:
                 sleep(DbaseTools.sleep_value)
-            Dynamic.busy_db = True
+            DbaseTools.busy_db = True
             try:
                 return func(*args, **kwargs)
             finally:
-                Dynamic.busy_db = False
+                DbaseTools.busy_db = False
         return wrapper
     
 

@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QSpacerItem,
                              QVBoxLayout, QWidget)
 
 from cfg import Dynamic, Static
-from database import CACHE, Dbase
+from database import CACHE, Dbase, DbaseTools
 from utils import URunnable, UThreadPool, Utils
 
 from ._base_items import UMenu, USvgSqareWidget, WinBase
@@ -355,7 +355,7 @@ class ImgViewWin(WinBase):
 
     def load_thumbnail(self):
 
-        if self.src not in LoadImage.cache and not Dynamic.busy_db:
+        if self.src not in LoadImage.cache and not DbaseTools.busy_db:
             self.task_ = LoadThumbnail(self.src)
             cmd_ = lambda image_data: self.load_thumbnail_finished(image_data)
             self.task_.signals_.finished_.connect(cmd_)
