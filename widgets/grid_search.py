@@ -44,6 +44,7 @@ class SearchFinder(URunnable):
     @URunnable.set_running_state
     def run(self):
         try:
+            print(self.search_item.__dict__)
             self.setup_search()
             self.scandir_recursive()
             self.signals_.finished_.emit()
@@ -127,7 +128,14 @@ class SearchFinder(URunnable):
     def scandir_recursive(self):
         # Инициализируем список с корневым каталогом
         dirs_list = [self.main_dir]
-        search_list_lower = [i.lower() for i in self.search_item.get_search_list()]
+
+        if self.search_item.get_search_list():
+            search_list_lower = [
+                i.lower()
+                for i in self.search_item.get_search_list()
+            ]
+        else:
+            search_list_lower = []
 
         while dirs_list:
             # Удаляем последний элемент из списка
@@ -255,13 +263,10 @@ class GridSearch(Grid):
         Thumb.calculate_size()
         self.is_grid_search = True
 
-        print(self.search_item.exactly)
-
         self.task_ = SearchFinder(self.main_dir, self.search_item)
         self.task_.signals_.new_widget.connect(self.add_new_widget)
         self.task_.signals_.finished_.connect(self.search_fin)
         UThreadPool.start(self.task_)
-
 
     def add_new_widget(self, base_item: BaseItem):
         thumb = Thumb(base_item.src, base_item.rating)
