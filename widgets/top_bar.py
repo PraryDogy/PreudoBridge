@@ -208,7 +208,7 @@ class TopBar(QWidget):
 
     def __init__(self, search_item: SearchItem):
         super().__init__()
-        self.search_item - SearchItem()
+        self.search_item = search_item
         self.setFixedHeight(40)
 
         self.history: list[str] = []
