@@ -235,50 +235,12 @@ class WinMissedFiles(MinMaxDisabledWin):
         if a0.key() == Qt.Key.Key_Escape:
             self.close()
         return super().keyPressEvent(a0)
-    
 
-class TopLabel(QFrame):
-    cancel_clicked = pyqtSignal()
-
-    def __init__(self, parent):
-        super().__init__(parent=parent)
-        self.setObjectName("test")
-        self.setStyleSheet(
-            f"#test {{ background: {Static.BLUE_GLOBAL}; border-radius: 7px; }}"
-        )
-
-        h_lay = QHBoxLayout()
-        h_lay.setContentsMargins(5, 0, 5, 0)
-        h_lay.setSpacing(10)
-        self.setLayout(h_lay)
-
-        label = QLabel(text=SEARCHING)
-        label.setFixedHeight(20)
-        h_lay.addWidget(label)
-
-        can_btn = QPushButton(text=STOP)
-        can_btn.clicked.connect(self.cancel_clicked.emit)
-        can_btn.setFixedWidth(90)
-        h_lay.addWidget(can_btn)
-
-        self.resize(170, 30)
-
-        shadow = QGraphicsDropShadowEffect()
-        shadow.setBlurRadius(30)
-        shadow.setXOffset(0)
-        shadow.setYOffset(2)
-        shadow.setColor(QColor(0, 0, 0, 150))
-
-        self.setGraphicsEffect(shadow)
 
 class GridSearch(Grid):
     def __init__(self, main_dir: str, view_index: int, url_for_select: str, search_text: str):
         super().__init__(main_dir, view_index, url_for_select)
         self.setAcceptDrops(False)
-
-        self.top_label = TopLabel(parent=self)
-        self.top_label.cancel_clicked.connect(self.cancel_cmd)
-        self.top_label.show()
 
         self.col_count = self.get_col_count()
         self.row, self.col = 0, 0
@@ -331,7 +293,6 @@ class GridSearch(Grid):
         self.sort_bar_update.emit(self.total)
 
     def search_fin(self):
-        self.top_label.hide()
 
         if not self.cell_to_wid:
             no_images = QLabel(text=NO_RESULT)
@@ -393,13 +354,11 @@ class GridSearch(Grid):
         self.task_.pause = False
 
     def cancel_cmd(self, *args):
-        self.top_label.hide()
         self.task_.should_run = False
         self.search_fin()
 
     def resizeEvent(self, a0):
         x, y = (a0.size().width() // 2) - 100, 10
-        self.top_label.move(x, y)
         self.resize_()
         return super().resizeEvent(a0)
     
