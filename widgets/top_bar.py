@@ -41,7 +41,7 @@ class ListWin(MinMaxDisabledWin):
     LIST_FILES = "Список файлов (по одному в строке):"
     finished_ = pyqtSignal(list)
 
-    def __init__(self):
+    def __init__(self, main_dir: str):
         """
         Окно ввода списка файлов папок для дальнейшего поиска
         Каждый файл с новой строки
@@ -61,7 +61,7 @@ class ListWin(MinMaxDisabledWin):
         first_row.setLayout(first_lay)
         first_title = QLabel(ListWin.SEARCH_PLACE)
         first_lay.addWidget(first_title)
-        self.main_dir_label = QLabel()
+        self.main_dir_label = QLabel(main_dir)
         first_lay.addWidget(self.main_dir_label)
 
         inp_label = QLabel(ListWin.LIST_FILES)
@@ -109,17 +109,13 @@ class SearchWidget(QWidget):
 
     # в MainWin посылается сигнал для загрузки GridStandart
     search_was_cleaned = pyqtSignal()
-
     # в MainWin посылается сигнал для загрузки GridSearch
     start_search = pyqtSignal()
-
-    # в MainWin посылается запрос в виде сигнала, чтобы передать в виджет
-    # актуальную self.main_dir, чтобы отобразить ее в ListWin
-    get_main_dir = pyqtSignal()
 
     def __init__(self, search_item: SearchItem):
         super().__init__()
         self.search_item = search_item
+        self.main_dir: str = None
 
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(0, 0, 0, 0)
@@ -225,9 +221,8 @@ class SearchWidget(QWidget):
         - Открывает окно для ввода списка файлов / папок для поиска   
         - Испускает сигнал finished со списком файлов из окна ввода
         """
-        self.list_win = ListWin()
+        self.list_win = ListWin(self.main_dir)
         self.list_win.finished_.connect(lambda search_list: self.list_win_finished(search_list))
-        self.get_main_dir.emit()
         self.list_win.center(self.window())
         self.list_win.show()
 
@@ -247,7 +242,6 @@ class TopBar(QWidget):
     start_search = pyqtSignal()
     search_was_cleaned = pyqtSignal()
     navigate = pyqtSignal(str)
-    get_main_dir = pyqtSignal()
     clear_data_clicked = pyqtSignal()
     open_in_new_win = pyqtSignal(str)
 
@@ -306,16 +300,9 @@ class TopBar(QWidget):
         self.search_wid = SearchWidget(self.search_item)
         self.search_wid.start_search.connect(self.start_search.emit)
         self.search_wid.search_was_cleaned.connect(self.search_was_cleaned.emit)
-        self.search_wid.get_main_dir.connect(self.get_main_dir.emit)
         self.main_lay.addWidget(self.search_wid)
 
         self.index_ -= 1
-
-    def set_main_dir(self, main_dir: str):
-        try:
-            self.search_wid.list_win.main_dir_label.setText(main_dir)
-        except RuntimeError as e:
-            print("bar top > set list win title", e)
 
     def open_settings_win(self, *args):
         self.sett_win = SettingsWin()
@@ -342,3 +329,6 @@ class TopBar(QWidget):
             self.navigate.emit(new_main_dir)
         except (ValueError, IndexError) as e:
             print("bar top > navigate cmd > error", e)
+
+    def set_main_dir(self, main_dir: str):
+        self.search_wid.main_dir = main_dir

@@ -225,12 +225,6 @@ class MainWin(QWidget):
         self.bar_top.search_was_cleaned.connect(lambda: self.load_st_grid_cmd((self.main_dir, None)))
         # перейти вперед/назад по истории посещений
         self.bar_top.navigate.connect(lambda dir: self.load_st_grid_cmd((dir, None)))
-        # в виджете поиска был выбран шаблон "Поиск по списку"
-        # при открытиии окна Поиск по списку отображаем директорию
-        # в которой будет произведен поиск
-        # мы не можем сюда перенсти фунеционал целого окна list_win
-        # проще постфактум установить текст для лейбла в этом окне
-        self.bar_top.get_main_dir.connect(lambda: self.bar_top.set_main_dir(self.main_dir))
         # было открыто окно настроек и был клик "очистить данные в этой папке"
         self.bar_top.clear_data_clicked.connect(lambda: self.remove_db_cmd())
         self.bar_top.open_in_new_win.connect(lambda dir: self.open_in_new_window_cmd(dir))
@@ -317,16 +311,14 @@ class MainWin(QWidget):
         self.grid.close()
         self.menu_tags.reset()
         self.grid = GridSearch(self.main_dir, self.view_index, None)
-        # нужно сразу добавлять в окно, чтобы у виджета появился родитель
-        # тогда во всех эвентах правильно сработает self.grid.window()
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
 
         self.search_bar.show()
         self.search_bar_sep.show()
         self.setup_grid_signals()
-        self.window().raise_()
-
-        self.grid.setFocus()
+        # self.window().raise_()
+        # self.grid.setFocus()
+        self.bar_top.set_main_dir(self.main_dir)
         self.grid.set_search_item(self.search_item)
         self.grid.start_search()
 
@@ -380,6 +372,7 @@ class MainWin(QWidget):
         self.search_bar.hide()
         self.search_bar_sep.hide()
         self.setup_grid_signals()
+        self.bar_top.set_main_dir(self.main_dir)
         self.menu_tree.expand_path(self.main_dir)
         self.window().raise_()
         self.grid.setFocus()
