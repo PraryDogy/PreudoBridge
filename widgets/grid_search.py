@@ -61,7 +61,7 @@ class SearchFinder(URunnable):
             else:
                 self.process_entry = self.process_list_free
             for i in self.search_item.get_files_list():
-                _, filename = self.remove_extension(i)
+                filename, _ = self.remove_extension(i)
                 self.files_list_lower.append(filename.lower())
 
         elif self.search_item.get_extensions():
