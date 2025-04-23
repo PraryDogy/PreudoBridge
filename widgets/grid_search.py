@@ -29,7 +29,7 @@ class WorkerSignals(QObject):
 
 
 class SearchFinder(URunnable):
-    search_value = 0.70
+    search_value = 0.85
 
     def __init__(self, main_dir: str, search_item: SearchItem):
         super().__init__()
@@ -37,7 +37,7 @@ class SearchFinder(URunnable):
         self.main_dir = main_dir
 
         self.search_item = search_item
-        self.files_list_lower: list[str] = None
+        self.files_list_lower: list[str] = []
         self.text_lower: str = None
         self.exts_lower: tuple[str] = None
 
@@ -97,7 +97,7 @@ class SearchFinder(URunnable):
 
     def process_text_free(self, entry: os.DirEntry):
         # Поиск файлов с именем.
-        _, filename = self.remove_extension(entry.name)
+        filename, _ = self.remove_extension(entry.name)
         filename: str = filename.lower()
 
         if self.compare_words(self.text_lower, filename) > SearchFinder.search_value:
@@ -109,7 +109,7 @@ class SearchFinder(URunnable):
         
     def process_text_exactly(self, entry: os.DirEntry):
         # Поиск файлов с именем.
-        _, filename = self.remove_extension(entry.name)
+        filename, _ = self.remove_extension(entry.name)
         filename: str = filename.lower()
 
         if filename == self.text_lower:
@@ -118,7 +118,7 @@ class SearchFinder(URunnable):
             return False
 
     def process_list_exactly(self, entry: os.DirEntry):
-        _, filename = self.remove_extension(entry.name)
+        filename, _ = self.remove_extension(entry.name)
         filename: str = filename.lower()
         for item in self.files_list_lower:
             if filename == item:
@@ -126,7 +126,7 @@ class SearchFinder(URunnable):
         return False
 
     def process_list_free(self, entry: os.DirEntry):
-        _, filename = self.remove_extension(entry.name)
+        filename, _ = self.remove_extension(entry.name)
         filename: str = filename.lower()
         for item in self.files_list_lower:
             if self.compare_words(item, filename) > SearchFinder.search_value:
@@ -154,16 +154,18 @@ class SearchFinder(URunnable):
                 continue
 
     def scan_current_dir(self, dir: str, dirs_list: list):
-        with os.scandir(dir) as entries:
-            for entry in entries:
-                if not self.should_run:
-                    return
-                while self.pause:
-                    sleep(1)
-                if entry.is_dir():
-                    dirs_list.append(entry.path)
-                elif self.process_entry(entry):
-                    self.process_img(entry)
+        for entry in os.scandir(dir):
+            if not self.should_run:
+                return
+            while self.pause:
+                sleep(1)
+            if entry.name.startswith("."):
+                continue
+            if entry.is_dir():
+                dirs_list.append(entry.path)
+                continue
+            if self.process_entry(entry):
+                self.process_img(entry)
 
     def process_img(self, entry: os.DirEntry):
         img_array = Utils.read_image(entry.path)
