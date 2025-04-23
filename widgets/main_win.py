@@ -376,6 +376,7 @@ class MainWin(QWidget):
             self.scroll_up.show()
     
     def user_exit(self):
+        return
 
         # предотвращает segmentation fault
 
