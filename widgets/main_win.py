@@ -413,17 +413,6 @@ class MainWin(QWidget):
 
             elif a0.key() == Qt.Key.Key_W:
                 self.close()
-                # active_win = QApplication.activeWindow()
-                # wins = [
-                #     i
-                #     for i in QApplication.topLevelWidgets()
-                #     if isinstance(i, MainWin)
-                # ]
-
-                # if len(wins) > 1:
-                #     active_win.deleteLater()
-                # else:
-                #     self.hide()
 
             elif a0.key() == Qt.Key.Key_Q:
                 QApplication.instance().quit()
