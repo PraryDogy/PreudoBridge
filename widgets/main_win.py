@@ -323,6 +323,13 @@ class MainWin(QWidget):
         self.grid.start_search()
 
     def load_standart_grid(self, data: tuple):
+        """
+        data:
+        - могут быть None
+        - main_dir: основная директория, которая будет отображена в виде сетки виджетов
+        - url_for_select: виджет сетки, соответствующий url_for select, будет выделен
+        после инициации сетки виджетов
+        """
         new_main_dir, path_for_select = data
 
         if new_main_dir:
@@ -333,8 +340,8 @@ class MainWin(QWidget):
             if fixed_path:
                 self.main_dir = fixed_path
 
-        # очищаем предзагруженные в просмотрщике изображения
-        LoadImage.cache.clear()
+
+        LoadImage.cached_images.clear()
         self.grid.close()
 
         # Заголовок окна

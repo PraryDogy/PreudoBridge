@@ -80,7 +80,7 @@ class LoadThumbnail(URunnable):
 
 
 class LoadImage(URunnable):
-    cache: dict[str, QPixmap] = {}
+    cached_images: dict[str, QPixmap] = {}
 
     def __init__(self, src: str):
         super().__init__()
@@ -90,7 +90,7 @@ class LoadImage(URunnable):
     @URunnable.set_running_state
     def run(self):
         try:
-            if self.src not in self.cache:
+            if self.src not in self.cached_images:
 
                 img_array = Utils.read_image(self.src)
                 img_array = Utils.desaturate_image(image=img_array, factor=0.2)
@@ -100,17 +100,17 @@ class LoadImage(URunnable):
 
                 else:
                     pixmap = Utils.pixmap_from_array(img_array)
-                    self.cache[self.src] = pixmap
+                    self.cached_images[self.src] = pixmap
 
                 del img_array
                 gc.collect()
 
             else:
-                pixmap = self.cache.get(self.src)
+                pixmap = self.cached_images.get(self.src)
 
-            if len(self.cache) > 50:
-                first_img = list(self.cache.keys())[0]
-                self.cache.pop(first_img)
+            if len(self.cached_images) > 50:
+                first_img = list(self.cached_images.keys())[0]
+                self.cached_images.pop(first_img)
 
             image_data = ImageData(self.src, pixmap)
 
@@ -356,7 +356,7 @@ class ImgViewWin(WinBase):
 
     def load_thumbnail(self):
 
-        if self.src not in LoadImage.cache and not DbaseTools.busy_db:
+        if self.src not in LoadImage.cached_images and not DbaseTools.busy_db:
             self.task_ = LoadThumbnail(self.src)
             cmd_ = lambda image_data: self.load_thumbnail_finished(image_data)
             self.task_.signals_.finished_.connect(cmd_)
@@ -519,7 +519,7 @@ class ImgViewWin(WinBase):
         self.hide_btns()
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
-        LoadImage.cache.clear()
+        LoadImage.cached_images.clear()
         self.closed_.emit()
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
