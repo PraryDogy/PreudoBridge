@@ -229,7 +229,7 @@ class MainWin(QWidget):
         self.bar_top.clear_data_clicked.connect(lambda: self.remove_db_cmd())
         self.bar_top.open_in_new_win.connect(lambda dir: self.open_in_new_window_cmd(dir))
 
-        self.search_bar.toggle_exactly.connect(lambda: self.load_search_grid())
+        self.search_bar.load_search_grid.connect(lambda: self.load_search_grid())
 
         self.path_bar.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
         self.path_bar.load_st_grid_sig.connect(lambda data: self.load_standart_grid(data))

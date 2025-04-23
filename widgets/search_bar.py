@@ -26,7 +26,7 @@ class SpinnerWidget(QLabel):
 
 
 class SearchBar(QFrame):
-    toggle_exactly = pyqtSignal()
+    load_search_grid = pyqtSignal()
 
     def __init__(self, search_item: SearchItem):
         super().__init__()
@@ -55,7 +55,7 @@ class SearchBar(QFrame):
         data = {0: False, 2: True}
         new_value = data.get(value)
         self.search_item.exactly = new_value
-        self.toggle_exactly.emit()
+        self.load_search_grid.emit()
 
     def show(self):
         """
