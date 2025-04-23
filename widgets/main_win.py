@@ -194,19 +194,19 @@ class MainWin(QWidget):
 
         self.setup_signals()
         self.tags_btn_cmd()
-        self.load_st_grid_cmd((self.main_dir, None))
+        self.load_standart_grid((self.main_dir, None))
 
     def setup_signals(self):
         self.resize_timer.timeout.connect(self.resize_timer_cmd)
         self.splitter.splitterMoved.connect(lambda: self.resize_timer.start(MainWin.resize_ms))
 
-        self.menu_tree.load_st_grid_sig.connect(lambda data: self.load_st_grid_cmd(data))
+        self.menu_tree.load_st_grid_sig.connect(lambda data: self.load_standart_grid(data))
         self.menu_tree.fav_cmd_sig.connect(lambda data: self.menu_favs.fav_cmd(data))
         self.menu_tree.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
         self.menu_tree.open_in_new_window.connect(lambda dir: self.open_in_new_window_cmd(dir))
 
         self.menu_favs.set_main_dir_sig.connect(lambda: self.menu_favs.set_main_dir(self.main_dir))
-        self.menu_favs.load_st_grid_sig.connect(lambda data: self.load_st_grid_cmd(data))
+        self.menu_favs.load_st_grid_sig.connect(lambda data: self.load_standart_grid(data))
         self.menu_favs.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
         self.menu_favs.open_in_new_win.connect(lambda dir: self.open_in_new_window_cmd(dir))
 
@@ -222,9 +222,9 @@ class MainWin(QWidget):
         # начать поиск
         self.bar_top.start_search.connect(lambda: self.load_search_grid())
         # очистить поиск, загрузить стандартную сетку с текущей директорией
-        self.bar_top.search_was_cleaned.connect(lambda: self.load_st_grid_cmd((self.main_dir, None)))
+        self.bar_top.search_was_cleaned.connect(lambda: self.load_standart_grid((self.main_dir, None)))
         # перейти вперед/назад по истории посещений
-        self.bar_top.navigate.connect(lambda dir: self.load_st_grid_cmd((dir, None)))
+        self.bar_top.navigate.connect(lambda dir: self.load_standart_grid((dir, None)))
         # было открыто окно настроек и был клик "очистить данные в этой папке"
         self.bar_top.clear_data_clicked.connect(lambda: self.remove_db_cmd())
         self.bar_top.open_in_new_win.connect(lambda dir: self.open_in_new_window_cmd(dir))
@@ -232,14 +232,14 @@ class MainWin(QWidget):
         self.search_bar.toggle_exactly.connect(lambda: self.load_search_grid())
 
         self.path_bar.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
-        self.path_bar.load_st_grid_sig.connect(lambda data: self.load_st_grid_cmd(data))
+        self.path_bar.load_st_grid_sig.connect(lambda data: self.load_standart_grid(data))
         self.path_bar.open_img_view.connect(lambda path: self.open_img_view_cmd(path))
         self.path_bar.open_in_new_window.connect(lambda dir: self.open_in_new_window_cmd(dir))
 
         self.sort_bar.resize_grid_sig.connect(lambda: self.grid.resize_())
         self.sort_bar.rearrange_grid_sig.connect(lambda: self.grid.rearrange())
         self.sort_bar.sort_grid_sig.connect(lambda: self.grid.sort_())
-        self.sort_bar.load_st_grid_sig.connect(lambda data: self.load_st_grid_cmd(data))
+        self.sort_bar.load_st_grid_sig.connect(lambda data: self.load_standart_grid(data))
 
     def open_img_view_cmd(self, path: str):
         base_item = BaseItem(path)
@@ -253,18 +253,18 @@ class MainWin(QWidget):
         db = os.path.join(self.main_dir, Static.DB_FILENAME)
         if os.path.exists(db):
             os.remove(db)
-            self.load_st_grid_cmd((self.main_dir, None))
+            self.load_standart_grid((self.main_dir, None))
 
     def level_up_cmd(self):
         new_main_dir = os.path.dirname(self.main_dir)
         if new_main_dir != os.sep:
-            self.load_st_grid_cmd((new_main_dir, self.main_dir))
+            self.load_standart_grid((new_main_dir, self.main_dir))
             self.bar_top.new_history_item_cmd(new_main_dir)
             self.main_dir = new_main_dir
 
     def change_view_cmd(self, index: int):
         self.view_index = index
-        self.load_st_grid_cmd((self.main_dir, None))
+        self.load_standart_grid((self.main_dir, None))
 
     def resize_timer_cmd(self):
         self.grid.resize_()
@@ -282,10 +282,10 @@ class MainWin(QWidget):
 
         if filepath.endswith(Static.IMG_EXT):
             self.main_dir = os.path.dirname(filepath)
-            self.load_st_grid_cmd((self.main_dir, filepath))
+            self.load_standart_grid((self.main_dir, filepath))
         else:
             self.main_dir = filepath
-            self.load_st_grid_cmd((self.main_dir, None))
+            self.load_standart_grid((self.main_dir, None))
 
     def open_in_new_window_cmd(self, dir: str):
         new_win = MainWin(dir)
@@ -299,7 +299,7 @@ class MainWin(QWidget):
         self.grid.path_bar_update.connect(lambda dir: self.path_bar.setup(dir))
         self.grid.fav_cmd_sig.connect(lambda data: self.menu_favs.fav_cmd(data))
         self.grid.move_slider_sig.connect(lambda value: self.sort_bar.slider.move_from_keyboard(value))
-        self.grid.load_st_grid_sig.connect(lambda data: self.load_st_grid_cmd(data))
+        self.grid.load_st_grid_sig.connect(lambda data: self.load_standart_grid(data))
         self.grid.verticalScrollBar().valueChanged.connect(lambda value: self.scroll_up_show_hide(value))
         self.grid.open_in_new_window.connect(lambda dir: self.open_in_new_window_cmd(dir))
         self.grid.level_up.connect(lambda: self.level_up_cmd())
@@ -322,7 +322,7 @@ class MainWin(QWidget):
         self.grid.set_search_item(self.search_item)
         self.grid.start_search()
 
-    def load_st_grid_cmd(self, data: tuple):
+    def load_standart_grid(self, data: tuple):
         new_main_dir, path_for_select = data
 
         if new_main_dir:
