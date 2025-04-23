@@ -316,6 +316,7 @@ class MainWin(QWidget):
         self.menu_favs.set_main_dir(self.main_dir)
 
         self.grid = GridSearch(self.main_dir, self.view_index, None)
+        self.grid.finished_.connect(self.search_bar.hide_spinner)
         self.setup_grid_signals()
         self.grid.set_search_item(self.search_item)
         self.grid.start_search()

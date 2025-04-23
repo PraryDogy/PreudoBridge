@@ -236,6 +236,8 @@ class WinMissedFiles(MinMaxDisabledWin):
 
 
 class GridSearch(Grid):
+    finished_ = pyqtSignal()
+
     def __init__(self, main_dir: str, view_index: int, url_for_select: str):
         super().__init__(main_dir, view_index, url_for_select)
         self.search_item: SearchItem = None
@@ -300,7 +302,6 @@ class GridSearch(Grid):
         self.sort_bar_update.emit(self.total)
 
     def search_fin(self):
-
         if not self.cell_to_wid:
             no_images = QLabel(text=NO_RESULT)
             no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -321,6 +322,8 @@ class GridSearch(Grid):
                 self.win_missed_files = WinMissedFiles(files=missed_files)
                 self.win_missed_files.center(self.window())
                 self.win_missed_files.show()
+
+        self.finished_.emit()
 
     def sort_(self):
         self.task_.pause = True
