@@ -66,7 +66,7 @@ class SearchFinder(URunnable):
 
         elif self.search_item.get_extensions():
             self.process_entry = self.process_extensions
-            self.exts_lower = [i.lower() for i in self.search_item.get_extensions()]
+            self.exts_lower = (i.lower() for i in self.search_item.get_extensions())
 
         # последним мы проверяем search item search text, так как search text
         # есть и при поиске по шаблонам и при поиске по списку
