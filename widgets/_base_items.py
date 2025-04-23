@@ -356,7 +356,6 @@ class Sort:
         • Реализуйте логику заполнения поля, например, через os.stat
     """
 
-
     name = "name"
     type_ = "type_"
     size = "size"
