@@ -362,7 +362,6 @@ class Sort:
     mod = "mod"
     birth = "birth"
     rating = "rating"
-    test = "test"
 
     items: dict[str, str] = {
         name : "Имя",
@@ -371,7 +370,6 @@ class Sort:
         mod : "Дата изменения",
         birth: "Дата создания",
         rating : "Рейтинг",
-        test: "test"
     }
 
 
@@ -447,7 +445,7 @@ class BaseItem:
         base_item = BaseItem("/no/path/file.txt")
         for column_name, _ in Sort.items.items():
             if not hasattr(base_item, column_name):
-                raise Exception (f"base_widgets.py > BaseItem: не хватает аттрибута из Sort.items. Аттрибут: {column_name}")
+                raise Exception (f"\n\nbase_widgets.py > BaseItem: не хватает аттрибута из Sort.items. Аттрибут: {column_name}\n\n")
 
     @classmethod
     def sort_items(cls, base_items: list["BaseItem"]) -> list["BaseItem"]:
