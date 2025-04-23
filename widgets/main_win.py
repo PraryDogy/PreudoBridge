@@ -310,17 +310,15 @@ class MainWin(QWidget):
     def load_search_grid(self):
         self.grid.close()
         self.menu_tags.reset()
-        self.grid = GridSearch(self.main_dir, self.view_index, None)
-        self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
-
         self.search_bar.show()
         self.search_bar_sep.show()
-        self.setup_grid_signals()
-        # self.window().raise_()
-        # self.grid.setFocus()
         self.bar_top.set_main_dir(self.main_dir)
+
+        self.grid = GridSearch(self.main_dir, self.view_index, None)
+        self.setup_grid_signals()
         self.grid.set_search_item(self.search_item)
         self.grid.start_search()
+        self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
 
     def load_standart_grid(self, data: tuple):
         """
@@ -330,7 +328,7 @@ class MainWin(QWidget):
         - url_for_select: виджет сетки, соответствующий url_for select, будет выделен
         после инициации сетки виджетов
         """
-        new_main_dir, path_for_select = data
+        new_main_dir, url_for_select = data
 
         if new_main_dir:
             self.main_dir = new_main_dir
@@ -339,10 +337,6 @@ class MainWin(QWidget):
             fixed_path = Utils.fix_path_prefix(self.main_dir)
             if fixed_path:
                 self.main_dir = fixed_path
-
-
-        LoadImage.cached_images.clear()
-        self.grid.close()
 
         # Заголовок окна
         # Имя папки или имя избранного или имя папки (имя избранного)
@@ -355,27 +349,25 @@ class MainWin(QWidget):
                 title = base_name
         else:
             title = base_name
-        self.setWindowTitle(title)
 
+        LoadImage.cached_images.clear()
+        self.setWindowTitle(title)
+        self.grid.close()
         self.menu_favs.fav_cmd(("select", self.main_dir))
         self.bar_top.search_wid.clear_without_signal()
+        self.search_bar.hide()
+        self.search_bar_sep.hide()
+        self.bar_top.set_main_dir(self.main_dir)
+        self.menu_tree.expand_path(self.main_dir)
 
         if self.view_index == 0:
-            self.grid = GridStandart(self.main_dir, self.view_index, path_for_select)
+            self.grid = GridStandart(self.main_dir, self.view_index, url_for_select)
 
         elif self.view_index == 1:
             self.grid = GridList(self.main_dir, self.view_index)
 
-        # нужно сразу добавлять в окно, чтобы у виджета появился родитель
-        # тогда во всех эвентах правильно сработает self.grid.window()
-        self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
-        self.search_bar.hide()
-        self.search_bar_sep.hide()
         self.setup_grid_signals()
-        self.bar_top.set_main_dir(self.main_dir)
-        self.menu_tree.expand_path(self.main_dir)
-        self.window().raise_()
-        self.grid.setFocus()
+        self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
 
     def scroll_up_show_hide(self, value: int):
         if value == 0:
