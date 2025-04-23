@@ -57,38 +57,30 @@ class SearchFinder(URunnable):
     def setup_search(self):
         if self.search_item.get_files_list():
             if self.search_item.get_exactly():
-                self.process_entry = self.process_list_exactly
+                self.process_text = self.process_list_exactly
             else:
-                self.process_entry = self.process_list_free
+                self.process_text = self.process_list_free
             for i in self.search_item.get_files_list():
-                _, filename = self.remove_extension(i)
+                _, filename = os.path.splitext(i)
                 self.files_list_lower.append(filename.lower())
 
         elif self.search_item.get_extensions():
-            self.process_entry = self.process_extensions
+            self.process_text = self.process_extensions
             self.exts_lower = [i.lower() for i in self.search_item.get_extensions()]
 
         # последним мы проверяем search item search text, так как search text
         # есть и при поиске по шаблонам и при поиске по списку
         elif self.search_item.get_text():
             if self.search_item.get_exactly():
-                self.process_entry = self.process_text_exactly
+                self.process_text = self.process_text_exactly
             else:
-                self.process_entry = self.process_text_free
+                self.process_text = self.process_text_free
             self.text_lower = self.search_item.get_text().lower()
 
     def compare_words(self, word1: str, word2: str):
         return SequenceMatcher(None, word1, word2).ratio()
-    
-    def remove_extension(self, filename: str):
-        return os.path.splitext(filename)
 
-    def prepare_entry(self, entry: os.DirEntry):
-        filename, _ = self.remove_extension(entry.name)
-        return filename.lower()
-
-    # базовый метод обработки os.DirEntry
-    def process_entry(self, filename_lower: str): ...
+    def process_text(self, filename_lower: str): ...
 
     def process_extensions(self, filename_lower: str):
         # Поиск файлов с определенным расширением.
@@ -111,17 +103,17 @@ class SearchFinder(URunnable):
         else:
             return False
 
-    def process_list_exactly(self, filename_lower: str):
-        for item in self.files_list_lower:
-            if filename_lower == item:
-                return True
-        return False
-
     def process_list_free(self, filename_lower: str):
         for item in self.files_list_lower:
             if self.compare_words(item, filename_lower) > SearchFinder.search_value:
                 return True
             elif item in filename_lower or filename_lower in item:
+                return True
+        return False
+
+    def process_list_exactly(self, filename_lower: str):
+        for item in self.files_list_lower:
+            if filename_lower == item:
                 return True
         return False
 
@@ -162,9 +154,9 @@ class SearchFinder(URunnable):
                 # process_entry назначаются функции, которые проигнорируют
                 # этот список читай setup_text.
 
-                filename, _ = self.remove_extension(entry.name)
+                filename, _ = os.path.splitext(entry.name)
                 filename_lower = filename.lower()
-                if self.process_entry(filename_lower):
+                if self.process_text(filename_lower):
                     self.process_img(entry)
 
     def process_img(self, entry: os.DirEntry):
