@@ -205,7 +205,6 @@ class MainWin(QWidget):
         self.menu_tree.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
         self.menu_tree.open_in_new_window.connect(lambda dir: self.open_in_new_window_cmd(dir))
 
-        self.menu_favs.set_main_dir_sig.connect(lambda: self.menu_favs.set_main_dir(self.main_dir))
         self.menu_favs.load_st_grid_sig.connect(lambda data: self.load_standart_grid(data))
         self.menu_favs.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
         self.menu_favs.open_in_new_win.connect(lambda dir: self.open_in_new_window_cmd(dir))
@@ -313,6 +312,7 @@ class MainWin(QWidget):
         self.search_bar.show()
         self.search_bar_sep.show()
         self.bar_top.set_main_dir(self.main_dir)
+        self.menu_favs.set_main_dir(self.main_dir)
 
         self.grid = GridSearch(self.main_dir, self.view_index, None)
         self.setup_grid_signals()
@@ -358,6 +358,7 @@ class MainWin(QWidget):
         self.search_bar.hide()
         self.search_bar_sep.hide()
         self.bar_top.set_main_dir(self.main_dir)
+        self.menu_favs.set_main_dir(self.main_dir)
         self.menu_tree.expand_path(self.main_dir)
 
         if self.view_index == 0:

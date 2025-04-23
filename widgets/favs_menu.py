@@ -105,7 +105,6 @@ class FavsMenu(QListWidget):
     FAV_ITEM = "fav_item"
     new_history_item = pyqtSignal(str)
     load_st_grid_sig = pyqtSignal(tuple)
-    set_main_dir_sig = pyqtSignal()
     open_in_new_win = pyqtSignal(str)
 
     def __init__(self):
@@ -117,7 +116,6 @@ class FavsMenu(QListWidget):
         self.wids: dict[str, QListWidgetItem] = {}
         self.setDragDropMode(QListWidget.DragDropMode.InternalMove)
         self.setAcceptDrops(True)
-        self.set_main_dir_sig.emit()
         self.init_ui()
 
     def set_main_dir(self, main_dir: str):
@@ -173,7 +171,6 @@ class FavsMenu(QListWidget):
             JsonData.write_config()
 
     def path_changed_cmd(self):
-        self.set_main_dir_sig.emit()
         self.init_ui()
 
     def add_fav_widget_item(self, name: str, src: str) -> dict:
@@ -204,7 +201,6 @@ class FavsMenu(QListWidget):
     def del_item(self, src: str):
         JsonData.favs.pop(src)
         JsonData.write_config()
-        self.set_main_dir_sig.emit()
         self.init_ui()
 
     def dragEnterEvent(self, e):
