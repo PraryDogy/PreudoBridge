@@ -35,8 +35,9 @@ class SearchFinder(URunnable):
         super().__init__()
         self.signals_ = WorkerSignals()
         self.main_dir = main_dir
+
         self.search_item = search_item
-        self.search_list_lower: list[str] = None
+        self.files_list_lower: list[str] = None
         self.search_text_lower: str = None
 
         self.db_path: str = None
@@ -45,7 +46,6 @@ class SearchFinder(URunnable):
 
     @URunnable.set_running_state
     def run(self):
-        print(self.search_item.get_extensions())
         try:
             self.setup_search()
             self.scandir_recursive()
@@ -67,7 +67,7 @@ class SearchFinder(URunnable):
                 self.process_entry = self.proc_list_free
             for i in self.search_item.get_files_list():
                 _, filename = self.remove_extension(i)
-                self.search_list_lower.append(filename.lower())
+                self.files_list_lower.append(filename.lower())
 
         elif self.search_item.get_extensions():
             self.process_entry = self.process_extensions
@@ -79,6 +79,7 @@ class SearchFinder(URunnable):
                 self.process_entry = self.process_text_exactly
             else:
                 self.process_entry = self.process_text_free
+            self.search_text_lower = self.search_item.get_text().lower()
 
     # базовый метод обработки os.DirEntry
     def process_entry(self, entry: os.DirEntry): ...
@@ -96,11 +97,10 @@ class SearchFinder(URunnable):
         # Поиск файлов с именем.
         _, filename = self.remove_extension(entry.name)
         filename: str = filename.lower()
-        search_text: str = self.search_item.get_text().lower()
 
-        if self.compare_words(search_text, filename) > SearchFinder.search_value:
+        if self.compare_words(self.search_text_lower, filename) > SearchFinder.search_value:
             return True
-        elif search_text in filename or filename in search_text:
+        elif self.search_text_lower in filename or filename in self.search_text_lower:
             return True
         else:
             return False
@@ -109,9 +109,8 @@ class SearchFinder(URunnable):
         # Поиск файлов с именем.
         filename: str = entry.name
         filename: str = filename.lower()
-        search_text: str = self.search_item.get_text().lower()
 
-        if filename == search_text:
+        if filename == self.search_text_lower:
             return True
         else:
             return False
@@ -119,7 +118,7 @@ class SearchFinder(URunnable):
     def proc_list_exactly(self, entry: os.DirEntry):
         _, filename = self.remove_extension(entry.name)
         filename: str = filename.lower()
-        for item in self.search_list_lower:
+        for item in self.files_list_lower:
             if filename == item:
                 return True
         return False
@@ -127,7 +126,7 @@ class SearchFinder(URunnable):
     def proc_list_free(self, entry: os.DirEntry):
         _, filename = self.remove_extension(entry.name)
         filename: str = filename.lower()
-        for item in self.search_list_lower:
+        for item in self.files_list_lower:
             if self.compare_words(item, filename) > SearchFinder.search_value:
                 return True
             elif item in filename or filename in item:
@@ -137,14 +136,6 @@ class SearchFinder(URunnable):
     def scandir_recursive(self):
         # Инициализируем список с корневым каталогом
         dirs_list = [self.main_dir]
-
-        if self.search_item.get_files_list():
-            search_list_lower = [
-                i.lower()
-                for i in self.search_item.get_files_list()
-            ]
-        else:
-            search_list_lower = []
 
         while dirs_list:
             # Удаляем последний элемент из списка
@@ -156,11 +147,11 @@ class SearchFinder(URunnable):
                 sleep(1)
             try:
                 # Сканируем текущий каталог и добавляем новые пути в стек
-                self.scan_current_dir(current_dir, dirs_list, search_list_lower)
+                self.scan_current_dir(current_dir, dirs_list)
             except Exception as e:
                 continue
 
-    def scan_current_dir(self, dir: str, dirs_list: list, search_list_lower: list[str]):
+    def scan_current_dir(self, dir: str, dirs_list: list):
         with os.scandir(dir) as entries:
             for entry in entries:
                 if not self.should_run:
@@ -178,16 +169,13 @@ class SearchFinder(URunnable):
                 # сможет обработать этот список, в иных случаях на 
                 # process_entry назначаются функции, которые проигнорируют
                 # этот список читай setup_text.
-                if self.process_entry(entry, search_list_lower):
+                if self.process_entry(entry):
                     self.process_img(entry)
 
     def process_img(self, entry: os.DirEntry):
-        img_array = Utils.read_image(path=entry.path)
-        img_array = FitImg.start(
-            image=img_array,
-            size=ThumbData.DB_IMAGE_SIZE
-        )
-        pixmap = Utils.pixmap_from_array(image=img_array)
+        img_array = Utils.read_image(entry.path)
+        img_array = FitImg.start(img_array, ThumbData.DB_IMAGE_SIZE)
+        pixmap = Utils.pixmap_from_array(img_array)
         del img_array
 
         base_item = BaseItem(entry.path)

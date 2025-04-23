@@ -539,6 +539,9 @@ class SearchItem:
         self.files_list_ = search_list
 
     def get_files_list(self):
+        """
+        Возвращает список файлов
+        """
         return self.files_list_
     
     def set_exactly(self, exactly: bool):
