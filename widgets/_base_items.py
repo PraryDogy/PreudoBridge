@@ -530,6 +530,8 @@ class SearchItem:
     def get_extensions(self):
         """
         Возвращает кортеж или простой текст с расширением файлов в нижнем регистре
+        - return .png
+        - return (.jpg, .jpeg, .jfif)
         """
         return self.extensions_
     
