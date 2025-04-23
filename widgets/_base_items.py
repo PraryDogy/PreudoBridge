@@ -390,8 +390,7 @@ class BaseItem:
         - В основном потоке создаётся экземпляр класса Thumb (из модуля grid.py).
         - Атрибут name у Thumb устанавливается на основе значения BaseItem.name ("TEST").
 
-        В BaseItem обязаны присутствовать все аттрибуты, соответствующие
-        ключам Sort.items
+        В BaseItem обязаны присутствовать все аттрибуты, соответствующие Sort.items
         """
         super().__init__()
         self.src: str = src
