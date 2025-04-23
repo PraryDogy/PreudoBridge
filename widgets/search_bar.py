@@ -58,7 +58,16 @@ class SearchBar(QFrame):
         self.toggle_exactly.emit()
 
     def show(self):
+        """
+        При активации GridSearch вызывается данный метод
+        Сигнал отключается, чтобы не сработал on state change, чтобы
+        он не ипустил сигнал toogle_exactly, который приведет к повторной
+        загрузке сетки GridSearch
+        """
+        self.checkbox.stateChanged.disconnect()
         self.checkbox.setChecked(self.search_item.exactly)
+        self.checkbox.stateChanged.connect(self.on_state_change)
+
         if self.search_item.get_extensions():
             self.checkbox.setDisabled(True)
         else:
