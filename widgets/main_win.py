@@ -345,21 +345,14 @@ class MainWin(QWidget):
         self.grid.close()
 
         # Заголовок окна
-        # Берем последнюю секцию директории для заголовка окна
-        # далее "секция"
+        # Имя папки или имя избранного или имя папки (имя избранного)
         base_name = os.path.basename(self.main_dir)
-        # Если текущая директория в избранном, то берем имя в избранном
         if self.main_dir in JsonData.favs:
-            fav = JsonData.favs[self.main_dir]
-            # Если имя в избранном не совпадает с "секцией", то заголовок такой:
-            # Имя в избранном: "Секция"
+            fav = JsonData.favs.get(self.main_dir)
             if fav != base_name:
                 title = f"{base_name} ({JsonData.favs[self.main_dir]})"
-            # Если имя в избранном == "секция", то заголовок такой:
-            # "Секция"
             else:
                 title = base_name
-        # Если директория не в избранном, то заголовок такой: "Секция"
         else:
             title = base_name
         self.setWindowTitle(title)
