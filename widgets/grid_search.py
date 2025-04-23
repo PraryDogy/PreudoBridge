@@ -66,7 +66,8 @@ class SearchFinder(URunnable):
 
         elif self.search_item.get_extensions():
             self.process_entry = self.process_extensions
-            self.exts_lower = (i.lower() for i in self.search_item.get_extensions())
+            exts_lower = (i.lower() for i in self.search_item.get_extensions())
+            self.exts_lower = tuple(exts_lower)
 
         # последним мы проверяем search item search text, так как search text
         # есть и при поиске по шаблонам и при поиске по списку
@@ -151,6 +152,7 @@ class SearchFinder(URunnable):
                 # Сканируем текущий каталог и добавляем новые пути в стек
                 self.scan_current_dir(current_dir, dirs_list)
             except Exception as e:
+                print(e)
                 continue
 
     def scan_current_dir(self, dir: str, dirs_list: list):
