@@ -516,11 +516,12 @@ class USep(QFrame):
 class SearchItem:
     SEARCH_LIST_TEXT = "Найти по списку"
     SEARCH_EXTENSIONS = {
-        "Найти jpg": (".jpg", ".jpeg", "jfif"),
-        "Найти png": (".png", ),
-        "Найти tiff": (".tif", ".tiff"),
-        "Найти psd/psb": (".psd", ".psb"),
-        "Найти raw": (".nef", ".raw"),
+        "Найти jpg": Static.ext_jpeg,
+        "Найти png": Static.ext_png,
+        "Найти tiff": Static.ext_tiff,
+        "Найти psd/psb": Static.ext_psd,
+        "Найти raw": Static.ext_raw,
+        "Найти видео": Static.ext_video,
         "Найти любые фото": Static.ext_all
     }
 
@@ -544,7 +545,6 @@ class SearchItem:
     def get_extensions(self):
         """
         Возвращает кортеж с расширением файлов
-        - return (.jpg, .jpeg, .jfif, .JPG, .JPEG, .JFIF)
         """
         return self.extensions_
     
