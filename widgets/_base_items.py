@@ -503,7 +503,7 @@ class SearchItem:
     SEARCH_LIST_TEXT = "Найти по списку"
     SEARCH_EXTENSIONS = {
         "Найти jpg": (".jpg", ".jpeg", "jfif"),
-        "Найти png": (".png"),
+        "Найти png": (".png", ),
         "Найти tiff": (".tif", ".tiff"),
         "Найти psd/psb": (".psd", ".psb"),
         "Найти raw": (".nef", ".raw"),
@@ -529,9 +529,8 @@ class SearchItem:
 
     def get_extensions(self):
         """
-        Возвращает кортеж или простой текст с расширением файлов в нижнем регистре
-        - return .png
-        - return (.jpg, .jpeg, .jfif)
+        Возвращает кортеж с расширением файлов
+        - return (.jpg, .jpeg, .jfif, .JPG, .JPEG, .JFIF)
         """
         return self.extensions_
     

@@ -38,7 +38,8 @@ class SearchFinder(URunnable):
 
         self.search_item = search_item
         self.files_list_lower: list[str] = None
-        self.search_text_lower: str = None
+        self.text_lower: str = None
+        self.exts_lower: tuple[str] = None
 
         self.db_path: str = None
         self.conn = None
@@ -71,6 +72,7 @@ class SearchFinder(URunnable):
 
         elif self.search_item.get_extensions():
             self.process_entry = self.process_extensions
+            self.exts_lower = [i.lower() for i in self.search_item.get_extensions()]
 
         # последним мы проверяем search item search text, так как search text
         # есть и при поиске по шаблонам и при поиске по списку
@@ -79,7 +81,7 @@ class SearchFinder(URunnable):
                 self.process_entry = self.process_text_exactly
             else:
                 self.process_entry = self.process_text_free
-            self.search_text_lower = self.search_item.get_text().lower()
+            self.text_lower = self.search_item.get_text().lower()
 
     # базовый метод обработки os.DirEntry
     def process_entry(self, entry: os.DirEntry): ...
@@ -88,7 +90,7 @@ class SearchFinder(URunnable):
         # Поиск файлов с определенным расширением.
         path = entry.path
         path: str = path.lower()
-        if path.endswith(self.search_item.get_extensions()):
+        if path.endswith(self.exts_lower):
             return True
         else:
             return False
@@ -98,9 +100,9 @@ class SearchFinder(URunnable):
         _, filename = self.remove_extension(entry.name)
         filename: str = filename.lower()
 
-        if self.compare_words(self.search_text_lower, filename) > SearchFinder.search_value:
+        if self.compare_words(self.text_lower, filename) > SearchFinder.search_value:
             return True
-        elif self.search_text_lower in filename or filename in self.search_text_lower:
+        elif self.text_lower in filename or filename in self.text_lower:
             return True
         else:
             return False
@@ -110,7 +112,7 @@ class SearchFinder(URunnable):
         filename: str = entry.name
         filename: str = filename.lower()
 
-        if filename == self.search_text_lower:
+        if filename == self.text_lower:
             return True
         else:
             return False
