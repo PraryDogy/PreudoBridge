@@ -317,11 +317,19 @@ class MainWin(QWidget):
         self.search_bar.show_spinner()
 
         self.grid = GridSearch(self.main_dir, self.view_index, None)
-        self.grid.finished_.connect(self.search_bar.hide_spinner)
+        self.grid.finished_.connect(self.finished_search_grid)
         self.setup_grid_signals()
         self.grid.set_search_item(self.search_item)
         self.grid.start_search()
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
+
+    def finished_search_grid(self):
+        if isinstance(self.grid, GridSearch):
+            try:
+                if not self.grid.task_.is_running:
+                    self.search_bar.hide_spinner()
+            except Exception as e:
+                print(e)
 
     def load_standart_grid(self, data: tuple):
         """
@@ -331,6 +339,8 @@ class MainWin(QWidget):
         - url_for_select: виджет сетки, соответствующий url_for select, будет выделен
         после инициации сетки виджетов
         """
+        print("load st grid", self.sender())
+        self.grid.close()
         new_main_dir, url_for_select = data
 
         if new_main_dir:
@@ -355,7 +365,6 @@ class MainWin(QWidget):
 
         LoadImage.cached_images.clear()
         self.setWindowTitle(title)
-        self.grid.close()
         self.menu_favs.fav_cmd(("select", self.main_dir))
         self.bar_top.search_wid.clear_without_signal()
         self.search_bar.hide()

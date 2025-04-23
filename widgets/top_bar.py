@@ -155,24 +155,31 @@ class SearchWidget(QWidget):
 
     def clear_without_signal(self):
         """
-        - Очищает поле ввода
-        - Срабатывает сигнал textChanged > on_text_changed
+        - Очищает поле ввода без сигнала textChanged
+        - load standrt grid всегда очищает поиск при инициации
         """
-        self.search_wid.clear()
+        self.search_wid.textChanged.disconnect()
+        self.clear_all()
+        self.search_wid.textChanged.connect(self.on_text_changed)
 
     def on_text_changed(self, text: str):
         """
         Обрабатывает сигнал textChanged   
         Отложенно запускает prepare_text
+        Еслит текста нет - испускает сигнал в MainWin для загрузки GridStandart
         """
         if text:
             self.search_text = text
             self.input_timer.stop()
             self.input_timer.start(1500)
         else:
-            self.search_wid.clear_btn.hide()
+            self.clear_all()
             self.search_was_cleaned.emit()
-            self.search_item.reset()
+
+    def clear_all(self):
+        self.search_wid.clear_btn.hide()
+        self.search_wid.clear()
+        self.search_item.reset()
 
     def prepare_text(self):
         """
