@@ -17,7 +17,7 @@ RENAME_T = "Переименовать"
 class FavItem(QLabel):
     remove_fav_item = pyqtSignal()
     renamed = pyqtSignal(str)
-    path_changed = pyqtSignal()
+    path_fixed_sig = pyqtSignal()
     new_history_item = pyqtSignal(str)
     load_st_grid_sig = pyqtSignal(tuple)
     open_in_new_win = pyqtSignal(str)
@@ -63,7 +63,7 @@ class FavItem(QLabel):
                     self.src = fixed_path
                     JsonData.write_config()
                     # подаем сигнал в родительский виджет для обновления ui
-                    self.path_changed.emit()
+                    self.path_fixed_sig.emit()
 
             self.view_fav()
 
@@ -182,7 +182,7 @@ class FavsMenu(QListWidget):
         fav_item.renamed.connect(
             lambda new_name: self.update_name(src, new_name)
         )
-        fav_item.path_changed.connect(self.path_changed_cmd)
+        fav_item.path_fixed_sig.connect(self.path_changed_cmd)
 
         list_item = QListWidgetItem(parent=self)
         list_item.setSizeHint(fav_item.sizeHint())
