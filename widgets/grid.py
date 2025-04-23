@@ -501,7 +501,7 @@ class Grid(UScrollArea):
             self.new_history_item.emit(wid.src)
             self.load_st_grid_sig.emit((wid.src, None))
 
-        elif wid.type_ in Static.IMG_EXT:
+        elif wid.type_ in Static.ext_all:
             # избегаем ошибки кругового импорта
             from .img_view_win import ImgViewWin
             self.win_img_view = ImgViewWin(wid.src, self.url_to_wid)
@@ -586,7 +586,7 @@ class Grid(UScrollArea):
 
             menu_.addSeparator()
 
-        if wid.type_ in (*Static.IMG_EXT, Static.FOLDER_TYPE):
+        if wid.type_ in (*Static.ext_all, Static.FOLDER_TYPE):
             rating_menu = RatingMenu(parent=menu_, urls=urls, current_rating=wid.rating)
             rating_menu.new_rating.connect(self.set_new_rating)
             menu_.addMenu(rating_menu)
@@ -794,7 +794,7 @@ class Grid(UScrollArea):
         - При успешной записи QRunnable испускает сигнал finished
         """
         for wid in self.selected_widgets:
-            if wid.type_ in (*Static.IMG_EXT, Static.FOLDER_TYPE):
+            if wid.type_ in (*Static.ext_all, Static.FOLDER_TYPE):
                 self.task_ = SetDbRating(self.main_dir, wid, new_rating)
                 cmd_ = lambda w=wid: self.set_new_rating_fin(w, new_rating)
                 self.task_.signals_.finished_.connect(cmd_)

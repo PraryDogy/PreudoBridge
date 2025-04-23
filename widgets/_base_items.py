@@ -521,7 +521,7 @@ class SearchItem:
         "Найти tiff": (".tif", ".tiff"),
         "Найти psd/psb": (".psd", ".psb"),
         "Найти raw": (".nef", ".raw"),
-        "Найти любые фото": Static.IMG_EXT
+        "Найти любые фото": Static.ext_all
     }
 
     def __init__(self):

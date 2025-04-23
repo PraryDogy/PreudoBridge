@@ -61,23 +61,27 @@ class Static:
     PARAGRAPH_SEP = "\u2029" # символ PyQt5, который равен новой строке
     LINE_FEED  = "\u000a" # символ PyQt5, который равен новой строке
 
-    LEFT_MENU_W = 240
-
     LINK = "https://disk.yandex.ru/d/vYdK8hMwVbkSKQ"
 
-    IMG_EXT: tuple = (
-        ".jpg", ".jpeg", ".jfif",
-        ".tif", ".tiff",
-        ".psd", ".psb",
-        ".png",
-        ".nef", ".cr2", ".cr3", ".arw", ".raf",
-        ".mov", ".mp4",
-        ".JPG", ".JPEG", ".JFIF",
-        ".TIF", ".TIFF",
-        ".PSD", ".PSB",
-        ".PNG",
-        ".NEF", ".CR2", ".CR3", ".ARW", ".RAF",
-        ".MOV", ".MP4"
+    ext_jpeg = (".jpg", ".jpeg", ".jfif")
+    ext_tiff = (".tif", ".tiff")
+    ext_psd  = (".psd", ".psb")
+    ext_png  = (".png",)
+    ext_raw  = (".nef", ".cr2", ".cr3", ".arw", ".raf")
+    ext_video = (".mov", ".mp4")
+    ext_all = (
+        *ext_jpeg,
+        *ext_tiff,
+        *ext_psd,
+        *ext_png,
+        *ext_raw,
+        *ext_video,
+        *tuple(ext.upper() for ext in ext_jpeg),
+        *tuple(ext.upper() for ext in ext_tiff),
+        *tuple(ext.upper() for ext in ext_psd),
+        *tuple(ext.upper() for ext in ext_png),
+        *tuple(ext.upper() for ext in ext_raw),
+        *tuple(ext.upper() for ext in ext_video)
     )
 
 class ThumbData:

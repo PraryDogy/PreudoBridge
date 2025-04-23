@@ -239,7 +239,7 @@ class LoadImages(URunnable):
                 return
                         
             try:
-                if thumb.type_ not in Static.IMG_EXT:
+                if thumb.type_ not in Static.ext_all:
                     AnyBaseItem.check_db_record(self.conn, thumb)
                 else:
                     pixmap = ImageBaseItem.get_pixmap(self.conn, thumb)

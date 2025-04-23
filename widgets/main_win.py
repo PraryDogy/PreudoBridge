@@ -81,6 +81,7 @@ class MainWin(QWidget):
     height_ = 700
     min_width_ = 800
     min_height_ = 500
+    left_menu_width = 240
 
     def __init__(self, dir: str = None):
         super().__init__()
@@ -143,7 +144,7 @@ class MainWin(QWidget):
         self.splitter.setStretchFactor(0, 0)
         self.splitter.setStretchFactor(1, 1)
         self.splitter.setSizes(
-            [Static.LEFT_MENU_W, self.width() - Static.LEFT_MENU_W]
+            [MainWin.left_menu_width, self.width() - MainWin.left_menu_width]
         )
 
         self.r_lay = QVBoxLayout()
@@ -279,7 +280,7 @@ class MainWin(QWidget):
         if not os.path.exists(filepath):
             return
 
-        if filepath.endswith(Static.IMG_EXT):
+        if filepath.endswith(Static.ext_all):
             self.main_dir = os.path.dirname(filepath)
             self.load_standart_grid((self.main_dir, filepath))
         else:

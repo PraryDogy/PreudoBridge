@@ -305,7 +305,7 @@ class ImgViewWin(WinBase):
             }
         self.image_paths: list = [
             i for i in self.url_to_wid.keys()
-            if os.path.isfile(i) and i.endswith(Static.IMG_EXT)
+            if os.path.isfile(i) and i.endswith(Static.ext_all)
             ]
 
         self.mouse_move_timer = QTimer(self)
@@ -341,7 +341,7 @@ class ImgViewWin(WinBase):
         self.text_label.hide()
         self.set_title()
 
-        if self.src.endswith(Static.IMG_EXT):
+        if self.src.endswith(Static.ext_all):
             QTimer.singleShot(100 , self.load_thumbnail)
 
 # SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM
