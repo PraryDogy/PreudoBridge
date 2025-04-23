@@ -160,18 +160,9 @@ class SearchFinder(URunnable):
                     return
                 while self.pause:
                     sleep(1)
-                # Если это директория, добавляем ее в dirs_list, чтобы позже
-                # обойти эту директорию в scan_current_dir
                 if entry.is_dir():
                     dirs_list.append(entry.path)
-                    continue
-                # Передаем DirEntry и список имен для обработки в process_enry.
-                # При этом неважно, пуст список или нет, т.к. при поиске
-                # по списку на process_entry назначается функция, которая
-                # сможет обработать этот список, в иных случаях на 
-                # process_entry назначаются функции, которые проигнорируют
-                # этот список читай setup_text.
-                if self.process_entry(entry):
+                elif self.process_entry(entry):
                     self.process_img(entry)
 
     def process_img(self, entry: os.DirEntry):
