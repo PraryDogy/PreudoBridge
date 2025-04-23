@@ -375,31 +375,6 @@ class MainWin(QWidget):
         else:
             self.scroll_up.show()
     
-    def user_exit(self):
-        return
-
-        # предотвращает segmentation fault
-
-        wids = (
-            self.scroll_up,
-            self.menu_favs,
-            self.menu_tree,
-            self.menu_tabs,
-            self.bar_top,
-            self.grid,
-            self.path_bar
-            )
-        
-        for i in wids:
-            i.close()
-
-        for i in self.findChildren(QWidget):
-            i.close()
-
-        a = QApplication.instance().children()
-        for i in a:
-            del(i)
-        
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         MainWin.width_ = self.geometry().width()
         MainWin.height_ = self.geometry().height()
