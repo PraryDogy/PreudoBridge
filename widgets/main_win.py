@@ -314,6 +314,7 @@ class MainWin(QWidget):
         self.search_bar_sep.show()
         self.bar_top.set_main_dir(self.main_dir)
         self.menu_favs.set_main_dir(self.main_dir)
+        self.search_bar.show_spinner()
 
         self.grid = GridSearch(self.main_dir, self.view_index, None)
         self.grid.finished_.connect(self.search_bar.hide_spinner)
