@@ -108,9 +108,9 @@ class ListWin(MinMaxDisabledWin):
 class SearchWidget(QWidget):
 
     # в MainWin посылается сигнал для загрузки GridStandart
-    search_was_cleaned = pyqtSignal()
+    load_st_grid_sig = pyqtSignal()
     # в MainWin посылается сигнал для загрузки GridSearch
-    start_search = pyqtSignal()
+    load_search_grid_sig = pyqtSignal()
 
     def __init__(self, search_item: SearchItem):
         super().__init__()
@@ -174,7 +174,7 @@ class SearchWidget(QWidget):
             self.input_timer.start(1500)
         else:
             self.clear_all()
-            self.search_was_cleaned.emit()
+            self.load_st_grid_sig.emit()
 
     def clear_all(self):
         self.search_wid.clear_btn.hide()
@@ -211,7 +211,7 @@ class SearchWidget(QWidget):
         else:
             self.search_item.set_text(self.search_text)
 
-        self.start_search.emit()
+        self.load_search_grid_sig.emit()
 
     def show_templates(self, a0: QMouseEvent | None) -> None:
         """
@@ -305,8 +305,8 @@ class TopBar(QWidget):
         self.main_lay.addStretch(1)
 
         self.search_wid = SearchWidget(self.search_item)
-        self.search_wid.start_search.connect(self.start_search.emit)
-        self.search_wid.search_was_cleaned.connect(self.search_was_cleaned.emit)
+        self.search_wid.load_search_grid_sig.connect(self.start_search.emit)
+        self.search_wid.load_st_grid_sig.connect(self.search_was_cleaned.emit)
         self.main_lay.addWidget(self.search_wid)
 
         self.index_ -= 1
