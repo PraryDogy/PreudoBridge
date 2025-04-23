@@ -330,12 +330,26 @@ class MinMaxDisabledWin(WinBase):
 
 
 class Sort:
+    """
+    Класс Sort содержит перечень атрибутов, которые можно использовать для сортировки.
+
+    Правила:
+    - Все атрибуты (например, name, type_, size) задаются как строковые константы,
+    чтобы избежать повторения строк вручную по коду.
+    - Словарь `items` хранит соответствие между внутренним именем поля (ключ)
+    и его отображением в интерфейсе (значение).
+    - При добавлении или удалении атрибутов:
+        - обязательно обновляйте как список атрибутов в этом классе,
+        - так и соответствующие элементы в классе BaseItem.
+    """
+
     name = "name"
     type_ = "type_"
     size = "size"
     mod = "mod"
     birth = "birth"
     rating = "rating"
+    test = "test"
 
     items: dict[str, str] = {
         name : "Имя",
@@ -343,7 +357,8 @@ class Sort:
         size : "Размер",
         mod : "Дата изменения",
         birth: "Дата создания",
-        rating : "Рейтинг"
+        rating : "Рейтинг",
+        test: "test"
     }
 
 
@@ -421,16 +436,7 @@ class BaseItem:
         base_item = BaseItem("/no/path/file.txt")
         for column_name, _ in Sort.items.items():
             if not hasattr(base_item, column_name):
-                t = [
-                    "",
-                    "", 
-                    "base_widgets.py > BaseItem",
-                    "В BaseItem не хватает аттрибута из Sort.items",
-                    f"Аттрибут: {column_name}",
-                    ""
-                ]
-                error_text = "\n".join(t)
-                raise Exception (error_text)
+                raise Exception (f"base_widgets.py > BaseItem: не хватает аттрибута из Sort.items. Аттрибут: {column_name}")
 
     @classmethod
     def sort_items(cls, base_items: list["BaseItem"]) -> list["BaseItem"]:
