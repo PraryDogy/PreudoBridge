@@ -36,6 +36,8 @@ class SearchFinder(URunnable):
         self.signals_ = WorkerSignals()
         self.main_dir = main_dir
         self.search_item = search_item
+        self.search_list_lower: list[str] = None
+        self.search_text_lower: str = None
 
         self.db_path: str = None
         self.conn = None
@@ -43,6 +45,7 @@ class SearchFinder(URunnable):
 
     @URunnable.set_running_state
     def run(self):
+        print(self.search_item.get_extensions())
         try:
             self.setup_search()
             self.scandir_recursive()
@@ -52,46 +55,48 @@ class SearchFinder(URunnable):
 
     def compare_words(self, word1: str, word2: str):
         return SequenceMatcher(None, word1, word2).ratio()
+    
+    def remove_extension(self, filename: str):
+        return os.path.splitext(filename)
 
     def setup_search(self):
-        if self.search_item.get_search_list():
+        if self.search_item.get_files_list():
             if self.search_item.get_exactly():
                 self.process_entry = self.proc_list_exactly
             else:
                 self.process_entry = self.proc_list_free
+            for i in self.search_item.get_files_list():
+                _, filename = self.remove_extension(i)
+                self.search_list_lower.append(filename.lower())
 
-        elif self.search_item.get_search_extensions():
+        elif self.search_item.get_extensions():
             self.process_entry = self.process_extensions
 
         # последним мы проверяем search item search text, так как search text
         # есть и при поиске по шаблонам и при поиске по списку
-        elif self.search_item.get_search_text():
+        elif self.search_item.get_text():
             if self.search_item.get_exactly():
                 self.process_entry = self.process_text_exactly
             else:
                 self.process_entry = self.process_text_free
 
-
-
-
-
     # базовый метод обработки os.DirEntry
-    def process_entry(self, entry: os.DirEntry, search_list_lower: list[str]): ...
+    def process_entry(self, entry: os.DirEntry): ...
 
-    def process_extensions(self, entry: os.DirEntry, search_list_lower: list[str]):
+    def process_extensions(self, entry: os.DirEntry):
         # Поиск файлов с определенным расширением.
         path = entry.path
         path: str = path.lower()
-        if path.endswith(self.search_item.get_search_extensions()):
+        if path.endswith(self.search_item.get_extensions()):
             return True
         else:
             return False
 
-    def process_text_free(self, entry: os.DirEntry, search_list_lower: list[str]):
+    def process_text_free(self, entry: os.DirEntry):
         # Поиск файлов с именем.
-        filename: str = entry.name
+        _, filename = self.remove_extension(entry.name)
         filename: str = filename.lower()
-        search_text: str = self.search_item.get_search_text().lower()
+        search_text: str = self.search_item.get_text().lower()
 
         if self.compare_words(search_text, filename) > SearchFinder.search_value:
             return True
@@ -100,29 +105,29 @@ class SearchFinder(URunnable):
         else:
             return False
         
-    def process_text_exactly(self, entry: os.DirEntry, search_list_lower: list[str]):
+    def process_text_exactly(self, entry: os.DirEntry):
         # Поиск файлов с именем.
         filename: str = entry.name
         filename: str = filename.lower()
-        search_text: str = self.search_item.get_search_text().lower()
+        search_text: str = self.search_item.get_text().lower()
 
         if filename == search_text:
             return True
         else:
             return False
 
-    def proc_list_exactly(self, entry: os.DirEntry, search_list_lower: list[str]):
-        filename: str = entry.name
+    def proc_list_exactly(self, entry: os.DirEntry):
+        _, filename = self.remove_extension(entry.name)
         filename: str = filename.lower()
-        for item in search_list_lower:
+        for item in self.search_list_lower:
             if filename == item:
                 return True
         return False
 
-    def proc_list_free(self, entry: os.DirEntry, search_list_lower: list[str]):
-        filename: str = entry.name
+    def proc_list_free(self, entry: os.DirEntry):
+        _, filename = self.remove_extension(entry.name)
         filename: str = filename.lower()
-        for item in search_list_lower:
+        for item in self.search_list_lower:
             if self.compare_words(item, filename) > SearchFinder.search_value:
                 return True
             elif item in filename or filename in item:
@@ -133,10 +138,10 @@ class SearchFinder(URunnable):
         # Инициализируем список с корневым каталогом
         dirs_list = [self.main_dir]
 
-        if self.search_item.get_search_list():
+        if self.search_item.get_files_list():
             search_list_lower = [
                 i.lower()
-                for i in self.search_item.get_search_list()
+                for i in self.search_item.get_files_list()
             ]
         else:
             search_list_lower = []
@@ -317,13 +322,13 @@ class GridSearch(Grid):
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0)
 
-        elif self.search_item.get_search_list():
+        elif self.search_item.get_files_list():
 
             done_src = [i.name for i in self.cell_to_wid.values()]
 
             missed_files = [
                 i
-                for i in self.search_item.get_search_list()
+                for i in self.search_item.get_files_list()
                 if i not in done_src
             ]
 

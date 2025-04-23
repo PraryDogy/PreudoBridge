@@ -33,7 +33,7 @@ class SearchBar(QFrame):
     def show(self):
         self.checkbox.setChecked(self.search_item.exactly)
 
-        if self.search_item.get_search_extensions():
+        if self.search_item.get_extensions():
             self.checkbox.setDisabled(True)
         else:
             self.checkbox.setDisabled(False)

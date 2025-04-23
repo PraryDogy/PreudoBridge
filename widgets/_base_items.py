@@ -513,28 +513,31 @@ class SearchItem:
     def __init__(self):
         super().__init__()
 
-        self.search_text: str = None
-        self.search_extensions: str = None
-        self.search_list: list[str] = None
+        self.text_: str = None
+        self.extensions_: str = None
+        self.files_list_: list[str] = None
         self.exactly: bool = False
 
-    def set_search_text(self, text: str):
-        self.search_text = text
+    def set_text(self, text: str):
+        self.text_ = text
     
-    def get_search_text(self):
-        return self.search_text
+    def get_text(self):
+        return self.text_
     
-    def set_search_extenstions(self, template: str):
-        self.search_extensions = template
+    def set_extenstions(self, template: str):
+        self.extensions_ = template
 
-    def get_search_extensions(self):
-        return self.search_extensions
+    def get_extensions(self):
+        """
+        Возвращает кортеж или простой текст с расширением файлов в нижнем регистре
+        """
+        return self.extensions_
     
-    def set_search_list(self, search_list: list[str]):
-        self.search_list = search_list
+    def set_files_list(self, search_list: list[str]):
+        self.files_list_ = search_list
 
-    def get_search_list(self):
-        return self.search_list
+    def get_files_list(self):
+        return self.files_list_
     
     def set_exactly(self, exactly: bool):
         self.exactly = exactly
@@ -547,7 +550,7 @@ class SearchItem:
         search_text, search_list, search_extensions = None
         search.exactly = False
         """
-        self.search_text = None
-        self.search_list = None
-        self.search_extensions = None
+        self.text_ = None
+        self.files_list_ = None
+        self.extensions_ = None
         self.exactly = False

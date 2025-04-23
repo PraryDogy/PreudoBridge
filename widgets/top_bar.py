@@ -200,13 +200,13 @@ class SearchWidget(QWidget):
 
         if self.search_text in SearchItem.SEARCH_EXTENSIONS:
             extensions = SearchItem.SEARCH_EXTENSIONS.get(self.search_text)
-            self.search_item.set_search_extenstions(extensions)
+            self.search_item.set_extenstions(extensions)
 
         elif self.search_text == SearchItem.SEARCH_LIST_TEXT:
-            self.search_item.set_search_list(self.search_list_local)
+            self.search_item.set_files_list(self.search_list_local)
 
         else:
-            self.search_item.set_search_text(self.search_text)
+            self.search_item.set_text(self.search_text)
 
         self.start_search.emit()
 
