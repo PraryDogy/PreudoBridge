@@ -6,7 +6,6 @@ from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QPixmap
 from PyQt5.QtWidgets import QLabel
 from sqlalchemy import Connection, insert, select, update
-from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Dynamic, Static, ThumbData
 from database import CACHE, ColumnNames, Dbase
@@ -16,8 +15,6 @@ from utils import URunnable, UThreadPool, Utils
 from ._base_items import BaseItem
 from .finder_items import FinderItems, LoadingWid
 from .grid import Grid, Thumb
-
-WARN_TEXT = "Папка пуста или нет подключения к диску"
 
 
 class AnyBaseItem:
@@ -248,6 +245,8 @@ class LoadImages(URunnable):
 
 
 class GridStandart(Grid):
+    no_images_text = "Папка пуста или нет подключения к диску"
+
     def __init__(self, main_dir: str, view_index: int, url_for_select: str):
         """
         Стандартная сетка виджетов.
@@ -345,7 +344,7 @@ class GridStandart(Grid):
         col_count = self.get_col_count()
 
         if not base_items:
-            no_images = QLabel(text=WARN_TEXT)
+            no_images = QLabel(GridStandart.no_images_text)
             no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0)
