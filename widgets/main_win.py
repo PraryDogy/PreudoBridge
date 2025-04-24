@@ -317,19 +317,26 @@ class MainWin(QWidget):
         self.search_bar.show_spinner()
 
         self.grid = GridSearch(self.main_dir, self.view_index, None)
-        self.grid.finished_.connect(self.finished_search_grid)
+        self.grid.finished_.connect(lambda id_=id(self.grid): self.finished_search_grid(id_))
         self.grid.set_search_item(self.search_item)
         self.grid.start_search()
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
         self.setup_grid_signals()
 
-    def finished_search_grid(self):
-        if isinstance(self.grid, GridSearch):
-            try:
-                if not self.grid.task_.is_running:
-                    self.search_bar.hide_spinner()
-            except Exception as e:
-                print(e)
+    def finished_search_grid(self, id_: int):
+        """
+        Обрабатывает сигнал завершения поиска в GridSearch.
+
+        - При подключении сигнала к слоту передаётся идентификатор (id) текущей активной сетки.
+        - В момент получения сигнала проверяется, совпадает ли id_ с id текущей self.grid.
+        - Если совпадает — скрывает индикатор загрузки (spinner) в панели поиска.
+        - Если не совпадает — сигнал пришёл от устаревшей сетки, игнорируем.
+
+        Это предотвращает реакцию на завершение поиска от уже неактуальных экземпляров GridSearch,
+        которые могли быть заменены во время ожидания завершения предыдущего поиска.
+        """
+        if id_ == id(self.grid):
+            self.search_bar.hide_spinner()
 
     def load_standart_grid(self, data: tuple):
         """
