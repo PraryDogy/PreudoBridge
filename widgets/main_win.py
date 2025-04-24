@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
 from cfg import Dynamic, JsonData, Static
 from utils import Utils
 
-from ._base_items import BaseItem, SearchItem, USep
+from ._base_items import BaseItem, SearchItem, USep, WinBase
 from .favs_menu import FavsMenu
 from .grid import Grid
 from .grid_list import GridList
@@ -74,7 +74,7 @@ class TagsBtn(QWidget):
             self.click_cmd()
 
 
-class MainWin(QWidget):
+class MainWin(WinBase):
     resize_ms = 100
     grid_insert_num = 4
     width_ = 1050

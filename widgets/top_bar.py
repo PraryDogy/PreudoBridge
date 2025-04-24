@@ -3,13 +3,13 @@ import os
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QAction, QGroupBox, QHBoxLayout, QLabel,
-                             QPushButton, QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QAction, QApplication, QGroupBox, QHBoxLayout,
+                             QLabel, QPushButton, QVBoxLayout, QWidget)
 
 from cfg import Static
 
 from ._base_items import (MinMaxDisabledWin, SearchItem, UFrame, ULineEdit,
-                          UMenu, UTextEdit)
+                          UMenu, UTextEdit, WinBase)
 from .settings_win import SettingsWin
 
 
@@ -300,6 +300,11 @@ class TopBar(QWidget):
 
         self.main_lay.addStretch(1)
 
+        cascade_btn = BarTopBtn()
+        cascade_btn.mouseReleaseEvent = lambda e: self.cascade_windows()
+        cascade_btn.load(Static.NEW_WIN_SVG)
+        self.main_lay.addWidget(cascade_btn)
+
         self.new_win_btn = BarTopBtn()
         self.new_win_btn.mouseReleaseEvent = lambda e: self.open_in_new_win.emit("")
         self.new_win_btn.load(Static.NEW_WIN_SVG)
@@ -326,6 +331,25 @@ class TopBar(QWidget):
         self.search_wid.load_search_grid_sig.connect(self.load_search_grid_sig.emit)
         self.search_wid.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
         self.main_lay.addWidget(self.search_wid)
+
+    def cascade_windows(self):
+        wins: list[WinBase] = []
+        for i in QApplication.topLevelWidgets():
+            if isinstance(i, WinBase):
+                wins.append(i)
+        sorted_widgets = sorted(wins, key=lambda w: w.width() * w.height(), reverse=True)
+
+        # Начальная позиция и смещение каскада
+        x, y = self.window().x(), self.window().y()
+        dx, dy = 30, 30
+
+        # Показываем и размещаем каскадом
+        for w in sorted_widgets:
+            w.move(x, y)
+            x += dx
+            y += dy
+            w.show()
+            w.raise_()
 
     def open_settings_win(self, *args):
         """
