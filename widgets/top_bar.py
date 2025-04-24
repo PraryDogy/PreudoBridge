@@ -341,6 +341,8 @@ class TopBar(QWidget):
             self.history_items.pop(-1)
 
         self.history_items.append(dir)
+
+        # установить текущий индекс на последний индекс списка
         self.current_index = len(self.history_items) - 1
 
     def navigate_cmd(self, offset: int):
