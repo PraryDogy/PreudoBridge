@@ -116,6 +116,7 @@ class SearchWidget(QWidget):
         super().__init__()
         self.search_item = search_item
         self.main_dir: str = None
+        self.stop_flag: bool = False
 
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(0, 0, 0, 0)
@@ -153,14 +154,28 @@ class SearchWidget(QWidget):
 
         self.search_list_local: list[str] = []
 
-    def clear_without_signal(self):
+    def clean_search(self):
         """
-        - Очищает поле ввода без сигнала textChanged
-        - load standrt grid всегда очищает поиск при инициации
+        - Устанавливает стоп флаг на True
+        - Очищает поиск: поле ввода, SearchItem
+        - Скрывает кнопку "очистить" в поле ввода
+        - Устанавливает стоп флаг на False
+
+        Функция clean_search вызывается из MainWindow при каждой загрузке
+        GridStandart.   
+        Функция on_text_changed отслеживает изменения в поле ввода, и если
+        не установить стоп флаг, то произойдет задваивание загрузки GridStadart:
+        - Загружается GridStandart и очищается поле ввода
+        - on_text_changed отслеживает изменение в поле ввода
+        - on_text_changed запускает инструцкцию когда поле ввода пустое:
+            - Очищает поиск
+            - Испускает сигнал load_st_grid_sig, чтобы в MainWin начать
+            загрузку GridStandart
+        - таким образом и происходит задваивание загрузки GridStandart
         """
-        self.search_wid.textChanged.disconnect()
+        self.stop_flag = True
         self.clear_all()
-        self.search_wid.textChanged.connect(self.on_text_changed)
+        self.stop_flag = False
 
     def on_text_changed(self, text: str):
         """
@@ -168,6 +183,8 @@ class SearchWidget(QWidget):
         Отложенно запускает prepare_text
         Еслит текста нет - испускает сигнал в MainWin для загрузки GridStandart
         """
+        if self.stop_flag:
+            return
         if text:
             self.search_text = text
             self.input_timer.stop()
