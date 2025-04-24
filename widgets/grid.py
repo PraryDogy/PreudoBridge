@@ -831,7 +831,10 @@ class Grid(UScrollArea):
         Очищает список выделенных виджетов и снимает визуальное выделение с них
         """
         for i in self.selected_widgets:
-            i.set_no_frame()
+            try:
+                i.set_no_frame()
+            except RuntimeError:
+                ...
         self.selected_widgets.clear()
 
     def select_widget(self, wid: Thumb):
