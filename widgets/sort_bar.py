@@ -248,7 +248,7 @@ class GoToWin(MinMaxDisabledWin):
         - flag FINDER_T откроет Finder по указанному пути
         """
         if not result:
-            self.close()
+            self.deleteLater()
             return
         if flag == FINDER_T:
             self.open_finder(result)
@@ -260,7 +260,7 @@ class GoToWin(MinMaxDisabledWin):
                 main_dir = result
                 select_path = None
             self.load_st_grid_sig.emit((main_dir, select_path))
-        self.close()
+        self.deleteLater()
 
     def open_finder(self, dest: str):
         """
@@ -273,7 +273,7 @@ class GoToWin(MinMaxDisabledWin):
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() == Qt.Key.Key_Escape:
-            self.close()
+            self.deleteLater()
 
 
 class GoToBtn(UFrame):

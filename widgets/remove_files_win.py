@@ -81,7 +81,7 @@ class RemoveFilesWin(MinMaxDisabledWin):
         h_lay.addWidget(ok_btn)
 
         can_btn = QPushButton(text=CANCEL_T)
-        can_btn.clicked.connect(self.close)
+        can_btn.clicked.connect(self.deleteLater)
         can_btn.setFixedWidth(90)
         h_lay.addWidget(can_btn)
 
@@ -97,12 +97,10 @@ class RemoveFilesWin(MinMaxDisabledWin):
     def finalize(self, *args):
         self.finished_.emit(self.urls)
         del self.task_
-        self.close()
         self.deleteLater()
 
     def keyPressEvent(self, a0):
         if a0.key() == Qt.Key.Key_Escape:
-            self.close()
             self.deleteLater()
 
         elif a0.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):

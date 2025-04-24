@@ -308,7 +308,7 @@ class MainWin(WinBase):
         self.grid.verticalScrollBar().valueChanged.connect(lambda value: self.scroll_up_show_hide(value))
 
     def load_search_grid(self):
-        self.grid.close()
+        self.grid.deleteLater()
         self.menu_tags.reset()
         self.search_bar.show()
         self.search_bar_sep.show()
@@ -346,7 +346,7 @@ class MainWin(WinBase):
         - url_for_select: виджет сетки, соответствующий url_for select, будет выделен
         после инициации сетки виджетов
         """
-        self.grid.close()
+        self.grid.deleteLater()
         new_main_dir, url_for_select = data
 
         if new_main_dir:

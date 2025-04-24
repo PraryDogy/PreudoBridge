@@ -3,9 +3,8 @@ import os
 
 import sqlalchemy
 from PyQt5.QtCore import QEvent, QObject, QPoint, QSize, Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import (QCloseEvent, QColor, QContextMenuEvent, QKeyEvent,
-                         QMouseEvent, QPainter, QPaintEvent, QPixmap,
-                         QResizeEvent)
+from PyQt5.QtGui import (QColor, QContextMenuEvent, QKeyEvent, QMouseEvent,
+                         QPainter, QPaintEvent, QPixmap, QResizeEvent)
 from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QSpacerItem,
                              QVBoxLayout, QWidget)
 
@@ -14,7 +13,8 @@ from database import CACHE, Dbase, DbaseTools
 from utils import URunnable, UThreadPool, Utils
 
 from ._base_items import UMenu, USvgSqareWidget, WinBase
-from .actions import CopyPath, Info, OpenInApp, RatingMenu, RevealInFinder, CopyName
+from .actions import (CopyName, CopyPath, Info, OpenInApp, RatingMenu,
+                      RevealInFinder)
 from .grid import KEY_RATING, RATINGS, Thumb
 from .info_win import InfoWin
 
@@ -465,7 +465,7 @@ class ImgViewWin(WinBase):
             self.switch_img(1)
 
         elif ev.key() == Qt.Key.Key_Escape:
-            self.close()
+            self.deleteLater()
 
         elif ev.key() == Qt.Key.Key_Equal:
             self.img_label.zoom_in()
@@ -477,7 +477,7 @@ class ImgViewWin(WinBase):
             self.img_label.zoom_reset()
 
         elif ev.key() == Qt.Key.Key_Space:
-            self.close()
+            self.deleteLater()
 
         elif ev.key() in KEY_RATING:
             rating = KEY_RATING.get(ev.key())
@@ -518,9 +518,10 @@ class ImgViewWin(WinBase):
     def leaveEvent(self, a0: QEvent | None) -> None:
         self.hide_btns()
 
-    def closeEvent(self, a0: QCloseEvent | None) -> None:
+    def deleteLater(self):
         LoadImage.cached_images.clear()
         self.closed_.emit()
+        super().deleteLater()
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         menu = UMenu(parent=self)

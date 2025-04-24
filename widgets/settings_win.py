@@ -4,7 +4,7 @@ import subprocess
 from datetime import datetime
 
 from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import QCloseEvent, QKeyEvent
+from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QGroupBox, QHBoxLayout, QLabel, QPushButton,
                              QVBoxLayout, QWidget)
@@ -179,12 +179,13 @@ class SettingsWin(MinMaxDisabledWin):
 
         self.adjustSize()
         self.setFixedSize(self.width() + 30, self.height())
-
-    def closeEvent(self, a0: QCloseEvent | None) -> None:
-        if hasattr(self, "task_") and self.task_.is_running:
-            self.task_.should_run = False
-        JsonData.write_config()
     
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() == Qt.Key.Key_Escape:
-            self.close()
+            self.deleteLater()
+
+    def deleteLater(self):
+        if hasattr(self, "task_") and self.task_.is_running:
+            self.task_.should_run = False
+        JsonData.write_config()
+        super().deleteLater()

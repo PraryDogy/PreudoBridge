@@ -3,7 +3,7 @@ import os
 
 import numpy as np
 from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import QCloseEvent, QPixmap
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QLabel
 from sqlalchemy import Connection, insert, select, update
 
@@ -435,13 +435,10 @@ class GridStandart(Grid):
         except RuntimeError:
             ...
 
-    def closeEvent(self, a0: QCloseEvent | None) -> None:
-        """
-        Останавливает все QRunnable 
-        """
+    def deleteLater(self):
         for i in self.load_images_threads:
             i.should_run = False
-        return super().closeEvent(a0)
+        super().deleteLater()
 
     def resizeEvent(self, a0):
         self.loading_lbl.center(self)

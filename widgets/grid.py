@@ -685,7 +685,7 @@ class Grid(UScrollArea):
         """
         Открывает окно ошибки копирования файлов
         """
-        self.win_copy.close()
+        self.win_copy.deleteLater()
         self.error_win = ErrorWin()
         self.error_win.center(self.window())
         self.error_win.show()

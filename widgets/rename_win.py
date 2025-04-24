@@ -52,7 +52,7 @@ class RenameWin(MinMaxDisabledWin):
         h_lay.addWidget(self.ok_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
         cancel_btn = QPushButton(text=CANCEL_T)
-        cancel_btn.clicked.connect(self.close)
+        cancel_btn.clicked.connect(self.deleteLater)
         cancel_btn.setFixedWidth(90)
         h_lay.addWidget(cancel_btn)
 
@@ -60,11 +60,11 @@ class RenameWin(MinMaxDisabledWin):
 
     def finish_rename(self):
         self.finished_.emit(self.input_wid.text())
-        self.close()
+        self.deleteLater()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() == Qt.Key.Key_Escape:
-            self.close()
+            self.deleteLater()
         elif a0.key() == Qt.Key.Key_Return:
             self.finish_rename()
         return super().keyPressEvent(a0)

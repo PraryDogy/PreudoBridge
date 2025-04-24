@@ -90,7 +90,7 @@ class ListWin(MinMaxDisabledWin):
         btns_lay.addWidget(ok_btn)
 
         can_btn = QPushButton("Отмена")
-        can_btn.clicked.connect(self.close)
+        can_btn.clicked.connect(self.deleteLater)
         can_btn.setFixedWidth(100)
         btns_lay.addWidget(can_btn)
 
@@ -104,11 +104,11 @@ class ListWin(MinMaxDisabledWin):
         search_list = self.input_.toPlainText()
         search_list = [i.strip() for i in search_list.split("\n") if i]
         self.finished_.emit(search_list)
-        self.close()
+        self.deleteLater()
 
     def keyPressEvent(self, a0):
         if a0.key() == Qt.Key.Key_Escape:
-            self.close()
+            self.deleteLater()
 
  
 class SearchWidget(ULineEdit):

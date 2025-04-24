@@ -3,7 +3,6 @@ from difflib import SequenceMatcher
 from time import sleep
 
 from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import QCloseEvent
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
 
@@ -225,13 +224,13 @@ class WinMissedFiles(MinMaxDisabledWin):
         h_wid.setLayout(h_lay)
 
         ok_btn = QPushButton(text="Ок")
-        ok_btn.clicked.connect(self.close)
+        ok_btn.clicked.connect(self.deleteLater)
         ok_btn.setFixedWidth(90)
         h_lay.addWidget(ok_btn)
 
     def keyPressEvent(self, a0):
         if a0.key() == Qt.Key.Key_Escape:
-            self.close()
+            self.deleteLater()
         return super().keyPressEvent(a0)
 
 
@@ -368,7 +367,8 @@ class GridSearch(Grid):
         self.resize_()
         return super().resizeEvent(a0)
     
-    def closeEvent(self, a0: QCloseEvent | None) -> None:
+    def deleteLater(self):
         if self.task_:
             self.task_.should_run = False
             self.task_.pause = False
+        super().deleteLater()

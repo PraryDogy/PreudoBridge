@@ -213,7 +213,7 @@ class ErrorWin(MinMaxDisabledWin):
         h_lay.addWidget(test_two)
 
         ok_btn = QPushButton("Ок")
-        ok_btn.clicked.connect(self.close)
+        ok_btn.clicked.connect(self.deleteLater)
         ok_btn.setFixedWidth(90)
         main_lay.addWidget(ok_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
@@ -221,9 +221,9 @@ class ErrorWin(MinMaxDisabledWin):
 
     def keyPressEvent(self, a0):
         if a0.key() == Qt.Key.Key_Escape:
-            self.close()
+            self.deleteLater()
         elif a0.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
-            self.close()
+            self.deleteLater()
         return super().keyPressEvent(a0)
 
 
@@ -311,14 +311,14 @@ class CopyFilesWin(MinMaxDisabledWin):
         progress.setValue(value)
 
     def cancel_cmd(self, *args):
-        self.close()
+        self.deleteLater()
 
     def finished_task(self, urls: list[str]):
-        self.close()
+        self.deleteLater()
         self.finished_.emit(urls)
         del self.task_
 
-    def closeEvent(self, a0):
+    def deleteLater(self):
         if self.task_:
             self.task_.should_run = False
-        self.close()
+        super().deleteLater()

@@ -1,14 +1,14 @@
 import os
 
 from PyQt5.QtCore import QDir, Qt
-from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QKeyEvent
+from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import QFileSystemModel, QTableView
 
 from cfg import JsonData
 
 from ._base_items import UMenu, UTableView
-from .actions import (ChangeViewMenu, CopyPath, FavAdd, FavRemove, Info,
-                      RevealInFinder, CopyName)
+from .actions import (ChangeViewMenu, CopyName, CopyPath, FavAdd, FavRemove,
+                      Info, RevealInFinder)
 from .finder_items import LoadingWid
 from .info_win import InfoWin
 
@@ -79,12 +79,12 @@ class GridList(UTableView):
         self.win_info.center(self.window())
         self.win_info.show()
 
-    def closeEvent(self, a0: QCloseEvent | None) -> None:
+    def deleteLater(self):
         index = self.currentIndex()
         path = self._model.filePath(index)
         path = os.path.abspath(path)
         GridList.sizes = [self.columnWidth(i) for i in range(0, 4)]
-        return super().closeEvent(a0)
+        super().deleteLater()
 
     def contextMenuEvent(self, event: QContextMenuEvent):
         index = self.indexAt(event.pos())

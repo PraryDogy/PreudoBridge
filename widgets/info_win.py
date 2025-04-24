@@ -1,13 +1,13 @@
 import os
 
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
-from PyQt5.QtGui import QCloseEvent, QContextMenuEvent, QKeyEvent
+from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import QAction, QGridLayout, QLabel
 
 from cfg import Static
 from utils import URunnable, UThreadPool, Utils
 
-from ._base_items import BaseItem, UMenu, MinMaxDisabledWin
+from ._base_items import BaseItem, MinMaxDisabledWin, UMenu
 from .actions import CopyText, RevealInFinder
 
 CALCULATING = "Вычисляю..."
@@ -220,9 +220,9 @@ class InfoWin(MinMaxDisabledWin):
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() in (Qt.Key.Key_Escape, Qt.Key.Key_Return):
-            self.close()
-
-    def closeEvent(self, a0: QCloseEvent | None) -> None:
+            self.deleteLater()
+    
+    def deleteLater(self):
         if hasattr(self, "task_"):
             self.task_.should_run = False
-        return super().closeEvent(a0)
+        super().deleteLater()
