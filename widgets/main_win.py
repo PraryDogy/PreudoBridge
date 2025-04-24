@@ -300,12 +300,12 @@ class MainWin(QWidget):
         self.grid.fav_cmd_sig.connect(lambda data: self.menu_favs.fav_cmd(data))
         self.grid.move_slider_sig.connect(lambda value: self.sort_bar.slider.move_from_keyboard(value))
         self.grid.load_st_grid_sig.connect(lambda data: self.load_standart_grid(data))
-        self.grid.verticalScrollBar().valueChanged.connect(lambda value: self.scroll_up_show_hide(value))
         self.grid.open_in_new_window.connect(lambda dir: self.open_in_new_window_cmd(dir))
         self.grid.level_up.connect(lambda: self.level_up_cmd())
         self.grid.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
         self.grid.change_view_sig.connect(lambda index: self.change_view_cmd(index))
         self.grid.force_load_images_sig.connect(lambda urls: self.grid.force_load_images_cmd(urls))
+        self.grid.verticalScrollBar().valueChanged.connect(lambda value: self.scroll_up_show_hide(value))
 
     def load_search_grid(self):
         self.grid.close()
@@ -318,10 +318,10 @@ class MainWin(QWidget):
 
         self.grid = GridSearch(self.main_dir, self.view_index, None)
         self.grid.finished_.connect(self.finished_search_grid)
-        self.setup_grid_signals()
         self.grid.set_search_item(self.search_item)
         self.grid.start_search()
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
+        self.setup_grid_signals()
 
     def finished_search_grid(self):
         if isinstance(self.grid, GridSearch):
