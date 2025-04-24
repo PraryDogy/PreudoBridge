@@ -202,7 +202,7 @@ class ULineEdit(QLineEdit):
         else:
             self.clear_btn.hide()
 
-    def clear_btn_vcenter(self):
+    def move_clear_btn(self):
         """
         Перемещает кнопку "стереть" вертикально по центру и к правой стороне
         """

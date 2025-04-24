@@ -35,7 +35,7 @@ class RenameWin(MinMaxDisabledWin):
         self.input_wid.setPlaceholderText(RENAME_PLACEHOLDER)
         self.input_wid.setText(text)
         self.input_wid.selectAll()
-        self.input_wid.clear_btn_vcenter()
+        self.input_wid.move_clear_btn()
         v_lay.addWidget(self.input_wid)
 
         h_wid = QWidget()

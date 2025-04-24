@@ -111,7 +111,7 @@ class ListWin(MinMaxDisabledWin):
             self.close()
 
  
-class SearchWidget(QWidget):
+class SearchWidget(ULineEdit):
     # в MainWin посылается сигнал для загрузки GridStandart
     load_st_grid_sig = pyqtSignal()
     # в MainWin посылается сигнал для загрузки GridSearch
@@ -119,21 +119,14 @@ class SearchWidget(QWidget):
 
     def __init__(self, search_item: SearchItem):
         super().__init__()
+        self.setPlaceholderText("Поиск")
+        self.setFixedWidth(170)
+        self.mouseDoubleClickEvent = self.show_templates
+        self.move_clear_btn()
+
         self.search_item = search_item
         self.main_dir: str = None
         self.stop_flag: bool = False
-
-        v_lay = QVBoxLayout()
-        v_lay.setContentsMargins(0, 0, 0, 0)
-        v_lay.setSpacing(0)
-        self.setLayout(v_lay)
-
-        self.search_wid = ULineEdit()
-        self.search_wid.setPlaceholderText("Поиск")
-        self.search_wid.setFixedWidth(170)
-        self.search_wid.mouseDoubleClickEvent = self.show_templates
-        self.search_wid.clear_btn_vcenter()
-        v_lay.addWidget(self.search_wid)
 
         self.search_wid.textChanged.connect(self.on_text_changed)
         self.search_text: str = None

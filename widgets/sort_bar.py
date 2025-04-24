@@ -186,7 +186,7 @@ class GoToWin(MinMaxDisabledWin):
         self.input_wid = ULineEdit()
         self.input_wid.setPlaceholderText(GO_PLACEGOLDER)
         self.input_wid.setFixedWidth(270)
-        self.input_wid.clear_btn_vcenter()
+        self.input_wid.move_clear_btn()
 
         v_lay.addWidget(self.input_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
