@@ -261,10 +261,20 @@ class TopBar(QWidget):
     open_in_new_win = pyqtSignal(str)
 
     def __init__(self, search_item: SearchItem):
+        """
+        Верхний бар в окне приложения:
+        - кнопки: Назад / вперед
+        - кнопка На уровень вверх
+        - Открыть в новом окне
+        - Показать сеткой
+        - Показать списком
+        - Настройки
+        - Поле ввода для поиска
+        """
         super().__init__()
-        self.search_item = search_item
         self.setFixedHeight(40)
 
+        self.search_item = search_item
         self.history: list[str] = []
         self.index_: int = 0
 
@@ -275,12 +285,12 @@ class TopBar(QWidget):
 
         back = BarTopBtn()
         back.load(Static.NAVIGATE_BACK_SVG)
-        back.clicked.connect(lambda: self.navigate_cmd(offset=-1))
+        back.clicked.connect(lambda: self.navigate_cmd(-1))
         self.main_lay.addWidget(back)
 
         next = BarTopBtn()
         next.load(Static.NAVIGATE_NEXT_SVG)
-        next.clicked.connect(lambda: self.navigate_cmd(offset=1))
+        next.clicked.connect(lambda: self.navigate_cmd(1))
         self.main_lay.addWidget(next)
 
         level_up_btn = BarTopBtn()
