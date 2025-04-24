@@ -276,8 +276,7 @@ class TopBar(QWidget):
 
         self.search_item = search_item
         self.history: list[str] = []
-        # self.index_: int = 0
-        self.index_ -= 1
+        self.index_ = -1
 
         self.main_lay = QHBoxLayout()
         self.main_lay.setSpacing(0)
