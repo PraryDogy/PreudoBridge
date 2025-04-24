@@ -5,7 +5,7 @@ import shutil
 
 class Static:
     APP_NAME = "PreudoBridge"
-    APP_VER = 2.15
+    APP_VER = 2.17
 
     USER_SETTINGS_DIR = os.path.expanduser('~/Library/Application Support')
     APP_SUPPORT_APP = os.path.join(USER_SETTINGS_DIR, APP_NAME)
