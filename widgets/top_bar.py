@@ -276,7 +276,8 @@ class TopBar(QWidget):
 
         self.search_item = search_item
         self.history: list[str] = []
-        self.index_: int = 0
+        # self.index_: int = 0
+        self.index_ -= 1
 
         self.main_lay = QHBoxLayout()
         self.main_lay.setSpacing(0)
@@ -326,8 +327,6 @@ class TopBar(QWidget):
         self.search_wid.load_search_grid_sig.connect(self.load_search_grid_sig.emit)
         self.search_wid.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
         self.main_lay.addWidget(self.search_wid)
-
-        self.index_ -= 1
 
     def open_settings_win(self, *args):
         self.sett_win = SettingsWin()
