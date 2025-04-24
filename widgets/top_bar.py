@@ -276,7 +276,7 @@ class TopBar(QWidget):
 
         self.search_item = search_item
         self.history: list[str] = []
-        self.index_ = -1
+        self.current_index = -1
 
         self.main_lay = QHBoxLayout()
         self.main_lay.setSpacing(0)
@@ -341,14 +341,14 @@ class TopBar(QWidget):
             self.history.pop(-1)
 
         self.history.append(dir)
-        self.index_ = len(self.history) - 1
+        self.current_index = len(self.history) - 1
 
     def navigate_cmd(self, offset: int):
         try:
-            if self.index_ + offset in(-1, len(self.history)):
+            if self.current_index + offset in(-1, len(self.history)):
                 return
-            self.index_ += offset
-            new_main_dir = self.history[self.index_]
+            self.current_index += offset
+            new_main_dir = self.history[self.current_index]
             self.navigate.emit(new_main_dir)
         except (ValueError, IndexError) as e:
             print("bar top > navigate cmd > error", e)
