@@ -17,6 +17,9 @@ class BarTopBtn(UFrame):
     clicked = pyqtSignal()
 
     def __init__(self):
+        """
+        QFrame с изменением стиля при наведении курсора и svg иконкой.
+        """
         super().__init__()
         self.setFixedSize(45, 35)
 
@@ -32,7 +35,8 @@ class BarTopBtn(UFrame):
         self.svg_btn.load(path)
 
     def mouseReleaseEvent(self, a0):
-        self.clicked.emit()
+        if a0.button() == Qt.MouseButton.LeftButton:
+            self.clicked.emit()
         return super().mouseReleaseEvent(a0)
 
 
