@@ -79,7 +79,7 @@ class CustomApp(QApplication):
         self.first_win.show()
 
         self.aboutToQuit.connect(self.on_exit)
-        self.installEventFilter(self)
+        # self.installEventFilter(self)
 
     def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
         if a1.type() == QEvent.Type.ApplicationActivate:
