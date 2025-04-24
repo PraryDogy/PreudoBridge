@@ -255,8 +255,8 @@ class SearchWidget(QWidget):
 class TopBar(QWidget):
     level_up = pyqtSignal()
     change_view = pyqtSignal(int)
-    start_search = pyqtSignal()
-    search_was_cleaned = pyqtSignal()
+    load_search_grid_sig = pyqtSignal()
+    load_st_grid_sig = pyqtSignal()
     navigate = pyqtSignal(str)
     clear_data_clicked = pyqtSignal()
     open_in_new_win = pyqtSignal(str)
@@ -314,8 +314,8 @@ class TopBar(QWidget):
         self.main_lay.addStretch(1)
 
         self.search_wid = SearchWidget(self.search_item)
-        self.search_wid.load_search_grid_sig.connect(self.start_search.emit)
-        self.search_wid.load_st_grid_sig.connect(self.search_was_cleaned.emit)
+        self.search_wid.load_search_grid_sig.connect(self.load_search_grid_sig.emit)
+        self.search_wid.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
         self.main_lay.addWidget(self.search_wid)
 
         self.index_ -= 1

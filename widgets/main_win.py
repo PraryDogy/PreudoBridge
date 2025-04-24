@@ -220,9 +220,9 @@ class MainWin(QWidget):
         # изменить отображение сетка/список
         self.bar_top.change_view.connect(lambda index: self.change_view_cmd(index))
         # начать поиск
-        self.bar_top.start_search.connect(lambda: self.load_search_grid())
+        self.bar_top.load_search_grid_sig.connect(lambda: self.load_search_grid())
         # очистить поиск, загрузить стандартную сетку с текущей директорией
-        self.bar_top.search_was_cleaned.connect(lambda: self.load_standart_grid((self.main_dir, None)))
+        self.bar_top.load_st_grid_sig.connect(lambda: self.load_standart_grid((self.main_dir, None)))
         # перейти вперед/назад по истории посещений
         self.bar_top.navigate.connect(lambda dir: self.load_standart_grid((dir, None)))
         # было открыто окно настроек и был клик "очистить данные в этой папке"
