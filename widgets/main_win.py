@@ -308,7 +308,6 @@ class MainWin(QWidget):
         self.grid.force_load_images_sig.connect(lambda urls: self.grid.force_load_images_cmd(urls))
 
     def load_search_grid(self):
-        print(self.sender())
         self.grid.close()
         self.menu_tags.reset()
         self.search_bar.show()
