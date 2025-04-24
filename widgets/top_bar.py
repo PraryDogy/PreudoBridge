@@ -328,6 +328,9 @@ class TopBar(QWidget):
         self.main_lay.addWidget(self.search_wid)
 
     def open_settings_win(self, *args):
+        """
+        Открывает окно настроек
+        """
         self.sett_win = SettingsWin()
         self.sett_win.clear_data_clicked.connect(self.clear_data_clicked.emit)
         self.sett_win.center(self.window())
