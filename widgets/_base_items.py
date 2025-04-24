@@ -302,13 +302,23 @@ class UFrame(QFrame):
 
 
 class WinBase(QWidget):
+    wins: list["WinBase"] = []
+
     def __init__(self):
         """
         Окно QWidget с функцией "center", которая выравнивает окно по центру
         относительно родительского.
         """
         super().__init__()
+        self.add_to_list()
         # self.setWindowModality(Qt.WindowModality.ApplicationModal)
+
+    def add_to_list(self):
+        print("add to list")
+        WinBase.wins.append(self)
+
+    def remove_from_list(self):
+        WinBase.wins.remove(self)
 
     def center(self, parent: QWidget):
         """
@@ -317,6 +327,14 @@ class WinBase(QWidget):
         geo = self.geometry()
         geo.moveCenter(parent.geometry().center())
         self.setGeometry(geo)
+
+    def deleteLater(self):
+        self.remove_from_list()
+        return super().deleteLater()
+    
+    def closeEvent(self, a0):
+        self.remove_from_list()
+        return super().closeEvent(a0)
 
 
 class MinMaxDisabledWin(WinBase):
