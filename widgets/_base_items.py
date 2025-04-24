@@ -29,9 +29,10 @@ class UMethods:
         raise Exception("Переопредели метод rearrange")
 
 
-# Сигналы в UScrollArea и UTableView должны быть идентичны
-
 class UScrollArea(QScrollArea, UMethods):
+    """
+    Виджет с базовыми сигналами. Сигналы должны совпадать с UTableView
+    """
    # путь к папке
     new_history_item = pyqtSignal(str)
     # путь к папке
@@ -55,13 +56,16 @@ class UScrollArea(QScrollArea, UMethods):
 
     def __init__(self):
         """
-        Базовый виджет с необходимыми сигналами для GridSearch и GridStandart
+        Безрамочный стиль
         """
         super().__init__()
         self.setStyleSheet("QScrollArea { border: none; }")
 
 
 class UTableView(QTableView, UMethods):
+    """
+    Виджет с базовыми сигналами. Сигналы должны совпадать с UScrollArea
+    """
     # путь к папке
     new_history_item = pyqtSignal(str)
     # путь к папке
@@ -84,21 +88,18 @@ class UTableView(QTableView, UMethods):
     force_load_images_sig = pyqtSignal(list)
 
     def __init__(self):
-        """
-        Базовый виджет с необходимыми сигналами для GridList
-        """
         super().__init__()
 
 
 class UMenu(QMenu):
-
     def __init__(self, title: str = None, parent: QWidget = None):
         super().__init__(title, parent)
         """
-        Кастомное контекстное меню:
+        Контекстное меню:
         - отключен правый клик
         - show_: открывает контекстное меню по месту клика
         """
+
     def show_(self):
         self.exec_(QCursor.pos())
 
