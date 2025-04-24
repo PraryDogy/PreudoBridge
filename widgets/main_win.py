@@ -402,13 +402,13 @@ class MainWin(WinBase):
         self.resize_timer.start(MainWin.resize_ms)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
-        wins = [
-            i
-            for i in QApplication.topLevelWidgets()
-            if isinstance(i, MainWin)
-        ]
+        # wins = [
+        #     i
+        #     for i in QApplication.topLevelWidgets()
+        #     if isinstance(i, MainWin)
+        # ]
 
-        if len(wins) > 1:
+        if len(WinBase.wins) > 1:
             self.deleteLater()
         else:
             self.hide()
