@@ -334,63 +334,26 @@ class TopBar(QWidget):
         self.sett_win.show()
 
     def new_history_item_cmd(self, dir: str):
-        """
-        Добавляет новый путь в историю навигации:
-
-        - Если текущий индекс не на последнем элементе истории, значит пользователь
-        отклонился от ветки (перешёл назад и открыл новую папку). В этом случае
-        удаляются все элементы после текущего положения.
-        - Ограничиваем размер истории 100 элементами.
-        - Добавляем новый путь в конец истории.
-        - Устанавливаем текущий индекс на последний элемент истории, который был добавлен.
-
-        Пример:
-        1. История: ["A", "B", "C"]
-        - Текущий индекс: 2 (на "C")
-        2. Пользователь нажал "назад", теперь текущий индекс на "B" (индекс 1).
-        3. Пользователь открыл новую папку "B2".
-        - Так как текущий индекс не на конце истории, мы обрезаем "C", и новая история:
-            ["A", "B"]
-        4. Добавляем "B2" в конец истории.
-        - Новая история: ["A", "B", "B2"]
-        - Текущий индекс теперь указывает на "B2" (индекс 2).
-        
-        Это позволяет предотвратить сохранение старых путей, если пользователь изменил
-        направление навигации (например, вернулся назад и затем открыл новую папку).
-        """
-
         if dir == os.sep:
             return
 
-        # Проверяем, отклонился ли пользователь от текущей ветки истории:
-        # Если текущий индекс не на последнем элементе списка,
-        # значит пользователь перешёл назад и открыл новую папку,
-        # поэтому нужно удалить все элементы, которые шли после текущего положения.
-        if self.current_index < len(self.history_items) - 1:
-            # Убираем все элементы после текущего индекса, чтобы не сохранялись
-            # старые пути, если пользователь изменил направление навигации.
-            self.history_items = self.history_items[:self.current_index + 1]
-
         if len(self.history_items) > 100:
-            self.history_items.pop(0)
-            self.current_index -= 1
+            self.history_items.pop(-1)
 
         self.history_items.append(dir)
+
+        # установить текущий индекс на последний индекс списка
         self.current_index = len(self.history_items) - 1
 
     def navigate_cmd(self, offset: int):
-        """
-        Перемещается по истории директорий:
-
-        - offset = -1 для перехода назад, 1 — вперёд.
-        - Проверяет границы истории, чтобы не выйти за пределы.
-        - Эмиттирует сигнал с новым путём, если переход возможен.
-        """
-        new_index = self.current_index + offset
-        if 0 <= new_index < len(self.history_items):
-            self.current_index = new_index
+        try:
+            if self.current_index + offset in(-1, len(self.history_items)):
+                return
+            self.current_index += offset
             new_main_dir = self.history_items[self.current_index]
             self.navigate.emit(new_main_dir)
+        except (ValueError, IndexError) as e:
+            print("bar top > navigate cmd > error", e)
 
     def set_main_dir(self, main_dir: str):
         self.search_wid.main_dir = main_dir
