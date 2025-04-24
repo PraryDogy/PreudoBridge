@@ -55,10 +55,10 @@ class RevealInFinder(QAction):
 
         # если в сетке выделена одна папка, то открываем ее в Finder
         # если выделено более 1 папки/файла, то делаем Reveal 
-        if len(self.urls) == 1 and os.path.isdir(self.urls[0]):
-                self.triggered.connect(self.dir_cmd)
-        else:
-            self.triggered.connect(self.files_cmd)
+        # if len(self.urls) == 1 and os.path.isdir(self.urls[0]) or self.urls[0].endswith("app"):
+        #         self.triggered.connect(self.dir_cmd)
+        # else:
+        self.triggered.connect(self.files_cmd)
 
     def dir_cmd(self):
         subprocess.Popen(["open", self.urls[0]])
