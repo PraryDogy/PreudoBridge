@@ -366,7 +366,7 @@ class MainWin(QWidget):
         LoadImage.cached_images.clear()
         self.setWindowTitle(title)
         self.menu_favs.fav_cmd(("select", self.main_dir))
-        self.bar_top.search_wid.clean_search()
+        self.bar_top.search_wid.clear_search()
         self.search_bar.hide()
         self.search_bar_sep.hide()
         self.bar_top.set_main_dir(self.main_dir)

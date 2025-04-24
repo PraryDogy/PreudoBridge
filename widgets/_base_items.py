@@ -198,6 +198,7 @@ class ULineEdit(QLineEdit):
         Если есть хотя бы 1 символ в поле ввода текста, будет показана кнопка "стереть"
         """
         if self.text():
+            self.move_clear_btn()
             self.clear_btn.show()
         else:
             self.clear_btn.hide()

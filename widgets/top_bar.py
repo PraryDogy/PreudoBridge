@@ -122,15 +122,13 @@ class SearchWidget(ULineEdit):
         self.setPlaceholderText("Поиск")
         self.setFixedWidth(170)
         self.mouseDoubleClickEvent = self.show_templates
-        self.move_clear_btn()
 
         self.search_item = search_item
         self.main_dir: str = None
         self.stop_flag: bool = False
-
-        self.search_wid.textChanged.connect(self.on_text_changed)
         self.search_text: str = None
-
+        self.search_list_local: list[str] = []
+        self.textChanged.connect(self.on_text_changed)
         self.input_timer = QTimer(self)
         self.input_timer.setSingleShot(True)
         self.input_timer.timeout.connect(self.prepare_text)
@@ -139,25 +137,20 @@ class SearchWidget(ULineEdit):
 
         for text, _ in SearchItem.SEARCH_EXTENSIONS.items():
             action = QAction(text, self)
-
-            action.triggered.connect(
-                lambda e, xx=text: self.search_wid.setText(xx)
-            )
-
+            cmd_ = lambda e, xx=text: self.search_wid.setText(xx)
+            action.triggered.connect(cmd_)
             self.templates_menu.addAction(action)
 
         search_list = QAction(SearchItem.SEARCH_LIST_TEXT, self)
         search_list.triggered.connect(self.open_search_list_win)
         self.templates_menu.addAction(search_list)
 
-        self.search_list_local: list[str] = []
-
-    def clean_search(self):
+    def clear_search(self):
         """
         Очищает поиск при загрузке GridStandart:
 
         - Устанавливает флаг stop_flag, чтобы временно отключить реакцию на изменение текста.
-        - Очищает поле ввода, SearchItem, и скрывает кнопку очистки.
+        - Очищает поле ввода, SearchItem
         - Сбрасывает флаг stop_flag.
 
         Необходима для предотвращения повторной загрузки GridStandart,
@@ -186,15 +179,13 @@ class SearchWidget(ULineEdit):
             self.load_st_grid_sig.emit()
 
     def clear_all(self):
-        self.search_wid.clear_btn.hide()
-        self.search_wid.clear()
+        self.clear()
         self.search_item.reset()
 
     def prepare_text(self):
         """
         Готовит текст к поиску:
 
-        - Показывает кнопку очистки.
         - Удаляет лишние пробелы и устанавливает текст в поле ввода.
         - Сбрасывает SearchItem для нового поиска.
         - В зависимости от текста:
@@ -203,9 +194,8 @@ class SearchWidget(ULineEdit):
             - Иначе — устанавливает текст поиска.
         - Испускает сигнал начала поиска.
         """
-        self.search_wid.clear_btn.show()
         self.search_text = self.search_text.strip()
-        self.search_wid.setText(self.search_text)
+        self.setText(self.search_text)
         self.search_item.reset()
 
         if self.search_text in SearchItem.SEARCH_EXTENSIONS:
@@ -247,7 +237,7 @@ class SearchWidget(ULineEdit):
         - Срабатывает сигнал textChanged -> on_text_changed
         """
         self.search_list_local = search_list
-        self.search_wid.setText(SearchItem.SEARCH_LIST_TEXT)
+        self.setText(SearchItem.SEARCH_LIST_TEXT)
 
 
 class TopBar(QWidget):
