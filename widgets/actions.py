@@ -76,7 +76,7 @@ class Info(QAction):
 
 # из родительского виджета копирует путь к файлу / папке
 class CopyPath(QAction):
-    def __init__(self, parent: UMenu, src: str | str):
+    def __init__(self, parent: UMenu, src: str | list):
 
         if isinstance(src, str):
             src = [src]
@@ -89,6 +89,25 @@ class CopyPath(QAction):
 
     def cmd_(self, *args):
         data = "\n".join(self.src)
+        Utils.write_to_clipboard(text=data)
+
+
+class CopyName(QAction):
+    text_ = "Скопировать имя"
+
+    def __init__(self, parent: UMenu, names: str | list):
+
+        if isinstance(names, str):
+            names = [names]
+
+        t = f"{CopyName.text_} ({len(names)})"
+
+        super().__init__(t, parent)
+        self.names = names
+        self.triggered.connect(self.cmd_)
+
+    def cmd_(self, *args):
+        data = "\n".join(self.names)
         Utils.write_to_clipboard(text=data)
 
 
