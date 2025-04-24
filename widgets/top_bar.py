@@ -118,6 +118,9 @@ class SearchWidget(ULineEdit):
     load_search_grid_sig = pyqtSignal()
 
     def __init__(self, search_item: SearchItem):
+        """
+        Виджет поля ввода в верхнем баре приложения.
+        """
         super().__init__()
         self.setPlaceholderText("Поиск")
         self.setFixedWidth(170)
@@ -241,12 +244,20 @@ class SearchWidget(ULineEdit):
 
 
 class TopBar(QWidget):
+    # загружает GridStandart на уровень выше (/Volumes/Users/Evgeny > Volumes/Users)
     level_up = pyqtSignal()
+
+    # 0 отобразить сеткой, 1 отобразить списком
     change_view = pyqtSignal(int)
     load_search_grid_sig = pyqtSignal()
     load_st_grid_sig = pyqtSignal()
+    # при нажатии кнопкок "назад" или "вперед" загружает GridStandart
     navigate = pyqtSignal(str)
+    
+    # Кнопка "очистить данные" была нажата в окне настроек
     clear_data_clicked = pyqtSignal()
+
+    # открывает заданный путь в новом окне
     open_in_new_win = pyqtSignal(str)
 
     def __init__(self, search_item: SearchItem):
