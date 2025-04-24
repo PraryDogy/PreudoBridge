@@ -31,7 +31,8 @@ class SearchBar(QFrame):
     def __init__(self, search_item: SearchItem):
         super().__init__()
         self.setFixedHeight(40)
-        self.search_item = search_item
+        self.search_item: SearchItem = search_item
+        self.stop_flag: bool = False
 
         h_lay = QHBoxLayout()
         h_lay.setContentsMargins(0, 0, 0, 0)
@@ -52,6 +53,17 @@ class SearchBar(QFrame):
         h_lay.addWidget(self.spinner)
 
     def on_state_change(self, value: int):
+        """
+        Обрабатывает изменение состояния чекбокса (сигнал stateChanged):
+
+        - Если активен stop_flag — выход без действий.
+        - Преобразует значение состояния чекбокса (0 = unchecked, 2 = checked)
+        в булев тип и сохраняет в SearchItem.exactly.
+        - Испускает сигнал load_search_grid для загрузки сетки GridSearch
+        с новым параметром SearchItem.exaclty
+        """
+        if self.stop_flag:
+            return
         data = {0: False, 2: True}
         new_value = data.get(value)
         self.search_item.exactly = new_value
@@ -59,14 +71,16 @@ class SearchBar(QFrame):
 
     def show(self):
         """
-        При активации GridSearch вызывается данный метод
-        Сигнал отключается, чтобы не сработал on state change, чтобы
-        он не ипустил сигнал toogle_exactly, который приведет к повторной
-        загрузке сетки GridSearch
+        Отображает панель поиска (SearchBar):
+
+        - Включает стоп-флаг, чтобы предотвратить реакцию на изменение состояния чекбокса.
+        - Устанавливает состояние чекбокса в соответствии с текущим значением search_item.exactly.
+        - Отключает чекбокс, если установлен поиск по расширениям (в этом случае точность неактуальна).
+        - Отключает стоп-флаг и отображает SearchBar.
         """
-        self.checkbox.stateChanged.disconnect()
+        self.stop_flag = True
         self.checkbox.setChecked(self.search_item.exactly)
-        self.checkbox.stateChanged.connect(self.on_state_change)
+        self.stop_flag = False
 
         if self.search_item.get_extensions():
             self.checkbox.setDisabled(True)

@@ -140,7 +140,7 @@ class SearchWidget(ULineEdit):
 
         for text, _ in SearchItem.SEARCH_EXTENSIONS.items():
             action = QAction(text, self)
-            cmd_ = lambda e, xx=text: self.search_wid.setText(xx)
+            cmd_ = lambda e, xx=text: self.setText(xx)
             action.triggered.connect(cmd_)
             self.templates_menu.addAction(action)
 
