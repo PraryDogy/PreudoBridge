@@ -43,6 +43,8 @@ class BarTopBtn(UFrame):
 class ListWin(MinMaxDisabledWin):
     SEARCH_PLACE = "Место поиска:"
     LIST_FILES = "Список файлов (по одному в строке):"
+
+    # список имен файлов
     finished_ = pyqtSignal(list)
 
     def __init__(self, main_dir: str):
@@ -82,12 +84,12 @@ class ListWin(MinMaxDisabledWin):
 
         btns_lay.addStretch()
 
-        ok_btn = QPushButton(text="Ок")
+        ok_btn = QPushButton("Ок")
         ok_btn.clicked.connect(self.ok_cmd)
         ok_btn.setFixedWidth(100)
         btns_lay.addWidget(ok_btn)
 
-        can_btn = QPushButton(text="Отмена")
+        can_btn = QPushButton("Отмена")
         can_btn.clicked.connect(self.close)
         can_btn.setFixedWidth(100)
         btns_lay.addWidget(can_btn)
@@ -110,7 +112,6 @@ class ListWin(MinMaxDisabledWin):
 
  
 class SearchWidget(QWidget):
-
     # в MainWin посылается сигнал для загрузки GridStandart
     load_st_grid_sig = pyqtSignal()
     # в MainWin посылается сигнал для загрузки GridSearch
