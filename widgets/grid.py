@@ -16,9 +16,9 @@ from database import CACHE, Dbase
 from utils import URunnable, UThreadPool, Utils
 
 from ._base_items import BaseItem, UMenu, UScrollArea
-from .actions import (ChangeViewMenu, CopyPath, FavAdd, FavRemove, Info,
-                      OpenInApp, OpenInNewWindow, RatingMenu, RevealInFinder,
-                      SortMenu, View)
+from .actions import (ChangeViewMenu, CopyName, CopyPath, FavAdd, FavRemove,
+                      Info, OpenInApp, OpenInNewWindow, RatingMenu,
+                      RevealInFinder, SortMenu, View)
 from .copy_files_win import CopyFilesWin, ErrorWin
 from .info_win import InfoWin
 from .remove_files_win import RemoveFilesWin
@@ -538,6 +538,7 @@ class Grid(UScrollArea):
         """
         # собираем пути к файлам / папкам у выделенных виджетов
         urls = [i.src for i in self.selected_widgets]
+        names = [i.name for i in self.selected_widgets]
 
         self.path_bar_update_cmd(wid.src)
 
@@ -565,6 +566,9 @@ class Grid(UScrollArea):
 
         copy_path = CopyPath(menu_, urls)
         menu_.addAction(copy_path)
+
+        copy_name = CopyName(menu_, names)
+        menu_.addAction(copy_name)
 
         copy_files = QAction(f"{COPY_FILES_T} ({len(urls)})", menu_)
         copy_files.triggered.connect(self.setup_urls_to_copy)
@@ -749,6 +753,9 @@ class Grid(UScrollArea):
 
         copy_ = CopyPath(menu_, self.main_dir)
         menu_.addAction(copy_)
+
+        copy_name = CopyName(menu_, os.path.basename(self.main_dir))
+        menu_.addAction(copy_name)
 
         menu_.addSeparator()
 

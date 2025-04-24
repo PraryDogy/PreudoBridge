@@ -8,7 +8,8 @@ from cfg import JsonData
 from utils import Utils
 
 from ._base_items import UMenu
-from .actions import CopyPath, FavRemove, OpenInNewWindow, RevealInFinder, View
+from .actions import (CopyName, CopyPath, FavRemove, OpenInNewWindow,
+                      RevealInFinder, View)
 from .rename_win import RenameWin
 
 RENAME_T = "Переименовать"
@@ -85,6 +86,9 @@ class FavItem(QLabel):
 
         copy_path_action = CopyPath(menu_, self.src)
         menu_.addAction(copy_path_action)
+
+        copy_name = CopyName(menu_, os.path.basename(self.src))
+        menu_.addAction(copy_name)
 
         menu_.addSeparator()
 

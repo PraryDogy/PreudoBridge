@@ -8,7 +8,7 @@ from cfg import JsonData
 
 from ._base_items import UMenu, UTableView
 from .actions import (ChangeViewMenu, CopyPath, FavAdd, FavRemove, Info,
-                      RevealInFinder)
+                      RevealInFinder, CopyName)
 from .finder_items import LoadingWid
 from .info_win import InfoWin
 
@@ -106,6 +106,9 @@ class GridList(UTableView):
 
         copy_path_action = CopyPath(menu, src)
         menu.addAction(copy_path_action)
+
+        copy_name = CopyName(menu, os.path.basename(src))
+        menu.addAction(copy_name)
 
         menu.addSeparator()
 

@@ -1,11 +1,14 @@
+import os
+
 from PyQt5.QtCore import QDir, Qt, pyqtSignal
 from PyQt5.QtWidgets import QFileSystemModel, QTreeView
 
 from cfg import JsonData
 
-from .actions import CopyPath, FavAdd, FavRemove, RevealInFinder, View, OpenInNewWindow
 from ._base_items import UMenu
-import os
+from .actions import (CopyName, CopyPath, FavAdd, FavRemove, OpenInNewWindow,
+                      RevealInFinder, View)
+
 
 class TreeMenu(QTreeView):
     new_history_item = pyqtSignal(str)
@@ -73,6 +76,9 @@ class TreeMenu(QTreeView):
 
         copy_path_action = CopyPath(menu, src)
         menu.addAction(copy_path_action)
+
+        copy_name = CopyName(menu, os.path.basename(src))
+        menu.addAction(copy_name)
 
         menu.addSeparator()
 

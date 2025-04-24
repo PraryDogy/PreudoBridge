@@ -8,7 +8,8 @@ from cfg import Static
 from utils import Utils
 
 from ._base_items import UMenu, USvgSqareWidget
-from .actions import CopyPath, Info, RevealInFinder, View, OpenInNewWindow
+from .actions import (CopyName, CopyPath, Info, OpenInNewWindow,
+                      RevealInFinder, View)
 from .info_win import InfoWin
 
 SORT_T = "Сортировка"
@@ -205,6 +206,9 @@ class PathItem(QWidget):
 
         copy_path = CopyPath(menu, self.dir)
         menu.addAction(copy_path)
+
+        copy_name = CopyName(menu, os.path.basename(self.dir))
+        menu.addAction(copy_name)
 
         self.solid_style()
         menu.show_()

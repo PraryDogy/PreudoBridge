@@ -14,7 +14,7 @@ from database import CACHE, Dbase, DbaseTools
 from utils import URunnable, UThreadPool, Utils
 
 from ._base_items import UMenu, USvgSqareWidget, WinBase
-from .actions import CopyPath, Info, OpenInApp, RatingMenu, RevealInFinder
+from .actions import CopyPath, Info, OpenInApp, RatingMenu, RevealInFinder, CopyName
 from .grid import KEY_RATING, RATINGS, Thumb
 from .info_win import InfoWin
 
@@ -539,6 +539,9 @@ class ImgViewWin(WinBase):
 
         copy_path = CopyPath(menu, self.src)
         menu.addAction(copy_path)
+
+        copy_name = CopyName(menu, os.path.basename(self.src))
+        menu.addAction(copy_name)
 
         menu.addSeparator()
 
