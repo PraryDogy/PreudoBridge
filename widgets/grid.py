@@ -367,7 +367,7 @@ class Grid(UScrollArea):
 
         wid.set_frame()
         self.selected_widgets.append(wid)
-        self.ensureWidgetVisible(wid)
+        self.ensure_wid_visible(wid)
         self.path_bar_update_cmd(wid.src)
 
     def path_bar_update_cmd(self, src: str):
@@ -467,7 +467,7 @@ class Grid(UScrollArea):
         if isinstance(self.url_for_select, str):
             wid = self.url_to_wid.get(self.url_for_select)
             self.select_one_wid(wid)
-            QTimer.singleShot(500, lambda: self.ensureWidgetVisible(wid))
+            QTimer.singleShot(500, lambda: self.ensure_wid_visible(wid))
 
         # тоже самое, но будет выделено сразу несколько виджетов
         elif isinstance(self.url_for_select, (tuple, list)):
@@ -482,10 +482,16 @@ class Grid(UScrollArea):
                 except AttributeError:
                     continue
             if widgets:
-                cmd_ = lambda: self.ensureWidgetVisible(widgets[0])
+                cmd_ = lambda: self.ensure_wid_visible(widgets[0])
                 QTimer.singleShot(500, cmd_)
         
         return col_count
+    
+    def ensure_wid_visible(self, wid: Thumb):
+        try:
+            self.ensureWidgetVisible(wid)
+        except RuntimeError:
+            ...
 
     def add_widget_data(self, wid: Thumb, row: int, col: int):
         """

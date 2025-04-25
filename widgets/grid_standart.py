@@ -240,12 +240,13 @@ class LoadImages(URunnable):
                 return
 
             except Exception as e:
-                Utils.print_error(self, e)
+                # Utils.print_error(self, e)
                 continue
 
 
 class GridStandart(Grid):
     no_images_text = "Папка пуста или нет подключения к диску"
+    finished_load = pyqtSignal()
 
     def __init__(self, main_dir: str, view_index: int, url_for_select: str):
         """
@@ -392,6 +393,7 @@ class GridStandart(Grid):
             self.rearrange()
 
         self.load_images_timer.start(100)
+        self.finished_load.emit()
         
     def run_load_images_thread(self, thumbs: list[Thumb]):
         """
@@ -405,9 +407,7 @@ class GridStandart(Grid):
 
         thread_ = LoadImages(self.main_dir, thumbs)
         self.load_images_threads.append(thread_)
-        thread_.signals_.update_thumb.connect(
-            lambda image_data: self.set_thumb_image(image_data)
-        )
+        thread_.signals_.update_thumb.connect(lambda thumb: self.set_thumb_image(thumb))
         thread_.signals_.finished_.connect(
             lambda: self.finalize_load_images_thread(thread_)
         )
