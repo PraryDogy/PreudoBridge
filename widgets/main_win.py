@@ -85,26 +85,20 @@ class MainWin(WinBase):
 
     def __init__(self, dir: str = None):
         super().__init__()
-
+        self.setMinimumSize(MainWin.min_width_, MainWin.min_height_)
+        self.resize(MainWin.width_, MainWin.height_)
         if dir:
             self.main_dir = dir
         else:
             self.main_dir = os.path.expanduser("~/Downloads")
             self.main_dir = Utils.add_system_volume(self.main_dir)
-
         self.main_win_list: list[MainWin] = []
-
         # индекс 0 просмотр сеткой, индекс 1 просмотр списком
         self.view_index = 0
-
-        self.setMinimumSize(MainWin.min_width_, MainWin.min_height_)
-        self.resize(MainWin.width_, MainWin.height_)
-        
+        self.search_item = SearchItem()
         self.resize_timer = QTimer(parent=self)
         self.resize_timer.setSingleShot(True)
         
-        self.search_item = SearchItem()
-
         main_lay = QHBoxLayout()
         main_lay.setContentsMargins(5, 0, 5, 0)
         main_lay.setSpacing(0)
