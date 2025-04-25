@@ -13,7 +13,8 @@ import rawpy
 import tifffile
 from imagecodecs.imagecodecs import DelayedImportError
 from PIL import Image
-from PyQt5.QtCore import QRect, QRectF, QRunnable, QSize, Qt, QThreadPool
+from PyQt5.QtCore import (QRect, QRectF, QRunnable, QSize, Qt, QThread,
+                          QThreadPool)
 from PyQt5.QtGui import QColor, QFont, QImage, QPainter, QPixmap
 from PyQt5.QtSvg import QSvgGenerator, QSvgRenderer
 from PyQt5.QtWidgets import QApplication
@@ -566,8 +567,12 @@ class UThreadPool:
 
     @classmethod
     def stop_all(cls):
-        for i in cls.current:
-            i.should_run = False
+        for runnable in cls.current:
+            runnable.should_run = False
+
+        # Ждать, пока все потоки завершатся
+        while any(r.is_running for r in cls.current):
+            QThread.msleep(50)  # немного подождать
 
         cls.current.clear()
         cls.pool.waitForDone()
