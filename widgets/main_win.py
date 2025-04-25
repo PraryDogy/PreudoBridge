@@ -347,6 +347,7 @@ class MainWin(WinBase):
         - url_for_select: виджет сетки, соответствующий url_for select, будет выделен
         после инициации сетки виджетов
         """
+
         self.grid.deleteLater()
         new_main_dir, url_for_select = data
 
