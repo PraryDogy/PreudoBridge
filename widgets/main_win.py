@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
 from cfg import Dynamic, JsonData, Static
 from utils import Utils
 
-from ._base_items import BaseItem, SearchItem, USep, WinBase
+from ._base_items import BaseItem, SearchItem, USep, WinBase, SortItem
 from .favs_menu import FavsMenu
 from .grid import Grid
 from .grid_list import GridList
@@ -117,6 +117,7 @@ class MainWin(WinBase):
         self.search_item = SearchItem()
         self.resize_timer = QTimer(parent=self)
         self.resize_timer.setSingleShot(True)
+        self.sort_item = SortItem()
         
         main_lay = QHBoxLayout()
         main_lay.setContentsMargins(5, 0, 5, 0)
