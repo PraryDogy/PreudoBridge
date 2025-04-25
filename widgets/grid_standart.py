@@ -274,6 +274,10 @@ class GridStandart(Grid):
         self.loading_lbl = LoadingWid(self)
         self.loading_lbl.center(self)
 
+        self.row, self.col = 0, 0
+        self.base_widgets = []
+        self.new_items = []
+
     def load_visible_images(self):
         """
         Составляет список Thumb виджетов, которые находятся в зоне видимости.   
@@ -310,6 +314,9 @@ class GridStandart(Grid):
         self.load_images_timer.stop()
         self.load_images_timer.start(1000)
 
+        if value == self.verticalScrollBar().maximum():
+            self.iter_base_items()
+
     def load_finder_items(self):
         """
         QRunnable   
@@ -333,32 +340,39 @@ class GridStandart(Grid):
         (читай load finder items).    
         Запускает таймер для load visible images
         """
-        base_items, new_items = items
+        self.base_items, self.new_items = items
         del self.finder_thread
         gc.collect()
         self.loading_lbl.hide()
         self.path_bar_update.emit(self.main_dir)
         Thumb.calculate_size()
-        col_count = self.get_col_count()
 
-        if not base_items:
+        if not self.base_items:
             no_images = QLabel(GridStandart.no_images_text)
             no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0)
             return
 
-        row, col = 0, 0
-
         # создаем генерик иконки если не было
-        exts = {i.type_ for i in base_items}
+        exts = {i.type_ for i in self.base_items}
         for ext in exts:
             icon_path = Utils.get_generic_icon_path(ext)
             if icon_path not in Dynamic.generic_icon_paths:
                 path_to_svg = Utils.create_generic_icon(ext)
                 Dynamic.generic_icon_paths.append(path_to_svg)
-            
-        for base_item in base_items:
+
+        self.iter_base_items()
+
+        self.sort_bar_update.emit(len(self.base_items))
+        if Dynamic.rating_filter > 0:
+            self.filter_()
+        self.load_images_timer.start(100)
+
+    def iter_base_items(self):
+        col_count = self.get_col_count()
+
+        for base_item in self.base_items[:50]:
             thumb = Thumb(base_item.src, base_item.rating)
             thumb.setup_attrs()
             thumb.setup_child_widgets()
@@ -371,22 +385,19 @@ class GridStandart(Grid):
                 icon_path = Utils.get_generic_icon_path(base_item.type_)
                 thumb.set_svg_icon(icon_path)
             
-            if base_item in new_items:
+            if base_item in self.new_items:
                 thumb.set_green_text()
 
-            self.add_widget_data(wid=thumb, row=row, col=col)
-            self.grid_layout.addWidget(thumb, row, col)
+            self.base_items.remove(base_item)
 
-            col += 1
-            if col >= col_count:
-                col = 0
-                row += 1
+            self.add_widget_data(wid=thumb, row=self.row, col=self.col)
+            self.grid_layout.addWidget(thumb, self.row, self.col)
 
-        self.sort_bar_update.emit(len(base_items))
-        if Dynamic.rating_filter > 0:
-            self.filter_()
-        self.load_images_timer.start(100)
-        
+            self.col += 1
+            if self.col >= col_count:
+                self.col = 0
+                self.row += 1
+
     def run_load_images_thread(self, thumbs: list[Thumb]):
         """
         QRunnable   
