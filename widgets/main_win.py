@@ -321,6 +321,7 @@ class MainWin(WinBase):
         self.grid.start_search()
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
         self.setup_grid_signals()
+        self.grid.set_sort_item(self.sort_item)
 
     def finished_search_grid(self, id_: int):
         """
@@ -377,6 +378,7 @@ class MainWin(WinBase):
         self.bar_top.set_main_dir(self.main_dir)
         self.menu_favs.set_main_dir(self.main_dir)
         self.menu_tree.expand_path(self.main_dir)
+        self.grid.set_sort_item(self.sort_item)
 
         if self.view_index == 0:
             self.grid = GridStandart(self.main_dir, self.view_index, url_for_select)

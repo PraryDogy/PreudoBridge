@@ -15,7 +15,7 @@ from cfg import Dynamic, JsonData, Static, ThumbData
 from database import CACHE, Dbase
 from utils import URunnable, UThreadPool, Utils
 
-from ._base_items import BaseItem, UMenu, UScrollArea
+from ._base_items import BaseItem, SortItem, UMenu, UScrollArea
 from .actions import (ChangeViewMenu, CopyName, CopyPath, FavAdd, FavRemove,
                       Info, OpenInApp, OpenInNewWindow, RatingMenu,
                       RevealInFinder, SortMenu, View)
@@ -294,6 +294,7 @@ class Grid(UScrollArea):
         self.is_grid_search: bool = False
         self.main_dir = main_dir
         self.view_index = view_index
+        self.sort_item: SortItem = None
 
         # для выделения виджета после формирования / перетасовки сетки
         self.url_for_select = url_for_select
@@ -328,6 +329,10 @@ class Grid(UScrollArea):
         # короче попробуй сразу подключить mouseReleaseEvent и открой 
         # любую папку с кучей файлов
         QTimer.singleShot(200, self.set_mouseReleaseEvent)
+
+    def set_sort_item(self, sort_item: SortItem):
+        if isinstance(sort_item, SortItem):
+            self.sort_item = sort_item
     
     def get_col_count(self):
         """
