@@ -246,6 +246,7 @@ class LoadImages(URunnable):
 
 class GridStandart(Grid):
     no_images_text = "Папка пуста или нет подключения к диску"
+    limit: int = 50
 
     def __init__(self, main_dir: str, view_index: int, url_for_select: str):
         """
@@ -279,7 +280,6 @@ class GridStandart(Grid):
         self.new_items: list[BaseItem] = []
 
     def load_visible_images(self):
-        print("load vis")
         """
         Составляет список Thumb виджетов, которые находятся в зоне видимости.   
         Запускает загрузку изображений через QRunnable
@@ -309,8 +309,9 @@ class GridStandart(Grid):
 
     def on_scroll_changed(self, value: int):
         """
-        При сколлинге запускается таймер    
-        Запускается load visible images
+        - При сколлинге запускается таймер    
+        - Запускается load visible images
+        - Если скролл достиг низа, подгрузить следующие 50 айтемов
         """
         self.load_images_timer.stop()
         self.load_images_timer.start(1000)
@@ -373,7 +374,7 @@ class GridStandart(Grid):
     def iter_base_items(self):
         col_count = self.get_col_count()
 
-        for base_item in self.base_items[:50]:
+        for base_item in self.base_items[:GridStandart.limit]:
             thumb = Thumb(base_item.src, base_item.rating)
             thumb.setup_attrs()
             thumb.setup_child_widgets()
