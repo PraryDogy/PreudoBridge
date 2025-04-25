@@ -314,7 +314,6 @@ class WinBase(QWidget):
         # self.setWindowModality(Qt.WindowModality.ApplicationModal)
 
     def add_to_list(self):
-        print("add to list")
         WinBase.wins.append(self)
 
     def remove_from_list(self):
