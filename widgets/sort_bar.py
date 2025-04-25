@@ -10,7 +10,7 @@ from cfg import Dynamic, Static, ThumbData
 from utils import URunnable, UThreadPool, Utils
 
 from ._base_items import (MinMaxDisabledWin, SortItem, UFrame, ULineEdit,
-                            USlider, USvgSqareWidget)
+                          USlider, USvgSqareWidget)
 from .actions import SortMenu
 
 SORT_T = "Сортировка"
@@ -311,11 +311,12 @@ class SortMenuBtn(UFrame):
     sort_grid_sig = pyqtSignal()
     rearrange_grid_sig = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self, sort_item: SortItem):
         """
         Виджет с раскрывающимся меню, которое предлагает сортировку сетки
         """
         super().__init__()
+        self.sort_item = sort_item
         h_lay = QHBoxLayout()
         h_lay.setContentsMargins(2, 0, 2, 0)
         self.setLayout(h_lay)
@@ -326,17 +327,17 @@ class SortMenuBtn(UFrame):
         self.sort_wid = QLabel()
         h_lay.addWidget(self.sort_wid)
 
-    def set_sort_text(self):
+    def set_sort_text(self, sort_item: SortItem):
         """
         Отображает текст на основе типа сортировки, например:   
         Сортировка: имя (по возраст.)
         """
         # получаем текстовое имя сортировки на основе внутреннего имени сортировки
-        sort_ = SortItem.lang_dict.get(Dynamic.sort)
+        sort_ = SortItem.lang_dict.get(sort_item.get_sort())
         sort_ = sort_.lower()
 
         # получаем текстовое имя обратной или прямой сортировки
-        rev = ASC if Dynamic.rev else DESC
+        rev = ASC if sort_item.get_rev() else DESC
 
         self.sort_wid.setText(f"{SORT_T}: {sort_} ({rev})")
 
@@ -356,7 +357,7 @@ class SortMenuBtn(UFrame):
         menu_ = SortMenu(self)
         menu_.sort_grid_sig.connect(self.sort_grid_sig.emit)
         menu_.rearrange_grid_sig.connect(self.rearrange_grid_sig.emit)
-        menu_.sort_bar_update_sig.connect(self.set_sort_text)
+        menu_.sort_bar_update_sig.connect(lambda: self.set_sort_text(self.sort_item))
 
         widget_rect = self.rect()
         menu_size = menu_.sizeHint()
@@ -419,7 +420,7 @@ class SortBar(QWidget):
     resize_grid_sig = pyqtSignal()
     rearrange_grid_sig = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self, sort_item: SortItem):
         """
         Состав:
 
@@ -429,6 +430,7 @@ class SortBar(QWidget):
         """
 
         super().__init__()
+        self.sort_item = sort_item
         self.setFixedHeight(25)
         self.main_lay = QHBoxLayout()
         self.main_lay.setContentsMargins(0, 0, 10, 0)
@@ -441,7 +443,7 @@ class SortBar(QWidget):
 
         self.main_lay.addStretch()
 
-        self.sort_frame = SortMenuBtn()
+        self.sort_frame = SortMenuBtn(self.sort_item)
         self.sort_frame.sort_grid_sig.connect(self.sort_grid_sig.emit)
         self.sort_frame.rearrange_grid_sig.connect(self.rearrange_grid_sig.emit)
         self.main_lay.addWidget(self.sort_frame)
@@ -463,7 +465,7 @@ class SortBar(QWidget):
         - Если value — целое число, также обновляется виджет "Количество виджетов в сетке".
         """
 
-        self.sort_frame.set_sort_text()
+        self.sort_frame.set_sort_text(self.sort_item)
         if isinstance(value, int):
             self.sort_frame.set_total_text(value)
 
