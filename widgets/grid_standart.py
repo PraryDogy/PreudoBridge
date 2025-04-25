@@ -394,7 +394,7 @@ class GridStandart(Grid):
             self.rearrange()
 
         self.load_images_timer.start(100)
-        QTimer.singleShot(200, self.finished_load.emit)
+        self.finished_load.emit()
         
     def run_load_images_thread(self, thumbs: list[Thumb]):
         """
