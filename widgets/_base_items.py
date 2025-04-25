@@ -348,7 +348,7 @@ class MinMaxDisabledWin(WinBase):
         self.setWindowFlags(fl)
 
 
-class Sort:
+class SortItem:
     """
     Класс, содержащий перечень доступных атрибутов для сортировки элементов.
 
@@ -382,7 +382,7 @@ class Sort:
     birth = "birth"
     rating = "rating"
 
-    items: dict[str, str] = {
+    lang_dict: dict[str, str] = {
         name : "Имя",
         type_ : "Тип",
         size : "Размер",
@@ -461,7 +461,7 @@ class BaseItem:
         по атрибутам, соответствующим ключам Sort.items.
         """
         base_item = BaseItem("/no/path/file.txt")
-        for column_name, _ in Sort.items.items():
+        for column_name, _ in SortItem.lang_dict.items():
             if not hasattr(base_item, column_name):
                 raise Exception (f"\n\nbase_widgets.py > BaseItem: не хватает аттрибута из Sort.items. Аттрибут: {column_name}\n\n")
 
@@ -481,7 +481,7 @@ class BaseItem:
         attr = Dynamic.sort
         rev = Dynamic.rev
 
-        if attr == Sort.name:
+        if attr == SortItem.name:
 
             # Особый случай: сортировка по имени
             # Разделяем элементы на две группы:

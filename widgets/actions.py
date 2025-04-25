@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QAction, QLabel, QLineEdit, QTextEdit, QWidget
 from cfg import Dynamic, Static
 from utils import URunnable, UThreadPool, Utils
 
-from ._base_items import Sort, UMenu
+from ._base_items import SortItem, UMenu
 
 REVEAL_T = "Показать в Finder"
 INFO_T = "Инфо"
@@ -322,7 +322,7 @@ class SortMenu(UMenu):
         # text_name - текстовое обозначение колонки CACHE, основанное на
         # комментарии колонки (CACHE.column.comment)
         # смотри database.py > CACHE
-        for true_name, text_name in Sort.items.items():
+        for true_name, text_name in SortItem.lang_dict.items():
 
             action_ = QAction(text_name, self)
             action_.setCheckable(True)
