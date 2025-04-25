@@ -143,7 +143,7 @@ class SearchFinder(URunnable):
             # Удаляем последний элемент из списка
             # Функция возвращает удаленный элемент
             current_dir = dirs_list.pop()
-            if not self.should_run:
+            if not self.get_should_run():
                 return
             while self.pause:
                 sleep(1)
@@ -156,7 +156,7 @@ class SearchFinder(URunnable):
 
     def scan_current_dir(self, dir: str, dirs_list: list):
         for entry in os.scandir(dir):
-            if not self.should_run:
+            if not self.get_should_run():
                 return
             while self.pause:
                 sleep(1)
@@ -360,7 +360,7 @@ class GridSearch(Grid):
 
     def cancel_cmd(self, *args):
         if self.task_:
-            self.task_.should_run = False
+            self.task_.set_should_run(False)
             self.search_fin()
 
     def resizeEvent(self, a0):
@@ -369,6 +369,6 @@ class GridSearch(Grid):
     
     def deleteLater(self):
         if self.task_:
-            self.task_.should_run = False
+            self.task_.set_should_run(False)
             self.task_.pause = False
         super().deleteLater()

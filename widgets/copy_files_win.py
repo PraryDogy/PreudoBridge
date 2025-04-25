@@ -61,7 +61,7 @@ class FileCopyWorker(URunnable):
 
         for src, dest in new_paths:
 
-            if not self.should_run:
+            if not self.get_should_run():
                 break
             
             # создаем древо папок как в исходной папке
@@ -90,7 +90,7 @@ class FileCopyWorker(URunnable):
 
         try:
             with open(src, 'rb') as fsrc, open(dest, 'wb') as fdest:
-                while self.should_run:
+                while self.get_should_run():
                     buf = fsrc.read(buffer_size)
                     if not buf:
                         break
@@ -320,5 +320,5 @@ class CopyFilesWin(MinMaxDisabledWin):
 
     def deleteLater(self):
         if self.task_:
-            self.task_.should_run = False
+            self.task_.set_should_run(False)
         super().deleteLater()

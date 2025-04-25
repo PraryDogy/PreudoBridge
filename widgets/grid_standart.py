@@ -226,7 +226,7 @@ class LoadImages(URunnable):
         """
         for thumb in self.thumbs:
 
-            if not self.should_run:
+            if not self.get_should_run():
                 return
                         
             try:
@@ -402,7 +402,7 @@ class GridStandart(Grid):
         директории, если их нет в базе данных.
         """
         for i in self.load_images_threads:
-            i.should_run = False
+            i.set_should_run(False)
 
         thread_ = LoadImages(self.main_dir, thumbs)
         self.load_images_threads.append(thread_)
@@ -437,7 +437,7 @@ class GridStandart(Grid):
 
     def deleteLater(self):
         for i in self.load_images_threads:
-            i.should_run = False
+            i.set_should_run(False)
         super().deleteLater()
 
     def resizeEvent(self, a0):

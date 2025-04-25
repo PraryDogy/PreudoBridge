@@ -69,7 +69,7 @@ class CalculatingTask(URunnable):
 
                 for entry in entries:
 
-                    if not self.should_run:
+                    if not self.get_should_run():
                         return
 
                     if entry.is_dir():
@@ -83,7 +83,7 @@ class CalculatingTask(URunnable):
 
         total = Utils.get_f_size(total)
 
-        if self.should_run:
+        if self.get_should_run():
             return total
 
 
@@ -224,5 +224,5 @@ class InfoWin(MinMaxDisabledWin):
     
     def deleteLater(self):
         if hasattr(self, "task_"):
-            self.task_.should_run = False
+            self.task_.set_should_run(False)
         super().deleteLater()
