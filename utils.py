@@ -527,10 +527,22 @@ class Utils(Pixmap, ReadImage, ImgConvert):
 
 class URunnable(QRunnable):
     def __init__(self):
+        """
+        QRunnable, аттрибуты:
+        - should_run: bool - флаг для остановки QRunnable
+        - is_running: bool - устанавливается через декоратор set_running_state
+        при запуске функции QRunnable.run()
+
+        Декоратор set_running_state обязательно устанавливается на функцию run
+        """
         super().__init__()
         self.should_run: bool = True
         self.is_running: bool = False
-        self.name_: str = None
+
+    def run(self):
+        if not self.is_running:
+            raise Exception ("\n\nУстановите декоратор set_running_state\n\n")
+        return super().run()
     
     @staticmethod
     def set_running_state(method: callable):
