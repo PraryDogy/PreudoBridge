@@ -316,12 +316,12 @@ class MainWin(WinBase):
         self.search_bar.show_spinner()
 
         self.grid = GridSearch(self.main_dir, self.view_index, None)
+        self.grid.set_sort_item(self.sort_item)
         self.grid.finished_.connect(lambda id_=id(self.grid): self.finished_search_grid(id_))
         self.grid.set_search_item(self.search_item)
         self.grid.start_search()
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
         self.setup_grid_signals()
-        self.grid.set_sort_item(self.sort_item)
 
     def finished_search_grid(self, id_: int):
         """
