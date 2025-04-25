@@ -271,9 +271,8 @@ class GridStandart(Grid):
         self.load_images_timer.timeout.connect(self.load_visible_images)
         self.verticalScrollBar().valueChanged.connect(self.on_scroll_changed)
 
-        self.loading_lbl = LoadingWid(parent=self)
+        self.loading_lbl = LoadingWid(self)
         self.loading_lbl.center(self)
-        self.show()
 
     def load_visible_images(self):
         """
@@ -325,8 +324,6 @@ class GridStandart(Grid):
         self.finder_thread = FinderItems(self.main_dir, self.sort_item)
         self.finder_thread.signals_.finished_.connect(self.finalize_finder_items)
         UThreadPool.start(self.finder_thread)
-
-
 
     def finalize_finder_items(self, items: tuple[list[BaseItem]]):
         """
