@@ -386,9 +386,6 @@ class MainWin(WinBase):
             self.grid.set_sort_item(self.sort_item)
             self.grid.load_finder_items()
 
-            for i in self.findChildren(QWidget):
-                i.setDisabled(True)
-
         elif self.view_index == 1:
             self.grid = GridList(self.main_dir, self.view_index)
 
