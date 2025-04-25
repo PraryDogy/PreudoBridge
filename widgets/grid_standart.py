@@ -311,7 +311,7 @@ class GridStandart(Grid):
         """
         - При сколлинге запускается таймер    
         - Запускается load visible images
-        - Если скролл достиг низа, подгрузить следующие 50 айтемов
+        - Если скролл достиг низа, подгрузить следующие limit айтемов
         """
         self.load_images_timer.stop()
         self.load_images_timer.start(1000)
