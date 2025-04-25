@@ -275,8 +275,8 @@ class GridStandart(Grid):
         self.loading_lbl.center(self)
 
         self.row, self.col = 0, 0
-        self.base_widgets = []
-        self.new_items = []
+        self.base_widgets: list[BaseItem] = []
+        self.new_items: list[BaseItem] = []
 
     def load_visible_images(self):
         """
