@@ -246,7 +246,8 @@ class LoadImages(URunnable):
 
 class GridStandart(Grid):
     no_images_text = "Папка пуста или нет подключения к диску"
-    finished_load = pyqtSignal()
+    unlock_widgets = pyqtSignal()
+    lock_widgets = pyqtSignal()
 
     def __init__(self, main_dir: str, view_index: int, url_for_select: str):
         """
@@ -325,7 +326,12 @@ class GridStandart(Grid):
         """
         self.finder_thread = FinderItems(self.main_dir, self.sort_item)
         self.finder_thread.signals_.finished_.connect(self.finalize_finder_items)
+        self.finder_thread.signals_.len_sig.connect(lambda value: self.len_finder_cmd(value))
         UThreadPool.start(self.finder_thread)
+
+    def len_finder_cmd(self, value: int):
+        if value > 50:
+            self.lock_widgets.emit()
 
     def finalize_finder_items(self, items: tuple[list[BaseItem]]):
         """
@@ -348,7 +354,7 @@ class GridStandart(Grid):
             no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0)
-            self.finished_load.emit()
+            self.unlock_widgets.emit()
             return
 
         row, col = 0, 0
@@ -394,7 +400,7 @@ class GridStandart(Grid):
             self.rearrange()
 
         self.load_images_timer.start(100)
-        self.finished_load.emit()
+        self.unlock_widgets.emit()
         
     def run_load_images_thread(self, thumbs: list[Thumb]):
         """

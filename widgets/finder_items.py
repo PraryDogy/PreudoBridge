@@ -17,9 +17,11 @@ SLEEP_VALUE = 1
 
 class WorkerSignals(QObject):
     finished_ = pyqtSignal(tuple)
+    len_sig = pyqtSignal(int)
 
 
 class FinderItems(URunnable):
+
     def __init__(self, main_dir: str, sort_item: SortItem):
         super().__init__()
         self.signals_ = WorkerSignals()
@@ -29,6 +31,9 @@ class FinderItems(URunnable):
     # @URunnable.set_running_state
     def run(self):
         try:
+            len_dir = len(os.listdir(self.main_dir))
+            self.signals_.len_sig.emit(len_dir)
+
             base_items = self.get_base_items()
             conn = self.create_connection()
             if conn:
