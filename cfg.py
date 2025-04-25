@@ -207,6 +207,4 @@ class JsonData:
 class Dynamic:
     rating_filter: int = 0
     pixmap_size_ind = 0
-    rev: bool = False
-    sort: str = "name"
     generic_icon_paths: list[str] = []
