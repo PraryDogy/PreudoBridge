@@ -538,11 +538,6 @@ class URunnable(QRunnable):
         super().__init__()
         self.should_run: bool = True
         self.is_running: bool = False
-
-    def run(self):
-        if not self.is_running:
-            raise Exception ("\n\nУстановите декоратор set_running_state\n\n")
-        return super().run()
     
     @staticmethod
     def set_running_state(method: callable):
@@ -565,15 +560,7 @@ class UThreadPool:
 
     @classmethod
     def start(cls, runnable: URunnable):
-
-        new_current = [
-            i
-            for i in cls.current
-            if i.is_running
-        ]
-
-        cls.current = new_current
-    
+        cls.current = [i for i in cls.current if i.is_running]
         cls.current.append(runnable)
         cls.pool.start(runnable)
 

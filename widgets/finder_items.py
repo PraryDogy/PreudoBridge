@@ -25,7 +25,7 @@ class FinderItems(URunnable):
         self.signals_ = WorkerSignals()
         self.main_dir = main_dir
 
-    @URunnable.set_running_state
+    # @URunnable.set_running_state
     def run(self):
         try:
             base_items = self.get_base_items()
