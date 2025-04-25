@@ -279,6 +279,7 @@ class GridStandart(Grid):
         self.new_items: list[BaseItem] = []
 
     def load_visible_images(self):
+        print("load vis")
         """
         Составляет список Thumb виджетов, которые находятся в зоне видимости.   
         Запускает загрузку изображений через QRunnable
