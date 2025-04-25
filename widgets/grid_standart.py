@@ -240,7 +240,7 @@ class LoadImages(URunnable):
                 return
 
             except Exception as e:
-                Utils.print_error(parent=self, error=e)
+                Utils.print_error(self, e)
                 continue
 
 
