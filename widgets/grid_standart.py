@@ -348,6 +348,7 @@ class GridStandart(Grid):
             no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0)
+            self.finished_load.emit()
             return
 
         row, col = 0, 0
