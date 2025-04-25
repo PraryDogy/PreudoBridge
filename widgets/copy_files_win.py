@@ -319,6 +319,5 @@ class CopyFilesWin(MinMaxDisabledWin):
         del self.task_
 
     def deleteLater(self):
-        if self.task_:
-            self.task_.set_should_run(False)
+        UThreadPool.stop_all()
         super().deleteLater()

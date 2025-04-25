@@ -368,7 +368,5 @@ class GridSearch(Grid):
         return super().resizeEvent(a0)
     
     def deleteLater(self):
-        if self.task_:
-            self.task_.set_should_run(False)
-            self.task_.pause = False
+        UThreadPool.stop_all()
         super().deleteLater()

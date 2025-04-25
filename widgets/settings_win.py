@@ -186,7 +186,6 @@ class SettingsWin(MinMaxDisabledWin):
             self.deleteLater()
 
     def deleteLater(self):
-        if hasattr(self, "task_") and self.task_.is_running:
-            self.task_.should_run = False
+        UThreadPool.stop_all()
         JsonData.write_config()
         super().deleteLater()

@@ -440,8 +440,7 @@ class GridStandart(Grid):
             ...
 
     def deleteLater(self):
-        for i in self.load_images_threads:
-            i.set_should_run(False)
+        UThreadPool.stop_all()
         super().deleteLater()
 
     def resizeEvent(self, a0):

@@ -223,6 +223,5 @@ class InfoWin(MinMaxDisabledWin):
             self.deleteLater()
     
     def deleteLater(self):
-        if hasattr(self, "task_"):
-            self.task_.set_should_run(False)
+        UThreadPool.stop_all()
         super().deleteLater()
