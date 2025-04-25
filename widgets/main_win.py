@@ -74,6 +74,25 @@ class TagsBtn(QWidget):
             self.click_cmd()
 
 
+class ScrollUpBtn(QLabel):
+    clicked = pyqtSignal()
+
+    def __init__(self, parent: QWidget):
+        super().__init__(ARROW_UP, parent)
+        self.setFixedSize(40, 40)
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.setStyleSheet(
+            f"""
+            background-color: {Static.GRAY_GLOBAL};
+            border-radius: 20px;
+            """
+            )
+        
+    def mouseReleaseEvent(self, ev):
+        if ev.button() == Qt.MouseButton.LeftButton:
+            self.clicked.emit()
+        return super().mouseReleaseEvent(ev)
+
 class MainWin(WinBase):
     resize_ms = 100
     grid_insert_num = 4
@@ -135,33 +154,24 @@ class MainWin(WinBase):
         right_wid = QWidget()
         self.splitter.addWidget(right_wid)
 
-        self.splitter.setStretchFactor(0, 0)
-        self.splitter.setStretchFactor(1, 1)
-        self.splitter.setSizes(
-            [MainWin.left_menu_width, self.width() - MainWin.left_menu_width]
-        )
-
         self.r_lay = QVBoxLayout()
         self.r_lay.setContentsMargins(0, 0, 0, 0)
         self.r_lay.setSpacing(0)
         right_wid.setLayout(self.r_lay)
         
         self.bar_top = TopBar(self.search_item)
-        # добавляем текущую директорию в историю
-        self.bar_top.new_history_item_cmd(self.main_dir)
         sep_one = USep()
         self.search_bar = SearchBar(self.search_item)
         self.search_bar_sep = USep()
-        # инициируем пустую сетку, чтобы работали все методы сетки, например
-        # grid.close(), и не пришлось бы каждый раз проверять
-        # if hasattr(self, "grid")
         self.grid = Grid(self.main_dir, self.view_index, None)
         sep_two = USep()
         self.path_bar = PathBar()
-        # устанавливаем изначальный путь в нижний бар
-        self.path_bar.set_new_path(self.main_dir)
         sep = USep()
         self.sort_bar = SortBar()
+
+        self.scroll_up = ScrollUpBtn(self)
+        self.scroll_up.hide()
+        self.scroll_up.clicked.connect(lambda: self.grid.verticalScrollBar().setValue(0))
 
         self.r_lay.insertWidget(0, self.bar_top)
         self.r_lay.insertWidget(1, sep_one)
@@ -173,20 +183,14 @@ class MainWin(WinBase):
         self.r_lay.insertWidget(7, sep)
         self.r_lay.insertWidget(8, self.sort_bar)
 
-        # после добавления вкладок можем установить индекс
+        self.bar_top.new_history_item_cmd(self.main_dir)
+        self.path_bar.set_new_path(self.main_dir)
+        self.splitter.setStretchFactor(0, 0)
+        self.splitter.setStretchFactor(1, 1)
+        self.splitter.setSizes(
+            [MainWin.left_menu_width, self.width() - MainWin.left_menu_width]
+        )
         self.menu_tabs.setCurrentIndex(1)
-        self.scroll_up = QLabel(parent=self, text=ARROW_UP)
-        self.scroll_up.hide()
-        self.scroll_up.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.scroll_up.mouseReleaseEvent = lambda e: self.grid.verticalScrollBar().setValue(0)
-        self.scroll_up.setFixedSize(40, 40)
-        self.scroll_up.setStyleSheet(
-            f"""
-            background-color: {Static.GRAY_GLOBAL};
-            border-radius: 20px;
-            """
-            )
-
         self.setup_signals()
         self.tags_btn_cmd()
         self.load_standart_grid((self.main_dir, None))
