@@ -391,6 +391,32 @@ class SortItem:
         rating : "Рейтинг",
     }
 
+    def __init__(self):
+        """
+        Объект для сортировки. По умолчанию: sort "name", rev False
+        """
+        super().__init__()
+        self.sort: str = SortItem.name
+        self.rev: bool = False
+
+    def set_rev(self, value: bool):
+        if isinstance(value, bool):
+            self.rev = value
+        else:
+            raise Exception("только bool")
+        
+    def get_rev(self):
+        return self.rev
+
+    def set_sort(self, value: bool):
+        if isinstance(value, bool):
+            self.sort = value
+        else:
+            raise Exception("только bool")
+        
+    def get_sort(self):
+        return self.sort
+
 
 class BaseItem:
     def __init__(self, src: str, rating: int = 0):
