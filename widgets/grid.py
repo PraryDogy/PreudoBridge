@@ -294,7 +294,7 @@ class Grid(UScrollArea):
         self.is_grid_search: bool = False
         self.main_dir = main_dir
         self.view_index = view_index
-        self.sort_item: SortItem = None
+        self.sort_item: SortItem = 1
 
         # для выделения виджета после формирования / перетасовки сетки
         self.url_for_select = url_for_select
@@ -383,7 +383,7 @@ class Grid(UScrollArea):
         """
         Сортирует виджеты по аттрибуту BaseItem / Thumb
         """
-        self.sorted_widgets = BaseItem.sort_items(self.sorted_widgets)
+        self.sorted_widgets = BaseItem.sort_(self.sorted_widgets, self.sort_item)
                 
     def filter_(self):
         """
@@ -782,7 +782,7 @@ class Grid(UScrollArea):
         change_view.change_view_sig.connect(self.change_view_sig.emit)
         menu_.addMenu(change_view)
 
-        sort_menu = SortMenu(menu_)
+        sort_menu = SortMenu(menu_, self.sort_item)
         sort_menu.sort_grid_sig.connect(self.sort_)
         sort_menu.rearrange_grid_sig.connect(self.rearrange)
         sort_menu.sort_bar_update_sig.connect(self.sort_bar_update.emit)

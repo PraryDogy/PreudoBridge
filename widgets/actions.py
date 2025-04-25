@@ -291,8 +291,9 @@ class SortMenu(UMenu):
     rearrange_grid_sig = pyqtSignal()
     sort_bar_update_sig = pyqtSignal(object)
 
-    def __init__(self, parent: UMenu):
+    def __init__(self, parent: UMenu, sort_item: SortItem):
         super().__init__(SORT_T, parent)
+        self.sort_item = sort_item
 
         ascending = QAction(ASCENDING_T, self)
         # добавляем свойство прямой / обратной сортировки
@@ -313,7 +314,7 @@ class SortMenu(UMenu):
             # если свойство rev совпадает с пользовательским свойством reversed
             # то отмечаем галочкой
             # JsonData - пользовательские данные из .json файла
-            if i.rev == Dynamic.rev:
+            if i.rev == self.sort_item.get_rev():
                 i.setChecked(True)
 
         self.addSeparator()
@@ -332,21 +333,21 @@ class SortMenu(UMenu):
             cmd_ = lambda e, true_name=true_name: self.cmd_sort(true_name)
             action_.triggered.connect(cmd_)
 
-            if Dynamic.sort == true_name:
+            if self.sort_item.get_sort() == true_name:
                 action_.setChecked(True)
 
             self.addAction(action_)
 
     def cmd_sort(self, true_name: str):
         # записываем true_name (тип сортировки) в пользовательский .json
-        Dynamic.sort = true_name
+        self.sort_item.set_sort(true_name)
         self.sort_grid_sig.emit()
         self.rearrange_grid_sig.emit()
         self.sort_bar_update_sig.emit(None)
 
     def cmd_revers(self, reversed: bool):
         # записываем порядок сортировки в пользовательский .json
-        Dynamic.rev = reversed
+        self.sort_item.set_rev(reversed)
         self.sort_grid_sig.emit()
         self.rearrange_grid_sig.emit()
         self.sort_bar_update_sig.emit(None)

@@ -492,7 +492,7 @@ class BaseItem:
                 raise Exception (f"\n\nbase_widgets.py > BaseItem: не хватает аттрибута из Sort.items. Аттрибут: {column_name}\n\n")
 
     @classmethod
-    def sort_items(cls, base_items: list["BaseItem"]) -> list["BaseItem"]:
+    def sort_(cls, base_items: list["BaseItem"], sort_item: SortItem) -> list["BaseItem"]:
         """
         Выполняет сортировку списка объектов BaseItem по заданному атрибуту.
 
@@ -504,8 +504,8 @@ class BaseItem:
         - Таким образом, сортировка осуществляется по значению атрибута "size" у объектов BaseItem.
         """
         
-        attr = Dynamic.sort
-        rev = Dynamic.rev
+        attr = sort_item.sort
+        rev = sort_item.rev
 
         if attr == SortItem.name:
 

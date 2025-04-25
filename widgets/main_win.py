@@ -378,10 +378,11 @@ class MainWin(WinBase):
         self.bar_top.set_main_dir(self.main_dir)
         self.menu_favs.set_main_dir(self.main_dir)
         self.menu_tree.expand_path(self.main_dir)
-        self.grid.set_sort_item(self.sort_item)
 
         if self.view_index == 0:
             self.grid = GridStandart(self.main_dir, self.view_index, url_for_select)
+            self.grid.set_sort_item(self.sort_item)
+            self.grid.load_finder_items()
 
         elif self.view_index == 1:
             self.grid = GridList(self.main_dir, self.view_index)

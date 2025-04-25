@@ -9,7 +9,7 @@ from cfg import Dynamic, Static
 from database import CACHE, Dbase
 from utils import URunnable, Utils
 
-from ._base_items import BaseItem
+from ._base_items import BaseItem, SortItem
 
 LOADING_T = "Загрузка..."
 SQL_ERRORS = (IntegrityError, OperationalError)
@@ -20,9 +20,10 @@ class WorkerSignals(QObject):
 
 
 class FinderItems(URunnable):
-    def __init__(self, main_dir: str):
+    def __init__(self, main_dir: str, sort_item: SortItem):
         super().__init__()
         self.signals_ = WorkerSignals()
+        self.sort_item = sort_item
         self.main_dir = main_dir
 
     # @URunnable.set_running_state
@@ -41,8 +42,8 @@ class FinderItems(URunnable):
             print(e)
             base_items, new_items = [], []
 
-        base_items = BaseItem.sort_items(base_items)
-        new_items = BaseItem.sort_items(new_items)
+        base_items = BaseItem.sort_(base_items, self.sort_item)
+        new_items = BaseItem.sort_(new_items, self.sort_item)
         self.signals_.finished_.emit((base_items, new_items))
 
     def create_connection(self) -> sqlalchemy.Connection | None:

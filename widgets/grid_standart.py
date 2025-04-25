@@ -274,7 +274,6 @@ class GridStandart(Grid):
         self.loading_lbl = LoadingWid(parent=self)
         self.loading_lbl.center(self)
         self.show()
-        self.load_finder_items()
 
     def load_visible_images(self):
         """
@@ -323,7 +322,7 @@ class GridStandart(Grid):
         - список всех BaseItem
         - список новых BaseItem, которых не было в базе данных
         """
-        self.finder_thread = FinderItems(self.main_dir)
+        self.finder_thread = FinderItems(self.main_dir, self.sort_item)
         self.finder_thread.signals_.finished_.connect(self.finalize_finder_items)
         UThreadPool.start(self.finder_thread)
 
