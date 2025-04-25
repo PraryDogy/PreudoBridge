@@ -538,14 +538,44 @@ class URunnable(QRunnable):
         super().__init__()
         self.should_run: bool = True
         self.is_running: bool = False
+        self.was_started: bool = False
+
+    def set_was_started(self, value: bool):
+        if isinstance(value, bool):
+            self.was_started = value
+        else:
+            raise Exception("Разрешен только bool")
     
+    def get_was_started(self):
+        return self.was_started
+
+    def set_should_run(self, value: bool):
+        if isinstance(value, bool):
+            self.should_run = value
+        else:
+            raise Exception("Разрешен только bool")
+
+    def get_should_run(self) -> bool:
+        return self.should_run
+
+    def set_is_running(self, value: bool):
+        if isinstance(value, bool):
+            self.is_running = value
+        else:
+            raise Exception("Разрешен только bool")
+
+    def get_is_running(self) -> bool:
+        return self.is_running
+
     @staticmethod
     def set_running_state(method: callable):
 
         def wrapper(self, *args, **kwargs):
-            self.is_running = True
+            # аннотация для удобства
+            assert isinstance(self, URunnable)
+            self.set_is_running(True)
             method(self, *args, **kwargs)
-            self.is_running = False
+            self.set_is_running(False)
 
         return wrapper
 
@@ -560,17 +590,22 @@ class UThreadPool:
 
     @classmethod
     def start(cls, runnable: URunnable):
-        cls.current = [i for i in cls.current if i.is_running]
+        cls.current = [
+            i
+            for i in cls.current
+            if i.get_is_running() or not i.get_was_started()
+        ]
+        runnable.set_was_started(True)
         cls.current.append(runnable)
         cls.pool.start(runnable)
 
     @classmethod
     def stop_all(cls):
         for runnable in cls.current:
-            runnable.should_run = False
+            runnable.set_should_run(False)
 
         # Ждать, пока все потоки завершатся
-        while any(r.is_running for r in cls.current):
+        while any(r.get_is_running() for r in cls.current):
             QThread.msleep(50)  # немного подождать
 
         cls.current.clear()
