@@ -93,6 +93,22 @@ class ScrollUpBtn(QLabel):
             self.clicked.emit()
         return super().mouseReleaseEvent(ev)
 
+
+class Overlay(QWidget):
+    def __init__(self, parent: QWidget):
+        super().__init__(parent)
+        self.resize(parent.size())
+
+    def mousePressEvent(self, event):
+        pass  # блокируем
+
+    def mouseReleaseEvent(self, event):
+        pass
+
+    def keyPressEvent(self, event):
+        pass
+
+
 class MainWin(WinBase):
     resize_ms = 100
     grid_insert_num = 4
@@ -380,11 +396,12 @@ class MainWin(WinBase):
         self.menu_tree.expand_path(self.main_dir)
 
         if self.view_index == 0:
-            self.setEnabled(False)
+            overlay = Overlay(self)
+            overlay.show()
             self.grid = GridStandart(self.main_dir, self.view_index, url_for_select)
             self.grid.set_sort_item(self.sort_item)
             self.grid.load_finder_items()
-            self.grid.finished_load.connect(lambda: self.setEnabled(True))
+            self.grid.finished_load.connect(lambda: self.remove_overlay(overlay))
 
         elif self.view_index == 1:
             self.grid = GridList(self.main_dir, self.view_index)
@@ -392,6 +409,11 @@ class MainWin(WinBase):
         self.setup_grid_signals()
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
 
+    def remove_overlay(self, overlay: Overlay):
+        try:
+            overlay.deleteLater()
+        except RuntimeError:
+            ...
 
     def scroll_up_show_hide(self, value: int):
         if value == 0:
