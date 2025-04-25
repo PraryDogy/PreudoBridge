@@ -408,11 +408,11 @@ class SortItem:
     def get_rev(self):
         return self.rev
 
-    def set_sort(self, value: bool):
-        if isinstance(value, bool):
+    def set_sort(self, value: str):
+        if isinstance(value, str):
             self.sort = value
         else:
-            raise Exception("только bool")
+            raise Exception("только str")
         
     def get_sort(self):
         return self.sort
