@@ -354,7 +354,7 @@ class SortMenuBtn(UFrame):
         - Сортировка сетки
         - Перетасовка сетки
         """
-        menu_ = SortMenu(self)
+        menu_ = SortMenu(self, self.sort_item)
         menu_.sort_grid_sig.connect(self.sort_grid_sig.emit)
         menu_.rearrange_grid_sig.connect(self.rearrange_grid_sig.emit)
         menu_.sort_bar_update_sig.connect(lambda: self.set_sort_text(self.sort_item))
