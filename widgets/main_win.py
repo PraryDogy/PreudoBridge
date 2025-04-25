@@ -339,10 +339,6 @@ class MainWin(WinBase):
         if id_ == id(self.grid):
             self.search_bar.hide_spinner()
 
-    def set_disabled_widgets(self, value: bool):
-       for i in self.findChildren(QWidget):
-            i.setDisabled(value)
-
     def load_standart_grid(self, data: tuple):
         """
         data:
@@ -389,8 +385,6 @@ class MainWin(WinBase):
             self.grid = GridStandart(self.main_dir, self.view_index, url_for_select)
             self.grid.set_sort_item(self.sort_item)
             self.grid.load_finder_items()
-            self.grid.lock_widgets.connect(lambda: self.set_disabled_widgets(True))
-            self.grid.unlock_widgets.connect(lambda: self.set_disabled_widgets(False))
 
             for i in self.findChildren(QWidget):
                 i.setDisabled(True)
