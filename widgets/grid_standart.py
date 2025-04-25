@@ -386,13 +386,12 @@ class GridStandart(Grid):
                 row += 1
 
         self.sort_()
-        self.rearrange()
         self.sort_bar_update.emit(len(base_items))
 
         if Dynamic.rating_filter > 0:
             self.filter_()
-            self.rearrange()
 
+        self.rearrange()
         self.load_images_timer.start(100)
         
     def run_load_images_thread(self, thumbs: list[Thumb]):
