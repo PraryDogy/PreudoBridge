@@ -292,15 +292,16 @@ class Grid(UScrollArea):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         self.is_grid_search: bool = False
-        self.main_dir = main_dir
-        self.view_index = view_index
+        self.main_dir: str = main_dir
+        self.view_index: int = view_index
         self.sort_item: SortItem = 1
 
-        self.col_count = 0
-        self.row, self.col = 0, 0
+        self.col_count: int = 0
+        self.row: int = 0
+        self.col: int = 0
 
         # для выделения виджета после формирования / перетасовки сетки
-        self.url_for_select = url_for_select
+        self.url_for_select: str = url_for_select
 
         # url файла / папки - виджет
         self.url_to_wid: dict[str, Thumb] = {}
