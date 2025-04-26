@@ -90,7 +90,6 @@ class CustomApp(QApplication):
     def on_exit(self):
         if UThreadPool.pool.activeThreadCount() == 0:
             JsonData.write_config()
-            QApplication.quit()
         else:
             QTimer.singleShot(1000, self.on_exit)
 
