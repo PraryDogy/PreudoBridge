@@ -387,8 +387,6 @@ class GridStandart(Grid):
         self.load_images_timer.start(100)
 
     def iter_base_items(self):
-        col_count = self.get_col_count()
-
         for base_item in self.base_items[:GridStandart.limit]:
             thumb = Thumb(base_item.src, base_item.rating)
             thumb.setup_attrs()
@@ -420,7 +418,7 @@ class GridStandart(Grid):
             # обновляем данные сетки, чтобы следующие iter base items
             # так же знали актуальные данные сеткик
             self.col += 1
-            if self.col >= col_count:
+            if self.col >= self.col_count:
                 self.col = 0
                 self.row += 1
 

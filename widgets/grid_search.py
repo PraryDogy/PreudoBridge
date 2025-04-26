@@ -264,10 +264,6 @@ class GridSearch(Grid):
         self.search_item = search_item
 
     def start_search(self):
-        # обязательно делать именно после инициации, так как только тогда
-        # get_col_count найдет родительское окно GridSearch
-        self.col_count = self.get_col_count()
-
         self.sort_bar_update.emit(0)
         self.path_bar_update.emit(self.main_dir)
         Thumb.calculate_size()
@@ -336,7 +332,6 @@ class GridSearch(Grid):
 
     def sort_(self):
         self.task_.pause = True
-        self.col_count = self.get_col_count()
         super().sort_()
         self.rearrange()
         self.pause_timer.stop()
@@ -357,7 +352,6 @@ class GridSearch(Grid):
         self.pause_timer.start(RESIZE_TIMER_COUNT)
 
     def rearrange(self):
-        self.col_count = self.get_col_count()
         super().rearrange()
 
     def remove_pause(self):
