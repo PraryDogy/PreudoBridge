@@ -309,12 +309,12 @@ class MainWin(WinBase):
 
     def load_search_grid(self):
         self.grid.deleteLater()
-        self.menu_tags.reset()
         self.search_bar.show()
+        self.search_bar.show_spinner()
         self.search_bar_sep.show()
         self.bar_top.set_main_dir(self.main_dir)
+        self.menu_tags.reset()
         self.menu_favs.set_main_dir(self.main_dir)
-        self.search_bar.show_spinner()
 
         self.grid = GridSearch(self.main_dir, self.view_index, None)
         self.grid.set_sort_item(self.sort_item)
