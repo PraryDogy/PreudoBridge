@@ -536,27 +536,7 @@ class URunnable(QRunnable):
         Декоратор set_running_state обязательно устанавливается на функцию run
         """
         super().__init__()
-        self.should_run: bool = True
         self.is_running: bool = False
-        self.was_started: bool = False
-
-    def set_was_started(self, value: bool):
-        if isinstance(value, bool):
-            self.was_started = value
-        else:
-            raise Exception("Разрешен только bool")
-    
-    def get_was_started(self):
-        return self.was_started
-
-    def set_should_run(self, value: bool):
-        if isinstance(value, bool):
-            self.should_run = value
-        else:
-            raise Exception("Разрешен только bool")
-
-    def get_should_run(self) -> bool:
-        return self.should_run
 
     def set_is_running(self, value: bool):
         if isinstance(value, bool):

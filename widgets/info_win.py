@@ -1,8 +1,9 @@
 import os
+import weakref
 
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
-from PyQt5.QtWidgets import QAction, QGridLayout, QLabel
+from PyQt5.QtWidgets import QAction, QGridLayout, QLabel, QWidget
 
 from cfg import Static
 from utils import URunnable, UThreadPool, Utils
@@ -28,10 +29,11 @@ class WorkerSignals(QObject):
 
 
 class CalculatingTask(URunnable):
-    def __init__(self, base_item: BaseItem):
+    def __init__(self, base_item: BaseItem, parent: QWidget):
         super().__init__()
         self.base_item = base_item
         self.signals_ = WorkerSignals()
+        self.parent_ref = weakref.ref(parent)
 
     @URunnable.set_running_state
     def run(self):
@@ -69,7 +71,7 @@ class CalculatingTask(URunnable):
 
                 for entry in entries:
 
-                    if not self.get_should_run():
+                    if not self.parent_ref():
                         return
 
                     if entry.is_dir():
@@ -83,7 +85,7 @@ class CalculatingTask(URunnable):
 
         total = Utils.get_f_size(total)
 
-        if self.get_should_run():
+        if self.parent_ref():
             return total
 
 
