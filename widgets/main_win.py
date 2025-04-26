@@ -323,6 +323,7 @@ class MainWin(WinBase):
         self.grid.start_search()
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
         self.setup_grid_signals()
+        self.grid.setFocus()
 
     def finished_search_grid(self, id_: int):
         """
@@ -391,6 +392,7 @@ class MainWin(WinBase):
 
         self.setup_grid_signals()
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
+        self.grid.setFocus()
 
     def scroll_up_show_hide(self, value: int):
         if value == 0:
