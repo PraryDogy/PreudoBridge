@@ -330,7 +330,7 @@ class GridStandart(Grid):
         - список всех BaseItem
         - список новых BaseItem, которых не было в базе данных
         """
-        self.finder_thread = FinderItems(self.main_dir, self.sort_item)
+        self.finder_thread = FinderItems(self.main_dir, self.sort_item, self)
         self.finder_thread.signals_.finished_.connect(self.finalize_finder_items)
         UThreadPool.start(self.finder_thread)
 

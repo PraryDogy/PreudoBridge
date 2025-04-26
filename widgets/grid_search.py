@@ -1,4 +1,5 @@
 import os
+import weakref
 from difflib import SequenceMatcher
 from time import sleep
 
@@ -30,10 +31,11 @@ class WorkerSignals(QObject):
 class SearchFinder(URunnable):
     search_value = 0.85
 
-    def __init__(self, main_dir: str, search_item: SearchItem):
+    def __init__(self, main_dir: str, search_item: SearchItem, parent: QWidget):
         super().__init__()
         self.signals_ = WorkerSignals()
         self.main_dir = main_dir
+        self.parent_ref = weakref.ref(parent)
 
         self.search_item = search_item
         self.files_list_lower: list[str] = []
@@ -143,7 +145,8 @@ class SearchFinder(URunnable):
             # Удаляем последний элемент из списка
             # Функция возвращает удаленный элемент
             current_dir = dirs_list.pop()
-            if not self.get_should_run():
+            if not self.parent_ref():
+                print("stop")
                 return
             while self.pause:
                 sleep(1)
@@ -156,7 +159,8 @@ class SearchFinder(URunnable):
 
     def scan_current_dir(self, dir: str, dirs_list: list):
         for entry in os.scandir(dir):
-            if not self.get_should_run():
+            if not self.parent_ref():
+                print("stop")
                 return
             while self.pause:
                 sleep(1)
@@ -263,7 +267,7 @@ class GridSearch(Grid):
         Thumb.calculate_size()
         self.is_grid_search = True
 
-        self.task_ = SearchFinder(self.main_dir, self.search_item)
+        self.task_ = SearchFinder(self.main_dir, self.search_item, self)
         self.task_.signals_.new_widget.connect(self.add_new_widget)
         self.task_.signals_.finished_.connect(self.search_fin)
         UThreadPool.start(self.task_)
@@ -358,15 +362,9 @@ class GridSearch(Grid):
         if self.task_:
             self.task_.pause = False
 
-    def cancel_cmd(self, *args):
-        if self.task_:
-            self.task_.set_should_run(False)
-            self.search_fin()
-
     def resizeEvent(self, a0):
         self.resize_()
         return super().resizeEvent(a0)
     
     def deleteLater(self):
-        UThreadPool.stop_all()
         super().deleteLater()
