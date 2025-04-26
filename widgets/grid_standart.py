@@ -417,6 +417,8 @@ class GridStandart(Grid):
             self.add_widget_data(thumb, self.row, self.col)
             self.grid_layout.addWidget(thumb, self.row, self.col)
 
+            # обновляем данные сетки, чтобы следующие iter base items
+            # так же знали актуальные данные сеткик
             self.col += 1
             if self.col >= col_count:
                 self.col = 0
