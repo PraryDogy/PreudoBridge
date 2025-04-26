@@ -2,7 +2,8 @@ import gc
 import os
 
 import sqlalchemy
-from PyQt5.QtCore import QEvent, QObject, QPoint, QSize, Qt, QTimer, pyqtSignal
+from PyQt5.QtCore import (QEvent, QObject, QPoint, QRunnable, QSize, Qt,
+                          QTimer, pyqtSignal)
 from PyQt5.QtGui import (QColor, QContextMenuEvent, QKeyEvent, QMouseEvent,
                          QPainter, QPaintEvent, QPixmap, QResizeEvent)
 from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QSpacerItem,
@@ -10,7 +11,7 @@ from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QSpacerItem,
 
 from cfg import Dynamic, Static
 from database import CACHE, Dbase, DbaseTools
-from utils import URunnable, UThreadPool, Utils
+from utils import UThreadPool, Utils
 
 from ._base_items import UMenu, USvgSqareWidget, WinBase
 from .actions import (CopyName, CopyPath, Info, OpenInApp, RatingMenu,
@@ -33,14 +34,13 @@ class WorkerSignals(QObject):
     finished_ = pyqtSignal(ImageData)
 
 
-class LoadThumbnail(URunnable):
+class LoadThumbnail(QRunnable):
     def __init__(self, src: str):
         super().__init__()
         self.signals_ = WorkerSignals()
         self.src = Utils.normalize_slash(src)
         self.name = os.path.basename(self.src)
 
-    # @URunnable.set_running_state
     def run(self):
         try:
             db = os.path.join(os.path.dirname(self.src), Static.DB_FILENAME)
@@ -79,7 +79,7 @@ class LoadThumbnail(URunnable):
             Utils.print_error(parent=None, error=e)
 
 
-class LoadImage(URunnable):
+class LoadImage(QRunnable):
     cached_images: dict[str, QPixmap] = {}
 
     def __init__(self, src: str):
@@ -87,7 +87,6 @@ class LoadImage(URunnable):
         self.signals_ = WorkerSignals()
         self.src: str = src
 
-    # @URunnable.set_running_state
     def run(self):
         try:
             if self.src not in self.cached_images:

@@ -1,11 +1,11 @@
 import os
 import subprocess
 
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSignal, QRunnable
 from PyQt5.QtWidgets import QAction, QLabel, QLineEdit, QTextEdit, QWidget
 
 from cfg import Dynamic, Static
-from utils import URunnable, UThreadPool, Utils
+from utils import UThreadPool, Utils
 
 from ._base_items import SortItem, UMenu
 
@@ -31,12 +31,11 @@ TAGS_T = "Метки"
 OPEN_DEFAULT_T = "По умолчанию"
 
 # Общий класс для выполнения действий QAction в отдельном потоке
-class Task_(URunnable):
+class Task_(QRunnable):
     def __init__(self,  cmd_: callable):
         super().__init__()
         self.cmd_ = cmd_
 
-    # @URunnable.set_running_state
     def run(self):
         try:
             self.cmd_()

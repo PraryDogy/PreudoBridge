@@ -3,14 +3,14 @@ import shutil
 import subprocess
 from datetime import datetime
 
-from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
+from PyQt5.QtCore import QObject, QRunnable, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QGroupBox, QHBoxLayout, QLabel, QPushButton,
                              QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
-from utils import URunnable, UThreadPool
+from utils import UThreadPool
 
 from ._base_items import MinMaxDisabledWin
 
@@ -80,12 +80,11 @@ class WorkerSignals(QObject):
     finished_ = pyqtSignal(bool)
 
 
-class DownloadUpdate(URunnable):
+class DownloadUpdate(QRunnable):
     def __init__(self):
         super().__init__()
         self.signals_ = WorkerSignals()
 
-    # @URunnable.set_running_state
     def run(self):
         for i in JsonData.udpdate_file_paths:
             if os.path.exists(i):

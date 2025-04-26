@@ -2,13 +2,13 @@ import os
 import weakref
 
 import sqlalchemy
-from PyQt5.QtCore import QObject, Qt, pyqtSignal
+from PyQt5.QtCore import QObject, Qt, pyqtSignal, QRunnable
 from PyQt5.QtWidgets import QLabel, QWidget
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Static
 from database import CACHE, Dbase
-from utils import URunnable, Utils
+from utils import Utils
 
 from ._base_items import BaseItem, SortItem
 
@@ -20,7 +20,7 @@ class WorkerSignals(QObject):
     finished_ = pyqtSignal(tuple)
 
 
-class FinderItems(URunnable):
+class FinderItems(QRunnable):
 
     def __init__(self, main_dir: str, sort_item: SortItem, parent: QWidget):
         super().__init__()
@@ -29,7 +29,6 @@ class FinderItems(URunnable):
         self.main_dir = main_dir
         self.parent_ref = weakref.ref(parent)
 
-    # @URunnable.set_running_state
     def run(self):
         try:
             base_items = self.get_base_items()

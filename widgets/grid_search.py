@@ -3,13 +3,13 @@ import weakref
 from difflib import SequenceMatcher
 from time import sleep
 
-from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
+from PyQt5.QtCore import QObject, QRunnable, Qt, QTimer, pyqtSignal
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
 
 from cfg import Dynamic, Static, ThumbData
 from fit_img import FitImg
-from utils import URunnable, UThreadPool, Utils
+from utils import UThreadPool, Utils
 
 from ._base_items import (BaseItem, MinMaxDisabledWin, SearchItem,
                           USvgSqareWidget, UTextEdit)
@@ -28,7 +28,7 @@ class WorkerSignals(QObject):
     finished_ = pyqtSignal()
 
 
-class SearchFinder(URunnable):
+class SearchFinder(QRunnable):
     search_value = 0.85
 
     def __init__(self, main_dir: str, search_item: SearchItem, parent: QWidget):
@@ -46,7 +46,6 @@ class SearchFinder(URunnable):
         self.conn = None
         self.pause = False
 
-    # @URunnable.set_running_state
     def run(self):
         try:
             self.setup_search()

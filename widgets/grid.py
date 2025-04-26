@@ -3,7 +3,8 @@ import subprocess
 from time import sleep
 
 import sqlalchemy
-from PyQt5.QtCore import QMimeData, QObject, Qt, QTimer, QUrl, pyqtSignal
+from PyQt5.QtCore import (QMimeData, QObject, QRunnable, Qt, QTimer, QUrl,
+                          pyqtSignal)
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
                          QPixmap)
 from PyQt5.QtSvg import QSvgWidget
@@ -13,7 +14,7 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Dynamic, JsonData, Static, ThumbData
 from database import CACHE, Dbase
-from utils import URunnable, UThreadPool, Utils
+from utils import UThreadPool, Utils
 
 from ._base_items import BaseItem, SortItem, UMenu, UScrollArea
 from .actions import (ChangeViewMenu, CopyName, CopyPath, FavAdd, FavRemove,
@@ -66,7 +67,7 @@ class WorkerSignals(QObject):
     finished_ = pyqtSignal()
 
 
-class SetDbRating(URunnable):
+class SetDbRating(QRunnable):
     def __init__(self, main_dir: str, base_item: BaseItem, new_rating: int):
         super().__init__()
         self.base_item = base_item
@@ -74,7 +75,6 @@ class SetDbRating(URunnable):
         self.main_dir = main_dir
         self.signals_ = WorkerSignals()
 
-    # @URunnable.set_running_state
     def run(self):        
         db = os.path.join(self.main_dir, Static.DB_FILENAME)
         dbase = Dbase()

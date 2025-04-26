@@ -1,13 +1,13 @@
 import os
 import subprocess
 
-from PyQt5.QtCore import QObject, QPoint, Qt, pyqtSignal
+from PyQt5.QtCore import QObject, QPoint, QRunnable, Qt, pyqtSignal
 from PyQt5.QtGui import QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
 
 from cfg import Dynamic, Static, ThumbData
-from utils import URunnable, UThreadPool, Utils
+from utils import UThreadPool, Utils
 
 from ._base_items import (MinMaxDisabledWin, SortItem, UFrame, ULineEdit,
                           USlider, USvgSqareWidget)
@@ -137,7 +137,7 @@ class WorkerSignals(QObject):
     finished_ = pyqtSignal(str)
 
 
-class PathFinderThread(URunnable):
+class PathFinderThread(QRunnable):
     def __init__(self, src: str):
         """
         Входящий путь к файлу папке проходит через PathFinder, корректируется
@@ -152,7 +152,6 @@ class PathFinderThread(URunnable):
         self.signals_ = WorkerSignals()
         self.src: str = src
 
-    # @URunnable.set_running_state
     def run(self):
         try:
             result = PathFinder.get_result(path=self.src)

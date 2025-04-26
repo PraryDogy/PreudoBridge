@@ -525,39 +525,6 @@ class Utils(Pixmap, ReadImage, ImgConvert):
 
         return path_to_svg
 
-class URunnable(QRunnable):
-    def __init__(self):
-        """
-        QRunnable, аттрибуты:
-        - is_running: bool - устанавливается через декоратор set_running_state
-        при запуске функции QRunnable.run()
-
-        Декоратор set_running_state обязательно устанавливается на функцию run
-        """
-        super().__init__()
-        self.is_running: bool = False
-
-    def set_is_running(self, value: bool):
-        if isinstance(value, bool):
-            self.is_running = value
-        else:
-            raise Exception("Разрешен только bool")
-
-    def get_is_running(self) -> bool:
-        return self.is_running
-
-    @staticmethod
-    def set_running_state(method: callable):
-
-        def wrapper(self, *args, **kwargs):
-            # аннотация для удобства
-            assert isinstance(self, URunnable)
-            self.set_is_running(True)
-            method(self, *args, **kwargs)
-            self.set_is_running(False)
-
-        return wrapper
-
 
 class UThreadPool:
     pool: QThreadPool = None
@@ -567,7 +534,7 @@ class UThreadPool:
         cls.pool = QThreadPool().globalInstance()
 
     @classmethod
-    def start(cls, runnable: URunnable):
+    def start(cls, runnable: QRunnable):
         cls.pool.start(runnable)
 
     @classmethod

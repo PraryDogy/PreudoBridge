@@ -1,12 +1,12 @@
 import os
 import weakref
 
-from PyQt5.QtCore import QObject, Qt, pyqtSignal
+from PyQt5.QtCore import QObject, QRunnable, Qt, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import QAction, QGridLayout, QLabel, QWidget
 
 from cfg import Static
-from utils import URunnable, UThreadPool, Utils
+from utils import UThreadPool, Utils
 
 from ._base_items import BaseItem, MinMaxDisabledWin, UMenu
 from .actions import CopyText, RevealInFinder
@@ -28,14 +28,13 @@ class WorkerSignals(QObject):
     finished_ = pyqtSignal(str)
 
 
-class CalculatingTask(URunnable):
+class CalculatingTask(QRunnable):
     def __init__(self, base_item: BaseItem, parent: QWidget):
         super().__init__()
         self.base_item = base_item
         self.signals_ = WorkerSignals()
         self.parent_ref = weakref.ref(parent)
 
-    # @URunnable.set_running_state
     def run(self):
         try:
             if self.base_item.type_ == Static.FOLDER_TYPE:

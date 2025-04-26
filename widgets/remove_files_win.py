@@ -1,13 +1,13 @@
 import subprocess
 
-from PyQt5.QtCore import QObject, Qt, pyqtSignal
+from PyQt5.QtCore import QObject, QRunnable, Qt, pyqtSignal
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
 
 from cfg import Static
-from utils import URunnable, UThreadPool
+from utils import UThreadPool
 
-from ._base_items import USvgSqareWidget, MinMaxDisabledWin
+from ._base_items import MinMaxDisabledWin, USvgSqareWidget
 
 REMOVE_T = "Переместить в корзину объекты"
 OK_T = "Ок"
@@ -20,14 +20,13 @@ class WorkerSignals(QObject):
     load_st_grid_sig = pyqtSignal(tuple)
 
 
-class RemoveFilesTask(URunnable):
+class RemoveFilesTask(QRunnable):
     def __init__(self, main_dir: str, urls: list[str]):
         super().__init__()
         self.signals_ = WorkerSignals()
         self.main_dir = main_dir
         self.urls = urls
 
-    # @URunnable.set_running_state
     def run(self):
         try:
             command = ["osascript", Static.REMOVE_FILES_SCPT] + self.urls

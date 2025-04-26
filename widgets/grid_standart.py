@@ -3,7 +3,7 @@ import os
 import weakref
 
 import numpy as np
-from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
+from PyQt5.QtCore import QObject, QRunnable, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QLabel, QWidget
 from sqlalchemy import Connection, insert, select, update
@@ -11,7 +11,7 @@ from sqlalchemy import Connection, insert, select, update
 from cfg import Dynamic, Static, ThumbData
 from database import CACHE, ColumnNames, Dbase
 from fit_img import FitImg
-from utils import URunnable, UThreadPool, Utils
+from utils import UThreadPool, Utils
 
 from ._base_items import BaseItem
 from .finder_items import FinderItems, LoadingWid
@@ -179,7 +179,7 @@ class WorkerSignals(QObject):
     finished_ = pyqtSignal()
 
 
-class LoadImages(URunnable):
+class LoadImages(QRunnable):
     def __init__(self, main_dir: str, thumbs: list[Thumb], parent: QWidget):
         """
         QRunnable   
@@ -194,7 +194,6 @@ class LoadImages(URunnable):
         key_ = lambda x: x.size
         self.thumbs.sort(key=key_)
 
-    # @URunnable.set_running_state
     def run(self):
         """
         Создает подключение к базе данных   

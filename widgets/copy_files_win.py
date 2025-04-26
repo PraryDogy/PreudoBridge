@@ -1,12 +1,12 @@
 import os
 import weakref
 
-from PyQt5.QtCore import QObject, Qt, pyqtSignal
+from PyQt5.QtCore import QObject, Qt, pyqtSignal, QRunnable
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QPushButton,
                              QVBoxLayout, QWidget)
 
 from cfg import Static
-from utils import URunnable, UThreadPool, Utils
+from utils import UThreadPool, Utils
 
 from ._base_items import MinMaxDisabledWin, USvgSqareWidget
 
@@ -25,7 +25,7 @@ class WorkerSignals(QObject):
     error_win_sig = pyqtSignal()
 
 
-class FileCopyWorker(URunnable):
+class FileCopyWorker(QRunnable):
     def __init__(self, main_dir: str, urls: list[str], parent: QWidget):
         super().__init__()
         self.main_dir = main_dir
@@ -33,7 +33,6 @@ class FileCopyWorker(URunnable):
         self.parent_ref = weakref.ref(parent)
         self.signals_ = WorkerSignals()
 
-    # @URunnable.set_running_state
     def run(self):    
         try:
             new_paths = self.create_new_paths()
