@@ -1,10 +1,11 @@
 import gc
 import os
+import weakref
 
 import numpy as np
 from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QLabel
+from PyQt5.QtWidgets import QLabel, QWidget
 from sqlalchemy import Connection, insert, select, update
 
 from cfg import Dynamic, Static, ThumbData
@@ -179,7 +180,7 @@ class WorkerSignals(QObject):
 
 
 class LoadImages(URunnable):
-    def __init__(self, main_dir: str, thumbs: list[Thumb]):
+    def __init__(self, main_dir: str, thumbs: list[Thumb], parent: QWidget):
         """
         QRunnable   
         Сортирует список Thumb по размеру по возрастанию для ускорения загрузки
@@ -188,6 +189,7 @@ class LoadImages(URunnable):
         super().__init__()
         self.signals_ = WorkerSignals()
         self.main_dir = main_dir
+        self.parent_ref = weakref.ref(parent)
         self.thumbs = thumbs
         key_ = lambda x: x.size
         self.thumbs.sort(key=key_)
@@ -226,7 +228,7 @@ class LoadImages(URunnable):
         """
         for thumb in self.thumbs:
 
-            if not self.get_should_run():
+            if not self.parent_ref():
                 return
                         
             try:
@@ -240,7 +242,6 @@ class LoadImages(URunnable):
                 return
 
             except Exception as e:
-                # Utils.print_error(self, e)
                 continue
 
 
@@ -266,7 +267,6 @@ class GridStandart(Grid):
         """
         super().__init__(main_dir, view_index, url_for_select)
         self.loaded_images: list[str] = []
-        self.load_images_threads: list[LoadImages] = []
         self.load_images_timer = QTimer(self)
         self.load_images_timer.setSingleShot(True)
         self.load_images_timer.timeout.connect(self.load_visible_images)
@@ -405,26 +405,10 @@ class GridStandart(Grid):
         Изоражения загружаются из базы данных или берутся из заданной
         директории, если их нет в базе данных.
         """
-        return
-        for i in self.load_images_threads:
-            i.set_should_run(False)
-
-        thread_ = LoadImages(self.main_dir, thumbs)
-        self.load_images_threads.append(thread_)
+        thread_ = LoadImages(self.main_dir, thumbs, self)
         thread_.signals_.update_thumb.connect(lambda thumb: self.set_thumb_image(thumb))
-        thread_.signals_.finished_.connect(
-            lambda: self.finalize_load_images_thread(thread_)
-        )
         UThreadPool.start(thread_)
     
-    def finalize_load_images_thread(self, thread_: LoadImages):
-        """
-        Принудительно удаляет QRunnable
-        """
-        self.load_images_threads.remove(thread_)
-        del thread_
-        gc.collect()
-
     def set_thumb_image(self, thumb: Thumb):
         """
         Получает QPixmap из хранилища Thumb.    
