@@ -248,7 +248,6 @@ class GridSearch(Grid):
         self.search_item: SearchItem = None
         self.setAcceptDrops(False)
 
-        self.row, self.col = 0, 0
         self.total = 0
         self.task_: SearchFinder = None
 

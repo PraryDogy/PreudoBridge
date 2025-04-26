@@ -296,6 +296,8 @@ class Grid(UScrollArea):
         self.view_index = view_index
         self.sort_item: SortItem = 1
 
+        self.row, self.col = 0, 0
+
         # для выделения виджета после формирования / перетасовки сетки
         self.url_for_select = url_for_select
 
@@ -432,7 +434,7 @@ class Grid(UScrollArea):
 
         # очищаем cell_to_wid, чтобы заполнить этот словарь новыми координатами
         self.cell_to_wid.clear()
-        row, col = 0, 0
+        self.row, self.col = 0, 0
 
         # проходим циклом по отсортированным виджетам
         for wid in self.sorted_widgets:
@@ -441,18 +443,18 @@ class Grid(UScrollArea):
             if wid.must_hidden:
                 continue
 
-            self.grid_layout.addWidget(wid, row, col)
+            self.grid_layout.addWidget(wid, self.row, self.col)
 
             # добавляем новые координаты в словарь
-            self.cell_to_wid[row, col] = wid
+            self.cell_to_wid[self.row, self.col] = wid
 
             # меняем аттрибуты строки и столбца в виджете Thumb
-            wid.row, wid.col = row, col
+            wid.row, wid.col = self.row, self.col
 
-            col += 1
-            if col >= col_count:
-                col = 0
-                row += 1
+            self.col += 1
+            if self.col >= col_count:
+                self.col = 0
+                self.row += 1
 
         # формируем новый словарь путь к файлу: виджет Thumb
         # на основе cell_to_wid, чтобы пропустить скрытые виджеты

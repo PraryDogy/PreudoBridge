@@ -274,7 +274,6 @@ class GridStandart(Grid):
         self.loading_lbl = LoadingWid(self)
         self.loading_lbl.center(self)
 
-        self.row, self.col = 0, 0
         self.base_widgets: list[BaseItem] = []
         self.new_items: list[BaseItem] = []
 
@@ -389,7 +388,7 @@ class GridStandart(Grid):
 
             self.base_items.remove(base_item)
 
-            self.add_widget_data(wid=thumb, row=self.row, col=self.col)
+            self.add_widget_data(thumb, self.row, self.col)
             self.grid_layout.addWidget(thumb, self.row, self.col)
 
             self.col += 1
