@@ -175,7 +175,7 @@ class ImageBaseItem:
 
 
 class WorkerSignals(QObject):
-    update_thumb = pyqtSignal(tuple)
+    update_thumb = pyqtSignal(Thumb)
     finished_ = pyqtSignal()
 
 
@@ -235,8 +235,8 @@ class LoadImages(QRunnable):
                     AnyBaseItem.check_db_record(self.conn, thumb)
                 else:
                     pixmap = ImageBaseItem.get_pixmap(self.conn, thumb)
-                    data = (thumb.src, pixmap)
-                    self.signals_.update_thumb.emit(data)
+                    thumb.set_pixmap_storage(pixmap)
+                    self.signals_.update_thumb.emit(thumb)
             except RuntimeError:
                 return
 
@@ -434,17 +434,17 @@ class GridStandart(Grid):
         # в самом QRunnable нет обращений напрямую к Thumb
         # а только испускается сигнал
         thread_ = LoadImages(self.main_dir, thumbs, self)
-        thread_.signals_.update_thumb.connect(lambda data: self.set_thumb_image(data))
+        thread_.signals_.update_thumb.connect(lambda thumb: self.set_thumb_image(thumb))
         UThreadPool.start(thread_)
     
-    def set_thumb_image(self, data: tuple[str, QPixmap]):
-        """  
+    def set_thumb_image(self, thumb: Thumb):
+        """
+        Получает QPixmap из хранилища Thumb.    
         Устанавливает QPixmap в Thumb для отображения в сетке.
         """
         try:
-            url, pixmap = data
-            thumb = self.url_to_wid.get(url)
-            if thumb and pixmap and thumb in self.sorted_widgets:
+            pixmap = thumb.get_pixmap_storage()
+            if thumb in self.sorted_widgets and pixmap:
                 thumb.set_image(pixmap)
                 self.loaded_images.append(thumb.src)
         except RuntimeError:
