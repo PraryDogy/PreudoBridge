@@ -55,6 +55,12 @@ class SearchFinder(QRunnable):
         except RuntimeError as e:
             Utils.print_error(None, e)
 
+    def set_pause(self, value: bool):
+        self.pause = value
+
+    def get_pause(self):
+        return self.pause
+
     def setup_search(self):
         if self.search_item.get_files_list():
             if self.search_item.get_exactly():
@@ -147,7 +153,7 @@ class SearchFinder(QRunnable):
             current_dir = dirs_list.pop()
             if not self.parent_ref():
                 return
-            while self.pause:
+            while self.get_pause():
                 sleep(1)
             try:
                 # Сканируем текущий каталог и добавляем новые пути в стек
@@ -160,7 +166,7 @@ class SearchFinder(QRunnable):
         for entry in os.scandir(dir):
             if not self.parent_ref():
                 return
-            while self.pause:
+            while self.get_pause():
                 sleep(1)
             if entry.name.startswith("."):
                 continue
@@ -335,7 +341,7 @@ class GridSearch(Grid):
         self.finished_.emit()
 
     def sort_(self):
-        self.task_.pause = True
+        self.task_.set_pause(True)
         self.col_count = self.get_col_count()
         super().sort_()
         self.rearrange()
@@ -343,14 +349,14 @@ class GridSearch(Grid):
         self.pause_timer.start(RESIZE_TIMER_COUNT)
 
     def filter_(self):
-        self.task_.pause = True
+        self.task_.set_pause(True)
         super().filter_()
         self.rearrange()
         self.pause_timer.stop()
         self.pause_timer.start(RESIZE_TIMER_COUNT)
 
     def resize_(self):
-        self.task_.pause = True
+        self.task_.set_pause(True)
         super().resize_()
         self.rearrange()
         self.pause_timer.stop()
@@ -366,7 +372,7 @@ class GridSearch(Grid):
 
     def remove_pause(self):
         if self.task_:
-            self.task_.pause = False
+            self.task_.set_pause(False)
 
     def resizeEvent(self, a0):
         self.resize_()
