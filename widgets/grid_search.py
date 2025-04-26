@@ -269,6 +269,12 @@ class GridSearch(Grid):
         """
         self.search_item = search_item
 
+    def set_total(self, value: int):
+        self.total = value
+
+    def get_total(self):
+        return self.total
+
     def start_search(self):
         # обязательно делать именно после инициации, так как только тогда
         # get_col_count найдет родительское окно GridSearch
@@ -308,13 +314,13 @@ class GridSearch(Grid):
         self.add_widget_data(thumb, self.row, self.col)
         self.grid_layout.addWidget(thumb, self.row, self.col)
 
-        self.total += 1
+        self.set_total(self.get_total() + 1)
         self.col += 1
         if self.col >= self.col_count:
             self.col = 0
             self.row += 1
  
-        self.sort_bar_update.emit(self.total)
+        self.sort_bar_update.emit(self.get_total())
 
     def search_fin(self):
         if not self.cell_to_wid:
