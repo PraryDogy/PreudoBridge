@@ -286,16 +286,14 @@ class CopyFilesWin(MinMaxDisabledWin):
 
         right_side_lay.addStretch()
 
-        self.task_ = None
-
         if self.urls:
-            self.task_ = FileCopyWorker(self.main_dir, urls, self)
-            self.task_.signals_.set_max_progress.connect(lambda value: self.set_max(progressbar, value))
-            self.task_.signals_.set_value_progress.connect(lambda value: self.set_value(progressbar, value))
-            self.task_.signals_.set_text_progress.connect(size_mb_lbl.setText)
-            self.task_.signals_.finished_.connect(lambda urls: self.finished_task(urls))
-            self.task_.signals_.error_win_sig.connect(self.error_win_sig.emit)
-            UThreadPool.start(runnable=self.task_)
+            task_ = FileCopyWorker(self.main_dir, urls, self)
+            task_.signals_.set_max_progress.connect(lambda value: self.set_max(progressbar, value))
+            task_.signals_.set_value_progress.connect(lambda value: self.set_value(progressbar, value))
+            task_.signals_.set_text_progress.connect(size_mb_lbl.setText)
+            task_.signals_.finished_.connect(lambda urls: self.finished_task(urls))
+            task_.signals_.error_win_sig.connect(self.error_win_sig.emit)
+            UThreadPool.start(task_)
 
         self.adjustSize()
 
@@ -314,9 +312,8 @@ class CopyFilesWin(MinMaxDisabledWin):
         self.deleteLater()
 
     def finished_task(self, urls: list[str]):
-        self.deleteLater()
         self.finished_.emit(urls)
-        del self.task_
+        self.deleteLater()
 
     def deleteLater(self):
         super().deleteLater()
