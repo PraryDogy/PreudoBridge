@@ -536,7 +536,3 @@ class UThreadPool:
     @classmethod
     def start(cls, runnable: QRunnable):
         cls.pool.start(runnable)
-
-    @classmethod
-    def stop_all(cls):
-        cls.pool.waitForDone()
