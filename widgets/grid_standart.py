@@ -265,16 +265,26 @@ class GridStandart(Grid):
             После загрузки виджет, соответствующий пути "Загрузки/изображение 1.jpg", будет найден и выделен.
         """
         super().__init__(main_dir, view_index, url_for_select)
+
+        # список url для предотвращения повторной загрузки изображений
         self.loaded_images: list[str] = []
+
+        # при скроллинге запускается данный таймер и сбрасывается предыдуший
+        # только при остановке скроллинга спустя время запускается
+        # функция загрузки изображений
         self.load_images_timer = QTimer(self)
         self.load_images_timer.setSingleShot(True)
         self.load_images_timer.timeout.connect(self.load_visible_images)
         self.verticalScrollBar().valueChanged.connect(self.on_scroll_changed)
 
+        # виджет поверх остальных с текстом "загрузка"
         self.loading_lbl = LoadingWid(self)
         self.loading_lbl.center(self)
 
-        self.base_widgets: list[BaseItem] = []
+        # QRunnable FinderItems вернет все элементы из заданной директории
+        # где base items это существующие в базе данных записи по элементам
+        # а new_items - элементы, записей по которым нет в базе данных
+        self.base_items: list[BaseItem] = []
         self.new_items: list[BaseItem] = []
 
     def load_visible_images(self):
@@ -285,13 +295,9 @@ class GridStandart(Grid):
         visible_widgets: list[Thumb] = []
         for widget in self.main_wid.findChildren(Thumb):
             if not widget.visibleRegion().isEmpty():
-                visible_widgets.append(widget)
-        thumbs = [
-            i
-            for i in visible_widgets
-            if i.src not in self.loaded_images
-        ]
-        self.run_load_images_thread(thumbs)
+                if widget.src not in self.loaded_images:
+                    visible_widgets.append(widget)
+        self.run_load_images_thread(visible_widgets)
 
     def force_load_images_cmd(self, urls: list[str]):
         """
