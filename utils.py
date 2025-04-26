@@ -529,7 +529,6 @@ class URunnable(QRunnable):
     def __init__(self):
         """
         QRunnable, аттрибуты:
-        - should_run: bool - флаг для остановки QRunnable
         - is_running: bool - устанавливается через декоратор set_running_state
         при запуске функции QRunnable.run()
 
