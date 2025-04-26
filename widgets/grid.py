@@ -432,11 +432,11 @@ class Grid(UScrollArea):
         соответственно число столбцов и строк в сетке виджетов Thumb    
         должно измениться, и для этого вызывается метод rearrange
         """
-        self.col_count = self.get_col_count()
 
         # очищаем cell_to_wid, чтобы заполнить этот словарь новыми координатами
         self.cell_to_wid.clear()
         self.row, self.col = 0, 0
+        self.col_count = self.get_col_count()
 
         # проходим циклом по отсортированным виджетам
         for wid in self.sorted_widgets:
@@ -488,8 +488,6 @@ class Grid(UScrollArea):
             if widgets:
                 cmd_ = lambda: self.ensure_wid_visible(widgets[0])
                 QTimer.singleShot(500, cmd_)
-        
-        return self.col_count
     
     def ensure_wid_visible(self, wid: Thumb):
         try:
