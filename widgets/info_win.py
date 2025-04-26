@@ -223,5 +223,3 @@ class InfoWin(MinMaxDisabledWin):
         if a0.key() in (Qt.Key.Key_Escape, Qt.Key.Key_Return):
             self.deleteLater()
     
-    def deleteLater(self):
-        super().deleteLater()

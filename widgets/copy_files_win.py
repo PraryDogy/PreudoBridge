@@ -313,6 +313,3 @@ class CopyFilesWin(MinMaxDisabledWin):
     def finished_task(self, urls: list[str]):
         self.finished_.emit(urls)
         self.deleteLater()
-
-    def deleteLater(self):
-        super().deleteLater()

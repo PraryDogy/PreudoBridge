@@ -421,9 +421,6 @@ class GridStandart(Grid):
         except RuntimeError:
             ...
 
-    def deleteLater(self):
-        super().deleteLater()
-
     def resizeEvent(self, a0):
         self.loading_lbl.center(self)
         return super().resizeEvent(a0)

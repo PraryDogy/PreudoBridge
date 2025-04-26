@@ -368,5 +368,3 @@ class GridSearch(Grid):
         self.resize_()
         return super().resizeEvent(a0)
     
-    def deleteLater(self):
-        super().deleteLater()
