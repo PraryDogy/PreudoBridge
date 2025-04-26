@@ -189,7 +189,7 @@ class SearchFinder(QRunnable):
             # предотвращаем segmentation fault
             Utils.print_error(self, e)
             quit()
-        sleep(0.1)
+        sleep(2)
 
 
 class WinMissedFiles(MinMaxDisabledWin):
@@ -357,11 +357,7 @@ class GridSearch(Grid):
         self.pause_timer.start(RESIZE_TIMER_COUNT)
 
     def rearrange(self):
-        # нам нужно вычислить новое количество колонок, актуальную строку
-        # и столбец для вставки нового виджета
         self.col_count = self.get_col_count()
-        self.row = len(self.cell_to_wid) // self.col_count
-        self.col = len(self.cell_to_wid) % self.col_count
         super().rearrange()
 
     def remove_pause(self):
