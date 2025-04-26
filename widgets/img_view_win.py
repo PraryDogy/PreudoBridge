@@ -40,7 +40,7 @@ class LoadThumbnail(URunnable):
         self.src = Utils.normalize_slash(src)
         self.name = os.path.basename(self.src)
 
-    @URunnable.set_running_state
+    # @URunnable.set_running_state
     def run(self):
         try:
             db = os.path.join(os.path.dirname(self.src), Static.DB_FILENAME)
@@ -87,7 +87,7 @@ class LoadImage(URunnable):
         self.signals_ = WorkerSignals()
         self.src: str = src
 
-    @URunnable.set_running_state
+    # @URunnable.set_running_state
     def run(self):
         try:
             if self.src not in self.cached_images:

@@ -85,7 +85,7 @@ class DownloadUpdate(URunnable):
         super().__init__()
         self.signals_ = WorkerSignals()
 
-    @URunnable.set_running_state
+    # @URunnable.set_running_state
     def run(self):
         for i in JsonData.udpdate_file_paths:
             if os.path.exists(i):

@@ -36,7 +36,7 @@ class Task_(URunnable):
         super().__init__()
         self.cmd_ = cmd_
 
-    @URunnable.set_running_state
+    # @URunnable.set_running_state
     def run(self):
         try:
             self.cmd_()

@@ -33,7 +33,7 @@ class FileCopyWorker(URunnable):
         self.parent_ref = weakref.ref(parent)
         self.signals_ = WorkerSignals()
 
-    @URunnable.set_running_state
+    # @URunnable.set_running_state
     def run(self):    
         try:
             new_paths = self.create_new_paths()

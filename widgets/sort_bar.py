@@ -152,7 +152,7 @@ class PathFinderThread(URunnable):
         self.signals_ = WorkerSignals()
         self.src: str = src
 
-    @URunnable.set_running_state
+    # @URunnable.set_running_state
     def run(self):
         try:
             result = PathFinder.get_result(path=self.src)

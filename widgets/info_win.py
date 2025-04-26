@@ -35,7 +35,7 @@ class CalculatingTask(URunnable):
         self.signals_ = WorkerSignals()
         self.parent_ref = weakref.ref(parent)
 
-    @URunnable.set_running_state
+    # @URunnable.set_running_state
     def run(self):
         try:
             if self.base_item.type_ == Static.FOLDER_TYPE:

@@ -29,7 +29,7 @@ class FinderItems(URunnable):
         self.main_dir = main_dir
         self.parent_ref = weakref.ref(parent)
 
-    @URunnable.set_running_state
+    # @URunnable.set_running_state
     def run(self):
         try:
             base_items = self.get_base_items()

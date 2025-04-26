@@ -46,12 +46,13 @@ class SearchFinder(URunnable):
         self.conn = None
         self.pause = False
 
-    @URunnable.set_running_state
+    # @URunnable.set_running_state
     def run(self):
         try:
             self.setup_search()
             self.scandir_recursive()
-            self.signals_.finished_.emit()
+            if self.parent_ref():
+                self.signals_.finished_.emit()
         except RuntimeError as e:
             Utils.print_error(None, e)
 
@@ -181,11 +182,10 @@ class SearchFinder(URunnable):
         base_item.set_pixmap_storage(pixmap)
 
         try:
-            ...
-            self.signals_.new_widget.emit(base_item)
+            if self.parent_ref():
+                self.signals_.new_widget.emit(base_item)
         except Exception as e:
             Utils.print_error(parent=self, error=e)
-            self.signals_.new_widget.emit(base_item)
         sleep(0.1)
 
 

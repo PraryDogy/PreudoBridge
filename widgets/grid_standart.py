@@ -194,7 +194,7 @@ class LoadImages(URunnable):
         key_ = lambda x: x.size
         self.thumbs.sort(key=key_)
 
-    @URunnable.set_running_state
+    # @URunnable.set_running_state
     def run(self):
         """
         Создает подключение к базе данных   

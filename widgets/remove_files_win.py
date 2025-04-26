@@ -27,7 +27,7 @@ class RemoveFilesTask(URunnable):
         self.main_dir = main_dir
         self.urls = urls
 
-    @URunnable.set_running_state
+    # @URunnable.set_running_state
     def run(self):
         try:
             command = ["osascript", Static.REMOVE_FILES_SCPT] + self.urls

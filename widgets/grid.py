@@ -74,7 +74,7 @@ class SetDbRating(URunnable):
         self.main_dir = main_dir
         self.signals_ = WorkerSignals()
 
-    @URunnable.set_running_state
+    # @URunnable.set_running_state
     def run(self):        
         db = os.path.join(self.main_dir, Static.DB_FILENAME)
         dbase = Dbase()
