@@ -186,6 +186,5 @@ class SettingsWin(MinMaxDisabledWin):
             self.deleteLater()
 
     def deleteLater(self):
-        UThreadPool.stop_all()
         JsonData.write_config()
         super().deleteLater()

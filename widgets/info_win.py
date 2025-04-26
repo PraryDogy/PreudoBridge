@@ -223,5 +223,4 @@ class InfoWin(MinMaxDisabledWin):
             self.deleteLater()
     
     def deleteLater(self):
-        UThreadPool.stop_all()
         super().deleteLater()

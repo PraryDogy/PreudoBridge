@@ -440,7 +440,6 @@ class GridStandart(Grid):
             ...
 
     def deleteLater(self):
-        UThreadPool.stop_all()
         super().deleteLater()
 
     def resizeEvent(self, a0):
