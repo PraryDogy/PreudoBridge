@@ -438,8 +438,7 @@ class GridStandart(Grid):
         UThreadPool.start(thread_)
     
     def set_thumb_image(self, data: tuple[str, QPixmap]):
-        """
-        Получает QPixmap из хранилища Thumb.    
+        """  
         Устанавливает QPixmap в Thumb для отображения в сетке.
         """
         try:
