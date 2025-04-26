@@ -187,6 +187,7 @@ class SearchFinder(QRunnable):
             # поиск продолжает выполняться, а так мы отлавливаем, что parent
             # был уничтожен и выходим из потока
             # предотвращаем segmentation fault
+            Utils.print_error(self, e)
             quit()
         sleep(0.1)
 
