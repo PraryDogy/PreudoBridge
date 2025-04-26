@@ -340,7 +340,6 @@ class GridStandart(Grid):
 
     def finalize_finder_items(self, items: tuple[list[BaseItem]]):
         """
-        Принудительно удаляет QRunnable.    
         Обходит список BaseItem, формируя сетку виджетов Thumb.     
         Делает текст зеленым, если BaseItem есть в списке new_items
         (читай load finder items).    
@@ -348,7 +347,12 @@ class GridStandart(Grid):
         """
         self.base_items, self.new_items = items
         self.loading_lbl.hide()
+
+        # испускаем сигнал в MainWin, чтобы нижний бар с отображением пути
+        # обновился на актуальный путь
         self.path_bar_update.emit(self.main_dir)
+
+        # высчитываем размер Thumb
         Thumb.calculate_size()
 
         if not self.base_items:
@@ -358,7 +362,7 @@ class GridStandart(Grid):
             self.grid_layout.addWidget(no_images, 0, 0)
             return
 
-        # создаем генерик иконки если не было
+        # создаем иконки на основе расширений, если не было
         exts = {i.type_ for i in self.base_items}
         for ext in exts:
             icon_path = Utils.get_generic_icon_path(ext)
@@ -366,11 +370,20 @@ class GridStandart(Grid):
                 path_to_svg = Utils.create_generic_icon(ext)
                 Dynamic.generic_icon_paths.append(path_to_svg)
 
+        # создаем сетку на основе элементов из FinderItems с лимитом
         self.iter_base_items()
 
+        # испускаем сигнал в MainWin для обновления нижнего бара
+        # для отображения "всего элементов"
         self.sort_bar_update.emit(len(self.base_items))
+
+        # если установлен фильтр по рейтингу, запускаем функцию фильтрации,
+        # которая скроет из сетки не подходящие под фильтр виджеты
         if Dynamic.rating_filter > 0:
             self.filter_()
+
+        # если не будет прокрутки, то начнется подгрузка изображений в виджеты
+        # в видимой области
         self.load_images_timer.start(100)
 
     def iter_base_items(self):
