@@ -18,7 +18,6 @@ class Static:
     REMOVE_FILES_SCPT = os.path.join(SCRIPTS_DIR, "remove_files.scpt")
 
     IMAGES_DIR = "images"
-    IMG_SVG = os.path.join(IMAGES_DIR, "img.svg")
     FILE_SVG = os.path.join(IMAGES_DIR, "file.svg")
     FOLDER_SVG = os.path.join(IMAGES_DIR, "folder.svg")
     HDD_SVG = os.path.join(IMAGES_DIR, "hdd.svg")
@@ -34,7 +33,6 @@ class Static:
     CLEAR_SVG = os.path.join(IMAGES_DIR, "clear.svg")
     HIDE_SVG = os.path.join(IMAGES_DIR, "hide.svg")
     SHOW_SVG = os.path.join(IMAGES_DIR, "show.svg")
-    GENERIC_SVG = os.path.join(IMAGES_DIR, "generic.svg")
     FOLDER_UP_SVG = os.path.join(IMAGES_DIR, "folder_up.svg")
     GRID_VIEW_SVG = os.path.join(IMAGES_DIR, "grid_view.svg")
     LIST_VIEW_SVG = os.path.join(IMAGES_DIR, "list_view.svg")
