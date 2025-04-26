@@ -1,11 +1,12 @@
 import os
+import weakref
 
 import sqlalchemy
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtWidgets import QLabel, QWidget
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import Dynamic, Static
+from cfg import Static
 from database import CACHE, Dbase
 from utils import URunnable, Utils
 
@@ -21,13 +22,14 @@ class WorkerSignals(QObject):
 
 class FinderItems(URunnable):
 
-    def __init__(self, main_dir: str, sort_item: SortItem):
+    def __init__(self, main_dir: str, sort_item: SortItem, parent: QWidget):
         super().__init__()
         self.signals_ = WorkerSignals()
         self.sort_item = sort_item
         self.main_dir = main_dir
+        self.parent_ref = weakref.ref(parent)
 
-    # @URunnable.set_running_state
+    @URunnable.set_running_state
     def run(self):
         try:
             base_items = self.get_base_items()
@@ -89,14 +91,15 @@ class FinderItems(URunnable):
 
     def get_items_no_db(self):
         base_items = []
-        with os.scandir(self.main_dir) as entries:
-            for entry in entries:
-                if entry.name.startswith("."):
-                    continue
-                if entry.is_dir() or entry.name.endswith(Static.ext_all):
-                    item = BaseItem(entry.path)
-                    item.setup_attrs()
-                    base_items.append(item)
+        for entry in os.scandir(self.main_dir):
+            if not self.parent_ref():
+                break
+            if entry.name.startswith("."):
+                continue
+            if entry.is_dir() or entry.name.endswith(Static.ext_all):
+                item = BaseItem(entry.path)
+                item.setup_attrs()
+                base_items.append(item)
         return base_items, []
 
 
