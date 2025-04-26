@@ -183,6 +183,10 @@ class SearchFinder(QRunnable):
         try:
             self.signals_.new_widget.emit(base_item)
         except Exception as e:
+            # почему то даже когда parent_ref = None, 
+            # поиск продолжает выполняться, а так мы отлавливаем, что parent
+            # был уничтожен и выходим из потока
+            # предотвращаем segmentation fault
             quit()
         sleep(0.1)
 
