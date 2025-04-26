@@ -330,9 +330,9 @@ class GridStandart(Grid):
         - список всех BaseItem
         - список новых BaseItem, которых не было в базе данных
         """
-        self.finder_thread = FinderItems(self.main_dir, self.sort_item, self)
-        self.finder_thread.signals_.finished_.connect(self.finalize_finder_items)
-        UThreadPool.start(self.finder_thread)
+        finder_thread = FinderItems(self.main_dir, self.sort_item, self)
+        finder_thread.signals_.finished_.connect(self.finalize_finder_items)
+        UThreadPool.start(finder_thread)
 
     def finalize_finder_items(self, items: tuple[list[BaseItem]]):
         """
@@ -343,8 +343,6 @@ class GridStandart(Grid):
         Запускает таймер для load visible images
         """
         self.base_items, self.new_items = items
-        del self.finder_thread
-        gc.collect()
         self.loading_lbl.hide()
         self.path_bar_update.emit(self.main_dir)
         Thumb.calculate_size()
@@ -407,6 +405,7 @@ class GridStandart(Grid):
         Изоражения загружаются из базы данных или берутся из заданной
         директории, если их нет в базе данных.
         """
+        return
         for i in self.load_images_threads:
             i.set_should_run(False)
 
