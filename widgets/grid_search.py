@@ -51,7 +51,7 @@ class SearchFinder(URunnable):
         try:
             self.setup_search()
             self.scandir_recursive()
-            # self.signals_.finished_.emit()
+            self.signals_.finished_.emit()
         except RuntimeError as e:
             Utils.print_error(None, e)
 
@@ -182,10 +182,10 @@ class SearchFinder(URunnable):
 
         try:
             ...
-            # self.signals_.new_widget.emit(base_item)
+            self.signals_.new_widget.emit(base_item)
         except Exception as e:
             Utils.print_error(parent=self, error=e)
-            # self.signals_.new_widget.emit(base_item)
+            self.signals_.new_widget.emit(base_item)
         sleep(0.1)
 
 
@@ -325,7 +325,7 @@ class GridSearch(Grid):
                 self.win_missed_files.center(self.window())
                 self.win_missed_files.show()
 
-        # self.finished_.emit()
+        self.finished_.emit()
 
     def sort_(self):
         self.task_.pause = True
