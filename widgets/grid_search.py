@@ -55,12 +55,6 @@ class SearchFinder(QRunnable):
         except RuntimeError as e:
             Utils.print_error(None, e)
 
-    def set_pause(self, value: bool):
-        self.pause = value
-
-    def get_pause(self):
-        return self.pause
-
     def setup_search(self):
         if self.search_item.get_files_list():
             if self.search_item.get_exactly():
@@ -153,7 +147,7 @@ class SearchFinder(QRunnable):
             current_dir = dirs_list.pop()
             if not self.parent_ref():
                 return
-            while self.get_pause():
+            while self.pause:
                 sleep(1)
             try:
                 # Сканируем текущий каталог и добавляем новые пути в стек
@@ -166,7 +160,7 @@ class SearchFinder(QRunnable):
         for entry in os.scandir(dir):
             if not self.parent_ref():
                 return
-            while self.get_pause():
+            while self.pause:
                 sleep(1)
             if entry.name.startswith("."):
                 continue
@@ -269,12 +263,6 @@ class GridSearch(Grid):
         """
         self.search_item = search_item
 
-    def set_total(self, value: int):
-        self.total = value
-
-    def get_total(self):
-        return self.total
-
     def start_search(self):
         # обязательно делать именно после инициации, так как только тогда
         # get_col_count найдет родительское окно GridSearch
@@ -314,13 +302,13 @@ class GridSearch(Grid):
         self.add_widget_data(thumb, self.row, self.col)
         self.grid_layout.addWidget(thumb, self.row, self.col)
 
-        self.set_total(self.get_total() + 1)
+        self.total += 1
         self.col += 1
         if self.col >= self.col_count:
             self.col = 0
             self.row += 1
  
-        self.sort_bar_update.emit(self.get_total())
+        self.sort_bar_update.emit(self.total)
 
     def search_fin(self):
         if not self.cell_to_wid:
@@ -347,7 +335,7 @@ class GridSearch(Grid):
         self.finished_.emit()
 
     def sort_(self):
-        self.task_.set_pause(True)
+        self.task_.pause = True
         self.col_count = self.get_col_count()
         super().sort_()
         self.rearrange()
@@ -355,14 +343,14 @@ class GridSearch(Grid):
         self.pause_timer.start(RESIZE_TIMER_COUNT)
 
     def filter_(self):
-        self.task_.set_pause(True)
+        self.task_.pause = True
         super().filter_()
         self.rearrange()
         self.pause_timer.stop()
         self.pause_timer.start(RESIZE_TIMER_COUNT)
 
     def resize_(self):
-        self.task_.set_pause(True)
+        self.task_.pause = True
         super().resize_()
         self.rearrange()
         self.pause_timer.stop()
@@ -378,7 +366,7 @@ class GridSearch(Grid):
 
     def remove_pause(self):
         if self.task_:
-            self.task_.set_pause(False)
+            self.task_.pause = False
 
     def resizeEvent(self, a0):
         self.resize_()
