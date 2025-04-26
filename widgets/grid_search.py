@@ -181,10 +181,9 @@ class SearchFinder(QRunnable):
         base_item.set_pixmap_storage(pixmap)
 
         try:
-            if self.parent_ref():
-                self.signals_.new_widget.emit(base_item)
+            self.signals_.new_widget.emit(base_item)
         except Exception as e:
-            Utils.print_error(parent=self, error=e)
+            quit()
         sleep(0.1)
 
 

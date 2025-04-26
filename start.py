@@ -62,13 +62,13 @@ import faulthandler
 faulthandler.enable()
 
 
-from PyQt5.QtCore import QEvent, QObject
+from PyQt5.QtCore import QEvent, QObject, QTimer
 from PyQt5.QtWidgets import QApplication
 
 from cfg import JsonData
-from widgets.main_win import MainWin
 from utils import UThreadPool
 from widgets._base_items import BaseItem, WinBase
+from widgets.main_win import MainWin
 
 
 class CustomApp(QApplication):
@@ -85,18 +85,17 @@ class CustomApp(QApplication):
         if a1.type() == QEvent.Type.ApplicationActivate:
             for i in WinBase.wins:
                 i.show()
-            # for i in self.topLevelWidgets():
-            #     if isinstance(i, MainWin):
-            #         i.show()
         return False
 
     def on_exit(self):
-        try:
-            # предотвращаем segmentation fault
+        print("Проверка активных задач...")
+        if UThreadPool.pool.activeThreadCount() == 0:
+            print("Все задачи завершены. Выходим.")
             JsonData.write_config()
-            UThreadPool.stop_all()
-        except Exception as e:
-            print("start > on exit", e)
+            QApplication.quit()
+        else:
+            print(f"Осталось {UThreadPool.pool.activeThreadCount()} задач. Ждём 1 сек...")
+            QTimer.singleShot(1000, self.on_exit)
 
 
 BaseItem.check()

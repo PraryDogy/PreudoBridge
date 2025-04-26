@@ -539,5 +539,4 @@ class UThreadPool:
 
     @classmethod
     def stop_all(cls):
-        return
         cls.pool.waitForDone()
