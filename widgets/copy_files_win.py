@@ -1,4 +1,5 @@
 import os
+import weakref
 
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QPushButton,
@@ -25,10 +26,11 @@ class WorkerSignals(QObject):
 
 
 class FileCopyWorker(URunnable):
-    def __init__(self, main_dir: str, urls: list[str]):
+    def __init__(self, main_dir: str, urls: list[str], parent: QWidget):
         super().__init__()
         self.main_dir = main_dir
         self.urls = urls
+        self.parent_ref = weakref.ref(parent)
         self.signals_ = WorkerSignals()
 
     @URunnable.set_running_state
@@ -57,11 +59,9 @@ class FileCopyWorker(URunnable):
         # байты переводим в читаемый f string
         self.total_f_size = Utils.get_f_size(total_bytes)
 
-        macintosh_hd = Utils.get_system_volume()
-
         for src, dest in new_paths:
 
-            if not self.get_should_run():
+            if not self.parent_ref():
                 break
             
             # создаем древо папок как в исходной папке
@@ -90,7 +90,7 @@ class FileCopyWorker(URunnable):
 
         try:
             with open(src, 'rb') as fsrc, open(dest, 'wb') as fdest:
-                while self.get_should_run():
+                while self.parent_ref():
                     buf = fsrc.read(buffer_size)
                     if not buf:
                         break
@@ -289,7 +289,7 @@ class CopyFilesWin(MinMaxDisabledWin):
         self.task_ = None
 
         if self.urls:
-            self.task_ = FileCopyWorker(self.main_dir, urls)
+            self.task_ = FileCopyWorker(self.main_dir, urls, self)
             self.task_.signals_.set_max_progress.connect(lambda value: self.set_max(progressbar, value))
             self.task_.signals_.set_value_progress.connect(lambda value: self.set_value(progressbar, value))
             self.task_.signals_.set_text_progress.connect(size_mb_lbl.setText)
