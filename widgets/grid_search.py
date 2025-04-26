@@ -146,7 +146,6 @@ class SearchFinder(URunnable):
             # Функция возвращает удаленный элемент
             current_dir = dirs_list.pop()
             if not self.parent_ref():
-                print("stop")
                 return
             while self.pause:
                 sleep(1)
@@ -160,7 +159,6 @@ class SearchFinder(URunnable):
     def scan_current_dir(self, dir: str, dirs_list: list):
         for entry in os.scandir(dir):
             if not self.parent_ref():
-                print("stop")
                 return
             while self.pause:
                 sleep(1)
