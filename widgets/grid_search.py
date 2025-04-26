@@ -256,6 +256,10 @@ class GridSearch(Grid):
         self.pause_timer.setSingleShot(True)
 
     def set_search_item(self, search_item: SearchItem):
+        """
+        Устанавливает search_item
+        Существует только для того, чтобы не передавать через аргумент в инициаторе
+        """
         self.search_item = search_item
 
     def start_search(self):
