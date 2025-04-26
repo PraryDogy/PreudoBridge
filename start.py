@@ -88,13 +88,10 @@ class CustomApp(QApplication):
         return False
 
     def on_exit(self):
-        print("Проверка активных задач...")
         if UThreadPool.pool.activeThreadCount() == 0:
-            print("Все задачи завершены. Выходим.")
             JsonData.write_config()
             QApplication.quit()
         else:
-            print(f"Осталось {UThreadPool.pool.activeThreadCount()} задач. Ждём 1 сек...")
             QTimer.singleShot(1000, self.on_exit)
 
 
