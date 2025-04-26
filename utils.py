@@ -582,7 +582,6 @@ class URunnable(QRunnable):
 
 class UThreadPool:
     pool: QThreadPool = None
-    # current: list[URunnable] = []
 
     @classmethod
     def init(cls):
@@ -590,23 +589,8 @@ class UThreadPool:
 
     @classmethod
     def start(cls, runnable: URunnable):
-        # cls.current = [
-        #     i
-        #     for i in cls.current
-        #     if i.get_is_running() or not i.get_was_started()
-        # ]
-        # runnable.set_was_started(True)
-        # cls.current.append(runnable)
         cls.pool.start(runnable)
 
     @classmethod
     def stop_all(cls):
-        # for runnable in cls.current:
-        #     runnable.set_should_run(False)
-
-        # # Ждать, пока все потоки завершатся
-        # while any(r.get_is_running() for r in cls.current):
-        #     QThread.msleep(50)  # немного подождать
-
-        # cls.current.clear()
         cls.pool.waitForDone()
