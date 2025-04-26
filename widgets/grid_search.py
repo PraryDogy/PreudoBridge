@@ -248,6 +248,7 @@ class GridSearch(Grid):
         self.search_item: SearchItem = None
         self.setAcceptDrops(False)
 
+        # значение общего числа виджетов в сетке для нижнего бара приложения
         self.total = 0
         self.task_: SearchFinder = None
 
