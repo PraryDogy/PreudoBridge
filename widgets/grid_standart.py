@@ -395,9 +395,13 @@ class GridStandart(Grid):
             thumb.setup_child_widgets()
             thumb.set_no_frame()
 
+            # если путь состоит только из 2 секций: /Volumes/Macintosh HD
+            # то это точно диск, устанавливаем соответствующую иконку
             if base_item.src.count(os.sep) == 2:
                 thumb.set_svg_icon(Static.HDD_SVG)
 
+            # иконка на основе расширения файла для виджета уже точно есть
+            # проверка была в finalize finder items
             else:
                 icon_path = Utils.get_generic_icon_path(base_item.type_)
                 thumb.set_svg_icon(icon_path)
@@ -405,6 +409,9 @@ class GridStandart(Grid):
             if base_item in self.new_items:
                 thumb.set_green_text()
 
+            # удаляем элемент из списка base items
+            # таким образом в следующем обращении к iter base items
+            # список base items будет актуальным
             self.base_items.remove(base_item)
 
             self.add_widget_data(thumb, self.row, self.col)
@@ -422,6 +429,10 @@ class GridStandart(Grid):
         Изоражения загружаются из базы данных или берутся из заданной
         директории, если их нет в базе данных.
         """
+        # передаем виджеты Thumb из сетки изображений в зоне видимости
+        # в QRunnable для подгрузки изображений
+        # в самом QRunnable нет обращений напрямую к Thumb
+        # а только испускается сигнал
         thread_ = LoadImages(self.main_dir, thumbs, self)
         thread_.signals_.update_thumb.connect(lambda thumb: self.set_thumb_image(thumb))
         UThreadPool.start(thread_)
