@@ -296,6 +296,7 @@ class Grid(UScrollArea):
         self.view_index = view_index
         self.sort_item: SortItem = 1
 
+        self.col_count = 0
         self.row, self.col = 0, 0
 
         # для выделения виджета после формирования / перетасовки сетки
@@ -425,12 +426,13 @@ class Grid(UScrollArea):
 
     def rearrange(self):
         """
+        Устанавливает col_count     
         Перетасовывает виджеты в сетке на основе новых условий.     
         Например был изменен размер виджета Thumb с 10x10 на 15x15,     
         соответственно число столбцов и строк в сетке виджетов Thumb    
         должно измениться, и для этого вызывается метод rearrange
         """
-        col_count = self.get_col_count()
+        self.col_count = self.get_col_count()
 
         # очищаем cell_to_wid, чтобы заполнить этот словарь новыми координатами
         self.cell_to_wid.clear()
@@ -452,7 +454,7 @@ class Grid(UScrollArea):
             wid.row, wid.col = self.row, self.col
 
             self.col += 1
-            if self.col >= col_count:
+            if self.col >= self.col_count:
                 self.col = 0
                 self.row += 1
 
@@ -487,7 +489,7 @@ class Grid(UScrollArea):
                 cmd_ = lambda: self.ensure_wid_visible(widgets[0])
                 QTimer.singleShot(500, cmd_)
         
-        return col_count
+        return self.col_count
     
     def ensure_wid_visible(self, wid: Thumb):
         try:
