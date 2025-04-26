@@ -201,10 +201,10 @@ class InfoWin(MinMaxDisabledWin):
         self.adjustSize()
         self.setFixedSize(self.width(), self.height())
 
-        cmd_ = lambda result: self.finalize(result=result)
-        self.task_ = CalculatingTask(base_item=base_item)
-        self.task_.signals_.finished_.connect(cmd_)
-        UThreadPool.start(runnable=self.task_)
+        cmd_ = lambda result: self.finalize(result)
+        task_ = CalculatingTask(base_item, self)
+        task_.signals_.finished_.connect(cmd_)
+        UThreadPool.start(task_)
 
     def finalize(self, result: str):
         # лейбл с динамической переменной у нас всегда самый последний в
