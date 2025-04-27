@@ -387,6 +387,7 @@ class GridStandart(Grid):
         self.load_images_timer.start(100)
 
     def iter_base_items(self):
+        self.col_count = self.get_col_count()
         for base_item in self.base_items[:GridStandart.limit]:
             thumb = Thumb(base_item.src, base_item.rating)
             thumb.setup_attrs()
