@@ -126,10 +126,13 @@ class ReadImage(Err):
             psd_file.seek(0)
 
             try:
-                with psd_tools.PSDImage.open(psd_file) as psd:
-                    psd: psd_tools.PSDImage
-                    img = psd.composite().convert("RGB")
-                    return np.array(img)
+                img = psd_tools.PSDImage.open(psd_file)
+                img = img.composite()
+                img = img.convert("RGB")
+                array_img = np.array(img)
+                # предотвращает segmentation fault
+                img.close()
+                return array_img
             except Exception as e:
                 print("utils > error read psd", "src:", path)
                 print(e)
@@ -138,10 +141,12 @@ class ReadImage(Err):
     @classmethod
     def read_psb(cls, path: str):
         try:
-            with psd_tools.PSDImage.open(path) as psd:
-                psd: psd_tools.PSDImage
-                img = psd.composite().convert("RGB")
-                return np.array(img)
+            img = psd_tools.PSDImage.open(path)
+            img = img.composite()
+            img = img.convert("RGB")
+            array_img = np.array(img)
+            img.close()
+            return array_img
         except Exception as e:
             print("utils > error read psd", "src:", path)
             print(e)
@@ -150,14 +155,16 @@ class ReadImage(Err):
     @classmethod
     def read_png(cls, path: str) -> np.ndarray | None:
         try:
-            with Image.open(path) as img:
-                img: Image.Image
-                if img.mode == "RGBA":
-                    background = Image.new("RGBA", img.size, (255, 255, 255))
-                    img = Image.alpha_composite(background, img)
-                img = img.convert("RGB")
-                arr = np.array(img)
-            return arr
+            img = Image.open(path)
+
+            if img.mode == "RGBA":
+                white_background = Image.new("RGBA", img.size, (255, 255, 255))
+                img = Image.alpha_composite(white_background, img)
+
+            img = img.convert("RGB")
+            img = np.array(img)
+            return img
+
         except Exception as e:
             print("error read png pil", str)
             return None
@@ -165,10 +172,11 @@ class ReadImage(Err):
     @classmethod
     def read_jpg(cls, path: str) -> np.ndarray | None:
         try:
-            with Image.open(path) as img:
-                img = img.convert("RGB")
-                arr = np.array(img)
-            return arr
+            img = Image.open(path)
+            img = img.convert("RGB")
+            img = np.array(img)
+            return img
+
         except Exception as e:
             print("read jpg error", e)
             return None
@@ -178,27 +186,37 @@ class ReadImage(Err):
         try:
             with rawpy.imread(path) as raw:
                 thumb = raw.extract_thumb()
+
             if thumb.format == rawpy.ThumbFormat.JPEG:
-                img = Image.open(io.BytesIO(thumb.data)).convert("RGB")
+                img = Image.open(io.BytesIO(thumb.data))
+                img = img.convert("RGB")
+
             elif thumb.format == rawpy.ThumbFormat.BITMAP:
                 img = Image.fromarray(thumb.data)
 
+            assert isinstance(img, Image.Image)
+
             try:
                 exif = img.getexif()
-                orientation = exif.get(274)
-                if orientation == 3:
-                    img = img.rotate(180, expand=True)
-                elif orientation == 6:
-                    img = img.rotate(270, expand=True)
-                elif orientation == 8:
-                    img = img.rotate(90, expand=True)
+
+                orientation_tag = 274  # Код тега Orientation
+                if orientation_tag in exif:
+                    orientation = exif[orientation_tag]
+                    
+                    # Коррекция поворота на основе EXIF-ориентации
+                    if orientation == 3:
+                        img = img.rotate(180, expand=True)
+                    elif orientation == 6:
+                        img = img.rotate(270, expand=True)
+                    elif orientation == 8:
+                        img = img.rotate(90, expand=True)
+
             except Exception as e:
                 print(e)
 
-            arr = np.array(img)
-            img.close()
-            return arr
-        except (Exception, rawpy._rawpy.LibRawDataError):
+            return np.array(img)
+
+        except (Exception, rawpy._rawpy.LibRawDataError) as e:
             return None
 
     @classmethod
