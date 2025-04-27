@@ -55,19 +55,16 @@ class ReadImage(Err):
 
     @classmethod
     def read_tiff(cls, path: str) -> np.ndarray | None:
-
         errors = (
             tifffile.TiffFileError,
             RuntimeError,
             DelayedImportError,
             Exception
         )
-
         try:
             # Оставляем только три канала (RGB)
             img = tifffile.imread(files=path)
             img = img[..., :3]
-
             # Проверяем, соответствует ли тип данных изображения uint8.
             # `uint8` — это 8-битный целочисленный формат данных, где значения
             # пикселей лежат в диапазоне [0, 255].
@@ -75,7 +72,6 @@ class ReadImage(Err):
             # для хранения данных.
             # Если тип данных не `uint8`, требуется преобразование.
             if str(object=img.dtype) != "uint8":
-
                 # Если тип данных отличается, то предполагаем, что значения
                 # пикселей выходят за пределы диапазона [0, 255].
                 # Например, они могут быть в формате uint16 (диапазон [0, 65535]).
@@ -84,18 +80,15 @@ class ReadImage(Err):
                 # 65535 / 256 ≈ 255 (максимальное значение в uint8).
                 # Приводим типданных массива к uint8.
                 img = (img / 256).astype(dtype="uint8")
-
             return img
-
         except errors as e:
-
             print("error read tiff", path, e)
-
             try:
                 img = Image.open(path)
                 img = img.convert("RGB")
-                return np.array(img)
-
+                array_img = np.array(img)
+                img.close()
+                return array_img
             except Exception:
                 return None
 
@@ -156,15 +149,13 @@ class ReadImage(Err):
     def read_png(cls, path: str) -> np.ndarray | None:
         try:
             img = Image.open(path)
-
             if img.mode == "RGBA":
                 white_background = Image.new("RGBA", img.size, (255, 255, 255))
                 img = Image.alpha_composite(white_background, img)
-
             img = img.convert("RGB")
-            img = np.array(img)
-            return img
-
+            array_img = np.array(img)
+            img.close()
+            return array_img
         except Exception as e:
             print("error read png pil", str)
             return None
@@ -174,9 +165,9 @@ class ReadImage(Err):
         try:
             img = Image.open(path)
             img = img.convert("RGB")
-            img = np.array(img)
-            return img
-
+            array_img = np.array(img)
+            img.close()
+            return array_img
         except Exception as e:
             print("read jpg error", e)
             return None
@@ -186,23 +177,16 @@ class ReadImage(Err):
         try:
             with rawpy.imread(path) as raw:
                 thumb = raw.extract_thumb()
-
             if thumb.format == rawpy.ThumbFormat.JPEG:
                 img = Image.open(io.BytesIO(thumb.data))
                 img = img.convert("RGB")
-
             elif thumb.format == rawpy.ThumbFormat.BITMAP:
-                img = Image.fromarray(thumb.data)
-
-            assert isinstance(img, Image.Image)
-
+                img: Image.Image = Image.fromarray(thumb.data)
             try:
                 exif = img.getexif()
-
                 orientation_tag = 274  # Код тега Orientation
                 if orientation_tag in exif:
                     orientation = exif[orientation_tag]
-                    
                     # Коррекция поворота на основе EXIF-ориентации
                     if orientation == 3:
                         img = img.rotate(180, expand=True)
@@ -210,12 +194,11 @@ class ReadImage(Err):
                         img = img.rotate(270, expand=True)
                     elif orientation == 8:
                         img = img.rotate(90, expand=True)
-
             except Exception as e:
                 print(e)
-
-            return np.array(img)
-
+            array_img = np.array(img)
+            img.close()
+            return array_img
         except (Exception, rawpy._rawpy.LibRawDataError) as e:
             return None
 
@@ -226,13 +209,11 @@ class ReadImage(Err):
             cap.set(cv2.CAP_PROP_POS_MSEC, time_sec * 1000)
             success, frame = cap.read()
             cap.release()
-
             if success:
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 return frame
             else:
                 return None
-
         except Exception:
             return None
 
