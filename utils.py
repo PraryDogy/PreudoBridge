@@ -173,34 +173,7 @@ class ReadImage(Err):
             print("read jpg error", e)
             return None
 
-    @classmethod
-    def read_raw(cls, path: str) -> np.ndarray | None:
-        try:
-            with rawpy.imread(path) as raw:
-                thumb = raw.extract_thumb()
-            if thumb.format == rawpy.ThumbFormat.JPEG:
-                img = Image.open(io.BytesIO(thumb.data))
-                img = img.convert("RGB")
-            elif thumb.format == rawpy.ThumbFormat.BITMAP:
-                img = Image.fromarray(thumb.data)
-            img: Image.Image
-            try:
-                exif = img.getexif()
-                orientation_tag = 274  # Код тега Orientation
-                if orientation_tag in exif:
-                    orientation = exif[orientation_tag]
-                    # Коррекция поворота на основе EXIF-ориентации
-                    if orientation == 3:
-                        img = img.rotate(180, expand=True)
-                    elif orientation == 6:
-                        img = img.rotate(270, expand=True)
-                    elif orientation == 8:
-                        img = img.rotate(90, expand=True)
-            except Exception as e:
-                print(e)
-            return np.array(img)
-        except (Exception, rawpy._rawpy.LibRawDataError) as e:
-            return None
+r
 
     @classmethod
     def read_movie(cls, path: str, time_sec=1) -> np.ndarray | None:
