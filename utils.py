@@ -126,35 +126,22 @@ class ReadImage(Err):
             psd_file.seek(0)
 
             try:
-
-                # if channels > 3:
-                #     img = psd_tools.PSDImage.open(psd_file)
-                #     img = img.composite()
-                #     print("psd tools")
-                # else:
-                #     print("PIL")
-                #     img = Image.open(psd_file)
-
-                img = psd_tools.PSDImage.open(psd_file)
-                img = img.composite()
-                img = img.convert("RGB")
-                return np.array(img)
-
+                with psd_tools.PSDImage.open(psd_file) as psd:
+                    psd: psd_tools.PSDImage
+                    img = psd.composite().convert("RGB")
+                    return np.array(img)
             except Exception as e:
-
                 print("utils > error read psd", "src:", path)
                 print(e)
                 return None
                     
     @classmethod
     def read_psb(cls, path: str):
-
         try:
-            img = psd_tools.PSDImage.open(path)
-            img = img.composite()
-            img = img.convert("RGB")
-            return np.array(img)
-
+            with psd_tools.PSDImage.open(path) as psd:
+                psd: psd_tools.PSDImage
+                img = psd.composite().convert("RGB")
+                return np.array(img)
         except Exception as e:
             print("utils > error read psd", "src:", path)
             print(e)
@@ -163,16 +150,14 @@ class ReadImage(Err):
     @classmethod
     def read_png(cls, path: str) -> np.ndarray | None:
         try:
-            img = Image.open(path)
-
-            if img.mode == "RGBA":
-                white_background = Image.new("RGBA", img.size, (255, 255, 255))
-                img = Image.alpha_composite(white_background, img)
-
-            img = img.convert("RGB")
-            img = np.array(img)
-            return img
-
+            with Image.open(path) as img:
+                img: Image.Image
+                if img.mode == "RGBA":
+                    background = Image.new("RGBA", img.size, (255, 255, 255))
+                    img = Image.alpha_composite(background, img)
+                img = img.convert("RGB")
+                arr = np.array(img)
+            return arr
         except Exception as e:
             print("error read png pil", str)
             return None
@@ -180,11 +165,10 @@ class ReadImage(Err):
     @classmethod
     def read_jpg(cls, path: str) -> np.ndarray | None:
         try:
-            img = Image.open(path)
-            img = img.convert("RGB")
-            img = np.array(img)
-            return img
-
+            with Image.open(path) as img:
+                img = img.convert("RGB")
+                arr = np.array(img)
+            return arr
         except Exception as e:
             print("read jpg error", e)
             return None
@@ -194,23 +178,17 @@ class ReadImage(Err):
         try:
             with rawpy.imread(path) as raw:
                 thumb = raw.extract_thumb()
-
             if thumb.format == rawpy.ThumbFormat.JPEG:
                 img = Image.open(io.BytesIO(thumb.data))
                 img = img.convert("RGB")
-
             elif thumb.format == rawpy.ThumbFormat.BITMAP:
                 img = Image.fromarray(thumb.data)
-
-            assert isinstance(img, Image.Image)
-
+            img: Image.Image
             try:
                 exif = img.getexif()
-
                 orientation_tag = 274  # Код тега Orientation
                 if orientation_tag in exif:
                     orientation = exif[orientation_tag]
-                    
                     # Коррекция поворота на основе EXIF-ориентации
                     if orientation == 3:
                         img = img.rotate(180, expand=True)
@@ -218,12 +196,9 @@ class ReadImage(Err):
                         img = img.rotate(270, expand=True)
                     elif orientation == 8:
                         img = img.rotate(90, expand=True)
-
             except Exception as e:
                 print(e)
-
             return np.array(img)
-
         except (Exception, rawpy._rawpy.LibRawDataError) as e:
             return None
 

@@ -1,1 +1,1 @@
-во все руннабле добавь weakref и по ним завершение
+psd png jpg segmentation
