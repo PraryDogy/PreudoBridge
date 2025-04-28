@@ -422,6 +422,10 @@ class GridStandart(Grid):
                 self.col = 0
                 self.row += 1
 
+        wid = self.url_to_wid.get(self.url_for_select)
+        if wid:
+            self.select_one_wid(wid)
+
     def run_load_images_thread(self, base_items: list[BaseItem]):
         """
         QRunnable   
