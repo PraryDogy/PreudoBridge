@@ -88,15 +88,13 @@ class CustomApp(QApplication):
         return False
 
     def on_exit(self):
-        if UThreadPool.pool.activeThreadCount() == 0:
-            JsonData.write_config()
-        else:
-            QTimer.singleShot(1000, self.on_exit)
+        # если не удалять, то будет Segmentation fault
+        self.removeEventFilter(self)
+        JsonData.write_config()
 
 
-BaseItem.check()
+# BaseItem.check()
 JsonData.init()
-UThreadPool.init()
+# UThreadPool.init()
 app = CustomApp(argv=sys.argv)
-# Запуск приложения
-exit_code = app.exec()
+sys.exit(app.exec())
