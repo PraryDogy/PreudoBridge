@@ -51,13 +51,13 @@ class LoadThumbnail(QRunnable):
             self.signals_.finished_.emit(image_data)
             return
 
-        conn = engine.connect()
+        conn = Dbase.open_connection(engine)
 
         q = sqlalchemy.select(CACHE.c.img)
         q = q.where(CACHE.c.name == Utils.get_hash_filename(filename=self.name))
         res = conn.execute(q).scalar() or None
 
-        conn.close()
+        Dbase.close_connection(conn)
 
         if res is not None:
             img_array = Utils.bytes_to_array(res)

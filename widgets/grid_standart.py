@@ -210,9 +210,9 @@ class LoadImages(QRunnable):
         if engine is None:
             return
 
-        self.conn = engine.connect()
+        self.conn = Dbase.open_connection(engine)
         self.process_thumbs()
-        self.conn.close()
+        Dbase.close_connection(self.conn)
         Utils.safe_emit(self.signals_.finished_)
 
     def process_thumbs(self):

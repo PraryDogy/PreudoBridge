@@ -81,14 +81,14 @@ class SetDbRating(QRunnable):
         engine = dbase.create_engine(path=db)
         if engine is None:
             return
-        conn = engine.connect()
+        conn = Dbase.open_connection(engine)
         hash_filename = Utils.get_hash_filename(self.base_item.name)
         stmt = sqlalchemy.update(CACHE)
         stmt = stmt.where(CACHE.c.name==hash_filename)
         stmt = stmt.values(rating=self.new_rating)
         Dbase.commit_(conn, stmt)
         self.signals_.finished_.emit()
-        conn.close()
+        Dbase.close_connection(conn)
 
 
 class ImgFrame(QFrame):

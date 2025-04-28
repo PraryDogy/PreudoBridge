@@ -55,7 +55,7 @@ class FinderItems(QRunnable):
         if engine is None:
             return None
         else:
-            return engine.connect()
+            return Dbase.open_connection(engine)
 
     def set_rating(self, conn: sqlalchemy.Connection, base_items: list[BaseItem]):
         """

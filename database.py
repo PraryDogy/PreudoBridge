@@ -57,6 +57,8 @@ class DbaseTools:
     
 
 class Dbase:
+    connections: list[sqlalchemy.Connection] = []
+
     def __init__(self):
         self.conn_count = 0
         self.conn_max = 3
@@ -85,12 +87,12 @@ class Dbase:
 
             self.conn_count += 1
             METADATA.create_all(bind=engine)
-            conn = engine.connect()
+            conn = Dbase.open_connection(engine)
 
             # проверяем доступность БД и соответствие таблицы
             q = sqlalchemy.select(CACHE)
             conn.execute(q).first()
-            conn.close()
+            Dbase.close_connection(conn)
 
             return engine
 
@@ -123,3 +125,14 @@ class Dbase:
         Для чтения с базы данных с учетом ожидания busy db
         """
         return conn.execute(query)
+    
+    @classmethod
+    def open_connection(cls, engine: sqlalchemy.Engine):
+        conn = engine.connect()
+        Dbase.connections.append(conn)
+        return conn
+    
+    @classmethod
+    def close_connection(cls, conn: sqlalchemy.Connection):
+        conn.close()
+        Dbase.connections.remove(conn)

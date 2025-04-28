@@ -55,7 +55,7 @@ from cfg import JsonData
 from utils import UThreadPool
 from widgets._base_items import BaseItem, WinBase
 from widgets.main_win import MainWin
-
+from database import Dbase
 
 class CustomApp(QApplication):
     def __init__(self, argv: list[str]) -> None:
