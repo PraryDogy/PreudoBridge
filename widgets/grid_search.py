@@ -189,7 +189,7 @@ class SearchFinder(QRunnable):
             # предотвращаем segmentation fault
             Utils.print_error(self, e)
             quit()
-        sleep(2)
+        sleep(0.2)
 
 
 class WinMissedFiles(MinMaxDisabledWin):
