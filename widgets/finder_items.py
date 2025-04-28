@@ -46,7 +46,10 @@ class FinderItems(QRunnable):
 
         base_items = BaseItem.sort_(base_items, self.sort_item)
         new_items = BaseItem.sort_(new_items, self.sort_item)
-        self.signals_.finished_.emit((base_items, new_items))
+        try:
+            self.signals_.finished_.emit((base_items, new_items))
+        except RuntimeError:
+            ...
 
     def create_connection(self) -> sqlalchemy.Connection | None:
         db = os.path.join(self.main_dir, Static.DB_FILENAME)

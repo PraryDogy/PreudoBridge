@@ -93,8 +93,8 @@ class CustomApp(QApplication):
         JsonData.write_config()
 
 
-# BaseItem.check()
+BaseItem.check()
 JsonData.init()
-# UThreadPool.init()
+UThreadPool.init()
 app = CustomApp(argv=sys.argv)
 sys.exit(app.exec())
