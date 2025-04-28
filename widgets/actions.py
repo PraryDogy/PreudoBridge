@@ -103,8 +103,11 @@ class CopyName(QAction):
         self.triggered.connect(self.cmd_)
 
     def cmd_(self, *args):
-        data = "\n".join(self.names)
-        Utils.write_to_clipboard(text=data)
+        names = []
+        for i in self.names:
+            head, tail = os.path.splitext(i)
+            names.append(head)
+        Utils.write_to_clipboard("\n".join(names))
 
 
 class View(QAction):

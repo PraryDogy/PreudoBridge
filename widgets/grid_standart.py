@@ -363,12 +363,12 @@ class GridStandart(Grid):
                 path_to_svg = Utils.create_generic_icon(ext)
                 Dynamic.generic_icon_paths.append(path_to_svg)
 
-        # создаем сетку на основе элементов из FinderItems с лимитом
-        self.iter_base_items()
-
         # испускаем сигнал в MainWin для обновления нижнего бара
         # для отображения "всего элементов"
         self.sort_bar_update.emit(len(self.base_items))
+
+        # создаем сетку на основе элементов из FinderItems с лимитом
+        self.iter_base_items()
 
         # если установлен фильтр по рейтингу, запускаем функцию фильтрации,
         # которая скроет из сетки не подходящие под фильтр виджеты
