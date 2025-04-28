@@ -38,7 +38,10 @@ class FileCopyWorker(QRunnable):
             new_paths = self.create_new_paths()
         except OSError as e:
             print("win copy files", e)
-            self.signals_.error_win_sig.emit()
+            try:
+                self.signals_.error_win_sig.emit()
+            except RuntimeError:
+                ...
             return
 
         # общий размер всех файлов в байтах
@@ -105,7 +108,10 @@ class FileCopyWorker(QRunnable):
             # сколько уже скопировано в байтах переводим в МБ, потому что
             # максимальное число QProgressbar задано тоже в МБ
             copied_mb = int(self.copied_bytes / (1024 * 1024))
-            self.signals_.set_value_progress.emit(copied_mb)
+            try:
+                self.signals_.set_value_progress.emit(copied_mb)
+            except RuntimeError:
+                ...
 
             # байты переводим в читаемый f string
             copied_f_size = Utils.get_f_size(self.copied_bytes)

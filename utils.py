@@ -13,8 +13,8 @@ import rawpy
 import tifffile
 from imagecodecs.imagecodecs import DelayedImportError
 from PIL import Image
-from PyQt5.QtCore import (QRect, QRectF, QRunnable, QSize, Qt, QThread,
-                          QThreadPool)
+from PyQt5.QtCore import (QRect, QRectF, QRunnable, QSize, Qt, QThreadPool,
+                          pyqtBoundSignal)
 from PyQt5.QtGui import QColor, QFont, QImage, QPainter, QPixmap
 from PyQt5.QtSvg import QSvgGenerator, QSvgRenderer
 from PyQt5.QtWidgets import QApplication
@@ -497,6 +497,14 @@ class Utils(Pixmap, ReadImage, ImgConvert):
         painter.end()
 
         return path_to_svg
+    
+    @classmethod
+    def safe_emit(cls, signal: pyqtBoundSignal, obj: object):
+        try:
+            signal.emit(obj)
+            return True
+        except RuntimeError as e:
+            return None
 
 
 class UThreadPool:
