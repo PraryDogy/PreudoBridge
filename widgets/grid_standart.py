@@ -421,10 +421,12 @@ class GridStandart(Grid):
             if self.col >= self.col_count:
                 self.col = 0
                 self.row += 1
-
-        wid = self.url_to_wid.get(self.url_for_select)
-        if wid:
-            self.select_one_wid(wid)
+        
+        if self.url_for_select:
+            wid = self.url_to_wid.get(self.url_for_select)
+            if wid:
+                self.select_one_wid(wid)
+                self.url_for_select = None
 
     def run_load_images_thread(self, base_items: list[BaseItem]):
         """

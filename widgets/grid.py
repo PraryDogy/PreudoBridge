@@ -374,6 +374,8 @@ class Grid(UScrollArea):
         self.ensure_wid_visible(wid)
         self.path_bar_update_cmd(wid.src)
 
+        print(213)
+
     def path_bar_update_cmd(self, src: str):
         """
         Указывает новый путь для path_bar.py > PathBar.  
