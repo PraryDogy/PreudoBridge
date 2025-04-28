@@ -129,10 +129,12 @@ class Dbase:
     @classmethod
     def open_connection(cls, engine: sqlalchemy.Engine):
         conn = engine.connect()
-        Dbase.connections.append(conn)
+        # Dbase.connections.append(conn)
         return conn
     
     @classmethod
     def close_connection(cls, conn: sqlalchemy.Connection):
+        # print(len(Dbase.connections))
         conn.close()
-        Dbase.connections.remove(conn)
+        # Dbase.connections.remove(conn)
+        # print(len(Dbase.connections))
