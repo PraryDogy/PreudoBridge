@@ -38,6 +38,7 @@ class FileCopyWorker(QRunnable):
             new_paths = self.create_new_paths()
         except OSError as e:
             print("win copy files", e)
+            Utils.safe_emit(self.signals_.error_win_sig, ...)
             try:
                 self.signals_.error_win_sig.emit()
             except RuntimeError:

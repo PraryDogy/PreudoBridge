@@ -324,6 +324,7 @@ class Pixmap(Err):
     
 
 class Utils(Pixmap, ReadImage, ImgConvert):
+    _NULL = object()
 
     @classmethod
     def write_to_clipboard(cls, text: str):
@@ -499,11 +500,11 @@ class Utils(Pixmap, ReadImage, ImgConvert):
         return path_to_svg
     
     @classmethod
-    def safe_emit(cls, signal: pyqtBoundSignal, obj: object):
+    def safe_emit(cls, signal: pyqtBoundSignal, obj: object = _NULL):
         try:
-            signal.emit(obj)
+            signal.emit() if obj is Utils._NULL else signal.emit(obj)
             return True
-        except RuntimeError as e:
+        except RuntimeError:
             return None
 
 
