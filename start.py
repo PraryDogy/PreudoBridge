@@ -31,12 +31,10 @@ class System_:
         subprocess.run(["osascript", script, SUMMARY_MSG])
 
     def catch_error_in_proj(exctype, value, tb):
-
         if exctype == RuntimeError:
+            print("Global catch RuntimeError > start > catch error in proj:")
             error_message = "".join(traceback.format_exception(exctype, value, tb))
             print(error_message)
-            print("here")
-
         else:
             sys.__excepthook__(exctype, value, tb)
 
