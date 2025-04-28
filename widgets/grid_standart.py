@@ -231,7 +231,10 @@ class LoadImages(QRunnable):
             else:
                 pixmap = ImageBaseItem.get_pixmap(self.conn, thumb)
                 thumb.set_pixmap_storage(pixmap)
-                Utils.safe_emit(self.signals_.update_thumb, thumb)
+                try:
+                    Utils.safe_emit(self.signals_.update_thumb, thumb)
+                except TypeError:
+                    ...
 
 
 class GridStandart(Grid):
