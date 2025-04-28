@@ -38,12 +38,7 @@ class FileCopyWorker(QRunnable):
             new_paths = self.create_new_paths()
         except OSError as e:
             print("win copy files", e)
-            Utils.safe_emit(self.signals_.error_win_sig, ...)
-            try:
-                self.signals_.error_win_sig.emit()
-            except RuntimeError:
-                ...
-            return
+            Utils.safe_emit(self.signals_.error_win_sig)
 
         # общий размер всех файлов в байтах
         total_bytes = sum([os.path.getsize(old_path)for old_path, new_path in new_paths])
@@ -51,10 +46,7 @@ class FileCopyWorker(QRunnable):
         # общий размер всех файлов в МБ для установки максимального
         # значения QProgressbar (в байтах плохо работает)
         total_mb = int(total_bytes / (1024 * 1024))
-        try:
-            self.signals_.set_max_progress.emit(total_mb)
-        except RuntimeError:
-            ...
+        Utils.safe_emit(self.signals_.set_max_progress, total_mb)
 
         # сколько уже скопировано в байтах
         self.copied_bytes = 0
@@ -83,10 +75,7 @@ class FileCopyWorker(QRunnable):
         self.finalize(paths)
 
     def finalize(self, urls: list[str]):
-        try:
-            self.signals_.finished_.emit(urls)
-        except RuntimeError:
-            ...
+        Utils.safe_emit(self.signals_.finished_, urls)
 
     def copy_by_bytes(self, src: str, dest: str):
         buffer_size = 1024 * 1024  # 1 MB
@@ -105,22 +94,16 @@ class FileCopyWorker(QRunnable):
             print(e)
 
     def report_progress(self):
-        try:
-            # сколько уже скопировано в байтах переводим в МБ, потому что
-            # максимальное число QProgressbar задано тоже в МБ
-            copied_mb = int(self.copied_bytes / (1024 * 1024))
-            try:
-                self.signals_.set_value_progress.emit(copied_mb)
-            except RuntimeError:
-                ...
+        # сколько уже скопировано в байтах переводим в МБ, потому что
+        # максимальное число QProgressbar задано тоже в МБ
+        copied_mb = int(self.copied_bytes / (1024 * 1024))
+        Utils.safe_emit(self.signals_.set_value_progress, copied_mb)
 
-            # байты переводим в читаемый f string
-            copied_f_size = Utils.get_f_size(self.copied_bytes)
+        # байты переводим в читаемый f string
+        copied_f_size = Utils.get_f_size(self.copied_bytes)
 
-            text = f"{copied_f_size} из {self.total_f_size}"
-            self.signals_.set_text_progress.emit(text)
-        except RuntimeError:
-            ...
+        text = f"{copied_f_size} из {self.total_f_size}"
+        Utils.safe_emit(self.signals_.set_text_progress, text)
 
     def get_final_paths(self, new_paths: list[tuple[str, str]], root: str):
         # Например мы копируем папки test_images и abs_images с рабочего стола в папку загрузок

@@ -213,11 +213,7 @@ class LoadImages(QRunnable):
         self.conn = engine.connect()
         self.process_thumbs()
         self.conn.close()
-
-        try:
-            self.signals_.finished_.emit()
-        except RuntimeError:
-            ...
+        Utils.safe_emit(self.signals_.finished_)
 
     def process_thumbs(self):
         """
@@ -230,18 +226,12 @@ class LoadImages(QRunnable):
             if not self.parent_ref():
                 return
                         
-            try:
-                if thumb.type_ not in Static.ext_all:
-                    AnyBaseItem.check_db_record(self.conn, thumb)
-                else:
-                    pixmap = ImageBaseItem.get_pixmap(self.conn, thumb)
-                    thumb.set_pixmap_storage(pixmap)
-                    self.signals_.update_thumb.emit(thumb)
-            except RuntimeError:
-                return
-
-            except Exception as e:
-                continue
+            if thumb.type_ not in Static.ext_all:
+                AnyBaseItem.check_db_record(self.conn, thumb)
+            else:
+                pixmap = ImageBaseItem.get_pixmap(self.conn, thumb)
+                thumb.set_pixmap_storage(pixmap)
+                Utils.safe_emit(self.signals_.update_thumb, thumb)
 
 
 class GridStandart(Grid):
@@ -443,13 +433,10 @@ class GridStandart(Grid):
         Получает QPixmap из хранилища Thumb.    
         Устанавливает QPixmap в Thumb для отображения в сетке.
         """
-        try:
-            pixmap = thumb.get_pixmap_storage()
-            if thumb in self.sorted_widgets and pixmap:
-                thumb.set_image(pixmap)
-                self.loaded_images.append(thumb.src)
-        except RuntimeError:
-            ...
+        pixmap = thumb.get_pixmap_storage()
+        if thumb in self.sorted_widgets and pixmap:
+            thumb.set_image(pixmap)
+            self.loaded_images.append(thumb.src)
 
     def resizeEvent(self, a0):
         self.loading_lbl.center(self)

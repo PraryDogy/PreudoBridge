@@ -498,11 +498,14 @@ class Utils(Pixmap, ReadImage, ImgConvert):
         painter.end()
 
         return path_to_svg
-    
+
     @classmethod
-    def safe_emit(cls, signal: pyqtBoundSignal, obj: object = _NULL):
+    def safe_emit(cls, signal: pyqtBoundSignal, obj: object = _NULL) -> bool | None:
         try:
-            signal.emit() if obj is Utils._NULL else signal.emit(obj)
+            if obj is Utils._NULL:
+                signal.emit()
+            else:
+                signal.emit(obj)
             return True
         except RuntimeError:
             return None

@@ -47,13 +47,10 @@ class SearchFinder(QRunnable):
         self.pause = False
 
     def run(self):
-        try:
-            self.setup_search()
-            self.scandir_recursive()
-            if self.parent_ref():
-                self.signals_.finished_.emit()
-        except RuntimeError as e:
-            Utils.print_error(None, e)
+        self.setup_search()
+        self.scandir_recursive()
+        if self.parent_ref():
+            Utils.safe_emit(self.signals_.finished_)
 
     def setup_search(self):
         if self.search_item.get_files_list():
