@@ -488,10 +488,7 @@ class Grid(UScrollArea):
                 QTimer.singleShot(500, cmd_)
     
     def ensure_wid_visible(self, wid: Thumb):
-        try:
-            self.ensureWidgetVisible(wid)
-        except RuntimeError:
-            ...
+        self.ensureWidgetVisible(wid)
 
     def add_widget_data(self, wid: Thumb, row: int, col: int):
         """
@@ -854,11 +851,12 @@ class Grid(UScrollArea):
         """
         Очищает список выделенных виджетов и снимает визуальное выделение с них
         """
+        """
+        спецагент
+        """
         for i in self.selected_widgets:
-            try:
-                i.set_no_frame()
-            except RuntimeError:
-                ...
+            i.set_no_frame()
+
         self.selected_widgets.clear()
 
     def select_widget(self, wid: Thumb):

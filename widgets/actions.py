@@ -37,10 +37,7 @@ class Task_(QRunnable):
         self.cmd_ = cmd_
 
     def run(self):
-        try:
-            self.cmd_()
-        except RuntimeError as e:
-            Utils.print_error(None, e)
+        self.cmd_()
 
 
 class RevealInFinder(QAction):

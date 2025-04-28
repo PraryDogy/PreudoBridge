@@ -35,6 +35,7 @@ class System_:
         if exctype == RuntimeError:
             error_message = "".join(traceback.format_exception(exctype, value, tb))
             print(error_message)
+            print("here")
 
         else:
             sys.__excepthook__(exctype, value, tb)

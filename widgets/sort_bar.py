@@ -153,14 +153,11 @@ class PathFinderThread(QRunnable):
         self.src: str = src
 
     def run(self):
-        try:
-            result = PathFinder.get_result(path=self.src)
-            if not result:
-                self.signals_.finished_.emit("")
-            else:
-                self.signals_.finished_.emit(result)
-        except RuntimeError as e:
-            Utils.print_error(parent=None, error=e)
+        result = PathFinder.get_result(path=self.src)
+        if not result:
+            Utils.safe_emit(self.signals_.finished_, "")
+        else:
+            Utils.safe_emit(self.signals_.finished_, result)
 
 
 class GoToWin(MinMaxDisabledWin):

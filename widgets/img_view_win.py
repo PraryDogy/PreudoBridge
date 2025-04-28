@@ -42,41 +42,37 @@ class LoadThumbnail(QRunnable):
         self.name = os.path.basename(self.src)
 
     def run(self):
-        try:
-            db = os.path.join(os.path.dirname(self.src), Static.DB_FILENAME)
-            dbase = Dbase()
-            engine = dbase.create_engine(path=db)
+        db = os.path.join(os.path.dirname(self.src), Static.DB_FILENAME)
+        dbase = Dbase()
+        engine = dbase.create_engine(path=db)
 
-            if engine is None:
-                image_data = ImageData(src=self.src, pixmap=None)
-                self.signals_.finished_.emit(image_data)
-                return
-
-            conn = engine.connect()
-
-            q = sqlalchemy.select(CACHE.c.img)
-            q = q.where(CACHE.c.name == Utils.get_hash_filename(filename=self.name))
-            res = conn.execute(q).scalar() or None
-
-            conn.close()
-
-            if res is not None:
-                img_array = Utils.bytes_to_array(res)
-                img_array = Utils.desaturate_image(image=img_array, factor=0.2)
-            else:
-                img_array = None
-
-            if img_array is None:
-                pixmap = None
-
-            else:
-                pixmap = Utils.pixmap_from_array(img_array)
-
-            image_data = ImageData(src=self.src, pixmap=pixmap)
+        if engine is None:
+            image_data = ImageData(src=self.src, pixmap=None)
             self.signals_.finished_.emit(image_data)
+            return
 
-        except RuntimeError as e:
-            Utils.print_error(parent=None, error=e)
+        conn = engine.connect()
+
+        q = sqlalchemy.select(CACHE.c.img)
+        q = q.where(CACHE.c.name == Utils.get_hash_filename(filename=self.name))
+        res = conn.execute(q).scalar() or None
+
+        conn.close()
+
+        if res is not None:
+            img_array = Utils.bytes_to_array(res)
+            img_array = Utils.desaturate_image(image=img_array, factor=0.2)
+        else:
+            img_array = None
+
+        if img_array is None:
+            pixmap = None
+
+        else:
+            pixmap = Utils.pixmap_from_array(img_array)
+
+        image_data = ImageData(self.src, pixmap)
+        Utils.safe_emit(self.signals_.finished_, image_data)
 
 
 class LoadImage(QRunnable):
@@ -88,35 +84,29 @@ class LoadImage(QRunnable):
         self.src: str = src
 
     def run(self):
-        try:
-            if self.src not in self.cached_images:
+        if self.src not in self.cached_images:
 
-                img_array = Utils.read_image(self.src)
-                img_array = Utils.desaturate_image(image=img_array, factor=0.2)
+            img_array = Utils.read_image(self.src)
+            img_array = Utils.desaturate_image(image=img_array, factor=0.2)
 
-                if img_array is None:
-                    pixmap = None
-
-                else:
-                    pixmap = Utils.pixmap_from_array(img_array)
-                    self.cached_images[self.src] = pixmap
-
-                del img_array
-                gc.collect()
+            if img_array is None:
+                pixmap = None
 
             else:
-                pixmap = self.cached_images.get(self.src)
+                pixmap = Utils.pixmap_from_array(img_array)
+                self.cached_images[self.src] = pixmap
 
-            if len(self.cached_images) > 50:
-                first_img = list(self.cached_images.keys())[0]
-                self.cached_images.pop(first_img)
+            del img_array
+            gc.collect()
 
-            image_data = ImageData(self.src, pixmap)
+        else:
+            pixmap = self.cached_images.get(self.src)
+        if len(self.cached_images) > 50:
+            first_img = list(self.cached_images.keys())[0]
+            self.cached_images.pop(first_img)
 
-            self.signals_.finished_.emit(image_data)
-
-        except RuntimeError as e:
-            Utils.print_error(parent=None, error=e)
+        image_data = ImageData(self.src, pixmap)
+        self.signals_.finished_.emit(image_data)
 
 
 class ImageWidget(QLabel):
