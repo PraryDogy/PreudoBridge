@@ -5,28 +5,19 @@ import traceback
 
 
 class System_:
-
     @classmethod
     def catch_error_in_app(cls, exctype, value, tb) -> None:
-
         if exctype == RuntimeError:
             # в приложении мы игнорируем эту ошибку
             return
-
         ERROR = "".join(traceback.format_exception(exctype, value, tb))
-
         ABOUT = [
             "Отправьте это сообщение в telegram @evlosh",
             "или на почту loshkarev@miuz.ru"
         ]
-
         ABOUT = " ".join(ABOUT)
-
         STARS = "*" * 40
-
-
         SUMMARY_MSG = "\n".join([ERROR, STARS, ABOUT])
-        
         script = "scripts/error_msg.scpt"
         subprocess.run(["osascript", script, SUMMARY_MSG])
 
@@ -54,11 +45,6 @@ if System_.set_plugin_path():
     sys.excepthook = System_.catch_error_in_app
 else:
     sys.excepthook = System_.catch_error_in_proj
-
-
-import faulthandler
-
-faulthandler.enable()
 
 
 from PyQt5.QtCore import QEvent, QObject, QTimer
