@@ -108,6 +108,7 @@ class Dbase:
     @classmethod
     # @DbaseTools.wait_for_db
     def commit_(cls, conn: sqlalchemy.Connection) -> None:
+        print("execute")
         try:
             conn.commit()
         except SQL_ERRORS as e:
@@ -117,7 +118,14 @@ class Dbase:
     @classmethod
     # @DbaseTools.wait_for_db
     def execute_(cls, conn: sqlalchemy.Connection, query) -> sqlalchemy.CursorResult:
-        return conn.execute(query)
+        try:
+            conn.execute(query)
+        except SQL_ERRORS as e:
+            Utils.print_error(cls, e)
+            conn.rollback()
+        
+        # для sqlalchemy.select
+        return query
     
     @classmethod
     def open_connection(cls, engine: sqlalchemy.Engine) -> sqlalchemy.Connection:
