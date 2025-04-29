@@ -213,7 +213,6 @@ class LoadImages(QRunnable):
         Dbase.commit_(self.conn)
         Dbase.close_connection(self.conn)
         Utils.safe_emit(self.signals_.finished_)
-        engine.dispose()
 
     def process_thumbs(self):
         """
