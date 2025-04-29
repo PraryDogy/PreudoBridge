@@ -129,7 +129,6 @@ class ImageBaseItem:
         q = update(CACHE).where(CACHE.c.id == row_id)
         q = q.values(**values)
         Dbase.execute_(conn, q)
-        # conn.execute(q)
         return img_array
 
     @classmethod
@@ -152,7 +151,6 @@ class ImageBaseItem:
         }
         q = insert(CACHE).values(**values)
         Dbase.execute_(conn, q)
-        # conn.execute(q)
         return img_array
     
     @classmethod
