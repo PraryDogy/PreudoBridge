@@ -76,6 +76,8 @@ class CustomApp(QApplication):
         # вероятно предотвращает segmentation fault / bus error
         self.removeEventFilter(self)
         JsonData.write_config()
+        import gc
+        gc.collect()
 
 import faulthandler
 faulthandler.enable()
