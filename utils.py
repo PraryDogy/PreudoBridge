@@ -253,7 +253,7 @@ class ReadImage(Err):
 
         if fn:
             cls.read_any = fn
-            return cls.read_any(path=path)
+            return cls.read_any(path)
 
         else:
             return None

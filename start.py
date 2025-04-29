@@ -78,7 +78,8 @@ class CustomApp(QApplication):
         self.removeEventFilter(self)
         JsonData.write_config()
 
-
+import faulthandler
+faulthandler.enable()
 BaseItem.check()
 JsonData.init()
 UThreadPool.init()

@@ -155,10 +155,8 @@ class ImageBaseItem:
     
     @classmethod
     def get_small_ndarray_img(cls, src: str) -> np.ndarray:
-        img_array_src = Utils.read_image(src)
-        img_array = FitImg.start(img_array_src, ThumbData.DB_IMAGE_SIZE)
-        img_array_src = None
-        del img_array_src
+        img_array = Utils.read_image(src)
+        img_array = FitImg.start(img_array, ThumbData.DB_IMAGE_SIZE)
         return img_array
     
     @classmethod
@@ -214,6 +212,7 @@ class LoadImages(QRunnable):
         self.process_thumbs()
         Dbase.close_connection(self.conn)
         Utils.safe_emit(self.signals_.finished_)
+        engine.dispose()
 
     def process_thumbs(self):
         """
