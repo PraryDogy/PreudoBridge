@@ -145,33 +145,90 @@ class ReadImage(Err):
             print(e)
             return None
 
+    # @classmethod
+    # def read_png(cls, path: str) -> np.ndarray | None:
+    #     try:
+    #         img = Image.open(path)
+    #         if img.mode == "RGBA":
+    #             white_background = Image.new("RGBA", img.size, (255, 255, 255))
+    #             img = Image.alpha_composite(white_background, img)
+    #         img = img.convert("RGB")
+    #         array_img = np.array(img)
+    #         img.close()
+    #         return array_img
+    #     except Exception as e:
+    #         print("error read png pil", str)
+    #         return None
+
+    # @classmethod
+    # def read_jpg(cls, path: str) -> np.ndarray | None:
+    #     try:
+    #         img = Image.open(path)
+    #         img = img.convert("RGB")
+    #         array_img = np.array(img)
+    #         img.close()
+    #         return array_img
+    #     except Exception as e:
+    #         print("read jpg error", e)
+    #         return None
+
+    """
+    PIL заменен на cv2, чтобы избежать segmentation fault / bus error
+    """
+
     @classmethod
     def read_png(cls, path: str) -> np.ndarray | None:
         try:
-            img = Image.open(path)
-            if img.mode == "RGBA":
-                white_background = Image.new("RGBA", img.size, (255, 255, 255))
-                img = Image.alpha_composite(white_background, img)
-            img = img.convert("RGB")
-            array_img = np.array(img)
-            img.close()
-            return array_img
+            # Загружаем изображение с флагом IMREAD_UNCHANGED, чтобы сохранить альфа-канал (если он есть)
+            img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
+            
+            # Проверяем, что изображение было успешно загружено
+            if img is None:
+                raise ValueError("Image not loaded")
+            
+            # Проверяем, есть ли альфа-канал у изображения (RGBA)
+            # Если изображение состоит из 4 каналов (RGB + Alpha), то выполняем обработку
+            if img.shape[2] == 4:
+                # Извлекаем альфа-канал (4-й канал), который представляет прозрачность пикселей
+                # Альфа-канал содержит значения от 0 (полностью прозрачный) до 255 (полностью непрозрачный)
+                # Нормализуем альфа-канал, делая его диапазон от 0 до 1
+                alpha = img[:, :, 3] / 255.0  
+                
+                # Извлекаем RGB каналы (первые 3 канала, игнорируя альфа-канал)
+                bgr = img[:, :, :3]
+                
+                # Создаём белый фон того же размера, что и исходное изображение
+                # np.ones_like создаёт массив той же формы, но с единичными значениями
+                # Белый фон (в формате BGR)
+                white_bg = np.ones_like(bgr, dtype=np.uint8) * 255
+                
+                # Смешиваем изображение с белым фоном в зависимости от альфа-канала
+                # Если альфа-канал равен 1 (полностью непрозрачный), то берём только RGB изображение
+                # Если альфа-канал равен 0 (полностью прозрачный), то используем белый фон
+                img = (bgr * alpha[..., None] + white_bg * (1 - alpha[..., None])).astype(np.uint8)
+            
+            # Преобразуем изображение из формата BGR в RGB
+            # OpenCV использует BGR, а для большинства библиотек, включая Pillow, используется RGB
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            
+            return img
         except Exception as e:
-            print("error read png pil", str)
+            # Если произошла ошибка, выводим её
+            print("error read png cv2:", e)
             return None
 
     @classmethod
     def read_jpg(cls, path: str) -> np.ndarray | None:
         try:
-            img = Image.open(path)
-            img = img.convert("RGB")
-            array_img = np.array(img)
-            img.close()
-            return array_img
+            img = cv2.imread(path)
+            if img is None:
+                raise ValueError("Image not loaded")
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            return img
         except Exception as e:
-            print("read jpg error", e)
+            print("read jpg cv2 error", e)
             return None
-
+        
     @classmethod
     def read_raw(cls, path: str) -> np.ndarray | None:
         try:
