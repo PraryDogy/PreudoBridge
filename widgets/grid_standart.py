@@ -173,12 +173,12 @@ class ImageBaseItem:
 
 
 class WorkerSignals(QObject):
-    update_base_item = pyqtSignal(BaseItem)
+    update_thumb = pyqtSignal(BaseItem)
     finished_ = pyqtSignal()
 
 
 class LoadImages(QRunnable):
-    def __init__(self, main_dir: str, base_items: list[BaseItem], parent: QWidget):
+    def __init__(self, main_dir: str, thumbs: list[Thumb], parent: QWidget):
         """
         QRunnable   
         Сортирует список Thumb по размеру по возрастанию для ускорения загрузки
@@ -188,9 +188,9 @@ class LoadImages(QRunnable):
         self.signals_ = WorkerSignals()
         self.main_dir = main_dir
         self.parent_ref = weakref.ref(parent)
-        self.base_items = base_items
+        self.thumbs = thumbs
         key_ = lambda x: x.size
-        self.base_items.sort(key=key_)
+        self.thumbs.sort(key=key_)
 
     def run(self):
         """
@@ -198,7 +198,7 @@ class LoadImages(QRunnable):
         Запускает обход списка Thumb для загрузки изображений   
         Испускает сигнал finished_
         """
-        if not self.base_items:
+        if not self.thumbs:
             return
 
         db = os.path.join(self.main_dir, Static.DB_FILENAME)
@@ -220,7 +220,7 @@ class LoadImages(QRunnable):
         Пытается загрузить изображение из базы данных или создает новое,
         чтобы передать его в Thumb
         """
-        for base_item in self.base_items:
+        for base_item in self.thumbs:
 
             if not self.parent_ref():
                 return
@@ -231,7 +231,7 @@ class LoadImages(QRunnable):
                 pixmap = ImageBaseItem.get_pixmap(self.conn, base_item)
                 base_item.set_pixmap_storage(pixmap)
                 try:
-                    Utils.safe_emit(self.signals_.update_base_item, base_item)
+                    Utils.safe_emit(self.signals_.update_thumb, base_item)
                 except TypeError as e:
                     print(e)
 
@@ -284,30 +284,24 @@ class GridStandart(Grid):
         Составляет список Thumb виджетов, которые находятся в зоне видимости.   
         Запускает загрузку изображений через QRunnable
         """
-        base_items: list[BaseItem] = []
+        thumbs: list[Thumb] = []
         for widget in self.main_wid.findChildren(Thumb):
             if not widget.visibleRegion().isEmpty():
                 if widget.src not in self.loaded_images:
-                    item = BaseItem(widget.src)
-                    item.setup_attrs()
-                    base_items.append(item)
-        self.run_load_images_thread(base_items)
+                    thumbs.append(widget)
+        self.run_load_images_thread(thumbs)
 
     def force_load_images_cmd(self, urls: list[str]):
         """
         Находит виджеты Thumb по url.   
         Принудительно запускает загрузку изображений через QRunnable
         """
-
-        base_items = []
+        thumbs: list[Thumb] = []
         for url in urls:
             wid = self.url_to_wid.get(url)
             if wid:
-                base_item = BaseItem(url)
-                base_item.setup_attrs()
-                base_items.append(base_item)
-
-        self.run_load_images_thread(base_items)
+                thumbs.append(wid)
+        self.run_load_images_thread(thumbs)
 
     def on_scroll_changed(self, value: int):
         """
@@ -427,7 +421,7 @@ class GridStandart(Grid):
                 self.select_one_wid(wid)
                 self.url_for_select = None
 
-    def run_load_images_thread(self, base_items: list[BaseItem]):
+    def run_load_images_thread(self, thumbs: list[Thumb]):
         """
         QRunnable   
         Запускает загрузку изображений для списка Thumb.    
@@ -438,18 +432,17 @@ class GridStandart(Grid):
         # в QRunnable для подгрузки изображений
         # в самом QRunnable нет обращений напрямую к Thumb
         # а только испускается сигнал
-        thread_ = LoadImages(self.main_dir, base_items, self)
-        thread_.signals_.update_base_item.connect(lambda base_item: self.set_thumb_image(base_item))
+        thread_ = LoadImages(self.main_dir, thumbs, self)
+        thread_.signals_.update_thumb.connect(lambda thumb: self.set_thumb_image(thumb))
         UThreadPool.start(thread_)
     
-    def set_thumb_image(self, base_item: BaseItem):
+    def set_thumb_image(self, thumb: Thumb):
         """
         Получает QPixmap из хранилища Thumb.    
         Устанавливает QPixmap в Thumb для отображения в сетке.
         """
-        pixmap = base_item.get_pixmap_storage()
-        thumb = self.url_to_wid.get(base_item.src)
-        if thumb in self.sorted_widgets and pixmap:
+        pixmap = thumb.get_pixmap_storage()
+        if pixmap:
             thumb.set_image(pixmap)
             self.loaded_images.append(thumb.src)
 
