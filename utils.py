@@ -172,6 +172,37 @@ class ReadImage(Err):
     #         print("read jpg error", e)
     #         return None
 
+    # @classmethod
+    # def read_raw(cls, path: str) -> np.ndarray | None:
+    #     try:
+    #         with rawpy.imread(path) as raw:
+    #             thumb = raw.extract_thumb()
+    #         if thumb.format == rawpy.ThumbFormat.JPEG:
+    #             img = Image.open(io.BytesIO(thumb.data))
+    #             img = img.convert("RGB")
+    #         elif thumb.format == rawpy.ThumbFormat.BITMAP:
+    #             img: Image.Image = Image.fromarray(thumb.data)
+    #         try:
+    #             exif = img.getexif()
+    #             orientation_tag = 274  # Код тега Orientation
+    #             if orientation_tag in exif:
+    #                 orientation = exif[orientation_tag]
+    #                 # Коррекция поворота на основе EXIF-ориентации
+    #                 if orientation == 3:
+    #                     img = img.rotate(180, expand=True)
+    #                 elif orientation == 6:
+    #                     img = img.rotate(270, expand=True)
+    #                 elif orientation == 8:
+    #                     img = img.rotate(90, expand=True)
+    #         except Exception as e:
+    #             print(e)
+    #         array_img = np.array(img)
+    #         img.close()
+    #         return array_img
+    #     except (Exception, rawpy._rawpy.LibRawDataError) as e:
+    #         return None
+
+
     """
     PIL заменен на cv2, чтобы избежать segmentation fault / bus error
     """
@@ -228,35 +259,31 @@ class ReadImage(Err):
         except Exception as e:
             print("read jpg cv2 error", e)
             return None
-        
+
     @classmethod
     def read_raw(cls, path: str) -> np.ndarray | None:
         try:
             with rawpy.imread(path) as raw:
                 thumb = raw.extract_thumb()
+            
             if thumb.format == rawpy.ThumbFormat.JPEG:
-                img = Image.open(io.BytesIO(thumb.data))
-                img = img.convert("RGB")
+                img_array = np.asarray(bytearray(thumb.data), dtype=np.uint8)
+                # Декодируем изображение, получаем изображение в формате BGR
+                img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+                # Преобразуем из BGR в RGB, чтобы цвета отображались корректно
+                img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+            # Если превью в формате BMP, преобразуем в изображение с использованием OpenCV
             elif thumb.format == rawpy.ThumbFormat.BITMAP:
-                img: Image.Image = Image.fromarray(thumb.data)
-            try:
-                exif = img.getexif()
-                orientation_tag = 274  # Код тега Orientation
-                if orientation_tag in exif:
-                    orientation = exif[orientation_tag]
-                    # Коррекция поворота на основе EXIF-ориентации
-                    if orientation == 3:
-                        img = img.rotate(180, expand=True)
-                    elif orientation == 6:
-                        img = img.rotate(270, expand=True)
-                    elif orientation == 8:
-                        img = img.rotate(90, expand=True)
-            except Exception as e:
-                print(e)
-            array_img = np.array(img)
-            img.close()
-            return array_img
+                # Если данные уже в RGB (формат BMP), просто используем их
+                img = thumb.data
+                # Если данные в BGR, тогда нужно преобразовать в RGB
+                if len(img.shape) == 3 and img.shape[2] == 3:  # Проверяем, что изображение в BGR
+                    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+            return img
         except (Exception, rawpy._rawpy.LibRawDataError) as e:
+            print(f"Error reading raw file: {e}")
             return None
 
     @classmethod
