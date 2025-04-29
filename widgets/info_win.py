@@ -48,7 +48,7 @@ class CalculatingTask(QRunnable):
             Utils.print_error(parent=None, error=e)
 
     def get_img_resol(self):
-        img_ = Utils.read_image(path=self.base_item.src)
+        img_ = Utils.read_image(self.base_item.src)
 
         if img_ is not None and len(img_.shape) > 1:
             h, w = img_.shape[0], img_.shape[1]

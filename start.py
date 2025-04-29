@@ -75,11 +75,6 @@ class CustomApp(QApplication):
     def on_exit(self):
         # вероятно предотвращает segmentation fault / bus error
         self.removeEventFilter(self)
-
-        # вероятно предотвращает segmentation fault / bus error
-        self.first_win.hide()
-        self.first_win.load_standart_grid((os.sep, None))
-
         JsonData.write_config()
 
 import faulthandler

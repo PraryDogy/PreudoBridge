@@ -138,7 +138,6 @@ class ReadImage(Err):
             img = img.composite()
             img = img.convert("RGB")
             array_img = np.array(img)
-            img.close()
             return array_img
         except Exception as e:
             print("utils > error read psd", "src:", path)
