@@ -108,9 +108,6 @@ class Dbase:
     @classmethod
     # @DbaseTools.wait_for_db
     def commit_(cls, conn: sqlalchemy.Connection) -> None:
-        """
-        Коммит с учетом ожидания db_busy
-        """
         try:
             conn.commit()
         except SQL_ERRORS as e:
@@ -120,13 +117,10 @@ class Dbase:
     @classmethod
     # @DbaseTools.wait_for_db
     def execute_(cls, conn: sqlalchemy.Connection, query) -> sqlalchemy.CursorResult:
-        """
-        Для чтения с базы данных с учетом ожидания busy db
-        """
         return conn.execute(query)
     
     @classmethod
-    def open_connection(cls, engine: sqlalchemy.Engine):
+    def open_connection(cls, engine: sqlalchemy.Engine) -> sqlalchemy.Connection:
         conn = engine.connect()
         return conn
     

@@ -128,8 +128,8 @@ class ImageBaseItem:
         }
         q = update(CACHE).where(CACHE.c.id == row_id)
         q = q.values(**values)
-        # Dbase.execute_(conn, q)
-        conn.execute(q)
+        Dbase.execute_(conn, q)
+        # conn.execute(q)
         return img_array
 
     @classmethod
@@ -151,8 +151,8 @@ class ImageBaseItem:
             ColumnNames.PARTIAL_HASH: partial_hash
         }
         q = insert(CACHE).values(**values)
-        # Dbase.execute_(conn, q)
-        conn.execute(q)
+        Dbase.execute_(conn, q)
+        # conn.execute(q)
         return img_array
     
     @classmethod
@@ -214,10 +214,8 @@ class LoadImages(QRunnable):
         self.process_thumbs()
         # если коммит делать после каждого execute в ImageBaseItem
         # то при выходе приложения будет ошибка segmentation fault / bus error
-        # Dbase.commit_(self.conn)
-        self.conn.commit()
-        self.conn.close()
-        # Dbase.close_connection(self.conn)
+        Dbase.commit_(self.conn)
+        Dbase.close_connection(self.conn)
         Utils.safe_emit(self.signals_.finished_)
 
     def process_thumbs(self):
