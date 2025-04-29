@@ -106,9 +106,7 @@ class Dbase:
             self.create_engine(path=path)
 
     @classmethod
-    # @DbaseTools.wait_for_db
     def commit_(cls, conn: sqlalchemy.Connection) -> None:
-        print("execute")
         try:
             conn.commit()
         except SQL_ERRORS as e:
@@ -116,25 +114,26 @@ class Dbase:
             conn.rollback()
 
     @classmethod
-    # @DbaseTools.wait_for_db
     def execute_(cls, conn: sqlalchemy.Connection, query) -> sqlalchemy.CursorResult:
         try:
-            conn.execute(query)
+            return conn.execute(query)
         except SQL_ERRORS as e:
             Utils.print_error(cls, e)
             conn.rollback()
-        
-        # для sqlalchemy.select
-        return query
+            return None
     
     @classmethod
-    def open_connection(cls, engine: sqlalchemy.Engine) -> sqlalchemy.Connection:
-        conn = engine.connect()
-        return conn
+    def open_connection(cls, engine: sqlalchemy.Engine) -> sqlalchemy.Connection | None:
+        try:
+            return engine.connect()
+        except SQL_ERRORS as e:
+            Utils.print_error(cls, e)
+            return None
     
     @classmethod
     def close_connection(cls, conn: sqlalchemy.Connection):
-        # print(len(Dbase.connections))
-        conn.close()
-        # Dbase.connections.remove(conn)
-        # print(len(Dbase.connections))
+        try:
+            conn.close()
+        except SQL_ERRORS as e:
+            Utils.print_error(cls, e)
+            conn.rollback()
