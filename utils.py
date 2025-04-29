@@ -136,9 +136,10 @@ class ReadImage(Err):
         try:
             img = psd_tools.PSDImage.open(path)
             img = img.composite()
+            img_copy = img.copy()
             # это вызывало ошибку segmentation / bus error
             # img = img.convert("RGB")
-            array_img = np.array(img)
+            array_img = np.array(img_copy)
             return array_img
         except Exception as e:
             print("utils > error read psd", "src:", path)
