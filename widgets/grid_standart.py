@@ -203,13 +203,15 @@ class LoadImages(QRunnable):
 
         db = os.path.join(self.main_dir, Static.DB_FILENAME)
         self.dbase = Dbase()
-        engine = self.dbase.create_engine(path=db)
+        engine = self.dbase.create_engine(db)
 
         if engine is None:
             return
 
         self.conn = Dbase.open_connection(engine)
         self.process_thumbs()
+        # если коммит делать после каждого execute в ImageBaseItem
+        # то при выходе приложения будет ошибка segmentation fault / bus error
         Dbase.commit_(self.conn)
         Dbase.close_connection(self.conn)
         Utils.safe_emit(self.signals_.finished_)
