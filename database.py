@@ -107,12 +107,11 @@ class Dbase:
 
     @classmethod
     @DbaseTools.wait_for_db
-    def commit_(cls, conn: sqlalchemy.Connection, query) -> None:
+    def commit_(cls, conn: sqlalchemy.Connection) -> None:
         """
         Коммит с учетом ожидания db_busy
         """
         try:
-            conn.execute(query)
             conn.commit()
         except SQL_ERRORS as e:
             Utils.print_error(cls, e)

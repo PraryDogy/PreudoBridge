@@ -86,7 +86,8 @@ class SetDbRating(QRunnable):
         stmt = sqlalchemy.update(CACHE)
         stmt = stmt.where(CACHE.c.name==hash_filename)
         stmt = stmt.values(rating=self.new_rating)
-        Dbase.commit_(conn, stmt)
+        Dbase.execute_(conn, stmt)
+        Dbase.commit_(conn)
         self.signals_.finished_.emit()
         Dbase.close_connection(conn)
 

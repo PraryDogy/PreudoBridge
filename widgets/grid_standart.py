@@ -61,7 +61,7 @@ class AnyBaseItem:
         }
 
         q = insert(CACHE).values(**values)
-        Dbase.commit_(conn, q)
+        Dbase.execute_(conn, q)
 
 
 class ImageBaseItem:
@@ -128,7 +128,7 @@ class ImageBaseItem:
         }
         q = update(CACHE).where(CACHE.c.id == row_id)
         q = q.values(**values)
-        Dbase.commit_(conn, q)
+        Dbase.execute_(conn, q)
         return img_array
 
     @classmethod
@@ -150,7 +150,7 @@ class ImageBaseItem:
             ColumnNames.PARTIAL_HASH: partial_hash
         }
         q = insert(CACHE).values(**values)
-        Dbase.commit_(conn, q)
+        Dbase.execute_(conn, q)
         return img_array
     
     @classmethod
@@ -210,6 +210,7 @@ class LoadImages(QRunnable):
 
         self.conn = Dbase.open_connection(engine)
         self.process_thumbs()
+        Dbase.commit_(self.conn)
         Dbase.close_connection(self.conn)
         Utils.safe_emit(self.signals_.finished_)
         engine.dispose()
