@@ -48,14 +48,13 @@ else:
     sys.excepthook = System_.catch_error_in_proj
 
 
-from PyQt5.QtCore import QEvent, QObject, QTimer
+from PyQt5.QtCore import QEvent, QObject
 from PyQt5.QtWidgets import QApplication
 
 from cfg import JsonData
 from utils import UThreadPool
 from widgets._base_items import BaseItem, WinBase
 from widgets.main_win import MainWin
-from database import Dbase
 
 class CustomApp(QApplication):
     def __init__(self, argv: list[str]) -> None:
@@ -74,8 +73,13 @@ class CustomApp(QApplication):
         return False
 
     def on_exit(self):
-        # если не удалять, то будет Segmentation fault
+        # вероятно предотвращает segmentation fault / bus error
         self.removeEventFilter(self)
+
+        # вероятно предотвращает segmentation fault / bus error
+        self.first_win.hide()
+        self.first_win.load_standart_grid((os.sep, None))
+
         JsonData.write_config()
 
 import faulthandler
