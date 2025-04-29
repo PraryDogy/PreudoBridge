@@ -136,7 +136,8 @@ class ReadImage(Err):
         try:
             img = psd_tools.PSDImage.open(path)
             img = img.composite()
-            img = img.convert("RGB")
+            # это вызывало ошибку segmentation / bus error
+            # img = img.convert("RGB")
             array_img = np.array(img)
             return array_img
         except Exception as e:
