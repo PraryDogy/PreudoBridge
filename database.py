@@ -106,7 +106,7 @@ class Dbase:
             self.create_engine(path=path)
 
     @classmethod
-    @DbaseTools.wait_for_db
+    # @DbaseTools.wait_for_db
     def commit_(cls, conn: sqlalchemy.Connection) -> None:
         """
         Коммит с учетом ожидания db_busy
@@ -118,7 +118,7 @@ class Dbase:
             conn.rollback()
 
     @classmethod
-    @DbaseTools.wait_for_db
+    # @DbaseTools.wait_for_db
     def execute_(cls, conn: sqlalchemy.Connection, query) -> sqlalchemy.CursorResult:
         """
         Для чтения с базы данных с учетом ожидания busy db
@@ -128,7 +128,6 @@ class Dbase:
     @classmethod
     def open_connection(cls, engine: sqlalchemy.Engine):
         conn = engine.connect()
-        # Dbase.connections.append(conn)
         return conn
     
     @classmethod
