@@ -145,6 +145,11 @@ class ReadImage(Err):
             print(e)
             return None
 
+    """
+    read jpg, png, raw
+    PIL заменен на cv2, чтобы избежать segmentation fault / bus error
+    """
+
     # @classmethod
     # def read_png(cls, path: str) -> np.ndarray | None:
     #     try:
