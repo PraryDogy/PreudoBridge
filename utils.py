@@ -119,36 +119,30 @@ class ReadImage(Err):
             psd_file.seek(0)
 
             try:
-                Dynamic.lock = True
                 img = psd_tools.PSDImage.open(psd_file)
                 img = img.composite()
                 img = img.convert("RGB")
                 array_img = np.array(img)
                 # предотвращает segmentation fault
                 img.close()
-                Dynamic.lock = True
                 return array_img
             except Exception as e:
                 print("utils > error read psd", "src:", path)
                 print(e)
-                Dynamic.lock = True
                 return None
                     
     @classmethod
     def read_psb(cls, path: str):
         try:
-            Dynamic.lock = True
             img = psd_tools.PSDImage.open(path)
             img = img.composite()
             img = img.convert("RGB")
             array_img = np.array(img)
             img.close()
-            Dynamic.lock = False
             return array_img
         except Exception as e:
             print("utils > error read psd", "src:", path)
             print(e)
-            Dynamic.lock = False
             return None
 
     # @classmethod

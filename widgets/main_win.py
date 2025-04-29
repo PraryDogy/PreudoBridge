@@ -408,10 +408,6 @@ class MainWin(WinBase):
         self.resize_timer.start(MainWin.resize_ms)
 
     def closeEvent(self, a0: QCloseEvent | None) -> None:
-        if Dynamic.lock:
-            QTimer.singleShot(200, self.close)
-            a0.ignore()
-            return
         if len(WinBase.wins) > 1:
             self.deleteLater()
         else:
