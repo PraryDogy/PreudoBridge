@@ -204,6 +204,7 @@ class ReadImage(Err):
 
 
     """
+    read jpg, png, raw
     PIL заменен на cv2, чтобы избежать segmentation fault / bus error
     """
 
