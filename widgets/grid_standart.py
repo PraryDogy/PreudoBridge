@@ -151,7 +151,6 @@ class ImageBaseItem:
         }
         q = insert(CACHE).values(**values)
         Dbase.commit_(conn, q)
-        del bytes_img
         return img_array
     
     @classmethod
