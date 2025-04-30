@@ -48,7 +48,7 @@ class GridList(UTableView):
             self.setColumnWidth(i, GridList.sizes[i])
         self.loading_lbl.hide()
 
-    def set_width(self):
+    def set_first_col_width(self):
         left_menu_w = self.window().findChild(QSplitter).sizes()[0]
         win_w = self.window().width()
         columns_w = sum(GridList.sizes[1:])

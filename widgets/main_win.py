@@ -317,6 +317,7 @@ class MainWin(WinBase):
         self.menu_favs.set_main_dir(self.main_dir)
 
         self.grid = GridSearch(self.main_dir, self.view_index, None)
+        self.grid.setParent(self)
         self.grid.set_sort_item(self.sort_item)
         self.grid.finished_.connect(lambda id_=id(self.grid): self.finished_search_grid(id_))
         self.grid.set_search_item(self.search_item)
@@ -384,13 +385,14 @@ class MainWin(WinBase):
 
         if self.view_index == 0:
             self.grid = GridStandart(self.main_dir, self.view_index, url_for_select)
+            self.grid.setParent(self)
             self.grid.set_sort_item(self.sort_item)
             self.grid.load_finder_items()
 
         elif self.view_index == 1:
             self.grid = GridList(self.main_dir, self.view_index)
             self.grid.setParent(self)
-            self.grid.set_width()
+            self.grid.set_first_col_width()
 
         self.setup_grid_signals()
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
