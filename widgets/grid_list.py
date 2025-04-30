@@ -1,15 +1,16 @@
 import os
 
-from PyQt5.QtCore import QDir, Qt
+from PyQt5.QtCore import QDir, QModelIndex, Qt
 from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import QFileSystemModel, QTableView
 
-from cfg import JsonData
+from cfg import JsonData, Static
 
 from ._base_items import UMenu, UTableView
 from .actions import (ChangeViewMenu, CopyName, CopyPath, FavAdd, FavRemove,
-                      Info, RevealInFinder)
+                      Info, RevealInFinder, View)
 from .finder_items import LoadingWid
+from .grid import Thumb
 from .info_win import InfoWin
 
 
@@ -49,10 +50,21 @@ class GridList(UTableView):
 
     def double_clicked(self, index):
         path = self._model.filePath(index)
+        self.view_cmd(path, index)
 
+    def view_cmd(self, path: str, index: QModelIndex):
         if os.path.isdir(path):
-            self.setCurrentIndex(index)
             self.load_st_grid_sig.emit((path, None))
+
+        elif path.endswith(Static.ext_all):
+            from .img_view_win import ImgViewWin
+            thumb = Thumb(path)
+            url_to_wid = {path: thumb}
+            self.img_view_win = ImgViewWin(path, url_to_wid)
+            self.img_view_win.center(self.window())
+            self.img_view_win.show()
+
+        self.setCurrentIndex(index)
 
     def save_sort_settings(self, index):
         GridList.col = index
@@ -80,9 +92,9 @@ class GridList(UTableView):
         self.win_info.show()
 
     def deleteLater(self):
-        index = self.currentIndex()
-        path = self._model.filePath(index)
-        path = os.path.abspath(path)
+        # index = self.currentIndex()
+        # path = self._model.filePath(index)
+        # path = os.path.abspath(path)
         GridList.sizes = [self.columnWidth(i) for i in range(0, 4)]
         super().deleteLater()
 
@@ -91,35 +103,40 @@ class GridList(UTableView):
 
         menu = UMenu(parent=self)
 
-        src = self._model.filePath(index)
-        index = self._model.index(src)
+        path = self._model.filePath(index)
+        index = self._model.index(path)
 
-        if not src:
-            src = self.main_dir
+        if not path:
+            path = self.main_dir
+
+        if path != self.main_dir:
+            view_ = View(menu)
+            view_.triggered.connect(lambda: self.view_cmd(path, index))
+            menu.addAction(view_)
 
         info = Info(menu)
-        info.triggered.connect(lambda: self.win_info_cmd(src))
+        info.triggered.connect(lambda: self.win_info_cmd(path))
         menu.addAction(info)
 
-        open_finder_action = RevealInFinder(menu, src)
+        open_finder_action = RevealInFinder(menu, path)
         menu.addAction(open_finder_action)
 
-        copy_path_action = CopyPath(menu, src)
+        copy_path_action = CopyPath(menu, path)
         menu.addAction(copy_path_action)
 
-        copy_name = CopyName(menu, os.path.basename(src))
+        copy_name = CopyName(menu, os.path.basename(path))
         menu.addAction(copy_name)
 
         menu.addSeparator()
 
-        if os.path.isdir(src):
-            if src in JsonData.favs:
-                cmd_ = lambda: self.fav_cmd_sig.emit(("del", src))
+        if os.path.isdir(path):
+            if path in JsonData.favs:
+                cmd_ = lambda: self.fav_cmd_sig.emit(("del", path))
                 fav_action = FavRemove(menu)
                 fav_action.triggered.connect(cmd_)
                 menu.addAction(fav_action)
             else:
-                cmd_ = lambda: self.fav_cmd_sig.emit(("add", src))
+                cmd_ = lambda: self.fav_cmd_sig.emit(("add", path))
                 fav_action = FavAdd(menu)
                 fav_action.triggered.connect(cmd_)
                 menu.addAction(fav_action)
