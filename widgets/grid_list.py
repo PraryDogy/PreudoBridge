@@ -60,6 +60,9 @@ class GridList(UTableView):
             if path.endswith(Static.ext_all):
                 self.url_to_index[path] = index
 
+        self.path_bar_update.emit(self.main_dir)
+        self.sort_bar_update.emit(rows)
+
     def select_path(self, path: str):
         index = self._model.index(path, 0)
         self.setCurrentIndex(index)

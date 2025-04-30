@@ -389,12 +389,14 @@ class MainWin(WinBase):
             self.grid.set_sort_item(self.sort_item)
             self.grid.load_finder_items()
             self.sort_bar.sort_frame.setDisabled(False)
+            self.sort_bar.slider.setDisabled(False)
 
         elif self.view_index == 1:
             self.grid = GridList(self.main_dir, self.view_index)
             self.grid.setParent(self)
             self.grid.set_first_col_width()
             self.sort_bar.sort_frame.setDisabled(True)
+            self.sort_bar.slider.setDisabled(True)
 
         self.setup_grid_signals()
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
