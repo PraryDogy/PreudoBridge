@@ -393,7 +393,6 @@ class MainWin(WinBase):
             self.grid = GridList(self.main_dir, self.view_index)
             self.grid.setParent(self)
             self.grid.set_first_col_width()
-            # self.grid.set_url_to_index()
 
         self.setup_grid_signals()
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)

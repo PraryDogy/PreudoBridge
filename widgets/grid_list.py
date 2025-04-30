@@ -1,6 +1,6 @@
 import os
 
-from PyQt5.QtCore import QDir, QModelIndex, Qt, QTimer
+from PyQt5.QtCore import QDir, QItemSelectionModel, QModelIndex, Qt, QTimer
 from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import (QFileSystemModel, QHeaderView, QSplitter,
                              QTableView, QWidget)
@@ -62,13 +62,8 @@ class GridList(UTableView):
                 self.url_to_index[path] = index
 
     def select_path(self, path: str):
-        index = self.url_to_index.get(path)
+        index = self._model.index(path, 0)
         self.setCurrentIndex(index)
-
-        # print(index)
-        # if index:
-        #     self.selectionModel().select(index)
-        #     self.scrollTo(index)
 
     def set_first_col_width(self):
         left_menu_w = self.window().findChild(QSplitter).sizes()[0]
