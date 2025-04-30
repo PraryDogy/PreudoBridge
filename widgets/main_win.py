@@ -396,7 +396,7 @@ class MainWin(WinBase):
 
         self.setup_grid_signals()
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
-        self.grid.setFocus()
+        QTimer.singleShot(400, self.grid.setFocus)
 
     def scroll_up_show_hide(self, value: int):
         if value == 0:
