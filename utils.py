@@ -62,9 +62,15 @@ class ReadImage(Err):
             Exception
         )
         try:
-            # Оставляем только три канала (RGB)
             img = tifffile.imread(files=path)
-            img = img[..., :3]
+
+            if img.ndim == 3:
+                if img.shape[0] in [1, 3, 4]:  # (C, H, W)
+                    img = img.transpose(1, 2, 0)
+                if img.shape[2] > 3:
+                    img = img[:, :, :3]
+
+
             # Проверяем, соответствует ли тип данных изображения uint8.
             # `uint8` — это 8-битный целочисленный формат данных, где значения
             # пикселей лежат в диапазоне [0, 255].
@@ -81,10 +87,11 @@ class ReadImage(Err):
                 # Приводим типданных массива к uint8.
                 img = (img / 256).astype(dtype="uint8")
 
-            # TIFF был сохранен "порядок пикселов > по каналам (RRGGBB)"
-            # Если каналы идут первыми (формат: channels, height, width), транспонируем
-            if image.shape[0] == 3:  # Пример для 3-канального изображения
-                image = np.transpose(image, (1, 2, 0))  # Меняем порядок на (height, width, channels)
+            # # TIFF был сохранен "порядок пикселов > по каналам (RRGGBB)"
+            # # Если каналы идут первыми (формат: channels, height, width), транспонируем
+            # if img.shape[0] == 3:  # Пример для 3-канального изображения
+            #     img = np.transpose(img, (1, 2, 0))  # Меняем порядок на (height, width, channels)
+            #     print(img.shape)
 
             return img
         except errors as e:

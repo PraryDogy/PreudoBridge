@@ -187,23 +187,23 @@ class GridList(UTableView):
                 if root != os.sep:
                     self.new_history_item.emit(root)
                     self.load_st_grid_sig.emit((root, None))
-                    return
+                    # return
 
             elif a0.key() == Qt.Key.Key_Down:
                 index = self.currentIndex()
                 self.double_clicked(index)
-                return
+                # return
             
             elif a0.key() == Qt.Key.Key_I:
                 index = self.currentIndex()
                 path = self._model.filePath(index)
                 self.win_info_cmd(path)
-                return
+                # return
 
         elif a0.key() in (Qt.Key.Key_Return, Qt.Key.Key_Space):
             index = self.currentIndex()
             self.double_clicked(index)
-            return
+            # return
         
 
         return super().keyPressEvent(a0)
