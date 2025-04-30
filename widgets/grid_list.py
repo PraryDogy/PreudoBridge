@@ -1,9 +1,8 @@
 import os
 
-from PyQt5.QtCore import QDir, QItemSelectionModel, QModelIndex, Qt, QTimer
+from PyQt5.QtCore import QDir, QModelIndex, Qt
 from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
-from PyQt5.QtWidgets import (QFileSystemModel, QHeaderView, QSplitter,
-                             QTableView, QWidget)
+from PyQt5.QtWidgets import QFileSystemModel, QSplitter, QTableView
 
 from cfg import JsonData, Static
 
@@ -191,10 +190,17 @@ class GridList(UTableView):
                 index = self.currentIndex()
                 self.double_clicked(index)
                 return
+            
+            elif a0.key() == Qt.Key.Key_I:
+                index = self.currentIndex()
+                path = self._model.filePath(index)
+                self.win_info_cmd(path)
+                return
 
         elif a0.key() in (Qt.Key.Key_Return, Qt.Key.Key_Space):
             index = self.currentIndex()
             self.double_clicked(index)
             return
+        
 
         return super().keyPressEvent(a0)
