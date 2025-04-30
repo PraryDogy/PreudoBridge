@@ -62,17 +62,30 @@ class ReadImage(Err):
             Exception
         )
         try:
-            img = tifffile.imread(files=path)
+            img = tifffile.imread(path)
+            # Проверяем, что изображение трёхмерное
             if img.ndim == 3:
-                if img.shape[0] in [1, 3, 4]:  # (C, H, W)
+                channels = min(img.shape)
+                channels_index = img.shape.index(channels)
+                
+                # Транспонируем, если каналы на первом месте
+                if channels_index == 0:
                     img = img.transpose(1, 2, 0)
-                if img.shape[2] > 3:
+
+                # Ограничиваем количество каналов до 3
+                if channels > 3:
                     img = img[:, :, :3]
-            if str(object=img.dtype) != "uint8":
-                img = (img / 256).astype(dtype="uint8")
+
+                # Преобразуем в uint8, если тип другой
+                if str(img.dtype) != "uint8":
+                    img = (img / 256).astype(dtype="uint8")
+
+            # Если изображение уже 2D, просто показываем его
+            elif img.ndim == 2:
+                img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
             return img
         except errors as e:
-            print("error read tiff", path, e)
+            print("error read tiff, open pil", path, e)
             try:
                 img = Image.open(path)
                 img = img.convert("RGB")
