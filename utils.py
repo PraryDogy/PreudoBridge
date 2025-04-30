@@ -80,6 +80,12 @@ class ReadImage(Err):
                 # 65535 / 256 ≈ 255 (максимальное значение в uint8).
                 # Приводим типданных массива к uint8.
                 img = (img / 256).astype(dtype="uint8")
+
+            # TIFF был сохранен "порядок пикселов > по каналам (RRGGBB)"
+            # Если каналы идут первыми (формат: channels, height, width), транспонируем
+            if image.shape[0] == 3:  # Пример для 3-канального изображения
+                image = np.transpose(image, (1, 2, 0))  # Меняем порядок на (height, width, channels)
+
             return img
         except errors as e:
             print("error read tiff", path, e)
