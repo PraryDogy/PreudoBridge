@@ -49,14 +49,26 @@ class GridList(UTableView):
             self.setColumnWidth(i, GridList.sizes[i])
         self.loading_lbl.hide()
 
-    def set_url_to_index(self):
+        self._model.directoryLoaded.connect(self.set_url_to_index_)
+
+    def set_url_to_index_(self):
         root_index = self.rootIndex()
         rows = self._model.rowCount(root_index)
 
         for row in range(rows):
             index = self._model.index(row, 0, root_index)
             path = self._model.filePath(index)
-            self.url_to_index[path] = index
+            if path.endswith(Static.ext_all):
+                self.url_to_index[path] = index
+
+    def select_path(self, path: str):
+        index = self.url_to_index.get(path)
+        self.setCurrentIndex(index)
+
+        # print(index)
+        # if index:
+        #     self.selectionModel().select(index)
+        #     self.scrollTo(index)
 
     def set_first_col_width(self):
         left_menu_w = self.window().findChild(QSplitter).sizes()[0]
@@ -75,9 +87,16 @@ class GridList(UTableView):
 
         elif path.endswith(Static.ext_all):
             from .img_view_win import ImgViewWin
-            thumb = Thumb(path)
-            url_to_wid = {path: thumb}
+
+            url_to_wid = {
+                url: Thumb(url)
+                for url, index in self.url_to_index.items()
+                if url.endswith(Static.ext_all)
+            }
+
+            cmd = lambda path: self.select_path(path)
             self.img_view_win = ImgViewWin(path, url_to_wid)
+            self.img_view_win.move_to_url_sig.connect(cmd)
             self.img_view_win.center(self.window())
             self.img_view_win.show()
 

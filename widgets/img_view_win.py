@@ -272,6 +272,7 @@ class ImgViewWin(WinBase):
     switch_image_sig = pyqtSignal(object)
     closed_ = pyqtSignal()
     move_to_wid_sig = pyqtSignal(object)
+    move_to_url_sig = pyqtSignal(str)
     new_rating = pyqtSignal(int)
     width_, height_ = 700, 500
 
@@ -420,6 +421,7 @@ class ImgViewWin(WinBase):
         self.wid.text_changed.connect(self.set_title)
 
         self.move_to_wid_sig.emit(self.wid)
+        self.move_to_url_sig.emit(self.src)
 
         self.text_label.hide()
         self.set_title()
