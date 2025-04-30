@@ -1,6 +1,6 @@
 import os
 
-from PyQt5.QtCore import QDir, QModelIndex, Qt
+from PyQt5.QtCore import QDir, QModelIndex, Qt, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import QFileSystemModel, QSplitter, QTableView
 
@@ -15,17 +15,18 @@ from .info_win import InfoWin
 
 
 class GridList(UTableView):
+    set_selected_urls = pyqtSignal(list)
     col: int = 0
     order: int = 0
     sizes: list = [250, 100, 100, 150]
 
-    def __init__(self, main_dir: str, view_index: int, input_urls: list[str]):
+    def __init__(self, main_dir: str, view_index: int, selected_urls: list[str]):
         super().__init__()
 
         self.main_dir = main_dir
         self.view_index = view_index
         self.url_to_index: dict[str, QModelIndex] = {}
-        self.input_urls: list[str] = input_urls
+        self.selected_urls: list[str] = selected_urls
 
         self.loading_lbl = LoadingWid(parent=self)
         self.loading_lbl.center(self)
@@ -65,7 +66,7 @@ class GridList(UTableView):
         self.sort_bar_update.emit(rows)
 
         for url, index in self.url_to_index.items():
-            if url in self.input_urls:
+            if url in self.selected_urls:
                 self.selectRow(index.row())
 
     def select_path(self, path: str):
@@ -131,6 +132,13 @@ class GridList(UTableView):
 
     def deleteLater(self):
         GridList.sizes = [self.columnWidth(i) for i in range(0, 4)]
+        selection_model = self.selectionModel()
+        selected_rows = selection_model.selectedRows()
+        self.selected_urls.clear()
+        for index in selected_rows:
+            file_path = self._model.filePath(index)  # Получаем путь по индексу
+            self.selected_urls.append(file_path)
+        self.set_selected_urls.emit(self.selected_urls)
         super().deleteLater()
 
     def contextMenuEvent(self, event: QContextMenuEvent):
