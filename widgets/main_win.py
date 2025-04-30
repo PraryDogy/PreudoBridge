@@ -389,6 +389,8 @@ class MainWin(WinBase):
 
         elif self.view_index == 1:
             self.grid = GridList(self.main_dir, self.view_index)
+            self.grid.setParent(self)
+            self.grid.set_width()
 
         self.setup_grid_signals()
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)

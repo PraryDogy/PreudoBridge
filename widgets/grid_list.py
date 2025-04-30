@@ -1,8 +1,9 @@
 import os
 
-from PyQt5.QtCore import QDir, QModelIndex, Qt
+from PyQt5.QtCore import QDir, QModelIndex, Qt, QTimer
 from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
-from PyQt5.QtWidgets import QFileSystemModel, QTableView
+from PyQt5.QtWidgets import (QFileSystemModel, QHeaderView, QSplitter,
+                             QTableView, QWidget)
 
 from cfg import JsonData, Static
 
@@ -45,8 +46,14 @@ class GridList(UTableView):
         self.sortByColumn(GridList.col, GridList.order)
         for i in range(0, 4):
             self.setColumnWidth(i, GridList.sizes[i])
-
         self.loading_lbl.hide()
+
+    def set_width(self):
+        left_menu_w = self.window().findChild(QSplitter).sizes()[0]
+        win_w = self.window().width()
+        columns_w = sum(GridList.sizes[1:])
+        new_w = win_w - left_menu_w - columns_w - 30
+        self.setColumnWidth(0, new_w)
 
     def double_clicked(self, index):
         path = self._model.filePath(index)
