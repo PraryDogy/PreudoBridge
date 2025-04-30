@@ -25,6 +25,7 @@ class GridList(UTableView):
 
         self.main_dir = main_dir
         self.view_index = view_index
+        self.url_to_index: dict[str, QModelIndex] = {}
 
         self.loading_lbl = LoadingWid(parent=self)
         self.loading_lbl.center(self)
@@ -47,6 +48,15 @@ class GridList(UTableView):
         for i in range(0, 4):
             self.setColumnWidth(i, GridList.sizes[i])
         self.loading_lbl.hide()
+
+    def set_url_to_index(self):
+        root_index = self.rootIndex()
+        rows = self._model.rowCount(root_index)
+
+        for row in range(rows):
+            index = self._model.index(row, 0, root_index)
+            path = self._model.filePath(index)
+            self.url_to_index[path] = index
 
     def set_first_col_width(self):
         left_menu_w = self.window().findChild(QSplitter).sizes()[0]
@@ -99,9 +109,6 @@ class GridList(UTableView):
         self.win_info.show()
 
     def deleteLater(self):
-        # index = self.currentIndex()
-        # path = self._model.filePath(index)
-        # path = os.path.abspath(path)
         GridList.sizes = [self.columnWidth(i) for i in range(0, 4)]
         super().deleteLater()
 
