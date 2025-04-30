@@ -164,12 +164,16 @@ class ImageBaseItem:
         """
         Возвращает: размер, дату изменения, разрешение
         """
-        stats = os.stat(src)
-        height, width = img_array.shape[:2]
-        new_size = int(stats.st_size)
-        new_mod = int(stats.st_mtime)
-        new_resol = f"{width}x{height}"
-        return new_size, new_mod, new_resol
+        try:
+            stats = os.stat(src)
+            height, width = img_array.shape[:2]
+            new_size = int(stats.st_size)
+            new_mod = int(stats.st_mtime)
+            new_resol = f"{width}x{height}"
+            return new_size, new_mod, new_resol
+        except Exception as e:
+            print(e, src)
+            return 0, 0, ""
 
 
 class WorkerSignals(QObject):
