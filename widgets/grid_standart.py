@@ -243,6 +243,8 @@ class LoadImages(QRunnable):
 
 
 class GridStandart(Grid):
+    set_selected_urls = pyqtSignal(list)
+
     no_images_text = "Папка пуста или нет подключения к диску"
     limit: int = 50
 
@@ -455,3 +457,11 @@ class GridStandart(Grid):
     def resizeEvent(self, a0):
         self.loading_lbl.center(self)
         return super().resizeEvent(a0)
+
+    def deleteLater(self):
+        urls = [
+            i.src
+            for i in self.selected_widgets
+        ]
+        self.set_selected_urls.emit(urls)
+        return super().deleteLater()

@@ -19,12 +19,13 @@ class GridList(UTableView):
     order: int = 0
     sizes: list = [250, 100, 100, 150]
 
-    def __init__(self, main_dir: str, view_index: int):
+    def __init__(self, main_dir: str, view_index: int, input_urls: list[str]):
         super().__init__()
 
         self.main_dir = main_dir
         self.view_index = view_index
         self.url_to_index: dict[str, QModelIndex] = {}
+        self.input_urls: list[str] = input_urls
 
         self.loading_lbl = LoadingWid(parent=self)
         self.loading_lbl.center(self)
@@ -62,6 +63,10 @@ class GridList(UTableView):
 
         self.path_bar_update.emit(self.main_dir)
         self.sort_bar_update.emit(rows)
+
+        for url, index in self.url_to_index.items():
+            if url in self.input_urls:
+                self.selectRow(index.row())
 
     def select_path(self, path: str):
         index = self._model.index(path, 0)

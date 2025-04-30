@@ -114,11 +114,12 @@ class MainWin(WinBase):
             self.main_dir: str = Utils.add_system_volume(self.main_dir)
         self.main_win_list: list[MainWin] = []
         # индекс 0 просмотр сеткой, индекс 1 просмотр списком
-        self.view_index = 0
+        self.view_index: int = 0
         self.search_item = SearchItem()
         self.resize_timer = QTimer(parent=self)
         self.resize_timer.setSingleShot(True)
-        self.sort_item = SortItem()
+        self.sort_item: SortItem = SortItem()
+        self.selected_urls: list[str] = []
         
         main_lay = QHBoxLayout()
         main_lay.setContentsMargins(5, 0, 5, 0)
@@ -390,9 +391,10 @@ class MainWin(WinBase):
             self.grid.load_finder_items()
             self.sort_bar.sort_frame.setDisabled(False)
             self.sort_bar.slider.setDisabled(False)
+            self.grid.set_selected_urls.connect(lambda urls: self.set_selected_urls(urls))
 
         elif self.view_index == 1:
-            self.grid = GridList(self.main_dir, self.view_index)
+            self.grid = GridList(self.main_dir, self.view_index, self.selected_urls)
             self.grid.setParent(self)
             self.grid.set_first_col_width()
             self.sort_bar.sort_frame.setDisabled(True)
@@ -401,6 +403,9 @@ class MainWin(WinBase):
         self.setup_grid_signals()
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
         QTimer.singleShot(400, self.grid.setFocus)
+
+    def set_selected_urls(self, urls: list[str]):
+        self.selected_urls = urls
 
     def scroll_up_show_hide(self, value: int):
         if value == 0:
