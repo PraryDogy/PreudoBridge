@@ -266,7 +266,7 @@ class GridSearch(Grid):
         Thumb.calculate_size()
         self.is_grid_search = True
 
-        self.task_ = SearchFinder(self.main_win_item.main_dir, self.search_item, self)
+        self.task_ = SearchFinder(self.main_win_item, self.search_item, self)
         self.task_.signals_.new_widget.connect(self.add_new_widget)
         self.task_.signals_.finished_.connect(self.search_fin)
         UThreadPool.start(self.task_)
