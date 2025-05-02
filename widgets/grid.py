@@ -787,7 +787,7 @@ class Grid(UScrollArea):
             menu_.addAction(paste_files)
 
         upd_ = QAction(UPDATE_GRID_T, menu_)
-        upd_.triggered.connect(lambda: self.load_st_grid_sig.emit((None, None)))
+        upd_.triggered.connect(lambda: self.load_st_grid_sig.emit())
         menu_.addAction(upd_)
 
     def set_new_rating(self, new_rating: int):
