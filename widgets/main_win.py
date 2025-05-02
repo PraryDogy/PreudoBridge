@@ -227,7 +227,7 @@ class MainWin(WinBase):
         # очистить поиск, загрузить стандартную сетку с текущей директорией
         self.bar_top.load_st_grid_sig.connect(lambda: self.load_standart_grid(self.main_dir))
         # перейти вперед/назад по истории посещений
-        self.bar_top.navigate.connect(lambda dir: self.load_standart_grid((dir, None)))
+        self.bar_top.navigate.connect(lambda dir: self.load_standart_grid(dir))
         # было открыто окно настроек и был клик "очистить данные в этой папке"
         self.bar_top.clear_data_clicked.connect(lambda: self.remove_db_cmd())
         self.bar_top.open_in_new_win.connect(lambda dir: self.open_in_new_window_cmd(dir))
