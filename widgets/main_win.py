@@ -323,7 +323,7 @@ class MainWin(WinBase):
         self.menu_tags.reset()
         self.menu_favs.set_main_dir(self.main_dir)
 
-        self.grid = GridSearch(self.main_dir, self.view_index, None)
+        self.grid = GridSearch(self.main_dir, self.view_index, self.main_win_item)
         self.grid.setParent(self)
         self.grid.set_sort_item(self.sort_item)
         self.grid.finished_.connect(lambda id_=id(self.grid): self.finished_search_grid(id_))
