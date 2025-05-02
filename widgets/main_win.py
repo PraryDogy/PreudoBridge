@@ -261,7 +261,7 @@ class MainWin(WinBase):
     def level_up_cmd(self):
         new_main_dir = os.path.dirname(self.main_dir)
         if new_main_dir != os.sep:
-            self.main_win_item.urls = [self.main_dir]
+            self.main_win_item.level_up_url = [self.main_dir]
             self.load_standart_grid(new_main_dir)
             self.bar_top.new_history_item_cmd(new_main_dir)
             self.main_dir = new_main_dir
@@ -356,7 +356,12 @@ class MainWin(WinBase):
         # при удалении сетки срабатывает кастомный метод deleteLater
         # который обновляет main_win_item.urls, и если нет выделенных
         # виджетов, то будет будет пустым
+        # обходим это, сохранив url при level_up_cmd в main_win_item.level_up_url
         self.grid.deleteLater()
+
+        if self.main_win_item.level_up_url:
+            self.main_win_item.urls = self.main_win_item.level_up_url.copy()
+            self.main_win_item.level_up_url.clear()
 
         if dir:
             self.main_dir = dir

@@ -465,30 +465,6 @@ class Grid(UScrollArea):
 
         for i in self.main_win_item.urls:
             print("grid py > urls", i)
-
-        # если в сетку был передан аттрибут url_for_select,
-        # то после того, как сетка виджетов была сформирована,
-        # будет выделен виджет, который ищется в url_to_wid
-        # if isinstance(self.url_for_select, str):
-        #     wid = self.url_to_wid.get(self.url_for_select)
-        #     self.select_one_wid(wid)
-        #     QTimer.singleShot(500, lambda: self.ensure_wid_visible(wid))
-
-        # # тоже самое, но будет выделено сразу несколько виджетов
-        # elif isinstance(self.url_for_select, (tuple, list)):
-        #     widgets = [
-        #         self.url_to_wid.get(i)
-        #         for i in self.url_for_select
-        #     ]
-        #     for i in widgets:
-        #         try:
-        #             i.set_frame()
-        #             self.selected_widgets.append(i)
-        #         except AttributeError:
-        #             continue
-        #     if widgets:
-        #         cmd_ = lambda: self.ensure_wid_visible(widgets[0])
-        #         QTimer.singleShot(500, cmd_)
     
     def ensure_wid_visible(self, wid: Thumb):
         self.ensureWidgetVisible(wid)
