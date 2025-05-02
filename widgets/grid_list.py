@@ -215,6 +215,5 @@ class GridList(UTableView):
             index = self.currentIndex()
             self.double_clicked(index)
             # return
-        
 
         return super().keyPressEvent(a0)

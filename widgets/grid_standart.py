@@ -423,18 +423,10 @@ class GridStandart(Grid):
                 self.row += 1
 
         for i in self.main_win_item.urls:
-            print("grid standart", i)
-
-        # wid = self.url_to_wid.get(self.url_for_select)
-        # if wid:
-        #     self.select_one_wid(wid)
-        #     self.url_for_select = None
-
-        # for i in self.selected_urls:
-        #     wid = self.url_to_wid.get(i)
-        #     if wid:
-        #         self.selected_widgets.append(wid)
-        #         wid.set_frame()
+            wid = self.url_to_wid.get(i)
+            if wid:
+                self.selected_widgets.append(wid)
+                wid.set_frame()
 
     def run_load_images_thread(self, thumbs: list[Thumb]):
         """
