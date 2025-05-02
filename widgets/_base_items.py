@@ -622,4 +622,4 @@ class SearchItem:
 class MainWinItem:
     def __init__(self):
         self.urls: list[str] = []
-        self.level_up_url: list[str] = []
+        self.immortal_urls: list[str] = []
