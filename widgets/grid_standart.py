@@ -266,7 +266,6 @@ class GridStandart(Grid):
 
         # список url для предотвращения повторной загрузки изображений
         self.loaded_images: list[str] = []
-        self.selected_urls: list[str] = []
 
         # при скроллинге запускается данный таймер и сбрасывается предыдуший
         # только при остановке скроллинга спустя время запускается
@@ -458,8 +457,10 @@ class GridStandart(Grid):
         return super().resizeEvent(a0)
 
     def deleteLater(self):
-        self.selected_urls = [
+        self.main_win_item.urls = [
             i.src
             for i in self.selected_widgets
         ]
+
+        print(self.main_win_item.urls)
         return super().deleteLater()
