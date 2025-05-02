@@ -145,7 +145,7 @@ class MainWin(WinBase):
         self.menu_tree = TreeMenu()
         self.menu_tabs.addTab(self.menu_tree, "Папки")
 
-        self.menu_favs = FavsMenu()
+        self.menu_favs = FavsMenu(self.main_dir)
         self.menu_tabs.addTab(self.menu_favs, "Избранное")
 
         self.tags_btn = TagsBtn()
@@ -321,7 +321,6 @@ class MainWin(WinBase):
         self.search_bar_sep.show()
         self.bar_top.set_main_dir(self.main_dir)
         self.menu_tags.reset()
-        self.menu_favs.set_main_dir(self.main_dir)
 
         self.grid = GridSearch(self.main_dir, self.view_index, self.main_win_item)
         self.grid.setParent(self)
@@ -390,7 +389,6 @@ class MainWin(WinBase):
         self.search_bar.hide()
         self.search_bar_sep.hide()
         self.bar_top.set_main_dir(self.main_dir)
-        self.menu_favs.set_main_dir(self.main_dir)
         self.menu_tree.expand_path(self.main_dir)
 
         if self.view_index == 0:

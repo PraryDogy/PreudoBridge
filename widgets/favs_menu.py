@@ -111,9 +111,9 @@ class FavsMenu(QListWidget):
     load_st_grid_sig = pyqtSignal(str)
     open_in_new_win = pyqtSignal(str)
 
-    def __init__(self):
+    def __init__(self, main_dir: str):
         super().__init__()
-        self.main_dir: str = None
+        self.main_dir: str = main_dir
         self.horizontalScrollBar().setDisabled(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
@@ -121,9 +121,6 @@ class FavsMenu(QListWidget):
         self.setDragDropMode(QListWidget.DragDropMode.InternalMove)
         self.setAcceptDrops(True)
         self.init_ui()
-
-    def set_main_dir(self, main_dir: str):
-        self.main_dir = main_dir
 
     def init_ui(self):
         self.clear()
