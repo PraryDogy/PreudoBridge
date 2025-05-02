@@ -13,7 +13,7 @@ from .actions import (CopyName, CopyPath, FavAdd, FavRemove, OpenInNewWindow,
 class TreeMenu(QTreeView):
     new_history_item = pyqtSignal(str)
     fav_cmd_sig = pyqtSignal(tuple)
-    load_st_grid_sig = pyqtSignal(tuple)
+    load_st_grid_sig = pyqtSignal(str)
     open_in_new_window = pyqtSignal(str)
 
     def __init__(self):
@@ -41,7 +41,7 @@ class TreeMenu(QTreeView):
         path = self.c_model.filePath(index)
         self.setCurrentIndex(index)
         self.new_history_item.emit(path)
-        self.load_st_grid_sig.emit((path, None))
+        self.load_st_grid_sig.emit(path)
 
         self.expand(index)
 

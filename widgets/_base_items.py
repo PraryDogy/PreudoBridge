@@ -41,8 +41,8 @@ class UScrollArea(QScrollArea, UMethods):
     sort_bar_update = pyqtSignal(object)
     # "select" / "add" / "del", путь к папке
     fav_cmd_sig = pyqtSignal(tuple)
-    # путь к папке, путь к файлу / папке для выделения в сетке GridStandart
-    load_st_grid_sig = pyqtSignal(tuple)
+    # путь к директории
+    load_st_grid_sig = pyqtSignal(str)
     # 0-3, всего 4 положения слайдера для изменения размера виджетов Thumb в сетке
     move_slider_sig = pyqtSignal(int)
     # 0 отобразить сеткой, 1 отобразить списком
@@ -74,8 +74,8 @@ class UTableView(QTableView, UMethods):
     sort_bar_update = pyqtSignal(object)
     # "select" / "add" / "del", путь к папке
     fav_cmd_sig = pyqtSignal(tuple)
-    # путь к папке, путь к файлу / папке для выделения в сетке GridStandart
-    load_st_grid_sig = pyqtSignal(tuple)
+    # путь к директории
+    load_st_grid_sig = pyqtSignal(str)
     # 0-3, всего 4 положения слайдера для изменения размера виджетов Thumb в сетке
     move_slider_sig = pyqtSignal(int)
     # 0 отобразить сеткой, 1 отобразить списком

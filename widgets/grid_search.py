@@ -11,7 +11,7 @@ from cfg import Dynamic, Static, ThumbData
 from fit_img import FitImg
 from utils import UThreadPool, Utils
 
-from ._base_items import (BaseItem, MinMaxDisabledWin, SearchItem,
+from ._base_items import (BaseItem, MainWinItem, MinMaxDisabledWin, SearchItem,
                           USvgSqareWidget, UTextEdit)
 from .grid import Grid, Thumb
 
@@ -240,8 +240,8 @@ class WinMissedFiles(MinMaxDisabledWin):
 class GridSearch(Grid):
     finished_ = pyqtSignal()
 
-    def __init__(self, main_dir: str, view_index: int, url_for_select: str):
-        super().__init__(main_dir, view_index, url_for_select)
+    def __init__(self, main_dir: str, view_index: int, main_win_item: MainWinItem):
+        super().__init__(main_dir, view_index, main_win_item)
         self.search_item: SearchItem = None
         self.setAcceptDrops(False)
 

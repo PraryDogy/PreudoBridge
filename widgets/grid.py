@@ -16,7 +16,7 @@ from cfg import Dynamic, JsonData, Static, ThumbData
 from database import CACHE, Dbase
 from utils import UThreadPool, Utils
 
-from ._base_items import BaseItem, SortItem, UMenu, UScrollArea
+from ._base_items import BaseItem, MainWinItem, SortItem, UMenu, UScrollArea
 from .actions import (ChangeViewMenu, CopyName, CopyPath, FavAdd, FavRemove,
                       Info, OpenInApp, OpenInNewWindow, RatingMenu,
                       RevealInFinder, SortMenu, View)
@@ -285,7 +285,7 @@ class Thumb(BaseItem, QFrame):
 class Grid(UScrollArea):
     urls_to_copy: list[str] = []
 
-    def __init__(self, main_dir: str, view_index: int, url_for_select: str):
+    def __init__(self, main_dir: str, view_index: int, main_win_item: MainWinItem):
         super().__init__()
         self.setAcceptDrops(True)
         self.setWidgetResizable(True)
@@ -301,8 +301,7 @@ class Grid(UScrollArea):
         self.row: int = 0
         self.col: int = 0
 
-        # для выделения виджета после формирования / перетасовки сетки
-        self.url_for_select: str = url_for_select
+        self.main_win_item = main_win_item
 
         # url файла / папки - виджет
         self.url_to_wid: dict[str, Thumb] = {}
@@ -464,29 +463,32 @@ class Grid(UScrollArea):
             for coords, wid in self.cell_to_wid.items()
         }
 
+        for i in self.main_win_item.urls:
+            print("grid py > urls", i)
+
         # если в сетку был передан аттрибут url_for_select,
         # то после того, как сетка виджетов была сформирована,
         # будет выделен виджет, который ищется в url_to_wid
-        if isinstance(self.url_for_select, str):
-            wid = self.url_to_wid.get(self.url_for_select)
-            self.select_one_wid(wid)
-            QTimer.singleShot(500, lambda: self.ensure_wid_visible(wid))
+        # if isinstance(self.url_for_select, str):
+        #     wid = self.url_to_wid.get(self.url_for_select)
+        #     self.select_one_wid(wid)
+        #     QTimer.singleShot(500, lambda: self.ensure_wid_visible(wid))
 
-        # тоже самое, но будет выделено сразу несколько виджетов
-        elif isinstance(self.url_for_select, (tuple, list)):
-            widgets = [
-                self.url_to_wid.get(i)
-                for i in self.url_for_select
-            ]
-            for i in widgets:
-                try:
-                    i.set_frame()
-                    self.selected_widgets.append(i)
-                except AttributeError:
-                    continue
-            if widgets:
-                cmd_ = lambda: self.ensure_wid_visible(widgets[0])
-                QTimer.singleShot(500, cmd_)
+        # # тоже самое, но будет выделено сразу несколько виджетов
+        # elif isinstance(self.url_for_select, (tuple, list)):
+        #     widgets = [
+        #         self.url_to_wid.get(i)
+        #         for i in self.url_for_select
+        #     ]
+        #     for i in widgets:
+        #         try:
+        #             i.set_frame()
+        #             self.selected_widgets.append(i)
+        #         except AttributeError:
+        #             continue
+        #     if widgets:
+        #         cmd_ = lambda: self.ensure_wid_visible(widgets[0])
+        #         QTimer.singleShot(500, cmd_)
     
     def ensure_wid_visible(self, wid: Thumb):
         self.ensureWidgetVisible(wid)
@@ -514,7 +516,7 @@ class Grid(UScrollArea):
         elif wid.type_ == Static.FOLDER_TYPE:
             self.mouseReleaseEvent = None
             self.new_history_item.emit(wid.src)
-            self.load_st_grid_sig.emit((wid.src, None))
+            self.load_st_grid_sig.emit(wid.src)
 
         elif wid.type_ in Static.ext_all:
             # избегаем ошибки кругового импорта
@@ -632,7 +634,8 @@ class Grid(UScrollArea):
         Загружает сетку GridStandart с указанным путем к файлу / папке
         """
         new_main_dir = os.path.dirname(wid.src)
-        self.load_st_grid_sig.emit((new_main_dir, wid.src))
+        self.main_win_item.urls = [wid.src]
+        self.load_st_grid_sig.emit(new_main_dir)
 
     def setup_urls_to_copy(self):
         """

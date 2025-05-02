@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QFileSystemModel, QSplitter, QTableView
 
 from cfg import JsonData, Static
 
-from ._base_items import UMenu, UTableView
+from ._base_items import UMenu, UTableView, MainWinItem
 from .actions import (ChangeViewMenu, CopyName, CopyPath, FavAdd, FavRemove,
                       Info, RevealInFinder, View)
 from .finder_items import LoadingWid
@@ -15,18 +15,17 @@ from .info_win import InfoWin
 
 
 class GridList(UTableView):
-    set_selected_urls = pyqtSignal(list)
     col: int = 0
     order: int = 0
     sizes: list = [250, 100, 100, 150]
 
-    def __init__(self, main_dir: str, view_index: int, selected_urls: list[str]):
+    def __init__(self, main_dir: str, view_index: int, main_win_item: MainWinItem):
         super().__init__()
 
         self.main_dir = main_dir
         self.view_index = view_index
         self.url_to_index: dict[str, QModelIndex] = {}
-        self.selected_urls: list[str] = selected_urls
+        self.main_win_item = main_win_item
 
         self.loading_lbl = LoadingWid(parent=self)
         self.loading_lbl.center(self)
@@ -66,7 +65,7 @@ class GridList(UTableView):
         self.sort_bar_update.emit(rows)
 
         for url, index in self.url_to_index.items():
-            if url in self.selected_urls:
+            if url in self.main_win_item.urls:
                 self.selectRow(index.row())
 
     def select_path(self, path: str):
@@ -86,7 +85,7 @@ class GridList(UTableView):
 
     def view_cmd(self, path: str, index: QModelIndex):
         if os.path.isdir(path):
-            self.load_st_grid_sig.emit((path, None))
+            self.load_st_grid_sig.emit(path)
 
         elif path.endswith(Static.ext_all):
             from .img_view_win import ImgViewWin
@@ -134,11 +133,10 @@ class GridList(UTableView):
         GridList.sizes = [self.columnWidth(i) for i in range(0, 4)]
         selection_model = self.selectionModel()
         selected_rows = selection_model.selectedRows()
-        self.selected_urls.clear()
+        self.main_win_item.urls.clear()
         for index in selected_rows:
             file_path = self._model.filePath(index)  # Получаем путь по индексу
-            self.selected_urls.append(file_path)
-        self.set_selected_urls.emit(self.selected_urls)
+            self.main_win_item.urls.append(file_path)
         super().deleteLater()
 
     def contextMenuEvent(self, event: QContextMenuEvent):
@@ -199,7 +197,7 @@ class GridList(UTableView):
                 root = os.path.dirname(self.main_dir)
                 if root != os.sep:
                     self.new_history_item.emit(root)
-                    self.load_st_grid_sig.emit((root, None))
+                    self.load_st_grid_sig.emit(root)
                     # return
 
             elif a0.key() == Qt.Key.Key_Down:

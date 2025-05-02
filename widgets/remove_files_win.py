@@ -17,8 +17,6 @@ ATTENTION_T = "Внимание!"
 
 class WorkerSignals(QObject):
     finished_ = pyqtSignal()
-    load_st_grid_sig = pyqtSignal(tuple)
-
 
 class RemoveFilesTask(QRunnable):
     def __init__(self, main_dir: str, urls: list[str]):
@@ -31,8 +29,6 @@ class RemoveFilesTask(QRunnable):
         try:
             command = ["osascript", Static.REMOVE_FILES_SCPT] + self.urls
             subprocess.run(command)
-            # subprocess.run(["rm", "-rf"] + self.urls, check=True)
-            # self.signals_.load_st_grid_sig.emit((self.main_dir, None))
             self.signals_.finished_.emit()
 
         except Exception as e:
@@ -40,7 +36,6 @@ class RemoveFilesTask(QRunnable):
 
 
 class RemoveFilesWin(MinMaxDisabledWin):
-    load_st_grid_sig = pyqtSignal(tuple)
     finished_ = pyqtSignal(list)
 
     def __init__(self, main_dir: str, urls: list[str]):
@@ -89,7 +84,6 @@ class RemoveFilesWin(MinMaxDisabledWin):
 
     def cmd_(self, *args):
         self.task_ = RemoveFilesTask(self.main_dir, self.urls)
-        # self.task_.signals_.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
         self.task_.signals_.finished_.connect(self.finalize)
         UThreadPool.start(runnable=self.task_)
 

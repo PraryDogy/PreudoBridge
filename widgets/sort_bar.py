@@ -161,7 +161,7 @@ class PathFinderThread(QRunnable):
 
 
 class GoToWin(MinMaxDisabledWin):
-    load_st_grid_sig = pyqtSignal(tuple)
+    load_st_grid_sig = pyqtSignal(str)
 
     def __init__(self):
         """
@@ -255,7 +255,7 @@ class GoToWin(MinMaxDisabledWin):
             else:
                 main_dir = result
                 select_path = None
-            self.load_st_grid_sig.emit((main_dir, select_path))
+            self.load_st_grid_sig.emit(main_dir)
         self.deleteLater()
 
     def open_finder(self, dest: str):
@@ -411,7 +411,7 @@ class CustomSlider(USlider):
 
 
 class SortBar(QWidget):
-    load_st_grid_sig = pyqtSignal(tuple)
+    load_st_grid_sig = pyqtSignal(str)
     sort_grid_sig = pyqtSignal()
     resize_grid_sig = pyqtSignal()
     rearrange_grid_sig = pyqtSignal()

@@ -20,7 +20,7 @@ class FavItem(QLabel):
     renamed = pyqtSignal(str)
     path_fixed_sig = pyqtSignal()
     new_history_item = pyqtSignal(str)
-    load_st_grid_sig = pyqtSignal(tuple)
+    load_st_grid_sig = pyqtSignal(str)
     open_in_new_win = pyqtSignal(str)
 
     def __init__(self, name: str, src: str):
@@ -44,7 +44,7 @@ class FavItem(QLabel):
 
     def view_fav(self):
         self.new_history_item.emit(self.src)
-        self.load_st_grid_sig.emit((self.src, None))
+        self.load_st_grid_sig.emit(self.src)
 
     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
         if ev.button() == Qt.MouseButton.LeftButton:
@@ -108,7 +108,7 @@ class FavsMenu(QListWidget):
     LIST_ITEM = "list_item"
     FAV_ITEM = "fav_item"
     new_history_item = pyqtSignal(str)
-    load_st_grid_sig = pyqtSignal(tuple)
+    load_st_grid_sig = pyqtSignal(str)
     open_in_new_win = pyqtSignal(str)
 
     def __init__(self):

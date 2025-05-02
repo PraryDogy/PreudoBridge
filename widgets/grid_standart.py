@@ -13,7 +13,7 @@ from database import CACHE, ColumnNames, Dbase
 from fit_img import FitImg
 from utils import UThreadPool, Utils
 
-from ._base_items import BaseItem
+from ._base_items import BaseItem, MainWinItem
 from .finder_items import FinderItems, LoadingWid
 from .grid import Grid, Thumb
 
@@ -243,12 +243,10 @@ class LoadImages(QRunnable):
 
 
 class GridStandart(Grid):
-    set_selected_urls = pyqtSignal(list)
-
     no_images_text = "Папка пуста или нет подключения к диску"
     limit: int = 50
 
-    def __init__(self, main_dir: str, view_index: int, url_for_select: str):
+    def __init__(self, main_dir: str, view_index: int, main_win_item: MainWinItem):
         """
         Стандартная сетка виджетов.
 
@@ -264,7 +262,7 @@ class GridStandart(Grid):
             url_for_select — "изображение 1.jpg". 
             После загрузки виджет, соответствующий пути "Загрузки/изображение 1.jpg", будет найден и выделен.
         """
-        super().__init__(main_dir, view_index, url_for_select)
+        super().__init__(main_dir, view_index, main_win_item)
 
         # список url для предотвращения повторной загрузки изображений
         self.loaded_images: list[str] = []
@@ -423,17 +421,20 @@ class GridStandart(Grid):
             if self.col >= self.col_count:
                 self.col = 0
                 self.row += 1
-        
-        wid = self.url_to_wid.get(self.url_for_select)
-        if wid:
-            self.select_one_wid(wid)
-            self.url_for_select = None
 
-        for i in self.selected_urls:
-            wid = self.url_to_wid.get(i)
-            if wid:
-                self.selected_widgets.append(wid)
-                wid.set_frame()
+        for i in self.main_win_item.urls:
+            print("grid standart", i)
+
+        # wid = self.url_to_wid.get(self.url_for_select)
+        # if wid:
+        #     self.select_one_wid(wid)
+        #     self.url_for_select = None
+
+        # for i in self.selected_urls:
+        #     wid = self.url_to_wid.get(i)
+        #     if wid:
+        #         self.selected_widgets.append(wid)
+        #         wid.set_frame()
 
     def run_load_images_thread(self, thumbs: list[Thumb]):
         """
@@ -469,5 +470,4 @@ class GridStandart(Grid):
             i.src
             for i in self.selected_widgets
         ]
-        self.set_selected_urls.emit(self.selected_urls)
         return super().deleteLater()

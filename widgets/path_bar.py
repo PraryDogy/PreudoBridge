@@ -26,7 +26,7 @@ ARROW_RIGHT = " \U0000203A" # ›
 class PathItem(QWidget):
     min_wid = 5
     new_history_item = pyqtSignal(str)
-    load_st_grid_sig = pyqtSignal(tuple)
+    load_st_grid_sig = pyqtSignal(str)
     open_img_view = pyqtSignal(str)
     open_in_new_window = pyqtSignal(str)
 
@@ -89,7 +89,7 @@ class PathItem(QWidget):
             self.open_img_view.emit(self.dir)
         else:
             self.new_history_item.emit(self.dir)
-            self.load_st_grid_sig.emit((self.dir, None))
+            self.load_st_grid_sig.emit(self.dir)
 
     def solid_style(self):
         """
@@ -217,7 +217,7 @@ class PathItem(QWidget):
 
 class PathBar(QWidget):
     new_history_item = pyqtSignal(str)
-    load_st_grid_sig = pyqtSignal(tuple)
+    load_st_grid_sig = pyqtSignal(str)
     open_img_view = pyqtSignal(str)
     open_in_new_window = pyqtSignal(str)
     last_item_limit = 40
