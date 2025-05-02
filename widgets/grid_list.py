@@ -66,6 +66,7 @@ class GridList(UTableView):
         for url, index in self.url_to_index.items():
             if url in self.main_win_item.urls:
                 self.selectRow(index.row())
+        self.main_win_item.urls.clear()
 
     def select_path(self, path: str):
         index = self._model.index(path, 0)
@@ -133,7 +134,6 @@ class GridList(UTableView):
         GridList.sizes = [self.columnWidth(i) for i in range(0, 4)]
         selection_model = self.selectionModel()
         selected_rows = selection_model.selectedRows()
-        self.main_win_item.urls.clear()
         for index in selected_rows:
             file_path = self._model.filePath(index)  # Получаем путь по индексу
             self.main_win_item.urls.append(file_path)

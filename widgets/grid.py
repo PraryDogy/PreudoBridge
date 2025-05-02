@@ -463,9 +463,6 @@ class Grid(UScrollArea):
             for coords, wid in self.cell_to_wid.items()
         }
 
-        for i in self.main_win_item.urls:
-            print("grid py > urls", i)
-
     def ensure_wid_visible(self, wid: Thumb):
         self.ensureWidgetVisible(wid)
 
