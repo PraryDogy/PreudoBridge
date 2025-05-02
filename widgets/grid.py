@@ -635,6 +635,8 @@ class Grid(UScrollArea):
         Предотвращает вставку в саму себя.  
         Например нельзя скопировать Downloads в Downloads.
         """
+        if not Grid.urls_to_copy:
+            return
         self.win_copy = CopyFilesWin(self.main_win_item, Grid.urls_to_copy)
         self.win_copy.finished_.connect(lambda urls: self.paste_files_fin(urls))
         self.win_copy.error_win_sig.connect(self.error_win_cmd)
