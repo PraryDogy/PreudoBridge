@@ -264,6 +264,8 @@ class MainWin(WinBase):
             self.main_dir = new_main_dir
 
     def change_view_cmd(self, index: int):
+        if index == self.view_index:
+            return
         self.view_index = index
         self.load_standart_grid((self.main_dir, None))
 
