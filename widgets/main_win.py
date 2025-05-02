@@ -353,11 +353,12 @@ class MainWin(WinBase):
         - dir: основная директория, которая будет отображена в виде сетки виджетов
         """
 
+        self.grid.deleteLater()
         # при удалении сетки срабатывает кастомный метод deleteLater
         # который обновляет main_win_item.urls, и если нет выделенных
         # виджетов, то будет будет пустым
         # обходим это, сохранив url при level_up_cmd в main_win_item.level_up_url
-        self.grid.deleteLater()
+        # чтобы при level_up_cmd выделась предыдущая папка
         if self.main_win_item.level_up_url:
             self.main_win_item.urls = self.main_win_item.level_up_url.copy()
             self.main_win_item.level_up_url.clear()
