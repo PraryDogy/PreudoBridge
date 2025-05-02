@@ -333,10 +333,6 @@ class TopBar(QWidget):
         self.main_lay.addWidget(self.search_wid)
 
     def cascade_windows(self):
-        # wins: list[WinBase] = []
-        # for i in QApplication.topLevelWidgets():
-        #     if isinstance(i, WinBase) and i.isVisible():
-        #         wins.append(i)
         wins = WinBase.wins
         sorted_widgets = sorted(wins, key=lambda w: w.width() * w.height(), reverse=True)
 

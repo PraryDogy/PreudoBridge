@@ -6,10 +6,11 @@ from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
                              QSplitter, QTabWidget, QVBoxLayout, QWidget)
 
-from cfg import Dynamic, JsonData, Static
+from cfg import JsonData, Static
 from utils import Utils
 
-from ._base_items import BaseItem, SearchItem, USep, WinBase, SortItem
+from ._base_items import (BaseItem, MainWinItem, SearchItem, SortItem, USep,
+                          WinBase)
 from .favs_menu import FavsMenu
 from .grid import Grid
 from .grid_list import GridList
@@ -120,6 +121,7 @@ class MainWin(WinBase):
         self.resize_timer.setSingleShot(True)
         self.sort_item: SortItem = SortItem()
         self.selected_urls: list[str] = []
+        self.main_win_item = MainWinItem()
         
         main_lay = QHBoxLayout()
         main_lay.setContentsMargins(5, 0, 5, 0)

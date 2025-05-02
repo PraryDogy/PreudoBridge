@@ -617,3 +617,8 @@ class SearchItem:
         self.files_list_ = None
         self.extensions_ = None
         self.exactly = False
+
+
+class MainWinItem:
+    def __init__(self):
+        self.urls: list[str] = []
