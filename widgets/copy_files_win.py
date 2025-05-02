@@ -1,14 +1,14 @@
 import os
 import weakref
 
-from PyQt5.QtCore import QObject, Qt, pyqtSignal, QRunnable
+from PyQt5.QtCore import QObject, QRunnable, Qt, pyqtSignal
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QPushButton,
                              QVBoxLayout, QWidget)
 
 from cfg import Static
 from utils import UThreadPool, Utils
 
-from ._base_items import MinMaxDisabledWin, USvgSqareWidget
+from ._base_items import MainWinItem, MinMaxDisabledWin, USvgSqareWidget
 
 PREPARING_T = "Подготовка"
 COPYING_T = "Копирую файлы"
@@ -26,9 +26,9 @@ class WorkerSignals(QObject):
 
 
 class FileCopyWorker(QRunnable):
-    def __init__(self, main_dir: str, urls: list[str], parent: QWidget):
+    def __init__(self, main_win_item: MainWinItem, urls: list[str], parent: QWidget):
         super().__init__()
-        self.main_dir = main_dir
+        self.main_win_item = main_win_item
         self.urls = urls
         self.parent_ref = weakref.ref(parent)
         self.signals_ = WorkerSignals()
@@ -70,7 +70,7 @@ class FileCopyWorker(QRunnable):
                 continue
 
         # создаем список путей к виджетам в сетке для выделения
-        paths = self.get_final_paths(new_paths, self.main_dir)
+        paths = self.get_final_paths(new_paths, self.main_win_item.main_dir)
         paths = list(paths)
         self.finalize(paths)
 
@@ -136,9 +136,9 @@ class FileCopyWorker(QRunnable):
         for i in self.urls:
             i = Utils.normalize_slash(i)
             if os.path.isdir(i):
-                new_paths.extend(self.scan_folder(i, self.main_dir))
+                new_paths.extend(self.scan_folder(i, self.main_win_item.main_dir))
             else:
-                new_paths.append(self.single_file(i, self.main_dir))
+                new_paths.append(self.single_file(i, self.main_win_item.main_dir))
 
         return new_paths
 
@@ -220,9 +220,9 @@ class CopyFilesWin(MinMaxDisabledWin):
     finished_ = pyqtSignal(list)
     error_win_sig = pyqtSignal()
 
-    def __init__(self, main_dir: str, urls: list[str]):
+    def __init__(self, main_win_item: MainWinItem, urls: list[str]):
         super().__init__()
-        self.main_dir = main_dir
+        self.main_win_item = main_win_item
         self.urls = urls
         self.setFixedSize(400, 75)
         self.setWindowTitle(COPYING_T)
@@ -247,7 +247,7 @@ class CopyFilesWin(MinMaxDisabledWin):
         src = min(self.urls, key=len)
         src = os.path.dirname(Utils.normalize_slash(src))
         src = os.path.basename(src)
-        dest = os.path.basename(self.main_dir)
+        dest = os.path.basename(self.main_win_item.main_dir)
 
         src = self.limit_string(src)
         dest = self.limit_string(dest)
@@ -276,7 +276,7 @@ class CopyFilesWin(MinMaxDisabledWin):
         right_side_lay.addStretch()
 
         if self.urls:
-            task_ = FileCopyWorker(self.main_dir, urls, self)
+            task_ = FileCopyWorker(self.main_win_item.main_dir, urls, self)
             task_.signals_.set_max_progress.connect(lambda value: self.set_max(progressbar, value))
             task_.signals_.set_value_progress.connect(lambda value: self.set_value(progressbar, value))
             task_.signals_.set_text_progress.connect(size_mb_lbl.setText)

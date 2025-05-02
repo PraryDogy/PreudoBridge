@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QApplication, QHBoxLayout, QLabel, QWidget
 from cfg import Static
 from utils import Utils
 
-from ._base_items import UMenu, USvgSqareWidget
+from ._base_items import MainWinItem, UMenu, USvgSqareWidget
 from .actions import (CopyName, CopyPath, Info, OpenInNewWindow,
                       RevealInFinder, View)
 from .info_win import InfoWin
@@ -26,11 +26,11 @@ ARROW_RIGHT = " \U0000203A" # ›
 class PathItem(QWidget):
     min_wid = 5
     new_history_item = pyqtSignal(str)
-    load_st_grid_sig = pyqtSignal(str)
+    load_st_grid_sig = pyqtSignal()
     open_img_view = pyqtSignal(str)
     open_in_new_window = pyqtSignal(str)
 
-    def __init__(self, dir: str, name: str):
+    def __init__(self, dir: str, name: str, main_win_item: MainWinItem):
         """
         Этот виджет - часть группы виджетов PathItem, которые в сумме отображают
         указанный путь  
@@ -43,6 +43,7 @@ class PathItem(QWidget):
         файла.txt - /путь/до/файла.txt  
         """
         super().__init__()
+        self.main_win_item = main_win_item
         self.setFixedHeight(15)
         self.dir = dir
 
@@ -89,7 +90,8 @@ class PathItem(QWidget):
             self.open_img_view.emit(self.dir)
         else:
             self.new_history_item.emit(self.dir)
-            self.load_st_grid_sig.emit(self.dir)
+            self.main_win_item.main_dir = self.dir
+            self.load_st_grid_sig.emit()
 
     def solid_style(self):
         """
@@ -217,17 +219,18 @@ class PathItem(QWidget):
 
 class PathBar(QWidget):
     new_history_item = pyqtSignal(str)
-    load_st_grid_sig = pyqtSignal(str)
+    load_st_grid_sig = pyqtSignal()
     open_img_view = pyqtSignal(str)
     open_in_new_window = pyqtSignal(str)
     last_item_limit = 40
 
-    def __init__(self):
+    def __init__(self, main_win_item: MainWinItem):
         """
         Нижний бар:     
         - Группа виджетов PathItem (читай описание PathItem)  
         """
         super().__init__()
+        self.main_win_item = main_win_item
         self.setFixedHeight(25)
         self.setAcceptDrops(True)
         self.current_path: str = None
@@ -263,7 +266,7 @@ class PathBar(QWidget):
 
         for x, name in enumerate(root, start=1):
             dir = os.path.join(os.sep, *root[:x])
-            path_item = PathItem(dir, name)
+            path_item = PathItem(dir, name, self.main_win_item)
             cmd_ = lambda dir: self.new_history_item.emit(dir)
             path_item.new_history_item.connect(cmd_)
             path_item.load_st_grid_sig.connect(self.load_st_grid_sig.emit)

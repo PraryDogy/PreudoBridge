@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QFileSystemModel, QTreeView
 
 from cfg import JsonData
 
-from ._base_items import UMenu
+from ._base_items import UMenu, MainWinItem
 from .actions import (CopyName, CopyPath, FavAdd, FavRemove, OpenInNewWindow,
                       RevealInFinder, View)
 
@@ -13,11 +13,12 @@ from .actions import (CopyName, CopyPath, FavAdd, FavRemove, OpenInNewWindow,
 class TreeMenu(QTreeView):
     new_history_item = pyqtSignal(str)
     fav_cmd_sig = pyqtSignal(tuple)
-    load_st_grid_sig = pyqtSignal(str)
+    load_st_grid_sig = pyqtSignal()
     open_in_new_window = pyqtSignal(str)
 
-    def __init__(self):
+    def __init__(self, main_win_item: MainWinItem):
         super().__init__()
+        self.main_win_item = main_win_item
 
         self.horizontalScrollBar().setDisabled(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
@@ -41,7 +42,8 @@ class TreeMenu(QTreeView):
         path = self.c_model.filePath(index)
         self.setCurrentIndex(index)
         self.new_history_item.emit(path)
-        self.load_st_grid_sig.emit(path)
+        self.main_win_item.main_dir = path
+        self.load_st_grid_sig.emit()
 
         self.expand(index)
 

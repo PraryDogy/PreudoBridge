@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
 from cfg import Static
 from utils import UThreadPool
 
-from ._base_items import MinMaxDisabledWin, USvgSqareWidget
+from ._base_items import MainWinItem, MinMaxDisabledWin, USvgSqareWidget
 
 REMOVE_T = "Переместить в корзину объекты"
 OK_T = "Ок"
@@ -38,11 +38,11 @@ class RemoveFilesTask(QRunnable):
 class RemoveFilesWin(MinMaxDisabledWin):
     finished_ = pyqtSignal(list)
 
-    def __init__(self, main_dir: str, urls: list[str]):
+    def __init__(self, main_win_item: MainWinItem, urls: list[str]):
         super().__init__()
         self.setWindowTitle(ATTENTION_T)
         self.urls = urls
-        self.main_dir = main_dir
+        self.main_win_item = main_win_item
 
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(10, 5, 10, 5)
@@ -83,7 +83,7 @@ class RemoveFilesWin(MinMaxDisabledWin):
         self.setFixedSize(self.width(), self.height())
 
     def cmd_(self, *args):
-        self.task_ = RemoveFilesTask(self.main_dir, self.urls)
+        self.task_ = RemoveFilesTask(self.main_win_item.main_dir, self.urls)
         self.task_.signals_.finished_.connect(self.finalize)
         UThreadPool.start(runnable=self.task_)
 

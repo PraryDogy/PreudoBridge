@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QAction, QLabel, QListWidget, QListWidgetItem
 from cfg import JsonData
 from utils import Utils
 
-from ._base_items import UMenu
+from ._base_items import MainWinItem, UMenu
 from .actions import (CopyName, CopyPath, FavRemove, OpenInNewWindow,
                       RevealInFinder, View)
 from .rename_win import RenameWin
@@ -20,12 +20,12 @@ class FavItem(QLabel):
     renamed = pyqtSignal(str)
     path_fixed_sig = pyqtSignal()
     new_history_item = pyqtSignal(str)
-    load_st_grid_sig = pyqtSignal(str)
+    load_st_grid_sig = pyqtSignal()
     open_in_new_win = pyqtSignal(str)
 
-    def __init__(self, name: str, src: str):
+    def __init__(self, name: str, src: str, main_win_item: MainWinItem):
         super().__init__(text=name)
-
+        self.main_win_item = main_win_item
         self.name = name
         self.src = src
         self.setFixedHeight(25)
@@ -44,7 +44,8 @@ class FavItem(QLabel):
 
     def view_fav(self):
         self.new_history_item.emit(self.src)
-        self.load_st_grid_sig.emit(self.src)
+        self.main_win_item.main_dir = self.src
+        self.load_st_grid_sig.emit()
 
     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
         if ev.button() == Qt.MouseButton.LeftButton:
@@ -108,12 +109,12 @@ class FavsMenu(QListWidget):
     LIST_ITEM = "list_item"
     FAV_ITEM = "fav_item"
     new_history_item = pyqtSignal(str)
-    load_st_grid_sig = pyqtSignal(str)
+    load_st_grid_sig = pyqtSignal()
     open_in_new_win = pyqtSignal(str)
 
-    def __init__(self, main_dir: str):
+    def __init__(self, main_win_item: MainWinItem):
         super().__init__()
-        self.main_dir: str = main_dir
+        self.main_win_item = main_win_item
         self.horizontalScrollBar().setDisabled(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
@@ -131,7 +132,7 @@ class FavsMenu(QListWidget):
             item: QListWidgetItem = result[self.LIST_ITEM]
             self.wids[src] = item
 
-            if self.main_dir == src:
+            if self.main_win_item.main_dir == src:
                 self.setCurrentItem(item)
 
     def select_fav(self, src: str):
@@ -175,7 +176,7 @@ class FavsMenu(QListWidget):
         self.init_ui()
 
     def add_fav_widget_item(self, name: str, src: str) -> dict:
-        fav_item = FavItem(name, src)
+        fav_item = FavItem(name, src, self.main_win_item)
         fav_item.new_history_item.connect(self.new_history_item)
         fav_item.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
         fav_item.remove_fav_item.connect(lambda: self.del_item(src))

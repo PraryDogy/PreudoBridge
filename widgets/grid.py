@@ -285,7 +285,7 @@ class Thumb(BaseItem, QFrame):
 class Grid(UScrollArea):
     urls_to_copy: list[str] = []
 
-    def __init__(self, main_dir: str, view_index: int, main_win_item: MainWinItem):
+    def __init__(self, main_win_item: MainWinItem, view_index: int):
         super().__init__()
         self.setAcceptDrops(True)
         self.setWidgetResizable(True)
@@ -293,7 +293,7 @@ class Grid(UScrollArea):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         self.is_grid_search: bool = False
-        self.main_dir: str = main_dir
+        self.main_win_item = main_win_item
         self.view_index: int = view_index
         self.sort_item: SortItem = 1
 
@@ -465,7 +465,7 @@ class Grid(UScrollArea):
 
         for i in self.main_win_item.urls:
             print("grid py > urls", i)
-    
+
     def ensure_wid_visible(self, wid: Thumb):
         self.ensureWidgetVisible(wid)
 
@@ -492,7 +492,8 @@ class Grid(UScrollArea):
         elif wid.type_ == Static.FOLDER_TYPE:
             self.mouseReleaseEvent = None
             self.new_history_item.emit(wid.src)
-            self.load_st_grid_sig.emit(wid.src)
+            self.main_win_item.main_dir = wid.src
+            self.load_st_grid_sig.emit()
 
         elif wid.type_ in Static.ext_all:
             # избегаем ошибки кругового импорта
@@ -611,7 +612,8 @@ class Grid(UScrollArea):
         """
         new_main_dir = os.path.dirname(wid.src)
         self.main_win_item.urls = [wid.src]
-        self.load_st_grid_sig.emit(new_main_dir)
+        self.main_win_item.main_dir = new_main_dir
+        self.load_st_grid_sig.emit()
 
     def setup_urls_to_copy(self):
         """
@@ -633,7 +635,7 @@ class Grid(UScrollArea):
         Предотвращает вставку в саму себя.  
         Например нельзя скопировать Downloads в Downloads.
         """
-        self.win_copy = CopyFilesWin(self.main_dir, Grid.urls_to_copy)
+        self.win_copy = CopyFilesWin(self.main_win_item, Grid.urls_to_copy)
         self.win_copy.finished_.connect(lambda urls: self.paste_files_fin(urls))
         self.win_copy.error_win_sig.connect(self.error_win_cmd)
         self.win_copy.center(self.window())
@@ -692,7 +694,7 @@ class Grid(UScrollArea):
         чтобы переместить файлы в корзину, а не удалять их безвозвратно.
         Окно испускет сигнал finished, что ведет к методу remove files fin
         """
-        self.rem_win = RemoveFilesWin(self.main_dir, urls)
+        self.rem_win = RemoveFilesWin(self.main_win_item, urls)
         self.rem_win.finished_.connect(lambda urls: self.remove_files_fin(urls))
         self.rem_win.center(self.window())
         self.rem_win.show()
@@ -736,31 +738,31 @@ class Grid(UScrollArea):
         """
         Контекстное меню Grid
         """
-        self.path_bar_update_cmd(self.main_dir)
+        self.path_bar_update_cmd(self.main_win_item.main_dir)
 
         info = Info(menu_)
-        info.triggered.connect(lambda: self.win_info_cmd(self.main_dir))
+        info.triggered.connect(lambda: self.win_info_cmd(self.main_win_item.main_dir))
         menu_.addAction(info)
 
-        reveal = RevealInFinder(menu_, self.main_dir)
+        reveal = RevealInFinder(menu_, self.main_win_item.main_dir)
         menu_.addAction(reveal)
 
-        copy_ = CopyPath(menu_, self.main_dir)
+        copy_ = CopyPath(menu_, self.main_win_item.main_dir)
         menu_.addAction(copy_)
 
-        copy_name = CopyName(menu_, os.path.basename(self.main_dir))
+        copy_name = CopyName(menu_, os.path.basename(self.main_win_item.main_dir))
         menu_.addAction(copy_name)
 
         menu_.addSeparator()
 
-        if self.main_dir in JsonData.favs:
-            cmd_ = lambda: self.fav_cmd(-1, self.main_dir)
+        if self.main_win_item.main_dir in JsonData.favs:
+            cmd_ = lambda: self.fav_cmd(-1, self.main_win_item.main_dir)
             fav_action = FavRemove(menu_)
             fav_action.triggered.connect(cmd_)
             menu_.addAction(fav_action)
 
         else:
-            cmd_ = lambda: self.fav_cmd(+1, self.main_dir)
+            cmd_ = lambda: self.fav_cmd(+1, self.main_win_item.main_dir)
             fav_action = FavAdd(menu_)
             fav_action.triggered.connect(cmd_)
             menu_.addAction(fav_action)
@@ -796,7 +798,7 @@ class Grid(UScrollArea):
         """
         for wid in self.selected_widgets:
             if wid.type_ in (*Static.ext_all, Static.FOLDER_TYPE):
-                self.task_ = SetDbRating(self.main_dir, wid, new_rating)
+                self.task_ = SetDbRating(self.main_win_item.main_dir, wid, new_rating)
                 cmd_ = lambda w=wid: self.set_new_rating_fin(w, new_rating)
                 self.task_.signals_.finished_.connect(cmd_)
                 UThreadPool.start(self.task_)
@@ -877,7 +879,7 @@ class Grid(UScrollArea):
                     self.select_one_wid(clicked_wid)
                     self.win_info_cmd(clicked_wid.src)
                 else:
-                    self.win_info_cmd(self.main_dir)
+                    self.win_info_cmd(self.main_win_item.main_dir)
 
             elif a0.key() == Qt.Key.Key_Equal:
                 new_value = Dynamic.pixmap_size_ind + 1
@@ -967,7 +969,7 @@ class Grid(UScrollArea):
 
         if not isinstance(clicked_wid, Thumb):
             self.clear_selected_widgets()
-            self.path_bar_update_cmd(self.main_dir)
+            self.path_bar_update_cmd(self.main_win_item.main_dir)
             return
         
         if a0.modifiers() == Qt.KeyboardModifier.ShiftModifier:
@@ -1079,7 +1081,7 @@ class Grid(UScrollArea):
         Grid.urls_to_copy.clear()
         Grid.urls_to_copy = [i.toLocalFile() for i in a0.mimeData().urls()]
 
-        main_dir_ = Utils.normalize_slash(self.main_dir)
+        main_dir_ = Utils.normalize_slash(self.main_win_item.main_dir)
         main_dir_ = Utils.add_system_volume(main_dir_)
         for i in Grid.urls_to_copy:
             i = Utils.normalize_slash(i)

@@ -31,10 +31,10 @@ class WorkerSignals(QObject):
 class SearchFinder(QRunnable):
     search_value = 0.85
 
-    def __init__(self, main_dir: str, search_item: SearchItem, parent: QWidget):
+    def __init__(self, main_win_item: MainWinItem, search_item: SearchItem, parent: QWidget):
         super().__init__()
         self.signals_ = WorkerSignals()
-        self.main_dir = main_dir
+        self.main_win_item = main_win_item
         self.parent_ref = weakref.ref(parent)
 
         self.search_item = search_item
@@ -136,7 +136,7 @@ class SearchFinder(QRunnable):
 
     def scandir_recursive(self):
         # Инициализируем список с корневым каталогом
-        dirs_list = [self.main_dir]
+        dirs_list = [self.main_win_item.main_dir]
 
         while dirs_list:
             # Удаляем последний элемент из списка
@@ -240,8 +240,8 @@ class WinMissedFiles(MinMaxDisabledWin):
 class GridSearch(Grid):
     finished_ = pyqtSignal()
 
-    def __init__(self, main_dir: str, view_index: int, main_win_item: MainWinItem):
-        super().__init__(main_dir, view_index, main_win_item)
+    def __init__(self, main_win_item: MainWinItem, view_index: int):
+        super().__init__(main_win_item, view_index)
         self.search_item: SearchItem = None
         self.setAcceptDrops(False)
 
@@ -262,11 +262,11 @@ class GridSearch(Grid):
 
     def start_search(self):
         self.sort_bar_update.emit(0)
-        self.path_bar_update.emit(self.main_dir)
+        self.path_bar_update.emit(self.main_win_item.main_dir)
         Thumb.calculate_size()
         self.is_grid_search = True
 
-        self.task_ = SearchFinder(self.main_dir, self.search_item, self)
+        self.task_ = SearchFinder(self.main_win_item.main_dir, self.search_item, self)
         self.task_.signals_.new_widget.connect(self.add_new_widget)
         self.task_.signals_.finished_.connect(self.search_fin)
         UThreadPool.start(self.task_)

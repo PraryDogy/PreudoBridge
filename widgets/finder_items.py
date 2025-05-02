@@ -2,7 +2,7 @@ import os
 import weakref
 
 import sqlalchemy
-from PyQt5.QtCore import QObject, Qt, pyqtSignal, QRunnable
+from PyQt5.QtCore import QObject, QRunnable, Qt, pyqtSignal
 from PyQt5.QtWidgets import QLabel, QWidget
 from sqlalchemy.exc import IntegrityError, OperationalError
 
@@ -10,7 +10,7 @@ from cfg import Static
 from database import CACHE, Dbase
 from utils import Utils
 
-from ._base_items import BaseItem, SortItem
+from ._base_items import BaseItem, MainWinItem, SortItem
 
 LOADING_T = "Загрузка..."
 SQL_ERRORS = (IntegrityError, OperationalError)
@@ -22,11 +22,11 @@ class WorkerSignals(QObject):
 
 class FinderItems(QRunnable):
 
-    def __init__(self, main_dir: str, sort_item: SortItem, parent: QWidget):
+    def __init__(self, main_win_item: MainWinItem, sort_item: SortItem, parent: QWidget):
         super().__init__()
         self.signals_ = WorkerSignals()
         self.sort_item = sort_item
-        self.main_dir = main_dir
+        self.main_win_item = main_win_item
         self.parent_ref = weakref.ref(parent)
 
     def run(self):
@@ -49,7 +49,7 @@ class FinderItems(QRunnable):
         Utils.safe_emit(self.signals_.finished_, (base_items, new_items))
 
     def create_connection(self) -> sqlalchemy.Connection | None:
-        db = os.path.join(self.main_dir, Static.DB_FILENAME)
+        db = os.path.join(self.main_win_item.main_dir, Static.DB_FILENAME)
         dbase = Dbase()
         engine = dbase.create_engine(path=db)
         if engine is None:
@@ -79,7 +79,7 @@ class FinderItems(QRunnable):
 
     def get_base_items(self) -> list[BaseItem]:
         base_items: list[BaseItem] = []
-        with os.scandir(self.main_dir) as entries:
+        with os.scandir(self.main_win_item.main_dir) as entries:
             for entry in entries:
                 if entry.name.startswith("."):
                     continue
@@ -90,7 +90,7 @@ class FinderItems(QRunnable):
 
     def get_items_no_db(self):
         base_items = []
-        for entry in os.scandir(self.main_dir):
+        for entry in os.scandir(self.main_win_item.main_dir):
             if not self.parent_ref():
                 break
             if entry.name.startswith("."):

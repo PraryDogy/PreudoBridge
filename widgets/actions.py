@@ -1,7 +1,7 @@
 import os
 import subprocess
 
-from PyQt5.QtCore import pyqtSignal, QRunnable
+from PyQt5.QtCore import QRunnable, pyqtSignal
 from PyQt5.QtWidgets import QAction, QLabel, QLineEdit, QTextEdit, QWidget
 
 from cfg import Dynamic, Static

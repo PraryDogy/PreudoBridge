@@ -182,7 +182,7 @@ class WorkerSignals(QObject):
 
 
 class LoadImages(QRunnable):
-    def __init__(self, main_dir: str, thumbs: list[Thumb], parent: QWidget):
+    def __init__(self, main_win_item: MainWinItem, thumbs: list[Thumb], parent: QWidget):
         """
         QRunnable   
         Сортирует список Thumb по размеру по возрастанию для ускорения загрузки
@@ -190,7 +190,7 @@ class LoadImages(QRunnable):
         """
         super().__init__()
         self.signals_ = WorkerSignals()
-        self.main_dir = main_dir
+        self.main_win_item = main_win_item
         self.parent_ref = weakref.ref(parent)
         self.thumbs = thumbs
         key_ = lambda x: x.size
@@ -205,7 +205,7 @@ class LoadImages(QRunnable):
         if not self.thumbs:
             return
 
-        db = os.path.join(self.main_dir, Static.DB_FILENAME)
+        db = os.path.join(self.main_win_item.main_dir, Static.DB_FILENAME)
         self.dbase = Dbase()
         engine = self.dbase.create_engine(db)
 
@@ -246,23 +246,11 @@ class GridStandart(Grid):
     no_images_text = "Папка пуста или нет подключения к диску"
     limit: int = 50
 
-    def __init__(self, main_dir: str, view_index: int, main_win_item: MainWinItem):
+    def __init__(self, main_win_item: MainWinItem, view_index: int):
         """
         Стандартная сетка виджетов.
-
-        Параметры:
-        - main_dir: Основная директория, содержимое которой будет отображено в виде сетки (Thumb).
-        - view_index: Режим отображения. 
-            0 — сетка, 
-            1 — список. 
-            Значение передаётся в родительский виджет для корректной работы, например, в actions.py > ChangeViewMenu.
-        - url_for_select: Путь к файлу или папке, который должен быть выделен после загрузки содержимого.
-            Например: 
-            main_dir — папка "Загрузки", 
-            url_for_select — "изображение 1.jpg". 
-            После загрузки виджет, соответствующий пути "Загрузки/изображение 1.jpg", будет найден и выделен.
         """
-        super().__init__(main_dir, view_index, main_win_item)
+        super().__init__(main_win_item, view_index)
 
         # список url для предотвращения повторной загрузки изображений
         self.loaded_images: list[str] = []
@@ -332,7 +320,7 @@ class GridStandart(Grid):
         - список всех BaseItem
         - список новых BaseItem, которых не было в базе данных
         """
-        finder_thread = FinderItems(self.main_dir, self.sort_item, self)
+        finder_thread = FinderItems(self.main_win_item, self.sort_item, self)
         finder_thread.signals_.finished_.connect(self.finalize_finder_items)
         UThreadPool.start(finder_thread)
 
@@ -348,7 +336,7 @@ class GridStandart(Grid):
 
         # испускаем сигнал в MainWin, чтобы нижний бар с отображением пути
         # обновился на актуальный путь
-        self.path_bar_update.emit(self.main_dir)
+        self.path_bar_update.emit(self.main_win_item.main_dir)
 
         # высчитываем размер Thumb
         Thumb.calculate_size()
@@ -438,7 +426,7 @@ class GridStandart(Grid):
         # в QRunnable для подгрузки изображений
         # в самом QRunnable нет обращений напрямую к Thumb
         # а только испускается сигнал
-        thread_ = LoadImages(self.main_dir, thumbs, self)
+        thread_ = LoadImages(self.main_win_item, thumbs, self)
         thread_.signals_.update_thumb.connect(lambda thumb: self.set_thumb_image(thumb))
         UThreadPool.start(thread_)
     

@@ -19,10 +19,10 @@ class GridList(UTableView):
     order: int = 0
     sizes: list = [250, 100, 100, 150]
 
-    def __init__(self, main_dir: str, view_index: int, main_win_item: MainWinItem):
+    def __init__(self, main_win_item: MainWinItem, view_index: int):
         super().__init__()
 
-        self.main_dir = main_dir
+        self.main_win_item = main_win_item
         self.view_index = view_index
         self.url_to_index: dict[str, QModelIndex] = {}
         self.main_win_item = main_win_item
@@ -38,11 +38,11 @@ class GridList(UTableView):
         self.doubleClicked.connect(self.double_clicked)
 
         self._model = QFileSystemModel()
-        self._model.setRootPath(self.main_dir)
+        self._model.setRootPath(self.main_win_item.main_dir)
         self._model.setFilter(QDir.NoDotAndDotDot | QDir.AllEntries)
 
         self.setModel(self._model)
-        self.setRootIndex(self._model.index(self.main_dir))
+        self.setRootIndex(self._model.index(self.main_win_item.main_dir))
 
         self.sortByColumn(GridList.col, GridList.order)
         for i in range(0, 4):
@@ -60,7 +60,7 @@ class GridList(UTableView):
             path = self._model.filePath(index)
             self.url_to_index[path] = index
 
-        self.path_bar_update.emit(self.main_dir)
+        self.path_bar_update.emit(self.main_win_item.main_dir)
         self.sort_bar_update.emit(rows)
 
         for url, index in self.url_to_index.items():
@@ -84,7 +84,8 @@ class GridList(UTableView):
 
     def view_cmd(self, path: str, index: QModelIndex):
         if os.path.isdir(path):
-            self.load_st_grid_sig.emit(path)
+            self.main_win_item.main_dir = path
+            self.load_st_grid_sig.emit()
 
         elif path.endswith(Static.ext_all):
             from .img_view_win import ImgViewWin
@@ -147,9 +148,9 @@ class GridList(UTableView):
         index = self._model.index(path)
 
         if not path:
-            path = self.main_dir
+            path = self.main_win_item.main_dir
 
-        if path != self.main_dir:
+        if path != self.main_win_item.main_dir:
             view_ = View(menu)
             view_.triggered.connect(lambda: self.view_cmd(path, index))
             menu.addAction(view_)
@@ -193,10 +194,11 @@ class GridList(UTableView):
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
 
             if a0.key() == Qt.Key.Key_Up:
-                root = os.path.dirname(self.main_dir)
+                root = os.path.dirname(self.main_win_item.main_dir)
                 if root != os.sep:
                     self.new_history_item.emit(root)
-                    self.load_st_grid_sig.emit(root)
+                    self.main_win_item.main_dir = root
+                    self.load_st_grid_sig.emit()
                     # return
 
             elif a0.key() == Qt.Key.Key_Down:

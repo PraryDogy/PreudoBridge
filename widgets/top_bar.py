@@ -8,8 +8,8 @@ from PyQt5.QtWidgets import (QAction, QApplication, QGroupBox, QHBoxLayout,
 
 from cfg import Static
 
-from ._base_items import (MinMaxDisabledWin, SearchItem, UFrame, ULineEdit,
-                          UMenu, UTextEdit, WinBase)
+from ._base_items import (MainWinItem, MinMaxDisabledWin, SearchItem, UFrame,
+                          ULineEdit, UMenu, UTextEdit, WinBase)
 from .settings_win import SettingsWin
 
 
@@ -47,13 +47,14 @@ class ListWin(MinMaxDisabledWin):
     # список имен файлов
     finished_ = pyqtSignal(list)
 
-    def __init__(self, main_dir: str):
+    def __init__(self, main_win_item: MainWinItem):
         """
         Окно ввода списка файлов папок для дальнейшего поиска
         Каждый файл с новой строки
         Позволяет поиску искать сразу множество файлов и папок
         """
         super().__init__()
+        self.main_win_item = main_win_item
 
         self.setFixedSize(570, 500)
         v_lay = QVBoxLayout()
@@ -67,7 +68,7 @@ class ListWin(MinMaxDisabledWin):
         first_row.setLayout(first_lay)
         first_title = QLabel(ListWin.SEARCH_PLACE)
         first_lay.addWidget(first_title)
-        self.main_dir_label = QLabel(main_dir)
+        self.main_dir_label = QLabel(self.main_win_item.main_dir)
         first_lay.addWidget(self.main_dir_label)
 
         inp_label = QLabel(ListWin.LIST_FILES)
@@ -117,7 +118,7 @@ class SearchWidget(ULineEdit):
     # в MainWin посылается сигнал для загрузки GridSearch
     load_search_grid_sig = pyqtSignal()
 
-    def __init__(self, search_item: SearchItem):
+    def __init__(self, search_item: SearchItem, main_win_item: MainWinItem):
         """
         Виджет поля ввода в верхнем баре приложения.
         """
@@ -127,7 +128,7 @@ class SearchWidget(ULineEdit):
         self.mouseDoubleClickEvent = self.show_templates
 
         self.search_item = search_item
-        self.main_dir: str = None
+        self.main_win_item = main_win_item
         self.stop_flag: bool = False
         self.search_text: str = None
         self.search_list_local: list[str] = []
@@ -228,7 +229,7 @@ class SearchWidget(ULineEdit):
         - Открывает окно для ввода списка файлов / папок для поиска   
         - Испускает сигнал finished со списком файлов из окна ввода
         """
-        self.list_win = ListWin(self.main_dir)
+        self.list_win = ListWin(self.main_win_item)
         self.list_win.finished_.connect(lambda search_list: self.list_win_finished(search_list))
         self.list_win.center(self.window())
         self.list_win.show()
@@ -260,7 +261,7 @@ class TopBar(QWidget):
     # открывает заданный путь в новом окне
     open_in_new_win = pyqtSignal(str)
 
-    def __init__(self, search_item: SearchItem):
+    def __init__(self, main_win_item: MainWinItem, search_item: SearchItem):
         """
         Верхний бар в окне приложения:
         - кнопки: Назад / вперед
@@ -273,7 +274,7 @@ class TopBar(QWidget):
         """
         super().__init__()
         self.setFixedHeight(40)
-
+        self.main_win_item = main_win_item
         self.search_item = search_item
         self.history_items: list[str] = []
         self.current_index = -1
@@ -327,7 +328,7 @@ class TopBar(QWidget):
 
         self.main_lay.addStretch(1)
 
-        self.search_wid = SearchWidget(self.search_item)
+        self.search_wid = SearchWidget(self.search_item, self.main_win_item)
         self.search_wid.load_search_grid_sig.connect(self.load_search_grid_sig.emit)
         self.search_wid.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
         self.main_lay.addWidget(self.search_wid)
@@ -423,7 +424,5 @@ class TopBar(QWidget):
         if 0 <= new_index < len(self.history_items):
             self.current_index = new_index
             new_main_dir = self.history_items[self.current_index]
-            self.navigate.emit(new_main_dir)
-
-    def set_main_dir(self, main_dir: str):
-        self.search_wid.main_dir = main_dir
+            self.main_win_item.main_dir = new_main_dir
+            self.load_st_grid_sig.emit()
