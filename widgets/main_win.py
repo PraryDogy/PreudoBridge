@@ -172,7 +172,7 @@ class MainWin(WinBase):
         sep_two = USep()
         self.path_bar = PathBar()
         sep = USep()
-        self.sort_bar = SortBar(self.sort_item)
+        self.sort_bar = SortBar(self.sort_item, self.main_win_item)
 
         self.scroll_up = ScrollUpBtn(self)
         self.scroll_up.hide()

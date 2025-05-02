@@ -9,8 +9,8 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
 from cfg import Dynamic, Static, ThumbData
 from utils import UThreadPool, Utils
 
-from ._base_items import (MinMaxDisabledWin, SortItem, UFrame, ULineEdit,
-                          USlider, USvgSqareWidget)
+from ._base_items import (MainWinItem, MinMaxDisabledWin, SortItem, UFrame,
+                          ULineEdit, USlider, USvgSqareWidget)
 from .actions import SortMenu
 
 SORT_T = "Сортировка"
@@ -163,7 +163,7 @@ class PathFinderThread(QRunnable):
 class GoToWin(MinMaxDisabledWin):
     load_st_grid_sig = pyqtSignal(str)
 
-    def __init__(self):
+    def __init__(self, main_win_item: MainWinItem):
         """
         Окно перейти:
         - поле ввода
@@ -172,6 +172,7 @@ class GoToWin(MinMaxDisabledWin):
         - кнопка "Finder" - путь откроется в Finder
         """
         super().__init__()
+        self.main_win_item = main_win_item
         self.setWindowTitle("Перейти к ...")
         self.setFixedSize(290, 90)
         v_lay = QVBoxLayout()
@@ -212,7 +213,7 @@ class GoToWin(MinMaxDisabledWin):
         # при инициации окна пытаемся считать буфер обмена, если там есть
         # путь, то вставляем его в поле ввода
         clipboard = Utils.read_from_clipboard()
-        task = PathFinderThread(src=clipboard)
+        task = PathFinderThread(clipboard)
         task.signals_.finished_.connect(self.first_load_final)
         UThreadPool.start(runnable=task)
 
@@ -251,10 +252,9 @@ class GoToWin(MinMaxDisabledWin):
         else:
             if os.path.isfile(result):
                 main_dir = os.path.dirname(result)
-                select_path = result
+                self.main_win_item.immortal_urls = [result]
             else:
                 main_dir = result
-                select_path = None
             self.load_st_grid_sig.emit(main_dir)
         self.deleteLater()
 
@@ -416,7 +416,7 @@ class SortBar(QWidget):
     resize_grid_sig = pyqtSignal()
     rearrange_grid_sig = pyqtSignal()
 
-    def __init__(self, sort_item: SortItem):
+    def __init__(self, sort_item: SortItem, main_win_item: MainWinItem):
         """
         Состав:
 
@@ -427,6 +427,7 @@ class SortBar(QWidget):
 
         super().__init__()
         self.sort_item = sort_item
+        self.main_win_item = main_win_item
         self.setFixedHeight(25)
         self.main_lay = QHBoxLayout()
         self.main_lay.setContentsMargins(0, 0, 10, 0)
@@ -473,7 +474,7 @@ class SortBar(QWidget):
         - "Перейти" — для перехода внутри приложения;
         - "Finder" — для открытия пути в Finder.
         """
-        self.win_go = GoToWin()
+        self.win_go = GoToWin(self.main_win_item)
         self.win_go.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
         self.win_go.center(self.window())
         self.win_go.show()
