@@ -276,7 +276,7 @@ class CopyFilesWin(MinMaxDisabledWin):
         right_side_lay.addStretch()
 
         if self.urls:
-            task_ = FileCopyWorker(self.main_win_item.main_dir, urls, self)
+            task_ = FileCopyWorker(self.main_win_item, urls, self)
             task_.signals_.set_max_progress.connect(lambda value: self.set_max(progressbar, value))
             task_.signals_.set_value_progress.connect(lambda value: self.set_value(progressbar, value))
             task_.signals_.set_text_progress.connect(size_mb_lbl.setText)
