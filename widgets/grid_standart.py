@@ -461,6 +461,4 @@ class GridStandart(Grid):
             i.src
             for i in self.selected_widgets
         ]
-
-        print(self.main_win_item.urls)
         return super().deleteLater()
