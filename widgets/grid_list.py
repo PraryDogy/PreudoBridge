@@ -58,8 +58,7 @@ class GridList(UTableView):
         for row in range(rows):
             index = self._model.index(row, 0, root_index)
             path = self._model.filePath(index)
-            if path.endswith(Static.ext_all):
-                self.url_to_index[path] = index
+            self.url_to_index[path] = index
 
         self.path_bar_update.emit(self.main_dir)
         self.sort_bar_update.emit(rows)
