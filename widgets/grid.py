@@ -17,8 +17,8 @@ from database import CACHE, Dbase
 from utils import UThreadPool, Utils
 
 from ._base_items import BaseItem, MainWinItem, SortItem, UMenu, UScrollArea
-from .actions import (ChangeViewMenu, CopyName, CopyPath, FavAdd, FavRemove,
-                      Info, OpenInApp, OpenInNewWindow, RatingMenu,
+from .actions import (ChangeViewMenu, CopyFiles, CopyName, CopyPath, FavAdd,
+                      FavRemove, Info, OpenInApp, OpenInNewWindow, RatingMenu,
                       RevealInFinder, SortMenu, View)
 from .copy_files_win import CopyFilesWin, ErrorWin
 from .info_win import InfoWin
@@ -32,7 +32,6 @@ WID_UNDER_MOUSE = "win_under_mouse"
 GRID_SPACING = 5
 SHOW_IN_FOLDER = "Показать в папке"
 UPDATE_GRID_T = "Обновить"
-COPY_FILES_T = "Скопировать объекты"
 PASTE_FILES_T = "Вставить объекты"
 REMOVE_FILES_T = "Удалить"
 SLEEP_VALUE = 1
@@ -561,7 +560,7 @@ class Grid(UScrollArea):
         copy_name = CopyName(menu_, names)
         menu_.addAction(copy_name)
 
-        copy_files = QAction(f"{COPY_FILES_T} ({len(urls)})", menu_)
+        copy_files = CopyFiles(menu_, len(urls))
         copy_files.triggered.connect(self.setup_urls_to_copy)
         menu_.addAction(copy_files)
 

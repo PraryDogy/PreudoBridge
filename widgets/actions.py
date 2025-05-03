@@ -385,3 +385,10 @@ class OpenInNewWindow(QAction):
     text_ = "Открыть в новом окне"
     def __init__(self, parent: UMenu):
         super().__init__(OpenInNewWindow.text_, parent)
+
+
+class CopyFiles(QAction):
+    text_ = "Скопировать объекты"
+    def __init__(self, parent: UMenu, total: int):
+        t = f"{CopyFiles.text_} ({total})"
+        super().__init__(t, parent)

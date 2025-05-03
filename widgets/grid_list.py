@@ -3,13 +3,14 @@ import subprocess
 
 from PyQt5.QtCore import QDir, QModelIndex, Qt, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
-from PyQt5.QtWidgets import QFileSystemModel, QSplitter, QTableView
+from PyQt5.QtWidgets import QAction, QFileSystemModel, QSplitter, QTableView
 
 from cfg import JsonData, Static
 
 from ._base_items import MainWinItem, UMenu, UTableView
-from .actions import (ChangeViewMenu, CopyName, CopyPath, FavAdd, FavRemove,
-                      Info, RevealInFinder, View, OpenInApp, OpenInNewWindow)
+from .actions import (ChangeViewMenu, CopyFiles, CopyName, CopyPath, FavAdd,
+                      FavRemove, Info, OpenInApp, OpenInNewWindow,
+                      RevealInFinder, View)
 from .finder_items import LoadingWid
 from .grid import Thumb
 from .info_win import InfoWin
@@ -134,13 +135,21 @@ class GridList(UTableView):
         self.win_info.center(self.window())
         self.win_info.show()
 
-    def deleteLater(self):
-        GridList.sizes = [self.columnWidth(i) for i in range(0, 4)]
+    def get_selected_urls(self):
+        urls = []
+
         selection_model = self.selectionModel()
         selected_rows = selection_model.selectedRows()
         for index in selected_rows:
             file_path = self._model.filePath(index)  # Получаем путь по индексу
-            self.main_win_item.urls.append(file_path)
+            urls.append(file_path)
+
+        return urls
+
+    def deleteLater(self):
+        GridList.sizes = [self.columnWidth(i) for i in range(0, 4)]
+        for i in self.get_selected_urls():
+            self.main_win_item.urls.append(i)
         super().deleteLater()
 
     def contextMenuEvent(self, event: QContextMenuEvent):
@@ -182,6 +191,10 @@ class GridList(UTableView):
 
         copy_name = CopyName(menu_, os.path.basename(path))
         menu_.addAction(copy_name)
+
+        copy_files = CopyFiles(menu_, 10)
+        copy_files.triggered.connect(self.setup_urls_to_copy)
+        menu_.addAction(copy_files)
 
         menu_.addSeparator()
 
@@ -233,3 +246,13 @@ class GridList(UTableView):
             # return
 
         return super().keyPressEvent(a0)
+
+    def setup_urls_to_copy(self):
+        return
+        """
+        Очищает список путей к файлам / папкам для последующего копирования.    
+        Формирует новый список на основе списка выделенных виджетов Thumb
+        """
+        Grid.urls_to_copy.clear()
+        for i in self.selected_widgets:
+            Grid.urls_to_copy.append(i.src)
