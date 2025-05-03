@@ -83,7 +83,7 @@ class GridList(UTableView):
 
     def double_clicked(self, index):
         path = self._model.filePath(index)
-        self.view_cmd(path, index)
+        self.view_cmd(path)
 
     def view_cmd(self, path: str):
         if os.path.isdir(path):
