@@ -9,7 +9,7 @@ from cfg import JsonData, Static
 
 from ._base_items import MainWinItem, UMenu, UTableView
 from .actions import (ChangeViewMenu, CopyName, CopyPath, FavAdd, FavRemove,
-                      Info, RevealInFinder, View)
+                      Info, RevealInFinder, View, OpenInApp, OpenInNewWindow)
 from .finder_items import LoadingWid
 from .grid import Thumb
 from .info_win import InfoWin
@@ -146,7 +146,7 @@ class GridList(UTableView):
     def contextMenuEvent(self, event: QContextMenuEvent):
         index = self.indexAt(event.pos())
 
-        menu = UMenu(parent=self)
+        menu_ = UMenu(parent=self)
 
         path = self._model.filePath(index)
         index = self._model.index(path)
@@ -155,44 +155,55 @@ class GridList(UTableView):
             path = self.main_win_item.main_dir
 
         if path != self.main_win_item.main_dir:
-            view_ = View(menu)
+            view_ = View(menu_)
             view_.triggered.connect(lambda: self.view_cmd(path, index))
-            menu.addAction(view_)
+            menu_.addAction(view_)
 
-        info = Info(menu)
+        if os.path.isdir(path):
+            new_window = OpenInNewWindow(menu_)
+            cmd_ = lambda: self.open_in_new_window.emit(path)
+            new_window.triggered.connect(cmd_)
+            menu_.addAction(new_window)
+        else:
+            open_menu = OpenInApp(menu_, path)
+            menu_.addMenu(open_menu)
+
+        menu_.addSeparator()
+
+        info = Info(menu_)
         info.triggered.connect(lambda: self.win_info_cmd(path))
-        menu.addAction(info)
+        menu_.addAction(info)
 
-        open_finder_action = RevealInFinder(menu, path)
-        menu.addAction(open_finder_action)
+        open_finder_action = RevealInFinder(menu_, path)
+        menu_.addAction(open_finder_action)
 
-        copy_path_action = CopyPath(menu, path)
-        menu.addAction(copy_path_action)
+        copy_path_action = CopyPath(menu_, path)
+        menu_.addAction(copy_path_action)
 
-        copy_name = CopyName(menu, os.path.basename(path))
-        menu.addAction(copy_name)
+        copy_name = CopyName(menu_, os.path.basename(path))
+        menu_.addAction(copy_name)
 
-        menu.addSeparator()
+        menu_.addSeparator()
 
         if os.path.isdir(path):
             if path in JsonData.favs:
                 cmd_ = lambda: self.fav_cmd_sig.emit(("del", path))
-                fav_action = FavRemove(menu)
+                fav_action = FavRemove(menu_)
                 fav_action.triggered.connect(cmd_)
-                menu.addAction(fav_action)
+                menu_.addAction(fav_action)
             else:
                 cmd_ = lambda: self.fav_cmd_sig.emit(("add", path))
-                fav_action = FavAdd(menu)
+                fav_action = FavAdd(menu_)
                 fav_action.triggered.connect(cmd_)
-                menu.addAction(fav_action)
+                menu_.addAction(fav_action)
 
-        menu.addSeparator()
+        menu_.addSeparator()
 
-        change_view = ChangeViewMenu(menu, self.view_index)
+        change_view = ChangeViewMenu(menu_, self.view_index)
         change_view.change_view_sig.connect(self.change_view_sig.emit)
-        menu.addMenu(change_view)
+        menu_.addMenu(change_view)
 
-        menu.show_()
+        menu_.show_()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
