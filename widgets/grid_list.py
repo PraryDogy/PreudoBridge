@@ -85,7 +85,7 @@ class GridList(UTableView):
         path = self._model.filePath(index)
         self.view_cmd(path, index)
 
-    def view_cmd(self, path: str, index: QModelIndex):
+    def view_cmd(self, path: str):
         if os.path.isdir(path):
             self.main_win_item.main_dir = path
             self.load_st_grid_sig.emit()
@@ -107,8 +107,6 @@ class GridList(UTableView):
 
         else:
             subprocess.Popen(["open", path])
-
-        self.setCurrentIndex(index)
 
     def save_sort_settings(self, index):
         GridList.col = index
@@ -153,20 +151,17 @@ class GridList(UTableView):
         super().deleteLater()
 
     def contextMenuEvent(self, event: QContextMenuEvent):
+        urls = self.get_selected_urls()
+        names = [os.path.basename(i) for i in urls]
+
         index = self.indexAt(event.pos())
+        path = self._model.filePath(index)
 
         menu_ = UMenu(parent=self)
 
-        path = self._model.filePath(index)
-        index = self._model.index(path)
-
-        if not path:
-            path = self.main_win_item.main_dir
-
-        if path != self.main_win_item.main_dir:
-            view_ = View(menu_)
-            view_.triggered.connect(lambda: self.view_cmd(path, index))
-            menu_.addAction(view_)
+        view_ = View(menu_)
+        view_.triggered.connect(lambda: self.view_cmd(path))
+        menu_.addAction(view_)
 
         if os.path.isdir(path):
             new_window = OpenInNewWindow(menu_)
@@ -183,16 +178,16 @@ class GridList(UTableView):
         info.triggered.connect(lambda: self.win_info_cmd(path))
         menu_.addAction(info)
 
-        open_finder_action = RevealInFinder(menu_, path)
+        open_finder_action = RevealInFinder(menu_, urls)
         menu_.addAction(open_finder_action)
 
-        copy_path_action = CopyPath(menu_, path)
+        copy_path_action = CopyPath(menu_, urls)
         menu_.addAction(copy_path_action)
 
-        copy_name = CopyName(menu_, os.path.basename(path))
+        copy_name = CopyName(menu_, names)
         menu_.addAction(copy_name)
 
-        copy_files = CopyFiles(menu_, 10)
+        copy_files = CopyFiles(menu_, urls)
         copy_files.triggered.connect(self.setup_urls_to_copy)
         menu_.addAction(copy_files)
 

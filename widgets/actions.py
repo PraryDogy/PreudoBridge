@@ -389,6 +389,6 @@ class OpenInNewWindow(QAction):
 
 class CopyFiles(QAction):
     text_ = "Скопировать объекты"
-    def __init__(self, parent: UMenu, total: int):
-        t = f"{CopyFiles.text_} ({total})"
+    def __init__(self, parent: UMenu, urls: list[str]):
+        t = f"{CopyFiles.text_} ({len(urls)})"
         super().__init__(t, parent)
