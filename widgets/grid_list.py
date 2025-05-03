@@ -1,4 +1,5 @@
 import os
+import subprocess
 
 from PyQt5.QtCore import QDir, QModelIndex, Qt, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
@@ -6,7 +7,7 @@ from PyQt5.QtWidgets import QFileSystemModel, QSplitter, QTableView
 
 from cfg import JsonData, Static
 
-from ._base_items import UMenu, UTableView, MainWinItem
+from ._base_items import MainWinItem, UMenu, UTableView
 from .actions import (ChangeViewMenu, CopyName, CopyPath, FavAdd, FavRemove,
                       Info, RevealInFinder, View)
 from .finder_items import LoadingWid
@@ -102,6 +103,9 @@ class GridList(UTableView):
             self.img_view_win.move_to_url_sig.connect(cmd)
             self.img_view_win.center(self.window())
             self.img_view_win.show()
+
+        else:
+            subprocess.Popen(["open", path])
 
         self.setCurrentIndex(index)
 
