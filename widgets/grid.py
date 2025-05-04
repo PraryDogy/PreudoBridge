@@ -1021,13 +1021,12 @@ class Grid(UScrollArea):
                 self.path_bar_update_cmd(clicked_wid.src)
 
         else:
-            # self.clear_selected_widgets()
-            # self.select_widget(clicked_wid)
             self.select_one_wid(clicked_wid)
 
     def mouseDoubleClickEvent(self, a0):
-        clicked_wid = self.get_wid_under_mouse(a0=a0)
+        clicked_wid = self.get_wid_under_mouse(a0)
         if clicked_wid:
+            self.select_one_wid(clicked_wid)
             self.view_thumb_cmd(clicked_wid)
 
     def mousePressEvent(self, a0):
