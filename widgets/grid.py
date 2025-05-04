@@ -737,6 +737,8 @@ class Grid(UScrollArea):
         Контекстное меню Grid
         """
         self.path_bar_update_cmd(self.main_win_item.main_dir)
+        urls = Grid.urls_to_copy
+        total = len(urls)
 
         info = GridActions.Info(menu_)
         info.triggered.connect(lambda: self.win_info_cmd(self.main_win_item.main_dir))
