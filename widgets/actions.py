@@ -22,21 +22,24 @@ class Task_(QRunnable):
 
 class Tools:
     @classmethod
-    def get_urls(cls, urls: str | list[str]) -> list[str]:
+    def ensure_list(cls, value: str | list[str]) -> list[str]:
         """
-        Преобразует строку в список с одним элементом, если передана строка.    
-        Аргументы:  
-            - urls: Строка или список строк.  
-        Возвращает:     
-            - Список строк.   
-        Примеры:    
-            - "example.com" → ["example.com"]     
-            - ["a.com", "b.com"] → ["a.com", "b.com"]     
+        Гарантирует, что входное значение — список строк.
+
+        Аргументы:
+            - value: Строка или список строк.
+
+        Возвращает:
+            - Список строк.
+
+        Примеры:
+            - "example" → ["example"]
+            - ["a", "b"] → ["a", "b"]
         """
-        return [urls] if isinstance(urls, str) else urls
+        return [value] if isinstance(value, str) else value
     
     @classmethod
-    def setup_text(cls, text: str, urls: list[str]) -> str:
+    def get_text(cls, text: str, value: list[str]) -> str:
         """
         Добавляет к переданному тексту количество элементов в списке.   
         Аргументы:  
@@ -46,16 +49,16 @@ class Tools:
             - Строку в формате: "<текст> (<кол-во элементов в списке>)"   
             - Пример: "скопировать объекты (9)"
         """
-        return f"{text} ({len(urls)})"
+        return f"{text} ({len(value)})"
 
 
 class RevealInFinder(QAction):
     text_ = "Показать в Finder"
-
     def __init__(self, parent: UMenu, urls: str | list[str]):
         super().__init__(parent)
-        self.urls = Tools.get_urls(urls)
-
+        self.urls = Tools.ensure_list(urls)
+        text = Tools.get_text(RevealInFinder.text_, self.urls)
+        self.setText(text)
         self.triggered.connect(self.files_cmd)
 
     def dir_cmd(self):
@@ -78,35 +81,29 @@ class CopyPath(QAction):
     text_ = "Скопировать путь"
     def __init__(self, parent: UMenu, urls: str | list):
         super().__init__(parent)
-        self.urls = Tools.get_urls(urls)
-        # self.src = src
-        # self.triggered.connect(self.cmd_)
+        self.urls = Tools.ensure_list(urls)
+        text = Tools.get_text(CopyPath.text_, self.urls)
+        self.setText(text)
+        self.triggered.connect(self.cmd_)
 
     def cmd_(self, *args):
-        data = "\n".join(self.src)
-        Utils.write_to_clipboard(text=data)
-
-
+        Utils.write_to_clipboard("\n".join(self.urls))
 
 
 class CopyName(QAction):
     text_ = "Скопировать имя"
 
     def __init__(self, parent: UMenu, names: str | list):
-
-        if isinstance(names, str):
-            names = [names]
-
-        t = f"{CopyName.text_} ({len(names)})"
-
-        super().__init__(t, parent)
-        self.names = names
+        super().__init__(parent)
+        self.names = Tools.ensure_list(names)
+        text = Tools.get_text(CopyName.text_, self.names)
+        self.setText(text)
         self.triggered.connect(self.cmd_)
 
     def cmd_(self, *args):
         names = []
         for i in self.names:
-            head, tail = os.path.splitext(i)
+            head, _ = os.path.splitext(i)
             names.append(head)
         Utils.write_to_clipboard("\n".join(names))
 
@@ -134,24 +131,24 @@ class FavAdd(QAction):
 # список приложений формируется при инициации приложения
 # смотри cfg.py
 class OpenInApp(UMenu):
-    LIMIT = 50
+    rows_limit = 50
     text_menu = "Открыть в приложении"
     text_default = "По умолчанию"
 
     def __init__(self, parent: UMenu, src: str):
-
         super().__init__(parent=parent, title=OpenInApp.text_menu)
         self.src = src
+
+        self.apps: dict[str, str] = {}
+        self.setup_open_with_apps()
+        self.apps = dict(sorted(self.apps.items()))
+        self.apps = dict(list(self.apps.items())[:OpenInApp.rows_limit])
 
         open_default = QAction(OpenInApp.text_default, parent)
         open_default.triggered.connect(self.open_default_cmd)
         self.addAction(open_default)
+
         self.addSeparator()
-        
-        self.apps: dict[str, str] = {}
-        self.setup_open_with_apps()
-        self.apps = dict(sorted(self.apps.items()))
-        self.apps = dict(list(self.apps.items())[:OpenInApp.LIMIT])
 
         for name, app_path in self.apps.items():
             wid = QAction(name, self)
