@@ -8,8 +8,7 @@ from cfg import JsonData
 from utils import Utils
 
 from ._base_items import MainWinItem, UMenu
-from .actions import (CopyName, CopyPath, FavRemove, OpenInNewWindow,
-                      RevealInFinder, View)
+from .actions import ItemActions
 from .rename_win import RenameWin
 
 RENAME_T = "Переименовать"
@@ -76,23 +75,23 @@ class FavItem(QLabel):
 
         menu_ = UMenu(parent=self)
 
-        view_ac = View(menu_)
+        view_ac = ItemActions.View(menu_)
         view_ac.triggered.connect(self.view_fav)
         menu_.addAction(view_ac)
 
-        open_new_win = OpenInNewWindow(menu_)
+        open_new_win = ItemActions.OpenInNewWindow(menu_)
         open_new_win.triggered.connect(lambda: self.open_in_new_win.emit(self.src))
         menu_.addAction(open_new_win)
 
-        open_finder_action = RevealInFinder(menu_, urls, total)
+        open_finder_action = ItemActions.RevealInFinder(menu_, urls, total)
         menu_.addAction(open_finder_action)
 
         menu_.addSeparator()
 
-        copy_path_action = CopyPath(menu_, urls, total)
+        copy_path_action = ItemActions.CopyPath(menu_, urls, total)
         menu_.addAction(copy_path_action)
 
-        copy_name = CopyName(menu_, names, total)
+        copy_name = ItemActions.CopyName(menu_, names, total)
         menu_.addAction(copy_name)
 
         menu_.addSeparator()
@@ -102,7 +101,7 @@ class FavItem(QLabel):
         menu_.addAction(rename_action)
 
         cmd_ = lambda: self.remove_fav_item.emit()
-        fav_action = FavRemove(menu_)
+        fav_action = ItemActions.FavRemove(menu_)
         fav_action.triggered.connect(cmd_)
         menu_.addAction(fav_action)
 

@@ -8,8 +8,7 @@ from cfg import Static
 from utils import Utils
 
 from ._base_items import MainWinItem, UMenu, USvgSqareWidget
-from .actions import (CopyName, CopyPath, Info, OpenInNewWindow,
-                      RevealInFinder, View)
+from .actions import ItemActions
 from .info_win import InfoWin
 
 SORT_T = "Сортировка"
@@ -186,30 +185,34 @@ class PathItem(QWidget):
         self.default_style()
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
+        urls = [self.main_win_item.main_dir]
+        names = [os.path.basename(i) for i in urls]
+        total = len(urls)
+
         menu = UMenu(parent=self)
 
-        view_action = View(menu)
+        view_action = ItemActions.View(menu)
         view_action.triggered.connect(self.view_)
         menu.addAction(view_action)
 
         if os.path.isdir(self.dir):
-            new_win = OpenInNewWindow(menu)
+            new_win = ItemActions.OpenInNewWindow(menu)
             new_win.triggered.connect(lambda: self.open_in_new_window.emit(self.dir))
             menu.addAction(new_win)
 
         menu.addSeparator()
 
-        info = Info(menu)
+        info = ItemActions.Info(menu)
         info.triggered.connect(self.win_info_cmd)
         menu.addAction(info)
 
-        show_in_finder_action = RevealInFinder(menu, self.dir)
+        show_in_finder_action = ItemActions.RevealInFinder(menu, urls, total)
         menu.addAction(show_in_finder_action)
 
-        copy_path = CopyPath(menu, self.dir)
+        copy_path = ItemActions.CopyPath(menu, urls, total)
         menu.addAction(copy_path)
 
-        copy_name = CopyName(menu, os.path.basename(self.dir))
+        copy_name = ItemActions.CopyName(menu, names, total)
         menu.addAction(copy_name)
 
         self.solid_style()
