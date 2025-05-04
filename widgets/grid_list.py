@@ -173,7 +173,7 @@ class GridList(UTableView):
         menu_.addAction(copy_name)
 
         copy_files = ItemActions.CopyObjects(menu_, total)
-        copy_files.triggered.connect(self.setup_urls_to_copy)
+        copy_files.triggered.connect(lambda: self.setup_urls_to_copy(urls))
         menu_.addAction(copy_files)
 
         menu_.addSeparator()
@@ -271,6 +271,11 @@ class GridList(UTableView):
         self.error_win.center(self.window())
         self.error_win.show()
 
+    def setup_urls_to_copy(self, urls: list[str]):
+        Dynamic.urls_to_copy.clear()
+        for i in urls:
+            Dynamic.urls_to_copy.append(i)
+
     def deleteLater(self):
         GridList.sizes = [self.columnWidth(i) for i in range(0, 4)]
         for i in self.get_selected_urls():
@@ -327,13 +332,3 @@ class GridList(UTableView):
             # return
 
         return super().keyPressEvent(a0)
-
-    def setup_urls_to_copy(self):
-        return
-        """
-        Очищает список путей к файлам / папкам для последующего копирования.    
-        Формирует новый список на основе списка выделенных виджетов Thumb
-        """
-        Grid.urls_to_copy.clear()
-        for i in self.selected_widgets:
-            Grid.urls_to_copy.append(i.src)
