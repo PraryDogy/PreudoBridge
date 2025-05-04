@@ -339,6 +339,11 @@ class GridList(UTableView):
                 self.win_info_cmd(path)
                 # return
 
+            elif a0.key() == Qt.Key.Key_Backspace:
+                urls = self.get_selected_urls()
+                if urls:
+                    self.remove_files_cmd(urls)
+
         elif a0.key() in (Qt.Key.Key_Return, Qt.Key.Key_Space):
             index = self.currentIndex()
             self.double_clicked(index)
