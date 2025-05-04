@@ -307,7 +307,6 @@ class GridList(UTableView):
             urls = [self.main_win_item.main_dir]
             names = [os.path.basename(i) for i in urls]
             total = len(urls)
-            print(urls, names, total)
             self.grid_context(menu_, selected_path, urls, names, total)
 
         menu_.show_()
