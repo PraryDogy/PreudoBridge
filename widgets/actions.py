@@ -49,7 +49,6 @@ class RevealInFinder(QAction):
 
 class Info(QAction):
     text_ = "Инфо"
-
     def __init__(self, parent: UMenu):
         super().__init__(Info.text_, parent)
 
