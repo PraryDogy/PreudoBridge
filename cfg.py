@@ -206,3 +206,4 @@ class Dynamic:
     rating_filter: int = 0
     pixmap_size_ind = 0
     generic_icon_paths: list[str] = []
+    urls_to_copy: list[str] = []
