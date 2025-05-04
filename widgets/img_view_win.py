@@ -14,8 +14,7 @@ from database import CACHE, Dbase, DbaseTools
 from utils import UThreadPool, Utils
 
 from ._base_items import UMenu, USvgSqareWidget, WinBase
-from .actions import (CopyName, CopyPath, Info, OpenInApp, RatingMenu,
-                      RevealInFinder)
+from .actions import ItemActions
 from .grid import KEY_RATING, RATINGS, Thumb
 from .info_win import InfoWin
 
@@ -515,29 +514,33 @@ class ImgViewWin(WinBase):
         super().deleteLater()
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+        urls = [self.src]
+        names = [os.path.basename(i) for i in urls]
+        total = len(urls)
+
         menu = UMenu(parent=self)
 
-        open_menu = OpenInApp(menu, self.src)
+        open_menu = ItemActions.OpenInApp(menu, self.src)
         menu.addMenu(open_menu)
 
         menu.addSeparator()
 
-        info = Info(menu)
+        info = ItemActions.Info(menu)
         info.triggered.connect(lambda: self.win_info_cmd(self.src))
         menu.addAction(info)
 
-        show_in_finder_action = RevealInFinder(menu, self.src)
+        show_in_finder_action = ItemActions.RevealInFinder(menu, urls, total)
         menu.addAction(show_in_finder_action)
 
-        copy_path = CopyPath(menu, self.src)
+        copy_path = ItemActions.CopyPath(menu, urls, total)
         menu.addAction(copy_path)
 
-        copy_name = CopyName(menu, os.path.basename(self.src))
+        copy_name = ItemActions.CopyName(menu, names, total)
         menu.addAction(copy_name)
 
         menu.addSeparator()
 
-        rating_menu = RatingMenu(menu, self.src, self.wid.rating)
+        rating_menu = ItemActions.RatingMenu(menu, urls, total, self.wid.rating)
         rating_menu.new_rating.connect(lambda value: self.new_rating.emit(value))
         menu.addMenu(rating_menu)
 
