@@ -5,10 +5,10 @@ from PyQt5.QtCore import QDir, QModelIndex, Qt
 from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import QFileSystemModel, QSplitter, QTableView
 
-from cfg import JsonData, Static
+from cfg import Dynamic, JsonData, Static
 
 from ._base_items import MainWinItem, UMenu, UTableView
-from .actions import ItemActions
+from .actions import GridActions, ItemActions
 from .finder_items import LoadingWid
 from .grid import Thumb
 from .info_win import InfoWin
@@ -143,7 +143,6 @@ class GridList(UTableView):
         return urls
 
     def item_context(self, menu_: UMenu, selected_path: str, urls: list[str], names: list[str], total: int):
-
         view_ = ItemActions.View(menu_)
         view_.triggered.connect(lambda: self.view_cmd(selected_path))
         menu_.addAction(view_)
@@ -195,6 +194,49 @@ class GridList(UTableView):
         remove_objects = ItemActions.RemoveObjects(menu_, total)
         menu_.addAction(remove_objects)        
 
+    def grid_context(self, menu_: UMenu, selected_path: str, urls: list[str], names: list[str], total: int):
+        info = GridActions.Info(menu_)
+        info.triggered.connect(lambda: self.win_info_cmd(selected_path))
+        menu_.addAction(info)
+
+        open_finder_action = GridActions.RevealInFinder(menu_, urls, total)
+        menu_.addAction(open_finder_action)
+
+        copy_path_action = GridActions.CopyPath(menu_, urls, total)
+        menu_.addAction(copy_path_action)
+
+        copy_name = GridActions.CopyName(menu_, names, total)
+        menu_.addAction(copy_name)
+
+        menu_.addSeparator()
+
+        if os.path.isdir(selected_path):
+            if selected_path in JsonData.favs:
+                cmd_ = lambda: self.fav_cmd_sig.emit(("del", selected_path))
+                fav_action = GridActions.FavRemove(menu_)
+                fav_action.triggered.connect(cmd_)
+                menu_.addAction(fav_action)
+            else:
+                cmd_ = lambda: self.fav_cmd_sig.emit(("add", selected_path))
+                fav_action = GridActions.FavAdd(menu_)
+                fav_action.triggered.connect(cmd_)
+                menu_.addAction(fav_action)
+
+        menu_.addSeparator()
+
+        change_view = GridActions.ChangeViewMenu(menu_, self.view_index)
+        change_view.change_view_sig.connect(self.change_view_sig.emit)
+        menu_.addMenu(change_view)
+
+        if Dynamic.urls_to_copy and not self.is_grid_search:
+            paste_files = GridActions.PasteObjects(menu_, len(Dynamic.urls_to_copy))
+            paste_files.triggered.connect(self.paste_files)
+            menu_.addAction(paste_files)
+
+        upd_ = GridActions.UpdateGrid(menu_)
+        upd_.triggered.connect(lambda: self.load_st_grid_sig.emit())
+        menu_.addAction(upd_)
+
     def deleteLater(self):
         GridList.sizes = [self.columnWidth(i) for i in range(0, 4)]
         for i in self.get_selected_urls():
@@ -214,7 +256,7 @@ class GridList(UTableView):
         if selected_path:
             self.item_context(menu_, selected_path, urls, names, total)
         else:
-            print("клик по пустому")
+            self.grid_context(menu_, selected_path, urls, names, total)
 
         menu_.show_()
 
