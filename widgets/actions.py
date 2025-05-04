@@ -20,48 +20,18 @@ class Task_(QRunnable):
         self.cmd_()
 
 
-class Tools:
-    @classmethod
-    def ensure_list(cls, value: str | list[str]) -> list[str]:
-        """
-        Гарантирует, что входное значение — список строк.
-
-        Аргументы:
-            - value: Строка или список строк.
-
-        Возвращает:
-            - Список строк.
-
-        Примеры:
-            - "example" → ["example"]
-            - ["a", "b"] → ["a", "b"]
-        """
-        return [value] if isinstance(value, str) else value
-    
-    # @classmethod
-    # def get_text(cls, text: str, value: list[str]) -> str:
-    #     """
-    #     Добавляет к переданному тексту количество элементов в списке.   
-    #     Аргументы:  
-    #         - text: Исходный текст (например, "скопировать объекты").     
-    #         - urls: Список ссылок или объектов.   
-    #     Возвращает:     
-    #         - Строку в формате: "<текст> (<кол-во элементов в списке>)"   
-    #         - Пример: "скопировать объекты (9)"
-    #     """
-    #     return f"{text} ({len(value)})"
-    
-    @classmethod
+class Tools:    
     @classmethod
     def get_text(cls, text: str, total: int) -> str:
         return f"{text} ({total})"
 
+
 class RevealInFinder(QAction):
     text_ = "Показать в Finder"
-    def __init__(self, parent: UMenu, urls: str | list[str]):
+    def __init__(self, parent: UMenu, urls: list[str], total: int):
         super().__init__(parent)
-        self.urls = Tools.ensure_list(urls)
-        text = Tools.get_text(RevealInFinder.text_, self.urls)
+        self.urls = urls
+        text = Tools.get_text(RevealInFinder.text_, total)
         self.setText(text)
         self.triggered.connect(self.files_cmd)
 
@@ -83,10 +53,10 @@ class Info(QAction):
 # из родительского виджета копирует путь к файлу / папке
 class CopyPath(QAction):
     text_ = "Скопировать путь"
-    def __init__(self, parent: UMenu, urls: str | list):
+    def __init__(self, parent: UMenu, urls: list[str], total: int):
         super().__init__(parent)
-        self.urls = Tools.ensure_list(urls)
-        text = Tools.get_text(CopyPath.text_, self.urls)
+        self.urls = urls
+        text = Tools.get_text(CopyPath.text_, total)
         self.setText(text)
         self.triggered.connect(self.cmd_)
 
@@ -97,10 +67,10 @@ class CopyPath(QAction):
 class CopyName(QAction):
     text_ = "Скопировать имя"
 
-    def __init__(self, parent: UMenu, names: str | list):
+    def __init__(self, parent: UMenu, names: list[str], total: int):
         super().__init__(parent)
-        self.names = Tools.ensure_list(names)
-        text = Tools.get_text(CopyName.text_, self.names)
+        self.names = names
+        text = Tools.get_text(CopyName.text_, total)
         self.setText(text)
         self.triggered.connect(self.cmd_)
 
@@ -187,10 +157,9 @@ class RatingMenu(UMenu):
     new_rating = pyqtSignal(int)
     text_ = "Рейтинг объектов"
 
-    def __init__(self, parent: UMenu, urls: str | list, current_rating: int):
+    def __init__(self, parent: UMenu, urls: list[str], total: int, current_rating: int):
         super().__init__(parent=parent)
-        urls = Tools.ensure_list(urls)
-        text = Tools.get_text(RatingMenu.text_, urls)
+        text = Tools.get_text(RatingMenu.text_, total)
         self.setTitle(text)
 
         # свойство Thumb
@@ -407,27 +376,25 @@ class OpenInNewWindow(QAction):
 
 class CopyObjects(QAction):
     text_ = "Скопировать объекты"
-    def __init__(self, parent: UMenu, urls: list[str] | str):
+    def __init__(self, parent: UMenu, total: int):
         super().__init__(parent)
-        urls = Tools.ensure_list(urls)
-        text = Tools.get_text(CopyObjects.text_, urls)
+        text = Tools.get_text(CopyObjects.text_, total)
         self.setText(text)
 
 
 class RemoveObjects(QAction):
     text_ = "Удалить объекты"
-    def __init__(self, parent: UMenu, urls: list[str] | str):
+    def __init__(self, parent: UMenu, total: int):
         super().__init__(parent)
-        self.urls = Tools.ensure_list(urls)
-        text = Tools.get_text(RemoveObjects.text_, self.urls)
+        text = Tools.get_text(RemoveObjects.text_, total)
         self.setText(text)
 
 
 class PasteObjects(QAction):
     text_ = "Вставить объекты"
-    def __init__(self, parent: UMenu, urls: list[str] | str):
+    def __init__(self, parent: UMenu, total: int):
         super().__init__(parent)
-        text = Tools.get_text(PasteObjects.text_, urls)
+        text = Tools.get_text(PasteObjects.text_, total)
         self.setText(text)
 
 
