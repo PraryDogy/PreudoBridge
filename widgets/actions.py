@@ -9,26 +9,6 @@ from utils import UThreadPool, Utils
 
 from ._base_items import SortItem, UMenu
 
-REVEAL_T = "Показать в Finder"
-INFO_T = "Инфо"
-COPY_PATH_T = "Скопировать путь"
-VIEW_T = "Просмотр"
-OPEN_IN_APP_T = "Открыть в приложении"
-RATING_T = "Рейтинг объектов"
-FAV_REMOVE_T = "Удалить из избранного"
-FAV_ADD_T = "Добавить в избранное"
-CUT_T = "Вырезать"
-COPY_T = "Копировать"
-PASTE_T = "Вставить"
-SELECT_ALL_T = "Выделить все"
-SORT_T = "Сортировать"
-ASCENDING_T = "По возрастанию"
-DISCENDING_T = "По убыванию"
-CHANGE_VIEW_T = "Вид"
-CHANGE_VIEW_GRID_T = "Сетка"
-CHANGE_VIEW_LIST_T = "Список"
-TAGS_T = "Метки"
-OPEN_DEFAULT_T = "По умолчанию"
 
 # Общий класс для выполнения действий QAction в отдельном потоке
 class Task_(QRunnable):
@@ -41,12 +21,14 @@ class Task_(QRunnable):
 
 
 class RevealInFinder(QAction):
+    text_ = "Показать в Finder"
+
     def __init__(self, parent: UMenu, urls: str | list[str]):
         if isinstance(urls, str):
             self.urls = [urls]
         else:
             self.urls = urls
-        t = f"{REVEAL_T} ({len(self.urls)})"
+        t = f"{RevealInFinder.text_} ({len(self.urls)})"
         super().__init__(t, parent)
 
         # если в сетке выделена одна папка, то открываем ее в Finder
@@ -66,19 +48,19 @@ class RevealInFinder(QAction):
 
 
 class Info(QAction):
+    text_ = "Инфо"
+
     def __init__(self, parent: UMenu):
-        super().__init__(INFO_T, parent)
+        super().__init__(Info.text_, parent)
 
 
 # из родительского виджета копирует путь к файлу / папке
 class CopyPath(QAction):
+    text_ = "Скопировать путь"
     def __init__(self, parent: UMenu, src: str | list):
-
         if isinstance(src, str):
             src = [src]
-
-        t = f"{COPY_PATH_T} ({len(src)})"
-
+        t = f"{CopyPath.text_} ({len(src)})"
         super().__init__(t, parent)
         self.src = src
         self.triggered.connect(self.cmd_)
@@ -111,18 +93,21 @@ class CopyName(QAction):
 
 
 class View(QAction):
+    text_ = "Просмотр"
     def __init__(self, parent: UMenu):
-        super().__init__(VIEW_T, parent)
+        super().__init__(View.text_, parent)
 
 
 class FavRemove(QAction):
+    text_ = "Удалить из избранного"
     def __init__(self, parent: UMenu):
-        super().__init__(FAV_REMOVE_T, parent)
+        super().__init__(FavRemove.text_, parent)
 
 
 class FavAdd(QAction):
+    text_ = "Добавить в избранное"
     def __init__(self, parent: UMenu):
-        super().__init__(FAV_ADD_T, parent)
+        super().__init__(FavAdd.text_, parent)
 
 
 # Меню со списком приложений, при помощи которых можно открыть изображение
@@ -131,13 +116,15 @@ class FavAdd(QAction):
 # смотри cfg.py
 class OpenInApp(UMenu):
     LIMIT = 50
+    text_menu = "Открыть в приложении"
+    text_default = "По умолчанию"
 
     def __init__(self, parent: UMenu, src: str):
 
-        super().__init__(parent=parent, title=OPEN_IN_APP_T)
+        super().__init__(parent=parent, title=OpenInApp.text_menu)
         self.src = src
 
-        open_default = QAction(OPEN_DEFAULT_T, parent)
+        open_default = QAction(OpenInApp.text_default, parent)
         open_default.triggered.connect(self.open_default_cmd)
         self.addAction(open_default)
         self.addSeparator()
@@ -178,11 +165,12 @@ class OpenInApp(UMenu):
 # меню с рейтингом для _grid.py > Thumb
 class RatingMenu(UMenu):
     new_rating = pyqtSignal(int)
+    text_ = "Рейтинг объектов"
 
     def __init__(self, parent: UMenu, urls: str | list, current_rating: int):
         if isinstance(urls, str):
             urls = [urls]
-        t = f"{RATING_T} ({len(urls)})"
+        t = f"{RatingMenu.text_} ({len(urls)})"
         super().__init__(t, parent)
 
         # свойство Thumb
@@ -219,8 +207,9 @@ class RatingMenu(UMenu):
 # удалить текст из виджета и скопировать в буфер обмена удаленную часть текста
 # только для QLineEdit / QTextEdit
 class CutText(QAction):
+    text_ = "Вырезать"
     def __init__(self, parent: UMenu, widget: QLineEdit | QTextEdit):
-        super().__init__(CUT_T, parent)
+        super().__init__(CutText.text_, parent)
         self.wid = widget
         self.triggered.connect(self.cmd_)
 
@@ -240,8 +229,9 @@ class CutText(QAction):
 # Копировать выделенный текст в буфер обмена
 # Допускается QLabel с возможностью выделения текста
 class CopyText(QAction):
+    text_ = "Копировать"
     def __init__(self, parent: UMenu, widget: QLineEdit | QLabel | QTextEdit):
-        super().__init__(COPY_T, parent)
+        super().__init__(CopyText.text_, parent)
         self.wid = widget
         self.triggered.connect(self.cmd_)
 
@@ -262,8 +252,9 @@ class CopyText(QAction):
 
 # Вставить текст, допускается только QLineEdit и QTextEdit
 class PasteText(QAction):
+    text_ = "Вставить"
     def __init__(self, parent: UMenu, widget: QLineEdit | QTextEdit):
-        super().__init__(PASTE_T, parent)
+        super().__init__(PasteText.text_, parent)
         self.wid = widget
         self.triggered.connect(self.cmd_)
 
@@ -279,8 +270,9 @@ class PasteText(QAction):
 
 
 class TextSelectAll(QAction):
+    text_ = "Выделить все"
     def __init__(self, parent: UMenu, widget: QLineEdit | QTextEdit):
-        super().__init__(SELECT_ALL_T, parent)
+        super().__init__(TextSelectAll.text_, parent)
         self.wid = widget
         self.triggered.connect(lambda: self.wid.selectAll())
 
@@ -289,18 +281,21 @@ class SortMenu(UMenu):
     sort_grid_sig = pyqtSignal()
     rearrange_grid_sig = pyqtSignal()
     sort_bar_update_sig = pyqtSignal(object)
+    text_menu = "Сортировать"
+    text_ascending = "По возрастанию"
+    text_discenging = "По убыванию"
 
     def __init__(self, parent: UMenu, sort_item: SortItem):
-        super().__init__(SORT_T, parent)
+        super().__init__(SortMenu.text_menu, parent)
         self.sort_item = sort_item
 
-        ascending = QAction(ASCENDING_T, self)
+        ascending = QAction(SortMenu.text_ascending, self)
         # добавляем свойство прямой / обратной сортировки
         # прямая сортировка А > Я
         ascending.rev = False
         ascending.triggered.connect(lambda: self.cmd_revers(ascending.rev))
 
-        descending = QAction(DISCENDING_T, self)
+        descending = QAction(SortMenu.text_discenging, self)
         # добавляем свойство прямой / обратной сортировки
         # обратная сортировка Я > А
         descending.rev = True
@@ -356,18 +351,21 @@ class SortMenu(UMenu):
 # list_file_system.py > ListFileSystem
 class ChangeViewMenu(UMenu):
     change_view_sig = pyqtSignal(int)
+    text_menu = "Вид"
+    text_grid = "Сетка"
+    text_list = "Список"
 
     def __init__(self, parent: UMenu, view_index: int):
-        super().__init__(CHANGE_VIEW_T, parent)
+        super().__init__(ChangeViewMenu.text_menu, parent)
 
         # отобразить сеткой
-        grid_ = QAction(CHANGE_VIEW_GRID_T, self)
+        grid_ = QAction(ChangeViewMenu.text_grid, self)
         grid_.triggered.connect(lambda: self.change_view_sig.emit(0))
         grid_.setCheckable(True)
         self.addAction(grid_)
 
         # отобразить списком
-        list_ = QAction(CHANGE_VIEW_LIST_T, self)
+        list_ = QAction(ChangeViewMenu.text_list, self)
         list_.triggered.connect(lambda: self.change_view_sig.emit(1))
         list_.setCheckable(True)
         self.addAction(list_)

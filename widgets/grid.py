@@ -560,7 +560,7 @@ class Grid(UScrollArea):
         copy_name = CopyName(menu_, names)
         menu_.addAction(copy_name)
 
-        copy_files = CopyFiles(menu_, len(urls))
+        copy_files = CopyFiles(menu_, urls)
         copy_files.triggered.connect(self.setup_urls_to_copy)
         menu_.addAction(copy_files)
 
