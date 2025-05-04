@@ -184,15 +184,15 @@ class RatingMenu(UMenu):
     text_ = "Рейтинг объектов"
 
     def __init__(self, parent: UMenu, urls: str | list, current_rating: int):
-        if isinstance(urls, str):
-            urls = [urls]
-        t = f"{RatingMenu.text_} ({len(urls)})"
-        super().__init__(t, parent)
+        super().__init__(parent=parent)
+        urls = Tools.ensure_list(urls)
+        text = Tools.get_text(RatingMenu.text_, urls)
+        self.setTitle(text)
 
         # свойство Thumb
         # рейтинг для каждого виджета хранится в базе данных
         # и подгружается при создании сетки
-        self.rating = current_rating
+        rating = current_rating
 
         cancel_ = QAction(Static.LINE_LONG_SYM, self)
         cancel_.triggered.connect(lambda: self.new_rating.emit(0))
@@ -200,14 +200,14 @@ class RatingMenu(UMenu):
 
         # рейтинг от 1 до 5 звезд
         # в цикле происходит проверка, есть ли рейтинг > 0
-        # в self.rating (свойство Thumb)
+        # в rating (свойство Thumb)
         # если есть, то отмечается setChecked
         # 0 возвращает False
         for current_rating in range(1, 6):
             wid = QAction(Static.STAR_SYM * current_rating, self)
             wid.setCheckable(True)
 
-            if self.rating == current_rating:
+            if rating == current_rating:
                 wid.setChecked(True)
 
             # клик возвращает через сигнал целое число
