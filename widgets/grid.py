@@ -495,6 +495,8 @@ class Grid(UScrollArea):
             self.win_img_view.new_rating.connect(lambda value: self.set_new_rating(value))
             self.win_img_view.center(self.window())
             self.win_img_view.show()
+            # почему тот.center снимает выделение с виджета
+            QTimer.singleShot(50, lambda: self.select_one_wid(wid))
 
         else:
             subprocess.Popen(["open", wid.src])
@@ -804,7 +806,6 @@ class Grid(UScrollArea):
         - При успешной записи QRunnable испускает сигнал finished
         """
 
-        print(self.selected_widgets)
         for wid in self.selected_widgets:
             self.task_ = SetDbRating(self.main_win_item.main_dir, wid, new_rating)
             cmd_ = lambda w=wid: self.set_new_rating_fin(w, new_rating)
