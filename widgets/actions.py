@@ -38,19 +38,23 @@ class Tools:
         """
         return [value] if isinstance(value, str) else value
     
+    # @classmethod
+    # def get_text(cls, text: str, value: list[str]) -> str:
+    #     """
+    #     Добавляет к переданному тексту количество элементов в списке.   
+    #     Аргументы:  
+    #         - text: Исходный текст (например, "скопировать объекты").     
+    #         - urls: Список ссылок или объектов.   
+    #     Возвращает:     
+    #         - Строку в формате: "<текст> (<кол-во элементов в списке>)"   
+    #         - Пример: "скопировать объекты (9)"
+    #     """
+    #     return f"{text} ({len(value)})"
+    
     @classmethod
-    def get_text(cls, text: str, value: list[str]) -> str:
-        """
-        Добавляет к переданному тексту количество элементов в списке.   
-        Аргументы:  
-            - text: Исходный текст (например, "скопировать объекты").     
-            - urls: Список ссылок или объектов.   
-        Возвращает:     
-            - Строку в формате: "<текст> (<кол-во элементов в списке>)"   
-            - Пример: "скопировать объекты (9)"
-        """
-        return f"{text} ({len(value)})"
-
+    @classmethod
+    def get_text(cls, text: str, total: int) -> str:
+        return f"{text} ({total})"
 
 class RevealInFinder(QAction):
     text_ = "Показать в Finder"
