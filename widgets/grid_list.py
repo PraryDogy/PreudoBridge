@@ -228,7 +228,7 @@ class GridList(UTableView):
         change_view.change_view_sig.connect(self.change_view_sig.emit)
         menu_.addMenu(change_view)
 
-        if Dynamic.urls_to_copy and not self.is_grid_search:
+        if Dynamic.urls_to_copy:
             paste_files = GridActions.PasteObjects(menu_, len(Dynamic.urls_to_copy))
             paste_files.triggered.connect(self.paste_files)
             menu_.addAction(paste_files)
@@ -244,18 +244,23 @@ class GridList(UTableView):
         super().deleteLater()
 
     def contextMenuEvent(self, event: QContextMenuEvent):
-        urls = self.get_selected_urls()
-        names = [os.path.basename(i) for i in urls]
-        total = len(urls)
-
+        # определяем выделена ли строка
         index = self.indexAt(event.pos())
         selected_path = self._model.filePath(index)
 
         menu_ = UMenu(parent=self)
 
         if selected_path:
+            urls = self.get_selected_urls()
+            names = [os.path.basename(i) for i in urls]
+            total = len(urls)
             self.item_context(menu_, selected_path, urls, names, total)
         else:
+            selected_path = self.main_win_item.main_dir
+            urls = [self.main_win_item.main_dir]
+            names = [os.path.basename(i) for i in urls]
+            total = len(urls)
+            print(urls, names, total)
             self.grid_context(menu_, selected_path, urls, names, total)
 
         menu_.show_()
