@@ -20,22 +20,42 @@ class Task_(QRunnable):
         self.cmd_()
 
 
+class Tools:
+    @classmethod
+    def get_urls(cls, urls: str | list[str]) -> list[str]:
+        """
+        Преобразует строку в список с одним элементом, если передана строка.    
+        Аргументы:  
+            - urls: Строка или список строк.  
+        Возвращает:     
+            - Список строк.   
+        Примеры:    
+            - "example.com" → ["example.com"]     
+            - ["a.com", "b.com"] → ["a.com", "b.com"]     
+        """
+        return [urls] if isinstance(urls, str) else urls
+    
+    @classmethod
+    def setup_text(cls, text: str, urls: list[str]) -> str:
+        """
+        Добавляет к переданному тексту количество элементов в списке.   
+        Аргументы:  
+            - text: Исходный текст (например, "скопировать объекты").     
+            - urls: Список ссылок или объектов.   
+        Возвращает:     
+            - Строку в формате: "<текст> (<кол-во элементов в списке>)"   
+            - Пример: "скопировать объекты (9)"
+        """
+        return f"{text} ({len(urls)})"
+
+
 class RevealInFinder(QAction):
     text_ = "Показать в Finder"
 
     def __init__(self, parent: UMenu, urls: str | list[str]):
-        if isinstance(urls, str):
-            self.urls = [urls]
-        else:
-            self.urls = urls
-        t = f"{RevealInFinder.text_} ({len(self.urls)})"
-        super().__init__(t, parent)
+        super().__init__(parent)
+        self.urls = Tools.get_urls(urls)
 
-        # если в сетке выделена одна папка, то открываем ее в Finder
-        # если выделено более 1 папки/файла, то делаем Reveal 
-        # if len(self.urls) == 1 and os.path.isdir(self.urls[0]) or self.urls[0].endswith("app"):
-        #         self.triggered.connect(self.dir_cmd)
-        # else:
         self.triggered.connect(self.files_cmd)
 
     def dir_cmd(self):
@@ -56,17 +76,17 @@ class Info(QAction):
 # из родительского виджета копирует путь к файлу / папке
 class CopyPath(QAction):
     text_ = "Скопировать путь"
-    def __init__(self, parent: UMenu, src: str | list):
-        if isinstance(src, str):
-            src = [src]
-        t = f"{CopyPath.text_} ({len(src)})"
-        super().__init__(t, parent)
-        self.src = src
-        self.triggered.connect(self.cmd_)
+    def __init__(self, parent: UMenu, urls: str | list):
+        super().__init__(parent)
+        self.urls = Tools.get_urls(urls)
+        # self.src = src
+        # self.triggered.connect(self.cmd_)
 
     def cmd_(self, *args):
         data = "\n".join(self.src)
         Utils.write_to_clipboard(text=data)
+
+
 
 
 class CopyName(QAction):
