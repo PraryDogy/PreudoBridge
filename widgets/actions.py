@@ -404,5 +404,7 @@ class OpenInNewWindow(QAction):
 class CopyFiles(QAction):
     text_ = "Скопировать объекты"
     def __init__(self, parent: UMenu, urls: list[str]):
-        t = f"{CopyFiles.text_} ({len(urls)})"
-        super().__init__(t, parent)
+        super().__init__(parent)
+        urls = Tools.ensure_list(urls)
+        text = Tools.get_text(CopyFiles.text_, urls)
+        self.setText(text)
