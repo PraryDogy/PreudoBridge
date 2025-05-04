@@ -9,6 +9,7 @@ from cfg import Dynamic, JsonData, Static
 
 from ._base_items import MainWinItem, UMenu, UTableView
 from .actions import GridActions, ItemActions
+from .copy_files_win import CopyFilesWin, ErrorWin
 from .finder_items import LoadingWid
 from .grid import Thumb
 from .info_win import InfoWin
@@ -198,7 +199,7 @@ class GridList(UTableView):
 
         if Dynamic.urls_to_copy:
             paste_files = GridActions.PasteObjects(menu_, len(Dynamic.urls_to_copy))
-            # paste_files.triggered.connect(self.paste_files)
+            paste_files.triggered.connect(self.paste_files)
             menu_.addAction(paste_files)
 
         upd_ = GridActions.UpdateGrid(menu_)
@@ -247,6 +248,28 @@ class GridList(UTableView):
         upd_ = GridActions.UpdateGrid(menu_)
         upd_.triggered.connect(lambda: self.load_st_grid_sig.emit())
         menu_.addAction(upd_)
+
+    def paste_files(self):
+        if not Dynamic.urls_to_copy:
+            return
+        self.win_copy = CopyFilesWin(self.main_win_item, Dynamic.urls_to_copy)
+        self.win_copy.finished_.connect(lambda urls: self.paste_files_fin(urls))
+        self.win_copy.error_win_sig.connect(self.error_win_cmd)
+        self.win_copy.center(self.window())
+        self.win_copy.show()
+
+    def paste_files_fin(self, urls: list[str]):
+        self.load_st_grid_sig.emit()
+        Dynamic.urls_to_copy.clear()
+
+    def error_win_cmd(self):
+        """
+        Открывает окно ошибки копирования файлов
+        """
+        self.win_copy.deleteLater()
+        self.error_win = ErrorWin()
+        self.error_win.center(self.window())
+        self.error_win.show()
 
     def deleteLater(self):
         GridList.sizes = [self.columnWidth(i) for i in range(0, 4)]
