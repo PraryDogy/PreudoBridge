@@ -412,51 +412,51 @@ class UpdateGrid(QAction):
 
 
 class ItemActions:
-    View = View
+    class View(View): pass
 
-    OpenInApp = OpenInApp
-    OpenInNewWindow = OpenInNewWindow
+    class OpenInApp(OpenInApp): pass
+    class OpenInNewWindow(OpenInNewWindow): pass
     # "Separator"
 
-    Info = Info
-    RevealInFinder = RevealInFinder
-    CopyPath = CopyPath
-    CopyName = CopyName
-    CopyObjects = CopyObjects
+    class Info(Info): pass
+    class RevealInFinder(RevealInFinder): pass
+    class CopyPath(CopyPath): pass
+    class CopyName(CopyName): pass
+    class CopyObjects(CopyObjects): pass
     # "Separator"
 
     # если это папка
-    FavRemove = FavRemove
-    FavAdd = FavAdd
+    class FavRemove(FavRemove): pass
+    class FavAdd(FavAdd): pass
     # "Separator"
 
-    RatingMenu = RatingMenu
+    class RatingMenu(RatingMenu): pass
     # "Separator"
 
     # если это сетка GridSearch
-    ShowInGrid = ShowInGrid
+    class ShowInGrid(ShowInGrid): pass
     # "Separator"
 
-    RemoveObjects = RemoveObjects
+    class RemoveObjects(RemoveObjects): pass
 
 
 class GridActions:
-    Info = Info
+    class Info(Info): pass
     # "Separator"
 
-    RevealInFinder = RevealInFinder
-    CopyPath = CopyPath
-    CopyName = CopyName
+    class RevealInFinder(RevealInFinder): pass
+    class CopyPath(CopyPath): pass
+    class CopyName(CopyName): pass
     # "Separator"
 
-    FavRemove = FavRemove
-    FavAdd = FavAdd
+    class FavRemove(FavRemove): pass
+    class FavAdd(FavAdd): pass
     # "Separator"
 
-    ChangeViewMenu = ChangeViewMenu
-    SortMenu = SortMenu
+    class ChangeViewMenu(ChangeViewMenu): pass
+    class SortMenu(SortMenu): pass
     # "Separator"
 
     # Если есть Grid.urls_to_copy и если это не GridSearch
-    PasteObjects = PasteObjects
-    UpdateGrid = UpdateGrid
+    class PasteObjects(PasteObjects): pass
+    class UpdateGrid(UpdateGrid): pass

@@ -8,8 +8,8 @@ from PyQt5.QtCore import (QMimeData, QObject, QRunnable, Qt, QTimer, QUrl,
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
                          QPixmap)
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QAction, QApplication, QFrame, QGridLayout,
-                             QLabel, QSplitter, QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
+                             QSplitter, QVBoxLayout, QWidget)
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Dynamic, JsonData, Static, ThumbData
@@ -17,10 +17,7 @@ from database import CACHE, Dbase
 from utils import UThreadPool, Utils
 
 from ._base_items import BaseItem, MainWinItem, SortItem, UMenu, UScrollArea
-from .actions import (ChangeViewMenu, CopyName, CopyObjects, CopyPath, FavAdd,
-                      FavRemove, GridActions, Info, ItemActions, OpenInApp,
-                      OpenInNewWindow, RatingMenu, RevealInFinder, SortMenu,
-                      View)
+from .actions import GridActions, ItemActions
 from .copy_files_win import CopyFilesWin, ErrorWin
 from .info_win import InfoWin
 from .remove_files_win import RemoveFilesWin
@@ -530,6 +527,7 @@ class Grid(UScrollArea):
         # собираем пути к файлам / папкам у выделенных виджетов
         urls = [i.src for i in self.selected_widgets]
         names = [i.name for i in self.selected_widgets]
+        total = len(self.selected_widgets)
 
         self.path_bar_update_cmd(wid.src)
 
@@ -552,16 +550,16 @@ class Grid(UScrollArea):
         info.triggered.connect(lambda: self.win_info_cmd(wid.src))
         menu_.addAction(info)
 
-        show_in_finder_action = ItemActions.RevealInFinder(menu_, urls)
+        show_in_finder_action = ItemActions.RevealInFinder(menu_, urls, total)
         menu_.addAction(show_in_finder_action)
 
-        copy_path = ItemActions.CopyPath(menu_, urls)
+        copy_path = ItemActions.CopyPath(menu_, urls, total)
         menu_.addAction(copy_path)
 
-        copy_name = ItemActions.CopyName(menu_, names)
+        copy_name = ItemActions.CopyName(menu_, names, total)
         menu_.addAction(copy_name)
 
-        copy_files = ItemActions.CopyObjects(menu_, urls)
+        copy_files = ItemActions.CopyObjects(menu_, total)
         copy_files.triggered.connect(self.setup_urls_to_copy)
         menu_.addAction(copy_files)
 
@@ -581,7 +579,7 @@ class Grid(UScrollArea):
 
             menu_.addSeparator()
 
-        rating_menu = ItemActions.RatingMenu(menu_, urls, wid.rating)
+        rating_menu = ItemActions.RatingMenu(menu_, urls, total, wid.rating)
         rating_menu.new_rating.connect(self.set_new_rating)
         menu_.addMenu(rating_menu)
 
@@ -597,7 +595,7 @@ class Grid(UScrollArea):
 
         menu_.addSeparator()
 
-        remove_files = ItemActions.RemoveObjects(menu_, urls)
+        remove_files = ItemActions.RemoveObjects(menu_, total)
         remove_files.triggered.connect(lambda: self.remove_files_cmd(urls))
         menu_.addAction(remove_files)
 
@@ -737,20 +735,22 @@ class Grid(UScrollArea):
         Контекстное меню Grid
         """
         self.path_bar_update_cmd(self.main_win_item.main_dir)
-        urls = Grid.urls_to_copy
-        total = len(urls)
+
+        names = [os.path.basename(self.main_win_item.main_dir)]
+        urls = [self.main_win_item.main_dir]
+        total = 1
 
         info = GridActions.Info(menu_)
         info.triggered.connect(lambda: self.win_info_cmd(self.main_win_item.main_dir))
         menu_.addAction(info)
 
-        reveal = GridActions.RevealInFinder(menu_, self.main_win_item.main_dir)
+        reveal = GridActions.RevealInFinder(menu_, urls, total)
         menu_.addAction(reveal)
 
-        copy_ = GridActions.CopyPath(menu_, self.main_win_item.main_dir)
+        copy_ = GridActions.CopyPath(menu_, urls, total)
         menu_.addAction(copy_)
 
-        copy_name = GridActions.CopyName(menu_, os.path.basename(self.main_win_item.main_dir))
+        copy_name = GridActions.CopyName(menu_, names, total)
         menu_.addAction(copy_name)
 
         menu_.addSeparator()
@@ -782,7 +782,7 @@ class Grid(UScrollArea):
         menu_.addSeparator()
 
         if Grid.urls_to_copy and not self.is_grid_search:
-            paste_files = GridActions.PasteObjects(menu_, Grid.urls_to_copy)
+            paste_files = GridActions.PasteObjects(menu_, len(Grid.urls_to_copy))
             paste_files.triggered.connect(self.paste_files)
             menu_.addAction(paste_files)
 
