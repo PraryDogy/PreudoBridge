@@ -344,6 +344,15 @@ class GridList(UTableView):
                 if urls:
                     self.remove_files_cmd(urls)
 
+            elif a0.key() == Qt.Key.Key_C:
+                urls = self.get_selected_urls()
+                if urls:
+                    self.setup_urls_to_copy(urls)
+
+            elif a0.key() == Qt.Key.Key_V:
+                if Dynamic.urls_to_copy:
+                    self.paste_files()
+
         elif a0.key() in (Qt.Key.Key_Return, Qt.Key.Key_Space):
             index = self.currentIndex()
             self.double_clicked(index)
