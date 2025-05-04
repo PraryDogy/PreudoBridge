@@ -192,7 +192,18 @@ class GridList(UTableView):
         menu_.addSeparator()
 
         remove_objects = ItemActions.RemoveObjects(menu_, total)
-        menu_.addAction(remove_objects)        
+        menu_.addAction(remove_objects)  
+
+        menu_.addSeparator()
+
+        if Dynamic.urls_to_copy:
+            paste_files = GridActions.PasteObjects(menu_, len(Dynamic.urls_to_copy))
+            # paste_files.triggered.connect(self.paste_files)
+            menu_.addAction(paste_files)
+
+        upd_ = GridActions.UpdateGrid(menu_)
+        upd_.triggered.connect(lambda: self.load_st_grid_sig.emit())
+        menu_.addAction(upd_)      
 
     def grid_context(self, menu_: UMenu, selected_path: str, urls: list[str], names: list[str], total: int):
         info = GridActions.Info(menu_)
