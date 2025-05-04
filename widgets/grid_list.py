@@ -13,6 +13,7 @@ from .copy_files_win import CopyFilesWin, ErrorWin
 from .finder_items import LoadingWid
 from .grid import Thumb
 from .info_win import InfoWin
+from .remove_files_win import RemoveFilesWin
 
 
 class GridList(UTableView):
@@ -193,6 +194,7 @@ class GridList(UTableView):
         menu_.addSeparator()
 
         remove_objects = ItemActions.RemoveObjects(menu_, total)
+        remove_objects.triggered.connect(lambda: self.remove_files_cmd(urls))
         menu_.addAction(remove_objects)  
 
         menu_.addSeparator()
@@ -275,6 +277,12 @@ class GridList(UTableView):
         Dynamic.urls_to_copy.clear()
         for i in urls:
             Dynamic.urls_to_copy.append(i)
+
+    def remove_files_cmd(self, urls: list[str]):
+        self.rem_win = RemoveFilesWin(self.main_win_item, urls)
+        self.rem_win.finished_.connect(lambda urls: self.load_st_grid_sig.emit())
+        self.rem_win.center(self.window())
+        self.rem_win.show()
 
     def deleteLater(self):
         GridList.sizes = [self.columnWidth(i) for i in range(0, 4)]
