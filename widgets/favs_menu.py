@@ -70,6 +70,10 @@ class FavItem(QLabel):
             self.view_fav()
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
+        urls = [self.src]
+        names = [os.path.basename(i) for i in urls]
+        total = 1
+
         menu_ = UMenu(parent=self)
 
         view_ac = View(menu_)
@@ -80,15 +84,15 @@ class FavItem(QLabel):
         open_new_win.triggered.connect(lambda: self.open_in_new_win.emit(self.src))
         menu_.addAction(open_new_win)
 
-        open_finder_action = RevealInFinder(menu_, self.src)
+        open_finder_action = RevealInFinder(menu_, urls, total)
         menu_.addAction(open_finder_action)
 
         menu_.addSeparator()
 
-        copy_path_action = CopyPath(menu_, self.src)
+        copy_path_action = CopyPath(menu_, urls, total)
         menu_.addAction(copy_path_action)
 
-        copy_name = CopyName(menu_, os.path.basename(self.src))
+        copy_name = CopyName(menu_, names, total)
         menu_.addAction(copy_name)
 
         menu_.addSeparator()

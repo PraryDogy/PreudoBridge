@@ -2,10 +2,13 @@ import os
 import subprocess
 
 from PyQt5.QtCore import QDir, QModelIndex, Qt
-from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
-from PyQt5.QtWidgets import QFileSystemModel, QSplitter, QTableView
+from PyQt5.QtGui import (QContextMenuEvent, QDragEnterEvent, QDropEvent,
+                         QKeyEvent)
+from PyQt5.QtWidgets import (QAbstractItemView, QFileSystemModel, QSplitter,
+                             QTableView)
 
 from cfg import Dynamic, JsonData, Static
+from utils import Utils
 
 from ._base_items import MainWinItem, UMenu, UTableView
 from .actions import GridActions, ItemActions
@@ -23,6 +26,11 @@ class GridList(UTableView):
 
     def __init__(self, main_win_item: MainWinItem, view_index: int):
         super().__init__()
+
+        self.setDragEnabled(True)
+        self.setAcceptDrops(True)
+        self.setDragDropMode(QAbstractItemView.DragDrop)
+        self.setDropIndicatorShown(True)
 
         self.main_win_item = main_win_item
         self.view_index = view_index
@@ -359,3 +367,26 @@ class GridList(UTableView):
             # return
 
         return super().keyPressEvent(a0)
+
+    def dragEnterEvent(self, a0: QDragEnterEvent):
+        if a0.mimeData().hasUrls():
+            a0.acceptProposedAction()
+        return super().dragEnterEvent(a0)
+    
+    def dropEvent(self, a0: QDropEvent):
+        Dynamic.urls_to_copy.clear()
+        Dynamic.urls_to_copy = [i.toLocalFile() for i in a0.mimeData().urls()]
+
+        main_dir_ = Utils.normalize_slash(self.main_win_item.main_dir)
+        main_dir_ = Utils.add_system_volume(main_dir_)
+        for i in Dynamic.urls_to_copy:
+            i = Utils.normalize_slash(i)
+            i = Utils.add_system_volume(i)
+            if os.path.commonpath([i, main_dir_]) == main_dir_:
+                print("Нельзя копировать в себя")
+                return
+
+        if Dynamic.urls_to_copy:
+            self.paste_files()
+
+        return super().dropEvent(a0)
