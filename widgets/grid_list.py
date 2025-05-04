@@ -1,16 +1,14 @@
 import os
 import subprocess
 
-from PyQt5.QtCore import QDir, QModelIndex, Qt, pyqtSignal
+from PyQt5.QtCore import QDir, QModelIndex, Qt
 from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
-from PyQt5.QtWidgets import QAction, QFileSystemModel, QSplitter, QTableView
+from PyQt5.QtWidgets import QFileSystemModel, QSplitter, QTableView
 
 from cfg import JsonData, Static
 
 from ._base_items import MainWinItem, UMenu, UTableView
-from .actions import (ChangeViewMenu, CopyObjects, CopyName, CopyPath, FavAdd,
-                      FavRemove, Info, OpenInApp, OpenInNewWindow,
-                      RevealInFinder, View)
+from .actions import ItemActions
 from .finder_items import LoadingWid
 from .grid import Thumb
 from .info_win import InfoWin
@@ -153,63 +151,63 @@ class GridList(UTableView):
     def contextMenuEvent(self, event: QContextMenuEvent):
         urls = self.get_selected_urls()
         names = [os.path.basename(i) for i in urls]
+        total = len(urls)
 
         index = self.indexAt(event.pos())
-        path = self._model.filePath(index)
+        selected_path = self._model.filePath(index)
 
         menu_ = UMenu(parent=self)
 
-        view_ = View(menu_)
-        view_.triggered.connect(lambda: self.view_cmd(path))
+        view_ = ItemActions.View(menu_)
+        view_.triggered.connect(lambda: self.view_cmd(selected_path))
         menu_.addAction(view_)
 
-        if os.path.isdir(path):
-            new_window = OpenInNewWindow(menu_)
-            cmd_ = lambda: self.open_in_new_window.emit(path)
+        if os.path.isdir(selected_path):
+            new_window = ItemActions.OpenInNewWindow(menu_)
+            cmd_ = lambda: self.open_in_new_window.emit(selected_path)
             new_window.triggered.connect(cmd_)
             menu_.addAction(new_window)
         else:
-            open_menu = OpenInApp(menu_, path)
+            open_menu = ItemActions.OpenInApp(menu_, selected_path)
             menu_.addMenu(open_menu)
 
         menu_.addSeparator()
 
-        info = Info(menu_)
-        info.triggered.connect(lambda: self.win_info_cmd(path))
+        info = ItemActions.Info(menu_)
+        info.triggered.connect(lambda: self.win_info_cmd(selected_path))
         menu_.addAction(info)
 
-        open_finder_action = RevealInFinder(menu_, urls)
+        open_finder_action = ItemActions.RevealInFinder(menu_, urls, total)
         menu_.addAction(open_finder_action)
 
-        copy_path_action = CopyPath(menu_, urls)
+        copy_path_action = ItemActions.CopyPath(menu_, urls, total)
         menu_.addAction(copy_path_action)
 
-        copy_name = CopyName(menu_, names)
+        copy_name = ItemActions.CopyName(menu_, names, total)
         menu_.addAction(copy_name)
 
-        copy_files = CopyObjects(menu_, urls)
+        copy_files = ItemActions.CopyObjects(menu_, total)
         copy_files.triggered.connect(self.setup_urls_to_copy)
         menu_.addAction(copy_files)
 
         menu_.addSeparator()
 
-        if os.path.isdir(path):
-            if path in JsonData.favs:
-                cmd_ = lambda: self.fav_cmd_sig.emit(("del", path))
-                fav_action = FavRemove(menu_)
+        if os.path.isdir(selected_path):
+            if selected_path in JsonData.favs:
+                cmd_ = lambda: self.fav_cmd_sig.emit(("del", selected_path))
+                fav_action = ItemActions.FavRemove(menu_)
                 fav_action.triggered.connect(cmd_)
                 menu_.addAction(fav_action)
             else:
-                cmd_ = lambda: self.fav_cmd_sig.emit(("add", path))
-                fav_action = FavAdd(menu_)
+                cmd_ = lambda: self.fav_cmd_sig.emit(("add", selected_path))
+                fav_action = ItemActions.FavAdd(menu_)
                 fav_action.triggered.connect(cmd_)
                 menu_.addAction(fav_action)
 
         menu_.addSeparator()
 
-        change_view = ChangeViewMenu(menu_, self.view_index)
-        change_view.change_view_sig.connect(self.change_view_sig.emit)
-        menu_.addMenu(change_view)
+        remove_objects = ItemActions.RemoveObjects(menu_, total)
+        menu_.addAction(remove_objects)
 
         menu_.show_()
 
