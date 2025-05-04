@@ -803,6 +803,8 @@ class Grid(UScrollArea):
         - Делается запись в базу данных через QRunnable
         - При успешной записи QRunnable испускает сигнал finished
         """
+
+        print(self.selected_widgets)
         for wid in self.selected_widgets:
             self.task_ = SetDbRating(self.main_win_item.main_dir, wid, new_rating)
             cmd_ = lambda w=wid: self.set_new_rating_fin(w, new_rating)
