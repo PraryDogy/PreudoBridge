@@ -3,7 +3,7 @@ import subprocess
 
 from PyQt5.QtCore import QDir, QModelIndex, Qt
 from PyQt5.QtGui import (QContextMenuEvent, QDragEnterEvent, QDropEvent,
-                         QKeyEvent)
+                         QKeyEvent, QDragMoveEvent)
 from PyQt5.QtWidgets import (QAbstractItemView, QFileSystemModel, QSplitter,
                              QTableView)
 
@@ -371,8 +371,11 @@ class GridList(UTableView):
     def dragEnterEvent(self, a0: QDragEnterEvent):
         if a0.mimeData().hasUrls():
             a0.acceptProposedAction()
-        return super().dragEnterEvent(a0)
     
+    def dragMoveEvent(self, event: QDragMoveEvent):
+        if event.mimeData().hasUrls():
+            event.acceptProposedAction()
+
     def dropEvent(self, a0: QDropEvent):
         Dynamic.urls_to_copy.clear()
         Dynamic.urls_to_copy = [i.toLocalFile() for i in a0.mimeData().urls()]
@@ -385,6 +388,8 @@ class GridList(UTableView):
             if os.path.commonpath([i, main_dir_]) == main_dir_:
                 print("Нельзя копировать в себя")
                 return
+            
+        print(Dynamic.urls_to_copy)
 
         if Dynamic.urls_to_copy:
             self.paste_files()
