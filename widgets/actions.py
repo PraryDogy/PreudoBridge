@@ -2,9 +2,9 @@ import os
 import subprocess
 
 from PyQt5.QtCore import QRunnable, pyqtSignal
-from PyQt5.QtWidgets import QAction, QLabel, QLineEdit, QTextEdit, QWidget
+from PyQt5.QtWidgets import QAction, QLabel, QLineEdit, QTextEdit
 
-from cfg import Dynamic, Static
+from cfg import Static
 from utils import UThreadPool, Utils
 
 from ._base_items import SortItem, UMenu
