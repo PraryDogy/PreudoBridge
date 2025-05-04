@@ -142,21 +142,7 @@ class GridList(UTableView):
 
         return urls
 
-    def deleteLater(self):
-        GridList.sizes = [self.columnWidth(i) for i in range(0, 4)]
-        for i in self.get_selected_urls():
-            self.main_win_item.urls.append(i)
-        super().deleteLater()
-
-    def contextMenuEvent(self, event: QContextMenuEvent):
-        urls = self.get_selected_urls()
-        names = [os.path.basename(i) for i in urls]
-        total = len(urls)
-
-        index = self.indexAt(event.pos())
-        selected_path = self._model.filePath(index)
-
-        menu_ = UMenu(parent=self)
+    def item_context(self, menu_: UMenu, selected_path: str, urls: list[str], names: list[str], total: int):
 
         view_ = ItemActions.View(menu_)
         view_.triggered.connect(lambda: self.view_cmd(selected_path))
@@ -207,7 +193,28 @@ class GridList(UTableView):
         menu_.addSeparator()
 
         remove_objects = ItemActions.RemoveObjects(menu_, total)
-        menu_.addAction(remove_objects)
+        menu_.addAction(remove_objects)        
+
+    def deleteLater(self):
+        GridList.sizes = [self.columnWidth(i) for i in range(0, 4)]
+        for i in self.get_selected_urls():
+            self.main_win_item.urls.append(i)
+        super().deleteLater()
+
+    def contextMenuEvent(self, event: QContextMenuEvent):
+        urls = self.get_selected_urls()
+        names = [os.path.basename(i) for i in urls]
+        total = len(urls)
+
+        index = self.indexAt(event.pos())
+        selected_path = self._model.filePath(index)
+
+        menu_ = UMenu(parent=self)
+
+        if selected_path:
+            self.item_context(menu_, selected_path, urls, names, total)
+        else:
+            print("клик по пустому")
 
         menu_.show_()
 
