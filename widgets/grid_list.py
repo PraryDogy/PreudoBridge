@@ -212,6 +212,10 @@ class GridList(UTableView):
             paste_files.triggered.connect(self.paste_files)
             menu_.addAction(paste_files)
 
+        change_view = GridActions.ChangeViewMenu(menu_, self.view_index)
+        change_view.change_view_sig.connect(self.change_view_sig.emit)
+        menu_.addMenu(change_view)
+
         upd_ = GridActions.UpdateGrid(menu_)
         upd_.triggered.connect(lambda: self.load_st_grid_sig.emit())
         menu_.addAction(upd_)      
