@@ -1,11 +1,11 @@
 import os
 import subprocess
 
-from PyQt5.QtCore import QDir, QModelIndex, Qt
-from PyQt5.QtGui import (QContextMenuEvent, QDragEnterEvent, QDropEvent,
-                         QKeyEvent, QDragMoveEvent)
-from PyQt5.QtWidgets import (QAbstractItemView, QFileSystemModel, QSplitter,
-                             QTableView)
+from PyQt5.QtCore import QDir, QModelIndex, Qt, QMimeData, QUrl
+from PyQt5.QtGui import (QContextMenuEvent, QDragEnterEvent, QDragMoveEvent,
+                         QDropEvent, QKeyEvent, QDrag, QPixmap)
+from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QFileSystemModel,
+                             QSplitter, QTableView)
 
 from cfg import Dynamic, JsonData, Static
 from utils import Utils
@@ -395,3 +395,38 @@ class GridList(UTableView):
             self.paste_files()
 
         return super().dropEvent(a0)
+    
+    def mousePressEvent(self, e):
+        if e.button() != Qt.MouseButton.LeftButton:
+            return
+        self.drag_start_position = e.pos()
+        return super().mousePressEvent(e)
+    
+    def mouseMoveEvent(self, e):
+        try:
+            distance = (e.pos() - self.drag_start_position).manhattanLength()
+        except AttributeError:
+            return
+
+        if distance < QApplication.startDragDistance():
+            return
+        
+        urls = self.get_selected_urls()
+
+        self.drag = QDrag(self)
+        self.mime_data = QMimeData()
+
+        img_ = QPixmap(Static.COPY_FILES_PNG)
+        self.drag.setPixmap(img_)
+        
+        urls = [
+            QUrl.fromLocalFile(i)
+            for i in urls
+            ]
+
+        if urls:
+            self.mime_data.setUrls(urls)
+
+        self.drag.setMimeData(self.mime_data)
+        self.drag.exec_(Qt.DropAction.CopyAction)
+        return super().mouseMoveEvent(e)
