@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import QAction, QFileSystemModel, QSplitter, QTableView
 from cfg import JsonData, Static
 
 from ._base_items import MainWinItem, UMenu, UTableView
-from .actions import (ChangeViewMenu, CopyFiles, CopyName, CopyPath, FavAdd,
+from .actions import (ChangeViewMenu, CopyObjects, CopyName, CopyPath, FavAdd,
                       FavRemove, Info, OpenInApp, OpenInNewWindow,
                       RevealInFinder, View)
 from .finder_items import LoadingWid
@@ -187,7 +187,7 @@ class GridList(UTableView):
         copy_name = CopyName(menu_, names)
         menu_.addAction(copy_name)
 
-        copy_files = CopyFiles(menu_, urls)
+        copy_files = CopyObjects(menu_, urls)
         copy_files.triggered.connect(self.setup_urls_to_copy)
         menu_.addAction(copy_files)
 

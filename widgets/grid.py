@@ -17,9 +17,10 @@ from database import CACHE, Dbase
 from utils import UThreadPool, Utils
 
 from ._base_items import BaseItem, MainWinItem, SortItem, UMenu, UScrollArea
-from .actions import (ChangeViewMenu, CopyFiles, CopyName, CopyPath, FavAdd,
-                      FavRemove, Info, OpenInApp, OpenInNewWindow, RatingMenu,
-                      RevealInFinder, SortMenu, View)
+from .actions import (ChangeViewMenu, CopyName, CopyObjects, CopyPath, FavAdd,
+                      FavRemove, GridActions, Info, ItemActions, OpenInApp,
+                      OpenInNewWindow, RatingMenu, RevealInFinder, SortMenu,
+                      View)
 from .copy_files_win import CopyFilesWin, ErrorWin
 from .info_win import InfoWin
 from .remove_files_win import RemoveFilesWin
@@ -532,35 +533,35 @@ class Grid(UScrollArea):
 
         self.path_bar_update_cmd(wid.src)
 
-        view_action = View(menu_)
+        view_action = ItemActions.View(menu_)
         view_action.triggered.connect(lambda: self.view_thumb_cmd(wid))
         menu_.addAction(view_action)
 
         if wid.type_ != Static.FOLDER_TYPE:
-            open_menu = OpenInApp(menu_, wid.src)
+            open_menu = ItemActions.OpenInApp(menu_, wid.src)
             menu_.addMenu(open_menu)
         else:
-            new_window = OpenInNewWindow(menu_)
+            new_window = ItemActions.OpenInNewWindow(menu_)
             cmd_ = lambda: self.open_in_new_window.emit(wid.src)
             new_window.triggered.connect(cmd_)
             menu_.addAction(new_window)
 
         menu_.addSeparator()
 
-        info = Info(menu_)
+        info = ItemActions.Info(menu_)
         info.triggered.connect(lambda: self.win_info_cmd(wid.src))
         menu_.addAction(info)
 
-        show_in_finder_action = RevealInFinder(menu_, urls)
+        show_in_finder_action = ItemActions.RevealInFinder(menu_, urls)
         menu_.addAction(show_in_finder_action)
 
-        copy_path = CopyPath(menu_, urls)
+        copy_path = ItemActions.CopyPath(menu_, urls)
         menu_.addAction(copy_path)
 
-        copy_name = CopyName(menu_, names)
+        copy_name = ItemActions.CopyName(menu_, names)
         menu_.addAction(copy_name)
 
-        copy_files = CopyFiles(menu_, urls)
+        copy_files = ItemActions.CopyObjects(menu_, urls)
         copy_files.triggered.connect(self.setup_urls_to_copy)
         menu_.addAction(copy_files)
 
@@ -569,27 +570,26 @@ class Grid(UScrollArea):
         if wid.type_ == Static.FOLDER_TYPE:
             if wid.src in JsonData.favs:
                 cmd_ = lambda: self.fav_cmd(offset=-1, src=wid.src)
-                fav_action = FavRemove(menu_)
+                fav_action = ItemActions.FavRemove(menu_)
                 fav_action.triggered.connect(cmd_)
                 menu_.addAction(fav_action)
             else:
                 cmd_ = lambda: self.fav_cmd(offset=1, src=wid.src)
-                fav_action = FavAdd(menu_)
+                fav_action = ItemActions.FavAdd(menu_)
                 fav_action.triggered.connect(cmd_)
                 menu_.addAction(fav_action)
 
             menu_.addSeparator()
 
-        if wid.type_ in (*Static.ext_all, Static.FOLDER_TYPE):
-            rating_menu = RatingMenu(parent=menu_, urls=urls, current_rating=wid.rating)
-            rating_menu.new_rating.connect(self.set_new_rating)
-            menu_.addMenu(rating_menu)
+        rating_menu = ItemActions.RatingMenu(menu_, urls, wid.rating)
+        rating_menu.new_rating.connect(self.set_new_rating)
+        menu_.addMenu(rating_menu)
 
-            menu_.addSeparator()
+        menu_.addSeparator()
 
         # is grid search устанавливается на True при инициации GridSearch
         if self.is_grid_search:
-            show_in_folder = QAction(SHOW_IN_FOLDER, menu_)
+            show_in_folder = ItemActions.ShowInGrid(menu_)
             cmd_ = lambda: self.show_in_folder_cmd(wid)
             show_in_folder.triggered.connect(cmd_)
             menu_.addAction(show_in_folder)
@@ -597,7 +597,7 @@ class Grid(UScrollArea):
 
         menu_.addSeparator()
 
-        remove_files = QAction(REMOVE_FILES_T, menu_)
+        remove_files = ItemActions.RemoveObjects(menu_, urls)
         remove_files.triggered.connect(lambda: self.remove_files_cmd(urls))
         menu_.addAction(remove_files)
 
@@ -738,40 +738,40 @@ class Grid(UScrollArea):
         """
         self.path_bar_update_cmd(self.main_win_item.main_dir)
 
-        info = Info(menu_)
+        info = GridActions.Info(menu_)
         info.triggered.connect(lambda: self.win_info_cmd(self.main_win_item.main_dir))
         menu_.addAction(info)
 
-        reveal = RevealInFinder(menu_, self.main_win_item.main_dir)
+        reveal = GridActions.RevealInFinder(menu_, self.main_win_item.main_dir)
         menu_.addAction(reveal)
 
-        copy_ = CopyPath(menu_, self.main_win_item.main_dir)
+        copy_ = GridActions.CopyPath(menu_, self.main_win_item.main_dir)
         menu_.addAction(copy_)
 
-        copy_name = CopyName(menu_, os.path.basename(self.main_win_item.main_dir))
+        copy_name = GridActions.CopyName(menu_, os.path.basename(self.main_win_item.main_dir))
         menu_.addAction(copy_name)
 
         menu_.addSeparator()
 
         if self.main_win_item.main_dir in JsonData.favs:
             cmd_ = lambda: self.fav_cmd(-1, self.main_win_item.main_dir)
-            fav_action = FavRemove(menu_)
+            fav_action = GridActions.FavRemove(menu_)
             fav_action.triggered.connect(cmd_)
             menu_.addAction(fav_action)
 
         else:
             cmd_ = lambda: self.fav_cmd(+1, self.main_win_item.main_dir)
-            fav_action = FavAdd(menu_)
+            fav_action = GridActions.FavAdd(menu_)
             fav_action.triggered.connect(cmd_)
             menu_.addAction(fav_action)
 
         menu_.addSeparator()
 
-        change_view = ChangeViewMenu(menu_, self.view_index)
+        change_view = GridActions.ChangeViewMenu(menu_, self.view_index)
         change_view.change_view_sig.connect(self.change_view_sig.emit)
         menu_.addMenu(change_view)
 
-        sort_menu = SortMenu(menu_, self.sort_item)
+        sort_menu = GridActions.SortMenu(menu_, self.sort_item)
         sort_menu.sort_grid_sig.connect(self.sort_)
         sort_menu.rearrange_grid_sig.connect(self.rearrange)
         sort_menu.sort_bar_update_sig.connect(self.sort_bar_update.emit)
@@ -780,11 +780,11 @@ class Grid(UScrollArea):
         menu_.addSeparator()
 
         if Grid.urls_to_copy and not self.is_grid_search:
-            paste_files = QAction(PASTE_FILES_T, menu_)
+            paste_files = GridActions.PasteObjects(menu_, Grid.urls_to_copy)
             paste_files.triggered.connect(self.paste_files)
             menu_.addAction(paste_files)
 
-        upd_ = QAction(UPDATE_GRID_T, menu_)
+        upd_ = GridActions.UpdateGrid(menu_)
         upd_.triggered.connect(lambda: self.load_st_grid_sig.emit())
         menu_.addAction(upd_)
 
@@ -795,11 +795,10 @@ class Grid(UScrollArea):
         - При успешной записи QRunnable испускает сигнал finished
         """
         for wid in self.selected_widgets:
-            if wid.type_ in (*Static.ext_all, Static.FOLDER_TYPE):
-                self.task_ = SetDbRating(self.main_win_item.main_dir, wid, new_rating)
-                cmd_ = lambda w=wid: self.set_new_rating_fin(w, new_rating)
-                self.task_.signals_.finished_.connect(cmd_)
-                UThreadPool.start(self.task_)
+            self.task_ = SetDbRating(self.main_win_item.main_dir, wid, new_rating)
+            cmd_ = lambda w=wid: self.set_new_rating_fin(w, new_rating)
+            self.task_.signals_.finished_.connect(cmd_)
+            UThreadPool.start(self.task_)
 
     def set_new_rating_fin(self, wid: Thumb, new_rating: int):
         """

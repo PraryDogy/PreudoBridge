@@ -401,10 +401,91 @@ class OpenInNewWindow(QAction):
         super().__init__(OpenInNewWindow.text_, parent)
 
 
-class CopyFiles(QAction):
+class CopyObjects(QAction):
     text_ = "Скопировать объекты"
-    def __init__(self, parent: UMenu, urls: list[str]):
+    def __init__(self, parent: UMenu, urls: list[str] | str):
         super().__init__(parent)
         urls = Tools.ensure_list(urls)
-        text = Tools.get_text(CopyFiles.text_, urls)
+        text = Tools.get_text(CopyObjects.text_, urls)
         self.setText(text)
+
+
+class RemoveObjects(QAction):
+    text_ = "Удалить объекты"
+    def __init__(self, parent: UMenu, urls: list[str] | str):
+        super().__init__(parent)
+        self.urls = Tools.ensure_list(urls)
+        text = Tools.get_text(RemoveObjects.text_, self.urls)
+        self.setText(text)
+
+
+class PasteObjects(QAction):
+    text_ = "Вставить объекты"
+    def __init__(self, parent: UMenu, urls: list[str] | str):
+        super().__init__(parent)
+        text = Tools.get_text(PasteObjects.text_, urls)
+        self.setText(text)
+
+
+class ShowInGrid(QAction):
+    text_ = "Показать в папке"
+    def __init__(self, parent: UMenu):
+        super().__init__(parent)
+        self.setText(ShowInGrid.text_)
+
+
+class UpdateGrid(QAction):
+    text_ = "Обновить"
+    def __init__(self, parent: UMenu):
+        super().__init__(UpdateGrid.text_, parent)
+
+
+class ItemActions:
+    View = View
+
+    OpenInApp = OpenInApp
+    OpenInNewWindow = OpenInNewWindow
+    # "Separator"
+
+    Info = Info
+    RevealInFinder = RevealInFinder
+    CopyPath = CopyPath
+    CopyName = CopyName
+    CopyObjects = CopyObjects
+    # "Separator"
+
+    # если это папка
+    FavRemove = FavRemove
+    FavAdd = FavAdd
+    # "Separator"
+
+    RatingMenu = RatingMenu
+    # "Separator"
+
+    # если это сетка GridSearch
+    ShowInGrid = ShowInGrid
+    # "Separator"
+
+    RemoveObjects = RemoveObjects
+
+
+class GridActions:
+    Info = Info
+    # "Separator"
+
+    RevealInFinder = RevealInFinder
+    CopyPath = CopyPath
+    CopyName = CopyName
+    # "Separator"
+
+    FavRemove = FavRemove
+    FavAdd = FavAdd
+    # "Separator"
+
+    ChangeViewMenu = ChangeViewMenu
+    SortMenu = SortMenu
+    # "Separator"
+
+    # Если есть Grid.urls_to_copy и если это не GridSearch
+    PasteObjects = PasteObjects
+    UpdateGrid = UpdateGrid
