@@ -451,3 +451,11 @@ class GridStandart(Grid):
             for i in self.selected_widgets
         ]
         return super().deleteLater()
+    
+
+    def test(self):
+        print(1)
+        UThreadPool.pool.waitForDone()
+        print(2)
+        return super().deleteLater()
+        print(3)

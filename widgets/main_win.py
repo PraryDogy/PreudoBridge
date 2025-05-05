@@ -121,6 +121,9 @@ class MainWin(WinBase):
             self.main_win_item.main_dir = os.path.expanduser("~/Downloads")
             self.main_win_item.main_dir = Utils.add_system_volume(self.main_win_item.main_dir)
 
+
+        self.main_win_item.main_dir = "/Volumes/Macintosh HD/Users/Loshkarev/Desktop/TEST IMAGES/psb"
+
         self.resize_timer = QTimer(self)
         self.resize_timer.setSingleShot(True)
         
@@ -347,12 +350,23 @@ class MainWin(WinBase):
         if id_ == id(self.grid):
             self.search_bar.hide_spinner()
 
+    def safe_del(self):
+        self.grid.setParent(None)
+        self.r_lay.removeWidget(self.grid)
+        self.grid.deleteLater()
+
     def load_standart_grid(self):
         """
         - dir: основная директория, которая будет отображена в виде сетки виджетов
         """
 
-        self.grid.deleteLater()
+        # если напрямую удалять сетку, то мы обязательно наткнемся на 
+        # bus error, segmentation fault, fatal error no python frame
+        # поэтому мы сначала скрываем старую сетку
+        # затем по таймеру удаляем ее
+        old_grid = self.grid
+        old_grid.hide()
+        QTimer.singleShot(3000, old_grid.deleteLater)
         # при удалении сетки срабатывает кастомный метод deleteLater
         # который обновляет main_win_item.urls, и если нет выделенных
         # виджетов, то будет будет пустым
