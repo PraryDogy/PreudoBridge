@@ -18,10 +18,16 @@ class ImageLoader(QRunnable):
         self.signals = ImageLoaderSignals()
 
     def run(self):
-        image = Utils.read_image(self.path)
-        image = FitImg.start(image, 300)
-        pixmap = Utils.pixmap_from_array(image)
-        self.signals.finished.emit(pixmap)
+        for i in range(0, 1):
+            print(i)
+            image = Utils.read_image(self.path)
+            image = FitImg.start(image, 300)
+            pixmap = Utils.pixmap_from_array(image)
+
+            try:
+                self.signals.finished.emit(pixmap)
+            except Exception:
+                ...
 
 class MainWindow(QWidget):
     def __init__(self):
@@ -36,7 +42,7 @@ class MainWindow(QWidget):
         self.setLayout(layout)
 
     def load_image(self):
-        task = ImageLoader("/Users/Morkowik/Desktop/Evgeny/_miuz/2021-11-25 22-15-00 (B,Radius4,Smoothing2).psd")
+        task = ImageLoader("/Volumes/Macintosh HD/Users/Loshkarev/Desktop/TEST IMAGES/psd/2025-04-18 10-42-31 (B,R1,S1).psd")
         task.signals.finished.connect(self.label.setPixmap)
         global_thread_pool.start(task)
 
