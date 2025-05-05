@@ -318,8 +318,18 @@ class MainWin(WinBase):
         self.grid.force_load_images_sig.connect(lambda urls: self.grid.force_load_images_cmd(urls))
         self.grid.verticalScrollBar().valueChanged.connect(lambda value: self.scroll_up_show_hide(value))
 
+    def safe_delete_grid(self):
+        # если напрямую удалять сетку, то мы обязательно наткнемся на 
+        # bus error, segmentation fault, fatal error no python frame
+        # поэтому мы сначала скрываем старую сетку
+        # затем по таймеру удаляем ее
+        old_grid = self.grid
+        old_grid.hide()
+        QTimer.singleShot(3000, old_grid.deleteLater)
+
     def load_search_grid(self):
-        self.grid.deleteLater()
+        self.safe_delete_grid()
+
         self.search_bar.show()
         self.search_bar.show_spinner()
         self.search_bar_sep.show()
@@ -350,23 +360,12 @@ class MainWin(WinBase):
         if id_ == id(self.grid):
             self.search_bar.hide_spinner()
 
-    def safe_del(self):
-        self.grid.setParent(None)
-        self.r_lay.removeWidget(self.grid)
-        self.grid.deleteLater()
-
     def load_standart_grid(self):
         """
         - dir: основная директория, которая будет отображена в виде сетки виджетов
         """
+        self.safe_delete_grid()
 
-        # если напрямую удалять сетку, то мы обязательно наткнемся на 
-        # bus error, segmentation fault, fatal error no python frame
-        # поэтому мы сначала скрываем старую сетку
-        # затем по таймеру удаляем ее
-        old_grid = self.grid
-        old_grid.hide()
-        QTimer.singleShot(3000, old_grid.deleteLater)
         # при удалении сетки срабатывает кастомный метод deleteLater
         # который обновляет main_win_item.urls, и если нет выделенных
         # виджетов, то будет будет пустым

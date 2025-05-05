@@ -23,10 +23,10 @@ class System_:
 
     def catch_error_in_proj(exctype, value, tb):
         if exctype == RuntimeError:
-            print("Global catch RuntimeError > start > catch error in proj:")
-            print("Runtime error")
-            # error_message = "".join(traceback.format_exception(exctype, value, tb))
-            # print(error_message)
+            # print("Global catch RuntimeError > start > catch error in proj:")
+            # print("Runtime error")
+            error_message = "".join(traceback.format_exception(exctype, value, tb))
+            print(error_message)
         else:
             sys.__excepthook__(exctype, value, tb)
 
