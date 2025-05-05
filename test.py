@@ -18,7 +18,7 @@ class ImageLoader(QRunnable):
         self.signals = ImageLoaderSignals()
 
     def run(self):
-        for i in range(0, 1):
+        for i in range(0, 3):
             print(i)
             image = Utils.read_image(self.path)
             image = FitImg.start(image, 300)
@@ -35,11 +35,12 @@ class MainWindow(QWidget):
         self.label = QLabel("Загрузка...", alignment=Qt.AlignCenter)
         self.label.setFixedSize(300, 300)
         self.button = QPushButton("Загрузить фото")
-        self.button.clicked.connect(self.load_image)
+        # self.button.clicked.connect(self.load_image)
         layout = QVBoxLayout()
         layout.addWidget(self.label)
         layout.addWidget(self.button)
         self.setLayout(layout)
+        self.load_image()
 
     def load_image(self):
         task = ImageLoader("/Volumes/Macintosh HD/Users/Loshkarev/Desktop/TEST IMAGES/psd/2025-04-18 10-42-31 (B,R1,S1).psd")

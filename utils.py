@@ -598,7 +598,7 @@ class UThreadPool:
 
     @classmethod
     def init(cls):
-        cls.pool = QThreadPool().globalInstance()
+        cls.pool = QThreadPool.globalInstance()
 
     @classmethod
     def start(cls, runnable: QRunnable):
