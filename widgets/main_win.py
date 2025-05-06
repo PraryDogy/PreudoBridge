@@ -125,7 +125,8 @@ class MainWin(WinBase):
 
         self.resize_timer = QTimer(self)
         self.resize_timer.setSingleShot(True)
-        
+        self.resize_timer.timeout.connect(self.resize_timer_cmd)
+
         main_lay = QHBoxLayout()
         main_lay.setContentsMargins(5, 0, 5, 0)
         main_lay.setSpacing(0)
@@ -142,10 +143,10 @@ class MainWin(WinBase):
         left_wid.setLayout(left_v_lay)
         self.tabs_widget = TabsWidget()
         left_v_lay.addWidget(self.tabs_widget)
-        self.menu_tree = TreeMenu(self.main_win_item)
-        self.tabs_widget.addTab(self.menu_tree, "Папки")
-        self.menu_favs = FavsMenu(self.main_win_item)
-        self.tabs_widget.addTab(self.menu_favs, "Избранное")
+        self.tree_menu = TreeMenu(self.main_win_item)
+        self.tabs_widget.addTab(self.tree_menu, "Папки")
+        self.favs_menu = FavsMenu(self.main_win_item)
+        self.tabs_widget.addTab(self.favs_menu, "Избранное")
         self.tags_menu_btn = TagsBtn()
         left_v_lay.addWidget(self.tags_menu_btn)
         self.tags_menu = TagsMenu()
@@ -193,51 +194,44 @@ class MainWin(WinBase):
         self.r_lay.insertWidget(8, self.sort_bar)
 
         self.setup_signals()
-        self.load_standart_grid()
+        self.load_st_grid()
 
     def setup_signals(self):
-        self.resize_timer.timeout.connect(self.resize_timer_cmd)
         self.splitter.splitterMoved.connect(lambda: self.resize_timer.start(MainWin.resize_ms))
 
-        self.menu_tree.load_st_grid_sig.connect(lambda: self.load_standart_grid())
-        self.menu_tree.fav_cmd_sig.connect(lambda data: self.menu_favs.fav_cmd(data))
-        self.menu_tree.new_history_item.connect(lambda dir: self.top_bar.new_history_item_cmd(dir))
-        self.menu_tree.open_in_new_window.connect(lambda dir: self.open_in_new_window_cmd(dir))
+        self.tree_menu.load_st_grid_sig.connect(lambda: self.load_st_grid())
+        self.tree_menu.fav_cmd_sig.connect(lambda data: self.favs_menu.fav_cmd(data))
+        self.tree_menu.new_history_item.connect(lambda dir: self.top_bar.new_history_item_cmd(dir))
+        self.tree_menu.open_in_new_window.connect(lambda dir: self.open_in_new_window_cmd(dir))
 
-        self.menu_favs.load_st_grid_sig.connect(lambda: self.load_standart_grid())
-        self.menu_favs.new_history_item.connect(lambda dir: self.top_bar.new_history_item_cmd(dir))
-        self.menu_favs.open_in_new_win.connect(lambda dir: self.open_in_new_window_cmd(dir))
+        self.favs_menu.load_st_grid_sig.connect(lambda: self.load_st_grid())
+        self.favs_menu.new_history_item.connect(lambda dir: self.top_bar.new_history_item_cmd(dir))
+        self.favs_menu.open_in_new_win.connect(lambda dir: self.open_in_new_window_cmd(dir))
 
         self.tags_menu_btn.clicked_.connect(lambda: self.tags_update_visibility())
 
         self.tags_menu.filter_grid_sig.connect(lambda: self.grid.filter_())
         self.tags_menu.rearrange_grid_sig.connect(lambda: self.grid.rearrange())
 
-        # перейти на директорию выше
         self.top_bar.level_up.connect(lambda: self.level_up_cmd())
-        # изменить отображение сетка/список
         self.top_bar.change_view.connect(lambda index: self.change_view_cmd(index))
-        # начать поиск
         self.top_bar.load_search_grid_sig.connect(lambda: self.load_search_grid())
-        # очистить поиск, загрузить стандартную сетку с текущей директорией
-        self.top_bar.load_st_grid_sig.connect(lambda: self.load_standart_grid())
-        # перейти вперед/назад по истории посещений
-        self.top_bar.navigate.connect(lambda: self.load_standart_grid())
-        # было открыто окно настроек и был клик "очистить данные в этой папке"
+        self.top_bar.load_st_grid_sig.connect(lambda: self.load_st_grid())
+        self.top_bar.navigate.connect(lambda: self.load_st_grid())
         self.top_bar.clear_data_clicked.connect(lambda: self.remove_db_cmd())
         self.top_bar.open_in_new_win.connect(lambda dir: self.open_in_new_window_cmd(dir))
 
         self.search_bar.load_search_grid.connect(lambda: self.load_search_grid())
 
         self.path_bar.new_history_item.connect(lambda dir: self.top_bar.new_history_item_cmd(dir))
-        self.path_bar.load_st_grid_sig.connect(lambda: self.load_standart_grid())
+        self.path_bar.load_st_grid_sig.connect(lambda: self.load_st_grid())
         self.path_bar.open_img_view.connect(lambda path: self.open_img_view_cmd(path))
         self.path_bar.open_in_new_window.connect(lambda dir: self.open_in_new_window_cmd(dir))
 
         self.sort_bar.resize_grid_sig.connect(lambda: self.grid.resize_())
         self.sort_bar.rearrange_grid_sig.connect(lambda: self.grid.rearrange())
         self.sort_bar.sort_grid_sig.connect(lambda: self.grid.sort_())
-        self.sort_bar.load_st_grid_sig.connect(lambda: self.load_standart_grid())
+        self.sort_bar.load_st_grid_sig.connect(lambda: self.load_st_grid())
 
     def open_img_view_cmd(self, path: str):
         base_item = BaseItem(path)
@@ -251,21 +245,21 @@ class MainWin(WinBase):
         db = os.path.join(self.main_win_item.main_dir, Static.DB_FILENAME)
         if os.path.exists(db):
             os.remove(db)
-            self.load_standart_grid()
+            self.load_st_grid()
 
     def level_up_cmd(self):
         new_main_dir = os.path.dirname(self.main_win_item.main_dir)
         if new_main_dir != os.sep:
             self.main_win_item.immortal_urls = [self.main_win_item.main_dir]
             self.main_win_item.main_dir = new_main_dir
-            self.load_standart_grid()
+            self.load_st_grid()
             self.top_bar.new_history_item_cmd(new_main_dir)
 
     def change_view_cmd(self, index: int):
         if index == self.view_index:
             return
         self.view_index = index
-        self.load_standart_grid()
+        self.load_st_grid()
 
     def resize_timer_cmd(self):
         self.grid.resize_()
@@ -284,10 +278,10 @@ class MainWin(WinBase):
         if filepath.endswith(Static.ext_all):
             self.main_win_item.main_dir = os.path.dirname(filepath)
             self.main_win_item.urls = [filepath]
-            self.load_standart_grid()
+            self.load_st_grid()
         else:
             self.main_win_item.main_dir = filepath
-            self.load_standart_grid()
+            self.load_st_grid()
 
     def open_in_new_window_cmd(self, dir: str):
         new_win = MainWin(dir)
@@ -299,9 +293,9 @@ class MainWin(WinBase):
     def setup_grid_signals(self):
         self.grid.sort_bar_update.connect(lambda value: self.sort_bar.setup(value))
         self.grid.path_bar_update.connect(lambda dir: self.path_bar.setup(dir))
-        self.grid.fav_cmd_sig.connect(lambda data: self.menu_favs.fav_cmd(data))
+        self.grid.fav_cmd_sig.connect(lambda data: self.favs_menu.fav_cmd(data))
         self.grid.move_slider_sig.connect(lambda value: self.sort_bar.slider.move_from_keyboard(value))
-        self.grid.load_st_grid_sig.connect(lambda: self.load_standart_grid())
+        self.grid.load_st_grid_sig.connect(lambda: self.load_st_grid())
         self.grid.open_in_new_window.connect(lambda dir: self.open_in_new_window_cmd(dir))
         self.grid.level_up.connect(lambda: self.level_up_cmd())
         self.grid.new_history_item.connect(lambda dir: self.top_bar.new_history_item_cmd(dir))
@@ -351,7 +345,7 @@ class MainWin(WinBase):
         if id_ == id(self.grid):
             self.search_bar.hide_spinner()
 
-    def load_standart_grid(self):
+    def load_st_grid(self):
         """
         - dir: основная директория, которая будет отображена в виде сетки виджетов
         """
@@ -371,11 +365,11 @@ class MainWin(WinBase):
 
         LoadImage.cached_images.clear()
         self.setWindowTitle(os.path.basename(self.main_win_item.main_dir))
-        self.menu_favs.fav_cmd(("select", self.main_win_item.main_dir))
+        self.favs_menu.fav_cmd(("select", self.main_win_item.main_dir))
         self.top_bar.search_wid.clear_search()
         self.search_bar.hide()
         self.search_bar_sep.hide()
-        self.menu_tree.expand_path(self.main_win_item.main_dir)
+        self.tree_menu.expand_path(self.main_win_item.main_dir)
 
         self.safe_delete_grid()
 
