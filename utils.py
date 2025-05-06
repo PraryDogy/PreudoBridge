@@ -603,6 +603,7 @@ class FitImg:
 
 class UThreadPool:
     pool: QThreadPool = None
+    tasks: list[QRunnable] = []
 
     @classmethod
     def init(cls):
@@ -610,4 +611,5 @@ class UThreadPool:
 
     @classmethod
     def start(cls, runnable: QRunnable):
+        cls.tasks.append(runnable)
         cls.pool.start(runnable)

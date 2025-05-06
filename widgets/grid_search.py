@@ -188,7 +188,7 @@ class SearchFinder(QRunnable):
         self.base_item.set_pixmap_storage(self.pixmap)
         self.signals_.new_widget.emit(self.base_item)
         # приводит к ошибке no python frame / bus error
-        # QTest.qSleep(200)
+        QTest.qSleep(200)
 
 
 class WinMissedFiles(MinMaxDisabledWin):
