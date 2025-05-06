@@ -312,10 +312,12 @@ class GridList(UTableView):
         # определяем выделена ли строка
         index = self.indexAt(event.pos())
         selected_path = self._model.filePath(index)
-
         menu_ = UMenu(parent=self)
 
-        if selected_path:
+        if index.isValid():
+            urls = self.get_selected_urls()
+            if selected_path not in urls:
+                self.setCurrentIndex(index)
             urls = self.get_selected_urls()
             names = [os.path.basename(i) for i in urls]
             total = len(urls)
