@@ -15,6 +15,17 @@ from .finder_items import FinderItems, LoadingWid
 from .grid import Grid, Thumb
 
 
+class DbaseTask(QRunnable):
+    def __init__(self, conn: Connection, stmt):
+        super().__init__()
+        self.conn = conn
+        self.stmt = stmt
+
+    @UThreadPool.mark_finished_after_run
+    def run(self):
+        Dbase.execute_(self.conn, self.stmt)
+
+
 class AnyBaseItem:
     """
     QRunnable
@@ -91,8 +102,8 @@ class ImageBaseItem:
         stmt = stmt.where(
             CACHE.c.name == Utils.get_hash_filename(thumb.name)
         )
-        res_by_name = Dbase.execute_(conn, stmt).mappings().first()
-
+        res_by_name = Dbase.execute_(conn, stmt)
+        res_by_name = res_by_name.mappings().first()
         if res_by_name:
             if res_by_name.get(ColumnNames.MOD) != int(thumb.mod):
                 # print("даты не совпадают", res_by_name.get(ColumnNames.MOD), thumb.mod)
@@ -125,7 +136,7 @@ class ImageBaseItem:
         }
         q = update(CACHE).where(CACHE.c.id == row_id)
         q = q.values(**values)
-        QTimer.singleShot(1000, lambda: Dbase.execute_(conn, q))
+        Dbase.execute_(conn, q)
         return img_array
 
     @classmethod
@@ -147,7 +158,9 @@ class ImageBaseItem:
             ColumnNames.PARTIAL_HASH: partial_hash
         }
         q = insert(CACHE).values(**values)
-        QTimer.singleShot(100, lambda: Dbase.execute_(conn, q))
+        # Dbase.execute_(conn, q)
+        task_ = DbaseTask(conn, q)
+        UThreadPool.start(task_)
         return img_array
     
     @classmethod
