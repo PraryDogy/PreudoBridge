@@ -4,7 +4,7 @@ import numpy as np
 from PyQt5.QtCore import QObject, QRunnable, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QLabel
-from sqlalchemy import Connection, insert, select, update
+from sqlalchemy import Connection, insert, select, update, RowMapping, Update, Insert
 
 from cfg import Dynamic, Static, ThumbData
 from database import CACHE, ColumnNames, Dbase
@@ -79,15 +79,15 @@ class ImageBaseItem:
     """
 
     @classmethod
-    def get_pixmap(cls, conn: Connection, thumb: Thumb) -> QPixmap:
+    def get_pixmap(cls, conn: Connection, thumb: Thumb) -> tuple[Update | Insert| None, QPixmap]:
         """
         Возвращает QPixmap либо из базы данных, либо созданный из изображения.
         """
-        img_array = cls.get_img_array(conn, thumb)
-        return Utils.pixmap_from_array(img_array)
+        stmt, img_array = cls.get_img_array(conn, thumb)
+        return (stmt, Utils.pixmap_from_array(img_array))
 
     @classmethod
-    def get_img_array(cls, conn: Connection, thumb: Thumb) -> np.ndarray:
+    def get_img_array(cls, conn: Connection, thumb: Thumb) -> tuple[Update | Insert| None, np.ndarray]:
         """
         Загружает данные о Thumb из базы данных. Возвращает np.ndarray
         """
@@ -108,16 +108,21 @@ class ImageBaseItem:
         if res_by_name:
             if res_by_name.get(ColumnNames.MOD) != int(thumb.mod):
                 # print("даты не совпадают", res_by_name.get(ColumnNames.MOD), thumb.mod)
-                return cls.update_db_record(conn, thumb, res_by_name.get(ColumnNames.ID))
+                return cls.update_db_record(thumb, res_by_name.get(ColumnNames.ID))
             else:
                 # print("ok", thumb.src)
-                return Utils.bytes_to_array(res_by_name.get(ColumnNames.IMG))
+                return cls.old_db_record(res_by_name)
         else:
             # print("new_record", thumb.src)
-            return cls.insert_db_record(conn, thumb)
+            return cls.insert_db_record(thumb)
     
     @classmethod
-    def update_db_record(cls, conn: Connection, thumb: Thumb, row_id: int) -> np.ndarray:
+    def old_db_record(cls, res_by_name: RowMapping) -> tuple[None, np.ndarray]:
+        bytes_img = Utils.bytes_to_array(res_by_name.get(ColumnNames.IMG))
+        return (None, bytes_img)
+
+    @classmethod
+    def update_db_record(cls, thumb: Thumb, row_id: int) -> tuple[Update, np.ndarray]:
         """
         Обновляет запись в базе данных:     
         имя, изображение bytes, размер, дата изменения, разрешение, хеш 10мб
@@ -135,14 +140,12 @@ class ImageBaseItem:
             ColumnNames.RESOL: new_resol,
             ColumnNames.PARTIAL_HASH: partial_hash
         }
-        q = update(CACHE).where(CACHE.c.id == row_id)
-        q = q.values(**values)
-        task_ = DbaseTask(conn, q)
-        UThreadPool.start(task_)
-        return img_array
+        stmt = update(CACHE).where(CACHE.c.id == row_id)
+        stmt = stmt.values(**values)
+        return (stmt, img_array)
 
     @classmethod
-    def insert_db_record(cls, conn: Connection, thumb: Thumb) -> np.ndarray:
+    def insert_db_record(cls, thumb: Thumb) -> tuple[Insert, np.ndarray]:
         img_array = cls.get_small_ndarray_img(thumb.src)
         bytes_img = Utils.numpy_to_bytes(img_array)
         new_size, new_mod, new_resol = cls.get_stats(thumb.src, img_array)
@@ -159,10 +162,8 @@ class ImageBaseItem:
             ColumnNames.CATALOG: "",
             ColumnNames.PARTIAL_HASH: partial_hash
         }
-        q = insert(CACHE).values(**values)
-        task_ = DbaseTask(conn, q)
-        UThreadPool.start(task_)
-        return img_array
+        stmt = insert(CACHE).values(**values)
+        return (stmt, img_array)
     
     @classmethod
     def get_small_ndarray_img(cls, src: str) -> np.ndarray:
@@ -202,6 +203,7 @@ class LoadImages(QRunnable):
         super().__init__()
         self.signals_ = WorkerSignals()
         self.main_win_item = main_win_item
+        self.stmt_list: list[Insert | Update] = []
         self.thumbs = thumbs
         key_ = lambda x: x.size
         self.thumbs.sort(key=key_)
@@ -225,9 +227,8 @@ class LoadImages(QRunnable):
 
         self.conn = Dbase.open_connection(engine)
         self.process_thumbs()
-        # если коммит делать после каждого execute в ImageBaseItem
-        # то при выходе приложения будет ошибка segmentation fault / bus error
-        Dbase.commit_(self.conn)
+        self.process_stmt_list()
+
         Dbase.close_connection(self.conn)
         try:
             self.signals_.finished_.emit()
@@ -246,13 +247,21 @@ class LoadImages(QRunnable):
             if base_item.type_ not in Static.ext_all:
                 AnyBaseItem.check_db_record(self.conn, base_item)
             else:
-                pixmap = ImageBaseItem.get_pixmap(self.conn, base_item)
+                stmt, pixmap = ImageBaseItem.get_pixmap(self.conn, base_item)
                 base_item.set_pixmap_storage(pixmap)
+                if isinstance(stmt, (Insert, Update)):
+                    self.stmt_list.append(stmt)
                 try:
                     self.signals_.update_thumb.emit(base_item)
                 except (TypeError, RuntimeError) as e:
                     Utils.print_error(e)
                     return
+                
+    def process_stmt_list(self):
+        for stmt in self.stmt_list:
+            if not Dbase.execute_(self.conn, stmt):
+                return
+        Dbase.commit_(self.conn)
 
 class GridStandart(Grid):
     no_images_text = "Папка пуста или нет подключения к диску"
