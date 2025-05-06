@@ -1,16 +1,14 @@
-import gc
 import os
-import weakref
 
 import numpy as np
 from PyQt5.QtCore import QObject, QRunnable, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtWidgets import QLabel, QWidget
+from PyQt5.QtWidgets import QLabel
 from sqlalchemy import Connection, insert, select, update
 
 from cfg import Dynamic, Static, ThumbData
 from database import CACHE, ColumnNames, Dbase
-from utils import UThreadPool, Utils, FitImg
+from utils import FitImg, UThreadPool, Utils
 
 from ._base_items import BaseItem, MainWinItem
 from .finder_items import FinderItems, LoadingWid
@@ -181,7 +179,7 @@ class WorkerSignals(QObject):
 
 
 class LoadImages(QRunnable):
-    def __init__(self, main_win_item: MainWinItem, thumbs: list[Thumb], parent: QWidget):
+    def __init__(self, main_win_item: MainWinItem, thumbs: list[Thumb]):
         """
         QRunnable   
         Сортирует список Thumb по размеру по возрастанию для ускорения загрузки
@@ -190,7 +188,6 @@ class LoadImages(QRunnable):
         super().__init__()
         self.signals_ = WorkerSignals()
         self.main_win_item = main_win_item
-        self.parent_ref = weakref.ref(parent)
         self.thumbs = thumbs
         key_ = lambda x: x.size
         self.thumbs.sort(key=key_)
@@ -427,7 +424,7 @@ class GridStandart(Grid):
         # в QRunnable для подгрузки изображений
         # в самом QRunnable нет обращений напрямую к Thumb
         # а только испускается сигнал
-        thread_ = LoadImages(self.main_win_item, thumbs, self)
+        thread_ = LoadImages(self.main_win_item, thumbs)
         thread_.signals_.update_thumb.connect(lambda thumb: self.set_thumb_image(thumb))
         UThreadPool.start(thread_)
     
