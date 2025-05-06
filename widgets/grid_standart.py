@@ -125,7 +125,7 @@ class ImageBaseItem:
         }
         q = update(CACHE).where(CACHE.c.id == row_id)
         q = q.values(**values)
-        Dbase.execute_(conn, q)
+        QTimer.singleShot(1000, lambda: Dbase.execute_(conn, q))
         return img_array
 
     @classmethod
@@ -147,7 +147,6 @@ class ImageBaseItem:
             ColumnNames.PARTIAL_HASH: partial_hash
         }
         q = insert(CACHE).values(**values)
-
         QTimer.singleShot(100, lambda: Dbase.execute_(conn, q))
         return img_array
     
