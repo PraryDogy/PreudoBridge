@@ -157,7 +157,6 @@ class Thumb(BaseItem, QFrame):
         QFrame.__init__(self, parent=None)
         BaseItem.__init__(self, src, rating)
 
-        self.img: QPixmap = None
         self.must_hidden: bool = False
         self.row, self.col = 0, 0
         margin = 0
@@ -212,7 +211,6 @@ class Thumb(BaseItem, QFrame):
             self.img_wid,
             alignment=Qt.AlignmentFlag.AlignCenter
         )
-        self.img = pixmap
 
         old_wid.setParent(None)
         old_wid.deleteLater()
