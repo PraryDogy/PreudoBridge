@@ -45,14 +45,14 @@ class SearchBar(QFrame):
         self.descr_lbl = QLabel()
         h_lay.addWidget(self.descr_lbl)
 
+        self.checkbox = QCheckBox(" Точное соответствие")
+        self.checkbox.stateChanged.connect(self.on_state_change)
+        h_lay.addWidget(self.checkbox)
+
         self.pause_btn = QPushButton()
         self.pause_btn.setFixedWidth(110)
         self.pause_btn.clicked.connect(self.pause_btn_cmd)
         h_lay.addWidget(self.pause_btn)
-
-        self.checkbox = QCheckBox(" Точное соответствие")
-        self.checkbox.stateChanged.connect(self.on_state_change)
-        h_lay.addWidget(self.checkbox)
 
         h_lay.addStretch()
 
