@@ -71,7 +71,11 @@ class LoadThumbnail(QRunnable):
             pixmap = Utils.pixmap_from_array(img_array)
 
         image_data = ImageData(self.src, pixmap)
-        Utils.safe_emit(self.signals_.finished_, image_data)
+
+        try:
+            self.signals_.finished_.emit(image_data)
+        except RuntimeError as e:
+            Utils.print_error(self, e)
 
 
 class LoadImage(QRunnable):

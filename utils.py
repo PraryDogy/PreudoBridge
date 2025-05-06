@@ -47,9 +47,7 @@ class Err:
             filename = os.path.basename(filepath)
             line_number = trace.lineno
 
-        print("Error:", str(error))
-        print(f"{filepath}:{line_number}")
-
+        print("Error:", str(error), f"{filepath}:{line_number}")
 
 class ReadImage(Err):
 
@@ -580,17 +578,6 @@ class Utils(Pixmap, ReadImage, ImgConvert):
         painter.end()
 
         return path_to_svg
-
-    @classmethod
-    def safe_emit(cls, signal: pyqtBoundSignal, obj: object = _NULL) -> bool | None:
-        try:
-            if obj is Utils._NULL:
-                signal.emit()
-            else:
-                signal.emit(obj)
-            return True
-        except RuntimeError:
-            return None
 
 
 class UThreadPool:

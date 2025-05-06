@@ -382,7 +382,10 @@ class Grid(UScrollArea):
         QTimer.singleShot(100, cmd_)
     
     def path_bar_update_delayed(self, src: str):
-        Utils.safe_emit(self.path_bar_update, src)
+        try:
+            self.path_bar_update.emit(src)
+        except RuntimeError as e:
+            Utils.print_error(self, e)
     
     def sort_(self):
         """

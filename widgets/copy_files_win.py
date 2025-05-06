@@ -37,12 +37,12 @@ class FileCopyWorker(QRunnable):
         try:
             new_paths = self.create_new_paths()
         except OSError as e:
-            print("win copy files", e)
-
+            Utils.print_error(self, e)
             try:
                 self.signals_.error_win_sig.emit()
             except RuntimeError:
-                print("FileCopyWorker > ")
+                Utils.print_error(self, e)
+                return
 
         # общий размер всех файлов в байтах
         total_bytes = sum([os.path.getsize(old_path)for old_path, new_path in new_paths])
@@ -50,7 +50,12 @@ class FileCopyWorker(QRunnable):
         # общий размер всех файлов в МБ для установки максимального
         # значения QProgressbar (в байтах плохо работает)
         total_mb = int(total_bytes / (1024 * 1024))
-        Utils.safe_emit(self.signals_.set_max_progress, total_mb)
+
+        try:
+            self.signals_.set_max_progress.emit(total_mb)
+        except RuntimeError as e:
+            Utils.print_error(self, e)
+            return
 
         # сколько уже скопировано в байтах
         self.copied_bytes = 0
@@ -59,18 +64,15 @@ class FileCopyWorker(QRunnable):
         self.total_f_size = Utils.get_f_size(total_bytes)
 
         for src, dest in new_paths:
-
             if not self.parent_ref():
                 break
-            
             # создаем древо папок как в исходной папке
             new_folders, tail = os.path.split(dest)
             os.makedirs(new_folders, exist_ok=True)
-
             try:
                 self.copy_by_bytes(src, dest)
             except Exception as e:
-                print("win copy files > copy file error", e)
+                Utils.print_error(self, e)
                 continue
 
         # создаем список путей к виджетам в сетке для выделения
@@ -79,35 +81,38 @@ class FileCopyWorker(QRunnable):
         self.finalize(paths)
 
     def finalize(self, urls: list[str]):
-        Utils.safe_emit(self.signals_.finished_, urls)
+        try:
+            self.signals_.finished_.emit(urls)
+        except RuntimeError as e:
+            Utils.print_error(self, e)
 
     def copy_by_bytes(self, src: str, dest: str):
         buffer_size = 1024 * 1024  # 1 MB
-
-        try:
-            with open(src, 'rb') as fsrc, open(dest, 'wb') as fdest:
-                while self.parent_ref():
-                    buf = fsrc.read(buffer_size)
-                    if not buf:
-                        break
-                    fdest.write(buf)
-                    # прибавляем в байтах сколько уже скопировано
-                    self.copied_bytes += len(buf)
+        with open(src, 'rb') as fsrc, open(dest, 'wb') as fdest:
+            while self.parent_ref():
+                buf = fsrc.read(buffer_size)
+                if not buf:
+                    break
+                fdest.write(buf)
+                # прибавляем в байтах сколько уже скопировано
+                self.copied_bytes += len(buf)
+                try:
                     self.report_progress()
-        except Exception as e:
-            print(e)
+                except RuntimeError as e:
+                    Utils.print_error(self, e)
+                    return
 
     def report_progress(self):
         # сколько уже скопировано в байтах переводим в МБ, потому что
         # максимальное число QProgressbar задано тоже в МБ
         copied_mb = int(self.copied_bytes / (1024 * 1024))
-        Utils.safe_emit(self.signals_.set_value_progress, copied_mb)
+        self.signals_.set_value_progress.emit(copied_mb)
 
         # байты переводим в читаемый f string
         copied_f_size = Utils.get_f_size(self.copied_bytes)
 
         text = f"{copied_f_size} из {self.total_f_size}"
-        Utils.safe_emit(self.signals_.set_text_progress, text)
+        self.signals_.set_text_progress.emit(text)
 
     def get_final_paths(self, new_paths: list[tuple[str, str]], root: str):
         # Например мы копируем папки test_images и abs_images с рабочего стола в папку загрузок
