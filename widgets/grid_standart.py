@@ -30,10 +30,6 @@ class AnyBaseItem:
 
     @classmethod
     def load_db_record(cls, conn: Connection, thumb: Thumb):
-        """
-        Загружает id записи (столбец не принципиален) с условием по имени.  
-        Возвращает True если запись есть, иначе False.
-        """
         stmt = select(CACHE.c.id)
         stmt = stmt.where(CACHE.c.name == Utils.get_hash_filename(thumb.name))
         res_by_src = Dbase.execute_(conn, stmt).mappings().first()
