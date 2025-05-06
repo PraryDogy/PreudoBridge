@@ -120,7 +120,7 @@ class MainWin(WinBase):
             self.main_win_item.main_dir = dir
         else:
             dir = os.path.expanduser("~/Downloads")
-            dir = Utils.add_system_volume(self.main_win_item.main_dir)
+            dir = Utils.add_system_volume(dir)
             self.main_win_item.main_dir = dir
 
         self.resize_timer = QTimer(self)
@@ -172,6 +172,15 @@ class MainWin(WinBase):
 
         self.splitter.addWidget(left_wid)
         self.splitter.addWidget(right_wid)
+        self.splitter.setStretchFactor(0, 0)
+        self.splitter.setStretchFactor(1, 1)
+        self.splitter.setSizes([MainWin.left_menu_w, self.width() - MainWin.left_menu_w])
+
+        self.top_bar.new_history_item_cmd(self.main_win_item.main_dir)
+        self.path_bar.set_new_path(self.main_win_item.main_dir)
+        self.tabs_widget.setCurrentIndex(1)
+        self.tags_update_visibility()
+        self.tags_menu_btn.click_cmd()
 
         self.r_lay.insertWidget(0, self.top_bar)
         self.r_lay.insertWidget(1, sep_one)
@@ -182,16 +191,6 @@ class MainWin(WinBase):
         self.r_lay.insertWidget(6, self.path_bar)
         self.r_lay.insertWidget(7, sep)
         self.r_lay.insertWidget(8, self.sort_bar)
-
-        self.top_bar.new_history_item_cmd(self.main_win_item.main_dir)
-        self.path_bar.set_new_path(self.main_win_item.main_dir)
-        self.tabs_widget.setCurrentIndex(1)
-        self.tags_update_visibility()
-        self.tags_menu_btn.click_cmd()
-
-        self.splitter.setStretchFactor(0, 0)
-        self.splitter.setStretchFactor(1, 1)
-        self.splitter.setSizes([MainWin.left_menu_w, self.width() - MainWin.left_menu_w])
 
         self.setup_signals()
         self.load_standart_grid()
