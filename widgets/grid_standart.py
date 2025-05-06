@@ -147,7 +147,8 @@ class ImageBaseItem:
             ColumnNames.PARTIAL_HASH: partial_hash
         }
         q = insert(CACHE).values(**values)
-        Dbase.execute_(conn, q)
+
+        QTimer.singleShot(100, lambda: Dbase.execute_(conn, q))
         return img_array
     
     @classmethod

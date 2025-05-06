@@ -78,7 +78,6 @@ class CustomApp(QApplication):
             i.should_run = False
 
         while any(not hasattr(i, UThreadPool.finished_attr)for i in UThreadPool.tasks):
-            print("not done")
             QTest.qSleep(200)
 
         # вероятно предотвращает segmentation fault / bus error
