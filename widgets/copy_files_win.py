@@ -39,6 +39,7 @@ class FileCopyWorker(QRunnable):
             try:
                 self.signals_.error_win_sig.emit()
             except RuntimeError as e:
+                # прерываем процесс, если родительский виджет был уничтожен
                 Utils.print_error(e)
                 return
 
@@ -71,6 +72,7 @@ class FileCopyWorker(QRunnable):
                 Utils.print_error(e)
                 continue
             try:
+                # прерываем процесс, если родительский виджет был уничтожен
                 self.report_progress()
             except RuntimeError as e:
                 Utils.print_error(e)
@@ -79,11 +81,9 @@ class FileCopyWorker(QRunnable):
         # создаем список путей к виджетам в сетке для выделения
         paths = self.get_final_paths(new_paths, self.main_win_item.main_dir)
         paths = list(paths)
-        self.finalize(paths)
 
-    def finalize(self, urls: list[str]):
         try:
-            self.signals_.finished_.emit(urls)
+            self.signals_.finished_.emit(paths)
         except RuntimeError as e:
             Utils.print_error(e)
 

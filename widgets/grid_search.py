@@ -53,6 +53,8 @@ class SearchFinder(QRunnable):
         except RuntimeError as e:
             Utils.print_error(e)
 
+        print("fin")
+
     def setup_search(self):
         if self.search_item.get_files_list():
             if self.search_item.get_exactly():
