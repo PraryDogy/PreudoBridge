@@ -4,11 +4,12 @@ from difflib import SequenceMatcher
 from time import sleep
 
 from PyQt5.QtCore import QObject, QRunnable, Qt, QTimer, pyqtSignal
+from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
 
 from cfg import Dynamic, Static, ThumbData
-from utils import UThreadPool, Utils, FitImg
+from utils import FitImg, UThreadPool, Utils
 
 from ._base_items import (BaseItem, MainWinItem, MinMaxDisabledWin, SearchItem,
                           USvgSqareWidget, UTextEdit)
@@ -145,7 +146,7 @@ class SearchFinder(QRunnable):
             # Функция возвращает удаленный элемент
             current_dir = dirs_list.pop()
             while self.pause:
-                sleep(1)
+                QTest.qSleep(1000)
             if not self.should_run:
                 return
             try:
@@ -161,7 +162,7 @@ class SearchFinder(QRunnable):
     def scan_current_dir(self, dir: str, dirs_list: list):
         for entry in os.scandir(dir):
             while self.pause:
-                sleep(1)
+                QTest.qSleep(1000)
             if not self.should_run:
                 return
             if entry.name.startswith("."):
@@ -176,12 +177,11 @@ class SearchFinder(QRunnable):
         img_array = Utils.read_image(entry.path)
         img_array = FitImg.start(img_array, ThumbData.DB_IMAGE_SIZE)
         pixmap = Utils.pixmap_from_array(img_array)
-        del img_array
         base_item = BaseItem(entry.path)
         base_item.setup_attrs()
         base_item.set_pixmap_storage(pixmap)
         self.signals_.new_widget.emit(base_item)
-        sleep(0.2)
+        QTest.qSleep(200)
 
 
 class WinMissedFiles(MinMaxDisabledWin):
