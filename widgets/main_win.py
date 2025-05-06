@@ -102,7 +102,7 @@ class MainWin(WinBase):
     height_ = 700
     min_width_ = 800
     min_height_ = 500
-    left_menu_width = 240
+    left_menu_w = 240
 
     def __init__(self, dir: str = None):
         super().__init__()
@@ -136,38 +136,27 @@ class MainWin(WinBase):
         main_lay.addWidget(self.splitter)
 
         left_wid = QWidget()
-        self.splitter.addWidget(left_wid)
         left_v_lay = QVBoxLayout()
         left_v_lay.setContentsMargins(0, 0, 0, 5)
         left_v_lay.setSpacing(0)
         left_wid.setLayout(left_v_lay)
-
-        self.menu_tabs = TabsWidget()
-        left_v_lay.addWidget(self.menu_tabs)
-
+        self.tabs_widget = TabsWidget()
+        left_v_lay.addWidget(self.tabs_widget)
         self.menu_tree = TreeMenu(self.main_win_item)
-        self.menu_tabs.addTab(self.menu_tree, "Папки")
-
+        self.tabs_widget.addTab(self.menu_tree, "Папки")
         self.menu_favs = FavsMenu(self.main_win_item)
-        self.menu_tabs.addTab(self.menu_favs, "Избранное")
-
-        self.tags_btn = TagsBtn()
-        left_v_lay.addWidget(self.tags_btn)
-
-        self.menu_tags = TagsMenu()
-        left_v_lay.addWidget(self.menu_tags)
-
-        self.tags_btn.click_cmd()
+        self.tabs_widget.addTab(self.menu_favs, "Избранное")
+        self.tags_menu_btn = TagsBtn()
+        left_v_lay.addWidget(self.tags_menu_btn)
+        self.tags_menu = TagsMenu()
+        left_v_lay.addWidget(self.tags_menu)
 
         right_wid = QWidget()
-        self.splitter.addWidget(right_wid)
-
         self.r_lay = QVBoxLayout()
         self.r_lay.setContentsMargins(0, 0, 0, 0)
         self.r_lay.setSpacing(0)
         right_wid.setLayout(self.r_lay)
-        
-        self.bar_top = TopBar(self.main_win_item, self.search_item)
+        self.top_bar = TopBar(self.main_win_item, self.search_item)
         sep_one = USep()
         self.search_bar = SearchBar(self.search_item)
         self.search_bar_sep = USep()
@@ -181,7 +170,10 @@ class MainWin(WinBase):
         self.scroll_up.hide()
         self.scroll_up.clicked.connect(lambda: self.grid.verticalScrollBar().setValue(0))
 
-        self.r_lay.insertWidget(0, self.bar_top)
+        self.splitter.addWidget(left_wid)
+        self.splitter.addWidget(right_wid)
+
+        self.r_lay.insertWidget(0, self.top_bar)
         self.r_lay.insertWidget(1, sep_one)
         self.r_lay.insertWidget(2, self.search_bar)
         self.r_lay.insertWidget(3, self.search_bar_sep)
@@ -191,16 +183,17 @@ class MainWin(WinBase):
         self.r_lay.insertWidget(7, sep)
         self.r_lay.insertWidget(8, self.sort_bar)
 
-        self.bar_top.new_history_item_cmd(self.main_win_item.main_dir)
+        self.top_bar.new_history_item_cmd(self.main_win_item.main_dir)
         self.path_bar.set_new_path(self.main_win_item.main_dir)
+        self.tabs_widget.setCurrentIndex(1)
+        self.tags_update_visibility()
+        self.tags_menu_btn.click_cmd()
+
         self.splitter.setStretchFactor(0, 0)
         self.splitter.setStretchFactor(1, 1)
-        self.splitter.setSizes(
-            [MainWin.left_menu_width, self.width() - MainWin.left_menu_width]
-        )
-        self.menu_tabs.setCurrentIndex(1)
+        self.splitter.setSizes([MainWin.left_menu_w, self.width() - MainWin.left_menu_w])
+
         self.setup_signals()
-        self.tags_btn_cmd()
         self.load_standart_grid()
 
     def setup_signals(self):
@@ -209,35 +202,35 @@ class MainWin(WinBase):
 
         self.menu_tree.load_st_grid_sig.connect(lambda: self.load_standart_grid())
         self.menu_tree.fav_cmd_sig.connect(lambda data: self.menu_favs.fav_cmd(data))
-        self.menu_tree.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
+        self.menu_tree.new_history_item.connect(lambda dir: self.top_bar.new_history_item_cmd(dir))
         self.menu_tree.open_in_new_window.connect(lambda dir: self.open_in_new_window_cmd(dir))
 
         self.menu_favs.load_st_grid_sig.connect(lambda: self.load_standart_grid())
-        self.menu_favs.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
+        self.menu_favs.new_history_item.connect(lambda dir: self.top_bar.new_history_item_cmd(dir))
         self.menu_favs.open_in_new_win.connect(lambda dir: self.open_in_new_window_cmd(dir))
 
-        self.tags_btn.clicked_.connect(lambda: self.tags_btn_cmd())
+        self.tags_menu_btn.clicked_.connect(lambda: self.tags_update_visibility())
 
-        self.menu_tags.filter_grid_sig.connect(lambda: self.grid.filter_())
-        self.menu_tags.rearrange_grid_sig.connect(lambda: self.grid.rearrange())
+        self.tags_menu.filter_grid_sig.connect(lambda: self.grid.filter_())
+        self.tags_menu.rearrange_grid_sig.connect(lambda: self.grid.rearrange())
 
         # перейти на директорию выше
-        self.bar_top.level_up.connect(lambda: self.level_up_cmd())
+        self.top_bar.level_up.connect(lambda: self.level_up_cmd())
         # изменить отображение сетка/список
-        self.bar_top.change_view.connect(lambda index: self.change_view_cmd(index))
+        self.top_bar.change_view.connect(lambda index: self.change_view_cmd(index))
         # начать поиск
-        self.bar_top.load_search_grid_sig.connect(lambda: self.load_search_grid())
+        self.top_bar.load_search_grid_sig.connect(lambda: self.load_search_grid())
         # очистить поиск, загрузить стандартную сетку с текущей директорией
-        self.bar_top.load_st_grid_sig.connect(lambda: self.load_standart_grid())
+        self.top_bar.load_st_grid_sig.connect(lambda: self.load_standart_grid())
         # перейти вперед/назад по истории посещений
-        self.bar_top.navigate.connect(lambda: self.load_standart_grid())
+        self.top_bar.navigate.connect(lambda: self.load_standart_grid())
         # было открыто окно настроек и был клик "очистить данные в этой папке"
-        self.bar_top.clear_data_clicked.connect(lambda: self.remove_db_cmd())
-        self.bar_top.open_in_new_win.connect(lambda dir: self.open_in_new_window_cmd(dir))
+        self.top_bar.clear_data_clicked.connect(lambda: self.remove_db_cmd())
+        self.top_bar.open_in_new_win.connect(lambda dir: self.open_in_new_window_cmd(dir))
 
         self.search_bar.load_search_grid.connect(lambda: self.load_search_grid())
 
-        self.path_bar.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
+        self.path_bar.new_history_item.connect(lambda dir: self.top_bar.new_history_item_cmd(dir))
         self.path_bar.load_st_grid_sig.connect(lambda: self.load_standart_grid())
         self.path_bar.open_img_view.connect(lambda path: self.open_img_view_cmd(path))
         self.path_bar.open_in_new_window.connect(lambda dir: self.open_in_new_window_cmd(dir))
@@ -267,7 +260,7 @@ class MainWin(WinBase):
             self.main_win_item.immortal_urls = [self.main_win_item.main_dir]
             self.main_win_item.main_dir = new_main_dir
             self.load_standart_grid()
-            self.bar_top.new_history_item_cmd(new_main_dir)
+            self.top_bar.new_history_item_cmd(new_main_dir)
 
     def change_view_cmd(self, index: int):
         if index == self.view_index:
@@ -279,11 +272,11 @@ class MainWin(WinBase):
         self.grid.resize_()
         self.grid.rearrange()
 
-    def tags_btn_cmd(self):
-        if self.menu_tags.isHidden():
-            self.menu_tags.show()
+    def tags_update_visibility(self):
+        if self.tags_menu.isHidden():
+            self.tags_menu.show()
         else:
-            self.menu_tags.hide()
+            self.tags_menu.hide()
 
     def open_path_cmd(self, filepath: str):
         if not os.path.exists(filepath):
@@ -312,7 +305,7 @@ class MainWin(WinBase):
         self.grid.load_st_grid_sig.connect(lambda: self.load_standart_grid())
         self.grid.open_in_new_window.connect(lambda dir: self.open_in_new_window_cmd(dir))
         self.grid.level_up.connect(lambda: self.level_up_cmd())
-        self.grid.new_history_item.connect(lambda dir: self.bar_top.new_history_item_cmd(dir))
+        self.grid.new_history_item.connect(lambda dir: self.top_bar.new_history_item_cmd(dir))
         self.grid.change_view_sig.connect(lambda index: self.change_view_cmd(index))
         self.grid.force_load_images_sig.connect(lambda urls: self.grid.force_load_images_cmd(urls))
         self.grid.verticalScrollBar().valueChanged.connect(lambda value: self.scroll_up_show_hide(value))
@@ -331,7 +324,7 @@ class MainWin(WinBase):
         self.search_bar.show()
         self.search_bar.show_spinner()
         self.search_bar_sep.show()
-        self.menu_tags.reset()
+        self.tags_menu.reset()
 
         self.safe_delete_grid()
         self.grid = GridSearch(self.main_win_item, self.view_index)
@@ -380,7 +373,7 @@ class MainWin(WinBase):
         LoadImage.cached_images.clear()
         self.setWindowTitle(os.path.basename(self.main_win_item.main_dir))
         self.menu_favs.fav_cmd(("select", self.main_win_item.main_dir))
-        self.bar_top.search_wid.clear_search()
+        self.top_bar.search_wid.clear_search()
         self.search_bar.hide()
         self.search_bar_sep.hide()
         self.menu_tree.expand_path(self.main_win_item.main_dir)
@@ -439,8 +432,8 @@ class MainWin(WinBase):
 
         elif a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
             if a0.key() == Qt.Key.Key_F:
-                self.bar_top.search_wid.setFocus()
-                self.bar_top.search_wid.selectAll()
+                self.top_bar.search_wid.setFocus()
+                self.top_bar.search_wid.selectAll()
 
             elif a0.key() == Qt.Key.Key_W:
                 self.close()
