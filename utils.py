@@ -580,6 +580,29 @@ class Utils(Pixmap, ReadImage, ImgConvert):
         return path_to_svg
 
 
+class FitImg:   
+    @classmethod
+    def start(cls, image: np.ndarray, size: int) -> np.ndarray | None:
+        try:
+            return cls.fit_image(image, size)
+        except Exception as e:
+            Utils.print_error(cls, e)
+            return None
+
+    @classmethod
+    def fit_image(cls, image: np.ndarray, size: int) -> np.ndarray:
+        h, w = image.shape[:2]
+        if w > h:  # Горизонтальное изображение
+            new_w = size
+            new_h = int(h * (size / w))
+        elif h > w:  # Вертикальное изображение
+            new_h = size
+            new_w = int(w * (size / h))
+        else:  # Квадратное изображение
+            new_w, new_h = size, size
+        return cv2.resize(image, (new_w, new_h), interpolation=cv2.INTER_AREA)
+        
+
 class UThreadPool:
     pool: QThreadPool = None
 

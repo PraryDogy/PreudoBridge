@@ -8,8 +8,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
 
 from cfg import Dynamic, Static, ThumbData
-from fit_img import FitImg
-from utils import UThreadPool, Utils
+from utils import UThreadPool, Utils, FitImg
 
 from ._base_items import (BaseItem, MainWinItem, MinMaxDisabledWin, SearchItem,
                           USvgSqareWidget, UTextEdit)

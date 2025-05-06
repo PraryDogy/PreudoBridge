@@ -10,8 +10,7 @@ from sqlalchemy import Connection, insert, select, update
 
 from cfg import Dynamic, Static, ThumbData
 from database import CACHE, ColumnNames, Dbase
-from fit_img import FitImg
-from utils import UThreadPool, Utils
+from utils import UThreadPool, Utils, FitImg
 
 from ._base_items import BaseItem, MainWinItem
 from .finder_items import FinderItems, LoadingWid
