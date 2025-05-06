@@ -24,17 +24,18 @@ RESIZE_TIMER_COUNT = 700
 
 class WorkerSignals(QObject):
     new_widget = pyqtSignal(BaseItem)
-    finished_ = pyqtSignal()
+    finished_ = pyqtSignal(list)
 
 
 class SearchFinder(QRunnable):
-    search_value = 0.85
+    search_value = 0.95
 
     def __init__(self, main_win_item: MainWinItem, search_item: SearchItem):
         super().__init__()
         self.signals_ = WorkerSignals()
         self.main_win_item = main_win_item
         self.should_run: bool = True
+        self.found_files_list: list[str] = []
 
         self.search_item = search_item
         self.files_list_lower: list[str] = []
@@ -48,9 +49,15 @@ class SearchFinder(QRunnable):
     def run(self):
         self.setup_search()
         self.scandir_recursive()
+        
+        missed_files_list: list[str] = []
+        if self.search_item.get_files_list():
+            for i in self.files_list_lower:
+                if i not in self.found_files_list:
+                    missed_files_list.append(i)
 
         try:
-            self.signals_.finished_.emit()
+            self.signals_.finished_.emit(missed_files_list)
         except RuntimeError as e:
             Utils.print_error(e)
 
@@ -101,9 +108,9 @@ class SearchFinder(QRunnable):
         filename, _ = self.remove_extension(entry.name)
         filename: str = filename.lower()
 
-        if self.compare_words(self.text_lower, filename) > SearchFinder.search_value:
-            return True
-        elif self.text_lower in filename or filename in self.text_lower:
+        # if self.compare_words(self.text_lower, filename) > SearchFinder.search_value:
+            # return True
+        if self.text_lower in filename or filename in self.text_lower:
             return True
         else:
             return False
@@ -123,6 +130,7 @@ class SearchFinder(QRunnable):
         filename: str = filename.lower()
         for item in self.files_list_lower:
             if filename == item:
+                self.found_files_list.append(item)
                 return True
         return False
 
@@ -130,9 +138,8 @@ class SearchFinder(QRunnable):
         filename, _ = self.remove_extension(entry.name)
         filename: str = filename.lower()
         for item in self.files_list_lower:
-            if self.compare_words(item, filename) > SearchFinder.search_value:
-                return True
-            elif item in filename or filename in item:
+            if item in filename or filename in item:
+                self.found_files_list.append(item)
                 return True
         return False
 
@@ -195,17 +202,17 @@ class WinMissedFiles(MinMaxDisabledWin):
         v_lay.setContentsMargins(10, 5, 10, 5)
         self.setLayout(v_lay)
 
-        first_row_wid = QWidget()
-        v_lay.addWidget(first_row_wid)
-        first_row_lay = QHBoxLayout()
-        first_row_lay.setContentsMargins(0, 0, 0, 0)
-        first_row_wid.setLayout(first_row_lay)
+        self.first_row_wid = QWidget()
+        v_lay.addWidget(self.first_row_wid)
+        self.first_row_lay = QHBoxLayout()
+        self.first_row_lay.setContentsMargins(0, 0, 0, 0)
+        self.first_row_wid.setLayout(self.first_row_lay)
 
         warn = USvgSqareWidget(Static.WARNING_SVG, 50)
-        first_row_lay.addWidget(warn)
+        self.first_row_lay.addWidget(warn)
 
         label_ = QLabel(text=MISSED_FILES)
-        first_row_lay.addWidget(label_)
+        self.first_row_lay.addWidget(label_)
 
         scrollable = UTextEdit()
         scrollable.setText("\n".join(files))
@@ -264,14 +271,15 @@ class GridSearch(Grid):
 
         self.task_ = SearchFinder(self.main_win_item, self.search_item)
         self.task_.signals_.new_widget.connect(self.add_new_widget)
-        self.task_.signals_.finished_.connect(self.search_fin)
+        self.task_.signals_.finished_.connect(lambda missed_files_list: self.search_fin(missed_files_list))
         UThreadPool.start(self.task_)
 
     def add_new_widget(self, base_item: BaseItem):
-        thumb = Thumb(base_item.src, base_item.rating)
-        thumb.setup_attrs()
-        thumb.setup_child_widgets()
-        thumb.set_no_frame()
+        self.thumb = Thumb(base_item.src, base_item.rating)
+        self.thumb.setParent(self)
+        self.thumb.setup_attrs()
+        self.thumb.setup_child_widgets()
+        self.thumb.set_no_frame()
 
         generic_icon_path = Utils.get_generic_icon_path(base_item.type_)
 
@@ -279,17 +287,17 @@ class GridSearch(Grid):
             generic_icon_path = Utils.create_generic_icon(base_item.type_)
 
         if base_item.src.count(os.sep) == 2:
-            thumb.set_svg_icon(Static.HDD_SVG)
+            self.thumb.set_svg_icon(Static.HDD_SVG)
 
         else:
-            thumb.set_svg_icon(generic_icon_path)
+            self.thumb.set_svg_icon(generic_icon_path)
         
         if base_item.get_pixmap_storage():
-            thumb.set_pixmap_storage(base_item.get_pixmap_storage())
-            thumb.set_image(base_item.get_pixmap_storage())
+            self.thumb.set_pixmap_storage(base_item.get_pixmap_storage())
+            self.thumb.set_image(base_item.get_pixmap_storage())
 
-        self.add_widget_data(thumb, self.row, self.col)
-        self.grid_layout.addWidget(thumb, self.row, self.col)
+        self.add_widget_data(self.thumb, self.row, self.col)
+        self.grid_layout.addWidget(self.thumb, self.row, self.col)
 
         self.total += 1
         self.col += 1
@@ -299,27 +307,17 @@ class GridSearch(Grid):
  
         self.sort_bar_update.emit(self.total)
 
-    def search_fin(self):
+    def search_fin(self, missed_files_list: list[str]):
         if not self.cell_to_wid:
             no_images = QLabel(text=NO_RESULT)
             no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0)
 
-        elif self.search_item.get_files_list():
-
-            done_src = [i.name for i in self.cell_to_wid.values()]
-
-            missed_files = [
-                i
-                for i in self.search_item.get_files_list()
-                if i not in done_src
-            ]
-
-            if missed_files:
-                self.win_missed_files = WinMissedFiles(files=missed_files)
-                self.win_missed_files.center(self.window())
-                self.win_missed_files.show()
+        elif missed_files_list:
+            self.win_missed_files = WinMissedFiles(missed_files_list)
+            self.win_missed_files.center(self.window())
+            self.win_missed_files.show()
 
         self.finished_.emit()
 
