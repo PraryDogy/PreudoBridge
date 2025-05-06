@@ -188,7 +188,6 @@ class LoadImages(QRunnable):
         super().__init__()
         self.signals_ = WorkerSignals()
         self.main_win_item = main_win_item
-        self.should_run = True
         self.thumbs = thumbs
         key_ = lambda x: x.size
         self.thumbs.sort(key=key_)
@@ -228,7 +227,7 @@ class LoadImages(QRunnable):
         чтобы передать его в Thumb
         """
         for base_item in self.thumbs:
-            if not self.should_run:
+            if UThreadPool.get_canceled(self):
                 return  
             if base_item.type_ not in Static.ext_all:
                 AnyBaseItem.check_db_record(self.conn, base_item)
@@ -451,7 +450,7 @@ class GridStandart(Grid):
 
     def deleteLater(self):
         for i in self.tasks:
-            i.should_run = False
+            UThreadPool.set_canceled(i)
 
         self.main_win_item.urls = [
             i.src
@@ -461,5 +460,5 @@ class GridStandart(Grid):
     
     def closeEvent(self, a0):
         for i in self.tasks:
-            i.should_run = False
+            UThreadPool.set_canceled(i)
         return super().closeEvent(a0)

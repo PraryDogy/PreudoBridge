@@ -604,7 +604,8 @@ class FitImg:
 class UThreadPool:
     pool: QThreadPool = None
     tasks: list[QRunnable] = []
-    finished_attr = "finished"
+    task_finished = "finished"
+    canceled = "force_stop"
 
     @classmethod
     def init(cls):
@@ -615,11 +616,27 @@ class UThreadPool:
         cls.tasks.append(runnable)
         cls.pool.start(runnable)
 
+    @classmethod
+    def set_canceled(cls, task: QRunnable):
+        setattr(task, UThreadPool.canceled, True)
+
+    @classmethod
+    def get_canceled(cls, task: QRunnable):
+        return True if hasattr(task, UThreadPool.canceled) else False
+    
+    @classmethod
+    def get_finished(cls, task: QRunnable):
+        return True if hasattr(task, UThreadPool.task_finished) else False
+    
+    @classmethod
+    def set_finished(cls, task: QRunnable):
+        setattr(task, UThreadPool.task_finished, True)
+
     @staticmethod
     def mark_finished_after_run(method):
         def wrapper(self, *args, **kwargs):
             try:
                 return method(self, *args, **kwargs)
             finally:
-                setattr(self, UThreadPool.finished_attr, True)
+                UThreadPool.set_finished(self)
         return wrapper

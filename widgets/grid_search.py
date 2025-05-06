@@ -34,7 +34,6 @@ class SearchFinder(QRunnable):
         super().__init__()
         self.signals_ = WorkerSignals()
         self.main_win_item = main_win_item
-        self.should_run: bool = True
         self.found_files_list: list[str] = []
 
         self.search_item = search_item
@@ -154,7 +153,7 @@ class SearchFinder(QRunnable):
             current_dir = dirs_list.pop()
             while self.pause:
                 QTest.qSleep(1000)
-            if not self.should_run:
+            if UThreadPool.get_canceled(self):
                 return
             try:
                 # Сканируем текущий каталог и добавляем новые пути в стек
@@ -170,7 +169,7 @@ class SearchFinder(QRunnable):
         for entry in os.scandir(dir):
             while self.pause:
                 QTest.qSleep(1000)
-            if not self.should_run:
+            if UThreadPool.get_canceled(self):
                 return
             if entry.name.startswith("."):
                 continue
@@ -360,9 +359,9 @@ class GridSearch(Grid):
         return super().resizeEvent(a0)
     
     def closeEvent(self, a0):
-        self.task_.should_run = False
+        UThreadPool.set_canceled(self.task_)
         return super().closeEvent(a0)
 
     def deleteLater(self):
-        self.task_.should_run = False
+        UThreadPool.set_canceled(self.task_)
         return super().deleteLater()
