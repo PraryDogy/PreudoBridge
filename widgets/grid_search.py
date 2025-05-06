@@ -30,11 +30,10 @@ class WorkerSignals(QObject):
 class SearchFinder(QRunnable):
     search_value = 0.85
 
-    def __init__(self, main_win_item: MainWinItem, search_item: SearchItem, parent: QWidget):
+    def __init__(self, main_win_item: MainWinItem, search_item: SearchItem):
         super().__init__()
         self.signals_ = WorkerSignals()
         self.main_win_item = main_win_item
-        self.parent_ref = weakref.ref(parent)
 
         self.search_item = search_item
         self.files_list_lower: list[str] = []
@@ -144,8 +143,6 @@ class SearchFinder(QRunnable):
             # Удаляем последний элемент из списка
             # Функция возвращает удаленный элемент
             current_dir = dirs_list.pop()
-            if not self.parent_ref():
-                return
             while self.pause:
                 sleep(1)
             try:
@@ -160,8 +157,6 @@ class SearchFinder(QRunnable):
 
     def scan_current_dir(self, dir: str, dirs_list: list):
         for entry in os.scandir(dir):
-            if not self.parent_ref():
-                return
             while self.pause:
                 sleep(1)
             if entry.name.startswith("."):
@@ -261,7 +256,7 @@ class GridSearch(Grid):
         Thumb.calculate_size()
         self.is_grid_search = True
 
-        self.task_ = SearchFinder(self.main_win_item, self.search_item, self)
+        self.task_ = SearchFinder(self.main_win_item, self.search_item)
         self.task_.signals_.new_widget.connect(self.add_new_widget)
         self.task_.signals_.finished_.connect(self.search_fin)
         UThreadPool.start(self.task_)

@@ -1,5 +1,4 @@
 import os
-import weakref
 
 from PyQt5.QtCore import QObject, QRunnable, Qt, pyqtSignal
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QPushButton,
@@ -26,11 +25,10 @@ class WorkerSignals(QObject):
 
 
 class FileCopyWorker(QRunnable):
-    def __init__(self, main_win_item: MainWinItem, urls: list[str], parent: QWidget):
+    def __init__(self, main_win_item: MainWinItem, urls: list[str]):
         super().__init__()
         self.main_win_item = main_win_item
         self.urls = urls
-        self.parent_ref = weakref.ref(parent)
         self.signals_ = WorkerSignals()
 
     def run(self):    
@@ -64,8 +62,6 @@ class FileCopyWorker(QRunnable):
         self.total_f_size = Utils.get_f_size(total_bytes)
 
         for src, dest in new_paths:
-            if not self.parent_ref():
-                break
             # создаем древо папок как в исходной папке
             new_folders, tail = os.path.split(dest)
             os.makedirs(new_folders, exist_ok=True)
@@ -74,6 +70,11 @@ class FileCopyWorker(QRunnable):
             except Exception as e:
                 Utils.print_error(e)
                 continue
+            try:
+                self.report_progress()
+            except RuntimeError as e:
+                Utils.print_error(e)
+                return
 
         # создаем список путей к виджетам в сетке для выделения
         paths = self.get_final_paths(new_paths, self.main_win_item.main_dir)
@@ -87,20 +88,16 @@ class FileCopyWorker(QRunnable):
             Utils.print_error(e)
 
     def copy_by_bytes(self, src: str, dest: str):
+        tmp = True
         buffer_size = 1024 * 1024  # 1 MB
         with open(src, 'rb') as fsrc, open(dest, 'wb') as fdest:
-            while self.parent_ref():
+            while tmp:
                 buf = fsrc.read(buffer_size)
                 if not buf:
                     break
                 fdest.write(buf)
                 # прибавляем в байтах сколько уже скопировано
                 self.copied_bytes += len(buf)
-                try:
-                    self.report_progress()
-                except RuntimeError as e:
-                    Utils.print_error(e)
-                    return
 
     def report_progress(self):
         # сколько уже скопировано в байтах переводим в МБ, потому что
@@ -285,7 +282,7 @@ class CopyFilesWin(MinMaxDisabledWin):
         right_side_lay.addStretch()
 
         if self.urls:
-            task_ = FileCopyWorker(self.main_win_item, urls, self)
+            task_ = FileCopyWorker(self.main_win_item, urls)
             task_.signals_.set_max_progress.connect(lambda value: self.set_max(progressbar, value))
             task_.signals_.set_value_progress.connect(lambda value: self.set_value(progressbar, value))
             task_.signals_.set_text_progress.connect(size_mb_lbl.setText)

@@ -1,5 +1,4 @@
 import os
-import weakref
 
 import sqlalchemy
 from PyQt5.QtCore import QObject, QRunnable, Qt, pyqtSignal
@@ -22,12 +21,11 @@ class WorkerSignals(QObject):
 
 class FinderItems(QRunnable):
 
-    def __init__(self, main_win_item: MainWinItem, sort_item: SortItem, parent: QWidget):
+    def __init__(self, main_win_item: MainWinItem, sort_item: SortItem):
         super().__init__()
         self.signals_ = WorkerSignals()
         self.sort_item = sort_item
         self.main_win_item = main_win_item
-        self.parent_ref = weakref.ref(parent)
 
     def run(self):
         try:
@@ -94,8 +92,6 @@ class FinderItems(QRunnable):
     def get_items_no_db(self):
         base_items = []
         for entry in os.scandir(self.main_win_item.main_dir):
-            if not self.parent_ref():
-                break
             if entry.name.startswith("."):
                 continue
             if entry.is_dir() or entry.name.endswith(Static.ext_all):

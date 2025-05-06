@@ -1,5 +1,4 @@
 import os
-import weakref
 
 from PyQt5.QtCore import QObject, QRunnable, Qt, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
@@ -29,11 +28,10 @@ class WorkerSignals(QObject):
 
 
 class CalculatingTask(QRunnable):
-    def __init__(self, base_item: BaseItem, parent: QWidget):
+    def __init__(self, base_item: BaseItem):
         super().__init__()
         self.base_item = base_item
         self.signals_ = WorkerSignals()
-        self.parent_ref = weakref.ref(parent)
 
     def run(self):
         try:
@@ -188,7 +186,7 @@ class InfoWin(MinMaxDisabledWin):
         self.setFixedSize(self.width(), self.height())
 
         cmd_ = lambda result: self.finalize(result)
-        task_ = CalculatingTask(base_item, self)
+        task_ = CalculatingTask(base_item)
         task_.signals_.finished_.connect(cmd_)
         UThreadPool.start(task_)
 
