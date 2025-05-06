@@ -218,7 +218,10 @@ class LoadImages(QRunnable):
         # то при выходе приложения будет ошибка segmentation fault / bus error
         Dbase.commit_(self.conn)
         Dbase.close_connection(self.conn)
-        Utils.safe_emit(self.signals_.finished_)
+        try:
+            Utils.safe_emit(self.signals_.finished_)
+        except RuntimeError:
+            ...
 
     def process_thumbs(self):
         """
@@ -238,7 +241,7 @@ class LoadImages(QRunnable):
                 base_item.set_pixmap_storage(pixmap)
                 try:
                     Utils.safe_emit(self.signals_.update_thumb, base_item)
-                except TypeError as e:
+                except (TypeError, RuntimeError) as e:
                     print(e)
 
 
