@@ -202,7 +202,8 @@ class Thumb(BaseItem, QFrame):
         self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
 
     def set_image(self, pixmap: QPixmap):
-        self.img_wid.deleteLater()
+        old_wid = self.img_wid
+
         self.img_wid = QLabel()
         self.img_wid.setPixmap(
             Utils.pixmap_scale(pixmap, Thumb.pixmap_size)
@@ -212,6 +213,9 @@ class Thumb(BaseItem, QFrame):
             alignment=Qt.AlignmentFlag.AlignCenter
         )
         self.img = pixmap
+
+        old_wid.setParent(None)
+        old_wid.deleteLater()
 
     def setup_child_widgets(self):
         """

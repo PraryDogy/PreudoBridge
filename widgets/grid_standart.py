@@ -441,8 +441,11 @@ class GridStandart(Grid):
         """
         pixmap = thumb.get_pixmap_storage()
         if pixmap:
-            thumb.set_image(pixmap)
-            self.loaded_images.append(thumb.src)
+            try:
+                thumb.set_image(pixmap)
+                self.loaded_images.append(thumb.src)
+            except RuntimeError:
+                ...
 
     def resizeEvent(self, a0):
         self.loading_lbl.center(self)

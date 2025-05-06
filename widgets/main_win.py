@@ -365,8 +365,6 @@ class MainWin(WinBase):
         """
         - dir: основная директория, которая будет отображена в виде сетки виджетов
         """
-        self.safe_delete_grid()
-
         # при удалении сетки срабатывает кастомный метод deleteLater
         # который обновляет main_win_item.urls, и если нет выделенных
         # виджетов, то будет будет пустым
@@ -381,25 +379,15 @@ class MainWin(WinBase):
             if fixed_path:
                 self.main_win_item.main_dir = fixed_path
 
-        # Заголовок окна
-        # Имя папки или имя избранного или имя папки (имя избранного)
-        base_name = os.path.basename(self.main_win_item.main_dir)
-        if self.main_win_item.main_dir in JsonData.favs:
-            fav = JsonData.favs.get(self.main_win_item.main_dir)
-            if fav != base_name:
-                title = f"{base_name} ({JsonData.favs[self.main_win_item.main_dir]})"
-            else:
-                title = base_name
-        else:
-            title = base_name
-
         LoadImage.cached_images.clear()
-        self.setWindowTitle(title)
+        self.setWindowTitle(os.path.basename(self.main_win_item.main_dir))
         self.menu_favs.fav_cmd(("select", self.main_win_item.main_dir))
         self.bar_top.search_wid.clear_search()
         self.search_bar.hide()
         self.search_bar_sep.hide()
         self.menu_tree.expand_path(self.main_win_item.main_dir)
+
+        old_wid = self.grid
 
         if self.view_index == 0:
             self.grid = GridStandart(self.main_win_item, self.view_index)
@@ -415,6 +403,9 @@ class MainWin(WinBase):
             self.grid.set_first_col_width()
             self.sort_bar.sort_frame.setDisabled(True)
             self.sort_bar.slider.setDisabled(True)
+
+        old_wid.setParent(None)
+        old_wid.deleteLater()
 
         self.setup_grid_signals()
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
