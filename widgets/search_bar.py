@@ -10,7 +10,7 @@ class SpinnerWidget(QLabel):
     def __init__(self, parent=None):
         super().__init__(parent)
 
-        self.spinner_symbols = ["◯", "◌", "⬤", "●"]
+        self.spinner_symbols = ["◯", "◌", "●"]
         self.current_symbol_index = 0
 
         # Устанавливаем начальный текст и стиль
@@ -39,18 +39,18 @@ class SearchBar(QFrame):
         h_lay.setSpacing(10)
         self.setLayout(h_lay)
 
+        # self.spinner = SpinnerWidget()
+        # self.spinner.setFixedSize(20, 20)
+        # h_lay.addWidget(self.spinner)
+
+        self.descr_lbl = QLabel("Идет поиск")
+        h_lay.addWidget(self.descr_lbl)
+
         self.checkbox = QCheckBox(" Точное соответствие")
         self.checkbox.stateChanged.connect(self.on_state_change)
         h_lay.addWidget(self.checkbox)
 
         h_lay.addStretch()
-
-        self.descr_lbl = QLabel("Идет поиск")
-        h_lay.addWidget(self.descr_lbl)
-
-        self.spinner = SpinnerWidget()
-        self.spinner.setFixedSize(20, 20)
-        h_lay.addWidget(self.spinner)
 
     def on_state_change(self, value: int):
         """
@@ -89,9 +89,11 @@ class SearchBar(QFrame):
         return super().show()
     
     def show_spinner(self):
-        self.descr_lbl.show()
-        self.spinner.show()
+        self.descr_lbl.setText("Идет поиск")
+        # self.descr_lbl.show()
+        # self.spinner.show()
 
     def hide_spinner(self):
-        self.descr_lbl.hide()
-        self.spinner.hide()
+        self.descr_lbl.setText("Поиск завершен")
+        # self.descr_lbl.hide()
+        # self.spinner.hide()
