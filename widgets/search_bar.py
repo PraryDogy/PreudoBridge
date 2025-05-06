@@ -1,7 +1,8 @@
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtWidgets import (QCheckBox, QFrame, QHBoxLayout, QLabel,
-                             QVBoxLayout, QWidget)
+                             QPushButton, QVBoxLayout, QWidget)
 
+from utils import Utils
 
 from ._base_items import SearchItem
 
@@ -27,30 +28,46 @@ class SpinnerWidget(QLabel):
 
 class SearchBar(QFrame):
     load_search_grid = pyqtSignal()
+    pause_search_sig = pyqtSignal(bool)
 
     def __init__(self, search_item: SearchItem):
         super().__init__()
         self.setFixedHeight(40)
         self.search_item: SearchItem = search_item
         self.stop_flag: bool = False
+        self.pause_flag: bool = False
 
         h_lay = QHBoxLayout()
         h_lay.setContentsMargins(0, 0, 0, 0)
         h_lay.setSpacing(10)
         self.setLayout(h_lay)
 
-        # self.spinner = SpinnerWidget()
-        # self.spinner.setFixedSize(20, 20)
-        # h_lay.addWidget(self.spinner)
-
-        self.descr_lbl = QLabel("Идет поиск")
+        self.descr_lbl = QLabel()
         h_lay.addWidget(self.descr_lbl)
+
+        self.pause_btn = QPushButton()
+        self.pause_btn.setFixedWidth(110)
+        self.pause_btn.clicked.connect(self.pause_btn_cmd)
+        h_lay.addWidget(self.pause_btn)
 
         self.checkbox = QCheckBox(" Точное соответствие")
         self.checkbox.stateChanged.connect(self.on_state_change)
         h_lay.addWidget(self.checkbox)
 
         h_lay.addStretch()
+
+    def pause_btn_cmd(self):
+        if self.pause_flag:
+            self.pause_flag = False
+            self.pause_btn.setText("Пауза")
+        else:
+            self.pause_flag = True
+            self.pause_btn.setText("Продолжить")
+
+        try:
+            self.pause_search_sig.emit(self.pause_flag)
+        except RuntimeError as e:
+            Utils.print_error(e)
 
     def on_state_change(self, value: int):
         """
@@ -86,14 +103,17 @@ class SearchBar(QFrame):
             self.checkbox.setDisabled(True)
         else:
             self.checkbox.setDisabled(False)
+
+        self.descr_lbl.setText("Идет поиск")
+        self.pause_btn.setDisabled(False)
+        self.pause_btn.setText("Пауза")
+        self.pause_flag = False
+
         return super().show()
     
     def show_spinner(self):
-        self.descr_lbl.setText("Идет поиск")
-        # self.descr_lbl.show()
-        # self.spinner.show()
+        ...
 
-    def hide_spinner(self):
+    def search_bar_search_fin(self):
         self.descr_lbl.setText("Поиск завершен")
-        # self.descr_lbl.hide()
-        # self.spinner.hide()
+        self.pause_btn.setDisabled(True)

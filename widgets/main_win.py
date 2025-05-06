@@ -343,7 +343,7 @@ class MainWin(WinBase):
         которые могли быть заменены во время ожидания завершения предыдущего поиска.
         """
         if id_ == id(self.grid):
-            self.search_bar.hide_spinner()
+            self.search_bar.search_bar_search_fin()
 
     def load_st_grid(self):
         """
