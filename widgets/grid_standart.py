@@ -69,7 +69,8 @@ class AnyBaseItem:
         }
 
         q = insert(CACHE).values(**values)
-        Dbase.execute_(conn, q)
+        task_ = DbaseTask(conn, q)
+        UThreadPool.start(task_)
 
 
 class ImageBaseItem:
@@ -136,7 +137,8 @@ class ImageBaseItem:
         }
         q = update(CACHE).where(CACHE.c.id == row_id)
         q = q.values(**values)
-        Dbase.execute_(conn, q)
+        task_ = DbaseTask(conn, q)
+        UThreadPool.start(task_)
         return img_array
 
     @classmethod
@@ -158,7 +160,6 @@ class ImageBaseItem:
             ColumnNames.PARTIAL_HASH: partial_hash
         }
         q = insert(CACHE).values(**values)
-        # Dbase.execute_(conn, q)
         task_ = DbaseTask(conn, q)
         UThreadPool.start(task_)
         return img_array
