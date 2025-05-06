@@ -243,6 +243,7 @@ class GridSearch(Grid):
         # значение общего числа виджетов в сетке для нижнего бара приложения
         self.total = 0
         self.task_: SearchFinder = None
+        self.pause_by_btn: bool = False
 
         self.pause_timer = QTimer(self)
         self.pause_timer.timeout.connect(self.remove_pause)
@@ -348,7 +349,12 @@ class GridSearch(Grid):
 
     def remove_pause(self):
         if self.task_:
-            self.task_.pause = False
+            if not self.pause_by_btn:
+                self.task_.pause = False
+
+    def toggle_pause(self, value: bool):
+        self.task_.pause = value
+        self.pause_by_btn = value
 
     def resizeEvent(self, a0):
         self.resize_()

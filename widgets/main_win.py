@@ -222,6 +222,7 @@ class MainWin(WinBase):
         self.top_bar.open_in_new_win.connect(lambda dir: self.open_in_new_window_cmd(dir))
 
         self.search_bar.load_search_grid.connect(lambda: self.load_search_grid())
+        self.search_bar.pause_search_sig.connect(lambda value: self.grid.toggle_pause(value))
 
         self.path_bar.new_history_item.connect(lambda dir: self.top_bar.new_history_item_cmd(dir))
         self.path_bar.load_st_grid_sig.connect(lambda: self.load_st_grid())
