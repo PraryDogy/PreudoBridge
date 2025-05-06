@@ -244,6 +244,7 @@ class LoadImages(QRunnable):
                     Utils.safe_emit(self.signals_.update_thumb, base_item)
                 except (TypeError, RuntimeError) as e:
                     print(e)
+                    return
 
 
 class GridStandart(Grid):
