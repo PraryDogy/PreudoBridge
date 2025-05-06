@@ -228,8 +228,9 @@ class Thumb(BaseItem, QFrame):
         self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
         self.img_frame.setFixedSize(Thumb.img_frame_size, Thumb.img_frame_size)
 
-        if self.get_pixmap_storage():
-            pixmap =  Utils.pixmap_scale(self.get_pixmap_storage(), Thumb.pixmap_size)
+        pixmap_ = self.get_pixmap_storage()
+        if pixmap_:
+            pixmap =  Utils.pixmap_scale(pixmap_, Thumb.pixmap_size)
             self.img_wid.setPixmap(pixmap)
             self.img_wid.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
