@@ -159,7 +159,7 @@ class PathFinderThread(QRunnable):
         try:
             self.signals_.finished_.emit(result)
         except RuntimeError as e:
-            Utils.print_error(self, e)
+            Utils.print_error(e)
 
 
 class GoToWin(MinMaxDisabledWin):
@@ -268,7 +268,7 @@ class GoToWin(MinMaxDisabledWin):
         try:
             subprocess.Popen(["open", "-R", dest])
         except Exception as e:
-            print(e)
+            Utils.print_error(e)
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() == Qt.Key.Key_Escape:

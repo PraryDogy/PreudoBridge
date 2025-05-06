@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
 
 from cfg import Static
-from utils import UThreadPool
+from utils import UThreadPool, Utils
 
 from ._base_items import MainWinItem, MinMaxDisabledWin, USvgSqareWidget
 
@@ -29,10 +29,13 @@ class RemoveFilesTask(QRunnable):
         try:
             command = ["osascript", Static.REMOVE_FILES_SCPT] + self.urls
             subprocess.run(command)
-            self.signals_.finished_.emit()
-
         except Exception as e:
-            ...
+            Utils.print_error(e)
+        try:
+            self.signals_.finished_.emit()
+        except RuntimeError as e:
+            Utils.print_error(e)
+
 
 
 class RemoveFilesWin(MinMaxDisabledWin):

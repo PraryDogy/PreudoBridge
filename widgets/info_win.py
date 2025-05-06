@@ -36,18 +36,14 @@ class CalculatingTask(QRunnable):
         self.parent_ref = weakref.ref(parent)
 
     def run(self):
-        if self.base_item.type_ == Static.FOLDER_TYPE:
-            try:
+        try:
+            if self.base_item.type_ == Static.FOLDER_TYPE:
                 res = self.get_folder_size()
-            except Exception as e:
-                Utils.print_error(e)
-                res = "Ошибка"
-        else:
-            try:
+            else:
                 res = self.get_img_resol()
-            except Exception as e:
-                Utils.print_error(e)
-                res = "Ошибка"
+        except Exception as e:
+            Utils.print_error(e)
+            res = "Ошибка"
         try:
             self.signals_.finished_.emit(res)
         except RuntimeError as e:
