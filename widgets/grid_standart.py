@@ -232,6 +232,7 @@ class LoadImages(QRunnable):
         for base_item in self.thumbs:
 
             if not self.parent_ref():
+                print("no parent")
                 return
                         
             if base_item.type_ not in Static.ext_all:

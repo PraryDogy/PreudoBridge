@@ -334,8 +334,7 @@ class MainWin(WinBase):
         self.search_bar_sep.show()
         self.menu_tags.reset()
 
-        old_wid = self.grid
-
+        self.safe_delete_grid()
         self.grid = GridSearch(self.main_win_item, self.view_index)
         self.grid.setParent(self)
         self.grid.set_sort_item(self.sort_item)
@@ -345,9 +344,6 @@ class MainWin(WinBase):
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
         self.setup_grid_signals()
         self.grid.setFocus()
-
-        old_wid.setParent(None)
-        old_wid.deleteLater()
 
     def finished_search_grid(self, id_: int):
         """
@@ -390,7 +386,7 @@ class MainWin(WinBase):
         self.search_bar_sep.hide()
         self.menu_tree.expand_path(self.main_win_item.main_dir)
 
-        old_wid = self.grid
+        self.safe_delete_grid()
 
         if self.view_index == 0:
             self.grid = GridStandart(self.main_win_item, self.view_index)
@@ -406,9 +402,6 @@ class MainWin(WinBase):
             self.grid.set_first_col_width()
             self.sort_bar.sort_frame.setDisabled(True)
             self.sort_bar.slider.setDisabled(True)
-
-        old_wid.setParent(None)
-        old_wid.deleteLater()
 
         self.setup_grid_signals()
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
