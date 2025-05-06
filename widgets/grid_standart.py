@@ -4,7 +4,8 @@ import numpy as np
 from PyQt5.QtCore import QObject, QRunnable, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QLabel
-from sqlalchemy import Connection, insert, select, update, RowMapping, Update, Insert
+from sqlalchemy import (Connection, Insert, RowMapping, Update, insert, select,
+                        update)
 
 from cfg import Dynamic, Static, ThumbData
 from database import CACHE, ColumnNames, Dbase
@@ -15,31 +16,17 @@ from .finder_items import FinderItems, LoadingWid
 from .grid import Grid, Thumb
 
 
-class DbaseTask(QRunnable):
-    def __init__(self, conn: Connection, stmt):
-        super().__init__()
-        self.conn = conn
-        self.stmt = stmt
-
-    @UThreadPool.mark_finished_after_run
-    def run(self):
-        Dbase.execute_(self.conn, self.stmt)
-
-
 class AnyBaseItem:
     """
     QRunnable
     """
 
     @classmethod
-    def check_db_record(cls, conn: Connection, thumb: Thumb) -> None:
-        """
-        Проверяет, есть ли запись в базе данных об этом Thumb по имени.    
-        Если записи нет, делает запись.
-        Thumb: любой файл, кроме файлов изображений и папок.
-        """
+    def check_db_record(cls, conn: Connection, thumb: Thumb) -> tuple[Insert | None, None]:
         if not cls.load_db_record(conn, thumb):
-            cls.insert_new_record(conn, thumb)
+            return cls.insert_new_record(conn, thumb)
+        else:
+            return (None, None)
 
     @classmethod
     def load_db_record(cls, conn: Connection, thumb: Thumb):
@@ -56,7 +43,7 @@ class AnyBaseItem:
             return False
 
     @classmethod
-    def insert_new_record(cls, conn: Connection, thumb: Thumb):
+    def insert_new_record(cls, conn: Connection, thumb: Thumb) -> tuple[Insert, None]:
         """
         Новая запись в базу данных.
         """
@@ -68,9 +55,8 @@ class AnyBaseItem:
             ColumnNames.RATING: 0,
         }
 
-        q = insert(CACHE).values(**values)
-        task_ = DbaseTask(conn, q)
-        UThreadPool.start(task_)
+        stmt = insert(CACHE).values(**values)
+        return (stmt, None)
 
 
 class ImageBaseItem:
@@ -80,18 +66,11 @@ class ImageBaseItem:
 
     @classmethod
     def get_pixmap(cls, conn: Connection, thumb: Thumb) -> tuple[Update | Insert| None, QPixmap]:
-        """
-        Возвращает QPixmap либо из базы данных, либо созданный из изображения.
-        """
         stmt, img_array = cls.get_img_array(conn, thumb)
         return (stmt, Utils.pixmap_from_array(img_array))
 
     @classmethod
     def get_img_array(cls, conn: Connection, thumb: Thumb) -> tuple[Update | Insert| None, np.ndarray]:
-        """
-        Загружает данные о Thumb из базы данных. Возвращает np.ndarray
-        """
-
         stmt = select(
             CACHE.c.id,
             CACHE.c.img,
@@ -123,10 +102,6 @@ class ImageBaseItem:
 
     @classmethod
     def update_db_record(cls, thumb: Thumb, row_id: int) -> tuple[Update, np.ndarray]:
-        """
-        Обновляет запись в базе данных:     
-        имя, изображение bytes, размер, дата изменения, разрешение, хеш 10мб
-        """
         img_array = cls.get_small_ndarray_img(thumb.src)
         bytes_img = Utils.numpy_to_bytes(img_array)
         new_size, new_mod, new_resol = cls.get_stats(thumb.src, img_array)
@@ -245,7 +220,9 @@ class LoadImages(QRunnable):
             if UThreadPool.get_canceled(self):
                 return  
             if base_item.type_ not in Static.ext_all:
-                AnyBaseItem.check_db_record(self.conn, base_item)
+                stmt, _ = AnyBaseItem.check_db_record(self.conn, base_item)
+                if isinstance(stmt, Insert):
+                    self.stmt_list.append(stmt)
             else:
                 stmt, pixmap = ImageBaseItem.get_pixmap(self.conn, base_item)
                 base_item.set_pixmap_storage(pixmap)
