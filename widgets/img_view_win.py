@@ -40,6 +40,7 @@ class LoadThumbnail(QRunnable):
         self.src = Utils.normalize_slash(src)
         self.name = os.path.basename(self.src)
 
+    @UThreadPool.mark_finished_after_run
     def run(self):
         db = os.path.join(os.path.dirname(self.src), Static.DB_FILENAME)
         dbase = Dbase()
@@ -85,7 +86,7 @@ class LoadImage(QRunnable):
         super().__init__()
         self.signals_ = WorkerSignals()
         self.src: str = src
-
+    @UThreadPool.mark_finished_after_run
     def run(self):
         if self.src not in self.cached_images:
 

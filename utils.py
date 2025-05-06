@@ -599,10 +599,12 @@ class FitImg:
         else:  # Квадратное изображение
             new_w, new_h = size, size
         return cv2.resize(image, (new_w, new_h), interpolation=cv2.INTER_AREA)
-        
+
 
 class UThreadPool:
     pool: QThreadPool = None
+    tasks: list[QRunnable] = []
+    finished_attr = "finished"
 
     @classmethod
     def init(cls):
@@ -610,4 +612,14 @@ class UThreadPool:
 
     @classmethod
     def start(cls, runnable: QRunnable):
+        cls.tasks.append(runnable)
         cls.pool.start(runnable)
+
+    @staticmethod
+    def mark_finished_after_run(method):
+        def wrapper(self, *args, **kwargs):
+            try:
+                return method(self, *args, **kwargs)
+            finally:
+                setattr(self, UThreadPool.finished_attr, True)
+        return wrapper

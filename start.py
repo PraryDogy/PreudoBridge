@@ -74,8 +74,12 @@ class CustomApp(QApplication):
         return False
 
     def on_exit(self):
-        while UThreadPool.pool.activeThreadCount() > 0:
-            QTest.qSleep(2000)
+        for i in UThreadPool.tasks:
+            i.should_run = False
+
+        while any(not hasattr(i, UThreadPool.finished_attr)for i in UThreadPool.tasks):
+            print("not done")
+            QTest.qSleep(200)
 
         # вероятно предотвращает segmentation fault / bus error
         self.removeEventFilter(self)

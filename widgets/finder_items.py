@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Static
 from database import CACHE, Dbase
-from utils import Utils
+from utils import Utils, UThreadPool
 
 from ._base_items import BaseItem, MainWinItem, SortItem
 
@@ -27,6 +27,7 @@ class FinderItems(QRunnable):
         self.sort_item = sort_item
         self.main_win_item = main_win_item
 
+    @UThreadPool.mark_finished_after_run
     def run(self):
         try:
             base_items = self.get_base_items()

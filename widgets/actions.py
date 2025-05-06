@@ -16,6 +16,7 @@ class Task_(QRunnable):
         super().__init__()
         self.cmd_ = cmd_
 
+    @UThreadPool.mark_finished_after_run
     def run(self):
         self.cmd_()
 

@@ -72,6 +72,7 @@ class SetDbRating(QRunnable):
         self.main_dir = main_dir
         self.signals_ = WorkerSignals()
 
+    @UThreadPool.mark_finished_after_run
     def run(self):        
         db = os.path.join(self.main_dir, Static.DB_FILENAME)
         dbase = Dbase()

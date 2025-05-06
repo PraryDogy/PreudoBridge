@@ -25,6 +25,7 @@ class RemoveFilesTask(QRunnable):
         self.main_dir = main_dir
         self.urls = urls
 
+    @UThreadPool.mark_finished_after_run
     def run(self):
         try:
             command = ["osascript", Static.REMOVE_FILES_SCPT] + self.urls

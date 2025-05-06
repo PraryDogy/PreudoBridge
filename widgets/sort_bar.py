@@ -152,6 +152,7 @@ class PathFinderThread(QRunnable):
         self.signals_ = WorkerSignals()
         self.src: str = src
 
+    @UThreadPool.mark_finished_after_run
     def run(self):
         result = PathFinder.get_result(self.src)
         if not result:

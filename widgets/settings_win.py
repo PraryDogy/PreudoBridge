@@ -85,6 +85,7 @@ class DownloadUpdate(QRunnable):
         super().__init__()
         self.signals_ = WorkerSignals()
 
+    @UThreadPool.mark_finished_after_run
     def run(self):
         for i in JsonData.udpdate_file_paths:
             if os.path.exists(i):

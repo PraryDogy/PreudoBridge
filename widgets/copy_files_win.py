@@ -31,6 +31,7 @@ class FileCopyWorker(QRunnable):
         self.urls = urls
         self.signals_ = WorkerSignals()
 
+    @UThreadPool.mark_finished_after_run
     def run(self):    
         try:
             new_paths = self.create_new_paths()

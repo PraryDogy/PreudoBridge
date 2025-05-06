@@ -33,6 +33,7 @@ class CalculatingTask(QRunnable):
         self.base_item = base_item
         self.signals_ = WorkerSignals()
 
+    @UThreadPool.mark_finished_after_run
     def run(self):
         try:
             if self.base_item.type_ == Static.FOLDER_TYPE:

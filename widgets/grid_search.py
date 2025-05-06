@@ -46,6 +46,7 @@ class SearchFinder(QRunnable):
         self.conn = None
         self.pause = False
 
+    @UThreadPool.mark_finished_after_run
     def run(self):
         self.setup_search()
         self.scandir_recursive()

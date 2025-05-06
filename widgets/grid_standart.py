@@ -193,6 +193,7 @@ class LoadImages(QRunnable):
         key_ = lambda x: x.size
         self.thumbs.sort(key=key_)
 
+    @UThreadPool.mark_finished_after_run
     def run(self):
         """
         Создает подключение к базе данных   
