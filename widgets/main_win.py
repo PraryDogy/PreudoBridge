@@ -109,20 +109,19 @@ class MainWin(WinBase):
         self.main_win_list: list[MainWin] = []
         # индекс 0 просмотр сеткой, индекс 1 просмотр списком
         self.view_index: int = 0
-        self.search_item = SearchItem()
-        self.main_win_item = MainWinItem()
+        self.search_item: SearchItem = SearchItem()
+        self.main_win_item: MainWinItem = MainWinItem()
         self.sort_item: SortItem = SortItem()
 
         self.setMinimumSize(MainWin.min_width_, MainWin.min_height_)
         self.resize(MainWin.width_, MainWin.height_)
+
         if dir:
             self.main_win_item.main_dir = dir
         else:
-            self.main_win_item.main_dir = os.path.expanduser("~/Downloads")
-            self.main_win_item.main_dir = Utils.add_system_volume(self.main_win_item.main_dir)
-
-
-        self.main_win_item.main_dir = "/Volumes/Macintosh HD/Users/Loshkarev/Desktop/TEST IMAGES/psb"
+            dir = os.path.expanduser("~/Downloads")
+            dir = Utils.add_system_volume(self.main_win_item.main_dir)
+            self.main_win_item.main_dir = dir
 
         self.resize_timer = QTimer(self)
         self.resize_timer.setSingleShot(True)
