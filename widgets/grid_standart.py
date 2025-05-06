@@ -240,14 +240,8 @@ class LoadImages(QRunnable):
                 try:
                     self.signals_.update_thumb.emit(base_item)
                 except (TypeError, RuntimeError) as e:
-                    print(e)
+                    Utils.print_error(self, e)
                     return
-                
-            try:
-                0 / 0
-            except Exception as e:
-                Utils.print_error(self, e)
-
 
 class GridStandart(Grid):
     no_images_text = "Папка пуста или нет подключения к диску"
