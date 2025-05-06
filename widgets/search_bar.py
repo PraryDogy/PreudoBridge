@@ -110,9 +110,6 @@ class SearchBar(QFrame):
         self.pause_flag = False
 
         return super().show()
-    
-    def show_spinner(self):
-        ...
 
     def search_bar_search_fin(self):
         self.descr_lbl.setText("Поиск завершен")

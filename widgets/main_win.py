@@ -315,7 +315,6 @@ class MainWin(WinBase):
 
     def load_search_grid(self):
         self.search_bar.show()
-        self.search_bar.show_spinner()
         self.search_bar_sep.show()
         self.tags_menu.reset()
 
