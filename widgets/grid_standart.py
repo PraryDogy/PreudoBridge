@@ -188,6 +188,7 @@ class LoadImages(QRunnable):
         super().__init__()
         self.signals_ = WorkerSignals()
         self.main_win_item = main_win_item
+        self.should_run = True
         self.thumbs = thumbs
         key_ = lambda x: x.size
         self.thumbs.sort(key=key_)
@@ -219,6 +220,8 @@ class LoadImages(QRunnable):
         except RuntimeError as e:
             Utils.print_error(e)
 
+        print("fin")
+
     def process_thumbs(self):
         """
         Обходит циклом список Thumb     
@@ -226,13 +229,13 @@ class LoadImages(QRunnable):
         чтобы передать его в Thumb
         """
         for base_item in self.thumbs:
-                        
+            if not self.should_run:
+                return  
             if base_item.type_ not in Static.ext_all:
                 AnyBaseItem.check_db_record(self.conn, base_item)
             else:
                 pixmap = ImageBaseItem.get_pixmap(self.conn, base_item)
                 base_item.set_pixmap_storage(pixmap)
-
                 try:
                     self.signals_.update_thumb.emit(base_item)
                 except (TypeError, RuntimeError) as e:
@@ -251,6 +254,7 @@ class GridStandart(Grid):
 
         # список url для предотвращения повторной загрузки изображений
         self.loaded_images: list[str] = []
+        self.tasks: list[LoadImages] = []
 
         # при скроллинге запускается данный таймер и сбрасывается предыдуший
         # только при остановке скроллинга спустя время запускается
@@ -424,9 +428,10 @@ class GridStandart(Grid):
         # в QRunnable для подгрузки изображений
         # в самом QRunnable нет обращений напрямую к Thumb
         # а только испускается сигнал
-        thread_ = LoadImages(self.main_win_item, thumbs)
-        thread_.signals_.update_thumb.connect(lambda thumb: self.set_thumb_image(thumb))
-        UThreadPool.start(thread_)
+        task_ = LoadImages(self.main_win_item, thumbs)
+        task_.signals_.update_thumb.connect(lambda thumb: self.set_thumb_image(thumb))
+        self.tasks.append(task_)
+        UThreadPool.start(task_)
     
     def set_thumb_image(self, thumb: Thumb):
         """
@@ -446,16 +451,16 @@ class GridStandart(Grid):
         return super().resizeEvent(a0)
 
     def deleteLater(self):
+        for i in self.tasks:
+            i.should_run = False
+
         self.main_win_item.urls = [
             i.src
             for i in self.selected_widgets
         ]
         return super().deleteLater()
     
-
-    def test(self):
-        print(1)
-        UThreadPool.pool.waitForDone()
-        print(2)
-        return super().deleteLater()
-        print(3)
+    def closeEvent(self, a0):
+        for i in self.tasks:
+            i.should_run = False
+        return super().closeEvent(a0)
