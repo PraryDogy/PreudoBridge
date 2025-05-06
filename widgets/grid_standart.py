@@ -219,7 +219,7 @@ class LoadImages(QRunnable):
         Dbase.commit_(self.conn)
         Dbase.close_connection(self.conn)
         try:
-            Utils.safe_emit(self.signals_.finished_)
+            self.signals_.finished_.emit()
         except RuntimeError:
             ...
 
@@ -230,21 +230,23 @@ class LoadImages(QRunnable):
         чтобы передать его в Thumb
         """
         for base_item in self.thumbs:
-
-            if not self.parent_ref():
-                print("no parent")
-                return
                         
             if base_item.type_ not in Static.ext_all:
                 AnyBaseItem.check_db_record(self.conn, base_item)
             else:
                 pixmap = ImageBaseItem.get_pixmap(self.conn, base_item)
                 base_item.set_pixmap_storage(pixmap)
+
                 try:
-                    Utils.safe_emit(self.signals_.update_thumb, base_item)
+                    self.signals_.update_thumb.emit(base_item)
                 except (TypeError, RuntimeError) as e:
                     print(e)
                     return
+                
+            try:
+                0 / 0
+            except Exception as e:
+                Utils.print_error(self, e)
 
 
 class GridStandart(Grid):

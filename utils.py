@@ -47,8 +47,8 @@ class Err:
             filename = os.path.basename(filepath)
             line_number = trace.lineno
 
+        print("Error:", str(error))
         print(f"{filepath}:{line_number}")
-        print("ERROR:", str(error))
 
 
 class ReadImage(Err):

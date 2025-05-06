@@ -38,7 +38,11 @@ class FileCopyWorker(QRunnable):
             new_paths = self.create_new_paths()
         except OSError as e:
             print("win copy files", e)
-            Utils.safe_emit(self.signals_.error_win_sig)
+
+            try:
+                self.signals_.error_win_sig.emit()
+            except RuntimeError:
+                print("FileCopyWorker > ")
 
         # общий размер всех файлов в байтах
         total_bytes = sum([os.path.getsize(old_path)for old_path, new_path in new_paths])
