@@ -136,7 +136,7 @@ class RatingWid(QLabel):
             text = RATINGS.get(rating).strip()
             self.setText(text)
         except Exception as e:
-            print(rating, e)
+            Utils.print_error(e)
 
 
 class Thumb(BaseItem, QFrame):
@@ -385,7 +385,7 @@ class Grid(UScrollArea):
         try:
             self.path_bar_update.emit(src)
         except RuntimeError as e:
-            Utils.print_error(self, e)
+            Utils.print_error(e)
     
     def sort_(self):
         """

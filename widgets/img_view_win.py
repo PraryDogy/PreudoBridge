@@ -75,7 +75,7 @@ class LoadThumbnail(QRunnable):
         try:
             self.signals_.finished_.emit(image_data)
         except RuntimeError as e:
-            Utils.print_error(self, e)
+            Utils.print_error(e)
 
 
 class LoadImage(QRunnable):

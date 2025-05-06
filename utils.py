@@ -26,9 +26,8 @@ psd_logger = logging.getLogger("psd_tools")
 psd_logger.setLevel(logging.CRITICAL)
 
 class Err:
-
     @classmethod
-    def print_error(cls, parent: object, error: Exception):
+    def print_error(cls, error: Exception):
         tb = traceback.extract_tb(error.__traceback__)
 
         # Попробуем найти первую строчку стека, которая относится к вашему коду.
@@ -73,14 +72,15 @@ class ReadImage(Err):
                 img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
             return img
         except (tifffile.TiffFileError, RuntimeError, DelayedImportError, Exception) as e: 
-            print("error read tiff, open pil", path, e)
+            Utils.print_error(e)
             try:
                 img = Image.open(path)
                 img = img.convert("RGB")
                 array_img = np.array(img)
                 img.close()
                 return array_img
-            except Exception:
+            except Exception as e:
+                Utils.print_error(e)
                 return None
 
     @classmethod
@@ -118,8 +118,7 @@ class ReadImage(Err):
                 img.close()
                 return array_img
             except Exception as e:
-                print("utils > error read psd", "src:", path)
-                print(e)
+                Utils.print_error(e)
                 return None
                     
     @classmethod
@@ -131,8 +130,7 @@ class ReadImage(Err):
             array_img = np.array(img)
             return array_img
         except Exception as e:
-            print("utils > error read psd", "src:", path)
-            print(e)
+            Utils.print_error(e)
             return None
 
     """
@@ -240,8 +238,7 @@ class ReadImage(Err):
             
             return img
         except Exception as e:
-            # Если произошла ошибка, выводим её
-            print("error read png cv2:", e)
+            Utils.print_error(e)
             return None
 
     @classmethod
@@ -253,7 +250,7 @@ class ReadImage(Err):
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             return img
         except Exception as e:
-            print("read jpg cv2 error", e)
+            Utils.print_error(e)
             return None
 
     @classmethod
@@ -279,7 +276,7 @@ class ReadImage(Err):
 
             return img
         except (Exception, rawpy._rawpy.LibRawDataError) as e:
-            print(f"Error reading raw file: {e}")
+            Utils.print_error(e)
             return None
 
     @classmethod
@@ -294,7 +291,8 @@ class ReadImage(Err):
                 return frame
             else:
                 return None
-        except Exception:
+        except Exception as e:
+            Utils.print_error(e)
             return None
 
     @classmethod
@@ -350,7 +348,7 @@ class ImgConvert(Err):
                 return np.array(image)
             
         except Exception as e:
-            Utils.print_error(parent=cls, error=e)
+            Utils.print_error(e)
             return None
 
     @classmethod
@@ -363,7 +361,7 @@ class ImgConvert(Err):
                 return buffer.getvalue()
             
         except Exception as e:
-            Utils.print_error(parent=cls, error=e)
+            Utils.print_error(e)
             return None
 
 
@@ -586,7 +584,7 @@ class FitImg:
         try:
             return cls.fit_image(image, size)
         except Exception as e:
-            Utils.print_error(cls, e)
+            Utils.print_error(e)
             return None
 
     @classmethod

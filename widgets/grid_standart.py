@@ -169,7 +169,7 @@ class ImageBaseItem:
             new_resol = f"{width}x{height}"
             return new_size, new_mod, new_resol
         except Exception as e:
-            print(e, src)
+            Utils.print_error(e)
             return 0, 0, ""
 
 
@@ -216,8 +216,8 @@ class LoadImages(QRunnable):
         Dbase.close_connection(self.conn)
         try:
             self.signals_.finished_.emit()
-        except RuntimeError:
-            ...
+        except RuntimeError as e:
+            Utils.print_error(e)
 
     def process_thumbs(self):
         """
@@ -236,7 +236,7 @@ class LoadImages(QRunnable):
                 try:
                     self.signals_.update_thumb.emit(base_item)
                 except (TypeError, RuntimeError) as e:
-                    Utils.print_error(self, e)
+                    Utils.print_error(e)
                     return
 
 class GridStandart(Grid):
@@ -438,8 +438,8 @@ class GridStandart(Grid):
             try:
                 thumb.set_image(pixmap)
                 self.loaded_images.append(thumb.src)
-            except RuntimeError:
-                ...
+            except RuntimeError as e:
+                Utils.print_error(e)
 
     def resizeEvent(self, a0):
         self.loading_lbl.center(self)

@@ -37,11 +37,11 @@ class FileCopyWorker(QRunnable):
         try:
             new_paths = self.create_new_paths()
         except OSError as e:
-            Utils.print_error(self, e)
+            Utils.print_error(e)
             try:
                 self.signals_.error_win_sig.emit()
-            except RuntimeError:
-                Utils.print_error(self, e)
+            except RuntimeError as e:
+                Utils.print_error(e)
                 return
 
         # общий размер всех файлов в байтах
@@ -54,7 +54,7 @@ class FileCopyWorker(QRunnable):
         try:
             self.signals_.set_max_progress.emit(total_mb)
         except RuntimeError as e:
-            Utils.print_error(self, e)
+            Utils.print_error(e)
             return
 
         # сколько уже скопировано в байтах
@@ -72,7 +72,7 @@ class FileCopyWorker(QRunnable):
             try:
                 self.copy_by_bytes(src, dest)
             except Exception as e:
-                Utils.print_error(self, e)
+                Utils.print_error(e)
                 continue
 
         # создаем список путей к виджетам в сетке для выделения
@@ -84,7 +84,7 @@ class FileCopyWorker(QRunnable):
         try:
             self.signals_.finished_.emit(urls)
         except RuntimeError as e:
-            Utils.print_error(self, e)
+            Utils.print_error(e)
 
     def copy_by_bytes(self, src: str, dest: str):
         buffer_size = 1024 * 1024  # 1 MB
@@ -99,7 +99,7 @@ class FileCopyWorker(QRunnable):
                 try:
                     self.report_progress()
                 except RuntimeError as e:
-                    Utils.print_error(self, e)
+                    Utils.print_error(e)
                     return
 
     def report_progress(self):

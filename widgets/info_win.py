@@ -36,56 +36,46 @@ class CalculatingTask(QRunnable):
         self.parent_ref = weakref.ref(parent)
 
     def run(self):
-        try:
-            if self.base_item.type_ == Static.FOLDER_TYPE:
+        if self.base_item.type_ == Static.FOLDER_TYPE:
+            try:
                 res = self.get_folder_size()
-            else:
+            except Exception as e:
+                Utils.print_error(e)
+                res = "Ошибка"
+        else:
+            try:
                 res = self.get_img_resol()
-
+            except Exception as e:
+                Utils.print_error(e)
+                res = "Ошибка"
+        try:
             self.signals_.finished_.emit(res)
-
-        except Exception as e:
-            Utils.print_error(parent=None, error=e)
+        except RuntimeError as e:
+            Utils.print_error(e)
 
     def get_img_resol(self):
         img_ = Utils.read_image(self.base_item.src)
-
         if img_ is not None and len(img_.shape) > 1:
             h, w = img_.shape[0], img_.shape[1]
             resol= f"{w}x{h}"
         else:
             resol = UNDEFINED
-
         return resol
 
     def get_folder_size(self):
         total = 0
         stack = []
         stack.append(self.base_item.src)
-
         while stack:
             current_dir = stack.pop()
-
             with os.scandir(current_dir) as entries:
-
                 for entry in entries:
-
-                    if not self.parent_ref():
-                        return
-
                     if entry.is_dir():
                         stack.append(entry.path)
-
                     else:
-                        try:
-                            total += entry.stat().st_size
-                        except Exception:
-                            ...
-
+                        total += entry.stat().st_size
         total = Utils.get_f_size(total)
-
-        if self.parent_ref():
-            return total
+        return total
 
 
 class InfoTask:

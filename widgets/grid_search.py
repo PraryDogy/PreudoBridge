@@ -52,7 +52,7 @@ class SearchFinder(QRunnable):
         try:
             self.signals_.finished_.emit()
         except RuntimeError as e:
-            Utils.print_error(self, e)
+            Utils.print_error(e)
 
     def setup_search(self):
         if self.search_item.get_files_list():
@@ -151,8 +151,11 @@ class SearchFinder(QRunnable):
             try:
                 # Сканируем текущий каталог и добавляем новые пути в стек
                 self.scan_current_dir(current_dir, dirs_list)
+            except RuntimeError as e:
+                Utils.print_error(e)
+                return
             except Exception as e:
-                print(e)
+                Utils.print_error(e)
                 continue
 
     def scan_current_dir(self, dir: str, dirs_list: list):
@@ -174,20 +177,10 @@ class SearchFinder(QRunnable):
         img_array = FitImg.start(img_array, ThumbData.DB_IMAGE_SIZE)
         pixmap = Utils.pixmap_from_array(img_array)
         del img_array
-
         base_item = BaseItem(entry.path)
         base_item.setup_attrs()
         base_item.set_pixmap_storage(pixmap)
-
-        try:
-            self.signals_.new_widget.emit(base_item)
-        except Exception as e:
-            # почему то даже когда parent_ref = None, 
-            # поиск продолжает выполняться, а так мы отлавливаем, что parent
-            # был уничтожен и выходим из потока
-            # предотвращаем segmentation fault
-            Utils.print_error(self, e)
-            quit()
+        self.signals_.new_widget.emit(base_item)
         sleep(0.2)
 
 

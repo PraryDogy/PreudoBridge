@@ -4,7 +4,6 @@ from time import sleep
 import sqlalchemy
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import Dynamic
 from utils import Utils
 
 METADATA = sqlalchemy.MetaData()
@@ -86,7 +85,7 @@ class Dbase:
             # metadata.create_all уже может возникнуть ошибка
 
             self.conn_count += 1
-            METADATA.create_all(bind=engine)
+            METADATA.create_all(engine)
             conn = Dbase.open_connection(engine)
 
             # проверяем доступность БД и соответствие таблицы
@@ -97,20 +96,20 @@ class Dbase:
             return engine
 
         except SQL_ERRORS as e:
-            # print(traceback.format_exc())
-            print("create engine error", e)
+            Utils.print_error(e)
 
             if os.path.exists(path):
                 os.remove(path)
 
-            self.create_engine(path=path)
+            sleep(0.5)
+            self.create_engine(path)
 
     @classmethod
     def commit_(cls, conn: sqlalchemy.Connection) -> None:
         try:
             conn.commit()
         except SQL_ERRORS as e:
-            Utils.print_error(cls, e)
+            Utils.print_error(e)
             conn.rollback()
 
     @classmethod
@@ -118,7 +117,7 @@ class Dbase:
         try:
             return conn.execute(query)
         except SQL_ERRORS as e:
-            Utils.print_error(cls, e)
+            Utils.print_error(e)
             conn.rollback()
             return None
     
@@ -127,7 +126,7 @@ class Dbase:
         try:
             return engine.connect()
         except SQL_ERRORS as e:
-            Utils.print_error(cls, e)
+            Utils.print_error(e)
             return None
     
     @classmethod
@@ -135,5 +134,5 @@ class Dbase:
         try:
             conn.close()
         except SQL_ERRORS as e:
-            Utils.print_error(cls, e)
+            Utils.print_error(e)
             conn.rollback()
