@@ -76,7 +76,7 @@ class Dbase:
             echo=False,
             connect_args={
                 "check_same_thread": False,
-                "timeout": 60
+                "timeout": 10
             }
         )
 

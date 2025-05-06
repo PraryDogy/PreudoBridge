@@ -220,8 +220,6 @@ class LoadImages(QRunnable):
         except RuntimeError as e:
             Utils.print_error(e)
 
-        print("fin")
-
     def process_thumbs(self):
         """
         Обходит циклом список Thumb     
