@@ -329,12 +329,12 @@ class MainWin(WinBase):
         QTimer.singleShot(3000, old_grid.deleteLater)
 
     def load_search_grid(self):
-        self.safe_delete_grid()
-
         self.search_bar.show()
         self.search_bar.show_spinner()
         self.search_bar_sep.show()
         self.menu_tags.reset()
+
+        old_wid = self.grid
 
         self.grid = GridSearch(self.main_win_item, self.view_index)
         self.grid.setParent(self)
@@ -345,6 +345,9 @@ class MainWin(WinBase):
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
         self.setup_grid_signals()
         self.grid.setFocus()
+
+        old_wid.setParent(None)
+        old_wid.deleteLater()
 
     def finished_search_grid(self, id_: int):
         """
