@@ -34,6 +34,7 @@ class SearchFinder(QRunnable):
         super().__init__()
         self.signals_ = WorkerSignals()
         self.main_win_item = main_win_item
+        self.should_run: bool = True
 
         self.search_item = search_item
         self.files_list_lower: list[str] = []
@@ -52,8 +53,6 @@ class SearchFinder(QRunnable):
             self.signals_.finished_.emit()
         except RuntimeError as e:
             Utils.print_error(e)
-
-        print("fin")
 
     def setup_search(self):
         if self.search_item.get_files_list():
@@ -147,6 +146,8 @@ class SearchFinder(QRunnable):
             current_dir = dirs_list.pop()
             while self.pause:
                 sleep(1)
+            if not self.should_run:
+                return
             try:
                 # Сканируем текущий каталог и добавляем новые пути в стек
                 self.scan_current_dir(current_dir, dirs_list)
@@ -161,6 +162,8 @@ class SearchFinder(QRunnable):
         for entry in os.scandir(dir):
             while self.pause:
                 sleep(1)
+            if not self.should_run:
+                return
             if entry.name.startswith("."):
                 continue
             if entry.is_dir():
@@ -351,3 +354,10 @@ class GridSearch(Grid):
         self.resize_()
         return super().resizeEvent(a0)
     
+    def closeEvent(self, a0):
+        self.task_.should_run = False
+        return super().closeEvent(a0)
+
+    def deleteLater(self):
+        self.task_.should_run = False
+        return super().deleteLater()
