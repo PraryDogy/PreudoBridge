@@ -180,13 +180,13 @@ class SearchFinder(QRunnable):
                 self.process_img(entry)
 
     def process_img(self, entry: os.DirEntry):
-        img_array = Utils.read_image(entry.path)
-        img_array = FitImg.start(img_array, ThumbData.DB_IMAGE_SIZE)
-        pixmap = Utils.pixmap_from_array(img_array)
-        base_item = BaseItem(entry.path)
-        base_item.setup_attrs()
-        base_item.set_pixmap_storage(pixmap)
-        self.signals_.new_widget.emit(base_item)
+        self.img_array = Utils.read_image(entry.path)
+        self.img_array = FitImg.start(self.img_array, ThumbData.DB_IMAGE_SIZE)
+        self.pixmap = Utils.pixmap_from_array(self.img_array)
+        self.base_item = BaseItem(entry.path)
+        self.base_item.setup_attrs()
+        self.base_item.set_pixmap_storage(self.pixmap)
+        self.signals_.new_widget.emit(self.base_item)
         # приводит к ошибке no python frame / bus error
         # QTest.qSleep(200)
 
