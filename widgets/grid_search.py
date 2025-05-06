@@ -1,7 +1,6 @@
 import os
 import weakref
 from difflib import SequenceMatcher
-from time import sleep
 
 from PyQt5.QtCore import QObject, QRunnable, Qt, QTimer, pyqtSignal
 from PyQt5.QtTest import QTest
@@ -181,7 +180,8 @@ class SearchFinder(QRunnable):
         base_item.setup_attrs()
         base_item.set_pixmap_storage(pixmap)
         self.signals_.new_widget.emit(base_item)
-        QTest.qSleep(200)
+        # приводит к ошибке no python frame / bus error
+        # QTest.qSleep(200)
 
 
 class WinMissedFiles(MinMaxDisabledWin):

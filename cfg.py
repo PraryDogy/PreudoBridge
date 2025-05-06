@@ -207,3 +207,4 @@ class Dynamic:
     pixmap_size_ind = 0
     generic_icon_paths: list[str] = []
     urls_to_copy: list[str] = []
+    reading = False
