@@ -55,6 +55,7 @@ from cfg import JsonData
 from utils import UThreadPool
 from widgets._base_items import BaseItem, WinBase
 from widgets.main_win import MainWin
+from PyQt5.QtTest import QTest
 
 class CustomApp(QApplication):
     def __init__(self, argv: list[str]) -> None:
@@ -76,6 +77,8 @@ class CustomApp(QApplication):
         # вероятно предотвращает segmentation fault / bus error
         self.removeEventFilter(self)
         JsonData.write_config()
+        QTest.qSleep(2000)
+
 
 import faulthandler
 faulthandler.enable()

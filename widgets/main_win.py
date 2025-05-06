@@ -418,7 +418,7 @@ class MainWin(WinBase):
                 self.grid.setFocus()
                 self.grid.keyPressEvent(a0)
 
-        if a0.modifiers() & Qt.KeyboardModifier.ControlModifier and a0.key() == Qt.Key.Key_Up:
+        elif a0.modifiers() & Qt.KeyboardModifier.ControlModifier and a0.key() == Qt.Key.Key_Up:
             if not self.grid.hasFocus():
                 self.grid.setFocus()
                 self.grid.keyPressEvent(a0)
