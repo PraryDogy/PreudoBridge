@@ -674,8 +674,8 @@ class UThreadPool:
 
     @classmethod
     def start(cls, runnable: QRunnable):
-        for i in cls.tasks:
-            if i.is_finished():
-                cls.tasks.remove(i)
+        # for i in cls.tasks:
+        #     if i.is_finished():
+        #         cls.tasks.remove(i)
         cls.tasks.append(runnable)
         cls.pool.start(runnable)
