@@ -85,7 +85,6 @@ class CustomApp(QApplication):
         JsonData.write_config()
 
 
-
 import faulthandler
 
 faulthandler.enable()
