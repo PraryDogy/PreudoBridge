@@ -1,7 +1,7 @@
 import os
 import re
 
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtCore import Qt, pyqtSignal, QRunnable, QThreadPool
 from PyQt5.QtGui import (QContextMenuEvent, QCursor, QMouseEvent, QPixmap,
                          QWheelEvent)
 from PyQt5.QtSvg import QSvgWidget
@@ -630,3 +630,62 @@ class MainWinItem:
         # immortal_urls
         self.immortal_urls: list[str] = []
         self.main_dir: str = None
+
+
+class URunnable(QRunnable):
+    def __init__(self):
+        """
+        Переопределите метод task().
+        Не переопределяйте run().
+        """
+        super().__init__()
+        self.should_run__ = True
+        self.finished__ = False
+
+    def get_should_run(self):
+        return self.should_run__
+    
+    def set_should_run(self, value: bool):
+        self.should_run__ = value
+
+    def set_finished(self, value: bool):
+        self.finished__ = value
+
+    def get_finished(self):
+        return self.finished__
+    
+    def run(self):
+        try:
+            self.task()
+        finally:
+            self.set_finished(True)
+
+    def task(self):
+        raise NotImplementedError("Переопредели метод task() в подклассе.")
+
+
+class UThreadPool:
+    pool: QThreadPool = None
+    tasks: list[URunnable] = []
+    task_finished = "finished"
+    canceled = "force_stop"
+
+    @classmethod
+    def init(cls):
+        cls.pool = QThreadPool.globalInstance()
+
+    @classmethod
+    def start(cls, runnable: QRunnable):
+        cls.tasks.append(runnable)
+        cls.pool.start(runnable)
+
+    @staticmethod
+    def mark_finished_after_run(method):
+        def wrapper(self, *args, **kwargs):
+            assert isinstance(method, URunnable)
+            method(self, *args, **kwargs)
+            self.set_finished(True)
+            if self in UThreadPool.tasks:
+                UThreadPool.tasks.remove(self)
+            return method
+        return wrapper
