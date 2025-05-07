@@ -246,6 +246,7 @@ class SearchWidget(ULineEdit):
         - Срабатывает сигнал textChanged -> on_text_changed
         """
         self.search_list_local = search_list
+        self.setText("")
         self.setText(SearchItem.SEARCH_LIST_TEXT)
 
 
@@ -343,9 +344,11 @@ class TopBar(QWidget):
         self.search_wid.setFocus()
 
     def on_extensions_click_cmd(self):
+        self.search_wid.selectAll()
         self.search_wid.show_templates(None)
 
     def on_list_click_cmd(self):
+        self.search_wid.selectAll()
         self.search_wid.open_search_list_win()
 
     def cascade_windows(self):
