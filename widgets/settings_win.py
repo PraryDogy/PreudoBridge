@@ -3,16 +3,15 @@ import shutil
 import subprocess
 from datetime import datetime
 
-from PyQt5.QtCore import QObject, QRunnable, Qt, QTimer, pyqtSignal
+from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QGroupBox, QHBoxLayout, QLabel, QPushButton,
                              QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
-from utils import UThreadPool
 
-from ._base_items import MinMaxDisabledWin
+from ._base_items import MinMaxDisabledWin, URunnable, UThreadPool
 
 LOADING_T = "Вычисляю"
 DATA_T = "Данные"
@@ -80,13 +79,12 @@ class WorkerSignals(QObject):
     finished_ = pyqtSignal(bool)
 
 
-class DownloadUpdate(QRunnable):
+class DownloadUpdate(URunnable):
     def __init__(self):
         super().__init__()
         self.signals_ = WorkerSignals()
 
-    @UThreadPool.mark_finished_after_run
-    def run(self):
+    def task(self):
         for i in JsonData.udpdate_file_paths:
             if os.path.exists(i):
 

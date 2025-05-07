@@ -13,8 +13,7 @@ import rawpy
 import tifffile
 from imagecodecs.imagecodecs import DelayedImportError
 from PIL import Image
-from PyQt5.QtCore import (QRect, QRectF, QRunnable, QSize, Qt, QThreadPool,
-                          pyqtBoundSignal)
+from PyQt5.QtCore import QRect, QRectF, QSize, Qt
 from PyQt5.QtGui import QColor, QFont, QImage, QPainter, QPixmap
 from PyQt5.QtSvg import QSvgGenerator, QSvgRenderer
 from PyQt5.QtWidgets import QApplication
@@ -599,44 +598,3 @@ class FitImg:
         else:  # Квадратное изображение
             new_w, new_h = size, size
         return cv2.resize(image, (new_w, new_h), interpolation=cv2.INTER_AREA)
-
-
-class UThreadPool:
-    pool: QThreadPool = None
-    tasks: list[QRunnable] = []
-    task_finished = "finished"
-    canceled = "force_stop"
-
-    @classmethod
-    def init(cls):
-        cls.pool = QThreadPool.globalInstance()
-
-    @classmethod
-    def start(cls, runnable: QRunnable):
-        cls.tasks.append(runnable)
-        cls.pool.start(runnable)
-
-    @classmethod
-    def set_canceled(cls, task: QRunnable):
-        setattr(task, UThreadPool.canceled, True)
-
-    @classmethod
-    def get_canceled(cls, task: QRunnable):
-        return True if hasattr(task, UThreadPool.canceled) else False
-    
-    @classmethod
-    def get_finished(cls, task: QRunnable):
-        return True if hasattr(task, UThreadPool.task_finished) else False
-    
-    @classmethod
-    def set_finished(cls, task: QRunnable):
-        setattr(task, UThreadPool.task_finished, True)
-
-    @staticmethod
-    def mark_finished_after_run(method):
-        def wrapper(self, *args, **kwargs):
-            try:
-                return method(self, *args, **kwargs)
-            finally:
-                UThreadPool.set_finished(self)
-        return wrapper

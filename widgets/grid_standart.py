@@ -1,7 +1,7 @@
 import os
 
 import numpy as np
-from PyQt5.QtCore import QObject, QRunnable, Qt, QTimer, pyqtSignal
+from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QLabel
 from sqlalchemy import (Connection, Insert, RowMapping, Update, insert, select,
@@ -9,18 +9,14 @@ from sqlalchemy import (Connection, Insert, RowMapping, Update, insert, select,
 
 from cfg import Dynamic, Static, ThumbData
 from database import CACHE, ColumnNames, Dbase
-from utils import FitImg, UThreadPool, Utils
+from utils import FitImg, Utils
 
-from ._base_items import BaseItem, MainWinItem
+from ._base_items import BaseItem, MainWinItem, URunnable, UThreadPool
 from .finder_items import FinderItems, LoadingWid
 from .grid import Grid, Thumb
 
 
 class AnyBaseItem:
-    """
-    QRunnable
-    """
-
     @classmethod
     def check_db_record(cls, conn: Connection, thumb: Thumb) -> tuple[Insert | None, None]:
         if not cls.load_db_record(conn, thumb):
@@ -56,10 +52,6 @@ class AnyBaseItem:
 
 
 class ImageBaseItem:
-    """
-    QRunnable
-    """
-
     @classmethod
     def get_pixmap(cls, conn: Connection, thumb: Thumb) -> tuple[Update | Insert| None, QPixmap]:
         stmt, img_array = cls.get_img_array(conn, thumb)
@@ -164,10 +156,10 @@ class WorkerSignals(QObject):
     finished_ = pyqtSignal()
 
 
-class LoadImages(QRunnable):
+class LoadImages(URunnable):
     def __init__(self, main_win_item: MainWinItem, thumbs: list[Thumb]):
         """
-        QRunnable   
+        URunnable   
         Сортирует список Thumb по размеру по возрастанию для ускорения загрузки
         Загружает изображения из базы данных или создает новые
         """
@@ -179,8 +171,7 @@ class LoadImages(QRunnable):
         key_ = lambda x: x.size
         self.thumbs.sort(key=key_)
 
-    @UThreadPool.mark_finished_after_run
-    def run(self):
+    def task(self):
         """
         Создает подключение к базе данных   
         Запускает обход списка Thumb для загрузки изображений   
@@ -213,7 +204,7 @@ class LoadImages(QRunnable):
         чтобы передать его в Thumb
         """
         for base_item in self.thumbs:
-            if UThreadPool.get_canceled(self):
+            if not self.is_should_run():
                 return  
             if base_item.type_ not in Static.ext_all:
                 stmt, _ = AnyBaseItem.check_db_record(self.conn, base_item)
@@ -262,7 +253,7 @@ class GridStandart(Grid):
         self.loading_lbl = LoadingWid(self)
         self.loading_lbl.center(self)
 
-        # QRunnable FinderItems вернет все элементы из заданной директории
+        # URunnable FinderItems вернет все элементы из заданной директории
         # где base items это существующие в базе данных записи по элементам
         # а new_items - элементы, записей по которым нет в базе данных
         self.base_items: list[BaseItem] = []
@@ -271,7 +262,7 @@ class GridStandart(Grid):
     def load_visible_images(self):
         """
         Составляет список Thumb виджетов, которые находятся в зоне видимости.   
-        Запускает загрузку изображений через QRunnable
+        Запускает загрузку изображений через URunnable
         """
         thumbs: list[Thumb] = []
         for widget in self.main_wid.findChildren(Thumb):
@@ -283,7 +274,7 @@ class GridStandart(Grid):
     def force_load_images_cmd(self, urls: list[str]):
         """
         Находит виджеты Thumb по url.   
-        Принудительно запускает загрузку изображений через QRunnable
+        Принудительно запускает загрузку изображений через URunnable
         """
         thumbs: list[Thumb] = []
         for url in urls:
@@ -306,7 +297,7 @@ class GridStandart(Grid):
 
     def load_finder_items(self):
         """
-        QRunnable   
+        URunnable   
         Обходит заданную директорию os scandir.      
         Генерирует на основе содержимого директории список BaseItem.    
         Проверяет на наличие BaseItem в базе данных.          
@@ -413,14 +404,14 @@ class GridStandart(Grid):
 
     def run_load_images_thread(self, thumbs: list[Thumb]):
         """
-        QRunnable   
+        URunnable   
         Запускает загрузку изображений для списка Thumb.    
         Изоражения загружаются из базы данных или берутся из заданной
         директории, если их нет в базе данных.
         """
         # передаем виджеты Thumb из сетки изображений в зоне видимости
-        # в QRunnable для подгрузки изображений
-        # в самом QRunnable нет обращений напрямую к Thumb
+        # в URunnable для подгрузки изображений
+        # в самом URunnable нет обращений напрямую к Thumb
         # а только испускается сигнал
         task_ = LoadImages(self.main_win_item, thumbs)
         task_.signals_.update_thumb.connect(lambda thumb: self.set_thumb_image(thumb))
@@ -446,7 +437,7 @@ class GridStandart(Grid):
 
     def deleteLater(self):
         for i in self.tasks:
-            UThreadPool.set_canceled(i)
+            i.set_should_run(False)
 
         self.main_win_item.urls = [
             i.src
@@ -456,5 +447,5 @@ class GridStandart(Grid):
     
     def closeEvent(self, a0):
         for i in self.tasks:
-            UThreadPool.set_canceled(i)
+            i.set_should_run(False)
         return super().closeEvent(a0)

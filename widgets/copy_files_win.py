@@ -1,13 +1,14 @@
 import os
 
-from PyQt5.QtCore import QObject, QRunnable, Qt, pyqtSignal
+from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QPushButton,
                              QVBoxLayout, QWidget)
 
 from cfg import Static
-from utils import UThreadPool, Utils
+from utils import Utils
 
-from ._base_items import MainWinItem, MinMaxDisabledWin, USvgSqareWidget
+from ._base_items import (MainWinItem, MinMaxDisabledWin, URunnable,
+                          USvgSqareWidget, UThreadPool)
 
 PREPARING_T = "Подготовка"
 COPYING_T = "Копирую файлы"
@@ -24,15 +25,14 @@ class WorkerSignals(QObject):
     error_win_sig = pyqtSignal()
 
 
-class FileCopyWorker(QRunnable):
+class FileCopyWorker(URunnable):
     def __init__(self, main_win_item: MainWinItem, urls: list[str]):
         super().__init__()
         self.main_win_item = main_win_item
         self.urls = urls
         self.signals_ = WorkerSignals()
 
-    @UThreadPool.mark_finished_after_run
-    def run(self):    
+    def task(self):    
         try:
             new_paths = self.create_new_paths()
         except OSError as e:

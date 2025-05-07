@@ -1,23 +1,22 @@
 import os
 import subprocess
 
-from PyQt5.QtCore import QRunnable, pyqtSignal
+from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QAction, QLabel, QLineEdit, QTextEdit
 
 from cfg import Static
-from utils import UThreadPool, Utils
+from utils import Utils
 
-from ._base_items import SortItem, UMenu
+from ._base_items import SortItem, UMenu, URunnable, UThreadPool
 
 
 # Общий класс для выполнения действий QAction в отдельном потоке
-class Task_(QRunnable):
+class Task_(URunnable):
     def __init__(self,  cmd_: callable):
         super().__init__()
         self.cmd_ = cmd_
 
-    @UThreadPool.mark_finished_after_run
-    def run(self):
+    def task(self):
         self.cmd_()
 
 
@@ -40,7 +39,7 @@ class RevealInFinder(QAction):
         subprocess.Popen(["open", self.urls[0]])
 
     def files_cmd(self):        
-        cmd_=lambda: subprocess.run(["osascript", Static.REVEAL_SCPT] + self.urls)
+        cmd_ = lambda: subprocess.run(["osascript", Static.REVEAL_SCPT] + self.urls)
         self.task_ = Task_(cmd_)
         UThreadPool.start(self.task_)
 
@@ -143,12 +142,12 @@ class OpenInApp(UMenu):
 
     def open_in_app_cmd(self, app_path: str):
         # открыть в приложении, путь к которому указан в app_path
-        cmd_=lambda: subprocess.call(["open", "-a", app_path, self.src])
+        cmd_ = lambda: subprocess.call(["open", "-a", app_path, self.src])
         self.task_ = Task_(cmd_)
         UThreadPool.start(self.task_)
 
     def open_default_cmd(self):
-        cmd_=lambda: subprocess.call(["open",  self.src])
+        cmd_ = lambda: subprocess.call(["open",  self.src])
         self.task_ = Task_(cmd_)
         UThreadPool.start(self.task_)
 

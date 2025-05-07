@@ -2,16 +2,16 @@ import os
 import weakref
 from difflib import SequenceMatcher
 
-from PyQt5.QtCore import QObject, QRunnable, Qt, QTimer, pyqtSignal
+from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
 from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
 
 from cfg import Dynamic, Static, ThumbData
-from utils import FitImg, UThreadPool, Utils
+from utils import FitImg, Utils
 
 from ._base_items import (BaseItem, MainWinItem, MinMaxDisabledWin, SearchItem,
-                          USvgSqareWidget, UTextEdit)
+                          URunnable, USvgSqareWidget, UTextEdit, UThreadPool)
 from .grid import Grid, Thumb
 
 ATTENTION_T = "Внимание!"
@@ -27,7 +27,7 @@ class WorkerSignals(QObject):
     finished_ = pyqtSignal(list)
 
 
-class SearchFinder(QRunnable):
+class SearchFinder(URunnable):
     search_value = 0.95
 
     def __init__(self, main_win_item: MainWinItem, search_item: SearchItem):
@@ -45,8 +45,7 @@ class SearchFinder(QRunnable):
         self.conn = None
         self.pause = False
 
-    @UThreadPool.mark_finished_after_run
-    def run(self):
+    def task(self):
         self.setup_search()
         self.scandir_recursive()
         
@@ -148,13 +147,16 @@ class SearchFinder(QRunnable):
         dirs_list = [self.main_win_item.main_dir]
 
         while dirs_list:
-            # Удаляем последний элемент из списка
-            # Функция возвращает удаленный элемент
             current_dir = dirs_list.pop()
+
             while self.pause:
                 QTest.qSleep(1000)
-            if UThreadPool.get_canceled(self):
+                if not self.is_should_run():
+                    return
+
+            if not self.is_should_run():
                 return
+
             try:
                 # Сканируем текущий каталог и добавляем новые пути в стек
                 self.scan_current_dir(current_dir, dirs_list)
@@ -169,7 +171,9 @@ class SearchFinder(QRunnable):
         for entry in os.scandir(dir):
             while self.pause:
                 QTest.qSleep(1000)
-            if UThreadPool.get_canceled(self):
+                if not self.is_should_run():
+                    return
+            if not self.is_should_run():
                 return
             if entry.name.startswith("."):
                 continue
@@ -187,7 +191,6 @@ class SearchFinder(QRunnable):
         self.base_item.setup_attrs()
         self.base_item.set_pixmap_storage(self.pixmap)
         self.signals_.new_widget.emit(self.base_item)
-        # приводит к ошибке no python frame / bus error
         QTest.qSleep(200)
 
 

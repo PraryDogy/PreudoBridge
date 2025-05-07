@@ -1,15 +1,16 @@
 import os
 
 import sqlalchemy
-from PyQt5.QtCore import QObject, QRunnable, Qt, pyqtSignal
+from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtWidgets import QLabel, QWidget
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Static
 from database import CACHE, Dbase
-from utils import Utils, UThreadPool
+from utils import Utils
 
-from ._base_items import BaseItem, MainWinItem, SortItem
+from ._base_items import (BaseItem, MainWinItem, SortItem, URunnable,
+                          UThreadPool)
 
 LOADING_T = "Загрузка..."
 SQL_ERRORS = (IntegrityError, OperationalError)
@@ -19,16 +20,14 @@ class WorkerSignals(QObject):
     finished_ = pyqtSignal(tuple)
 
 
-class FinderItems(QRunnable):
-
+class FinderItems(URunnable):
     def __init__(self, main_win_item: MainWinItem, sort_item: SortItem):
         super().__init__()
         self.signals_ = WorkerSignals()
         self.sort_item = sort_item
         self.main_win_item = main_win_item
 
-    @UThreadPool.mark_finished_after_run
-    def run(self):
+    def task(self):
         try:
             base_items = self.get_base_items()
             conn = self.create_connection()

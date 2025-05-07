@@ -1,16 +1,17 @@
 import os
 import subprocess
 
-from PyQt5.QtCore import QObject, QPoint, QRunnable, Qt, pyqtSignal
+from PyQt5.QtCore import QObject, QPoint, Qt, pyqtSignal
 from PyQt5.QtGui import QKeyEvent, QMouseEvent
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
 
 from cfg import Dynamic, Static, ThumbData
-from utils import UThreadPool, Utils
+from utils import Utils
 
 from ._base_items import (MainWinItem, MinMaxDisabledWin, SortItem, UFrame,
-                          ULineEdit, USlider, USvgSqareWidget)
+                          ULineEdit, URunnable, USlider, USvgSqareWidget,
+                          UThreadPool)
 from .actions import SortMenu
 
 SORT_T = "Сортировка"
@@ -137,7 +138,7 @@ class WorkerSignals(QObject):
     finished_ = pyqtSignal(str)
 
 
-class PathFinderThread(QRunnable):
+class PathFinderThread(URunnable):
     def __init__(self, src: str):
         """
         Входящий путь к файлу папке проходит через PathFinder, корректируется
@@ -152,8 +153,7 @@ class PathFinderThread(QRunnable):
         self.signals_ = WorkerSignals()
         self.src: str = src
 
-    @UThreadPool.mark_finished_after_run
-    def run(self):
+    def task(self):
         result = PathFinder.get_result(self.src)
         if not result:
             result = ""

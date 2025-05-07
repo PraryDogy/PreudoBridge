@@ -1,13 +1,14 @@
 import os
 
-from PyQt5.QtCore import QObject, QRunnable, Qt, pyqtSignal
+from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
-from PyQt5.QtWidgets import QAction, QGridLayout, QLabel, QWidget
+from PyQt5.QtWidgets import QAction, QGridLayout, QLabel
 
 from cfg import Static
-from utils import UThreadPool, Utils
+from utils import Utils
 
-from ._base_items import BaseItem, MinMaxDisabledWin, UMenu
+from ._base_items import (BaseItem, MinMaxDisabledWin, UMenu, URunnable,
+                          UThreadPool)
 from .actions import CopyText, RevealInFinder
 
 CALCULATING = "Вычисляю..."
@@ -27,14 +28,13 @@ class WorkerSignals(QObject):
     finished_ = pyqtSignal(str)
 
 
-class CalculatingTask(QRunnable):
+class CalculatingTask(URunnable):
     def __init__(self, base_item: BaseItem):
         super().__init__()
         self.base_item = base_item
         self.signals_ = WorkerSignals()
 
-    @UThreadPool.mark_finished_after_run
-    def run(self):
+    def task(self):
         try:
             if self.base_item.type_ == Static.FOLDER_TYPE:
                 res = self.get_folder_size()

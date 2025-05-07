@@ -3,8 +3,7 @@ import subprocess
 from time import sleep
 
 import sqlalchemy
-from PyQt5.QtCore import (QMimeData, QObject, QRunnable, Qt, QTimer, QUrl,
-                          pyqtSignal)
+from PyQt5.QtCore import QMimeData, QObject, Qt, QTimer, QUrl, pyqtSignal
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
                          QPixmap)
 from PyQt5.QtSvg import QSvgWidget
@@ -14,9 +13,10 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Dynamic, JsonData, Static, ThumbData
 from database import CACHE, Dbase
-from utils import UThreadPool, Utils
+from utils import Utils
 
-from ._base_items import BaseItem, MainWinItem, SortItem, UMenu, UScrollArea
+from ._base_items import (BaseItem, MainWinItem, SortItem, UMenu, URunnable,
+                          UScrollArea, UThreadPool)
 from .actions import GridActions, ItemActions
 from .copy_files_win import CopyFilesWin, ErrorWin
 from .info_win import InfoWin
@@ -64,7 +64,7 @@ class WorkerSignals(QObject):
     finished_ = pyqtSignal()
 
 
-class SetDbRating(QRunnable):
+class SetDbRating(URunnable):
     def __init__(self, main_dir: str, base_item: BaseItem, new_rating: int):
         super().__init__()
         self.base_item = base_item
@@ -72,8 +72,7 @@ class SetDbRating(QRunnable):
         self.main_dir = main_dir
         self.signals_ = WorkerSignals()
 
-    @UThreadPool.mark_finished_after_run
-    def run(self):        
+    def task(self):        
         db = os.path.join(self.main_dir, Static.DB_FILENAME)
         dbase = Dbase()
         engine = dbase.create_engine(path=db)
@@ -629,7 +628,7 @@ class Grid(UScrollArea):
         """
         Вставляет файлы на основе списка Grid.urls_to_copy в текущую директорию.    
         Открывает окно копирования файлов.  
-        Запускает QRunnable для копирования файлов. Испускает сигналы:
+        Запускает URunnable для копирования файлов. Испускает сигналы:
         - error win sig при ошибке копирования, откроется окно ошибки
         - finished_ добавит в сетку новые Thumb
         
@@ -702,7 +701,7 @@ class Grid(UScrollArea):
         """
         Окно удаления выделенных виджетов, на основе которых формируется список     
         файлов для удаления.    
-        Запускается apple script remove_files.scpt через subprocess через QRunnable,
+        Запускается apple script remove_files.scpt через subprocess через URunnable,
         чтобы переместить файлы в корзину, а не удалять их безвозвратно.
         Окно испускет сигнал finished, что ведет к методу remove files fin
         """
@@ -809,8 +808,8 @@ class Grid(UScrollArea):
     def set_new_rating(self, new_rating: int):
         """
         Устанавливает рейтинг для выделенных в сетке виджетов:
-        - Делается запись в базу данных через QRunnable
-        - При успешной записи QRunnable испускает сигнал finished
+        - Делается запись в базу данных через URunnable
+        - При успешной записи URunnable испускает сигнал finished
         """
 
         for wid in self.selected_widgets:

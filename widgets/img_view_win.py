@@ -2,18 +2,18 @@ import gc
 import os
 
 import sqlalchemy
-from PyQt5.QtCore import (QEvent, QObject, QPoint, QRunnable, QSize, Qt,
-                          QTimer, pyqtSignal)
+from PyQt5.QtCore import QEvent, QObject, QPoint, QSize, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import (QColor, QContextMenuEvent, QKeyEvent, QMouseEvent,
                          QPainter, QPaintEvent, QPixmap, QResizeEvent)
 from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QSpacerItem,
                              QVBoxLayout, QWidget)
 
-from cfg import Dynamic, Static
+from cfg import Static
 from database import CACHE, Dbase, DbaseTools
-from utils import UThreadPool, Utils
+from utils import Utils
 
-from ._base_items import UMenu, USvgSqareWidget, WinBase
+from ._base_items import (UMenu, URunnable, USvgSqareWidget, UThreadPool,
+                          WinBase)
 from .actions import ItemActions
 from .grid import KEY_RATING, RATINGS, Thumb
 from .info_win import InfoWin
@@ -33,15 +33,14 @@ class WorkerSignals(QObject):
     finished_ = pyqtSignal(ImageData)
 
 
-class LoadThumbnail(QRunnable):
+class LoadThumbnail(URunnable):
     def __init__(self, src: str):
         super().__init__()
         self.signals_ = WorkerSignals()
         self.src = Utils.normalize_slash(src)
         self.name = os.path.basename(self.src)
 
-    @UThreadPool.mark_finished_after_run
-    def run(self):
+    def task(self):
         db = os.path.join(os.path.dirname(self.src), Static.DB_FILENAME)
         dbase = Dbase()
         engine = dbase.create_engine(path=db)
@@ -79,15 +78,15 @@ class LoadThumbnail(QRunnable):
             Utils.print_error(e)
 
 
-class LoadImage(QRunnable):
+class LoadImage(URunnable):
     cached_images: dict[str, QPixmap] = {}
 
     def __init__(self, src: str):
         super().__init__()
         self.signals_ = WorkerSignals()
         self.src: str = src
-    @UThreadPool.mark_finished_after_run
-    def run(self):
+
+    def task(self):
         if self.src not in self.cached_images:
 
             img_array = Utils.read_image(self.src)
@@ -99,9 +98,6 @@ class LoadImage(QRunnable):
             else:
                 pixmap = Utils.pixmap_from_array(img_array)
                 self.cached_images[self.src] = pixmap
-
-            # del img_array
-            # gc.collect()
 
         else:
             pixmap = self.cached_images.get(self.src)

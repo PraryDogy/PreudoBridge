@@ -1,7 +1,7 @@
 import os
 import re
 
-from PyQt5.QtCore import Qt, pyqtSignal, QRunnable, QThreadPool
+from PyQt5.QtCore import QRunnable, Qt, QThreadPool, pyqtSignal
 from PyQt5.QtGui import (QContextMenuEvent, QCursor, QMouseEvent, QPixmap,
                          QWheelEvent)
 from PyQt5.QtSvg import QSvgWidget
@@ -642,7 +642,7 @@ class URunnable(QRunnable):
         self.should_run__ = True
         self.finished__ = False
 
-    def get_should_run(self):
+    def is_should_run(self):
         return self.should_run__
     
     def set_should_run(self, value: bool):
@@ -651,7 +651,7 @@ class URunnable(QRunnable):
     def set_finished(self, value: bool):
         self.finished__ = value
 
-    def get_finished(self):
+    def is_finished(self):
         return self.finished__
     
     def run(self):
@@ -667,8 +667,6 @@ class URunnable(QRunnable):
 class UThreadPool:
     pool: QThreadPool = None
     tasks: list[URunnable] = []
-    task_finished = "finished"
-    canceled = "force_stop"
 
     @classmethod
     def init(cls):
@@ -676,16 +674,8 @@ class UThreadPool:
 
     @classmethod
     def start(cls, runnable: QRunnable):
+        for i in cls.tasks:
+            if i.is_finished():
+                cls.tasks.remove(i)
         cls.tasks.append(runnable)
         cls.pool.start(runnable)
-
-    @staticmethod
-    def mark_finished_after_run(method):
-        def wrapper(self, *args, **kwargs):
-            assert isinstance(method, URunnable)
-            method(self, *args, **kwargs)
-            self.set_finished(True)
-            if self in UThreadPool.tasks:
-                UThreadPool.tasks.remove(self)
-            return method
-        return wrapper

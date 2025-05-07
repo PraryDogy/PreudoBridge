@@ -49,13 +49,13 @@ else:
 
 
 from PyQt5.QtCore import QEvent, QObject
+from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
 
 from cfg import JsonData
-from utils import UThreadPool
-from widgets._base_items import BaseItem, WinBase
+from widgets._base_items import BaseItem, UThreadPool, WinBase
 from widgets.main_win import MainWin
-from PyQt5.QtTest import QTest
+
 
 class CustomApp(QApplication):
     def __init__(self, argv: list[str]) -> None:
@@ -75,9 +75,9 @@ class CustomApp(QApplication):
 
     def on_exit(self):
         for i in UThreadPool.tasks:
-            UThreadPool.set_canceled(i)
+            i.set_should_run(False)
 
-        while any(not UThreadPool.get_finished(i) for i in UThreadPool.tasks):
+        while any(not i.is_finished() for i in UThreadPool.tasks):
             QTest.qSleep(200)
 
         # вероятно предотвращает segmentation fault / bus error
@@ -87,6 +87,7 @@ class CustomApp(QApplication):
 
 
 import faulthandler
+
 faulthandler.enable()
 BaseItem.check()
 JsonData.init()
