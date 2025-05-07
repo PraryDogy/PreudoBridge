@@ -1,7 +1,7 @@
 import os
 import re
 
-from PyQt5.QtCore import QRunnable, Qt, QThreadPool, pyqtSignal
+from PyQt5.QtCore import QRunnable, Qt, QThreadPool, pyqtSignal, QTimer
 from PyQt5.QtGui import (QContextMenuEvent, QCursor, QMouseEvent, QPixmap,
                          QWheelEvent)
 from PyQt5.QtSvg import QSvgWidget
@@ -660,7 +660,7 @@ class URunnable(QRunnable):
         finally:
             self.set_finished(True)
             if self in UThreadPool.tasks:
-                UThreadPool.tasks.remove(self)
+                QTimer.singleShot(5000, lambda: UThreadPool.tasks.remove(self))
 
     def task(self):
         raise NotImplementedError("Переопредели метод task() в подклассе.")
