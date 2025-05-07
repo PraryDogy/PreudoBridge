@@ -212,6 +212,7 @@ class SearchWidget(ULineEdit):
         else:
             self.search_item.set_text(self.search_text)
 
+        self.search_item.set_text(self.search_text)
         self.load_search_grid_sig.emit()
 
     def show_templates(self, a0: QMouseEvent | None) -> None:
