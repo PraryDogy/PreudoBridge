@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import (QCheckBox, QFrame, QHBoxLayout, QLabel,
 
 from utils import Utils
 
-from ._base_items import SearchItem
+from ._base_items import SearchItem, UFrame
 
 
 class SpinnerWidget(QLabel):
@@ -42,8 +42,14 @@ class SearchBar(QFrame):
         h_lay.setSpacing(10)
         self.setLayout(h_lay)
 
+        uframe = UFrame()
+        h_lay.addWidget(uframe)
+        uframe_lay = QHBoxLayout()
+        uframe_lay.setContentsMargins(0, 0, 0, 0)
+        uframe.setLayout(uframe_lay)
+
         self.descr_lbl = QLabel()
-        h_lay.addWidget(self.descr_lbl)
+        uframe_lay.addWidget(self.descr_lbl)
 
         self.checkbox = QCheckBox(" Точное соответствие")
         self.checkbox.stateChanged.connect(self.on_state_change)

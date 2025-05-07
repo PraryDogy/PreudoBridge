@@ -284,12 +284,16 @@ class UFrame(QFrame):
     def normal_style(self):
         return f"""#{UFrame.object_name} {{
                         background: transparent;
+                        padding-left: 2px;
+                        padding-right: 2px;
                 }}"""
 
     def solid_style(self):
         return f"""#{UFrame.object_name} {{
                         background: {Static.GRAY_GLOBAL}; 
                         border-radius: 7px;
+                        padding-left: 2px;
+                        padding-right: 2px;
                 }}"""
 
     def enterEvent(self, a0):
