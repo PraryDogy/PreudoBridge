@@ -659,6 +659,8 @@ class URunnable(QRunnable):
             self.task()
         finally:
             self.set_finished(True)
+            if self in UThreadPool.tasks:
+                UThreadPool.tasks.remove(self)
 
     def task(self):
         raise NotImplementedError("Переопредели метод task() в подклассе.")
@@ -674,8 +676,5 @@ class UThreadPool:
 
     @classmethod
     def start(cls, runnable: QRunnable):
-        # for i in cls.tasks:
-        #     if i.is_finished():
-        #         cls.tasks.remove(i)
         cls.tasks.append(runnable)
         cls.pool.start(runnable)
