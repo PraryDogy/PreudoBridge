@@ -362,9 +362,9 @@ class GridSearch(Grid):
         return super().resizeEvent(a0)
     
     def closeEvent(self, a0):
-        UThreadPool.set_canceled(self.task_)
+        self.task_.set_should_run(False)
         return super().closeEvent(a0)
 
     def deleteLater(self):
-        UThreadPool.set_canceled(self.task_)
+        self.task_.set_should_run(False)
         return super().deleteLater()
