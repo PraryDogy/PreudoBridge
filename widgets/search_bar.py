@@ -110,7 +110,10 @@ class SearchBar(QFrame):
         else:
             self.checkbox.setDisabled(False)
 
-        self.descr_lbl.setText(self.search_item.get_text())
+        text = self.search_item.get_text()
+        if len(text) > 30:
+            text = text[:30] + "..."
+        self.descr_lbl.setText(text)
         self.pause_btn.setDisabled(False)
         self.pause_btn.setText("Пауза")
         self.pause_flag = False
