@@ -269,7 +269,10 @@ class GridStandart(Grid):
             if not widget.visibleRegion().isEmpty():
                 if widget.src not in self.loaded_images:
                     thumbs.append(widget)
-        self.run_load_images_thread(thumbs)
+        if thumbs:
+            for i in self.tasks:
+                i.set_should_run(False)
+            self.run_load_images_thread(thumbs)
 
     def force_load_images_cmd(self, urls: list[str]):
         """
