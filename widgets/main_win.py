@@ -223,6 +223,9 @@ class MainWin(WinBase):
 
         self.search_bar.load_search_grid.connect(lambda: self.load_search_grid())
         self.search_bar.pause_search_sig.connect(lambda value: self.grid.toggle_pause(value))
+        self.search_bar.on_text_click.connect(lambda: self.top_bar.on_text_click_cmd())
+        self.search_bar.on_extensions_click.connect(lambda: self.top_bar.on_extensions_click_cmd())
+        self.search_bar.on_list_click.connect(lambda: self.top_bar.on_list_click_cmd())
 
         self.path_bar.new_history_item.connect(lambda dir: self.top_bar.new_history_item_cmd(dir))
         self.path_bar.load_st_grid_sig.connect(lambda: self.load_st_grid())

@@ -47,7 +47,7 @@ class ListWin(MinMaxDisabledWin):
     # список имен файлов
     finished_ = pyqtSignal(list)
 
-    def __init__(self, main_win_item: MainWinItem):
+    def __init__(self, main_win_item: MainWinItem, search_item: SearchItem):
         """
         Окно ввода списка файлов папок для дальнейшего поиска
         Каждый файл с новой строки
@@ -55,6 +55,7 @@ class ListWin(MinMaxDisabledWin):
         """
         super().__init__()
         self.main_win_item = main_win_item
+        self.search_item = search_item
 
         self.setFixedSize(570, 500)
         v_lay = QVBoxLayout()
@@ -96,6 +97,9 @@ class ListWin(MinMaxDisabledWin):
         btns_lay.addWidget(can_btn)
 
         btns_lay.addStretch()
+
+        if self.search_item.get_files_list():
+            self.input_.setText("\n".join(self.search_item.get_files_list()))
 
     def ok_cmd(self, *args):
         """
@@ -230,7 +234,7 @@ class SearchWidget(ULineEdit):
         - Открывает окно для ввода списка файлов / папок для поиска   
         - Испускает сигнал finished со списком файлов из окна ввода
         """
-        self.list_win = ListWin(self.main_win_item)
+        self.list_win = ListWin(self.main_win_item, self.search_item)
         self.list_win.finished_.connect(lambda search_list: self.list_win_finished(search_list))
         self.list_win.center(self.window())
         self.list_win.show()
@@ -333,6 +337,16 @@ class TopBar(QWidget):
         self.search_wid.load_search_grid_sig.connect(self.load_search_grid_sig.emit)
         self.search_wid.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
         self.main_lay.addWidget(self.search_wid)
+
+    def on_text_click_cmd(self):
+        self.search_wid.selectAll()
+        self.search_wid.setFocus()
+
+    def on_extensions_click_cmd(self):
+        self.search_wid.show_templates(None)
+
+    def on_list_click_cmd(self):
+        self.search_wid.open_search_list_win()
 
     def cascade_windows(self):
         wins = WinBase.wins

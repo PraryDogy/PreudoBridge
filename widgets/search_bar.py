@@ -29,6 +29,9 @@ class SpinnerWidget(QLabel):
 class SearchBar(QFrame):
     load_search_grid = pyqtSignal()
     pause_search_sig = pyqtSignal(bool)
+    on_text_click = pyqtSignal()
+    on_extensions_click = pyqtSignal()
+    on_list_click = pyqtSignal()
 
     def __init__(self, search_item: SearchItem):
         super().__init__()
@@ -47,6 +50,7 @@ class SearchBar(QFrame):
         uframe_lay = QHBoxLayout()
         uframe_lay.setContentsMargins(0, 0, 0, 0)
         uframe.setLayout(uframe_lay)
+        uframe.mouseReleaseEvent = self.on_frame_click
 
         self.descr_lbl = QLabel()
         uframe_lay.addWidget(self.descr_lbl)
@@ -123,3 +127,11 @@ class SearchBar(QFrame):
     def search_bar_search_fin(self):
         self.descr_lbl.setText("Поиск завершен")
         self.pause_btn.setDisabled(True)
+
+    def on_frame_click(self, e):
+        if self.search_item.get_files_list():
+            self.on_list_click.emit()
+        elif self.search_item.get_extensions():
+            self.on_extensions_click.emit()
+        else:
+            self.on_text_click.emit()
