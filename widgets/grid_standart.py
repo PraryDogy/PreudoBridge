@@ -373,10 +373,6 @@ class GridStandart(Grid):
             if base_item in self.new_items:
                 thumb.set_green_text()
 
-            if thumb.src == self.main_win_item.go_to:
-                self.select_one_wid(thumb)
-                self.main_win_item.go_to = None
-
             self.add_widget_data(thumb, self.row, self.col)
             self.grid_layout.addWidget(thumb, self.row, self.col)
 
@@ -387,17 +383,16 @@ class GridStandart(Grid):
                 self.col = 0
                 self.row += 1
 
-        for i in self.main_win_item.urls:
-            wid = self.url_to_wid.get(i)
+        if self.main_win_item.go_to:
+            wid = self.url_to_wid.get(self.main_win_item.go_to)
             if wid:
-                self.selected_widgets.append(wid)
-                wid.set_frame()
-
-    def go_to_fin(self, wid: Thumb):
-        try:
-            self.select_one_wid(wid)
-        except RuntimeError as e:
-            Utils.print_error(e)
+                self.select_one_wid(wid)
+        else:
+            for i in self.main_win_item.urls:
+                wid = self.url_to_wid.get(i)
+                if wid:
+                    self.selected_widgets.append(wid)
+                    wid.set_frame()
 
     def run_load_images_thread(self, thumbs: list[Thumb]):
         """
@@ -434,6 +429,7 @@ class GridStandart(Grid):
         нужно вызывать этот метод, чтобы .urls моментально обновились
         для обработки в следующей сетке
         """
+        self.main_win_item.urls.clear()
         self.main_win_item.urls = [
             i.src
             for i in self.selected_widgets

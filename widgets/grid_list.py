@@ -1,9 +1,9 @@
 import os
 import subprocess
 
-from PyQt5.QtCore import QDir, QModelIndex, Qt, QMimeData, QUrl
-from PyQt5.QtGui import (QContextMenuEvent, QDragEnterEvent, QDragMoveEvent,
-                         QDropEvent, QKeyEvent, QDrag, QPixmap)
+from PyQt5.QtCore import QDir, QMimeData, QModelIndex, Qt, QTimer, QUrl
+from PyQt5.QtGui import (QContextMenuEvent, QDrag, QDragEnterEvent,
+                         QDragMoveEvent, QDropEvent, QKeyEvent, QPixmap)
 from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QFileSystemModel,
                              QSplitter, QTableView)
 
@@ -64,7 +64,7 @@ class GridList(UTableView):
     def set_url_to_index_(self):
         root_index = self.rootIndex()
         row_count = self._model.rowCount(root_index)
-
+    
         for row in range(row_count):
             index = self._model.index(row, 0, root_index)
             path = self._model.filePath(index)
@@ -73,10 +73,17 @@ class GridList(UTableView):
         self.path_bar_update.emit(self.main_win_item.main_dir)
         self.total_count_update.emit(row_count)
 
-        for url, index in self.url_to_index.items():
-            if url in self.main_win_item.urls:
+        if self.main_win_item.go_to:
+            if self.main_win_item.go_to in self.url_to_index:
+                index = self.url_to_index.get(self.main_win_item.go_to)
                 self.selectRow(index.row())
-        self.main_win_item.urls.clear()
+
+        elif self.main_win_item.urls:
+            for url in self.main_win_item.urls:
+                if url in self.url_to_index:
+                    index = self.url_to_index.get(url)
+                    self.selectRow(index.row())
+            QTimer.singleShot(100, lambda: self.verticalScrollBar().setValue(0))
 
     def select_path(self, path: str):
         index = self._model.index(path, 0)
