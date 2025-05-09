@@ -178,7 +178,7 @@ class MainWin(WinBase):
         self.splitter.setSizes([MainWin.left_menu_w, self.width() - MainWin.left_menu_w])
 
         self.top_bar.new_history_item(self.main_win_item.main_dir)
-        self.path_bar.set_new_path(self.main_win_item.main_dir)
+        self.path_bar.update(self.main_win_item.main_dir)
         self.sort_bar.sort_text_update()
         self.tabs_widget.setCurrentIndex(1)
         self.tags_update_visibility()
@@ -299,17 +299,17 @@ class MainWin(WinBase):
     def setup_grid_signals(self):
         self.grid.sort_text_update.connect(lambda: self.sort_bar.sort_text_update())
         self.grid.total_count_update.connect(lambda total: self.sort_bar.total_count_update(total))
-        self.grid.path_bar_update.connect(lambda dir: self.path_bar.set_new_path(dir))
+        self.grid.path_bar_update.connect(lambda dir: self.path_bar.update(dir))
         self.grid.add_fav.connect(lambda dir: self.favs_menu.add_fav(dir))
         self.grid.del_fav.connect(lambda dir: self.favs_menu.del_fav(dir))
-        self.grid.move_slider_sig.connect(lambda value: self.sort_bar.slider.move_from_keyboard(value))
-        self.grid.load_st_grid_sig.connect(lambda: self.load_st_grid())
-        self.grid.open_in_new_window.connect(lambda dir: self.open_in_new_win(dir))
+        self.grid.move_slider.connect(lambda value: self.sort_bar.move_slider(value))
+        self.grid.load_st_grid.connect(lambda: self.load_st_grid())
+        self.grid.open_in_new_win.connect(lambda dir: self.open_in_new_win(dir))
         self.grid.level_up.connect(lambda: self.level_up())
-        self.grid.new_history_item.connect(lambda dir: self.top_bar.new_history_item_cmd(dir))
-        self.grid.change_view_sig.connect(lambda index: self.change_view(index))
-        self.grid.force_load_images_sig.connect(lambda urls: self.grid.force_load_images_cmd(urls))
-        self.grid.verticalScrollBar().valueChanged.connect(lambda value: self.scroll_up_show_hide(value))
+        self.grid.new_history_item.connect(lambda dir: self.top_bar.new_history_item(dir))
+        self.grid.change_view.connect(lambda index: self.change_view(index))
+        self.grid.force_load_images.connect(lambda urls: self.grid.force_load_images_cmd(urls))
+        self.grid.verticalScrollBar().valueChanged.connect(lambda value: self.scroll_up_toggle(value))
 
     def safe_delete_grid(self):
         # если напрямую удалять сетку, то мы обязательно наткнемся на 
@@ -399,7 +399,7 @@ class MainWin(WinBase):
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
         QTimer.singleShot(400, self.grid.setFocus)
 
-    def scroll_up_show_hide(self, value: int):
+    def scroll_up_toggle(self, value: int):
         if value == 0:
             self.scroll_up.hide()
         else:

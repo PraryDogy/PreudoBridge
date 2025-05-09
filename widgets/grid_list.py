@@ -96,7 +96,7 @@ class GridList(UTableView):
     def view_cmd(self, path: str):
         if os.path.isdir(path):
             self.main_win_item.main_dir = path
-            self.load_st_grid_sig.emit()
+            self.load_st_grid.emit()
             self.new_history_item.emit(path)
 
         elif path.endswith(Static.ext_all):
@@ -160,7 +160,7 @@ class GridList(UTableView):
 
         if os.path.isdir(selected_path):
             new_window = ItemActions.OpenInNewWindow(menu_)
-            cmd_ = lambda: self.open_in_new_window.emit(selected_path)
+            cmd_ = lambda: self.open_in_new_win.emit(selected_path)
             new_window.triggered.connect(cmd_)
             menu_.addAction(new_window)
         else:
@@ -214,11 +214,11 @@ class GridList(UTableView):
             menu_.addAction(paste_files)
 
         change_view = GridActions.ChangeViewMenu(menu_, self.view_index)
-        change_view.change_view_sig.connect(self.change_view_sig.emit)
+        change_view.change_view_sig.connect(self.change_view.emit)
         menu_.addMenu(change_view)
 
         upd_ = GridActions.UpdateGrid(menu_)
-        upd_.triggered.connect(lambda: self.load_st_grid_sig.emit())
+        upd_.triggered.connect(lambda: self.load_st_grid.emit())
         menu_.addAction(upd_)      
 
     def grid_context(self, menu_: UMenu, selected_path: str, urls: list[str], names: list[str], total: int):
@@ -252,7 +252,7 @@ class GridList(UTableView):
         menu_.addSeparator()
 
         change_view = GridActions.ChangeViewMenu(menu_, self.view_index)
-        change_view.change_view_sig.connect(self.change_view_sig.emit)
+        change_view.change_view_sig.connect(self.change_view.emit)
         menu_.addMenu(change_view)
 
         if Dynamic.urls_to_copy:
@@ -261,7 +261,7 @@ class GridList(UTableView):
             menu_.addAction(paste_files)
 
         upd_ = GridActions.UpdateGrid(menu_)
-        upd_.triggered.connect(lambda: self.load_st_grid_sig.emit())
+        upd_.triggered.connect(lambda: self.load_st_grid.emit())
         menu_.addAction(upd_)
 
     def paste_files(self):
@@ -280,7 +280,7 @@ class GridList(UTableView):
         self.win_copy.show()
 
     def paste_files_fin(self, urls: list[str]):
-        self.load_st_grid_sig.emit()
+        self.load_st_grid.emit()
         Dynamic.urls_to_copy.clear()
 
     def error_win_cmd(self):
@@ -299,7 +299,7 @@ class GridList(UTableView):
 
     def remove_files_cmd(self, urls: list[str]):
         self.rem_win = RemoveFilesWin(self.main_win_item, urls)
-        self.rem_win.finished_.connect(lambda urls: self.load_st_grid_sig.emit())
+        self.rem_win.finished_.connect(lambda urls: self.load_st_grid.emit())
         self.rem_win.center(self.window())
         self.rem_win.show()
 
@@ -340,7 +340,7 @@ class GridList(UTableView):
                 if root != os.sep:
                     self.new_history_item.emit(root)
                     self.main_win_item.main_dir = root
-                    self.load_st_grid_sig.emit()
+                    self.load_st_grid.emit()
                     self.new_history_item.emit(root)
                     # return
 

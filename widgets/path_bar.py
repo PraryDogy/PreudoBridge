@@ -244,7 +244,7 @@ class PathBar(QWidget):
         self.main_lay.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.setLayout(self.main_lay)
 
-    def set_new_path(self, dir: str):
+    def update(self, dir: str):
         """
         Отобразить новый путь сетки / папки / файла     
         src: путь сетки / папки / файла

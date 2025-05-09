@@ -491,7 +491,7 @@ class Grid(UScrollArea):
             self.mouseReleaseEvent = None
             self.new_history_item.emit(wid.src)
             self.main_win_item.main_dir = wid.src
-            self.load_st_grid_sig.emit()
+            self.load_st_grid.emit()
 
         elif wid.type_ in Static.ext_all:
             # избегаем ошибки кругового импорта
@@ -546,7 +546,7 @@ class Grid(UScrollArea):
             menu_.addMenu(open_menu)
         else:
             new_window = ItemActions.OpenInNewWindow(menu_)
-            cmd_ = lambda: self.open_in_new_window.emit(wid.src)
+            cmd_ = lambda: self.open_in_new_win.emit(wid.src)
             new_window.triggered.connect(cmd_)
             menu_.addAction(new_window)
 
@@ -613,7 +613,7 @@ class Grid(UScrollArea):
         new_main_dir = os.path.dirname(wid.src)
         self.main_win_item.urls = [wid.src]
         self.main_win_item.main_dir = new_main_dir
-        self.load_st_grid_sig.emit()
+        self.load_st_grid.emit()
 
     def setup_urls_to_copy(self):
         """
@@ -656,7 +656,7 @@ class Grid(UScrollArea):
         """
         # если файлы скопированы в пустую папку
         if not self.cell_to_wid:
-            self.load_st_grid_sig.emit()
+            self.load_st_grid.emit()
             return
 
         for dir in urls:
@@ -685,7 +685,7 @@ class Grid(UScrollArea):
         # испускает сигнал со списком Urls в MainWin, и MainWin
         # инициирует метод force_load_images_cmd в GridStandart,
         # чтобы прогрузить изображения для вставленных виджетов.
-        self.force_load_images_sig.emit(urls)
+        self.force_load_images.emit(urls)
         Dynamic.urls_to_copy.clear()
 
     def error_win_cmd(self):
@@ -785,7 +785,7 @@ class Grid(UScrollArea):
         menu_.addSeparator()
 
         change_view = GridActions.ChangeViewMenu(menu_, self.view_index)
-        change_view.change_view_sig.connect(self.change_view_sig.emit)
+        change_view.change_view_sig.connect(self.change_view.emit)
         menu_.addMenu(change_view)
 
         sort_menu = GridActions.SortMenu(menu_, self.sort_item)
@@ -802,7 +802,7 @@ class Grid(UScrollArea):
             menu_.addAction(paste_files)
 
         upd_ = GridActions.UpdateGrid(menu_)
-        upd_.triggered.connect(lambda: self.load_st_grid_sig.emit())
+        upd_.triggered.connect(lambda: self.load_st_grid.emit())
         menu_.addAction(upd_)
 
     def set_new_rating(self, new_rating: int):
@@ -899,12 +899,12 @@ class Grid(UScrollArea):
             elif a0.key() == Qt.Key.Key_Equal:
                 new_value = Dynamic.pixmap_size_ind + 1
                 if new_value <= len(ThumbData.PIXMAP_SIZE) - 1:
-                    self.move_slider_sig.emit(new_value)
+                    self.move_slider.emit(new_value)
 
             elif a0.key() == Qt.Key.Key_Minus:
                 new_value = Dynamic.pixmap_size_ind - 1
                 if new_value >= 0:
-                    self.move_slider_sig.emit(new_value)
+                    self.move_slider.emit(new_value)
 
             elif a0.key() == Qt.Key.Key_A:
                 self.clear_selected_widgets()

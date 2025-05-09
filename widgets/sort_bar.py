@@ -457,6 +457,9 @@ class SortBar(QWidget):
         self.slider.setFixedSize(70, 15)
         self.main_lay.addWidget(self.slider)
 
+    def move_slider(self, value: int):
+        self.slider.move_from_keyboard(value)
+
     def sort_text_update(self):
         self.sort_frame.set_sort_text()
 
