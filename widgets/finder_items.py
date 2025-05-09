@@ -21,6 +21,7 @@ class WorkerSignals(QObject):
 
 
 class FinderItems(URunnable):
+    hidden_syms = (".", "~$", "$")
     def __init__(self, main_win_item: MainWinItem, sort_item: SortItem):
         super().__init__()
         self.signals_ = WorkerSignals()
@@ -82,7 +83,7 @@ class FinderItems(URunnable):
         base_items: list[BaseItem] = []
         with os.scandir(self.main_win_item.main_dir) as entries:
             for entry in entries:
-                if entry.name.startswith("."):
+                if entry.name.startswith(FinderItems.hidden_syms):
                     continue
                 item = BaseItem(entry.path)
                 item.setup_attrs()
@@ -92,7 +93,7 @@ class FinderItems(URunnable):
     def get_items_no_db(self):
         base_items = []
         for entry in os.scandir(self.main_win_item.main_dir):
-            if entry.name.startswith("."):
+            if entry.name.startswith(FinderItems.hidden_syms):
                 continue
             if entry.is_dir() or entry.name.endswith(Static.ext_all):
                 item = BaseItem(entry.path)
