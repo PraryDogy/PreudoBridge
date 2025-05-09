@@ -298,7 +298,8 @@ class MainWin(WinBase):
     def setup_grid_signals(self):
         self.grid.sort_bar_update.connect(lambda value: self.sort_bar.setup(value))
         self.grid.path_bar_update.connect(lambda dir: self.path_bar.setup(dir))
-        self.grid.fav_cmd_sig.connect(lambda data: self.favs_menu.fav_cmd(data))
+        self.grid.add_fav.connect(lambda dir: self.favs_menu.add_fav(dir))
+        self.grid.del_fav.connect(lambda dir: self.favs_menu.del_fav(dir))
         self.grid.move_slider_sig.connect(lambda value: self.sort_bar.slider.move_from_keyboard(value))
         self.grid.load_st_grid_sig.connect(lambda: self.load_st_grid())
         self.grid.open_in_new_window.connect(lambda dir: self.open_in_new_window_cmd(dir))
@@ -369,7 +370,7 @@ class MainWin(WinBase):
 
         LoadImage.cached_images.clear()
         self.setWindowTitle(os.path.basename(self.main_win_item.main_dir))
-        self.favs_menu.fav_cmd(("select", self.main_win_item.main_dir))
+        self.favs_menu.select_fav(self.main_win_item.main_dir)
         self.top_bar.search_wid.clear_search()
         self.search_bar.hide()
         self.search_bar_sep.hide()

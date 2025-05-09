@@ -189,12 +189,12 @@ class GridList(UTableView):
 
         if os.path.isdir(selected_path):
             if selected_path in JsonData.favs:
-                cmd_ = lambda: self.fav_cmd_sig.emit(("del", selected_path))
+                cmd_ = lambda: self.del_fav.emit(selected_path)
                 fav_action = ItemActions.FavRemove(menu_)
                 fav_action.triggered.connect(cmd_)
                 menu_.addAction(fav_action)
             else:
-                cmd_ = lambda: self.fav_cmd_sig.emit(("add", selected_path))
+                cmd_ = self.add_fav.emit(selected_path)
                 fav_action = ItemActions.FavAdd(menu_)
                 fav_action.triggered.connect(cmd_)
                 menu_.addAction(fav_action)
@@ -238,12 +238,12 @@ class GridList(UTableView):
 
         if os.path.isdir(selected_path):
             if selected_path in JsonData.favs:
-                cmd_ = lambda: self.fav_cmd_sig.emit(("del", selected_path))
+                cmd_ = self.del_fav.emit(selected_path)
                 fav_action = GridActions.FavRemove(menu_)
                 fav_action.triggered.connect(cmd_)
                 menu_.addAction(fav_action)
             else:
-                cmd_ = lambda: self.fav_cmd_sig.emit(("add", selected_path))
+                cmd_ = lambda: self.add_fav.emit(selected_path)
                 fav_action = GridActions.FavAdd(menu_)
                 fav_action.triggered.connect(cmd_)
                 menu_.addAction(fav_action)

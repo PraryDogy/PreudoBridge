@@ -514,9 +514,9 @@ class Grid(UScrollArea):
         - src: путь к папке
         """
         if 0 + offset == 1:
-            self.fav_cmd_sig.emit(("add", src))
+            self.add_fav.emit(src)
         else:
-            self.fav_cmd_sig.emit(("del", src))
+            self.del_fav.emit(src)
 
     def win_info_cmd(self, src: str):
         """

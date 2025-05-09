@@ -39,8 +39,8 @@ class UScrollArea(QScrollArea, UMethods):
     path_bar_update = pyqtSignal(str)
     # целое число или None для обновления числа "Всего" в SortBar
     sort_bar_update = pyqtSignal(object)
-    # "select" / "add" / "del", путь к папке
-    fav_cmd_sig = pyqtSignal(tuple)
+    add_fav = pyqtSignal(str)
+    del_fav = pyqtSignal(str)
     load_st_grid_sig = pyqtSignal()
     # 0-3, всего 4 положения слайдера для изменения размера виджетов Thumb в сетке
     move_slider_sig = pyqtSignal(int)
@@ -71,8 +71,8 @@ class UTableView(QTableView, UMethods):
     path_bar_update = pyqtSignal(str)
     # целое число или None для обновления числа "Всего" в SortBar
     sort_bar_update = pyqtSignal(object)
-    # "select" / "add" / "del", путь к папке
-    fav_cmd_sig = pyqtSignal(tuple)
+    add_fav = pyqtSignal(str)
+    del_fav = pyqtSignal(str)
     load_st_grid_sig = pyqtSignal()
     # 0-3, всего 4 положения слайдера для изменения размера виджетов Thumb в сетке
     move_slider_sig = pyqtSignal(int)
