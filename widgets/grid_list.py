@@ -194,7 +194,7 @@ class GridList(UTableView):
                 fav_action.triggered.connect(cmd_)
                 menu_.addAction(fav_action)
             else:
-                cmd_ = self.add_fav.emit(selected_path)
+                cmd_ = lambda: self.add_fav.emit(selected_path)
                 fav_action = ItemActions.FavAdd(menu_)
                 fav_action.triggered.connect(cmd_)
                 menu_.addAction(fav_action)
