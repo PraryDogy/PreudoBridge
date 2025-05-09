@@ -60,6 +60,7 @@ class GridList(UTableView):
         self._model.directoryLoaded.connect(self.set_url_to_index_)
 
     def set_url_to_index_(self):
+        self.hide()
         self.sortByColumn(GridList.col, GridList.order)
         for i in range(0, 4):
             self.setColumnWidth(i, GridList.sizes[i])
@@ -91,6 +92,7 @@ class GridList(UTableView):
             QTimer.singleShot(100, lambda: self.verticalScrollBar().setValue(0))
 
         self.loading_lbl.hide()
+        self.show()
 
     def select_path(self, path: str):
         index = self._model.index(path, 0)
