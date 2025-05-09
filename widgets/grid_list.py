@@ -97,6 +97,7 @@ class GridList(UTableView):
         if os.path.isdir(path):
             self.main_win_item.main_dir = path
             self.load_st_grid_sig.emit()
+            self.new_history_item.emit(path)
 
         elif path.endswith(Static.ext_all):
             from .img_view_win import ImgViewWin
@@ -340,6 +341,7 @@ class GridList(UTableView):
                     self.new_history_item.emit(root)
                     self.main_win_item.main_dir = root
                     self.load_st_grid_sig.emit()
+                    self.new_history_item.emit(root)
                     # return
 
             elif a0.key() == Qt.Key.Key_Down:
