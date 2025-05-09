@@ -739,7 +739,7 @@ class Grid(UScrollArea):
 
         for i in self.selected_widgets:
             i.set_no_frame()
-        self.selected_widgets.clear()
+        self.clear_selected_widgets()
         self.rearrange_thumbs()
 
     def grid_context_actions(self, menu_: UMenu):
