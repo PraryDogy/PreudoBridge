@@ -321,7 +321,6 @@ class GridStandart(Grid):
         Запускает таймер для load visible images
         """
         self.base_items, self.new_items = items
-        self.loading_lbl.hide()
 
         # испускаем сигнал в MainWin, чтобы нижний бар с отображением пути
         # обновился на актуальный путь
@@ -362,6 +361,7 @@ class GridStandart(Grid):
         self.load_images_timer.start(100)
 
     def iter_base_items(self):
+        self.hide()
         self.col_count = self.get_col_count()
         for base_item in self.base_items:
             thumb = Thumb(base_item.src, base_item.rating)
@@ -395,6 +395,9 @@ class GridStandart(Grid):
                     self.selected_widgets.append(wid)
                     wid.set_frame()
             self.main_win_item.urls.clear()
+
+        self.loading_lbl.hide()
+        self.show()
 
     def run_load_images_thread(self, thumbs: list[Thumb]):
         """
