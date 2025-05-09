@@ -457,10 +457,10 @@ class SortBar(QWidget):
         self.slider.setFixedSize(70, 15)
         self.main_lay.addWidget(self.slider)
 
-    def update_sort_text(self):
-        self.sort_frame.set_sort_text(self.sort_item)
+    def sort_text_update(self):
+        self.sort_frame.set_sort_text()
 
-    def update_total(self, value: int):
+    def total_count_update(self, value: int):
         self.sort_frame.set_total_text(value)
 
     def open_go_win(self, *args):

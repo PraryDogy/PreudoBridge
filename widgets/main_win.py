@@ -179,6 +179,7 @@ class MainWin(WinBase):
 
         self.top_bar.new_history_item_cmd(self.main_win_item.main_dir)
         self.path_bar.set_new_path(self.main_win_item.main_dir)
+        self.sort_bar.sort_text_update()
         self.tabs_widget.setCurrentIndex(1)
         self.tags_update_visibility()
         self.tags_menu_btn.click_cmd()
