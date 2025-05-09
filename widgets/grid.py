@@ -477,7 +477,7 @@ class Grid(UScrollArea):
         self.url_to_wid[wid.src] = wid
         self.sorted_widgets.append(wid)
 
-    def view_thumb_cmd(self, wid: BaseItem):
+    def view_thumb(self, wid: BaseItem):
         """
         Просмотр виджета:
         - папка: откроется новая сетка виджетов соответствующая директории папки
@@ -538,7 +538,7 @@ class Grid(UScrollArea):
         self.path_bar_update_cmd(wid.src)
 
         view_action = ItemActions.View(menu_)
-        view_action.triggered.connect(lambda: self.view_thumb_cmd(wid))
+        view_action.triggered.connect(lambda: self.view_thumb(wid))
         menu_.addAction(view_action)
 
         if wid.type_ != Static.FOLDER_TYPE:
@@ -886,7 +886,7 @@ class Grid(UScrollArea):
                     clicked_wid = self.selected_widgets[-1]
                     if clicked_wid:
                         self.select_one_wid(clicked_wid)
-                        self.view_thumb_cmd(clicked_wid)
+                        self.view_thumb(clicked_wid)
 
             elif a0.key() == Qt.Key.Key_I:
                 clicked_wid = self.selected_widgets[-1]
@@ -921,7 +921,7 @@ class Grid(UScrollArea):
                 clicked_wid = self.selected_widgets[-1]
                 if clicked_wid:
                     self.select_one_wid(wid=clicked_wid)
-                    self.view_thumb_cmd(clicked_wid)
+                    self.view_thumb(clicked_wid)
 
         elif a0.key() in KEY_NAVI:
             offset = KEY_NAVI.get(a0.key())
@@ -1034,7 +1034,7 @@ class Grid(UScrollArea):
         clicked_wid = self.get_wid_under_mouse(a0)
         if clicked_wid:
             self.select_one_wid(clicked_wid)
-            self.view_thumb_cmd(clicked_wid)
+            self.view_thumb(clicked_wid)
 
     def mousePressEvent(self, a0):
         if a0.button() != Qt.MouseButton.LeftButton:
