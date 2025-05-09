@@ -375,7 +375,7 @@ class SortMenuBtn(UFrame):
 
 
 class CustomSlider(USlider):
-    resize_grid_sig = pyqtSignal()
+    resize_thumbs = pyqtSignal()
     rearrange_grid_sig = pyqtSignal()
 
     def __init__(self):
@@ -402,7 +402,7 @@ class CustomSlider(USlider):
         Обновляет размер виджетов и инициирует перетасовку сетки.
         """
         Dynamic.pixmap_size_ind = value
-        self.resize_grid_sig.emit()
+        self.resize_thumbs.emit()
         self.rearrange_grid_sig.emit()
 
     def move_from_keyboard(self, value: int):
@@ -417,7 +417,7 @@ class CustomSlider(USlider):
 class SortBar(QWidget):
     load_st_grid_sig = pyqtSignal()
     sort_grid_sig = pyqtSignal()
-    resize_grid_sig = pyqtSignal()
+    resize_thumbs = pyqtSignal()
     rearrange_grid_sig = pyqtSignal()
 
     def __init__(self, sort_item: SortItem, main_win_item: MainWinItem):
@@ -452,7 +452,7 @@ class SortBar(QWidget):
         self.main_lay.addStretch()
 
         self.slider = CustomSlider()
-        self.slider.resize_grid_sig.connect(self.resize_grid_sig.emit)
+        self.slider.resize_thumbs.connect(self.resize_thumbs.emit)
         self.slider.rearrange_grid_sig.connect(self.rearrange_grid_sig.emit)
         self.slider.setFixedSize(70, 15)
         self.main_lay.addWidget(self.slider)

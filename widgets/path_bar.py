@@ -25,9 +25,9 @@ ARROW_RIGHT = " \U0000203A" # ›
 class PathItem(QWidget):
     min_wid = 5
     new_history_item = pyqtSignal(str)
-    load_st_grid_sig = pyqtSignal()
+    load_st_grid = pyqtSignal()
     open_img_view = pyqtSignal(str)
-    open_in_new_window = pyqtSignal(str)
+    open_in_new_win = pyqtSignal(str)
 
     def __init__(self, dir: str, name: str, main_win_item: MainWinItem):
         """
@@ -90,7 +90,7 @@ class PathItem(QWidget):
         else:
             self.new_history_item.emit(self.dir)
             self.main_win_item.main_dir = self.dir
-            self.load_st_grid_sig.emit()
+            self.load_st_grid.emit()
 
     def solid_style(self):
         """
@@ -197,7 +197,7 @@ class PathItem(QWidget):
 
         if os.path.isdir(self.dir):
             new_win = ItemActions.OpenInNewWindow(menu)
-            new_win.triggered.connect(lambda: self.open_in_new_window.emit(self.dir))
+            new_win.triggered.connect(lambda: self.open_in_new_win.emit(self.dir))
             menu.addAction(new_win)
 
         menu.addSeparator()
@@ -222,9 +222,9 @@ class PathItem(QWidget):
 
 class PathBar(QWidget):
     new_history_item = pyqtSignal(str)
-    load_st_grid_sig = pyqtSignal()
+    load_st_grid = pyqtSignal()
     open_img_view = pyqtSignal(str)
-    open_in_new_window = pyqtSignal(str)
+    open_in_new_win = pyqtSignal(str)
     last_item_limit = 40
 
     def __init__(self, main_win_item: MainWinItem):
@@ -262,9 +262,9 @@ class PathBar(QWidget):
             path_item = PathItem(dir, name, self.main_win_item)
             cmd_ = lambda dir: self.new_history_item.emit(dir)
             path_item.new_history_item.connect(cmd_)
-            path_item.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
+            path_item.load_st_grid.connect(self.load_st_grid.emit)
             path_item.open_img_view.connect(self.open_img_view.emit)
-            path_item.open_in_new_window.connect(lambda dir: self.open_in_new_window.emit(dir))
+            path_item.open_in_new_win.connect(lambda dir: self.open_in_new_win.emit(dir))
             path_item.img_wid.load(Static.FOLDER_SVG)
             path_item.add_arrow()
             path_items[x] = path_item

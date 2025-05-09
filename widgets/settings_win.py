@@ -150,7 +150,7 @@ class About(QGroupBox):
 
 
 class SettingsWin(MinMaxDisabledWin):
-    clear_data_clicked = pyqtSignal()
+    remove_db = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -164,7 +164,7 @@ class SettingsWin(MinMaxDisabledWin):
         main_lay.addWidget(h_wid)
 
         clear_data_wid = ClearData()
-        clear_data_wid.clear_data_clicked.connect(self.clear_data_clicked.emit)
+        clear_data_wid.clear_data_clicked.connect(self.remove_db.emit)
         main_lay.addWidget(clear_data_wid)
 
         json_wid = JsonFile()

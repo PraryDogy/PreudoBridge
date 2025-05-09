@@ -413,7 +413,7 @@ class Grid(UScrollArea):
                 wid.must_hidden = True
                 wid.hide()
 
-    def resize_(self):
+    def resize_thumbs(self):
         """
         Изменяет размер виджетов Thumb. Подготавливает дочерние виджеты Thumb
         к новым размерам.   

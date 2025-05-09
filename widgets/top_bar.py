@@ -118,9 +118,9 @@ class ListWin(MinMaxDisabledWin):
  
 class SearchWidget(ULineEdit):
     # в MainWin посылается сигнал для загрузки GridStandart
-    load_st_grid_sig = pyqtSignal()
+    load_st_grid = pyqtSignal()
     # в MainWin посылается сигнал для загрузки GridSearch
-    load_search_grid_sig = pyqtSignal()
+    load_search_grid = pyqtSignal()
 
     def __init__(self, search_item: SearchItem, main_win_item: MainWinItem):
         """
@@ -184,7 +184,7 @@ class SearchWidget(ULineEdit):
             self.input_timer.start(1500)
         else:
             self.clear_all()
-            self.load_st_grid_sig.emit()
+            self.load_st_grid.emit()
 
     def clear_all(self):
         self.clear()
@@ -217,7 +217,7 @@ class SearchWidget(ULineEdit):
             self.search_item.set_text(self.search_text)
 
         self.search_item.set_text(self.search_text)
-        self.load_search_grid_sig.emit()
+        self.load_search_grid.emit()
 
     def show_templates(self, a0: QMouseEvent | None) -> None:
         """
@@ -256,13 +256,13 @@ class TopBar(QWidget):
 
     # 0 отобразить сеткой, 1 отобразить списком
     change_view = pyqtSignal(int)
-    load_search_grid_sig = pyqtSignal()
-    load_st_grid_sig = pyqtSignal()
+    load_search_grid = pyqtSignal()
+    load_st_grid = pyqtSignal()
     # при нажатии кнопкок "назад" или "вперед" загружает GridStandart
     navigate = pyqtSignal(str)
     
     # Кнопка "очистить данные" была нажата в окне настроек
-    clear_data_clicked = pyqtSignal()
+    remove_db = pyqtSignal()
 
     # открывает заданный путь в новом окне
     open_in_new_win = pyqtSignal(str)
@@ -335,8 +335,8 @@ class TopBar(QWidget):
         self.main_lay.addStretch(1)
 
         self.search_wid = SearchWidget(self.search_item, self.main_win_item)
-        self.search_wid.load_search_grid_sig.connect(self.load_search_grid_sig.emit)
-        self.search_wid.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
+        self.search_wid.load_search_grid.connect(self.load_search_grid.emit)
+        self.search_wid.load_st_grid.connect(self.load_st_grid.emit)
         self.main_lay.addWidget(self.search_wid)
 
     def on_text_click_cmd(self):
@@ -372,11 +372,11 @@ class TopBar(QWidget):
         Открывает окно настроек
         """
         self.sett_win = SettingsWin()
-        self.sett_win.clear_data_clicked.connect(self.clear_data_clicked.emit)
+        self.sett_win.remove_db.connect(self.remove_db.emit)
         self.sett_win.center(self.window())
         self.sett_win.show()
 
-    def new_history_item_cmd(self, dir: str):
+    def new_history_item(self, dir: str):
         """
         Добавляет новый путь в историю навигации:
 
@@ -443,4 +443,4 @@ class TopBar(QWidget):
             self.current_index = new_index
             new_main_dir = self.history_items[self.current_index]
             self.main_win_item.main_dir = new_main_dir
-            self.load_st_grid_sig.emit()
+            self.load_st_grid.emit()

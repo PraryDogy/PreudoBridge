@@ -177,7 +177,7 @@ class MainWin(WinBase):
         self.splitter.setStretchFactor(1, 1)
         self.splitter.setSizes([MainWin.left_menu_w, self.width() - MainWin.left_menu_w])
 
-        self.top_bar.new_history_item_cmd(self.main_win_item.main_dir)
+        self.top_bar.new_history_item(self.main_win_item.main_dir)
         self.path_bar.set_new_path(self.main_win_item.main_dir)
         self.sort_bar.sort_text_update()
         self.tabs_widget.setCurrentIndex(1)
@@ -203,12 +203,12 @@ class MainWin(WinBase):
         self.tree_menu.load_st_grid_sig.connect(lambda: self.load_st_grid())
         self.tree_menu.add_fav.connect(lambda dir: self.favs_menu.add_fav(dir))
         self.tree_menu.del_fav.connect(lambda dir: self.favs_menu.del_fav(dir))
-        self.tree_menu.new_history_item.connect(lambda dir: self.top_bar.new_history_item_cmd(dir))
-        self.tree_menu.open_in_new_window.connect(lambda dir: self.open_in_new_window_cmd(dir))
+        self.tree_menu.new_history_item.connect(lambda dir: self.top_bar.new_history_item(dir))
+        self.tree_menu.open_in_new_window.connect(lambda dir: self.open_in_new_win(dir))
 
         self.favs_menu.load_st_grid_sig.connect(lambda: self.load_st_grid())
-        self.favs_menu.new_history_item.connect(lambda dir: self.top_bar.new_history_item_cmd(dir))
-        self.favs_menu.open_in_new_win.connect(lambda dir: self.open_in_new_window_cmd(dir))
+        self.favs_menu.new_history_item.connect(lambda dir: self.top_bar.new_history_item(dir))
+        self.favs_menu.open_in_new_win.connect(lambda dir: self.open_in_new_win(dir))
 
         self.tags_menu_btn.clicked_.connect(lambda: self.tags_update_visibility())
 
@@ -217,11 +217,11 @@ class MainWin(WinBase):
 
         self.top_bar.level_up.connect(lambda: self.level_up_cmd())
         self.top_bar.change_view.connect(lambda index: self.change_view_cmd(index))
-        self.top_bar.load_search_grid_sig.connect(lambda: self.load_search_grid())
-        self.top_bar.load_st_grid_sig.connect(lambda: self.load_st_grid())
+        self.top_bar.load_search_grid.connect(lambda: self.load_search_grid())
+        self.top_bar.load_st_grid.connect(lambda: self.load_st_grid())
         self.top_bar.navigate.connect(lambda: self.load_st_grid())
-        self.top_bar.clear_data_clicked.connect(lambda: self.remove_db_cmd())
-        self.top_bar.open_in_new_win.connect(lambda dir: self.open_in_new_window_cmd(dir))
+        self.top_bar.remove_db.connect(lambda: self.remove_db())
+        self.top_bar.open_in_new_win.connect(lambda dir: self.open_in_new_win(dir))
 
         self.search_bar.load_search_grid.connect(lambda: self.load_search_grid())
         self.search_bar.pause_search_sig.connect(lambda value: self.grid.toggle_pause(value))
@@ -229,22 +229,22 @@ class MainWin(WinBase):
         self.search_bar.on_extensions_click.connect(lambda: self.top_bar.on_extensions_click_cmd())
         self.search_bar.on_list_click.connect(lambda: self.top_bar.on_list_click_cmd())
 
-        self.path_bar.new_history_item.connect(lambda dir: self.top_bar.new_history_item_cmd(dir))
-        self.path_bar.load_st_grid_sig.connect(lambda: self.load_st_grid())
-        self.path_bar.open_img_view.connect(lambda path: self.open_img_view_cmd(path))
-        self.path_bar.open_in_new_window.connect(lambda dir: self.open_in_new_window_cmd(dir))
+        self.path_bar.new_history_item.connect(lambda dir: self.top_bar.new_history_item(dir))
+        self.path_bar.load_st_grid.connect(lambda: self.load_st_grid())
+        self.path_bar.open_img_view.connect(lambda path: self.open_img_view(path))
+        self.path_bar.open_in_new_win.connect(lambda dir: self.open_in_new_win(dir))
 
-        self.sort_bar.resize_grid_sig.connect(lambda: self.grid.resize_())
+        self.sort_bar.resize_thumbs.connect(lambda: self.grid.resize_thumbs())
         self.sort_bar.rearrange_grid_sig.connect(lambda: self.grid.rearrange())
         self.sort_bar.sort_grid_sig.connect(lambda: self.grid.sort_())
         self.sort_bar.load_st_grid_sig.connect(lambda: self.load_st_grid())
 
-    def open_img_view_cmd(self, path: str):
+    def open_img_view(self, path: str):
         base_item = BaseItem(path)
         base_item.setup_attrs()
         self.grid.view_thumb_cmd(base_item)
 
-    def remove_db_cmd(self):
+    def remove_db(self):
         """
         Удаляет базу данных в текущей директории
         """
@@ -268,7 +268,7 @@ class MainWin(WinBase):
         self.load_st_grid()
 
     def resize_timer_cmd(self):
-        self.grid.resize_()
+        self.grid.resize_thumbs()
         self.grid.rearrange()
 
     def tags_update_visibility(self):
@@ -289,7 +289,7 @@ class MainWin(WinBase):
             self.main_win_item.main_dir = filepath
             self.load_st_grid()
 
-    def open_in_new_window_cmd(self, dir: str):
+    def open_in_new_win(self, dir: str):
         new_win = MainWin(dir)
         self.main_win_list.append(new_win)
         x, y = self.window().x(), self.window().y()
@@ -304,7 +304,7 @@ class MainWin(WinBase):
         self.grid.del_fav.connect(lambda dir: self.favs_menu.del_fav(dir))
         self.grid.move_slider_sig.connect(lambda value: self.sort_bar.slider.move_from_keyboard(value))
         self.grid.load_st_grid_sig.connect(lambda: self.load_st_grid())
-        self.grid.open_in_new_window.connect(lambda dir: self.open_in_new_window_cmd(dir))
+        self.grid.open_in_new_window.connect(lambda dir: self.open_in_new_win(dir))
         self.grid.level_up.connect(lambda: self.level_up_cmd())
         self.grid.new_history_item.connect(lambda dir: self.top_bar.new_history_item_cmd(dir))
         self.grid.change_view_sig.connect(lambda index: self.change_view_cmd(index))

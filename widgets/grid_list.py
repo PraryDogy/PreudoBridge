@@ -131,7 +131,7 @@ class GridList(UTableView):
     def filter_(self, *args, **kwargs):
         ...
 
-    def resize_(self, *args, **kwargs):
+    def resize_thumbs(self, *args, **kwargs):
         ...
 
     def select_new_widget(self, *args, **kwargs):

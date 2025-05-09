@@ -338,9 +338,9 @@ class GridSearch(Grid):
         self.pause_timer.stop()
         self.pause_timer.start(RESIZE_TIMER_COUNT)
 
-    def resize_(self):
+    def resize_thumbs(self):
         self.task_.pause = True
-        super().resize_()
+        super().resize_thumbs()
         self.rearrange()
         self.pause_timer.stop()
         self.pause_timer.start(RESIZE_TIMER_COUNT)
@@ -358,7 +358,7 @@ class GridSearch(Grid):
         self.pause_by_btn = value
 
     def resizeEvent(self, a0):
-        self.resize_()
+        self.resize_thumbs()
         return super().resizeEvent(a0)
     
     def closeEvent(self, a0):
