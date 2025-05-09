@@ -244,16 +244,6 @@ class PathBar(QWidget):
         self.main_lay.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.setLayout(self.main_lay)
 
-    def setup(self, dir: str):
-        """  
-        Путь сетки / папки / файла
-        Можно передать None
-        Если выделить виджет в сетке, нижний бар отобразит путь к виджету   
-        Если ничего не выделено, то отображается текущая директория сетки   
-        """
-        if dir:
-            self.set_new_path(dir)
-
     def set_new_path(self, dir: str):
         """
         Отобразить новый путь сетки / папки / файла     
