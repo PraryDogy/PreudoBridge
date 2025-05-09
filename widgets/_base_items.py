@@ -33,24 +33,16 @@ class UScrollArea(QScrollArea, UMethods):
     """
     Виджет с базовыми сигналами. Сигналы должны совпадать с UTableView
     """
-   # путь к папке
     new_history_item = pyqtSignal(str)
-    # путь к папке
     path_bar_update = pyqtSignal(str)
-    # целое число или None для обновления числа "Всего" в SortBar
     sort_bar_update = pyqtSignal(object)
     add_fav = pyqtSignal(str)
     del_fav = pyqtSignal(str)
     load_st_grid_sig = pyqtSignal()
-    # 0-3, всего 4 положения слайдера для изменения размера виджетов Thumb в сетке
     move_slider_sig = pyqtSignal(int)
-    # 0 отобразить сеткой, 1 отобразить списком
     change_view_sig = pyqtSignal(int)
-    # путь к папке
     open_in_new_window = pyqtSignal(str)
-    # перейти на уровень вверх
     level_up = pyqtSignal()
-    # список url (путь к папке / файлу)
     force_load_images_sig = pyqtSignal(list)
 
     def __init__(self):
@@ -65,28 +57,17 @@ class UTableView(QTableView, UMethods):
     """
     Виджет с базовыми сигналами. Сигналы должны совпадать с UScrollArea
     """
-    # путь к папке
     new_history_item = pyqtSignal(str)
-    # путь к папке
     path_bar_update = pyqtSignal(str)
-    # целое число или None для обновления числа "Всего" в SortBar
     sort_bar_update = pyqtSignal(object)
     add_fav = pyqtSignal(str)
     del_fav = pyqtSignal(str)
     load_st_grid_sig = pyqtSignal()
-    # 0-3, всего 4 положения слайдера для изменения размера виджетов Thumb в сетке
     move_slider_sig = pyqtSignal(int)
-    # 0 отобразить сеткой, 1 отобразить списком
     change_view_sig = pyqtSignal(int)
-    # путь к папке
     open_in_new_window = pyqtSignal(str)
-    # перейти на уровень вверх
     level_up = pyqtSignal()
-    # список url (путь к папке / файлу)
     force_load_images_sig = pyqtSignal(list)
-
-    def __init__(self):
-        super().__init__()
 
 
 class UMenu(QMenu):
