@@ -372,6 +372,7 @@ class TopBar(QWidget):
         Открывает окно настроек
         """
         self.sett_win = SettingsWin()
+        self.sett_win.load_st_grid.connect(self.load_st_grid.emit)
         self.sett_win.remove_db.connect(self.remove_db.emit)
         self.sett_win.center(self.window())
         self.sett_win.show()

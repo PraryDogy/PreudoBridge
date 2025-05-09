@@ -6,8 +6,8 @@ from datetime import datetime
 from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QGroupBox, QHBoxLayout, QLabel, QPushButton,
-                             QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QCheckBox, QGroupBox, QHBoxLayout, QLabel,
+                             QPushButton, QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
 
@@ -149,8 +149,34 @@ class About(QGroupBox):
         h_lay.addWidget(descr)
 
 
+class ShowHidden(QGroupBox):
+    load_st_grid = pyqtSignal()
+    text_ = "Отобазить скрытые файлы"
+
+    def __init__(self):
+        super().__init__()
+
+        h_lay = QHBoxLayout()
+        h_lay.setContentsMargins(7, 0, 0, 0)
+        self.setLayout(h_lay)
+
+        self.checkbox = QCheckBox(" " + ShowHidden.text_)
+        h_lay.addWidget(self.checkbox)
+
+        if JsonData.show_hidden:
+            self.checkbox.setChecked(True)
+        
+        self.checkbox.stateChanged.connect(self.on_state_changed)
+        
+    def on_state_changed(self, value: int):
+        data = {0: False, 2: True}
+        JsonData.show_hidden = data.get(value)
+        self.load_st_grid.emit()
+
+
 class SettingsWin(MinMaxDisabledWin):
     remove_db = pyqtSignal()
+    load_st_grid = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -162,6 +188,10 @@ class SettingsWin(MinMaxDisabledWin):
 
         h_wid = QWidget()
         main_lay.addWidget(h_wid)
+
+        show_hidden = ShowHidden()
+        show_hidden.load_st_grid.connect(self.load_st_grid.emit)
+        main_lay.addWidget(show_hidden)
 
         clear_data_wid = ClearData()
         clear_data_wid.clear_data_clicked.connect(self.remove_db.emit)
