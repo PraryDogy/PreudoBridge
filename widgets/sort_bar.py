@@ -215,10 +215,10 @@ class GoToWin(MinMaxDisabledWin):
 
         # при инициации окна пытаемся считать буфер обмена, если там есть
         # путь, то вставляем его в поле ввода
-        clipboard = Utils.read_from_clipboard()
-        task = PathFinderThread(clipboard)
-        task.signals_.finished_.connect(self.first_load_final)
-        UThreadPool.start(runnable=task)
+        # clipboard = Utils.read_from_clipboard()
+        # task = PathFinderThread(clipboard)
+        # task.signals_.finished_.connect(self.first_load_final)
+        # UThreadPool.start(runnable=task)
 
     def first_load_final(self, result: str | None):
         """
