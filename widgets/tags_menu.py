@@ -16,7 +16,7 @@ class UItem(QListWidgetItem):
 
 class TagsMenu(QListWidget):
     filter_thumbs = pyqtSignal()
-    rearrange_grid_sig = pyqtSignal()
+    rearrange_thumbs = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -72,7 +72,7 @@ class TagsMenu(QListWidget):
     def item_cmd(self, rating: int):
         Dynamic.rating_filter = rating
         self.filter_thumbs.emit()
-        self.rearrange_grid_sig.emit()
+        self.rearrange_thumbs.emit()
 
     def reset(self):
         Dynamic.rating_filter = 0

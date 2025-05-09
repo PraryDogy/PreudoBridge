@@ -415,10 +415,10 @@ class CustomSlider(USlider):
 
 
 class SortBar(QWidget):
-    load_st_grid_sig = pyqtSignal()
+    load_st_grid = pyqtSignal()
     sort_grid_sig = pyqtSignal()
     resize_thumbs = pyqtSignal()
-    rearrange_grid_sig = pyqtSignal()
+    rearrange_thumbs = pyqtSignal()
 
     def __init__(self, sort_item: SortItem, main_win_item: MainWinItem):
         """
@@ -446,14 +446,14 @@ class SortBar(QWidget):
 
         self.sort_frame = SortMenuBtn(self.sort_item)
         self.sort_frame.sort_grid_sig.connect(self.sort_grid_sig.emit)
-        self.sort_frame.rearrange_grid_sig.connect(self.rearrange_grid_sig.emit)
+        self.sort_frame.rearrange_grid_sig.connect(self.rearrange_thumbs.emit)
         self.main_lay.addWidget(self.sort_frame)
 
         self.main_lay.addStretch()
 
         self.slider = CustomSlider()
         self.slider.resize_thumbs.connect(self.resize_thumbs.emit)
-        self.slider.rearrange_grid_sig.connect(self.rearrange_grid_sig.emit)
+        self.slider.rearrange_grid_sig.connect(self.rearrange_thumbs.emit)
         self.slider.setFixedSize(70, 15)
         self.main_lay.addWidget(self.slider)
 
@@ -472,6 +472,6 @@ class SortBar(QWidget):
         - "Finder" — для открытия пути в Finder.
         """
         self.win_go = GoToWin(self.main_win_item)
-        self.win_go.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
+        self.win_go.load_st_grid_sig.connect(self.load_st_grid.emit)
         self.win_go.center(self.window())
         self.win_go.show()

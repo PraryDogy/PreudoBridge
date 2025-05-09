@@ -213,10 +213,10 @@ class MainWin(WinBase):
         self.tags_menu_btn.clicked_.connect(lambda: self.tags_update_visibility())
 
         self.tags_menu.filter_thumbs.connect(lambda: self.grid.filter_thumbs())
-        self.tags_menu.rearrange_grid_sig.connect(lambda: self.grid.rearrange())
+        self.tags_menu.rearrange_thumbs.connect(lambda: self.grid.rearrange_thumbs())
 
-        self.top_bar.level_up.connect(lambda: self.level_up_cmd())
-        self.top_bar.change_view.connect(lambda index: self.change_view_cmd(index))
+        self.top_bar.level_up.connect(lambda: self.level_up())
+        self.top_bar.change_view.connect(lambda index: self.change_view(index))
         self.top_bar.load_search_grid.connect(lambda: self.load_search_grid())
         self.top_bar.load_st_grid.connect(lambda: self.load_st_grid())
         self.top_bar.navigate.connect(lambda: self.load_st_grid())
@@ -225,9 +225,9 @@ class MainWin(WinBase):
 
         self.search_bar.load_search_grid.connect(lambda: self.load_search_grid())
         self.search_bar.pause_search_sig.connect(lambda value: self.grid.toggle_pause(value))
-        self.search_bar.on_text_click.connect(lambda: self.top_bar.on_text_click_cmd())
-        self.search_bar.on_extensions_click.connect(lambda: self.top_bar.on_extensions_click_cmd())
-        self.search_bar.on_list_click.connect(lambda: self.top_bar.on_list_click_cmd())
+        self.search_bar.on_text_click.connect(lambda: self.top_bar.on_text_click())
+        self.search_bar.on_exts_click.connect(lambda: self.top_bar.on_exts_click())
+        self.search_bar.on_list_click.connect(lambda: self.top_bar.on_list_click())
 
         self.path_bar.new_history_item.connect(lambda dir: self.top_bar.new_history_item(dir))
         self.path_bar.load_st_grid.connect(lambda: self.load_st_grid())
@@ -235,9 +235,9 @@ class MainWin(WinBase):
         self.path_bar.open_in_new_win.connect(lambda dir: self.open_in_new_win(dir))
 
         self.sort_bar.resize_thumbs.connect(lambda: self.grid.resize_thumbs())
-        self.sort_bar.rearrange_grid_sig.connect(lambda: self.grid.rearrange())
+        self.sort_bar.rearrange_thumbs.connect(lambda: self.grid.rearrange_thumbs())
         self.sort_bar.sort_grid_sig.connect(lambda: self.grid.sort_())
-        self.sort_bar.load_st_grid_sig.connect(lambda: self.load_st_grid())
+        self.sort_bar.load_st_grid.connect(lambda: self.load_st_grid())
 
     def open_img_view(self, path: str):
         base_item = BaseItem(path)
@@ -253,7 +253,7 @@ class MainWin(WinBase):
             os.remove(db)
             self.load_st_grid()
 
-    def level_up_cmd(self):
+    def level_up(self):
         new_main_dir = os.path.dirname(self.main_win_item.main_dir)
         if new_main_dir != os.sep:
             self.main_win_item.immortal_urls = [self.main_win_item.main_dir]
@@ -261,7 +261,7 @@ class MainWin(WinBase):
             self.load_st_grid()
             self.top_bar.new_history_item_cmd(new_main_dir)
 
-    def change_view_cmd(self, index: int):
+    def change_view(self, index: int):
         if index == self.view_index:
             return
         self.view_index = index
@@ -269,7 +269,7 @@ class MainWin(WinBase):
 
     def resize_timer_cmd(self):
         self.grid.resize_thumbs()
-        self.grid.rearrange()
+        self.grid.rearrange_thumbs()
 
     def tags_update_visibility(self):
         if self.tags_menu.isHidden():
@@ -305,9 +305,9 @@ class MainWin(WinBase):
         self.grid.move_slider_sig.connect(lambda value: self.sort_bar.slider.move_from_keyboard(value))
         self.grid.load_st_grid_sig.connect(lambda: self.load_st_grid())
         self.grid.open_in_new_window.connect(lambda dir: self.open_in_new_win(dir))
-        self.grid.level_up.connect(lambda: self.level_up_cmd())
+        self.grid.level_up.connect(lambda: self.level_up())
         self.grid.new_history_item.connect(lambda dir: self.top_bar.new_history_item_cmd(dir))
-        self.grid.change_view_sig.connect(lambda index: self.change_view_cmd(index))
+        self.grid.change_view_sig.connect(lambda index: self.change_view(index))
         self.grid.force_load_images_sig.connect(lambda urls: self.grid.force_load_images_cmd(urls))
         self.grid.verticalScrollBar().valueChanged.connect(lambda value: self.scroll_up_show_hide(value))
 
@@ -442,10 +442,10 @@ class MainWin(WinBase):
                 QApplication.instance().quit()
         
             elif a0.key() == Qt.Key.Key_1:
-                self.change_view_cmd(0)
+                self.change_view(0)
             
             elif a0.key() == Qt.Key.Key_2:
-                self.change_view_cmd(1)
+                self.change_view(1)
 
         elif a0.key() == Qt.Key.Key_Escape:
             self.setFocus()

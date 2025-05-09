@@ -25,7 +25,7 @@ class UMethods:
     def resize_thumbs(self, *args, **kwargs):
         raise Exception("Переопредели метод resize_grid")
     
-    def rearrange(self, *args, **kwargs):
+    def rearrange_thumbs(self, *args, **kwargs):
         raise Exception("Переопредели метод rearrange")
 
 

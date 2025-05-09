@@ -122,7 +122,7 @@ class GridList(UTableView):
         GridList.order = self.horizontalHeader().sortIndicatorOrder()
         self.sortByColumn(GridList.col, GridList.order)
 
-    def rearrange(self, *args, **kwargs):
+    def rearrange_thumbs(self, *args, **kwargs):
         ...
 
     def sort_(self, *args, **kwargs):

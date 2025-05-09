@@ -327,26 +327,26 @@ class GridSearch(Grid):
     def sort_(self):
         self.task_.pause = True
         super().sort_()
-        self.rearrange()
+        self.rearrange_thumbs()
         self.pause_timer.stop()
         self.pause_timer.start(RESIZE_TIMER_COUNT)
 
     def filter_thumbs(self):
         self.task_.pause = True
         super().filter_thumbs()
-        self.rearrange()
+        self.rearrange_thumbs()
         self.pause_timer.stop()
         self.pause_timer.start(RESIZE_TIMER_COUNT)
 
     def resize_thumbs(self):
         self.task_.pause = True
         super().resize_thumbs()
-        self.rearrange()
+        self.rearrange_thumbs()
         self.pause_timer.stop()
         self.pause_timer.start(RESIZE_TIMER_COUNT)
 
-    def rearrange(self):
-        super().rearrange()
+    def rearrange_thumbs(self):
+        super().rearrange_thumbs()
 
     def remove_pause(self):
         if self.task_:

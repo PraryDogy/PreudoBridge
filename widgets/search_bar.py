@@ -30,7 +30,7 @@ class SearchBar(QFrame):
     load_search_grid = pyqtSignal()
     pause_search_sig = pyqtSignal(bool)
     on_text_click = pyqtSignal()
-    on_extensions_click = pyqtSignal()
+    on_exts_click = pyqtSignal()
     on_list_click = pyqtSignal()
 
     def __init__(self, search_item: SearchItem):
@@ -132,6 +132,6 @@ class SearchBar(QFrame):
         if self.search_item.get_files_list():
             self.on_list_click.emit()
         elif self.search_item.get_extensions():
-            self.on_extensions_click.emit()
+            self.on_exts_click.emit()
         else:
             self.on_text_click.emit()

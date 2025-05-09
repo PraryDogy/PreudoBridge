@@ -423,7 +423,7 @@ class Grid(UScrollArea):
         for cell, wid in self.cell_to_wid.items():
             wid.setup_child_widgets()
 
-    def rearrange(self):
+    def rearrange_thumbs(self):
         """
         Устанавливает col_count     
         Перетасовывает виджеты в сетке на основе новых условий.     
@@ -681,7 +681,7 @@ class Grid(UScrollArea):
             self.add_widget_data(wid, new_row, new_col)
             self.grid_layout.addWidget(wid, new_row, new_col)
         self.sort_()
-        self.rearrange()
+        self.rearrange_thumbs()
         # испускает сигнал со списком Urls в MainWin, и MainWin
         # инициирует метод force_load_images_cmd в GridStandart,
         # чтобы прогрузить изображения для вставленных виджетов.
@@ -743,7 +743,7 @@ class Grid(UScrollArea):
         for i in self.selected_widgets:
             i.set_no_frame()
         self.selected_widgets.clear()
-        self.rearrange()
+        self.rearrange_thumbs()
 
     def grid_context_actions(self, menu_: UMenu):
         """
@@ -790,7 +790,7 @@ class Grid(UScrollArea):
 
         sort_menu = GridActions.SortMenu(menu_, self.sort_item)
         sort_menu.sort_grid_sig.connect(lambda: self.sort_())
-        sort_menu.rearrange_grid_sig.connect(lambda: self.rearrange())
+        sort_menu.rearrange_grid_sig.connect(lambda: self.rearrange_thumbs())
         sort_menu.sort_text_update.connect(lambda: self.sort_text_update.emit())
         menu_.addMenu(sort_menu)
 

@@ -339,15 +339,15 @@ class TopBar(QWidget):
         self.search_wid.load_st_grid.connect(self.load_st_grid.emit)
         self.main_lay.addWidget(self.search_wid)
 
-    def on_text_click_cmd(self):
+    def on_text_click(self):
         self.search_wid.selectAll()
         self.search_wid.setFocus()
 
-    def on_extensions_click_cmd(self):
+    def on_exts_click(self):
         self.search_wid.selectAll()
         self.search_wid.show_templates(None)
 
-    def on_list_click_cmd(self):
+    def on_list_click(self):
         self.search_wid.selectAll()
         self.search_wid.open_search_list_win()
 
