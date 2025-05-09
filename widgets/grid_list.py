@@ -49,8 +49,10 @@ class GridList(UTableView):
 
         self._model = QFileSystemModel()
         self._model.setRootPath(self.main_win_item.main_dir)
-        # self._model.setFilter(QDir.NoDotAndDotDot | QDir.AllEntries)
-        self._model.setFilter(QDir.AllEntries | QDir.NoDotAndDotDot | QDir.Hidden)
+
+        self._model.setFilter(QDir.AllEntries | QDir.NoDotAndDotDot)
+        if JsonData.show_hidden:
+            self._model.setFilter(self._model.filter() | QDir.Hidden)
 
         self.setModel(self._model)
         self.setRootIndex(self._model.index(self.main_win_item.main_dir))
