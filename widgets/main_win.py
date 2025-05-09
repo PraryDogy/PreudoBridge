@@ -236,7 +236,7 @@ class MainWin(WinBase):
 
         self.sort_bar.resize_thumbs.connect(lambda: self.grid.resize_thumbs())
         self.sort_bar.rearrange_thumbs.connect(lambda: self.grid.rearrange_thumbs())
-        self.sort_bar.sort_grid_sig.connect(lambda: self.grid.sort_())
+        self.sort_bar.sort_grid_sig.connect(lambda: self.grid.sort_thumbs())
         self.sort_bar.load_st_grid.connect(lambda: self.load_st_grid())
 
     def open_img_view(self, path: str):

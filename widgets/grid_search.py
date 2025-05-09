@@ -324,9 +324,9 @@ class GridSearch(Grid):
 
         self.finished_.emit()
 
-    def sort_(self):
+    def sort_thumbs(self):
         self.task_.pause = True
-        super().sort_()
+        super().sort_thumbs()
         self.rearrange_thumbs()
         self.pause_timer.stop()
         self.pause_timer.start(RESIZE_TIMER_COUNT)

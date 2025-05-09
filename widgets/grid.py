@@ -387,7 +387,7 @@ class Grid(UScrollArea):
         except RuntimeError as e:
             Utils.print_error(e)
     
-    def sort_(self):
+    def sort_thumbs(self):
         """
         Сортирует виджеты по аттрибуту BaseItem / Thumb
         """
@@ -680,7 +680,7 @@ class Grid(UScrollArea):
             new_row, new_col = row + 1, col + 1
             self.add_widget_data(wid, new_row, new_col)
             self.grid_layout.addWidget(wid, new_row, new_col)
-        self.sort_()
+        self.sort_thumbs()
         self.rearrange_thumbs()
         # испускает сигнал со списком Urls в MainWin, и MainWin
         # инициирует метод force_load_images_cmd в GridStandart,
@@ -789,7 +789,7 @@ class Grid(UScrollArea):
         menu_.addMenu(change_view)
 
         sort_menu = GridActions.SortMenu(menu_, self.sort_item)
-        sort_menu.sort_grid_sig.connect(lambda: self.sort_())
+        sort_menu.sort_grid_sig.connect(lambda: self.sort_thumbs())
         sort_menu.rearrange_grid_sig.connect(lambda: self.rearrange_thumbs())
         sort_menu.sort_text_update.connect(lambda: self.sort_text_update.emit())
         menu_.addMenu(sort_menu)

@@ -125,7 +125,7 @@ class GridList(UTableView):
     def rearrange_thumbs(self, *args, **kwargs):
         ...
 
-    def sort_(self, *args, **kwargs):
+    def sort_thumbs(self, *args, **kwargs):
         ...
 
     def filter_thumbs(self, *args, **kwargs):
