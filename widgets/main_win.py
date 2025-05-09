@@ -125,7 +125,7 @@ class MainWin(WinBase):
 
         self.resize_timer = QTimer(self)
         self.resize_timer.setSingleShot(True)
-        self.resize_timer.timeout.connect(self.resize_timer_cmd)
+        self.resize_timer.timeout.connect(self.resize_timer_timeout)
 
         main_lay = QHBoxLayout()
         main_lay.setContentsMargins(5, 0, 5, 0)
@@ -181,7 +181,7 @@ class MainWin(WinBase):
         self.path_bar.update(self.main_win_item.main_dir)
         self.sort_bar.sort_menu_update()
         self.tabs_widget.setCurrentIndex(1)
-        self.tags_update_visibility()
+        self.toggle_tags_menu()
         self.tags_menu_btn.click_cmd()
 
         self.r_lay.insertWidget(0, self.top_bar)
@@ -210,7 +210,7 @@ class MainWin(WinBase):
         self.favs_menu.new_history_item.connect(lambda dir: self.top_bar.new_history_item(dir))
         self.favs_menu.open_in_new_win.connect(lambda dir: self.open_in_new_win(dir))
 
-        self.tags_menu_btn.clicked_.connect(lambda: self.tags_update_visibility())
+        self.tags_menu_btn.clicked_.connect(lambda: self.toggle_tags_menu())
 
         self.tags_menu.filter_thumbs.connect(lambda: self.grid.filter_thumbs())
         self.tags_menu.rearrange_thumbs.connect(lambda: self.grid.rearrange_thumbs())
@@ -258,36 +258,23 @@ class MainWin(WinBase):
         if new_main_dir != os.sep:
             self.main_win_item.immortal_urls = [self.main_win_item.main_dir]
             self.main_win_item.main_dir = new_main_dir
-            self.load_st_grid()
             self.top_bar.new_history_item(new_main_dir)
+            self.load_st_grid()
 
     def change_view(self, index: int):
-        if index == self.view_index:
-            return
-        self.view_index = index
-        self.load_st_grid()
+        if index != self.view_index:
+            self.view_index = index
+            self.load_st_grid()
 
-    def resize_timer_cmd(self):
+    def resize_timer_timeout(self):
         self.grid.resize_thumbs()
         self.grid.rearrange_thumbs()
 
-    def tags_update_visibility(self):
+    def toggle_tags_menu(self):
         if self.tags_menu.isHidden():
             self.tags_menu.show()
         else:
             self.tags_menu.hide()
-
-    def open_path_cmd(self, filepath: str):
-        if not os.path.exists(filepath):
-            return
-
-        if filepath.endswith(Static.ext_all):
-            self.main_win_item.main_dir = os.path.dirname(filepath)
-            self.main_win_item.urls = [filepath]
-            self.load_st_grid()
-        else:
-            self.main_win_item.main_dir = filepath
-            self.load_st_grid()
 
     def open_in_new_win(self, dir: str):
         new_win = MainWin(dir)
