@@ -269,7 +269,7 @@ class TextSelectAll(QAction):
 class SortMenu(UMenu):
     sort_grid_sig = pyqtSignal()
     rearrange_grid_sig = pyqtSignal()
-    sort_bar_update_sig = pyqtSignal(object)
+    sort_text_update = pyqtSignal(SortItem)
     text_menu = "Сортировать"
     text_ascending = "По возрастанию"
     text_discenging = "По убыванию"
@@ -326,14 +326,14 @@ class SortMenu(UMenu):
         self.sort_item.set_sort(true_name)
         self.sort_grid_sig.emit()
         self.rearrange_grid_sig.emit()
-        self.sort_bar_update_sig.emit(None)
+        self.sort_text_update.emit(self.sort_item)
 
     def cmd_revers(self, reversed: bool):
         # записываем порядок сортировки в пользовательский .json
         self.sort_item.set_rev(reversed)
         self.sort_grid_sig.emit()
         self.rearrange_grid_sig.emit()
-        self.sort_bar_update_sig.emit(None)
+        self.sort_text_update.emit(self.sort_item)
 
 
 # показать сетку / список - GridStandart / GridSearch / ListFileSystem

@@ -357,7 +357,7 @@ class SortMenuBtn(UFrame):
         menu_ = SortMenu(self, self.sort_item)
         menu_.sort_grid_sig.connect(self.sort_grid_sig.emit)
         menu_.rearrange_grid_sig.connect(self.rearrange_grid_sig.emit)
-        menu_.sort_bar_update_sig.connect(lambda: self.set_sort_text(self.sort_item))
+        menu_.sort_text_update.connect(lambda: self.set_sort_text(self.sort_item))
 
         widget_rect = self.rect()
         menu_size = menu_.sizeHint()
@@ -457,18 +457,11 @@ class SortBar(QWidget):
         self.slider.setFixedSize(70, 15)
         self.main_lay.addWidget(self.slider)
 
-    def setup(self, value: int | None):
-        """
-        SortFrame содержит два виджета: "Тип сортировки" и "Количество виджетов в сетке".
-
-        - value — значение для виджета "Количество виджетов в сетке". Может быть None.
-        - При вызове этого метода всегда обновляется виджет "Тип сортировки".
-        - Если value — целое число, также обновляется виджет "Количество виджетов в сетке".
-        """
-
+    def update_sort_text(self):
         self.sort_frame.set_sort_text(self.sort_item)
-        if isinstance(value, int):
-            self.sort_frame.set_total_text(value)
+
+    def update_total(self, value: int):
+        self.sort_frame.set_total_text(value)
 
     def open_go_win(self, *args):
         """

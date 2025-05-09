@@ -35,7 +35,6 @@ class UScrollArea(QScrollArea, UMethods):
     """
     new_history_item = pyqtSignal(str)
     path_bar_update = pyqtSignal(str)
-    sort_bar_update = pyqtSignal(object)
     add_fav = pyqtSignal(str)
     del_fav = pyqtSignal(str)
     load_st_grid_sig = pyqtSignal()
@@ -44,6 +43,8 @@ class UScrollArea(QScrollArea, UMethods):
     open_in_new_window = pyqtSignal(str)
     level_up = pyqtSignal()
     force_load_images_sig = pyqtSignal(list)
+    sort_text_update = pyqtSignal()
+    total_count_update = pyqtSignal(int)
 
     def __init__(self):
         """
@@ -59,7 +60,6 @@ class UTableView(QTableView, UMethods):
     """
     new_history_item = pyqtSignal(str)
     path_bar_update = pyqtSignal(str)
-    sort_bar_update = pyqtSignal(object)
     add_fav = pyqtSignal(str)
     del_fav = pyqtSignal(str)
     load_st_grid_sig = pyqtSignal()
@@ -68,6 +68,8 @@ class UTableView(QTableView, UMethods):
     open_in_new_window = pyqtSignal(str)
     level_up = pyqtSignal()
     force_load_images_sig = pyqtSignal(list)
+    sort_text_update = pyqtSignal()
+    total_count_update = pyqtSignal(int)
 
 
 class UMenu(QMenu):
