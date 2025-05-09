@@ -355,13 +355,7 @@ class GridList(UTableView):
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
 
             if a0.key() == Qt.Key.Key_Up:
-                root = os.path.dirname(self.main_win_item.main_dir)
-                if root != os.sep:
-                    self.new_history_item.emit(root)
-                    self.main_win_item.main_dir = root
-                    self.load_st_grid.emit()
-                    self.new_history_item.emit(root)
-                    # return
+                self.level_up.emit()
 
             elif a0.key() == Qt.Key.Key_Down:
                 index = self.currentIndex()
@@ -386,6 +380,14 @@ class GridList(UTableView):
 
             elif a0.key() == Qt.Key.Key_V:
                 if Dynamic.urls_to_copy:
+                    self.paste_files()
+
+        if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
+            if a0.key() == Qt.Key.Key_C:
+                self.setup_urls_to_copy()
+
+            elif a0.key() == Qt.Key.Key_V:
+                if not self.is_grid_search:
                     self.paste_files()
 
         elif a0.key() in (Qt.Key.Key_Return, Qt.Key.Key_Space):

@@ -260,7 +260,7 @@ class MainWin(WinBase):
         if new_main_dir != os.sep:
             self.top_bar.new_history_item(new_main_dir)
             self.main_win_item.urls.clear()
-            self.main_win_item.urls = [old_main_dir]
+            self.main_win_item.go_to = old_main_dir
             self.main_win_item.main_dir = new_main_dir
             self.load_st_grid()
 
