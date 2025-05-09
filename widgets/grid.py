@@ -357,7 +357,7 @@ class Grid(UScrollArea):
     def set_mouseReleaseEvent(self):
         self.mouseReleaseEvent = self.custom_mouseReleaseEvent
 
-    def select_one_wid(self, wid: Thumb):
+    def select_one_wid(self, wid: BaseItem | Thumb):
         """
         Очищает визуальное выделение с выделенных виджетов и очищает список.  
         Выделяет виджет, добавляет его в список выделенных виджетов.
@@ -365,12 +365,12 @@ class Grid(UScrollArea):
         if wid is None:
             return
 
-        self.clear_selected_widgets()
-
-        wid.set_frame()
-        self.selected_widgets.append(wid)
-        self.ensure_wid_visible(wid)
         self.path_bar_update_cmd(wid.src)
+        if isinstance(wid, Thumb):
+            self.clear_selected_widgets()
+            wid.set_frame()
+            self.selected_widgets.append(wid)
+            self.ensure_wid_visible(wid)
 
     def path_bar_update_cmd(self, src: str):
         """
