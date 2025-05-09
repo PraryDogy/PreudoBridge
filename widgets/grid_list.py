@@ -57,13 +57,14 @@ class GridList(UTableView):
         self.setModel(self._model)
         self.setRootIndex(self._model.index(self.main_win_item.main_dir))
 
+        self.sortByColumn(GridList.col, GridList.order)
+        for i in range(0, 4):
+            self.setColumnWidth(i, GridList.sizes[i])
+
         self._model.directoryLoaded.connect(self.set_url_to_index_)
 
     def set_url_to_index_(self):
         self.hide()
-        self.sortByColumn(GridList.col, GridList.order)
-        for i in range(0, 4):
-            self.setColumnWidth(i, GridList.sizes[i])
 
         root_index = self.rootIndex()
         row_count = self._model.rowCount(root_index)
