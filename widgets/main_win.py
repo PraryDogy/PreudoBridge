@@ -200,7 +200,8 @@ class MainWin(WinBase):
         self.splitter.splitterMoved.connect(lambda: self.resize_timer.start(MainWin.resize_ms))
 
         self.tree_menu.load_st_grid_sig.connect(lambda: self.load_st_grid())
-        self.tree_menu.fav_cmd_sig.connect(lambda data: self.favs_menu.fav_cmd(data))
+        self.tree_menu.add_fav.connect(lambda dir: self.favs_menu.add_fav(dir))
+        self.tree_menu.del_fav.connect(lambda dir: self.favs_menu.del_fav(dir))
         self.tree_menu.new_history_item.connect(lambda dir: self.top_bar.new_history_item_cmd(dir))
         self.tree_menu.open_in_new_window.connect(lambda dir: self.open_in_new_window_cmd(dir))
 

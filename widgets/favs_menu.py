@@ -154,13 +154,13 @@ class FavsMenu(QListWidget):
         if cmd == "select":
             self.select_fav(src)
         elif cmd == "add":
-            self.add_to_favs_main(src)
+            self.add_fav(src)
         elif cmd == "del":
-            self.del_item(src)
+            self.del_fav(src)
         else:
             raise Exception("tree favorites wrong flag", cmd.get("cmd"))
 
-    def add_to_favs_main(self, src: str):
+    def add_fav(self, src: str):
 
         if src not in JsonData.favs:
             cmd_ = lambda name: self.add_to_favs_main_fin(src=src, name=name)
@@ -171,9 +171,9 @@ class FavsMenu(QListWidget):
             self.win_set_name.show()
 
     def add_to_favs_main_fin(self, src: str, name: str):
-            JsonData.favs[src] = name
-            self.add_fav_widget_item(name, src)
-            JsonData.write_config()
+        JsonData.favs[src] = name
+        self.add_fav_widget_item(name, src)
+        JsonData.write_config()
 
     def path_changed_cmd(self):
         self.init_ui()
@@ -182,7 +182,7 @@ class FavsMenu(QListWidget):
         fav_item = FavItem(name, src, self.main_win_item)
         fav_item.new_history_item.connect(self.new_history_item)
         fav_item.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
-        fav_item.remove_fav_item.connect(lambda: self.del_item(src))
+        fav_item.remove_fav_item.connect(lambda: self.del_fav(src))
         fav_item.open_in_new_win.connect(lambda dir: self.open_in_new_win.emit(dir))
         fav_item.renamed.connect(
             lambda new_name: self.update_name(src, new_name)
@@ -203,7 +203,7 @@ class FavsMenu(QListWidget):
         if src in JsonData.favs:
             JsonData.favs[src] = new_name
 
-    def del_item(self, src: str):
+    def del_fav(self, src: str):
         JsonData.favs.pop(src)
         JsonData.write_config()
         self.init_ui()
@@ -233,4 +233,4 @@ class FavsMenu(QListWidget):
             url_ = Utils.normalize_slash(url_)
             
             if url_ not in JsonData.favs and os.path.isdir(url_):
-                self.add_to_favs_main(src=url_)
+                self.add_fav(src=url_)

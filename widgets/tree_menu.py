@@ -12,9 +12,10 @@ from .actions import (CopyName, CopyPath, FavAdd, FavRemove, OpenInNewWindow,
 
 class TreeMenu(QTreeView):
     new_history_item = pyqtSignal(str)
-    fav_cmd_sig = pyqtSignal(tuple)
     load_st_grid_sig = pyqtSignal()
     open_in_new_window = pyqtSignal(str)
+    del_fav = pyqtSignal(str)
+    add_fav = pyqtSignal(str)
 
     def __init__(self, main_win_item: MainWinItem):
         super().__init__()
@@ -86,12 +87,12 @@ class TreeMenu(QTreeView):
 
         favs: dict = JsonData.favs
         if src in favs:
-            cmd_ = lambda: self.fav_cmd_sig.emit(("del", src))
+            cmd_ = lambda: self.del_fav.emit(src)
             fav_action = FavRemove(menu)
             fav_action.triggered.connect(cmd_)
             menu.addAction(fav_action)
         else:
-            cmd_ = lambda: self.fav_cmd_sig.emit(("add", src))
+            cmd_ = lambda: self.add_fav.emit(src)
             fav_action = FavAdd(menu)
             fav_action.triggered.connect(cmd_)
             menu.addAction(fav_action)
