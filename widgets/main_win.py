@@ -308,7 +308,6 @@ class MainWin(WinBase):
         self.grid.level_up.connect(lambda: self.level_up())
         self.grid.new_history_item.connect(lambda dir: self.top_bar.new_history_item(dir))
         self.grid.change_view.connect(lambda index: self.change_view(index))
-        self.grid.force_load_images.connect(lambda urls: self.grid.force_load_images_cmd(urls))
         self.grid.verticalScrollBar().valueChanged.connect(lambda value: self.scroll_up_toggle(value))
 
     def safe_delete_grid(self):

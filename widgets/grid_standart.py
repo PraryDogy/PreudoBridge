@@ -286,6 +286,10 @@ class GridStandart(Grid):
                 thumbs.append(wid)
         self.run_load_images_thread(thumbs)
 
+    def paste_files_fin(self, urls):
+        urls = super().paste_files_fin(urls)
+        self.force_load_images_cmd(urls)
+
     def on_scroll_changed(self, value: int):
         """
         - При сколлинге запускается таймер    

@@ -42,7 +42,6 @@ class UScrollArea(QScrollArea, UMethods):
     change_view = pyqtSignal(int)
     open_in_new_win = pyqtSignal(str)
     level_up = pyqtSignal()
-    force_load_images = pyqtSignal(list)
     sort_text_update = pyqtSignal()
     total_count_update = pyqtSignal(int)
 
@@ -67,7 +66,6 @@ class UTableView(QTableView, UMethods):
     change_view = pyqtSignal(int)
     open_in_new_win = pyqtSignal(str)
     level_up = pyqtSignal()
-    force_load_images = pyqtSignal(list)
     sort_text_update = pyqtSignal()
     total_count_update = pyqtSignal(int)
 
