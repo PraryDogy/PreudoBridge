@@ -387,7 +387,7 @@ class MainWin(WinBase):
         self.setup_grid_signals()
 
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
-        QTimer.singleShot(400, self.grid.setFocus)
+        QTimer.singleShot(500, self.grid.setFocus)
 
     def scroll_up_toggle(self, value: int):
         if value == 0:
