@@ -63,15 +63,15 @@ class GridList(UTableView):
 
     def set_url_to_index_(self):
         root_index = self.rootIndex()
-        rows = self._model.rowCount(root_index)
+        row_count = self._model.rowCount(root_index)
 
-        for row in range(rows):
+        for row in range(row_count):
             index = self._model.index(row, 0, root_index)
             path = self._model.filePath(index)
             self.url_to_index[path] = index
 
         self.path_bar_update.emit(self.main_win_item.main_dir)
-        self.sort_bar_update.emit(rows)
+        self.sort_bar_update.emit(row_count)
 
         for url, index in self.url_to_index.items():
             if url in self.main_win_item.urls:
