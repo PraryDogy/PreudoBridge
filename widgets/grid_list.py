@@ -249,7 +249,7 @@ class GridList(UTableView):
 
         if os.path.isdir(selected_path):
             if selected_path in JsonData.favs:
-                cmd_ = self.del_fav.emit(selected_path)
+                cmd_ = lambda: self.del_fav.emit(selected_path)
                 fav_action = GridActions.FavRemove(menu_)
                 fav_action.triggered.connect(cmd_)
                 menu_.addAction(fav_action)
