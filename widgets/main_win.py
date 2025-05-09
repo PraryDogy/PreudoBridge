@@ -360,13 +360,14 @@ class MainWin(WinBase):
                 self.main_win_item.main_dir = fixed_path
 
         LoadImage.cached_images.clear()
-        self.setWindowTitle(os.path.basename(self.main_win_item.main_dir))
+
         self.favs_menu.select_fav(self.main_win_item.main_dir)
         self.top_bar.search_wid.clear_search()
         self.search_bar.hide()
         self.search_bar_sep.hide()
         self.tree_menu.expand_path(self.main_win_item.main_dir)
 
+        self.setWindowTitle(os.path.basename(self.main_win_item.main_dir))
         self.safe_delete_grid()
 
         if self.view_index == 0:
@@ -374,6 +375,7 @@ class MainWin(WinBase):
             self.grid.setParent(self)
             self.grid.set_sort_item(self.sort_item)
             self.grid.load_finder_items()
+
             self.sort_bar.sort_frame.setDisabled(False)
             self.sort_bar.slider.setDisabled(False)
 
@@ -381,10 +383,12 @@ class MainWin(WinBase):
             self.grid = GridList(self.main_win_item, self.view_index)
             self.grid.setParent(self)
             self.grid.set_first_col_width()
+
             self.sort_bar.sort_frame.setDisabled(True)
             self.sort_bar.slider.setDisabled(True)
 
         self.setup_grid_signals()
+
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
         QTimer.singleShot(400, self.grid.setFocus)
 
@@ -426,9 +430,6 @@ class MainWin(WinBase):
 
             elif a0.key() == Qt.Key.Key_W:
                 self.close()
-
-            elif a0.key() == Qt.Key.Key_Q:
-                QApplication.instance().quit()
         
             elif a0.key() == Qt.Key.Key_1:
                 self.change_view(0)
