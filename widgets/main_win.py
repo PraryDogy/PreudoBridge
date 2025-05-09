@@ -259,7 +259,7 @@ class MainWin(WinBase):
             self.main_win_item.immortal_urls = [self.main_win_item.main_dir]
             self.main_win_item.main_dir = new_main_dir
             self.load_st_grid()
-            self.top_bar.new_history_item_cmd(new_main_dir)
+            self.top_bar.new_history_item(new_main_dir)
 
     def change_view(self, index: int):
         if index == self.view_index:
