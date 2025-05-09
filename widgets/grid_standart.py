@@ -394,6 +394,7 @@ class GridStandart(Grid):
                     wid = self.url_to_wid.get(i)
                     self.selected_widgets.append(wid)
                     wid.set_frame()
+            self.main_win_item.urls.clear()
 
     def run_load_images_thread(self, thumbs: list[Thumb]):
         """
