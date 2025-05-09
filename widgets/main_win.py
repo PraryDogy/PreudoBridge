@@ -179,7 +179,7 @@ class MainWin(WinBase):
 
         self.top_bar.new_history_item(self.main_win_item.main_dir)
         self.path_bar.update(self.main_win_item.main_dir)
-        self.sort_bar.sort_text_update()
+        self.sort_bar.sort_menu_update()
         self.tabs_widget.setCurrentIndex(1)
         self.tags_update_visibility()
         self.tags_menu_btn.click_cmd()
@@ -297,7 +297,7 @@ class MainWin(WinBase):
         new_win.show()
 
     def setup_grid_signals(self):
-        self.grid.sort_text_update.connect(lambda: self.sort_bar.sort_text_update())
+        self.grid.sort_menu_update.connect(lambda: self.sort_bar.sort_menu_update())
         self.grid.total_count_update.connect(lambda total: self.sort_bar.total_count_update(total))
         self.grid.path_bar_update.connect(lambda dir: self.path_bar.update(dir))
         self.grid.add_fav.connect(lambda dir: self.favs_menu.add_fav(dir))

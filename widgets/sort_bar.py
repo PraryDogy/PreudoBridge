@@ -357,7 +357,7 @@ class SortMenuBtn(UFrame):
         menu_ = SortMenu(self, self.sort_item)
         menu_.sort_grid_sig.connect(self.sort_grid_sig.emit)
         menu_.rearrange_grid_sig.connect(self.rearrange_grid_sig.emit)
-        menu_.sort_text_update.connect(lambda: self.set_sort_text())
+        menu_.sort_menu_update.connect(lambda: self.set_sort_text())
 
         widget_rect = self.rect()
         menu_size = menu_.sizeHint()
@@ -460,7 +460,7 @@ class SortBar(QWidget):
     def move_slider(self, value: int):
         self.slider.move_from_keyboard(value)
 
-    def sort_text_update(self):
+    def sort_menu_update(self):
         self.sort_frame.set_sort_text()
 
     def total_count_update(self, value: int):
