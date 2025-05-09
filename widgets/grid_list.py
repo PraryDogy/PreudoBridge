@@ -303,11 +303,17 @@ class GridList(UTableView):
         self.rem_win.center(self.window())
         self.rem_win.show()
 
-    def deleteLater(self):
+    def set_urls(self):
+        """
+        Из-за того, что сетка удаляется из MainWin по таймеру,
+        нужно вызывать этот метод, чтобы .urls моментально обновились
+        для обработки в следующей сетке
+        """
         GridList.sizes = [self.columnWidth(i) for i in range(0, 4)]
-        for i in self.get_selected_urls():
-            self.main_win_item.urls.append(i)
-        super().deleteLater()
+        self.main_win_item.urls = [
+            i
+            for i in self.get_selected_urls()
+        ]
 
     def contextMenuEvent(self, event: QContextMenuEvent):
         # определяем выделена ли строка

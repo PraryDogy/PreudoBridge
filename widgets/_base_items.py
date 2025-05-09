@@ -605,11 +605,8 @@ class SearchItem:
 class MainWinItem:
     def __init__(self):
         self.urls: list[str] = []
-        # self.urls меняется при вызове deleteLater() и GridStandart и
-        # GridSearch, и может оказаться пустым
-        # если нам нужно обойти это ограничение, то записываем urls в
-        # immortal_urls
-        self.immortal_urls: list[str] = []
+        # позволяет перейти к виджету после открытия окна "Перейти к ..."
+        self.go_to: str = None
         self.main_dir: str = None
 
 

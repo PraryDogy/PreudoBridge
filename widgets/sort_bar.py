@@ -255,7 +255,7 @@ class GoToWin(MinMaxDisabledWin):
         else:
             if os.path.isfile(result):
                 main_dir = os.path.dirname(result)
-                self.main_win_item.immortal_urls = [result]
+                self.main_win_item.go_to = result
             else:
                 main_dir = result
             self.main_win_item.main_dir = main_dir

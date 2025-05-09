@@ -437,6 +437,17 @@ class GridStandart(Grid):
             except RuntimeError as e:
                 Utils.print_error(e)
 
+    def set_urls(self):
+        """
+        Из-за того, что сетка удаляется из MainWin по таймеру,
+        нужно вызывать этот метод, чтобы .urls моментально обновились
+        для обработки в следующей сетке
+        """
+        self.main_win_item.urls = [
+            i.src
+            for i in self.selected_widgets
+        ]
+
     def resizeEvent(self, a0):
         self.loading_lbl.center(self)
         return super().resizeEvent(a0)
@@ -444,12 +455,6 @@ class GridStandart(Grid):
     def deleteLater(self):
         for i in self.tasks:
             i.set_should_run(False)
-
-        self.main_win_item.urls = [
-            i.src
-            for i in self.selected_widgets
-        ]
-
         return super().deleteLater()
     
     def closeEvent(self, a0):

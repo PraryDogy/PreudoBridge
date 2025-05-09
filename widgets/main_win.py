@@ -305,6 +305,10 @@ class MainWin(WinBase):
         # bus error, segmentation fault, fatal error no python frame
         # поэтому мы сначала скрываем старую сетку
         # затем по таймеру удаляем ее
+
+        if isinstance(self.grid, (GridStandart, GridList)):
+            self.grid.set_urls()
+
         old_grid = self.grid
         old_grid.hide()
         old_grid.setParent(None)
@@ -347,16 +351,6 @@ class MainWin(WinBase):
         """
         - dir: основная директория, которая будет отображена в виде сетки виджетов
         """
-        # при удалении сетки срабатывает кастомный метод deleteLater
-        # который обновляет main_win_item.urls, и если нет выделенных
-        # виджетов, то будет будет пустым
-        # обходим это, сохранив url при level_up_cmd в main_win_item.level_up_url
-        # чтобы при level_up_cmd выделась предыдущая папка
-
-        # if self.main_win_item.immortal_urls:
-            # self.main_win_item.urls = self.main_win_item.immortal_urls.copy()
-            # self.main_win_item.immortal_urls.clear()
-
         if not os.path.exists(self.main_win_item.main_dir):
             fixed_path = Utils.fix_path_prefix(self.main_win_item.main_dir)
             if fixed_path:
