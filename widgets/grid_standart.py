@@ -229,7 +229,6 @@ class LoadImages(URunnable):
 
 class GridStandart(Grid):
     no_images_text = "Папка пуста или нет подключения к диску"
-    limit: int = 50
 
     def __init__(self, main_win_item: MainWinItem, view_index: int):
         """
@@ -299,9 +298,6 @@ class GridStandart(Grid):
         self.load_images_timer.stop()
         self.load_images_timer.start(1000)
 
-        if value == self.verticalScrollBar().maximum():
-            self.iter_base_items()
-
     def load_finder_items(self):
         """
         URunnable   
@@ -353,7 +349,7 @@ class GridStandart(Grid):
         # для отображения "всего элементов"
         self.total_count_update.emit(len(self.base_items))
 
-        # создаем сетку на основе элементов из FinderItems с лимитом
+        # создаем сетку на основе элементов из FinderItems
         self.iter_base_items()
 
         # если установлен фильтр по рейтингу, запускаем функцию фильтрации,
@@ -367,7 +363,7 @@ class GridStandart(Grid):
 
     def iter_base_items(self):
         self.col_count = self.get_col_count()
-        for base_item in self.base_items[:GridStandart.limit]:
+        for base_item in self.base_items:
             thumb = Thumb(base_item.src, base_item.rating)
             thumb.setup_attrs()
             thumb.setup_child_widgets()
@@ -377,10 +373,9 @@ class GridStandart(Grid):
             if base_item in self.new_items:
                 thumb.set_green_text()
 
-            # удаляем элемент из списка base items
-            # таким образом в следующем обращении к iter base items
-            # список base items будет актуальным
-            self.base_items.remove(base_item)
+            if thumb.src == self.main_win_item.go_to:
+                self.select_one_wid(thumb)
+                self.main_win_item.go_to = None
 
             self.add_widget_data(thumb, self.row, self.col)
             self.grid_layout.addWidget(thumb, self.row, self.col)
@@ -398,52 +393,11 @@ class GridStandart(Grid):
                 self.selected_widgets.append(wid)
                 wid.set_frame()
 
-        if self.main_win_item.go_to:
-
-            for base_item in self.base_items:
-                if self.main_win_item.go_to == base_item.src:
-                    wid = self.url_to_wid.get(base_item.src)
-
-                    if not wid:
-                        thumb = Thumb(base_item.src, base_item.rating)
-                        thumb.setup_attrs()
-                        thumb.setup_child_widgets()
-                        thumb.set_no_frame()
-
-                        # если путь состоит только из 2 секций: /Volumes/Macintosh HD
-                        # то это точно диск, устанавливаем соответствующую иконку
-                        if base_item.src.count(os.sep) == 2:
-                            thumb.set_svg_icon(Static.HDD_SVG)
-
-                        # иконка на основе расширения файла для виджета уже точно есть
-                        # проверка была в finalize finder items
-                        else:
-                            icon_path = Utils.get_generic_icon_path(base_item.type_)
-                            thumb.set_svg_icon(icon_path)
-                        
-                        if base_item in self.new_items:
-                            thumb.set_green_text()
-
-                        # удаляем элемент из списка base items
-                        # таким образом в следующем обращении к iter base items
-                        # список base items будет актуальным
-                        self.base_items.remove(base_item)
-
-                        self.add_widget_data(thumb, self.row, self.col)
-                        self.grid_layout.addWidget(thumb, self.row, self.col)
-
-
-                        self.col += 1
-                        if self.col == self.col_count:
-                            self.col = 0
-                            self.row += 1
-
-                        self.select_one_wid(wid)
-                        self.main_win_item.go_to = None
-                        QTimer.singleShot(1000, lambda: self.ensure_wid_visible(thumb))
-
-
-# /Volumes/Macintosh HD/Users/Morkowik/Downloads/сера.pptx
+    def go_to_fin(self, wid: Thumb):
+        try:
+            self.select_one_wid(wid)
+        except RuntimeError as e:
+            Utils.print_error(e)
 
     def run_load_images_thread(self, thumbs: list[Thumb]):
         """
