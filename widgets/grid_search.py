@@ -331,9 +331,9 @@ class GridSearch(Grid):
         self.pause_timer.stop()
         self.pause_timer.start(RESIZE_TIMER_COUNT)
 
-    def filter_(self):
+    def filter_thumbs(self):
         self.task_.pause = True
-        super().filter_()
+        super().filter_thumbs()
         self.rearrange()
         self.pause_timer.stop()
         self.pause_timer.start(RESIZE_TIMER_COUNT)

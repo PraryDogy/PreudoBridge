@@ -393,7 +393,7 @@ class Grid(UScrollArea):
         """
         self.sorted_widgets = BaseItem.sort_(self.sorted_widgets, self.sort_item)
                 
-    def filter_(self):
+    def filter_thumbs(self):
         """
         Скрывает виджеты, не соответствующие установленному фильтру.    
         Например, если фильтр установлен "отобразить 5 звезд",     

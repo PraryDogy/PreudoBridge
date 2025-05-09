@@ -128,7 +128,7 @@ class GridList(UTableView):
     def sort_(self, *args, **kwargs):
         ...
 
-    def filter_(self, *args, **kwargs):
+    def filter_thumbs(self, *args, **kwargs):
         ...
 
     def resize_thumbs(self, *args, **kwargs):

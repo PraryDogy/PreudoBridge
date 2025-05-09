@@ -206,13 +206,13 @@ class MainWin(WinBase):
         self.tree_menu.new_history_item.connect(lambda dir: self.top_bar.new_history_item(dir))
         self.tree_menu.open_in_new_window.connect(lambda dir: self.open_in_new_win(dir))
 
-        self.favs_menu.load_st_grid_sig.connect(lambda: self.load_st_grid())
+        self.favs_menu.load_st_grid.connect(lambda: self.load_st_grid())
         self.favs_menu.new_history_item.connect(lambda dir: self.top_bar.new_history_item(dir))
         self.favs_menu.open_in_new_win.connect(lambda dir: self.open_in_new_win(dir))
 
         self.tags_menu_btn.clicked_.connect(lambda: self.tags_update_visibility())
 
-        self.tags_menu.filter_grid_sig.connect(lambda: self.grid.filter_())
+        self.tags_menu.filter_thumbs.connect(lambda: self.grid.filter_thumbs())
         self.tags_menu.rearrange_grid_sig.connect(lambda: self.grid.rearrange())
 
         self.top_bar.level_up.connect(lambda: self.level_up_cmd())

@@ -19,7 +19,7 @@ class UMethods:
     def sort_(self, *args, **kwargs):
         raise Exception("Переопредели метод sort_grid")
 
-    def filter_(self, *args, **kwargs):
+    def filter_thumbs(self, *args, **kwargs):
         raise Exception("Переопредели метод filter_grid")
 
     def resize_thumbs(self, *args, **kwargs):

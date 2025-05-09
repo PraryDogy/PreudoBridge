@@ -17,9 +17,9 @@ RENAME_T = "Переименовать"
 class FavItem(QLabel):
     remove_fav_item = pyqtSignal()
     renamed = pyqtSignal(str)
-    path_fixed_sig = pyqtSignal()
+    path_fixed = pyqtSignal()
     new_history_item = pyqtSignal(str)
-    load_st_grid_sig = pyqtSignal()
+    load_st_grid = pyqtSignal()
     open_in_new_win = pyqtSignal(str)
 
     def __init__(self, name: str, src: str, main_win_item: MainWinItem):
@@ -44,7 +44,7 @@ class FavItem(QLabel):
     def view_fav(self):
         self.new_history_item.emit(self.src)
         self.main_win_item.main_dir = self.src
-        self.load_st_grid_sig.emit()
+        self.load_st_grid.emit()
 
     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
         if ev.button() == Qt.MouseButton.LeftButton:
@@ -64,7 +64,7 @@ class FavItem(QLabel):
                     self.src = fixed_path
                     JsonData.write_config()
                     # подаем сигнал в родительский виджет для обновления ui
-                    self.path_fixed_sig.emit()
+                    self.path_fixed.emit()
 
             self.view_fav()
 
@@ -112,7 +112,7 @@ class FavsMenu(QListWidget):
     LIST_ITEM = "list_item"
     FAV_ITEM = "fav_item"
     new_history_item = pyqtSignal(str)
-    load_st_grid_sig = pyqtSignal()
+    load_st_grid = pyqtSignal()
     open_in_new_win = pyqtSignal(str)
 
     def __init__(self, main_win_item: MainWinItem):
@@ -175,19 +175,16 @@ class FavsMenu(QListWidget):
         self.add_fav_widget_item(name, src)
         JsonData.write_config()
 
-    def path_changed_cmd(self):
-        self.init_ui()
-
     def add_fav_widget_item(self, name: str, src: str) -> dict:
         fav_item = FavItem(name, src, self.main_win_item)
         fav_item.new_history_item.connect(self.new_history_item)
-        fav_item.load_st_grid_sig.connect(self.load_st_grid_sig.emit)
+        fav_item.load_st_grid.connect(self.load_st_grid.emit)
         fav_item.remove_fav_item.connect(lambda: self.del_fav(src))
         fav_item.open_in_new_win.connect(lambda dir: self.open_in_new_win.emit(dir))
         fav_item.renamed.connect(
             lambda new_name: self.update_name(src, new_name)
         )
-        fav_item.path_fixed_sig.connect(self.path_changed_cmd)
+        fav_item.path_fixed.connect(lambda: self.init_ui())
 
         list_item = QListWidgetItem(parent=self)
         list_item.setSizeHint(fav_item.sizeHint())
