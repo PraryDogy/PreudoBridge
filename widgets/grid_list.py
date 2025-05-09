@@ -85,7 +85,7 @@ class GridList(UTableView):
             for url in self.main_win_item.urls:
                 if url in self.url_to_index:
                     index = self.url_to_index.get(url)
-                    self.selectRow(index.row())
+                    self.select_row(index)
             self.main_win_item.urls.clear()
             QTimer.singleShot(100, lambda: self.verticalScrollBar().setValue(0))
 
