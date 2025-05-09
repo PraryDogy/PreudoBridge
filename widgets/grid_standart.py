@@ -383,14 +383,15 @@ class GridStandart(Grid):
                 self.col = 0
                 self.row += 1
 
-        if self.main_win_item.go_to:
+        if self.main_win_item.go_to in self.url_to_wid:
             wid = self.url_to_wid.get(self.main_win_item.go_to)
-            if wid:
-                self.select_one_wid(wid)
-        else:
+            self.main_win_item.go_to = None
+            self.select_one_wid(wid)
+
+        elif self.main_win_item.urls:
             for i in self.main_win_item.urls:
-                wid = self.url_to_wid.get(i)
-                if wid:
+                if i in self.url_to_wid:
+                    wid = self.url_to_wid.get(i)
                     self.selected_widgets.append(wid)
                     wid.set_frame()
 
