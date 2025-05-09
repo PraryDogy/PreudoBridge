@@ -308,22 +308,24 @@ class MainWin(WinBase):
         QTimer.singleShot(3000, lambda: old_grid.deleteLater())
 
     def load_search_grid(self):
+        self.grid = GridSearch(self.main_win_item, self.view_index)
+        self.grid.finished_.connect(lambda id_=id(self.grid): self.search_finished(id_))
+        self.grid.setParent(self)
+        self.grid.set_sort_item(self.sort_item)
+        self.grid.set_search_item(self.search_item)
+        self.grid.start_search()
+        self.grid.setFocus()
+
+        self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
+
         self.search_bar.show()
         self.search_bar_sep.show()
         self.tags_menu.reset()
-
+        
         self.safe_delete_grid()
-        self.grid = GridSearch(self.main_win_item, self.view_index)
-        self.grid.setParent(self)
-        self.grid.set_sort_item(self.sort_item)
-        self.grid.finished_.connect(lambda id_=id(self.grid): self.finished_search_grid(id_))
-        self.grid.set_search_item(self.search_item)
-        self.grid.start_search()
-        self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
         self.setup_grid_signals()
-        self.grid.setFocus()
 
-    def finished_search_grid(self, id_: int):
+    def search_finished(self, id_: int):
         """
         Обрабатывает сигнал завершения поиска в GridSearch.
 
@@ -347,6 +349,7 @@ class MainWin(WinBase):
         # виджетов, то будет будет пустым
         # обходим это, сохранив url при level_up_cmd в main_win_item.level_up_url
         # чтобы при level_up_cmd выделась предыдущая папка
+
         if self.main_win_item.immortal_urls:
             self.main_win_item.urls = self.main_win_item.immortal_urls.copy()
             self.main_win_item.immortal_urls.clear()
