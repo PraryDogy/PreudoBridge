@@ -21,7 +21,7 @@ class WorkerSignals(QObject):
 
 
 class FinderItems(URunnable):
-    hidden_syms = (".", "~$", "$")
+    hidden_syms: tuple[str] = None
 
     def __init__(self, main_win_item: MainWinItem, sort_item: SortItem):
         super().__init__()
@@ -31,6 +31,8 @@ class FinderItems(URunnable):
 
         if JsonData.show_hidden:
             FinderItems.hidden_syms = ()
+        else:
+            FinderItems.hidden_syms = (".", "~$", "$")
 
     def task(self):
         try:
