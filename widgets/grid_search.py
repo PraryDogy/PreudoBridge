@@ -267,7 +267,7 @@ class GridSearch(Grid):
         self.search_item = search_item
 
     def start_search(self):
-        self.sort_bar_update.emit(0)
+        self.total_count_update.emit(0)
         self.path_bar_update.emit(self.main_win_item.main_dir)
         Thumb.calculate_size()
         self.is_grid_search = True
@@ -308,7 +308,7 @@ class GridSearch(Grid):
             self.col = 0
             self.row += 1
  
-        self.sort_bar_update.emit(self.total)
+        self.total_count_update.emit(self.total)
 
     def search_fin(self, missed_files_list: list[str]):
         if not self.cell_to_wid:
