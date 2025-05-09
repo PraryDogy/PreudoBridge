@@ -1,7 +1,7 @@
 import os
 import subprocess
 
-from PyQt5.QtCore import QDir, QMimeData, QModelIndex, Qt, QTimer, QUrl
+from PyQt5.QtCore import QDir, QMimeData, QModelIndex, Qt, QTimer, QUrl, QItemSelectionModel
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QDragEnterEvent,
                          QDragMoveEvent, QDropEvent, QKeyEvent, QPixmap)
 from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QFileSystemModel,
@@ -80,8 +80,8 @@ class GridList(UTableView):
         if self.main_win_item.go_to:
             if self.main_win_item.go_to in self.url_to_index:
                 index = self.url_to_index.get(self.main_win_item.go_to)
-                self.selectRow(index.row())
-                self.setCurrentIndex(index)
+                if index and index.isValid():
+                    self.select_row(index)
                 self.main_win_item.go_to = None
 
         elif self.main_win_item.urls:
@@ -97,7 +97,7 @@ class GridList(UTableView):
 
     def select_path(self, path: str):
         index = self._model.index(path, 0)
-        self.setCurrentIndex(index)
+        self.select_row(index)
 
     def set_first_col_width(self):
         left_menu_w = self.window().findChild(QSplitter).sizes()[0]
@@ -332,6 +332,11 @@ class GridList(UTableView):
             for i in self.get_selected_urls()
         ]
 
+    def select_row(self, index: QModelIndex):
+        self.setCurrentIndex(index)
+        tags = QItemSelectionModel.Select | QItemSelectionModel.Rows
+        self.selectionModel().select(index, tags)
+
     def contextMenuEvent(self, event: QContextMenuEvent):
         # определяем выделена ли строка
         index = self.indexAt(event.pos())
@@ -341,7 +346,7 @@ class GridList(UTableView):
         if index.isValid():
             urls = self.get_selected_urls()
             if selected_path not in urls:
-                self.setCurrentIndex(index)
+                self.select_row(index)
             urls = self.get_selected_urls()
             names = [os.path.basename(i) for i in urls]
             total = len(urls)
