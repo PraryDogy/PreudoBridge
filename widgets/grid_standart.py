@@ -408,6 +408,12 @@ class GridStandart(Grid):
                 self.selected_widgets.append(wid)
                 wid.set_frame()
 
+        wid = self.url_to_wid.get(self.main_win_item.go_to)
+        if wid:
+            self.selected_widgets.append(wid)
+            wid.set_frame()
+            self.main_win_item.go_to = None
+
     def run_load_images_thread(self, thumbs: list[Thumb]):
         """
         URunnable   
