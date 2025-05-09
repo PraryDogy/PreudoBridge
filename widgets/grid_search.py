@@ -289,11 +289,7 @@ class GridSearch(Grid):
         if not generic_icon_path in Dynamic.generic_icon_paths:
             generic_icon_path = Utils.create_generic_icon(base_item.type_)
 
-        if base_item.src.count(os.sep) == 2:
-            self.thumb.set_svg_icon(Static.HDD_SVG)
-
-        else:
-            self.thumb.set_svg_icon(generic_icon_path)
+        self.thumb.set_svg_icon()
         
         if base_item.get_pixmap_storage():
             self.thumb.set_pixmap_storage(base_item.get_pixmap_storage())

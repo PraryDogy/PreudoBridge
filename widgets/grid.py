@@ -196,7 +196,12 @@ class Thumb(BaseItem, QFrame):
         cls.thumb_w = ThumbData.THUMB_W[ind]
         cls.thumb_h = ThumbData.THUMB_H[ind]
 
-    def set_svg_icon(self, path: str):
+    def set_svg_icon(self):
+        if self.src.count(os.sep) == 2:
+            path = Static.HDD_SVG
+        else:
+            path = Utils.get_generic_icon_path(self.type_)
+
         self.img_wid.load(path)
         self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
 

@@ -372,18 +372,8 @@ class GridStandart(Grid):
             thumb.setup_attrs()
             thumb.setup_child_widgets()
             thumb.set_no_frame()
+            thumb.set_svg_icon()
 
-            # если путь состоит только из 2 секций: /Volumes/Macintosh HD
-            # то это точно диск, устанавливаем соответствующую иконку
-            if base_item.src.count(os.sep) == 2:
-                thumb.set_svg_icon(Static.HDD_SVG)
-
-            # иконка на основе расширения файла для виджета уже точно есть
-            # проверка была в finalize finder items
-            else:
-                icon_path = Utils.get_generic_icon_path(base_item.type_)
-                thumb.set_svg_icon(icon_path)
-            
             if base_item in self.new_items:
                 thumb.set_green_text()
 
@@ -408,11 +398,52 @@ class GridStandart(Grid):
                 self.selected_widgets.append(wid)
                 wid.set_frame()
 
-        wid = self.url_to_wid.get(self.main_win_item.go_to)
-        if wid:
-            self.selected_widgets.append(wid)
-            wid.set_frame()
-            self.main_win_item.go_to = None
+        if self.main_win_item.go_to:
+
+            for base_item in self.base_items:
+                if self.main_win_item.go_to == base_item.src:
+                    wid = self.url_to_wid.get(base_item.src)
+
+                    if not wid:
+                        thumb = Thumb(base_item.src, base_item.rating)
+                        thumb.setup_attrs()
+                        thumb.setup_child_widgets()
+                        thumb.set_no_frame()
+
+                        # если путь состоит только из 2 секций: /Volumes/Macintosh HD
+                        # то это точно диск, устанавливаем соответствующую иконку
+                        if base_item.src.count(os.sep) == 2:
+                            thumb.set_svg_icon(Static.HDD_SVG)
+
+                        # иконка на основе расширения файла для виджета уже точно есть
+                        # проверка была в finalize finder items
+                        else:
+                            icon_path = Utils.get_generic_icon_path(base_item.type_)
+                            thumb.set_svg_icon(icon_path)
+                        
+                        if base_item in self.new_items:
+                            thumb.set_green_text()
+
+                        # удаляем элемент из списка base items
+                        # таким образом в следующем обращении к iter base items
+                        # список base items будет актуальным
+                        self.base_items.remove(base_item)
+
+                        self.add_widget_data(thumb, self.row, self.col)
+                        self.grid_layout.addWidget(thumb, self.row, self.col)
+
+
+                        self.col += 1
+                        if self.col == self.col_count:
+                            self.col = 0
+                            self.row += 1
+
+                        self.select_one_wid(wid)
+                        self.main_win_item.go_to = None
+                        QTimer.singleShot(1000, lambda: self.ensure_wid_visible(thumb))
+
+
+# /Volumes/Macintosh HD/Users/Morkowik/Downloads/сера.pptx
 
     def run_load_images_thread(self, thumbs: list[Thumb]):
         """
