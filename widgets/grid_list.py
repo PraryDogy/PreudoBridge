@@ -150,9 +150,6 @@ class GridList(UTableView):
     def resize_thumbs(self, *args, **kwargs):
         ...
 
-    def select_new_widget(self, *args, **kwargs):
-        ...
-
     def win_info_cmd(self, src: str):
         self.win_info = InfoWin(src)
         self.win_info.center(self.window())
