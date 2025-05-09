@@ -71,7 +71,7 @@ class GridList(UTableView):
             self.url_to_index[path] = index
 
         self.path_bar_update.emit(self.main_win_item.main_dir)
-        self.sort_bar_update.emit(row_count)
+        self.total_count_update.emit(row_count)
 
         for url, index in self.url_to_index.items():
             if url in self.main_win_item.urls:
