@@ -255,10 +255,13 @@ class MainWin(WinBase):
 
     def level_up(self):
         new_main_dir = os.path.dirname(self.main_win_item.main_dir)
+        old_main_dir = self.main_win_item.main_dir
+
         if new_main_dir != os.sep:
-            self.main_win_item.immortal_urls = [self.main_win_item.main_dir]
-            self.main_win_item.main_dir = new_main_dir
             self.top_bar.new_history_item(new_main_dir)
+            self.main_win_item.urls.clear()
+            self.main_win_item.urls = [old_main_dir]
+            self.main_win_item.main_dir = new_main_dir
             self.load_st_grid()
 
     def change_view(self, index: int):
@@ -350,9 +353,9 @@ class MainWin(WinBase):
         # обходим это, сохранив url при level_up_cmd в main_win_item.level_up_url
         # чтобы при level_up_cmd выделась предыдущая папка
 
-        if self.main_win_item.immortal_urls:
-            self.main_win_item.urls = self.main_win_item.immortal_urls.copy()
-            self.main_win_item.immortal_urls.clear()
+        # if self.main_win_item.immortal_urls:
+            # self.main_win_item.urls = self.main_win_item.immortal_urls.copy()
+            # self.main_win_item.immortal_urls.clear()
 
         if not os.path.exists(self.main_win_item.main_dir):
             fixed_path = Utils.fix_path_prefix(self.main_win_item.main_dir)
