@@ -296,7 +296,6 @@ class MainWin(WinBase):
         new_win.show()
 
     def setup_grid_signals(self):
-        self.grid.sort_bar_update.connect(lambda value: self.sort_bar.setup(value))
         self.grid.path_bar_update.connect(lambda dir: self.path_bar.set_new_path(dir))
         self.grid.add_fav.connect(lambda dir: self.favs_menu.add_fav(dir))
         self.grid.del_fav.connect(lambda dir: self.favs_menu.del_fav(dir))

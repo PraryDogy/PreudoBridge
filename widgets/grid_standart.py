@@ -347,7 +347,7 @@ class GridStandart(Grid):
 
         # испускаем сигнал в MainWin для обновления нижнего бара
         # для отображения "всего элементов"
-        self.sort_bar_update.emit(len(self.base_items))
+        self.total_count_update.emit(len(self.base_items))
 
         # создаем сетку на основе элементов из FinderItems с лимитом
         self.iter_base_items()

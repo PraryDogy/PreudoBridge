@@ -327,17 +327,17 @@ class SortMenuBtn(UFrame):
         self.sort_wid = QLabel()
         h_lay.addWidget(self.sort_wid)
 
-    def set_sort_text(self, sort_item: SortItem):
+    def set_sort_text(self):
         """
         Отображает текст на основе типа сортировки, например:   
         Сортировка: имя (по возраст.)
         """
         # получаем текстовое имя сортировки на основе внутреннего имени сортировки
-        sort_ = SortItem.lang_dict.get(sort_item.get_sort())
+        sort_ = SortItem.lang_dict.get(self.sort_item.get_sort())
         sort_ = sort_.lower()
 
         # получаем текстовое имя обратной или прямой сортировки
-        rev = ASC if sort_item.get_rev() else DESC
+        rev = ASC if self.sort_item.get_rev() else DESC
 
         self.sort_wid.setText(f"{SORT_T}: {sort_} ({rev})")
 
@@ -357,7 +357,7 @@ class SortMenuBtn(UFrame):
         menu_ = SortMenu(self, self.sort_item)
         menu_.sort_grid_sig.connect(self.sort_grid_sig.emit)
         menu_.rearrange_grid_sig.connect(self.rearrange_grid_sig.emit)
-        menu_.sort_text_update.connect(lambda: self.set_sort_text(self.sort_item))
+        menu_.sort_text_update.connect(lambda: self.set_sort_text())
 
         widget_rect = self.rect()
         menu_size = menu_.sizeHint()

@@ -791,7 +791,7 @@ class Grid(UScrollArea):
         sort_menu = GridActions.SortMenu(menu_, self.sort_item)
         sort_menu.sort_grid_sig.connect(lambda: self.sort_())
         sort_menu.rearrange_grid_sig.connect(lambda: self.rearrange())
-        sort_menu.sort_text_update.connect(lambda: self.sort_text_update.emit(self.sort_item))
+        sort_menu.sort_text_update.connect(lambda: self.sort_text_update.emit())
         menu_.addMenu(sort_menu)
 
         menu_.addSeparator()
