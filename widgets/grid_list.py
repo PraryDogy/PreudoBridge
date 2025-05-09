@@ -74,9 +74,6 @@ class GridList(UTableView):
             path = self._model.filePath(index)
             self.url_to_index[path] = index
 
-        self.path_bar_update.emit(self.main_win_item.main_dir)
-        self.total_count_update.emit(row_count)
-
         if self.main_win_item.go_to:
             if self.main_win_item.go_to in self.url_to_index:
                 index = self.url_to_index.get(self.main_win_item.go_to)
@@ -92,6 +89,8 @@ class GridList(UTableView):
             self.main_win_item.urls.clear()
             QTimer.singleShot(100, lambda: self.verticalScrollBar().setValue(0))
 
+        self.path_bar_update.emit(self.main_win_item.main_dir)
+        self.total_count_update.emit(row_count)
         self.loading_lbl.hide()
         self.show()
 
