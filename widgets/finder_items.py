@@ -5,7 +5,7 @@ from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtWidgets import QLabel, QWidget
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import Static
+from cfg import Static, JsonData
 from database import CACHE, Dbase
 from utils import Utils
 
@@ -21,13 +21,16 @@ class WorkerSignals(QObject):
 
 
 class FinderItems(URunnable):
-    # hidden_syms = (".", "~$", "$")
-    hidden_syms = ()
+    hidden_syms = (".", "~$", "$")
+
     def __init__(self, main_win_item: MainWinItem, sort_item: SortItem):
         super().__init__()
         self.signals_ = WorkerSignals()
         self.sort_item = sort_item
         self.main_win_item = main_win_item
+
+        if JsonData.show_hidden:
+            FinderItems.hidden_syms = ()
 
     def task(self):
         try:
