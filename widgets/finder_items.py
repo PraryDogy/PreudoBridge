@@ -21,7 +21,8 @@ class WorkerSignals(QObject):
 
 
 class FinderItems(URunnable):
-    hidden_syms = (".", "~$", "$")
+    # hidden_syms = (".", "~$", "$")
+    hidden_syms = ()
     def __init__(self, main_win_item: MainWinItem, sort_item: SortItem):
         super().__init__()
         self.signals_ = WorkerSignals()
