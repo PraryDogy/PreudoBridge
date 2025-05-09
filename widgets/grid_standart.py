@@ -449,6 +449,7 @@ class GridStandart(Grid):
             i.src
             for i in self.selected_widgets
         ]
+
         return super().deleteLater()
     
     def closeEvent(self, a0):
