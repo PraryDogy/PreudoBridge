@@ -20,13 +20,14 @@ class FavItem(QLabel):
     load_st_grid = pyqtSignal()
     open_in_new_win = pyqtSignal(str)
     rename_text = "Переименовать"
+    height_ = 25
 
     def __init__(self, name: str, src: str, main_win_item: MainWinItem):
         super().__init__(text=name)
         self.main_win_item = main_win_item
         self.name = name
         self.src = src
-        self.setFixedHeight(25)
+        self.setFixedHeight(FavItem.height_)
         self.setContentsMargins(10, 0, 10, 0)
 
     def rename_cmd(self):
