@@ -19,6 +19,7 @@ class RenameWin(MinMaxDisabledWin):
 
     def __init__(self, text: str):
         super().__init__()
+        self.set_modality()
         self.setFixedSize(300, 110)
         self.setWindowTitle(TITLE_T)
 

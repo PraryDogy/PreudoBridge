@@ -175,6 +175,7 @@ class GoToWin(MinMaxDisabledWin):
         - кнопка "Finder" - путь откроется в Finder
         """
         super().__init__()
+        self.set_modality()
         self.main_win_item = main_win_item
         self.setWindowTitle("Перейти к ...")
         self.setFixedSize(290, 90)

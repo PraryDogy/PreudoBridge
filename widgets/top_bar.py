@@ -54,6 +54,7 @@ class ListWin(MinMaxDisabledWin):
         Позволяет поиску искать сразу множество файлов и папок
         """
         super().__init__()
+        self.set_modality()
         self.main_win_item = main_win_item
         self.search_item = search_item
 

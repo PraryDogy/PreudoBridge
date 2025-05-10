@@ -45,6 +45,7 @@ class RemoveFilesWin(MinMaxDisabledWin):
     def __init__(self, main_win_item: MainWinItem, urls: list[str]):
         super().__init__()
         self.setWindowTitle(ATTENTION_T)
+        self.set_modality()
         self.urls = urls
         self.main_win_item = main_win_item
 

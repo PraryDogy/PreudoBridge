@@ -310,6 +310,9 @@ class WinBase(QWidget):
         geo.moveCenter(parent.geometry().center())
         self.setGeometry(geo)
 
+    def set_modality(self):
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
+
     def deleteLater(self):
         self.remove_from_list()
         return super().deleteLater()

@@ -181,6 +181,7 @@ class SettingsWin(MinMaxDisabledWin):
     def __init__(self):
         super().__init__()
         self.setWindowTitle(SETTINGS_T)
+        self.set_modality()
 
         main_lay = QVBoxLayout()
         main_lay.setContentsMargins(10, 0, 10, 15)

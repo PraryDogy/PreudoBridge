@@ -197,6 +197,7 @@ class SearchFinder(URunnable):
 class WinMissedFiles(MinMaxDisabledWin):
     def __init__(self, files: list[str]):
         super().__init__()
+        self.set_modality()
         self.setWindowTitle(ATTENTION_T)
         self.setMinimumSize(300, 300)
         self.resize(300, 400)

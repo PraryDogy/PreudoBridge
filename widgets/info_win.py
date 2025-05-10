@@ -154,6 +154,7 @@ class InfoWin(MinMaxDisabledWin):
     def __init__(self, src: str):
         super().__init__()
         self.setWindowTitle(TITLE)
+        self.set_modality()
 
         self.src = src
 
