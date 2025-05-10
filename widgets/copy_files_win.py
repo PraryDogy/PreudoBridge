@@ -226,16 +226,16 @@ class CopyFilesWin(MinMaxDisabledWin):
     error_win_sig = pyqtSignal()
     preparing_text = "Подготовка"
     title_text = "Копирую файлы"
+    progressbar_width = 300
 
     def __init__(self, main_win_item: MainWinItem, urls: list[str]):
         super().__init__()
         self.main_win_item = main_win_item
         self.urls = urls
-        self.setFixedSize(400, 75)
         self.setWindowTitle(CopyFilesWin.title_text)
 
         main_lay = QHBoxLayout()
-        main_lay.setContentsMargins(10, 5, 10, 5)
+        main_lay.setContentsMargins(10, 10, 10, 10)
         main_lay.setSpacing(5)
         self.setLayout(main_lay)
 
@@ -248,8 +248,6 @@ class CopyFilesWin(MinMaxDisabledWin):
         right_side_lay.setSpacing(0)
         right_side_wid.setLayout(right_side_lay)
         main_lay.addWidget(right_side_wid)
-
-        right_side_lay.addStretch()
 
         src = min(self.urls, key=len)
         src = os.path.dirname(Utils.normalize_slash(src))
@@ -271,6 +269,7 @@ class CopyFilesWin(MinMaxDisabledWin):
         progressbar_row.setLayout(progressbar_lay)
 
         progressbar = QProgressBar()
+        progressbar.setFixedWidth(CopyFilesWin.progressbar_width)
         progressbar_lay.addWidget(progressbar)
 
         cancel_btn = USvgSqareWidget(Static.CLEAR_SVG, 16)
@@ -280,7 +279,7 @@ class CopyFilesWin(MinMaxDisabledWin):
         size_mb_lbl = QLabel(CopyFilesWin.preparing_text)
         right_side_lay.addWidget(size_mb_lbl)
 
-        right_side_lay.addStretch()
+        self.adjustSize()
 
         if self.urls:
             task_ = FileCopyWorker(self.main_win_item, urls)
@@ -291,7 +290,6 @@ class CopyFilesWin(MinMaxDisabledWin):
             task_.signals_.error_win_sig.connect(self.error_win_sig.emit)
             UThreadPool.start(task_)
 
-        self.adjustSize()
 
     def limit_string(self, text: str, limit: int = 15):
         if len(text) > limit:
