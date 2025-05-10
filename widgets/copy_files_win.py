@@ -181,6 +181,8 @@ class FileCopyWorker(URunnable):
 class ErrorWin(MinMaxDisabledWin):
     descr_text = "Произошла ошибка при копировании"
     title_text = "Ошибка"
+    ok_text = "Ок"
+    icon_size = 50
 
     def __init__(self):
         super().__init__()
@@ -200,13 +202,13 @@ class ErrorWin(MinMaxDisabledWin):
         h_lay.setSpacing(10)
         h_wid.setLayout(h_lay)
 
-        warn = USvgSqareWidget(Static.WARNING_SVG, 50)
+        warn = USvgSqareWidget(Static.WARNING_SVG, ErrorWin.icon_size)
         h_lay.addWidget(warn)
 
         test_two = QLabel(ErrorWin.title_text)
         h_lay.addWidget(test_two)
 
-        ok_btn = QPushButton("Ок")
+        ok_btn = QPushButton(ErrorWin.ok_text)
         ok_btn.clicked.connect(self.deleteLater)
         ok_btn.setFixedWidth(90)
         main_lay.addWidget(ok_btn, alignment=Qt.AlignmentFlag.AlignCenter)
