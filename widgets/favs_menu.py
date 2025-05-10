@@ -11,8 +11,6 @@ from ._base_items import MainWinItem, UMenu
 from .actions import ItemActions
 from .rename_win import RenameWin
 
-RENAME_T = "Переименовать"
-
 
 class FavItem(QLabel):
     remove_fav_item = pyqtSignal()
@@ -21,6 +19,7 @@ class FavItem(QLabel):
     new_history_item = pyqtSignal(str)
     load_st_grid = pyqtSignal()
     open_in_new_win = pyqtSignal(str)
+    rename_text = "Переименовать"
 
     def __init__(self, name: str, src: str, main_win_item: MainWinItem):
         super().__init__(text=name)
@@ -96,7 +95,7 @@ class FavItem(QLabel):
 
         menu_.addSeparator()
 
-        rename_action = QAction(RENAME_T, menu_)
+        rename_action = QAction(FavItem.rename_text, menu_)
         rename_action.triggered.connect(self.rename_cmd)
         menu_.addAction(rename_action)
 
