@@ -16,7 +16,7 @@ class WorkerSignals(QObject):
     set_value_progress = pyqtSignal(int)
     set_text_progress = pyqtSignal(str)
     set_max_progress = pyqtSignal(int)
-    error_win_sig = pyqtSignal()
+    error_ = pyqtSignal()
 
 
 class FileCopyWorker(URunnable):
@@ -32,7 +32,7 @@ class FileCopyWorker(URunnable):
         except OSError as e:
             Utils.print_error(e)
             try:
-                self.signals_.error_win_sig.emit()
+                self.signals_.error_.emit()
             except RuntimeError as e:
                 # прерываем процесс, если родительский виджет был уничтожен
                 Utils.print_error(e)
@@ -223,7 +223,7 @@ class ErrorWin(MinMaxDisabledWin):
 
 class CopyFilesWin(MinMaxDisabledWin):
     finished_ = pyqtSignal(list)
-    error_win_sig = pyqtSignal()
+    error_ = pyqtSignal()
     preparing_text = "Подготовка"
     title_text = "Копирую файлы"
     progressbar_width = 300
@@ -256,9 +256,7 @@ class CopyFilesWin(MinMaxDisabledWin):
 
         src = self.limit_string(src)
         dest = self.limit_string(dest)
-
-        t = f"Из \"{src}\" в \"{dest}\""
-        bottom_lbl = QLabel(t)
+        bottom_lbl = QLabel(self.set_text(src, dest))
         right_side_lay.addWidget(bottom_lbl)
 
         progressbar_row = QWidget()
@@ -287,9 +285,11 @@ class CopyFilesWin(MinMaxDisabledWin):
             task_.signals_.set_value_progress.connect(lambda value: self.set_value(progressbar, value))
             task_.signals_.set_text_progress.connect(size_mb_lbl.setText)
             task_.signals_.finished_.connect(lambda urls: self.finished_task(urls))
-            task_.signals_.error_win_sig.connect(self.error_win_sig.emit)
+            task_.signals_.error_.connect(self.error_.emit)
             UThreadPool.start(task_)
 
+    def set_text(self, src: str, dest: str):
+        return f"Из \"{src}\" в \"{dest}\""
 
     def limit_string(self, text: str, limit: int = 15):
         if len(text) > limit:

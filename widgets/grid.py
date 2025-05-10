@@ -648,7 +648,7 @@ class Grid(UScrollArea):
                 return
         self.win_copy = CopyFilesWin(self.main_win_item, Dynamic.urls_to_copy)
         self.win_copy.finished_.connect(lambda urls: self.paste_files_fin(urls))
-        self.win_copy.error_win_sig.connect(self.error_win_cmd)
+        self.win_copy.error_.connect(self.show_error_win)
         self.win_copy.center(self.window())
         self.win_copy.show()
 
@@ -690,7 +690,7 @@ class Grid(UScrollArea):
         Dynamic.urls_to_copy.clear()
         return urls
 
-    def error_win_cmd(self):
+    def show_error_win(self):
         """
         Открывает окно ошибки копирования файлов
         """
