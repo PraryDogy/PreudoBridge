@@ -12,9 +12,7 @@ from ._base_items import (MainWinItem, MinMaxDisabledWin, URunnable,
 
 PREPARING_T = "Подготовка"
 COPYING_T = "Копирую файлы"
-CANCEL_T = "Отмена"
-ERROR_DESCR_T = "Произошла ошибка при копировании"
-ERROR_TITLE = "Ошибка"
+
 
 
 class WorkerSignals(QObject):
@@ -185,9 +183,13 @@ class FileCopyWorker(URunnable):
 
 
 class ErrorWin(MinMaxDisabledWin):
+    descr_text = "Произошла ошибка при копировании"
+    title_text = "Ошибка"
+
     def __init__(self):
         super().__init__()
-        self.setWindowTitle(ERROR_TITLE)
+        self.set_modality()
+        self.setWindowTitle(ErrorWin.title_text)
 
         main_lay = QVBoxLayout(self)
         main_lay.setContentsMargins(10, 10, 10, 10)
@@ -205,7 +207,7 @@ class ErrorWin(MinMaxDisabledWin):
         warn = USvgSqareWidget(Static.WARNING_SVG, 50)
         h_lay.addWidget(warn)
 
-        test_two = QLabel(ERROR_DESCR_T)
+        test_two = QLabel(ErrorWin.title_text)
         h_lay.addWidget(test_two)
 
         ok_btn = QPushButton("Ок")
