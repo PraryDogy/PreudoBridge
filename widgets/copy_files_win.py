@@ -13,9 +13,9 @@ from ._base_items import (MainWinItem, MinMaxDisabledWin, URunnable,
 
 class WorkerSignals(QObject):
     finished_ = pyqtSignal(list)
-    set_value_progress = pyqtSignal(int)
-    set_text_progress = pyqtSignal(str)
-    set_max_progress = pyqtSignal(int)
+    set_value = pyqtSignal(int)
+    set_size_mb = pyqtSignal(str)
+    set_max = pyqtSignal(int)
     error_ = pyqtSignal()
 
 
@@ -46,7 +46,7 @@ class FileCopyWorker(URunnable):
         total_mb = int(total_bytes / (1024 * 1024))
 
         try:
-            self.signals_.set_max_progress.emit(total_mb)
+            self.signals_.set_max.emit(total_mb)
         except RuntimeError as e:
             Utils.print_error(e)
             return
@@ -98,13 +98,13 @@ class FileCopyWorker(URunnable):
         # сколько уже скопировано в байтах переводим в МБ, потому что
         # максимальное число QProgressbar задано тоже в МБ
         copied_mb = int(self.copied_bytes / (1024 * 1024))
-        self.signals_.set_value_progress.emit(copied_mb)
+        self.signals_.set_value.emit(copied_mb)
 
         # байты переводим в читаемый f string
         copied_f_size = Utils.get_f_size(self.copied_bytes)
 
         text = f"{copied_f_size} из {self.total_f_size}"
-        self.signals_.set_text_progress.emit(text)
+        self.signals_.set_size_mb.emit(text)
 
     def get_final_paths(self, new_paths: list[tuple[str, str]], root: str):
         # Например мы копируем папки test_images и abs_images с рабочего стола в папку загрузок
@@ -227,6 +227,7 @@ class CopyFilesWin(MinMaxDisabledWin):
     preparing_text = "Подготовка"
     title_text = "Копирую файлы"
     progressbar_width = 300
+    left_side_icon_size = 50
 
     def __init__(self, main_win_item: MainWinItem, urls: list[str]):
         super().__init__()
@@ -281,10 +282,10 @@ class CopyFilesWin(MinMaxDisabledWin):
 
         if self.urls:
             task_ = FileCopyWorker(self.main_win_item, urls)
-            task_.signals_.set_max_progress.connect(lambda value: self.set_max(progressbar, value))
-            task_.signals_.set_value_progress.connect(lambda value: self.set_value(progressbar, value))
-            task_.signals_.set_text_progress.connect(size_mb_lbl.setText)
-            task_.signals_.finished_.connect(lambda urls: self.finished_task(urls))
+            task_.signals_.set_max.connect(lambda value: self.set_max(progressbar, value))
+            task_.signals_.set_value.connect(lambda value: self.set_value(progressbar, value))
+            task_.signals_.set_size_mb.connect(lambda text: size_mb_lbl.setText(text))
+            task_.signals_.finished_.connect(lambda urls: self.on_finished(urls))
             task_.signals_.error_.connect(self.error_.emit)
             UThreadPool.start(task_)
 
@@ -305,6 +306,6 @@ class CopyFilesWin(MinMaxDisabledWin):
     def cancel_cmd(self, *args):
         self.deleteLater()
 
-    def finished_task(self, urls: list[str]):
+    def on_finished(self, urls: list[str]):
         self.finished_.emit(urls)
         self.deleteLater()
