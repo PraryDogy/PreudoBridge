@@ -71,8 +71,8 @@ class CustomApp(QApplication):
 
     def test(self):
         from widgets.copy_files_win import ErrorWin
-        win = ErrorWin()
-        win.show()
+        self.win = ErrorWin()
+        self.win.show()
 
     def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
         if a1.type() == QEvent.Type.ApplicationActivate:
