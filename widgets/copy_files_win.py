@@ -65,7 +65,8 @@ class FileCopyWorker(URunnable):
                 self.copy_by_bytes(src, dest)
             except Exception as e:
                 Utils.print_error(e)
-                continue
+                self.signals_.error_.emit()
+                return
             try:
                 # прерываем процесс, если родительский виджет был уничтожен
                 self.report_progress()
@@ -190,7 +191,7 @@ class ErrorWin(MinMaxDisabledWin):
         self.setWindowTitle(ErrorWin.title_text)
 
         main_lay = QVBoxLayout(self)
-        main_lay.setContentsMargins(10, 10, 10, 10)
+        main_lay.setContentsMargins(10, 5, 10, 10)
         main_lay.setSpacing(0)
         self.setLayout(main_lay)
 
@@ -205,7 +206,8 @@ class ErrorWin(MinMaxDisabledWin):
         warn = USvgSqareWidget(Static.WARNING_SVG, ErrorWin.icon_size)
         h_lay.addWidget(warn)
 
-        test_two = QLabel(ErrorWin.title_text)
+        test_two = QLabel(ErrorWin.descr_text)
+        test_two.setAlignment(Qt.AlignmentFlag.AlignVCenter)
         h_lay.addWidget(test_two)
 
         ok_btn = QPushButton(ErrorWin.ok_text)
@@ -220,6 +222,10 @@ class ErrorWin(MinMaxDisabledWin):
             self.deleteLater()
         elif a0.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
             self.deleteLater()
+        elif a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
+            if a0.key() == Qt.Key.Key_Q:
+                print(123)
+                return
         return super().keyPressEvent(a0)
 
 

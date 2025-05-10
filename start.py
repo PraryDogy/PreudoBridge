@@ -48,7 +48,7 @@ else:
     sys.excepthook = System_.catch_error_in_proj
 
 
-from PyQt5.QtCore import QEvent, QObject
+from PyQt5.QtCore import QEvent, QObject, QTimer
 from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
 
@@ -66,6 +66,13 @@ class CustomApp(QApplication):
 
         self.aboutToQuit.connect(self.on_exit)
         self.installEventFilter(self)
+
+        # QTimer.singleShot(1000, self.test)
+
+    def test(self):
+        from widgets.copy_files_win import ErrorWin
+        win = ErrorWin()
+        win.show()
 
     def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
         if a1.type() == QEvent.Type.ApplicationActivate:
