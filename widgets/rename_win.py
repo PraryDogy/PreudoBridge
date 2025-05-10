@@ -4,36 +4,32 @@ from PyQt5.QtWidgets import QPushButton, QVBoxLayout, QLabel, QWidget, QHBoxLayo
 
 from ._base_items import ULineEdit, MinMaxDisabledWin
 
-RENAME_PLACEHOLDER = "Введите текст"
-OK_T = "Ок"
-CANCEL_T = "Отмена"
-TITLE_T = "Задайте имя"
-DESCR_T = (
-    "Придумайте имя для закладки.*",
-    "*Необязательно."
-)
-
 
 class RenameWin(MinMaxDisabledWin):
     finished_ = pyqtSignal(str)
+    placeholder_text = "Введите текст"
+    ok_text = "Ок"
+    cancel_text = "Отмена"
+    title_text = "Задайте имя"
+    descr_text = "Придумайте имя для закладки."
+    input_width = 250
 
     def __init__(self, text: str):
         super().__init__()
         self.set_modality()
-        self.setFixedSize(300, 110)
-        self.setWindowTitle(TITLE_T)
+        self.setWindowTitle(RenameWin.title_text)
 
         v_lay = QVBoxLayout()
-        v_lay.setContentsMargins(5, 5, 5, 5)
+        v_lay.setContentsMargins(10, 10, 10, 5)
         v_lay.setSpacing(5)
         self.setLayout(v_lay)
 
-        descr = QLabel("\n".join(DESCR_T))
+        descr = QLabel(RenameWin.descr_text)
         v_lay.addWidget(descr)
 
         self.input_wid = ULineEdit() 
-        self.input_wid.setFixedWidth(self.width() - 10)
-        self.input_wid.setPlaceholderText(RENAME_PLACEHOLDER)
+        self.input_wid.setFixedWidth(RenameWin.input_width)
+        self.input_wid.setPlaceholderText(RenameWin.placeholder_text)
         self.input_wid.setText(text)
         self.input_wid.selectAll()
         v_lay.addWidget(self.input_wid)
@@ -47,17 +43,19 @@ class RenameWin(MinMaxDisabledWin):
 
         h_lay.addStretch()
 
-        self.ok_btn = QPushButton(text=OK_T)
+        self.ok_btn = QPushButton(RenameWin.ok_text)
         self.ok_btn.clicked.connect(self.finish_rename)
         self.ok_btn.setFixedWidth(90)
         h_lay.addWidget(self.ok_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        cancel_btn = QPushButton(text=CANCEL_T)
+        cancel_btn = QPushButton(RenameWin.cancel_text)
         cancel_btn.clicked.connect(self.deleteLater)
         cancel_btn.setFixedWidth(90)
         h_lay.addWidget(cancel_btn)
 
         h_lay.addStretch()
+
+        self.adjustSize()
 
     def finish_rename(self):
         self.finished_.emit(self.input_wid.text())
