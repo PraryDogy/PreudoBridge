@@ -10,10 +10,6 @@ from utils import Utils
 from ._base_items import (MainWinItem, MinMaxDisabledWin, URunnable,
                           USvgSqareWidget, UThreadPool)
 
-PREPARING_T = "Подготовка"
-COPYING_T = "Копирую файлы"
-
-
 
 class WorkerSignals(QObject):
     finished_ = pyqtSignal(list)
@@ -228,13 +224,15 @@ class ErrorWin(MinMaxDisabledWin):
 class CopyFilesWin(MinMaxDisabledWin):
     finished_ = pyqtSignal(list)
     error_win_sig = pyqtSignal()
+    preparing_text = "Подготовка"
+    title_text = "Копирую файлы"
 
     def __init__(self, main_win_item: MainWinItem, urls: list[str]):
         super().__init__()
         self.main_win_item = main_win_item
         self.urls = urls
         self.setFixedSize(400, 75)
-        self.setWindowTitle(COPYING_T)
+        self.setWindowTitle(CopyFilesWin.title_text)
 
         main_lay = QHBoxLayout()
         main_lay.setContentsMargins(10, 5, 10, 5)
@@ -279,7 +277,7 @@ class CopyFilesWin(MinMaxDisabledWin):
         cancel_btn.mouseReleaseEvent = self.cancel_cmd
         progressbar_lay.addWidget(cancel_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        size_mb_lbl = QLabel(text=PREPARING_T)
+        size_mb_lbl = QLabel(CopyFilesWin.preparing_text)
         right_side_lay.addWidget(size_mb_lbl)
 
         right_side_lay.addStretch()
