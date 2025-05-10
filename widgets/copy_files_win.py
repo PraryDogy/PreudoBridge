@@ -227,7 +227,7 @@ class CopyFilesWin(MinMaxDisabledWin):
     preparing_text = "Подготовка"
     title_text = "Копирую файлы"
     progressbar_width = 300
-    left_side_icon_size = 50
+    icon_size = 50
 
     def __init__(self, main_win_item: MainWinItem, urls: list[str]):
         super().__init__()
@@ -240,7 +240,7 @@ class CopyFilesWin(MinMaxDisabledWin):
         main_lay.setSpacing(5)
         self.setLayout(main_lay)
 
-        left_side_icon = USvgSqareWidget(Static.COPY_FILES_SVG, 50)
+        left_side_icon = USvgSqareWidget(Static.COPY_FILES_SVG, CopyFilesWin.icon_size)
         main_lay.addWidget(left_side_icon)
 
         right_side_wid = QWidget()
