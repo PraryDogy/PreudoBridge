@@ -16,12 +16,7 @@ from ._base_items import (MinMaxDisabledWin, URunnable, USvgSqareWidget,
 
 LEFT_W = 110
 
-ABOUT_T = "\n".join(
-    [
-        f"{Static.APP_NAME} {Static.APP_VER}",
-        f"{datetime.now().year} Evgeny Loshakev"
-    ]
-)
+
 
 
 class ClearData(QGroupBox):
@@ -132,6 +127,12 @@ class Updates(QGroupBox):
 
 class About(QGroupBox):
     svg_size = 70
+    text_ = "\n".join(
+        [
+            f"{Static.APP_NAME} {Static.APP_VER}",
+            f"{datetime.now().year} Evgeny Loshakev"
+        ]
+    )
 
     def __init__(self):
         super().__init__()
@@ -143,7 +144,7 @@ class About(QGroupBox):
         svg_ = USvgSqareWidget(Static.ICON_SVG, About.svg_size)
         h_lay.addWidget(svg_)
 
-        descr = QLabel(ABOUT_T)
+        descr = QLabel(About.text_)
         h_lay.addWidget(descr)
 
 
