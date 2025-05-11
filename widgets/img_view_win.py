@@ -109,7 +109,7 @@ class LoadImage(URunnable):
         self.signals_.finished_.emit(image_data)
 
 
-class ImageWidget(QLabel):
+class ImgWid(QLabel):
     mouse_moved = pyqtSignal()
 
     def __init__(self):
@@ -300,9 +300,9 @@ class ImgViewWin(WinBase):
         v_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(v_layout)
 
-        self.img_label = ImageWidget()
-        self.img_label.mouse_moved.connect(self.show_btns)
-        v_layout.addWidget(self.img_label)
+        self.img_wid = ImgWid()
+        self.img_wid.mouse_moved.connect(self.show_btns)
+        v_layout.addWidget(self.img_wid)
 
         self.prev_btn = PrevImageBtn(self)
         self.prev_btn.pressed.connect(lambda: self.switch_img_btn("-"))
@@ -311,12 +311,12 @@ class ImgViewWin(WinBase):
         self.next_btn.pressed.connect(lambda: self.switch_img_btn("+"))
 
         self.zoom_btns = ZoomBtns(parent=self)
-        self.zoom_btns.cmd_in.connect(self.img_label.zoom_in)
-        self.zoom_btns.cmd_out.connect(self.img_label.zoom_out)
-        self.zoom_btns.cmd_fit.connect(self.img_label.zoom_reset)
+        self.zoom_btns.cmd_in.connect(self.img_wid.zoom_in)
+        self.zoom_btns.cmd_out.connect(self.img_wid.zoom_out)
+        self.zoom_btns.cmd_fit.connect(self.img_wid.zoom_reset)
         self.zoom_btns.cmd_close.connect(self.close)
 
-        self.text_label = QLabel(parent=self.img_label)
+        self.text_label = QLabel(parent=self.img_wid)
         self.text_label.hide()
 
         self.hide_btns()
@@ -331,12 +331,10 @@ class ImgViewWin(WinBase):
 # SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM
 
     def set_title(self):
-        t = ""
+        text_ = os.path.basename(self.current_path)
         if self.current_wid.rating > 0:
-            t = RATINGS[self.current_wid.rating] + " | "
-        t = t + os.path.basename(self.current_path)
-
-        self.setWindowTitle(t)
+            text_ = f"{RATINGS[self.current_wid.rating] | text_}"r
+        self.setWindowTitle(text_)
 
     def load_thumbnail(self):
 
@@ -353,7 +351,7 @@ class ImgViewWin(WinBase):
     def show_text_label(self, text: str):
         pixmap = QPixmap(1, 1)
         pixmap.fill(QColor(0, 0, 0))
-        self.img_label.set_image(pixmap)
+        self.img_wid.set_image(pixmap)
         self.text_label.setText(text)
         self.text_label.show()
 
@@ -366,7 +364,7 @@ class ImgViewWin(WinBase):
             self.show_text_label(LOADING_T)
 
         elif image_data.src == self.current_path:
-            self.img_label.set_image(image_data.pixmap)
+            self.img_wid.set_image(image_data.pixmap)
 
         self.load_image()
 
@@ -383,7 +381,7 @@ class ImgViewWin(WinBase):
         if image_data.pixmap is None:
             self.show_text_label("Ошибка чтения изображения.")
         elif image_data.src == self.current_path:
-            self.img_label.set_image(image_data.pixmap)
+            self.img_wid.set_image(image_data.pixmap)
 
 
 # GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI
@@ -426,7 +424,7 @@ class ImgViewWin(WinBase):
             self.switch_img(1)
         else:
             self.switch_img(-1)
-        self.img_label.setCursor(Qt.CursorShape.ArrowCursor)
+        self.img_wid.setCursor(Qt.CursorShape.ArrowCursor)
 
     def show_btns(self):
         self.mouse_move_timer.stop()
@@ -453,13 +451,13 @@ class ImgViewWin(WinBase):
             self.deleteLater()
 
         elif ev.key() == Qt.Key.Key_Equal:
-            self.img_label.zoom_in()
+            self.img_wid.zoom_in()
 
         elif ev.key() == Qt.Key.Key_Minus:
-            self.img_label.zoom_out()
+            self.img_wid.zoom_out()
 
         elif ev.key() == Qt.Key.Key_0:
-            self.img_label.zoom_reset()
+            self.img_wid.zoom_reset()
 
         elif ev.key() == Qt.Key.Key_Space:
             self.deleteLater()
