@@ -335,7 +335,7 @@ class ImgViewWin(WinBase):
     def set_title(self):
         text_ = os.path.basename(self.current_path)
         if self.current_thumb.rating > 0:
-            text_ = f"{RATINGS[self.current_thumb.rating] | text_}"
+            text_ = f"{RATINGS[self.current_thumb.rating]} | {text_}"
         self.setWindowTitle(text_)
 
     def load_thumbnail(self):
