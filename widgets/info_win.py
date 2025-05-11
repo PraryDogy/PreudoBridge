@@ -185,7 +185,6 @@ class InfoWin(MinMaxDisabledWin):
             row += 1
 
         self.adjustSize()
-        self.setFixedSize(self.width(), self.height())
 
         cmd_ = lambda result: self.finalize(result)
         task_ = CalculatingTask(base_item)
@@ -202,8 +201,9 @@ class InfoWin(MinMaxDisabledWin):
         label.setText(result)
 
         if result == UNDEFINED:
-            for i in (label, left_label):
-                i.setText("")
+            label.hide()
+            left_label.hide()
+            self.adjustSize()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() in (Qt.Key.Key_Escape, Qt.Key.Key_Return):
