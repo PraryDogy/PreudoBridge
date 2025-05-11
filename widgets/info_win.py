@@ -11,7 +11,6 @@ from ._base_items import (BaseItem, MinMaxDisabledWin, UMenu, URunnable,
                           UThreadPool)
 from .actions import CopyText, RevealInFinder
 
-CALCULATING = "Вычисляю..."
 UNDEFINED = "Неизвестно"
 
 class WorkerSignals(QObject):
@@ -65,6 +64,7 @@ class CalculatingTask(URunnable):
 
 class InfoTask:
     ru = "Папка"
+    calculating = "Вычисляю..."
     name_text = "Имя"
     type_text = "Тип"
     size_text = "Размер"
@@ -82,7 +82,7 @@ class InfoTask:
             Utils.get_f_size(os.path.getsize(self.base_item.src))
             if self.base_item.type_ != Static.FOLDER_TYPE
             else
-            CALCULATING
+            InfoTask.calculating
             )
         
         type_t_ = (
@@ -100,7 +100,7 @@ class InfoTask:
             }
         
         if self.base_item.type_ != Static.FOLDER_TYPE:
-            res.update({InfoTask.res_text: CALCULATING})
+            res.update({InfoTask.res_text: InfoTask.calculating})
 
         return res
 
