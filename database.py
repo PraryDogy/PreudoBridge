@@ -101,7 +101,6 @@ class Dbase:
             if os.path.exists(path):
                 os.remove(path)
 
-            sleep(0.5)
             self.create_engine(path)
 
     @classmethod
