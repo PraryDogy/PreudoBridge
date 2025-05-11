@@ -3,9 +3,9 @@ import os
 from PyQt5.QtCore import QDir, Qt, pyqtSignal
 from PyQt5.QtWidgets import QFileSystemModel, QTreeView
 
-from cfg import JsonData
+from cfg import JsonData, Static
 
-from ._base_items import UMenu, MainWinItem
+from ._base_items import MainWinItem, UMenu
 from .actions import (CopyName, CopyPath, FavAdd, FavRemove, OpenInNewWindow,
                       RevealInFinder, View)
 
@@ -26,9 +26,9 @@ class TreeMenu(QTreeView):
 
         self.c_model = QFileSystemModel()
         self.c_model.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot)
-        self.c_model.setRootPath("/Volumes")
+        self.c_model.setRootPath(os.sep + Static.VOLUMES)
         self.setModel(self.c_model)
-        self.setRootIndex(self.c_model.index("/Volumes"))
+        self.setRootIndex(self.c_model.index(os.sep + Static.VOLUMES))
 
         self.setHeaderHidden(True)
         for i in range(1, self.c_model.columnCount()):
