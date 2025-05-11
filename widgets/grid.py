@@ -504,7 +504,7 @@ class Grid(UScrollArea):
             url_to_wid = {
                 url: wid
                 for url, wid in self.url_to_wid.items()
-                if not wid.must_hidden
+                if not wid.must_hidden and wid.type_.endswith(Static.ext_all)
             }
             self.win_img_view = ImgViewWin(wid.src, url_to_wid)
             self.win_img_view.move_to_wid.connect(lambda wid: self.select_one_wid(wid))

@@ -286,19 +286,11 @@ class ImgViewWin(WinBase):
         )
 
         self.url_to_wid: dict[str, Thumb] = url_to_wid
+        self.urls: list = [i for i in self.url_to_wid]
         self.task_count: int = 0
         self.current_path: str = current_path
         self.current_wid: Thumb = self.url_to_wid.get(current_path)
         self.current_wid.text_changed.connect(self.set_title)
-        self.url_to_wid: dict[str, Thumb] = {
-            path: wid
-            for path, wid in self.url_to_wid.items()
-            if not wid.must_hidden
-            }
-        self.image_paths: list = [
-            i for i in self.url_to_wid.keys()
-            if os.path.isfile(i) and i.endswith(Static.ext_all)
-            ]
 
         self.mouse_move_timer = QTimer(self)
         self.mouse_move_timer.setSingleShot(True)
@@ -409,14 +401,14 @@ class ImgViewWin(WinBase):
             return
 
         try:
-            current_index: int = self.image_paths.index(self.current_path)
+            current_index: int = self.urls.index(self.current_path)
         except ValueError:
             current_index: int = 0
 
-        total_images: int = len(self.image_paths)
+        total_images: int = len(self.urls)
         new_index: int = (current_index + offset) % total_images
 
-        self.current_path: str = self.image_paths[new_index]
+        self.current_path: str = self.urls[new_index]
 
         self.current_wid.text_changed.disconnect()
         self.current_wid: Thumb = self.url_to_wid.get(self.current_path)
