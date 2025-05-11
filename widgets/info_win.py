@@ -123,6 +123,8 @@ class InfoTask:
 class SelectableLabel(QLabel):
     def __init__(self, text: str = None):
         super().__init__(text)
+        flags = Qt.TextInteractionFlag.TextSelectableByMouse
+        self.setTextInteractionFlags(flags)
 
     def select_all_cmd(self, *args):
         self.setSelection(0, len(self.text()))
@@ -173,13 +175,11 @@ class InfoWin(MinMaxDisabledWin):
         for name, value in info_.items():
 
             left_lbl = SelectableLabel(name)
-            flags_l_al = Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignTop
+            flags_l_al = Qt.AlignmentFlag.AlignRight
             self.grid_layout.addWidget(left_lbl, row, 0, alignment=flags_l_al)
 
             right_lbl = SelectableLabel(value)
-            flags_r = Qt.TextInteractionFlag.TextSelectableByMouse
-            right_lbl.setTextInteractionFlags(flags_r)
-            flags_r_al = Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignBottom
+            flags_r_al = Qt.AlignmentFlag.AlignLeft
             self.grid_layout.addWidget(right_lbl, row, 1, alignment=flags_r_al)
 
             row += 1
