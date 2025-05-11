@@ -106,6 +106,14 @@ class MainWin(WinBase):
     min_width_ = 800
     min_height_ = 500
     left_menu_w = 240
+    base_dir = os.path.expanduser("~/Downloads")
+    splitter_handle_width = 12
+    folders_text = "Папки"
+    favs_text = "Избранное"
+    new_win_offset = 20
+    del_grid_timer = 1000
+    scroll_up_width_offset = 70
+    scroll_up_height_offset = 110
 
     def __init__(self, dir: str = None):
         super().__init__()
@@ -122,8 +130,7 @@ class MainWin(WinBase):
         if dir:
             self.main_win_item.main_dir = dir
         else:
-            dir = os.path.expanduser("~/Downloads")
-            dir = Utils.add_system_volume(dir)
+            dir = Utils.add_system_volume(MainWin.base_dir)
             self.main_win_item.main_dir = dir
 
         self.resize_timer = QTimer(self)
@@ -136,7 +143,7 @@ class MainWin(WinBase):
         self.setLayout(main_lay)
 
         self.splitter = QSplitter()
-        self.splitter.setHandleWidth(12)
+        self.splitter.setHandleWidth(MainWin.splitter_handle_width)
         main_lay.addWidget(self.splitter)
 
         left_wid = QWidget()
@@ -147,9 +154,9 @@ class MainWin(WinBase):
         self.tabs_widget = TabsWidget()
         left_v_lay.addWidget(self.tabs_widget)
         self.tree_menu = TreeMenu(self.main_win_item)
-        self.tabs_widget.addTab(self.tree_menu, "Папки")
+        self.tabs_widget.addTab(self.tree_menu, MainWin.folders_text)
         self.favs_menu = FavsMenu(self.main_win_item)
-        self.tabs_widget.addTab(self.favs_menu, "Избранное")
+        self.tabs_widget.addTab(self.favs_menu, MainWin.favs_text)
         self.tags_menu_btn = TagsBtn()
         left_v_lay.addWidget(self.tags_menu_btn)
         self.tags_menu = TagsMenu()
@@ -286,7 +293,7 @@ class MainWin(WinBase):
         new_win = MainWin(dir)
         self.main_win_list.append(new_win)
         x, y = self.window().x(), self.window().y()
-        new_win.move(x + 20, y + 20)
+        new_win.move(x + MainWin.new_win_offset, y + MainWin.new_win_offset)
         new_win.show()
 
     def setup_grid_signals(self):
@@ -315,7 +322,7 @@ class MainWin(WinBase):
         old_grid = self.grid
         old_grid.hide()
         old_grid.setParent(None)
-        QTimer.singleShot(3000, lambda: old_grid.deleteLater())
+        QTimer.singleShot(MainWin.del_grid_timer, lambda: old_grid.deleteLater())
 
     def load_search_grid(self):
         self.safe_delete_grid()
@@ -400,7 +407,10 @@ class MainWin(WinBase):
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         MainWin.width_ = self.geometry().width()
         MainWin.height_ = self.geometry().height()
-        self.scroll_up.move(self.width() - 70, self.height() - 110)
+        self.scroll_up.move(
+            self.width() - MainWin.scroll_up_width_offset,
+            self.height() - MainWin.scroll_up_height_offset
+        )
         self.resize_timer.stop()
         self.resize_timer.start(MainWin.resize_ms)
 
