@@ -169,8 +169,8 @@ class SearchFinder(URunnable):
                     return
             if not self.is_should_run():
                 return
-            # if entry.name.startswith(Static.hidden_file_syms):
-                # continue
+            if entry.name.startswith(Static.hidden_file_syms):
+                continue
             if entry.is_dir():
                 dirs_list.append(entry.path)
                 continue
