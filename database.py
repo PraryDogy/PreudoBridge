@@ -60,11 +60,14 @@ class Dbase:
 
     def __init__(self):
         self.conn_count = 0
-        self.conn_max = 3
+        self.conn_max = 1
 
     def create_engine(self, path: str) -> sqlalchemy.Engine | None:
 
         if self.conn_count == self.conn_max:
+            return None
+        
+        elif not os.access(path, os.W_OK):
             return None
         
         elif os.path.isdir(path):
