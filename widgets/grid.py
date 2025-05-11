@@ -501,7 +501,12 @@ class Grid(UScrollArea):
         elif wid.type_ in Static.ext_all:
             # избегаем ошибки кругового импорта
             from .img_view_win import ImgViewWin
-            self.win_img_view = ImgViewWin(wid.src, self.url_to_wid)
+            url_to_wid = {
+                url: wid
+                for url, wid in self.url_to_wid.items()
+                if not wid.must_hidden
+            }
+            self.win_img_view = ImgViewWin(wid.src, url_to_wid)
             self.win_img_view.move_to_wid.connect(lambda wid: self.select_one_wid(wid))
             self.win_img_view.new_rating.connect(lambda value: self.set_new_rating(value))
             self.win_img_view.center(self.window())

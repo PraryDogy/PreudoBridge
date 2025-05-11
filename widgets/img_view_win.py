@@ -273,19 +273,23 @@ class ImgViewWin(WinBase):
     move_to_url = pyqtSignal(str)
     new_rating = pyqtSignal(int)
     width_, height_ = 700, 500
+    min_width_, min_height_ = 400, 300
+    object_name = "win_img_view"
 
-    def __init__(self, src: str, url_to_wid: dict[str, Thumb]):
+    def __init__(self, current_path: str, url_to_wid: dict[str, Thumb]):
         super().__init__()
-        self.setMinimumSize(QSize(400, 300))
+        self.setMinimumSize(QSize(ImgViewWin.min_width_, ImgViewWin.min_height_))
         self.resize(ImgViewWin.width_, ImgViewWin.height_)
-        self.setObjectName("win_img_view")
-        self.setStyleSheet("#win_img_view {background: black}")
+        self.setObjectName(ImgViewWin.object_name)
+        self.setStyleSheet(
+            f"""#{ImgViewWin.objectName} {{background: black}}"""
+        )
 
-        self.url_to_wid = url_to_wid
-        self.task_count = 0
-        self.src: str = src
-        self.wid: Thumb = self.url_to_wid.get(src)
-        self.wid.text_changed.connect(self.set_title)
+        self.url_to_wid: dict[str, Thumb] = url_to_wid
+        self.task_count: int = 0
+        self.current_path: str = current_path
+        self.current_wid: Thumb = self.url_to_wid.get(current_path)
+        self.current_wid.text_changed.connect(self.set_title)
         self.url_to_wid: dict[str, Thumb] = {
             path: wid
             for path, wid in self.url_to_wid.items()
@@ -329,23 +333,23 @@ class ImgViewWin(WinBase):
         self.text_label.hide()
         self.set_title()
 
-        if self.src.endswith(Static.ext_all):
+        if self.current_path.endswith(Static.ext_all):
             QTimer.singleShot(100 , self.load_thumbnail)
 
 # SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM
 
     def set_title(self):
         t = ""
-        if self.wid.rating > 0:
-            t = RATINGS[self.wid.rating] + " | "
-        t = t + os.path.basename(self.src)
+        if self.current_wid.rating > 0:
+            t = RATINGS[self.current_wid.rating] + " | "
+        t = t + os.path.basename(self.current_path)
 
         self.setWindowTitle(t)
 
     def load_thumbnail(self):
 
-        if self.src not in LoadImage.cached_images and not DbaseTools.busy_db:
-            self.task_ = LoadThumbnail(self.src)
+        if self.current_path not in LoadImage.cached_images and not DbaseTools.busy_db:
+            self.task_ = LoadThumbnail(self.current_path)
             cmd_ = lambda image_data: self.load_thumbnail_finished(image_data)
             self.task_.signals_.finished_.connect(cmd_)
             UThreadPool.start(self.task_)
@@ -369,14 +373,14 @@ class ImgViewWin(WinBase):
         if image_data.pixmap is None:
             self.show_text_label(LOADING_T)
 
-        elif image_data.src == self.src:
+        elif image_data.src == self.current_path:
             self.img_label.set_image(image_data.pixmap)
 
         self.load_image()
 
     def load_image(self):
         self.task_count += 1
-        self.task_ = LoadImage(self.src)
+        self.task_ = LoadImage(self.current_path)
         cmd_ = lambda image_data: self.load_image_finished(image_data)
         self.task_.signals_.finished_.connect(cmd_)
         UThreadPool.start(self.task_)
@@ -386,7 +390,7 @@ class ImgViewWin(WinBase):
         self.hide_text_label()
         if image_data.pixmap is None:
             self.show_text_label("Ошибка чтения изображения.")
-        elif image_data.src == self.src:
+        elif image_data.src == self.current_path:
             self.img_label.set_image(image_data.pixmap)
 
 
@@ -405,21 +409,21 @@ class ImgViewWin(WinBase):
             return
 
         try:
-            current_index: int = self.image_paths.index(self.src)
+            current_index: int = self.image_paths.index(self.current_path)
         except ValueError:
             current_index: int = 0
 
         total_images: int = len(self.image_paths)
         new_index: int = (current_index + offset) % total_images
 
-        self.src: str = self.image_paths[new_index]
+        self.current_path: str = self.image_paths[new_index]
 
-        self.wid.text_changed.disconnect()
-        self.wid: Thumb = self.url_to_wid.get(self.src)
-        self.wid.text_changed.connect(self.set_title)
+        self.current_wid.text_changed.disconnect()
+        self.current_wid: Thumb = self.url_to_wid.get(self.current_path)
+        self.current_wid.text_changed.connect(self.set_title)
 
-        self.move_to_wid.emit(self.wid)
-        self.move_to_url.emit(self.src)
+        self.move_to_wid.emit(self.current_wid)
+        self.move_to_url.emit(self.current_path)
 
         self.text_label.hide()
         self.set_title()
@@ -475,7 +479,7 @@ class ImgViewWin(WinBase):
 
         elif ev.modifiers() & Qt.KeyboardModifier.ControlModifier:
             if ev.key() == Qt.Key.Key_I:
-                self.win_info_cmd(self.src)
+                self.win_info_cmd(self.current_path)
 
         return super().keyPressEvent(ev)
 
@@ -512,19 +516,19 @@ class ImgViewWin(WinBase):
         super().deleteLater()
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        urls = [self.src]
+        urls = [self.current_path]
         names = [os.path.basename(i) for i in urls]
         total = len(urls)
 
         menu = UMenu(parent=self)
 
-        open_menu = ItemActions.OpenInApp(menu, self.src)
+        open_menu = ItemActions.OpenInApp(menu, self.current_path)
         menu.addMenu(open_menu)
 
         menu.addSeparator()
 
         info = ItemActions.Info(menu)
-        info.triggered.connect(lambda: self.win_info_cmd(self.src))
+        info.triggered.connect(lambda: self.win_info_cmd(self.current_path))
         menu.addAction(info)
 
         show_in_finder_action = ItemActions.RevealInFinder(menu, urls, total)
@@ -538,7 +542,7 @@ class ImgViewWin(WinBase):
 
         menu.addSeparator()
 
-        rating_menu = ItemActions.RatingMenu(menu, urls, total, self.wid.rating)
+        rating_menu = ItemActions.RatingMenu(menu, urls, total, self.current_wid.rating)
         rating_menu.new_rating.connect(lambda value: self.new_rating.emit(value))
         menu.addMenu(rating_menu)
 
