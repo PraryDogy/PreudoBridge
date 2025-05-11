@@ -11,16 +11,6 @@ from ._base_items import MainWinItem, UMenu, USvgSqareWidget
 from .actions import ItemActions
 from .info_win import InfoWin
 
-SORT_T = "Сортировка"
-TOTAL_T = "Всего"
-ASC = "по убыв."
-DESC = "по возр."
-GO_T = "Перейти"
-CURR_WID = "curr_wid"
-FINDER_T = "Finder"
-GO_PLACEGOLDER = "Вставьте путь к файлу/папке"
-ARROW_RIGHT = " \U0000203A" # ›
-
 
 class PathItem(QWidget):
     min_wid = 5
@@ -28,6 +18,7 @@ class PathItem(QWidget):
     load_st_grid = pyqtSignal()
     open_img_view = pyqtSignal(str)
     open_in_new_win = pyqtSignal(str)
+    arrow_right = " \U0000203A" # ›
 
     def __init__(self, dir: str, name: str, main_win_item: MainWinItem):
         """
@@ -62,14 +53,14 @@ class PathItem(QWidget):
         """
         Добавляет к тексту виджета ">"
         """
-        t = self.text_wid.text() + " " + ARROW_RIGHT
+        t = self.text_wid.text() + " " + PathItem.arrow_right
         self.text_wid.setText(t)
 
     def del_arrow(self):
         """
         Удаляет ">"
         """
-        t = self.text_wid.text().replace(ARROW_RIGHT, "")
+        t = self.text_wid.text().replace(PathItem.arrow_right, "")
         self.text_wid.setText(t)
 
     def expand(self):
