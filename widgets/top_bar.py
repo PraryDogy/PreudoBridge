@@ -9,26 +9,29 @@ from PyQt5.QtWidgets import (QAction, QApplication, QGroupBox, QHBoxLayout,
 from cfg import Static
 
 from ._base_items import (MainWinItem, MinMaxDisabledWin, SearchItem, UFrame,
-                          ULineEdit, UMenu, UTextEdit, WinBase)
+                          ULineEdit, UMenu, USvgSqareWidget, UTextEdit,
+                          WinBase)
 from .settings_win import SettingsWin
 
 
 class BarTopBtn(UFrame):
     clicked = pyqtSignal()
+    width_ = 45
+    height_ = 35
+    svg_size = 17
 
     def __init__(self):
         """
         QFrame с изменением стиля при наведении курсора и svg иконкой.
         """
         super().__init__()
-        self.setFixedSize(45, 35)
+        self.setFixedSize(BarTopBtn.width_, BarTopBtn.height_)
 
         h_lay = QHBoxLayout()
         h_lay.setContentsMargins(0, 0, 0, 0)
         self.setLayout(h_lay)
 
-        self.svg_btn = QSvgWidget()
-        self.svg_btn.setFixedSize(17, 17)
+        self.svg_btn = USvgSqareWidget(None, BarTopBtn.svg_size)
         h_lay.addWidget(self.svg_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
     def load(self, path: str):
@@ -137,14 +140,17 @@ class SearchWidget(ULineEdit):
     load_st_grid = pyqtSignal()
     # в MainWin посылается сигнал для загрузки GridSearch
     load_search_grid = pyqtSignal()
+    placeholder_text = "Поиск"
+    width_ = 170
+    input_timer_ms = 1500
 
     def __init__(self, search_item: SearchItem, main_win_item: MainWinItem):
         """
         Виджет поля ввода в верхнем баре приложения.
         """
         super().__init__()
-        self.setPlaceholderText("Поиск")
-        self.setFixedWidth(170)
+        self.setPlaceholderText(SearchWidget.placeholder_text)
+        self.setFixedWidth(SearchWidget.width_)
         self.mouseDoubleClickEvent = self.show_templates
 
         self.search_item = search_item
@@ -197,7 +203,7 @@ class SearchWidget(ULineEdit):
         if text:
             self.search_text = text
             self.input_timer.stop()
-            self.input_timer.start(1500)
+            self.input_timer.start(SearchWidget.input_timer_ms)
         else:
             self.clear_all()
             self.load_st_grid.emit()
@@ -262,6 +268,7 @@ class SearchWidget(ULineEdit):
         - Срабатывает сигнал textChanged -> on_text_changed
         """
         self.search_list_local = search_list
+        # чтобы перезагрузить поиск, сначала удаляем текст
         self.setText("")
         self.setText(SearchItem.SEARCH_LIST_TEXT)
 
@@ -283,6 +290,10 @@ class TopBar(QWidget):
     # открывает заданный путь в новом окне
     open_in_new_win = pyqtSignal(str)
 
+    height_ = 40
+    cascade_offset = 30
+    history_items_limit = 100
+
     def __init__(self, main_win_item: MainWinItem, search_item: SearchItem):
         """
         Верхний бар в окне приложения:
@@ -295,7 +306,7 @@ class TopBar(QWidget):
         - Поле ввода для поиска
         """
         super().__init__()
-        self.setFixedHeight(40)
+        self.setFixedHeight(TopBar.height_)
         self.main_win_item = main_win_item
         self.search_item = search_item
         self.history_items: list[str] = []
@@ -373,7 +384,7 @@ class TopBar(QWidget):
 
         # Начальная позиция и смещение каскада
         x, y = self.window().x(), self.window().y()
-        dx, dy = 30, 30
+        dx, dy = TopBar.cascade_offset, TopBar.cascade_offset
 
         # Показываем и размещаем каскадом
         for w in sorted_widgets:
@@ -432,7 +443,7 @@ class TopBar(QWidget):
             # старые пути, если пользователь изменил направление навигации.
             self.history_items = self.history_items[:self.current_index + 1]
 
-        if len(self.history_items) > 100:
+        if len(self.history_items) > TopBar.history_items_limit:
             self.history_items.pop(0)
             self.current_index -= 1
 
