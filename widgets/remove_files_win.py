@@ -87,7 +87,6 @@ class RemoveFilesWin(MinMaxDisabledWin):
         h_lay.addWidget(can_btn)
 
         self.adjustSize()
-        self.setFixedSize(self.width(), self.height())
 
     def cmd_(self, *args):
         self.task_ = RemoveFilesTask(self.main_win_item.main_dir, self.urls)
