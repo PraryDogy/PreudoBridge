@@ -259,12 +259,12 @@ class SwitchImgBtn(QFrame):
 
 class PrevImgBtn(SwitchImgBtn):
     def __init__(self, parent: QWidget = None) -> None:
-        super().__init__(Static.PREV_SVG, parent=parent)
+        super().__init__(Static.PREV_SVG, parent)
 
 
 class NextImgBtn(SwitchImgBtn):
     def __init__(self, parent: QWidget = None) -> None:
-        super().__init__(src=Static.NEXT_SVG, parent=parent)
+        super().__init__(Static.NEXT_SVG, parent)
 
 
 class ImgViewWin(WinBase):
