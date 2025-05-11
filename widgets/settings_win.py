@@ -5,7 +5,6 @@ from datetime import datetime
 
 from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QKeyEvent
-from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QCheckBox, QGroupBox, QHBoxLayout, QLabel,
                              QPushButton, QVBoxLayout, QWidget)
 
@@ -15,8 +14,6 @@ from ._base_items import (MinMaxDisabledWin, URunnable, USvgSqareWidget,
                           UThreadPool)
 
 LEFT_W = 110
-
-
 
 
 class ClearData(QGroupBox):
@@ -92,6 +89,7 @@ class Updates(QGroupBox):
     no_connection_text = "Нет подключения к диску"
     download_text = "Скачать обновления"
     updates_text = "Обновления"
+    timer_ms = 1500
 
     def __init__(self):
         super().__init__()
@@ -113,7 +111,7 @@ class Updates(QGroupBox):
         self.btn_.setText(Updates.wait_text)
         self.task_ = DownloadUpdate()
         self.task_.signals_.finished_.connect(self.update_cmd_fin)
-        UThreadPool.start(runnable=self.task_)
+        UThreadPool.start(self.task_)
 
     def update_cmd_fin(self, arg: bool):
         if arg:
@@ -121,8 +119,8 @@ class Updates(QGroupBox):
         else:
             self.btn_.setText(Updates.error_text)
             self.descr.setText(Updates.no_connection_text)
-            QTimer.singleShot(1500, lambda: self.btn_.setText(Updates.updates_text))
-            QTimer.singleShot(1500, lambda: self.descr.setText(Updates.download_text))
+            QTimer.singleShot(Updates.timer_ms, lambda: self.btn_.setText(Updates.updates_text))
+            QTimer.singleShot(Updates.timer_ms, lambda: self.descr.setText(Updates.download_text))
 
 
 class About(QGroupBox):
@@ -151,12 +149,13 @@ class About(QGroupBox):
 class ShowHidden(QGroupBox):
     load_st_grid = pyqtSignal()
     text_ = "Отобазить скрытые файлы"
+    left_margin = 7
 
     def __init__(self):
         super().__init__()
 
         h_lay = QHBoxLayout()
-        h_lay.setContentsMargins(7, 0, 0, 0)
+        h_lay.setContentsMargins(ShowHidden.left_margin, 0, 0, 0)
         self.setLayout(h_lay)
 
         self.checkbox = QCheckBox(" " + ShowHidden.text_)
@@ -184,7 +183,7 @@ class SettingsWin(MinMaxDisabledWin):
         self.set_modality()
 
         main_lay = QVBoxLayout()
-        main_lay.setContentsMargins(10, 0, 10, 15)
+        main_lay.setContentsMargins(10, 0, 10, 10)
         self.setLayout(main_lay)
 
         h_wid = QWidget()
