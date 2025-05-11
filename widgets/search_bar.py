@@ -1,6 +1,5 @@
-from PyQt5.QtCore import Qt, QTimer, pyqtSignal
-from PyQt5.QtWidgets import (QCheckBox, QFrame, QHBoxLayout, QLabel,
-                             QPushButton, QVBoxLayout, QWidget)
+from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtWidgets import QCheckBox, QFrame, QHBoxLayout, QLabel, QPushButton
 
 from utils import Utils
 
