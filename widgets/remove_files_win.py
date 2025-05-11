@@ -10,10 +10,6 @@ from utils import Utils
 from ._base_items import (MainWinItem, MinMaxDisabledWin, URunnable,
                           USvgSqareWidget, UThreadPool)
 
-REMOVE_T = "Переместить в корзину объекты"
-OK_T = "Ок"
-CANCEL_T = "Отмена"
-ATTENTION_T = "Внимание!"
 
 
 class WorkerSignals(QObject):
@@ -41,10 +37,15 @@ class RemoveFilesTask(URunnable):
 
 class RemoveFilesWin(MinMaxDisabledWin):
     finished_ = pyqtSignal(list)
+    descr_text = "Переместить в корзину объекты"
+    ok_text = "Ок"
+    cancel_text = "Отмена"
+    title_text = "Внимание!"
+    svg_size = 50
 
     def __init__(self, main_win_item: MainWinItem, urls: list[str]):
         super().__init__()
-        self.setWindowTitle(ATTENTION_T)
+        self.setWindowTitle(RemoveFilesWin.title_text)
         self.set_modality()
         self.urls = urls
         self.main_win_item = main_win_item
@@ -59,10 +60,10 @@ class RemoveFilesWin(MinMaxDisabledWin):
         first_row_lay.setContentsMargins(0, 0, 0, 0)
         first_row_wid.setLayout(first_row_lay)
 
-        warn = USvgSqareWidget(Static.WARNING_SVG, 50)
+        warn = USvgSqareWidget(Static.WARNING_SVG, RemoveFilesWin.svg_size)
         first_row_lay.addWidget(warn)
 
-        t = f"{REMOVE_T} ({len(urls)})?"
+        t = f"{RemoveFilesWin.descr_text} ({len(urls)})?"
         question = QLabel(text=t)
         first_row_lay.addWidget(question)
 
@@ -74,12 +75,12 @@ class RemoveFilesWin(MinMaxDisabledWin):
         h_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
         h_wid.setLayout(h_lay)
 
-        ok_btn = QPushButton(text=OK_T)
+        ok_btn = QPushButton(RemoveFilesWin.ok_text)
         ok_btn.clicked.connect(self.cmd_)
         ok_btn.setFixedWidth(90)
         h_lay.addWidget(ok_btn)
 
-        can_btn = QPushButton(text=CANCEL_T)
+        can_btn = QPushButton(RemoveFilesWin.cancel_text)
         can_btn.clicked.connect(self.deleteLater)
         can_btn.setFixedWidth(90)
         h_lay.addWidget(can_btn)
