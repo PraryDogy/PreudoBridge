@@ -12,17 +12,7 @@ from ._base_items import (BaseItem, MinMaxDisabledWin, UMenu, URunnable,
 from .actions import CopyText, RevealInFinder
 
 CALCULATING = "Вычисляю..."
-TITLE = "Инфо"
-NAME_T = "Имя"
-TYPE_T = "Тип"
-SIZE_T = "Размер"
-SRC_T = "Место"
-BITRTH_T = "Создан"
-MOD_T = "Изменен"
-RESOL_T = "Разрешение"
 UNDEFINED = "Неизвестно"
-MAX_ROW = 50
-SELECT_ALL_T = "Выделить все"
 
 class WorkerSignals(QObject):
     finished_ = pyqtSignal(str)
@@ -75,6 +65,13 @@ class CalculatingTask(URunnable):
 
 class InfoTask:
     ru = "Папка"
+    name_text = "Имя"
+    type_text = "Тип"
+    size_text = "Размер"
+    src_text = "Место"
+    mod_text = "Изменен"
+    res_text = "Разрешение"
+    row_limit = 50
 
     def __init__(self, base_item: BaseItem):
         super().__init__()
@@ -95,25 +92,23 @@ class InfoTask:
         )
 
         res = {
-            NAME_T: self.lined_text(os.path.basename(self.base_item.src)),
-            TYPE_T: type_t_,
-            MOD_T: Utils.get_f_date(os.stat(self.base_item.src).st_mtime),
-            SRC_T: self.lined_text(self.base_item.src),
-            SIZE_T: size_,
+            InfoTask.name_text: self.lined_text(os.path.basename(self.base_item.src)),
+            InfoTask.type_text: type_t_,
+            InfoTask.mod_text: Utils.get_f_date(os.stat(self.base_item.src).st_mtime),
+            InfoTask.src_text: self.lined_text(self.base_item.src),
+            InfoTask.size_text: size_,
             }
         
         if self.base_item.type_ != Static.FOLDER_TYPE:
-            res.update(
-                {RESOL_T: CALCULATING}
-            )
+            res.update({InfoTask.res_text: CALCULATING})
 
         return res
 
     def lined_text(self, text: str):
-        if len(text) > MAX_ROW:
+        if len(text) > InfoTask.row_limit:
             text = [
-                text[i:i + MAX_ROW]
-                for i in range(0, len(text), MAX_ROW)
+                text[i:i + InfoTask.row_limit]
+                for i in range(0, len(text), InfoTask.row_limit)
                 ]
             return "\n".join(text)
         else:
@@ -121,6 +116,8 @@ class InfoTask:
 
 
 class SelectableLabel(QLabel):
+    select_all_text = "Выделить все"
+
     def __init__(self, text: str = None):
         super().__init__(text)
         flags = Qt.TextInteractionFlag.TextSelectableByMouse
@@ -136,10 +133,10 @@ class SelectableLabel(QLabel):
 
         menu = UMenu(parent=self)
 
-        copy_action = CopyText(parent=menu, widget=self)
+        copy_action = CopyText(menu, self)
         menu.addAction(copy_action)
 
-        select_all_act = QAction(SELECT_ALL_T, menu)
+        select_all_act = QAction(SelectableLabel.select_all_text, menu)
         select_all_act.triggered.connect(self.select_all_cmd)
         menu.addAction(select_all_act)
 
@@ -153,9 +150,11 @@ class SelectableLabel(QLabel):
 
 
 class InfoWin(MinMaxDisabledWin):
+    title_text = "Инфо"
+
     def __init__(self, src: str):
         super().__init__()
-        self.setWindowTitle(TITLE)
+        self.setWindowTitle(InfoWin.title_text)
         self.set_modality()
 
         self.src = src
