@@ -5,8 +5,6 @@ from cfg import Dynamic, Static
 
 from ._base_items import UMenu
 
-ENABLE_T = "Включить"
-
 
 class UItem(QListWidgetItem):
     def __init__(self):
@@ -17,6 +15,9 @@ class UItem(QListWidgetItem):
 class TagsMenu(QListWidget):
     filter_thumbs = pyqtSignal()
     rearrange_thumbs = pyqtSignal()
+    enable_text = "Включить"
+    height_ = 155
+    item_width = 25
 
     def __init__(self):
         super().__init__()
@@ -25,9 +26,8 @@ class TagsMenu(QListWidget):
             Qt.ScrollBarPolicy.ScrollBarAlwaysOff
         )
 
-        self.setFixedHeight(155)
-        item_size = QSize(self.width(), 25)
-
+        self.setFixedHeight(TagsMenu.height_)
+        item_size = QSize(self.width(), TagsMenu.item_width)
 
         zero_item = UItem()
         zero_item.rating = 0
@@ -54,7 +54,7 @@ class TagsMenu(QListWidget):
 
         menu = UMenu(parent=self)
 
-        enable_action = QAction(ENABLE_T, menu)
+        enable_action = QAction(TagsMenu.enable_text, menu)
 
         if Dynamic.rating_filter == item.rating:
             enable_action.setDisabled(True)
