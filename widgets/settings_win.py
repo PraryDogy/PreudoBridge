@@ -13,10 +13,7 @@ from cfg import JsonData, Static
 
 from ._base_items import MinMaxDisabledWin, URunnable, UThreadPool
 
-LOADING_T = "Вычисляю"
-DATA_T = "Данные"
 SETTINGS_T = "Настройки"
-CLEAR_T = "Очистить"
 JSON_T = "Json"
 UPDATE_T = "Обновления"
 UPDATE_WAIT_T = "Подождите"
