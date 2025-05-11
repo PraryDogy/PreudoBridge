@@ -9,11 +9,13 @@ class Static:
 
     USER_SETTINGS_DIR = os.path.expanduser('~/Library/Application Support')
     APP_SUPPORT_APP = os.path.join(USER_SETTINGS_DIR, APP_NAME)
+
     GENERIC_ICONS_DIR = os.path.join(APP_SUPPORT_APP, "icons")
-    SCRIPTS_DIR = "scripts"
     JSON_FILE = os.path.join(APP_SUPPORT_APP, 'cfg.json')
+
     USER_APPS_DIR = "/Applications"
 
+    SCRIPTS_DIR = "scripts"
     REVEAL_SCPT = os.path.join(SCRIPTS_DIR, "reveal_files.scpt")
     REMOVE_FILES_SCPT = os.path.join(SCRIPTS_DIR, "remove_files.scpt")
 
