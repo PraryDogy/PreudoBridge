@@ -169,8 +169,8 @@ class SearchFinder(URunnable):
                     return
             if not self.is_should_run():
                 return
-            if entry.name.startswith(Static.hidden_file_syms):
-                continue
+            # if entry.name.startswith(Static.hidden_file_syms):
+                # continue
             if entry.is_dir():
                 dirs_list.append(entry.path)
                 continue
@@ -320,7 +320,10 @@ class GridSearch(Grid):
             self.win_missed_files.center(self.window())
             self.win_missed_files.show()
 
-        self.finished_.emit()
+        try:
+            self.finished_.emit()
+        except RuntimeError as e:
+            Utils.print_error(e)
 
     def sort_thumbs(self):
         self.task_.pause = True
