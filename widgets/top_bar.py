@@ -2,9 +2,8 @@ import os
 
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QMouseEvent
-from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QAction, QApplication, QGroupBox, QHBoxLayout,
-                             QLabel, QPushButton, QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QAction, QGroupBox, QHBoxLayout, QLabel,
+                             QPushButton, QVBoxLayout, QWidget)
 
 from cfg import Static
 
