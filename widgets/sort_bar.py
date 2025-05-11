@@ -14,15 +14,8 @@ from ._base_items import (MainWinItem, MinMaxDisabledWin, SortItem, UFrame,
                           UThreadPool)
 from .actions import SortMenu
 
-SORT_T = "Сортировка"
-TOTAL_T = "Всего"
-ASC = "по убыв."
-DESC = "по возр."
-GO_T = "Перейти"
-CURR_WID = "curr_wid"
-FINDER_T = "Finder"
-GO_PLACEGOLDER = "Вставьте путь к файлу/папке"
-ARROW_RIGHT = " \U0000203A" # ›
+GO_TO_TEXT = "Перейти"
+FINDER_TEXT = "Finder"
 
 
 class PathFinder:
@@ -165,6 +158,9 @@ class PathFinderThread(URunnable):
 
 class GoToWin(MinMaxDisabledWin):
     load_st_grid_sig = pyqtSignal()
+    placeholder_text = "Вставьте путь к файлу/папке"
+    title_text = "Перейти к ..."
+    input_width = 270
 
     def __init__(self, main_win_item: MainWinItem):
         """
@@ -177,16 +173,15 @@ class GoToWin(MinMaxDisabledWin):
         super().__init__()
         self.set_modality()
         self.main_win_item = main_win_item
-        self.setWindowTitle("Перейти к ...")
-        self.setFixedSize(290, 90)
+        self.setWindowTitle(GoToWin.title_text)
         v_lay = QVBoxLayout()
-        v_lay.setContentsMargins(10, 10, 10, 10)
-        v_lay.setSpacing(10)
+        v_lay.setContentsMargins(5, 5, 5, 5)
+        v_lay.setSpacing(5)
         self.setLayout(v_lay)
 
         self.input_wid = ULineEdit()
-        self.input_wid.setPlaceholderText(GO_PLACEGOLDER)
-        self.input_wid.setFixedWidth(270)
+        self.input_wid.setPlaceholderText(GoToWin.placeholder_text)
+        self.input_wid.setFixedWidth(GoToWin.input_width)
 
         v_lay.addWidget(self.input_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
@@ -200,26 +195,21 @@ class GoToWin(MinMaxDisabledWin):
 
         h_lay.addStretch()
 
-        go_btn = QPushButton(GO_T)
-        go_btn.setFixedWidth(120)
+        go_btn = QPushButton(GO_TO_TEXT)
+        go_btn.setFixedWidth(100)
         go_btn.clicked.connect(lambda: self.open_path_btn_cmd(None))
         h_lay.addWidget(go_btn)
 
-        go_finder_btn = QPushButton(FINDER_T)
-        go_finder_btn.setFixedWidth(120)
+        go_finder_btn = QPushButton(FINDER_TEXT)
+        go_finder_btn.setFixedWidth(100)
         go_finder_btn.clicked.connect(
-            lambda: self.open_path_btn_cmd(FINDER_T)
+            lambda: self.open_path_btn_cmd(FINDER_TEXT)
         )
         h_lay.addWidget(go_finder_btn)
 
         h_lay.addStretch()
 
-        # при инициации окна пытаемся считать буфер обмена, если там есть
-        # путь, то вставляем его в поле ввода
-        # clipboard = Utils.read_from_clipboard()
-        # task = PathFinderThread(clipboard)
-        # task.signals_.finished_.connect(self.first_load_final)
-        # UThreadPool.start(runnable=task)
+        self.adjustSize()
 
     def first_load_final(self, result: str | None):
         """
@@ -236,10 +226,10 @@ class GoToWin(MinMaxDisabledWin):
         - flag FINDER_T откроет Finder по указанному пути
         """
         path: str = self.input_wid.text()
-        task = PathFinderThread(src=path)
+        task = PathFinderThread(path)
         cmd_ = lambda result: self.finalize(result, flag)
         task.signals_.finished_.connect(cmd_)
-        UThreadPool.start(runnable=task)
+        UThreadPool.start(task)
 
     def finalize(self, result: str, flag: str):
         """
@@ -251,7 +241,7 @@ class GoToWin(MinMaxDisabledWin):
         if not result:
             self.deleteLater()
             return
-        if flag == FINDER_T:
+        if flag == FINDER_TEXT:
             self.open_finder(result)
         else:
             if os.path.isfile(result):
@@ -279,6 +269,7 @@ class GoToWin(MinMaxDisabledWin):
 
 class GoToBtn(UFrame):
     clicked_ = pyqtSignal()
+    svg_size = 14
 
     def __init__(self):
         """
@@ -295,10 +286,10 @@ class GoToBtn(UFrame):
         h_lay.setSpacing(5)
         self.setLayout(h_lay)
 
-        self.go_btn = USvgSqareWidget(Static.GOTO_SVG, 14)
+        self.go_btn = USvgSqareWidget(Static.GOTO_SVG, GoToBtn.svg_size)
         h_lay.addWidget(self.go_btn)
 
-        self.go_label = QLabel(text=GO_T)
+        self.go_label = QLabel(GO_TO_TEXT)
         h_lay.addWidget(self.go_label)
 
         self.adjustSize()
@@ -311,6 +302,10 @@ class GoToBtn(UFrame):
 class SortMenuBtn(UFrame):
     sort_grid_sig = pyqtSignal()
     rearrange_grid_sig = pyqtSignal()
+    sort_text = "Сортировка"
+    total_text = "Всего"
+    asc_text = "по убыв."
+    desc_text = "по возр."
 
     def __init__(self, sort_item: SortItem):
         """
@@ -319,11 +314,10 @@ class SortMenuBtn(UFrame):
         super().__init__()
         self.sort_item = sort_item
         h_lay = QHBoxLayout()
-        h_lay.setContentsMargins(2, 0, 2, 0)
         self.setLayout(h_lay)
 
-        self.total_text = QLabel()
-        h_lay.addWidget(self.total_text)
+        self.total_text_label = QLabel()
+        h_lay.addWidget(self.total_text_label)
 
         self.sort_wid = QLabel()
         h_lay.addWidget(self.sort_wid)
@@ -338,15 +332,15 @@ class SortMenuBtn(UFrame):
         sort_ = sort_.lower()
 
         # получаем текстовое имя обратной или прямой сортировки
-        rev = ASC if self.sort_item.get_rev() else DESC
+        rev = SortMenuBtn.asc_text if self.sort_item.get_rev() else SortMenuBtn.desc_text
 
-        self.sort_wid.setText(f"{SORT_T}: {sort_} ({rev})")
+        self.sort_wid.setText(f"{SortMenuBtn.sort_text}: {sort_} ({rev})")
 
     def set_total_text(self, value: int):
         """
         Отображает общее число виджетов в сетке
         """
-        self.total_text.setText(f"{TOTAL_T}: {str(value)}")
+        self.total_text_label.setText(f"{SortMenuBtn.total_text}: {str(value)}")
 
     def mouseReleaseEvent(self, a0: QMouseEvent):
         """
@@ -372,12 +366,14 @@ class SortMenuBtn(UFrame):
         menu_center_top = self.mapToGlobal(widget_rect.center()) - centered
         menu_.move(menu_center_top)
         menu_.exec_()
-        super().leaveEvent(a0=a0)
+        super().leaveEvent(a0)
 
 
 class CustomSlider(USlider):
     resize_thumbs = pyqtSignal()
     rearrange_grid_sig = pyqtSignal()
+    width_ = 70
+    height_ = 15
 
     def __init__(self):
         """
@@ -393,7 +389,7 @@ class CustomSlider(USlider):
             minimum=0,
             maximum=len(ThumbData.PIXMAP_SIZE) - 1
         )
-        self.setFixedWidth(80)
+        self.setFixedSize(CustomSlider.width_, CustomSlider.height_)
         self.setValue(Dynamic.pixmap_size_ind)
         self.valueChanged.connect(self.move_slider_cmd)
     
@@ -420,6 +416,7 @@ class SortBar(QWidget):
     sort_grid_sig = pyqtSignal()
     resize_thumbs = pyqtSignal()
     rearrange_thumbs = pyqtSignal()
+    height_ = 25
 
     def __init__(self, sort_item: SortItem, main_win_item: MainWinItem):
         """
@@ -433,7 +430,7 @@ class SortBar(QWidget):
         super().__init__()
         self.sort_item = sort_item
         self.main_win_item = main_win_item
-        self.setFixedHeight(25)
+        self.setFixedHeight(SortBar.height_)
         self.main_lay = QHBoxLayout()
         self.main_lay.setContentsMargins(0, 0, 10, 0)
         self.main_lay.setSpacing(5)
@@ -455,7 +452,6 @@ class SortBar(QWidget):
         self.slider = CustomSlider()
         self.slider.resize_thumbs.connect(self.resize_thumbs.emit)
         self.slider.rearrange_grid_sig.connect(self.rearrange_thumbs.emit)
-        self.slider.setFixedSize(70, 15)
         self.main_lay.addWidget(self.slider)
 
     def move_slider(self, value: int):
