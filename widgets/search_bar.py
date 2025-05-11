@@ -7,35 +7,22 @@ from utils import Utils
 from ._base_items import SearchItem, UFrame
 
 
-class SpinnerWidget(QLabel):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-
-        self.spinner_symbols = ["◯", "◌", "●"]
-        self.current_symbol_index = 0
-
-        # Устанавливаем начальный текст и стиль
-        self.setAlignment(Qt.AlignCenter)
-
-        self.timer = QTimer(self)
-        self.timer.timeout.connect(self.update_spinner)
-        self.timer.start(200)  # Обновление каждую 200 миллисекунд
-
-    def update_spinner(self):
-        self.setText(self.spinner_symbols[self.current_symbol_index])
-        self.current_symbol_index = (self.current_symbol_index + 1) % len(self.spinner_symbols)
-
-
 class SearchBar(QFrame):
     load_search_grid = pyqtSignal()
     pause_search_sig = pyqtSignal(bool)
     on_text_click = pyqtSignal()
     on_exts_click = pyqtSignal()
     on_list_click = pyqtSignal()
+    heigt_ = 40
+    checkbox_text = " Точное соответствие"
+    pause_text = "Пауза"
+    continue_text = "Продолжить"
+    search_finished_text = "Поиск завершен"
+    text_limit = 30
 
     def __init__(self, search_item: SearchItem):
         super().__init__()
-        self.setFixedHeight(40)
+        self.setFixedHeight(SearchBar.heigt_)
         self.search_item: SearchItem = search_item
         self.stop_flag: bool = False
         self.pause_flag: bool = False
@@ -55,7 +42,7 @@ class SearchBar(QFrame):
         self.descr_lbl = QLabel()
         uframe_lay.addWidget(self.descr_lbl)
 
-        self.checkbox = QCheckBox(" Точное соответствие")
+        self.checkbox = QCheckBox(SearchBar.checkbox_text)
         self.checkbox.stateChanged.connect(self.on_state_change)
         h_lay.addWidget(self.checkbox)
 
@@ -69,10 +56,10 @@ class SearchBar(QFrame):
     def pause_btn_cmd(self):
         if self.pause_flag:
             self.pause_flag = False
-            self.pause_btn.setText("Пауза")
+            self.pause_btn.setText(SearchBar.pause_text)
         else:
             self.pause_flag = True
-            self.pause_btn.setText("Продолжить")
+            self.pause_btn.setText(SearchBar.continue_text)
 
         try:
             self.pause_search_sig.emit(self.pause_flag)
@@ -115,17 +102,17 @@ class SearchBar(QFrame):
             self.checkbox.setDisabled(False)
 
         text = self.search_item.get_text()
-        if len(text) > 30:
-            text = text[:30] + "..."
+        if len(text) > SearchBar.text_limit:
+            text = text[:SearchBar.text_limit] + "..."
         self.descr_lbl.setText(text)
         self.pause_btn.setDisabled(False)
-        self.pause_btn.setText("Пауза")
+        self.pause_btn.setText(SearchBar.pause_text)
         self.pause_flag = False
 
         return super().show()
 
     def search_bar_search_fin(self):
-        self.descr_lbl.setText("Поиск завершен")
+        self.descr_lbl.setText(SearchBar.search_finished_text)
         self.pause_btn.setDisabled(True)
 
     def on_frame_click(self, e):
