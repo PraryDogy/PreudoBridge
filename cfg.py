@@ -60,8 +60,6 @@ class Static:
     PARAGRAPH_SEP = "\u2029" # символ PyQt5, который равен новой строке
     LINE_FEED  = "\u000a" # символ PyQt5, который равен новой строке
 
-    LINK = "https://disk.yandex.ru/d/vYdK8hMwVbkSKQ"
-
     ext_jpeg = (".jpg", ".jpeg", ".jfif")
     ext_tiff = (".tif", ".tiff")
     ext_psd  = (".psd", ".psb")
