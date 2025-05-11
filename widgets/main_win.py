@@ -315,6 +315,8 @@ class MainWin(WinBase):
         QTimer.singleShot(3000, lambda: old_grid.deleteLater())
 
     def load_search_grid(self):
+        self.safe_delete_grid()
+
         self.grid = GridSearch(self.main_win_item, self.view_index)
         self.grid.finished_.connect(lambda id_=id(self.grid): self.search_finished(id_))
         self.grid.setParent(self)
@@ -329,7 +331,6 @@ class MainWin(WinBase):
         self.search_bar_sep.show()
         self.tags_menu.reset()
         
-        self.safe_delete_grid()
         self.setup_grid_signals()
 
     def search_finished(self, id_: int):
