@@ -306,6 +306,7 @@ class WinBase(QWidget):
         """
         Центрирует текущее окно относительно родительского окна.
         """
+        parent.raise_()
         geo = self.geometry()
         geo.moveCenter(parent.geometry().center())
         self.setGeometry(geo)
