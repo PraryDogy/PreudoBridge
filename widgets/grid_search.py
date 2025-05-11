@@ -14,13 +14,6 @@ from ._base_items import (BaseItem, MainWinItem, MinMaxDisabledWin, SearchItem,
                           URunnable, USvgSqareWidget, UTextEdit, UThreadPool)
 from .grid import Grid, Thumb
 
-ATTENTION_T = "Внимание!"
-MISSED_FILES = "Не найдены файлы:"
-SELECT_ALL_T = "Выделить все"
-NO_RESULT = "Ничего не найдено"
-SEARCHING = "Идет поиск"
-STOP = "Стоп"
-RESIZE_TIMER_COUNT = 700
 
 class WorkerSignals(QObject):
     new_widget = pyqtSignal(BaseItem)
@@ -28,7 +21,8 @@ class WorkerSignals(QObject):
 
 
 class SearchFinder(URunnable):
-    search_value = 0.95
+    sleep_ms = 1000
+    new_wid_sleep_ms = 200
 
     def __init__(self, main_win_item: MainWinItem, search_item: SearchItem):
         super().__init__()
@@ -150,7 +144,7 @@ class SearchFinder(URunnable):
             current_dir = dirs_list.pop()
 
             while self.pause:
-                QTest.qSleep(1000)
+                QTest.qSleep(SearchFinder.sleep_ms)
                 if not self.is_should_run():
                     return
 
@@ -170,12 +164,12 @@ class SearchFinder(URunnable):
     def scan_current_dir(self, dir: str, dirs_list: list):
         for entry in os.scandir(dir):
             while self.pause:
-                QTest.qSleep(1000)
+                QTest.qSleep(SearchFinder.sleep_ms)
                 if not self.is_should_run():
                     return
             if not self.is_should_run():
                 return
-            if entry.name.startswith("."):
+            if entry.name.startswith(Static.hidden_file_syms):
                 continue
             if entry.is_dir():
                 dirs_list.append(entry.path)
@@ -191,14 +185,17 @@ class SearchFinder(URunnable):
         self.base_item.setup_attrs()
         self.base_item.set_pixmap_storage(self.pixmap)
         self.signals_.new_widget.emit(self.base_item)
-        QTest.qSleep(200)
+        QTest.qSleep(SearchFinder.new_wid_sleep_ms)
 
 
 class WinMissedFiles(MinMaxDisabledWin):
+    title_text = "Внимание!"
+    descr_text = "Не найдены файлы:"
+
     def __init__(self, files: list[str]):
         super().__init__()
         self.set_modality()
-        self.setWindowTitle(ATTENTION_T)
+        self.setWindowTitle(WinMissedFiles.title_text)
         self.setMinimumSize(300, 300)
         self.resize(300, 400)
 
@@ -215,7 +212,7 @@ class WinMissedFiles(MinMaxDisabledWin):
         warn = USvgSqareWidget(Static.WARNING_SVG, 50)
         self.first_row_lay.addWidget(warn)
 
-        label_ = QLabel(text=MISSED_FILES)
+        label_ = QLabel(WinMissedFiles.descr_text)
         self.first_row_lay.addWidget(label_)
 
         scrollable = UTextEdit()
@@ -245,6 +242,8 @@ class WinMissedFiles(MinMaxDisabledWin):
 
 class GridSearch(Grid):
     finished_ = pyqtSignal()
+    no_result_text = "Ничего не найдено"
+    pause_time_ms = 700
 
     def __init__(self, main_win_item: MainWinItem, view_index: int):
         super().__init__(main_win_item, view_index)
@@ -309,7 +308,7 @@ class GridSearch(Grid):
 
     def search_fin(self, missed_files_list: list[str]):
         if not self.cell_to_wid:
-            no_images = QLabel(text=NO_RESULT)
+            no_images = QLabel(GridSearch.no_result_text)
             no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0)
@@ -326,21 +325,21 @@ class GridSearch(Grid):
         super().sort_thumbs()
         self.rearrange_thumbs()
         self.pause_timer.stop()
-        self.pause_timer.start(RESIZE_TIMER_COUNT)
+        self.pause_timer.start(GridSearch.pause_time_ms)
 
     def filter_thumbs(self):
         self.task_.pause = True
         super().filter_thumbs()
         self.rearrange_thumbs()
         self.pause_timer.stop()
-        self.pause_timer.start(RESIZE_TIMER_COUNT)
+        self.pause_timer.start(GridSearch.pause_time_ms)
 
     def resize_thumbs(self):
         self.task_.pause = True
         super().resize_thumbs()
         self.rearrange_thumbs()
         self.pause_timer.stop()
-        self.pause_timer.start(RESIZE_TIMER_COUNT)
+        self.pause_timer.start(GridSearch.pause_time_ms)
 
     def rearrange_thumbs(self):
         super().rearrange_thumbs()

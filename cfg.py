@@ -83,6 +83,8 @@ class Static:
         *tuple(ext.upper() for ext in ext_video)
     )
 
+    hidden_file_syms: tuple[str] = (".", "~$", "$")
+
 class ThumbData:
 
     # размер в пикселях по длинной стороне изображения для базы данных

@@ -30,7 +30,7 @@ class FinderItems(URunnable):
         if JsonData.show_hidden:
             FinderItems.hidden_syms = ()
         else:
-            FinderItems.hidden_syms = (".", "~$", "$")
+            FinderItems.hidden_syms = Static.hidden_file_syms
 
     def task(self):
         try:
