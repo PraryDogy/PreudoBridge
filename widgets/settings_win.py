@@ -11,20 +11,10 @@ from PyQt5.QtWidgets import (QCheckBox, QGroupBox, QHBoxLayout, QLabel,
 
 from cfg import JsonData, Static
 
-from ._base_items import MinMaxDisabledWin, URunnable, UThreadPool
+from ._base_items import (MinMaxDisabledWin, URunnable, USvgSqareWidget,
+                          UThreadPool)
 
-SETTINGS_T = "Настройки"
-JSON_T = "Json"
-UPDATE_T = "Обновления"
-UPDATE_WAIT_T = "Подождите"
-UPDATE_ERROR_T = "Ошибка"
-JSON_DESCR = "Открыть текстовый файл настроек"
-UPDATE_DESCR = "Скачать обновления"
-UPDATE_DESCR_ERR = "Нет подключения к диску"
 LEFT_W = 110
-ICON_W = 70
-CLEAR_DATA_T = "Очистить"
-CLEAR_DATA_DESCR = "Очистить данные в этой папке"
 
 ABOUT_T = "\n".join(
     [
@@ -36,6 +26,8 @@ ABOUT_T = "\n".join(
 
 class ClearData(QGroupBox):
     clear_data_clicked = pyqtSignal()
+    clear_text = "Очистить"
+    descr_text = "Очистить данные в этой папке"
 
     def __init__(self):
         super().__init__()
@@ -44,16 +36,19 @@ class ClearData(QGroupBox):
         h_lay.setContentsMargins(0, 0, 0, 0)
         self.setLayout(h_lay)
 
-        btn_ = QPushButton(text=CLEAR_DATA_T)
+        btn_ = QPushButton(ClearData.clear_text)
         btn_.clicked.connect(self.clear_data_clicked.emit)
         btn_.setFixedWidth(LEFT_W)
         h_lay.addWidget(btn_)
 
-        descr = QLabel(text=CLEAR_DATA_DESCR)
+        descr = QLabel(ClearData.descr_text)
         h_lay.addWidget(descr)
 
 
 class JsonFile(QGroupBox):
+    json_text = "Json"
+    json_descr_text = "Открыть текстовый файл настроек"
+
     def __init__(self):
         super().__init__()
 
@@ -61,14 +56,14 @@ class JsonFile(QGroupBox):
         h_lay.setContentsMargins(0, 0, 0, 0)
         self.setLayout(h_lay)
 
-        btn_ = QPushButton(text=JSON_T)
+        btn_ = QPushButton(JsonFile.json_text)
         btn_.setFixedWidth(LEFT_W)
         btn_.clicked.connect(
             lambda: subprocess.call(["open", Static.JSON_FILE])
         )
         h_lay.addWidget(btn_)
 
-        descr = QLabel(text=JSON_DESCR)
+        descr = QLabel(JsonFile.json_descr_text)
         h_lay.addWidget(descr)
 
 
@@ -97,6 +92,12 @@ class DownloadUpdate(URunnable):
 
 
 class Updates(QGroupBox):
+    wait_text = "Подождите"
+    error_text = "Ошибка"
+    no_connection_text = "Нет подключения к диску"
+    download_text = "Скачать обновления"
+    updates_text = "Обновления"
+
     def __init__(self):
         super().__init__()
 
@@ -104,32 +105,34 @@ class Updates(QGroupBox):
         h_lay.setContentsMargins(0, 0, 0, 0)
         self.setLayout(h_lay)
 
-        self.btn_ = QPushButton(text=UPDATE_T)
+        self.btn_ = QPushButton(Updates.updates_text)
         self.btn_.setFixedWidth(LEFT_W)
         self.btn_.clicked.connect(self.update_cmd)
 
         h_lay.addWidget(self.btn_)
 
-        self.descr = QLabel(text=UPDATE_DESCR)
+        self.descr = QLabel(Updates.download_text)
         h_lay.addWidget(self.descr)
 
     def update_cmd(self, *args):
-        self.btn_.setText(UPDATE_WAIT_T)
+        self.btn_.setText(Updates.wait_text)
         self.task_ = DownloadUpdate()
         self.task_.signals_.finished_.connect(self.update_cmd_fin)
         UThreadPool.start(runnable=self.task_)
 
     def update_cmd_fin(self, arg: bool):
         if arg:
-            self.btn_.setText(UPDATE_T)
+            self.btn_.setText(Updates.updates_text)
         else:
-            self.btn_.setText(UPDATE_ERROR_T)
-            self.descr.setText(UPDATE_DESCR_ERR)
-            QTimer.singleShot(1500, lambda: self.btn_.setText(UPDATE_T))
-            QTimer.singleShot(1500, lambda: self.descr.setText(UPDATE_DESCR))
+            self.btn_.setText(Updates.error_text)
+            self.descr.setText(Updates.no_connection_text)
+            QTimer.singleShot(1500, lambda: self.btn_.setText(Updates.updates_text))
+            QTimer.singleShot(1500, lambda: self.descr.setText(Updates.download_text))
 
 
 class About(QGroupBox):
+    svg_size = 70
+
     def __init__(self):
         super().__init__()
 
@@ -137,9 +140,7 @@ class About(QGroupBox):
         h_lay.setContentsMargins(0, 0, 0, 0)
         self.setLayout(h_lay)
 
-        svg_ = QSvgWidget()
-        svg_.load(Static.ICON_SVG)
-        svg_.setFixedSize(ICON_W, ICON_W)
+        svg_ = USvgSqareWidget(Static.ICON_SVG, About.svg_size)
         h_lay.addWidget(svg_)
 
         descr = QLabel(ABOUT_T)
@@ -174,10 +175,11 @@ class ShowHidden(QGroupBox):
 class SettingsWin(MinMaxDisabledWin):
     remove_db = pyqtSignal()
     load_st_grid = pyqtSignal()
+    title_text = "Настройки"
 
     def __init__(self):
         super().__init__()
-        self.setWindowTitle(SETTINGS_T)
+        self.setWindowTitle(SettingsWin.title_text)
         self.set_modality()
 
         main_lay = QVBoxLayout()
