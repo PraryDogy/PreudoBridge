@@ -3,10 +3,10 @@ import os
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QKeyEvent, QMouseEvent, QResizeEvent
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
-                             QSplitter, QTabWidget, QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QSplitter, QTabWidget,
+                             QVBoxLayout, QWidget)
 
-from cfg import JsonData, Static
+from cfg import Static
 from utils import Utils
 
 from ._base_items import (BaseItem, MainWinItem, SearchItem, SortItem, USep,
@@ -16,7 +16,6 @@ from .grid import Grid
 from .grid_list import GridList
 from .grid_search import GridSearch
 from .grid_standart import GridStandart
-from .img_view_win import LoadImage
 from .path_bar import PathBar
 from .search_bar import SearchBar
 from .sort_bar import SortBar
@@ -24,7 +23,6 @@ from .tags_menu import TagsMenu
 from .top_bar import TopBar
 from .tree_menu import TreeMenu
 
-ARROW_UP = "\u25B2" # ▲
 
 
 class TabsWidget(QTabWidget):
@@ -43,6 +41,8 @@ class TabsWidget(QTabWidget):
 
 
 class TagsBtn(QWidget):
+    svg_size = 20
+
     clicked_ = pyqtSignal()
     def __init__(self):
         super().__init__()
@@ -53,7 +53,7 @@ class TagsBtn(QWidget):
         self.setLayout(v_lay)
 
         self.svg = QSvgWidget()
-        self.svg.setFixedSize(20, 20)
+        self.svg.setFixedSize(TagsBtn.svg_size, TagsBtn.svg_size)
         self.svg.load(Static.HIDE_SVG)
         v_lay.addWidget(self.svg, alignment=Qt.AlignmentFlag.AlignCenter)
 
@@ -77,9 +77,10 @@ class TagsBtn(QWidget):
 
 class ScrollUpBtn(QLabel):
     clicked = pyqtSignal()
+    arrow_up_sym = "\u25B2" # ▲
 
     def __init__(self, parent: QWidget):
-        super().__init__(ARROW_UP, parent)
+        super().__init__(ScrollUpBtn.arrow_up_sym, parent)
         self.setFixedSize(40, 40)
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setStyleSheet(
