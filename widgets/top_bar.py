@@ -41,8 +41,11 @@ class BarTopBtn(UFrame):
 
 
 class ListWin(MinMaxDisabledWin):
-    SEARCH_PLACE = "Место поиска:"
-    LIST_FILES = "Список файлов (по одному в строке):"
+    search_place_text = "Место поиска:"
+    descr_text = "Список файлов (по одному в строке):"
+    ok_text = "Ок"
+    cancel_text = "Отмена"
+    search_place_limit = 50
 
     # список имен файлов
     finished_ = pyqtSignal(list)
@@ -58,7 +61,6 @@ class ListWin(MinMaxDisabledWin):
         self.main_win_item = main_win_item
         self.search_item = search_item
 
-        self.setFixedSize(570, 500)
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(10, 5, 10, 5)
         v_lay.setSpacing(10)
@@ -68,12 +70,15 @@ class ListWin(MinMaxDisabledWin):
         v_lay.addWidget(first_row)
         first_lay = QVBoxLayout()
         first_row.setLayout(first_lay)
-        first_title = QLabel(ListWin.SEARCH_PLACE)
+        first_title = QLabel(ListWin.search_place_text)
         first_lay.addWidget(first_title)
-        self.main_dir_label = QLabel(self.main_win_item.main_dir)
-        first_lay.addWidget(self.main_dir_label)
 
-        inp_label = QLabel(ListWin.LIST_FILES)
+        main_dir_label = QLabel()
+        wraped = self.wrap_text(self.main_win_item.main_dir)
+        main_dir_label.setText(wraped)
+        first_lay.addWidget(main_dir_label)
+
+        inp_label = QLabel(ListWin.descr_text)
         v_lay.addWidget(inp_label)
 
         self.input_ = UTextEdit()
@@ -87,12 +92,12 @@ class ListWin(MinMaxDisabledWin):
 
         btns_lay.addStretch()
 
-        ok_btn = QPushButton("Ок")
+        ok_btn = QPushButton(ListWin.ok_text)
         ok_btn.clicked.connect(self.ok_cmd)
         ok_btn.setFixedWidth(100)
         btns_lay.addWidget(ok_btn)
 
-        can_btn = QPushButton("Отмена")
+        can_btn = QPushButton(ListWin.cancel_text)
         can_btn.clicked.connect(self.deleteLater)
         can_btn.setFixedWidth(100)
         btns_lay.addWidget(can_btn)
@@ -101,6 +106,16 @@ class ListWin(MinMaxDisabledWin):
 
         if self.search_item.get_files_list():
             self.input_.setText("\n".join(self.search_item.get_files_list()))
+
+        self.adjustSize()
+
+    def wrap_text(self, text: str):
+        chunks = [
+            text[i:i+ListWin.search_place_limit]
+            for i in range(0, len(text), ListWin.search_place_limit)
+        ]
+        return '\n'.join(chunks)
+
 
     def ok_cmd(self, *args):
         """
