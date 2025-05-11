@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QSpacerItem,
                              QVBoxLayout, QWidget)
 
 from cfg import Static
-from database import CACHE, Dbase, DbaseTools
+from database import CACHE, Dbase
 from utils import Utils
 
 from ._base_items import (UMenu, URunnable, USvgSqareWidget, UThreadPool,
@@ -333,12 +333,11 @@ class ImgViewWin(WinBase):
     def set_title(self):
         text_ = os.path.basename(self.current_path)
         if self.current_wid.rating > 0:
-            text_ = f"{RATINGS[self.current_wid.rating] | text_}"r
+            text_ = f"{RATINGS[self.current_wid.rating] | text_}"
         self.setWindowTitle(text_)
 
     def load_thumbnail(self):
-
-        if self.current_path not in LoadImage.cached_images and not DbaseTools.busy_db:
+        if self.current_path not in LoadImage.cached_images:
             self.task_ = LoadThumbnail(self.current_path)
             cmd_ = lambda image_data: self.load_thumbnail_finished(image_data)
             self.task_.signals_.finished_.connect(cmd_)

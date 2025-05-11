@@ -38,23 +38,6 @@ CACHE = sqlalchemy.Table(
 )
 
 
-class DbaseTools:
-    sleep_value: int = 1
-    busy_db: bool = False
-
-    @staticmethod
-    def wait_for_db(func):
-        def wrapper(*args, **kwargs):
-            while DbaseTools.busy_db:
-                sleep(DbaseTools.sleep_value)
-            DbaseTools.busy_db = True
-            try:
-                return func(*args, **kwargs)
-            finally:
-                DbaseTools.busy_db = False
-        return wrapper
-    
-
 class Dbase:
     connections: list[sqlalchemy.Connection] = []
 
