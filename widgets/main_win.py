@@ -78,15 +78,17 @@ class TagsBtn(QWidget):
 class ScrollUpBtn(QLabel):
     clicked = pyqtSignal()
     arrow_up_sym = "\u25B2" # ▲
+    border_radius = 20
+    svg_size = 40
 
     def __init__(self, parent: QWidget):
         super().__init__(ScrollUpBtn.arrow_up_sym, parent)
-        self.setFixedSize(40, 40)
+        self.setFixedSize(ScrollUpBtn.svg_size, ScrollUpBtn.svg_size)
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setStyleSheet(
             f"""
             background-color: {Static.GRAY_GLOBAL};
-            border-radius: 20px;
+            border-radius: {ScrollUpBtn.border_radius}px;
             """
             )
         
