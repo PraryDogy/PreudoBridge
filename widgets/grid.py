@@ -502,7 +502,7 @@ class Grid(UScrollArea):
             # избегаем ошибки кругового импорта
             from .img_view_win import ImgViewWin
             self.win_img_view = ImgViewWin(wid.src, self.url_to_wid)
-            self.win_img_view.move_to_wid_sig.connect(lambda wid: self.select_one_wid(wid))
+            self.win_img_view.move_to_wid.connect(lambda wid: self.select_one_wid(wid))
             self.win_img_view.new_rating.connect(lambda value: self.set_new_rating(value))
             self.win_img_view.center(self.window())
             self.win_img_view.show()

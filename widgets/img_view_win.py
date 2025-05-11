@@ -269,10 +269,8 @@ class NextImageBtn(SwitchImageBtn):
 
 class ImgViewWin(WinBase):
     task_count_limit = 10
-    switch_image_sig = pyqtSignal(object)
-    closed_ = pyqtSignal()
-    move_to_wid_sig = pyqtSignal(object)
-    move_to_url_sig = pyqtSignal(str)
+    move_to_wid = pyqtSignal(object)
+    move_to_url = pyqtSignal(str)
     new_rating = pyqtSignal(int)
     width_, height_ = 700, 500
 
@@ -420,8 +418,8 @@ class ImgViewWin(WinBase):
         self.wid: Thumb = self.url_to_wid.get(self.src)
         self.wid.text_changed.connect(self.set_title)
 
-        self.move_to_wid_sig.emit(self.wid)
-        self.move_to_url_sig.emit(self.src)
+        self.move_to_wid.emit(self.wid)
+        self.move_to_url.emit(self.src)
 
         self.text_label.hide()
         self.set_title()
@@ -511,7 +509,6 @@ class ImgViewWin(WinBase):
 
     def deleteLater(self):
         LoadImage.cached_images.clear()
-        self.closed_.emit()
         super().deleteLater()
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:

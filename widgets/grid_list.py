@@ -126,7 +126,7 @@ class GridList(UTableView):
 
             cmd = lambda path: self.select_path(path)
             self.img_view_win = ImgViewWin(path, url_to_wid)
-            self.img_view_win.move_to_url_sig.connect(cmd)
+            self.img_view_win.move_to_url.connect(cmd)
             self.img_view_win.center(self.window())
             self.img_view_win.show()
 
