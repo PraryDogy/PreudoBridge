@@ -12,9 +12,6 @@ from utils import Utils
 from ._base_items import (BaseItem, MainWinItem, SortItem, URunnable,
                           UThreadPool)
 
-LOADING_T = "Загрузка..."
-SQL_ERRORS = (IntegrityError, OperationalError)
-SLEEP_VALUE = 1
 
 class WorkerSignals(QObject):
     finished_ = pyqtSignal(tuple)
@@ -22,6 +19,7 @@ class WorkerSignals(QObject):
 
 class FinderItems(URunnable):
     hidden_syms: tuple[str] = None
+    sql_errors = (IntegrityError, OperationalError)
 
     def __init__(self, main_win_item: MainWinItem, sort_item: SortItem):
         super().__init__()
@@ -42,7 +40,7 @@ class FinderItems(URunnable):
                 base_items, new_items = self.set_rating(conn, base_items)
             else:
                 base_items, new_items = self.get_items_no_db()
-        except SQL_ERRORS as e:
+        except FinderItems.sql_errors as e:
             Utils.print_error(e)
             base_items, new_items = self.get_items_no_db()
         except Exception as e:
@@ -109,8 +107,9 @@ class FinderItems(URunnable):
 
 
 class LoadingWid(QLabel):
+    text_ = "Загрузка"
     def __init__(self, parent: QWidget):
-        super().__init__(text=LOADING_T, parent=parent)
+        super().__init__(LoadingWid.text_, parent)
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setStyleSheet(
             f"""
