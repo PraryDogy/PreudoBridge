@@ -191,7 +191,6 @@ class SearchFinder(URunnable):
 class WinMissedFiles(MinMaxDisabledWin):
     title_text = "Внимание!"
     descr_text = "Не найдены файлы:"
-    ww, hh = 300, 400
     svg_size = 50
     ok_text = "Ок"
 
@@ -199,8 +198,6 @@ class WinMissedFiles(MinMaxDisabledWin):
         super().__init__()
         self.set_modality()
         self.setWindowTitle(WinMissedFiles.title_text)
-        self.setMinimumSize(WinMissedFiles.ww, WinMissedFiles.hh)
-        self.resize(WinMissedFiles.ww, WinMissedFiles.hh)
 
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(10, 5, 10, 5)
@@ -236,6 +233,8 @@ class WinMissedFiles(MinMaxDisabledWin):
         ok_btn.clicked.connect(self.deleteLater)
         ok_btn.setFixedWidth(90)
         h_lay.addWidget(ok_btn)
+
+        self.adjustSize()
 
     def keyPressEvent(self, a0):
         if a0.key() == Qt.Key.Key_Escape:

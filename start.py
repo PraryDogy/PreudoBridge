@@ -70,8 +70,10 @@ class CustomApp(QApplication):
         # QTimer.singleShot(1000, self.test)
 
     def test(self):
-        from widgets.copy_files_win import ErrorWin
-        self.win = ErrorWin()
+        from widgets.grid_search import WinMissedFiles
+        files = ["filenamefilenamefilenamefilenamefilenamefilenamefilenamefilename.jpg" for i in range(0, 30)]
+        self.win = WinMissedFiles(files)
+        self.win.center(self.first_win)
         self.win.show()
 
     def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
