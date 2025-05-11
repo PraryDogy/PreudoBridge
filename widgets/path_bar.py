@@ -19,6 +19,7 @@ class PathItem(QWidget):
     open_img_view = pyqtSignal(str)
     open_in_new_win = pyqtSignal(str)
     arrow_right = " \U0000203A" # ›
+    height_ = 15
 
     def __init__(self, dir: str, name: str, main_win_item: MainWinItem):
         """
@@ -34,7 +35,7 @@ class PathItem(QWidget):
         """
         super().__init__()
         self.main_win_item = main_win_item
-        self.setFixedHeight(15)
+        self.setFixedHeight(PathItem.height_)
         self.dir = dir
 
         item_layout = QHBoxLayout()
@@ -42,7 +43,7 @@ class PathItem(QWidget):
         item_layout.setSpacing(5)
         self.setLayout(item_layout)
 
-        self.img_wid = USvgSqareWidget(None, 15)
+        self.img_wid = USvgSqareWidget(None, PathItem.height_)
         item_layout.addWidget(self.img_wid)
         
         self.text_wid = QLabel(text=name)
@@ -217,6 +218,7 @@ class PathBar(QWidget):
     open_img_view = pyqtSignal(str)
     open_in_new_win = pyqtSignal(str)
     last_item_limit = 40
+    height_ = 25
 
     def __init__(self, main_win_item: MainWinItem):
         """
@@ -225,7 +227,7 @@ class PathBar(QWidget):
         """
         super().__init__()
         self.main_win_item = main_win_item
-        self.setFixedHeight(25)
+        self.setFixedHeight(PathBar.height_)
         self.setAcceptDrops(True)
         self.current_path: str = None
 
