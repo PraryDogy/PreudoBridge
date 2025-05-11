@@ -191,13 +191,16 @@ class SearchFinder(URunnable):
 class WinMissedFiles(MinMaxDisabledWin):
     title_text = "Внимание!"
     descr_text = "Не найдены файлы:"
+    ww, hh = 300, 400
+    svg_size = 50
+    ok_text = "Ок"
 
     def __init__(self, files: list[str]):
         super().__init__()
         self.set_modality()
         self.setWindowTitle(WinMissedFiles.title_text)
-        self.setMinimumSize(300, 300)
-        self.resize(300, 400)
+        self.setMinimumSize(WinMissedFiles.ww, WinMissedFiles.hh)
+        self.resize(WinMissedFiles.ww, WinMissedFiles.hh)
 
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(10, 5, 10, 5)
@@ -209,7 +212,7 @@ class WinMissedFiles(MinMaxDisabledWin):
         self.first_row_lay.setContentsMargins(0, 0, 0, 0)
         self.first_row_wid.setLayout(self.first_row_lay)
 
-        warn = USvgSqareWidget(Static.WARNING_SVG, 50)
+        warn = USvgSqareWidget(Static.WARNING_SVG, WinMissedFiles.svg_size)
         self.first_row_lay.addWidget(warn)
 
         label_ = QLabel(WinMissedFiles.descr_text)
@@ -229,7 +232,7 @@ class WinMissedFiles(MinMaxDisabledWin):
         h_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
         h_wid.setLayout(h_lay)
 
-        ok_btn = QPushButton(text="Ок")
+        ok_btn = QPushButton(WinMissedFiles.ok_text)
         ok_btn.clicked.connect(self.deleteLater)
         ok_btn.setFixedWidth(90)
         h_lay.addWidget(ok_btn)
