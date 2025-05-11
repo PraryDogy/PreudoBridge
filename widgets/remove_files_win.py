@@ -15,6 +15,7 @@ from ._base_items import (MainWinItem, MinMaxDisabledWin, URunnable,
 class WorkerSignals(QObject):
     finished_ = pyqtSignal()
 
+
 class RemoveFilesTask(URunnable):
     def __init__(self, main_dir: str, urls: list[str]):
         super().__init__()
