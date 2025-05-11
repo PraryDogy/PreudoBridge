@@ -1,6 +1,5 @@
 import os
 import subprocess
-from time import sleep
 
 import sqlalchemy
 from PyQt5.QtCore import QMimeData, QObject, Qt, QTimer, QUrl, pyqtSignal
@@ -9,7 +8,6 @@ from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
                              QSplitter, QVBoxLayout, QWidget)
-from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Dynamic, JsonData, Static, ThumbData
 from database import CACHE, Dbase
@@ -22,17 +20,8 @@ from .copy_files_win import CopyFilesWin, ErrorWin
 from .info_win import InfoWin
 from .remove_files_win import RemoveFilesWin
 
-SELECTED = "selected"
-FONT_SIZE = "font-size: 11px;"
-RAD = "border-radius: 4px"
-SQL_ERRORS = (OperationalError, IntegrityError)
-WID_UNDER_MOUSE = "win_under_mouse"
-GRID_SPACING = 5
-SHOW_IN_FOLDER = "Показать в папке"
-UPDATE_GRID_T = "Обновить"
-PASTE_FILES_T = "Вставить объекты"
-REMOVE_FILES_T = "Удалить"
-SLEEP_VALUE = 1
+FONT_SIZE = 11
+BORDER_RADIUS = 4
 
 KEY_RATING = {
     Qt.Key.Key_0: 0,
@@ -98,7 +87,7 @@ class TextWidget(QLabel):
     def __init__(self):
         super().__init__()
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.setStyleSheet(FONT_SIZE)
+        self.setStyleSheet(f"""font-size: {FONT_SIZE}px;""")
 
     def set_text(self, name: str) -> list[str]:
         name: str | list = name
@@ -128,7 +117,7 @@ class TextWidget(QLabel):
 class RatingWid(QLabel):
     def __init__(self):
         super().__init__()
-        self.setStyleSheet(FONT_SIZE)
+        self.setStyleSheet(f"""font-size: {FONT_SIZE}px;""")
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
     def set_text(self, rating: int):
@@ -244,8 +233,8 @@ class Thumb(BaseItem, QFrame):
             f"""
             #{Thumb.text_obj_name} {{
                 background: transparent;
-                {FONT_SIZE};
-                {RAD};
+                font-size: {FONT_SIZE}px;
+                border-radius: {BORDER_RADIUS}px;
                 padding: 2px;
                 color: green;
             }}
@@ -257,14 +246,14 @@ class Thumb(BaseItem, QFrame):
             f"""
             #{Thumb.text_obj_name} {{
                 background: {Static.BLUE_GLOBAL};
-                {FONT_SIZE};
-                {RAD};
+                font-size: {FONT_SIZE}px;
+                border-radius: {BORDER_RADIUS}px;
                 padding: 2px;
             }}
             #{Thumb.img_obj_name} {{
                 background: {Static.GRAY_GLOBAL};
-                {FONT_SIZE};
-                {RAD};
+                font-size: {FONT_SIZE}px;
+                border-radius: {BORDER_RADIUS}px;
             }}
             """
         )
@@ -274,20 +263,22 @@ class Thumb(BaseItem, QFrame):
             f"""
             #{Thumb.text_obj_name} {{
                 background: transparent;
-                {FONT_SIZE};
-                {RAD};
+                font-size: {FONT_SIZE}px;
+                border-radius: {BORDER_RADIUS}px;
                 padding: 2px;
             }}
             #{Thumb.img_obj_name} {{
                 background: transparent;
-                {FONT_SIZE};
-                {RAD};
+                font-size: {FONT_SIZE}px;
+                border-radius: {BORDER_RADIUS}px;
             }}
             """
         )
 
 
 class Grid(UScrollArea):
+    spacing_value = 5
+
     def __init__(self, main_win_item: MainWinItem, view_index: int):
         super().__init__()
         self.setAcceptDrops(True)
@@ -323,7 +314,7 @@ class Grid(UScrollArea):
 
         flags = Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
         self.grid_layout = QGridLayout()
-        self.grid_layout.setSpacing(GRID_SPACING)
+        self.grid_layout.setSpacing(Grid.spacing_value)
         self.grid_layout.setAlignment(flags)
         self.main_wid.setLayout(self.grid_layout)
 
