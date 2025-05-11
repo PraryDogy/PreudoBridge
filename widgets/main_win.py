@@ -358,6 +358,12 @@ class MainWin(WinBase):
         if id_ == id(self.grid):
             self.search_bar.search_bar_search_fin()
 
+    def disable_wids(self, value: bool):
+        self.sort_bar.sort_frame.setDisabled(value)
+        self.sort_bar.slider.setDisabled(value)
+        self.tags_menu.setDisabled(value)
+        self.tags_menu_btn.setDisabled(value)
+
     def load_st_grid(self):
         """
         - dir: основная директория, которая будет отображена в виде сетки виджетов
@@ -381,17 +387,13 @@ class MainWin(WinBase):
             self.grid.setParent(self)
             self.grid.set_sort_item(self.sort_item)
             self.grid.load_finder_items()
-
-            self.sort_bar.sort_frame.setDisabled(False)
-            self.sort_bar.slider.setDisabled(False)
+            self.disable_wids(False)
 
         elif self.view_index == 1:
             self.grid = GridList(self.main_win_item, self.view_index)
             self.grid.setParent(self)
             self.grid.set_first_col_width()
-
-            self.sort_bar.sort_frame.setDisabled(True)
-            self.sort_bar.slider.setDisabled(True)
+            self.disable_wids(True)
 
         self.setup_grid_signals()
 
