@@ -18,8 +18,6 @@ from .actions import ItemActions
 from .grid import KEY_RATING, RATINGS, Thumb
 from .info_win import InfoWin
 
-LOADING_T = "Загрузка..."
-
 
 class ImageData:
     __slots__ = ["src", "width", "pixmap"]
@@ -46,21 +44,21 @@ class LoadThumbnail(URunnable):
         engine = dbase.create_engine(path=db)
 
         if engine is None:
-            image_data = ImageData(src=self.src, pixmap=None)
+            image_data = ImageData(self.src, None)
             self.signals_.finished_.emit(image_data)
             return
 
         conn = Dbase.open_connection(engine)
 
         q = sqlalchemy.select(CACHE.c.img)
-        q = q.where(CACHE.c.name == Utils.get_hash_filename(filename=self.name))
+        q = q.where(CACHE.c.name == Utils.get_hash_filename(self.name))
         res = conn.execute(q).scalar() or None
 
         Dbase.close_connection(conn)
 
         if res is not None:
             img_array = Utils.bytes_to_array(res)
-            img_array = Utils.desaturate_image(image=img_array, factor=0.2)
+            img_array = Utils.desaturate_image(img_array, 0.2)
         else:
             img_array = None
 
@@ -90,7 +88,7 @@ class LoadImage(URunnable):
         if self.src not in self.cached_images:
 
             img_array = Utils.read_image(self.src)
-            img_array = Utils.desaturate_image(image=img_array, factor=0.2)
+            img_array = Utils.desaturate_image(img_array, 0.2)
 
             if img_array is None:
                 pixmap = None
@@ -240,7 +238,7 @@ class ZoomBtns(QFrame):
         self.adjustSize()
 
 
-class SwitchImageBtn(QFrame):
+class SwitchImgBtn(QFrame):
     pressed = pyqtSignal()
 
     def __init__(self, src: str, parent: QWidget) -> None:
@@ -254,15 +252,17 @@ class SwitchImageBtn(QFrame):
         btn = USvgSqareWidget(src, 50)
         v_layout.addWidget(btn)
 
-        self.mouseReleaseEvent = lambda e: self.pressed.emit()
+    def mouseReleaseEvent(self, a0):
+        self.pressed.emit()
+        return super().mouseReleaseEvent(a0)
 
 
-class PrevImageBtn(SwitchImageBtn):
+class PrevImgBtn(SwitchImgBtn):
     def __init__(self, parent: QWidget = None) -> None:
         super().__init__(Static.PREV_SVG, parent=parent)
 
 
-class NextImageBtn(SwitchImageBtn):
+class NextImgBtn(SwitchImgBtn):
     def __init__(self, parent: QWidget = None) -> None:
         super().__init__(src=Static.NEXT_SVG, parent=parent)
 
@@ -275,6 +275,8 @@ class ImgViewWin(WinBase):
     width_, height_ = 700, 500
     min_width_, min_height_ = 400, 300
     object_name = "win_img_view"
+    loading_text = "Загрузка"
+    error_text = "Ошибка чтения изображения."
 
     def __init__(self, current_path: str, url_to_wid: dict[str, Thumb]):
         super().__init__()
@@ -289,8 +291,8 @@ class ImgViewWin(WinBase):
         self.urls: list = [i for i in self.url_to_wid]
         self.task_count: int = 0
         self.current_path: str = current_path
-        self.current_wid: Thumb = self.url_to_wid.get(current_path)
-        self.current_wid.text_changed.connect(self.set_title)
+        self.current_thumb: Thumb = self.url_to_wid.get(current_path)
+        self.current_thumb.text_changed.connect(self.set_title)
 
         self.mouse_move_timer = QTimer(self)
         self.mouse_move_timer.setSingleShot(True)
@@ -304,10 +306,10 @@ class ImgViewWin(WinBase):
         self.img_wid.mouse_moved.connect(self.show_btns)
         v_layout.addWidget(self.img_wid)
 
-        self.prev_btn = PrevImageBtn(self)
+        self.prev_btn = PrevImgBtn(self)
         self.prev_btn.pressed.connect(lambda: self.switch_img_btn("-"))
 
-        self.next_btn = NextImageBtn(self)
+        self.next_btn = NextImgBtn(self)
         self.next_btn.pressed.connect(lambda: self.switch_img_btn("+"))
 
         self.zoom_btns = ZoomBtns(parent=self)
@@ -316,13 +318,13 @@ class ImgViewWin(WinBase):
         self.zoom_btns.cmd_fit.connect(self.img_wid.zoom_reset)
         self.zoom_btns.cmd_close.connect(self.close)
 
-        self.text_label = QLabel(parent=self.img_wid)
-        self.text_label.hide()
+        self.loading_label = QLabel(parent=self.img_wid)
+        self.loading_label.hide()
 
         self.hide_btns()
         self.resize(ImgViewWin.width_ + 1, ImgViewWin.height_ + 1)
 
-        self.text_label.hide()
+        self.loading_label.hide()
         self.set_title()
 
         if self.current_path.endswith(Static.ext_all):
@@ -332,8 +334,8 @@ class ImgViewWin(WinBase):
 
     def set_title(self):
         text_ = os.path.basename(self.current_path)
-        if self.current_wid.rating > 0:
-            text_ = f"{RATINGS[self.current_wid.rating] | text_}"
+        if self.current_thumb.rating > 0:
+            text_ = f"{RATINGS[self.current_thumb.rating] | text_}"
         self.setWindowTitle(text_)
 
     def load_thumbnail(self):
@@ -344,23 +346,19 @@ class ImgViewWin(WinBase):
             UThreadPool.start(self.task_)
 
         else:
-            self.show_text_label(text=LOADING_T)
+            self.show_text_label(ImgViewWin.loading_text)
             self.load_image()
 
     def show_text_label(self, text: str):
         pixmap = QPixmap(1, 1)
         pixmap.fill(QColor(0, 0, 0))
         self.img_wid.set_image(pixmap)
-        self.text_label.setText(text)
-        self.text_label.show()
-
-    def hide_text_label(self):
-        self.text_label.hide()
+        self.loading_label.setText(text)
+        self.loading_label.show()
 
     def load_thumbnail_finished(self, image_data: ImageData):
-
         if image_data.pixmap is None:
-            self.show_text_label(LOADING_T)
+            self.show_text_label(ImgViewWin.loading_text)
 
         elif image_data.src == self.current_path:
             self.img_wid.set_image(image_data.pixmap)
@@ -376,9 +374,9 @@ class ImgViewWin(WinBase):
 
     def load_image_finished(self, image_data: ImageData):
         self.task_count -= 1
-        self.hide_text_label()
+        self.loading_label.hide()
         if image_data.pixmap is None:
-            self.show_text_label("Ошибка чтения изображения.")
+            self.show_text_label(ImgViewWin.error_text)
         elif image_data.src == self.current_path:
             self.img_wid.set_image(image_data.pixmap)
 
@@ -407,14 +405,14 @@ class ImgViewWin(WinBase):
 
         self.current_path: str = self.urls[new_index]
 
-        self.current_wid.text_changed.disconnect()
-        self.current_wid: Thumb = self.url_to_wid.get(self.current_path)
-        self.current_wid.text_changed.connect(self.set_title)
+        self.current_thumb.text_changed.disconnect()
+        self.current_thumb: Thumb = self.url_to_wid.get(self.current_path)
+        self.current_thumb.text_changed.connect(self.set_title)
 
-        self.move_to_wid.emit(self.current_wid)
+        self.move_to_wid.emit(self.current_thumb)
         self.move_to_url.emit(self.current_path)
 
-        self.text_label.hide()
+        self.loading_label.hide()
         self.set_title()
         self.load_thumbnail()
 
@@ -488,9 +486,9 @@ class ImgViewWin(WinBase):
         bottom_window_side = a0.size().height() - self.zoom_btns.height()
         self.zoom_btns.move(horizontal_center, bottom_window_side - 30)
 
-        x = (a0.size().width() - self.text_label.width()) // 2
-        y = (a0.size().height() - self.text_label.height()) // 2
-        self.text_label.move(x, y)
+        x = (a0.size().width() - self.loading_label.width()) // 2
+        y = (a0.size().height() - self.loading_label.height()) // 2
+        self.loading_label.move(x, y)
 
         ImgViewWin.width_ = self.width()
         ImgViewWin.height_ = self.height()
@@ -531,7 +529,7 @@ class ImgViewWin(WinBase):
 
         menu.addSeparator()
 
-        rating_menu = ItemActions.RatingMenu(menu, urls, total, self.current_wid.rating)
+        rating_menu = ItemActions.RatingMenu(menu, urls, total, self.current_thumb.rating)
         rating_menu.new_rating.connect(lambda value: self.new_rating.emit(value))
         menu.addMenu(rating_menu)
 

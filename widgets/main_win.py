@@ -356,8 +356,6 @@ class MainWin(WinBase):
             if fixed_path:
                 self.main_win_item.main_dir = fixed_path
 
-        LoadImage.cached_images.clear()
-
         self.favs_menu.select_fav(self.main_win_item.main_dir)
         self.top_bar.search_wid.clear_search()
         self.search_bar.hide()
