@@ -131,7 +131,7 @@ class FavsMenu(QListWidget):
         self.wids.clear()
 
         for src, name in JsonData.favs.items():
-            result = self.add_fav_widget_item(name, src)
+            result = self.add_fav_item(name, src)
             item: QListWidgetItem = result[self.LIST_ITEM]
             self.wids[src] = item
 
@@ -145,45 +145,27 @@ class FavsMenu(QListWidget):
         else:
             self.clearSelection()
 
-    def fav_cmd(self, data: tuple):
-        """
-        args: ("select"/"add"/"del", path)
-        """
-        cmd, src = data
-
-        if cmd == "select":
-            self.select_fav(src)
-        elif cmd == "add":
-            self.add_fav(src)
-        elif cmd == "del":
-            self.del_fav(src)
-        else:
-            raise Exception("tree favorites wrong flag", cmd.get("cmd"))
-
     def add_fav(self, src: str):
-
         if src not in JsonData.favs:
-            cmd_ = lambda name: self.add_to_favs_main_fin(src=src, name=name)
+            cmd_ = lambda name: self.on_finished_rename(src, name)
             name = os.path.basename(src)
-            self.win_set_name = RenameWin(text=name)
+            self.win_set_name = RenameWin(name)
             self.win_set_name.finished_.connect(cmd_)
             self.win_set_name.center(self.window())
             self.win_set_name.show()
 
-    def add_to_favs_main_fin(self, src: str, name: str):
+    def on_finished_rename(self, src: str, name: str):
         JsonData.favs[src] = name
-        self.add_fav_widget_item(name, src)
+        self.add_fav_item(name, src)
         JsonData.write_config()
 
-    def add_fav_widget_item(self, name: str, src: str) -> dict:
+    def add_fav_item(self, name: str, src: str) -> dict:
         fav_item = FavItem(name, src, self.main_win_item)
         fav_item.new_history_item.connect(self.new_history_item)
         fav_item.load_st_grid.connect(self.load_st_grid.emit)
         fav_item.remove_fav_item.connect(lambda: self.del_fav(src))
         fav_item.open_in_new_win.connect(lambda dir: self.open_in_new_win.emit(dir))
-        fav_item.renamed.connect(
-            lambda new_name: self.update_name(src, new_name)
-        )
+        fav_item.renamed.connect(lambda name: self.update_name(src, name))
         fav_item.path_fixed.connect(lambda: self.init_ui())
 
         list_item = QListWidgetItem(parent=self)
