@@ -313,6 +313,7 @@ class SortMenuBtn(UFrame):
         """
         super().__init__()
         self.sort_item = sort_item
+
         h_lay = QHBoxLayout()
         self.setLayout(h_lay)
 
