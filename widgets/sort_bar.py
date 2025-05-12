@@ -14,9 +14,6 @@ from ._base_items import (MainWinItem, MinMaxDisabledWin, SortItem, UFrame,
                           UThreadPool)
 from .actions import SortMenu
 
-GO_TO_TEXT = "Перейти"
-FINDER_TEXT = "Finder"
-
 
 class PathFinder:
     @classmethod
@@ -161,6 +158,8 @@ class GoToWin(MinMaxDisabledWin):
     placeholder_text = "Вставьте путь к файлу/папке"
     title_text = "Перейти к ..."
     input_width = 270
+    finder = "Finder"
+    go_to_text = "Перейти"
 
     def __init__(self, main_win_item: MainWinItem):
         """
@@ -195,15 +194,15 @@ class GoToWin(MinMaxDisabledWin):
 
         h_lay.addStretch()
 
-        go_btn = QPushButton(GO_TO_TEXT)
+        go_btn = QPushButton(GoToWin.go_to_text)
         go_btn.setFixedWidth(100)
         go_btn.clicked.connect(lambda: self.open_path_btn_cmd(None))
         h_lay.addWidget(go_btn)
 
-        go_finder_btn = QPushButton(FINDER_TEXT)
+        go_finder_btn = QPushButton(GoToWin.finder)
         go_finder_btn.setFixedWidth(100)
         go_finder_btn.clicked.connect(
-            lambda: self.open_path_btn_cmd(FINDER_TEXT)
+            lambda: self.open_path_btn_cmd(GoToWin.finder)
         )
         h_lay.addWidget(go_finder_btn)
 
@@ -241,7 +240,7 @@ class GoToWin(MinMaxDisabledWin):
         if not result:
             self.deleteLater()
             return
-        if flag == FINDER_TEXT:
+        if flag == GoToWin.finder:
             self.open_finder(result)
         else:
             if os.path.isfile(result):
@@ -270,6 +269,7 @@ class GoToWin(MinMaxDisabledWin):
 class GoToBtn(UFrame):
     clicked_ = pyqtSignal()
     svg_size = 14
+    go_to_text = "Перейти"
 
     def __init__(self):
         """
@@ -289,7 +289,7 @@ class GoToBtn(UFrame):
         self.go_btn = USvgSqareWidget(Static.GOTO_SVG, GoToBtn.svg_size)
         h_lay.addWidget(self.go_btn)
 
-        self.go_label = QLabel(GO_TO_TEXT)
+        self.go_label = QLabel(GoToBtn.go_to_text)
         h_lay.addWidget(self.go_label)
 
         self.adjustSize()
