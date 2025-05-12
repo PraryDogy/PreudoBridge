@@ -341,7 +341,8 @@ class SortMenuBtn(UFrame):
         """
         Отображает общее число виджетов в сетке
         """
-        self.total_text_label.setText(f"{SortMenuBtn.total_text}: {str(value)}")
+        text_ = f"{SortMenuBtn.total_text}: {str(value)}"
+        self.total_text_label.setText(text_)
 
     def mouseReleaseEvent(self, a0: QMouseEvent):
         """
@@ -471,7 +472,6 @@ class SortBar(QWidget):
         self.slider.resize_thumbs.connect(self.resize_thumbs.emit)
         self.slider.rearrange_grid_sig.connect(self.rearrange_thumbs.emit)
         self.main_lay.addWidget(self.slider)
-
 
     def move_slider(self, value: int):
         self.slider.move_from_keyboard(value)
