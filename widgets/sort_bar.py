@@ -157,7 +157,7 @@ class PathFinderThread(URunnable):
 
 
 class GoToWin(MinMaxDisabledWin):
-    load_st_grid_sig = pyqtSignal()
+    load_st_grid = pyqtSignal()
     placeholder_text = "Вставьте путь к файлу/папке"
     title_text = "Перейти к ..."
     input_width = 270
@@ -250,7 +250,7 @@ class GoToWin(MinMaxDisabledWin):
             else:
                 main_dir = result
             self.main_win_item.main_dir = main_dir
-            self.load_st_grid_sig.emit()
+            self.load_st_grid.emit()
         self.deleteLater()
 
     def open_finder(self, dest: str):
@@ -375,7 +375,7 @@ class SortFrame(UFrame):
 
 class CustomSlider(USlider):
     resize_thumbs = pyqtSignal()
-    rearrange_grid_sig = pyqtSignal()
+    rearrange_thumbs = pyqtSignal()
     width_ = 70
     height_ = 15
 
@@ -404,7 +404,7 @@ class CustomSlider(USlider):
         """
         Dynamic.pixmap_size_ind = value
         self.resize_thumbs.emit()
-        self.rearrange_grid_sig.emit()
+        self.rearrange_thumbs.emit()
 
     def move_from_keyboard(self, value: int):
         """
@@ -472,7 +472,7 @@ class SortBar(QWidget):
         """Создает слайдер для изменения размера элементов"""
         self.slider = CustomSlider()
         self.slider.resize_thumbs.connect(self.resize_thumbs.emit)
-        self.slider.rearrange_grid_sig.connect(self.rearrange_thumbs.emit)
+        self.slider.rearrange_thumbs.connect(self.rearrange_thumbs.emit)
         self.main_lay.addWidget(self.slider)
 
     def move_slider(self, value: int):
@@ -493,6 +493,6 @@ class SortBar(QWidget):
         - "Finder" — для открытия пути в Finder.
         """
         self.win_go = GoToWin(self.main_win_item)
-        self.win_go.load_st_grid_sig.connect(self.load_st_grid.emit)
+        self.win_go.load_st_grid.connect(self.load_st_grid.emit)
         self.win_go.center(self.window())
         self.win_go.show()
