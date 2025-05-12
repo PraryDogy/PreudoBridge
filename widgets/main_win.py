@@ -1,6 +1,7 @@
 import os
+import subprocess
 
-from PyQt5.QtCore import Qt, QTimer, pyqtSignal
+from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QCloseEvent, QKeyEvent, QMouseEvent, QResizeEvent
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QSplitter, QTabWidget,
@@ -9,9 +10,10 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QSplitter, QTabWidget,
 from cfg import Static
 from utils import Utils
 
-from ._base_items import (BaseItem, MainWinItem, SearchItem, SortItem, USep,
-                          WinBase)
+from ._base_items import (BaseItem, MainWinItem, SearchItem, SortItem,
+                          URunnable, USep, UThreadPool, WinBase)
 from .favs_menu import FavsMenu
+from .go_win import GoToWin
 from .grid import Grid
 from .grid_list import GridList
 from .grid_search import GridSearch
@@ -21,6 +23,7 @@ from .search_bar import SearchBar
 from .settings_win import SettingsWin
 from .sort_bar import SortBar
 from .tags_menu import TagsMenu
+from .tasks import PathFinderTask
 from .top_bar import TopBar
 from .tree_menu import TreeMenu
 
@@ -249,6 +252,29 @@ class MainWin(WinBase):
         self.sort_bar.rearrange_thumbs.connect(lambda: self.grid.rearrange_thumbs())
         self.sort_bar.sort_thumbs.connect(lambda: self.grid.sort_thumbs())
         self.sort_bar.load_st_grid.connect(lambda: self.load_st_grid())
+        self.sort_bar.open_go_win.connect(lambda: self.open_go_win())
+
+    def open_go_win(self):
+        self.go_win = GoToWin()
+        self.go_win.closed.connect(self.go_win_closed)
+        self.go_win.center(self)
+        self.go_win.show()
+
+    def go_win_closed(self, data: tuple[int, str]):
+        value, path = data
+        self.path_finder_task = PathFinderTask(path)
+        cmd = lambda path: self.path_finder_finished(value, path)
+        self.path_finder_task.signals.finished_.connect(cmd)
+        UThreadPool.start(self.path_finder_task)
+
+    def path_finder_finished(self, value: int, path: str):
+        # 0 загрузить сетку, 1 показать через finder
+        if path:
+            if value == 0:
+                self.main_win_item.main_dir = path
+                self.load_st_grid()
+            elif value == 1:
+                subprocess.Popen(["open", "-R", path])
 
     def open_settings(self, *args):
         self.sett_win = SettingsWin()

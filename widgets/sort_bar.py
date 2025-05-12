@@ -15,257 +15,6 @@ from ._base_items import (MainWinItem, MinMaxDisabledWin, SortItem, UFrame,
 from .actions import SortMenu
 
 
-class PathFinder:
-    @classmethod
-    def get_result(cls, path: str) -> str | None:
-        path = path.strip()
-        path = path.replace("\\", os.sep)
-        path = path.strip("'").strip('"') # кавычки
-        path = Utils.normalize_slash(path)
-
-        # если это локальный путь начинающийся с /Users/Username, то меняем его
-        # на /Volumes/Macintosh HD/Users/Username
-        path = Utils.add_system_volume(path)
-
-        if not path:
-            return None
-
-        splited = [i for i in path.split(os.sep) if i]
-        volumes = [i.path for i in os.scandir(os.sep + Static.VOLUMES)]
-
-        # см. аннотацию add_to_start
-        paths = cls.add_to_start(splited, volumes)
-        res = cls.check_for_exists(paths)
-
-        if res in volumes:
-            return None
-
-        elif res:
-            return res
-        
-        else:
-            # см. аннотацию метода del_from_end
-            paths = [
-                ended_path
-                for path_ in paths
-                for ended_path in cls.del_from_end(path=path_)
-            ]
-
-            paths.sort(key=len, reverse=True)
-            res = cls.check_for_exists(paths)
-
-            if res in volumes:
-                return None
-            
-            elif res:
-                return res
-    
-    @classmethod
-    def add_to_start(cls, splited_path: list, volumes: list[str]) -> list[str]:
-        """
-        Пример:
-        >>> splited_path = ["Volumes", "Shares-1", "Studio", "MIUZ", "Photo", "Art", "Raw", "2025"]
-        >>> volumes = ["/Volumes/Shares", "/Volumes/Shares-1"]
-        [
-            '/Volumes/Shares/Studio/MIUZ/Photo/Art/Raw/2025',
-            '/Volumes/Shares/MIUZ/Photo/Art/Raw/2025',
-            '/Volumes/Shares/Photo/Art/Raw/2025',
-            '/Volumes/Shares/Art/Raw/2025',
-            '/Volumes/Shares/Raw/2025',
-            '/Volumes/Shares/2025',
-            ...
-            '/Volumes/Shares-1/Studio/MIUZ/Photo/Art/Raw/2025',
-            '/Volumes/Shares-1/MIUZ/Photo/Art/Raw/2025',
-            '/Volumes/Shares-1/Photo/Art/Raw/2025',
-            ...
-        ]
-        """
-        new_paths = []
-
-        for vol in volumes:
-
-            splited_path_copy = splited_path.copy()
-            while len(splited_path_copy) > 0:
-
-                new = vol + os.sep + os.path.join(*splited_path_copy)
-                new_paths.append(new)
-                splited_path_copy.pop(0)
-
-        new_paths.sort(key=len, reverse=True)
-        return new_paths
-    
-    @classmethod
-    def check_for_exists(cls, paths: list[str]) -> str | None:
-        for i in paths:
-            if os.path.exists(i):
-                return i
-        return None
-    
-    @classmethod
-    def del_from_end(cls, path: str) -> list[str]:
-        """
-        Пример:
-        >>> path: "/sbc01/Shares/Studio/MIUZ/Photo/Art/Raw/2025"
-        [
-            "/sbc01/Shares/Studio/MIUZ/Photo/Art/Raw/2025",
-            "/sbc01/Shares/Studio/MIUZ/Photo/Art/Raw",
-            "/sbc01/Shares/Studio/MIUZ/Photo/Art",
-            "/sbc01/Shares/Studio/MIUZ/Photo",
-            "/sbc01/Shares/Studio/MIUZ",
-            "/sbc01/Shares/Studio",
-            "/sbc01/Shares",
-            "/sbc01",
-        ]
-        """
-        new_paths = []
-        while path != os.sep:
-            new_paths.append(path)
-            path, _ = os.path.split(path)
-        return new_paths
-    
-
-class WorkerSignals(QObject):
-    finished_ = pyqtSignal(str)
-
-
-class PathFinderThread(URunnable):
-    def __init__(self, src: str):
-        """
-        Входящий путь к файлу папке проходит через PathFinder, корректируется
-        при необходимости. Например:
-        - Входящий путь /Volumes/Shares-1/file.txt
-        - У отправившего пользователя есть подключенный общий диск Shares-1
-        - У принявшего пользователя (нашего) диск значится как Shares-2
-        - PathFinder поймет это и скорректирует путь
-        - /Volumes/Shares-2/file.txt
-        """
-        super().__init__()
-        self.signals_ = WorkerSignals()
-        self.src: str = src
-
-    def task(self):
-        result = PathFinder.get_result(self.src)
-        if not result:
-            result = ""
-        try:
-            self.signals_.finished_.emit(result)
-        except RuntimeError as e:
-            Utils.print_error(e)
-
-
-class GoToWin(MinMaxDisabledWin):
-    load_st_grid = pyqtSignal()
-    placeholder_text = "Вставьте путь к файлу/папке"
-    title_text = "Перейти к ..."
-    input_width = 270
-    finder = "Finder"
-    go_to_text = "Перейти"
-
-    def __init__(self, main_win_item: MainWinItem):
-        """
-        Окно перейти:
-        - поле ввода
-        - кнопка "Перейти" - переход к директории внутри приложения, отобразится
-        новая сетка с указанным путем
-        - кнопка "Finder" - путь откроется в Finder
-        """
-        super().__init__()
-        self.set_modality()
-        self.main_win_item = main_win_item
-        self.setWindowTitle(GoToWin.title_text)
-        v_lay = QVBoxLayout()
-        v_lay.setContentsMargins(5, 5, 5, 5)
-        v_lay.setSpacing(5)
-        self.setLayout(v_lay)
-
-        self.input_wid = ULineEdit()
-        self.input_wid.setPlaceholderText(GoToWin.placeholder_text)
-        self.input_wid.setFixedWidth(GoToWin.input_width)
-
-        v_lay.addWidget(self.input_wid, alignment=Qt.AlignmentFlag.AlignCenter)
-
-        h_wid = QWidget()
-        v_lay.addWidget(h_wid)
-
-        h_lay = QHBoxLayout()
-        h_lay.setContentsMargins(0, 0, 0, 0)
-        h_lay.setSpacing(10)
-        h_wid.setLayout(h_lay)
-
-        h_lay.addStretch()
-
-        go_btn = QPushButton(GoToWin.go_to_text)
-        go_btn.setFixedWidth(100)
-        go_btn.clicked.connect(lambda: self.open_path_btn_cmd(None))
-        h_lay.addWidget(go_btn)
-
-        go_finder_btn = QPushButton(GoToWin.finder)
-        go_finder_btn.setFixedWidth(100)
-        go_finder_btn.clicked.connect(
-            lambda: self.open_path_btn_cmd(GoToWin.finder)
-        )
-        h_lay.addWidget(go_finder_btn)
-
-        h_lay.addStretch()
-
-        self.adjustSize()
-
-    def first_load_final(self, result: str | None):
-        """
-        Завершение PathFinderThread при инициации окна
-        """
-        if result:
-            self.input_wid.setText(result)
-
-    def open_path_btn_cmd(self, flag: str):
-        """
-        Общий метод для кнопок "Перейти" и "Finder"
-        - flag None означает переход к указанном пути внутри приложения,
-        загрузится новая сетка по указанному пути
-        - flag FINDER_T откроет Finder по указанному пути
-        """
-        path: str = self.input_wid.text()
-        task = PathFinderThread(path)
-        cmd_ = lambda result: self.finalize(result, flag)
-        task.signals_.finished_.connect(cmd_)
-        UThreadPool.start(task)
-
-    def finalize(self, result: str, flag: str):
-        """
-        - result - полученный путь из PathFinderThread
-        - flag None означает переход к указанном пути внутри приложения,
-        загрузится новая сетка по указанному пути
-        - flag FINDER_T откроет Finder по указанному пути
-        """
-        if not result:
-            self.deleteLater()
-            return
-        if flag == GoToWin.finder:
-            self.open_finder(result)
-        else:
-            if os.path.isfile(result):
-                main_dir = os.path.dirname(result)
-                self.main_win_item.go_to = result
-            else:
-                main_dir = result
-            self.main_win_item.main_dir = main_dir
-            self.load_st_grid.emit()
-        self.deleteLater()
-
-    def open_finder(self, dest: str):
-        """
-        Открыть указанный путь в Finder
-        """
-        try:
-            subprocess.Popen(["open", "-R", dest])
-        except Exception as e:
-            Utils.print_error(e)
-
-    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
-        if a0.key() == Qt.Key.Key_Escape:
-            self.deleteLater()
-
-
 class GoToBtn(UFrame):
     clicked_ = pyqtSignal()
     svg_size = 14
@@ -420,6 +169,7 @@ class SortBar(QWidget):
     sort_thumbs = pyqtSignal()
     resize_thumbs = pyqtSignal()
     rearrange_thumbs = pyqtSignal()
+    open_go_win = pyqtSignal()
     height_ = 25
 
     def __init__(self, sort_item: SortItem, main_win_item: MainWinItem):
@@ -458,7 +208,7 @@ class SortBar(QWidget):
     def create_go_to_button(self):
         """Создает кнопку для перехода"""
         self.go_to_frame = GoToBtn()
-        self.go_to_frame.clicked_.connect(self.open_go_win)
+        self.go_to_frame.clicked_.connect(lambda: self.open_go_win.emit())
         self.main_lay.addWidget(self.go_to_frame)
 
     def create_sort_button(self):
@@ -484,15 +234,15 @@ class SortBar(QWidget):
     def total_count_update(self, value: int):
         self.sort_frame.set_total_text(value)
 
-    def open_go_win(self, *args):
-        """
-        Открывает окно "Перейти к".
+    # def open_go_win(self, *args):
+    #     """
+    #     Открывает окно "Перейти к".
 
-        В этом окне можно ввести путь к папке или файлу и нажать:
-        - "Перейти" — для перехода внутри приложения;
-        - "Finder" — для открытия пути в Finder.
-        """
-        self.win_go = GoToWin(self.main_win_item)
-        self.win_go.load_st_grid.connect(self.load_st_grid.emit)
-        self.win_go.center(self.window())
-        self.win_go.show()
+    #     В этом окне можно ввести путь к папке или файлу и нажать:
+    #     - "Перейти" — для перехода внутри приложения;
+    #     - "Finder" — для открытия пути в Finder.
+    #     """
+    #     self.win_go = GoToWin(self.main_win_item)
+    #     self.win_go.load_st_grid.connect(self.load_st_grid.emit)
+    #     self.win_go.center(self.window())
+    #     self.win_go.show()
