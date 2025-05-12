@@ -232,7 +232,7 @@ class MainWin(WinBase):
         self.top_bar.navigate.connect(lambda: self.load_st_grid())
         self.top_bar.remove_db.connect(lambda: self.remove_db())
         self.top_bar.open_in_new_win.connect(lambda dir: self.open_in_new_win(dir))
-        self.top_bar.open_settings.connect()
+        self.top_bar.open_settings.connect(lambda: self.open_settings())
 
         self.search_bar.load_search_grid.connect(lambda: self.load_search_grid())
         self.search_bar.pause_search_sig.connect(lambda value: self.grid.toggle_pause(value))

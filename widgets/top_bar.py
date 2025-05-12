@@ -159,10 +159,14 @@ class SearchWidget(ULineEdit):
         self.stop_flag: bool = False
         self.search_text: str = None
         self.search_list_local: list[str] = []
+
         self.input_timer = QTimer(self)
         self.input_timer.setSingleShot(True)
         self.input_timer.timeout.connect(self.prepare_text)
 
+        self.create_menu()
+
+    def create_menu(self):
         self.templates_menu = UMenu(parent=self)
 
         for text, _ in SearchItem.SEARCH_EXTENSIONS.items():
