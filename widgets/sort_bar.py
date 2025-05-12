@@ -416,7 +416,7 @@ class CustomSlider(USlider):
 
 class SortBar(QWidget):
     load_st_grid = pyqtSignal()
-    sort_grid_sig = pyqtSignal()
+    sort_thumbs = pyqtSignal()
     resize_thumbs = pyqtSignal()
     rearrange_thumbs = pyqtSignal()
     height_ = 25
@@ -463,7 +463,7 @@ class SortBar(QWidget):
     def create_sort_button(self):
         """Создает кнопку сортировки"""
         self.sort_frame = SortFrame(self.sort_item)
-        self.sort_frame.sort_thumbs.connect(self.sort_grid_sig.emit)
+        self.sort_frame.sort_thumbs.connect(self.sort_thumbs.emit)
         self.sort_frame.rearrange_thumbs.connect(self.rearrange_thumbs.emit)
         self.main_lay.addWidget(self.sort_frame)
 
