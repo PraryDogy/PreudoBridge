@@ -300,8 +300,8 @@ class GoToBtn(UFrame):
 
 
 class SortFrame(UFrame):
-    sort_grid_sig = pyqtSignal()
-    rearrange_grid_sig = pyqtSignal()
+    sort_thumbs = pyqtSignal()
+    rearrange_thumbs = pyqtSignal()
     sort_text = "Сортировка"
     total_text = "Всего"
     asc_text = "по убыв."
@@ -353,8 +353,8 @@ class SortFrame(UFrame):
         - Перетасовка сетки
         """
         menu_ = SortMenu(self, self.sort_item)
-        menu_.sort_grid_sig.connect(self.sort_grid_sig.emit)
-        menu_.rearrange_grid_sig.connect(self.rearrange_grid_sig.emit)
+        menu_.sort_grid_sig.connect(self.sort_thumbs.emit)
+        menu_.rearrange_grid_sig.connect(self.rearrange_thumbs.emit)
         menu_.sort_menu_update.connect(lambda: self.set_sort_text())
 
         widget_rect = self.rect()
@@ -463,8 +463,8 @@ class SortBar(QWidget):
     def create_sort_button(self):
         """Создает кнопку сортировки"""
         self.sort_frame = SortFrame(self.sort_item)
-        self.sort_frame.sort_grid_sig.connect(self.sort_grid_sig.emit)
-        self.sort_frame.rearrange_grid_sig.connect(self.rearrange_thumbs.emit)
+        self.sort_frame.sort_thumbs.connect(self.sort_grid_sig.emit)
+        self.sort_frame.rearrange_thumbs.connect(self.rearrange_thumbs.emit)
         self.main_lay.addWidget(self.sort_frame)
 
     def create_slider(self):
