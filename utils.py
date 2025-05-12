@@ -46,6 +46,7 @@ class Err:
             line_number = trace.lineno
 
         print("Error:", str(error), f"{filepath}:{line_number}")
+        return str(error)
 
 class ReadImage(Err):
 
