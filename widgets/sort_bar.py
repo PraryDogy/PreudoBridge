@@ -315,6 +315,7 @@ class SortFrame(UFrame):
         self.sort_item = sort_item
 
         h_lay = QHBoxLayout()
+        h_lay.setContentsMargins(2, 0, 2, 0)
         self.setLayout(h_lay)
 
         self.total_text_label = QLabel()
