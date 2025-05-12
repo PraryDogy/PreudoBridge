@@ -299,7 +299,7 @@ class GoToBtn(UFrame):
             self.clicked_.emit()
 
 
-class SortMenuBtn(UFrame):
+class SortFrame(UFrame):
     sort_grid_sig = pyqtSignal()
     rearrange_grid_sig = pyqtSignal()
     sort_text = "Сортировка"
@@ -333,16 +333,16 @@ class SortMenuBtn(UFrame):
         sort_ = sort_.lower()
 
         # получаем текстовое имя обратной или прямой сортировки
-        rev = SortMenuBtn.asc_text if self.sort_item.get_rev() else SortMenuBtn.desc_text
+        rev = SortFrame.asc_text if self.sort_item.get_rev() else SortFrame.desc_text
 
-        text_ = f"{SortMenuBtn.sort_text}: {sort_} ({rev})"
+        text_ = f"{SortFrame.sort_text}: {sort_} ({rev})"
         self.sort_wid.setText(text_)
 
     def set_total_text(self, value: int):
         """
         Отображает общее число виджетов в сетке
         """
-        text_ = f"{SortMenuBtn.total_text}: {str(value)}"
+        text_ = f"{SortFrame.total_text}: {str(value)}"
         self.total_text_label.setText(text_)
 
     def mouseReleaseEvent(self, a0: QMouseEvent):
@@ -462,7 +462,7 @@ class SortBar(QWidget):
 
     def create_sort_button(self):
         """Создает кнопку сортировки"""
-        self.sort_frame = SortMenuBtn(self.sort_item)
+        self.sort_frame = SortFrame(self.sort_item)
         self.sort_frame.sort_grid_sig.connect(self.sort_grid_sig.emit)
         self.sort_frame.rearrange_grid_sig.connect(self.rearrange_thumbs.emit)
         self.main_lay.addWidget(self.sort_frame)
