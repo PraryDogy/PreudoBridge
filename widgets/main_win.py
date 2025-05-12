@@ -23,7 +23,7 @@ from .search_bar import SearchBar
 from .settings_win import SettingsWin
 from .sort_bar import SortBar
 from .tags_menu import TagsMenu
-from .tasks import PathFinderTask
+from .tasks import PathFinder
 from .top_bar import TopBar
 from .tree_menu import TreeMenu
 
@@ -262,7 +262,7 @@ class MainWin(WinBase):
 
     def go_win_closed(self, data: tuple[int, str]):
         value, path = data
-        self.path_finder_task = PathFinderTask(path)
+        self.path_finder_task = PathFinder(path)
         cmd = lambda path: self.path_finder_finished(value, path)
         self.path_finder_task.signals.finished_.connect(cmd)
         UThreadPool.start(self.path_finder_task)
