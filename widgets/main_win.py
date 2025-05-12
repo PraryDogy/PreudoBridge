@@ -271,10 +271,18 @@ class MainWin(WinBase):
         # 0 загрузить сетку, 1 показать через finder
         if path:
             if value == 0:
-                self.main_win_item.main_dir = path
-                self.load_st_grid()
+                if os.path.isdir(path):
+                    self.main_win_item.main_dir = path
+                    self.load_st_grid()
+                else:
+                    self.main_win_item.main_dir = os.path.dirname(path)
+                    self.main_win_item.go_to = path
+                    self.load_st_grid()
             elif value == 1:
-                subprocess.Popen(["open", "-R", path])
+                if os.path.isdir(path):
+                    subprocess.Popen(["open", path])
+                else:
+                    subprocess.Popen(["open", "-R", path])
 
     def open_settings(self, *args):
         self.sett_win = SettingsWin()
