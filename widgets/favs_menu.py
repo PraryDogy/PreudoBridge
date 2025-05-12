@@ -107,6 +107,11 @@ class FavItem(QLabel):
 
         menu_.exec_(ev.globalPos())
 
+    def mouseReleaseEvent(self, e):
+        if e.modifiers() & Qt.KeyboardModifier.ControlModifier:
+            self.open_in_new_win.emit(self.src)
+        return super().mouseReleaseEvent(e)
+
 
 class FavsMenu(QListWidget):
     LIST_ITEM = "list_item"
