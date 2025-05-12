@@ -49,47 +49,56 @@ class ListWin(MinMaxDisabledWin):
     cancel_text = "Отмена"
     search_place_limit = 50
 
-    # список имен файлов
     finished_ = pyqtSignal(list)
 
     def __init__(self, main_win_item: MainWinItem, search_item: SearchItem):
-        """
-        Окно ввода списка файлов папок для дальнейшего поиска
-        Каждый файл с новой строки
-        Позволяет поиску искать сразу множество файлов и папок
-        """
         super().__init__()
         self.set_modality()
         self.main_win_item = main_win_item
         self.search_item = search_item
 
+        self.setLayout(self.create_main_layout())
+
+        if self.search_item.get_files_list():
+            self.input_.setText("\n".join(self.search_item.get_files_list()))
+
+        self.adjustSize()
+
+    def create_main_layout(self):
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(10, 5, 10, 5)
         v_lay.setSpacing(10)
-        self.setLayout(v_lay)
 
+        v_lay.addWidget(self.create_first_row())
+        v_lay.addWidget(self.create_input_label())
+        v_lay.addWidget(self.create_input_text_edit())
+        v_lay.addWidget(self.create_buttons())
+
+        return v_lay
+
+    def create_first_row(self):
         first_row = QGroupBox()
-        v_lay.addWidget(first_row)
         first_lay = QVBoxLayout()
         first_row.setLayout(first_lay)
+
         first_title = QLabel(ListWin.search_place_text)
         first_lay.addWidget(first_title)
 
-        main_dir_label = QLabel()
-        wraped = self.wrap_text(self.main_win_item.main_dir)
-        main_dir_label.setText(wraped)
+        main_dir_label = QLabel(self.wrap_text(self.main_win_item.main_dir))
         first_lay.addWidget(main_dir_label)
 
-        inp_label = QLabel(ListWin.descr_text)
-        v_lay.addWidget(inp_label)
+        return first_row
 
+    def create_input_label(self):
+        return QLabel(ListWin.descr_text)
+
+    def create_input_text_edit(self):
         self.input_ = UTextEdit()
-        v_lay.addWidget(self.input_)
+        return self.input_
 
+    def create_buttons(self):
         btns_wid = QWidget()
-        v_lay.addWidget(btns_wid)
         btns_lay = QHBoxLayout()
-        btns_lay.setContentsMargins(0, 0, 0, 0)
         btns_wid.setLayout(btns_lay)
 
         btns_lay.addStretch()
@@ -106,31 +115,24 @@ class ListWin(MinMaxDisabledWin):
 
         btns_lay.addStretch()
 
-        if self.search_item.get_files_list():
-            self.input_.setText("\n".join(self.search_item.get_files_list()))
-
-        self.adjustSize()
+        return btns_wid
 
     def wrap_text(self, text: str):
         chunks = [
-            text[i:i+ListWin.search_place_limit]
+            text[i:i + ListWin.search_place_limit] 
             for i in range(0, len(text), ListWin.search_place_limit)
         ]
         return '\n'.join(chunks)
 
     def ok_cmd(self, *args):
-        """
-        Преобразует текст в список  
-        Испускает сигнал finished_ с подготовленным списком
-        """
-        search_list = self.input_.toPlainText()
-        search_list = [i.strip() for i in search_list.split("\n") if i]
+        search_list = [i.strip() for i in self.input_.toPlainText().split("\n") if i]
         self.finished_.emit(search_list)
         self.deleteLater()
 
-    def keyPressEvent(self, a0):
-        if a0.key() == Qt.Key.Key_Escape:
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Escape:
             self.deleteLater()
+
 
  
 class SearchWidget(ULineEdit):
