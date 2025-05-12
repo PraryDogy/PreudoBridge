@@ -10,7 +10,6 @@ from cfg import Static
 from ._base_items import (MainWinItem, MinMaxDisabledWin, SearchItem, UFrame,
                           ULineEdit, UMenu, USvgSqareWidget, UTextEdit,
                           WinBase)
-from .settings_win import SettingsWin
 
 
 class BarTopBtn(UFrame):
@@ -277,21 +276,18 @@ class SearchWidget(ULineEdit):
 
 
 class TopBar(QWidget):
-    # загружает GridStandart на уровень выше (/Volumes/Users/Evgeny > Volumes/Users)
     level_up = pyqtSignal()
-
     # 0 отобразить сеткой, 1 отобразить списком
     change_view = pyqtSignal(int)
     load_search_grid = pyqtSignal()
     load_st_grid = pyqtSignal()
     # при нажатии кнопкок "назад" или "вперед" загружает GridStandart
     navigate = pyqtSignal(str)
-    
     # Кнопка "очистить данные" была нажата в окне настроек
     remove_db = pyqtSignal()
-
     # открывает заданный путь в новом окне
     open_in_new_win = pyqtSignal(str)
+    open_settings = pyqtSignal()
 
     height_ = 40
     cascade_offset = 30
@@ -358,7 +354,8 @@ class TopBar(QWidget):
         self.main_lay.addWidget(list_view_btn)
 
         self.sett_btn = BarTopBtn()
-        self.sett_btn.mouseReleaseEvent = self.open_settings_win
+        self.sett_btn.clicked.connect(self.open_settings.emit)
+        # self.sett_btn.mouseReleaseEvent = self.open_settings_win
         self.sett_btn.load(Static.SETTINGS_SVG)
         self.main_lay.addWidget(self.sett_btn)
 
@@ -396,16 +393,6 @@ class TopBar(QWidget):
             y += dy
             w.show()
             w.raise_()
-
-    def open_settings_win(self, *args):
-        """
-        Открывает окно настроек
-        """
-        self.sett_win = SettingsWin()
-        self.sett_win.load_st_grid.connect(self.load_st_grid.emit)
-        self.sett_win.remove_db.connect(self.remove_db.emit)
-        self.sett_win.center(self.window())
-        self.sett_win.show()
 
     def new_history_item(self, dir: str):
         """

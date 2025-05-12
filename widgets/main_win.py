@@ -18,11 +18,11 @@ from .grid_search import GridSearch
 from .grid_standart import GridStandart
 from .path_bar import PathBar
 from .search_bar import SearchBar
+from .settings_win import SettingsWin
 from .sort_bar import SortBar
 from .tags_menu import TagsMenu
 from .top_bar import TopBar
 from .tree_menu import TreeMenu
-
 
 
 class TabsWidget(QTabWidget):
@@ -232,6 +232,7 @@ class MainWin(WinBase):
         self.top_bar.navigate.connect(lambda: self.load_st_grid())
         self.top_bar.remove_db.connect(lambda: self.remove_db())
         self.top_bar.open_in_new_win.connect(lambda dir: self.open_in_new_win(dir))
+        self.top_bar.open_settings.connect()
 
         self.search_bar.load_search_grid.connect(lambda: self.load_search_grid())
         self.search_bar.pause_search_sig.connect(lambda value: self.grid.toggle_pause(value))
@@ -248,6 +249,13 @@ class MainWin(WinBase):
         self.sort_bar.rearrange_thumbs.connect(lambda: self.grid.rearrange_thumbs())
         self.sort_bar.sort_grid_sig.connect(lambda: self.grid.sort_thumbs())
         self.sort_bar.load_st_grid.connect(lambda: self.load_st_grid())
+
+    def open_settings(self, *args):
+        self.sett_win = SettingsWin()
+        self.sett_win.load_st_grid.connect(self.load_st_grid)
+        self.sett_win.remove_db.connect(self.remove_db)
+        self.sett_win.center(self)
+        self.sett_win.show()
 
     def open_img_view(self, path: str):
         base_item = BaseItem(path)
