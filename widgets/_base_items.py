@@ -258,9 +258,7 @@ class UFrame(QFrame):
         """
         super().__init__()
         self.setObjectName(UFrame.object_name)
-        self.setStyleSheet(
-            self.normal_style()
-        )
+        self.setStyleSheet(self.normal_style())
 
     def normal_style(self):
         return f"""#{UFrame.object_name} {{
