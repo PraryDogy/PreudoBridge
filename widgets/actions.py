@@ -33,7 +33,16 @@ class RevealInFinder(QAction):
         self.urls = urls
         text = Tools.get_text(RevealInFinder.text_, total)
         self.setText(text)
-        self.triggered.connect(self.files_cmd)
+
+        if len(urls) == 1 and os.path.isdir(urls[0]):
+            self.cmd = self.dir_cmd
+        else:
+            self.cmd = self.files_cmd
+
+        self.triggered.connect(self.cmd)
+
+    def cmd(self):
+        ...
 
     def dir_cmd(self):
         subprocess.Popen(["open", self.urls[0]])
