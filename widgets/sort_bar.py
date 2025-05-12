@@ -334,7 +334,8 @@ class SortMenuBtn(UFrame):
         # получаем текстовое имя обратной или прямой сортировки
         rev = SortMenuBtn.asc_text if self.sort_item.get_rev() else SortMenuBtn.desc_text
 
-        self.sort_wid.setText(f"{SortMenuBtn.sort_text}: {sort_} ({rev})")
+        text_ = f"{SortMenuBtn.sort_text}: {sort_} ({rev})"
+        self.sort_wid.setText(text_)
 
     def set_total_text(self, value: int):
         """
@@ -428,31 +429,49 @@ class SortBar(QWidget):
         """
 
         super().__init__()
+        self.setFixedHeight(SortBar.height_)
         self.sort_item = sort_item
         self.main_win_item = main_win_item
-        self.setFixedHeight(SortBar.height_)
-        self.main_lay = QHBoxLayout()
-        self.main_lay.setContentsMargins(0, 0, 10, 0)
-        self.main_lay.setSpacing(5)
+
+        self.init_ui()
+
+    def init_ui(self):
+        self.main_lay = self.create_main_layout()
         self.setLayout(self.main_lay)
 
+        self.create_go_to_button()
+        self.main_lay.addStretch()
+        self.create_sort_button()
+        self.main_lay.addStretch()
+        self.create_slider()
+
+    def create_main_layout(self):
+        """Создает и настраивает основной layout"""
+        layout = QHBoxLayout()
+        layout.setContentsMargins(0, 0, 10, 0)
+        layout.setSpacing(5)
+        return layout
+
+    def create_go_to_button(self):
+        """Создает кнопку для перехода"""
         self.go_to_frame = GoToBtn()
         self.go_to_frame.clicked_.connect(self.open_go_win)
         self.main_lay.addWidget(self.go_to_frame)
 
-        self.main_lay.addStretch()
-
+    def create_sort_button(self):
+        """Создает кнопку сортировки"""
         self.sort_frame = SortMenuBtn(self.sort_item)
         self.sort_frame.sort_grid_sig.connect(self.sort_grid_sig.emit)
         self.sort_frame.rearrange_grid_sig.connect(self.rearrange_thumbs.emit)
         self.main_lay.addWidget(self.sort_frame)
 
-        self.main_lay.addStretch()
-
+    def create_slider(self):
+        """Создает слайдер для изменения размера элементов"""
         self.slider = CustomSlider()
         self.slider.resize_thumbs.connect(self.resize_thumbs.emit)
         self.slider.rearrange_grid_sig.connect(self.rearrange_thumbs.emit)
         self.main_lay.addWidget(self.slider)
+
 
     def move_slider(self, value: int):
         self.slider.move_from_keyboard(value)
