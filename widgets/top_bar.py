@@ -25,7 +25,10 @@ class BarTopBtn(UFrame):
         """
         super().__init__()
         self.setFixedSize(BarTopBtn.width_, BarTopBtn.height_)
+        self.setup_layout()
 
+    def setup_layout(self):
+        """Настроить макет и добавить компоненты."""
         h_lay = QHBoxLayout()
         h_lay.setContentsMargins(0, 0, 0, 0)
         self.setLayout(h_lay)
@@ -39,7 +42,7 @@ class BarTopBtn(UFrame):
     def mouseReleaseEvent(self, a0):
         if a0.button() == Qt.MouseButton.LeftButton:
             self.clicked.emit()
-        return super().mouseReleaseEvent(a0)
+        super().mouseReleaseEvent(a0)  # Можно оставить, если родительский класс этого требует
 
 
 class ListWin(MinMaxDisabledWin):
