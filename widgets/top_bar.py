@@ -118,7 +118,6 @@ class ListWin(MinMaxDisabledWin):
         ]
         return '\n'.join(chunks)
 
-
     def ok_cmd(self, *args):
         """
         Преобразует текст в список  
