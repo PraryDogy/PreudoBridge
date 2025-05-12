@@ -50,8 +50,8 @@ class Dbase:
         if self.conn_count == self.conn_max:
             return None
         
-        elif not os.access(path, os.W_OK):
-            return None
+        # elif not os.access(path, os.W_OK):
+            # return None
         
         elif os.path.isdir(path):
             print("Путь к БД должен быть файлом, а не папкой")
