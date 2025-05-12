@@ -135,7 +135,6 @@ class ListWin(MinMaxDisabledWin):
         if event.key() == Qt.Key_Escape:
             self.deleteLater()
 
-
  
 class SearchWidget(ULineEdit):
     # в MainWin посылается сигнал для загрузки GridStandart
