@@ -23,7 +23,7 @@ from .search_bar import SearchBar
 from .settings_win import SettingsWin
 from .sort_bar import SortBar
 from .tags_menu import TagsMenu
-from .tasks import PathFinder
+from ._tasks import PathFinder
 from .top_bar import TopBar
 from .tree_menu import TreeMenu
 
