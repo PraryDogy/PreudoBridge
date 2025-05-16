@@ -601,9 +601,7 @@ class SearchItem:
         self.text_ = None
         self.files_list_ = None
         self.extensions_ = None
-        self.exactly = True
-
-        print("reseted")
+        self.exactly = False
 
 
 class MainWinItem:

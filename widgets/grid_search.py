@@ -44,15 +44,17 @@ class SearchFinder(URunnable):
         self.scandir_recursive()
         
         missed_files_list: list[str] = []
-        no_ext_list = [
-            os.path.splitext(i)[0]
-            for i in self.search_item.get_files_list()
-        ]
 
-        if no_ext_list:
-            for i in no_ext_list:
-                if i not in self.found_files_list:
-                    missed_files_list.append(i)
+        if self.search_item.get_files_list():
+            no_ext_list = [
+                os.path.splitext(i)[0]
+                for i in self.search_item.get_files_list()
+            ]
+
+            if no_ext_list:
+                for i in no_ext_list:
+                    if i not in self.found_files_list:
+                        missed_files_list.append(i)
 
         try:
             self.signals_.finished_.emit(missed_files_list)
@@ -368,9 +370,11 @@ class GridSearch(Grid):
         return super().resizeEvent(a0)
     
     def closeEvent(self, a0):
+        print("close ecent")
         self.task_.set_should_run(False)
         return super().closeEvent(a0)
 
     def deleteLater(self):
+        print("vlose eve")
         self.task_.set_should_run(False)
         return super().deleteLater()
