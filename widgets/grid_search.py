@@ -158,6 +158,9 @@ class SearchFinder(URunnable):
             if not self.is_should_run():
                 return
 
+            if not os.path.exists(current_dir):
+                continue
+
             try:
                 # Сканируем текущий каталог и добавляем новые пути в стек
                 self.scan_current_dir(current_dir, dirs_list)
