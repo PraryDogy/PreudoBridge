@@ -561,7 +561,7 @@ class SearchItem:
         self.text_: str = None
         self.extensions_: str = None
         self.files_list_: list[str] = None
-        self.exactly: bool = False
+        self.exactly: bool = True
 
     def set_text(self, text: str):
         self.text_ = text
@@ -601,7 +601,7 @@ class SearchItem:
         self.text_ = None
         self.files_list_ = None
         self.extensions_ = None
-        self.exactly = False
+        self.exactly = True
 
 
 class MainWinItem:

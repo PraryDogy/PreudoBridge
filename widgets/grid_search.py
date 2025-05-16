@@ -40,12 +40,15 @@ class SearchFinder(URunnable):
         self.pause = False
 
     def task(self):
+
+        print(self.search_item.exactly)
+
         self.setup_search()
         self.scandir_recursive()
         
         missed_files_list: list[str] = []
         if self.search_item.get_files_list():
-            for i in self.files_list_lower:
+            for i in self.search_item.get_files_list():
                 if i not in self.found_files_list:
                     missed_files_list.append(i)
 
@@ -119,20 +122,20 @@ class SearchFinder(URunnable):
             return False
 
     def process_list_exactly(self, entry: os.DirEntry):
-        filename, _ = self.remove_extension(entry.name)
-        filename: str = filename.lower()
+        true_filename, _ = self.remove_extension(entry.name)
+        filename: str = true_filename.lower()
         for item in self.files_list_lower:
             if filename == item:
-                self.found_files_list.append(item)
+                self.found_files_list.append(true_filename)
                 return True
         return False
 
     def process_list_free(self, entry: os.DirEntry):
-        filename, _ = self.remove_extension(entry.name)
-        filename: str = filename.lower()
+        true_filename, _ = self.remove_extension(entry.name)
+        filename: str = true_filename.lower()
         for item in self.files_list_lower:
             if item in filename or filename in item:
-                self.found_files_list.append(item)
+                self.found_files_list.append(true_filename)
                 return True
         return False
 
