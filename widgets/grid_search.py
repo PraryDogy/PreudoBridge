@@ -249,6 +249,10 @@ class WinMissedFiles(MinMaxDisabledWin):
         return super().keyPressEvent(a0)
 
 
+class GlobalTask:
+    current: SearchFinder = None
+
+
 class GridSearch(Grid):
     finished_ = pyqtSignal()
     no_result_text = "Ничего не найдено"
@@ -261,7 +265,7 @@ class GridSearch(Grid):
 
         # значение общего числа виджетов в сетке для нижнего бара приложения
         self.total = 0
-        self.task_: SearchFinder = None
+        GlobalTask.current: SearchFinder = None
         self.pause_by_btn: bool = False
 
         self.pause_timer = QTimer(self)
@@ -281,10 +285,10 @@ class GridSearch(Grid):
         Thumb.calculate_size()
         self.is_grid_search = True
 
-        self.task_ = SearchFinder(self.main_win_item, self.search_item)
-        self.task_.signals_.new_widget.connect(self.add_new_widget)
-        self.task_.signals_.finished_.connect(lambda missed_files_list: self.search_fin(missed_files_list))
-        UThreadPool.start(self.task_)
+        GlobalTask.current = SearchFinder(self.main_win_item, self.search_item)
+        GlobalTask.current.signals_.new_widget.connect(self.add_new_widget)
+        GlobalTask.current.signals_.finished_.connect(lambda missed_files_list: self.search_fin(missed_files_list))
+        UThreadPool.start(GlobalTask.current)
 
     def add_new_widget(self, base_item: BaseItem):
         self.thumb = Thumb(base_item.src, base_item.rating)
@@ -333,21 +337,21 @@ class GridSearch(Grid):
             Utils.print_error(e)
 
     def sort_thumbs(self):
-        self.task_.pause = True
+        GlobalTask.current.pause = True
         super().sort_thumbs()
         self.rearrange_thumbs()
         self.pause_timer.stop()
         self.pause_timer.start(GridSearch.pause_time_ms)
 
     def filter_thumbs(self):
-        self.task_.pause = True
+        GlobalTask.current.pause = True
         super().filter_thumbs()
         self.rearrange_thumbs()
         self.pause_timer.stop()
         self.pause_timer.start(GridSearch.pause_time_ms)
 
     def resize_thumbs(self):
-        self.task_.pause = True
+        GlobalTask.current.pause = True
         super().resize_thumbs()
         self.rearrange_thumbs()
         self.pause_timer.stop()
@@ -357,12 +361,12 @@ class GridSearch(Grid):
         super().rearrange_thumbs()
 
     def remove_pause(self):
-        if self.task_:
+        if GlobalTask.current:
             if not self.pause_by_btn:
-                self.task_.pause = False
+                GlobalTask.current.pause = False
 
     def toggle_pause(self, value: bool):
-        self.task_.pause = value
+        GlobalTask.current.pause = value
         self.pause_by_btn = value
 
     def resizeEvent(self, a0):
@@ -370,11 +374,9 @@ class GridSearch(Grid):
         return super().resizeEvent(a0)
     
     def closeEvent(self, a0):
-        print("close ecent")
-        self.task_.set_should_run(False)
+        GlobalTask.current.set_should_run(False)
         return super().closeEvent(a0)
 
     def deleteLater(self):
-        print("vlose eve")
-        self.task_.set_should_run(False)
+        GlobalTask.current.set_should_run(False)
         return super().deleteLater()
