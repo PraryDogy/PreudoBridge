@@ -19,6 +19,7 @@ from .actions import GridActions, ItemActions
 from .copy_files_win import CopyFilesWin, ErrorWin
 from .info_win import InfoWin
 from .remove_files_win import RemoveFilesWin
+from .rename_win import RenameWin
 
 FONT_SIZE = 11
 BORDER_RADIUS = 4
@@ -626,7 +627,7 @@ class Grid(UScrollArea):
         for i in self.selected_widgets:
             Dynamic.urls_to_copy.append(i.src)
 
-    def paste_files(self):
+    def paste_files(self, dest: str = None):
         """
         Вставляет файлы на основе списка Grid.urls_to_copy в текущую директорию.    
         Открывает окно копирования файлов.  
@@ -643,6 +644,13 @@ class Grid(UScrollArea):
         for i in Dynamic.urls_to_copy:
             if os.path.dirname(i) == self.main_win_item.main_dir:
                 return
+            
+        print(dest)
+        return
+        
+        if dest:
+            self.main_win_item.main_dir = dest
+
         self.win_copy = CopyFilesWin(self.main_win_item, Dynamic.urls_to_copy)
         self.win_copy.finished_.connect(lambda urls: self.paste_files_fin(urls))
         self.win_copy.error_.connect(self.show_error_win)
@@ -768,9 +776,19 @@ class Grid(UScrollArea):
             paste_files.triggered.connect(self.paste_files)
             menu_.addAction(paste_files)
 
+            paste_in = GridActions.PasteInFolder(menu_, len(Dynamic.urls_to_copy))
+            paste_in.triggered.connect(self.create_new_folder)
+            menu_.addAction(paste_in)
+
         upd_ = GridActions.UpdateGrid(menu_)
         upd_.triggered.connect(lambda: self.load_st_grid.emit())
         menu_.addAction(upd_)
+
+    def create_new_folder(self):
+        self.rename_win = RenameWin("")
+        self.rename_win.center(self.window())
+        self.rename_win.finished_.connect(lambda name: self.paste_files(name))
+        self.rename_win.show()
 
     def set_new_rating(self, new_rating: int):
         """
