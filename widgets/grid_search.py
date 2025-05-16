@@ -47,8 +47,13 @@ class SearchFinder(URunnable):
         self.scandir_recursive()
         
         missed_files_list: list[str] = []
-        if self.search_item.get_files_list():
-            for i in self.search_item.get_files_list():
+        no_ext_list = [
+            os.path.splitext(i)[0]
+            for i in self.search_item.get_files_list()
+        ]
+
+        if no_ext_list:
+            for i in no_ext_list:
                 if i not in self.found_files_list:
                     missed_files_list.append(i)
 
