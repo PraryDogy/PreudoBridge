@@ -610,6 +610,7 @@ class MainWinItem:
         # позволяет перейти к виджету после открытия окна "Перейти к ..."
         self.go_to: str = None
         self.main_dir: str = None
+        self.scroll_value: int = None
 
 
 class URunnable(QRunnable):

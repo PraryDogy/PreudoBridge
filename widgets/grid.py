@@ -650,6 +650,7 @@ class Grid(UScrollArea):
         self.win_copy.show()
 
     def paste_files_fin(self, urls: list[str]):
+        self.main_win_item.scroll_value = self.verticalScrollBar().value()
         self.load_st_grid.emit()
         Dynamic.urls_to_copy.clear()
         return

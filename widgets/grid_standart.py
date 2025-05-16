@@ -400,8 +400,15 @@ class GridStandart(Grid):
                     wid.set_frame()
             self.main_win_item.urls.clear()
 
+        if self.main_win_item.scroll_value:
+            QTimer.singleShot(100, self.scroll_value_cmd)
+
         self.loading_lbl.hide()
         self.show()
+
+    def scroll_value_cmd(self):
+            self.verticalScrollBar().setValue(self.main_win_item.scroll_value)
+            self.main_win_item.scroll_value = None
 
     def run_load_images_thread(self, thumbs: list[Thumb]):
         """
