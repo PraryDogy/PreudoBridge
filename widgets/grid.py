@@ -647,18 +647,22 @@ class Grid(UScrollArea):
         
         if not dest:
             dest = self.main_win_item.main_dir
+            cmd = lambda args: self.paste_files_fin(dest)
+        else:
+            cmd = lambda args: self.paste_files_fin(dest)
+
 
         self.win_copy = CopyFilesWin(dest, Dynamic.urls_to_copy)
-        self.win_copy.finished_.connect(lambda urls: self.paste_files_fin(urls))
+        self.win_copy.finished_.connect(cmd)
         self.win_copy.error_.connect(self.show_error_win)
         self.win_copy.center(self.window())
         self.win_copy.show()
 
-    def paste_files_fin(self, urls: list[str]):
+    def paste_files_fin(self, dest: str):
         self.main_win_item.scroll_value = self.verticalScrollBar().value()
+        self.main_win_item.main_dir = dest
         self.load_st_grid.emit()
         Dynamic.urls_to_copy.clear()
-        return
 
     def show_error_win(self):
         """
