@@ -644,14 +644,11 @@ class Grid(UScrollArea):
         for i in Dynamic.urls_to_copy:
             if os.path.dirname(i) == self.main_win_item.main_dir:
                 return
-            
-        print(dest)
-        return
         
-        if dest:
-            self.main_win_item.main_dir = dest
+        if not dest:
+            dest = self.main_win_item.main_dir
 
-        self.win_copy = CopyFilesWin(self.main_win_item, Dynamic.urls_to_copy)
+        self.win_copy = CopyFilesWin(dest, Dynamic.urls_to_copy)
         self.win_copy.finished_.connect(lambda urls: self.paste_files_fin(urls))
         self.win_copy.error_.connect(self.show_error_win)
         self.win_copy.center(self.window())
@@ -787,8 +784,16 @@ class Grid(UScrollArea):
     def create_new_folder(self):
         self.rename_win = RenameWin("")
         self.rename_win.center(self.window())
-        self.rename_win.finished_.connect(lambda name: self.paste_files(name))
+        self.rename_win.finished_.connect(lambda name: self.create_folder_finished(name))
         self.rename_win.show()
+    
+    def create_folder_finished(self, name: str):
+        dest = os.path.join(self.main_win_item.main_dir, name)
+        try:
+            os.mkdir(dest)
+            self.paste_files(dest)
+        except Exception as e:
+            Utils.print_error(e)
 
     def set_new_rating(self, new_rating: int):
         """

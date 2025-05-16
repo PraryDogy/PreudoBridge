@@ -20,13 +20,13 @@ class WorkerSignals(QObject):
 
 
 class FileCopyWorker(URunnable):
-    def __init__(self, main_win_item: MainWinItem, urls: list[str]):
+    def __init__(self, dest: str, urls: list[str]):
         super().__init__()
-        self.main_win_item = main_win_item
+        self.dest = dest
         self.urls = urls
         self.signals_ = WorkerSignals()
 
-    def task(self):    
+    def task(self): 
         try:
             new_paths = self.create_new_paths()
         except OSError as e:
@@ -78,7 +78,7 @@ class FileCopyWorker(URunnable):
                 return
 
         # создаем список путей к виджетам в сетке для выделения
-        paths = self.get_final_paths(new_paths, self.main_win_item.main_dir)
+        paths = self.get_final_paths(new_paths, self.dest)
         paths = list(paths)
 
         try:
@@ -142,9 +142,9 @@ class FileCopyWorker(URunnable):
         for i in self.urls:
             i = Utils.normalize_slash(i)
             if os.path.isdir(i):
-                self.old_new_paths.extend(self.scan_folder(i, self.main_win_item.main_dir))
+                self.old_new_paths.extend(self.scan_folder(i, self.dest))
             else:
-                src, new_path = self.single_file(i, self.main_win_item.main_dir)
+                src, new_path = self.single_file(i, self.dest)
                 if new_path in self.new_paths:
                     new_path = self.add_counter(new_path)
                 self.new_paths.append(new_path)
@@ -253,10 +253,8 @@ class CopyFilesWin(MinMaxDisabledWin):
     progressbar_width = 300
     icon_size = 50
 
-    def __init__(self, main_win_item: MainWinItem, urls: list[str]):
+    def __init__(self, dest: str, urls: list[str]):
         super().__init__()
-        self.main_win_item = main_win_item
-        self.urls = urls
         self.setWindowTitle(CopyFilesWin.title_text)
 
         main_lay = QHBoxLayout()
@@ -274,14 +272,14 @@ class CopyFilesWin(MinMaxDisabledWin):
         right_side_wid.setLayout(right_side_lay)
         main_lay.addWidget(right_side_wid)
 
-        src = min(self.urls, key=len)
+        src = min(urls, key=len)
         src = os.path.dirname(Utils.normalize_slash(src))
         src = os.path.basename(src)
-        dest = os.path.basename(self.main_win_item.main_dir)
+        dest_ = os.path.basename(dest)
 
         src = self.limit_string(src)
-        dest = self.limit_string(dest)
-        bottom_lbl = QLabel(self.set_text(src, dest))
+        dest_ = self.limit_string(dest)
+        bottom_lbl = QLabel(self.set_text(src, dest_))
         right_side_lay.addWidget(bottom_lbl)
 
         progressbar_row = QWidget()
@@ -304,8 +302,8 @@ class CopyFilesWin(MinMaxDisabledWin):
 
         self.adjustSize()
 
-        if self.urls:
-            task_ = FileCopyWorker(self.main_win_item, urls)
+        if urls:
+            task_ = FileCopyWorker(dest, urls)
             task_.signals_.set_max.connect(lambda value: self.set_max(progressbar, value))
             task_.signals_.set_value.connect(lambda value: self.set_value(progressbar, value))
             task_.signals_.set_size_mb.connect(lambda text: size_mb_lbl.setText(text))
