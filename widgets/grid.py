@@ -358,7 +358,7 @@ class Grid(UScrollArea):
         Очищает визуальное выделение с выделенных виджетов и очищает список.  
         Выделяет виджет, добавляет его в список выделенных виджетов.
         """
-        if wid is None:
+        if not isinstance(wid, (BaseItem, Thumb)):
             return
 
         self.path_bar_update_cmd(wid.src)
@@ -528,6 +528,7 @@ class Grid(UScrollArea):
         self.win_info.show()
 
     def thumb_context_actions(self, menu_: UMenu, wid: Thumb):
+
         """
         Контекстное меню Thumb
         """
@@ -970,7 +971,11 @@ class Grid(UScrollArea):
             elif clicked_wid not in self.selected_widgets:
                 self.clear_selected_widgets()
                 self.select_widget(clicked_wid)
-            self.thumb_context_actions(menu_, clicked_wid)
+            
+            if isinstance(clicked_wid, (BaseItem, Thumb)):
+                self.thumb_context_actions(menu_, clicked_wid)
+            else:
+                self.grid_context_actions(menu_)
 
         menu_.show_()
 
@@ -1051,7 +1056,7 @@ class Grid(UScrollArea):
         
         wid = self.get_wid_under_mouse(a0)
 
-        if wid is None:
+        if not isinstance(wid, (BaseItem, Thumb)):
             return
 
         if wid not in self.selected_widgets:
