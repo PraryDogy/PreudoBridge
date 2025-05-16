@@ -40,9 +40,6 @@ class SearchFinder(URunnable):
         self.pause = False
 
     def task(self):
-
-        print(self.search_item.exactly)
-
         self.setup_search()
         self.scandir_recursive()
         
