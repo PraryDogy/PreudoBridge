@@ -603,6 +603,8 @@ class SearchItem:
         self.extensions_ = None
         self.exactly = True
 
+        print("reseted")
+
 
 class MainWinItem:
     def __init__(self):
