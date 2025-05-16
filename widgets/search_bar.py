@@ -7,7 +7,7 @@ from ._base_items import SearchItem, UFrame
 
 
 class SearchBar(QFrame):
-    load_search_grid = pyqtSignal()
+    exactly_clicked = pyqtSignal()
     pause_search_sig = pyqtSignal(bool)
     on_text_click = pyqtSignal()
     on_exts_click = pyqtSignal()
@@ -80,7 +80,7 @@ class SearchBar(QFrame):
         data = {0: False, 2: True}
         new_value = data.get(value)
         self.search_item.exactly = new_value
-        self.load_search_grid.emit()
+        self.exactly_clicked.emit()
 
     def show(self):
         """

@@ -237,7 +237,7 @@ class MainWin(WinBase):
         self.top_bar.open_in_new_win.connect(lambda dir: self.open_in_new_win(dir))
         self.top_bar.open_settings.connect(lambda: self.open_settings())
 
-        self.search_bar.load_search_grid.connect(lambda: self.load_search_grid())
+        self.search_bar.exactly_clicked.connect(lambda: self.exactly_clicked())
         self.search_bar.pause_search_sig.connect(lambda value: self.grid.toggle_pause(value))
         self.search_bar.on_text_click.connect(lambda: self.top_bar.on_text_click())
         self.search_bar.on_exts_click.connect(lambda: self.top_bar.on_exts_click())
@@ -253,6 +253,11 @@ class MainWin(WinBase):
         self.sort_bar.sort_thumbs.connect(lambda: self.grid.sort_thumbs())
         self.sort_bar.load_st_grid.connect(lambda: self.load_st_grid())
         self.sort_bar.open_go_win.connect(lambda: self.open_go_win())
+
+    def exactly_clicked(self):
+        old_text = self.top_bar.search_wid.text()
+        self.top_bar.search_wid.setText("")
+        self.top_bar.search_wid.setText(old_text)
 
     def open_go_win(self):
         self.go_win = GoToWin()
