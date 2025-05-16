@@ -650,42 +650,9 @@ class Grid(UScrollArea):
         self.win_copy.show()
 
     def paste_files_fin(self, urls: list[str]):
-        """
-        Заменяет существующие виджеты сетки новыми, если совпадают url.    
-        Добавляет новые виджеты в сетку.    
-        Сортирует сетку, перетасовывает сетку.   
-        Испускет сигнал принудительной загрузки изображений для скопированных виджетов.
-        """
-        # если файлы скопированы в пустую папку
-        if not self.cell_to_wid:
-            self.load_st_grid.emit()
-            return
-
-        for dir in urls:
-            # если url есть в списке path to wid, то удаляем информацию о виджете
-            # и сам виджет из сетки
-            if dir in self.url_to_wid:
-                wid = self.remove_widget_data(dir)
-                if wid:
-                    wid.deleteLater()
-            # инициируем новый виджет
-            wid = Thumb(dir)
-            wid.setup_attrs()
-            wid.setup_child_widgets()
-            wid.set_no_frame()
-            wid.set_svg_icon(Utils.get_generic_icon_path(wid.type_))
-            # ищем последнюю строку и столбец в cell to wid
-            # прибавляем +1 к строке и столбец:
-            # сколько прибавлять неважно, так как при перетасовке установится
-            # правильное значение строки и столбца
-            row, col = list(self.cell_to_wid.keys())[-1]
-            new_row, new_col = row + 1, col + 1
-            self.add_widget_data(wid, new_row, new_col)
-            self.grid_layout.addWidget(wid, new_row, new_col)
-        self.sort_thumbs()
-        self.rearrange_thumbs()
+        self.load_st_grid.emit()
         Dynamic.urls_to_copy.clear()
-        return urls
+        return
 
     def show_error_win(self):
         """

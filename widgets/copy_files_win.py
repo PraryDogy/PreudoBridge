@@ -136,16 +136,30 @@ class FileCopyWorker(URunnable):
         return result
 
     def create_new_paths(self):
-        new_paths: list[tuple[str, str]] = []
+        self.old_new_paths: list[tuple[str, str]] = []
+        self.new_paths = []
 
         for i in self.urls:
             i = Utils.normalize_slash(i)
             if os.path.isdir(i):
-                new_paths.extend(self.scan_folder(i, self.main_win_item.main_dir))
+                self.old_new_paths.extend(self.scan_folder(i, self.main_win_item.main_dir))
             else:
-                new_paths.append(self.single_file(i, self.main_win_item.main_dir))
+                src, new_path = self.single_file(i, self.main_win_item.main_dir)
+                if new_path in self.new_paths:
+                    new_path = self.add_counter(new_path)
+                self.new_paths.append(new_path)
+                self.old_new_paths.append((src, new_path))
 
-        return new_paths
+        return self.old_new_paths
+    
+    def add_counter(self, path: str):
+        counter = 1
+        base_root, ext = os.path.splitext(path)
+        root = base_root
+        while path in self.new_paths:
+            path = f"{root} {counter}{ext}"
+            counter += 1
+        return path
 
     def single_file(self, file: str, dest: str):
         # Возвращает кортеж: исходный путь файла, финальный путь файла
@@ -227,7 +241,6 @@ class ErrorWin(MinMaxDisabledWin):
             self.deleteLater()
         elif a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
             if a0.key() == Qt.Key.Key_Q:
-                print(123)
                 return
         return super().keyPressEvent(a0)
 
