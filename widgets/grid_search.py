@@ -265,7 +265,6 @@ class GridSearch(Grid):
 
         # значение общего числа виджетов в сетке для нижнего бара приложения
         self.total = 0
-        GlobalTask.current: SearchFinder = None
         self.pause_by_btn: bool = False
 
         self.pause_timer = QTimer(self)
@@ -280,17 +279,22 @@ class GridSearch(Grid):
         self.search_item = search_item
 
     def start_search(self):
-        self.total_count_update.emit(0)
-        self.path_bar_update.emit(self.main_win_item.main_dir)
-        Thumb.calculate_size()
-        self.is_grid_search = True
+        if GlobalTask.current and not GlobalTask.current.is_finished():
+            print("wait")
+            QTimer.singleShot(500, self.start_search)    
+        else:
+            self.total_count_update.emit(0)
+            self.path_bar_update.emit(self.main_win_item.main_dir)
+            Thumb.calculate_size()
+            self.is_grid_search = True
 
-        GlobalTask.current = SearchFinder(self.main_win_item, self.search_item)
-        GlobalTask.current.signals_.new_widget.connect(self.add_new_widget)
-        GlobalTask.current.signals_.finished_.connect(lambda missed_files_list: self.search_fin(missed_files_list))
-        UThreadPool.start(GlobalTask.current)
+            GlobalTask.current = SearchFinder(self.main_win_item, self.search_item)
+            GlobalTask.current.signals_.new_widget.connect(self.add_new_widget)
+            GlobalTask.current.signals_.finished_.connect(lambda missed_files_list: self.search_fin(missed_files_list))
+            UThreadPool.start(GlobalTask.current)
 
     def add_new_widget(self, base_item: BaseItem):
+        print("add new widget")
         self.thumb = Thumb(base_item.src, base_item.rating)
         self.thumb.setParent(self)
         self.thumb.setup_attrs()
