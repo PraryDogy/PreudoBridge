@@ -63,6 +63,9 @@ class FileCopyWorker(URunnable):
             os.makedirs(new_folders, exist_ok=True)
             try:
                 self.copy_by_bytes(src, dest)
+            except IOError as e:
+                Utils.print_error(e)
+                continue
             except Exception as e:
                 Utils.print_error(e)
                 self.signals_.error_.emit()
