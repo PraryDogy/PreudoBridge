@@ -278,6 +278,9 @@ class GridStandart(Grid):
         Находит виджеты Thumb по url.   
         Принудительно запускает загрузку изображений через URunnable
         """
+        if urls is None:
+            return
+
         thumbs: list[Thumb] = []
         for url in urls:
             wid = self.url_to_wid.get(url)
