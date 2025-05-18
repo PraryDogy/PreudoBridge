@@ -883,8 +883,8 @@ class Grid(UScrollArea):
                         self.view_thumb(clicked_wid)
 
             elif a0.key() == Qt.Key.Key_I:
-                clicked_wid = self.selected_widgets[-1]
-                if clicked_wid:
+                if self.selected_widgets:
+                    clicked_wid = self.selected_widgets[-1]
                     self.select_one_wid(clicked_wid)
                     self.win_info_cmd(clicked_wid.src)
                 else:
