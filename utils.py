@@ -288,6 +288,7 @@ class ReadImage:
 
 
 class ImgConvert:
+    # Необходим метод Err.print_error для вывода ошибок
 
     @classmethod
     def bytes_to_array(cls, blob: bytes) -> np.ndarray:
@@ -316,6 +317,7 @@ class ImgConvert:
 
 
 class Pixmap:
+    # Необходим метод Err.print_error для вывода ошибок
 
     @classmethod
     def pixmap_from_array(cls, image: np.ndarray) -> QPixmap | None:
@@ -352,7 +354,7 @@ class Pixmap:
     
 
 class Utils(Pixmap, ReadImage, ImgConvert):
-    _NULL = object()
+    # Необходим метод Err.print_error для вывода ошибок
 
     @classmethod
     def write_to_clipboard(cls, text: str):
