@@ -133,7 +133,7 @@ class MainWin(WinBase):
         if dir:
             self.main_win_item.main_dir = dir
         else:
-            sys_vol = Utils.get_system_volume()
+            sys_vol = Utils.get_system_volume(Static.APP_SUPPORT_APP)
             dir = Utils.add_system_volume(MainWin.base_dir, sys_vol)
             self.main_win_item.main_dir = dir
 

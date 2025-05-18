@@ -343,7 +343,7 @@ class GridStandart(Grid):
         # создаем иконки на основе расширений, если не было
         exts = {i.type_ for i in self.base_items}
         for ext in exts:
-            icon_path = Utils.get_generic_icon_path(ext)
+            icon_path = Utils.get_generic_icon_path(ext, Static.GENERIC_ICONS_DIR)
             if icon_path not in Dynamic.generic_icon_paths:
                 path_to_svg = Utils.create_generic_icon(ext, icon_path)
                 Dynamic.generic_icon_paths.append(path_to_svg)

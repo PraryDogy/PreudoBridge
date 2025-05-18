@@ -2,6 +2,7 @@ import os
 
 from PyQt5.QtCore import QObject, pyqtSignal
 
+from cfg import Static
 from utils import Utils
 
 from ._base_items import URunnable
@@ -31,7 +32,7 @@ class PathFinder(URunnable):
 
         # если это локальный путь начинающийся с /Users/Username, то меняем его
         # на /Volumes/Macintosh HD/Users/Username
-        sys_vol = Utils.get_system_volume()
+        sys_vol = Utils.get_system_volume(Static.APP_SUPPORT_APP)
         path = Utils.add_system_volume(path, sys_vol)
 
         if not path:

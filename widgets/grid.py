@@ -190,7 +190,7 @@ class Thumb(BaseItem, QFrame):
         if self.src.count(os.sep) == 2:
             path = Static.HDD_SVG
         else:
-            path = Utils.get_generic_icon_path(self.type_)
+            path = Utils.get_generic_icon_path(self.type_, Static.GENERIC_ICONS_DIR)
 
         self.img_wid.load(path)
         self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
@@ -1094,7 +1094,7 @@ class Grid(UScrollArea):
         Dynamic.urls_to_copy = [i.toLocalFile() for i in a0.mimeData().urls()]
 
         main_dir_ = Utils.normalize_slash(self.main_win_item.main_dir)
-        sys_vol = Utils.get_system_volume()
+        sys_vol = Utils.get_system_volume(Static.APP_SUPPORT_APP)
         main_dir_ = Utils.add_system_volume(main_dir_, sys_vol)
         for i in Dynamic.urls_to_copy:
             i = Utils.normalize_slash(i)

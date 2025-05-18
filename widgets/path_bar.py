@@ -279,7 +279,7 @@ class PathBar(QWidget):
                     icon = Static.FOLDER_SVG
                 else:
                     _, ext = os.path.splitext(last_item.dir)
-                    icon = Utils.get_generic_icon_path(ext)
+                    icon = Utils.get_generic_icon_path(ext, Static.GENERIC_ICONS_DIR)
                 last_item.img_wid.load(icon)
 
             text_ = last_item.text_wid.text()

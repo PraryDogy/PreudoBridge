@@ -439,14 +439,15 @@ class Utils(Pixmap, ReadImage, ImgConvert):
         return None
 
     @classmethod
-    def get_system_volume(cls, volumes="Volumes"):
+    def get_system_volume(cls, app_support: str, volumes="Volumes"):
         """
         Возвращает путь к системному диску /Volumes/Macintosh HD (или иное имя)
+        app_support: /Volumes/Macintosh HD/..../ApplicationSupport/current app_name
         """
         # Сканируем все диски
         # Тот диск, где есть директория ApplicationSupport, является системным
         for i in os.scandir(os.sep + volumes):
-            if os.path.exists(i.path + Static.APP_SUPPORT_APP):
+            if os.path.exists(i.path + app_support):
                 return i.path
 
     @classmethod
@@ -491,12 +492,14 @@ class Utils(Pixmap, ReadImage, ImgConvert):
         )
 
     @classmethod
-    def get_generic_icon_path(cls, file_extension: str):
+    def get_generic_icon_path(cls, ext: str, generic_icons_dir: str, svg="SVG"):
         """
         Возвращает путь к файлу svg иконки
+        ext: расширение файла .jpeg, ...
+        generic_icons_dir: папка с иконками
         """
-        filename = Static.SVG + "_" + file_extension.replace(".", "") + ".svg"
-        return os.path.join(Static.GENERIC_ICONS_DIR, filename)
+        filename = svg + "_" + ext.replace(".", "") + ".svg"
+        return os.path.join(generic_icons_dir, filename)
 
     @classmethod
     def create_generic_icon(cls, file_extension: str, icon_path: str):

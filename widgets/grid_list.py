@@ -415,7 +415,7 @@ class GridList(UTableView):
         Dynamic.urls_to_copy = [i.toLocalFile() for i in a0.mimeData().urls()]
 
         main_dir_ = Utils.normalize_slash(self.main_win_item.main_dir)
-        sys_vol = Utils.get_system_volume()
+        sys_vol = Utils.get_system_volume(Static.APP_SUPPORT_APP)
         main_dir_ = Utils.add_system_volume(main_dir_, sys_vol)
         for i in Dynamic.urls_to_copy:
             i = Utils.normalize_slash(i)
