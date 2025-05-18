@@ -59,6 +59,9 @@ class ReadImage(Err):
 
     @classmethod
     def init_read_dict(cls, cfg: Static):
+        """
+        В Static должны содержаться данные о расширениях
+        """
         for ext in cfg.ext_psd:
             cls.read_any_dict[ext] = cls.read_psb
         for ext in cfg.ext_tiff:
