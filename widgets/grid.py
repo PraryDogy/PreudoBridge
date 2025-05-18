@@ -1094,10 +1094,11 @@ class Grid(UScrollArea):
         Dynamic.urls_to_copy = [i.toLocalFile() for i in a0.mimeData().urls()]
 
         main_dir_ = Utils.normalize_slash(self.main_win_item.main_dir)
-        main_dir_ = Utils.add_system_volume(main_dir_)
+        sys_vol = Utils.get_system_volume()
+        main_dir_ = Utils.add_system_volume(main_dir_, sys_vol)
         for i in Dynamic.urls_to_copy:
             i = Utils.normalize_slash(i)
-            i = Utils.add_system_volume(i)
+            i = Utils.add_system_volume(i, sys_vol)
             if os.path.commonpath([i, main_dir_]) == main_dir_:
                 print("Нельзя копировать в себя")
                 return

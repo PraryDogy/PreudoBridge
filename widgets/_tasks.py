@@ -31,7 +31,8 @@ class PathFinder(URunnable):
 
         # если это локальный путь начинающийся с /Users/Username, то меняем его
         # на /Volumes/Macintosh HD/Users/Username
-        path = Utils.add_system_volume(path)
+        sys_vol = Utils.get_system_volume()
+        path = Utils.add_system_volume(path, sys_vol)
 
         if not path:
             return None

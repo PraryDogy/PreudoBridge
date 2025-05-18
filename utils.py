@@ -406,13 +406,14 @@ class Utils(Pixmap, ReadImage, ImgConvert):
         return os.sep + path.strip(os.sep)
 
     @classmethod
-    def add_system_volume(cls, path: str):
+    def add_system_volume(cls, path: str, sys_vol: str):
         """
         Добавляет /Volumes/Macintosh HD (или иное имя системного диска),
         если директория локальная - т.е. начинается с /Users/Username/...
+        sys_vol - системный диск, обычно это /Volumes/Macintosh HD
         """
         if path.startswith(os.path.expanduser("~")):
-            return Utils.get_system_volume() + path
+            return sys_vol + path
         return path
     
     @classmethod

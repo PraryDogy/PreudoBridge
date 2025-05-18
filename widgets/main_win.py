@@ -133,7 +133,8 @@ class MainWin(WinBase):
         if dir:
             self.main_win_item.main_dir = dir
         else:
-            dir = Utils.add_system_volume(MainWin.base_dir)
+            sys_vol = Utils.get_system_volume()
+            dir = Utils.add_system_volume(MainWin.base_dir, sys_vol)
             self.main_win_item.main_dir = dir
 
         self.resize_timer = QTimer(self)
