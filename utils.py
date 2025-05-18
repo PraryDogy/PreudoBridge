@@ -27,6 +27,7 @@ psd_logger.setLevel(logging.CRITICAL)
 class Err:
     @classmethod
     def print_error(cls, error: Exception):
+        LIMIT_ = 200
         tb = traceback.extract_tb(error.__traceback__)
 
         # Попробуем найти первую строчку стека, которая относится к вашему коду.
@@ -45,8 +46,12 @@ class Err:
             filename = os.path.basename(filepath)
             line_number = trace.lineno
 
-        print("Error:", str(error), f"{filepath}:{line_number}")
-        return str(error)
+        msg = str(error)
+        if msg.startswith("[Errno"):
+            msg = msg.split("]", 1)[-1].strip()
+
+        print(f"\n{type(error).__name__}: {msg} {filepath}:{line_number}\n")
+        return msg
 
 class ReadImage(Err):
 

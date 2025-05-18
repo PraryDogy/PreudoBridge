@@ -167,13 +167,13 @@ class SearchTask(URunnable):
                 self.scan_current_dir(current_dir, dirs_list)
             except OSError as e:
                 Utils.print_error(e)
-                return
-            except RuntimeError as e:
-                Utils.print_error(e)
-                return
+                continue
             except Exception as e:
                 Utils.print_error(e)
                 continue
+            except RuntimeError as e:
+                Utils.print_error(e)
+                return
 
     def scan_current_dir(self, dir: str, dirs_list: list):
         for entry in os.scandir(dir):
