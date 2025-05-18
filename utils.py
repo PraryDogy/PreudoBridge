@@ -495,7 +495,7 @@ class Utils(Pixmap, ReadImage, ImgConvert):
         return os.path.join(Static.GENERIC_ICONS_DIR, filename)
 
     @classmethod
-    def create_generic_icon(cls, file_extension: str):
+    def create_generic_icon(cls, file_extension: str, icon_path: str):
         """
         file_extension: ".jpg", ".png", и т.п.    
         Возвращает: path to svg_icon
@@ -507,13 +507,12 @@ class Utils(Pixmap, ReadImage, ImgConvert):
         # удаляем точку, делаем максимум 4 символа и капс
         # для размещения текста на иконку
         new_text = file_extension.replace(".", "")[:4].upper()
-        path_to_svg = Utils.get_generic_icon_path(file_extension)
 
         # Создаем генератор SVG
         generator = QSvgGenerator()
 
         # Задаем имя файла по последней секции пути к svg
-        generator.setFileName(path_to_svg)
+        generator.setFileName(icon_path)
         generator.setSize(QSize(width, height))
         generator.setViewBox(QRect(0, 0, width, height))
 
@@ -527,7 +526,7 @@ class Utils(Pixmap, ReadImage, ImgConvert):
         painter.drawText(QRectF(0, 75, width, 30), Qt.AlignCenter, new_text)
         painter.end()
 
-        return path_to_svg
+        return icon_path
 
 
 class FitImg:   

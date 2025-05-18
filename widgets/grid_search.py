@@ -299,10 +299,9 @@ class GridSearch(Grid):
         self.thumb.setup_child_widgets()
         self.thumb.set_no_frame()
 
-        generic_icon_path = Utils.get_generic_icon_path(base_item.type_)
-
-        if not generic_icon_path in Dynamic.generic_icon_paths:
-            generic_icon_path = Utils.create_generic_icon(base_item.type_)
+        icon_path = Utils.get_generic_icon_path(base_item.type_)
+        if icon_path not in Dynamic.generic_icon_paths:
+            Utils.create_generic_icon(base_item.type_, icon_path)
 
         self.thumb.set_svg_icon()
         
