@@ -60,6 +60,8 @@ class SearchTask(URunnable):
         except RuntimeError as e:
             Utils.print_error(e)
 
+        print("search finished")
+
     def setup_search(self):
         if self.search_item.get_files_list():
             if self.search_item.get_exactly():
@@ -152,11 +154,9 @@ class SearchTask(URunnable):
             while self.pause:
                 QTest.qSleep(SearchTask.sleep_ms)
                 if not self.is_should_run():
-                    print("search task stoped")
                     return
 
             if not self.is_should_run():
-                print("search task stoped")
                 return
 
             if not os.path.exists(current_dir):
@@ -165,6 +165,9 @@ class SearchTask(URunnable):
             try:
                 # Сканируем текущий каталог и добавляем новые пути в стек
                 self.scan_current_dir(current_dir, dirs_list)
+            except OSError as e:
+                Utils.print_error(e)
+                return
             except RuntimeError as e:
                 Utils.print_error(e)
                 return
@@ -177,10 +180,8 @@ class SearchTask(URunnable):
             while self.pause:
                 QTest.qSleep(SearchTask.sleep_ms)
                 if not self.is_should_run():
-                    print("search task stoped")
                     return
             if not self.is_should_run():
-                print("search task stoped")
                 return
             if entry.name.startswith(Static.hidden_file_syms):
                 continue
