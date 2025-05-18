@@ -19,7 +19,7 @@ from PyQt5.QtGui import QColor, QFont, QImage, QPainter, QPixmap
 from PyQt5.QtSvg import QSvgGenerator, QSvgRenderer
 from PyQt5.QtWidgets import QApplication
 
-from cfg import Dynamic, Static
+from cfg import Static
 
 psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
 psd_logger = logging.getLogger("psd_tools")
@@ -502,12 +502,13 @@ class Utils(Pixmap, ReadImage, ImgConvert):
         return os.path.join(generic_icons_dir, filename)
 
     @classmethod
-    def create_generic_icon(cls, file_extension: str, icon_path: str):
+    def create_generic_icon(cls, file_extension: str, icon_path: str, svg_file_path: str):
         """
-        file_extension: ".jpg", ".png", и т.п.    
+        file_extension: ".jpg", ".png", и т.п.
+        svg_file_path: путь к стандартной svg иконке без текста
         Возвращает: path to svg_icon
         """
-        renderer = QSvgRenderer(Static.FILE_SVG)
+        renderer = QSvgRenderer(svg_file_path)
         width = 133
         height = 133
 

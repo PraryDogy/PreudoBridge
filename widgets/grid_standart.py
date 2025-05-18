@@ -345,7 +345,7 @@ class GridStandart(Grid):
         for ext in exts:
             icon_path = Utils.get_generic_icon_path(ext, Static.GENERIC_ICONS_DIR)
             if icon_path not in Dynamic.generic_icon_paths:
-                path_to_svg = Utils.create_generic_icon(ext, icon_path)
+                path_to_svg = Utils.create_generic_icon(ext, icon_path, Static.FILE_SVG)
                 Dynamic.generic_icon_paths.append(path_to_svg)
 
         # испускаем сигнал в MainWin для обновления нижнего бара
