@@ -417,7 +417,8 @@ class MainWin(WinBase):
         - dir: основная директория, которая будет отображена в виде сетки виджетов
         """
         if not os.path.exists(self.main_win_item.main_dir):
-            fixed_path = Utils.fix_path_prefix(self.main_win_item.main_dir)
+            slashed = Utils.normalize_slash(self.main_win_item.main_dir)
+            fixed_path = Utils.fix_path_prefix(slashed)
             if fixed_path:
                 self.main_win_item.main_dir = fixed_path
 

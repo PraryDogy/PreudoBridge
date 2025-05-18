@@ -49,7 +49,8 @@ class FavItem(QLabel):
     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
         if ev.button() == Qt.MouseButton.LeftButton:
             if not os.path.exists(self.src):
-                fixed_path = Utils.fix_path_prefix(self.src)
+                slashed = Utils.normalize_slash(self.src)
+                fixed_path = Utils.fix_path_prefix(slashed)
                 if fixed_path:
                     # удаляем из избранного старый айтем с неверной директорией
                     # добавляем новый айтем на то же место
