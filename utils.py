@@ -54,8 +54,10 @@ class Err:
         print(f"\n{type(error).__name__}: {msg}\n{filepath}:{line_number}\n")
         return msg
 
-class ReadImage(Err):
+class ReadImage:
     # Перенос. Нужно вынести в отдельный класс Static
+    # Необходим метод Err.print_error для вывода ошибок
+
     ext_jpeg = (
         ".jpg", ".JPG",
         ".jpeg", ".JPEG",
@@ -161,7 +163,7 @@ class ReadImage(Err):
                 img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
             return img
         except (tifffile.TiffFileError, RuntimeError, DelayedImportError, Exception) as e: 
-            Utils.print_error(e)
+            Err.print_error(e)
             try:
                 img = Image.open(path)
                 img = img.convert("RGB")
@@ -169,7 +171,7 @@ class ReadImage(Err):
                 img.close()
                 return array_img
             except Exception as e:
-                Utils.print_error(e)
+                Err.print_error(e)
                 return None
                     
     @classmethod
@@ -181,7 +183,7 @@ class ReadImage(Err):
             array_img = np.array(img)
             return array_img
         except Exception as e:
-            Utils.print_error(e)
+            Err.print_error(e)
             return None
 
     @classmethod
@@ -196,7 +198,7 @@ class ReadImage(Err):
             img.close()
             return array_img
         except Exception as e:
-            Utils.print_error(e)
+            Err.print_error(e)
             return None
 
     @classmethod
@@ -208,7 +210,7 @@ class ReadImage(Err):
             img.close()
             return array_img
         except Exception as e:
-            Utils.print_error(e)
+            Err.print_error(e)
             return None
 
     @classmethod
@@ -242,12 +244,12 @@ class ReadImage(Err):
                     elif orientation == 8:
                         img = img.rotate(90, expand=True)
             except Exception as e:
-                Utils.print_error(e)
+                Err.print_error(e)
             array_img = np.array(img)
             img.close()
             return array_img
         except (Exception, rawpy._rawpy.LibRawDataError) as e:
-            Utils.print_error(e)
+            Err.print_error(e)
             return None
 
     @classmethod
@@ -263,7 +265,7 @@ class ReadImage(Err):
             else:
                 return None
         except Exception as e:
-            Utils.print_error(e)
+            Err.print_error(e)
             return None
 
     @classmethod
@@ -285,7 +287,7 @@ class ReadImage(Err):
             return None
 
 
-class ImgConvert(Err):
+class ImgConvert:
 
     @classmethod
     def bytes_to_array(cls, blob: bytes) -> np.ndarray:
@@ -296,7 +298,7 @@ class ImgConvert(Err):
                 return np.array(image)
             
         except Exception as e:
-            Utils.print_error(e)
+            Err.print_error(e)
             return None
 
     @classmethod
@@ -309,11 +311,11 @@ class ImgConvert(Err):
                 return buffer.getvalue()
             
         except Exception as e:
-            Utils.print_error(e)
+            Err.print_error(e)
             return None
 
 
-class Pixmap(Err):
+class Pixmap:
 
     @classmethod
     def pixmap_from_array(cls, image: np.ndarray) -> QPixmap | None:
@@ -532,7 +534,7 @@ class FitImg:
         try:
             return cls.fit_image(image, size)
         except Exception as e:
-            Utils.print_error(e)
+            Err.print_error(e)
             return None
 
     @classmethod
