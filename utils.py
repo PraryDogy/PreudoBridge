@@ -50,7 +50,7 @@ class Err:
         if msg.startswith("[Errno"):
             msg = msg.split("]", 1)[-1].strip()
 
-        print(f"\n{type(error).__name__}: {msg} {filepath}:{line_number}\n")
+        print(f"\n{type(error).__name__}: {msg}\n{filepath}:{line_number}\n")
         return msg
 
 class ReadImage(Err):
