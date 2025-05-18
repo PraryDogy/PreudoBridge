@@ -84,7 +84,9 @@ class Static:
 
     ext_raw = (
         ".nef", ".cr2", ".cr3", ".arw", ".raf",
+        ".dng", ".rw2", ".orf", ".srw", ".pef", ".rwl", ".mos", ".kdc", ".mrw", ".x3f",
         ".NEF", ".CR2", ".CR3", ".ARW", ".RAF",
+        ".DNG", ".RW2", ".ORF", ".SRW", ".PEF", ".RWL", ".MOS", ".KDC", ".MRW", ".X3F",
     )
 
     ext_video = (
