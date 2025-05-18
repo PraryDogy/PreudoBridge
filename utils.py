@@ -10,6 +10,7 @@ import cv2
 import numpy as np
 import psd_tools
 import rawpy
+import rawpy._rawpy
 import tifffile
 from imagecodecs.imagecodecs import DelayedImportError
 from PIL import Image
@@ -150,12 +151,20 @@ class ReadImage(Err):
     @classmethod
     def read_raw(cls, path: str) -> np.ndarray | None:
         try:
+            # https://github.com/letmaik/rawpy
+            # Извлечение встроенного эскиза/превью из RAW-файла и преобразование в изображение:
+            # Открываем RAW-файл с помощью rawpy
             with rawpy.imread(path) as raw:
+                # Извлекаем встроенный эскиз (thumbnail)
                 thumb = raw.extract_thumb()
+            # Проверяем формат извлечённого эскиза
             if thumb.format == rawpy.ThumbFormat.JPEG:
+                # Если это JPEG — открываем как изображение через BytesIO
                 img = Image.open(io.BytesIO(thumb.data))
+                # Конвертируем в RGB (на случай, если изображение не в RGB)
                 img = img.convert("RGB")
             elif thumb.format == rawpy.ThumbFormat.BITMAP:
+                # Если формат BITMAP — создаём изображение из массива
                 img: Image.Image = Image.fromarray(thumb.data)
             try:
                 exif = img.getexif()
