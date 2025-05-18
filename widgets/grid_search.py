@@ -152,9 +152,11 @@ class SearchTask(URunnable):
             while self.pause:
                 QTest.qSleep(SearchTask.sleep_ms)
                 if not self.is_should_run():
+                    print("search task stoped")
                     return
 
             if not self.is_should_run():
+                print("search task stoped")
                 return
 
             if not os.path.exists(current_dir):
@@ -175,8 +177,10 @@ class SearchTask(URunnable):
             while self.pause:
                 QTest.qSleep(SearchTask.sleep_ms)
                 if not self.is_should_run():
+                    print("search task stoped")
                     return
             if not self.is_should_run():
+                print("search task stoped")
                 return
             if entry.name.startswith(Static.hidden_file_syms):
                 continue
