@@ -63,35 +63,61 @@ class Static:
     LINE_FEED  = "\u000a" # символ PyQt5, который равен новой строке
 
     ext_jpeg = (
-        ".jpg", ".jpeg", ".jfif",
-        ".JPG", ".JPEG", ".JFIF",
+        ".jpg", ".JPG",
+        ".jpeg", ".JPEG",
+        ".jpe", ".JPE",
+        ".jfif", ".JFIF",
+        ".bmp", ".BMP",
+        ".dib", ".DIB",
+        ".webp", ".WEBP",
+        ".ppm", ".PPM",
+        ".pgm", ".PGM",
+        ".pbm", ".PBM",
+        ".pnm", ".PNM",
+        ".gif", ".GIF",
+        ".ico", ".ICO",
     )
 
     ext_tiff = (
-        ".tif", ".tiff",
-        ".TIF", ".TIFF",
+        ".tif", ".TIF",
+        ".tiff", ".TIFF",
     )
 
     ext_psd = (
-        ".psd", ".psb",
-        ".PSD", ".PSB",
+        ".psd", ".PSD",
+        ".psb", ".PSB",
     )
 
     ext_png = (
-        ".png",
-        ".PNG",
+        ".png", ".PNG",
     )
 
     ext_raw = (
-        ".nef", ".cr2", ".cr3", ".arw", ".raf",
-        ".dng", ".rw2", ".orf", ".srw", ".pef", ".rwl", ".mos", ".kdc", ".mrw", ".x3f",
-        ".NEF", ".CR2", ".CR3", ".ARW", ".RAF",
-        ".DNG", ".RW2", ".ORF", ".SRW", ".PEF", ".RWL", ".MOS", ".KDC", ".MRW", ".X3F",
+        ".nef", ".NEF",
+        ".cr2", ".CR2",
+        ".cr3", ".CR3",
+        ".arw", ".ARW",
+        ".raf", ".RAF",
+        ".dng", ".DNG",
+        ".rw2", ".RW2",
+        ".orf", ".ORF",
+        ".srw", ".SRW",
+        ".pef", ".PEF",
+        ".rwl", ".RWL",
+        ".mos", ".MOS",
+        ".kdc", ".KDC",
+        ".mrw", ".MRW",
+        ".x3f", ".X3F",
     )
 
     ext_video = (
-        ".avi", ".mp4", ".mov", ".mkv", ".wmv", ".flv", ".webm",
-        ".AVI", ".MP4", ".MOV", ".MKV", ".WMV", ".FLV", ".WEBM",
+        ".avi", ".AVI",
+        ".mp4", ".MP4",
+        ".mov", ".MOV",
+        ".mkv", ".MKV",
+        ".wmv", ".WMV",
+        ".flv", ".FLV",
+        ".webm", ".WEBM",
     )
 
     ext_all = (
