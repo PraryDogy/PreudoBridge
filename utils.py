@@ -55,6 +55,66 @@ class Err:
         return msg
 
 class ReadImage(Err):
+    # Перенос. Нужно вынести в отдельный класс Static
+    ext_jpeg = (
+        ".jpg", ".JPG",
+        ".jpeg", ".JPEG",
+        ".jpe", ".JPE",
+        ".jfif", ".JFIF",
+        ".bmp", ".BMP",
+        ".dib", ".DIB",
+        ".webp", ".WEBP",
+        ".ppm", ".PPM",
+        ".pgm", ".PGM",
+        ".pbm", ".PBM",
+        ".pnm", ".PNM",
+        ".gif", ".GIF",
+        ".ico", ".ICO",
+    )
+
+    ext_tiff = (
+        ".tif", ".TIF",
+        ".tiff", ".TIFF",
+    )
+
+    ext_psd = (
+        ".psd", ".PSD",
+        ".psb", ".PSB",
+    )
+
+    ext_png = (
+        ".png", ".PNG",
+    )
+
+    ext_raw = (
+        ".nef", ".NEF",
+        ".cr2", ".CR2",
+        ".cr3", ".CR3",
+        ".arw", ".ARW",
+        ".raf", ".RAF",
+        ".dng", ".DNG",
+        ".rw2", ".RW2",
+        ".orf", ".ORF",
+        ".srw", ".SRW",
+        ".pef", ".PEF",
+        ".rwl", ".RWL",
+        ".mos", ".MOS",
+        ".kdc", ".KDC",
+        ".mrw", ".MRW",
+        ".x3f", ".X3F",
+    )
+
+    ext_video = (
+        ".avi", ".AVI",
+        ".mp4", ".MP4",
+        ".mov", ".MOV",
+        ".mkv", ".MKV",
+        ".wmv", ".WMV",
+        ".flv", ".FLV",
+        ".webm", ".WEBM",
+    )
+    # конец переноса
+
     read_any_dict = {}
 
     @classmethod
