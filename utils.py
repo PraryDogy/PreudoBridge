@@ -310,33 +310,25 @@ class ReadImage(Err):
         _, ext = os.path.splitext(path)
         ext = ext.lower()
 
-        data = {
-            ".psb": cls.read_psb,
-            ".psd": cls.read_psb,
+        data = {}
 
-            ".tif": cls.read_tiff,
-            ".tiff": cls.read_tiff,
+        for ext in Static.ext_psd:
+            data[ext] = cls.read_psb
 
-            ".nef": cls.read_raw,
-            ".cr2": cls.read_raw,
-            ".cr3": cls.read_raw,
-            ".arw": cls.read_raw,
-            ".raf": cls.read_raw,
+        for ext in Static.ext_tiff:
+            data[ext] = cls.read_tiff
 
-            ".jpg": cls.read_jpg,
-            ".jpeg": cls.read_jpg,
-            ".jfif": cls.read_jpg,
+        for ext in Static.ext_raw:
+            data[ext] = cls.read_raw
 
-            ".png": cls.read_png,
+        for ext in Static.ext_jpeg:
+            data[ext] = cls.read_jpg
 
-            ".avi": cls.read_movie,
-            ".mp4": cls.read_movie,
-            ".mov": cls.read_movie,
-            ".mkv": cls.read_movie,
-            ".wmv": cls.read_movie,
-            ".flv": cls.read_movie,
-            ".webm": cls.read_movie,
-        }
+        for ext in Static.ext_png:
+            data[ext] = cls.read_png
+
+        for ext in Static.ext_video:
+            data[ext] = cls.read_movie
 
         fn = data.get(ext)
 

@@ -62,12 +62,36 @@ class Static:
     PARAGRAPH_SEP = "\u2029" # символ PyQt5, который равен новой строке
     LINE_FEED  = "\u000a" # символ PyQt5, который равен новой строке
 
-    ext_jpeg = (".jpg", ".jpeg", ".jfif")
-    ext_tiff = (".tif", ".tiff")
-    ext_psd  = (".psd", ".psb")
-    ext_png  = (".png",)
-    ext_raw  = (".nef", ".cr2", ".cr3", ".arw", ".raf")
-    ext_video = (".avi", ".mp4", ".mov", ".mkv", ".wmv", ".flv", ".webm")
+    ext_jpeg = (
+        ".jpg", ".jpeg", ".jfif",
+        ".JPG", ".JPEG", ".JFIF",
+    )
+
+    ext_tiff = (
+        ".tif", ".tiff",
+        ".TIF", ".TIFF",
+    )
+
+    ext_psd = (
+        ".psd", ".psb",
+        ".PSD", ".PSB",
+    )
+
+    ext_png = (
+        ".png",
+        ".PNG",
+    )
+
+    ext_raw = (
+        ".nef", ".cr2", ".cr3", ".arw", ".raf",
+        ".NEF", ".CR2", ".CR3", ".ARW", ".RAF",
+    )
+
+    ext_video = (
+        ".avi", ".mp4", ".mov", ".mkv", ".wmv", ".flv", ".webm",
+        ".AVI", ".MP4", ".MOV", ".MKV", ".WMV", ".FLV", ".WEBM",
+    )
+
     ext_all = (
         *ext_jpeg,
         *ext_tiff,
@@ -75,12 +99,6 @@ class Static:
         *ext_png,
         *ext_raw,
         *ext_video,
-        *tuple(ext.upper() for ext in ext_jpeg),
-        *tuple(ext.upper() for ext in ext_tiff),
-        *tuple(ext.upper() for ext in ext_psd),
-        *tuple(ext.upper() for ext in ext_png),
-        *tuple(ext.upper() for ext in ext_raw),
-        *tuple(ext.upper() for ext in ext_video)
     )
 
     hidden_file_syms: tuple[str] = (".", "~$", "$")
