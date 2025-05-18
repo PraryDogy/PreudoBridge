@@ -54,6 +54,26 @@ class Err:
         return msg
 
 class ReadImage(Err):
+    read_any_dict = {}
+
+    @classmethod
+    def init_read_dict(cls):
+        for ext in Static.ext_psd:
+            cls.read_any_dict[ext] = cls.read_psb
+        for ext in Static.ext_tiff:
+            cls.read_any_dict[ext] = cls.read_tiff
+        for ext in Static.ext_raw:
+            cls.read_any_dict[ext] = cls.read_raw
+        for ext in Static.ext_jpeg:
+            cls.read_any_dict[ext] = cls.read_jpg
+        for ext in Static.ext_png:
+            cls.read_any_dict[ext] = cls.read_png
+        for ext in Static.ext_video:
+            cls.read_any_dict[ext] = cls.read_movie
+
+        for i in Static.ext_all:
+            if i not in ReadImage.read_any_dict:
+                raise Exception (f"utils > ReadImage > init_read_dict: не инициирован {i}")
 
     @classmethod
     def read_tiff(cls, path: str) -> np.ndarray | None:
@@ -201,90 +221,6 @@ class ReadImage(Err):
             Utils.print_error(e)
             return None
 
-
-    # """
-    # read jpg, png, raw
-    # PIL заменен на cv2, чтобы избежать segmentation fault / bus error
-    # """
-
-    # @classmethod
-    # def read_png(cls, path: str) -> np.ndarray | None:
-    #     try:
-    #         # Загружаем изображение с флагом IMREAD_UNCHANGED, чтобы сохранить альфа-канал (если он есть)
-    #         img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
-            
-    #         # Проверяем, что изображение было успешно загружено
-    #         if img is None:
-    #             raise ValueError("Image not loaded")
-            
-    #         # Проверяем, есть ли альфа-канал у изображения (RGBA)
-    #         # Если изображение состоит из 4 каналов (RGB + Alpha), то выполняем обработку
-    #         if img.shape[2] == 4:
-    #             # Извлекаем альфа-канал (4-й канал), который представляет прозрачность пикселей
-    #             # Альфа-канал содержит значения от 0 (полностью прозрачный) до 255 (полностью непрозрачный)
-    #             # Нормализуем альфа-канал, делая его диапазон от 0 до 1
-    #             alpha = img[:, :, 3] / 255.0  
-                
-    #             # Извлекаем RGB каналы (первые 3 канала, игнорируя альфа-канал)
-    #             bgr = img[:, :, :3]
-                
-    #             # Создаём белый фон того же размера, что и исходное изображение
-    #             # np.ones_like создаёт массив той же формы, но с единичными значениями
-    #             # Белый фон (в формате BGR)
-    #             white_bg = np.ones_like(bgr, dtype=np.uint8) * 255
-                
-    #             # Смешиваем изображение с белым фоном в зависимости от альфа-канала
-    #             # Если альфа-канал равен 1 (полностью непрозрачный), то берём только RGB изображение
-    #             # Если альфа-канал равен 0 (полностью прозрачный), то используем белый фон
-    #             img = (bgr * alpha[..., None] + white_bg * (1 - alpha[..., None])).astype(np.uint8)
-            
-    #         # Преобразуем изображение из формата BGR в RGB
-    #         # OpenCV использует BGR, а для большинства библиотек, включая Pillow, используется RGB
-    #         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            
-    #         return img
-    #     except Exception as e:
-    #         Utils.print_error(e)
-    #         return None
-
-    # @classmethod
-    # def read_jpg(cls, path: str) -> np.ndarray | None:
-    #     try:
-    #         img = cv2.imread(path)
-    #         if img is None:
-    #             raise ValueError("Image not loaded")
-    #         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    #         return img
-    #     except Exception as e:
-    #         Utils.print_error(e)
-    #         return None
-
-    # @classmethod
-    # def read_raw(cls, path: str) -> np.ndarray | None:
-    #     try:
-    #         with rawpy.imread(path) as raw:
-    #             thumb = raw.extract_thumb()
-            
-    #         if thumb.format == rawpy.ThumbFormat.JPEG:
-    #             img_array = np.asarray(bytearray(thumb.data), dtype=np.uint8)
-    #             # Декодируем изображение, получаем изображение в формате BGR
-    #             img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
-    #             # Преобразуем из BGR в RGB, чтобы цвета отображались корректно
-    #             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
-    #         # Если превью в формате BMP, преобразуем в изображение с использованием OpenCV
-    #         elif thumb.format == rawpy.ThumbFormat.BITMAP:
-    #             # Если данные уже в RGB (формат BMP), просто используем их
-    #             img = thumb.data
-    #             # Если данные в BGR, тогда нужно преобразовать в RGB
-    #             if len(img.shape) == 3 and img.shape[2] == 3:  # Проверяем, что изображение в BGR
-    #                 img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-
-    #         return img
-    #     except (Exception, rawpy._rawpy.LibRawDataError) as e:
-    #         Utils.print_error(e)
-    #         return None
-
     @classmethod
     def read_movie(cls, path: str, time_sec=1) -> np.ndarray | None:
         try:
@@ -310,27 +246,7 @@ class ReadImage(Err):
         _, ext = os.path.splitext(path)
         ext = ext.lower()
 
-        data = {}
-
-        for ext in Static.ext_psd:
-            data[ext] = cls.read_psb
-
-        for ext in Static.ext_tiff:
-            data[ext] = cls.read_tiff
-
-        for ext in Static.ext_raw:
-            data[ext] = cls.read_raw
-
-        for ext in Static.ext_jpeg:
-            data[ext] = cls.read_jpg
-
-        for ext in Static.ext_png:
-            data[ext] = cls.read_png
-
-        for ext in Static.ext_video:
-            data[ext] = cls.read_movie
-
-        fn = data.get(ext)
+        fn = ReadImage.read_any_dict.get(ext)
 
         if fn:
             cls.read_any = fn

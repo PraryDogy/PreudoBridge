@@ -48,11 +48,14 @@ else:
     sys.excepthook = System_.catch_error_in_proj
 
 
+import faulthandler
+
 from PyQt5.QtCore import QEvent, QObject, QTimer
 from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
 
 from cfg import JsonData
+from utils import ReadImage
 from widgets._base_items import BaseItem, UThreadPool, WinBase
 from widgets.main_win import MainWin
 
@@ -94,11 +97,10 @@ class CustomApp(QApplication):
         JsonData.write_config()
 
 
-import faulthandler
-
 faulthandler.enable()
 BaseItem.check()
 JsonData.init()
 UThreadPool.init()
+ReadImage.init_read_dict()
 app = CustomApp(argv=sys.argv)
 sys.exit(app.exec_())
