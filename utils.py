@@ -57,21 +57,21 @@ class ReadImage(Err):
     read_any_dict = {}
 
     @classmethod
-    def init_read_dict(cls):
-        for ext in Static.ext_psd:
+    def init_read_dict(cls, cfg: Static):
+        for ext in cfg.ext_psd:
             cls.read_any_dict[ext] = cls.read_psb
-        for ext in Static.ext_tiff:
+        for ext in cfg.ext_tiff:
             cls.read_any_dict[ext] = cls.read_tiff
-        for ext in Static.ext_raw:
+        for ext in cfg.ext_raw:
             cls.read_any_dict[ext] = cls.read_raw
-        for ext in Static.ext_jpeg:
+        for ext in cfg.ext_jpeg:
             cls.read_any_dict[ext] = cls.read_jpg
-        for ext in Static.ext_png:
+        for ext in cfg.ext_png:
             cls.read_any_dict[ext] = cls.read_png
-        for ext in Static.ext_video:
+        for ext in cfg.ext_video:
             cls.read_any_dict[ext] = cls.read_movie
 
-        for i in Static.ext_all:
+        for i in cfg.ext_all:
             if i not in ReadImage.read_any_dict:
                 raise Exception (f"utils > ReadImage > init_read_dict: не инициирован {i}")
 
@@ -107,44 +107,6 @@ class ReadImage(Err):
             except Exception as e:
                 Utils.print_error(e)
                 return None
-
-    @classmethod
-    def read_psd(cls, path: str) -> np.ndarray | None:
-
-        with open(path, "rb") as psd_file:
-
-            # Проверяем, что файл имеет правильную подпись PSD/PSB:
-            # В начале файла (первые 4 байта) должна быть строка '8BPS', 
-            # которая является стандартной подписью для форматов PSD и PSB.
-            # Если подпись не совпадает, файл не является корректным PSD/PSB.
-            if psd_file.read(4) != b"8BPS":
-                return None
-
-            # Переходим к байту 12, где согласно спецификации PSD/PSB
-            # содержится число каналов изображения. Число каналов (2 байта)
-            # определяет, сколько цветовых и дополнительных каналов содержится в файле.
-            psd_file.seek(12)
-
-            # Считываем число каналов (2 байта, big-endian формат,
-            # так как PSD/PSB используют этот порядок байтов).
-            channels = int.from_bytes(psd_file.read(2), byteorder="big")
-
-            # Возвращаем указатель в начало файла (offset = 0),
-            # чтобы psd-tools или Pillow могли корректно прочитать файл с самого начала.
-            # Это важно, так как мы изменяли положение указателя для проверки структуры файла.
-            psd_file.seek(0)
-
-            try:
-                img = psd_tools.PSDImage.open(psd_file)
-                img = img.composite()
-                img = img.convert("RGB")
-                array_img = np.array(img)
-                # предотвращает segmentation fault
-                img.close()
-                return array_img
-            except Exception as e:
-                Utils.print_error(e)
-                return None
                     
     @classmethod
     def read_psb(cls, path: str):
@@ -157,11 +119,6 @@ class ReadImage(Err):
         except Exception as e:
             Utils.print_error(e)
             return None
-
-    """
-    read jpg, png, raw
-    PIL заменен на cv2, чтобы избежать segmentation fault / bus error
-    """
 
     @classmethod
     def read_png(cls, path: str) -> np.ndarray | None:
