@@ -20,7 +20,7 @@ class WorkerSignals(QObject):
     finished_ = pyqtSignal(list)
 
 
-class SearchFinder(URunnable):
+class SearchTask(URunnable):
     sleep_ms = 1000
     new_wid_sleep_ms = 200
 
@@ -51,10 +51,9 @@ class SearchFinder(URunnable):
                 for i in self.search_item.get_files_list()
             ]
 
-            if no_ext_list:
-                for i in no_ext_list:
-                    if i not in self.found_files_list:
-                        missed_files_list.append(i)
+            for i in no_ext_list:
+                if i not in self.found_files_list:
+                    missed_files_list.append(i)
 
         try:
             self.signals_.finished_.emit(missed_files_list)
@@ -151,7 +150,7 @@ class SearchFinder(URunnable):
             current_dir = dirs_list.pop()
 
             while self.pause:
-                QTest.qSleep(SearchFinder.sleep_ms)
+                QTest.qSleep(SearchTask.sleep_ms)
                 if not self.is_should_run():
                     return
 
@@ -174,7 +173,7 @@ class SearchFinder(URunnable):
     def scan_current_dir(self, dir: str, dirs_list: list):
         for entry in os.scandir(dir):
             while self.pause:
-                QTest.qSleep(SearchFinder.sleep_ms)
+                QTest.qSleep(SearchTask.sleep_ms)
                 if not self.is_should_run():
                     return
             if not self.is_should_run():
@@ -195,7 +194,7 @@ class SearchFinder(URunnable):
         self.base_item.setup_attrs()
         self.base_item.set_pixmap_storage(self.pixmap)
         self.signals_.new_widget.emit(self.base_item)
-        QTest.qSleep(SearchFinder.new_wid_sleep_ms)
+        QTest.qSleep(SearchTask.new_wid_sleep_ms)
 
 
 class WinMissedFiles(MinMaxDisabledWin):
@@ -252,10 +251,6 @@ class WinMissedFiles(MinMaxDisabledWin):
         return super().keyPressEvent(a0)
 
 
-class Tsk:
-    curr: SearchFinder = None
-
-
 class GridSearch(Grid):
     finished_ = pyqtSignal()
     no_result_text = "Ничего не найдено"
@@ -263,8 +258,8 @@ class GridSearch(Grid):
 
     def __init__(self, main_win_item: MainWinItem, view_index: int):
         super().__init__(main_win_item, view_index)
-        self.search_item: SearchItem = None
         self.setAcceptDrops(False)
+        self.search_item: SearchItem = None
 
         # значение общего числа виджетов в сетке для нижнего бара приложения
         self.total = 0
@@ -282,18 +277,15 @@ class GridSearch(Grid):
         self.search_item = search_item
 
     def start_search(self):
-        if Tsk.curr and not Tsk.curr.is_finished():
-            QTimer.singleShot(500, self.start_search)    
-        else:
-            self.total_count_update.emit(0)
-            self.path_bar_update.emit(self.main_win_item.main_dir)
-            Thumb.calculate_size()
-            self.is_grid_search = True
+        self.total_count_update.emit(0)
+        self.path_bar_update.emit(self.main_win_item.main_dir)
+        Thumb.calculate_size()
+        self.is_grid_search = True
 
-            Tsk.curr = SearchFinder(self.main_win_item, self.search_item)
-            Tsk.curr.signals_.new_widget.connect(self.add_new_widget)
-            Tsk.curr.signals_.finished_.connect(lambda missed_files_list: self.search_fin(missed_files_list))
-            UThreadPool.start(Tsk.curr)
+        self.search_task = SearchTask(self.main_win_item, self.search_item)
+        self.search_task.signals_.new_widget.connect(self.add_new_widget)
+        self.search_task.signals_.finished_.connect(lambda missed_files_list: self.search_fin(missed_files_list))
+        UThreadPool.start(self.search_task)
 
     def add_new_widget(self, base_item: BaseItem):
         self.thumb = Thumb(base_item.src, base_item.rating)
@@ -342,21 +334,21 @@ class GridSearch(Grid):
             Utils.print_error(e)
 
     def sort_thumbs(self):
-        Tsk.curr.pause = True
+        self.search_task.pause = True
         super().sort_thumbs()
         self.rearrange_thumbs()
         self.pause_timer.stop()
         self.pause_timer.start(GridSearch.pause_time_ms)
 
     def filter_thumbs(self):
-        Tsk.curr.pause = True
+        self.search_task.pause = True
         super().filter_thumbs()
         self.rearrange_thumbs()
         self.pause_timer.stop()
         self.pause_timer.start(GridSearch.pause_time_ms)
 
     def resize_thumbs(self):
-        Tsk.curr.pause = True
+        self.search_task.pause = True
         super().resize_thumbs()
         self.rearrange_thumbs()
         self.pause_timer.stop()
@@ -366,12 +358,12 @@ class GridSearch(Grid):
         super().rearrange_thumbs()
 
     def remove_pause(self):
-        if Tsk.curr:
+        if self.search_task:
             if not self.pause_by_btn:
-                Tsk.curr.pause = False
+                self.search_task.pause = False
 
     def toggle_pause(self, value: bool):
-        Tsk.curr.pause = value
+        self.search_task.pause = value
         self.pause_by_btn = value
 
     def resizeEvent(self, a0):
@@ -379,9 +371,9 @@ class GridSearch(Grid):
         return super().resizeEvent(a0)
     
     def closeEvent(self, a0):
-        Tsk.curr.set_should_run(False)
+        self.search_task.set_should_run(False)
         return super().closeEvent(a0)
 
     def deleteLater(self):
-        Tsk.curr.set_should_run(False)
+        self.search_task.set_should_run(False)
         return super().deleteLater()
