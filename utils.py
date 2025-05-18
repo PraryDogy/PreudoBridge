@@ -329,8 +329,13 @@ class ReadImage(Err):
 
             ".png": cls.read_png,
 
+            ".avi": cls.read_movie,
+            ".mp4": cls.read_movie,
             ".mov": cls.read_movie,
-            ".mp4": cls.read_movie
+            ".mkv": cls.read_movie,
+            ".wmv": cls.read_movie,
+            ".flv": cls.read_movie,
+            ".webm": cls.read_movie,
         }
 
         fn = data.get(ext)

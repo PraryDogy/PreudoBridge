@@ -67,7 +67,7 @@ class Static:
     ext_psd  = (".psd", ".psb")
     ext_png  = (".png",)
     ext_raw  = (".nef", ".cr2", ".cr3", ".arw", ".raf")
-    ext_video = (".mov", ".mp4")
+    ext_video = (".avi", ".mp4", ".mov", ".mkv", ".wmv", ".flv", ".webm")
     ext_all = (
         *ext_jpeg,
         *ext_tiff,
