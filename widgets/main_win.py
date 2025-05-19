@@ -474,17 +474,7 @@ class MainWin(WinBase):
             a0.ignore()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:  
-        if a0.key() in (Qt.Key.Key_Right, Qt.Key.Key_Left, Qt.Key.Key_Space, Qt.Key.Key_Return):
-            if not self.grid.hasFocus():
-                self.grid.setFocus()
-                self.grid.keyPressEvent(a0)
-
-        elif a0.modifiers() & Qt.KeyboardModifier.ControlModifier and a0.key() == Qt.Key.Key_Up:
-            if not self.grid.hasFocus():
-                self.grid.setFocus()
-                self.grid.keyPressEvent(a0)
-
-        elif a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
+        if a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
             if a0.key() == Qt.Key.Key_F:
                 self.top_bar.search_wid.setFocus()
                 self.top_bar.search_wid.selectAll()
