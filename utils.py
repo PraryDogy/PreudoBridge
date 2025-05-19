@@ -353,7 +353,7 @@ class Pixmap:
         )
     
 
-class Utils(Pixmap, ReadImage, ImgConvert):
+class Utils(Pixmap, ReadImage, ImgConvert, Err):
     # Необходим метод Err.print_error для вывода ошибок
 
     @classmethod
