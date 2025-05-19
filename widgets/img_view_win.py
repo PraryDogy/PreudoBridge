@@ -284,7 +284,7 @@ class ImgViewWin(WinBase):
         self.resize(ImgViewWin.width_, ImgViewWin.height_)
         self.setObjectName(ImgViewWin.object_name)
         self.setStyleSheet(
-            f"""#{ImgViewWin.objectName} {{background: black}}"""
+            f"""#{ImgViewWin.object_name} {{background: black}}"""
         )
 
         self.url_to_wid: dict[str, Thumb] = url_to_wid
@@ -316,7 +316,7 @@ class ImgViewWin(WinBase):
         self.zoom_btns.cmd_in.connect(self.img_wid.zoom_in)
         self.zoom_btns.cmd_out.connect(self.img_wid.zoom_out)
         self.zoom_btns.cmd_fit.connect(self.img_wid.zoom_reset)
-        self.zoom_btns.cmd_close.connect(self.close)
+        self.zoom_btns.cmd_close.connect(self.deleteLater)
 
         self.loading_label = QLabel(parent=self.img_wid)
         self.loading_label.hide()
@@ -500,7 +500,11 @@ class ImgViewWin(WinBase):
 
     def deleteLater(self):
         LoadImage.cached_images.clear()
-        super().deleteLater()
+        return super().deleteLater()
+
+    def closeEvent(self, a0):
+        LoadImage.cached_images.clear()
+        return super().closeEvent(a0)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         urls = [self.current_path]
