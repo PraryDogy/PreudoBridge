@@ -867,8 +867,6 @@ class Grid(UScrollArea):
             wid.set_frame()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
-        clicked_wid: Thumb
-
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
             if a0.key() == Qt.Key.Key_C:
                 self.setup_urls_to_copy()
@@ -883,16 +881,16 @@ class Grid(UScrollArea):
             elif a0.key() == Qt.Key.Key_Down:
                 # если есть выделенные виджеты, то берется url последнего из списка
                 if self.selected_widgets:
-                    clicked_wid = self.selected_widgets[-1]
-                    if clicked_wid:
-                        self.select_one_wid(clicked_wid)
-                        self.view_thumb(clicked_wid)
+                    self.wid_under_mouse = self.selected_widgets[-1]
+                    if self.wid_under_mouse:
+                        self.select_one_wid(self.wid_under_mouse)
+                        self.view_thumb(self.wid_under_mouse)
 
             elif a0.key() == Qt.Key.Key_I:
                 if self.selected_widgets:
-                    clicked_wid = self.selected_widgets[-1]
-                    self.select_one_wid(clicked_wid)
-                    self.win_info_cmd(clicked_wid.src)
+                    self.wid_under_mouse = self.selected_widgets[-1]
+                    self.select_one_wid(self.wid_under_mouse)
+                    self.win_info_cmd(self.wid_under_mouse.src)
                 else:
                     self.win_info_cmd(self.main_win_item.main_dir)
 
@@ -908,9 +906,9 @@ class Grid(UScrollArea):
 
             elif a0.key() == Qt.Key.Key_A:
                 self.clear_selected_widgets()
-                for cell, clicked_wid in self.cell_to_wid.items():
-                    clicked_wid.set_frame()
-                    self.selected_widgets.append(clicked_wid)
+                for cell, wid in self.cell_to_wid.items():
+                    wid.set_frame()
+                    self.selected_widgets.append(wid)
 
             elif a0.key() == Qt.Key.Key_Backspace:
                 urls = [i.src for i in self.selected_widgets]
@@ -918,33 +916,33 @@ class Grid(UScrollArea):
 
         elif a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
             if self.selected_widgets:
-                clicked_wid = self.selected_widgets[-1]
-                if clicked_wid:
-                    self.select_one_wid(wid=clicked_wid)
-                    self.view_thumb(clicked_wid)
+                self.wid_under_mouse = self.selected_widgets[-1]
+                if self.wid_under_mouse:
+                    self.select_one_wid(self.wid_under_mouse)
+                    self.view_thumb(self.wid_under_mouse)
 
         elif a0.key() in KEY_NAVI:
             offset = KEY_NAVI.get(a0.key())
 
             # если не выделено ни одного виджета
             if not self.selected_widgets:
-                wid = self.cell_to_wid.get((0, 0))
+                self.wid_under_mouse = self.cell_to_wid.get((0, 0))
             else:
-                wid = self.selected_widgets[-1]
+                self.wid_under_mouse = self.selected_widgets[-1]
 
             # если нет даже первого виджета значит сетка пуста
-            if not wid:
+            if not self.wid_under_mouse:
                 return
 
             coords = (
-                wid.row + offset[0], 
-                wid.col + offset[1]
+                self.wid_under_mouse.row + offset[0], 
+                self.wid_under_mouse.col + offset[1]
             )
 
-            clicked_wid = self.cell_to_wid.get(coords)
+            self.wid_under_mouse = self.cell_to_wid.get(coords)
 
-            if clicked_wid:
-                self.select_one_wid(wid=clicked_wid)
+            if self.wid_under_mouse:
+                self.select_one_wid(self.wid_under_mouse)
 
         elif a0.key() in KEY_RATING:
             rating = KEY_RATING.get(a0.key())
@@ -954,10 +952,10 @@ class Grid(UScrollArea):
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         menu_ = UMenu(parent=self)
-        clicked_wid = self.get_wid_under_mouse(a0)
+        self.wid_under_mouse = self.get_wid_under_mouse(a0)
 
         # клик по пустому пространству
-        if not clicked_wid:
+        if not self.wid_under_mouse:
             self.clear_selected_widgets()
             self.grid_context_actions(menu_)
 
@@ -966,15 +964,15 @@ class Grid(UScrollArea):
             # если не было выделено ни одного виджет ранее
             # то выделяем кликнутый
             if not self.selected_widgets:
-                self.select_widget(clicked_wid)
+                self.select_widget(self.wid_under_mouse)
             # если есть выделенные виджеты, но кликнутый виджет не выделены
             # то снимаем выделение с других и выделяем кликнутый
-            elif clicked_wid not in self.selected_widgets:
+            elif self.wid_under_mouse not in self.selected_widgets:
                 self.clear_selected_widgets()
-                self.select_widget(clicked_wid)
+                self.select_widget(self.wid_under_mouse)
             
-            if isinstance(clicked_wid, (BaseItem, Thumb)):
-                self.thumb_context_actions(menu_, clicked_wid)
+            if isinstance(self.wid_under_mouse, (BaseItem, Thumb)):
+                self.thumb_context_actions(menu_, self.wid_under_mouse)
             else:
                 self.grid_context_actions(menu_)
 
