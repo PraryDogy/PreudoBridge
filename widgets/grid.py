@@ -707,8 +707,6 @@ class Grid(UScrollArea):
         """
         wid = QApplication.widgetAt(a0.globalPos())
 
-        print("get wid un")
-        
         if isinstance(wid, (TextWidget, RatingWid, ImgFrame)):
             return wid.parent()
         elif isinstance(wid, (QLabel, QSvgWidget)):
@@ -783,6 +781,7 @@ class Grid(UScrollArea):
 
     def mousePressEvent(self, a0):
         self.wid_under_mouse = self.get_wid_under_mouse(a0)
+        self.already_processed_wid: list[Thumb] = []
         if a0.button() == Qt.MouseButton.LeftButton:
             self.origin_pos = a0.pos()
             self.selection_mode = False
@@ -806,18 +805,25 @@ class Grid(UScrollArea):
         if self.rubberBand.isVisible():
             rect = QRect(self.origin_pos, a0.pos()).normalized()
             self.rubberBand.setGeometry(rect)
-
             ctrl = a0.modifiers() == Qt.KeyboardModifier.ControlModifier
 
             for coord, wid in self.cell_to_wid.items():
-                intersects = rect.intersects(wid.geometry())
+                if wid in self.already_processed_wid:
+                    continue
 
+                intersects = rect.intersects(wid.geometry())
                 if intersects:
-                    if wid not in self.selected_widgets:
-                        self.select_widget(wid)
-                else:
-                    if not ctrl:
+                    self.already_processed_wid.append(wid)
+                    if ctrl:
                         if wid in self.selected_widgets:
+                            wid.set_no_frame()
+                            self.selected_widgets.remove(wid)
+                        else:
+                            self.select_widget(wid)
+                    else:
+                        if wid not in self.selected_widgets:
+                            self.select_widget(wid)
+                        else:
                             wid.set_no_frame()
                             self.selected_widgets.remove(wid)
             return
@@ -843,6 +849,8 @@ class Grid(UScrollArea):
         
         if urls:
             self.mime_data.setUrls(urls)
+        
+        if self.wid_under_mouse:
             self.path_bar_update_cmd(self.wid_under_mouse.src)
 
         self.drag.setMimeData(self.mime_data)
