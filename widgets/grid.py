@@ -706,6 +706,8 @@ class Grid(UScrollArea):
         в случае клика по ним, возвращается .parent().parent()
         """
         wid = QApplication.widgetAt(a0.globalPos())
+
+        print("get wid un")
         
         if isinstance(wid, (TextWidget, RatingWid, ImgFrame)):
             return wid.parent()
@@ -775,16 +777,15 @@ class Grid(UScrollArea):
             self.select_one_wid(self.wid_under_mouse)
 
     def mouseDoubleClickEvent(self, a0):
-        self.wid_under_mouse = self.get_wid_under_mouse(a0)
         if self.wid_under_mouse:
             self.select_one_wid(self.wid_under_mouse)
             self.view_thumb(self.wid_under_mouse)
 
     def mousePressEvent(self, a0):
+        self.wid_under_mouse = self.get_wid_under_mouse(a0)
         if a0.button() == Qt.MouseButton.LeftButton:
             self.origin_pos = a0.pos()
             self.selection_mode = False
-            self.wid_under_mouse = self.get_wid_under_mouse(a0)
             if self.wid_under_mouse is None:
                 self.rubberBand.setGeometry(QRect(self.origin_pos, QSize()))
                 self.rubberBand.show()
@@ -1071,7 +1072,7 @@ class Grid(UScrollArea):
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         menu_ = UMenu(parent=self)
-        self.wid_under_mouse = self.get_wid_under_mouse(a0)
+        # self.wid_under_mouse = self.get_wid_under_mouse(a0)
 
         # клик по пустому пространству
         if not self.wid_under_mouse:
