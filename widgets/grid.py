@@ -727,7 +727,7 @@ class Grid(UScrollArea):
             shrink = 6
 
             for wid in self.cell_to_wid.values():
-                wid_rect = wid.geometry().adjusted(shrink, shrink, -shrink, -shrink)
+                wid_rect = wid.geometry()
                 intersects = rect.intersects(wid_rect)
 
                 if intersects:
@@ -745,7 +745,6 @@ class Grid(UScrollArea):
                         wid.set_no_frame()
                         self.selected_widgets.remove(wid)
             return
-                    
 
         if self.wid_under_mouse is None:
             self.clear_selected_widgets()
