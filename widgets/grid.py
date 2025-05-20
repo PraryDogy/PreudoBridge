@@ -324,6 +324,7 @@ class Grid(UScrollArea):
         self.origin_pos = QPoint()
         self.rubberBand = QRubberBand(QRubberBand.Rectangle, self.main_wid)
         self.wid_under_mouse: Thumb = None
+        self.selection_mode: bool = False
 
         # отложенное подключение клика мышки нужно для того
         # избежать бага выделения виджета, когда кликаешь на папку
@@ -981,12 +982,15 @@ class Grid(UScrollArea):
     def mouseReleaseEvent_(self, a0: QMouseEvent):
         if a0.button() != Qt.MouseButton.LeftButton:
             return
-        
-        if self.rubberBand.isVisible():
-            self.rubberBand.hide()
-            return
 
-        if not isinstance(self.wid_under_mouse, Thumb):
+        if self.selection_mode:
+            self.rubberBand.hide()
+            self.selection_mode = False
+            return
+    
+        self.wid_under_mouse = self.get_wid_under_mouse(a0)
+
+        if self.wid_under_mouse is None:
             self.clear_selected_widgets()
             self.path_bar_update_cmd(self.main_win_item.main_dir)
             return
@@ -1043,6 +1047,7 @@ class Grid(UScrollArea):
     def mousePressEvent(self, a0):
         if a0.button() == Qt.MouseButton.LeftButton:
             self.origin_pos = a0.pos()
+            self.selection_mode = False
             self.wid_under_mouse = self.get_wid_under_mouse(a0)
             if self.wid_under_mouse is None:
                 self.rubberBand.setGeometry(QRect(self.origin_pos, QSize()))
@@ -1059,6 +1064,8 @@ class Grid(UScrollArea):
         if distance < QApplication.startDragDistance():
             return
         
+        self.selection_mode = True 
+
         if self.rubberBand.isVisible():
             rect = QRect(self.origin_pos, a0.pos()).normalized()
             self.rubberBand.setGeometry(rect)
