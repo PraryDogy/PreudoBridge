@@ -724,9 +724,10 @@ class Grid(UScrollArea):
             rect = QRect(self.origin_pos, a0.pos()).normalized()
             self.rubberBand.hide()
             ctrl = a0.modifiers() == Qt.KeyboardModifier.ControlModifier
+            x = 10
 
             for wid in self.cell_to_wid.values():
-                wid_rect = wid.geometry()
+                wid_rect = wid.geometry().adjusted(x, x, -x, -x)
                 intersects = rect.intersects(wid_rect)
 
                 if intersects:
