@@ -311,6 +311,11 @@ class Grid(UScrollArea):
         # виджеты с порядком сортировки
         self.sorted_widgets: list[Thumb] = []
 
+        self.origin_pos = QPoint()
+        self.rubberBand = QRubberBand(QRubberBand.Rectangle, self.main_wid)
+        self.wid_under_mouse: Thumb = None
+        self.selection_mode: bool = False
+
         self.main_wid = QWidget()
         self.setWidget(self.main_wid)
 
@@ -320,11 +325,6 @@ class Grid(UScrollArea):
         self.grid_layout.setAlignment(flags)
         self.main_wid.setLayout(self.grid_layout)
 
-
-        self.origin_pos = QPoint()
-        self.rubberBand = QRubberBand(QRubberBand.Rectangle, self.main_wid)
-        self.wid_under_mouse: Thumb = None
-        self.selection_mode: bool = False
 
         # отложенное подключение клика мышки нужно для того
         # избежать бага выделения виджета, когда кликаешь на папку
@@ -357,7 +357,6 @@ class Grid(UScrollArea):
         else:
             print("no splitter")
             return 1
-
 
     def path_bar_update_cmd(self, src: str):
         """
@@ -450,9 +449,6 @@ class Grid(UScrollArea):
             wid.src: wid
             for coords, wid in self.cell_to_wid.items()
         }
-
-    def ensure_wid_visible(self, wid: Thumb):
-        self.ensureWidgetVisible(wid)
 
     def add_widget_data(self, wid: Thumb, row: int, col: int):
         """
@@ -689,7 +685,7 @@ class Grid(UScrollArea):
             self.clear_selected_widgets()
             wid.set_frame()
             self.selected_widgets.append(wid)
-            self.ensure_wid_visible(wid)
+            self.ensureWidgetVisible(wid)
 
     def select_widget(self, wid: Thumb):
         """
