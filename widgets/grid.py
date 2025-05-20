@@ -358,23 +358,6 @@ class Grid(UScrollArea):
             print("no splitter")
             return 1
 
-    def set_mouseReleaseEvent(self):
-        self.mouseReleaseEvent = self.mouseReleaseEvent_
-
-    def select_one_wid(self, wid: BaseItem | Thumb):
-        """
-        Очищает визуальное выделение с выделенных виджетов и очищает список.  
-        Выделяет виджет, добавляет его в список выделенных виджетов.
-        """
-        if not isinstance(wid, (BaseItem, Thumb)):
-            return
-
-        self.path_bar_update_cmd(wid.src)
-        if isinstance(wid, Thumb):
-            self.clear_selected_widgets()
-            wid.set_frame()
-            self.selected_widgets.append(wid)
-            self.ensure_wid_visible(wid)
 
     def path_bar_update_cmd(self, src: str):
         """
@@ -535,86 +518,6 @@ class Grid(UScrollArea):
         self.win_info.center(self.window())
         self.win_info.show()
 
-    def thumb_context_actions(self, menu_: UMenu, wid: Thumb):
-
-        """
-        Контекстное меню Thumb
-        """
-        # собираем пути к файлам / папкам у выделенных виджетов
-        urls = [i.src for i in self.selected_widgets]
-        names = [i.name for i in self.selected_widgets]
-        total = len(self.selected_widgets)
-
-        self.path_bar_update_cmd(wid.src)
-
-        view_action = ItemActions.View(menu_)
-        view_action.triggered.connect(lambda: self.view_thumb(wid))
-        menu_.addAction(view_action)
-
-        if wid.type_ != Static.FOLDER_TYPE:
-            open_menu = ItemActions.OpenInApp(menu_, wid.src)
-            menu_.addMenu(open_menu)
-        else:
-            new_window = ItemActions.OpenInNewWindow(menu_)
-            cmd_ = lambda: self.open_in_new_win.emit(wid.src)
-            new_window.triggered.connect(cmd_)
-            menu_.addAction(new_window)
-
-        menu_.addSeparator()
-
-        info = ItemActions.Info(menu_)
-        info.triggered.connect(lambda: self.win_info_cmd(wid.src))
-        menu_.addAction(info)
-
-        show_in_finder_action = ItemActions.RevealInFinder(menu_, urls, total)
-        menu_.addAction(show_in_finder_action)
-
-        copy_path = ItemActions.CopyPath(menu_, urls, total)
-        menu_.addAction(copy_path)
-
-        copy_name = ItemActions.CopyName(menu_, names, total)
-        menu_.addAction(copy_name)
-
-        copy_files = ItemActions.CopyObjects(menu_, total)
-        copy_files.triggered.connect(self.setup_urls_to_copy)
-        menu_.addAction(copy_files)
-
-        menu_.addSeparator()
-
-        if wid.type_ == Static.FOLDER_TYPE:
-            if wid.src in JsonData.favs:
-                cmd_ = lambda: self.fav_cmd(offset=-1, src=wid.src)
-                fav_action = ItemActions.FavRemove(menu_)
-                fav_action.triggered.connect(cmd_)
-                menu_.addAction(fav_action)
-            else:
-                cmd_ = lambda: self.fav_cmd(offset=1, src=wid.src)
-                fav_action = ItemActions.FavAdd(menu_)
-                fav_action.triggered.connect(cmd_)
-                menu_.addAction(fav_action)
-
-            menu_.addSeparator()
-
-        rating_menu = ItemActions.RatingMenu(menu_, urls, total, wid.rating)
-        rating_menu.new_rating.connect(self.set_new_rating)
-        menu_.addMenu(rating_menu)
-
-        menu_.addSeparator()
-
-        # is grid search устанавливается на True при инициации GridSearch
-        if self.is_grid_search:
-            show_in_folder = ItemActions.ShowInGrid(menu_)
-            cmd_ = lambda: self.show_in_folder_cmd(wid)
-            show_in_folder.triggered.connect(cmd_)
-            menu_.addAction(show_in_folder)
-            menu_.addSeparator()
-
-        menu_.addSeparator()
-
-        remove_files = ItemActions.RemoveObjects(menu_, total)
-        remove_files.triggered.connect(lambda: self.remove_files_cmd(urls))
-        menu_.addAction(remove_files)
-
     def show_in_folder_cmd(self, wid: Thumb):
         """
         В сетке GridSearch к каждому Thumb добавляется пункт "Показать в папке"     
@@ -728,70 +631,6 @@ class Grid(UScrollArea):
         self.clear_selected_widgets()
         self.rearrange_thumbs()
 
-    def grid_context_actions(self, menu_: UMenu):
-        """
-        Контекстное меню Grid
-        """
-        self.path_bar_update_cmd(self.main_win_item.main_dir)
-
-        names = [os.path.basename(self.main_win_item.main_dir)]
-        urls = [self.main_win_item.main_dir]
-        total = 1
-
-        info = GridActions.Info(menu_)
-        info.triggered.connect(lambda: self.win_info_cmd(self.main_win_item.main_dir))
-        menu_.addAction(info)
-
-        reveal = GridActions.RevealInFinder(menu_, urls, total)
-        menu_.addAction(reveal)
-
-        copy_ = GridActions.CopyPath(menu_, urls, total)
-        menu_.addAction(copy_)
-
-        copy_name = GridActions.CopyName(menu_, names, total)
-        menu_.addAction(copy_name)
-
-        menu_.addSeparator()
-
-        if self.main_win_item.main_dir in JsonData.favs:
-            cmd_ = lambda: self.fav_cmd(-1, self.main_win_item.main_dir)
-            fav_action = GridActions.FavRemove(menu_)
-            fav_action.triggered.connect(cmd_)
-            menu_.addAction(fav_action)
-
-        else:
-            cmd_ = lambda: self.fav_cmd(+1, self.main_win_item.main_dir)
-            fav_action = GridActions.FavAdd(menu_)
-            fav_action.triggered.connect(cmd_)
-            menu_.addAction(fav_action)
-
-        menu_.addSeparator()
-
-        change_view = GridActions.ChangeViewMenu(menu_, self.view_index)
-        change_view.change_view_sig.connect(self.change_view.emit)
-        menu_.addMenu(change_view)
-
-        sort_menu = GridActions.SortMenu(menu_, self.sort_item)
-        sort_menu.sort_grid_sig.connect(lambda: self.sort_thumbs())
-        sort_menu.rearrange_grid_sig.connect(lambda: self.rearrange_thumbs())
-        sort_menu.sort_menu_update.connect(lambda: self.sort_menu_update.emit())
-        menu_.addMenu(sort_menu)
-
-        menu_.addSeparator()
-
-        if Dynamic.urls_to_copy and not self.is_grid_search:
-            paste_files = GridActions.PasteObjects(menu_, len(Dynamic.urls_to_copy))
-            paste_files.triggered.connect(self.paste_files)
-            menu_.addAction(paste_files)
-
-            paste_in = GridActions.PasteInFolder(menu_, len(Dynamic.urls_to_copy))
-            paste_in.triggered.connect(self.create_new_folder)
-            menu_.addAction(paste_in)
-
-        upd_ = GridActions.UpdateGrid(menu_)
-        upd_.triggered.connect(lambda: self.load_st_grid.emit())
-        menu_.addAction(upd_)
-
     def create_new_folder(self):
         self.rename_win = RenameWin("")
         self.rename_win.center(self.window())
@@ -827,6 +666,40 @@ class Grid(UScrollArea):
         wid.rating = new_rating
         wid.rating_wid.set_text(new_rating)
         wid.text_changed.emit()
+        
+    def clear_selected_widgets(self):
+        """
+        Очищает список выделенных виджетов и снимает визуальное выделение с них
+        """
+        """
+        спецагент
+        """
+        for i in self.selected_widgets:
+            i.set_no_frame()
+
+        self.selected_widgets.clear()
+
+    def select_one_wid(self, wid: BaseItem | Thumb):
+        """
+        Очищает визуальное выделение с выделенных виджетов и очищает список.  
+        Выделяет виджет, добавляет его в список выделенных виджетов.
+        """
+        if isinstance(wid, Thumb):
+            self.path_bar_update_cmd(wid.src)
+            self.clear_selected_widgets()
+            wid.set_frame()
+            self.selected_widgets.append(wid)
+            self.ensure_wid_visible(wid)
+
+    def select_widget(self, wid: Thumb):
+        """
+        Добавляет виджет в список выделенных виджетов и выделяет виджет визуально.  
+        Метод похож на select_one_widget, но поддерживает выделение нескольких  
+        виджетов.
+        """
+        if isinstance(wid, Thumb):
+            self.selected_widgets.append(wid)
+            wid.set_frame()
 
     def get_wid_under_mouse(self, a0: QMouseEvent) -> None | Thumb:
         """
@@ -844,140 +717,9 @@ class Grid(UScrollArea):
             return wid.parent().parent()
         else:
             return None
-        
-    def clear_selected_widgets(self):
-        """
-        Очищает список выделенных виджетов и снимает визуальное выделение с них
-        """
-        """
-        спецагент
-        """
-        for i in self.selected_widgets:
-            i.set_no_frame()
 
-        self.selected_widgets.clear()
-
-    def select_widget(self, wid: Thumb):
-        """
-        Добавляет виджет в список выделенных виджетов и выделяет виджет визуально.  
-        Метод похож на select_one_widget, но поддерживает выделение нескольких  
-        виджетов.
-        """
-        if isinstance(wid, Thumb):
-            self.selected_widgets.append(wid)
-            wid.set_frame()
-
-    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
-        if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
-            if a0.key() == Qt.Key.Key_C:
-                self.setup_urls_to_copy()
-
-            elif a0.key() == Qt.Key.Key_V:
-                if not self.is_grid_search:
-                    self.paste_files()
-
-            elif a0.key() == Qt.Key.Key_Up:
-                self.level_up.emit()
-
-            elif a0.key() == Qt.Key.Key_Down:
-                # если есть выделенные виджеты, то берется url последнего из списка
-                if self.selected_widgets:
-                    self.wid_under_mouse = self.selected_widgets[-1]
-                    if self.wid_under_mouse:
-                        self.select_one_wid(self.wid_under_mouse)
-                        self.view_thumb(self.wid_under_mouse)
-
-            elif a0.key() == Qt.Key.Key_I:
-                if self.selected_widgets:
-                    self.wid_under_mouse = self.selected_widgets[-1]
-                    self.select_one_wid(self.wid_under_mouse)
-                    self.win_info_cmd(self.wid_under_mouse.src)
-                else:
-                    self.win_info_cmd(self.main_win_item.main_dir)
-
-            elif a0.key() == Qt.Key.Key_Equal:
-                new_value = Dynamic.pixmap_size_ind + 1
-                if new_value <= len(ThumbData.PIXMAP_SIZE) - 1:
-                    self.move_slider.emit(new_value)
-
-            elif a0.key() == Qt.Key.Key_Minus:
-                new_value = Dynamic.pixmap_size_ind - 1
-                if new_value >= 0:
-                    self.move_slider.emit(new_value)
-
-            elif a0.key() == Qt.Key.Key_A:
-                self.clear_selected_widgets()
-                for cell, wid in self.cell_to_wid.items():
-                    wid.set_frame()
-                    self.selected_widgets.append(wid)
-
-            elif a0.key() == Qt.Key.Key_Backspace:
-                urls = [i.src for i in self.selected_widgets]
-                self.remove_files_cmd(urls)
-
-        elif a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
-            if self.selected_widgets:
-                self.wid_under_mouse = self.selected_widgets[-1]
-                if self.wid_under_mouse:
-                    self.select_one_wid(self.wid_under_mouse)
-                    self.view_thumb(self.wid_under_mouse)
-
-        elif a0.key() in KEY_NAVI:
-            offset = KEY_NAVI.get(a0.key())
-
-            # если не выделено ни одного виджета
-            if not self.selected_widgets:
-                self.wid_under_mouse = self.cell_to_wid.get((0, 0))
-            else:
-                self.wid_under_mouse = self.selected_widgets[-1]
-
-            # если нет даже первого виджета значит сетка пуста
-            if not self.wid_under_mouse:
-                return
-
-            coords = (
-                self.wid_under_mouse.row + offset[0], 
-                self.wid_under_mouse.col + offset[1]
-            )
-
-            self.wid_under_mouse = self.cell_to_wid.get(coords)
-
-            if self.wid_under_mouse:
-                self.select_one_wid(self.wid_under_mouse)
-
-        elif a0.key() in KEY_RATING:
-            rating = KEY_RATING.get(a0.key())
-            self.set_new_rating(rating)
-        
-        return super().keyPressEvent(a0)
-
-    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
-        menu_ = UMenu(parent=self)
-        self.wid_under_mouse = self.get_wid_under_mouse(a0)
-
-        # клик по пустому пространству
-        if not self.wid_under_mouse:
-            self.clear_selected_widgets()
-            self.grid_context_actions(menu_)
-
-        # клик по виджету
-        else:
-            # если не было выделено ни одного виджет ранее
-            # то выделяем кликнутый
-            if not self.selected_widgets:
-                self.select_widget(self.wid_under_mouse)
-            # если есть выделенные виджеты, но кликнутый виджет не выделены
-            # то снимаем выделение с других и выделяем кликнутый
-            elif self.wid_under_mouse not in self.selected_widgets:
-                self.clear_selected_widgets()
-                self.select_widget(self.wid_under_mouse)
-            
-            if isinstance(self.wid_under_mouse, (BaseItem, Thumb)):
-                self.thumb_context_actions(menu_, self.wid_under_mouse)
-            else:
-                self.grid_context_actions(menu_)
-
-        menu_.show_()
+    def set_mouseReleaseEvent(self):
+        self.mouseReleaseEvent = self.mouseReleaseEvent_
 
     def mouseReleaseEvent_(self, a0: QMouseEvent):
         if a0.button() != Qt.MouseButton.LeftButton:
@@ -1077,8 +819,7 @@ class Grid(UScrollArea):
 
                 if intersects:
                     if wid not in self.selected_widgets:
-                        wid.set_frame()
-                        self.selected_widgets.append(wid)
+                        self.select_widget(wid)
                 else:
                     if not ctrl:
                         if wid in self.selected_widgets:
@@ -1113,6 +854,254 @@ class Grid(UScrollArea):
         self.drag.exec_(Qt.DropAction.CopyAction)
 
         return super().mouseMoveEvent(a0)
+
+    def thumbContextActions(self, menu_: UMenu, wid: Thumb):
+        # собираем пути к файлам / папкам у выделенных виджетов
+        urls = [i.src for i in self.selected_widgets]
+        names = [i.name for i in self.selected_widgets]
+        total = len(self.selected_widgets)
+
+        self.path_bar_update_cmd(wid.src)
+
+        view_action = ItemActions.View(menu_)
+        view_action.triggered.connect(lambda: self.view_thumb(wid))
+        menu_.addAction(view_action)
+
+        if wid.type_ != Static.FOLDER_TYPE:
+            open_menu = ItemActions.OpenInApp(menu_, wid.src)
+            menu_.addMenu(open_menu)
+        else:
+            new_window = ItemActions.OpenInNewWindow(menu_)
+            cmd_ = lambda: self.open_in_new_win.emit(wid.src)
+            new_window.triggered.connect(cmd_)
+            menu_.addAction(new_window)
+
+        menu_.addSeparator()
+
+        info = ItemActions.Info(menu_)
+        info.triggered.connect(lambda: self.win_info_cmd(wid.src))
+        menu_.addAction(info)
+
+        show_in_finder_action = ItemActions.RevealInFinder(menu_, urls, total)
+        menu_.addAction(show_in_finder_action)
+
+        copy_path = ItemActions.CopyPath(menu_, urls, total)
+        menu_.addAction(copy_path)
+
+        copy_name = ItemActions.CopyName(menu_, names, total)
+        menu_.addAction(copy_name)
+
+        copy_files = ItemActions.CopyObjects(menu_, total)
+        copy_files.triggered.connect(self.setup_urls_to_copy)
+        menu_.addAction(copy_files)
+
+        menu_.addSeparator()
+
+        if wid.type_ == Static.FOLDER_TYPE:
+            if wid.src in JsonData.favs:
+                cmd_ = lambda: self.fav_cmd(offset=-1, src=wid.src)
+                fav_action = ItemActions.FavRemove(menu_)
+                fav_action.triggered.connect(cmd_)
+                menu_.addAction(fav_action)
+            else:
+                cmd_ = lambda: self.fav_cmd(offset=1, src=wid.src)
+                fav_action = ItemActions.FavAdd(menu_)
+                fav_action.triggered.connect(cmd_)
+                menu_.addAction(fav_action)
+
+            menu_.addSeparator()
+
+        rating_menu = ItemActions.RatingMenu(menu_, urls, total, wid.rating)
+        rating_menu.new_rating.connect(self.set_new_rating)
+        menu_.addMenu(rating_menu)
+
+        menu_.addSeparator()
+
+        # is grid search устанавливается на True при инициации GridSearch
+        if self.is_grid_search:
+            show_in_folder = ItemActions.ShowInGrid(menu_)
+            cmd_ = lambda: self.show_in_folder_cmd(wid)
+            show_in_folder.triggered.connect(cmd_)
+            menu_.addAction(show_in_folder)
+            menu_.addSeparator()
+
+        menu_.addSeparator()
+
+        remove_files = ItemActions.RemoveObjects(menu_, total)
+        remove_files.triggered.connect(lambda: self.remove_files_cmd(urls))
+        menu_.addAction(remove_files)
+
+    def gridContexActions(self, menu_: UMenu):
+        self.path_bar_update_cmd(self.main_win_item.main_dir)
+
+        names = [os.path.basename(self.main_win_item.main_dir)]
+        urls = [self.main_win_item.main_dir]
+        total = 1
+
+        info = GridActions.Info(menu_)
+        info.triggered.connect(lambda: self.win_info_cmd(self.main_win_item.main_dir))
+        menu_.addAction(info)
+
+        reveal = GridActions.RevealInFinder(menu_, urls, total)
+        menu_.addAction(reveal)
+
+        copy_ = GridActions.CopyPath(menu_, urls, total)
+        menu_.addAction(copy_)
+
+        copy_name = GridActions.CopyName(menu_, names, total)
+        menu_.addAction(copy_name)
+
+        menu_.addSeparator()
+
+        if self.main_win_item.main_dir in JsonData.favs:
+            cmd_ = lambda: self.fav_cmd(-1, self.main_win_item.main_dir)
+            fav_action = GridActions.FavRemove(menu_)
+            fav_action.triggered.connect(cmd_)
+            menu_.addAction(fav_action)
+
+        else:
+            cmd_ = lambda: self.fav_cmd(+1, self.main_win_item.main_dir)
+            fav_action = GridActions.FavAdd(menu_)
+            fav_action.triggered.connect(cmd_)
+            menu_.addAction(fav_action)
+
+        menu_.addSeparator()
+
+        change_view = GridActions.ChangeViewMenu(menu_, self.view_index)
+        change_view.change_view_sig.connect(self.change_view.emit)
+        menu_.addMenu(change_view)
+
+        sort_menu = GridActions.SortMenu(menu_, self.sort_item)
+        sort_menu.sort_grid_sig.connect(lambda: self.sort_thumbs())
+        sort_menu.rearrange_grid_sig.connect(lambda: self.rearrange_thumbs())
+        sort_menu.sort_menu_update.connect(lambda: self.sort_menu_update.emit())
+        menu_.addMenu(sort_menu)
+
+        menu_.addSeparator()
+
+        if Dynamic.urls_to_copy and not self.is_grid_search:
+            paste_files = GridActions.PasteObjects(menu_, len(Dynamic.urls_to_copy))
+            paste_files.triggered.connect(self.paste_files)
+            menu_.addAction(paste_files)
+
+            paste_in = GridActions.PasteInFolder(menu_, len(Dynamic.urls_to_copy))
+            paste_in.triggered.connect(self.create_new_folder)
+            menu_.addAction(paste_in)
+
+        upd_ = GridActions.UpdateGrid(menu_)
+        upd_.triggered.connect(lambda: self.load_st_grid.emit())
+        menu_.addAction(upd_)
+
+    def keyPressEvent(self, a0: QKeyEvent | None) -> None:
+        if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
+            if a0.key() == Qt.Key.Key_C:
+                self.setup_urls_to_copy()
+
+            elif a0.key() == Qt.Key.Key_V:
+                if not self.is_grid_search:
+                    self.paste_files()
+
+            elif a0.key() == Qt.Key.Key_Up:
+                self.level_up.emit()
+
+            elif a0.key() == Qt.Key.Key_Down:
+                # если есть выделенные виджеты, то берется url последнего из списка
+                if self.selected_widgets:
+                    self.wid_under_mouse = self.selected_widgets[-1]
+                    if self.wid_under_mouse:
+                        self.select_one_wid(self.wid_under_mouse)
+                        self.view_thumb(self.wid_under_mouse)
+
+            elif a0.key() == Qt.Key.Key_I:
+                if self.selected_widgets:
+                    self.wid_under_mouse = self.selected_widgets[-1]
+                    self.select_one_wid(self.wid_under_mouse)
+                    self.win_info_cmd(self.wid_under_mouse.src)
+                else:
+                    self.win_info_cmd(self.main_win_item.main_dir)
+
+            elif a0.key() == Qt.Key.Key_Equal:
+                new_value = Dynamic.pixmap_size_ind + 1
+                if new_value <= len(ThumbData.PIXMAP_SIZE) - 1:
+                    self.move_slider.emit(new_value)
+
+            elif a0.key() == Qt.Key.Key_Minus:
+                new_value = Dynamic.pixmap_size_ind - 1
+                if new_value >= 0:
+                    self.move_slider.emit(new_value)
+
+            elif a0.key() == Qt.Key.Key_A:
+                self.clear_selected_widgets()
+                for cell, wid in self.cell_to_wid.items():
+                    self.select_widget(wid)
+
+            elif a0.key() == Qt.Key.Key_Backspace:
+                urls = [i.src for i in self.selected_widgets]
+                self.remove_files_cmd(urls)
+
+        elif a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
+            if self.selected_widgets:
+                self.wid_under_mouse = self.selected_widgets[-1]
+                if self.wid_under_mouse:
+                    self.select_one_wid(self.wid_under_mouse)
+                    self.view_thumb(self.wid_under_mouse)
+
+        elif a0.key() in KEY_NAVI:
+            offset = KEY_NAVI.get(a0.key())
+
+            # если не выделено ни одного виджета
+            if not self.selected_widgets:
+                self.wid_under_mouse = self.cell_to_wid.get((0, 0))
+            else:
+                self.wid_under_mouse = self.selected_widgets[-1]
+
+            # если нет даже первого виджета значит сетка пуста
+            if not self.wid_under_mouse:
+                return
+
+            coords = (
+                self.wid_under_mouse.row + offset[0], 
+                self.wid_under_mouse.col + offset[1]
+            )
+
+            self.wid_under_mouse = self.cell_to_wid.get(coords)
+
+            if self.wid_under_mouse:
+                self.select_one_wid(self.wid_under_mouse)
+
+        elif a0.key() in KEY_RATING:
+            rating = KEY_RATING.get(a0.key())
+            self.set_new_rating(rating)
+        
+        return super().keyPressEvent(a0)
+
+    def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
+        menu_ = UMenu(parent=self)
+        self.wid_under_mouse = self.get_wid_under_mouse(a0)
+
+        # клик по пустому пространству
+        if not self.wid_under_mouse:
+            self.clear_selected_widgets()
+            self.gridContexActions(menu_)
+
+        # клик по виджету
+        else:
+            # если не было выделено ни одного виджет ранее
+            # то выделяем кликнутый
+            if not self.selected_widgets:
+                self.select_widget(self.wid_under_mouse)
+            # если есть выделенные виджеты, но кликнутый виджет не выделены
+            # то снимаем выделение с других и выделяем кликнутый
+            elif self.wid_under_mouse not in self.selected_widgets:
+                self.clear_selected_widgets()
+                self.select_widget(self.wid_under_mouse)
+            
+            if isinstance(self.wid_under_mouse, (BaseItem, Thumb)):
+                self.thumbContextActions(menu_, self.wid_under_mouse)
+            else:
+                self.gridContexActions(menu_)
+
+        menu_.show_()
     
     def dragEnterEvent(self, a0):
         if self.is_grid_search:
