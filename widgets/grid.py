@@ -358,7 +358,7 @@ class Grid(UScrollArea):
             return 1
 
     def set_mouseReleaseEvent(self):
-        self.mouseReleaseEvent = self.custom_mouseReleaseEvent
+        self.mouseReleaseEvent = self.mouseReleaseEvent_
 
     def select_one_wid(self, wid: BaseItem | Thumb):
         """
@@ -980,7 +980,7 @@ class Grid(UScrollArea):
 
         menu_.show_()
 
-    def custom_mouseReleaseEvent(self, a0: QMouseEvent):
+    def mouseReleaseEvent_(self, a0: QMouseEvent):
         if a0.button() != Qt.MouseButton.LeftButton:
             return
         
@@ -989,8 +989,12 @@ class Grid(UScrollArea):
             for coord, wid in self.cell_to_wid.items():
                 if selection_rect.intersects(wid.geometry()):
                     wid.set_frame()
+                    self.selected_widgets.append(wid)
                 else:
-                    wid.set_no_frame()
+                    if a0.modifiers() != Qt.KeyboardModifier.ControlModifier:
+                        wid.set_no_frame()
+                        if wid in self.selected_widgets:
+                            self.selected_widgets.remove(wid)
             self.rubberBand.hide()
             return
 
