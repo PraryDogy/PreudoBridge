@@ -788,7 +788,13 @@ class Grid(UScrollArea):
                 self.rubberBand.setGeometry(QRect(self.origin_pos, QSize()))
                 self.rubberBand.show()
         return super().mousePressEvent(a0)
-    
+
+    def intersection_area(self, rect1: QRect, rect2: QRect) -> int:
+        intersected_rect = rect1.intersected(rect2)
+        if intersected_rect.isEmpty():
+            return 0
+        return intersected_rect.width() * intersected_rect.height()
+
     def mouseMoveEvent(self, a0):
         try:
             distance = (a0.pos() - self.origin_pos).manhattanLength()
@@ -805,20 +811,24 @@ class Grid(UScrollArea):
             rect = QRect(self.origin_pos, a0.pos()).normalized()
             self.rubberBand.setGeometry(rect)
             ctrl = a0.modifiers() == Qt.KeyboardModifier.ControlModifier
+            shrink = 6
 
-            if not ctrl:
-                for coord, wid in self.cell_to_wid.items():
-                    shrink = 6
-                    wid_rect = wid.geometry().adjusted(shrink, shrink, -shrink, -shrink)
-                    intersects = rect.intersects(wid_rect)
-                    if intersects:
-                        if wid not in self.selected_widgets:
-                            self.select_widget(wid)
-                    else:
-                        if wid in self.selected_widgets:
-                            wid.set_no_frame()
-                            self.selected_widgets.remove(wid)
-            return
+            for wid in self.cell_to_wid.values():
+                wid_rect = wid.geometry().adjusted(shrink, shrink, -shrink, -shrink)
+                inter_area = self.intersection_area(rect, wid_rect)
+                wid_area = wid_rect.width() * wid_rect.height()
+                coverage = inter_area / wid_area if wid_area > 0 else 0
+
+                threshold = 0.1  # 10%
+                if coverage >= threshold:
+                    if wid not in self.selected_widgets:
+                        self.select_widget(wid)
+                else:
+                    if wid in self.selected_widgets:
+                        wid.set_no_frame()
+                        self.selected_widgets.remove(wid)
+
+        return
 
         if self.wid_under_mouse not in self.selected_widgets:
             self.select_one_wid(self.wid_under_mouse)
