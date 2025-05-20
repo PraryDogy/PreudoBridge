@@ -323,7 +323,7 @@ class Grid(UScrollArea):
 
         self.origin_pos = QPoint()
         self.rubberBand = QRubberBand(QRubberBand.Rectangle, self.main_wid)
-        self.selection_mode = False
+        self.wid_under_mouse: Thumb = None
 
         # отложенное подключение клика мышки нужно для того
         # избежать бага выделения виджета, когда кликаешь на папку
@@ -1053,33 +1053,29 @@ class Grid(UScrollArea):
     def mousePressEvent(self, a0):
         if a0.button() == Qt.MouseButton.LeftButton:
             self.origin_pos = a0.pos()
-            self.rubberBand.setGeometry(QRect(self.origin_pos, QSize()))
-            self.rubberBand.show()
-
+            self.wid_under_mouse = self.get_wid_under_mouse(a0)
+            if self.wid_under_mouse is None:
+                self.rubberBand.setGeometry(QRect(self.origin_pos, QSize()))
+                self.rubberBand.show()
         return super().mousePressEvent(a0)
     
     def mouseMoveEvent(self, a0):
         try:
             distance = (a0.pos() - self.origin_pos).manhattanLength()
-        except AttributeError:
+        except AttributeError as e:
+            Utils.print_error(e)
             return
 
         if distance < QApplication.startDragDistance():
             return
         
-        wid = self.get_wid_under_mouse(a0)
-
-        if not isinstance(wid, (BaseItem, Thumb)):
+        if self.wid_under_mouse is None:
             rect = QRect(self.origin_pos, a0.pos()).normalized()
             self.rubberBand.setGeometry(rect)
-            self.selection_mode = True
-            return
-        
-        if self.selection_mode:
             return
 
-        if wid not in self.selected_widgets:
-            self.select_one_wid(wid)
+        if self.wid_under_mouse not in self.selected_widgets:
+            self.select_one_wid(self.wid_under_mouse)
 
         urls = [
             i.src
@@ -1099,7 +1095,7 @@ class Grid(UScrollArea):
 
         if urls:
             self.mime_data.setUrls(urls)
-            self.path_bar_update_cmd(wid.src)
+            self.path_bar_update_cmd(self.wid_under_mouse.src)
 
         self.drag.setMimeData(self.mime_data)
         self.drag.exec_(Qt.DropAction.CopyAction)
