@@ -1069,8 +1069,8 @@ class Grid(UScrollArea):
                         wid.set_frame()
                         self.selected_widgets.append(wid)
                 else:
-                    wid.set_no_frame()
                     if wid in self.selected_widgets:
+                        wid.set_no_frame()
                         self.selected_widgets.remove(wid)
             return
 
