@@ -808,7 +808,7 @@ class Grid(UScrollArea):
 
             for coord, wid in self.cell_to_wid.items():
 
-                shrink = 6  # или 10, как нужно
+                shrink = 6
                 wid_rect = wid.geometry().adjusted(shrink, shrink, -shrink, -shrink)
                 intersects = rect.intersects(wid_rect)
 
