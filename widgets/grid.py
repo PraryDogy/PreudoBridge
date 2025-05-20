@@ -1002,9 +1002,7 @@ class Grid(UScrollArea):
             self.rubberBand.hide()
             return
 
-        clicked_wid = self.get_wid_under_mouse(a0)
-
-        if not isinstance(clicked_wid, Thumb):
+        if not isinstance(self.wid_under_mouse, Thumb):
             self.clear_selected_widgets()
             self.path_bar_update_cmd(self.main_win_item.main_dir)
             return
@@ -1012,7 +1010,7 @@ class Grid(UScrollArea):
         if a0.modifiers() == Qt.KeyboardModifier.ShiftModifier:
             # шифт клик: если не было выделенных виджетов
             if not self.selected_widgets:
-                self.select_widget(clicked_wid)
+                self.select_widget(self.wid_under_mouse)
             # шифт клик: если уже был выделен один / несколько виджетов
             else:
 
@@ -1020,14 +1018,14 @@ class Grid(UScrollArea):
                 start_pos = (self.selected_widgets[-1].row, self.selected_widgets[-1].col)
 
                 # шифт клик: слева направо (по возрастанию)
-                if coords.index((clicked_wid.row, clicked_wid.col)) > coords.index(start_pos):
+                if coords.index((self.wid_under_mouse.row, self.wid_under_mouse.col)) > coords.index(start_pos):
                     start = coords.index(start_pos)
-                    end = coords.index((clicked_wid.row, clicked_wid.col))
+                    end = coords.index((self.wid_under_mouse.row, self.wid_under_mouse.col))
                     coords = coords[start : end + 1]
 
                 # шифт клик: справа налево (по убыванию)
                 else:
-                    start = coords.index((clicked_wid.row, clicked_wid.col))
+                    start = coords.index((self.wid_under_mouse.row, self.wid_under_mouse.col))
                     end = coords.index(start_pos)
                     coords = coords[start : end]
 
@@ -1040,23 +1038,23 @@ class Grid(UScrollArea):
         elif a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
 
             # комманд клик: был выделен виджет, снять выделение
-            if clicked_wid in self.selected_widgets:
-                self.selected_widgets.remove(clicked_wid)
-                clicked_wid.set_no_frame()
+            if self.wid_under_mouse in self.selected_widgets:
+                self.selected_widgets.remove(self.wid_under_mouse)
+                self.wid_under_mouse.set_no_frame()
 
             # комманд клик: виджет не был виделен, выделить
             else:
-                self.select_widget(wid=clicked_wid)
-                self.path_bar_update_cmd(clicked_wid.src)
+                self.select_widget(self.wid_under_mouse)
+                self.path_bar_update_cmd(self.wid_under_mouse.src)
 
         else:
-            self.select_one_wid(clicked_wid)
+            self.select_one_wid(self.wid_under_mouse)
 
     def mouseDoubleClickEvent(self, a0):
-        clicked_wid = self.get_wid_under_mouse(a0)
-        if clicked_wid:
-            self.select_one_wid(clicked_wid)
-            self.view_thumb(clicked_wid)
+        self.wid_under_mouse = self.get_wid_under_mouse(a0)
+        if self.wid_under_mouse:
+            self.select_one_wid(self.wid_under_mouse)
+            self.view_thumb(self.wid_under_mouse)
 
     def mousePressEvent(self, a0):
         if a0.button() == Qt.MouseButton.LeftButton:
