@@ -1059,7 +1059,7 @@ class Grid(UScrollArea):
         if distance < QApplication.startDragDistance():
             return
         
-        if self.wid_under_mouse is None:
+        if self.rubberBand.isVisible():
             rect = QRect(self.origin_pos, a0.pos()).normalized()
             self.rubberBand.setGeometry(rect)
 
