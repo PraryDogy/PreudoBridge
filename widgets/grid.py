@@ -986,6 +986,10 @@ class Grid(UScrollArea):
         
         if self.rubberBand.isVisible():
             selection_rect = self.rubberBand.geometry()
+
+            if a0.modifiers() != Qt.KeyboardModifier.ControlModifier:
+                self.selected_widgets.clear()
+
             for coord, wid in self.cell_to_wid.items():
                 if selection_rect.intersects(wid.geometry()):
                     wid.set_frame()
@@ -1086,6 +1090,9 @@ class Grid(UScrollArea):
             for i in self.selected_widgets
         ]
 
+        for i in urls:
+            print(os.path.basename(i))
+
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
 
@@ -1096,7 +1103,7 @@ class Grid(UScrollArea):
             QUrl.fromLocalFile(i)
             for i in urls
             ]
-
+        
         if urls:
             self.mime_data.setUrls(urls)
             self.path_bar_update_cmd(self.wid_under_mouse.src)
