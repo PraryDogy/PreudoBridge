@@ -781,7 +781,6 @@ class Grid(UScrollArea):
 
     def mousePressEvent(self, a0):
         self.wid_under_mouse = self.get_wid_under_mouse(a0)
-        self.already_processed_wid: list[Thumb] = []
         if a0.button() == Qt.MouseButton.LeftButton:
             self.origin_pos = a0.pos()
             self.selection_mode = False
@@ -799,7 +798,7 @@ class Grid(UScrollArea):
 
         if distance < QApplication.startDragDistance():
             return
-        
+
         self.selection_mode = True 
 
         if self.rubberBand.isVisible():
@@ -808,12 +807,12 @@ class Grid(UScrollArea):
             ctrl = a0.modifiers() == Qt.KeyboardModifier.ControlModifier
 
             for coord, wid in self.cell_to_wid.items():
-                if wid in self.already_processed_wid:
-                    continue
 
-                intersects = rect.intersects(wid.geometry())
+                shrink = 6  # или 10, как нужно
+                wid_rect = wid.geometry().adjusted(shrink, shrink, -shrink, -shrink)
+                intersects = rect.intersects(wid_rect)
+
                 if intersects:
-                    self.already_processed_wid.append(wid)
                     if ctrl:
                         if wid in self.selected_widgets:
                             wid.set_no_frame()
