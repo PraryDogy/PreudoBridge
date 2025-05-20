@@ -806,23 +806,16 @@ class Grid(UScrollArea):
             self.rubberBand.setGeometry(rect)
             ctrl = a0.modifiers() == Qt.KeyboardModifier.ControlModifier
 
-            for coord, wid in self.cell_to_wid.items():
-
-                shrink = 6
-                wid_rect = wid.geometry().adjusted(shrink, shrink, -shrink, -shrink)
-                intersects = rect.intersects(wid_rect)
-
-                if intersects:
-                    if ctrl:
-                        if wid in self.selected_widgets:
-                            wid.set_no_frame()
-                            self.selected_widgets.remove(wid)
-                        else:
-                            self.select_widget(wid)
-                    else:
+            if not ctrl:
+                for coord, wid in self.cell_to_wid.items():
+                    shrink = 6
+                    wid_rect = wid.geometry().adjusted(shrink, shrink, -shrink, -shrink)
+                    intersects = rect.intersects(wid_rect)
+                    if intersects:
                         if wid not in self.selected_widgets:
                             self.select_widget(wid)
-                        else:
+                    else:
+                        if wid in self.selected_widgets:
                             wid.set_no_frame()
                             self.selected_widgets.remove(wid)
             return
