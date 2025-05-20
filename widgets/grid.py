@@ -311,13 +311,13 @@ class Grid(UScrollArea):
         # виджеты с порядком сортировки
         self.sorted_widgets: list[Thumb] = []
 
+        self.main_wid = QWidget()
+        self.setWidget(self.main_wid)
+
         self.origin_pos = QPoint()
         self.rubberBand = QRubberBand(QRubberBand.Rectangle, self.main_wid)
         self.wid_under_mouse: Thumb = None
         self.selection_mode: bool = False
-
-        self.main_wid = QWidget()
-        self.setWidget(self.main_wid)
 
         flags = Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
         self.grid_layout = QGridLayout()
@@ -725,8 +725,6 @@ class Grid(UScrollArea):
             self.rubberBand.hide()
             self.selection_mode = False
             return
-    
-        self.wid_under_mouse = self.get_wid_under_mouse(a0)
 
         if self.wid_under_mouse is None:
             self.clear_selected_widgets()
