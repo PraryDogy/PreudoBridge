@@ -2,12 +2,13 @@ import os
 import subprocess
 
 import sqlalchemy
-from PyQt5.QtCore import QMimeData, QObject, Qt, QTimer, QUrl, pyqtSignal
+from PyQt5.QtCore import (QMimeData, QObject, QPoint, QRect, QSize, Qt, QTimer,
+                          QUrl, pyqtSignal)
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
                          QPixmap)
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
-                             QSplitter, QVBoxLayout, QWidget)
+                             QRubberBand, QSplitter, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static, ThumbData
 from database import CACHE, Dbase
@@ -318,6 +319,11 @@ class Grid(UScrollArea):
         self.grid_layout.setSpacing(Grid.spacing_value)
         self.grid_layout.setAlignment(flags)
         self.main_wid.setLayout(self.grid_layout)
+
+
+        self.origin_pos = QPoint()
+        self.rubberBand = QRubberBand(QRubberBand.Rectangle, self.main_wid)
+        self.selection_mode = False
 
         # отложенное подключение клика мышки нужно для того
         # избежать бага выделения виджета, когда кликаешь на папку
@@ -977,6 +983,16 @@ class Grid(UScrollArea):
     def custom_mouseReleaseEvent(self, a0: QMouseEvent):
         if a0.button() != Qt.MouseButton.LeftButton:
             return
+        
+        if self.rubberBand.isVisible():
+            selection_rect = self.rubberBand.geometry()
+            for coord, wid in self.cell_to_wid.items():
+                if selection_rect.intersects(wid.geometry()):
+                    wid.set_frame()
+                else:
+                    wid.set_no_frame()
+            self.rubberBand.hide()
+            return
 
         clicked_wid = self.get_wid_under_mouse(a0)
 
@@ -1035,14 +1051,16 @@ class Grid(UScrollArea):
             self.view_thumb(clicked_wid)
 
     def mousePressEvent(self, a0):
-        if a0.button() != Qt.MouseButton.LeftButton:
-            return
-        self.drag_start_position = a0.pos()
+        if a0.button() == Qt.MouseButton.LeftButton:
+            self.origin_pos = a0.pos()
+            self.rubberBand.setGeometry(QRect(self.origin_pos, QSize()))
+            self.rubberBand.show()
+
         return super().mousePressEvent(a0)
     
     def mouseMoveEvent(self, a0):
         try:
-            distance = (a0.pos() - self.drag_start_position).manhattanLength()
+            distance = (a0.pos() - self.origin_pos).manhattanLength()
         except AttributeError:
             return
 
@@ -1052,6 +1070,12 @@ class Grid(UScrollArea):
         wid = self.get_wid_under_mouse(a0)
 
         if not isinstance(wid, (BaseItem, Thumb)):
+            rect = QRect(self.origin_pos, a0.pos()).normalized()
+            self.rubberBand.setGeometry(rect)
+            self.selection_mode = True
+            return
+        
+        if self.selection_mode:
             return
 
         if wid not in self.selected_widgets:

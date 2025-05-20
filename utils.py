@@ -115,6 +115,16 @@ class ReadImage:
         ".flv", ".FLV",
         ".webm", ".WEBM",
     )
+
+    ext_all = (
+        *ext_jpeg,
+        *ext_tiff,
+        *ext_psd,
+        *ext_png,
+        *ext_raw,
+        *ext_video,
+    )
+
     # конец переноса
 
     read_any_dict = {}
