@@ -983,20 +983,6 @@ class Grid(UScrollArea):
             return
         
         if self.rubberBand.isVisible():
-            selection_rect = self.rubberBand.geometry()
-
-            if a0.modifiers() != Qt.KeyboardModifier.ControlModifier:
-                self.selected_widgets.clear()
-
-            for coord, wid in self.cell_to_wid.items():
-                if selection_rect.intersects(wid.geometry()):
-                    wid.set_frame()
-                    self.selected_widgets.append(wid)
-                else:
-                    if a0.modifiers() != Qt.KeyboardModifier.ControlModifier:
-                        wid.set_no_frame()
-                        if wid in self.selected_widgets:
-                            self.selected_widgets.remove(wid)
             self.rubberBand.hide()
             return
 
@@ -1076,6 +1062,16 @@ class Grid(UScrollArea):
         if self.wid_under_mouse is None:
             rect = QRect(self.origin_pos, a0.pos()).normalized()
             self.rubberBand.setGeometry(rect)
+
+            for coord, wid in self.cell_to_wid.items():
+                if rect.intersects(wid.geometry()):
+                    if wid not in self.selected_widgets:
+                        wid.set_frame()
+                        self.selected_widgets.append(wid)
+                else:
+                    wid.set_no_frame()
+                    if wid in self.selected_widgets:
+                        self.selected_widgets.remove(wid)
             return
 
         if self.wid_under_mouse not in self.selected_widgets:
@@ -1085,9 +1081,6 @@ class Grid(UScrollArea):
             i.src
             for i in self.selected_widgets
         ]
-
-        for i in urls:
-            print(os.path.basename(i))
 
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
