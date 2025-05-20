@@ -724,7 +724,6 @@ class Grid(UScrollArea):
             rect = QRect(self.origin_pos, a0.pos()).normalized()
             self.rubberBand.hide()
             ctrl = a0.modifiers() == Qt.KeyboardModifier.ControlModifier
-            shrink = 6
 
             for wid in self.cell_to_wid.values():
                 wid_rect = wid.geometry()
