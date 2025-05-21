@@ -684,7 +684,6 @@ class Grid(UScrollArea):
             self.clear_selected_widgets()
             wid.set_frame()
             self.selected_widgets.append(wid)
-            self.ensureWidgetVisible(wid)
 
     def select_widget(self, wid: Thumb):
         """

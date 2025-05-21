@@ -69,5 +69,14 @@ class GoToWin(MinMaxDisabledWin):
         self.deleteLater()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
+        is_ok_pressed = a0.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter)
+
         if a0.key() == Qt.Key.Key_Escape:
             self.deleteLater()
+
+        elif a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
+            if is_ok_pressed:
+                self.finder_clicked()
+
+        elif is_ok_pressed:
+            self.inner_clicked()
