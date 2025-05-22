@@ -320,10 +320,16 @@ class CopyFilesWin(MinMaxDisabledWin):
         return text
 
     def set_max(self, progress: QProgressBar, value):
-        progress.setMaximum(abs(value))
+        try:
+            progress.setMaximum(abs(value))
+        except RuntimeError as e:
+            Utils.print_error(e)
 
     def set_value(self, progress: QProgressBar, value):
-        progress.setValue(value)
+        try:
+            progress.setValue(value)
+        except RuntimeError as e:
+            Utils.print_error(e)
 
     def cancel_cmd(self, *args):
         self.deleteLater()
