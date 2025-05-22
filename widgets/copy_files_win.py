@@ -70,12 +70,6 @@ class FileCopyWorker(URunnable):
                 Utils.print_error(e)
                 self.signals_.error_.emit()
                 return
-            try:
-                # прерываем процесс, если родительский виджет был уничтожен
-                self.report_progress()
-            except RuntimeError as e:
-                Utils.print_error(e)
-                return
 
         # создаем список путей к виджетам в сетке для выделения
         paths = self.get_final_paths(new_paths, self.dest)
@@ -97,7 +91,13 @@ class FileCopyWorker(URunnable):
                 fdest.write(buf)
                 # прибавляем в байтах сколько уже скопировано
                 self.copied_bytes += len(buf)
-                self.report_progress()
+
+                try:
+                    # прерываем процесс, если родительский виджет был уничтожен
+                    self.report_progress()
+                except RuntimeError as e:
+                    Utils.print_error(e)
+                    return
 
     def report_progress(self):
         # сколько уже скопировано в байтах переводим в МБ, потому что
