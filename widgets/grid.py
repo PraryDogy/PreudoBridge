@@ -814,7 +814,9 @@ class Grid(UScrollArea):
             Utils.print_error(e)
             return
 
-        if distance < QApplication.startDragDistance():
+        # if distance < QApplication.startDragDistance():
+            # return
+        if distance < 100:
             return
         
         if self.rubberBand.isVisible():
