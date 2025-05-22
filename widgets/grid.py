@@ -735,8 +735,15 @@ class Grid(UScrollArea):
             x = 10
 
             for wid in self.cell_to_wid.values():
-                wid_rect = wid.geometry().adjusted(x, x, -x, -x)
-                intersects = rect.intersects(wid_rect)
+
+                intersects = False
+                inner_widgets = wid.findChildren(QWidget)
+                for w in inner_widgets:
+                    top_left = w.mapTo(self, QPoint(0, 0))
+                    w_rect = QRect(top_left, w.size())
+                    if rect.intersects(w_rect):
+                        intersects = True
+                        break
 
                 if intersects:
                     if ctrl:
@@ -808,7 +815,6 @@ class Grid(UScrollArea):
             self.view_thumb(self.wid_under_mouse)
 
     def mousePressEvent(self, a0):
-        self.wid_under_mouse = self.get_wid_under_mouse(a0)
         if a0.button() == Qt.MouseButton.LeftButton:
             self.origin_pos = a0.pos()
             if self.wid_under_mouse is None:
