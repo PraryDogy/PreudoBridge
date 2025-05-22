@@ -97,6 +97,7 @@ class FileCopyWorker(URunnable):
                 fdest.write(buf)
                 # прибавляем в байтах сколько уже скопировано
                 self.copied_bytes += len(buf)
+                self.report_progress()
 
     def report_progress(self):
         # сколько уже скопировано в байтах переводим в МБ, потому что
@@ -289,27 +290,31 @@ class CopyFilesWin(MinMaxDisabledWin):
         progressbar_lay.setSpacing(10)
         progressbar_row.setLayout(progressbar_lay)
 
-        progressbar = QProgressBar()
-        progressbar.setFixedWidth(CopyFilesWin.progressbar_width)
-        progressbar_lay.addWidget(progressbar)
+        self.progressbar = QProgressBar()
+        self.progressbar.setFixedWidth(CopyFilesWin.progressbar_width)
+        progressbar_lay.addWidget(self.progressbar)
 
         cancel_btn = USvgSqareWidget(Static.CLEAR_SVG, 16)
         cancel_btn.mouseReleaseEvent = self.cancel_cmd
         progressbar_lay.addWidget(cancel_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        size_mb_lbl = QLabel(CopyFilesWin.preparing_text)
-        right_side_lay.addWidget(size_mb_lbl)
+        self.size_mb_lbl = QLabel(CopyFilesWin.preparing_text)
+        right_side_lay.addWidget(self.size_mb_lbl)
 
         self.adjustSize()
 
         if urls:
             task_ = FileCopyWorker(dest, urls)
-            task_.signals_.set_max.connect(lambda value: self.set_max(progressbar, value))
-            task_.signals_.set_value.connect(lambda value: self.set_value(progressbar, value))
-            task_.signals_.set_size_mb.connect(lambda text: size_mb_lbl.setText(text))
+            task_.signals_.set_max.connect(lambda value: self.set_max(value))
+            task_.signals_.set_value.connect(lambda value: self.set_value(value))
+            task_.signals_.set_size_mb.connect(lambda text: self.size_mb_text(text))
             task_.signals_.finished_.connect(lambda urls: self.on_finished(urls))
             task_.signals_.error_.connect(self.error_.emit)
             UThreadPool.start(task_)
+
+    def size_mb_text(self, text: str):
+        print(text)
+        self.size_mb_lbl.setText(text)
 
     def set_text(self, src: str, dest: str):
         return f"Из \"{src}\" в \"{dest}\""
@@ -319,15 +324,15 @@ class CopyFilesWin(MinMaxDisabledWin):
             return text[:limit] + "..."
         return text
 
-    def set_max(self, progress: QProgressBar, value):
+    def set_max(self, value):
         try:
-            progress.setMaximum(abs(value))
+            self.progressbar.setMaximum(abs(value))
         except RuntimeError as e:
             Utils.print_error(e)
 
-    def set_value(self, progress: QProgressBar, value):
+    def set_value(self, value):
         try:
-            progress.setValue(value)
+            self.progressbar.setValue(value)
         except RuntimeError as e:
             Utils.print_error(e)
 
