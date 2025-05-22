@@ -278,7 +278,7 @@ class ImgViewWin(WinBase):
     loading_text = "Загрузка"
     error_text = "Ошибка чтения изображения."
 
-    def __init__(self, current_path: str, url_to_wid: dict[str, Thumb]):
+    def __init__(self, current_path: str, url_to_wid: dict[str, Thumb], is_selection: bool):
         super().__init__()
         self.setMinimumSize(QSize(ImgViewWin.min_width_, ImgViewWin.min_height_))
         self.resize(ImgViewWin.width_, ImgViewWin.height_)
@@ -287,6 +287,7 @@ class ImgViewWin(WinBase):
             f"""#{ImgViewWin.object_name} {{background: black}}"""
         )
 
+        self.is_selection = is_selection
         self.url_to_wid: dict[str, Thumb] = url_to_wid
         self.urls: list = [i for i in self.url_to_wid]
         self.task_count: int = 0
@@ -409,8 +410,9 @@ class ImgViewWin(WinBase):
         self.current_thumb: Thumb = self.url_to_wid.get(self.current_path)
         self.current_thumb.text_changed.connect(self.set_title)
 
-        self.move_to_wid.emit(self.current_thumb)
-        self.move_to_url.emit(self.current_path)
+        if not self.is_selection:
+            self.move_to_wid.emit(self.current_thumb)
+            self.move_to_url.emit(self.current_path)
 
         self.loading_label.hide()
         self.set_title()

@@ -478,18 +478,27 @@ class Grid(UScrollArea):
         elif wid.type_ in Static.ext_all:
             # избегаем ошибки кругового импорта
             from .img_view_win import ImgViewWin
-            url_to_wid = {
-                url: wid
-                for url, wid in self.url_to_wid.items()
-                if not wid.must_hidden and wid.type_.endswith(Static.ext_all)
-            }
-            self.win_img_view = ImgViewWin(wid.src, url_to_wid)
+
+            if len(self.selected_widgets) == 1:
+                url_to_wid = {
+                    url: wid
+                    for url, wid in self.url_to_wid.items()
+                    if not wid.must_hidden and wid.type_.endswith(Static.ext_all)
+                }
+                is_selection = False
+            else:
+                url_to_wid = {
+                    i.src: i
+                    for i in self.selected_widgets
+                    if not wid.must_hidden and wid.type_.endswith(Static.ext_all)
+                }
+                is_selection = True
+
+            self.win_img_view = ImgViewWin(wid.src, url_to_wid, is_selection)
             self.win_img_view.move_to_wid.connect(lambda wid: self.select_one_wid(wid))
             self.win_img_view.new_rating.connect(lambda value: self.set_new_rating(value))
             self.win_img_view.center(self.window())
             self.win_img_view.show()
-            # почему тот.center снимает выделение с виджета
-            QTimer.singleShot(50, lambda: self.select_one_wid(wid))
 
         else:
             subprocess.Popen(["open", wid.src])
@@ -1042,7 +1051,6 @@ class Grid(UScrollArea):
             if self.selected_widgets:
                 self.wid_under_mouse = self.selected_widgets[-1]
                 if self.wid_under_mouse:
-                    self.select_one_wid(self.wid_under_mouse)
                     self.view_thumb(self.wid_under_mouse)
 
         elif a0.key() in KEY_NAVI:
