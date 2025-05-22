@@ -83,6 +83,9 @@ class FileCopyWorker(URunnable):
     def copy_by_bytes(self, src: str, dest: str):
         tmp = True
         buffer_size = 1024 * 1024  # 1 MB
+        mb_count_update = 5
+        report_interval = mb_count_update * 1024 * 1024  # 5 MB
+        reported_bytes = 0
         with open(src, 'rb') as fsrc, open(dest, 'wb') as fdest:
             while tmp:
                 buf = fsrc.read(buffer_size)
@@ -91,13 +94,15 @@ class FileCopyWorker(URunnable):
                 fdest.write(buf)
                 # прибавляем в байтах сколько уже скопировано
                 self.copied_bytes += len(buf)
+                reported_bytes += len(buf)  # <-- вот это добавь
 
-                try:
-                    # прерываем процесс, если родительский виджет был уничтожен
-                    self.report_progress()
-                except RuntimeError as e:
-                    Utils.print_error(e)
-                    return
+                if reported_bytes >= report_interval:
+                    try:
+                        self.report_progress()
+                    except RuntimeError as e:
+                        Utils.print_error(e)
+                        return
+                    reported_bytes = 0
 
     def report_progress(self):
         # сколько уже скопировано в байтах переводим в МБ, потому что
@@ -313,7 +318,6 @@ class CopyFilesWin(MinMaxDisabledWin):
             UThreadPool.start(task_)
 
     def size_mb_text(self, text: str):
-        print(text)
         self.size_mb_lbl.setText(text)
 
     def set_text(self, src: str, dest: str):
