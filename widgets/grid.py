@@ -729,7 +729,8 @@ class Grid(UScrollArea):
             return
         
         if self.rubberBand.isVisible():
-            rect = QRect(self.origin_pos, a0.pos()).normalized()
+            release_pos = self.main_wid.mapFrom(self, a0.pos())
+            rect = QRect(self.origin_pos, release_pos).normalized()
             self.rubberBand.hide()
             ctrl = a0.modifiers() == Qt.KeyboardModifier.ControlModifier
             x = 10
@@ -739,7 +740,7 @@ class Grid(UScrollArea):
                 intersects = False
                 inner_widgets = wid.findChildren(QWidget)
                 for w in inner_widgets:
-                    top_left = w.mapTo(self, QPoint(0, 0))
+                    top_left = w.mapTo(self.main_wid, QPoint(0, 0))
                     w_rect = QRect(top_left, w.size())
                     if rect.intersects(w_rect):
                         intersects = True
@@ -816,27 +817,27 @@ class Grid(UScrollArea):
 
     def mousePressEvent(self, a0):
         if a0.button() == Qt.MouseButton.LeftButton:
+            self.origin_pos = self.main_wid.mapFrom(self, a0.pos())
             self.wid_under_mouse = self.get_wid_under_mouse(a0)
-            if self.wid_under_mouse is None:
-                self.origin_pos = a0.pos()
-                self.rubberBand.setGeometry(QRect(self.origin_pos, QSize()))
-                self.rubberBand.show()
         return super().mousePressEvent(a0)
 
     def mouseMoveEvent(self, a0):
         try:
-            distance = (a0.pos() - self.origin_pos).manhattanLength()
+            current_pos = self.main_wid.mapFrom(self, a0.pos())
+            distance = (current_pos - self.origin_pos).manhattanLength()
         except AttributeError as e:
             Utils.print_error(e)
             return
 
-        # if distance < QApplication.startDragDistance():
-            # return
-        if distance < 100:
+        if distance < QApplication.startDragDistance():
             return
-        
+
+        if self.wid_under_mouse is None and not self.rubberBand.isVisible():
+            self.rubberBand.setGeometry(QRect(self.origin_pos, QSize()))
+            self.rubberBand.show()
+
         if self.rubberBand.isVisible():
-            rect = QRect(self.origin_pos, a0.pos()).normalized()
+            rect = QRect(self.origin_pos, current_pos).normalized()
             self.rubberBand.setGeometry(rect)
             return
 
