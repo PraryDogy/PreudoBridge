@@ -369,7 +369,7 @@ class MainWin(WinBase):
 
         old_grid = self.grid
         old_grid.hide()
-        old_grid.setParent(None)
+        # old_grid.setParent(None)
         QTimer.singleShot(MainWin.del_grid_timer, lambda: old_grid.deleteLater())
 
     def load_search_grid(self):
