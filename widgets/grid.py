@@ -571,7 +571,7 @@ class Grid(UScrollArea):
         self.win_copy.error_.connect(self.show_error_win)
         self.win_copy.center(self.window())
         self.win_copy.show()
-        self.win_copy.raise_()
+        QTimer.singleShot(300, self.win_copy.raise_)
 
     def paste_files_fin(self, dest: str):
         self.main_win_item.scroll_value = self.verticalScrollBar().value()
