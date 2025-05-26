@@ -228,7 +228,8 @@ class LoadImages(URunnable):
         Dbase.commit_(self.conn)
 
 class GridStandart(Grid):
-    no_images_text = "Папка пуста или нет подключения к диску"
+    empty_text = "Нет файлов"
+    not_exists_text = "Такой папки не существует"
 
     def __init__(self, main_win_item: MainWinItem, view_index: int):
         """
@@ -332,8 +333,16 @@ class GridStandart(Grid):
         # высчитываем размер Thumb
         Thumb.calculate_size()
 
-        if not self.base_items:
-            no_images = QLabel(GridStandart.no_images_text)
+        if not os.path.exists(self.main_win_item.main_dir):
+            no_images = QLabel(GridStandart.not_exists_text)
+            no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.grid_layout.addWidget(no_images, 0, 0)
+            self.loading_lbl.hide()
+            return
+
+        elif not self.base_items:
+            no_images = QLabel(GridStandart.empty_text)
             no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0)
