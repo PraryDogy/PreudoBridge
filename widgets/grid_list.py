@@ -291,6 +291,7 @@ class GridList(UTableView):
         self.win_copy.error_.connect(self.show_error_win)
         self.win_copy.center(self.window())
         self.win_copy.show()
+        self.win_copy.raise_()
 
     def paste_files_fin(self, urls: list[str]):
         self.load_st_grid.emit()

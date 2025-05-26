@@ -281,12 +281,13 @@ class CopyFilesWin(MinMaxDisabledWin):
         src = min(urls, key=len)
         src = os.path.dirname(Utils.normalize_slash(src))
         src = os.path.basename(src)
-        dest_ = os.path.basename(dest)
-
         src = self.limit_string(src)
-        dest_ = self.limit_string(dest)
-        bottom_lbl = QLabel(self.set_text(src, dest_))
-        right_side_lay.addWidget(bottom_lbl)
+
+        dest_ = os.path.basename(dest)
+        dest_ = self.limit_string(dest_)
+
+        src_dest_lbl = QLabel(self.set_text(src, dest_))
+        right_side_lay.addWidget(src_dest_lbl)
 
         progressbar_row = QWidget()
         right_side_lay.addWidget(progressbar_row)
@@ -307,6 +308,8 @@ class CopyFilesWin(MinMaxDisabledWin):
         right_side_lay.addWidget(self.size_mb_lbl)
 
         self.adjustSize()
+
+        return
 
         if urls:
             task_ = FileCopyWorker(dest, urls)
