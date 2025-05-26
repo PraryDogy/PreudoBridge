@@ -508,7 +508,10 @@ class Utils(Pixmap, ReadImage, ImgConvert, Err):
         ext: расширение файла .jpeg, ...
         generic_icons_dir: папка с иконками
         """
-        new_ext = ext.replace(".", "_")
+        if "." in ext:
+            new_ext = ext.replace(".", "_")
+        else:
+            new_ext = f"_{ext}"
         filename = f"{new_ext}.svg"
         return os.path.join(generic_icons_dir, filename)
 
