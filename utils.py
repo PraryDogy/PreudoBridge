@@ -502,13 +502,14 @@ class Utils(Pixmap, ReadImage, ImgConvert, Err):
         )
 
     @classmethod
-    def get_generic_icon_path(cls, ext: str, generic_icons_dir: str, svg="SVG"):
+    def get_generic_icon_path(cls, ext: str, generic_icons_dir: str):
         """
         Возвращает путь к файлу svg иконки
         ext: расширение файла .jpeg, ...
         generic_icons_dir: папка с иконками
         """
-        filename = svg + "_" + ext.replace(".", "") + ".svg"
+        new_ext = ext.replace(".", "_")
+        filename = f"{new_ext}.svg"
         return os.path.join(generic_icons_dir, filename)
 
     @classmethod
