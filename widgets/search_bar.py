@@ -16,6 +16,7 @@ class SearchBar(QFrame):
     checkbox_text = " Точное соответствие"
     pause_text = "Пауза"
     continue_text = "Продолжить"
+    searching_text = "Идет поиск"
     search_finished_text = "Поиск завершен"
     text_limit = 30
 
@@ -103,6 +104,8 @@ class SearchBar(QFrame):
         text = self.search_item.get_text()
         if len(text) > SearchBar.text_limit:
             text = text[:SearchBar.text_limit] + "..."
+        text = f"{SearchBar.searching_text}: \"{text}\""
+
         self.descr_lbl.setText(text)
         self.pause_btn.setDisabled(False)
         self.pause_btn.setText(SearchBar.pause_text)
