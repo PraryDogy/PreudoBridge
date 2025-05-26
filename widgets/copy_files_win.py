@@ -309,8 +309,6 @@ class CopyFilesWin(MinMaxDisabledWin):
 
         self.adjustSize()
 
-        return
-
         if urls:
             task_ = FileCopyWorker(dest, urls)
             task_.signals_.set_max.connect(lambda value: self.set_max(value))
