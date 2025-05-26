@@ -1,3 +1,4 @@
+import difflib
 import os
 import weakref
 from difflib import SequenceMatcher
@@ -23,6 +24,7 @@ class WorkerSignals(QObject):
 class SearchTask(URunnable):
     sleep_ms = 1000
     new_wid_sleep_ms = 200
+    ratio = 0.85
 
     def __init__(self, main_win_item: MainWinItem, search_item: SearchItem):
         super().__init__()
@@ -60,8 +62,6 @@ class SearchTask(URunnable):
         except RuntimeError as e:
             Utils.print_error(e)
 
-        print("search finished")
-
     def setup_search(self):
         if self.search_item.get_files_list():
             if self.search_item.get_exactly():
@@ -85,9 +85,6 @@ class SearchTask(URunnable):
             else:
                 self.process_entry = self.process_text_free
             self.text_lower = self.search_item.get_text().lower()
-
-    def compare_words(self, word1: str, word2: str):
-        return SequenceMatcher(None, word1, word2).ratio()
     
     def remove_extension(self, filename: str):
         return os.path.splitext(filename)
@@ -109,9 +106,8 @@ class SearchTask(URunnable):
         filename, _ = self.remove_extension(entry.name)
         filename: str = filename.lower()
 
-        # if self.compare_words(self.text_lower, filename) > SearchFinder.search_value:
-            # return True
-        if self.text_lower in filename or filename in self.text_lower:
+        # if self.text_lower in filename or filename in self.text_lower:
+        if self.similarity_ratio(self.text_lower, filename) > SearchTask.ratio:
             return True
         else:
             return False
@@ -139,10 +135,14 @@ class SearchTask(URunnable):
         true_filename, _ = self.remove_extension(entry.name)
         filename: str = true_filename.lower()
         for item in self.files_list_lower:
-            if item in filename or filename in item:
+            if self.similarity_ratio(item, filename) > SearchTask.ratio:
+            # if item in filename or filename in item:
                 self.found_files_list.append(true_filename)
                 return True
         return False
+
+    def similarity_ratio(self, a: str, b: str) -> float:
+        return difflib.SequenceMatcher(None, a, b).ratio()
 
     def scandir_recursive(self):
         # Инициализируем список с корневым каталогом
