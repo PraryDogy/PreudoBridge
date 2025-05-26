@@ -739,7 +739,8 @@ class Grid(UScrollArea):
             for wid in self.cell_to_wid.values():
 
                 intersects = False
-                inner_widgets = wid.findChildren(QWidget)
+                inner_widgets = wid.findChildren((TextWidget, ImgFrame))
+
                 for w in inner_widgets:
                     top_left = w.mapTo(self.main_wid, QPoint(0, 0))
                     w_rect = QRect(top_left, w.size())
