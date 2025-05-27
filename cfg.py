@@ -156,6 +156,7 @@ class ThumbData:
 class JsonData:
     favs = {}
     show_hidden = False
+    go_to_now = False
 
     udpdate_file_paths = [
         '/Volumes/Shares/Studio/MIUZ/Photo/Art/Raw/2024/soft/PreudoBridge.zip',

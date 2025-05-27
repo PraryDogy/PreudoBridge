@@ -146,30 +146,46 @@ class About(QGroupBox):
         h_lay.addWidget(descr)
 
 
-class ShowHidden(QGroupBox):
+class CheckboxGroup(QGroupBox):
     load_st_grid = pyqtSignal()
     text_ = "Отобазить скрытые файлы"
+    go_to_text = "\n".join([
+    "Включить автоматический переход при нажатии \"Перейти\",",
+    " если путь скопирован в буфер обмена.",
+    ])
     left_margin = 7
 
     def __init__(self):
         super().__init__()
 
-        h_lay = QHBoxLayout()
-        h_lay.setContentsMargins(ShowHidden.left_margin, 0, 0, 0)
+        h_lay = QVBoxLayout()
+        h_lay.setContentsMargins(CheckboxGroup.left_margin, 0, 0, 0)
         self.setLayout(h_lay)
 
-        self.checkbox = QCheckBox(" " + ShowHidden.text_)
+        self.checkbox = QCheckBox(" " + CheckboxGroup.text_)
         h_lay.addWidget(self.checkbox)
 
         if JsonData.show_hidden:
             self.checkbox.setChecked(True)
         
         self.checkbox.stateChanged.connect(self.on_state_changed)
+
+        self.checkbox_two = QCheckBox(" " + CheckboxGroup.go_to_text)
+        h_lay.addWidget(self.checkbox_two)
+
+        if JsonData.go_to_now:
+            self.checkbox_two.setChecked(True)
+        
+        self.checkbox_two.stateChanged.connect(self.on_state_changed_two)
         
     def on_state_changed(self, value: int):
         data = {0: False, 2: True}
         JsonData.show_hidden = data.get(value)
         self.load_st_grid.emit()
+ 
+    def on_state_changed_two(self, value: int):
+        data = {0: False, 2: True}
+        JsonData.go_to_now = data.get(value)
 
 
 class SettingsWin(MinMaxDisabledWin):
@@ -189,7 +205,7 @@ class SettingsWin(MinMaxDisabledWin):
         h_wid = QWidget()
         main_lay.addWidget(h_wid)
 
-        show_hidden = ShowHidden()
+        show_hidden = CheckboxGroup()
         show_hidden.load_st_grid.connect(self.load_st_grid.emit)
         main_lay.addWidget(show_hidden)
 
