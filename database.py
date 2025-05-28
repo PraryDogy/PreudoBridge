@@ -61,8 +61,8 @@ class Dbase:
             f"sqlite:///{path}",
             echo=False,
             connect_args={
-                "check_same_thread": False
-                # "timeout": 3
+                "check_same_thread": False,
+                "timeout": 3
             }
         )
 
