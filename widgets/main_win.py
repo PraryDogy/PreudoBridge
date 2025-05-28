@@ -7,7 +7,7 @@ from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QSplitter, QTabWidget,
                              QVBoxLayout, QWidget)
 
-from cfg import Static
+from cfg import Static, JsonData
 from utils import Utils
 
 from ._base_items import (BaseItem, MainWinItem, SearchItem, SortItem,
@@ -261,12 +261,19 @@ class MainWin(WinBase):
         self.top_bar.search_wid.setText(old_text)
 
     def open_go_win(self):
-        self.go_win = GoToWin()
-        self.go_win.closed.connect(self.go_win_closed)
-        self.go_win.center(self)
-        self.go_win.show()
+        if JsonData.go_to_now:
+            data = (0, Utils.read_from_clipboard())
+            self.go_win_closed(data)
+        else:
+            self.go_win = GoToWin()
+            self.go_win.closed.connect(self.go_win_closed)
+            self.go_win.center(self)
+            self.go_win.show()
 
     def go_win_closed(self, data: tuple[int, str]):
+        """
+        value: 0 = открыть путь в приложении, 1 = открыть путь к Finder
+        """
         value, path = data
         self.path_finder_task = PathFinder(path)
         cmd = lambda path: self.path_finder_finished(value, path)
