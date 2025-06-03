@@ -499,8 +499,5 @@ class MainWin(WinBase):
             
             elif a0.key() == Qt.Key.Key_2:
                 self.change_view(1)
-        
-        elif a0.key() in (keys):
-            self.grid.setFocus()
 
         return super().keyPressEvent(a0)

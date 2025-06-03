@@ -221,16 +221,3 @@ class FavsMenu(QListWidget):
             
             if url_ not in JsonData.favs and os.path.isdir(url_):
                 self.add_fav(src=url_)
-
-    def keyPressEvent(self, e):
-        keys = [
-            Qt.Key.Key_Right,
-            Qt.Key.Key_Left,
-            Qt.Key.Key_Up,
-            Qt.Key.Key_Down,
-            Qt.Key.Key_Space
-        ]
-
-        if e.key() in keys:
-            e.ignore()
-            # return
