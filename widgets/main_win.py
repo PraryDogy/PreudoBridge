@@ -376,7 +376,6 @@ class MainWin(WinBase):
 
         old_grid = self.grid
         old_grid.hide()
-        # old_grid.setParent(None)
         QTimer.singleShot(MainWin.del_grid_timer, lambda: old_grid.deleteLater())
 
     def load_search_grid(self):
@@ -388,7 +387,6 @@ class MainWin(WinBase):
         self.grid.set_sort_item(self.sort_item)
         self.grid.set_search_item(self.search_item)
         self.grid.start_search()
-        self.grid.setFocus()
 
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
 
@@ -453,9 +451,7 @@ class MainWin(WinBase):
             self.disable_wids(True)
 
         self.setup_grid_signals()
-
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
-        QTimer.singleShot(500, self.grid.setFocus)
 
     def scroll_up_toggle(self, value: int):
         if value == 0:
@@ -481,6 +477,13 @@ class MainWin(WinBase):
             a0.ignore()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:  
+        keys = [
+            Qt.Key.Key_Right,
+            Qt.Key.Key_Left,
+            Qt.Key.Key_Up,
+            Qt.Key.Key_Down,
+            Qt.Key.Key_Space
+        ]
         if a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
             if a0.key() == Qt.Key.Key_F:
                 self.top_bar.search_wid.setFocus()
@@ -494,5 +497,8 @@ class MainWin(WinBase):
             
             elif a0.key() == Qt.Key.Key_2:
                 self.change_view(1)
+        
+        elif a0.key() in (keys):
+            self.grid.setFocus()
 
         return super().keyPressEvent(a0)
