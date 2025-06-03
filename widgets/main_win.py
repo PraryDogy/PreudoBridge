@@ -395,6 +395,7 @@ class MainWin(WinBase):
         self.tags_menu.reset()
         
         self.setup_grid_signals()
+        QTimer.singleShot(300, self.grid.setFocus)
 
     def search_finished(self, id_: int):
         """
@@ -452,6 +453,7 @@ class MainWin(WinBase):
 
         self.setup_grid_signals()
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
+        QTimer.singleShot(300, self.grid.setFocus)
 
     def scroll_up_toggle(self, value: int):
         if value == 0:
