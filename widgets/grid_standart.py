@@ -372,6 +372,7 @@ class GridStandart(Grid):
         # если не будет прокрутки, то начнется подгрузка изображений в виджеты
         # в видимой области
         self.load_images_timer.start(100)
+        self.finished_.emit()
 
     def iter_base_items(self):
         self.hide()

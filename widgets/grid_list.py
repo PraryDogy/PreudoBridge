@@ -93,6 +93,7 @@ class GridList(UTableView):
         self.total_count_update.emit(row_count)
         self.loading_lbl.hide()
         self.show()
+        self.finished_.emit()
 
     def select_path(self, path: str):
         index = self._model.index(path, 0)
