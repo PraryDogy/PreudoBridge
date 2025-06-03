@@ -1085,6 +1085,7 @@ class Grid(UScrollArea):
 
             if self.wid_under_mouse:
                 self.select_one_wid(self.wid_under_mouse)
+                self.ensureWidgetVisible(self.wid_under_mouse)
 
         elif a0.key() in KEY_RATING:
             rating = KEY_RATING.get(a0.key())
