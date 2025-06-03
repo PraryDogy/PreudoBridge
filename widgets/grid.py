@@ -1083,12 +1083,7 @@ class Grid(UScrollArea):
 
             next_wid = self.cell_to_wid.get(coords)
 
-            if next_wid:
-                self.select_one_wid(next_wid)
-                self.ensureWidgetVisible(next_wid)
-                self.wid_under_mouse = next_wid
-
-            else:
+            if next_wid is None:
                 if a0.key() == Qt.Key.Key_Right:
                     coords = (
                         self.wid_under_mouse.row + 1, 
@@ -1100,10 +1095,11 @@ class Grid(UScrollArea):
                         self.col_count - 1
                     )
                 next_wid = self.cell_to_wid.get(coords)
-                if next_wid:
-                    self.select_one_wid(next_wid)
-                    self.ensureWidgetVisible(next_wid)
-                    self.wid_under_mouse = next_wid
+
+            if next_wid:
+                self.select_one_wid(next_wid)
+                self.ensureWidgetVisible(next_wid)
+                self.wid_under_mouse = next_wid
 
         elif a0.key() in KEY_RATING:
             rating = KEY_RATING.get(a0.key())
