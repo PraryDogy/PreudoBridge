@@ -114,7 +114,7 @@ class MainWin(WinBase):
     folders_text = "Папки"
     favs_text = "Избранное"
     new_win_offset = 20
-    del_grid_timer = 1000
+    del_grid_timer = 3000
     scroll_up_width_offset = 70
     scroll_up_height_offset = 110
 

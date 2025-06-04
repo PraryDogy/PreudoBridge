@@ -151,47 +151,39 @@ class ReadImage:
             if i not in ReadImage.read_any_dict:
                 raise Exception (f"utils > ReadImage > init_read_dict: не инициирован {i}")
 
-    # @classmethod
-    # def read_tiff(cls, path: str) -> np.ndarray | None:
-    #     try:
-    #         img = tifffile.imread(path)
-    #         # Проверяем, что изображение трёхмерное
-    #         if img.ndim == 3:
-    #             channels = min(img.shape)
-    #             channels_index = img.shape.index(channels)
-    #             # Транспонируем, если каналы на первом месте
-    #             if channels_index == 0:
-    #                 img = img.transpose(1, 2, 0)
-    #             # Ограничиваем количество каналов до 3
-    #             if channels > 3:
-    #                 img = img[:, :, :3]
-    #             # Преобразуем в uint8, если тип другой
-    #             if str(img.dtype) != "uint8":
-    #                 img = (img / 256).astype(dtype="uint8")
-    #         # Если изображение уже 2D, просто показываем его
-    #         elif img.ndim == 2:
-    #             img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
-    #         return img
-    #     except (tifffile.TiffFileError, RuntimeError, DelayedImportError, Exception) as e: 
-    #         Err.print_error(e)
-    #         try:
-    #             img = Image.open(path)
-    #             img = img.convert("RGB")
-    #             array_img = np.array(img)
-    #             img.close()
-    #             return array_img
-    #         except Exception as e:
-    #             Err.print_error(e)
-    #             return None
-                    
     @classmethod
-    def read_tiff(cls, path: str):
-        img = tifffile.TiffFile(path)
-        page = img.pages[0]
-        if page.subifds:
-            return page.subifds[0].asarray()
-        return None
-
+    def read_tiff(cls, path: str) -> np.ndarray | None:
+        try:
+            img = tifffile.imread(path)
+            # Проверяем, что изображение трёхмерное
+            if img.ndim == 3:
+                channels = min(img.shape)
+                channels_index = img.shape.index(channels)
+                # Транспонируем, если каналы на первом месте
+                if channels_index == 0:
+                    img = img.transpose(1, 2, 0)
+                # Ограничиваем количество каналов до 3
+                if channels > 3:
+                    img = img[:, :, :3]
+                # Преобразуем в uint8, если тип другой
+                if str(img.dtype) != "uint8":
+                    img = (img / 256).astype(dtype="uint8")
+            # Если изображение уже 2D, просто показываем его
+            elif img.ndim == 2:
+                img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+            return img
+        except (tifffile.TiffFileError, RuntimeError, DelayedImportError, Exception) as e: 
+            Err.print_error(e)
+            try:
+                img = Image.open(path)
+                img = img.convert("RGB")
+                array_img = np.array(img)
+                img.close()
+                return array_img
+            except Exception as e:
+                Err.print_error(e)
+                return None
+                    
     @classmethod
     def read_psb(cls, path: str):
         try:
