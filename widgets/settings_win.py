@@ -5,7 +5,8 @@ from datetime import datetime
 
 from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QKeyEvent
-from PyQt5.QtWidgets import (QCheckBox, QGroupBox, QHBoxLayout, QLabel,
+from PyQt5.QtSvg import QSvgWidget
+from PyQt5.QtWidgets import (QCheckBox, QFrame, QGroupBox, QHBoxLayout, QLabel,
                              QPushButton, QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
@@ -188,6 +189,96 @@ class CheckboxGroup(QGroupBox):
         JsonData.go_to_now = data.get(value)
 
 
+
+
+class SvgFrame(QFrame):
+    clicked = pyqtSignal()
+
+    def __init__(self, svg_path, label_text=""):
+        super().__init__()
+        self.setLayout(QVBoxLayout())
+        self.layout().setContentsMargins(0, 0, 0, 0)
+        self.layout().setSpacing(5)
+
+        # Фрейм для SVG с рамкой
+        self.svg_container = QFrame()
+        self.svg_container.setObjectName("svg_container")
+        self.svg_container.setLayout(QVBoxLayout())
+        self.svg_container.layout().setContentsMargins(0, 0, 0, 0)
+        self.svg_container.layout().setSpacing(0)
+        self.svg_container.setStyleSheet(self.regular_style())
+
+        self.svg_widget = QSvgWidget(svg_path)
+        self.svg_widget.setFixedSize(50, 50)
+        self.svg_container.layout().addWidget(self.svg_widget)
+
+        self.label = QLabel(label_text)
+        self.label.setAlignment(Qt.AlignCenter)
+
+        self.layout().addWidget(self.svg_container, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.layout().addWidget(self.label)
+
+
+    def regular_style(self):
+        return """
+            QFrame#svg_container {
+                border: 2px solid transparent;
+                border-radius: 10px;
+            }
+        """
+
+    def border_style(self):
+        return """
+            QFrame#svg_container {
+                border: 2px solid #007aff;
+                border-radius: 10px;
+            }
+        """
+
+    def selected(self, enable=True):
+        if enable:
+            print(1)
+            self.svg_container.setStyleSheet(
+                self.border_style()
+            )
+        else:
+            self.svg_container.setStyleSheet(
+                self.regular_style()
+            )
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self.clicked.emit()
+
+class Themes(QGroupBox):
+    def __init__(self):
+        super().__init__("Выбор темы")
+        self.setLayout(QHBoxLayout())
+        self.layout().setSpacing(20)
+
+        self.frames = []
+
+        self.system_theme = SvgFrame("images/system_theme.svg", "системная")
+        self.dark_theme = SvgFrame("images/dark_theme.svg", "темная")
+        self.light_theme = SvgFrame("images/light_theme.svg", "светлая")
+
+        for f in (self.system_theme, self.dark_theme, self.light_theme):
+            self.layout().addWidget(f)
+            self.frames.append(f)
+            f.clicked.connect(self.on_frame_clicked)
+
+        # По умолчанию выделяем первую
+        self.set_selected(self.system_theme)
+
+    def on_frame_clicked(self):
+        sender = self.sender()
+        self.set_selected(sender)
+
+    def set_selected(self, selected_frame):
+        for f in self.frames:
+            f.selected(f is selected_frame)
+
+
 class SettingsWin(MinMaxDisabledWin):
     remove_db = pyqtSignal()
     load_st_grid = pyqtSignal()
@@ -208,6 +299,9 @@ class SettingsWin(MinMaxDisabledWin):
         show_hidden = CheckboxGroup()
         show_hidden.load_st_grid.connect(self.load_st_grid.emit)
         main_lay.addWidget(show_hidden)
+
+        themes_wid = Themes()
+        main_lay.addWidget(themes_wid)
 
         clear_data_wid = ClearData()
         clear_data_wid.clear_data_clicked.connect(self.remove_db.emit)
