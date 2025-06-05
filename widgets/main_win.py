@@ -273,6 +273,9 @@ class MainWin(WinBase):
         else:
             app.setPalette(UPallete.light())
             app.setStyle(Static.theme_fusion)
+        
+        if not MainWin.first_load:
+            self.grid.reload_rubber()
 
     def exactly_clicked(self):
         old_text = self.top_bar.search_wid.text()

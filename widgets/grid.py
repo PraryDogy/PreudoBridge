@@ -335,6 +335,10 @@ class Grid(UScrollArea):
         # любую папку с кучей файлов
         QTimer.singleShot(200, self.set_mouseReleaseEvent)
 
+    def reload_rubber(self):
+        self.rubberBand.deleteLater()
+        self.rubberBand = QRubberBand(QRubberBand.Rectangle, self.main_wid)
+
     def set_sort_item(self, sort_item: SortItem):
         if isinstance(sort_item, SortItem):
             self.sort_item = sort_item
