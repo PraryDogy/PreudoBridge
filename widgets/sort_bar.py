@@ -30,7 +30,7 @@ class GoToBtn(UFrame):
         h_lay = QHBoxLayout()
         h_lay.setContentsMargins(2, 2, 2, 2)
         h_lay.setAlignment(
-            Qt.AlignmentFlag.AlignBottom | Qt.AlignmentFlag.AlignLeft
+            Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft
         )
         h_lay.setSpacing(5)
         self.setLayout(h_lay)
