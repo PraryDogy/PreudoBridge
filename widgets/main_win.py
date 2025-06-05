@@ -274,8 +274,6 @@ class MainWin(WinBase):
             app.setPalette(UPallete.light())
             app.setStyle(Static.theme_fusion)
 
-        print(1)
-
     def exactly_clicked(self):
         old_text = self.top_bar.search_wid.text()
         self.top_bar.search_wid.setText("")
