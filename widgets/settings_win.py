@@ -257,8 +257,11 @@ class Themes(QGroupBox):
 
     def __init__(self):
         super().__init__()
-        self.setLayout(QHBoxLayout())
-        self.layout().setSpacing(20)
+        h_lay = QHBoxLayout()
+        h_lay.setContentsMargins(10, 10, 10, 10)
+        h_lay.setSpacing(20)
+        h_lay.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.setLayout(h_lay)
 
         self.frames = []
 
@@ -267,7 +270,7 @@ class Themes(QGroupBox):
         self.light_theme = SvgFrame(Static.LIGHT_THEME_SVG, self.light_text)
 
         for f in (self.system_theme, self.dark_theme, self.light_theme):
-            self.layout().addWidget(f, alignment=Qt.AlignmentFlag.AlignLeft)
+            h_lay.addWidget(f)
             self.frames.append(f)
             f.clicked.connect(self.on_frame_clicked)
 
@@ -306,6 +309,7 @@ class SettingsWin(MinMaxDisabledWin):
 
         main_lay = QVBoxLayout()
         main_lay.setContentsMargins(10, 0, 10, 10)
+        main_lay.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.setLayout(main_lay)
 
         h_wid = QWidget()
