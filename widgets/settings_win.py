@@ -305,11 +305,13 @@ class SettingsWin(MinMaxDisabledWin):
     load_st_grid = pyqtSignal()
     title_text = "Настройки"
     theme_changed = pyqtSignal()
+    hh = 460
 
     def __init__(self):
         super().__init__()
         self.setWindowTitle(SettingsWin.title_text)
         self.set_modality()
+        self.setFixedHeight(SettingsWin.hh)
 
         main_lay = QVBoxLayout()
         main_lay.setContentsMargins(10, 0, 10, 10)
@@ -324,7 +326,7 @@ class SettingsWin(MinMaxDisabledWin):
         main_lay.addWidget(show_hidden)
 
         themes_wid = Themes()
-        themes_wid.theme_changed.connect(self.theme_changed.emit)
+        themes_wid.theme_changed.connect(self.theme_changed_cmd)
         main_lay.addWidget(themes_wid)
 
         clear_data_wid = ClearData()
@@ -342,6 +344,10 @@ class SettingsWin(MinMaxDisabledWin):
 
         self.adjustSize()
         self.setFixedSize(self.width() + 30, self.height())
+
+    def theme_changed_cmd(self):
+        self.theme_changed.emit()
+        self.adjustSize()
     
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() == Qt.Key.Key_Escape:
