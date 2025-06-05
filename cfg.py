@@ -133,6 +133,9 @@ class Static:
     )
 
     hidden_file_syms: tuple[str] = (".", "~$", "$")
+    theme_macintosh = "macintosh"
+    theme_fusion = "Fusion"
+
 
 class ThumbData:
 
@@ -160,7 +163,7 @@ class JsonData:
     favs = {}
     show_hidden = False
     go_to_now = False
-    theme = "auto"
+    dark_mode = None
 
     udpdate_file_paths = [
         '/Volumes/Shares/Studio/MIUZ/Photo/Art/Raw/2024/soft/PreudoBridge.zip',

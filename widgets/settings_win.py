@@ -254,6 +254,7 @@ class Themes(QGroupBox):
     system_text = "Авто"
     dark_text = "Темная"
     light_text = "Светлая"
+    theme_changed = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -274,25 +275,27 @@ class Themes(QGroupBox):
             self.frames.append(f)
             f.clicked.connect(self.on_frame_clicked)
 
-        # По умолчанию выделяем первую
-        self.set_selected(self.system_theme)
+        if JsonData.dark_mode is None:
+            self.set_selected(self.system_theme)
+        elif JsonData.dark_mode:
+            self.set_selected(self.dark_theme)
+        else:
+            self.set_selected(self.light_theme)
 
     def on_frame_clicked(self):
-        sender = self.sender()
+        sender: SvgFrame = self.sender()
         self.set_selected(sender)
 
-        app: QApplication = QApplication.instance()
         if sender == self.system_theme:
-            app.setPalette(QPalette())  # сброс)
-            app.setStyle("macintosh")
+            JsonData.dark_mode = None
         elif sender == self.dark_theme:
-            app.setPalette(UPallete.dark())
-            app.setStyle("Fusion")
+            JsonData.dark_mode = True
         elif sender == self.light_theme:
-            app.setPalette(UPallete.light())
-            app.setStyle("Fusion")
+            JsonData.dark_mode = False
 
-    def set_selected(self, selected_frame):
+        self.theme_changed.emit()
+
+    def set_selected(self, selected_frame: SvgFrame):
         for f in self.frames:
             f.selected(f is selected_frame)
 
@@ -301,6 +304,7 @@ class SettingsWin(MinMaxDisabledWin):
     remove_db = pyqtSignal()
     load_st_grid = pyqtSignal()
     title_text = "Настройки"
+    theme_changed = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -320,6 +324,7 @@ class SettingsWin(MinMaxDisabledWin):
         main_lay.addWidget(show_hidden)
 
         themes_wid = Themes()
+        themes_wid.theme_changed.connect(self.theme_changed.emit)
         main_lay.addWidget(themes_wid)
 
         clear_data_wid = ClearData()

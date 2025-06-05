@@ -2,16 +2,19 @@ import os
 import subprocess
 
 from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import QCloseEvent, QKeyEvent, QMouseEvent, QResizeEvent
+from PyQt5.QtGui import (QCloseEvent, QKeyEvent, QMouseEvent, QPalette,
+                         QResizeEvent)
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QSplitter, QTabWidget,
-                             QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
+                             QTabWidget, QVBoxLayout, QWidget)
 
-from cfg import Static, JsonData
+from cfg import JsonData, Static
+from paletes import UPallete
 from utils import Utils
 
 from ._base_items import (BaseItem, MainWinItem, SearchItem, SortItem,
                           URunnable, USep, UThreadPool, WinBase)
+from ._tasks import PathFinder
 from .favs_menu import FavsMenu
 from .go_win import GoToWin
 from .grid import Grid
@@ -23,7 +26,6 @@ from .search_bar import SearchBar
 from .settings_win import SettingsWin
 from .sort_bar import SortBar
 from .tags_menu import TagsMenu
-from ._tasks import PathFinder
 from .top_bar import TopBar
 from .tree_menu import TreeMenu
 
@@ -117,6 +119,7 @@ class MainWin(WinBase):
     del_grid_timer = 3000
     scroll_up_width_offset = 70
     scroll_up_height_offset = 110
+    first_load = True
 
     def __init__(self, dir: str = None):
         super().__init__()
@@ -129,6 +132,10 @@ class MainWin(WinBase):
 
         self.setMinimumSize(MainWin.min_width_, MainWin.min_height_)
         self.resize(MainWin.width_, MainWin.height_)
+
+        if MainWin.first_load:
+            self.change_theme()
+            MainWin.first_load = False
 
         if dir:
             self.main_win_item.main_dir = dir
@@ -255,6 +262,20 @@ class MainWin(WinBase):
         self.sort_bar.load_st_grid.connect(lambda: self.load_st_grid())
         self.sort_bar.open_go_win.connect(lambda: self.open_go_win())
 
+    def change_theme(self):
+        app: QApplication = QApplication.instance()
+        if JsonData.dark_mode is None:
+            app.setPalette(QPalette())
+            app.setStyle(Static.theme_macintosh)
+        elif JsonData.dark_mode:
+            app.setPalette(UPallete.dark())
+            app.setStyle(Static.theme_fusion)
+        else:
+            app.setPalette(UPallete.light())
+            app.setStyle(Static.theme_fusion)
+
+        print(1)
+
     def exactly_clicked(self):
         old_text = self.top_bar.search_wid.text()
         self.top_bar.search_wid.setText("")
@@ -301,6 +322,7 @@ class MainWin(WinBase):
         self.sett_win = SettingsWin()
         self.sett_win.load_st_grid.connect(self.load_st_grid)
         self.sett_win.remove_db.connect(self.remove_db)
+        self.sett_win.theme_changed.connect(self.change_theme)
         self.sett_win.center(self)
         self.sett_win.show()
 

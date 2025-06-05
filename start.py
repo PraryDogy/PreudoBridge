@@ -51,10 +51,12 @@ else:
 import faulthandler
 
 from PyQt5.QtCore import QEvent, QObject, QTimer
+from PyQt5.QtGui import QPalette
 from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
 
 from cfg import JsonData, Static
+from paletes import UPallete
 from utils import ReadImage
 from widgets._base_items import BaseItem, UThreadPool, WinBase
 from widgets.main_win import MainWin
@@ -69,15 +71,6 @@ class CustomApp(QApplication):
 
         self.aboutToQuit.connect(self.on_exit)
         self.installEventFilter(self)
-
-        # QTimer.singleShot(1000, self.test)
-
-    def test(self):
-        from widgets.grid_search import WinMissedFiles
-        files = ["filenamefilenamefilenamefilenamefilenamefilenamefilenamefilename.jpg" for i in range(0, 30)]
-        self.win = WinMissedFiles(files)
-        self.win.center(self.first_win)
-        self.win.show()
 
     def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
         if a1.type() == QEvent.Type.ApplicationActivate:
