@@ -47,6 +47,9 @@ class Static:
     NEW_WIN_SVG = os.path.join(IMAGES_DIR, "new_win.svg")
     QUESTION_SVG = os.path.join(IMAGES_DIR, "question.svg")
     CASCADE_SVG = os.path.join(IMAGES_DIR, "cascade.svg")
+    SYSTEM_THEME_SVG = os.path.join(IMAGES_DIR, "system_theme.svg")
+    DARK_THEME_SVG = os.path.join(IMAGES_DIR, "dark_theme.svg")
+    LIGHT_THEME_SVG = os.path.join(IMAGES_DIR, "light_theme.svg")
 
     DB_FILENAME = ".preudobridge.db"
     FOLDER_TYPE: str = "folder"

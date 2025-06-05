@@ -189,39 +189,37 @@ class CheckboxGroup(QGroupBox):
         JsonData.go_to_now = data.get(value)
 
 
-
-
 class SvgFrame(QFrame):
     clicked = pyqtSignal()
 
-    def __init__(self, svg_path, label_text=""):
+    def __init__(self, svg_path: str, label_text: str):
         super().__init__()
-        self.setLayout(QVBoxLayout())
-        self.layout().setContentsMargins(0, 0, 0, 0)
-        self.layout().setSpacing(5)
+        v_lay = QVBoxLayout()
+        v_lay.setContentsMargins(0, 0, 0, 0)
+        v_lay.setSpacing(0)
+        self.setLayout(v_lay)
 
-        # Фрейм для SVG с рамкой
         self.svg_container = QFrame()
         self.svg_container.setObjectName("svg_container")
-        self.svg_container.setLayout(QVBoxLayout())
-        self.svg_container.layout().setContentsMargins(0, 0, 0, 0)
-        self.svg_container.layout().setSpacing(0)
         self.svg_container.setStyleSheet(self.regular_style())
+        v_lay.addWidget(self.svg_container)
+
+        svg_lay = QVBoxLayout()
+        svg_lay.setContentsMargins(0, 0, 0, 0)
+        svg_lay.setSpacing(0)
+        self.svg_container.setLayout(svg_lay)
 
         self.svg_widget = QSvgWidget(svg_path)
         self.svg_widget.setFixedSize(50, 50)
-        self.svg_container.layout().addWidget(self.svg_widget)
+        svg_lay.addWidget(self.svg_widget)
 
-        self.label = QLabel(label_text)
-        self.label.setAlignment(Qt.AlignCenter)
-
-        self.layout().addWidget(self.svg_container, alignment=Qt.AlignmentFlag.AlignCenter)
-        self.layout().addWidget(self.label)
-
+        label = QLabel(label_text)
+        label.setAlignment(Qt.AlignCenter)
+        v_lay.addWidget(label)
 
     def regular_style(self):
         return """
-            QFrame#svg_container {
+            #svg_container {
                 border: 2px solid transparent;
                 border-radius: 10px;
             }
@@ -229,7 +227,7 @@ class SvgFrame(QFrame):
 
     def border_style(self):
         return """
-            QFrame#svg_container {
+            #svg_container {
                 border: 2px solid #007aff;
                 border-radius: 10px;
             }
@@ -237,7 +235,6 @@ class SvgFrame(QFrame):
 
     def selected(self, enable=True):
         if enable:
-            print(1)
             self.svg_container.setStyleSheet(
                 self.border_style()
             )
@@ -250,20 +247,25 @@ class SvgFrame(QFrame):
         if event.button() == Qt.LeftButton:
             self.clicked.emit()
 
+
 class Themes(QGroupBox):
+    system_text = "Авто"
+    dark_text = "Темная"
+    light_text = "Светлая"
+
     def __init__(self):
-        super().__init__("Выбор темы")
+        super().__init__()
         self.setLayout(QHBoxLayout())
         self.layout().setSpacing(20)
 
         self.frames = []
 
-        self.system_theme = SvgFrame("images/system_theme.svg", "системная")
-        self.dark_theme = SvgFrame("images/dark_theme.svg", "темная")
-        self.light_theme = SvgFrame("images/light_theme.svg", "светлая")
+        self.system_theme = SvgFrame(Static.SYSTEM_THEME_SVG, self.system_text)
+        self.dark_theme = SvgFrame(Static.DARK_THEME_SVG, self.dark_text)
+        self.light_theme = SvgFrame(Static.LIGHT_THEME_SVG, self.light_text)
 
         for f in (self.system_theme, self.dark_theme, self.light_theme):
-            self.layout().addWidget(f)
+            self.layout().addWidget(f, alignment=Qt.AlignmentFlag.AlignLeft)
             self.frames.append(f)
             f.clicked.connect(self.on_frame_clicked)
 
