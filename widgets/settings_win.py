@@ -280,14 +280,14 @@ class Themes(QGroupBox):
 
         app: QApplication = QApplication.instance()
         if sender == self.system_theme:
-            app.setStyle("macintosh")
             app.setPalette(QPalette())  # сброс)
+            app.setStyle("macintosh")
         elif sender == self.dark_theme:
-            app.setStyle("Fusion")
             app.setPalette(UPallete.dark())
-        elif sender == self.light_theme:
             app.setStyle("Fusion")
+        elif sender == self.light_theme:
             app.setPalette(UPallete.light())
+            app.setStyle("Fusion")
 
     def set_selected(self, selected_frame):
         for f in self.frames:
