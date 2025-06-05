@@ -4,12 +4,14 @@ import subprocess
 from datetime import datetime
 
 from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import QKeyEvent
+from PyQt5.QtGui import QKeyEvent, QPalette
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QCheckBox, QFrame, QGroupBox, QHBoxLayout, QLabel,
-                             QPushButton, QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QApplication, QCheckBox, QFrame, QGroupBox,
+                             QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
+                             QWidget)
 
 from cfg import JsonData, Static
+from paletes import UPallete
 
 from ._base_items import (MinMaxDisabledWin, URunnable, USvgSqareWidget,
                           UThreadPool)
@@ -275,6 +277,17 @@ class Themes(QGroupBox):
     def on_frame_clicked(self):
         sender = self.sender()
         self.set_selected(sender)
+
+        app: QApplication = QApplication.instance()
+        if sender == self.system_theme:
+            app.setStyle("macintosh")
+            app.setPalette(QPalette())  # сброс)
+        elif sender == self.dark_theme:
+            app.setStyle("Fusion")
+            app.setPalette(UPallete.dark())
+        elif sender == self.light_theme:
+            app.setStyle("Fusion")
+            app.setPalette(UPallete.light())
 
     def set_selected(self, selected_frame):
         for f in self.frames:
