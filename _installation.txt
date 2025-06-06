@@ -1,9 +1,15 @@
+!!! Нампи должен быть этой версии, иначе будут ошибки импорта
+numpy==1.25.2
+
+!!! Установи перед тем, как устанавливать остальное
 pip install aggdraw --prefer-binary
+
+
 pip install -r requirements_clean.txt
 или
 pip install -r requirements.txt
 
-для сборки в py2app добавь
+в setup.py добавь:
 OPTIONS = {
     "excludes": ["setuptools"],
     ...
