@@ -25,8 +25,8 @@ class GoToWin(MinMaxDisabledWin):
         self.set_modality()
         self.setWindowTitle(GoToWin.title_text)
         v_lay = QVBoxLayout()
-        v_lay.setContentsMargins(5, 5, 5, 5)
-        v_lay.setSpacing(5)
+        v_lay.setContentsMargins(10, 10, 10, 10)
+        v_lay.setSpacing(10)
         self.setLayout(v_lay)
 
         self.input_wid = ULineEdit()

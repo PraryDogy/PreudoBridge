@@ -52,7 +52,7 @@ class RemoveFilesWin(MinMaxDisabledWin):
         self.main_win_item = main_win_item
 
         v_lay = QVBoxLayout()
-        v_lay.setContentsMargins(10, 5, 10, 5)
+        v_lay.setContentsMargins(10, 10, 10, 10)
         self.setLayout(v_lay)
 
         first_row_wid = QWidget()
