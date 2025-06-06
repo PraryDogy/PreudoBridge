@@ -20,8 +20,8 @@ class RenameWin(MinMaxDisabledWin):
         self.setWindowTitle(RenameWin.title_text)
 
         v_lay = QVBoxLayout()
-        v_lay.setContentsMargins(10, 10, 10, 5)
-        v_lay.setSpacing(5)
+        v_lay.setContentsMargins(10, 10, 10, 10)
+        v_lay.setSpacing(10)
         self.setLayout(v_lay)
 
         descr = QLabel(RenameWin.descr_text)
