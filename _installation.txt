@@ -11,6 +11,11 @@ pip install -r requirements.txt
 
 в setup.py добавь:
 OPTIONS = {
+    это обязательно
     "excludes": ["setuptools"],
-    ...
+
+    на всякий случай это тоже
+    'includes': ['numpy', 'cv2'],
+    "packages": ['numpy', 'cv2'],
 }
+

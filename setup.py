@@ -90,6 +90,8 @@ PY2APP = "py2app" # DON'T CHANGE IT
 OPTIONS = {
     "iconfile": ICON_PATH,
     "excludes": ["setuptools"],
+    'includes': ['numpy', 'cv2'],
+    "packages": ['numpy', 'cv2'],
     "plist": {
         "CFBundleName": APP_NAME,
         "CFBundleShortVersionString": APP_VER,
