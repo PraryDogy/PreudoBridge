@@ -1,0 +1,10 @@
+pip install aggdraw --prefer-binary
+pip install -r requirements_clean.txt
+или
+pip install -r requirements.txt
+
+для сборки в py2app добавь
+OPTIONS = {
+    "excludes": ["setuptools"],
+    ...
+}

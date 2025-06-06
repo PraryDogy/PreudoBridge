@@ -89,7 +89,6 @@ PY2APP = "py2app" # DON'T CHANGE IT
 
 OPTIONS = {
     "iconfile": ICON_PATH,
-    "packages": ["PIL", "numpy"],
     "excludes": ["setuptools"],
     "plist": {
         "CFBundleName": APP_NAME,
