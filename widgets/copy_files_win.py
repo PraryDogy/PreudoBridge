@@ -297,6 +297,8 @@ class CopyFilesWin(MinMaxDisabledWin):
         progressbar_row.setLayout(progressbar_lay)
 
         self.progressbar = QProgressBar()
+        self.progressbar.setTextVisible(False)
+        self.progressbar.setFixedHeight(6)
         self.progressbar.setFixedWidth(CopyFilesWin.progressbar_width)
         progressbar_lay.addWidget(self.progressbar)
 
