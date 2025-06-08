@@ -163,15 +163,7 @@ class JsonData:
     favs = {}
     show_hidden = False
     go_to_now = False
-    dark_mode = None
-
-    udpdate_file_paths = [
-        '/Volumes/Shares/Studio/MIUZ/Photo/Art/Raw/2024/soft/PreudoBridge.zip',
-        '/Volumes/Shares-1/Studio/MIUZ/Photo/Art/Raw/2024/soft/PreudoBridge.zip',
-        '/Volumes/Shares-2/Studio/MIUZ/Photo/Art/Raw/2024/soft/PreudoBridge.zip',
-        '/Volumes/Shares-3/Studio/MIUZ/Photo/Art/Raw/2024/soft/PreudoBridge.zip',
-        ]
-    
+    dark_mode = None    
     generic_icons_removed = False
 
     @classmethod

@@ -62,70 +62,6 @@ class JsonFile(QGroupBox):
         h_lay.addWidget(descr)
 
 
-class WorkerSignals(QObject):
-    finished_ = pyqtSignal(bool)
-
-
-class DownloadUpdate(URunnable):
-    def __init__(self):
-        super().__init__()
-        self.signals_ = WorkerSignals()
-
-    def task(self):
-        for i in JsonData.udpdate_file_paths:
-            if os.path.exists(i):
-
-                dest = shutil.copy2(
-                    src=i,
-                    dst=os.path.expanduser("~/Downloads")
-                )
-                subprocess.run(["open", "-R", dest])
-                self.signals_.finished_.emit(True)
-                return
-
-        self.signals_.finished_.emit(False)
-
-
-class Updates(QGroupBox):
-    wait_text = "Подождите"
-    error_text = "Ошибка"
-    no_connection_text = "Нет подключения к диску"
-    download_text = "Скачать обновления"
-    updates_text = "Обновления"
-    timer_ms = 1500
-
-    def __init__(self):
-        super().__init__()
-
-        h_lay = QHBoxLayout()
-        h_lay.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(h_lay)
-
-        self.btn_ = QPushButton(Updates.updates_text)
-        self.btn_.setFixedWidth(LEFT_W)
-        self.btn_.clicked.connect(self.update_cmd)
-
-        h_lay.addWidget(self.btn_)
-
-        self.descr = QLabel(Updates.download_text)
-        h_lay.addWidget(self.descr)
-
-    def update_cmd(self, *args):
-        self.btn_.setText(Updates.wait_text)
-        self.task_ = DownloadUpdate()
-        self.task_.signals_.finished_.connect(self.update_cmd_fin)
-        UThreadPool.start(self.task_)
-
-    def update_cmd_fin(self, arg: bool):
-        if arg:
-            self.btn_.setText(Updates.updates_text)
-        else:
-            self.btn_.setText(Updates.error_text)
-            self.descr.setText(Updates.no_connection_text)
-            QTimer.singleShot(Updates.timer_ms, lambda: self.btn_.setText(Updates.updates_text))
-            QTimer.singleShot(Updates.timer_ms, lambda: self.descr.setText(Updates.download_text))
-
-
 class About(QGroupBox):
     svg_size = 70
     text_ = "\n".join(
@@ -335,9 +271,6 @@ class SettingsWin(MinMaxDisabledWin):
 
         json_wid = JsonFile()
         main_lay.addWidget(json_wid)
-
-        updates_wid = Updates()
-        main_lay.addWidget(updates_wid)
 
         about_wid = About()
         main_lay.addWidget(about_wid)
