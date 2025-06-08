@@ -89,10 +89,13 @@ class GridList(UTableView):
             self.main_win_item.urls.clear()
             QTimer.singleShot(100, lambda: self.verticalScrollBar().setValue(0))
 
+        self.setCurrentIndex(QModelIndex())
         self.path_bar_update.emit(self.main_win_item.main_dir)
         self.total_count_update.emit(row_count)
         self.loading_lbl.hide()
+
         self.show()
+
         self.finished_.emit()
 
     def select_path(self, path: str):
@@ -426,8 +429,6 @@ class GridList(UTableView):
                 print("Нельзя копировать в себя")
                 return
             
-        print(Dynamic.urls_to_copy)
-
         if Dynamic.urls_to_copy:
             self.paste_files()
 
@@ -467,3 +468,10 @@ class GridList(UTableView):
         self.drag.setMimeData(self.mime_data)
         self.drag.exec_(Qt.DropAction.CopyAction)
         return super().mouseMoveEvent(e)
+
+    def mouseReleaseEvent(self, e):
+        index = self.indexAt(e.pos())
+        if not index.isValid():
+            self.clearSelection()
+            self.setCurrentIndex(QModelIndex())
+        super().mouseReleaseEvent(e)
