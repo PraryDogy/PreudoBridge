@@ -1,12 +1,12 @@
+python 3.11
+
 !!! Нампи должен быть этой версии, иначе будут ошибки импорта
-numpy==1.25.2
+в собранном py2app приложении
+pip install numpy==1.25.2
 
 !!! Установи перед тем, как устанавливать остальное
 pip install aggdraw --prefer-binary
 
-
-pip install -r requirements_clean.txt
-или
 pip install -r requirements.txt
 
 в setup.py добавь:
