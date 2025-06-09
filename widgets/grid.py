@@ -1073,6 +1073,9 @@ class Grid(UScrollArea):
             # если не выделено ни одного виджета
             if not self.selected_widgets:
                 self.wid_under_mouse = self.cell_to_wid.get((0, 0))
+                if len(self.sorted_widgets) == 1:
+                    self.select_one_wid(self.wid_under_mouse)
+                    return
             else:
                 self.wid_under_mouse = self.selected_widgets[-1]
 
