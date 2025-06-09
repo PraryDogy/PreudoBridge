@@ -524,4 +524,7 @@ class MainWin(WinBase):
             elif a0.key() == Qt.Key.Key_2:
                 self.change_view(1)
 
+            elif a0.key() == Qt.Key.Key_N:
+                self.open_in_new_win(self.main_win_item.main_dir)
+
         return super().keyPressEvent(a0)
