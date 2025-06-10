@@ -407,13 +407,6 @@ class PasteObjects(QAction):
         self.setText(text)
 
 
-class PasteInFolder(QAction):
-    text_ = "Вставить объекты в новую папку"
-    def __init__(self, parent: UMenu, total: int):
-        super().__init__(parent)
-        text = Tools.get_text(PasteInFolder.text_, total)
-        self.setText(text)
-
 class ShowInGrid(QAction):
     text_ = "Показать в папке"
     def __init__(self, parent: UMenu):
@@ -484,6 +477,5 @@ class GridActions:
 
     # Если есть Grid.urls_to_copy и если это не GridSearch
     class PasteObjects(PasteObjects): ...
-    class PasteInFolder(PasteInFolder): ...
 
     class UpdateGrid(UpdateGrid): ...

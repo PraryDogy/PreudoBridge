@@ -640,21 +640,18 @@ class Grid(UScrollArea):
         self.clear_selected_widgets()
         self.rearrange_thumbs()
 
-    def create_new_folder(self, paste_files: bool):
-        cmd = lambda name: self.create_folder_finished(name, paste_files)
+    def create_new_folder(self):
+        cmd = lambda name: self.create_folder_finished(name)
         self.rename_win = RenameWin("")
         self.rename_win.center(self.window())
         self.rename_win.finished_.connect(cmd)
         self.rename_win.show()
     
-    def create_folder_finished(self, name: str, paste_files: bool):
+    def create_folder_finished(self, name: str):
         dest = os.path.join(self.main_win_item.main_dir, name)
         try:
             os.mkdir(dest)
-            if paste_files:
-                self.paste_files(dest)
-            else:
-                self.load_st_grid.emit()
+            self.load_st_grid.emit()
         except Exception as e:
             Utils.print_error(e)
 
@@ -965,7 +962,7 @@ class Grid(UScrollArea):
         total = 1
 
         new_folder = GridActions.NewFolder(menu_)
-        new_folder.triggered.connect(lambda: self.create_new_folder(False))
+        new_folder.triggered.connect(self.create_new_folder)
         menu_.addAction(new_folder)
 
         menu_.addSeparator()
@@ -1015,10 +1012,6 @@ class Grid(UScrollArea):
             paste_files = GridActions.PasteObjects(menu_, len(Dynamic.urls_to_copy))
             paste_files.triggered.connect(self.paste_files)
             menu_.addAction(paste_files)
-
-            paste_in = GridActions.PasteInFolder(menu_, len(Dynamic.urls_to_copy))
-            paste_in.triggered.connect(lambda: self.create_new_folder(True))
-            menu_.addAction(paste_in)
 
         upd_ = GridActions.UpdateGrid(menu_)
         upd_.triggered.connect(lambda: self.load_st_grid.emit())
