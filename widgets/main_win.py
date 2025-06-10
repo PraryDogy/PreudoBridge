@@ -188,10 +188,6 @@ class MainWin(WinBase):
         sep = USep()
         self.sort_bar = SortBar(self.sort_item, self.main_win_item)
 
-        self.scroll_up = ScrollUpBtn(self)
-        self.scroll_up.hide()
-        self.scroll_up.clicked.connect(lambda: self.grid.verticalScrollBar().setValue(0))
-
         self.splitter.addWidget(left_wid)
         self.splitter.addWidget(right_wid)
         self.splitter.setStretchFactor(0, 0)
@@ -204,6 +200,9 @@ class MainWin(WinBase):
         self.tabs_widget.setCurrentIndex(1)
         self.toggle_tags_menu()
         self.tags_menu_btn.click_cmd()
+
+        self.scroll_up = ScrollUpBtn(self)
+        self.scroll_up.clicked.connect(lambda: self.grid.verticalScrollBar().setValue(0))
 
         self.r_lay.insertWidget(0, self.top_bar)
         self.r_lay.insertWidget(1, sep_one)
@@ -417,9 +416,9 @@ class MainWin(WinBase):
         self.search_bar.show()
         self.search_bar_sep.show()
         self.tags_menu.reset()
-        
+        self.scroll_up.hide()
+
         self.setup_grid_signals()
-        # QTimer.singleShot(300, self.grid.setFocus)
 
     def search_finished(self, id_: int):
         """
@@ -458,6 +457,7 @@ class MainWin(WinBase):
         self.search_bar_sep.hide()
         self.tree_menu.expand_path(self.main_win_item.main_dir)
         self.search_item.reset()
+        self.scroll_up.hide()
 
         self.setWindowTitle(os.path.basename(self.main_win_item.main_dir))
         self.safe_delete_grid()
