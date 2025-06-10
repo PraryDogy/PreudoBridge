@@ -558,19 +558,19 @@ class Grid(UScrollArea):
         """
         if not Dynamic.urls_to_copy:
             return
-        # пресекаем попытку вставить файлы в место откуда скопированы
-        for i in Dynamic.urls_to_copy:
-            if os.path.dirname(i) == self.main_win_item.main_dir:
-                return
-        
+
         if not dest:
             dest = self.main_win_item.main_dir
-            cmd = lambda args: self.paste_files_fin(dest)
-        else:
-            cmd = lambda args: self.paste_files_fin(dest)
 
+        for i in Dynamic.urls_to_copy:
+            name = os.path.basename(i)
+            new_path = os.path.join(dest, name)
+            if i == new_path:
+                print("нельзя копировать в себя")
+                return
 
         self.win_copy = CopyFilesWin(dest, Dynamic.urls_to_copy)
+        cmd = lambda args: self.paste_files_fin(dest)   
         self.win_copy.finished_.connect(cmd)
         self.win_copy.error_.connect(self.show_error_win)
         self.win_copy.center(self.window())
