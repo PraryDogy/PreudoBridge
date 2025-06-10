@@ -427,6 +427,12 @@ class UpdateGrid(QAction):
         super().__init__(UpdateGrid.text_, parent)
 
 
+class NewFolder(QAction):
+    text_ = "Новая папка"
+    def __init__(self, parent: UMenu):
+        super().__init__(NewFolder.text_, parent)
+
+
 class ItemActions:
     class View(View): ...
 
@@ -457,6 +463,9 @@ class ItemActions:
 
 
 class GridActions:
+    class NewFolder(NewFolder): ...
+    # separator
+
     class Info(Info): ...
     # "Separator"
 

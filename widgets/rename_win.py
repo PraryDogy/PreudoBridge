@@ -11,7 +11,7 @@ class RenameWin(MinMaxDisabledWin):
     ok_text = "Ок"
     cancel_text = "Отмена"
     title_text = "Задайте имя"
-    descr_text = "Придумайте имя для закладки."
+    descr_text = "Придумайте имя."
     input_width = 250
 
     def __init__(self, text: str):
