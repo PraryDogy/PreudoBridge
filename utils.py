@@ -55,101 +55,6 @@ class Err:
         return msg
 
 class ReadImage:
-    # Перенос. Нужно вынести в отдельный класс Static
-    # Необходим метод Err.print_error для вывода ошибок
-
-    ext_jpeg = (
-        ".jpg", ".JPG",
-        ".jpeg", ".JPEG",
-        ".jpe", ".JPE",
-        ".jfif", ".JFIF",
-        ".bmp", ".BMP",
-        ".dib", ".DIB",
-        ".webp", ".WEBP",
-        ".ppm", ".PPM",
-        ".pgm", ".PGM",
-        ".pbm", ".PBM",
-        ".pnm", ".PNM",
-        ".gif", ".GIF",
-        ".ico", ".ICO",
-    )
-
-    ext_tiff = (
-        ".tif", ".TIF",
-        ".tiff", ".TIFF",
-    )
-
-    ext_psd = (
-        ".psd", ".PSD",
-        ".psb", ".PSB",
-    )
-
-    ext_png = (
-        ".png", ".PNG",
-    )
-
-    ext_raw = (
-        ".nef", ".NEF",
-        ".cr2", ".CR2",
-        ".cr3", ".CR3",
-        ".arw", ".ARW",
-        ".raf", ".RAF",
-        ".dng", ".DNG",
-        ".rw2", ".RW2",
-        ".orf", ".ORF",
-        ".srw", ".SRW",
-        ".pef", ".PEF",
-        ".rwl", ".RWL",
-        ".mos", ".MOS",
-        ".kdc", ".KDC",
-        ".mrw", ".MRW",
-        ".x3f", ".X3F",
-    )
-
-    ext_video = (
-        ".avi", ".AVI",
-        ".mp4", ".MP4",
-        ".mov", ".MOV",
-        ".mkv", ".MKV",
-        ".wmv", ".WMV",
-        ".flv", ".FLV",
-        ".webm", ".WEBM",
-    )
-
-    ext_all = (
-        *ext_jpeg,
-        *ext_tiff,
-        *ext_psd,
-        *ext_png,
-        *ext_raw,
-        *ext_video,
-    )
-
-    # конец переноса
-
-    read_any_dict = {}
-
-    @classmethod
-    def init_read_dict(cls, cfg: Static):
-        """
-        В Static должны содержаться данные о расширениях
-        """
-        for ext in cfg.ext_psd:
-            cls.read_any_dict[ext] = cls.read_psb
-        for ext in cfg.ext_tiff:
-            cls.read_any_dict[ext] = cls.read_tiff
-        for ext in cfg.ext_raw:
-            cls.read_any_dict[ext] = cls.read_raw
-        for ext in cfg.ext_jpeg:
-            cls.read_any_dict[ext] = cls.read_jpg
-        for ext in cfg.ext_png:
-            cls.read_any_dict[ext] = cls.read_png
-        for ext in cfg.ext_video:
-            cls.read_any_dict[ext] = cls.read_movie
-
-        for i in cfg.ext_all:
-            if i not in ReadImage.read_any_dict:
-                raise Exception (f"utils > ReadImage > init_read_dict: не инициирован {i}")
 
     @classmethod
     def read_tiff(cls, path: str) -> np.ndarray | None:
@@ -286,13 +191,29 @@ class ReadImage:
     def read_image(cls, path: str) -> np.ndarray | None:
         _, ext = os.path.splitext(path)
         ext = ext.lower()
+        read_any_dict: dict[str, callable] = {}
 
-        fn = ReadImage.read_any_dict.get(ext)
+        for i in Static.ext_psd:
+            read_any_dict[i] = cls.read_psb
+        for i in Static.ext_tiff:
+            read_any_dict[i] = cls.read_tiff
+        for i in Static.ext_raw:
+            read_any_dict[i] = cls.read_raw
+        for i in Static.ext_jpeg:
+            read_any_dict[i] = cls.read_jpg
+        for i in Static.ext_png:
+            read_any_dict[i] = cls.read_png
+        for i in Static.ext_video:
+            read_any_dict[i] = cls.read_movie
 
+        for i in Static.ext_all:
+            if i not in read_any_dict:
+                raise Exception (f"utils > ReadImage > init_read_dict: не инициирован {i}")
+
+        fn = read_any_dict.get(ext)
         if fn:
             cls.read_any = fn
             return cls.read_any(path)
-
         else:
             return None
 

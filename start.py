@@ -50,14 +50,11 @@ else:
 
 import faulthandler
 
-from PyQt5.QtCore import QEvent, QObject, QTimer
-from PyQt5.QtGui import QPalette
+from PyQt5.QtCore import QEvent, QObject
 from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
 
-from cfg import JsonData, Static
-from paletes import UPallete
-from utils import ReadImage
+from cfg import JsonData
 from widgets._base_items import BaseItem, UThreadPool, WinBase
 from widgets.main_win import MainWin
 
@@ -94,6 +91,5 @@ faulthandler.enable()
 BaseItem.check()
 JsonData.init()
 UThreadPool.init()
-ReadImage.init_read_dict(Static)
 app = CustomApp(argv=sys.argv)
 sys.exit(app.exec_())
