@@ -107,7 +107,7 @@ class LoadImage(URunnable):
         self.signals_.finished_.emit(image_data)
 
         # === очищаем ссылки
-        del self.pixmap
+        del pixmap
         self.signals_ = None
         gc.collect()
         QPixmapCache.clear()
