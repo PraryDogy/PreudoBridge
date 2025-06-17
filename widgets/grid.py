@@ -651,6 +651,7 @@ class Grid(UScrollArea):
         dest = os.path.join(self.main_win_item.main_dir, name)
         try:
             os.mkdir(dest)
+            self.main_win_item.go_to = dest
             self.load_st_grid.emit()
         except Exception as e:
             Utils.print_error(e)

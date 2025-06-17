@@ -375,7 +375,7 @@ class ImgViewWin(WinBase):
 
     def load_image(self):
         self.task_count += 1
-        self.task_ = LoadImage(self.current_path)
+        self.task_ = LoadImage(self.current_path, self.cached_images)
         cmd_ = lambda image_data: self.load_image_finished(image_data)
         self.task_.signals_.finished_.connect(cmd_)
         UThreadPool.start(self.task_)
