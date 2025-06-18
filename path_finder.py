@@ -1,8 +1,8 @@
 import os
 
 class PathFinder:
-    volumes_dir: str = "/Volumes"
-    users_dir: str = "/Users"
+    _volumes_dir: str = "/Volumes"
+    _users_dir: str = "/Users"
 
     def __init__(self, input_path: str):
         super().__init__()
@@ -10,17 +10,19 @@ class PathFinder:
         self._result: str | None = None
 
         self._volumes_list: list[str] = self._get_volumes()
+        self._volumes_list.extend(self._get_deep_level())
+
         self._macintosh_hd: str = self._get_sys_volume()
         self._volumes_list.remove(self._macintosh_hd)
 
         # /Volumes/Macintosh HD/Volumes
-        self._invalid_volume_path: str = self._macintosh_hd + self.volumes_dir
+        self._invalid_volume_path: str = self._macintosh_hd + self._volumes_dir
 
     def get_result(self) -> str | None:
         input_path = self._prepare_path(self._input_path)
 
-        if input_path.startswith((self.users_dir, self._macintosh_hd)):
-            if input_path.startswith(self.users_dir):
+        if input_path.startswith((self._users_dir, self._macintosh_hd)):
+            if input_path.startswith(self._users_dir):
                 input_path = self._macintosh_hd + input_path
             input_path = self._replace_username(input_path)
 
@@ -41,8 +43,8 @@ class PathFinder:
             }
             paths = sorted(paths, key=len, reverse=True)
 
-            if self.volumes_dir in paths:
-                paths.remove(self.volumes_dir)
+            if self._volumes_dir in paths:
+                paths.remove(self._volumes_dir)
             result = self._check_for_exists(paths)
 
         # для threading
@@ -73,10 +75,39 @@ class PathFinder:
     def _get_volumes(self) -> list[str]:
         return [
             entry.path
-            for entry in os.scandir(self.volumes_dir)
+            for entry in os.scandir(self._volumes_dir)
             if entry.is_dir()
         ]
     
+    def _get_deep_level(self):
+        """
+            Расширяет список корневых путей для поиска, добавляя промежуточные  
+            уровни вложенности, чтобы учесть случаи, когда сетевой диск     
+            подключён не с самого верхнего уровня.  
+            Ожидаемый путь:     
+            '\Studio\MIUZ\Video\Digital\Ready\2025\6. Июнь'.    
+            Входящий путь:      
+            '\MIUZ\Video\Digital\Ready\2025\6. Июнь'    
+            Было:   
+                [
+                    /Volumes/Shares,
+                    /Volumes/Shares-1
+                ]   
+            Стало:  
+                [
+                    /Volumes/Shares,
+                    /Volumes/Shares/Studio,
+                    /Volumes/Shares-1,
+                    /Volumes/Shares-1/Studio
+                ]
+        """
+        paths: list[str] = []
+        for vol in self._volumes_list:
+            for first_level in os.scandir(vol):
+                if first_level.is_dir():
+                    paths.append(first_level.path)
+        return paths
+
     def _get_sys_volume(self):
         user = os.path.expanduser("~")
         app_support = f"{user}/Library/Application Support"
