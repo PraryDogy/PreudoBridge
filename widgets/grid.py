@@ -532,7 +532,7 @@ class Grid(UScrollArea):
         Загружает сетку GridStandart с указанным путем к файлу / папке
         """
         new_main_dir = os.path.dirname(wid.src)
-        self.main_win_item.urls = [wid.src]
+        self.main_win_item.set_go_to(wid.src)
         self.main_win_item.main_dir = new_main_dir
         self.load_st_grid.emit()
 
@@ -651,7 +651,7 @@ class Grid(UScrollArea):
         dest = os.path.join(self.main_win_item.main_dir, name)
         try:
             os.mkdir(dest)
-            self.main_win_item.go_to = dest
+            self.main_win_item.set_go_to(dest)
             self.load_st_grid.emit()
         except Exception as e:
             Utils.print_error(e)

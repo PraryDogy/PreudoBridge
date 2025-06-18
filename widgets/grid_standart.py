@@ -399,18 +399,18 @@ class GridStandart(Grid):
                 self.col = 0
                 self.row += 1
 
-        if self.main_win_item.go_to in self.url_to_wid:
-            wid = self.url_to_wid.get(self.main_win_item.go_to)
-            self.main_win_item.go_to = None
+        if self.main_win_item.get_go_to() in self.url_to_wid:
+            wid = self.url_to_wid.get(self.main_win_item.get_go_to())
+            self.main_win_item.clear_go_to()
             self.select_one_wid(wid)
 
-        elif self.main_win_item.urls:
-            for i in self.main_win_item.urls:
+        elif self.main_win_item.get_urls():
+            for i in self.main_win_item.get_urls():
                 if i in self.url_to_wid:
                     wid = self.url_to_wid.get(i)
                     self.selected_widgets.append(wid)
                     wid.set_frame()
-            self.main_win_item.urls.clear()
+            self.main_win_item.clear_urls()
 
         if self.main_win_item.scroll_value:
             QTimer.singleShot(100, self.scroll_value_cmd)
@@ -457,11 +457,8 @@ class GridStandart(Grid):
         нужно вызывать этот метод, чтобы .urls моментально обновились
         для обработки в следующей сетке
         """
-        self.main_win_item.urls.clear()
-        self.main_win_item.urls = [
-            i.src
-            for i in self.selected_widgets
-        ]
+        urls = [i.src for i in self.selected_widgets]
+        self.main_win_item.set_urls(urls)
 
     def resizeEvent(self, a0):
         self.loading_lbl.center(self)

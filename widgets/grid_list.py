@@ -74,19 +74,19 @@ class GridList(UTableView):
             path = self._model.filePath(index)
             self.url_to_index[path] = index
 
-        if self.main_win_item.go_to:
-            if self.main_win_item.go_to in self.url_to_index:
-                index = self.url_to_index.get(self.main_win_item.go_to)
+        if self.main_win_item.get_go_to():
+            if self.main_win_item.get_go_to() in self.url_to_index:
+                index = self.url_to_index.get(self.main_win_item.get_go_to())
                 if index and index.isValid():
                     self.select_row(index)
-                self.main_win_item.go_to = None
+                self.main_win_item.clear_go_to()
 
-        elif self.main_win_item.urls:
-            for url in self.main_win_item.urls:
+        elif self.main_win_item.get_urls():
+            for url in self.main_win_item.get_urls():
                 if url in self.url_to_index:
                     index = self.url_to_index.get(url)
                     self.select_row(index)
-            self.main_win_item.urls.clear()
+            self.main_win_item.clear_urls()
             QTimer.singleShot(100, lambda: self.verticalScrollBar().setValue(0))
 
         self.setCurrentIndex(QModelIndex())
@@ -328,10 +328,8 @@ class GridList(UTableView):
         для обработки в следующей сетке
         """
         GridList.sizes = [self.columnWidth(i) for i in range(0, 4)]
-        self.main_win_item.urls = [
-            i
-            for i in self.get_selected_urls()
-        ]
+        urls = [i for i in self.get_selected_urls()]
+        self.main_win_item.set_urls(urls)
 
     def select_row(self, index: QModelIndex):
         self.setCurrentIndex(index)

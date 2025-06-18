@@ -608,11 +608,28 @@ class SearchItem:
 
 class MainWinItem:
     def __init__(self):
-        self.urls: list[str] = []
-        # позволяет перейти к виджету после открытия окна "Перейти к ..."
-        self.go_to: str = None
+        self._urls: list[str] = []
+        self._go_to: str = None
         self.main_dir: str = None
         self.scroll_value: int = None
+
+    def set_urls(self, urls: list[str]):
+        self._urls = urls
+
+    def get_urls(self):
+        return self._urls
+
+    def set_go_to(self, path: str):
+        self._go_to = path
+
+    def get_go_to(self):
+        return self._go_to
+    
+    def clear_urls(self):
+        self._urls.clear()
+
+    def clear_go_to(self):
+        self._go_to = None
 
 
 class URunnable(QRunnable):
