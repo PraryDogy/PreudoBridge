@@ -42,7 +42,7 @@ class SearchBar(QFrame):
         uframe.setLayout(uframe_lay)
         uframe.mouseReleaseEvent = self.on_frame_click
 
-        self.descr_lbl = QLabel()
+        self.descr_lbl = QLabel(self.searching_text)
         uframe_lay.addWidget(self.descr_lbl)
 
         self.menu_btn = QPushButton(self.no_filter_text)
@@ -119,6 +119,7 @@ class SearchBar(QFrame):
         return super().show()
 
     def search_bar_search_fin(self):
+        return
         self.descr_lbl.setText(SearchBar.search_finished_text)
         self.pause_btn.setDisabled(True)
 
