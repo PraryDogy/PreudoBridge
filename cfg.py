@@ -1,259 +1,174 @@
-import json
 import os
-import shutil
 
+class PathFinder:
+    _volumes_dir: str = "/Volumes"
+    _users_dir: str = "/Users"
 
-class Static:
-    APP_NAME = "PreudoBridge"
-    APP_VER = 2.35
+    def __init__(self, input_path: str):
+        super().__init__()
+        self._input_path: str = input_path
+        self._result: str | None = None
 
-    USER_SETTINGS_DIR = os.path.expanduser('~/Library/Application Support')
-    APP_SUPPORT_APP = os.path.join(USER_SETTINGS_DIR, APP_NAME)
+        self._volumes_list: list[str] = self._get_volumes()
+        self._volumes_list.extend(self._get_deep_level())
 
-    GENERIC_ICONS_DIR = os.path.join(APP_SUPPORT_APP, "icons")
-    JSON_FILE = os.path.join(APP_SUPPORT_APP, 'cfg.json')
+        self._macintosh_hd: str = self._get_sys_volume()
+        self._volumes_list.remove(self._macintosh_hd)
 
-    USER_APPS_DIR = "/Applications"
+        # /Volumes/Macintosh HD/Volumes
+        self._invalid_volume_path: str = self._macintosh_hd + self._volumes_dir
 
-    SCRIPTS_DIR = "scripts"
-    REVEAL_SCPT = os.path.join(SCRIPTS_DIR, "reveal_files.scpt")
-    REMOVE_FILES_SCPT = os.path.join(SCRIPTS_DIR, "remove_files.scpt")
+    def get_result(self) -> str | None:
+        input_path = self._prepare_path(self._input_path)
 
-    IMAGES_DIR = "images"
-    FILE_SVG = os.path.join(IMAGES_DIR, "file.svg")
-    FOLDER_SVG = os.path.join(IMAGES_DIR, "folder.svg")
-    HDD_SVG = os.path.join(IMAGES_DIR, "hdd.svg")
-    COMP_SVG = os.path.join(IMAGES_DIR, "computer.svg")
-    GOTO_SVG = os.path.join(IMAGES_DIR, "goto.svg")
-    ZOOM_OUT_SVG = os.path.join(IMAGES_DIR, "zoom_out.svg")
-    ZOOM_IN_SVG = os.path.join(IMAGES_DIR, "zoom_in.svg")
-    ZOOM_FIT_SVG = os.path.join(IMAGES_DIR, "zoom_fit.svg")
-    CLOSE_SVG = os.path.join(IMAGES_DIR, "zoom_close.svg")
-    PREV_SVG = os.path.join(IMAGES_DIR, "prev.svg")
-    NEXT_SVG = os.path.join(IMAGES_DIR, "next.svg")
-    ICON_SVG = os.path.join(IMAGES_DIR, "icon.svg")
-    CLEAR_SVG = os.path.join(IMAGES_DIR, "clear.svg")
-    HIDE_SVG = os.path.join(IMAGES_DIR, "hide.svg")
-    SHOW_SVG = os.path.join(IMAGES_DIR, "show.svg")
-    FOLDER_UP_SVG = os.path.join(IMAGES_DIR, "folder_up.svg")
-    GRID_VIEW_SVG = os.path.join(IMAGES_DIR, "grid_view.svg")
-    LIST_VIEW_SVG = os.path.join(IMAGES_DIR, "list_view.svg")
-    NAVIGATE_BACK_SVG = os.path.join(IMAGES_DIR, "navigate_back.svg")
-    NAVIGATE_NEXT_SVG = os.path.join(IMAGES_DIR, "navigate_next.svg")
-    SETTINGS_SVG = os.path.join(IMAGES_DIR, "settings.svg")
-    COPY_FILES_SVG = os.path.join(IMAGES_DIR, "copy_files.svg")
-    COPY_FILES_PNG = os.path.join(IMAGES_DIR, "copy_files.svg")
-    WARNING_SVG = os.path.join(IMAGES_DIR, "warning.svg")
-    NEW_WIN_SVG = os.path.join(IMAGES_DIR, "new_win.svg")
-    QUESTION_SVG = os.path.join(IMAGES_DIR, "question.svg")
-    CASCADE_SVG = os.path.join(IMAGES_DIR, "cascade.svg")
-    SYSTEM_THEME_SVG = os.path.join(IMAGES_DIR, "system_theme.svg")
-    DARK_THEME_SVG = os.path.join(IMAGES_DIR, "dark_theme.svg")
-    LIGHT_THEME_SVG = os.path.join(IMAGES_DIR, "light_theme.svg")
+        if input_path.startswith((self._users_dir, self._macintosh_hd)):
+            if input_path.startswith(self._users_dir):
+                input_path = self._macintosh_hd + input_path
+            input_path = self._replace_username(input_path)
 
-    DB_FILENAME = ".preudobridge.db"
-    FOLDER_TYPE: str = "folder"
-    VOLUMES: str = "Volumes"
-    USERS: str = "Users"
-    SVG = "SVG"
+            # для threading
+            self._result = input_path
+            return input_path
 
-    GRAY_GLOBAL = "rgba(128, 128, 128, 0.40)"
-    BLUE_GLOBAL = "rgb(46, 89, 203)"
+        paths = self._add_to_start(input_path)
 
-    STAR_SYM = "\U00002605" # ★
-    LINE_LONG_SYM = "\U00002014" # —
-    PARAGRAPH_SEP = "\u2029" # символ PyQt5, который равен новой строке
-    LINE_FEED  = "\u000a" # символ PyQt5, который равен новой строке
+        paths.sort(key=len, reverse=True)
+        result = self._check_for_exists(paths)
 
-    ext_jpeg = (
-        ".jpg", ".JPG",
-        ".jpeg", ".JPEG",
-        ".jpe", ".JPE",
-        ".jfif", ".JFIF",
-        ".bmp", ".BMP",
-        ".dib", ".DIB",
-        ".webp", ".WEBP",
-        ".ppm", ".PPM",
-        ".pgm", ".PGM",
-        ".pbm", ".PBM",
-        ".pnm", ".PNM",
-        ".gif", ".GIF",
-        ".ico", ".ICO",
-    )
-
-    ext_tiff = (
-        ".tif", ".TIF",
-        ".tiff", ".TIFF",
-    )
-
-    ext_psd = (
-        ".psd", ".PSD",
-        ".psb", ".PSB",
-    )
-
-    ext_png = (
-        ".png", ".PNG",
-    )
-
-    ext_raw = (
-        ".nef", ".NEF",
-        ".cr2", ".CR2",
-        ".cr3", ".CR3",
-        ".arw", ".ARW",
-        ".raf", ".RAF",
-        ".dng", ".DNG",
-        ".rw2", ".RW2",
-        ".orf", ".ORF",
-        ".srw", ".SRW",
-        ".pef", ".PEF",
-        ".rwl", ".RWL",
-        ".mos", ".MOS",
-        ".kdc", ".KDC",
-        ".mrw", ".MRW",
-        ".x3f", ".X3F",
-    )
-
-    ext_video = (
-        ".avi", ".AVI",
-        ".mp4", ".MP4",
-        ".mov", ".MOV",
-        ".mkv", ".MKV",
-        ".wmv", ".WMV",
-        ".flv", ".FLV",
-        ".webm", ".WEBM",
-    )
-
-    ext_all = (
-        *ext_jpeg,
-        *ext_tiff,
-        *ext_psd,
-        *ext_png,
-        *ext_raw,
-        *ext_video,
-    )
-
-    hidden_file_syms: tuple[str] = (".", "~$", "$")
-    theme_macintosh = "macintosh"
-    theme_fusion = "Fusion"
-
-
-class ThumbData:
-
-    # размер в пикселях по длинной стороне изображения для базы данных
-    DB_IMAGE_SIZE: int = 210
-
-    # ширина и высота grid.py > Thumb
-    THUMB_H = [120, 140, 175, 260]
-    THUMB_W = [140, 140, 180, 230]
-
-    # максимальный размер изображения в пикселях для grid.py > Thumb
-    PIXMAP_SIZE: list = [50, 70, 100, 170]
-
-    # максимальное количество символов на строку для grid.py > Thumb
-    MAX_ROW: list = [20, 20, 25, 32]
-
-    # растояние между изображением и текстом для grid.py > Thumb
-    SPACING = 2
-
-    # дополнительное пространство вокруг изображения для grid.py > Thumb
-    OFFSET = 15
-
-
-class JsonData:
-    favs = {}
-    show_hidden = False
-    go_to_now = False
-    dark_mode = None    
-    generic_icons_removed = False
-
-    @classmethod
-    def get_data(cls):
-        return [
-            i for i in dir(cls)
-            if not i.startswith("__")
-            and
-            not callable(getattr(cls, i))
-            ]
-
-    @classmethod
-    def read_json_data(cls) -> dict:
-
-        if os.path.exists(Static.JSON_FILE):
-
-            with open(Static.JSON_FILE, 'r', encoding="utf-8") as f:
-
-                try:
-                    json_data: dict = json.load(f)
-                
-                    for k, v in json_data.items():
-                        if hasattr(cls, k):
-                            setattr(cls, k, v)
-
-                except json.JSONDecodeError:
-                    print("Ошибка чтения json")
-                    cls.write_config()
-
-        else:
-            print("файла не существует")
-            cls.write_config()
-
-    @classmethod
-    def write_config(cls):
-        new_data: dict = {
-            attr: getattr(cls, attr)
-            for attr in cls.get_data()
+        if not result:
+            paths = {
+                p
+                for base in paths
+                for p in self._del_from_end(base)
             }
+            paths = sorted(paths, key=len, reverse=True)
 
+            if self._volumes_dir in paths:
+                paths.remove(self._volumes_dir)
+            result = self._check_for_exists(paths)
+
+        # для threading
+        self._result = result or None
+        return result or None
+
+    def _replace_username(self, path: str) -> str:
+        home = os.path.expanduser("~")  # например: /Users/actual_user
+        user = home.split(os.sep)[-1]   # извлекаем имя пользователя
+
+        parts = path.split(os.sep)
         try:
-            with open(Static.JSON_FILE, 'w', encoding="utf-8") as f:
-                json.dump(new_data, f, indent=4, ensure_ascii=False)
-            return True
+            users_index = parts.index("Users")
+            parts[users_index + 1] = user
+            return os.sep.join(parts)
+        except (ValueError, IndexError):
+            return path
+
+    def _check_for_exists(self, path_list: list[str]) -> str | None:
+        for path in path_list:
+            if not os.path.exists(path):
+                continue
+            if path in self._volumes_list or path == self._invalid_volume_path:
+                continue
+            return path
+        return None
+            
+    def _get_volumes(self) -> list[str]:
+        return [
+            entry.path
+            for entry in os.scandir(self._volumes_dir)
+            if entry.is_dir()
+        ]
+    
+    def _get_deep_level(self):
+        """
+            Расширяет список корневых путей для поиска, добавляя промежуточные  
+            уровни вложенности, чтобы учесть случаи, когда сетевой диск     
+            подключён не с самого верхнего уровня.  
+            Ожидаемый путь:     
+            '\Studio\MIUZ\Video\Digital\Ready\2025\6. Июнь'.    
+            Входящий путь:      
+            '\MIUZ\Video\Digital\Ready\2025\6. Июнь'    
+            Было:   
+                [
+                    /Volumes/Shares,
+                    /Volumes/Shares-1
+                ]   
+            Стало:  
+                [
+                    /Volumes/Shares,
+                    /Volumes/Shares/Studio,
+                    /Volumes/Shares-1,
+                    /Volumes/Shares-1/Studio
+                ]
+        """
+        paths: list[str] = []
+        for vol in self._volumes_list:
+            for first_level in os.scandir(vol):
+                if first_level.is_dir():
+                    paths.append(first_level.path)
+        return paths
+
+    def _get_sys_volume(self):
+        user = os.path.expanduser("~")
+        app_support = f"{user}/Library/Application Support"
+
+        for i in self._volumes_list:
+            full_path = f"{i}{app_support}"
+            if os.path.exists(full_path):
+                return i
+        return None
+
+    def _prepare_path(self, path: str):
+        path = path.strip().strip("'\"")
+        path = path.replace("\\", "/")
+        path = path.strip("/")
+        return "/" + path
+
+    def _add_to_start(self, path: str) -> list[str]:
+        """
+        Пример:
+        >>> splited_path = ["Volumes", "Shares-1", "Studio", "MIUZ", "Photo", "Art", "Raw", "2025"]
+        [
+            '/Volumes/Shares/Studio/MIUZ/Photo/Art/Raw/2025',
+            '/Volumes/Shares/MIUZ/Photo/Art/Raw/2025',
+            '/Volumes/Shares/Photo/Art/Raw/2025',
+            ...
+            '/Volumes'
+            '/Volumes/Shares-1/Studio/MIUZ/Photo/Art/Raw/2025',
+            '/Volumes/Shares-1/MIUZ/Photo/Art/Raw/2025',
+            '/Volumes/Shares-1/Photo/Art/Raw/2025',
+            ...
+            '/Volumes'
+        ]
+        """
+        new_paths = []
+        chunk_list = [
+            i
+            for i in path.split(os.sep)
+            if i
+        ]
+        for vol in self._volumes_list:
+            chunk_list_copy = chunk_list.copy()
+            while len(chunk_list_copy) > 0:
+                new = vol + os.sep + os.path.join(*chunk_list_copy)
+                new_paths.append(new)
+                chunk_list_copy.pop(0)
+        return new_paths
         
-        except Exception as e:
-            print(e)
-            return False
-
-    @classmethod
-    def setup_generic_icons(cls):
-        os.makedirs(Static.GENERIC_ICONS_DIR, exist_ok=True)
-        for entry in os.scandir(Static.GENERIC_ICONS_DIR):
-            if entry.name.endswith(".svg"):
-                Dynamic.generic_icon_paths.append(entry.path)
-
-        from utils import Utils
-        path = Utils.get_generic_icon_path(Static.FOLDER_TYPE, Static.GENERIC_ICONS_DIR)
-
-        if not os.path.exists(path):
-            shutil.copyfile(Static.FOLDER_SVG, path)
-
-        elif os.path.getsize(Static.FOLDER_SVG) != os.path.getsize(path):
-            shutil.copyfile(Static.FOLDER_SVG, path)
-
-        Dynamic.generic_icon_paths.append(path)
-
-    @classmethod
-    def do_before_start(cls):
-        if JsonData.generic_icons_removed == False:
-            for entry in os.scandir(Static.GENERIC_ICONS_DIR):
-                if not entry.name.startswith(Static.SVG + "_"):
-                    os.remove(entry.path)
-            JsonData.generic_icons_removed = True
-
-    @classmethod
-    def init(cls):
-        os.makedirs(Static.APP_SUPPORT_APP, exist_ok=True)
-        cls.read_json_data()
-        cls.write_config()
-        cls.setup_generic_icons()
-
-        try:
-            cls.do_before_start()
-        except Exception as e:
-            print("do before start", e)
-
-class Dynamic:
-    rating_filter: int = 0
-    pixmap_size_ind = 0
-    generic_icon_paths: list[str] = []
-    urls_to_copy: list[str] = []
-    reading = False
+    def _del_from_end(self, path: str) -> list[str]:
+        """
+        Пример:
+        >>> path: "/sbc01/Shares/Studio/MIUZ/Photo/Art/Raw/2025"
+        [
+            "/sbc01/Shares/Studio/MIUZ/Photo/Art/Raw/2025",
+            "/sbc01/Shares/Studio/MIUZ/Photo/Art/Raw",
+            "/sbc01/Shares/Studio/MIUZ/Photo/Art",
+            ...
+            "/sbc01",
+        ]
+        """
+        new_paths = []
+        while path != os.sep:
+            new_paths.append(path)
+            path, _ = os.path.split(path)
+        return new_paths
