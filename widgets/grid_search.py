@@ -68,7 +68,7 @@ class SearchTask(URunnable):
         if isinstance(self.search_item.get_content(), list):
             if self.search_item.get_filter() == 0:
                 self.process_entry = self.process_list_free
-            if self.search_item.get_filter() == 1:
+            elif self.search_item.get_filter() == 1:
                 self.process_entry = self.process_list_exactly
             else:
                 self.process_entry = self.process_list_free
@@ -85,9 +85,8 @@ class SearchTask(URunnable):
 
         elif isinstance(self.search_item.get_content(), str):
             if self.search_item.get_filter() == 0:
-                print(000)
                 self.process_entry = self.process_text_free
-            if self.search_item.get_filter() == 1:
+            elif self.search_item.get_filter() == 1:
                 self.process_entry = self.process_text_exactly
             else:
                 self.process_entry = self.process_text_free
