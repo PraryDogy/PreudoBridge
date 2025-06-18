@@ -47,15 +47,17 @@ class SearchTask(URunnable):
         
         missed_files_list: list[str] = []
 
-        if self.search_item.get_files_list() and self.is_should_run():
-            no_ext_list = [
-                os.path.splitext(i)[0]
-                for i in self.search_item.get_files_list()
-            ]
+        if isinstance(self.search_item.get_content(), list):
+            if self.is_should_run():
 
-            for i in no_ext_list:
-                if i not in self.found_files_list:
-                    missed_files_list.append(i)
+                no_ext_list = [
+                    os.path.splitext(i)[0]
+                    for i in self.search_item.get_files_list()
+                ]
+
+                for i in no_ext_list:
+                    if i not in self.found_files_list:
+                        missed_files_list.append(i)
 
         try:
             self.signals_.finished_.emit(missed_files_list)
@@ -63,28 +65,34 @@ class SearchTask(URunnable):
             Utils.print_error(e)
 
     def setup_search(self):
-        if self.search_item.get_files_list():
-            if self.search_item.get_exactly():
+        if isinstance(self.search_item.get_content(), list):
+            if self.search_item.get_filter() == 0:
+                self.process_entry = self.process_list_free
+            if self.search_item.get_filter() == 1:
                 self.process_entry = self.process_list_exactly
             else:
                 self.process_entry = self.process_list_free
-            for i in self.search_item.get_files_list():
+                print("пока что нет фильтра который содержит имя в поиске")
+
+            for i in self.search_item.get_content():
                 filename, _ = self.remove_extension(i)
                 self.files_list_lower.append(filename.lower())
 
-        elif self.search_item.get_extensions():
+        elif isinstance(self.search_item.get_content(), tuple):
             self.process_entry = self.process_extensions
-            exts_lower = (i.lower() for i in self.search_item.get_extensions())
+            exts_lower = (i.lower() for i in self.search_item.get_content())
             self.exts_lower = tuple(exts_lower)
 
-        # последним мы проверяем search item search text, так как search text
-        # есть и при поиске по шаблонам и при поиске по списку
-        elif self.search_item.get_text():
-            if self.search_item.get_exactly():
+        elif isinstance(self.search_item.get_content(), str):
+            if self.search_item.get_filter() == 0:
+                self.process_entry = self.process_text_free
+            if self.search_item.get_filter() == 1:
                 self.process_entry = self.process_text_exactly
             else:
                 self.process_entry = self.process_text_free
-            self.text_lower = self.search_item.get_text().lower()
+                print("пока что нет фильтра который содержит имя в поиске")
+
+            self.text_lower = self.search_item.get_content().lower()
     
     def remove_extension(self, filename: str):
         return os.path.splitext(filename)

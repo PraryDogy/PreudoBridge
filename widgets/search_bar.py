@@ -1,5 +1,6 @@
 from PyQt5.QtCore import pyqtSignal
-from PyQt5.QtWidgets import QCheckBox, QFrame, QHBoxLayout, QLabel, QPushButton
+from PyQt5.QtWidgets import (QAction, QCheckBox, QFrame, QHBoxLayout, QLabel,
+                             QMenu, QPushButton)
 
 from utils import Utils
 
@@ -7,22 +8,24 @@ from ._base_items import SearchItem, UFrame
 
 
 class SearchBar(QFrame):
-    exactly_clicked = pyqtSignal()
+    on_filter_clicked = pyqtSignal()
     pause_search_sig = pyqtSignal(bool)
     on_text_click = pyqtSignal()
     on_exts_click = pyqtSignal()
     on_list_click = pyqtSignal()
-    heigt_ = 40
-    checkbox_text = " Точное соответствие"
+    height_ = 40
     pause_text = "Пауза"
     continue_text = "Продолжить"
     searching_text = "Идет поиск"
     search_finished_text = "Поиск завершен"
     text_limit = 30
+    no_filter_text = "Без фильтра"
+    exactly_text = "Точное соответствие"
+    containts_text = "Содержится в имени"
 
     def __init__(self, search_item: SearchItem):
         super().__init__()
-        self.setFixedHeight(SearchBar.heigt_)
+        self.setFixedHeight(SearchBar.height_)
         self.search_item: SearchItem = search_item
         self.stop_flag: bool = False
         self.pause_flag: bool = False
@@ -42,9 +45,17 @@ class SearchBar(QFrame):
         self.descr_lbl = QLabel()
         uframe_lay.addWidget(self.descr_lbl)
 
-        self.checkbox = QCheckBox(SearchBar.checkbox_text)
-        self.checkbox.stateChanged.connect(self.on_state_change)
-        h_lay.addWidget(self.checkbox)
+        self.menu_btn = QPushButton(self.no_filter_text)
+        self.menu_btn.setFixedWidth(180)
+        h_lay.addWidget(self.menu_btn)
+
+        menu = QMenu()
+        self.menu_btn.setMenu(menu)
+
+        for i in (self.no_filter_text, self.exactly_text, self.containts_text):
+            act = QAction(i, menu)
+            act.triggered.connect(lambda e, act=act: self.menu_clicked(act))
+            menu.addAction(act)
 
         self.pause_btn = QPushButton()
         self.pause_btn.setFixedWidth(110)
@@ -52,6 +63,18 @@ class SearchBar(QFrame):
         h_lay.addWidget(self.pause_btn)
 
         h_lay.addStretch()
+
+    def menu_clicked(self, act: QAction):
+        self.menu_btn.setText(act.text())
+
+        data = {
+            self.no_filter_text: 0,
+            self.exactly_text: 1,
+            self.containts_text: 2
+        }
+        
+        self.search_item.set_filter(data.get(act.text()))
+        self.on_filter_clicked.emit()
 
     def pause_btn_cmd(self):
         if self.pause_flag:
@@ -66,23 +89,6 @@ class SearchBar(QFrame):
         except RuntimeError as e:
             Utils.print_error(e)
 
-    def on_state_change(self, value: int):
-        """
-        Обрабатывает изменение состояния чекбокса (сигнал stateChanged):
-
-        - Если активен stop_flag — выход без действий.
-        - Преобразует значение состояния чекбокса (0 = unchecked, 2 = checked)
-        в булев тип и сохраняет в SearchItem.exactly.
-        - Испускает сигнал load_search_grid для загрузки сетки GridSearch
-        с новым параметром SearchItem.exaclty
-        """
-        if self.stop_flag:
-            return
-        data = {0: False, 2: True}
-        new_value = data.get(value)
-        self.search_item.exactly = new_value
-        self.exactly_clicked.emit()
-
     def show(self):
         """
         Отображает панель поиска (SearchBar):
@@ -92,21 +98,20 @@ class SearchBar(QFrame):
         - Отключает чекбокс, если установлен поиск по расширениям (в этом случае точность неактуальна).
         - Отключает стоп-флаг и отображает SearchBar.
         """
-        self.stop_flag = True
-        self.checkbox.setChecked(self.search_item.exactly)
-        self.stop_flag = False
+        data = {
+            0: self.no_filter_text,
+            1: self.exactly_text,
+            2: self.containts_text
+        }
 
-        if self.search_item.get_extensions():
-            self.checkbox.setDisabled(True)
+        filter_value = self.search_item.get_filter()
+        self.menu_btn.setText(data.get(filter_value))
+
+        if isinstance(self.search_item.get_content(), tuple):
+            self.menu_btn.setDisabled(True)
         else:
-            self.checkbox.setDisabled(False)
+            self.menu_btn.setDisabled(False)
 
-        text = self.search_item.get_text()
-        if len(text) > SearchBar.text_limit:
-            text = text[:SearchBar.text_limit] + "..."
-        text = f"{SearchBar.searching_text}: \"{text}\""
-
-        self.descr_lbl.setText(text)
         self.pause_btn.setDisabled(False)
         self.pause_btn.setText(SearchBar.pause_text)
         self.pause_flag = False
@@ -118,9 +123,9 @@ class SearchBar(QFrame):
         self.pause_btn.setDisabled(True)
 
     def on_frame_click(self, e):
-        if self.search_item.get_files_list():
+        if isinstance(self.search_item.get_content(), list):
             self.on_list_click.emit()
-        elif self.search_item.get_extensions():
+        elif isinstance(self.search_item.get_content(), tuple):
             self.on_exts_click.emit()
         else:
             self.on_text_click.emit()

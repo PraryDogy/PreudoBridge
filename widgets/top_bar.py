@@ -61,8 +61,8 @@ class ListWin(MinMaxDisabledWin):
 
         self.setLayout(self.create_main_layout())
 
-        if self.search_item.get_files_list():
-            self.input_.setText("\n".join(self.search_item.get_files_list()))
+        if isinstance(self.search_item.get_content(), list):
+            self.input_.setText("\n".join(self.search_item.get_content()))
 
         self.adjustSize()
 
@@ -233,16 +233,15 @@ class SearchWidget(ULineEdit):
         self.search_item.reset()
 
         if self.search_text in SearchItem.SEARCH_EXTENSIONS:
-            extensions = SearchItem.SEARCH_EXTENSIONS.get(self.search_text)
-            self.search_item.set_extenstions(extensions)
+            extensions: tuple[str] = SearchItem.SEARCH_EXTENSIONS.get(self.search_text)
+            self.search_item.set_content(extensions)
 
         elif self.search_text == SearchItem.SEARCH_LIST_TEXT:
-            self.search_item.set_files_list(self.search_list_local)
+            self.search_item.set_content(self.search_list_local)
 
         else:
-            self.search_item.set_text(self.search_text)
+            self.search_item.set_content(self.search_text)
 
-        self.search_item.set_text(self.search_text)
         self.load_search_grid.emit()
 
     def show_templates(self, a0: QMouseEvent | None) -> None:

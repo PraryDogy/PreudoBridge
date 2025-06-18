@@ -217,6 +217,9 @@ class MainWin(WinBase):
         self.setup_signals()
         self.load_st_grid()
 
+        # self.search_item.set_text("test")
+        # self.search_bar.show()
+
     def setup_signals(self):
         self.splitter.splitterMoved.connect(lambda: self.resize_timer.start(MainWin.resize_ms))
 
@@ -244,7 +247,7 @@ class MainWin(WinBase):
         self.top_bar.open_in_new_win.connect(lambda dir: self.open_in_new_win(dir))
         self.top_bar.open_settings.connect(lambda: self.open_settings())
 
-        self.search_bar.exactly_clicked.connect(lambda: self.load_search_grid())
+        self.search_bar.on_filter_clicked.connect(lambda: self.load_search_grid())
         self.search_bar.pause_search_sig.connect(lambda value: self.grid.toggle_pause(value))
         self.search_bar.on_text_click.connect(lambda: self.top_bar.on_text_click())
         self.search_bar.on_exts_click.connect(lambda: self.top_bar.on_exts_click())

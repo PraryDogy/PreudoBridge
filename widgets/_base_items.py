@@ -559,51 +559,46 @@ class SearchItem:
 
     def __init__(self):
         super().__init__()
+        self._filter: int = 0
+        self._content: str | list[str] = None
 
-        self.text_: str = None
-        self.extensions_: str = None
-        self.files_list_: list[str] = None
-        self.exactly: bool = True
-
-    def set_text(self, text: str):
-        self.text_ = text
-    
-    def get_text(self):
-        return self.text_
-    
-    def set_extenstions(self, template: str):
-        self.extensions_ = template
-
-    def get_extensions(self):
+    def get_content(self):
         """
-        Возвращает кортеж с расширением файлов
+        none    
+        str: искать текст   
+        tuple[str]: искать по расширениям   
+        list[str]: искать по списку 
         """
-        return self.extensions_
-    
-    def set_files_list(self, search_list: list[str]):
-        self.files_list_ = search_list
+        return self._content
 
-    def get_files_list(self):
+    def set_content(self, value: str | tuple[str] | list[str]):
         """
-        Возвращает список файлов
+        none    
+        str: искать текст   
+        tuple: искать по расширениям    
+        list[str]: искать по списку     
         """
-        return self.files_list_
+        self._content = value
     
-    def set_exactly(self, exactly: bool):
-        self.exactly = exactly
+    def set_filter(self, value: int):
+        """
+        0: нет фильтра      
+        1: точное соответствие  
+        2: искомый текст содержится в имени и наоборот  
+        """
+        self._filter = value
 
-    def get_exactly(self):
-        return self.exactly
+    def get_filter(self):
+        """
+        0: нет фильтра  
+        1: точное соответствие  
+        2: искомый текст содержится в имени и наоборот  
+        """
+        return self._filter
     
     def reset(self):
-        """
-        search_text, search_list, search_extensions = None
-        search.exactly = False
-        """
-        self.text_ = None
-        self.files_list_ = None
-        self.extensions_ = None
-        self.exactly = False
+        self.set_content(None)
+        self.set_filter(0)
 
 
 class MainWinItem:
