@@ -300,8 +300,6 @@ class GridSearch(Grid):
         self.search_task.signals_.finished_.connect(lambda missed_files_list: self.search_fin(missed_files_list))
         UThreadPool.start(self.search_task)
 
-        self.finished_.emit()
-
     def add_new_widget(self, base_item: BaseItem):
         self.thumb = Thumb(base_item.src, base_item.rating)
         self.thumb.setParent(self)

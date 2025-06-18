@@ -119,8 +119,7 @@ class SearchBar(QFrame):
         return super().show()
 
     def search_bar_search_fin(self):
-        return
-        self.descr_lbl.setText(SearchBar.search_finished_text)
+        self.descr_lbl.setText(self.search_finished_text)
         self.pause_btn.setDisabled(True)
 
     def on_frame_click(self, e):
