@@ -9,10 +9,9 @@ from ._base_items import SearchItem, UFrame
 
 class SearchBar(QFrame):
     on_filter_clicked = pyqtSignal()
-    pause_search_sig = pyqtSignal(bool)
-    on_text_click = pyqtSignal()
-    on_exts_click = pyqtSignal()
-    on_list_click = pyqtSignal()
+    on_pause_clicked = pyqtSignal(bool)
+    on_search_bar_clicked = pyqtSignal()
+
     height_ = 40
     pause_text = "Пауза"
     continue_text = "Продолжить"
@@ -40,7 +39,7 @@ class SearchBar(QFrame):
         uframe_lay = QHBoxLayout()
         uframe_lay.setContentsMargins(0, 0, 0, 0)
         uframe.setLayout(uframe_lay)
-        uframe.mouseReleaseEvent = self.on_frame_click
+        uframe.mouseReleaseEvent = lambda e: self.on_search_bar_clicked.emit()
 
         self.descr_lbl = QLabel(self.searching_text)
         uframe_lay.addWidget(self.descr_lbl)
@@ -85,7 +84,7 @@ class SearchBar(QFrame):
             self.pause_btn.setText(SearchBar.continue_text)
 
         try:
-            self.pause_search_sig.emit(self.pause_flag)
+            self.on_pause_clicked.emit(self.pause_flag)
         except RuntimeError as e:
             Utils.print_error(e)
 
@@ -121,11 +120,3 @@ class SearchBar(QFrame):
     def search_bar_search_fin(self):
         self.descr_lbl.setText(self.search_finished_text)
         self.pause_btn.setDisabled(True)
-
-    def on_frame_click(self, e):
-        if isinstance(self.search_item.get_content(), list):
-            self.on_list_click.emit()
-        elif isinstance(self.search_item.get_content(), tuple):
-            self.on_exts_click.emit()
-        else:
-            self.on_text_click.emit()

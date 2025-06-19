@@ -248,10 +248,8 @@ class MainWin(WinBase):
         self.top_bar.open_settings.connect(lambda: self.open_settings())
 
         self.search_bar.on_filter_clicked.connect(lambda: self.load_search_grid())
-        self.search_bar.pause_search_sig.connect(lambda value: self.grid.toggle_pause(value))
-        self.search_bar.on_text_click.connect(lambda: self.top_bar.on_text_click())
-        self.search_bar.on_exts_click.connect(lambda: self.top_bar.on_exts_click())
-        self.search_bar.on_list_click.connect(lambda: self.top_bar.on_list_click())
+        self.search_bar.on_pause_clicked.connect(lambda value: self.grid.toggle_pause(value))
+        self.search_bar.on_search_bar_clicked.connect(lambda: self.top_bar.on_search_bar_clicked())
 
         self.path_bar.new_history_item.connect(lambda dir: self.top_bar.new_history_item(dir))
         self.path_bar.load_st_grid.connect(lambda: self.load_st_grid())

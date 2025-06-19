@@ -371,17 +371,16 @@ class TopBar(QWidget):
         self.search_wid.load_st_grid.connect(self.load_st_grid.emit)
         self.main_lay.addWidget(self.search_wid)
 
-    def on_text_click(self):
-        self.search_wid.selectAll()
-        self.search_wid.setFocus()
-
-    def on_exts_click(self):
-        self.search_wid.selectAll()
-        self.search_wid.show_templates(None)
-
-    def on_list_click(self):
-        self.search_wid.selectAll()
-        self.search_wid.open_search_list_win()
+    def on_search_bar_clicked(self):
+        if isinstance(self.search_item.get_content(), str):
+            self.search_wid.selectAll()
+            self.search_wid.setFocus()
+        elif isinstance(self.search_item.get_content(), tuple):
+            self.search_wid.selectAll()
+            self.search_wid.show_templates(None)
+        else:
+            self.search_wid.selectAll()
+            self.search_wid.open_search_list_win()
 
     def cascade_windows(self):
         wins = WinBase.wins
