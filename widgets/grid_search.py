@@ -71,8 +71,7 @@ class SearchTask(URunnable):
             elif self.search_item.get_filter() == 1:
                 self.process_entry = self.process_list_exactly
             else:
-                self.process_entry = self.process_list_free
-                print("пока что нет фильтра который содержит имя в поиске")
+                self.process_entry = self.process_list_contains
 
             for i in self.search_item.get_content():
                 filename, _ = self.remove_extension(i)
@@ -89,8 +88,7 @@ class SearchTask(URunnable):
             elif self.search_item.get_filter() == 1:
                 self.process_entry = self.process_text_exactly
             else:
-                self.process_entry = self.process_text_free
-                print("пока что нет фильтра который содержит имя в поиске")
+                self.process_entry = self.process_text_contains
 
             self.text_lower = self.search_item.get_content().lower()
     
@@ -101,7 +99,6 @@ class SearchTask(URunnable):
     def process_entry(self, entry: os.DirEntry): ...
 
     def process_extensions(self, entry: os.DirEntry):
-        # Поиск файлов с определенным расширением.
         path = entry.path
         path: str = path.lower()
         if path.endswith(self.exts_lower):
@@ -110,22 +107,25 @@ class SearchTask(URunnable):
             return False
 
     def process_text_free(self, entry: os.DirEntry):
-        # Поиск файлов с именем.
         filename, _ = self.remove_extension(entry.name)
         filename: str = filename.lower()
-
-        # if self.text_lower in filename or filename in self.text_lower:
         if self.similarity_ratio(self.text_lower, filename) > SearchTask.ratio:
             return True
         else:
             return False
         
     def process_text_exactly(self, entry: os.DirEntry):
-        # Поиск файлов с именем.
         filename, _ = self.remove_extension(entry.name)
         filename: str = filename.lower()
-
         if filename == self.text_lower:
+            return True
+        else:
+            return False
+
+    def process_text_contains(self, entry: os.DirEntry):
+        filename, _ = self.remove_extension(entry.name)
+        filename: str = filename.lower()
+        if self.text_lower in filename or filename in self.text_lower:
             return True
         else:
             return False
@@ -144,7 +144,15 @@ class SearchTask(URunnable):
         filename: str = true_filename.lower()
         for item in self.files_list_lower:
             if self.similarity_ratio(item, filename) > SearchTask.ratio:
-            # if item in filename or filename in item:
+                self.found_files_list.append(true_filename)
+                return True
+        return False
+
+    def process_list_contains(self, entry: os.DirEntry):
+        true_filename, _ = self.remove_extension(entry.name)
+        filename: str = true_filename.lower()
+        for item in self.files_list_lower:
+            if item in filename or filename in item:
                 self.found_files_list.append(true_filename)
                 return True
         return False
