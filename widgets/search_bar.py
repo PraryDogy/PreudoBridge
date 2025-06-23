@@ -111,8 +111,10 @@ class SearchBar(QFrame):
 
         if isinstance(self.search_item.get_content(), tuple):
             self.menu_btn.setDisabled(True)
+            self.menu_btn.hide()
         else:
             self.menu_btn.setDisabled(False)
+            self.menu_btn.show()
 
         self.pause_btn.setDisabled(False)
         self.pause_btn.setText(SearchBar.pause_text)
