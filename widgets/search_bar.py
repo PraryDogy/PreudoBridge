@@ -18,9 +18,11 @@ class SearchBar(QFrame):
     searching_text = "Идет поиск"
     search_finished_text = "Поиск завершен"
     text_limit = 30
-    no_filter_text = "Без фильтра"
-    exactly_text = "Точное соответствие"
-    containts_text = "Содержится в имени"
+    # чтобы на всех темах текст был одинаково по левому краю и с отступом
+    # по другому универсально не выходит
+    no_filter_text = "  Без фильтра"
+    exactly_text = "  Точное соответствие"
+    containts_text = "  Содержится в имени"
 
     def __init__(self, search_item: SearchItem):
         super().__init__()
@@ -45,7 +47,8 @@ class SearchBar(QFrame):
         uframe_lay.addWidget(self.descr_lbl)
 
         self.menu_btn = QPushButton(self.no_filter_text)
-        self.menu_btn.setFixedWidth(180)
+        self.menu_btn.setStyleSheet("text-align: left;")
+        self.menu_btn.setFixedWidth(190)
         h_lay.addWidget(self.menu_btn)
 
         menu = QMenu()
