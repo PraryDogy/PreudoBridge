@@ -289,7 +289,7 @@ class GridStandart(Grid):
                 thumbs.append(wid)
         self.run_load_images_thread(thumbs)
 
-    def paste_files_fin(self, files, dest):
+    def paste_files_fin(self, files: list[str], dest: str):
         super().paste_files_fin(files, dest)
         self.force_load_images_cmd(files)
 
