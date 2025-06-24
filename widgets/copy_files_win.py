@@ -297,12 +297,16 @@ class ReplaceFilesWin(MinMaxDisabledWin):
     descr_text = "Заменить существующие файлы?"
     title_text = "Замена"
     ok_text = "Ок"
+    cancel_text = "Отмена"
     icon_size = 50
+
+    ok_pressed = pyqtSignal()
+    cancel_pressed = pyqtSignal()
 
     def __init__(self):
         super().__init__()
         self.set_modality()
-        self.setWindowTitle(ErrorWin.title_text)
+        self.setWindowTitle(self.title_text)
 
         main_lay = QVBoxLayout(self)
         main_lay.setContentsMargins(10, 5, 10, 10)
@@ -317,32 +321,37 @@ class ReplaceFilesWin(MinMaxDisabledWin):
         h_lay.setSpacing(10)
         h_wid.setLayout(h_lay)
 
-        warn = USvgSqareWidget(Static.WARNING_SVG, ErrorWin.icon_size)
+        warn = USvgSqareWidget(Static.WARNING_SVG, self.icon_size)
         h_lay.addWidget(warn)
 
-        test_two = QLabel(ErrorWin.descr_text)
+        test_two = QLabel(self.descr_text)
         test_two.setAlignment(Qt.AlignmentFlag.AlignVCenter)
         h_lay.addWidget(test_two)
 
         btn_lay = QHBoxLayout()
         btn_lay.setSpacing(10)
 
-        ok_btn = QPushButton(ErrorWin.ok_text)
+        ok_btn = QPushButton(self.ok_text)
         ok_btn.setFixedWidth(90)
+        ok_btn.clicked.connect(lambda: self.ok_cmd())
         ok_btn.clicked.connect(self.deleteLater)
         btn_lay.addWidget(ok_btn)
 
-        cancel_btn = QPushButton("Отмена")
+        cancel_btn = QPushButton(self.cancel_text)
+        cancel_btn.clicked.connect(self.cancel_pressed.emit())
         cancel_btn.setFixedWidth(90)
         cancel_btn.clicked.connect(self.deleteLater)
         btn_lay.addWidget(cancel_btn)
 
         self.adjustSize()
 
+    def ok_cmd(self):
+        self.ok_pressed.emit()
+        self.deleteLater()
+
     def keyPressEvent(self, a0):
         if a0.key() == Qt.Key.Key_Escape:
-            self.deleteLater()
-        elif a0.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
+            self.cancel_pressed.emit()
             self.deleteLater()
         elif a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
             if a0.key() == Qt.Key.Key_Q:
