@@ -1,10 +1,38 @@
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import QTimer, pyqtSignal
+from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import (QAction, QCheckBox, QFrame, QHBoxLayout, QLabel,
                              QMenu, QPushButton)
 
 from utils import Utils
 
 from ._base_items import SearchItem, UFrame
+
+
+class BlinkingLabel(QLabel):
+    def __init__(self, text="", parent=None):
+        super().__init__(text, parent)
+        self._timer = QTimer(self)
+        self._timer.setInterval(500)  # 1 секунда
+        self._timer.timeout.connect(self._toggle_color)
+        self._default_color = self.palette().color(self.foregroundRole())
+        self._blink_color = QColor(128, 128, 128) 
+        self._is_blink_on = False
+
+    def _toggle_color(self):
+        if self._is_blink_on:
+            self.setStyleSheet(f"color: {self._default_color.name()};")
+        else:
+            self.setStyleSheet(f"color: {self._blink_color.name()};")
+        self._is_blink_on = not self._is_blink_on
+
+    def start_blink(self):
+        self._default_color = self.palette().color(self.foregroundRole())
+        self._timer.start()
+
+    def stop_blink(self):
+        self._timer.stop()
+        self.setStyleSheet(f"color: {self._default_color.name()};")
+        self._is_blink_on = False
 
 
 class SearchBar(QFrame):
@@ -43,7 +71,7 @@ class SearchBar(QFrame):
         uframe.setLayout(uframe_lay)
         uframe.mouseReleaseEvent = lambda e: self.on_search_bar_clicked.emit()
 
-        self.descr_lbl = QLabel(self.searching_text)
+        self.descr_lbl = BlinkingLabel(self.searching_text)
         uframe_lay.addWidget(self.descr_lbl)
 
         self.menu_btn = QPushButton(self.no_filter_text)
@@ -120,7 +148,13 @@ class SearchBar(QFrame):
         self.pause_btn.setText(SearchBar.pause_text)
         self.pause_flag = False
 
+        self.descr_lbl.start_blink()
+
         return super().show()
+    
+    def hide(self):
+        self.descr_lbl.stop_blink()
+        return super().hide()
 
     def search_bar_search_fin(self):
         self.descr_lbl.setText(self.search_finished_text)
