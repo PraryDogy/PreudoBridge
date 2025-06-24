@@ -52,7 +52,7 @@ class SearchTask(URunnable):
 
                 no_ext_list = [
                     os.path.splitext(i)[0]
-                    for i in self.search_item.get_files_list()
+                    for i in self.search_item.get_content()
                 ]
 
                 for i in no_ext_list:
