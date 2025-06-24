@@ -404,6 +404,7 @@ class MainWin(WinBase):
 
         old_grid = self.grid
         old_grid.hide()
+        old_grid.setFixedSize(0, 0)
         QTimer.singleShot(MainWin.del_grid_timer, lambda: old_grid.deleteLater())
 
     def load_search_grid(self):
@@ -454,6 +455,7 @@ class MainWin(WinBase):
 
         self.setWindowTitle(os.path.basename(self.main_win_item.main_dir))
         self.safe_delete_grid()
+
 
         if self.view_index == 0:
             self.grid = GridStandart(self.main_win_item, self.view_index)
