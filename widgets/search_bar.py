@@ -135,7 +135,7 @@ class SearchBar(QFrame):
         }
 
         filter_value = self.search_item.get_filter()
-        self.filter_bt.setText(data.get(filter_value))
+        self.filter_bt.setText(data.get(filter_value, self.no_filter_text))
 
         if isinstance(self.search_item.get_content(), tuple):
             self.filter_bt.setDisabled(True)
