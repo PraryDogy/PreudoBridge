@@ -74,13 +74,13 @@ class SearchBar(QFrame):
         self.descr_lbl = BlinkingLabel(self.searching_text)
         uframe_lay.addWidget(self.descr_lbl)
 
-        self.menu_btn = QPushButton(self.no_filter_text)
-        self.menu_btn.setStyleSheet("text-align: left;")
-        self.menu_btn.setFixedWidth(190)
-        h_lay.addWidget(self.menu_btn)
+        self.filter_bt = QPushButton(self.no_filter_text)
+        self.filter_bt.setStyleSheet("text-align: left;")
+        self.filter_bt.setFixedWidth(190)
+        h_lay.addWidget(self.filter_bt)
 
         menu = QMenu()
-        self.menu_btn.setMenu(menu)
+        self.filter_bt.setMenu(menu)
 
         for i in (self.no_filter_text, self.exactly_text, self.containts_text):
             act = QAction(i, menu)
@@ -95,7 +95,7 @@ class SearchBar(QFrame):
         h_lay.addStretch()
 
     def menu_clicked(self, act: QAction):
-        self.menu_btn.setText(act.text())
+        self.filter_bt.setText(act.text())
 
         data = {
             self.no_filter_text: 0,
@@ -135,26 +135,25 @@ class SearchBar(QFrame):
         }
 
         filter_value = self.search_item.get_filter()
-        self.menu_btn.setText(data.get(filter_value))
+        self.filter_bt.setText(data.get(filter_value))
 
         if isinstance(self.search_item.get_content(), tuple):
-            self.menu_btn.setDisabled(True)
-            self.menu_btn.hide()
+            self.filter_bt.setDisabled(True)
+            self.filter_bt.hide()
         else:
-            self.menu_btn.setDisabled(False)
-            self.menu_btn.show()
+            self.filter_bt.setDisabled(False)
+            self.filter_bt.show()
 
         self.pause_btn.setDisabled(False)
         self.pause_btn.setText(SearchBar.pause_text)
         self.pause_flag = False
-
         self.descr_lbl.setText(self.searching_text)
         self.descr_lbl.start_blink()
 
         return super().show()
     
     def hide(self):
-        self.descr_lbl.stop_blink()
+        self.search_bar_search_fin()
         return super().hide()
 
     def search_bar_search_fin(self):
