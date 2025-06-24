@@ -11,76 +11,6 @@ from ._base_items import (MainWinItem, MinMaxDisabledWin, URunnable,
                           USvgSqareWidget, UThreadPool)
 
 
-class NewPathsSignals(QObject):
-    finished_ = pyqtSignal(list)
-
-
-class NewPathsTask(URunnable):
-    def __init__(self):
-        super().__init__()
-        self.signals_ = NewPathsSignals()
-
-    def task(self):
-        self.old_new_paths: list[tuple[str, str]] = []
-        self.new_paths = []
-
-        for i in self.urls:
-            i = Utils.normalize_slash(i)
-            if os.path.isdir(i):
-                self.old_new_paths.extend(self.scan_folder(i, self.dest))
-            else:
-                src, new_path = self.single_file(i, self.dest)
-                if new_path in self.new_paths:
-                    new_path = self.add_counter(new_path)
-                self.new_paths.append(new_path)
-                self.old_new_paths.append((src, new_path))
-
-        self.signals_.finished_.emit(self.new_paths)
-    
-    def add_counter(self, path: str):
-        counter = 1
-        base_root, ext = os.path.splitext(path)
-        root = base_root
-        while path in self.new_paths:
-            path = f"{root} {counter}{ext}"
-            counter += 1
-        return path
-
-    def single_file(self, file: str, dest: str):
-        # Возвращает кортеж: исходный путь файла, финальный путь файла
-        filename = os.path.basename(file)
-        return (file, os.path.join(dest, filename))
-
-    def scan_folder(self, src_dir: str, dest: str):
-        # Рекурсивно сканирует папку src_dir.
-        # Возвращает список кортежей: (путь к исходному файлу, путь назначения).
-        # 
-        # Путь назначения формируется так:
-        # - Берётся относительный путь файла относительно родительской папки src_dir
-        # - Этот относительный путь добавляется к пути назначения dest
-        stack = [src_dir]
-        new_paths: list[tuple[str, str]] = []
-
-        src_dir = Utils.normalize_slash(src_dir)
-        dest = Utils.normalize_slash(dest)
-
-        # Родительская папка от src_dir — нужна, чтобы определить
-        # относительный путь каждого файла внутри src_dir
-        parent = os.path.dirname(src_dir)
-
-        while stack:
-            current_dir = stack.pop()
-            for dir_entry in os.scandir(current_dir):
-                if dir_entry.is_dir():
-                    stack.append(dir_entry.path)
-                else:
-                    rel_path = dir_entry.path.split(parent)[-1]
-                    new_path = dest + rel_path
-                    new_paths.append((dir_entry.path, new_path))
-
-        return new_paths
-
-
 class CopyFilesSignals(QObject):
     finished_ = pyqtSignal(list)
     set_value = pyqtSignal(int)
@@ -103,12 +33,15 @@ class CopyFilesTask(URunnable):
     def task(self): 
         try:
             new_paths = self.create_new_paths()
-
             for src_path, new_path in new_paths:
                 if os.path.exists(new_path):
                     self.pause_flag = True
                     self.signals_.replace_files.emit()
-                    self.wait_replace_files()
+                    while self.pause_flag:
+                        sleep(1)
+            if self.cancel_flag:
+                self.signals_.finished_.emit([])
+                return
 
         except OSError as e:
             Utils.print_error(e)
@@ -160,13 +93,6 @@ class CopyFilesTask(URunnable):
             self.signals_.finished_.emit(paths)
         except RuntimeError as e:
             Utils.print_error(e)
-
-    def wait_replace_files(self):
-        """
-        бесконечный цикл, пока пользователь не снимет флаг 
-        """
-        while self.pause_flag:
-            sleep(1)
 
     def copy_by_bytes(self, src: str, dest: str):
         tmp = True
@@ -310,7 +236,7 @@ class ReplaceFilesWin(MinMaxDisabledWin):
 
         main_lay = QVBoxLayout(self)
         main_lay.setContentsMargins(10, 5, 10, 10)
-        main_lay.setSpacing(0)
+        main_lay.setSpacing(10)
         self.setLayout(main_lay)
 
         h_wid = QWidget()
@@ -328,35 +254,39 @@ class ReplaceFilesWin(MinMaxDisabledWin):
         test_two.setAlignment(Qt.AlignmentFlag.AlignVCenter)
         h_lay.addWidget(test_two)
 
+        btn_wid = QWidget()
+        main_lay.addWidget(btn_wid)
+
         btn_lay = QHBoxLayout()
+        btn_lay.setContentsMargins(0, 0, 0, 0)
         btn_lay.setSpacing(10)
+        btn_wid.setLayout(btn_lay)
+
+        btn_lay.addStretch()
 
         ok_btn = QPushButton(self.ok_text)
         ok_btn.setFixedWidth(90)
         ok_btn.clicked.connect(lambda: self.ok_cmd())
-        ok_btn.clicked.connect(self.deleteLater)
         btn_lay.addWidget(ok_btn)
 
         cancel_btn = QPushButton(self.cancel_text)
-        cancel_btn.clicked.connect(self.cancel_pressed.emit())
         cancel_btn.setFixedWidth(90)
-        cancel_btn.clicked.connect(self.deleteLater)
+        cancel_btn.clicked.connect(lambda: self.cancel_cmd())
         btn_lay.addWidget(cancel_btn)
-
+        
+        btn_lay.addStretch()
         self.adjustSize()
 
     def ok_cmd(self):
         self.ok_pressed.emit()
         self.deleteLater()
 
-    def keyPressEvent(self, a0):
-        if a0.key() == Qt.Key.Key_Escape:
-            self.cancel_pressed.emit()
-            self.deleteLater()
-        elif a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
-            if a0.key() == Qt.Key.Key_Q:
-                return
-        return super().keyPressEvent(a0)
+    def cancel_cmd(self):
+        self.cancel_pressed.emit()
+        self.deleteLater()
+
+    def closeEvent(self, a0):
+        a0.ignore()        
     
 
 class ErrorWin(MinMaxDisabledWin):
@@ -411,6 +341,7 @@ class ErrorWin(MinMaxDisabledWin):
 class CopyFilesWin(MinMaxDisabledWin):
     finished_ = pyqtSignal(list)
     error_ = pyqtSignal()
+
     preparing_text = "Подготовка"
     title_text = "Копирую файлы"
     progressbar_width = 300
@@ -474,8 +405,23 @@ class CopyFilesWin(MinMaxDisabledWin):
             task_.signals_.set_value.connect(lambda value: self.set_value(value))
             task_.signals_.set_size_mb.connect(lambda text: self.size_mb_text(text))
             task_.signals_.finished_.connect(lambda urls: self.on_finished(urls))
-            task_.signals_.error_.connect(self.error_.emit)
+            task_.signals_.error_.connect(lambda: self.open_replace_files_win())
+            task_.signals_.replace_files.connect(lambda: self.open_replace_files_win(task_))
             UThreadPool.start(task_)
+
+    def open_replace_files_win(self, task: CopyFilesTask):
+        replace_win = ReplaceFilesWin()
+        replace_win.center(self)
+        replace_win.ok_pressed.connect(lambda: self.continue_copy(task))
+        replace_win.cancel_pressed.connect(lambda: self.cancel_copy(task))
+        replace_win.show()
+
+    def continue_copy(self, task: CopyFilesTask):
+        task.pause_flag = False
+
+    def cancel_copy(self, task: CopyFilesTask):
+        task.pause_flag = False
+        task.cancel_flag = True
 
     def size_mb_text(self, text: str):
         self.size_mb_lbl.setText(text)

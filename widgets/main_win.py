@@ -220,6 +220,10 @@ class MainWin(WinBase):
         # self.search_item.set_text("test")
         # self.search_bar.show()
 
+        # from .copy_files_win import ReplaceFilesWin, ErrorWin
+        # wi = ReplaceFilesWin()
+        # wi.show()
+
     def setup_signals(self):
         self.splitter.splitterMoved.connect(lambda: self.resize_timer.start(MainWin.resize_ms))
 
