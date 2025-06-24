@@ -406,7 +406,7 @@ class MainWin(WinBase):
         self.safe_delete_grid()
 
         self.grid = GridSearch(self.main_win_item, self.view_index)
-        self.grid.finished_.connect(lambda id_=id(self.grid): self.search_finished(id_))
+        self.grid.finished_.connect(lambda: self.search_finished())
         self.grid.setParent(self)
         self.grid.set_sort_item(self.sort_item)
         self.grid.set_search_item(self.search_item)
@@ -421,20 +421,8 @@ class MainWin(WinBase):
 
         self.setup_grid_signals()
 
-    def search_finished(self, id_: int):
-        """
-        Обрабатывает сигнал завершения поиска в GridSearch.
-
-        - При подключении сигнала к слоту передаётся идентификатор (id) текущей активной сетки.
-        - В момент получения сигнала проверяется, совпадает ли id_ с id текущей self.grid.
-        - Если совпадает — скрывает индикатор загрузки (spinner) в панели поиска.
-        - Если не совпадает — сигнал пришёл от устаревшей сетки, игнорируем.
-
-        Это предотвращает реакцию на завершение поиска от уже неактуальных экземпляров GridSearch,
-        которые могли быть заменены во время ожидания завершения предыдущего поиска.
-        """
-        if id_ == id(self.grid):
-            self.search_bar.search_bar_search_fin()
+    def search_finished(self):
+        self.search_bar.search_bar_search_fin()
 
     def disable_wids(self, value: bool):
         self.sort_bar.sort_frame.setDisabled(value)

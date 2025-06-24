@@ -349,7 +349,8 @@ class GridSearch(Grid):
             self.win_missed_files.show()
 
         try:
-            self.finished_.emit()
+            if self.search_task.is_should_run():
+                self.finished_.emit()
         except RuntimeError as e:
             Utils.print_error(e)
 
