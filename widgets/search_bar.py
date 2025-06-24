@@ -148,6 +148,7 @@ class SearchBar(QFrame):
         self.pause_btn.setText(SearchBar.pause_text)
         self.pause_flag = False
 
+        self.descr_lbl.setText(self.searching_text)
         self.descr_lbl.start_blink()
 
         return super().show()
@@ -158,4 +159,5 @@ class SearchBar(QFrame):
 
     def search_bar_search_fin(self):
         self.descr_lbl.setText(self.search_finished_text)
+        self.descr_lbl.stop_blink()
         self.pause_btn.setDisabled(True)
