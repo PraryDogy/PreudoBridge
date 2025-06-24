@@ -40,10 +40,10 @@ class CopyFilesTask(URunnable):
                     while self.pause_flag:
                         sleep(1)
                     if self.cancel_flag:
+                        self.signals_.finished_.emit([])
+                        return
+                    else:
                         break
-            if self.cancel_flag:
-                self.signals_.finished_.emit([])
-                return
 
         except OSError as e:
             Utils.print_error(e)
