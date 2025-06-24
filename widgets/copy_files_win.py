@@ -39,6 +39,8 @@ class CopyFilesTask(URunnable):
                     self.signals_.replace_files.emit()
                     while self.pause_flag:
                         sleep(1)
+                    if self.cancel_flag:
+                        break
             if self.cancel_flag:
                 self.signals_.finished_.emit([])
                 return

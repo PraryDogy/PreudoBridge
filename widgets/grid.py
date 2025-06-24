@@ -546,16 +546,6 @@ class Grid(UScrollArea):
             Dynamic.urls_to_copy.append(i.src)
 
     def paste_files(self, dest: str = None):
-        """
-        Вставляет файлы на основе списка Grid.urls_to_copy в текущую директорию.    
-        Открывает окно копирования файлов.  
-        Запускает URunnable для копирования файлов. Испускает сигналы:
-        - error win sig при ошибке копирования, откроется окно ошибки
-        - finished_ добавит в сетку новые Thumb
-        
-        Предотвращает вставку в саму себя.  
-        Например нельзя скопировать Downloads в Downloads.
-        """
         if not Dynamic.urls_to_copy:
             return
 
@@ -570,14 +560,15 @@ class Grid(UScrollArea):
                 return
 
         self.win_copy = CopyFilesWin(dest, Dynamic.urls_to_copy)
-        cmd = lambda args: self.paste_files_fin(dest)   
-        self.win_copy.finished_.connect(cmd)
+        self.win_copy.finished_.connect(lambda files: self.paste_files_fin(files, dest))
         self.win_copy.error_.connect(self.show_error_win)
         self.win_copy.center(self.window())
         self.win_copy.show()
         QTimer.singleShot(300, self.win_copy.raise_)
 
-    def paste_files_fin(self, dest: str):
+    def paste_files_fin(self, files: list[str], dest: str):
+        if not files:
+            return
         self.main_win_item.scroll_value = self.verticalScrollBar().value()
         self.main_win_item.main_dir = dest
         self.load_st_grid.emit()

@@ -289,9 +289,9 @@ class GridStandart(Grid):
                 thumbs.append(wid)
         self.run_load_images_thread(thumbs)
 
-    def paste_files_fin(self, urls):
-        urls = super().paste_files_fin(urls)
-        self.force_load_images_cmd(urls)
+    def paste_files_fin(self, files, dest):
+        super().paste_files_fin(files, dest)
+        self.force_load_images_cmd(files)
 
     def on_scroll_changed(self, value: int):
         """
