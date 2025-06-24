@@ -3,7 +3,7 @@ import os
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QPushButton,
                              QVBoxLayout, QWidget)
-
+from time import sleep
 from cfg import Static
 from utils import Utils
 
@@ -11,24 +11,105 @@ from ._base_items import (MainWinItem, MinMaxDisabledWin, URunnable,
                           USvgSqareWidget, UThreadPool)
 
 
-class WorkerSignals(QObject):
+class NewPathsSignals(QObject):
+    finished_ = pyqtSignal(list)
+
+
+class NewPathsTask(URunnable):
+    def __init__(self):
+        super().__init__()
+        self.signals_ = NewPathsSignals()
+
+    def task(self):
+        self.old_new_paths: list[tuple[str, str]] = []
+        self.new_paths = []
+
+        for i in self.urls:
+            i = Utils.normalize_slash(i)
+            if os.path.isdir(i):
+                self.old_new_paths.extend(self.scan_folder(i, self.dest))
+            else:
+                src, new_path = self.single_file(i, self.dest)
+                if new_path in self.new_paths:
+                    new_path = self.add_counter(new_path)
+                self.new_paths.append(new_path)
+                self.old_new_paths.append((src, new_path))
+
+        self.signals_.finished_.emit(self.new_paths)
+    
+    def add_counter(self, path: str):
+        counter = 1
+        base_root, ext = os.path.splitext(path)
+        root = base_root
+        while path in self.new_paths:
+            path = f"{root} {counter}{ext}"
+            counter += 1
+        return path
+
+    def single_file(self, file: str, dest: str):
+        # Возвращает кортеж: исходный путь файла, финальный путь файла
+        filename = os.path.basename(file)
+        return (file, os.path.join(dest, filename))
+
+    def scan_folder(self, src_dir: str, dest: str):
+        # Рекурсивно сканирует папку src_dir.
+        # Возвращает список кортежей: (путь к исходному файлу, путь назначения).
+        # 
+        # Путь назначения формируется так:
+        # - Берётся относительный путь файла относительно родительской папки src_dir
+        # - Этот относительный путь добавляется к пути назначения dest
+        stack = [src_dir]
+        new_paths: list[tuple[str, str]] = []
+
+        src_dir = Utils.normalize_slash(src_dir)
+        dest = Utils.normalize_slash(dest)
+
+        # Родительская папка от src_dir — нужна, чтобы определить
+        # относительный путь каждого файла внутри src_dir
+        parent = os.path.dirname(src_dir)
+
+        while stack:
+            current_dir = stack.pop()
+            for dir_entry in os.scandir(current_dir):
+                if dir_entry.is_dir():
+                    stack.append(dir_entry.path)
+                else:
+                    rel_path = dir_entry.path.split(parent)[-1]
+                    new_path = dest + rel_path
+                    new_paths.append((dir_entry.path, new_path))
+
+        return new_paths
+
+
+class CopyFilesSignals(QObject):
     finished_ = pyqtSignal(list)
     set_value = pyqtSignal(int)
     set_size_mb = pyqtSignal(str)
     set_max = pyqtSignal(int)
     error_ = pyqtSignal()
+    replace_files = pyqtSignal()
 
 
-class FileCopyWorker(URunnable):
+class CopyFilesTask(URunnable):
+
     def __init__(self, dest: str, urls: list[str]):
         super().__init__()
         self.dest = dest
         self.urls = urls
-        self.signals_ = WorkerSignals()
+        self.pause_flag = False
+        self.cancel_flag = False
+        self.signals_ = CopyFilesSignals()
 
     def task(self): 
         try:
             new_paths = self.create_new_paths()
+
+            for src_path, new_path in new_paths:
+                if os.path.exists(new_path):
+                    self.pause_flag = True
+                    self.signals_.replace_files.emit()
+                    self.wait_replace_files()
+
         except OSError as e:
             Utils.print_error(e)
             try:
@@ -79,6 +160,13 @@ class FileCopyWorker(URunnable):
             self.signals_.finished_.emit(paths)
         except RuntimeError as e:
             Utils.print_error(e)
+
+    def wait_replace_files(self):
+        """
+        бесконечный цикл, пока пользователь не снимет флаг 
+        """
+        while self.pause_flag:
+            sleep(1)
 
     def copy_by_bytes(self, src: str, dest: str):
         tmp = True
@@ -142,6 +230,9 @@ class FileCopyWorker(URunnable):
         return result
 
     def create_new_paths(self):
+        """
+        [(src path, new path), ...]
+        """
         self.old_new_paths: list[tuple[str, str]] = []
         self.new_paths = []
 
@@ -201,6 +292,63 @@ class FileCopyWorker(URunnable):
 
         return new_paths
 
+
+class ReplaceFilesWin(MinMaxDisabledWin):
+    descr_text = "Заменить существующие файлы?"
+    title_text = "Замена"
+    ok_text = "Ок"
+    icon_size = 50
+
+    def __init__(self):
+        super().__init__()
+        self.set_modality()
+        self.setWindowTitle(ErrorWin.title_text)
+
+        main_lay = QVBoxLayout(self)
+        main_lay.setContentsMargins(10, 5, 10, 10)
+        main_lay.setSpacing(0)
+        self.setLayout(main_lay)
+
+        h_wid = QWidget()
+        main_lay.addWidget(h_wid)
+
+        h_lay = QHBoxLayout()
+        h_lay.setContentsMargins(0, 0, 0, 0)
+        h_lay.setSpacing(10)
+        h_wid.setLayout(h_lay)
+
+        warn = USvgSqareWidget(Static.WARNING_SVG, ErrorWin.icon_size)
+        h_lay.addWidget(warn)
+
+        test_two = QLabel(ErrorWin.descr_text)
+        test_two.setAlignment(Qt.AlignmentFlag.AlignVCenter)
+        h_lay.addWidget(test_two)
+
+        btn_lay = QHBoxLayout()
+        btn_lay.setSpacing(10)
+
+        ok_btn = QPushButton(ErrorWin.ok_text)
+        ok_btn.setFixedWidth(90)
+        ok_btn.clicked.connect(self.deleteLater)
+        btn_lay.addWidget(ok_btn)
+
+        cancel_btn = QPushButton("Отмена")
+        cancel_btn.setFixedWidth(90)
+        cancel_btn.clicked.connect(self.deleteLater)
+        btn_lay.addWidget(cancel_btn)
+
+        self.adjustSize()
+
+    def keyPressEvent(self, a0):
+        if a0.key() == Qt.Key.Key_Escape:
+            self.deleteLater()
+        elif a0.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
+            self.deleteLater()
+        elif a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
+            if a0.key() == Qt.Key.Key_Q:
+                return
+        return super().keyPressEvent(a0)
+    
 
 class ErrorWin(MinMaxDisabledWin):
     descr_text = "Произошла ошибка при копировании"
@@ -312,7 +460,7 @@ class CopyFilesWin(MinMaxDisabledWin):
         self.adjustSize()
 
         if urls:
-            task_ = FileCopyWorker(dest, urls)
+            task_ = CopyFilesTask(dest, urls)
             task_.signals_.set_max.connect(lambda value: self.set_max(value))
             task_.signals_.set_value.connect(lambda value: self.set_value(value))
             task_.signals_.set_size_mb.connect(lambda text: self.size_mb_text(text))
