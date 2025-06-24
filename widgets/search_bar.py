@@ -1,7 +1,7 @@
 from PyQt5.QtCore import QTimer, pyqtSignal
-from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import (QAction, QCheckBox, QFrame, QHBoxLayout, QLabel,
-                             QMenu, QPushButton)
+from PyQt5.QtGui import QColor, QPalette
+from PyQt5.QtWidgets import (QAction, QFrame, QHBoxLayout, QLabel, QMenu,
+                             QPushButton)
 
 from utils import Utils
 
@@ -14,7 +14,7 @@ class BlinkingLabel(QLabel):
         self._timer = QTimer(self)
         self._timer.setInterval(500)  # 1 секунда
         self._timer.timeout.connect(self._toggle_color)
-        self._default_color = self.palette().color(self.foregroundRole())
+        self._default_color = self.palette().color(QPalette.WindowText)
         self._blink_color = QColor(128, 128, 128) 
         self._is_blink_on = False
 
@@ -26,7 +26,7 @@ class BlinkingLabel(QLabel):
         self._is_blink_on = not self._is_blink_on
 
     def start_blink(self):
-        self._default_color = self.palette().color(self.foregroundRole())
+        self._default_color = self.palette().color(QPalette.WindowText)
         self._timer.start()
 
     def stop_blink(self):
