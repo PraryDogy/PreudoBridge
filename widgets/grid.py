@@ -119,12 +119,22 @@ class TextWidget(QLabel):
 class RatingWid(QLabel):
     def __init__(self):
         super().__init__()
-        self.setStyleSheet(f"""font-size: {FONT_SIZE}px;""")
+        self.setStyleSheet(
+            f"""
+            font-size: {FONT_SIZE}px;
+            color: {Static.GRAY_GLOBAL};
+            """
+        )
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-    def set_text(self, rating: int):
+    def set_text(self, thumb: "Thumb"):
         try:
-            text = RATINGS.get(rating).strip()
+            if thumb.rating > 0:
+                text = RATINGS.get(thumb.rating).strip()
+            elif thumb.type_ == Static.FOLDER_TYPE:
+                text = "Объекты: " + str(len(os.listdir(thumb.src)))
+            else:
+                text = Utils.get_f_date(thumb.mod)
             self.setText(text)
         except Exception as e:
             Utils.print_error(e)
@@ -218,7 +228,7 @@ class Thumb(BaseItem, QFrame):
         Устанавливает изображение в дочерних виджетах в соответствии в размерами
         """
         self.text_wid.set_text(self.name)
-        self.rating_wid.set_text(self.rating)
+        self.rating_wid.set_text(self)
 
         self.setFixedSize(Thumb.thumb_w, Thumb.thumb_h)
         self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
@@ -666,7 +676,7 @@ class Grid(UScrollArea):
         успешной записи в базу данных
         """
         wid.rating = new_rating
-        wid.rating_wid.set_text(new_rating)
+        wid.rating_wid.set_text(wid)
         wid.text_changed.emit()
         
     def clear_selected_widgets(self):
