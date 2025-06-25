@@ -119,10 +119,11 @@ class TextWidget(QLabel):
 class RatingWid(QLabel):
     def __init__(self):
         super().__init__()
+        self.blue_color = "#6199E4"
         self.setStyleSheet(
             f"""
             font-size: {FONT_SIZE}px;
-            color: {Static.GRAY_GLOBAL};
+            color: {self.blue_color};
             """
         )
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
