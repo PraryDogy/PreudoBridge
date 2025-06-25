@@ -14,13 +14,12 @@ class BlinkingLabel(QLabel):
         self._timer = QTimer(self)
         self._timer.setInterval(500)  # 1 секунда
         self._timer.timeout.connect(self._toggle_color)
-        self._default_color = self.palette().color(QPalette.WindowText)
         self._blink_color = QColor(128, 128, 128) 
         self._is_blink_on = False
 
     def _toggle_color(self):
         if self._is_blink_on:
-            self.setStyleSheet(f"color: {self._default_color.name()};")
+            self.setStyleSheet("")
         else:
             self.setStyleSheet(f"color: {self._blink_color.name()};")
         self._is_blink_on = not self._is_blink_on
@@ -31,7 +30,7 @@ class BlinkingLabel(QLabel):
 
     def stop_blink(self):
         self._timer.stop()
-        self.setStyleSheet(f"color: {self._default_color.name()};")
+        self.setStyleSheet("")
         self._is_blink_on = False
 
 
@@ -80,6 +79,8 @@ class SearchBar(QFrame):
         h_lay.addWidget(self.filter_bt)
 
         menu = QMenu()
+        # menu.setStyleSheet("QMenu::item { text-align: left; min-width: 190px;}")
+        menu.setFixedWidth(190)
         self.filter_bt.setMenu(menu)
 
         for i in (self.no_filter_text, self.exactly_text, self.containts_text):
