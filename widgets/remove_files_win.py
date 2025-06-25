@@ -1,4 +1,5 @@
-import subprocess
+import os
+import shutil
 
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
@@ -9,7 +10,6 @@ from utils import Utils
 
 from ._base_items import (MainWinItem, MinMaxDisabledWin, URunnable,
                           USvgSqareWidget, UThreadPool)
-
 
 
 class WorkerSignals(QObject):
@@ -25,8 +25,14 @@ class RemoveFilesTask(URunnable):
 
     def task(self):
         try:
-            command = ["osascript", Static.REMOVE_FILES_SCPT] + self.urls
-            subprocess.run(command)
+            for i in self.urls:
+                try:
+                    if os.path.isdir(i):
+                        shutil.rmtree(i)
+                    else:
+                        os.remove(i)
+                except Exception as e:
+                    Utils.print_error(e)
         except Exception as e:
             Utils.print_error(e)
         try:
