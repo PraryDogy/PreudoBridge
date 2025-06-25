@@ -44,7 +44,7 @@ class RemoveFilesTask(URunnable):
 
 class RemoveFilesWin(MinMaxDisabledWin):
     finished_ = pyqtSignal(list)
-    descr_text = "Переместить в корзину объекты"
+    descr_text = "Удалить безвозвратно объекты"
     ok_text = "Ок"
     cancel_text = "Отмена"
     title_text = "Внимание!"
