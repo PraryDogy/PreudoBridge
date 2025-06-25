@@ -134,7 +134,7 @@ class RatingWid(QLabel):
             elif thumb.type_ == Static.FOLDER_TYPE:
                 text = "Объекты: " + str(len(os.listdir(thumb.src)))
             else:
-                text = Utils.get_f_date(thumb.mod)
+                text = Utils.get_f_date(thumb.mod, True)
             self.setText(text)
         except Exception as e:
             Utils.print_error(e)

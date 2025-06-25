@@ -57,7 +57,7 @@ class Static:
     USERS: str = "Users"
     SVG = "SVG"
 
-    GRAY_GLOBAL = "rgba(128, 128, 128, 0.40)"
+    GRAY_GLOBAL = "rgba(128, 128, 128, 0.95)"
     BLUE_GLOBAL = "rgb(46, 89, 203)"
 
     STAR_SYM = "\U00002605" # ★
