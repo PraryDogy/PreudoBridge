@@ -153,6 +153,7 @@ class Thumb(BaseItem, QFrame):
     pixmap_size = 0
     thumb_w = 0
     thumb_h = 0
+    corner = 0
     img_obj_name = "img_frame"
     text_obj_name = "text_frame_"
 
@@ -202,6 +203,7 @@ class Thumb(BaseItem, QFrame):
         cls.img_frame_size = Thumb.pixmap_size + ThumbData.OFFSET
         cls.thumb_w = ThumbData.THUMB_W[ind]
         cls.thumb_h = ThumbData.THUMB_H[ind]
+        cls.corner = ThumbData.CORNER[ind]
 
     def set_svg_icon(self):
         if self.src.count(os.sep) == 2:
@@ -271,7 +273,7 @@ class Thumb(BaseItem, QFrame):
             #{Thumb.img_obj_name} {{
                 background: {Static.GRAY_GLOBAL};
                 font-size: {FONT_SIZE}px;
-                border-radius: {BORDER_RADIUS}px;
+                border-radius: {self.corner}px;
             }}
             """
         )
@@ -288,7 +290,7 @@ class Thumb(BaseItem, QFrame):
             #{Thumb.img_obj_name} {{
                 background: transparent;
                 font-size: {FONT_SIZE}px;
-                border-radius: {BORDER_RADIUS}px;
+                border-radius: {self.corner}px;
             }}
             """
         )
@@ -427,6 +429,9 @@ class Grid(UScrollArea):
         Thumb.calculate_size()
         for cell, wid in self.cell_to_wid.items():
             wid.setup_child_widgets()
+
+        for i in self.selected_widgets:
+            i.set_frame()
 
     def rearrange_thumbs(self):
         """

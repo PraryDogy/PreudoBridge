@@ -152,6 +152,8 @@ class ThumbData:
     # максимальное количество символов на строку для grid.py > Thumb
     MAX_ROW: list = [20, 20, 25, 32]
 
+    CORNER: list = [4, 8, 14, 16]
+
     # растояние между изображением и текстом для grid.py > Thumb
     SPACING = 2
 
