@@ -474,6 +474,8 @@ class Grid(UScrollArea):
             for coords, wid in self.cell_to_wid.items()
         }
 
+        self.total_count_update.emit(len(self.cell_to_wid))
+
     def add_widget_data(self, wid: Thumb, row: int, col: int):
         """
         Добавляет данные о виджете в необходимые списки и словари,
