@@ -233,16 +233,3 @@ class SortBar(QWidget):
 
     def total_count_update(self, value: int):
         self.sort_frame.set_total_text(value)
-
-    # def open_go_win(self, *args):
-    #     """
-    #     Открывает окно "Перейти к".
-
-    #     В этом окне можно ввести путь к папке или файлу и нажать:
-    #     - "Перейти" — для перехода внутри приложения;
-    #     - "Finder" — для открытия пути в Finder.
-    #     """
-    #     self.win_go = GoToWin(self.main_win_item)
-    #     self.win_go.load_st_grid.connect(self.load_st_grid.emit)
-    #     self.win_go.center(self.window())
-    #     self.win_go.show()
