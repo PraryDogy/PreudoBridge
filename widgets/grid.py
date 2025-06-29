@@ -117,7 +117,7 @@ class TextWidget(QLabel):
 
 
 class RatingWid(QLabel):
-    text_mod = "Изменен: "
+    text_mod = "Изм: "
     text_size = "Размер: "
 
     def __init__(self):
@@ -138,7 +138,7 @@ class RatingWid(QLabel):
             elif thumb.type_ == Static.FOLDER_TYPE:
                 text = "Объекты: " + str(len(os.listdir(thumb.src)))
             else:
-                text = self.text_mod + Utils.get_f_date(thumb.mod, True)
+                text = self.text_mod + Utils.get_f_date(thumb.mod)
                 text_sec = self.text_size + Utils.get_f_size(thumb.size, 0)
                 text = "\n".join((text, text_sec))
             self.setText(text)
