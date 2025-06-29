@@ -1,7 +1,7 @@
 import json
 import os
 import shutil
-
+import re
 
 class Static:
     APP_NAME = "PreudoBridge"
@@ -230,10 +230,13 @@ class JsonData:
     @classmethod
     def do_before_start(cls):
         if JsonData.generic_icons_removed == False:
+            pattern = re.compile(r'^_[^/\\]+\.svg$')
+
             for entry in os.scandir(Static.GENERIC_ICONS_DIR):
-                if not entry.name.startswith(Static.SVG + "_"):
+                if not pattern.fullmatch(entry.name):
                     os.remove(entry.path)
-                    print("remove")
+                    print(f"Removed: {entry.name}")
+
             JsonData.generic_icons_removed = True
 
     @classmethod
