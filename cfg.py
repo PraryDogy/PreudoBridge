@@ -224,13 +224,7 @@ class JsonData:
 
         from utils import Utils
         path = Utils.get_generic_icon_path(Static.FOLDER_TYPE, Static.GENERIC_ICONS_DIR)
-
-        if not os.path.exists(path):
-            shutil.copyfile(Static.FOLDER_SVG, path)
-
-        elif os.path.getsize(Static.FOLDER_SVG) != os.path.getsize(path):
-            shutil.copyfile(Static.FOLDER_SVG, path)
-
+        shutil.copyfile(Static.FOLDER_SVG, path)
         Dynamic.generic_icon_paths.append(path)
 
     @classmethod
@@ -239,6 +233,7 @@ class JsonData:
             for entry in os.scandir(Static.GENERIC_ICONS_DIR):
                 if not entry.name.startswith(Static.SVG + "_"):
                     os.remove(entry.path)
+                    print("remove")
             JsonData.generic_icons_removed = True
 
     @classmethod
@@ -246,12 +241,12 @@ class JsonData:
         os.makedirs(Static.APP_SUPPORT_APP, exist_ok=True)
         cls.read_json_data()
         cls.write_config()
-        cls.setup_generic_icons()
-
         try:
             cls.do_before_start()
         except Exception as e:
             print("do before start", e)
+
+        cls.setup_generic_icons()
 
 class Dynamic:
     rating_filter: int = 0
