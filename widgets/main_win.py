@@ -217,12 +217,8 @@ class MainWin(WinBase):
         self.setup_signals()
         self.load_st_grid()
 
-        # self.search_item.set_text("test")
-        # self.search_bar.show()
-
-        # from .copy_files_win import ReplaceFilesWin, ErrorWin
-        # wi = ReplaceFilesWin()
-        # wi.show()
+        if not JsonData.favs:
+            self.tabs_widget.setCurrentIndex(0)
 
     def setup_signals(self):
         self.splitter.splitterMoved.connect(lambda: self.resize_timer.start(MainWin.resize_ms))
