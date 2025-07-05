@@ -196,7 +196,7 @@ class JsonData:
                     cls.write_config()
 
         else:
-            print("файла не существует")
+            print("файла cfg.json не существует")
             cls.write_config()
 
     @classmethod
@@ -229,6 +229,8 @@ class JsonData:
 
     @classmethod
     def do_before_start(cls):
+        if not os.path.exists(Static.GENERIC_ICONS_DIR):
+            return
         if JsonData.generic_icons_removed == False:
             pattern = re.compile(r'^_[^/\\]+\.svg$')
 
