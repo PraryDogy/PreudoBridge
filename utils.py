@@ -489,23 +489,26 @@ class Utils(Pixmap, ReadImage, ImgConvert, Err):
 
     @classmethod
     def get_image_apps(cls):
+        """
+        Возвращает:
+        - {путь к приложению: имя приложения, ...}
+        """
         app_dirs = [
             "/Applications",
             os.path.expanduser("~/Applications"),
             "/System/Applications"
         ]
-        found_apps = []
+        image_apps: dict[str, str] = {}
 
         def search_dir(directory):
             try:
-                for entry in os.listdir(directory):
-                    path = os.path.join(directory, entry)
-                    if entry.endswith(".app"):
-                        name_lower = entry.lower()
+                for entry in os.scandir(directory):
+                    if entry.name.endswith(".app"):
+                        name_lower = entry.name.lower()
                         if any(k in name_lower for k in JsonData.image_apps):
-                            found_apps.append(path)
-                    elif os.path.isdir(path):
-                        search_dir(path)
+                            image_apps[entry.path] = entry.name
+                    elif entry.is_dir():
+                        search_dir(entry.path)
             except PermissionError:
                 pass
 
@@ -513,7 +516,7 @@ class Utils(Pixmap, ReadImage, ImgConvert, Err):
             if os.path.exists(app_dir):
                 search_dir(app_dir)
 
-        return found_apps
+        return image_apps
 
 
 class FitImg:   

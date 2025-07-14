@@ -92,6 +92,6 @@ faulthandler.enable()
 BaseItem.check()
 JsonData.init()
 UThreadPool.init()
-Dynamic.image_apps = {i: os.path.basename(i) for i in Utils.get_image_apps()}
+Dynamic.image_apps = Utils.get_image_apps()
 app = CustomApp(argv=sys.argv)
 sys.exit(app.exec_())
