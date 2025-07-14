@@ -487,6 +487,53 @@ class Utils(Pixmap, ReadImage, ImgConvert, Err):
 
         return icon_path
 
+    @classmethod
+    def image_apps(cls):
+        app_dirs = [
+            "/Applications",
+            os.path.expanduser("~/Applications"),
+            "/System/Applications"
+        ]
+        known_keywords = [
+            "preview",
+            "photos",
+            "photoshop",
+            "lightroom",
+            "affinity photo",
+            "pixelmator",
+            "gimp",
+            "capture one",
+            "dxo photolab",
+            "luminar neo",
+            "sketch",
+            "graphicconverter",
+            "imageoptim",
+            "snapheal",
+            "photoscape",
+            "preview",
+            "просмотр"
+        ]
+        found_apps = []
+
+        def search_dir(directory):
+            try:
+                for entry in os.listdir(directory):
+                    path = os.path.join(directory, entry)
+                    if entry.endswith(".app"):
+                        name_lower = entry.lower()
+                        if any(k in name_lower for k in known_keywords):
+                            found_apps.append(path)
+                    elif os.path.isdir(path):
+                        search_dir(path)
+            except PermissionError:
+                pass
+
+        for app_dir in app_dirs:
+            if os.path.exists(app_dir):
+                search_dir(app_dir)
+
+        return found_apps
+
 
 class FitImg:   
     @classmethod

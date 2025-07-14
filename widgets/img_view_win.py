@@ -95,7 +95,7 @@ class LoadImage(URunnable):
 
             else:
                 pixmap = Utils.pixmap_from_array(img_array)
-                self.cached_images[self.src] = pixmap
+                # self.cached_images[self.src] = pixmap
 
         else:
             pixmap = self.cached_images.get(self.src)
@@ -105,12 +105,6 @@ class LoadImage(URunnable):
 
         image_data = ImageData(self.src, pixmap)
         self.signals_.finished_.emit(image_data)
-
-        # === очищаем ссылки
-        del pixmap
-        self.signals_ = None
-        gc.collect()
-        QPixmapCache.clear()
 
 
 class ImgWid(QLabel):
@@ -278,6 +272,7 @@ class ImgViewWin(WinBase):
     move_to_wid = pyqtSignal(object)
     move_to_url = pyqtSignal(str)
     new_rating = pyqtSignal(int)
+    closed = pyqtSignal()
     width_, height_ = 700, 500
     min_width_, min_height_ = 400, 300
     object_name = "win_img_view"
@@ -375,10 +370,10 @@ class ImgViewWin(WinBase):
 
     def load_image(self):
         self.task_count += 1
-        self.task_ = LoadImage(self.current_path, self.cached_images)
+        task_ = LoadImage(self.current_path, self.cached_images)
         cmd_ = lambda image_data: self.load_image_finished(image_data)
-        self.task_.signals_.finished_.connect(cmd_)
-        UThreadPool.start(self.task_)
+        task_.signals_.finished_.connect(cmd_)
+        UThreadPool.start(task_)
 
     def load_image_finished(self, image_data: ImageData):
         self.task_count -= 1
@@ -509,14 +504,12 @@ class ImgViewWin(WinBase):
 
     def deleteLater(self):
         self.cached_images.clear()
-        QPixmapCache.clear()
-        gc.collect()
+        self.closed.emit()
         return super().deleteLater()
 
     def closeEvent(self, a0):
         self.cached_images.clear()
-        QPixmapCache.clear()
-        gc.collect()
+        self.closed.emit()
         return super().closeEvent(a0)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:

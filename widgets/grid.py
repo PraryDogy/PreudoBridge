@@ -1,3 +1,4 @@
+import gc
 import os
 import subprocess
 
@@ -524,11 +525,15 @@ class Grid(UScrollArea):
             self.win_img_view = ImgViewWin(wid.src, url_to_wid, is_selection)
             self.win_img_view.move_to_wid.connect(lambda wid: self.select_one_wid(wid))
             self.win_img_view.new_rating.connect(lambda value: self.set_new_rating(value))
+            self.win_img_view.closed.connect(lambda: self.img_view_closed())
             self.win_img_view.center(self.window())
             self.win_img_view.show()
 
         else:
             subprocess.Popen(["open", wid.src])
+
+    def img_view_closed(self):
+        gc.collect()
 
     def fav_cmd(self, offset: int, src: str):
         """

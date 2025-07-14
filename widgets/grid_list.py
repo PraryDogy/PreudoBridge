@@ -1,7 +1,9 @@
+import gc
 import os
 import subprocess
 
-from PyQt5.QtCore import QDir, QMimeData, QModelIndex, Qt, QTimer, QUrl, QItemSelectionModel
+from PyQt5.QtCore import (QDir, QItemSelectionModel, QMimeData, QModelIndex,
+                          Qt, QTimer, QUrl)
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QDragEnterEvent,
                          QDragMoveEvent, QDropEvent, QKeyEvent, QPixmap)
 from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QFileSystemModel,
@@ -131,11 +133,15 @@ class GridList(UTableView):
             cmd = lambda path: self.select_path(path)
             self.img_view_win = ImgViewWin(path, url_to_wid, False)
             self.img_view_win.move_to_url.connect(cmd)
+            self.img_view_win.closed.connect(self.img_view_closed)
             self.img_view_win.center(self.window())
             self.img_view_win.show()
 
         else:
             subprocess.Popen(["open", path])
+
+    def img_view_closed(self):
+        gc.collect()
 
     def save_sort_settings(self, index):
         GridList.col = index
