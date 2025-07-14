@@ -95,7 +95,7 @@ class LoadImage(URunnable):
 
             else:
                 pixmap = Utils.pixmap_from_array(img_array)
-                # self.cached_images[self.src] = pixmap
+                self.cached_images[self.src] = pixmap
 
         else:
             pixmap = self.cached_images.get(self.src)
