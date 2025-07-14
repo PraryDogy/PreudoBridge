@@ -167,6 +167,25 @@ class JsonData:
     go_to_now = False
     dark_mode = None    
     generic_icons_removed = False
+    image_apps = [
+        "preview",
+        "photos",
+        "photoshop",
+        "lightroom",
+        "affinity photo",
+        "pixelmator",
+        "gimp",
+        "capture one",
+        "dxo photolab",
+        "luminar neo",
+        "sketch",
+        "graphicconverter",
+        "imageoptim",
+        "snapheal",
+        "photoscape",
+        "preview",
+        "просмотр"
+        ]
 
     @classmethod
     def get_data(cls):

@@ -19,7 +19,7 @@ from PyQt5.QtGui import QColor, QFont, QImage, QPainter, QPixmap
 from PyQt5.QtSvg import QSvgGenerator, QSvgRenderer
 from PyQt5.QtWidgets import QApplication
 
-from cfg import Static
+from cfg import Static, JsonData
 
 psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
 psd_logger = logging.getLogger("psd_tools")
@@ -494,25 +494,6 @@ class Utils(Pixmap, ReadImage, ImgConvert, Err):
             os.path.expanduser("~/Applications"),
             "/System/Applications"
         ]
-        known_keywords = [
-            "preview",
-            "photos",
-            "photoshop",
-            "lightroom",
-            "affinity photo",
-            "pixelmator",
-            "gimp",
-            "capture one",
-            "dxo photolab",
-            "luminar neo",
-            "sketch",
-            "graphicconverter",
-            "imageoptim",
-            "snapheal",
-            "photoscape",
-            "preview",
-            "просмотр"
-        ]
         found_apps = []
 
         def search_dir(directory):
@@ -521,7 +502,7 @@ class Utils(Pixmap, ReadImage, ImgConvert, Err):
                     path = os.path.join(directory, entry)
                     if entry.endswith(".app"):
                         name_lower = entry.lower()
-                        if any(k in name_lower for k in known_keywords):
+                        if any(k in name_lower for k in JsonData.image_apps):
                             found_apps.append(path)
                     elif os.path.isdir(path):
                         search_dir(path)
