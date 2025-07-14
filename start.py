@@ -54,7 +54,8 @@ from PyQt5.QtCore import QEvent, QObject
 from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
 
-from cfg import JsonData
+from cfg import Dynamic, JsonData
+from utils import Utils
 from widgets._base_items import BaseItem, UThreadPool, WinBase
 from widgets.main_win import MainWin
 
@@ -91,5 +92,6 @@ faulthandler.enable()
 BaseItem.check()
 JsonData.init()
 UThreadPool.init()
+Dynamic.image_apps = {i: os.path.basename(i) for i in Utils.get_image_apps()}
 app = CustomApp(argv=sys.argv)
 sys.exit(app.exec_())

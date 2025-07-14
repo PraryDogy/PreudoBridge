@@ -278,3 +278,4 @@ class Dynamic:
     generic_icon_paths: list[str] = []
     urls_to_copy: list[str] = []
     reading = False
+    image_apps: dict[str, str] = {}

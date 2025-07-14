@@ -488,7 +488,7 @@ class Utils(Pixmap, ReadImage, ImgConvert, Err):
         return icon_path
 
     @classmethod
-    def image_apps(cls):
+    def get_image_apps(cls):
         app_dirs = [
             "/Applications",
             os.path.expanduser("~/Applications"),
