@@ -135,14 +135,15 @@ class RatingWid(QLabel):
     def set_text(self, thumb: "Thumb"):
         try:
             if thumb.rating > 0:
-                text = RATINGS.get(thumb.rating).strip()
-            elif thumb.type_ == Static.FOLDER_TYPE:
-                text = "Объекты: " + str(len(os.listdir(thumb.src)))
+                mod_row = RATINGS.get(thumb.rating).strip()
             else:
-                text = self.text_mod + Utils.get_f_date(thumb.mod)
-                text_sec = self.text_size + Utils.get_f_size(thumb.size, 0)
-                text = "\n".join((text, text_sec))
-            self.setText(text)
+                mod_row = self.text_mod + Utils.get_f_date(thumb.mod)
+                if thumb.type_ == Static.FOLDER_TYPE:
+                    sec_row = str("")
+                else:
+                    sec_row = self.text_size + Utils.get_f_size(thumb.size, 0)
+                mod_row = "\n".join((mod_row, sec_row))
+            self.setText(mod_row)
         except Exception as e:
             Utils.print_error(e)
 
