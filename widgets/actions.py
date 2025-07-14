@@ -410,12 +410,20 @@ class NewFolder(QAction):
         super().__init__(NewFolder.text_, parent)
 
 
+class OpenFile(QAction):
+    text_ = "Открыть по умолчанию"
+    def __init__(self, parent: UMenu):
+        super().__init__(self.text_, parent)
+
+
 class ItemActions:
     class View(View): ...
 
     class OpenInApp(OpenInApp): ...
     class OpenInNewWindow(OpenInNewWindow): ...
     # "Separator"
+
+    class OpenFile(OpenFile): ...
 
     class Info(Info): ...
     class RevealInFinder(RevealInFinder): ...

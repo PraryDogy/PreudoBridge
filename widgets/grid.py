@@ -921,6 +921,10 @@ class Grid(UScrollArea):
             new_window.triggered.connect(cmd_)
             menu_.addAction(new_window)
 
+        else:
+            open_file = ItemActions.OpenFile(menu_)
+            menu_.addAction(open_file)
+
 
         menu_.addSeparator()
 
