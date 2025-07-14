@@ -4,7 +4,7 @@ import subprocess
 from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QAction, QLabel, QLineEdit, QTextEdit
 
-from cfg import Static
+from cfg import Dynamic, Static
 from utils import Utils
 
 from ._base_items import SortItem, UMenu, URunnable, UThreadPool
@@ -114,7 +114,6 @@ class FavAdd(QAction):
 # список приложений формируется при инициации приложения
 # смотри cfg.py
 class OpenInApp(UMenu):
-    rows_limit = 50
     text_menu = "Открыть в приложении"
     text_default = "По умолчанию"
 
@@ -122,32 +121,17 @@ class OpenInApp(UMenu):
         super().__init__(parent=parent, title=OpenInApp.text_menu)
         self.src = src
 
-        self.apps: dict[str, str] = {}
-        self.setup_open_with_apps()
-        self.apps = dict(sorted(self.apps.items()))
-        self.apps = dict(list(self.apps.items())[:OpenInApp.rows_limit])
-
         open_default = QAction(OpenInApp.text_default, parent)
         open_default.triggered.connect(self.open_default_cmd)
         self.addAction(open_default)
 
         self.addSeparator()
 
-        for name, app_path in self.apps.items():
-            wid = QAction(name, self)
+        for app_path, app_name in Dynamic.image_apps.items():
+            wid = QAction(app_name, self)
             cmd_ = lambda e, app_path=app_path: self.open_in_app_cmd(app_path)
             wid.triggered.connect(cmd_)
             self.addAction(wid)
-
-    def setup_open_with_apps(self):
-        for entry in os.scandir(Static.USER_APPS_DIR):
-            if entry.name.endswith((".APP", ".app")):
-                self.apps[entry.name] = entry.path
-
-            elif entry.is_dir():
-                for sub_entry in os.scandir(entry.path):
-                    if sub_entry.name.endswith((".APP", ".app")):
-                        self.apps[sub_entry.name] = sub_entry.path
 
     def open_in_app_cmd(self, app_path: str):
         # открыть в приложении, путь к которому указан в app_path
