@@ -907,9 +907,10 @@ class Grid(UScrollArea):
 
         self.path_bar_update_cmd(wid.src)
 
-        view_action = ItemActions.View(menu_)
-        view_action.triggered.connect(lambda: self.view_thumb(wid))
-        menu_.addAction(view_action)
+        if wid.type_ in Static.ext_all:
+            view_action = ItemActions.View(menu_)
+            view_action.triggered.connect(lambda: self.view_thumb(wid))
+            menu_.addAction(view_action)
 
         if wid.type_ != Static.FOLDER_TYPE:
             open_menu = ItemActions.OpenInApp(menu_, wid.src)
