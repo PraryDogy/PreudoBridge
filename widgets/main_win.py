@@ -1,3 +1,4 @@
+import gc
 import os
 import subprocess
 
@@ -400,8 +401,11 @@ class MainWin(WinBase):
 
         old_grid = self.grid
         old_grid.hide()
-        old_grid.setFixedSize(0, 0)
-        QTimer.singleShot(MainWin.del_grid_timer, lambda: old_grid.deleteLater())
+        QTimer.singleShot(MainWin.del_grid_timer, lambda: self.safe_delete_fin(old_grid))
+
+    def safe_delete_fin(self, old_grid: GridStandart):
+        old_grid.deleteLater()
+        gc.collect()
 
     def load_search_grid(self):
         self.safe_delete_grid()
