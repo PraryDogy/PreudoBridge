@@ -912,14 +912,15 @@ class Grid(UScrollArea):
             view_action.triggered.connect(lambda: self.view_thumb(wid))
             menu_.addAction(view_action)
 
-        if wid.type_ in Static.ext_all:
             open_menu = ItemActions.OpenInApp(menu_, wid.src)
             menu_.addMenu(open_menu)
+
         elif wid.type_ == Static.FOLDER_TYPE:
             new_window = ItemActions.OpenInNewWindow(menu_)
             cmd_ = lambda: self.open_in_new_win.emit(wid.src)
             new_window.triggered.connect(cmd_)
             menu_.addAction(new_window)
+
 
         menu_.addSeparator()
 
