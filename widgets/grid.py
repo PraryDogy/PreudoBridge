@@ -922,7 +922,7 @@ class Grid(UScrollArea):
             menu_.addAction(new_window)
 
         else:
-            open_file = ItemActions.OpenFile(menu_)
+            open_file = ItemActions.OpenFile(menu_, wid.src)
             menu_.addAction(open_file)
 
 

@@ -412,8 +412,13 @@ class NewFolder(QAction):
 
 class OpenFile(QAction):
     text_ = "Открыть по умолчанию"
-    def __init__(self, parent: UMenu):
+    def __init__(self, parent: UMenu, filepath: str):
         super().__init__(self.text_, parent)
+        self.filepath = filepath
+        self.triggered.connect(self.cmd_)
+
+    def cmd_(self):
+        subprocess.Popen(["open", self.filepath])
 
 
 class ItemActions:
