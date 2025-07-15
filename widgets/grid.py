@@ -489,10 +489,44 @@ class Grid(UScrollArea):
         self.sorted_widgets.append(wid)
 
     def view_thumb(self, wid: BaseItem):
+
         if len(self.selected_widgets) == 1:
+            wid = self.selected_widgets[0]
+
+            if wid.src.endswith(Static.ext_all):
+
+                url_to_wid = {
+                    url: wid
+                    for url, wid in self.url_to_wid.items()
+                    if url.endswith(Static.ext_all)
+                }
+
+                is_selection = False
+
+                from .img_view_win import ImgViewWin
+                self.win_img_view = ImgViewWin(wid.src, url_to_wid, is_selection)
+                self.win_img_view.move_to_wid.connect(lambda wid: self.select_one_wid(wid))
+                self.win_img_view.new_rating.connect(lambda value: self.set_new_rating(value))
+                self.win_img_view.closed.connect(lambda: self.img_view_closed())
+                self.win_img_view.center(self.window())
+                self.win_img_view.show()
+
+
+            elif wid.type_ == Static.FOLDER_TYPE:
+                ...
+
+            else:
+                ...
+        
+        else:
+            ...
+
+
+
+
             img_url_to_wid = {
                 i.src: i
-                for i in self.cell_to_wid.values()
+                for i in self.selected_widgets
                 if i.src.endswith(Static.ext_all)
             }
             is_selection = False
@@ -525,7 +559,7 @@ class Grid(UScrollArea):
         for i in url_files:
             Utils.open_in_app(i)
 
-        if self.selected_widgets == 1:
+        if len(self.selected_widgets) == 1:
             if self.selected_widgets[0].type_ == Static.FOLDER_TYPE:
                 self.new_history_item.emit(self.selected_widgets[0].src)
                 self.main_win_item.main_dir = self.selected_widgets[0].src
