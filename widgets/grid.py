@@ -488,7 +488,7 @@ class Grid(UScrollArea):
         self.url_to_wid[wid.src] = wid
         self.sorted_widgets.append(wid)
 
-    def view_thumb(self):
+    def open_thumb(self):
         if len(self.selected_widgets) == 1:
             wid = self.selected_widgets[0]
             if wid.src.endswith(Static.ext_all):
@@ -852,7 +852,7 @@ class Grid(UScrollArea):
     def mouseDoubleClickEvent(self, a0):
         if self.wid_under_mouse:
             self.select_one_wid(self.wid_under_mouse)
-            self.view_thumb()
+            self.open_thumb()
 
     def mousePressEvent(self, a0):
         if a0.button() == Qt.MouseButton.LeftButton:
@@ -918,8 +918,8 @@ class Grid(UScrollArea):
 
         self.path_bar_update_cmd(wid.src)
 
-        view_action = ItemActions.View(menu_, self.selected_widgets)
-        view_action.triggered.connect(lambda: self.view_thumb())
+        view_action = ItemActions.OpenThumb(menu_, self.selected_widgets)
+        view_action.triggered.connect(lambda: self.open_thumb())
         menu_.addAction(view_action)
 
         menu_.addSeparator()
@@ -1058,7 +1058,7 @@ class Grid(UScrollArea):
                     self.wid_under_mouse = self.selected_widgets[-1]
                     if self.wid_under_mouse:
                         self.select_one_wid(self.wid_under_mouse)
-                        self.view_thumb()
+                        self.open_thumb()
 
             elif a0.key() == Qt.Key.Key_I:
                 if self.selected_widgets:
@@ -1091,7 +1091,7 @@ class Grid(UScrollArea):
             if self.selected_widgets:
                 self.wid_under_mouse = self.selected_widgets[-1]
                 if self.wid_under_mouse:
-                    self.view_thumb()
+                    self.open_thumb()
 
         elif a0.key() in KEY_NAVI:
             offset = KEY_NAVI.get(a0.key())

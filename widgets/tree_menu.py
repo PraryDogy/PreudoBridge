@@ -7,7 +7,7 @@ from cfg import JsonData, Static
 
 from ._base_items import MainWinItem, UMenu
 from .actions import (CopyName, CopyPath, FavAdd, FavRemove, OpenInNewWindow,
-                      RevealInFinder, View)
+                      RevealInFinder, OpenThumb)
 
 
 class TreeMenu(QTreeView):
@@ -63,7 +63,7 @@ class TreeMenu(QTreeView):
         index = self.c_model.index(src)
 
         cmd_ = lambda: self.one_clicked(index)
-        open_finder_action = View(menu)
+        open_finder_action = OpenThumb(menu)
         open_finder_action.triggered.connect(cmd_)
         menu.addAction(open_finder_action)
 

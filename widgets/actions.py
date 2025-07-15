@@ -91,7 +91,7 @@ class CopyName(QAction):
         Utils.write_to_clipboard("\n".join(names))
 
 
-class View(QAction):
+class OpenThumb(QAction):
     text_ = "Открыть"
     def __init__(self, parent: UMenu, selected_widgets: list):
         text_ = f"{self.text_} ({len(selected_widgets)})"
@@ -423,7 +423,7 @@ class OpenFile(QAction):
 
 
 class ItemActions:
-    class View(View): ...
+    class OpenThumb(OpenThumb): ...
 
     class OpenInApp(OpenInApp): ...
     class OpenInNewWindow(OpenInNewWindow): ...

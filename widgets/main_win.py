@@ -331,7 +331,7 @@ class MainWin(WinBase):
     def open_img_view(self, path: str):
         base_item = BaseItem(path)
         base_item.setup_attrs()
-        self.grid.view_thumb(base_item)
+        self.grid.open_thumb(base_item)
 
     def remove_db(self):
         """

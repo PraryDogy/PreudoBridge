@@ -183,7 +183,7 @@ class PathItem(QWidget):
 
         menu = UMenu(parent=self)
 
-        view_action = ItemActions.View(menu)
+        view_action = ItemActions.OpenThumb(menu)
         view_action.triggered.connect(self.view_)
         menu.addAction(view_action)
 

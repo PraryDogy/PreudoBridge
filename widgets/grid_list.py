@@ -177,7 +177,7 @@ class GridList(UTableView):
         return urls
 
     def item_context(self, menu_: UMenu, selected_path: str, urls: list[str], names: list[str], total: int):
-        view_ = ItemActions.View(menu_)
+        view_ = ItemActions.OpenThumb(menu_)
         view_.triggered.connect(lambda: self.view_cmd(selected_path))
         menu_.addAction(view_)
 

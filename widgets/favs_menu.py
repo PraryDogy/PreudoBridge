@@ -76,7 +76,7 @@ class FavItem(QLabel):
 
         menu_ = UMenu(parent=self)
 
-        view_ac = ItemActions.View(menu_)
+        view_ac = ItemActions.OpenThumb(menu_)
         view_ac.triggered.connect(self.view_fav)
         menu_.addAction(view_ac)
 
