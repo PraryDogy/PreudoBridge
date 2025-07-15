@@ -177,18 +177,14 @@ class GridList(UTableView):
         return urls
 
     def item_context(self, menu_: UMenu, selected_path: str, urls: list[str], names: list[str], total: int):
-        view_ = ItemActions.OpenThumb(menu_)
-        view_.triggered.connect(lambda: self.view_cmd(selected_path))
-        menu_.addAction(view_)
+        urls = self.get_selected_urls()
 
-        if os.path.isdir(selected_path):
-            new_window = ItemActions.OpenInNewWindow(menu_)
-            cmd_ = lambda: self.open_in_new_win.emit(selected_path)
-            new_window.triggered.connect(cmd_)
-            menu_.addAction(new_window)
-        else:
-            open_menu = ItemActions.OpenInApp(menu_, selected_path)
-            menu_.addMenu(open_menu)
+        view_action = ItemActions.OpenThumb(menu_, urls)
+        # view_action.triggered.connect(lambda: self.open_thumb())
+        menu_.addAction(view_action)
+
+        open_in_app = ItemActions.OpenInApp(menu_, urls)
+        menu_.addMenu(open_in_app)
 
         menu_.addSeparator()
 

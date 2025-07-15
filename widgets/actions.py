@@ -93,8 +93,8 @@ class CopyName(QAction):
 
 class OpenThumb(QAction):
     text_ = "Открыть"
-    def __init__(self, parent: UMenu, selected_widgets: list):
-        text_ = f"{self.text_} ({len(selected_widgets)})"
+    def __init__(self, parent: UMenu, urls: list):
+        text_ = f"{self.text_} ({len(urls)})"
         super().__init__(text_, parent)
 
 
@@ -128,11 +128,8 @@ class OpenInApp(UMenu):
             self.addAction(wid)
 
     def open_in_app_cmd(self, app_path: str):
-        # открыть в приложении, путь к которому указан в app_path
         for i in self.urls:
-            cmd_ = lambda: subprocess.call(["open", "-a", app_path, i])
-            self.task_ = Task_(cmd_)
-            UThreadPool.start(self.task_)
+            Utils.open_in_app(i)
 
 
 # меню с рейтингом для _grid.py > Thumb
