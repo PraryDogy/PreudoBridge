@@ -489,49 +489,87 @@ class Grid(UScrollArea):
         self.sorted_widgets.append(wid)
 
     def view_thumb(self, wid: BaseItem):
-        """
-        Просмотр виджета:
-        - папка: откроется новая сетка виджетов соответствующая директории папки
-        - изображение: откроется внутренний просмотрщик изображений
-        - другие файлы: откроется программа по умолчанию
-        """
-        if wid is None:
-            return
+        if len(self.selected_widgets) == 1:
+            img_url_to_wid = {
+                i.src: i
+                for i in self.cell_to_wid.values()
+                if i.src.endswith(Static.ext_all)
+            }
+            is_selection = False
 
-        elif wid.type_ == Static.FOLDER_TYPE:
-            self.mouseReleaseEvent = None
-            self.new_history_item.emit(wid.src)
-            self.main_win_item.main_dir = wid.src
-            self.load_st_grid.emit()
+        else:
+            img_url_to_wid = {
+                i.src: i
+                for i in self.selected_widgets
+                if i.src.endswith(Static.ext_all)
+            }
+            is_selection = True
 
-        elif wid.type_ in Static.ext_all:
-            # избегаем ошибки кругового импорта
+        if img_url_to_wid:
             from .img_view_win import ImgViewWin
-
-            if len(self.selected_widgets) == 1:
-                url_to_wid = {
-                    url: wid
-                    for url, wid in self.url_to_wid.items()
-                    if not wid.must_hidden and wid.type_.endswith(Static.ext_all)
-                }
-                is_selection = False
-            else:
-                url_to_wid = {
-                    i.src: i
-                    for i in self.selected_widgets
-                    if not wid.must_hidden and wid.type_.endswith(Static.ext_all)
-                }
-                is_selection = True
-
-            self.win_img_view = ImgViewWin(wid.src, url_to_wid, is_selection)
+            current_path = list(img_url_to_wid)[0]
+            self.win_img_view = ImgViewWin(current_path, img_url_to_wid, is_selection)
             self.win_img_view.move_to_wid.connect(lambda wid: self.select_one_wid(wid))
             self.win_img_view.new_rating.connect(lambda value: self.set_new_rating(value))
             self.win_img_view.closed.connect(lambda: self.img_view_closed())
             self.win_img_view.center(self.window())
             self.win_img_view.show()
 
-        else:
-            subprocess.Popen(["open", wid.src])
+
+
+
+
+        url_files = [
+            i.src
+            for i in self.selected_widgets
+            if not i.src.endswith(Static.ext_all) and
+            i.type_ != Static.FOLDER_TYPE
+        ]
+
+        url_folders = [
+            i.src
+            for i in self.selected_widgets
+            if i.type_ == Static.FOLDER_TYPE
+        ]
+
+
+
+
+
+        # elif wid.type_ == Static.FOLDER_TYPE:
+        #     self.mouseReleaseEvent = None
+        #     self.new_history_item.emit(wid.src)
+        #     self.main_win_item.main_dir = wid.src
+        #     self.load_st_grid.emit()
+
+        # elif wid.type_ in Static.ext_all:
+        #     # избегаем ошибки кругового импорта
+        #     from .img_view_win import ImgViewWin
+
+        #     if len(self.selected_widgets) == 1:
+        #         url_to_wid = {
+        #             url: wid
+        #             for url, wid in self.url_to_wid.items()
+        #             if not wid.must_hidden and wid.type_.endswith(Static.ext_all)
+        #         }
+        #         is_selection = False
+        #     else:
+        #         url_to_wid = {
+        #             i.src: i
+        #             for i in self.selected_widgets
+        #             if not wid.must_hidden and wid.type_.endswith(Static.ext_all)
+        #         }
+        #         is_selection = True
+
+        #     self.win_img_view = ImgViewWin(wid.src, url_to_wid, is_selection)
+        #     self.win_img_view.move_to_wid.connect(lambda wid: self.select_one_wid(wid))
+        #     self.win_img_view.new_rating.connect(lambda value: self.set_new_rating(value))
+        #     self.win_img_view.closed.connect(lambda: self.img_view_closed())
+        #     self.win_img_view.center(self.window())
+        #     self.win_img_view.show()
+
+        # else:
+        #     subprocess.Popen(["open", wid.src])
 
     def img_view_closed(self):
         gc.collect()
@@ -907,24 +945,9 @@ class Grid(UScrollArea):
 
         self.path_bar_update_cmd(wid.src)
 
-        if wid.type_ in Static.ext_all:
-            view_action = ItemActions.View(menu_)
-            view_action.triggered.connect(lambda: self.view_thumb(wid))
-            menu_.addAction(view_action)
-
-            open_menu = ItemActions.OpenInApp(menu_, wid.src)
-            menu_.addMenu(open_menu)
-
-        elif wid.type_ == Static.FOLDER_TYPE:
-            new_window = ItemActions.OpenInNewWindow(menu_)
-            cmd_ = lambda: self.open_in_new_win.emit(wid.src)
-            new_window.triggered.connect(cmd_)
-            menu_.addAction(new_window)
-
-        else:
-            open_file = ItemActions.OpenFile(menu_, wid.src)
-            menu_.addAction(open_file)
-
+        view_action = ItemActions.View(menu_)
+        view_action.triggered.connect(lambda: self.view_thumb(wid))
+        menu_.addAction(view_action)
 
         menu_.addSeparator()
 

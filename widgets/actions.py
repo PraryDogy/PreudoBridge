@@ -92,7 +92,7 @@ class CopyName(QAction):
 
 
 class View(QAction):
-    text_ = "Просмотр"
+    text_ = "Открыть"
     def __init__(self, parent: UMenu):
         super().__init__(View.text_, parent)
 
