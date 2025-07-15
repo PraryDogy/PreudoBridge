@@ -922,6 +922,9 @@ class Grid(UScrollArea):
         view_action.triggered.connect(lambda: self.open_thumb())
         menu_.addAction(view_action)
 
+        open_in_app = ItemActions.OpenInApp(menu_, urls)
+        menu_.addMenu(open_in_app)
+
         menu_.addSeparator()
 
         info = ItemActions.Info(menu_)

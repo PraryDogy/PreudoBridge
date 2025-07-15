@@ -116,17 +116,10 @@ class FavAdd(QAction):
 # смотри cfg.py
 class OpenInApp(UMenu):
     text_menu = "Открыть в приложении"
-    text_default = "По умолчанию"
 
-    def __init__(self, parent: UMenu, src: str):
+    def __init__(self, parent: UMenu, urls: list):
         super().__init__(parent=parent, title=OpenInApp.text_menu)
-        self.src = src
-
-        open_default = QAction(OpenInApp.text_default, parent)
-        open_default.triggered.connect(self.open_default_cmd)
-        self.addAction(open_default)
-
-        self.addSeparator()
+        self.urls = urls
 
         for app_path, app_name in Dynamic.image_apps.items():
             wid = QAction(app_name, self)
@@ -136,14 +129,10 @@ class OpenInApp(UMenu):
 
     def open_in_app_cmd(self, app_path: str):
         # открыть в приложении, путь к которому указан в app_path
-        cmd_ = lambda: subprocess.call(["open", "-a", app_path, self.src])
-        self.task_ = Task_(cmd_)
-        UThreadPool.start(self.task_)
-
-    def open_default_cmd(self):
-        cmd_ = lambda: subprocess.call(["open",  self.src])
-        self.task_ = Task_(cmd_)
-        UThreadPool.start(self.task_)
+        for i in self.urls:
+            cmd_ = lambda: subprocess.call(["open", "-a", app_path, i])
+            self.task_ = Task_(cmd_)
+            UThreadPool.start(self.task_)
 
 
 # меню с рейтингом для _grid.py > Thumb
