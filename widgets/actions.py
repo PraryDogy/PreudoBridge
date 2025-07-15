@@ -398,10 +398,16 @@ class NewFolder(QAction):
         super().__init__(NewFolder.text_, parent)
 
 
+class OpenSingle(QAction):
+    text_ = "Открыть"
+    def __init__(self, parent: UMenu):
+        super().__init__(self.text_, parent)
+
+
 class ItemActions:
     class OpenThumb(OpenThumb): ...
     class OpenInApp(OpenInApp): ...
-    class OpenDefault(): ...
+    class OpenSingle(OpenSingle): ...
     class OpenInNewWindow(OpenInNewWindow): ...
     # "Separator"
 
