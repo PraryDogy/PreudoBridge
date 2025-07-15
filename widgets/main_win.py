@@ -391,9 +391,6 @@ class MainWin(WinBase):
         self.grid.finished_.connect(lambda: self.grid.setFocus())
 
     def del_grid_delayed(self):
-        QTimer.singleShot(MainWin.del_grid_timer, lambda: self.del_grid_fin())
-
-    def del_grid_fin(self):
         # если напрямую удалять сетку, то мы обязательно наткнемся на 
         # bus error, segmentation fault, fatal error no python frame
         # поэтому мы сначала скрываем старую сетку
@@ -404,7 +401,9 @@ class MainWin(WinBase):
 
         old_grid = self.grid
         old_grid.hide()
+        QTimer.singleShot(MainWin.del_grid_timer, lambda: self.del_grid_fin(old_grid))
 
+    def del_grid_fin(self, old_grid: GridStandart):
         old_grid.deleteLater()
         gc.collect()
 

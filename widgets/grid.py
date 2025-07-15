@@ -525,14 +525,19 @@ class Grid(UScrollArea):
         for i in url_files:
             Utils.open_in_app(i)
 
-        url_folders = [
-            i.src
-            for i in self.selected_widgets
-            if i.type_ == Static.FOLDER_TYPE
-        ]
-
-        for i in url_folders:
-            self.open_in_new_win.emit(i)
+        if self.selected_widgets == 1:
+            if self.selected_widgets[0].type_ == Static.FOLDER_TYPE:
+                self.new_history_item.emit(self.selected_widgets[0].src)
+                self.main_win_item.main_dir = self.selected_widgets[0].src
+                self.load_st_grid.emit()
+        else:
+            url_folders = [
+                i.src
+                for i in self.selected_widgets
+                if i.type_ == Static.FOLDER_TYPE
+            ]
+            for i in url_folders:
+                self.open_in_new_win.emit(i)
 
 
         # elif wid.type_ == Static.FOLDER_TYPE:
