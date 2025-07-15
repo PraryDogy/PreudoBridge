@@ -279,7 +279,7 @@ class ImgViewWin(WinBase):
     loading_text = "Загрузка"
     error_text = "Ошибка чтения изображения."
 
-    def __init__(self, current_path: str, url_to_wid: dict[str, Thumb], is_selection: bool):
+    def __init__(self, start_url: str, url_to_wid: dict[str, Thumb], is_selection: bool):
         super().__init__()
         self.setMinimumSize(QSize(ImgViewWin.min_width_, ImgViewWin.min_height_))
         self.resize(ImgViewWin.width_, ImgViewWin.height_)
@@ -292,8 +292,8 @@ class ImgViewWin(WinBase):
         self.url_to_wid: dict[str, Thumb] = url_to_wid
         self.urls: list = [i for i in self.url_to_wid]
         self.task_count: int = 0
-        self.current_path: str = current_path
-        self.current_thumb: Thumb = self.url_to_wid.get(current_path)
+        self.current_path: str = start_url
+        self.current_thumb: Thumb = self.url_to_wid.get(start_url)
         self.current_thumb.text_changed.connect(self.set_title)
         self.cached_images: dict[str, QPixmap] = {}
 
