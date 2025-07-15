@@ -519,8 +519,12 @@ class Utils(Pixmap, ReadImage, ImgConvert, Err):
         return image_apps
     
     @classmethod
-    def open_in_app(cls, path):
+    def open_in_def_app(cls, path: str):
         subprocess.Popen(["open", path])
+
+    @classmethod
+    def open_in_app(cls, path: str, app_path: str):
+        subprocess.Popen(["open", "-a", app_path, path])
 
 
 class FitImg:   

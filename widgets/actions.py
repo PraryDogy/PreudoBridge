@@ -128,8 +128,10 @@ class OpenInApp(UMenu):
             self.addAction(wid)
 
     def open_in_app_cmd(self, app_path: str):
+        print(self.urls)
+        # открыть в приложении, путь к которому указан в app_path
         for i in self.urls:
-            Utils.open_in_app(i)
+            Utils.open_in_app(i, app_path)
 
 
 # меню с рейтингом для _grid.py > Thumb

@@ -504,7 +504,7 @@ class Grid(UScrollArea):
                 self.main_win_item.main_dir = wid.src
                 self.load_st_grid.emit()
             else:
-                Utils.open_in_app(wid.src)
+                Utils.open_in_def_app(wid.src)
         else:
             url_to_wid = {
                 i.src: i
@@ -533,7 +533,7 @@ class Grid(UScrollArea):
             ]
 
             for i in files:
-                Utils.open_in_app(i)
+                Utils.open_in_def_app(i)
 
     def open_img_view(self, start_url: str, url_to_wid: dict, is_selection: bool):
         from .img_view_win import ImgViewWin
