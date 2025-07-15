@@ -112,33 +112,96 @@ class GridList(UTableView):
         self.setColumnWidth(0, new_w)
 
     def double_clicked(self, index):
-        path = self._model.filePath(index)
-        self.view_cmd(path)
+        self.get_selected_urls()
+        self.open_thumb()
 
-    def view_cmd(self, path: str):
-        if os.path.isdir(path):
-            self.main_win_item.main_dir = path
-            self.load_st_grid.emit()
-            self.new_history_item.emit(path)
+    def open_thumb(self, urls: list[str]):
+        if len(urls) == 1:
 
-        elif path.endswith(Static.ext_all):
-            from .img_view_win import ImgViewWin
-
-            url_to_wid = {
-                url: Thumb(url)
-                for url, index in self.url_to_index.items()
-                if url.endswith(Static.ext_all)
-            }
-
-            cmd = lambda path: self.select_path(path)
-            self.img_view_win = ImgViewWin(path, url_to_wid, False)
-            self.img_view_win.move_to_url.connect(cmd)
-            self.img_view_win.closed.connect(self.img_view_closed)
-            self.img_view_win.center(self.window())
-            self.img_view_win.show()
-
+            if urls[0].endswith(Static.ext_all):
+                url_to_wid = {
+                    url: wid
+                    for url, wid in self.url_to_wid.items()
+                    if url.endswith(Static.ext_all)
+                }
+                is_selection = False
+                self.open_img_view(wid.src, url_to_wid, is_selection)
+            elif os.path.isdir(urls[0]):
+                self.main_win_item.main_dir = urls[0]
+                self.new_history_item.emit(urls[0])
+                self.load_st_grid.emit()
+            else:
+                Utils.open_in_def_app(urls[0])
         else:
-            subprocess.Popen(["open", path])
+            url_to_wid = {
+                i.src: i
+                for i in self.selected_widgets
+                if i.src.endswith(Static.ext_all)
+            }
+            is_selection = True
+            start_url = list(url_to_wid)[0]
+            self.open_img_view(start_url, url_to_wid, is_selection)
+
+            folders = [
+                i.src
+                for i in self.selected_widgets
+                if i.type_ == Static.FOLDER_TYPE
+            ]
+
+            for i in folders:
+                self.open_in_new_win.emit(i)
+
+            files = [
+                i.src
+                for i in self.selected_widgets
+                if not i.src.endswith(Static.ext_all)
+                and
+                i.type_ != Static.FOLDER_TYPE
+            ]
+
+            for i in files:
+                Utils.open_in_def_app(i)
+
+    def open_img_view(self):
+        from .img_view_win import ImgViewWin
+
+        url_to_wid = {
+            url: Thumb(url)
+            for url, index in self.url_to_index.items()
+            if url.endswith(Static.ext_all)
+        }
+
+        cmd = lambda path: self.select_path(path)
+        self.img_view_win = ImgViewWin(path, url_to_wid, False)
+        self.img_view_win.move_to_url.connect(cmd)
+        self.img_view_win.closed.connect(self.img_view_closed)
+        self.img_view_win.center(self.window())
+        self.img_view_win.show()
+
+    # def view_cmd(self, path: str):
+    #     if os.path.isdir(path):
+    #         self.main_win_item.main_dir = path
+    #         self.load_st_grid.emit()
+    #         self.new_history_item.emit(path)
+
+    #     elif path.endswith(Static.ext_all):
+    #         from .img_view_win import ImgViewWin
+
+    #         url_to_wid = {
+    #             url: Thumb(url)
+    #             for url, index in self.url_to_index.items()
+    #             if url.endswith(Static.ext_all)
+    #         }
+
+    #         cmd = lambda path: self.select_path(path)
+    #         self.img_view_win = ImgViewWin(path, url_to_wid, False)
+    #         self.img_view_win.move_to_url.connect(cmd)
+    #         self.img_view_win.closed.connect(self.img_view_closed)
+    #         self.img_view_win.center(self.window())
+    #         self.img_view_win.show()
+
+    #     else:
+    #         subprocess.Popen(["open", path])
 
     def img_view_closed(self):
         gc.collect()
@@ -180,7 +243,7 @@ class GridList(UTableView):
         urls = self.get_selected_urls()
 
         view_action = ItemActions.OpenThumb(menu_, urls)
-        # view_action.triggered.connect(lambda: self.open_thumb())
+        view_action.triggered.connect(lambda: self.open_thumb(urls))
         menu_.addAction(view_action)
 
         open_in_app = ItemActions.OpenInApp(menu_, urls)
