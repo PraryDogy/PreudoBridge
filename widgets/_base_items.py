@@ -1,14 +1,15 @@
+import gc
 import os
 import re
 
-from PyQt5.QtCore import QRunnable, Qt, QThreadPool, pyqtSignal, QTimer
+from PyQt5.QtCore import QRunnable, Qt, QThreadPool, QTimer, pyqtSignal
 from PyQt5.QtGui import (QContextMenuEvent, QCursor, QMouseEvent, QPixmap,
                          QWheelEvent)
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QFrame, QLineEdit, QMenu, QScrollArea, QSlider,
                              QTableView, QTextEdit, QWidget)
 
-from cfg import Dynamic, Static
+from cfg import Static
 from utils import Utils
 
 
@@ -655,10 +656,14 @@ class URunnable(QRunnable):
         finally:
             self.set_finished(True)
             if self in UThreadPool.tasks:
-                QTimer.singleShot(5000, lambda: UThreadPool.tasks.remove(self))
+                QTimer.singleShot(5000, lambda: self.task_fin())
 
     def task(self):
         raise NotImplementedError("Переопредели метод task() в подклассе.")
+    
+    def task_fin(self):
+        UThreadPool.tasks.remove(self)
+        gc.collect()
 
 
 class UThreadPool:
