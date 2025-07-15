@@ -505,61 +505,35 @@ class Grid(UScrollArea):
                 self.load_st_grid.emit()
             else:
                 Utils.open_in_app(wid.src)
-        
-        # else:
-        #     ...
+        else:
+            url_to_wid = {
+                i.src: i
+                for i in self.selected_widgets
+                if i.src.endswith(Static.ext_all)
+            }
+            is_selection = True
+            start_url = list(url_to_wid)[0]
+            self.open_img_view(start_url, url_to_wid, is_selection)
 
+            folders = [
+                i.src
+                for i in self.selected_widgets
+                if i.type_ == Static.FOLDER_TYPE
+            ]
 
+            for i in folders:
+                self.open_in_new_win.emit(i)
 
+            files = [
+                i.src
+                for i in self.selected_widgets
+                if not i.src.endswith(Static.ext_all)
+                and
+                i.type_ != Static.FOLDER_TYPE
+            ]
 
-        #     img_url_to_wid = {
-        #         i.src: i
-        #         for i in self.selected_widgets
-        #         if i.src.endswith(Static.ext_all)
-        #     }
-        #     is_selection = False
-
-        # else:
-        #     img_url_to_wid = {
-        #         i.src: i
-        #         for i in self.selected_widgets
-        #         if i.src.endswith(Static.ext_all)
-        #     }
-        #     is_selection = True
-
-        # if img_url_to_wid:
-        #     from .img_view_win import ImgViewWin
-        #     current_path = list(img_url_to_wid)[0]
-        #     self.win_img_view = ImgViewWin(current_path, img_url_to_wid, is_selection)
-        #     self.win_img_view.move_to_wid.connect(lambda wid: self.select_one_wid(wid))
-        #     self.win_img_view.new_rating.connect(lambda value: self.set_new_rating(value))
-        #     self.win_img_view.closed.connect(lambda: self.img_view_closed())
-        #     self.win_img_view.center(self.window())
-        #     self.win_img_view.show()
-
-        # url_files = [
-        #     i.src
-        #     for i in self.selected_widgets
-        #     if not i.src.endswith(Static.ext_all) and
-        #     i.type_ != Static.FOLDER_TYPE
-        # ]
-
-        # for i in url_files:
-        #     Utils.open_in_app(i)
-
-        # if len(self.selected_widgets) == 1:
-        #     if self.selected_widgets[0].type_ == Static.FOLDER_TYPE:
-        #         self.new_history_item.emit(self.selected_widgets[0].src)
-        #         self.main_win_item.main_dir = self.selected_widgets[0].src
-        #         self.load_st_grid.emit()
-        # else:
-        #     url_folders = [
-        #         i.src
-        #         for i in self.selected_widgets
-        #         if i.type_ == Static.FOLDER_TYPE
-        #     ]
-        #     for i in url_folders:
-        #         self.open_in_new_win.emit(i)
+            for i in files:
+                Utils.open_in_app(i)
 
     def open_img_view(self, start_url: str, url_to_wid: dict, is_selection: bool):
         from .img_view_win import ImgViewWin
