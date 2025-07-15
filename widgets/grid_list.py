@@ -166,31 +166,6 @@ class GridList(UTableView):
         self.img_view_win.center(self.window())
         self.img_view_win.show()
 
-    # def view_cmd(self, path: str):
-    #     if os.path.isdir(path):
-    #         self.main_win_item.main_dir = path
-    #         self.load_st_grid.emit()
-    #         self.new_history_item.emit(path)
-
-    #     elif path.endswith(Static.ext_all):
-    #         from .img_view_win import ImgViewWin
-
-    #         url_to_wid = {
-    #             url: Thumb(url)
-    #             for url, index in self.url_to_index.items()
-    #             if url.endswith(Static.ext_all)
-    #         }
-
-    #         cmd = lambda path: self.select_path(path)
-    #         self.img_view_win = ImgViewWin(path, url_to_wid, False)
-    #         self.img_view_win.move_to_url.connect(cmd)
-    #         self.img_view_win.closed.connect(self.img_view_closed)
-    #         self.img_view_win.center(self.window())
-    #         self.img_view_win.show()
-
-    #     else:
-    #         subprocess.Popen(["open", path])
-
     def img_view_closed(self):
         gc.collect()
 
