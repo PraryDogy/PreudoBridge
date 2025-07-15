@@ -117,11 +117,7 @@ class GridList(UTableView):
     def open_thumb(self, urls: list[str]):
         if len(urls) == 1:
             if urls[0].endswith(Static.ext_all):
-                url_to_wid = {
-                    url: Thumb(url)
-                    for url, index in self.url_to_index.items()
-                    if url.endswith(Static.ext_all)
-                }
+                url_to_wid = {urls[0]: Thumb(urls[0])}
                 start_url = urls[0]
                 is_selection = False
                 self.open_img_view(start_url, url_to_wid, is_selection)

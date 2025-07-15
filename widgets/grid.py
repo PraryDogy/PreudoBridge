@@ -511,9 +511,10 @@ class Grid(UScrollArea):
                 for i in self.selected_widgets
                 if i.src.endswith(Static.ext_all)
             }
-            is_selection = True
-            start_url = list(url_to_wid)[0]
-            self.open_img_view(start_url, url_to_wid, is_selection)
+            if url_to_wid:
+                is_selection = True
+                start_url = list(url_to_wid)[0]
+                self.open_img_view(start_url, url_to_wid, is_selection)
 
             folders = [
                 i.src
