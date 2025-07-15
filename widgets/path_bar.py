@@ -70,19 +70,8 @@ class PathItem(QWidget):
         """
         self.text_wid.setFixedWidth(self.text_wid.sizeHint().width())
  
-    def view_(self, *args):
-        """
-        При двойном клике на виджет или вызове контестного
-        меню пункта "Просмотр"  
-        Для файлов будет открыт просмотрщик     
-        Для папок будет загружена новая сетка с указанной директорией
-        """
-        if os.path.isfile(self.dir):
-            self.open_img_view.emit(self.dir)
-        else:
-            self.new_history_item.emit(self.dir)
-            self.main_win_item.main_dir = self.dir
-            self.load_st_grid.emit()
+    def open_single_cmd(self, *args):
+        self.open_img_view.emit(self.dir)
 
     def solid_style(self):
         """
@@ -135,7 +124,7 @@ class PathItem(QWidget):
         по левому клику мыши
         """
         if a0.button() == Qt.MouseButton.LeftButton:
-            self.view_()
+            self.open_single_cmd()
 
     def mousePressEvent(self, a0: QMouseEvent | None) -> None:
         """
@@ -183,9 +172,9 @@ class PathItem(QWidget):
 
         menu = UMenu(parent=self)
 
-        view_action = ItemActions.OpenThumb(menu)
-        view_action.triggered.connect(self.view_)
-        menu.addAction(view_action)
+        open_single = ItemActions.OpenSingle(menu)
+        open_single.triggered.connect(self.open_single_cmd)
+        menu.addAction(open_single)
 
         if os.path.isdir(self.dir):
             new_win = ItemActions.OpenInNewWindow(menu)
