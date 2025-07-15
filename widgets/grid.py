@@ -515,10 +515,6 @@ class Grid(UScrollArea):
             self.win_img_view.center(self.window())
             self.win_img_view.show()
 
-
-
-
-
         url_files = [
             i.src
             for i in self.selected_widgets
@@ -526,14 +522,17 @@ class Grid(UScrollArea):
             i.type_ != Static.FOLDER_TYPE
         ]
 
+        for i in url_files:
+            Utils.open_in_app(i)
+
         url_folders = [
             i.src
             for i in self.selected_widgets
             if i.type_ == Static.FOLDER_TYPE
         ]
 
-
-
+        for i in url_folders:
+            self.open_in_new_win.emit(i)
 
 
         # elif wid.type_ == Static.FOLDER_TYPE:
