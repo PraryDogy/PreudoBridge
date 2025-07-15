@@ -4,7 +4,7 @@ import logging
 import os
 import subprocess
 import traceback
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import cv2
 import numpy as np
@@ -319,10 +319,16 @@ class Utils(Pixmap, ReadImage, ImgConvert, Err):
     @classmethod
     def get_f_date(cls, timestamp_: int, date_only: bool = False) -> str:
         date = datetime.fromtimestamp(timestamp_).replace(microsecond=0)
-        if date_only:
-            return date.strftime("%d.%m.%Y")
+        now = datetime.now()
+        today = now.date()
+        yesterday = today - timedelta(days=1)
+
+        if date.date() == today:
+            return f"сегодня {date.strftime('%H:%M')}"
+        elif date.date() == yesterday:
+            return f"вчера {date.strftime('%H:%M')}"
         else:
-            return date.strftime("%d.%m.%Y %H:%M")
+            return date.strftime("%d.%m.%y %H:%M")
     
     @classmethod
     def rm_rf(cls, path: str):
