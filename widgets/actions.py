@@ -398,25 +398,12 @@ class NewFolder(QAction):
         super().__init__(NewFolder.text_, parent)
 
 
-class OpenFile(QAction):
-    text_ = "Открыть по умолчанию"
-    def __init__(self, parent: UMenu, filepath: str):
-        super().__init__(self.text_, parent)
-        self.filepath = filepath
-        self.triggered.connect(self.cmd_)
-
-    def cmd_(self):
-        subprocess.Popen(["open", self.filepath])
-
-
 class ItemActions:
     class OpenThumb(OpenThumb): ...
-
     class OpenInApp(OpenInApp): ...
+    class OpenDefault(): ...
     class OpenInNewWindow(OpenInNewWindow): ...
     # "Separator"
-
-    class OpenFile(OpenFile): ...
 
     class Info(Info): ...
     class RevealInFinder(RevealInFinder): ...
