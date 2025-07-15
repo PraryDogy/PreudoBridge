@@ -678,3 +678,4 @@ class UThreadPool:
     def start(cls, runnable: QRunnable):
         cls.tasks.append(runnable)
         cls.pool.start(runnable)
+
