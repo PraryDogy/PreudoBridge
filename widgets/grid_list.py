@@ -112,8 +112,7 @@ class GridList(UTableView):
         self.setColumnWidth(0, new_w)
 
     def double_clicked(self, index):
-        self.get_selected_urls()
-        self.open_thumb()
+        self.open_thumb(self.get_selected_urls())
 
     def open_thumb(self, urls: list[str]):
         if len(urls) == 1:
@@ -138,12 +137,13 @@ class GridList(UTableView):
                 for url in urls
                 if url.endswith(Static.ext_all)
             }
-            start_url = urls[0]
-            is_selection = True
-            self.open_img_view(start_url, url_to_wid, is_selection)
+            if url_to_wid:
+                start_url = list(url_to_wid)[0]
+                is_selection = True
+                self.open_img_view(start_url, url_to_wid, is_selection)
 
             folders = [
-                i.src
+                i
                 for i in urls
                 if os.path.isdir(i)
             ]
@@ -151,16 +151,16 @@ class GridList(UTableView):
             for i in folders:
                 self.open_in_new_win.emit(i)
 
-            # files = [
-            #     i.src
-            #     for i in self.selected_widgets
-            #     if not i.src.endswith(Static.ext_all)
-            #     and
-            #     i.type_ != Static.FOLDER_TYPE
-            # ]
+            files = [
+                i
+                for i in urls
+                if not i.endswith(Static.ext_all)
+                and
+                os.path.isfile(i)
+            ]
 
-            # for i in files:
-            #     Utils.open_in_def_app(i)
+            for i in files:
+                Utils.open_in_def_app(i)
 
     def open_img_view(self, start_url: str, url_to_wid: dict, is_selection: bool):
         from .img_view_win import ImgViewWin
