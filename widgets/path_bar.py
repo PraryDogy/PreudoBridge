@@ -118,14 +118,6 @@ class PathItem(QWidget):
         """
         QTimer.singleShot(500, self.collapse)
 
-    def mouseReleaseEvent(self, a0):
-        """
-        Открывает просмотрщик для файлов или загружает новую сетку для папок
-        по левому клику мыши
-        """
-        if a0.button() == Qt.MouseButton.LeftButton:
-            self.open_single_cmd()
-
     def mousePressEvent(self, a0: QMouseEvent | None) -> None:
         """
         Начать перемещение виджета
