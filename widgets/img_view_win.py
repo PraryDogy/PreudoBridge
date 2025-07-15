@@ -78,11 +78,13 @@ class LoadThumbnail(URunnable):
 
 
 class LoadImage(URunnable):
-    def __init__(self, src: str, cached_images: dict[str, QPixmap]):
+    cache_limit = 15
+    cached_images: dict[str, QPixmap] = {}
+
+    def __init__(self, src: str):
         super().__init__()
         self.signals_ = WorkerSignals()
         self.src: str = src
-        self.cached_images = cached_images
 
     def task(self):
         if self.src not in self.cached_images:
@@ -99,9 +101,8 @@ class LoadImage(URunnable):
 
         else:
             pixmap = self.cached_images.get(self.src)
-        if len(self.cached_images) > 50:
-            first_img = list(self.cached_images.keys())[0]
-            self.cached_images.pop(first_img)
+        if len(self.cached_images) > self.cache_limit:
+            self.cached_images.pop(list(self.cached_images)[0])
 
         image_data = ImageData(self.src, pixmap)
         self.signals_.finished_.emit(image_data)
@@ -295,7 +296,6 @@ class ImgViewWin(WinBase):
         self.current_path: str = start_url
         self.current_thumb: Thumb = self.url_to_wid.get(start_url)
         self.current_thumb.text_changed.connect(self.set_title)
-        self.cached_images: dict[str, QPixmap] = {}
 
         self.mouse_move_timer = QTimer(self)
         self.mouse_move_timer.setSingleShot(True)
@@ -342,7 +342,7 @@ class ImgViewWin(WinBase):
         self.setWindowTitle(text_)
 
     def load_thumbnail(self):
-        if self.current_path not in self.cached_images:
+        if self.current_path not in LoadImage.cached_images:
             self.task_ = LoadThumbnail(self.current_path)
             cmd_ = lambda image_data: self.load_thumbnail_finished(image_data)
             self.task_.signals_.finished_.connect(cmd_)
@@ -370,7 +370,7 @@ class ImgViewWin(WinBase):
 
     def load_image(self):
         self.task_count += 1
-        task_ = LoadImage(self.current_path, self.cached_images)
+        task_ = LoadImage(self.current_path)
         cmd_ = lambda image_data: self.load_image_finished(image_data)
         task_.signals_.finished_.connect(cmd_)
         UThreadPool.start(task_)
@@ -503,12 +503,12 @@ class ImgViewWin(WinBase):
         self.hide_btns()
 
     def deleteLater(self):
-        self.cached_images.clear()
+        LoadImage.cached_images.clear()
         self.closed.emit()
         return super().deleteLater()
 
     def closeEvent(self, a0):
-        self.cached_images.clear()
+        LoadImage.cached_images.clear()
         self.closed.emit()
         return super().closeEvent(a0)
 
