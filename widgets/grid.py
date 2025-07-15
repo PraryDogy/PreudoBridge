@@ -918,7 +918,7 @@ class Grid(UScrollArea):
 
         self.path_bar_update_cmd(wid.src)
 
-        view_action = ItemActions.View(menu_)
+        view_action = ItemActions.View(menu_, self.selected_widgets)
         view_action.triggered.connect(lambda: self.view_thumb())
         menu_.addAction(view_action)
 
