@@ -99,6 +99,9 @@ class LoadImage(URunnable):
                 pixmap = Utils.pixmap_from_array(img_array)
                 self.cached_images[self.src] = pixmap
 
+            del img_array
+            gc.collect()
+
         else:
             pixmap = self.cached_images.get(self.src)
         if len(self.cached_images) > self.cache_limit:
