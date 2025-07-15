@@ -6,8 +6,7 @@ from PyQt5.QtWidgets import QFileSystemModel, QTreeView
 from cfg import JsonData, Static
 
 from ._base_items import MainWinItem, UMenu
-from .actions import (CopyName, CopyPath, FavAdd, FavRemove, OpenInNewWindow,
-                      RevealInFinder, OpenThumb)
+from .actions import ItemActions
 
 
 class TreeMenu(QTreeView):
@@ -63,24 +62,24 @@ class TreeMenu(QTreeView):
         index = self.c_model.index(src)
 
         cmd_ = lambda: self.one_clicked(index)
-        open_finder_action = OpenThumb(menu)
+        open_finder_action = ItemActions.OpenSingle(menu)
         open_finder_action.triggered.connect(cmd_)
         menu.addAction(open_finder_action)
 
         if os.path.isdir(src):
-            new_win = OpenInNewWindow(menu)
+            new_win = ItemActions.OpenInNewWindow(menu)
             new_win.triggered.connect(lambda: self.open_in_new_window.emit(src))
             menu.addAction(new_win)
 
         menu.addSeparator()
 
-        open_finder_action = RevealInFinder(menu, src)
+        open_finder_action = ItemActions.RevealInFinder(menu, [src], 1)
         menu.addAction(open_finder_action)
 
-        copy_path_action = CopyPath(menu, src)
+        copy_path_action = ItemActions.CopyPath(menu, [src], 1)
         menu.addAction(copy_path_action)
 
-        copy_name = CopyName(menu, os.path.basename(src))
+        copy_name = ItemActions.CopyName(menu, [os.path.basename(src)], 1)
         menu.addAction(copy_name)
 
         menu.addSeparator()
@@ -88,12 +87,12 @@ class TreeMenu(QTreeView):
         favs: dict = JsonData.favs
         if src in favs:
             cmd_ = lambda: self.del_fav.emit(src)
-            fav_action = FavRemove(menu)
+            fav_action = ItemActions.FavRemove(menu)
             fav_action.triggered.connect(cmd_)
             menu.addAction(fav_action)
         else:
             cmd_ = lambda: self.add_fav.emit(src)
-            fav_action = FavAdd(menu)
+            fav_action = ItemActions.FavAdd(menu)
             fav_action.triggered.connect(cmd_)
             menu.addAction(fav_action)
 
