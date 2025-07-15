@@ -539,42 +539,6 @@ class Grid(UScrollArea):
             for i in url_folders:
                 self.open_in_new_win.emit(i)
 
-
-        # elif wid.type_ == Static.FOLDER_TYPE:
-        #     self.mouseReleaseEvent = None
-        #     self.new_history_item.emit(wid.src)
-        #     self.main_win_item.main_dir = wid.src
-        #     self.load_st_grid.emit()
-
-        # elif wid.type_ in Static.ext_all:
-        #     # избегаем ошибки кругового импорта
-        #     from .img_view_win import ImgViewWin
-
-        #     if len(self.selected_widgets) == 1:
-        #         url_to_wid = {
-        #             url: wid
-        #             for url, wid in self.url_to_wid.items()
-        #             if not wid.must_hidden and wid.type_.endswith(Static.ext_all)
-        #         }
-        #         is_selection = False
-        #     else:
-        #         url_to_wid = {
-        #             i.src: i
-        #             for i in self.selected_widgets
-        #             if not wid.must_hidden and wid.type_.endswith(Static.ext_all)
-        #         }
-        #         is_selection = True
-
-        #     self.win_img_view = ImgViewWin(wid.src, url_to_wid, is_selection)
-        #     self.win_img_view.move_to_wid.connect(lambda wid: self.select_one_wid(wid))
-        #     self.win_img_view.new_rating.connect(lambda value: self.set_new_rating(value))
-        #     self.win_img_view.closed.connect(lambda: self.img_view_closed())
-        #     self.win_img_view.center(self.window())
-        #     self.win_img_view.show()
-
-        # else:
-        #     subprocess.Popen(["open", wid.src])
-
     def img_view_closed(self):
         gc.collect()
 
