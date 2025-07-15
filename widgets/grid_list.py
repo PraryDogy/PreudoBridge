@@ -132,35 +132,35 @@ class GridList(UTableView):
                 self.load_st_grid.emit()
             else:
                 Utils.open_in_def_app(urls[0])
-        # else:
-        #     url_to_wid = {
-        #         i.src: i
-        #         for i in self.selected_widgets
-        #         if i.src.endswith(Static.ext_all)
-        #     }
-        #     is_selection = True
-        #     start_url = list(url_to_wid)[0]
-        #     self.open_img_view(start_url, url_to_wid, is_selection)
+        else:
+            url_to_wid = {
+                url: Thumb(url)
+                for url in urls
+                if url.endswith(Static.ext_all)
+            }
+            start_url = urls[0]
+            is_selection = True
+            self.open_img_view(start_url, url_to_wid, is_selection)
 
-        #     folders = [
-        #         i.src
-        #         for i in self.selected_widgets
-        #         if i.type_ == Static.FOLDER_TYPE
-        #     ]
+            folders = [
+                i.src
+                for i in urls
+                if os.path.isdir(i)
+            ]
 
-        #     for i in folders:
-        #         self.open_in_new_win.emit(i)
+            for i in folders:
+                self.open_in_new_win.emit(i)
 
-        #     files = [
-        #         i.src
-        #         for i in self.selected_widgets
-        #         if not i.src.endswith(Static.ext_all)
-        #         and
-        #         i.type_ != Static.FOLDER_TYPE
-        #     ]
+            # files = [
+            #     i.src
+            #     for i in self.selected_widgets
+            #     if not i.src.endswith(Static.ext_all)
+            #     and
+            #     i.type_ != Static.FOLDER_TYPE
+            # ]
 
-        #     for i in files:
-        #         Utils.open_in_def_app(i)
+            # for i in files:
+            #     Utils.open_in_def_app(i)
 
     def open_img_view(self, start_url: str, url_to_wid: dict, is_selection: bool):
         from .img_view_win import ImgViewWin
