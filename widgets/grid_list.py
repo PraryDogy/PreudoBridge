@@ -167,6 +167,7 @@ class GridList(UTableView):
         self.img_view_win.show()
 
     def img_view_closed(self):
+        del self.img_view_win
         gc.collect()
 
     def save_sort_settings(self, index):
