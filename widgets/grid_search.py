@@ -62,7 +62,7 @@ class SearchTask(URunnable):
         try:
             self.signals_.finished_.emit(missed_files_list)
         except RuntimeError as e:
-            Utils.print_error(e)
+            Utils.print_error()
 
     def setup_search(self):
         if isinstance(self.search_item.get_content(), list):
@@ -182,13 +182,13 @@ class SearchTask(URunnable):
                 # Сканируем текущий каталог и добавляем новые пути в стек
                 self.scan_current_dir(current_dir, dirs_list)
             except OSError as e:
-                Utils.print_error(e)
+                Utils.print_error()
                 continue
             except Exception as e:
-                Utils.print_error(e)
+                Utils.print_error()
                 continue
             except RuntimeError as e:
-                Utils.print_error(e)
+                Utils.print_error()
                 return
 
     def scan_current_dir(self, dir: str, dirs_list: list):
@@ -352,7 +352,7 @@ class GridSearch(Grid):
             if self.search_task.is_should_run():
                 self.finished_.emit()
         except RuntimeError as e:
-            Utils.print_error(e)
+            Utils.print_error()
 
     def sort_thumbs(self):
         self.search_task.pause = True

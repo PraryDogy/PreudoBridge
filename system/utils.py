@@ -25,34 +25,6 @@ psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
 psd_logger = logging.getLogger("psd_tools")
 psd_logger.setLevel(logging.CRITICAL)
 
-class Err:
-    @classmethod
-    def print_error(cls, error: Exception):
-        LIMIT_ = 200
-        tb = traceback.extract_tb(error.__traceback__)
-
-        # Попробуем найти первую строчку стека, которая относится к вашему коду.
-        for trace in tb:
-            filepath = trace.filename
-            filename = os.path.basename(filepath)
-            
-            # Если файл - не стандартный модуль, считаем его основным
-            if not filepath.startswith("<") and filename != "site-packages":
-                line_number = trace.lineno
-                break
-        else:
-            # Если не нашли, то берем последний вызов
-            trace = tb[-1]
-            filepath = trace.filename
-            filename = os.path.basename(filepath)
-            line_number = trace.lineno
-
-        msg = str(error)
-        if msg.startswith("[Errno"):
-            msg = msg.split("]", 1)[-1].strip()
-
-        print(f"\n{type(error).__name__}: {msg}\n{filepath}:{line_number}\n")
-        return msg
 
 class ReadImage:
 
@@ -78,7 +50,7 @@ class ReadImage:
                 img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
             return img
         except (tifffile.TiffFileError, RuntimeError, DelayedImportError, Exception) as e: 
-            Err.print_error(e)
+            Utils.print_error()
             try:
                 img = Image.open(path)
                 img = img.convert("RGB")
@@ -86,7 +58,7 @@ class ReadImage:
                 img.close()
                 return array_img
             except Exception as e:
-                Err.print_error(e)
+                Utils.print_error()
                 return None
                     
     @classmethod
@@ -98,7 +70,7 @@ class ReadImage:
             array_img = np.array(img)
             return array_img
         except Exception as e:
-            Err.print_error(e)
+            Utils.print_error()
             return None
 
     @classmethod
@@ -113,7 +85,7 @@ class ReadImage:
             img.close()
             return array_img
         except Exception as e:
-            Err.print_error(e)
+            Utils.print_error()
             return None
 
     @classmethod
@@ -125,7 +97,7 @@ class ReadImage:
             img.close()
             return array_img
         except Exception as e:
-            Err.print_error(e)
+            Utils.print_error()
             return None
 
     @classmethod
@@ -159,12 +131,12 @@ class ReadImage:
                     elif orientation == 8:
                         img = img.rotate(90, expand=True)
             except Exception as e:
-                Err.print_error(e)
+                Utils.print_error()
             array_img = np.array(img)
             img.close()
             return array_img
         except (Exception, rawpy._rawpy.LibRawDataError) as e:
-            Err.print_error(e)
+            Utils.print_error()
             return None
 
     @classmethod
@@ -180,7 +152,7 @@ class ReadImage:
             else:
                 return None
         except Exception as e:
-            Err.print_error(e)
+            Utils.print_error()
             return None
 
     @classmethod
@@ -219,23 +191,19 @@ class ReadImage:
 
 
 class ImgConvert:
-    # Необходим метод Err.print_error для вывода ошибок
-
     @classmethod
     def bytes_to_array(cls, blob: bytes) -> np.ndarray:
-
         try:
             with io.BytesIO(blob) as buffer:
                 image = Image.open(buffer)
                 return np.array(image)
             
         except Exception as e:
-            Err.print_error(e)
+            Utils.print_error()
             return None
 
     @classmethod
     def numpy_to_bytes(cls, img_array: np.ndarray) -> bytes:
-
         try:
             with io.BytesIO() as buffer:
                 image = Image.fromarray(img_array)
@@ -243,23 +211,19 @@ class ImgConvert:
                 return buffer.getvalue()
             
         except Exception as e:
-            Err.print_error(e)
+            Utils.print_error()
             return None
 
 
 class Pixmap:
-    # Необходим метод Err.print_error для вывода ошибок
-
     @classmethod
     def pixmap_from_array(cls, image: np.ndarray) -> QPixmap | None:
-
         if isinstance(image, np.ndarray) and QApplication.instance():
             if len(image.shape) == 3:
                 height, width, channel = image.shape
             else:
                 print("pixmap from array channels trouble", image.shape)
                 return None
-
             bytes_per_line = channel * width
             qimage = QImage(
                 image.tobytes(),
@@ -269,13 +233,11 @@ class Pixmap:
                 QImage.Format.Format_RGB888
             )
             return QPixmap.fromImage(qimage)
-
         else:
             return None
 
     @classmethod
     def pixmap_scale(cls, pixmap: QPixmap, size: int) -> QPixmap:
-
         return pixmap.scaled(
             size,
             size,
@@ -284,9 +246,7 @@ class Pixmap:
         )
     
 
-class Utils(Pixmap, ReadImage, ImgConvert, Err):
-    # Необходим метод Err.print_error для вывода ошибок
-
+class Utils:
     @classmethod
     def write_to_clipboard(cls, text: str):
         clipboard = QApplication.clipboard()
@@ -329,19 +289,6 @@ class Utils(Pixmap, ReadImage, ImgConvert, Err):
             return f"вчера {date.strftime('%H:%M')}"
         else:
             return date.strftime("%d.%m.%y %H:%M")
-    
-    @classmethod
-    def rm_rf(cls, path: str):
-
-        result = subprocess.run(
-            ['rm', '-rf', path],
-            check=True,
-            text=True,
-            stderr=subprocess.PIPE
-        )
-
-        if result.returncode == 0:
-            print("rm -rf успешно завершен", path)
 
     @classmethod
     def normalize_slash(cls, path: str):
@@ -426,7 +373,7 @@ class Utils(Pixmap, ReadImage, ImgConvert, Err):
             # Возвращаем итоговый хеш в шестнадцатеричном формате.
             return hash_func.hexdigest()
         except OSError as e:
-            Err.print_error(e)
+            cls.print_error()
             return "partial hash error"
 
     @classmethod
@@ -441,7 +388,7 @@ class Utils(Pixmap, ReadImage, ImgConvert, Err):
                 0
             )
         except Exception as e:
-            Err.print_error(e)
+            cls.print_error()
             return image
 
     @classmethod
@@ -517,11 +464,9 @@ class Utils(Pixmap, ReadImage, ImgConvert, Err):
                         search_dir(entry.path)
             except PermissionError:
                 pass
-
         for app_dir in app_dirs:
             if os.path.exists(app_dir):
                 search_dir(app_dir)
-
         return image_apps
     
     @classmethod
@@ -532,6 +477,12 @@ class Utils(Pixmap, ReadImage, ImgConvert, Err):
     def open_in_app(cls, path: str, app_path: str):
         subprocess.Popen(["open", "-a", app_path, path])
 
+    @classmethod
+    def print_error(self):
+        print()
+        print(traceback.format_exc())
+        print()
+
 
 class FitImg:   
     @classmethod
@@ -539,7 +490,7 @@ class FitImg:
         try:
             return cls.fit_image(image, size)
         except Exception as e:
-            Err.print_error(e)
+            Utils.print_error()
             return None
 
     @classmethod

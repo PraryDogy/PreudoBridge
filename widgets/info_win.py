@@ -30,12 +30,12 @@ class CalculatingTask(URunnable):
             else:
                 res = self.get_img_resol()
         except Exception as e:
-            Utils.print_error(e)
+            Utils.print_error()
             res = "Ошибка"
         try:
             self.signals_.finished_.emit(res)
         except RuntimeError as e:
-            Utils.print_error(e)
+            Utils.print_error()
 
     def get_img_resol(self):
         img_ = Utils.read_image(self.base_item.src)

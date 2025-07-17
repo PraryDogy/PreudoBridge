@@ -32,13 +32,13 @@ class RemoveFilesTask(URunnable):
                     else:
                         os.remove(i)
                 except Exception as e:
-                    Utils.print_error(e)
+                    Utils.print_error()
         except Exception as e:
-            Utils.print_error(e)
+            Utils.print_error()
         try:
             self.signals_.finished_.emit()
         except RuntimeError as e:
-            Utils.print_error(e)
+            Utils.print_error()
 
 
 

@@ -147,7 +147,7 @@ class ImageBaseItem:
             new_resol = f"{width}x{height}"
             return new_size, new_mod, new_resol
         except Exception as e:
-            Utils.print_error(e)
+            Utils.print_error()
             return 0, 0, ""
 
 
@@ -195,7 +195,7 @@ class LoadImages(URunnable):
         try:
             self.signals_.finished_.emit()
         except RuntimeError as e:
-            Utils.print_error(e)
+            Utils.print_error()
 
     def process_thumbs(self):
         """
@@ -218,7 +218,7 @@ class LoadImages(URunnable):
                 try:
                     self.signals_.update_thumb.emit(base_item)
                 except (TypeError, RuntimeError) as e:
-                    Utils.print_error(e)
+                    Utils.print_error()
                     return
                 
     def process_stmt_list(self):
@@ -449,7 +449,7 @@ class GridStandart(Grid):
                 thumb.set_image(pixmap)
                 self.loaded_images.append(thumb.src)
             except RuntimeError as e:
-                Utils.print_error(e)
+                Utils.print_error()
 
     def set_urls(self):
         """

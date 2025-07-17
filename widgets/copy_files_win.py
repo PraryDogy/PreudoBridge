@@ -46,12 +46,12 @@ class CopyFilesTask(URunnable):
                         break
 
         except OSError as e:
-            Utils.print_error(e)
+            Utils.print_error()
             try:
                 self.signals_.error_.emit()
             except RuntimeError as e:
                 # прерываем процесс, если родительский виджет был уничтожен
-                Utils.print_error(e)
+                Utils.print_error()
                 return
 
         # общий размер всех файлов в байтах
@@ -64,7 +64,7 @@ class CopyFilesTask(URunnable):
         try:
             self.signals_.set_max.emit(total_mb)
         except RuntimeError as e:
-            Utils.print_error(e)
+            Utils.print_error()
             return
 
         # сколько уже скопировано в байтах
@@ -80,10 +80,10 @@ class CopyFilesTask(URunnable):
             try:
                 self.copy_by_bytes(src, dest)
             except IOError as e:
-                Utils.print_error(e)
+                Utils.print_error()
                 continue
             except Exception as e:
-                Utils.print_error(e)
+                Utils.print_error()
                 self.signals_.error_.emit()
                 return
 
@@ -94,7 +94,7 @@ class CopyFilesTask(URunnable):
         try:
             self.signals_.finished_.emit(paths)
         except RuntimeError as e:
-            Utils.print_error(e)
+            Utils.print_error()
 
     def copy_by_bytes(self, src: str, dest: str):
         tmp = True
@@ -116,7 +116,7 @@ class CopyFilesTask(URunnable):
                     try:
                         self.report_progress()
                     except RuntimeError as e:
-                        Utils.print_error(e)
+                        Utils.print_error()
                         return
                     reported_bytes = 0
 
@@ -440,13 +440,13 @@ class CopyFilesWin(MinMaxDisabledWin):
         try:
             self.progressbar.setMaximum(abs(value))
         except RuntimeError as e:
-            Utils.print_error(e)
+            Utils.print_error()
 
     def set_value(self, value):
         try:
             self.progressbar.setValue(value)
         except RuntimeError as e:
-            Utils.print_error(e)
+            Utils.print_error()
 
     def cancel_cmd(self, *args):
         self.deleteLater()

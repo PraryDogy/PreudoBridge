@@ -74,7 +74,7 @@ class LoadThumbnail(URunnable):
         try:
             self.signals_.finished_.emit(image_data)
         except RuntimeError as e:
-            Utils.print_error(e)
+            Utils.print_error()
 
 
 class LoadImage(URunnable):

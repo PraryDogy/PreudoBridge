@@ -145,7 +145,7 @@ class RatingWid(QLabel):
                 mod_row = "\n".join((mod_row, sec_row))
             self.setText(mod_row)
         except Exception as e:
-            Utils.print_error(e)
+            Utils.print_error()
 
 
 class Thumb(BaseItem, QFrame):
@@ -394,7 +394,7 @@ class Grid(UScrollArea):
         try:
             self.path_bar_update.emit(src)
         except RuntimeError as e:
-            Utils.print_error(e)
+            Utils.print_error()
     
     def sort_thumbs(self):
         """
@@ -687,7 +687,7 @@ class Grid(UScrollArea):
             self.main_win_item.set_go_to(dest)
             self.load_st_grid.emit()
         except Exception as e:
-            Utils.print_error(e)
+            Utils.print_error()
 
     def set_new_rating(self, new_rating: int):
         """
@@ -867,7 +867,7 @@ class Grid(UScrollArea):
             current_pos = self.main_wid.mapFrom(self, a0.pos())
             distance = (current_pos - self.origin_pos).manhattanLength()
         except AttributeError as e:
-            Utils.print_error(e)
+            Utils.print_error()
             return
 
         if distance < QApplication.startDragDistance():

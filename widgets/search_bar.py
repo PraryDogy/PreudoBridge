@@ -118,7 +118,7 @@ class SearchBar(QFrame):
         try:
             self.on_pause_clicked.emit(self.pause_flag)
         except RuntimeError as e:
-            Utils.print_error(e)
+            Utils.print_error()
 
     def show(self):
         """

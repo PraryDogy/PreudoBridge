@@ -82,7 +82,7 @@ class Dbase:
             return engine
 
         except SQL_ERRORS as e:
-            error = Utils.print_error(e)
+            error = Utils.print_error()
 
             if "unable to open database file" in error:
                 return None
@@ -97,7 +97,7 @@ class Dbase:
         try:
             conn.commit()
         except SQL_ERRORS as e:
-            Utils.print_error(e)
+            Utils.print_error()
             conn.rollback()
 
     @classmethod
@@ -105,7 +105,7 @@ class Dbase:
         try:
             return conn.execute(query)
         except SQL_ERRORS as e:
-            Utils.print_error(e)
+            Utils.print_error()
             conn.rollback()
             return None
     
@@ -114,7 +114,7 @@ class Dbase:
         try:
             return engine.connect()
         except SQL_ERRORS as e:
-            Utils.print_error(e)
+            Utils.print_error()
             return None
     
     @classmethod
@@ -122,5 +122,5 @@ class Dbase:
         try:
             conn.close()
         except SQL_ERRORS as e:
-            Utils.print_error(e)
+            Utils.print_error()
             conn.rollback()
