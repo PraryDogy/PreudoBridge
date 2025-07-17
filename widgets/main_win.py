@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
 from cfg import JsonData, Static
 from system.items import MainWinItem, SearchItem, SortItem
 from system.paletes import UPallete
-from system.path_finder import PathFinder
+from system.tasks import PathFinderTask
 from system.utils import UThreadPool, Utils
 
 from ._base_widgets import USep, WinBase
@@ -298,9 +298,9 @@ class MainWin(WinBase):
         value: 0 = открыть путь в приложении, 1 = открыть путь к Finder
         """
         value, path = data
-        self.path_finder_task = PathFinder(path)
+        self.path_finder_task = PathFinderTask(path)
         cmd = lambda path: self.path_finder_finished(value, path)
-        self.path_finder_task.signals.finished_.connect(cmd)
+        self.path_finder_task.signals_.finished_.connect(cmd)
         UThreadPool.start(self.path_finder_task)
 
     def path_finder_finished(self, value: int, path: str):

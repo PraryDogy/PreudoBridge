@@ -15,6 +15,7 @@ from cfg import JsonData, Static, ThumbData
 from .database import CACHE, Dbase
 from .items import (AnyBaseItem, BaseItem, ImageBaseItem, MainWinItem,
                     SearchItem, SortItem)
+from .path_finder import PathFinder
 from .utils import FitImg, UImage, URunnable, Utils
 
 
@@ -864,3 +865,22 @@ class RemoveFilesTask(URunnable):
             self.signals_.finished_.emit()
         except RuntimeError as e:
             Utils.print_error()
+
+
+class _PathFinderSigs(QObject):
+    finished_ = pyqtSignal(str)
+
+
+class PathFinderTask(URunnable):
+    def __init__(self, path: str):
+        super().__init__()
+        self.path = path
+        self.path_finder = PathFinder(path)
+        self.signals_ = _PathFinderSigs()
+
+    def task(self):
+        result = self.path_finder.get_result()
+        if result is None:
+            result = ""
+        
+        self.signals_.finished_.emit(result)
