@@ -56,7 +56,7 @@ from PyQt5.QtWidgets import QApplication
 
 from cfg import Dynamic, JsonData
 from system.utils import UThreadPool, Utils
-from widgets._base_widgets import BaseItem, WinBase
+from widgets._base_widgets import WinBase
 from widgets.main_win import MainWin
 
 
@@ -86,6 +86,7 @@ class CustomApp(QApplication):
         # вероятно предотвращает segmentation fault / bus error
         self.removeEventFilter(self)
         JsonData.write_config()
+        QApplication.quit()
 
 
 faulthandler.enable()

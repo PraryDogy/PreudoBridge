@@ -2,7 +2,7 @@ import gc
 import os
 
 import sqlalchemy
-from PyQt5.QtCore import QEvent, QObject, QPoint, QSize, Qt, QTimer, pyqtSignal
+from PyQt5.QtCore import QEvent, QPoint, QSize, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import (QColor, QContextMenuEvent, QKeyEvent, QMouseEvent,
                          QPainter, QPaintEvent, QPixmap, QPixmapCache,
                          QResizeEvent)
@@ -10,104 +10,13 @@ from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QSpacerItem,
                              QVBoxLayout, QWidget)
 
 from cfg import Static
-from system.database import CACHE, Dbase
-from system.utils import UImage, URunnable, UThreadPool, Utils
+from system.tasks import LoadImage, LoadThumb
+from system.utils import UThreadPool
 
 from ._base_widgets import UMenu, USvgSqareWidget, WinBase
 from .actions import ItemActions
 from .grid import KEY_RATING, RATINGS, Thumb
 from .info_win import InfoWin
-
-
-class ImageData:
-    __slots__ = ["src", "width", "pixmap"]
-    
-    def __init__(self, src: str, pixmap: QPixmap):
-        self.src: str = src
-        self.pixmap: QPixmap = pixmap
-
-
-class WorkerSignals(QObject):
-    finished_ = pyqtSignal(ImageData)
-
-
-class LoadThumbnail(URunnable):
-    def __init__(self, src: str):
-        super().__init__()
-        self.signals_ = WorkerSignals()
-        self.src = Utils.normalize_slash(src)
-        self.name = os.path.basename(self.src)
-
-    def task(self):
-        db = os.path.join(os.path.dirname(self.src), Static.DB_FILENAME)
-        dbase = Dbase()
-        engine = dbase.create_engine(path=db)
-
-        if engine is None:
-            image_data = ImageData(self.src, None)
-            self.signals_.finished_.emit(image_data)
-            return
-
-        conn = Dbase.open_connection(engine)
-
-        q = sqlalchemy.select(CACHE.c.img)
-        q = q.where(CACHE.c.name == Utils.get_hash_filename(self.name))
-        res = conn.execute(q).scalar() or None
-
-        Dbase.close_connection(conn)
-
-        if res is not None:
-            img_array = UImage.bytes_to_array(res)
-            img_array = UImage.desaturate_image(img_array, 0.2)
-        else:
-            img_array = None
-
-        if img_array is None:
-            pixmap = None
-
-        else:
-            pixmap = UImage.pixmap_from_array(img_array)
-
-        image_data = ImageData(self.src, pixmap)
-
-        try:
-            self.signals_.finished_.emit(image_data)
-        except RuntimeError as e:
-            Utils.print_error()
-
-
-class LoadImage(URunnable):
-    cache_limit = 15
-    cached_images: dict[str, QPixmap] = {}
-
-    def __init__(self, src: str):
-        super().__init__()
-        self.signals_ = WorkerSignals()
-        self.src: str = src
-
-    def task(self):
-        if self.src not in self.cached_images:
-
-            img_array = UImage.read_image(self.src)
-            img_array = UImage.desaturate_image(img_array, 0.2)
-
-            if img_array is None:
-                pixmap = None
-
-            else:
-                pixmap = UImage.pixmap_from_array(img_array)
-                self.cached_images[self.src] = pixmap
-
-            del img_array
-            gc.collect()
-
-        else:
-            pixmap = self.cached_images.get(self.src)
-        if len(self.cached_images) > self.cache_limit:
-            self.cached_images.pop(list(self.cached_images)[0])
-
-        image_data = ImageData(self.src, pixmap)
-        self.signals_.finished_.emit(image_data)
 
 
 class ImgWid(QLabel):
@@ -345,7 +254,7 @@ class ImgViewWin(WinBase):
 
     def load_thumbnail(self):
         if self.current_path not in LoadImage.cached_images:
-            self.task_ = LoadThumbnail(self.current_path)
+            self.task_ = LoadThumb(self.current_path)
             cmd_ = lambda image_data: self.load_thumbnail_finished(image_data)
             self.task_.signals_.finished_.connect(cmd_)
             UThreadPool.start(self.task_)
@@ -361,12 +270,13 @@ class ImgViewWin(WinBase):
         self.loading_label.setText(text)
         self.loading_label.show()
 
-    def load_thumbnail_finished(self, image_data: ImageData):
-        if image_data.pixmap is None:
+    def load_thumbnail_finished(self, image_data: tuple[str, QPixmap]):
+        src, pixmap = image_data
+        if pixmap is None:
             self.show_text_label(ImgViewWin.loading_text)
 
-        elif image_data.src == self.current_path:
-            self.img_wid.set_image(image_data.pixmap)
+        elif src == self.current_path:
+            self.img_wid.set_image(pixmap)
 
         self.load_image()
 
@@ -377,13 +287,14 @@ class ImgViewWin(WinBase):
         task_.signals_.finished_.connect(cmd_)
         UThreadPool.start(task_)
 
-    def load_image_finished(self, image_data: ImageData):
+    def load_image_finished(self, image_data: tuple[str, QPixmap]):
+        src, pixmap = image_data
         self.task_count -= 1
         self.loading_label.hide()
-        if image_data.pixmap is None:
+        if pixmap is None:
             self.show_text_label(ImgViewWin.error_text)
-        elif image_data.src == self.current_path:
-            self.img_wid.set_image(image_data.pixmap)
+        elif src == self.current_path:
+            self.img_wid.set_image(pixmap)
 
 
 # GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI

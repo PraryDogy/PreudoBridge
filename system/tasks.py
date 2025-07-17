@@ -1,9 +1,11 @@
 import difflib
+import gc
 import os
 from time import sleep
 
 import sqlalchemy
 from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtGui import QPixmap
 from PyQt5.QtTest import QTest
 from sqlalchemy.exc import IntegrityError, OperationalError
 
@@ -633,3 +635,87 @@ class LoadImages(URunnable):
             if not Dbase.execute_(self.conn, stmt):
                 return
         Dbase.commit_(self.conn)
+
+
+
+class _LoadThumbSigs(QObject):
+    finished_ = pyqtSignal(tuple)
+
+
+class LoadThumb(URunnable):
+    def __init__(self, src: str):
+        super().__init__()
+        self.signals_ = _LoadThumbSigs()
+        self.src = Utils.normalize_slash(src)
+        self.name = os.path.basename(self.src)
+
+    def task(self):
+        db = os.path.join(os.path.dirname(self.src), Static.DB_FILENAME)
+        dbase = Dbase()
+        engine = dbase.create_engine(path=db)
+
+        if engine is None:
+            image_data = (self.src, None)
+            self.signals_.finished_.emit(image_data)
+            return
+
+        conn = Dbase.open_connection(engine)
+
+        q = sqlalchemy.select(CACHE.c.img)
+        q = q.where(CACHE.c.name == Utils.get_hash_filename(self.name))
+        res = conn.execute(q).scalar() or None
+
+        Dbase.close_connection(conn)
+
+        if res is not None:
+            img_array = UImage.bytes_to_array(res)
+            img_array = UImage.desaturate_image(img_array, 0.2)
+        else:
+            img_array = None
+
+        if img_array is None:
+            pixmap = None
+
+        else:
+            pixmap = UImage.pixmap_from_array(img_array)
+
+        image_data = (self.src, pixmap)
+
+        try:
+            self.signals_.finished_.emit(image_data)
+        except RuntimeError as e:
+            Utils.print_error()
+
+
+class LoadImage(URunnable):
+    cache_limit = 15
+    cached_images: dict[str, QPixmap] = {}
+
+    def __init__(self, src: str):
+        super().__init__()
+        self.signals_ = _LoadThumbSigs()
+        self.src: str = src
+
+    def task(self):
+        if self.src not in self.cached_images:
+
+            img_array = UImage.read_image(self.src)
+            img_array = UImage.desaturate_image(img_array, 0.2)
+
+            if img_array is None:
+                pixmap = None
+
+            else:
+                pixmap = UImage.pixmap_from_array(img_array)
+                self.cached_images[self.src] = pixmap
+
+            del img_array
+            gc.collect()
+
+        else:
+            pixmap = self.cached_images.get(self.src)
+        if len(self.cached_images) > self.cache_limit:
+            self.cached_images.pop(list(self.cached_images)[0])
+
+        image_data = (self.src, pixmap)
+        self.signals_.finished_.emit(image_data)
