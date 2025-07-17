@@ -6,6 +6,7 @@ from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import (QCloseEvent, QKeyEvent, QMouseEvent, QPalette,
                          QResizeEvent)
 from PyQt5.QtSvg import QSvgWidget
+from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
 
@@ -493,6 +494,8 @@ class MainWin(WinBase):
     def on_exit(self):
         for task in UThreadPool.tasks:
             task.set_should_run(False)
+        while not all(task.is_finished() for task in UThreadPool.tasks):
+            QTest.qSleep(100)
         JsonData.write_config()
     
     def resizeEvent(self, a0: QResizeEvent | None) -> None:

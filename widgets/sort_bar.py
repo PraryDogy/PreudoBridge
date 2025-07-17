@@ -158,6 +158,36 @@ class CustomSlider(USlider):
         self.setValue(value)
 
 
+class FastSort(UFrame):
+    sort_thumbs = pyqtSignal()
+    rearrange_thumbs = pyqtSignal()
+
+    def __init__(self, sort_item: SortItem):
+        super().__init__()
+        self.h_lay = QHBoxLayout()
+        self.h_lay.setSpacing(0)
+        self.h_lay.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(self.h_lay)
+
+        self.sort_item = sort_item
+
+        self.text_label = QLabel("test")
+        self.text_label.mouseReleaseEvent = lambda e: self.cmd_()
+        self.h_lay.addWidget(self.text_label)
+
+    def cmd_(self):
+        sort = self.sort_item.get_sort()
+        if sort != SortItem.name:
+            self.sort_item.set_sort(SortItem.name)
+            self.sort_item.set_rev(False)
+        else:
+            self.sort_item.set_sort(SortItem.mod)
+            self.sort_item.set_rev(False)
+
+        self.sort_thumbs.emit()
+        self.rearrange_thumbs.emit()
+3333
+
 class SortBar(QWidget):
     load_st_grid = pyqtSignal()
     sort_thumbs = pyqtSignal()
@@ -189,6 +219,10 @@ class SortBar(QWidget):
         self.create_go_to_button()
         self.main_lay.addStretch()
         self.create_sort_button()
+
+        self.fast_sort = FastSort(self.sort_item)
+        self.main_lay.addWidget(self.fast_sort)
+
         self.main_lay.addStretch()
         self.create_slider()
 
