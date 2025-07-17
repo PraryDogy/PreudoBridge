@@ -190,10 +190,10 @@ class MainWin(WinBase):
         sep = USep()
         self.sort_bar = SortBar(self.sort_item, self.main_win_item)
 
-        self.temp_wid = QLabel()
+        self.fast_sort_wid = QLabel()
         self.temp_wid_timer = QTimer(self)
         self.temp_wid_timer.setSingleShot(True)
-        self.temp_wid_timer.timeout.connect(lambda: self.temp_wid.hide())
+        self.temp_wid_timer.timeout.connect(lambda: self.fast_sort_wid.hide())
 
         self.splitter.addWidget(left_wid)
         self.splitter.addWidget(right_wid)
@@ -515,10 +515,10 @@ class MainWin(WinBase):
         rev_name = "по убыв." if self.sort_item.get_rev() else "по возр."
         text = f"Сортировка: {sort_name} ({rev_name})"
 
-        self.temp_wid.setParent(parent)
-        self.temp_wid.setText(text)
+        self.fast_sort_wid.setParent(parent)
+        self.fast_sort_wid.setText(text)
 
-        self.temp_wid.setStyleSheet("""
+        self.fast_sort_wid.setStyleSheet("""
             QLabel {
                 background: rgba(128, 128, 128, 0.5);
                 font-weight: bold;
@@ -528,12 +528,12 @@ class MainWin(WinBase):
             }
         """)
 
-        self.temp_wid.adjustSize()
+        self.fast_sort_wid.adjustSize()
         pw, ph = parent.width(), parent.height()
-        tw, th = self.temp_wid.width(), self.temp_wid.height()
-        self.temp_wid.move((pw - tw) // 2, (ph - th) // 2)
+        tw, th = self.fast_sort_wid.width(), self.fast_sort_wid.height()
+        self.fast_sort_wid.move((pw - tw) // 2, (ph - th) // 2)
 
-        self.temp_wid.show()
+        self.fast_sort_wid.show()
         self.temp_wid_timer.stop()
         self.temp_wid_timer.start(1000)
 
