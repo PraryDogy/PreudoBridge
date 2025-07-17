@@ -1,18 +1,16 @@
 import os
 
-from PyQt5.QtCore import QObject, Qt, pyqtSignal
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import QAction, QGridLayout, QLabel
 
 from cfg import Static
 from system.items import BaseItem
-from system.utils import UImage, URunnable, UThreadPool, Utils
+from system.tasks import FolderSizeTask, ImgResolTask, InfoTask
+from system.utils import UThreadPool
 
 from ._base_widgets import MinMaxDisabledWin, UMenu
 from .actions import CopyText, RevealInFinder
-
-
-
 
 
 class SelectableLabel(QLabel):
