@@ -161,6 +161,7 @@ class CustomSlider(USlider):
 class FastSort(UFrame):
     sort_thumbs = pyqtSignal()
     rearrange_thumbs = pyqtSignal()
+    change_sort_text = pyqtSignal()
 
     def __init__(self, sort_item: SortItem):
         super().__init__()
@@ -186,6 +187,7 @@ class FastSort(UFrame):
 
         self.sort_thumbs.emit()
         self.rearrange_thumbs.emit()
+        self.change_sort_text.emit()
 
 
 class SortBar(QWidget):
@@ -241,6 +243,7 @@ class SortBar(QWidget):
         self.fast_sort = FastSort(self.sort_item)
         self.fast_sort.sort_thumbs.connect(lambda: self.sort_thumbs.emit())
         self.fast_sort.rearrange_thumbs.connect(lambda: self.rearrange_thumbs.emit())
+        self.fast_sort.change_sort_text.connect(lambda: self.sort_frame.set_sort_text())
         self.main_lay.addWidget(self.fast_sort)
 
     def create_sort_button(self):
