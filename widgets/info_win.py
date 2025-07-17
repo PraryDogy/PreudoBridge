@@ -32,16 +32,28 @@ class ImgResolTask(URunnable):
             resol= f"{w}x{h}"
         else:
             resol = self.undef_text
-        return resol
+        
+        self.signals_.finished_calc.emit(resol)
 
 
 class FolderSizeTask(URunnable):
+    undef_text = "Неизвестно"
+
     def __init__(self, base_item: BaseItem):
         super().__init__()
         self.base_item = base_item
         self.signals_ = _InfoTaskSigs()
 
     def task(self):
+        try:
+            total = self.get_folder_size()
+        except Exception:
+            Utils.print_error()
+            total = self.undef_text
+
+        self.signals_.finished_calc.emit(total)
+
+    def get_folder_size(self):
         total = 0
         stack = []
         stack.append(self.base_item.src)
@@ -53,8 +65,8 @@ class FolderSizeTask(URunnable):
                         stack.append(entry.path)
                     else:
                         total += entry.stat().st_size
-        total = Utils.get_f_size(total)
-        return total
+        return Utils.get_f_size(total)
+
 
 
 class InfoTask(URunnable):
@@ -185,20 +197,18 @@ class InfoWin(MinMaxDisabledWin):
         self.adjustSize()
         self.finished_.emit()
 
+        if self.base_item.type_ == Static.FOLDER_TYPE:
+            self.calc_task = FolderSizeTask(self.base_item)
+        else:
+            self.calc_task = ImgResolTask(self.base_item)
+
+        self.calc_task.signals_.finished_calc.connect(lambda res: self.finalize(res))
+        UThreadPool.start(self.calc_task)
+
 
     def finalize(self, result: str):
-        # лейбл с динамической переменной у нас всегда самый последний в
-        # списке виджетов
-        # то есть разрешение фотографии или размер папки
-        # смотри InfoTask - как формируется результат
         label = self.findChildren(SelectableLabel)[-1]
-        left_label = self.findChildren(SelectableLabel)[-2]
         label.setText(result)
-
-        if result == UNDEFINED:
-            label.hide()
-            left_label.hide()
-            self.adjustSize()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() in (Qt.Key.Key_Escape, Qt.Key.Key_Return):
