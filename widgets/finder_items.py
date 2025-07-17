@@ -5,12 +5,11 @@ from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtWidgets import QLabel, QWidget
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from cfg import Static, JsonData
+from cfg import JsonData, Static
 from system.database import CACHE, Dbase
 from system.utils import Utils
 
-from ._base_items import (BaseItem, MainWinItem, SortItem, URunnable,
-                          UThreadPool)
+from ._base_items import BaseItem, MainWinItem, SortItem, URunnable
 
 
 class WorkerSignals(QObject):

@@ -1,6 +1,5 @@
 import gc
 import os
-import subprocess
 
 from PyQt5.QtCore import (QDir, QItemSelectionModel, QMimeData, QModelIndex,
                           Qt, QTimer, QUrl)

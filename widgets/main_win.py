@@ -2,7 +2,7 @@ import gc
 import os
 import subprocess
 
-from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
+from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import (QCloseEvent, QKeyEvent, QMouseEvent, QPalette,
                          QResizeEvent)
 from PyQt5.QtSvg import QSvgWidget
@@ -13,8 +13,8 @@ from cfg import JsonData, Static
 from system.paletes import UPallete
 from system.utils import Utils
 
-from ._base_items import (BaseItem, MainWinItem, SearchItem, SortItem,
-                          URunnable, USep, UThreadPool, WinBase)
+from ._base_items import (MainWinItem, SearchItem, SortItem, USep, UThreadPool,
+                          WinBase)
 from ._tasks import PathFinder
 from .favs_menu import FavsMenu
 from .go_win import GoToWin

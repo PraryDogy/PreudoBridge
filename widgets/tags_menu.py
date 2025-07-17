@@ -1,5 +1,5 @@
 from PyQt5.QtCore import QSize, Qt, pyqtSignal
-from PyQt5.QtWidgets import QAction, QListWidget, QListWidgetItem, QMenu
+from PyQt5.QtWidgets import QAction, QListWidget, QListWidgetItem
 
 from cfg import Dynamic, Static
 

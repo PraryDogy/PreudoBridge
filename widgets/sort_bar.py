@@ -1,17 +1,11 @@
-import os
-import subprocess
-
-from PyQt5.QtCore import QObject, QPoint, Qt, pyqtSignal
-from PyQt5.QtGui import QKeyEvent, QMouseEvent
-from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
-                             QWidget)
+from PyQt5.QtCore import QPoint, Qt, pyqtSignal
+from PyQt5.QtGui import QMouseEvent
+from PyQt5.QtWidgets import QHBoxLayout, QLabel, QWidget
 
 from cfg import Dynamic, Static, ThumbData
-from system.utils import Utils
 
-from ._base_items import (MainWinItem, MinMaxDisabledWin, SortItem, UFrame,
-                          ULineEdit, URunnable, USlider, USvgSqareWidget,
-                          UThreadPool)
+from ._base_items import (MainWinItem, SortItem, UFrame, USlider,
+                          USvgSqareWidget)
 from .actions import SortMenu
 
 

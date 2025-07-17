@@ -1,20 +1,15 @@
-import os
-import shutil
 import subprocess
 from datetime import datetime
 
-from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import QKeyEvent, QPalette
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QApplication, QCheckBox, QFrame, QGroupBox,
-                             QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
-                             QWidget)
+from PyQt5.QtWidgets import (QCheckBox, QFrame, QGroupBox, QHBoxLayout, QLabel,
+                             QPushButton, QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
-from system.paletes import UPallete
 
-from ._base_items import (MinMaxDisabledWin, URunnable, USvgSqareWidget,
-                          UThreadPool)
+from ._base_items import MinMaxDisabledWin, USvgSqareWidget
 
 LEFT_W = 110
 

@@ -1,14 +1,15 @@
 import os
+from time import sleep
 
 from PyQt5.QtCore import QObject, Qt, pyqtSignal
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QPushButton,
                              QVBoxLayout, QWidget)
-from time import sleep
+
 from cfg import Static
 from system.utils import Utils
 
-from ._base_items import (MainWinItem, MinMaxDisabledWin, URunnable,
-                          USvgSqareWidget, UThreadPool)
+from ._base_items import (MinMaxDisabledWin, URunnable, USvgSqareWidget,
+                          UThreadPool)
 
 
 class CopyFilesSignals(QObject):

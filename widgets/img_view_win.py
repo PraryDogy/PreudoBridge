@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QSpacerItem,
 
 from cfg import Static
 from system.database import CACHE, Dbase
-from system.utils import Pixmap, Utils, UImage
+from system.utils import UImage, Utils
 
 from ._base_items import (UMenu, URunnable, USvgSqareWidget, UThreadPool,
                           WinBase)

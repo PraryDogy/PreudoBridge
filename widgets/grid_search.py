@@ -1,7 +1,5 @@
 import difflib
 import os
-import weakref
-from difflib import SequenceMatcher
 
 from PyQt5.QtCore import QObject, Qt, QTimer, pyqtSignal
 from PyQt5.QtTest import QTest
@@ -9,7 +7,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
 
 from cfg import Dynamic, Static, ThumbData
-from system.utils import FitImg, Utils, UImage, Pixmap
+from system.utils import FitImg, UImage, Utils
 
 from ._base_items import (BaseItem, MainWinItem, MinMaxDisabledWin, SearchItem,
                           URunnable, USvgSqareWidget, UTextEdit, UThreadPool)

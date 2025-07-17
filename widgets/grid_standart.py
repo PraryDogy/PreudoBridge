@@ -9,7 +9,7 @@ from sqlalchemy import (Connection, Insert, RowMapping, Update, insert, select,
 
 from cfg import Dynamic, Static, ThumbData
 from system.database import CACHE, ColumnNames, Dbase
-from system.utils import FitImg, Pixmap, UImage, Utils
+from system.utils import FitImg, UImage, Utils
 
 from ._base_items import BaseItem, MainWinItem, URunnable, UThreadPool
 from .finder_items import FinderItems, LoadingWid

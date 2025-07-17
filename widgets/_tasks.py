@@ -1,10 +1,7 @@
-import os
-
 from PyQt5.QtCore import QObject, pyqtSignal
 
 from cfg import Static
 from system.path_finder import PathFinder as PathFinder_
-from system.utils import Utils
 
 from ._base_items import URunnable
 

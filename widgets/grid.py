@@ -1,6 +1,5 @@
 import gc
 import os
-import subprocess
 
 import sqlalchemy
 from PyQt5.QtCore import (QMimeData, QObject, QPoint, QRect, QSize, Qt, QTimer,
@@ -13,7 +12,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
 
 from cfg import Dynamic, JsonData, Static, ThumbData
 from system.database import CACHE, Dbase
-from system.utils import Pixmap, Utils
+from system.utils import UImage, Utils
 
 from ._base_items import (BaseItem, MainWinItem, SortItem, UMenu, URunnable,
                           UScrollArea, UThreadPool)
@@ -221,7 +220,7 @@ class Thumb(BaseItem, QFrame):
 
         self.img_wid = QLabel()
         self.img_wid.setPixmap(
-            Pixmap.pixmap_scale(pixmap, Thumb.pixmap_size)
+            UImage.pixmap_scale(pixmap, Thumb.pixmap_size)
         )
         self.img_frame_lay.addWidget(
             self.img_wid,
@@ -246,7 +245,7 @@ class Thumb(BaseItem, QFrame):
 
         pixmap_ = self.get_pixmap_storage()
         if pixmap_:
-            pixmap =  Pixmap.pixmap_scale(pixmap_, Thumb.pixmap_size)
+            pixmap =  UImage.pixmap_scale(pixmap_, Thumb.pixmap_size)
             self.img_wid.setPixmap(pixmap)
             self.img_wid.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
