@@ -11,43 +11,37 @@ from system.utils import UImage, URunnable, UThreadPool, Utils
 from ._base_widgets import MinMaxDisabledWin, UMenu
 from .actions import CopyText, RevealInFinder
 
-UNDEFINED = "Неизвестно"
 
 class _InfoTaskSigs(QObject):
     finished_info = pyqtSignal(dict)
     finished_calc = pyqtSignal(str)
 
 
-class CalculatingTask(URunnable):
+class ImgResolTask(URunnable):
+    undef_text = "Неизвестно"
+
     def __init__(self, base_item: BaseItem):
         super().__init__()
         self.base_item = base_item
         self.signals_ = _InfoTaskSigs()
 
     def task(self):
-        try:
-            if self.base_item.type_ == Static.FOLDER_TYPE:
-                res = self.get_folder_size()
-            else:
-                res = self.get_img_resol()
-        except Exception as e:
-            Utils.print_error()
-            res = "Ошибка"
-        try:
-            self.signals_.finished_.emit(res)
-        except RuntimeError as e:
-            Utils.print_error()
-
-    def get_img_resol(self):
         img_ = UImage.read_image(self.base_item.src)
         if img_ is not None and len(img_.shape) > 1:
             h, w = img_.shape[0], img_.shape[1]
             resol= f"{w}x{h}"
         else:
-            resol = UNDEFINED
+            resol = self.undef_text
         return resol
 
-    def get_folder_size(self):
+
+class FolderSizeTask(URunnable):
+    def __init__(self, base_item: BaseItem):
+        super().__init__()
+        self.base_item = base_item
+        self.signals_ = _InfoTaskSigs()
+
+    def task(self):
         total = 0
         stack = []
         stack.append(self.base_item.src)
@@ -74,13 +68,12 @@ class InfoTask(URunnable):
     resol_text = "Разрешение"
     row_limit = 50
 
-    def __init__(self, src: str):
+    def __init__(self, base_item: BaseItem):
         super().__init__()
-        self.base_item = BaseItem(src)
+        self.base_item = base_item
         self.signals = _InfoTaskSigs()
 
     def task(self) -> dict[str, str| int]:
-
         self.base_item.setup_attrs()
 
         if self.base_item.type_ == Static.FOLDER_TYPE:
@@ -102,7 +95,7 @@ class InfoTask(URunnable):
             InfoTask.size_text: size_,
             }
         
-        if self.base_item != Static.FOLDER_TYPE:
+        if self.base_item.type_ != Static.FOLDER_TYPE:
             data.update({InfoTask.resol_text: self.calculating})
 
         self.signals.finished_info.emit(data)
@@ -116,9 +109,6 @@ class InfoTask(URunnable):
             return "\n".join(text)
         else:
             return text
-        
-    def get_base_item(self):
-        return self.base_item
 
 
 class SelectableLabel(QLabel):
@@ -165,6 +155,7 @@ class InfoWin(MinMaxDisabledWin):
         self.set_modality()
 
         self.src = src
+        self.base_item = BaseItem(self.src)
 
         self.grid_layout = QGridLayout()
         self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
@@ -172,7 +163,7 @@ class InfoWin(MinMaxDisabledWin):
         self.grid_layout.setSpacing(5)
         self.setLayout(self.grid_layout)
 
-        self.info_task = InfoTask(self.src)
+        self.info_task = InfoTask(self.base_item)
         self.info_task.signals.finished_info.connect(lambda data: self.init_ui(data))
         UThreadPool.start(self.info_task)
 
@@ -194,10 +185,6 @@ class InfoWin(MinMaxDisabledWin):
         self.adjustSize()
         self.finished_.emit()
 
-        # cmd_ = lambda result: self.finalize(result)
-        # task_ = CalculatingTask(base_item)
-        # task_.signals_.finished_.connect(cmd_)
-        # UThreadPool.start(task_)
 
     def finalize(self, result: str):
         # лейбл с динамической переменной у нас всегда самый последний в
