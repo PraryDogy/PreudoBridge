@@ -1,6 +1,7 @@
 import difflib
 import gc
 import os
+import shutil
 from time import sleep
 
 import sqlalchemy
@@ -829,3 +830,32 @@ class InfoTask(URunnable):
             return "\n".join(text)
         else:
             return text
+        
+
+class _RemoveFilesSigs(QObject):
+    finished_ = pyqtSignal()
+
+
+class RemoveFilesTask(URunnable):
+    def __init__(self, main_dir: str, urls: list[str]):
+        super().__init__()
+        self.signals_ = _RemoveFilesSigs()
+        self.main_dir = main_dir
+        self.urls = urls
+
+    def task(self):
+        try:
+            for i in self.urls:
+                try:
+                    if os.path.isdir(i):
+                        shutil.rmtree(i)
+                    else:
+                        os.remove(i)
+                except Exception as e:
+                    Utils.print_error()
+        except Exception as e:
+            Utils.print_error()
+        try:
+            self.signals_.finished_.emit()
+        except RuntimeError as e:
+            Utils.print_error()
