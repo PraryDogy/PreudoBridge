@@ -10,7 +10,8 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 from cfg import JsonData, Static, ThumbData
 
 from .database import CACHE, Dbase
-from .items import BaseItem, MainWinItem, SearchItem, SortItem
+from .items import (AnyBaseItem, BaseItem, ImageBaseItem, MainWinItem,
+                    SearchItem, SortItem)
 from .utils import FitImg, UImage, URunnable, Utils
 
 
@@ -555,3 +556,80 @@ class FinderItems(URunnable):
                 item.setup_attrs()
                 base_items.append(item)
         return base_items, []
+    
+
+class _LoadImagesSigs(QObject):
+    update_thumb = pyqtSignal(BaseItem)
+    finished_ = pyqtSignal()
+
+
+class LoadImages(URunnable):
+    def __init__(self, main_win_item: MainWinItem, thumbs: list[Thumb]):
+        """
+        URunnable   
+        Сортирует список Thumb по размеру по возрастанию для ускорения загрузки
+        Загружает изображения из базы данных или создает новые
+        """
+        super().__init__()
+        self.signals_ = _LoadImagesSigs()
+        self.main_win_item = main_win_item
+        self.stmt_list: list[sqlalchemy.Insert | sqlalchemy.Update] = []
+        self.thumbs = thumbs
+        key_ = lambda x: x.size
+        self.thumbs.sort(key=key_)
+
+    def task(self):
+        """
+        Создает подключение к базе данных   
+        Запускает обход списка Thumb для загрузки изображений   
+        Испускает сигнал finished_
+        """
+        if not self.thumbs:
+            return
+
+        db = os.path.join(self.main_win_item.main_dir, Static.DB_FILENAME)
+        self.dbase = Dbase()
+        engine = self.dbase.create_engine(db)
+
+        if engine is None:
+            return
+
+        self.conn = Dbase.open_connection(engine)
+        self.process_thumbs()
+        self.process_stmt_list()
+
+        Dbase.close_connection(self.conn)
+        try:
+            self.signals_.finished_.emit()
+        except RuntimeError as e:
+            Utils.print_error()
+
+    def process_thumbs(self):
+        """
+        Обходит циклом список Thumb     
+        Пытается загрузить изображение из базы данных или создает новое,
+        чтобы передать его в Thumb
+        """
+        for base_item in self.thumbs:
+            if not self.is_should_run():
+                return  
+            if base_item.type_ not in Static.ext_all:
+                stmt, _ = AnyBaseItem.check_db_record(self.conn, base_item)
+                if isinstance(stmt, sqlalchemy.Insert):
+                    self.stmt_list.append(stmt)
+            else:
+                stmt, pixmap = ImageBaseItem.get_pixmap(self.conn, base_item)
+                base_item.set_pixmap_storage(pixmap)
+                if isinstance(stmt, (sqlalchemy.Insert, sqlalchemy.Update)):
+                    self.stmt_list.append(stmt)
+                try:
+                    self.signals_.update_thumb.emit(base_item)
+                except (TypeError, RuntimeError) as e:
+                    Utils.print_error()
+                    return
+                
+    def process_stmt_list(self):
+        for stmt in self.stmt_list:
+            if not Dbase.execute_(self.conn, stmt):
+                return
+        Dbase.commit_(self.conn)
