@@ -1,3 +1,4 @@
+import gc
 import hashlib
 import io
 import logging
@@ -14,7 +15,8 @@ import rawpy._rawpy
 import tifffile
 from imagecodecs.imagecodecs import DelayedImportError
 from PIL import Image
-from PyQt5.QtCore import QRect, QRectF, QRunnable, QSize, Qt, QThreadPool
+from PyQt5.QtCore import (QRect, QRectF, QRunnable, QSize, Qt, QThreadPool,
+                          QTimer)
 from PyQt5.QtGui import QColor, QFont, QImage, QPainter, QPixmap
 from PyQt5.QtSvg import QSvgGenerator, QSvgRenderer
 from PyQt5.QtWidgets import QApplication
@@ -530,15 +532,15 @@ class URunnable(QRunnable):
             self.task()
         finally:
             self.set_finished(True)
-            # if self in UThreadPool.tasks:
-                # QTimer.singleShot(5000, lambda: self.task_fin())
+            if self in UThreadPool.tasks:
+                QTimer.singleShot(5000, lambda: self.task_fin())
 
     def task(self):
         raise NotImplementedError("Переопредели метод task() в подклассе.")
     
-    # def task_fin(self):
-    #     UThreadPool.tasks.remove(self)
-    #     gc.collect()
+    def task_fin(self):
+        UThreadPool.tasks.remove(self)
+        gc.collect()
 
 
 class UThreadPool:

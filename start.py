@@ -62,11 +62,15 @@ from widgets.main_win import MainWin
 class CustomApp(QApplication):
     def __init__(self, argv: list[str]) -> None:
         super().__init__(argv)
+        faulthandler.enable()
+        JsonData.init()
+        UThreadPool.init()
+        Dynamic.image_apps = Utils.get_image_apps()
 
-        self.first_win = MainWin()
-        self.first_win.show()
+        self.main_win = MainWin()
+        self.main_win.show()
 
-        self.aboutToQuit.connect(self.on_exit)
+        self.aboutToQuit.connect(lambda: self.main_win.on_exit())
         self.installEventFilter(self)
 
     def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
@@ -79,9 +83,5 @@ class CustomApp(QApplication):
         JsonData.write_config()
 
 
-faulthandler.enable()
-JsonData.init()
-UThreadPool.init()
-Dynamic.image_apps = Utils.get_image_apps()
 app = CustomApp(argv=sys.argv)
-app.exec_()
+app.exec()

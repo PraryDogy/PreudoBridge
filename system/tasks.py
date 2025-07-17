@@ -313,6 +313,8 @@ class SearchTask(URunnable):
             self.signals_.finished_.emit(missed_files_list)
         except RuntimeError as e:
             Utils.print_error()
+            self.set_should_run(False)
+
 
     def setup_search(self):
         if isinstance(self.search_item.get_content(), list):

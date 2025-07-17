@@ -489,6 +489,11 @@ class MainWin(WinBase):
             self.scroll_up.hide()
         else:
             self.scroll_up.show()
+
+    def on_exit(self):
+        for task in UThreadPool.tasks:
+            task.set_should_run(False)
+        JsonData.write_config()
     
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         MainWin.width_ = self.geometry().width()
