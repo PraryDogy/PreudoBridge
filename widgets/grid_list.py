@@ -187,7 +187,13 @@ class GridList(UTableView):
         ...
 
     def win_info_cmd(self, src: str):
+        """
+        Открыть окно информации о файле / папке
+        """
         self.win_info = InfoWin(src)
+        self.win_info.finished_.connect(lambda: self.win_info_fin())
+
+    def win_info_fin(self):
         self.win_info.center(self.window())
         self.win_info.show()
 

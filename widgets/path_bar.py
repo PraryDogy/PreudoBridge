@@ -101,9 +101,12 @@ class PathItem(QWidget):
 
     def win_info_cmd(self):
         """
-        Открывает меню информации о файле / папке
+        Открыть окно информации о файле / папке
         """
         self.win_info = InfoWin(self.dir)
+        self.win_info.finished_.connect(lambda: self.win_info_fin())
+
+    def win_info_fin(self):
         self.win_info.center(self.window())
         self.win_info.show()
 

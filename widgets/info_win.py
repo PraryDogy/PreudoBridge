@@ -156,6 +156,7 @@ class SelectableLabel(QLabel):
 
 
 class InfoWin(MinMaxDisabledWin):
+    finished_ = pyqtSignal()
     title_text = "Инфо"
 
     def __init__(self, src: str):
@@ -191,6 +192,7 @@ class InfoWin(MinMaxDisabledWin):
             row += 1
 
         self.adjustSize()
+        self.finished_.emit()
 
         # cmd_ = lambda result: self.finalize(result)
         # task_ = CalculatingTask(base_item)
