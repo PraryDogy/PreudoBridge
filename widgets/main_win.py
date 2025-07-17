@@ -191,6 +191,9 @@ class MainWin(WinBase):
         self.sort_bar = SortBar(self.sort_item, self.main_win_item)
 
         self.temp_wid = QLabel()
+        self.temp_wid_timer = QTimer(self)
+        self.temp_wid_timer.setSingleShot(True)
+        self.temp_wid_timer.timeout.connect(lambda: self.temp_wid.hide())
 
         self.splitter.addWidget(left_wid)
         self.splitter.addWidget(right_wid)
@@ -531,9 +534,8 @@ class MainWin(WinBase):
         self.temp_wid.move((pw - tw) // 2, (ph - th) // 2)
 
         self.temp_wid.show()
-
-        if self.temp_wid.isVisible():
-            QTimer.singleShot(1000, lambda: self.temp_wid.hide())
+        self.temp_wid_timer.stop()
+        self.temp_wid_timer.start(1000)
 
     def on_exit(self):
         for task in UThreadPool.tasks:
