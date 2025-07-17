@@ -10,9 +10,10 @@ from sqlalchemy import (Connection, Insert, RowMapping, Update, insert, select,
 from cfg import Dynamic, Static, ThumbData
 from system.database import CACHE, ColumnNames, Dbase
 from system.items import BaseItem, MainWinItem
+from system.tasks import FinderItems
 from system.utils import FitImg, UImage, URunnable, UThreadPool, Utils
 
-from .finder_items import FinderItems, LoadingWid
+from ._base_widgets import LoadingWid
 from .grid import Grid, Thumb
 
 

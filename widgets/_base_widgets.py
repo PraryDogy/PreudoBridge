@@ -5,11 +5,10 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import (QContextMenuEvent, QCursor, QMouseEvent, QPixmap,
                          QWheelEvent)
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QFrame, QLineEdit, QMenu, QScrollArea, QSlider,
-                             QTableView, QTextEdit, QWidget)
+from PyQt5.QtWidgets import (QFrame, QLabel, QLineEdit, QMenu, QScrollArea,
+                             QSlider, QTableView, QTextEdit, QWidget)
 
 from cfg import Static
-from system.utils import Utils
 
 
 class UMethods:
@@ -340,3 +339,21 @@ class MinMaxDisabledWin(WinBase):
         fl = Qt.WindowType.Window | Qt.WindowType.CustomizeWindowHint
         fl = fl  | Qt.WindowType.WindowCloseButtonHint
         self.setWindowFlags(fl)
+
+
+class LoadingWid(QLabel):
+    text_ = "Загрузка"
+    def __init__(self, parent: QWidget):
+        super().__init__(LoadingWid.text_, parent)
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.setStyleSheet(
+            f"""
+                background: {Static.GRAY_GLOBAL};
+                border-radius: 4px;
+            """
+        )
+
+    def center(self, parent: QWidget):
+        geo = self.geometry()
+        geo.moveCenter(parent.geometry().center())
+        self.setGeometry(geo)

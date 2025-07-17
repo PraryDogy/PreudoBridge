@@ -12,10 +12,9 @@ from cfg import Dynamic, JsonData, Static
 from system.items import MainWinItem
 from system.utils import Utils
 
-from ._base_widgets import UMenu, UTableView
+from ._base_widgets import LoadingWid, UMenu, UTableView
 from .actions import GridActions, ItemActions
 from .copy_files_win import CopyFilesWin, ErrorWin
-from .finder_items import LoadingWid
 from .grid import Thumb
 from .info_win import InfoWin
 from .remove_files_win import RemoveFilesWin
