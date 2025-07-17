@@ -14,12 +14,12 @@ import rawpy._rawpy
 import tifffile
 from imagecodecs.imagecodecs import DelayedImportError
 from PIL import Image
-from PyQt5.QtCore import QRect, QRectF, QSize, Qt
+from PyQt5.QtCore import QRect, QRectF, QRunnable, QSize, Qt, QThreadPool
 from PyQt5.QtGui import QColor, QFont, QImage, QPainter, QPixmap
 from PyQt5.QtSvg import QSvgGenerator, QSvgRenderer
 from PyQt5.QtWidgets import QApplication
 
-from cfg import Static, JsonData
+from cfg import JsonData, Static
 
 psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
 psd_logger = logging.getLogger("psd_tools")
@@ -501,3 +501,55 @@ class FitImg:
         else:  # Квадратное изображение
             new_w, new_h = size, size
         return cv2.resize(image, (new_w, new_h), interpolation=cv2.INTER_AREA)
+
+
+class URunnable(QRunnable):
+    def __init__(self):
+        """
+        Переопределите метод task().
+        Не переопределяйте run().
+        """
+        super().__init__()
+        self.should_run__ = True
+        self.finished__ = False
+
+    def is_should_run(self):
+        return self.should_run__
+    
+    def set_should_run(self, value: bool):
+        self.should_run__ = value
+
+    def set_finished(self, value: bool):
+        self.finished__ = value
+
+    def is_finished(self):
+        return self.finished__
+    
+    def run(self):
+        try:
+            self.task()
+        finally:
+            self.set_finished(True)
+            # if self in UThreadPool.tasks:
+                # QTimer.singleShot(5000, lambda: self.task_fin())
+
+    def task(self):
+        raise NotImplementedError("Переопредели метод task() в подклассе.")
+    
+    # def task_fin(self):
+    #     UThreadPool.tasks.remove(self)
+    #     gc.collect()
+
+
+class UThreadPool:
+    pool: QThreadPool = None
+    tasks: list[URunnable] = []
+
+    @classmethod
+    def init(cls):
+        cls.pool = QThreadPool.globalInstance()
+
+    @classmethod
+    def start(cls, runnable: QRunnable):
+        # cls.tasks.append(runnable)
+        cls.pool.start(runnable)

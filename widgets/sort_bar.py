@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QHBoxLayout, QLabel, QWidget
 
 from cfg import Dynamic, Static, ThumbData
 
-from ._base_items import (MainWinItem, SortItem, UFrame, USlider,
+from ._base_widgets import (MainWinItem, SortItem, UFrame, USlider,
                           USvgSqareWidget)
 from .actions import SortMenu
 

@@ -6,10 +6,9 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
 
 from cfg import Static
-from system.utils import Utils
+from system.utils import URunnable, UThreadPool, Utils
 
-from ._base_items import (MainWinItem, MinMaxDisabledWin, URunnable,
-                          USvgSqareWidget, UThreadPool)
+from ._base_widgets import MainWinItem, MinMaxDisabledWin, USvgSqareWidget
 
 
 class WorkerSignals(QObject):

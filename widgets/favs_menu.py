@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QAction, QLabel, QListWidget, QListWidgetItem
 from cfg import JsonData
 from system.utils import Utils
 
-from ._base_items import MainWinItem, UMenu
+from ._base_widgets import MainWinItem, UMenu
 from .actions import ItemActions
 from .rename_win import RenameWin
 

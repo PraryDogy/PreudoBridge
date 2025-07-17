@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (QAction, QGroupBox, QHBoxLayout, QLabel,
 
 from cfg import Static
 
-from ._base_items import (MainWinItem, MinMaxDisabledWin, SearchItem, UFrame,
+from ._base_widgets import (MainWinItem, MinMaxDisabledWin, SearchItem, UFrame,
                           ULineEdit, UMenu, USvgSqareWidget, UTextEdit,
                           WinBase)
 

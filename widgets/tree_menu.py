@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QFileSystemModel, QTreeView
 
 from cfg import JsonData, Static
 
-from ._base_items import MainWinItem, UMenu
+from ._base_widgets import MainWinItem, UMenu
 from .actions import ItemActions
 
 

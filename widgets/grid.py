@@ -12,10 +12,9 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
 
 from cfg import Dynamic, JsonData, Static, ThumbData
 from system.database import CACHE, Dbase
-from system.utils import UImage, Utils
+from system.utils import UImage, URunnable, UThreadPool, Utils
 
-from ._base_items import (BaseItem, MainWinItem, SortItem, UMenu, URunnable,
-                          UScrollArea, UThreadPool)
+from ._base_widgets import BaseItem, MainWinItem, SortItem, UMenu, UScrollArea
 from .actions import GridActions, ItemActions
 from .copy_files_win import CopyFilesWin, ErrorWin
 from .info_win import InfoWin

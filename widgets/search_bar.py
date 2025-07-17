@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (QAction, QFrame, QHBoxLayout, QLabel, QMenu,
 
 from system.utils import Utils
 
-from ._base_items import SearchItem, UFrame
+from ._base_widgets import SearchItem, UFrame
 
 
 class BlinkingLabel(QLabel):

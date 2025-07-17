@@ -11,10 +11,9 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
 
 from cfg import JsonData, Static
 from system.paletes import UPallete
-from system.utils import Utils
+from system.utils import UThreadPool, Utils
 
-from ._base_items import (MainWinItem, SearchItem, SortItem, USep, UThreadPool,
-                          WinBase)
+from ._base_widgets import MainWinItem, SearchItem, SortItem, USep, WinBase
 from ._tasks import PathFinder
 from .favs_menu import FavsMenu
 from .go_win import GoToWin

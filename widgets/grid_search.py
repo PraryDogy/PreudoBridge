@@ -7,10 +7,10 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
 
 from cfg import Dynamic, Static, ThumbData
-from system.utils import FitImg, UImage, Utils
+from system.utils import FitImg, UImage, URunnable, UThreadPool, Utils
 
-from ._base_items import (BaseItem, MainWinItem, MinMaxDisabledWin, SearchItem,
-                          URunnable, USvgSqareWidget, UTextEdit, UThreadPool)
+from ._base_widgets import (BaseItem, MainWinItem, MinMaxDisabledWin, SearchItem,
+                          USvgSqareWidget, UTextEdit)
 from .grid import Grid, Thumb
 
 

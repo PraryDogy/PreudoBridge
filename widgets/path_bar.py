@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QApplication, QHBoxLayout, QLabel, QWidget
 from cfg import Static
 from system.utils import Utils
 
-from ._base_items import MainWinItem, UMenu, USvgSqareWidget
+from ._base_widgets import MainWinItem, UMenu, USvgSqareWidget
 from .actions import ItemActions
 from .info_win import InfoWin
 

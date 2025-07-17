@@ -5,10 +5,9 @@ from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import QAction, QGridLayout, QLabel
 
 from cfg import Static
-from system.utils import UImage, Utils
+from system.utils import UImage, URunnable, UThreadPool, Utils
 
-from ._base_items import (BaseItem, MinMaxDisabledWin, UMenu, URunnable,
-                          UThreadPool)
+from ._base_widgets import BaseItem, MinMaxDisabledWin, UMenu
 from .actions import CopyText, RevealInFinder
 
 UNDEFINED = "Неизвестно"

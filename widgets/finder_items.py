@@ -9,7 +9,7 @@ from cfg import JsonData, Static
 from system.database import CACHE, Dbase
 from system.utils import Utils
 
-from ._base_items import BaseItem, MainWinItem, SortItem, URunnable
+from ._base_widgets import BaseItem, MainWinItem, SortItem, URunnable
 
 
 class WorkerSignals(QObject):

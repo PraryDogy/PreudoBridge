@@ -11,10 +11,9 @@ from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QSpacerItem,
 
 from cfg import Static
 from system.database import CACHE, Dbase
-from system.utils import UImage, Utils
+from system.utils import UImage, URunnable, UThreadPool, Utils
 
-from ._base_items import (UMenu, URunnable, USvgSqareWidget, UThreadPool,
-                          WinBase)
+from ._base_widgets import UMenu, USvgSqareWidget, WinBase
 from .actions import ItemActions
 from .grid import KEY_RATING, RATINGS, Thumb
 from .info_win import InfoWin

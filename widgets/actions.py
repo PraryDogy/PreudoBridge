@@ -5,9 +5,9 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QAction, QLabel, QLineEdit, QTextEdit
 
 from cfg import Dynamic, Static
-from system.utils import Utils
+from system.utils import URunnable, UThreadPool, Utils
 
-from ._base_items import SortItem, UMenu, URunnable, UThreadPool
+from ._base_widgets import SortItem, UMenu
 
 
 # Общий класс для выполнения действий QAction в отдельном потоке

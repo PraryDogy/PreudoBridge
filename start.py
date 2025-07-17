@@ -55,8 +55,8 @@ from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
 
 from cfg import Dynamic, JsonData
-from system.utils import Utils
-from widgets._base_items import BaseItem, UThreadPool, WinBase
+from system.utils import UThreadPool, Utils
+from widgets._base_widgets import BaseItem, WinBase
 from widgets.main_win import MainWin
 
 

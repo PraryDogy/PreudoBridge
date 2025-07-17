@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QCheckBox, QFrame, QGroupBox, QHBoxLayout, QLabel,
 
 from cfg import JsonData, Static
 
-from ._base_items import MinMaxDisabledWin, USvgSqareWidget
+from ._base_widgets import MinMaxDisabledWin, USvgSqareWidget
 
 LEFT_W = 110
 

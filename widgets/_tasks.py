@@ -3,7 +3,7 @@ from PyQt5.QtCore import QObject, pyqtSignal
 from cfg import Static
 from system.path_finder import PathFinder as PathFinder_
 
-from ._base_items import URunnable
+from ._base_widgets import URunnable
 
 
 class PathFinderSignals(QObject):

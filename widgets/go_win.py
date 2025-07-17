@@ -2,7 +2,7 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtWidgets import QHBoxLayout, QPushButton, QVBoxLayout, QWidget
 
-from ._base_items import MinMaxDisabledWin, ULineEdit
+from ._base_widgets import MinMaxDisabledWin, ULineEdit
 
 
 class GoToWin(MinMaxDisabledWin):

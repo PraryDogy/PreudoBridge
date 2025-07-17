@@ -6,10 +6,9 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QPushButton,
                              QVBoxLayout, QWidget)
 
 from cfg import Static
-from system.utils import Utils
+from system.utils import URunnable, UThreadPool, Utils
 
-from ._base_items import (MinMaxDisabledWin, URunnable, USvgSqareWidget,
-                          UThreadPool)
+from ._base_widgets import MinMaxDisabledWin, USvgSqareWidget
 
 
 class CopyFilesSignals(QObject):
