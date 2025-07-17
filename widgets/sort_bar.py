@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QPoint, Qt, pyqtSignal
+from PyQt5.QtCore import QPoint, Qt, pyqtSignal, QTimer
 from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QWidget
 
@@ -114,7 +114,7 @@ class SortFrame(UFrame):
         menu_.move(menu_center_top)
         menu_.exec_()
         super().leaveEvent(a0)
-
+        
 
 class CustomSlider(USlider):
     resize_thumbs = pyqtSignal()
@@ -172,9 +172,9 @@ class FastSort(UFrame):
 
         self.sort_item = sort_item
 
-        self.text_label = QLabel("test")
-        self.text_label.mouseReleaseEvent = lambda e: self.cmd_()
-        self.h_lay.addWidget(self.text_label)
+        self.svg_btn = USvgSqareWidget(Static.GOTO_SVG, GoToBtn.svg_size)
+        self.svg_btn.mouseReleaseEvent = lambda e: self.cmd_()
+        self.h_lay.addWidget(self.svg_btn)
 
     def cmd_(self):
         sort = self.sort_item.get_sort()
@@ -196,6 +196,7 @@ class SortBar(QWidget):
     resize_thumbs = pyqtSignal()
     rearrange_thumbs = pyqtSignal()
     open_go_win = pyqtSignal()
+    temp_wid = pyqtSignal()
     height_ = 25
 
     def __init__(self, sort_item: SortItem, main_win_item: MainWinItem):
@@ -244,6 +245,7 @@ class SortBar(QWidget):
         self.fast_sort.sort_thumbs.connect(lambda: self.sort_thumbs.emit())
         self.fast_sort.rearrange_thumbs.connect(lambda: self.rearrange_thumbs.emit())
         self.fast_sort.change_sort_text.connect(lambda: self.sort_frame.set_sort_text())
+        self.fast_sort.change_sort_text.connect(lambda: self.temp_wid.emit())
         self.main_lay.addWidget(self.fast_sort)
 
     def create_sort_button(self):
@@ -251,6 +253,7 @@ class SortBar(QWidget):
         self.sort_frame = SortFrame(self.sort_item)
         self.sort_frame.sort_thumbs.connect(self.sort_thumbs.emit)
         self.sort_frame.rearrange_thumbs.connect(self.rearrange_thumbs.emit)
+        self.sort_frame.rearrange_thumbs.connect(lambda: self.temp_wid.emit())
         self.main_lay.addWidget(self.sort_frame)
 
     def create_slider(self):

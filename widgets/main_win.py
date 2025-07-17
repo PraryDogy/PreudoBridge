@@ -263,6 +263,7 @@ class MainWin(WinBase):
         self.sort_bar.sort_thumbs.connect(lambda: self.grid.sort_thumbs())
         self.sort_bar.load_st_grid.connect(lambda: self.load_st_grid())
         self.sort_bar.open_go_win.connect(lambda: self.open_go_win())
+        self.sort_bar.temp_wid.connect(lambda: self.create_temp_wid())
 
     def change_theme(self):
         app: QApplication = QApplication.instance()
@@ -490,6 +491,34 @@ class MainWin(WinBase):
             self.scroll_up.hide()
         else:
             self.scroll_up.show()
+
+    def create_temp_wid(self):
+        parent = self.grid
+
+        sort_name = self.sort_item.get_sort()
+        sort_name = SortItem.lang_dict.get(sort_name).lower()
+        rev_name = "по убыв." if self.sort_item.get_rev() else "по возр."
+        text = f"Сортировка: {sort_name} ({rev_name})"
+
+        self.temp_wid = QLabel(text)
+        self.temp_wid.setParent(parent)
+
+        self.temp_wid.setStyleSheet("""
+            QLabel {
+                background: rgba(128, 128, 128, 0.5);
+                font-weight: bold;
+                font-size: 20pt;
+                border-radius: 12px;
+                padding: 5px;
+            }
+        """)
+
+        self.temp_wid.adjustSize()
+        pw, ph = parent.width(), parent.height()
+        tw, th = self.temp_wid.width(), self.temp_wid.height()
+        self.temp_wid.move((pw - tw) // 2, (ph - th) // 2)
+        self.temp_wid.show()
+        QTimer.singleShot(1000, lambda: self.temp_wid.deleteLater())
 
     def on_exit(self):
         for task in UThreadPool.tasks:
