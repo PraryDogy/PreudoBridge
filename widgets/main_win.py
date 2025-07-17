@@ -329,7 +329,19 @@ class MainWin(WinBase):
         self.sett_win.show()
 
     def open_img_view(self, path: str):
-        self.grid.open_thumb()
+        if path.endswith(Static.ext_all):
+            url_to_wid = {
+                url: wid
+                for url, wid in self.grid.url_to_wid.items()
+                if wid.src.endswith(Static.ext_all)
+            }
+            self.grid.open_img_view(path, url_to_wid, False)
+        elif os.path.isdir(path):
+            self.main_win_item.main_dir = path
+            self.top_bar.new_history_item(path)
+            self.load_st_grid()
+        elif os.path.isfile(path):
+            Utils.open_in_def_app(path)
 
     def remove_db(self):
         """

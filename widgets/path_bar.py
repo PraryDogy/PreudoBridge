@@ -110,6 +110,10 @@ class PathItem(QWidget):
         self.win_info.center(self.window())
         self.win_info.show()
 
+    def mouseDoubleClickEvent(self, a0):
+        self.open_img_view.emit(self.dir)
+        return super().mouseDoubleClickEvent(a0)
+
     def enterEvent(self, a0):
         """
         Раскрывает виджет на всю его длину при наведении мыши
@@ -241,7 +245,7 @@ class PathBar(QWidget):
             cmd_ = lambda dir: self.new_history_item.emit(dir)
             path_item.new_history_item.connect(cmd_)
             path_item.load_st_grid.connect(self.load_st_grid.emit)
-            path_item.open_img_view.connect(self.open_img_view.emit)
+            path_item.open_img_view.connect(lambda dir: self.open_img_view.emit(dir))
             path_item.open_in_new_win.connect(lambda dir: self.open_in_new_win.emit(dir))
             path_item.img_wid.load(Static.FOLDER_SVG)
             path_item.add_arrow()

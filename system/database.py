@@ -84,7 +84,7 @@ class Dbase:
         except SQL_ERRORS as e:
             error = Utils.print_error()
 
-            if "unable to open database file" in error:
+            if error is None or "unable to open database file" in error:
                 return None
 
             if os.path.exists(path):
