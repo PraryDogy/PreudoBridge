@@ -190,6 +190,8 @@ class MainWin(WinBase):
         sep = USep()
         self.sort_bar = SortBar(self.sort_item, self.main_win_item)
 
+        self.temp_wid = QLabel()
+
         self.splitter.addWidget(left_wid)
         self.splitter.addWidget(right_wid)
         self.splitter.setStretchFactor(0, 0)
@@ -510,8 +512,8 @@ class MainWin(WinBase):
         rev_name = "по убыв." if self.sort_item.get_rev() else "по возр."
         text = f"Сортировка: {sort_name} ({rev_name})"
 
-        self.temp_wid = QLabel(text)
         self.temp_wid.setParent(parent)
+        self.temp_wid.setText(text)
 
         self.temp_wid.setStyleSheet("""
             QLabel {
@@ -527,8 +529,11 @@ class MainWin(WinBase):
         pw, ph = parent.width(), parent.height()
         tw, th = self.temp_wid.width(), self.temp_wid.height()
         self.temp_wid.move((pw - tw) // 2, (ph - th) // 2)
+
         self.temp_wid.show()
-        QTimer.singleShot(1000, lambda: self.temp_wid.deleteLater())
+
+        if self.temp_wid.isVisible():
+            QTimer.singleShot(1000, lambda: self.temp_wid.hide())
 
     def on_exit(self):
         for task in UThreadPool.tasks:
