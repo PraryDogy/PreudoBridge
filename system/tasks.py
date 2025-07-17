@@ -564,7 +564,7 @@ class _LoadImagesSigs(QObject):
 
 
 class LoadImages(URunnable):
-    def __init__(self, main_win_item: MainWinItem, thumbs: list[Thumb]):
+    def __init__(self, main_win_item: MainWinItem, thumbs: list[BaseItem]):
         """
         URunnable   
         Сортирует список Thumb по размеру по возрастанию для ускорения загрузки
@@ -574,9 +574,9 @@ class LoadImages(URunnable):
         self.signals_ = _LoadImagesSigs()
         self.main_win_item = main_win_item
         self.stmt_list: list[sqlalchemy.Insert | sqlalchemy.Update] = []
-        self.thumbs = thumbs
+        self.base_items = thumbs
         key_ = lambda x: x.size
-        self.thumbs.sort(key=key_)
+        self.base_items.sort(key=key_)
 
     def task(self):
         """
@@ -584,7 +584,7 @@ class LoadImages(URunnable):
         Запускает обход списка Thumb для загрузки изображений   
         Испускает сигнал finished_
         """
-        if not self.thumbs:
+        if not self.base_items:
             return
 
         db = os.path.join(self.main_win_item.main_dir, Static.DB_FILENAME)
@@ -610,7 +610,7 @@ class LoadImages(URunnable):
         Пытается загрузить изображение из базы данных или создает новое,
         чтобы передать его в Thumb
         """
-        for base_item in self.thumbs:
+        for base_item in self.base_items:
             if not self.is_should_run():
                 return  
             if base_item.type_ not in Static.ext_all:
