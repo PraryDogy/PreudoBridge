@@ -517,7 +517,6 @@ class MainWin(WinBase):
         rev_name = "по убыв." if self.sort_item.get_rev() else "по возр."
         text = f"Сортировка: {sort_name} ({rev_name})"
 
-        self.fast_sort_wid.setParent(parent)
         self.fast_sort_wid.setText(text)
 
         self.fast_sort_wid.setStyleSheet("""
