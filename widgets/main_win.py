@@ -442,6 +442,7 @@ class MainWin(WinBase):
         self.scroll_up.hide()
 
         self.setup_grid_signals()
+        self.fast_sort_wid.setParent(self.grid)
 
     def search_finished(self):
         self.search_bar.search_bar_search_fin()
@@ -490,6 +491,7 @@ class MainWin(WinBase):
         self.setup_grid_signals()
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
         # QTimer.singleShot(300, self.grid.setFocus)
+        self.fast_sort_wid.setParent(self.grid)
 
     def scroll_up_toggle(self, value: int):
         if value == 0:
