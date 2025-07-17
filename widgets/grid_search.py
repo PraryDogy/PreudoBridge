@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
 
 from cfg import Dynamic, Static, ThumbData
-from system.utils import FitImg, Utils
+from system.utils import FitImg, Utils, ReadImage, Pixmap
 
 from ._base_items import (BaseItem, MainWinItem, MinMaxDisabledWin, SearchItem,
                           URunnable, USvgSqareWidget, UTextEdit, UThreadPool)
@@ -208,9 +208,9 @@ class SearchTask(URunnable):
                 self.process_img(entry)
 
     def process_img(self, entry: os.DirEntry):
-        self.img_array = Utils.read_image(entry.path)
+        self.img_array = ReadImage.read_image(entry.path)
         self.img_array = FitImg.start(self.img_array, ThumbData.DB_IMAGE_SIZE)
-        self.pixmap = Utils.pixmap_from_array(self.img_array)
+        self.pixmap = Pixmap.pixmap_from_array(self.img_array)
         self.base_item = BaseItem(entry.path)
         self.base_item.setup_attrs()
         self.base_item.set_pixmap_storage(self.pixmap)

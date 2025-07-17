@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QSpacerItem,
 
 from cfg import Static
 from system.database import CACHE, Dbase
-from system.utils import Utils
+from system.utils import ImgConvert, Pixmap, Utils, ReadImage
 
 from ._base_items import (UMenu, URunnable, USvgSqareWidget, UThreadPool,
                           WinBase)
@@ -58,7 +58,7 @@ class LoadThumbnail(URunnable):
         Dbase.close_connection(conn)
 
         if res is not None:
-            img_array = Utils.bytes_to_array(res)
+            img_array = ImgConvert.bytes_to_array(res)
             img_array = Utils.desaturate_image(img_array, 0.2)
         else:
             img_array = None
@@ -67,7 +67,7 @@ class LoadThumbnail(URunnable):
             pixmap = None
 
         else:
-            pixmap = Utils.pixmap_from_array(img_array)
+            pixmap = Pixmap.pixmap_from_array(img_array)
 
         image_data = ImageData(self.src, pixmap)
 
@@ -89,14 +89,14 @@ class LoadImage(URunnable):
     def task(self):
         if self.src not in self.cached_images:
 
-            img_array = Utils.read_image(self.src)
+            img_array = ReadImage.read_image(self.src)
             img_array = Utils.desaturate_image(img_array, 0.2)
 
             if img_array is None:
                 pixmap = None
 
             else:
-                pixmap = Utils.pixmap_from_array(img_array)
+                pixmap = Pixmap.pixmap_from_array(img_array)
                 self.cached_images[self.src] = pixmap
 
             del img_array

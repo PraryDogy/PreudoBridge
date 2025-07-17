@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
 
 from cfg import Dynamic, JsonData, Static, ThumbData
 from system.database import CACHE, Dbase
-from system.utils import Utils
+from system.utils import Pixmap, Utils
 
 from ._base_items import (BaseItem, MainWinItem, SortItem, UMenu, URunnable,
                           UScrollArea, UThreadPool)
@@ -221,7 +221,7 @@ class Thumb(BaseItem, QFrame):
 
         self.img_wid = QLabel()
         self.img_wid.setPixmap(
-            Utils.pixmap_scale(pixmap, Thumb.pixmap_size)
+            Pixmap.pixmap_scale(pixmap, Thumb.pixmap_size)
         )
         self.img_frame_lay.addWidget(
             self.img_wid,
@@ -246,7 +246,7 @@ class Thumb(BaseItem, QFrame):
 
         pixmap_ = self.get_pixmap_storage()
         if pixmap_:
-            pixmap =  Utils.pixmap_scale(pixmap_, Thumb.pixmap_size)
+            pixmap =  Pixmap.pixmap_scale(pixmap_, Thumb.pixmap_size)
             self.img_wid.setPixmap(pixmap)
             self.img_wid.setAlignment(Qt.AlignmentFlag.AlignCenter)
 

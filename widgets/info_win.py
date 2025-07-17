@@ -5,7 +5,7 @@ from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import QAction, QGridLayout, QLabel
 
 from cfg import Static
-from system.utils import Utils
+from system.utils import ReadImage, Utils
 
 from ._base_items import (BaseItem, MinMaxDisabledWin, UMenu, URunnable,
                           UThreadPool)
@@ -38,7 +38,7 @@ class CalculatingTask(URunnable):
             Utils.print_error()
 
     def get_img_resol(self):
-        img_ = Utils.read_image(self.base_item.src)
+        img_ = ReadImage.read_image(self.base_item.src)
         if img_ is not None and len(img_.shape) > 1:
             h, w = img_.shape[0], img_.shape[1]
             resol= f"{w}x{h}"

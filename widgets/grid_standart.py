@@ -9,7 +9,7 @@ from sqlalchemy import (Connection, Insert, RowMapping, Update, insert, select,
 
 from cfg import Dynamic, Static, ThumbData
 from system.database import CACHE, ColumnNames, Dbase
-from system.utils import FitImg, Utils
+from system.utils import FitImg, ImgConvert, Pixmap, ReadImage, Utils
 
 from ._base_items import BaseItem, MainWinItem, URunnable, UThreadPool
 from .finder_items import FinderItems, LoadingWid
@@ -55,7 +55,7 @@ class ImageBaseItem:
     @classmethod
     def get_pixmap(cls, conn: Connection, thumb: Thumb) -> tuple[Update | Insert| None, QPixmap]:
         stmt, img_array = cls.get_img_array(conn, thumb)
-        return (stmt, Utils.pixmap_from_array(img_array))
+        return (stmt, Pixmap.pixmap_from_array(img_array))
 
     @classmethod
     def get_img_array(cls, conn: Connection, thumb: Thumb) -> tuple[Update | Insert| None, np.ndarray]:
@@ -85,13 +85,13 @@ class ImageBaseItem:
     
     @classmethod
     def old_db_record(cls, res_by_name: RowMapping) -> tuple[None, np.ndarray]:
-        bytes_img = Utils.bytes_to_array(res_by_name.get(ColumnNames.IMG))
+        bytes_img = ImgConvert.bytes_to_array(res_by_name.get(ColumnNames.IMG))
         return (None, bytes_img)
 
     @classmethod
     def update_db_record(cls, thumb: Thumb, row_id: int) -> tuple[Update, np.ndarray]:
         img_array = cls.get_small_ndarray_img(thumb.src)
-        bytes_img = Utils.numpy_to_bytes(img_array)
+        bytes_img = ImgConvert.numpy_to_bytes(img_array)
         new_size, new_mod, new_resol = cls.get_stats(thumb.src, img_array)
         new_name = Utils.get_hash_filename(filename=thumb.name)
         partial_hash = Utils.get_partial_hash(file_path=thumb.src)
@@ -110,7 +110,7 @@ class ImageBaseItem:
     @classmethod
     def insert_db_record(cls, thumb: Thumb) -> tuple[Insert, np.ndarray]:
         img_array = cls.get_small_ndarray_img(thumb.src)
-        bytes_img = Utils.numpy_to_bytes(img_array)
+        bytes_img = ImgConvert.numpy_to_bytes(img_array)
         new_size, new_mod, new_resol = cls.get_stats(thumb.src, img_array)
         new_name = Utils.get_hash_filename(filename=thumb.name)
         partial_hash = Utils.get_partial_hash(file_path=thumb.src)
@@ -130,7 +130,7 @@ class ImageBaseItem:
     
     @classmethod
     def get_small_ndarray_img(cls, src: str) -> np.ndarray:
-        img_array = Utils.read_image(src)
+        img_array = ReadImage.read_image(src)
         img_array = FitImg.start(img_array, ThumbData.DB_IMAGE_SIZE)
         return img_array
     
