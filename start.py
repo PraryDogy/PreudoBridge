@@ -89,7 +89,6 @@ class CustomApp(QApplication):
 
 
 faulthandler.enable()
-BaseItem.check()
 JsonData.init()
 UThreadPool.init()
 Dynamic.image_apps = Utils.get_image_apps()

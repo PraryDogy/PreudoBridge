@@ -9,9 +9,10 @@ from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QFileSystemModel,
                              QSplitter, QTableView)
 
 from cfg import Dynamic, JsonData, Static
+from system.items import MainWinItem
 from system.utils import Utils
 
-from ._base_widgets import MainWinItem, UMenu, UTableView
+from ._base_widgets import UMenu, UTableView
 from .actions import GridActions, ItemActions
 from .copy_files_win import CopyFilesWin, ErrorWin
 from .finder_items import LoadingWid

@@ -4,8 +4,9 @@ from PyQt5.QtCore import QDir, Qt, pyqtSignal
 from PyQt5.QtWidgets import QFileSystemModel, QTreeView
 
 from cfg import JsonData, Static
+from system.items import MainWinItem
 
-from ._base_widgets import MainWinItem, UMenu
+from ._base_widgets import UMenu
 from .actions import ItemActions
 
 

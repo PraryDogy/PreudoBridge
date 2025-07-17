@@ -7,9 +7,8 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import JsonData, Static
 from system.database import CACHE, Dbase
-from system.utils import Utils
-
-from ._base_widgets import BaseItem, MainWinItem, SortItem, URunnable
+from system.items import BaseItem, MainWinItem, SortItem
+from system.utils import URunnable, Utils
 
 
 class WorkerSignals(QObject):

@@ -10,11 +10,12 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
+from system.items import MainWinItem, SearchItem, SortItem
 from system.paletes import UPallete
+from system.path_finder import PathFinder
 from system.utils import UThreadPool, Utils
 
-from ._base_widgets import MainWinItem, SearchItem, SortItem, USep, WinBase
-from ._tasks import PathFinder
+from ._base_widgets import USep, WinBase
 from .favs_menu import FavsMenu
 from .go_win import GoToWin
 from .grid import Grid

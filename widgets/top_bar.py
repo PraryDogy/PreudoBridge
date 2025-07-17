@@ -6,10 +6,10 @@ from PyQt5.QtWidgets import (QAction, QGroupBox, QHBoxLayout, QLabel,
                              QPushButton, QVBoxLayout, QWidget)
 
 from cfg import Static
+from system.items import MainWinItem, SearchItem
 
-from ._base_widgets import (MainWinItem, MinMaxDisabledWin, SearchItem, UFrame,
-                          ULineEdit, UMenu, USvgSqareWidget, UTextEdit,
-                          WinBase)
+from ._base_widgets import (MinMaxDisabledWin, UFrame, ULineEdit, UMenu,
+                            USvgSqareWidget, UTextEdit, WinBase)
 
 
 class BarTopBtn(UFrame):

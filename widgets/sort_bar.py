@@ -3,9 +3,9 @@ from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QWidget
 
 from cfg import Dynamic, Static, ThumbData
+from system.items import MainWinItem, SortItem
 
-from ._base_widgets import (MainWinItem, SortItem, UFrame, USlider,
-                          USvgSqareWidget)
+from ._base_widgets import UFrame, USlider, USvgSqareWidget
 from .actions import SortMenu
 
 

@@ -1,9 +1,8 @@
 import gc
 import os
 
-import sqlalchemy
-from PyQt5.QtCore import (QMimeData, QObject, QPoint, QRect, QSize, Qt, QTimer,
-                          QUrl, pyqtSignal)
+from PyQt5.QtCore import (QMimeData, QPoint, QRect, QSize, Qt, QTimer, QUrl,
+                          pyqtSignal)
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
                          QPixmap)
 from PyQt5.QtSvg import QSvgWidget
@@ -11,10 +10,11 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
                              QRubberBand, QSplitter, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static, ThumbData
-from system.database import CACHE, Dbase
-from system.utils import UImage, URunnable, UThreadPool, Utils
+from system.items import BaseItem, MainWinItem, SortItem
+from system.tasks import RatingTask
+from system.utils import UImage, UThreadPool, Utils
 
-from ._base_widgets import BaseItem, MainWinItem, SortItem, UMenu, UScrollArea
+from ._base_widgets import UMenu, UScrollArea
 from .actions import GridActions, ItemActions
 from .copy_files_win import CopyFilesWin, ErrorWin
 from .info_win import InfoWin
@@ -48,35 +48,6 @@ RATINGS = {
     4: Static.STAR_SYM * 4,
     5: Static.STAR_SYM * 5,
 }
-
-
-class WorkerSignals(QObject):
-    finished_ = pyqtSignal()
-
-
-class SetDbRating(URunnable):
-    def __init__(self, main_dir: str, base_item: BaseItem, new_rating: int):
-        super().__init__()
-        self.base_item = base_item
-        self.new_rating = new_rating
-        self.main_dir = main_dir
-        self.signals_ = WorkerSignals()
-
-    def task(self):        
-        db = os.path.join(self.main_dir, Static.DB_FILENAME)
-        dbase = Dbase()
-        engine = dbase.create_engine(path=db)
-        if engine is None:
-            return
-        conn = Dbase.open_connection(engine)
-        hash_filename = Utils.get_hash_filename(self.base_item.name)
-        stmt = sqlalchemy.update(CACHE)
-        stmt = stmt.where(CACHE.c.name==hash_filename)
-        stmt = stmt.values(rating=self.new_rating)
-        Dbase.execute_(conn, stmt)
-        Dbase.commit_(conn)
-        self.signals_.finished_.emit()
-        Dbase.close_connection(conn)
 
 
 class ImgFrame(QFrame):
@@ -695,7 +666,7 @@ class Grid(UScrollArea):
         """
 
         for wid in self.selected_widgets:
-            self.task_ = SetDbRating(self.main_win_item.main_dir, wid, new_rating)
+            self.task_ = RatingTask(self.main_win_item.main_dir, wid.name, new_rating)
             cmd_ = lambda w=wid: self.set_new_rating_fin(w, new_rating)
             self.task_.signals_.finished_.connect(cmd_)
             UThreadPool.start(self.task_)

@@ -5,19 +5,11 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QAction, QLabel, QLineEdit, QTextEdit
 
 from cfg import Dynamic, Static
-from system.utils import URunnable, UThreadPool, Utils
+from system.items import SortItem
+from system.tasks import ActionsTask
+from system.utils import UThreadPool, Utils
 
-from ._base_widgets import SortItem, UMenu
-
-
-# Общий класс для выполнения действий QAction в отдельном потоке
-class Task_(URunnable):
-    def __init__(self,  cmd_: callable):
-        super().__init__()
-        self.cmd_ = cmd_
-
-    def task(self):
-        self.cmd_()
+from ._base_widgets import UMenu
 
 
 class Tools:    
@@ -49,7 +41,7 @@ class RevealInFinder(QAction):
 
     def files_cmd(self):        
         cmd_ = lambda: subprocess.run(["osascript", Static.REVEAL_SCPT] + self.urls)
-        self.task_ = Task_(cmd_)
+        self.task_ = ActionsTask(cmd_)
         UThreadPool.start(self.task_)
 
 

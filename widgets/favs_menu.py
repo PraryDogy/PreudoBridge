@@ -5,9 +5,10 @@ from PyQt5.QtGui import QContextMenuEvent, QDropEvent, QMouseEvent
 from PyQt5.QtWidgets import QAction, QLabel, QListWidget, QListWidgetItem
 
 from cfg import JsonData
+from system.items import MainWinItem
 from system.utils import Utils
 
-from ._base_widgets import MainWinItem, UMenu
+from ._base_widgets import UMenu
 from .actions import ItemActions
 from .rename_win import RenameWin
 
