@@ -186,7 +186,7 @@ class FastSort(UFrame):
 
         self.sort_thumbs.emit()
         self.rearrange_thumbs.emit()
-3333
+
 
 class SortBar(QWidget):
     load_st_grid = pyqtSignal()
@@ -219,9 +219,7 @@ class SortBar(QWidget):
         self.create_go_to_button()
         self.main_lay.addStretch()
         self.create_sort_button()
-
-        self.fast_sort = FastSort(self.sort_item)
-        self.main_lay.addWidget(self.fast_sort)
+        self.create_fast_sort()
 
         self.main_lay.addStretch()
         self.create_slider()
@@ -238,6 +236,12 @@ class SortBar(QWidget):
         self.go_to_frame = GoToBtn()
         self.go_to_frame.clicked_.connect(lambda: self.open_go_win.emit())
         self.main_lay.addWidget(self.go_to_frame)
+
+    def create_fast_sort(self):
+        self.fast_sort = FastSort(self.sort_item)
+        self.fast_sort.sort_thumbs.connect(lambda: self.sort_thumbs.emit())
+        self.fast_sort.rearrange_thumbs.connect(lambda: self.rearrange_thumbs.emit())
+        self.main_lay.addWidget(self.fast_sort)
 
     def create_sort_button(self):
         """Создает кнопку сортировки"""
