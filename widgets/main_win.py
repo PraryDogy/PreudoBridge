@@ -534,6 +534,7 @@ class MainWin(WinBase):
         self.fast_sort_wid.move((pw - tw) // 2, (ph - th) // 2)
 
         self.fast_sort_wid.show()
+        self.sort_bar.sort_frame.set_sort_text()
         self.temp_wid_timer.stop()
         self.temp_wid_timer.start(1000)
 
