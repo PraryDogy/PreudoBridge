@@ -158,45 +158,12 @@ class CustomSlider(USlider):
         self.setValue(value)
 
 
-class FastSort(UFrame):
-    sort_thumbs = pyqtSignal()
-    rearrange_thumbs = pyqtSignal()
-    change_sort_text = pyqtSignal()
-
-    def __init__(self, sort_item: SortItem):
-        super().__init__()
-        self.h_lay = QHBoxLayout()
-        self.h_lay.setSpacing(0)
-        self.h_lay.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(self.h_lay)
-
-        self.sort_item = sort_item
-
-        self.svg_btn = USvgSqareWidget(Static.GOTO_SVG, GoToBtn.svg_size)
-        self.svg_btn.mouseReleaseEvent = lambda e: self.cmd_()
-        self.h_lay.addWidget(self.svg_btn)
-
-    def cmd_(self):
-        sort = self.sort_item.get_sort()
-        if sort != SortItem.name:
-            self.sort_item.set_sort(SortItem.name)
-            self.sort_item.set_rev(False)
-        else:
-            self.sort_item.set_sort(SortItem.mod)
-            self.sort_item.set_rev(False)
-
-        self.sort_thumbs.emit()
-        self.rearrange_thumbs.emit()
-        self.change_sort_text.emit()
-
-
 class SortBar(QWidget):
     load_st_grid = pyqtSignal()
     sort_thumbs = pyqtSignal()
     resize_thumbs = pyqtSignal()
     rearrange_thumbs = pyqtSignal()
     open_go_win = pyqtSignal()
-    temp_wid = pyqtSignal()
     height_ = 25
 
     def __init__(self, sort_item: SortItem, main_win_item: MainWinItem):
@@ -222,7 +189,6 @@ class SortBar(QWidget):
         self.create_go_to_button()
         self.main_lay.addStretch()
         self.create_sort_button()
-        self.create_fast_sort()
 
         self.main_lay.addStretch()
         self.create_slider()
@@ -240,20 +206,11 @@ class SortBar(QWidget):
         self.go_to_frame.clicked_.connect(lambda: self.open_go_win.emit())
         self.main_lay.addWidget(self.go_to_frame)
 
-    def create_fast_sort(self):
-        self.fast_sort = FastSort(self.sort_item)
-        self.fast_sort.sort_thumbs.connect(lambda: self.sort_thumbs.emit())
-        self.fast_sort.rearrange_thumbs.connect(lambda: self.rearrange_thumbs.emit())
-        self.fast_sort.change_sort_text.connect(lambda: self.sort_frame.set_sort_text())
-        self.fast_sort.change_sort_text.connect(lambda: self.temp_wid.emit())
-        self.main_lay.addWidget(self.fast_sort)
-
     def create_sort_button(self):
         """Создает кнопку сортировки"""
         self.sort_frame = SortFrame(self.sort_item)
         self.sort_frame.sort_thumbs.connect(self.sort_thumbs.emit)
         self.sort_frame.rearrange_thumbs.connect(self.rearrange_thumbs.emit)
-        self.sort_frame.rearrange_thumbs.connect(lambda: self.temp_wid.emit())
         self.main_lay.addWidget(self.sort_frame)
 
     def create_slider(self):

@@ -248,6 +248,7 @@ class MainWin(WinBase):
         self.top_bar.remove_db.connect(lambda: self.remove_db())
         self.top_bar.open_in_new_win.connect(lambda dir: self.open_in_new_win(dir))
         self.top_bar.open_settings.connect(lambda: self.open_settings())
+        self.top_bar.fast_sort.connect(lambda: self.fast_sort_clicked())
 
         self.search_bar.on_filter_clicked.connect(lambda: self.load_search_grid())
         self.search_bar.on_pause_clicked.connect(lambda value: self.grid.toggle_pause(value))
@@ -263,7 +264,6 @@ class MainWin(WinBase):
         self.sort_bar.sort_thumbs.connect(lambda: self.grid.sort_thumbs())
         self.sort_bar.load_st_grid.connect(lambda: self.load_st_grid())
         self.sort_bar.open_go_win.connect(lambda: self.open_go_win())
-        self.sort_bar.temp_wid.connect(lambda: self.create_temp_wid())
 
     def change_theme(self):
         app: QApplication = QApplication.instance()
@@ -492,8 +492,18 @@ class MainWin(WinBase):
         else:
             self.scroll_up.show()
 
-    def create_temp_wid(self):
+    def fast_sort_clicked(self):
+        sort = self.sort_item.get_sort()
+        if sort != SortItem.name:
+            self.sort_item.set_sort(SortItem.name)
+            self.sort_item.set_rev(False)
+        else:
+            self.sort_item.set_sort(SortItem.mod)
+            self.sort_item.set_rev(False)
+
         parent = self.grid
+        parent.sort_thumbs()
+        parent.rearrange_thumbs()
 
         sort_name = self.sort_item.get_sort()
         sort_name = SortItem.lang_dict.get(sort_name).lower()

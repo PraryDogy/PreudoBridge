@@ -50,6 +50,7 @@ class Static:
     SYSTEM_THEME_SVG = os.path.join(IMAGES_DIR, "system_theme.svg")
     DARK_THEME_SVG = os.path.join(IMAGES_DIR, "dark_theme.svg")
     LIGHT_THEME_SVG = os.path.join(IMAGES_DIR, "light_theme.svg")
+    FAST_SORT_SVG = os.path.join(IMAGES_DIR, "fast_sort.svg")
 
     DB_FILENAME = ".preudobridge.db"
     FOLDER_TYPE: str = "folder"

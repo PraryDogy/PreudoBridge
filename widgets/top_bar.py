@@ -292,6 +292,7 @@ class TopBar(QWidget):
     # открывает заданный путь в новом окне
     open_in_new_win = pyqtSignal(str)
     open_settings = pyqtSignal()
+    fast_sort = pyqtSignal()
 
     height_ = 40
     cascade_offset = 30
@@ -337,6 +338,11 @@ class TopBar(QWidget):
 
         self.main_lay.addStretch(1)
 
+        self.fast_sort_btn = BarTopBtn()
+        self.fast_sort_btn.load(Static.FAST_SORT_SVG)
+        self.fast_sort_btn.clicked.connect(lambda: self.fast_sort.emit())
+        self.main_lay.addWidget(self.fast_sort_btn)
+
         self.new_win_btn = BarTopBtn()
         cmd = lambda e: self.open_in_new_win.emit(self.main_win_item.main_dir)
         self.new_win_btn.mouseReleaseEvent = cmd
@@ -360,7 +366,6 @@ class TopBar(QWidget):
 
         self.sett_btn = BarTopBtn()
         self.sett_btn.clicked.connect(self.open_settings.emit)
-        # self.sett_btn.mouseReleaseEvent = self.open_settings_win
         self.sett_btn.load(Static.SETTINGS_SVG)
         self.main_lay.addWidget(self.sett_btn)
 
