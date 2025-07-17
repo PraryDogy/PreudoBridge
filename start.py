@@ -50,8 +50,7 @@ else:
 
 import faulthandler
 
-from PyQt5.QtCore import QEvent, QObject
-from PyQt5.QtTest import QTest
+from PyQt5.QtCore import QEvent, QObject, QTimer
 from PyQt5.QtWidgets import QApplication
 
 from cfg import Dynamic, JsonData
@@ -77,10 +76,7 @@ class CustomApp(QApplication):
         return False
 
     def on_exit(self):
-        self.removeEventFilter(self)
         JsonData.write_config()
-        QApplication.quit()
-        sys.exit()
 
 
 faulthandler.enable()
@@ -88,4 +84,4 @@ JsonData.init()
 UThreadPool.init()
 Dynamic.image_apps = Utils.get_image_apps()
 app = CustomApp(argv=sys.argv)
-sys.exit(app.exec_())
+app.exec_()

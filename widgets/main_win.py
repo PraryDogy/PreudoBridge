@@ -508,14 +508,14 @@ class MainWin(WinBase):
             a0.ignore()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:  
-        keys = [
-            Qt.Key.Key_Right,
-            Qt.Key.Key_Left,
-            Qt.Key.Key_Up,
-            Qt.Key.Key_Down,
-            Qt.Key.Key_Space
-        ]
         if a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
+            
+            # if a0.key() == Qt.Key.Key_Q:
+            #     print("exit")
+            #     JsonData.write_config()
+            #     import sys
+            #     QTimer.singleShot(100, lambda: sys.exit())
+
             if a0.key() == Qt.Key.Key_F:
                 self.top_bar.search_wid.setFocus()
                 self.top_bar.search_wid.selectAll()

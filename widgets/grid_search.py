@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
 
 from cfg import Dynamic, Static
 from system.items import BaseItem, MainWinItem, SearchItem
+from system.tasks import SearchTask
 from system.utils import UThreadPool, Utils
 
 from ._base_widgets import MinMaxDisabledWin, USvgSqareWidget, UTextEdit

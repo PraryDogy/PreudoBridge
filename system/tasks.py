@@ -464,8 +464,11 @@ class SearchTask(URunnable):
         self.base_item = BaseItem(entry.path)
         self.base_item.setup_attrs()
         self.base_item.set_pixmap_storage(self.pixmap)
-        self.signals_.new_widget.emit(self.base_item)
-        QTest.qSleep(SearchTask.new_wid_sleep_ms)
+        try:
+            self.signals_.new_widget.emit(self.base_item)
+            QTest.qSleep(SearchTask.new_wid_sleep_ms)
+        except RuntimeError:
+            self.set_should_run(False)
 
 
 class _FinderSigs(QObject):
