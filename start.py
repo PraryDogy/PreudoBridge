@@ -77,16 +77,10 @@ class CustomApp(QApplication):
         return False
 
     def on_exit(self):
-        # for i in UThreadPool.tasks:
-        #     i.set_should_run(False)
-
-        # while any(not i.is_finished() for i in UThreadPool.tasks):
-        #     QTest.qSleep(500)
-
-        # вероятно предотвращает segmentation fault / bus error
         self.removeEventFilter(self)
         JsonData.write_config()
         QApplication.quit()
+        sys.exit()
 
 
 faulthandler.enable()
