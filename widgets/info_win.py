@@ -13,15 +13,16 @@ from .actions import CopyText, RevealInFinder
 
 UNDEFINED = "Неизвестно"
 
-class WorkerSignals(QObject):
-    finished_ = pyqtSignal(str)
+class _InfoTaskSigs(QObject):
+    finished_info = pyqtSignal(dict)
+    finished_calc = pyqtSignal(str)
 
 
 class CalculatingTask(URunnable):
     def __init__(self, base_item: BaseItem):
         super().__init__()
         self.base_item = base_item
-        self.signals_ = WorkerSignals()
+        self.signals_ = _InfoTaskSigs()
 
     def task(self):
         try:
@@ -62,47 +63,49 @@ class CalculatingTask(URunnable):
         return total
 
 
-class InfoTask:
-    ru = "Папка"
+class InfoTask(URunnable):
+    ru_folder = "Папка"
     calculating = "Вычисляю..."
     name_text = "Имя"
     type_text = "Тип"
     size_text = "Размер"
     src_text = "Место"
     mod_text = "Изменен"
-    res_text = "Разрешение"
+    resol_text = "Разрешение"
     row_limit = 50
 
-    def __init__(self, base_item: BaseItem):
+    def __init__(self, src: str):
         super().__init__()
-        self.base_item = base_item
+        self.base_item = BaseItem(src)
+        self.signals = _InfoTaskSigs()
 
-    def get(self) -> dict[str, str| int]:
-        size_ = (
-            Utils.get_f_size(os.path.getsize(self.base_item.src))
-            if self.base_item.type_ != Static.FOLDER_TYPE
-            else
-            InfoTask.calculating
-            )
+    def task(self) -> dict[str, str| int]:
+
+        self.base_item.setup_attrs()
+
+        if self.base_item.type_ == Static.FOLDER_TYPE:
+            size_ = self.calculating
+            type_ = self.ru_folder
+        else:
+            size_ = Utils.get_f_size(self.base_item.size)
+            type_ = self.base_item.type_
         
-        type_t_ = (
-            self.base_item.type_
-            if self.base_item.type_ != Static.FOLDER_TYPE
-            else InfoTask.ru
-        )
+        name = self.lined_text(self.base_item.name)
+        src = self.lined_text(self.base_item.src)
+        mod = Utils.get_f_date(self.base_item.mod)
 
-        res = {
-            InfoTask.name_text: self.lined_text(os.path.basename(self.base_item.src)),
-            InfoTask.type_text: type_t_,
-            InfoTask.mod_text: Utils.get_f_date(os.stat(self.base_item.src).st_mtime),
-            InfoTask.src_text: self.lined_text(self.base_item.src),
+        data = {
+            InfoTask.name_text: name,
+            InfoTask.type_text: type_,
+            InfoTask.mod_text: mod,
+            InfoTask.src_text: src,
             InfoTask.size_text: size_,
             }
         
-        if self.base_item.type_ != Static.FOLDER_TYPE:
-            res.update({InfoTask.res_text: InfoTask.calculating})
+        if self.base_item != Static.FOLDER_TYPE:
+            data.update({InfoTask.resol_text: self.calculating})
 
-        return res
+        self.signals.finished_info.emit(data)
 
     def lined_text(self, text: str):
         if len(text) > InfoTask.row_limit:
@@ -113,6 +116,9 @@ class InfoTask:
             return "\n".join(text)
         else:
             return text
+        
+    def get_base_item(self):
+        return self.base_item
 
 
 class SelectableLabel(QLabel):
@@ -165,13 +171,14 @@ class InfoWin(MinMaxDisabledWin):
         self.grid_layout.setSpacing(5)
         self.setLayout(self.grid_layout)
 
-        row = 0
-        base_item = BaseItem(self.src)
-        base_item.setup_attrs()
-        info_ = InfoTask(base_item)
-        info_ = info_.get()
+        self.info_task = InfoTask(self.src)
+        self.info_task.signals.finished_info.connect(lambda data: self.init_ui(data))
+        UThreadPool.start(self.info_task)
 
-        for name, value in info_.items():
+    def init_ui(self, data: dict):
+        row = 0
+
+        for name, value in data.items():
 
             left_lbl = SelectableLabel(name)
             flags_l_al = Qt.AlignmentFlag.AlignRight
@@ -185,10 +192,10 @@ class InfoWin(MinMaxDisabledWin):
 
         self.adjustSize()
 
-        cmd_ = lambda result: self.finalize(result)
-        task_ = CalculatingTask(base_item)
-        task_.signals_.finished_.connect(cmd_)
-        UThreadPool.start(task_)
+        # cmd_ = lambda result: self.finalize(result)
+        # task_ = CalculatingTask(base_item)
+        # task_.signals_.finished_.connect(cmd_)
+        # UThreadPool.start(task_)
 
     def finalize(self, result: str):
         # лейбл с динамической переменной у нас всегда самый последний в

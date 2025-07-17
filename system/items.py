@@ -123,7 +123,7 @@ class BaseItem:
 
     def setup_attrs(self):
         """
-        Устанавливает параметры: src, name, type_, mod, birth, size, rating
+        Устанавливает параметры: src, name, type, mod, birth, size, rating
         """
         self.src = Utils.normalize_slash(self.src)
         self.name = os.path.basename(self.src)
