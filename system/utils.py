@@ -26,10 +26,10 @@ psd_logger = logging.getLogger("psd_tools")
 psd_logger.setLevel(logging.CRITICAL)
 
 
-class ReadImage:
+class UImage:
 
     @classmethod
-    def read_tiff(cls, path: str) -> np.ndarray | None:
+    def _read_tiff(cls, path: str) -> np.ndarray | None:
         try:
             img = tifffile.imread(path)
             # Проверяем, что изображение трёхмерное
@@ -62,7 +62,7 @@ class ReadImage:
                 return None
                     
     @classmethod
-    def read_psb(cls, path: str):
+    def _read_psb(cls, path: str):
         try:
             img = psd_tools.PSDImage.open(path)
             img = img.composite()
@@ -74,7 +74,7 @@ class ReadImage:
             return None
 
     @classmethod
-    def read_png(cls, path: str) -> np.ndarray | None:
+    def _read_png(cls, path: str) -> np.ndarray | None:
         try:
             img = Image.open(path)
             if img.mode == "RGBA":
@@ -89,7 +89,7 @@ class ReadImage:
             return None
 
     @classmethod
-    def read_jpg(cls, path: str) -> np.ndarray | None:
+    def _read_jpg(cls, path: str) -> np.ndarray | None:
         try:
             img = Image.open(path)
             img = img.convert("RGB")
@@ -101,7 +101,7 @@ class ReadImage:
             return None
 
     @classmethod
-    def read_raw(cls, path: str) -> np.ndarray | None:
+    def _read_raw(cls, path: str) -> np.ndarray | None:
         try:
             # https://github.com/letmaik/rawpy
             # Извлечение встроенного эскиза/превью из RAW-файла и преобразование в изображение:
@@ -140,7 +140,7 @@ class ReadImage:
             return None
 
     @classmethod
-    def read_movie(cls, path: str, time_sec=1) -> np.ndarray | None:
+    def _read_movie(cls, path: str, time_sec=1) -> np.ndarray | None:
         try:
             cap = cv2.VideoCapture(path)
             cap.set(cv2.CAP_PROP_POS_MSEC, time_sec * 1000)
@@ -156,7 +156,7 @@ class ReadImage:
             return None
 
     @classmethod
-    def read_any(cls, path: str) -> np.ndarray | None:
+    def _read_any(cls, path: str) -> np.ndarray | None:
         ...
 
     @classmethod
@@ -166,17 +166,17 @@ class ReadImage:
         read_any_dict: dict[str, callable] = {}
 
         for i in Static.ext_psd:
-            read_any_dict[i] = cls.read_psb
+            read_any_dict[i] = cls._read_psb
         for i in Static.ext_tiff:
-            read_any_dict[i] = cls.read_tiff
+            read_any_dict[i] = cls._read_tiff
         for i in Static.ext_raw:
-            read_any_dict[i] = cls.read_raw
+            read_any_dict[i] = cls._read_raw
         for i in Static.ext_jpeg:
-            read_any_dict[i] = cls.read_jpg
+            read_any_dict[i] = cls._read_jpg
         for i in Static.ext_png:
-            read_any_dict[i] = cls.read_png
+            read_any_dict[i] = cls._read_png
         for i in Static.ext_video:
-            read_any_dict[i] = cls.read_movie
+            read_any_dict[i] = cls._read_movie
 
         for i in Static.ext_all:
             if i not in read_any_dict:
@@ -184,13 +184,11 @@ class ReadImage:
 
         fn = read_any_dict.get(ext)
         if fn:
-            cls.read_any = fn
-            return cls.read_any(path)
+            cls._read_any = fn
+            return cls._read_any(path)
         else:
             return None
-
-
-class ImgConvert:
+        
     @classmethod
     def bytes_to_array(cls, blob: bytes) -> np.ndarray:
         try:
@@ -214,8 +212,21 @@ class ImgConvert:
             Utils.print_error()
             return None
 
+    @classmethod
+    def desaturate_image(cls, image: np.ndarray, factor=0.2):
+        try:
+            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            return cv2.addWeighted(
+                image,
+                1 - factor,
+                cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR),
+                factor,
+                0
+            )
+        except Exception as e:
+            Utils.print_error()
+            return image
 
-class Pixmap:
     @classmethod
     def pixmap_from_array(cls, image: np.ndarray) -> QPixmap | None:
         if isinstance(image, np.ndarray) and QApplication.instance():
@@ -244,7 +255,7 @@ class Pixmap:
             aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio,
             transformMode=Qt.TransformationMode.SmoothTransformation
         )
-    
+
 
 class Utils:
     @classmethod
@@ -375,21 +386,6 @@ class Utils:
         except OSError as e:
             cls.print_error()
             return "partial hash error"
-
-    @classmethod
-    def desaturate_image(cls, image: np.ndarray, factor=0.2):
-        try:
-            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            return cv2.addWeighted(
-                image,
-                1 - factor,
-                cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR),
-                factor,
-                0
-            )
-        except Exception as e:
-            cls.print_error()
-            return image
 
     @classmethod
     def get_generic_icon_path(cls, ext: str, generic_icons_dir: str):
