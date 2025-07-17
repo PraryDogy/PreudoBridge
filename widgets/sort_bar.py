@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
 
 from cfg import Dynamic, Static, ThumbData
-from utils import Utils
+from system.utils import Utils
 
 from ._base_items import (MainWinItem, MinMaxDisabledWin, SortItem, UFrame,
                           ULineEdit, URunnable, USlider, USvgSqareWidget,

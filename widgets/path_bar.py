@@ -5,7 +5,7 @@ from PyQt5.QtGui import QContextMenuEvent, QDrag, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import QApplication, QHBoxLayout, QLabel, QWidget
 
 from cfg import Static
-from utils import Utils
+from system.utils import Utils
 
 from ._base_items import MainWinItem, UMenu, USvgSqareWidget
 from .actions import ItemActions

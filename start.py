@@ -55,7 +55,7 @@ from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import QApplication
 
 from cfg import Dynamic, JsonData
-from utils import Utils
+from system.utils import Utils
 from widgets._base_items import BaseItem, UThreadPool, WinBase
 from widgets.main_win import MainWin
 
@@ -77,11 +77,11 @@ class CustomApp(QApplication):
         return False
 
     def on_exit(self):
-        for i in UThreadPool.tasks:
-            i.set_should_run(False)
+        # for i in UThreadPool.tasks:
+        #     i.set_should_run(False)
 
-        while any(not i.is_finished() for i in UThreadPool.tasks):
-            QTest.qSleep(500)
+        # while any(not i.is_finished() for i in UThreadPool.tasks):
+        #     QTest.qSleep(500)
 
         # вероятно предотвращает segmentation fault / bus error
         self.removeEventFilter(self)

@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QFrame, QLineEdit, QMenu, QScrollArea, QSlider,
                              QTableView, QTextEdit, QWidget)
 
 from cfg import Static
-from utils import Utils
+from system.utils import Utils
 
 
 class UMethods:
@@ -655,15 +655,15 @@ class URunnable(QRunnable):
             self.task()
         finally:
             self.set_finished(True)
-            if self in UThreadPool.tasks:
-                QTimer.singleShot(5000, lambda: self.task_fin())
+            # if self in UThreadPool.tasks:
+                # QTimer.singleShot(5000, lambda: self.task_fin())
 
     def task(self):
         raise NotImplementedError("Переопредели метод task() в подклассе.")
     
-    def task_fin(self):
-        UThreadPool.tasks.remove(self)
-        gc.collect()
+    # def task_fin(self):
+    #     UThreadPool.tasks.remove(self)
+    #     gc.collect()
 
 
 class UThreadPool:
@@ -676,6 +676,6 @@ class UThreadPool:
 
     @classmethod
     def start(cls, runnable: QRunnable):
-        cls.tasks.append(runnable)
+        # cls.tasks.append(runnable)
         cls.pool.start(runnable)
 

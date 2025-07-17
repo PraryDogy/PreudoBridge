@@ -12,8 +12,8 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
                              QRubberBand, QSplitter, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static, ThumbData
-from database import CACHE, Dbase
-from utils import Utils
+from system.database import CACHE, Dbase
+from system.utils import Utils
 
 from ._base_items import (BaseItem, MainWinItem, SortItem, UMenu, URunnable,
                           UScrollArea, UThreadPool)

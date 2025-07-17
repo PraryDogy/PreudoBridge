@@ -241,7 +241,7 @@ class JsonData:
             if entry.name.endswith(".svg"):
                 Dynamic.generic_icon_paths.append(entry.path)
 
-        from utils import Utils
+        from system.utils import Utils
         path = Utils.get_generic_icon_path(Static.FOLDER_TYPE, Static.GENERIC_ICONS_DIR)
         shutil.copyfile(Static.FOLDER_SVG, path)
         Dynamic.generic_icon_paths.append(path)

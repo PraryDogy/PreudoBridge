@@ -4,7 +4,7 @@ from time import sleep
 import sqlalchemy
 from sqlalchemy.exc import IntegrityError, OperationalError
 
-from utils import Utils
+from system.utils import Utils
 
 METADATA = sqlalchemy.MetaData()
 TABLE_NAME = "cache"

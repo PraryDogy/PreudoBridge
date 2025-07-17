@@ -6,8 +6,8 @@ from PyQt5.QtWidgets import QLabel, QWidget
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import Static, JsonData
-from database import CACHE, Dbase
-from utils import Utils
+from system.database import CACHE, Dbase
+from system.utils import Utils
 
 from ._base_items import (BaseItem, MainWinItem, SortItem, URunnable,
                           UThreadPool)

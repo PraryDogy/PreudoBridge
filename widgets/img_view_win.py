@@ -10,8 +10,8 @@ from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QSpacerItem,
                              QVBoxLayout, QWidget)
 
 from cfg import Static
-from database import CACHE, Dbase
-from utils import Utils
+from system.database import CACHE, Dbase
+from system.utils import Utils
 
 from ._base_items import (UMenu, URunnable, USvgSqareWidget, UThreadPool,
                           WinBase)

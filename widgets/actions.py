@@ -5,7 +5,7 @@ from PyQt5.QtCore import pyqtSignal
 from PyQt5.QtWidgets import QAction, QLabel, QLineEdit, QTextEdit
 
 from cfg import Dynamic, Static
-from utils import Utils
+from system.utils import Utils
 
 from ._base_items import SortItem, UMenu, URunnable, UThreadPool
 

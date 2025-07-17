@@ -5,7 +5,7 @@ from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import QAction, QGridLayout, QLabel
 
 from cfg import Static
-from utils import Utils
+from system.utils import Utils
 
 from ._base_items import (BaseItem, MinMaxDisabledWin, UMenu, URunnable,
                           UThreadPool)

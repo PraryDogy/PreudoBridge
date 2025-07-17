@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QPushButton,
                              QVBoxLayout, QWidget)
 from time import sleep
 from cfg import Static
-from utils import Utils
+from system.utils import Utils
 
 from ._base_items import (MainWinItem, MinMaxDisabledWin, URunnable,
                           USvgSqareWidget, UThreadPool)

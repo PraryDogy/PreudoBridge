@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (QApplication, QCheckBox, QFrame, QGroupBox,
                              QWidget)
 
 from cfg import JsonData, Static
-from paletes import UPallete
+from system.paletes import UPallete
 
 from ._base_items import (MinMaxDisabledWin, URunnable, USvgSqareWidget,
                           UThreadPool)

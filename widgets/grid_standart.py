@@ -8,8 +8,8 @@ from sqlalchemy import (Connection, Insert, RowMapping, Update, insert, select,
                         update)
 
 from cfg import Dynamic, Static, ThumbData
-from database import CACHE, ColumnNames, Dbase
-from utils import FitImg, Utils
+from system.database import CACHE, ColumnNames, Dbase
+from system.utils import FitImg, Utils
 
 from ._base_items import BaseItem, MainWinItem, URunnable, UThreadPool
 from .finder_items import FinderItems, LoadingWid

@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QFileSystemModel,
                              QSplitter, QTableView)
 
 from cfg import Dynamic, JsonData, Static
-from utils import Utils
+from system.utils import Utils
 
 from ._base_items import MainWinItem, UMenu, UTableView
 from .actions import GridActions, ItemActions

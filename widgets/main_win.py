@@ -10,8 +10,8 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
-from paletes import UPallete
-from utils import Utils
+from system.paletes import UPallete
+from system.utils import Utils
 
 from ._base_items import (BaseItem, MainWinItem, SearchItem, SortItem,
                           URunnable, USep, UThreadPool, WinBase)

@@ -3,7 +3,7 @@ from PyQt5.QtGui import QColor, QPalette
 from PyQt5.QtWidgets import (QAction, QFrame, QHBoxLayout, QLabel, QMenu,
                              QPushButton)
 
-from utils import Utils
+from system.utils import Utils
 
 from ._base_items import SearchItem, UFrame
 
