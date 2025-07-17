@@ -1,7 +1,6 @@
 import os
 
 from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import QLabel
 
 from cfg import Dynamic, Static
