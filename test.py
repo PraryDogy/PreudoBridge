@@ -1,39 +1,87 @@
-import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QProgressBar
-from PyQt5.QtCore import QTimer
+import json
+import pydantic
 
-class ProgressApp(QWidget):
-    def __init__(self):
+
+class TestModel(pydantic.BaseModel):
+    one: str
+    two: int
+    tree: list
+    four: str
+
+
+class Test:
+    one = "first"
+    two = 2
+    tree = ["hello", "sex"]
+    four = "four"
+
+    @classmethod
+    def get_data(cls):
+        return {
+            k: v
+            for k, v in cls.__dict__.items()
+            if not k.startswith("__") and not isinstance(v, (classmethod))
+        }
+
+
+
+class Validator:
+    def __init__(self, filepath: str, obj: callable, model: pydantic.BaseModel):
         super().__init__()
-        self.setWindowTitle("ProgressBar Example")
-        self.setGeometry(100, 100, 300, 100)
+        self.filepath = filepath
+        self.obj = obj
+        self.model = model
 
-        QApplication.setStyle("Fusion")
+    def validate(self):
+        json_data = self.json_loads()
 
-        self.layout = QVBoxLayout()
-        self.progress = QProgressBar()
-        self.progress.setMaximum(100)
-        self.layout.addWidget(self.progress)
-        self.setLayout(self.layout)
+    def json_loads(self):
+        with open (json_file, "r", encoding="utf-8") as f:
+            data: dict = f.read()
+        try:
+            data = json.loads(data)
+        except json.decoder.JSONDecodeError:
+            print("json файл поврежден или пуст")
+            data = {}
+        return data
+    
+    def get_obj_data(self):
+        return {
+            k: v
+            for k, v in self.obj.__dict__.items()
+            if not k.startswith("__")
+            and
+            not isinstance(v, (classmethod))
+        }
 
-        self.timer = QTimer()
-        self.timer.timeout.connect(self.advance)
-        self.timer.start(1000)  # 1 секунда
 
-        self.value = 0
+json_file = "test.json"
 
-        self.progress.setTextVisible(False)
-        self.progress.setFixedHeight(6)
+with open (json_file, "r", encoding="utf-8") as f:
+    data: dict = f.read()
 
-    def advance(self):
-        if self.value < 100:
-            self.value += 10
-            self.progress.setValue(self.value)
-        else:
-            self.timer.stop()
+try:
+    data = json.loads(data)
+except json.decoder.JSONDecodeError:
+    print("json файл поврежден или пуст")
+    data = Test.get_data()
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-    window = ProgressApp()
-    window.show()
-    sys.exit(app.exec_())
+try:
+    model = TestModel(**data)
+except pydantic.ValidationError as e:
+    print("ошибка валидации json файла")
+    error_keys = [
+        x
+        for err in e.errors()
+        for x in err["loc"]
+    ]
+
+
+    default_data = Test.get_data()
+    for k, v in data.items():
+        if k in default_data:
+            default_data[k] = v
+    data = default_data
+
+# with open(json_file, "w", encoding="utf-8") as f:
+#     data = json.dump(data, f, ensure_ascii=False, indent=4)
