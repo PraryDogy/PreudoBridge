@@ -478,6 +478,7 @@ class Utils:
     @classmethod
     def print_error(self):
         print()
+        print("Исключение обработано.")
         print(traceback.format_exc())
         print()
 
