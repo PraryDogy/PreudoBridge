@@ -14,7 +14,7 @@ from .grid import Grid, Thumb
 
 class GridStandart(Grid):
     empty_text = "Нет файлов"
-    not_exists_text = "Такой папки не существует"
+    not_exists_text = "Такой папки не существует. \nВозможно не подключен сетевой диск."
 
     def __init__(self, main_win_item: MainWinItem, view_index: int):
         """
