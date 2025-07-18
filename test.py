@@ -46,6 +46,7 @@ class Validator:
         validated = self.keys_validate(json_data)
         if isinstance(validated, pydantic.BaseModel):
             print("валидация пройдена")
+            json_data = validated.model_dump_json()
         elif isinstance(validated, list):
             print("валидация не пройдена, нужны ключи", validated)
 
@@ -78,6 +79,9 @@ class Validator:
                 for x in err["loc"]
             ]
     
+    def new_data(self):
+        ...
+    
 v = Validator(
     filepath="test.json",
     obj=Test,
@@ -85,6 +89,8 @@ v = Validator(
 )
 
 v.validate()
+
+
 
 
 # json_file = "test.json"
