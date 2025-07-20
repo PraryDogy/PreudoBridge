@@ -57,7 +57,7 @@ from cfg import Dynamic, JsonData
 from system.utils import UThreadPool, Utils
 from widgets._base_widgets import WinBase
 from widgets.main_win import MainWin
-from evlosh_templates.utils import EvloshUtils
+from evlosh_templates.evlosh_utils import EvloshUtils
 
 
 class CustomApp(QApplication):

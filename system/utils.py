@@ -1,31 +1,18 @@
 import gc
 import hashlib
 import io
-import logging
 import os
 import subprocess
 import traceback
-from datetime import datetime, timedelta
 
 import cv2
 import numpy as np
-import psd_tools
-import rawpy
-import rawpy._rawpy
-import tifffile
-from imagecodecs.imagecodecs import DelayedImportError
 from PIL import Image
 from PyQt5.QtCore import (QRect, QRectF, QRunnable, QSize, Qt, QThreadPool,
                           QTimer)
 from PyQt5.QtGui import QColor, QFont, QImage, QPainter, QPixmap
 from PyQt5.QtSvg import QSvgGenerator, QSvgRenderer
 from PyQt5.QtWidgets import QApplication
-
-from cfg import JsonData, Static
-
-psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
-psd_logger = logging.getLogger("psd_tools")
-psd_logger.setLevel(logging.CRITICAL)
 
 
 class UImage:        
@@ -110,56 +97,6 @@ class Utils:
         return clipboard.text()
 
     @classmethod
-    def get_f_size(cls, bytes_size: int, round_value: int = 2) -> str:
-        def format_size(size: float) -> str:
-            if round_value == 0:
-                return str(int(round(size)))
-            return str(round(size, round_value))
-
-        if bytes_size < 1024:
-            return f"{bytes_size} байт"
-        elif bytes_size < pow(1024, 2):
-            return f"{format_size(bytes_size / 1024)} КБ"
-        elif bytes_size < pow(1024, 3):
-            return f"{format_size(bytes_size / pow(1024, 2))} МБ"
-        elif bytes_size < pow(1024, 4):
-            return f"{format_size(bytes_size / pow(1024, 3))} ГБ"
-        elif bytes_size < pow(1024, 5):
-            return f"{format_size(bytes_size / pow(1024, 4))} ТБ"
-
-    @classmethod
-    def get_f_date(cls, timestamp_: int, date_only: bool = False) -> str:
-        date = datetime.fromtimestamp(timestamp_).replace(microsecond=0)
-        now = datetime.now()
-        today = now.date()
-        yesterday = today - timedelta(days=1)
-
-        if date.date() == today:
-            return f"сегодня {date.strftime('%H:%M')}"
-        elif date.date() == yesterday:
-            return f"вчера {date.strftime('%H:%M')}"
-        else:
-            return date.strftime("%d.%m.%y %H:%M")
-
-    @classmethod
-    def normalize_slash(cls, path: str):
-        """
-        Убирает последний слеш, оставляет первый
-        """
-        return os.sep + path.strip(os.sep)
-
-    @classmethod
-    def add_system_volume(cls, path: str, sys_vol: str):
-        """
-        Добавляет /Volumes/Macintosh HD (или иное имя системного диска),
-        если директория локальная - т.е. начинается с /Users/Username/...
-        sys_vol - системный диск, обычно это /Volumes/Macintosh HD
-        """
-        if path.startswith(os.path.expanduser("~")):
-            return sys_vol + path
-        return path
-    
-    @classmethod
     def fix_path_prefix(cls, path: str, volumes="Volumes"):
         """
         Устраняет проблему с изменяющимся префиксом пути к сетевому диску,
@@ -180,18 +117,6 @@ class Utils:
             if os.path.exists(new_path):
                 return new_path
         return None
-
-    @classmethod
-    def get_system_volume(cls, app_support: str, volumes="Volumes"):
-        """
-        Возвращает путь к системному диску /Volumes/Macintosh HD (или иное имя)
-        app_support: /Volumes/Macintosh HD/..../ApplicationSupport/current app_name
-        """
-        # Сканируем все диски
-        # Тот диск, где есть директория ApplicationSupport, является системным
-        for i in os.scandir(os.sep + volumes):
-            if os.path.exists(i.path + app_support):
-                return i.path
 
     @classmethod
     def get_hash_filename(cls, filename: str):
@@ -275,35 +200,6 @@ class Utils:
         painter.end()
 
         return icon_path
-
-    @classmethod
-    def get_image_apps(cls):
-        """
-        Возвращает:
-        - {путь к приложению: имя приложения, ...}
-        """
-        app_dirs = [
-            "/Applications",
-            os.path.expanduser("~/Applications"),
-            "/System/Applications"
-        ]
-        image_apps: dict[str, str] = {}
-
-        def search_dir(directory):
-            try:
-                for entry in os.scandir(directory):
-                    if entry.name.endswith(".app"):
-                        name_lower = entry.name.lower()
-                        if any(k in name_lower for k in JsonData.app_names):
-                            image_apps[entry.path] = entry.name
-                    elif entry.is_dir():
-                        search_dir(entry.path)
-            except PermissionError:
-                pass
-        for app_dir in app_dirs:
-            if os.path.exists(app_dir):
-                search_dir(app_dir)
-        return image_apps
     
     @classmethod
     def open_in_def_app(cls, path: str):

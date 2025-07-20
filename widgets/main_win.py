@@ -11,8 +11,9 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
-from system.items import MainWinItem, SearchItem, SortItem
+from evlosh_templates.evlosh_utils import EvloshUtils
 from evlosh_templates.paletes import UPallete
+from system.items import MainWinItem, SearchItem, SortItem
 from system.tasks import PathFinderTask
 from system.utils import UThreadPool, Utils
 
@@ -142,8 +143,8 @@ class MainWin(WinBase):
         if dir:
             self.main_win_item.main_dir = dir
         else:
-            sys_vol = Utils.get_system_volume(Static.APP_SUPPORT_APP)
-            dir = Utils.add_system_volume(MainWin.base_dir, sys_vol)
+            sys_vol = EvloshUtils.get_system_volume(Static.APP_SUPPORT_APP)
+            dir = EvloshUtils.add_system_volume(MainWin.base_dir, sys_vol)
             self.main_win_item.main_dir = dir
 
         self.resize_timer = QTimer(self)
@@ -458,7 +459,7 @@ class MainWin(WinBase):
         - dir: основная директория, которая будет отображена в виде сетки виджетов
         """
         if not os.path.exists(self.main_win_item.main_dir):
-            slashed = Utils.normalize_slash(self.main_win_item.main_dir)
+            slashed = EvloshUtils.normalize_slash(self.main_win_item.main_dir)
             fixed_path = Utils.fix_path_prefix(slashed)
             if fixed_path:
                 self.main_win_item.main_dir = fixed_path

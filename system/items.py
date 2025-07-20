@@ -7,6 +7,7 @@ from sqlalchemy import (Connection, Insert, RowMapping, Update, insert, select,
                         update)
 
 from cfg import Static, ThumbData
+from evlosh_templates.evlosh_utils import EvloshUtils
 from evlosh_templates.fit_image import FitImage
 from evlosh_templates.read_image import ReadImage
 
@@ -127,7 +128,7 @@ class BaseItem:
         """
         Устанавливает параметры: src, name, type, mod, birth, size, rating
         """
-        self.src = Utils.normalize_slash(self.src)
+        self.src = EvloshUtils.normalize_slash(self.src)
         self.name = os.path.basename(self.src)
 
         if os.path.isdir(self.src):

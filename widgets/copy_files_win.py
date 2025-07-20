@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QPushButton,
                              QVBoxLayout, QWidget)
 
 from cfg import Static
+from evlosh_templates.evlosh_utils import EvloshUtils
 from system.tasks import CopyFilesTask
 from system.utils import UThreadPool, Utils
 
@@ -159,7 +160,7 @@ class CopyFilesWin(MinMaxDisabledWin):
         main_lay.addWidget(right_side_wid)
 
         src = min(urls, key=len)
-        src = os.path.dirname(Utils.normalize_slash(src))
+        src = os.path.dirname(EvloshUtils.normalize_slash(src))
         src = os.path.basename(src)
         src = self.limit_string(src)
 

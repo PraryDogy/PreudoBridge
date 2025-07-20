@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
                              QRubberBand, QSplitter, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static, ThumbData
+from evlosh_templates.evlosh_utils import EvloshUtils
 from system.items import BaseItem, MainWinItem, SortItem
 from system.tasks import RatingTask
 from system.utils import UImage, UThreadPool, Utils
@@ -106,11 +107,11 @@ class RatingWid(QLabel):
             if thumb.rating > 0:
                 mod_row = RATINGS.get(thumb.rating).strip()
             else:
-                mod_row = self.text_mod + Utils.get_f_date(thumb.mod)
+                mod_row = self.text_mod + EvloshUtils.get_f_date(thumb.mod)
                 if thumb.type_ == Static.FOLDER_TYPE:
                     sec_row = str("")
                 else:
-                    sec_row = self.text_size + Utils.get_f_size(thumb.size, 0)
+                    sec_row = self.text_size + EvloshUtils.get_f_size(thumb.size, 0)
                 mod_row = "\n".join((mod_row, sec_row))
             self.setText(mod_row)
         except Exception as e:
@@ -1156,12 +1157,12 @@ class Grid(UScrollArea):
         Dynamic.urls_to_copy.clear()
         Dynamic.urls_to_copy = [i.toLocalFile() for i in a0.mimeData().urls()]
 
-        main_dir_ = Utils.normalize_slash(self.main_win_item.main_dir)
-        sys_vol = Utils.get_system_volume(Static.APP_SUPPORT_APP)
-        main_dir_ = Utils.add_system_volume(main_dir_, sys_vol)
+        main_dir_ = EvloshUtils.normalize_slash(self.main_win_item.main_dir)
+        sys_vol = EvloshUtils.get_system_volume()
+        main_dir_ = EvloshUtils.add_system_volume(main_dir_, sys_vol)
         for i in Dynamic.urls_to_copy:
-            i = Utils.normalize_slash(i)
-            i = Utils.add_system_volume(i, sys_vol)
+            i = EvloshUtils.normalize_slash(i)
+            i = EvloshUtils.add_system_volume(i, sys_vol)
             if os.path.commonpath([i, main_dir_]) == main_dir_:
                 print("Нельзя копировать в себя")
                 return

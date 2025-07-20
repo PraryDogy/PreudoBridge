@@ -11,6 +11,7 @@ from PyQt5.QtTest import QTest
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import JsonData, Static, ThumbData
+from evlosh_templates.evlosh_utils import EvloshUtils
 from evlosh_templates.fit_image import FitImage
 from evlosh_templates.path_finder import PathFinder
 from evlosh_templates.read_image import ReadImage
@@ -90,7 +91,7 @@ class CopyFilesTask(URunnable):
         self.copied_bytes = 0
         
         # байты переводим в читаемый f string
-        self.total_f_size = Utils.get_f_size(total_bytes)
+        self.total_f_size = EvloshUtils.get_f_size(total_bytes)
 
         for src, dest in new_paths:
             # создаем древо папок как в исходной папке
@@ -146,7 +147,7 @@ class CopyFilesTask(URunnable):
         self.signals_.set_value.emit(copied_mb)
 
         # байты переводим в читаемый f string
-        copied_f_size = Utils.get_f_size(self.copied_bytes)
+        copied_f_size = EvloshUtils.get_f_size(self.copied_bytes)
 
         text = f"{copied_f_size} из {self.total_f_size}"
         self.signals_.set_size_mb.emit(text)
@@ -184,7 +185,7 @@ class CopyFilesTask(URunnable):
         self.new_paths = []
 
         for i in self.urls:
-            i = Utils.normalize_slash(i)
+            i = EvloshUtils.normalize_slash(i)
             if os.path.isdir(i):
                 self.old_new_paths.extend(self.scan_folder(i, self.dest))
             else:
@@ -220,8 +221,8 @@ class CopyFilesTask(URunnable):
         stack = [src_dir]
         new_paths: list[tuple[str, str]] = []
 
-        src_dir = Utils.normalize_slash(src_dir)
-        dest = Utils.normalize_slash(dest)
+        src_dir = EvloshUtils.normalize_slash(src_dir)
+        dest = EvloshUtils.normalize_slash(dest)
 
         # Родительская папка от src_dir — нужна, чтобы определить
         # относительный путь каждого файла внутри src_dir
@@ -655,7 +656,7 @@ class LoadThumb(URunnable):
     def __init__(self, src: str):
         super().__init__()
         self.signals_ = _LoadThumbSigs()
-        self.src = Utils.normalize_slash(src)
+        self.src = EvloshUtils.normalize_slash(src)
         self.name = os.path.basename(self.src)
 
     def task(self):
@@ -783,7 +784,7 @@ class FolderSizeTask(URunnable):
                         stack.append(entry.path)
                     else:
                         total += entry.stat().st_size
-        return Utils.get_f_size(total)
+        return EvloshUtils.get_f_size(total)
 
 
 class InfoTask(URunnable):
@@ -809,12 +810,12 @@ class InfoTask(URunnable):
             size_ = self.calculating
             type_ = self.ru_folder
         else:
-            size_ = Utils.get_f_size(self.base_item.size)
+            size_ = EvloshUtils.get_f_size(self.base_item.size)
             type_ = self.base_item.type_
         
         name = self.lined_text(self.base_item.name)
         src = self.lined_text(self.base_item.src)
-        mod = Utils.get_f_date(self.base_item.mod)
+        mod = EvloshUtils.get_f_date(self.base_item.mod)
 
         data = {
             InfoTask.name_text: name,
