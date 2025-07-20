@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
 
 from cfg import JsonData, Static
 from system.items import MainWinItem, SearchItem, SortItem
-from system.paletes import UPallete
+from evlosh_templates.paletes import UPallete
 from system.tasks import PathFinderTask
 from system.utils import UThreadPool, Utils
 
