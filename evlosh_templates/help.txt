@@ -1,0 +1,17 @@
+Для лечения ошибок при сборке pyq2app, в setup.py добавь:
+OPTIONS = {
+    это обязательно
+    "excludes": ["setuptools"],
+
+    на всякий случай это тоже
+    'includes': ['numpy', 'cv2'],
+    "packages": ['numpy', 'cv2'],
+}
+
+numpy:
+Для python 3.11 версия numpy обязана быть 1.25.2, иначе собранное приложение
+в py2app будет вылетать с критической ошибкой
+
+pip install -r req.txt:
+Сначала установи pip install aggdraw --prefer-binary
+Потом уже pip install -r req.txt
