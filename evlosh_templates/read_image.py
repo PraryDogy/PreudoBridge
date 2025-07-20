@@ -244,10 +244,6 @@ class ReadImage:
         for i in cls.ext_video:
             read_any_dict[i] = cls._read_movie
 
-        for i in cls.ext_all:
-            if i not in read_any_dict:
-                raise Exception (f"utils > ReadImage > init_read_dict: не инициирован {i}")
-
         fn = read_any_dict.get(ext)
         if fn:
             cls._read_any = fn
