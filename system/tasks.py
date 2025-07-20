@@ -11,12 +11,14 @@ from PyQt5.QtTest import QTest
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import JsonData, Static, ThumbData
+from evlosh_templates.fit_image import FitImage
+from evlosh_templates.path_finder import PathFinder
+from evlosh_templates.read_image import ReadImage
 
 from .database import CACHE, Dbase
 from .items import (AnyBaseItem, BaseItem, ImageBaseItem, MainWinItem,
                     SearchItem, SortItem)
-from ..evlosh_templates.path_finder import PathFinder
-from .utils import FitImg, UImage, URunnable, Utils
+from .utils import UImage, URunnable, Utils
 
 
 # Общий класс для выполнения действий QAction в отдельном потоке
@@ -461,8 +463,8 @@ class SearchTask(URunnable):
                 self.process_img(entry)
 
     def process_img(self, entry: os.DirEntry):
-        self.img_array = UImage.read_image(entry.path)
-        self.img_array = FitImg.start(self.img_array, ThumbData.DB_IMAGE_SIZE)
+        self.img_array = ReadImage.read_image(entry.path)
+        self.img_array = FitImage.start(self.img_array, ThumbData.DB_IMAGE_SIZE)
         self.pixmap = UImage.pixmap_from_array(self.img_array)
         self.base_item = BaseItem(entry.path)
         self.base_item.setup_attrs()
@@ -706,7 +708,7 @@ class LoadImage(URunnable):
     def task(self):
         if self.src not in self.cached_images:
 
-            img_array = UImage.read_image(self.src)
+            img_array = ReadImage.read_image(self.src)
             img_array = UImage.desaturate_image(img_array, 0.2)
 
             if img_array is None:
@@ -742,7 +744,7 @@ class ImgResolTask(URunnable):
         self.signals_ = _InfoTaskSigs()
 
     def task(self):
-        img_ = UImage.read_image(self.base_item.src)
+        img_ = ReadImage.read_image(self.base_item.src)
         if img_ is not None and len(img_.shape) > 1:
             h, w = img_.shape[0], img_.shape[1]
             resol= f"{w}x{h}"

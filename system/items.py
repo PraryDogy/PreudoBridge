@@ -7,9 +7,11 @@ from sqlalchemy import (Connection, Insert, RowMapping, Update, insert, select,
                         update)
 
 from cfg import Static, ThumbData
+from evlosh_templates.fit_image import FitImage
+from evlosh_templates.read_image import ReadImage
 
 from .database import CACHE, ColumnNames, Dbase
-from .utils import FitImg, UImage, Utils
+from .utils import UImage, Utils
 
 
 class SortItem:
@@ -414,8 +416,8 @@ class ImageBaseItem:
     
     @classmethod
     def get_small_ndarray_img(cls, src: str) -> np.ndarray:
-        img_array = UImage.read_image(src)
-        img_array = FitImg.start(img_array, ThumbData.DB_IMAGE_SIZE)
+        img_array = ReadImage.read_image(src)
+        img_array = FitImage.start(img_array, ThumbData.DB_IMAGE_SIZE)
         return img_array
     
     @classmethod

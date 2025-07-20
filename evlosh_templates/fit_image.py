@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 import traceback
 
-class FitImg:   
+class FitImage:   
     @classmethod
     def _print_error():
         print()
