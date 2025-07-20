@@ -294,7 +294,7 @@ class Utils:
                 for entry in os.scandir(directory):
                     if entry.name.endswith(".app"):
                         name_lower = entry.name.lower()
-                        if any(k in name_lower for k in JsonData.image_apps):
+                        if any(k in name_lower for k in JsonData.app_names):
                             image_apps[entry.path] = entry.name
                     elif entry.is_dir():
                         search_dir(entry.path)

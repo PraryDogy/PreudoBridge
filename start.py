@@ -57,6 +57,7 @@ from cfg import Dynamic, JsonData
 from system.utils import UThreadPool, Utils
 from widgets._base_widgets import WinBase
 from widgets.main_win import MainWin
+from evlosh_templates.utils import EvloshUtils
 
 
 class CustomApp(QApplication):
@@ -65,7 +66,7 @@ class CustomApp(QApplication):
         faulthandler.enable()
         JsonData.init()
         UThreadPool.init()
-        Dynamic.image_apps = Utils.get_image_apps()
+        Dynamic.image_apps = EvloshUtils.get_apps(JsonData.app_names)
 
         self.main_win = MainWin()
         self.main_win.show()
