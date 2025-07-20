@@ -11,8 +11,8 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
-from EvloshTemplates.evlosh_utils import EvloshUtils
-from EvloshTemplates.paletes import UPallete
+from evlosh_templates.evlosh_utils import EvloshUtils
+from evlosh_templates.paletes import UPallete
 from system.items import MainWinItem, SearchItem, SortItem
 from system.tasks import PathFinderTask
 from system.utils import UThreadPool, Utils

@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
                              QRubberBand, QSplitter, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static, ThumbData
-from EvloshTemplates.evlosh_utils import EvloshUtils
+from evlosh_templates.evlosh_utils import EvloshUtils
 from system.items import BaseItem, MainWinItem, SortItem
 from system.tasks import RatingTask
 from system.utils import UImage, UThreadPool, Utils
