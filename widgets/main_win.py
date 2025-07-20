@@ -11,8 +11,8 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
-from evlosh_templates.evlosh_utils import EvloshUtils
-from evlosh_templates.paletes import UPallete
+from EvloshTemplates.evlosh_utils import EvloshUtils
+from EvloshTemplates.paletes import UPallete
 from system.items import MainWinItem, SearchItem, SortItem
 from system.tasks import PathFinderTask
 from system.utils import UThreadPool, Utils
@@ -143,7 +143,7 @@ class MainWin(WinBase):
         if dir:
             self.main_win_item.main_dir = dir
         else:
-            sys_vol = EvloshUtils.get_system_volume(Static.APP_SUPPORT_APP)
+            sys_vol = EvloshUtils.get_system_volume()
             dir = EvloshUtils.add_system_volume(MainWin.base_dir, sys_vol)
             self.main_win_item.main_dir = dir
 

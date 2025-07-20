@@ -7,9 +7,9 @@ from sqlalchemy import (Connection, Insert, RowMapping, Update, insert, select,
                         update)
 
 from cfg import Static, ThumbData
-from evlosh_templates.evlosh_utils import EvloshUtils
-from evlosh_templates.fit_image import FitImage
-from evlosh_templates.read_image import ReadImage
+from EvloshTemplates.evlosh_utils import EvloshUtils
+from EvloshTemplates.fit_image import FitImage
+from EvloshTemplates.read_image import ReadImage
 
 from .database import CACHE, ColumnNames, Dbase
 from .utils import UImage, Utils

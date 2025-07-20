@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QPushButton,
                              QVBoxLayout, QWidget)
 
 from cfg import Static
-from evlosh_templates.evlosh_utils import EvloshUtils
+from EvloshTemplates.evlosh_utils import EvloshUtils
 from system.tasks import CopyFilesTask
 from system.utils import UThreadPool, Utils
 

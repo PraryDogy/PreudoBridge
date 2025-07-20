@@ -11,10 +11,10 @@ from PyQt5.QtTest import QTest
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import JsonData, Static, ThumbData
-from evlosh_templates.evlosh_utils import EvloshUtils
-from evlosh_templates.fit_image import FitImage
-from evlosh_templates.path_finder import PathFinder
-from evlosh_templates.read_image import ReadImage
+from EvloshTemplates.evlosh_utils import EvloshUtils
+from EvloshTemplates.fit_image import FitImage
+from EvloshTemplates.path_finder import PathFinder
+from EvloshTemplates.read_image import ReadImage
 
 from .database import CACHE, Dbase
 from .items import (AnyBaseItem, BaseItem, ImageBaseItem, MainWinItem,
