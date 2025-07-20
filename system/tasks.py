@@ -15,7 +15,7 @@ from cfg import JsonData, Static, ThumbData
 from .database import CACHE, Dbase
 from .items import (AnyBaseItem, BaseItem, ImageBaseItem, MainWinItem,
                     SearchItem, SortItem)
-from .path_finder import PathFinder
+from ..evlosh_templates.path_finder import PathFinder
 from .utils import FitImg, UImage, URunnable, Utils
 
 
