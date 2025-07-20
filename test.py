@@ -1,34 +1,23 @@
 import json
 import pydantic
 
-
+    
 class TestModel(pydantic.BaseModel):
     one: str
     two: int
-    tree: list
-    four: str
+    tree: list[str]
 
 
 class Test:
     one = "first"
     two = 2
     tree = ["hello", "sex"]
-    four = "four"
 
     @classmethod
-    def get_data(cls):
-        return {
-            k: v
-            for k, v in cls.__dict__.items()
-            if not k.startswith("__") and not isinstance(v, (classmethod))
-        }
-
+    def get_data(cls): ...
     @staticmethod
-    def test():
-        print(1)
-
-    def meth(self):
-        print(1)
+    def test(): ...
+    def meth(self): ...
 
 
 class Validator:
@@ -37,58 +26,47 @@ class Validator:
         self.filepath = filepath
         self.obj = obj
         self.model = model
+        
+    def get_valid_data(self) -> dict:
+        json_data = self.load_json_data(self.filepath) or {}
+        obj_data = self.get_obj_data(self.obj)
+        errors = []
+        
+        try:
+            self.model(**json_data)
+        except pydantic.ValidationError as e:
+            errors = e.errors()
 
-    def validate(self):
-        json_data = self.json_validate()
-        if json_data is None:
-            json_data = self.get_obj_data()
+        for err in errors:
+            key = err["loc"][0]
+            if key in obj_data:
+                json_data[key] = obj_data[key]
 
-        validated = self.keys_validate(json_data)
-        if isinstance(validated, pydantic.BaseModel):
-            print("валидация пройдена")
-            json_data = validated.model_dump_json()
-        elif isinstance(validated, list):
-            print("валидация не пройдена, нужны ключи", validated)
-
-    def json_validate(self):
-        with open (self.filepath, "r", encoding="utf-8") as f:
+        json_data = {k: v for k, v in json_data.items() if k in obj_data}
+        
+        return json_data
+        
+    def load_json_data(self, filepath: str):
+        with open (filepath, "r", encoding="utf-8") as f:
             data: dict = f.read()
         try:
             data = json.loads(data)
         except json.decoder.JSONDecodeError:
-            print("json файл поврежден или пуст")
+            # print("json файл поврежден или пуст")
             return None
         return data
     
-    def get_obj_data(self):
+    def get_obj_data(self, obj: callable):
         return {
-            k: getattr(self.obj, k)
-            for k in dir(self.obj)
-            if not k.startswith("__")
-            and
-            not callable(getattr(self.obj, k))
+            k: getattr(obj, k)
+            for k in dir(obj)
+            if not k.startswith("__") and not callable(getattr(obj, k))
         }
     
-    def keys_validate(self, json_data: dict):
-        try:
-            return self.model(**json_data)
-        except pydantic.ValidationError as e:
-            return [
-                x
-                for err in e.errors()
-                for x in err["loc"]
-            ]
     
-    def new_data(self):
-        ...
-    
-v = Validator(
-    filepath="test.json",
-    obj=Test,
-    model=TestModel
-)
-
-v.validate()
+v = Validator(filepath="test.json", obj=Test, model=TestModel)
+new_json_data = v.get_valid_data()
+print(new_json_data)
 
 
 
