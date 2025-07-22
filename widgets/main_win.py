@@ -3,12 +3,13 @@ import os
 import subprocess
 
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import (QCloseEvent, QKeyEvent, QMouseEvent, QPalette,
+from PyQt5.QtGui import (QCloseEvent, QColor, QKeyEvent, QMouseEvent, QPalette,
                          QResizeEvent)
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtTest import QTest
-from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
-                             QTabWidget, QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QApplication, QGraphicsDropShadowEffect,
+                             QHBoxLayout, QLabel, QSplitter, QTabWidget,
+                             QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
 from evlosh_templates.evlosh_utils import EvloshUtils
@@ -195,6 +196,12 @@ class MainWin(WinBase):
         self.temp_wid_timer = QTimer(self)
         self.temp_wid_timer.setSingleShot(True)
         self.temp_wid_timer.timeout.connect(lambda: self.fast_sort_wid.hide())
+
+        shadow = QGraphicsDropShadowEffect()
+        shadow.setBlurRadius(20)
+        shadow.setOffset(0, 2)
+        shadow.setColor(QColor(0, 0, 0, 190))
+        self.fast_sort_wid.setGraphicsEffect(shadow)
 
         self.splitter.addWidget(left_wid)
         self.splitter.addWidget(right_wid)
