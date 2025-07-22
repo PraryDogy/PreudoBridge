@@ -522,7 +522,7 @@ class MainWin(WinBase):
 
         self.fast_sort_wid.setStyleSheet("""
             QLabel {
-                background: rgba(128, 128, 128, 0.5);
+                background: rgba(128, 128, 128, 0.8);
                 font-weight: bold;
                 font-size: 20pt;
                 border-radius: 12px;
@@ -533,7 +533,8 @@ class MainWin(WinBase):
         self.fast_sort_wid.adjustSize()
         pw, ph = parent.width(), parent.height()
         tw, th = self.fast_sort_wid.width(), self.fast_sort_wid.height()
-        self.fast_sort_wid.move((pw - tw) // 2, (ph - th) // 2)
+        # self.fast_sort_wid.move((pw - tw) // 2, (ph - th) // 2)
+        self.fast_sort_wid.move((pw - tw) // 2, 30)
 
         self.fast_sort_wid.show()
         self.sort_bar.sort_frame.set_sort_text()
@@ -566,12 +567,6 @@ class MainWin(WinBase):
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:  
         if a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
-            
-            # if a0.key() == Qt.Key.Key_Q:
-            #     print("exit")
-            #     JsonData.write_config()
-            #     import sys
-            #     QTimer.singleShot(100, lambda: sys.exit())
 
             if a0.key() == Qt.Key.Key_F:
                 self.top_bar.search_wid.setFocus()
