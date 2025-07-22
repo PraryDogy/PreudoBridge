@@ -520,14 +520,22 @@ class MainWin(WinBase):
 
         self.fast_sort_wid.setText(text)
 
-        self.fast_sort_wid.setStyleSheet("""
-            QLabel {
-                background: rgba(128, 128, 128, 0.8);
+        palete = QApplication.palette()
+        color = QPalette.windowText(palete).color().name()
+    
+        bg_style_data = {
+            "#000000": "rgba(220, 220, 220, 1)",
+            "#ffffff": "rgba(80, 80, 80, 1)",
+        }
+
+        self.fast_sort_wid.setStyleSheet(f"""
+            QLabel {{
+                background: {bg_style_data.get(color)};
                 font-weight: bold;
                 font-size: 20pt;
                 border-radius: 12px;
                 padding: 5px;
-            }
+            }}
         """)
 
         self.fast_sort_wid.adjustSize()
