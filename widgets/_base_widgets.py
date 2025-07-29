@@ -2,11 +2,12 @@ import os
 import re
 
 from PyQt5.QtCore import Qt, pyqtSignal
-from PyQt5.QtGui import (QContextMenuEvent, QCursor, QMouseEvent, QPixmap,
+from PyQt5.QtGui import (QContextMenuEvent, QCursor, QMouseEvent, QPalette,
                          QWheelEvent)
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QFrame, QLabel, QLineEdit, QMenu, QScrollArea,
-                             QSlider, QTableView, QTextEdit, QWidget)
+from PyQt5.QtWidgets import (QApplication, QFrame, QLabel, QLineEdit, QMenu,
+                             QScrollArea, QSlider, QTableView, QTextEdit,
+                             QWidget)
 
 from cfg import Static
 
@@ -79,6 +80,24 @@ class UMenu(QMenu):
         - отключен правый клик
         - show_: открывает контекстное меню по месту клика
         """
+        palette = QApplication.palette()
+        text_color = palette.color(QPalette.WindowText).name().lower()
+
+        color_data = {
+            "#000000": "#8a8a8a",
+            "#ffffff": "#5A5A5A",
+        }
+
+        sep_color = color_data.get(text_color)  # дефолт если нет ключа
+
+        self.setStyleSheet(f"""
+            QMenu::separator {{
+                height: 1px;
+                background: {sep_color};
+                margin: 4px 10px;
+            }}
+        """)
+
 
     def show_(self):
         self.exec_(QCursor.pos())
