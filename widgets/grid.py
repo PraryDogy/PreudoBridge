@@ -588,19 +588,10 @@ class Grid(UScrollArea):
         self.main_win_item.main_dir = dest
         self.load_st_grid.emit()
 
-        # try:
-        #     files_disk = files[0].split(os.sep)[:3]
-        #     main_disk = self.main_win_item.main_dir.split(os.sep)[:3]
-        #     if files_disk == main_disk:
-        #         for i in Dynamic.urls_to_copy:
-        #             os.remove(i)
-        # except Exception:
-        #     Utils.print_error()
-
         try:
             if Dynamic.is_cut:
                 for i in Dynamic.urls_to_copy:
-                    os.remove()
+                    os.remove(i)
         except Exception as e:
             Utils.print_error()
 
@@ -752,8 +743,11 @@ class Grid(UScrollArea):
         else:
             return None
         
-    def cut_objects_cmd(self):
-        Dynamic.is_cut = True
+    def toggle_is_cut(self, value: bool):
+        Dynamic.is_cut = value
+
+    def copy_objects_cmd(self):
+        Dynamic.is_cut = False
 
     def set_mouseReleaseEvent(self):
         self.mouseReleaseEvent = self.mouseReleaseEvent_
@@ -931,19 +925,22 @@ class Grid(UScrollArea):
         menu_.addAction(show_in_finder_action)
 
         copy_path = ItemActions.CopyPath(menu_, urls, total)
+        copy_path.triggered.connect(lambda: self.toggle_is_cut(False))
         menu_.addAction(copy_path)
 
         copy_name = ItemActions.CopyName(menu_, names, total)
+        copy_name.triggered.connect(lambda: self.toggle_is_cut(False))
         menu_.addAction(copy_name)
 
         menu_.addSeparator()
 
         cut_objects = ItemActions.CutObjects(menu_, total)
-        cut_objects.triggered.connect(self.cut_objects_cmd)
+        cut_objects.triggered.connect(lambda: self.toggle_is_cut(True))
         cut_objects.triggered.connect(self.setup_urls_to_copy)
         menu_.addAction(cut_objects)
 
         copy_files = ItemActions.CopyObjects(menu_, total)
+        copy_files.triggered.connect(lambda: self.toggle_is_cut(False))
         copy_files.triggered.connect(self.setup_urls_to_copy)
         menu_.addAction(copy_files)
 
@@ -1188,9 +1185,16 @@ class Grid(UScrollArea):
         main_dir_ = EvloshUtils.normalize_slash(self.main_win_item.main_dir)
         sys_vol = EvloshUtils.get_system_volume()
         main_dir_ = EvloshUtils.add_system_volume(main_dir_, sys_vol)
+        main_disk = self.main_win_item.main_dir.split(os.sep)[:3]
         for i in Dynamic.urls_to_copy:
             i = EvloshUtils.normalize_slash(i)
             i = EvloshUtils.add_system_volume(i, sys_vol)
+
+            file_disk = i.split(os.sep)[:3]
+            if file_disk == main_disk:
+                print("is cut")
+                Dynamic.is_cut = True
+
             if os.path.commonpath([i, main_dir_]) == main_dir_:
                 print("Нельзя копировать в себя")
                 return
