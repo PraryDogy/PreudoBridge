@@ -324,11 +324,11 @@ class MainWin(WinBase):
             if value == 0:
                 if os.path.isdir(path):
                     self.main_win_item.main_dir = path
-                    self.load_st_grid()
                 else:
                     self.main_win_item.main_dir = os.path.dirname(path)
                     self.main_win_item.set_go_to(path)
-                    self.load_st_grid()
+                self.top_bar.new_history_item(self.main_win_item.main_dir)
+                self.load_st_grid()
             elif value == 1:
                 if os.path.isdir(path):
                     subprocess.Popen(["open", path])
