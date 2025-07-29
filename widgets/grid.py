@@ -982,22 +982,9 @@ class Grid(UScrollArea):
         new_folder.triggered.connect(self.create_new_folder)
         menu_.addAction(new_folder)
 
-        menu_.addSeparator()
-
         info = GridActions.Info(menu_)
         info.triggered.connect(lambda: self.win_info_cmd(self.main_win_item.main_dir))
         menu_.addAction(info)
-
-        reveal = GridActions.RevealInFinder(menu_, urls, total)
-        menu_.addAction(reveal)
-
-        copy_ = GridActions.CopyPath(menu_, urls, total)
-        menu_.addAction(copy_)
-
-        copy_name = GridActions.CopyName(menu_, names, total)
-        menu_.addAction(copy_name)
-
-        menu_.addSeparator()
 
         if self.main_win_item.main_dir in JsonData.favs:
             cmd_ = lambda: self.fav_cmd(-1, self.main_win_item.main_dir)
@@ -1010,6 +997,17 @@ class Grid(UScrollArea):
             fav_action = GridActions.FavAdd(menu_)
             fav_action.triggered.connect(cmd_)
             menu_.addAction(fav_action)
+
+        menu_.addSeparator()
+
+        reveal = GridActions.RevealInFinder(menu_, urls, total)
+        menu_.addAction(reveal)
+
+        copy_ = GridActions.CopyPath(menu_, urls, total)
+        menu_.addAction(copy_)
+
+        copy_name = GridActions.CopyName(menu_, names, total)
+        menu_.addAction(copy_name)
 
         menu_.addSeparator()
 

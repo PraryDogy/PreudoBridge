@@ -181,11 +181,11 @@ class PathItem(QWidget):
             new_win.triggered.connect(lambda: self.open_in_new_win.emit(self.dir))
             menu.addAction(new_win)
 
-        menu.addSeparator()
-
         info = ItemActions.Info(menu)
         info.triggered.connect(self.win_info_cmd)
         menu.addAction(info)
+
+        menu.addSeparator()
 
         show_in_finder_action = ItemActions.RevealInFinder(menu, urls, total)
         menu.addAction(show_in_finder_action)
