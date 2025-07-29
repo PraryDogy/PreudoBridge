@@ -39,13 +39,17 @@ class BarTopBtn(QWidget):
         self.svg_btn = USvgSqareWidget(None, BarTopBtn.svg_size)
         svg_lay.addWidget(self.svg_btn)
 
+        self.lbl = QLabel()
+        self.lbl.setStyleSheet("font-size: 10px;")
+        self.v_lay.addWidget(self.lbl, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.lbl.hide()
+
     def load(self, path: str):
         self.svg_btn.load(path)
 
     def set_text(self, text: str):
-        lbl = QLabel(text)
-        self.v_lay.addWidget(lbl, alignment=Qt.AlignmentFlag.AlignCenter)
-        lbl.setStyleSheet("font-size: 10px;")
+        self.lbl.setText(text)
+        self.lbl.show()
 
     def mouseReleaseEvent(self, a0):
         if a0.button() == Qt.MouseButton.LeftButton:
@@ -390,7 +394,6 @@ class TopBar(QWidget):
             "Новое окно",
             "Показать все",
             "Плитка",
-            "Список",
             "Настройки"
         ]
 
