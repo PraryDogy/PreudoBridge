@@ -925,6 +925,11 @@ class Grid(UScrollArea):
         copy_name = ItemActions.CopyName(menu_, names, total)
         menu_.addAction(copy_name)
 
+        menu_.addSeparator()
+
+        cut_objects = ItemActions.CutObjects(menu_, total)
+        menu_.addAction(cut_objects)
+
         copy_files = ItemActions.CopyObjects(menu_, total)
         copy_files.triggered.connect(self.setup_urls_to_copy)
         menu_.addAction(copy_files)

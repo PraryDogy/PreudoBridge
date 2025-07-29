@@ -23,7 +23,7 @@ class RevealInFinder(QAction):
     def __init__(self, parent: UMenu, urls: list[str], total: int):
         super().__init__(parent)
         self.urls = urls
-        text = Tools.get_text(RevealInFinder.text_, total)
+        text = Tools.get_text(self.text_, total)
         self.setText(text)
 
         if len(urls) == 1 and os.path.isdir(urls[0]):
@@ -48,7 +48,7 @@ class RevealInFinder(QAction):
 class Info(QAction):
     text_ = "Инфо"
     def __init__(self, parent: UMenu):
-        super().__init__(Info.text_, parent)
+        super().__init__(self.text_, parent)
 
 
 # из родительского виджета копирует путь к файлу / папке
@@ -57,7 +57,7 @@ class CopyPath(QAction):
     def __init__(self, parent: UMenu, urls: list[str], total: int):
         super().__init__(parent)
         self.urls = urls
-        text = Tools.get_text(CopyPath.text_, total)
+        text = Tools.get_text(self.text_, total)
         self.setText(text)
         self.triggered.connect(self.cmd_)
 
@@ -71,7 +71,7 @@ class CopyName(QAction):
     def __init__(self, parent: UMenu, names: list[str], total: int):
         super().__init__(parent)
         self.names = names
-        text = Tools.get_text(CopyName.text_, total)
+        text = Tools.get_text(self.text_, total)
         self.setText(text)
         self.triggered.connect(self.cmd_)
 
@@ -93,13 +93,13 @@ class OpenThumb(QAction):
 class FavRemove(QAction):
     text_ = "Удалить из избранного"
     def __init__(self, parent: UMenu):
-        super().__init__(FavRemove.text_, parent)
+        super().__init__(self.text_, parent)
 
 
 class FavAdd(QAction):
     text_ = "Добавить в избранное"
     def __init__(self, parent: UMenu):
-        super().__init__(FavAdd.text_, parent)
+        super().__init__(self.text_, parent)
 
 
 # Меню со списком приложений, при помощи которых можно открыть изображение
@@ -110,7 +110,7 @@ class OpenInApp(UMenu):
     text_menu = "Открыть в приложении"
 
     def __init__(self, parent: UMenu, urls: list):
-        super().__init__(parent=parent, title=OpenInApp.text_menu)
+        super().__init__(parent=parent, title=self.text_menu)
         self.urls = urls
 
         for app_path, app_name in Dynamic.image_apps.items():
@@ -132,7 +132,7 @@ class RatingMenu(UMenu):
 
     def __init__(self, parent: UMenu, urls: list[str], total: int, current_rating: int):
         super().__init__(parent=parent)
-        text = Tools.get_text(RatingMenu.text_, total)
+        text = Tools.get_text(self.text_, total)
         self.setTitle(text)
 
         # свойство Thumb
@@ -171,7 +171,7 @@ class RatingMenu(UMenu):
 class CutText(QAction):
     text_ = "Вырезать"
     def __init__(self, parent: UMenu, widget: QLineEdit | QTextEdit):
-        super().__init__(CutText.text_, parent)
+        super().__init__(self.text_, parent)
         self.wid = widget
         self.triggered.connect(self.cmd_)
 
@@ -193,7 +193,7 @@ class CutText(QAction):
 class CopyText(QAction):
     text_ = "Копировать"
     def __init__(self, parent: UMenu, widget: QLineEdit | QLabel | QTextEdit):
-        super().__init__(CopyText.text_, parent)
+        super().__init__(self.text_, parent)
         self.wid = widget
         self.triggered.connect(self.cmd_)
 
@@ -216,7 +216,7 @@ class CopyText(QAction):
 class PasteText(QAction):
     text_ = "Вставить"
     def __init__(self, parent: UMenu, widget: QLineEdit | QTextEdit):
-        super().__init__(PasteText.text_, parent)
+        super().__init__(self.text_, parent)
         self.wid = widget
         self.triggered.connect(self.cmd_)
 
@@ -234,7 +234,7 @@ class PasteText(QAction):
 class TextSelectAll(QAction):
     text_ = "Выделить все"
     def __init__(self, parent: UMenu, widget: QLineEdit | QTextEdit):
-        super().__init__(TextSelectAll.text_, parent)
+        super().__init__(self.text_, parent)
         self.wid = widget
         self.triggered.connect(lambda: self.wid.selectAll())
 
@@ -248,16 +248,16 @@ class SortMenu(UMenu):
     text_discenging = "По убыванию"
 
     def __init__(self, parent: UMenu, sort_item: SortItem):
-        super().__init__(SortMenu.text_menu, parent)
+        super().__init__(self.text_menu, parent)
         self.sort_item = sort_item
 
-        ascending = QAction(SortMenu.text_ascending, self)
+        ascending = QAction(self.text_ascending, self)
         # добавляем свойство прямой / обратной сортировки
         # прямая сортировка А > Я
         ascending.rev = False
         ascending.triggered.connect(lambda: self.cmd_revers(ascending.rev))
 
-        descending = QAction(SortMenu.text_discenging, self)
+        descending = QAction(self.text_discenging, self)
         # добавляем свойство прямой / обратной сортировки
         # обратная сортировка Я > А
         descending.rev = True
@@ -318,16 +318,16 @@ class ChangeViewMenu(UMenu):
     text_list = "Список"
 
     def __init__(self, parent: UMenu, view_index: int):
-        super().__init__(ChangeViewMenu.text_menu, parent)
+        super().__init__(self.text_menu, parent)
 
         # отобразить сеткой
-        grid_ = QAction(ChangeViewMenu.text_grid, self)
+        grid_ = QAction(self.text_grid, self)
         grid_.triggered.connect(lambda: self.change_view_sig.emit(0))
         grid_.setCheckable(True)
         self.addAction(grid_)
 
         # отобразить списком
-        list_ = QAction(ChangeViewMenu.text_list, self)
+        list_ = QAction(self.text_list, self)
         list_.triggered.connect(lambda: self.change_view_sig.emit(1))
         list_.setCheckable(True)
         self.addAction(list_)
@@ -344,14 +344,22 @@ class ChangeViewMenu(UMenu):
 class OpenInNewWindow(QAction):
     text_ = "Открыть в новом окне"
     def __init__(self, parent: UMenu):
-        super().__init__(OpenInNewWindow.text_, parent)
+        super().__init__(self.text_, parent)
+
+
+class CutObjects(QAction):
+    text_ = "Вырезать объекты"
+    def __init__(self, parent: UMenu, total: int):
+        super().__init__(parent)
+        text = Tools.get_text(self.text_, total)
+        self.setText(text)
 
 
 class CopyObjects(QAction):
     text_ = "Скопировать объекты"
     def __init__(self, parent: UMenu, total: int):
         super().__init__(parent)
-        text = Tools.get_text(CopyObjects.text_, total)
+        text = Tools.get_text(self.text_, total)
         self.setText(text)
 
 
@@ -359,7 +367,7 @@ class RemoveObjects(QAction):
     text_ = "Удалить объекты"
     def __init__(self, parent: UMenu, total: int):
         super().__init__(parent)
-        text = Tools.get_text(RemoveObjects.text_, total)
+        text = Tools.get_text(self.text_, total)
         self.setText(text)
 
 
@@ -367,7 +375,7 @@ class PasteObjects(QAction):
     text_ = "Вставить объекты"
     def __init__(self, parent: UMenu, total: int):
         super().__init__(parent)
-        text = Tools.get_text(PasteObjects.text_, total)
+        text = Tools.get_text(self.text_, total)
         self.setText(text)
 
 
@@ -375,19 +383,19 @@ class ShowInGrid(QAction):
     text_ = "Показать в папке"
     def __init__(self, parent: UMenu):
         super().__init__(parent)
-        self.setText(ShowInGrid.text_)
+        self.setText(self.text_)
 
 
 class UpdateGrid(QAction):
     text_ = "Обновить"
     def __init__(self, parent: UMenu):
-        super().__init__(UpdateGrid.text_, parent)
+        super().__init__(self.text_, parent)
 
 
 class NewFolder(QAction):
     text_ = "Новая папка"
     def __init__(self, parent: UMenu):
-        super().__init__(NewFolder.text_, parent)
+        super().__init__(self.text_, parent)
 
 
 class OpenSingle(QAction):
@@ -407,6 +415,7 @@ class ItemActions:
     class RevealInFinder(RevealInFinder): ...
     class CopyPath(CopyPath): ...
     class CopyName(CopyName): ...
+    class CutObjects(CutObjects): ...
     class CopyObjects(CopyObjects): ...
     # "Separator"
 
