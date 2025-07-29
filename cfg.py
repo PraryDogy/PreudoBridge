@@ -280,3 +280,4 @@ class Dynamic:
     urls_to_copy: list[str] = []
     reading = False
     image_apps: dict[str, str] = {}
+    is_cut = False

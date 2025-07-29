@@ -588,15 +588,23 @@ class Grid(UScrollArea):
         self.main_win_item.main_dir = dest
         self.load_st_grid.emit()
 
+        # try:
+        #     files_disk = files[0].split(os.sep)[:3]
+        #     main_disk = self.main_win_item.main_dir.split(os.sep)[:3]
+        #     if files_disk == main_disk:
+        #         for i in Dynamic.urls_to_copy:
+        #             os.remove(i)
+        # except Exception:
+        #     Utils.print_error()
+
         try:
-            files_disk = files[0].split(os.sep)[:3]
-            main_disk = self.main_win_item.main_dir.split(os.sep)[:3]
-            if files_disk == main_disk:
+            if Dynamic.is_cut:
                 for i in Dynamic.urls_to_copy:
-                    os.remove(i)
-        except Exception:
+                    os.remove()
+        except Exception as e:
             Utils.print_error()
 
+        Dynamic.is_cut = False
         Dynamic.urls_to_copy.clear()
 
     def show_error_win(self):
@@ -743,6 +751,9 @@ class Grid(UScrollArea):
             return wid.parent().parent()
         else:
             return None
+        
+    def cut_objects_cmd(self):
+        Dynamic.is_cut = True
 
     def set_mouseReleaseEvent(self):
         self.mouseReleaseEvent = self.mouseReleaseEvent_
@@ -928,6 +939,8 @@ class Grid(UScrollArea):
         menu_.addSeparator()
 
         cut_objects = ItemActions.CutObjects(menu_, total)
+        cut_objects.triggered.connect(self.cut_objects_cmd)
+        cut_objects.triggered.connect(self.setup_urls_to_copy)
         menu_.addAction(cut_objects)
 
         copy_files = ItemActions.CopyObjects(menu_, total)
