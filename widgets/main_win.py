@@ -252,7 +252,7 @@ class MainWin(WinBase):
         self.tags_menu.rearrange_thumbs.connect(lambda: self.grid.rearrange_thumbs())
 
         self.top_bar.level_up.connect(lambda: self.level_up())
-        self.top_bar.change_view.connect(lambda index: self.change_view(index))
+        self.top_bar.change_view.connect(lambda: self.change_view_cmd())
         self.top_bar.load_search_grid.connect(lambda: self.load_search_grid())
         self.top_bar.load_st_grid.connect(lambda: self.load_st_grid())
         self.top_bar.navigate.connect(lambda: self.load_st_grid())
@@ -404,7 +404,7 @@ class MainWin(WinBase):
         self.grid.open_in_new_win.connect(lambda dir: self.open_in_new_win(dir))
         self.grid.level_up.connect(lambda: self.level_up())
         self.grid.new_history_item.connect(lambda dir: self.top_bar.new_history_item(dir))
-        self.grid.change_view.connect(lambda index: self.change_view(index))
+        self.grid.change_view.connect(lambda: self.change_view_cmd())
         self.grid.verticalScrollBar().valueChanged.connect(lambda value: self.scroll_up_toggle(value))
         self.grid.finished_.connect(lambda: self.grid.setFocus())
 
@@ -492,6 +492,18 @@ class MainWin(WinBase):
         self.setup_grid_signals()
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
         self.fast_sort_wid.setParent(self.grid)
+
+    def change_view_cmd(self):
+        if self.main_win_item.get_view_mode() == 0:
+            self.top_bar.change_view_btn.load(Static.GRID_VIEW_SVG)
+            self.top_bar.change_view_btn.set_text("Плитка")
+            self.main_win_item.set_view_mode(1)
+        else:
+            self.top_bar.change_view_btn.load(Static.LIST_VIEW_SVG)
+            self.top_bar.change_view_btn.set_text("Список")
+            self.main_win_item.set_view_mode(0)
+
+        self.load_st_grid()
 
     def scroll_up_toggle(self, value: int):
         if value == 0:

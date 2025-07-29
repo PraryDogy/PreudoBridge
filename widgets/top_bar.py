@@ -295,7 +295,7 @@ class SearchWidget(ULineEdit):
 class TopBar(QWidget):
     level_up = pyqtSignal()
     # 0 отобразить сеткой, 1 отобразить списком
-    change_view = pyqtSignal(int)
+    change_view = pyqtSignal()
     load_search_grid = pyqtSignal()
     load_st_grid = pyqtSignal()
     # при нажатии кнопкок "назад" или "вперед" загружает GridStandart
@@ -368,7 +368,7 @@ class TopBar(QWidget):
         self.main_lay.addWidget(cascade_btn)
 
         self.change_view_btn = BarTopBtn()
-        self.change_view_btn.mouseReleaseEvent = lambda e: self.change_view_cmd()
+        self.change_view_btn.mouseReleaseEvent = lambda e: self.change_view.emit()
         if self.main_win_item.get_view_mode() == 0:
             self.change_view_btn.load(Static.LIST_VIEW_SVG)
         else:
@@ -408,18 +408,6 @@ class TopBar(QWidget):
             self.setFixedHeight(self.height_)
 
         self.adjustSize()
-
-    def change_view_cmd(self):
-        if self.main_win_item.get_view_mode() == 0:
-            self.change_view_btn.load(Static.GRID_VIEW_SVG)
-            self.change_view_btn.set_text("Плитка")
-            self.main_win_item.set_view_mode(1)
-        else:
-            self.change_view_btn.load(Static.LIST_VIEW_SVG)
-            self.change_view_btn.set_text("Список")
-            self.main_win_item.set_view_mode(0)
-
-        self.load_st_grid.emit()
 
     def on_search_bar_clicked(self):
         if isinstance(self.search_item.get_content(), str):

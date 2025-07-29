@@ -313,7 +313,6 @@ class Grid(UScrollArea):
         self.grid_layout.setAlignment(flags)
         self.main_wid.setLayout(self.grid_layout)
 
-
         # отложенное подключение клика мышки нужно для того
         # избежать бага выделения виджета, когда кликаешь на папку
         # описание бага:
@@ -748,12 +747,6 @@ class Grid(UScrollArea):
     def copy_objects_cmd(self):
         Dynamic.is_cut = False
 
-    def change_view_cmd(self):
-        if self.main_win_item.get_view_mode() == 0:
-            self.main_win_item.set_view_mode(1)
-        else:
-            self.main_win_item.set_view_mode(0)
-
     def set_mouseReleaseEvent(self):
         self.mouseReleaseEvent = self.mouseReleaseEvent_
 
@@ -1028,8 +1021,7 @@ class Grid(UScrollArea):
         menu_.addSeparator()
 
         change_view = GridActions.ChangeViewMenu(menu_, self.main_win_item)
-        change_view.triggered.connect(lambda: self.change_view_cmd())
-        change_view.triggered.connect(lambda: self.load_st_grid.emit())
+        change_view.triggered.connect(lambda: self.change_view.emit())
         menu_.addMenu(change_view)
 
         sort_menu = GridActions.SortMenu(menu_, self.sort_item)
