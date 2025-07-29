@@ -503,7 +503,7 @@ class MainWin(WinBase):
             self.top_bar.change_view_btn.load(Static.LIST_VIEW_SVG)
             self.top_bar.change_view_btn.set_text("Список")
             self.main_win_item.set_view_mode(0)
-        print(self.main_win_item.get_view_mode())
+
         self.load_st_grid()
 
     def scroll_up_toggle(self, value: int):
