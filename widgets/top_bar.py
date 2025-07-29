@@ -47,10 +47,6 @@ class BarTopBtn(QWidget):
     def load(self, path: str):
         self.svg_btn.load(path)
 
-    def set_text(self, text: str):
-        self.lbl.setText(text)
-        self.lbl.show()
-
     def mouseReleaseEvent(self, a0):
         if a0.button() == Qt.MouseButton.LeftButton:
             self.clicked.emit()
@@ -398,7 +394,7 @@ class TopBar(QWidget):
             "Сортировка",
             "Новое окно",
             "Показать все",
-            "Список",
+            "Плитка" if self.main_win_item.get_view_mode() == 1 else "Список",
             "Настройки"
         ]
 
@@ -406,7 +402,7 @@ class TopBar(QWidget):
             self.main_lay.setSpacing(7)
             self.setFixedHeight(self.height_ + 7)
             for btn, txt in zip(self.findChildren(BarTopBtn), texts):
-                btn.set_text(txt)
+                btn.lbl.setText(txt)
                 btn.lbl.show()
         else:
             self.main_lay.setSpacing(0)

@@ -497,12 +497,12 @@ class MainWin(WinBase):
     def change_view_cmd(self):
         if self.main_win_item.get_view_mode() == 0:
             self.top_bar.change_view_btn.load(Static.GRID_VIEW_SVG)
-            self.top_bar.change_view_btn.set_text("Плитка")
+            self.top_bar.change_view_btn.lbl.setText("Плитка")
             self.main_win_item.set_view_mode(1)
 
         else:
             self.top_bar.change_view_btn.load(Static.LIST_VIEW_SVG)
-            self.top_bar.change_view_btn.set_text("Список")
+            self.top_bar.change_view_btn.lbl.setText("Список")
             self.main_win_item.set_view_mode(0)
 
         self.load_st_grid()
