@@ -289,6 +289,9 @@ class MainWinItem:
         self.view_mode = value
 
     def get_view_mode(self):
+        """
+        0 вид сетка, 1 вид список
+        """
         return self.view_mode
 
     def set_urls(self, urls: list[str]):

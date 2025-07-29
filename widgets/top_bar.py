@@ -371,9 +371,9 @@ class TopBar(QWidget):
         self.change_view_btn.mouseReleaseEvent = lambda e: self.change_view_cmd()
         self.change_view_btn.mouseReleaseEvent = lambda e: self.load_st_grid.emit()
         if self.main_win_item.get_view_mode() == 0:
-            self.change_view_btn.load(Static.GRID_VIEW_SVG)
-        else:
             self.change_view_btn.load(Static.LIST_VIEW_SVG)
+        else:
+            self.change_view_btn.load(Static.GRID_VIEW_SVG)
         self.main_lay.addWidget(self.change_view_btn)
 
         self.sett_btn = BarTopBtn()
@@ -396,7 +396,7 @@ class TopBar(QWidget):
             "Сортировка",
             "Новое окно",
             "Показать все",
-            "Плитка",
+            "Список",
             "Настройки"
         ]
 
