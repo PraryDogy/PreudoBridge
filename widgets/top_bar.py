@@ -3,7 +3,7 @@ import os
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import (QAction, QGroupBox, QHBoxLayout, QLabel,
-                             QPushButton, QVBoxLayout, QWidget)
+                             QPushButton, QVBoxLayout, QWidget, QSpacerItem)
 
 from cfg import JsonData, Static
 from system.items import MainWinItem, SearchItem
@@ -349,6 +349,7 @@ class TopBar(QWidget):
         self.main_lay.addWidget(level_up_btn)
 
         self.main_lay.addStretch(1)
+        self.main_lay.addSpacerItem(QSpacerItem(20, 0))
 
         self.fast_sort_btn = BarTopBtn()
         self.fast_sort_btn.load(Static.FAST_SORT_SVG)
@@ -380,6 +381,7 @@ class TopBar(QWidget):
         self.main_lay.addWidget(self.sett_btn)
 
         self.main_lay.addStretch(1)
+        self.main_lay.addSpacerItem(QSpacerItem(20, 0))
 
         self.search_wid = SearchWidget(self.search_item, self.main_win_item)
         self.search_wid.load_search_grid.connect(self.load_search_grid.emit)
