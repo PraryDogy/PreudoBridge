@@ -1201,6 +1201,7 @@ class Grid(UScrollArea):
 
             if os.path.commonpath([i, main_dir_]) == main_dir_:
                 print("Нельзя копировать в себя")
+                Dynamic.is_cut = False
                 return
 
         if Dynamic.urls_to_copy:
