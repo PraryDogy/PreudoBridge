@@ -978,6 +978,13 @@ class Grid(UScrollArea):
         urls = [self.main_win_item.main_dir]
         total = 1
 
+        if Dynamic.urls_to_copy and not self.is_grid_search:
+            paste_files = GridActions.PasteObjects(menu_, len(Dynamic.urls_to_copy))
+            paste_files.triggered.connect(self.paste_files)
+            menu_.addAction(paste_files)
+
+        menu_.addSeparator()
+
         new_folder = GridActions.NewFolder(menu_)
         new_folder.triggered.connect(self.create_new_folder)
         menu_.addAction(new_folder)
@@ -997,6 +1004,10 @@ class Grid(UScrollArea):
             fav_action = GridActions.FavAdd(menu_)
             fav_action.triggered.connect(cmd_)
             menu_.addAction(fav_action)
+
+        upd_ = GridActions.UpdateGrid(menu_)
+        upd_.triggered.connect(lambda: self.load_st_grid.emit())
+        menu_.addAction(upd_)
 
         menu_.addSeparator()
 
@@ -1020,17 +1031,6 @@ class Grid(UScrollArea):
         sort_menu.rearrange_grid_sig.connect(lambda: self.rearrange_thumbs())
         sort_menu.sort_menu_update.connect(lambda: self.sort_menu_update.emit())
         menu_.addMenu(sort_menu)
-
-        menu_.addSeparator()
-
-        if Dynamic.urls_to_copy and not self.is_grid_search:
-            paste_files = GridActions.PasteObjects(menu_, len(Dynamic.urls_to_copy))
-            paste_files.triggered.connect(self.paste_files)
-            menu_.addAction(paste_files)
-
-        upd_ = GridActions.UpdateGrid(menu_)
-        upd_.triggered.connect(lambda: self.load_st_grid.emit())
-        menu_.addAction(upd_)
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
