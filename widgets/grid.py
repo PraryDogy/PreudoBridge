@@ -1045,6 +1045,11 @@ class Grid(UScrollArea):
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
+            
+            if a0.key() == Qt.Key.Key_X:
+                self.toggle_is_cut(True)
+                self.setup_urls_to_copy()
+
             if a0.key() == Qt.Key.Key_C:
                 self.setup_urls_to_copy()
 
@@ -1192,7 +1197,6 @@ class Grid(UScrollArea):
 
             file_disk = i.split(os.sep)[:3]
             if file_disk == main_disk:
-                print("is cut")
                 Dynamic.is_cut = True
 
             if os.path.commonpath([i, main_dir_]) == main_dir_:
