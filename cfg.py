@@ -168,6 +168,7 @@ class JsonData:
     go_to_now = False
     dark_mode = None    
     generic_icons_removed = False
+    show_text = False
     app_names = [
         "preview",
         "photos",

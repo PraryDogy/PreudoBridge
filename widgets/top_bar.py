@@ -5,7 +5,7 @@ from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import (QAction, QGroupBox, QHBoxLayout, QLabel,
                              QPushButton, QVBoxLayout, QWidget)
 
-from cfg import Static
+from cfg import JsonData, Static
 from system.items import MainWinItem, SearchItem
 
 from ._base_widgets import (MinMaxDisabledWin, UFrame, ULineEdit, UMenu,
@@ -15,6 +15,7 @@ from ._base_widgets import (MinMaxDisabledWin, UFrame, ULineEdit, UMenu,
 class BarTopBtn(UFrame):
     clicked = pyqtSignal()
     width_ = 45
+    big_width = 75
     height_ = 35
     svg_size = 17
 
@@ -23,20 +24,30 @@ class BarTopBtn(UFrame):
         QFrame с изменением стиля при наведении курсора и svg иконкой.
         """
         super().__init__()
+
         self.setFixedSize(BarTopBtn.width_, BarTopBtn.height_)
         self.setup_layout()
 
     def setup_layout(self):
         """Настроить макет и добавить компоненты."""
-        h_lay = QHBoxLayout()
-        h_lay.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(h_lay)
+        self.v_lay = QVBoxLayout()
+        self.v_lay.setContentsMargins(0, 0, 0, 0)
+        self.v_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.setLayout(self.v_lay)
 
         self.svg_btn = USvgSqareWidget(None, BarTopBtn.svg_size)
-        h_lay.addWidget(self.svg_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.v_lay.addWidget(self.svg_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
     def load(self, path: str):
         self.svg_btn.load(path)
+
+    def set_text(self, text: str):
+        lbl = QLabel(text)
+        self.v_lay.addWidget(lbl)
+        self.setMinimumSize(0, 0)
+        self.setMaximumSize(200, 200)
+        lbl.setStyleSheet("font-size: 10px;")
+        self.adjustSize()
 
     def mouseReleaseEvent(self, a0):
         if a0.button() == Qt.MouseButton.LeftButton:
@@ -375,6 +386,23 @@ class TopBar(QWidget):
         self.search_wid.load_search_grid.connect(self.load_search_grid.emit)
         self.search_wid.load_st_grid.connect(self.load_st_grid.emit)
         self.main_lay.addWidget(self.search_wid)
+
+        texts = [
+            "Назад",
+            "Вперед",
+            "Наверх",
+            "Сортировка",
+            "Новое окно",
+            "Показать все",
+            "Плитка",
+            "Список",
+            "Настройки"
+        ]
+
+        if JsonData.show_text:
+            self.main_lay.setSpacing(5)
+            for btn, txt in zip(self.findChildren(BarTopBtn), texts):
+                btn.set_text(txt)
 
     def on_search_bar_clicked(self):
         if isinstance(self.search_item.get_content(), str):
