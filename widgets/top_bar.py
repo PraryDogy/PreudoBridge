@@ -319,7 +319,6 @@ class TopBar(QWidget):
         - Поле ввода для поиска
         """
         super().__init__()
-        self.setFixedHeight(TopBar.height_)
         self.main_win_item = main_win_item
         self.search_item = search_item
         self.history_items: list[str] = []
@@ -398,9 +397,14 @@ class TopBar(QWidget):
         ]
 
         if JsonData.show_text:
-            self.main_lay.setSpacing(5)
+            self.main_lay.setSpacing(7)
+            self.setFixedHeight(self.height_ + 7)
             for btn, txt in zip(self.findChildren(BarTopBtn), texts):
                 btn.set_text(txt)
+        else:
+            self.setFixedHeight(self.height_)
+
+        self.adjustSize()
 
     def on_search_bar_clicked(self):
         if isinstance(self.search_item.get_content(), str):
