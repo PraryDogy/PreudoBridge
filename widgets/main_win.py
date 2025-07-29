@@ -596,11 +596,8 @@ class MainWin(WinBase):
             elif a0.key() == Qt.Key.Key_W:
                 self.close()
         
-            elif a0.key() == Qt.Key.Key_1:
-                self.change_view(0)
-            
-            elif a0.key() == Qt.Key.Key_2:
-                self.change_view(1)
+            elif a0.key() in (Qt.Key.Key_1, Qt.Key.Key_2):
+                self.change_view_cmd()
 
             elif a0.key() == Qt.Key.Key_N:
                 self.open_in_new_win(self.main_win_item.main_dir)

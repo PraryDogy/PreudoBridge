@@ -302,7 +302,8 @@ class GridList(UTableView):
 
         menu_.addSeparator()
 
-        change_view = GridActions.ChangeViewMenu(menu_, self.main_win_item)
+        change_view = GridActions.ChangeViewMenu(menu_, self.main_win_item.get_view_mode())
+        change_view.triggered.connect(lambda: self.change_view.emit())
         menu_.addMenu(change_view)
 
         if Dynamic.urls_to_copy:
