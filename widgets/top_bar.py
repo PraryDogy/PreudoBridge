@@ -12,7 +12,7 @@ from ._base_widgets import (MinMaxDisabledWin, UFrame, ULineEdit, UMenu,
                             USvgSqareWidget, UTextEdit, WinBase)
 
 
-class BarTopBtn(UFrame):
+class BarTopBtn(QWidget):
     clicked = pyqtSignal()
     width_ = 45
     big_width = 75
@@ -25,29 +25,27 @@ class BarTopBtn(UFrame):
         """
         super().__init__()
 
-        self.setFixedSize(BarTopBtn.width_, BarTopBtn.height_)
-        self.setup_layout()
-
-    def setup_layout(self):
-        """Настроить макет и добавить компоненты."""
         self.v_lay = QVBoxLayout()
         self.v_lay.setContentsMargins(0, 0, 0, 0)
         self.v_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setLayout(self.v_lay)
 
+        svg_frame = UFrame()
+        svg_frame.setFixedSize(self.width_, self.height_)
+        svg_lay = QHBoxLayout()
+        svg_frame.setLayout(svg_lay)
+        self.v_lay.addWidget(svg_frame, alignment=Qt.AlignmentFlag.AlignCenter)
+
         self.svg_btn = USvgSqareWidget(None, BarTopBtn.svg_size)
-        self.v_lay.addWidget(self.svg_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+        svg_lay.addWidget(self.svg_btn)
 
     def load(self, path: str):
         self.svg_btn.load(path)
 
     def set_text(self, text: str):
         lbl = QLabel(text)
-        self.v_lay.addWidget(lbl)
-        self.setMinimumSize(0, 0)
-        self.setMaximumSize(200, 200)
+        self.v_lay.addWidget(lbl, alignment=Qt.AlignmentFlag.AlignCenter)
         lbl.setStyleSheet("font-size: 10px;")
-        self.adjustSize()
 
     def mouseReleaseEvent(self, a0):
         if a0.button() == Qt.MouseButton.LeftButton:
