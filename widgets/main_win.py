@@ -335,6 +335,7 @@ class MainWin(WinBase):
 
     def open_settings(self, *args):
         self.sett_win = SettingsWin()
+        self.sett_win.show_texts_sig.connect(lambda: self.top_bar.show_texts_cmd())
         self.sett_win.load_st_grid.connect(self.load_st_grid)
         self.sett_win.remove_db.connect(self.remove_db)
         self.sett_win.theme_changed.connect(self.change_theme)

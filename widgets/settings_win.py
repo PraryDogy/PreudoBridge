@@ -82,6 +82,7 @@ class About(QGroupBox):
 
 class CheckboxGroup(QGroupBox):
     load_st_grid = pyqtSignal()
+    show_texts_sig = pyqtSignal()
     text_ = "Отобазить скрытые файлы"
     go_to_text = "\n".join([
     "Включить автоматический переход при нажатии \"Перейти\",",
@@ -114,6 +115,7 @@ class CheckboxGroup(QGroupBox):
         self.checkbox_two.stateChanged.connect(self.on_state_changed_two)
 
         self.show_texts = QCheckBox(" " + self.show_texts_text)
+        self.show_texts.stateChanged.connect(self.show_texts_cmd)
         v_lay.addWidget(self.show_texts)
 
         if JsonData.show_text:
@@ -127,6 +129,16 @@ class CheckboxGroup(QGroupBox):
     def on_state_changed_two(self, value: int):
         data = {0: False, 2: True}
         JsonData.go_to_now = data.get(value)
+
+    def show_texts_cmd(self):
+        if JsonData.show_text:
+            JsonData.show_text = False
+            self.show_texts.setChecked(False)
+        else:
+            JsonData.show_text = True
+            self.show_texts.setChecked(True)
+
+        self.show_texts_sig.emit()
 
 
 class SvgFrame(QFrame):
@@ -244,6 +256,7 @@ class SettingsWin(MinMaxDisabledWin):
     title_text = "Настройки"
     theme_changed = pyqtSignal()
     hh = 460
+    show_texts_sig = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -261,6 +274,7 @@ class SettingsWin(MinMaxDisabledWin):
 
         show_hidden = CheckboxGroup()
         show_hidden.load_st_grid.connect(self.load_st_grid.emit)
+        show_hidden.show_texts_sig.connect(self.show_texts_sig.emit)
         main_lay.addWidget(show_hidden)
 
         themes_wid = Themes()

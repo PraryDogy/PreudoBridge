@@ -388,6 +388,9 @@ class TopBar(QWidget):
         self.search_wid.load_st_grid.connect(self.load_st_grid.emit)
         self.main_lay.addWidget(self.search_wid)
 
+        self.show_texts_cmd()
+
+    def show_texts_cmd(self):
         texts = [
             "Назад",
             "Вперед",
@@ -404,8 +407,12 @@ class TopBar(QWidget):
             self.setFixedHeight(self.height_ + 7)
             for btn, txt in zip(self.findChildren(BarTopBtn), texts):
                 btn.set_text(txt)
+                btn.lbl.show()
         else:
+            self.main_lay.setSpacing(0)
             self.setFixedHeight(self.height_)
+            for btn, txt in zip(self.findChildren(BarTopBtn), texts):
+                btn.lbl.hide()
 
         self.adjustSize()
 
