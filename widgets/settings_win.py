@@ -87,30 +87,37 @@ class CheckboxGroup(QGroupBox):
     "Включить автоматический переход при нажатии \"Перейти\",",
     " если путь скопирован в буфер обмена.",
     ])
+    show_texts_text = "Показывать подписи к кнопкам"
     left_margin = 7
 
     def __init__(self):
         super().__init__()
 
-        h_lay = QVBoxLayout()
-        h_lay.setContentsMargins(CheckboxGroup.left_margin, 0, 0, 0)
-        self.setLayout(h_lay)
+        v_lay = QVBoxLayout()
+        v_lay.setContentsMargins(self.left_margin, 0, 0, 0)
+        self.setLayout(v_lay)
 
-        self.checkbox = QCheckBox(" " + CheckboxGroup.text_)
-        h_lay.addWidget(self.checkbox)
+        self.checkbox = QCheckBox(" " + self.text_)
+        v_lay.addWidget(self.checkbox)
 
         if JsonData.show_hidden:
             self.checkbox.setChecked(True)
         
         self.checkbox.stateChanged.connect(self.on_state_changed)
 
-        self.checkbox_two = QCheckBox(" " + CheckboxGroup.go_to_text)
-        h_lay.addWidget(self.checkbox_two)
+        self.checkbox_two = QCheckBox(" " + self.go_to_text)
+        v_lay.addWidget(self.checkbox_two)
 
         if JsonData.go_to_now:
             self.checkbox_two.setChecked(True)
         
         self.checkbox_two.stateChanged.connect(self.on_state_changed_two)
+
+        self.show_texts = QCheckBox(" " + self.show_texts_text)
+        v_lay.addWidget(self.show_texts)
+
+        if JsonData.show_text:
+            self.show_texts.setChecked(True)
         
     def on_state_changed(self, value: int):
         data = {0: False, 2: True}
