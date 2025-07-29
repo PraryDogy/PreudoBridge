@@ -86,10 +86,10 @@ class FavItem(QLabel):
         open_new_win.triggered.connect(lambda: self.open_in_new_win.emit(self.src))
         menu_.addAction(open_new_win)
 
+        menu_.addSeparator()
+
         open_finder_action = ItemActions.RevealInFinder(menu_, urls, total)
         menu_.addAction(open_finder_action)
-
-        menu_.addSeparator()
 
         copy_path_action = ItemActions.CopyPath(menu_, urls, total)
         menu_.addAction(copy_path_action)

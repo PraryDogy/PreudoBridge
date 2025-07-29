@@ -915,11 +915,34 @@ class Grid(UScrollArea):
         open_in_app = ItemActions.OpenInApp(menu_, urls)
         menu_.addMenu(open_in_app)
 
-        menu_.addSeparator()
+        rating_menu = ItemActions.RatingMenu(menu_, urls, total, wid.rating)
+        rating_menu.new_rating.connect(self.set_new_rating)
+        menu_.addMenu(rating_menu)
 
         info = ItemActions.Info(menu_)
         info.triggered.connect(lambda: self.win_info_cmd(wid.src))
         menu_.addAction(info)
+
+        if wid.type_ == Static.FOLDER_TYPE:
+            if wid.src in JsonData.favs:
+                cmd_ = lambda: self.fav_cmd(offset=-1, src=wid.src)
+                fav_action = ItemActions.FavRemove(menu_)
+                fav_action.triggered.connect(cmd_)
+                menu_.addAction(fav_action)
+            else:
+                cmd_ = lambda: self.fav_cmd(offset=1, src=wid.src)
+                fav_action = ItemActions.FavAdd(menu_)
+                fav_action.triggered.connect(cmd_)
+                menu_.addAction(fav_action)
+
+        # is grid search устанавливается на True при инициации GridSearch
+        if self.is_grid_search:
+            show_in_folder = ItemActions.ShowInGrid(menu_)
+            cmd_ = lambda: self.show_in_folder_cmd(wid)
+            show_in_folder.triggered.connect(cmd_)
+            menu_.addAction(show_in_folder)
+
+        menu_.addSeparator()
 
         show_in_finder_action = ItemActions.RevealInFinder(menu_, urls, total)
         menu_.addAction(show_in_finder_action)
@@ -943,38 +966,6 @@ class Grid(UScrollArea):
         copy_files.triggered.connect(lambda: self.toggle_is_cut(False))
         copy_files.triggered.connect(self.setup_urls_to_copy)
         menu_.addAction(copy_files)
-
-        menu_.addSeparator()
-
-        if wid.type_ == Static.FOLDER_TYPE:
-            if wid.src in JsonData.favs:
-                cmd_ = lambda: self.fav_cmd(offset=-1, src=wid.src)
-                fav_action = ItemActions.FavRemove(menu_)
-                fav_action.triggered.connect(cmd_)
-                menu_.addAction(fav_action)
-            else:
-                cmd_ = lambda: self.fav_cmd(offset=1, src=wid.src)
-                fav_action = ItemActions.FavAdd(menu_)
-                fav_action.triggered.connect(cmd_)
-                menu_.addAction(fav_action)
-
-            menu_.addSeparator()
-
-        rating_menu = ItemActions.RatingMenu(menu_, urls, total, wid.rating)
-        rating_menu.new_rating.connect(self.set_new_rating)
-        menu_.addMenu(rating_menu)
-
-        menu_.addSeparator()
-
-        # is grid search устанавливается на True при инициации GridSearch
-        if self.is_grid_search:
-            show_in_folder = ItemActions.ShowInGrid(menu_)
-            cmd_ = lambda: self.show_in_folder_cmd(wid)
-            show_in_folder.triggered.connect(cmd_)
-            menu_.addAction(show_in_folder)
-            menu_.addSeparator()
-
-        menu_.addSeparator()
 
         remove_files = ItemActions.RemoveObjects(menu_, total)
         remove_files.triggered.connect(lambda: self.remove_files_cmd(urls))

@@ -128,7 +128,7 @@ class OpenInApp(UMenu):
 # меню с рейтингом для _grid.py > Thumb
 class RatingMenu(UMenu):
     new_rating = pyqtSignal(int)
-    text_ = "Рейтинг объектов"
+    text_ = "Рейтинг"
 
     def __init__(self, parent: UMenu, urls: list[str], total: int, current_rating: int):
         super().__init__(parent=parent)
@@ -348,7 +348,7 @@ class OpenInNewWindow(QAction):
 
 
 class CutObjects(QAction):
-    text_ = "Вырезать объекты"
+    text_ = "Вырезать"
     def __init__(self, parent: UMenu, total: int):
         super().__init__(parent)
         text = Tools.get_text(self.text_, total)
@@ -356,7 +356,7 @@ class CutObjects(QAction):
 
 
 class CopyObjects(QAction):
-    text_ = "Скопировать объекты"
+    text_ = "Скопировать"
     def __init__(self, parent: UMenu, total: int):
         super().__init__(parent)
         text = Tools.get_text(self.text_, total)
@@ -364,7 +364,7 @@ class CopyObjects(QAction):
 
 
 class RemoveObjects(QAction):
-    text_ = "Удалить объекты"
+    text_ = "Удалить"
     def __init__(self, parent: UMenu, total: int):
         super().__init__(parent)
         text = Tools.get_text(self.text_, total)
@@ -372,7 +372,7 @@ class RemoveObjects(QAction):
 
 
 class PasteObjects(QAction):
-    text_ = "Вставить объекты"
+    text_ = "Вставить"
     def __init__(self, parent: UMenu, total: int):
         super().__init__(parent)
         text = Tools.get_text(self.text_, total)

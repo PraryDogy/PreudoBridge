@@ -12,7 +12,7 @@ from ._base_widgets import MinMaxDisabledWin, USvgSqareWidget
 
 class RemoveFilesWin(MinMaxDisabledWin):
     finished_ = pyqtSignal(list)
-    descr_text = "Удалить безвозвратно объекты"
+    descr_text = "Удалить безвозвратно"
     ok_text = "Ок"
     cancel_text = "Отмена"
     title_text = "Внимание!"
