@@ -587,6 +587,16 @@ class Grid(UScrollArea):
         self.main_win_item.scroll_value = self.verticalScrollBar().value()
         self.main_win_item.main_dir = dest
         self.load_st_grid.emit()
+
+        try:
+            files_disk = files[0].split(os.sep)[:3]
+            main_disk = self.main_win_item.main_dir.split(os.sep)[:3]
+            if files_disk == main_disk:
+                for i in Dynamic.urls_to_copy:
+                    os.remove(i)
+        except Exception:
+            Utils.print_error()
+
         Dynamic.urls_to_copy.clear()
 
     def show_error_win(self):
