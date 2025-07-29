@@ -26,7 +26,7 @@ class GridList(UTableView):
     order: int = 0
     sizes: list = [250, 100, 100, 150]
 
-    def __init__(self, main_win_item: MainWinItem, view_index: int):
+    def __init__(self, main_win_item: MainWinItem):
         super().__init__()
 
         self.setDragEnabled(True)
@@ -35,7 +35,6 @@ class GridList(UTableView):
         self.setDropIndicatorShown(True)
 
         self.main_win_item = main_win_item
-        self.view_index = view_index
         self.url_to_index: dict[str, QModelIndex] = {}
         self.main_win_item = main_win_item
 
@@ -265,8 +264,7 @@ class GridList(UTableView):
             paste_files.triggered.connect(self.paste_files)
             menu_.addAction(paste_files)
 
-        change_view = GridActions.ChangeViewMenu(menu_, self.view_index)
-        change_view.change_view_sig.connect(self.change_view.emit)
+        change_view = GridActions.ChangeViewMenu(menu_, self.main_win_item)
         menu_.addMenu(change_view)
 
         upd_ = GridActions.UpdateGrid(menu_)
@@ -303,8 +301,7 @@ class GridList(UTableView):
 
         menu_.addSeparator()
 
-        change_view = GridActions.ChangeViewMenu(menu_, self.view_index)
-        change_view.change_view_sig.connect(self.change_view.emit)
+        change_view = GridActions.ChangeViewMenu(menu_, self.main_win_item)
         menu_.addMenu(change_view)
 
         if Dynamic.urls_to_copy:

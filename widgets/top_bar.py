@@ -362,15 +362,13 @@ class TopBar(QWidget):
         cascade_btn.load(Static.CASCADE_SVG)
         self.main_lay.addWidget(cascade_btn)
 
-        grid_view_btn = BarTopBtn()
-        grid_view_btn.clicked.connect(lambda: self.change_view.emit(0))
-        grid_view_btn.load(Static.GRID_VIEW_SVG)
-        self.main_lay.addWidget(grid_view_btn)
-    
-        list_view_btn = BarTopBtn()
-        list_view_btn.clicked.connect(lambda: self.change_view.emit(1))
-        list_view_btn.load(Static.LIST_VIEW_SVG)
-        self.main_lay.addWidget(list_view_btn)
+        self.change_view_btn = BarTopBtn()
+        self.change_view_btn.mouseReleaseEvent = lambda e: self.change_view_cmd()
+        if self.main_win_item.get_view_mode() == 0:
+            self.change_view_btn.load(Static.GRID_VIEW_SVG)
+        else:
+            self.change_view_btn.load(Static.LIST_VIEW_SVG)
+        self.main_lay.addWidget(self.change_view_btn)
 
         self.sett_btn = BarTopBtn()
         self.sett_btn.clicked.connect(self.open_settings.emit)
@@ -405,6 +403,18 @@ class TopBar(QWidget):
             self.setFixedHeight(self.height_)
 
         self.adjustSize()
+
+    def change_view_cmd(self):
+        if self.main_win_item.get_view_mode() == 0:
+            self.change_view_btn.load(Static.LIST_VIEW_SVG)
+            self.change_view_btn.set_text("Список")
+            self.main_win_item.set_view_mode(1)
+        else:
+            self.change_view_btn.load(Static.GRID_VIEW_SVG)
+            self.change_view_btn.set_text("Плитка")
+            self.main_win_item.set_view_mode(0)
+
+        self.load_st_grid.emit()
 
     def on_search_bar_clicked(self):
         if isinstance(self.search_item.get_content(), str):

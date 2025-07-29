@@ -16,11 +16,11 @@ class GridStandart(Grid):
     empty_text = "Нет файлов"
     not_exists_text = "Такой папки не существует. \nВозможно не подключен сетевой диск."
 
-    def __init__(self, main_win_item: MainWinItem, view_index: int):
+    def __init__(self, main_win_item: MainWinItem):
         """
         Стандартная сетка виджетов.
         """
-        super().__init__(main_win_item, view_index)
+        super().__init__(main_win_item)
 
         # список url для предотвращения повторной загрузки изображений
         self.loaded_images: list[str] = []

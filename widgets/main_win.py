@@ -128,8 +128,6 @@ class MainWin(WinBase):
     def __init__(self, dir: str = None):
         super().__init__()
         self.main_win_list: list[MainWin] = []
-        # индекс 0 просмотр сеткой, индекс 1 просмотр списком
-        self.view_index: int = 0
         self.search_item: SearchItem = SearchItem()
         self.main_win_item: MainWinItem = MainWinItem()
         self.sort_item: SortItem = SortItem()
@@ -186,7 +184,7 @@ class MainWin(WinBase):
         sep_one = USep()
         self.search_bar = SearchBar(self.search_item)
         self.search_bar_sep = USep()
-        self.grid = Grid(self.view_index, self.main_win_item)
+        self.grid = Grid(self.main_win_item)
         sep_two = USep()
         self.path_bar = PathBar(self.main_win_item)
         sep = USep()
@@ -378,11 +376,6 @@ class MainWin(WinBase):
             self.main_win_item.main_dir = new_main_dir
             self.load_st_grid()
 
-    def change_view(self, index: int):
-        if index != self.view_index:
-            self.view_index = index
-            self.load_st_grid()
-
     def resize_timer_timeout(self):
         self.grid.resize_thumbs()
         self.grid.rearrange_thumbs()
@@ -435,7 +428,7 @@ class MainWin(WinBase):
     def load_search_grid(self):
         self.del_grid_delayed()
 
-        self.grid = GridSearch(self.main_win_item, self.view_index)
+        self.grid = GridSearch(self.main_win_item)
         self.grid.finished_.connect(lambda: self.search_finished())
         self.grid.setParent(self)
         self.grid.set_sort_item(self.sort_item)
@@ -483,15 +476,15 @@ class MainWin(WinBase):
         self.del_grid_delayed()
 
 
-        if self.view_index == 0:
-            self.grid = GridStandart(self.main_win_item, self.view_index)
+        if self.main_win_item.get_view_mode() == 0:
+            self.grid = GridStandart(self.main_win_item)
             self.grid.setParent(self)
             self.grid.set_sort_item(self.sort_item)
             self.grid.load_finder_items()
             self.disable_wids(False)
 
-        elif self.view_index == 1:
-            self.grid = GridList(self.main_win_item, self.view_index)
+        elif self.main_win_item.get_view_mode() == 1:
+            self.grid = GridList(self.main_win_item)
             self.grid.setParent(self)
             self.grid.set_first_col_width()
             self.disable_wids(True)

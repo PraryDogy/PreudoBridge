@@ -70,8 +70,8 @@ class GridSearch(Grid):
     no_result_text = "Ничего не найдено"
     pause_time_ms = 700
 
-    def __init__(self, main_win_item: MainWinItem, view_index: int):
-        super().__init__(main_win_item, view_index)
+    def __init__(self, main_win_item: MainWinItem):
+        super().__init__(main_win_item)
         self.setAcceptDrops(False)
         self.search_item: SearchItem = None
 

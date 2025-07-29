@@ -271,7 +271,7 @@ class Thumb(BaseItem, QFrame):
 class Grid(UScrollArea):
     spacing_value = 5
 
-    def __init__(self, main_win_item: MainWinItem, view_index: int):
+    def __init__(self, main_win_item: MainWinItem):
         super().__init__()
         self.setAcceptDrops(True)
         self.setWidgetResizable(True)
@@ -280,7 +280,6 @@ class Grid(UScrollArea):
 
         self.is_grid_search: bool = False
         self.main_win_item = main_win_item
-        self.view_index: int = view_index
         self.sort_item: SortItem = 1
 
         self.col_count: int = 0
@@ -1022,8 +1021,7 @@ class Grid(UScrollArea):
 
         menu_.addSeparator()
 
-        change_view = GridActions.ChangeViewMenu(menu_, self.view_index)
-        change_view.change_view_sig.connect(self.change_view.emit)
+        change_view = GridActions.ChangeViewMenu(menu_, self.main_win_item)
         menu_.addMenu(change_view)
 
         sort_menu = GridActions.SortMenu(menu_, self.sort_item)
