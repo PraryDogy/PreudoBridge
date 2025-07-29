@@ -557,10 +557,10 @@ class MainWin(WinBase):
         self.temp_wid_timer.start(1000)
 
     def on_exit(self):
-        # for task in UThreadPool.tasks:
-        #     task.set_should_run(False)
-        # while not all(task.is_finished() for task in UThreadPool.tasks):
-            # QTest.qSleep(100)
+        for task in UThreadPool.tasks:
+            task.set_should_run(False)
+        while not all(task.is_finished() for task in UThreadPool.tasks):
+            QTest.qSleep(100)
         JsonData.write_config()
     
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
