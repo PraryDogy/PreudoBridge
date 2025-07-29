@@ -98,7 +98,6 @@ class UMenu(QMenu):
             }}
         """)
 
-
     def show_(self):
         self.exec_(QCursor.pos())
 
