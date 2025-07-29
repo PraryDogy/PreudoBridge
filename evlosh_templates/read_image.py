@@ -10,7 +10,7 @@ import rawpy
 import rawpy._rawpy
 import tifffile
 from imagecodecs.imagecodecs import DelayedImportError
-from PIL import Image
+from PIL import Image, ImageOps
 
 psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
 psd_logger = logging.getLogger("psd_tools")
@@ -158,6 +158,7 @@ class ReadImage:
     def _read_jpg(cls, path: str) -> np.ndarray | None:
         try:
             img = Image.open(path)
+            img = ImageOps.exif_transpose(img) 
             img = img.convert("RGB")
             array_img = np.array(img)
             img.close()
