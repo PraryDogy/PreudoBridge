@@ -489,6 +489,7 @@ class MainWin(WinBase):
             self.grid.set_first_col_width()
             self.disable_wids(True)
 
+        self.top_bar.change_view_cmd()
         self.setup_grid_signals()
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
         # QTimer.singleShot(300, self.grid.setFocus)

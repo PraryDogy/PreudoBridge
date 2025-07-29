@@ -369,6 +369,7 @@ class TopBar(QWidget):
 
         self.change_view_btn = BarTopBtn()
         self.change_view_btn.mouseReleaseEvent = lambda e: self.change_view_cmd()
+        self.change_view_btn.mouseReleaseEvent = lambda e: self.load_st_grid.emit()
         if self.main_win_item.get_view_mode() == 0:
             self.change_view_btn.load(Static.GRID_VIEW_SVG)
         else:
@@ -418,8 +419,6 @@ class TopBar(QWidget):
             self.change_view_btn.load(Static.GRID_VIEW_SVG)
             self.change_view_btn.set_text("Плитка")
             self.main_win_item.set_view_mode(0)
-
-        self.load_st_grid.emit()
 
     def on_search_bar_clicked(self):
         if isinstance(self.search_item.get_content(), str):
