@@ -414,8 +414,6 @@ class TopBar(QWidget):
             for btn, txt in zip(self.findChildren(BarTopBtn), texts):
                 btn.lbl.hide()
 
-        self.adjustSize()
-
     def on_search_bar_clicked(self):
         if isinstance(self.search_item.get_content(), str):
             self.search_wid.selectAll()
