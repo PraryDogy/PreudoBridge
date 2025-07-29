@@ -264,7 +264,8 @@ class GridList(UTableView):
             paste_files.triggered.connect(self.paste_files)
             menu_.addAction(paste_files)
 
-        change_view = GridActions.ChangeViewMenu(menu_, self.main_win_item)
+        change_view = GridActions.ChangeViewMenu(menu_, self.main_win_item.get_view_mode())
+        change_view.triggered.connect(lambda: self.change_view.emit())
         menu_.addMenu(change_view)
 
         upd_ = GridActions.UpdateGrid(menu_)

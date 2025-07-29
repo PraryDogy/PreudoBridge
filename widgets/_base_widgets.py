@@ -64,7 +64,7 @@ class UTableView(QTableView, UMethods):
     del_fav = pyqtSignal(str)
     load_st_grid = pyqtSignal()
     move_slider = pyqtSignal(int)
-    change_view = pyqtSignal(int)
+    change_view = pyqtSignal()
     open_in_new_win = pyqtSignal(str)
     level_up = pyqtSignal()
     sort_menu_update = pyqtSignal()
