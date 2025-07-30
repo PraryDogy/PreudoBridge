@@ -174,6 +174,9 @@ class GridList(UTableView):
         GridList.order = self.horizontalHeader().sortIndicatorOrder()
         self.sortByColumn(GridList.col, GridList.order)
 
+    def toggle_is_cut(self, value: bool):
+        Dynamic.is_cut = value
+
     def rearrange_thumbs(self, *args, **kwargs):
         ...
 
@@ -211,6 +214,13 @@ class GridList(UTableView):
     def item_context(self, menu_: UMenu, selected_path: str, urls: list[str], names: list[str], total: int):
         urls = self.get_selected_urls()
 
+        if Dynamic.urls_to_copy:
+            paste_files = GridActions.PasteObjects(menu_, len(Dynamic.urls_to_copy))
+            paste_files.triggered.connect(self.paste_files)
+            menu_.addAction(paste_files)
+
+            menu_.addSeparator()
+
         view_action = ItemActions.OpenThumb(menu_, urls)
         view_action.triggered.connect(lambda: self.open_thumb(urls))
         menu_.addAction(view_action)
@@ -218,26 +228,9 @@ class GridList(UTableView):
         open_in_app = ItemActions.OpenInApp(menu_, urls)
         menu_.addMenu(open_in_app)
 
-        menu_.addSeparator()
-
         info = ItemActions.Info(menu_)
         info.triggered.connect(lambda: self.win_info_cmd(selected_path))
         menu_.addAction(info)
-
-        open_finder_action = ItemActions.RevealInFinder(menu_, urls, total)
-        menu_.addAction(open_finder_action)
-
-        copy_path_action = ItemActions.CopyPath(menu_, urls, total)
-        menu_.addAction(copy_path_action)
-
-        copy_name = ItemActions.CopyName(menu_, names, total)
-        menu_.addAction(copy_name)
-
-        copy_files = ItemActions.CopyObjects(menu_, total)
-        copy_files.triggered.connect(lambda: self.setup_urls_to_copy(urls))
-        menu_.addAction(copy_files)
-
-        menu_.addSeparator()
 
         if os.path.isdir(selected_path):
             if selected_path in JsonData.favs:
@@ -253,24 +246,39 @@ class GridList(UTableView):
 
         menu_.addSeparator()
 
+        open_finder_action = ItemActions.RevealInFinder(menu_, urls, total)
+        menu_.addAction(open_finder_action)
+
+        copy_path_action = ItemActions.CopyPath(menu_, urls, total)
+        menu_.addAction(copy_path_action)
+
+        copy_name = ItemActions.CopyName(menu_, names, total)
+        menu_.addAction(copy_name)
+
+        menu_.addSeparator()
+
+        cut_objects = ItemActions.CutObjects(menu_, total)
+        cut_objects.triggered.connect(lambda: self.toggle_is_cut(True))
+        cut_objects.triggered.connect(self.setup_urls_to_copy)
+        menu_.addAction(cut_objects)
+
+        copy_files = ItemActions.CopyObjects(menu_, total)
+        copy_files.triggered.connect(lambda: self.setup_urls_to_copy(urls))
+        menu_.addAction(copy_files)
+
         remove_objects = ItemActions.RemoveObjects(menu_, total)
         remove_objects.triggered.connect(lambda: self.remove_files_cmd(urls))
         menu_.addAction(remove_objects)  
 
         menu_.addSeparator()
 
-        if Dynamic.urls_to_copy:
-            paste_files = GridActions.PasteObjects(menu_, len(Dynamic.urls_to_copy))
-            paste_files.triggered.connect(self.paste_files)
-            menu_.addAction(paste_files)
+        upd_ = GridActions.UpdateGrid(menu_)
+        upd_.triggered.connect(lambda: self.load_st_grid.emit())
+        menu_.addAction(upd_)     
 
         change_view = GridActions.ChangeViewMenu(menu_, self.main_win_item.get_view_mode())
         change_view.triggered.connect(lambda: self.change_view.emit())
         menu_.addMenu(change_view)
-
-        upd_ = GridActions.UpdateGrid(menu_)
-        upd_.triggered.connect(lambda: self.load_st_grid.emit())
-        menu_.addAction(upd_)      
 
     def grid_context(self, menu_: UMenu, selected_path: str, urls: list[str], names: list[str], total: int):
         info = GridActions.Info(menu_)
