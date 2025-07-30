@@ -124,6 +124,8 @@ class MainWin(WinBase):
     scroll_up_width_offset = 70
     scroll_up_height_offset = 110
     first_load = True
+    list_text = "Список"
+    grid_text = "Плитка"
 
     def __init__(self, dir: str = None):
         super().__init__()
@@ -497,12 +499,12 @@ class MainWin(WinBase):
     def change_view_cmd(self):
         if self.main_win_item.get_view_mode() == 0:
             self.top_bar.change_view_btn.load(Static.GRID_VIEW_SVG)
-            self.top_bar.change_view_btn.lbl.setText("Плитка")
+            self.top_bar.change_view_btn.lbl.setText(self.grid_text)
             self.main_win_item.set_view_mode(1)
 
         else:
             self.top_bar.change_view_btn.load(Static.LIST_VIEW_SVG)
-            self.top_bar.change_view_btn.lbl.setText("Список")
+            self.top_bar.change_view_btn.lbl.setText(self.list_text)
             self.main_win_item.set_view_mode(0)
 
         self.load_st_grid()
