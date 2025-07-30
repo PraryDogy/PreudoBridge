@@ -392,7 +392,7 @@ class GridList(UTableView):
             total = len(urls)
             self.grid_context(menu_, selected_path, urls, names, total)
 
-        menu_.show_()
+        menu_.show_under_cursor()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:

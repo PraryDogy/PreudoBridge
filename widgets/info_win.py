@@ -41,10 +41,10 @@ class SelectableLabel(QLabel):
         if os.path.exists(src):
             menu.addSeparator()
 
-            reveal_action = RevealInFinder(menu, src)
+            reveal_action = RevealInFinder(menu, [src], 1)
             menu.addAction(reveal_action)
 
-        menu.exec_(ev.globalPos())
+        menu.show_under_cursor()
 
 
 class InfoWin(MinMaxDisabledWin):

@@ -108,7 +108,7 @@ class FavItem(QLabel):
         fav_action.triggered.connect(cmd_)
         menu_.addAction(fav_action)
 
-        menu_.exec_(ev.globalPos())
+        menu_.show_under_cursor()
 
     def mouseReleaseEvent(self, e):
         if e.modifiers() & Qt.KeyboardModifier.ControlModifier:

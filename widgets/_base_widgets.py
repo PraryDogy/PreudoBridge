@@ -98,9 +98,7 @@ class UMenu(QMenu):
             }}
         """)
 
-        print(self.parent())
-
-    def show_(self):
+    def show_under_cursor(self):
         self.exec_(QCursor.pos())
 
     def mouseReleaseEvent(self, a0):
@@ -232,7 +230,7 @@ class ULineEdit(QLineEdit):
         select_all_a = TextSelectAll(menu, self)
         menu.addAction(select_all_a)
 
-        menu.show_()
+        menu.show_under_cursor()
 
 
 class UTextEdit(QTextEdit):
@@ -266,7 +264,7 @@ class UTextEdit(QTextEdit):
         select_all_a = TextSelectAll(menu, self)
         menu.addAction(select_all_a)
 
-        menu.show_()
+        menu.show_under_cursor()
 
 
 class USep(QFrame):

@@ -97,4 +97,4 @@ class TreeMenu(QTreeView):
             fav_action.triggered.connect(cmd_)
             menu.addAction(fav_action)
 
-        menu.show_()
+        menu.show_under_cursor()

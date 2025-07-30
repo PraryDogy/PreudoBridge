@@ -1161,7 +1161,7 @@ class Grid(UScrollArea):
             else:
                 self.gridContexActions(menu_)
 
-        menu_.show_()
+        menu_.show_under_cursor()
     
     def dragEnterEvent(self, a0):
         if self.is_grid_search:

@@ -462,4 +462,4 @@ class ImgViewWin(WinBase):
         rating_menu.new_rating.connect(lambda value: self.new_rating.emit(value))
         menu.addMenu(rating_menu)
 
-        menu.show_()
+        menu.show_under_cursor()

@@ -64,7 +64,7 @@ class TagsMenu(QListWidget):
         )
 
         menu.addAction(enable_action)
-        menu.show_()
+        menu.show_under_cursor()
 
     def handle_item_click(self, item: UItem):
         self.item_cmd(item.rating)

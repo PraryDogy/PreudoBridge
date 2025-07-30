@@ -197,7 +197,7 @@ class PathItem(QWidget):
         menu.addAction(copy_name)
 
         self.solid_style()
-        menu.show_()
+        menu.show_under_cursor()
         self.default_style()
 
 
