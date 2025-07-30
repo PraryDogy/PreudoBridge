@@ -358,6 +358,7 @@ class TopBar(QWidget):
 
         self.update_btn = BarTopBtn()
         self.update_btn.load(Static.UPDATE_SVG)
+        self.update_btn.clicked.connect(lambda: self.load_st_grid.emit())
         self.main_lay.addWidget(self.update_btn)
 
         self.fast_sort_btn = BarTopBtn()
