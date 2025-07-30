@@ -155,6 +155,7 @@ class GridStandart(Grid):
         # которая скроет из сетки не подходящие под фильтр виджеты
         if Dynamic.rating_filter > 0:
             self.filter_thumbs()
+            self.rearrange_thumbs()
 
         # если не будет прокрутки, то начнется подгрузка изображений в виджеты
         # в видимой области

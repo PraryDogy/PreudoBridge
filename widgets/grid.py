@@ -999,13 +999,15 @@ class Grid(UScrollArea):
 
         menu_.addSeparator()
 
-        new_folder = GridActions.NewFolder(menu_)
-        new_folder.triggered.connect(self.create_new_folder)
-        menu_.addAction(new_folder)
+        if not self.is_grid_search and not Dynamic.rating_filter != 0:
+            new_folder = GridActions.NewFolder(menu_)
+            new_folder.triggered.connect(self.create_new_folder)
+            menu_.addAction(new_folder)
 
-        info = GridActions.Info(menu_)
-        info.triggered.connect(lambda: self.win_info_cmd(self.main_win_item.main_dir))
-        menu_.addAction(info)
+        if not self.is_grid_search:
+            info = GridActions.Info(menu_)
+            info.triggered.connect(lambda: self.win_info_cmd(self.main_win_item.main_dir))
+            menu_.addAction(info)
 
         if self.main_win_item.main_dir in JsonData.favs:
             cmd_ = lambda: self.fav_cmd(-1, self.main_win_item.main_dir)

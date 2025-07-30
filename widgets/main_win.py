@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (QApplication, QGraphicsDropShadowEffect,
                              QHBoxLayout, QLabel, QSplitter, QTabWidget,
                              QVBoxLayout, QWidget)
 
-from cfg import JsonData, Static
+from cfg import JsonData, Static, Dynamic
 from evlosh_templates.evlosh_utils import EvloshUtils
 from evlosh_templates.paletes import UPallete
 from system.items import MainWinItem, SearchItem, SortItem
