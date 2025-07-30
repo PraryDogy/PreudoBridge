@@ -173,9 +173,6 @@ class SearchWidget(ULineEdit):
         self.input_timer.setSingleShot(True)
         self.input_timer.timeout.connect(self.prepare_text)
 
-        self.create_menu()
-
-    def create_menu(self):
         self.templates_menu = UMenu(parent=self)
 
         for text, _ in SearchItem.SEARCH_EXTENSIONS.items():
