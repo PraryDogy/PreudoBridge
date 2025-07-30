@@ -510,14 +510,5 @@ class TopBar(QWidget):
             self.main_win_item.main_dir = new_main_dir
             self.load_st_grid.emit()
 
-
-    # def resizeEvent(self, a0):
-        # if a0.size().width() < 700:
-        #     for i in self.findChildren(BarTopBtn):
-        #         i.hide()
-
-        # else:
-        #     for i in self.findChildren(BarTopBtn):
-        #         i.show()
-
-        # return super().resizeEvent(a0)
+    def resizeEvent(self, a0):
+        return super().resizeEvent(a0)
