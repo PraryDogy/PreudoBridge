@@ -423,6 +423,7 @@ class MainWin(WinBase):
 
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
 
+        self.search_item.set_filter(1)
         self.search_bar.show()
         self.search_bar_sep.show()
         self.tags_menu.reset()

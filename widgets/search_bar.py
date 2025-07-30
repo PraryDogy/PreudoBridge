@@ -48,7 +48,7 @@ class SearchBar(QFrame):
     text_limit = 30
     # чтобы на всех темах текст был одинаково по левому краю и с отступом
     # по другому универсально не выходит
-    no_filter_text = "  Без фильтра"
+    no_filter_text = "  Найти похожие"
     exactly_text = "  Точное соответствие"
     containts_text = "  Содержится в имени"
 
@@ -74,13 +74,12 @@ class SearchBar(QFrame):
         self.descr_lbl = BlinkingLabel(self.searching_text)
         uframe_lay.addWidget(self.descr_lbl)
 
-        self.filter_bt = QPushButton(self.no_filter_text)
+        self.filter_bt = QPushButton()
         self.filter_bt.setStyleSheet("text-align: left;")
         self.filter_bt.setFixedWidth(190)
         h_lay.addWidget(self.filter_bt)
 
         menu = QMenu()
-        # menu.setStyleSheet("QMenu::item { text-align: left; min-width: 190px;}")
         menu.setFixedWidth(190)
         self.filter_bt.setMenu(menu)
 
