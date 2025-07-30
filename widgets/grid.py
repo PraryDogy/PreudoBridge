@@ -1003,10 +1003,6 @@ class Grid(UScrollArea):
             fav_action.triggered.connect(cmd_)
             menu_.addAction(fav_action)
 
-        upd_ = GridActions.UpdateGrid(menu_)
-        upd_.triggered.connect(lambda: self.load_st_grid.emit())
-        menu_.addAction(upd_)
-
         menu_.addSeparator()
 
         reveal = GridActions.RevealInFinder(menu_, urls, total)
@@ -1019,6 +1015,10 @@ class Grid(UScrollArea):
         menu_.addAction(copy_name)
 
         menu_.addSeparator()
+
+        upd_ = GridActions.UpdateGrid(menu_)
+        upd_.triggered.connect(lambda: self.load_st_grid.emit())
+        menu_.addAction(upd_)
 
         change_view = GridActions.ChangeViewMenu(menu_, self.main_win_item.get_view_mode())
         change_view.triggered.connect(lambda: self.change_view.emit())
