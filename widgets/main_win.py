@@ -411,23 +411,6 @@ class MainWin(WinBase):
         self.grid.verticalScrollBar().valueChanged.connect(lambda value: self.scroll_up_toggle(value))
         self.grid.finished_.connect(lambda: self.grid.setFocus())
 
-    # def del_grid_delayed(self):
-    #     # если напрямую удалять сетку, то мы обязательно наткнемся на 
-    #     # bus error, segmentation fault, fatal error no python frame
-    #     # поэтому мы сначала скрываем старую сетку
-    #     # затем по таймеру удаляем ее
-
-    #     if isinstance(self.grid, (GridStandart, GridList)):
-    #         self.grid.set_urls()
-
-    #     old_grid = self.grid
-    #     old_grid.hide()
-    #     QTimer.singleShot(MainWin.del_grid_timer, lambda: self.del_grid_fin(old_grid))
-
-    # def del_grid_fin(self, old_grid: GridStandart):
-    #     old_grid.deleteLater()
-    #     gc.collect()
-
     def load_search_grid(self):
         self.grid.deleteLater()
 
