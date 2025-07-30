@@ -428,16 +428,9 @@ class TopBar(QWidget):
 
     def cascade_windows(self):
         main_win = self.window()
-        wins = [w for w in WinBase.wins if w is not main_win]
-        sorted_widgets = sorted(wins, key=lambda w: w.width() * w.height(), reverse=True)
-
-        x, y = main_win.x(), main_win.y()
-        dx, dy = TopBar.cascade_offset, TopBar.cascade_offset
+        sorted_widgets = [w for w in WinBase.wins if w is not main_win]
 
         for w in sorted_widgets:
-            w.move(x, y)
-            x += dx
-            y += dy
             w.show()
             w.raise_()
 
