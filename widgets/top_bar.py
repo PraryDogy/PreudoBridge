@@ -304,6 +304,17 @@ class TopBar(QWidget):
     cascade_offset = 30
     history_items_limit = 100
 
+    topbar_btn_texts = [
+        "Назад",
+        "Вперед",
+        "Наверх",
+        "Сортировка",
+        "Новое окно",
+        "Показать все",
+        "Список",
+        "Настройки"
+    ]
+
     def __init__(self, main_win_item: MainWinItem, search_item: SearchItem):
         """
         Верхний бар в окне приложения:
@@ -381,18 +392,7 @@ class TopBar(QWidget):
         self.search_wid.load_st_grid.connect(self.load_st_grid.emit)
         self.main_lay.addWidget(self.search_wid)
 
-        texts = [
-            "Назад",
-            "Вперед",
-            "Наверх",
-            "Сортировка",
-            "Новое окно",
-            "Показать все",
-            "Список",
-            "Настройки"
-        ]
-
-        for btn, txt in zip(self.findChildren(BarTopBtn), texts):
+        for btn, txt in zip(self.findChildren(BarTopBtn), self.topbar_btn_texts):
             btn.lbl.setText(txt)
 
         self.toggle_texts()
