@@ -1,5 +1,6 @@
 import gc
 import os
+import shutil
 
 from PyQt5.QtCore import (QMimeData, QPoint, QRect, QSize, Qt, QTimer, QUrl,
                           pyqtSignal)
@@ -589,7 +590,10 @@ class Grid(UScrollArea):
         try:
             if Dynamic.is_cut:
                 for i in Dynamic.urls_to_copy:
-                    os.remove(i)
+                    if os.path.isfile(i):
+                        os.remove(i)
+                    else:
+                        shutil.rmtree(i)
         except Exception as e:
             Utils.print_error()
 
