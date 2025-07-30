@@ -331,9 +331,20 @@ class GridList(UTableView):
         QTimer.singleShot(300, self.win_copy.raise_)
 
     def paste_files_fin(self, urls: list[str]):
-        if urls:
-            self.load_st_grid.emit()
-            Dynamic.urls_to_copy.clear()
+        if not urls:
+            return
+
+        self.load_st_grid.emit()
+
+        try:
+            if Dynamic.is_cut:
+                for i in Dynamic.urls_to_copy:
+                    os.remove(i)
+        except Exception as e:
+            Utils.print_error()
+
+        Dynamic.is_cut = False
+        Dynamic.urls_to_copy.clear()
 
     def show_error_win(self):
         """
