@@ -926,8 +926,9 @@ class Grid(UScrollArea):
         view_action.triggered.connect(lambda: self.open_thumb())
         menu_.addAction(view_action)
 
-        open_in_app = ItemActions.OpenInApp(menu_, urls)
-        menu_.addMenu(open_in_app)
+        if wid.type_ != Static.FOLDER_TYPE:
+            open_in_app = ItemActions.OpenInApp(menu_, urls)
+            menu_.addMenu(open_in_app)
 
         rating_menu = ItemActions.RatingMenu(menu_, urls, total, wid.rating)
         rating_menu.new_rating.connect(self.set_new_rating_selected)
@@ -938,6 +939,11 @@ class Grid(UScrollArea):
         menu_.addAction(info)
 
         if wid.type_ == Static.FOLDER_TYPE:
+
+            new_win = ItemActions.OpenInNewWindow(menu_)
+            new_win.triggered.connect(lambda: self.open_in_new_win.emit(wid.src))
+            menu_.addAction(new_win)
+
             if wid.src in JsonData.favs:
                 cmd_ = lambda: self.fav_cmd(offset=-1, src=wid.src)
                 fav_action = ItemActions.FavRemove(menu_)
