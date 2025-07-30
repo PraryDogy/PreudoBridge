@@ -509,7 +509,7 @@ class Grid(UScrollArea):
         from .img_view_win import ImgViewWin
         self.win_img_view = ImgViewWin(start_url, url_to_wid, is_selection)
         self.win_img_view.move_to_wid.connect(lambda wid: self.select_one_wid(wid))
-        self.win_img_view.new_rating.connect(lambda value: self.set_new_rating(value))
+        self.win_img_view.new_rating.connect(lambda data: self.set_new_rating_single(*data))
         self.win_img_view.closed.connect(lambda: self.img_view_closed())
         self.win_img_view.center(self.window())
         self.win_img_view.show()
@@ -673,7 +673,19 @@ class Grid(UScrollArea):
         except Exception as e:
             Utils.print_error()
 
-    def set_new_rating(self, new_rating: int):
+    def set_new_rating_single(self, rating: int, url: str):
+        """
+        Устанавливает рейтинг для виджета с указанным url
+        """
+        wid = self.url_to_wid.get(url)
+        if not wid:
+            return
+        self.task_ = RatingTask(self.main_win_item.main_dir, wid.name, rating)
+        cmd_ = lambda: self.set_new_rating_fin(wid, rating)
+        self.task_.signals_.finished_.connect(cmd_)
+        UThreadPool.start(self.task_)
+
+    def set_new_rating_selected(self, rating: int):
         """
         Устанавливает рейтинг для выделенных в сетке виджетов:
         - Делается запись в базу данных через URunnable
@@ -681,8 +693,8 @@ class Grid(UScrollArea):
         """
 
         for wid in self.selected_widgets:
-            self.task_ = RatingTask(self.main_win_item.main_dir, wid.name, new_rating)
-            cmd_ = lambda w=wid: self.set_new_rating_fin(w, new_rating)
+            self.task_ = RatingTask(self.main_win_item.main_dir, wid.name, rating)
+            cmd_ = lambda w=wid: self.set_new_rating_fin(w, rating)
             self.task_.signals_.finished_.connect(cmd_)
             UThreadPool.start(self.task_)
 
@@ -918,7 +930,7 @@ class Grid(UScrollArea):
         menu_.addMenu(open_in_app)
 
         rating_menu = ItemActions.RatingMenu(menu_, urls, total, wid.rating)
-        rating_menu.new_rating.connect(self.set_new_rating)
+        rating_menu.new_rating.connect(self.set_new_rating_selected)
         menu_.addMenu(rating_menu)
 
         info = ItemActions.Info(menu_)
@@ -1135,7 +1147,7 @@ class Grid(UScrollArea):
 
         elif a0.key() in KEY_RATING:
             rating = KEY_RATING.get(a0.key())
-            self.set_new_rating(rating)
+            self.set_new_rating_selected(rating)
         
         return super().keyPressEvent(a0)
 

@@ -183,7 +183,7 @@ class ImgViewWin(WinBase):
     task_count_limit = 10
     move_to_wid = pyqtSignal(object)
     move_to_url = pyqtSignal(str)
-    new_rating = pyqtSignal(int)
+    new_rating = pyqtSignal(tuple)
     closed = pyqtSignal()
     width_, height_ = 700, 500
     min_width_, min_height_ = 400, 300
@@ -370,26 +370,27 @@ class ImgViewWin(WinBase):
         elif ev.key() == Qt.Key.Key_Escape:
             self.deleteLater()
 
-        elif ev.key() == Qt.Key.Key_Equal:
-            self.img_wid.zoom_in()
-
-        elif ev.key() == Qt.Key.Key_Minus:
-            self.img_wid.zoom_out()
-
-        elif ev.key() == Qt.Key.Key_0:
-            self.img_wid.zoom_reset()
-
         elif ev.key() == Qt.Key.Key_Space:
             self.deleteLater()
 
         elif ev.key() in KEY_RATING:
             rating = KEY_RATING.get(ev.key())
-            self.new_rating.emit(rating)
+            data = (rating, self.current_path)
+            self.new_rating.emit(data)
             self.set_title()
 
         elif ev.modifiers() & Qt.KeyboardModifier.ControlModifier:
             if ev.key() == Qt.Key.Key_I:
                 self.win_info_cmd(self.current_path)
+
+            elif ev.key() == Qt.Key.Key_Equal:
+                self.img_wid.zoom_in()
+
+            elif ev.key() == Qt.Key.Key_Minus:
+                self.img_wid.zoom_out()
+
+            elif ev.key() == Qt.Key.Key_0:
+                self.img_wid.zoom_reset()
 
         return super().keyPressEvent(ev)
 
@@ -459,7 +460,7 @@ class ImgViewWin(WinBase):
         menu.addSeparator()
 
         rating_menu = ItemActions.RatingMenu(menu, urls, total, self.current_thumb.rating)
-        rating_menu.new_rating.connect(lambda value: self.new_rating.emit(value))
+        rating_menu.new_rating.connect(lambda value: self.new_rating.emit((value, self.current_path)))
         menu.addMenu(rating_menu)
 
         menu.show_under_cursor()
