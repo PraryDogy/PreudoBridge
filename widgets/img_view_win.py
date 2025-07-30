@@ -361,25 +361,7 @@ class ImgViewWin(WinBase):
 # EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS 
 
     def keyPressEvent(self, ev: QKeyEvent | None) -> None:
-        if ev.key() == Qt.Key.Key_Left:
-            self.switch_img(-1)
-
-        elif ev.key() == Qt.Key.Key_Right:
-            self.switch_img(1)
-
-        elif ev.key() == Qt.Key.Key_Escape:
-            self.deleteLater()
-
-        elif ev.key() == Qt.Key.Key_Space:
-            self.deleteLater()
-
-        elif ev.key() in KEY_RATING:
-            rating = KEY_RATING.get(ev.key())
-            data = (rating, self.current_path)
-            self.new_rating.emit(data)
-            self.set_title()
-
-        elif ev.modifiers() & Qt.KeyboardModifier.ControlModifier:
+        if ev.modifiers() & Qt.KeyboardModifier.ControlModifier:
             if ev.key() == Qt.Key.Key_I:
                 self.win_info_cmd(self.current_path)
 
@@ -391,6 +373,25 @@ class ImgViewWin(WinBase):
 
             elif ev.key() == Qt.Key.Key_Minus:
                 self.img_wid.zoom_out()
+
+        else:
+            if ev.key() == Qt.Key.Key_Left:
+                self.switch_img(-1)
+
+            elif ev.key() == Qt.Key.Key_Right:
+                self.switch_img(1)
+
+            elif ev.key() == Qt.Key.Key_Escape:
+                self.deleteLater()
+
+            elif ev.key() == Qt.Key.Key_Space:
+                self.deleteLater()
+
+            elif ev.key() in KEY_RATING:
+                rating = KEY_RATING.get(ev.key())
+                data = (rating, self.current_path)
+                self.new_rating.emit(data)
+                self.set_title()
 
         return super().keyPressEvent(ev)
 
