@@ -308,6 +308,7 @@ class TopBar(QWidget):
         "Назад",
         "Вперед",
         "Наверх",
+        "Обновить",
         "Сортировка",
         "Новое окно",
         "Показать все",
@@ -354,6 +355,10 @@ class TopBar(QWidget):
 
         self.main_lay.addStretch(1)
         self.main_lay.addSpacerItem(QSpacerItem(20, 0))
+
+        self.update_btn = BarTopBtn()
+        self.update_btn.load(Static.UPDATE_SVG)
+        self.main_lay.addWidget(self.update_btn)
 
         self.fast_sort_btn = BarTopBtn()
         self.fast_sort_btn.load(Static.FAST_SORT_SVG)
@@ -504,3 +509,15 @@ class TopBar(QWidget):
             new_main_dir = self.history_items[self.current_index]
             self.main_win_item.main_dir = new_main_dir
             self.load_st_grid.emit()
+
+
+    # def resizeEvent(self, a0):
+        # if a0.size().width() < 700:
+        #     for i in self.findChildren(BarTopBtn):
+        #         i.hide()
+
+        # else:
+        #     for i in self.findChildren(BarTopBtn):
+        #         i.show()
+
+        # return super().resizeEvent(a0)
