@@ -328,7 +328,10 @@ class WinBase(QWidget):
         WinBase.wins.append(self)
 
     def remove_from_list(self):
-        WinBase.wins.remove(self)
+        try:
+            WinBase.wins.remove(self)
+        except ValueError:
+            ...
 
     def center(self, parent: QWidget):
         """
