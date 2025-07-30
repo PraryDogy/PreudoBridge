@@ -79,10 +79,7 @@ class Dbase:
             return engine
 
         except SQL_ERRORS as e:
-            error = Utils.print_error()
-
-            if error is None or "unable to open database file" in error:
-                return None
+            print("unable to open data base file")
 
             if os.path.exists(path):
                 os.remove(path)

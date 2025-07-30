@@ -88,7 +88,7 @@ class ReadImage:
 
 
     @classmethod
-    def _print_error():
+    def _print_error(*args):
         print()
         print("Исключение обработано.")
         print(traceback.format_exc())
