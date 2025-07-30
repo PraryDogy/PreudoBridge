@@ -98,28 +98,27 @@ class CheckboxGroup(QGroupBox):
         v_lay.setContentsMargins(self.left_margin, 0, 0, 0)
         self.setLayout(v_lay)
 
-        self.checkbox = QCheckBox(" " + self.text_)
-        v_lay.addWidget(self.checkbox)
+        self.show_hidden = QCheckBox(" " + self.text_)
+        v_lay.addWidget(self.show_hidden)
 
-        if JsonData.show_hidden:
-            self.checkbox.setChecked(True)
-        
-        self.checkbox.stateChanged.connect(self.on_state_changed)
-
-        self.checkbox_two = QCheckBox(" " + self.go_to_text)
-        v_lay.addWidget(self.checkbox_two)
-
-        if JsonData.go_to_now:
-            self.checkbox_two.setChecked(True)
-        
-        self.checkbox_two.stateChanged.connect(self.on_state_changed_two)
+        self.enable_go_to = QCheckBox(" " + self.go_to_text)
+        v_lay.addWidget(self.enable_go_to)
 
         self.show_texts = QCheckBox(" " + self.show_texts_text)
-        self.show_texts.stateChanged.connect(self.show_texts_cmd)
         v_lay.addWidget(self.show_texts)
+
+        if JsonData.show_hidden:
+            self.show_hidden.setChecked(True)
+
+        if JsonData.go_to_now:
+            self.enable_go_to.setChecked(True)
 
         if JsonData.show_text:
             self.show_texts.setChecked(True)
+
+        self.show_hidden.stateChanged.connect(self.on_state_changed)
+        self.enable_go_to.stateChanged.connect(self.on_state_changed_two)
+        self.show_texts.stateChanged.connect(self.show_texts_cmd)
         
     def on_state_changed(self, value: int):
         data = {0: False, 2: True}
@@ -272,10 +271,10 @@ class SettingsWin(MinMaxDisabledWin):
         h_wid = QWidget()
         main_lay.addWidget(h_wid)
 
-        show_hidden = CheckboxGroup()
-        show_hidden.load_st_grid.connect(self.load_st_grid.emit)
-        show_hidden.show_texts_sig.connect(self.show_texts_sig.emit)
-        main_lay.addWidget(show_hidden)
+        checkbox_group = CheckboxGroup()
+        checkbox_group.load_st_grid.connect(self.load_st_grid.emit)
+        checkbox_group.show_texts_sig.connect(self.show_texts_sig.emit)
+        main_lay.addWidget(checkbox_group)
 
         themes_wid = Themes()
         themes_wid.theme_changed.connect(self.theme_changed_cmd)
