@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QPushButton,
                              QVBoxLayout, QWidget)
 
-from cfg import Static
+from cfg import Static, Dynamic
 from evlosh_templates.evlosh_utils import EvloshUtils
 from system.tasks import CopyFilesTask
 from system.utils import UThreadPool, Utils
@@ -136,13 +136,18 @@ class CopyFilesWin(MinMaxDisabledWin):
     error_ = pyqtSignal()
 
     preparing_text = "Подготовка"
-    title_text = "Копирую файлы"
     progressbar_width = 300
     icon_size = 50
 
     def __init__(self, dest: str, urls: list[str]):
         super().__init__()
-        self.setWindowTitle(CopyFilesWin.title_text)
+
+        if Dynamic.is_cut:
+            title_text = "Перемещаю файлы"
+        else:
+            title_text = "Копирую файлы"
+
+        self.setWindowTitle(title_text)
 
         main_lay = QHBoxLayout()
         main_lay.setContentsMargins(10, 10, 10, 10)
