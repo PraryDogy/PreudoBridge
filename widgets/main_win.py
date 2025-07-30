@@ -421,6 +421,7 @@ class MainWin(WinBase):
 
     def load_search_grid(self):
         self.grid.deleteLater()
+        self.search_item.set_filter(1)
 
         self.grid = GridSearch(self.main_win_item)
         self.grid.finished_.connect(lambda: self.search_finished())
@@ -431,7 +432,6 @@ class MainWin(WinBase):
 
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
 
-        self.search_item.set_filter(1)
         self.search_bar.show()
         self.search_bar_sep.show()
         self.tags_menu.reset()

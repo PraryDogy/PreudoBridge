@@ -130,18 +130,18 @@ class GridSearch(Grid):
         self.total_count_update.emit(self.total)
 
     def search_fin(self, missed_files_list: list[str]):
-        if not self.cell_to_wid:
-            no_images = QLabel(GridSearch.no_result_text)
-            no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.grid_layout.addWidget(no_images, 0, 0)
-
-        elif missed_files_list:
-            self.win_missed_files = WinMissedFiles(missed_files_list)
-            self.win_missed_files.center(self.window())
-            self.win_missed_files.show()
-
         try:
+            if not self.cell_to_wid:
+                no_images = QLabel(GridSearch.no_result_text)
+                no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                self.grid_layout.addWidget(no_images, 0, 0)
+
+            elif missed_files_list:
+                self.win_missed_files = WinMissedFiles(missed_files_list)
+                self.win_missed_files.center(self.window())
+                self.win_missed_files.show()
+
             if self.search_task.is_should_run():
                 self.finished_.emit()
         except RuntimeError as e:
