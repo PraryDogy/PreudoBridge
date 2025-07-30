@@ -141,6 +141,7 @@ class CopyFilesWin(MinMaxDisabledWin):
 
     def __init__(self, dest: str, urls: list[str]):
         super().__init__()
+        self.setWindowFlag(Qt.WindowType.WindowCloseButtonHint, False)
 
         if Dynamic.is_cut:
             title_text = "Перемещаю файлы"

@@ -235,6 +235,14 @@ class MainWin(WinBase):
         if not JsonData.favs:
             self.tabs_widget.setCurrentIndex(0)
 
+        QTimer.singleShot(200, self.se)
+
+    def se(self):
+        from .copy_files_win import CopyFilesWin
+        self.scv = CopyFilesWin("", [""])
+        self.scv.center(self)
+        self.scv.show()
+
     def setup_signals(self):
         self.splitter.splitterMoved.connect(lambda: self.resize_timer.start(MainWin.resize_ms))
 
