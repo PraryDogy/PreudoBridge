@@ -384,9 +384,6 @@ class TopBar(QWidget):
         self.search_wid.load_st_grid.connect(self.load_st_grid.emit)
         self.main_lay.addWidget(self.search_wid)
 
-        self.show_texts_cmd()
-
-    def show_texts_cmd(self):
         texts = [
             "Назад",
             "Вперед",
@@ -394,20 +391,25 @@ class TopBar(QWidget):
             "Сортировка",
             "Новое окно",
             "Показать все",
-            "Плитка" if self.main_win_item.get_view_mode() == 1 else "Список",
+            "Список",
             "Настройки"
         ]
 
+        for btn, txt in zip(self.findChildren(BarTopBtn), texts):
+            btn.lbl.setText(txt)
+
+        self.toggle_texts()
+
+    def toggle_texts(self):
         if JsonData.show_text:
             self.main_lay.setSpacing(7)
             self.setFixedHeight(self.height_ + 7)
-            for btn, txt in zip(self.findChildren(BarTopBtn), texts):
-                btn.lbl.setText(txt)
+            for btn in self.findChildren(BarTopBtn):
                 btn.lbl.show()
         else:
             self.main_lay.setSpacing(0)
             self.setFixedHeight(self.height_)
-            for btn, txt in zip(self.findChildren(BarTopBtn), texts):
+            for btn in self.findChildren(BarTopBtn):
                 btn.lbl.hide()
 
     def on_search_bar_clicked(self):
