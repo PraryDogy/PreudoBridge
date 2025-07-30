@@ -356,7 +356,7 @@ class Grid(UScrollArea):
         заблокировано например контекстным меню
         """
         cmd_ = lambda: self.path_bar_update_delayed(src)
-        QTimer.singleShot(100, cmd_)
+        QTimer.singleShot(0, cmd_)
     
     def path_bar_update_delayed(self, src: str):
         try:

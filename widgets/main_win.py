@@ -411,25 +411,25 @@ class MainWin(WinBase):
         self.grid.verticalScrollBar().valueChanged.connect(lambda value: self.scroll_up_toggle(value))
         self.grid.finished_.connect(lambda: self.grid.setFocus())
 
-    def del_grid_delayed(self):
-        # если напрямую удалять сетку, то мы обязательно наткнемся на 
-        # bus error, segmentation fault, fatal error no python frame
-        # поэтому мы сначала скрываем старую сетку
-        # затем по таймеру удаляем ее
+    # def del_grid_delayed(self):
+    #     # если напрямую удалять сетку, то мы обязательно наткнемся на 
+    #     # bus error, segmentation fault, fatal error no python frame
+    #     # поэтому мы сначала скрываем старую сетку
+    #     # затем по таймеру удаляем ее
 
-        if isinstance(self.grid, (GridStandart, GridList)):
-            self.grid.set_urls()
+    #     if isinstance(self.grid, (GridStandart, GridList)):
+    #         self.grid.set_urls()
 
-        old_grid = self.grid
-        old_grid.hide()
-        QTimer.singleShot(MainWin.del_grid_timer, lambda: self.del_grid_fin(old_grid))
+    #     old_grid = self.grid
+    #     old_grid.hide()
+    #     QTimer.singleShot(MainWin.del_grid_timer, lambda: self.del_grid_fin(old_grid))
 
-    def del_grid_fin(self, old_grid: GridStandart):
-        old_grid.deleteLater()
-        gc.collect()
+    # def del_grid_fin(self, old_grid: GridStandart):
+    #     old_grid.deleteLater()
+    #     gc.collect()
 
     def load_search_grid(self):
-        self.del_grid_delayed()
+        self.grid.deleteLater()
 
         self.grid = GridSearch(self.main_win_item)
         self.grid.finished_.connect(lambda: self.search_finished())
@@ -474,10 +474,8 @@ class MainWin(WinBase):
         self.tree_menu.expand_path(self.main_win_item.main_dir)
         self.search_item.reset()
         self.scroll_up.hide()
-
+        self.grid.deleteLater()
         self.setWindowTitle(os.path.basename(self.main_win_item.main_dir))
-        self.del_grid_delayed()
-
 
         if self.main_win_item.get_view_mode() == 0:
             self.grid = GridStandart(self.main_win_item)
