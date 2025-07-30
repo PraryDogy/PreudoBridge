@@ -258,12 +258,12 @@ class GridList(UTableView):
         menu_.addSeparator()
 
         cut_objects = ItemActions.CutObjects(menu_, total)
-        cut_objects.triggered.connect(lambda: self.toggle_is_cut(True))
-        cut_objects.triggered.connect(self.setup_urls_to_copy)
+        cut_objects.triggered.connect(lambda e: self.toggle_is_cut(True))
+        cut_objects.triggered.connect(lambda e: self.setup_urls_to_copy(urls))
         menu_.addAction(cut_objects)
 
         copy_files = ItemActions.CopyObjects(menu_, total)
-        copy_files.triggered.connect(lambda: self.setup_urls_to_copy(urls))
+        copy_files.triggered.connect(lambda e: self.setup_urls_to_copy(urls))
         menu_.addAction(copy_files)
 
         remove_objects = ItemActions.RemoveObjects(menu_, total)
