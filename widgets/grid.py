@@ -515,8 +515,11 @@ class Grid(UScrollArea):
         self.win_img_view.show()
 
     def img_view_closed(self):
-        del self.win_img_view
-        gc.collect()
+        try:
+            del self.win_img_view
+            gc.collect()
+        except AttributeError:
+            ...
 
     def fav_cmd(self, offset: int, src: str):
         """

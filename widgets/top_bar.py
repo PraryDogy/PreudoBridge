@@ -301,7 +301,6 @@ class TopBar(QWidget):
     fast_sort = pyqtSignal()
 
     height_ = 40
-    cascade_offset = 30
     history_items_limit = 100
 
     topbar_btn_texts = [
@@ -372,10 +371,10 @@ class TopBar(QWidget):
         self.new_win_btn.load(Static.NEW_WIN_SVG)
         self.main_lay.addWidget(self.new_win_btn)
 
-        cascade_btn = BarTopBtn()
-        cascade_btn.mouseReleaseEvent = lambda e: self.cascade_windows()
-        cascade_btn.load(Static.CASCADE_SVG)
-        self.main_lay.addWidget(cascade_btn)
+        # cascade_btn = BarTopBtn()
+        # cascade_btn.mouseReleaseEvent = lambda e: self.cascade_windows()
+        # cascade_btn.load(Static.CASCADE_SVG)
+        # self.main_lay.addWidget(cascade_btn)
 
         self.change_view_btn = BarTopBtn()
         self.change_view_btn.mouseReleaseEvent = lambda e: self.change_view.emit()
@@ -426,13 +425,13 @@ class TopBar(QWidget):
             self.search_wid.selectAll()
             self.search_wid.open_search_list_win()
 
-    def cascade_windows(self):
-        main_win = self.window()
-        sorted_widgets = [w for w in WinBase.wins if w is not main_win]
+    # def cascade_windows(self):
+    #     main_win = self.window()
+    #     sorted_widgets = [w for w in WinBase.wins if w is not main_win]
 
-        for w in sorted_widgets:
-            w.show()
-            w.raise_()
+    #     for w in sorted_widgets:
+    #         w.show()
+    #         w.raise_()
 
     def new_history_item(self, dir: str):
         """
