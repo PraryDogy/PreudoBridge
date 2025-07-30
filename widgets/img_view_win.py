@@ -383,14 +383,14 @@ class ImgViewWin(WinBase):
             if ev.key() == Qt.Key.Key_I:
                 self.win_info_cmd(self.current_path)
 
+            elif ev.key() == Qt.Key.Key_0:
+                self.img_wid.zoom_reset()
+
             elif ev.key() == Qt.Key.Key_Equal:
                 self.img_wid.zoom_in()
 
             elif ev.key() == Qt.Key.Key_Minus:
                 self.img_wid.zoom_out()
-
-            elif ev.key() == Qt.Key.Key_0:
-                self.img_wid.zoom_reset()
 
         return super().keyPressEvent(ev)
 
