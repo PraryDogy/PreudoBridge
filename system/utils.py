@@ -15,7 +15,7 @@ from PyQt5.QtSvg import QSvgGenerator, QSvgRenderer
 from PyQt5.QtWidgets import QApplication
 
 
-class UImage:        
+class ImageUtils:        
     @classmethod
     def bytes_to_array(cls, blob: bytes) -> np.ndarray:
         try:
@@ -28,7 +28,7 @@ class UImage:
             return None
 
     @classmethod
-    def numpy_to_bytes(cls, img_array: np.ndarray) -> bytes:
+    def numpy_to_bytes(cls, img_array: np.ndarray) -> bytes | None:
         try:
             with io.BytesIO() as buffer:
                 image = Image.fromarray(img_array)

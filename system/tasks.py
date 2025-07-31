@@ -19,7 +19,7 @@ from evlosh_templates.read_image import ReadImage
 from .database import CACHE, Dbase
 from .items import (AnyBaseItem, BaseItem, ImageBaseItem, MainWinItem,
                     SearchItem, SortItem)
-from .utils import UImage, URunnable, Utils
+from .utils import ImageUtils, URunnable, Utils
 
 
 # Общий класс для выполнения действий QAction в отдельном потоке
@@ -466,7 +466,7 @@ class SearchTask(URunnable):
     def process_img(self, entry: os.DirEntry):
         self.img_array = ReadImage.read_image(entry.path)
         self.img_array = FitImage.start(self.img_array, ThumbData.DB_IMAGE_SIZE)
-        self.pixmap = UImage.pixmap_from_array(self.img_array)
+        self.pixmap = ImageUtils.pixmap_from_array(self.img_array)
         self.base_item = BaseItem(entry.path)
         self.base_item.setup_attrs()
         self.base_item.set_pixmap_storage(self.pixmap)
@@ -646,17 +646,20 @@ class LoadImages(URunnable):
             if not self.is_should_run():
                 return  
             if base_item.type_ not in Static.ext_all:
-                stmt = AnyBaseItem.check_db_record(self.conn, base_item)
-                if stmt:
+                any_base_item = AnyBaseItem(self.conn, base_item)
+                stmt = any_base_item.get_stmt()
+                if stmt is not None:
                     self.stmt_list.append(stmt)
             else:
-                stmt, pixmap = ImageBaseItem.get_pixmap(self.conn, base_item)
-                base_item.set_pixmap_storage(pixmap)
-                if isinstance(stmt, (sqlalchemy.Insert, sqlalchemy.Update)):
+                img_base_item = ImageBaseItem(self.conn, base_item)
+                stmt, pixmap = img_base_item.get_stmt_pixmap()
+                if pixmap:
+                    base_item.set_pixmap_storage(pixmap)
+                if stmt is not None:
                     self.stmt_list.append(stmt)
                 try:
                     self.signals_.update_thumb.emit(base_item)
-                except (TypeError, RuntimeError) as e:
+                except (TypeError, RuntimeError, TypeError) as e:
                     Utils.print_error()
                     return
                 
@@ -698,8 +701,8 @@ class LoadThumb(URunnable):
         Dbase.close_connection(conn)
 
         if res is not None:
-            img_array = UImage.bytes_to_array(res)
-            img_array = UImage.desaturate_image(img_array, 0.2)
+            img_array = ImageUtils.bytes_to_array(res)
+            img_array = ImageUtils.desaturate_image(img_array, 0.2)
         else:
             img_array = None
 
@@ -707,7 +710,7 @@ class LoadThumb(URunnable):
             pixmap = None
 
         else:
-            pixmap = UImage.pixmap_from_array(img_array)
+            pixmap = ImageUtils.pixmap_from_array(img_array)
 
         image_data = (self.src, pixmap)
 
@@ -730,13 +733,13 @@ class LoadImage(URunnable):
         if self.src not in self.cached_images:
 
             img_array = ReadImage.read_image(self.src)
-            img_array = UImage.desaturate_image(img_array, 0.2)
+            img_array = ImageUtils.desaturate_image(img_array, 0.2)
 
             if img_array is None:
                 pixmap = None
 
             else:
-                pixmap = UImage.pixmap_from_array(img_array)
+                pixmap = ImageUtils.pixmap_from_array(img_array)
                 self.cached_images[self.src] = pixmap
 
             del img_array

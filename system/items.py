@@ -3,8 +3,9 @@ import re
 
 import numpy as np
 from PyQt5.QtGui import QPixmap
-from sqlalchemy import (Connection, Insert, RowMapping, Update, insert, select,
-                        update)
+from sqlalchemy import (Connection, Insert, Row, RowMapping, Update, insert,
+                        select, update)
+from sqlalchemy.engine import RowMapping
 
 from cfg import Static, ThumbData
 from evlosh_templates.evlosh_utils import EvloshUtils
@@ -12,7 +13,7 @@ from evlosh_templates.fit_image import FitImage
 from evlosh_templates.read_image import ReadImage
 
 from .database import CACHE, ColumnNames, Dbase
-from .utils import UImage, Utils
+from .utils import ImageUtils, Utils
 
 
 class SortItem:
@@ -218,9 +219,6 @@ class BaseItem:
         return int(re.match(r'^\d+', base_item.name).group())
     
 
-
-
-
 class SearchItem:
     SEARCH_LIST_TEXT = "Найти по списку"
     SEARCH_EXTENSIONS = {
@@ -314,44 +312,69 @@ class MainWinItem:
 
 
 class AnyBaseItem:
-    @classmethod
-    def check_db_record(cls, conn: Connection, base_item: BaseItem) -> Insert | None:
-        args = (args, base_item)
-        if not cls.load_db_record(*args):
-            return cls.insert_new_record(*args)
+    def __init__(self, conn: Connection, base_item: BaseItem):
+        super().__init__()
+        self.conn = conn
+        self.base_item = base_item
+
+    def get_stmt(self) -> Insert | None:
+        if not self._check_db_record():
+            return self._get_insert_stmt()
         else:
             return None
 
-    @classmethod
-    def load_db_record(cls, conn: Connection, base_item: BaseItem):
+    def _check_db_record(self):
         stmt = select(CACHE.c.id)
-        stmt = stmt.where(CACHE.c.name == Utils.get_hash_filename(base_item.name))
-        if Dbase.execute_(conn, stmt).first():
+        stmt = stmt.where(CACHE.c.name == Utils.get_hash_filename(self.base_item.name))
+        if Dbase.execute_(self.conn, stmt).first():
             return True
         return None
 
-    @classmethod
-    def insert_new_record(cls, conn: Connection, base_item: BaseItem) -> Insert | None:
-        """
-        Новая запись в базу данных.
-        """
-        hash_filename = Utils.get_hash_filename(base_item.name)
+    def _get_insert_stmt(self) -> Insert | None:
+        hash_filename = Utils.get_hash_filename(self.base_item.name)
         values = {
             ColumnNames.NAME: hash_filename,
-            ColumnNames.TYPE: base_item.type_,
+            ColumnNames.TYPE: self.base_item.type_,
             ColumnNames.RATING: 0,
         }
         return insert(CACHE).values(**values)
 
 
 class ImageBaseItem:
-    @classmethod
-    def get_pixmap(cls, conn: Connection, base_item: BaseItem) -> tuple[Update | Insert| None, QPixmap]:
-        stmt, img_array = cls.get_img_array(conn, base_item)
-        return (stmt, UImage.pixmap_from_array(img_array))
+    update_flag = "update"
+    insert_flag = "insert"
+    already_flag = "already"
+    none_text = "None"
 
-    @classmethod
-    def get_img_array(cls, conn: Connection, base_item: BaseItem) -> tuple[Update | Insert| None, np.ndarray]:
+    def __init__(self, conn: Connection, base_item: BaseItem):
+        super().__init__()
+        self.conn = conn
+        self.base_item = base_item
+
+    def get_stmt_pixmap(self) -> tuple[Insert | Update | None, QPixmap | None]:
+        result = self._check_db_record()
+
+        if result.get(self.update_flag):
+            row = result.get(self.update_flag)
+            img_array = self._get_small_ndarray_img()
+            stmt = self._get_update_stmt(row, img_array)
+
+        elif result.get(self.insert_flag):
+            row = result.get(self.insert_flag)
+            img_array = self._get_small_ndarray_img()
+            stmt = self._get_insert_stmt(img_array)
+
+        elif result.get(self.already_flag):
+            row = result.get(self.already_flag)
+            img_array = ImageUtils.bytes_to_array(row.get(ColumnNames.IMG))
+            stmt = None
+
+        pixmap = ImageUtils.pixmap_from_array(img_array)
+        pixmap = ImageUtils.pixmap_scale(pixmap, ThumbData.DB_IMAGE_SIZE)
+
+        return (stmt, pixmap)
+
+    def _check_db_record(self) -> dict[str, RowMapping | None]:
         stmt = select(
             CACHE.c.id,
             CACHE.c.img,
@@ -361,84 +384,64 @@ class ImageBaseItem:
         )
 
         stmt = stmt.where(
-            CACHE.c.name == Utils.get_hash_filename(base_item.name)
+            CACHE.c.name == Utils.get_hash_filename(self.base_item.name)
         )
-        res_by_name = Dbase.execute_(conn, stmt)
-        res_by_name = res_by_name.mappings().first()
-        if res_by_name:
-            if res_by_name.get(ColumnNames.MOD) != int(base_item.mod):
-                # print("даты не совпадают", res_by_name.get(ColumnNames.MOD), thumb.mod)
-                return cls.update_db_record(base_item, res_by_name.get(ColumnNames.ID))
+        row = Dbase.execute_(self.conn, stmt).mappings().first()
+
+        if row:
+            if row.get(ColumnNames.MOD) != self.base_item.mod:
+                return {self.update_flag: row}
             else:
-                # print("ok", thumb.src)
-                return cls.old_db_record(res_by_name)
+                return {self.already_flag: row}
         else:
-            # print("new_record", thumb.src)
-            return cls.insert_db_record(base_item)
-    
-    @classmethod
-    def old_db_record(cls, res_by_name: RowMapping) -> tuple[None, np.ndarray]:
-        bytes_img = UImage.bytes_to_array(res_by_name.get(ColumnNames.IMG))
-        return (None, bytes_img)
+            return {self.insert_flag, None}
 
-    @classmethod
-    def update_db_record(cls, base_item: BaseItem, row_id: int) -> tuple[Update, np.ndarray]:
-        img_array = cls.get_small_ndarray_img(base_item.src)
-        bytes_img = UImage.numpy_to_bytes(img_array)
-        new_size, new_mod, new_resol = cls.get_stats(base_item.src, img_array)
-        new_name = Utils.get_hash_filename(filename=base_item.name)
-        partial_hash = Utils.get_partial_hash(file_path=base_item.src)
-        values = {
-            ColumnNames.NAME: new_name,
-            ColumnNames.IMG: bytes_img,
-            ColumnNames.SIZE: new_size,
-            ColumnNames.MOD: new_mod,
-            ColumnNames.RESOL: new_resol,
-            ColumnNames.PARTIAL_HASH: partial_hash
-        }
-        stmt = update(CACHE).where(CACHE.c.id == row_id)
-        stmt = stmt.values(**values)
-        return (stmt, img_array)
+    def _get_update_stmt(self, row: RowMapping, img_array: np.ndarray) -> Update | None:
+        new_bytes_img = ImageUtils.numpy_to_bytes(img_array)
+        hash_filename = Utils.get_hash_filename(self.base_item.name)
+        stats = self._get_stats()
+        if new_bytes_img and stats:
+            values = {
+                ColumnNames.NAME: hash_filename,
+                ColumnNames.IMG: new_bytes_img,
+                ColumnNames.SIZE: int(self.base_item.size),
+                ColumnNames.MOD: int(self.base_item.mod),
+            }
+            stmt = update(CACHE).where(CACHE.c.id == row.get(ColumnNames.ID))
+            stmt = stmt.values(**values)
+            return stmt
+        else:
+            return None
 
-    @classmethod
-    def insert_db_record(cls, base_item: BaseItem) -> tuple[Insert, np.ndarray]:
-        img_array = cls.get_small_ndarray_img(base_item.src)
-        bytes_img = UImage.numpy_to_bytes(img_array)
-        new_size, new_mod, new_resol = cls.get_stats(base_item.src, img_array)
-        new_name = Utils.get_hash_filename(filename=base_item.name)
-        partial_hash = Utils.get_partial_hash(file_path=base_item.src)
-        values = {
-            ColumnNames.IMG: bytes_img,
-            ColumnNames.NAME: new_name,
-            ColumnNames.TYPE: base_item.type_,
-            ColumnNames.SIZE: new_size,
-            ColumnNames.MOD: new_mod,
-            ColumnNames.RATING: 0,
-            ColumnNames.RESOL: new_resol,
-            ColumnNames.CATALOG: "",
-            ColumnNames.PARTIAL_HASH: partial_hash
-        }
-        stmt = insert(CACHE).values(**values)
-        return (stmt, img_array)
+    def _get_insert_stmt(self, img_array: np.ndarray) -> Update | None:
+        new_bytes_img = ImageUtils.numpy_to_bytes(img_array)
+        hash_filename = Utils.get_hash_filename(self.base_item.name)
+        stats = self._get_stats()
+        if new_bytes_img and stats:
+            values = {
+                ColumnNames.IMG: new_bytes_img,
+                ColumnNames.NAME: hash_filename,
+                ColumnNames.TYPE: self.base_item.type_,
+                ColumnNames.SIZE: int(self.base_item.size),
+                ColumnNames.MOD: int(self.base_item.mod),
+                ColumnNames.RATING: 0,
+                ColumnNames.RESOL: self.none_text,
+                ColumnNames.CATALOG: self.none_text,
+                ColumnNames.PARTIAL_HASH: self.none_text
+            }
+            stmt = insert(CACHE)
+            stmt = stmt.values(**values)
+            return stmt
+        else:
+            return None
     
-    @classmethod
-    def get_small_ndarray_img(cls, src: str) -> np.ndarray:
-        img_array = ReadImage.read_image(src)
-        img_array = FitImage.start(img_array, ThumbData.DB_IMAGE_SIZE)
-        return img_array
+    def _get_small_ndarray_img(self) -> np.ndarray:
+        img_array = ReadImage.read_image(self.base_item.src)
+        return FitImage.start(img_array, ThumbData.DB_IMAGE_SIZE)
     
-    @classmethod
-    def get_stats(cls, src: str, img_array: np.ndarray):
-        """
-        Возвращает: размер, дату изменения, разрешение
-        """
+    def _get_stats(self) -> os.stat_result:
         try:
-            stats = os.stat(src)
-            height, width = img_array.shape[:2]
-            new_size = int(stats.st_size)
-            new_mod = int(stats.st_mtime)
-            new_resol = f"{width}x{height}"
-            return new_size, new_mod, new_resol
+            return os.stat(self.base_item.src)
         except Exception as e:
             Utils.print_error()
-            return 0, 0, ""
+            return None

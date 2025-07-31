@@ -32,9 +32,9 @@ CACHE = sqlalchemy.Table(
     sqlalchemy.Column(ColumnNames.SIZE, sqlalchemy.Integer),
     sqlalchemy.Column(ColumnNames.MOD, sqlalchemy.Integer),
     sqlalchemy.Column(ColumnNames.RATING, sqlalchemy.Integer),
-    sqlalchemy.Column(ColumnNames.RESOL, sqlalchemy.Integer),
-    sqlalchemy.Column(ColumnNames.CATALOG, sqlalchemy.Text),
-    sqlalchemy.Column(ColumnNames.PARTIAL_HASH, sqlalchemy.Text)
+    sqlalchemy.Column(ColumnNames.RESOL, sqlalchemy.Integer), # не используется
+    sqlalchemy.Column(ColumnNames.CATALOG, sqlalchemy.Text), # не используется
+    sqlalchemy.Column(ColumnNames.PARTIAL_HASH, sqlalchemy.Text) # не используется
 )
 
 
