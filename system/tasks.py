@@ -529,8 +529,16 @@ class FinderItems(URunnable):
         for i in res:
             if i not in finder_base_items:
                 q = sqlalchemy.delete(CACHE).where(CACHE.c.name == i)
-                conn.execute(q)
-        conn.commit()
+                try:
+                    conn.execute(q)
+                except (OperationalError, IntegrityError):
+                    conn.rollback()
+                    break
+
+        try:
+            conn.commit()
+        except (OperationalError, IntegrityError):
+            conn.rollback()
 
     def create_connection(self) -> sqlalchemy.Connection | None:
         db = os.path.join(self.main_win_item.main_dir, Static.DB_FILENAME)
