@@ -79,9 +79,10 @@ class GridStandart(Grid):
                 wid.setup_attrs()
                 wid.rating_wid.set_text(wid)
                 urls.append(wid.src)
-
-        print("обновить", urls)
-        self.force_load_images_cmd(urls)
+        
+        if urls:
+            print("обновить", urls)
+            self.force_load_images_cmd(urls)
             
     def load_visible_images(self):
         """
