@@ -26,6 +26,8 @@ class GridStandart(Grid):
         self.loaded_images: list[str] = []
         self.tasks: list[LoadImages] = []
 
+        self.st_mtime = self.get_st_mtime(self.main_win_item.main_dir)
+
         # при скроллинге запускается данный таймер и сбрасывается предыдуший
         # только при остановке скроллинга спустя время запускается
         # функция загрузки изображений
@@ -33,6 +35,10 @@ class GridStandart(Grid):
         self.load_images_timer.setSingleShot(True)
         self.load_images_timer.timeout.connect(self.load_visible_images)
         self.verticalScrollBar().valueChanged.connect(self.on_scroll_changed)
+
+        self.st_mtime_timer = QTimer(self)
+        self.st_mtime_timer.setSingleShot(True)
+        self.st_mtime_timer.timeout.connect(lambda: self.set_st_mtime())
 
         # виджет поверх остальных с текстом "загрузка"
         self.loading_lbl = LoadingWid(self)
@@ -44,6 +50,39 @@ class GridStandart(Grid):
         self.base_items: list[BaseItem] = []
         self.new_items: list[BaseItem] = []
 
+        self.st_mtime_timer.start(100)
+
+    def get_st_mtime(self, url: str):
+        try:
+            return os.stat(url).st_mtime
+        except Exception:
+            Utils.print_error()
+            return None
+
+    def set_st_mtime(self):
+        self.st_mtime_timer.stop()
+        new_st_mtime = self.get_st_mtime(self.main_win_item.main_dir)
+        if new_st_mtime:
+            if new_st_mtime != self.st_mtime:
+                self.st_mtime = new_st_mtime
+                self.search_changed_widgets()
+            self.st_mtime_timer.start(2000)
+        else:
+            print("st mtime is None")
+
+    def search_changed_widgets(self):
+        urls: list[str] = []
+
+        for url, wid in self.url_to_wid.items():
+            new_st_mtime = self.get_st_mtime(url)
+            if new_st_mtime and wid.mod != new_st_mtime:
+                wid.setup_attrs()
+                wid.rating_wid.set_text(wid)
+                urls.append(wid.src)
+
+        print("обновить", urls)
+        self.force_load_images_cmd(urls)
+            
     def load_visible_images(self):
         """
         Составляет список Thumb виджетов, которые находятся в зоне видимости.   
