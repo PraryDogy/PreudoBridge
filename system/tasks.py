@@ -498,25 +498,39 @@ class FinderItems(URunnable):
 
     def task(self):
         try:
-            base_items = self.get_base_items()
+            finder_base_items = self.get_finder_base_items()
             conn = self.create_connection()
             if conn:
-                base_items, new_items = self.set_rating(conn, base_items)
+                self.delete_removed_items(conn, finder_base_items)
+                finder_base_items, new_items = self.set_rating(conn, finder_base_items)
             else:
-                base_items, new_items = self.get_items_no_db()
+                finder_base_items, new_items = self.get_items_no_db()
         except FinderItems.sql_errors as e:
             Utils.print_error()
-            base_items, new_items = self.get_items_no_db()
+            finder_base_items, new_items = self.get_items_no_db()
         except Exception as e:
             Utils.print_error()
-            base_items, new_items = [], []
+            finder_base_items, new_items = [], []
 
-        base_items = BaseItem.sort_(base_items, self.sort_item)
+        finder_base_items = BaseItem.sort_(finder_base_items, self.sort_item)
         new_items = BaseItem.sort_(new_items, self.sort_item)
         try:
-            self.signals_.finished_.emit((base_items, new_items))
+            self.signals_.finished_.emit((finder_base_items, new_items))
         except RuntimeError as e:
             Utils.print_error()
+
+    def delete_removed_items(self, conn: sqlalchemy.Connection, finder_base_items: list[BaseItem]):
+        q = sqlalchemy.select(CACHE.c.name)
+        res = conn.execute(q).scalars().fetchall()
+        finder_base_items = [
+            Utils.get_hash_filename(base_item.name)
+            for base_item in finder_base_items
+        ]
+        for i in res:
+            if i not in finder_base_items:
+                q = sqlalchemy.delete(CACHE).where(CACHE.c.name == i)
+                conn.execute(q)
+        conn.commit()
 
     def create_connection(self) -> sqlalchemy.Connection | None:
         db = os.path.join(self.main_win_item.main_dir, Static.DB_FILENAME)
@@ -547,7 +561,7 @@ class FinderItems(URunnable):
 
         return base_items, new_files
 
-    def get_base_items(self) -> list[BaseItem]:
+    def get_finder_base_items(self) -> list[BaseItem]:
         base_items: list[BaseItem] = []
         with os.scandir(self.main_win_item.main_dir) as entries:
             for entry in entries:
