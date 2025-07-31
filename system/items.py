@@ -341,9 +341,9 @@ class AnyBaseItem:
 
 
 class ImageBaseItem:
-    update_flag = "update"
-    insert_flag = "insert"
-    already_flag = "already"
+    update_flag = "_update"
+    insert_flag = "_insert"
+    already_flag = "_already"
     none_text = "None"
 
     def __init__(self, conn: Connection, base_item: BaseItem):
@@ -354,21 +354,21 @@ class ImageBaseItem:
     def get_stmt_pixmap(self) -> tuple[Insert | Update | None, QPixmap | None]:
         result = self._check_db_record()
 
-        if result.get(self.update_flag):
-            row = result.get(self.update_flag)
+        if self.update_flag in result:
+            row = result[self.update_flag]
             img_array = self._get_small_ndarray_img()
             stmt = self._get_update_stmt(row, img_array)
 
-        elif result.get(self.insert_flag):
-            row = result.get(self.insert_flag)
+        elif self.insert_flag in result:
             img_array = self._get_small_ndarray_img()
             stmt = self._get_insert_stmt(img_array)
 
-        elif result.get(self.already_flag):
-            row = result.get(self.already_flag)
-            img_array = ImageUtils.bytes_to_array(row.get(ColumnNames.IMG))
+        elif self.already_flag in result:
+            row = result[self.already_flag]
+            bytes_img = row.get(ColumnNames.IMG)
+            img_array = ImageUtils.bytes_to_array(bytes_img)
             stmt = None
-
+        
         pixmap = ImageUtils.pixmap_from_array(img_array)
         pixmap = ImageUtils.pixmap_scale(pixmap, ThumbData.DB_IMAGE_SIZE)
 
@@ -389,12 +389,12 @@ class ImageBaseItem:
         row = Dbase.execute_(self.conn, stmt).mappings().first()
 
         if row:
-            if row.get(ColumnNames.MOD) != self.base_item.mod:
+            if row.get(ColumnNames.MOD) != int(self.base_item.mod):
                 return {self.update_flag: row}
             else:
                 return {self.already_flag: row}
         else:
-            return {self.insert_flag, None}
+            return {self.insert_flag: None}
 
     def _get_update_stmt(self, row: RowMapping, img_array: np.ndarray) -> Update | None:
         new_bytes_img = ImageUtils.numpy_to_bytes(img_array)
