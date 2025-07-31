@@ -509,9 +509,9 @@ class FinderItems(URunnable):
         try:
             if self.conn:
                 self.db_items = self.get_db_items()
+                self.new_base_items = self.get_new_base_items()
                 self.delete_removed_items()
                 self.set_base_item_rating()
-                self.new_base_items = self.get_new_base_items()
         except self.sql_errors:
             Utils.print_error()
 
@@ -569,14 +569,13 @@ class FinderItems(URunnable):
         Возвращает словарь: хеш имени файла: BaseItem
         """
         base_items = {}
-        with os.scandir(self.main_win_item.main_dir) as entries:
-            for entry in entries:
-                if entry.name.startswith(FinderItems.hidden_syms):
-                    continue
-                item = BaseItem(entry.path)
-                item.setup_attrs()
-                hash_filename = Utils.get_hash_filename(item.name)
-                base_items[hash_filename] = item
+        for entry in os.scandir(self.main_win_item.main_dir):
+            if entry.name.startswith(FinderItems.hidden_syms):
+                continue
+            item = BaseItem(entry.path)
+            item.setup_attrs()
+            hash_filename = Utils.get_hash_filename(item.name)
+            base_items[hash_filename] = item
         return base_items
     
     def set_base_item_rating(self):
