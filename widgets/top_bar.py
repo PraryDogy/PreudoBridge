@@ -314,6 +314,9 @@ class TopBar(QWidget):
         "Настройки"
     ]
 
+    sym_only_text = "Только значок"
+    sym_text_text = "Значок и текст"
+
     def __init__(self, main_win_item: MainWinItem, search_item: SearchItem):
         """
         Верхний бар в окне приложения:
@@ -507,11 +510,11 @@ class TopBar(QWidget):
     def contextMenuEvent(self, a0):
         menu_ = UMenu()
 
-        first = QAction(parent=menu_, text="Только значок")
+        first = QAction(parent=menu_, text=self.sym_only_text)
         first.setCheckable(True)
         menu_.addAction(first)
 
-        second = QAction(parent=menu_, text="Значок и текст")
+        second = QAction(parent=menu_, text=self.sym_text_text)
         second.setCheckable(True)
         menu_.addAction(second)
 
