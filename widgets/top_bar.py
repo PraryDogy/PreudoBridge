@@ -416,6 +416,9 @@ class TopBar(QWidget):
             for btn in self.findChildren(BarTopBtn):
                 btn.lbl.hide()
 
+    def set_show_text(self, value: bool):
+        JsonData.show_text = value
+
     def on_search_bar_clicked(self):
         if isinstance(self.search_item.get_content(), str):
             self.search_wid.selectAll()
@@ -426,14 +429,6 @@ class TopBar(QWidget):
         else:
             self.search_wid.selectAll()
             self.search_wid.open_search_list_win()
-
-    # def cascade_windows(self):
-    #     main_win = self.window()
-    #     sorted_widgets = [w for w in WinBase.wins if w is not main_win]
-
-    #     for w in sorted_widgets:
-    #         w.show()
-    #         w.raise_()
 
     def new_history_item(self, dir: str):
         """
@@ -511,10 +506,14 @@ class TopBar(QWidget):
         menu_ = UMenu()
 
         first = QAction(parent=menu_, text=self.sym_only_text)
+        first.triggered.connect(lambda: self.set_show_text(False))
+        first.triggered.connect(lambda: self.toggle_texts())
         first.setCheckable(True)
         menu_.addAction(first)
 
         second = QAction(parent=menu_, text=self.sym_text_text)
+        second.triggered.connect(lambda: self.set_show_text(True))
+        second.triggered.connect(lambda: self.toggle_texts())
         second.setCheckable(True)
         menu_.addAction(second)
 
