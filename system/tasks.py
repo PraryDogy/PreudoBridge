@@ -646,8 +646,8 @@ class LoadImages(URunnable):
             if not self.is_should_run():
                 return  
             if base_item.type_ not in Static.ext_all:
-                stmt, _ = AnyBaseItem.check_db_record(self.conn, base_item)
-                if isinstance(stmt, sqlalchemy.Insert):
+                stmt = AnyBaseItem.check_db_record(self.conn, base_item)
+                if stmt:
                     self.stmt_list.append(stmt)
             else:
                 stmt, pixmap = ImageBaseItem.get_pixmap(self.conn, base_item)

@@ -315,37 +315,33 @@ class MainWinItem:
 
 class AnyBaseItem:
     @classmethod
-    def check_db_record(cls, conn: Connection, base_item: BaseItem) -> tuple[Insert | None, None]:
-        if not cls.load_db_record(conn, base_item):
-            return cls.insert_new_record(conn, base_item)
+    def check_db_record(cls, conn: Connection, base_item: BaseItem) -> Insert | None:
+        args = (args, base_item)
+        if not cls.load_db_record(*args):
+            return cls.insert_new_record(*args)
         else:
-            return (None, None)
+            return None
 
     @classmethod
     def load_db_record(cls, conn: Connection, base_item: BaseItem):
         stmt = select(CACHE.c.id)
         stmt = stmt.where(CACHE.c.name == Utils.get_hash_filename(base_item.name))
-        res_by_src = Dbase.execute_(conn, stmt).mappings().first()
-        if res_by_src:
+        if Dbase.execute_(conn, stmt).first():
             return True
-        else:
-            return False
+        return None
 
     @classmethod
-    def insert_new_record(cls, conn: Connection, base_item: BaseItem) -> tuple[Insert, None]:
+    def insert_new_record(cls, conn: Connection, base_item: BaseItem) -> Insert | None:
         """
         Новая запись в базу данных.
         """
-        new_name = Utils.get_hash_filename(filename=base_item.name)
-
+        hash_filename = Utils.get_hash_filename(base_item.name)
         values = {
-            ColumnNames.NAME: new_name,
+            ColumnNames.NAME: hash_filename,
             ColumnNames.TYPE: base_item.type_,
             ColumnNames.RATING: 0,
         }
-
-        stmt = insert(CACHE).values(**values)
-        return (stmt, None)
+        return insert(CACHE).values(**values)
 
 
 class ImageBaseItem:
