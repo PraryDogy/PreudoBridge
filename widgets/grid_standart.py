@@ -81,7 +81,6 @@ class GridStandart(Grid):
                 urls.append(wid.src)
         
         if urls:
-            print("обновить", urls)
             self.force_load_images_cmd(urls)
             
     def load_visible_images(self):
