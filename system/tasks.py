@@ -482,7 +482,7 @@ class _FinderSigs(QObject):
 
 
 class FinderItems(URunnable):
-    hidden_syms: tuple[str] = None
+    hidden_syms: tuple[str] = ()
     sql_errors = (IntegrityError, OperationalError)
 
     def __init__(self, main_win_item: MainWinItem, sort_item: SortItem):
@@ -496,9 +496,7 @@ class FinderItems(URunnable):
         self.db_items: dict[str, int] = {}
         self.conn = self.create_connection()
 
-        if JsonData.show_hidden:
-            self.hidden_syms = ()
-        else:
+        if not JsonData.show_hidden:
             self.hidden_syms = Static.hidden_file_syms
 
     def task(self):
@@ -520,6 +518,10 @@ class FinderItems(URunnable):
 
         finder_base_items = BaseItem.sort_(finder_base_items, self.sort_item)
         new_base_items = BaseItem.sort_(new_base_items, self.sort_item)
+
+        # print("finder", finder_base_items)
+        # print("new", new_base_items)
+
         try:
             self.signals_.finished_.emit((finder_base_items, new_base_items))
         except RuntimeError as e:
@@ -570,7 +572,7 @@ class FinderItems(URunnable):
         """
         base_items = {}
         for entry in os.scandir(self.main_win_item.main_dir):
-            if entry.name.startswith(FinderItems.hidden_syms):
+            if entry.name.startswith(self.hidden_syms):
                 continue
             item = BaseItem(entry.path)
             item.setup_attrs()
