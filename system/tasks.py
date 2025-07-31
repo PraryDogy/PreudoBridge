@@ -491,58 +491,57 @@ class FinderItems(URunnable):
         self.sort_item = sort_item
         self.main_win_item = main_win_item
 
+        self.finder_base_items: dict[str, BaseItem] = {}
+        self.new_base_items: dict[str, BaseItem] = {}
+        self.db_items: dict[str, int] = {}
+        self.conn = self.create_connection()
+
         if JsonData.show_hidden:
-            FinderItems.hidden_syms = ()
+            self.hidden_syms = ()
         else:
-            FinderItems.hidden_syms = Static.hidden_file_syms
+            self.hidden_syms = Static.hidden_file_syms
 
     def task(self):
         try:
-            finder_base_items = self.get_finder_base_items()
-            conn = self.create_connection()
-            if conn:
-                self.delete_removed_items(conn, finder_base_items)
-                finder_base_items, new_items = self.set_rating(conn, finder_base_items)
-            else:
-                finder_base_items, new_items = self.get_items_no_db()
-        except FinderItems.sql_errors as e:
+            self.finder_base_items = self.get_finder_base_items()
+        except Exception:
             Utils.print_error()
-            finder_base_items, new_items = self.get_items_no_db()
-        except Exception as e:
+        try:
+            if self.conn:
+                self.db_items = self.get_db_items()
+                self.delete_removed_items()
+                self.set_base_item_rating()
+                self.new_base_items = self.get_new_base_items()
+        except self.sql_errors:
             Utils.print_error()
-            finder_base_items, new_items = [], []
+
+        finder_base_items = list(self.finder_base_items.values())
+        new_base_items = list(self.new_base_items.values())
 
         finder_base_items = BaseItem.sort_(finder_base_items, self.sort_item)
-        new_items = BaseItem.sort_(new_items, self.sort_item)
+        new_base_items = BaseItem.sort_(new_base_items, self.sort_item)
         try:
-            self.signals_.finished_.emit((finder_base_items, new_items))
+            self.signals_.finished_.emit((finder_base_items, new_base_items))
         except RuntimeError as e:
             Utils.print_error()
 
-    def delete_removed_items(self, conn: sqlalchemy.Connection, finder_base_items: list[BaseItem]):
+    def get_db_items(self) -> dict[str, int]:
+        q = sqlalchemy.select(CACHE.c.name, CACHE.c.rating)
+        return {
+            hash_filename: rating
+            for hash_filename, rating in self.conn.execute(q).fetchall()
+        }
+
+    def delete_removed_items(self):
         """
-        Сравнивает айтемы Finder и айтемы базы данных
+        Сравнивает хеш имена Finder и хеш имена в базе данных
         Удаляет те, которых больше нет в Finder
         """
-        q = sqlalchemy.select(CACHE.c.name)
-        res = conn.execute(q).scalars().fetchall()
-        finder_base_items = [
-            Utils.get_hash_filename(base_item.name)
-            for base_item in finder_base_items
-        ]
-        for i in res:
-            if i not in finder_base_items:
-                q = sqlalchemy.delete(CACHE).where(CACHE.c.name == i)
-                try:
-                    conn.execute(q)
-                except (OperationalError, IntegrityError):
-                    conn.rollback()
-                    break
-
-        try:
-            conn.commit()
-        except (OperationalError, IntegrityError):
-            conn.rollback()
+        for hash_filename, rating in self.db_items.items():
+            if hash_filename not in self.finder_base_items:
+                q = sqlalchemy.delete(CACHE).where(CACHE.c.name == hash_filename)
+                self.conn.execute(q)
+        self.conn.commit()
 
     def create_connection(self) -> sqlalchemy.Connection | None:
         db = os.path.join(self.main_win_item.main_dir, Static.DB_FILENAME)
@@ -553,47 +552,41 @@ class FinderItems(URunnable):
         else:
             return Dbase.open_connection(engine)
 
-    def set_rating(self, conn: sqlalchemy.Connection, base_items: list[BaseItem]):
+    def get_new_base_items(self) -> dict[str, BaseItem]:
         """
-        Устанавливает рейтинг для BaseItem, который затем передастся в Thumb    
-        Рейтинг берется из базы данных
+        Сравнивает хеш имена в базе данных и в Finder.
+        Возвращает словарь: хеш имени файла: BaseItem, которых нет в базе данных
         """
+        return {
+            hash_filename: base_item
+            for hash_filename, base_item in self.finder_base_items.items()
+            if hash_filename not in self.db_items
+        }
 
-        stmt = sqlalchemy.select(CACHE.c.name, CACHE.c.rating)
-        res = Dbase.execute_(conn, stmt).fetchall()
-        res = {name: rating for name, rating in res}
-
-        new_files = []
-        for i in base_items:
-            name = Utils.get_hash_filename(i.name)
-            if name in res:
-                i.rating = res.get(name)
-            else:
-                new_files.append(i)
-
-        return base_items, new_files
-
-    def get_finder_base_items(self) -> list[BaseItem]:
-        base_items: list[BaseItem] = []
+    def get_finder_base_items(self) -> dict[str, BaseItem]:
+        """
+        Сканирует текущую директорию
+        Возвращает словарь: хеш имени файла: BaseItem
+        """
+        base_items = {}
         with os.scandir(self.main_win_item.main_dir) as entries:
             for entry in entries:
                 if entry.name.startswith(FinderItems.hidden_syms):
                     continue
                 item = BaseItem(entry.path)
                 item.setup_attrs()
-                base_items.append(item)
+                hash_filename = Utils.get_hash_filename(item.name)
+                base_items[hash_filename] = item
         return base_items
-
-    def get_items_no_db(self):
-        base_items = []
-        for entry in os.scandir(self.main_win_item.main_dir):
-            if entry.name.startswith(FinderItems.hidden_syms):
-                continue
-            if entry.is_dir() or entry.name.endswith(Static.ext_all):
-                item = BaseItem(entry.path)
-                item.setup_attrs()
-                base_items.append(item)
-        return base_items, []
+    
+    def set_base_item_rating(self):
+        """
+        Если BaseItem есть в базе данных, то устанавливается рейтинг из базы данных
+        """
+        for hash_filename, rating in self.db_items.items():
+            base_item = self.finder_base_items.get(hash_filename, None)
+            if base_item:
+                base_item.rating = rating
     
 
 class _LoadImagesSigs(QObject):
