@@ -520,6 +520,10 @@ class FinderItems(URunnable):
             Utils.print_error()
 
     def delete_removed_items(self, conn: sqlalchemy.Connection, finder_base_items: list[BaseItem]):
+        """
+        Сравнивает айтемы Finder и айтемы базы данных
+        Удаляет те, которых больше нет в Finder
+        """
         q = sqlalchemy.select(CACHE.c.name)
         res = conn.execute(q).scalars().fetchall()
         finder_base_items = [
