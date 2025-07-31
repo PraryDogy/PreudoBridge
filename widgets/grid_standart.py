@@ -63,7 +63,7 @@ class GridStandart(Grid):
         self.st_mtime_timer.stop()
         new_st_mtime = self.get_st_mtime(self.main_win_item.main_dir)
         if new_st_mtime:
-            if new_st_mtime != self.st_mtime:
+            if int(new_st_mtime) != int(self.st_mtime):
                 self.st_mtime = new_st_mtime
                 self.search_changed_widgets()
             self.st_mtime_timer.start(2000)
