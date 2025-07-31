@@ -108,16 +108,26 @@ class FavAdd(QAction):
 # смотри cfg.py
 class OpenInApp(UMenu):
     text_menu = "Открыть в приложении"
+    def_text = "Открыть по умолчанию"
 
     def __init__(self, parent: UMenu, urls: list):
         super().__init__(parent=parent, title=self.text_menu)
         self.urls = urls
+
+        default = QAction(self.def_text, self)
+        default.triggered.connect(lambda: self.open_default())
+        self.addAction(default)
+        self.addSeparator()
 
         for app_path, app_name in Dynamic.image_apps.items():
             wid = QAction(app_name, self)
             cmd_ = lambda e, app_path=app_path: self.open_in_app_cmd(app_path)
             wid.triggered.connect(cmd_)
             self.addAction(wid)
+
+    def open_default(self):
+        for i in self.urls:
+            subprocess.Popen(["open", i])
 
     def open_in_app_cmd(self, app_path: str):
         # открыть в приложении, путь к которому указан в app_path
