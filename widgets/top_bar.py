@@ -3,13 +3,13 @@ import os
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import (QAction, QGroupBox, QHBoxLayout, QLabel,
-                             QPushButton, QVBoxLayout, QWidget, QSpacerItem)
+                             QPushButton, QSpacerItem, QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
 from system.items import MainWinItem, SearchItem
 
 from ._base_widgets import (MinMaxDisabledWin, UFrame, ULineEdit, UMenu,
-                            USvgSqareWidget, UTextEdit, WinBase)
+                            USvgSqareWidget, UTextEdit)
 
 
 class BarTopBtn(QWidget):
@@ -503,3 +503,23 @@ class TopBar(QWidget):
 
     def resizeEvent(self, a0):
         return super().resizeEvent(a0)
+    
+    def contextMenuEvent(self, a0):
+        menu_ = UMenu()
+
+        first = QAction(parent=menu_, text="Только значок")
+        first.setCheckable(True)
+        menu_.addAction(first)
+
+        second = QAction(parent=menu_, text="Значок и текст")
+        second.setCheckable(True)
+        menu_.addAction(second)
+
+        if JsonData.show_text:
+            second.setChecked(True)
+        else:
+            first.setChecked(True)
+        
+        menu_.show_under_cursor()
+
+        return super().contextMenuEvent(a0)
