@@ -85,7 +85,7 @@ class GridSearch(Grid):
 
     def get_changed_thumbs(self):
         thumbs = super().update_mod_thumbs()
-        self.run_load_images_thread(thumbs)
+        self.start_load_images_task(thumbs)
 
     def set_search_item(self, search_item: SearchItem):
         """

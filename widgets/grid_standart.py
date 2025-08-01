@@ -36,7 +36,7 @@ class GridStandart(Grid):
     
     def get_changed_thumbs(self):
         thumbs = super().update_mod_thumbs()
-        self.run_load_images_thread(thumbs)
+        self.start_load_images_task(thumbs)
             
     def load_visible_images(self):
         """
@@ -51,12 +51,12 @@ class GridStandart(Grid):
         if thumbs:
             for i in self.load_images_tasks:
                 i.set_should_run(False)
-            self.run_load_images_thread(thumbs)
+            self.start_load_images_task(thumbs)
 
     def paste_files_fin(self, files: list[str], dest: str):
         super().paste_files_fin(files, dest)
         thumbs = self.get_thumbs_by_urls(files)
-        self.run_load_images_thread(thumbs)
+        self.start_load_images_task(thumbs)
 
     def on_scroll_changed(self, value: int):
         """

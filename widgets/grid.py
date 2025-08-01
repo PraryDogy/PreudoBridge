@@ -357,17 +357,11 @@ class Grid(UScrollArea):
             if url in self.url_to_wid
         ]
 
-    def run_load_images_thread(self, thumbs: list[Thumb]):
+    def start_load_images_task(self, thumbs: list[Thumb]):
         """
-        URunnable   
-        Запускает загрузку изображений для списка Thumb.    
-        Изоражения загружаются из базы данных или берутся из заданной
-        директории, если их нет в базе данных.
+        Запускает фоновую задачу загрузки изображений для списка Thumb.
+        Изображения загружаются из базы данных или из директории, если в БД нет.
         """
-        # передаем виджеты Thumb из сетки изображений в зоне видимости
-        # в URunnable для подгрузки изображений
-        # в самом URunnable нет обращений напрямую к Thumb
-        # а только испускается сигнал
         task_ = LoadImages(self.main_win_item, thumbs)
         task_.signals_.update_thumb.connect(lambda thumb: self.set_thumb_image(thumb))
         self.load_images_tasks.append(task_)
