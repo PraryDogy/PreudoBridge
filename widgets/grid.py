@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
 from cfg import Dynamic, JsonData, Static, ThumbData
 from evlosh_templates.evlosh_utils import EvloshUtils
 from system.items import BaseItem, MainWinItem, SortItem
-from system.tasks import RatingTask
+from system.tasks import RatingTask, LoadImages
 from system.utils import ImageUtils, UThreadPool, Utils
 
 from ._base_widgets import UMenu, UScrollArea
@@ -275,18 +275,11 @@ class Grid(UScrollArea):
         self.col: int = 0
 
         self.main_win_item = main_win_item
-
-        # url файла / папки - виджет
         self.url_to_wid: dict[str, Thumb] = {}
-
-        # выделенные в сетке виджеты
         self.selected_widgets: list[Thumb] = []
-
-        # (строка, столбец) - виджет
         self.cell_to_wid: dict[tuple, Thumb] = {}
-
-        # виджеты с порядком сортировки
         self.sorted_widgets: list[Thumb] = []
+        self.load_images_tasks: list[LoadImages] = []
 
         self.main_wid = QWidget()
         self.setWidget(self.main_wid)
@@ -310,7 +303,6 @@ class Grid(UScrollArea):
         # короче попробуй сразу подключить mouseReleaseEvent и открой 
         # любую папку с кучей файлов
         QTimer.singleShot(200, self.set_mouseReleaseEvent)
-
 
         self.st_mtime = self.get_st_mtime(self.main_win_item.main_dir)
         self.st_mtime_timer = QTimer(self)
@@ -367,6 +359,35 @@ class Grid(UScrollArea):
             if wid:
                 thumbs.append(wid)
         return thumbs
+
+    def run_load_images_thread(self, thumbs: list[Thumb]):
+        """
+        URunnable   
+        Запускает загрузку изображений для списка Thumb.    
+        Изоражения загружаются из базы данных или берутся из заданной
+        директории, если их нет в базе данных.
+        """
+        # передаем виджеты Thumb из сетки изображений в зоне видимости
+        # в URunnable для подгрузки изображений
+        # в самом URunnable нет обращений напрямую к Thumb
+        # а только испускается сигнал
+        task_ = LoadImages(self.main_win_item, thumbs)
+        task_.signals_.update_thumb.connect(lambda thumb: self.set_thumb_image(thumb))
+        self.load_images_tasks.append(task_)
+        UThreadPool.start(task_)
+    
+    def set_thumb_image(self, thumb: Thumb):
+        """
+        Получает QPixmap из хранилища Thumb.    
+        Устанавливает QPixmap в Thumb для отображения в сетке.
+        """
+        pixmap = thumb.get_pixmap_storage()
+        if pixmap:
+            try:
+                thumb.set_image(pixmap)
+                self.loaded_images.append(thumb.src)
+            except RuntimeError as e:
+                Utils.print_error()
 
     def reload_rubber(self):
         self.rubberBand.deleteLater()

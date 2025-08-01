@@ -24,7 +24,6 @@ class GridStandart(Grid):
 
         # список url для предотвращения повторной загрузки изображений
         self.loaded_images: list[str] = []
-        self.tasks: list[LoadImages] = []
 
         # при скроллинге запускается данный таймер и сбрасывается предыдуший
         # только при остановке скроллинга спустя время запускается
@@ -53,7 +52,7 @@ class GridStandart(Grid):
                 if widget.src not in self.loaded_images:
                     thumbs.append(widget)
         if thumbs:
-            for i in self.tasks:
+            for i in self.load_images_tasks:
                 i.set_should_run(False)
             self.run_load_images_thread(thumbs)
 
@@ -187,35 +186,6 @@ class GridStandart(Grid):
         self.verticalScrollBar().setValue(self.main_win_item.scroll_value)
         self.main_win_item.scroll_value = None
 
-    def run_load_images_thread(self, thumbs: list[Thumb]):
-        """
-        URunnable   
-        Запускает загрузку изображений для списка Thumb.    
-        Изоражения загружаются из базы данных или берутся из заданной
-        директории, если их нет в базе данных.
-        """
-        # передаем виджеты Thumb из сетки изображений в зоне видимости
-        # в URunnable для подгрузки изображений
-        # в самом URunnable нет обращений напрямую к Thumb
-        # а только испускается сигнал
-        task_ = LoadImages(self.main_win_item, thumbs)
-        task_.signals_.update_thumb.connect(lambda thumb: self.set_thumb_image(thumb))
-        self.tasks.append(task_)
-        UThreadPool.start(task_)
-    
-    def set_thumb_image(self, thumb: Thumb):
-        """
-        Получает QPixmap из хранилища Thumb.    
-        Устанавливает QPixmap в Thumb для отображения в сетке.
-        """
-        pixmap = thumb.get_pixmap_storage()
-        if pixmap:
-            try:
-                thumb.set_image(pixmap)
-                self.loaded_images.append(thumb.src)
-            except RuntimeError as e:
-                Utils.print_error()
-
     def set_urls(self):
         """
         Из-за того, что сетка удаляется из MainWin по таймеру,
@@ -230,11 +200,11 @@ class GridStandart(Grid):
         return super().resizeEvent(a0)
 
     def deleteLater(self):
-        for i in self.tasks:
+        for i in self.load_images_tasks:
             i.set_should_run(False)
         return super().deleteLater()
     
     def closeEvent(self, a0):
-        for i in self.tasks:
+        for i in self.load_images_tasks:
             i.set_should_run(False)
         return super().closeEvent(a0)

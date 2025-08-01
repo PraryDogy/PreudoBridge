@@ -83,6 +83,10 @@ class GridSearch(Grid):
         self.pause_timer.timeout.connect(self.remove_pause)
         self.pause_timer.setSingleShot(True)
 
+    def get_changed_thumbs(self):
+        thumbs = super().get_changed_thumbs()
+        self.run_load_images_thread(thumbs)
+
     def set_search_item(self, search_item: SearchItem):
         """
         Устанавливает search_item
