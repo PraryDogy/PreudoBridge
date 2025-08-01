@@ -52,12 +52,12 @@ RATINGS = {
 }
 
 
-class ImgFrame(QFrame):
+class ImgFrameWidget(QFrame):
     def __init__(self):
         super().__init__()
 
 
-class TextWidget(QLabel):
+class FileNameWidget(QLabel):
     def __init__(self):
         super().__init__()
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -67,18 +67,13 @@ class TextWidget(QLabel):
         name: str | list = name
         max_row = ThumbData.MAX_ROW[Dynamic.pixmap_size_ind]
         lines: list[str] = []
-
         if len(name) > max_row:
-
             first_line = name[:max_row]
             second_line = name[max_row:]
-
             if len(second_line) > max_row:
                 second_line = self.short_text(second_line, max_row)
-
             lines.append(first_line)
             lines.append(second_line)
-
         else:
             name = lines.append(name)
 
@@ -88,7 +83,7 @@ class TextWidget(QLabel):
         return f"{text[:max_row - 10]}...{text[-7:]}"
 
 
-class RatingWid(QLabel):
+class RatingWidget(QLabel):
     text_mod = "Изм: "
     text_size = "Размер: "
 
@@ -107,7 +102,7 @@ class RatingWid(QLabel):
         try:
             self.set_text(rating, type_, mod, size)
         except Exception:
-            Utils.print_error(e)
+            Utils.print_error()
 
     def _set_text(self, rating: int, type_: str, mod: int, size: int):
         if rating > 0:
@@ -143,15 +138,14 @@ class Thumb(BaseItem, QFrame):
 
         self.must_hidden: bool = False
         self.row, self.col = 0, 0
-        margin = 0
 
         self.v_lay = QVBoxLayout()
-        self.v_lay.setContentsMargins(margin, margin, margin, margin)
+        self.v_lay.setContentsMargins(0, 0, 0, 0)
         self.v_lay.setSpacing(ThumbData.SPACING)
         self.v_lay.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.setLayout(self.v_lay)
 
-        self.img_frame = ImgFrame()
+        self.img_frame = ImgFrameWidget()
         self.img_frame.setObjectName(Thumb.img_obj_name)
         self.v_lay.addWidget(self.img_frame, alignment=Qt.AlignmentFlag.AlignCenter)
 
@@ -163,11 +157,11 @@ class Thumb(BaseItem, QFrame):
         self.img_wid = QSvgWidget()
         self.img_frame_lay.addWidget(self.img_wid)
 
-        self.text_wid = TextWidget()
+        self.text_wid = FileNameWidget()
         self.text_wid.setObjectName(Thumb.text_obj_name)
         self.v_lay.addWidget(self.text_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.rating_wid = RatingWid()
+        self.rating_wid = RatingWidget()
         self.v_lay.addWidget(self.rating_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
         # self.setStyleSheet("background: gray;")
@@ -776,7 +770,7 @@ class Grid(UScrollArea):
         """
         wid = QApplication.widgetAt(a0.globalPos())
 
-        if isinstance(wid, (TextWidget, RatingWid, ImgFrame)):
+        if isinstance(wid, (FileNameWidget, RatingWidget, ImgFrameWidget)):
             return wid.parent()
         elif isinstance(wid, (QLabel, QSvgWidget)):
             return wid.parent().parent()
@@ -803,7 +797,7 @@ class Grid(UScrollArea):
             for wid in self.cell_to_wid.values():
 
                 intersects = False
-                inner_widgets = wid.findChildren((TextWidget, ImgFrame))
+                inner_widgets = wid.findChildren((FileNameWidget, ImgFrameWidget))
 
                 for w in inner_widgets:
                     top_left = w.mapTo(self.main_wid, QPoint(0, 0))
