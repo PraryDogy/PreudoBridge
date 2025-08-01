@@ -100,7 +100,7 @@ class RatingWidget(QLabel):
     
     def set_text(self, rating: int, type_: str, mod: int, size: int):
         try:
-            self.set_text(rating, type_, mod, size)
+            self._set_text(rating, type_, mod, size)
         except Exception:
             Utils.print_error()
 
@@ -360,43 +360,33 @@ class Grid(UScrollArea):
     def reload_rubber(self):
         self.rubberBand.deleteLater()
         self.rubberBand = QRubberBand(QRubberBand.Rectangle, self.main_wid)
-
-    def set_sort_item(self, sort_item: SortItem):
-        if isinstance(sort_item, SortItem):
-            self.sort_item = sort_item
     
     def get_col_count(self):
         """
         Получает количество столбцов для сетки по формуле:  
         Ширина окна минус ширина левого виджета в сплиттере (левое меню)
         """
-        main_win = self.window()
-
-        win_ww = main_win.width()
-        splitter = main_win.findChild(QSplitter)
-
+        win_ww = self.window().width()
+        splitter = self.window().findChild(QSplitter)
         if splitter:
             left_menu: QWidget = splitter.children()[1]
             left_menu_ww = left_menu.width()
             return (win_ww - left_menu_ww) // Thumb.thumb_w
         else:
-            print("no splitter")
             return 1
 
-    def path_bar_update_cmd(self, src: str):
+    def path_bar_update_delayed(self, src: str):
         """
         Указывает новый путь для path_bar.py > PathBar.  
         Действие отложено по таймеру, т.к. без таймера действие может быть
         заблокировано например контекстным меню
         """
-        cmd_ = lambda: self.path_bar_update_delayed(src)
-        QTimer.singleShot(0, cmd_)
-    
-    def path_bar_update_delayed(self, src: str):
-        try:
-            self.path_bar_update.emit(src)
-        except RuntimeError as e:
-            Utils.print_error()
+        def path_bar_update_delayed():
+            try:
+                self.path_bar_update.emit(src)
+            except RuntimeError as e:
+                Utils.print_error()
+        QTimer.singleShot(0, lambda: path_bar_update_delayed())
     
     def sort_thumbs(self):
         """
@@ -745,7 +735,7 @@ class Grid(UScrollArea):
         Выделяет виджет, добавляет его в список выделенных виджетов.
         """
         if isinstance(wid, Thumb):
-            self.path_bar_update_cmd(wid.src)
+            self.path_bar_update_delayed(wid.src)
             self.clear_selected_widgets()
             wid.set_frame()
             self.selected_thumbs.append(wid)
@@ -824,7 +814,7 @@ class Grid(UScrollArea):
 
         if self.wid_under_mouse is None:
             self.clear_selected_widgets()
-            self.path_bar_update_cmd(self.main_win_item.main_dir)
+            self.path_bar_update_delayed(self.main_win_item.main_dir)
             return
         
         if a0.modifiers() == Qt.KeyboardModifier.ShiftModifier:
@@ -865,7 +855,7 @@ class Grid(UScrollArea):
             # комманд клик: виджет не был виделен, выделить
             else:
                 self.select_widget(self.wid_under_mouse)
-                self.path_bar_update_cmd(self.wid_under_mouse.src)
+                self.path_bar_update_delayed(self.wid_under_mouse.src)
 
         else:
             self.select_one_wid(self.wid_under_mouse)
@@ -924,7 +914,7 @@ class Grid(UScrollArea):
             self.mime_data.setUrls(urls)
         
         if self.wid_under_mouse:
-            self.path_bar_update_cmd(self.wid_under_mouse.src)
+            self.path_bar_update_delayed(self.wid_under_mouse.src)
 
         self.drag.setMimeData(self.mime_data)
         self.drag.exec_(Qt.DropAction.CopyAction)
@@ -937,7 +927,7 @@ class Grid(UScrollArea):
         names = [i.filename for i in self.selected_thumbs]
         total = len(self.selected_thumbs)
 
-        self.path_bar_update_cmd(wid.src)
+        self.path_bar_update_delayed(wid.src)
 
         view_action = ItemActions.OpenThumb(menu_, self.selected_thumbs)
         view_action.triggered.connect(lambda: self.open_thumb())
@@ -1009,7 +999,7 @@ class Grid(UScrollArea):
         menu_.addAction(remove_files)
 
     def gridContexActions(self, menu_: UMenu):
-        self.path_bar_update_cmd(self.main_win_item.main_dir)
+        self.path_bar_update_delayed(self.main_win_item.main_dir)
 
         names = [os.path.basename(self.main_win_item.main_dir)]
         urls = [self.main_win_item.main_dir]

@@ -43,7 +43,7 @@ class SortItem:
         • Реализуйте логику заполнения поля, например, через os.stat
     """
 
-    name = "name"
+    filename = "filename"
     type_ = "type_"
     size = "size"
     mod = "mod"
@@ -51,7 +51,7 @@ class SortItem:
     rating = "rating"
 
     lang_dict: dict[str, str] = {
-        name : "Имя",
+        filename : "Имя",
         type_ : "Тип",
         size : "Размер",
         mod : "Дата изменения",
@@ -64,7 +64,7 @@ class SortItem:
         Объект для сортировки. По умолчанию: sort "name", rev False
         """
         super().__init__()
-        self.sort: str = SortItem.name
+        self.sort: str = SortItem.filename
         self.rev: bool = False
 
     def set_rev(self, value: bool):
@@ -180,7 +180,7 @@ class BaseItem:
         attr = sort_item.sort
         rev = sort_item.rev
 
-        if attr == SortItem.name:
+        if attr == SortItem.filename:
 
             # Особый случай: сортировка по имени
             # Разделяем элементы на две группы:

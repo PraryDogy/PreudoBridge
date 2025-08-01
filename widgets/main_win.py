@@ -426,7 +426,7 @@ class MainWin(WinBase):
         self.grid = GridSearch(self.main_win_item)
         self.grid.finished_.connect(lambda: self.search_finished())
         self.grid.setParent(self)
-        self.grid.set_sort_item(self.sort_item)
+        self.grid.sort_item = self.sort_item
         self.grid.set_search_item(self.search_item)
         self.grid.start_search()
 
@@ -472,7 +472,7 @@ class MainWin(WinBase):
         if self.main_win_item.get_view_mode() == 0:
             self.grid = GridStandart(self.main_win_item)
             self.grid.setParent(self)
-            self.grid.set_sort_item(self.sort_item)
+            self.grid.sort_item = self.sort_item
             self.grid.load_finder_items()
             self.disable_wids(False)
 
@@ -507,8 +507,8 @@ class MainWin(WinBase):
 
     def fast_sort_clicked(self):
         sort = self.sort_item.get_sort()
-        if sort != SortItem.name:
-            self.sort_item.set_sort(SortItem.name)
+        if sort != SortItem.filename:
+            self.sort_item.set_sort(SortItem.filename)
             self.sort_item.set_rev(False)
         else:
             self.sort_item.set_sort(SortItem.mod)
