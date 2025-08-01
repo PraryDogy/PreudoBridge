@@ -221,19 +221,6 @@ class Thumb(BaseItem, QFrame):
             self.img_wid.setPixmap(pixmap)
             self.img_wid.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-    def set_green_text(self):
-        self.setStyleSheet(
-            f"""
-            #{Thumb.text_obj_name} {{
-                background: transparent;
-                font-size: {FONT_SIZE}px;
-                border-radius: {BORDER_RADIUS}px;
-                padding: 2px;
-                color: green;
-            }}
-            """
-        )
-
     def set_frame(self):
         self.setStyleSheet(
             f"""

@@ -44,12 +44,6 @@ class GridStandart(Grid):
         self.loading_lbl = LoadingWid(self)
         self.loading_lbl.center(self)
 
-        # URunnable FinderItems вернет все элементы из заданной директории
-        # где base items это существующие в базе данных записи по элементам
-        # а new_items - элементы, записей по которым нет в базе данных
-        self.base_items: list[BaseItem] = []
-        self.new_items: list[BaseItem] = []
-
         self.st_mtime_timer.start(100)
 
     def get_st_mtime(self, url: str):
@@ -141,14 +135,13 @@ class GridStandart(Grid):
         finder_thread.signals_.finished_.connect(self.finalize_finder_items)
         UThreadPool.start(finder_thread)
 
-    def finalize_finder_items(self, items: tuple[list[BaseItem]]):
+    def finalize_finder_items(self, base_items: tuple[list[BaseItem]]):
         """
         Обходит список BaseItem, формируя сетку виджетов Thumb.     
         Делает текст зеленым, если BaseItem есть в списке new_items
         (читай load finder items).    
         Запускает таймер для load visible images
         """
-        self.base_items, self.new_items = items
 
         # испускаем сигнал в MainWin, чтобы нижний бар с отображением пути
         # обновился на актуальный путь
@@ -166,7 +159,7 @@ class GridStandart(Grid):
             self.finished_.emit()
             return
 
-        elif not self.base_items:
+        elif not base_items:
             no_images = QLabel(GridStandart.empty_text)
             no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -176,7 +169,7 @@ class GridStandart(Grid):
             return
 
         # создаем иконки на основе расширений, если не было
-        exts = {i.type_ for i in self.base_items}
+        exts = {i.type_ for i in base_items}
         for ext in exts:
             icon_path = Utils.get_generic_icon_path(ext, Static.GENERIC_ICONS_DIR)
             if icon_path not in Dynamic.generic_icon_paths:
@@ -185,10 +178,10 @@ class GridStandart(Grid):
 
         # испускаем сигнал в MainWin для обновления нижнего бара
         # для отображения "всего элементов"
-        self.total_count_update.emit(len(self.base_items))
+        self.total_count_update.emit(len(base_items))
 
         # создаем сетку на основе элементов из FinderItems
-        self.iter_base_items()
+        self.iter_base_items(base_items)
 
         # если установлен фильтр по рейтингу, запускаем функцию фильтрации,
         # которая скроет из сетки не подходящие под фильтр виджеты
@@ -201,18 +194,15 @@ class GridStandart(Grid):
         self.load_images_timer.start(100)
         self.finished_.emit()
 
-    def iter_base_items(self):
+    def iter_base_items(self, base_items: list[BaseItem]):
         self.hide()
         self.col_count = self.get_col_count()
-        for base_item in self.base_items:
+        for base_item in base_items:
             thumb = Thumb(base_item.src, base_item.rating)
             thumb.setup_attrs()
             thumb.setup_child_widgets()
             thumb.set_no_frame()
             thumb.set_svg_icon()
-
-            if base_item in self.new_items:
-                thumb.set_green_text()
 
             self.add_widget_data(thumb, self.row, self.col)
             self.grid_layout.addWidget(thumb, self.row, self.col)
