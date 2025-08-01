@@ -395,7 +395,6 @@ class Grid(UScrollArea):
         thumb_list = list(self.url_to_wid.values())
         thumb_list = BaseItem.sort_(thumb_list, self.sort_item)
         wid_to_url = {v: k for k, v in self.url_to_wid.items()}
-
         self.url_to_wid = {
             wid_to_url[thumb]: thumb
             for thumb in thumb_list
@@ -428,9 +427,8 @@ class Grid(UScrollArea):
         Необходимо затем вызвать метод rearrange
         """
         Thumb.calculate_size()
-        for cell, wid in self.cell_to_wid.items():
+        for wid in self.url_to_wid.values():
             wid.setup_child_widgets()
-
         for i in self.selected_thumbs:
             i.set_frame()
 
@@ -445,7 +443,6 @@ class Grid(UScrollArea):
         self.cell_to_wid.clear()
         self.row, self.col = 0, 0
         self.col_count = self.get_col_count()
-
         for wid in self.url_to_wid.values():
             if wid.must_hidden:
                 continue
