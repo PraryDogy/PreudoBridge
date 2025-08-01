@@ -267,20 +267,17 @@ class Grid(UScrollArea):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         self.is_grid_search: bool = False
-        self.main_win_item = main_win_item
+        self.main_win_item: MainWinItem = main_win_item
         self.sort_item: SortItem = 1
-
         self.col_count: int = 0
         self.row: int = 0
         self.col: int = 0
-
-        self.main_win_item = main_win_item
         self.url_to_wid: dict[str, Thumb] = {}
-        self.selected_widgets: list[Thumb] = []
         self.cell_to_wid: dict[tuple, Thumb] = {}
-        self.sorted_widgets: list[Thumb] = []
-        self.load_images_tasks: list[LoadImages] = []
+        self.selected_thumbs: list[Thumb] = []
         self.already_loaded_thumbs: list[Thumb] = []
+        self.sorted_thumbs: list[Thumb] = []
+        self.load_images_tasks: list[LoadImages] = []
 
         self.main_wid = QWidget()
         self.setWidget(self.main_wid)
@@ -435,7 +432,7 @@ class Grid(UScrollArea):
         """
         Сортирует виджеты по аттрибуту BaseItem / Thumb
         """
-        self.sorted_widgets = BaseItem.sort_(self.sorted_widgets, self.sort_item)
+        self.sorted_thumbs = BaseItem.sort_(self.sorted_thumbs, self.sort_item)
                 
     def filter_thumbs(self):
         """
@@ -445,7 +442,7 @@ class Grid(UScrollArea):
         но не удалены.  
         Необходимо затем вызвать метод rearrange
         """
-        for wid in self.sorted_widgets:
+        for wid in self.sorted_thumbs:
             show_widget = True
             if Dynamic.rating_filter > 0:
                 if wid.rating != Dynamic.rating_filter:
@@ -467,7 +464,7 @@ class Grid(UScrollArea):
         for cell, wid in self.cell_to_wid.items():
             wid.setup_child_widgets()
 
-        for i in self.selected_widgets:
+        for i in self.selected_thumbs:
             i.set_frame()
 
     def rearrange_thumbs(self):
@@ -485,7 +482,7 @@ class Grid(UScrollArea):
         self.col_count = self.get_col_count()
 
         # проходим циклом по отсортированным виджетам
-        for wid in self.sorted_widgets:
+        for wid in self.sorted_thumbs:
 
             # соответствует методу filter_ (смотри метод filter_)
             if wid.must_hidden:
@@ -521,11 +518,11 @@ class Grid(UScrollArea):
         wid.row, wid.col = row, col
         self.cell_to_wid[row, col] = wid
         self.url_to_wid[wid.src] = wid
-        self.sorted_widgets.append(wid)
+        self.sorted_thumbs.append(wid)
 
     def open_thumb(self):
-        if len(self.selected_widgets) == 1:
-            wid = self.selected_widgets[0]
+        if len(self.selected_thumbs) == 1:
+            wid = self.selected_thumbs[0]
             if wid.src.endswith(Static.ext_all):
                 url_to_wid = {
                     url: wid
@@ -543,7 +540,7 @@ class Grid(UScrollArea):
         else:
             url_to_wid = {
                 i.src: i
-                for i in self.selected_widgets
+                for i in self.selected_thumbs
                 if i.src.endswith(Static.ext_all)
             }
             if url_to_wid:
@@ -553,7 +550,7 @@ class Grid(UScrollArea):
 
             folders = [
                 i.src
-                for i in self.selected_widgets
+                for i in self.selected_thumbs
                 if i.type_ == Static.FOLDER_TYPE
             ]
 
@@ -562,7 +559,7 @@ class Grid(UScrollArea):
 
             files = [
                 i.src
-                for i in self.selected_widgets
+                for i in self.selected_thumbs
                 if not i.src.endswith(Static.ext_all)
                 and
                 i.type_ != Static.FOLDER_TYPE
@@ -625,7 +622,7 @@ class Grid(UScrollArea):
         Формирует новый список на основе списка выделенных виджетов Thumb
         """
         Dynamic.urls_to_copy.clear()
-        for i in self.selected_widgets:
+        for i in self.selected_thumbs:
             Dynamic.urls_to_copy.append(i.src)
 
     def paste_files(self, dest: str = None):
@@ -704,7 +701,7 @@ class Grid(UScrollArea):
             # удаляем виджет из списка путей
             self.url_to_wid.pop(dir)
             # удаляем из сортированных виджетов
-            self.sorted_widgets.remove(wid)
+            self.sorted_thumbs.remove(wid)
             return wid
         else:
             return None
@@ -721,7 +718,7 @@ class Grid(UScrollArea):
             if wid:
                 wid.deleteLater()
 
-        for i in self.selected_widgets:
+        for i in self.selected_thumbs:
             i.set_no_frame()
         self.clear_selected_widgets()
         self.rearrange_thumbs()
@@ -761,7 +758,7 @@ class Grid(UScrollArea):
         - При успешной записи URunnable испускает сигнал finished
         """
 
-        for wid in self.selected_widgets:
+        for wid in self.selected_thumbs:
             self.task_ = RatingTask(self.main_win_item.main_dir, wid.name, rating)
             cmd_ = lambda w=wid: self.set_new_rating_fin(w, rating)
             self.task_.signals_.finished_.connect(cmd_)
@@ -783,10 +780,10 @@ class Grid(UScrollArea):
         """
         спецагент
         """
-        for i in self.selected_widgets:
+        for i in self.selected_thumbs:
             i.set_no_frame()
 
-        self.selected_widgets.clear()
+        self.selected_thumbs.clear()
 
     def select_one_wid(self, wid: BaseItem | Thumb):
         """
@@ -797,7 +794,7 @@ class Grid(UScrollArea):
             self.path_bar_update_cmd(wid.src)
             self.clear_selected_widgets()
             wid.set_frame()
-            self.selected_widgets.append(wid)
+            self.selected_thumbs.append(wid)
 
     def select_widget(self, wid: Thumb):
         """
@@ -806,7 +803,7 @@ class Grid(UScrollArea):
         виджетов.
         """
         if isinstance(wid, Thumb):
-            self.selected_widgets.append(wid)
+            self.selected_thumbs.append(wid)
             wid.set_frame()
 
     def get_wid_under_mouse(self, a0: QMouseEvent) -> None | Thumb:
@@ -860,18 +857,18 @@ class Grid(UScrollArea):
 
                 if intersects:
                     if ctrl:
-                        if wid in self.selected_widgets:
+                        if wid in self.selected_thumbs:
                             wid.set_no_frame()
-                            self.selected_widgets.remove(wid)
+                            self.selected_thumbs.remove(wid)
                         else:
                             self.select_widget(wid)
                     else:
-                        if wid not in self.selected_widgets:
+                        if wid not in self.selected_thumbs:
                             self.select_widget(wid)
                 else:
-                    if not ctrl and wid in self.selected_widgets:
+                    if not ctrl and wid in self.selected_thumbs:
                         wid.set_no_frame()
-                        self.selected_widgets.remove(wid)
+                        self.selected_thumbs.remove(wid)
             return
 
         if self.wid_under_mouse is None:
@@ -881,13 +878,13 @@ class Grid(UScrollArea):
         
         if a0.modifiers() == Qt.KeyboardModifier.ShiftModifier:
             # шифт клик: если не было выделенных виджетов
-            if not self.selected_widgets:
+            if not self.selected_thumbs:
                 self.select_widget(self.wid_under_mouse)
             # шифт клик: если уже был выделен один / несколько виджетов
             else:
 
                 coords = list(self.cell_to_wid)
-                start_pos = (self.selected_widgets[-1].row, self.selected_widgets[-1].col)
+                start_pos = (self.selected_thumbs[-1].row, self.selected_thumbs[-1].col)
 
                 # шифт клик: слева направо (по возрастанию)
                 if coords.index((self.wid_under_mouse.row, self.wid_under_mouse.col)) > coords.index(start_pos):
@@ -904,14 +901,14 @@ class Grid(UScrollArea):
                 # выделяем виджеты по срезу координат coords
                 for i in coords:
                     wid_ = self.cell_to_wid.get(i)
-                    if wid_ not in self.selected_widgets:
+                    if wid_ not in self.selected_thumbs:
                         self.select_widget(wid=wid_)
 
         elif a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
 
             # комманд клик: был выделен виджет, снять выделение
-            if self.wid_under_mouse in self.selected_widgets:
-                self.selected_widgets.remove(self.wid_under_mouse)
+            if self.wid_under_mouse in self.selected_thumbs:
+                self.selected_thumbs.remove(self.wid_under_mouse)
                 self.wid_under_mouse.set_no_frame()
 
             # комманд клик: виджет не был виделен, выделить
@@ -953,12 +950,12 @@ class Grid(UScrollArea):
             self.rubberBand.setGeometry(rect)
             return
 
-        if self.wid_under_mouse not in self.selected_widgets:
+        if self.wid_under_mouse not in self.selected_thumbs:
             self.select_one_wid(self.wid_under_mouse)
 
         urls = [
             i.src
-            for i in self.selected_widgets
+            for i in self.selected_thumbs
         ]
 
         self.drag = QDrag(self)
@@ -985,13 +982,13 @@ class Grid(UScrollArea):
 
     def thumbContextActions(self, menu_: UMenu, wid: Thumb):
         # собираем пути к файлам / папкам у выделенных виджетов
-        urls = [i.src for i in self.selected_widgets]
-        names = [i.name for i in self.selected_widgets]
-        total = len(self.selected_widgets)
+        urls = [i.src for i in self.selected_thumbs]
+        names = [i.name for i in self.selected_thumbs]
+        total = len(self.selected_thumbs)
 
         self.path_bar_update_cmd(wid.src)
 
-        view_action = ItemActions.OpenThumb(menu_, self.selected_widgets)
+        view_action = ItemActions.OpenThumb(menu_, self.selected_thumbs)
         view_action.triggered.connect(lambda: self.open_thumb())
         menu_.addAction(view_action)
 
@@ -1142,15 +1139,15 @@ class Grid(UScrollArea):
 
             elif a0.key() == Qt.Key.Key_Down:
                 # если есть выделенные виджеты, то берется url последнего из списка
-                if self.selected_widgets:
-                    self.wid_under_mouse = self.selected_widgets[-1]
+                if self.selected_thumbs:
+                    self.wid_under_mouse = self.selected_thumbs[-1]
                     if self.wid_under_mouse:
                         self.select_one_wid(self.wid_under_mouse)
                         self.open_thumb()
 
             elif a0.key() == Qt.Key.Key_I:
-                if self.selected_widgets:
-                    self.wid_under_mouse = self.selected_widgets[-1]
+                if self.selected_thumbs:
+                    self.wid_under_mouse = self.selected_thumbs[-1]
                     self.select_one_wid(self.wid_under_mouse)
                     self.win_info_cmd(self.wid_under_mouse.src)
                 else:
@@ -1172,12 +1169,12 @@ class Grid(UScrollArea):
                     self.select_widget(wid)
 
             elif a0.key() == Qt.Key.Key_Backspace:
-                urls = [i.src for i in self.selected_widgets]
+                urls = [i.src for i in self.selected_thumbs]
                 self.remove_files_cmd(urls)
 
         elif a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
-            if self.selected_widgets:
-                self.wid_under_mouse = self.selected_widgets[-1]
+            if self.selected_thumbs:
+                self.wid_under_mouse = self.selected_thumbs[-1]
                 if self.wid_under_mouse:
                     self.open_thumb()
 
@@ -1185,13 +1182,13 @@ class Grid(UScrollArea):
             offset = KEY_NAVI.get(a0.key())
 
             # если не выделено ни одного виджета
-            if not self.selected_widgets:
+            if not self.selected_thumbs:
                 self.wid_under_mouse = self.cell_to_wid.get((0, 0))
-                if len(self.sorted_widgets) == 1:
+                if len(self.sorted_thumbs) == 1:
                     self.select_one_wid(self.wid_under_mouse)
                     return
             else:
-                self.wid_under_mouse = self.selected_widgets[-1]
+                self.wid_under_mouse = self.selected_thumbs[-1]
 
             # если нет даже первого виджета значит сетка пуста
             if not self.wid_under_mouse:
@@ -1241,11 +1238,11 @@ class Grid(UScrollArea):
         else:
             # если не было выделено ни одного виджет ранее
             # то выделяем кликнутый
-            if not self.selected_widgets:
+            if not self.selected_thumbs:
                 self.select_widget(self.wid_under_mouse)
             # если есть выделенные виджеты, но кликнутый виджет не выделены
             # то снимаем выделение с других и выделяем кликнутый
-            elif self.wid_under_mouse not in self.selected_widgets:
+            elif self.wid_under_mouse not in self.selected_thumbs:
                 self.clear_selected_widgets()
                 self.select_widget(self.wid_under_mouse)
             

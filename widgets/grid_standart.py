@@ -169,7 +169,7 @@ class GridStandart(Grid):
             for i in self.main_win_item.get_urls():
                 if i in self.url_to_wid:
                     wid = self.url_to_wid.get(i)
-                    self.selected_widgets.append(wid)
+                    self.selected_thumbs.append(wid)
                     wid.set_frame()
             self.main_win_item.clear_urls()
 
@@ -189,7 +189,7 @@ class GridStandart(Grid):
         нужно вызывать этот метод, чтобы .urls моментально обновились
         для обработки в следующей сетке
         """
-        urls = [i.src for i in self.selected_widgets]
+        urls = [i.src for i in self.selected_thumbs]
         self.main_win_item.set_urls(urls)
 
     def resizeEvent(self, a0):
