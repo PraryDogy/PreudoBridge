@@ -102,21 +102,24 @@ class RatingWid(QLabel):
             """
         )
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-    def set_text(self, thumb: "Thumb"):
+    
+    def set_text(self, rating: int, type_: str, mod: int, size: int):
         try:
-            if thumb.rating > 0:
-                mod_row = RATINGS.get(thumb.rating).strip()
+            self.set_text(rating, type_, mod, size)
+        except Exception:
+            Utils.print_error(e)
+
+    def _set_text(self, rating: int, type_: str, mod: int, size: int):
+        if rating > 0:
+            mod_row = RATINGS.get(rating).strip()
+        else:
+            mod_row = self.text_mod + EvloshUtils.get_f_date(mod)
+            if type_ == Static.FOLDER_TYPE:
+                sec_row = str("")
             else:
-                mod_row = self.text_mod + EvloshUtils.get_f_date(thumb.mod)
-                if thumb.type_ == Static.FOLDER_TYPE:
-                    sec_row = str("")
-                else:
-                    sec_row = self.text_size + EvloshUtils.get_f_size(thumb.size, 0)
-                mod_row = "\n".join((mod_row, sec_row))
-            self.setText(mod_row)
-        except Exception as e:
-            Utils.print_error()
+                sec_row = self.text_size + EvloshUtils.get_f_size(size, 0)
+            mod_row = "\n".join((mod_row, sec_row))
+        self.setText(mod_row)
 
 
 class Thumb(BaseItem, QFrame):
@@ -200,7 +203,7 @@ class Thumb(BaseItem, QFrame):
         Устанавливает изображение в дочерних виджетах в соответствии в размерами
         """
         self.text_wid.set_text(self.filename)
-        self.rating_wid.set_text(self)
+        self.rating_wid.set_text(self.rating, self.type_, self.mod, self.size)
 
         self.setFixedSize(Thumb.thumb_w, Thumb.thumb_h)
         self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
@@ -320,7 +323,7 @@ class Grid(UScrollArea):
             new_mod = self.get_st_mtime(thumb.src)
             if new_mod and thumb.mod != new_mod:
                 thumb.setup_attrs()
-                thumb.rating_wid.set_text(thumb)
+                thumb.rating_wid.set_text(thumb.rating, thumb.type_, thumb.mod, thumb.size)
                 thumbs.append(thumb)
         return thumbs
 
@@ -727,7 +730,7 @@ class Grid(UScrollArea):
         успешной записи в базу данных
         """
         wid.rating = new_rating
-        wid.rating_wid.set_text(wid)
+        wid.rating_wid.set_text(wid.rating, wid.type_, wid.mod, wid.size)
         wid.text_changed.emit()
         
     def clear_selected_widgets(self):
