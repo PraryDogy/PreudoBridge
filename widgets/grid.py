@@ -516,16 +516,8 @@ class Grid(UScrollArea):
         self.win_img_view = ImgViewWin(start_url, url_to_wid, is_selection)
         self.win_img_view.move_to_wid.connect(lambda wid: self.select_one_wid(wid))
         self.win_img_view.new_rating.connect(lambda data: self.set_new_rating_single(*data))
-        self.win_img_view.closed.connect(lambda: self.img_view_closed())
         self.win_img_view.center(self.window())
         self.win_img_view.show()
-
-    def img_view_closed(self):
-        try:
-            del self.win_img_view
-            gc.collect()
-        except AttributeError:
-            ...
 
     def fav_cmd(self, offset: int, src: str):
         """
@@ -538,16 +530,16 @@ class Grid(UScrollArea):
         else:
             self.del_fav.emit(src)
 
-    def win_info_cmd(self, src: str):
+    def open_win_info(self, src: str):
         """
         Открыть окно информации о файле / папке
         """
-        self.win_info = InfoWin(src)
-        self.win_info.finished_.connect(lambda: self.win_info_fin())
+        def finalize(win_info: InfoWin):
+            win_info.center(self.window())
+            win_info.show()
 
-    def win_info_fin(self):
-        self.win_info.center(self.window())
-        self.win_info.show()
+        self.win_info = InfoWin(src)
+        self.win_info.finished_.connect(lambda: finalize(self.win_info))
 
     def show_in_folder_cmd(self, wid: Thumb):
         """
@@ -939,7 +931,7 @@ class Grid(UScrollArea):
         menu_.addMenu(rating_menu)
 
         info = ItemActions.Info(menu_)
-        info.triggered.connect(lambda: self.win_info_cmd(wid.src))
+        info.triggered.connect(lambda: self.open_win_info(wid.src))
         menu_.addAction(info)
 
         if wid.type_ == Static.FOLDER_TYPE:
@@ -1016,7 +1008,7 @@ class Grid(UScrollArea):
 
         if not self.is_grid_search:
             info = GridActions.Info(menu_)
-            info.triggered.connect(lambda: self.win_info_cmd(self.main_win_item.main_dir))
+            info.triggered.connect(lambda: self.open_win_info(self.main_win_item.main_dir))
             menu_.addAction(info)
 
         if self.main_win_item.main_dir in JsonData.favs:
@@ -1087,9 +1079,9 @@ class Grid(UScrollArea):
                 if self.selected_thumbs:
                     self.wid_under_mouse = self.selected_thumbs[-1]
                     self.select_one_wid(self.wid_under_mouse)
-                    self.win_info_cmd(self.wid_under_mouse.src)
+                    self.open_win_info(self.wid_under_mouse.src)
                 else:
-                    self.win_info_cmd(self.main_win_item.main_dir)
+                    self.open_win_info(self.main_win_item.main_dir)
 
             elif a0.key() == Qt.Key.Key_Equal:
                 new_value = Dynamic.pixmap_size_ind + 1
