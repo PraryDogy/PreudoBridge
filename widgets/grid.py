@@ -344,19 +344,18 @@ class Grid(UScrollArea):
                 thumbs.append(thumb)
         return thumbs
 
-    def create_thumb_list(self, urls: list[str]) -> list[Thumb]:
+    def get_thumbs_by_urls(self, urls: list[str]) -> list[Thumb]:
         """
         Находит виджеты Thumb по url.   
         Возвращает список Thumbs
         """
-        if urls is None:
-            return
-        thumbs: list[Thumb] = []
-        for url in urls:
-            wid = self.url_to_wid.get(url)
-            if wid:
-                thumbs.append(wid)
-        return thumbs
+        if not urls:
+            return []
+        return [
+            self.url_to_wid[url]
+            for url in urls
+            if url in self.url_to_wid
+        ]
 
     def run_load_images_thread(self, thumbs: list[Thumb]):
         """

@@ -55,7 +55,7 @@ class GridStandart(Grid):
 
     def paste_files_fin(self, files: list[str], dest: str):
         super().paste_files_fin(files, dest)
-        thumbs = self.create_thumb_list(files)
+        thumbs = self.get_thumbs_by_urls(files)
         self.run_load_images_thread(thumbs)
 
     def on_scroll_changed(self, value: int):
