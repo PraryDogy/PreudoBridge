@@ -163,7 +163,7 @@ class GridStandart(Grid):
         if self.main_win_item.get_go_to() in self.url_to_wid:
             wid = self.url_to_wid.get(self.main_win_item.get_go_to())
             self.main_win_item.clear_go_to()
-            self.select_one_wid(wid)
+            self.select_single_thumb(wid)
 
         elif self.main_win_item.get_urls():
             for i in self.main_win_item.get_urls():

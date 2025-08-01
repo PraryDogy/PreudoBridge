@@ -514,8 +514,8 @@ class Grid(UScrollArea):
     def open_img_view(self, start_url: str, url_to_wid: dict, is_selection: bool):
         from .img_view_win import ImgViewWin
         self.win_img_view = ImgViewWin(start_url, url_to_wid, is_selection)
-        self.win_img_view.move_to_wid.connect(lambda wid: self.select_one_wid(wid))
-        self.win_img_view.new_rating.connect(lambda data: self.set_new_rating_single(*data))
+        self.win_img_view.move_to_wid.connect(lambda wid: self.select_single_thumb(wid))
+        self.win_img_view.new_rating.connect(lambda data: self.new_rating_single_start(*data))
         self.win_img_view.center(self.window())
         self.win_img_view.show()
 
@@ -559,7 +559,7 @@ class Grid(UScrollArea):
         for i in self.selected_thumbs:
             Dynamic.urls_to_copy.append(i.src)
 
-    def paste_files(self, dest: str = None):
+    def paste_files_start(self, dest: str = None):
         if not Dynamic.urls_to_copy:
             return
 
@@ -597,7 +597,7 @@ class Grid(UScrollArea):
         except Exception as e:
             Utils.print_error()
 
-        Dynamic.is_cut = False
+        self.toggle_is_cut(False)
         Dynamic.urls_to_copy.clear()
 
     def show_error_win(self):
@@ -609,7 +609,7 @@ class Grid(UScrollArea):
         self.error_win.center(self.window())
         self.error_win.show()
 
-    def remove_files_cmd(self, urls: list[str]):
+    def remove_files_start(self, urls: list[str]):
         """
         Окно удаления выделенных виджетов, на основе которых формируется список     
         файлов для удаления.    
@@ -622,22 +622,6 @@ class Grid(UScrollArea):
         self.rem_win.center(self.window())
         self.rem_win.show()
 
-    def remove_widget_data(self, dir: str) -> Thumb | None:
-        """
-        Удаляет данные о виджете из необходимых списков и словарей.     
-        Порядок удаления важен. Не менять.  
-        Возвращет найденный виджет на основе url или None
-        """
-        wid: Thumb = self.url_to_wid.get(dir)
-        if wid:
-            # удаляем виджет из сетки координат
-            self.cell_to_wid.pop((wid.row, wid.col))
-            # удаляем виджет из списка путей
-            self.url_to_wid.pop(dir)
-            return wid
-        else:
-            return None
-
     def remove_files_fin(self, urls: list[str]):
         """
         Удаляет виджеты и данные о виджетах на основе получанного списка url.   
@@ -646,8 +630,10 @@ class Grid(UScrollArea):
         Запускает перетасовку сетки.    
         """
         for i in urls:
-            wid = self.remove_widget_data(i)
+            wid: Thumb = self.url_to_wid.get(dir)
             if wid:
+                self.cell_to_wid.pop((wid.row, wid.col))
+                self.url_to_wid.pop(dir)
                 wid.deleteLater()
 
         for i in self.selected_thumbs:
@@ -655,14 +641,14 @@ class Grid(UScrollArea):
         self.clear_selected_widgets()
         self.rearrange_thumbs()
 
-    def create_new_folder(self):
-        cmd = lambda name: self.create_folder_finished(name)
+    def new_folder_start(self):
+        cmd = lambda name: self.new_folder_fin(name)
         self.rename_win = RenameWin("")
         self.rename_win.center(self.window())
         self.rename_win.finished_.connect(cmd)
         self.rename_win.show()
     
-    def create_folder_finished(self, name: str):
+    def new_folder_fin(self, name: str):
         dest = os.path.join(self.main_win_item.main_dir, name)
         try:
             os.mkdir(dest)
@@ -671,32 +657,31 @@ class Grid(UScrollArea):
         except Exception as e:
             Utils.print_error()
 
-    def set_new_rating_single(self, rating: int, url: str):
+    def new_rating_single_start(self, rating: int, url: str):
         """
         Устанавливает рейтинг для виджета с указанным url
         """
         wid = self.url_to_wid.get(url)
         if not wid:
             return
-        self.task_ = RatingTask(self.main_win_item.main_dir, wid.filename, rating)
-        cmd_ = lambda: self.set_new_rating_fin(wid, rating)
-        self.task_.signals_.finished_.connect(cmd_)
-        UThreadPool.start(self.task_)
+        self.rating_task = RatingTask(self.main_win_item.main_dir, wid.filename, rating)
+        cmd_ = lambda: self.new_rating_fin(wid, rating)
+        self.rating_task.signals_.finished_.connect(cmd_)
+        UThreadPool.start(self.rating_task)
 
-    def set_new_rating_selected(self, rating: int):
+    def new_rating_multiple_start(self, rating: int):
         """
         Устанавливает рейтинг для выделенных в сетке виджетов:
         - Делается запись в базу данных через URunnable
         - При успешной записи URunnable испускает сигнал finished
         """
-
         for wid in self.selected_thumbs:
-            self.task_ = RatingTask(self.main_win_item.main_dir, wid.filename, rating)
-            cmd_ = lambda w=wid: self.set_new_rating_fin(w, rating)
-            self.task_.signals_.finished_.connect(cmd_)
-            UThreadPool.start(self.task_)
+            self.rating_task = RatingTask(self.main_win_item.main_dir, wid.filename, rating)
+            cmd_ = lambda w=wid: self.new_rating_fin(w, rating)
+            self.rating_task.signals_.finished_.connect(cmd_)
+            UThreadPool.start(self.rating_task)
 
-    def set_new_rating_fin(self, wid: Thumb, new_rating: int):
+    def new_rating_fin(self, wid: Thumb, new_rating: int):
         """
         Устанавливает визуальный рейтинг и аттрибут рейтинга для Thumb при  
         успешной записи в базу данных
@@ -709,15 +694,11 @@ class Grid(UScrollArea):
         """
         Очищает список выделенных виджетов и снимает визуальное выделение с них
         """
-        """
-        спецагент
-        """
         for i in self.selected_thumbs:
             i.set_no_frame()
-
         self.selected_thumbs.clear()
 
-    def select_one_wid(self, wid: BaseItem | Thumb):
+    def select_single_thumb(self, wid: BaseItem | Thumb):
         """
         Очищает визуальное выделение с выделенных виджетов и очищает список.  
         Выделяет виджет, добавляет его в список выделенных виджетов.
@@ -728,7 +709,7 @@ class Grid(UScrollArea):
             wid.set_frame()
             self.selected_thumbs.append(wid)
 
-    def select_widget(self, wid: Thumb):
+    def select_multiple_thumb(self, wid: Thumb):
         """
         Добавляет виджет в список выделенных виджетов и выделяет виджет визуально.  
         Метод похож на select_one_widget, но поддерживает выделение нескольких  
@@ -757,9 +738,6 @@ class Grid(UScrollArea):
         
     def toggle_is_cut(self, value: bool):
         Dynamic.is_cut = value
-
-    def copy_objects_cmd(self):
-        Dynamic.is_cut = False
 
     def mouseReleaseEvent(self, a0: QMouseEvent):
         if a0.button() != Qt.MouseButton.LeftButton:
@@ -790,10 +768,10 @@ class Grid(UScrollArea):
                             wid.set_no_frame()
                             self.selected_thumbs.remove(wid)
                         else:
-                            self.select_widget(wid)
+                            self.select_multiple_thumb(wid)
                     else:
                         if wid not in self.selected_thumbs:
-                            self.select_widget(wid)
+                            self.select_multiple_thumb(wid)
                 else:
                     if not ctrl and wid in self.selected_thumbs:
                         wid.set_no_frame()
@@ -808,7 +786,7 @@ class Grid(UScrollArea):
         if a0.modifiers() == Qt.KeyboardModifier.ShiftModifier:
             # шифт клик: если не было выделенных виджетов
             if not self.selected_thumbs:
-                self.select_widget(self.wid_under_mouse)
+                self.select_multiple_thumb(self.wid_under_mouse)
             # шифт клик: если уже был выделен один / несколько виджетов
             else:
 
@@ -831,7 +809,7 @@ class Grid(UScrollArea):
                 for i in coords:
                     wid_ = self.cell_to_wid.get(i)
                     if wid_ not in self.selected_thumbs:
-                        self.select_widget(wid=wid_)
+                        self.select_multiple_thumb(wid=wid_)
 
         elif a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
 
@@ -842,15 +820,15 @@ class Grid(UScrollArea):
 
             # комманд клик: виджет не был виделен, выделить
             else:
-                self.select_widget(self.wid_under_mouse)
+                self.select_multiple_thumb(self.wid_under_mouse)
                 self.path_bar_update_delayed(self.wid_under_mouse.src)
 
         else:
-            self.select_one_wid(self.wid_under_mouse)
+            self.select_single_thumb(self.wid_under_mouse)
 
     def mouseDoubleClickEvent(self, a0):
         if self.wid_under_mouse:
-            self.select_one_wid(self.wid_under_mouse)
+            self.select_single_thumb(self.wid_under_mouse)
             self.open_thumb()
 
     def mousePressEvent(self, a0):
@@ -880,7 +858,7 @@ class Grid(UScrollArea):
             return
 
         if self.wid_under_mouse not in self.selected_thumbs:
-            self.select_one_wid(self.wid_under_mouse)
+            self.select_single_thumb(self.wid_under_mouse)
 
         urls = [
             i.src
@@ -926,7 +904,7 @@ class Grid(UScrollArea):
             menu_.addMenu(open_in_app)
 
         rating_menu = ItemActions.RatingMenu(menu_, urls, total, wid.rating)
-        rating_menu.new_rating.connect(self.set_new_rating_selected)
+        rating_menu.new_rating.connect(self.new_rating_multiple_start)
         menu_.addMenu(rating_menu)
 
         info = ItemActions.Info(menu_)
@@ -983,7 +961,7 @@ class Grid(UScrollArea):
         menu_.addAction(copy_files)
 
         remove_files = ItemActions.RemoveObjects(menu_, total)
-        remove_files.triggered.connect(lambda: self.remove_files_cmd(urls))
+        remove_files.triggered.connect(lambda: self.remove_files_start(urls))
         menu_.addAction(remove_files)
 
     def gridContexActions(self, menu_: UMenu):
@@ -995,14 +973,14 @@ class Grid(UScrollArea):
 
         if Dynamic.urls_to_copy and not self.is_grid_search:
             paste_files = GridActions.PasteObjects(menu_, len(Dynamic.urls_to_copy))
-            paste_files.triggered.connect(self.paste_files)
+            paste_files.triggered.connect(self.paste_files_start)
             menu_.addAction(paste_files)
 
         menu_.addSeparator()
 
         if not self.is_grid_search and not Dynamic.rating_filter != 0:
             new_folder = GridActions.NewFolder(menu_)
-            new_folder.triggered.connect(self.create_new_folder)
+            new_folder.triggered.connect(self.new_folder_start)
             menu_.addAction(new_folder)
 
         if not self.is_grid_search:
@@ -1061,7 +1039,7 @@ class Grid(UScrollArea):
 
             elif a0.key() == Qt.Key.Key_V:
                 if not self.is_grid_search:
-                    self.paste_files()
+                    self.paste_files_start()
 
             elif a0.key() == Qt.Key.Key_Up:
                 self.level_up.emit()
@@ -1071,13 +1049,13 @@ class Grid(UScrollArea):
                 if self.selected_thumbs:
                     self.wid_under_mouse = self.selected_thumbs[-1]
                     if self.wid_under_mouse:
-                        self.select_one_wid(self.wid_under_mouse)
+                        self.select_single_thumb(self.wid_under_mouse)
                         self.open_thumb()
 
             elif a0.key() == Qt.Key.Key_I:
                 if self.selected_thumbs:
                     self.wid_under_mouse = self.selected_thumbs[-1]
-                    self.select_one_wid(self.wid_under_mouse)
+                    self.select_single_thumb(self.wid_under_mouse)
                     self.open_win_info(self.wid_under_mouse.src)
                 else:
                     self.open_win_info(self.main_win_item.main_dir)
@@ -1095,11 +1073,11 @@ class Grid(UScrollArea):
             elif a0.key() == Qt.Key.Key_A:
                 self.clear_selected_widgets()
                 for cell, wid in self.cell_to_wid.items():
-                    self.select_widget(wid)
+                    self.select_multiple_thumb(wid)
 
             elif a0.key() == Qt.Key.Key_Backspace:
                 urls = [i.src for i in self.selected_thumbs]
-                self.remove_files_cmd(urls)
+                self.remove_files_start(urls)
 
         elif a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
             if self.selected_thumbs:
@@ -1114,7 +1092,7 @@ class Grid(UScrollArea):
             if not self.selected_thumbs:
                 self.wid_under_mouse = self.cell_to_wid.get((0, 0))
                 if len(self.url_to_wid.values()) == 1:
-                    self.select_one_wid(self.wid_under_mouse)
+                    self.select_single_thumb(self.wid_under_mouse)
                     return
             else:
                 self.wid_under_mouse = self.selected_thumbs[-1]
@@ -1144,13 +1122,13 @@ class Grid(UScrollArea):
                 next_wid = self.cell_to_wid.get(coords)
 
             if next_wid:
-                self.select_one_wid(next_wid)
+                self.select_single_thumb(next_wid)
                 self.ensureWidgetVisible(next_wid)
                 self.wid_under_mouse = next_wid
 
         elif a0.key() in KEY_RATING:
             rating = KEY_RATING.get(a0.key())
-            self.set_new_rating_selected(rating)
+            self.new_rating_multiple_start(rating)
         
         return super().keyPressEvent(a0)
 
@@ -1168,12 +1146,12 @@ class Grid(UScrollArea):
             # если не было выделено ни одного виджет ранее
             # то выделяем кликнутый
             if not self.selected_thumbs:
-                self.select_widget(self.wid_under_mouse)
+                self.select_multiple_thumb(self.wid_under_mouse)
             # если есть выделенные виджеты, но кликнутый виджет не выделены
             # то снимаем выделение с других и выделяем кликнутый
             elif self.wid_under_mouse not in self.selected_thumbs:
                 self.clear_selected_widgets()
-                self.select_widget(self.wid_under_mouse)
+                self.select_multiple_thumb(self.wid_under_mouse)
             
             if isinstance(self.wid_under_mouse, (BaseItem, Thumb)):
                 self.thumbContextActions(menu_, self.wid_under_mouse)
@@ -1203,15 +1181,15 @@ class Grid(UScrollArea):
 
             file_disk = i.split(os.sep)[:3]
             if file_disk == main_disk:
-                Dynamic.is_cut = True
+                self.toggle_is_cut(True)
 
             if os.path.commonpath([i, main_dir_]) == main_dir_:
                 print("Нельзя копировать в себя")
-                Dynamic.is_cut = False
+                self.toggle_is_cut(False)
                 return
 
         if Dynamic.urls_to_copy:
-            self.paste_files()
+            self.paste_files_start()
 
         return super().dropEvent(a0)
 

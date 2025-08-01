@@ -343,7 +343,7 @@ class GridList(UTableView):
         except Exception as e:
             Utils.print_error()
 
-        Dynamic.is_cut = False
+        self.toggle_is_cut(False)
         Dynamic.urls_to_copy.clear()
 
     def show_error_win(self):
