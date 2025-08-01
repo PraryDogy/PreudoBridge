@@ -875,7 +875,7 @@ class Grid(UScrollArea):
 
         return super().mouseMoveEvent(a0)
 
-    def thumbContextActions(self, menu_: UMenu, wid: Thumb):
+    def context_thumb(self, menu_: UMenu, wid: Thumb):
         # собираем пути к файлам / папкам у выделенных виджетов
         urls = [i.src for i in self.selected_thumbs]
         names = [i.filename for i in self.selected_thumbs]
@@ -889,17 +889,7 @@ class Grid(UScrollArea):
         if wid.type_ != Static.FOLDER_TYPE:
             open_in_app = ItemActions.OpenInApp(menu_, urls)
             menu_.addMenu(open_in_app)
-
-        rating_menu = ItemActions.RatingMenu(menu_, urls, total, wid.rating)
-        rating_menu.new_rating.connect(self.new_rating_multiple_start)
-        menu_.addMenu(rating_menu)
-
-        info = ItemActions.Info(menu_)
-        info.triggered.connect(lambda: self.open_win_info(wid.src))
-        menu_.addAction(info)
-
-        if wid.type_ == Static.FOLDER_TYPE:
-
+        else:
             new_win = ItemActions.OpenInNewWindow(menu_)
             new_win.triggered.connect(lambda: self.open_in_new_win.emit(wid.src))
             menu_.addAction(new_win)
@@ -914,6 +904,14 @@ class Grid(UScrollArea):
                 fav_action = ItemActions.FavAdd(menu_)
                 fav_action.triggered.connect(cmd_)
                 menu_.addAction(fav_action)
+
+        rating_menu = ItemActions.RatingMenu(menu_, urls, total, wid.rating)
+        rating_menu.new_rating.connect(self.new_rating_multiple_start)
+        menu_.addMenu(rating_menu)
+
+        info = ItemActions.Info(menu_)
+        info.triggered.connect(lambda: self.open_win_info(wid.src))
+        menu_.addAction(info)
 
         # is grid search устанавливается на True при инициации GridSearch
         if self.is_grid_search:
@@ -1131,7 +1129,7 @@ class Grid(UScrollArea):
                 self.select_multiple_thumb(self.wid_under_mouse)
             
             if isinstance(self.wid_under_mouse, (BaseItem, Thumb)):
-                self.thumbContextActions(menu_, self.wid_under_mouse)
+                self.context_thumb(menu_, self.wid_under_mouse)
             else:
                 self.context_grid(menu_)
 
