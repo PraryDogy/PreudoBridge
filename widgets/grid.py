@@ -311,6 +311,58 @@ class Grid(UScrollArea):
         # любую папку с кучей файлов
         QTimer.singleShot(200, self.set_mouseReleaseEvent)
 
+
+        self.st_mtime = self.get_st_mtime(self.main_win_item.main_dir)
+        self.st_mtime_timer = QTimer(self)
+        self.st_mtime_timer.setSingleShot(True)
+        self.st_mtime_timer.timeout.connect(lambda: self.set_st_mtime())
+        self.st_mtime_timer.start(100)
+
+    def get_st_mtime(self, url: str):
+        try:
+            return os.stat(url).st_mtime
+        except Exception:
+            Utils.print_error()
+            return None
+
+    def set_st_mtime(self):
+        self.st_mtime_timer.stop()
+        new_st_mtime = self.get_st_mtime(self.main_win_item.main_dir)
+        if new_st_mtime:
+            if int(new_st_mtime) != int(self.st_mtime):
+                self.st_mtime = new_st_mtime
+                self.get_changed_urls()
+            self.st_mtime_timer.start(2000)
+        else:
+            print("st mtime is None")
+
+    def get_changed_urls(self) -> list[str]:
+        """
+        Возврвщает список url к виджетам, которые были изменены
+        """
+        urls: list[str] = []
+        for url, wid in self.url_to_wid.items():
+            new_st_mtime = self.get_st_mtime(url)
+            if new_st_mtime and wid.mod != new_st_mtime:
+                wid.setup_attrs()
+                wid.rating_wid.set_text(wid)
+                urls.append(wid.src)
+        return urls
+
+    def create_thumb_list(self, urls: list[str]) -> list[Thumb]:
+        """
+        Находит виджеты Thumb по url.   
+        Возвращает список Thumbs
+        """
+        if urls is None:
+            return
+        thumbs: list[Thumb] = []
+        for url in urls:
+            wid = self.url_to_wid.get(url)
+            if wid:
+                thumbs.append(wid)
+        return thumbs
+
     def reload_rubber(self):
         self.rubberBand.deleteLater()
         self.rubberBand = QRubberBand(QRubberBand.Rectangle, self.main_wid)

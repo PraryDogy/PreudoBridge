@@ -26,8 +26,6 @@ class GridStandart(Grid):
         self.loaded_images: list[str] = []
         self.tasks: list[LoadImages] = []
 
-        self.st_mtime = self.get_st_mtime(self.main_win_item.main_dir)
-
         # при скроллинге запускается данный таймер и сбрасывается предыдуший
         # только при остановке скроллинга спустя время запускается
         # функция загрузки изображений
@@ -36,46 +34,10 @@ class GridStandart(Grid):
         self.load_images_timer.timeout.connect(self.load_visible_images)
         self.verticalScrollBar().valueChanged.connect(self.on_scroll_changed)
 
-        self.st_mtime_timer = QTimer(self)
-        self.st_mtime_timer.setSingleShot(True)
-        self.st_mtime_timer.timeout.connect(lambda: self.set_st_mtime())
 
         # виджет поверх остальных с текстом "загрузка"
         self.loading_lbl = LoadingWid(self)
         self.loading_lbl.center(self)
-
-        self.st_mtime_timer.start(100)
-
-    def get_st_mtime(self, url: str):
-        try:
-            return os.stat(url).st_mtime
-        except Exception:
-            Utils.print_error()
-            return None
-
-    def set_st_mtime(self):
-        self.st_mtime_timer.stop()
-        new_st_mtime = self.get_st_mtime(self.main_win_item.main_dir)
-        if new_st_mtime:
-            if int(new_st_mtime) != int(self.st_mtime):
-                self.st_mtime = new_st_mtime
-                self.search_changed_widgets()
-            self.st_mtime_timer.start(2000)
-        else:
-            print("st mtime is None")
-
-    def search_changed_widgets(self):
-        urls: list[str] = []
-
-        for url, wid in self.url_to_wid.items():
-            new_st_mtime = self.get_st_mtime(url)
-            if new_st_mtime and wid.mod != new_st_mtime:
-                wid.setup_attrs()
-                wid.rating_wid.set_text(wid)
-                urls.append(wid.src)
-        
-        if urls:
-            self.force_load_images_cmd(urls)
             
     def load_visible_images(self):
         """
@@ -92,24 +54,10 @@ class GridStandart(Grid):
                 i.set_should_run(False)
             self.run_load_images_thread(thumbs)
 
-    def force_load_images_cmd(self, urls: list[str]):
-        """
-        Находит виджеты Thumb по url.   
-        Принудительно запускает загрузку изображений через URunnable
-        """
-        if urls is None:
-            return
-
-        thumbs: list[Thumb] = []
-        for url in urls:
-            wid = self.url_to_wid.get(url)
-            if wid:
-                thumbs.append(wid)
-        self.run_load_images_thread(thumbs)
-
     def paste_files_fin(self, files: list[str], dest: str):
         super().paste_files_fin(files, dest)
-        self.force_load_images_cmd(files)
+        thumbs = self.create_thumb_list(files)
+        self.run_load_images_thread(thumbs)
 
     def on_scroll_changed(self, value: int):
         """
@@ -142,7 +90,6 @@ class GridStandart(Grid):
         (читай load finder items).    
         Запускает таймер для load visible images
         """
-
         # испускаем сигнал в MainWin, чтобы нижний бар с отображением пути
         # обновился на актуальный путь
         self.path_bar_update.emit(self.main_win_item.main_dir)
@@ -181,7 +128,7 @@ class GridStandart(Grid):
         self.total_count_update.emit(len(base_items))
 
         # создаем сетку на основе элементов из FinderItems
-        self.iter_base_items(base_items)
+        self.create_thumbs_grid(base_items)
 
         # если установлен фильтр по рейтингу, запускаем функцию фильтрации,
         # которая скроет из сетки не подходящие под фильтр виджеты
@@ -194,7 +141,7 @@ class GridStandart(Grid):
         self.load_images_timer.start(100)
         self.finished_.emit()
 
-    def iter_base_items(self, base_items: list[BaseItem]):
+    def create_thumbs_grid(self, base_items: list[BaseItem]):
         self.hide()
         self.col_count = self.get_col_count()
         for base_item in base_items:
@@ -234,8 +181,8 @@ class GridStandart(Grid):
         self.show()
 
     def scroll_value_cmd(self):
-            self.verticalScrollBar().setValue(self.main_win_item.scroll_value)
-            self.main_win_item.scroll_value = None
+        self.verticalScrollBar().setValue(self.main_win_item.scroll_value)
+        self.main_win_item.scroll_value = None
 
     def run_load_images_thread(self, thumbs: list[Thumb]):
         """
