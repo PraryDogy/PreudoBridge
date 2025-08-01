@@ -319,6 +319,7 @@ class Grid(UScrollArea):
                 thumb.setup_attrs()
                 thumb.rating_wid.set_text(thumb.rating, thumb.type_, thumb.mod, thumb.size)
                 thumbs.append(thumb)
+        print(thumbs)
         return thumbs
 
     def get_thumbs_by_urls(self, urls: list[str]) -> list[Thumb]:

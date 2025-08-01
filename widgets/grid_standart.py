@@ -34,7 +34,7 @@ class GridStandart(Grid):
         self.loading_lbl = LoadingWid(self)
         self.loading_lbl.center(self)
     
-    def get_changed_thumbs(self):
+    def update_mod_thumbs(self):
         thumbs = super().update_mod_thumbs()
         self.start_load_images_task(thumbs)
             
