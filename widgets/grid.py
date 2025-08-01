@@ -537,7 +537,6 @@ class Grid(UScrollArea):
         def finalize(win_info: InfoWin):
             win_info.center(self.window())
             win_info.show()
-
         self.win_info = InfoWin(src)
         self.win_info.finished_.connect(lambda: finalize(self.win_info))
 
