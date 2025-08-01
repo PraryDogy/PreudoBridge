@@ -481,38 +481,25 @@ class Grid(UScrollArea):
         соответственно число столбцов и строк в сетке виджетов Thumb    
         должно измениться, и для этого вызывается метод rearrange
         """
-
-        # очищаем cell_to_wid, чтобы заполнить этот словарь новыми координатами
         self.cell_to_wid.clear()
         self.row, self.col = 0, 0
         self.col_count = self.get_col_count()
 
-        # проходим циклом по отсортированным виджетам
         for wid in self.url_to_wid.values():
-
-            # соответствует методу filter_ (смотри метод filter_)
             if wid.must_hidden:
                 continue
-
             self.grid_layout.addWidget(wid, self.row, self.col)
-
-            # добавляем новые координаты в словарь
-            self.cell_to_wid[self.row, self.col] = wid
-
-            # меняем аттрибуты строки и столбца в виджете Thumb
-            wid.row, wid.col = self.row, self.col
-
+            self.add_widget_data(wid, self.row, self.col)
             self.col += 1
             if self.col >= self.col_count:
                 self.col = 0
                 self.row += 1
-
         self.total_count_update.emit(len(self.cell_to_wid))
 
     def add_widget_data(self, wid: Thumb, row: int, col: int):
         """
-        Добавляет данные о виджете в необходимые списки и словари,
-        а так же устанавливает аттрибуты Thumb: row, col
+        Устанавливает thumb.row, thumb.col
+        Добавляет thumb в cell to wid, url to wid
         """
         wid.row, wid.col = row, col
         self.cell_to_wid[row, col] = wid
