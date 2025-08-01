@@ -304,7 +304,7 @@ class Grid(UScrollArea):
         self.st_mtime = self.get_st_mtime(self.main_win_item.main_dir)
         self.st_mtime_timer = QTimer(self)
         self.st_mtime_timer.setSingleShot(True)
-        self.st_mtime_timer.timeout.connect(lambda: self.set_st_mtime())
+        self.st_mtime_timer.timeout.connect(lambda: self.check_dir_mod())
         self.st_mtime_timer.start(100)
 
     def get_st_mtime(self, url: str):
@@ -314,25 +314,26 @@ class Grid(UScrollArea):
             Utils.print_error()
             return None
 
-    def set_st_mtime(self):
+    def check_dir_mod(self):
         """
-        С периодичностью сравнивает изначальное время изменения директории
-        с текущей. Если не совпадают, то ищет Thumbs, которые были изменены
-        в get_changed_urls > список url к Thumbs
+        Проверяет, изменилось ли время модификации главной директории.
+        Если изменилось — вызывает обновление изменённых Thumb.
+        Повторяет проверку каждые 2 секунды.
         """
         self.st_mtime_timer.stop()
         new_st_mtime = self.get_st_mtime(self.main_win_item.main_dir)
         if new_st_mtime:
             if int(new_st_mtime) != int(self.st_mtime):
                 self.st_mtime = new_st_mtime
-                self.get_changed_thumbs()
+                self.update_mod_thumbs()
             self.st_mtime_timer.start(2000)
         else:
             print("st mtime is None")
 
-    def get_changed_thumbs(self) -> list[Thumb]:
+    def update_mod_thumbs(self) -> list[Thumb]:
         """
-        Возвращает список Thumb, которые были изменены.
+        Обходит все Thumb и обновляет те, у которых изменилось
+        время модификации. Возвращает список изменённых Thumb.
         """
         thumbs: list[Thumb] = []
         for thumb in self.url_to_wid.values():
