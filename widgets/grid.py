@@ -203,9 +203,9 @@ class Thumb(BaseItem, QFrame):
         self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
         self.img_frame.setFixedSize(Thumb.img_frame_size, Thumb.img_frame_size)
 
-        pixmap_ = self.get_pixmap_storage()
-        if pixmap_:
-            pixmap =  ImageUtils.pixmap_scale(pixmap_, Thumb.pixmap_size)
+        pixmap = self.get_pixmap_storage()
+        if pixmap:
+            pixmap =  ImageUtils.pixmap_scale(pixmap, Thumb.pixmap_size)
             self.img_wid.setPixmap(pixmap)
             self.img_wid.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
@@ -274,7 +274,7 @@ class Grid(UScrollArea):
 
         flags = Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
         self.grid_layout = QGridLayout()
-        self.grid_layout.setSpacing(Grid.spacing_value)
+        self.grid_layout.setSpacing(self.spacing_value)
         self.grid_layout.setAlignment(flags)
         self.main_wid.setLayout(self.grid_layout)
 
