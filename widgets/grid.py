@@ -277,29 +277,18 @@ class Grid(UScrollArea):
         self.selected_thumbs: list[Thumb] = []
         self.already_loaded_thumbs: list[Thumb] = []
         self.load_images_tasks: list[LoadImages] = []
+        self.wid_under_mouse: Thumb = None
 
         self.main_wid = QWidget()
         self.setWidget(self.main_wid)
-
         self.origin_pos = QPoint()
         self.rubberBand = QRubberBand(QRubberBand.Rectangle, self.main_wid)
-        self.wid_under_mouse: Thumb = None
 
         flags = Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
         self.grid_layout = QGridLayout()
         self.grid_layout.setSpacing(Grid.spacing_value)
         self.grid_layout.setAlignment(flags)
         self.main_wid.setLayout(self.grid_layout)
-
-        # отложенное подключение клика мышки нужно для того
-        # избежать бага выделения виджета, когда кликаешь на папку
-        # описание бага:
-        # когда кликаешь на папку, формируется новая сетка StandatGrid
-        # и в том месте, где был клик по папке, выделяется новый виджет
-        # с которого не снять выделение
-        # короче попробуй сразу подключить mouseReleaseEvent и открой 
-        # любую папку с кучей файлов
-        QTimer.singleShot(200, self.set_mouseReleaseEvent)
 
         self.st_mtime = self.get_st_mtime(self.main_win_item.main_dir)
         self.st_mtime_timer = QTimer(self)
@@ -806,10 +795,7 @@ class Grid(UScrollArea):
     def copy_objects_cmd(self):
         Dynamic.is_cut = False
 
-    def set_mouseReleaseEvent(self):
-        self.mouseReleaseEvent = self.mouseReleaseEvent_
-
-    def mouseReleaseEvent_(self, a0: QMouseEvent):
+    def mouseReleaseEvent(self, a0: QMouseEvent):
         if a0.button() != Qt.MouseButton.LeftButton:
             return
         
