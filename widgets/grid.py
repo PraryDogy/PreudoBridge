@@ -880,7 +880,6 @@ class Grid(UScrollArea):
         urls = [i.src for i in self.selected_thumbs]
         names = [i.filename for i in self.selected_thumbs]
         total = len(self.selected_thumbs)
-
         self.path_bar_update_delayed(wid.src)
 
         view_action = ItemActions.OpenThumb(menu_, self.selected_thumbs)
@@ -954,7 +953,6 @@ class Grid(UScrollArea):
 
     def context_grid(self, menu_: UMenu):
         self.path_bar_update_delayed(self.main_win_item.main_dir)
-
         names = [os.path.basename(self.main_win_item.main_dir)]
         urls = [self.main_win_item.main_dir]
         total = 1
