@@ -276,7 +276,6 @@ class Grid(UScrollArea):
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.selected_thumbs: list[Thumb] = []
         self.already_loaded_thumbs: list[Thumb] = []
-        self.sorted_thumbs: list[Thumb] = []
         self.load_images_tasks: list[LoadImages] = []
 
         self.main_wid = QWidget()
@@ -432,7 +431,14 @@ class Grid(UScrollArea):
         """
         Сортирует виджеты по аттрибуту BaseItem / Thumb
         """
-        self.sorted_thumbs = BaseItem.sort_(self.sorted_thumbs, self.sort_item)
+        thumb_list = list(self.url_to_wid.values())
+        thumb_list = BaseItem.sort_(thumb_list, self.sort_item)
+        wid_to_url = {v: k for k, v in self.url_to_wid.items()}
+
+        self.url_to_wid = {
+            wid_to_url[thumb]: thumb
+            for thumb in thumb_list
+        }
                 
     def filter_thumbs(self):
         """
@@ -442,7 +448,7 @@ class Grid(UScrollArea):
         но не удалены.  
         Необходимо затем вызвать метод rearrange
         """
-        for wid in self.sorted_thumbs:
+        for wid in self.url_to_wid.values():
             show_widget = True
             if Dynamic.rating_filter > 0:
                 if wid.rating != Dynamic.rating_filter:
@@ -482,7 +488,7 @@ class Grid(UScrollArea):
         self.col_count = self.get_col_count()
 
         # проходим циклом по отсортированным виджетам
-        for wid in self.sorted_thumbs:
+        for wid in self.url_to_wid.values():
 
             # соответствует методу filter_ (смотри метод filter_)
             if wid.must_hidden:
@@ -501,13 +507,6 @@ class Grid(UScrollArea):
                 self.col = 0
                 self.row += 1
 
-        # формируем новый словарь путь к файлу: виджет Thumb
-        # на основе cell_to_wid, чтобы пропустить скрытые виджеты
-        self.url_to_wid = {
-            wid.src: wid
-            for coords, wid in self.cell_to_wid.items()
-        }
-
         self.total_count_update.emit(len(self.cell_to_wid))
 
     def add_widget_data(self, wid: Thumb, row: int, col: int):
@@ -518,7 +517,6 @@ class Grid(UScrollArea):
         wid.row, wid.col = row, col
         self.cell_to_wid[row, col] = wid
         self.url_to_wid[wid.src] = wid
-        self.sorted_thumbs.append(wid)
 
     def open_thumb(self):
         if len(self.selected_thumbs) == 1:
@@ -700,8 +698,6 @@ class Grid(UScrollArea):
             self.cell_to_wid.pop((wid.row, wid.col))
             # удаляем виджет из списка путей
             self.url_to_wid.pop(dir)
-            # удаляем из сортированных виджетов
-            self.sorted_thumbs.remove(wid)
             return wid
         else:
             return None
@@ -1184,7 +1180,7 @@ class Grid(UScrollArea):
             # если не выделено ни одного виджета
             if not self.selected_thumbs:
                 self.wid_under_mouse = self.cell_to_wid.get((0, 0))
-                if len(self.sorted_thumbs) == 1:
+                if len(self.url_to_wid.values()) == 1:
                     self.select_one_wid(self.wid_under_mouse)
                     return
             else:
