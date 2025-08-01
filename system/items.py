@@ -137,11 +137,16 @@ class BaseItem:
         else:
             _, self.type_ = os.path.splitext(self.src)
 
-        stat = os.stat(self.src)
-        self.mod = stat.st_mtime
-        self.birth = stat.st_birthtime
-        self.size = stat.st_size
-
+        try:
+            stat = os.stat(self.src)
+            self.mod = stat.st_mtime
+            self.birth = stat.st_birthtime
+            self.size = stat.st_size
+        except Exception as e:
+            Utils.print_error()
+            self.mod = 0
+            self.birth = 0
+            self.size = 0
         # Поправка старой системы рейтинга, когда рейтинг был двузначным
         self.rating = self.rating % 10
 
