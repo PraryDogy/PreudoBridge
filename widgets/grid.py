@@ -748,20 +748,15 @@ class Grid(UScrollArea):
             rect = QRect(self.origin_pos, release_pos).normalized()
             self.rubberBand.hide()
             ctrl = a0.modifiers() == Qt.KeyboardModifier.ControlModifier
-            x = 10
-
             for wid in self.cell_to_wid.values():
-
                 intersects = False
                 inner_widgets = wid.findChildren((FileNameWidget, ImgFrameWidget))
-
                 for w in inner_widgets:
                     top_left = w.mapTo(self.main_wid, QPoint(0, 0))
                     w_rect = QRect(top_left, w.size())
                     if rect.intersects(w_rect):
                         intersects = True
                         break
-
                 if intersects:
                     if ctrl:
                         if wid in self.selected_thumbs:
@@ -789,22 +784,18 @@ class Grid(UScrollArea):
                 self.select_multiple_thumb(self.wid_under_mouse)
             # шифт клик: если уже был выделен один / несколько виджетов
             else:
-
                 coords = list(self.cell_to_wid)
                 start_pos = (self.selected_thumbs[-1].row, self.selected_thumbs[-1].col)
-
                 # шифт клик: слева направо (по возрастанию)
                 if coords.index((self.wid_under_mouse.row, self.wid_under_mouse.col)) > coords.index(start_pos):
                     start = coords.index(start_pos)
                     end = coords.index((self.wid_under_mouse.row, self.wid_under_mouse.col))
                     coords = coords[start : end + 1]
-
                 # шифт клик: справа налево (по убыванию)
                 else:
                     start = coords.index((self.wid_under_mouse.row, self.wid_under_mouse.col))
                     end = coords.index(start_pos)
                     coords = coords[start : end]
-
                 # выделяем виджеты по срезу координат coords
                 for i in coords:
                     wid_ = self.cell_to_wid.get(i)
@@ -812,17 +803,14 @@ class Grid(UScrollArea):
                         self.select_multiple_thumb(wid=wid_)
 
         elif a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
-
             # комманд клик: был выделен виджет, снять выделение
             if self.wid_under_mouse in self.selected_thumbs:
                 self.selected_thumbs.remove(self.wid_under_mouse)
                 self.wid_under_mouse.set_no_frame()
-
             # комманд клик: виджет не был виделен, выделить
             else:
                 self.select_multiple_thumb(self.wid_under_mouse)
                 self.path_bar_update_delayed(self.wid_under_mouse.src)
-
         else:
             self.select_single_thumb(self.wid_under_mouse)
 
@@ -964,7 +952,7 @@ class Grid(UScrollArea):
         remove_files.triggered.connect(lambda: self.remove_files_start(urls))
         menu_.addAction(remove_files)
 
-    def gridContexActions(self, menu_: UMenu):
+    def context_grid(self, menu_: UMenu):
         self.path_bar_update_delayed(self.main_win_item.main_dir)
 
         names = [os.path.basename(self.main_win_item.main_dir)]
@@ -1087,7 +1075,6 @@ class Grid(UScrollArea):
 
         elif a0.key() in KEY_NAVI:
             offset = KEY_NAVI.get(a0.key())
-
             # если не выделено ни одного виджета
             if not self.selected_thumbs:
                 self.wid_under_mouse = self.cell_to_wid.get((0, 0))
@@ -1096,18 +1083,14 @@ class Grid(UScrollArea):
                     return
             else:
                 self.wid_under_mouse = self.selected_thumbs[-1]
-
             # если нет даже первого виджета значит сетка пуста
             if not self.wid_under_mouse:
                 return
-
             coords = (
                 self.wid_under_mouse.row + offset[0], 
                 self.wid_under_mouse.col + offset[1]
             )
-
             next_wid = self.cell_to_wid.get(coords)
-
             if next_wid is None:
                 if a0.key() == Qt.Key.Key_Right:
                     coords = (
@@ -1120,26 +1103,22 @@ class Grid(UScrollArea):
                         self.col_count - 1
                     )
                 next_wid = self.cell_to_wid.get(coords)
-
             if next_wid:
                 self.select_single_thumb(next_wid)
                 self.ensureWidgetVisible(next_wid)
                 self.wid_under_mouse = next_wid
-
         elif a0.key() in KEY_RATING:
             rating = KEY_RATING.get(a0.key())
             self.new_rating_multiple_start(rating)
-        
         return super().keyPressEvent(a0)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         menu_ = UMenu(parent=self)
         self.wid_under_mouse = self.get_wid_under_mouse(a0)
-
         # клик по пустому пространству
         if not self.wid_under_mouse:
             self.clear_selected_widgets()
-            self.gridContexActions(menu_)
+            self.context_grid(menu_)
 
         # клик по виджету
         else:
@@ -1156,7 +1135,7 @@ class Grid(UScrollArea):
             if isinstance(self.wid_under_mouse, (BaseItem, Thumb)):
                 self.thumbContextActions(menu_, self.wid_under_mouse)
             else:
-                self.gridContexActions(menu_)
+                self.context_grid(menu_)
 
         menu_.show_under_cursor()
     
