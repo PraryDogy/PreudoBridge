@@ -891,3 +891,47 @@ class PathFinderTask(URunnable):
             result = ""
         
         self.signals_.finished_.emit(result)
+
+
+class NewItemsSigs(QObject):
+    new_wid = pyqtSignal(object)
+
+class NewItems(URunnable):
+    def __init__(self, main_win_item: MainWinItem, urls: list[str]):
+        super().__init__()
+        self.urls = urls
+        self.main_win_item = main_win_item
+        self.signals = NewItemsSigs()
+
+    def task(self):
+        dbase = Dbase()
+        engine = dbase.create_engine(self.main_win_item.main_dir)
+        conn = Dbase.open_connection(engine)
+        if not conn:
+            return
+        for i in self.urls:
+            base_item = BaseItem(i)
+            base_item.setup_attrs()
+            if base_item.filename.endswith(Static.ext_all):
+                image_base_item = ImageBaseItem(conn, base_item)
+                stmt, pixmap = image_base_item.get_stmt_pixmap()
+                if pixmap:
+                    base_item.set_pixmap_storage(pixmap)
+            else:
+                any_base_item = AnyBaseItem(conn, base_item)
+                stmt = any_base_item.get_stmt()
+
+            if stmt:
+                try:
+                    conn.execute(stmt)
+                    self.signals.new_wid.emit(base_item)
+                except Exception:
+                    conn.rollback()
+                    continue
+        try:
+            conn.commit()
+        except Exception:
+            conn.rollback()
+            ...
+        conn.close()
+        return super().task()

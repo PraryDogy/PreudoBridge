@@ -246,6 +246,8 @@ class Thumb(BaseItem, QFrame):
 
 class Grid(UScrollArea):
     spacing_value = 5
+    new_files_key = "new_files"
+    del_files_key = "del files"
 
     def __init__(self, main_win_item: MainWinItem):
         super().__init__()
@@ -288,7 +290,8 @@ class Grid(UScrollArea):
         try:
             return os.stat(url).st_mtime
         except Exception:
-            Utils.print_error()
+            # Utils.print_error()
+            print("file not found", url)
             return None
 
     def check_dir_mod(self):
@@ -299,19 +302,22 @@ class Grid(UScrollArea):
         """
         self.st_mtime_timer.stop()
         new_st_mtime = self.get_st_mtime(self.main_win_item.main_dir)
+
+        # print(self.st_mtime, new_st_mtime)
+
         if new_st_mtime:
-            if int(new_st_mtime) != int(self.st_mtime):
+            if new_st_mtime != self.st_mtime:
                 self.st_mtime = new_st_mtime
                 self.update_mod_thumbs()
+                self.compare_len_files()
             self.st_mtime_timer.start(2000)
-        else:
-            print("st mtime is None")
 
     def update_mod_thumbs(self) -> list[Thumb]:
         """
         Обходит все Thumb и обновляет те, у которых изменилось
         время модификации. Возвращает список изменённых Thumb.
         """
+        # print("update thumbs")
         thumbs: list[Thumb] = []
         for thumb in self.url_to_wid.values():
             new_mod = self.get_st_mtime(thumb.src)
@@ -319,8 +325,25 @@ class Grid(UScrollArea):
                 thumb.setup_attrs()
                 thumb.rating_wid.set_text(thumb.rating, thumb.type_, thumb.mod, thumb.size)
                 thumbs.append(thumb)
-        print(thumbs)
         return thumbs
+    
+    def compare_len_files(self):
+        # print("compare lens")
+        finder = []
+        for i in os.scandir(self.main_win_item.main_dir):
+            if not JsonData.show_hidden:
+                if i.name.startswith(Static.hidden_file_syms):
+                    continue
+            finder.append(i.path)
+
+        if len(finder) != len(self.url_to_wid):
+            new_files = [i for i in finder if i not in self.url_to_wid]
+            del_files = [i for i in self.url_to_wid if i not in finder]
+            return {
+                self.new_files_key: new_files,
+                self.del_files_key: del_files
+            }
+        return None
 
     def get_thumbs_by_urls(self, urls: list[str]) -> list[Thumb]:
         """
