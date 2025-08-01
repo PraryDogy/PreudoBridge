@@ -478,7 +478,7 @@ class SearchTask(URunnable):
 
 
 class _FinderSigs(QObject):
-    finished_ = pyqtSignal(tuple)
+    finished_ = pyqtSignal(list)
 
 
 class FinderItems(URunnable):
@@ -492,7 +492,6 @@ class FinderItems(URunnable):
         self.main_win_item = main_win_item
 
         self.finder_base_items: dict[str, BaseItem] = {}
-        self.new_base_items: dict[str, BaseItem] = {}
         self.db_items: dict[str, int] = {}
         self.conn = self.create_connection()
 
@@ -507,23 +506,16 @@ class FinderItems(URunnable):
         try:
             if self.conn:
                 self.db_items = self.get_db_items()
-                self.new_base_items = self.get_new_base_items()
                 self.delete_removed_items()
                 self.set_base_item_rating()
         except self.sql_errors:
             Utils.print_error()
 
         finder_base_items = list(self.finder_base_items.values())
-        new_base_items = list(self.new_base_items.values())
-
         finder_base_items = BaseItem.sort_(finder_base_items, self.sort_item)
-        new_base_items = BaseItem.sort_(new_base_items, self.sort_item)
-
-        # print("finder", finder_base_items)
-        # print("new", new_base_items)
 
         try:
-            self.signals_.finished_.emit((finder_base_items, new_base_items))
+            self.signals_.finished_.emit(finder_base_items)
         except RuntimeError as e:
             Utils.print_error()
 
@@ -553,17 +545,6 @@ class FinderItems(URunnable):
             return None
         else:
             return Dbase.open_connection(engine)
-
-    def get_new_base_items(self) -> dict[str, BaseItem]:
-        """
-        Сравнивает хеш имена в базе данных и в Finder.
-        Возвращает словарь: хеш имени файла: BaseItem, которых нет в базе данных
-        """
-        return {
-            hash_filename: base_item
-            for hash_filename, base_item in self.finder_base_items.items()
-            if hash_filename not in self.db_items
-        }
 
     def get_finder_base_items(self) -> dict[str, BaseItem]:
         """

@@ -132,7 +132,7 @@ class GridStandart(Grid):
         - список новых BaseItem, которых не было в базе данных
         """
         finder_thread = FinderItems(self.main_win_item, self.sort_item)
-        finder_thread.signals_.finished_.connect(self.finalize_finder_items)
+        finder_thread.signals_.finished_.connect(lambda base_items: self.finalize_finder_items(base_items))
         UThreadPool.start(finder_thread)
 
     def finalize_finder_items(self, base_items: tuple[list[BaseItem]]):
