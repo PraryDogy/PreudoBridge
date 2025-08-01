@@ -22,9 +22,6 @@ class GridStandart(Grid):
         """
         super().__init__(main_win_item)
 
-        # список url для предотвращения повторной загрузки изображений
-        self.loaded_images: list[str] = []
-
         # при скроллинге запускается данный таймер и сбрасывается предыдуший
         # только при остановке скроллинга спустя время запускается
         # функция загрузки изображений
@@ -47,10 +44,10 @@ class GridStandart(Grid):
         Запускает загрузку изображений через URunnable
         """
         thumbs: list[Thumb] = []
-        for widget in self.main_wid.findChildren(Thumb):
-            if not widget.visibleRegion().isEmpty():
-                if widget.src not in self.loaded_images:
-                    thumbs.append(widget)
+        for thumb in self.url_to_wid.values():
+            if not thumb.visibleRegion().isEmpty():
+                if thumb not in self.already_loaded_thumbs:
+                    thumbs.append(thumb)
         if thumbs:
             for i in self.load_images_tasks:
                 i.set_should_run(False)
@@ -198,13 +195,3 @@ class GridStandart(Grid):
     def resizeEvent(self, a0):
         self.loading_lbl.center(self)
         return super().resizeEvent(a0)
-
-    def deleteLater(self):
-        for i in self.load_images_tasks:
-            i.set_should_run(False)
-        return super().deleteLater()
-    
-    def closeEvent(self, a0):
-        for i in self.load_images_tasks:
-            i.set_should_run(False)
-        return super().closeEvent(a0)

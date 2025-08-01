@@ -280,6 +280,7 @@ class Grid(UScrollArea):
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.sorted_widgets: list[Thumb] = []
         self.load_images_tasks: list[LoadImages] = []
+        self.already_loaded_thumbs: list[Thumb] = []
 
         self.main_wid = QWidget()
         self.setWidget(self.main_wid)
@@ -385,7 +386,7 @@ class Grid(UScrollArea):
         if pixmap:
             try:
                 thumb.set_image(pixmap)
-                self.loaded_images.append(thumb.src)
+                self.already_loaded_thumbs.append(thumb)
             except RuntimeError as e:
                 Utils.print_error()
 
@@ -1287,3 +1288,13 @@ class Grid(UScrollArea):
             self.paste_files()
 
         return super().dropEvent(a0)
+
+    def deleteLater(self):
+        for i in self.load_images_tasks:
+            i.set_should_run(False)
+        return super().deleteLater()
+    
+    def closeEvent(self, a0):
+        for i in self.load_images_tasks:
+            i.set_should_run(False)
+        return super().closeEvent(a0)
