@@ -105,7 +105,7 @@ class BaseItem:
         """
         super().__init__()
         self.src: str = src
-        self.name: str = None
+        self.filename: str = None
         self.type_: str = None
         self.rating: int = rating
         self.mod: int = None
@@ -130,7 +130,7 @@ class BaseItem:
         Устанавливает параметры: src, name, type, mod, birth, size, rating
         """
         self.src = EvloshUtils.normalize_slash(self.src)
-        self.name = os.path.basename(self.src)
+        self.filename = os.path.basename(self.src)
 
         if os.path.isdir(self.src):
             self.type_ = Static.FOLDER_TYPE
@@ -191,7 +191,7 @@ class BaseItem:
 
             for i in base_items:
 
-                if i.name[0].isdigit():
+                if i.filename[0].isdigit():
                     nums.append(i)
 
                 else:
@@ -221,7 +221,7 @@ class BaseItem:
         Извлекает начальные числа из имени base_item для числовой сортировки.
         Например: "123 Te99st33" → 123
         """
-        return int(re.match(r'^\d+', base_item.name).group())
+        return int(re.match(r'^\d+', base_item.filename).group())
     
 
 class SearchItem:
@@ -330,13 +330,13 @@ class AnyBaseItem:
 
     def _check_db_record(self):
         stmt = select(CACHE.c.id)
-        stmt = stmt.where(CACHE.c.name == Utils.get_hash_filename(self.base_item.name))
+        stmt = stmt.where(CACHE.c.name == Utils.get_hash_filename(self.base_item.filename))
         if Dbase.execute_(self.conn, stmt).first():
             return True
         return None
 
     def _get_insert_stmt(self) -> Insert | None:
-        hash_filename = Utils.get_hash_filename(self.base_item.name)
+        hash_filename = Utils.get_hash_filename(self.base_item.filename)
         values = {
             ColumnNames.NAME: hash_filename,
             ColumnNames.TYPE: self.base_item.type_,
@@ -389,7 +389,7 @@ class ImageBaseItem:
         )
 
         stmt = stmt.where(
-            CACHE.c.name == Utils.get_hash_filename(self.base_item.name)
+            CACHE.c.name == Utils.get_hash_filename(self.base_item.filename)
         )
         row = Dbase.execute_(self.conn, stmt).mappings().first()
 
@@ -403,7 +403,7 @@ class ImageBaseItem:
 
     def _get_update_stmt(self, row: RowMapping, img_array: np.ndarray) -> Update | None:
         new_bytes_img = ImageUtils.numpy_to_bytes(img_array)
-        hash_filename = Utils.get_hash_filename(self.base_item.name)
+        hash_filename = Utils.get_hash_filename(self.base_item.filename)
         stats = self._get_stats()
         if new_bytes_img and stats:
             values = {
@@ -420,7 +420,7 @@ class ImageBaseItem:
 
     def _get_insert_stmt(self, img_array: np.ndarray) -> Update | None:
         new_bytes_img = ImageUtils.numpy_to_bytes(img_array)
-        hash_filename = Utils.get_hash_filename(self.base_item.name)
+        hash_filename = Utils.get_hash_filename(self.base_item.filename)
         stats = self._get_stats()
         if new_bytes_img and stats:
             values = {

@@ -148,7 +148,7 @@ class GridStandart(Grid):
             thumb.setup_attrs()
             thumb.setup_child_widgets()
             thumb.set_no_frame()
-            thumb.set_svg_icon()
+            thumb.set_svg()
 
             self.add_widget_data(thumb, self.row, self.col)
             self.grid_layout.addWidget(thumb, self.row, self.col)

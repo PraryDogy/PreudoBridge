@@ -123,12 +123,12 @@ class Thumb(BaseItem, QFrame):
     # Сигнал нужен, чтобы менялся заголовок в просмотрщике изображений
     # При изменении рейтинга или меток
     text_changed = pyqtSignal()
-    pixmap_size = 0
-    thumb_w = 0
-    thumb_h = 0
-    corner = 0
-    img_obj_name = "img_frame"
-    text_obj_name = "text_frame_"
+    pixmap_size: int = 0
+    thumb_w: int = 0
+    thumb_h: int = 0
+    corner: int = 0
+    img_obj_name: str = "img_frame"
+    text_obj_name: str = "text_frame_"
 
     def __init__(self, src: str, rating: int = 0):
         """
@@ -178,29 +178,20 @@ class Thumb(BaseItem, QFrame):
         cls.thumb_h = ThumbData.THUMB_H[ind]
         cls.corner = ThumbData.CORNER[ind]
 
-    def set_svg_icon(self):
+    def set_svg(self):
         if self.src.count(os.sep) == 2:
             path = Static.HDD_SVG
         else:
             path = Utils.get_generic_icon_path(self.type_, Static.GENERIC_ICONS_DIR)
-
         self.img_wid.load(path)
         self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
 
-    def set_image(self, pixmap: QPixmap):
-        old_wid = self.img_wid
-
+    def set_pixmap(self, pixmap: QPixmap):
+        self.img_wid.deleteLater()
         self.img_wid = QLabel()
-        self.img_wid.setPixmap(
-            ImageUtils.pixmap_scale(pixmap, Thumb.pixmap_size)
-        )
-        self.img_frame_lay.addWidget(
-            self.img_wid,
-            alignment=Qt.AlignmentFlag.AlignCenter
-        )
-
-        old_wid.setParent(None)
-        old_wid.deleteLater()
+        scaled_pixmap = ImageUtils.pixmap_scale(pixmap, Thumb.pixmap_size)
+        self.img_wid.setPixmap(scaled_pixmap)
+        self.img_frame_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
     def setup_child_widgets(self):
         """
@@ -208,7 +199,7 @@ class Thumb(BaseItem, QFrame):
         Устанавливает текст в дочерних виджетах в соответствии с размерами  
         Устанавливает изображение в дочерних виджетах в соответствии в размерами
         """
-        self.text_wid.set_text(self.name)
+        self.text_wid.set_text(self.filename)
         self.rating_wid.set_text(self)
 
         self.setFixedSize(Thumb.thumb_w, Thumb.thumb_h)
@@ -364,7 +355,7 @@ class Grid(UScrollArea):
         pixmap = thumb.get_pixmap_storage()
         if pixmap:
             try:
-                thumb.set_image(pixmap)
+                thumb.set_pixmap(pixmap)
                 self.already_loaded_thumbs.append(thumb)
             except RuntimeError as e:
                 Utils.print_error()
@@ -712,7 +703,7 @@ class Grid(UScrollArea):
         wid = self.url_to_wid.get(url)
         if not wid:
             return
-        self.task_ = RatingTask(self.main_win_item.main_dir, wid.name, rating)
+        self.task_ = RatingTask(self.main_win_item.main_dir, wid.filename, rating)
         cmd_ = lambda: self.set_new_rating_fin(wid, rating)
         self.task_.signals_.finished_.connect(cmd_)
         UThreadPool.start(self.task_)
@@ -725,7 +716,7 @@ class Grid(UScrollArea):
         """
 
         for wid in self.selected_thumbs:
-            self.task_ = RatingTask(self.main_win_item.main_dir, wid.name, rating)
+            self.task_ = RatingTask(self.main_win_item.main_dir, wid.filename, rating)
             cmd_ = lambda w=wid: self.set_new_rating_fin(w, rating)
             self.task_.signals_.finished_.connect(cmd_)
             UThreadPool.start(self.task_)
@@ -946,7 +937,7 @@ class Grid(UScrollArea):
     def thumbContextActions(self, menu_: UMenu, wid: Thumb):
         # собираем пути к файлам / папкам у выделенных виджетов
         urls = [i.src for i in self.selected_thumbs]
-        names = [i.name for i in self.selected_thumbs]
+        names = [i.filename for i in self.selected_thumbs]
         total = len(self.selected_thumbs)
 
         self.path_bar_update_cmd(wid.src)

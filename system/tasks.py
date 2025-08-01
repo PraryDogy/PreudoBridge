@@ -557,7 +557,7 @@ class FinderItems(URunnable):
                 continue
             item = BaseItem(entry.path)
             item.setup_attrs()
-            hash_filename = Utils.get_hash_filename(item.name)
+            hash_filename = Utils.get_hash_filename(item.filename)
             base_items[hash_filename] = item
         return base_items
     
@@ -817,7 +817,7 @@ class InfoTask(URunnable):
             size_ = EvloshUtils.get_f_size(self.base_item.size)
             type_ = self.base_item.type_
         
-        name = self.lined_text(self.base_item.name)
+        name = self.lined_text(self.base_item.filename)
         src = self.lined_text(self.base_item.src)
         mod = EvloshUtils.get_f_date(self.base_item.mod)
 

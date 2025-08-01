@@ -116,11 +116,11 @@ class GridSearch(Grid):
         if icon_path not in Dynamic.generic_icon_paths:
             Utils.create_generic_icon(base_item.type_, icon_path, Static.FILE_SVG)
 
-        self.thumb.set_svg_icon()
+        self.thumb.set_svg()
         
         if base_item.get_pixmap_storage():
             self.thumb.set_pixmap_storage(base_item.get_pixmap_storage())
-            self.thumb.set_image(base_item.get_pixmap_storage())
+            self.thumb.set_pixmap(base_item.get_pixmap_storage())
 
         self.add_widget_data(self.thumb, self.row, self.col)
         self.grid_layout.addWidget(self.thumb, self.row, self.col)
