@@ -326,28 +326,33 @@ class Grid(UScrollArea):
             return None
 
     def set_st_mtime(self):
+        """
+        С периодичностью сравнивает изначальное время изменения директории
+        с текущей. Если не совпадают, то ищет Thumbs, которые были изменены
+        в get_changed_urls > список url к Thumbs
+        """
         self.st_mtime_timer.stop()
         new_st_mtime = self.get_st_mtime(self.main_win_item.main_dir)
         if new_st_mtime:
             if int(new_st_mtime) != int(self.st_mtime):
                 self.st_mtime = new_st_mtime
-                self.get_changed_urls()
+                self.get_changed_thumbs()
             self.st_mtime_timer.start(2000)
         else:
             print("st mtime is None")
 
-    def get_changed_urls(self) -> list[str]:
+    def get_changed_thumbs(self) -> list[str]:
         """
-        Возврвщает список url к виджетам, которые были изменены
+        Возвращает список Thumb, которые были изменены.
         """
-        urls: list[str] = []
+        thumbs: list[str] = []
         for url, wid in self.url_to_wid.items():
             new_st_mtime = self.get_st_mtime(url)
             if new_st_mtime and wid.mod != new_st_mtime:
                 wid.setup_attrs()
                 wid.rating_wid.set_text(wid)
-                urls.append(wid.src)
-        return urls
+                thumbs.append(wid)
+        return thumbs
 
     def create_thumb_list(self, urls: list[str]) -> list[Thumb]:
         """

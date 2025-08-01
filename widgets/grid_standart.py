@@ -34,10 +34,13 @@ class GridStandart(Grid):
         self.load_images_timer.timeout.connect(self.load_visible_images)
         self.verticalScrollBar().valueChanged.connect(self.on_scroll_changed)
 
-
         # виджет поверх остальных с текстом "загрузка"
         self.loading_lbl = LoadingWid(self)
         self.loading_lbl.center(self)
+    
+    def get_changed_thumbs(self):
+        thumbs = super().get_changed_thumbs()
+        self.run_load_images_thread(thumbs)
             
     def load_visible_images(self):
         """
