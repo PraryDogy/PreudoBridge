@@ -341,17 +341,17 @@ class Grid(UScrollArea):
         else:
             print("st mtime is None")
 
-    def get_changed_thumbs(self) -> list[str]:
+    def get_changed_thumbs(self) -> list[Thumb]:
         """
         Возвращает список Thumb, которые были изменены.
         """
-        thumbs: list[str] = []
-        for url, wid in self.url_to_wid.items():
-            new_st_mtime = self.get_st_mtime(url)
-            if new_st_mtime and wid.mod != new_st_mtime:
-                wid.setup_attrs()
-                wid.rating_wid.set_text(wid)
-                thumbs.append(wid)
+        thumbs: list[Thumb] = []
+        for thumb in self.url_to_wid.values():
+            new_mod = self.get_st_mtime(thumb.src)
+            if new_mod and thumb.mod != new_mod:
+                thumb.setup_attrs()
+                thumb.rating_wid.set_text(thumb)
+                thumbs.append(thumb)
         return thumbs
 
     def create_thumb_list(self, urls: list[str]) -> list[Thumb]:
