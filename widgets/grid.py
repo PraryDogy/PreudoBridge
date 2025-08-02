@@ -653,11 +653,11 @@ class Grid(UScrollArea):
         Очищает список выделенных вижетов.  
         Запускает перетасовку сетки.    
         """
-        for i in urls:
-            wid: Thumb = self.url_to_wid.get(dir)
+        for url in urls:
+            wid: Thumb = self.url_to_wid.get(url)
             if wid:
                 self.cell_to_wid.pop((wid.row, wid.col))
-                self.url_to_wid.pop(dir)
+                self.url_to_wid.pop(url)
                 wid.deleteLater()
 
         for i in self.selected_thumbs:
