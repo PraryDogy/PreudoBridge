@@ -415,7 +415,7 @@ class Grid(UScrollArea):
         Сортирует виджеты по аттрибуту BaseItem / Thumb
         """
         thumb_list = list(self.url_to_wid.values())
-        thumb_list = BaseItem.sort_(thumb_list, self.sort_item)
+        thumb_list = BaseItem.sort_items(thumb_list, self.sort_item)
         wid_to_url = {v: k for k, v in self.url_to_wid.items()}
         self.url_to_wid = {
             wid_to_url[thumb]: thumb

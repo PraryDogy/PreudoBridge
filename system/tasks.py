@@ -511,7 +511,7 @@ class FinderItems(URunnable):
             Utils.print_error()
 
         finder_base_items = list(self.finder_base_items.values())
-        finder_base_items = BaseItem.sort_(finder_base_items, self.sort_item)
+        finder_base_items = BaseItem.sort_items(finder_base_items, self.sort_item)
 
         try:
             self.signals_.finished_.emit(finder_base_items)

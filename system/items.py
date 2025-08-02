@@ -114,7 +114,7 @@ class BaseItem:
             raise AttributeError(f"\n\nВ Thumb отсутствуют атрибуты сортировки: {missing}\n\n")
 
     @classmethod
-    def sort_(cls, base_items: list["BaseItem"], sort_item: SortItem) -> list["BaseItem"]:
+    def sort_items(cls, base_items: list["BaseItem"], sort_item: SortItem) -> list["BaseItem"]:
 
         def get_nums(filename: str):
             """
@@ -123,9 +123,7 @@ class BaseItem:
             """
             return int(re.match(r'^\d+', filename).group())
         
-        attr = sort_item.get_sort_type()
-        rev = sort_item.get_reversed()
-        if attr == sort_item.filename:
+        if sort_item.get_sort_type() == sort_item.filename:
             num_base_items: list[BaseItem] = []
             abc_base_items: list[BaseItem] = []
             for i in base_items:
@@ -134,13 +132,13 @@ class BaseItem:
                 else:
                     abc_base_items.append(i)
             key_num = lambda base_item: get_nums(base_item.filename)
-            key_abc = lambda base_item: getattr(base_item, attr)
-            num_base_items.sort(key=key_num, reverse=rev)
-            abc_base_items.sort(key=key_abc, reverse=rev)
+            key_abc = lambda base_item: getattr(base_item, sort_item.get_sort_type())
+            num_base_items.sort(key=key_num, reverse=sort_item.get_reversed())
+            abc_base_items.sort(key=key_abc, reverse=sort_item.get_reversed())
             return [*num_base_items, *abc_base_items]
         else:
-            key = lambda base_item: getattr(base_item, attr)
-            base_items.sort(key=key, reverse=rev)
+            key = lambda base_item: getattr(base_item, sort_item.get_sort_type())
+            base_items.sort(key=key, reverse=sort_item.get_reversed())
             return base_items
 
 
