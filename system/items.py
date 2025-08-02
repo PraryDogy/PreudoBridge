@@ -67,18 +67,6 @@ class BaseItem:
         self._pixmap_storage: QPixmap = None
         self.update_properties()
 
-    def set_pixmap_storage(self, pixmap: QPixmap):
-        """
-        Сохраняет QPixmap, переданный, например, из дополнительного потока в основной.
-        """
-        self._pixmap_storage = pixmap
-
-    def get_pixmap_storage(self):
-        """
-        Возвращает ранее сохранённый QPixmap.
-        """
-        return self._pixmap_storage
-
     def update_properties(self):
         """
         Обновляет данные объекта:
@@ -104,6 +92,18 @@ class BaseItem:
             self.size = 0
         # Поправка старой системы рейтинга, когда рейтинг был двузначным
         self.rating = self.rating % 10
+
+    def set_pixmap_storage(self, pixmap: QPixmap):
+        """
+        Сохраняет QPixmap, переданный, например, из дополнительного потока в основной.
+        """
+        self._pixmap_storage = pixmap
+
+    def get_pixmap_storage(self):
+        """
+        Возвращает ранее сохранённый QPixmap.
+        """
+        return self._pixmap_storage
 
     @staticmethod
     def check_sortitem_attrs():
