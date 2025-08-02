@@ -18,9 +18,9 @@ class ColumnNames:
     SIZE = "size"
     MOD = "mod"
     RATING = "rating"
-    RESOL = "resol"
-    CATALOG = "catalog"
-    PARTIAL_HASH = "partial_hash"
+    RESOL = "resol" # не используется
+    CATALOG = "catalog" # не используется
+    PARTIAL_HASH = "partial_hash" # не используется
 
 
 CACHE = sqlalchemy.Table(
