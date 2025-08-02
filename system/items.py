@@ -17,32 +17,6 @@ from .utils import ImageUtils, Utils
 
 
 class SortItem:
-    """
-    Класс, содержащий перечень доступных атрибутов для сортировки элементов.
-
-    Правила добавления/удаления атрибута:
-
-    - Каждый атрибут задаётся как строковая константа (например, name = "name"),
-      чтобы избежать ручного ввода строк по всему коду. Вместо строки "name" 
-      можно использовать Sort.name — это безопаснее и удобнее при поддержке проекта.
-
-    - Словарь `items` содержит список доступных сортировок:
-        • ключ — техническое имя поля, берётся из атрибутов класса Sort (например, Sort.name);
-        • значение — человекочитаемое название, отображаемое в интерфейсе (например, "Имя").
-
-    - При добавлении или удалении атрибута:
-        • добавьте/удалите соответствующую строковую константу в классе Sort;
-        • добавьте/удалите соответствующую запись в словаре `items`;
-        • обязательно добавьте/удалите соответствующий атрибут в классе BaseItem.
-
-    Пример добавления нового поля сортировки:
-    - Нужно добавить сортировку по дате последнего открытия.
-        • Добавьте в Sort: `last_open = "last_open"`
-        • Добавьте в items: `last_open: "Дата последнего открытия"`
-        • Добавьте в BaseItem: `self.last_open = None`
-        • Реализуйте логику заполнения поля, например, через os.stat
-    """
-
     filename = "filename"
     type_ = "type_"
     size = "size"
@@ -60,30 +34,24 @@ class SortItem:
     }
 
     def __init__(self):
-        """
-        Объект для сортировки. По умолчанию: sort "name", rev False
-        """
         super().__init__()
-        self.sort: str = SortItem.filename
-        self.rev: bool = False
+        self._sort_type: str = self.filename
+        self._reversed: bool = False
 
-    def set_rev(self, value: bool):
-        if isinstance(value, bool):
-            self.rev = value
-        else:
-            raise Exception("только bool")
-        
-    def get_rev(self):
-        return self.rev
+    def get_attrs(self):
+        return list(self.lang_dict.keys())
 
-    def set_sort(self, value: str):
-        if isinstance(value, str):
-            self.sort = value
-        else:
-            raise Exception("только str")
+    def set_reversed(self, value: bool):
+        self._reversed = value
         
-    def get_sort(self):
-        return self.sort
+    def get_reversed(self):
+        return self._reversed
+
+    def set_sort_type(self, value: str):
+        self._sort_type = value
+        
+    def get_sort_type(self):
+        return self._sort_type
 
 
 class BaseItem:
@@ -177,8 +145,8 @@ class BaseItem:
         - Таким образом, сортировка осуществляется по значению атрибута "size" у объектов BaseItem.
         """
         
-        attr = sort_item.sort
-        rev = sort_item.rev
+        attr = sort_item._sort_type
+        rev = sort_item._reversed
 
         if attr == SortItem.filename:
 

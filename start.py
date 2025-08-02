@@ -50,14 +50,15 @@ else:
 
 import faulthandler
 
-from PyQt5.QtCore import QEvent, QObject, QTimer
+from PyQt5.QtCore import QEvent, QObject
 from PyQt5.QtWidgets import QApplication
 
 from cfg import Dynamic, JsonData
-from system.utils import UThreadPool, Utils
-from widgets._base_widgets import WinBase
-from widgets.main_win import MainWin
 from evlosh_templates.evlosh_utils import EvloshUtils
+from system.utils import UThreadPool
+from widgets._base_widgets import WinBase
+from widgets.grid import Thumb
+from widgets.main_win import MainWin
 
 
 class CustomApp(QApplication):
@@ -67,6 +68,7 @@ class CustomApp(QApplication):
         JsonData.init()
         UThreadPool.init()
         Dynamic.image_apps = EvloshUtils.get_apps(JsonData.app_names)
+        Thumb.check_sortitem_attrs()
 
         self.main_win = MainWin()
         self.main_win.show()

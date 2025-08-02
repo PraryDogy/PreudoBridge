@@ -166,6 +166,14 @@ class Thumb(BaseItem, QFrame):
 
         # self.setStyleSheet("background: gray;")
 
+    @staticmethod
+    def check_sortitem_attrs():
+        sort_attrs = SortItem().get_attrs()
+        thumb = Thumb("__dummy__")
+        missing = [attr for attr in sort_attrs if not hasattr(thumb, attr)]
+        if missing:
+            raise AttributeError(f"В Thumb отсутствуют атрибуты сортировки: {missing}")
+    
     @classmethod
     def calculate_size(cls):
         ind = Dynamic.pixmap_size_ind

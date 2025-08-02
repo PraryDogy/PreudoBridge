@@ -506,21 +506,21 @@ class MainWin(WinBase):
             self.scroll_up.show()
 
     def fast_sort_clicked(self):
-        sort = self.sort_item.get_sort()
+        sort = self.sort_item.get_sort_type()
         if sort != SortItem.filename:
-            self.sort_item.set_sort(SortItem.filename)
-            self.sort_item.set_rev(False)
+            self.sort_item.set_sort_type(SortItem.filename)
+            self.sort_item.set_reversed(False)
         else:
-            self.sort_item.set_sort(SortItem.mod)
-            self.sort_item.set_rev(False)
+            self.sort_item.set_sort_type(SortItem.mod)
+            self.sort_item.set_reversed(False)
 
         parent = self.grid
         parent.sort_thumbs()
         parent.rearrange_thumbs()
 
-        sort_name = self.sort_item.get_sort()
+        sort_name = self.sort_item.get_sort_type()
         sort_name = SortItem.lang_dict.get(sort_name).lower()
-        rev_name = "по убыв." if self.sort_item.get_rev() else "по возр."
+        rev_name = "по убыв." if self.sort_item.get_reversed() else "по возр."
         text = f"Сортировка: {sort_name} ({rev_name})"
 
         self.fast_sort_wid.setText(text)

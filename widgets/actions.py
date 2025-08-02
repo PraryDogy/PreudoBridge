@@ -280,7 +280,7 @@ class SortMenu(UMenu):
             # если свойство rev совпадает с пользовательским свойством reversed
             # то отмечаем галочкой
             # JsonData - пользовательские данные из .json файла
-            if i.rev == self.sort_item.get_rev():
+            if i.rev == self.sort_item.get_reversed():
                 i.setChecked(True)
 
         self.addSeparator()
@@ -299,21 +299,21 @@ class SortMenu(UMenu):
             cmd_ = lambda e, true_name=true_name: self.cmd_sort(true_name)
             action_.triggered.connect(cmd_)
 
-            if self.sort_item.get_sort() == true_name:
+            if self.sort_item.get_sort_type() == true_name:
                 action_.setChecked(True)
 
             self.addAction(action_)
 
     def cmd_sort(self, true_name: str):
         # записываем true_name (тип сортировки) в пользовательский .json
-        self.sort_item.set_sort(true_name)
+        self.sort_item.set_sort_type(true_name)
         self.sort_grid_sig.emit()
         self.rearrange_grid_sig.emit()
         self.sort_menu_update.emit()
 
     def cmd_revers(self, reversed: bool):
         # записываем порядок сортировки в пользовательский .json
-        self.sort_item.set_rev(reversed)
+        self.sort_item.set_reversed(reversed)
         self.sort_grid_sig.emit()
         self.rearrange_grid_sig.emit()
         self.sort_menu_update.emit()
