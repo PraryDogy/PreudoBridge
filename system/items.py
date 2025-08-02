@@ -317,7 +317,7 @@ class ImageBaseItem:
             else:
                 return {self.already_flag: row}
         else:
-            return {self.insert_flag: None}
+            return {self.insert_flag: row}
 
     def _get_update_stmt(self, row: RowMapping, img_array: np.ndarray) -> Update | None:
         new_bytes_img = ImageUtils.numpy_to_bytes(img_array)
