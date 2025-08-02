@@ -111,7 +111,7 @@ class BaseItem:
         base_item = BaseItem("/Volumes")
         missing = [attr for attr in sort_attrs if not hasattr(base_item, attr)]
         if missing:
-            raise AttributeError(f"В Thumb отсутствуют атрибуты сортировки: {missing}")
+            raise AttributeError(f"\n\nВ Thumb отсутствуют атрибуты сортировки: {missing}\n\n")
 
     @classmethod
     def sort_(cls, base_items: list["BaseItem"], sort_item: SortItem) -> list["BaseItem"]:
