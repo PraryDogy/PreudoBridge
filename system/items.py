@@ -64,8 +64,8 @@ class BaseItem:
         self.mod: int = None
         self.birth: int = None
         self.size: int = None
-
         self._pixmap_storage: QPixmap = None
+        self.update_properties()
 
     def set_pixmap_storage(self, pixmap: QPixmap):
         """
@@ -79,7 +79,11 @@ class BaseItem:
         """
         return self._pixmap_storage
 
-    def setup_attrs(self):
+    def update_properties(self):
+        """
+        Обновляет данные объекта:
+        src, filename, type_, mod, birth, size, rating
+        """
         self.src = EvloshUtils.normalize_slash(self.src)
         self.filename = os.path.basename(self.src)
 
@@ -104,7 +108,7 @@ class BaseItem:
     @staticmethod
     def check_sortitem_attrs():
         sort_attrs = SortItem().get_attrs()
-        base_item = BaseItem("__dummy__")
+        base_item = BaseItem("/Volumes")
         missing = [attr for attr in sort_attrs if not hasattr(base_item, attr)]
         if missing:
             raise AttributeError(f"В Thumb отсутствуют атрибуты сортировки: {missing}")

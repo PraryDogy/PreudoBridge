@@ -107,8 +107,7 @@ class GridSearch(Grid):
 
     def add_new_widget(self, base_item: BaseItem):
         self.thumb = Thumb(base_item.src, base_item.rating)
-        self.thumb.setParent(self)
-        self.thumb.setup_attrs()
+        # self.thumb.setParent(self)
         self.thumb.setup_child_widgets()
         self.thumb.set_no_frame()
 

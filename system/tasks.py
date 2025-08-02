@@ -468,7 +468,6 @@ class SearchTask(URunnable):
         self.img_array = FitImage.start(self.img_array, ThumbData.DB_IMAGE_SIZE)
         self.pixmap = ImageUtils.pixmap_from_array(self.img_array)
         self.base_item = BaseItem(entry.path)
-        self.base_item.setup_attrs()
         self.base_item.set_pixmap_storage(self.pixmap)
         try:
             self.signals_.new_widget.emit(self.base_item)
@@ -556,7 +555,6 @@ class FinderItems(URunnable):
             if entry.name.startswith(self.hidden_syms):
                 continue
             item = BaseItem(entry.path)
-            item.setup_attrs()
             hash_filename = Utils.get_hash_filename(item.filename)
             base_items[hash_filename] = item
         return base_items
@@ -808,8 +806,6 @@ class InfoTask(URunnable):
         self.signals = _InfoTaskSigs()
 
     def task(self) -> dict[str, str| int]:
-        self.base_item.setup_attrs()
-
         if self.base_item.type_ == Static.FOLDER_TYPE:
             size_ = self.calculating
             type_ = self.ru_folder
@@ -911,7 +907,6 @@ class NewItems(URunnable):
             return
         for i in self.urls:
             base_item = BaseItem(i)
-            base_item.setup_attrs()
             if base_item.filename.endswith(Static.ext_all):
                 image_base_item = ImageBaseItem(conn, base_item)
                 stmt, pixmap = image_base_item.get_stmt_pixmap()

@@ -86,5 +86,8 @@ class CustomApp(QApplication):
         JsonData.write_config()
 
 
+print("Удалять БД если рейтинг двузначный")
+
+
 app = CustomApp(argv=sys.argv)
 app.exec()

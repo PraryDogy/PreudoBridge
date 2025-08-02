@@ -320,7 +320,7 @@ class Grid(UScrollArea):
         for thumb in self.url_to_wid.values():
             new_mod = self.get_st_mtime(thumb.src)
             if new_mod and thumb.mod != new_mod:
-                thumb.setup_attrs()
+                thumb.update_properties()
                 thumb.rating_wid.set_text(thumb.rating, thumb.type_, thumb.mod, thumb.size)
                 thumbs.append(thumb)
         return thumbs
