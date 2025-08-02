@@ -163,6 +163,9 @@ class Thumb(BaseItem, QFrame):
 
         self.rating_wid = RatingWidget()
         self.v_lay.addWidget(self.rating_wid, alignment=Qt.AlignmentFlag.AlignCenter)
+        
+        self.set_widget_size()
+        self.set_no_frame()
     
     @classmethod
     def calc_size(cls):
@@ -188,7 +191,7 @@ class Thumb(BaseItem, QFrame):
         self.img_wid.setPixmap(scaled_pixmap)
         self.img_frame_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
-    def setup_child_widgets(self):
+    def set_widget_size(self):
         """
         Устанавливает фиксированные размеры для дочерних виджетов Thumb     
         Устанавливает текст в дочерних виджетах в соответствии с размерами  
@@ -200,12 +203,6 @@ class Thumb(BaseItem, QFrame):
         self.setFixedSize(Thumb.thumb_w, Thumb.thumb_h)
         self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
         self.img_frame.setFixedSize(Thumb.img_frame_size, Thumb.img_frame_size)
-
-        pixmap = self.get_pixmap_storage()
-        if pixmap:
-            pixmap =  ImageUtils.pixmap_scale(pixmap, Thumb.pixmap_size)
-            self.img_wid.setPixmap(pixmap)
-            self.img_wid.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
     def set_frame(self):
         self.setStyleSheet(
@@ -450,7 +447,7 @@ class Grid(UScrollArea):
         """
         Thumb.calc_size()
         for wid in self.url_to_wid.values():
-            wid.setup_child_widgets()
+            wid.set_widget_size()
         for i in self.selected_thumbs:
             i.set_frame()
 

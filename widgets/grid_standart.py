@@ -52,10 +52,6 @@ class GridStandart(Grid):
     def add_new_thumb(self, base_item: BaseItem):
         thumb = Thumb(base_item.src)
         thumb.set_pixmap(thumb.get_pixmap_storage())
-        thumb.setup_child_widgets()
-        thumb.set_no_frame()
-        thumb.set_svg()
-
         self.add_widget_data(thumb, self.row, self.col)
         self.grid_layout.addWidget(thumb, self.row, self.col)
             
@@ -166,10 +162,7 @@ class GridStandart(Grid):
         self.col_count = self.get_col_count()
         for base_item in base_items:
             thumb = Thumb(base_item.src, base_item.rating)
-            thumb.setup_child_widgets()
-            thumb.set_no_frame()
             thumb.set_svg()
-
             self.add_widget_data(thumb, self.row, self.col)
             self.grid_layout.addWidget(thumb, self.row, self.col)
 
