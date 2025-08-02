@@ -128,63 +128,34 @@ class BaseItem:
 
     @classmethod
     def sort_(cls, base_items: list["BaseItem"], sort_item: SortItem) -> list["BaseItem"]:
-        """
-        Выполняет сортировку списка объектов BaseItem по заданному атрибуту.
 
-        Пример:
-        - Пользователь выбирает тип сортировки, например "По размеру", в меню SortMenu (actions.py).
-        - SortMenu формируется на основе словаря Sort.items (в этом файле, выше).
-        - Выбранный пункт "По размеру" соответствует ключу "size" в Sort.items.
-        - Ключ "size" — это имя атрибута в классе BaseItem.
-        - Таким образом, сортировка осуществляется по значению атрибута "size" у объектов BaseItem.
-        """
+        def get_nums(filename: str):
+            """
+            Извлекает начальные числа из имени base_item для числовой сортировки.
+            Например: "123 Te99st33" → 123
+            """
+            return int(re.match(r'^\d+', filename).group())
         
-        attr = sort_item._sort_type
-        rev = sort_item._reversed
-
-        if attr == SortItem.filename:
-
-            # Особый случай: сортировка по имени
-            # Разделяем элементы на две группы:
-            # - те, чьё имя начинается с цифры (nums)
-            # - все остальные (abc)
-            nums: list[BaseItem] = []
-            abc: list[BaseItem] = []
-
+        attr = sort_item.get_sort_type()
+        rev = sort_item.get_reversed()
+        if attr == sort_item.filename:
+            num_base_items: list[BaseItem] = []
+            abc_base_items: list[BaseItem] = []
             for i in base_items:
-
                 if i.filename[0].isdigit():
-                    nums.append(i)
-
+                    num_base_items.append(i)
                 else:
-                    abc.append(i)
-
-            # Сортировка числовых имён по значению начальных цифр
-            key_num = lambda base_item: cls.get_nums(base_item)
-
-            # Сортировка остальных по алфавиту (по атрибуту 'name')
+                    abc_base_items.append(i)
+            key_num = lambda base_item: get_nums(base_item.filename)
             key_abc = lambda base_item: getattr(base_item, attr)
-
-            nums.sort(key=key_num, reverse=rev)
-            abc.sort(key=key_abc, reverse=rev)
-
-            # Объединяем отсортированные списки: сначала числовые, потом буквенные
-            return [*nums, *abc]
-
+            num_base_items.sort(key=key_num, reverse=rev)
+            abc_base_items.sort(key=key_abc, reverse=rev)
+            return [*num_base_items, *abc_base_items]
         else:
-            # Обычная сортировка по значению заданного атрибута
             key = lambda base_item: getattr(base_item, attr)
             base_items.sort(key=key, reverse=rev)
             return base_items
 
-    @classmethod
-    def get_nums(cls, base_item: "BaseItem"):
-        """
-        Извлекает начальные числа из имени base_item для числовой сортировки.
-        Например: "123 Te99st33" → 123
-        """
-        return int(re.match(r'^\d+', base_item.filename).group())
-    
 
 class SearchItem:
     SEARCH_LIST_TEXT = "Найти по списку"
