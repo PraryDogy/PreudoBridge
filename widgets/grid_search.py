@@ -97,7 +97,7 @@ class GridSearch(Grid):
     def start_search(self):
         self.total_count_update.emit(0)
         self.path_bar_update.emit(self.main_win_item.main_dir)
-        Thumb.calculate_size()
+        Thumb.calc_size()
         self.is_grid_search = True
 
         self.search_task = SearchTask(self.main_win_item, self.search_item)

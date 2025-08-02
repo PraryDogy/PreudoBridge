@@ -116,7 +116,7 @@ class GridStandart(Grid):
         self.path_bar_update.emit(self.main_win_item.main_dir)
 
         # высчитываем размер Thumb
-        Thumb.calculate_size()
+        Thumb.calc_size()
 
         if not os.path.exists(self.main_win_item.main_dir):
             no_images = QLabel(GridStandart.not_exists_text)

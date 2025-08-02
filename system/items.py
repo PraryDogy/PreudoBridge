@@ -118,19 +118,13 @@ class BaseItem:
         # Поправка старой системы рейтинга, когда рейтинг был двузначным
         self.rating = self.rating % 10
 
-    @classmethod
-    def check(cls):
-        """
-        Проверяет, содержит ли экземпляр BaseItem все атрибуты, 
-        имена которых указаны в ключах словаря Sort.items.
-
-        Это необходимо для корректной сортировки, так как она выполняется 
-        по атрибутам, соответствующим ключам Sort.items.
-        """
-        base_item = BaseItem("/no/path/file.txt")
-        for column_name, _ in SortItem.lang_dict.items():
-            if not hasattr(base_item, column_name):
-                raise Exception (f"\n\nbase_widgets.py > BaseItem: не хватает аттрибута из Sort.items. Аттрибут: {column_name}\n\n")
+    @staticmethod
+    def check_sortitem_attrs():
+        sort_attrs = SortItem().get_attrs()
+        base_item = BaseItem("__dummy__")
+        missing = [attr for attr in sort_attrs if not hasattr(base_item, attr)]
+        if missing:
+            raise AttributeError(f"В Thumb отсутствуют атрибуты сортировки: {missing}")
 
     @classmethod
     def sort_(cls, base_items: list["BaseItem"], sort_item: SortItem) -> list["BaseItem"]:

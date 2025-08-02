@@ -163,19 +163,9 @@ class Thumb(BaseItem, QFrame):
 
         self.rating_wid = RatingWidget()
         self.v_lay.addWidget(self.rating_wid, alignment=Qt.AlignmentFlag.AlignCenter)
-
-        # self.setStyleSheet("background: gray;")
-
-    @staticmethod
-    def check_sortitem_attrs():
-        sort_attrs = SortItem().get_attrs()
-        thumb = Thumb("__dummy__")
-        missing = [attr for attr in sort_attrs if not hasattr(thumb, attr)]
-        if missing:
-            raise AttributeError(f"В Thumb отсутствуют атрибуты сортировки: {missing}")
     
     @classmethod
-    def calculate_size(cls):
+    def calc_size(cls):
         ind = Dynamic.pixmap_size_ind
         cls.pixmap_size = ThumbData.PIXMAP_SIZE[ind]
         cls.img_frame_size = Thumb.pixmap_size + ThumbData.OFFSET
@@ -458,7 +448,7 @@ class Grid(UScrollArea):
         к новым размерам.   
         Необходимо затем вызвать метод rearrange
         """
-        Thumb.calculate_size()
+        Thumb.calc_size()
         for wid in self.url_to_wid.values():
             wid.setup_child_widgets()
         for i in self.selected_thumbs:
