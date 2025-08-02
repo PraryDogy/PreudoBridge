@@ -38,22 +38,22 @@ class GridStandart(Grid):
         thumbs = super().update_mod_thumbs()
         self.start_load_images_task(thumbs)
 
-    def compare_len_files(self):
-        res = super().compare_len_files()
-        if not res:
-            return
-        if res.get(self.new_files_key):
-            self.new_items_task = NewItems(self.main_win_item, res.get(self.new_files_key))
-            self.new_items_task.signals.new_wid.connect(lambda base_item: self.add_new_thumb(base_item))
-            UThreadPool.start(self.new_items_task)
-        elif res.get(self.del_files_key):
-            ...
+    # def compare_len_files(self):
+    #     res = super().compare_len_files()
+    #     if not res:
+    #         return
+    #     if res.get(self.new_files_key):
+    #         self.new_items_task = NewItems(self.main_win_item, res.get(self.new_files_key))
+    #         self.new_items_task.signals.new_wid.connect(lambda base_item: self.add_new_thumb(base_item))
+    #         UThreadPool.start(self.new_items_task)
+    #     elif res.get(self.del_files_key):
+    #         ...
 
-    def add_new_thumb(self, base_item: BaseItem):
-        thumb = Thumb(base_item.src)
-        thumb.set_pixmap(thumb.get_pixmap_storage())
-        self.add_widget_data(thumb, self.row, self.col)
-        self.grid_layout.addWidget(thumb, self.row, self.col)
+    # def add_new_thumb(self, base_item: BaseItem):
+    #     thumb = Thumb(base_item.src)
+    #     thumb.set_pixmap(thumb.get_pixmap_storage())
+    #     self.add_widget_data(thumb, self.row, self.col)
+    #     self.grid_layout.addWidget(thumb, self.row, self.col)
             
     def load_visible_images(self):
         """

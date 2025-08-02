@@ -323,22 +323,26 @@ class Grid(UScrollArea):
         return thumbs
     
     def compare_len_files(self):
-        # print("compare lens")
         finder = []
         for i in os.scandir(self.main_win_item.main_dir):
             if not JsonData.show_hidden:
                 if i.name.startswith(Static.hidden_file_syms):
                     continue
             finder.append(i.path)
-
         if len(finder) != len(self.url_to_wid):
-            new_files = [i for i in finder if i not in self.url_to_wid]
-            del_files = [i for i in self.url_to_wid if i not in finder]
-            return {
-                self.new_files_key: new_files,
-                self.del_files_key: del_files
-            }
-        return None
+            self.load_st_grid.emit()
+            
+        """
+        По идее мы должны сравнивать и длину и имена файлов
+        чтобы в случае чего добавлять и удалять виджеты, это на будущее
+        """
+            # new_files = [i for i in finder if i not in self.url_to_wid]
+            # del_files = [i for i in self.url_to_wid if i not in finder]
+            # return {
+            #     self.new_files_key: new_files,
+            #     self.del_files_key: del_files
+            # }
+        # return None
 
     def get_thumbs_by_urls(self, urls: list[str]) -> list[Thumb]:
         """
