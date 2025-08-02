@@ -79,24 +79,22 @@ class BaseItem:
         self.mod: int = None
         self.birth: int = None
         self.size: int = None
-        self.pixmap_storage: QPixmap = None
+
+        self._pixmap_storage: QPixmap = None
 
     def set_pixmap_storage(self, pixmap: QPixmap):
         """
         Сохраняет QPixmap, переданный, например, из дополнительного потока в основной.
         """
-        self.pixmap_storage = pixmap
+        self._pixmap_storage = pixmap
 
     def get_pixmap_storage(self):
         """
         Возвращает ранее сохранённый QPixmap.
         """
-        return self.pixmap_storage
+        return self._pixmap_storage
 
     def setup_attrs(self):
-        """
-        Устанавливает параметры: src, name, type, mod, birth, size, rating
-        """
         self.src = EvloshUtils.normalize_slash(self.src)
         self.filename = os.path.basename(self.src)
 
