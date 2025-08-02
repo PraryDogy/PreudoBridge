@@ -519,7 +519,7 @@ class MainWin(WinBase):
         parent.rearrange_thumbs()
 
         sort_name = self.sort_item.get_sort_type()
-        sort_name = SortItem.lang_dict.get(sort_name).lower()
+        sort_name = SortItem.attr_lang.get(sort_name).lower()
         rev_name = "по убыв." if self.sort_item.get_reversed() else "по возр."
         text = f"Сортировка: {sort_name} ({rev_name})"
 

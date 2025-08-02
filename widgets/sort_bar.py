@@ -73,7 +73,7 @@ class SortFrame(UFrame):
         Сортировка: имя (по возраст.)
         """
         # получаем текстовое имя сортировки на основе внутреннего имени сортировки
-        sort_ = SortItem.lang_dict.get(self.sort_item.get_sort_type())
+        sort_ = SortItem.attr_lang.get(self.sort_item.get_sort_type())
         sort_ = sort_.lower()
 
         # получаем текстовое имя обратной или прямой сортировки

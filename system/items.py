@@ -24,7 +24,7 @@ class SortItem:
     birth = "birth"
     rating = "rating"
 
-    lang_dict: dict[str, str] = {
+    attr_lang = {
         filename : "Имя",
         type_ : "Тип",
         size : "Размер",
@@ -39,7 +39,7 @@ class SortItem:
         self._reversed: bool = False
 
     def get_attrs(self):
-        return list(self.lang_dict.keys())
+        return list(self.attr_lang.keys())
 
     def set_reversed(self, value: bool):
         self._reversed = value
