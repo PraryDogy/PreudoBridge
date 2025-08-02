@@ -291,7 +291,7 @@ class Grid(UScrollArea):
             return os.stat(url).st_mtime
         except Exception:
             # Utils.print_error()
-            print("file not found", url)
+            print("grid > get st mtime > file not found", url)
             return None
 
     def check_dir_mod(self):
