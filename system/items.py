@@ -58,6 +58,8 @@ class BaseItem:
     def __init__(self, src: str, rating: int = 0):
         """
         Запустите set_properties, чтобы обновить данные.
+        set_properties нельзя делать автозапуском, т.к. тогда Thumb, наследуемый
+        от BaseItem, так же повторно будет запускать set_properties
         """
         super().__init__()
         self.src: str = src
