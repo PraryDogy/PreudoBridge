@@ -189,8 +189,7 @@ class Thumb(BaseItem, QFrame):
 
     def migrate_from_base_item(self, base_item: BaseItem):
         """
-        Позволяет перенести данные из BaseItem в Thumb, чтобы повторно
-        не вызывать update_properties, если BaseItem соответствует Thumb
+        Позволяет перенести данные из BaseItem в Thumb.
         """
         self.src = base_item.src
         self.filename = base_item.filename
