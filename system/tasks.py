@@ -939,16 +939,18 @@ class NewItems(URunnable):
         return super().task()
     
 
-class ImageConvertSigs(QObject):
+class ImgConvertSigs(QObject):
     finished_ = pyqtSignal(list)
     progress_value = pyqtSignal(int)
+    set_progress_len = pyqtSignal(int)
 
-class ImageConvert(URunnable):
+
+class ImgConvertTask(URunnable):
     def __init__(self, urls: list[str]):
         super().__init__()
         self.urls = urls
         self.new_urls: list[str] = []
-        self.signals_ = ImageConvertSigs()
+        self.signals_ = ImgConvertSigs()
 
     def task(self):
         urls = [
@@ -957,11 +959,20 @@ class ImageConvert(URunnable):
             if i.endswith(Static.ext_all)
         ]
 
+        try:
+            self.signals_.set_progress_len.emit(len(urls))
+        except RuntimeError:
+            return
+
         for x, url in enumerate(urls, start=1):
             save_path = self._save_jpg(url)
-            self.signals_.progress_value.emit(x)
             if save_path:
                 self.new_urls.append(save_path)
+
+            try:
+                self.signals_.progress_value.emit(x)
+            except RuntimeError:
+                break
 
         try:
             self.signals_.finished_.emit(self.new_urls)
