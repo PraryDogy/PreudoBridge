@@ -69,6 +69,8 @@ class BaseItem:
         self.size: int = None
         self._pixmap_storage: QPixmap = None
 
+        self.set_properties()
+
     def set_properties(self):
         """
         Обновляет данные объекта:
