@@ -468,6 +468,7 @@ class SearchTask(URunnable):
         self.img_array = FitImage.start(self.img_array, ThumbData.DB_IMAGE_SIZE)
         self.pixmap = ImageUtils.pixmap_from_array(self.img_array)
         self.base_item = BaseItem(entry.path)
+        self.base_item.update_properties()
         self.base_item.set_pixmap_storage(self.pixmap)
         try:
             self.signals_.new_widget.emit(self.base_item)
@@ -555,6 +556,7 @@ class FinderItems(URunnable):
             if entry.name.startswith(self.hidden_syms):
                 continue
             item = BaseItem(entry.path)
+            item.update_properties()
             hash_filename = Utils.get_hash_filename(item.filename)
             base_items[hash_filename] = item
         return base_items

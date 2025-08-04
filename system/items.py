@@ -56,6 +56,9 @@ class SortItem:
 
 class BaseItem:
     def __init__(self, src: str, rating: int = 0):
+        """
+        Запустите update_properties, чтобы обновить данные.
+        """
         super().__init__()
         self.src: str = src
         self.filename: str = None
