@@ -541,10 +541,16 @@ class Grid(UScrollArea):
                 Utils.open_in_def_app(i)
 
     def open_img_view(self, start_url: str, url_to_wid: dict, is_selection: bool):
+
+        def closed():
+            del self.win_img_view
+            gc.collect()
+
         from .img_view_win import ImgViewWin
         self.win_img_view = ImgViewWin(start_url, url_to_wid, is_selection)
         self.win_img_view.move_to_wid.connect(lambda wid: self.select_single_thumb(wid))
         self.win_img_view.new_rating.connect(lambda data: self.new_rating_single_start(*data))
+        self.win_img_view.closed.connect(lambda: closed())
         self.win_img_view.center(self.window())
         self.win_img_view.show()
 
