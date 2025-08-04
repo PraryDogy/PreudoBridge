@@ -191,7 +191,7 @@ class Thumb(BaseItem, QFrame):
         self.img_wid.setPixmap(scaled_pixmap)
         self.img_frame_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
-    def copy_properties(self, base_item: BaseItem):
+    def migrate(self, base_item: BaseItem):
         """
         Позволяет перенести данные из BaseItem в Thumb, чтобы повторно
         не вызывать update_properties, если BaseItem соответствует Thumb

@@ -165,7 +165,7 @@ class GridStandart(Grid):
             thumb.set_widget_size()
             thumb.set_no_frame()
             thumb.set_svg()
-            thumb.copy_properties(base_item)
+            thumb.migrate(base_item)
             self.add_widget_data(thumb, self.row, self.col)
             self.grid_layout.addWidget(thumb, self.row, self.col)
 
