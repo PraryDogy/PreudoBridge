@@ -555,10 +555,10 @@ class FinderItems(URunnable):
         for entry in os.scandir(self.main_win_item.main_dir):
             if entry.name.startswith(self.hidden_syms):
                 continue
-            item = BaseItem(entry.path)
-            item.set_properties()
-            hash_filename = Utils.get_hash_filename(item.filename)
-            base_items[hash_filename] = item
+            base_item = BaseItem(entry.path)
+            base_item.set_properties()
+            hash_filename = Utils.get_hash_filename(base_item.filename)
+            base_items[hash_filename] = base_item
         return base_items
     
     def set_base_item_rating(self):
