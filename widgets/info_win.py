@@ -57,7 +57,6 @@ class InfoWin(MinMaxDisabledWin):
         self.set_modality()
 
         self.src = src
-        self.base_item = BaseItem(self.src)
 
         self.grid_layout = QGridLayout()
         self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
@@ -65,7 +64,8 @@ class InfoWin(MinMaxDisabledWin):
         self.grid_layout.setSpacing(5)
         self.setLayout(self.grid_layout)
 
-        self.info_task = InfoTask(self.base_item)
+        base_item = BaseItem(self.src)
+        self.info_task = InfoTask(base_item)
         self.info_task.signals.finished_info.connect(lambda data: self.init_ui(data))
         UThreadPool.start(self.info_task)
 

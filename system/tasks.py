@@ -464,13 +464,14 @@ class SearchTask(URunnable):
                 self.process_img(entry)
 
     def process_img(self, entry: os.DirEntry):
-        self.img_array = ReadImage.read_image(entry.path)
-        self.img_array = FitImage.start(self.img_array, ThumbData.DB_IMAGE_SIZE)
-        self.pixmap = ImageUtils.pixmap_from_array(self.img_array)
-        self.base_item = BaseItem(entry.path)
-        self.base_item.set_pixmap_storage(self.pixmap)
+        img_array = ReadImage.read_image(entry.path)
+        img_array = FitImage.start(img_array, ThumbData.DB_IMAGE_SIZE)
+        pixmap = ImageUtils.pixmap_from_array(img_array)
+        base_item = BaseItem(entry.path)
+        base_item.set_properties()
+        base_item.set_pixmap_storage(pixmap)
         try:
-            self.signals_.new_widget.emit(self.base_item)
+            self.signals_.new_widget.emit(base_item)
             QTest.qSleep(SearchTask.new_wid_sleep_ms)
         except RuntimeError:
             self.set_should_run(False)
@@ -555,6 +556,7 @@ class FinderItems(URunnable):
             if entry.name.startswith(self.hidden_syms):
                 continue
             item = BaseItem(entry.path)
+            item.set_properties()
             hash_filename = Utils.get_hash_filename(item.filename)
             base_items[hash_filename] = item
         return base_items
@@ -907,6 +909,7 @@ class NewItems(URunnable):
             return
         for i in self.urls:
             base_item = BaseItem(i)
+            base_item.set_properties()
             if base_item.filename.endswith(Static.ext_all):
                 image_base_item = ImageBaseItem(conn, base_item)
                 stmt, pixmap = image_base_item.get_stmt_pixmap()
