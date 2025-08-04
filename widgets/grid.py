@@ -163,9 +163,6 @@ class Thumb(BaseItem, QFrame):
 
         self.rating_wid = RatingWidget()
         self.v_lay.addWidget(self.rating_wid, alignment=Qt.AlignmentFlag.AlignCenter)
-        
-        # self.set_widget_size()
-        # self.set_no_frame()
     
     @classmethod
     def calc_size(cls):
