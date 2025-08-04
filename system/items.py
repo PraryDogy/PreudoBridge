@@ -1,3 +1,4 @@
+import gc
 import os
 import re
 
@@ -364,7 +365,10 @@ class ImageBaseItem:
     
     def _get_small_ndarray_img(self) -> np.ndarray:
         img_array = ReadImage.read_image(self.base_item.src)
-        return FitImage.start(img_array, ThumbData.DB_IMAGE_SIZE)
+        small_img = FitImage.start(img_array, ThumbData.DB_IMAGE_SIZE)
+        del img_array
+        gc.collect()
+        return small_img
     
     def _get_stats(self) -> os.stat_result:
         try:
