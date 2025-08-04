@@ -116,7 +116,6 @@ class GridSearch(Grid):
         thumb.set_generic_icon()
         
         if base_item.get_pixmap_storage():
-            thumb.set_pixmap_storage(base_item.get_pixmap_storage())
             thumb.set_pixmap(base_item.get_pixmap_storage())
 
         self.add_widget_data(thumb, self.row, self.col)
