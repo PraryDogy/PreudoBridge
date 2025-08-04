@@ -107,6 +107,8 @@ class GridSearch(Grid):
 
     def add_new_widget(self, base_item: BaseItem):
         self.thumb = Thumb(base_item.src, base_item.rating)
+        self.thumb.set_widget_size()
+        self.thumb.set_no_frame()
 
         icon_path = Utils.get_generic_icon_path(base_item.type_, Static.GENERIC_ICONS_DIR)
         if icon_path not in Dynamic.generic_icon_paths:
