@@ -5,7 +5,4 @@ class Foo:
 
 class Boo(Foo):
     def __init__(self):
-        self.b = 2
-        
-        
-a = Foo()
+        self.a = 2

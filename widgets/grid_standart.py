@@ -162,10 +162,8 @@ class GridStandart(Grid):
         self.col_count = self.get_col_count()
         for base_item in base_items:
             thumb = Thumb(base_item.src, base_item.rating)
-            thumb.set_widget_size()
-            thumb.set_no_frame()
-            thumb.set_svg()
-            thumb.migrate(base_item)
+            thumb.migrate_from_base_item(base_item)
+            thumb.set_generic_icon()
             self.add_widget_data(thumb, self.row, self.col)
             self.grid_layout.addWidget(thumb, self.row, self.col)
 

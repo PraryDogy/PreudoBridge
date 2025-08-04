@@ -129,10 +129,6 @@ class Thumb(BaseItem, QFrame):
     text_obj_name: str = "text_frame_"
 
     def __init__(self, src: str, rating: int = 0):
-        """
-        Не забудь запустить:
-        update_properties/copy_properties, set_widget_size, set_no_frame
-        """
         QFrame.__init__(self, parent=None)
         BaseItem.__init__(self, src, rating)
 
@@ -163,6 +159,9 @@ class Thumb(BaseItem, QFrame):
 
         self.rating_wid = RatingWidget()
         self.v_lay.addWidget(self.rating_wid, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        self.set_widget_size()
+        self.set_no_frame()
     
     @classmethod
     def calc_size(cls):
@@ -173,7 +172,7 @@ class Thumb(BaseItem, QFrame):
         cls.thumb_h = ThumbData.THUMB_H[ind]
         cls.corner = ThumbData.CORNER[ind]
 
-    def set_svg(self):
+    def set_generic_icon(self):
         if self.src.count(os.sep) == 2:
             path = Static.HDD_SVG
         else:
@@ -188,7 +187,7 @@ class Thumb(BaseItem, QFrame):
         self.img_wid.setPixmap(scaled_pixmap)
         self.img_frame_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
-    def migrate(self, base_item: BaseItem):
+    def migrate_from_base_item(self, base_item: BaseItem):
         """
         Позволяет перенести данные из BaseItem в Thumb, чтобы повторно
         не вызывать update_properties, если BaseItem соответствует Thumb

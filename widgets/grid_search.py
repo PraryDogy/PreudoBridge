@@ -106,23 +106,21 @@ class GridSearch(Grid):
         UThreadPool.start(self.search_task)
 
     def add_new_widget(self, base_item: BaseItem):
-        self.thumb = Thumb(base_item.src, base_item.rating)
-        self.thumb.migrate(base_item)
-        self.thumb.set_widget_size()
-        self.thumb.set_no_frame()
+        thumb = Thumb(base_item.src, base_item.rating)
+        thumb.migrate_from_base_item(base_item)
 
         icon_path = Utils.get_generic_icon_path(base_item.type_, Static.GENERIC_ICONS_DIR)
         if icon_path not in Dynamic.generic_icon_paths:
             Utils.create_generic_icon(base_item.type_, icon_path, Static.FILE_SVG)
 
-        self.thumb.set_svg()
+        thumb.set_generic_icon()
         
         if base_item.get_pixmap_storage():
-            self.thumb.set_pixmap_storage(base_item.get_pixmap_storage())
-            self.thumb.set_pixmap(base_item.get_pixmap_storage())
+            thumb.set_pixmap_storage(base_item.get_pixmap_storage())
+            thumb.set_pixmap(base_item.get_pixmap_storage())
 
-        self.add_widget_data(self.thumb, self.row, self.col)
-        self.grid_layout.addWidget(self.thumb, self.row, self.col)
+        self.add_widget_data(thumb, self.row, self.col)
+        self.grid_layout.addWidget(thumb, self.row, self.col)
 
         self.total += 1
         self.col += 1
