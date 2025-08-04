@@ -4,7 +4,9 @@ import os
 import shutil
 from time import sleep
 
+import numpy as np
 import sqlalchemy
+from PIL import Image
 from PyQt5.QtCore import QObject, pyqtSignal
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtTest import QTest
@@ -935,3 +937,46 @@ class NewItems(URunnable):
             ...
         conn.close()
         return super().task()
+    
+
+class ImageConvertSigs(QObject):
+    finished_ = pyqtSignal(list)
+    progress_value = pyqtSignal(int)
+
+class ImageConvert(URunnable):
+    def __init__(self, urls: list[str]):
+        super().__init__()
+        self.urls = urls
+        self.new_urls: list[str] = []
+        self.signals_ = ImageConvertSigs()
+
+    def task(self):
+        urls = [
+            i
+            for i in self.urls
+            if i.endswith(Static.ext_all)
+        ]
+
+        for x, url in enumerate(urls, start=1):
+            save_path = self._save_jpg(url)
+            self.signals_.progress_value.emit(x)
+            if save_path:
+                self.new_urls.append(save_path)
+
+        try:
+            self.signals_.finished_.emit(self.new_urls)
+        except RuntimeError:
+            ...
+
+        print("finished")
+
+    def _save_jpg(self, src: str) -> None:
+        try:
+            img_array = ReadImage.read_image(src)
+            img = Image.fromarray(img_array.astype(np.uint8))
+            save_path = os.path.splitext(src)[0] + ".jpg"
+            img.save(save_path, format="JPEG", quality=99)
+            return save_path
+        except Exception:
+            Utils.print_error()
+            return None
