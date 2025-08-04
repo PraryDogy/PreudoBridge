@@ -58,7 +58,7 @@ class InfoWin(MinMaxDisabledWin):
 
         self.src = src
         self.base_item = BaseItem(self.src)
-        self.base_item.update_properties()
+        self.base_item.set_properties()
 
         self.grid_layout = QGridLayout()
         self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)

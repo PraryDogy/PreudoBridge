@@ -130,8 +130,8 @@ class Thumb(BaseItem, QFrame):
 
     def __init__(self, src: str, rating: int = 0):
         """
-        Обязательно задать параметры:   
-        setup_attrs, setup_child_widgets, set_no_frame 
+        Не забудь запустить:
+        update_properties/copy_properties, set_widget_size, set_no_frame
         """
         QFrame.__init__(self, parent=None)
         BaseItem.__init__(self, src, rating)
@@ -190,6 +190,19 @@ class Thumb(BaseItem, QFrame):
         scaled_pixmap = ImageUtils.pixmap_scale(pixmap, Thumb.pixmap_size)
         self.img_wid.setPixmap(scaled_pixmap)
         self.img_frame_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
+
+    def copy_properties(self, base_item: BaseItem):
+        """
+        Позволяет перенести данные из BaseItem в Thumb, чтобы повторно
+        не вызывать update_properties, если BaseItem соответствует Thumb
+        """
+        self.src = base_item.src
+        self.filename = base_item.filename
+        self.type_ = base_item.type_
+        self.mod = base_item.mod
+        self.birth = base_item.birth
+        self.size = base_item.size
+        self.rating = base_item.rating
 
     def set_widget_size(self):
         """
@@ -317,7 +330,7 @@ class Grid(UScrollArea):
         for thumb in self.url_to_wid.values():
             new_mod = self.get_st_mtime(thumb.src)
             if new_mod and thumb.mod != new_mod:
-                thumb.update_properties()
+                thumb.set_properties()
                 thumb.rating_wid.set_text(thumb.rating, thumb.type_, thumb.mod, thumb.size)
                 thumbs.append(thumb)
         return thumbs

@@ -57,7 +57,7 @@ class SortItem:
 class BaseItem:
     def __init__(self, src: str, rating: int = 0):
         """
-        Запустите update_properties, чтобы обновить данные.
+        Запустите set_properties, чтобы обновить данные.
         """
         super().__init__()
         self.src: str = src
@@ -68,9 +68,8 @@ class BaseItem:
         self.birth: int = None
         self.size: int = None
         self._pixmap_storage: QPixmap = None
-        self.update_properties()
 
-    def update_properties(self):
+    def set_properties(self):
         """
         Обновляет данные объекта:
         src, filename, type_, mod, birth, size, rating
