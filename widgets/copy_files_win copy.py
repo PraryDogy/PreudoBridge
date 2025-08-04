@@ -4,13 +4,12 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QPushButton,
                              QVBoxLayout, QWidget)
 
-from cfg import Dynamic, Static
+from cfg import Static, Dynamic
 from evlosh_templates.evlosh_utils import EvloshUtils
 from system.tasks import CopyFilesTask
 from system.utils import UThreadPool, Utils
 
 from ._base_widgets import MinMaxDisabledWin, USvgSqareWidget
-from .progressbar_win import ProgressbarWin
 
 
 class ReplaceFilesWin(MinMaxDisabledWin):
@@ -132,7 +131,7 @@ class ErrorWin(MinMaxDisabledWin):
         return super().keyPressEvent(a0)
 
 
-class CopyFilesWin(ProgressbarWin):
+class CopyFilesWin(MinMaxDisabledWin):
     finished_ = pyqtSignal(list)
     error_ = pyqtSignal()
 
@@ -141,53 +140,90 @@ class CopyFilesWin(ProgressbarWin):
     icon_size = 50
 
     def __init__(self, dest: str, urls: list[str]):
+        super().__init__()
+        self.setWindowFlag(Qt.WindowType.WindowCloseButtonHint, False)
 
         if Dynamic.is_cut:
             title_text = "Перемещаю файлы"
         else:
             title_text = "Копирую файлы"
 
-        super().__init__(title_text, Static.COPY_FILES_SVG)
+        self.setWindowTitle(title_text)
+
+        main_lay = QHBoxLayout()
+        main_lay.setContentsMargins(10, 10, 10, 10)
+        main_lay.setSpacing(5)
+        self.setLayout(main_lay)
+
+        left_side_icon = USvgSqareWidget(Static.COPY_FILES_SVG, CopyFilesWin.icon_size)
+        main_lay.addWidget(left_side_icon)
+
+        right_side_wid = QWidget()
+        right_side_lay = QVBoxLayout()
+        right_side_lay.setContentsMargins(0, 0, 0, 0)
+        right_side_lay.setSpacing(0)
+        right_side_wid.setLayout(right_side_lay)
+        main_lay.addWidget(right_side_wid)
 
         src = min(urls, key=len)
         src = os.path.dirname(EvloshUtils.normalize_slash(src))
         src = os.path.basename(src)
         src = self.limit_string(src)
+
         dest_ = os.path.basename(dest)
         dest_ = self.limit_string(dest_)
-        src_dest_text = self.set_text(src, dest_)
 
-        self.above_label.setText(src_dest_text)
-        self.below_label.setText(self.preparing_text)
-        self.cancel_btn.mouseReleaseEvent = self.cancel_cmd
+        src_dest_lbl = QLabel(self.set_text(src, dest_))
+        right_side_lay.addWidget(src_dest_lbl)
+
+        progressbar_row = QWidget()
+        right_side_lay.addWidget(progressbar_row)
+        progressbar_lay = QHBoxLayout()
+        progressbar_lay.setContentsMargins(0, 0, 0, 0)
+        progressbar_lay.setSpacing(10)
+        progressbar_row.setLayout(progressbar_lay)
+
+        self.progressbar = QProgressBar()
+        self.progressbar.setTextVisible(False)
+        self.progressbar.setFixedHeight(6)
+        self.progressbar.setFixedWidth(CopyFilesWin.progressbar_width)
+        progressbar_lay.addWidget(self.progressbar)
+
+        cancel_btn = USvgSqareWidget(Static.CLEAR_SVG, 16)
+        cancel_btn.mouseReleaseEvent = self.cancel_cmd
+        progressbar_lay.addWidget(cancel_btn, alignment=Qt.AlignmentFlag.AlignCenter)
+
+        self.size_mb_lbl = QLabel(CopyFilesWin.preparing_text)
+        right_side_lay.addWidget(self.size_mb_lbl)
+
         self.adjustSize()
 
         if urls:
-            self.copy_files_task = CopyFilesTask(dest, urls)
-            self.copy_files_task.signals_.set_max.connect(lambda value: self.set_max(value))
-            self.copy_files_task.signals_.set_value.connect(lambda value: self.set_value(value))
-            self.copy_files_task.signals_.set_size_mb.connect(lambda text: self.size_mb_text(text))
-            self.copy_files_task.signals_.finished_.connect(lambda urls: self.on_finished(urls))
-            self.copy_files_task.signals_.error_.connect(lambda: self.open_replace_files_win())
-            self.copy_files_task.signals_.replace_files.connect(lambda: self.open_replace_files_win(self.copy_files_task))
-            UThreadPool.start(self.copy_files_task)
+            task_ = CopyFilesTask(dest, urls)
+            task_.signals_.set_max.connect(lambda value: self.set_max(value))
+            task_.signals_.set_value.connect(lambda value: self.set_value(value))
+            task_.signals_.set_size_mb.connect(lambda text: self.size_mb_text(text))
+            task_.signals_.finished_.connect(lambda urls: self.on_finished(urls))
+            task_.signals_.error_.connect(lambda: self.open_replace_files_win())
+            task_.signals_.replace_files.connect(lambda: self.open_replace_files_win(task_))
+            UThreadPool.start(task_)
 
-    def open_replace_files_win(self):
+    def open_replace_files_win(self, task: CopyFilesTask):
         replace_win = ReplaceFilesWin()
         replace_win.center(self)
-        replace_win.ok_pressed.connect(lambda: self.continue_copy())
-        replace_win.cancel_pressed.connect(lambda: self.cancel_copy())
+        replace_win.ok_pressed.connect(lambda: self.continue_copy(task))
+        replace_win.cancel_pressed.connect(lambda: self.cancel_copy(task))
         replace_win.show()
 
-    def continue_copy(self):
-        self.copy_files_task.pause_flag = False
+    def continue_copy(self, task: CopyFilesTask):
+        task.pause_flag = False
 
-    def cancel_copy(self):
-        self.copy_files_task.pause_flag = False
-        self.copy_files_task.set_should_run(False)
+    def cancel_copy(self, task: CopyFilesTask):
+        task.pause_flag = False
+        task.cancel_flag = True
 
     def size_mb_text(self, text: str):
-        self.below_label.setText(text)
+        self.size_mb_lbl.setText(text)
 
     def set_text(self, src: str, dest: str):
         return f"Из \"{src}\" в \"{dest}\""
@@ -210,7 +246,6 @@ class CopyFilesWin(ProgressbarWin):
             Utils.print_error()
 
     def cancel_cmd(self, *args):
-        self.cancel_copy()
         self.deleteLater()
 
     def on_finished(self, urls: list[str]):

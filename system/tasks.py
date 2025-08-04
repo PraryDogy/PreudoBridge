@@ -47,7 +47,6 @@ class CopyFilesTask(URunnable):
         self.dest = dest
         self.urls = urls
         self.pause_flag = False
-        self.cancel_flag = False
         self.signals_ = _CopyFilesSigs()
 
     def task(self): 
@@ -59,7 +58,7 @@ class CopyFilesTask(URunnable):
                     self.signals_.replace_files.emit()
                     while self.pause_flag:
                         sleep(1)
-                    if self.cancel_flag:
+                    if not self.is_should_run():
                         self.signals_.finished_.emit([])
                         return
                     else:

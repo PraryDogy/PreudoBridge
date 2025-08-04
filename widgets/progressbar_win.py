@@ -7,7 +7,7 @@ from cfg import Static
 from ._base_widgets import MinMaxDisabledWin, USvgSqareWidget
 
 
-class CopyFilesWin(MinMaxDisabledWin):
+class ProgressbarWin(MinMaxDisabledWin):
 
     progressbar_width = 300
     icon_size = 50
@@ -45,15 +45,15 @@ class CopyFilesWin(MinMaxDisabledWin):
         self.progressbar = QProgressBar()
         self.progressbar.setTextVisible(False)
         self.progressbar.setFixedHeight(6)
-        self.progressbar.setFixedWidth(CopyFilesWin.progressbar_width)
+        self.progressbar.setFixedWidth(self.progressbar_width)
         progressbar_lay.addWidget(self.progressbar)
 
         self.cancel_btn = USvgSqareWidget(Static.CLEAR_SVG, 16)
         self.cancel_btn.mouseReleaseEvent = self.cancel_cmd
         progressbar_lay.addWidget(self.cancel_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.below = QLabel()
-        right_side_lay.addWidget(self.below)
+        self.below_label = QLabel()
+        right_side_lay.addWidget(self.below_label)
 
         self.adjustSize()
 

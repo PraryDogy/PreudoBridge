@@ -235,7 +235,7 @@ class MainWin(WinBase):
         if not JsonData.favs:
             self.tabs_widget.setCurrentIndex(0)
 
-        # QTimer.singleShot(200, self.se)
+        QTimer.singleShot(200, self.se)
 
     def se(self):
         from .copy_files_win import CopyFilesWin
