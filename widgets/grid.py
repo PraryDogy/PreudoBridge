@@ -772,8 +772,9 @@ class Grid(UScrollArea):
 
         def finished_(urls: list[str]):
             self.convert_win.deleteLater()
-            self.main_win_item.set_urls(urls)
-            self.load_st_grid.emit()
+            if urls:
+                self.main_win_item.set_urls(urls)
+                self.load_st_grid.emit()
 
         self.convert_win = ImgConvertWin(urls)
         self.convert_win.center(self.window())
