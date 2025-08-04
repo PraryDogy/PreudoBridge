@@ -310,7 +310,7 @@ class Grid(UScrollArea):
             if new_st_mtime != self.st_mtime:
                 self.st_mtime = new_st_mtime
                 self.update_mod_thumbs()
-                self.compare_len_files()
+                # self.compare_len_files()
             self.st_mtime_timer.start(2000)
 
     def update_mod_thumbs(self) -> list[Thumb]:
@@ -770,12 +770,14 @@ class Grid(UScrollArea):
 
     def open_img_convert_win(self, urls: list[str]):
 
-        def finished_():
+        def finished_(urls: list[str]):
             self.convert_win.deleteLater()
+            self.main_win_item.set_urls(urls)
+            self.load_st_grid.emit()
 
         self.convert_win = ImgConvertWin(urls)
         self.convert_win.center(self.window())
-        self.convert_win.finished_.connect(lambda: finished_())
+        self.convert_win.finished_.connect(lambda urls: finished_(urls))
         self.convert_win.show()
 
     def mouseReleaseEvent(self, a0: QMouseEvent):

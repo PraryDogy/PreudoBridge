@@ -7,7 +7,7 @@ from PyQt5.QtCore import pyqtSignal
 
 class ImgConvertWin(ProgressbarWin):
     title_text = "Создаю копии jpg"
-    finished_ = pyqtSignal()
+    finished_ = pyqtSignal(list)
 
     def __init__(self, urls: list[str]):
         super().__init__(self.title_text, Static.COPY_FILES_SVG)
@@ -26,5 +26,5 @@ class ImgConvertWin(ProgressbarWin):
         self.progressbar.setValue(value)
 
     def finished_cmd(self, urls: list[str]):
-        subprocess.run(["osascript", Static.REVEAL_SCPT] + urls)
-        self.finished_.emit()
+        # subprocess.run(["osascript", Static.REVEAL_SCPT] + urls)
+        self.finished_.emit(urls)
