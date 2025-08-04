@@ -13,12 +13,13 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
 from cfg import Dynamic, JsonData, Static, ThumbData
 from evlosh_templates.evlosh_utils import EvloshUtils
 from system.items import BaseItem, MainWinItem, SortItem
-from system.tasks import RatingTask, LoadImages
+from system.tasks import LoadImages, RatingTask
 from system.utils import ImageUtils, UThreadPool, Utils
 
 from ._base_widgets import UMenu, UScrollArea
 from .actions import GridActions, ItemActions
 from .copy_files_win import CopyFilesWin, ErrorWin
+from .img_convert_win import ImgConvertWin
 from .info_win import InfoWin
 from .remove_files_win import RemoveFilesWin
 from .rename_win import RenameWin
@@ -767,6 +768,16 @@ class Grid(UScrollArea):
     def toggle_is_cut(self, value: bool):
         Dynamic.is_cut = value
 
+    def open_img_convert_win(self, urls: list[str]):
+
+        def finished_():
+            self.convert_win.deleteLater()
+
+        self.convert_win = ImgConvertWin(urls)
+        self.convert_win.center(self.window())
+        self.convert_win.finished_.connect(lambda: finished_())
+        self.convert_win.show()
+
     def mouseReleaseEvent(self, a0: QMouseEvent):
         if a0.button() != Qt.MouseButton.LeftButton:
             return
@@ -976,6 +987,11 @@ class Grid(UScrollArea):
         remove_files = ItemActions.RemoveObjects(menu_, total)
         remove_files.triggered.connect(lambda: self.remove_files_start(urls))
         menu_.addAction(remove_files)
+
+        menu_.addSeparator()
+        convert_action = ItemActions.ImgConvert(menu_)
+        convert_action.triggered.connect(lambda: self.open_img_convert_win(urls))
+        menu_.addAction(convert_action)
 
     def context_grid(self, menu_: UMenu):
         self.path_bar_update_delayed(self.main_win_item.main_dir)
