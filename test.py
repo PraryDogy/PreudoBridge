@@ -1,8 +1,10 @@
-class Foo:
-    def __init__(self):
-        self.a = 1
-        
+from system.items import ThumbProperties
 
-class Boo(Foo):
+
+class Foo(ThumbProperties):
     def __init__(self):
-        self.a = 2
+        super().__init__()
+
+
+a = Foo()
+print(a.src)
