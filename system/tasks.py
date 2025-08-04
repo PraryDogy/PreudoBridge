@@ -58,9 +58,6 @@ class CopyFilesTask(URunnable):
                     self.signals_.replace_files.emit()
                     while self.pause_flag:
                         sleep(1)
-                    if not self.is_should_run():
-                        self.signals_.finished_.emit([])
-                        return
                     else:
                         break
 
@@ -93,6 +90,9 @@ class CopyFilesTask(URunnable):
         self.total_f_size = EvloshUtils.get_f_size(total_bytes)
 
         for src, dest in new_paths:
+            if not self.is_should_run():
+                return
+
             # создаем древо папок как в исходной папке
             new_folders, tail = os.path.split(dest)
             os.makedirs(new_folders, exist_ok=True)
@@ -130,6 +130,9 @@ class CopyFilesTask(URunnable):
                 # прибавляем в байтах сколько уже скопировано
                 self.copied_bytes += len(buf)
                 reported_bytes += len(buf)  # <-- вот это добавь
+
+                if not self.is_should_run():
+                    return
 
                 if reported_bytes >= report_interval:
                     try:

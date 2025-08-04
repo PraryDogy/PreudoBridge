@@ -169,7 +169,7 @@ class CopyFilesWin(ProgressbarWin):
             self.copy_files_task.signals_.set_size_mb.connect(lambda text: self.size_mb_text(text))
             self.copy_files_task.signals_.finished_.connect(lambda urls: self.on_finished(urls))
             self.copy_files_task.signals_.error_.connect(lambda: self.open_replace_files_win())
-            self.copy_files_task.signals_.replace_files.connect(lambda: self.open_replace_files_win(self.copy_files_task))
+            self.copy_files_task.signals_.replace_files.connect(lambda: self.open_replace_files_win())
             UThreadPool.start(self.copy_files_task)
 
     def open_replace_files_win(self):
