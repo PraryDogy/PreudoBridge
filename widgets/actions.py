@@ -414,8 +414,9 @@ class OpenSingle(QAction):
 
 
 class ImgConvert(QAction):
-    text_ = "Создать копии jpg"
-    def __init__(self, parent: UMenu):
+    text_ = "Создать копию jpg"
+    def __init__(self, parent: UMenu, total: int):
+        self.text_ = f"{self.text_} ({total})"
         super().__init__(self.text_, parent)
 
 

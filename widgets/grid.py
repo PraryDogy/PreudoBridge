@@ -926,6 +926,7 @@ class Grid(UScrollArea):
     def context_thumb(self, menu_: UMenu, wid: Thumb):
         # собираем пути к файлам / папкам у выделенных виджетов
         urls = [i.src for i in self.selected_thumbs]
+        urls_img = [i.src for i in self.selected_thumbs if i.src.endswith(Static.ext_all)]
         names = [i.filename for i in self.selected_thumbs]
         total = len(self.selected_thumbs)
         self.path_bar_update_delayed(wid.src)
@@ -953,13 +954,18 @@ class Grid(UScrollArea):
                 fav_action.triggered.connect(cmd_)
                 menu_.addAction(fav_action)
 
-        rating_menu = ItemActions.RatingMenu(menu_, urls, total, wid.rating)
-        rating_menu.new_rating.connect(self.new_rating_multiple_start)
-        menu_.addMenu(rating_menu)
+            rating_menu = ItemActions.RatingMenu(menu_, urls, total, wid.rating)
+            rating_menu.new_rating.connect(self.new_rating_multiple_start)
+            menu_.addMenu(rating_menu)
 
         info = ItemActions.Info(menu_)
         info.triggered.connect(lambda: self.open_win_info(wid.src))
         menu_.addAction(info)
+
+        if wid.type_ in Static.ext_all:
+            convert_action = ItemActions.ImgConvert(menu_, len(urls_img))
+            convert_action.triggered.connect(lambda: self.open_img_convert_win(urls_img))
+            menu_.addAction(convert_action)
 
         # is grid search устанавливается на True при инициации GridSearch
         if self.is_grid_search:
@@ -996,11 +1002,6 @@ class Grid(UScrollArea):
         remove_files = ItemActions.RemoveObjects(menu_, total)
         remove_files.triggered.connect(lambda: self.remove_files_start(urls))
         menu_.addAction(remove_files)
-
-        menu_.addSeparator()
-        convert_action = ItemActions.ImgConvert(menu_)
-        convert_action.triggered.connect(lambda: self.open_img_convert_win(urls))
-        menu_.addAction(convert_action)
 
     def context_grid(self, menu_: UMenu):
         self.path_bar_update_delayed(self.main_win_item.main_dir)
