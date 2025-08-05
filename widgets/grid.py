@@ -924,6 +924,7 @@ class Grid(UScrollArea):
         if self.wid_under_mouse:
             self.path_bar_update_delayed(self.wid_under_mouse.src)
 
+        self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
         self.drag.setMimeData(self.mime_data)
         self.drag.exec_(Qt.DropAction.CopyAction)
 
@@ -1166,6 +1167,8 @@ class Grid(UScrollArea):
         elif a0.key() in KEY_RATING:
             rating = KEY_RATING.get(a0.key())
             self.new_rating_multiple_start(rating)
+
+        self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
         return super().keyPressEvent(a0)
 
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
@@ -1193,6 +1196,7 @@ class Grid(UScrollArea):
             else:
                 self.context_grid(menu_)
 
+        self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
         menu_.show_under_cursor()
     
     def dragEnterEvent(self, a0):
