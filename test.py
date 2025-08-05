@@ -1,10 +1,6 @@
-from system.items import ThumbProperties
+from evlosh_templates.read_image import ReadImage
 
 
-class Foo(ThumbProperties):
-    def __init__(self):
-        super().__init__()
+src = '/Users/Loshkarev/Desktop/R01-MLN0136-060_R01-MLN0120-060_R01-MLN0396 2.jpg'
 
-
-a = Foo()
-print(a.src)
+img = ReadImage.read_image(src)

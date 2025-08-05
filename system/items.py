@@ -297,8 +297,11 @@ class ImageBaseItem:
             img_array = ImageUtils.bytes_to_array(bytes_img)
             stmt = None
         
-        pixmap = ImageUtils.pixmap_from_array(img_array)
-        pixmap = ImageUtils.pixmap_scale(pixmap, ThumbData.DB_IMAGE_SIZE)
+        if img_array is  None:
+            pixmap = None
+        else:
+            pixmap = ImageUtils.pixmap_from_array(img_array)
+            pixmap = ImageUtils.pixmap_scale(pixmap, ThumbData.DB_IMAGE_SIZE)
 
         return (stmt, pixmap)
 

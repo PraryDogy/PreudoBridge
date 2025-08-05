@@ -15,7 +15,7 @@ from PIL import Image, ImageOps
 psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
 psd_logger = logging.getLogger("psd_tools")
 psd_logger.setLevel(logging.CRITICAL)
-
+Image.MAX_IMAGE_PIXELS = None
 
 class ReadImage:
 
