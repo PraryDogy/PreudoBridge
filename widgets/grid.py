@@ -1017,7 +1017,7 @@ class Grid(UScrollArea):
         total = 1
 
         if Dynamic.urls_to_copy and not self.is_grid_search:
-            paste_files = GridActions.PasteObjects(menu_, len(Dynamic.urls_to_copy))
+            paste_files = GridActions.PasteObjects(menu_)
             paste_files.triggered.connect(self.paste_files_start)
             menu_.addAction(paste_files)
 

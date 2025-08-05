@@ -49,6 +49,7 @@ class PathFinder:
 
         # для threading
         self._result = result or None
+
         return result or None
 
     def _replace_username(self, path: str) -> str:
@@ -67,7 +68,11 @@ class PathFinder:
         for path in path_list:
             if not os.path.exists(path):
                 continue
-            if path in self._volumes_list or path == self._invalid_volume_path:
+            if path in self._volumes_list:
+                continue
+            if path in self._invalid_volume_path:
+                continue
+            if self._invalid_volume_path in path:
                 continue
             return path
         return None
