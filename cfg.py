@@ -146,7 +146,7 @@ class ThumbData:
 
     # ширина и высота grid.py > Thumb
     THUMB_H = [130, 150, 185, 270]
-    THUMB_W = [140, 140, 180, 230]
+    THUMB_W = [145, 145, 180, 230]
 
     # максимальный размер изображения в пикселях для grid.py > Thumb
     PIXMAP_SIZE: list = [50, 70, 100, 170]
