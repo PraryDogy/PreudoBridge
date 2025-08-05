@@ -12,19 +12,11 @@ from system.utils import UThreadPool, Utils
 from ._base_widgets import UMenu
 
 
-class Tools:    
-    @classmethod
-    def get_text(cls, text: str, total: int) -> str:
-        return f"{text} ({total})"
-
-
 class RevealInFinder(QAction):
     text_ = "Показать в Finder"
-    def __init__(self, parent: UMenu, urls: list[str], total: int):
-        super().__init__(parent)
+    def __init__(self, parent: UMenu, urls: list[str]):
+        super().__init__(self.text_, parent)
         self.urls = urls
-        text = Tools.get_text(self.text_, total)
-        self.setText(text)
 
         if len(urls) == 1 and os.path.isdir(urls[0]):
             self.cmd = self.dir_cmd
@@ -51,31 +43,26 @@ class Info(QAction):
         super().__init__(self.text_, parent)
 
 
-# из родительского виджета копирует путь к файлу / папке
 class CopyPath(QAction):
     text_ = "Скопировать путь"
-    def __init__(self, parent: UMenu, urls: list[str], total: int):
-        super().__init__(parent)
+    def __init__(self, parent: UMenu, urls: list[str]):
+        super().__init__(self.text_, parent)
         self.urls = urls
-        text = Tools.get_text(self.text_, total)
-        self.setText(text)
         self.triggered.connect(self.cmd_)
 
-    def cmd_(self, *args):
+    def cmd_(self):
         Utils.write_to_clipboard("\n".join(self.urls))
 
 
 class CopyName(QAction):
     text_ = "Скопировать имя"
 
-    def __init__(self, parent: UMenu, names: list[str], total: int):
-        super().__init__(parent)
+    def __init__(self, parent: UMenu, names: list[str]):
+        super().__init__(self.text_, parent)
         self.names = names
-        text = Tools.get_text(self.text_, total)
-        self.setText(text)
         self.triggered.connect(self.cmd_)
 
-    def cmd_(self, *args):
+    def cmd_(self):
         names = []
         for i in self.names:
             head, _ = os.path.splitext(i)
@@ -85,9 +72,8 @@ class CopyName(QAction):
 
 class OpenThumb(QAction):
     text_ = "Открыть"
-    def __init__(self, parent: UMenu, urls: list):
-        text_ = f"{self.text_} ({len(urls)})"
-        super().__init__(text_, parent)
+    def __init__(self, parent: UMenu):
+        super().__init__(self.text_, parent)
 
 
 class FavRemove(QAction):
@@ -140,10 +126,8 @@ class RatingMenu(UMenu):
     new_rating = pyqtSignal(int)
     text_ = "Рейтинг"
 
-    def __init__(self, parent: UMenu, urls: list[str], total: int, current_rating: int):
-        super().__init__(parent=parent)
-        text = Tools.get_text(self.text_, total)
-        self.setTitle(text)
+    def __init__(self, parent: UMenu, current_rating: int):
+        super().__init__(parent=parent, title=self.text_)
 
         # свойство Thumb
         # рейтинг для каждого виджета хранится в базе данных
@@ -358,41 +342,32 @@ class OpenInNewWindow(QAction):
 
 class CutObjects(QAction):
     text_ = "Вырезать"
-    def __init__(self, parent: UMenu, total: int):
-        super().__init__(parent)
-        text = Tools.get_text(self.text_, total)
-        self.setText(text)
+    def __init__(self, parent: UMenu):
+        super().__init__(self.text_, parent)
 
 
 class CopyObjects(QAction):
     text_ = "Скопировать"
-    def __init__(self, parent: UMenu, total: int):
-        super().__init__(parent)
-        text = Tools.get_text(self.text_, total)
-        self.setText(text)
+    def __init__(self, parent: UMenu):
+        super().__init__(self.text_, parent)
 
 
 class RemoveObjects(QAction):
     text_ = "Удалить"
-    def __init__(self, parent: UMenu, total: int):
-        super().__init__(parent)
-        text = Tools.get_text(self.text_, total)
-        self.setText(text)
+    def __init__(self, parent: UMenu):
+        super().__init__(self.text_, parent)
 
 
 class PasteObjects(QAction):
     text_ = "Вставить"
-    def __init__(self, parent: UMenu, total: int):
-        super().__init__(parent)
-        text = Tools.get_text(self.text_, total)
-        self.setText(text)
+    def __init__(self, parent: UMenu):
+        super().__init__(self.text_, parent)
 
 
 class ShowInGrid(QAction):
     text_ = "Показать в папке"
     def __init__(self, parent: UMenu):
-        super().__init__(parent)
-        self.setText(self.text_)
+        super().__init__(self.text_, parent)
 
 
 class UpdateGrid(QAction):
@@ -415,9 +390,15 @@ class OpenSingle(QAction):
 
 class ImgConvert(QAction):
     text_ = "Создать копию jpg"
-    def __init__(self, parent: UMenu, total: int):
-        self.text_ = f"{self.text_} ({total})"
+    def __init__(self, parent: UMenu):
         super().__init__(self.text_, parent)
+
+
+class Total(QAction):
+    def __init__(self, parent: UMenu, total: int):
+        text_ = f"Выбрано {total} элемента"
+        super().__init__(text_, parent)
+        self.setDisabled(True)
 
 
 class ItemActions:
@@ -439,6 +420,7 @@ class ItemActions:
     class ShowInGrid(ShowInGrid): ...
     class RemoveObjects(RemoveObjects): ...
     class ImgConvert(ImgConvert): ...
+    class Total(Total): ...
 
 
 class GridActions:

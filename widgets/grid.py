@@ -931,7 +931,7 @@ class Grid(UScrollArea):
         total = len(self.selected_thumbs)
         self.path_bar_update_delayed(wid.src)
 
-        view_action = ItemActions.OpenThumb(menu_, self.selected_thumbs)
+        view_action = ItemActions.OpenThumb(menu_)
         view_action.triggered.connect(lambda: self.open_thumb())
         menu_.addAction(view_action)
 
@@ -954,7 +954,7 @@ class Grid(UScrollArea):
                 fav_action.triggered.connect(cmd_)
                 menu_.addAction(fav_action)
 
-            rating_menu = ItemActions.RatingMenu(menu_, urls, total, wid.rating)
+            rating_menu = ItemActions.RatingMenu(menu_, wid.rating)
             rating_menu.new_rating.connect(self.new_rating_multiple_start)
             menu_.addMenu(rating_menu)
 
@@ -963,7 +963,7 @@ class Grid(UScrollArea):
         menu_.addAction(info)
 
         if wid.type_ in Static.ext_all:
-            convert_action = ItemActions.ImgConvert(menu_, len(urls_img))
+            convert_action = ItemActions.ImgConvert(menu_)
             convert_action.triggered.connect(lambda: self.open_img_convert_win(urls_img))
             menu_.addAction(convert_action)
 
@@ -976,32 +976,36 @@ class Grid(UScrollArea):
 
         menu_.addSeparator()
 
-        show_in_finder_action = ItemActions.RevealInFinder(menu_, urls, total)
+        show_in_finder_action = ItemActions.RevealInFinder(menu_, urls)
         menu_.addAction(show_in_finder_action)
 
-        copy_path = ItemActions.CopyPath(menu_, urls, total)
+        copy_path = ItemActions.CopyPath(menu_, urls)
         copy_path.triggered.connect(lambda: self.toggle_is_cut(False))
         menu_.addAction(copy_path)
 
-        copy_name = ItemActions.CopyName(menu_, names, total)
+        copy_name = ItemActions.CopyName(menu_, names)
         copy_name.triggered.connect(lambda: self.toggle_is_cut(False))
         menu_.addAction(copy_name)
 
         menu_.addSeparator()
 
-        cut_objects = ItemActions.CutObjects(menu_, total)
+        cut_objects = ItemActions.CutObjects(menu_)
         cut_objects.triggered.connect(lambda: self.toggle_is_cut(True))
         cut_objects.triggered.connect(self.setup_urls_to_copy)
         menu_.addAction(cut_objects)
 
-        copy_files = ItemActions.CopyObjects(menu_, total)
+        copy_files = ItemActions.CopyObjects(menu_)
         copy_files.triggered.connect(lambda: self.toggle_is_cut(False))
         copy_files.triggered.connect(self.setup_urls_to_copy)
         menu_.addAction(copy_files)
 
-        remove_files = ItemActions.RemoveObjects(menu_, total)
+        remove_files = ItemActions.RemoveObjects(menu_)
         remove_files.triggered.connect(lambda: self.remove_files_start(urls))
         menu_.addAction(remove_files)
+
+        menu_.addSeparator()
+        total_action = ItemActions.Total(menu_, len(urls))
+        menu_.addAction(total_action)
 
     def context_grid(self, menu_: UMenu):
         self.path_bar_update_delayed(self.main_win_item.main_dir)
@@ -1040,13 +1044,13 @@ class Grid(UScrollArea):
 
         menu_.addSeparator()
 
-        reveal = GridActions.RevealInFinder(menu_, urls, total)
+        reveal = GridActions.RevealInFinder(menu_, urls)
         menu_.addAction(reveal)
 
-        copy_ = GridActions.CopyPath(menu_, urls, total)
+        copy_ = GridActions.CopyPath(menu_, urls)
         menu_.addAction(copy_)
 
-        copy_name = GridActions.CopyName(menu_, names, total)
+        copy_name = GridActions.CopyName(menu_, names)
         menu_.addAction(copy_name)
 
         menu_.addSeparator()
