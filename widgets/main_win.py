@@ -440,6 +440,9 @@ class MainWin(WinBase):
         self.setup_grid_signals()
         self.fast_sort_wid.setParent(self.grid)
 
+        if self.search_item.get_content():
+            self.top_bar.search_wid.setFocus()
+
     def search_finished(self):
         self.search_bar.search_bar_search_fin()
 
@@ -485,6 +488,9 @@ class MainWin(WinBase):
         self.setup_grid_signals()
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
         self.fast_sort_wid.setParent(self.grid)
+
+        if self.search_item.get_content():
+            self.top_bar.search_wid.setFocus()
 
     def change_view_cmd(self):
         if self.main_win_item.get_view_mode() == 0:
