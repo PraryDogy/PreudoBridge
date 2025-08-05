@@ -173,18 +173,15 @@ class CopyFilesWin(ProgressbarWin):
             UThreadPool.start(self.copy_files_task)
 
     def open_replace_files_win(self):
+
+        def continue_copy():
+            self.copy_files_task.pause_flag = False
+
         replace_win = ReplaceFilesWin()
         replace_win.center(self)
-        replace_win.ok_pressed.connect(lambda: self.continue_copy())
-        replace_win.cancel_pressed.connect(lambda: self.cancel_copy())
+        replace_win.ok_pressed.connect(continue_copy)
+        replace_win.cancel_pressed.connect(self.cancel_cmd)
         replace_win.show()
-
-    def continue_copy(self):
-        self.copy_files_task.pause_flag = False
-
-    def cancel_copy(self):
-        self.copy_files_task.pause_flag = False
-        self.copy_files_task.set_should_run(False)
 
     def size_mb_text(self, text: str):
         self.below_label.setText(text)
@@ -210,7 +207,8 @@ class CopyFilesWin(ProgressbarWin):
             Utils.print_error()
 
     def cancel_cmd(self, *args):
-        self.cancel_copy()
+        self.copy_files_task.pause_flag = False
+        self.copy_files_task.set_should_run(False)
         self.deleteLater()
 
     def on_finished(self, urls: list[str]):
