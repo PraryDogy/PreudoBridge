@@ -801,7 +801,7 @@ class Grid(UScrollArea):
             release_pos = self.main_wid.mapFrom(self, a0.pos())
             rect = QRect(self.origin_pos, release_pos).normalized()
             self.rubberBand.hide()
-            ctrl = a0.modifiers() == Qt.KeyboardModifier.ControlModifier
+            ctrl = a0.modifiers() in (Qt.KeyboardModifier.ControlModifier, Qt.KeyboardModifier.ShiftModifier)
             for wid in self.cell_to_wid.values():
                 intersects = False
                 inner_widgets = wid.findChildren((FileNameWidget, ImgFrameWidget))
@@ -825,7 +825,6 @@ class Grid(UScrollArea):
                     if not ctrl and wid in self.selected_thumbs:
                         wid.set_no_frame()
                         self.selected_thumbs.remove(wid)
-                self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
 
         elif self.wid_under_mouse is None:
             self.clear_selected_widgets()
