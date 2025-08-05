@@ -111,14 +111,14 @@ class GridSearch(Grid):
         thumb.set_widget_size()
         thumb.set_no_frame()
 
-        icon_path = Utils.get_generic_icon_path(base_item.type_, Static.GENERIC_ICONS_DIR)
-        if icon_path not in Dynamic.generic_icon_paths:
-            Utils.create_generic_icon(base_item.type_, icon_path, Static.FILE_SVG)
-
-        thumb.set_generic_icon()
-        
         if base_item.get_pixmap_storage():
+            thumb.set_pixmap_storage(base_item.get_pixmap_storage())
             thumb.set_pixmap(base_item.get_pixmap_storage())
+        else:
+            icon_path = Utils.get_generic_icon_path(base_item.type_, Static.GENERIC_ICONS_DIR)
+            if icon_path not in Dynamic.generic_icon_paths:
+                Utils.create_generic_icon(base_item.type_, icon_path, Static.FILE_SVG)
+            thumb.set_generic_icon()
 
         self.add_widget_data(thumb, self.row, self.col)
         self.grid_layout.addWidget(thumb, self.row, self.col)

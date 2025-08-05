@@ -215,6 +215,7 @@ class Thumb(BaseItem, QFrame):
             pixmap = ImageUtils.pixmap_scale(pixmap, Thumb.pixmap_size)
             self.img_wid.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.img_wid.setPixmap(pixmap)
+            print(Thumb.pixmap_size)
 
     def set_frame(self):
         self.setStyleSheet(
