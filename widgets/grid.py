@@ -1003,10 +1003,6 @@ class Grid(UScrollArea):
         remove_files.triggered.connect(lambda: self.remove_files_start(urls))
         menu_.addAction(remove_files)
 
-        menu_.addSeparator()
-        total_action = ItemActions.Total(menu_, len(urls))
-        menu_.addAction(total_action)
-
     def context_grid(self, menu_: UMenu):
         self.path_bar_update_delayed(self.main_win_item.main_dir)
         names = [os.path.basename(self.main_win_item.main_dir)]

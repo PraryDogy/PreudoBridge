@@ -394,13 +394,6 @@ class ImgConvert(QAction):
         super().__init__(self.text_, parent)
 
 
-class Total(QAction):
-    def __init__(self, parent: UMenu, total: int):
-        text_ = f"Выбрано {total} элемента"
-        super().__init__(text_, parent)
-        self.setDisabled(True)
-
-
 class ItemActions:
     class OpenThumb(OpenThumb): ...
     class OpenInApp(OpenInApp): ...
@@ -420,7 +413,6 @@ class ItemActions:
     class ShowInGrid(ShowInGrid): ...
     class RemoveObjects(RemoveObjects): ...
     class ImgConvert(ImgConvert): ...
-    class Total(Total): ...
 
 
 class GridActions:
