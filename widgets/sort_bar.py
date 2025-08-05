@@ -82,11 +82,15 @@ class SortFrame(UFrame):
         text_ = f"{SortFrame.sort_text}: {sort_} ({rev})"
         self.sort_wid.setText(text_)
 
-    def set_total_text(self, value: int):
+    def set_total_text(self, data: tuple):
         """
-        Отображает общее число виджетов в сетке
+        data: (выделено элементов, всего элементов)
         """
-        text_ = f"{SortFrame.total_text}: {str(value)}"
+        selected, total = data
+        if selected > 0:
+            text_ = f"Выбрано {selected} из {total}"
+        else:
+            text_ = f"{self.total_text}: {str(total)}"
         self.total_text_label.setText(text_)
 
     def mouseReleaseEvent(self, a0: QMouseEvent):
@@ -225,6 +229,3 @@ class SortBar(QWidget):
 
     def sort_menu_update(self):
         self.sort_frame.set_sort_text()
-
-    def total_count_update(self, value: int):
-        self.sort_frame.set_total_text(value)

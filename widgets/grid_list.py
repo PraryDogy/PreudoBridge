@@ -92,7 +92,7 @@ class GridList(UTableView):
 
         self.setCurrentIndex(QModelIndex())
         self.path_bar_update.emit(self.main_win_item.main_dir)
-        self.total_count_update.emit(row_count)
+        self.total_count_update.emit((0, row_count))
         self.loading_lbl.hide()
 
         self.show()

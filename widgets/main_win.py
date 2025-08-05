@@ -406,7 +406,7 @@ class MainWin(WinBase):
 
     def setup_grid_signals(self):
         self.grid.sort_menu_update.connect(lambda: self.sort_bar.sort_menu_update())
-        self.grid.total_count_update.connect(lambda total: self.sort_bar.total_count_update(total))
+        self.grid.total_count_update.connect(lambda data: self.sort_bar.sort_frame.set_total_text(data))
         self.grid.path_bar_update.connect(lambda dir: self.path_bar.update(dir))
         self.grid.add_fav.connect(lambda dir: self.favs_menu.add_fav(dir))
         self.grid.del_fav.connect(lambda dir: self.favs_menu.del_fav(dir))

@@ -43,7 +43,7 @@ class UScrollArea(QScrollArea, UMethods):
     open_in_new_win = pyqtSignal(str)
     level_up = pyqtSignal()
     sort_menu_update = pyqtSignal()
-    total_count_update = pyqtSignal(int)
+    total_count_update = pyqtSignal(tuple)
     finished_ = pyqtSignal()
 
     def __init__(self):
@@ -68,7 +68,7 @@ class UTableView(QTableView, UMethods):
     open_in_new_win = pyqtSignal(str)
     level_up = pyqtSignal()
     sort_menu_update = pyqtSignal()
-    total_count_update = pyqtSignal(int)
+    total_count_update = pyqtSignal(tuple)
     finished_ = pyqtSignal()
 
 

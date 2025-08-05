@@ -141,7 +141,7 @@ class GridStandart(Grid):
 
         # испускаем сигнал в MainWin для обновления нижнего бара
         # для отображения "всего элементов"
-        self.total_count_update.emit(len(base_items))
+        self.total_count_update.emit((len(self.selected_thumbs), len(base_items)))
 
         # создаем сетку на основе элементов из FinderItems
         self.create_thumbs_grid(base_items)
