@@ -3,8 +3,9 @@ import cv2
 import traceback
 
 class FitImage:   
+
     @classmethod
-    def _print_error():
+    def _print_error(cls):
         print()
         print("Исключение обработано.")
         print(traceback.format_exc())

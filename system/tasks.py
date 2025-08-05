@@ -468,12 +468,13 @@ class SearchTask(URunnable):
                 self.process_img(entry)
 
     def process_img(self, entry: os.DirEntry):
-        img_array = ReadImage.read_image(entry.path)
-        img_array = FitImage.start(img_array, ThumbData.DB_IMAGE_SIZE)
-        pixmap = ImageUtils.pixmap_from_array(img_array)
         base_item = BaseItem(entry.path)
         base_item.set_properties()
-        base_item.set_pixmap_storage(pixmap)
+        if entry.name.endswith(Static.ext_all):
+            img_array = ReadImage.read_image(entry.path)
+            img_array = FitImage.start(img_array, ThumbData.DB_IMAGE_SIZE)
+            pixmap = ImageUtils.pixmap_from_array(img_array)
+            base_item.set_pixmap_storage(pixmap)
         try:
             self.signals_.new_widget.emit(base_item)
             QTest.qSleep(SearchTask.new_wid_sleep_ms)
