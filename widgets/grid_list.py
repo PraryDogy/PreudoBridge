@@ -221,7 +221,7 @@ class GridList(UTableView):
 
             menu_.addSeparator()
 
-        view_action = ItemActions.OpenThumb(menu_, urls)
+        view_action = ItemActions.OpenThumb(menu_)
         view_action.triggered.connect(lambda: self.open_thumb(urls))
         menu_.addAction(view_action)
 
@@ -246,33 +246,33 @@ class GridList(UTableView):
 
         menu_.addSeparator()
 
-        open_finder_action = ItemActions.RevealInFinder(menu_, urls, total)
+        open_finder_action = ItemActions.RevealInFinder(menu_, urls)
         menu_.addAction(open_finder_action)
 
-        copy_path_action = ItemActions.CopyPath(menu_, urls, total)
+        copy_path_action = ItemActions.CopyPath(menu_, urls)
         menu_.addAction(copy_path_action)
 
-        copy_name = ItemActions.CopyName(menu_, names, total)
+        copy_name = ItemActions.CopyName(menu_, names)
         menu_.addAction(copy_name)
 
         menu_.addSeparator()
 
-        cut_objects = ItemActions.CutObjects(menu_, total)
+        cut_objects = ItemActions.CutObjects(menu_)
         cut_objects.triggered.connect(lambda e: self.toggle_is_cut(True))
         cut_objects.triggered.connect(lambda e: self.setup_urls_to_copy(urls))
         menu_.addAction(cut_objects)
 
-        copy_files = ItemActions.CopyObjects(menu_, total)
+        copy_files = ItemActions.CopyObjects(menu_)
         copy_files.triggered.connect(lambda e: self.setup_urls_to_copy(urls))
         menu_.addAction(copy_files)
 
-        remove_objects = ItemActions.RemoveObjects(menu_, total)
+        remove_objects = ItemActions.RemoveObjects(menu_)
         remove_objects.triggered.connect(lambda: self.remove_files_cmd(urls))
         menu_.addAction(remove_objects)  
 
     def grid_context(self, menu_: UMenu, selected_path: str, urls: list[str], names: list[str], total: int):
         if Dynamic.urls_to_copy:
-            paste_files = GridActions.PasteObjects(menu_, len(Dynamic.urls_to_copy))
+            paste_files = GridActions.PasteObjects(menu_)
             paste_files.triggered.connect(self.paste_files)
             menu_.addAction(paste_files)
             menu_.addSeparator()
@@ -295,13 +295,13 @@ class GridList(UTableView):
 
         menu_.addSeparator()
 
-        open_finder_action = GridActions.RevealInFinder(menu_, urls, total)
+        open_finder_action = GridActions.RevealInFinder(menu_, urls)
         menu_.addAction(open_finder_action)
 
-        copy_path_action = GridActions.CopyPath(menu_, urls, total)
+        copy_path_action = GridActions.CopyPath(menu_, urls)
         menu_.addAction(copy_path_action)
 
-        copy_name = GridActions.CopyName(menu_, names, total)
+        copy_name = GridActions.CopyName(menu_, names)
         menu_.addAction(copy_name)
 
         menu_.addSeparator()
