@@ -334,20 +334,20 @@ class Grid(UScrollArea):
                 thumbs.append(thumb)
         return thumbs
     
-    def compare_len_files(self):
-        finder = []
-        for i in os.scandir(self.main_win_item.main_dir):
-            if not JsonData.show_hidden:
-                if i.name.startswith(Static.hidden_file_syms):
-                    continue
-            finder.append(i.path)
-        if len(finder) != len(self.url_to_wid):
-            self.load_st_grid.emit()
+    # def compare_len_files(self):
+    #     finder = []
+    #     for i in os.scandir(self.main_win_item.main_dir):
+    #         if not JsonData.show_hidden:
+    #             if i.name.startswith(Static.hidden_file_syms):
+    #                 continue
+    #         finder.append(i.path)
+    #     if len(finder) != len(self.url_to_wid):
+    #         self.load_st_grid.emit()
             
-        """
-        По идее мы должны сравнивать и длину и имена файлов
-        чтобы в случае чего добавлять и удалять виджеты, это на будущее
-        """
+    #     """
+    #     По идее мы должны сравнивать и длину и имена файлов
+    #     чтобы в случае чего добавлять и удалять виджеты, это на будущее
+    #     """
             # new_files = [i for i in finder if i not in self.url_to_wid]
             # del_files = [i for i in self.url_to_wid if i not in finder]
             # return {
@@ -797,7 +797,7 @@ class Grid(UScrollArea):
         if a0.button() != Qt.MouseButton.LeftButton:
             return
         
-        if self.rubberBand.isVisible():
+        elif self.rubberBand.isVisible():
             release_pos = self.main_wid.mapFrom(self, a0.pos())
             rect = QRect(self.origin_pos, release_pos).normalized()
             self.rubberBand.hide()
@@ -825,14 +825,13 @@ class Grid(UScrollArea):
                     if not ctrl and wid in self.selected_thumbs:
                         wid.set_no_frame()
                         self.selected_thumbs.remove(wid)
-            return
+                self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
 
-        if self.wid_under_mouse is None:
+        elif self.wid_under_mouse is None:
             self.clear_selected_widgets()
             self.path_bar_update_delayed(self.main_win_item.main_dir)
-            return
         
-        if a0.modifiers() == Qt.KeyboardModifier.ShiftModifier:
+        elif a0.modifiers() == Qt.KeyboardModifier.ShiftModifier:
             # шифт клик: если не было выделенных виджетов
             if not self.selected_thumbs:
                 self.select_multiple_thumb(self.wid_under_mouse)
@@ -867,6 +866,8 @@ class Grid(UScrollArea):
                 self.path_bar_update_delayed(self.wid_under_mouse.src)
         else:
             self.select_single_thumb(self.wid_under_mouse)
+
+        self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
 
     def mouseDoubleClickEvent(self, a0):
         if self.wid_under_mouse:
