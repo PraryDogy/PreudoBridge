@@ -417,7 +417,6 @@ class MainWin(WinBase):
         self.grid.new_history_item.connect(lambda dir: self.top_bar.new_history_item(dir))
         self.grid.change_view.connect(lambda: self.change_view_cmd())
         self.grid.verticalScrollBar().valueChanged.connect(lambda value: self.scroll_up_toggle(value))
-        self.grid.finished_.connect(lambda: self.grid.setFocus())
 
     def load_search_grid(self):
         self.grid.deleteLater()

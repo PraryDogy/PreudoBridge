@@ -88,13 +88,13 @@ class FavItem(QLabel):
 
         menu_.addSeparator()
 
-        open_finder_action = ItemActions.RevealInFinder(menu_, urls, total)
+        open_finder_action = ItemActions.RevealInFinder(menu_, urls)
         menu_.addAction(open_finder_action)
 
-        copy_path_action = ItemActions.CopyPath(menu_, urls, total)
+        copy_path_action = ItemActions.CopyPath(menu_, urls)
         menu_.addAction(copy_path_action)
 
-        copy_name = ItemActions.CopyName(menu_, names, total)
+        copy_name = ItemActions.CopyName(menu_, names)
         menu_.addAction(copy_name)
 
         menu_.addSeparator()

@@ -187,13 +187,13 @@ class PathItem(QWidget):
 
         menu.addSeparator()
 
-        show_in_finder_action = ItemActions.RevealInFinder(menu, urls, total)
+        show_in_finder_action = ItemActions.RevealInFinder(menu, urls)
         menu.addAction(show_in_finder_action)
 
-        copy_path = ItemActions.CopyPath(menu, urls, total)
+        copy_path = ItemActions.CopyPath(menu, urls)
         menu.addAction(copy_path)
 
-        copy_name = ItemActions.CopyName(menu, names, total)
+        copy_name = ItemActions.CopyName(menu, names)
         menu.addAction(copy_name)
 
         self.solid_style()
