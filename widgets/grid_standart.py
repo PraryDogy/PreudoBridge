@@ -180,6 +180,7 @@ class GridStandart(Grid):
             wid = self.url_to_wid.get(self.main_win_item.get_go_to())
             self.main_win_item.clear_go_to()
             self.select_single_thumb(wid)
+            self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
 
         elif self.main_win_item.get_urls():
             for i in self.main_win_item.get_urls():
