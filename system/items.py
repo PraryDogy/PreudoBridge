@@ -163,6 +163,7 @@ class SearchItem:
         super().__init__()
         self._filter: int = 0
         self._content: str | list[str] = None
+        self.set_filter(1)
 
     def get_content(self):
         """
@@ -198,9 +199,8 @@ class SearchItem:
         """
         return self._filter
     
-    def reset(self):
+    def reset_filter(self):
         self.set_content(None)
-        self.set_filter(0)
 
 
 class MainWinItem:

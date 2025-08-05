@@ -220,7 +220,7 @@ class SearchWidget(ULineEdit):
 
     def clear_all(self):
         self.clear()
-        self.search_item.reset()
+        self.search_item.reset_filter()
 
     def prepare_text(self):
         """
@@ -236,7 +236,7 @@ class SearchWidget(ULineEdit):
         """
         self.search_text = self.search_text.strip()
         self.setText(self.search_text)
-        self.search_item.reset()
+        self.search_item.reset_filter()
 
         if self.search_text in SearchItem.SEARCH_EXTENSIONS:
             extensions: tuple[str] = SearchItem.SEARCH_EXTENSIONS.get(self.search_text)
