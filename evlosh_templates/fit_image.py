@@ -29,5 +29,6 @@ class FitImage:
         try:
             return cls._fit_image(image, size)
         except Exception as e:
-            cls._print_error()
+            # cls._print_error()
+            print("Fit Image > error", e)
             return None

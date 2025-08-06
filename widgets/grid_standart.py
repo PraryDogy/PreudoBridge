@@ -26,18 +26,22 @@ class GridStandart(Grid):
         # только при остановке скроллинга спустя время запускается
         # функция загрузки изображений
         self.load_images_timer = QTimer(self)
+        self.load_images_timer.setSingleShot(True)
         self.load_images_timer.timeout.connect(self.load_visible_images)
-        self.load_images_timer.start(2000)
+        self.verticalScrollBar().valueChanged.connect(self.on_scroll_changed)
 
         # виджет поверх остальных с текстом "загрузка"
         self.loading_lbl = LoadingWid(self)
         self.loading_lbl.center(self)
-
     
     def update_mod_thumbs(self):
         thumbs = super().update_mod_thumbs()
         self.start_load_images_task(thumbs)
 
+    def remove_files_fin(self, urls):
+        super().remove_files_fin(urls)
+        self.load_visible_images()
+            
     def load_visible_images(self):
         """
         Составляет список Thumb виджетов, которые находятся в зоне видимости.   
@@ -57,6 +61,15 @@ class GridStandart(Grid):
         super().paste_files_fin(files, dest)
         thumbs = self.get_thumbs_by_urls(files)
         self.start_load_images_task(thumbs)
+
+    def on_scroll_changed(self, value: int):
+        """
+        - При сколлинге запускается таймер    
+        - Запускается load visible images
+        - Если скролл достиг низа, подгрузить следующие limit айтемов
+        """
+        self.load_images_timer.stop()
+        self.load_images_timer.start(1000)
 
     def load_finder_items(self):
         """
@@ -126,7 +139,9 @@ class GridStandart(Grid):
             self.filter_thumbs()
             self.rearrange_thumbs()
 
-        self.load_visible_images()
+        # если не будет прокрутки, то начнется подгрузка изображений в виджеты
+        # в видимой области
+        self.load_images_timer.start(100)
         self.finished_.emit()
 
     def create_thumbs_grid(self, base_items: list[BaseItem]):
