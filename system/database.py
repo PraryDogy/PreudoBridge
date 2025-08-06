@@ -1,14 +1,11 @@
 import os
-from time import sleep
 
 import sqlalchemy
-from sqlalchemy.exc import IntegrityError, OperationalError
 
 from system.utils import Utils
 
 METADATA = sqlalchemy.MetaData()
 TABLE_NAME = "cache"
-SQL_ERRORS = (OperationalError, IntegrityError)
 
 class ColumnNames:
     ID = "id"
@@ -78,7 +75,7 @@ class Dbase:
 
             return engine
 
-        except SQL_ERRORS as e:
+        except Exception as e:
             print("unable to open data base file")
 
             if os.path.exists(path):
@@ -90,7 +87,7 @@ class Dbase:
     def commit_(cls, conn: sqlalchemy.Connection) -> None:
         try:
             conn.commit()
-        except SQL_ERRORS as e:
+        except Exception as e:
             Utils.print_error()
             conn.rollback()
 
@@ -98,7 +95,7 @@ class Dbase:
     def execute_(cls, conn: sqlalchemy.Connection, query) -> sqlalchemy.CursorResult:
         try:
             return conn.execute(query)
-        except SQL_ERRORS as e:
+        except Exception as e:
             Utils.print_error()
             conn.rollback()
             return None
@@ -107,7 +104,7 @@ class Dbase:
     def open_connection(cls, engine: sqlalchemy.Engine) -> sqlalchemy.Connection | None:
         try:
             return engine.connect()
-        except SQL_ERRORS as e:
+        except Exception as e:
             Utils.print_error()
             return None
     
@@ -115,6 +112,6 @@ class Dbase:
     def close_connection(cls, conn: sqlalchemy.Connection):
         try:
             conn.close()
-        except SQL_ERRORS as e:
+        except Exception as e:
             Utils.print_error()
             conn.rollback()
