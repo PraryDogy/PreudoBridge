@@ -650,6 +650,10 @@ class Grid(UScrollArea):
         Очищает список выделенных вижетов.  
         Запускает перетасовку сетки.    
         """
+
+        all_urls = list(self.url_to_wid)
+        ind = all_urls.index(self.selected_thumbs[-1].src)
+
         for url in urls:
             wid: Thumb = self.url_to_wid.get(url)
             if wid:
@@ -660,6 +664,15 @@ class Grid(UScrollArea):
         for i in self.selected_thumbs:
             i.set_no_frame()
         self.clear_selected_widgets()
+
+        all_urls = list(self.url_to_wid)
+        if all_urls:
+            try:
+                new_url = all_urls[ind]
+            except IndexError:
+                new_url = all_urls[-1]
+            new_wid = self.url_to_wid.get(new_url)
+            self.select_single_thumb(new_wid)
         self.rearrange_thumbs()
 
     def new_folder_start(self):
@@ -1112,7 +1125,10 @@ class Grid(UScrollArea):
 
         elif a0.key() in KEY_NAVI:
             offset = KEY_NAVI.get(a0.key())
-            # если не выделено ни одного виджета
+
+            if not self.cell_to_wid:
+                return
+
             if not self.selected_thumbs:
                 self.wid_under_mouse = self.cell_to_wid.get((0, 0))
                 if len(self.url_to_wid.values()) == 1:
