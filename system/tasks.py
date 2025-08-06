@@ -622,8 +622,6 @@ class LoadImages(URunnable):
         except RuntimeError as e:
             Utils.print_error()
 
-        print("finished", len(self.base_items))
-
     def process_thumbs(self):
         """
         Обходит циклом список Thumb     

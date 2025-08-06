@@ -348,8 +348,15 @@ class Grid(UScrollArea):
         Запускает фоновую задачу загрузки изображений для списка Thumb.
         Изображения загружаются из базы данных или из директории, если в БД нет.
         """
+        def finalize(task: LoadImages):
+            if task in self.load_images_tasks:
+                self.load_images_tasks.remove(task)
+
+        for i in self.load_images_tasks:
+            i.set_should_run(False)
         task_ = LoadImages(self.main_win_item, thumbs)
         task_.signals_.update_thumb.connect(lambda thumb: self.set_thumb_image(thumb))
+        task_.signals_.finished_.connect(lambda: finalize(task_))
         self.load_images_tasks.append(task_)
         UThreadPool.start(task_)
     
