@@ -587,9 +587,8 @@ class Grid(UScrollArea):
         Загружает сетку GridStandart с указанным путем к файлу / папке
         """
         new_main_dir = os.path.dirname(wid.src)
-        self.main_win_item.set_go_to(wid.src)
-        self.main_win_item.main_dir = new_main_dir
-        self.open_in_new_win.emit((new_main_dir, [wid.src, ]))
+        cmd = lambda: self.open_in_new_win.emit((new_main_dir, [wid.src, ]))
+        QTimer.singleShot(100, cmd)
 
     def setup_urls_to_copy(self):
         """
