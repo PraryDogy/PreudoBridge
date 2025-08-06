@@ -74,13 +74,13 @@ class TreeMenu(QTreeView):
 
         menu.addSeparator()
 
-        open_finder_action = ItemActions.RevealInFinder(menu, [src], 1)
+        open_finder_action = ItemActions.RevealInFinder(menu, [src])
         menu.addAction(open_finder_action)
 
-        copy_path_action = ItemActions.CopyPath(menu, [src], 1)
+        copy_path_action = ItemActions.CopyPath(menu, [src])
         menu.addAction(copy_path_action)
 
-        copy_name = ItemActions.CopyName(menu, [os.path.basename(src)], 1)
+        copy_name = ItemActions.CopyName(menu, [os.path.basename(src)])
         menu.addAction(copy_name)
 
         menu.addSeparator()

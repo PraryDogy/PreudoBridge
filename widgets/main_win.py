@@ -127,7 +127,7 @@ class MainWin(WinBase):
     list_text = "Список"
     grid_text = "Плитка"
 
-    def __init__(self, dir: str = None):
+    def __init__(self, dir: str = None, select_urls: list[str] = None):
         super().__init__()
         self.main_win_list: list[MainWin] = []
         self.search_item: SearchItem = SearchItem()
@@ -147,6 +147,9 @@ class MainWin(WinBase):
             sys_vol = EvloshUtils.get_system_volume()
             dir = EvloshUtils.add_system_volume(MainWin.base_dir, sys_vol)
             self.main_win_item.main_dir = dir
+
+        if select_urls:
+            self.main_win_item.set_urls(select_urls)
 
         self.resize_timer = QTimer(self)
         self.resize_timer.setSingleShot(True)
@@ -250,11 +253,11 @@ class MainWin(WinBase):
         self.tree_menu.add_fav.connect(lambda dir: self.favs_menu.add_fav(dir))
         self.tree_menu.del_fav.connect(lambda dir: self.favs_menu.del_fav(dir))
         self.tree_menu.new_history_item.connect(lambda dir: self.top_bar.new_history_item(dir))
-        self.tree_menu.open_in_new_window.connect(lambda dir: self.open_in_new_win(dir))
+        self.tree_menu.open_in_new_window.connect(lambda dir: self.open_in_new_win((dir, None)))
 
         self.favs_menu.load_st_grid.connect(lambda: self.load_st_grid())
         self.favs_menu.new_history_item.connect(lambda dir: self.top_bar.new_history_item(dir))
-        self.favs_menu.open_in_new_win.connect(lambda dir: self.open_in_new_win(dir))
+        self.favs_menu.open_in_new_win.connect(lambda dir: self.open_in_new_win((dir, None)))
 
         self.tags_menu_btn.clicked_.connect(lambda: self.toggle_tags_menu())
 
@@ -267,7 +270,7 @@ class MainWin(WinBase):
         self.top_bar.load_st_grid.connect(lambda: self.load_st_grid())
         self.top_bar.navigate.connect(lambda: self.load_st_grid())
         self.top_bar.remove_db.connect(lambda: self.remove_db())
-        self.top_bar.open_in_new_win.connect(lambda dir: self.open_in_new_win(dir))
+        self.top_bar.open_in_new_win.connect(lambda dir: self.open_in_new_win((dir, None)))
         self.top_bar.open_settings.connect(lambda: self.open_settings())
         self.top_bar.fast_sort.connect(lambda: self.fast_sort_clicked())
 
@@ -278,7 +281,7 @@ class MainWin(WinBase):
         self.path_bar.new_history_item.connect(lambda dir: self.top_bar.new_history_item(dir))
         self.path_bar.load_st_grid.connect(lambda: self.load_st_grid())
         self.path_bar.open_img_view.connect(lambda path: self.open_img_view(path))
-        self.path_bar.open_in_new_win.connect(lambda dir: self.open_in_new_win(dir))
+        self.path_bar.open_in_new_win.connect(lambda dir: self.open_in_new_win((dir, None)))
 
         self.sort_bar.resize_thumbs.connect(lambda: self.grid.resize_thumbs())
         self.sort_bar.rearrange_thumbs.connect(lambda: self.grid.rearrange_thumbs())
@@ -397,8 +400,9 @@ class MainWin(WinBase):
         else:
             self.tags_menu.hide()
 
-    def open_in_new_win(self, dir: str):
-        new_win = MainWin(dir)
+    def open_in_new_win(self, data: tuple):
+        new_main_dir, select_urls = data
+        new_win = MainWin(new_main_dir, select_urls)
         self.main_win_list.append(new_win)
         x, y = self.window().x(), self.window().y()
         new_win.move(x + MainWin.new_win_offset, y + MainWin.new_win_offset)
@@ -412,7 +416,7 @@ class MainWin(WinBase):
         self.grid.del_fav.connect(lambda dir: self.favs_menu.del_fav(dir))
         self.grid.move_slider.connect(lambda value: self.sort_bar.move_slider(value))
         self.grid.load_st_grid.connect(lambda: self.load_st_grid())
-        self.grid.open_in_new_win.connect(lambda dir: self.open_in_new_win(dir))
+        self.grid.open_in_new_win.connect(lambda data: self.open_in_new_win(data))
         self.grid.level_up.connect(lambda: self.level_up())
         self.grid.new_history_item.connect(lambda dir: self.top_bar.new_history_item(dir))
         self.grid.change_view.connect(lambda: self.change_view_cmd())
@@ -598,6 +602,6 @@ class MainWin(WinBase):
                 self.change_view_cmd()
 
             elif a0.key() == Qt.Key.Key_N:
-                self.open_in_new_win(self.main_win_item.main_dir)
+                self.open_in_new_win((self.main_win_item.main_dir, None))
 
         return super().keyPressEvent(a0)

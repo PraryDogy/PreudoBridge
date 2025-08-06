@@ -533,7 +533,7 @@ class Grid(UScrollArea):
             ]
 
             for i in folders:
-                self.open_in_new_win.emit(i)
+                self.open_in_new_win.emit((i, None))
 
             files = [
                 i.src
@@ -589,7 +589,7 @@ class Grid(UScrollArea):
         new_main_dir = os.path.dirname(wid.src)
         self.main_win_item.set_go_to(wid.src)
         self.main_win_item.main_dir = new_main_dir
-        self.load_st_grid.emit()
+        self.open_in_new_win.emit((new_main_dir, [wid.src, ]))
 
     def setup_urls_to_copy(self):
         """
@@ -947,7 +947,7 @@ class Grid(UScrollArea):
             menu_.addMenu(open_in_app)
         else:
             new_win = ItemActions.OpenInNewWindow(menu_)
-            new_win.triggered.connect(lambda: self.open_in_new_win.emit(wid.src))
+            new_win.triggered.connect(lambda: self.open_in_new_win.emit((wid.src, None)))
             menu_.addAction(new_win)
 
             if wid.src in JsonData.favs:
@@ -969,7 +969,7 @@ class Grid(UScrollArea):
         info.triggered.connect(lambda: self.open_win_info(wid.src))
         menu_.addAction(info)
 
-        if wid.type_ in Static.ext_all:
+        if wid.type_ in Static.ext_all and not self.is_grid_search:
             convert_action = ItemActions.ImgConvert(menu_)
             convert_action.triggered.connect(lambda: self.open_img_convert_win(urls_img))
             menu_.addAction(convert_action)

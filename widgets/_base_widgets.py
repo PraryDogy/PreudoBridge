@@ -40,7 +40,7 @@ class UScrollArea(QScrollArea, UMethods):
     load_st_grid = pyqtSignal()
     move_slider = pyqtSignal(int)
     change_view = pyqtSignal()
-    open_in_new_win = pyqtSignal(str)
+    open_in_new_win = pyqtSignal(tuple)
     level_up = pyqtSignal()
     sort_menu_update = pyqtSignal()
     total_count_update = pyqtSignal(tuple)
