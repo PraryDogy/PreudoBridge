@@ -651,6 +651,7 @@ class Grid(UScrollArea):
         Запускает перетасовку сетки.    
         """
 
+        # вычисляем индекс последнего выделенного виджета
         all_urls = list(self.url_to_wid)
         ind = all_urls.index(self.selected_thumbs[-1].src)
 
@@ -665,6 +666,8 @@ class Grid(UScrollArea):
             i.set_no_frame()
         self.clear_selected_widgets()
 
+        # выделяем новый виджет, который находится на месте последнего
+        # удаленного виджета
         all_urls = list(self.url_to_wid)
         if all_urls:
             try:
