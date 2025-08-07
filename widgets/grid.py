@@ -340,19 +340,6 @@ class Grid(UScrollArea):
                 thumb.rating_wid.set_text(thumb.rating, thumb.type_, thumb.mod, thumb.size)
                 thumbs.append(thumb)
         return thumbs
-    
-    def get_thumbs_by_urls(self, urls: list[str]) -> list[Thumb]:
-        """
-        Находит виджеты Thumb по url.   
-        Возвращает список Thumbs
-        """
-        if not urls:
-            return []
-        return [
-            self.url_to_wid[url]
-            for url in urls
-            if url in self.url_to_wid
-        ]
 
     def start_load_images_task(self, thumbs: list[Thumb]):
         """
@@ -363,32 +350,27 @@ class Grid(UScrollArea):
             if task in self.load_images_tasks:
                 self.load_images_tasks.remove(task)
 
+        def set_thumb_image(thumb: Thumb):
+            if thumb.get_pixmap_storage():
+                try:
+                    thumb.set_pixmap(thumb.get_pixmap_storage())
+                    self.already_loaded_thumbs.append(thumb)
+                except RuntimeError as e:
+                    Utils.print_error()
+
         for i in self.load_images_tasks:
             i.set_should_run(False)
         task_ = LoadImagesTask(self.main_win_item, thumbs)
-        task_.signals_.update_thumb.connect(lambda thumb: self.set_thumb_image(thumb))
+        task_.signals_.update_thumb.connect(set_thumb_image)
         task_.signals_.finished_.connect(lambda: finalize(task_))
         self.load_images_tasks.append(task_)
         UThreadPool.start(task_)
     
-    def set_thumb_image(self, thumb: Thumb):
-        """
-        Получает QPixmap из хранилища Thumb.    
-        Устанавливает QPixmap в Thumb для отображения в сетке.
-        """
-        pixmap = thumb.get_pixmap_storage()
-        if pixmap:
-            try:
-                thumb.set_pixmap(pixmap)
-                self.already_loaded_thumbs.append(thumb)
-            except RuntimeError as e:
-                Utils.print_error()
-
     def reload_rubber(self):
         self.rubberBand.deleteLater()
         self.rubberBand = QRubberBand(QRubberBand.Rectangle, self.main_wid)
     
-    def get_col_count(self):
+    def get_clmn_count(self):
         """
         Получает количество столбцов для сетки по формуле:  
         Ширина окна минус ширина левого виджета в сплиттере (левое меню)
@@ -413,7 +395,7 @@ class Grid(UScrollArea):
                 self.path_bar_update.emit(src)
             except RuntimeError as e:
                 Utils.print_error()
-        QTimer.singleShot(0, lambda: path_bar_update_delayed())
+        QTimer.singleShot(0, path_bar_update_delayed)
     
     def sort_thumbs(self):
         """
@@ -469,7 +451,7 @@ class Grid(UScrollArea):
         """
         self.cell_to_wid.clear()
         self.row, self.col = 0, 0
-        self.col_count = self.get_col_count()
+        self.col_count = self.get_clmn_count()
         for wid in self.url_to_wid.values():
             if wid.must_hidden:
                 continue
@@ -540,15 +522,30 @@ class Grid(UScrollArea):
 
     def open_img_view(self, start_url: str, url_to_wid: dict, is_selection: bool):
 
-        def closed():
+        def on_close():
             del self.win_img_view
             gc.collect()
 
+        def set_db_rating(data: tuple):
+            rating, url = data
+            wid = self.url_to_wid.get(url)
+            if not wid:
+                return
+            self.rating_task = RatingTask(self.main_win_item.main_dir, wid.filename, rating)
+            cmd_ = lambda: set_rating(wid, rating)
+            self.rating_task.signals_.finished_.connect(cmd_)
+            UThreadPool.start(self.rating_task)
+
+        def set_rating(wid: Thumb, new_rating: int):
+            wid.rating = new_rating
+            wid.rating_wid.set_text(wid.rating, wid.type_, wid.mod, wid.size)
+            wid.text_changed.emit()
+
         from .img_view_win import ImgViewWin
         self.win_img_view = ImgViewWin(start_url, url_to_wid, is_selection)
-        self.win_img_view.move_to_wid.connect(lambda wid: self.select_single_thumb(wid))
-        self.win_img_view.new_rating.connect(lambda data: self.new_rating_single_start(*data))
-        self.win_img_view.closed.connect(lambda: closed())
+        self.win_img_view.move_to_wid.connect(self.select_single_thumb)
+        self.win_img_view.new_rating.connect(set_db_rating)
+        self.win_img_view.closed.connect(on_close)
         self.win_img_view.center(self.window())
         self.win_img_view.show()
 
@@ -631,7 +628,7 @@ class Grid(UScrollArea):
         self.toggle_is_cut(False)
         Dynamic.urls_to_copy.clear()
         self.rearrange_thumbs()
-        thumbs = self.get_thumbs_by_urls(urls)
+        thumbs = [self.url_to_wid[url] for url in urls if url in self.url_to_wid]
         self.start_load_images_task(thumbs)
 
     def load_visible_images(self):
@@ -742,18 +739,6 @@ class Grid(UScrollArea):
             self.selected_thumbs.remove(wid)
             wid.deleteLater()
 
-    def new_rating_single_start(self, rating: int, url: str):
-        """
-        Устанавливает рейтинг для виджета с указанным url
-        """
-        wid = self.url_to_wid.get(url)
-        if not wid:
-            return
-        self.rating_task = RatingTask(self.main_win_item.main_dir, wid.filename, rating)
-        cmd_ = lambda: self.new_rating_fin(wid, rating)
-        self.rating_task.signals_.finished_.connect(cmd_)
-        UThreadPool.start(self.rating_task)
-
     def new_rating_multiple_start(self, rating: int):
         """
         Устанавливает рейтинг для выделенных в сетке виджетов:
@@ -765,15 +750,6 @@ class Grid(UScrollArea):
             cmd_ = lambda w=wid: self.new_rating_fin(w, rating)
             self.rating_task.signals_.finished_.connect(cmd_)
             UThreadPool.start(self.rating_task)
-
-    def new_rating_fin(self, wid: Thumb, new_rating: int):
-        """
-        Устанавливает визуальный рейтинг и аттрибут рейтинга для Thumb при  
-        успешной записи в базу данных
-        """
-        wid.rating = new_rating
-        wid.rating_wid.set_text(wid.rating, wid.type_, wid.mod, wid.size)
-        wid.text_changed.emit()
         
     def clear_selected_widgets(self):
         """
@@ -788,7 +764,6 @@ class Grid(UScrollArea):
         Очищает визуальное выделение с выделенных виджетов и очищает список.  
         Выделяет виджет, добавляет его в список выделенных виджетов.
         """
-        print("select", wid.src)
         if isinstance(wid, Thumb):
             self.path_bar_update_delayed(wid.src)
             self.clear_selected_widgets()

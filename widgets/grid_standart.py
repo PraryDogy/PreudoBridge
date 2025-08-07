@@ -121,7 +121,7 @@ class GridStandart(Grid):
         self.finished_.emit()
 
     def create_thumbs_grid(self, base_items: list[BaseItem]):
-        self.col_count = self.get_col_count()
+        self.col_count = self.get_clmn_count()
         for base_item in base_items:
             thumb = Thumb(base_item.src, base_item.rating)
             thumb.migrate_from_base_item(base_item)

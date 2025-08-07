@@ -585,7 +585,7 @@ class FinderItems(URunnable):
     
 
 class _LoadImagesSigs(QObject):
-    update_thumb = pyqtSignal(BaseItem)
+    update_thumb = pyqtSignal(BaseItem) # на самом деле Thumb
     finished_ = pyqtSignal()
 
 
