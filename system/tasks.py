@@ -592,9 +592,9 @@ class LoadImagesTask(URunnable):
         self.signals_ = _LoadImagesSigs()
         self.main_win_item = main_win_item
         self.stmt_list: list[sqlalchemy.Insert | sqlalchemy.Update] = []
-        self.base_items = thumbs
+        self.thumbs = thumbs
         key_ = lambda x: x.size
-        self.base_items.sort(key=key_)
+        self.thumbs.sort(key=key_)
 
     def task(self):
         """
@@ -602,7 +602,7 @@ class LoadImagesTask(URunnable):
         Запускает обход списка Thumb для загрузки изображений   
         Испускает сигнал finished_
         """
-        if not self.base_items:
+        if not self.thumbs:
             return
 
         db = os.path.join(self.main_win_item.main_dir, Static.DB_FILENAME)
@@ -628,23 +628,23 @@ class LoadImagesTask(URunnable):
         Пытается загрузить изображение из базы данных или создает новое,
         чтобы передать его в Thumb
         """
-        for base_item in self.base_items:
+        for thumb in self.thumbs:
             if not self.is_should_run():
                 return  
-            if base_item.type_ not in Static.ext_all:
-                any_base_item = AnyBaseItem(self.conn, base_item)
+            if thumb.type_ not in Static.ext_all:
+                any_base_item = AnyBaseItem(self.conn, thumb)
                 stmt = any_base_item.get_stmt()
                 if stmt is not None:
                     self.stmt_list.append(stmt)
             else:
-                img_base_item = ImageBaseItem(self.conn, base_item)
+                img_base_item = ImageBaseItem(self.conn, thumb)
                 stmt, pixmap = img_base_item.get_stmt_pixmap()
                 if pixmap:
-                    base_item.set_pixmap_storage(pixmap)
+                    thumb.set_pixmap_storage(pixmap)
                 if stmt is not None:
                     self.stmt_list.append(stmt)
                 try:
-                    self.signals_.update_thumb.emit(base_item)
+                    self.signals_.update_thumb.emit(thumb)
                 except (TypeError, RuntimeError, TypeError) as e:
                     Utils.print_error()
                     return
@@ -661,7 +661,7 @@ class _LoadThumbSigs(QObject):
     finished_ = pyqtSignal(tuple)
 
 
-class LoadThumb(URunnable):
+class LoadThumbTask(URunnable):
     def __init__(self, src: str):
         super().__init__()
         self.signals_ = _LoadThumbSigs()
@@ -706,7 +706,7 @@ class LoadThumb(URunnable):
             Utils.print_error()
 
 
-class LoadImage(URunnable):
+class LoadImageTask(URunnable):
     cache_limit = 15
     cached_images: dict[str, QPixmap] = {}
 

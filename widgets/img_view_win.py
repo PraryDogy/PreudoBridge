@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QSpacerItem,
                              QVBoxLayout, QWidget)
 
 from cfg import Static
-from system.tasks import LoadImage, LoadThumb
+from system.tasks import LoadImageTask, LoadThumbTask
 from system.utils import UThreadPool
 
 from ._base_widgets import UMenu, USvgSqareWidget, WinBase
@@ -253,8 +253,8 @@ class ImgViewWin(WinBase):
         self.setWindowTitle(text_)
 
     def load_thumbnail(self):
-        if self.current_path not in LoadImage.cached_images:
-            self.task_ = LoadThumb(self.current_path)
+        if self.current_path not in LoadImageTask.cached_images:
+            self.task_ = LoadThumbTask(self.current_path)
             cmd_ = lambda image_data: self.load_thumbnail_finished(image_data)
             self.task_.signals_.finished_.connect(cmd_)
             UThreadPool.start(self.task_)
@@ -282,7 +282,7 @@ class ImgViewWin(WinBase):
 
     def load_image(self):
         self.task_count += 1
-        task_ = LoadImage(self.current_path)
+        task_ = LoadImageTask(self.current_path)
         cmd_ = lambda image_data: self.load_image_finished(image_data)
         task_.signals_.finished_.connect(cmd_)
         UThreadPool.start(task_)
@@ -424,12 +424,12 @@ class ImgViewWin(WinBase):
         self.hide_btns()
 
     def deleteLater(self):
-        LoadImage.cached_images.clear()
+        LoadImageTask.cached_images.clear()
         self.closed.emit()
         return super().deleteLater()
 
     def closeEvent(self, a0):
-        LoadImage.cached_images.clear()
+        LoadImageTask.cached_images.clear()
         self.closed.emit()
         return super().closeEvent(a0)
 
