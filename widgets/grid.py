@@ -612,12 +612,17 @@ class Grid(UScrollArea):
         self.win_copy.show()
         QTimer.singleShot(300, self.win_copy.raise_)
 
-    def paste_files_fin(self, files: list[str]):
+    def paste_files_fin(self, urls: list[str]):
         if not self.cell_to_wid:
             self.load_st_grid.emit()
         else:
-            for i in files:
-                self.new_thumb(i)
+
+            for url in urls:
+                self.del_thumb(url)
+
+            for i in urls:
+                thumb = self.new_thumb(i)
+                self.select_multiple_thumb(thumb)
             if self.selected_thumbs:
                 cmd = lambda: self.ensureWidgetVisible(self.selected_thumbs[-1])
                 QTimer.singleShot(50, cmd)
@@ -625,7 +630,8 @@ class Grid(UScrollArea):
         self.toggle_is_cut(False)
         Dynamic.urls_to_copy.clear()
 
-        thumbs = self.get_thumbs_by_urls(files)
+        self.rearrange_thumbs()
+        thumbs = self.get_thumbs_by_urls(urls)
         self.start_load_images_task(thumbs)
 
     def load_visible_images(self):
@@ -661,11 +667,11 @@ class Grid(UScrollArea):
         Окно испускет сигнал finished, что ведет к методу remove files fin
         """
         self.rem_win = RemoveFilesWin(self.main_win_item, urls)
-        self.rem_win.finished_.connect(lambda urls: self.remove_files_fin(urls))
+        self.rem_win.finished_.connect(lambda urls: self.remove_thumbs(urls))
         self.rem_win.center(self.window())
         self.rem_win.show()
 
-    def remove_files_fin(self, urls: list[str]):
+    def remove_thumbs(self, urls: list[str]):
         """
         Удаляет виджеты и данные о виджетах на основе получанного списка url.   
         Снимает визуальное выделение с выделенных виджетов.     
@@ -678,18 +684,8 @@ class Grid(UScrollArea):
         ind = all_urls.index(self.selected_thumbs[-1].src)
 
         for url in urls:
-            wid: Thumb = self.url_to_wid.get(url)
-            if wid:
-                self.cell_to_wid.pop((wid.row, wid.col))
-                self.url_to_wid.pop(url)
-                wid.deleteLater()
+            self.del_thumb(url)
 
-        for i in self.selected_thumbs:
-            i.set_no_frame()
-        self.clear_selected_widgets()
-
-        # выделяем новый виджет, который находится на месте последнего
-        # удаленного виджета
         all_urls = list(self.url_to_wid)
         if all_urls:
             try:
@@ -736,7 +732,14 @@ class Grid(UScrollArea):
             self.col = 0
             self.row += 1
 
-        self.select_multiple_thumb(thumb)
+        return thumb
+
+    def del_thumb(self, url: str):
+        wid = self.url_to_wid.get(url)
+        if wid:
+            self.cell_to_wid.pop((wid.row, wid.col))
+            self.url_to_wid.pop(url)
+            wid.deleteLater()
 
     def new_rating_single_start(self, rating: int, url: str):
         """
