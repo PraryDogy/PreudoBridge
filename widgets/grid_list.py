@@ -13,7 +13,7 @@ from evlosh_templates.evlosh_utils import EvloshUtils
 from system.items import MainWinItem
 from system.utils import Utils
 
-from ._base_widgets import LoadingWid, UMenu, UTableView
+from ._base_widgets import LoadingWid, UMenu
 from .actions import GridActions, ItemActions
 from .copy_files_win import CopyFilesWin, ErrorWin
 from .grid import Thumb
@@ -21,7 +21,7 @@ from .info_win import InfoWin
 from .remove_files_win import RemoveFilesWin
 
 
-class GridList(UTableView):
+class GridList(QTableView):
     col: int = 0
     order: int = 0
     sizes: list = [250, 100, 100, 150]
