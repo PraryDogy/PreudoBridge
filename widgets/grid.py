@@ -545,14 +545,9 @@ class Grid(UScrollArea):
             if not wid:
                 return
             self.rating_task = RatingTask(self.main_win_item.main_dir, wid.filename, rating)
-            cmd_ = lambda: set_rating(wid, rating)
+            cmd_ = lambda: self.set_thumb_rating(wid, rating)
             self.rating_task.signals_.finished_.connect(cmd_)
             UThreadPool.start(self.rating_task)
-
-        def set_rating(wid: Thumb, new_rating: int):
-            wid.rating = new_rating
-            wid.rating_wid.set_text(wid.rating, wid.type_, wid.mod, wid.size)
-            wid.text_changed.emit()
 
         from .img_view_win import ImgViewWin
         self.win_img_view = ImgViewWin(start_url, url_to_wid, is_selection)
@@ -720,15 +715,21 @@ class Grid(UScrollArea):
             self.selected_thumbs.remove(wid)
             wid.deleteLater()
 
+    def set_thumb_rating(self, wid: Thumb, new_rating: int):
+        wid.rating = new_rating
+        wid.rating_wid.set_text(wid.rating, wid.type_, wid.mod, wid.size)
+        wid.text_changed.emit()
+
     def new_rating_multiple_start(self, rating: int):
         """
         Устанавливает рейтинг для выделенных в сетке виджетов:
         - Делается запись в базу данных через URunnable
         - При успешной записи URunnable испускает сигнал finished
         """
+
         for wid in self.selected_thumbs:
             self.rating_task = RatingTask(self.main_win_item.main_dir, wid.filename, rating)
-            cmd_ = lambda w=wid: self.new_rating_fin(w, rating)
+            cmd_ = lambda w=wid: self.set_thumb_rating(w, rating)
             self.rating_task.signals_.finished_.connect(cmd_)
             UThreadPool.start(self.rating_task)
         
