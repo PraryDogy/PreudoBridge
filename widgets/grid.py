@@ -585,9 +585,11 @@ class Grid(UScrollArea):
         В сетке GridSearch к каждому Thumb добавляется пункт "Показать в папке"     
         Загружает сетку GridStandart с указанным путем к файлу / папке
         """
+        def cmd(main_dir: str):
+            self.open_in_new_win.emit((main_dir, [wid.src, ]))
+
         new_main_dir = os.path.dirname(wid.src)
-        cmd = lambda: self.open_in_new_win.emit((new_main_dir, [wid.src, ]))
-        QTimer.singleShot(100, cmd)
+        QTimer.singleShot(100, lambda: cmd(new_main_dir))
 
     def setup_urls_to_copy(self):
         """
@@ -601,7 +603,34 @@ class Grid(UScrollArea):
                 self.del_thumb(i.src)
         self.rearrange_thumbs()
 
-    def paste_files_start(self, dest: str = None):
+    def paste_files(self, dest: str = None):
+
+        def finalize(urls: list[str]):
+            if not self.cell_to_wid:
+                self.load_st_grid.emit()
+            else:
+                for i in Dynamic.urls_to_copy:
+                    self.del_thumb(i)
+                for url in urls:
+                    self.del_thumb(url)
+                for i in urls:
+                    thumb = self.new_thumb(i)
+                    self.select_multiple_thumb(thumb)
+                if self.selected_thumbs:
+                    cmd = lambda: self.ensureWidgetVisible(self.selected_thumbs[-1])
+                    QTimer.singleShot(50, cmd)
+            self.toggle_is_cut(False)
+            Dynamic.urls_to_copy.clear()
+            self.rearrange_thumbs()
+            thumbs = [self.url_to_wid[url] for url in urls if url in self.url_to_wid]
+            self.start_load_images_task(thumbs)
+
+        def show_error_win():
+            self.win_copy.deleteLater()
+            self.error_win = ErrorWin()
+            self.error_win.center(self.window())
+            self.error_win.show()
+
         if not Dynamic.urls_to_copy:
             return
         if not dest:
@@ -615,31 +644,11 @@ class Grid(UScrollArea):
                 return
 
         self.win_copy = CopyFilesWin(dest, Dynamic.urls_to_copy, Dynamic.is_cut)
-        self.win_copy.finished_.connect(lambda files: self.paste_files_fin(files))
-        self.win_copy.error_.connect(self.show_error_win)
+        self.win_copy.finished_.connect(finalize)
+        self.win_copy.error_.connect(show_error_win)
         self.win_copy.center(self.window())
         self.win_copy.show()
         QTimer.singleShot(300, self.win_copy.raise_)
-
-    def paste_files_fin(self, urls: list[str]):
-        if not self.cell_to_wid:
-            self.load_st_grid.emit()
-        else:
-            for i in Dynamic.urls_to_copy:
-                self.del_thumb(i)
-            for url in urls:
-                self.del_thumb(url)
-            for i in urls:
-                thumb = self.new_thumb(i)
-                self.select_multiple_thumb(thumb)
-            if self.selected_thumbs:
-                cmd = lambda: self.ensureWidgetVisible(self.selected_thumbs[-1])
-                QTimer.singleShot(50, cmd)
-        self.toggle_is_cut(False)
-        Dynamic.urls_to_copy.clear()
-        self.rearrange_thumbs()
-        thumbs = [self.url_to_wid[url] for url in urls if url in self.url_to_wid]
-        self.start_load_images_task(thumbs)
 
     def load_visible_images(self):
         """
@@ -656,74 +665,36 @@ class Grid(UScrollArea):
                 i.set_should_run(False)
             self.start_load_images_task(thumbs)
 
-    def show_error_win(self):
-        """
-        Открывает окно ошибки копирования файлов
-        """
-        self.win_copy.deleteLater()
-        self.error_win = ErrorWin()
-        self.error_win.center(self.window())
-        self.error_win.show()
+    def remove_files(self, urls: list[str]):
 
-    def remove_files_start(self, urls: list[str]):
-        """
-        Окно удаления выделенных виджетов, на основе которых формируется список     
-        файлов для удаления.    
-        Запускается apple script remove_files.scpt через subprocess через URunnable,
-        чтобы переместить файлы в корзину, а не удалять их безвозвратно.
-        Окно испускет сигнал finished, что ведет к методу remove files fin
-        """
+        def finalize(urls: list[str]):
+            # вычисляем индекс последнего выделенного виджета
+            all_urls = list(self.url_to_wid)
+            ind = all_urls.index(self.selected_thumbs[-1].src)
+
+            for url in urls:
+                self.del_thumb(url)
+
+            all_urls = list(self.url_to_wid)
+            if all_urls:
+                try:
+                    new_url = all_urls[ind]
+                except IndexError:
+                    new_url = all_urls[-1]
+                new_wid = self.url_to_wid.get(new_url)
+                self.select_single_thumb(new_wid)
+            self.rearrange_thumbs()
+            # например ты удалил виджет и стала видна следующая строка
+            # с виджетами, где картинки еще не были загружены
+            self.load_visible_images()
+
+            if not self.cell_to_wid:
+                self.load_st_grid.emit()
+
         self.rem_win = RemoveFilesWin(self.main_win_item, urls)
-        self.rem_win.finished_.connect(lambda urls: self.remove_thumbs(urls))
+        self.rem_win.finished_.connect(finalize)
         self.rem_win.center(self.window())
         self.rem_win.show()
-
-    def remove_thumbs(self, urls: list[str]):
-        """
-        Удаляет виджеты и данные о виджетах на основе получанного списка url.   
-        Снимает визуальное выделение с выделенных виджетов.     
-        Очищает список выделенных вижетов.  
-        Запускает перетасовку сетки.    
-        """
-
-        # вычисляем индекс последнего выделенного виджета
-        all_urls = list(self.url_to_wid)
-        ind = all_urls.index(self.selected_thumbs[-1].src)
-
-        for url in urls:
-            self.del_thumb(url)
-
-        all_urls = list(self.url_to_wid)
-        if all_urls:
-            try:
-                new_url = all_urls[ind]
-            except IndexError:
-                new_url = all_urls[-1]
-            new_wid = self.url_to_wid.get(new_url)
-            self.select_single_thumb(new_wid)
-        self.rearrange_thumbs()
-        # например ты удалил виджет и стала видна следующая строка
-        # с виджетами, где картинки еще не были загружены
-        self.load_visible_images()
-
-        if not self.cell_to_wid:
-            self.load_st_grid.emit()
-
-    def new_folder_start(self):
-        cmd = lambda name: self.new_folder_fin(name)
-        self.rename_win = RenameWin("")
-        self.rename_win.center(self.window())
-        self.rename_win.finished_.connect(cmd)
-        self.rename_win.show()
-    
-    def new_folder_fin(self, name: str):
-        dest = os.path.join(self.main_win_item.main_dir, name)
-
-        try:
-            os.mkdir(dest)
-            self.new_thumb(dest)
-        except Exception as e:
-            Utils.print_error()
 
     def new_thumb(self, url: str):
         thumb = Thumb(url)
@@ -1037,25 +1008,39 @@ class Grid(UScrollArea):
         menu_.addAction(copy_files)
 
         remove_files = ItemActions.RemoveObjects(menu_)
-        remove_files.triggered.connect(lambda: self.remove_files_start(urls))
+        remove_files.triggered.connect(lambda: self.remove_files(urls))
         menu_.addAction(remove_files)
 
     def context_grid(self, menu_: UMenu):
+
+        def new_folder_start():
+            self.rename_win = RenameWin("")
+            self.rename_win.center(self.window())
+            self.rename_win.finished_.connect(lambda name: new_folder_fin(name))
+            self.rename_win.show()
+        
+        def new_folder_fin(name: str):
+            dest = os.path.join(self.main_win_item.main_dir, name)
+            try:
+                os.mkdir(dest)
+                self.new_thumb(dest)
+            except Exception as e:
+                Utils.print_error()
+
         self.path_bar_update_delayed(self.main_win_item.main_dir)
         names = [os.path.basename(self.main_win_item.main_dir)]
         urls = [self.main_win_item.main_dir]
-        total = 1
 
         if Dynamic.urls_to_copy and not self.is_grid_search:
             paste_files = GridActions.PasteObjects(menu_)
-            paste_files.triggered.connect(self.paste_files_start)
+            paste_files.triggered.connect(self.paste_files)
             menu_.addAction(paste_files)
 
         menu_.addSeparator()
 
         if not self.is_grid_search and not Dynamic.rating_filter != 0:
             new_folder = GridActions.NewFolder(menu_)
-            new_folder.triggered.connect(self.new_folder_start)
+            new_folder.triggered.connect(new_folder_start)
             menu_.addAction(new_folder)
 
         if not self.is_grid_search:
@@ -1114,7 +1099,7 @@ class Grid(UScrollArea):
 
             elif a0.key() == Qt.Key.Key_V:
                 if not self.is_grid_search:
-                    self.paste_files_start()
+                    self.paste_files()
 
             elif a0.key() == Qt.Key.Key_Up:
                 self.level_up.emit()
@@ -1152,7 +1137,7 @@ class Grid(UScrollArea):
 
             elif a0.key() == Qt.Key.Key_Backspace:
                 urls = [i.src for i in self.selected_thumbs]
-                self.remove_files_start(urls)
+                self.remove_files(urls)
 
         elif a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
             if self.selected_thumbs:
@@ -1261,7 +1246,7 @@ class Grid(UScrollArea):
                 return
 
         if Dynamic.urls_to_copy:
-            self.paste_files_start()
+            self.paste_files()
 
         return super().dropEvent(a0)
 
