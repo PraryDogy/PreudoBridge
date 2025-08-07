@@ -140,7 +140,7 @@ class CopyFilesWin(ProgressbarWin):
     progressbar_width = 300
     icon_size = 50
 
-    def __init__(self, dest: str, urls: list[str]):
+    def __init__(self, dest: str, urls: list[str], is_cut: bool):
 
         if Dynamic.is_cut:
             title_text = "Перемещаю файлы"
@@ -163,7 +163,7 @@ class CopyFilesWin(ProgressbarWin):
         self.adjustSize()
 
         if urls:
-            self.copy_files_task = CopyFilesTask(dest, urls)
+            self.copy_files_task = CopyFilesTask(dest, urls, is_cut)
             self.copy_files_task.signals_.set_max.connect(lambda value: self.set_max(value))
             self.copy_files_task.signals_.set_value.connect(lambda value: self.set_value(value))
             self.copy_files_task.signals_.set_size_mb.connect(lambda text: self.size_mb_text(text))

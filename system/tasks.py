@@ -44,11 +44,12 @@ class _CopyFilesSigs(QObject):
 
 
 class CopyFilesTask(URunnable):
-    def __init__(self, dest: str, urls: list[str]):
+    def __init__(self, dest: str, urls: list[str], is_cut: bool):
         super().__init__()
         self.dest = dest
         self.urls = urls
         self.pause_flag = False
+        self.is_cut = is_cut
         self.signals_ = _CopyFilesSigs()
 
     def task(self): 
@@ -100,6 +101,13 @@ class CopyFilesTask(URunnable):
             os.makedirs(new_folders, exist_ok=True)
             try:
                 self.copy_by_bytes(src, dest)
+
+                if self.is_cut:
+                    if os.path.isdir(src):
+                        shutil.rmtree(src)
+                    else:
+                        os.remove(src)
+
             except IOError as e:
                 Utils.print_error()
                 continue

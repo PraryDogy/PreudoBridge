@@ -594,7 +594,7 @@ class Grid(UScrollArea):
                 print("нельзя копировать в себя")
                 return
 
-        self.win_copy = CopyFilesWin(dest, Dynamic.urls_to_copy)
+        self.win_copy = CopyFilesWin(dest, Dynamic.urls_to_copy, Dynamic.is_cut)
         self.win_copy.finished_.connect(lambda files: self.paste_files_fin(files, dest))
         self.win_copy.error_.connect(self.show_error_win)
         self.win_copy.center(self.window())
@@ -602,21 +602,9 @@ class Grid(UScrollArea):
         QTimer.singleShot(300, self.win_copy.raise_)
 
     def paste_files_fin(self, files: list[str], dest: str):
-        if not files:
-            return
-        self.main_win_item.scroll_value = self.verticalScrollBar().value()
-        self.main_win_item.main_dir = dest
-        self.load_st_grid.emit()
 
-        try:
-            if Dynamic.is_cut:
-                for i in Dynamic.urls_to_copy:
-                    if os.path.isfile(i):
-                        os.remove(i)
-                    else:
-                        shutil.rmtree(i)
-        except Exception as e:
-            Utils.print_error()
+        for i in files:
+            self.new_thumb(i)
 
         self.toggle_is_cut(False)
         Dynamic.urls_to_copy.clear()
@@ -708,7 +696,7 @@ class Grid(UScrollArea):
             self.col = 0
             self.row += 1
 
-        self.select_single_thumb(thumb)
+        self.select_multiple_thumb(thumb)
 
     def new_rating_single_start(self, rating: int, url: str):
         """

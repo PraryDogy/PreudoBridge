@@ -323,7 +323,7 @@ class GridList(UTableView):
             if os.path.dirname(i) == self.main_win_item.main_dir:
                 return
 
-        self.win_copy = CopyFilesWin(self.main_win_item.main_dir, Dynamic.urls_to_copy)
+        self.win_copy = CopyFilesWin(self.main_win_item.main_dir, Dynamic.urls_to_copy, Dynamic.is_cut)
         self.win_copy.finished_.connect(lambda urls: self.paste_files_fin(urls))
         self.win_copy.error_.connect(self.show_error_win)
         self.win_copy.center(self.window())
