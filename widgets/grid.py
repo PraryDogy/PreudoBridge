@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
 from cfg import Dynamic, JsonData, Static, ThumbData
 from evlosh_templates.evlosh_utils import EvloshUtils
 from system.items import BaseItem, MainWinItem, SortItem
-from system.tasks import LoadImages, RatingTask
+from system.tasks import LoadImagesTask, RatingTask
 from system.utils import ImageUtils, UThreadPool, Utils
 
 from ._base_widgets import UMenu, UScrollArea
@@ -273,7 +273,7 @@ class Grid(UScrollArea):
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.selected_thumbs: list[Thumb] = []
         self.already_loaded_thumbs: list[Thumb] = []
-        self.load_images_tasks: list[LoadImages] = []
+        self.load_images_tasks: list[LoadImagesTask] = []
         self.wid_under_mouse: Thumb = None
 
         self.main_wid = QWidget()
@@ -348,13 +348,13 @@ class Grid(UScrollArea):
         Запускает фоновую задачу загрузки изображений для списка Thumb.
         Изображения загружаются из базы данных или из директории, если в БД нет.
         """
-        def finalize(task: LoadImages):
+        def finalize(task: LoadImagesTask):
             if task in self.load_images_tasks:
                 self.load_images_tasks.remove(task)
 
         for i in self.load_images_tasks:
             i.set_should_run(False)
-        task_ = LoadImages(self.main_win_item, thumbs)
+        task_ = LoadImagesTask(self.main_win_item, thumbs)
         task_.signals_.update_thumb.connect(lambda thumb: self.set_thumb_image(thumb))
         task_.signals_.finished_.connect(lambda: finalize(task_))
         self.load_images_tasks.append(task_)

@@ -581,7 +581,7 @@ class _LoadImagesSigs(QObject):
     finished_ = pyqtSignal()
 
 
-class LoadImages(URunnable):
+class LoadImagesTask(URunnable):
     def __init__(self, main_win_item: MainWinItem, thumbs: list[BaseItem]):
         """
         URunnable   
