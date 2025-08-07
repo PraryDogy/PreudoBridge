@@ -595,16 +595,18 @@ class Grid(UScrollArea):
                 return
 
         self.win_copy = CopyFilesWin(dest, Dynamic.urls_to_copy, Dynamic.is_cut)
-        self.win_copy.finished_.connect(lambda files: self.paste_files_fin(files, dest))
+        self.win_copy.finished_.connect(lambda files: self.paste_files_fin(files))
         self.win_copy.error_.connect(self.show_error_win)
         self.win_copy.center(self.window())
         self.win_copy.show()
         QTimer.singleShot(300, self.win_copy.raise_)
 
-    def paste_files_fin(self, files: list[str], dest: str):
-
-        for i in files:
-            self.new_thumb(i)
+    def paste_files_fin(self, files: list[str]):
+        if not self.cell_to_wid:
+            self.load_st_grid.emit()
+        else:
+            for i in files:
+                self.new_thumb(i)
 
         self.toggle_is_cut(False)
         Dynamic.urls_to_copy.clear()
@@ -665,6 +667,9 @@ class Grid(UScrollArea):
             new_wid = self.url_to_wid.get(new_url)
             self.select_single_thumb(new_wid)
         self.rearrange_thumbs()
+
+        if not self.cell_to_wid:
+            self.load_st_grid.emit()
 
     def new_folder_start(self):
         cmd = lambda name: self.new_folder_fin(name)
