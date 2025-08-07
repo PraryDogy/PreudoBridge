@@ -130,6 +130,17 @@ class Thumb(BaseItem, QFrame):
     text_obj_name: str = "text_frame_"
 
     def __init__(self, src: str, rating: int = 0):
+        """
+        опционально:
+        migrate_from_base_item(base_item)
+        set_properties
+
+        обязательно:
+        set_widget_size()
+        set_no_frame()
+        set_generic_icon()
+        """
+    
         QFrame.__init__(self, parent=None)
         BaseItem.__init__(self, src, rating)
 

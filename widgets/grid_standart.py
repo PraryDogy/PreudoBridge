@@ -121,7 +121,6 @@ class GridStandart(Grid):
         self.finished_.emit()
 
     def create_thumbs_grid(self, base_items: list[BaseItem]):
-        self.hide()
         self.col_count = self.get_col_count()
         for base_item in base_items:
             thumb = Thumb(base_item.src, base_item.rating)
@@ -153,24 +152,7 @@ class GridStandart(Grid):
                     wid.set_frame()
             self.main_win_item.clear_urls()
 
-        if self.main_win_item.scroll_value:
-            QTimer.singleShot(100, self.scroll_value_cmd)
-
         self.loading_lbl.hide()
-        self.show()
-
-    def scroll_value_cmd(self):
-        self.verticalScrollBar().setValue(self.main_win_item.scroll_value)
-        self.main_win_item.scroll_value = None
-
-    def set_urls(self):
-        """
-        Из-за того, что сетка удаляется из MainWin по таймеру,
-        нужно вызывать этот метод, чтобы .urls моментально обновились
-        для обработки в следующей сетке
-        """
-        urls = [i.src for i in self.selected_thumbs]
-        self.main_win_item.set_urls(urls)
 
     def resizeEvent(self, a0):
         self.loading_lbl.center(self)
