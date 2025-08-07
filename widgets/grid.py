@@ -618,6 +618,9 @@ class Grid(UScrollArea):
         else:
             for i in files:
                 self.new_thumb(i)
+            if self.selected_thumbs:
+                cmd = lambda: self.ensureWidgetVisible(self.selected_thumbs[-1])
+                QTimer.singleShot(50, cmd)
 
         self.toggle_is_cut(False)
         Dynamic.urls_to_copy.clear()
