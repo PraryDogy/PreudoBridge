@@ -614,6 +614,21 @@ class Grid(UScrollArea):
         thumbs = self.get_thumbs_by_urls(files)
         self.start_load_images_task(thumbs)
 
+    def load_visible_images(self):
+        """
+        Составляет список Thumb виджетов, которые находятся в зоне видимости.   
+        Запускает загрузку изображений через URunnable
+        """
+        thumbs: list[Thumb] = []
+        for thumb in self.url_to_wid.values():
+            if not thumb.visibleRegion().isEmpty():
+                if thumb not in self.already_loaded_thumbs:
+                    thumbs.append(thumb)
+        if thumbs:
+            for i in self.load_images_tasks:
+                i.set_should_run(False)
+            self.start_load_images_task(thumbs)
+
     def show_error_win(self):
         """
         Открывает окно ошибки копирования файлов
@@ -670,6 +685,9 @@ class Grid(UScrollArea):
             new_wid = self.url_to_wid.get(new_url)
             self.select_single_thumb(new_wid)
         self.rearrange_thumbs()
+        # например ты удалил виджет и стала видна следующая строка
+        # с виджетами, где картинки еще не были загружены
+        self.load_visible_images()
 
         if not self.cell_to_wid:
             self.load_st_grid.emit()

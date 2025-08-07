@@ -38,25 +38,6 @@ class GridStandart(Grid):
         thumbs = super().update_mod_thumbs()
         self.start_load_images_task(thumbs)
 
-    def remove_files_fin(self, urls):
-        super().remove_files_fin(urls)
-        self.load_visible_images()
-            
-    def load_visible_images(self):
-        """
-        Составляет список Thumb виджетов, которые находятся в зоне видимости.   
-        Запускает загрузку изображений через URunnable
-        """
-        thumbs: list[Thumb] = []
-        for thumb in self.url_to_wid.values():
-            if not thumb.visibleRegion().isEmpty():
-                if thumb not in self.already_loaded_thumbs:
-                    thumbs.append(thumb)
-        if thumbs:
-            for i in self.load_images_tasks:
-                i.set_should_run(False)
-            self.start_load_images_task(thumbs)
-
     def on_scroll_changed(self, value: int):
         """
         - При сколлинге запускается таймер    
