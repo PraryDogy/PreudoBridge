@@ -593,7 +593,7 @@ class Grid(UScrollArea):
         """
         Dynamic.urls_to_copy.clear()
         for i in self.selected_thumbs:
-            Dynamic.urls_to_copy.append(i.src)
+            Dynamic.urls_to_copy[self.main_win_item.main_dir].append(i.src)
             if Dynamic.is_cut:
                 self.del_thumb(i.src)
         self.rearrange_thumbs()
@@ -604,8 +604,9 @@ class Grid(UScrollArea):
             if not self.cell_to_wid:
                 self.load_st_grid.emit()
             else:
-                for i in Dynamic.urls_to_copy:
-                    self.del_thumb(i)
+                for url_list in Dynamic.urls_to_copy.values():
+                    for i in url_list:
+                        self.del_thumb(i)
                 for url in urls:
                     self.del_thumb(url)
                 for i in urls:
@@ -626,17 +627,19 @@ class Grid(UScrollArea):
             self.error_win.center(self.window())
             self.error_win.show()
 
-        if not Dynamic.urls_to_copy:
-            return
+        for i in Dynamic.urls_to_copy.values():
+            if not i:
+                return
         if not dest:
             dest = self.main_win_item.main_dir
 
-        for i in Dynamic.urls_to_copy:
-            name = os.path.basename(i)
-            new_path = os.path.join(dest, name)
-            if i == new_path:
-                print("нельзя копировать в себя")
-                return
+        for url_list in Dynamic.urls_to_copy.values():
+            for i in url_list:
+                name = os.path.basename(i)
+                new_path = os.path.join(dest, name)
+                if i == new_path:
+                    print("нельзя копировать в себя")
+                    return
 
         self.win_copy = CopyFilesWin(dest, Dynamic.urls_to_copy, Dynamic.is_cut)
         self.win_copy.finished_.connect(finalize)
@@ -1227,7 +1230,9 @@ class Grid(UScrollArea):
     
     def dropEvent(self, a0):
         Dynamic.urls_to_copy.clear()
-        Dynamic.urls_to_copy = [i.toLocalFile() for i in a0.mimeData().urls()]
+        Dynamic.urls_to_copy = {
+            self.main_win_item.main_dir: [i.toLocalFile() for i in a0.mimeData().urls()]
+        }
 
         main_dir_ = EvloshUtils.normalize_slash(self.main_win_item.main_dir)
         sys_vol = EvloshUtils.get_system_volume()

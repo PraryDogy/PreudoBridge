@@ -53,6 +53,8 @@ class CopyFilesTask(URunnable):
         self.signals_ = _CopyFilesSigs()
 
     def task(self): 
+        print(self.urls)
+        return
         try:
             new_paths = self.create_new_paths()
             for src_path, new_path in new_paths:

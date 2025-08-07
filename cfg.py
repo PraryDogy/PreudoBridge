@@ -1,7 +1,9 @@
 import json
 import os
-import shutil
 import re
+import shutil
+from collections import defaultdict
+
 
 class Static:
     APP_NAME = "PreudoBridge"
@@ -279,7 +281,7 @@ class Dynamic:
     rating_filter: int = 0
     pixmap_size_ind = 0
     generic_icon_paths: list[str] = []
-    urls_to_copy: list[str] = []
+    urls_to_copy = defaultdict(list)
     reading = False
     image_apps: dict[str, str] = {}
     is_cut = False
