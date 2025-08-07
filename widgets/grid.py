@@ -687,12 +687,28 @@ class Grid(UScrollArea):
     
     def new_folder_fin(self, name: str):
         dest = os.path.join(self.main_win_item.main_dir, name)
+
         try:
             os.mkdir(dest)
-            self.main_win_item.set_go_to(dest)
-            self.load_st_grid.emit()
+            self.new_thumb(dest)
         except Exception as e:
             Utils.print_error()
+
+    def new_thumb(self, url: str):
+        thumb = Thumb(url)
+        thumb.set_properties()
+        thumb.set_widget_size()
+        thumb.set_no_frame()
+        thumb.set_generic_icon()
+        self.add_widget_data(thumb, self.row, self.col)
+        self.grid_layout.addWidget(thumb, self.row, self.col)
+
+        self.col += 1
+        if self.col >= self.col_count:
+            self.col = 0
+            self.row += 1
+
+        self.select_single_thumb(thumb)
 
     def new_rating_single_start(self, rating: int, url: str):
         """
