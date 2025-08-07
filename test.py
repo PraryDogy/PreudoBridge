@@ -1,6 +1,6 @@
-from evlosh_templates.read_image import ReadImage
+a = {3331: [1, 2, 3]}
 
 
-src = '/Users/Loshkarev/Desktop/R01-MLN0136-060_R01-MLN0120-060_R01-MLN0396 2.jpg'
+b = next(iter(a.values()))
 
-img = ReadImage.read_image(src)
+print(b)

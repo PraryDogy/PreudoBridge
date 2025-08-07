@@ -44,7 +44,7 @@ class _CopyFilesSigs(QObject):
 
 
 class CopyFilesTask(URunnable):
-    def __init__(self, dest: str, urls: dict[str, list], is_cut: bool):
+    def __init__(self, dest: str, urls: list[str], is_cut: bool):
         super().__init__()
         self.dest = dest
         self.urls = urls
@@ -52,33 +52,9 @@ class CopyFilesTask(URunnable):
         self.is_cut = is_cut
         self.signals_ = _CopyFilesSigs()
 
-    def task(self):
-        src = next(iter(self.urls))
-        url_list = self.urls[src]
-
-        if src == self.dest:
-            new_url_list = []
-            for i in url_list:
-                new_path = self.add_copy_to_name(i)
-                new_url_list.append(new_path)
-
-
+    def task(self): 
+        print(self.urls)
         return
-
-
-
-
-
-        for i in url_list:
-            if os.path.isdir(i):
-                url_list.remove(i)
-                url_list.extend(self.get_nested_urls(i))
-
-
-      
-        return
-
-
         try:
             new_paths = self.create_new_paths()
             for src_path, new_path in new_paths:
@@ -150,24 +126,6 @@ class CopyFilesTask(URunnable):
             self.signals_.finished_.emit(paths)
         except RuntimeError as e:
             Utils.print_error()
-
-    def add_copy_to_name(self, url: str):
-        dir_name, file_name = os.path.split(url)
-        name, ext = os.path.splitext(file_name)
-        new_name = f"{name} копия{ext}"
-        return os.path.join(dir_name, new_name)
-
-    def get_nested_urls(self, src_dir: str):
-        stack = [src_dir]
-        nested_paths: list[str] = []
-        while stack:
-            current_dir = stack.pop()
-            for dir_entry in os.scandir(current_dir):
-                if dir_entry.is_dir():
-                    stack.append(dir_entry.path)
-                else:
-                    nested_paths.append(dir_entry.path)
-        return nested_paths
 
     def copy_by_bytes(self, src: str, dest: str):
         tmp = True

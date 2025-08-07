@@ -633,13 +633,13 @@ class Grid(UScrollArea):
         if not dest:
             dest = self.main_win_item.main_dir
 
-        for url_list in Dynamic.urls_to_copy.values():
-            for i in url_list:
-                name = os.path.basename(i)
-                new_path = os.path.join(dest, name)
-                if i == new_path:
-                    print("нельзя копировать в себя")
-                    return
+        # for url_list in Dynamic.urls_to_copy.values():
+        #     for i in url_list:
+        #         name = os.path.basename(i)
+        #         new_path = os.path.join(dest, name)
+        #         if i == new_path:
+        #             print("нельзя копировать в себя")
+        #             return
 
         self.win_copy = CopyFilesWin(dest, Dynamic.urls_to_copy, Dynamic.is_cut)
         self.win_copy.finished_.connect(finalize)
