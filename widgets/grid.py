@@ -267,6 +267,19 @@ class Grid(UScrollArea):
     new_files_key = "new_files"
     del_files_key = "del files"
 
+    new_history_item = pyqtSignal(str)
+    path_bar_update = pyqtSignal(str)
+    add_fav = pyqtSignal(str)
+    del_fav = pyqtSignal(str)
+    load_st_grid = pyqtSignal()
+    move_slider = pyqtSignal(int)
+    change_view = pyqtSignal()
+    open_in_new_win = pyqtSignal(tuple)
+    level_up = pyqtSignal()
+    sort_menu_update = pyqtSignal()
+    total_count_update = pyqtSignal(tuple)
+    finished_ = pyqtSignal()
+
     def __init__(self, main_win_item: MainWinItem):
         super().__init__()
         self.setAcceptDrops(True)
@@ -555,10 +568,7 @@ class Grid(UScrollArea):
         - offset: -1 (удалить из избранного) или 1(добавить в избранное)
         - src: путь к папке
         """
-        if 0 + offset == 1:
-            self.add_fav.emit(src)
-        else:
-            self.del_fav.emit(src)
+        (self.add_fav if offset == 1 else self.del_fav).emit(src)
 
     def open_win_info(self, src: str):
         """

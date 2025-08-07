@@ -2,7 +2,7 @@ import gc
 import os
 
 from PyQt5.QtCore import (QDir, QItemSelectionModel, QMimeData, QModelIndex,
-                          Qt, QTimer, QUrl)
+                          Qt, QTimer, QUrl, pyqtSignal)
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QDragEnterEvent,
                          QDragMoveEvent, QDropEvent, QKeyEvent, QPixmap)
 from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QFileSystemModel,
@@ -25,6 +25,19 @@ class GridList(UTableView):
     col: int = 0
     order: int = 0
     sizes: list = [250, 100, 100, 150]
+
+    new_history_item = pyqtSignal(str)
+    path_bar_update = pyqtSignal(str)
+    add_fav = pyqtSignal(str)
+    del_fav = pyqtSignal(str)
+    load_st_grid = pyqtSignal()
+    move_slider = pyqtSignal(int)
+    change_view = pyqtSignal()
+    open_in_new_win = pyqtSignal(str)
+    level_up = pyqtSignal()
+    sort_menu_update = pyqtSignal()
+    total_count_update = pyqtSignal(tuple)
+    finished_ = pyqtSignal()
 
     def __init__(self, main_win_item: MainWinItem):
         super().__init__()

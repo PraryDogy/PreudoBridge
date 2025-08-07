@@ -12,64 +12,10 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QLabel, QLineEdit, QMenu,
 from cfg import Static
 
 
-class UMethods:
-    """
-    Базовые методы для GridStandart, GridSearch и GridList
-    """
-    def sort_thumbs(self, *args, **kwargs):
-        raise Exception("Переопредели метод sort_grid")
-
-    def filter_thumbs(self, *args, **kwargs):
-        raise Exception("Переопредели метод filter_grid")
-
-    def resize_thumbs(self, *args, **kwargs):
-        raise Exception("Переопредели метод resize_grid")
-    
-    def rearrange_thumbs(self, *args, **kwargs):
-        raise Exception("Переопредели метод rearrange")
-
-
-class UScrollArea(QScrollArea, UMethods):
-    """
-    Виджет с базовыми сигналами. Сигналы должны совпадать с UTableView
-    """
-    new_history_item = pyqtSignal(str)
-    path_bar_update = pyqtSignal(str)
-    add_fav = pyqtSignal(str)
-    del_fav = pyqtSignal(str)
-    load_st_grid = pyqtSignal()
-    move_slider = pyqtSignal(int)
-    change_view = pyqtSignal()
-    open_in_new_win = pyqtSignal(tuple)
-    level_up = pyqtSignal()
-    sort_menu_update = pyqtSignal()
-    total_count_update = pyqtSignal(tuple)
-    finished_ = pyqtSignal()
-
+class UScrollArea(QScrollArea):
     def __init__(self):
-        """
-        Безрамочный стиль
-        """
         super().__init__()
         self.setStyleSheet("QScrollArea { border: none; }")
-
-
-class UTableView(QTableView, UMethods):
-    """
-    Виджет с базовыми сигналами. Сигналы должны совпадать с UScrollArea
-    """
-    new_history_item = pyqtSignal(str)
-    path_bar_update = pyqtSignal(str)
-    add_fav = pyqtSignal(str)
-    del_fav = pyqtSignal(str)
-    load_st_grid = pyqtSignal()
-    move_slider = pyqtSignal(int)
-    change_view = pyqtSignal()
-    open_in_new_win = pyqtSignal(str)
-    level_up = pyqtSignal()
-    sort_menu_update = pyqtSignal()
-    total_count_update = pyqtSignal(tuple)
-    finished_ = pyqtSignal()
 
 
 class UMenu(QMenu):
