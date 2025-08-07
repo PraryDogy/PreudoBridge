@@ -149,7 +149,7 @@ class MainWin(WinBase):
             self.main_win_item.main_dir = dir
 
         if select_urls:
-            self.main_win_item.set_urls(select_urls)
+            self.main_win_item.set_urls_to_select(select_urls)
 
         self.resize_timer = QTimer(self)
         self.resize_timer.setSingleShot(True)
@@ -377,7 +377,7 @@ class MainWin(WinBase):
 
         if new_main_dir != os.sep:
             self.top_bar.new_history_item(new_main_dir)
-            self.main_win_item.clear_urls()
+            self.main_win_item.clear_urls_to_select()
             self.main_win_item.set_go_to(old_main_dir)
             self.main_win_item.main_dir = new_main_dir
             self.load_st_grid()

@@ -144,13 +144,13 @@ class GridStandart(Grid):
             self.select_single_thumb(wid)
             self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
 
-        elif self.main_win_item.get_urls():
-            for i in self.main_win_item.get_urls():
+        elif self.main_win_item.get_urls_to_select():
+            for i in self.main_win_item.get_urls_to_select():
                 if i in self.url_to_wid:
                     wid = self.url_to_wid.get(i)
                     self.selected_thumbs.append(wid)
                     wid.set_frame()
-            self.main_win_item.clear_urls()
+            self.main_win_item.clear_urls_to_select()
 
         self.loading_lbl.hide()
 

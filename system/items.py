@@ -205,7 +205,7 @@ class SearchItem:
 
 class MainWinItem:
     def __init__(self):
-        self._urls: list[str] = []
+        self._urls_to_select: list[str] = []
         self._go_to: str = None
         self.main_dir: str = None
         self.scroll_value: int = None
@@ -220,20 +220,20 @@ class MainWinItem:
         """
         return self.view_mode
 
-    def set_urls(self, urls: list[str]):
-        self._urls = urls
+    def set_urls_to_select(self, urls: list[str]):
+        self._urls_to_select = urls
 
-    def get_urls(self):
-        return self._urls
+    def get_urls_to_select(self):
+        return self._urls_to_select
+
+    def clear_urls_to_select(self):
+        self._urls_to_select.clear()
 
     def set_go_to(self, path: str):
         self._go_to = path
 
     def get_go_to(self):
         return self._go_to
-    
-    def clear_urls(self):
-        self._urls.clear()
 
     def clear_go_to(self):
         self._go_to = None

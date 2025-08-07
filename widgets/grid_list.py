@@ -82,12 +82,12 @@ class GridList(UTableView):
                     self.select_row(index)
                 self.main_win_item.clear_go_to()
 
-        elif self.main_win_item.get_urls():
-            for url in self.main_win_item.get_urls():
+        elif self.main_win_item.get_urls_to_select():
+            for url in self.main_win_item.get_urls_to_select():
                 if url in self.url_to_index:
                     index = self.url_to_index.get(url)
                     self.select_row(index)
-            self.main_win_item.clear_urls()
+            self.main_win_item.clear_urls_to_select()
             QTimer.singleShot(100, lambda: self.verticalScrollBar().setValue(0))
 
         self.setCurrentIndex(QModelIndex())
@@ -374,7 +374,7 @@ class GridList(UTableView):
         """
         GridList.sizes = [self.columnWidth(i) for i in range(0, 4)]
         urls = [i for i in self.get_selected_urls()]
-        self.main_win_item.set_urls(urls)
+        self.main_win_item.set_urls_to_select(urls)
 
     def select_row(self, index: QModelIndex):
         self.setCurrentIndex(index)
