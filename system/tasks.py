@@ -69,7 +69,7 @@ class CopyFilesTask(URunnable):
 
         return
 
-
+        # иначе обычное копирование
 
 
 
