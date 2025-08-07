@@ -590,11 +590,13 @@ class Grid(UScrollArea):
         Dynamic.urls_to_copy.clear()
         for i in self.selected_thumbs:
             Dynamic.urls_to_copy.append(i.src)
+            if Dynamic.is_cut:
+                self.del_thumb(i.src)
+        self.rearrange_thumbs()
 
     def paste_files_start(self, dest: str = None):
         if not Dynamic.urls_to_copy:
             return
-
         if not dest:
             dest = self.main_win_item.main_dir
 
@@ -616,20 +618,18 @@ class Grid(UScrollArea):
         if not self.cell_to_wid:
             self.load_st_grid.emit()
         else:
-
+            for i in Dynamic.urls_to_copy:
+                self.del_thumb(i)
             for url in urls:
                 self.del_thumb(url)
-
             for i in urls:
                 thumb = self.new_thumb(i)
                 self.select_multiple_thumb(thumb)
             if self.selected_thumbs:
                 cmd = lambda: self.ensureWidgetVisible(self.selected_thumbs[-1])
                 QTimer.singleShot(50, cmd)
-
         self.toggle_is_cut(False)
         Dynamic.urls_to_copy.clear()
-
         self.rearrange_thumbs()
         thumbs = self.get_thumbs_by_urls(urls)
         self.start_load_images_task(thumbs)
@@ -739,6 +739,7 @@ class Grid(UScrollArea):
         if wid:
             self.cell_to_wid.pop((wid.row, wid.col))
             self.url_to_wid.pop(url)
+            self.selected_thumbs.remove(wid)
             wid.deleteLater()
 
     def new_rating_single_start(self, rating: int, url: str):
