@@ -611,6 +611,9 @@ class Grid(UScrollArea):
         self.toggle_is_cut(False)
         Dynamic.urls_to_copy.clear()
 
+        thumbs = self.get_thumbs_by_urls(files)
+        self.start_load_images_task(thumbs)
+
     def show_error_win(self):
         """
         Открывает окно ошибки копирования файлов

@@ -57,11 +57,6 @@ class GridStandart(Grid):
                 i.set_should_run(False)
             self.start_load_images_task(thumbs)
 
-    def paste_files_fin(self, files: list[str]):
-        super().paste_files_fin(files)
-        thumbs = self.get_thumbs_by_urls(files)
-        self.start_load_images_task(thumbs)
-
     def on_scroll_changed(self, value: int):
         """
         - При сколлинге запускается таймер    
