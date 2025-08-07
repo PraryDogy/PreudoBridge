@@ -788,6 +788,7 @@ class Grid(UScrollArea):
         Очищает визуальное выделение с выделенных виджетов и очищает список.  
         Выделяет виджет, добавляет его в список выделенных виджетов.
         """
+        print("select", wid.src)
         if isinstance(wid, Thumb):
             self.path_bar_update_delayed(wid.src)
             self.clear_selected_widgets()

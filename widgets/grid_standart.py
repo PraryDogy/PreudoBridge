@@ -138,11 +138,15 @@ class GridStandart(Grid):
                 self.col = 0
                 self.row += 1
 
+        def select_delayed(wid: Thumb):
+            self.select_single_thumb(wid)
+            self.ensureWidgetVisible(wid)
+
         if self.main_win_item.get_go_to() in self.url_to_wid:
             wid = self.url_to_wid.get(self.main_win_item.get_go_to())
             self.main_win_item.clear_go_to()
-            self.select_single_thumb(wid)
             self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
+            QTimer.singleShot(100, lambda: select_delayed(wid))
 
         elif self.main_win_item.get_urls_to_select():
             for i in self.main_win_item.get_urls_to_select():
