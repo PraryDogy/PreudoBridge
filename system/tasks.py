@@ -112,6 +112,14 @@ class CopyFilesTask(URunnable):
         except RuntimeError as e:
             Utils.print_error()
             return
+        
+        for src, dest in src_dest_list:
+            if os.path.exists(dest):
+                self.signals_.replace_files_win.emit()
+                self.pause_flag = True
+                while self.pause_flag:
+                    sleep(1)
+                break
 
         for count, (src, dest) in enumerate(src_dest_list, start=1):
             if not self.is_should_run():
@@ -121,17 +129,15 @@ class CopyFilesTask(URunnable):
             os.makedirs(os.path.dirname(dest), exist_ok=True)
             try:
                 self.copy_by_bytes(src, dest)
-                if self.is_cut:
-                    if os.path.isdir(src):
-                        shutil.rmtree(src)
-                    else:
-                        os.remove(src)
-                sleep(1)
             except Exception as e:
                 Utils.print_error()
                 self.signals_.error_win.emit()
                 break
-        
+            if self.is_cut:
+                if os.path.isdir(src):
+                    shutil.rmtree(src)
+                else:
+                    os.remove(src)
         try:
             self.signals_.finished_.emit(thumb_paths)
         except RuntimeError as e:
