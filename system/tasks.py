@@ -111,25 +111,33 @@ class CopyFilesTask(URunnable):
                 break
 
     def prepare_search_dir(self):
-        ...
-        # создай все пути к файлам
-        # проверь каждый
+        existing_paths = set()
+
+        for url in CopyItem.urls:
+            filename = os.path.basename(url)
+            dest_dir = CopyItem.get_dest()
+            base_name, ext = os.path.splitext(filename)
+
+            new_name = filename
+            count = 2
+            full_path = os.path.join(dest_dir, new_name)
+
+            while full_path in existing_paths:
+                new_name = f"{base_name} {count}{ext}"
+                full_path = os.path.join(dest_dir, new_name)
+                count += 1
+
+            existing_paths.add(full_path)
+            self.src_dest_list.append((url, full_path))
+            self.thumb_paths.append(full_path)
 
     def task(self):
         if CopyItem.get_is_search():
             self.prepare_search_dir()
-            print("searh copy")
-
         elif CopyItem.get_src() == CopyItem.get_dest():
             self.prepare_same_dir()
-            print("copy same dir")
-
         else:
             self.prepare_another_dir()
-            print("regular copy")
-
-        self.signals_.finished_.emit([])
-        return
 
         total_bytes = 0
         for src, dest in self.src_dest_list:
