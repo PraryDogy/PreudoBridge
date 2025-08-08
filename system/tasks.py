@@ -57,7 +57,6 @@ class CopyFilesTask(URunnable):
         self.copied_timer.timeout.connect(self.send_copied_kb)
         self.copied_timer.start(1000)
 
-
     def prepare_same_dir(self):
         """
         Если файлы и папки скопированы в одной директории и будут вставлены туда же,
@@ -138,6 +137,9 @@ class CopyFilesTask(URunnable):
             self.prepare_same_dir()
         else:
             self.prepare_another_dir()
+
+        for i in self.src_dest_list:
+            print(i)
 
         total_bytes = 0
         for src, dest in self.src_dest_list:

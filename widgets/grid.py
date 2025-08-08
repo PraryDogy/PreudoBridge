@@ -622,9 +622,6 @@ class Grid(UScrollArea):
             self.error_win = ErrorWin()
             self.error_win.center(self.window())
             self.error_win.show()
-
-        if len(CopyItem.urls) == 0:
-            return
         
         CopyItem.set_dest(self.main_win_item.main_dir)
         self.win_copy = CopyFilesWin()
@@ -1224,10 +1221,15 @@ class Grid(UScrollArea):
             EvloshUtils.add_sys_vol(i, sys_vol)
             for i in urls
         ]
-        if os.path.dirname(urls[0]) == self.main_win_item.main_dir:
+        src = os.path.dirname(urls[0])
+        is_cut = src.split(os.sep)[:3] == self.main_win_item.main_dir.split(os.sep)[:3]
+        if src == self.main_win_item.main_dir:
             print("нельзя копировать в себя через DropEvent")
             return
         else:
+            CopyItem.set_is_cut(is_cut)
+            CopyItem.set_src(src)
+            CopyItem.urls = urls
             self.paste_files()
         return super().dropEvent(a0)
 
