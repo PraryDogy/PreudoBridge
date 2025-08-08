@@ -144,8 +144,8 @@ class MainWin(WinBase):
         if dir:
             self.main_win_item.main_dir = dir
         else:
-            sys_vol = EvloshUtils.get_system_volume()
-            dir = EvloshUtils.add_system_volume(MainWin.base_dir, sys_vol)
+            sys_vol = EvloshUtils.get_sys_vol()
+            dir = EvloshUtils.add_sys_vol(MainWin.base_dir, sys_vol)
             self.main_win_item.main_dir = dir
 
         if select_urls:
@@ -452,7 +452,7 @@ class MainWin(WinBase):
         - dir: основная директория, которая будет отображена в виде сетки виджетов
         """
         if not os.path.exists(self.main_win_item.main_dir):
-            slashed = EvloshUtils.normalize_slash(self.main_win_item.main_dir)
+            slashed = EvloshUtils.norm_slash(self.main_win_item.main_dir)
             fixed_path = Utils.fix_path_prefix(slashed)
             if fixed_path:
                 self.main_win_item.main_dir = fixed_path

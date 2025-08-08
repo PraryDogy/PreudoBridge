@@ -77,7 +77,7 @@ class BaseItem:
         Обновляет данные объекта:
         src, filename, type_, mod, birth, size, rating
         """
-        self.src = EvloshUtils.normalize_slash(self.src)
+        self.src = EvloshUtils.norm_slash(self.src)
         self.filename = os.path.basename(self.src)
 
         if os.path.isdir(self.src):
@@ -384,7 +384,9 @@ class ImageBaseItem:
 class CopyItem:
     urls: list[str] = []
     _is_cut: bool = False
-    _src: str = ""
+    _is_search: bool = False
+    _src: str = None
+    _dest: str = None
 
     @classmethod
     def set_src(cls, src: str):
@@ -403,9 +405,25 @@ class CopyItem:
         return cls._is_cut
     
     @classmethod
+    def set_dest(cls, dest: str):
+        cls._dest = dest
+
+    @classmethod
+    def get_dest(cls):
+        return cls._dest
+    
+    @classmethod
+    def set_is_search(cls, value: bool):
+        cls._is_search = value
+
+    @classmethod
+    def get_is_search(cls):
+        return cls._is_search
+
+    @classmethod
     def reset(cls):
-        """
-        Очищает urls, is_cut = False
-        """
         cls.urls.clear()
         cls._is_cut = False
+        cls._is_search = False
+        cls._src = None
+        cls._dest = None

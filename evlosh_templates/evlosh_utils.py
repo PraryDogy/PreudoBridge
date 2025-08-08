@@ -37,7 +37,7 @@ class EvloshUtils:
         return image_apps
 
     @classmethod
-    def get_system_volume(cls):
+    def get_sys_vol(cls):
         """
         Возвращает путь к системному диску /Volumes/Macintosh HD (или иное имя)
         """
@@ -48,7 +48,7 @@ class EvloshUtils:
                 return i.path
             
     @classmethod
-    def add_system_volume(cls, path: str, sys_vol: str):
+    def add_sys_vol(cls, path: str, sys_vol: str):
         """
         Добавляет /Volumes/Macintosh HD (или иное имя системного диска),
         если директория локальная - т.е. начинается с /Users/Username/...
@@ -59,12 +59,12 @@ class EvloshUtils:
         return path
     
     @classmethod
-    def normalize_slash(cls, path: str):
+    def norm_slash(cls, path: str):
         """
         Убирает последний слеш, оставляет первый
         """
         return os.sep + path.strip(os.sep)
-    
+                
     @classmethod
     def get_f_size(cls, bytes_size: int, round_value: int = 2) -> str:
         def format_size(size: float) -> str:

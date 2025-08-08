@@ -2,12 +2,13 @@ import difflib
 import gc
 import os
 import shutil
+from collections import Counter, defaultdict
 from time import sleep
 
 import numpy as np
 import sqlalchemy
 from PIL import Image
-from PyQt5.QtCore import QObject, pyqtSignal, QTimer
+from PyQt5.QtCore import QObject, QTimer, pyqtSignal
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtTest import QTest
 from sqlalchemy.exc import IntegrityError, OperationalError
@@ -19,8 +20,8 @@ from evlosh_templates.path_finder import PathFinder
 from evlosh_templates.read_image import ReadImage
 
 from .database import CACHE, Dbase
-from .items import (AnyBaseItem, BaseItem, ImageBaseItem, MainWinItem,
-                    SearchItem, SortItem)
+from .items import (AnyBaseItem, BaseItem, CopyItem, ImageBaseItem,
+                    MainWinItem, SearchItem, SortItem)
 from .utils import ImageUtils, URunnable, Utils
 
 
@@ -44,76 +45,59 @@ class _CopyFilesSigs(QObject):
 
 
 class CopyFilesTask(URunnable):
-    def __init__(self, src: str, dest: str, urls: list[str], is_cut: bool):
+    def __init__(self, copy_item: CopyItem):
         super().__init__()
-        self.src = src
-        self.dest = dest
-        self.urls = urls
-        self.is_cut = is_cut
-        self.pause_flag = False
+        self.copy_item = copy_item
         self.signals_ = _CopyFilesSigs()
-
+        self.pause_flag = False
         self.copied_kb = 0
+        self.thumb_paths: list[str] = []
+        self.src_dest_list: list[tuple[str, str]] = []
 
         self.copied_timer = QTimer()
         self.copied_timer.timeout.connect(self.send_copied_kb)
         self.copied_timer.start(1000)
 
-    def task(self):
-        # список url которые нужно будет выделить в сетке после копирования
-        thumb_paths = []
-        src_dest_list: list[tuple[str, str]] = []
 
-        # копирование в саму себя - будет скопировано в виде копии
-        if self.src == self.dest:
-            for src_url in self.urls:
-                if os.path.isfile(src_url):
-                    new_filename = self.add_copy_to_name(src_url)
-                    src_dest_list.append((src_url, new_filename))
-                    thumb_paths.append(new_filename)
-                else:
-                    new_dir_name = self.add_copy_to_name(src_url)
-                    # получаем все url файлов для папки
-                    # заменяем имя старой папки на имя новой папки
-                    nested_urls = [
-                        (x, x.replace(src_url, new_dir_name))
-                        for x in self.get_nested_urls(src_url)
-                    ]
-                    src_dest_list.extend(nested_urls)
-                    thumb_paths.append(new_dir_name)
-        else:
-            for src_url in self.urls:
-                if os.path.isfile(src_url):
-                    new_filename = src_url.replace(self.src, self.dest)
-                    src_dest_list.append((src_url, new_filename))
-                    thumb_paths.append(new_filename)
-                else:
-                    new_dir_name = src_url.replace(self.src, self.dest)
-                    # получаем все url файлов для папки
-                    # заменяем имя старой папки на имя новой папки
-                    nested_urls = [
-                        (x, x.replace(self.src, self.dest))
-                        for x in self.get_nested_urls(src_url)
-                    ]
-                    src_dest_list.extend(nested_urls)
-                    thumb_paths.append(new_dir_name)
+    def prepare_same_dir(self):
+        """
+        Если файлы и папки скопированы в одной директории и будут вставлены туда же,
+        то они будут вставлены с припиской "копия"
+        """
+        for src_url in self.copy_item.urls:
+            if os.path.isfile(src_url):
+                new_filename = self.add_copy_to_name(src_url)
+                self.src_dest_list.append((src_url, new_filename))
+                self.thumb_paths.append(new_filename)
+            else:
+                new_dir_name = self.add_copy_to_name(src_url)
+                # получаем все url файлов для папки
+                # заменяем имя старой папки на имя новой папки
+                nested_urls = [
+                    (x, x.replace(src_url, new_dir_name))
+                    for x in self.get_nested_urls(src_url)
+                ]
+                self.src_dest_list.extend(nested_urls)
+                self.thumb_paths.append(new_dir_name)
+    
+    def prepare_another_dir(self):
+        for src_url in self.copy_item.urls:
+            if os.path.isfile(src_url):
+                new_filename = src_url.replace(self.copy_item.get_src(), self.copy_item.get_dest())
+                self.src_dest_list.append((src_url, new_filename))
+                self.thumb_paths.append(new_filename)
+            else:
+                new_dir_name = src_url.replace(self.copy_item.get_src(), self.copy_item.get_dest())
+                # получаем все url файлов для папки
+                # заменяем имя старой папки на имя новой папки
+                nested_urls = [
+                    (x, x.replace(self.copy_item.get_src(), self.copy_item.get_dest()))
+                    for x in self.get_nested_urls(src_url)
+                ]
+                self.src_dest_list.extend(nested_urls)
+                self.thumb_paths.append(new_dir_name)
 
-
-        # когда окно "заменить"?
-        # поиск: копируем 10 файлов с одним именем, как быть
-        # может быть будет окно "заменить" и "оставить оба"
-
-        total_bytes = 0
-        for src, dest in src_dest_list:
-            total_bytes += os.path.getsize(src)
-
-        try:
-            self.signals_.set_total_kb.emit(self.bytes_to_kb(total_bytes))
-        except RuntimeError as e:
-            Utils.print_error()
-            return
-        
-        for src, dest in src_dest_list:
+        for src, dest in self.src_dest_list:
             if os.path.exists(dest):
                 self.signals_.replace_files_win.emit()
                 self.pause_flag = True
@@ -121,10 +105,23 @@ class CopyFilesTask(URunnable):
                     sleep(1)
                 break
 
-        for count, (src, dest) in enumerate(src_dest_list, start=1):
+    def prepare_search_dir(self):
+        ...
+
+    def task(self):
+        total_bytes = 0
+        for src, dest in self.src_dest_list:
+            total_bytes += os.path.getsize(src)
+        try:
+            self.signals_.set_total_kb.emit(self.bytes_to_kb(total_bytes))
+        except RuntimeError as e:
+            Utils.print_error()
+            return
+
+        for count, (src, dest) in enumerate(self.src_dest_list, start=1):
             if not self.is_should_run():
                 break
-            data = (count, len(src_dest_list))
+            data = (count, len(self.src_dest_list))
             self.signals_.set_counter.emit(data)
             os.makedirs(os.path.dirname(dest), exist_ok=True)
             try:
@@ -139,7 +136,7 @@ class CopyFilesTask(URunnable):
                 else:
                     os.remove(src)
         try:
-            self.signals_.finished_.emit(thumb_paths)
+            self.signals_.finished_.emit(self.thumb_paths)
         except RuntimeError as e:
             Utils.print_error()
 
@@ -605,7 +602,7 @@ class LoadThumbTask(URunnable):
     def __init__(self, src: str):
         super().__init__()
         self.signals_ = _LoadThumbSigs()
-        self.src = EvloshUtils.normalize_slash(src)
+        self.src = EvloshUtils.norm_slash(src)
         self.name = os.path.basename(self.src)
 
     def task(self):

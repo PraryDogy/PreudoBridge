@@ -1,6 +1,6 @@
-a = {3331: [1, 2, 3]}
+import os
 
+path = "Volumes/Macintosh HD/Users/Loshkarev/Desktop/Типа эталон ретуши/"
+clean_path = os.path.normpath(path)
 
-b = next(iter(a.values()))
-
-print(b)
+print(clean_path)

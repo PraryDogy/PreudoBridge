@@ -624,13 +624,9 @@ class Grid(UScrollArea):
 
         if len(CopyItem.urls) == 0:
             return
-
-        self.win_copy = CopyFilesWin(
-            src=CopyItem.get_src(),
-            dest=self.main_win_item.main_dir,
-            urls=CopyItem.urls,
-            is_cut=CopyItem.get_is_cut()
-        )
+        
+        CopyItem.set_dest(self.main_win_item.main_dir)
+        self.win_copy = CopyFilesWin(CopyItem)
         self.win_copy.finished_.connect(finalize)
         self.win_copy.error_win.connect(show_error_win)
         self.win_copy.center(self.window())
@@ -979,11 +975,11 @@ class Grid(UScrollArea):
         menu_.addAction(show_in_finder_action)
 
         copy_path = ItemActions.CopyPath(menu_, urls)
-        copy_path.triggered.connect(lambda: CopyItem.set_is_cut(False))
+        copy_path.triggered.connect(lambda: CopyItem.reset())
         menu_.addAction(copy_path)
 
         copy_name = ItemActions.CopyName(menu_, names)
-        copy_name.triggered.connect(lambda: CopyItem.set_is_cut(False))
+        copy_name.triggered.connect(lambda: CopyItem.reset())
         menu_.addAction(copy_name)
 
         menu_.addSeparator()
@@ -1216,28 +1212,22 @@ class Grid(UScrollArea):
         return super().dragEnterEvent(a0)
     
     def dropEvent(self, a0):
-        CopyItem.urls = [i.toLocalFile() for i in a0.mimeData().urls()]
-
-        main_dir_ = EvloshUtils.normalize_slash(self.main_win_item.main_dir)
-        sys_vol = EvloshUtils.get_system_volume()
-        main_dir_ = EvloshUtils.add_system_volume(main_dir_, sys_vol)
-        main_disk = self.main_win_item.main_dir.split(os.sep)[:3]
-        for i in CopyItem.urls:
-            i = EvloshUtils.normalize_slash(i)
-            i = EvloshUtils.add_system_volume(i, sys_vol)
-
-            file_disk = i.split(os.sep)[:3]
-            if file_disk == main_disk:
-                CopyItem.set_is_cut(True)
-
-            if os.path.commonpath([i, main_dir_]) == main_dir_:
-                print("Нельзя копировать в себя")
-                CopyItem.set_is_cut(False)
-                return
-
-        if CopyItem.urls:
+        if not a0.mimeData().urls():
+            return
+        sys_vol = EvloshUtils.get_sys_vol()
+        urls = [
+            EvloshUtils.norm_slash(i.toLocalFile())
+            for i in a0.mimeData().urls()
+        ]
+        urls = [
+            EvloshUtils.add_sys_vol(i, sys_vol)
+            for i in urls
+        ]
+        if os.path.dirname(urls[0]) == self.main_win_item.main_dir:
+            print("нельзя копировать в себя через DropEvent")
+            return
+        else:
             self.paste_files()
-
         return super().dropEvent(a0)
 
     def deleteLater(self):
