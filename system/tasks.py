@@ -38,6 +38,8 @@ class _CopyFilesSigs(QObject):
     finished_ = pyqtSignal(list)
     set_copied_bytes = pyqtSignal(int)
     set_total_bytes = pyqtSignal(int)
+    set_copied_count = pyqtSignal(int)
+    set_total_count = pyqtSignal(int)
     error_win = pyqtSignal()
     replace_files_win = pyqtSignal()
 
@@ -76,28 +78,31 @@ class CopyFilesTask(URunnable):
 
         try:
             self.signals_.set_total_bytes.emit(total_bytes)
+            self.signals_.set_total_count.emit(len(src_dest_list))
         except RuntimeError as e:
             Utils.print_error()
             return
 
-        for src, dest in src_dest_list:
+        for count, (src, dest) in enumerate(src_dest_list, start=1):
             if not self.is_should_run():
-                return
+                break
             os.makedirs(os.path.dirname(dest), exist_ok=True)
+            self.signals_.set_copied_count.emit(count)
             try:
                 self.copy_by_bytes(src, dest)
-                if self.is_cut:
-                    if os.path.isdir(src):
-                        shutil.rmtree(src)
-                    else:
-                        os.remove(src)
+                # if self.is_cut:
+                #     if os.path.isdir(src):
+                #         shutil.rmtree(src)
+                #     else:
+                #         os.remove(src)
             except Exception as e:
                 Utils.print_error()
                 self.signals_.error_win.emit()
-                return
+                break
         
         try:
-            self.signals_.finished_.emit([dest for src, dest in src_dest_list])
+            dests = [dest for src, dest in src_dest_list]
+            self.signals_.finished_.emit(dests)
         except RuntimeError as e:
             Utils.print_error()
 
@@ -132,7 +137,7 @@ class CopyFilesTask(URunnable):
                 fdest.write(buf)
                 # прибавляем в байтах сколько уже скопировано
                 self.copied_bytes += len(buf)
-                sleep(0.1)
+                # sleep(0.1)
                 try:
                     self.signals_.set_copied_bytes.emit(self.copied_bytes)
                 except RuntimeError as e:

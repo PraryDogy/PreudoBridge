@@ -602,19 +602,17 @@ class Grid(UScrollArea):
     def paste_files(self):
 
         def finalize(urls: list[str]):
-            if not self.cell_to_wid:
-                self.load_st_grid.emit()
-            else:
-                for i in urls:
-                    self.del_thumb(i)
-                    thumb = self.new_thumb(i)
-                    self.select_multiple_thumb(thumb)
-                if self.selected_thumbs:
-                    cmd = lambda: self.ensureWidgetVisible(self.selected_thumbs[-1])
-                    QTimer.singleShot(50, cmd)
+            thumbs = []
+            for i in urls:
+                self.del_thumb(i)
+                thumb = self.new_thumb(i)
+                self.select_multiple_thumb(thumb)
+                thumbs.append(thumb)
+            if self.selected_thumbs:
+                cmd = lambda: self.ensureWidgetVisible(self.selected_thumbs[-1])
+                QTimer.singleShot(50, cmd)
             CopyItem.reset()
             self.rearrange_thumbs()
-            thumbs = [self.url_to_wid[url] for url in urls if url in self.url_to_wid]
             self.start_load_images_task(thumbs)
 
         def show_error_win():
