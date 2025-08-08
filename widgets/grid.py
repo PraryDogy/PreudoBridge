@@ -607,14 +607,14 @@ class Grid(UScrollArea):
 
         def paste_final(urls: list[str]):
             thumbs = []
+            empty_grid = not self.cell_to_wid
             self.clear_selected_widgets()
             for i in urls:
                 self.del_thumb(i)
                 thumb = self.new_thumb(i)
                 self.select_multiple_thumb(thumb)
                 thumbs.append(thumb)
-
-            if len(self.cell_to_wid) == 1:
+            if empty_grid:
                 self.load_st_grid.emit()
             else:
                 self.rearrange_thumbs()
