@@ -98,6 +98,7 @@ class CopyFilesTask(URunnable):
 
         # когда окно "заменить"?
         # поиск: копируем 10 файлов с одним именем, как быть
+        # может быть будет окно "заменить" и "оставить оба"
 
         total_bytes = 0
         for src, dest in src_dest_list:
