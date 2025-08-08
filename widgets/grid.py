@@ -1216,6 +1216,9 @@ class Grid(UScrollArea):
         return super().dragEnterEvent(a0)
     
     def dropEvent(self, a0):
+        # for i in a0.mimeData().urls():
+        #     print(i.toLocalFile())
+
         if not a0.mimeData().urls():
             return
         sys_vol = EvloshUtils.get_sys_vol()
