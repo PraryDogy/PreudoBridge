@@ -109,6 +109,11 @@ class CopyFilesTask(URunnable):
         ...
 
     def task(self):
+
+        if self.copy_item.get_src() == self.copy_item.get_dest():
+            self.prepare_same_dir()
+            print(1)
+
         total_bytes = 0
         for src, dest in self.src_dest_list:
             total_bytes += os.path.getsize(src)
@@ -130,7 +135,7 @@ class CopyFilesTask(URunnable):
                 Utils.print_error()
                 self.signals_.error_win.emit()
                 break
-            if self.is_cut:
+            if self.copy_item.get_is_cut():
                 if os.path.isdir(src):
                     shutil.rmtree(src)
                 else:
