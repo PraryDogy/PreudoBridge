@@ -613,7 +613,6 @@ class Grid(UScrollArea):
             if self.selected_thumbs:
                 cmd = lambda: self.ensureWidgetVisible(self.selected_thumbs[-1])
                 QTimer.singleShot(50, cmd)
-            CopyItem.reset()
             self.rearrange_thumbs()
             self.start_load_images_task(thumbs)
 
@@ -1225,6 +1224,9 @@ class Grid(UScrollArea):
         is_cut = src.split(os.sep)[:3] == self.main_win_item.main_dir.split(os.sep)[:3]
         if self.is_grid_search:
             is_cut = False
+        print(self.is_grid_search)
+        return
+
         if src == self.main_win_item.main_dir:
             print("нельзя копировать в себя через DropEvent")
             return
