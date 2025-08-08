@@ -157,18 +157,19 @@ class CopyFilesWin(ProgressbarWin):
         self.cancel_btn.mouseReleaseEvent = self.cancel_cmd
         self.adjustSize()
 
-        self.copy_files_task = CopyFilesTask(src, dest, urls, is_cut)
-        self.copy_files_task.signals_.set_total_bytes.connect(lambda value: self.set_max(value))
-        self.copy_files_task.signals_.set_copied_bytes.connect(lambda value: self.set_value(value))
-        self.copy_files_task.signals_.finished_.connect(lambda urls: self.on_finished(urls))
-        self.copy_files_task.signals_.error_win.connect(lambda: self.error_win.emit())
-        self.copy_files_task.signals_.replace_files_win.connect(lambda: self.open_replace_files_win())
-        UThreadPool.start(self.copy_files_task)
+        self.tsk = CopyFilesTask(src, dest, urls, is_cut)
+        self.tsk.signals_.set_total_bytes.connect(lambda value: self.set_max(value))
+        self.tsk.signals_.set_copied_bytes.connect(lambda value: self.set_value(value))
+        self.tsk.signals_.finished_.connect(lambda urls: self.on_finished(urls))
+        self.tsk.signals_.error_win.connect(lambda: self.error_win.emit())
+        self.tsk.signals_.replace_files_win.connect(lambda: self.open_replace_files_win())
+        self.tsk.signals_.set_counter.connect(lambda data: self.set_counter(*data))
+        UThreadPool.start(self.tsk)
 
     def open_replace_files_win(self):
 
         def continue_copy():
-            self.copy_files_task.pause_flag = False
+            self.tsk.pause_flag = False
 
         replace_win = ReplaceFilesWin()
         replace_win.center(self)
@@ -188,14 +189,21 @@ class CopyFilesWin(ProgressbarWin):
             Utils.print_error()
 
     def set_value(self, value):
+        print(value, self.progressbar.maximum())
         try:
             self.progressbar.setValue(value)
         except RuntimeError as e:
             Utils.print_error()
 
+    def set_counter(self, current: int, total: int):
+        try:
+            self.below_label.setText(f"Скопировано {current} из {total}")
+        except RuntimeError:
+            Utils.print_error()
+
     def cancel_cmd(self, *args):
-        self.copy_files_task.pause_flag = False
-        self.copy_files_task.set_should_run(False)
+        self.tsk.pause_flag = False
+        self.tsk.set_should_run(False)
         self.deleteLater()
 
     def on_finished(self, urls: list[str]):
