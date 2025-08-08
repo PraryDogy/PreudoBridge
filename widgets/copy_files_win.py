@@ -134,7 +134,7 @@ class ErrorWin(MinMaxDisabledWin):
 
 class CopyFilesWin(ProgressbarWin):
     finished_ = pyqtSignal(list)
-    error_ = pyqtSignal()
+    error_win = pyqtSignal()
 
     preparing_text = "Подготовка"
     progressbar_width = 300
@@ -157,15 +157,13 @@ class CopyFilesWin(ProgressbarWin):
         self.cancel_btn.mouseReleaseEvent = self.cancel_cmd
         self.adjustSize()
 
-        if urls:
-            self.copy_files_task = CopyFilesTask(dest, urls, is_cut)
-            self.copy_files_task.signals_.set_max.connect(lambda value: self.set_max(value))
-            self.copy_files_task.signals_.set_value.connect(lambda value: self.set_value(value))
-            self.copy_files_task.signals_.set_size_mb.connect(lambda text: self.below_label.setText(text))
-            self.copy_files_task.signals_.finished_.connect(lambda urls: self.on_finished(urls))
-            self.copy_files_task.signals_.error_.connect(lambda: self.open_replace_files_win())
-            self.copy_files_task.signals_.replace_files.connect(lambda: self.open_replace_files_win())
-            UThreadPool.start(self.copy_files_task)
+        self.copy_files_task = CopyFilesTask(src, dest, urls, is_cut)
+        self.copy_files_task.signals_.set_total_bytes.connect(lambda value: self.set_max(value))
+        self.copy_files_task.signals_.set_copied_bytes.connect(lambda value: self.set_value(value))
+        self.copy_files_task.signals_.finished_.connect(lambda urls: self.on_finished(urls))
+        self.copy_files_task.signals_.error_win.connect(lambda: self.error_win.emit())
+        self.copy_files_task.signals_.replace_files_win.connect(lambda: self.open_replace_files_win())
+        UThreadPool.start(self.copy_files_task)
 
     def open_replace_files_win(self):
 

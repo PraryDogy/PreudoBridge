@@ -633,7 +633,7 @@ class Grid(UScrollArea):
             is_cut=CopyItem.get_is_cut()
         )
         self.win_copy.finished_.connect(finalize)
-        self.win_copy.error_.connect(show_error_win)
+        self.win_copy.error_win.connect(show_error_win)
         self.win_copy.center(self.window())
         self.win_copy.show()
         QTimer.singleShot(300, self.win_copy.raise_)
