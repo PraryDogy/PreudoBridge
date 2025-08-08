@@ -317,6 +317,8 @@ class Grid(UScrollArea):
         self.st_mtime_timer.timeout.connect(lambda: self.check_dir_mod())
         self.st_mtime_timer.start(100)
 
+        CopyItem.set_is_search(False)
+
     def get_st_mtime(self, url: str):
         try:
             return os.stat(url).st_mtime

@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
 
 from cfg import Dynamic, Static
-from system.items import BaseItem, MainWinItem, SearchItem
+from system.items import BaseItem, CopyItem, MainWinItem, SearchItem
 from system.tasks import SearchTask
 from system.utils import UThreadPool, Utils
 
@@ -83,6 +83,9 @@ class GridSearch(Grid):
         self.pause_timer.timeout.connect(self.remove_pause)
         self.pause_timer.setSingleShot(True)
 
+        self.is_grid_search = True
+        CopyItem.set_is_search(True)
+
     def get_changed_thumbs(self):
         thumbs = super().update_mod_thumbs()
         self.start_load_images_task(thumbs)
@@ -98,7 +101,6 @@ class GridSearch(Grid):
         self.total_count_update.emit((len(self.selected_thumbs), 0))
         self.path_bar_update.emit(self.main_win_item.main_dir)
         Thumb.calc_size()
-        self.is_grid_search = True
 
         self.search_task = SearchTask(self.main_win_item, self.search_item)
         self.search_task.signals_.new_widget.connect(self.add_new_widget)

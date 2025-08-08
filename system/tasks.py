@@ -81,6 +81,12 @@ class CopyFilesTask(URunnable):
                 self.thumb_paths.append(new_dir_name)
     
     def prepare_another_dir(self):
+        """
+        Подготовка к простому копированию из одного места в другое.
+        При этом может выскочить окно о замене файлов, и если 
+        пользователь не согласится заменить файлы, задача копирования будет
+        отменена.
+        """
         for src_url in self.copy_item.urls:
             if os.path.isfile(src_url):
                 new_filename = src_url.replace(self.copy_item.get_src(), self.copy_item.get_dest())
@@ -107,12 +113,19 @@ class CopyFilesTask(URunnable):
 
     def prepare_search_dir(self):
         ...
+        # создай все пути к файлам
+        # проверь каждый
 
     def task(self):
-
         if self.copy_item.get_src() == self.copy_item.get_dest():
             self.prepare_same_dir()
-            print(1)
+            print("copy same dir")
+        elif self.copy_item.get_is_search():
+            self.prepare_search_dir()
+            print("searh copy")
+        else:
+            self.prepare_another_dir()
+            print("regular copy")
 
         total_bytes = 0
         for src, dest in self.src_dest_list:
