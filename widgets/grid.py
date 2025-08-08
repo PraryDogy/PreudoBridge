@@ -1223,6 +1223,8 @@ class Grid(UScrollArea):
         ]
         src = os.path.dirname(urls[0])
         is_cut = src.split(os.sep)[:3] == self.main_win_item.main_dir.split(os.sep)[:3]
+        if self.is_grid_search:
+            is_cut = False
         if src == self.main_win_item.main_dir:
             print("нельзя копировать в себя через DropEvent")
             return
