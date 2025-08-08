@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
 
 from cfg import Dynamic, JsonData, Static, ThumbData
 from evlosh_templates.evlosh_utils import EvloshUtils
-from system.items import BaseItem, MainWinItem, SortItem
+from system.items import BaseItem, CopyItem, MainWinItem, SortItem
 from system.tasks import LoadImagesTask, RatingTask
 from system.utils import ImageUtils, UThreadPool, Utils
 
@@ -591,10 +591,10 @@ class Grid(UScrollArea):
         Очищает список путей к файлам / папкам для последующего копирования.    
         Формирует новый список на основе списка выделенных виджетов Thumb
         """
-        Dynamic.urls_to_copy.clear()
+        CopyItem.urls.clear()
         for i in self.selected_thumbs:
-            Dynamic.urls_to_copy[self.main_win_item.main_dir].append(i.src)
-            if Dynamic.is_cut:
+            CopyItem.urls.append(i.src)
+            if CopyItem.get_is_cut():
                 self.del_thumb(i.src)
         self.rearrange_thumbs()
 
@@ -604,9 +604,8 @@ class Grid(UScrollArea):
             if not self.cell_to_wid:
                 self.load_st_grid.emit()
             else:
-                for url_list in Dynamic.urls_to_copy.values():
-                    for i in url_list:
-                        self.del_thumb(i)
+                for i in CopyItem.urls:
+                    self.del_thumb(i)
                 for url in urls:
                     self.del_thumb(url)
                 for i in urls:
@@ -615,8 +614,8 @@ class Grid(UScrollArea):
                 if self.selected_thumbs:
                     cmd = lambda: self.ensureWidgetVisible(self.selected_thumbs[-1])
                     QTimer.singleShot(50, cmd)
-            self.toggle_is_cut(False)
-            Dynamic.urls_to_copy.clear()
+            CopyItem.urls.clear()
+            CopyItem.set_is_cut(False)
             self.rearrange_thumbs()
             thumbs = [self.url_to_wid[url] for url in urls if url in self.url_to_wid]
             self.start_load_images_task(thumbs)
@@ -627,21 +626,12 @@ class Grid(UScrollArea):
             self.error_win.center(self.window())
             self.error_win.show()
 
-        for i in Dynamic.urls_to_copy.values():
-            if not i:
-                return
+        if len(CopyItem.urls) == 0:
+            return
         if not dest:
             dest = self.main_win_item.main_dir
 
-        # for url_list in Dynamic.urls_to_copy.values():
-        #     for i in url_list:
-        #         name = os.path.basename(i)
-        #         new_path = os.path.join(dest, name)
-        #         if i == new_path:
-        #             print("нельзя копировать в себя")
-        #             return
-
-        self.win_copy = CopyFilesWin(dest, Dynamic.urls_to_copy, Dynamic.is_cut)
+        self.win_copy = CopyFilesWin(dest, CopyItem.urls, CopyItem.get_is_cut())
         self.win_copy.finished_.connect(finalize)
         self.win_copy.error_.connect(show_error_win)
         self.win_copy.center(self.window())
@@ -781,9 +771,6 @@ class Grid(UScrollArea):
             return wid.parent().parent()
         else:
             return None
-        
-    def toggle_is_cut(self, value: bool):
-        Dynamic.is_cut = value
 
     def open_img_convert_win(self, urls: list[str]):
 
@@ -992,22 +979,22 @@ class Grid(UScrollArea):
         menu_.addAction(show_in_finder_action)
 
         copy_path = ItemActions.CopyPath(menu_, urls)
-        copy_path.triggered.connect(lambda: self.toggle_is_cut(False))
+        copy_path.triggered.connect(lambda: CopyItem.set_is_cut(False))
         menu_.addAction(copy_path)
 
         copy_name = ItemActions.CopyName(menu_, names)
-        copy_name.triggered.connect(lambda: self.toggle_is_cut(False))
+        copy_name.triggered.connect(lambda: CopyItem.set_is_cut(False))
         menu_.addAction(copy_name)
 
         menu_.addSeparator()
 
         cut_objects = ItemActions.CutObjects(menu_)
-        cut_objects.triggered.connect(lambda: self.toggle_is_cut(True))
+        cut_objects.triggered.connect(lambda: CopyItem.set_is_cut(True))
         cut_objects.triggered.connect(self.setup_urls_to_copy)
         menu_.addAction(cut_objects)
 
         copy_files = ItemActions.CopyObjects(menu_)
-        copy_files.triggered.connect(lambda: self.toggle_is_cut(False))
+        copy_files.triggered.connect(lambda: CopyItem.set_is_cut(False))
         copy_files.triggered.connect(self.setup_urls_to_copy)
         menu_.addAction(copy_files)
 
@@ -1035,7 +1022,7 @@ class Grid(UScrollArea):
         names = [os.path.basename(self.main_win_item.main_dir)]
         urls = [self.main_win_item.main_dir]
 
-        if Dynamic.urls_to_copy and not self.is_grid_search:
+        if CopyItem.urls and not self.is_grid_search:
             paste_files = GridActions.PasteObjects(menu_)
             paste_files.triggered.connect(self.paste_files)
             menu_.addAction(paste_files)
@@ -1095,7 +1082,7 @@ class Grid(UScrollArea):
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
             
             if a0.key() == Qt.Key.Key_X:
-                self.toggle_is_cut(True)
+                CopyItem.set_is_cut(True)
                 self.setup_urls_to_copy()
 
             if a0.key() == Qt.Key.Key_C:
@@ -1229,29 +1216,27 @@ class Grid(UScrollArea):
         return super().dragEnterEvent(a0)
     
     def dropEvent(self, a0):
-        Dynamic.urls_to_copy.clear()
-        Dynamic.urls_to_copy = {
-            self.main_win_item.main_dir: [i.toLocalFile() for i in a0.mimeData().urls()]
-        }
+        CopyItem.urls.clear()
+        CopyItem.urls = [i.toLocalFile() for i in a0.mimeData().urls()]
 
         main_dir_ = EvloshUtils.normalize_slash(self.main_win_item.main_dir)
         sys_vol = EvloshUtils.get_system_volume()
         main_dir_ = EvloshUtils.add_system_volume(main_dir_, sys_vol)
         main_disk = self.main_win_item.main_dir.split(os.sep)[:3]
-        for i in Dynamic.urls_to_copy:
+        for i in CopyItem.urls:
             i = EvloshUtils.normalize_slash(i)
             i = EvloshUtils.add_system_volume(i, sys_vol)
 
             file_disk = i.split(os.sep)[:3]
             if file_disk == main_disk:
-                self.toggle_is_cut(True)
+                CopyItem.set_is_cut(True)
 
             if os.path.commonpath([i, main_dir_]) == main_dir_:
                 print("Нельзя копировать в себя")
-                self.toggle_is_cut(False)
+                CopyItem.set_is_cut(False)
                 return
 
-        if Dynamic.urls_to_copy:
+        if CopyItem.urls:
             self.paste_files()
 
         return super().dropEvent(a0)

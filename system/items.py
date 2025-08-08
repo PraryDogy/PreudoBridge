@@ -379,3 +379,25 @@ class ImageBaseItem:
         except Exception as e:
             Utils.print_error()
             return None
+
+
+class CopyItem:
+    urls: list[str] = []
+    _is_cut: bool = False
+    _src: str = ""
+
+    @classmethod
+    def set_src(cls, src: str):
+        cls._src = src
+
+    @classmethod
+    def get_src(cls):
+        return cls._src
+    
+    @classmethod
+    def set_is_cut(cls, value: bool):
+        cls._is_cut = value
+
+    @classmethod
+    def get_is_cut(cls):
+        return cls._is_cut
