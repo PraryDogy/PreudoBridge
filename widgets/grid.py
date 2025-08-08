@@ -602,7 +602,10 @@ class Grid(UScrollArea):
 
     def paste_files(self):
 
-        def finalize(urls: list[str]):
+        def scroll_to_wid():
+            self.ensureWidgetVisible(self.selected_thumbs[-1])
+
+        def paste_final(urls: list[str]):
             thumbs = []
             self.clear_selected_widgets()
             for i in urls:
@@ -610,11 +613,14 @@ class Grid(UScrollArea):
                 thumb = self.new_thumb(i)
                 self.select_multiple_thumb(thumb)
                 thumbs.append(thumb)
-            if self.selected_thumbs:
-                cmd = lambda: self.ensureWidgetVisible(self.selected_thumbs[-1])
-                QTimer.singleShot(50, cmd)
-            self.rearrange_thumbs()
-            self.start_load_images_task(thumbs)
+
+            if len(self.cell_to_wid) == 1:
+                self.load_st_grid.emit()
+            else:
+                self.rearrange_thumbs()
+                self.start_load_images_task(thumbs)
+                if self.selected_thumbs:
+                    QTimer.singleShot(50, scroll_to_wid)
 
         def show_error_win():
             self.win_copy.deleteLater()
@@ -624,7 +630,7 @@ class Grid(UScrollArea):
         
         CopyItem.set_dest(self.main_win_item.main_dir)
         self.win_copy = CopyFilesWin()
-        self.win_copy.finished_.connect(finalize)
+        self.win_copy.finished_.connect(paste_final)
         self.win_copy.error_win.connect(show_error_win)
         self.win_copy.center(self.window())
         self.win_copy.show()
