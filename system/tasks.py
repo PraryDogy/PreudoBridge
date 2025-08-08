@@ -138,8 +138,8 @@ class CopyFilesTask(URunnable):
         else:
             self.prepare_another_dir()
 
-        for i in self.src_dest_list:
-            print(i)
+        # for i in self.src_dest_list:
+        #     print(i)
 
         total_bytes = 0
         for src, dest in self.src_dest_list:
