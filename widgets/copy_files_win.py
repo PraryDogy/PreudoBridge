@@ -158,8 +158,8 @@ class CopyFilesWin(ProgressbarWin):
         self.adjustSize()
 
         self.tsk = CopyFilesTask(src, dest, urls, is_cut)
-        self.tsk.signals_.set_total_bytes.connect(lambda value: self.set_max(value))
-        self.tsk.signals_.set_copied_bytes.connect(lambda value: self.set_value(value))
+        self.tsk.signals_.set_total_kb.connect(lambda value: self.set_max(value))
+        self.tsk.signals_.set_copied_kb.connect(lambda value: self.set_value(value))
         self.tsk.signals_.finished_.connect(lambda urls: self.on_finished(urls))
         self.tsk.signals_.error_win.connect(lambda: self.error_win.emit())
         self.tsk.signals_.replace_files_win.connect(lambda: self.open_replace_files_win())
@@ -189,7 +189,6 @@ class CopyFilesWin(ProgressbarWin):
             Utils.print_error()
 
     def set_value(self, value):
-        print(value, self.progressbar.maximum())
         try:
             self.progressbar.setValue(value)
         except RuntimeError as e:

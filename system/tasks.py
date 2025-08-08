@@ -7,7 +7,7 @@ from time import sleep
 import numpy as np
 import sqlalchemy
 from PIL import Image
-from PyQt5.QtCore import QObject, pyqtSignal
+from PyQt5.QtCore import QObject, pyqtSignal, QTimer
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtTest import QTest
 from sqlalchemy.exc import IntegrityError, OperationalError
@@ -36,8 +36,8 @@ class ActionsTask(URunnable):
 
 class _CopyFilesSigs(QObject):
     finished_ = pyqtSignal(list)
-    set_copied_bytes = pyqtSignal(int)
-    set_total_bytes = pyqtSignal(int)
+    set_copied_kb = pyqtSignal(int)
+    set_total_kb = pyqtSignal(int)
     set_counter = pyqtSignal(tuple)
     error_win = pyqtSignal()
     replace_files_win = pyqtSignal()
@@ -53,7 +53,11 @@ class CopyFilesTask(URunnable):
         self.pause_flag = False
         self.signals_ = _CopyFilesSigs()
 
-        self.copied_bytes = 0
+        self.copied_kb = 0
+
+        self.copied_timer = QTimer()
+        self.copied_timer.timeout.connect(self.send_copied_kb)
+        self.copied_timer.start(1000)
 
     def task(self):
         # список url которые нужно будет выделить в сетке после копирования
@@ -104,7 +108,7 @@ class CopyFilesTask(URunnable):
             total_bytes += os.path.getsize(src)
 
         try:
-            self.signals_.set_total_bytes.emit(total_bytes)
+            self.signals_.set_total_kb.emit(self.bytes_to_kb(total_bytes))
         except RuntimeError as e:
             Utils.print_error()
             return
@@ -132,6 +136,9 @@ class CopyFilesTask(URunnable):
             self.signals_.finished_.emit(thumb_paths)
         except RuntimeError as e:
             Utils.print_error()
+
+    def bytes_to_kb(self, bytes: int):
+        return int(bytes / (1024 * 1024))
 
     def add_copy_to_name(self, url: str):
         dir_name, file_name = os.path.split(url)
@@ -163,14 +170,14 @@ class CopyFilesTask(URunnable):
                     return
                 fdest.write(buf)
                 # прибавляем в байтах сколько уже скопировано
-                self.copied_bytes += len(buf)
-                # sleep(0.1)
-                try:
-                    self.signals_.set_copied_bytes.emit(self.copied_bytes)
-                except RuntimeError as e:
-                    Utils.print_error()
-                    return
+                buf = self.bytes_to_kb(len(buf))
+                self.copied_kb += buf
     
+    def send_copied_kb(self):
+        try:
+            self.signals_.set_copied_kb.emit(self.copied_kb)
+        except RuntimeError:
+            ...
 
 class _RatingSigs(QObject):
     finished_ = pyqtSignal()
