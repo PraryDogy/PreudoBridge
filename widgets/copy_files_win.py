@@ -140,7 +140,7 @@ class CopyFilesWin(ProgressbarWin):
     progressbar_width = 300
     icon_size = 50
 
-    def __init__(self, dest: str, urls: list[str], is_cut: bool):
+    def __init__(self, src: str, dest: str, urls: list[str], is_cut: bool):
 
         if Dynamic.is_cut:
             title_text = "Перемещаю файлы"

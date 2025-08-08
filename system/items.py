@@ -401,3 +401,11 @@ class CopyItem:
     @classmethod
     def get_is_cut(cls):
         return cls._is_cut
+    
+    @classmethod
+    def reset(cls):
+        """
+        Очищает urls, is_cut = False
+        """
+        cls.urls.clear()
+        cls._is_cut = False

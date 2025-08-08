@@ -592,30 +592,27 @@ class Grid(UScrollArea):
         Формирует новый список на основе списка выделенных виджетов Thumb
         """
         CopyItem.urls.clear()
+        CopyItem.set_src(self.main_win_item.main_dir)
         for i in self.selected_thumbs:
             CopyItem.urls.append(i.src)
             if CopyItem.get_is_cut():
                 self.del_thumb(i.src)
         self.rearrange_thumbs()
 
-    def paste_files(self, dest: str = None):
+    def paste_files(self):
 
         def finalize(urls: list[str]):
             if not self.cell_to_wid:
                 self.load_st_grid.emit()
             else:
-                for i in CopyItem.urls:
-                    self.del_thumb(i)
-                for url in urls:
-                    self.del_thumb(url)
                 for i in urls:
+                    self.del_thumb(i)
                     thumb = self.new_thumb(i)
                     self.select_multiple_thumb(thumb)
                 if self.selected_thumbs:
                     cmd = lambda: self.ensureWidgetVisible(self.selected_thumbs[-1])
                     QTimer.singleShot(50, cmd)
-            CopyItem.urls.clear()
-            CopyItem.set_is_cut(False)
+            CopyItem.reset()
             self.rearrange_thumbs()
             thumbs = [self.url_to_wid[url] for url in urls if url in self.url_to_wid]
             self.start_load_images_task(thumbs)
@@ -628,10 +625,13 @@ class Grid(UScrollArea):
 
         if len(CopyItem.urls) == 0:
             return
-        if not dest:
-            dest = self.main_win_item.main_dir
 
-        self.win_copy = CopyFilesWin(dest, CopyItem.urls, CopyItem.get_is_cut())
+        self.win_copy = CopyFilesWin(
+            src=CopyItem.get_src(),
+            dest=self.main_win_item.main_dir,
+            urls=CopyItem.urls,
+            is_cut=CopyItem.get_is_cut()
+        )
         self.win_copy.finished_.connect(finalize)
         self.win_copy.error_.connect(show_error_win)
         self.win_copy.center(self.window())
@@ -659,10 +659,8 @@ class Grid(UScrollArea):
             # вычисляем индекс последнего выделенного виджета
             all_urls = list(self.url_to_wid)
             ind = all_urls.index(self.selected_thumbs[-1].src)
-
             for url in urls:
                 self.del_thumb(url)
-
             all_urls = list(self.url_to_wid)
             if all_urls:
                 try:
@@ -675,7 +673,6 @@ class Grid(UScrollArea):
             # например ты удалил виджет и стала видна следующая строка
             # с виджетами, где картинки еще не были загружены
             self.load_visible_images()
-
             if not self.cell_to_wid:
                 self.load_st_grid.emit()
 
@@ -702,11 +699,15 @@ class Grid(UScrollArea):
 
     def del_thumb(self, url: str):
         wid = self.url_to_wid.get(url)
-        if wid:
-            self.cell_to_wid.pop((wid.row, wid.col))
-            self.url_to_wid.pop(url)
+        if not wid:
+            return
+        if wid in self.selected_thumbs:
             self.selected_thumbs.remove(wid)
-            wid.deleteLater()
+        if wid in self.already_loaded_thumbs:
+            self.already_loaded_thumbs.remove(wid)
+        self.cell_to_wid.pop((wid.row, wid.col))
+        self.url_to_wid.pop(url)
+        wid.deleteLater()
 
     def set_thumb_rating(self, wid: Thumb, new_rating: int):
         wid.rating = new_rating
@@ -1216,7 +1217,6 @@ class Grid(UScrollArea):
         return super().dragEnterEvent(a0)
     
     def dropEvent(self, a0):
-        CopyItem.urls.clear()
         CopyItem.urls = [i.toLocalFile() for i in a0.mimeData().urls()]
 
         main_dir_ = EvloshUtils.normalize_slash(self.main_win_item.main_dir)
