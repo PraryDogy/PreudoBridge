@@ -142,21 +142,16 @@ class CopyFilesWin(ProgressbarWin):
 
     def __init__(self, src: str, dest: str, urls: list[str], is_cut: bool):
 
-        if Dynamic.is_cut:
+        if is_cut:
             title_text = "Перемещаю файлы"
         else:
             title_text = "Копирую файлы"
 
         super().__init__(title_text, Static.COPY_FILES_SVG)
 
-        src = min(urls, key=len)
-        src = os.path.dirname(EvloshUtils.normalize_slash(src))
-        src = os.path.basename(src)
-        src = self.limit_string(src)
-        dest_ = os.path.basename(dest)
-        dest_ = self.limit_string(dest_)
-        src_dest_text = self.set_text(src, dest_)
-
+        src_txt = self.limit_string(os.path.basename(src))
+        dest_txt = self.limit_string(os.path.basename(dest))
+        src_dest_text = f"Из \"{src_txt}\" в \"{dest_txt}\""
         self.above_label.setText(src_dest_text)
         self.below_label.setText(self.preparing_text)
         self.cancel_btn.mouseReleaseEvent = self.cancel_cmd
@@ -166,7 +161,7 @@ class CopyFilesWin(ProgressbarWin):
             self.copy_files_task = CopyFilesTask(dest, urls, is_cut)
             self.copy_files_task.signals_.set_max.connect(lambda value: self.set_max(value))
             self.copy_files_task.signals_.set_value.connect(lambda value: self.set_value(value))
-            self.copy_files_task.signals_.set_size_mb.connect(lambda text: self.size_mb_text(text))
+            self.copy_files_task.signals_.set_size_mb.connect(lambda text: self.below_label.setText(text))
             self.copy_files_task.signals_.finished_.connect(lambda urls: self.on_finished(urls))
             self.copy_files_task.signals_.error_.connect(lambda: self.open_replace_files_win())
             self.copy_files_task.signals_.replace_files.connect(lambda: self.open_replace_files_win())
@@ -182,12 +177,6 @@ class CopyFilesWin(ProgressbarWin):
         replace_win.ok_pressed.connect(continue_copy)
         replace_win.cancel_pressed.connect(self.cancel_cmd)
         replace_win.show()
-
-    def size_mb_text(self, text: str):
-        self.below_label.setText(text)
-
-    def set_text(self, src: str, dest: str):
-        return f"Из \"{src}\" в \"{dest}\""
 
     def limit_string(self, text: str, limit: int = 15):
         if len(text) > limit:
