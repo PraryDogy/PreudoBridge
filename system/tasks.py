@@ -45,9 +45,8 @@ class _CopyFilesSigs(QObject):
 
 
 class CopyFilesTask(URunnable):
-    def __init__(self, copy_item: CopyItem):
+    def __init__(self):
         super().__init__()
-        self.copy_item = copy_item
         self.signals_ = _CopyFilesSigs()
         self.pause_flag = False
         self.copied_kb = 0
@@ -64,7 +63,7 @@ class CopyFilesTask(URunnable):
         Если файлы и папки скопированы в одной директории и будут вставлены туда же,
         то они будут вставлены с припиской "копия"
         """
-        for src_url in self.copy_item.urls:
+        for src_url in CopyItem.urls:
             if os.path.isfile(src_url):
                 new_filename = self.add_copy_to_name(src_url)
                 self.src_dest_list.append((src_url, new_filename))
@@ -87,17 +86,17 @@ class CopyFilesTask(URunnable):
         пользователь не согласится заменить файлы, задача копирования будет
         отменена.
         """
-        for src_url in self.copy_item.urls:
+        for src_url in CopyItem.urls:
             if os.path.isfile(src_url):
-                new_filename = src_url.replace(self.copy_item.get_src(), self.copy_item.get_dest())
+                new_filename = src_url.replace(CopyItem.get_src(), CopyItem.get_dest())
                 self.src_dest_list.append((src_url, new_filename))
                 self.thumb_paths.append(new_filename)
             else:
-                new_dir_name = src_url.replace(self.copy_item.get_src(), self.copy_item.get_dest())
+                new_dir_name = src_url.replace(CopyItem.get_src(), CopyItem.get_dest())
                 # получаем все url файлов для папки
                 # заменяем имя старой папки на имя новой папки
                 nested_urls = [
-                    (x, x.replace(self.copy_item.get_src(), self.copy_item.get_dest()))
+                    (x, x.replace(CopyItem.get_src(), CopyItem.get_dest()))
                     for x in self.get_nested_urls(src_url)
                 ]
                 self.src_dest_list.extend(nested_urls)
@@ -117,15 +116,20 @@ class CopyFilesTask(URunnable):
         # проверь каждый
 
     def task(self):
-        if self.copy_item.get_src() == self.copy_item.get_dest():
-            self.prepare_same_dir()
-            print("copy same dir")
-        elif self.copy_item.get_is_search():
+        if CopyItem.get_is_search():
             self.prepare_search_dir()
             print("searh copy")
+
+        elif CopyItem.get_src() == CopyItem.get_dest():
+            self.prepare_same_dir()
+            print("copy same dir")
+
         else:
             self.prepare_another_dir()
             print("regular copy")
+
+        self.signals_.finished_.emit([])
+        return
 
         total_bytes = 0
         for src, dest in self.src_dest_list:
@@ -148,7 +152,7 @@ class CopyFilesTask(URunnable):
                 Utils.print_error()
                 self.signals_.error_win.emit()
                 break
-            if self.copy_item.get_is_cut():
+            if CopyItem.get_is_cut() and not CopyItem.get_is_search():
                 if os.path.isdir(src):
                     shutil.rmtree(src)
                 else:

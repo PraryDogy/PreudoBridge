@@ -141,24 +141,24 @@ class CopyFilesWin(ProgressbarWin):
     progressbar_width = 300
     icon_size = 50
 
-    def __init__(self, copy_item: CopyItem):
+    def __init__(self):
 
-        if copy_item.get_is_cut():
+        if CopyItem.get_is_cut():
             title_text = "Перемещаю файлы"
         else:
             title_text = "Копирую файлы"
 
         super().__init__(title_text, Static.COPY_FILES_SVG)
 
-        src_txt = self.limit_string(os.path.basename(copy_item.get_src()))
-        dest_txt = self.limit_string(os.path.basename(copy_item.get_dest()))
+        src_txt = self.limit_string(os.path.basename(CopyItem.get_src()))
+        dest_txt = self.limit_string(os.path.basename(CopyItem.get_dest()))
         src_dest_text = f"Из \"{src_txt}\" в \"{dest_txt}\""
         self.above_label.setText(src_dest_text)
         self.below_label.setText(self.preparing_text)
         self.cancel_btn.mouseReleaseEvent = self.cancel_cmd
         self.adjustSize()
 
-        self.tsk = CopyFilesTask(copy_item)
+        self.tsk = CopyFilesTask()
         self.tsk.signals_.set_total_kb.connect(lambda value: self.set_max(value))
         self.tsk.signals_.set_copied_kb.connect(lambda value: self.set_value(value))
         self.tsk.signals_.finished_.connect(lambda urls: self.on_finished(urls))

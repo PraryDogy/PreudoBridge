@@ -83,9 +83,6 @@ class GridSearch(Grid):
         self.pause_timer.timeout.connect(self.remove_pause)
         self.pause_timer.setSingleShot(True)
 
-        self.is_grid_search = True
-        CopyItem.set_is_search(True)
-
     def get_changed_thumbs(self):
         thumbs = super().update_mod_thumbs()
         self.start_load_images_task(thumbs)
@@ -98,6 +95,7 @@ class GridSearch(Grid):
         self.search_item = search_item
 
     def start_search(self):
+        self.is_grid_search = True
         self.total_count_update.emit((len(self.selected_thumbs), 0))
         self.path_bar_update.emit(self.main_win_item.main_dir)
         Thumb.calc_size()

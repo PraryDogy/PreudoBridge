@@ -317,8 +317,6 @@ class Grid(UScrollArea):
         self.st_mtime_timer.timeout.connect(lambda: self.check_dir_mod())
         self.st_mtime_timer.start(100)
 
-        CopyItem.set_is_search(False)
-
     def get_st_mtime(self, url: str):
         try:
             return os.stat(url).st_mtime
@@ -595,6 +593,7 @@ class Grid(UScrollArea):
         """
         CopyItem.urls.clear()
         CopyItem.set_src(self.main_win_item.main_dir)
+        CopyItem.set_is_search(self.is_grid_search)
         for i in self.selected_thumbs:
             CopyItem.urls.append(i.src)
             if CopyItem.get_is_cut():
@@ -628,7 +627,7 @@ class Grid(UScrollArea):
             return
         
         CopyItem.set_dest(self.main_win_item.main_dir)
-        self.win_copy = CopyFilesWin(CopyItem)
+        self.win_copy = CopyFilesWin()
         self.win_copy.finished_.connect(finalize)
         self.win_copy.error_win.connect(show_error_win)
         self.win_copy.center(self.window())
