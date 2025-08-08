@@ -95,6 +95,10 @@ class CopyFilesTask(URunnable):
                     src_dest_list.extend(nested_urls)
                     thumb_paths.append(new_dir_name)
 
+
+        # когда окно "заменить"?
+        # поиск: копируем 10 файлов с одним именем, как быть
+
         total_bytes = 0
         for src, dest in src_dest_list:
             total_bytes += os.path.getsize(src)
