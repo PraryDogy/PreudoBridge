@@ -1013,7 +1013,8 @@ class Grid(UScrollArea):
             dest = os.path.join(self.main_win_item.main_dir, name)
             try:
                 os.mkdir(dest)
-                self.new_thumb(dest)
+                thumb = self.new_thumb(dest)
+                QTimer.singleShot(30, lambda: self.select_single_thumb(thumb))
             except Exception as e:
                 Utils.print_error()
 
