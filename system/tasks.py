@@ -57,12 +57,15 @@ class CopyFilesTask(URunnable):
         self.copied_bytes = 0
 
     def task(self):
+        thumb_paths = []
+
         if self.src == self.dest:
             src_dest_list: list[tuple[str, str]] = []
             for i in self.urls:
                 if os.path.isfile(i):
-                    data = (i, self.add_copy_to_name(i))
-                    src_dest_list.append(data)
+                    new_filename = self.add_copy_to_name(i)
+                    src_dest_list.append((i, new_filename))
+                    thumb_paths.append(new_filename)
                 else:
                     nested_urls = self.get_nested_urls(i)
                     new_dir_name = self.add_copy_to_name(i)
@@ -71,6 +74,7 @@ class CopyFilesTask(URunnable):
                         for x in nested_urls
                     ]
                     src_dest_list.extend(nested_urls)
+                    thumb_paths.append(new_dir_name)
 
         total_bytes = 0
         for src, dest in src_dest_list:
@@ -101,8 +105,7 @@ class CopyFilesTask(URunnable):
                 break
         
         try:
-            dests = [dest for src, dest in src_dest_list]
-            self.signals_.finished_.emit(dests)
+            self.signals_.finished_.emit(thumb_paths)
         except RuntimeError as e:
             Utils.print_error()
 

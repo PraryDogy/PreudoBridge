@@ -603,6 +603,7 @@ class Grid(UScrollArea):
 
         def finalize(urls: list[str]):
             thumbs = []
+            self.clear_selected_widgets()
             for i in urls:
                 self.del_thumb(i)
                 thumb = self.new_thumb(i)
