@@ -57,21 +57,40 @@ class CopyFilesTask(URunnable):
         self.copied_bytes = 0
 
     def task(self):
+        # список url которые нужно будет выделить в сетке после копирования
         thumb_paths = []
+        src_dest_list: list[tuple[str, str]] = []
 
+        # копирование в саму себя - будет скопировано в виде копии
         if self.src == self.dest:
-            src_dest_list: list[tuple[str, str]] = []
-            for i in self.urls:
-                if os.path.isfile(i):
-                    new_filename = self.add_copy_to_name(i)
-                    src_dest_list.append((i, new_filename))
+            for src_url in self.urls:
+                if os.path.isfile(src_url):
+                    new_filename = self.add_copy_to_name(src_url)
+                    src_dest_list.append((src_url, new_filename))
                     thumb_paths.append(new_filename)
                 else:
-                    nested_urls = self.get_nested_urls(i)
-                    new_dir_name = self.add_copy_to_name(i)
+                    new_dir_name = self.add_copy_to_name(src_url)
+                    # получаем все url файлов для папки
+                    # заменяем имя старой папки на имя новой папки
                     nested_urls = [
-                        (x, x.replace(i, new_dir_name))
-                        for x in nested_urls
+                        (x, x.replace(src_url, new_dir_name))
+                        for x in self.get_nested_urls(src_url)
+                    ]
+                    src_dest_list.extend(nested_urls)
+                    thumb_paths.append(new_dir_name)
+        else:
+            for src_url in self.urls:
+                if os.path.isfile(src_url):
+                    new_filename = src_url.replace(self.src, self.dest)
+                    src_dest_list.append((src_url, new_filename))
+                    thumb_paths.append(new_filename)
+                else:
+                    new_dir_name = src_url.replace(self.src, self.dest)
+                    # получаем все url файлов для папки
+                    # заменяем имя старой папки на имя новой папки
+                    nested_urls = [
+                        (x, x.replace(self.src, self.dest))
+                        for x in self.get_nested_urls(src_url)
                     ]
                     src_dest_list.extend(nested_urls)
                     thumb_paths.append(new_dir_name)
