@@ -588,8 +588,7 @@ class Grid(UScrollArea):
 
     def setup_urls_to_copy(self):
         """
-        Очищает список путей к файлам / папкам для последующего копирования.    
-        Формирует новый список на основе списка выделенных виджетов Thumb
+        Для cmd x, cmd c, вырезать, копировать
         """
         CopyItem.set_src(self.main_win_item.main_dir)
         CopyItem.set_is_search(self.is_grid_search)
