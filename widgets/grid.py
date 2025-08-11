@@ -592,6 +592,7 @@ class Grid(UScrollArea):
         """
         CopyItem.set_src(self.main_win_item.main_dir)
         CopyItem.set_is_search(self.is_grid_search)
+        CopyItem.urls.clear()
         for i in self.selected_thumbs:
             CopyItem.urls.append(i.src)
         self.rearrange_thumbs()
