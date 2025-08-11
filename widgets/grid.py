@@ -591,7 +591,6 @@ class Grid(UScrollArea):
         Очищает список путей к файлам / папкам для последующего копирования.    
         Формирует новый список на основе списка выделенных виджетов Thumb
         """
-        CopyItem.urls.clear()
         CopyItem.set_src(self.main_win_item.main_dir)
         CopyItem.set_is_search(self.is_grid_search)
         for i in self.selected_thumbs:
@@ -1191,16 +1190,11 @@ class Grid(UScrollArea):
         menu_.show_under_cursor()
     
     def dragEnterEvent(self, a0):
-        if self.is_grid_search:
-            return
         if a0.mimeData().hasUrls():
             a0.acceptProposedAction()
         return super().dragEnterEvent(a0)
     
     def dropEvent(self, a0):
-        # for i in a0.mimeData().urls():
-        #     print(i.toLocalFile())
-
         if not a0.mimeData().urls():
             return
         sys_vol = EvloshUtils.get_sys_vol()

@@ -3,6 +3,7 @@ import os
 import re
 
 import numpy as np
+from PyQt5.QtCore import QObject
 from PyQt5.QtGui import QPixmap
 from sqlalchemy import (Connection, Insert, Row, RowMapping, Update, insert,
                         select, update)
@@ -387,6 +388,7 @@ class CopyItem:
     _is_search: bool = False
     _src: str = None
     _dest: str = None
+    _sender: QObject = None
 
     @classmethod
     def set_src(cls, src: str):
@@ -419,6 +421,14 @@ class CopyItem:
     @classmethod
     def get_is_search(cls):
         return cls._is_search
+
+    @classmethod
+    def get_sender(cls):
+        return cls._sender
+    
+    @classmethod
+    def set_sender(cls, value: QObject):
+        cls._sender = value
 
     @classmethod
     def reset(cls):
