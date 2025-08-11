@@ -197,7 +197,11 @@ class CopyFilesWin(ProgressbarWin):
 
     def set_counter(self, current: int, total: int):
         try:
-            self.below_label.setText(f"Копирую {current} из {total}")
+            if CopyItem.get_is_cut():
+                copy = "Перемещаю файлы"
+            else:
+                copy = "Копирую файлы"
+            self.below_label.setText(f"{copy} {current} из {total}")
         except RuntimeError:
             Utils.print_error()
 
