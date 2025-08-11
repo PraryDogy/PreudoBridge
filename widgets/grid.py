@@ -620,6 +620,7 @@ class Grid(UScrollArea):
                 self.start_load_images_task(thumbs)
                 if self.selected_thumbs:
                     QTimer.singleShot(50, scroll_to_wid)
+            CopyItem.reset()
 
         def show_error_win():
             self.win_copy.deleteLater()
