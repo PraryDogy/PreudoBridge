@@ -877,48 +877,29 @@ class Grid(UScrollArea):
         except AttributeError as e:
             Utils.print_error()
             return
-
         if distance < QApplication.startDragDistance():
             return
-
         if self.wid_under_mouse is None and not self.rubberBand.isVisible():
             self.rubberBand.setGeometry(QRect(self.origin_pos, QSize()))
             self.rubberBand.show()
-
         if self.rubberBand.isVisible():
             rect = QRect(self.origin_pos, current_pos).normalized()
             self.rubberBand.setGeometry(rect)
             return
-
         if self.wid_under_mouse not in self.selected_thumbs:
             self.select_single_thumb(self.wid_under_mouse)
-
-        urls = [
-            i.src
-            for i in self.selected_thumbs
-        ]
-
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
-
         img_ = QPixmap(Static.COPY_FILES_PNG)
         self.drag.setPixmap(img_)
-        
-        urls = [
-            QUrl.fromLocalFile(i)
-            for i in urls
-            ]
-        
+        urls = [QUrl.fromLocalFile(i.src) for i in self.selected_thumbs]        
         if urls:
             self.mime_data.setUrls(urls)
-        
         if self.wid_under_mouse:
             self.path_bar_update_delayed(self.wid_under_mouse.src)
-
         self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
         self.drag.setMimeData(self.mime_data)
         self.drag.exec_(Qt.DropAction.CopyAction)
-
         return super().mouseMoveEvent(a0)
 
     def context_thumb(self, menu_: UMenu, wid: Thumb):
@@ -1086,10 +1067,11 @@ class Grid(UScrollArea):
                 self.setup_urls_to_copy()
 
             if a0.key() == Qt.Key.Key_C:
+                CopyItem.set_is_cut(False)
                 self.setup_urls_to_copy()
 
             elif a0.key() == Qt.Key.Key_V:
-                if not self.is_grid_search:
+                if CopyItem.urls and not self.is_grid_search:
                     self.paste_files()
 
             elif a0.key() == Qt.Key.Key_Up:
@@ -1234,7 +1216,6 @@ class Grid(UScrollArea):
         is_cut = src.split(os.sep)[:3] == self.main_win_item.main_dir.split(os.sep)[:3]
         if self.is_grid_search:
             is_cut = False
-
         if src == self.main_win_item.main_dir:
             print("нельзя копировать в себя через DropEvent")
             return
