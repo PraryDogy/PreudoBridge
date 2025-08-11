@@ -900,6 +900,7 @@ class Grid(UScrollArea):
             self.path_bar_update_delayed(self.wid_under_mouse.src)
         self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
         self.drag.setMimeData(self.mime_data)
+        CopyItem.set_grid_search(self.is_grid_search)
         self.drag.exec_(Qt.DropAction.CopyAction)
         return super().mouseMoveEvent(a0)
 
@@ -908,7 +909,6 @@ class Grid(UScrollArea):
         urls = [i.src for i in self.selected_thumbs]
         urls_img = [i.src for i in self.selected_thumbs if i.src.endswith(Static.ext_all)]
         names = [i.filename for i in self.selected_thumbs]
-        total = len(self.selected_thumbs)
         self.path_bar_update_delayed(wid.src)
 
         view_action = ItemActions.OpenThumb(menu_)
@@ -1210,8 +1210,6 @@ class Grid(UScrollArea):
         ]
         src = os.path.dirname(urls[0])
         is_cut = src.split(os.sep)[:3] == self.main_win_item.main_dir.split(os.sep)[:3]
-        if self.is_grid_search:
-            is_cut = False
         if src == self.main_win_item.main_dir:
             print("нельзя копировать в себя через DropEvent")
             return
