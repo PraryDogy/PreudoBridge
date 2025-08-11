@@ -594,8 +594,6 @@ class Grid(UScrollArea):
         CopyItem.set_is_search(self.is_grid_search)
         for i in self.selected_thumbs:
             CopyItem.urls.append(i.src)
-            if CopyItem.get_is_cut():
-                self.del_thumb(i.src)
         self.rearrange_thumbs()
 
     def paste_files(self):
@@ -628,8 +626,6 @@ class Grid(UScrollArea):
             self.error_win = ErrorWin()
             self.error_win.center(self.window())
             self.error_win.show()
-        # if CopyItem.get_grid_search():
-        #     CopyItem.set_is_search(True)
         CopyItem.set_dest(self.main_win_item.main_dir)
         self.win_copy = CopyFilesWin()
         self.win_copy.finished_.connect(paste_final)
@@ -1215,10 +1211,6 @@ class Grid(UScrollArea):
             print("нельзя копировать в себя через DropEvent")
             return
         else:
-            if not CopyItem.get_is_search():
-                src_disk = src.split(os.sep)[:3]
-                dst_disk = self.main_win_item.main_dir.split(os.sep)[:3]
-                CopyItem.set_is_cut(src_disk==dst_disk)
             CopyItem.set_src(src)
             CopyItem.urls = urls
             self.paste_files()
