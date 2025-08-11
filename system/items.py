@@ -388,7 +388,6 @@ class CopyItem:
     _is_search: bool = False
     _src: str = None
     _dest: str = None
-    _grid_search: bool = None
 
     @classmethod
     def set_src(cls, src: str):
@@ -421,14 +420,6 @@ class CopyItem:
     @classmethod
     def get_is_search(cls):
         return cls._is_search
-
-    @classmethod
-    def get_grid_search(cls):
-        return cls._grid_search
-    
-    @classmethod
-    def set_grid_search(cls, value: bool):
-        cls._grid_search = value
 
     @classmethod
     def reset(cls):

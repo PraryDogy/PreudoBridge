@@ -628,7 +628,8 @@ class Grid(UScrollArea):
             self.error_win = ErrorWin()
             self.error_win.center(self.window())
             self.error_win.show()
-        
+        # if CopyItem.get_grid_search():
+        #     CopyItem.set_is_search(True)
         CopyItem.set_dest(self.main_win_item.main_dir)
         self.win_copy = CopyFilesWin()
         self.win_copy.finished_.connect(paste_final)
@@ -785,124 +786,6 @@ class Grid(UScrollArea):
         self.convert_win.finished_.connect(lambda urls: finished_(urls))
         self.convert_win.show()
 
-    def mouseReleaseEvent(self, a0: QMouseEvent):
-        if a0.button() != Qt.MouseButton.LeftButton:
-            return
-        
-        elif self.rubberBand.isVisible():
-            release_pos = self.main_wid.mapFrom(self, a0.pos())
-            rect = QRect(self.origin_pos, release_pos).normalized()
-            self.rubberBand.hide()
-            ctrl = a0.modifiers() in (Qt.KeyboardModifier.ControlModifier, Qt.KeyboardModifier.ShiftModifier)
-            for wid in self.cell_to_wid.values():
-                intersects = False
-                inner_widgets = wid.findChildren((FileNameWidget, ImgFrameWidget))
-                for w in inner_widgets:
-                    top_left = w.mapTo(self.main_wid, QPoint(0, 0))
-                    w_rect = QRect(top_left, w.size())
-                    if rect.intersects(w_rect):
-                        intersects = True
-                        break
-                if intersects:
-                    if ctrl:
-                        if wid in self.selected_thumbs:
-                            wid.set_no_frame()
-                            self.selected_thumbs.remove(wid)
-                        else:
-                            self.select_multiple_thumb(wid)
-                    else:
-                        if wid not in self.selected_thumbs:
-                            self.select_multiple_thumb(wid)
-                else:
-                    if not ctrl and wid in self.selected_thumbs:
-                        wid.set_no_frame()
-                        self.selected_thumbs.remove(wid)
-
-        elif self.wid_under_mouse is None:
-            self.clear_selected_widgets()
-            self.path_bar_update_delayed(self.main_win_item.main_dir)
-        
-        elif a0.modifiers() == Qt.KeyboardModifier.ShiftModifier:
-            # шифт клик: если не было выделенных виджетов
-            if not self.selected_thumbs:
-                self.select_multiple_thumb(self.wid_under_mouse)
-            # шифт клик: если уже был выделен один / несколько виджетов
-            else:
-                coords = list(self.cell_to_wid)
-                start_pos = (self.selected_thumbs[-1].row, self.selected_thumbs[-1].col)
-                # шифт клик: слева направо (по возрастанию)
-                if coords.index((self.wid_under_mouse.row, self.wid_under_mouse.col)) > coords.index(start_pos):
-                    start = coords.index(start_pos)
-                    end = coords.index((self.wid_under_mouse.row, self.wid_under_mouse.col))
-                    coords = coords[start : end + 1]
-                # шифт клик: справа налево (по убыванию)
-                else:
-                    start = coords.index((self.wid_under_mouse.row, self.wid_under_mouse.col))
-                    end = coords.index(start_pos)
-                    coords = coords[start : end]
-                # выделяем виджеты по срезу координат coords
-                for i in coords:
-                    wid_ = self.cell_to_wid.get(i)
-                    if wid_ not in self.selected_thumbs:
-                        self.select_multiple_thumb(wid=wid_)
-
-        elif a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
-            # комманд клик: был выделен виджет, снять выделение
-            if self.wid_under_mouse in self.selected_thumbs:
-                self.selected_thumbs.remove(self.wid_under_mouse)
-                self.wid_under_mouse.set_no_frame()
-            # комманд клик: виджет не был виделен, выделить
-            else:
-                self.select_multiple_thumb(self.wid_under_mouse)
-                self.path_bar_update_delayed(self.wid_under_mouse.src)
-        else:
-            self.select_single_thumb(self.wid_under_mouse)
-
-        self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
-
-    def mouseDoubleClickEvent(self, a0):
-        if self.wid_under_mouse:
-            self.select_single_thumb(self.wid_under_mouse)
-            self.open_thumb()
-
-    def mousePressEvent(self, a0):
-        if a0.button() == Qt.MouseButton.LeftButton:
-            self.origin_pos = self.main_wid.mapFrom(self, a0.pos())
-            self.wid_under_mouse = self.get_wid_under_mouse(a0)
-        return super().mousePressEvent(a0)
-
-    def mouseMoveEvent(self, a0):
-        try:
-            current_pos = self.main_wid.mapFrom(self, a0.pos())
-            distance = (current_pos - self.origin_pos).manhattanLength()
-        except AttributeError as e:
-            Utils.print_error()
-            return
-        if distance < QApplication.startDragDistance():
-            return
-        if self.wid_under_mouse is None and not self.rubberBand.isVisible():
-            self.rubberBand.setGeometry(QRect(self.origin_pos, QSize()))
-            self.rubberBand.show()
-        if self.rubberBand.isVisible():
-            rect = QRect(self.origin_pos, current_pos).normalized()
-            self.rubberBand.setGeometry(rect)
-            return
-        if self.wid_under_mouse not in self.selected_thumbs:
-            self.select_single_thumb(self.wid_under_mouse)
-        self.drag = QDrag(self)
-        self.mime_data = QMimeData()
-        img_ = QPixmap(Static.COPY_FILES_PNG)
-        self.drag.setPixmap(img_)
-        urls = [QUrl.fromLocalFile(i.src) for i in self.selected_thumbs]        
-        if urls:
-            self.mime_data.setUrls(urls)
-        if self.wid_under_mouse:
-            self.path_bar_update_delayed(self.wid_under_mouse.src)
-        self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
-        self.drag.setMimeData(self.mime_data)
-        CopyItem.set_grid_search(self.is_grid_search)
-        self.drag.exec_(Qt.DropAction.CopyAction)
-        return super().mouseMoveEvent(a0)
 
     def context_thumb(self, menu_: UMenu, wid: Thumb):
         # собираем пути к файлам / папкам у выделенных виджетов
@@ -1060,6 +943,125 @@ class Grid(UScrollArea):
         sort_menu.sort_menu_update.connect(lambda: self.sort_menu_update.emit())
         menu_.addMenu(sort_menu)
 
+    def mouseReleaseEvent(self, a0: QMouseEvent):
+        if a0.button() != Qt.MouseButton.LeftButton:
+            return
+        
+        elif self.rubberBand.isVisible():
+            release_pos = self.main_wid.mapFrom(self, a0.pos())
+            rect = QRect(self.origin_pos, release_pos).normalized()
+            self.rubberBand.hide()
+            ctrl = a0.modifiers() in (Qt.KeyboardModifier.ControlModifier, Qt.KeyboardModifier.ShiftModifier)
+            for wid in self.cell_to_wid.values():
+                intersects = False
+                inner_widgets = wid.findChildren((FileNameWidget, ImgFrameWidget))
+                for w in inner_widgets:
+                    top_left = w.mapTo(self.main_wid, QPoint(0, 0))
+                    w_rect = QRect(top_left, w.size())
+                    if rect.intersects(w_rect):
+                        intersects = True
+                        break
+                if intersects:
+                    if ctrl:
+                        if wid in self.selected_thumbs:
+                            wid.set_no_frame()
+                            self.selected_thumbs.remove(wid)
+                        else:
+                            self.select_multiple_thumb(wid)
+                    else:
+                        if wid not in self.selected_thumbs:
+                            self.select_multiple_thumb(wid)
+                else:
+                    if not ctrl and wid in self.selected_thumbs:
+                        wid.set_no_frame()
+                        self.selected_thumbs.remove(wid)
+
+        elif self.wid_under_mouse is None:
+            self.clear_selected_widgets()
+            self.path_bar_update_delayed(self.main_win_item.main_dir)
+        
+        elif a0.modifiers() == Qt.KeyboardModifier.ShiftModifier:
+            # шифт клик: если не было выделенных виджетов
+            if not self.selected_thumbs:
+                self.select_multiple_thumb(self.wid_under_mouse)
+            # шифт клик: если уже был выделен один / несколько виджетов
+            else:
+                coords = list(self.cell_to_wid)
+                start_pos = (self.selected_thumbs[-1].row, self.selected_thumbs[-1].col)
+                # шифт клик: слева направо (по возрастанию)
+                if coords.index((self.wid_under_mouse.row, self.wid_under_mouse.col)) > coords.index(start_pos):
+                    start = coords.index(start_pos)
+                    end = coords.index((self.wid_under_mouse.row, self.wid_under_mouse.col))
+                    coords = coords[start : end + 1]
+                # шифт клик: справа налево (по убыванию)
+                else:
+                    start = coords.index((self.wid_under_mouse.row, self.wid_under_mouse.col))
+                    end = coords.index(start_pos)
+                    coords = coords[start : end]
+                # выделяем виджеты по срезу координат coords
+                for i in coords:
+                    wid_ = self.cell_to_wid.get(i)
+                    if wid_ not in self.selected_thumbs:
+                        self.select_multiple_thumb(wid=wid_)
+
+        elif a0.modifiers() == Qt.KeyboardModifier.ControlModifier:
+            # комманд клик: был выделен виджет, снять выделение
+            if self.wid_under_mouse in self.selected_thumbs:
+                self.selected_thumbs.remove(self.wid_under_mouse)
+                self.wid_under_mouse.set_no_frame()
+            # комманд клик: виджет не был виделен, выделить
+            else:
+                self.select_multiple_thumb(self.wid_under_mouse)
+                self.path_bar_update_delayed(self.wid_under_mouse.src)
+        else:
+            self.select_single_thumb(self.wid_under_mouse)
+
+        self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
+
+    def mouseDoubleClickEvent(self, a0):
+        if self.wid_under_mouse:
+            self.select_single_thumb(self.wid_under_mouse)
+            self.open_thumb()
+
+    def mousePressEvent(self, a0):
+        if a0.button() == Qt.MouseButton.LeftButton:
+            self.origin_pos = self.main_wid.mapFrom(self, a0.pos())
+            self.wid_under_mouse = self.get_wid_under_mouse(a0)
+        return super().mousePressEvent(a0)
+
+    def mouseMoveEvent(self, a0):
+        try:
+            current_pos = self.main_wid.mapFrom(self, a0.pos())
+            distance = (current_pos - self.origin_pos).manhattanLength()
+        except AttributeError as e:
+            Utils.print_error()
+            return
+        if distance < QApplication.startDragDistance():
+            return
+        if self.wid_under_mouse is None and not self.rubberBand.isVisible():
+            self.rubberBand.setGeometry(QRect(self.origin_pos, QSize()))
+            self.rubberBand.show()
+        if self.rubberBand.isVisible():
+            rect = QRect(self.origin_pos, current_pos).normalized()
+            self.rubberBand.setGeometry(rect)
+            return
+        if self.wid_under_mouse not in self.selected_thumbs:
+            self.select_single_thumb(self.wid_under_mouse)
+        self.drag = QDrag(self)
+        self.mime_data = QMimeData()
+        img_ = QPixmap(Static.COPY_FILES_PNG)
+        self.drag.setPixmap(img_)
+        urls = [QUrl.fromLocalFile(i.src) for i in self.selected_thumbs]        
+        if urls:
+            self.mime_data.setUrls(urls)
+        if self.wid_under_mouse:
+            self.path_bar_update_delayed(self.wid_under_mouse.src)
+        self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
+        self.drag.setMimeData(self.mime_data)
+        self.setup_urls_to_copy()
+        self.drag.exec_(Qt.DropAction.CopyAction)
+        return super().mouseMoveEvent(a0)
+
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
             
@@ -1209,12 +1211,14 @@ class Grid(UScrollArea):
             for i in urls
         ]
         src = os.path.dirname(urls[0])
-        is_cut = src.split(os.sep)[:3] == self.main_win_item.main_dir.split(os.sep)[:3]
         if src == self.main_win_item.main_dir:
             print("нельзя копировать в себя через DropEvent")
             return
         else:
-            CopyItem.set_is_cut(is_cut)
+            if not CopyItem.get_is_search():
+                src_disk = src.split(os.sep)[:3]
+                dst_disk = self.main_win_item.main_dir.split(os.sep)[:3]
+                CopyItem.set_is_cut(src_disk==dst_disk)
             CopyItem.set_src(src)
             CopyItem.urls = urls
             self.paste_files()
