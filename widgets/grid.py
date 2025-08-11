@@ -599,6 +599,9 @@ class Grid(UScrollArea):
         self.rearrange_thumbs()
 
     def paste_files(self):
+        """
+        Для cmd v, вставить, dropEvent
+        """
 
         def scroll_to_wid():
             self.ensureWidgetVisible(self.selected_thumbs[-1])
