@@ -1,8 +1,8 @@
 import gc
 import os
 
-from PyQt5.QtCore import (QDir, QItemSelectionModel, QMimeData, QModelIndex,
-                          Qt, QTimer, QUrl, pyqtSignal)
+from PyQt5.QtCore import (QDateTime, QDir, QItemSelectionModel, QMimeData,
+                          QModelIndex, Qt, QTimer, QUrl, pyqtSignal)
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QDragEnterEvent,
                          QDragMoveEvent, QDropEvent, QKeyEvent, QPixmap)
 from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QFileSystemModel,
@@ -21,13 +21,47 @@ from .info_win import InfoWin
 from .remove_files_win import RemoveFilesWin
 
 
+from PyQt5.QtWidgets import QApplication, QTreeView, QFileSystemModel
+from PyQt5.QtCore import Qt, QDateTime
+import sys, os
+
 class MyFileSystemModel(QFileSystemModel):
     def headerData(self, section, orientation, role=Qt.DisplayRole):
-        if role == Qt.ItemDataRole.DisplayRole and orientation == Qt.Orientation.Horizontal:
+        if role == Qt.DisplayRole and orientation == Qt.Horizontal:
             headers = ["Имя", "Размер", "Тип", "Дата изменения"]
             if 0 <= section < len(headers):
                 return headers[section]
         return super().headerData(section, orientation, role)
+
+    def data(self, index, role=Qt.DisplayRole):
+        if role == Qt.DisplayRole:
+            col = index.column()
+            if col == 1:  # Размер
+                size = self.size(index)
+                if size == 0 and self.isDir(index):
+                    return ""
+                elif size < 1024:
+                    return f"{size} байт"
+                elif size < 1024**2:
+                    return f"{size/1024:.1f} КБ"
+                elif size < 1024**3:
+                    return f"{size/1024**2:.1f} МБ"
+                else:
+                    return f"{size/1024**3:.1f} ГБ"
+            elif col == 2:  # Тип
+                path = self.filePath(index)
+                if self.isDir(index):
+                    return "Папка"
+                else:
+                    ext = os.path.splitext(path)[1].lower()
+                    if ext:
+                        return f"Файл {ext[1:].upper()}"
+                    return "Файл"
+            elif col == 3:  # Дата
+                dt = self.lastModified(index)
+                if isinstance(dt, QDateTime):
+                    return dt.toString("dd.MM.yyyy HH:mm")
+        return super().data(index, role)
 
 
 class GridList(QTableView):
