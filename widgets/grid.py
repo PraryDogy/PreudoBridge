@@ -785,7 +785,6 @@ class Grid(UScrollArea):
         self.convert_win.finished_.connect(lambda urls: finished_(urls))
         self.convert_win.show()
 
-
     def context_thumb(self, menu_: UMenu, wid: Thumb):
         # собираем пути к файлам / папкам у выделенных виджетов
         urls = [i.src for i in self.selected_thumbs]
@@ -886,13 +885,6 @@ class Grid(UScrollArea):
         names = [os.path.basename(self.main_win_item.main_dir)]
         urls = [self.main_win_item.main_dir]
 
-        if CopyItem.urls and not self.is_grid_search:
-            paste_files = GridActions.PasteObjects(menu_)
-            paste_files.triggered.connect(self.paste_files)
-            menu_.addAction(paste_files)
-
-        menu_.addSeparator()
-
         if not self.is_grid_search and not Dynamic.rating_filter != 0:
             new_folder = GridActions.NewFolder(menu_)
             new_folder.triggered.connect(new_folder_start)
@@ -927,6 +919,13 @@ class Grid(UScrollArea):
         menu_.addAction(copy_name)
 
         menu_.addSeparator()
+
+        if CopyItem.urls and not self.is_grid_search:
+            paste_files = GridActions.PasteObjects(menu_)
+            paste_files.triggered.connect(self.paste_files)
+            menu_.addAction(paste_files)
+
+            menu_.addSeparator()
 
         upd_ = GridActions.UpdateGrid(menu_)
         upd_.triggered.connect(lambda: self.load_st_grid.emit())
