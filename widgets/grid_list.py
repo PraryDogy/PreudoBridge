@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QFileSystemModel,
 
 from cfg import Dynamic, JsonData, Static
 from evlosh_templates.evlosh_utils import EvloshUtils
-from system.items import MainWinItem
+from system.items import CopyItem, MainWinItem
 from system.utils import Utils
 
 from ._base_widgets import LoadingWid, UMenu
@@ -229,13 +229,6 @@ class GridList(QTableView):
     def item_context(self, menu_: UMenu, selected_path: str, urls: list[str], names: list[str], total: int):
         urls = self.get_selected_urls()
 
-        if Dynamic.urls_to_copy:
-            paste_files = GridActions.PasteObjects(menu_, len(Dynamic.urls_to_copy))
-            paste_files.triggered.connect(self.paste_files)
-            menu_.addAction(paste_files)
-
-            menu_.addSeparator()
-
         view_action = ItemActions.OpenThumb(menu_)
         view_action.triggered.connect(lambda: self.open_thumb(urls))
         menu_.addAction(view_action)
@@ -272,12 +265,20 @@ class GridList(QTableView):
 
         menu_.addSeparator()
 
+        if CopyItem.urls:
+            paste_files = GridActions.PasteObjects(menu_)
+            paste_files.triggered.connect(self.paste_files)
+            menu_.addAction(paste_files)
+
+            menu_.addSeparator()
+
         cut_objects = ItemActions.CutObjects(menu_)
-        cut_objects.triggered.connect(lambda e: self.toggle_is_cut(True))
+        cut_objects.triggered.connect(lambda e: CopyItem.set_is_cut(True))
         cut_objects.triggered.connect(lambda e: self.setup_urls_to_copy(urls))
         menu_.addAction(cut_objects)
 
         copy_files = ItemActions.CopyObjects(menu_)
+        copy_files.triggered.connect(lambda e: CopyItem.set_is_cut(False))
         copy_files.triggered.connect(lambda e: self.setup_urls_to_copy(urls))
         menu_.addAction(copy_files)
 
@@ -286,7 +287,7 @@ class GridList(QTableView):
         menu_.addAction(remove_objects)  
 
     def grid_context(self, menu_: UMenu, selected_path: str, urls: list[str], names: list[str], total: int):
-        if Dynamic.urls_to_copy:
+        if CopyItem.urls:
             paste_files = GridActions.PasteObjects(menu_)
             paste_files.triggered.connect(self.paste_files)
             menu_.addAction(paste_files)
@@ -330,36 +331,20 @@ class GridList(QTableView):
         menu_.addMenu(change_view)
 
     def paste_files(self):
-        if not Dynamic.urls_to_copy:
-            return
 
-        # пресекаем попытку вставить файлы в место откуда скопированы
-        for i in Dynamic.urls_to_copy:
-            if os.path.dirname(i) == self.main_win_item.main_dir:
-                return
+        def finalize(urls: list[str]):
+            self.main_win_item.set_urls_to_select(urls)
+            if CopyItem.get_is_cut():
+                CopyItem.reset()
+            self.load_st_grid.emit()
 
-        self.win_copy = CopyFilesWin(self.main_win_item.main_dir, Dynamic.urls_to_copy, Dynamic.is_cut)
-        self.win_copy.finished_.connect(lambda urls: self.paste_files_fin(urls))
+        CopyItem.set_dest(self.main_win_item.main_dir)
+        self.win_copy = CopyFilesWin()
+        self.win_copy.finished_.connect(finalize)
         self.win_copy.error_win.connect(self.show_error_win)
         self.win_copy.center(self.window())
         self.win_copy.show()
         QTimer.singleShot(300, self.win_copy.raise_)
-
-    def paste_files_fin(self, urls: list[str]):
-        if not urls:
-            return
-
-        self.load_st_grid.emit()
-
-        try:
-            if Dynamic.is_cut:
-                for i in Dynamic.urls_to_copy:
-                    os.remove(i)
-        except Exception as e:
-            Utils.print_error()
-
-        self.toggle_is_cut(False)
-        Dynamic.urls_to_copy.clear()
 
     def show_error_win(self):
         """
@@ -371,25 +356,17 @@ class GridList(QTableView):
         self.error_win.show()
 
     def setup_urls_to_copy(self, urls: list[str]):
-        Dynamic.urls_to_copy.clear()
+        CopyItem.set_src(self.main_win_item.main_dir)
+        CopyItem.set_is_search(False)
+        CopyItem.urls.clear()
         for i in urls:
-            Dynamic.urls_to_copy.append(i)
+            CopyItem.urls.append(i)
 
     def remove_files_cmd(self, urls: list[str]):
         self.rem_win = RemoveFilesWin(self.main_win_item, urls)
         self.rem_win.finished_.connect(lambda urls: self.load_st_grid.emit())
         self.rem_win.center(self.window())
         self.rem_win.show()
-
-    def set_urls(self):
-        """
-        Из-за того, что сетка удаляется из MainWin по таймеру,
-        нужно вызывать этот метод, чтобы .urls моментально обновились
-        для обработки в следующей сетке
-        """
-        GridList.sizes = [self.columnWidth(i) for i in range(0, 4)]
-        urls = [i for i in self.get_selected_urls()]
-        self.main_win_item.set_urls_to_select(urls)
 
     def select_row(self, index: QModelIndex):
         self.setCurrentIndex(index)
@@ -444,16 +421,17 @@ class GridList(QTableView):
             elif a0.key() == Qt.Key.Key_X:
                 urls = self.get_selected_urls()
                 if urls:
-                    self.toggle_is_cut(True)
+                    CopyItem.set_is_cut(True)
                     self.setup_urls_to_copy(urls)
 
             elif a0.key() == Qt.Key.Key_C:
                 urls = self.get_selected_urls()
                 if urls:
+                    CopyItem.set_is_cut(False)
                     self.setup_urls_to_copy(urls)
 
             elif a0.key() == Qt.Key.Key_V:
-                if Dynamic.urls_to_copy:
+                if CopyItem.urls:
                     self.paste_files()
 
         elif a0.key() in (Qt.Key.Key_Return, Qt.Key.Key_Space):
@@ -472,22 +450,25 @@ class GridList(QTableView):
             event.acceptProposedAction()
 
     def dropEvent(self, a0: QDropEvent):
-        Dynamic.urls_to_copy.clear()
-        Dynamic.urls_to_copy = [i.toLocalFile() for i in a0.mimeData().urls()]
-
-        main_dir_ = EvloshUtils.norm_slash(self.main_win_item.main_dir)
+        if not a0.mimeData().urls():
+            return
         sys_vol = EvloshUtils.get_sys_vol()
-        main_dir_ = EvloshUtils.add_sys_vol(main_dir_, sys_vol)
-        for i in Dynamic.urls_to_copy:
-            i = EvloshUtils.norm_slash(i)
-            i = EvloshUtils.add_sys_vol(i, sys_vol)
-            if os.path.commonpath([i, main_dir_]) == main_dir_:
-                print("Нельзя копировать в себя")
-                return
-            
-        if Dynamic.urls_to_copy:
+        urls = [
+            EvloshUtils.norm_slash(i.toLocalFile())
+            for i in a0.mimeData().urls()
+        ]
+        urls = [
+            EvloshUtils.add_sys_vol(i, sys_vol)
+            for i in urls
+        ]
+        src = os.path.dirname(urls[0])
+        if src == self.main_win_item.main_dir:
+            print("нельзя копировать в себя через DropEvent")
+            return
+        else:
+            CopyItem.set_src(src)
+            CopyItem.urls = urls
             self.paste_files()
-
         return super().dropEvent(a0)
     
     def mousePressEvent(self, e):
@@ -531,3 +512,13 @@ class GridList(QTableView):
             self.clearSelection()
             self.setCurrentIndex(QModelIndex())
         super().mouseReleaseEvent(e)
+
+    def deleteLater(self):
+        urls = self.get_selected_urls()
+        self.main_win_item.set_urls_to_select(urls)
+        return super().deleteLater()
+    
+    def close(self):
+        urls = self.get_selected_urls()
+        self.main_win_item.set_urls_to_select(urls)
+        return super().close()
