@@ -1222,9 +1222,13 @@ class Grid(UScrollArea):
     def deleteLater(self):
         for i in self.load_images_tasks:
             i.set_should_run(False)
+        urls = (i.src for i in self.selected_thumbs)
+        self.main_win_item.set_urls_to_select(urls)
         return super().deleteLater()
     
     def closeEvent(self, a0):
         for i in self.load_images_tasks:
             i.set_should_run(False)
+        urls = (i.src for i in self.selected_thumbs)
+        self.main_win_item.set_urls_to_select(urls)
         return super().closeEvent(a0)

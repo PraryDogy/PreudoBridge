@@ -228,7 +228,7 @@ class MainWinItem:
         return self._urls_to_select
 
     def clear_urls_to_select(self):
-        self._urls_to_select.clear()
+        self._urls_to_select = []
 
     def set_go_to(self, path: str):
         self._go_to = path
