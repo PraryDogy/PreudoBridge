@@ -296,12 +296,6 @@ class GridList(QTableView):
         menu_.addAction(remove_objects)  
 
     def grid_context(self, menu_: UMenu, selected_path: str, urls: list[str], names: list[str], total: int):
-        if CopyItem.urls:
-            paste_files = GridActions.PasteObjects(menu_)
-            paste_files.triggered.connect(self.paste_files)
-            menu_.addAction(paste_files)
-            menu_.addSeparator()
-
         info = GridActions.Info(menu_)
         info.triggered.connect(lambda: self.win_info_cmd(selected_path))
         menu_.addAction(info)
@@ -330,6 +324,12 @@ class GridList(QTableView):
         menu_.addAction(copy_name)
 
         menu_.addSeparator()
+
+        if CopyItem.urls:
+            paste_files = GridActions.PasteObjects(menu_)
+            paste_files.triggered.connect(self.paste_files)
+            menu_.addAction(paste_files)
+            menu_.addSeparator()
 
         upd_ = GridActions.UpdateGrid(menu_)
         upd_.triggered.connect(lambda: self.load_st_grid.emit())
