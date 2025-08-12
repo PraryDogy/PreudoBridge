@@ -154,6 +154,9 @@ class GridStandart(Grid):
                     wid = self.url_to_wid.get(i)
                     self.selected_thumbs.append(wid)
                     wid.set_frame()
+            if self.selected_thumbs:
+                wid = self.selected_thumbs[-1]
+                QTimer.singleShot(30, lambda: self.ensureWidgetVisible(wid))
             self.main_win_item.clear_urls_to_select()
 
         self.loading_lbl.hide()
