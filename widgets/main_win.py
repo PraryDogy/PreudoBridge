@@ -442,6 +442,7 @@ class MainWin(WinBase):
         self.search_bar.search_bar_search_fin()
 
     def disable_wids(self, value: bool):
+        self.top_bar.fast_sort_btn.setDisabled(value)
         self.sort_bar.sort_frame.setDisabled(value)
         self.sort_bar.slider.setDisabled(value)
         self.tags_menu.setDisabled(value)
