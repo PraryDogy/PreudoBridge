@@ -21,6 +21,15 @@ from .info_win import InfoWin
 from .remove_files_win import RemoveFilesWin
 
 
+class MyFileSystemModel(QFileSystemModel):
+    def headerData(self, section, orientation, role=Qt.DisplayRole):
+        if role == Qt.ItemDataRole.DisplayRole and orientation == Qt.Orientation.Horizontal:
+            headers = ["Имя", "Размер", "Тип", "Дата изменения"]
+            if 0 <= section < len(headers):
+                return headers[section]
+        return super().headerData(section, orientation, role)
+
+
 class GridList(QTableView):
     col: int = 0
     order: int = 0
@@ -61,7 +70,7 @@ class GridList(QTableView):
         self.horizontalHeader().sectionClicked.connect(self.save_sort_settings)
         self.doubleClicked.connect(self.double_clicked)
 
-        self._model = QFileSystemModel()
+        self._model = MyFileSystemModel()
         self._model.setRootPath(self.main_win_item.main_dir)
 
         self._model.setFilter(QDir.AllEntries | QDir.NoDotAndDotDot)
