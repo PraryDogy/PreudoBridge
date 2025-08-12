@@ -129,7 +129,11 @@ class GridList(QTableView):
     def open_thumb(self, urls: list[str]):
         if len(urls) == 1:
             if urls[0].endswith(Static.ext_all):
-                url_to_wid = {urls[0]: Thumb(urls[0])}
+                url_to_wid = {
+                    url: Thumb(url)
+                    for url, v in self.url_to_index.items()
+                    if url.endswith(Static.ext_all)
+                }
                 start_url = urls[0]
                 is_selection = False
                 self.open_img_view(start_url, url_to_wid, is_selection)
@@ -215,15 +219,13 @@ class GridList(QTableView):
 
     def get_selected_urls(self):
         urls = []
-
         selection_model = self.selectionModel()
         selected_rows = selection_model.selectedRows()
         for index in selected_rows:
             file_path = self._model.filePath(index)  # Получаем путь по индексу
             urls.append(file_path)
-
         return urls
-
+    
     def item_context(self, menu_: UMenu, selected_path: str, urls: list[str], names: list[str], total: int):
         urls = self.get_selected_urls()
 
