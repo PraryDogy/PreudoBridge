@@ -4,6 +4,7 @@ import io
 import os
 import subprocess
 import traceback
+import zipfile
 
 import cv2
 import numpy as np

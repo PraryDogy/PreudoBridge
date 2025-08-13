@@ -64,7 +64,7 @@ class RemoveFilesWin(MinMaxDisabledWin):
 
     def cmd_(self, *args):
         self.task_ = RemoveFilesTask(self.main_win_item.main_dir, self.urls)
-        self.task_.signals_.finished_.connect(self.finalize)
+        self.task_.sigs.finished_.connect(self.finalize)
         UThreadPool.start(runnable=self.task_)
 
     def finalize(self, *args):

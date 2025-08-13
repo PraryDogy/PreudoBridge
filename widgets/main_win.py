@@ -318,7 +318,7 @@ class MainWin(WinBase):
         value, path = data
         self.path_finder_task = PathFinderTask(path)
         cmd = lambda path: self.path_finder_finished(value, path)
-        self.path_finder_task.signals_.finished_.connect(cmd)
+        self.path_finder_task.sigs.finished_.connect(cmd)
         UThreadPool.start(self.path_finder_task)
 
     def path_finder_finished(self, value: int, path: str):

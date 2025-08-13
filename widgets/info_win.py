@@ -93,7 +93,7 @@ class InfoWin(MinMaxDisabledWin):
         else:
             self.calc_task = ImgResolTask(self.base_item)
 
-        self.calc_task.signals_.finished_calc.connect(lambda res: self.finalize(res))
+        self.calc_task.sigs.finished_calc.connect(lambda res: self.finalize(res))
         UThreadPool.start(self.calc_task)
 
 

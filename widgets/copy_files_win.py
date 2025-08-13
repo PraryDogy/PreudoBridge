@@ -159,12 +159,12 @@ class CopyFilesWin(ProgressbarWin):
         self.adjustSize()
 
         self.tsk = CopyFilesTask()
-        self.tsk.signals_.set_total_kb.connect(lambda value: self.set_max(value))
-        self.tsk.signals_.set_copied_kb.connect(lambda value: self.set_value(value))
-        self.tsk.signals_.finished_.connect(lambda urls: self.on_finished(urls))
-        self.tsk.signals_.error_win.connect(lambda: self.error_win.emit())
-        self.tsk.signals_.replace_files_win.connect(lambda: self.open_replace_files_win())
-        self.tsk.signals_.set_counter.connect(lambda data: self.set_counter(*data))
+        self.tsk.sigs.set_total_kb.connect(lambda value: self.set_max(value))
+        self.tsk.sigs.set_copied_kb.connect(lambda value: self.set_value(value))
+        self.tsk.sigs.finished_.connect(lambda urls: self.on_finished(urls))
+        self.tsk.sigs.error_win.connect(lambda: self.error_win.emit())
+        self.tsk.sigs.replace_files_win.connect(lambda: self.open_replace_files_win())
+        self.tsk.sigs.set_counter.connect(lambda data: self.set_counter(*data))
         UThreadPool.start(self.tsk)
 
     def open_replace_files_win(self):

@@ -256,7 +256,7 @@ class ImgViewWin(WinBase):
         if self.current_path not in LoadImageTask.cached_images:
             self.task_ = LoadThumbTask(self.current_path)
             cmd_ = lambda image_data: self.load_thumbnail_finished(image_data)
-            self.task_.signals_.finished_.connect(cmd_)
+            self.task_.sigs.finished_.connect(cmd_)
             UThreadPool.start(self.task_)
 
         else:
@@ -284,7 +284,7 @@ class ImgViewWin(WinBase):
         self.task_count += 1
         task_ = LoadImageTask(self.current_path)
         cmd_ = lambda image_data: self.load_image_finished(image_data)
-        task_.signals_.finished_.connect(cmd_)
+        task_.sigs.finished_.connect(cmd_)
         UThreadPool.start(task_)
 
     def load_image_finished(self, image_data: tuple[str, QPixmap]):

@@ -23,7 +23,7 @@ from .database import CACHE, Dbase
 from .items import (AnyBaseItem, BaseItem, CopyItem, ImageBaseItem,
                     MainWinItem, SearchItem, SortItem)
 from .utils import ImageUtils, URunnable, Utils
-
+import zipfile
 
 # Общий класс для выполнения действий QAction в отдельном потоке
 class ActionsTask(URunnable):
@@ -47,7 +47,7 @@ class _CopyFilesSigs(QObject):
 class CopyFilesTask(URunnable):
     def __init__(self):
         super().__init__()
-        self.signals_ = _CopyFilesSigs()
+        self.sigs = _CopyFilesSigs()
         self.pause_flag = False
         self.copied_kb = 0
         self.thumb_paths: list[str] = []
@@ -103,7 +103,7 @@ class CopyFilesTask(URunnable):
 
         for src, dest in self.src_dest_list:
             if os.path.exists(dest):
-                self.signals_.replace_files_win.emit()
+                self.sigs.replace_files_win.emit()
                 self.pause_flag = True
                 while self.pause_flag:
                     sleep(1)
@@ -145,7 +145,7 @@ class CopyFilesTask(URunnable):
         for src, dest in self.src_dest_list:
             total_bytes += os.path.getsize(src)
         try:
-            self.signals_.set_total_kb.emit(self.bytes_to_kb(total_bytes))
+            self.sigs.set_total_kb.emit(self.bytes_to_kb(total_bytes))
         except RuntimeError as e:
             Utils.print_error()
             return
@@ -154,13 +154,13 @@ class CopyFilesTask(URunnable):
             if not self.is_should_run():
                 break
             data = (count, len(self.src_dest_list))
-            self.signals_.set_counter.emit(data)
+            self.sigs.set_counter.emit(data)
             os.makedirs(os.path.dirname(dest), exist_ok=True)
             try:
                 self.copy_by_bytes(src, dest)
             except Exception as e:
                 Utils.print_error()
-                self.signals_.error_win.emit()
+                self.sigs.error_win.emit()
                 break
             if CopyItem.get_is_cut() and not CopyItem.get_is_search():
                 if os.path.isdir(src):
@@ -168,7 +168,7 @@ class CopyFilesTask(URunnable):
                 else:
                     os.remove(src)
         try:
-            self.signals_.finished_.emit(self.thumb_paths)
+            self.sigs.finished_.emit(self.thumb_paths)
         except RuntimeError as e:
             Utils.print_error()
 
@@ -210,7 +210,7 @@ class CopyFilesTask(URunnable):
     
     def send_copied_kb(self):
         try:
-            self.signals_.set_copied_kb.emit(self.copied_kb)
+            self.sigs.set_copied_kb.emit(self.copied_kb)
         except RuntimeError:
             ...
 
@@ -224,7 +224,7 @@ class RatingTask(URunnable):
         self.filename = filename
         self.new_rating = new_rating
         self.main_dir = main_dir
-        self.signals_ = _RatingSigs()
+        self.sigs = _RatingSigs()
 
     def task(self):        
         db = os.path.join(self.main_dir, Static.DB_FILENAME)
@@ -239,7 +239,7 @@ class RatingTask(URunnable):
         stmt = stmt.values(rating=self.new_rating)
         Dbase.execute_(conn, stmt)
         Dbase.commit_(conn)
-        self.signals_.finished_.emit()
+        self.sigs.finished_.emit()
         Dbase.close_connection(conn)
 
 
@@ -255,7 +255,7 @@ class SearchTask(URunnable):
 
     def __init__(self, main_win_item: MainWinItem, search_item: SearchItem):
         super().__init__()
-        self.signals_ = _SearchSigs()
+        self.sigs = _SearchSigs()
         self.main_win_item = main_win_item
         self.found_files_list: list[str] = []
 
@@ -287,7 +287,7 @@ class SearchTask(URunnable):
                         missed_files_list.append(i)
 
         try:
-            self.signals_.finished_.emit(missed_files_list)
+            self.sigs.finished_.emit(missed_files_list)
         except RuntimeError as e:
             Utils.print_error()
             self.set_should_run(False)
@@ -445,7 +445,7 @@ class SearchTask(URunnable):
             pixmap = ImageUtils.pixmap_from_array(img_array)
             base_item.set_pixmap_storage(pixmap)
         try:
-            self.signals_.new_widget.emit(base_item)
+            self.sigs.new_widget.emit(base_item)
             QTest.qSleep(SearchTask.new_wid_sleep_ms)
         except RuntimeError:
             self.set_should_run(False)
@@ -461,7 +461,7 @@ class FinderItems(URunnable):
 
     def __init__(self, main_win_item: MainWinItem, sort_item: SortItem):
         super().__init__()
-        self.signals_ = _FinderSigs()
+        self.sigs = _FinderSigs()
         self.sort_item = sort_item
         self.main_win_item = main_win_item
 
@@ -489,7 +489,7 @@ class FinderItems(URunnable):
         finder_base_items = BaseItem.sort_items(finder_base_items, self.sort_item)
 
         try:
-            self.signals_.finished_.emit(finder_base_items)
+            self.sigs.finished_.emit(finder_base_items)
         except RuntimeError as e:
             Utils.print_error()
 
@@ -558,7 +558,7 @@ class LoadImagesTask(URunnable):
         Загружает изображения из базы данных или создает новые
         """
         super().__init__()
-        self.signals_ = _LoadImagesSigs()
+        self.sigs = _LoadImagesSigs()
         self.main_win_item = main_win_item
         self.stmt_list: list[sqlalchemy.Insert | sqlalchemy.Update] = []
         self.thumbs = thumbs
@@ -587,7 +587,7 @@ class LoadImagesTask(URunnable):
 
         Dbase.close_connection(self.conn)
         try:
-            self.signals_.finished_.emit()
+            self.sigs.finished_.emit()
         except RuntimeError as e:
             Utils.print_error()
 
@@ -613,7 +613,7 @@ class LoadImagesTask(URunnable):
                 if stmt is not None:
                     self.stmt_list.append(stmt)
                 try:
-                    self.signals_.update_thumb.emit(thumb)
+                    self.sigs.update_thumb.emit(thumb)
                 except (TypeError, RuntimeError, TypeError) as e:
                     Utils.print_error()
                     return
@@ -633,7 +633,7 @@ class _LoadThumbSigs(QObject):
 class LoadThumbTask(URunnable):
     def __init__(self, src: str):
         super().__init__()
-        self.signals_ = _LoadThumbSigs()
+        self.sigs = _LoadThumbSigs()
         self.src = EvloshUtils.norm_slash(src)
         self.name = os.path.basename(self.src)
 
@@ -644,7 +644,7 @@ class LoadThumbTask(URunnable):
 
         if engine is None:
             image_data = (self.src, None)
-            self.signals_.finished_.emit(image_data)
+            self.sigs.finished_.emit(image_data)
             return
 
         conn = Dbase.open_connection(engine)
@@ -670,7 +670,7 @@ class LoadThumbTask(URunnable):
         image_data = (self.src, pixmap)
 
         try:
-            self.signals_.finished_.emit(image_data)
+            self.sigs.finished_.emit(image_data)
         except RuntimeError as e:
             Utils.print_error()
 
@@ -681,7 +681,7 @@ class LoadImageTask(URunnable):
 
     def __init__(self, src: str):
         super().__init__()
-        self.signals_ = _LoadThumbSigs()
+        self.sigs = _LoadThumbSigs()
         self.src: str = src
 
     def task(self):
@@ -706,7 +706,7 @@ class LoadImageTask(URunnable):
             self.cached_images.pop(list(self.cached_images)[0])
 
         image_data = (self.src, pixmap)
-        self.signals_.finished_.emit(image_data)
+        self.sigs.finished_.emit(image_data)
 
 
 class _InfoTaskSigs(QObject):
@@ -720,7 +720,7 @@ class ImgResolTask(URunnable):
     def __init__(self, base_item: BaseItem):
         super().__init__()
         self.base_item = base_item
-        self.signals_ = _InfoTaskSigs()
+        self.sigs = _InfoTaskSigs()
 
     def task(self):
         img_ = ReadImage.read_image(self.base_item.src)
@@ -730,7 +730,7 @@ class ImgResolTask(URunnable):
         else:
             resol = self.undef_text
         
-        self.signals_.finished_calc.emit(resol)
+        self.sigs.finished_calc.emit(resol)
 
 
 class FolderSizeTask(URunnable):
@@ -739,7 +739,7 @@ class FolderSizeTask(URunnable):
     def __init__(self, base_item: BaseItem):
         super().__init__()
         self.base_item = base_item
-        self.signals_ = _InfoTaskSigs()
+        self.sigs = _InfoTaskSigs()
 
     def task(self):
         try:
@@ -748,7 +748,7 @@ class FolderSizeTask(URunnable):
             Utils.print_error()
             total = self.undef_text
 
-        self.signals_.finished_calc.emit(total)
+        self.sigs.finished_calc.emit(total)
 
     def get_folder_size(self):
         total = 0
@@ -824,7 +824,7 @@ class _RemoveFilesSigs(QObject):
 class RemoveFilesTask(URunnable):
     def __init__(self, main_dir: str, urls: list[str]):
         super().__init__()
-        self.signals_ = _RemoveFilesSigs()
+        self.sigs = _RemoveFilesSigs()
         self.main_dir = main_dir
         self.urls = urls
 
@@ -841,7 +841,7 @@ class RemoveFilesTask(URunnable):
         except Exception as e:
             Utils.print_error()
         try:
-            self.signals_.finished_.emit()
+            self.sigs.finished_.emit()
         except RuntimeError as e:
             Utils.print_error()
 
@@ -855,17 +855,17 @@ class PathFinderTask(URunnable):
         super().__init__()
         self.path = path
         self.path_finder = PathFinder(path)
-        self.signals_ = _PathFinderSigs()
+        self.sigs = _PathFinderSigs()
 
     def task(self):
         result = self.path_finder.get_result()
         if result is None:
             result = ""
         
-        self.signals_.finished_.emit(result)
+        self.sigs.finished_.emit(result)
 
 
-class NewItemsSigs(QObject):
+class _NewItemsSigs(QObject):
     new_wid = pyqtSignal(object)
 
 class NewItems(URunnable):
@@ -873,7 +873,7 @@ class NewItems(URunnable):
         super().__init__()
         self.urls = urls
         self.main_win_item = main_win_item
-        self.signals = NewItemsSigs()
+        self.signals = _NewItemsSigs()
 
     def task(self):
         dbase = Dbase()
@@ -909,7 +909,7 @@ class NewItems(URunnable):
         return super().task()
     
 
-class ImgConvertSigs(QObject):
+class _ImgConvertSigs(QObject):
     finished_ = pyqtSignal(list)
     progress_value = pyqtSignal(int)
     set_progress_len = pyqtSignal(int)
@@ -920,7 +920,7 @@ class ImgConvertTask(URunnable):
         super().__init__()
         self.urls = urls
         self.new_urls: list[str] = []
-        self.signals_ = ImgConvertSigs()
+        self.sigs = _ImgConvertSigs()
 
     def task(self):
         urls = [
@@ -930,7 +930,7 @@ class ImgConvertTask(URunnable):
         ]
 
         try:
-            self.signals_.set_progress_len.emit(len(urls))
+            self.sigs.set_progress_len.emit(len(urls))
         except RuntimeError:
             return
 
@@ -940,12 +940,12 @@ class ImgConvertTask(URunnable):
                 self.new_urls.append(save_path)
 
             try:
-                self.signals_.progress_value.emit(x)
+                self.sigs.progress_value.emit(x)
             except RuntimeError:
                 break
 
         try:
-            self.signals_.finished_.emit(self.new_urls)
+            self.sigs.finished_.emit(self.new_urls)
         except RuntimeError:
             ...
 
@@ -961,3 +961,57 @@ class ImgConvertTask(URunnable):
         except Exception:
             Utils.print_error()
             return None
+        
+
+class _ArchiveSigs(QObject):
+    set_max = pyqtSignal(int)
+    set_value = pyqtSignal(int)
+    finished_ = pyqtSignal(str)
+
+
+class Archive(URunnable):
+    def __init__(self, files: list[str], zip_path: str):
+        super().__init__()
+        self.sigs = _ArchiveSigs()
+        self.files = files
+        self.zip_path = zip_path
+        self.progress = 0
+        self.all_files = self._collect_all_files()
+
+    def _collect_all_files(self) -> list[tuple[str, str]]:
+        """
+        Собираем список всех файлов для архива.
+        Возвращаем список кортежей (полный_путь, путь_в_архиве).
+        """
+        collected = []
+        for item in self.files:
+            if os.path.isfile(item):
+                collected.append((item, os.path.basename(item)))
+            elif os.path.isdir(item):
+                base_dir = os.path.dirname(item)
+                for root, _, files in os.walk(item):
+                    for f in files:
+                        full_path = os.path.join(root, f)
+                        rel_path = os.path.relpath(full_path, start=base_dir)
+                        collected.append((full_path, rel_path))
+        return collected
+
+    def _add_file(self, zf, full_path, arc_path):
+        """Добавляем файл и обновляем прогресс."""
+        zf.write(full_path, arcname=arc_path)
+        self.progress += 1
+        self.sigs.set_value.emit(self.progress)
+
+    def zip_items(self):
+        """Архивация уже собранного списка файлов."""
+        self.sigs.set_max.emit(len(self.all_files))
+        self.progress = 0
+
+        with zipfile.ZipFile(self.zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
+            for full_path, arc_path in self.all_files:
+                self._add_file(zf, full_path, arc_path)
+
+    def task(self):
+        """Метод для потока."""
+        self.zip_items()
+        self.sigs.finished_.emit(self.zip_path)

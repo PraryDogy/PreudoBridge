@@ -16,9 +16,9 @@ class ImgConvertWin(ProgressbarWin):
 
         if urls:
             self.img_task = ImgConvertTask(urls)
-            self.img_task.signals_.set_progress_len.connect(lambda value: self.progressbar.setMaximum(value))
-            self.img_task.signals_.progress_value.connect(lambda value: self.set_value_cmd(value))
-            self.img_task.signals_.finished_.connect(lambda urls:self.finished_cmd(urls))
+            self.img_task.sigs.set_progress_len.connect(lambda value: self.progressbar.setMaximum(value))
+            self.img_task.sigs.progress_value.connect(lambda value: self.set_value_cmd(value))
+            self.img_task.sigs.finished_.connect(lambda urls:self.finished_cmd(urls))
             UThreadPool.start(self.img_task)
 
     def set_value_cmd(self, value: int):

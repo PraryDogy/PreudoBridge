@@ -380,8 +380,8 @@ class Grid(UScrollArea):
         for i in self.load_images_tasks:
             i.set_should_run(False)
         task_ = LoadImagesTask(self.main_win_item, thumbs)
-        task_.signals_.update_thumb.connect(set_thumb_image)
-        task_.signals_.finished_.connect(lambda: finalize(task_))
+        task_.sigs.update_thumb.connect(set_thumb_image)
+        task_.sigs.finished_.connect(lambda: finalize(task_))
         self.load_images_tasks.append(task_)
         UThreadPool.start(task_)
     
@@ -552,7 +552,7 @@ class Grid(UScrollArea):
                 return
             self.rating_task = RatingTask(self.main_win_item.main_dir, wid.filename, rating)
             cmd_ = lambda: self.set_thumb_rating(wid, rating)
-            self.rating_task.signals_.finished_.connect(cmd_)
+            self.rating_task.sigs.finished_.connect(cmd_)
             UThreadPool.start(self.rating_task)
 
         from .img_view_win import ImgViewWin
@@ -727,7 +727,7 @@ class Grid(UScrollArea):
         for wid in self.selected_thumbs:
             self.rating_task = RatingTask(self.main_win_item.main_dir, wid.filename, rating)
             cmd_ = lambda w=wid: self.set_thumb_rating(w, rating)
-            self.rating_task.signals_.finished_.connect(cmd_)
+            self.rating_task.sigs.finished_.connect(cmd_)
             UThreadPool.start(self.rating_task)
         
     def clear_selected_widgets(self):

@@ -101,8 +101,8 @@ class GridSearch(Grid):
         Thumb.calc_size()
 
         self.search_task = SearchTask(self.main_win_item, self.search_item)
-        self.search_task.signals_.new_widget.connect(self.add_new_widget)
-        self.search_task.signals_.finished_.connect(lambda missed_files_list: self.search_fin(missed_files_list))
+        self.search_task.sigs.new_widget.connect(self.add_new_widget)
+        self.search_task.sigs.finished_.connect(lambda missed_files_list: self.search_fin(missed_files_list))
         UThreadPool.start(self.search_task)
 
     def add_new_widget(self, base_item: BaseItem):
