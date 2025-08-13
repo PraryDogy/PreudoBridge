@@ -324,6 +324,8 @@ class Grid(UScrollArea):
         self.st_mtime_timer.timeout.connect(lambda: self.check_dir_mod())
         self.st_mtime_timer.start(100)
 
+        # print(self.main_win_item.get_urls_to_select())
+
     def get_st_mtime(self, url: str):
         try:
             return os.stat(url).st_mtime

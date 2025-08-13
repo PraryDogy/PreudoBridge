@@ -134,6 +134,9 @@ class MainWin(WinBase):
         self.main_win_item: MainWinItem = MainWinItem()
         self.sort_item: SortItem = SortItem()
 
+        if isinstance(select_urls, list):
+            self.main_win_item.set_urls_to_select(select_urls)
+
         self.setMinimumSize(MainWin.min_width_, MainWin.min_height_)
         self.resize(MainWin.width_, MainWin.height_)
 
@@ -147,9 +150,6 @@ class MainWin(WinBase):
             sys_vol = EvloshUtils.get_sys_vol()
             dir = EvloshUtils.add_sys_vol(MainWin.base_dir, sys_vol)
             self.main_win_item.main_dir = dir
-
-        if select_urls:
-            self.main_win_item.set_urls_to_select(select_urls)
 
         self.resize_timer = QTimer(self)
         self.resize_timer.setSingleShot(True)
