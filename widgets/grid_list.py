@@ -569,3 +569,10 @@ class GridList(QTableView):
         urls = self.get_selected_urls()
         self.main_win_item.set_urls_to_select(urls)
         return super().close()
+    
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        if self.model():
+            total_width = self.viewport().width()
+            other_width = sum(self.columnWidth(i) for i in range(1, self.model().columnCount()))
+            self.setColumnWidth(0, total_width - other_width)
