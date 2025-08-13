@@ -18,8 +18,13 @@ class RevealInFinder(QAction):
         super().__init__(self.text_, parent)
         self.urls = urls
 
-        if len(urls) == 1 and os.path.isdir(urls[0]):
-            self.cmd = self.dir_cmd
+        if len(urls) == 1:
+            if os.path.isdir(urls[0]):
+                self.cmd = self.app_cmd
+            elif urls[0].endswith((".APP", ".app")):
+                self.cmd = self.app_cmd
+            else:
+                self.cmd = self.files_cmd
         else:
             self.cmd = self.files_cmd
 
@@ -27,6 +32,9 @@ class RevealInFinder(QAction):
 
     def cmd(self):
         ...
+
+    def app_cmd(self):
+        subprocess.Popen(["open", "-R", self.urls[0]])
 
     def dir_cmd(self):
         subprocess.Popen(["open", self.urls[0]])
