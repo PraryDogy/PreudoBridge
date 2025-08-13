@@ -612,18 +612,18 @@ class Grid(UScrollArea):
             self.ensureWidgetVisible(self.selected_thumbs[-1])
 
         def paste_final(urls: list[str]):
-            thumbs = []
-            self.clear_selected_widgets()
-            for i in urls:
-                self.del_thumb(i)
-                thumb = self.new_thumb(i)
-                self.select_multiple_thumb(thumb)
-                thumbs.append(thumb)
             if not self.cell_to_wid:
                 self.load_st_grid.emit()
             else:
+                new_thumbs = []
+                self.clear_selected_widgets()
+                for i in urls:
+                    self.del_thumb(i)
+                    thumb = self.new_thumb(i)
+                    self.select_multiple_thumb(thumb)
+                    new_thumbs.append(thumb)
                 self.rearrange_thumbs()
-                self.start_load_images_task(thumbs)
+                self.start_load_images_task(new_thumbs)
                 if self.selected_thumbs:
                     QTimer.singleShot(50, scroll_to_wid)
             if CopyItem.get_is_cut():
