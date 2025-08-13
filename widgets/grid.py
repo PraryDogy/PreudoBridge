@@ -654,8 +654,6 @@ class Grid(UScrollArea):
                 if thumb not in self.already_loaded_thumbs:
                     thumbs.append(thumb)
         if thumbs:
-            # for i in self.load_images_tasks:
-            #     i.set_should_run(False)
             self.start_load_images_task(thumbs)
 
     def remove_files(self, urls: list[str]):
@@ -782,9 +780,10 @@ class Grid(UScrollArea):
 
         def finished_(urls: list[str]):
             self.convert_win.deleteLater()
-            if urls:
-                self.main_win_item.set_urls_to_select(urls)
-                self.load_st_grid.emit()
+            for i in urls:
+                self.del_thumb(i)
+                self.new_thumb(i)
+            QTimer.singleShot(300, self.load_visible_images)
 
         self.convert_win = ImgConvertWin(urls)
         self.convert_win.center(self.window())
