@@ -432,7 +432,7 @@ class SearchTask(URunnable):
                 continue
             if entry.is_dir():
                 dirs_list.append(entry.path)
-                continue
+                # continue
             if self.process_entry(entry):
                 self.process_img(entry)
 
