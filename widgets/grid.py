@@ -7,8 +7,9 @@ from PyQt5.QtCore import (QMimeData, QPoint, QRect, QSize, Qt, QTimer, QUrl,
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
                          QPixmap)
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QApplication, QFrame, QGridLayout, QLabel,
-                             QRubberBand, QSplitter, QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
+                             QGridLayout, QLabel, QRubberBand, QSplitter,
+                             QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static, ThumbData
 from evlosh_templates.evlosh_utils import EvloshUtils
@@ -260,6 +261,11 @@ class Thumb(BaseItem, QFrame):
             }}
             """
         )
+
+    def set_transparent_frame(self):
+        effect = QGraphicsOpacityEffect(self)
+        effect.setOpacity(0.5)
+        self.setGraphicsEffect(effect)
 
 
 class Grid(UScrollArea):
@@ -785,6 +791,10 @@ class Grid(UScrollArea):
         self.convert_win.finished_.connect(lambda urls: finished_(urls))
         self.convert_win.show()
 
+    def set_transparent_thumbs(self):
+        for i in self.selected_thumbs:
+            i.set_transparent_frame()
+
     def context_thumb(self, menu_: UMenu, wid: Thumb):
         # собираем пути к файлам / папкам у выделенных виджетов
         urls = [i.src for i in self.selected_thumbs]
@@ -851,6 +861,7 @@ class Grid(UScrollArea):
         menu_.addSeparator()
 
         cut_objects = ItemActions.CutObjects(menu_)
+        cut_objects.triggered.connect(self.set_transparent_thumbs)
         cut_objects.triggered.connect(lambda: CopyItem.set_is_cut(True))
         cut_objects.triggered.connect(self.setup_urls_to_copy)
         menu_.addAction(cut_objects)
@@ -1066,6 +1077,7 @@ class Grid(UScrollArea):
         if a0.modifiers() & Qt.KeyboardModifier.ControlModifier:
             
             if a0.key() == Qt.Key.Key_X:
+                self.set_transparent_thumbs()
                 CopyItem.set_is_cut(True)
                 self.setup_urls_to_copy()
 
