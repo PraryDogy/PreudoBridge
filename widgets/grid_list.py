@@ -1,12 +1,13 @@
 import gc
 import os
+import sys
 
 from PyQt5.QtCore import (QDateTime, QDir, QItemSelectionModel, QMimeData,
                           QModelIndex, Qt, QTimer, QUrl, pyqtSignal)
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QDragEnterEvent,
                          QDragMoveEvent, QDropEvent, QKeyEvent, QPixmap)
 from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QFileSystemModel,
-                             QSplitter, QTableView)
+                             QSplitter, QTableView, QTreeView)
 
 from cfg import Dynamic, JsonData, Static
 from evlosh_templates.evlosh_utils import EvloshUtils
@@ -15,15 +16,14 @@ from system.utils import Utils
 
 from ._base_widgets import LoadingWid, UMenu
 from .actions import GridActions, ItemActions
+from .archive_win import ArchiveWin
 from .copy_files_win import CopyFilesWin, ErrorWin
 from .grid import Thumb
+from .img_convert_win import ImgConvertWin
 from .info_win import InfoWin
 from .remove_files_win import RemoveFilesWin
+from .rename_win import RenameWin
 
-
-from PyQt5.QtWidgets import QApplication, QTreeView, QFileSystemModel
-from PyQt5.QtCore import Qt, QDateTime
-import sys, os
 
 class MyFileSystemModel(QFileSystemModel):
     def headerData(self, section, orientation, role=Qt.DisplayRole):
@@ -268,7 +268,47 @@ class GridList(QTableView):
             file_path = self._model.filePath(index)  # Получаем путь по индексу
             urls.append(file_path)
         return urls
-    
+
+    def open_img_convert_win(self, urls: list[str]):
+
+        def finished_(urls: list[str]):
+            QTimer.singleShot(300, lambda: self.select_path(urls[-1]))
+            self.convert_win.deleteLater()
+
+        urls = [i for i in urls if i.endswith(Static.ext_all)]
+        self.convert_win = ImgConvertWin(urls)
+        self.convert_win.center(self.window())
+        self.convert_win.finished_.connect(lambda urls: finished_(urls))
+        self.convert_win.show()
+
+    def make_archive(self, urls: list[str]):
+
+        def finished(*args):
+            QTimer.singleShot(300, lambda: self.select_path(zip_path))
+
+        zip_path = os.path.join(self.main_win_item.main_dir, "архив.zip")
+        self.archive_win = ArchiveWin(urls, zip_path)
+        self.archive_win.finished_.connect(finished)
+        self.archive_win.center(self.window())
+        self.archive_win.show()
+
+    def rename_row(self, url: str):
+        
+        def finished(text: str, ext: str):
+            filename = text + ext
+            root = os.path.dirname(url)
+            new_url = os.path.join(root, filename)
+            os.rename(url, new_url)
+            QTimer.singleShot(500, lambda: self.select_path(new_url))
+
+        name, ext = os.path.splitext(url)
+        name = os.path.basename(name)
+
+        self.rename_row = RenameWin(name)
+        self.rename_row.finished_.connect(lambda text: finished(text, ext))
+        self.rename_row.center(self.window())
+        self.rename_row.show()
+
     def item_context(self, menu_: UMenu, selected_path: str, urls: list[str], names: list[str], total: int):
         urls = self.get_selected_urls()
 
@@ -282,6 +322,16 @@ class GridList(QTableView):
         info = ItemActions.Info(menu_)
         info.triggered.connect(lambda: self.win_info_cmd(selected_path))
         menu_.addAction(info)
+
+
+        if selected_path.endswith(Static.ext_all):
+            convert_action = ItemActions.ImgConvert(menu_)
+            convert_action.triggered.connect(lambda: self.open_img_convert_win(urls))
+            menu_.addAction(convert_action)
+
+        archive = ItemActions.MakeArchive(menu_)
+        archive.triggered.connect(lambda: self.make_archive(urls))
+        menu_.addAction(archive)
 
         if os.path.isdir(selected_path):
             if selected_path in JsonData.favs:
@@ -316,6 +366,10 @@ class GridList(QTableView):
             menu_.addAction(paste_files)
 
             menu_.addSeparator()
+
+        rename = ItemActions.Rename(menu_)
+        rename.triggered.connect(lambda: self.rename_row(selected_path))
+        menu_.addAction(rename)
 
         cut_objects = ItemActions.CutObjects(menu_)
         cut_objects.triggered.connect(lambda e: CopyItem.set_is_cut(True))
