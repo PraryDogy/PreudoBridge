@@ -20,7 +20,7 @@ class ArchiveWin(ProgressbarWin):
         self.archive_task = ArchiveTask(files, zip_path)
         self.archive_task.sigs.set_max.connect(self.progressbar.setMaximum)
         self.archive_task.sigs.set_value.connect(self.set_value)
-        self.archive_task.sigs.finished_.connect(self.finalize)
+        self.archive_task.sigs.finished_.connect(self.cancel_cmd)
         QTimer.singleShot(200, lambda: UThreadPool.start(self.archive_task))
     
     def set_value(self, value: int):
@@ -28,9 +28,5 @@ class ArchiveWin(ProgressbarWin):
         self.progressbar.setValue(value)
 
     def cancel_cmd(self, *args):
-        self.archive_task.set_should_run(False)
-        return super().cancel_cmd(*args)
-    
-    def finalize(self, *args):
         self.finished_.emit()
-        self.cancel_cmd()
+        self.deleteLater()

@@ -819,19 +819,13 @@ class Grid(UScrollArea):
     def make_archive(self):
 
         def finished(*args):
-            a = self.archive_win.archive_task.canceled
-            print(a)
-            if self.archive_win.archive_task.canceled:
-                if os.path.exists(zip_path):
-                    os.remove(zip_path)
-            else:
-                self.del_thumb(zip_path)
-                new_thumb = self.new_thumb(zip_path)
-                self.sort_thumbs()
-                self.rearrange_thumbs()
-                self.select_single_thumb(new_thumb)
-                QTimer.singleShot(200, lambda: self.ensureWidgetVisible(new_thumb))
-                QTimer.singleShot(300, self.load_visible_images)
+            self.del_thumb(zip_path)
+            new_thumb = self.new_thumb(zip_path)
+            self.sort_thumbs()
+            self.rearrange_thumbs()
+            self.select_single_thumb(new_thumb)
+            QTimer.singleShot(200, lambda: self.ensureWidgetVisible(new_thumb))
+            QTimer.singleShot(300, self.load_visible_images)
 
         files = [i.src for i in self.selected_thumbs]
         zip_path = os.path.join(self.main_win_item.main_dir, "архив.zip")
@@ -883,6 +877,10 @@ class Grid(UScrollArea):
             convert_action.triggered.connect(lambda: self.open_img_convert_win(urls_img))
             menu_.addAction(convert_action)
 
+        archive = ItemActions.MakeArchive(menu_)
+        archive.triggered.connect(self.make_archive)
+        menu_.addAction(archive)
+
         # is grid search устанавливается на True при инициации GridSearch
         if self.is_grid_search:
             show_in_folder = ItemActions.ShowInGrid(menu_)
@@ -923,10 +921,6 @@ class Grid(UScrollArea):
         remove_files = ItemActions.RemoveObjects(menu_)
         remove_files.triggered.connect(lambda: self.remove_files(urls))
         menu_.addAction(remove_files)
-
-        archive = ItemActions.MakeArchive(menu_)
-        archive.triggered.connect(self.make_archive)
-        menu_.addAction(archive)
 
     def context_grid(self, menu_: UMenu):
 

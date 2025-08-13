@@ -966,7 +966,7 @@ class ImgConvertTask(URunnable):
 class _ArchiveSigs(QObject):
     set_max = pyqtSignal(int)
     set_value = pyqtSignal(int)
-    finished_ = pyqtSignal(str)
+    finished_ = pyqtSignal()
 
 
 class ArchiveTask(URunnable):
@@ -976,7 +976,6 @@ class ArchiveTask(URunnable):
         self.files = files
         self.zip_path = zip_path
         self.progress = 0
-        self.canceled = False
         self.all_files = self._collect_all_files()
 
     def _collect_all_files(self) -> list[tuple[str, str]]:
@@ -1011,11 +1010,10 @@ class ArchiveTask(URunnable):
         with zipfile.ZipFile(self.zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
             for full_path, arc_path in self.all_files:
                 if not self.is_should_run():
-                    self.canceled = True
                     break
                 self._add_file(zf, full_path, arc_path)
 
     def task(self):
         """Метод для потока."""
         self.zip_items()
-        self.sigs.finished_.emit(self.zip_path)
+        self.sigs.finished_.emit()
