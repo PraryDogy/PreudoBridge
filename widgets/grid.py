@@ -654,8 +654,8 @@ class Grid(UScrollArea):
                 if thumb not in self.already_loaded_thumbs:
                     thumbs.append(thumb)
         if thumbs:
-            for i in self.load_images_tasks:
-                i.set_should_run(False)
+            # for i in self.load_images_tasks:
+            #     i.set_should_run(False)
             self.start_load_images_task(thumbs)
 
     def remove_files(self, urls: list[str]):

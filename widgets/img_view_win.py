@@ -449,18 +449,18 @@ class ImgViewWin(WinBase):
         info.triggered.connect(lambda: self.win_info_cmd(self.current_path))
         menu.addAction(info)
 
-        show_in_finder_action = ItemActions.RevealInFinder(menu, urls, total)
+        show_in_finder_action = ItemActions.RevealInFinder(menu, urls)
         menu.addAction(show_in_finder_action)
 
-        copy_path = ItemActions.CopyPath(menu, urls, total)
+        copy_path = ItemActions.CopyPath(menu, urls)
         menu.addAction(copy_path)
 
-        copy_name = ItemActions.CopyName(menu, names, total)
+        copy_name = ItemActions.CopyName(menu, names)
         menu.addAction(copy_name)
 
         menu.addSeparator()
 
-        rating_menu = ItemActions.RatingMenu(menu, urls, total, self.current_thumb.rating)
+        rating_menu = ItemActions.RatingMenu(menu, self.current_thumb.rating)
         rating_menu.new_rating.connect(lambda value: self.new_rating.emit((value, self.current_path)))
         menu.addMenu(rating_menu)
 
