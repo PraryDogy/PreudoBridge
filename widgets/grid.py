@@ -913,9 +913,11 @@ class Grid(UScrollArea):
         menu_.addAction(reveal)
 
         copy_ = GridActions.CopyPath(menu_, urls)
+        copy_.triggered.connect(CopyItem.reset)
         menu_.addAction(copy_)
 
         copy_name = GridActions.CopyName(menu_, names)
+        copy_name.triggered.connect(CopyItem.reset)
         menu_.addAction(copy_name)
 
         menu_.addSeparator()

@@ -301,9 +301,11 @@ class GridList(QTableView):
         menu_.addAction(open_finder_action)
 
         copy_path_action = ItemActions.CopyPath(menu_, urls)
+        copy_path_action.triggered.connect(CopyItem.reset)
         menu_.addAction(copy_path_action)
 
         copy_name = ItemActions.CopyName(menu_, names)
+        copy_path_action.triggered.connect(CopyItem.reset)
         menu_.addAction(copy_name)
 
         menu_.addSeparator()
@@ -352,9 +354,11 @@ class GridList(QTableView):
         menu_.addAction(open_finder_action)
 
         copy_path_action = GridActions.CopyPath(menu_, urls)
+        copy_path_action.triggered.connect(CopyItem.reset)
         menu_.addAction(copy_path_action)
 
         copy_name = GridActions.CopyName(menu_, names)
+        copy_name.triggered.connect(CopyItem.reset)
         menu_.addAction(copy_name)
 
         menu_.addSeparator()
