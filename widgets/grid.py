@@ -794,6 +794,27 @@ class Grid(UScrollArea):
         for i in self.selected_thumbs:
             i.set_transparent_frame()
 
+    def rename_thumb(self, thumb: Thumb):
+        
+        def finished(text: str, ext: str):
+            filename = text + ext
+            root = os.path.dirname(thumb.src)
+            new_url = os.path.join(root, filename)
+            os.rename(thumb.src, new_url)
+            self.del_thumb(thumb.src)
+            new_thumb = self.new_thumb(new_url)
+            self.sort_thumbs()
+            self.rearrange_thumbs()
+            self.select_single_thumb(new_thumb)
+            QTimer.singleShot(200, lambda: self.ensureWidgetVisible(new_thumb))
+            QTimer.singleShot(300, self.load_visible_images)
+
+        name, ext = os.path.splitext(thumb.filename)
+        self.rename_win = RenameWin(name)
+        self.rename_win.finished_.connect(lambda text: finished(text, ext))
+        self.rename_win.center(self.window())
+        self.rename_win.show()
+
     def context_thumb(self, menu_: UMenu, wid: Thumb):
         # собираем пути к файлам / папкам у выделенных виджетов
         urls = [i.src for i in self.selected_thumbs]
@@ -858,6 +879,10 @@ class Grid(UScrollArea):
         menu_.addAction(copy_name)
 
         menu_.addSeparator()
+
+        rename = ItemActions.Rename(menu_)
+        rename.triggered.connect(lambda: self.rename_thumb(wid))
+        menu_.addAction(rename)
 
         cut_objects = ItemActions.CutObjects(menu_)
         cut_objects.triggered.connect(self.set_transparent_thumbs)

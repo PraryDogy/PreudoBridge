@@ -402,6 +402,12 @@ class ImgConvert(QAction):
         super().__init__(self.text_, parent)
 
 
+class Rename(QAction):
+    text_ = "Переименовать"
+    def __init__(self, parent: UMenu):
+        super().__init__(self.text_, parent)
+
+
 class ItemActions:
     class OpenThumb(OpenThumb): ...
     class OpenInApp(OpenInApp): ...
@@ -421,6 +427,7 @@ class ItemActions:
     class ShowInGrid(ShowInGrid): ...
     class RemoveObjects(RemoveObjects): ...
     class ImgConvert(ImgConvert): ...
+    class Rename(Rename): ...
 
 
 class GridActions:
