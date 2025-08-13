@@ -408,6 +408,12 @@ class Rename(QAction):
         super().__init__(self.text_, parent)
 
 
+class MakeArchive(QAction):
+    text_ = "Создать архив zip"
+    def __init__(self, parent: UMenu):
+        super().__init__(self.text_, parent)
+
+
 class ItemActions:
     class OpenThumb(OpenThumb): ...
     class OpenInApp(OpenInApp): ...
@@ -428,6 +434,7 @@ class ItemActions:
     class RemoveObjects(RemoveObjects): ...
     class ImgConvert(ImgConvert): ...
     class Rename(Rename): ...
+    class MakeArchive(MakeArchive): ...
 
 
 class GridActions:

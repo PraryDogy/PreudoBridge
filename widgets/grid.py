@@ -14,11 +14,12 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
 from cfg import Dynamic, JsonData, Static, ThumbData
 from evlosh_templates.evlosh_utils import EvloshUtils
 from system.items import BaseItem, CopyItem, MainWinItem, SortItem
-from system.tasks import LoadImagesTask, RatingTask
+from system.tasks import ArchiveTask, LoadImagesTask, RatingTask
 from system.utils import ImageUtils, UThreadPool, Utils
 
 from ._base_widgets import UMenu, UScrollArea
 from .actions import GridActions, ItemActions
+from .archive_win import ArchiveWin
 from .copy_files_win import CopyFilesWin, ErrorWin
 from .img_convert_win import ImgConvertWin
 from .info_win import InfoWin
@@ -815,6 +816,30 @@ class Grid(UScrollArea):
         self.rename_win.center(self.window())
         self.rename_win.show()
 
+    def make_archive(self):
+
+        def finished(*args):
+            a = self.archive_win.archive_task.canceled
+            print(a)
+            if self.archive_win.archive_task.canceled:
+                if os.path.exists(zip_path):
+                    os.remove(zip_path)
+            else:
+                self.del_thumb(zip_path)
+                new_thumb = self.new_thumb(zip_path)
+                self.sort_thumbs()
+                self.rearrange_thumbs()
+                self.select_single_thumb(new_thumb)
+                QTimer.singleShot(200, lambda: self.ensureWidgetVisible(new_thumb))
+                QTimer.singleShot(300, self.load_visible_images)
+
+        files = [i.src for i in self.selected_thumbs]
+        zip_path = os.path.join(self.main_win_item.main_dir, "архив.zip")
+        self.archive_win = ArchiveWin(files, zip_path)
+        self.archive_win.finished_.connect(finished)
+        self.archive_win.center(self.window())
+        self.archive_win.show()
+
     def context_thumb(self, menu_: UMenu, wid: Thumb):
         # собираем пути к файлам / папкам у выделенных виджетов
         urls = [i.src for i in self.selected_thumbs]
@@ -898,6 +923,10 @@ class Grid(UScrollArea):
         remove_files = ItemActions.RemoveObjects(menu_)
         remove_files.triggered.connect(lambda: self.remove_files(urls))
         menu_.addAction(remove_files)
+
+        archive = ItemActions.MakeArchive(menu_)
+        archive.triggered.connect(self.make_archive)
+        menu_.addAction(archive)
 
     def context_grid(self, menu_: UMenu):
 

@@ -969,13 +969,14 @@ class _ArchiveSigs(QObject):
     finished_ = pyqtSignal(str)
 
 
-class Archive(URunnable):
+class ArchiveTask(URunnable):
     def __init__(self, files: list[str], zip_path: str):
         super().__init__()
         self.sigs = _ArchiveSigs()
         self.files = files
         self.zip_path = zip_path
         self.progress = 0
+        self.canceled = False
         self.all_files = self._collect_all_files()
 
     def _collect_all_files(self) -> list[tuple[str, str]]:
@@ -1009,6 +1010,9 @@ class Archive(URunnable):
 
         with zipfile.ZipFile(self.zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
             for full_path, arc_path in self.all_files:
+                if not self.is_should_run():
+                    self.canceled = True
+                    break
                 self._add_file(zf, full_path, arc_path)
 
     def task(self):

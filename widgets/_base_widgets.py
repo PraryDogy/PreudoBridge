@@ -289,6 +289,11 @@ class WinBase(QWidget):
         self.setGeometry(geo)
 
     def set_modality(self):
+        """
+        Устанавливает модальность окна на уровень всего приложения.
+        При этом окно блокирует взаимодействие с другими окнами приложения
+        и всегда остаётся поверх них до своего закрытия.
+        """
         self.setWindowModality(Qt.WindowModality.ApplicationModal)
 
     def deleteLater(self):
