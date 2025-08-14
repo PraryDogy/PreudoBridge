@@ -303,7 +303,6 @@ class Grid(UScrollArea):
         self.url_to_wid: dict[str, Thumb] = {}
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.selected_thumbs: list[Thumb] = []
-        self.already_loaded_thumbs: list[Thumb] = []
         self.load_images_tasks: list[LoadImagesTask] = []
         self.wid_under_mouse: Thumb = None
 
@@ -376,17 +375,17 @@ class Grid(UScrollArea):
             if thumb.get_pixmap_storage():
                 try:
                     thumb.set_pixmap(thumb.get_pixmap_storage())
-                    self.already_loaded_thumbs.append(thumb)
                 except RuntimeError as e:
                     Utils.print_error()
 
-        for i in self.load_images_tasks:
-            i.set_should_run(False)
         task_ = LoadImagesTask(self.main_win_item, thumbs)
         task_.sigs.update_thumb.connect(set_thumb_image)
         task_.sigs.finished_.connect(lambda: finalize(task_))
         self.load_images_tasks.append(task_)
         UThreadPool.start(task_)
+
+        for i in self.load_images_tasks[:-1]:
+            i.set_should_run(False)
     
     def reload_rubber(self):
         self.rubberBand.deleteLater()
@@ -654,7 +653,7 @@ class Grid(UScrollArea):
         thumbs: list[Thumb] = []
         for thumb in self.url_to_wid.values():
             if not thumb.visibleRegion().isEmpty():
-                if thumb not in self.already_loaded_thumbs:
+                if not isinstance(thumb.img_wid, QLabel):
                     thumbs.append(thumb)
         if thumbs:
             self.start_load_images_task(thumbs)
@@ -709,8 +708,6 @@ class Grid(UScrollArea):
             return
         if wid in self.selected_thumbs:
             self.selected_thumbs.remove(wid)
-        if wid in self.already_loaded_thumbs:
-            self.already_loaded_thumbs.remove(wid)
         self.cell_to_wid.pop((wid.row, wid.col))
         self.url_to_wid.pop(url)
         wid.deleteLater()
