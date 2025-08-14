@@ -108,7 +108,9 @@ class GridStandart(Grid):
 
         # создаем сетку на основе элементов из FinderItems
         self.create_thumbs_grid(base_items)
+        self.post_grid_selection()
 
+    def post_grid_selection(self):
         # если установлен фильтр по рейтингу, запускаем функцию фильтрации,
         # которая скроет из сетки не подходящие под фильтр виджеты
         if Dynamic.rating_filter > 0:
