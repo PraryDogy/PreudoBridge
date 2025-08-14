@@ -305,6 +305,7 @@ class Grid(UScrollArea):
         self.selected_thumbs: list[Thumb] = []
         self.load_images_tasks: list[LoadImagesTask] = []
         self.wid_under_mouse: Thumb = None
+        self.processed_thumbs: list[Thumb] = []
 
         self.main_wid = QWidget()
         self.setWidget(self.main_wid)
@@ -381,15 +382,20 @@ class Grid(UScrollArea):
         # мы сравниваем входящий список thumbs и thumbs задачи
         # если у них нет пересечений, значит скролл уже ушел далеко вниз / наверх
         # и можно прервать старую задачу, которая грузит thumbs вне зоны видимости
-        # for task in list(self.load_images_tasks):
-        #     if not set(task.thumbs).intersection(thumbs):
-        #         task.set_should_run(False)
+        for task in list(self.load_images_tasks):
+            if not set(task.thumbs).intersection(thumbs):
+                task.set_should_run(False)
+
+        thumbs = [t for t in thumbs if t not in self.processed_thumbs]
+        self.processed_thumbs.extend(thumbs)           
 
         task_ = LoadImagesTask(self.main_win_item, thumbs)
         task_.sigs.update_thumb.connect(set_thumb_image)
         task_.sigs.finished_.connect(lambda: finalize(task_))
         self.load_images_tasks.append(task_)
         UThreadPool.start(task_)
+        
+        print(len(thumbs))
     
     def reload_rubber(self):
         self.rubberBand.deleteLater()
