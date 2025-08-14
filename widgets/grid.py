@@ -378,14 +378,14 @@ class Grid(UScrollArea):
                 except RuntimeError as e:
                     Utils.print_error()
 
+        for i in self.load_images_tasks:
+            i.set_should_run(False)
+
         task_ = LoadImagesTask(self.main_win_item, thumbs)
         task_.sigs.update_thumb.connect(set_thumb_image)
         task_.sigs.finished_.connect(lambda: finalize(task_))
         self.load_images_tasks.append(task_)
         UThreadPool.start(task_)
-
-        for i in self.load_images_tasks[:-1]:
-            i.set_should_run(False)
     
     def reload_rubber(self):
         self.rubberBand.deleteLater()
