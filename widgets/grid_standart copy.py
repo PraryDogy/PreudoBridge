@@ -108,45 +108,38 @@ class GridStandart(Grid):
 
         # создаем сетку на основе элементов из FinderItems
         self.create_thumbs_grid(base_items)
+        self.post_grid_selection()
+
+    def post_grid_selection(self):
+        # если установлен фильтр по рейтингу, запускаем функцию фильтрации,
+        # которая скроет из сетки не подходящие под фильтр виджеты
+        if Dynamic.rating_filter > 0:
+            self.filter_thumbs()
+            self.rearrange_thumbs()
+
+        # если не будет прокрутки, то начнется подгрузка изображений в виджеты
+        # в видимой области
+        self.load_images_timer.start(100)
+        self.finished_.emit()
 
     def create_thumbs_grid(self, base_items: list[BaseItem]):
         self.col_count = self.get_clmn_count()
-        self._thumb_index = 0
-        self._batch_limit = 50
-        self._thumb_items = base_items
+        for base_item in base_items:
+            thumb = Thumb(base_item.src, base_item.rating)
+            thumb.migrate_from_base_item(base_item)
+            thumb.set_widget_size()
+            thumb.set_no_frame()
+            thumb.set_generic_icon()
+            self.add_widget_data(thumb, self.row, self.col)
+            self.grid_layout.addWidget(thumb, self.row, self.col)
 
-        def add_batch():
-            count = 0
-            while self._thumb_index < len(self._thumb_items) and count < self._batch_limit:
-                base_item = self._thumb_items[self._thumb_index]
-                thumb = Thumb(base_item.src, base_item.rating)
-                thumb.migrate_from_base_item(base_item)
-                thumb.set_widget_size()
-                thumb.set_no_frame()
-                thumb.set_generic_icon()
-                self.add_widget_data(thumb, self.row, self.col)
-                self.grid_layout.addWidget(thumb, self.row, self.col)
+            # обновляем данные сетки, чтобы следующие iter base items
+            # так же знали актуальные данные сеткик
+            self.col += 1
+            if self.col >= self.col_count:
+                self.col = 0
+                self.row += 1
 
-                self.col += 1
-                if self.col >= self.col_count:
-                    self.col = 0
-                    self.row += 1
-
-                self._thumb_index += 1
-                count += 1
-
-            if self._thumb_index < len(self._thumb_items):
-                QTimer.singleShot(50, add_batch)
-            else:
-                self.loading_lbl.hide()
-                self._thumb_items = None
-                self._thumb_index = 0
-                # тут можно запустить фильтры или выделение
-                self._post_grid_selection()
-
-        add_batch()
-
-    def _post_grid_selection(self):
         def select_delayed(wid: Thumb):
             self.select_single_thumb(wid)
             self.ensureWidgetVisible(wid)
@@ -156,6 +149,7 @@ class GridStandart(Grid):
             self.main_win_item.clear_go_to()
             self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
             QTimer.singleShot(30, lambda: select_delayed(wid))
+
         elif self.main_win_item.get_urls_to_select():
             for i in self.main_win_item.get_urls_to_select():
                 if i in self.url_to_wid:
@@ -167,16 +161,7 @@ class GridStandart(Grid):
                 QTimer.singleShot(30, lambda: self.ensureWidgetVisible(wid))
             self.main_win_item.clear_urls_to_select()
 
-        # если установлен фильтр по рейтингу, запускаем функцию фильтрации,
-        # которая скроет из сетки не подходящие под фильтр виджеты
-        if Dynamic.rating_filter > 0:
-            self.filter_thumbs()
-            self.rearrange_thumbs()
-
-        # если не будет прокрутки, то начнется подгрузка изображений в виджеты
-        # в видимой области
-        self.load_images_timer.start(100)
-        self.finished_.emit()
+        self.loading_lbl.hide()
 
     def resizeEvent(self, a0):
         self.loading_lbl.center(self)
