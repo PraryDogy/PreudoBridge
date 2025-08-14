@@ -588,6 +588,7 @@ class GridList(QTableView):
             return
         
         urls = self.get_selected_urls()
+        
 
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
@@ -603,8 +604,8 @@ class GridList(QTableView):
         if urls:
             self.mime_data.setUrls(urls)
 
-        self.drag.setMimeData(self.mime_data)
-        self.drag.exec_(Qt.DropAction.CopyAction)
+            self.drag.setMimeData(self.mime_data)
+            self.drag.exec_(Qt.DropAction.CopyAction)
         return super().mouseMoveEvent(e)
 
     def mouseReleaseEvent(self, e):
