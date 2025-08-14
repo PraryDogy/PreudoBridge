@@ -386,6 +386,8 @@ class Grid(UScrollArea):
             if not set(task.thumbs).intersection(thumbs):
                 task.set_should_run(False)
 
+        # мы отправляем в новую задачу только те thumbs, которых нет еще
+        # в других задачах
         thumbs = [t for t in thumbs if t not in self.processed_thumbs]
         self.processed_thumbs.extend(thumbs)           
 
