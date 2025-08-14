@@ -378,8 +378,12 @@ class Grid(UScrollArea):
                 except RuntimeError as e:
                     Utils.print_error()
 
-        for i in self.load_images_tasks:
-            i.set_should_run(False)
+        # мы сравниваем входящий список thumbs и thumbs задачи
+        # если у них нет пересечений, значит скролл уже ушел далеко вниз / наверх
+        # и можно прервать старую задачу, которая грузит thumbs вне зоны видимости
+        # for task in list(self.load_images_tasks):
+        #     if not set(task.thumbs).intersection(thumbs):
+        #         task.set_should_run(False)
 
         task_ = LoadImagesTask(self.main_win_item, thumbs)
         task_.sigs.update_thumb.connect(set_thumb_image)
