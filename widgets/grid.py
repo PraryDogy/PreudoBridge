@@ -396,8 +396,6 @@ class Grid(UScrollArea):
         task_.sigs.finished_.connect(lambda: finalize(task_))
         self.load_images_tasks.append(task_)
         UThreadPool.start(task_)
-        
-        print(len(thumbs))
     
     def reload_rubber(self):
         self.rubberBand.deleteLater()
