@@ -22,30 +22,12 @@ class GridStandart(Grid):
         """
         super().__init__(main_win_item)
 
-        # при скроллинге запускается данный таймер и сбрасывается предыдуший
-        # только при остановке скроллинга спустя время запускается
-        # функция загрузки изображений
-        self.load_visible_images_timer = QTimer(self)
-        # self.load_images_timer.setSingleShot(True)
-        self.load_visible_images_timer.timeout.connect(self.load_visible_images)
-        # self.verticalScrollBar().valueChanged.connect(self.on_scroll_changed)
-
-        # виджет поверх остальных с текстом "загрузка"
         self.loading_lbl = LoadingWid(self)
         self.loading_lbl.center(self)
     
     def update_mod_thumbs(self):
         thumbs = super().update_mod_thumbs()
         self.start_load_images_task(thumbs)
-
-    # def on_scroll_changed(self, value: int):
-    #     """
-    #     - При сколлинге запускается таймер    
-    #     - Запускается load visible images
-    #     - Если скролл достиг низа, подгрузить следующие limit айтемов
-    #     """
-    #     self.load_images_timer.stop()
-    #     self.load_images_timer.start(1000)
 
     def load_finder_items(self):
         """
@@ -85,7 +67,6 @@ class GridStandart(Grid):
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0)
             self.loading_lbl.hide()
-            self.finished_.emit()
             return
 
         elif not base_items:
@@ -94,7 +75,6 @@ class GridStandart(Grid):
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0)
             self.loading_lbl.hide()
-            self.finished_.emit()
             return
 
         # создаем иконки на основе расширений, если не было
@@ -177,11 +157,7 @@ class GridStandart(Grid):
             self.filter_thumbs()
             self.rearrange_thumbs()
 
-        # если не будет прокрутки, то начнется подгрузка изображений в виджеты
-        # в видимой области
-        self.load_visible_images()
-        self.load_visible_images_timer.start(1000)
-        self.finished_.emit()
+        QTimer.singleShot(100, self.load_visible_images)
 
     def resizeEvent(self, a0):
         self.loading_lbl.center(self)

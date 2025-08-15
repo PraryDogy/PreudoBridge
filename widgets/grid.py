@@ -285,7 +285,6 @@ class Grid(UScrollArea):
     level_up = pyqtSignal()
     sort_menu_update = pyqtSignal()
     total_count_update = pyqtSignal(tuple)
-    finished_ = pyqtSignal()
 
     def __init__(self, main_win_item: MainWinItem):
         super().__init__()
@@ -659,6 +658,8 @@ class Grid(UScrollArea):
                     thumbs.append(thumb)
         if thumbs:
             self.start_load_images_task(thumbs)
+
+        QTimer.singleShot(1000, self.load_visible_images)
 
     def remove_files(self, urls: list[str]):
 
