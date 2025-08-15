@@ -375,14 +375,14 @@ class Grid(UScrollArea):
             if thumb.get_pixmap_storage():
                 try:
                     thumb.set_pixmap(thumb.get_pixmap_storage())
+                    self.processed_thumbs.append(thumb)
                 except RuntimeError as e:
                     Utils.print_error()
 
-        # мы отправляем в новую задачу только те thumbs, которых нет еще
-        # в других задачах
         thumbs = [t for t in thumbs if t not in self.processed_thumbs]
-        self.processed_thumbs.extend(thumbs)
         if thumbs:
+            for task in self.load_images_tasks:
+                task.set_should_run(False)
             task_ = LoadImagesTask(self.main_win_item, thumbs)
             task_.sigs.update_thumb.connect(set_thumb_image)
             task_.sigs.finished_.connect(lambda: finalize(task_))
@@ -647,7 +647,7 @@ class Grid(UScrollArea):
         self.win_copy.show()
         QTimer.singleShot(300, self.win_copy.raise_)
 
-    def load_visible_images(self):
+    def load_vis_images(self):
         """
         Составляет список Thumb виджетов, которые находятся в зоне видимости.   
         Запускает загрузку изображений через URunnable
@@ -658,8 +658,6 @@ class Grid(UScrollArea):
                     thumbs.append(thumb)
         if thumbs:
             self.start_load_images_task(thumbs)
-
-        QTimer.singleShot(1000, self.load_visible_images)
 
     def remove_files(self, urls: list[str]):
 
@@ -680,7 +678,7 @@ class Grid(UScrollArea):
             self.rearrange_thumbs()
             # например ты удалил виджет и стала видна следующая строка
             # с виджетами, где картинки еще не были загружены
-            self.load_visible_images()
+            self.load_vis_images()
             if not self.cell_to_wid:
                 self.load_st_grid.emit()
 
@@ -786,7 +784,7 @@ class Grid(UScrollArea):
             for i in urls:
                 self.del_thumb(i)
                 self.new_thumb(i)
-            QTimer.singleShot(300, self.load_visible_images)
+            QTimer.singleShot(300, self.load_vis_images)
 
         self.convert_win = ImgConvertWin(urls)
         self.convert_win.center(self.window())
@@ -810,7 +808,7 @@ class Grid(UScrollArea):
             self.rearrange_thumbs()
             self.select_single_thumb(new_thumb)
             QTimer.singleShot(200, lambda: self.ensureWidgetVisible(new_thumb))
-            QTimer.singleShot(300, self.load_visible_images)
+            QTimer.singleShot(300, self.load_vis_images)
 
         name, ext = os.path.splitext(thumb.filename)
         self.rename_win = RenameWin(name)
@@ -827,7 +825,7 @@ class Grid(UScrollArea):
             self.rearrange_thumbs()
             self.select_single_thumb(new_thumb)
             QTimer.singleShot(200, lambda: self.ensureWidgetVisible(new_thumb))
-            QTimer.singleShot(300, self.load_visible_images)
+            QTimer.singleShot(300, self.load_vis_images)
 
         files = [i.src for i in self.selected_thumbs]
         zip_path = os.path.join(self.main_win_item.main_dir, "архив.zip")

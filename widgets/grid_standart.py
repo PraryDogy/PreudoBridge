@@ -24,7 +24,16 @@ class GridStandart(Grid):
 
         self.loading_lbl = LoadingWid(self)
         self.loading_lbl.center(self)
+
+        self.load_vis_images_timer = QTimer(self)
+        self.load_vis_images_timer.timeout.connect(self.load_vis_images)
+        self.load_vis_images_timer.setSingleShot(True)
+        self.verticalScrollBar().valueChanged.connect(self.on_scroll)
     
+    def on_scroll(self):
+        self.load_vis_images_timer.stop()
+        self.load_vis_images_timer.start(1000)
+
     def update_mod_thumbs(self):
         thumbs = super().update_mod_thumbs()
         self.start_load_images_task(thumbs)
@@ -157,7 +166,7 @@ class GridStandart(Grid):
             self.filter_thumbs()
             self.rearrange_thumbs()
 
-        QTimer.singleShot(100, self.load_visible_images)
+        QTimer.singleShot(100, self.load_vis_images)
 
     def resizeEvent(self, a0):
         self.loading_lbl.center(self)

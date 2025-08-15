@@ -27,7 +27,7 @@ class GridStandart(Grid):
         # функция загрузки изображений
         self.load_images_timer = QTimer(self)
         self.load_images_timer.setSingleShot(True)
-        self.load_images_timer.timeout.connect(self.load_visible_images)
+        self.load_images_timer.timeout.connect(self.load_vis_images)
         self.verticalScrollBar().valueChanged.connect(self.on_scroll_changed)
 
         # виджет поверх остальных с текстом "загрузка"

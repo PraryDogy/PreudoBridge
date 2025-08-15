@@ -597,6 +597,7 @@ class LoadImagesTask(URunnable):
         """
         for thumb in self.thumbs:
             if not self.is_should_run():
+                print("таск прерван")
                 return  
             if thumb.type_ not in Static.ext_all:
                 any_base_item = AnyBaseItem(self.conn, thumb)
