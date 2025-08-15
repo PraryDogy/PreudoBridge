@@ -122,12 +122,6 @@ class RatingWidget(QLabel):
         self.setText(mod_row)
 
     def set_loading(self, size: int):
-        self.setStyleSheet(
-            f"""
-            font-size: {FONT_SIZE}px;
-            color: {self.gray_color};
-            """
-        )
         first_row = self.text_size + EvloshUtils.get_f_size(size, 0)
         text = f"{first_row}\n{self.text_loading}"
         self.setText(text)
@@ -396,7 +390,7 @@ class Grid(UScrollArea):
 
         def set_loading(thumb: Thumb):
             thumb.rating_wid.set_loading(thumb.size)
-            thumb.set_transparent_frame(0.5)
+            thumb.set_transparent_frame(0.2)
             # thumb.img_wid.load(Static.LOADING_SVG)
 
         thumbs = [t for t in thumbs if t not in self.processed_thumbs]
