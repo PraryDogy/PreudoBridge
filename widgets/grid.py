@@ -109,7 +109,7 @@ class RatingWidget(QLabel):
 
     def _set_text(self, rating: int, type_: str, mod: int, size: int):
         if rating > 0:
-            mod_row = RATINGS.get(rating).strip()
+            mod_row = RATINGS.get(rating, "").strip()
         else:
             mod_row = self.text_mod + EvloshUtils.get_f_date(mod)
             if type_ == Static.FOLDER_TYPE:

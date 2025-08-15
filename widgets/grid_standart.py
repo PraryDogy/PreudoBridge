@@ -106,8 +106,11 @@ class GridStandart(Grid):
         # для отображения "всего элементов"
         self.total_count_update.emit((len(self.selected_thumbs), len(base_items)))
 
+        self.hide()
         # создаем сетку на основе элементов из FinderItems
         self.create_thumbs_grid(base_items)
+        self.loading_lbl.hide()
+        self.show()
 
     def create_thumbs_grid(self, base_items: list[BaseItem]):
         self.col_count = self.get_clmn_count()
@@ -138,10 +141,8 @@ class GridStandart(Grid):
             if self._thumb_index < len(self._thumb_items):
                 QTimer.singleShot(50, add_batch)
             else:
-                self.loading_lbl.hide()
                 self._thumb_items = None
                 self._thumb_index = 0
-                # тут можно запустить фильтры или выделение
                 self._post_grid_selection()
 
         add_batch()
