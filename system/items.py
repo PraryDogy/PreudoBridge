@@ -318,7 +318,10 @@ class ImageBaseItem:
         stmt = stmt.where(
             CACHE.c.name == Utils.get_hash_filename(self.base_item.filename)
         )
-        row = Dbase.execute_(self.conn, stmt).mappings().first()
+        try:
+            row = Dbase.execute_(self.conn, stmt).mappings().first()
+        except AttributeError:
+            row = None
 
         if row:
             if row.get(ColumnNames.MOD) != int(self.base_item.mod):
