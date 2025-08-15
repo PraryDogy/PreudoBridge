@@ -612,7 +612,7 @@ class Grid(UScrollArea):
         Загружает сетку GridStandart с указанным путем к файлу / папке
         """
         def cmd(main_dir: str):
-            self.open_in_new_win.emit((main_dir, [wid.src, ]))
+            self.open_in_new_win.emit((main_dir, wid.src, ))
 
         new_main_dir = os.path.dirname(wid.src)
         QTimer.singleShot(100, lambda: cmd(new_main_dir))
@@ -1303,13 +1303,13 @@ class Grid(UScrollArea):
     def deleteLater(self):
         for i in self.load_images_tasks:
             i.set_should_run(False)
-        urls = (i.src for i in self.selected_thumbs)
+        urls = [i.src for i in self.selected_thumbs]
         self.main_win_item.set_urls_to_select(urls)
         return super().deleteLater()
     
     def closeEvent(self, a0):
         for i in self.load_images_tasks:
             i.set_should_run(False)
-        urls = (i.src for i in self.selected_thumbs)
+        urls = [i.src for i in self.selected_thumbs]
         self.main_win_item.set_urls_to_select(urls)
         return super().closeEvent(a0)

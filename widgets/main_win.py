@@ -127,15 +127,12 @@ class MainWin(WinBase):
     list_text = "Список"
     grid_text = "Плитка"
 
-    def __init__(self, dir: str = None, select_urls: list[str] = None):
+    def __init__(self, dir: str = None):
         super().__init__()
         self.main_win_list: list[MainWin] = []
         self.search_item: SearchItem = SearchItem()
         self.main_win_item: MainWinItem = MainWinItem()
         self.sort_item: SortItem = SortItem()
-
-        if isinstance(select_urls, list):
-            self.main_win_item.set_urls_to_select(select_urls)
 
         self.setMinimumSize(MainWin.min_width_, MainWin.min_height_)
         self.resize(MainWin.width_, MainWin.height_)
@@ -393,8 +390,8 @@ class MainWin(WinBase):
             self.tags_menu.hide()
 
     def open_in_new_win(self, data: tuple):
-        new_main_dir, select_urls = data
-        new_win = MainWin(new_main_dir, select_urls)
+        new_main_dir, go_to = data
+        new_win = MainWin(new_main_dir)
         self.main_win_list.append(new_win)
         x, y = self.window().x(), self.window().y()
         new_win.move(x + MainWin.new_win_offset, y + MainWin.new_win_offset)
