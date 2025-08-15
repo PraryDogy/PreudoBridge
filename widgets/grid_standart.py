@@ -25,10 +25,10 @@ class GridStandart(Grid):
         # при скроллинге запускается данный таймер и сбрасывается предыдуший
         # только при остановке скроллинга спустя время запускается
         # функция загрузки изображений
-        self.load_images_timer = QTimer(self)
-        self.load_images_timer.setSingleShot(True)
-        self.load_images_timer.timeout.connect(self.load_visible_images)
-        self.verticalScrollBar().valueChanged.connect(self.on_scroll_changed)
+        self.load_visible_images_timer = QTimer(self)
+        # self.load_images_timer.setSingleShot(True)
+        self.load_visible_images_timer.timeout.connect(self.load_visible_images)
+        # self.verticalScrollBar().valueChanged.connect(self.on_scroll_changed)
 
         # виджет поверх остальных с текстом "загрузка"
         self.loading_lbl = LoadingWid(self)
@@ -38,14 +38,14 @@ class GridStandart(Grid):
         thumbs = super().update_mod_thumbs()
         self.start_load_images_task(thumbs)
 
-    def on_scroll_changed(self, value: int):
-        """
-        - При сколлинге запускается таймер    
-        - Запускается load visible images
-        - Если скролл достиг низа, подгрузить следующие limit айтемов
-        """
-        self.load_images_timer.stop()
-        self.load_images_timer.start(1000)
+    # def on_scroll_changed(self, value: int):
+    #     """
+    #     - При сколлинге запускается таймер    
+    #     - Запускается load visible images
+    #     - Если скролл достиг низа, подгрузить следующие limit айтемов
+    #     """
+    #     self.load_images_timer.stop()
+    #     self.load_images_timer.start(1000)
 
     def load_finder_items(self):
         """
@@ -71,7 +71,10 @@ class GridStandart(Grid):
         """
         # испускаем сигнал в MainWin, чтобы нижний бар с отображением пути
         # обновился на актуальный путь
-        self.path_bar_update.emit(self.main_win_item.main_dir)
+        try:
+            self.path_bar_update.emit(self.main_win_item.main_dir)
+        except RuntimeError:
+            ...
 
         # высчитываем размер Thumb
         Thumb.calc_size()
@@ -176,7 +179,8 @@ class GridStandart(Grid):
 
         # если не будет прокрутки, то начнется подгрузка изображений в виджеты
         # в видимой области
-        self.load_images_timer.start(100)
+        self.load_visible_images()
+        self.load_visible_images_timer.start(1000)
         self.finished_.emit()
 
     def resizeEvent(self, a0):

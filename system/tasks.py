@@ -571,8 +571,6 @@ class LoadImagesTask(URunnable):
         Запускает обход списка Thumb для загрузки изображений   
         Испускает сигнал finished_
         """
-        if not self.thumbs:
-            return
 
         db = os.path.join(self.main_win_item.main_dir, Static.DB_FILENAME)
         self.dbase = Dbase()

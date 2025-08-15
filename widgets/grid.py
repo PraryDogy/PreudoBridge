@@ -379,23 +379,16 @@ class Grid(UScrollArea):
                 except RuntimeError as e:
                     Utils.print_error()
 
-        # мы сравниваем входящий список thumbs и thumbs задачи
-        # если у них нет пересечений, значит скролл уже ушел далеко вниз / наверх
-        # и можно прервать старую задачу, которая грузит thumbs вне зоны видимости
-        for task in list(self.load_images_tasks):
-            if not set(task.thumbs).intersection(thumbs):
-                task.set_should_run(False)
-
         # мы отправляем в новую задачу только те thumbs, которых нет еще
         # в других задачах
         thumbs = [t for t in thumbs if t not in self.processed_thumbs]
-        self.processed_thumbs.extend(thumbs)           
-
-        task_ = LoadImagesTask(self.main_win_item, thumbs)
-        task_.sigs.update_thumb.connect(set_thumb_image)
-        task_.sigs.finished_.connect(lambda: finalize(task_))
-        self.load_images_tasks.append(task_)
-        UThreadPool.start(task_)
+        self.processed_thumbs.extend(thumbs)
+        if thumbs:
+            task_ = LoadImagesTask(self.main_win_item, thumbs)
+            task_.sigs.update_thumb.connect(set_thumb_image)
+            task_.sigs.finished_.connect(lambda: finalize(task_))
+            self.load_images_tasks.append(task_)
+            UThreadPool.start(task_)
     
     def reload_rubber(self):
         self.rubberBand.deleteLater()
@@ -663,7 +656,6 @@ class Grid(UScrollArea):
         thumbs: list[Thumb] = []
         for thumb in self.url_to_wid.values():
             if not thumb.visibleRegion().isEmpty():
-                if not isinstance(thumb.img_wid, QLabel):
                     thumbs.append(thumb)
         if thumbs:
             self.start_load_images_task(thumbs)
