@@ -121,14 +121,16 @@ class RatingWidget(QLabel):
             mod_row = "\n".join((mod_row, sec_row))
         self.setText(mod_row)
 
-    def set_loading(self):
+    def set_loading(self, size: int):
         self.setStyleSheet(
             f"""
             font-size: {FONT_SIZE}px;
             color: {self.gray_color};
             """
         )
-        self.setText(self.text_loading)
+        first_row = self.text_size + EvloshUtils.get_f_size(size, 0)
+        text = f"{first_row}\n{self.text_loading}"
+        self.setText(text)
 
 
 class Thumb(BaseItem, QFrame):
@@ -274,9 +276,9 @@ class Thumb(BaseItem, QFrame):
             """
         )
 
-    def set_transparent_frame(self):
+    def set_transparent_frame(self, value: float):
         effect = QGraphicsOpacityEffect(self)
-        effect.setOpacity(0.5)
+        effect.setOpacity(value)
         self.setGraphicsEffect(effect)
 
 
@@ -387,12 +389,15 @@ class Grid(UScrollArea):
                 try:
                     thumb.set_pixmap(thumb.get_pixmap_storage())
                     thumb.rating_wid.set_text(thumb.rating, thumb.type_, thumb.mod, thumb.size)
+                    thumb.set_transparent_frame(1.0)
                     self.processed_thumbs.append(thumb)
                 except RuntimeError as e:
                     Utils.print_error()
 
         def set_loading(thumb: Thumb):
-            thumb.rating_wid.set_loading()
+            thumb.rating_wid.set_loading(thumb.size)
+            thumb.set_transparent_frame(0.5)
+            # thumb.img_wid.load(Static.LOADING_SVG)
 
         thumbs = [t for t in thumbs if t not in self.processed_thumbs]
         if thumbs:
@@ -809,7 +814,7 @@ class Grid(UScrollArea):
 
     def set_transparent_thumbs(self):
         for i in self.selected_thumbs:
-            i.set_transparent_frame()
+            i.set_transparent_frame(0.5)
 
     def rename_thumb(self, thumb: Thumb):
         
