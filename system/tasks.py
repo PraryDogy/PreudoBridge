@@ -547,6 +547,7 @@ class FinderItems(URunnable):
 
 class _LoadImagesSigs(QObject):
     update_thumb = pyqtSignal(BaseItem) # на самом деле Thumb
+    set_loading = pyqtSignal(BaseItem)
     finished_ = pyqtSignal()
 
 
@@ -597,8 +598,7 @@ class LoadImagesTask(URunnable):
         """
         for thumb in self.thumbs:
             if not self.is_should_run():
-                print("таск прерван")
-                return  
+                return
             if thumb.type_ not in Static.ext_all:
                 any_base_item = AnyBaseItem(self.conn, thumb)
                 stmt = any_base_item.get_stmt()
@@ -606,6 +606,7 @@ class LoadImagesTask(URunnable):
                     self.stmt_list.append(stmt)
             else:
                 img_base_item = ImageBaseItem(self.conn, thumb)
+                self.sigs.set_loading.emit(thumb)
                 stmt, pixmap = img_base_item.get_stmt_pixmap()
                 if pixmap:
                     thumb.set_pixmap_storage(pixmap)

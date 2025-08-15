@@ -89,20 +89,22 @@ class FileNameWidget(QLabel):
 class RatingWidget(QLabel):
     text_mod = "Изм: "
     text_size = "Размер: "
+    text_loading = "Загрузка..."
 
     def __init__(self):
         super().__init__()
         self.blue_color = "#6199E4"
-        self.setStyleSheet(
-            f"""
-            font-size: {FONT_SIZE}px;
-            color: {self.blue_color};
-            """
-        )
+        self.gray_color = "#7C7C7C"
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
     
     def set_text(self, rating: int, type_: str, mod: int, size: int):
         try:
+            self.setStyleSheet(
+                f"""
+                font-size: {FONT_SIZE}px;
+                color: {self.blue_color};
+                """
+            )
             self._set_text(rating, type_, mod, size)
         except Exception:
             Utils.print_error()
@@ -118,6 +120,15 @@ class RatingWidget(QLabel):
                 sec_row = self.text_size + EvloshUtils.get_f_size(size, 0)
             mod_row = "\n".join((mod_row, sec_row))
         self.setText(mod_row)
+
+    def set_loading(self):
+        self.setStyleSheet(
+            f"""
+            font-size: {FONT_SIZE}px;
+            color: {self.gray_color};
+            """
+        )
+        self.setText(self.text_loading)
 
 
 class Thumb(BaseItem, QFrame):
@@ -375,9 +386,13 @@ class Grid(UScrollArea):
             if thumb.get_pixmap_storage():
                 try:
                     thumb.set_pixmap(thumb.get_pixmap_storage())
+                    thumb.rating_wid.set_text(thumb.rating, thumb.type_, thumb.mod, thumb.size)
                     self.processed_thumbs.append(thumb)
                 except RuntimeError as e:
                     Utils.print_error()
+
+        def set_loading(thumb: Thumb):
+            thumb.rating_wid.set_loading()
 
         thumbs = [t for t in thumbs if t not in self.processed_thumbs]
         if thumbs:
@@ -386,6 +401,7 @@ class Grid(UScrollArea):
             task_ = LoadImagesTask(self.main_win_item, thumbs)
             task_.sigs.update_thumb.connect(set_thumb_image)
             task_.sigs.finished_.connect(lambda: finalize(task_))
+            task_.sigs.set_loading.connect(lambda thumb: set_loading(thumb))
             self.load_images_tasks.append(task_)
             UThreadPool.start(task_)
     
