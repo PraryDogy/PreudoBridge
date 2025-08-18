@@ -354,7 +354,7 @@ class SearchTask(URunnable):
     def process_text_contains(self, entry: os.DirEntry):
         filename, _ = self.remove_extension(entry.name)
         filename: str = filename.lower()
-        if self.text_lower in filename or filename in self.text_lower:
+        if self.text_lower in filename:
             return True
         else:
             return False
@@ -381,7 +381,7 @@ class SearchTask(URunnable):
         true_filename, _ = self.remove_extension(entry.name)
         filename: str = true_filename.lower()
         for item in self.files_list_lower:
-            if item in filename or filename in item:
+            if item in filename:
                 self.found_files_list.append(true_filename)
                 return True
         return False
@@ -626,62 +626,17 @@ class LoadImagesTask(URunnable):
 
 
 
-class _LoadThumbSigs(QObject):
+class _LoadImgSigs(QObject):
     finished_ = pyqtSignal(tuple)
 
 
-class LoadThumbTask(URunnable):
-    def __init__(self, src: str):
-        super().__init__()
-        self.sigs = _LoadThumbSigs()
-        self.src = EvloshUtils.norm_slash(src)
-        self.name = os.path.basename(self.src)
-
-    def task(self):
-        db = os.path.join(os.path.dirname(self.src), Static.DB_FILENAME)
-        dbase = Dbase()
-        engine = dbase.create_engine(path=db)
-
-        if engine is None:
-            image_data = (self.src, None)
-            self.sigs.finished_.emit(image_data)
-            return
-
-        conn = Dbase.open_connection(engine)
-
-        q = sqlalchemy.select(CACHE.c.img)
-        q = q.where(CACHE.c.name == Utils.get_hash_filename(self.name))
-        res = conn.execute(q).scalar() or None
-
-        Dbase.close_connection(conn)
-
-        if res is not None:
-            img_array = ImageUtils.bytes_to_array(res)
-            img_array = ImageUtils.desaturate_image(img_array, 0.2)
-        else:
-            img_array = None
-
-        if img_array is None:
-            pixmap = None
-
-        else:
-            pixmap = ImageUtils.pixmap_from_array(img_array)
-
-        image_data = (self.src, pixmap)
-
-        try:
-            self.sigs.finished_.emit(image_data)
-        except RuntimeError as e:
-            Utils.print_error()
-
-
-class LoadImageTask(URunnable):
+class LoadImgTask(URunnable):
     cache_limit = 15
     cached_images: dict[str, QPixmap] = {}
 
     def __init__(self, src: str):
         super().__init__()
-        self.sigs = _LoadThumbSigs()
+        self.sigs = _LoadImgSigs()
         self.src: str = src
 
     def task(self):

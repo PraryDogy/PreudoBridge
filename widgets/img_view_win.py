@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QSpacerItem,
                              QVBoxLayout, QWidget)
 
 from cfg import Static
-from system.tasks import LoadImageTask
+from system.tasks import LoadImgTask
 from system.utils import UThreadPool
 
 from ._base_widgets import UMenu, USvgSqareWidget, WinBase
@@ -276,7 +276,7 @@ class ImgViewWin(WinBase):
                     print("OK, img view > load image fin > set text > runtime error")
 
         self.task_count += 1
-        task_ = LoadImageTask(self.current_path)
+        task_ = LoadImgTask(self.current_path)
         task_.sigs.finished_.connect(fin)
         UThreadPool.start(task_)
 
@@ -399,12 +399,12 @@ class ImgViewWin(WinBase):
         self.hide_btns()
 
     def deleteLater(self):
-        LoadImageTask.cached_images.clear()
+        LoadImgTask.cached_images.clear()
         self.closed.emit()
         return super().deleteLater()
 
     def closeEvent(self, a0):
-        LoadImageTask.cached_images.clear()
+        LoadImgTask.cached_images.clear()
         self.closed.emit()
         return super().closeEvent(a0)
 
