@@ -54,12 +54,10 @@ class System_:
             return False
 
 
-sys.excepthook = System_.catch_error_in_app
-
-# if System_.set_plugin_path():
-#     sys.excepthook = System_.catch_error_in_app
-# else:
-#     sys.excepthook = System_.catch_error_in_proj
+if System_.set_plugin_path():
+    sys.excepthook = System_.catch_error_in_app
+else:
+    sys.excepthook = System_.catch_error_in_proj
 
 
 import faulthandler
