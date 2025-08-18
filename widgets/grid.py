@@ -199,11 +199,14 @@ class Thumb(BaseItem, QFrame):
         self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
 
     def set_pixmap(self, pixmap: QPixmap):
-        self.img_wid.deleteLater()
-        self.img_wid = QLabel()
-        scaled_pixmap = ImageUtils.pixmap_scale(pixmap, Thumb.pixmap_size)
-        self.img_wid.setPixmap(scaled_pixmap)
-        self.img_frame_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
+        try:
+            self.img_wid.deleteLater()
+            self.img_wid = QLabel()
+            scaled_pixmap = ImageUtils.pixmap_scale(pixmap, Thumb.pixmap_size)
+            self.img_wid.setPixmap(scaled_pixmap)
+            self.img_frame_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
+        except RuntimeError:
+            print("OK, grid > set_pixmap > runtime error")
 
     def migrate_from_base_item(self, base_item: BaseItem):
         """
