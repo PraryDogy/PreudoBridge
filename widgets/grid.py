@@ -856,7 +856,12 @@ class Grid(UScrollArea):
             self.archive_win.center(self.window())
             self.archive_win.show()
 
-        self.rename_win = RenameWin("архив.zip")
+        if len(self.selected_thumbs) == 1:
+            text = self.selected_thumbs[0].filename
+        else:
+            text = "архив.zip"
+
+        self.rename_win = RenameWin(text)
         self.rename_win.center(self.window())
         self.rename_win.finished_.connect(rename_fin)
         self.rename_win.show()

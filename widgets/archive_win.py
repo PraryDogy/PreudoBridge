@@ -24,7 +24,7 @@ class ArchiveWin(ProgressbarWin):
         QTimer.singleShot(200, lambda: UThreadPool.start(self.archive_task))
     
     def set_value(self, value: int):
-        self.below_label.setText(f"Архивирую {value} из {self.progressbar.maximum()}")
+        self.below_label.setText(f"Архивирую файлы {value} из {self.progressbar.maximum()}")
         self.progressbar.setValue(value)
 
     def cancel_cmd(self, *args):
