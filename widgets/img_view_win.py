@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QSpacerItem,
                              QVBoxLayout, QWidget)
 
 from cfg import Static
-from system.tasks import LoadImageTask, LoadThumbTask
+from system.tasks import LoadImageTask
 from system.utils import UThreadPool
 
 from ._base_widgets import UMenu, USvgSqareWidget, WinBase
@@ -26,7 +26,7 @@ class ImgWid(QLabel):
         super().__init__()
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setMouseTracking(True)
-        self.setStyleSheet("background: black;")
+        self.setStyleSheet("background: black; color: white;")
 
         self.current_pixmap: QPixmap = None
         self.scale_factor: float = 1.0
@@ -97,7 +97,7 @@ class ImgWid(QLabel):
                 int((self.height() - scaled_pixmap.height()) / 2)
                 )
             painter.drawPixmap(offset, scaled_pixmap)
-        # return super().paintEvent(a0)
+        return super().paintEvent(a0)
 
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         self.w, self.h = self.width(), self.height()
@@ -232,17 +232,10 @@ class ImgViewWin(WinBase):
         self.zoom_btns.cmd_fit.connect(self.img_wid.zoom_reset)
         self.zoom_btns.cmd_close.connect(self.deleteLater)
 
-        self.loading_label = QLabel(parent=self.img_wid)
-        self.loading_label.hide()
-
         self.hide_btns()
         self.resize(ImgViewWin.width_ + 1, ImgViewWin.height_ + 1)
-
-        self.loading_label.hide()
         self.set_title()
-
-        if self.current_path.endswith(Static.ext_all):
-            QTimer.singleShot(100 , self.load_thumbnail)
+        self.load_thumbnail()
 
 # SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM
 
@@ -253,48 +246,35 @@ class ImgViewWin(WinBase):
         self.setWindowTitle(text_)
 
     def load_thumbnail(self):
-        if self.current_path not in LoadImageTask.cached_images:
-            self.task_ = LoadThumbTask(self.current_path)
-            cmd_ = lambda image_data: self.load_thumbnail_finished(image_data)
-            self.task_.sigs.finished_.connect(cmd_)
-            UThreadPool.start(self.task_)
-
+        self.show_text_label("")
+        pixmap = self.current_thumb.get_pixmap_storage()
+        if pixmap:
+            self.img_wid.set_image(pixmap)
         else:
-            self.show_text_label(ImgViewWin.loading_text)
-            self.load_image()
+            self.show_text_label(self.loading_text)
+        self.load_image()
 
     def show_text_label(self, text: str):
         pixmap = QPixmap(1, 1)
         pixmap.fill(QColor(0, 0, 0))
         self.img_wid.set_image(pixmap)
-        self.loading_label.setText(text)
-        self.loading_label.show()
-
-    def load_thumbnail_finished(self, image_data: tuple[str, QPixmap]):
-        src, pixmap = image_data
-        if pixmap is None:
-            self.show_text_label(ImgViewWin.loading_text)
-
-        elif src == self.current_path:
-            self.img_wid.set_image(pixmap)
-
-        self.load_image()
+        self.img_wid.setText(text)
 
     def load_image(self):
+
+        def fin(image_data: tuple[str, QPixmap]):
+            src, pixmap = image_data
+            self.task_count -= 1
+            if pixmap is None:
+                self.show_text_label(self.error_text)
+            elif src == self.current_path:
+                self.img_wid.setText("")
+                self.img_wid.set_image(pixmap)
+
         self.task_count += 1
         task_ = LoadImageTask(self.current_path)
-        cmd_ = lambda image_data: self.load_image_finished(image_data)
-        task_.sigs.finished_.connect(cmd_)
+        task_.sigs.finished_.connect(fin)
         UThreadPool.start(task_)
-
-    def load_image_finished(self, image_data: tuple[str, QPixmap]):
-        src, pixmap = image_data
-        self.task_count -= 1
-        self.loading_label.hide()
-        if pixmap is None:
-            self.show_text_label(ImgViewWin.error_text)
-        elif src == self.current_path:
-            self.img_wid.set_image(pixmap)
 
 
 # GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI
@@ -329,7 +309,6 @@ class ImgViewWin(WinBase):
             self.move_to_wid.emit(self.current_thumb)
             self.move_to_url.emit(self.current_path)
 
-        self.loading_label.hide()
         self.set_title()
         self.load_thumbnail()
 
@@ -410,10 +389,6 @@ class ImgViewWin(WinBase):
         horizontal_center = a0.size().width() // 2 - self.zoom_btns.width() // 2
         bottom_window_side = a0.size().height() - self.zoom_btns.height()
         self.zoom_btns.move(horizontal_center, bottom_window_side - 30)
-
-        x = (a0.size().width() - self.loading_label.width()) // 2
-        y = (a0.size().height() - self.loading_label.height()) // 2
-        self.loading_label.move(x, y)
 
         ImgViewWin.width_ = self.width()
         ImgViewWin.height_ = self.height()
