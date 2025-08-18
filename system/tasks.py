@@ -639,7 +639,7 @@ class LoadImagesTask(URunnable):
             except (TypeError, RuntimeError, TypeError) as e:
                 Utils.print_error()
                 return
-      
+
     def process_stmt_list(self):
         for stmt in self.stmt_list:
             if not Dbase.execute_(self.conn, stmt):
@@ -652,7 +652,7 @@ class LoadImagesTask(URunnable):
             CACHE.c.name == Utils.get_hash_filename(base_item.filename)
         )
         mod = Dbase.execute_(self.conn, stmt).scalar() or None
-        if mod and mod == base_item.mod:
+        if mod and mod == int(base_item.mod):
             return True
         return None
 

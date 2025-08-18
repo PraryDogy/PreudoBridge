@@ -68,7 +68,7 @@ class BaseItem:
         self.filename: str = None
         self.type_: str = None
         self.rating: int = rating
-        self.mod: int = None
+        self.mod: float = None
         self.birth: int = None
         self.size: int = None
         self._pixmap_storage: QPixmap = None
