@@ -950,13 +950,11 @@ class ArchiveTask(URunnable):
         self.zip_path = zip_path
         self.progress = 0
         self.all_files = self._collect_all_files()
+
+        self.chunk_size: int = 8*1024*1024
         self.threshold: int = 100*1024*1024
 
     def _collect_all_files(self) -> list[tuple[str, str]]:
-        """
-        Собираем список всех файлов для архива.
-        Возвращаем список кортежей (полный_путь, путь_в_архиве).
-        """
         collected = []
         for item in self.files:
             if os.path.isfile(item):
@@ -970,25 +968,38 @@ class ArchiveTask(URunnable):
                         collected.append((full_path, rel_path))
         return collected
 
-    def _add_file(self, zf: zipfile.ZipFile, full_path: str, arc_path: str):
-        size = os.path.getsize(full_path)
-        compress_type = zipfile.ZIP_STORED if size > self.threshold else zipfile.ZIP_DEFLATED
-        zf.write(full_path, arcname=arc_path, compress_type=compress_type)
+    def _calc_total_chunks(self) -> int:
+        total = 0
+        for full_path, _ in self.all_files:
+            size = os.path.getsize(full_path)
+            total += (size + self.chunk_size - 1) // self.chunk_size
+        return total
+
+    def _add_file_chunked(self, zf: zipfile.ZipFile, full_path: str, arc_path: str):
+        file_size = os.path.getsize(full_path)
+        zi = zipfile.ZipInfo(arc_path)
+        zi.compress_type = zipfile.ZIP_STORED if file_size > self.threshold else zipfile.ZIP_DEFLATED
+        with zf.open(zi, mode="w") as dest, open(full_path, "rb") as src:
+            while True:
+                buf = src.read(self.chunk_size)
+                if not buf:
+                    break
+                dest.write(buf)
+                self.progress += 1
+                self.sigs.set_value.emit(self.progress)
 
     def zip_items(self):
-        """Архивация уже собранного списка файлов."""
-        self.sigs.set_max.emit(len(self.all_files))
+        total_chunks = self._calc_total_chunks()
+        self.sigs.set_max.emit(total_chunks)
         self.progress = 0
 
-        with zipfile.ZipFile(self.zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
+        with zipfile.ZipFile(self.zip_path, 'w') as zf:
             for full_path, arc_path in self.all_files:
                 if not self.is_should_run():
                     break
-                self.progress += 1
-                self.sigs.set_value.emit(self.progress)
-                self._add_file(zf, full_path, arc_path)
+                self._add_file_chunked(zf, full_path, arc_path)
 
     def task(self):
-        """Метод для потока."""
         self.zip_items()
         self.sigs.finished_.emit()
+

@@ -13,6 +13,7 @@ class ArchiveWin(ProgressbarWin):
     finished_ = pyqtSignal()
     title = "Архив"
     below_text = "Подготовка"
+    below_text_sec = "Обработка"
     above_text = "Создание архива"
 
     def __init__(self, files: list[str], zip_path: str):
@@ -30,7 +31,7 @@ class ArchiveWin(ProgressbarWin):
         QTimer.singleShot(200, lambda: UThreadPool.start(self.archive_task))
     
     def set_value(self, value: int):
-        self.below_label.setText(f"Архивирую файлы {value} из {self.progressbar.maximum()}")
+        self.below_label.setText(self.below_text_sec)
         self.progressbar.setValue(value)
 
     def cancel_cmd(self, *args):
