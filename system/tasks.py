@@ -950,6 +950,7 @@ class ArchiveTask(URunnable):
         self.zip_path = zip_path
         self.progress = 0
         self.all_files = self._collect_all_files()
+        self.threshold: int = 100*1024*1024
 
     def _collect_all_files(self) -> list[tuple[str, str]]:
         """
@@ -970,7 +971,9 @@ class ArchiveTask(URunnable):
         return collected
 
     def _add_file(self, zf: zipfile.ZipFile, full_path: str, arc_path: str):
-        zf.write(full_path, arcname=arc_path)
+        size = os.path.getsize(full_path)
+        compress_type = zipfile.ZIP_STORED if size > self.threshold else zipfile.ZIP_DEFLATED
+        zf.write(full_path, arcname=arc_path, compress_type=compress_type)
 
     def zip_items(self):
         """Архивация уже собранного списка файлов."""
