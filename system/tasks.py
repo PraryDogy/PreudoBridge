@@ -2,7 +2,7 @@ import difflib
 import gc
 import os
 import shutil
-from collections import Counter, defaultdict
+import zipfile
 from time import sleep
 
 import numpy as np
@@ -23,7 +23,7 @@ from .database import CACHE, Dbase
 from .items import (AnyBaseItem, BaseItem, CopyItem, ImageBaseItem,
                     MainWinItem, SearchItem, SortItem)
 from .utils import ImageUtils, URunnable, Utils
-import zipfile
+
 
 # Общий класс для выполнения действий QAction в отдельном потоке
 class ActionsTask(URunnable):
@@ -596,6 +596,9 @@ class LoadImagesTask(URunnable):
         Пытается загрузить изображение из базы данных или создает новое,
         чтобы передать его в Thumb
         """
+        exists_items: list[ImageBaseItem] = []
+        new_items: list[ImageBaseItem] = []
+
         for thumb in self.thumbs:
             if not self.is_should_run():
                 return
@@ -605,18 +608,24 @@ class LoadImagesTask(URunnable):
                 if stmt is not None:
                     self.stmt_list.append(stmt)
             else:
-                img_base_item = ImageBaseItem(self.conn, thumb)
-                self.sigs.set_loading.emit(thumb)
-                stmt, pixmap = img_base_item.get_stmt_pixmap()
-                if pixmap:
-                    thumb.set_pixmap_storage(pixmap)
-                if stmt is not None:
-                    self.stmt_list.append(stmt)
-                try:
-                    self.sigs.update_thumb.emit(thumb)
-                except (TypeError, RuntimeError, TypeError) as e:
-                    Utils.print_error()
-                    return
+                if self._is_exists(thumb):
+                    exists_items.append(thumb)
+                else:
+                    new_items.append(thumb)
+
+        for thumb in exists_items + new_items:
+            img_base_item = ImageBaseItem(self.conn, thumb)
+            self.sigs.set_loading.emit(thumb)
+            stmt, pixmap = img_base_item.get_stmt_pixmap()
+            if pixmap:
+                thumb.set_pixmap_storage(pixmap)
+            if stmt is not None:
+                self.stmt_list.append(stmt)
+            try:
+                self.sigs.update_thumb.emit(thumb)
+            except (TypeError, RuntimeError, TypeError) as e:
+                Utils.print_error()
+                return
                 
     def process_stmt_list(self):
         for stmt in self.stmt_list:
@@ -624,6 +633,15 @@ class LoadImagesTask(URunnable):
                 return
         Dbase.commit_(self.conn)
 
+    def _is_exists(self, base_item: BaseItem) -> bool:
+        stmt = sqlalchemy.select(CACHE.c.mod)
+        stmt = stmt.where(
+            CACHE.c.name == Utils.get_hash_filename(base_item.filename)
+        )
+        mod = Dbase.execute_(self.conn, stmt).scalar() or None
+        if mod and mod == base_item.mod:
+            return True
+        return None
 
 
 class _LoadImgSigs(QObject):
