@@ -836,7 +836,7 @@ class Grid(UScrollArea):
 
     def make_archive(self):
 
-        def finished(*args):
+        def archive_fin(zip_path):
             self.del_thumb(zip_path)
             new_thumb = self.new_thumb(zip_path)
             self.sort_thumbs()
@@ -845,12 +845,21 @@ class Grid(UScrollArea):
             QTimer.singleShot(200, lambda: self.ensureWidgetVisible(new_thumb))
             QTimer.singleShot(300, self.load_vis_images)
 
-        files = [i.src for i in self.selected_thumbs]
-        zip_path = os.path.join(self.main_win_item.main_dir, "архив.zip")
-        self.archive_win = ArchiveWin(files, zip_path)
-        self.archive_win.finished_.connect(finished)
-        self.archive_win.center(self.window())
-        self.archive_win.show()
+        def rename_fin(text: str):
+            archive_name = text
+            if not archive_name.endswith((".ZIP", ".zip")):
+                archive_name = archive_name + ".zip"
+            files = [i.src for i in self.selected_thumbs]
+            zip_path = os.path.join(self.main_win_item.main_dir, archive_name)
+            self.archive_win = ArchiveWin(files, zip_path)
+            self.archive_win.finished_.connect(lambda: archive_fin(zip_path))
+            self.archive_win.center(self.window())
+            self.archive_win.show()
+
+        self.rename_win = RenameWin("архив.zip")
+        self.rename_win.center(self.window())
+        self.rename_win.finished_.connect(rename_fin)
+        self.rename_win.show()
 
     def context_thumb(self, menu_: UMenu, wid: Thumb):
         # собираем пути к файлам / папкам у выделенных виджетов
