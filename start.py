@@ -1,7 +1,10 @@
 import os
 import sys
 import traceback
-from PyQt5.QtWidgets import QMessageBox
+
+from PyQt5.QtWidgets import (QApplication, QDialog, QPushButton, QTextEdit,
+                             QVBoxLayout)
+
 
 class System_:
     @classmethod
@@ -18,7 +21,19 @@ class System_:
         STARS = "*" * 40
         SUMMARY_MSG = "\n".join([ERROR, STARS, ABOUT])
 
-        QMessageBox.critical(None, "Ошибка", SUMMARY_MSG)
+        d = QDialog()
+        d.setWindowTitle("Ошибка")
+        l = QVBoxLayout(d)
+
+        txt = QTextEdit()
+        txt.setReadOnly(True)
+        txt.setPlainText(SUMMARY_MSG)
+        l.addWidget(txt)
+
+        l.addWidget(QPushButton("Закрыть", clicked=d.close))
+        d.resize(500, 400)
+        d.setFocus()
+        d.exec_()
 
     def catch_error_in_proj(exctype, value, tb):
         if exctype == RuntimeError:
@@ -39,10 +54,12 @@ class System_:
             return False
 
 
-if System_.set_plugin_path():
-    sys.excepthook = System_.catch_error_in_app
-else:
-    sys.excepthook = System_.catch_error_in_proj
+sys.excepthook = System_.catch_error_in_app
+
+# if System_.set_plugin_path():
+#     sys.excepthook = System_.catch_error_in_app
+# else:
+#     sys.excepthook = System_.catch_error_in_proj
 
 
 import faulthandler
@@ -52,8 +69,8 @@ from PyQt5.QtWidgets import QApplication
 
 from cfg import Dynamic, JsonData
 from evlosh_templates.evlosh_utils import EvloshUtils
-from system.utils import UThreadPool
 from system.items import BaseItem
+from system.utils import UThreadPool
 from widgets._base_widgets import WinBase
 from widgets.main_win import MainWin
 
