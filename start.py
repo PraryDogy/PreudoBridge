@@ -1,8 +1,7 @@
 import os
-import subprocess
 import sys
 import traceback
-
+from PyQt5.QtWidgets import QMessageBox
 
 class System_:
     @classmethod
@@ -18,13 +17,11 @@ class System_:
         ABOUT = " ".join(ABOUT)
         STARS = "*" * 40
         SUMMARY_MSG = "\n".join([ERROR, STARS, ABOUT])
-        script = "scripts/error_msg.scpt"
-        subprocess.run(["osascript", script, SUMMARY_MSG])
+
+        QMessageBox.critical(None, "Ошибка", SUMMARY_MSG)
 
     def catch_error_in_proj(exctype, value, tb):
         if exctype == RuntimeError:
-            # print("Global catch RuntimeError > start > catch error in proj:")
-            # print("Runtime error")
             error_message = "".join(traceback.format_exception(exctype, value, tb))
             print(error_message)
         else:
