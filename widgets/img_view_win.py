@@ -411,7 +411,6 @@ class ImgViewWin(WinBase):
     def contextMenuEvent(self, a0: QContextMenuEvent | None) -> None:
         urls = [self.current_path]
         names = [os.path.basename(i) for i in urls]
-        total = len(urls)
 
         menu = UMenu(parent=self)
 
