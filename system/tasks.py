@@ -613,7 +613,20 @@ class LoadImagesTask(URunnable):
                 else:
                     new_items.append(thumb)
 
-        for thumb in exists_items + new_items:
+        for thumb in exists_items:
+            img_base_item = ImageBaseItem(self.conn, thumb)
+            stmt, pixmap = img_base_item.get_stmt_pixmap()
+            if pixmap:
+                thumb.set_pixmap_storage(pixmap)
+            if stmt is not None:
+                self.stmt_list.append(stmt)
+            try:
+                self.sigs.update_thumb.emit(thumb)
+            except (TypeError, RuntimeError, TypeError) as e:
+                Utils.print_error()
+                return
+
+        for thumb in new_items:
             img_base_item = ImageBaseItem(self.conn, thumb)
             self.sigs.set_loading.emit(thumb)
             stmt, pixmap = img_base_item.get_stmt_pixmap()
@@ -626,7 +639,7 @@ class LoadImagesTask(URunnable):
             except (TypeError, RuntimeError, TypeError) as e:
                 Utils.print_error()
                 return
-                
+      
     def process_stmt_list(self):
         for stmt in self.stmt_list:
             if not Dbase.execute_(self.conn, stmt):
