@@ -246,15 +246,15 @@ class ImgViewWin(WinBase):
         self.setWindowTitle(text_)
 
     def load_thumbnail(self):
-        self.show_text_label("")
+        self.show_text("")
         pixmap = self.current_thumb.get_pixmap_storage()
         if pixmap:
             self.img_wid.set_image(pixmap)
         else:
-            self.show_text_label(self.loading_text)
+            self.show_text(self.loading_text)
         self.load_image()
 
-    def show_text_label(self, text: str):
+    def show_text(self, text: str):
         pixmap = QPixmap(1, 1)
         pixmap.fill(QColor(0, 0, 0))
         self.img_wid.set_image(pixmap)
@@ -266,7 +266,7 @@ class ImgViewWin(WinBase):
             src, pixmap = image_data
             self.task_count -= 1
             if pixmap is None:
-                self.show_text_label(self.error_text)
+                self.show_text(self.error_text)
             elif src == self.current_path:
                 try:
                     self.img_wid.setText("")
