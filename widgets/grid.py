@@ -381,7 +381,7 @@ class Grid(UScrollArea):
         def set_thumb_image(thumb: Thumb):
             if thumb.get_pixmap_storage():
                 try:
-                    thumb.set_pixmap(thumb.get_pixmap_storage())
+                    QTimer.singleShot(50, lambda: thumb.set_pixmap(thumb.get_pixmap_storage()))
                     thumb.rating_wid.set_text(thumb.rating, thumb.type_, thumb.mod, thumb.size)
                     thumb.set_transparent_frame(1.0)
                     self.processed_thumbs.append(thumb)
@@ -390,8 +390,7 @@ class Grid(UScrollArea):
 
         def set_loading(thumb: Thumb):
             thumb.rating_wid.set_loading(thumb.size)
-            thumb.set_transparent_frame(0.2)
-            # thumb.img_wid.load(Static.LOADING_SVG)
+            thumb.set_transparent_frame(0.5)
 
         thumbs = [t for t in thumbs if t not in self.processed_thumbs]
         if thumbs:
