@@ -268,8 +268,11 @@ class ImgViewWin(WinBase):
             if pixmap is None:
                 self.show_text_label(self.error_text)
             elif src == self.current_path:
-                self.img_wid.setText("")
-                self.img_wid.set_image(pixmap)
+                try:
+                    self.img_wid.setText("")
+                    self.img_wid.set_image(pixmap)
+                except RuntimeError:
+                    print("OK, img view > load image fin > set text > runtime error")
 
         self.task_count += 1
         task_ = LoadImageTask(self.current_path)

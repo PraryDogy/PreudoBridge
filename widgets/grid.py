@@ -379,9 +379,10 @@ class Grid(UScrollArea):
                 self.load_images_tasks.remove(task)
 
         def set_thumb_image(thumb: Thumb):
-            if thumb.get_pixmap_storage():
+            pixmap = thumb.get_pixmap_storage()
+            if pixmap:
                 try:
-                    QTimer.singleShot(50, lambda: thumb.set_pixmap(thumb.get_pixmap_storage()))
+                    QTimer.singleShot(50, lambda: thumb.set_pixmap(pixmap))
                     thumb.rating_wid.set_text(thumb.rating, thumb.type_, thumb.mod, thumb.size)
                     thumb.set_transparent_frame(1.0)
                     self.processed_thumbs.append(thumb)
@@ -519,7 +520,7 @@ class Grid(UScrollArea):
                     if url.endswith(Static.ext_all)
                 }
                 is_selection = False
-                self.open_img_view(wid.src, url_to_wid, is_selection)
+                QTimer.singleShot(50, lambda: self.open_img_view(wid.src, url_to_wid, is_selection))
             elif wid.type_ == Static.FOLDER_TYPE:
                 self.new_history_item.emit(wid.src)
                 self.main_win_item.main_dir = wid.src
@@ -535,7 +536,7 @@ class Grid(UScrollArea):
             if url_to_wid:
                 is_selection = True
                 start_url = list(url_to_wid)[0]
-                self.open_img_view(start_url, url_to_wid, is_selection)
+                QTimer.singleShot(50, lambda: self.open_img_view(start_url, url_to_wid, is_selection))
 
             folders = [
                 i.src
