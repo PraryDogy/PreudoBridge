@@ -221,10 +221,10 @@ class ImgViewWin(WinBase):
         v_layout.addWidget(self.img_wid)
 
         self.prev_btn = PrevImgBtn(self)
-        self.prev_btn.pressed.connect(lambda: self.switch_img_btn("-"))
+        self.prev_btn.pressed.connect(lambda: self.switch_img(-1))
 
         self.next_btn = NextImgBtn(self)
-        self.next_btn.pressed.connect(lambda: self.switch_img_btn("+"))
+        self.next_btn.pressed.connect(lambda: self.switch_img(1))
 
         self.zoom_btns = ZoomBtns(parent=self)
         self.zoom_btns.cmd_in.connect(self.img_wid.zoom_in)
@@ -291,7 +291,7 @@ class ImgViewWin(WinBase):
         self.next_btn.hide()
 
     def switch_img(self, offset: int):
-        if self.task_count == ImgViewWin.task_count_limit:
+        if self.task_count == self.task_count_limit:
             return
 
         try:
@@ -312,15 +312,9 @@ class ImgViewWin(WinBase):
             self.move_to_wid.emit(self.current_thumb)
             self.move_to_url.emit(self.current_path)
 
+        self.img_wid.setCursor(Qt.CursorShape.ArrowCursor)
         self.set_title()
         self.load_thumbnail()
-
-    def switch_img_btn(self, flag: str) -> None:
-        if flag == "+":
-            self.switch_img(1)
-        else:
-            self.switch_img(-1)
-        self.img_wid.setCursor(Qt.CursorShape.ArrowCursor)
 
     def show_btns(self):
         self.mouse_move_timer.stop()
@@ -330,15 +324,14 @@ class ImgViewWin(WinBase):
         self.mouse_move_timer.start(2000)
 
     def win_info_cmd(self, src: str):
-        """
-        Открыть окно информации о файле / папке
-        """
-        self.win_info = InfoWin(src)
-        self.win_info.finished_.connect(lambda: self.win_info_fin())
 
-    def win_info_fin(self):
-        self.win_info.center(self.window())
-        self.win_info.show()
+        def fin():
+            self.win_info.center(self.window())
+            self.win_info.show()
+
+        self.win_info = InfoWin(src)
+        self.win_info.finished_.connect(fin)
+
 
 # EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS 
 
