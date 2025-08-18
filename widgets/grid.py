@@ -1020,7 +1020,6 @@ class Grid(UScrollArea):
         menu_.addMenu(sort_menu)
 
     def mouseReleaseEvent(self, a0: QMouseEvent):
-        a = 10 / 0
         if a0.button() != Qt.MouseButton.LeftButton:
             return
         
