@@ -304,9 +304,12 @@ class ImgViewWin(WinBase):
 
         self.current_path: str = self.urls[new_index]
 
-        self.current_thumb.text_changed.disconnect()
-        self.current_thumb: Thumb = self.url_to_wid.get(self.current_path)
-        self.current_thumb.text_changed.connect(self.set_title)
+        try:
+            self.current_thumb.text_changed.disconnect()
+            self.current_thumb: Thumb = self.url_to_wid.get(self.current_path)
+            self.current_thumb.text_changed.connect(self.set_title)
+        except RuntimeError:
+            print("img view > switch img > disconnect wid > no widget")
 
         if not self.is_selection:
             self.move_to_wid.emit(self.current_thumb)
