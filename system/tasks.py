@@ -969,11 +969,8 @@ class ArchiveTask(URunnable):
                         collected.append((full_path, rel_path))
         return collected
 
-    def _add_file(self, zf, full_path, arc_path):
-        """Добавляем файл и обновляем прогресс."""
+    def _add_file(self, zf: zipfile.ZipFile, full_path: str, arc_path: str):
         zf.write(full_path, arcname=arc_path)
-        self.progress += 1
-        self.sigs.set_value.emit(self.progress)
 
     def zip_items(self):
         """Архивация уже собранного списка файлов."""
@@ -984,6 +981,8 @@ class ArchiveTask(URunnable):
             for full_path, arc_path in self.all_files:
                 if not self.is_should_run():
                     break
+                self.progress += 1
+                self.sigs.set_value.emit(self.progress)
                 self._add_file(zf, full_path, arc_path)
 
     def task(self):

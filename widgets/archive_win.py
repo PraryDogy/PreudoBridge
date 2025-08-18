@@ -1,7 +1,11 @@
+import os
+
+from PyQt5.QtCore import QTimer, pyqtSignal
+
 from cfg import Static
 from system.tasks import ArchiveTask
 from system.utils import UThreadPool
-from PyQt5.QtCore import pyqtSignal, QTimer
+
 from .progressbar_win import ProgressbarWin
 
 
@@ -9,12 +13,14 @@ class ArchiveWin(ProgressbarWin):
     finished_ = pyqtSignal()
     title = "Архив"
     below_text = "Подготовка"
-    above_text = "Создание архива..."
+    above_text = "Создание архива"
 
     def __init__(self, files: list[str], zip_path: str):
         super().__init__(self.title, Static.COPY_FILES_SVG)
         self.set_modality()
-        self.above_label.setText(self.above_text)
+        filename = self.limit_string(os.path.basename(zip_path), 30)
+        above_text = f"{self.above_text} \"{filename}\""
+        self.above_label.setText(above_text)
         self.below_label.setText(self.below_text)
 
         self.archive_task = ArchiveTask(files, zip_path)
@@ -30,3 +36,8 @@ class ArchiveWin(ProgressbarWin):
     def cancel_cmd(self, *args):
         self.finished_.emit()
         self.deleteLater()
+
+    def limit_string(self, text: str, limit: int = 15):
+        if len(text) > limit:
+            return text[:limit] + "..."
+        return text
