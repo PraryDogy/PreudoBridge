@@ -1,17 +1,14 @@
-import gc
 import os
 import subprocess
 
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import (QCloseEvent, QColor, QKeyEvent, QMouseEvent, QPalette,
                          QResizeEvent)
-from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtTest import QTest
 from PyQt5.QtWidgets import (QApplication, QGraphicsDropShadowEffect,
                              QHBoxLayout, QLabel, QSplitter, QTabWidget,
                              QVBoxLayout, QWidget)
 
-from cfg import JsonData, Static, Dynamic
+from cfg import JsonData, Static
 from evlosh_templates.evlosh_utils import EvloshUtils
 from evlosh_templates.paletes import UPallete
 from system.items import MainWinItem, SearchItem, SortItem
@@ -47,41 +44,6 @@ class TabsWidget(QTabWidget):
             super().mouseReleaseEvent(a0)
         else:
             a0.ignore()
-
-
-class TagsBtn(QWidget):
-    svg_size = 20
-
-    clicked_ = pyqtSignal()
-    def __init__(self):
-        super().__init__()
-        self.setFixedHeight(22)
-
-        v_lay = QVBoxLayout()
-        v_lay.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(v_lay)
-
-        self.svg = QSvgWidget()
-        self.svg.setFixedSize(TagsBtn.svg_size, TagsBtn.svg_size)
-        self.svg.load(Static.HIDE_SVG)
-        v_lay.addWidget(self.svg, alignment=Qt.AlignmentFlag.AlignCenter)
-
-        self.hide_svg = True
-
-    def click_cmd(self):
-        if self.hide_svg:
-            self.svg.load(Static.SHOW_SVG)
-            self.hide_svg = False
-
-        else:
-            self.svg.load(Static.HIDE_SVG)
-            self.hide_svg = True
-
-        self.clicked_.emit()
-
-    def mouseReleaseEvent(self, a0):
-        if a0.button() == Qt.MouseButton.LeftButton:
-            self.click_cmd()
 
 
 class ScrollUpBtn(QLabel):
