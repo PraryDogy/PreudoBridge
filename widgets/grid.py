@@ -890,6 +890,8 @@ class Grid(UScrollArea):
         info.triggered.connect(lambda: self.open_win_info(wid.src))
         menu_.addAction(info)
 
+        menu_.addSeparator()
+
         if wid.type_ in Static.ext_all and not self.is_grid_search:
             convert_action = ItemActions.ImgConvert(menu_)
             convert_action.triggered.connect(lambda: self.open_img_convert_win(urls_img))
@@ -898,6 +900,8 @@ class Grid(UScrollArea):
         archive = ItemActions.MakeArchive(menu_)
         archive.triggered.connect(self.make_archive)
         menu_.addAction(archive)
+
+        menu_.addSeparator()
 
         # is grid search устанавливается на True при инициации GridSearch
         if self.is_grid_search:
