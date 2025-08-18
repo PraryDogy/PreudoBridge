@@ -161,21 +161,19 @@ class MainWin(WinBase):
         self.splitter.setHandleWidth(MainWin.splitter_handle_width)
         main_lay.addWidget(self.splitter)
 
-        left_wid = QWidget()
-        left_v_lay = QVBoxLayout()
-        left_v_lay.setContentsMargins(0, 0, 0, 5)
-        left_v_lay.setSpacing(0)
-        left_wid.setLayout(left_v_lay)
+
+        self.left_wid = QSplitter()
+        self.left_wid.setHandleWidth(MainWin.splitter_handle_width)
+        self.left_wid.setOrientation(Qt.Orientation.Vertical)
         self.tabs_widget = TabsWidget()
-        left_v_lay.addWidget(self.tabs_widget)
+        self.left_wid.addWidget(self.tabs_widget)
         self.tree_menu = TreeMenu(self.main_win_item)
         self.tabs_widget.addTab(self.tree_menu, MainWin.folders_text)
         self.favs_menu = FavsMenu(self.main_win_item)
         self.tabs_widget.addTab(self.favs_menu, MainWin.favs_text)
-        self.tags_menu_btn = TagsBtn()
-        left_v_lay.addWidget(self.tags_menu_btn)
+
         self.tags_menu = TagsMenu()
-        left_v_lay.addWidget(self.tags_menu)
+        self.left_wid.addWidget(self.tags_menu)
 
         right_wid = QWidget()
         self.r_lay = QVBoxLayout()
@@ -203,7 +201,7 @@ class MainWin(WinBase):
         shadow.setColor(QColor(0, 0, 0, 190))
         self.fast_sort_wid.setGraphicsEffect(shadow)
 
-        self.splitter.addWidget(left_wid)
+        self.splitter.addWidget(self.left_wid)
         self.splitter.addWidget(right_wid)
         self.splitter.setStretchFactor(0, 0)
         self.splitter.setStretchFactor(1, 1)
@@ -213,8 +211,6 @@ class MainWin(WinBase):
         self.path_bar.update(self.main_win_item.main_dir)
         self.sort_bar.sort_menu_update()
         self.tabs_widget.setCurrentIndex(1)
-        self.toggle_tags_menu()
-        self.tags_menu_btn.click_cmd()
 
         self.scroll_up = ScrollUpBtn(self)
         self.scroll_up.clicked.connect(lambda: self.grid.verticalScrollBar().setValue(0))
@@ -247,8 +243,6 @@ class MainWin(WinBase):
         self.favs_menu.load_st_grid.connect(lambda: self.load_st_grid())
         self.favs_menu.new_history_item.connect(lambda dir: self.top_bar.new_history_item(dir))
         self.favs_menu.open_in_new_win.connect(lambda dir: self.open_in_new_win((dir, None)))
-
-        self.tags_menu_btn.clicked_.connect(lambda: self.toggle_tags_menu())
 
         self.tags_menu.filter_thumbs.connect(lambda: self.grid.filter_thumbs())
         self.tags_menu.rearrange_thumbs.connect(lambda: self.grid.rearrange_thumbs())
@@ -383,12 +377,6 @@ class MainWin(WinBase):
         self.grid.resize_thumbs()
         self.grid.rearrange_thumbs()
 
-    def toggle_tags_menu(self):
-        if self.tags_menu.isHidden():
-            self.tags_menu.show()
-        else:
-            self.tags_menu.hide()
-
     def open_in_new_win(self, data: tuple):
         new_main_dir, go_to = data
         new_win = MainWin(new_main_dir)
@@ -443,7 +431,6 @@ class MainWin(WinBase):
         self.sort_bar.sort_frame.setDisabled(value)
         self.sort_bar.slider.setDisabled(value)
         self.tags_menu.setDisabled(value)
-        self.tags_menu_btn.setDisabled(value)
 
     def load_st_grid(self):
         """
