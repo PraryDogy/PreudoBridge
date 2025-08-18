@@ -251,7 +251,8 @@ class ImgViewWin(WinBase):
         if pixmap:
             self.img_wid.set_image(pixmap)
         else:
-            self.show_text(self.loading_text)
+            t = f"{os.path.basename(self.current_path)}\n{self.loading_text}"
+            self.show_text(t)
         self.load_image()
 
     def show_text(self, text: str):
@@ -309,7 +310,7 @@ class ImgViewWin(WinBase):
             self.current_thumb: Thumb = self.url_to_wid.get(self.current_path)
             self.current_thumb.text_changed.connect(self.set_title)
         except RuntimeError:
-            print("img view > switch img > disconnect wid > no widget")
+            print("OK, img view > switch img > disconnect wid > no widget")
 
         if not self.is_selection:
             self.move_to_wid.emit(self.current_thumb)
