@@ -237,9 +237,6 @@ class JsonData:
     @classmethod
     def setup_icons(cls):
         os.makedirs(Static.ICONS_DIR, exist_ok=True)
-        from system.utils import Utils
-        path = Utils.get_icon_path(Static.FOLDER_TYPE, Static.ICONS_DIR)
-        shutil.copyfile(Static.FOLDER_SVG, path)
 
     @classmethod
     def do_before_start(cls):

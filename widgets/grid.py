@@ -191,11 +191,14 @@ class Thumb(BaseItem, QFrame):
         cls.corner = ThumbData.CORNER[ind]
 
     def set_svg_icon(self):
-        if self.src.count(os.sep) == 2:
-            path = Static.HDD_SVG
+        if self.type_ == Static.FOLDER_TYPE:
+            if self.src.count(os.sep) == 2:
+                icon_path = Static.HDD_SVG
+            else:
+                icon_path = Static.FOLDER_SVG
         else:
-            path = Utils.get_icon_path(self.type_, Static.ICONS_DIR)
-        self.img_wid.load(path)
+            icon_path = Utils.get_icon_path(self.type_, Static.ICONS_DIR)
+        self.img_wid.load(icon_path)
         self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
 
     def set_pixmap(self, pixmap: QPixmap):
