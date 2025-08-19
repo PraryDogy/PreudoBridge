@@ -124,33 +124,24 @@ class Utils:
         return hashlib.md5(filename.encode('utf-8')).hexdigest()
     
     @classmethod
-    def get_generic_icon_path(cls, ext: str, generic_icons_dir: str):
-        """
-        Возвращает путь к файлу svg иконки
-        ext: расширение файла .jpeg, ...
-        generic_icons_dir: папка с иконками
-        """
-        if "." in ext:
-            new_ext = ext.replace(".", "_")
-        else:
-            new_ext = f"_{ext}"
-        filename = f"{new_ext}.svg"
-        return os.path.join(generic_icons_dir, filename)
+    def get_icon_path(cls, ext: str, icons_dir: str):
+        ext = ext.replace(".", "")
+        ext = ext + ".svg"
+        return os.path.join(icons_dir, ext)
 
     @classmethod
-    def create_generic_icon(cls, file_extension: str, icon_path: str, svg_file_path: str):
+    def create_icon(cls, ext: str, icon_path: str, file_svg: str):
         """
-        file_extension: ".jpg", ".png", и т.п.
-        svg_file_path: путь к стандартной svg иконке без текста
-        Возвращает: path to svg_icon
+        icon_path: куда будет сохранена svg иконка
+        file_svg: пустой svg, на который будет нанесен текст
         """
-        renderer = QSvgRenderer(svg_file_path)
+        renderer = QSvgRenderer(file_svg)
         width = 133
         height = 133
 
         # удаляем точку, делаем максимум 4 символа и капс
         # для размещения текста на иконку
-        new_text = file_extension.replace(".", "")[:4].upper()
+        new_text = ext.replace(".", "")[:4].upper()
 
         # Создаем генератор SVG
         generator = QSvgGenerator()

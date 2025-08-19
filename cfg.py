@@ -12,7 +12,7 @@ class Static:
     USER_SETTINGS_DIR = os.path.expanduser('~/Library/Application Support')
     APP_SUPPORT_APP = os.path.join(USER_SETTINGS_DIR, APP_NAME)
 
-    GENERIC_ICONS_DIR = os.path.join(APP_SUPPORT_APP, "icons")
+    ICONS_DIR = os.path.join(APP_SUPPORT_APP, "icons")
     JSON_FILE = os.path.join(APP_SUPPORT_APP, 'cfg.json')
 
     USER_APPS_DIR = "/Applications"
@@ -204,22 +204,17 @@ class JsonData:
 
     @classmethod
     def read_json_data(cls) -> dict:
-
         if os.path.exists(Static.JSON_FILE):
-
             with open(Static.JSON_FILE, 'r', encoding="utf-8") as f:
-
                 try:
                     json_data: dict = json.load(f)
                 
                     for k, v in json_data.items():
                         if hasattr(cls, k):
                             setattr(cls, k, v)
-
                 except json.JSONDecodeError:
                     print("Ошибка чтения json")
                     cls.write_config()
-
         else:
             print("файла cfg.json не существует")
             cls.write_config()
@@ -229,7 +224,7 @@ class JsonData:
         new_data: dict = {
             attr: getattr(cls, attr)
             for attr in cls.get_data()
-}
+        }
 
         try:
             with open(Static.JSON_FILE, 'w', encoding="utf-8") as f:
@@ -241,25 +236,20 @@ class JsonData:
             return False
 
     @classmethod
-    def setup_generic_icons(cls):
-        os.makedirs(Static.GENERIC_ICONS_DIR, exist_ok=True)
-        for entry in os.scandir(Static.GENERIC_ICONS_DIR):
-            if entry.name.endswith(".svg"):
-                Dynamic.generic_icon_paths.append(entry.path)
-
+    def setup_icons(cls):
+        os.makedirs(Static.ICONS_DIR, exist_ok=True)
         from system.utils import Utils
-        path = Utils.get_generic_icon_path(Static.FOLDER_TYPE, Static.GENERIC_ICONS_DIR)
+        path = Utils.get_icon_path(Static.FOLDER_TYPE, Static.ICONS_DIR)
         shutil.copyfile(Static.FOLDER_SVG, path)
-        Dynamic.generic_icon_paths.append(path)
 
     @classmethod
     def do_before_start(cls):
-        if not os.path.exists(Static.GENERIC_ICONS_DIR):
+        if not os.path.exists(Static.ICONS_DIR):
             return
         if JsonData.generic_icons_removed == False:
             pattern = re.compile(r'^_[^/\\]+\.svg$')
 
-            for entry in os.scandir(Static.GENERIC_ICONS_DIR):
+            for entry in os.scandir(Static.ICONS_DIR):
                 if not pattern.fullmatch(entry.name):
                     os.remove(entry.path)
                     print(f"Removed: {entry.name}")
@@ -276,11 +266,9 @@ class JsonData:
         except Exception as e:
             print("do before start", e)
 
-        cls.setup_generic_icons()
+        cls.setup_icons()
 
 class Dynamic:
     rating_filter: int = 0
     pixmap_size_ind = 0
-    generic_icon_paths: list[str] = []
-    reading = False
     image_apps: dict[str, str] = {}

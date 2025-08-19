@@ -1,3 +1,5 @@
+import os
+
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
@@ -111,9 +113,9 @@ class GridSearch(Grid):
             thumb.set_pixmap_storage(base_item.get_pixmap_storage())
             thumb.set_pixmap(base_item.get_pixmap_storage())
         else:
-            icon_path = Utils.get_generic_icon_path(base_item.type_, Static.GENERIC_ICONS_DIR)
-            if icon_path not in Dynamic.generic_icon_paths:
-                Utils.create_generic_icon(base_item.type_, icon_path, Static.FILE_SVG)
+            icon_path = Utils.get_icon_path(base_item.type_, Static.ICONS_DIR)
+            if not os.path.exists(icon_path):
+                Utils.create_icon(base_item.type_, icon_path, Static.FILE_SVG)
             thumb.set_generic_icon()
 
         self.add_widget_data(thumb, self.row, self.col)

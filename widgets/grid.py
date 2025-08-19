@@ -194,7 +194,7 @@ class Thumb(BaseItem, QFrame):
         if self.src.count(os.sep) == 2:
             path = Static.HDD_SVG
         else:
-            path = Utils.get_generic_icon_path(self.type_, Static.GENERIC_ICONS_DIR)
+            path = Utils.get_icon_path(self.type_, Static.ICONS_DIR)
         self.img_wid.load(path)
         self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
 

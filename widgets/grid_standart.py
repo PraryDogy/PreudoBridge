@@ -53,7 +53,7 @@ class GridStandart(Grid):
         finder_items_task.sigs.finished_.connect(lambda base_items: self.finalize_finder_items(base_items))
         UThreadPool.start(finder_items_task)
 
-    def finalize_finder_items(self, base_items: tuple[list[BaseItem]]):
+    def finalize_finder_items(self, base_items: list[BaseItem]):
         """
         Обходит список BaseItem, формируя сетку виджетов Thumb.     
         Делает текст зеленым, если BaseItem есть в списке new_items
@@ -85,14 +85,6 @@ class GridStandart(Grid):
             self.grid_layout.addWidget(no_images, 0, 0)
             self.loading_lbl.hide()
             return
-
-        # создаем иконки на основе расширений, если не было
-        exts = {i.type_ for i in base_items}
-        for ext in exts:
-            icon_path = Utils.get_generic_icon_path(ext, Static.GENERIC_ICONS_DIR)
-            if icon_path not in Dynamic.generic_icon_paths:
-                path_to_svg = Utils.create_generic_icon(ext, icon_path, Static.FILE_SVG)
-                Dynamic.generic_icon_paths.append(path_to_svg)
 
         # испускаем сигнал в MainWin для обновления нижнего бара
         # для отображения "всего элементов"
