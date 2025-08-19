@@ -116,7 +116,7 @@ class GridSearch(Grid):
             icon_path = Utils.get_icon_path(base_item.type_, Static.ICONS_DIR)
             if not os.path.exists(icon_path):
                 Utils.create_icon(base_item.type_, icon_path, Static.FILE_SVG)
-            thumb.set_generic_icon()
+            thumb.set_svg_icon()
 
         self.add_widget_data(thumb, self.row, self.col)
         self.grid_layout.addWidget(thumb, self.row, self.col)

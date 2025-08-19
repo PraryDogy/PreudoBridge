@@ -190,7 +190,7 @@ class Thumb(BaseItem, QFrame):
         cls.thumb_h = ThumbData.THUMB_H[ind]
         cls.corner = ThumbData.CORNER[ind]
 
-    def set_generic_icon(self):
+    def set_svg_icon(self):
         if self.src.count(os.sep) == 2:
             path = Static.HDD_SVG
         else:
@@ -712,7 +712,7 @@ class Grid(UScrollArea):
         thumb.set_properties()
         thumb.set_widget_size()
         thumb.set_no_frame()
-        thumb.set_generic_icon()
+        thumb.set_svg_icon()
         self.add_widget_data(thumb, self.row, self.col)
         self.grid_layout.addWidget(thumb, self.row, self.col)
 
