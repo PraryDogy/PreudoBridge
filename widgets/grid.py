@@ -399,7 +399,6 @@ class Grid(UScrollArea):
             thumb.rating_wid.set_loading(thumb.size)
             thumb.set_transparent_frame(0.5)
 
-        thumbs = [t for t in thumbs if t not in self.processed_thumbs]
         if thumbs:
             for task in self.load_images_tasks:
                 task.set_should_run(False)
@@ -675,7 +674,7 @@ class Grid(UScrollArea):
         """
         thumbs: list[Thumb] = []
         for thumb in self.url_to_wid.values():
-            if not thumb.visibleRegion().isEmpty():
+            if not thumb.visibleRegion().isEmpty() and thumb not in self.processed_thumbs:
                     thumbs.append(thumb)
         if thumbs:
             self.start_load_images_task(thumbs)
