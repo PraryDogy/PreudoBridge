@@ -19,7 +19,6 @@ class Static:
 
     SCRIPTS_DIR = "scripts"
     REVEAL_SCPT = os.path.join(SCRIPTS_DIR, "reveal_files.scpt")
-    REMOVE_FILES_SCPT = os.path.join(SCRIPTS_DIR, "remove_files.scpt")
 
     IMAGES_DIR = "images"
     FILE_SVG = os.path.join(IMAGES_DIR, "file.svg")
@@ -56,8 +55,6 @@ class Static:
     DB_FILENAME = ".preudobridge.db"
     FOLDER_TYPE: str = "folder"
     VOLUMES: str = "Volumes"
-    USERS: str = "Users"
-    SVG = "SVG"
 
     GRAY_GLOBAL = "rgba(128, 128, 128, 0.95)"
     BLUE_GLOBAL = "rgb(46, 89, 203)"
