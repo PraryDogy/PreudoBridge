@@ -73,7 +73,7 @@ class About(QGroupBox):
         h_lay.setContentsMargins(0, 0, 0, 0)
         self.setLayout(h_lay)
 
-        svg_ = USvgSqareWidget(Static.ICON_SVG, About.svg_size)
+        svg_ = USvgSqareWidget(Static.APP_ICON_SVG, About.svg_size)
         h_lay.addWidget(svg_)
 
         descr = QLabel(About.text_)

@@ -351,7 +351,7 @@ class TopBar(QWidget):
 
         level_up_btn = BarTopBtn()
         level_up_btn.clicked.connect(self.level_up.emit)
-        level_up_btn.load(Static.FOLDER_UP_SVG)
+        level_up_btn.load(Static.LVL_UP_SVG)
         self.main_lay.addWidget(level_up_btn)
 
         self.main_lay.addStretch(1)
