@@ -171,7 +171,6 @@ class JsonData:
     show_hidden = False
     go_to_now = False
     dark_mode = None    
-    generic_icons_removed = False
     show_text = False
     app_names = [
         "preview",
@@ -244,17 +243,7 @@ class JsonData:
 
     @classmethod
     def do_before_start(cls):
-        if not os.path.exists(Static.ICONS_DIR):
-            return
-        if JsonData.generic_icons_removed == False:
-            pattern = re.compile(r'^_[^/\\]+\.svg$')
-
-            for entry in os.scandir(Static.ICONS_DIR):
-                if not pattern.fullmatch(entry.name):
-                    os.remove(entry.path)
-                    print(f"Removed: {entry.name}")
-
-            JsonData.generic_icons_removed = True
+        ...
 
     @classmethod
     def init(cls):
