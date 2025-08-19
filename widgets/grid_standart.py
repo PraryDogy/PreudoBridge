@@ -102,6 +102,13 @@ class GridStandart(Grid):
         self._batch_limit = 50
         self._thumb_items = base_items
 
+        def create_icons():
+            exts = {i.type_ for i in self._thumb_items}
+            for i in exts:
+                icon_path = Utils.get_icon_path(i, Static.ICONS_DIR)
+                if not os.path.exists(icon_path):
+                    Utils.create_icon(i, icon_path, Static.FILE_SVG)
+
         def add_batch():
             count = 0
             while self._thumb_index < len(self._thumb_items) and count < self._batch_limit:
@@ -129,6 +136,7 @@ class GridStandart(Grid):
                 self._thumb_index = 0
                 self._post_grid_selection()
 
+        create_icons()
         add_batch()
 
     def _post_grid_selection(self):
