@@ -124,9 +124,7 @@ class Utils:
     
     @classmethod
     def get_icon_path(cls, ext: str, icons_dir: str):
-        ext = ext.replace(".", "")
-        ext = ext + ".svg"
-        return os.path.join(icons_dir, ext)
+        return os.path.join(icons_dir, ext.lower().lstrip('.') + '.svg')
 
     @classmethod
     def create_icon(cls, ext: str, icon_path: str, file_svg: str):
