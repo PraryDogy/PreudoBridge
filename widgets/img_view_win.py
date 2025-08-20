@@ -1,7 +1,7 @@
 import gc
 import os
 
-import sqlalchemy
+import copy
 from PyQt5.QtCore import QEvent, QPoint, QSize, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import (QColor, QContextMenuEvent, QKeyEvent, QMouseEvent,
                          QPainter, QPaintEvent, QPixmap,
@@ -301,9 +301,13 @@ class ImgViewWin(WinBase):
         total_images: int = len(self.urls)
         new_index: int = (current_index + offset) % total_images
         self.current_path: str = self.urls[new_index]
-        self.current_thumb.text_changed.disconnect()
-        self.current_thumb: Thumb = self.url_to_wid.get(self.current_path)
-        self.current_thumb.text_changed.connect(self.set_title)
+        try:
+            self.current_thumb.text_changed.disconnect()
+            self.current_thumb: Thumb = self.url_to_wid.get(self.current_path)
+            self.current_thumb.text_changed.connect(self.set_title)
+        except RuntimeError:
+            print("img view > switch img runtime err")
+            return
         if not self.is_selection:
             self.move_to_wid.emit(self.current_thumb)
             self.move_to_url.emit(self.current_path)
