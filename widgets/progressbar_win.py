@@ -48,7 +48,7 @@ class ProgressbarWin(MinMaxDisabledWin):
         self.progressbar.setFixedWidth(self.progressbar_width)
         progressbar_lay.addWidget(self.progressbar)
 
-        self.cancel_btn = USvgSqareWidget(Static.CLEAR_SVG, 16)
+        self.cancel_btn = USvgSqareWidget(Static._INTERNAL_ICONS.get("clear.svg"), 16)
         self.cancel_btn.mouseReleaseEvent = self.cancel_cmd
         progressbar_lay.addWidget(self.cancel_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 

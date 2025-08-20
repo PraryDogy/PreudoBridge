@@ -596,7 +596,7 @@ class GridList(QTableView):
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
 
-        img_ = QPixmap(Static.COPY_FILES_SVG)
+        img_ = QPixmap(Static._INTERNAL_ICONS.get("files.svg"))
         self.drag.setPixmap(img_)
         
         urls = [

@@ -9,47 +9,17 @@ class Static:
     APP_NAME = "PreudoBridge"
     APP_VER = 2.9
 
-    USER_SETTINGS_DIR = os.path.expanduser('~/Library/Application Support')
-    APP_SUPPORT_APP = os.path.join(USER_SETTINGS_DIR, APP_NAME)
+    APP_SUPPORT = os.path.join(os.path.expanduser('~/Library/Application Support'), APP_NAME)
+    EXTERNAL_ICONS = os.path.join(APP_SUPPORT, "icons")
+    JSON_FILE = os.path.join(APP_SUPPORT, 'cfg.json')
+    REVEAL_SCPT = "scripts/reveal_files.scpt"
 
-    ICONS_DIR = os.path.join(APP_SUPPORT_APP, "icons")
-    JSON_FILE = os.path.join(APP_SUPPORT_APP, 'cfg.json')
+    INTERNAL_ICONS = "icons"
 
-    USER_APPS_DIR = "/Applications"
-
-    SCRIPTS_DIR = "scripts"
-    REVEAL_SCPT = os.path.join(SCRIPTS_DIR, "reveal_files.scpt")
-
-    IMAGES_DIR = "images"
-    FILE_SVG = os.path.join(IMAGES_DIR, "file.svg")
-    FOLDER_SVG = os.path.join(IMAGES_DIR, "folder.svg")
-    HDD_SVG = os.path.join(IMAGES_DIR, "hdd.svg")
-    COMP_SVG = os.path.join(IMAGES_DIR, "computer.svg")
-    GOTO_SVG = os.path.join(IMAGES_DIR, "goto.svg")
-    ZOOM_OUT_SVG = os.path.join(IMAGES_DIR, "zoom_out.svg")
-    ZOOM_IN_SVG = os.path.join(IMAGES_DIR, "zoom_in.svg")
-    ZOOM_FIT_SVG = os.path.join(IMAGES_DIR, "zoom_fit.svg")
-    CLOSE_SVG = os.path.join(IMAGES_DIR, "zoom_close.svg")
-    PREV_SVG = os.path.join(IMAGES_DIR, "prev.svg")
-    NEXT_SVG = os.path.join(IMAGES_DIR, "next.svg")
-    APP_ICON_SVG = os.path.join(IMAGES_DIR, "icon.svg")
-    CLEAR_SVG = os.path.join(IMAGES_DIR, "clear.svg")
-    LVL_UP_SVG = os.path.join(IMAGES_DIR, "folder_up.svg")
-    GRID_VIEW_SVG = os.path.join(IMAGES_DIR, "grid_view.svg")
-    LIST_VIEW_SVG = os.path.join(IMAGES_DIR, "list_view.svg")
-    NAVIGATE_BACK_SVG = os.path.join(IMAGES_DIR, "navigate_back.svg")
-    NAVIGATE_NEXT_SVG = os.path.join(IMAGES_DIR, "navigate_next.svg")
-    SETTINGS_SVG = os.path.join(IMAGES_DIR, "settings.svg")
-    COPY_FILES_SVG = os.path.join(IMAGES_DIR, "copy_files.svg")
-    WARNING_SVG = os.path.join(IMAGES_DIR, "warning.svg")
-    NEW_WIN_SVG = os.path.join(IMAGES_DIR, "new_win.svg")
-    QUESTION_SVG = os.path.join(IMAGES_DIR, "question.svg")
-    SYSTEM_THEME_SVG = os.path.join(IMAGES_DIR, "system_theme.svg")
-    DARK_THEME_SVG = os.path.join(IMAGES_DIR, "dark_theme.svg")
-    LIGHT_THEME_SVG = os.path.join(IMAGES_DIR, "light_theme.svg")
-    FAST_SORT_SVG = os.path.join(IMAGES_DIR, "fast_sort.svg")
-    UPDATE_SVG = os.path.join(IMAGES_DIR, "update.svg")
-    LOADING_SVG = os.path.join(IMAGES_DIR, "loading.svg")
+    _INTERNAL_ICONS = {
+        entry.name: entry.path
+        for entry in os.scandir(INTERNAL_ICONS)
+    }
 
     DB_FILENAME = ".preudobridge.db"
     FOLDER_TYPE: str = "folder"
@@ -229,7 +199,7 @@ class JsonData:
 
     @classmethod
     def setup_icons(cls):
-        os.makedirs(Static.ICONS_DIR, exist_ok=True)
+        os.makedirs(Static.EXTERNAL_ICONS, exist_ok=True)
 
     @classmethod
     def do_before_start(cls):
@@ -237,7 +207,7 @@ class JsonData:
 
     @classmethod
     def init(cls):
-        os.makedirs(Static.APP_SUPPORT_APP, exist_ok=True)
+        os.makedirs(Static.APP_SUPPORT, exist_ok=True)
         cls.read_json_data()
         cls.write_config()
         try:

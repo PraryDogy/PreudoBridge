@@ -29,7 +29,7 @@ class GoToBtn(UFrame):
         h_lay.setSpacing(5)
         self.setLayout(h_lay)
 
-        self.go_btn = USvgSqareWidget(Static.GOTO_SVG, GoToBtn.svg_size)
+        self.go_btn = USvgSqareWidget(Static._INTERNAL_ICONS.get("go_to.svg"), GoToBtn.svg_size)
         h_lay.addWidget(self.go_btn)
 
         self.go_label = QLabel(GoToBtn.go_to_text)

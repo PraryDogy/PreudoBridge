@@ -193,11 +193,11 @@ class Thumb(BaseItem, QFrame):
     def set_svg_icon(self):
         if self.type_ == Static.FOLDER_TYPE:
             if self.src.count(os.sep) == 2:
-                icon_path = Static.HDD_SVG
+                icon_path = Static._INTERNAL_ICONS.get("hdd.svg")
             else:
-                icon_path = Static.FOLDER_SVG
+                icon_path = Static._INTERNAL_ICONS.get("folder.svg")
         else:
-            icon_path = Utils.get_icon_path(self.type_, Static.ICONS_DIR)
+            icon_path = Utils.get_icon_path(self.type_, Static.EXTERNAL_ICONS)
         self.img_wid.load(icon_path)
         self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
 
@@ -1148,7 +1148,7 @@ class Grid(UScrollArea):
             self.select_single_thumb(self.wid_under_mouse)
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
-        img_ = QPixmap(Static.COPY_FILES_SVG)
+        img_ = QPixmap(Static._INTERNAL_ICONS.get("files.svg"))
         self.drag.setPixmap(img_)
         urls = [QUrl.fromLocalFile(i.src) for i in self.selected_thumbs]        
         if urls:
