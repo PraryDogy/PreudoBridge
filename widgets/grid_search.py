@@ -183,11 +183,13 @@ class GridSearch(Grid):
     def closeEvent(self, a0):
         self.search_task.set_should_run(False)
         for i in self.cell_to_wid.values():
+            i.setParent(None)
             i.deleteLater()
         return super().closeEvent(a0)
 
     def deleteLater(self):
         self.search_task.set_should_run(False)
         for i in self.cell_to_wid.values():
+            i.setParent(None)
             i.deleteLater()
         return super().deleteLater()

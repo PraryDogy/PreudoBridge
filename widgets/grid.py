@@ -1332,6 +1332,7 @@ class Grid(UScrollArea):
         urls = [i.src for i in self.selected_thumbs]
         self.main_win_item.set_urls_to_select(urls)
         for i in self.cell_to_wid.values():
+            i.setParent(None)
             i.deleteLater()
         return super().deleteLater()
     
@@ -1341,5 +1342,6 @@ class Grid(UScrollArea):
         urls = [i.src for i in self.selected_thumbs]
         self.main_win_item.set_urls_to_select(urls)
         for i in self.cell_to_wid.values():
+            i.setParent(None)
             i.deleteLater()
         return super().closeEvent(a0)
