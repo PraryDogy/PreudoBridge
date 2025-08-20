@@ -196,8 +196,8 @@ class Thumb(BaseItem, QFrame):
                 icon_path = Static.INTERNAL_ICONS.get("hdd.svg")
             else:
                 icon_path = Static.INTERNAL_ICONS.get("folder.svg")
-        elif self.type_ in Static.test_icons:
-            icon_path = Static.test_icons.get(self.type_)
+        elif self.type_.lower() in Static.PRELOADED_ICONS:
+            icon_path = Static.PRELOADED_ICONS.get(self.type_)
         else:
             icon_path = Utils.get_icon_path(self.type_, Static.EXTERNAL_ICONS)
 

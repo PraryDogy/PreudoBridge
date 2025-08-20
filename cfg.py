@@ -101,17 +101,25 @@ class Static:
     word_ext  = [".doc", ".docx", ".dot", ".dotx", ".docm", ".dotm"]
     ppt_ext   = [".ppt", ".pptx", ".pptm", ".pot", ".potx", ".potm", ".pps", ".ppsx", ".ppsm"]
     pdf_ext   = [".pdf"]
-    archive_ext = [
-        ".zip", ".rar", ".7z", ".tar", ".gz", ".bz2", ".xz", ".iso", ".cab", ".tgz", ".z"
-    ]
+    archive_ext = [".zip", ".rar", ".7z", ".tar", ".gz", ".bz2", ".xz", ".iso", ".cab", ".tgz", ".z"]
+    text_ext = [".txt", ".rtf", ".md", ".csv", ".log"]
+    db_ext    = [".db", ".sqlite", ".sqlite3", ".mdb", ".accdb"]
+    audio_ext = [".mp3", ".wav", ".ogg", ".flac", ".aac", ".m4a", ".wma"]
+    ai_ext = [".ai"]
+    indd_ext = [".indd"]
 
-    # словарь иконок
-    test_icons = {
-        **{ext: "icons/excel.svg" for ext in excel_ext},
-        **{ext: "icons/word.svg"  for ext in word_ext},
-        **{ext: "icons/ppt.svg"   for ext in ppt_ext},
-        **{ext: "icons/pdf.svg"   for ext in pdf_ext},
-        **{ext: "icons/archive.svg" for ext in archive_ext}
+
+    PRELOADED_ICONS = {
+        **{ext: "icons/excel.svg"   for ext in excel_ext},
+        **{ext: "icons/word.svg"    for ext in word_ext},
+        **{ext: "icons/ppt.svg"     for ext in ppt_ext},
+        **{ext: "icons/pdf.svg"     for ext in pdf_ext},
+        **{ext: "icons/archive.svg" for ext in archive_ext},
+        **{ext: "icons/text.svg"    for ext in text_ext},
+        **{ext: "icons/audio.svg"   for ext in audio_ext},
+        **{ext: "icons/ai.svg"      for ext in ai_ext},
+        **{ext: "icons/indd.svg"    for ext in indd_ext},
+        **{ext: "icons/db.svg"      for ext in db_ext},
     }
 
 
