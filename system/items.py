@@ -81,10 +81,11 @@ class BaseItem:
         self.src = EvloshUtils.norm_slash(self.src)
         self.filename = os.path.basename(self.src)
 
-        if os.path.isdir(self.src):
+        _, ext = os.path.splitext(self.src)
+        if not ext:
             self.type_ = Static.FOLDER_TYPE
         else:
-            _, self.type_ = os.path.splitext(self.src)
+            self.type_ = ext
 
         try:
             stat = os.stat(self.src)
