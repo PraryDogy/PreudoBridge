@@ -574,10 +574,7 @@ class LoadImagesTask(URunnable):
         self.process_stmt_list()
 
         Dbase.close_connection(self.conn)
-        try:
-            self.sigs.finished_.emit()
-        except RuntimeError as e:
-            Utils.print_error()
+        self.sigs.finished_.emit()
 
     def process_thumbs(self):
         """
@@ -589,8 +586,6 @@ class LoadImagesTask(URunnable):
         new_items: list[BaseItem] = []
 
         for base_item in self.base_items:
-            if not self.is_should_run():
-                return
             if base_item.type_ not in Static.ext_all:
                 any_base_item = AnyBaseItem(self.conn, base_item)
                 stmt = any_base_item.get_stmt()
@@ -609,6 +604,8 @@ class LoadImagesTask(URunnable):
                     new_items.append(base_item)
 
         for base_item in exists_items:
+            if not self.is_should_run():
+                return
             img_base_item = ImageBaseItem(self.conn, base_item)
             stmt, qimage = img_base_item.get_stmt_qimage()
             if qimage:
@@ -622,6 +619,8 @@ class LoadImagesTask(URunnable):
                 return
 
         for base_item in new_items:
+            if not self.is_should_run():
+                return
             img_base_item = ImageBaseItem(self.conn, base_item)
             self.sigs.set_loading.emit(base_item)
             stmt, qimage = img_base_item.get_stmt_qimage()

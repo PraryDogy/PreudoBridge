@@ -98,16 +98,13 @@ class RatingWidget(QLabel):
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
     
     def set_text(self, rating: int, type_: str, mod: int, size: int):
-        try:
-            self.setStyleSheet(
-                f"""
-                font-size: {FONT_SIZE}px;
-                color: {self.blue_color};
-                """
-            )
-            self._set_text(rating, type_, mod, size)
-        except Exception:
-            Utils.print_error()
+        self.setStyleSheet(
+            f"""
+            font-size: {FONT_SIZE}px;
+            color: {self.blue_color};
+            """
+        )
+        self._set_text(rating, type_, mod, size)
 
     def _set_text(self, rating: int, type_: str, mod: int, size: int):
         if rating > 0:
@@ -200,22 +197,17 @@ class Thumb(BaseItem, QFrame):
             icon_path = Static.PRELOADED_ICONS.get(self.type_)
         else:
             icon_path = Utils.get_icon_path(self.type_, Static.EXTERNAL_ICONS)
-
-
         self.img_wid.load(icon_path)
         self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
 
     def set_image(self, qimage: QImage):
-        try:
-            self.img_wid.deleteLater()
-            self.img_wid = QLabel()
-            pixmap = QPixmap.fromImage(qimage)
-            self.base_pixmap = pixmap
-            scaled_pixmap = ImageUtils.pixmap_scale(pixmap, Thumb.pixmap_size)
-            self.img_wid.setPixmap(scaled_pixmap)
-            self.img_frame_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
-        except RuntimeError:
-            print("OK, grid > set_pixmap > runtime error")
+        self.img_wid.deleteLater()
+        self.img_wid = QLabel()
+        pixmap = QPixmap.fromImage(qimage)
+        self.base_pixmap = pixmap
+        scaled_pixmap = ImageUtils.pixmap_scale(pixmap, Thumb.pixmap_size)
+        self.img_wid.setPixmap(scaled_pixmap)
+        self.img_frame_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
     def migrate_from_base_item(self, base_item: BaseItem):
         """
@@ -404,11 +396,18 @@ class Grid(UScrollArea):
                     thumb.set_transparent_frame(1.0)
                     self.processed_thumbs.append(thumb)
                 except RuntimeError as e:
-                    Utils.print_error()
+                    print("grid > set_thumb_image runtime err")
+                    for i in self.load_images_tasks:
+                        i.set_should_run(False)
 
         def set_loading(thumb: Thumb):
-            thumb.rating_wid.set_loading(thumb.size)
-            thumb.set_transparent_frame(0.5)
+            try:
+                thumb.rating_wid.set_loading(thumb.size)
+                thumb.set_transparent_frame(0.5)
+            except RuntimeError:
+                print("grid > set_loading runtime err")
+                for i in self.load_images_tasks:
+                    i.set_should_run(False)
 
         if thumbs:
             for task in self.load_images_tasks:
@@ -536,7 +535,7 @@ class Grid(UScrollArea):
                     if url.endswith(Static.ext_all)
                 }
                 is_selection = False
-                QTimer.singleShot(50, lambda: self.open_img_view(wid.src, url_to_wid, is_selection))
+                self.open_img_view(wid.src, url_to_wid, is_selection)
             elif wid.type_ == Static.FOLDER_TYPE:
                 self.new_history_item.emit(wid.src)
                 self.main_win_item.main_dir = wid.src
@@ -552,7 +551,7 @@ class Grid(UScrollArea):
             if url_to_wid:
                 is_selection = True
                 start_url = list(url_to_wid)[0]
-                QTimer.singleShot(50, lambda: self.open_img_view(start_url, url_to_wid, is_selection))
+                self.open_img_view(start_url, url_to_wid, is_selection)
 
             folders = [
                 i.src
