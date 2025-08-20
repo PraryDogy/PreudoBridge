@@ -196,8 +196,12 @@ class Thumb(BaseItem, QFrame):
                 icon_path = Static.INTERNAL_ICONS.get("hdd.svg")
             else:
                 icon_path = Static.INTERNAL_ICONS.get("folder.svg")
+        elif self.type_ in Static.test_icons:
+            icon_path = Static.test_icons.get(self.type_)
         else:
             icon_path = Utils.get_icon_path(self.type_, Static.EXTERNAL_ICONS)
+
+
         self.img_wid.load(icon_path)
         self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
 
