@@ -399,7 +399,7 @@ class Grid(UScrollArea):
             qimage = thumb.qimage
             if qimage:
                 try:
-                    QTimer.singleShot(50, lambda: thumb.set_image(qimage))
+                    thumb.set_image(qimage)
                     thumb.rating_wid.set_text(thumb.rating, thumb.type_, thumb.mod, thumb.size)
                     thumb.set_transparent_frame(1.0)
                     self.processed_thumbs.append(thumb)
@@ -1338,6 +1338,8 @@ class Grid(UScrollArea):
             i.set_should_run(False)
         urls = [i.src for i in self.selected_thumbs]
         self.main_win_item.set_urls_to_select(urls)
+        for i in self.cell_to_wid.values():
+            i.deleteLater()
         return super().deleteLater()
     
     def closeEvent(self, a0):
@@ -1345,4 +1347,6 @@ class Grid(UScrollArea):
             i.set_should_run(False)
         urls = [i.src for i in self.selected_thumbs]
         self.main_win_item.set_urls_to_select(urls)
+        for i in self.cell_to_wid.values():
+            i.deleteLater()
         return super().closeEvent(a0)
