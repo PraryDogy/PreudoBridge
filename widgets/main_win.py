@@ -238,13 +238,13 @@ class MainWin(WinBase):
         app: QApplication = QApplication.instance()
         if JsonData.dark_mode is None:
             app.setPalette(QPalette())
-            app.setStyle(Static.theme_macintosh)
+            app.setStyle("macintosh")
         elif JsonData.dark_mode:
             app.setPalette(UPallete.dark())
-            app.setStyle(Static.theme_fusion)
+            app.setStyle("Fusion")
         else:
             app.setPalette(UPallete.light())
-            app.setStyle(Static.theme_fusion)
+            app.setStyle("Fusion")
         
         if not MainWin.first_load:
             self.grid.reload_rubber()

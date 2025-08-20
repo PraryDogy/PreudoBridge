@@ -28,6 +28,8 @@ class Static:
     PARAGRAPH_SEP = "\u2029" # символ PyQt5, который равен новой строке
     LINE_FEED  = "\u000a" # символ PyQt5, который равен новой строке
 
+    hidden_file_syms: tuple[str] = (".", "~$", "$")
+
     ext_jpeg = (
         ".jpg", ".JPG",
         ".jpeg", ".JPEG",
@@ -94,10 +96,6 @@ class Static:
         *ext_raw,
         *ext_video,
     )
-
-    hidden_file_syms: tuple[str] = (".", "~$", "$")
-    theme_macintosh = "macintosh"
-    theme_fusion = "Fusion"
 
 
 class ThumbData:
