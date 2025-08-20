@@ -101,13 +101,17 @@ class Static:
     word_ext  = [".doc", ".docx", ".dot", ".dotx", ".docm", ".dotm"]
     ppt_ext   = [".ppt", ".pptx", ".pptm", ".pot", ".potx", ".potm", ".pps", ".ppsx", ".ppsm"]
     pdf_ext   = [".pdf"]
+    archive_ext = [
+        ".zip", ".rar", ".7z", ".tar", ".gz", ".bz2", ".xz", ".iso", ".cab", ".tgz", ".z"
+    ]
 
     # словарь иконок
     test_icons = {
         **{ext: "icons/excel.svg" for ext in excel_ext},
         **{ext: "icons/word.svg"  for ext in word_ext},
         **{ext: "icons/ppt.svg"   for ext in ppt_ext},
-        # **{ext: "icons/pdf.svg"   for ext in pdf_ext},
+        **{ext: "icons/pdf.svg"   for ext in pdf_ext},
+        **{ext: "icons/archive.svg" for ext in archive_ext}
     }
 
 
