@@ -105,8 +105,8 @@ class Static:
     # словарь иконок
     test_icons = {
         **{ext: "icons/excel.svg" for ext in excel_ext},
-        # **{ext: "icons/word.svg"  for ext in word_ext},
-        # **{ext: "icons/ppt.svg"   for ext in ppt_ext},
+        **{ext: "icons/word.svg"  for ext in word_ext},
+        **{ext: "icons/ppt.svg"   for ext in ppt_ext},
         # **{ext: "icons/pdf.svg"   for ext in pdf_ext},
     }
 
