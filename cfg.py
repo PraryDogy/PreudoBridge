@@ -107,6 +107,7 @@ class Static:
     audio_ext = [".mp3", ".wav", ".ogg", ".flac", ".aac", ".m4a", ".wma"]
     ai_ext = [".ai"]
     indd_ext = [".indd"]
+    # app, dmg, pkg
 
 
     PRELOADED_ICONS = {

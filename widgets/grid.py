@@ -284,9 +284,12 @@ class Thumb(BaseItem, QFrame):
         )
 
     def set_transparent_frame(self, value: float):
-        effect = QGraphicsOpacityEffect(self)
-        effect.setOpacity(value)
-        self.setGraphicsEffect(effect)
+        try:
+            effect = QGraphicsOpacityEffect(self)
+            effect.setOpacity(value)
+            self.setGraphicsEffect(effect)
+        except RuntimeError:
+            print("OK, widgets > grid >thumb set transparent, runtime err ")
 
 
 class Grid(UScrollArea):

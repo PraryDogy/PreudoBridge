@@ -73,7 +73,7 @@ MAIN_FILES = ["start.py"] # SINGLE OR MULTIPLE PYTHON FILES
 
 
 DATA_FILES = [
-    include_files("images"),
+    include_files("icons"),
     include_files("scripts"),
     ]
 
