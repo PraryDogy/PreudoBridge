@@ -70,8 +70,8 @@ class BaseItem:
         self.mod: float = None
         self.birth: int = None
         self.size: int = None
-        self._pixmap_storage: QPixmap = None
-        self._qimage_storage: QImage = None
+        self.base_pixmap: QPixmap = None
+        self.qimage: QImage = None
 
     def set_properties(self):
         """
@@ -98,25 +98,7 @@ class BaseItem:
             self.size = 0
         # Поправка старой системы рейтинга, когда рейтинг был двузначным
         self.rating = self.rating % 10
-
-    def set_pixmap_storage(self, pixmap: QPixmap):
-        """
-        Сохраняет QPixmap, переданный, например, из дополнительного потока в основной.
-        """
-        self._pixmap_storage = pixmap
-
-    def get_pixmap_storage(self):
-        """
-        Возвращает ранее сохранённый QPixmap.
-        """
-        return self._pixmap_storage
     
-    def get_qimage_storage(self):
-        return self._qimage_storage
-    
-    def set_qimage_storage(self, qimage: QImage):
-        self._qimage_storage = qimage
-
     @staticmethod
     def check_sortitem_attrs():
         sort_attrs = SortItem().get_attrs()

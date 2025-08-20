@@ -109,8 +109,8 @@ class GridSearch(Grid):
         thumb.set_widget_size()
         thumb.set_no_frame()
 
-        if base_item.get_qimage_storage():
-            thumb.set_image(base_item.get_qimage_storage())
+        if base_item.qimage:
+            thumb.set_image(base_item.qimage)
         else:
             icon_path = Utils.get_icon_path(base_item.type_, Static.EXTERNAL_ICONS)
             if not os.path.exists(icon_path):

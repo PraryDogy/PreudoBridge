@@ -9,7 +9,7 @@ import numpy as np
 import sqlalchemy
 from PIL import Image
 from PyQt5.QtCore import QObject, QTimer, pyqtSignal
-from PyQt5.QtGui import QPixmap, QImage
+from PyQt5.QtGui import QImage
 from PyQt5.QtTest import QTest
 from sqlalchemy.exc import IntegrityError, OperationalError
 
@@ -271,27 +271,21 @@ class SearchTask(URunnable):
     def task(self):
         self.setup_search()
         self.scandir_recursive()
-        
         missed_files_list: list[str] = []
-
         if isinstance(self.search_item.get_content(), list):
             if self.is_should_run():
-
                 no_ext_list = [
                     os.path.splitext(i)[0]
                     for i in self.search_item.get_content()
                 ]
-
                 for i in no_ext_list:
                     if i not in self.found_files_list:
                         missed_files_list.append(i)
-
         try:
             self.sigs.finished_.emit(missed_files_list)
         except RuntimeError as e:
             Utils.print_error()
             self.set_should_run(False)
-
 
     def setup_search(self):
         if isinstance(self.search_item.get_content(), list):
@@ -392,21 +386,16 @@ class SearchTask(URunnable):
     def scandir_recursive(self):
         # Инициализируем список с корневым каталогом
         dirs_list = [self.main_win_item.main_dir]
-
         while dirs_list:
             current_dir = dirs_list.pop()
-
             while self.pause:
                 QTest.qSleep(SearchTask.sleep_ms)
                 if not self.is_should_run():
                     return
-
             if not self.is_should_run():
                 return
-
             if not os.path.exists(current_dir):
                 continue
-
             try:
                 # Сканируем текущий каталог и добавляем новые пути в стек
                 self.scan_current_dir(current_dir, dirs_list)
@@ -443,7 +432,7 @@ class SearchTask(URunnable):
             img_array = ReadImage.read_image(entry.path)
             img_array = FitImage.start(img_array, ThumbData.DB_IMAGE_SIZE)
             qimage = ImageUtils.qimage_from_array(img_array)
-            base_item.set_qimage_storage(qimage)
+            base_item.qimage = qimage
         try:
             self.sigs.new_widget.emit(base_item)
             QTest.qSleep(SearchTask.new_wid_sleep_ms)
@@ -552,7 +541,7 @@ class _LoadImagesSigs(QObject):
 
 
 class LoadImagesTask(URunnable):
-    def __init__(self, main_win_item: MainWinItem, thumbs: list[BaseItem]):
+    def __init__(self, main_win_item: MainWinItem, base_items: list[BaseItem]):
         """
         URunnable   
         Сортирует список Thumb по размеру по возрастанию для ускорения загрузки
@@ -562,9 +551,9 @@ class LoadImagesTask(URunnable):
         self.sigs = _LoadImagesSigs()
         self.main_win_item = main_win_item
         self.stmt_list: list[sqlalchemy.Insert | sqlalchemy.Update] = []
-        self.thumbs = thumbs
+        self.base_items = base_items
         key_ = lambda x: x.size
-        self.thumbs.sort(key=key_)
+        self.base_items.sort(key=key_)
 
     def task(self):
         """
@@ -599,11 +588,11 @@ class LoadImagesTask(URunnable):
         exists_items: list[BaseItem] = []
         new_items: list[BaseItem] = []
 
-        for thumb in self.thumbs:
+        for base_item in self.base_items:
             if not self.is_should_run():
                 return
-            if thumb.type_ not in Static.ext_all:
-                any_base_item = AnyBaseItem(self.conn, thumb)
+            if base_item.type_ not in Static.ext_all:
+                any_base_item = AnyBaseItem(self.conn, base_item)
                 stmt = any_base_item.get_stmt()
 
                 # if thumb.type_ == ".svg":
@@ -614,34 +603,34 @@ class LoadImagesTask(URunnable):
                 if stmt is not None:
                     self.stmt_list.append(stmt)
             else:
-                if self._is_exists(thumb):
-                    exists_items.append(thumb)
+                if self._is_exists(base_item):
+                    exists_items.append(base_item)
                 else:
-                    new_items.append(thumb)
+                    new_items.append(base_item)
 
-        for thumb in exists_items:
-            img_base_item = ImageBaseItem(self.conn, thumb)
+        for base_item in exists_items:
+            img_base_item = ImageBaseItem(self.conn, base_item)
             stmt, qimage = img_base_item.get_stmt_qimage()
             if qimage:
-                thumb.set_qimage_storage(qimage)
+                base_item.qimage = qimage
             if stmt is not None:
                 self.stmt_list.append(stmt)
             try:
-                self.sigs.update_thumb.emit(thumb)
+                self.sigs.update_thumb.emit(base_item)
             except (TypeError, RuntimeError, TypeError) as e:
                 Utils.print_error()
                 return
 
-        for thumb in new_items:
-            img_base_item = ImageBaseItem(self.conn, thumb)
-            self.sigs.set_loading.emit(thumb)
+        for base_item in new_items:
+            img_base_item = ImageBaseItem(self.conn, base_item)
+            self.sigs.set_loading.emit(base_item)
             stmt, qimage = img_base_item.get_stmt_qimage()
             if qimage:
-                thumb.set_qimage_storage(qimage)
+                base_item.qimage = qimage
             if stmt is not None:
                 self.stmt_list.append(stmt)
             try:
-                self.sigs.update_thumb.emit(thumb)
+                self.sigs.update_thumb.emit(base_item)
             except (TypeError, RuntimeError, TypeError) as e:
                 Utils.print_error()
                 return
@@ -669,7 +658,7 @@ class _LoadImgSigs(QObject):
 
 class LoadImgTask(URunnable):
     cache_limit = 15
-    cached_images: dict[str, QPixmap] = {}
+    cached_images: dict[str, QImage] = {}
 
     def __init__(self, src: str):
         super().__init__()
@@ -684,13 +673,13 @@ class LoadImgTask(URunnable):
                 qimage = None
             else:
                 qimage = ImageUtils.qimage_from_array(img_array)
-                # self.cached_images[self.src] = pixmap
+                self.cached_images[self.src] = qimage
             # del img_array
             # gc.collect()
-        # else:
-        #     pixmap = self.cached_images.get(self.src)
-        # if len(self.cached_images) > self.cache_limit:
-        #     self.cached_images.pop(list(self.cached_images)[0])
+        else:
+            qimage = self.cached_images.get(self.src)
+        if len(self.cached_images) > self.cache_limit:
+            self.cached_images.pop(list(self.cached_images)[0])
         image_data = (self.src, qimage)
         self.sigs.finished_.emit(image_data)
 
@@ -874,7 +863,7 @@ class NewItems(URunnable):
                 image_base_item = ImageBaseItem(conn, base_item)
                 stmt, qimage = image_base_item.get_stmt_qimage()
                 if qimage:
-                    base_item.set_qimage_storage(qimage)
+                    base_item.qimage = qimage
             else:
                 any_base_item = AnyBaseItem(conn, base_item)
                 stmt = any_base_item.get_stmt()

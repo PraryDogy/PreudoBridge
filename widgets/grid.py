@@ -210,7 +210,7 @@ class Thumb(BaseItem, QFrame):
             self.img_wid.deleteLater()
             self.img_wid = QLabel()
             pixmap = QPixmap.fromImage(qimage)
-            self.set_pixmap_storage(pixmap)
+            self.base_pixmap = pixmap
             scaled_pixmap = ImageUtils.pixmap_scale(pixmap, Thumb.pixmap_size)
             self.img_wid.setPixmap(scaled_pixmap)
             self.img_frame_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
@@ -242,9 +242,8 @@ class Thumb(BaseItem, QFrame):
         self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
         self.img_frame.setFixedSize(Thumb.img_frame_size, Thumb.img_frame_size)
 
-        if self.get_pixmap_storage():
-            pixmap = self.get_pixmap_storage()
-            pixmap = ImageUtils.pixmap_scale(pixmap, Thumb.pixmap_size)
+        if self.base_pixmap:
+            pixmap = ImageUtils.pixmap_scale(self.base_pixmap, Thumb.pixmap_size)
             try:
                 self.img_wid.setAlignment(Qt.AlignmentFlag.AlignCenter)
                 self.img_wid.setPixmap(pixmap)
@@ -397,7 +396,7 @@ class Grid(UScrollArea):
                 self.load_images_tasks.remove(task)
 
         def set_thumb_image(thumb: Thumb):
-            qimage = thumb.get_qimage_storage()
+            qimage = thumb.qimage
             if qimage:
                 try:
                     QTimer.singleShot(50, lambda: thumb.set_image(qimage))
