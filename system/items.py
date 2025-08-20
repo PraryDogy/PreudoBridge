@@ -3,8 +3,7 @@ import os
 import re
 
 import numpy as np
-from PyQt5.QtCore import QObject
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap, QImage
 from sqlalchemy import (Connection, Insert, Row, RowMapping, Update, insert,
                         select, update)
 from sqlalchemy.engine import RowMapping
@@ -72,6 +71,7 @@ class BaseItem:
         self.birth: int = None
         self.size: int = None
         self._pixmap_storage: QPixmap = None
+        self._qimage_storage: QImage = None
 
     def set_properties(self):
         """
@@ -85,12 +85,6 @@ class BaseItem:
             self.type_ = Static.FOLDER_TYPE
         else:
             _, self.type_ = os.path.splitext(self.src)
-
-        # _, ext = os.path.splitext(self.src)
-        # if not ext:
-        #     self.type_ = Static.FOLDER_TYPE
-        # else:
-        #     self.type_ = ext
 
         try:
             stat = os.stat(self.src)
@@ -116,6 +110,12 @@ class BaseItem:
         Возвращает ранее сохранённый QPixmap.
         """
         return self._pixmap_storage
+    
+    def get_qimage_storage(self):
+        return self._qimage_storage
+    
+    def set_qimage_storage(self, qimage: QImage):
+        self._qimage_storage = qimage
 
     @staticmethod
     def check_sortitem_attrs():
@@ -286,7 +286,7 @@ class ImageBaseItem:
         self.conn = conn
         self.base_item = base_item
 
-    def get_stmt_pixmap(self) -> tuple[Insert | Update | None, QPixmap | None]:
+    def get_stmt_qimage(self) -> tuple[Insert | Update | None, QImage | None]:
         result = self._check_db_record()
 
         if self.update_flag in result:
@@ -305,12 +305,11 @@ class ImageBaseItem:
             stmt = None
         
         if img_array is  None:
-            pixmap = None
+            qimage = None
         else:
-            pixmap = ImageUtils.pixmap_from_array(img_array)
-            pixmap = ImageUtils.pixmap_scale(pixmap, ThumbData.DB_IMAGE_SIZE)
+            qimage = ImageUtils.qimage_from_array(img_array)
 
-        return (stmt, pixmap)
+        return (stmt, qimage)
 
     def _check_db_record(self) -> dict[str, RowMapping | None]:
         stmt = select(

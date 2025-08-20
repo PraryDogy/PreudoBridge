@@ -55,24 +55,23 @@ class ImageUtils:
             return image
 
     @classmethod
-    def pixmap_from_array(cls, image: np.ndarray) -> QPixmap | None:
-        if isinstance(image, np.ndarray) and QApplication.instance():
-            if len(image.shape) == 3:
-                height, width, channel = image.shape
-            else:
-                print("pixmap from array channels trouble", image.shape)
-                return None
-            bytes_per_line = channel * width
-            qimage = QImage(
-                image.tobytes(),
-                width,
-                height,
-                bytes_per_line,
-                QImage.Format.Format_RGB888
-            )
-            return QPixmap.fromImage(qimage)
-        else:
+    def qimage_from_array(cls, image: np.ndarray) -> QImage | None:
+        if not (isinstance(image, np.ndarray) and QApplication.instance()):
             return None
+        if image.ndim == 2:  # grayscale
+            height, width = image.shape
+            bytes_per_line = width
+            qimage = QImage(image.data, width, height, bytes_per_line, QImage.Format_Grayscale8)
+        elif image.ndim == 3 and image.shape[2] in (3, 4):
+            height, width, channels = image.shape
+            bytes_per_line = channels * width
+            fmt = QImage.Format_RGB888 if channels == 3 else QImage.Format_RGBA8888
+            qimage = QImage(image.data, width, height, bytes_per_line, fmt)
+        else:
+            print("pixmap from array channels trouble", image.shape)
+            return None
+        return qimage
+
 
     @classmethod
     def pixmap_scale(cls, pixmap: QPixmap, size: int) -> QPixmap:

@@ -1,5 +1,5 @@
 import os
-
+from PyQt5.QtGui import QPixmap, QImage
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
@@ -109,9 +109,8 @@ class GridSearch(Grid):
         thumb.set_widget_size()
         thumb.set_no_frame()
 
-        if base_item.get_pixmap_storage():
-            thumb.set_pixmap_storage(base_item.get_pixmap_storage())
-            thumb.set_pixmap(base_item.get_pixmap_storage())
+        if base_item.get_qimage_storage():
+            thumb.set_image(base_item.get_qimage_storage())
         else:
             icon_path = Utils.get_icon_path(base_item.type_, Static.EXTERNAL_ICONS)
             if not os.path.exists(icon_path):

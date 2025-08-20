@@ -5,7 +5,7 @@ import shutil
 from PyQt5.QtCore import (QMimeData, QPoint, QRect, QSize, Qt, QTimer, QUrl,
                           pyqtSignal)
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
-                         QPixmap)
+                         QPixmap, QImage)
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
                              QGridLayout, QLabel, QRubberBand, QSplitter,
@@ -205,10 +205,12 @@ class Thumb(BaseItem, QFrame):
         self.img_wid.load(icon_path)
         self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
 
-    def set_pixmap(self, pixmap: QPixmap):
+    def set_image(self, qimage: QImage):
         try:
             self.img_wid.deleteLater()
             self.img_wid = QLabel()
+            pixmap = QPixmap.fromImage(qimage)
+            self.set_pixmap_storage(pixmap)
             scaled_pixmap = ImageUtils.pixmap_scale(pixmap, Thumb.pixmap_size)
             self.img_wid.setPixmap(scaled_pixmap)
             self.img_frame_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
@@ -395,10 +397,10 @@ class Grid(UScrollArea):
                 self.load_images_tasks.remove(task)
 
         def set_thumb_image(thumb: Thumb):
-            pixmap = thumb.get_pixmap_storage()
-            if pixmap:
+            qimage = thumb.get_qimage_storage()
+            if qimage:
                 try:
-                    QTimer.singleShot(50, lambda: thumb.set_pixmap(pixmap))
+                    QTimer.singleShot(50, lambda: thumb.set_image(qimage))
                     thumb.rating_wid.set_text(thumb.rating, thumb.type_, thumb.mod, thumb.size)
                     thumb.set_transparent_frame(1.0)
                     self.processed_thumbs.append(thumb)

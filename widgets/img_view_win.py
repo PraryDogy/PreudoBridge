@@ -4,8 +4,8 @@ import os
 import sqlalchemy
 from PyQt5.QtCore import QEvent, QPoint, QSize, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import (QColor, QContextMenuEvent, QKeyEvent, QMouseEvent,
-                         QPainter, QPaintEvent, QPixmap, QPixmapCache,
-                         QResizeEvent)
+                         QPainter, QPaintEvent, QPixmap,
+                         QResizeEvent, QImage)
 from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QSpacerItem,
                              QVBoxLayout, QWidget)
 
@@ -263,13 +263,14 @@ class ImgViewWin(WinBase):
 
     def load_image(self):
 
-        def fin(image_data: tuple[str, QPixmap]):
-            src, pixmap = image_data
+        def fin(image_data: tuple[str, QImage]):
+            src, qimage = image_data
             self.task_count -= 1
-            if pixmap is None:
+            if qimage is None:
                 self.show_text(self.error_text)
             elif src == self.current_path:
                 try:
+                    pixmap = QPixmap.fromImage(qimage)
                     self.img_wid.setText("")
                     self.img_wid.set_image(pixmap)
                 except RuntimeError:

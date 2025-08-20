@@ -8,8 +8,8 @@ from time import sleep
 import numpy as np
 import sqlalchemy
 from PIL import Image
-from PyQt5.QtCore import QObject, QTimer, pyqtSignal, Qt
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import QObject, QTimer, pyqtSignal
+from PyQt5.QtGui import QPixmap, QImage
 from PyQt5.QtTest import QTest
 from sqlalchemy.exc import IntegrityError, OperationalError
 
@@ -442,8 +442,8 @@ class SearchTask(URunnable):
         if entry.name.endswith(Static.ext_all):
             img_array = ReadImage.read_image(entry.path)
             img_array = FitImage.start(img_array, ThumbData.DB_IMAGE_SIZE)
-            pixmap = ImageUtils.pixmap_from_array(img_array)
-            base_item.set_pixmap_storage(pixmap)
+            qimage = ImageUtils.qimage_from_array(img_array)
+            base_item.set_qimage_storage(qimage)
         try:
             self.sigs.new_widget.emit(base_item)
             QTest.qSleep(SearchTask.new_wid_sleep_ms)
@@ -596,8 +596,8 @@ class LoadImagesTask(URunnable):
         Пытается загрузить изображение из базы данных или создает новое,
         чтобы передать его в Thumb
         """
-        exists_items: list[ImageBaseItem] = []
-        new_items: list[ImageBaseItem] = []
+        exists_items: list[BaseItem] = []
+        new_items: list[BaseItem] = []
 
         for thumb in self.thumbs:
             if not self.is_should_run():
@@ -606,10 +606,10 @@ class LoadImagesTask(URunnable):
                 any_base_item = AnyBaseItem(self.conn, thumb)
                 stmt = any_base_item.get_stmt()
 
-                if thumb.type_ == ".svg":
-                    pixmap = QPixmap(thumb.src)
-                    thumb.set_pixmap_storage(pixmap)
-                    self.sigs.update_thumb.emit(thumb)
+                # if thumb.type_ == ".svg":
+                #     pixmap = QPixmap(thumb.src)
+                #     thumb.set_pixmap_storage(pixmap)
+                #     self.sigs.update_thumb.emit(thumb)
 
                 if stmt is not None:
                     self.stmt_list.append(stmt)
@@ -621,9 +621,9 @@ class LoadImagesTask(URunnable):
 
         for thumb in exists_items:
             img_base_item = ImageBaseItem(self.conn, thumb)
-            stmt, pixmap = img_base_item.get_stmt_pixmap()
-            if pixmap:
-                thumb.set_pixmap_storage(pixmap)
+            stmt, qimage = img_base_item.get_stmt_qimage()
+            if qimage:
+                thumb.set_qimage_storage(qimage)
             if stmt is not None:
                 self.stmt_list.append(stmt)
             try:
@@ -635,9 +635,9 @@ class LoadImagesTask(URunnable):
         for thumb in new_items:
             img_base_item = ImageBaseItem(self.conn, thumb)
             self.sigs.set_loading.emit(thumb)
-            stmt, pixmap = img_base_item.get_stmt_pixmap()
-            if pixmap:
-                thumb.set_pixmap_storage(pixmap)
+            stmt, qimage = img_base_item.get_stmt_qimage()
+            if qimage:
+                thumb.set_qimage_storage(qimage)
             if stmt is not None:
                 self.stmt_list.append(stmt)
             try:
@@ -678,26 +678,20 @@ class LoadImgTask(URunnable):
 
     def task(self):
         if self.src not in self.cached_images:
-
             img_array = ReadImage.read_image(self.src)
             img_array = ImageUtils.desaturate_image(img_array, 0.2)
-
             if img_array is None:
-                pixmap = None
-
+                qimage = None
             else:
-                pixmap = ImageUtils.pixmap_from_array(img_array)
-                self.cached_images[self.src] = pixmap
-
-            del img_array
-            gc.collect()
-
-        else:
-            pixmap = self.cached_images.get(self.src)
-        if len(self.cached_images) > self.cache_limit:
-            self.cached_images.pop(list(self.cached_images)[0])
-
-        image_data = (self.src, pixmap)
+                qimage = ImageUtils.qimage_from_array(img_array)
+                # self.cached_images[self.src] = pixmap
+            # del img_array
+            # gc.collect()
+        # else:
+        #     pixmap = self.cached_images.get(self.src)
+        # if len(self.cached_images) > self.cache_limit:
+        #     self.cached_images.pop(list(self.cached_images)[0])
+        image_data = (self.src, qimage)
         self.sigs.finished_.emit(image_data)
 
 
@@ -878,9 +872,9 @@ class NewItems(URunnable):
             base_item.set_properties()
             if base_item.filename.endswith(Static.ext_all):
                 image_base_item = ImageBaseItem(conn, base_item)
-                stmt, pixmap = image_base_item.get_stmt_pixmap()
-                if pixmap:
-                    base_item.set_pixmap_storage(pixmap)
+                stmt, qimage = image_base_item.get_stmt_qimage()
+                if qimage:
+                    base_item.set_qimage_storage(qimage)
             else:
                 any_base_item = AnyBaseItem(conn, base_item)
                 stmt = any_base_item.get_stmt()
