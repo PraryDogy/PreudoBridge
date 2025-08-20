@@ -12,14 +12,9 @@ class Static:
     APP_SUPPORT = os.path.join(os.path.expanduser('~/Library/Application Support'), APP_NAME)
     EXTERNAL_ICONS = os.path.join(APP_SUPPORT, "icons")
     JSON_FILE = os.path.join(APP_SUPPORT, 'cfg.json')
-    REVEAL_SCPT = "scripts/reveal_files.scpt"
 
-    INTERNAL_ICONS = "icons"
-
-    _INTERNAL_ICONS = {
-        entry.name: entry.path
-        for entry in os.scandir(INTERNAL_ICONS)
-    }
+    APPLE_SCRIPTS = {entry.name: entry.path for entry in os.scandir("scripts")}
+    INTERNAL_ICONS = {entry.name: entry.path for entry in os.scandir("icons")}
 
     DB_FILENAME = ".preudobridge.db"
     FOLDER_TYPE: str = "folder"

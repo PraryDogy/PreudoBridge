@@ -156,7 +156,7 @@ class PathItem(QWidget):
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
 
-        self.drag.setPixmap(QPixmap(Static._INTERNAL_ICONS.get("files.svg")))
+        self.drag.setPixmap(QPixmap(Static.INTERNAL_ICONS.get("files.svg")))
         
         url = [QUrl.fromLocalFile(self.dir)]
         self.mime_data.setUrls(url)
@@ -247,15 +247,15 @@ class PathBar(QWidget):
             path_item.load_st_grid.connect(self.load_st_grid.emit)
             path_item.open_img_view.connect(lambda dir: self.open_img_view.emit(dir))
             path_item.open_in_new_win.connect(lambda dir: self.open_in_new_win.emit(dir))
-            path_item.img_wid.load(Static._INTERNAL_ICONS.get("folder.svg"))
+            path_item.img_wid.load(Static.INTERNAL_ICONS.get("folder.svg"))
             path_item.add_arrow()
             path_items[x] = path_item
             self.main_lay.addWidget(path_item)
 
-        path_items.get(1).img_wid.load(Static._INTERNAL_ICONS.get("computer.svg"))
+        path_items.get(1).img_wid.load(Static.INTERNAL_ICONS.get("computer.svg"))
 
         if path_items.get(2):
-            path_items.get(2).img_wid.load(Static._INTERNAL_ICONS.get("hdd.svg"))
+            path_items.get(2).img_wid.load(Static.INTERNAL_ICONS.get("hdd.svg"))
 
         last_item = path_items.get(len(root))
 
@@ -263,9 +263,9 @@ class PathBar(QWidget):
             
             if len(root) > 2:
                 if not os.path.exists(last_item.dir):
-                    icon = Static._INTERNAL_ICONS.get("question.svg")
+                    icon = Static.INTERNAL_ICONS.get("question.svg")
                 elif os.path.isdir(last_item.dir):
-                    icon = Static._INTERNAL_ICONS.get("folder.svg")
+                    icon = Static.INTERNAL_ICONS.get("folder.svg")
                 else:
                     _, ext = os.path.splitext(last_item.dir)
                     icon = Utils.get_icon_path(ext, Static.EXTERNAL_ICONS)

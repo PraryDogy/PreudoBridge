@@ -10,7 +10,7 @@ class ImgConvertWin(ProgressbarWin):
     finished_ = pyqtSignal(list)
 
     def __init__(self, urls: list[str]):
-        super().__init__(self.title_text, Static._INTERNAL_ICONS.get("files.svg"))
+        super().__init__(self.title_text, Static.INTERNAL_ICONS.get("files.svg"))
         self.progressbar.setMinimum(0)
         self.urls = urls
 

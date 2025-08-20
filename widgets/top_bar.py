@@ -340,37 +340,37 @@ class TopBar(QWidget):
         self.setLayout(self.main_lay)
 
         back = BarTopBtn()
-        back.load(Static._INTERNAL_ICONS.get("arrow_left.svg"))
+        back.load(Static.INTERNAL_ICONS.get("arrow_left.svg"))
         back.clicked.connect(lambda: self.navigate_cmd(-1))
         self.main_lay.addWidget(back)
 
         next = BarTopBtn()
-        next.load(Static._INTERNAL_ICONS.get("arrow_right.svg"))
+        next.load(Static.INTERNAL_ICONS.get("arrow_right.svg"))
         next.clicked.connect(lambda: self.navigate_cmd(1))
         self.main_lay.addWidget(next)
 
         level_up_btn = BarTopBtn()
         level_up_btn.clicked.connect(self.level_up.emit)
-        level_up_btn.load(Static._INTERNAL_ICONS.get("level_up.svg"))
+        level_up_btn.load(Static.INTERNAL_ICONS.get("level_up.svg"))
         self.main_lay.addWidget(level_up_btn)
 
         self.main_lay.addStretch(1)
         self.main_lay.addSpacerItem(QSpacerItem(20, 0))
 
         self.update_btn = BarTopBtn()
-        self.update_btn.load(Static._INTERNAL_ICONS.get("update.svg"))
+        self.update_btn.load(Static.INTERNAL_ICONS.get("update.svg"))
         self.update_btn.clicked.connect(lambda: self.load_st_grid.emit())
         self.main_lay.addWidget(self.update_btn)
 
         self.fast_sort_btn = BarTopBtn()
-        self.fast_sort_btn.load(Static._INTERNAL_ICONS.get("fast_sort.svg"))
+        self.fast_sort_btn.load(Static.INTERNAL_ICONS.get("fast_sort.svg"))
         self.fast_sort_btn.clicked.connect(lambda: self.fast_sort.emit())
         self.main_lay.addWidget(self.fast_sort_btn)
 
         self.new_win_btn = BarTopBtn()
         cmd = lambda e: self.open_in_new_win.emit(self.main_win_item.main_dir)
         self.new_win_btn.mouseReleaseEvent = cmd
-        self.new_win_btn.load(Static._INTERNAL_ICONS.get("new_win.svg"))
+        self.new_win_btn.load(Static.INTERNAL_ICONS.get("new_win.svg"))
         self.main_lay.addWidget(self.new_win_btn)
 
         # cascade_btn = BarTopBtn()
@@ -381,14 +381,14 @@ class TopBar(QWidget):
         self.change_view_btn = BarTopBtn()
         self.change_view_btn.mouseReleaseEvent = lambda e: self.change_view.emit()
         if self.main_win_item.get_view_mode() == 0:
-            self.change_view_btn.load(Static._INTERNAL_ICONS.get("list.svg"))
+            self.change_view_btn.load(Static.INTERNAL_ICONS.get("list.svg"))
         else:
-            self.change_view_btn.load(Static._INTERNAL_ICONS.get("grid.svg"))
+            self.change_view_btn.load(Static.INTERNAL_ICONS.get("grid.svg"))
         self.main_lay.addWidget(self.change_view_btn)
 
         self.sett_btn = BarTopBtn()
         self.sett_btn.clicked.connect(self.open_settings.emit)
-        self.sett_btn.load(Static._INTERNAL_ICONS.get("settings.svg"))
+        self.sett_btn.load(Static.INTERNAL_ICONS.get("settings.svg"))
         self.main_lay.addWidget(self.sett_btn)
 
         self.main_lay.addStretch(1)

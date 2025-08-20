@@ -40,7 +40,7 @@ class RevealInFinder(QAction):
         subprocess.Popen(["open", self.urls[0]])
 
     def files_cmd(self):        
-        cmd_ = lambda: subprocess.run(["osascript", Static.REVEAL_SCPT] + self.urls)
+        cmd_ = lambda: subprocess.run(["osascript", Static.APPLE_SCRIPTS.get("reveal_files.scpt")] + self.urls)
         self.task_ = ActionsTask(cmd_)
         UThreadPool.start(self.task_)
 

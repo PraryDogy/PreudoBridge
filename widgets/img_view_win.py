@@ -126,22 +126,22 @@ class ZoomBtns(QFrame):
 
         h_layout.addSpacerItem(QSpacerItem(5, 0))
 
-        self.zoom_out = USvgSqareWidget(Static._INTERNAL_ICONS.get("zoom_out.svg"), 45)
+        self.zoom_out = USvgSqareWidget(Static.INTERNAL_ICONS.get("zoom_out.svg"), 45)
         self.zoom_out.mouseReleaseEvent = lambda e: self.cmd_out.emit()
         h_layout.addWidget(self.zoom_out)
         h_layout.addSpacerItem(QSpacerItem(10, 0))
 
-        self.zoom_in = USvgSqareWidget(Static._INTERNAL_ICONS.get("zoom_in.svg"), 45)
+        self.zoom_in = USvgSqareWidget(Static.INTERNAL_ICONS.get("zoom_in.svg"), 45)
         self.zoom_in.mouseReleaseEvent = lambda e: self.cmd_in.emit()
         h_layout.addWidget(self.zoom_in)
         h_layout.addSpacerItem(QSpacerItem(10, 0))
 
-        self.zoom_fit = USvgSqareWidget(Static._INTERNAL_ICONS.get("zoom_fit.svg"), 45)
+        self.zoom_fit = USvgSqareWidget(Static.INTERNAL_ICONS.get("zoom_fit.svg"), 45)
         self.zoom_fit.mouseReleaseEvent = lambda e: self.cmd_fit.emit()
         h_layout.addWidget(self.zoom_fit)
         h_layout.addSpacerItem(QSpacerItem(10, 0))
 
-        self.zoom_close = USvgSqareWidget(Static._INTERNAL_ICONS.get("zoom_close.svg"), 45)
+        self.zoom_close = USvgSqareWidget(Static.INTERNAL_ICONS.get("zoom_close.svg"), 45)
         self.zoom_close.mouseReleaseEvent = lambda e: self.cmd_close.emit()
         h_layout.addWidget(self.zoom_close)
 
@@ -171,12 +171,12 @@ class SwitchImgBtn(QFrame):
 
 class PrevImgBtn(SwitchImgBtn):
     def __init__(self, parent: QWidget = None) -> None:
-        super().__init__(Static._INTERNAL_ICONS.get("prev.svg"), parent)
+        super().__init__(Static.INTERNAL_ICONS.get("prev.svg"), parent)
 
 
 class NextImgBtn(SwitchImgBtn):
     def __init__(self, parent: QWidget = None) -> None:
-        super().__init__(Static._INTERNAL_ICONS.get("next.svg"), parent)
+        super().__init__(Static.INTERNAL_ICONS.get("next.svg"), parent)
 
 
 class ImgViewWin(WinBase):
