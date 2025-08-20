@@ -36,11 +36,11 @@ class System_:
         d.exec_()
 
     def catch_error_in_proj(exctype, value, tb):
-        if exctype == RuntimeError:
-            error_message = "".join(traceback.format_exception(exctype, value, tb))
-            print(error_message)
-        else:
-            sys.__excepthook__(exctype, value, tb)
+        # if exctype == RuntimeError:
+        #     error_message = "".join(traceback.format_exception(exctype, value, tb))
+        #     print(error_message)
+        # else:
+        sys.__excepthook__(exctype, value, tb)
 
     @classmethod
     def set_plugin_path(cls) -> bool:
