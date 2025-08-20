@@ -41,7 +41,6 @@ class Static:
     NAVIGATE_NEXT_SVG = os.path.join(IMAGES_DIR, "navigate_next.svg")
     SETTINGS_SVG = os.path.join(IMAGES_DIR, "settings.svg")
     COPY_FILES_SVG = os.path.join(IMAGES_DIR, "copy_files.svg")
-    COPY_FILES_PNG = os.path.join(IMAGES_DIR, "copy_files.svg")
     WARNING_SVG = os.path.join(IMAGES_DIR, "warning.svg")
     NEW_WIN_SVG = os.path.join(IMAGES_DIR, "new_win.svg")
     QUESTION_SVG = os.path.join(IMAGES_DIR, "question.svg")

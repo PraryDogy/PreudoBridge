@@ -156,7 +156,7 @@ class PathItem(QWidget):
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
 
-        self.drag.setPixmap(QPixmap(Static.COPY_FILES_PNG))
+        self.drag.setPixmap(QPixmap(Static.COPY_FILES_SVG))
         
         url = [QUrl.fromLocalFile(self.dir)]
         self.mime_data.setUrls(url)
