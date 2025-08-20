@@ -711,6 +711,11 @@ class Grid(UScrollArea):
         self.rem_win.show()
 
     def new_thumb(self, url: str):
+        _, ext = os.path.splitext(url)
+        icon_path = Utils.get_icon_path(ext, Static.EXTERNAL_ICONS)
+        if not os.path.exists(icon_path):
+            Utils.create_icon(ext, icon_path, Static.INTERNAL_ICONS.get("file.svg"))
+
         thumb = Thumb(url)
         thumb.set_properties()
         thumb.set_widget_size()
