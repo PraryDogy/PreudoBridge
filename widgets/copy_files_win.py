@@ -184,26 +184,17 @@ class CopyFilesWin(ProgressbarWin):
         return text
 
     def set_max(self, value):
-        try:
-            self.progressbar.setMaximum(abs(value))
-        except RuntimeError as e:
-            Utils.print_error()
+        self.progressbar.setMaximum(abs(value))
 
     def set_value(self, value):
-        try:
-            self.progressbar.setValue(value)
-        except RuntimeError as e:
-            Utils.print_error()
+        self.progressbar.setValue(value)
 
     def set_counter(self, current: int, total: int):
-        try:
-            if CopyItem.get_is_cut():
-                copy = "Перемещаю файлы"
-            else:
-                copy = "Копирую файлы"
-            self.below_label.setText(f"{copy} {current} из {total}")
-        except RuntimeError:
-            Utils.print_error()
+        if CopyItem.get_is_cut():
+            copy = "Перемещаю файлы"
+        else:
+            copy = "Копирую файлы"
+        self.below_label.setText(f"{copy} {current} из {total}")
 
     def cancel_cmd(self, *args):
         self.tsk.pause_flag = False

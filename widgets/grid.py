@@ -277,12 +277,9 @@ class Thumb(BaseItem, QFrame):
         )
 
     def set_transparent_frame(self, value: float):
-        try:
-            effect = QGraphicsOpacityEffect(self)
-            effect.setOpacity(value)
-            self.setGraphicsEffect(effect)
-        except RuntimeError:
-            print("OK, widgets > grid >thumb set transparent, runtime err ")
+        effect = QGraphicsOpacityEffect(self)
+        effect.setOpacity(value)
+        self.setGraphicsEffect(effect)
 
 
 class Grid(UScrollArea):
@@ -444,10 +441,7 @@ class Grid(UScrollArea):
         заблокировано например контекстным меню
         """
         def path_bar_update_delayed():
-            try:
-                self.path_bar_update.emit(src)
-            except RuntimeError as e:
-                Utils.print_error()
+            self.path_bar_update.emit(src)
         QTimer.singleShot(0, path_bar_update_delayed)
     
     def sort_thumbs(self):

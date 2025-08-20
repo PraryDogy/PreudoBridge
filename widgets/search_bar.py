@@ -114,11 +114,7 @@ class SearchBar(QFrame):
         else:
             self.pause_flag = True
             self.pause_btn.setText(SearchBar.continue_text)
-
-        try:
-            self.on_pause_clicked.emit(self.pause_flag)
-        except RuntimeError as e:
-            Utils.print_error()
+        self.on_pause_clicked.emit(self.pause_flag)
 
     def show(self):
         """

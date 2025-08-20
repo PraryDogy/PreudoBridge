@@ -144,11 +144,7 @@ class CopyFilesTask(URunnable):
         total_bytes = 0
         for src, dest in self.src_dest_list:
             total_bytes += os.path.getsize(src)
-        try:
-            self.sigs.set_total_kb.emit(self.bytes_to_kb(total_bytes))
-        except RuntimeError as e:
-            Utils.print_error()
-            return
+        self.sigs.set_total_kb.emit(self.bytes_to_kb(total_bytes))
 
         for count, (src, dest) in enumerate(self.src_dest_list, start=1):
             if not self.is_should_run():
@@ -167,10 +163,7 @@ class CopyFilesTask(URunnable):
                     shutil.rmtree(src)
                 else:
                     os.remove(src)
-        try:
-            self.sigs.finished_.emit(self.thumb_paths)
-        except RuntimeError as e:
-            Utils.print_error()
+        self.sigs.finished_.emit(self.thumb_paths)
 
     def bytes_to_kb(self, bytes: int):
         return int(bytes / (1024 * 1024))
@@ -209,10 +202,7 @@ class CopyFilesTask(URunnable):
                 self.copied_kb += buf
     
     def send_copied_kb(self):
-        try:
-            self.sigs.set_copied_kb.emit(self.copied_kb)
-        except RuntimeError:
-            ...
+        self.sigs.set_copied_kb.emit(self.copied_kb)
 
 class _RatingSigs(QObject):
     finished_ = pyqtSignal()
@@ -281,11 +271,7 @@ class SearchTask(URunnable):
                 for i in no_ext_list:
                     if i not in self.found_files_list:
                         missed_files_list.append(i)
-        try:
-            self.sigs.finished_.emit(missed_files_list)
-        except RuntimeError as e:
-            Utils.print_error()
-            self.set_should_run(False)
+        self.sigs.finished_.emit(missed_files_list)
 
     def setup_search(self):
         if isinstance(self.search_item.get_content(), list):
@@ -405,9 +391,6 @@ class SearchTask(URunnable):
             except Exception as e:
                 Utils.print_error()
                 continue
-            except RuntimeError as e:
-                Utils.print_error()
-                return
 
     def scan_current_dir(self, dir: str, dirs_list: list):
         for entry in os.scandir(dir):
@@ -433,11 +416,8 @@ class SearchTask(URunnable):
             img_array = FitImage.start(img_array, ThumbData.DB_IMAGE_SIZE)
             qimage = ImageUtils.qimage_from_array(img_array)
             base_item.qimage = qimage
-        try:
-            self.sigs.new_widget.emit(base_item)
-            QTest.qSleep(SearchTask.new_wid_sleep_ms)
-        except RuntimeError:
-            self.set_should_run(False)
+        self.sigs.new_widget.emit(base_item)
+        QTest.qSleep(SearchTask.new_wid_sleep_ms)
 
 
 class _FinderSigs(QObject):
@@ -476,11 +456,7 @@ class FinderItems(URunnable):
 
         finder_base_items = list(self.finder_base_items.values())
         finder_base_items = BaseItem.sort_items(finder_base_items, self.sort_item)
-
-        try:
-            self.sigs.finished_.emit(finder_base_items)
-        except RuntimeError as e:
-            Utils.print_error()
+        self.sigs.finished_.emit(finder_base_items)
 
     def get_db_items(self) -> dict[str, int]:
         q = sqlalchemy.select(CACHE.c.name, CACHE.c.rating)
@@ -614,7 +590,7 @@ class LoadImagesTask(URunnable):
                 self.stmt_list.append(stmt)
             try:
                 self.sigs.update_thumb.emit(base_item)
-            except (TypeError, RuntimeError, TypeError) as e:
+            except (TypeError, TypeError) as e:
                 Utils.print_error()
                 return
 
@@ -630,7 +606,7 @@ class LoadImagesTask(URunnable):
                 self.stmt_list.append(stmt)
             try:
                 self.sigs.update_thumb.emit(base_item)
-            except (TypeError, RuntimeError, TypeError) as e:
+            except (TypeError, TypeError) as e:
                 Utils.print_error()
                 return
 
@@ -814,10 +790,7 @@ class RemoveFilesTask(URunnable):
                     Utils.print_error()
         except Exception as e:
             Utils.print_error()
-        try:
-            self.sigs.finished_.emit()
-        except RuntimeError as e:
-            Utils.print_error()
+        self.sigs.finished_.emit()
 
 
 class _PathFinderSigs(QObject):
@@ -897,33 +870,14 @@ class ImgConvertTask(URunnable):
         self.sigs = _ImgConvertSigs()
 
     def task(self):
-        urls = [
-            i
-            for i in self.urls
-            if i.endswith(Static.ext_all)
-        ]
-
-        try:
-            self.sigs.set_progress_len.emit(len(urls))
-        except RuntimeError:
-            return
-
+        urls = [i for i in self.urls if i.endswith(Static.ext_all)]
+        self.sigs.set_progress_len.emit(len(urls))
         for x, url in enumerate(urls, start=1):
             save_path = self._save_jpg(url)
             if save_path:
                 self.new_urls.append(save_path)
-
-            try:
-                self.sigs.progress_value.emit(x)
-            except RuntimeError:
-                break
-
-        try:
-            self.sigs.finished_.emit(self.new_urls)
-        except RuntimeError:
-            ...
-
-        print("finished")
+            self.sigs.progress_value.emit(x)
+        self.sigs.finished_.emit(self.new_urls)
 
     def _save_jpg(self, src: str) -> None:
         try:

@@ -470,12 +470,9 @@ class GridList(QTableView):
         self.rem_win.show()
 
     def select_row(self, index: QModelIndex):
-        try:
-            self.setCurrentIndex(index)
-            tags = QItemSelectionModel.Select | QItemSelectionModel.Rows
-            self.selectionModel().select(index, tags)
-        except RuntimeError:
-            print("OK, grid_list > select_row > grid was deleted")
+        self.setCurrentIndex(index)
+        tags = QItemSelectionModel.Select | QItemSelectionModel.Rows
+        self.selectionModel().select(index, tags)
 
     def contextMenuEvent(self, event: QContextMenuEvent):
         # определяем выделена ли строка

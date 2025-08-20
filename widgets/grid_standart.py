@@ -62,10 +62,7 @@ class GridStandart(Grid):
         """
         # испускаем сигнал в MainWin, чтобы нижний бар с отображением пути
         # обновился на актуальный путь
-        try:
-            self.path_bar_update.emit(self.main_win_item.main_dir)
-        except RuntimeError:
-            ...
+        self.path_bar_update.emit(self.main_win_item.main_dir)
 
         # высчитываем размер Thumb
         Thumb.calc_size()

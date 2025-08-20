@@ -269,12 +269,9 @@ class ImgViewWin(WinBase):
             if qimage is None:
                 self.show_text(self.error_text)
             elif src == self.current_path:
-                try:
-                    pixmap = QPixmap.fromImage(qimage)
-                    self.img_wid.setText("")
-                    self.img_wid.set_image(pixmap)
-                except RuntimeError:
-                    print("OK, img view > load image fin > set text > runtime error")
+                pixmap = QPixmap.fromImage(qimage)
+                self.img_wid.setText("")
+                self.img_wid.set_image(pixmap)
 
         self.task_count += 1
         task_ = LoadImgTask(self.current_path)
@@ -303,20 +300,13 @@ class ImgViewWin(WinBase):
 
         total_images: int = len(self.urls)
         new_index: int = (current_index + offset) % total_images
-
         self.current_path: str = self.urls[new_index]
-
-        try:
-            self.current_thumb.text_changed.disconnect()
-            self.current_thumb: Thumb = self.url_to_wid.get(self.current_path)
-            self.current_thumb.text_changed.connect(self.set_title)
-        except RuntimeError:
-            print("OK, img view > switch img > disconnect wid > no widget")
-
+        self.current_thumb.text_changed.disconnect()
+        self.current_thumb: Thumb = self.url_to_wid.get(self.current_path)
+        self.current_thumb.text_changed.connect(self.set_title)
         if not self.is_selection:
             self.move_to_wid.emit(self.current_thumb)
             self.move_to_url.emit(self.current_path)
-
         self.img_wid.setCursor(Qt.CursorShape.ArrowCursor)
         self.set_title()
         self.load_thumbnail()

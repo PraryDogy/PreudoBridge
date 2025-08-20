@@ -129,22 +129,19 @@ class GridSearch(Grid):
         self.total_count_update.emit((len(self.selected_thumbs), self.total))
 
     def search_fin(self, missed_files_list: list[str]):
-        try:
-            if not self.cell_to_wid:
-                no_images = QLabel(GridSearch.no_result_text)
-                no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                self.grid_layout.addWidget(no_images, 0, 0)
+        if not self.cell_to_wid:
+            no_images = QLabel(GridSearch.no_result_text)
+            no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.grid_layout.addWidget(no_images, 0, 0)
 
-            elif missed_files_list:
-                self.win_missed_files = WinMissedFiles(missed_files_list)
-                self.win_missed_files.center(self.window())
-                self.win_missed_files.show()
+        elif missed_files_list:
+            self.win_missed_files = WinMissedFiles(missed_files_list)
+            self.win_missed_files.center(self.window())
+            self.win_missed_files.show()
 
-            if self.search_task.is_should_run():
-                self.finished_.emit()
-        except RuntimeError as e:
-            Utils.print_error()
+        if self.search_task.is_should_run():
+            self.finished_.emit()
 
     def sort_thumbs(self):
         self.search_task.pause = True
