@@ -475,8 +475,8 @@ class FinderItems(URunnable):
     def task(self):
         try:
             self.finder_base_items = self.get_finder_base_items()
-        except Exception:
-            Utils.print_error()
+        except Exception as e:
+            print("OK, system > tasks > FinderItems >  get_finder_base_items", e)
         try:
             if self.conn:
                 self.db_items = self.get_db_items()
