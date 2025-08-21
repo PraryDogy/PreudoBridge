@@ -566,10 +566,11 @@ class LoadImagesTask(URunnable):
                 any_base_item = AnyBaseItem(self.conn, base_item)
                 stmt = any_base_item.get_stmt()
 
-                # if thumb.type_ == ".svg":
-                #     pixmap = QPixmap(thumb.src)
-                #     thumb.set_pixmap_storage(pixmap)
-                #     self.sigs.update_thumb.emit(thumb)
+                if base_item.type_ == ".svg":
+                    qimage  = QImage()
+                    qimage.load(base_item.src)
+                    base_item.qimage = qimage
+                    self.sigs.update_thumb.emit(base_item)
 
                 if stmt is not None:
                     self.stmt_list.append(stmt)
