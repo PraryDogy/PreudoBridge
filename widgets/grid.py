@@ -640,6 +640,8 @@ class Grid(UScrollArea):
             self.ensureWidgetVisible(self.selected_thumbs[-1])
 
         def paste_final(urls: list[str]):
+            if CopyItem.get_dest() != self.main_win_item.main_dir:
+                return
             if not self.cell_to_wid:
                 self.load_st_grid.emit()
             else:
