@@ -221,7 +221,6 @@ class SearchWidget(ULineEdit):
     def clear_all(self):
         self.clear()
         self.search_item.set_content(None)
-        self.search_item.set_content(None)
 
     def prepare_text(self):
         """
