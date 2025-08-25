@@ -159,8 +159,8 @@ class SearchWidget(ULineEdit):
         Виджет поля ввода в верхнем баре приложения.
         """
         super().__init__()
-        self.setPlaceholderText(SearchWidget.placeholder_text)
-        self.setFixedWidth(SearchWidget.width_)
+        self.setPlaceholderText(self.placeholder_text)
+        self.setFixedWidth(self.width_)
         self.textChanged.connect(self.on_text_changed)
 
         self.search_item = search_item
@@ -185,7 +185,7 @@ class SearchWidget(ULineEdit):
         search_list.triggered.connect(self.open_search_list_win)
         self.templates_menu.addAction(search_list)
 
-    def clear_search(self):
+    def clear_search(self, *args):
         """
         Очищает поиск при загрузке GridStandart:
 
@@ -209,14 +209,17 @@ class SearchWidget(ULineEdit):
         - Если поле пустое — очищает поиск и инициирует загрузку GridStandart.
         """
         if self.stop_flag:
+            print("is stop flag")
             return
         if text:
             self.search_text = text
             self.input_timer.stop()
-            self.input_timer.start(SearchWidget.input_timer_ms)
+            self.input_timer.start(self.input_timer_ms)
+            print(text, self.sender())
         else:
             self.clear_all()
             self.load_st_grid.emit()
+            print("no text", self.sender())
 
     def clear_all(self):
         self.clear()

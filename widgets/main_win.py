@@ -362,8 +362,13 @@ class MainWin(WinBase):
         self.grid.verticalScrollBar().valueChanged.connect(lambda value: self.scroll_up_toggle(value))
 
     def load_search_grid(self):
+
+        def cmd(value):
+            self.top_bar.search_wid.clear_btn.setDisabled(value)
+
         self.grid.deleteLater()
-        # self.search_item.set_filter(1)
+        cmd(True)
+        QTimer.singleShot(1000, lambda: cmd(False))
 
         self.grid = GridSearch(self.main_win_item)
         self.grid.finished_.connect(lambda: self.search_finished())
