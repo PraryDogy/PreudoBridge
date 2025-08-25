@@ -5,8 +5,8 @@ from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import (QCloseEvent, QColor, QKeyEvent, QMouseEvent, QPalette,
                          QResizeEvent)
 from PyQt5.QtWidgets import (QApplication, QGraphicsDropShadowEffect,
-                             QHBoxLayout, QLabel, QSplitter, QTabWidget,
-                             QVBoxLayout, QWidget, QFrame)
+                             QHBoxLayout, QLabel, QSizePolicy, QSpacerItem,
+                             QSplitter, QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
 from evlosh_templates.evlosh_utils import EvloshUtils
@@ -147,6 +147,8 @@ class MainWin(WinBase):
         self.search_bar = SearchBar(self.search_item)
         self.search_bar_sep = USep()
         self.grid = Grid(self.main_win_item)
+        self.grid_spacer = QWidget()
+
         sep_two = USep()
         self.path_bar = PathBar(self.main_win_item)
         sep = USep()
@@ -182,10 +184,11 @@ class MainWin(WinBase):
         self.r_lay.insertWidget(2, self.search_bar)
         self.r_lay.insertWidget(3, self.search_bar_sep)
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
-        self.r_lay.insertWidget(5, sep_two)
-        self.r_lay.insertWidget(6, self.path_bar)
-        self.r_lay.insertWidget(7, sep)
-        self.r_lay.insertWidget(8, self.sort_bar)
+        self.r_lay.insertWidget(5, self.grid_spacer)
+        self.r_lay.insertWidget(6, sep_two)
+        self.r_lay.insertWidget(7, self.path_bar)
+        self.r_lay.insertWidget(8, sep)
+        self.r_lay.insertWidget(9, self.sort_bar)
 
         self.setup_signals()
         self.load_st_grid()
@@ -400,16 +403,11 @@ class MainWin(WinBase):
         self.tags_menu.setDisabled(value)
 
     def load_st_grid(self):
-        """
-        - dir: основная директория, которая будет отображена в виде сетки виджетов
-        """
+        self.grid_spacer.resize(0, self.height())
+        self.grid.hide()
+        QTimer.singleShot(100, self._load_st_grid)
 
-        # self.test = QLabel(parent = self, text="Загрузка")
-        # self.test.setFixedSize(self.width(), self.height())
-        # self.test.move(self.grid.x(), self.grid.y())
-        # self.test.setStyleSheet("background: red;")
-        # self.test.show()
-
+    def _load_st_grid(self):
         if not os.path.exists(self.main_win_item.main_dir):
             slashed = EvloshUtils.norm_slash(self.main_win_item.main_dir)
             fixed_path = Utils.fix_path_prefix(slashed)
@@ -442,6 +440,7 @@ class MainWin(WinBase):
         self.setup_grid_signals()
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
         self.fast_sort_wid.setParent(self.grid)
+        self.grid_spacer.resize(0, 0)
         QTimer.singleShot(100, lambda: self.grid.setFocus())
 
     def change_view_cmd(self):
