@@ -404,6 +404,7 @@ class MainWin(WinBase):
 
     def load_st_grid(self):
         self.grid_spacer.resize(0, self.height())
+        self.grid_spacer.setFocus()
         self.grid.hide()
         QTimer.singleShot(100, self._load_st_grid)
 
