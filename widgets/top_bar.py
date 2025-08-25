@@ -209,17 +209,14 @@ class SearchWidget(ULineEdit):
         - Если поле пустое — очищает поиск и инициирует загрузку GridStandart.
         """
         if self.stop_flag:
-            print("is stop flag")
             return
         if text:
             self.search_text = text
             self.input_timer.stop()
             self.input_timer.start(self.input_timer_ms)
-            print(text, self.sender())
         else:
             self.clear_all()
             self.load_st_grid.emit()
-            print("no text", self.sender())
 
     def clear_all(self):
         self.clear()
