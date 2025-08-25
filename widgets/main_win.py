@@ -423,7 +423,12 @@ class MainWin(WinBase):
         self.search_item.set_content(None)
         self.scroll_up.hide()
         self.grid.deleteLater()
-        self.setWindowTitle(os.path.basename(self.main_win_item.main_dir))
+
+        t = os.path.basename(self.main_win_item.main_dir)
+        fav = JsonData.favs.get(self.main_win_item.main_dir, "")
+        if fav and fav != t:
+            t = f"{t} ({fav})"
+        self.setWindowTitle(t)
 
         if self.main_win_item.get_view_mode() == 0:
             self.grid = GridStandart(self.main_win_item)
