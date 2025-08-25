@@ -188,9 +188,6 @@ class SearchItem:
         """
         return self._filter
     
-    def reset_filter(self):
-        self.set_content(None)
-
 
 class MainWinItem:
     def __init__(self):

@@ -409,7 +409,7 @@ class MainWin(WinBase):
         self.search_bar.hide()
         self.search_bar_sep.hide()
         self.tree_menu.expand_path(self.main_win_item.main_dir)
-        self.search_item.reset_filter()
+        self.search_item.set_content(None)
         self.scroll_up.hide()
         self.grid.deleteLater()
         self.setWindowTitle(os.path.basename(self.main_win_item.main_dir))
