@@ -6,7 +6,7 @@ from PyQt5.QtGui import (QCloseEvent, QColor, QKeyEvent, QMouseEvent, QPalette,
                          QResizeEvent)
 from PyQt5.QtWidgets import (QApplication, QGraphicsDropShadowEffect,
                              QHBoxLayout, QLabel, QSplitter, QTabWidget,
-                             QVBoxLayout, QWidget)
+                             QVBoxLayout, QWidget, QFrame)
 
 from cfg import JsonData, Static
 from evlosh_templates.evlosh_utils import EvloshUtils
@@ -403,6 +403,13 @@ class MainWin(WinBase):
         """
         - dir: основная директория, которая будет отображена в виде сетки виджетов
         """
+
+        # self.test = QLabel(parent = self, text="Загрузка")
+        # self.test.setFixedSize(self.width(), self.height())
+        # self.test.move(self.grid.x(), self.grid.y())
+        # self.test.setStyleSheet("background: red;")
+        # self.test.show()
+
         if not os.path.exists(self.main_win_item.main_dir):
             slashed = EvloshUtils.norm_slash(self.main_win_item.main_dir)
             fixed_path = Utils.fix_path_prefix(slashed)
