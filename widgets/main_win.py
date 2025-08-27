@@ -390,8 +390,7 @@ class MainWin(WinBase):
         self.setup_grid_signals()
         self.fast_sort_wid.setParent(self.grid)
 
-        if self.search_item.get_content():
-            self.top_bar.search_wid.setFocus()
+        QTimer.singleShot(100, self.grid.setFocus)
 
     def search_finished(self):
         self.search_bar.search_bar_search_fin()

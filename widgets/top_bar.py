@@ -169,10 +169,6 @@ class SearchWidget(ULineEdit):
         self.search_text: str = None
         self.search_list_local: list[str] = []
 
-        self.input_timer = QTimer(self)
-        self.input_timer.setSingleShot(True)
-        self.input_timer.timeout.connect(self.prepare_text)
-
         self.templates_menu = UMenu(parent=self)
 
         for text, _ in SearchItem.SEARCH_EXTENSIONS.items():
@@ -212,8 +208,6 @@ class SearchWidget(ULineEdit):
             return
         if text:
             self.search_text = text
-            self.input_timer.stop()
-            self.input_timer.start(self.input_timer_ms)
         else:
             self.clear_all()
             self.load_st_grid.emit()
@@ -284,6 +278,11 @@ class SearchWidget(ULineEdit):
     def mouseDoubleClickEvent(self, a0):
         self.show_templates(a0)
         return super().mouseDoubleClickEvent(a0)
+
+    def keyPressEvent(self, a0):
+        if a0.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
+            self.prepare_text()
+        return super().keyPressEvent(a0)
 
 class TopBar(QWidget):
     level_up = pyqtSignal()
