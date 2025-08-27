@@ -262,7 +262,7 @@ class SearchWidget(ULineEdit):
             self.search_list_local = search_list
             self.setText("")
             self.setText(SearchItem.SEARCH_LIST_TEXT)
-            self.start_search()
+            QTimer.singleShot(1000, self.start_search)
 
         self.list_win = ListWin(self.main_win_item, self.search_item)
         self.list_win.finished_.connect(lambda search_list: fin(search_list))
@@ -366,11 +366,6 @@ class TopBar(QWidget):
         self.new_win_btn.mouseReleaseEvent = cmd
         self.new_win_btn.load(Static.INTERNAL_ICONS.get("new_win.svg"))
         self.main_lay.addWidget(self.new_win_btn)
-
-        # cascade_btn = BarTopBtn()
-        # cascade_btn.mouseReleaseEvent = lambda e: self.cascade_windows()
-        # cascade_btn.load(Static.CASCADE_SVG)
-        # self.main_lay.addWidget(cascade_btn)
 
         self.change_view_btn = BarTopBtn()
         self.change_view_btn.mouseReleaseEvent = lambda e: self.change_view.emit()
