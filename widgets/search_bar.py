@@ -38,7 +38,7 @@ class BlinkingLabel(QLabel):
 class SearchBar(QFrame):
     on_filter_clicked = pyqtSignal()
     on_pause_clicked = pyqtSignal(bool)
-    on_search_bar_clicked = pyqtSignal()
+    on_edit_clicked = pyqtSignal()
     on_exit_clicked = pyqtSignal()
 
     height_ = 40
@@ -86,7 +86,7 @@ class SearchBar(QFrame):
 
         self.edit_btn = QPushButton(text=self.edit_text)
         self.edit_btn.setFixedWidth(80)
-        self.edit_btn.clicked.connect(lambda e: self.on_search_bar_clicked.emit())
+        self.edit_btn.clicked.connect(lambda e: self.on_edit_clicked.emit())
         h_lay.addWidget(self.edit_btn)
 
         self.pause_btn = QPushButton()

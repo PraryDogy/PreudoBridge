@@ -175,6 +175,7 @@ class SearchWidget(ULineEdit):
             def cmd(e, text: str):
                 self.setText(text)
                 self.start_search()
+                QTimer.singleShot(0, self.deselect)
             action = QAction(text, self)
             action.triggered.connect(lambda e, text=text: cmd(e, text))
             self.templates_menu.addAction(action)
@@ -257,26 +258,17 @@ class SearchWidget(ULineEdit):
         self.templates_menu.exec(self.mapToGlobal(self.rect().bottomLeft()))
 
     def open_search_list_win(self):
-        """
-        - Открывает окно для ввода списка файлов / папок для поиска   
-        - Испускает сигнал finished со списком файлов из окна ввода
-        """
+        def fin(search_list: list[str]):
+            self.search_list_local = search_list
+            self.setText("")
+            self.setText(SearchItem.SEARCH_LIST_TEXT)
+            self.start_search()
+
         self.list_win = ListWin(self.main_win_item, self.search_item)
-        self.list_win.finished_.connect(lambda search_list: self.list_win_finished(search_list))
+        self.list_win.finished_.connect(lambda search_list: fin(search_list))
         self.list_win.center(self.window())
         self.list_win.show()
-
-    def list_win_finished(self, search_list: list[str]):
-        """
-        - Устанавливает значение search_list_local
-        - Устанавливает текст в поле ввода
-        - Срабатывает сигнал textChanged -> on_text_changed
-        """
-        self.search_list_local = search_list
-        # чтобы перезагрузить поиск, сначала удаляем текст
-        self.setText("")
-        self.setText(SearchItem.SEARCH_LIST_TEXT)
-        self.start_search()
+        QTimer.singleShot(0, self.deselect)
 
     def mouseDoubleClickEvent(self, a0):
         self.show_templates(a0)
@@ -423,13 +415,10 @@ class TopBar(QWidget):
 
     def on_search_bar_clicked(self):
         if isinstance(self.search_item.get_content(), str):
-            self.search_wid.selectAll()
             self.search_wid.setFocus()
         elif isinstance(self.search_item.get_content(), tuple):
-            self.search_wid.selectAll()
             self.search_wid.show_templates(None)
         else:
-            self.search_wid.selectAll()
             self.search_wid.open_search_list_win()
 
     def new_history_item(self, dir: str):
