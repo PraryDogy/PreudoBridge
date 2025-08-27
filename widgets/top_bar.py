@@ -172,9 +172,11 @@ class SearchWidget(ULineEdit):
         self.templates_menu = UMenu(parent=self)
 
         for text, _ in SearchItem.SEARCH_EXTENSIONS.items():
+            def cmd(e, text: str):
+                self.setText(text)
+                self.start_search()
             action = QAction(text, self)
-            cmd_ = lambda e, xx=text: self.setText(xx)
-            action.triggered.connect(cmd_)
+            action.triggered.connect(lambda e, text=text: cmd(e, text))
             self.templates_menu.addAction(action)
 
         search_list = QAction(SearchItem.SEARCH_LIST_TEXT, self)
@@ -216,7 +218,7 @@ class SearchWidget(ULineEdit):
         self.clear()
         self.search_item.set_content(None)
 
-    def prepare_text(self):
+    def start_search(self):
         """
         Готовит текст к поиску:
 
@@ -274,6 +276,7 @@ class SearchWidget(ULineEdit):
         # чтобы перезагрузить поиск, сначала удаляем текст
         self.setText("")
         self.setText(SearchItem.SEARCH_LIST_TEXT)
+        self.start_search()
 
     def mouseDoubleClickEvent(self, a0):
         self.show_templates(a0)
@@ -281,7 +284,7 @@ class SearchWidget(ULineEdit):
 
     def keyPressEvent(self, a0):
         if a0.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
-            self.prepare_text()
+            self.start_search()
         return super().keyPressEvent(a0)
 
 class TopBar(QWidget):
