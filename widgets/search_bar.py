@@ -39,6 +39,7 @@ class SearchBar(QFrame):
     on_filter_clicked = pyqtSignal()
     on_pause_clicked = pyqtSignal(bool)
     on_search_bar_clicked = pyqtSignal()
+    on_exit_clicked = pyqtSignal()
 
     height_ = 40
     pause_text = "Пауза"
@@ -51,6 +52,8 @@ class SearchBar(QFrame):
     no_filter_text = "  Найти похожие"
     exactly_text = "  Точное соответствие"
     containts_text = "  Содержится в имени"
+    edit_text = "Изменить"
+    exit_text = "Выход"
 
     def __init__(self, search_item: SearchItem):
         super().__init__()
@@ -64,15 +67,8 @@ class SearchBar(QFrame):
         h_lay.setSpacing(10)
         self.setLayout(h_lay)
 
-        uframe = UFrame()
-        h_lay.addWidget(uframe)
-        uframe_lay = QHBoxLayout()
-        uframe_lay.setContentsMargins(0, 0, 0, 0)
-        uframe.setLayout(uframe_lay)
-        uframe.mouseReleaseEvent = lambda e: self.on_search_bar_clicked.emit()
-
         self.descr_lbl = BlinkingLabel(self.searching_text)
-        uframe_lay.addWidget(self.descr_lbl)
+        h_lay.addWidget(self.descr_lbl)
 
         self.filter_bt = QPushButton()
         self.filter_bt.setStyleSheet("text-align: left;")
@@ -88,10 +84,19 @@ class SearchBar(QFrame):
             act.triggered.connect(lambda e, act=act: self.menu_clicked(act))
             menu.addAction(act)
 
+        self.edit_btn = QPushButton(text=self.edit_text)
+        self.edit_btn.setFixedWidth(80)
+        self.edit_btn.clicked.connect(lambda e: self.on_search_bar_clicked.emit())
+        h_lay.addWidget(self.edit_btn)
+
         self.pause_btn = QPushButton()
-        self.pause_btn.setFixedWidth(110)
+        self.pause_btn.setFixedWidth(80)
         self.pause_btn.clicked.connect(self.pause_btn_cmd)
         h_lay.addWidget(self.pause_btn)
+
+        self.stop_btn = QPushButton(text=self.exit_text)
+        self.stop_btn.clicked.connect(self.on_exit_clicked.emit)
+        h_lay.addWidget(self.stop_btn)
 
         h_lay.addStretch()
 

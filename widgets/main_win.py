@@ -225,6 +225,7 @@ class MainWin(WinBase):
         self.search_bar.on_filter_clicked.connect(lambda: self.load_search_grid())
         self.search_bar.on_pause_clicked.connect(lambda value: self.grid.toggle_pause(value))
         self.search_bar.on_search_bar_clicked.connect(lambda: self.top_bar.on_search_bar_clicked())
+        self.search_bar.on_exit_clicked.connect(self.load_st_grid)
 
         self.path_bar.new_history_item.connect(lambda dir: self.top_bar.new_history_item(dir))
         self.path_bar.load_st_grid.connect(lambda: self.load_st_grid())
@@ -367,11 +368,11 @@ class MainWin(WinBase):
     def load_search_grid(self):
 
         def cmd(value):
-            self.top_bar.search_wid.clear_btn.setDisabled(value)
+            self.top_bar.search_wid.setDisabled(value)
 
         self.grid.deleteLater()
         cmd(True)
-        QTimer.singleShot(1000, lambda: cmd(False))
+        QTimer.singleShot(1500, lambda: cmd(False))
 
         self.grid = GridSearch(self.main_win_item)
         self.grid.finished_.connect(lambda: self.search_finished())
