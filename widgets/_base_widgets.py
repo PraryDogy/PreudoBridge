@@ -315,21 +315,3 @@ class MinMaxDisabledWin(WinBase):
         fl = Qt.WindowType.Window | Qt.WindowType.CustomizeWindowHint
         fl = fl  | Qt.WindowType.WindowCloseButtonHint
         self.setWindowFlags(fl)
-
-
-class LoadingWid(QLabel):
-    text_ = "Загрузка"
-    def __init__(self, parent: QWidget):
-        super().__init__(LoadingWid.text_, parent)
-        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.setStyleSheet(
-            f"""
-                background: {Static.GRAY_GLOBAL};
-                border-radius: 4px;
-            """
-        )
-
-    def center(self, parent: QWidget):
-        geo = self.geometry()
-        geo.moveCenter(parent.geometry().center())
-        self.setGeometry(geo)

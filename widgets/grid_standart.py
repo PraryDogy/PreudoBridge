@@ -8,7 +8,6 @@ from system.items import BaseItem, MainWinItem
 from system.tasks import FinderItems, NewItems
 from system.utils import UThreadPool, Utils
 
-from ._base_widgets import LoadingWid
 from .grid import Grid, Thumb
 
 
@@ -21,9 +20,6 @@ class GridStandart(Grid):
         Стандартная сетка виджетов.
         """
         super().__init__(main_win_item)
-
-        self.loading_lbl = LoadingWid(self)
-        self.loading_lbl.center(self)
 
         self.load_vis_images_timer = QTimer(self)
         self.load_vis_images_timer.timeout.connect(self.load_vis_images)
@@ -72,7 +68,6 @@ class GridStandart(Grid):
             no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0)
-            self.loading_lbl.hide()
             return
 
         elif not base_items:
@@ -80,7 +75,6 @@ class GridStandart(Grid):
             no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0)
-            self.loading_lbl.hide()
             return
 
         # испускаем сигнал в MainWin для обновления нижнего бара
@@ -90,7 +84,6 @@ class GridStandart(Grid):
         self.hide()
         # создаем сетку на основе элементов из FinderItems
         self.create_thumbs_grid(base_items)
-        self.loading_lbl.hide()
         self.show()
 
     def create_thumbs_grid(self, base_items: list[BaseItem]):
@@ -166,5 +159,4 @@ class GridStandart(Grid):
         QTimer.singleShot(100, self.load_vis_images)
 
     def resizeEvent(self, a0):
-        self.loading_lbl.center(self)
         return super().resizeEvent(a0)

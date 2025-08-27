@@ -14,7 +14,7 @@ from evlosh_templates.evlosh_utils import EvloshUtils
 from system.items import CopyItem, MainWinItem
 from system.utils import Utils
 
-from ._base_widgets import LoadingWid, UMenu
+from ._base_widgets import UMenu
 from .actions import GridActions, ItemActions
 from .archive_win import ArchiveWin
 from .copy_files_win import CopyFilesWin, ErrorWin
@@ -94,10 +94,6 @@ class GridList(QTableView):
         self.url_to_index: dict[str, QModelIndex] = {}
         self.main_win_item = main_win_item
 
-        self.loading_lbl = LoadingWid(parent=self)
-        self.loading_lbl.center(self)
-        self.show()
-
         self.setSelectionBehavior(QTableView.SelectRows)
         self.setSortingEnabled(True)
         self.verticalHeader().setVisible(False)
@@ -149,10 +145,7 @@ class GridList(QTableView):
         self.setCurrentIndex(QModelIndex())
         self.path_bar_update.emit(self.main_win_item.main_dir)
         self.total_count_update.emit((0, row_count))
-        self.loading_lbl.hide()
-
         self.show()
-
         self.finished_.emit()
 
     def select_path(self, path: str):
