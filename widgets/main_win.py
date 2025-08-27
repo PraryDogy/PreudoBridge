@@ -134,8 +134,8 @@ class MainWin(WinBase):
         self.favs_menu = FavsMenu(self.main_win_item)
         self.tabs_widget.addTab(self.favs_menu, MainWin.favs_text)
 
-        self.tags_menu = TagsMenu()
-        self.left_wid.addWidget(self.tags_menu)
+        self.rating_menu = TagsMenu()
+        self.left_wid.addWidget(self.rating_menu)
 
         right_wid = QWidget()
         self.r_lay = QVBoxLayout()
@@ -209,8 +209,8 @@ class MainWin(WinBase):
         self.favs_menu.new_history_item.connect(lambda dir: self.top_bar.new_history_item(dir))
         self.favs_menu.open_in_new_win.connect(lambda dir: self.open_in_new_win((dir, None)))
 
-        self.tags_menu.filter_thumbs.connect(lambda: self.grid.filter_thumbs())
-        self.tags_menu.rearrange_thumbs.connect(lambda: self.grid.rearrange_thumbs())
+        self.rating_menu.filter_thumbs.connect(lambda: self.grid.filter_thumbs())
+        self.rating_menu.rearrange_thumbs.connect(lambda: self.grid.rearrange_thumbs())
 
         self.top_bar.level_up.connect(lambda: self.level_up())
         self.top_bar.change_view.connect(lambda: self.change_view_cmd())
@@ -366,41 +366,25 @@ class MainWin(WinBase):
         self.grid.verticalScrollBar().valueChanged.connect(lambda value: self.scroll_up_toggle(value))
 
     def load_search_grid(self):
-
-        def cmd(value):
-            self.top_bar.search_wid.setDisabled(value)
-
+        QTimer.singleShot(1500, lambda: self.top_bar.search_wid.setDisabled(False))
         self.grid.deleteLater()
-        cmd(True)
-        QTimer.singleShot(1500, lambda: cmd(False))
-
-        self.grid = GridSearch(self.main_win_item)
-        self.grid.finished_.connect(lambda: self.search_finished())
-        self.grid.setParent(self)
-        self.grid.sort_item = self.sort_item
-        self.grid.set_search_item(self.search_item)
-        self.grid.start_search()
-
+        self.top_bar.search_wid.setDisabled(True)
+        self.grid = GridSearch(self.main_win_item, self.sort_item, self.search_item, self)
+        self.grid.finished_.connect(self.search_bar.search_bar_search_fin)
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
-
         self.search_bar.show()
         self.search_bar_sep.show()
-        self.tags_menu.reset()
+        self.rating_menu.reset()
         self.scroll_up.hide()
-
-        self.setup_grid_signals()
         self.fast_sort_wid.setParent(self.grid)
-
+        self.setup_grid_signals()
         QTimer.singleShot(100, self.grid.setFocus)
-
-    def search_finished(self):
-        self.search_bar.search_bar_search_fin()
 
     def disable_wids(self, value: bool):
         self.top_bar.fast_sort_btn.setDisabled(value)
         self.sort_bar.sort_frame.setDisabled(value)
         self.sort_bar.slider.setDisabled(value)
-        self.tags_menu.setDisabled(value)
+        self.rating_menu.setDisabled(value)
 
     def load_st_grid(self):
         self.grid_spacer.resize(0, self.height())

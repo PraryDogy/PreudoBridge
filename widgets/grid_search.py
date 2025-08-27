@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
 
 from cfg import Dynamic, Static
-from system.items import BaseItem, MainWinItem, SearchItem
+from system.items import BaseItem, MainWinItem, SearchItem, SortItem
 from system.tasks import SearchTask
 from system.utils import UThreadPool, Utils
 
@@ -72,12 +72,13 @@ class GridSearch(Grid):
     no_result_text = "Ничего не найдено"
     pause_time_ms = 700
 
-    def __init__(self, main_win_item: MainWinItem):
+    def __init__(self, main_win_item: MainWinItem, sort_item: SortItem, search_item: SearchItem, parent: QWidget):
         super().__init__(main_win_item)
+        self.setParent(parent)
         self.setAcceptDrops(False)
-        self.search_item: SearchItem = None
+        self.search_item = search_item
+        self.sort_item = sort_item
 
-        # значение общего числа виджетов в сетке для нижнего бара приложения
         self.total = 0
         self.pause_by_btn: bool = False
 
@@ -85,63 +86,57 @@ class GridSearch(Grid):
         self.pause_timer.timeout.connect(self.remove_pause)
         self.pause_timer.setSingleShot(True)
 
-    def set_search_item(self, search_item: SearchItem):
-        """
-        Устанавливает search_item
-        Существует только для того, чтобы не передавать через аргумент в инициаторе
-        """
-        self.search_item = search_item
+        self.start_search()
 
     def start_search(self):
+
+        def upd_bottom_bars():
+            self.total_count_update.emit((len(self.selected_thumbs), 0))
+            self.path_bar_update.emit(self.main_win_item.main_dir)
+
+        def new_search_thumb(base_item: BaseItem):
+            thumb = Thumb(base_item.src, base_item.rating)
+            thumb.migrate_from_base_item(base_item)
+            thumb.set_widget_size()
+            thumb.set_no_frame()
+            if base_item.qimage:
+                thumb.set_image(base_item.qimage)
+            else:
+                icon_path = Utils.get_icon_path(base_item.type_, Static.EXTERNAL_ICONS)
+                if not os.path.exists(icon_path):
+                    Utils.create_icon(base_item.type_, icon_path, Static.INTERNAL_ICONS.get("file.svg"))
+                thumb.set_svg_icon()
+            self.add_widget_data(thumb, self.row, self.col)
+            self.grid_layout.addWidget(thumb, self.row, self.col)
+            self.total += 1
+            self.col += 1
+            if self.col >= self.col_count:
+                self.col = 0
+                self.row += 1
+            upd_bottom_bars()
+
+        def fin(missed_files_list: list[str]):
+            if not self.cell_to_wid:
+                no_images = QLabel(GridSearch.no_result_text)
+                no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                self.grid_layout.addWidget(no_images, 0, 0)
+
+            elif missed_files_list:
+                self.win_missed_files = WinMissedFiles(missed_files_list)
+                self.win_missed_files.center(self.window())
+                self.win_missed_files.show()
+
+            if self.search_task.is_should_run():
+                self.finished_.emit()
+
+        QTimer.singleShot(100, upd_bottom_bars)
         self.is_grid_search = True
-        self.total_count_update.emit((len(self.selected_thumbs), 0))
-        QTimer.singleShot(100, lambda: self.path_bar_update.emit(self.main_win_item.main_dir))
         Thumb.calc_size()
-
         self.search_task = SearchTask(self.main_win_item, self.search_item)
-        self.search_task.sigs.new_widget.connect(self.add_new_widget)
-        self.search_task.sigs.finished_.connect(lambda missed_files_list: self.search_fin(missed_files_list))
+        self.search_task.sigs.new_widget.connect(new_search_thumb)
+        self.search_task.sigs.finished_.connect(lambda lst: fin(lst))
         UThreadPool.start(self.search_task)
-
-    def add_new_widget(self, base_item: BaseItem):
-        thumb = Thumb(base_item.src, base_item.rating)
-        thumb.migrate_from_base_item(base_item)
-        thumb.set_widget_size()
-        thumb.set_no_frame()
-
-        if base_item.qimage:
-            thumb.set_image(base_item.qimage)
-        else:
-            icon_path = Utils.get_icon_path(base_item.type_, Static.EXTERNAL_ICONS)
-            if not os.path.exists(icon_path):
-                Utils.create_icon(base_item.type_, icon_path, Static.INTERNAL_ICONS.get("file.svg"))
-            thumb.set_svg_icon()
-
-        self.add_widget_data(thumb, self.row, self.col)
-        self.grid_layout.addWidget(thumb, self.row, self.col)
-
-        self.total += 1
-        self.col += 1
-        if self.col >= self.col_count:
-            self.col = 0
-            self.row += 1
- 
-        self.total_count_update.emit((len(self.selected_thumbs), self.total))
-
-    def search_fin(self, missed_files_list: list[str]):
-        if not self.cell_to_wid:
-            no_images = QLabel(GridSearch.no_result_text)
-            no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.grid_layout.addWidget(no_images, 0, 0)
-
-        elif missed_files_list:
-            self.win_missed_files = WinMissedFiles(missed_files_list)
-            self.win_missed_files.center(self.window())
-            self.win_missed_files.show()
-
-        if self.search_task.is_should_run():
-            self.finished_.emit()
 
     def sort_thumbs(self):
         self.search_task.pause = True
