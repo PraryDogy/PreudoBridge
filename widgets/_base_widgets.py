@@ -100,6 +100,7 @@ class USlider(QSlider):
         value = self.minimum() + round(ratio * (self.maximum() - self.minimum()))
         self.setValue(value)
         ev.accept()
+        return super().mousePressEvent(ev)
 
 
 class USvgSqareWidget(QSvgWidget):
