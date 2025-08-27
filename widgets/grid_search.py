@@ -1,5 +1,5 @@
 import os
-from PyQt5.QtGui import QPixmap, QImage
+
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
@@ -95,7 +95,7 @@ class GridSearch(Grid):
     def start_search(self):
         self.is_grid_search = True
         self.total_count_update.emit((len(self.selected_thumbs), 0))
-        self.path_bar_update.emit(self.main_win_item.main_dir)
+        QTimer.singleShot(100, lambda: self.path_bar_update.emit(self.main_win_item.main_dir))
         Thumb.calc_size()
 
         self.search_task = SearchTask(self.main_win_item, self.search_item)
