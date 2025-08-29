@@ -1,7 +1,7 @@
 import os
 
 import sqlalchemy
-
+from sqlalchemy.exc import OperationalError
 from system.utils import Utils
 
 METADATA = sqlalchemy.MetaData()
@@ -53,10 +53,7 @@ class Dbase:
         engine = sqlalchemy.create_engine(
             f"sqlite:///{path}",
             echo=False,
-            connect_args={
-                "check_same_thread": False,
-                "timeout": 3
-            }
+            connect_args={"check_same_thread": False, "timeout": 3}
         )
 
         try:
@@ -69,6 +66,22 @@ class Dbase:
 
             self.conn_count += 1
             return engine
+
+        except OperationalError as e:
+            print("Ошибка чтения БД:", e)
+            try:
+                os.remove(path)
+                print("БД удалена, пересоздаём...")
+            except Exception as e2:
+                print("Ошибка удаления БД:", e2)
+                return None
+
+            # вторая (последняя) попытка
+            try:
+                return self.create_engine(path)
+            except OperationalError as e3:
+                print("Повторная ошибка чтения БД:", e3)
+                return None
 
         except Exception as e:
             print(f"Ошибка при открытии БД: {e}")
