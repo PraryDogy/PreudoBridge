@@ -43,13 +43,12 @@ class Dbase:
         self.conn_max = 1
 
     def create_engine(self, path: str) -> sqlalchemy.Engine | None:
-
-        if self.conn_count == self.conn_max:
+        if self.conn_count >= self.conn_max:
             return None
-        
-        elif os.path.isdir(path):
+
+        if os.path.isdir(path):
             print("Путь к БД должен быть файлом, а не папкой")
-            return
+            return None
 
         engine = sqlalchemy.create_engine(
             f"sqlite:///{path}",
@@ -61,27 +60,20 @@ class Dbase:
         )
 
         try:
-            # счетчик должен идти первым, потому что уже на инструкции
-            # metadata.create_all уже может возникнуть ошибка
-
-            self.conn_count += 1
             METADATA.create_all(engine)
             conn = Dbase.open_connection(engine)
 
-            # проверяем доступность БД и соответствие таблицы
             q = sqlalchemy.select(CACHE)
             conn.execute(q).first()
             Dbase.close_connection(conn)
 
+            self.conn_count += 1
             return engine
 
         except Exception as e:
-            print("unable to open data base file")
+            print(f"Ошибка при открытии БД: {e}")
+            return None
 
-            if os.path.exists(path):
-                os.remove(path)
-
-            self.create_engine(path)
 
     @classmethod
     def commit_(cls, conn: sqlalchemy.Connection) -> None:
