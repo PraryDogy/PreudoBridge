@@ -482,15 +482,15 @@ class MainWin(WinBase):
         color = QPalette.windowText(palete).color().name()
     
         bg_style_data = {
-            "#000000": "rgba(220, 220, 220, 1)",
-            "#ffffff": "rgba(80, 80, 80, 1)",
+            "#000000": "rgba(220, 220, 220, 1)", # светлый виджет
+            "#ffffff": "rgba(45, 45, 45, 1)", # темный виджет
         }
 
         self.fast_sort_wid.setStyleSheet(f"""
             QLabel {{
                 background: {bg_style_data.get(color)};
                 font-weight: bold;
-                font-size: 20pt;
+                font-size: 30pt;
                 border-radius: 12px;
                 padding: 5px;
             }}
@@ -499,8 +499,8 @@ class MainWin(WinBase):
         self.fast_sort_wid.adjustSize()
         pw, ph = parent.width(), parent.height()
         tw, th = self.fast_sort_wid.width(), self.fast_sort_wid.height()
-        # self.fast_sort_wid.move((pw - tw) // 2, (ph - th) // 2)
-        self.fast_sort_wid.move((pw - tw) // 2, 30)
+        self.fast_sort_wid.move((pw - tw) // 2, (ph - th) // 2)
+        # self.fast_sort_wid.move((pw - tw) // 2, 30)
 
         self.fast_sort_wid.show()
         self.sort_bar.sort_frame.set_sort_text()
