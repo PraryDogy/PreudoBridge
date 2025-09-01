@@ -454,11 +454,17 @@ class MainWin(WinBase):
 
     def fast_sort_clicked(self):
         sort = self.sort_item.get_sort_type()
-        if sort != SortItem.filename:
-            self.sort_item.set_sort_type(SortItem.filename)
+
+        if sort == SortItem.filename:
+            self.sort_item.set_sort_type(SortItem.birth)
             self.sort_item.set_reversed(False)
-        else:
+
+        elif sort == SortItem.birth:
             self.sort_item.set_sort_type(SortItem.mod)
+            self.sort_item.set_reversed(False)
+
+        if sort== SortItem.mod:
+            self.sort_item.set_sort_type(SortItem.filename)
             self.sort_item.set_reversed(False)
 
         parent = self.grid
