@@ -84,7 +84,7 @@ class GridStandart(Grid):
         self.hide()
         # создаем сетку на основе элементов из FinderItems
         self.create_thumbs_grid(base_items)
-        self.show()
+        QTimer.singleShot(50, self.show)
 
     def create_thumbs_grid(self, base_items: list[BaseItem]):
         self.col_count = self.get_clmn_count()
