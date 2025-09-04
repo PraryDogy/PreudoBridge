@@ -132,7 +132,7 @@ class GridStandart(Grid):
     def _post_grid_selection(self):
         def select_delayed(wid: Thumb):
             self.select_single_thumb(wid)
-            self.ensureWidgetVisible(wid)
+            # self.ensureWidgetVisible(wid)
 
         if self.main_win_item.get_go_to() in self.url_to_wid:
             wid = self.url_to_wid.get(self.main_win_item.get_go_to())
@@ -147,7 +147,7 @@ class GridStandart(Grid):
                     wid.set_frame()
             if self.selected_thumbs:
                 wid = self.selected_thumbs[-1]
-                QTimer.singleShot(30, lambda: self.ensureWidgetVisible(wid))
+                # QTimer.singleShot(30, lambda: self.ensureWidgetVisible(wid))
             self.main_win_item.clear_urls_to_select()
 
         # если установлен фильтр по рейтингу, запускаем функцию фильтрации,
