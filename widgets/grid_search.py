@@ -198,7 +198,9 @@ class GridSearch(Grid):
     def dropEvent(self, a0: QDropEvent):
 
         def set_red():
-            self.main_wid.setStyleSheet("background: red; border-radius: 15px;")
+            self.main_wid.setStyleSheet(
+                "background: rgba(123, 0, 0, 0.29); border-radius: 15px;"
+            )
 
         def set_back():
             self.main_wid.setStyleSheet("")
