@@ -281,6 +281,22 @@ class Thumb(BaseItem, QFrame):
         effect.setOpacity(value)
         self.setGraphicsEffect(effect)
 
+    def set_red(self):
+        self.setStyleSheet(
+            f"""
+            #{Thumb.text_obj_name} {{
+                background: red;
+                font-size: {FONT_SIZE}px;
+                border-radius: {BORDER_RADIUS}px;
+                padding: 2px;
+            }}
+            #{Thumb.img_obj_name} {{
+                background: transparent;
+                font-size: {FONT_SIZE}px;
+                border-radius: {self.corner}px;
+            }}
+            """
+        )
 
 class Grid(UScrollArea):
     spacing_value = 5

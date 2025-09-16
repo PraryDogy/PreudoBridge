@@ -75,7 +75,7 @@ class GridSearch(Grid):
     def __init__(self, main_win_item: MainWinItem, sort_item: SortItem, search_item: SearchItem, parent: QWidget):
         super().__init__(main_win_item)
         self.setParent(parent)
-        self.setAcceptDrops(False)
+        # self.setAcceptDrops(False)
         self.search_item = search_item
         self.sort_item = sort_item
 
@@ -188,3 +188,19 @@ class GridSearch(Grid):
             i.setParent(None)
             i.deleteLater()
         return super().deleteLater()
+    
+    def dragEnterEvent(self, a0):
+        a0.accept()
+
+    def dropEvent(self, a0):
+
+        def set_red():
+            for i in self.url_to_wid.values():
+                i.set_red()
+
+        def set_back():
+            for i in self.url_to_wid.values():
+                i.set_no_frame()
+        
+        set_red()
+        QTimer.singleShot(1500, set_back)
