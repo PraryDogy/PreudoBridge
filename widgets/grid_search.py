@@ -1,6 +1,7 @@
 import os
 
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
+from PyQt5.QtGui import QDragEnterEvent, QDropEvent
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
 
@@ -71,11 +72,13 @@ class GridSearch(Grid):
     finished_ = pyqtSignal()
     no_result_text = "Ничего не найдено"
     pause_time_ms = 700
+    obj_name = "grid_search"
 
     def __init__(self, main_win_item: MainWinItem, sort_item: SortItem, search_item: SearchItem, parent: QWidget):
         super().__init__(main_win_item)
         self.setParent(parent)
-        # self.setAcceptDrops(False)
+        self.setObjectName(self.obj_name)
+
         self.search_item = search_item
         self.sort_item = sort_item
 
@@ -189,18 +192,16 @@ class GridSearch(Grid):
             i.deleteLater()
         return super().deleteLater()
     
-    def dragEnterEvent(self, a0):
+    def dragEnterEvent(self, a0: QDragEnterEvent):
         a0.accept()
 
-    def dropEvent(self, a0):
+    def dropEvent(self, a0: QDropEvent):
 
         def set_red():
-            for i in self.url_to_wid.values():
-                i.set_red()
+            self.main_wid.setStyleSheet("background: red; border-radius: 15px;")
 
         def set_back():
-            for i in self.url_to_wid.values():
-                i.set_no_frame()
+            self.main_wid.setStyleSheet("")
         
         set_red()
-        QTimer.singleShot(1500, set_back)
+        QTimer.singleShot(500, set_back)
