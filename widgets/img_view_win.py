@@ -358,16 +358,13 @@ class ImgViewWin(WinBase):
             elif ev.key() == Qt.Key.Key_Escape:
                 self.deleteLater()
 
-            elif ev.key() == Qt.Key.Key_Space:
-                self.deleteLater()
-
             elif ev.key() in KEY_RATING:
                 rating = KEY_RATING.get(ev.key())
                 data = (rating, self.current_path)
                 self.new_rating.emit(data)
                 self.set_title()
 
-        return super().keyPressEvent(ev)
+        # return super().keyPressEvent(ev)
 
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         # у нас отложенная инициация дочерних виджетов, поэтому при инициации
