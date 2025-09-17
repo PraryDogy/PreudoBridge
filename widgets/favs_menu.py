@@ -5,7 +5,7 @@ from PyQt5.QtGui import QContextMenuEvent, QDropEvent, QMouseEvent
 from PyQt5.QtWidgets import QAction, QLabel, QListWidget, QListWidgetItem
 
 from cfg import JsonData
-from evlosh_templates.shared_utils import SharedUtils
+from system.shared_utils import SharedUtils
 from system.items import MainWinItem
 from system.utils import Utils
 
