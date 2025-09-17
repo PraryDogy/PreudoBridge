@@ -21,7 +21,7 @@ class Static:
     VOLUMES: str = "Volumes"
 
     GRAY_GLOBAL = "rgba(128, 128, 128, 0.95)"
-    BLUE_GLOBAL = "rgb(46, 89, 203)"
+    BLUE_GLOBAL = "rgb(70, 130, 240)"
 
     STAR_SYM = "\U00002605" # ★
     LINE_LONG_SYM = "\U00002014" # —
