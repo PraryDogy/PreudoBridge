@@ -14,7 +14,7 @@ from PyQt5.QtTest import QTest
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import JsonData, Static, ThumbData
-from evlosh_templates.shared_utils import EvloshUtils
+from evlosh_templates.shared_utils import SharedUtils
 from evlosh_templates.fit_image import FitImage
 from evlosh_templates.path_finder import PathFinder
 from evlosh_templates.read_image import ReadImage
@@ -765,7 +765,7 @@ class FolderSizeTask(URunnable):
                         stack.append(entry.path)
                     else:
                         total += entry.stat().st_size
-        return EvloshUtils.get_f_size(total)
+        return SharedUtils.get_f_size(total)
 
 
 class InfoTask(URunnable):
@@ -789,12 +789,12 @@ class InfoTask(URunnable):
             size_ = self.calculating
             type_ = self.ru_folder
         else:
-            size_ = EvloshUtils.get_f_size(self.base_item.size)
+            size_ = SharedUtils.get_f_size(self.base_item.size)
             type_ = self.base_item.type_
         
         name = self.lined_text(self.base_item.filename)
         src = self.lined_text(self.base_item.src)
-        mod = EvloshUtils.get_f_date(self.base_item.mod)
+        mod = SharedUtils.get_f_date(self.base_item.mod)
 
         data = {
             InfoTask.name_text: name,

@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
                              QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static, ThumbData
-from evlosh_templates.shared_utils import EvloshUtils
+from evlosh_templates.shared_utils import SharedUtils
 from system.items import BaseItem, CopyItem, MainWinItem, SortItem
 from system.tasks import LoadImagesTask, RatingTask, UThreadPool
 from system.utils import Utils
@@ -110,16 +110,16 @@ class RatingWidget(QLabel):
         if rating > 0:
             mod_row = RATINGS.get(rating, "").strip()
         else:
-            mod_row = self.text_mod + EvloshUtils.get_f_date(mod)
+            mod_row = self.text_mod + SharedUtils.get_f_date(mod)
             if type_ == Static.FOLDER_TYPE:
                 sec_row = str("")
             else:
-                sec_row = self.text_size + EvloshUtils.get_f_size(size, 0)
+                sec_row = self.text_size + SharedUtils.get_f_size(size, 0)
             mod_row = "\n".join((mod_row, sec_row))
         self.setText(mod_row)
 
     def set_loading(self, size: int):
-        first_row = self.text_size + EvloshUtils.get_f_size(size, 0)
+        first_row = self.text_size + SharedUtils.get_f_size(size, 0)
         text = f"{first_row}\n{self.text_loading}"
         self.setText(text)
 
@@ -1325,13 +1325,13 @@ class Grid(UScrollArea):
     def dropEvent(self, a0):
         if not a0.mimeData().urls():
             return
-        sys_vol = EvloshUtils.get_sys_vol()
+        sys_vol = SharedUtils.get_sys_vol()
         urls = [
-            EvloshUtils.norm_slash(i.toLocalFile())
+            SharedUtils.norm_slash(i.toLocalFile())
             for i in a0.mimeData().urls()
         ]
         urls = [
-            EvloshUtils.add_sys_vol(i, sys_vol)
+            SharedUtils.add_sys_vol(i, sys_vol)
             for i in urls
         ]
         src = os.path.dirname(urls[0])

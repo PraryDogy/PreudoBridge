@@ -2,7 +2,7 @@ import os
 from datetime import datetime, timedelta
 
 
-class EvloshUtils:
+class SharedUtils:
 
     @classmethod
     def get_apps(cls, app_names: list[str]):

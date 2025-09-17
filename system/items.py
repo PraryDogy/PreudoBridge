@@ -9,7 +9,7 @@ from sqlalchemy import (Connection, Insert, Row, RowMapping, Update, insert,
 from sqlalchemy.engine import RowMapping
 
 from cfg import Static, ThumbData
-from evlosh_templates.shared_utils import EvloshUtils
+from evlosh_templates.shared_utils import SharedUtils
 from evlosh_templates.fit_image import FitImage
 from evlosh_templates.read_image import ReadImage
 
@@ -78,7 +78,7 @@ class BaseItem:
         Обновляет данные объекта:
         src, filename, type_, mod, birth, size, rating
         """
-        self.src = EvloshUtils.norm_slash(self.src)
+        self.src = SharedUtils.norm_slash(self.src)
         self.filename = os.path.basename(self.src)
 
         if os.path.isdir(self.src):

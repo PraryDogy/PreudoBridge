@@ -5,7 +5,7 @@ from PyQt5.QtGui import QContextMenuEvent, QDropEvent, QMouseEvent
 from PyQt5.QtWidgets import QAction, QLabel, QListWidget, QListWidgetItem
 
 from cfg import JsonData
-from evlosh_templates.shared_utils import EvloshUtils
+from evlosh_templates.shared_utils import SharedUtils
 from system.items import MainWinItem
 from system.utils import Utils
 
@@ -51,7 +51,7 @@ class FavItem(QLabel):
     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
         if ev.button() == Qt.MouseButton.LeftButton:
             if not os.path.exists(self.src):
-                slashed = EvloshUtils.norm_slash(self.src)
+                slashed = SharedUtils.norm_slash(self.src)
                 fixed_path = Utils.fix_path_prefix(slashed)
                 if fixed_path:
                     # удаляем из избранного старый айтем с неверной директорией
@@ -221,7 +221,7 @@ class FavsMenu(QListWidget):
 
         else:
             url_ = urls[-1].toLocalFile()
-            url_ = EvloshUtils.norm_slash(url_)
+            url_ = SharedUtils.norm_slash(url_)
             
             if url_ not in JsonData.favs and os.path.isdir(url_):
                 self.add_fav(src=url_)

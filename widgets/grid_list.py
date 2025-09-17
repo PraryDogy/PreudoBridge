@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QFileSystemModel,
                              QSplitter, QTableView, QTreeView)
 
 from cfg import Dynamic, JsonData, Static
-from evlosh_templates.shared_utils import EvloshUtils
+from evlosh_templates.shared_utils import SharedUtils
 from system.items import CopyItem, MainWinItem
 from system.utils import Utils
 
@@ -546,13 +546,13 @@ class GridList(QTableView):
     def dropEvent(self, a0: QDropEvent):
         if not a0.mimeData().urls():
             return
-        sys_vol = EvloshUtils.get_sys_vol()
+        sys_vol = SharedUtils.get_sys_vol()
         urls = [
-            EvloshUtils.norm_slash(i.toLocalFile())
+            SharedUtils.norm_slash(i.toLocalFile())
             for i in a0.mimeData().urls()
         ]
         urls = [
-            EvloshUtils.add_sys_vol(i, sys_vol)
+            SharedUtils.add_sys_vol(i, sys_vol)
             for i in urls
         ]
         src = os.path.dirname(urls[0])
