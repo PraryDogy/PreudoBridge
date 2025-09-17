@@ -15,7 +15,7 @@ from cfg import Dynamic, JsonData, Static, ThumbData
 from evlosh_templates.evlosh_utils import EvloshUtils
 from system.items import BaseItem, CopyItem, MainWinItem, SortItem
 from system.tasks import LoadImagesTask, RatingTask, UThreadPool
-from system.utils import ImageUtils, Utils
+from system.utils import Utils
 
 from ._base_widgets import UMenu, UScrollArea
 from .actions import GridActions, ItemActions
@@ -205,7 +205,7 @@ class Thumb(BaseItem, QFrame):
         self.img_wid = QLabel()
         pixmap = QPixmap.fromImage(qimage)
         self.base_pixmap = pixmap
-        scaled_pixmap = ImageUtils.pixmap_scale(pixmap, Thumb.pixmap_size)
+        scaled_pixmap = Utils.pixmap_scale(pixmap, Thumb.pixmap_size)
         self.img_wid.setPixmap(scaled_pixmap)
         self.img_frame_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
@@ -235,7 +235,7 @@ class Thumb(BaseItem, QFrame):
         self.img_frame.setFixedSize(Thumb.img_frame_size, Thumb.img_frame_size)
 
         if self.base_pixmap:
-            pixmap = ImageUtils.pixmap_scale(self.base_pixmap, Thumb.pixmap_size)
+            pixmap = Utils.pixmap_scale(self.base_pixmap, Thumb.pixmap_size)
             try:
                 self.img_wid.setAlignment(Qt.AlignmentFlag.AlignCenter)
                 self.img_wid.setPixmap(pixmap)

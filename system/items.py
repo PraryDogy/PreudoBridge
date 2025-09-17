@@ -3,7 +3,7 @@ import os
 import re
 
 import numpy as np
-from PyQt5.QtGui import QPixmap, QImage
+from PyQt5.QtGui import QImage, QPixmap
 from sqlalchemy import (Connection, Insert, Row, RowMapping, Update, insert,
                         select, update)
 from sqlalchemy.engine import RowMapping
@@ -14,7 +14,7 @@ from evlosh_templates.fit_image import FitImage
 from evlosh_templates.read_image import ReadImage
 
 from .database import CACHE, ColumnNames, Dbase
-from .utils import ImageUtils, Utils
+from .utils import Utils
 
 
 class SortItem:
@@ -280,13 +280,13 @@ class ImageBaseItem:
         elif self.already_flag in result:
             row = result[self.already_flag]
             bytes_img = row.get(ColumnNames.IMG)
-            img_array = ImageUtils.bytes_to_array(bytes_img)
+            img_array = Utils.bytes_to_array(bytes_img)
             stmt = None
         
         if img_array is  None:
             qimage = None
         else:
-            qimage = ImageUtils.qimage_from_array(img_array)
+            qimage = Utils.qimage_from_array(img_array)
 
         return (stmt, qimage)
 
@@ -316,7 +316,7 @@ class ImageBaseItem:
             return {self.insert_flag: row}
 
     def _get_update_stmt(self, row: RowMapping, img_array: np.ndarray) -> Update | None:
-        new_bytes_img = ImageUtils.numpy_to_bytes(img_array)
+        new_bytes_img = Utils.numpy_to_bytes(img_array)
         hash_filename = Utils.get_hash_filename(self.base_item.filename)
         stats = self._get_stats()
         if new_bytes_img and stats:
@@ -333,7 +333,7 @@ class ImageBaseItem:
             return None
 
     def _get_insert_stmt(self, img_array: np.ndarray) -> Update | None:
-        new_bytes_img = ImageUtils.numpy_to_bytes(img_array)
+        new_bytes_img = Utils.numpy_to_bytes(img_array)
         hash_filename = Utils.get_hash_filename(self.base_item.filename)
         stats = self._get_stats()
         if new_bytes_img and stats:

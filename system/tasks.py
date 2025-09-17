@@ -22,7 +22,7 @@ from evlosh_templates.read_image import ReadImage
 from .database import CACHE, Dbase
 from .items import (AnyBaseItem, BaseItem, CopyItem, ImageBaseItem,
                     MainWinItem, SearchItem, SortItem)
-from .utils import ImageUtils, Utils
+from .utils import Utils
 
 
 class URunnable(QRunnable):
@@ -466,7 +466,7 @@ class SearchTask(URunnable):
         if entry.name.endswith(Static.ext_all):
             img_array = ReadImage.read_image(entry.path)
             img_array = FitImage.start(img_array, ThumbData.DB_IMAGE_SIZE)
-            qimage = ImageUtils.qimage_from_array(img_array)
+            qimage = Utils.qimage_from_array(img_array)
             base_item.qimage = qimage
         self.sigs.new_widget.emit(base_item)
         QTest.qSleep(SearchTask.new_wid_sleep_ms)
@@ -696,11 +696,11 @@ class LoadImgTask(URunnable):
     def task(self):
         if self.src not in self.cached_images:
             img_array = ReadImage.read_image(self.src)
-            img_array = ImageUtils.desaturate_image(img_array, 0.2)
+            img_array = Utils.desaturate_image(img_array, 0.2)
             if img_array is None:
                 qimage = None
             else:
-                qimage = ImageUtils.qimage_from_array(img_array)
+                qimage = Utils.qimage_from_array(img_array)
                 self.cached_images[self.src] = qimage
             # del img_array
             # gc.collect()
