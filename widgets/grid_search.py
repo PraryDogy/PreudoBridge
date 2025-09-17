@@ -10,7 +10,8 @@ from system.items import BaseItem, MainWinItem, SearchItem, SortItem
 from system.tasks import SearchTask
 from system.utils import UThreadPool, Utils
 
-from ._base_widgets import MinMaxDisabledWin, USvgSqareWidget, UTextEdit
+from ._base_widgets import (MinMaxDisabledWin, NotifyWid, USvgSqareWidget,
+                            UTextEdit)
 from .grid import Grid, Thumb
 
 
@@ -71,13 +72,13 @@ class WinMissedFiles(MinMaxDisabledWin):
 class GridSearch(Grid):
     finished_ = pyqtSignal()
     no_result_text = "Ничего не найдено"
+    noti_text = "Завершите поиск, затем перетащите файлы"
+    warning_svg = "./icons/warning.svg"
     pause_time_ms = 700
-    obj_name = "grid_search"
 
     def __init__(self, main_win_item: MainWinItem, sort_item: SortItem, search_item: SearchItem, parent: QWidget):
         super().__init__(main_win_item)
         self.setParent(parent)
-        self.setObjectName(self.obj_name)
 
         self.search_item = search_item
         self.sort_item = sort_item
@@ -196,14 +197,5 @@ class GridSearch(Grid):
         a0.accept()
 
     def dropEvent(self, a0: QDropEvent):
-
-        def set_red():
-            self.main_wid.setStyleSheet(
-                "background: rgba(123, 0, 0, 0.29); border-radius: 15px;"
-            )
-
-        def set_back():
-            self.main_wid.setStyleSheet("")
-        
-        set_red()
-        QTimer.singleShot(500, set_back)
+        noti = NotifyWid(self, self.noti_text, self.warning_svg)
+        noti.move_show()
