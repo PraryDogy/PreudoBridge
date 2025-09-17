@@ -195,14 +195,6 @@ class ReadImage:
         *ext_video,
     )
 
-
-    @classmethod
-    def _print_error(*args):
-        print()
-        print("Исключение обработано.")
-        print(traceback.format_exc())
-        print()
-
     @classmethod
     def _read_tiff(cls, path: str) -> np.ndarray | None:
         try:
@@ -225,7 +217,7 @@ class ReadImage:
                 img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
             return img
         except (tifffile.TiffFileError, RuntimeError, DelayedImportError, Exception) as e: 
-            cls._print_error()
+            print("read tiff, tifffile error", e)
             try:
                 img = Image.open(path)
                 img = img.convert("RGB")
@@ -233,7 +225,7 @@ class ReadImage:
                 img.close()
                 return array_img
             except Exception as e:
-                cls._print_error()
+                print("read tiff, PIL error", e)
                 return None
                     
     @classmethod
@@ -245,7 +237,7 @@ class ReadImage:
             array_img = np.array(img)
             return array_img
         except Exception as e:
-            cls._print_error()
+            print("read psb, psd tools error", e)
             return None
 
     @classmethod
@@ -260,7 +252,7 @@ class ReadImage:
             img.close()
             return array_img
         except Exception as e:
-            cls._print_error()
+            print("read png, PIL error", e)
             return None
 
     @classmethod
@@ -273,7 +265,7 @@ class ReadImage:
             img.close()
             return array_img
         except Exception as e:
-            cls._print_error()
+            print("read jpg, PIL error", e)
             return None
 
     @classmethod
@@ -307,12 +299,12 @@ class ReadImage:
                     elif orientation == 8:
                         img = img.rotate(90, expand=True)
             except Exception as e:
-                cls._print_error()
+                print("read raw, get exif error", e)
             array_img = np.array(img)
             img.close()
             return array_img
         except (Exception, rawpy._rawpy.LibRawDataError) as e:
-            cls._print_error()
+            print("read raw error", e)
             return None
 
     @classmethod
@@ -328,7 +320,7 @@ class ReadImage:
             else:
                 return None
         except Exception as e:
-            cls._print_error()
+            print("read movie error", e)
             return None
 
     @classmethod
@@ -360,7 +352,7 @@ class ReadImage:
             return cls._read_any(path)
         else:
             return None
-        
+
 
 class PathFinder:
     _volumes_dir: str = "/Volumes"
