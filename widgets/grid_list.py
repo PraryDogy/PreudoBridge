@@ -548,7 +548,7 @@ class GridList(QTableView):
             return
         sys_vol = SharedUtils.get_sys_vol()
         urls = [
-            SharedUtils.norm_slash(i.toLocalFile())
+            i.toLocalFile().rstrip(os.sep)
             for i in a0.mimeData().urls()
         ]
         urls = [

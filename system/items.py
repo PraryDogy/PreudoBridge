@@ -76,7 +76,7 @@ class BaseItem:
         Обновляет данные объекта:
         src, filename, type_, mod, birth, size, rating
         """
-        self.src = SharedUtils.norm_slash(self.src)
+        self.src = self.src.rstrip(os.sep)
         self.filename = os.path.basename(self.src)
 
         if os.path.isdir(self.src):

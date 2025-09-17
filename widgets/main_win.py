@@ -394,7 +394,7 @@ class MainWin(WinBase):
 
     def _load_st_grid(self):
         if not os.path.exists(self.main_win_item.main_dir):
-            slashed = SharedUtils.norm_slash(self.main_win_item.main_dir)
+            slashed = self.main_win_item.main_dir.rstrip(os.sep)
             fixed_path = Utils.fix_path_prefix(slashed)
             if fixed_path:
                 self.main_win_item.main_dir = fixed_path

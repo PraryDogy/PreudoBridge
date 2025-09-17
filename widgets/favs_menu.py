@@ -51,7 +51,7 @@ class FavItem(QLabel):
     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
         if ev.button() == Qt.MouseButton.LeftButton:
             if not os.path.exists(self.src):
-                slashed = SharedUtils.norm_slash(self.src)
+                slashed = self.src.rstrip(os.sep)
                 fixed_path = Utils.fix_path_prefix(slashed)
                 if fixed_path:
                     # удаляем из избранного старый айтем с неверной директорией
@@ -221,7 +221,7 @@ class FavsMenu(QListWidget):
 
         else:
             url_ = urls[-1].toLocalFile()
-            url_ = SharedUtils.norm_slash(url_)
+            url_ = url_.rstrip(os.sep)
             
             if url_ not in JsonData.favs and os.path.isdir(url_):
                 self.add_fav(src=url_)

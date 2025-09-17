@@ -67,14 +67,7 @@ class SharedUtils:
         if path.startswith(os.path.expanduser("~")):
             return sys_vol + path
         return path
-    
-    @classmethod
-    def norm_slash(cls, path: str):
-        """
-        Убирает последний слеш, оставляет первый
-        """
-        return os.sep + path.strip(os.sep)
-                
+                    
     @classmethod
     def get_f_size(cls, bytes_size: int, round_value: int = 2) -> str:
         def format_size(size: float) -> str:
@@ -127,9 +120,9 @@ class SharedUtils:
         except Exception as e:
             print("fit image error", e)
             return None
-        
-class ReadImage:
 
+
+class ReadImage:
     psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
     psd_logger = logging.getLogger("psd_tools")
     psd_logger.setLevel(logging.CRITICAL)
