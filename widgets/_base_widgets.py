@@ -320,6 +320,8 @@ class MinMaxDisabledWin(WinBase):
 
 
 class NotifyWid(QFrame):
+    ms = 1500
+
     def __init__(self, parent: QWidget, text: str, svg_path: str):
         super().__init__(parent=parent)
 
@@ -362,14 +364,14 @@ class NotifyWid(QFrame):
 
         self.adjustSize()
 
-    def move_show(self):
+    def _show(self):
         self.adjustSize()
         pw, ph = self.parent().width(), self.parent().height()
         x = (pw - self.width()) // 2
         y = 10
         self.move(x, y)
         self.show()
-        # QTimer.singleShot(1500, self._close)
+        QTimer.singleShot(self.ms, self._close)
 
     def _close(self):
         self.setGraphicsEffect(None)

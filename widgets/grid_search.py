@@ -198,4 +198,4 @@ class GridSearch(Grid):
 
     def dropEvent(self, a0: QDropEvent):
         noti = NotifyWid(self, self.noti_text, self.warning_svg)
-        noti.move_show()
+        noti._show()
