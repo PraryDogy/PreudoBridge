@@ -543,5 +543,10 @@ class MainWin(WinBase):
 
             elif a0.key() == Qt.Key.Key_N:
                 self.open_in_new_win((self.main_win_item.main_dir, None))
+        
+        elif a0.key() == Qt.Key.Key_Escape:
+            if self.isFullScreen():
+                self.showNormal()
+                self.raise_()
 
         return super().keyPressEvent(a0)
