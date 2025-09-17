@@ -6,8 +6,7 @@ from PyQt5.QtWidgets import QAction, QGridLayout, QLabel
 
 from cfg import Static
 from system.items import BaseItem
-from system.tasks import FolderSizeTask, ImgResolTask, InfoTask
-from system.utils import UThreadPool
+from system.tasks import FolderSizeTask, ImgResolTask, InfoTask, UThreadPool
 
 from ._base_widgets import MinMaxDisabledWin, UMenu
 from .actions import CopyText, RevealInFinder

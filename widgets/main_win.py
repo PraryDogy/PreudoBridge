@@ -12,8 +12,8 @@ from cfg import JsonData, Static
 from evlosh_templates.evlosh_utils import EvloshUtils
 from evlosh_templates.paletes import UPallete
 from system.items import MainWinItem, SearchItem, SortItem
-from system.tasks import PathFinderTask
-from system.utils import UThreadPool, Utils
+from system.tasks import PathFinderTask, UThreadPool
+from system.utils import Utils
 
 from ._base_widgets import USep, WinBase
 from .favs_menu import FavsMenu

@@ -8,7 +8,7 @@ from time import sleep
 import numpy as np
 import sqlalchemy
 from PIL import Image
-from PyQt5.QtCore import QObject, QTimer, pyqtSignal
+from PyQt5.QtCore import QObject, QRunnable, QThreadPool, QTimer, pyqtSignal
 from PyQt5.QtGui import QImage
 from PyQt5.QtTest import QTest
 from sqlalchemy.exc import IntegrityError, OperationalError
@@ -22,7 +22,59 @@ from evlosh_templates.read_image import ReadImage
 from .database import CACHE, Dbase
 from .items import (AnyBaseItem, BaseItem, CopyItem, ImageBaseItem,
                     MainWinItem, SearchItem, SortItem)
-from .utils import ImageUtils, URunnable, Utils
+from .utils import ImageUtils, Utils
+
+
+class URunnable(QRunnable):
+    def __init__(self):
+        """
+        Переопределите метод task().
+        Не переопределяйте run().
+        """
+        super().__init__()
+        self.should_run__ = True
+        self.finished__ = False
+
+    def is_should_run(self):
+        return self.should_run__
+    
+    def set_should_run(self, value: bool):
+        self.should_run__ = value
+
+    def set_finished(self, value: bool):
+        self.finished__ = value
+
+    def is_finished(self):
+        return self.finished__
+    
+    def run(self):
+        try:
+            self.task()
+        finally:
+            self.set_finished(True)
+            if self in UThreadPool.tasks:
+                QTimer.singleShot(5000, lambda: self.task_fin())
+
+    def task(self):
+        raise NotImplementedError("Переопредели метод task() в подклассе.")
+    
+    def task_fin(self):
+        UThreadPool.tasks.remove(self)
+        gc.collect()
+
+
+class UThreadPool:
+    pool: QThreadPool = None
+    tasks: list[URunnable] = []
+
+    @classmethod
+    def init(cls):
+        cls.pool = QThreadPool.globalInstance()
+
+    @classmethod
+    def start(cls, runnable: QRunnable):
+        # cls.tasks.append(runnable)
+        cls.pool.start(runnable)
 
 
 # Общий класс для выполнения действий QAction в отдельном потоке

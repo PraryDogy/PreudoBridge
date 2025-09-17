@@ -1,17 +1,14 @@
-import gc
 import os
 
-import copy
 from PyQt5.QtCore import QEvent, QPoint, QSize, Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import (QColor, QContextMenuEvent, QKeyEvent, QMouseEvent,
-                         QPainter, QPaintEvent, QPixmap,
-                         QResizeEvent, QImage)
+from PyQt5.QtGui import (QColor, QContextMenuEvent, QImage, QKeyEvent,
+                         QMouseEvent, QPainter, QPaintEvent, QPixmap,
+                         QResizeEvent)
 from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QSpacerItem,
                              QVBoxLayout, QWidget)
 
 from cfg import Static
-from system.tasks import LoadImgTask
-from system.utils import UThreadPool
+from system.tasks import LoadImgTask, UThreadPool
 
 from ._base_widgets import UMenu, USvgSqareWidget, WinBase
 from .actions import ItemActions

@@ -4,8 +4,8 @@ import shutil
 
 from PyQt5.QtCore import (QMimeData, QPoint, QRect, QSize, Qt, QTimer, QUrl,
                           pyqtSignal)
-from PyQt5.QtGui import (QContextMenuEvent, QDrag, QKeyEvent, QMouseEvent,
-                         QPixmap, QImage)
+from PyQt5.QtGui import (QContextMenuEvent, QDrag, QImage, QKeyEvent,
+                         QMouseEvent, QPixmap)
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
                              QGridLayout, QLabel, QRubberBand, QSplitter,
@@ -14,8 +14,8 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
 from cfg import Dynamic, JsonData, Static, ThumbData
 from evlosh_templates.evlosh_utils import EvloshUtils
 from system.items import BaseItem, CopyItem, MainWinItem, SortItem
-from system.tasks import ArchiveTask, LoadImagesTask, RatingTask
-from system.utils import ImageUtils, UThreadPool, Utils
+from system.tasks import LoadImagesTask, RatingTask, UThreadPool
+from system.utils import ImageUtils, Utils
 
 from ._base_widgets import UMenu, UScrollArea
 from .actions import GridActions, ItemActions

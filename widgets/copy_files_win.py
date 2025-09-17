@@ -4,11 +4,9 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QPushButton,
                              QVBoxLayout, QWidget)
 
-from cfg import Dynamic, Static
-from evlosh_templates.evlosh_utils import EvloshUtils
+from cfg import Static
 from system.items import CopyItem
-from system.tasks import CopyFilesTask
-from system.utils import UThreadPool, Utils
+from system.tasks import CopyFilesTask, UThreadPool
 
 from ._base_widgets import MinMaxDisabledWin, USvgSqareWidget
 from .progressbar_win import ProgressbarWin

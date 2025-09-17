@@ -6,8 +6,8 @@ from PyQt5.QtWidgets import QAction, QLabel, QLineEdit, QTextEdit
 
 from cfg import Dynamic, Static
 from system.items import SortItem
-from system.tasks import ActionsTask
-from system.utils import UThreadPool, Utils
+from system.tasks import ActionsTask, UThreadPool
+from system.utils import Utils
 
 from ._base_widgets import UMenu
 

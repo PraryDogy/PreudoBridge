@@ -72,7 +72,7 @@ from PyQt5.QtWidgets import QApplication
 from cfg import Dynamic, JsonData
 from evlosh_templates.evlosh_utils import EvloshUtils
 from system.items import BaseItem
-from system.utils import UThreadPool
+from system.tasks import UThreadPool
 from widgets._base_widgets import WinBase
 from widgets.main_win import MainWin
 

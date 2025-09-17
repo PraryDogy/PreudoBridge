@@ -4,8 +4,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
 
 from cfg import Static
 from system.items import MainWinItem
-from system.tasks import RemoveFilesTask
-from system.utils import UThreadPool
+from system.tasks import RemoveFilesTask, UThreadPool
 
 from ._base_widgets import MinMaxDisabledWin, USvgSqareWidget
 

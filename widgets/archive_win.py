@@ -3,8 +3,7 @@ import os
 from PyQt5.QtCore import QTimer, pyqtSignal
 
 from cfg import Static
-from system.tasks import ArchiveTask
-from system.utils import UThreadPool
+from system.tasks import ArchiveTask, UThreadPool
 
 from .progressbar_win import ProgressbarWin
 

@@ -1,9 +1,10 @@
-from cfg import Static
-from system.tasks import ImgConvertTask
-from system.utils import UThreadPool
-import subprocess
-from .progressbar_win import ProgressbarWin
 from PyQt5.QtCore import pyqtSignal
+
+from cfg import Static
+from system.tasks import ImgConvertTask, UThreadPool
+
+from .progressbar_win import ProgressbarWin
+
 
 class ImgConvertWin(ProgressbarWin):
     title_text = "Создаю копии jpg"

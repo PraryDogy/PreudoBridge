@@ -5,8 +5,8 @@ from PyQt5.QtWidgets import QLabel
 
 from cfg import Dynamic, Static
 from system.items import BaseItem, MainWinItem
-from system.tasks import FinderItems, NewItems
-from system.utils import UThreadPool, Utils
+from system.tasks import FinderItems, UThreadPool
+from system.utils import Utils
 
 from .grid import Grid, Thumb
 
