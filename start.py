@@ -70,7 +70,7 @@ from PyQt5.QtCore import QEvent, QObject
 from PyQt5.QtWidgets import QApplication
 
 from cfg import Dynamic, JsonData
-from shared.shared_utils import SharedUtils
+from system.shared_utils import SharedUtils
 from system.items import BaseItem
 from system.tasks import UThreadPool
 from widgets._base_widgets import WinBase
