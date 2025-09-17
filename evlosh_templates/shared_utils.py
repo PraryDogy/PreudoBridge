@@ -10,13 +10,6 @@ class SharedUtils:
         Возвращает на основе имен приложений:
         - {путь к приложению: имя приложения, ...}
         """
-        app_dirs = [
-            "/Applications",
-            os.path.expanduser("~/Applications"),
-            "/System/Applications"
-        ]
-        image_apps: dict[str, str] = {}
-
 
         def search_dir(directory):
             try:
@@ -30,7 +23,12 @@ class SharedUtils:
             except PermissionError:
                 pass
 
-
+        app_dirs = [
+            "/Applications",
+            os.path.expanduser("~/Applications"),
+            "/System/Applications"
+        ]
+        image_apps: dict[str, str] = {}
         for app_dir in app_dirs:
             if os.path.exists(app_dir):
                 search_dir(app_dir)
