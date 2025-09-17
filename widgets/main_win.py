@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QApplication, QGraphicsDropShadowEffect,
                              QSplitter, QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
-from system.shared_utils import SharedUtils
+from shared.shared_utils import SharedUtils
 from system.paletes import UPallete
 from system.items import MainWinItem, SearchItem, SortItem
 from system.tasks import PathFinderTask, UThreadPool

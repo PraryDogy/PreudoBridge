@@ -9,7 +9,7 @@ from sqlalchemy import (Connection, Insert, Row, RowMapping, Update, insert,
 from sqlalchemy.engine import RowMapping
 
 from cfg import Static, ThumbData
-from system.shared_utils import ReadImage, SharedUtils
+from shared.shared_utils import ReadImage, SharedUtils
 
 from .database import CACHE, ColumnNames, Dbase
 from .utils import Utils
