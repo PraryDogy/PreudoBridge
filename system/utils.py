@@ -126,7 +126,7 @@ class Utils:
                 return buffer.getvalue()
             
         except Exception as e:
-            Utils.print_error()
+            print("numpy to bytes convert error", e)
             return None
 
     @classmethod

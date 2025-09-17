@@ -114,6 +114,7 @@ class SharedUtils:
             return cv2.resize(image, (new_w, new_h), interpolation=cv2.INTER_AREA)
         
         try:
-            cmd()
+            return cmd()
         except Exception as e:
             print("fit image error", e)
+            return None
