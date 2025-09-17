@@ -14,9 +14,7 @@ from PyQt5.QtTest import QTest
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import JsonData, Static, ThumbData
-from evlosh_templates.path_finder import PathFinder
-from evlosh_templates.read_image import ReadImage
-from evlosh_templates.shared_utils import SharedUtils
+from evlosh_templates.shared_utils import PathFinder, ReadImage, SharedUtils
 
 from .database import CACHE, Dbase
 from .items import (AnyBaseItem, BaseItem, CopyItem, ImageBaseItem,

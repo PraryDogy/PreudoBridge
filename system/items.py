@@ -9,8 +9,7 @@ from sqlalchemy import (Connection, Insert, Row, RowMapping, Update, insert,
 from sqlalchemy.engine import RowMapping
 
 from cfg import Static, ThumbData
-from evlosh_templates.read_image import ReadImage
-from evlosh_templates.shared_utils import SharedUtils
+from evlosh_templates.shared_utils import ReadImage, SharedUtils
 
 from .database import CACHE, ColumnNames, Dbase
 from .utils import Utils
