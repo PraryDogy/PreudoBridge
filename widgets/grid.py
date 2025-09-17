@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
                              QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static, ThumbData
-from evlosh_templates.evlosh_utils import EvloshUtils
+from evlosh_templates.shared_utils import EvloshUtils
 from system.items import BaseItem, CopyItem, MainWinItem, SortItem
 from system.tasks import LoadImagesTask, RatingTask, UThreadPool
 from system.utils import Utils

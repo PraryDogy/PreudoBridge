@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QFileSystemModel,
                              QSplitter, QTableView, QTreeView)
 
 from cfg import Dynamic, JsonData, Static
-from evlosh_templates.evlosh_utils import EvloshUtils
+from evlosh_templates.shared_utils import EvloshUtils
 from system.items import CopyItem, MainWinItem
 from system.utils import Utils
 

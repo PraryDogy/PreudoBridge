@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QApplication, QGraphicsDropShadowEffect,
                              QSplitter, QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
-from evlosh_templates.evlosh_utils import EvloshUtils
+from evlosh_templates.shared_utils import EvloshUtils
 from evlosh_templates.paletes import UPallete
 from system.items import MainWinItem, SearchItem, SortItem
 from system.tasks import PathFinderTask, UThreadPool
