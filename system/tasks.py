@@ -14,10 +14,9 @@ from PyQt5.QtTest import QTest
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from cfg import JsonData, Static, ThumbData
-from evlosh_templates.shared_utils import SharedUtils
-from evlosh_templates.fit_image import FitImage
 from evlosh_templates.path_finder import PathFinder
 from evlosh_templates.read_image import ReadImage
+from evlosh_templates.shared_utils import SharedUtils
 
 from .database import CACHE, Dbase
 from .items import (AnyBaseItem, BaseItem, CopyItem, ImageBaseItem,
@@ -465,7 +464,7 @@ class SearchTask(URunnable):
         base_item.set_properties()
         if entry.name.endswith(Static.ext_all):
             img_array = ReadImage.read_image(entry.path)
-            img_array = FitImage.start(img_array, ThumbData.DB_IMAGE_SIZE)
+            img_array = SharedUtils.fit_image(img_array, ThumbData.DB_IMAGE_SIZE)
             qimage = Utils.qimage_from_array(img_array)
             base_item.qimage = qimage
         self.sigs.new_widget.emit(base_item)

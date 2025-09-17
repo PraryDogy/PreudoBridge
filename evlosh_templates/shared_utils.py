@@ -1,6 +1,9 @@
 import os
 from datetime import datetime, timedelta
 
+import cv2
+import numpy as np
+
 
 class SharedUtils:
 
@@ -94,3 +97,23 @@ class SharedUtils:
             return f"вчера {date.strftime('%H:%M')}"
         else:
             return date.strftime("%d.%m.%y %H:%M")
+
+    @classmethod
+    def fit_image(cls, image: np.ndarray, size: int) -> np.ndarray:
+
+        def cmd():
+            h, w = image.shape[:2]
+            if w > h:  # Горизонтальное изображение
+                new_w = size
+                new_h = int(h * (size / w))
+            elif h > w:  # Вертикальное изображение
+                new_h = size
+                new_w = int(w * (size / h))
+            else:  # Квадратное изображение
+                new_w, new_h = size, size
+            return cv2.resize(image, (new_w, new_h), interpolation=cv2.INTER_AREA)
+        
+        try:
+            cmd()
+        except Exception as e:
+            print("fit image error", e)

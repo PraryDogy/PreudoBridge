@@ -9,9 +9,8 @@ from sqlalchemy import (Connection, Insert, Row, RowMapping, Update, insert,
 from sqlalchemy.engine import RowMapping
 
 from cfg import Static, ThumbData
-from evlosh_templates.shared_utils import SharedUtils
-from evlosh_templates.fit_image import FitImage
 from evlosh_templates.read_image import ReadImage
+from evlosh_templates.shared_utils import SharedUtils
 
 from .database import CACHE, ColumnNames, Dbase
 from .utils import Utils
@@ -356,7 +355,7 @@ class ImageBaseItem:
     
     def _get_small_ndarray_img(self) -> np.ndarray:
         img_array = ReadImage.read_image(self.base_item.src)
-        small_img = FitImage.start(img_array, ThumbData.DB_IMAGE_SIZE)
+        small_img = SharedUtils.fit_image(img_array, ThumbData.DB_IMAGE_SIZE)
         del img_array
         gc.collect()
         return small_img
