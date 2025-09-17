@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QApplication, QGraphicsDropShadowEffect,
 
 from cfg import JsonData, Static
 from evlosh_templates.shared_utils import SharedUtils
-from evlosh_templates.paletes import UPallete
+from system.paletes import UPallete
 from system.items import MainWinItem, SearchItem, SortItem
 from system.tasks import PathFinderTask, UThreadPool
 from system.utils import Utils
