@@ -478,9 +478,12 @@ class PathFinder:
         return None
 
     def _prepare_path(self, path: str):
-        path = path.strip().strip("'\"")
-        path = path.replace("\\", "/")
+        path = path.strip("'")
+        path = path.strip("\"")
+        path = path.strip()
         path = path.strip("/")
+        path = path.strip("\\")
+        path = path.replace("\\", "/")
         return "/" + path
 
     def _add_to_start(self, path: str) -> list[str]:
