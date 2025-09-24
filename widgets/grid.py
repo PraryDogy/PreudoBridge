@@ -962,7 +962,7 @@ class Grid(UScrollArea):
         copy_path.triggered.connect(lambda: CopyItem.reset())
         menu_.addAction(copy_path)
 
-        copy_name = ItemActions.CopyName(menu_, names)
+        copy_name = ItemActions.CopyName(menu_, urls)
         copy_name.triggered.connect(lambda: CopyItem.reset())
         menu_.addAction(copy_name)
 

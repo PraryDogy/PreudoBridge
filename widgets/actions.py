@@ -65,16 +65,19 @@ class CopyPath(QAction):
 class CopyName(QAction):
     text_ = "Скопировать имя"
 
-    def __init__(self, parent: UMenu, names: list[str]):
+    def __init__(self, parent: UMenu, urls: list[str]):
         super().__init__(self.text_, parent)
-        self.names = names
+        self.urls = urls
         self.triggered.connect(self.cmd_)
 
     def cmd_(self):
         names = []
-        for i in self.names:
-            head, _ = os.path.splitext(i)
-            names.append(head)
+        for i in self.urls:
+            basename = os.path.basename(i)
+            if os.path.isdir(i):
+                names.append(basename)
+            else:
+                names.append(os.path.splitext(basename)[0])
         Utils.write_to_clipboard("\n".join(names))
 
 
