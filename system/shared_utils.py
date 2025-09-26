@@ -120,6 +120,17 @@ class SharedUtils:
         except Exception as e:
             print("fit image error", e)
             return None
+        
+    def insert_linebreaks(text: str, n: int = 35) -> str:
+        new_text = []
+        for i in range(0, len(text), n):
+            row = text[i:i+n]
+            if row[-1] == " ":
+                row = row.rstrip()
+            else:
+                row = row + "-"
+            new_text.append(row)
+        return "\n".join(new_text).rstrip("-")
 
 
 class ReadImage:
