@@ -1,49 +1,30 @@
-import sys
+import hashlib
 import os
-from PyQt5.QtGui import QPainter, QColor, QFont
-from PyQt5.QtSvg import QSvgRenderer, QSvgGenerator
-from PyQt5.QtCore import QSize, QRect, QRectF, Qt
-from PyQt5.QtWidgets import QApplication
+
+def partial_hash(path: str, chunk: int = 1 << 20) -> tuple[str, str]:
+    """
+    Вычисляет хеш первых и последних chunk байт файла.
+    Возвращает кортеж (hash_start, hash_end) в виде hex-строк.
+    """
+    size = os.path.getsize(path)
+    h_start = hashlib.sha256()
+    h_end = hashlib.sha256()
+
+    with open(path, "rb") as f:
+        # начало
+        h_start.update(f.read(chunk))
+
+        if size > chunk:
+            # конец
+            f.seek(max(size - chunk, 0))
+            h_end.update(f.read(chunk))
+        else:
+            # если файл меньше чем chunk, используем то же самое
+            h_end.update(h_start.digest())
+
+    return h_start.hexdigest(), h_end.hexdigest()
 
 
-class IconGenerator:
-    @classmethod
-    def create_icon(cls, text: str, base_icon_path: str, icon_path: str):
-        renderer = QSvgRenderer(base_icon_path)
-        width, height = 133, 133
-        text_to_draw = text[:4].upper()
-
-        generator = QSvgGenerator()
-        generator.setFileName(icon_path)
-        generator.setSize(QSize(width, height))
-        generator.setViewBox(QRect(0, 0, width, height))
-
-        painter = QPainter(generator)
-        renderer.render(painter)
-        painter.setPen(QColor(71, 84, 103))
-        painter.setFont(QFont("Arial", 29, QFont.Bold))
-        painter.drawText(QRectF(0, 75, width, 30), Qt.AlignCenter, text_to_draw)
-        painter.end()
-
-        return icon_path
-
-
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-
-    TEXT_EXTENSIONS = [
-        ".txt", ".md", ".csv", ".log", ".ini", ".cfg", ".conf", ".json", ".yaml", ".yml", ".xml", ".html", ".htm",
-        ".css", ".js", ".ts", ".jsx", ".tsx", ".php", ".rb", ".pl", ".sh", ".bat", ".ps1", ".java", ".c", ".cpp",
-        ".h", ".hpp", ".cs", ".go", ".rs", ".swift", ".kt", ".m", ".mm", ".py", ".r", ".sql", ".lua", ".asm", ".s",
-        ".dart", ".scala", ".groovy", ".vb", ".bas", ".f90", ".f", ".f95"
-    ]
-
-    base_icon = "_text_icon.svg"
-    output_dir = "new"
-    os.makedirs(output_dir, exist_ok=True)
-
-    for ext in TEXT_EXTENSIONS:
-        out_path = os.path.join(output_dir, f"{ext[1:].upper()}.svg")
-        IconGenerator.create_icon(ext, base_icon, out_path)
-
-    sys.exit(0)
+# путь к иконке hashdir, начало хеша, конец хеша
+# по сути тебе без разницы, если даже 100 одинаковых файлов в разных папках
+# это один и тот же файл, и мы можем загрузить его из бд
