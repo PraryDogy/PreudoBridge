@@ -293,6 +293,7 @@ class TopBar(QWidget):
     open_in_new_win = pyqtSignal(str)
     open_settings = pyqtSignal()
     fast_sort = pyqtSignal()
+    new_folder = pyqtSignal()
 
     height_ = 40
     history_items_limit = 100
@@ -303,7 +304,7 @@ class TopBar(QWidget):
         "Наверх",
         "Обновить",
         "Сортировка",
-        "Новое окно",
+        "Новая папка",
         "Список",
         "Настройки"
     ]
@@ -361,11 +362,12 @@ class TopBar(QWidget):
         self.fast_sort_btn.clicked.connect(lambda: self.fast_sort.emit())
         self.main_lay.addWidget(self.fast_sort_btn)
 
-        self.new_win_btn = BarTopBtn()
-        cmd = lambda e: self.open_in_new_win.emit(self.main_win_item.main_dir)
-        self.new_win_btn.mouseReleaseEvent = cmd
-        self.new_win_btn.load(Static.INTERNAL_ICONS.get("new_win.svg"))
-        self.main_lay.addWidget(self.new_win_btn)
+        self.new_folder_btn = BarTopBtn()
+        # cmd = lambda e: self.open_in_new_win.emit(self.main_win_item.main_dir)
+        cmd = lambda e: self.new_folder.emit()
+        self.new_folder_btn.mouseReleaseEvent = cmd
+        self.new_folder_btn.load(Static.INTERNAL_ICONS.get("new_win.svg"))
+        self.main_lay.addWidget(self.new_folder_btn)
 
         self.change_view_btn = BarTopBtn()
         self.change_view_btn.mouseReleaseEvent = lambda e: self.change_view.emit()

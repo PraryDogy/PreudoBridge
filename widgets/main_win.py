@@ -221,6 +221,7 @@ class MainWin(WinBase):
         self.top_bar.open_in_new_win.connect(lambda dir: self.open_in_new_win((dir, None)))
         self.top_bar.open_settings.connect(lambda: self.open_settings())
         self.top_bar.fast_sort.connect(lambda: self.fast_sort_clicked())
+        self.top_bar.new_folder.connect(lambda: self.new_folder())
 
         self.search_bar.on_filter_clicked.connect(lambda: self.load_search_grid())
         self.search_bar.on_pause_clicked.connect(lambda value: self.grid.toggle_pause(value))
@@ -237,6 +238,10 @@ class MainWin(WinBase):
         self.sort_bar.sort_thumbs.connect(lambda: self.grid.sort_thumbs())
         self.sort_bar.load_st_grid.connect(lambda: self.load_st_grid())
         self.sort_bar.open_go_win.connect(lambda: self.open_go_win())
+
+    def new_folder(self):
+        if isinstance(self.grid, (GridStandart, GridList)):
+            self.grid.new_folder()
 
     def change_theme(self):
         app: QApplication = QApplication.instance()

@@ -987,15 +987,8 @@ class Grid(UScrollArea):
         remove_files.triggered.connect(lambda: self.remove_files(urls))
         menu_.addAction(remove_files)
 
-    def context_grid(self, menu_: UMenu):
-
-        def new_folder_start():
-            self.rename_win = RenameWin("")
-            self.rename_win.center(self.window())
-            self.rename_win.finished_.connect(lambda name: new_folder_fin(name))
-            self.rename_win.show()
-        
-        def new_folder_fin(name: str):
+    def new_folder(self):
+        def fin(name: str):
             dest = os.path.join(self.main_win_item.main_dir, name)
             try:
                 os.mkdir(dest)
@@ -1003,14 +996,19 @@ class Grid(UScrollArea):
                 QTimer.singleShot(30, lambda: self.select_single_thumb(thumb))
             except Exception as e:
                 Utils.print_error()
+        self.rename_win = RenameWin("")
+        self.rename_win.center(self.window())
+        self.rename_win.finished_.connect(lambda name: fin(name))
+        self.rename_win.show()
 
+    def context_grid(self, menu_: UMenu):
         self.path_bar_update_delayed(self.main_win_item.main_dir)
         names = [os.path.basename(self.main_win_item.main_dir)]
         urls = [self.main_win_item.main_dir]
 
         if not self.is_grid_search and not Dynamic.rating_filter != 0:
             new_folder = GridActions.NewFolder(menu_)
-            new_folder.triggered.connect(new_folder_start)
+            new_folder.triggered.connect(self.new_folder)
             menu_.addAction(new_folder)
 
         if not self.is_grid_search:

@@ -83,6 +83,7 @@ class GridList(QTableView):
     finished_ = pyqtSignal()
 
     not_exists_text = "Такой папки не существует. \nВозможно не подключен сетевой диск."
+    empty_text = "Нет файлов"
 
     def __init__(self, main_win_item: MainWinItem):
         super().__init__()
@@ -120,7 +121,6 @@ class GridList(QTableView):
                 (self.height() - no_images.height()) // 2,
             )
             no_images.show()
-            self.mouseMoveEvent = lambda args: None
             return
 
         self.sortByColumn(GridList.col, GridList.order)
@@ -161,6 +161,15 @@ class GridList(QTableView):
         self.show()
         self.finished_.emit()
 
+        if row_count == 0:
+            self.no_files = QLabel(self.empty_text, parent=self)
+            self.no_files.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.no_files.move(
+                (self.width() - self.no_files.width()) // 2,
+                (self.height() - self.no_files.height()) // 2,
+            )
+            self.no_files.show()
+
     def select_path(self, path: str):
         index = self._model.index(path, 0)
         self.select_row(index)
@@ -174,6 +183,19 @@ class GridList(QTableView):
 
     def double_clicked(self, index):
         self.open_thumb(self.get_selected_urls())
+
+    def new_folder(self):
+        def fin(name: str):
+            dest = os.path.join(self.main_win_item.main_dir, name)
+            try:
+                os.mkdir(dest)
+                QTimer.singleShot(100, lambda: self.select_path(dest))
+            except Exception as e:
+                Utils.print_error()
+        self.rename_win = RenameWin("")
+        self.rename_win.center(self.window())
+        self.rename_win.finished_.connect(lambda name: fin(name))
+        self.rename_win.show()
 
     def open_thumb(self, urls: list[str]):
         if len(urls) == 1:
@@ -392,6 +414,11 @@ class GridList(QTableView):
         menu_.addAction(remove_objects)  
 
     def grid_context(self, menu_: UMenu, selected_path: str, urls: list[str], names: list[str], total: int):
+
+        new_folder = GridActions.NewFolder(menu_)
+        new_folder.triggered.connect(self.new_folder)
+        menu_.addAction(new_folder)
+
         info = GridActions.Info(menu_)
         info.triggered.connect(lambda: self.win_info_cmd(selected_path))
         menu_.addAction(info)
