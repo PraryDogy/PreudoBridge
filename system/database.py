@@ -36,7 +36,7 @@ CACHE = sqlalchemy.Table(
 
 
 THUMBS = sqlalchemy.Table(
-    TABLE_NAME, METADATA,
+    "thumbs", METADATA,
     sqlalchemy.Column(ColumnNames.ID, sqlalchemy.Integer, primary_key=True),
     sqlalchemy.Column(ColumnNames.TYPE, sqlalchemy.Text),
     sqlalchemy.Column(ColumnNames.SIZE, sqlalchemy.Integer),
