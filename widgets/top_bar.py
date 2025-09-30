@@ -295,7 +295,7 @@ class TopBar(QWidget):
     fast_sort = pyqtSignal()
     new_folder = pyqtSignal()
 
-    height_ = 40
+    height_ = 46
     history_items_limit = 100
 
     topbar_btn_texts = [
@@ -324,6 +324,7 @@ class TopBar(QWidget):
         - Поле ввода для поиска
         """
         super().__init__()
+        self.setFixedHeight(self.height_)
         self.main_win_item = main_win_item
         self.search_item = search_item
         self.history_items: list[str] = []
@@ -331,7 +332,7 @@ class TopBar(QWidget):
 
         self.main_lay = QHBoxLayout()
         self.main_lay.setSpacing(0)
-        self.main_lay.setContentsMargins(0, 0, 0, 0)
+        self.main_lay.setContentsMargins(0, 3, 0, 3)
         self.setLayout(self.main_lay)
 
         back = BarTopBtn()
