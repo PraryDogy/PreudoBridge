@@ -1,5 +1,3 @@
-import os
-
 import sqlalchemy
 
 from cfg import Static
