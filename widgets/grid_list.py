@@ -506,14 +506,14 @@ class GridList(QTableView):
         CopyItem.set_src(self.main_win_item.main_dir)
         CopyItem.set_is_search(False)
         CopyItem.urls.clear()
-        if CopyItem._is_cut:
-            self.clearSelection()
+        # if CopyItem._is_cut:
+        #     self.clearSelection()
         for i in urls:
             CopyItem.urls.append(i)
-            if CopyItem._is_cut:
-                ind = self.url_to_index[i]
-                self._model.cut_rows.add(i)
-                self._model.dataChanged.emit(ind, ind)
+            # if CopyItem._is_cut:
+            #     ind = self.url_to_index[i]
+            #     self._model.cut_rows.add(i)
+                # self._model.dataChanged.emit(ind, ind)
 
     def remove_files_cmd(self, urls: list[str]):
         self.rem_win = RemoveFilesWin(self.main_win_item, urls)
