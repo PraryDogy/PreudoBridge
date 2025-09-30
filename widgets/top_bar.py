@@ -303,8 +303,8 @@ class TopBar(QWidget):
         "Вперед",
         "Наверх",
         "Обновить",
-        "Сортировка",
         "Новая папка",
+        "Сортировка",
         "Список",
         "Настройки"
     ]
@@ -357,17 +357,17 @@ class TopBar(QWidget):
         self.update_btn.clicked.connect(lambda: self.load_st_grid.emit())
         self.main_lay.addWidget(self.update_btn)
 
-        self.fast_sort_btn = BarTopBtn()
-        self.fast_sort_btn.load(Static.INTERNAL_ICONS.get("fast_sort.svg"))
-        self.fast_sort_btn.clicked.connect(lambda: self.fast_sort.emit())
-        self.main_lay.addWidget(self.fast_sort_btn)
-
         self.new_folder_btn = BarTopBtn()
         # cmd = lambda e: self.open_in_new_win.emit(self.main_win_item.main_dir)
         cmd = lambda e: self.new_folder.emit()
         self.new_folder_btn.mouseReleaseEvent = cmd
-        self.new_folder_btn.load(Static.INTERNAL_ICONS.get("new_win.svg"))
+        self.new_folder_btn.load(Static.INTERNAL_ICONS.get("new_folder.svg"))
         self.main_lay.addWidget(self.new_folder_btn)
+
+        self.fast_sort_btn = BarTopBtn()
+        self.fast_sort_btn.load(Static.INTERNAL_ICONS.get("fast_sort.svg"))
+        self.fast_sort_btn.clicked.connect(lambda: self.fast_sort.emit())
+        self.main_lay.addWidget(self.fast_sort_btn)
 
         self.change_view_btn = BarTopBtn()
         self.change_view_btn.mouseReleaseEvent = lambda e: self.change_view.emit()
