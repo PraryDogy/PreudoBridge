@@ -40,6 +40,7 @@ class Dbase:
             echo=False,
             connect_args={"check_same_thread": False, "timeout": 3}
         )
+        Dbase.engine = engine
 
         try:
             METADATA.create_all(engine)

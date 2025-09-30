@@ -495,6 +495,8 @@ class FinderItems(URunnable):
             self.finder_base_items = self.get_finder_base_items()
         except Exception as e:
             print("OK, system > tasks > FinderItems >  get_finder_base_items", e)
+            import traceback
+            print(traceback.format_exc())
         try:
             if self.conn:
                 self.db_items = self.get_db_items()
@@ -520,8 +522,7 @@ class FinderItems(URunnable):
                 continue
             base_item = BaseItem(entry.path)
             base_item.set_properties()
-            partial_hash = Utils.get_partial_hash(entry.path)
-            base_items[partial_hash] = base_item
+            base_items[base_item.partial_hash] = base_item
         return base_items
     
     def set_base_item_rating(self):
