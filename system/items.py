@@ -253,8 +253,8 @@ class AnyBaseItem:
         values = {
             Clmns.name.name: self.base_item.filename,
             Clmns.type.name: self.base_item.type_,
-            Clmns.size.name: self.base_item.size,
-            Clmns.mod.name: self.base_item.mod,
+            Clmns.size.name: int(self.base_item.size),
+            Clmns.mod.name: int(self.base_item.mod),
             Clmns.rating.name: self.base_item.rating,
             Clmns.partial_hash.name: self.base_item.partial_hash,
             Clmns.thumb_path.name: self.base_item.thumb_path
