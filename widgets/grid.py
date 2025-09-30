@@ -597,7 +597,7 @@ class Grid(UScrollArea):
             wid = self.url_to_wid.get(url)
             if not wid:
                 return
-            self.rating_task = RatingTask(self.main_win_item.main_dir, wid.filename, rating)
+            self.rating_task = RatingTask(self.main_win_item.main_dir, wid.partial_hash, rating)
             cmd_ = lambda: self.set_thumb_rating(wid, rating)
             self.rating_task.sigs.finished_.connect(cmd_)
             UThreadPool.start(self.rating_task)
@@ -776,7 +776,7 @@ class Grid(UScrollArea):
         """
 
         for wid in self.selected_thumbs:
-            self.rating_task = RatingTask(self.main_win_item.main_dir, wid.filename, rating)
+            self.rating_task = RatingTask(self.main_win_item.main_dir, wid.partial_hash, rating)
             cmd_ = lambda w=wid: self.set_thumb_rating(w, rating)
             self.rating_task.sigs.finished_.connect(cmd_)
             UThreadPool.start(self.rating_task)

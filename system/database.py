@@ -9,7 +9,8 @@ TABLE_NAME = "cache"
 CACHE = sqlalchemy.Table(
     TABLE_NAME, METADATA,
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
-    sqlalchemy.Column("type_", sqlalchemy.Text),
+    sqlalchemy.Column("name", sqlalchemy.Text),
+    sqlalchemy.Column("type", sqlalchemy.Text),
     sqlalchemy.Column("size", sqlalchemy.Integer),
     sqlalchemy.Column("mod", sqlalchemy.Integer),
     sqlalchemy.Column("rating", sqlalchemy.Integer),
@@ -20,7 +21,8 @@ CACHE = sqlalchemy.Table(
 
 class Clmns:
     id = CACHE.c.id
-    type = CACHE.c.type_
+    name = CACHE.c.name
+    type = CACHE.c.type
     size = CACHE.c.size
     mod = CACHE.c.mod
     rating = CACHE.c.rating

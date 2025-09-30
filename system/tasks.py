@@ -258,21 +258,20 @@ class _RatingSigs(QObject):
 
 
 class RatingTask(URunnable):
-    def __init__(self, main_dir: str, filename: str, new_rating: int):
+    def __init__(self, main_dir: str, partial_hash: str, new_rating: int):
         super().__init__()
-        self.filename = filename
+        self.partial_hash = partial_hash
         self.new_rating = new_rating
         self.main_dir = main_dir
         self.sigs = _RatingSigs()
 
     def task(self):        
         conn = Dbase.engine.connect()
-        hash_filename = Utils.get_hash_filename(self.filename)
         stmt = sqlalchemy.update(CACHE)
-        stmt = stmt.where(CACHE.c.name==hash_filename)
+        stmt = stmt.where(Clmns.partial_hash==self.partial_hash)
         stmt = stmt.values(rating=self.new_rating)
-        conn.execute(conn, stmt)
-        conn.commit(conn)
+        conn.execute(stmt)
+        conn.commit()
         conn.close()
         self.sigs.finished_.emit()
 

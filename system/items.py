@@ -251,6 +251,7 @@ class AnyBaseItem:
 
     def _get_insert_stmt(self) -> Insert | None:
         values = {
+            Clmns.name.name: self.base_item.filename,
             Clmns.type.name: self.base_item.type_,
             Clmns.size.name: self.base_item.size,
             Clmns.mod.name: self.base_item.mod,
@@ -307,6 +308,7 @@ class ImageBaseItem:
         stats = self.get_stats()
         if thumb and stats:
             values = {
+                Clmns.name.name: self.base_item.filename,
                 Clmns.type.name: self.base_item.type_,
                 Clmns.size.name: int(self.base_item.size),
                 Clmns.mod.name: int(self.base_item.mod),
