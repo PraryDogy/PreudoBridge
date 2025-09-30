@@ -68,6 +68,7 @@ class GridStandart(Grid):
             no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.addWidget(no_images, 0, 0)
+            self.mouseMoveEvent = lambda args: None
             return
 
         elif not base_items:

@@ -116,6 +116,9 @@ class GridList(QTableView):
 
         self._model.directoryLoaded.connect(self.set_url_to_index_)
 
+        if not os.path.exists(self.main_win_item.main_dir):
+            self.clearSelection()
+
     def set_url_to_index_(self):
         self.hide()
 
