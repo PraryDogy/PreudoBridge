@@ -183,7 +183,7 @@ class Utils:
         return h.hexdigest()
 
     @classmethod
-    def abs_thumb_path(cls, partial_hash: str) -> str:
+    def get_abs_thumb_path(cls, partial_hash: str) -> str:
         base = os.path.join(
             Static.THUMBNAILS,
             partial_hash[:2],

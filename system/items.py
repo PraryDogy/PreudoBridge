@@ -11,7 +11,7 @@ from sqlalchemy.engine import RowMapping
 from cfg import Static, ThumbData
 from system.shared_utils import ReadImage, SharedUtils
 
-from .database import CACHE, ColumnNames, Dbase, Clmns
+from .database import CACHE, Clmns, Dbase
 from .utils import Utils
 
 
@@ -243,11 +243,15 @@ class AnyBaseItem:
         return None
 
     def _get_insert_stmt(self) -> Insert | None:
-        hash_filename = Utils.get_hash_filename(self.base_item.filename)
+        partial_hash = Utils.get_partial_hash(self.base_item.src)
+        thumb_path = Utils.get_abs_thumb_path(partial_hash)
         values = {
-            ColumnNames.NAME: hash_filename,
-            ColumnNames.TYPE: self.base_item.type_,
-            ColumnNames.RATING: 0,
+            Clmns.type.name: self.base_item.type_,
+            Clmns.size.name: 0,
+            Clmns.mod.name: "",
+            Clmns.rating.name: 0,
+            Clmns.partial_hash.name: partial_hash,
+            Clmns.thumb_path.name: thumb_path
         }
         return insert(CACHE).values(**values)
 

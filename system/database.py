@@ -16,7 +16,7 @@ CACHE = sqlalchemy.Table(
     sqlalchemy.Column("mod", sqlalchemy.Integer),
     sqlalchemy.Column("rating", sqlalchemy.Integer),
     sqlalchemy.Column("partial_hash", sqlalchemy.Text),
-    sqlalchemy.Column("hashdir", sqlalchemy.Text),
+    sqlalchemy.Column("thumb_path", sqlalchemy.Text),
 )
 
 
@@ -27,7 +27,7 @@ class Clmns:
     mod = CACHE.c.mod
     rating = CACHE.c.rating
     partial_hash = CACHE.c.partial_hash
-    hashdir = CACHE.c.hashdir
+    thumb_path = CACHE.c.thumb_path
 
 
 class Dbase:
