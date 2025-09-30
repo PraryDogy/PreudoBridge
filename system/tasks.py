@@ -486,42 +486,40 @@ class FinderItems(URunnable):
 
     def task(self):
         try:
-            self.finder_base_items = self.get_finder_base_items()
+            finder_items = self.get_finder_base_items()
         except Exception as e:
             print("OK, system > tasks > FinderItems >  get_finder_base_items", e)
         try:
             if self.conn:
-                self.db_items = self.get_db_items()
-                self.set_base_item_rating()
+                self.set_base_item_rating(finder_items)
         except self.sql_errors:
             Utils.print_error()
-
-        finder_base_items = list(self.finder_base_items.values())
-        finder_base_items = BaseItem.sort_items(finder_base_items, self.sort_item)
-        self.sigs.finished_.emit(finder_base_items)
-
-    def get_db_items(self) -> dict[str, int]:
-        q = sqlalchemy.select(Clmns.partial_hash, Clmns.rating)
-        return {
-            partial_hash: rating
-            for partial_hash, rating in self.conn.execute(q).fetchall()
-        }
+        finder_items = BaseItem.sort_items(finder_items, self.sort_item)
+        self.sigs.finished_.emit(finder_items)
 
     def get_finder_base_items(self) -> dict[str, BaseItem]:
-        base_items = {}
+        base_items = []
         for entry in os.scandir(self.main_win_item.main_dir):
             if entry.name.startswith(self.hidden_syms):
                 continue
             base_item = BaseItem(entry.path)
             base_item.set_properties()
-            base_items[base_item.partial_hash] = base_item
+            # base_items[base_item.partial_hash] = base_item
+            base_items.append(base_item)
         return base_items
     
-    def set_base_item_rating(self):
-        for hash_filename, rating in self.db_items.items():
-            base_item = self.finder_base_items.get(hash_filename, None)
-            if base_item:
-                base_item.rating = rating
+    def set_base_item_rating(self, finder_items: list[BaseItem]):
+        for base_item in finder_items:
+            if base_item.type_ == Static.FOLDER_TYPE:
+                ...
+            else:
+                stmt = (
+                    sqlalchemy.select(Clmns.rating)
+                    .where(Clmns.partial_hash == base_item.partial_hash)
+                )
+                res = self.conn.execute(stmt).scalar()
+                if res:
+                    base_item.rating == res
     
 
 class _LoadImagesSigs(QObject):
