@@ -315,9 +315,7 @@ class ImageBaseItem:
                 Clmns.partial_hash: self.base_item.partial_hash,
                 Clmns.thumb_path: self.base_item.thumb_path
             }
-            stmt = insert(CACHE)
-            stmt = stmt.values(**values)
-            return stmt
+            return insert(CACHE).values(**values)
         else:
             return None
     
