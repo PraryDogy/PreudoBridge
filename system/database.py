@@ -72,7 +72,7 @@ class Dbase:
             return None
     
     @classmethod
-    def open_connection(cls, engine: sqlalchemy.Engine) -> sqlalchemy.Connection | None:
+    def get_conn(cls, engine: sqlalchemy.Engine) -> sqlalchemy.Connection | None:
         try:
             return engine.connect()
         except Exception as e:
@@ -80,7 +80,7 @@ class Dbase:
             return None
     
     @classmethod
-    def close_connection(cls, conn: sqlalchemy.Connection):
+    def close_conn(cls, conn: sqlalchemy.Connection):
         try:
             conn.close()
         except Exception as e:
