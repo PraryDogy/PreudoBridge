@@ -136,6 +136,8 @@ class MainWin(WinBase):
 
         self.rating_menu = TagsMenu()
         self.left_wid.addWidget(self.rating_menu)
+        
+        self.left_wid.setSizes([1, 0]) 
 
         right_wid = QWidget()
         self.r_lay = QVBoxLayout()
