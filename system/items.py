@@ -4,8 +4,8 @@ import re
 
 import numpy as np
 from PyQt5.QtGui import QImage, QPixmap
-from sqlalchemy import (Connection, Insert, Row, RowMapping, Update, insert,
-                        select, update)
+from sqlalchemy import (Connection, Insert, RowMapping, Update, and_, insert,
+                        select)
 from sqlalchemy.engine import RowMapping
 
 from cfg import Static, ThumbData
@@ -244,7 +244,18 @@ class AnyBaseItem:
 
     def _check_db_record(self):
         stmt = select(Clmns.id)
-        stmt = stmt.where(Clmns.partial_hash == self.base_item.partial_hash)
+        if self.base_item.type_ == Static.FOLDER_TYPE:
+            stmt = stmt.where(and_(
+                Clmns.name == self.base_item.filename,
+                Clmns.type == self.base_item.type_,
+                Clmns.size == self.base_item.size,
+                Clmns.birth == self.base_item.birth,
+                Clmns.mod == self.base_item.mod
+            ))
+        else:
+            stmt = stmt.where(
+                Clmns.partial_hash == self.base_item.partial_hash
+            )
         if self.conn.execute(stmt).first():
             return True
         return None
@@ -254,6 +265,7 @@ class AnyBaseItem:
             Clmns.name.name: self.base_item.filename,
             Clmns.type.name: self.base_item.type_,
             Clmns.size.name: int(self.base_item.size),
+            Clmns.birth.name: int(self.base_item.birth),
             Clmns.mod.name: int(self.base_item.mod),
             Clmns.rating.name: self.base_item.rating,
             Clmns.partial_hash.name: self.base_item.partial_hash,
@@ -311,6 +323,7 @@ class ImageBaseItem:
                 Clmns.name.name: self.base_item.filename,
                 Clmns.type.name: self.base_item.type_,
                 Clmns.size.name: int(self.base_item.size),
+                Clmns.birth.name: int(self.base_item.birth),
                 Clmns.mod.name: int(self.base_item.mod),
                 Clmns.rating.name: int(self.base_item.rating),
                 Clmns.partial_hash.name: self.base_item.partial_hash,

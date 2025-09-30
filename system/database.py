@@ -12,6 +12,7 @@ CACHE = sqlalchemy.Table(
     sqlalchemy.Column("name", sqlalchemy.Text),
     sqlalchemy.Column("type", sqlalchemy.Text),
     sqlalchemy.Column("size", sqlalchemy.Integer),
+    sqlalchemy.Column("birth", sqlalchemy.Integer),
     sqlalchemy.Column("mod", sqlalchemy.Integer),
     sqlalchemy.Column("rating", sqlalchemy.Integer),
     sqlalchemy.Column("partial_hash", sqlalchemy.Text),
@@ -24,6 +25,7 @@ class Clmns:
     name = CACHE.c.name
     type = CACHE.c.type
     size = CACHE.c.size
+    birth = CACHE.c.birth
     mod = CACHE.c.mod
     rating = CACHE.c.rating
     partial_hash = CACHE.c.partial_hash
