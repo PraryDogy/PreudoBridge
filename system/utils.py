@@ -203,6 +203,7 @@ class Utils:
             else:
                 print(f"write_thumb: неподдерживаемое число каналов {thumb_array.shape}")
                 return None
+            os.makedirs(os.path.dirname(thumb_path), exist_ok=True)
             return cv2.imwrite(thumb_path, img)
         except Exception as e:
             print(f"write_thumb: ошибка записи thumb на диск: {e}")

@@ -311,8 +311,8 @@ class ImageBaseItem:
                 Clmns.size.name: int(self.base_item.size),
                 Clmns.mod.name: int(self.base_item.mod),
                 Clmns.rating.name: int(self.base_item.rating),
-                Clmns.partial_hash: self.base_item.partial_hash,
-                Clmns.thumb_path: self.base_item.thumb_path
+                Clmns.partial_hash.name: self.base_item.partial_hash,
+                Clmns.thumb_path.name: self.base_item.thumb_path
             }
             return insert(CACHE).values(**values)
         else:
