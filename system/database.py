@@ -44,10 +44,10 @@ class Dbase:
 
         try:
             METADATA.create_all(engine)
-            conn = Dbase.open_connection(engine)
+            conn = Dbase.engine.connect()
             q = sqlalchemy.select(CACHE)
             conn.execute(q).first()
-            Dbase.close_connection(conn)
+            conn.close()
         except Exception as e:
             print(f"Ошибка при открытии БД: {e}")
             if "no such column" in str(e):

@@ -266,20 +266,15 @@ class RatingTask(URunnable):
         self.sigs = _RatingSigs()
 
     def task(self):        
-        db = os.path.join(self.main_dir, Static.DB_FILENAME)
-        dbase = Dbase()
-        engine = dbase.create_engine(path=db)
-        if engine is None:
-            return
-        conn = Dbase.open_connection(engine)
+        conn = Dbase.engine.connect()
         hash_filename = Utils.get_hash_filename(self.filename)
         stmt = sqlalchemy.update(CACHE)
         stmt = stmt.where(CACHE.c.name==hash_filename)
         stmt = stmt.values(rating=self.new_rating)
-        Dbase.execute_(conn, stmt)
-        Dbase.commit_(conn)
+        conn.execute(conn, stmt)
+        conn.commit(conn)
+        conn.close()
         self.sigs.finished_.emit()
-        Dbase.close_connection(conn)
 
 
 class _SearchSigs(QObject):
@@ -628,14 +623,14 @@ class LoadImagesTask(URunnable):
 
     def process_stmt_list(self):
         for stmt in self.stmt_list:
-            if not Dbase.execute_(self.conn, stmt):
+            if not self.conn.execute(stmt):
                 return
-        Dbase.commit_(self.conn)
+        self.conn.commit()
 
     def _is_exists(self, base_item: BaseItem) -> bool:
         stmt = sqlalchemy.select(Clmns.partial_hash)
         stmt = stmt.where(Clmns.partial_hash == base_item.partial_hash)
-        if Dbase.execute_(self.conn, stmt).scalar():
+        if self.conn.execute(stmt).scalar():
             return True
         return None
 
@@ -836,11 +831,7 @@ class NewItems(URunnable):
         self.signals = _NewItemsSigs()
 
     def task(self):
-        dbase = Dbase()
-        engine = dbase.create_engine(self.main_win_item.main_dir)
-        conn = Dbase.open_connection(engine)
-        if not conn:
-            return
+        conn = Dbase.engine.connect()
         for i in self.urls:
             base_item = BaseItem(i)
             base_item.set_properties()

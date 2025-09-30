@@ -245,7 +245,7 @@ class AnyBaseItem:
     def _check_db_record(self):
         stmt = select(Clmns.id)
         stmt = stmt.where(Clmns.partial_hash == self.base_item.partial_hash)
-        if Dbase.execute_(self.conn, stmt).first():
+        if self.conn.execute(stmt).first():
             return True
         return None
 
@@ -293,7 +293,7 @@ class ImageBaseItem:
         stmt = select(Clmns.partial_hash, Clmns.thumb_path)
         stmt = stmt.where(Clmns.partial_hash == self.base_item.partial_hash)
         try:
-            row = Dbase.execute_(self.conn, stmt).first()
+            row = self.conn.execute(stmt).first()
         except AttributeError:
             row = None
 
