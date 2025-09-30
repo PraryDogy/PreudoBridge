@@ -519,7 +519,7 @@ class FinderItems(URunnable):
                 )
                 res = self.conn.execute(stmt).scalar()
                 if res:
-                    base_item.rating == res
+                    base_item.rating = res
     
 
 class _LoadImagesSigs(QObject):
