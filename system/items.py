@@ -11,7 +11,7 @@ from sqlalchemy.engine import RowMapping
 from cfg import Static, ThumbData
 from system.shared_utils import ReadImage, SharedUtils
 
-from .database import CACHE, ColumnNames, Dbase
+from .database import CACHE, ColumnNames, Dbase, Clmns
 from .utils import Utils
 
 

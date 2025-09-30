@@ -14,6 +14,8 @@ from PyQt5.QtGui import QColor, QFont, QImage, QPainter, QPixmap
 from PyQt5.QtSvg import QSvgGenerator, QSvgRenderer
 from PyQt5.QtWidgets import QApplication
 
+from cfg import Static
+
 
 class Utils:
     @classmethod
@@ -171,3 +173,50 @@ class Utils:
             aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio,
             transformMode=Qt.TransformationMode.SmoothTransformation
         )
+
+    @classmethod
+    def partial_hash(cls, path: str, mb: float = 1) -> str:
+        chunk = int(mb * (1 << 20))  # переводим МБ в байты
+        h = hashlib.sha256()
+        with open(path, "rb") as f:
+            h.update(f.read(chunk))
+        return h.hexdigest()
+
+    @classmethod
+    def abs_thumb_path(cls, partial_hash: str) -> str:
+        base = os.path.join(
+            Static.THUMBNAILS,
+            partial_hash[:2],
+            partial_hash[2:] + ".jpg"
+        )
+        return base
+
+    @classmethod
+    def write_thumb(cls, thumb_path: str, thumb: np.ndarray) -> bool:
+        try:
+            if len(thumb.shape) == 2:  # grayscale
+                img = thumb
+            elif thumb.shape[2] == 3:  # BGR
+                img = cv2.cvtColor(thumb, cv2.COLOR_BGR2RGB)
+            elif thumb.shape[2] == 4:  # BGRA
+                img = cv2.cvtColor(thumb, cv2.COLOR_BGRA2RGB)
+            else:
+                print(f"write_thumb: неподдерживаемое число каналов {thumb.shape}")
+                return None
+            return cv2.imwrite(thumb_path, img)
+        except Exception as e:
+            print(f"write_thumb: ошибка записи thumb на диск: {e}")
+            return None
+
+    @classmethod
+    def read_thumb(cls, thumb_path: str) -> np.ndarray | None:
+        try:
+            if os.path.exists(thumb_path):
+                img = cv2.imread(thumb_path, cv2.IMREAD_UNCHANGED)
+                return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            else:
+                print(f"read_thumb: файл не существует {thumb_path}")
+                return None
+        except Exception as e:
+            print(f"read_thumb: ошибка чтения thumb: {e}")
+            return None

@@ -1,3 +1,5 @@
+import os
+
 import sqlalchemy
 
 from cfg import Static
@@ -6,33 +8,28 @@ from system.utils import Utils
 METADATA = sqlalchemy.MetaData()
 TABLE_NAME = "cache"
 
-class ColumnNames:
-    ID = "id"
-    TYPE = "type_"
-    SIZE = "size"
-    MOD = "mod"
-    RATING = "rating"
-    PARTIAL_HASH = "partial_hash" # не используется
-
 
 CACHE = sqlalchemy.Table(
     TABLE_NAME, METADATA,
-    sqlalchemy.Column(ColumnNames.ID, sqlalchemy.Integer, primary_key=True),
-    sqlalchemy.Column(ColumnNames.TYPE, sqlalchemy.Text),
-    sqlalchemy.Column(ColumnNames.SIZE, sqlalchemy.Integer),
-    sqlalchemy.Column(ColumnNames.MOD, sqlalchemy.Integer),
-    sqlalchemy.Column(ColumnNames.RATING, sqlalchemy.Integer),
-    sqlalchemy.Column(ColumnNames.PARTIAL_HASH, sqlalchemy.Text)
+    sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column("type_", sqlalchemy.Text),
+    sqlalchemy.Column("size", sqlalchemy.Integer),
+    sqlalchemy.Column("mod", sqlalchemy.Integer),
+    sqlalchemy.Column("rating", sqlalchemy.Integer),
+    sqlalchemy.Column("partial_hash", sqlalchemy.Text),
+    sqlalchemy.Column("hashdir", sqlalchemy.Text),
 )
 
 
 class Clmns:
     id = CACHE.c.id
-    type = CACHE.c.type
+    type = CACHE.c.type_
     size = CACHE.c.size
     mod = CACHE.c.mod
     rating = CACHE.c.rating
-    hash = CACHE.c.partial_hash    
+    partial_hash = CACHE.c.partial_hash
+    hashdir = CACHE.c.hashdir
+
 
 class Dbase:
     engine: sqlalchemy.Engine
@@ -48,14 +45,14 @@ class Dbase:
         try:
             METADATA.create_all(engine)
             conn = Dbase.open_connection(engine)
-
             q = sqlalchemy.select(CACHE)
             conn.execute(q).first()
             Dbase.close_connection(conn)
-
         except Exception as e:
             print(f"Ошибка при открытии БД: {e}")
-            return None
+            if "no such column" in str(e):
+                METADATA.drop_all(engine)
+                METADATA.create_all(engine)
 
 
     @classmethod
