@@ -35,6 +35,21 @@ CACHE = sqlalchemy.Table(
 )
 
 
+THUMBS = sqlalchemy.Table(
+    TABLE_NAME, METADATA,
+    sqlalchemy.Column(ColumnNames.ID, sqlalchemy.Integer, primary_key=True),
+    sqlalchemy.Column(ColumnNames.TYPE, sqlalchemy.Text),
+    sqlalchemy.Column(ColumnNames.SIZE, sqlalchemy.Integer),
+    sqlalchemy.Column(ColumnNames.MOD, sqlalchemy.Integer),
+    sqlalchemy.Column(ColumnNames.RATING, sqlalchemy.Integer),
+    sqlalchemy.Column(ColumnNames.RATING, sqlalchemy.Integer),
+    sqlalchemy.Column(ColumnNames.RATING, sqlalchemy.Integer),
+    sqlalchemy.Column(ColumnNames.PARTIAL_HASH, sqlalchemy.Text)
+    
+)
+
+
+
 class Dbase:
     connections: list[sqlalchemy.Connection] = []
 

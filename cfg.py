@@ -12,6 +12,7 @@ class Static:
     APP_SUPPORT = os.path.join(os.path.expanduser('~/Library/Application Support'), APP_NAME)
     EXTERNAL_ICONS = os.path.join(APP_SUPPORT, "icons")
     JSON_FILE = os.path.join(APP_SUPPORT, 'cfg.json')
+    DB_FILE = os.path.join(APP_SUPPORT, 'db.db')
 
     APPLE_SCRIPTS = {entry.name: entry.path for entry in os.scandir("scripts")}
     INTERNAL_ICONS = {entry.name: entry.path for entry in os.scandir("icons")}
