@@ -89,9 +89,9 @@ class BaseItem:
 
         try:
             stat = os.stat(self.src)
-            self.mod = stat.st_mtime
-            self.birth = stat.st_birthtime
-            self.size = stat.st_size
+            self.mod = int(stat.st_mtime)
+            self.birth = int(stat.st_birthtime)
+            self.size = int(stat.st_size)
         except Exception as e:
             Utils.print_error()
             self.mod = 0
@@ -252,11 +252,12 @@ class AnyBaseItem:
                 Clmns.birth == self.base_item.birth,
                 Clmns.mod == self.base_item.mod
             ))
+
         else:
             stmt = stmt.where(
                 Clmns.partial_hash == self.base_item.partial_hash
             )
-        if self.conn.execute(stmt).first():
+        if self.conn.execute(stmt).scalar_one_or_none():
             return True
         return None
 
@@ -264,9 +265,9 @@ class AnyBaseItem:
         values = {
             Clmns.name.name: self.base_item.filename,
             Clmns.type.name: self.base_item.type_,
-            Clmns.size.name: int(self.base_item.size),
-            Clmns.birth.name: int(self.base_item.birth),
-            Clmns.mod.name: int(self.base_item.mod),
+            Clmns.size.name: self.base_item.size,
+            Clmns.birth.name: self.base_item.birth,
+            Clmns.mod.name: self.base_item.mod,
             Clmns.rating.name: self.base_item.rating,
             Clmns.partial_hash.name: self.base_item.partial_hash,
             Clmns.thumb_path.name: self.base_item.thumb_path
@@ -322,10 +323,10 @@ class ImageBaseItem:
             values = {
                 Clmns.name.name: self.base_item.filename,
                 Clmns.type.name: self.base_item.type_,
-                Clmns.size.name: int(self.base_item.size),
-                Clmns.birth.name: int(self.base_item.birth),
-                Clmns.mod.name: int(self.base_item.mod),
-                Clmns.rating.name: int(self.base_item.rating),
+                Clmns.size.name: self.base_item.size,
+                Clmns.birth.name: self.base_item.birth,
+                Clmns.mod.name: self.base_item.mod,
+                Clmns.rating.name: self.base_item.rating,
                 Clmns.partial_hash.name: self.base_item.partial_hash,
                 Clmns.thumb_path.name: self.base_item.thumb_path
             }
