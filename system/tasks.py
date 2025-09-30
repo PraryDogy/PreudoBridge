@@ -16,7 +16,7 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 from cfg import JsonData, Static, ThumbData
 from system.shared_utils import PathFinder, ReadImage, SharedUtils
 
-from .database import CACHE, Dbase
+from .database import CACHE, Clmns, Dbase
 from .items import (AnyBaseItem, BaseItem, CopyItem, ImageBaseItem,
                     MainWinItem, SearchItem, SortItem)
 from .utils import Utils
@@ -469,23 +469,23 @@ class SearchTask(URunnable):
         QTest.qSleep(SearchTask.new_wid_sleep_ms)
 
 
-class _FinderSigs(QObject):
-    finished_ = pyqtSignal(list)
-
-
 class FinderItems(URunnable):
+
+    class Sigs(QObject):
+        finished_ = pyqtSignal(list)
+
     hidden_syms: tuple[str] = ()
     sql_errors = (IntegrityError, OperationalError)
 
     def __init__(self, main_win_item: MainWinItem, sort_item: SortItem):
         super().__init__()
-        self.sigs = _FinderSigs()
+        self.sigs = FinderItems.Sigs()
         self.sort_item = sort_item
         self.main_win_item = main_win_item
 
         self.finder_base_items: dict[str, BaseItem] = {}
         self.db_items: dict[str, int] = {}
-        self.conn = self.create_connection()
+        self.conn = Dbase.engine.connect()
 
         if not JsonData.show_hidden:
             self.hidden_syms = Static.hidden_file_syms
@@ -498,7 +498,6 @@ class FinderItems(URunnable):
         try:
             if self.conn:
                 self.db_items = self.get_db_items()
-                self.delete_removed_items()
                 self.set_base_item_rating()
         except self.sql_errors:
             Utils.print_error()
@@ -508,51 +507,24 @@ class FinderItems(URunnable):
         self.sigs.finished_.emit(finder_base_items)
 
     def get_db_items(self) -> dict[str, int]:
-        q = sqlalchemy.select(CACHE.c.name, CACHE.c.rating)
+        q = sqlalchemy.select(Clmns.partial_hash, Clmns.rating)
         return {
-            hash_filename: rating
-            for hash_filename, rating in self.conn.execute(q).fetchall()
+            partial_hash: rating
+            for partial_hash, rating in self.conn.execute(q).fetchall()
         }
 
-    def delete_removed_items(self):
-        """
-        Сравнивает хеш имена Finder и хеш имена в базе данных
-        Удаляет те, которых больше нет в Finder
-        """
-        for hash_filename, rating in self.db_items.items():
-            if hash_filename not in self.finder_base_items:
-                q = sqlalchemy.delete(CACHE).where(CACHE.c.name == hash_filename)
-                self.conn.execute(q)
-        self.conn.commit()
-
-    def create_connection(self) -> sqlalchemy.Connection | None:
-        db = os.path.join(self.main_win_item.main_dir, Static.DB_FILENAME)
-        dbase = Dbase()
-        engine = dbase.create_engine(path=db)
-        if engine is None:
-            return None
-        else:
-            return Dbase.open_connection(engine)
-
     def get_finder_base_items(self) -> dict[str, BaseItem]:
-        """
-        Сканирует текущую директорию
-        Возвращает словарь: хеш имени файла: BaseItem
-        """
         base_items = {}
         for entry in os.scandir(self.main_win_item.main_dir):
             if entry.name.startswith(self.hidden_syms):
                 continue
             base_item = BaseItem(entry.path)
             base_item.set_properties()
-            hash_filename = Utils.get_hash_filename(base_item.filename)
-            base_items[hash_filename] = base_item
+            partial_hash = Utils.get_partial_hash(entry.path)
+            base_items[partial_hash] = base_item
         return base_items
     
     def set_base_item_rating(self):
-        """
-        Если BaseItem есть в базе данных, то устанавливается рейтинг из базы данных
-        """
         for hash_filename, rating in self.db_items.items():
             base_item = self.finder_base_items.get(hash_filename, None)
             if base_item:

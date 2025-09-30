@@ -70,8 +70,9 @@ from PyQt5.QtCore import QEvent, QObject
 from PyQt5.QtWidgets import QApplication
 
 from cfg import Dynamic, JsonData
-from system.shared_utils import SharedUtils
+from system.database import Dbase
 from system.items import BaseItem
+from system.shared_utils import SharedUtils
 from system.tasks import UThreadPool
 from widgets._base_widgets import WinBase
 from widgets.main_win import MainWin
@@ -83,6 +84,7 @@ class CustomApp(QApplication):
         faulthandler.enable()
         JsonData.init()
         UThreadPool.init()
+        Dbase.init()
         Dynamic.image_apps = SharedUtils.get_apps(JsonData.app_names)
         BaseItem.check_sortitem_attrs()
 

@@ -8,7 +8,6 @@ from system.utils import Utils
 METADATA = sqlalchemy.MetaData()
 TABLE_NAME = "cache"
 
-
 CACHE = sqlalchemy.Table(
     TABLE_NAME, METADATA,
     sqlalchemy.Column("id", sqlalchemy.Integer, primary_key=True),

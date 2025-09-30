@@ -175,7 +175,7 @@ class Utils:
         )
 
     @classmethod
-    def partial_hash(cls, path: str, mb: float = 1) -> str:
+    def get_partial_hash(cls, path: str, mb: float = 0.4) -> str:
         chunk = int(mb * (1 << 20))  # переводим МБ в байты
         h = hashlib.sha256()
         with open(path, "rb") as f:
