@@ -14,8 +14,7 @@ from ._base_widgets import (MinMaxDisabledWin, UFrame, ULineEdit, UMenu,
 
 class BarTopBtn(QWidget):
     clicked = pyqtSignal()
-    width_ = 45
-    big_width = 75
+    width_ = 40
     height_ = 35
     svg_size = 17
 
@@ -33,6 +32,7 @@ class BarTopBtn(QWidget):
         svg_frame = UFrame()
         svg_frame.setFixedSize(self.width_, self.height_)
         svg_lay = QHBoxLayout()
+        svg_lay.setContentsMargins(0, 0, 0, 0)
         svg_frame.setLayout(svg_lay)
         self.v_lay.addWidget(svg_frame, alignment=Qt.AlignmentFlag.AlignCenter)
 
