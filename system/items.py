@@ -252,12 +252,11 @@ class AnyBaseItem:
                 Clmns.birth == self.base_item.birth,
                 Clmns.mod == self.base_item.mod
             ))
-
         else:
             stmt = stmt.where(
                 Clmns.partial_hash == self.base_item.partial_hash
             )
-        if self.conn.execute(stmt).scalar_one_or_none():
+        if self.conn.execute(stmt).first():
             return True
         return None
 
