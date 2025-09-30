@@ -7,7 +7,7 @@ from PyQt5.QtCore import (QDateTime, QDir, QItemSelectionModel, QMimeData,
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QDragEnterEvent,
                          QDragMoveEvent, QDropEvent, QKeyEvent, QPixmap)
 from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QFileSystemModel,
-                             QSplitter, QTableView, QTreeView)
+                             QSplitter, QTableView, QLabel)
 
 from cfg import Dynamic, JsonData, Static
 from system.shared_utils import SharedUtils
@@ -82,6 +82,8 @@ class GridList(QTableView):
     total_count_update = pyqtSignal(tuple)
     finished_ = pyqtSignal()
 
+    not_exists_text = "Такой папки не существует. \nВозможно не подключен сетевой диск."
+
     def __init__(self, main_win_item: MainWinItem):
         super().__init__()
 
@@ -111,6 +113,15 @@ class GridList(QTableView):
             self.setRootIndex(self._model.index(self.main_win_item.main_dir))
         else:
             self.setModel(None)
+            no_images = QLabel(self.not_exists_text, parent=self)
+            no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            no_images.move(
+                (self.width() - no_images.width()) // 2,
+                (self.height() - no_images.height()) // 2,
+            )
+            no_images.show()
+            self.mouseMoveEvent = lambda args: None
+            return
 
         self.sortByColumn(GridList.col, GridList.order)
         for i in range(0, 4):
