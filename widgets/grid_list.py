@@ -101,23 +101,22 @@ class GridList(QTableView):
         self.doubleClicked.connect(self.double_clicked)
 
         self._model = MyFileSystemModel()
-        self._model.setRootPath(self.main_win_item.main_dir)
-
         self._model.setFilter(QDir.AllEntries | QDir.NoDotAndDotDot)
         if JsonData.show_hidden:
             self._model.setFilter(self._model.filter() | QDir.Hidden)
 
-        self.setModel(self._model)
-        self.setRootIndex(self._model.index(self.main_win_item.main_dir))
+        if os.path.exists(self.main_win_item.main_dir):
+            self.setModel(self._model)
+            self._model.setRootPath(self.main_win_item.main_dir)
+            self.setRootIndex(self._model.index(self.main_win_item.main_dir))
+        else:
+            self.setModel(None)
 
         self.sortByColumn(GridList.col, GridList.order)
         for i in range(0, 4):
             self.setColumnWidth(i, GridList.sizes[i])
 
         self._model.directoryLoaded.connect(self.set_url_to_index_)
-
-        if not os.path.exists(self.main_win_item.main_dir):
-            self.clearSelection()
 
     def set_url_to_index_(self):
         self.hide()
