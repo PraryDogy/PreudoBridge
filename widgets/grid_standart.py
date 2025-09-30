@@ -157,7 +157,7 @@ class GridStandart(Grid):
             self.filter_thumbs()
             self.rearrange_thumbs()
 
-        # QTimer.singleShot(100, self.load_vis_images)
+        QTimer.singleShot(100, self.load_vis_images)
 
     def resizeEvent(self, a0):
         return super().resizeEvent(a0)

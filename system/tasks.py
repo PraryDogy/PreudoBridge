@@ -560,18 +560,11 @@ class LoadImagesTask(URunnable):
         Испускает сигнал finished_
         """
 
-        db = os.path.join(self.main_win_item.main_dir, Static.DB_FILENAME)
-        self.dbase = Dbase()
-        engine = self.dbase.create_engine(db)
-
-        if engine is None:
-            return
-
-        self.conn = Dbase.open_connection(engine)
+        self.conn = Dbase.engine.connect()
         self.process_thumbs()
         self.process_stmt_list()
 
-        Dbase.close_connection(self.conn)
+        self.conn.close()
         self.sigs.finished_.emit()
 
     def process_thumbs(self):
@@ -640,12 +633,9 @@ class LoadImagesTask(URunnable):
         Dbase.commit_(self.conn)
 
     def _is_exists(self, base_item: BaseItem) -> bool:
-        stmt = sqlalchemy.select(CACHE.c.mod)
-        stmt = stmt.where(
-            CACHE.c.name == Utils.get_hash_filename(base_item.filename)
-        )
-        mod = Dbase.execute_(self.conn, stmt).scalar() or None
-        if mod and mod == int(base_item.mod):
+        stmt = sqlalchemy.select(Clmns.partial_hash)
+        stmt = stmt.where(Clmns.partial_hash == base_item.partial_hash)
+        if Dbase.execute_(self.conn, stmt).scalar():
             return True
         return None
 
