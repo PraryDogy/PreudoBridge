@@ -54,9 +54,8 @@ class Dbase:
                 METADATA.drop_all(engine)
                 METADATA.create_all(engine)
 
-
     @classmethod
-    def commit_(cls, conn: sqlalchemy.Connection) -> None:
+    def commit(cls, conn: sqlalchemy.Connection) -> None:
         try:
             conn.commit()
         except Exception as e:
@@ -64,7 +63,7 @@ class Dbase:
             conn.rollback()
 
     @classmethod
-    def execute_(cls, conn: sqlalchemy.Connection, query) -> sqlalchemy.CursorResult:
+    def execute(cls, conn: sqlalchemy.Connection, query) -> sqlalchemy.CursorResult:
         try:
             return conn.execute(query)
         except Exception as e:
