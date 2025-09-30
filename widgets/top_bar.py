@@ -16,7 +16,7 @@ class BarTopBtn(QWidget):
     clicked = pyqtSignal()
     width_ = 40
     height_ = 35
-    svg_size = 17
+    svg_size = 19
 
     def __init__(self):
         """
