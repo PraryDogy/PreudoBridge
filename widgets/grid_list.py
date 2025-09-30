@@ -26,12 +26,22 @@ from .rename_win import RenameWin
 
 
 class MyFileSystemModel(QFileSystemModel):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.cut_rows = set()
+
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if role == Qt.DisplayRole and orientation == Qt.Horizontal:
             headers = ["Имя", "Размер", "Тип", "Дата изменения"]
             if 0 <= section < len(headers):
                 return headers[section]
         return super().headerData(section, orientation, role)
+
+    def flags(self, index):
+        f = super().flags(index)
+        if self.filePath(index) in self.cut_rows:
+            return f & ~Qt.ItemFlag.ItemIsEnabled
+        return f
 
     def data(self, index, role=Qt.DisplayRole):
         if role == Qt.DisplayRole:
@@ -489,12 +499,21 @@ class GridList(QTableView):
         self.error_win.center(self.window())
         self.error_win.show()
 
+    def flags(self, index: QModelIndex):
+        return Qt.ItemIsEnabled  # отключаем выбор/редактирование
+
     def setup_urls_to_copy(self, urls: list[str]):
         CopyItem.set_src(self.main_win_item.main_dir)
         CopyItem.set_is_search(False)
         CopyItem.urls.clear()
+        if CopyItem._is_cut:
+            self.clearSelection()
         for i in urls:
             CopyItem.urls.append(i)
+            if CopyItem._is_cut:
+                ind = self.url_to_index[i]
+                self._model.cut_rows.add(i)
+                self._model.dataChanged.emit(ind, ind)
 
     def remove_files_cmd(self, urls: list[str]):
         self.rem_win = RemoveFilesWin(self.main_win_item, urls)
