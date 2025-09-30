@@ -71,6 +71,9 @@ class BaseItem:
         self.base_pixmap: QPixmap = None
         self.qimage: QImage = None
 
+        self.partial_hash: str = None
+        self.thumb_path: str = None
+
     def set_properties(self):
         """
         Обновляет данные объекта:
@@ -96,6 +99,9 @@ class BaseItem:
             self.size = 0
         # Поправка старой системы рейтинга, когда рейтинг был двузначным
         self.rating = self.rating % 10
+
+        self.partial_hash = Utils.get_partial_hash(self.src)
+        self.thumb_path = Utils.get_abs_thumb_path(self.partial_hash)
     
     @staticmethod
     def check_sortitem_attrs():
@@ -236,28 +242,25 @@ class AnyBaseItem:
             return None
 
     def _check_db_record(self):
-        stmt = select(CACHE.c.id)
-        stmt = stmt.where(CACHE.c.name == Utils.get_hash_filename(self.base_item.filename))
+        stmt = select(Clmns.id)
+        stmt = stmt.where(Clmns.partial_hash == self.base_item.partial_hash)
         if Dbase.execute_(self.conn, stmt).first():
             return True
         return None
 
     def _get_insert_stmt(self) -> Insert | None:
-        partial_hash = Utils.get_partial_hash(self.base_item.src)
-        thumb_path = Utils.get_abs_thumb_path(partial_hash)
         values = {
             Clmns.type.name: self.base_item.type_,
-            Clmns.size.name: 0,
-            Clmns.mod.name: "",
-            Clmns.rating.name: 0,
-            Clmns.partial_hash.name: partial_hash,
-            Clmns.thumb_path.name: thumb_path
+            Clmns.size.name: self.base_item.size,
+            Clmns.mod.name: self.base_item.mod,
+            Clmns.rating.name: self.base_item.rating,
+            Clmns.partial_hash.name: self.base_item.partial_hash,
+            Clmns.thumb_path.name: self.base_item.thumb_path
         }
         return insert(CACHE).values(**values)
 
 
 class ImageBaseItem:
-    update_flag = "_update"
     insert_flag = "_insert"
     already_flag = "_already"
     none_text = "None"
@@ -270,85 +273,47 @@ class ImageBaseItem:
     def get_stmt_qimage(self) -> tuple[Insert | Update | None, QImage | None]:
         result = self._check_db_record()
 
-        if self.update_flag in result:
-            row = result[self.update_flag]
-            img_array = self._get_small_ndarray_img()
-            stmt = self._get_update_stmt(row, img_array)
-
-        elif self.insert_flag in result:
-            img_array = self._get_small_ndarray_img()
-            stmt = self._get_insert_stmt(img_array)
+        if self.insert_flag in result:
+            thumb_array = self.get_thumb_array()
+            stmt = self.insert_stmt(thumb_array)
 
         elif self.already_flag in result:
             row = result[self.already_flag]
             bytes_img = row.get(ColumnNames.IMG)
-            img_array = Utils.bytes_to_array(bytes_img)
+            thumb_array = Utils.bytes_to_array(bytes_img)
             stmt = None
         
-        if img_array is  None:
+        if thumb_array is  None:
             qimage = None
         else:
-            qimage = Utils.qimage_from_array(img_array)
+            qimage = Utils.qimage_from_array(thumb_array)
 
         return (stmt, qimage)
 
     def _check_db_record(self) -> dict[str, RowMapping | None]:
-        stmt = select(
-            CACHE.c.id,
-            CACHE.c.img,
-            CACHE.c.size,
-            CACHE.c.mod,
-            CACHE.c.rating
-        )
-
-        stmt = stmt.where(
-            CACHE.c.name == Utils.get_hash_filename(self.base_item.filename)
-        )
+        stmt = select(Clmns.partial_hash, Clmns.thumb_path)
+        stmt = stmt.where(Clmns.partial_hash == self.base_item.partial_hash)
         try:
-            row = Dbase.execute_(self.conn, stmt).mappings().first()
+            row = Dbase.execute_(self.conn, stmt).first()
         except AttributeError:
             row = None
 
-        if row:
-            if row.get(ColumnNames.MOD) != int(self.base_item.mod):
-                return {self.update_flag: row}
-            else:
-                return {self.already_flag: row}
+        if row and row[0] == self.base_item.partial_hash:
+            return {self.already_flag: row}
         else:
             return {self.insert_flag: row}
 
-    def _get_update_stmt(self, row: RowMapping, img_array: np.ndarray) -> Update | None:
-        new_bytes_img = Utils.numpy_to_bytes(img_array)
-        hash_filename = Utils.get_hash_filename(self.base_item.filename)
+    def insert_stmt(self, thumb_array: np.ndarray) -> Update | None:
+        thumb = Utils.write_thumb(self.base_item.thumb_path, thumb_array)
         stats = self._get_stats()
-        if new_bytes_img and stats:
+        if thumb and stats:
             values = {
-                ColumnNames.NAME: hash_filename,
-                ColumnNames.IMG: new_bytes_img,
-                ColumnNames.SIZE: int(self.base_item.size),
-                ColumnNames.MOD: int(self.base_item.mod),
-            }
-            stmt = update(CACHE).where(CACHE.c.id == row.get(ColumnNames.ID))
-            stmt = stmt.values(**values)
-            return stmt
-        else:
-            return None
-
-    def _get_insert_stmt(self, img_array: np.ndarray) -> Update | None:
-        new_bytes_img = Utils.numpy_to_bytes(img_array)
-        hash_filename = Utils.get_hash_filename(self.base_item.filename)
-        stats = self._get_stats()
-        if new_bytes_img and stats:
-            values = {
-                ColumnNames.IMG: new_bytes_img,
-                ColumnNames.NAME: hash_filename,
-                ColumnNames.TYPE: self.base_item.type_,
-                ColumnNames.SIZE: int(self.base_item.size),
-                ColumnNames.MOD: int(self.base_item.mod),
-                ColumnNames.RATING: 0,
-                ColumnNames.RESOL: self.none_text,
-                ColumnNames.CATALOG: self.none_text,
-                ColumnNames.PARTIAL_HASH: self.none_text
+                Clmns.type.name: self.base_item.type_,
+                Clmns.size.name: int(self.base_item.size),
+                Clmns.mod.name: int(self.base_item.mod),
+                Clmns.rating.name: int(self.base_item.rating),
+                Clmns.partial_hash: self.base_item.partial_hash,
+                Clmns.thumb_path: self.base_item.thumb_path
             }
             stmt = insert(CACHE)
             stmt = stmt.values(**values)
@@ -356,7 +321,7 @@ class ImageBaseItem:
         else:
             return None
     
-    def _get_small_ndarray_img(self) -> np.ndarray:
+    def get_thumb_array(self) -> np.ndarray:
         img_array = ReadImage.read_image(self.base_item.src)
         small_img = SharedUtils.fit_image(img_array, ThumbData.DB_IMAGE_SIZE)
         del img_array

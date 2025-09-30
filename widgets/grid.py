@@ -211,7 +211,7 @@ class Thumb(BaseItem, QFrame):
 
     def migrate_from_base_item(self, base_item: BaseItem):
         """
-        Позволяет перенести данные из BaseItem в Thumb.
+        Позволяет перенести данные из BaseItem в Thumb без set_properties
         """
         self.src = base_item.src
         self.filename = base_item.filename
@@ -220,6 +220,9 @@ class Thumb(BaseItem, QFrame):
         self.birth = base_item.birth
         self.size = base_item.size
         self.rating = base_item.rating
+
+        self.partial_hash = base_item.partial_hash
+        self.thumb_path = base_item.thumb_path
 
     def set_widget_size(self):
         """

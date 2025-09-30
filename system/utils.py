@@ -192,16 +192,16 @@ class Utils:
         return base
 
     @classmethod
-    def write_thumb(cls, thumb_path: str, thumb: np.ndarray) -> bool:
+    def write_thumb(cls, thumb_path: str, thumb_array: np.ndarray) -> bool:
         try:
-            if len(thumb.shape) == 2:  # grayscale
-                img = thumb
-            elif thumb.shape[2] == 3:  # BGR
-                img = cv2.cvtColor(thumb, cv2.COLOR_BGR2RGB)
-            elif thumb.shape[2] == 4:  # BGRA
-                img = cv2.cvtColor(thumb, cv2.COLOR_BGRA2RGB)
+            if len(thumb_array.shape) == 2:  # grayscale
+                img = thumb_array
+            elif thumb_array.shape[2] == 3:  # BGR
+                img = cv2.cvtColor(thumb_array, cv2.COLOR_BGR2RGB)
+            elif thumb_array.shape[2] == 4:  # BGRA
+                img = cv2.cvtColor(thumb_array, cv2.COLOR_BGRA2RGB)
             else:
-                print(f"write_thumb: неподдерживаемое число каналов {thumb.shape}")
+                print(f"write_thumb: неподдерживаемое число каналов {thumb_array.shape}")
                 return None
             return cv2.imwrite(thumb_path, img)
         except Exception as e:
