@@ -271,26 +271,24 @@ class ImageBaseItem:
         self.base_item = base_item
 
     def get_stmt_qimage(self) -> tuple[Insert | Update | None, QImage | None]:
-        result = self._check_db_record()
+        result = self.check_db_record()
 
         if self.insert_flag in result:
             thumb_array = self.get_thumb_array()
             stmt = self.insert_stmt(thumb_array)
 
         elif self.already_flag in result:
-            row = result[self.already_flag]
-            bytes_img = row.get(ColumnNames.IMG)
-            thumb_array = Utils.bytes_to_array(bytes_img)
+            thumb_array = Utils.read_thumb(self.base_item.thumb_path)
             stmt = None
         
-        if thumb_array is  None:
+        if thumb_array is None:
             qimage = None
         else:
             qimage = Utils.qimage_from_array(thumb_array)
 
         return (stmt, qimage)
 
-    def _check_db_record(self) -> dict[str, RowMapping | None]:
+    def check_db_record(self) -> dict[str, RowMapping | None]:
         stmt = select(Clmns.partial_hash, Clmns.thumb_path)
         stmt = stmt.where(Clmns.partial_hash == self.base_item.partial_hash)
         try:
@@ -305,7 +303,7 @@ class ImageBaseItem:
 
     def insert_stmt(self, thumb_array: np.ndarray) -> Update | None:
         thumb = Utils.write_thumb(self.base_item.thumb_path, thumb_array)
-        stats = self._get_stats()
+        stats = self.get_stats()
         if thumb and stats:
             values = {
                 Clmns.type.name: self.base_item.type_,
@@ -326,7 +324,7 @@ class ImageBaseItem:
         gc.collect()
         return small_img
     
-    def _get_stats(self) -> os.stat_result:
+    def get_stats(self) -> os.stat_result:
         try:
             return os.stat(self.base_item.src)
         except Exception as e:
