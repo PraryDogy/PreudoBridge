@@ -562,6 +562,7 @@ class LoadImagesTask(URunnable):
         new_images: list[BaseItem] = []
         exist_images: list[BaseItem] = []
         svg_files: list[BaseItem] = []
+        exist_ratings: list[BaseItem] = []
 
         for base_item in self.base_items:
             if base_item.type_ == ".svg":
@@ -573,6 +574,7 @@ class LoadImagesTask(URunnable):
                 else:
                     base_item.rating = rating
                     stmt_list.append(self.update_folder_stmt(base_item))
+                    exist_ratings.append(base_item)
             else:
                 base_item.partial_hash = Utils.get_partial_hash(base_item.src)
                 base_item.thumb_path = Utils.get_abs_thumb_path(base_item.partial_hash)
@@ -586,7 +588,10 @@ class LoadImagesTask(URunnable):
                     stmt_list.append(self.update_file_stmt(base_item))
                     if base_item.type_ in Static.ext_all:
                         exist_images.append(base_item)
+                    else:
+                        exist_ratings.append(base_item)
 
+        self.execute_ratings(exist_ratings)
         self.execute_svg_files(svg_files)
         self.execute_exist_images(exist_images)
         self.execute_stmt_list(stmt_list)
@@ -606,6 +611,13 @@ class LoadImagesTask(URunnable):
                 self.sigs.update_thumb.emit(i)
             except Exception as e:
                 print("tasks, LoadImagesTask, update_thumb.emit error", e)
+
+    def execute_ratings(self, exist_ratings: list[BaseItem]):
+        for i in exist_ratings:
+            try:
+                self.sigs.update_thumb.emit(i)
+            except Exception as e:
+                print("tasks, LoadImagesTask update_thumb.emit error", e)
 
     def execute_exist_images(self, exist_images: list[BaseItem]):
         for i in exist_images:
@@ -646,7 +658,6 @@ class LoadImagesTask(URunnable):
         else:
             stmt = stmt.where(Clmns.partial_hash==base_item.partial_hash)
         res = Dbase.execute(self.conn, stmt).scalar()
-        print(res)
         return res
     
     def update_folder_stmt(self, base_item: BaseItem):

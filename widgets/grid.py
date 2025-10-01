@@ -404,17 +404,17 @@ class Grid(UScrollArea):
                 self.load_images_tasks.remove(task)
 
         def update_thumb(thumb: Thumb):
-            qimage = thumb.qimage
-            if qimage:
-                try:
-                    thumb.set_image(qimage)
-                    thumb.rating_wid.set_text(thumb.rating, thumb.type_, thumb.mod, thumb.size)
-                    thumb.set_transparent_frame(1.0)
-                    self.processed_thumbs.append(thumb)
-                except RuntimeError as e:
-                    print("grid > set_thumb_image runtime err")
-                    for i in self.load_images_tasks:
-                        i.set_should_run(False)
+            if thumb.qimage:
+                thumb.set_image(thumb.qimage)
+                thumb.set_transparent_frame(1.0)
+
+            try:
+                thumb.rating_wid.set_text(thumb.rating, thumb.type_, thumb.mod, thumb.size)
+                self.processed_thumbs.append(thumb)
+            except RuntimeError as e:
+                print("grid > set_thumb_image runtime err")
+                for i in self.load_images_tasks:
+                    i.set_should_run(False)
 
         def set_loading(thumb: Thumb):
             try:
