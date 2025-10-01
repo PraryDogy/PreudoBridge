@@ -503,40 +503,22 @@ class FinderItems(URunnable):
             print(traceback.format_exc())
 
     def _task(self):
-        files = self.get_finder_base_items()
-        files = self.set_files_rating(files)
-        finder_items = list(files.values())
-        finder_items = BaseItem.sort_items(finder_items, self.sort_item)
+        finder_items = BaseItem.sort_items(
+            self.get_finder_base_items(),
+            self.sort_item
+        )
         self.sigs.finished_.emit(finder_items)
 
     def get_finder_base_items(self):
-        files: dict[str, BaseItem] = {}
+        files: list[BaseItem] = []
         for entry in os.scandir(self.main_win_item.main_dir):
             if entry.name.startswith(self.hidden_syms):
                 continue
             base_item = BaseItem(entry.path)
             base_item.set_properties()
-            key = (
-                base_item.filename,
-                base_item.type_,
-                base_item.size,
-                base_item.birth,
-                base_item.mod
-            )
-            files[key] = base_item
+            files.append(base_item)
         return files
-    
-    def set_files_rating(self, files: dict[tuple, BaseItem]):
-        clmns = (Clmns.name, Clmns.type, Clmns.size, Clmns.birth, Clmns.mod, Clmns.rating)
-        stmt = (
-            sqlalchemy.select(*clmns)
-            .where(sqlalchemy.tuple_(*clmns[:-1]).in_(files))
-        )
-        res = Dbase.execute(self.conn, stmt).fetchall()
-        for name, type_, size, birth, mod, rating in res:
-            files[(name, type_, size, birth, mod)].rating = rating
-        return files
-    
+
 
 class LoadImagesTask(URunnable):
 
