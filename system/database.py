@@ -29,7 +29,7 @@ class Clmns:
     size = CACHE.c.size
     birth = CACHE.c.birth
     mod = CACHE.c.mod
-    last_read = CACHE.last_read
+    last_read = CACHE.c.last_read
     rating = CACHE.c.rating
     partial_hash = CACHE.c.partial_hash
     thumb_path = CACHE.c.thumb_path
@@ -56,6 +56,7 @@ class Dbase:
         except Exception as e:
             print(f"Ошибка при открытии БД: {e}")
             if "no such column" in str(e):
+                print("Не хватает колонок в существующей таблице, создаю новую")
                 METADATA.drop_all(engine)
                 METADATA.create_all(engine)
 
