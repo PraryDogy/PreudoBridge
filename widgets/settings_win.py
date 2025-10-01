@@ -9,6 +9,7 @@ from PyQt5.QtWidgets import (QCheckBox, QFrame, QGroupBox, QHBoxLayout, QLabel,
 
 from cfg import JsonData, Static
 from system.shared_utils import SharedUtils
+from system.tasks import DataSize, UThreadPool
 
 from ._base_widgets import MinMaxDisabledWin, USlider, USvgSqareWidget
 
@@ -17,6 +18,8 @@ class DataWidget(QGroupBox):
     clear_data_clicked = pyqtSignal()
     slider_w = 200
     limit_text = "Лимит данных"
+    data_size_text = "Размер данных"
+    data_size_calc = "Вычисляю"
 
     def __init__(self):
         super().__init__()
@@ -25,6 +28,9 @@ class DataWidget(QGroupBox):
         v_lay.setContentsMargins(10, 10, 10, 10)
         self.setLayout(v_lay)
 
+        self.total_wid = QLabel(f"{self.data_size_text}: {self.data_size_calc.lower()}")
+        v_lay.addWidget(self.total_wid)
+
         self.data_wid = QLabel()
         v_lay.addWidget(self.data_wid)
 
@@ -32,13 +38,23 @@ class DataWidget(QGroupBox):
         self.slider = USlider(Qt.Orientation.Horizontal, minimum, maximum)
         self.slider.valueChanged.connect(self.snap_to_step)
         self.slider.setFixedWidth(self.slider_w)
-
-        self.slider.setTickPosition(QSlider.TicksBelow)
-        self.slider.setTickInterval(1)
-
+        self.slider.setFixedHeight(20)
         v_lay.addWidget(self.slider)
-
         self.slider.setValue(JsonData.data_limit)
+
+        self.data_size_task()
+
+    def data_size_task(self):
+
+        def fin(total: int):
+            text = f"{self.data_size_text}: {SharedUtils.get_f_size(total)}"
+            self.total_wid.setText(text)
+
+        self.data_size = DataSize()
+        self.data_size.sigs.finished_.connect(
+            lambda total: fin(total)
+        )
+        UThreadPool.start(self.data_size)
 
     def snap_to_step(self, value):
         f_size = Static.DATA_LIMITS[value]["text"]

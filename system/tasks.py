@@ -1000,3 +1000,32 @@ class ArchiveTask(URunnable):
         self.zip_items()
         self.sigs.finished_.emit()
 
+
+class DataSize(URunnable):
+    
+    class Sigs(QObject):
+        finished_ = pyqtSignal(int)
+
+    def __init__(self):
+        super().__init__()
+        self.sigs = DataSize.Sigs()
+
+    def task(self):
+        try:
+            self.sigs.finished_.emit(
+                self._task()
+            )
+        except Exception as e:
+            print("tasks, DataSize error", e)
+
+    def _task(self):
+        total = 0
+        stack = [Static.THUMBNAILS]
+        while stack:
+            current = stack.pop()
+            for i in os.scandir(current):
+                if i.is_dir():
+                    stack.append(i.path)
+                elif i.name.endswith(Static.ext_all):
+                    total += os.path.getsize(i.path)
+        return total
