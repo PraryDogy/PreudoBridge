@@ -503,55 +503,39 @@ class FinderItems(URunnable):
             print(traceback.format_exc())
 
     def _task(self):
-        files, folders = self.get_finder_base_items()
+        files = self.get_finder_base_items()
         files = self.set_files_rating(files)
-        folders = self.set_folders_rating(folders)
-        finder_items = list(files.values()) + list(folders.values())
+        finder_items = list(files.values())
         finder_items = BaseItem.sort_items(finder_items, self.sort_item)
         self.sigs.finished_.emit(finder_items)
 
     def get_finder_base_items(self):
         files: dict[str, BaseItem] = {}
-        folders: dict[tuple, BaseItem] = {}
         for entry in os.scandir(self.main_win_item.main_dir):
             if entry.name.startswith(self.hidden_syms):
                 continue
             base_item = BaseItem(entry.path)
             base_item.set_properties()
-            if base_item.type_ == Static.FOLDER_TYPE:
-                key = (
-                    base_item.filename,
-                    base_item.type_,
-                    base_item.size,
-                    base_item.birth,
-                    base_item.mod
-                )
-                folders[key] = base_item
-            else:
-                files[base_item.partial_hash] = base_item
-        return files, folders
-    
-    def set_files_rating(self, files: dict[str, BaseItem]):
-        stmt = (
-            sqlalchemy.select(Clmns.partial_hash, Clmns.rating)
-            .where(Clmns.partial_hash.in_(files))
-        )
-        res = Dbase.execute(self.conn, stmt).fetchall()
-        for partial_hash, rating in res:
-            if partial_hash in files:
-                files[partial_hash].rating = rating
+            key = (
+                base_item.filename,
+                base_item.type_,
+                base_item.size,
+                base_item.birth,
+                base_item.mod
+            )
+            files[key] = base_item
         return files
     
-    def set_folders_rating(self, folders: dict[tuple, BaseItem]):
+    def set_files_rating(self, files: dict[tuple, BaseItem]):
         clmns = (Clmns.name, Clmns.type, Clmns.size, Clmns.birth, Clmns.mod, Clmns.rating)
         stmt = (
             sqlalchemy.select(*clmns)
-            .where(sqlalchemy.tuple_(*clmns[:-1]).in_(folders))
+            .where(sqlalchemy.tuple_(*clmns[:-1]).in_(files))
         )
         res = Dbase.execute(self.conn, stmt).fetchall()
         for name, type_, size, birth, mod, rating in res:
-            folders[(name, type_, size, birth, mod)].rating = rating
-        return folders
+            files[(name, type_, size, birth, mod)].rating = rating
+        return files
     
 
 class LoadImagesTask(URunnable):
@@ -606,6 +590,8 @@ class LoadImagesTask(URunnable):
                 else:
                     stmt_list.append(self.insert_folder_stmt(base_item))
             else:
+                base_item.partial_hash = Utils.get_partial_hash(base_item.src)
+                base_item.thumb_path = Utils.get_abs_thumb_path(base_item.partial_hash)
                 if self.exists_file_record(base_item):
                     if base_item.type_ in Static.ext_all:
                         stmt_list.append(self.update_file_stmt(base_item))

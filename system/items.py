@@ -98,10 +98,6 @@ class BaseItem:
             self.size = 0
         # Поправка старой системы рейтинга, когда рейтинг был двузначным
         self.rating = self.rating % 10
-
-        if self.type_ != Static.FOLDER_TYPE:
-            self.partial_hash = Utils.get_partial_hash(self.src)
-            self.thumb_path = Utils.get_abs_thumb_path(self.partial_hash)
     
     @staticmethod
     def check_sortitem_attrs():
