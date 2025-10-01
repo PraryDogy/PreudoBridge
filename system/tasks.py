@@ -266,7 +266,7 @@ class RatingTask(URunnable):
         self.sigs = RatingTask.Sigs()
 
     def task(self):        
-        conn = Dbase.engine.connect()
+        conn = Dbase.get_conn(Dbase.engine)
         stmt = sqlalchemy.update(CACHE)
         if self.base_item.type_ == Static.FOLDER_TYPE:
             conds = [
@@ -280,9 +280,9 @@ class RatingTask(URunnable):
         else:
             stmt = stmt.where(Clmns.partial_hash==self.partial_hash)
         stmt = stmt.values(rating=self.new_rating)
-        conn.execute(stmt)
-        conn.commit()
-        conn.close()
+        Dbase.execute(conn, stmt)
+        Dbase.commit(conn)
+        Dbase.close_conn(conn)
         self.sigs.finished_.emit()
 
 
@@ -489,7 +489,7 @@ class FinderItems(URunnable):
 
         self.finder_items: dict[str, BaseItem] = {}
         self.db_items: dict[str, int] = {}
-        self.conn = Dbase.engine.connect()
+        self.conn = Dbase.get_conn(Dbase.engine)
 
         if not JsonData.show_hidden:
             self.hidden_syms = Static.hidden_file_syms
@@ -536,7 +536,7 @@ class FinderItems(URunnable):
             sqlalchemy.select(Clmns.partial_hash, Clmns.rating)
             .where(Clmns.partial_hash.in_(files))
         )
-        res = self.conn.execute(stmt).fetchall()
+        res = Dbase.execute(self.conn, stmt).fetchall()
         for partial_hash, rating in res:
             if partial_hash in files:
                 files[partial_hash].rating = rating
@@ -548,7 +548,7 @@ class FinderItems(URunnable):
             sqlalchemy.select(*clmns)
             .where(sqlalchemy.tuple_(*clmns[:-1]).in_(folders))
         )
-        res = self.conn.execute(stmt).fetchall()
+        res = Dbase.execute(self.conn, stmt).fetchall()
         for name, type_, size, birth, mod, rating in res:
             folders[(name, type_, size, birth, mod)].rating = rating
         return folders
@@ -573,7 +573,7 @@ class LoadImagesTask(URunnable):
         self.base_items = base_items
         key_ = lambda x: x.size
         self.base_items.sort(key=key_)
-        self.conn = Dbase.engine.connect()
+        self.conn = Dbase.get_conn(Dbase.engine)
 
     def task(self):
         """
@@ -583,7 +583,7 @@ class LoadImagesTask(URunnable):
         """
 
         self.process_thumbs()
-        self.conn.close()
+        Dbase.close_conn(self.conn)
         self.sigs.finished_.emit()
 
     def process_thumbs(self):
