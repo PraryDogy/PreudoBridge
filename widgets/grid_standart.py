@@ -87,7 +87,6 @@ class GridStandart(Grid):
         self.hide()
         # создаем сетку на основе элементов из FinderItems
         self.create_thumbs_grid(base_items)
-        QTimer.singleShot(50, self.show)
 
     def create_thumbs_grid(self, base_items: list[BaseItem]):
         self.col_count = self.get_clmn_count()
@@ -127,6 +126,7 @@ class GridStandart(Grid):
             else:
                 self._thumb_items = None
                 self._thumb_index = 0
+                self.show()
                 self._post_grid_selection()
 
         create_icons()
@@ -157,8 +157,8 @@ class GridStandart(Grid):
         # которая скроет из сетки не подходящие под фильтр виджеты
         if Dynamic.rating_filter > 0:
             self.filter_thumbs()
-            self.rearrange_thumbs()
 
+        self.rearrange_thumbs()
         QTimer.singleShot(100, self.load_vis_images)
 
     def resizeEvent(self, a0):
