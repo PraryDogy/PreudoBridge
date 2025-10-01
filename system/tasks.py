@@ -1047,7 +1047,7 @@ class ClearData(URunnable):
         try:
             root = os.path.dirname(thumb_path)
             os.remove(thumb_path)
-            if not os.listdir(root):
+            if os.path.exists(root) and not os.listdir(root):
                 shutil.rmtree(root)
             return True
         except Exception as e:
@@ -1070,8 +1070,11 @@ class ClearData(URunnable):
                 break
             id_list = []
             for id_, thumb_path in limited_select:
-                thumb_size = os.path.getsize(thumb_path)
-                if thumb_path and self.remove_file(thumb_path):
-                    total_size -= thumb_size
-                    id_list.append(id_)
+                if thumb_path and os.path.exists(thumb_path):
+                    thumb_size = os.path.getsize(thumb_path)
+                    if self.remove_file(thumb_path):
+                        total_size -= thumb_size
+                        id_list.append(id_)
+            if not id_list:
+                break
             self.remove_id_list(id_list)
