@@ -45,8 +45,18 @@ class GridStandart(Grid):
         - список всех BaseItem
         - список новых BaseItem, которых не было в базе данных
         """
+        if not os.path.exists(self.main_win_item.main_dir):
+            no_images = QLabel(GridStandart.not_exists_text)
+            no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            self.grid_layout.addWidget(no_images, 0, 0)
+            self.mouseMoveEvent = lambda args: None
+            return
+
         finder_items_task = FinderItems(self.main_win_item, self.sort_item)
-        finder_items_task.sigs.finished_.connect(lambda base_items: self.finalize_finder_items(base_items))
+        finder_items_task.sigs.finished_.connect(
+            lambda base_items: self.finalize_finder_items(base_items)
+        )
         UThreadPool.start(finder_items_task)
 
     def finalize_finder_items(self, base_items: list[BaseItem]):
@@ -63,15 +73,7 @@ class GridStandart(Grid):
         # высчитываем размер Thumb
         Thumb.calc_size()
 
-        if not os.path.exists(self.main_win_item.main_dir):
-            no_images = QLabel(GridStandart.not_exists_text)
-            no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.grid_layout.addWidget(no_images, 0, 0)
-            self.mouseMoveEvent = lambda args: None
-            return
-
-        elif not base_items:
+        if not base_items:
             no_images = QLabel(GridStandart.empty_text)
             no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
             self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
