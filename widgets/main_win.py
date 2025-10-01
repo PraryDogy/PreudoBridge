@@ -156,17 +156,6 @@ class MainWin(WinBase):
         sep = USep()
         self.sort_bar = SortBar(self.sort_item, self.main_win_item)
 
-        self.fast_sort_wid = QLabel()
-        self.temp_wid_timer = QTimer(self)
-        self.temp_wid_timer.setSingleShot(True)
-        self.temp_wid_timer.timeout.connect(lambda: self.fast_sort_wid.hide())
-
-        shadow = QGraphicsDropShadowEffect()
-        shadow.setBlurRadius(20)
-        shadow.setOffset(0, 2)
-        shadow.setColor(QColor(0, 0, 0, 190))
-        self.fast_sort_wid.setGraphicsEffect(shadow)
-
         self.splitter.addWidget(self.left_wid)
         self.splitter.addWidget(right_wid)
         self.splitter.setStretchFactor(0, 0)
@@ -226,7 +215,6 @@ class MainWin(WinBase):
         self.top_bar.navigate.connect(lambda: self.load_st_grid())
         self.top_bar.open_in_new_win.connect(lambda dir: self.open_in_new_win((dir, None)))
         self.top_bar.open_settings.connect(lambda: self.open_settings())
-        self.top_bar.fast_sort.connect(lambda: self.fast_sort_clicked())
         self.top_bar.new_folder.connect(lambda: self.new_folder())
 
         self.search_bar.on_filter_clicked.connect(lambda: self.load_search_grid())
@@ -377,12 +365,10 @@ class MainWin(WinBase):
         self.search_bar_sep.show()
         self.rating_menu.reset()
         self.scroll_up.hide()
-        self.fast_sort_wid.setParent(self.grid)
         self.setup_grid_signals()
         QTimer.singleShot(100, self.grid.setFocus)
 
     def disable_wids(self, value: bool):
-        self.top_bar.fast_sort_btn.setDisabled(value)
         self.sort_bar.sort_frame.setDisabled(value)
         self.sort_bar.slider.setDisabled(value)
         self.rating_menu.setDisabled(value)
@@ -430,7 +416,6 @@ class MainWin(WinBase):
 
         self.setup_grid_signals()
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
-        self.fast_sort_wid.setParent(self.grid)
         self.grid_spacer.resize(0, 0)
         QTimer.singleShot(100, lambda: self.grid.setFocus())
 
@@ -452,61 +437,6 @@ class MainWin(WinBase):
             self.scroll_up.hide()
         else:
             self.scroll_up.show()
-
-    def fast_sort_clicked(self):
-        sort = self.sort_item.get_sort_type()
-
-        if sort == SortItem.filename:
-            self.sort_item.set_sort_type(SortItem.birth)
-            self.sort_item.set_reversed(False)
-
-        elif sort == SortItem.birth:
-            self.sort_item.set_sort_type(SortItem.mod)
-            self.sort_item.set_reversed(False)
-
-        if sort== SortItem.mod:
-            self.sort_item.set_sort_type(SortItem.filename)
-            self.sort_item.set_reversed(False)
-
-        parent = self.grid
-        parent.sort_thumbs()
-        parent.rearrange_thumbs()
-
-        sort_name = self.sort_item.get_sort_type()
-        sort_name = SortItem.attr_lang.get(sort_name).lower()
-        rev_name = "по убыв." if self.sort_item.get_reversed() else "по возр."
-        text = f"Сортировка: {sort_name} ({rev_name})"
-
-        self.fast_sort_wid.setText(text)
-
-        palete = QApplication.palette()
-        color = QPalette.windowText(palete).color().name()
-    
-        bg_style_data = {
-            "#000000": "rgba(220, 220, 220, 1)", # светлый виджет
-            "#ffffff": "rgba(45, 45, 45, 1)", # темный виджет
-        }
-
-        self.fast_sort_wid.setStyleSheet(f"""
-            QLabel {{
-                background: {bg_style_data.get(color)};
-                font-weight: bold;
-                font-size: 30pt;
-                border-radius: 12px;
-                padding: 5px;
-            }}
-        """)
-
-        self.fast_sort_wid.adjustSize()
-        pw, ph = parent.width(), parent.height()
-        tw, th = self.fast_sort_wid.width(), self.fast_sort_wid.height()
-        self.fast_sort_wid.move((pw - tw) // 2, (ph - th) // 2)
-        # self.fast_sort_wid.move((pw - tw) // 2, 30)
-
-        self.fast_sort_wid.show()
-        self.sort_bar.sort_frame.set_sort_text()
-        self.temp_wid_timer.stop()
-        self.temp_wid_timer.start(1000)
 
     def on_exit(self):
         JsonData.write_config()
