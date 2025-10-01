@@ -269,14 +269,7 @@ class RatingTask(URunnable):
         conn = Dbase.get_conn(Dbase.engine)
         stmt = sqlalchemy.update(CACHE)
         if self.base_item.type_ == Static.FOLDER_TYPE:
-            conds = [
-                Clmns.name == self.base_item.filename,
-                Clmns.type == self.base_item.type_,
-                Clmns.size == self.base_item.size,
-                Clmns.birth == self.base_item.birth,
-                Clmns.mod == self.base_item.mod,
-            ]
-            stmt = stmt.where(sqlalchemy.and_(*conds))
+            stmt = stmt.where(*BaseItem.folder_conditions(self.base_item))
         else:
             stmt = stmt.where(Clmns.partial_hash==self.base_item.partial_hash)
         stmt = stmt.values(rating=self.new_rating)
@@ -647,14 +640,7 @@ class LoadImagesTask(URunnable):
     def get_item_rating(self, base_item: BaseItem) -> bool:
         stmt = sqlalchemy.select(Clmns.rating)
         if base_item.type_ == Static.FOLDER_TYPE:
-            conds = [
-                Clmns.name == base_item.filename,
-                Clmns.type == base_item.type_,
-                Clmns.size == base_item.size,
-                Clmns.birth == base_item.birth,
-                Clmns.mod == base_item.mod,
-            ]
-            stmt = stmt.where(sqlalchemy.and_(*conds))
+            stmt = stmt.where(*BaseItem.folder_conditions(base_item))
         else:
             stmt = stmt.where(Clmns.partial_hash==base_item.partial_hash)
         res = Dbase.execute(self.conn, stmt).scalar()
@@ -662,13 +648,7 @@ class LoadImagesTask(URunnable):
     
     def update_folder_stmt(self, base_item: BaseItem):
         stmt = sqlalchemy.update(CACHE)
-        stmt = stmt.where(sqlalchemy.and_(
-            Clmns.name == base_item.filename,
-            Clmns.type == base_item.type_,
-            Clmns.size == base_item.size,
-            Clmns.birth == base_item.birth,
-            Clmns.mod == base_item.mod
-        ))
+        stmt = stmt.where(*BaseItem.folder_conditions())
         stmt = stmt.values(**{
             Clmns.last_read.name: Utils.get_now()
         })

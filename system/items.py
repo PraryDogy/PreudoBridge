@@ -134,6 +134,17 @@ class BaseItem:
             key = lambda base_item: getattr(base_item, sort_item.get_sort_type())
             base_items.sort(key=key, reverse=sort_item.get_reversed())
             return base_items
+        
+    @classmethod
+    def folder_conditions(cls, base_item: "BaseItem"):
+        conds = [
+            Clmns.name == base_item.filename,
+            Clmns.type == base_item.type_,
+            Clmns.size == base_item.size,
+            Clmns.birth == base_item.birth,
+            Clmns.mod == base_item.mod,
+        ]
+        return sqlalchemy.and_(*conds)
 
 
 class SearchItem:
