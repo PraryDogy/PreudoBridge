@@ -236,11 +236,14 @@ class AnyBaseItem:
         self.conn = conn
         self.base_item = base_item
 
-    def get_stmt(self) -> Insert | None:
+    def get_stmt(self):
+        """
+        Возвращает {"stmt": sqlalchemy.Insert | None}
+        """
         if not self._check_db_record():
-            return self._get_insert_stmt()
+            return {"stmt": self._get_insert_stmt()}
         else:
-            return None
+            return {"stmt": None}
 
     def _check_db_record(self):
         stmt = select(Clmns.id)

@@ -602,16 +602,14 @@ class LoadImagesTask(URunnable):
         for base_item in self.base_items:
             if base_item.type_ not in Static.ext_all:
                 any_base_item = AnyBaseItem(self.conn, base_item)
-                stmt = any_base_item.get_stmt()
-
+                result = any_base_item.get_stmt()
                 if base_item.type_ == ".svg":
                     qimage  = QImage()
                     qimage.load(base_item.src)
                     base_item.qimage = qimage
                     self.sigs.update_thumb.emit(base_item)
-
-                if stmt is not None:
-                    self.stmt_list.append(stmt)
+                if isinstance(result["stmt"], sqlalchemy.Insert):
+                    self.stmt_list.append(result)
             else:
                 if self._is_exists(base_item):
                     exists_items.append(base_item)
@@ -622,11 +620,11 @@ class LoadImagesTask(URunnable):
             if not self.is_should_run():
                 return
             img_base_item = ImageBaseItem(self.conn, base_item)
-            stmt, qimage = img_base_item.get_stmt_qimage()
+            result, qimage = img_base_item.get_stmt_qimage()
             if qimage:
                 base_item.qimage = qimage
-            if stmt is not None:
-                self.stmt_list.append(stmt)
+            if result is not None:
+                self.stmt_list.append(result)
             try:
                 self.sigs.update_thumb.emit(base_item)
             except (TypeError, TypeError) as e:
@@ -638,11 +636,11 @@ class LoadImagesTask(URunnable):
                 return
             img_base_item = ImageBaseItem(self.conn, base_item)
             self.sigs.set_loading.emit(base_item)
-            stmt, qimage = img_base_item.get_stmt_qimage()
+            result, qimage = img_base_item.get_stmt_qimage()
             if qimage:
                 base_item.qimage = qimage
-            if stmt is not None:
-                self.stmt_list.append(stmt)
+            if result is not None:
+                self.stmt_list.append(result)
             try:
                 self.sigs.update_thumb.emit(base_item)
             except (TypeError, TypeError) as e:
