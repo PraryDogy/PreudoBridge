@@ -659,6 +659,10 @@ class LoadImagesTask(URunnable):
 
     def execute_new_images(self, new_images: list[BaseItem]):
         for i in new_images:
+            try:
+                self.sigs.set_loading.emit(i)
+            except Exception as e:
+                print("tasks, LoadImagesTask update_thumb.emit error", e)
             img = ReadImage.read_image(i.src)
             img = SharedUtils.fit_image(img, ThumbData.DB_IMAGE_SIZE)
             qimage = Utils.qimage_from_array(img)
