@@ -403,7 +403,7 @@ class Grid(UScrollArea):
             if task in self.load_images_tasks:
                 self.load_images_tasks.remove(task)
 
-        def set_thumb_image(thumb: Thumb):
+        def update_thumb(thumb: Thumb):
             qimage = thumb.qimage
             if qimage:
                 try:
@@ -429,7 +429,7 @@ class Grid(UScrollArea):
             for task in self.load_images_tasks:
                 task.set_should_run(False)
             task_ = LoadImagesTask(self.main_win_item, thumbs)
-            task_.sigs.update_thumb.connect(set_thumb_image)
+            task_.sigs.update_thumb.connect(update_thumb)
             task_.sigs.finished_.connect(lambda: finalize(task_))
             task_.sigs.set_loading.connect(lambda thumb: set_loading(thumb))
             self.load_images_tasks.append(task_)

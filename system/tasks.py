@@ -568,28 +568,24 @@ class LoadImagesTask(URunnable):
                 svg_files.append(base_item)
             elif base_item.type_ == Static.FOLDER_TYPE:
                 rating = self.get_item_rating(base_item)
-                if rating:
+                if rating is None:
+                    stmt_list.append(self.insert_folder_stmt(base_item))
+                else:
                     base_item.rating = rating
                     stmt_list.append(self.update_folder_stmt(base_item))
-                else:
-                    stmt_list.append(self.insert_folder_stmt(base_item))
             else:
                 base_item.partial_hash = Utils.get_partial_hash(base_item.src)
                 base_item.thumb_path = Utils.get_abs_thumb_path(base_item.partial_hash)
                 rating = self.get_item_rating(base_item)
-                if rating:
-                    base_item.rating = rating
+                if rating is None:
+                    stmt_list.append(self.insert_file_stmt(base_item))
                     if base_item.type_ in Static.ext_all:
-                        stmt_list.append(self.update_file_stmt(base_item))
-                        exist_images.append(base_item)
-                    else:
-                        stmt_list.append(self.update_file_stmt(base_item))
-                else:
-                    if base_item.type_ in Static.ext_all:
-                        stmt_list.append(self.insert_file_stmt(base_item))
                         new_images.append(base_item)
-                    else:
-                        stmt_list.append(self.insert_file_stmt(base_item))
+                else:
+                    base_item.rating = rating
+                    stmt_list.append(self.update_file_stmt(base_item))
+                    if base_item.type_ in Static.ext_all:
+                        exist_images.append(base_item)
 
         for i in exist_images:
             qimage = Utils.qimage_from_array(Utils.read_thumb(i.thumb_path))
@@ -646,29 +642,20 @@ class LoadImagesTask(URunnable):
 
     def get_item_rating(self, base_item: BaseItem) -> bool:
         stmt = sqlalchemy.select(Clmns.rating)
-        if self.base_item.type_ == Static.FOLDER_TYPE:
+        if base_item.type_ == Static.FOLDER_TYPE:
             conds = [
-                Clmns.name == self.base_item.filename,
-                Clmns.type == self.base_item.type_,
-                Clmns.size == self.base_item.size,
-                Clmns.birth == self.base_item.birth,
-                Clmns.mod == self.base_item.mod,
+                Clmns.name == base_item.filename,
+                Clmns.type == base_item.type_,
+                Clmns.size == base_item.size,
+                Clmns.birth == base_item.birth,
+                Clmns.mod == base_item.mod,
             ]
             stmt = stmt.where(sqlalchemy.and_(*conds))
         else:
-            stmt = stmt.where(Clmns.partial_hash==self.base_item.partial_hash)
-        return Dbase.execute(self.conn, stmt).scalar() or None
-    
-    def exists_folder_record(self, base_item: BaseItem):
-        stmt = sqlalchemy.select(Clmns.id)
-        stmt = stmt.where(sqlalchemy.and_(
-            Clmns.name == base_item.filename,
-            Clmns.type == base_item.type_,
-            Clmns.size == base_item.size,
-            Clmns.birth == base_item.birth,
-            Clmns.mod == base_item.mod
-        ))
-        return Dbase.execute(self.conn, stmt).scalar()
+            stmt = stmt.where(Clmns.partial_hash==base_item.partial_hash)
+        res = Dbase.execute(self.conn, stmt).scalar()
+        print(res)
+        return res
     
     def update_folder_stmt(self, base_item: BaseItem):
         stmt = sqlalchemy.update(CACHE)
@@ -721,6 +708,7 @@ class LoadImagesTask(URunnable):
             Clmns.thumb_path.name: base_item.thumb_path
         })
         return stmt
+
 
 class _LoadImgSigs(QObject):
     finished_ = pyqtSignal(tuple)
