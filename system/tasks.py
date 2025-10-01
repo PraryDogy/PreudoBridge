@@ -607,6 +607,8 @@ class LoadImagesTask(URunnable):
                 qimage.load(base_item.src)
                 base_item.qimage = qimage
                 self.sigs.update_thumb.emit(base_item)
+            elif base_item.type_ == Static.FOLDER_TYPE:
+                ...
             elif base_item.type_ not in Static.ext_all:
                 any_base_item = AnyBaseItem(self.conn, base_item)
                 data = any_base_item.get_item_data()
