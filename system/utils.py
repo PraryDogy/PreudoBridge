@@ -230,6 +230,7 @@ class Utils:
     @classmethod
     def get_hashdir_size(self):
         total = 0
+        count = 0
         stack = [Static.THUMBNAILS]
         while stack:
             current = stack.pop()
@@ -238,4 +239,5 @@ class Utils:
                     stack.append(i.path)
                 elif i.name.endswith(Static.ext_all):
                     total += os.path.getsize(i.path)
-        return total
+                    count += 1
+        return {"total": total, "count": count}

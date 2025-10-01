@@ -20,16 +20,21 @@ class DataWidget(QGroupBox):
     limit_text = "Лимит данных"
     data_size_text = "Размер данных"
     data_size_calc = "Вычисляю"
+    files_text = "Файлы"
 
     def __init__(self):
         super().__init__()
 
         v_lay = QVBoxLayout()
-        v_lay.setContentsMargins(10, 10, 10, 10)
+        v_lay.setContentsMargins(5, 2, 5, 2)
+        v_lay.setSpacing(5)
         self.setLayout(v_lay)
 
         self.total_wid = QLabel(f"{self.data_size_text}: {self.data_size_calc.lower()}")
         v_lay.addWidget(self.total_wid)
+
+        self.files_wid = QLabel(f"{self.files_text}: {self.data_size_calc.lower()}")
+        v_lay.addWidget(self.files_wid)
 
         self.data_wid = QLabel()
         v_lay.addWidget(self.data_wid)
@@ -46,13 +51,20 @@ class DataWidget(QGroupBox):
 
     def data_size_task(self):
 
-        def fin(total: int):
-            text = f"{self.data_size_text}: {SharedUtils.get_f_size(total)}"
+        def fin(data: dict):
+            size = SharedUtils.get_f_size(data["total"])
+            count = data["count"]
+
+            text = f'{self.data_size_text}: {size}'
             self.total_wid.setText(text)
+
+            text = f"{self.files_text}: {count}"
+            self.files_wid.setText(text)
+            
 
         self.data_size = DataSize()
         self.data_size.sigs.finished_.connect(
-            lambda total: fin(total)
+            lambda data: fin(data)
         )
         UThreadPool.start(self.data_size)
 

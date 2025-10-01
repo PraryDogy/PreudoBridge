@@ -1004,7 +1004,7 @@ class ArchiveTask(URunnable):
 class DataSize(URunnable):
     
     class Sigs(QObject):
-        finished_ = pyqtSignal(int)
+        finished_ = pyqtSignal(dict)
 
     def __init__(self):
         super().__init__()
@@ -1068,7 +1068,8 @@ class CacheCleaner(URunnable):
         Dbase.commit(self.conn)
 
     def _task(self):
-        total_size = Utils.get_hashdir_size()
+        data = Utils.get_hashdir_size()
+        total_size = data["total"]
         while total_size > self.limit:
             limited_select = self.get_limited_select()
             if not limited_select:
