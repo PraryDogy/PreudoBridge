@@ -648,7 +648,7 @@ class LoadImagesTask(URunnable):
     
     def update_folder_stmt(self, base_item: BaseItem):
         stmt = sqlalchemy.update(CACHE)
-        stmt = stmt.where(*BaseItem.folder_conditions())
+        stmt = stmt.where(*BaseItem.folder_conditions(base_item))
         stmt = stmt.values(**{
             Clmns.last_read.name: Utils.get_now()
         })
