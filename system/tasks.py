@@ -1015,3 +1015,62 @@ class DataSize(URunnable):
             self.sigs.finished_.emit(Utils.get_hashdir_size())
         except Exception as e:
             print("tasks, DataSize error", e)
+
+
+class ClearData(URunnable):
+
+    class Sigs(QObject):
+        finished_ = pyqtSignal()
+
+    def __init__(self):
+        super().__init__()
+        self.sigs = ClearData.Sigs()
+        self.limit = Static.DATA_LIMITS[JsonData.data_limit]["bytes"] * 0.9
+        self.conn = Dbase.get_conn(Dbase.engine)
+        self.stmt_limit = 200
+
+    def task(self):
+        try:
+            self._task()
+        except Exception as e:
+            print("tasks, ClearData error", e)
+
+    def get_limited_select(self):
+        stmt = (
+            sqlalchemy.select(Clmns.id, Clmns.thumb_path)
+            .order_by(Clmns.last_read.asc())
+            .limit(self.stmt_limit)
+        )
+        return self.conn.execute(stmt).fetchall()
+    
+    def remove_file(self, thumb_path):
+        try:
+            root = os.path.dirname(thumb_path)
+            os.remove(thumb_path)
+            if not os.listdir(root):
+                shutil.rmtree(root)
+            return True
+        except Exception as e:
+            print("tasks, ClearData error", e)
+            return None
+
+    def remove_ids(self, ids_list: list[int]):
+        stmt = (
+            sqlalchemy.delete(CACHE)
+            .where(Clmns.id.in_(ids_list))
+        )
+        self.conn.execute(stmt)
+
+    def _task(self):
+        total_size = Utils.get_hashdir_size()
+        while total_size > self.limit:
+            limited_select = self.get_limited_select()
+            if not limited_select:
+                break
+            ids_list = []
+            for id_, thumb_path in limited_select:
+                thumb_size = os.path.getsize(thumb_path)
+                if thumb_path and self.remove_file(thumb_path):
+                    total -= thumb_size
+                    ids_list.append(id_)
+            self.remove_ids()

@@ -9,10 +9,10 @@ from PyQt5.QtWidgets import (QApplication, QGraphicsDropShadowEffect,
                              QSplitter, QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
-from system.shared_utils import SharedUtils
-from system.paletes import UPallete
 from system.items import MainWinItem, SearchItem, SortItem
-from system.tasks import PathFinderTask, UThreadPool
+from system.paletes import UPallete
+from system.shared_utils import SharedUtils
+from system.tasks import ClearData, PathFinderTask, UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import USep, WinBase
@@ -194,9 +194,14 @@ class MainWin(WinBase):
 
         self.setup_signals()
         self.load_st_grid()
+        self.on_start()
 
         if not JsonData.favs:
             self.tabs_widget.setCurrentIndex(0)
+
+    def on_start(self):
+        self.clear_data = ClearData()
+        UThreadPool.start(self.clear_data)
 
     def setup_signals(self):
         self.splitter.splitterMoved.connect(lambda: self.resize_timer.start(MainWin.resize_ms))
