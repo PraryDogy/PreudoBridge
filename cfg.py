@@ -122,6 +122,14 @@ class Static:
         **{ext: "icons/db.svg"      for ext in db_ext},
     }
 
+    DATA_LIMITS = {
+        0: {"bytes": 200 * 1024 * 1024, "text": "200 МБ"},
+        1: {"bytes": 500 * 1024 * 1024, "text": "500 МБ"},
+        2: {"bytes": 1000 * 1024 * 1024, "text": "1 ГБ"},
+        3: {"bytes": 2000 * 1024 * 1024, "text": "2 ГБ"},
+        4: {"bytes": 5000 * 1024 * 1024, "text": "5 ГБ"},
+        5: {"bytes": 10000 * 1024 * 1024, "text": "10 ГБ"},
+    }
 
 class ThumbData:
 
@@ -153,6 +161,7 @@ class JsonData:
     go_to_now = False
     dark_mode = None    
     show_text = False
+    data_limit = len(Static.DATA_LIMITS) -1
     app_names = [
         "preview",
         "photos",

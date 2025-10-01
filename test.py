@@ -1,5 +1,3 @@
-from datetime import datetime
+from cfg import Static
 
-new = datetime.now().replace(microsecond=0)
-new = new.timestamp()
-print(new)
+print(len(Static.DATA_LIMITS))

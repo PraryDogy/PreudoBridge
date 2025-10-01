@@ -5,39 +5,49 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QCheckBox, QFrame, QGroupBox, QHBoxLayout, QLabel,
-                             QPushButton, QVBoxLayout, QWidget)
+                             QPushButton, QSlider, QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
+from system.shared_utils import SharedUtils
 
-from ._base_widgets import MinMaxDisabledWin, USvgSqareWidget
-
-LEFT_W = 110
+from ._base_widgets import MinMaxDisabledWin, USlider, USvgSqareWidget
 
 
-class ClearData(QGroupBox):
+class DataWidget(QGroupBox):
     clear_data_clicked = pyqtSignal()
-    clear_text = "Очистить"
-    descr_text = "Очистить данные в этой папке"
+    slider_w = 200
+    limit_text = "Лимит данных"
 
     def __init__(self):
         super().__init__()
 
-        h_lay = QHBoxLayout()
-        h_lay.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(h_lay)
+        v_lay = QVBoxLayout()
+        v_lay.setContentsMargins(10, 10, 10, 10)
+        self.setLayout(v_lay)
 
-        btn_ = QPushButton(ClearData.clear_text)
-        btn_.clicked.connect(self.clear_data_clicked.emit)
-        btn_.setFixedWidth(LEFT_W)
-        h_lay.addWidget(btn_)
+        self.data_wid = QLabel()
+        v_lay.addWidget(self.data_wid)
 
-        descr = QLabel(ClearData.descr_text)
-        h_lay.addWidget(descr)
+        minimum, maximum = 0, len(Static.DATA_LIMITS) - 1
+        self.slider = USlider(Qt.Orientation.Horizontal, minimum, maximum)
+        self.slider.valueChanged.connect(self.snap_to_step)
+        self.slider.setFixedWidth(self.slider_w)
+        v_lay.addWidget(self.slider)
+
+        self.slider.setValue(JsonData.data_limit)
+
+    def snap_to_step(self, value):
+        f_size = Static.DATA_LIMITS[value]["text"]
+        self.data_wid.setText(
+            f"{self.limit_text}: {f_size}"
+        )
+        JsonData.data_limit = value
 
 
 class JsonFile(QGroupBox):
     json_text = "Json"
     json_descr_text = "Открыть текстовый файл настроек"
+    btn_w = 110
 
     def __init__(self):
         super().__init__()
@@ -47,7 +57,7 @@ class JsonFile(QGroupBox):
         self.setLayout(h_lay)
 
         btn_ = QPushButton(JsonFile.json_text)
-        btn_.setFixedWidth(LEFT_W)
+        btn_.setFixedWidth(self.btn_w)
         btn_.clicked.connect(
             lambda: subprocess.call(["open", Static.JSON_FILE])
         )
@@ -280,7 +290,7 @@ class SettingsWin(MinMaxDisabledWin):
         themes_wid.theme_changed.connect(self.theme_changed_cmd)
         main_lay.addWidget(themes_wid)
 
-        clear_data_wid = ClearData()
+        clear_data_wid = DataWidget()
         clear_data_wid.clear_data_clicked.connect(self.remove_db.emit)
         main_lay.addWidget(clear_data_wid)
 
