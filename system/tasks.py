@@ -587,14 +587,6 @@ class LoadImagesTask(URunnable):
                     if base_item.type_ in Static.ext_all:
                         exist_images.append(base_item)
 
-        for i in exist_images:
-            qimage = Utils.qimage_from_array(Utils.read_thumb(i.thumb_path))
-            i.qimage = qimage
-            try:
-                self.sigs.update_thumb.emit(i)
-            except Exception as e:
-                print("tasks, LoadImagesTask update_thumb.emit error", e)
-
         self.execute_svg_files(svg_files)
         self.execute_exist_images(exist_images)
         self.execute_stmt_list(stmt_list)
