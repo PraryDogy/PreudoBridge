@@ -136,7 +136,7 @@ class BaseItem:
             return base_items
         
     @classmethod
-    def folder_conditions(cls, base_item: "BaseItem"):
+    def get_folder_conds(cls, base_item: "BaseItem"):
         """
         Возвращает условия для поиска папки в базе данных
         """
@@ -148,6 +148,58 @@ class BaseItem:
             Clmns.mod == base_item.mod,
         ]
         return sqlalchemy.and_(*conds)
+
+    def update_folder_stmt(self, base_item: "BaseItem"):
+        """
+        Обновляет last_read
+        """
+        stmt = sqlalchemy.update(CACHE)
+        stmt = stmt.where(*BaseItem.get_folder_conds(base_item))
+        stmt = stmt.values(**{
+            Clmns.last_read.name: Utils.get_now()
+        })
+        return stmt
+    
+    def update_file_stmt(self, base_item: "BaseItem"):
+        """
+        Обновляет last_read
+        """
+        stmt = sqlalchemy.update(CACHE)
+        stmt = stmt.where(
+            Clmns.partial_hash == base_item.partial_hash
+        )
+        stmt = stmt.values(**{
+            Clmns.last_read.name: Utils.get_now()
+        })
+        return stmt
+    
+    def insert_folder_stmt(self, base_item: "BaseItem"):
+        stmt = sqlalchemy.insert(CACHE)
+        stmt = stmt.values(**{
+            Clmns.name.name: base_item.filename,
+            Clmns.type.name: base_item.type_,
+            Clmns.size.name: base_item.size,
+            Clmns.birth.name: base_item.birth,
+            Clmns.mod.name: base_item.mod,
+            Clmns.last_read.name: Utils.get_now(),
+            Clmns.rating.name: 0,
+        })
+        return stmt
+    
+    def insert_file_stmt(self, base_item: "BaseItem"):
+        stmt = sqlalchemy.insert(CACHE)
+        stmt = stmt.values(**{
+            Clmns.name.name: base_item.filename,
+            Clmns.type.name: base_item.type_,
+            Clmns.size.name: base_item.size,
+            Clmns.birth.name: base_item.birth,
+            Clmns.mod.name: base_item.mod,
+            Clmns.last_read.name: Utils.get_now(),
+            Clmns.rating.name: 0,
+            Clmns.partial_hash.name: base_item.partial_hash,
+            Clmns.thumb_path.name: base_item.thumb_path
+        })
+        return stmt
 
 
 class SearchItem:
