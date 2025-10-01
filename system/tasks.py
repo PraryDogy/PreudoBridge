@@ -17,8 +17,7 @@ from cfg import JsonData, Static, ThumbData
 from system.shared_utils import PathFinder, ReadImage, SharedUtils
 
 from .database import CACHE, Clmns, Dbase
-from .items import (AnyBaseItem, BaseItem, CopyItem, ImgBaseItem,
-                    MainWinItem, SearchItem, SortItem)
+from .items import BaseItem, CopyItem, MainWinItem, SearchItem, SortItem
 from .utils import Utils
 
 
@@ -925,46 +924,6 @@ class PathFinderTask(URunnable):
         
         self.sigs.finished_.emit(result)
 
-
-class _NewItemsSigs(QObject):
-    new_wid = pyqtSignal(object)
-
-class NewItems(URunnable):
-    def __init__(self, main_win_item: MainWinItem, urls: list[str]):
-        super().__init__()
-        self.urls = urls
-        self.main_win_item = main_win_item
-        self.signals = _NewItemsSigs()
-
-    def task(self):
-        conn = Dbase.engine.connect()
-        for i in self.urls:
-            base_item = BaseItem(i)
-            base_item.set_properties()
-            if base_item.filename.endswith(Static.ext_all):
-                image_base_item = ImgBaseItem(conn, base_item)
-                stmt, qimage = image_base_item.get_new_item_data()
-                if qimage:
-                    base_item.qimage = qimage
-            else:
-                any_base_item = AnyBaseItem(conn, base_item)
-                stmt = any_base_item.get_item_data()
-
-            if stmt:
-                try:
-                    conn.execute(stmt)
-                    self.signals.new_wid.emit(base_item)
-                except Exception:
-                    conn.rollback()
-                    continue
-        try:
-            conn.commit()
-        except Exception:
-            conn.rollback()
-            ...
-        conn.close()
-        return super().task()
-    
 
 class _ImgConvertSigs(QObject):
     finished_ = pyqtSignal(list)
