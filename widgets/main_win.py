@@ -12,7 +12,7 @@ from cfg import JsonData, Static
 from system.items import MainWinItem, SearchItem, SortItem
 from system.paletes import UPallete
 from system.shared_utils import SharedUtils
-from system.tasks import ClearData, PathFinderTask, UThreadPool
+from system.tasks import ClearLimitedData, PathFinderTask, UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import USep, WinBase
@@ -189,7 +189,7 @@ class MainWin(WinBase):
             self.tabs_widget.setCurrentIndex(0)
 
     def on_start(self):
-        self.clear_data = ClearData()
+        self.clear_data = ClearLimitedData()
         UThreadPool.start(self.clear_data)
 
     def setup_signals(self):

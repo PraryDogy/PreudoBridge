@@ -1017,14 +1017,14 @@ class DataSize(URunnable):
             print("tasks, DataSize error", e)
 
 
-class ClearData(URunnable):
+class ClearLimitedData(URunnable):
 
     class Sigs(QObject):
         finished_ = pyqtSignal()
 
     def __init__(self):
         super().__init__()
-        self.sigs = ClearData.Sigs()
+        self.sigs = ClearLimitedData.Sigs()
         self.limit = Static.DATA_LIMITS[JsonData.data_limit]["bytes"] * 0.9
         self.conn = Dbase.get_conn(Dbase.engine)
         self.stmt_limit = 200
@@ -1063,7 +1063,6 @@ class ClearData(URunnable):
         Dbase.commit(self.conn)
 
     def _task(self):
-        print(123)
         total_size = Utils.get_hashdir_size()
         while total_size > self.limit:
             limited_select = self.get_limited_select()
@@ -1075,6 +1074,69 @@ class ClearData(URunnable):
                     thumb_size = os.path.getsize(thumb_path)
                     if self.remove_file(thumb_path):
                         total_size -= thumb_size
+                        id_list.append(id_)
+            if not id_list:
+                break
+            self.remove_id_list(id_list)
+
+
+class ClearCustomData(URunnable):
+
+    class Sigs(QObject):
+        finished_ = pyqtSignal()
+
+    def __init__(self, bytes_limit: int = 200 * 1024 * 1024):
+        "Удаляет 200 мегабайт данных"
+    
+        super().__init__()
+        self.sigs = ClearCustomData.Sigs()
+        self.bytes_limit = bytes_limit
+
+    def task(self):
+        try:
+            self._task()
+        except Exception as e:
+            print("tasks, ClearData error", e)
+
+    def get_limited_select(self):
+        stmt = (
+            sqlalchemy.select(Clmns.id, Clmns.thumb_path)
+            .order_by(Clmns.last_read.asc())
+            .limit(self.stmt_limit)
+        )
+        return Dbase.execute(self.conn, stmt).fetchall()
+    
+    def remove_file(self, thumb_path):
+        try:
+            root = os.path.dirname(thumb_path)
+            os.remove(thumb_path)
+            if os.path.exists(root) and not os.listdir(root):
+                shutil.rmtree(root)
+            return True
+        except Exception as e:
+            print("tasks, ClearData error", e)
+            return None
+
+    def remove_id_list(self, id_list: list[int]):
+        stmt = (
+            sqlalchemy.delete(CACHE)
+            .where(Clmns.id.in_(id_list))
+        )
+        Dbase.execute(self.conn, stmt)
+        Dbase.commit(self.conn)
+
+    def _task(self):
+        removed_size = 0
+        while removed_size < self.bytes_limit:
+            limited_select = self.get_limited_select()
+            if not limited_select:
+                break
+            id_list = []
+            for id_, thumb_path in limited_select:
+                if thumb_path and os.path.exists(thumb_path):
+                    thumb_size = os.path.getsize(thumb_path)
+                    if self.remove_file(thumb_path):
+                        removed_size += thumb_size
                         id_list.append(id_)
             if not id_list:
                 break
