@@ -596,10 +596,11 @@ class LoadImagesTask(URunnable):
         stmt_list: list = []
         new_images: list[BaseItem] = []
         exist_images: list[BaseItem] = []
+        svg_files: list[BaseItem] = []
 
         for base_item in self.base_items:
             if base_item.type_ == ".svg":
-                self.svg_actions(base_item)
+                svg_files.append(base_item)
             elif base_item.type_ == Static.FOLDER_TYPE:
                 if self.exists_folder_record(base_item):
                     stmt_list.append(self.update_folder_stmt(base_item))
@@ -627,10 +628,36 @@ class LoadImagesTask(URunnable):
             except Exception as e:
                 print("tasks, LoadImagesTask update_thumb.emit error", e)
 
+        self.execute_svg_files(svg_files)
+        self.execute_exist_images(exist_images)
+        self.execute_stmt_list(stmt_list)
+        self.execute_new_images(new_images)
+    
+    def execute_stmt_list(self, stmt_list: list):
         for i in stmt_list:
             Dbase.execute(self.conn, i)
         Dbase.commit(self.conn)
 
+    def execute_svg_files(self, svg_files: list[BaseItem]):
+        for i in svg_files:
+            qimage  = QImage()
+            qimage.load(i.src)
+            i.qimage = qimage
+            try:
+                self.sigs.update_thumb.emit(i)
+            except Exception as e:
+                print("tasks, LoadImagesTask, update_thumb.emit error", e)
+
+    def execute_exist_images(self, exist_images: list[BaseItem]):
+        for i in exist_images:
+            qimage = Utils.qimage_from_array(Utils.read_thumb(i.thumb_path))
+            i.qimage = qimage
+            try:
+                self.sigs.update_thumb.emit(i)
+            except Exception as e:
+                print("tasks, LoadImagesTask update_thumb.emit error", e)
+
+    def execute_new_images(self, new_images: list[BaseItem]):
         for i in new_images:
             img = ReadImage.read_image(i.src)
             img = SharedUtils.fit_image(img, ThumbData.DB_IMAGE_SIZE)
@@ -641,24 +668,6 @@ class LoadImagesTask(URunnable):
                 self.sigs.update_thumb.emit(i)
             except Exception as e:
                 print("tasks, LoadImagesTask update_thumb.emit error", e)
-    
-    def svg_actions(self, base_item: BaseItem):
-        qimage  = QImage()
-        qimage.load(base_item.src)
-        base_item.qimage = qimage
-        try:
-            self.sigs.update_thumb.emit(base_item)
-        except Exception as e:
-            print("tasks, LoadImagesTask, update_thumb.emit error", e)
-
-    def execute_stmt_list(self, stmt_list: list):
-        for stmt in stmt_list:
-            Dbase.execute(self.conn, stmt)
-        Dbase.commit(self.conn)
-
-    def write_thumbs(self, thumb_array_list: list):
-        for thumb_path, thumb_array in thumb_array_list:
-            Utils.write_thumb(thumb_path, thumb_array)
 
     def exists_file_record(self, base_item: BaseItem) -> bool:
         stmt = sqlalchemy.select(Clmns.id)
