@@ -1063,6 +1063,7 @@ class ClearData(URunnable):
         Dbase.commit(self.conn)
 
     def _task(self):
+        print(123)
         total_size = Utils.get_hashdir_size()
         while total_size > self.limit:
             limited_select = self.get_limited_select()
