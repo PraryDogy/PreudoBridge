@@ -236,16 +236,17 @@ class AnyBaseItem:
         self.conn = conn
         self.base_item = base_item
 
-    def get_stmt(self):
+    def get_item_data(self):
         """
         Возвращает {"stmt": sqlalchemy.Insert | None}
         """
-        if not self._check_db_record():
-            return {"stmt": self._get_insert_stmt()}
+        if not self.check_db_record():
+            return {"stmt": self.get_insert_stmt()}
         else:
+            # LAST READ!!!!!# LAST READ!!!!!# LAST READ!!!!!
             return {"stmt": None}
 
-    def _check_db_record(self):
+    def check_db_record(self):
         stmt = select(Clmns.id)
         if self.base_item.type_ == Static.FOLDER_TYPE:
             stmt = stmt.where(and_(
@@ -263,7 +264,7 @@ class AnyBaseItem:
             return True
         return None
 
-    def _get_insert_stmt(self) -> Insert | None:
+    def get_insert_stmt(self) -> Insert | None:
         values = {
             Clmns.name.name: self.base_item.filename,
             Clmns.type.name: self.base_item.type_,
@@ -272,12 +273,13 @@ class AnyBaseItem:
             Clmns.mod.name: self.base_item.mod,
             Clmns.rating.name: self.base_item.rating,
             Clmns.partial_hash.name: self.base_item.partial_hash,
-            Clmns.thumb_path.name: self.base_item.thumb_path
+            Clmns.thumb_path.name: self.base_item.thumb_path,
+            # LAST READ!!!!!
         }
         return insert(CACHE).values(**values)
 
 
-class ImageBaseItem:
+class ImgBaseItem:
     insert_flag = "_insert"
     already_flag = "_already"
     none_text = "None"
@@ -287,41 +289,51 @@ class ImageBaseItem:
         self.conn = conn
         self.base_item = base_item
 
-    def get_stmt_qimage(self) -> tuple[Insert | Update | None, QImage | None]:
-        result = self.check_db_record()
+    def get_exist_item_data(self):
+        """
+        Возвращает {
+            "thumb_array": np.ndarray | None,
+            "qimage": QImage | None,
+            "stmt": sqlalchemy.Update | None,
+        }
+        """
 
-        if self.insert_flag in result:
-            thumb_array = self.get_thumb_array()
-            stmt = self.insert_stmt(thumb_array)
 
-        elif self.already_flag in result:
-            thumb_array = Utils.read_thumb(self.base_item.thumb_path)
-            stmt = None
-        
-        if thumb_array is None:
-            qimage = None
+
+        # SQLALCHEMY UPDATE LAST READ
+
+
+        thumb_array = Utils.read_thumb(self.base_item.thumb_path)
+        if thumb_array is not None:
+            result = {
+                "thumb_array": thumb_array,
+                "qimage": Utils.qimage_from_array(thumb_array),
+                "stmt": None
+            }
         else:
-            qimage = Utils.qimage_from_array(thumb_array)
+            result = {
+                "thumb_array": None,
+                "qimage": None,
+                "stmt": None
+            }
+        return result
 
-        return (stmt, qimage)
+    def get_new_item_data(self):
+        """
+        Возвращает {
+            "thumb_array": np.ndarray | None,
+            "qimage": QImage | None,
+            "stmt": sqlalchemy.Insert | None,
+        }
+        """
+        def get_thumb_array():
+            img_array = ReadImage.read_image(self.base_item.src)
+            small_img = SharedUtils.fit_image(img_array, ThumbData.DB_IMAGE_SIZE)
+            # del img_array
+            # gc.collect()
+            return small_img
 
-    def check_db_record(self) -> dict[str, RowMapping | None]:
-        stmt = select(Clmns.partial_hash, Clmns.thumb_path)
-        stmt = stmt.where(Clmns.partial_hash == self.base_item.partial_hash)
-        try:
-            row = self.conn.execute(stmt).first()
-        except AttributeError:
-            row = None
-
-        if row and row[0] == self.base_item.partial_hash:
-            return {self.already_flag: row}
-        else:
-            return {self.insert_flag: row}
-
-    def insert_stmt(self, thumb_array: np.ndarray) -> Update | None:
-        thumb = Utils.write_thumb(self.base_item.thumb_path, thumb_array)
-        stats = self.get_stats()
-        if thumb and stats:
+        def get_insert_stmt():
             values = {
                 Clmns.name.name: self.base_item.filename,
                 Clmns.type.name: self.base_item.type_,
@@ -330,25 +342,26 @@ class ImageBaseItem:
                 Clmns.mod.name: self.base_item.mod,
                 Clmns.rating.name: self.base_item.rating,
                 Clmns.partial_hash.name: self.base_item.partial_hash,
-                Clmns.thumb_path.name: self.base_item.thumb_path
+                Clmns.thumb_path.name: self.base_item.thumb_path,
+                # LAST READ!!!!!
             }
             return insert(CACHE).values(**values)
+
+        thumb_array = get_thumb_array()
+        if thumb_array is not None:
+            result = {
+                "thumb_array": thumb_array,
+                "qimage": Utils.qimage_from_array(thumb_array),
+                "stmt": get_insert_stmt(thumb_array)
+            }
         else:
-            return None
-    
-    def get_thumb_array(self) -> np.ndarray:
-        img_array = ReadImage.read_image(self.base_item.src)
-        small_img = SharedUtils.fit_image(img_array, ThumbData.DB_IMAGE_SIZE)
-        del img_array
-        gc.collect()
-        return small_img
-    
-    def get_stats(self) -> os.stat_result:
-        try:
-            return os.stat(self.base_item.src)
-        except Exception as e:
-            Utils.print_error()
-            return None
+            result = {
+                "thumb_array": None,
+                "qimage": None,
+                "stmt": None
+            }
+        
+        return result
 
 
 class CopyItem:

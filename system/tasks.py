@@ -17,7 +17,7 @@ from cfg import JsonData, Static, ThumbData
 from system.shared_utils import PathFinder, ReadImage, SharedUtils
 
 from .database import CACHE, Clmns, Dbase
-from .items import (AnyBaseItem, BaseItem, CopyItem, ImageBaseItem,
+from .items import (AnyBaseItem, BaseItem, CopyItem, ImgBaseItem,
                     MainWinItem, SearchItem, SortItem)
 from .utils import Utils
 
@@ -571,7 +571,6 @@ class LoadImagesTask(URunnable):
         super().__init__()
         self.sigs = _LoadImagesSigs()
         self.main_win_item = main_win_item
-        self.stmt_list: list[sqlalchemy.Insert | sqlalchemy.Update] = []
         self.base_items = base_items
         key_ = lambda x: x.size
         self.base_items.sort(key=key_)
@@ -584,8 +583,9 @@ class LoadImagesTask(URunnable):
         """
 
         self.conn = Dbase.engine.connect()
-        self.process_thumbs()
-        self.process_stmt_list()
+        stmt_list, thumb_array_list = self.process_thumbs()
+        self.execute_stmt_list(stmt_list)
+        self.write_thumbs(thumb_array_list)
 
         self.conn.close()
         self.sigs.finished_.emit()
@@ -598,20 +598,22 @@ class LoadImagesTask(URunnable):
         """
         exists_img_items: list[BaseItem] = []
         new_img_items: list[BaseItem] = []
+        stmt_list: list = []
+        thumb_array_list: list = []
 
         for base_item in self.base_items:
-            if base_item.type_ not in Static.ext_all:
+            if base_item.type_ == ".svg":
+                qimage  = QImage()
+                qimage.load(base_item.src)
+                base_item.qimage = qimage
+                self.sigs.update_thumb.emit(base_item)
+            elif base_item.type_ not in Static.ext_all:
                 any_base_item = AnyBaseItem(self.conn, base_item)
-                result = any_base_item.get_stmt()
-                if base_item.type_ == ".svg":
-                    qimage  = QImage()
-                    qimage.load(base_item.src)
-                    base_item.qimage = qimage
-                    self.sigs.update_thumb.emit(base_item)
-                if isinstance(result["stmt"], sqlalchemy.Insert):
-                    self.stmt_list.append(result)
+                data = any_base_item.get_item_data()
+                if isinstance(data["stmt"], sqlalchemy.Insert):
+                    self.stmt_list.append(data)
             else:
-                if self._is_exists(base_item):
+                if self.check_exists_record(base_item):
                     exists_img_items.append(base_item)
                 else:
                     new_img_items.append(base_item)
@@ -619,41 +621,51 @@ class LoadImagesTask(URunnable):
         for base_item in exists_img_items:
             if not self.is_should_run():
                 return
-            img_base_item = ImageBaseItem(self.conn, base_item)
-            result, qimage = img_base_item.get_stmt_qimage()
-            if qimage:
-                base_item.qimage = qimage
-            if result is not None:
-                self.stmt_list.append(result)
-            try:
-                self.sigs.update_thumb.emit(base_item)
-            except (TypeError, TypeError) as e:
-                Utils.print_error()
-                return
+            img_base_item = ImgBaseItem(self.conn, base_item)
+            data = img_base_item.get_exist_item_data()
+            if data["thumb_array"]:
+                base_item.qimage = data["qimage"]
+                stmt_list.append(data["stmt"])
+                try:
+                    self.sigs.update_thumb.emit(base_item)
+                except Exception as e:
+                    print("tasks, LoadImagesTask, update_thumb.emit error", e)
+                    return
 
         for base_item in new_img_items:
             if not self.is_should_run():
                 return
-            img_base_item = ImageBaseItem(self.conn, base_item)
-            self.sigs.set_loading.emit(base_item)
-            result, qimage = img_base_item.get_stmt_qimage()
-            if qimage:
-                base_item.qimage = qimage
-            if result is not None:
-                self.stmt_list.append(result)
+            try:
+                self.sigs.set_loading.emit(base_item)
+            except Exception as e:
+                print("tasks, LoadImagesTask, set_loading.emit error", e)
+                return
+            img_base_item = ImgBaseItem(self.conn, base_item)
+            data = img_base_item.get_new_item_data()
+            if data["thumb_array"]:
+                base_item.qimage = data["qimage"]
+                stmt_list.append(data["stmt"])
+                thumb_array_list.append(
+                    (base_item.thumb_path, data["thumb_array"])
+                )
             try:
                 self.sigs.update_thumb.emit(base_item)
-            except (TypeError, TypeError) as e:
-                Utils.print_error()
+            except Exception as e:
+                print("tasks, LoadImagesTask, update_thumb.emit error", e)
                 return
+        
+        return (stmt_list, thumb_array_list)
 
-    def process_stmt_list(self):
-        for stmt in self.stmt_list:
-            if not self.conn.execute(stmt):
-                return
-        self.conn.commit()
+    def execute_stmt_list(self, stmt_list: list):
+        for stmt in stmt_list:
+            Dbase.execute(self.conn, stmt)
+        Dbase.commit(self.conn)
 
-    def _is_exists(self, base_item: BaseItem) -> bool:
+    def write_thumbs(self, thumb_array_list: list):
+        for thumb_path, thumb_array in thumb_array_list:
+            Utils.write_thumb(thumb_path, thumb_array)
+
+    def check_exists_record(self, base_item: BaseItem) -> bool:
         stmt = sqlalchemy.select(Clmns.partial_hash)
         stmt = stmt.where(Clmns.partial_hash == base_item.partial_hash)
         if self.conn.execute(stmt).scalar():
@@ -862,13 +874,13 @@ class NewItems(URunnable):
             base_item = BaseItem(i)
             base_item.set_properties()
             if base_item.filename.endswith(Static.ext_all):
-                image_base_item = ImageBaseItem(conn, base_item)
-                stmt, qimage = image_base_item.get_stmt_qimage()
+                image_base_item = ImgBaseItem(conn, base_item)
+                stmt, qimage = image_base_item.get_new_item_data()
                 if qimage:
                     base_item.qimage = qimage
             else:
                 any_base_item = AnyBaseItem(conn, base_item)
-                stmt = any_base_item.get_stmt()
+                stmt = any_base_item.get_item_data()
 
             if stmt:
                 try:
