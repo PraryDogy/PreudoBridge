@@ -477,7 +477,7 @@ class FinderItems(URunnable):
         self.sort_item = sort_item
         self.main_win_item = main_win_item
 
-        self.finder_base_items: dict[str, BaseItem] = {}
+        self.finder_items: dict[str, BaseItem] = {}
         self.db_items: dict[str, int] = {}
         self.conn = Dbase.engine.connect()
 
@@ -486,40 +486,51 @@ class FinderItems(URunnable):
 
     def task(self):
         try:
-            finder_items = self.get_finder_base_items()
+            self._task()
         except Exception as e:
-            print("OK, system > tasks > FinderItems >  get_finder_base_items", e)
-        try:
-            if self.conn:
-                self.set_base_item_rating(finder_items)
-        except self.sql_errors:
-            Utils.print_error()
+            print("tasks, FinderItems error", e)
+            import traceback
+            print(traceback.format_exc())
+
+    def _task(self):
+        files, folders = self.get_finder_base_items()
+        # files = self.set_files_rating(finder_items)
+        # folders = self.set_files_rating(folders)
+    
+        finder_items = list(files.values())
         finder_items = BaseItem.sort_items(finder_items, self.sort_item)
         self.sigs.finished_.emit(finder_items)
 
-    def get_finder_base_items(self) -> dict[str, BaseItem]:
-        base_items = []
+    def get_finder_base_items(self):
+        files: dict[str, BaseItem] = {}
+        folders: dict[tuple, BaseItem] = {}
         for entry in os.scandir(self.main_win_item.main_dir):
             if entry.name.startswith(self.hidden_syms):
                 continue
             base_item = BaseItem(entry.path)
             base_item.set_properties()
-            # base_items[base_item.partial_hash] = base_item
-            base_items.append(base_item)
-        return base_items
-    
-    def set_base_item_rating(self, finder_items: list[BaseItem]):
-        for base_item in finder_items:
             if base_item.type_ == Static.FOLDER_TYPE:
-                ...
-            else:
-                stmt = (
-                    sqlalchemy.select(Clmns.rating)
-                    .where(Clmns.partial_hash == base_item.partial_hash)
+                key = (
+                    base_item.filename,
+                    base_item.type_,
+                    base_item.size,
+                    base_item.birth,
+                    base_item.mod
                 )
-                res = self.conn.execute(stmt).scalar()
-                if res:
-                    base_item.rating = res
+                folders[key] = base_item
+            else:
+                files[base_item.partial_hash] = base_item
+        return files, folders
+    
+    def set_files_rating(self, files: dict[str, BaseItem]):
+        stmt = (
+            sqlalchemy.select(Clmns.partial_hash, Clmns.rating)
+            .where(Clmns.partial_hash.in_(list(files)))
+        )
+        res = self.conn.execute(stmt).fetchall()
+        for partial_hash, rating in res:
+            if partial_hash in files:
+                files[partial_hash].rating = rating
     
 
 class _LoadImagesSigs(QObject):
