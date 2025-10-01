@@ -1041,7 +1041,7 @@ class ClearData(URunnable):
             .order_by(Clmns.last_read.asc())
             .limit(self.stmt_limit)
         )
-        return self.conn.execute(stmt).fetchall()
+        return Dbase.execute(self.conn, stmt).fetchall()
     
     def remove_file(self, thumb_path):
         try:
@@ -1054,12 +1054,13 @@ class ClearData(URunnable):
             print("tasks, ClearData error", e)
             return None
 
-    def remove_ids(self, ids_list: list[int]):
+    def remove_id_list(self, id_list: list[int]):
         stmt = (
             sqlalchemy.delete(CACHE)
-            .where(Clmns.id.in_(ids_list))
+            .where(Clmns.id.in_(id_list))
         )
-        self.conn.execute(stmt)
+        Dbase.execute(self.conn, stmt)
+        Dbase.commit(self.conn)
 
     def _task(self):
         total_size = Utils.get_hashdir_size()
@@ -1067,10 +1068,10 @@ class ClearData(URunnable):
             limited_select = self.get_limited_select()
             if not limited_select:
                 break
-            ids_list = []
+            id_list = []
             for id_, thumb_path in limited_select:
                 thumb_size = os.path.getsize(thumb_path)
                 if thumb_path and self.remove_file(thumb_path):
-                    total -= thumb_size
-                    ids_list.append(id_)
-            self.remove_ids()
+                    total_size -= thumb_size
+                    id_list.append(id_)
+            self.remove_id_list(id_list)
