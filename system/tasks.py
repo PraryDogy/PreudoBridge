@@ -560,7 +560,6 @@ class LoadImagesTask(URunnable):
         Запускает обход списка Thumb для загрузки изображений   
         Испускает сигнал finished_
         """
-
         self.process_thumbs()
         Dbase.close_conn(self.conn)
         self.sigs.finished_.emit()
