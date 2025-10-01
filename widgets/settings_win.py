@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QCheckBox, QFrame, QGroupBox, QHBoxLayout, QLabel,
-                             QPushButton, QSlider, QVBoxLayout, QWidget)
+                             QPushButton, QSlider, QVBoxLayout, QWidget, QSizePolicy)
 
 from cfg import JsonData, Static
 from system.shared_utils import SharedUtils
@@ -192,7 +192,9 @@ class SvgFrame(QFrame):
 
         self.svg_widget = QSvgWidget(svg_path)
         self.svg_widget.setFixedSize(50, 50)
-        svg_lay.addWidget(self.svg_widget)
+        self.svg_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        svg_lay.addWidget(self.svg_widget, alignment=Qt.AlignCenter)
+
 
         label = QLabel(label_text)
         label.setAlignment(Qt.AlignCenter)
@@ -284,14 +286,12 @@ class SettingsWin(MinMaxDisabledWin):
     load_st_grid = pyqtSignal()
     title_text = "Настройки"
     theme_changed = pyqtSignal()
-    hh = 460
     show_texts_sig = pyqtSignal()
 
     def __init__(self):
         super().__init__()
         self.setWindowTitle(SettingsWin.title_text)
         self.set_modality()
-        self.setFixedHeight(SettingsWin.hh)
 
         main_lay = QVBoxLayout()
         main_lay.setContentsMargins(10, 0, 10, 10)
@@ -321,7 +321,7 @@ class SettingsWin(MinMaxDisabledWin):
         main_lay.addWidget(about_wid)
 
         self.adjustSize()
-        self.setFixedSize(self.width() + 30, self.height())
+        # self.setFixedSize(self.width() + 30, self.height())
 
     def theme_changed_cmd(self):
         self.theme_changed.emit()
