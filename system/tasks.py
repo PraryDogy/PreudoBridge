@@ -1012,20 +1012,6 @@ class DataSize(URunnable):
 
     def task(self):
         try:
-            self.sigs.finished_.emit(
-                self._task()
-            )
+            self.sigs.finished_.emit(Utils.get_hashdir_size())
         except Exception as e:
             print("tasks, DataSize error", e)
-
-    def _task(self):
-        total = 0
-        stack = [Static.THUMBNAILS]
-        while stack:
-            current = stack.pop()
-            for i in os.scandir(current):
-                if i.is_dir():
-                    stack.append(i.path)
-                elif i.name.endswith(Static.ext_all):
-                    total += os.path.getsize(i.path)
-        return total

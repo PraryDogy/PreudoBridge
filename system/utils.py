@@ -226,3 +226,16 @@ class Utils:
     @classmethod
     def get_now(cls):
         return int(datetime.now().replace(microsecond=0).timestamp())
+    
+    @classmethod
+    def get_hashdir_size(self):
+        total = 0
+        stack = [Static.THUMBNAILS]
+        while stack:
+            current = stack.pop()
+            for i in os.scandir(current):
+                if i.is_dir():
+                    stack.append(i.path)
+                elif i.name.endswith(Static.ext_all):
+                    total += os.path.getsize(i.path)
+        return total

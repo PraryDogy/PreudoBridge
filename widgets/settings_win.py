@@ -65,8 +65,8 @@ class DataWidget(QGroupBox):
 
 
 class JsonFile(QGroupBox):
-    json_text = "Json"
-    json_descr_text = "Открыть текстовый файл настроек"
+    json_text = "Показать"
+    json_descr_text = "Системные файлы"
     btn_w = 110
 
     def __init__(self):
@@ -79,7 +79,7 @@ class JsonFile(QGroupBox):
         btn_ = QPushButton(JsonFile.json_text)
         btn_.setFixedWidth(self.btn_w)
         btn_.clicked.connect(
-            lambda: subprocess.call(["open", Static.JSON_FILE])
+            lambda: subprocess.call(["open", Static.APP_SUPPORT])
         )
         h_lay.addWidget(btn_)
 
@@ -170,7 +170,7 @@ class CheckboxGroup(QGroupBox):
         self.show_texts_sig.emit()
 
 
-class SvgFrame(QFrame):
+class SvgFrame(QWidget):
     clicked = pyqtSignal()
 
     def __init__(self, svg_path: str, label_text: str):
@@ -192,8 +192,7 @@ class SvgFrame(QFrame):
 
         self.svg_widget = QSvgWidget(svg_path)
         self.svg_widget.setFixedSize(50, 50)
-        self.svg_widget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        svg_lay.addWidget(self.svg_widget, alignment=Qt.AlignCenter)
+        svg_lay.addWidget(self.svg_widget)
 
 
         label = QLabel(label_text)
