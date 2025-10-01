@@ -137,6 +137,9 @@ class BaseItem:
         
     @classmethod
     def folder_conditions(cls, base_item: "BaseItem"):
+        """
+        Возвращает условия для поиска папки в базе данных
+        """
         conds = [
             Clmns.name == base_item.filename,
             Clmns.type == base_item.type_,
