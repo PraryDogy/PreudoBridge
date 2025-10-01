@@ -261,7 +261,7 @@ class RatingTask(URunnable):
 
     def __init__(self, main_dir: str, base_item: BaseItem, new_rating: int):
         super().__init__()
-        self.partial_hash = partial_hash
+        self.base_item = base_item
         self.new_rating = new_rating
         self.main_dir = main_dir
         self.sigs = RatingTask.Sigs()
@@ -269,7 +269,17 @@ class RatingTask(URunnable):
     def task(self):        
         conn = Dbase.engine.connect()
         stmt = sqlalchemy.update(CACHE)
-        stmt = stmt.where(Clmns.partial_hash==self.partial_hash)
+        if self.base_item.type_ == Static.FOLDER_TYPE:
+            conds = [
+                Clmns.name == self.base_item.filename,
+                Clmns.type == self.base_item.type_,
+                Clmns.size == self.base_item.size,
+                Clmns.birth == self.base_item.birth,
+                Clmns.mod == self.base_item.mod,
+            ]
+            stmt = stmt.where(sqlalchemy.and_(*conds))
+        else:
+            stmt = stmt.where(Clmns.partial_hash==self.partial_hash)
         stmt = stmt.values(rating=self.new_rating)
         conn.execute(stmt)
         conn.commit()
