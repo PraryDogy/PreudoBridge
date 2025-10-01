@@ -219,7 +219,6 @@ class MainWin(WinBase):
         self.top_bar.load_search_grid.connect(lambda: self.load_search_grid())
         self.top_bar.load_st_grid.connect(lambda: self.load_st_grid())
         self.top_bar.navigate.connect(lambda: self.load_st_grid())
-        self.top_bar.remove_db.connect(lambda: self.remove_db())
         self.top_bar.open_in_new_win.connect(lambda dir: self.open_in_new_win((dir, None)))
         self.top_bar.open_settings.connect(lambda: self.open_settings())
         self.top_bar.fast_sort.connect(lambda: self.fast_sort_clicked())
@@ -306,7 +305,6 @@ class MainWin(WinBase):
         self.sett_win = SettingsWin()
         self.sett_win.show_texts_sig.connect(lambda: self.top_bar.toggle_texts())
         self.sett_win.load_st_grid.connect(self.load_st_grid)
-        self.sett_win.remove_db.connect(self.remove_db)
         self.sett_win.theme_changed.connect(self.change_theme)
         self.sett_win.center(self)
         self.sett_win.show()
@@ -325,15 +323,6 @@ class MainWin(WinBase):
             self.load_st_grid()
         elif os.path.isfile(path):
             Utils.open_in_def_app(path)
-
-    def remove_db(self):
-        """
-        Удаляет базу данных в текущей директории
-        """
-        db = os.path.join(self.main_win_item.main_dir, Static.DB_FILENAME)
-        if os.path.exists(db):
-            os.remove(db)
-            self.load_st_grid()
 
     def level_up(self):
         new_main_dir = os.path.dirname(self.main_win_item.main_dir)
