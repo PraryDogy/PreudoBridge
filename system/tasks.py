@@ -1017,14 +1017,18 @@ class DataSize(URunnable):
             print("tasks, DataSize error", e)
 
 
-class ClearLimitedData(URunnable):
+class CacheCleaner(URunnable):
 
     class Sigs(QObject):
         finished_ = pyqtSignal()
 
     def __init__(self):
+        """
+        При достижении лимита данных, заданного пользователем, будет удалено
+        10% данных (самых старых и невостребованных)
+        """
         super().__init__()
-        self.sigs = ClearLimitedData.Sigs()
+        self.sigs = CacheCleaner.Sigs()
         self.limit = Static.DATA_LIMITS[JsonData.data_limit]["bytes"] * 0.9
         self.conn = Dbase.get_conn(Dbase.engine)
         self.stmt_limit = 200
@@ -1081,7 +1085,7 @@ class ClearLimitedData(URunnable):
             self.remove_id_list(id_list)
 
 
-class ClearCustomData(URunnable):
+class LimitedCacheCleaner(URunnable):
 
     class Sigs(QObject):
         finished_ = pyqtSignal()
@@ -1090,7 +1094,7 @@ class ClearCustomData(URunnable):
         "Удаляет 200 мегабайт данных"
     
         super().__init__()
-        self.sigs = ClearCustomData.Sigs()
+        self.sigs = LimitedCacheCleaner.Sigs()
         self.bytes_limit = bytes_limit
         self.conn = Dbase.get_conn(Dbase.engine)
         self.stmt_limit = 200
