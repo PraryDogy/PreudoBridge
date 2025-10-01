@@ -253,17 +253,18 @@ class CopyFilesTask(URunnable):
     def send_copied_kb(self):
         self.sigs.set_copied_kb.emit(self.copied_kb)
 
-class _RatingSigs(QObject):
-    finished_ = pyqtSignal()
-
 
 class RatingTask(URunnable):
-    def __init__(self, main_dir: str, partial_hash: str, new_rating: int):
+
+    class Sigs(QObject):
+        finished_ = pyqtSignal()
+
+    def __init__(self, main_dir: str, base_item: BaseItem, new_rating: int):
         super().__init__()
         self.partial_hash = partial_hash
         self.new_rating = new_rating
         self.main_dir = main_dir
-        self.sigs = _RatingSigs()
+        self.sigs = RatingTask.Sigs()
 
     def task(self):        
         conn = Dbase.engine.connect()
