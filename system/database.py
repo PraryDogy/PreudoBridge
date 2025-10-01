@@ -14,9 +14,11 @@ CACHE = sqlalchemy.Table(
     sqlalchemy.Column("size", sqlalchemy.Integer),
     sqlalchemy.Column("birth", sqlalchemy.Integer),
     sqlalchemy.Column("mod", sqlalchemy.Integer),
+    sqlalchemy.Column("last_read", sqlalchemy.Integer),
     sqlalchemy.Column("rating", sqlalchemy.Integer),
     sqlalchemy.Column("partial_hash", sqlalchemy.Text),
     sqlalchemy.Column("thumb_path", sqlalchemy.Text),
+    
 )
 
 
@@ -27,6 +29,7 @@ class Clmns:
     size = CACHE.c.size
     birth = CACHE.c.birth
     mod = CACHE.c.mod
+    last_read = CACHE.last_read
     rating = CACHE.c.rating
     partial_hash = CACHE.c.partial_hash
     thumb_path = CACHE.c.thumb_path
