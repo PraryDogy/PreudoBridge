@@ -278,7 +278,7 @@ class RatingTask(URunnable):
             ]
             stmt = stmt.where(sqlalchemy.and_(*conds))
         else:
-            stmt = stmt.where(Clmns.partial_hash==self.partial_hash)
+            stmt = stmt.where(Clmns.partial_hash==self.base_item.partial_hash)
         stmt = stmt.values(rating=self.new_rating)
         Dbase.execute(conn, stmt)
         Dbase.commit(conn)
@@ -567,14 +567,18 @@ class LoadImagesTask(URunnable):
             if base_item.type_ == ".svg":
                 svg_files.append(base_item)
             elif base_item.type_ == Static.FOLDER_TYPE:
-                if self.exists_folder_record(base_item):
+                rating = self.get_item_rating(base_item)
+                if rating:
+                    base_item.rating = rating
                     stmt_list.append(self.update_folder_stmt(base_item))
                 else:
                     stmt_list.append(self.insert_folder_stmt(base_item))
             else:
                 base_item.partial_hash = Utils.get_partial_hash(base_item.src)
                 base_item.thumb_path = Utils.get_abs_thumb_path(base_item.partial_hash)
-                if self.exists_file_record(base_item):
+                rating = self.get_item_rating(base_item)
+                if rating:
+                    base_item.rating = rating
                     if base_item.type_ in Static.ext_all:
                         stmt_list.append(self.update_file_stmt(base_item))
                         exist_images.append(base_item)
@@ -640,10 +644,20 @@ class LoadImagesTask(URunnable):
             except Exception as e:
                 print("tasks, LoadImagesTask update_thumb.emit error", e)
 
-    def exists_file_record(self, base_item: BaseItem) -> bool:
-        stmt = sqlalchemy.select(Clmns.id)
-        stmt = stmt.where(Clmns.partial_hash == base_item.partial_hash)
-        return Dbase.execute(self.conn, stmt).scalar()
+    def get_item_rating(self, base_item: BaseItem) -> bool:
+        stmt = sqlalchemy.select(Clmns.rating)
+        if self.base_item.type_ == Static.FOLDER_TYPE:
+            conds = [
+                Clmns.name == self.base_item.filename,
+                Clmns.type == self.base_item.type_,
+                Clmns.size == self.base_item.size,
+                Clmns.birth == self.base_item.birth,
+                Clmns.mod == self.base_item.mod,
+            ]
+            stmt = stmt.where(sqlalchemy.and_(*conds))
+        else:
+            stmt = stmt.where(Clmns.partial_hash==self.base_item.partial_hash)
+        return Dbase.execute(self.conn, stmt).scalar() or None
     
     def exists_folder_record(self, base_item: BaseItem):
         stmt = sqlalchemy.select(Clmns.id)
