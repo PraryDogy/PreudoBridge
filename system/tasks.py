@@ -555,13 +555,13 @@ class FinderItems(URunnable):
         return folders
     
 
-class _LoadImagesSigs(QObject):
-    update_thumb = pyqtSignal(BaseItem) # на самом деле Thumb
-    set_loading = pyqtSignal(BaseItem)
-    finished_ = pyqtSignal()
-
-
 class LoadImagesTask(URunnable):
+
+    class Sigs(QObject):
+        update_thumb = pyqtSignal(BaseItem) # на самом деле Thumb
+        set_loading = pyqtSignal(BaseItem)
+        finished_ = pyqtSignal()
+
     def __init__(self, main_win_item: MainWinItem, base_items: list[BaseItem]):
         """
         URunnable   
@@ -569,11 +569,12 @@ class LoadImagesTask(URunnable):
         Загружает изображения из базы данных или создает новые
         """
         super().__init__()
-        self.sigs = _LoadImagesSigs()
+        self.sigs = LoadImagesTask.Sigs()
         self.main_win_item = main_win_item
         self.base_items = base_items
         key_ = lambda x: x.size
         self.base_items.sort(key=key_)
+        self.conn = Dbase.engine.connect()
 
     def task(self):
         """
@@ -582,11 +583,7 @@ class LoadImagesTask(URunnable):
         Испускает сигнал finished_
         """
 
-        self.conn = Dbase.engine.connect()
-        stmt_list, thumb_array_list = self.process_thumbs()
-        self.execute_stmt_list(stmt_list)
-        self.write_thumbs(thumb_array_list)
-
+        self.process_thumbs()
         self.conn.close()
         self.sigs.finished_.emit()
 
@@ -596,68 +593,62 @@ class LoadImagesTask(URunnable):
         Пытается загрузить изображение из базы данных или создает новое,
         чтобы передать его в Thumb
         """
-        exists_img_items: list[BaseItem] = []
-        new_img_items: list[BaseItem] = []
         stmt_list: list = []
-        thumb_array_list: list = []
+        new_images: list[BaseItem] = []
+        exist_images: list[BaseItem] = []
 
         for base_item in self.base_items:
             if base_item.type_ == ".svg":
                 qimage  = QImage()
                 qimage.load(base_item.src)
                 base_item.qimage = qimage
-                self.sigs.update_thumb.emit(base_item)
-            elif base_item.type_ == Static.FOLDER_TYPE:
-                ...
-            elif base_item.type_ not in Static.ext_all:
-                any_base_item = AnyBaseItem(self.conn, base_item)
-                data = any_base_item.get_item_data()
-                if isinstance(data["stmt"], sqlalchemy.Insert):
-                    self.stmt_list.append(data)
-            else:
-                if self.check_exists_record(base_item):
-                    exists_img_items.append(base_item)
-                else:
-                    new_img_items.append(base_item)
-
-        for base_item in exists_img_items:
-            if not self.is_should_run():
-                return
-            img_base_item = ImgBaseItem(self.conn, base_item)
-            data = img_base_item.get_exist_item_data()
-            if data["thumb_array"]:
-                base_item.qimage = data["qimage"]
-                stmt_list.append(data["stmt"])
                 try:
                     self.sigs.update_thumb.emit(base_item)
                 except Exception as e:
                     print("tasks, LoadImagesTask, update_thumb.emit error", e)
                     return
+            elif base_item.type_ == Static.FOLDER_TYPE:
+                if self.exists_folder_record(base_item):
+                    stmt_list.append(self.update_folder_stmt(base_item))
+                else:
+                    stmt_list.append(self.insert_folder_stmt(base_item))
+            else:
+                if self.exists_file_record(base_item):
+                    if base_item.type_ in Static.ext_all:
+                        stmt_list.append(self.update_file_stmt(base_item))
+                        exist_images.append(base_item)
+                    else:
+                        stmt_list.append(self.update_file_stmt(base_item))
+                else:
+                    if base_item.type_ in Static.ext_all:
+                        stmt_list.append(self.insert_file_stmt(base_item))
+                        new_images.append(base_item)
+                    else:
+                        stmt_list.append(self.insert_file_stmt(base_item))
 
-        for base_item in new_img_items:
-            if not self.is_should_run():
-                return
+        for i in exist_images:
+            qimage = Utils.qimage_from_array(Utils.read_thumb(i.thumb_path))
+            i.qimage = qimage
             try:
-                self.sigs.set_loading.emit(base_item)
+                self.sigs.update_thumb.emit(i)
             except Exception as e:
-                print("tasks, LoadImagesTask, set_loading.emit error", e)
-                return
-            img_base_item = ImgBaseItem(self.conn, base_item)
-            data = img_base_item.get_new_item_data()
-            if data["thumb_array"]:
-                base_item.qimage = data["qimage"]
-                stmt_list.append(data["stmt"])
-                thumb_array_list.append(
-                    (base_item.thumb_path, data["thumb_array"])
-                )
-            try:
-                self.sigs.update_thumb.emit(base_item)
-            except Exception as e:
-                print("tasks, LoadImagesTask, update_thumb.emit error", e)
-                return
-        
-        return (stmt_list, thumb_array_list)
+                print("tasks, LoadImagesTask update_thumb.emit error", e)
 
+        for i in stmt_list:
+            Dbase.execute(self.conn, i)
+        Dbase.commit(self.conn)
+
+        for i in new_images:
+            img = ReadImage.read_image(i.src)
+            img = SharedUtils.fit_image(img, ThumbData.DB_IMAGE_SIZE)
+            qimage = Utils.qimage_from_array(img)
+            i.qimage = qimage
+            Utils.write_thumb(i.thumb_path, img)
+            try:
+                self.sigs.update_thumb.emit(i)
+            except Exception as e:
+                print("tasks, LoadImagesTask update_thumb.emit error", e)
+    
     def execute_stmt_list(self, stmt_list: list):
         for stmt in stmt_list:
             Dbase.execute(self.conn, stmt)
@@ -667,13 +658,73 @@ class LoadImagesTask(URunnable):
         for thumb_path, thumb_array in thumb_array_list:
             Utils.write_thumb(thumb_path, thumb_array)
 
-    def check_exists_record(self, base_item: BaseItem) -> bool:
-        stmt = sqlalchemy.select(Clmns.partial_hash)
+    def exists_file_record(self, base_item: BaseItem) -> bool:
+        stmt = sqlalchemy.select(Clmns.id)
         stmt = stmt.where(Clmns.partial_hash == base_item.partial_hash)
-        if self.conn.execute(stmt).scalar():
-            return True
-        return None
-
+        return Dbase.execute(self.conn, stmt).scalar()
+    
+    def exists_folder_record(self, base_item: BaseItem):
+        stmt = sqlalchemy.select(Clmns.id)
+        stmt = stmt.where(sqlalchemy.and_(
+            Clmns.name == base_item.filename,
+            Clmns.type == base_item.type_,
+            Clmns.size == base_item.size,
+            Clmns.birth == base_item.birth,
+            Clmns.mod == base_item.mod
+        ))
+        return Dbase.execute(self.conn, stmt).scalar()
+    
+    def update_folder_stmt(self, base_item: BaseItem):
+        stmt = sqlalchemy.update(CACHE)
+        stmt = stmt.where(sqlalchemy.and_(
+            Clmns.name == base_item.filename,
+            Clmns.type == base_item.type_,
+            Clmns.size == base_item.size,
+            Clmns.birth == base_item.birth,
+            Clmns.mod == base_item.mod
+        ))
+        stmt = stmt.values(**{
+            Clmns.last_read.name: Utils.get_now()
+        })
+        return stmt
+    
+    def update_file_stmt(self, base_item: BaseItem):
+        stmt = sqlalchemy.update(CACHE)
+        stmt = stmt.where(
+            Clmns.partial_hash == base_item.partial_hash
+        )
+        stmt = stmt.values(**{
+            Clmns.last_read.name: Utils.get_now()
+        })
+        return stmt
+    
+    def insert_folder_stmt(self, base_item: BaseItem):
+        stmt = sqlalchemy.insert(CACHE)
+        stmt = stmt.values(**{
+            Clmns.name.name: base_item.filename,
+            Clmns.type.name: base_item.type_,
+            Clmns.size.name: base_item.size,
+            Clmns.birth.name: base_item.birth,
+            Clmns.mod.name: base_item.mod,
+            Clmns.last_read.name: Utils.get_now(),
+            Clmns.rating.name: 0,
+        })
+        return stmt
+    
+    def insert_file_stmt(self, base_item: BaseItem):
+        stmt = sqlalchemy.insert(CACHE)
+        stmt = stmt.values(**{
+            Clmns.name.name: base_item.filename,
+            Clmns.type.name: base_item.type_,
+            Clmns.size.name: base_item.size,
+            Clmns.birth.name: base_item.birth,
+            Clmns.mod.name: base_item.mod,
+            Clmns.last_read.name: Utils.get_now(),
+            Clmns.rating.name: 0,
+            Clmns.partial_hash.name: base_item.partial_hash,
+            Clmns.thumb_path.name: base_item.thumb_path
+        })
+        return stmt
 
 class _LoadImgSigs(QObject):
     finished_ = pyqtSignal(tuple)

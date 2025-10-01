@@ -3,9 +3,8 @@ import os
 import re
 
 import numpy as np
+import sqlalchemy
 from PyQt5.QtGui import QImage, QPixmap
-from sqlalchemy import (Connection, Insert, RowMapping, Update, and_, insert,
-                        select)
 from sqlalchemy.engine import RowMapping
 
 from cfg import Static, ThumbData
@@ -13,7 +12,7 @@ from system.shared_utils import ReadImage, SharedUtils
 
 from .database import CACHE, Clmns, Dbase
 from .utils import Utils
-
+from datetime import datetime
 
 class SortItem:
     filename = "filename"
@@ -231,25 +230,44 @@ class MainWinItem:
 
 
 class AnyBaseItem:
-    def __init__(self, conn: Connection, base_item: BaseItem):
+    def __init__(self, conn: sqlalchemy.Connection, base_item: BaseItem):
         super().__init__()
         self.conn = conn
         self.base_item = base_item
 
     def get_item_data(self):
         """
-        Возвращает {"stmt": sqlalchemy.Insert | None}
+        Возвращает {"stmt": Insert | Update}
         """
+
+        def get_insert_stmt():
+            values = {
+                Clmns.name.name: self.base_item.filename,
+                Clmns.type.name: self.base_item.type_,
+                Clmns.size.name: self.base_item.size,
+                Clmns.birth.name: self.base_item.birth,
+                Clmns.mod.name: self.base_item.mod,
+                Clmns.rating.name: self.base_item.rating,
+                Clmns.partial_hash.name: self.base_item.partial_hash,
+                Clmns.thumb_path.name: self.base_item.thumb_path,
+                # LAST READ!!!!!
+            }
+            return sqlalchemy.insert(CACHE).values(**values)
+
         if not self.check_db_record():
-            return {"stmt": self.get_insert_stmt()}
+            return {
+                "stmt": self.get_insert_stmt()
+            }
         else:
             # LAST READ!!!!!# LAST READ!!!!!# LAST READ!!!!!
-            return {"stmt": None}
+            return {
+                "stmt": None
+            }
 
     def check_db_record(self):
-        stmt = select(Clmns.id)
+        stmt = sqlalchemy.select(Clmns.id)
         if self.base_item.type_ == Static.FOLDER_TYPE:
-            stmt = stmt.where(and_(
+            stmt = stmt.where(sqlalchemy.and_(
                 Clmns.name == self.base_item.filename,
                 Clmns.type == self.base_item.type_,
                 Clmns.size == self.base_item.size,
@@ -264,19 +282,6 @@ class AnyBaseItem:
             return True
         return None
 
-    def get_insert_stmt(self) -> Insert | None:
-        values = {
-            Clmns.name.name: self.base_item.filename,
-            Clmns.type.name: self.base_item.type_,
-            Clmns.size.name: self.base_item.size,
-            Clmns.birth.name: self.base_item.birth,
-            Clmns.mod.name: self.base_item.mod,
-            Clmns.rating.name: self.base_item.rating,
-            Clmns.partial_hash.name: self.base_item.partial_hash,
-            Clmns.thumb_path.name: self.base_item.thumb_path,
-            # LAST READ!!!!!
-        }
-        return insert(CACHE).values(**values)
 
 
 class ImgBaseItem:
@@ -284,7 +289,7 @@ class ImgBaseItem:
     already_flag = "_already"
     none_text = "None"
 
-    def __init__(self, conn: Connection, base_item: BaseItem):
+    def __init__(self, conn: sqlalchemy.Connection, base_item: BaseItem):
         super().__init__()
         self.conn = conn
         self.base_item = base_item
@@ -298,9 +303,19 @@ class ImgBaseItem:
         }
         """
 
-
-
-        # SQLALCHEMY UPDATE LAST READ
+        def get_update_stmt():
+            values = {
+                Clmns.name.name: self.base_item.filename,
+                Clmns.type.name: self.base_item.type_,
+                Clmns.size.name: self.base_item.size,
+                Clmns.birth.name: self.base_item.birth,
+                Clmns.mod.name: self.base_item.mod,
+                Clmns.rating.name: self.base_item.rating,
+                Clmns.partial_hash.name: self.base_item.partial_hash,
+                Clmns.thumb_path.name: self.base_item.thumb_path,
+                # LAST READ!!!!!
+            }
+            return sqlalchemy.update(CACHE).values(**values)
 
 
         thumb_array = Utils.read_thumb(self.base_item.thumb_path)
@@ -308,7 +323,7 @@ class ImgBaseItem:
             result = {
                 "thumb_array": thumb_array,
                 "qimage": Utils.qimage_from_array(thumb_array),
-                "stmt": None
+                "stmt": get_update_stmt()
             }
         else:
             result = {

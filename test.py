@@ -1,10 +1,5 @@
-from system.database import Dbase, Clmns
+from datetime import datetime
 
-
-Dbase.init()
-
-values = {
-    Clmns.partial_hash.name: 1
-}
-
-print(values)
+new = datetime.now().replace(microsecond=0)
+new = new.timestamp()
+print(new)

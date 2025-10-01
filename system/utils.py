@@ -4,6 +4,7 @@ import io
 import os
 import subprocess
 import traceback
+from datetime import datetime
 
 import cv2
 import numpy as np
@@ -221,3 +222,7 @@ class Utils:
         except Exception as e:
             print(f"read_thumb: ошибка чтения thumb: {e}")
             return None
+        
+    @classmethod
+    def get_now(cls):
+        return int(datetime.now().replace(microsecond=0).timestamp())
