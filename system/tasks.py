@@ -302,6 +302,7 @@ class SearchTask(URunnable):
 
         self.db_path: str = None
         self.pause = False
+        self.insert_count = 0
 
         self.conn = Dbase.get_conn(Dbase.engine)
 
@@ -319,6 +320,8 @@ class SearchTask(URunnable):
                     if i not in self.found_files_list:
                         missed_files_list.append(i)
         self.sigs.finished_.emit(missed_files_list)
+        Dbase.commit(self.conn)
+        self.conn.close()
 
     def setup_search(self):
         if isinstance(self.search_item.get_content(), list):
@@ -457,8 +460,14 @@ class SearchTask(URunnable):
 
     def process_img(self, entry: os.DirEntry):
 
-        def insert():
-            q = sqlalchemy.insert(CACHE)
+        def insert(base_item: BaseItem, img_array: np.ndarray):
+            stmt = BaseItem.insert_file_stmt(base_item)
+            Dbase.execute(self.conn, stmt)
+            Utils.write_thumb(base_item.thumb_path, img_array)
+            self.insert_count += 1
+            if self.insert_count > 10:
+                self.insert_count = 0
+                Dbase.commit(self.conn)
 
         base_item = BaseItem(entry.path)
         base_item.set_properties()
@@ -467,10 +476,10 @@ class SearchTask(URunnable):
         if entry.name.endswith(Static.ext_all):
             if os.path.exists(base_item.thumb_path):
                 img_array = Utils.read_thumb(base_item.thumb_path)
-                print(base_item.filename)
             else:
                 img_array = ReadImage.read_image(entry.path)
                 img_array = SharedUtils.fit_image(img_array, ThumbData.DB_IMAGE_SIZE)
+                insert(base_item, img_array)
             qimage = Utils.qimage_from_array(img_array)
             base_item.qimage = qimage
         self.sigs.new_widget.emit(base_item)

@@ -149,7 +149,8 @@ class BaseItem:
         ]
         return sqlalchemy.and_(*conds)
 
-    def update_folder_stmt(self, base_item: "BaseItem"):
+    @classmethod
+    def update_folder_stmt(cls, base_item: "BaseItem"):
         """
         Обновляет last_read
         """
@@ -160,7 +161,8 @@ class BaseItem:
         })
         return stmt
     
-    def update_file_stmt(self, base_item: "BaseItem"):
+    @classmethod
+    def update_file_stmt(cls, base_item: "BaseItem"):
         """
         Обновляет last_read
         """
@@ -173,7 +175,8 @@ class BaseItem:
         })
         return stmt
     
-    def insert_folder_stmt(self, base_item: "BaseItem"):
+    @classmethod
+    def insert_folder_stmt(cls, base_item: "BaseItem"):
         stmt = sqlalchemy.insert(CACHE)
         stmt = stmt.values(**{
             Clmns.name.name: base_item.filename,
@@ -186,7 +189,8 @@ class BaseItem:
         })
         return stmt
     
-    def insert_file_stmt(self, base_item: "BaseItem"):
+    @classmethod
+    def insert_file_stmt(cls, base_item: "BaseItem"):
         stmt = sqlalchemy.insert(CACHE)
         stmt = stmt.values(**{
             Clmns.name.name: base_item.filename,
