@@ -494,10 +494,9 @@ class FinderItems(URunnable):
 
     def _task(self):
         files, folders = self.get_finder_base_items()
-        # files = self.set_files_rating(finder_items)
-        # folders = self.set_files_rating(folders)
-    
-        finder_items = list(files.values())
+        files = self.set_files_rating(files)
+        folders = self.set_folders_rating(folders)
+        finder_items = list(files.values()) + list(folders.values())
         finder_items = BaseItem.sort_items(finder_items, self.sort_item)
         self.sigs.finished_.emit(finder_items)
 
@@ -525,12 +524,24 @@ class FinderItems(URunnable):
     def set_files_rating(self, files: dict[str, BaseItem]):
         stmt = (
             sqlalchemy.select(Clmns.partial_hash, Clmns.rating)
-            .where(Clmns.partial_hash.in_(list(files)))
+            .where(Clmns.partial_hash.in_(files))
         )
         res = self.conn.execute(stmt).fetchall()
         for partial_hash, rating in res:
             if partial_hash in files:
                 files[partial_hash].rating = rating
+        return files
+    
+    def set_folders_rating(self, folders: dict[tuple, BaseItem]):
+        clmns = (Clmns.name, Clmns.type, Clmns.size, Clmns.birth, Clmns.mod, Clmns.rating)
+        stmt = (
+            sqlalchemy.select(*clmns)
+            .where(sqlalchemy.tuple_(*clmns[:-1]).in_(folders))
+        )
+        res = self.conn.execute(stmt).fetchall()
+        for name, type_, size, birth, mod, rating in res:
+            folders[(name, type_, size, birth, mod)].rating = rating
+        return folders
     
 
 class _LoadImagesSigs(QObject):
