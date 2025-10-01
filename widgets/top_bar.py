@@ -16,7 +16,7 @@ class BarTopBtn(QWidget):
     clicked = pyqtSignal()
     width_ = 40
     height_ = 35
-    svg_size = 19
+    svg_size = 20
 
     def __init__(self):
         """
@@ -26,6 +26,7 @@ class BarTopBtn(QWidget):
 
         self.v_lay = QVBoxLayout()
         self.v_lay.setContentsMargins(0, 0, 0, 0)
+        self.v_lay.setSpacing(1)
         self.v_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setLayout(self.v_lay)
 
@@ -398,7 +399,7 @@ class TopBar(QWidget):
 
     def toggle_texts(self):
         if JsonData.show_text:
-            self.main_lay.setSpacing(7)
+            self.main_lay.setSpacing(15)
             self.setFixedHeight(self.height_ + 7)
             for btn in self.findChildren(BarTopBtn):
                 btn.lbl.show()
