@@ -32,6 +32,10 @@ class DataWidget(QGroupBox):
         self.slider = USlider(Qt.Orientation.Horizontal, minimum, maximum)
         self.slider.valueChanged.connect(self.snap_to_step)
         self.slider.setFixedWidth(self.slider_w)
+
+        self.slider.setTickPosition(QSlider.TicksBelow)
+        self.slider.setTickInterval(1)
+
         v_lay.addWidget(self.slider)
 
         self.slider.setValue(JsonData.data_limit)
