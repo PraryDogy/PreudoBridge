@@ -596,8 +596,8 @@ class LoadImagesTask(URunnable):
         Пытается загрузить изображение из базы данных или создает новое,
         чтобы передать его в Thumb
         """
-        exists_items: list[BaseItem] = []
-        new_items: list[BaseItem] = []
+        exists_img_items: list[BaseItem] = []
+        new_img_items: list[BaseItem] = []
 
         for base_item in self.base_items:
             if base_item.type_ not in Static.ext_all:
@@ -612,11 +612,11 @@ class LoadImagesTask(URunnable):
                     self.stmt_list.append(result)
             else:
                 if self._is_exists(base_item):
-                    exists_items.append(base_item)
+                    exists_img_items.append(base_item)
                 else:
-                    new_items.append(base_item)
+                    new_img_items.append(base_item)
 
-        for base_item in exists_items:
+        for base_item in exists_img_items:
             if not self.is_should_run():
                 return
             img_base_item = ImageBaseItem(self.conn, base_item)
@@ -631,7 +631,7 @@ class LoadImagesTask(URunnable):
                 Utils.print_error()
                 return
 
-        for base_item in new_items:
+        for base_item in new_img_items:
             if not self.is_should_run():
                 return
             img_base_item = ImageBaseItem(self.conn, base_item)
