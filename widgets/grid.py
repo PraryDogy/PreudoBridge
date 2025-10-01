@@ -407,7 +407,6 @@ class Grid(UScrollArea):
             if thumb.qimage:
                 thumb.set_image(thumb.qimage)
                 thumb.set_transparent_frame(1.0)
-
             try:
                 thumb.rating_wid.set_text(thumb.rating, thumb.type_, thumb.mod, thumb.size)
                 self.processed_thumbs.append(thumb)
