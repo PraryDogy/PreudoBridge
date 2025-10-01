@@ -1032,6 +1032,7 @@ class ClearLimitedData(URunnable):
     def task(self):
         try:
             self._task()
+            Dbase.close_conn(self.conn)
         except Exception as e:
             print("tasks, ClearData error", e)
 
@@ -1091,10 +1092,13 @@ class ClearCustomData(URunnable):
         super().__init__()
         self.sigs = ClearCustomData.Sigs()
         self.bytes_limit = bytes_limit
+        self.conn = Dbase.get_conn(Dbase.engine)
+        self.stmt_limit = 200
 
     def task(self):
         try:
             self._task()
+            Dbase.close_conn(self.conn)
         except Exception as e:
             print("tasks, ClearData error", e)
 
