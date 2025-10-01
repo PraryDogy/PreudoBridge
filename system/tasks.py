@@ -599,14 +599,7 @@ class LoadImagesTask(URunnable):
 
         for base_item in self.base_items:
             if base_item.type_ == ".svg":
-                qimage  = QImage()
-                qimage.load(base_item.src)
-                base_item.qimage = qimage
-                try:
-                    self.sigs.update_thumb.emit(base_item)
-                except Exception as e:
-                    print("tasks, LoadImagesTask, update_thumb.emit error", e)
-                    return
+                self.svg_actions(base_item)
             elif base_item.type_ == Static.FOLDER_TYPE:
                 if self.exists_folder_record(base_item):
                     stmt_list.append(self.update_folder_stmt(base_item))
@@ -649,6 +642,15 @@ class LoadImagesTask(URunnable):
             except Exception as e:
                 print("tasks, LoadImagesTask update_thumb.emit error", e)
     
+    def svg_actions(self, base_item: BaseItem):
+        qimage  = QImage()
+        qimage.load(base_item.src)
+        base_item.qimage = qimage
+        try:
+            self.sigs.update_thumb.emit(base_item)
+        except Exception as e:
+            print("tasks, LoadImagesTask, update_thumb.emit error", e)
+
     def execute_stmt_list(self, stmt_list: list):
         for stmt in stmt_list:
             Dbase.execute(self.conn, stmt)
