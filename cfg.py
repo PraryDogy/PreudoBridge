@@ -18,7 +18,6 @@ class Static:
     APPLE_SCRIPTS = {entry.name: entry.path for entry in os.scandir("scripts")}
     INTERNAL_ICONS = {entry.name: entry.path for entry in os.scandir("icons")}
 
-    DB_FILENAME = ".preudobridge.db"
     FOLDER_TYPE: str = "folder"
     VOLUMES: str = "Volumes"
 
