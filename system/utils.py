@@ -260,8 +260,8 @@ class Utils:
     def get_app_icns(cls, app_path: str):
         plist_path = os.path.join(app_path, "Contents", "info.plist")
         with open(plist_path, "rb") as f:
-            plist = plistlib.load(f)
-        icon_name = plist.get("CFBundleIconFile")
+            plist: dict = plistlib.load(f)
+        icon_name: str = plist.get("CFBundleIconFile")
         if not icon_name.endswith(".icns"):
             icon_name += ".icns"
         icns_path = os.path.join(app_path, "Contents", "Resources", icon_name)
