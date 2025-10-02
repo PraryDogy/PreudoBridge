@@ -4,8 +4,9 @@ from datetime import datetime
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtSvg import QSvgWidget
-from PyQt5.QtWidgets import (QCheckBox, QFrame, QGroupBox, QHBoxLayout, QLabel,
-                             QPushButton, QSlider, QVBoxLayout, QWidget, QSizePolicy)
+from PyQt5.QtWidgets import (QCheckBox, QFrame, QGridLayout, QGroupBox,
+                             QHBoxLayout, QLabel, QPushButton, QSizePolicy,
+                             QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
 from system.shared_utils import SharedUtils
@@ -14,71 +15,88 @@ from system.tasks import DataSize, UThreadPool
 from ._base_widgets import MinMaxDisabledWin, USlider, USvgSqareWidget
 
 
-class DataWidget(QGroupBox):
+class DataLimitWid(QGroupBox):
     clear_data_clicked = pyqtSignal()
     slider_w = 200
-    limit_text = "Лимит данных"
-    data_size_text = "Размер данных"
-    data_size_calc = "Вычисляю"
-    files_text = "Файлы"
+    limit_text = "Максимальный размер кэша"
 
     def __init__(self):
         super().__init__()
 
         v_lay = QVBoxLayout()
-        v_lay.setContentsMargins(5, 2, 5, 2)
-        v_lay.setSpacing(5)
+        v_lay.setContentsMargins(5, 5, 5, 15)
+        v_lay.setSpacing(10)
         self.setLayout(v_lay)
 
-        self.total_wid = QLabel(f"{self.data_size_text}: {self.data_size_calc.lower()}")
+        self.total_wid = QLabel(f"{self.limit_text}")
         v_lay.addWidget(self.total_wid)
 
-        self.files_wid = QLabel(f"{self.files_text}: {self.data_size_calc.lower()}")
-        v_lay.addWidget(self.files_wid)
+        hor_wid = QWidget()
+        v_lay.addWidget(hor_wid)
+        hor_lay = QHBoxLayout()
+        hor_lay.setContentsMargins(0, 0, 0, 0)
+        hor_wid.setLayout(hor_lay)
 
-        self.data_wid = QLabel()
-        v_lay.addWidget(self.data_wid)
+        slider_w = 0
+        lbl_w = 80
+        for k, v in Static.DATA_LIMITS.items():
+            lbl = QLabel(v["text"])
+            lbl.setFixedWidth(lbl_w)
+            lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            slider_w += lbl_w
+            hor_lay.addWidget(lbl)
 
         minimum, maximum = 0, len(Static.DATA_LIMITS) - 1
         self.slider = USlider(Qt.Orientation.Horizontal, minimum, maximum)
         self.slider.valueChanged.connect(self.snap_to_step)
-        self.slider.setFixedWidth(self.slider_w)
-        self.slider.setFixedHeight(20)
-        v_lay.addWidget(self.slider)
+        self.slider.setFixedWidth(slider_w - 10)
         self.slider.setValue(JsonData.data_limit)
-
-        self.data_size_task()
-
-    def data_size_task(self):
-
-        def fin(data: dict):
-            size = SharedUtils.get_f_size(data["total"])
-            count = data["count"]
-
-            text = f'{self.data_size_text}: {size}'
-            self.total_wid.setText(text)
-
-            text = f"{self.files_text}: {count}"
-            self.files_wid.setText(text)
-            
-
-        self.data_size = DataSize()
-        self.data_size.sigs.finished_.connect(
-            lambda data: fin(data)
-        )
-        UThreadPool.start(self.data_size)
-
+        v_lay.addWidget(self.slider, alignment=Qt.AlignmentFlag.AlignCenter)
+        
     def snap_to_step(self, value):
-        f_size = Static.DATA_LIMITS[value]["text"]
-        self.data_wid.setText(
-            f"{self.limit_text}: {f_size}"
-        )
         JsonData.data_limit = value
+
+
+class DataSizeWid(QGroupBox):
+    data_size_text = "Размер кэша:"
+    files_text = "Кол-во файлов:"
+    calculating = "вычисляю..."
+
+    def __init__(self):
+        super().__init__()
+        
+        layout = QGridLayout()
+        self.setLayout(layout)
+        layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+
+        # Создаем QLabel и сохраняем в переменные
+        self.lbl_top_left = QLabel(self.data_size_text)
+        self.lbl_top_right = QLabel(self.calculating)
+        self.lbl_bottom_left = QLabel(self.files_text)
+        self.lbl_bottom_right = QLabel(self.calculating)
+
+        # Добавляем в сетку
+        layout.addWidget(self.lbl_top_left, 0, 0)
+        layout.addWidget(self.lbl_top_right, 0, 1)
+        layout.addWidget(self.lbl_bottom_left, 1, 0)
+        layout.addWidget(self.lbl_bottom_right, 1, 1)
+
+        self.start_task()
+
+    def start_task(self):
+
+        def fin(data):
+            self.lbl_top_right.setText(SharedUtils.get_f_size(data["total"]))
+            self.lbl_bottom_right.setText(str(data["count"]))
+
+        self.task_ = DataSize()
+        self.task_.sigs.finished_.connect(fin)
+        UThreadPool.start(self.task_)
 
 
 class JsonFile(QGroupBox):
     json_text = "Показать"
-    json_descr_text = "Системные файлы"
+    json_descr_text = "Системные файлы приложения."
     btn_w = 110
 
     def __init__(self):
@@ -321,9 +339,12 @@ class SettingsWin(MinMaxDisabledWin):
         themes_wid.theme_changed.connect(self.theme_changed_cmd)
         main_lay.addWidget(themes_wid)
 
-        clear_data_wid = DataWidget()
-        clear_data_wid.clear_data_clicked.connect(self.remove_db.emit)
-        main_lay.addWidget(clear_data_wid)
+        data_limit_wid = DataLimitWid()
+        data_limit_wid.clear_data_clicked.connect(self.remove_db.emit)
+        main_lay.addWidget(data_limit_wid)
+
+        data_size_wid = DataSizeWid()
+        main_lay.addWidget(data_size_wid)
 
         json_wid = JsonFile()
         main_lay.addWidget(json_wid)
@@ -332,7 +353,6 @@ class SettingsWin(MinMaxDisabledWin):
         main_lay.addWidget(about_wid)
 
         self.adjustSize()
-        # self.setFixedSize(self.width() + 30, self.height())
 
     def theme_changed_cmd(self):
         self.theme_changed.emit()
