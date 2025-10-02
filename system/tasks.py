@@ -1,14 +1,12 @@
 import difflib
 import gc
 import os
-import plistlib
 import shutil
 import zipfile
 from time import sleep
 
 import numpy as np
 import sqlalchemy
-from icnsutil import IcnsFile
 from PIL import Image
 from PyQt5.QtCore import QObject, QRunnable, QThreadPool, QTimer, pyqtSignal
 from PyQt5.QtGui import QImage
