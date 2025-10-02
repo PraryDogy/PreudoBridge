@@ -472,8 +472,7 @@ class SearchTask(URunnable):
         base_item = BaseItem(entry.path)
         base_item.set_properties()
         if base_item.type_ != Static.FOLDER_TYPE:
-            base_item.partial_hash = Utils.get_partial_hash(entry.path)
-            base_item.thumb_path = Utils.get_abs_thumb_path(base_item.partial_hash)
+            base_item.set_partial_hash()
         if entry.name.endswith(Static.ext_all):
             if os.path.exists(base_item.thumb_path):
                 img_array = Utils.read_thumb(base_item.thumb_path)
@@ -594,8 +593,7 @@ class LoadImagesTask(URunnable):
                     stmt_list.append(BaseItem.update_folder_stmt(base_item))
                     exist_ratings.append(base_item)
             else:
-                base_item.partial_hash = Utils.get_partial_hash(base_item.src)
-                base_item.thumb_path = Utils.get_abs_thumb_path(base_item.partial_hash)
+                base_item.set_partial_hash()
                 rating = self.get_item_rating(base_item)
                 if rating is None:
                     stmt_list.append(BaseItem.insert_file_stmt(base_item))
@@ -1140,3 +1138,66 @@ class LimitedCacheCleaner(URunnable):
             if not id_list:
                 break
             self.remove_id_list(id_list)
+
+
+class CacheDownloader(URunnable):
+
+    class Sigs(QObject):
+        progress = pyqtSignal(int)
+        prorgess_max = pyqtSignal(int)
+        finished_ = pyqtSignal()
+
+    def __init__(self, dir: str):
+        super().__init__()
+        self.dir = dir
+        self.sigs = CacheDownloader.Sigs()
+        self.conn = Dbase.get_conn(Dbase.engine)
+
+    def task(self):
+        try:
+            self._task()
+        except Exception as e:
+            print("tasks CacheDownloader error", e)
+
+    def _task(self):
+        new_images = self.get_new_images()
+        self.sigs.prorgess_max.emit(len(new_images))
+        for x, data in enumerate(new_images, start=1):
+            self.sigs.progress.emit(x)
+            base_item: BaseItem = data["base_item"]
+            if self.write_thumb(base_item):
+                Dbase.execute(self.conn, data["stmt"])
+        Dbase.commit(self.conn)
+        Dbase.close_conn(self.conn)
+
+    def write_thumb(self, base_item: BaseItem):
+        img = ReadImage.read_image(base_item.src)
+        img = SharedUtils.fit_image(img, ThumbData.DB_IMAGE_SIZE)
+        return Utils.write_thumb(base_item.thumb_path, img)
+
+    def get_new_images(self):
+        new_images: list[dict[BaseItem, str]] = []
+        stack = [self.dir]
+
+        while stack:
+            last_dir = stack.pop()
+            for i in os.scandir(last_dir):
+                if i.is_dir():
+                    stack.append(i.path)
+                elif i.name.endswith(Static.ext_all):
+                    base_item = BaseItem(i.path)
+                    base_item.set_properties()
+                    base_item.set_partial_hash()
+                    if self.exists_check(i.path) is None:
+                        new_images.append = {
+                            "base_item": base_item,
+                            "stmt": BaseItem.insert_file_stmt(base_item)
+                        }
+        return new_images
+
+    def exists_check(self, base_item: BaseItem):
+        stmt = (
+            sqlalchemy.select(Clmns.id)
+            .where(Clmns.partial_hash == base_item.partial_hash)
+        )
+        return Dbase.execute(self.conn, stmt).scalar() or None

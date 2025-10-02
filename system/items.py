@@ -73,6 +73,10 @@ class BaseItem:
         self.partial_hash: str = None
         self.thumb_path: str = None
 
+    def set_partial_hash(self):
+        self.partial_hash = Utils.get_partial_hash(self.src)
+        self.thumb_path = Utils.get_abs_thumb_path(self.partial_hash)
+
     def set_properties(self):
         """
         Обновляет данные объекта:
