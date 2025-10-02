@@ -109,29 +109,6 @@ class Utils:
         print()
 
     @classmethod
-    def bytes_to_array(cls, blob: bytes) -> np.ndarray:
-        try:
-            with io.BytesIO(blob) as buffer:
-                image = Image.open(buffer)
-                return np.array(image)
-            
-        except Exception as e:
-            Utils.print_error()
-            return None
-
-    @classmethod
-    def numpy_to_bytes(cls, img_array: np.ndarray) -> bytes | None:
-        try:
-            with io.BytesIO() as buffer:
-                image = Image.fromarray(img_array)
-                image.save(buffer, format="JPEG")
-                return buffer.getvalue()
-            
-        except Exception as e:
-            print("numpy to bytes convert error", e)
-            return None
-
-    @classmethod
     def desaturate_image(cls, image: np.ndarray, factor=0.2):
         try:
             gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
