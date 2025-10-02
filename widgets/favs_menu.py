@@ -113,7 +113,7 @@ class FavItem(QLabel):
     def mouseReleaseEvent(self, e):
         if e.modifiers() & Qt.KeyboardModifier.ControlModifier:
             self.open_in_new_win.emit(self.src)
-        else:
+        elif self.src != self.main_win_item.main_dir:
             self.view_fav()
         return super().mouseReleaseEvent(e)
 

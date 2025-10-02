@@ -41,12 +41,15 @@ class TreeMenu(QTreeView):
 
     def one_clicked(self, index):
         path = self.c_model.filePath(index)
-        self.setCurrentIndex(index)
-        self.new_history_item.emit(path)
-        self.main_win_item.main_dir = path
-        self.load_st_grid_sig.emit()
+        if path != self.main_win_item.main_dir:
+            self.setCurrentIndex(index)
+            self.new_history_item.emit(path)
+            self.main_win_item.main_dir = path
+            self.load_st_grid_sig.emit()
+        # self.expand(index)
 
-        self.expand(index)
+    def mouseReleaseEvent(self, event):
+        return super().mouseReleaseEvent(event)
 
     def expand_path(self, root: str):
         index = self.c_model.index(root)
