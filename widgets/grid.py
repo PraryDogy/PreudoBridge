@@ -317,6 +317,7 @@ class Grid(UScrollArea):
     level_up = pyqtSignal()
     sort_menu_update = pyqtSignal()
     total_count_update = pyqtSignal(tuple)
+    download_cache = pyqtSignal(str)
 
     def __init__(self, main_win_item: MainWinItem):
         super().__init__()
@@ -915,6 +916,14 @@ class Grid(UScrollArea):
             new_win = ItemActions.OpenInNewWindow(menu_)
             new_win.triggered.connect(lambda: self.open_in_new_win.emit((wid.src, None)))
             menu_.addAction(new_win)
+
+            menu_.addSeparator()
+            download_cache = ItemActions.DownloadCache(menu_)
+            download_cache.triggered.connect(
+                lambda: self.download_cache.emit(wid.src)
+            )
+            menu_.addAction(download_cache)
+            menu_.addSeparator()
 
             if wid.src in JsonData.favs:
                 cmd_ = lambda: self.fav_cmd(offset=-1, src=wid.src)

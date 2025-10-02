@@ -1157,7 +1157,9 @@ class CacheDownloader(URunnable):
         try:
             self._task()
         except Exception as e:
-            print("tasks CacheDownloader error", e)
+            # print("tasks CacheDownloader error", e)
+            import traceback
+            print(traceback.format_exc())
 
     def _task(self):
         new_images = self.get_new_images()
@@ -1166,9 +1168,11 @@ class CacheDownloader(URunnable):
             self.sigs.progress.emit(x)
             base_item: BaseItem = data["base_item"]
             if self.write_thumb(base_item):
+                print("write thumb",  base_item.src)
                 Dbase.execute(self.conn, data["stmt"])
         Dbase.commit(self.conn)
         Dbase.close_conn(self.conn)
+        print("finished")
 
     def write_thumb(self, base_item: BaseItem):
         img = ReadImage.read_image(base_item.src)
@@ -1185,14 +1189,15 @@ class CacheDownloader(URunnable):
                 if i.is_dir():
                     stack.append(i.path)
                 elif i.name.endswith(Static.ext_all):
+                    print("prepare base item", i.path)
                     base_item = BaseItem(i.path)
                     base_item.set_properties()
                     base_item.set_partial_hash()
-                    if self.exists_check(i.path) is None:
-                        new_images.append = {
+                    if self.exists_check(base_item) is None:
+                        new_images.append({
                             "base_item": base_item,
                             "stmt": BaseItem.insert_file_stmt(base_item)
-                        }
+                        })
         return new_images
 
     def exists_check(self, base_item: BaseItem):

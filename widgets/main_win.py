@@ -12,7 +12,8 @@ from cfg import JsonData, Static
 from system.items import MainWinItem, SearchItem, SortItem
 from system.paletes import UPallete
 from system.shared_utils import SharedUtils
-from system.tasks import CacheCleaner, PathFinderTask, UThreadPool
+from system.tasks import (CacheCleaner, CacheDownloader, PathFinderTask,
+                          UThreadPool)
 from system.utils import Utils
 
 from ._base_widgets import USep, WinBase
@@ -341,6 +342,7 @@ class MainWin(WinBase):
         new_win.show()
 
     def setup_grid_signals(self):
+        self.grid.download_cache.connect(lambda dir: self.download_cache_task(dir))
         self.grid.sort_menu_update.connect(lambda: self.sort_bar.sort_menu_update())
         self.grid.total_count_update.connect(lambda data: self.sort_bar.sort_frame.set_total_text(data))
         self.grid.path_bar_update.connect(lambda dir: self.path_bar.update(dir))
@@ -367,6 +369,10 @@ class MainWin(WinBase):
         self.scroll_up.hide()
         self.setup_grid_signals()
         QTimer.singleShot(100, self.grid.setFocus)
+
+    def download_cache_task(self, dir: str):
+        self.cache_downloader = CacheDownloader(dir)
+        UThreadPool.start(self.cache_downloader)
 
     def disable_wids(self, value: bool):
         self.sort_bar.sort_frame.setDisabled(value)
