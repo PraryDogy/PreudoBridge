@@ -1,6 +1,7 @@
 import difflib
 import gc
 import os
+import plistlib
 import shutil
 import zipfile
 from time import sleep
@@ -575,12 +576,15 @@ class LoadImagesTask(URunnable):
         exist_images: list[BaseItem] = []
         svg_files: list[BaseItem] = []
         exist_ratings: list[BaseItem] = []
+        app_files: list[BaseItem] = []
 
         for base_item in self.base_items:
             if not self.is_should_run():
                 return
-            if base_item.type_ == ".svg":
+            if base_item.filename.endswith((".svg", ".SVG")):
                 svg_files.append(base_item)
+            if base_item.filename.endswith((".app", ".APP")):
+                app_files.append(base_item)
             elif base_item.type_ == Static.FOLDER_TYPE:
                 rating = self.get_item_rating(base_item)
                 if rating is None:
@@ -606,6 +610,7 @@ class LoadImagesTask(URunnable):
                         exist_ratings.append(base_item)
 
         self.execute_ratings(exist_ratings)
+        self.execute_app_files(app_files)
         self.execute_svg_files(svg_files)
         self.execute_exist_images(exist_images)
         self.execute_new_images(new_images)
@@ -615,6 +620,26 @@ class LoadImagesTask(URunnable):
         for i in stmt_list:
             Dbase.execute(self.conn, i)
         Dbase.commit(self.conn)
+
+    def execute_app_files(self, app_files: list[BaseItem]):
+        for i in app_files:
+            if not self.is_should_run():
+                break
+            plist_path = os.path.join(i.src, "Contents", "info.plist")
+            with open(plist_path, "rb") as f:
+                plist = plistlib.load(f)
+            icon_name = plist.get("CFBundleIconFile")
+            if not icon_name.endswith(".icns"):
+                icon_name += ".icns"
+            icns_path = os.path.join(i.src, "Contents", "Resources", icon_name)
+            qimage = QImage()
+            qimage.load(icns_path)
+            i.qimage = qimage
+            try:
+                self.sigs.update_thumb.emit(i)
+            except RuntimeError as e:
+                print("tasks, LoadImagesTask, update_thumb.emit error", e)
+                self.set_should_run(False)
 
     def execute_svg_files(self, svg_files: list[BaseItem]):
         for i in svg_files:
