@@ -24,12 +24,14 @@ from .grid_list import GridList
 from .grid_search import GridSearch
 from .grid_standart import GridStandart
 from .path_bar import PathBar
+from .progressbar_win import ProgressbarWin
 from .search_bar import SearchBar
 from .settings_win import SettingsWin
 from .sort_bar import SortBar
 from .tags_menu import TagsMenu
 from .top_bar import TopBar
 from .tree_menu import TreeMenu
+from .warn_win import WinQuestion
 
 
 class TabsWidget(QTabWidget):
@@ -370,9 +372,37 @@ class MainWin(WinBase):
         self.setup_grid_signals()
         QTimer.singleShot(100, self.grid.setFocus)
 
+    def ok_clicked(self, dir: str):
+        self.progress_win = ProgressbarWin(
+            "Кэширование папки",
+            "./icons/warning.svg"
+        )
+        self.progress_win.center(self.window())
+
+        self.download_cache = CacheDownloader(dir)
+        self.download_cache.sigs.prorgess_max.connect(
+            lambda v: self.progress_win.progressbar.setMaximum(v)
+        )
+        self.download_cache.sigs.progress.connect(
+            lambda v: self.progress_win.progressbar.setMaximum(v)
+        )
+        self.download_cache.sigs.finished_.connect(
+            lambda v: self.progress_win.deleteLater()
+        )
+
+        self.progress_win.show()
+        # self.cache_downloader = CacheDownloader(dir)
+        # UThreadPool.start(self.cache_downloader)
+        
     def download_cache_task(self, dir: str):
-        self.cache_downloader = CacheDownloader(dir)
-        UThreadPool.start(self.cache_downloader)
+        self.question_win = WinQuestion(
+            "Внимание",
+            "Будет кэшировано все содержимое этой папки. Продолжить?"
+        )
+        self.question_win.center(self.window())
+        self.question_win.ok_clicked.connect(lambda: self.ok_clicked(dir))
+        self.question_win.show()
+
 
     def disable_wids(self, value: bool):
         self.sort_bar.sort_frame.setDisabled(value)

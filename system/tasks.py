@@ -1161,6 +1161,11 @@ class CacheDownloader(URunnable):
             import traceback
             print(traceback.format_exc())
 
+        self.sigs.finished_.emit()
+        Dbase.commit(self.conn)
+        Dbase.close_conn(self.conn)
+        print("finished")
+
     def _task(self):
         new_images = self.get_new_images()
         self.sigs.prorgess_max.emit(len(new_images))
@@ -1170,9 +1175,6 @@ class CacheDownloader(URunnable):
             if self.write_thumb(base_item):
                 print("write thumb",  base_item.src)
                 Dbase.execute(self.conn, data["stmt"])
-        Dbase.commit(self.conn)
-        Dbase.close_conn(self.conn)
-        print("finished")
 
     def write_thumb(self, base_item: BaseItem):
         img = ReadImage.read_image(base_item.src)
