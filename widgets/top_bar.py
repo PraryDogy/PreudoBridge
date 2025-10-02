@@ -188,7 +188,6 @@ class SearchWidget(ULineEdit):
         self.clear_btn.mouseReleaseEvent = self.clear_btn_cmd
 
     def clear_btn_cmd(self, e):
-        self.clear_btn.hide()
         self.clear_all()
         self.load_st_grid.emit()
 
@@ -204,6 +203,7 @@ class SearchWidget(ULineEdit):
         которая может произойти из-за сигнала textChanged при очистке поля ввода.
         """
         self.stop_flag = True
+        self.clear_btn.hide()
         self.clear_all()
         self.stop_flag = False
 
