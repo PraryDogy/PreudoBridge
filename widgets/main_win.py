@@ -384,7 +384,7 @@ class MainWin(WinBase):
             lambda v: self.progress_win.progressbar.setMaximum(v)
         )
         self.cache_downloader.sigs.progress.connect(
-            lambda v: self.progress_win.progressbar.setMaximum(v)
+            lambda v: self.progress_win.progressbar.setValue(v)
         )
         self.cache_downloader.sigs.finished_.connect(
             lambda: self.progress_win.deleteLater()

@@ -15,17 +15,19 @@ class BaseWinWarn(MinMaxDisabledWin):
 
     def __init__(self, title: str, text: str, char_limit: int):
         super().__init__()
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.setWindowTitle(title)
         self.setMinimumWidth(290)
         self.central_layout = QVBoxLayout()
-        self.central_layout.setContentsMargins(0, 0, 0, 0)
-        self.central_layout.setSpacing(0)
+        self.central_layout.setContentsMargins(10, 10, 10, 10)
+        self.central_layout.setSpacing(10)
         self.setLayout(self.central_layout)
-        # self.setMaximumWidth(370)
 
         h_wid = QWidget()
         self.central_layout.addWidget(h_wid)
         self.content_layout = QHBoxLayout()
+        self.content_layout.setContentsMargins(0, 0, 0, 0)
+        self.content_layout.setSpacing(0)
         h_wid.setLayout(self.content_layout)
 
         warning = QSvgWidget()
@@ -38,14 +40,14 @@ class BaseWinWarn(MinMaxDisabledWin):
         self.right_wid = QWidget()
         self.content_layout.addWidget(self.right_wid)
         self.right_layout = QVBoxLayout()
+        self.right_layout.setContentsMargins(0, 0, 0, 0)
+        self.right_layout.setSpacing(0)
         self.right_layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
         self.right_wid.setLayout(self.right_layout)
 
         text = SharedUtils.insert_linebreaks(text, char_limit)
         self.text_label = QLabel(text)
         self.right_layout.addWidget(self.text_label)
-
-        self.adjustSize()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() in (Qt.Key.Key_Return, Qt.Key.Key_Escape):
@@ -62,6 +64,8 @@ class WinWarn(BaseWinWarn):
         ok_btn.clicked.connect(self.deleteLater)
         self.central_layout.addWidget(ok_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
+        self.adjustSize()
+
 
 class WinQuestion(BaseWinWarn):
     ok_clicked = pyqtSignal()
@@ -71,8 +75,11 @@ class WinQuestion(BaseWinWarn):
     def __init__(self, title: str, text: str, char_limit = 40):
         super().__init__(title, text, char_limit)
 
+        self.adjustSize()
+
         btn_wid = QWidget()
         btn_lay = QHBoxLayout()
+        btn_lay.setContentsMargins(0, 0, 0, 0)
         btn_lay.setSpacing(10)
         btn_wid.setLayout(btn_lay)
 
@@ -90,3 +97,6 @@ class WinQuestion(BaseWinWarn):
         btn_lay.addStretch()
 
         self.central_layout.addWidget(btn_wid)
+        self.adjustSize()
+
+        self.adjustSize()
