@@ -249,11 +249,6 @@ class Utils:
             im.save(buf, format="PNG")
             qimage = QImage()
             qimage.loadFromData(buf.getvalue(), "PNG")
-            # qimage.scaled(
-            #     128, 128,
-            #     aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio,
-            #     transformMode=Qt.TransformationMode.SmoothTransformation
-            # )
             return qimage
         except Exception:
             return None
