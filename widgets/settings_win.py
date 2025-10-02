@@ -38,7 +38,7 @@ class DataLimitWid(QGroupBox):
         hor_wid.setLayout(hor_lay)
 
         slider_w = 0
-        lbl_w = 80
+        lbl_w = 65
         for k, v in Static.DATA_LIMITS.items():
             lbl = QLabel(v["text"])
             lbl.setFixedWidth(lbl_w)
@@ -66,6 +66,7 @@ class DataSizeWid(QGroupBox):
         super().__init__()
         
         layout = QGridLayout()
+        layout.setContentsMargins(5, 5, 5, 5)
         self.setLayout(layout)
         layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
 
