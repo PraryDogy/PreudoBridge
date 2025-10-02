@@ -64,8 +64,8 @@ else:
     sys.excepthook = System_.catch_error_in_proj
 
 
-import faulthandler
 
+from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import QEvent, QObject
 from PyQt5.QtWidgets import QApplication
 
@@ -80,8 +80,12 @@ from widgets.main_win import MainWin
 
 class CustomApp(QApplication):
     def __init__(self, argv: list[str]) -> None:
+
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
+
         super().__init__(argv)
-        faulthandler.enable()
+
         JsonData.init()
         UThreadPool.init()
         Dbase.init()

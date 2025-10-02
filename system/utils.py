@@ -2,12 +2,14 @@ import gc
 import hashlib
 import io
 import os
+import plistlib
 import subprocess
 import traceback
 from datetime import datetime
 
 import cv2
 import numpy as np
+from icnsutil import IcnsFile
 from PIL import Image
 from PyQt5.QtCore import (QRect, QRectF, QRunnable, QSize, Qt, QThreadPool,
                           QTimer)
@@ -241,3 +243,26 @@ class Utils:
                     total += os.path.getsize(i.path)
                     count += 1
         return {"total": total, "count": count}
+    
+    @classmethod
+    def load_icns_qimage(cls, path: str, size: int = 128) -> QImage | None:
+        try:
+            im = Image.open(path)              
+            buf = io.BytesIO()
+            im.save(buf, format="PNG")
+            qimage = QImage()
+            qimage.loadFromData(buf.getvalue(), "PNG")
+            return qimage
+        except Exception:
+            return None
+    
+    @classmethod
+    def get_app_icns(cls, app_path: str):
+        plist_path = os.path.join(app_path, "Contents", "info.plist")
+        with open(plist_path, "rb") as f:
+            plist = plistlib.load(f)
+        icon_name = plist.get("CFBundleIconFile")
+        if not icon_name.endswith(".icns"):
+            icon_name += ".icns"
+        icns_path = os.path.join(app_path, "Contents", "Resources", icon_name)
+        return icns_path

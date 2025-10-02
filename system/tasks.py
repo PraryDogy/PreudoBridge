@@ -8,6 +8,7 @@ from time import sleep
 
 import numpy as np
 import sqlalchemy
+from icnsutil import IcnsFile
 from PIL import Image
 from PyQt5.QtCore import QObject, QRunnable, QThreadPool, QTimer, pyqtSignal
 from PyQt5.QtGui import QImage
@@ -616,6 +617,8 @@ class LoadImagesTask(URunnable):
         self.execute_new_images(new_images)
         self.execute_stmt_list(stmt_list)
     
+
+
     def execute_stmt_list(self, stmt_list: list):
         for i in stmt_list:
             Dbase.execute(self.conn, i)
@@ -625,15 +628,8 @@ class LoadImagesTask(URunnable):
         for i in app_files:
             if not self.is_should_run():
                 break
-            plist_path = os.path.join(i.src, "Contents", "info.plist")
-            with open(plist_path, "rb") as f:
-                plist = plistlib.load(f)
-            icon_name = plist.get("CFBundleIconFile")
-            if not icon_name.endswith(".icns"):
-                icon_name += ".icns"
-            icns_path = os.path.join(i.src, "Contents", "Resources", icon_name)
-            qimage = QImage()
-            qimage.load(icns_path)
+            icns_path = Utils.get_app_icns(i.src)
+            qimage = Utils.load_icns_qimage(icns_path)
             i.qimage = qimage
             try:
                 self.sigs.update_thumb.emit(i)
