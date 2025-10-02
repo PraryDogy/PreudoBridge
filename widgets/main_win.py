@@ -379,20 +379,30 @@ class MainWin(WinBase):
         )
         self.progress_win.center(self.window())
 
-        self.download_cache = CacheDownloader(dir)
-        self.download_cache.sigs.prorgess_max.connect(
+        self.cache_downloader = CacheDownloader(dir)
+        self.cache_downloader.sigs.prorgess_max.connect(
             lambda v: self.progress_win.progressbar.setMaximum(v)
         )
-        self.download_cache.sigs.progress.connect(
+        self.cache_downloader.sigs.progress.connect(
             lambda v: self.progress_win.progressbar.setMaximum(v)
         )
-        self.download_cache.sigs.finished_.connect(
-            lambda v: self.progress_win.deleteLater()
+        self.cache_downloader.sigs.finished_.connect(
+            lambda: self.progress_win.deleteLater()
         )
 
         self.progress_win.show()
-        # self.cache_downloader = CacheDownloader(dir)
-        # UThreadPool.start(self.cache_downloader)
+        UThreadPool.start(self.cache_downloader)
+
+
+        # верхний лейбл подготовка
+        # нижний лейбл имя файла
+
+        # верхний лейбл кэширование 1 из 100
+        # нижний лейбл имя файла
+
+        # кнопка отмены в окне отменяет таску
+        # в таск добавь should run
+
         
     def download_cache_task(self, dir: str):
         self.question_win = WinQuestion(
@@ -401,8 +411,8 @@ class MainWin(WinBase):
         )
         self.question_win.center(self.window())
         self.question_win.ok_clicked.connect(lambda: self.ok_clicked(dir))
+        self.question_win.ok_clicked.connect(lambda: self.question_win.deleteLater())
         self.question_win.show()
-
 
     def disable_wids(self, value: bool):
         self.sort_bar.sort_frame.setDisabled(value)
