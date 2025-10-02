@@ -145,6 +145,7 @@ class ULineEdit(QLineEdit):
         self.clear_btn.hide()
 
     def text_changed(self):
+        return
         """
         Отлов сигнала textChanged
         """

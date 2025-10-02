@@ -185,6 +185,13 @@ class SearchWidget(ULineEdit):
         search_list.triggered.connect(self.open_search_list_win)
         self.templates_menu.addAction(search_list)
 
+        self.clear_btn.mouseReleaseEvent = self.clear_btn_cmd
+
+    def clear_btn_cmd(self, e):
+        self.clear_btn.hide()
+        self.clear_all()
+        self.load_st_grid.emit()
+
     def clear_search(self, *args):
         """
         Очищает поиск при загрузке GridStandart:
@@ -210,11 +217,9 @@ class SearchWidget(ULineEdit):
         """
         if self.stop_flag:
             return
-        if text:
-            self.search_text = text
-        else:
-            self.clear_all()
-            self.load_st_grid.emit()
+        self.move_clear_btn()
+        self.clear_btn.show()
+        self.search_text = text
 
     def clear_all(self):
         self.clear()

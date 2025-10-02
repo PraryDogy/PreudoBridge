@@ -471,8 +471,9 @@ class SearchTask(URunnable):
 
         base_item = BaseItem(entry.path)
         base_item.set_properties()
-        base_item.partial_hash = Utils.get_partial_hash(entry.path)
-        base_item.thumb_path = Utils.get_abs_thumb_path(base_item.partial_hash)
+        if base_item.type_ != Static.FOLDER_TYPE:
+            base_item.partial_hash = Utils.get_partial_hash(entry.path)
+            base_item.thumb_path = Utils.get_abs_thumb_path(base_item.partial_hash)
         if entry.name.endswith(Static.ext_all):
             if os.path.exists(base_item.thumb_path):
                 img_array = Utils.read_thumb(base_item.thumb_path)
