@@ -1,4 +1,3 @@
-import gc
 import hashlib
 import io
 import os
@@ -9,10 +8,8 @@ from datetime import datetime
 
 import cv2
 import numpy as np
-from icnsutil import IcnsFile
 from PIL import Image
-from PyQt5.QtCore import (QRect, QRectF, QRunnable, QSize, Qt, QThreadPool,
-                          QTimer)
+from PyQt5.QtCore import QRect, QRectF, QSize, Qt
 from PyQt5.QtGui import QColor, QFont, QImage, QPainter, QPixmap
 from PyQt5.QtSvg import QSvgGenerator, QSvgRenderer
 from PyQt5.QtWidgets import QApplication
