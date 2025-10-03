@@ -102,6 +102,7 @@ class CustomApp(QApplication):
         if a1.type() == QEvent.Type.ApplicationActivate:
             for i in WinBase.wins:
                 i.show()
+                i.raise_()
         return False
 
     def on_exit(self):
