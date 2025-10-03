@@ -1114,13 +1114,14 @@ class CustomSizeCacheCleaner(URunnable):
         removed_size = 0
         while removed_size < self.bytes_limit:
             limited_select = self.get_limited_select()
+            print("limited select", len(list(limited_select)))
             if not limited_select:
                 break
             id_list = []
             for id_, thumb_path in limited_select:
-                if not self.is_should_run():
-                    self.remove_id_list(id_list)
-                    return
+                # if not self.is_should_run():
+                #     self.remove_id_list(id_list)
+                #     return
                 if thumb_path and os.path.exists(thumb_path):
                     thumb_size = os.path.getsize(thumb_path)
                     if self.remove_file(thumb_path):
@@ -1129,13 +1130,22 @@ class CustomSizeCacheCleaner(URunnable):
             if not id_list:
                 break
             self.remove_id_list(id_list)
+            print("id list", len(id_list))
+
+        print("id list", len(id_list))
+        self.remove_id_list(id_list)
 
     def get_limited_select(self):
+        conds = sqlalchemy.and_(
+            Clmns.rating == 0,
+            Clmns.thumb_path.isnot(None),
+            Clmns.thumb_path != ""
+        )
         stmt = (
             sqlalchemy.select(Clmns.id, Clmns.thumb_path)
             .order_by(Clmns.last_read.asc())
             .limit(self.stmt_limit)
-            .where(Clmns.rating==0)
+            .where(conds)
         )
         return Dbase.execute(self.conn, stmt).fetchall()
     
