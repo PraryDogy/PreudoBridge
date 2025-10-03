@@ -214,10 +214,17 @@ class Utils:
     @classmethod
     def load_icns_qimage(cls, path: str, size: int = 128) -> QImage | None:
         try:
-            im = Image.open(path)
-            qimage = QImage(im.tobytes(), im.width, im.height, im.width * 4, QImage.Format_RGBA8888)
+            im = Image.open(path).convert("RGBA")
+            qimage = QImage(
+                im.tobytes(),
+                im.width,
+                im.height,
+                im.width * 4,
+                QImage.Format_RGBA8888
+            )
             return qimage.copy()
         except Exception:
+            print(traceback.format_exc())
             return None
 
     @classmethod
