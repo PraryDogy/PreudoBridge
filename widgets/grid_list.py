@@ -91,6 +91,7 @@ class GridList(QTableView):
     sort_menu_update = pyqtSignal()
     total_count_update = pyqtSignal(tuple)
     finished_ = pyqtSignal()
+    download_cache = pyqtSignal(list)
 
     not_exists_text = "Такой папки не существует. \nВозможно не подключен сетевой диск."
     empty_text = "Нет файлов"
@@ -349,27 +350,19 @@ class GridList(QTableView):
 
     def item_context(self, menu_: UMenu, selected_path: str, urls: list[str], names: list[str], total: int):
         urls = self.get_selected_urls()
+        dirs = [i for i in urls if os.path.isdir(i)]
 
         view_action = ItemActions.OpenThumb(menu_)
         view_action.triggered.connect(lambda: self.open_thumb(urls))
         menu_.addAction(view_action)
 
-        open_in_app = ItemActions.OpenInApp(menu_, urls)
-        menu_.addMenu(open_in_app)
+        if os.path.isfile(selected_path):
+            open_in_app = ItemActions.OpenInApp(menu_, urls)
+            menu_.addMenu(open_in_app)
 
         info = ItemActions.Info(menu_)
         info.triggered.connect(lambda: self.win_info_cmd(selected_path))
         menu_.addAction(info)
-
-
-        if selected_path.endswith(Static.ext_all):
-            convert_action = ItemActions.ImgConvert(menu_)
-            convert_action.triggered.connect(lambda: self.open_img_convert_win(urls))
-            menu_.addAction(convert_action)
-
-        archive = ItemActions.MakeArchive(menu_)
-        archive.triggered.connect(lambda: self.make_archive(urls))
-        menu_.addAction(archive)
 
         if os.path.isdir(selected_path):
             if selected_path in JsonData.favs:
@@ -382,6 +375,24 @@ class GridList(QTableView):
                 fav_action = ItemActions.FavAdd(menu_)
                 fav_action.triggered.connect(cmd_)
                 menu_.addAction(fav_action)
+
+        menu_.addSeparator()
+
+        if selected_path.endswith(Static.ext_all):
+            convert_action = ItemActions.ImgConvert(menu_)
+            convert_action.triggered.connect(lambda: self.open_img_convert_win(urls))
+            menu_.addAction(convert_action)
+
+        if os.path.isdir(selected_path):
+            download_cache = ItemActions.DownloadCache(menu_)
+            download_cache.triggered.connect(
+                lambda: self.download_cache.emit(dirs)
+            )
+            menu_.addAction(download_cache)
+
+        archive = ItemActions.MakeArchive(menu_)
+        archive.triggered.connect(lambda: self.make_archive(urls))
+        menu_.addAction(archive)
 
         menu_.addSeparator()
 
