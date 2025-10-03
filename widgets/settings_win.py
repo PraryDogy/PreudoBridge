@@ -219,7 +219,7 @@ class ClearCacheWin(MinMaxDisabledWin):
 
         self.wait_win.center(self.window())
         self.wait_win.show()
-        # UThreadPool.start(self.tks)
+        UThreadPool.start(self.tks)
 
     def value_changed(self, value: int):
         self.value = value

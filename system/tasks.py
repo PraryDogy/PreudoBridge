@@ -1107,6 +1107,7 @@ class CustomSizeCacheCleaner(URunnable):
             Dbase.close_conn(self.conn)
         except Exception as e:
             print("tasks, ClearData error", e)
+        self.sigs.finished_.emit()
 
     def _task(self):
         removed_size = 0
