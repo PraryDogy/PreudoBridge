@@ -1133,6 +1133,7 @@ class CustomSizeCacheCleaner(URunnable):
             sqlalchemy.select(Clmns.id, Clmns.thumb_path)
             .order_by(Clmns.last_read.asc())
             .limit(self.stmt_limit)
+            .where(Clmns.rating==0)
         )
         return Dbase.execute(self.conn, stmt).fetchall()
     
