@@ -1098,7 +1098,7 @@ class AutoCacheCleaner(URunnable):
 class CustomSizeCacheCleaner(URunnable):
 
     class Sigs(QObject):
-        finished_ = pyqtSignal()
+        finished_ = pyqtSignal(int)
 
     def __init__(self, bytes_limit: int = 200 * 1024 * 1024):
         "Удаляет заданный размер данных"
@@ -1108,6 +1108,7 @@ class CustomSizeCacheCleaner(URunnable):
         self.bytes_limit = bytes_limit
         self.conn = Dbase.get_conn(Dbase.engine)
         self.stmt_limit = 200
+        self.removed_size = 0
 
     def task(self):
         try:
@@ -1115,11 +1116,10 @@ class CustomSizeCacheCleaner(URunnable):
             Dbase.close_conn(self.conn)
         except Exception as e:
             print("tasks, ClearData error", e)
-        self.sigs.finished_.emit()
+        self.sigs.finished_.emit(self.removed_size)
 
     def _task(self):
-        removed_size = 0
-        while removed_size < self.bytes_limit:
+        while self.removed_size < self.bytes_limit:
             limited_select = self.get_limited_select()
             if not limited_select:
                 break
@@ -1131,7 +1131,7 @@ class CustomSizeCacheCleaner(URunnable):
                 if thumb_path and os.path.exists(thumb_path):
                     thumb_size = os.path.getsize(thumb_path)
                     if self.remove_file(thumb_path):
-                        removed_size += thumb_size
+                        self.removed_size += thumb_size
                         thumb_path_list.append(thumb_path)
             if not thumb_path_list:
                 break
