@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QCheckBox, QFrame, QGridLayout, QGroupBox,
 
 from cfg import JsonData, Static
 from system.shared_utils import SharedUtils
-from system.tasks import DataSizeCounter, UThreadPool
+from system.tasks import DataSizeCounter, UThreadPool, CustomSizeCacheCleaner
 
 from ._base_widgets import MinMaxDisabledWin, USlider, USvgSqareWidget
 
@@ -122,6 +122,114 @@ class DataSizeWid(QGroupBox):
         UThreadPool.start(self.task_)
 
 
+class WaitWin(MinMaxDisabledWin):
+    canceled = pyqtSignal()
+    title = "Внимание"
+    descr = "Подождите, идет очистка данных."
+    cancel = "Отмена"
+
+    def __init__(self):
+        super().__init__()
+        self.set_modality()
+
+        # Основной вертикальный лейаут
+        v_lay = QVBoxLayout()
+        v_lay.setContentsMargins(10, 10, 10, 10)
+        v_lay.setSpacing(10)
+        self.setLayout(v_lay)
+
+        # Лейбл с описанием
+        descr_lbl = QLabel(self.descr)
+        descr_lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        v_lay.addWidget(descr_lbl)
+
+        # Горизонтальный лейаут для кнопки отмены
+        btn_lay = QHBoxLayout()
+        v_lay.addLayout(btn_lay)
+
+        cancel_btn = QPushButton(self.cancel)
+        cancel_btn.clicked.connect(self.cancel_cmd)
+        btn_lay.addWidget(cancel_btn)
+
+        btn_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.adjustSize()
+
+    def cancel_cmd(self):
+        self.canceled.emit()
+        self.deleteLater()
+
+
+class ClearCacheWin(MinMaxDisabledWin):
+    descr_text = "Выберите, сколько данных нужно очистить."
+    ok_text = "Ок"
+    cancel_text = "Отмена"
+    btn_w = 90
+
+    def __init__(self):
+        super().__init__()
+        self.set_modality()
+        self.value = 0
+
+        self.v_lay = QVBoxLayout()
+        self.v_lay.setContentsMargins(5, 5, 5, 5)
+        self.v_lay.setSpacing(15)
+        self.setLayout(self.v_lay)
+
+        # Лейбл с описанием
+        descr_lbl = QLabel(self.descr_text)
+        self.v_lay.addWidget(descr_lbl)
+
+        # Слайдер DataLimit
+        slider_widget = DataLimitSlider(Static.DATA_LIMITS, 0)
+        slider_widget.value_changed.connect(lambda v: self.value_changed(v))
+        self.v_lay.addWidget(slider_widget)
+
+        # Горизонтальный лейаут для кнопок
+        btn_lay = QHBoxLayout()
+        btn_lay.setSpacing(10)
+        self.v_lay.addLayout(btn_lay)
+
+        # Кнопка ОК
+        ok_btn = QPushButton(self.ok_text)
+        ok_btn.clicked.connect(self.start_task)
+        ok_btn.setFixedWidth(self.btn_w)
+        btn_lay.addWidget(ok_btn)
+
+        # Кнопка Отмена
+        cancel_btn = QPushButton(self.cancel_text)
+        cancel_btn.clicked.connect(self.deleteLater)
+        cancel_btn.setFixedWidth(self.btn_w)
+        btn_lay.addWidget(cancel_btn)
+
+        # Центрируем кнопки
+        btn_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.adjustSize()
+
+    def start_task(self):
+        bytes = Static.DATA_LIMITS[self.value]["bytes"]
+        self.tks = CustomSizeCacheCleaner(bytes)
+        self.wait_win = WaitWin()
+
+        self.tks.sigs.finished_.connect(
+            lambda: self.wait_win.deleteLater()
+        )
+        self.wait_win.canceled.connect(
+            lambda: self.tks.set_should_run(False)
+        )
+
+        self.wait_win.center(self.window())
+        self.wait_win.show()
+        # UThreadPool.start(self.tks)
+
+    def value_changed(self, value: int):
+        self.value = value
+
+    def keyPressEvent(self, a0):
+        if a0.key() == Qt.Key.Key_Escape:
+            self.deleteLater()
+        return super().keyPressEvent(a0)
+
+
 class JsonFile(QGroupBox):
     json_text = "Показать"
     json_descr_text = "Системные файлы приложения."
@@ -162,11 +270,17 @@ class JsonFile(QGroupBox):
         v_lay.addLayout(h_lay2)
 
         btn2 = QPushButton(self.show_text)
+        btn2.clicked.connect(self.open_clear_win)
         btn2.setFixedWidth(self.btn_w)
         h_lay2.addWidget(btn2)
 
         descr2 = QLabel(self.show_descr)
         h_lay2.addWidget(descr2)
+
+    def open_clear_win(self):
+        self.clear_win = ClearCacheWin()
+        self.clear_win.center(self.window())
+        self.clear_win.show()
 
 
 class About(QGroupBox):
