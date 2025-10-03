@@ -18,12 +18,11 @@ from ._base_widgets import MinMaxDisabledWin, USlider, USvgSqareWidget
 class DataLimitSlider(QWidget):
     value_changed = pyqtSignal(int)
 
-    def __init__(self, data_limits: dict, initial_index: int):
+    def __init__(self, data_limits: dict, initial_index: int, lbl_w = 65):
         super().__init__()
 
         self.data_limits = data_limits
         self.initial_index = initial_index
-        lbl_w = 65
 
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(0, 0, 0, 0)
@@ -200,35 +199,48 @@ class ClearCacheFinishWin(MinMaxDisabledWin):
             super().keyPressEvent(event)
 
 
+from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QGroupBox
+
 class ClearCacheWin(MinMaxDisabledWin):
     descr_text = "Выберите, сколько данных нужно очистить."
     ok_text = "Ок"
     cancel_text = "Отмена"
+    title = "Внимание"
     btn_w = 90
     bytes_cleaned = pyqtSignal(int)
 
     def __init__(self):
         super().__init__()
         self.set_modality()
+        self.setWindowTitle(self.title)
         self.value = 0
 
         self.v_lay = QVBoxLayout()
-        self.v_lay.setContentsMargins(10, 10, 10, 10)
+        self.v_lay.setContentsMargins(10, 10, 10, 5)
         self.v_lay.setSpacing(10)
         self.setLayout(self.v_lay)
 
+        # GroupBox для содержимого (кроме кнопок)
+        content_group = QGroupBox()
+        content_lay = QVBoxLayout()
+        content_lay.setContentsMargins(5, 5, 5, 5)
+        content_lay.setSpacing(5)
+        content_group.setLayout(content_lay)
+        self.v_lay.addWidget(content_group)
+
         # Лейбл с описанием
         descr_lbl = QLabel(self.descr_text)
-        self.v_lay.addWidget(descr_lbl)
+        content_lay.addWidget(descr_lbl)
 
         # Слайдер DataLimit
-        slider_widget = DataLimitSlider(Static.DATA_LIMITS, 0)
+        slider_widget = DataLimitSlider(Static.DATA_LIMITS, 0, 50)
         slider_widget.value_changed.connect(lambda v: self.value_changed(v))
-        self.v_lay.addWidget(slider_widget)
+        content_lay.addWidget(slider_widget)
 
         # Горизонтальный лейаут для кнопок
         btn_lay = QHBoxLayout()
-        btn_lay.setSpacing(10)
+        btn_lay.setContentsMargins(0, 0, 0, 0)
+        btn_lay.setSpacing(15)
         self.v_lay.addLayout(btn_lay)
 
         # Кнопка ОК
@@ -329,6 +341,7 @@ class JsonFile(QGroupBox):
     def open_clear_win(self):
         self.clear_win = ClearCacheWin()
         self.clear_win.center(self.window())
+        self.clear_win.move(self.clear_win.x(), self.clear_win.y() - 80)
         self.clear_win.bytes_cleaned.connect(
             lambda bytes: self.bytes_cleaned.emit(bytes)
         )
