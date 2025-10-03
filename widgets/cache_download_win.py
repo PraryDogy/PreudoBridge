@@ -11,7 +11,7 @@ class CacheDownloadWin(ProgressbarWin):
 
     def __init__(self, dirs: list[str]):
         super().__init__(self.title, self.svg_path)
-        self.setWindowModality(Qt.WindowModality.ApplicationModal)
+        # self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.dirs = dirs
         self.start_task()
 
