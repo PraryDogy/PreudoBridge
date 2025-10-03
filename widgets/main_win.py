@@ -12,11 +12,11 @@ from cfg import JsonData, Static
 from system.items import MainWinItem, SearchItem, SortItem
 from system.paletes import UPallete
 from system.shared_utils import SharedUtils
-from system.tasks import (AutoCacheCleaner, CacheDownloader, PathFinderTask,
-                          UThreadPool)
+from system.tasks import AutoCacheCleaner, PathFinderTask, UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import USep, WinBase
+from .cache_download_win import CacheDownloadWin
 from .favs_menu import FavsMenu
 from .go_win import GoToWin
 from .grid import Grid
@@ -24,7 +24,6 @@ from .grid_list import GridList
 from .grid_search import GridSearch
 from .grid_standart import GridStandart
 from .path_bar import PathBar
-from .progressbar_win import ProgressbarWin
 from .search_bar import SearchBar
 from .settings_win import SettingsWin
 from .sort_bar import SortBar
@@ -91,6 +90,8 @@ class MainWin(WinBase):
     first_load = True
     list_text = "Список"
     grid_text = "Плитка"
+    attention = "Внимание"
+    cache_download_descr ="Будет кэшировано все содержимое этой папки. Продолжить?"
 
     def __init__(self, dir: str = None):
         super().__init__()
@@ -373,16 +374,19 @@ class MainWin(WinBase):
         QTimer.singleShot(100, self.grid.setFocus)
         
     def download_cache_task(self, dir: str):
-        # 123123123
-        print("TEST")
+
+        def open_win():
+            cache_download_win = CacheDownloadWin(dir)
+            cache_download_win.center(self.window)
+            cache_download_win.show()
 
         self.question_win = WinQuestion(
-            "Внимание",
-            "Будет кэшировано все содержимое этой папки. Продолжить?"
+            self.attention,
+            self.cache_download_descr
         )
         self.question_win.center(self.window())
         self.question_win.ok_clicked.connect(
-            lambda: ok_clicked(dir)
+            lambda: open_win()
         )
         self.question_win.ok_clicked.connect(
             lambda: self.question_win.deleteLater()
