@@ -890,6 +890,7 @@ class Grid(UScrollArea):
 
         if len(self.selected_thumbs) == 1:
             text = self.selected_thumbs[0].filename
+            text, _ = os.path.splitext(text)
         else:
             text = "архив.zip"
 
