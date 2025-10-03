@@ -141,16 +141,6 @@ class Utils:
             return None
         return qimage
 
-
-    @classmethod
-    def pixmap_scale(cls, pixmap: QPixmap, size: int) -> QPixmap:
-        return pixmap.scaled(
-            size,
-            size,
-            aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio,
-            transformMode=Qt.TransformationMode.SmoothTransformation
-        )
-
     @classmethod
     def get_partial_hash(cls, path: str, mb: float = 0.4) -> str:
         chunk = int(mb * (1 << 20))  # переводим МБ в байты
@@ -230,16 +220,6 @@ class Utils:
         except Exception:
             return None
 
-    # @classmethod
-    # def load_icns_qimage(cls, path: str) -> QImage | None:
-        # try:
-        #     icon = QIcon(path)
-        #     if icon.isNull():
-        #         return None
-        #     return icon
-        # except Exception:
-        #     return None
-
     @classmethod
     def get_app_icns(cls, app_path: str):
         plist_path = os.path.join(app_path, "Contents", "info.plist")
@@ -250,3 +230,7 @@ class Utils:
             icon_name += ".icns"
         icns_path = os.path.join(app_path, "Contents", "Resources", icon_name)
         return icns_path
+    
+    @classmethod
+    def qiconed_resize(cls, pixmap: QPixmap, size: int) -> QPixmap:
+        return QIcon(pixmap).pixmap(QSize(size, size))
