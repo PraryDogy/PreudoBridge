@@ -1,5 +1,5 @@
 from system.tasks import CacheDownloader, UThreadPool
-
+from PyQt5.QtCore import Qt
 from .progressbar_win import ProgressbarWin
 
 
@@ -11,6 +11,7 @@ class CacheDownloadWin(ProgressbarWin):
 
     def __init__(self, dirs: list[str]):
         super().__init__(self.title, self.svg_path)
+        self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.dirs = dirs
         self.start_task()
 
