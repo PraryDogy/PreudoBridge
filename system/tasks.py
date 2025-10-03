@@ -795,14 +795,14 @@ class FileInfo(URunnable):
         finished_info = pyqtSignal(dict)
         finished_calc = pyqtSignal(str)
 
-    ru_folder = "Папка"
+    ru_folder = "Папка: "
     calculating = "Вычисляю..."
-    name_text = "Имя"
-    type_text = "Тип"
-    size_text = "Размер"
-    src_text = "Место"
-    mod_text = "Изменен"
-    resol_text = "Разрешение"
+    name_text = "Имя: "
+    type_text = "Тип: "
+    size_text = "Размер: "
+    src_text = "Место: "
+    mod_text = "Изменен: "
+    resol_text = "Разрешение: "
     row_limit = 50
 
     def __init__(self, base_item: BaseItem):

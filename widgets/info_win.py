@@ -2,17 +2,25 @@ import os
 
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
-from PyQt5.QtWidgets import QAction, QGridLayout, QLabel
+from PyQt5.QtWidgets import QAction, QGridLayout, QLabel, QSpacerItem
 
 from cfg import Static
 from system.items import BaseItem
-from system.tasks import FolderSizeCounter, ImgResCounter, FileInfo, UThreadPool
+from system.tasks import (FileInfo, FolderSizeCounter, ImgResCounter,
+                          UThreadPool)
 
 from ._base_widgets import MinMaxDisabledWin, UMenu
 from .actions import CopyText, RevealInFinder
 
 
-class SelectableLabel(QLabel):
+class ULabel(QLabel):
+    def __init__(self, text: str):
+        super().__init__(text=text)
+
+        self.setStyleSheet("font-size: 11px;")
+
+
+class SelectableLabel(ULabel):
     select_all_text = "Выделить все"
 
     def __init__(self, text: str = None):
@@ -75,12 +83,14 @@ class InfoWin(MinMaxDisabledWin):
         for name, value in data.items():
 
             left_lbl = SelectableLabel(name)
-            flags_l_al = Qt.AlignmentFlag.AlignRight
+            flags_l_al = Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignTop
             self.grid_layout.addWidget(left_lbl, row, 0, alignment=flags_l_al)
 
+            self.grid_layout.addItem(QSpacerItem(5, 1), row, 1)
+
             right_lbl = SelectableLabel(value)
-            flags_r_al = Qt.AlignmentFlag.AlignLeft
-            self.grid_layout.addWidget(right_lbl, row, 1, alignment=flags_r_al)
+            flags_r_al = Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop
+            self.grid_layout.addWidget(right_lbl, row, 2, alignment=flags_r_al)
 
             row += 1
 
