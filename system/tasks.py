@@ -1086,7 +1086,7 @@ class CustomSizeCacheCleaner(URunnable):
         finished_ = pyqtSignal()
 
     def __init__(self, bytes_limit: int = 200 * 1024 * 1024):
-        "Удаляет 200 мегабайт данных"
+        "Удаляет заданный размер данных"
     
         super().__init__()
         self.sigs = CustomSizeCacheCleaner.Sigs()
@@ -1136,6 +1136,8 @@ class CustomSizeCacheCleaner(URunnable):
                 break
             id_list = []
             for id_, thumb_path in limited_select:
+                if not self.is_should_run():
+                    return
                 if thumb_path and os.path.exists(thumb_path):
                     thumb_size = os.path.getsize(thumb_path)
                     if self.remove_file(thumb_path):
