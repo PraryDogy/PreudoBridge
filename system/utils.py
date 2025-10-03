@@ -224,15 +224,13 @@ class Utils:
     @classmethod
     def load_icns_qimage(cls, path: str, size: int = 128) -> QImage | None:
         try:
-            im = Image.open(path)              
-            buf = io.BytesIO()
-            im.save(buf, format="PNG")
-            qimage = QImage()
-            qimage.loadFromData(buf.getvalue(), "PNG")
-            return qimage
+            im = Image.open(path)
+            # im = im.resize((size, size), Image.LANCZOS)
+            qimage = QImage(im.tobytes(), im.width, im.height, im.width * 4, QImage.Format_RGBA8888)
+            return qimage.copy()
         except Exception:
             return None
-    
+
     @classmethod
     def get_app_icns(cls, app_path: str):
         plist_path = os.path.join(app_path, "Contents", "info.plist")
