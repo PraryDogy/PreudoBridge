@@ -2,11 +2,10 @@ import os
 import subprocess
 
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import (QCloseEvent, QColor, QKeyEvent, QMouseEvent, QPalette,
+from PyQt5.QtGui import (QCloseEvent, QKeyEvent, QMouseEvent, QPalette,
                          QResizeEvent)
-from PyQt5.QtWidgets import (QApplication, QGraphicsDropShadowEffect,
-                             QHBoxLayout, QLabel, QSizePolicy, QSpacerItem,
-                             QSplitter, QTabWidget, QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
+                             QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
 from system.items import MainWinItem, SearchItem, SortItem

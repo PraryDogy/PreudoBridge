@@ -9,9 +9,9 @@ class CacheDownloadWin(ProgressbarWin):
     caching_text = "Кэширование"
     svg_path = "./icons/warning.svg"
 
-    def __init__(self, dir: str):
+    def __init__(self, dirs: list[str]):
         super().__init__(self.title, self.svg_path)
-        self.dir = dir
+        self.dirs = dirs
         self.start_task()
 
     def start_task(self):
@@ -20,7 +20,7 @@ class CacheDownloadWin(ProgressbarWin):
         # нижний лейбл - имена файлов при обходе директорий
         # верхний лейбл Кэширование
         # нижний лейбл 1 из 100 
-        self.tsk = CacheDownloader(self.dir)
+        self.tsk = CacheDownloader(self.dirs)
 
         # этап подготовки (обход директорий)
         self.above_label.setText(self.preparing_text)

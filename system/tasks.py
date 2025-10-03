@@ -1158,9 +1158,9 @@ class CacheDownloader(URunnable):
 
     from_text = "из"
 
-    def __init__(self, dir: str):
+    def __init__(self, dirs: list[str]):
         super().__init__()
-        self.dir = dir
+        self.dirs = dirs
         self.sigs = CacheDownloader.Sigs()
         self.conn = Dbase.get_conn(Dbase.engine)
 
@@ -1198,7 +1198,7 @@ class CacheDownloader(URunnable):
 
     def get_new_images(self):
         new_images: list[dict[BaseItem, str]] = []
-        stack = [self.dir]
+        stack = [*self.dirs]
 
         while stack:
             last_dir = stack.pop()
