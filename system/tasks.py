@@ -1103,6 +1103,25 @@ class CustomSizeCacheCleaner(URunnable):
         except Exception as e:
             print("tasks, ClearData error", e)
 
+    def _task(self):
+        removed_size = 0
+        while removed_size < self.bytes_limit:
+            limited_select = self.get_limited_select()
+            if not limited_select:
+                break
+            id_list = []
+            for id_, thumb_path in limited_select:
+                if not self.is_should_run():
+                    return
+                if thumb_path and os.path.exists(thumb_path):
+                    thumb_size = os.path.getsize(thumb_path)
+                    if self.remove_file(thumb_path):
+                        removed_size += thumb_size
+                        id_list.append(id_)
+            if not id_list:
+                break
+            self.remove_id_list(id_list)
+
     def get_limited_select(self):
         stmt = (
             sqlalchemy.select(Clmns.id, Clmns.thumb_path)
@@ -1129,25 +1148,6 @@ class CustomSizeCacheCleaner(URunnable):
         )
         Dbase.execute(self.conn, stmt)
         Dbase.commit(self.conn)
-
-    def _task(self):
-        removed_size = 0
-        while removed_size < self.bytes_limit:
-            limited_select = self.get_limited_select()
-            if not limited_select:
-                break
-            id_list = []
-            for id_, thumb_path in limited_select:
-                if not self.is_should_run():
-                    return
-                if thumb_path and os.path.exists(thumb_path):
-                    thumb_size = os.path.getsize(thumb_path)
-                    if self.remove_file(thumb_path):
-                        removed_size += thumb_size
-                        id_list.append(id_)
-            if not id_list:
-                break
-            self.remove_id_list(id_list)
 
 
 class CacheDownloader(URunnable):
