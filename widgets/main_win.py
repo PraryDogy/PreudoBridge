@@ -376,6 +376,7 @@ class MainWin(WinBase):
 
         def open_win():
             self.cache_download_win = CacheDownloadWin(dir)
+            assert isinstance(self.cache_download_win, CacheDownloadWin)
             self.cache_download_win.center(self.window())
             QTimer.singleShot(10, self.cache_download_win.show)
 
