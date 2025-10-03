@@ -1150,8 +1150,13 @@ class CacheDownloader(URunnable):
 
     class Sigs(QObject):
         progress = pyqtSignal(int)
+        progress_txt = pyqtSignal(str)
         prorgess_max = pyqtSignal(int)
+        filename = pyqtSignal(str)
+        caching = pyqtSignal()
         finished_ = pyqtSignal()
+
+    from_text = "из"
 
     def __init__(self, dir: str):
         super().__init__()
@@ -1175,8 +1180,12 @@ class CacheDownloader(URunnable):
     def _task(self):
         new_images = self.get_new_images()
         self.sigs.prorgess_max.emit(len(new_images))
+        self.sigs.caching.emit()
         for x, data in enumerate(new_images, start=1):
+            if not self.is_should_run():
+                return
             self.sigs.progress.emit(x)
+            self.sigs.progress_txt.emit(f"{x} {self.from_text} {len(new_images)}")
             base_item: BaseItem = data["base_item"]
             if self.write_thumb(base_item):
                 print("write thumb",  base_item.src)
@@ -1194,10 +1203,13 @@ class CacheDownloader(URunnable):
         while stack:
             last_dir = stack.pop()
             for i in os.scandir(last_dir):
+                if not self.is_should_run():
+                    return []
                 if i.is_dir():
                     stack.append(i.path)
                 elif i.name.endswith(Static.ext_all):
                     print("prepare base item", i.path)
+                    self.sigs.filename.emit(i.name)
                     base_item = BaseItem(i.path)
                     base_item.set_properties()
                     base_item.set_partial_hash()

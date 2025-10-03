@@ -6,6 +6,7 @@ from .progressbar_win import ProgressbarWin
 class CacheDownloadWin(ProgressbarWin):
     title = "Кэширование папки"
     preparing_text = "Подготовка"
+    caching_text = "Кэширование"
     svg_path = "./icons/warning.svg"
 
     def __init__(self, dir: str):
@@ -14,33 +15,49 @@ class CacheDownloadWin(ProgressbarWin):
         self.start_task()
 
     def start_task(self):
-        self.cache_downloader = CacheDownloader(self.dir)
-        self.above_label.setText(self.preparing_text)
+        # алгоритм действий
+        # прогрессбар стоит на месте, верхний лейбл Подготовка
+        # нижний лейбл - имена файлов при обходе директорий
+        # верхний лейбл Кэширование
+        # нижний лейбл 1 из 100 
+        self.tsk = CacheDownloader(self.dir)
 
-        self.cache_downloader.sigs.prorgess_max.connect(
+        # этап подготовки (обход директорий)
+        self.above_label.setText(self.preparing_text)
+        self.tsk.sigs.filename.connect(
+            lambda filename: self.below_label.setText(filename)
+        )
+
+        # этап кэширования
+        self.tsk.sigs.caching.connect(
+            lambda: self.above_label.setText(self.caching_text)
+        )
+        self.tsk.sigs.prorgess_max.connect(
             lambda v: self.progressbar.setMaximum(v)
         )
-        self.cache_downloader.sigs.progress.connect(
-            lambda v: self.progress_win.setValue(v)
+        self.tsk.sigs.progress.connect(
+            lambda v: self.progressbar.setValue(v)
         )
-        self.cache_downloader.sigs.finished_.connect(
+        self.tsk.sigs.progress_txt.connect(
+            lambda text: self.below_label.setText(text)
+        )
+        self.tsk.sigs.finished_.connect(
             lambda: self.deleteLater()
         )
 
-        UThreadPool.start(self.cache_downloader)
-
-        # нижний лейбл имя файла
-
-        # верхний лейбл кэширование 1 из 100
-        # нижний лейбл имя файла
-
-        # кнопка отмены в окне отменяет таску
-        # в таск добавь should run
+        UThreadPool.start(self.tsk)
 
     def deleteLater(self):
         # Кнопка cancel запускает deleteLater, здесь мы его и перехватываем
         try:
-            self.cache_downloader.set_should_run(False)
+            self.tsk.set_should_run(False)
         except Exception as e:
             print("CacheDownloadWin error", e)
         return super().deleteLater()
+    
+    def closeEvent(self, a0):
+        try:
+            self.tsk.set_should_run(False)
+        except Exception as e:
+            print("CacheDownloadWin error", e)
+        return super().closeEvent(a0)
