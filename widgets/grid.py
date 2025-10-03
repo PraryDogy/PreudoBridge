@@ -918,14 +918,6 @@ class Grid(UScrollArea):
             new_win.triggered.connect(lambda: self.open_in_new_win.emit((wid.src, None)))
             menu_.addAction(new_win)
 
-            menu_.addSeparator()
-            download_cache = ItemActions.DownloadCache(menu_)
-            download_cache.triggered.connect(
-                lambda: self.download_cache.emit(dirs)
-            )
-            menu_.addAction(download_cache)
-            menu_.addSeparator()
-
             if wid.src in JsonData.favs:
                 cmd_ = lambda: self.fav_cmd(offset=-1, src=wid.src)
                 fav_action = ItemActions.FavRemove(menu_)
@@ -951,6 +943,13 @@ class Grid(UScrollArea):
             convert_action = ItemActions.ImgConvert(menu_)
             convert_action.triggered.connect(lambda: self.open_img_convert_win(urls_img))
             menu_.addAction(convert_action)
+
+        if wid.type_ == Static.FOLDER_TYPE:
+            download_cache = ItemActions.DownloadCache(menu_)
+            download_cache.triggered.connect(
+                lambda: self.download_cache.emit(dirs)
+            )
+            menu_.addAction(download_cache)
 
         archive = ItemActions.MakeArchive(menu_)
         archive.triggered.connect(self.make_archive)

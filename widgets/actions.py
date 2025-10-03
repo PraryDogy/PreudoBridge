@@ -418,7 +418,7 @@ class MakeArchive(QAction):
 
 
 class DownloadCache(QAction):
-    text_ = "Кэшировать содержимое"
+    text_ = "Кэшировать файлы"
     def __init__(self, parent: UMenu):
         super().__init__(self.text_, parent)
 
