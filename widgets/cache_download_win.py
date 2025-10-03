@@ -45,7 +45,7 @@ class CacheDownloadWin(ProgressbarWin):
             lambda: self.deleteLater()
         )
 
-        # UThreadPool.start(self.tsk)
+        UThreadPool.start(self.tsk)
 
     def deleteLater(self):
         # Кнопка cancel запускает deleteLater, здесь мы его и перехватываем

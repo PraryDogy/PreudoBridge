@@ -27,7 +27,7 @@ class ProgressbarWin(MinMaxDisabledWin):
 
     def __init__(self, title: str, svg_icon: str):
         super().__init__()
-        # self.setWindowFlag(Qt.WindowType.WindowCloseButtonHint, False)
+        self.setWindowFlag(Qt.WindowType.WindowCloseButtonHint, False)
         self.setWindowTitle(title)
 
         main_lay = QHBoxLayout()
