@@ -1076,6 +1076,7 @@ class AutoCacheCleaner(URunnable):
             id_list = []
             for id_, thumb_path in limited_select:
                 if not self.is_should_run():
+                    self.remove_id_list(id_list)
                     return
                 if thumb_path and os.path.exists(thumb_path):
                     thumb_size = os.path.getsize(thumb_path)
@@ -1118,6 +1119,7 @@ class CustomSizeCacheCleaner(URunnable):
             id_list = []
             for id_, thumb_path in limited_select:
                 if not self.is_should_run():
+                    self.remove_id_list(id_list)
                     return
                 if thumb_path and os.path.exists(thumb_path):
                     thumb_size = os.path.getsize(thumb_path)
@@ -1196,8 +1198,9 @@ class CacheDownloader(URunnable):
         self.sigs.caching.emit()
         for x, data in enumerate(new_images, start=1):
             if not self.is_should_run():
-                # мы делаем break, чтобы закоммитить данные
-                break
+                if stmt_list:
+                    self.execute_stmt_list(stmt_list)
+                return
             self.sigs.progress.emit(x)
             self.sigs.progress_txt.emit(f"{x} {self.from_text} {len(new_images)}")
             base_item: BaseItem = data["base_item"]
