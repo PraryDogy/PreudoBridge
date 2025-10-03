@@ -1187,7 +1187,7 @@ class CacheDownloader(URunnable):
         print("cache downloader finished")
 
     def _task(self):
-        new_images = self.get_new_images()
+        new_images = self.prepare_images()
         stmt_list = []
         stmt_limit = 10
 
@@ -1195,7 +1195,8 @@ class CacheDownloader(URunnable):
         self.sigs.caching.emit()
         for x, data in enumerate(new_images, start=1):
             if not self.is_should_run():
-                return
+                # мы делаем break, чтобы закоммитить данные
+                break
             self.sigs.progress.emit(x)
             self.sigs.progress_txt.emit(f"{x} {self.from_text} {len(new_images)}")
             base_item: BaseItem = data["base_item"]
@@ -1213,7 +1214,7 @@ class CacheDownloader(URunnable):
             Dbase.execute(self.conn, i)
         Dbase.commit(self.conn)
 
-    def get_new_images(self):
+    def prepare_images(self):
         new_images: list[dict[BaseItem, str]] = []
         stack = [*self.dirs]
 
