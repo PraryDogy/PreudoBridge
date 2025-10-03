@@ -319,8 +319,7 @@ class SearchTask(URunnable):
                     if i not in self.found_files_list:
                         missed_files_list.append(i)
         self.sigs.finished_.emit(missed_files_list)
-        Dbase.commit(self.conn)
-        self.conn.close()
+        Dbase.close_conn(self.conn)
 
     def setup_search(self):
         if isinstance(self.search_item.get_content(), list):
