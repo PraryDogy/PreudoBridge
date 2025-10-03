@@ -1191,11 +1191,6 @@ class CacheDownloader(URunnable):
                 # print("write thumb",  base_item.src)
                 Dbase.execute(self.conn, data["stmt"])
 
-    def write_thumb(self, base_item: BaseItem):
-        img = ReadImage.read_image(base_item.src)
-        img = SharedUtils.fit_image(img, ThumbData.DB_IMAGE_SIZE)
-        return Utils.write_thumb(base_item.thumb_path, img)
-
     def get_new_images(self):
         new_images: list[dict[BaseItem, str]] = []
         stack = [*self.dirs]
@@ -1209,7 +1204,7 @@ class CacheDownloader(URunnable):
                     stack.append(i.path)
                 elif i.name.endswith(Static.ext_all):
                     # print("prepare base item", i.path)
-                    self.sigs.filename.emit(i.name)
+                    self.sigs.filename.emit(self.cut_filename(i.name))
                     base_item = BaseItem(i.path)
                     base_item.set_properties()
                     base_item.set_partial_hash()
@@ -1226,3 +1221,13 @@ class CacheDownloader(URunnable):
             .where(Clmns.partial_hash == base_item.partial_hash)
         )
         return Dbase.execute(self.conn, stmt).scalar() or None
+    
+    def cut_filename(self, text: str, limit: int = 25):
+        if len(text) > limit:
+            return text[:limit] + "..."
+        return text
+
+    def write_thumb(self, base_item: BaseItem):
+        img = ReadImage.read_image(base_item.src)
+        img = SharedUtils.fit_image(img, ThumbData.DB_IMAGE_SIZE)
+        return Utils.write_thumb(base_item.thumb_path, img)

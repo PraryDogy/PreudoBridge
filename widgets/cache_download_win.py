@@ -45,6 +45,8 @@ class CacheDownloadWin(ProgressbarWin):
             lambda: self.deleteLater()
         )
 
+        # text = "".join((str(i) for i in range(1, 100)))
+        # self.below_label.setText(self.tsk.cut_filename(text))
         UThreadPool.start(self.tsk)
 
     def deleteLater(self):
