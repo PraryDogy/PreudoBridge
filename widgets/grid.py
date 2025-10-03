@@ -317,7 +317,7 @@ class Grid(UScrollArea):
     level_up = pyqtSignal()
     sort_menu_update = pyqtSignal()
     total_count_update = pyqtSignal(tuple)
-    download_cache = pyqtSignal(str)
+    download_cache = pyqtSignal(list)
 
     def __init__(self, main_win_item: MainWinItem):
         super().__init__()
@@ -902,6 +902,7 @@ class Grid(UScrollArea):
         # собираем пути к файлам / папкам у выделенных виджетов
         urls = [i.src for i in self.selected_thumbs]
         urls_img = [i.src for i in self.selected_thumbs if i.src.endswith(Static.ext_all)]
+        dirs = [i.src for i in self.selected_thumbs if i.type_ == Static.FOLDER_TYPE]
         names = [i.filename for i in self.selected_thumbs]
         self.path_bar_update_delayed(wid.src)
 
@@ -920,7 +921,7 @@ class Grid(UScrollArea):
             menu_.addSeparator()
             download_cache = ItemActions.DownloadCache(menu_)
             download_cache.triggered.connect(
-                lambda: self.download_cache.emit(wid.src)
+                lambda: self.download_cache.emit(dirs)
             )
             menu_.addAction(download_cache)
             menu_.addSeparator()

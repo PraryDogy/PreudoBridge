@@ -1175,7 +1175,7 @@ class CacheDownloader(URunnable):
         self.sigs.finished_.emit()
         Dbase.commit(self.conn)
         Dbase.close_conn(self.conn)
-        print("finished")
+        print("cache downloader finished")
 
     def _task(self):
         new_images = self.get_new_images()
@@ -1188,7 +1188,7 @@ class CacheDownloader(URunnable):
             self.sigs.progress_txt.emit(f"{x} {self.from_text} {len(new_images)}")
             base_item: BaseItem = data["base_item"]
             if self.write_thumb(base_item):
-                print("write thumb",  base_item.src)
+                # print("write thumb",  base_item.src)
                 Dbase.execute(self.conn, data["stmt"])
 
     def write_thumb(self, base_item: BaseItem):
@@ -1208,7 +1208,7 @@ class CacheDownloader(URunnable):
                 if i.is_dir():
                     stack.append(i.path)
                 elif i.name.endswith(Static.ext_all):
-                    print("prepare base item", i.path)
+                    # print("prepare base item", i.path)
                     self.sigs.filename.emit(i.name)
                     base_item = BaseItem(i.path)
                     base_item.set_properties()

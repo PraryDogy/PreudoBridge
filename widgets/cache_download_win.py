@@ -57,6 +57,7 @@ class CacheDownloadWin(ProgressbarWin):
     
     def closeEvent(self, a0):
         try:
+            self.tsk.sigs.finished_.disconnect()
             self.tsk.set_should_run(False)
         except Exception as e:
             print("CacheDownloadWin error", e)

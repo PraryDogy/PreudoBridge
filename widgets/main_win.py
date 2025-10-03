@@ -344,7 +344,7 @@ class MainWin(WinBase):
         new_win.show()
 
     def setup_grid_signals(self):
-        self.grid.download_cache.connect(lambda dir: self.download_cache_task(dir))
+        self.grid.download_cache.connect(lambda dirs: self.download_cache_task(dirs))
         self.grid.sort_menu_update.connect(lambda: self.sort_bar.sort_menu_update())
         self.grid.total_count_update.connect(lambda data: self.sort_bar.sort_frame.set_total_text(data))
         self.grid.path_bar_update.connect(lambda dir: self.path_bar.update(dir))
@@ -372,10 +372,10 @@ class MainWin(WinBase):
         self.setup_grid_signals()
         QTimer.singleShot(100, self.grid.setFocus)
         
-    def download_cache_task(self, dir: str):
+    def download_cache_task(self, dirs: list[str]):
 
         def open_win():
-            self.cache_download_win = CacheDownloadWin(dir)
+            self.cache_download_win = CacheDownloadWin(dirs)
             assert isinstance(self.cache_download_win, CacheDownloadWin)
             self.cache_download_win.center(self.window())
             QTimer.singleShot(10, self.cache_download_win.show)
