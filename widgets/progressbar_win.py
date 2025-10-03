@@ -1,10 +1,23 @@
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QVBoxLayout,
                              QWidget)
 
 from cfg import Static
 
 from ._base_widgets import MinMaxDisabledWin, USvgSqareWidget
+
+
+class CancelBtn(USvgSqareWidget):
+    icon_size = 16
+    svg_icon = "./icons/clear.svg"
+    clicked = pyqtSignal()
+
+    def __init__(self):
+        super().__init__(self.svg_icon, self.icon_size)
+
+    def mouseReleaseEvent(self, a0):
+        self.clicked.emit()
+        return super().mouseReleaseEvent(a0)
 
 
 class ProgressbarWin(MinMaxDisabledWin):
@@ -14,7 +27,7 @@ class ProgressbarWin(MinMaxDisabledWin):
 
     def __init__(self, title: str, svg_icon: str):
         super().__init__()
-        self.setWindowFlag(Qt.WindowType.WindowCloseButtonHint, False)
+        # self.setWindowFlag(Qt.WindowType.WindowCloseButtonHint, False)
         self.setWindowTitle(title)
 
         main_lay = QHBoxLayout()
@@ -48,8 +61,8 @@ class ProgressbarWin(MinMaxDisabledWin):
         self.progressbar.setFixedWidth(self.progressbar_width)
         progressbar_lay.addWidget(self.progressbar)
 
-        self.cancel_btn = USvgSqareWidget(Static.INTERNAL_ICONS.get("clear.svg"), 16)
-        self.cancel_btn.mouseReleaseEvent = self.cancel_cmd
+        self.cancel_btn = CancelBtn()
+        self.cancel_btn.clicked.connect(self.deleteLater)
         progressbar_lay.addWidget(self.cancel_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.below_label = QLabel()
@@ -57,5 +70,3 @@ class ProgressbarWin(MinMaxDisabledWin):
 
         self.adjustSize()
 
-    def cancel_cmd(self, *args):
-        self.deleteLater()

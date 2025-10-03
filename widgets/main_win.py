@@ -373,35 +373,8 @@ class MainWin(WinBase):
         QTimer.singleShot(100, self.grid.setFocus)
         
     def download_cache_task(self, dir: str):
-
-        def ok_clicked(dir: str):
-            self.progress_win = ProgressbarWin(
-                "Кэширование папки",
-                "./icons/warning.svg"
-            )
-            self.cache_downloader = CacheDownloader(dir)
-            self.progress_win.center(self.window())
-            self.cache_downloader.sigs.prorgess_max.connect(
-                lambda v: self.progress_win.progressbar.setMaximum(v)
-            )
-            self.cache_downloader.sigs.progress.connect(
-                lambda v: self.progress_win.progressbar.setValue(v)
-            )
-            self.cache_downloader.sigs.finished_.connect(
-                lambda: self.progress_win.deleteLater()
-            )
-
-            self.progress_win.show()
-            UThreadPool.start(self.cache_downloader)
-
-            # верхний лейбл подготовка
-            # нижний лейбл имя файла
-
-            # верхний лейбл кэширование 1 из 100
-            # нижний лейбл имя файла
-
-            # кнопка отмены в окне отменяет таску
-            # в таск добавь should run
+        # 123123123
+        print("TEST")
 
         self.question_win = WinQuestion(
             "Внимание",
