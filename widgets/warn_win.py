@@ -15,7 +15,7 @@ class BaseWinWarn(MinMaxDisabledWin):
 
     def __init__(self, title: str, text: str, char_limit: int):
         super().__init__()
-        self.setWindowModality(Qt.WindowModality.ApplicationModal)
+        self.set_modality()
         self.setWindowTitle(title)
         self.setMinimumWidth(290)
         self.central_layout = QVBoxLayout()

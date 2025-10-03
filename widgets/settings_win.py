@@ -1,7 +1,7 @@
 import subprocess
 from datetime import datetime
 
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QCheckBox, QFrame, QGridLayout, QGroupBox,
@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QCheckBox, QFrame, QGridLayout, QGroupBox,
 
 from cfg import JsonData, Static
 from system.shared_utils import SharedUtils
-from system.tasks import DataSizeCounter, UThreadPool, CustomSizeCacheCleaner
+from system.tasks import CustomSizeCacheCleaner, DataSizeCounter, UThreadPool
 
 from ._base_widgets import MinMaxDisabledWin, USlider, USvgSqareWidget
 
@@ -131,6 +131,7 @@ class WaitWin(MinMaxDisabledWin):
     def __init__(self):
         super().__init__()
         self.set_modality()
+        self.setWindowTitle(self.title)
 
         # Основной вертикальный лейаут
         v_lay = QVBoxLayout()
@@ -159,11 +160,52 @@ class WaitWin(MinMaxDisabledWin):
         self.deleteLater()
 
 
+class ClearCacheFinishWin(MinMaxDisabledWin):
+    title = "Внимание"
+    label_text = "Очистка данных завершена: "
+    ok_text = "ОК"
+
+    def __init__(self, bytes: int):
+        super().__init__()
+        self.setWindowTitle(self.title)
+        self.set_modality()
+
+        v_lay = QVBoxLayout()
+        v_lay.setContentsMargins(10, 10, 10, 10)
+        v_lay.setSpacing(10)
+        self.setLayout(v_lay)
+
+        # Лейбл по левому краю
+        lbl = QLabel(self.label_text + SharedUtils.get_f_size(bytes))
+        lbl.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        v_lay.addWidget(lbl)
+
+        # Горизонтальный лейаут для кнопки ОК
+        btn_lay = QHBoxLayout()
+        v_lay.addLayout(btn_lay)
+
+        ok_btn = QPushButton(self.ok_text)
+        ok_btn.setFixedWidth(90)
+        ok_btn.clicked.connect(self.deleteLater)
+        btn_lay.addWidget(ok_btn)
+        btn_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        self.adjustSize()
+
+    def keyPressEvent(self, event):
+        # Закрываем окно при нажатии ESC
+        if event.key() == Qt.Key_Escape:
+            self.deleteLater()
+        else:
+            super().keyPressEvent(event)
+
+
 class ClearCacheWin(MinMaxDisabledWin):
     descr_text = "Выберите, сколько данных нужно очистить."
     ok_text = "Ок"
     cancel_text = "Отмена"
     btn_w = 90
+    bytes_cleaned = pyqtSignal(int)
 
     def __init__(self):
         super().__init__()
@@ -171,8 +213,8 @@ class ClearCacheWin(MinMaxDisabledWin):
         self.value = 0
 
         self.v_lay = QVBoxLayout()
-        self.v_lay.setContentsMargins(5, 5, 5, 5)
-        self.v_lay.setSpacing(15)
+        self.v_lay.setContentsMargins(10, 10, 10, 10)
+        self.v_lay.setSpacing(10)
         self.setLayout(self.v_lay)
 
         # Лейбл с описанием
@@ -211,7 +253,7 @@ class ClearCacheWin(MinMaxDisabledWin):
         self.wait_win = WaitWin()
 
         self.tks.sigs.finished_.connect(
-            lambda: self.wait_win.deleteLater()
+            lambda bytes: self.clear_cache_fin(bytes)
         )
         self.wait_win.canceled.connect(
             lambda: self.tks.set_should_run(False)
@@ -220,6 +262,13 @@ class ClearCacheWin(MinMaxDisabledWin):
         self.wait_win.center(self.window())
         self.wait_win.show()
         UThreadPool.start(self.tks)
+
+    def clear_cache_fin(self, bytes: int):
+        self.wait_win.deleteLater()
+        self.fin_win = ClearCacheFinishWin(bytes)
+        self.fin_win.center(self.window())
+        self.fin_win.show()
+        self.bytes_cleaned.emit(bytes)
 
     def value_changed(self, value: int):
         self.value = value
@@ -235,7 +284,7 @@ class JsonFile(QGroupBox):
     json_descr_text = "Системные файлы приложения."
     show_text = "Открыть"
     show_descr = "Окно очистки кэша."
-
+    bytes_cleaned = pyqtSignal(int)
     btn_w = 110
 
     def __init__(self):
@@ -280,6 +329,9 @@ class JsonFile(QGroupBox):
     def open_clear_win(self):
         self.clear_win = ClearCacheWin()
         self.clear_win.center(self.window())
+        self.clear_win.bytes_cleaned.connect(
+            lambda bytes: self.bytes_cleaned.emit(bytes)
+        )
         self.clear_win.show()
 
 
@@ -513,6 +565,8 @@ class SettingsWin(MinMaxDisabledWin):
         main_lay.addWidget(data_size_wid)
 
         json_wid = JsonFile()
+        json_wid.bytes_cleaned.connect(
+            lambda bytes: json_wid.clear_win.deleteLater())
         main_lay.addWidget(json_wid)
 
         about_wid = About()
