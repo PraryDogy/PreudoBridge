@@ -13,6 +13,7 @@ from system.shared_utils import SharedUtils
 from system.tasks import CustomSizeCacheCleaner, DataSizeCounter, UThreadPool
 
 from ._base_widgets import MinMaxDisabledWin, USlider, USvgSqareWidget
+from .warn_win import WinWarn
 
 
 class DataLimitSlider(QWidget):
@@ -159,47 +160,16 @@ class WaitWin(MinMaxDisabledWin):
         self.deleteLater()
 
 
-class ClearCacheFinishWin(MinMaxDisabledWin):
+class ClearCacheFinishWin(WinWarn):
     title = "Внимание"
-    label_text = "Очистка данных завершена: "
-    ok_text = "ОК"
+    label_text = "Очищенно данных: "
 
     def __init__(self, bytes: int):
-        super().__init__()
-        self.setWindowTitle(self.title)
-        self.set_modality()
+        super().__init__(
+            self.title,
+            self.label_text + SharedUtils.get_f_size(bytes)
+        )
 
-        v_lay = QVBoxLayout()
-        v_lay.setContentsMargins(10, 10, 10, 10)
-        v_lay.setSpacing(10)
-        self.setLayout(v_lay)
-
-        # Лейбл по левому краю
-        lbl = QLabel(self.label_text + SharedUtils.get_f_size(bytes))
-        lbl.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        v_lay.addWidget(lbl)
-
-        # Горизонтальный лейаут для кнопки ОК
-        btn_lay = QHBoxLayout()
-        v_lay.addLayout(btn_lay)
-
-        ok_btn = QPushButton(self.ok_text)
-        ok_btn.setFixedWidth(90)
-        ok_btn.clicked.connect(self.deleteLater)
-        btn_lay.addWidget(ok_btn)
-        btn_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
-
-        self.adjustSize()
-
-    def keyPressEvent(self, event):
-        # Закрываем окно при нажатии ESC
-        if event.key() == Qt.Key_Escape:
-            self.deleteLater()
-        else:
-            super().keyPressEvent(event)
-
-
-from PyQt5.QtWidgets import QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QGroupBox
 
 class ClearCacheWin(MinMaxDisabledWin):
     descr_text = "Выберите, сколько данных нужно очистить."
