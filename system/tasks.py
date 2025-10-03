@@ -1204,7 +1204,7 @@ class CacheDownloader(URunnable):
             last_dir = stack.pop()
             for i in os.scandir(last_dir):
                 if not self.is_should_run():
-                    return []
+                    return new_images
                 if i.is_dir():
                     stack.append(i.path)
                 elif i.name.endswith(Static.ext_all):
