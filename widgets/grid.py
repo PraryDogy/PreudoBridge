@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
 from cfg import Dynamic, JsonData, Static, ThumbData
 from system.shared_utils import SharedUtils
 from system.items import BaseItem, CopyItem, MainWinItem, SortItem
-from system.tasks import LoadImagesTask, RatingTask, UThreadPool
+from system.tasks import DbItemsLoader, RatingTask, UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import UMenu, UScrollArea
@@ -335,7 +335,7 @@ class Grid(UScrollArea):
         self.url_to_wid: dict[str, Thumb] = {}
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.selected_thumbs: list[Thumb] = []
-        self.load_images_tasks: list[LoadImagesTask] = []
+        self.load_images_tasks: list[DbItemsLoader] = []
         self.wid_under_mouse: Thumb = None
         self.processed_thumbs: list[Thumb] = []
 
@@ -400,7 +400,7 @@ class Grid(UScrollArea):
         Запускает фоновую задачу загрузки изображений для списка Thumb.
         Изображения загружаются из базы данных или из директории, если в БД нет.
         """
-        def finalize(task: LoadImagesTask):
+        def finalize(task: DbItemsLoader):
             if task in self.load_images_tasks:
                 self.load_images_tasks.remove(task)
 
@@ -428,7 +428,7 @@ class Grid(UScrollArea):
         if thumbs:
             for task in self.load_images_tasks:
                 task.set_should_run(False)
-            task_ = LoadImagesTask(self.main_win_item, thumbs)
+            task_ = DbItemsLoader(self.main_win_item, thumbs)
             task_.sigs.update_thumb.connect(update_thumb)
             task_.sigs.finished_.connect(lambda: finalize(task_))
             task_.sigs.set_loading.connect(lambda thumb: set_loading(thumb))

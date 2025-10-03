@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QAction, QGridLayout, QLabel
 
 from cfg import Static
 from system.items import BaseItem
-from system.tasks import FolderSizeTask, ImgResolTask, InfoTask, UThreadPool
+from system.tasks import FolderSizeCounter, ImgResCounter, FileInfo, UThreadPool
 
 from ._base_widgets import MinMaxDisabledWin, UMenu
 from .actions import CopyText, RevealInFinder
@@ -65,7 +65,7 @@ class InfoWin(MinMaxDisabledWin):
 
         self.base_item = BaseItem(self.src)
         self.base_item.set_properties()
-        self.info_task = InfoTask(self.base_item)
+        self.info_task = FileInfo(self.base_item)
         self.info_task.signals.finished_info.connect(lambda data: self.init_ui(data))
         UThreadPool.start(self.info_task)
 
@@ -88,9 +88,9 @@ class InfoWin(MinMaxDisabledWin):
         self.finished_.emit()
 
         if self.base_item.type_ == Static.FOLDER_TYPE:
-            self.calc_task = FolderSizeTask(self.base_item)
+            self.calc_task = FolderSizeCounter(self.base_item)
         else:
-            self.calc_task = ImgResolTask(self.base_item)
+            self.calc_task = ImgResCounter(self.base_item)
 
         self.calc_task.sigs.finished_calc.connect(lambda res: self.finalize(res))
         UThreadPool.start(self.calc_task)

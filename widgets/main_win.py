@@ -12,7 +12,7 @@ from cfg import JsonData, Static
 from system.items import MainWinItem, SearchItem, SortItem
 from system.paletes import UPallete
 from system.shared_utils import SharedUtils
-from system.tasks import (CacheCleaner, CacheDownloader, PathFinderTask,
+from system.tasks import (AutoCacheCleaner, CacheDownloader, PathFinderTask,
                           UThreadPool)
 from system.utils import Utils
 
@@ -192,7 +192,7 @@ class MainWin(WinBase):
             self.tabs_widget.setCurrentIndex(0)
 
     def on_start(self):
-        self.clear_data = CacheCleaner()
+        self.clear_data = AutoCacheCleaner()
         UThreadPool.start(self.clear_data)
 
     def setup_signals(self):
@@ -371,47 +371,49 @@ class MainWin(WinBase):
         self.scroll_up.hide()
         self.setup_grid_signals()
         QTimer.singleShot(100, self.grid.setFocus)
-
-    def ok_clicked(self, dir: str):
-        self.progress_win = ProgressbarWin(
-            "Кэширование папки",
-            "./icons/warning.svg"
-        )
-        self.progress_win.center(self.window())
-
-        self.cache_downloader = CacheDownloader(dir)
-        self.cache_downloader.sigs.prorgess_max.connect(
-            lambda v: self.progress_win.progressbar.setMaximum(v)
-        )
-        self.cache_downloader.sigs.progress.connect(
-            lambda v: self.progress_win.progressbar.setValue(v)
-        )
-        self.cache_downloader.sigs.finished_.connect(
-            lambda: self.progress_win.deleteLater()
-        )
-
-        self.progress_win.show()
-        UThreadPool.start(self.cache_downloader)
-
-
-        # верхний лейбл подготовка
-        # нижний лейбл имя файла
-
-        # верхний лейбл кэширование 1 из 100
-        # нижний лейбл имя файла
-
-        # кнопка отмены в окне отменяет таску
-        # в таск добавь should run
-
         
     def download_cache_task(self, dir: str):
+
+        def ok_clicked(dir: str):
+            self.progress_win = ProgressbarWin(
+                "Кэширование папки",
+                "./icons/warning.svg"
+            )
+            self.cache_downloader = CacheDownloader(dir)
+            self.progress_win.center(self.window())
+            self.cache_downloader.sigs.prorgess_max.connect(
+                lambda v: self.progress_win.progressbar.setMaximum(v)
+            )
+            self.cache_downloader.sigs.progress.connect(
+                lambda v: self.progress_win.progressbar.setValue(v)
+            )
+            self.cache_downloader.sigs.finished_.connect(
+                lambda: self.progress_win.deleteLater()
+            )
+
+            self.progress_win.show()
+            UThreadPool.start(self.cache_downloader)
+
+            # верхний лейбл подготовка
+            # нижний лейбл имя файла
+
+            # верхний лейбл кэширование 1 из 100
+            # нижний лейбл имя файла
+
+            # кнопка отмены в окне отменяет таску
+            # в таск добавь should run
+
         self.question_win = WinQuestion(
             "Внимание",
             "Будет кэшировано все содержимое этой папки. Продолжить?"
         )
         self.question_win.center(self.window())
-        self.question_win.ok_clicked.connect(lambda: self.ok_clicked(dir))
-        self.question_win.ok_clicked.connect(lambda: self.question_win.deleteLater())
+        self.question_win.ok_clicked.connect(
+            lambda: ok_clicked(dir)
+        )
+        self.question_win.ok_clicked.connect(
+            lambda: self.question_win.deleteLater()
+        )
         self.question_win.show()
 
     def disable_wids(self, value: bool):

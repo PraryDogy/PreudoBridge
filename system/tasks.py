@@ -73,7 +73,6 @@ class UThreadPool:
         cls.pool.start(runnable)
 
 
-# Общий класс для выполнения действий QAction в отдельном потоке
 class ActionsTask(URunnable):
     def __init__(self,  cmd_: callable):
         super().__init__()
@@ -83,19 +82,19 @@ class ActionsTask(URunnable):
         self.cmd_()
 
 
-class _CopyFilesSigs(QObject):
-    finished_ = pyqtSignal(list)
-    set_copied_kb = pyqtSignal(int)
-    set_total_kb = pyqtSignal(int)
-    set_counter = pyqtSignal(tuple)
-    error_win = pyqtSignal()
-    replace_files_win = pyqtSignal()
-
-
 class CopyFilesTask(URunnable):
+
+    class Sigs(QObject):
+        finished_ = pyqtSignal(list)
+        set_copied_kb = pyqtSignal(int)
+        set_total_kb = pyqtSignal(int)
+        set_counter = pyqtSignal(tuple)
+        error_win = pyqtSignal()
+        replace_files_win = pyqtSignal()
+
     def __init__(self):
         super().__init__()
-        self.sigs = _CopyFilesSigs()
+        self.sigs = CopyFilesTask.Sigs()
         self.pause_flag = False
         self.copied_kb = 0
         self.thumb_paths: list[str] = []
@@ -279,19 +278,19 @@ class RatingTask(URunnable):
         self.sigs.finished_.emit()
 
 
-class _SearchSigs(QObject):
-    new_widget = pyqtSignal(BaseItem)
-    finished_ = pyqtSignal(list)
-
-
 class SearchTask(URunnable):
+
+    class Sigs(QObject):
+        new_widget = pyqtSignal(BaseItem)
+        finished_ = pyqtSignal(list)
+
     sleep_ms = 1000
     new_wid_sleep_ms = 200
     ratio = 0.85
 
     def __init__(self, main_win_item: MainWinItem, search_item: SearchItem):
         super().__init__()
-        self.sigs = _SearchSigs()
+        self.sigs = SearchTask.Sigs()
         self.main_win_item = main_win_item
         self.found_files_list: list[str] = []
 
@@ -486,7 +485,7 @@ class SearchTask(URunnable):
         QTest.qSleep(SearchTask.new_wid_sleep_ms)
 
 
-class FinderItems(URunnable):
+class FinderItemsLoader(URunnable):
 
     class Sigs(QObject):
         finished_ = pyqtSignal(list)
@@ -496,7 +495,7 @@ class FinderItems(URunnable):
 
     def __init__(self, main_win_item: MainWinItem, sort_item: SortItem):
         super().__init__()
-        self.sigs = FinderItems.Sigs()
+        self.sigs = FinderItemsLoader.Sigs()
         self.sort_item = sort_item
         self.main_win_item = main_win_item
 
@@ -533,7 +532,7 @@ class FinderItems(URunnable):
         return files
 
 
-class LoadImagesTask(URunnable):
+class DbItemsLoader(URunnable):
 
     class Sigs(QObject):
         update_thumb = pyqtSignal(BaseItem) # на самом деле Thumb
@@ -547,7 +546,7 @@ class LoadImagesTask(URunnable):
         Загружает изображения из базы данных или создает новые
         """
         super().__init__()
-        self.sigs = LoadImagesTask.Sigs()
+        self.sigs = DbItemsLoader.Sigs()
         self.main_win_item = main_win_item
         self.base_items = base_items
         key_ = lambda x: x.size
@@ -614,8 +613,6 @@ class LoadImagesTask(URunnable):
         self.execute_new_images(new_images)
         self.execute_stmt_list(stmt_list)
     
-
-
     def execute_stmt_list(self, stmt_list: list):
         for i in stmt_list:
             Dbase.execute(self.conn, i)
@@ -701,17 +698,17 @@ class LoadImagesTask(URunnable):
         return res
     
 
-class _LoadImgSigs(QObject):
-    finished_ = pyqtSignal(tuple)
+class ReadImg(URunnable):
 
+    class Sigs(QObject):
+        finished_ = pyqtSignal(tuple)
 
-class LoadImgTask(URunnable):
     cache_limit = 15
     cached_images: dict[str, QImage] = {}
 
     def __init__(self, src: str):
         super().__init__()
-        self.sigs = _LoadImgSigs()
+        self.sigs = ReadImg.Sigs()
         self.src: str = src
 
     def task(self):
@@ -723,8 +720,6 @@ class LoadImgTask(URunnable):
             else:
                 qimage = Utils.qimage_from_array(img_array)
                 self.cached_images[self.src] = qimage
-            # del img_array
-            # gc.collect()
         else:
             qimage = self.cached_images.get(self.src)
         if len(self.cached_images) > self.cache_limit:
@@ -733,18 +728,18 @@ class LoadImgTask(URunnable):
         self.sigs.finished_.emit(image_data)
 
 
-class _InfoTaskSigs(QObject):
-    finished_info = pyqtSignal(dict)
-    finished_calc = pyqtSignal(str)
+class ImgResCounter(URunnable):
 
+    class Sigs(QObject):
+        finished_info = pyqtSignal(dict)
+        finished_calc = pyqtSignal(str)
 
-class ImgResolTask(URunnable):
     undef_text = "Неизвестно"
 
     def __init__(self, base_item: BaseItem):
         super().__init__()
         self.base_item = base_item
-        self.sigs = _InfoTaskSigs()
+        self.sigs = ImgResCounter.Sigs()
 
     def task(self):
         img_ = ReadImage.read_image(self.base_item.src)
@@ -757,13 +752,18 @@ class ImgResolTask(URunnable):
         self.sigs.finished_calc.emit(resol)
 
 
-class FolderSizeTask(URunnable):
+class FolderSizeCounter(URunnable):
+
+    class Sigs(QObject):
+        finished_info = pyqtSignal(dict)
+        finished_calc = pyqtSignal(str)
+
     undef_text = "Неизвестно"
 
     def __init__(self, base_item: BaseItem):
         super().__init__()
         self.base_item = base_item
-        self.sigs = _InfoTaskSigs()
+        self.sigs = FolderSizeCounter.Sigs()
 
     def task(self):
         try:
@@ -789,7 +789,12 @@ class FolderSizeTask(URunnable):
         return SharedUtils.get_f_size(total)
 
 
-class InfoTask(URunnable):
+class FileInfo(URunnable):
+
+    class Sigs(QObject):
+        finished_info = pyqtSignal(dict)
+        finished_calc = pyqtSignal(str)
+
     ru_folder = "Папка"
     calculating = "Вычисляю..."
     name_text = "Имя"
@@ -803,7 +808,7 @@ class InfoTask(URunnable):
     def __init__(self, base_item: BaseItem):
         super().__init__()
         self.base_item = base_item
-        self.signals = _InfoTaskSigs()
+        self.signals = FileInfo.Sigs()
 
     def task(self) -> dict[str, str| int]:
         if self.base_item.type_ == Static.FOLDER_TYPE:
@@ -818,37 +823,37 @@ class InfoTask(URunnable):
         mod = SharedUtils.get_f_date(self.base_item.mod)
 
         data = {
-            InfoTask.name_text: name,
-            InfoTask.type_text: type_,
-            InfoTask.mod_text: mod,
-            InfoTask.src_text: src,
-            InfoTask.size_text: size_,
+            FileInfo.name_text: name,
+            FileInfo.type_text: type_,
+            FileInfo.mod_text: mod,
+            FileInfo.src_text: src,
+            FileInfo.size_text: size_,
             }
         
         if self.base_item.type_ != Static.FOLDER_TYPE:
-            data.update({InfoTask.resol_text: self.calculating})
+            data.update({FileInfo.resol_text: self.calculating})
 
         self.signals.finished_info.emit(data)
 
     def lined_text(self, text: str):
-        if len(text) > InfoTask.row_limit:
+        if len(text) > FileInfo.row_limit:
             text = [
-                text[i:i + InfoTask.row_limit]
-                for i in range(0, len(text), InfoTask.row_limit)
+                text[i:i + FileInfo.row_limit]
+                for i in range(0, len(text), FileInfo.row_limit)
                 ]
             return "\n".join(text)
         else:
             return text
-        
-
-class _RemoveFilesSigs(QObject):
-    finished_ = pyqtSignal()
 
 
-class RemoveFilesTask(URunnable):
+class FileRemover(URunnable):
+
+    class Sigs(QObject):
+        finished_ = pyqtSignal()
+
     def __init__(self, main_dir: str, urls: list[str]):
         super().__init__()
-        self.sigs = _RemoveFilesSigs()
+        self.sigs = FileRemover.Sigs()
         self.main_dir = main_dir
         self.urls = urls
 
@@ -867,16 +872,17 @@ class RemoveFilesTask(URunnable):
         self.sigs.finished_.emit()
 
 
-class _PathFinderSigs(QObject):
-    finished_ = pyqtSignal(str)
-
-
 class PathFinderTask(URunnable):
+
+    class Sigs(QObject):
+        finished_ = pyqtSignal(str)
+
+
     def __init__(self, path: str):
         super().__init__()
         self.path = path
         self.path_finder = PathFinder(path)
-        self.sigs = _PathFinderSigs()
+        self.sigs = PathFinderTask.Sigs()
 
     def task(self):
         result = self.path_finder.get_result()
@@ -886,18 +892,18 @@ class PathFinderTask(URunnable):
         self.sigs.finished_.emit(result)
 
 
-class _ImgConvertSigs(QObject):
-    finished_ = pyqtSignal(list)
-    progress_value = pyqtSignal(int)
-    set_progress_len = pyqtSignal(int)
+class ToJpegConverter(URunnable):
 
+    class Sigs(QObject):
+        finished_ = pyqtSignal(list)
+        progress_value = pyqtSignal(int)
+        set_progress_len = pyqtSignal(int)
 
-class ImgConvertTask(URunnable):
     def __init__(self, urls: list[str]):
         super().__init__()
         self.urls = urls
         self.new_urls: list[str] = []
-        self.sigs = _ImgConvertSigs()
+        self.sigs = ToJpegConverter.Sigs()
 
     def task(self):
         urls = [i for i in self.urls if i.endswith(Static.ext_all)]
@@ -919,18 +925,18 @@ class ImgConvertTask(URunnable):
         except Exception:
             Utils.print_error()
             return None
-        
-
-class _ArchiveSigs(QObject):
-    set_max = pyqtSignal(int)
-    set_value = pyqtSignal(int)
-    finished_ = pyqtSignal()
 
 
-class ArchiveTask(URunnable):
+class ArchiveMaker(URunnable):
+
+    class Sigs(QObject):
+        set_max = pyqtSignal(int)
+        set_value = pyqtSignal(int)
+        finished_ = pyqtSignal()
+
     def __init__(self, files: list[str], zip_path: str):
         super().__init__()
-        self.sigs = _ArchiveSigs()
+        self.sigs = ArchiveMaker.Sigs()
         self.files = files
         self.zip_path = zip_path
         self.progress = 0
@@ -989,14 +995,14 @@ class ArchiveTask(URunnable):
         self.sigs.finished_.emit()
 
 
-class DataSize(URunnable):
+class DataSizeCounter(URunnable):
     
     class Sigs(QObject):
         finished_ = pyqtSignal(dict)
 
     def __init__(self):
         super().__init__()
-        self.sigs = DataSize.Sigs()
+        self.sigs = DataSizeCounter.Sigs()
 
     def task(self):
         try:
@@ -1005,7 +1011,7 @@ class DataSize(URunnable):
             print("tasks, DataSize error", e)
 
 
-class CacheCleaner(URunnable):
+class AutoCacheCleaner(URunnable):
 
     class Sigs(QObject):
         finished_ = pyqtSignal()
@@ -1016,7 +1022,7 @@ class CacheCleaner(URunnable):
         10% данных (самых старых и невостребованных)
         """
         super().__init__()
-        self.sigs = CacheCleaner.Sigs()
+        self.sigs = AutoCacheCleaner.Sigs()
         self.limit = Static.DATA_LIMITS[JsonData.data_limit]["bytes"] * 0.9
         self.conn = Dbase.get_conn(Dbase.engine)
         self.stmt_limit = 200
@@ -1074,7 +1080,7 @@ class CacheCleaner(URunnable):
             self.remove_id_list(id_list)
 
 
-class LimitedCacheCleaner(URunnable):
+class CustomSizeCacheCleaner(URunnable):
 
     class Sigs(QObject):
         finished_ = pyqtSignal()
@@ -1083,7 +1089,7 @@ class LimitedCacheCleaner(URunnable):
         "Удаляет 200 мегабайт данных"
     
         super().__init__()
-        self.sigs = LimitedCacheCleaner.Sigs()
+        self.sigs = CustomSizeCacheCleaner.Sigs()
         self.bytes_limit = bytes_limit
         self.conn = Dbase.get_conn(Dbase.engine)
         self.stmt_limit = 200

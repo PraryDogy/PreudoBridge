@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QCheckBox, QFrame, QGridLayout, QGroupBox,
 
 from cfg import JsonData, Static
 from system.shared_utils import SharedUtils
-from system.tasks import DataSize, UThreadPool
+from system.tasks import DataSizeCounter, UThreadPool
 
 from ._base_widgets import MinMaxDisabledWin, USlider, USvgSqareWidget
 
@@ -90,7 +90,7 @@ class DataSizeWid(QGroupBox):
             self.lbl_top_right.setText(SharedUtils.get_f_size(data["total"]))
             self.lbl_bottom_right.setText(str(data["count"]))
 
-        self.task_ = DataSize()
+        self.task_ = DataSizeCounter()
         self.task_.sigs.finished_.connect(fin)
         UThreadPool.start(self.task_)
 

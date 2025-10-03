@@ -205,6 +205,9 @@ class Utils:
     
     @classmethod
     def get_hashdir_size(self):
+        """
+        Возвращает {"total": размер в байтах, "count": количество файлов}
+        """
         total = 0
         count = 0
         stack = [Static.THUMBNAILS]

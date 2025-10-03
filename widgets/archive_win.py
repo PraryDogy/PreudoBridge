@@ -3,7 +3,7 @@ import os
 from PyQt5.QtCore import QTimer, pyqtSignal
 
 from cfg import Static
-from system.tasks import ArchiveTask, UThreadPool
+from system.tasks import ArchiveMaker, UThreadPool
 
 from .progressbar_win import ProgressbarWin
 
@@ -23,7 +23,7 @@ class ArchiveWin(ProgressbarWin):
         self.above_label.setText(above_text)
         self.below_label.setText(self.below_text)
 
-        self.archive_task = ArchiveTask(files, zip_path)
+        self.archive_task = ArchiveMaker(files, zip_path)
         self.archive_task.sigs.set_max.connect(self.progressbar.setMaximum)
         self.archive_task.sigs.set_value.connect(self.set_value)
         self.archive_task.sigs.finished_.connect(self.cancel_cmd)

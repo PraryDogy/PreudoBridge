@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QSpacerItem,
                              QVBoxLayout, QWidget)
 
 from cfg import Static
-from system.tasks import LoadImgTask, UThreadPool
+from system.tasks import ReadImg, UThreadPool
 
 from ._base_widgets import UMenu, USvgSqareWidget, WinBase
 from .actions import ItemActions
@@ -271,7 +271,7 @@ class ImgViewWin(WinBase):
                 self.img_wid.set_image(pixmap)
 
         self.task_count += 1
-        task_ = LoadImgTask(self.current_path)
+        task_ = ReadImg(self.current_path)
         task_.sigs.finished_.connect(fin)
         UThreadPool.start(task_)
 
@@ -392,12 +392,12 @@ class ImgViewWin(WinBase):
         self.hide_btns()
 
     def deleteLater(self):
-        LoadImgTask.cached_images.clear()
+        ReadImg.cached_images.clear()
         self.closed.emit()
         return super().deleteLater()
 
     def closeEvent(self, a0):
-        LoadImgTask.cached_images.clear()
+        ReadImg.cached_images.clear()
         self.closed.emit()
         return super().closeEvent(a0)
 

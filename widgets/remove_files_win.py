@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
 
 from cfg import Static
 from system.items import MainWinItem
-from system.tasks import RemoveFilesTask, UThreadPool
+from system.tasks import FileRemover, UThreadPool
 
 from ._base_widgets import MinMaxDisabledWin, USvgSqareWidget
 
@@ -62,7 +62,7 @@ class RemoveFilesWin(MinMaxDisabledWin):
         self.adjustSize()
 
     def cmd_(self, *args):
-        self.task_ = RemoveFilesTask(self.main_win_item.main_dir, self.urls)
+        self.task_ = FileRemover(self.main_win_item.main_dir, self.urls)
         self.task_.sigs.finished_.connect(self.finalize)
         UThreadPool.start(runnable=self.task_)
 

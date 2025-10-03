@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import QLabel
 
 from cfg import Dynamic, Static
 from system.items import BaseItem, MainWinItem
-from system.tasks import FinderItems, UThreadPool
+from system.tasks import FinderItemsLoader, UThreadPool
 from system.utils import Utils
 
 from .grid import Grid, Thumb
@@ -53,7 +53,7 @@ class GridStandart(Grid):
             self.mouseMoveEvent = lambda args: None
             return
 
-        finder_items_task = FinderItems(self.main_win_item, self.sort_item)
+        finder_items_task = FinderItemsLoader(self.main_win_item, self.sort_item)
         finder_items_task.sigs.finished_.connect(
             lambda base_items: self.finalize_finder_items(base_items)
         )
