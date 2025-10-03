@@ -1200,6 +1200,9 @@ class CacheDownloader(URunnable):
                     self.execute_stmt_list(stmt_list)
                     stmt_list.clear()
 
+        if stmt_list:
+            self.execute_stmt_list(stmt_list)
+
     def execute_stmt_list(self, stmt_list: list):
         for i in stmt_list:
             Dbase.execute(self.conn, i)
