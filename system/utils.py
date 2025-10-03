@@ -220,25 +220,25 @@ class Utils:
                     total += os.path.getsize(i.path)
                     count += 1
         return {"total": total, "count": count}
-    
-    # @classmethod
-    # def load_icns_qimage(cls, path: str, size: int = 128) -> QImage | None:
-    #     try:
-    #         im = Image.open(path)
-    #         qimage = QImage(im.tobytes(), im.width, im.height, im.width * 4, QImage.Format_RGBA8888)
-    #         return qimage.copy()
-    #     except Exception:
-    #         return None
 
     @classmethod
-    def load_icns_qimage(cls, path: str) -> QImage | None:
+    def load_icns_qimage(cls, path: str, size: int = 128) -> QImage | None:
         try:
-            icon = QIcon(path)
-            if icon.isNull():
-                return None
-            return icon
+            im = Image.open(path)
+            qimage = QImage(im.tobytes(), im.width, im.height, im.width * 4, QImage.Format_RGBA8888)
+            return qimage.copy()
         except Exception:
             return None
+
+    # @classmethod
+    # def load_icns_qimage(cls, path: str) -> QImage | None:
+        # try:
+        #     icon = QIcon(path)
+        #     if icon.isNull():
+        #         return None
+        #     return icon
+        # except Exception:
+        #     return None
 
     @classmethod
     def get_app_icns(cls, app_path: str):

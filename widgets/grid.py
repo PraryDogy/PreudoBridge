@@ -201,15 +201,17 @@ class Thumb(BaseItem, QFrame):
         self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
 
     def set_image(self, img: QImage | QIcon):
-        if isinstance(img, QIcon):
-            pixmap = img.pixmap(QSize(Thumb.pixmap_size, Thumb.pixmap_size))
+        if self.type_ in (".app", ".APP"):
+            self.base_pixmap = QPixmap.fromImage(img)
+            size = QSize(Thumb.pixmap_size, Thumb.pixmap_size)
+            local_pixmap = QIcon(self.base_pixmap).pixmap(size)
         else:
-            pixmap = QPixmap.fromImage(img)
-            pixmap = Utils.pixmap_scale(pixmap, Thumb.pixmap_size)
+            local_pixmap = QPixmap.fromImage(img)
+            self.base_pixmap = local_pixmap
+            local_pixmap = Utils.pixmap_scale(local_pixmap, Thumb.pixmap_size)
         self.img_wid.deleteLater()
         self.img_wid = QLabel()
-        self.base_pixmap = pixmap
-        self.img_wid.setPixmap(pixmap)
+        self.img_wid.setPixmap(local_pixmap)
         self.img_frame_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
     def migrate_from_base_item(self, base_item: BaseItem):
@@ -241,7 +243,11 @@ class Thumb(BaseItem, QFrame):
         self.img_frame.setFixedSize(Thumb.img_frame_size, Thumb.img_frame_size)
 
         if self.base_pixmap:
-            pixmap = Utils.pixmap_scale(self.base_pixmap, Thumb.pixmap_size)
+            if self.type_ in (".app", ".APP"):
+                size = QSize(Thumb.pixmap_size, Thumb.pixmap_size)
+                pixmap = QIcon(self.base_pixmap).pixmap(size)
+            else:
+                pixmap = Utils.pixmap_scale(self.base_pixmap, Thumb.pixmap_size)
             try:
                 self.img_wid.setAlignment(Qt.AlignmentFlag.AlignCenter)
                 self.img_wid.setPixmap(pixmap)
@@ -287,22 +293,6 @@ class Thumb(BaseItem, QFrame):
         effect.setOpacity(value)
         self.setGraphicsEffect(effect)
 
-    def set_red(self):
-        self.setStyleSheet(
-            f"""
-            #{Thumb.text_obj_name} {{
-                background: red;
-                font-size: {FONT_SIZE}px;
-                border-radius: {BORDER_RADIUS}px;
-                padding: 2px;
-            }}
-            #{Thumb.img_obj_name} {{
-                background: transparent;
-                font-size: {FONT_SIZE}px;
-                border-radius: {self.corner}px;
-            }}
-            """
-        )
 
 class Grid(UScrollArea):
     spacing_value = 5

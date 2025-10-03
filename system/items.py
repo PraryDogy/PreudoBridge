@@ -1,10 +1,11 @@
 import gc
 import os
 import re
+from datetime import datetime
 
 import numpy as np
 import sqlalchemy
-from PyQt5.QtGui import QImage, QPixmap
+from PyQt5.QtGui import QIcon, QImage, QPixmap
 from sqlalchemy.engine import RowMapping
 
 from cfg import Static, ThumbData
@@ -12,7 +13,7 @@ from system.shared_utils import ReadImage, SharedUtils
 
 from .database import CACHE, Clmns, Dbase
 from .utils import Utils
-from datetime import datetime
+
 
 class SortItem:
     filename = "filename"
