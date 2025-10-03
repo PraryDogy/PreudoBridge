@@ -1070,6 +1070,8 @@ class AutoCacheCleaner(URunnable):
                 break
             id_list = []
             for id_, thumb_path in limited_select:
+                if not self.is_should_run():
+                    return
                 if thumb_path and os.path.exists(thumb_path):
                     thumb_size = os.path.getsize(thumb_path)
                     if self.remove_file(thumb_path):
