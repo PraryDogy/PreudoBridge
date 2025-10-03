@@ -203,6 +203,7 @@ class Thumb(BaseItem, QFrame):
     def set_image(self, img: QImage | QIcon):
         self.base_pixmap = QPixmap.fromImage(img)
         local_pixmap = Utils.qiconed_resize(self.base_pixmap, Thumb.pixmap_size)
+        # local_pixmap = Utils.pixmap_scale(self.base_pixmap, Thumb.pixmap_size)
         self.img_wid.deleteLater()
         self.img_wid = QLabel()
         self.img_wid.setPixmap(local_pixmap)
@@ -237,10 +238,11 @@ class Thumb(BaseItem, QFrame):
         self.img_frame.setFixedSize(Thumb.img_frame_size, Thumb.img_frame_size)
 
         if self.base_pixmap:
-            pixmap = Utils.qiconed_resize(self.base_pixmap, Thumb.pixmap_size)
+            local_pixmap = Utils.qiconed_resize(self.base_pixmap, Thumb.pixmap_size)
+            # local_pixmap = Utils.pixmap_scale(self.base_pixmap, Thumb.pixmap_size)
             try:
                 self.img_wid.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                self.img_wid.setPixmap(pixmap)
+                self.img_wid.setPixmap(local_pixmap)
             except AttributeError:
                 print("OK, grid > thumb > set widget size > set alignment attribute error")
 
