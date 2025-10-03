@@ -1183,6 +1183,9 @@ class CacheDownloader(URunnable):
 
     def _task(self):
         new_images = self.get_new_images()
+        stmt_list = []
+        stmt_limit = 10
+
         self.sigs.prorgess_max.emit(len(new_images))
         self.sigs.caching.emit()
         for x, data in enumerate(new_images, start=1):
@@ -1192,8 +1195,16 @@ class CacheDownloader(URunnable):
             self.sigs.progress_txt.emit(f"{x} {self.from_text} {len(new_images)}")
             base_item: BaseItem = data["base_item"]
             if self.write_thumb(base_item):
-                # print("write thumb",  base_item.src)
-                Dbase.execute(self.conn, data["stmt"])
+                stmt_list.append(data["stmt"])
+                stmt_limit += 1
+                if len(stmt_list) == stmt_limit:
+                    self.execute_stmt_list(stmt_list)
+                    stmt_list.clear()
+
+    def execute_stmt_list(self, stmt_list: list):
+        for i in stmt_list:
+            Dbase.execute(self.conn, i)
+        Dbase.commit(self.conn)
 
     def get_new_images(self):
         new_images: list[dict[BaseItem, str]] = []

@@ -43,7 +43,7 @@ class Dbase:
         engine = sqlalchemy.create_engine(
             f"sqlite:///{Static.DB_FILE}",
             echo=False,
-            connect_args={"check_same_thread": False, "timeout": 3}
+            connect_args={"check_same_thread": False, "timeout": 30}
         )
         Dbase.engine = engine
 
