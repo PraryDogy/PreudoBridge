@@ -4,7 +4,7 @@ import shutil
 
 from PyQt5.QtCore import (QMimeData, QPoint, QRect, QSize, Qt, QTimer, QUrl,
                           pyqtSignal)
-from PyQt5.QtGui import (QContextMenuEvent, QDrag, QImage, QKeyEvent,
+from PyQt5.QtGui import (QContextMenuEvent, QDrag, QIcon, QImage, QKeyEvent,
                          QMouseEvent, QPixmap)
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
@@ -12,8 +12,8 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
                              QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static, ThumbData
-from system.shared_utils import SharedUtils
 from system.items import BaseItem, CopyItem, MainWinItem, SortItem
+from system.shared_utils import SharedUtils
 from system.tasks import DbItemsLoader, RatingTask, UThreadPool
 from system.utils import Utils
 
@@ -200,13 +200,16 @@ class Thumb(BaseItem, QFrame):
         self.img_wid.load(icon_path)
         self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
 
-    def set_image(self, qimage: QImage):
+    def set_image(self, img: QImage | QIcon):
+        if isinstance(img, QIcon):
+            pixmap = img.pixmap(QSize(Thumb.pixmap_size, Thumb.pixmap_size))
+        else:
+            pixmap = QPixmap.fromImage(img)
+            pixmap = Utils.pixmap_scale(pixmap, Thumb.pixmap_size)
         self.img_wid.deleteLater()
         self.img_wid = QLabel()
-        pixmap = QPixmap.fromImage(qimage)
         self.base_pixmap = pixmap
-        scaled_pixmap = Utils.pixmap_scale(pixmap, Thumb.pixmap_size)
-        self.img_wid.setPixmap(scaled_pixmap)
+        self.img_wid.setPixmap(pixmap)
         self.img_frame_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
     def migrate_from_base_item(self, base_item: BaseItem):

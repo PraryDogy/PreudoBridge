@@ -10,7 +10,7 @@ import cv2
 import numpy as np
 from PIL import Image
 from PyQt5.QtCore import QRect, QRectF, QSize, Qt
-from PyQt5.QtGui import QColor, QFont, QImage, QPainter, QPixmap
+from PyQt5.QtGui import QColor, QFont, QIcon, QImage, QPainter, QPixmap
 from PyQt5.QtSvg import QSvgGenerator, QSvgRenderer
 from PyQt5.QtWidgets import QApplication
 
@@ -221,13 +221,22 @@ class Utils:
                     count += 1
         return {"total": total, "count": count}
     
+    # @classmethod
+    # def load_icns_qimage(cls, path: str, size: int = 128) -> QImage | None:
+    #     try:
+    #         im = Image.open(path)
+    #         qimage = QImage(im.tobytes(), im.width, im.height, im.width * 4, QImage.Format_RGBA8888)
+    #         return qimage.copy()
+    #     except Exception:
+    #         return None
+
     @classmethod
-    def load_icns_qimage(cls, path: str, size: int = 128) -> QImage | None:
+    def load_icns_qimage(cls, path: str) -> QImage | None:
         try:
-            im = Image.open(path)
-            # im = im.resize((size, size), Image.LANCZOS)
-            qimage = QImage(im.tobytes(), im.width, im.height, im.width * 4, QImage.Format_RGBA8888)
-            return qimage.copy()
+            icon = QIcon(path)
+            if icon.isNull():
+                return None
+            return icon
         except Exception:
             return None
 
