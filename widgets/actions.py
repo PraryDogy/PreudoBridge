@@ -21,7 +21,7 @@ class RevealInFinder(QAction):
         if len(urls) == 1:
             if os.path.isdir(urls[0]):
                 self.cmd = self.app_cmd
-            elif urls[0].endswith((".APP", ".app")):
+            elif urls[0].endswith(Static.ext_app):
                 self.cmd = self.app_cmd
             else:
                 self.cmd = self.files_cmd

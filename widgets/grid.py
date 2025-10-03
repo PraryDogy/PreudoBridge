@@ -201,7 +201,7 @@ class Thumb(BaseItem, QFrame):
         self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
 
     def set_image(self, img: QImage | QIcon):
-        if self.type_ in (".app", ".APP"):
+        if self.type_ in Static.ext_app:
             self.base_pixmap = QPixmap.fromImage(img)
             size = QSize(Thumb.pixmap_size, Thumb.pixmap_size)
             local_pixmap = QIcon(self.base_pixmap).pixmap(size)
@@ -243,7 +243,7 @@ class Thumb(BaseItem, QFrame):
         self.img_frame.setFixedSize(Thumb.img_frame_size, Thumb.img_frame_size)
 
         if self.base_pixmap:
-            if self.type_ in (".app", ".APP"):
+            if self.type_ in Static.ext_app:
                 size = QSize(Thumb.pixmap_size, Thumb.pixmap_size)
                 pixmap = QIcon(self.base_pixmap).pixmap(size)
             else:

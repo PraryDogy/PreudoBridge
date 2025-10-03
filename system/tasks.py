@@ -586,7 +586,7 @@ class DbItemsLoader(URunnable):
                 return
             if base_item.filename.endswith((".svg", ".SVG")):
                 svg_files.append(base_item)
-            if base_item.filename.endswith((".app", ".APP")):
+            if base_item.filename.endswith(Static.ext_app):
                 app_files.append(base_item)
             elif base_item.type_ == Static.FOLDER_TYPE:
                 rating = self.get_item_rating(base_item)

@@ -88,7 +88,7 @@ class BaseItem:
 
         if os.path.isdir(self.src):
             self.type_ = Static.FOLDER_TYPE
-            if self.src.endswith((".app", ".APP")):
+            if self.src.endswith(Static.ext_app):
                 _, self.type_ = os.path.splitext(self.src)
         else:
             _, self.type_ = os.path.splitext(self.src)

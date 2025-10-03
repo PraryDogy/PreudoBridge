@@ -26,7 +26,7 @@ class SharedUtils:
         def search_dir(directory):
             try:
                 for entry in os.scandir(directory):
-                    if entry.name.endswith(".app"):
+                    if entry.name.endswith((".app", ".APP")):
                         name_lower = entry.name.lower()
                         if any(k in name_lower for k in app_names):
                             image_apps[entry.path] = entry.name

@@ -31,6 +31,8 @@ class Static:
 
     hidden_file_syms: tuple[str] = (".", "~$", "$")
 
+    ext_app = (".app", ".APP")
+
     ext_jpeg = (
         ".jpg", ".JPG",
         ".jpeg", ".JPEG",
@@ -108,7 +110,6 @@ class Static:
     ai_ext = [".ai"]
     indd_ext = [".indd"]
     # app, dmg, pkg
-
 
     PRELOADED_ICONS = {
         **{ext: "icons/excel.svg"   for ext in excel_ext},
