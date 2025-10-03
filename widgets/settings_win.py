@@ -15,6 +15,45 @@ from system.tasks import DataSizeCounter, UThreadPool
 from ._base_widgets import MinMaxDisabledWin, USlider, USvgSqareWidget
 
 
+class DataLimitSlider(QWidget):
+    value_changed = pyqtSignal(int)
+
+    def __init__(self, data_limits: dict, initial_index: int):
+        super().__init__()
+
+        self.data_limits = data_limits
+        self.initial_index = initial_index
+        lbl_w = 65
+
+        v_lay = QVBoxLayout()
+        v_lay.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(v_lay)
+
+        # Горизонтальный лейаут для меток
+        hor_lay = QHBoxLayout()
+        hor_lay.setContentsMargins(0, 0, 0, 0)
+        v_lay.addLayout(hor_lay)
+
+        slider_w = 0
+        for k, v in self.data_limits.items():
+            lbl = QLabel(v["text"])
+            lbl.setFixedWidth(lbl_w)
+            lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
+            slider_w += lbl_w
+            hor_lay.addWidget(lbl)
+
+        # Слайдер
+        minimum, maximum = 0, len(self.data_limits) - 1
+        self.slider = USlider(Qt.Orientation.Horizontal, minimum, maximum)
+        self.slider.setFixedWidth(slider_w - 10)
+        self.slider.setValue(self.initial_index)
+        self.slider.valueChanged.connect(self.snap_to_step)
+        v_lay.addWidget(self.slider, alignment=Qt.AlignmentFlag.AlignCenter)
+
+    def snap_to_step(self, value):
+        self.value_changed.emit(value)
+
+
 class DataLimitWid(QGroupBox):
     clear_data_clicked = pyqtSignal()
     slider_w = 200
@@ -37,20 +76,8 @@ class DataLimitWid(QGroupBox):
         hor_lay.setContentsMargins(0, 0, 0, 0)
         hor_wid.setLayout(hor_lay)
 
-        slider_w = 0
-        lbl_w = 65
-        for k, v in Static.DATA_LIMITS.items():
-            lbl = QLabel(v["text"])
-            lbl.setFixedWidth(lbl_w)
-            lbl.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            slider_w += lbl_w
-            hor_lay.addWidget(lbl)
-
-        minimum, maximum = 0, len(Static.DATA_LIMITS) - 1
-        self.slider = USlider(Qt.Orientation.Horizontal, minimum, maximum)
-        self.slider.valueChanged.connect(self.snap_to_step)
-        self.slider.setFixedWidth(slider_w - 10)
-        self.slider.setValue(JsonData.data_limit)
+        self.slider = DataLimitSlider(Static.DATA_LIMITS, JsonData.data_limit)
+        self.slider.value_changed.connect(lambda v: self.snap_to_step(v))
         v_lay.addWidget(self.slider, alignment=Qt.AlignmentFlag.AlignCenter)
         
     def snap_to_step(self, value):
@@ -98,24 +125,48 @@ class DataSizeWid(QGroupBox):
 class JsonFile(QGroupBox):
     json_text = "Показать"
     json_descr_text = "Системные файлы приложения."
+    show_text = "Открыть"
+    show_descr = "Окно очистки кэша."
+
     btn_w = 110
 
     def __init__(self):
         super().__init__()
 
-        h_lay = QHBoxLayout()
-        h_lay.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(h_lay)
+        # основной вертикальный лейаут
+        v_lay = QVBoxLayout()
+        v_lay.setContentsMargins(0, 0, 0, 0)
+        v_lay.setSpacing(0)
+        self.setLayout(v_lay)
 
-        btn_ = QPushButton(JsonFile.json_text)
-        btn_.setFixedWidth(self.btn_w)
-        btn_.clicked.connect(
+        # первый горизонтальный лейаут
+        h_lay1 = QHBoxLayout()
+        h_lay1.setContentsMargins(0, 0, 0, 0)
+        h_lay1.setSpacing(15)
+        v_lay.addLayout(h_lay1)
+
+        btn1 = QPushButton(JsonFile.json_text)
+        btn1.setFixedWidth(self.btn_w)
+        btn1.clicked.connect(
             lambda: subprocess.call(["open", Static.APP_SUPPORT])
         )
-        h_lay.addWidget(btn_)
+        h_lay1.addWidget(btn1)
 
-        descr = QLabel(JsonFile.json_descr_text)
-        h_lay.addWidget(descr)
+        descr1 = QLabel(JsonFile.json_descr_text)
+        h_lay1.addWidget(descr1)
+
+        # второй горизонтальный лейаут
+        h_lay2 = QHBoxLayout()
+        h_lay2.setContentsMargins(0, 0, 0, 0)
+        h_lay2.setSpacing(15)
+        v_lay.addLayout(h_lay2)
+
+        btn2 = QPushButton(self.show_text)
+        btn2.setFixedWidth(self.btn_w)
+        h_lay2.addWidget(btn2)
+
+        descr2 = QLabel(self.show_descr)
+        h_lay2.addWidget(descr2)
 
 
 class About(QGroupBox):
