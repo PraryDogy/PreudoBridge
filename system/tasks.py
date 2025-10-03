@@ -459,14 +459,20 @@ class SearchTask(URunnable):
 
     def process_img(self, entry: os.DirEntry):
 
+        def execute_stmt_list(stmt_list: list):
+            for i in stmt_list:
+                Dbase.execute(self.conn, i)
+            Dbase.commit(self.conn)
+
         def insert(base_item: BaseItem, img_array: np.ndarray):
-            stmt = BaseItem.insert_file_stmt(base_item)
-            Dbase.execute(self.conn, stmt)
-            Utils.write_thumb(base_item.thumb_path, img_array)
-            self.insert_count += 1
-            if self.insert_count > 10:
-                self.insert_count = 0
-                Dbase.commit(self.conn)
+            if Utils.write_thumb(base_item.thumb_path, img_array):
+                stmt_list.append(BaseItem.insert_file_stmt(base_item))
+                if len(stmt_list) == stmt_limit:
+                    execute_stmt_list(stmt_list)
+                    stmt_list.clear
+
+        stmt_list: list = []
+        stmt_limit = 10
 
         base_item = BaseItem(entry.path)
         base_item.set_properties()
@@ -1177,7 +1183,6 @@ class CacheDownloader(URunnable):
             print(traceback.format_exc())
 
         self.sigs.finished_.emit()
-        Dbase.commit(self.conn)
         Dbase.close_conn(self.conn)
         print("cache downloader finished")
 
