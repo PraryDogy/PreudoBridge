@@ -18,7 +18,6 @@ CACHE = sqlalchemy.Table(
     sqlalchemy.Column("rating", sqlalchemy.Integer),
     sqlalchemy.Column("partial_hash", sqlalchemy.Text),
     sqlalchemy.Column("thumb_path", sqlalchemy.Text),
-    
 )
 
 

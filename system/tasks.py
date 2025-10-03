@@ -1061,7 +1061,7 @@ class AutoCacheCleaner(URunnable):
     def remove_id_list(self, id_list: list[int]):
         stmt = (
             sqlalchemy.delete(CACHE)
-            .where(Clmns.id.in_(id_list))
+            .where(sqlalchemy.and_(Clmns.id.in_(id_list), Clmns.rating==0))
         )
         Dbase.execute(self.conn, stmt)
         Dbase.commit(self.conn)
@@ -1149,7 +1149,7 @@ class CustomSizeCacheCleaner(URunnable):
     def remove_id_list(self, id_list: list[int]):
         stmt = (
             sqlalchemy.delete(CACHE)
-            .where(Clmns.id.in_(id_list))
+            .where(sqlalchemy.and_(Clmns.id.in_(id_list), Clmns.rating==0))
         )
         Dbase.execute(self.conn, stmt)
         Dbase.commit(self.conn)
