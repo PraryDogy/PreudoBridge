@@ -235,21 +235,15 @@ class Utils:
     def qiconed_resize(cls, pixmap: QPixmap, max_side: int) -> QPixmap:
         if pixmap.isNull():
             return QPixmap()
-
-        # исходные размеры
         w, h = pixmap.width(), pixmap.height()
-
-        # вычисляем новые размеры с сохранением пропорций
         if w > h:
             new_w = max_side
             new_h = int(h * max_side / w)
         else:
             new_h = max_side
             new_w = int(w * max_side / h)
-
         icon = QIcon(pixmap)
         return icon.pixmap(QSize(new_w, new_h))
-
 
     @classmethod
     def pixmap_scale(cls, pixmap: QPixmap, size: int) -> QPixmap:
