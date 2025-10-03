@@ -11,11 +11,11 @@ class CacheDownloadWin(ProgressbarWin):
     def __init__(self, dir: str):
         super().__init__(self.title, self.svg_path)
         self.dir = dir
-        self.above_label.setText(self.preparing_text)
         self.start_task()
 
     def start_task(self):
         self.cache_downloader = CacheDownloader(self.dir)
+        self.above_label.setText(self.preparing_text)
 
         self.cache_downloader.sigs.prorgess_max.connect(
             lambda v: self.progressbar.setMaximum(v)
@@ -29,7 +29,6 @@ class CacheDownloadWin(ProgressbarWin):
 
         UThreadPool.start(self.cache_downloader)
 
-        # верхний лейбл подготовка
         # нижний лейбл имя файла
 
         # верхний лейбл кэширование 1 из 100
