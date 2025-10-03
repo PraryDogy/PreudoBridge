@@ -1119,9 +1119,9 @@ class CustomSizeCacheCleaner(URunnable):
                 break
             id_list = []
             for id_, thumb_path in limited_select:
-                # if not self.is_should_run():
-                #     self.remove_id_list(id_list)
-                #     return
+                if not self.is_should_run():
+                    self.remove_id_list(id_list)
+                    return
                 if thumb_path and os.path.exists(thumb_path):
                     thumb_size = os.path.getsize(thumb_path)
                     if self.remove_file(thumb_path):
@@ -1129,8 +1129,14 @@ class CustomSizeCacheCleaner(URunnable):
                         id_list.append(id_)
             if not id_list:
                 break
-            self.remove_id_list(id_list)
+            # self.remove_id_list(id_list)
             print("id list", len(id_list))
+
+            for id_, thumb_path in limited_select:
+                if id_ not in id_list:
+                    print(id_, thumb_path)
+
+            return
 
         print("id list", len(id_list))
         self.remove_id_list(id_list)
@@ -1151,10 +1157,10 @@ class CustomSizeCacheCleaner(URunnable):
     
     def remove_file(self, thumb_path):
         try:
-            root = os.path.dirname(thumb_path)
-            os.remove(thumb_path)
-            if os.path.exists(root) and not os.listdir(root):
-                shutil.rmtree(root)
+            # root = os.path.dirname(thumb_path)
+            # os.remove(thumb_path)
+            # if os.path.exists(root) and not os.listdir(root):
+            #     shutil.rmtree(root)
             return True
         except Exception as e:
             print("tasks, ClearData error", e)
