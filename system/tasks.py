@@ -1196,7 +1196,6 @@ class CacheDownloader(URunnable):
             base_item: BaseItem = data["base_item"]
             if self.write_thumb(base_item):
                 stmt_list.append(data["stmt"])
-                stmt_limit += 1
                 if len(stmt_list) == stmt_limit:
                     self.execute_stmt_list(stmt_list)
                     stmt_list.clear()
