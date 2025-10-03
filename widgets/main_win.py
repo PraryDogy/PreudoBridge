@@ -377,8 +377,8 @@ class MainWin(WinBase):
 
         def open_win():
             cache_download_win = CacheDownloadWin(dir)
-            cache_download_win.center(self.window)
-            cache_download_win.show()
+            cache_download_win.center(self.window())
+            QTimer.singleShot(10, cache_download_win.show)
 
         self.question_win = WinQuestion(
             self.attention,
