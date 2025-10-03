@@ -469,7 +469,7 @@ class SearchTask(URunnable):
                 stmt_list.append(BaseItem.insert_file_stmt(base_item))
                 if len(stmt_list) == stmt_limit:
                     execute_stmt_list(stmt_list)
-                    stmt_list.clear
+                    stmt_list.clear()
 
         stmt_list: list = []
         stmt_limit = 10
