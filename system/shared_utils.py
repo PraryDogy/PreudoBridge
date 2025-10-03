@@ -197,6 +197,10 @@ class ReadImage:
         ".webm", ".WEBM",
     )
 
+    ext_icns = (
+        ".icns", ".ICNS",
+    )
+
     ext_all = (
         *ext_jpeg,
         *ext_tiff,
@@ -204,6 +208,7 @@ class ReadImage:
         *ext_png,
         *ext_raw,
         *ext_video,
+        *ext_icns,
     )
 
     @classmethod
@@ -249,6 +254,16 @@ class ReadImage:
             return array_img
         except Exception as e:
             print("read psb, psd tools error", e)
+            return None
+
+    @classmethod
+    def _read_icns(cls, path: str):
+        try:
+            im = Image.open(path).convert("RGBA")  # конвертируем в RGBA
+            arr = np.array(im)  # превращаем в ndarray (H, W, 4)
+            return arr
+        except Exception:
+            print(traceback.format_exc())
             return None
 
     @classmethod
@@ -356,7 +371,8 @@ class ReadImage:
             read_any_dict[i] = cls._read_png
         for i in cls.ext_video:
             read_any_dict[i] = cls._read_movie
-
+        for i in cls.ext_icns:
+            read_any_dict[i] = cls._read_icns
         fn = read_any_dict.get(ext)
         if fn:
             cls._read_any = fn

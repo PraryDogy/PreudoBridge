@@ -91,6 +91,10 @@ class Static:
         ".webm", ".WEBM",
     )
 
+    ext_icns = (
+        ".icns", ".ICNS",
+    )
+
     ext_all = (
         *ext_jpeg,
         *ext_tiff,
@@ -98,6 +102,7 @@ class Static:
         *ext_png,
         *ext_raw,
         *ext_video,
+        *ext_icns,
     )
 
     excel_ext = [".xls", ".xlsx", ".xlsm", ".xlt", ".xltx", ".xltm", ".xlsb", ".xlw"]
