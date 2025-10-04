@@ -1,3 +1,7 @@
+import os
+import subprocess
+import traceback
+
 import sqlalchemy
 
 from cfg import Static
@@ -58,6 +62,23 @@ class Dbase:
                 print("Не хватает колонок в существующей таблице, создаю новую")
                 METADATA.drop_all(engine)
                 METADATA.create_all(engine)
+            else:
+                tb_file = os.path.join(Static.APP_SUPPORT, "traceback.txt")
+                with open(tb_file, "w", encoding="utf-8") as f:
+                    f.write(
+                        "ОТПРАВЬТЕ ЭТО РАЗРАБОТЧИКУ:\n"
+                        "tg: evlosh\n"
+                        "email: evlosh@gmail.com\n"
+                        "\n"
+                        "***************************************\n\n"
+                        f"{traceback.format_exc()}\n"
+                        "***************************************\n"
+                    )
+                try:
+                    subprocess.Popen(["open", tb_file])
+                except Exception:
+                    pass
+                os._exit(0)
 
     @classmethod
     def commit(cls, conn: sqlalchemy.Connection) -> None:
