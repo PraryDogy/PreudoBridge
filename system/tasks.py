@@ -760,8 +760,7 @@ class ImgResCounter(URunnable):
 class FolderSizeCounter(URunnable):
 
     class Sigs(QObject):
-        finished_info = pyqtSignal(dict)
-        finished_calc = pyqtSignal(str)
+        finished_calc = pyqtSignal(dict)
 
     undef_text = "Неизвестно"
 
@@ -780,7 +779,8 @@ class FolderSizeCounter(URunnable):
         self.sigs.finished_calc.emit(total)
 
     def get_folder_size(self):
-        total = 0
+        total_size = 0
+        total_count = 0
         stack = []
         stack.append(self.base_item.src)
         while stack:
@@ -790,8 +790,12 @@ class FolderSizeCounter(URunnable):
                     if entry.is_dir():
                         stack.append(entry.path)
                     else:
-                        total += entry.stat().st_size
-        return SharedUtils.get_f_size(total)
+                        total_size += entry.stat().st_size
+                        total_count += 1
+        return {
+            "size": SharedUtils.get_f_size(total_size),
+            "total": total_count
+        }
 
 
 class FileInfo(URunnable):

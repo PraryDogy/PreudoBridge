@@ -107,8 +107,12 @@ class InfoWin(MinMaxDisabledWin):
 
 
     def finalize(self, result: str):
-        label = self.findChildren(SelectableLabel)[-1]
-        label.setText(result)
+        if isinstance(result, dict):
+            print(result)
+        else:
+
+            label = self.findChildren(SelectableLabel)[-1]
+            label.setText(result)
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() in (Qt.Key.Key_Escape, Qt.Key.Key_Return):
