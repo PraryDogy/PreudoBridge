@@ -75,15 +75,15 @@ class ImgWid(QLabel):
     def paintEvent(self, a0: QPaintEvent | None) -> None:
         if self.current_pixmap is not None:
             painter = QPainter(self)
-            if self.width() < 500:
-                flag = Qt.TransformationMode.SmoothTransformation
-            else:
-                flag = Qt.TransformationMode.FastTransformation
+            # включаем антиалиасинг для более плавных краёв
+            painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+            # можно также добавить HighQualityAntialiasing
+            painter.setRenderHint(QPainter.RenderHint.HighQualityAntialiasing, True)
             scaled_pixmap = self.current_pixmap.scaled(
                 int(self.w * self.scale_factor),
-                int(self.h * self.srcale_factor),
+                int(self.h * self.scale_factor),
                 Qt.AspectRatioMode.KeepAspectRatio,
-                flag
+                Qt.TransformationMode.SmoothTransformation
                 )
             offset = self.offset + QPoint(
                 int((self.width() - scaled_pixmap.width()) / 2),
