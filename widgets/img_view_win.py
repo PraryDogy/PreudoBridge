@@ -123,8 +123,6 @@ class ImgWid(QGraphicsView):
         self.horizontalScrollBar().setValue(0)
         self.verticalScrollBar().setValue(0)
 
-        self.fitInView(self.pixmap_item, Qt.KeepAspectRatio)
-
     def zoom_in(self):
         self.scale(1.1, 1.1)
 
@@ -166,6 +164,12 @@ class ImgWid(QGraphicsView):
             return
         # для остальных клавиш можно оставить стандартную обработку
         super().keyPressEvent(event)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        if self.pixmap_item:
+            # при каждом изменении размера окна подгоняем изображение
+            self.fitInView(self.pixmap_item, Qt.KeepAspectRatio)
 
 
 class ZoomBtns(QFrame):
