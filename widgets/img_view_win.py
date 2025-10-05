@@ -94,9 +94,6 @@ from .info_win import InfoWin
 #         return super().resizeEvent(a0)
 
 
-
-
-
 class ImgWid(QGraphicsView):
     mouse_moved = pyqtSignal()
 
@@ -148,6 +145,11 @@ class ImgWid(QGraphicsView):
         self.mouse_moved.emit()
         if event.buttons() & Qt.LeftButton and self.last_mouse_pos:
             self.last_mouse_pos = event.pos()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        if self.pixmap_item:
+            self.fitInView(self.pixmap_item, Qt.KeepAspectRatio)
 
 
 class ZoomBtns(QFrame):
