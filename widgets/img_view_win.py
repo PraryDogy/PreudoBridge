@@ -16,6 +16,7 @@ from .actions import ItemActions
 from .grid import KEY_RATING, RATINGS, Thumb
 from .info_win import InfoWin
 
+
 # class ImgWid(QLabel):
 #     mouse_moved = pyqtSignal()
 
@@ -116,6 +117,7 @@ class ImgWid(QGraphicsView):
     def set_image(self, pixmap: QPixmap):
         """Устанавливает изображение и центрирует под окно"""
         self.scene_.clear()
+        self.pixmap_item = None
         self.pixmap_item = QGraphicsPixmapItem(pixmap)
         self.scene_.addItem(self.pixmap_item)
 
@@ -168,7 +170,6 @@ class ImgWid(QGraphicsView):
     def resizeEvent(self, event):
         super().resizeEvent(event)
         if self.pixmap_item:
-            # при каждом изменении размера окна подгоняем изображение
             self.fitInView(self.pixmap_item, Qt.KeepAspectRatio)
 
 
@@ -213,7 +214,7 @@ class ZoomBtns(QFrame):
         h_layout.addWidget(self.zoom_close)
 
         h_layout.addSpacerItem(QSpacerItem(5, 0))
-
+        
         self.adjustSize()
 
 
@@ -300,6 +301,10 @@ class ImgViewWin(WinBase):
         self.zoom_btns.cmd_fit.connect(self.img_wid.zoom_reset)
         self.zoom_btns.cmd_close.connect(self.deleteLater)
 
+        self.text_label = QLabel(self)
+        self.text_label.setStyleSheet("background: black;")
+        self.text_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
         self.hide_btns()
         self.resize(ImgViewWin.width_ + 1, ImgViewWin.height_ + 1)
         self.set_title()
@@ -314,17 +319,20 @@ class ImgViewWin(WinBase):
         self.setWindowTitle(text_)
 
     def load_thumbnail(self):
-        self.show_text("")
+        self.show_text_label("")
         pixmap = self.current_thumb.base_pixmap
-        if pixmap:
-            self.restart_img_wid(pixmap)
-        else:
-            t = f"{os.path.basename(self.current_path)}\n{self.loading_text}"
-            self.show_text(t)
+        # if pixmap:
+            # self.restart_img_wid(pixmap)
+        # else:
+        # self.img_wid.scene_.clear()
+        t = f"{os.path.basename(self.current_path)}\n{self.loading_text}"
+        self.show_text_label(t)
         self.load_image()
 
-    def show_text(self, text: str):
-        self.img_wid.scene_.clear()
+    def show_text_label(self, text: str):
+        self.text_label.setText(text)
+        self.text_label.raise_()  # поверх остальных
+        self.text_label.show()
 
     def restart_img_wid(self, pixmap: QPixmap):
         self.img_wid.hide()  # скрываем старый
@@ -352,7 +360,7 @@ class ImgViewWin(WinBase):
             src, qimage = image_data
             self.task_count -= 1
             if qimage is None:
-                self.show_text(self.error_text)
+                self.show_text_label(self.error_text)
             elif src == self.current_path:
                 self.restart_img_wid(QPixmap.fromImage(qimage))
 
@@ -468,6 +476,8 @@ class ImgViewWin(WinBase):
 
         ImgViewWin.width_ = self.width()
         ImgViewWin.height_ = self.height()
+
+        self.text_label.resize(self.size())
 
         self.setFocus()
 
