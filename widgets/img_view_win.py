@@ -107,7 +107,12 @@ class ImgWid(QGraphicsView):
         self.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
         self.setMouseTracking(True)
         self.setStyleSheet("background: black; color: white;")
-        self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
+        # self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
+
+
+        # Скрываем скроллбары
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
         self.scene_ = QGraphicsScene()
         self.setScene(self.scene_)
@@ -148,12 +153,7 @@ class ImgWid(QGraphicsView):
     def mouseMoveEvent(self, event: QMouseEvent):
         self.mouse_moved.emit()
         if event.buttons() & Qt.LeftButton and self.last_mouse_pos:
-            delta = event.pos() - self.last_mouse_pos
             self.last_mouse_pos = event.pos()
-
-            # перемещение через scrollbars
-            self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() - delta.x())
-            self.verticalScrollBar().setValue(self.verticalScrollBar().value() - delta.y())
 
 
 class ZoomBtns(QFrame):
