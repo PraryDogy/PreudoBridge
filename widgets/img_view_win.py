@@ -94,11 +94,6 @@ from .info_win import InfoWin
 #         return super().resizeEvent(a0)
 
 
-from PyQt5.QtWidgets import QGraphicsView, QGraphicsScene, QGraphicsPixmapItem, QScrollBar
-from PyQt5.QtGui import QPixmap, QMouseEvent, QWheelEvent, QPainter
-from PyQt5.QtCore import Qt, QPointF, pyqtSignal, QTimer
-
-
 class ImgWid(QGraphicsView):
     mouse_moved = pyqtSignal()
 
@@ -109,7 +104,6 @@ class ImgWid(QGraphicsView):
         self.setStyleSheet("background: black; color: white;")
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-
         self.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
 
@@ -117,53 +111,53 @@ class ImgWid(QGraphicsView):
         self.setScene(self.scene_)
 
         self.pixmap_item: QGraphicsPixmapItem = None
-        self.last_mouse_pos: QPointF = None
-        self.scale_factor: float = 1.0
+        self._last_mouse_pos: QPointF = None
 
     def set_image(self, pixmap: QPixmap):
-        """Устанавливает изображение и масштабирует под окно корректно."""
-        self.last_mouse_pos = None
-        self.scale_factor = 1.0
-
+        """Устанавливает изображение и центрирует под окно"""
         self.scene_.clear()
         self.pixmap_item = QGraphicsPixmapItem(pixmap)
         self.scene_.addItem(self.pixmap_item)
 
-        # Сбрасываем трансформацию и scrollbars
         self.resetTransform()
         self.horizontalScrollBar().setValue(0)
         self.verticalScrollBar().setValue(0)
 
-        # Центрируем с минимальной задержкой, чтобы виджет имел реальные размеры
-        QTimer.singleShot(0, lambda: self.fitInView(self.pixmap_item, Qt.KeepAspectRatio))
+        self.fitInView(self.pixmap_item, Qt.KeepAspectRatio)
+        print(self.scale)
 
     def zoom_in(self):
         self.scale(1.1, 1.1)
-        self.scale_factor *= 1.1
 
     def zoom_out(self):
         self.scale(0.9, 0.9)
-        self.scale_factor *= 0.9
 
     def zoom_reset(self):
-        """Сбрасывает масштаб и центрирует изображение"""
         if self.pixmap_item:
             self.resetTransform()
-            QTimer.singleShot(0, lambda: self.fitInView(self.pixmap_item, Qt.KeepAspectRatio))
-            self.scale_factor = 1.0
+            self.fitInView(self.pixmap_item, Qt.KeepAspectRatio)
 
+    # ---------------------- Drag через мышь ----------------------
     def mousePressEvent(self, event: QMouseEvent):
         if event.button() == Qt.LeftButton:
             self.setCursor(Qt.ClosedHandCursor)
-            self.last_mouse_pos = event.pos()
+            self._last_mouse_pos = event.pos()
         super().mousePressEvent(event)
 
     def mouseMoveEvent(self, event: QMouseEvent):
         self.mouse_moved.emit()
+        if self._last_mouse_pos and event.buttons() & Qt.LeftButton:
+            delta = event.pos() - self._last_mouse_pos
+            self._last_mouse_pos = event.pos()
+
+            # перемещаем сцену через scrollbars
+            self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() - delta.x())
+            self.verticalScrollBar().setValue(self.verticalScrollBar().value() - delta.y())
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event: QMouseEvent):
         self.setCursor(Qt.ArrowCursor)
+        self._last_mouse_pos = None
         super().mouseReleaseEvent(event)
 
 
@@ -221,6 +215,7 @@ class SwitchImgBtn(QFrame):
 
         self.v_layout = QVBoxLayout()
         self.v_layout.setContentsMargins(0, 0, 0, 0)
+        self.v_layout.setSpacing(0)
         self.setLayout(self.v_layout)
 
         btn = USvgSqareWidget(src, 50)
@@ -318,10 +313,7 @@ class ImgViewWin(WinBase):
         self.load_image()
 
     def show_text(self, text: str):
-        pixmap = QPixmap(1, 1)
-        pixmap.fill(QColor(0, 0, 0))
-        self.restart_img_wid(pixmap)
-        # self.img_wid.setText(text)
+        self.img_wid.scene_.clear()
 
     def restart_img_wid(self, pixmap: QPixmap):
         self.img_wid.deleteLater()
