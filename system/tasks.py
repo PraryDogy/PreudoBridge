@@ -1181,32 +1181,52 @@ class ImgRes(URunnable):
         self.sigs.finished_.emit(resol)
 
 
-class FolderSizeCounter(URunnable):
+class MultipleItemsInfo(URunnable):
 
     class Sigs(QObject):
-        finished_calc = pyqtSignal(dict)
+        finished_ = pyqtSignal(dict)
 
-    undef_text = "Неизвестно"
+    err = "Ошибка"
 
-    def __init__(self, base_item: BaseItem):
+    def __init__(self, items: list[BaseItem]):
         super().__init__()
-        self.base_item = base_item
-        self.sigs = FolderSizeCounter.Sigs()
+        self.items = items
+        self.sigs = MultipleItemsInfo.Sigs()
 
     def task(self):
         try:
-            total = self.get_folder_size()
-        except Exception:
-            Utils.print_error()
-            total = self.undef_text
+            total_size, total_count = self._task()
+            self.sigs.finished_.emit({
+                "total_size": SharedUtils.get_f_size(total_size),
+                "total_count": total_count
+            })
+        except Exception as e:
+            print("tasks, MultipleInfoFiles error", e)
+            self.sigs.finished_.emit({
+                "total_size": self.err,
+                "total_count": self.err
+            })
 
-        self.sigs.finished_calc.emit(total)
+    def _task(self):
+        total_size = 0
+        total_count = 0
 
-    def get_folder_size(self):
+        for i in self.items:
+            if i.type_ == Static.FOLDER_TYPE:
+                size_, count_ = self.get_folder_size(i)
+                total_size += size_
+                total_count += count_
+            else:
+                total_size += i.size
+                total_count += 1
+
+        return total_size, total_count
+
+    def get_folder_size(self, base_item: BaseItem):
         total_size = 0
         total_count = 0
         stack = []
-        stack.append(self.base_item.src)
+        stack.append(base_item.src)
         while stack:
             current_dir = stack.pop()
             with os.scandir(current_dir) as entries:
@@ -1216,10 +1236,7 @@ class FolderSizeCounter(URunnable):
                     else:
                         total_size += entry.stat().st_size
                         total_count += 1
-        return {
-            "size": SharedUtils.get_f_size(total_size),
-            "total": total_count
-        }
+        return total_size, total_count
 
 
 class FileInfo(URunnable):

@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QAction, QGridLayout, QLabel, QSpacerItem
 from cfg import Static
 from system.items import BaseItem
 from system.shared_utils import SharedUtils
-from system.tasks import ImgRes, UThreadPool
+from system.tasks import ImgRes, MultipleItemsInfo, UThreadPool
 
 from ._base_widgets import MinMaxDisabledWin, UMenu
 from .actions import CopyText, RevealInFinder
@@ -70,6 +70,7 @@ class InfoWin(MinMaxDisabledWin):
     birth_text = "Создан:"
     mod_text = "Изменен:"
     resol_text = "Разрешение:"
+    count_text = "Количество:"
 
     def __init__(self, items: list[BaseItem]):
         super().__init__()
@@ -96,17 +97,9 @@ class InfoWin(MinMaxDisabledWin):
             else:
                 self.single_file()
         else:
-            ...
+            self.multiple_items()
 
     def single_img(self):
-
-        def get_img_res(src: str, wid: SelectableLabel):
-            img_res = ImgRes(src)
-            img_res.sigs.finished_.connect(
-                lambda text: wid.setText(text)
-            )
-            UThreadPool.start(img_res)
-
         row = 0
         item = self.items[0]
         labels = {
@@ -128,8 +121,11 @@ class InfoWin(MinMaxDisabledWin):
 
         resol_label = self.findChildren(SelectableLabel)[-1]
         if resol_label:
-            get_img_res(item.src, resol_label)
-
+            self.img_res = ImgRes(item.src)
+            self.img_res.sigs.finished_.connect(
+                lambda text: resol_label.setText(text)
+            )
+            UThreadPool.start(self.img_res)
 
     def single_file(self):
         row = 0
@@ -151,7 +147,29 @@ class InfoWin(MinMaxDisabledWin):
             row += 1
 
     def multiple_items(self):
-        ...
+        row = 0
+        labels = {
+            self.size_text: self.calc_text,
+            self.count_text: self.calc_text
+        }
+        for k, v in labels.items():
+            left = SelectableLabel(k)
+            self.grid_layout.addWidget(left, row, 0, alignment=Qt.AlignmentFlag.AlignRight)
+            self.grid_layout.addItem(QSpacerItem(10, 0), row, 1)
+            right = SelectableLabel(v)
+            self.grid_layout.addWidget(right, row, 2, alignment=Qt.AlignmentFlag.AlignLeft)
+            row += 1
+
+        size_label = self.findChildren(SelectableLabel)[2]
+        total_label = self.findChildren(SelectableLabel)[-1]
+        self.info_task = MultipleItemsInfo(self.items)
+        self.info_task.sigs.finished_.connect(
+            lambda data: size_label.setText(data["total_size"])
+        )
+        self.info_task.sigs.finished_.connect(
+            lambda data: total_label.setText(data["total_count"])
+        )
+        UThreadPool.start(self.info_task)
 
     def lined_text(self, text: str, limit: int = 50):
         if len(text) > limit:
