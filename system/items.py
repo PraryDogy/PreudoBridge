@@ -75,10 +75,13 @@ class BaseItem:
         self.thumb_path: str = None
 
     def set_partial_hash(self):
-        self.partial_hash = Utils.get_partial_hash(self.src)
-        if self.type_ in Static.ext_all:
-            self.thumb_path = Utils.get_abs_thumb_path(self.partial_hash)
-
+        try:
+            self.partial_hash = Utils.get_partial_hash(self.src)
+            if self.type_ in Static.ext_all:
+                self.thumb_path = Utils.get_abs_thumb_path(self.partial_hash)
+        except Exception as e:
+            print("items, BaseItem set partial hash error", e)
+        
     def set_properties(self):
         """
         Обновляет данные объекта:
@@ -89,8 +92,6 @@ class BaseItem:
 
         if os.path.isdir(self.src):
             self.type_ = Static.FOLDER_TYPE
-            # if self.src.endswith(Static.ext_app):
-                # _, self.type_ = os.path.splitext(self.src)
         else:
             _, self.type_ = os.path.splitext(self.src)
 
@@ -100,12 +101,10 @@ class BaseItem:
             self.birth = int(stat.st_birthtime)
             self.size = int(stat.st_size)
         except Exception as e:
-            Utils.print_error()
+            print("items, BaseItem set partial properties error", e)
             self.mod = 0
             self.birth = 0
             self.size = 0
-        # Поправка старой системы рейтинга, когда рейтинг был двузначным
-        self.rating = self.rating % 10
     
     @staticmethod
     def check_sortitem_attrs():

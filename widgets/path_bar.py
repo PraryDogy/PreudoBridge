@@ -5,7 +5,7 @@ from PyQt5.QtGui import QContextMenuEvent, QDrag, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import QApplication, QHBoxLayout, QLabel, QWidget
 
 from cfg import Static
-from system.items import MainWinItem
+from system.items import BaseItem, MainWinItem
 from system.utils import Utils
 
 from ._base_widgets import UMenu, USvgSqareWidget
@@ -99,14 +99,13 @@ class PathItem(QWidget):
         if not self.text_wid.underMouse():
             self.text_wid.setMinimumWidth(self.min_wid)
 
-    def win_info_cmd(self):
+    def open_info_win(self):
         """
         Открыть окно информации о файле / папке
         """
-        self.win_info = InfoWin(self.dir)
-        self.win_info.finished_.connect(lambda: self.win_info_fin())
-
-    def win_info_fin(self):
+        base_item = BaseItem(self.dir)
+        base_item.set_properties()
+        self.win_info = InfoWin([base_item, ])
         self.win_info.center(self.window())
         self.win_info.show()
 
@@ -182,7 +181,7 @@ class PathItem(QWidget):
             menu.addAction(new_win)
 
         info = ItemActions.Info(menu)
-        info.triggered.connect(self.win_info_cmd)
+        info.triggered.connect(self.open_info_win)
         menu.addAction(info)
 
         menu.addSeparator()

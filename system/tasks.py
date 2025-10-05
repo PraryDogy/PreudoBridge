@@ -1228,14 +1228,26 @@ class MultipleItemsInfo(URunnable):
         stack = [base_item.src]
         while stack:
             current_dir = stack.pop()
+            try:
+                os.listdir(current_dir)
+            except Exception as e:
+                print("tasks, MultipleItemsInfo error", e)
+                continue
             with os.scandir(current_dir) as entries:
                 for entry in entries:
-                    if entry.is_dir():
-                        self.total_folders += 1
-                        stack.append(entry.path)
+                    try:
+                        if entry.is_dir():
+                            self.total_folders += 1
+                            stack.append(entry.path)
+                    except Exception as e:
+                        print("tasks, MultipleItemsInfo error", e)
                     else:
-                        self.total_files += 1
-                        self.total_size += entry.stat().st_size
+                        try:
+                            self.total_size += entry.stat().st_size
+                            self.total_files += 1
+                        except Exception as e:
+                            print("tasks, MultipleItemsInfo error", e)
+                            continue
 
 
 class FileInfo(URunnable):

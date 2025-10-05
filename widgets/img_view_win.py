@@ -320,13 +320,9 @@ class ImgViewWin(WinBase):
         self.mouse_move_timer.start(2000)
 
     def win_info_cmd(self, src: str):
-
-        def fin():
-            self.win_info.center(self.window())
-            self.win_info.show()
-
-        self.win_info = InfoWin(src)
-        self.win_info.finished_.connect(fin)
+        self.win_info = InfoWin([self.current_thumb, ])
+        self.win_info.center(self.window())
+        self.win_info.show()
 
 
 # EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS 
