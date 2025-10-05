@@ -6,17 +6,20 @@ from PyQt5.QtWidgets import QAction, QGridLayout, QLabel, QSpacerItem
 
 from cfg import Static
 from system.items import BaseItem
-from system.tasks import (FileInfo, FolderSizeCounter, ImgResCounter,
-                          UThreadPool)
+from system.shared_utils import SharedUtils
+from system.tasks import ImgRes, UThreadPool
 
 from ._base_widgets import MinMaxDisabledWin, UMenu
 from .actions import CopyText, RevealInFinder
+
+# инфо 1 изображение
+# инфо 1 файл
+# инфо несколько файлов и папок (количество и размер)
 
 
 class ULabel(QLabel):
     def __init__(self, text: str):
         super().__init__(text=text)
-
         self.setStyleSheet("font-size: 11px;")
 
 
@@ -57,13 +60,23 @@ class SelectableLabel(ULabel):
 class InfoWin(MinMaxDisabledWin):
     finished_ = pyqtSignal()
     title_text = "Инфо"
+    calc_text = "Вычисляю..."
 
-    def __init__(self, src: str):
+    ru_folder = "Папка: "
+    name_text = "Имя:"
+    type_text = "Тип:"
+    size_text = "Размер:"
+    src_text = "Место:"
+    birth_text = "Создан:"
+    mod_text = "Изменен:"
+    resol_text = "Разрешение:"
+
+    def __init__(self, items: list[BaseItem]):
         super().__init__()
         self.setWindowTitle(InfoWin.title_text)
         self.set_modality()
 
-        self.src = src
+        self.items = items
 
         self.grid_layout = QGridLayout()
         self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
@@ -71,48 +84,84 @@ class InfoWin(MinMaxDisabledWin):
         self.grid_layout.setSpacing(5)
         self.setLayout(self.grid_layout)
 
-        self.base_item = BaseItem(self.src)
-        self.base_item.set_properties()
-        self.info_task = FileInfo(self.base_item)
-        self.info_task.signals.finished_info.connect(lambda data: self.init_ui(data))
-        UThreadPool.start(self.info_task)
+        self.init_ui()
+        self.adjustSize()
 
-    def init_ui(self, data: dict):
+    def init_ui(self):
+        if len(self.items):
+            if self.items[0].type_ in Static.ext_all:
+                self.single_img()
+            elif self.items[0].type_ == Static.FOLDER_TYPE:
+                ...
+            else:
+                self.single_file()
+        else:
+            ...
+
+    def single_img(self):
+
+        def get_img_res(src: str, wid: SelectableLabel):
+            img_res = ImgRes(src)
+            img_res.sigs.finished_.connect(
+                lambda text: wid.setText(text)
+            )
+            UThreadPool.start(img_res)
+
         row = 0
-
-        for name, value in data.items():
-
-            left_lbl = SelectableLabel(name)
-            flags_l_al = Qt.AlignmentFlag.AlignRight | Qt.AlignmentFlag.AlignTop
-            self.grid_layout.addWidget(left_lbl, row, 0, alignment=flags_l_al)
-
-            self.grid_layout.addItem(QSpacerItem(5, 1), row, 1)
-
-            right_lbl = SelectableLabel(value)
-            flags_r_al = Qt.AlignmentFlag.AlignLeft | Qt.AlignmentFlag.AlignTop
-            self.grid_layout.addWidget(right_lbl, row, 2, alignment=flags_r_al)
-
+        item = self.items[0]
+        labels = {
+            self.name_text: item.filename,
+            self.type_text: item.type_,
+            self.size_text: SharedUtils.get_f_size(item.size),
+            self.src_text: self.lined_text(item.src),
+            self.birth_text: SharedUtils.get_f_date(item.birth),
+            self.mod_text: SharedUtils.get_f_date(item.mod),
+            self.resol_text: self.calc_text,
+        }
+        for k, v in labels.items():
+            left = SelectableLabel(k)
+            self.grid_layout.addWidget(left, row, 0, alignment=Qt.AlignmentFlag.AlignRight)
+            self.grid_layout.addItem(QSpacerItem(10, 0), row, 1)
+            right = SelectableLabel(v)
+            self.grid_layout.addWidget(right, row, 2, alignment=Qt.AlignmentFlag.AlignLeft)
             row += 1
 
-        self.adjustSize()
-        self.finished_.emit()
+        resol_label = self.findChildren(SelectableLabel)[-1]
+        if resol_label:
+            get_img_res(item.src, resol_label)
 
-        if self.base_item.type_ == Static.FOLDER_TYPE:
-            self.calc_task = FolderSizeCounter(self.base_item)
+
+    def single_file(self):
+        row = 0
+        item = self.items[0]
+        labels = {
+            self.name_text: item.filename,
+            self.type_text: item.type_,
+            self.size_text: SharedUtils.get_f_size(item.size),
+            self.src_text: self.lined_text(item.src),
+            self.birth_text: SharedUtils.get_f_date(item.birth),
+            self.mod_text: SharedUtils.get_f_date(item.mod),
+        }
+        for k, v in labels.items():
+            left = SelectableLabel(k)
+            self.grid_layout.addWidget(left, row, 0, alignment=Qt.AlignmentFlag.AlignRight)
+            self.grid_layout.addItem(QSpacerItem(10, 0), row, 1)
+            right = SelectableLabel(v)
+            self.grid_layout.addWidget(right, row, 2, alignment=Qt.AlignmentFlag.AlignLeft)
+            row += 1
+
+    def multiple_items(self):
+        ...
+
+    def lined_text(self, text: str, limit: int = 50):
+        if len(text) > limit:
+            text = [
+                text[i : i + limit]
+                for i in range(0, len(text), limit)
+                ]
+            return "\n".join(text)
         else:
-            self.calc_task = ImgResCounter(self.base_item)
-
-        self.calc_task.sigs.finished_calc.connect(lambda res: self.finalize(res))
-        UThreadPool.start(self.calc_task)
-
-
-    def finalize(self, result: str):
-        if isinstance(result, dict):
-            print(result)
-        else:
-
-            label = self.findChildren(SelectableLabel)[-1]
-            label.setText(result)
+            return text
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() in (Qt.Key.Key_Escape, Qt.Key.Key_Return):

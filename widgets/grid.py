@@ -603,15 +603,13 @@ class Grid(UScrollArea):
         """
         (self.add_fav if offset == 1 else self.del_fav).emit(src)
 
-    def open_win_info(self, src: str):
+    def open_win_info(self, items: list[BaseItem]):
         """
         Открыть окно информации о файле / папке
         """
-        def finalize(win_info: InfoWin):
-            win_info.center(self.window())
-            win_info.show()
-        self.win_info = InfoWin(src)
-        self.win_info.finished_.connect(lambda: finalize(self.win_info))
+        self.win_info = InfoWin(items)
+        self.win_info.center(self.window())
+        self.win_info.show()
 
     def show_in_folder_cmd(self, wid: Thumb):
         """
@@ -920,7 +918,7 @@ class Grid(UScrollArea):
             menu_.addMenu(rating_menu)
 
         info = ItemActions.Info(menu_)
-        info.triggered.connect(lambda: self.open_win_info(wid.src))
+        info.triggered.connect(lambda: self.open_win_info(wid))
         menu_.addAction(info)
 
         menu_.addSeparator()
@@ -1010,7 +1008,9 @@ class Grid(UScrollArea):
 
         if not self.is_grid_search:
             info = GridActions.Info(menu_)
-            info.triggered.connect(lambda: self.open_win_info(self.main_win_item.main_dir))
+            info.triggered.connect(
+                lambda: print("info about grid")
+            )
             menu_.addAction(info)
 
         if self.main_win_item.main_dir in JsonData.favs:
@@ -1211,9 +1211,10 @@ class Grid(UScrollArea):
                 if self.selected_thumbs:
                     self.wid_under_mouse = self.selected_thumbs[-1]
                     self.select_single_thumb(self.wid_under_mouse)
-                    self.open_win_info(self.wid_under_mouse.src)
+                    self.open_win_info([self.wid_under_mouse, ])
                 else:
-                    self.open_win_info(self.main_win_item.main_dir)
+                    print("info about grid")
+                    # self.open_win_info(self.main_win_item.main_dir)
 
             elif a0.key() == Qt.Key.Key_Equal:
                 new_value = Dynamic.pixmap_size_ind + 1

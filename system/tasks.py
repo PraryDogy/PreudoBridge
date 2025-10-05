@@ -733,128 +733,6 @@ class ReadImg(URunnable):
         self.sigs.finished_.emit(image_data)
 
 
-class ImgResCounter(URunnable):
-
-    class Sigs(QObject):
-        finished_info = pyqtSignal(dict)
-        finished_calc = pyqtSignal(str)
-
-    undef_text = "Неизвестно"
-
-    def __init__(self, base_item: BaseItem):
-        super().__init__()
-        self.base_item = base_item
-        self.sigs = ImgResCounter.Sigs()
-
-    def task(self):
-        img_ = ReadImage.read_image(self.base_item.src)
-        if img_ is not None and len(img_.shape) > 1:
-            h, w = img_.shape[0], img_.shape[1]
-            resol= f"{w}x{h}"
-        else:
-            resol = self.undef_text
-        
-        self.sigs.finished_calc.emit(resol)
-
-
-class FolderSizeCounter(URunnable):
-
-    class Sigs(QObject):
-        finished_calc = pyqtSignal(dict)
-
-    undef_text = "Неизвестно"
-
-    def __init__(self, base_item: BaseItem):
-        super().__init__()
-        self.base_item = base_item
-        self.sigs = FolderSizeCounter.Sigs()
-
-    def task(self):
-        try:
-            total = self.get_folder_size()
-        except Exception:
-            Utils.print_error()
-            total = self.undef_text
-
-        self.sigs.finished_calc.emit(total)
-
-    def get_folder_size(self):
-        total_size = 0
-        total_count = 0
-        stack = []
-        stack.append(self.base_item.src)
-        while stack:
-            current_dir = stack.pop()
-            with os.scandir(current_dir) as entries:
-                for entry in entries:
-                    if entry.is_dir():
-                        stack.append(entry.path)
-                    else:
-                        total_size += entry.stat().st_size
-                        total_count += 1
-        return {
-            "size": SharedUtils.get_f_size(total_size),
-            "total": total_count
-        }
-
-
-class FileInfo(URunnable):
-
-    class Sigs(QObject):
-        finished_info = pyqtSignal(dict)
-        finished_calc = pyqtSignal(str)
-
-    ru_folder = "Папка: "
-    calculating = "Вычисляю..."
-    name_text = "Имя: "
-    type_text = "Тип: "
-    size_text = "Размер: "
-    src_text = "Место: "
-    mod_text = "Изменен: "
-    resol_text = "Разрешение: "
-    row_limit = 50
-
-    def __init__(self, base_item: BaseItem):
-        super().__init__()
-        self.base_item = base_item
-        self.signals = FileInfo.Sigs()
-
-    def task(self) -> dict[str, str| int]:
-        if self.base_item.type_ == Static.FOLDER_TYPE:
-            size_ = self.calculating
-            type_ = self.ru_folder
-        else:
-            size_ = SharedUtils.get_f_size(self.base_item.size)
-            type_ = self.base_item.type_
-        
-        name = self.lined_text(self.base_item.filename)
-        src = self.lined_text(self.base_item.src)
-        mod = SharedUtils.get_f_date(self.base_item.mod)
-
-        data = {
-            FileInfo.name_text: name,
-            FileInfo.type_text: type_,
-            FileInfo.mod_text: mod,
-            FileInfo.src_text: src,
-            FileInfo.size_text: size_,
-            }
-        
-        if self.base_item.type_ != Static.FOLDER_TYPE:
-            data.update({FileInfo.resol_text: self.calculating})
-
-        self.signals.finished_info.emit(data)
-
-    def lined_text(self, text: str):
-        if len(text) > FileInfo.row_limit:
-            text = [
-                text[i:i + FileInfo.row_limit]
-                for i in range(0, len(text), FileInfo.row_limit)
-                ]
-            return "\n".join(text)
-        else:
-            return text
-
-
 class FileRemover(URunnable):
 
     class Sigs(QObject):
@@ -1277,3 +1155,125 @@ class CacheDownloader(URunnable):
         img = ReadImage.read_image(base_item.src)
         img = SharedUtils.fit_image(img, ThumbData.DB_IMAGE_SIZE)
         return Utils.write_thumb(base_item.thumb_path, img)
+    
+
+
+class ImgRes(URunnable):
+
+    class Sigs(QObject):
+        finished_ = pyqtSignal(str)
+
+    undef_text = "Неизвестно"
+
+    def __init__(self, src: str):
+        super().__init__()
+        self.src = src
+        self.sigs = ImgRes.Sigs()
+
+    def task(self):
+        img_ = ReadImage.read_image(self.src)
+        if img_ is not None and len(img_.shape) > 1:
+            h, w = img_.shape[0], img_.shape[1]
+            resol= f"{w}x{h}"
+        else:
+            resol = self.undef_text
+        
+        self.sigs.finished_.emit(resol)
+
+
+class FolderSizeCounter(URunnable):
+
+    class Sigs(QObject):
+        finished_calc = pyqtSignal(dict)
+
+    undef_text = "Неизвестно"
+
+    def __init__(self, base_item: BaseItem):
+        super().__init__()
+        self.base_item = base_item
+        self.sigs = FolderSizeCounter.Sigs()
+
+    def task(self):
+        try:
+            total = self.get_folder_size()
+        except Exception:
+            Utils.print_error()
+            total = self.undef_text
+
+        self.sigs.finished_calc.emit(total)
+
+    def get_folder_size(self):
+        total_size = 0
+        total_count = 0
+        stack = []
+        stack.append(self.base_item.src)
+        while stack:
+            current_dir = stack.pop()
+            with os.scandir(current_dir) as entries:
+                for entry in entries:
+                    if entry.is_dir():
+                        stack.append(entry.path)
+                    else:
+                        total_size += entry.stat().st_size
+                        total_count += 1
+        return {
+            "size": SharedUtils.get_f_size(total_size),
+            "total": total_count
+        }
+
+
+class FileInfo(URunnable):
+
+    class Sigs(QObject):
+        finished_info = pyqtSignal(dict)
+        finished_calc = pyqtSignal(str)
+
+    ru_folder = "Папка: "
+    calculating = "Вычисляю..."
+    name_text = "Имя: "
+    type_text = "Тип: "
+    size_text = "Размер: "
+    src_text = "Место: "
+    mod_text = "Изменен: "
+    resol_text = "Разрешение: "
+    row_limit = 50
+
+    def __init__(self, base_item: BaseItem):
+        super().__init__()
+        self.base_item = base_item
+        self.signals = FileInfo.Sigs()
+
+    def task(self) -> dict[str, str| int]:
+        if self.base_item.type_ == Static.FOLDER_TYPE:
+            size_ = self.calculating
+            type_ = self.ru_folder
+        else:
+            size_ = SharedUtils.get_f_size(self.base_item.size)
+            type_ = self.base_item.type_
+        
+        name = self.lined_text(self.base_item.filename)
+        src = self.lined_text(self.base_item.src)
+        mod = SharedUtils.get_f_date(self.base_item.mod)
+
+        data = {
+            FileInfo.name_text: name,
+            FileInfo.type_text: type_,
+            FileInfo.mod_text: mod,
+            FileInfo.src_text: src,
+            FileInfo.size_text: size_,
+            }
+        
+        if self.base_item.type_ != Static.FOLDER_TYPE:
+            data.update({FileInfo.resol_text: self.calculating})
+
+        self.signals.finished_info.emit(data)
+
+    def lined_text(self, text: str):
+        if len(text) > FileInfo.row_limit:
+            text = [
+                text[i:i + FileInfo.row_limit]
+                for i in range(0, len(text), FileInfo.row_limit)
+                ]
+            return "\n".join(text)
+        else:
+            return text
