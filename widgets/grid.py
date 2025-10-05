@@ -918,7 +918,9 @@ class Grid(UScrollArea):
             menu_.addMenu(rating_menu)
 
         info = ItemActions.Info(menu_)
-        info.triggered.connect(lambda: self.open_win_info(wid))
+        info.triggered.connect(
+            lambda: self.open_win_info(self.selected_thumbs)
+        )
         menu_.addAction(info)
 
         menu_.addSeparator()
@@ -1210,8 +1212,7 @@ class Grid(UScrollArea):
             elif a0.key() == Qt.Key.Key_I:
                 if self.selected_thumbs:
                     self.wid_under_mouse = self.selected_thumbs[-1]
-                    self.select_single_thumb(self.wid_under_mouse)
-                    self.open_win_info([self.wid_under_mouse, ])
+                    self.open_win_info(self.selected_thumbs)
                 else:
                     print("info about grid")
                     # self.open_win_info(self.main_win_item.main_dir)

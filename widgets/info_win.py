@@ -70,17 +70,21 @@ class InfoWin(MinMaxDisabledWin):
     birth_text = "Создан:"
     mod_text = "Изменен:"
     resol_text = "Разрешение:"
-    count_text = "Количество:"
+    files_text = "Количество файлов:"
+    folders_text = "Количество папок:"
 
     def __init__(self, items: list[BaseItem]):
         super().__init__()
         self.setWindowTitle(InfoWin.title_text)
         self.set_modality()
 
+        self.left = Qt.AlignmentFlag.AlignLeft
+        self.right = Qt.AlignmentFlag.AlignRight
+        self.top = Qt.AlignmentFlag.AlignTop
         self.items = items
 
         self.grid_layout = QGridLayout()
-        self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.grid_layout.setContentsMargins(10, 10, 10, 10)
         self.grid_layout.setSpacing(5)
         self.setLayout(self.grid_layout)
@@ -89,7 +93,7 @@ class InfoWin(MinMaxDisabledWin):
         self.adjustSize()
 
     def init_ui(self):
-        if len(self.items):
+        if len(self.items) == 1:
             if self.items[0].type_ in Static.ext_all:
                 self.single_img()
             elif self.items[0].type_ == Static.FOLDER_TYPE:
@@ -113,10 +117,10 @@ class InfoWin(MinMaxDisabledWin):
         }
         for k, v in labels.items():
             left = SelectableLabel(k)
-            self.grid_layout.addWidget(left, row, 0, alignment=Qt.AlignmentFlag.AlignRight)
+            self.grid_layout.addWidget(left, row, 0, alignment=self.right | self.top)
             self.grid_layout.addItem(QSpacerItem(10, 0), row, 1)
             right = SelectableLabel(v)
-            self.grid_layout.addWidget(right, row, 2, alignment=Qt.AlignmentFlag.AlignLeft)
+            self.grid_layout.addWidget(right, row, 2, alignment=self.left | self.top)
             row += 1
 
         resol_label = self.findChildren(SelectableLabel)[-1]
@@ -140,34 +144,40 @@ class InfoWin(MinMaxDisabledWin):
         }
         for k, v in labels.items():
             left = SelectableLabel(k)
-            self.grid_layout.addWidget(left, row, 0, alignment=Qt.AlignmentFlag.AlignRight)
+            self.grid_layout.addWidget(left, row, 0, alignment=self.right | self.top)
             self.grid_layout.addItem(QSpacerItem(10, 0), row, 1)
             right = SelectableLabel(v)
-            self.grid_layout.addWidget(right, row, 2, alignment=Qt.AlignmentFlag.AlignLeft)
+            self.grid_layout.addWidget(right, row, 2, alignment=self.left | self.top)
             row += 1
 
     def multiple_items(self):
         row = 0
         labels = {
+            self.src_text: self.lined_text(self.items[0].src),
             self.size_text: self.calc_text,
-            self.count_text: self.calc_text
+            self.files_text: self.calc_text,
+            self.folders_text: self.calc_text
         }
         for k, v in labels.items():
             left = SelectableLabel(k)
-            self.grid_layout.addWidget(left, row, 0, alignment=Qt.AlignmentFlag.AlignRight)
+            self.grid_layout.addWidget(left, row, 0, alignment=self.right | self.top)
             self.grid_layout.addItem(QSpacerItem(10, 0), row, 1)
             right = SelectableLabel(v)
-            self.grid_layout.addWidget(right, row, 2, alignment=Qt.AlignmentFlag.AlignLeft)
+            self.grid_layout.addWidget(right, row, 2, alignment=self.left | self.top)
             row += 1
 
-        size_label = self.findChildren(SelectableLabel)[2]
-        total_label = self.findChildren(SelectableLabel)[-1]
+        total_size = self.findChildren(SelectableLabel)[3]
+        total_files = self.findChildren(SelectableLabel)[5]
+        total_folders = self.findChildren(SelectableLabel)[7]
         self.info_task = MultipleItemsInfo(self.items)
         self.info_task.sigs.finished_.connect(
-            lambda data: size_label.setText(data["total_size"])
+            lambda data: total_size.setText(data["total_size"])
         )
         self.info_task.sigs.finished_.connect(
-            lambda data: total_label.setText(data["total_count"])
+            lambda data: total_files.setText(data["total_files"])
+        )
+        self.info_task.sigs.finished_.connect(
+            lambda data: total_folders.setText(data["total_folders"])
         )
         UThreadPool.start(self.info_task)
 

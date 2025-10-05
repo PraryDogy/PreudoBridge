@@ -1186,57 +1186,56 @@ class MultipleItemsInfo(URunnable):
     class Sigs(QObject):
         finished_ = pyqtSignal(dict)
 
-    err = "Ошибка"
+    err = " Произошла ошибка"
 
     def __init__(self, items: list[BaseItem]):
         super().__init__()
         self.items = items
         self.sigs = MultipleItemsInfo.Sigs()
 
+        self.total_size = 0
+        self.total_files = 0
+        self.total_folders = 0
+
     def task(self):
         try:
-            total_size, total_count = self._task()
+            self._task()
             self.sigs.finished_.emit({
-                "total_size": SharedUtils.get_f_size(total_size),
-                "total_count": total_count
+                "total_size": SharedUtils.get_f_size(self.total_size),
+                "total_files": str(self.total_files),
+                "total_folders": str(self.total_folders)
             })
         except Exception as e:
             print("tasks, MultipleInfoFiles error", e)
+            import traceback
+            print(traceback.format_exc())
             self.sigs.finished_.emit({
                 "total_size": self.err,
-                "total_count": self.err
+                "total_files": self.err,
+                "total_folders": self.err
             })
 
     def _task(self):
-        total_size = 0
-        total_count = 0
-
         for i in self.items:
             if i.type_ == Static.FOLDER_TYPE:
-                size_, count_ = self.get_folder_size(i)
-                total_size += size_
-                total_count += count_
+                self.get_folder_size(i)
+                self.total_folders += 1
             else:
-                total_size += i.size
-                total_count += 1
-
-        return total_size, total_count
+                self.total_size += i.size
+                self.total_files += 1
 
     def get_folder_size(self, base_item: BaseItem):
-        total_size = 0
-        total_count = 0
-        stack = []
-        stack.append(base_item.src)
+        stack = [base_item.src]
         while stack:
             current_dir = stack.pop()
             with os.scandir(current_dir) as entries:
                 for entry in entries:
                     if entry.is_dir():
+                        self.total_folders += 1
                         stack.append(entry.path)
                     else:
-                        total_size += entry.stat().st_size
-                        total_count += 1
-        return total_size, total_count
+                        self.total_files += 1
+                        self.total_size += entry.stat().st_size
 
 
 class FileInfo(URunnable):
