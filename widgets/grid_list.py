@@ -288,7 +288,7 @@ class GridList(QTableView):
     def resize_thumbs(self, *args, **kwargs):
         ...
 
-    def win_info_cmd(self, src_list: list[str]):
+    def open_win_info(self, src_list: list[str]):
         """
         Открыть окно информации о файле / папке
         """
@@ -364,7 +364,7 @@ class GridList(QTableView):
 
         info = ItemActions.Info(menu_)
         info.triggered.connect(
-            lambda: self.win_info_cmd([selected_path, ])
+            lambda: self.open_win_info(urls)
         )
         menu_.addAction(info)
 
@@ -446,7 +446,7 @@ class GridList(QTableView):
 
         info = GridActions.Info(menu_)
         info.triggered.connect(
-            lambda: self.win_info_cmd([selected_path, ])
+            lambda: self.open_win_info([selected_path, ])
         )
         menu_.addAction(info)
 
@@ -578,9 +578,10 @@ class GridList(QTableView):
                 # return
             
             elif a0.key() == Qt.Key.Key_I:
-                index = self.currentIndex()
-                path = self._model.filePath(index)
-                self.win_info_cmd([path, ])
+                urls = self.get_selected_urls()
+                if not urls:
+                    urls = [self.main_win_item.main_dir, ]
+                self.open_win_info(urls)
                 # return
 
             elif a0.key() == Qt.Key.Key_Backspace:
