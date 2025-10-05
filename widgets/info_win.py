@@ -168,8 +168,9 @@ class InfoWin(MinMaxDisabledWin):
 
     def multiple_items(self):
         row = 0
+        root = os.path.dirname(self.items[0].src)
         labels = {
-            self.src_text: self.lined_text(self.items[0].src),
+            self.src_text: self.lined_text(root),
             self.size_text: self.calc_text,
             self.files_text: self.calc_text,
             self.folders_text: self.calc_text
