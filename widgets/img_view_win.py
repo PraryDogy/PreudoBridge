@@ -399,7 +399,7 @@ class ImgViewWin(WinBase):
 
         menu = UMenu(parent=self)
 
-        open_menu = ItemActions.OpenInApp(menu, self.current_path)
+        open_menu = ItemActions.OpenInApp(menu, urls)
         menu.addMenu(open_menu)
 
         menu.addSeparator()
