@@ -888,7 +888,6 @@ class Grid(UScrollArea):
         urls = [i.src for i in self.selected_thumbs]
         urls_img = [i.src for i in self.selected_thumbs if i.src.endswith(Static.ext_all)]
         dirs = [i.src for i in self.selected_thumbs if i.type_ == Static.FOLDER_TYPE]
-        names = [i.filename for i in self.selected_thumbs]
         self.path_bar_update_delayed(wid.src)
 
         view_action = ItemActions.OpenThumb(menu_)
@@ -1003,6 +1002,8 @@ class Grid(UScrollArea):
         self.path_bar_update_delayed(self.main_win_item.main_dir)
         names = [os.path.basename(self.main_win_item.main_dir)]
         urls = [self.main_win_item.main_dir]
+        base_item = BaseItem(self.main_win_item.main_dir)
+        base_item.set_properties()
 
         if not self.is_grid_search and not Dynamic.rating_filter != 0:
             new_folder = GridActions.NewFolder(menu_)
@@ -1012,7 +1013,7 @@ class Grid(UScrollArea):
         if not self.is_grid_search:
             info = GridActions.Info(menu_)
             info.triggered.connect(
-                lambda: print("info about grid")
+                lambda: self.open_win_info([base_item, ])
             )
             menu_.addAction(info)
 
@@ -1215,8 +1216,9 @@ class Grid(UScrollArea):
                     self.wid_under_mouse = self.selected_thumbs[-1]
                     self.open_win_info(self.selected_thumbs)
                 else:
-                    print("info about grid")
-                    # self.open_win_info(self.main_win_item.main_dir)
+                    base_item = BaseItem(self.main_win_item.main_dir)
+                    base_item.set_properties()
+                    self.open_win_info([base_item, ])
 
             elif a0.key() == Qt.Key.Key_Equal:
                 new_value = Dynamic.pixmap_size_ind + 1

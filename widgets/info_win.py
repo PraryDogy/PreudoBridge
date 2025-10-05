@@ -97,7 +97,7 @@ class InfoWin(MinMaxDisabledWin):
             if self.items[0].type_ in Static.ext_all:
                 self.single_img()
             elif self.items[0].type_ == Static.FOLDER_TYPE:
-                ...
+                self.single_folder()
             else:
                 self.single_file()
         else:
@@ -107,7 +107,7 @@ class InfoWin(MinMaxDisabledWin):
         row = 0
         item = self.items[0]
         labels = {
-            self.name_text: item.filename,
+            self.name_text: self.lined_text(item.filename),
             self.type_text: item.type_,
             self.size_text: SharedUtils.get_f_size(item.size),
             self.src_text: self.lined_text(item.src),
@@ -135,7 +135,7 @@ class InfoWin(MinMaxDisabledWin):
         row = 0
         item = self.items[0]
         labels = {
-            self.name_text: item.filename,
+            self.name_text: self.lined_text(item.filename),
             self.type_text: item.type_,
             self.size_text: SharedUtils.get_f_size(item.size),
             self.src_text: self.lined_text(item.src),
@@ -169,6 +169,42 @@ class InfoWin(MinMaxDisabledWin):
         total_size = self.findChildren(SelectableLabel)[3]
         total_files = self.findChildren(SelectableLabel)[5]
         total_folders = self.findChildren(SelectableLabel)[7]
+        self.info_task = MultipleItemsInfo(self.items)
+        self.info_task.sigs.finished_.connect(
+            lambda data: total_size.setText(data["total_size"])
+        )
+        self.info_task.sigs.finished_.connect(
+            lambda data: total_files.setText(data["total_files"])
+        )
+        self.info_task.sigs.finished_.connect(
+            lambda data: total_folders.setText(data["total_folders"])
+        )
+        UThreadPool.start(self.info_task)
+
+    def single_folder(self):
+        row = 0
+        item = self.items[0]
+        labels = {
+            self.name_text: self.lined_text(item.filename),
+            self.type_text: self.ru_folder,
+            self.size_text: self.calc_text,
+            self.src_text: self.lined_text(self.items[0].src),
+            self.birth_text: SharedUtils.get_f_date(item.birth),
+            self.mod_text: SharedUtils.get_f_date(item.mod),
+            self.files_text: self.calc_text,
+            self.folders_text: self.calc_text
+        }
+        for k, v in labels.items():
+            left = SelectableLabel(k)
+            self.grid_layout.addWidget(left, row, 0, alignment=self.right | self.top)
+            self.grid_layout.addItem(QSpacerItem(10, 0), row, 1)
+            right = SelectableLabel(v)
+            self.grid_layout.addWidget(right, row, 2, alignment=self.left | self.top)
+            row += 1
+
+        total_size = self.findChildren(SelectableLabel)[5]
+        total_files = self.findChildren(SelectableLabel)[13]
+        total_folders = self.findChildren(SelectableLabel)[15]
         self.info_task = MultipleItemsInfo(self.items)
         self.info_task.sigs.finished_.connect(
             lambda data: total_size.setText(data["total_size"])
