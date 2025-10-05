@@ -214,16 +214,8 @@ class Thumb(BaseItem, QFrame):
         """
         Позволяет перенести данные из BaseItem в Thumb без set_properties
         """
-        self.src = base_item.src
-        self.filename = base_item.filename
-        self.type_ = base_item.type_
-        self.mod = base_item.mod
-        self.birth = base_item.birth
-        self.size = base_item.size
-        self.rating = base_item.rating
-
-        self.partial_hash = base_item.partial_hash
-        self.thumb_path = base_item.thumb_path
+        for k, v in vars(base_item).items():
+            setattr(self, k, v)
 
     def set_widget_size(self):
         """
