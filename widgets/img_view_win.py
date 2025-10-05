@@ -1,7 +1,7 @@
 import os
 
 from PyQt5.QtCore import QEvent, QPoint, QSize, Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import (QColor, QContextMenuEvent, QImage, QKeyEvent,
+from PyQt5.QtGui import (QColor, QContextMenuEvent, QIcon, QImage, QKeyEvent,
                          QMouseEvent, QPainter, QPaintEvent, QPixmap,
                          QResizeEvent)
 from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QSpacerItem,
@@ -35,13 +35,6 @@ class ImgWid(QLabel):
         self.scale_factor = 1.0
         self.offset = QPoint(0, 0)
         self.setCursor(Qt.CursorShape.ArrowCursor)
-        self.w, self.h = self.width(), self.height()
-
-        self.current_pixmap.scaled(
-            self.w, self.h, 
-            Qt.AspectRatioMode.KeepAspectRatio,
-            Qt.TransformationMode.SmoothTransformation
-            )
         self.update()
 
     def zoom_in(self):
@@ -82,13 +75,16 @@ class ImgWid(QLabel):
     def paintEvent(self, a0: QPaintEvent | None) -> None:
         if self.current_pixmap is not None:
             painter = QPainter(self)
+            if self.width() < 500:
+                flag = Qt.TransformationMode.SmoothTransformation
+            else:
+                flag = Qt.TransformationMode.FastTransformation
             scaled_pixmap = self.current_pixmap.scaled(
                 int(self.w * self.scale_factor),
-                int(self.h * self.scale_factor),
+                int(self.h * self.srcale_factor),
                 Qt.AspectRatioMode.KeepAspectRatio,
-                Qt.TransformationMode.SmoothTransformation
+                flag
                 )
-
             offset = self.offset + QPoint(
                 int((self.width() - scaled_pixmap.width()) / 2),
                 int((self.height() - scaled_pixmap.height()) / 2)
