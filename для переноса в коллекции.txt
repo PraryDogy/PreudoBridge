@@ -1,0 +1,98 @@
+у нас уже есть готовый виджет просмотрщик
+в окне просмотра:
+создай текстовый лейбл "загрузка изображения"
+создай метод restart img_wid
+v_lay в self.v_lay
+
+self.v_layout = QVBoxLayout()
+self.v_layout.setContentsMargins(0, 0, 0, 0)
+self.setLayout(self.v_layout)
+
+self.text_label = QLabel(self)
+self.text_label.setStyleSheet("background: black;")
+self.text_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+def load_thumbnail(self):
+    self.show_text_label("")
+    pixmap = self.current_thumb.base_pixmap
+    if pixmap:
+        self.restart_img_wid(pixmap)
+    else:
+        t = f"{os.path.basename(self.current_path)}\n{self.loading_text}"
+        self.show_text_label(t)
+    self.load_image()
+
+def show_text_label(self, text: str):
+    self.text_label.setText(text)
+    self.text_label.raise_()  # поверх остальных
+    self.text_label.show()
+
+def restart_img_wid(self, pixmap: QPixmap):
+    self.img_wid.hide()  # скрываем старый
+    new_wid = ImgWid()
+    new_wid.mouse_moved.connect(self.show_btns)
+    self.v_layout.addWidget(new_wid)
+    new_wid.set_image(pixmap)
+
+    self.img_wid.deleteLater()
+    self.img_wid = new_wid
+    self.img_wid.show()
+    
+    self.reconn_zoom_btns()
+
+def reconn_zoom_btns(self):
+    self.zoom_btns.cmd_in.disconnect()
+    self.zoom_btns.cmd_out.disconnect()
+    self.zoom_btns.cmd_fit.disconnect()
+    self.zoom_btns.cmd_in.connect(self.img_wid.zoom_in)
+    self.zoom_btns.cmd_out.connect(self.img_wid.zoom_out)
+    self.zoom_btns.cmd_fit.connect(self.img_wid.zoom_reset)
+
+def load_image(self):
+    def fin(image_data: tuple[str, QImage]):
+        src, qimage = image_data
+        self.task_count -= 1
+        if qimage is None:
+            self.show_text_label(self.error_text)
+        elif src == self.current_path:
+            self.restart_img_wid(QPixmap.fromImage(qimage))
+
+    self.task_count += 1
+    task_ = ReadImg(self.current_path)
+    task_.sigs.finished_.connect(fin)
+    UThreadPool.start(task_)
+
+
+def show_btns(self):
+    self.mouse_move_timer.stop()
+    btn = (self.prev_btn, self.next_btn, self.zoom_btns)
+    for i in btn:
+        i.show()
+        i.raise_()
+    self.mouse_move_timer.start(2000)
+
+
+def resizeEvent(self, a0: QResizeEvent | None) -> None:
+    # у нас отложенная инициация дочерних виджетов, поэтому при инициации
+    # окна вылезет ошибка аттрибута
+    try:
+        vertical_center = a0.size().height() // 2 - self.next_btn.height() // 2
+    except AttributeError:
+        return
+
+    right_window_side = a0.size().width() - self.next_btn.width()
+    self.prev_btn.move(30, vertical_center)
+    self.next_btn.move(right_window_side - 30, vertical_center)
+
+    horizontal_center = a0.size().width() // 2 - self.zoom_btns.width() // 2
+    bottom_window_side = a0.size().height() - self.zoom_btns.height()
+    self.zoom_btns.move(horizontal_center, bottom_window_side - 30)
+
+    ImgViewWin.width_ = self.width()
+    ImgViewWin.height_ = self.height()
+
+    self.text_label.resize(self.size())
+
+    self.setFocus()
+
+    return super().resizeEvent(a0)

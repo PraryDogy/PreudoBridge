@@ -321,12 +321,11 @@ class ImgViewWin(WinBase):
     def load_thumbnail(self):
         self.show_text_label("")
         pixmap = self.current_thumb.base_pixmap
-        # if pixmap:
-            # self.restart_img_wid(pixmap)
-        # else:
-        # self.img_wid.scene_.clear()
-        t = f"{os.path.basename(self.current_path)}\n{self.loading_text}"
-        self.show_text_label(t)
+        if pixmap:
+            self.restart_img_wid(pixmap)
+        else:
+            t = f"{os.path.basename(self.current_path)}\n{self.loading_text}"
+            self.show_text_label(t)
         self.load_image()
 
     def show_text_label(self, text: str):
