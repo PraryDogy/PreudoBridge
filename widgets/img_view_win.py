@@ -323,12 +323,19 @@ class ImgViewWin(WinBase):
         self.img_wid.scene_.clear()
 
     def restart_img_wid(self, pixmap: QPixmap):
-        self.img_wid.deleteLater()
-        self.img_wid = ImgWid()
-        self.img_wid.mouse_moved.connect(self.show_btns)
-        self.v_layout.addWidget(self.img_wid)
-        self.img_wid.set_image(pixmap)
+        self.img_wid.hide()  # скрываем старый
+        new_wid = ImgWid()
+        new_wid.mouse_moved.connect(self.show_btns)
+        self.v_layout.addWidget(new_wid)
+        new_wid.set_image(pixmap)
 
+        self.img_wid.deleteLater()
+        self.img_wid = new_wid
+        self.img_wid.show()
+        
+        self.reconn_zoom_btns()
+
+    def reconn_zoom_btns(self):
         self.zoom_btns.cmd_in.disconnect()
         self.zoom_btns.cmd_out.disconnect()
         self.zoom_btns.cmd_fit.disconnect()
@@ -343,10 +350,7 @@ class ImgViewWin(WinBase):
             if qimage is None:
                 self.show_text(self.error_text)
             elif src == self.current_path:
-                QTimer.singleShot(
-                    300,
-                    lambda: self.restart_img_wid(QPixmap.fromImage(qimage))
-                )
+                self.restart_img_wid(QPixmap.fromImage(qimage))
 
         self.task_count += 1
         task_ = ReadImg(self.current_path)
