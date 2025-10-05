@@ -1172,6 +1172,8 @@ class ImgRes(URunnable):
 
     def task(self):
         img_ = ReadImage.read_image(self.src)
+
+        
         if img_ is not None and len(img_.shape) > 1:
             h, w = img_.shape[0], img_.shape[1]
             resol= f"{w}x{h}"

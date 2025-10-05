@@ -101,6 +101,8 @@ class SearchBar(QFrame):
 
         h_lay.addStretch()
 
+        self.hide()
+
     def menu_clicked(self, act: QAction):
         self.filter_bt.setText(act.text())
 
