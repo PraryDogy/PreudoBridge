@@ -257,7 +257,7 @@ class GridList(QTableView):
                 Utils.open_in_def_app(i)
 
     def open_img_view(self, start_url: str, url_to_wid: dict, is_selection: bool):
-        from .img_view_win_new import ImgViewWin
+        from .img_view_win import ImgViewWin
         self.img_view_win = ImgViewWin(start_url, url_to_wid, is_selection)
         self.img_view_win.move_to_url.connect(lambda path: self.select_path(path))
         self.img_view_win.closed.connect(self.img_view_closed)

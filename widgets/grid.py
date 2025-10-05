@@ -580,7 +580,7 @@ class Grid(UScrollArea):
             self.rating_task.sigs.finished_.connect(cmd_)
             UThreadPool.start(self.rating_task)
 
-        from .img_view_win_new import ImgViewWin
+        from .img_view_win import ImgViewWin
         self.win_img_view = ImgViewWin(start_url, url_to_wid, is_selection)
         self.win_img_view.move_to_wid.connect(self.select_single_thumb)
         self.win_img_view.new_rating.connect(set_db_rating)
