@@ -57,7 +57,7 @@ class SelectableLabel(ULabel):
         if os.path.exists(src):
             menu.addSeparator()
 
-            reveal_action = RevealInFinder(menu, [src], 1)
+            reveal_action = RevealInFinder(menu, [src, ])
             menu.addAction(reveal_action)
 
         menu.show_under_cursor()
