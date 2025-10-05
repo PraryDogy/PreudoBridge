@@ -61,8 +61,7 @@ class InfoWin(MinMaxDisabledWin):
     finished_ = pyqtSignal()
     title_text = "Инфо"
     calc_text = "Вычисляю..."
-
-    ru_folder = "Папка: "
+    ru_folder = "Папка"
     name_text = "Имя:"
     type_text = "Тип:"
     size_text = "Размер:"

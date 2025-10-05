@@ -7,11 +7,11 @@ from PyQt5.QtCore import (QDateTime, QDir, QItemSelectionModel, QMimeData,
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QDragEnterEvent,
                          QDragMoveEvent, QDropEvent, QKeyEvent, QPixmap)
 from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QFileSystemModel,
-                             QSplitter, QTableView, QLabel)
+                             QLabel, QSplitter, QTableView)
 
 from cfg import Dynamic, JsonData, Static
+from system.items import BaseItem, CopyItem, MainWinItem
 from system.shared_utils import SharedUtils
-from system.items import CopyItem, MainWinItem
 from system.utils import Utils
 
 from ._base_widgets import UMenu
@@ -288,14 +288,16 @@ class GridList(QTableView):
     def resize_thumbs(self, *args, **kwargs):
         ...
 
-    def win_info_cmd(self, src: str):
+    def win_info_cmd(self, src_list: list[str]):
         """
         Открыть окно информации о файле / папке
         """
-        self.win_info = InfoWin(src)
-        self.win_info.finished_.connect(lambda: self.win_info_fin())
-
-    def win_info_fin(self):
+        base_items = []
+        for i in src_list:
+            base_item = BaseItem(i)
+            base_item.set_properties()
+            base_items.append(base_item)
+        self.win_info = InfoWin(base_items)
         self.win_info.center(self.window())
         self.win_info.show()
 
@@ -361,7 +363,9 @@ class GridList(QTableView):
             menu_.addMenu(open_in_app)
 
         info = ItemActions.Info(menu_)
-        info.triggered.connect(lambda: self.win_info_cmd(selected_path))
+        info.triggered.connect(
+            lambda: self.win_info_cmd([selected_path, ])
+        )
         menu_.addAction(info)
 
         if os.path.isdir(selected_path):
@@ -441,7 +445,9 @@ class GridList(QTableView):
         menu_.addAction(new_folder)
 
         info = GridActions.Info(menu_)
-        info.triggered.connect(lambda: self.win_info_cmd(selected_path))
+        info.triggered.connect(
+            lambda: self.win_info_cmd([selected_path, ])
+        )
         menu_.addAction(info)
 
         if os.path.isdir(selected_path):
@@ -574,7 +580,7 @@ class GridList(QTableView):
             elif a0.key() == Qt.Key.Key_I:
                 index = self.currentIndex()
                 path = self._model.filePath(index)
-                self.win_info_cmd(path)
+                self.win_info_cmd([path, ])
                 # return
 
             elif a0.key() == Qt.Key.Key_Backspace:
