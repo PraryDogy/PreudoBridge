@@ -103,14 +103,8 @@ class ImgWid(QGraphicsView):
     def __init__(self):
         super().__init__()
 
-        # Рендеринг для четких изображений
-        self.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
         self.setMouseTracking(True)
         self.setStyleSheet("background: black; color: white;")
-        # self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
-
-
-        # Скрываем скроллбары
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
