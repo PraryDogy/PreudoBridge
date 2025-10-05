@@ -17,84 +17,6 @@ from .grid import KEY_RATING, RATINGS, Thumb
 from .info_win import InfoWin
 
 
-# class ImgWid(QLabel):
-#     mouse_moved = pyqtSignal()
-
-#     def __init__(self):
-#         super().__init__()
-#         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
-#         self.setMouseTracking(True)
-#         self.setStyleSheet("background: black; color: white;")
-
-#         self.current_pixmap: QPixmap = None
-#         self.scale_factor: float = 1.0
-#         self.offset = QPoint(0, 0)
-#         self.w, self.h = 0, 0
-
-#     def set_image(self, pixmap: QPixmap):
-#         self.current_pixmap = pixmap
-#         self.scale_factor = 1.0
-#         self.offset = QPoint(0, 0)
-#         self.setCursor(Qt.CursorShape.ArrowCursor)
-#         self.update()
-
-#     def zoom_in(self):
-#         self.scale_factor *= 1.1
-#         self.setCursor(Qt.CursorShape.OpenHandCursor)
-#         self.update()
-
-#     def zoom_out(self):
-#         self.scale_factor /= 1.1
-#         self.update()
-
-#     def zoom_reset(self):
-#         self.scale_factor = 1.0
-#         self.offset = QPoint(0, 0)
-#         self.setCursor(Qt.CursorShape.ArrowCursor)
-#         self.update()
-
-#     def mousePressEvent(self, ev: QMouseEvent | None) -> None:
-#         if ev.button() == Qt.MouseButton.LeftButton:
-#             self.last_mouse_pos = ev.pos()
-#         # return super().mousePressEvent(ev)
-
-#     def mouseMoveEvent(self, ev: QMouseEvent | None) -> None:
-#         self.mouse_moved.emit()
-#         if ev.buttons() == Qt.MouseButton.LeftButton and self.scale_factor > 1.0:
-#             delta = ev.pos() - self.last_mouse_pos
-#             self.offset += delta
-#             self.last_mouse_pos = ev.pos()
-#             self.setCursor(Qt.CursorShape.ClosedHandCursor)
-#             self.update()
-#         # return super().mouseMoveEvent(ev)
-
-#     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
-#         if self.scale_factor > 1.0:
-#             self.setCursor(Qt.CursorShape.OpenHandCursor)
-#         # return super().mouseReleaseEvent(ev)
-
-#     def paintEvent(self, a0: QPaintEvent | None) -> None:
-#         if self.current_pixmap is not None:
-#             painter = QPainter(self)
-#             scaled_pixmap = self.current_pixmap.scaled(
-#                 int(self.w * self.scale_factor),
-#                 int(self.h * self.scale_factor),
-#                 Qt.AspectRatioMode.KeepAspectRatio,
-#                 Qt.TransformationMode.SmoothTransformation
-#                 )
-#             offset = self.offset + QPoint(
-#                 int((self.width() - scaled_pixmap.width()) / 2),
-#                 int((self.height() - scaled_pixmap.height()) / 2)
-#                 )
-#             painter.drawPixmap(offset, scaled_pixmap)
-#         return super().paintEvent(a0)
-
-#     def resizeEvent(self, a0: QResizeEvent | None) -> None:
-#         self.w, self.h = self.width(), self.height()
-#         self.update()
-#         return super().resizeEvent(a0)
-
-
 class ImgWid(QGraphicsView):
     mouse_moved = pyqtSignal()
 
@@ -334,6 +256,7 @@ class ImgViewWin(WinBase):
         self.text_label.show()
 
     def restart_img_wid(self, pixmap: QPixmap):
+        self.text_label.hide()
         self.img_wid.hide()  # скрываем старый
         new_wid = ImgWid()
         new_wid.mouse_moved.connect(self.show_btns)
@@ -477,7 +400,6 @@ class ImgViewWin(WinBase):
         ImgViewWin.height_ = self.height()
 
         self.text_label.resize(self.size())
-
         self.setFocus()
 
         return super().resizeEvent(a0)
