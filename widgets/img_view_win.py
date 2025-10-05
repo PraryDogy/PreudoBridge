@@ -124,7 +124,6 @@ class ImgWid(QGraphicsView):
         self.verticalScrollBar().setValue(0)
 
         self.fitInView(self.pixmap_item, Qt.KeepAspectRatio)
-        print(self.scale)
 
     def zoom_in(self):
         self.scale(1.1, 1.1)
@@ -159,6 +158,14 @@ class ImgWid(QGraphicsView):
         self.setCursor(Qt.ArrowCursor)
         self._last_mouse_pos = None
         super().mouseReleaseEvent(event)
+
+    def keyPressEvent(self, event):
+        # Если это стрелки, не обрабатываем их здесь
+        if event.key() in (Qt.Key_Left, Qt.Key_Right, Qt.Key_Up, Qt.Key_Down):
+            event.ignore()  # передаём событие родителю
+            return
+        # для остальных клавиш можно оставить стандартную обработку
+        super().keyPressEvent(event)
 
 
 class ZoomBtns(QFrame):
@@ -453,6 +460,8 @@ class ImgViewWin(WinBase):
 
         ImgViewWin.width_ = self.width()
         ImgViewWin.height_ = self.height()
+
+        self.setFocus()
 
         return super().resizeEvent(a0)
 
