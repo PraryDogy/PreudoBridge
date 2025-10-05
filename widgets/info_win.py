@@ -2,7 +2,8 @@ import os
 
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
-from PyQt5.QtWidgets import QAction, QGridLayout, QLabel, QSpacerItem
+from PyQt5.QtWidgets import (QAction, QGraphicsOpacityEffect, QGridLayout,
+                             QLabel, QSpacerItem)
 
 from cfg import Static
 from system.items import BaseItem
@@ -33,6 +34,11 @@ class SelectableLabel(ULabel):
 
     def select_all_cmd(self, *args):
         self.setSelection(0, len(self.text()))
+
+    def set_transparent_frame(self, value: float):
+        effect = QGraphicsOpacityEffect(self)
+        effect.setOpacity(value)
+        self.setGraphicsEffect(effect)
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
 
@@ -89,7 +95,15 @@ class InfoWin(MinMaxDisabledWin):
         self.setLayout(self.grid_layout)
 
         self.init_ui()
+        self.set_transparent()
         self.adjustSize()
+
+    def set_transparent(self):
+        for i in self.findChildren(SelectableLabel):
+            if i.text() == self.calc_text:
+                i.set_transparent_frame(0.5)
+            else:
+                i.set_transparent_frame(1)
 
     def init_ui(self):
         if len(self.items) == 1:
@@ -127,6 +141,9 @@ class InfoWin(MinMaxDisabledWin):
             self.img_res = ImgRes(item.src)
             self.img_res.sigs.finished_.connect(
                 lambda text: resol_label.setText(text)
+            )
+            self.img_res.sigs.finished_.connect(
+                lambda: self.set_transparent()
             )
             UThreadPool.start(self.img_res)
 
@@ -178,6 +195,9 @@ class InfoWin(MinMaxDisabledWin):
         self.info_task.sigs.finished_.connect(
             lambda data: total_folders.setText(data["total_folders"])
         )
+        self.info_task.sigs.finished_.connect(
+            lambda: self.set_transparent()
+        )
         UThreadPool.start(self.info_task)
 
     def single_folder(self):
@@ -213,6 +233,9 @@ class InfoWin(MinMaxDisabledWin):
         )
         self.info_task.sigs.finished_.connect(
             lambda data: total_folders.setText(data["total_folders"])
+        )
+        self.info_task.sigs.finished_.connect(
+            lambda: self.set_transparent()
         )
         UThreadPool.start(self.info_task)
 
