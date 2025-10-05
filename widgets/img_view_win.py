@@ -1,11 +1,12 @@
 import os
 
-from PyQt5.QtCore import QEvent, QPoint, QSize, Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import (QColor, QContextMenuEvent, QIcon, QImage, QKeyEvent,
-                         QMouseEvent, QPainter, QPaintEvent, QPixmap,
-                         QResizeEvent)
-from PyQt5.QtWidgets import (QFrame, QHBoxLayout, QLabel, QSpacerItem,
-                             QVBoxLayout, QWidget)
+from PyQt5.QtCore import QEvent, QPoint, QPointF, QSize, Qt, QTimer, pyqtSignal
+from PyQt5.QtGui import (QColor, QContextMenuEvent, QCursor, QIcon, QImage,
+                         QKeyEvent, QMouseEvent, QPainter, QPaintEvent,
+                         QPixmap, QResizeEvent, QWheelEvent)
+from PyQt5.QtWidgets import (QFrame, QGraphicsPixmapItem, QGraphicsScene,
+                             QGraphicsView, QHBoxLayout, QLabel, QScrollBar,
+                             QSpacerItem, QVBoxLayout, QWidget)
 
 from cfg import Static
 from system.tasks import ReadImg, UThreadPool
@@ -15,87 +16,144 @@ from .actions import ItemActions
 from .grid import KEY_RATING, RATINGS, Thumb
 from .info_win import InfoWin
 
+# class ImgWid(QLabel):
+#     mouse_moved = pyqtSignal()
 
-class ImgWid(QLabel):
+#     def __init__(self):
+#         super().__init__()
+#         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+#         self.setMouseTracking(True)
+#         self.setStyleSheet("background: black; color: white;")
+
+#         self.current_pixmap: QPixmap = None
+#         self.scale_factor: float = 1.0
+#         self.offset = QPoint(0, 0)
+#         self.w, self.h = 0, 0
+
+#     def set_image(self, pixmap: QPixmap):
+#         self.current_pixmap = pixmap
+#         self.scale_factor = 1.0
+#         self.offset = QPoint(0, 0)
+#         self.setCursor(Qt.CursorShape.ArrowCursor)
+#         self.update()
+
+#     def zoom_in(self):
+#         self.scale_factor *= 1.1
+#         self.setCursor(Qt.CursorShape.OpenHandCursor)
+#         self.update()
+
+#     def zoom_out(self):
+#         self.scale_factor /= 1.1
+#         self.update()
+
+#     def zoom_reset(self):
+#         self.scale_factor = 1.0
+#         self.offset = QPoint(0, 0)
+#         self.setCursor(Qt.CursorShape.ArrowCursor)
+#         self.update()
+
+#     def mousePressEvent(self, ev: QMouseEvent | None) -> None:
+#         if ev.button() == Qt.MouseButton.LeftButton:
+#             self.last_mouse_pos = ev.pos()
+#         # return super().mousePressEvent(ev)
+
+#     def mouseMoveEvent(self, ev: QMouseEvent | None) -> None:
+#         self.mouse_moved.emit()
+#         if ev.buttons() == Qt.MouseButton.LeftButton and self.scale_factor > 1.0:
+#             delta = ev.pos() - self.last_mouse_pos
+#             self.offset += delta
+#             self.last_mouse_pos = ev.pos()
+#             self.setCursor(Qt.CursorShape.ClosedHandCursor)
+#             self.update()
+#         # return super().mouseMoveEvent(ev)
+
+#     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
+#         if self.scale_factor > 1.0:
+#             self.setCursor(Qt.CursorShape.OpenHandCursor)
+#         # return super().mouseReleaseEvent(ev)
+
+#     def paintEvent(self, a0: QPaintEvent | None) -> None:
+#         if self.current_pixmap is not None:
+#             painter = QPainter(self)
+#             scaled_pixmap = self.current_pixmap.scaled(
+#                 int(self.w * self.scale_factor),
+#                 int(self.h * self.scale_factor),
+#                 Qt.AspectRatioMode.KeepAspectRatio,
+#                 Qt.TransformationMode.SmoothTransformation
+#                 )
+#             offset = self.offset + QPoint(
+#                 int((self.width() - scaled_pixmap.width()) / 2),
+#                 int((self.height() - scaled_pixmap.height()) / 2)
+#                 )
+#             painter.drawPixmap(offset, scaled_pixmap)
+#         return super().paintEvent(a0)
+
+#     def resizeEvent(self, a0: QResizeEvent | None) -> None:
+#         self.w, self.h = self.width(), self.height()
+#         self.update()
+#         return super().resizeEvent(a0)
+
+
+
+
+
+class ImgWid(QGraphicsView):
     mouse_moved = pyqtSignal()
 
     def __init__(self):
         super().__init__()
-        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+        # Рендеринг для четких изображений
+        self.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
         self.setMouseTracking(True)
         self.setStyleSheet("background: black; color: white;")
+        self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
 
-        self.current_pixmap: QPixmap = None
+        self.scene_ = QGraphicsScene()
+        self.setScene(self.scene_)
+
+        self.pixmap_item: QGraphicsPixmapItem = None
+        self.last_mouse_pos: QPointF = None
         self.scale_factor: float = 1.0
-        self.offset = QPoint(0, 0)
-        self.w, self.h = 0, 0
 
     def set_image(self, pixmap: QPixmap):
-        self.current_pixmap = pixmap
+        """Устанавливает изображение и масштабирует под окно."""
+        self.scene_.clear()
+        self.pixmap_item = QGraphicsPixmapItem(pixmap)
+        self.scene_.addItem(self.pixmap_item)
+
+        # масштабируем сцену под размер виджета, сохраняя пропорции
+        self.fitInView(self.pixmap_item, Qt.KeepAspectRatio)
         self.scale_factor = 1.0
-        self.offset = QPoint(0, 0)
-        self.setCursor(Qt.CursorShape.ArrowCursor)
-        self.update()
 
     def zoom_in(self):
+        self.scale(1.1, 1.1)
         self.scale_factor *= 1.1
-        self.setCursor(Qt.CursorShape.OpenHandCursor)
-        self.update()
 
     def zoom_out(self):
-        self.scale_factor /= 1.1
-        self.update()
+        self.scale(0.9, 0.9)
+        self.scale_factor *= 0.9
 
     def zoom_reset(self):
+        """Сбрасывает масштаб и центрирует изображение"""
+        self.fitInView(self.pixmap_item, Qt.KeepAspectRatio)
         self.scale_factor = 1.0
-        self.offset = QPoint(0, 0)
-        self.setCursor(Qt.CursorShape.ArrowCursor)
-        self.update()
 
-    def mousePressEvent(self, ev: QMouseEvent | None) -> None:
-        if ev.button() == Qt.MouseButton.LeftButton:
-            self.last_mouse_pos = ev.pos()
-        # return super().mousePressEvent(ev)
+    def mousePressEvent(self, event: QMouseEvent):
+        if event.button() == Qt.LeftButton:
+            self.setCursor(Qt.ClosedHandCursor)
+            self.last_mouse_pos = event.pos()
+        super().mousePressEvent(event)
 
-    def mouseMoveEvent(self, ev: QMouseEvent | None) -> None:
+    def mouseMoveEvent(self, event: QMouseEvent):
         self.mouse_moved.emit()
-        if ev.buttons() == Qt.MouseButton.LeftButton and self.scale_factor > 1.0:
-            delta = ev.pos() - self.last_mouse_pos
-            self.offset += delta
-            self.last_mouse_pos = ev.pos()
-            self.setCursor(Qt.CursorShape.ClosedHandCursor)
-            self.update()
-        # return super().mouseMoveEvent(ev)
+        if event.buttons() & Qt.LeftButton and self.last_mouse_pos:
+            delta = event.pos() - self.last_mouse_pos
+            self.last_mouse_pos = event.pos()
 
-    def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
-        if self.scale_factor > 1.0:
-            self.setCursor(Qt.CursorShape.OpenHandCursor)
-        # return super().mouseReleaseEvent(ev)
-
-    def paintEvent(self, a0: QPaintEvent | None) -> None:
-        if self.current_pixmap is not None:
-            painter = QPainter(self)
-            # включаем антиалиасинг для более плавных краёв
-            # painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
-            # можно также добавить HighQualityAntialiasing
-            # painter.setRenderHint(QPainter.RenderHint.HighQualityAntialiasing, True)
-            scaled_pixmap = self.current_pixmap.scaled(
-                int(self.w * self.scale_factor),
-                int(self.h * self.scale_factor),
-                Qt.AspectRatioMode.KeepAspectRatio,
-                Qt.TransformationMode.SmoothTransformation
-                )
-            offset = self.offset + QPoint(
-                int((self.width() - scaled_pixmap.width()) / 2),
-                int((self.height() - scaled_pixmap.height()) / 2)
-                )
-            painter.drawPixmap(offset, scaled_pixmap)
-        return super().paintEvent(a0)
-
-    def resizeEvent(self, a0: QResizeEvent | None) -> None:
-        self.w, self.h = self.width(), self.height()
-        self.update()
-        return super().resizeEvent(a0)
+            # перемещение через scrollbars
+            self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() - delta.x())
+            self.verticalScrollBar().setValue(self.verticalScrollBar().value() - delta.y())
 
 
 class ZoomBtns(QFrame):
@@ -252,7 +310,7 @@ class ImgViewWin(WinBase):
         pixmap = QPixmap(1, 1)
         pixmap.fill(QColor(0, 0, 0))
         self.img_wid.set_image(pixmap)
-        self.img_wid.setText(text)
+        # self.img_wid.setText(text)
 
     def load_image(self):
 
@@ -263,7 +321,7 @@ class ImgViewWin(WinBase):
                 self.show_text(self.error_text)
             elif src == self.current_path:
                 pixmap = QPixmap.fromImage(qimage)
-                self.img_wid.setText("")
+                # self.img_wid.setText("")
                 self.img_wid.set_image(pixmap)
 
         self.task_count += 1
