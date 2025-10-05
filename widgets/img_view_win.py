@@ -76,9 +76,9 @@ class ImgWid(QLabel):
         if self.current_pixmap is not None:
             painter = QPainter(self)
             # включаем антиалиасинг для более плавных краёв
-            painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
+            # painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
             # можно также добавить HighQualityAntialiasing
-            painter.setRenderHint(QPainter.RenderHint.HighQualityAntialiasing, True)
+            # painter.setRenderHint(QPainter.RenderHint.HighQualityAntialiasing, True)
             scaled_pixmap = self.current_pixmap.scaled(
                 int(self.w * self.scale_factor),
                 int(self.h * self.scale_factor),
