@@ -1172,14 +1172,11 @@ class ImgRes(URunnable):
 
     def task(self):
         img_ = ReadImage.read_image(self.src)
-
-        
         if img_ is not None and len(img_.shape) > 1:
             h, w = img_.shape[0], img_.shape[1]
             resol= f"{w}x{h}"
         else:
             resol = self.undef_text
-        
         self.sigs.finished_.emit(resol)
 
 
@@ -1204,13 +1201,11 @@ class MultipleItemsInfo(URunnable):
             self._task()
             self.sigs.finished_.emit({
                 "total_size": SharedUtils.get_f_size(self.total_size),
-                "total_files": str(self.total_files),
-                "total_folders": str(self.total_folders)
+                "total_files": format(self.total_files, ",").replace(",", " "),
+                "total_folders": format(self.total_folders, ",").replace(",", " ")
             })
         except Exception as e:
             print("tasks, MultipleInfoFiles error", e)
-            import traceback
-            print(traceback.format_exc())
             self.sigs.finished_.emit({
                 "total_size": self.err,
                 "total_files": self.err,
