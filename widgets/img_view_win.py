@@ -4,9 +4,11 @@ from PyQt5.QtCore import QEvent, QPoint, QPointF, QSize, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import (QColor, QContextMenuEvent, QCursor, QIcon, QImage,
                          QKeyEvent, QMouseEvent, QPainter, QPaintEvent,
                          QPixmap, QResizeEvent, QWheelEvent)
-from PyQt5.QtWidgets import (QFrame, QGraphicsPixmapItem, QGraphicsScene,
-                             QGraphicsView, QHBoxLayout, QLabel, QScrollBar,
-                             QSpacerItem, QVBoxLayout, QWidget)
+from PyQt5.QtSvg import QSvgWidget
+from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsPixmapItem,
+                             QGraphicsScene, QGraphicsView, QHBoxLayout,
+                             QLabel, QScrollBar, QSpacerItem, QVBoxLayout,
+                             QWidget)
 
 from cfg import Static
 from system.tasks import ReadImg, UThreadPool
@@ -290,9 +292,9 @@ class ImgViewWin(WinBase):
 
     def hide_btns(self):
         btns = (self.prev_btn, self.next_btn, self.zoom_btns)
-        for i in btns:
-            if i.underMouse():
-                return
+        widget_under_cursor = QApplication.widgetAt(QCursor.pos())
+        if isinstance(widget_under_cursor, QSvgWidget):
+            return
         for i in btns:
             i.hide()
 
