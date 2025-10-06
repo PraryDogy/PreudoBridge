@@ -71,7 +71,6 @@ class ImgWid(QGraphicsView):
             delta = event.pos() - self._last_mouse_pos
             self._last_mouse_pos = event.pos()
 
-            # перемещаем сцену через scrollbars
             self.horizontalScrollBar().setValue(self.horizontalScrollBar().value() - delta.x())
             self.verticalScrollBar().setValue(self.verticalScrollBar().value() - delta.y())
         super().mouseMoveEvent(event)
@@ -305,28 +304,25 @@ class ImgViewWin(WinBase):
     def switch_img(self, offset: int):
         if self.task_count == self.task_count_limit:
             return
-
-        try:
-            current_index: int = self.urls.index(self.current_path)
-        except ValueError:
-            current_index: int = 0
-
-        total_images: int = len(self.urls)
-        new_index: int = (current_index + offset) % total_images
-        self.current_path: str = self.urls[new_index]
+        if self.current_path in self.urls:
+            current_index = self.urls.index(self.current_path)
+        else:
+            current_index = 0
+        total_images = len(self.urls)
+        new_index = (current_index + offset) % total_images
+        self.current_path = self.urls[new_index]
         try:
             self.current_thumb.text_changed.disconnect()
-            self.current_thumb: Thumb = self.url_to_wid.get(self.current_path)
+            self.current_thumb = self.url_to_wid.get(self.current_path)
             self.current_thumb.text_changed.connect(self.set_title)
+            if not self.is_selection:
+                self.move_to_wid.emit(self.current_thumb)
+                self.move_to_url.emit(self.current_path)
+            self.img_wid.setCursor(Qt.CursorShape.ArrowCursor)
+            self.set_title()
+            self.load_thumbnail()
         except RuntimeError:
             print("img view > switch img runtime err")
-            return
-        if not self.is_selection:
-            self.move_to_wid.emit(self.current_thumb)
-            self.move_to_url.emit(self.current_path)
-        self.img_wid.setCursor(Qt.CursorShape.ArrowCursor)
-        self.set_title()
-        self.load_thumbnail()
 
     def show_btns(self):
         self.mouse_move_timer.stop()
