@@ -248,7 +248,7 @@ class ImgViewWin(WinBase):
         self.setWindowTitle(text_)
 
     def load_thumbnail(self):
-        self.show_text_label("")
+        self.text_label.hide()
         pixmap = self.current_thumb.base_pixmap
         if pixmap:
             self.restart_img_wid(pixmap)
@@ -274,15 +274,6 @@ class ImgViewWin(WinBase):
         self.img_wid = new_wid
         self.img_wid.show()
         self.img_wid.lower()
-        # self.reconn_zoom_btns()
-
-    # def reconn_zoom_btns(self):
-    #     self.zoom_btns.cmd_in.disconnect()
-    #     self.zoom_btns.cmd_out.disconnect()
-    #     self.zoom_btns.cmd_fit.disconnect()
-    #     self.zoom_btns.cmd_in.connect(self.img_wid.zoom_in)
-    #     self.zoom_btns.cmd_out.connect(self.img_wid.zoom_out)
-    #     self.zoom_btns.cmd_fit.connect(self.img_wid.zoom_reset)
 
     def load_image(self):
         def fin(image_data: tuple[str, QImage]):
