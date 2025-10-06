@@ -268,6 +268,10 @@ class ImgViewWin(WinBase):
         self.img_wid.show()
         self.img_wid.lower()
 
+        btns = (self.prev_btn, self.next_btn, self.zoom_btns)
+        for i in btns:
+            i.raise_()
+
     def load_image(self):
         def fin(image_data: tuple[str, QImage]):
             src, qimage = image_data
