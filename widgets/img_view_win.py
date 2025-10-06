@@ -53,7 +53,7 @@ class ImgWid(QGraphicsView):
     def zoom_out(self):
         self.scale(0.9, 0.9)
 
-    def zoom_reset(self):
+    def zoom_fit(self):
         if self.pixmap_item:
             self.resetTransform()
             self.fitInView(self.pixmap_item, Qt.KeepAspectRatio)
@@ -217,9 +217,9 @@ class ImgViewWin(WinBase):
         self.next_btn.pressed.connect(lambda: self.switch_img(1))
 
         self.zoom_btns = ZoomBtns(parent=self)
-        self.zoom_btns.zoom_in.connect(self.img_wid.zoom_in)
-        self.zoom_btns.zoom_out.connect(self.img_wid.zoom_out)
-        self.zoom_btns.zoom_fit.connect(self.img_wid.zoom_reset)
+        self.zoom_btns.zoom_in.connect(lambda: self.zoom_cmd("in"))
+        self.zoom_btns.zoom_out.connect(lambda: self.zoom_cmd("out"))
+        self.zoom_btns.zoom_fit.connect(lambda: self.zoom_cmd("fit"))
         self.zoom_btns.zoom_close.connect(self.deleteLater)
 
         self.text_label = QLabel(self)
@@ -233,8 +233,13 @@ class ImgViewWin(WinBase):
 
 # SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM
 
-    def zoom_cmd(self):
-        ...
+    def zoom_cmd(self, flag: str):
+        actions = {
+            "in": self.img_wid.zoom_in,
+            "out": self.img_wid.zoom_out,
+            "fit": self.img_wid.zoom_fit,
+        }
+        actions[flag]()
 
     def set_title(self):
         text_ = os.path.basename(self.current_path)
@@ -347,7 +352,7 @@ class ImgViewWin(WinBase):
                 self.win_info_cmd(self.current_path)
 
             elif ev.key() == Qt.Key.Key_0:
-                self.img_wid.zoom_reset()
+                self.img_wid.zoom_fit()
 
             elif ev.key() == Qt.Key.Key_Equal:
                 self.img_wid.zoom_in()
