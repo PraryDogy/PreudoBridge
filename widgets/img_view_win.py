@@ -20,15 +20,13 @@ from .info_win import InfoWin
 class ImgWid(QGraphicsView):
     mouse_moved = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self, pixmap: QPixmap = None):
         super().__init__()
 
         self.setMouseTracking(True)
-        self.setStyleSheet("background: black; color: white;")
-        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setRenderHints(QPainter.Antialiasing | QPainter.SmoothPixmapTransform)
-        self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
+        self.setStyleSheet("background: black")
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         self.scene_ = QGraphicsScene()
         self.setScene(self.scene_)
@@ -36,16 +34,12 @@ class ImgWid(QGraphicsView):
         self.pixmap_item: QGraphicsPixmapItem = None
         self._last_mouse_pos: QPointF = None
 
-    def set_image(self, pixmap: QPixmap):
-        """Устанавливает изображение и центрирует под окно"""
-        self.scene_.clear()
-        self.pixmap_item = None
-        self.pixmap_item = QGraphicsPixmapItem(pixmap)
-        self.scene_.addItem(self.pixmap_item)
-
-        self.resetTransform()
-        self.horizontalScrollBar().setValue(0)
-        self.verticalScrollBar().setValue(0)
+        if pixmap:
+            self.pixmap_item = QGraphicsPixmapItem(pixmap)
+            self.scene_.addItem(self.pixmap_item)
+            self.resetTransform()
+            self.horizontalScrollBar().setValue(0)
+            self.verticalScrollBar().setValue(0)
 
     def zoom_in(self):
         self.scale(1.1, 1.1)
@@ -206,7 +200,7 @@ class ImgViewWin(WinBase):
         self.v_layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self.v_layout)
 
-        self.img_wid = ImgWid()
+        self.img_wid = ImgWid(QPixmap())
         self.img_wid.mouse_moved.connect(self.show_btns)
         self.v_layout.addWidget(self.img_wid)
 
@@ -265,10 +259,9 @@ class ImgViewWin(WinBase):
     def restart_img_wid(self, pixmap: QPixmap):
         self.text_label.hide()
         self.img_wid.hide()  # скрываем старый
-        new_wid = ImgWid()
+        new_wid = ImgWid(pixmap)
         new_wid.mouse_moved.connect(self.show_btns)
         self.v_layout.addWidget(new_wid)
-        new_wid.set_image(pixmap)
 
         self.img_wid.deleteLater()
         self.img_wid = new_wid
