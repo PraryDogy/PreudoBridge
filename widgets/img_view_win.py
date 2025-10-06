@@ -95,10 +95,10 @@ class ImgWid(QGraphicsView):
 
 
 class ZoomBtns(QFrame):
-    cmd_close = pyqtSignal()
-    cmd_in = pyqtSignal()
-    cmd_out = pyqtSignal()
-    cmd_fit = pyqtSignal()
+    zoom_close = pyqtSignal()
+    zoom_in = pyqtSignal()
+    zoom_out = pyqtSignal()
+    zoom_fit = pyqtSignal()
 
     def __init__(self, parent: QWidget = None) -> None:
         super().__init__(parent)
@@ -115,24 +115,24 @@ class ZoomBtns(QFrame):
 
         h_layout.addSpacerItem(QSpacerItem(5, 0))
 
-        self.zoom_out = USvgSqareWidget(Static.INTERNAL_ICONS.get("zoom_out.svg"), 45)
-        self.zoom_out.mouseReleaseEvent = lambda e: self.cmd_out.emit()
-        h_layout.addWidget(self.zoom_out)
+        zoom_out = USvgSqareWidget(Static.INTERNAL_ICONS.get("zoom_out.svg"), 45)
+        zoom_out.mouseReleaseEvent = lambda e: self.zoom_out.emit()
+        h_layout.addWidget(zoom_out)
         h_layout.addSpacerItem(QSpacerItem(10, 0))
 
-        self.zoom_in = USvgSqareWidget(Static.INTERNAL_ICONS.get("zoom_in.svg"), 45)
-        self.zoom_in.mouseReleaseEvent = lambda e: self.cmd_in.emit()
-        h_layout.addWidget(self.zoom_in)
+        zoom_in = USvgSqareWidget(Static.INTERNAL_ICONS.get("zoom_in.svg"), 45)
+        zoom_in.mouseReleaseEvent = lambda e: self.zoom_in.emit()
+        h_layout.addWidget(zoom_in)
         h_layout.addSpacerItem(QSpacerItem(10, 0))
 
-        self.zoom_fit = USvgSqareWidget(Static.INTERNAL_ICONS.get("zoom_fit.svg"), 45)
-        self.zoom_fit.mouseReleaseEvent = lambda e: self.cmd_fit.emit()
-        h_layout.addWidget(self.zoom_fit)
+        zoom_fit = USvgSqareWidget(Static.INTERNAL_ICONS.get("zoom_fit.svg"), 45)
+        zoom_fit.mouseReleaseEvent = lambda e: self.zoom_fit.emit()
+        h_layout.addWidget(zoom_fit)
         h_layout.addSpacerItem(QSpacerItem(10, 0))
 
-        self.zoom_close = USvgSqareWidget(Static.INTERNAL_ICONS.get("zoom_close.svg"), 45)
-        self.zoom_close.mouseReleaseEvent = lambda e: self.cmd_close.emit()
-        h_layout.addWidget(self.zoom_close)
+        zoom_close = USvgSqareWidget(Static.INTERNAL_ICONS.get("zoom_close.svg"), 45)
+        zoom_close.mouseReleaseEvent = lambda e: self.zoom_close.emit()
+        h_layout.addWidget(zoom_close)
 
         h_layout.addSpacerItem(QSpacerItem(5, 0))
         
@@ -217,10 +217,10 @@ class ImgViewWin(WinBase):
         self.next_btn.pressed.connect(lambda: self.switch_img(1))
 
         self.zoom_btns = ZoomBtns(parent=self)
-        self.zoom_btns.cmd_in.connect(self.img_wid.zoom_in)
-        self.zoom_btns.cmd_out.connect(self.img_wid.zoom_out)
-        self.zoom_btns.cmd_fit.connect(self.img_wid.zoom_reset)
-        self.zoom_btns.cmd_close.connect(self.deleteLater)
+        self.zoom_btns.zoom_in.connect(self.img_wid.zoom_in)
+        self.zoom_btns.zoom_out.connect(self.img_wid.zoom_out)
+        self.zoom_btns.zoom_fit.connect(self.img_wid.zoom_reset)
+        self.zoom_btns.zoom_close.connect(self.deleteLater)
 
         self.text_label = QLabel(self)
         self.text_label.setStyleSheet("background: black;")
@@ -232,6 +232,9 @@ class ImgViewWin(WinBase):
         self.load_thumbnail()
 
 # SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM
+
+    def zoom_cmd(self):
+        ...
 
     def set_title(self):
         text_ = os.path.basename(self.current_path)
@@ -266,15 +269,15 @@ class ImgViewWin(WinBase):
         self.img_wid = new_wid
         self.img_wid.show()
         self.img_wid.lower()
-        self.reconn_zoom_btns()
+        # self.reconn_zoom_btns()
 
-    def reconn_zoom_btns(self):
-        self.zoom_btns.cmd_in.disconnect()
-        self.zoom_btns.cmd_out.disconnect()
-        self.zoom_btns.cmd_fit.disconnect()
-        self.zoom_btns.cmd_in.connect(self.img_wid.zoom_in)
-        self.zoom_btns.cmd_out.connect(self.img_wid.zoom_out)
-        self.zoom_btns.cmd_fit.connect(self.img_wid.zoom_reset)
+    # def reconn_zoom_btns(self):
+    #     self.zoom_btns.cmd_in.disconnect()
+    #     self.zoom_btns.cmd_out.disconnect()
+    #     self.zoom_btns.cmd_fit.disconnect()
+    #     self.zoom_btns.cmd_in.connect(self.img_wid.zoom_in)
+    #     self.zoom_btns.cmd_out.connect(self.img_wid.zoom_out)
+    #     self.zoom_btns.cmd_fit.connect(self.img_wid.zoom_reset)
 
     def load_image(self):
         def fin(image_data: tuple[str, QImage]):
@@ -284,7 +287,6 @@ class ImgViewWin(WinBase):
                 self.show_text_label(self.error_text)
             elif src == self.current_path:
                 self.restart_img_wid(QPixmap.fromImage(qimage))
-
         self.task_count += 1
         task_ = ReadImg(self.current_path)
         task_.sigs.finished_.connect(fin)
@@ -294,12 +296,12 @@ class ImgViewWin(WinBase):
 # GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI
 
     def hide_btns(self):
-        for i in (self.prev_btn, self.next_btn, self.zoom_btns):
+        btns = (self.prev_btn, self.next_btn, self.zoom_btns)
+        for i in btns:
             if i.underMouse():
                 return
-        self.zoom_btns.hide()
-        self.prev_btn.hide()
-        self.next_btn.hide()
+        for i in btns:
+            i.hide()
 
     def switch_img(self, offset: int):
         if self.task_count == self.task_count_limit:
@@ -313,7 +315,7 @@ class ImgViewWin(WinBase):
         self.current_path = self.urls[new_index]
         try:
             self.current_thumb.text_changed.disconnect()
-            self.current_thumb = self.url_to_wid.get(self.current_path)
+            self.current_thumb = self.url_to_wid[self.current_path]
             self.current_thumb.text_changed.connect(self.set_title)
             if not self.is_selection:
                 self.move_to_wid.emit(self.current_thumb)
@@ -321,8 +323,8 @@ class ImgViewWin(WinBase):
             self.img_wid.setCursor(Qt.CursorShape.ArrowCursor)
             self.set_title()
             self.load_thumbnail()
-        except RuntimeError:
-            print("img view > switch img runtime err")
+        except Exception as e:
+            print("widgets ImgViewWin error", e)
 
     def show_btns(self):
         self.mouse_move_timer.stop()
