@@ -222,7 +222,6 @@ class ImgViewWin(WinBase):
 
         self.hide_btns()
         self.resize(ImgViewWin.width_ + 1, ImgViewWin.height_ + 1)
-        self.set_title()
         self.load_thumbnail()
 
 # SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM
@@ -242,6 +241,7 @@ class ImgViewWin(WinBase):
         self.setWindowTitle(text_)
 
     def load_thumbnail(self):
+        self.set_title()
         self.text_label.hide()
         pixmap = self.current_thumb.base_pixmap
         if pixmap:
@@ -310,7 +310,6 @@ class ImgViewWin(WinBase):
                 self.move_to_wid.emit(self.current_thumb)
                 self.move_to_url.emit(self.current_path)
             self.img_wid.setCursor(Qt.CursorShape.ArrowCursor)
-            self.set_title()
             self.load_thumbnail()
         except Exception as e:
             print("widgets ImgViewWin error", e)
