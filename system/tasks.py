@@ -102,7 +102,7 @@ class CopyFilesTask(URunnable):
 
         self.copied_timer = QTimer()
         self.copied_timer.timeout.connect(self.send_copied_kb)
-        self.copied_timer.start(1000)
+        self.copied_timer.start(3000)
 
     def prepare_same_dir(self):
         """
