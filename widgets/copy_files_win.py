@@ -1,6 +1,6 @@
 import os
 
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtCore import Qt, pyqtSignal, QTimer
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QPushButton,
                              QVBoxLayout, QWidget)
 
@@ -163,7 +163,7 @@ class CopyFilesWin(ProgressbarWin):
         self.tsk.sigs.error_win.connect(lambda: self.error_win.emit())
         self.tsk.sigs.replace_files_win.connect(lambda: self.open_replace_files_win())
         self.tsk.sigs.set_counter.connect(lambda data: self.set_counter(*data))
-        UThreadPool.start(self.tsk)
+        QTimer.singleShot(1000, lambda: UThreadPool.start(self.tsk))
 
     def open_replace_files_win(self):
 
