@@ -14,7 +14,8 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
 from cfg import Dynamic, JsonData, Static, ThumbData
 from system.items import BaseItem, CopyItem, MainWinItem, SortItem
 from system.shared_utils import SharedUtils
-from system.tasks import DbItemsLoader, RatingTask, UThreadPool
+from system.tasks import (DbItemsLoader, FinderItemsLoader, RatingTask,
+                          UThreadPool)
 from system.utils import Utils
 
 from ._base_widgets import UMenu, UScrollArea
@@ -313,7 +314,6 @@ class Grid(UScrollArea):
         self.selected_thumbs: list[Thumb] = []
         self.load_images_tasks: list[DbItemsLoader] = []
         self.wid_under_mouse: Thumb = None
-        self.processed_thumbs: list[Thumb] = []
 
         self.main_wid = QWidget()
         self.setWidget(self.main_wid)
@@ -330,16 +330,17 @@ class Grid(UScrollArea):
         self.st_mtime_timer = QTimer(self)
         self.st_mtime_timer.setSingleShot(True)
         self.st_mtime_timer.timeout.connect(lambda: self.watch_dir_changes())
-        self.st_mtime_timer.start(100)
+        if not self.is_grid_search:
+            self.st_mtime_timer.start(100)
 
     def get_st_mtime(self, url: str):
         try:
-            return os.stat(url).st_mtime
+            return int(os.stat(url).st_mtime)
         except Exception:
             print("grid > get st mtime > file not found", url)
             return None
 
-    def watch_dir_changes(self):
+    def watch_dir_changes(self, timeout: int = 1000):
         """
         Проверяет, изменилось ли время модификации главной директории.
         Если изменилось — вызывает обновление изменённых Thumb.
@@ -351,26 +352,55 @@ class Grid(UScrollArea):
         if new_st_mtime and new_st_mtime != self.st_mtime:
             self.st_mtime = new_st_mtime
             self.update_changed_thumbs()
-            self.st_mtime_timer.start(2000)
+        else:
+            self.st_mtime_timer.start(timeout)
 
     def update_changed_thumbs(self) -> list[Thumb]:
         """
         Обходит все Thumb и обновляет те, у которых изменилось
         время модификации. Возвращает список изменённых Thumb.
         """
-        new_len = (
-            i
+        self.st_mtime_timer.stop()
+        hidden_syms = () if JsonData.show_hidden else Static.hidden_file_syms
+        thumbs: list[Thumb] = []
+        new_urls = [
+            i.path
             for i in os.scandir(self.main_win_item.main_dir)
-        )
+            if not i.name.startswith(hidden_syms)
+        ]
 
+        for i in new_urls:
+            if i in self.url_to_wid:
+                wid = self.url_to_wid[i]
+                st_mtime = self.get_st_mtime(i)
+                if st_mtime and st_mtime != wid.mod:
+                    wid.set_properties()
+                    stats = (thumb.rating, thumb.type_, thumb.mod, thumb.size)
+                    wid.blue_text_wid.set_text(*stats)
+                    thumbs.append(thumb)
+            else:
+                thumb = self.new_thumb(i)
+                print(url, "new")
+        for url, wid in self.url_to_wid.items():
+            if url not in new_urls:
+                print(url, "del")
+                self.del_thumb(url)
+        
+        self.sort_thumbs()
+        self.rearrange_thumbs()
+        self.load_vis_images()
+
+    def load_vis_images(self):
+        """
+        Составляет список Thumb виджетов, которые находятся в зоне видимости.   
+        Запускает загрузку изображений через URunnable
+        """
         thumbs: list[Thumb] = []
         for thumb in self.url_to_wid.values():
-            new_mod = self.get_st_mtime(thumb.src)
-            if new_mod and thumb.mod != new_mod:
-                thumb.set_properties()
-                thumb.blue_text_wid.set_text(thumb.rating, thumb.type_, thumb.mod, thumb.size)
+            if not thumb.visibleRegion().isEmpty() and thumb.base_pixmap is None:
                 thumbs.append(thumb)
-        return thumbs
+        if thumbs:
+            self.start_load_images_task(thumbs)
 
     def start_load_images_task(self, thumbs: list[Thumb]):
         """
@@ -387,7 +417,6 @@ class Grid(UScrollArea):
                     thumb.set_image(thumb.qimage)
                     thumb.set_transparent_frame(1.0)
                 thumb.blue_text_wid.set_text(thumb.rating, thumb.type_, thumb.mod, thumb.size)
-                self.processed_thumbs.append(thumb)
             except RuntimeError as e:
                 print("grid > set_thumb_image runtime err")
                 for i in self.load_images_tasks:
@@ -634,22 +663,6 @@ class Grid(UScrollArea):
             self.ensureWidgetVisible(self.selected_thumbs[-1])
 
         def paste_final(urls: list[str]):
-            if CopyItem.get_dest() != self.main_win_item.main_dir:
-                return
-            if not self.cell_to_wid:
-                self.load_st_grid.emit()
-            else:
-                new_thumbs = []
-                self.clear_selected_widgets()
-                for i in urls:
-                    self.del_thumb(i)
-                    thumb = self.new_thumb(i)
-                    self.select_multiple_thumb(thumb)
-                    new_thumbs.append(thumb)
-                self.rearrange_thumbs()
-                self.start_load_images_task(new_thumbs)
-                if self.selected_thumbs:
-                    QTimer.singleShot(50, scroll_to_wid)
             if CopyItem.get_is_cut():
                 CopyItem.reset()
 
@@ -667,43 +680,8 @@ class Grid(UScrollArea):
         self.win_copy.show()
         QTimer.singleShot(300, self.win_copy.raise_)
 
-    def load_vis_images(self):
-        """
-        Составляет список Thumb виджетов, которые находятся в зоне видимости.   
-        Запускает загрузку изображений через URunnable
-        """
-        thumbs: list[Thumb] = []
-        for thumb in self.url_to_wid.values():
-            if not thumb.visibleRegion().isEmpty() and thumb not in self.processed_thumbs:
-                    thumbs.append(thumb)
-        if thumbs:
-            self.start_load_images_task(thumbs)
-
     def remove_files(self, urls: list[str]):
-
-        def finalize(urls: list[str]):
-            # вычисляем индекс последнего выделенного виджета
-            all_urls = list(self.url_to_wid)
-            ind = all_urls.index(self.selected_thumbs[-1].src)
-            for url in urls:
-                self.del_thumb(url)
-            all_urls = list(self.url_to_wid)
-            if all_urls:
-                try:
-                    new_url = all_urls[ind]
-                except IndexError:
-                    new_url = all_urls[-1]
-                new_wid = self.url_to_wid.get(new_url)
-                self.select_single_thumb(new_wid)
-            self.rearrange_thumbs()
-            # например ты удалил виджет и стала видна следующая строка
-            # с виджетами, где картинки еще не были загружены
-            self.load_vis_images()
-            if not self.cell_to_wid:
-                self.load_st_grid.emit()
-
         self.rem_win = RemoveFilesWin(self.main_win_item, urls)
-        self.rem_win.finished_.connect(finalize)
         self.rem_win.center(self.window())
         self.rem_win.show()
 
@@ -803,17 +781,8 @@ class Grid(UScrollArea):
             return None
 
     def open_img_convert_win(self, urls: list[str]):
-
-        def finished_(urls: list[str]):
-            self.convert_win.deleteLater()
-            for i in urls:
-                self.del_thumb(i)
-                self.new_thumb(i)
-            QTimer.singleShot(300, self.load_vis_images)
-
         self.convert_win = ImgConvertWin(urls)
         self.convert_win.center(self.window())
-        self.convert_win.finished_.connect(lambda urls: finished_(urls))
         self.convert_win.show()
 
     def set_transparent_thumbs(self):
@@ -827,30 +796,14 @@ class Grid(UScrollArea):
             root = os.path.dirname(thumb.src)
             new_url = os.path.join(root, filename)
             os.rename(thumb.src, new_url)
-            self.del_thumb(thumb.src)
-            new_thumb = self.new_thumb(new_url)
-            self.sort_thumbs()
-            self.rearrange_thumbs()
-            self.select_single_thumb(new_thumb)
-            QTimer.singleShot(200, lambda: self.ensureWidgetVisible(new_thumb))
-            QTimer.singleShot(300, self.load_vis_images)
 
         name, ext = os.path.splitext(thumb.filename)
         self.rename_win = RenameWin(name)
-        self.rename_win.finished_.connect(lambda text: finished(text, ext))
+        self.rename_win.finished_.connect(finished)
         self.rename_win.center(self.window())
         self.rename_win.show()
 
     def make_archive(self):
-
-        def archive_fin(zip_path):
-            self.del_thumb(zip_path)
-            new_thumb = self.new_thumb(zip_path)
-            self.sort_thumbs()
-            self.rearrange_thumbs()
-            self.select_single_thumb(new_thumb)
-            QTimer.singleShot(200, lambda: self.ensureWidgetVisible(new_thumb))
-            QTimer.singleShot(300, self.load_vis_images)
 
         def rename_fin(text: str):
             archive_name = text
@@ -859,7 +812,7 @@ class Grid(UScrollArea):
             files = [i.src for i in self.selected_thumbs]
             zip_path = os.path.join(self.main_win_item.main_dir, archive_name)
             self.archive_win = ArchiveWin(files, zip_path)
-            self.archive_win.finished_.connect(lambda: archive_fin(zip_path))
+            assert isinstance(self.archive_win, ArchiveWin)
             self.archive_win.center(self.window())
             self.archive_win.show()
 
@@ -980,8 +933,6 @@ class Grid(UScrollArea):
             dest = os.path.join(self.main_win_item.main_dir, name)
             try:
                 os.mkdir(dest)
-                thumb = self.new_thumb(dest)
-                QTimer.singleShot(30, lambda: self.select_single_thumb(thumb))
             except Exception as e:
                 Utils.print_error()
         self.rename_win = RenameWin("")

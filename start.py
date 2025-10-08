@@ -42,7 +42,9 @@ class System_:
                 frame = f"{frame.filename}, line {frame.lineno}"
             except Exception:
                 frame = ""
-            print("Обработан RuntimeError:", frame)
+            import traceback
+            print(traceback.format_exc())
+            # print("Обработан RuntimeError:", frame)
         else:
             sys.__excepthook__(exctype, value, tb)
 
