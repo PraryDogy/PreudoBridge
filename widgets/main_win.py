@@ -155,6 +155,7 @@ class MainWin(WinBase):
         sep_one = USep()
         self.search_bar = SearchBar(self.search_item)
         self.search_bar_sep = USep()
+
         self.grid = Grid(self.main_win_item, False)
         Utils.fill_missing_methods(GridSearch, Grid)
         self.grid_spacer = QWidget()
@@ -243,11 +244,11 @@ class MainWin(WinBase):
             self.path_bar.info_win: self.open_info_win,
 
             # sort_bar
-            self.sort_bar.resize_thumbs: self.grid.resize_thumbs,
-            self.sort_bar.rearrange_thumbs: self.grid.rearrange_thumbs,
-            self.sort_bar.sort_thumbs: self.grid.sort_thumbs,
-            self.sort_bar.load_st_grid: self.load_st_grid,
-            self.sort_bar.open_go_win: self.open_go_win,
+            self.sort_bar.resize_thumbs: lambda: self.grid.resize_thumbs(),
+            self.sort_bar.rearrange_thumbs: lambda: self.grid.rearrange_thumbs(),
+            self.sort_bar.sort_thumbs: lambda: self.grid.sort_thumbs(),
+            self.sort_bar.load_st_grid: lambda: self.load_st_grid(),
+            self.sort_bar.open_go_win: lambda: self.open_go_win(),
         }
 
         for signal, slot in signal_map.items():
