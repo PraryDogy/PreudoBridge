@@ -1,4 +1,4 @@
-from PyQt5.QtCore import QPoint, Qt, pyqtSignal, QTimer
+from PyQt5.QtCore import QPoint, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QWidget
 

@@ -13,10 +13,6 @@ from system.tasks import ImgRes, MultipleItemsInfo, UThreadPool
 from ._base_widgets import MinMaxDisabledWin, UMenu
 from .actions import CopyText, RevealInFinder
 
-# инфо 1 изображение
-# инфо 1 файл
-# инфо несколько файлов и папок (количество и размер)
-
 
 class ULabel(QLabel):
     def __init__(self, text: str):

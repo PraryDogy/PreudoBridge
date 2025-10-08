@@ -13,6 +13,7 @@ from system.shared_utils import SharedUtils
 from system.tasks import CustomSizeCacheCleaner, DataSizeCounter, UThreadPool
 
 from ._base_widgets import MinMaxDisabledWin, USlider, USvgSqareWidget
+# возможно в main win
 from .warn_win import WinWarn
 
 

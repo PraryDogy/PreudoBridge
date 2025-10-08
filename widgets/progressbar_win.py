@@ -2,8 +2,6 @@ from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QVBoxLayout,
                              QWidget)
 
-from cfg import Static
-
 from ._base_widgets import MinMaxDisabledWin, USvgSqareWidget
 
 

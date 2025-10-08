@@ -11,6 +11,7 @@ from system.utils import Utils
 
 from ._base_widgets import UMenu
 from .actions import ItemActions
+# в main_win
 from .rename_win import RenameWin
 
 
