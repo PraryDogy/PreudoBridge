@@ -363,6 +363,7 @@ class Grid(UScrollArea):
             self.st_mtime_timer.start(timeout)
 
     def update_changed_thumbs(self, timeout: int = 1000) -> list[Thumb]:
+        print(123123123)
         """
         Обходит все Thumb и обновляет те, у которых изменилось
         время модификации. Возвращает список изменённых Thumb.
@@ -676,7 +677,10 @@ class Grid(UScrollArea):
             wid.deleteLater()
             flags = Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
             self.grid_layout.setAlignment(flags)
-            del self.mouseMoveEvent
+            try:
+                del self.mouseMoveEvent
+            except AttributeError:
+                ...
 
     def create_no_items_label(self, text: str):
         no_images = NoItemsLabel(text)
