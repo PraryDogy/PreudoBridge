@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
-from system.items import MainWinItem, SearchItem, SortItem
+from system.items import BaseItem, MainWinItem, SearchItem, SortItem
 from system.paletes import UPallete
 from system.shared_utils import SharedUtils
 from system.tasks import AutoCacheCleaner, PathFinderTask, UThreadPool
@@ -22,6 +22,7 @@ from .grid import Grid
 from .grid_list import GridList
 from .grid_search import GridSearch
 from .grid_standart import GridStandart
+from .info_win import InfoWin
 from .path_bar import PathBar
 from .search_bar import SearchBar
 from .settings_win import SettingsWin
@@ -229,6 +230,7 @@ class MainWin(WinBase):
         self.path_bar.load_st_grid.connect(lambda: self.load_st_grid())
         self.path_bar.open_img_view.connect(lambda path: self.open_img_view(path))
         self.path_bar.open_in_new_win.connect(lambda dir: self.open_in_new_win((dir, None)))
+        self.path_bar.info_win.connect(lambda lst: self.open_info_win(lst))
 
         self.sort_bar.resize_thumbs.connect(lambda: self.grid.resize_thumbs())
         self.sort_bar.rearrange_thumbs.connect(lambda: self.grid.rearrange_thumbs())
@@ -356,6 +358,7 @@ class MainWin(WinBase):
         self.grid.level_up.connect(lambda: self.level_up())
         self.grid.new_history_item.connect(lambda dir: self.top_bar.new_history_item(dir))
         self.grid.change_view.connect(lambda: self.change_view_cmd())
+        self.grid.info_win.connect(lambda lst: self.open_info_win(lst))
         self.grid.verticalScrollBar().valueChanged.connect(lambda value: self.scroll_up_toggle(value))
 
     def load_search_grid(self):
@@ -373,6 +376,11 @@ class MainWin(WinBase):
         self.scroll_up.hide()
         self.setup_grid_signals()
         QTimer.singleShot(100, self.grid.setFocus)
+
+    def open_info_win(self, lst: list[BaseItem]):
+        self.info_win = InfoWin(lst)
+        self.info_win.center(self)
+        self.info_win.show()
         
     def download_cache_task(self, dirs: list[str]):
 
