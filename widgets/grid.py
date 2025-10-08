@@ -385,10 +385,10 @@ class Grid(UScrollArea):
                 print(url, "del")
                 self.del_thumb(url)
         
-        self.sort_thumbs()
-        self.rearrange_thumbs()
-        self.load_vis_images()
-        self.st_mtime_timer.start(timeout)
+        # self.sort_thumbs()
+        # self.rearrange_thumbs()
+        # self.load_vis_images()
+        # self.st_mtime_timer.start(timeout)
 
     def load_vis_images(self):
         """
