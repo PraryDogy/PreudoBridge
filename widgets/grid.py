@@ -837,6 +837,13 @@ class Grid(UScrollArea):
 
     def make_archive(self):
 
+        def select(url):
+            if url in self.url_to_wid:
+                self.select_multiple_thumb(self.url_to_wid[url])
+
+        def archive_fin(url):
+            QTimer.singleShot(1050, lambda: select(url))
+
         def rename_fin(text: str):
             archive_name = text
             if not archive_name.endswith((".ZIP", ".zip")):
@@ -846,6 +853,7 @@ class Grid(UScrollArea):
             self.archive_win = ArchiveWin(files, zip_path)
             assert isinstance(self.archive_win, ArchiveWin)
             self.archive_win.center(self.window())
+            self.archive_win.finished_.connect(lambda: archive_fin(zip_path))
             self.archive_win.show()
 
         if len(self.selected_thumbs) == 1:
