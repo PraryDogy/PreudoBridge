@@ -14,8 +14,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
 from cfg import Dynamic, JsonData, Static, ThumbData
 from system.items import BaseItem, CopyItem, MainWinItem, SortItem
 from system.shared_utils import SharedUtils
-from system.tasks import (DbItemsLoader, FinderItemsLoader, RatingTask,
-                          UThreadPool)
+from system.tasks import DbItemsLoader, RatingTask, UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import UMenu, UScrollArea
@@ -355,7 +354,7 @@ class Grid(UScrollArea):
         else:
             self.st_mtime_timer.start(timeout)
 
-    def update_changed_thumbs(self) -> list[Thumb]:
+    def update_changed_thumbs(self, timeout: int = 1000) -> list[Thumb]:
         """
         Обходит все Thumb и обновляет те, у которых изменилось
         время модификации. Возвращает список изменённых Thumb.
@@ -369,17 +368,17 @@ class Grid(UScrollArea):
             if not i.name.startswith(hidden_syms)
         ]
 
-        for i in new_urls:
-            if i in self.url_to_wid:
-                wid = self.url_to_wid[i]
-                st_mtime = self.get_st_mtime(i)
+        for url in new_urls:
+            if url in self.url_to_wid:
+                wid = self.url_to_wid[url]
+                st_mtime = self.get_st_mtime(url)
                 if st_mtime and st_mtime != wid.mod:
                     wid.set_properties()
                     stats = (thumb.rating, thumb.type_, thumb.mod, thumb.size)
                     wid.blue_text_wid.set_text(*stats)
                     thumbs.append(thumb)
             else:
-                thumb = self.new_thumb(i)
+                thumb = self.new_thumb(url)
                 print(url, "new")
         for url, wid in self.url_to_wid.items():
             if url not in new_urls:
@@ -389,6 +388,7 @@ class Grid(UScrollArea):
         self.sort_thumbs()
         self.rearrange_thumbs()
         self.load_vis_images()
+        self.st_mtime_timer.start(timeout)
 
     def load_vis_images(self):
         """
@@ -658,9 +658,6 @@ class Grid(UScrollArea):
         """
         Для cmd v, вставить, dropEvent
         """
-
-        def scroll_to_wid():
-            self.ensureWidgetVisible(self.selected_thumbs[-1])
 
         def paste_final(urls: list[str]):
             if CopyItem.get_is_cut():

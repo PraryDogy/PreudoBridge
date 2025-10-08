@@ -1,4 +1,4 @@
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtCore import Qt, pyqtSignal, QTimer
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
 
@@ -64,7 +64,7 @@ class RemoveFilesWin(MinMaxDisabledWin):
     def cmd_(self, *args):
         self.task_ = FileRemover(self.main_win_item.main_dir, self.urls)
         self.task_.sigs.finished_.connect(self.finalize)
-        UThreadPool.start(runnable=self.task_)
+        QTimer.singleShot(100, lambda: UThreadPool.start(runnable=self.task_))
 
     def finalize(self, *args):
         self.finished_.emit(self.urls)
