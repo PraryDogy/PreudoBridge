@@ -303,14 +303,14 @@ class Grid(UScrollArea):
     total_count_update = pyqtSignal(tuple)
     download_cache = pyqtSignal(list)
 
-    def __init__(self, main_win_item: MainWinItem):
+    def __init__(self, main_win_item: MainWinItem, is_grid_search: bool):
         super().__init__()
         self.setAcceptDrops(True)
         self.setWidgetResizable(True)
         self.horizontalScrollBar().setDisabled(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
-        self.is_grid_search: bool = False
+        self.is_grid_search: bool = is_grid_search
         self.main_win_item: MainWinItem = main_win_item
         self.sort_item: SortItem = 1
         self.col_count: int = 0
@@ -363,7 +363,6 @@ class Grid(UScrollArea):
             self.st_mtime_timer.start(timeout)
 
     def update_changed_thumbs(self, timeout: int = 1000) -> list[Thumb]:
-        print(123123123)
         """
         Обходит все Thumb и обновляет те, у которых изменилось
         время модификации. Возвращает список изменённых Thumb.
@@ -1338,7 +1337,6 @@ class Grid(UScrollArea):
         else:
             CopyItem.set_src(src)
             CopyItem.urls = urls
-            self.paste_files()
         return super().dropEvent(a0)
 
     def deleteLater(self):

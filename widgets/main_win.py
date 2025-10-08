@@ -151,7 +151,7 @@ class MainWin(WinBase):
         sep_one = USep()
         self.search_bar = SearchBar(self.search_item)
         self.search_bar_sep = USep()
-        self.grid = Grid(self.main_win_item)
+        self.grid = Grid(self.main_win_item, False)
         self.grid_spacer = QWidget()
 
         sep_two = USep()
@@ -362,7 +362,9 @@ class MainWin(WinBase):
         QTimer.singleShot(1500, lambda: self.top_bar.search_wid.setDisabled(False))
         self.grid.deleteLater()
         self.top_bar.search_wid.setDisabled(True)
-        self.grid = GridSearch(self.main_win_item, self.sort_item, self.search_item, self)
+        self.grid = GridSearch(
+            self.main_win_item, self.sort_item, self.search_item, self, True
+        )
         self.grid.finished_.connect(self.search_bar.search_bar_search_fin)
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
         self.search_bar.show()
@@ -427,7 +429,7 @@ class MainWin(WinBase):
         self.setWindowTitle(t)
 
         if self.main_win_item.get_view_mode() == 0:
-            self.grid = GridStandart(self.main_win_item)
+            self.grid = GridStandart(self.main_win_item, False)
             self.grid.setParent(self)
             self.grid.sort_item = self.sort_item
             self.grid.load_finder_items()

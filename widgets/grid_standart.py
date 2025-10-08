@@ -13,11 +13,11 @@ from .grid import Grid, NoItemsLabel, Thumb
 
 class GridStandart(Grid):
 
-    def __init__(self, main_win_item: MainWinItem):
+    def __init__(self, main_win_item: MainWinItem, is_grid_search: bool):
         """
         Стандартная сетка виджетов.
         """
-        super().__init__(main_win_item)
+        super().__init__(main_win_item, is_grid_search)
 
         self.load_vis_images_timer = QTimer(self)
         self.load_vis_images_timer.timeout.connect(self.load_vis_images)

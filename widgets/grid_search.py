@@ -76,8 +76,16 @@ class GridSearch(Grid):
     warning_svg = "./icons/warning.svg"
     pause_time_ms = 700
 
-    def __init__(self, main_win_item: MainWinItem, sort_item: SortItem, search_item: SearchItem, parent: QWidget):
-        super().__init__(main_win_item)
+    def __init__(
+            self,
+            main_win_item: MainWinItem,
+            sort_item: SortItem,
+            search_item: SearchItem,
+            parent: QWidget,
+            is_grid_search: bool
+    ):
+
+        super().__init__(main_win_item, is_grid_search)
         self.setParent(parent)
 
         self.search_item = search_item
