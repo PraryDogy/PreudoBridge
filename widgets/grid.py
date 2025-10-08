@@ -405,15 +405,15 @@ class Grid(UScrollArea):
         self.st_mtime_timer.start(timeout)
 
     def load_vis_images(self):
-        """
-        Составляет список Thumb виджетов, которые находятся в зоне видимости.   
-        Запускает загрузку изображений через URunnable
-        """
-        thumbs: list[Thumb] = []
-        parent_rect = self.rect()
+        thumbs = []
+        visible_rect = self.viewport().rect()  # область видимой части
         for thumb in self.url_to_wid.values():
-            widget_rect = thumb.geometry()
-            if parent_rect.intersects(widget_rect) and thumb.base_pixmap is None:
+            widget_rect = self.viewport().mapFromGlobal(
+                thumb.mapToGlobal(thumb.rect().topLeft())
+            )
+            qsize = QSize(thumb.width(), thumb.height())
+            widget_rect = QRect(widget_rect, qsize)
+            if visible_rect.intersects(widget_rect) and thumb.base_pixmap is None:
                 if thumb.filename.endswith(Static.ext_all + Static.ext_app):
                     thumbs.append(thumb)
         if thumbs:
