@@ -688,9 +688,15 @@ class Grid(UScrollArea):
         Для cmd v, вставить, dropEvent
         """
 
+        def select_urls(urls: list[str]):
+            for i in urls:
+                if i in self.url_to_wid:
+                    self.select_multiple_thumb(self.url_to_wid[i])
+
         def paste_final(urls: list[str]):
             if CopyItem.get_is_cut():
                 CopyItem.reset()
+            QTimer.singleShot(1050, lambda: select_urls(urls))
 
         def show_error_win():
             self.win_copy.deleteLater()
@@ -955,10 +961,16 @@ class Grid(UScrollArea):
         menu_.addAction(remove_files)
 
     def new_folder(self):
+
+        def select(url):
+            if url in self.url_to_wid:
+                self.select_multiple_thumb(self.url_to_wid[url])
+
         def fin(name: str):
             dest = os.path.join(self.main_win_item.main_dir, name)
             try:
                 os.mkdir(dest)
+                QTimer.singleShot(1050, lambda: select(dest))
             except Exception as e:
                 Utils.print_error()
         self.rename_win = RenameWin("")
