@@ -1339,7 +1339,7 @@ class Grid(UScrollArea):
             i.setParent(None)
             i.deleteLater()
         return super().closeEvent(a0)
-    
+
     def fill_missing_methods(self, dst_cls):
         for name, func in inspect.getmembers(dst_cls, inspect.isfunction):
             if not hasattr(self, name):

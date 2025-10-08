@@ -156,6 +156,7 @@ class MainWin(WinBase):
         self.search_bar = SearchBar(self.search_item)
         self.search_bar_sep = USep()
         self.grid = Grid(self.main_win_item, False)
+        self.grid.fill_missing_methods(GridSearch) # для запуска приложения
         self.grid_spacer = QWidget()
 
         sep_two = USep()
