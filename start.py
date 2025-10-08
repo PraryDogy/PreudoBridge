@@ -58,19 +58,19 @@ class System_:
             return False
 
 
-# if System_.set_plugin_path():
-#     sys.excepthook = System_.catch_error_in_app
-# else:
-#     sys.excepthook = System_.catch_error_in_proj
+if System_.set_plugin_path():
+    sys.excepthook = System_.catch_error_in_app
+else:
+    sys.excepthook = System_.catch_error_in_proj
 
-def trace_all_exceptions(frame, event, arg):
-    if event == "exception":
-        exc_type, exc_value, tb = arg
-        print(f"Перехвачено исключение: {exc_type.__name__}: {exc_value}")
-        traceback.print_tb(tb)
-    return trace_all_exceptions  # чтобы ловить дальше
+# def trace_all_exceptions(frame, event, arg):
+#     if event == "exception":
+#         exc_type, exc_value, tb = arg
+#         print(f"Перехвачено исключение: {exc_type.__name__}: {exc_value}")
+#         traceback.print_tb(tb)
+#     return trace_all_exceptions  # чтобы ловить дальше
 
-sys.settrace(trace_all_exceptions)
+# sys.settrace(trace_all_exceptions)
 
 
 

@@ -8,12 +8,10 @@ from system.items import BaseItem, MainWinItem
 from system.tasks import FinderItemsLoader, UThreadPool
 from system.utils import Utils
 
-from .grid import Grid, Thumb
+from .grid import Grid, NoItemsLabel, Thumb
 
 
 class GridStandart(Grid):
-    empty_text = "Нет файлов"
-    not_exists_text = "Такой папки не существует. \nВозможно не подключен сетевой диск."
 
     def __init__(self, main_win_item: MainWinItem):
         """
@@ -42,10 +40,7 @@ class GridStandart(Grid):
         - список новых BaseItem, которых не было в базе данных
         """
         if not os.path.exists(self.main_win_item.main_dir):
-            no_images = QLabel(GridStandart.not_exists_text)
-            no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.grid_layout.addWidget(no_images, 0, 0)
+            self.create_no_items_label(NoItemsLabel.no_conn)
             self.mouseMoveEvent = lambda args: None
             return
 
@@ -70,10 +65,7 @@ class GridStandart(Grid):
         Thumb.calc_size()
 
         if not base_items:
-            no_images = QLabel(GridStandart.empty_text)
-            no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-            self.grid_layout.addWidget(no_images, 0, 0)
+            self.create_no_items_label(NoItemsLabel.no_files)
             return
 
         # испускаем сигнал в MainWin для обновления нижнего бара
@@ -82,9 +74,9 @@ class GridStandart(Grid):
 
         self.hide()
         # создаем сетку на основе элементов из FinderItems
-        self.create_thumbs_grid(base_items)
+        self.create_thumbs(base_items)
 
-    def create_thumbs_grid(self, base_items: list[BaseItem]):
+    def create_thumbs(self, base_items: list[BaseItem]):
         self.col_count = self.get_clmn_count()
         self._thumb_index = 0
         self._batch_limit = 50

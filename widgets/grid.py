@@ -277,6 +277,14 @@ class Thumb(BaseItem, QFrame):
         self.setGraphicsEffect(effect)
 
 
+class NoItemsLabel(QLabel):
+    no_files = "Нет файлов"
+    no_conn = "Такой папки не существует. \nВозможно не подключен сетевой диск."
+    def __init__(self, text: str):
+        super().__init__(text)
+        self.setAlignment(Qt.AlignmentFlag.AlignCenter)
+
+
 class Grid(UScrollArea):
     spacing_value = 5
     new_files_key = "new_files"
@@ -384,6 +392,12 @@ class Grid(UScrollArea):
                 del_urls.append(url)
         for url in del_urls:
             self.del_thumb(url)
+
+        if not self.url_to_wid:
+            self.create_no_items_label(NoItemsLabel.no_files)
+        else:
+            self.remove_no_items_label()
+
         self.sort_thumbs()
         self.rearrange_thumbs()
         self.load_vis_images()
@@ -655,6 +669,18 @@ class Grid(UScrollArea):
         for i in self.selected_thumbs:
             CopyItem.urls.append(i.src)
         self.rearrange_thumbs()
+
+    def remove_no_items_label(self):
+        wid = self.main_wid.findChild(NoItemsLabel)
+        if wid:
+            wid.deleteLater()
+            flags = Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
+            self.grid_layout.setAlignment(flags)
+
+    def create_no_items_label(self, text: str):
+        no_images = NoItemsLabel(text)
+        self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.grid_layout.addWidget(no_images, 0, 0)
 
     def paste_files(self):
         """
