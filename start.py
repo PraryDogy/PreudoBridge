@@ -42,13 +42,9 @@ class System_:
                 frame = f"{frame.filename}, line {frame.lineno}"
             except Exception:
                 frame = ""
-            # import traceback
-            # print(traceback.format_exc())
             print("Обработан RuntimeError:", frame)
         else:
             sys.__excepthook__(exctype, value, tb)
-            # import traceback
-            # print(traceback.format_exc())
 
     @classmethod
     def set_plugin_path(cls) -> bool:
@@ -62,10 +58,19 @@ class System_:
             return False
 
 
-if System_.set_plugin_path():
-    sys.excepthook = System_.catch_error_in_app
-else:
-    sys.excepthook = System_.catch_error_in_proj
+# if System_.set_plugin_path():
+#     sys.excepthook = System_.catch_error_in_app
+# else:
+#     sys.excepthook = System_.catch_error_in_proj
+
+def trace_all_exceptions(frame, event, arg):
+    if event == "exception":
+        exc_type, exc_value, tb = arg
+        print(f"Перехвачено исключение: {exc_type.__name__}: {exc_value}")
+        traceback.print_tb(tb)
+    return trace_all_exceptions  # чтобы ловить дальше
+
+sys.settrace(trace_all_exceptions)
 
 
 

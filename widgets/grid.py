@@ -367,28 +367,27 @@ class Grid(UScrollArea):
             for i in os.scandir(self.main_win_item.main_dir)
             if not i.name.startswith(hidden_syms)
         ]
-
+        del_urls = []
         for url in new_urls:
             if url in self.url_to_wid:
-                wid = self.url_to_wid[url]
+                thumb = self.url_to_wid[url]
                 st_mtime = self.get_st_mtime(url)
-                if st_mtime and st_mtime != wid.mod:
-                    wid.set_properties()
+                if st_mtime and st_mtime != thumb.mod:
+                    thumb.set_properties()
                     stats = (thumb.rating, thumb.type_, thumb.mod, thumb.size)
-                    wid.blue_text_wid.set_text(*stats)
+                    thumb.blue_text_wid.set_text(*stats)
                     thumbs.append(thumb)
             else:
                 thumb = self.new_thumb(url)
-                print(url, "new")
-        for url, wid in self.url_to_wid.items():
+        for url, thumb in self.url_to_wid.items():
             if url not in new_urls:
-                print(url, "del")
-                self.del_thumb(url)
-        
-        # self.sort_thumbs()
-        # self.rearrange_thumbs()
-        # self.load_vis_images()
-        # self.st_mtime_timer.start(timeout)
+                del_urls.append(url)
+        for url in del_urls:
+            self.del_thumb(url)
+        self.sort_thumbs()
+        self.rearrange_thumbs()
+        self.load_vis_images()
+        self.st_mtime_timer.start(timeout)
 
     def load_vis_images(self):
         """
