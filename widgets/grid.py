@@ -676,6 +676,7 @@ class Grid(UScrollArea):
             wid.deleteLater()
             flags = Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
             self.grid_layout.setAlignment(flags)
+            del self.mouseMoveEvent
 
     def create_no_items_label(self, text: str):
         no_images = NoItemsLabel(text)
