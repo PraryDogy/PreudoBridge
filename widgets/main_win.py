@@ -274,16 +274,19 @@ class MainWin(WinBase):
 
     def open_img_view(self, data: dict):
         def closed():
-            del self.img_view_win
+            self.img_view_win = None
             gc.collect()
 
         def set_db_rating(data_tuple: tuple):
             rating, url = data_tuple
-            wid = self.url_to_wid.get(url)
+            wid = self.grid.url_to_wid.get(url)
             if not wid:
                 return
             self.rating_task = RatingTask(self.main_win_item.main_dir, wid, rating)
-            self.rating_task.sigs.finished_.connect(lambda: self.set_thumb_rating(wid, rating))
+            assert isinstance(self.rating_task, RatingTask)
+            self.rating_task.sigs.finished_.connect(
+                lambda: self.grid.set_thumb_rating(wid, rating)
+            )
             UThreadPool.start(self.rating_task)
 
         self.img_view_win = ImgViewWin(
@@ -413,7 +416,7 @@ class MainWin(WinBase):
 
     def open_info_win(self, lst: list[BaseItem]):
         self.info_win = InfoWin(lst)
-        self.info_win.center(self)
+        self.info_win.center(self.img_view_win if self.img_view_win else self)
         self.info_win.show()
         
     def download_cache_task(self, dirs: list[str]):
