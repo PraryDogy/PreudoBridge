@@ -261,6 +261,7 @@ class GridList(QTableView):
         self.img_view_win = ImgViewWin(start_url, url_to_wid, is_selection)
         self.img_view_win.move_to_url.connect(lambda path: self.select_path(path))
         self.img_view_win.closed.connect(self.img_view_closed)
+        self.img_view_win.info_win.connect(self.info_win.emit)
         self.img_view_win.center(self.window())
         self.img_view_win.show()
 

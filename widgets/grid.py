@@ -629,6 +629,7 @@ class Grid(UScrollArea):
         self.win_img_view.move_to_wid.connect(self.select_single_thumb)
         self.win_img_view.new_rating.connect(set_db_rating)
         self.win_img_view.closed.connect(on_close)
+        self.win_img_view.info_win.connect(self.info_win.emit)
         self.win_img_view.center(self.window())
         self.win_img_view.show()
 
