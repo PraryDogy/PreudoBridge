@@ -396,9 +396,12 @@ class Grid(UScrollArea):
         Запускает загрузку изображений через URunnable
         """
         thumbs: list[Thumb] = []
+        parent_rect = self.rect()
         for thumb in self.url_to_wid.values():
-            if not thumb.visibleRegion().isEmpty() and thumb.base_pixmap is None:
-                thumbs.append(thumb)
+            widget_rect = thumb.geometry()
+            if parent_rect.intersects(widget_rect) and thumb.base_pixmap is None:
+                if thumb.filename.endswith(Static.ext_all):
+                    thumbs.append(thumb)
         if thumbs:
             self.start_load_images_task(thumbs)
 
