@@ -358,6 +358,11 @@ class Grid(UScrollArea):
         Обходит все Thumb и обновляет те, у которых изменилось
         время модификации. Возвращает список изменённых Thumb.
         """
+        new_len = (
+            i
+            for i in os.scandir(self.main_win_item.main_dir)
+        )
+
         thumbs: list[Thumb] = []
         for thumb in self.url_to_wid.values():
             new_mod = self.get_st_mtime(thumb.src)
