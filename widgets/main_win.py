@@ -275,21 +275,32 @@ class MainWin(WinBase):
         def closed():
             del self.img_view_win
             gc.collect()
-        def set_db_rating(data: tuple):
-            rating, url = data
+
+        def set_db_rating(data_tuple: tuple):
+            rating, url = data_tuple
             wid = self.url_to_wid.get(url)
             if not wid:
                 return
             self.rating_task = RatingTask(self.main_win_item.main_dir, wid, rating)
-            cmd_ = lambda: self.set_thumb_rating(wid, rating)
-            self.rating_task.sigs.finished_.connect(cmd_)
+            self.rating_task.sigs.finished_.connect(lambda: self.set_thumb_rating(wid, rating))
             UThreadPool.start(self.rating_task)
-        self.img_view_win = ImgViewWin(data["start_url"], data["url_to_wid"], data["is_selection"])
-        self.img_view_win.move_to_wid.connect(lambda wid: self.grid.select_single_thumb(wid))
-        self.img_view_win.new_rating.connect(lambda data: set_db_rating(data))
-        self.img_view_win.move_to_url.connect(lambda path: self.grid.select_path(path))
-        self.img_view_win.closed.connect(lambda: closed())
-        self.img_view_win.info_win.connect(lambda lst: self.open_info_win(lst))
+
+        self.img_view_win = ImgViewWin(
+            data["start_url"], data["url_to_wid"], data["is_selection"]
+        )
+
+        # mapping сигнал → слот
+        signal_map = {
+            self.img_view_win.move_to_wid: self.grid.select_single_thumb,
+            self.img_view_win.new_rating: set_db_rating,
+            self.img_view_win.move_to_url: self.grid.select_path,
+            self.img_view_win.closed: closed,
+            self.img_view_win.info_win: self.open_info_win,
+        }
+
+        for signal, slot in signal_map.items():
+            signal.connect(slot)
+
         self.img_view_win.center(self.window())
         self.img_view_win.show()
 
@@ -338,21 +349,6 @@ class MainWin(WinBase):
         self.sett_win.center(self)
         self.sett_win.show()
 
-    # def open_img_view(self, path: str):
-    #     if path.endswith(Static.ext_all):
-    #         url_to_wid = {
-    #             url: wid
-    #             for url, wid in self.grid.url_to_wid.items()
-    #             if wid.src.endswith(Static.ext_all)
-    #         }
-    #         self.grid.open_img_view(path, url_to_wid, False)
-    #     elif os.path.isdir(path):
-    #         self.main_win_item.main_dir = path
-    #         self.top_bar.new_history_item(path)
-    #         self.load_st_grid()
-    #     elif os.path.isfile(path):
-    #         Utils.open_in_def_app(path)
-
     def level_up(self):
         new_main_dir = os.path.dirname(self.main_win_item.main_dir)
         old_main_dir = self.main_win_item.main_dir
@@ -377,21 +373,25 @@ class MainWin(WinBase):
         new_win.show()
 
     def setup_grid_signals(self):
-        self.grid.download_cache.connect(lambda dirs: self.download_cache_task(dirs))
-        self.grid.sort_menu_update.connect(lambda: self.sort_bar.sort_menu_update())
-        self.grid.total_count_update.connect(lambda data: self.sort_bar.sort_frame.set_total_text(data))
-        self.grid.path_bar_update.connect(lambda dir: self.path_bar.update(dir))
-        self.grid.add_fav.connect(lambda dir: self.favs_menu.add_fav(dir))
-        self.grid.del_fav.connect(lambda dir: self.favs_menu.del_fav(dir))
-        self.grid.move_slider.connect(lambda value: self.sort_bar.move_slider(value))
-        self.grid.load_st_grid.connect(lambda: self.load_st_grid())
-        self.grid.open_in_new_win.connect(lambda data: self.open_in_new_win(data))
-        self.grid.level_up.connect(lambda: self.level_up())
-        self.grid.new_history_item.connect(lambda dir: self.top_bar.new_history_item(dir))
-        self.grid.change_view.connect(lambda: self.change_view_cmd())
-        self.grid.info_win.connect(lambda lst: self.open_info_win(lst))
-        self.grid.img_view_win.connect(lambda data: self.open_img_view(data))
-        self.grid.verticalScrollBar().valueChanged.connect(lambda value: self.scroll_up_toggle(value))
+        signal_map = {
+            self.grid.download_cache: self.download_cache_task,
+            self.grid.sort_menu_update: self.sort_bar.sort_menu_update,
+            self.grid.total_count_update: self.sort_bar.sort_frame.set_total_text,
+            self.grid.path_bar_update: self.path_bar.update,
+            self.grid.add_fav: self.favs_menu.add_fav,
+            self.grid.del_fav: self.favs_menu.del_fav,
+            self.grid.move_slider: self.sort_bar.move_slider,
+            self.grid.load_st_grid: self.load_st_grid,
+            self.grid.open_in_new_win: self.open_in_new_win,
+            self.grid.level_up: self.level_up,
+            self.grid.new_history_item: self.top_bar.new_history_item,
+            self.grid.change_view: self.change_view_cmd,
+            self.grid.info_win: self.open_info_win,
+            self.grid.img_view_win: self.open_img_view,
+        }
+        for signal, slot in signal_map.items():
+            signal.connect(slot)
+        self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_toggle)
 
     def load_search_grid(self):
         QTimer.singleShot(1500, lambda: self.top_bar.search_wid.setDisabled(False))
