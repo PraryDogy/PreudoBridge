@@ -31,7 +31,7 @@ class GridStandart(Grid):
         self.load_vis_images_timer.start(1000)
 
     def update_mod_thumbs(self):
-        thumbs = super().update_mod_thumbs()
+        thumbs = super().update_changed_thumbs()
         self.start_load_images_task(thumbs)
 
     def load_finder_items(self):

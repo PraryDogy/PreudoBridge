@@ -86,7 +86,7 @@ class FileNameWidget(QLabel):
         return f"{text[:max_row - 10]}...{text[-7:]}"
 
 
-class RatingWidget(QLabel):
+class BlueTextWid(QLabel):
     text_mod = "Изм: "
     text_size = "Размер: "
     text_loading = "Загрузка..."
@@ -104,9 +104,7 @@ class RatingWidget(QLabel):
             color: {self.blue_color};
             """
         )
-        self._set_text(rating, type_, mod, size)
 
-    def _set_text(self, rating: int, type_: str, mod: int, size: int):
         if rating > 0:
             mod_row = RATINGS.get(rating, "").strip()
         else:
@@ -175,8 +173,8 @@ class Thumb(BaseItem, QFrame):
         self.text_wid.setObjectName(Thumb.text_obj_name)
         self.v_lay.addWidget(self.text_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        self.rating_wid = RatingWidget()
-        self.v_lay.addWidget(self.rating_wid, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.blue_text_wid = BlueTextWid()
+        self.v_lay.addWidget(self.blue_text_wid, alignment=Qt.AlignmentFlag.AlignCenter)
     
     @classmethod
     def calc_size(cls):
@@ -224,7 +222,7 @@ class Thumb(BaseItem, QFrame):
         Устанавливает изображение в дочерних виджетах в соответствии в размерами
         """
         self.text_wid.set_text(self.filename)
-        self.rating_wid.set_text(self.rating, self.type_, self.mod, self.size)
+        self.blue_text_wid.set_text(self.rating, self.type_, self.mod, self.size)
 
         self.setFixedSize(Thumb.thumb_w, Thumb.thumb_h)
         self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
@@ -331,20 +329,17 @@ class Grid(UScrollArea):
         self.st_mtime = self.get_st_mtime(self.main_win_item.main_dir)
         self.st_mtime_timer = QTimer(self)
         self.st_mtime_timer.setSingleShot(True)
-        self.st_mtime_timer.timeout.connect(lambda: self.check_dir_mod())
+        self.st_mtime_timer.timeout.connect(lambda: self.watch_dir_changes())
         self.st_mtime_timer.start(100)
-
-        # print(self.main_win_item.get_urls_to_select())
 
     def get_st_mtime(self, url: str):
         try:
             return os.stat(url).st_mtime
         except Exception:
-            # Utils.print_error()
             print("grid > get st mtime > file not found", url)
             return None
 
-    def check_dir_mod(self):
+    def watch_dir_changes(self):
         """
         Проверяет, изменилось ли время модификации главной директории.
         Если изменилось — вызывает обновление изменённых Thumb.
@@ -353,13 +348,12 @@ class Grid(UScrollArea):
         self.st_mtime_timer.stop()
         new_st_mtime = self.get_st_mtime(self.main_win_item.main_dir)
 
-        if new_st_mtime:
-            if new_st_mtime != self.st_mtime:
-                self.st_mtime = new_st_mtime
-                self.update_mod_thumbs()
+        if new_st_mtime and new_st_mtime != self.st_mtime:
+            self.st_mtime = new_st_mtime
+            self.update_changed_thumbs()
             self.st_mtime_timer.start(2000)
 
-    def update_mod_thumbs(self) -> list[Thumb]:
+    def update_changed_thumbs(self) -> list[Thumb]:
         """
         Обходит все Thumb и обновляет те, у которых изменилось
         время модификации. Возвращает список изменённых Thumb.
@@ -369,7 +363,7 @@ class Grid(UScrollArea):
             new_mod = self.get_st_mtime(thumb.src)
             if new_mod and thumb.mod != new_mod:
                 thumb.set_properties()
-                thumb.rating_wid.set_text(thumb.rating, thumb.type_, thumb.mod, thumb.size)
+                thumb.blue_text_wid.set_text(thumb.rating, thumb.type_, thumb.mod, thumb.size)
                 thumbs.append(thumb)
         return thumbs
 
@@ -387,7 +381,7 @@ class Grid(UScrollArea):
                 if thumb.qimage:
                     thumb.set_image(thumb.qimage)
                     thumb.set_transparent_frame(1.0)
-                thumb.rating_wid.set_text(thumb.rating, thumb.type_, thumb.mod, thumb.size)
+                thumb.blue_text_wid.set_text(thumb.rating, thumb.type_, thumb.mod, thumb.size)
                 self.processed_thumbs.append(thumb)
             except RuntimeError as e:
                 print("grid > set_thumb_image runtime err")
@@ -396,7 +390,7 @@ class Grid(UScrollArea):
 
         def set_loading(thumb: Thumb):
             try:
-                thumb.rating_wid.set_loading(thumb.size)
+                thumb.blue_text_wid.set_loading(thumb.size)
                 thumb.set_transparent_frame(0.5)
             except RuntimeError:
                 print("grid > set_loading runtime err")
@@ -741,7 +735,7 @@ class Grid(UScrollArea):
 
     def set_thumb_rating(self, wid: Thumb, new_rating: int):
         wid.rating = new_rating
-        wid.rating_wid.set_text(wid.rating, wid.type_, wid.mod, wid.size)
+        wid.blue_text_wid.set_text(wid.rating, wid.type_, wid.mod, wid.size)
         wid.text_changed.emit()
 
     def new_rating_multiple_start(self, rating: int):
@@ -796,7 +790,7 @@ class Grid(UScrollArea):
         """
         wid = QApplication.widgetAt(a0.globalPos())
 
-        if isinstance(wid, (FileNameWidget, RatingWidget, ImgFrameWidget)):
+        if isinstance(wid, (FileNameWidget, BlueTextWid, ImgFrameWidget)):
             return wid.parent()
         elif isinstance(wid, (QLabel, QSvgWidget)):
             return wid.parent().parent()
