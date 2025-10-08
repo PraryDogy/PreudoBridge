@@ -1,7 +1,5 @@
-import gc
 import inspect
 import os
-import shutil
 
 from PyQt5.QtCore import (QMimeData, QPoint, QRect, QSize, Qt, QTimer, QUrl,
                           pyqtSignal)
