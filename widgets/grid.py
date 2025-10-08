@@ -1,4 +1,5 @@
 import gc
+import inspect
 import os
 import shutil
 
@@ -302,6 +303,7 @@ class Grid(UScrollArea):
     total_count_update = pyqtSignal(tuple)
     download_cache = pyqtSignal(list)
     info_win = pyqtSignal(list)
+    img_view_win = pyqtSignal(dict)
 
     def __init__(self, main_win_item: MainWinItem, is_grid_search: bool):
         super().__init__()
@@ -609,29 +611,11 @@ class Grid(UScrollArea):
                 Utils.open_in_def_app(i)
 
     def open_img_view(self, start_url: str, url_to_wid: dict, is_selection: bool):
-
-        def on_close():
-            del self.win_img_view
-            gc.collect()
-
-        def set_db_rating(data: tuple):
-            rating, url = data
-            wid = self.url_to_wid.get(url)
-            if not wid:
-                return
-            self.rating_task = RatingTask(self.main_win_item.main_dir, wid, rating)
-            cmd_ = lambda: self.set_thumb_rating(wid, rating)
-            self.rating_task.sigs.finished_.connect(cmd_)
-            UThreadPool.start(self.rating_task)
-
-        from .img_view_win import ImgViewWin
-        self.win_img_view = ImgViewWin(start_url, url_to_wid, is_selection)
-        self.win_img_view.move_to_wid.connect(self.select_single_thumb)
-        self.win_img_view.new_rating.connect(set_db_rating)
-        self.win_img_view.closed.connect(on_close)
-        self.win_img_view.info_win.connect(self.info_win.emit)
-        self.win_img_view.center(self.window())
-        self.win_img_view.show()
+        self.img_view_win.emit({
+            "start_url": start_url,
+            "url_to_wid": url_to_wid,
+            "is_selection": is_selection
+        })
 
     def fav_cmd(self, offset: int, src: str):
         """
@@ -1357,3 +1341,8 @@ class Grid(UScrollArea):
             i.setParent(None)
             i.deleteLater()
         return super().closeEvent(a0)
+    
+    def fill_missing_methods(self, dst_cls):
+        for name, func in inspect.getmembers(dst_cls, inspect.isfunction):
+            if not hasattr(self, name):
+                setattr(self, name, lambda *a, **kw: None)

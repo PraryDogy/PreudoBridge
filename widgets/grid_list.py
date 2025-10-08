@@ -1,4 +1,5 @@
 import gc
+import inspect
 import os
 import sys
 
@@ -92,6 +93,7 @@ class GridList(QTableView):
     finished_ = pyqtSignal()
     download_cache = pyqtSignal(list)
     info_win = pyqtSignal(list)
+    img_view_win = pyqtSignal(dict)
 
     not_exists_text = "Такой папки не существует. \nВозможно не подключен сетевой диск."
     empty_text = "Нет файлов"
@@ -257,17 +259,11 @@ class GridList(QTableView):
                 Utils.open_in_def_app(i)
 
     def open_img_view(self, start_url: str, url_to_wid: dict, is_selection: bool):
-        from .img_view_win import ImgViewWin
-        self.img_view_win = ImgViewWin(start_url, url_to_wid, is_selection)
-        self.img_view_win.move_to_url.connect(lambda path: self.select_path(path))
-        self.img_view_win.closed.connect(self.img_view_closed)
-        self.img_view_win.info_win.connect(self.info_win.emit)
-        self.img_view_win.center(self.window())
-        self.img_view_win.show()
-
-    def img_view_closed(self):
-        del self.img_view_win
-        gc.collect()
+        self.img_view_win.emit({
+            "start_url": start_url,
+            "url_to_wid": url_to_wid,
+            "is_selection": is_selection
+        })
 
     def save_sort_settings(self, index):
         GridList.col = index
@@ -700,3 +696,8 @@ class GridList(QTableView):
             total_width = self.viewport().width()
             other_width = sum(self.columnWidth(i) for i in range(1, self.model().columnCount()))
             self.setColumnWidth(0, total_width - other_width)
+
+    def fill_missing_methods(self, dst_cls):
+        for name, func in inspect.getmembers(dst_cls, inspect.isfunction):
+            if not hasattr(self, name):
+                setattr(self, name, lambda *a, **kw: None)

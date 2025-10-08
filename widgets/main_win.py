@@ -1,3 +1,4 @@
+import gc
 import os
 import subprocess
 
@@ -11,7 +12,8 @@ from cfg import JsonData, Static
 from system.items import BaseItem, MainWinItem, SearchItem, SortItem
 from system.paletes import UPallete
 from system.shared_utils import SharedUtils
-from system.tasks import AutoCacheCleaner, PathFinderTask, UThreadPool
+from system.tasks import (AutoCacheCleaner, PathFinderTask, RatingTask,
+                          UThreadPool)
 from system.utils import Utils
 
 from ._base_widgets import USep, WinBase
@@ -22,6 +24,7 @@ from .grid import Grid
 from .grid_list import GridList
 from .grid_search import GridSearch
 from .grid_standart import GridStandart
+from .img_view_win import ImgViewWin
 from .info_win import InfoWin
 from .path_bar import PathBar
 from .search_bar import SearchBar
@@ -228,7 +231,7 @@ class MainWin(WinBase):
 
         self.path_bar.new_history_item.connect(lambda dir: self.top_bar.new_history_item(dir))
         self.path_bar.load_st_grid.connect(lambda: self.load_st_grid())
-        self.path_bar.open_img_view.connect(lambda path: self.open_img_view(path))
+        self.path_bar.img_view_win.connect(lambda path: self.open_img_view(path))
         self.path_bar.open_in_new_win.connect(lambda dir: self.open_in_new_win((dir, None)))
         self.path_bar.info_win.connect(lambda lst: self.open_info_win(lst))
 
@@ -257,10 +260,27 @@ class MainWin(WinBase):
         if not MainWin.first_load:
             self.grid.reload_rubber()
 
-    def exactly_clicked(self):
-        old_text = self.top_bar.search_wid.text()
-        self.top_bar.search_wid.setText("")
-        self.top_bar.search_wid.setText(old_text)
+    def open_img_view(self, data: dict):
+        def closed():
+            del self.img_view_win
+            gc.collect()
+        def set_db_rating(data: tuple):
+            rating, url = data
+            wid = self.url_to_wid.get(url)
+            if not wid:
+                return
+            self.rating_task = RatingTask(self.main_win_item.main_dir, wid, rating)
+            cmd_ = lambda: self.set_thumb_rating(wid, rating)
+            self.rating_task.sigs.finished_.connect(cmd_)
+            UThreadPool.start(self.rating_task)
+        self.img_view_win = ImgViewWin(data["start_url"], data["url_to_wid"], data["is_selection"])
+        self.img_view_win.move_to_wid.connect(lambda wid: self.grid.select_single_thumb(wid))
+        self.img_view_win.new_rating.connect(lambda data: set_db_rating(data))
+        self.img_view_win.move_to_url.connect(lambda path: self.grid.select_path(path))
+        self.img_view_win.closed.connect(lambda: closed())
+        self.img_view_win.info_win.connect(lambda lst: self.open_info_win(lst))
+        self.img_view_win.center(self.window())
+        self.img_view_win.show()
 
     def open_go_win(self):
         if JsonData.go_to_now:
@@ -307,20 +327,20 @@ class MainWin(WinBase):
         self.sett_win.center(self)
         self.sett_win.show()
 
-    def open_img_view(self, path: str):
-        if path.endswith(Static.ext_all):
-            url_to_wid = {
-                url: wid
-                for url, wid in self.grid.url_to_wid.items()
-                if wid.src.endswith(Static.ext_all)
-            }
-            self.grid.open_img_view(path, url_to_wid, False)
-        elif os.path.isdir(path):
-            self.main_win_item.main_dir = path
-            self.top_bar.new_history_item(path)
-            self.load_st_grid()
-        elif os.path.isfile(path):
-            Utils.open_in_def_app(path)
+    # def open_img_view(self, path: str):
+    #     if path.endswith(Static.ext_all):
+    #         url_to_wid = {
+    #             url: wid
+    #             for url, wid in self.grid.url_to_wid.items()
+    #             if wid.src.endswith(Static.ext_all)
+    #         }
+    #         self.grid.open_img_view(path, url_to_wid, False)
+    #     elif os.path.isdir(path):
+    #         self.main_win_item.main_dir = path
+    #         self.top_bar.new_history_item(path)
+    #         self.load_st_grid()
+    #     elif os.path.isfile(path):
+    #         Utils.open_in_def_app(path)
 
     def level_up(self):
         new_main_dir = os.path.dirname(self.main_win_item.main_dir)
@@ -359,6 +379,7 @@ class MainWin(WinBase):
         self.grid.new_history_item.connect(lambda dir: self.top_bar.new_history_item(dir))
         self.grid.change_view.connect(lambda: self.change_view_cmd())
         self.grid.info_win.connect(lambda lst: self.open_info_win(lst))
+        self.grid.img_view_win.connect(lambda data: self.open_img_view(data))
         self.grid.verticalScrollBar().valueChanged.connect(lambda value: self.scroll_up_toggle(value))
 
     def load_search_grid(self):
@@ -368,6 +389,7 @@ class MainWin(WinBase):
         self.grid = GridSearch(
             self.main_win_item, self.sort_item, self.search_item, self, True
         )
+        self.grid.fill_missing_methods(GridList)
         self.grid.finished_.connect(self.search_bar.search_bar_search_fin)
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
         self.search_bar.show()
@@ -438,6 +460,7 @@ class MainWin(WinBase):
 
         if self.main_win_item.get_view_mode() == 0:
             self.grid = GridStandart(self.main_win_item, False)
+            self.grid.fill_missing_methods(GridList)
             self.grid.setParent(self)
             self.grid.sort_item = self.sort_item
             self.grid.load_finder_items()
@@ -445,6 +468,7 @@ class MainWin(WinBase):
 
         elif self.main_win_item.get_view_mode() == 1:
             self.grid = GridList(self.main_win_item)
+            self.grid.fill_missing_methods(Grid)
             self.grid.setParent(self)
             self.grid.set_first_col_width()
             self.disable_wids(True)

@@ -201,7 +201,7 @@ class PathItem(QWidget):
 class PathBar(QWidget):
     new_history_item = pyqtSignal(str)
     load_st_grid = pyqtSignal()
-    open_img_view = pyqtSignal(str)
+    img_view_win = pyqtSignal(str)
     open_in_new_win = pyqtSignal(str)
     info_win = pyqtSignal(list)
     last_item_limit = 40
@@ -243,7 +243,7 @@ class PathBar(QWidget):
             cmd_ = lambda dir: self.new_history_item.emit(dir)
             path_item.new_history_item.connect(cmd_)
             path_item.load_st_grid.connect(self.load_st_grid.emit)
-            path_item.open_img_view.connect(lambda dir: self.open_img_view.emit(dir))
+            path_item.open_img_view.connect(lambda dir: self.img_view_win.emit(dir))
             path_item.open_in_new_win.connect(lambda dir: self.open_in_new_win.emit(dir))
             path_item.info_win.connect(lambda lst: self.info_win.emit(lst))
             path_item.img_wid.load(Static.INTERNAL_ICONS.get("folder.svg"))
