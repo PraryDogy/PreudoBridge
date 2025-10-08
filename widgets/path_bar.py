@@ -107,9 +107,6 @@ class PathItem(QWidget):
         base_item.set_properties()
         self.info_win.emit([base_item, ])
 
-        self.win_info.center(self.window())
-        self.win_info.show()
-
     def mouseDoubleClickEvent(self, a0):
         self.open_img_view.emit(self.dir)
         return super().mouseDoubleClickEvent(a0)
