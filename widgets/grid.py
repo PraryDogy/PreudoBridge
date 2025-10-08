@@ -840,7 +840,10 @@ class Grid(UScrollArea):
 
         def select(url):
             if url in self.url_to_wid:
-                self.select_single_thumb(self.url_to_wid[url])
+                wid = self.url_to_wid[url]
+                wid.set_properties()
+                wid.blue_text_wid.set_text(wid.rating, wid.type_, wid.mod, wid.size)
+                self.select_single_thumb(wid)
 
         def archive_fin(url):
             QTimer.singleShot(1050, lambda: select(url))
