@@ -1,4 +1,5 @@
 import hashlib
+import inspect
 import io
 import os
 import plistlib
@@ -260,3 +261,9 @@ class Utils:
             aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio,
             transformMode=Qt.TransformationMode.SmoothTransformation
         )
+    
+    @classmethod
+    def fill_missing_methods(cls, from_cls: callable, to_cls: callable):
+        for name, func in inspect.getmembers(from_cls, inspect.isfunction):
+            if not hasattr(to_cls, name):
+                setattr(to_cls, name, lambda *a, **kw: None)

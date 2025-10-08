@@ -21,7 +21,7 @@ from .cache_download_win import CacheDownloadWin
 from .favs_menu import FavsMenu
 from .go_win import GoToWin
 from .grid import Grid
-from .grid_list import GridList
+from .table_view import TableView
 from .grid_search import GridSearch
 from .grid_standart import GridStandart
 from .img_view_win import ImgViewWin
@@ -156,7 +156,7 @@ class MainWin(WinBase):
         self.search_bar = SearchBar(self.search_item)
         self.search_bar_sep = USep()
         self.grid = Grid(self.main_win_item, False)
-        self.grid.fill_missing_methods(GridSearch) # для запуска приложения
+        Utils.fill_missing_methods(GridSearch, Grid)
         self.grid_spacer = QWidget()
 
         sep_two = USep()
@@ -254,7 +254,7 @@ class MainWin(WinBase):
             signal.connect(slot)
 
     def new_folder(self):
-        if isinstance(self.grid, (GridStandart, GridList)):
+        if isinstance(self.grid, (GridStandart, TableView)):
             self.grid.new_folder()
 
     def change_theme(self):
@@ -401,7 +401,7 @@ class MainWin(WinBase):
         self.grid = GridSearch(
             self.main_win_item, self.sort_item, self.search_item, self, True
         )
-        self.grid.fill_missing_methods(GridList)
+        Utils.fill_missing_methods(TableView, Grid)
         self.grid.finished_.connect(self.search_bar.search_bar_search_fin)
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
         self.search_bar.show()
@@ -472,15 +472,15 @@ class MainWin(WinBase):
 
         if self.main_win_item.get_view_mode() == 0:
             self.grid = GridStandart(self.main_win_item, False)
-            self.grid.fill_missing_methods(GridList)
+            Utils.fill_missing_methods(TableView, Grid)
             self.grid.setParent(self)
             self.grid.sort_item = self.sort_item
             self.grid.load_finder_items()
             self.disable_wids(False)
 
         elif self.main_win_item.get_view_mode() == 1:
-            self.grid = GridList(self.main_win_item)
-            self.grid.fill_missing_methods(Grid)
+            self.grid = TableView(self.main_win_item)
+            Utils.fill_missing_methods(Grid, TableView)
             self.grid.setParent(self)
             self.grid.set_first_col_width()
             self.disable_wids(True)

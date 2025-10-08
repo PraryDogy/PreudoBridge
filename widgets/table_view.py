@@ -75,7 +75,7 @@ class MyFileSystemModel(QFileSystemModel):
         return super().data(index, role)
 
 
-class GridList(QTableView):
+class TableView(QTableView):
     col: int = 0
     order: int = 0
     sizes: list = [250, 100, 100, 150]
@@ -137,9 +137,9 @@ class GridList(QTableView):
             no_images.show()
             return
 
-        self.sortByColumn(GridList.col, GridList.order)
+        self.sortByColumn(TableView.col, TableView.order)
         for i in range(0, 4):
-            self.setColumnWidth(i, GridList.sizes[i])
+            self.setColumnWidth(i, TableView.sizes[i])
 
         self._model.directoryLoaded.connect(self.set_url_to_index_)
 
@@ -191,7 +191,7 @@ class GridList(QTableView):
     def set_first_col_width(self):
         left_menu_w = self.window().findChild(QSplitter).sizes()[0]
         win_w = self.window().width()
-        columns_w = sum(GridList.sizes[1:])
+        columns_w = sum(TableView.sizes[1:])
         new_w = win_w - left_menu_w - columns_w - 30
         self.setColumnWidth(0, new_w)
 
@@ -267,9 +267,9 @@ class GridList(QTableView):
         })
 
     def save_sort_settings(self, index):
-        GridList.col = index
-        GridList.order = self.horizontalHeader().sortIndicatorOrder()
-        self.sortByColumn(GridList.col, GridList.order)
+        TableView.col = index
+        TableView.order = self.horizontalHeader().sortIndicatorOrder()
+        self.sortByColumn(TableView.col, TableView.order)
 
     def toggle_is_cut(self, value: bool):
         Dynamic.is_cut = value
@@ -697,8 +697,3 @@ class GridList(QTableView):
             total_width = self.viewport().width()
             other_width = sum(self.columnWidth(i) for i in range(1, self.model().columnCount()))
             self.setColumnWidth(0, total_width - other_width)
-
-    def fill_missing_methods(self, dst_cls):
-        for name, func in inspect.getmembers(dst_cls, inspect.isfunction):
-            if not hasattr(self, name):
-                setattr(self, name, lambda *a, **kw: None)
