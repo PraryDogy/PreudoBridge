@@ -200,44 +200,57 @@ class MainWin(WinBase):
         UThreadPool.start(self.clear_data)
 
     def setup_signals(self):
-        self.splitter.splitterMoved.connect(lambda: self.resize_timer.start(MainWin.resize_ms))
+        signal_map = {
+            # splitter
+            self.splitter.splitterMoved: lambda: self.resize_timer.start(MainWin.resize_ms),
 
-        self.tree_menu.load_st_grid_sig.connect(lambda: self.load_st_grid())
-        self.tree_menu.add_fav.connect(lambda dir: self.favs_menu.add_fav(dir))
-        self.tree_menu.del_fav.connect(lambda dir: self.favs_menu.del_fav(dir))
-        self.tree_menu.new_history_item.connect(lambda dir: self.top_bar.new_history_item(dir))
-        self.tree_menu.open_in_new_window.connect(lambda dir: self.open_in_new_win((dir, None)))
+            # tree_menu
+            self.tree_menu.load_st_grid_sig: self.load_st_grid,
+            self.tree_menu.add_fav: self.favs_menu.add_fav,
+            self.tree_menu.del_fav: self.favs_menu.del_fav,
+            self.tree_menu.new_history_item: self.top_bar.new_history_item,
+            self.tree_menu.open_in_new_window: lambda d: self.open_in_new_win((d, None)),
 
-        self.favs_menu.load_st_grid.connect(lambda: self.load_st_grid())
-        self.favs_menu.new_history_item.connect(lambda dir: self.top_bar.new_history_item(dir))
-        self.favs_menu.open_in_new_win.connect(lambda dir: self.open_in_new_win((dir, None)))
+            # favs_menu
+            self.favs_menu.load_st_grid: self.load_st_grid,
+            self.favs_menu.new_history_item: self.top_bar.new_history_item,
+            self.favs_menu.open_in_new_win: lambda d: self.open_in_new_win((d, None)),
 
-        self.rating_menu.filter_thumbs.connect(lambda: self.grid.filter_thumbs())
-        self.rating_menu.rearrange_thumbs.connect(lambda: self.grid.rearrange_thumbs())
+            # rating_menu
+            self.rating_menu.filter_thumbs: self.grid.filter_thumbs,
+            self.rating_menu.rearrange_thumbs: self.grid.rearrange_thumbs,
 
-        self.top_bar.level_up.connect(lambda: self.level_up())
-        self.top_bar.change_view.connect(lambda: self.change_view_cmd())
-        self.top_bar.load_search_grid.connect(lambda: self.load_search_grid())
-        self.top_bar.load_st_grid.connect(lambda: self.load_st_grid())
-        self.top_bar.navigate.connect(lambda: self.load_st_grid())
-        self.top_bar.open_in_new_win.connect(lambda dir: self.open_in_new_win((dir, None)))
-        self.top_bar.open_settings.connect(lambda: self.open_settings())
-        self.top_bar.new_folder.connect(lambda: self.new_folder())
+            # top_bar
+            self.top_bar.level_up: self.level_up,
+            self.top_bar.change_view: self.change_view_cmd,
+            self.top_bar.load_search_grid: self.load_search_grid,
+            self.top_bar.load_st_grid: self.load_st_grid,
+            self.top_bar.navigate: self.load_st_grid,
+            self.top_bar.open_in_new_win: lambda d: self.open_in_new_win((d, None)),
+            self.top_bar.open_settings: self.open_settings,
+            self.top_bar.new_folder: self.new_folder,
 
-        self.search_bar.on_filter_clicked.connect(lambda: self.load_search_grid())
-        self.search_bar.on_pause_clicked.connect(lambda value: self.grid.toggle_pause(value))
-        self.search_bar.on_edit_clicked.connect(lambda: self.top_bar.on_search_bar_clicked())
-        self.search_bar.on_exit_clicked.connect(self.load_st_grid)
+            # search_bar
+            self.search_bar.on_filter_clicked: self.load_search_grid,
+            self.search_bar.on_pause_clicked: self.grid.toggle_pause,
+            self.search_bar.on_edit_clicked: self.top_bar.on_search_bar_clicked,
+            self.search_bar.on_exit_clicked: self.load_st_grid,
 
-        self.path_bar.new_history_item.connect(lambda dir: self.top_bar.new_history_item(dir))
-        self.path_bar.load_st_grid.connect(lambda: self.load_st_grid())
-        self.path_bar.info_win.connect(lambda lst: self.open_info_win(lst))
+            # path_bar
+            self.path_bar.new_history_item: self.top_bar.new_history_item,
+            self.path_bar.load_st_grid: self.load_st_grid,
+            self.path_bar.info_win: self.open_info_win,
 
-        self.sort_bar.resize_thumbs.connect(lambda: self.grid.resize_thumbs())
-        self.sort_bar.rearrange_thumbs.connect(lambda: self.grid.rearrange_thumbs())
-        self.sort_bar.sort_thumbs.connect(lambda: self.grid.sort_thumbs())
-        self.sort_bar.load_st_grid.connect(lambda: self.load_st_grid())
-        self.sort_bar.open_go_win.connect(lambda: self.open_go_win())
+            # sort_bar
+            self.sort_bar.resize_thumbs: self.grid.resize_thumbs,
+            self.sort_bar.rearrange_thumbs: self.grid.rearrange_thumbs,
+            self.sort_bar.sort_thumbs: self.grid.sort_thumbs,
+            self.sort_bar.load_st_grid: self.load_st_grid,
+            self.sort_bar.open_go_win: self.open_go_win,
+        }
+
+        for signal, slot in signal_map.items():
+            signal.connect(slot)
 
     def new_folder(self):
         if isinstance(self.grid, (GridStandart, GridList)):
