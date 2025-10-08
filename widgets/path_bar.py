@@ -10,7 +10,6 @@ from system.utils import Utils
 
 from ._base_widgets import UMenu, USvgSqareWidget
 from .actions import ItemActions
-from .info_win import InfoWin
 
 
 class PathItem(QWidget):
@@ -21,6 +20,7 @@ class PathItem(QWidget):
     open_in_new_win = pyqtSignal(str)
     arrow_right = " \U0000203A" # ›
     height_ = 15
+    info_win = pyqtSignal(list)
 
     def __init__(self, dir: str, name: str, main_win_item: MainWinItem):
         """
@@ -105,7 +105,8 @@ class PathItem(QWidget):
         """
         base_item = BaseItem(self.dir)
         base_item.set_properties()
-        self.win_info = InfoWin([base_item, ])
+        self.info_win.emit([base_item, ])
+
         self.win_info.center(self.window())
         self.win_info.show()
 
@@ -205,6 +206,7 @@ class PathBar(QWidget):
     load_st_grid = pyqtSignal()
     open_img_view = pyqtSignal(str)
     open_in_new_win = pyqtSignal(str)
+    info_win = pyqtSignal(list)
     last_item_limit = 40
     height_ = 25
 
@@ -246,6 +248,7 @@ class PathBar(QWidget):
             path_item.load_st_grid.connect(self.load_st_grid.emit)
             path_item.open_img_view.connect(lambda dir: self.open_img_view.emit(dir))
             path_item.open_in_new_win.connect(lambda dir: self.open_in_new_win.emit(dir))
+            path_item.info_win.connect(lambda lst: self.info_win.emit(lst))
             path_item.img_wid.load(Static.INTERNAL_ICONS.get("folder.svg"))
             path_item.add_arrow()
             path_items[x] = path_item

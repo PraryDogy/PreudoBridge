@@ -20,7 +20,6 @@ from .archive_win import ArchiveWin
 from .copy_files_win import CopyFilesWin, ErrorWin
 from .grid import Thumb
 from .img_convert_win import ImgConvertWin
-from .info_win import InfoWin
 from .remove_files_win import RemoveFilesWin
 from .rename_win import RenameWin
 
@@ -92,6 +91,7 @@ class GridList(QTableView):
     total_count_update = pyqtSignal(tuple)
     finished_ = pyqtSignal()
     download_cache = pyqtSignal(list)
+    info_win = pyqtSignal(list)
 
     not_exists_text = "Такой папки не существует. \nВозможно не подключен сетевой диск."
     empty_text = "Нет файлов"
@@ -297,9 +297,7 @@ class GridList(QTableView):
             base_item = BaseItem(i)
             base_item.set_properties()
             base_items.append(base_item)
-        self.win_info = InfoWin(base_items)
-        self.win_info.center(self.window())
-        self.win_info.show()
+        self.info_win.emit(base_items)
 
     def get_selected_urls(self):
         urls = []

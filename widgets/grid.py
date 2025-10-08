@@ -22,7 +22,6 @@ from .actions import GridActions, ItemActions
 from .archive_win import ArchiveWin
 from .copy_files_win import CopyFilesWin, ErrorWin
 from .img_convert_win import ImgConvertWin
-from .info_win import InfoWin
 from .remove_files_win import RemoveFilesWin
 from .rename_win import RenameWin
 
@@ -302,6 +301,7 @@ class Grid(UScrollArea):
     sort_menu_update = pyqtSignal()
     total_count_update = pyqtSignal(tuple)
     download_cache = pyqtSignal(list)
+    info_win = pyqtSignal(list)
 
     def __init__(self, main_win_item: MainWinItem, is_grid_search: bool):
         super().__init__()
@@ -644,9 +644,7 @@ class Grid(UScrollArea):
         """
         Открыть окно информации о файле / папке
         """
-        self.win_info = InfoWin(items)
-        self.win_info.center(self.window())
-        self.win_info.show()
+        self.info_win.emit(items)
 
     def show_in_folder_cmd(self, wid: Thumb):
         """

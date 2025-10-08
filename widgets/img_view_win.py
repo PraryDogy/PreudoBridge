@@ -16,7 +16,6 @@ from system.tasks import ReadImg, UThreadPool
 from ._base_widgets import UMenu, USvgSqareWidget, WinBase
 from .actions import ItemActions
 from .grid import KEY_RATING, RATINGS, Thumb
-from .info_win import InfoWin
 
 
 class ImgWid(QGraphicsView):
@@ -171,6 +170,7 @@ class ImgViewWin(WinBase):
     move_to_url = pyqtSignal(str)
     new_rating = pyqtSignal(tuple)
     closed = pyqtSignal()
+    info_win = pyqtSignal(list)
     width_, height_ = 700, 500
     min_width_, min_height_ = 400, 300
     object_name = "win_img_view"
@@ -328,9 +328,7 @@ class ImgViewWin(WinBase):
         self.mouse_move_timer.start(2000)
 
     def win_info_cmd(self, src: str):
-        self.win_info = InfoWin([self.current_thumb, ])
-        self.win_info.center(self.window())
-        self.win_info.show()
+        self.info_win.emit([self.current_thumb, ])
 
 
 # EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS 
