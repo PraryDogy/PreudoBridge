@@ -413,7 +413,7 @@ class Grid(UScrollArea):
         for thumb in self.url_to_wid.values():
             widget_rect = thumb.geometry()
             if parent_rect.intersects(widget_rect) and thumb.base_pixmap is None:
-                if thumb.filename.endswith(Static.ext_all):
+                if thumb.filename.endswith(Static.ext_all + Static.ext_app):
                     thumbs.append(thumb)
         if thumbs:
             self.start_load_images_task(thumbs)
