@@ -607,7 +607,10 @@ class DbItemsLoader(URunnable):
                     base_item.rating = rating
                     stmt_list.append(BaseItem.update_file_stmt(base_item))
                     if base_item.type_ in Static.ext_all:
-                        exist_images.append(base_item)
+                        if os.path.exists(base_item.thumb_path):
+                            exist_images.append(base_item)
+                        else:
+                            new_images.append(base_item)
                     else:
                         exist_ratings.append(base_item)
 
