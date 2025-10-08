@@ -689,6 +689,7 @@ class Grid(UScrollArea):
         """
 
         def select_urls(urls: list[str]):
+            self.clear_selected_widgets()
             for i in urls:
                 if i in self.url_to_wid:
                     self.select_multiple_thumb(self.url_to_wid[i])
@@ -839,7 +840,7 @@ class Grid(UScrollArea):
 
         def select(url):
             if url in self.url_to_wid:
-                self.select_multiple_thumb(self.url_to_wid[url])
+                self.select_single_thumb(self.url_to_wid[url])
 
         def archive_fin(url):
             QTimer.singleShot(1050, lambda: select(url))
@@ -971,6 +972,7 @@ class Grid(UScrollArea):
     def new_folder(self):
 
         def select(url):
+            self.clear_selected_widgets()
             if url in self.url_to_wid:
                 self.select_multiple_thumb(self.url_to_wid[url])
 
