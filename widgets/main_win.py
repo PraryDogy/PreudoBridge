@@ -231,8 +231,6 @@ class MainWin(WinBase):
 
         self.path_bar.new_history_item.connect(lambda dir: self.top_bar.new_history_item(dir))
         self.path_bar.load_st_grid.connect(lambda: self.load_st_grid())
-        self.path_bar.img_view_win.connect(lambda path: self.open_img_view(path))
-        self.path_bar.open_in_new_win.connect(lambda dir: self.open_in_new_win((dir, None)))
         self.path_bar.info_win.connect(lambda lst: self.open_info_win(lst))
 
         self.sort_bar.resize_thumbs.connect(lambda: self.grid.resize_thumbs())
