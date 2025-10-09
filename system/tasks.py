@@ -537,6 +537,36 @@ class FinderItemsLoader(URunnable):
         return files
 
 
+class FinderUrlsLoader(URunnable):
+
+    class Sigs(QObject):
+        finished_ = pyqtSignal(list)
+
+    hidden_syms: tuple[str] = ()
+    sql_errors = (IntegrityError, OperationalError)
+
+    def __init__(self, main_win_item: MainWinItem):
+        super().__init__()
+        self.sigs = FinderItemsLoader.Sigs()
+        self.main_win_item = main_win_item
+
+    def task(self):
+        try:
+            self.sigs.finished_.emit(self._task())
+        except Exception as e:
+            print("tasks, FinderUrls error", e)
+            # import traceback
+            # print(traceback.format_exc())
+
+    def _task(self):
+        hidden_syms = () if JsonData.show_hidden else Static.hidden_file_syms
+        return [
+            i.path
+            for i in os.scandir(self.main_win_item.main_dir)
+            if not i.name.startswith(hidden_syms)
+        ]
+        
+
 class DbItemsLoader(URunnable):
 
     class Sigs(QObject):

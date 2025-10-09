@@ -13,7 +13,8 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
 from cfg import Dynamic, JsonData, Static, ThumbData
 from system.items import BaseItem, CopyItem, MainWinItem, SortItem
 from system.shared_utils import SharedUtils
-from system.tasks import DbItemsLoader, RatingTask, UThreadPool
+from system.tasks import (DbItemsLoader, FinderUrlsLoader, RatingTask,
+                          UThreadPool)
 from system.utils import Utils
 
 from ._base_widgets import UMenu, UScrollArea
@@ -359,25 +360,24 @@ class Grid(UScrollArea):
 
         if new_st_mtime and new_st_mtime != self.st_mtime:
             self.st_mtime = new_st_mtime
-            self.update_changed_thumbs()
+            self.start_finder_urls_task()
         else:
             self.st_mtime_timer.start(timeout)
 
-    def update_changed_thumbs(self, timeout: int = 1000) -> list[Thumb]:
+    def start_finder_urls_task(self) -> list[Thumb]:
         """
         Обходит все Thumb и обновляет те, у которых изменилось
         время модификации. Возвращает список изменённых Thumb.
         """
-        self.st_mtime_timer.stop()
-        hidden_syms = () if JsonData.show_hidden else Static.hidden_file_syms
-        thumbs: list[Thumb] = []
-        new_urls = [
-            i.path
-            for i in os.scandir(self.main_win_item.main_dir)
-            if not i.name.startswith(hidden_syms)
-        ]
+        self.finder_urls_loader = FinderUrlsLoader(self.main_win_item)
+        self.finder_urls_loader.sigs.finished_.connect(
+            lambda urls: self.update_changed_thumbs(urls)
+        )
+        UThreadPool.start(self.finder_urls_loader)
+
+    def update_changed_thumbs(self, urls: list[str], timeout: int = 1000) -> list[Thumb]:
         del_urls = []
-        for url in new_urls:
+        for url in urls:
             if url in self.url_to_wid:
                 thumb = self.url_to_wid[url]
                 st_mtime = self.get_st_mtime(url)
@@ -385,20 +385,17 @@ class Grid(UScrollArea):
                     thumb.set_properties()
                     stats = (thumb.rating, thumb.type_, thumb.mod, thumb.size)
                     thumb.blue_text_wid.set_text(*stats)
-                    thumbs.append(thumb)
             else:
-                thumb = self.new_thumb(url)
+                self.new_thumb(url)
         for url, thumb in self.url_to_wid.items():
-            if url not in new_urls:
+            if url not in urls:
                 del_urls.append(url)
         for url in del_urls:
             self.del_thumb(url)
-
         if not self.url_to_wid:
             self.create_no_items_label(NoItemsLabel.no_files)
         else:
             self.remove_no_items_label()
-
         self.sort_thumbs()
         self.rearrange_thumbs()
         self.load_vis_images()
