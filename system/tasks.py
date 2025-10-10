@@ -854,7 +854,7 @@ class ArchiveMaker(URunnable):
         set_value = pyqtSignal(int)
         finished_ = pyqtSignal()
 
-    def __init__(self, files: list[str], zip_path: str):
+    def __init__(self, files: list[str], zip_path: str, timeout: int = 2000):
         super().__init__()
         self.sigs = ArchiveMaker.Sigs()
         self.files = files
@@ -864,6 +864,12 @@ class ArchiveMaker(URunnable):
 
         self.chunk_size: int = 8*1024*1024
         self.threshold: int = 100*1024*1024
+
+        self.value_timer = QTimer(self)
+        self.value_timer.timeout.connect(
+            lambda: self.sigs.set_value.emit(self.progress)
+        )
+        self.value_timer.start(timeout)
 
     def _collect_all_files(self) -> list[tuple[str, str]]:
         collected = []
@@ -897,7 +903,6 @@ class ArchiveMaker(URunnable):
                     break
                 dest.write(buf)
                 self.progress += 1
-                self.sigs.set_value.emit(self.progress)
 
     def zip_items(self):
         total_chunks = self._calc_total_chunks()
