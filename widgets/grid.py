@@ -842,6 +842,16 @@ class Grid(UScrollArea):
                 archive_name = archive_name + ".zip"
             files = [i.src for i in self.selected_thumbs]
             zip_path = os.path.join(self.main_win_item.main_dir, archive_name)
+
+            # import subprocess
+            # subprocess.run(
+            #     ["ditto", "-c", "-k", "--sequesterRsrc", "--keepParent", *files, zip_path],
+            #     check=True,
+            #     stdin=subprocess.DEVNULL,
+            #     stdout=subprocess.DEVNULL,
+            #     stderr=subprocess.DEVNULL
+            # )
+
             self.archive_win = ArchiveWin(files, zip_path)
             assert isinstance(self.archive_win, ArchiveWin)
             self.archive_win.center(self.window())
