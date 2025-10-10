@@ -911,7 +911,10 @@ class ArchiveMaker(URunnable):
                 self._add_file_chunked(zf, full_path, arc_path)
 
     def task(self):
-        self.zip_items()
+        try:
+            self.zip_items()
+        except Exception as e:
+            print("archive maker task error", e)
         self.sigs.finished_.emit()
 
 

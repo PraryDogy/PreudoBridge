@@ -355,14 +355,19 @@ class Grid(UScrollArea):
         Если изменилось — вызывает обновление изменённых Thumb.
         Повторяет проверку каждые 2 секунды.
         """
-        self.st_mtime_timer.stop()
         new_st_mtime = self.get_st_mtime(self.main_win_item.main_dir)
 
         if new_st_mtime and new_st_mtime != self.st_mtime:
             self.st_mtime = new_st_mtime
+            self.st_mtime_timer.stop()
             self.start_finder_urls_task()
         else:
+            self.st_mtime_timer.stop()
             self.st_mtime_timer.start(timeout)
+
+    def force_update_thumbs(self):
+        self.st_mtime_timer.stop()
+        self.start_finder_urls_task()
 
     def start_finder_urls_task(self) -> list[Thumb]:
         """
@@ -675,6 +680,7 @@ class Grid(UScrollArea):
             for i in urls:
                 if i in self.url_to_wid:
                     self.select_multiple_thumb(self.url_to_wid[i])
+            self.force_update_thumbs()
 
         def paste_final(urls: list[str]):
             if CopyItem.get_is_cut():
@@ -1316,6 +1322,7 @@ class Grid(UScrollArea):
         else:
             CopyItem.set_src(src)
             CopyItem.urls = urls
+            self.paste_files()
         return super().dropEvent(a0)
 
     def deleteLater(self):
