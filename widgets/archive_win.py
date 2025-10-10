@@ -17,7 +17,7 @@ class ArchiveWin(ProgressbarWin):
 
     def __init__(self, files: list[str], zip_path: str):
         super().__init__(self.title, Static.INTERNAL_ICONS.get("files.svg"))
-        self.set_modality()
+        # self.set_modality()
         filename = self.limit_string(os.path.basename(zip_path), 30)
         above_text = f"{self.above_text} \"{filename}\""
         self.above_label.setText(above_text)

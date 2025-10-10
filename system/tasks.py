@@ -3,7 +3,7 @@ import gc
 import os
 import shutil
 import zipfile
-from time import sleep
+import time
 
 import numpy as np
 import sqlalchemy
@@ -153,7 +153,7 @@ class CopyFilesTask(URunnable):
                 self.sigs.replace_files_win.emit()
                 self.pause_flag = True
                 while self.pause_flag:
-                    sleep(1)
+                    time.sleep(1)
                 break
 
     def prepare_search_dir(self):
@@ -854,24 +854,18 @@ class ArchiveMaker(URunnable):
         set_value = pyqtSignal(int)
         finished_ = pyqtSignal()
 
-    def __init__(self, files: list[str], zip_path: str, timeout: int = 2000):
+    def __init__(self, files: list[str], zip_path: str):
         super().__init__()
         self.sigs = ArchiveMaker.Sigs()
         self.files = files
         self.zip_path = zip_path
         self.progress = 0
         self.all_files = self._collect_all_files()
+        self.chunk_size = 8 * 1024 * 1024
+        self.threshold = 100 * 1024 * 1024
+        self._last_emit = 0.0  # чтобы не спамить сигналами
 
-        self.chunk_size: int = 8*1024*1024
-        self.threshold: int = 100*1024*1024
-
-        self.value_timer = QTimer()
-        self.value_timer.timeout.connect(
-            lambda: self.sigs.set_value.emit(self.progress)
-        )
-        self.value_timer.start(timeout)
-
-    def _collect_all_files(self) -> list[tuple[str, str]]:
+    def _collect_all_files(self):
         collected = []
         for item in self.files:
             if os.path.isfile(item):
@@ -885,31 +879,41 @@ class ArchiveMaker(URunnable):
                         collected.append((full_path, rel_path))
         return collected
 
-    def _calc_total_chunks(self) -> int:
+    def _calc_total_chunks(self):
         total = 0
         for full_path, _ in self.all_files:
             size = os.path.getsize(full_path)
             total += (size + self.chunk_size - 1) // self.chunk_size
         return total
 
-    def _add_file_chunked(self, zf: zipfile.ZipFile, full_path: str, arc_path: str):
+    def _emit_progress(self):
+        now = time.monotonic()
+        # обновляем максимум 5 раз в секунду
+        if now - self._last_emit > 0.2:
+            self._last_emit = now
+            self.sigs.set_value.emit(self.progress)
+
+    def _add_file_chunked(self, zf, full_path, arc_path):
         file_size = os.path.getsize(full_path)
         zi = zipfile.ZipInfo(arc_path)
-        zi.compress_type = zipfile.ZIP_STORED if file_size > self.threshold else zipfile.ZIP_DEFLATED
-        with zf.open(zi, mode="w") as dest, open(full_path, "rb") as src:
+        zi.compress_type = (
+            zipfile.ZIP_STORED if file_size > self.threshold else zipfile.ZIP_DEFLATED
+        )
+
+        with zf.open(zi, "w") as dest, open(full_path, "rb", buffering=0) as src:
             while True:
                 buf = src.read(self.chunk_size)
                 if not buf:
                     break
                 dest.write(buf)
                 self.progress += 1
+                self._emit_progress()
 
     def zip_items(self):
         total_chunks = self._calc_total_chunks()
         self.sigs.set_max.emit(total_chunks)
         self.progress = 0
-
-        with zipfile.ZipFile(self.zip_path, 'w') as zf:
+        with zipfile.ZipFile(self.zip_path, "w", allowZip64=True) as zf:
             for full_path, arc_path in self.all_files:
                 if not self.is_should_run():
                     break
@@ -919,8 +923,9 @@ class ArchiveMaker(URunnable):
         try:
             self.zip_items()
         except Exception as e:
-            print("archive maker task error", e)
-        self.sigs.finished_.emit()
+            print("archive maker task error:", e)
+        finally:
+            self.sigs.finished_.emit()
 
 
 class DataSizeCounter(URunnable):

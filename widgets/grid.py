@@ -835,7 +835,10 @@ class Grid(UScrollArea):
                 self.force_update_thumbs()
 
         def archive_fin(url):
-            QTimer.singleShot(1050, lambda: select(url))
+            try:
+                QTimer.singleShot(1050, lambda: select(url))
+            except RuntimeError as e:
+                ...
 
         def rename_fin(text: str):
             archive_name = text
