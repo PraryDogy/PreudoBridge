@@ -852,6 +852,7 @@ class Grid(UScrollArea):
             self.archive_win.center(self.window())
             self.archive_win.finished_.connect(lambda: archive_fin(zip_path))
             self.archive_win.show()
+            QTimer.singleShot(100, lambda: self.archive_win.raise_())
 
         if len(self.selected_thumbs) == 1:
             text = self.selected_thumbs[0].filename
