@@ -179,6 +179,13 @@ class PathItem(QWidget):
         menu.show_under_cursor()
         self.default_style()
 
+    def mouseDoubleClickEvent(self, a0):
+        if a0.button() == Qt.MouseButton.LeftButton:
+            if os.path.isdir(self.dir):
+                self.main_win_item.main_dir = self.dir
+                self.load_st_grid.emit()
+        return super().mouseReleaseEvent(a0)
+
 
 class PathBar(QWidget):
     new_history_item = pyqtSignal(str)
