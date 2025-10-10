@@ -1,3 +1,4 @@
+import gc
 import inspect
 import os
 
@@ -836,6 +837,8 @@ class Grid(UScrollArea):
 
         def archive_fin(url):
             try:
+                self.archive_win = None
+                gc.collect()
                 QTimer.singleShot(1050, lambda: select(url))
             except RuntimeError as e:
                 ...
