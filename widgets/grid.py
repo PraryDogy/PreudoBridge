@@ -832,6 +832,7 @@ class Grid(UScrollArea):
                 wid.set_properties()
                 wid.blue_text_wid.set_text(wid.rating, wid.type_, wid.mod, wid.size)
                 self.select_single_thumb(wid)
+                self.force_update_thumbs()
 
         def archive_fin(url):
             QTimer.singleShot(1050, lambda: select(url))
@@ -842,15 +843,6 @@ class Grid(UScrollArea):
                 archive_name = archive_name + ".zip"
             files = [i.src for i in self.selected_thumbs]
             zip_path = os.path.join(self.main_win_item.main_dir, archive_name)
-
-            # import subprocess
-            # subprocess.run(
-            #     ["ditto", "-c", "-k", "--sequesterRsrc", "--keepParent", *files, zip_path],
-            #     check=True,
-            #     stdin=subprocess.DEVNULL,
-            #     stdout=subprocess.DEVNULL,
-            #     stderr=subprocess.DEVNULL
-            # )
 
             self.archive_win = ArchiveWin(files, zip_path)
             assert isinstance(self.archive_win, ArchiveWin)
