@@ -865,7 +865,7 @@ class ArchiveMaker(URunnable):
         self.chunk_size: int = 8*1024*1024
         self.threshold: int = 100*1024*1024
 
-        self.value_timer = QTimer(self)
+        self.value_timer = QTimer()
         self.value_timer.timeout.connect(
             lambda: self.sigs.set_value.emit(self.progress)
         )
