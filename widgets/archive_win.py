@@ -12,7 +12,7 @@ class ArchiveWin(ProgressbarWin):
     finished_ = pyqtSignal()
     title = "Архив"
     below_text = "Подготовка"
-    below_text_sec = "Обработка"
+    below_text_sec = "Пожалуйста, подождите"
     above_text = "Создание архива"
 
     def __init__(self, files: list[str], zip_path: str):
