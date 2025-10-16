@@ -804,6 +804,7 @@ class Grid(UScrollArea):
 
     def open_img_convert_win(self, urls: list[str]):
         self.convert_win = ImgConvertWin(urls)
+        self.convert_win.finished_.connect(self.convert_win.deleteLater)
         self.convert_win.center(self.window())
         self.convert_win.show()
 
