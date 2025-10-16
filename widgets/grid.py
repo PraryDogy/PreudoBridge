@@ -821,7 +821,7 @@ class Grid(UScrollArea):
 
         name, ext = os.path.splitext(thumb.filename)
         self.rename_win = RenameWin(name)
-        self.rename_win.finished_.connect(finished)
+        self.rename_win.finished_.connect(lambda text: finished(text, ext))
         self.rename_win.center(self.window())
         self.rename_win.show()
 
