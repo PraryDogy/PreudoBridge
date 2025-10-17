@@ -383,6 +383,7 @@ class Grid(UScrollArea):
 
     def update_changed_thumbs(self, urls: list[str], timeout: int = 1000) -> list[Thumb]:
         del_urls = []
+        update_thumbs = []
         for url in urls:
             if url in self.url_to_wid:
                 thumb = self.url_to_wid[url]
@@ -391,6 +392,8 @@ class Grid(UScrollArea):
                     thumb.set_properties()
                     stats = (thumb.rating, thumb.type_, thumb.mod, thumb.size)
                     thumb.blue_text_wid.set_text(*stats)
+                    if thumb.filename.endswith(Static.ext_all + Static.ext_app):
+                        update_thumbs.append(thumb)
             else:
                 self.new_thumb(url)
         for url, thumb in self.url_to_wid.items():
@@ -404,11 +407,13 @@ class Grid(UScrollArea):
             self.remove_no_items_label()
         self.sort_thumbs()
         self.rearrange_thumbs()
-        self.load_vis_images()
         self.st_mtime_timer.start(timeout)
+        if update_thumbs:
+            self.start_load_images_task(update_thumbs)
 
     def load_vis_images(self):
         thumbs = []
+        self.main_wid.layout().activate() 
         visible_rect = self.viewport().rect()  # область видимой части
         for thumb in self.url_to_wid.values():
             widget_rect = self.viewport().mapFromGlobal(
@@ -416,9 +421,10 @@ class Grid(UScrollArea):
             )
             qsize = QSize(thumb.width(), thumb.height())
             widget_rect = QRect(widget_rect, qsize)
-            if visible_rect.intersects(widget_rect) and thumb.base_pixmap is None:
-                if thumb.filename.endswith(Static.ext_all + Static.ext_app):
-                    thumbs.append(thumb)
+            if visible_rect.intersects(widget_rect):
+                if thumb.base_pixmap is None: # такое подходит для первой загрузки сетки но не для повторного обновления
+                    if thumb.filename.endswith(Static.ext_all + Static.ext_app):
+                        thumbs.append(thumb)
         if thumbs:
             self.start_load_images_task(thumbs)
 
