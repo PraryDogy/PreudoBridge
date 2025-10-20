@@ -383,7 +383,7 @@ class Grid(UScrollArea):
 
     def update_changed_thumbs(self, urls: list[str], timeout: int = 1000) -> list[Thumb]:
         del_urls = []
-        update_thumbs = []
+        img_thumbs_update = []
         for url in urls:
             if url in self.url_to_wid:
                 thumb = self.url_to_wid[url]
@@ -393,9 +393,9 @@ class Grid(UScrollArea):
                     stats = (thumb.rating, thumb.type_, thumb.mod, thumb.size)
                     thumb.blue_text_wid.set_text(*stats)
                     if thumb.filename.endswith(Static.ext_all + Static.ext_app):
-                        update_thumbs.append(thumb)
+                        img_thumbs_update.append(thumb)
             else:
-                self.new_thumb(url)
+                img_thumbs_update.append(self.new_thumb(url))
         for url, thumb in self.url_to_wid.items():
             if url not in urls:
                 del_urls.append(url)
@@ -408,8 +408,8 @@ class Grid(UScrollArea):
         self.sort_thumbs()
         self.rearrange_thumbs()
         self.st_mtime_timer.start(timeout)
-        if update_thumbs:
-            self.start_load_images_task(update_thumbs)
+        if img_thumbs_update:
+            self.start_load_images_task(img_thumbs_update)
 
     def load_vis_images(self):
         thumbs = []
