@@ -351,14 +351,12 @@ class Grid(UScrollArea):
             del_thumb = self.del_thumb(e.src_path)
         elif e.event_type == "created":
             new_thumb = self.new_thumb(e.src_path)
-            for i in self.selected_thumbs:
-                print(i.src, e.src_path)
-                if i.src == e.src_path:
-                    self.select_multiple_thumb(new_thumb)
             self.load_thumbs_images([new_thumb, ])
-
         elif e.event_type == "moved":
-            ...
+            if e.src_path in self.url_to_wid:
+                del_thumb = self.del_thumb(e.src_path)
+                new_thumb = self.new_thumb(e.dest_path)
+                self.load_thumbs_images([new_thumb, ])
         elif e.event_type == "modified":
             ...
         self.sort_thumbs()
