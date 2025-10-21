@@ -374,8 +374,8 @@ class Grid(UScrollArea):
                     if thumb.filename.endswith(Static.ext_all + Static.ext_app):
                         thumbs.append(thumb)
         if thumbs:
-            # for task in self.load_images_tasks:
-            #     task.set_should_run(False)
+            for task in self.load_images_tasks:
+                task.set_should_run(False)
             self.load_images(thumbs)
 
     def load_images(self, thumbs: list[Thumb]):
