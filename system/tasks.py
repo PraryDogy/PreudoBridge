@@ -640,7 +640,7 @@ class DbItemsLoader(URunnable):
                     base_item.rating = rating
                     stmt_list.append(BaseItem.update_file_stmt(base_item))
                     if base_item.type_ in Static.ext_all:
-                        if os.path.exists(base_item.thumb_path):
+                        if base_item.thumb_path and os.path.exists(base_item.thumb_path):
                             exist_images.append(base_item)
                         else:
                             new_images.append(base_item)
@@ -730,10 +730,11 @@ class DbItemsLoader(URunnable):
                 break
 
     def read_image(self, src: str):
-        for i in range(0, 10):
+        for i in range(0, 3):
             img = ReadImage.read_image(src)
             if img is None:
-                sleep(1)
+                print("wait img", src)
+                sleep(3)
             else:
                 return img
         return None

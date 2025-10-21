@@ -404,7 +404,7 @@ class Grid(UScrollArea):
             try:
                 if thumb.qimage:
                     thumb.set_image(thumb.qimage)
-                    thumb.set_transparent_frame(1.0)
+                thumb.set_transparent_frame(1.0)
                 thumb.blue_text_wid.set_text(thumb.rating, thumb.type_, thumb.mod, thumb.size)
             except RuntimeError as e:
                 print("grid > set_thumb_image runtime err")
