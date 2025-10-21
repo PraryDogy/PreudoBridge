@@ -729,12 +729,12 @@ class DbItemsLoader(URunnable):
                 print("tasks, LoadImagesTask update_thumb.emit error", e)
                 break
 
-    def read_image(self, src: str):
-        for i in range(0, 3):
+    def read_image(self, src: str, count: int = 3, sleep_: int = 3):
+        for i in range(0, count):
             img = ReadImage.read_image(src)
             if img is None:
                 print("wait img", src)
-                sleep(3)
+                sleep(sleep_)
             else:
                 return img
         return None
