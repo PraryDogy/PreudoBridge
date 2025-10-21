@@ -321,14 +321,46 @@ class TableView(QTableView):
 
     def make_archive(self, urls: list[str]):
 
-        def finished(*args):
-            QTimer.singleShot(300, lambda: self.select_path(zip_path))
+        def archive_fin(url: str):
+            try:
+                self.archive_win = None
+                gc.collect()
+                QTimer.singleShot(300, lambda: self.select_path(url))
+            except RuntimeError as e:
+                ...
 
-        zip_path = os.path.join(self.main_win_item.main_dir, "Архив.zip")
-        self.archive_win = ArchiveWin(urls, zip_path)
-        self.archive_win.finished_.connect(finished)
-        self.archive_win.center(self.window())
-        self.archive_win.show()
+        def rename_fin(text: str):
+            zip_path = os.path.join(self.main_win_item.main_dir, text)
+            self.archive_win = ArchiveWin(urls, zip_path)
+            assert isinstance(self.archive_win, ArchiveWin)
+            self.archive_win.center(self.window())
+            self.archive_win.finished_.connect(lambda: archive_fin(zip_path))
+            self.archive_win.show()
+            QTimer.singleShot(100, lambda: self.archive_win.raise_())
+
+        selected_urls = self.get_selected_urls()
+        if len(selected_urls) == 1:
+            text = os.path.basename(selected_urls[0])
+            text, ext = os.path.splitext(text)
+            text = f"{text}.zip"
+        else:
+            text = "Архив.zip"
+
+        self.rename_win = RenameWin(text)
+        self.rename_win.center(self.window())
+        self.rename_win.finished_.connect(rename_fin)
+        self.rename_win.show()
+
+    # def make_archive(self, urls: list[str]):
+
+    #     def finished(*args):
+    #         QTimer.singleShot(300, lambda: self.select_path(zip_path))
+
+    #     zip_path = os.path.join(self.main_win_item.main_dir, "Архив.zip")
+    #     self.archive_win = ArchiveWin(urls, zip_path)
+    #     self.archive_win.finished_.connect(finished)
+    #     self.archive_win.center(self.window())
+    #     self.archive_win.show()
 
     def rename_row(self, url: str):
         
