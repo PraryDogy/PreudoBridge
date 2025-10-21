@@ -290,6 +290,7 @@ class Grid(UScrollArea):
     spacing_value = 5
     new_files_key = "new_files"
     del_files_key = "del files"
+    new_folder_text = "Новая папка"
 
     new_history_item = pyqtSignal(str)
     path_bar_update = pyqtSignal(str)
@@ -820,15 +821,13 @@ class Grid(UScrollArea):
 
     def rename_thumb(self, thumb: Thumb):
         
-        def finished(text: str, ext: str):
-            filename = text + ext
+        def finished(text: str):
             root = os.path.dirname(thumb.src)
-            new_url = os.path.join(root, filename)
+            new_url = os.path.join(root, text)
             os.rename(thumb.src, new_url)
 
-        name, ext = os.path.splitext(thumb.filename)
-        self.rename_win = RenameWin(name)
-        self.rename_win.finished_.connect(lambda text: finished(text, ext))
+        self.rename_win = RenameWin(thumb.filename)
+        self.rename_win.finished_.connect(lambda text: finished(text))
         self.rename_win.center(self.window())
         self.rename_win.show()
 
@@ -990,7 +989,7 @@ class Grid(UScrollArea):
                 QTimer.singleShot(1050, lambda: select(dest))
             except Exception as e:
                 Utils.print_error()
-        self.rename_win = RenameWin("")
+        self.rename_win = RenameWin(self.new_folder_text)
         self.rename_win.center(self.window())
         self.rename_win.finished_.connect(lambda name: fin(name))
         self.rename_win.show()

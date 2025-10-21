@@ -98,6 +98,7 @@ class TableView(QTableView):
 
     not_exists_text = "Такой папки не существует. \nВозможно не подключен сетевой диск."
     empty_text = "Нет файлов"
+    new_folder_text = "Новая папка"
 
     def __init__(self, main_win_item: MainWinItem):
         super().__init__()
@@ -206,7 +207,7 @@ class TableView(QTableView):
                 QTimer.singleShot(100, lambda: self.select_path(dest))
             except Exception as e:
                 Utils.print_error()
-        self.rename_win = RenameWin("")
+        self.rename_win = RenameWin(self.new_folder_text)
         self.rename_win.center(self.window())
         self.rename_win.finished_.connect(lambda name: fin(name))
         self.rename_win.show()
@@ -331,18 +332,14 @@ class TableView(QTableView):
 
     def rename_row(self, url: str):
         
-        def finished(text: str, ext: str):
-            filename = text + ext
+        def finished(text: str):
             root = os.path.dirname(url)
-            new_url = os.path.join(root, filename)
+            new_url = os.path.join(root, text)
             os.rename(url, new_url)
             QTimer.singleShot(500, lambda: self.select_path(new_url))
 
-        name, ext = os.path.splitext(url)
-        name = os.path.basename(name)
-
-        self.rename_win = RenameWin(name)
-        self.rename_win.finished_.connect(lambda text: finished(text, ext))
+        self.rename_win = RenameWin(os.path.basename(url))
+        self.rename_win.finished_.connect(lambda text: finished(text))
         self.rename_win.center(self.window())
         self.rename_win.show()
 
