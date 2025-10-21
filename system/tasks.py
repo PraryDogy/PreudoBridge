@@ -829,6 +829,7 @@ class ToJpegConverter(URunnable):
 
     def task(self):
         urls = [i for i in self.urls if i.endswith(Static.ext_all)]
+        urls.sort(key=lambda p: os.path.getsize(p))
         self.sigs.set_progress_len.emit(len(urls))
         for x, url in enumerate(urls, start=1):
             save_path = self._save_jpg(url)
