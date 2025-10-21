@@ -343,13 +343,16 @@ class Grid(UScrollArea):
 
     def dirs_watcher_start(self):
         self.dirs_wacher = DirWatcher(self.main_win_item.main_dir)
-        self.dirs_wacher.sigs.changed.connect(self.find_changes)
+        self.dirs_wacher.sigs.changed.connect(self.apply_changes)
         UThreadPool.start(self.dirs_wacher)
 
-    def find_changes(self, e: FileSystemEvent):
+    def apply_changes(self, e: FileSystemEvent):
         if e.event_type == "created":
             new_thumb = self.new_thumb(e.src_path)
-            self.load_images([new_thumb, ])
+            for i in self.selected_thumbs:
+                if i.src == e.src_path:
+                    self.select_multiple_thumb(new_thumb)
+            self.load_thumbs_images([new_thumb, ])
         elif e.event_type == "deleted":
             del_thumb = self.del_thumb(e.src_path)
         elif e.event_type == "moved":
@@ -359,7 +362,7 @@ class Grid(UScrollArea):
         self.sort_thumbs()
         self.rearrange_thumbs()
 
-    def load_visible_images(self):
+    def load_visible_thumbs_images(self):
         thumbs = []
         self.main_wid.layout().activate() 
         visible_rect = self.viewport().rect()  # область видимой части
@@ -376,9 +379,9 @@ class Grid(UScrollArea):
         if thumbs:
             for task in self.load_images_tasks:
                 task.set_should_run(False)
-            self.load_images(thumbs)
+            self.load_thumbs_images(thumbs)
 
-    def load_images(self, thumbs: list[Thumb]):
+    def load_thumbs_images(self, thumbs: list[Thumb]):
         """
         Запускает фоновую задачу загрузки изображений для списка Thumb.
         Изображения загружаются из базы данных или из директории, если в БД нет.
@@ -635,7 +638,6 @@ class Grid(UScrollArea):
             for i in urls:
                 if i in self.url_to_wid:
                     self.select_multiple_thumb(self.url_to_wid[i])
-            self.find_changes()
 
         def paste_final(urls: list[str]):
             if CopyItem.get_is_cut():
@@ -786,7 +788,6 @@ class Grid(UScrollArea):
                 wid.set_properties()
                 wid.blue_text_wid.set_text(wid.rating, wid.type_, wid.mod, wid.size)
                 self.select_single_thumb(wid)
-                self.find_changes()
 
         def archive_fin(url):
             try:

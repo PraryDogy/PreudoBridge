@@ -1374,7 +1374,6 @@ class DirWatcher(URunnable):
     def on_dirs_changed(self, e: FileSystemEvent):
         if e.src_path != self.path:
             self.sigs.changed.emit(e)
-            print(e.event_type, e.src_path, e.dest_path)
 
     def task(self):
         observer = Observer()
