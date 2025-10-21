@@ -367,7 +367,10 @@ class Grid(UScrollArea):
             if is_selected:
                 self.select_multiple_thumb(new_thumb)
         elif e.event_type == "modified":
-            ...
+            if e.src_path in self.url_to_wid:
+                wid = self.url_to_wid[e.src_path]
+                wid.set_properties()
+                wid.blue_text_wid.set_text(wid.rating, wid.type_, wid.mod, wid.size)
         self.sort_thumbs()
         self.rearrange_thumbs()
 
