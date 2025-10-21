@@ -214,7 +214,7 @@ class ReadImage:
     @classmethod
     def _read_tiff(cls, path: str) -> np.ndarray | None:
         try:
-            img = tifffile.imread(path)
+            img = tifffile.imread(path, is_ome = False)
             # Проверяем, что изображение трёхмерное
             if img.ndim == 3:
                 channels = min(img.shape)
@@ -242,7 +242,11 @@ class ReadImage:
                 return array_img
             except Exception as e:
                 print("read tiff, PIL error", e)
-                return None
+                try:
+                    return cv2.imread(path)
+                except Exception as e:
+                    print("read tiff, cv2 error", e)
+                    return None
                     
     @classmethod
     def _read_psb(cls, path: str):
