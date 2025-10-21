@@ -5,7 +5,7 @@ from .progressbar_win import ProgressbarWin
 
 class CacheDownloadWin(ProgressbarWin):
     title = "Кэширование папки"
-    preparing_text = "Подготовка"
+    preparing_text = "Ищу изображения"
     caching_text = "Кэширование"
     svg_path = "./icons/warning.svg"
 
