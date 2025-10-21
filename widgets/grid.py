@@ -346,45 +346,20 @@ class Grid(UScrollArea):
         self.dirs_wacher.sigs.changed.connect(self.find_changes)
         UThreadPool.start(self.dirs_wacher)
 
-    def find_changes(self) -> list[Thumb]:
-        self.dirs_wacher.sigs.changed.disconnect()
-        self.finder_urls_loader = FinderUrlsLoader(self.main_win_item)
-        self.finder_urls_loader.sigs.finished_.connect(
-            lambda urls: self.update_changed_thumbs(urls)
-        )
-        UThreadPool.start(self.finder_urls_loader)
-
-    def update_changed_thumbs(self, urls: list[str], timeout: int = 1000) -> list[Thumb]:
-        del_urls = []
-        img_thumbs_update = []
-        for url in urls:
-            if url in self.url_to_wid:
-                thumb = self.url_to_wid[url]
-                st_mtime = int(os.stat(url).st_mtime)
-                if st_mtime and st_mtime != thumb.mod:
-                    thumb.set_properties()
-                    stats = (thumb.rating, thumb.type_, thumb.mod, thumb.size)
-                    thumb.blue_text_wid.set_text(*stats)
-                    if thumb.filename.endswith(Static.ext_all + Static.ext_app):
-                        img_thumbs_update.append(thumb)
-            else:
-                img_thumbs_update.append(self.new_thumb(url))
-        for url, thumb in self.url_to_wid.items():
-            if url not in urls:
-                del_urls.append(url)
-        for url in del_urls:
-            self.del_thumb(url)
-        if not self.url_to_wid:
-            self.create_no_items_label(NoItemsLabel.no_files)
-        else:
-            self.remove_no_items_label()
+    def find_changes(self, e: FileSystemEvent):
+        if e.event_type == "created":
+            new_thumb = self.new_thumb(e.src_path)
+            self.load_images([new_thumb, ])
+        elif e.event_type == "deleted":
+            del_thumb = self.del_thumb(e.src_path)
+        elif e.event_type == "moved":
+            ...
+        elif e.event_type == "modified":
+            ...
         self.sort_thumbs()
         self.rearrange_thumbs()
-        self.dirs_wacher.sigs.changed.connect(self.find_changes)
-        if img_thumbs_update:
-            self.start_load_images_task(img_thumbs_update)
 
-    def load_vis_images(self):
+    def load_visible_images(self):
         thumbs = []
         self.main_wid.layout().activate() 
         visible_rect = self.viewport().rect()  # область видимой части
@@ -399,9 +374,11 @@ class Grid(UScrollArea):
                     if thumb.filename.endswith(Static.ext_all + Static.ext_app):
                         thumbs.append(thumb)
         if thumbs:
-            self.start_load_images_task(thumbs)
+            # for task in self.load_images_tasks:
+            #     task.set_should_run(False)
+            self.load_images(thumbs)
 
-    def start_load_images_task(self, thumbs: list[Thumb]):
+    def load_images(self, thumbs: list[Thumb]):
         """
         Запускает фоновую задачу загрузки изображений для списка Thumb.
         Изображения загружаются из базы данных или из директории, если в БД нет.
@@ -431,8 +408,6 @@ class Grid(UScrollArea):
                     i.set_should_run(False)
 
         if thumbs:
-            for task in self.load_images_tasks:
-                task.set_should_run(False)
             task_ = DbItemsLoader(self.main_win_item, thumbs)
             task_.sigs.update_thumb.connect(update_thumb)
             task_.sigs.finished_.connect(lambda: finalize(task_))
