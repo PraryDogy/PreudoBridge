@@ -213,41 +213,30 @@ class ReadImage:
 
     @classmethod
     def _read_tiff(cls, path: str) -> np.ndarray | None:
-        try:
-            img = tifffile.imread(path, is_ome = False)
-            # Проверяем, что изображение трёхмерное
+        def process_image(img: np.ndarray) -> np.ndarray:
             if img.ndim == 3:
-                channels = min(img.shape)
-                channels_index = img.shape.index(channels)
                 # Транспонируем, если каналы на первом месте
-                if channels_index == 0:
+                if min(img.shape) == img.shape[0]:
                     img = img.transpose(1, 2, 0)
                 # Ограничиваем количество каналов до 3
-                if channels > 3:
+                if img.shape[2] > 3:
                     img = img[:, :, :3]
-                # Преобразуем в uint8, если тип другой
-                if str(img.dtype) != "uint8":
-                    img = (img / 256).astype(dtype="uint8")
-            # Если изображение уже 2D, просто показываем его
+                # Преобразуем в uint8
+                if img.dtype != np.uint8:
+                    img = (img / 256).astype(np.uint8)
             elif img.ndim == 2:
                 img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
             return img
-        except (tifffile.TiffFileError, RuntimeError, DelayedImportError, Exception) as e: 
-            print("read tiff, tifffile error", e)
+
+        for loader in (lambda p: tifffile.imread(p, is_ome=False),
+                    lambda p: np.array(Image.open(p).convert("RGB")),
+                    lambda p: cv2.imread(p)):
             try:
-                img = Image.open(path)
-                img = img.convert("RGB")
-                array_img = np.array(img)
-                img.close()
-                return array_img
+                return process_image(loader(path))
             except Exception as e:
-                print("read tiff, PIL error", e)
-                try:
-                    return cv2.imread(path)
-                except Exception as e:
-                    print("read tiff, cv2 error", e)
-                    return None
-                    
+                print(f"read tiff error with {loader.__name__}: {e}")
+        return None
+
     @classmethod
     def _read_psb(cls, path: str):
         try:
