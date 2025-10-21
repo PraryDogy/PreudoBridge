@@ -227,10 +227,12 @@ class ReadImage:
             elif img.ndim == 2:
                 img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
             return img
-
-        for loader in (lambda p: tifffile.imread(p, is_ome=False),
-                    lambda p: np.array(Image.open(p).convert("RGB")),
-                    lambda p: cv2.imread(p)):
+        readers = (
+            lambda p: tifffile.imread(p, is_ome=False),
+            lambda p: np.array(Image.open(p).convert("RGB")),
+            lambda p: cv2.imread(p)
+        )
+        for loader in readers:
             try:
                 return process_image(loader(path))
             except Exception as e:
