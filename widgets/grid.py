@@ -382,9 +382,7 @@ class Grid(UScrollArea):
             qsize = QSize(thumb.width(), thumb.height())
             widget_rect = QRect(widget_rect, qsize)
             if visible_rect.intersects(widget_rect):
-                if thumb.base_pixmap is None: # такое подходит для первой загрузки сетки но не для повторного обновления
-                    if thumb.filename.endswith(Static.ext_all + Static.ext_app):
-                        thumbs.append(thumb)
+                thumbs.append(thumb)
         if thumbs:
             for task in self.load_images_tasks:
                 task.set_should_run(False)
