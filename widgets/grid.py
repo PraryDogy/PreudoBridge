@@ -347,14 +347,16 @@ class Grid(UScrollArea):
         UThreadPool.start(self.dirs_wacher)
 
     def apply_changes(self, e: FileSystemEvent):
-        if e.event_type == "created":
+        if e.event_type == "deleted":
+            del_thumb = self.del_thumb(e.src_path)
+        elif e.event_type == "created":
             new_thumb = self.new_thumb(e.src_path)
             for i in self.selected_thumbs:
+                print(i.src, e.src_path)
                 if i.src == e.src_path:
                     self.select_multiple_thumb(new_thumb)
             self.load_thumbs_images([new_thumb, ])
-        elif e.event_type == "deleted":
-            del_thumb = self.del_thumb(e.src_path)
+
         elif e.event_type == "moved":
             ...
         elif e.event_type == "modified":
