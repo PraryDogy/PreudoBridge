@@ -341,10 +341,10 @@ class TableView(QTableView):
         name, ext = os.path.splitext(url)
         name = os.path.basename(name)
 
-        self.rename_row = RenameWin(name)
-        self.rename_row.finished_.connect(lambda text: finished(text, ext))
-        self.rename_row.center(self.window())
-        self.rename_row.show()
+        self.rename_win = RenameWin(name)
+        self.rename_win.finished_.connect(lambda text: finished(text, ext))
+        self.rename_win.center(self.window())
+        self.rename_win.show()
 
     def item_context(self, menu_: UMenu, selected_path: str, urls: list[str], names: list[str], total: int):
         urls = self.get_selected_urls()
