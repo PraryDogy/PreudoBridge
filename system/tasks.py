@@ -2,8 +2,8 @@ import difflib
 import gc
 import os
 import shutil
-import zipfile
 import time
+import zipfile
 
 import numpy as np
 import sqlalchemy
@@ -12,6 +12,8 @@ from PyQt5.QtCore import QObject, QRunnable, QThreadPool, QTimer, pyqtSignal
 from PyQt5.QtGui import QImage
 from PyQt5.QtTest import QTest
 from sqlalchemy.exc import IntegrityError, OperationalError
+from watchdog.events import FileSystemEventHandler
+from watchdog.observers.polling import PollingObserver as Observer
 
 from cfg import JsonData, Static, ThumbData
 from system.shared_utils import PathFinder, ReadImage, SharedUtils
@@ -1348,3 +1350,41 @@ class FileInfo(URunnable):
             return "\n".join(text)
         else:
             return text
+
+
+
+
+class DirChangedHandler(FileSystemEventHandler):
+    def __init__(self, callback):
+        super().__init__()
+        self.callback = callback
+
+    def on_any_event(self, event):
+        self.callback(event)
+
+
+class DirWatcher(URunnable):
+
+    class Sigs(QObject):
+        changed = pyqtSignal(str)
+
+    def __init__(self, path: str):
+        super().__init__()
+        self.path = path
+        self.signals = DirWatcher.Sigs()
+        self._running = True
+
+    def stop(self):
+        self._running = False
+
+    def task(self):
+        observer = Observer()
+        handler = DirChangedHandler(lambda e: self.signals.changed.emit(e.src_path))
+        observer.schedule(handler, self.path, recursive=False)
+        observer.start()
+        try:
+            while self._running:
+                time.sleep(1)
+        finally:
+            observer.stop()
+            observer.join()
