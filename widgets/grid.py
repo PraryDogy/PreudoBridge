@@ -808,11 +808,8 @@ class Grid(UScrollArea):
                 ...
 
         def rename_fin(text: str):
-            archive_name = text
-            if not archive_name.endswith((".ZIP", ".zip")):
-                archive_name = archive_name + ".zip"
             files = [i.src for i in self.selected_thumbs]
-            zip_path = os.path.join(self.main_win_item.main_dir, archive_name)
+            zip_path = os.path.join(self.main_win_item.main_dir, text)
 
             self.archive_win = ArchiveWin(files, zip_path)
             assert isinstance(self.archive_win, ArchiveWin)
@@ -823,9 +820,10 @@ class Grid(UScrollArea):
 
         if len(self.selected_thumbs) == 1:
             text = self.selected_thumbs[0].filename
-            text, _ = os.path.splitext(text)
+            text, ext = os.path.splitext(text)
+            text = f"{text}.zip"
         else:
-            text = "архив.zip"
+            text = "Архив.zip"
 
         self.rename_win = RenameWin(text)
         self.rename_win.center(self.window())

@@ -324,7 +324,7 @@ class TableView(QTableView):
         def finished(*args):
             QTimer.singleShot(300, lambda: self.select_path(zip_path))
 
-        zip_path = os.path.join(self.main_win_item.main_dir, "архив.zip")
+        zip_path = os.path.join(self.main_win_item.main_dir, "Архив.zip")
         self.archive_win = ArchiveWin(urls, zip_path)
         self.archive_win.finished_.connect(finished)
         self.archive_win.center(self.window())
