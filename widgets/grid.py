@@ -10,12 +10,13 @@ from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
                              QGridLayout, QLabel, QRubberBand, QSplitter,
                              QVBoxLayout, QWidget)
+from watchdog.events import FileSystemEvent
 
 from cfg import Dynamic, JsonData, Static, ThumbData
 from system.items import BaseItem, CopyItem, MainWinItem, SortItem
 from system.shared_utils import SharedUtils
-from system.tasks import (DbItemsLoader, FinderUrlsLoader, RatingTask,
-                          UThreadPool)
+from system.tasks import (DbItemsLoader, DirWatcher, FinderUrlsLoader,
+                          RatingTask, UThreadPool)
 from system.utils import Utils
 
 from ._base_widgets import UMenu, UScrollArea
@@ -337,45 +338,16 @@ class Grid(UScrollArea):
         self.grid_layout.setAlignment(flags)
         self.main_wid.setLayout(self.grid_layout)
 
-        self.st_mtime = self.get_st_mtime(self.main_win_item.main_dir)
-        self.st_mtime_timer = QTimer(self)
-        self.st_mtime_timer.setSingleShot(True)
-        self.st_mtime_timer.timeout.connect(lambda: self.watch_dir_changes())
         if not self.is_grid_search:
-            self.st_mtime_timer.start(100)
+            self.dirs_watcher_start()
 
-    def get_st_mtime(self, url: str):
-        try:
-            return int(os.stat(url).st_mtime)
-        except Exception:
-            print("grid > get st mtime > file not found", url)
-            return None
+    def dirs_watcher_start(self):
+        self.dirs_wacher = DirWatcher(self.main_win_item.main_dir)
+        self.dirs_wacher.sigs.changed.connect(self.find_changes)
+        UThreadPool.start(self.dirs_wacher)
 
-    def watch_dir_changes(self, timeout: int = 1000):
-        """
-        Проверяет, изменилось ли время модификации главной директории.
-        Если изменилось — вызывает обновление изменённых Thumb.
-        Повторяет проверку каждые 2 секунды.
-        """
-        new_st_mtime = self.get_st_mtime(self.main_win_item.main_dir)
-
-        if new_st_mtime and new_st_mtime != self.st_mtime:
-            self.st_mtime = new_st_mtime
-            self.st_mtime_timer.stop()
-            self.start_finder_urls_task()
-        else:
-            self.st_mtime_timer.stop()
-            self.st_mtime_timer.start(timeout)
-
-    def force_update_thumbs(self):
-        self.st_mtime_timer.stop()
-        self.start_finder_urls_task()
-
-    def start_finder_urls_task(self) -> list[Thumb]:
-        """
-        Обходит все Thumb и обновляет те, у которых изменилось
-        время модификации. Возвращает список изменённых Thumb.
-        """
+    def find_changes(self) -> list[Thumb]:
+        self.dirs_wacher.sigs.changed.disconnect()
         self.finder_urls_loader = FinderUrlsLoader(self.main_win_item)
         self.finder_urls_loader.sigs.finished_.connect(
             lambda urls: self.update_changed_thumbs(urls)
@@ -388,7 +360,7 @@ class Grid(UScrollArea):
         for url in urls:
             if url in self.url_to_wid:
                 thumb = self.url_to_wid[url]
-                st_mtime = self.get_st_mtime(url)
+                st_mtime = int(os.stat(url).st_mtime)
                 if st_mtime and st_mtime != thumb.mod:
                     thumb.set_properties()
                     stats = (thumb.rating, thumb.type_, thumb.mod, thumb.size)
@@ -408,7 +380,7 @@ class Grid(UScrollArea):
             self.remove_no_items_label()
         self.sort_thumbs()
         self.rearrange_thumbs()
-        self.st_mtime_timer.start(timeout)
+        self.dirs_wacher.sigs.changed.connect(self.find_changes)
         if img_thumbs_update:
             self.start_load_images_task(img_thumbs_update)
 
@@ -688,7 +660,7 @@ class Grid(UScrollArea):
             for i in urls:
                 if i in self.url_to_wid:
                     self.select_multiple_thumb(self.url_to_wid[i])
-            self.force_update_thumbs()
+            self.find_changes()
 
         def paste_final(urls: list[str]):
             if CopyItem.get_is_cut():
@@ -839,7 +811,7 @@ class Grid(UScrollArea):
                 wid.set_properties()
                 wid.blue_text_wid.set_text(wid.rating, wid.type_, wid.mod, wid.size)
                 self.select_single_thumb(wid)
-                self.force_update_thumbs()
+                self.find_changes()
 
         def archive_fin(url):
             try:
@@ -1341,6 +1313,7 @@ class Grid(UScrollArea):
         return super().dropEvent(a0)
 
     def deleteLater(self):
+        self.dirs_wacher.set_should_run(False)
         for i in self.load_images_tasks:
             i.set_should_run(False)
         urls = [i.src for i in self.selected_thumbs]
@@ -1351,6 +1324,7 @@ class Grid(UScrollArea):
         return super().deleteLater()
     
     def closeEvent(self, a0):
+        self.dirs_wacher.set_should_run(False)
         for i in self.load_images_tasks:
             i.set_should_run(False)
         urls = [i.src for i in self.selected_thumbs]

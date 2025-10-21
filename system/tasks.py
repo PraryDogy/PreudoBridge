@@ -12,7 +12,7 @@ from PyQt5.QtCore import QObject, QRunnable, QThreadPool, QTimer, pyqtSignal
 from PyQt5.QtGui import QImage
 from PyQt5.QtTest import QTest
 from sqlalchemy.exc import IntegrityError, OperationalError
-from watchdog.events import FileSystemEventHandler
+from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers.polling import PollingObserver as Observer
 
 from cfg import JsonData, Static, ThumbData
@@ -1352,9 +1352,7 @@ class FileInfo(URunnable):
             return text
 
 
-
-
-class DirChangedHandler(FileSystemEventHandler):
+class _DirChangedHandler(FileSystemEventHandler):
     def __init__(self, callback):
         super().__init__()
         self.callback = callback
@@ -1366,24 +1364,25 @@ class DirChangedHandler(FileSystemEventHandler):
 class DirWatcher(URunnable):
 
     class Sigs(QObject):
-        changed = pyqtSignal(str)
+        changed = pyqtSignal(object)
 
     def __init__(self, path: str):
         super().__init__()
         self.path = path
-        self.signals = DirWatcher.Sigs()
-        self._running = True
+        self.sigs = DirWatcher.Sigs()
 
-    def stop(self):
-        self._running = False
+    def on_dirs_changed(self, e: FileSystemEvent):
+        if e.src_path != self.path:
+            self.sigs.changed.emit(e)
 
     def task(self):
         observer = Observer()
-        handler = DirChangedHandler(lambda e: self.signals.changed.emit(e.src_path))
+        handler = _DirChangedHandler(lambda e: self.sigs.changed.emit(e.src_path))
+        handler = _DirChangedHandler(lambda e: self.on_dirs_changed(e))
         observer.schedule(handler, self.path, recursive=False)
         observer.start()
         try:
-            while self._running:
+            while self.is_should_run():
                 time.sleep(1)
         finally:
             observer.stop()
