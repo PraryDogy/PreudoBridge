@@ -325,6 +325,7 @@ class Grid(UScrollArea):
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.selected_thumbs: list[Thumb] = []
         self.load_images_tasks: list[DbItemsLoader] = []
+        self.removed_urls: list[Thumb] = []
         self.wid_under_mouse: Thumb = None
 
         self.main_wid = QWidget()
@@ -350,18 +351,23 @@ class Grid(UScrollArea):
         is_selected = any(True for i in self.selected_thumbs if i.src == e.src_path)
         new_thumb = None
         if e.event_type == "deleted":
+            if is_selected:
+                self.removed_urls.append(e.src_path)
             self.del_thumb(e.src_path)
         elif e.event_type == "created":
             new_thumb = self.new_thumb(e.src_path)
             self.load_thumbs_images([new_thumb, ])
+            if e.src_path in self.removed_urls:
+                self.select_multiple_thumb(new_thumb)
+                self.removed_urls.remove(e.src_path)
         elif e.event_type == "moved":
             self.del_thumb(e.src_path)
             new_thumb = self.new_thumb(e.dest_path)
             self.load_thumbs_images([new_thumb, ])
+            if is_selected:
+                self.select_multiple_thumb(new_thumb)
         elif e.event_type == "modified":
             ...
-        if is_selected and new_thumb:
-            self.select_multiple_thumb(new_thumb)
         self.sort_thumbs()
         self.rearrange_thumbs()
 
