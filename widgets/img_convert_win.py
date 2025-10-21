@@ -19,8 +19,12 @@ class ImgConvertWin(ProgressbarWin):
             self.img_task = ToJpegConverter(urls)
             self.img_task.sigs.set_progress_len.connect(lambda value: self.progressbar.setMaximum(value))
             self.img_task.sigs.progress_value.connect(lambda value: self.set_value_cmd(value))
+            self.img_task.sigs.set_filename.connect(lambda text: self.set_filename(text))
             self.img_task.sigs.finished_.connect(lambda urls:self.finished_cmd(urls))
             UThreadPool.start(self.img_task)
+
+    def set_filename(self, filename: str):
+        self.below_label.setText(f"{self.limit_string(filename)}")
 
     def set_value_cmd(self, value: int):
         self.above_label.setText(f"{value} из {len(self.urls)}")
@@ -29,3 +33,8 @@ class ImgConvertWin(ProgressbarWin):
     def finished_cmd(self, urls: list[str]):
         # subprocess.run(["osascript", Static.REVEAL_SCPT] + urls)
         self.finished_.emit(urls)
+
+    def limit_string(self, text: str, limit: int = 15):
+        if len(text) > limit:
+            return text[:limit] + "..."
+        return text

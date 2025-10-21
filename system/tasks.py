@@ -830,6 +830,7 @@ class ToJpegConverter(URunnable):
         finished_ = pyqtSignal(list)
         progress_value = pyqtSignal(int)
         set_progress_len = pyqtSignal(int)
+        set_filename = pyqtSignal(str)
 
     def __init__(self, urls: list[str]):
         super().__init__()
@@ -846,6 +847,7 @@ class ToJpegConverter(URunnable):
             if save_path:
                 self.new_urls.append(save_path)
             self.sigs.progress_value.emit(x)
+            self.sigs.set_filename.emit(os.path.basename(url))
         self.sigs.finished_.emit(self.new_urls)
 
     def _save_jpg(self, src: str) -> None:
