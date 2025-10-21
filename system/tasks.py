@@ -4,6 +4,7 @@ import os
 import shutil
 import time
 import zipfile
+from time import sleep
 
 import numpy as np
 import sqlalchemy
@@ -716,7 +717,7 @@ class DbItemsLoader(URunnable):
                 print("tasks, LoadImagesTask update_thumb.emit error", e)
                 self.set_should_run(False)
                 break
-            img = ReadImage.read_image(i.src)
+            img = self.read_image(i.src)
             img = SharedUtils.fit_image(img, ThumbData.DB_IMAGE_SIZE)
             qimage = Utils.qimage_from_array(img)
             i.qimage = qimage
@@ -727,6 +728,15 @@ class DbItemsLoader(URunnable):
                 self.set_should_run(False)
                 print("tasks, LoadImagesTask update_thumb.emit error", e)
                 break
+
+    def read_image(self, src: str):
+        for i in range(0, 10):
+            img = ReadImage.read_image(src)
+            if img is None:
+                sleep(1)
+            else:
+                return img
+        return None
 
     def get_item_rating(self, base_item: BaseItem) -> bool:
         stmt = sqlalchemy.select(Clmns.rating)
