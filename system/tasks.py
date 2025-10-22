@@ -727,6 +727,8 @@ class DbItemsLoader(URunnable):
         for _ in range(3):
             new_corrupted = []
             for i in self.corrupted_items:
+                if not self.is_should_run():
+                    return
                 img = ReadImage.read_image(i.src)
                 if not img:
                     new_corrupted.append(i)
