@@ -749,7 +749,7 @@ class DbItemsLoader(URunnable):
     
     def set_loading_thumb(self, thumb: BaseItem):
         try:
-            self.sigs.set_loading.emit(BaseItem)
+            self.sigs.set_loading.emit(thumb)
         except RuntimeError as e:
             self.set_should_run(False)
             print("tasks, LoadImagesTask set_loading.emit error", e)
