@@ -219,8 +219,8 @@ class MainWin(WinBase):
             self.favs_menu.open_in_new_win: lambda d: self.open_in_new_win((d, None)),
 
             # rating_menu
-            self.rating_menu.filter_thumbs: self.grid.filter_thumbs,
-            self.rating_menu.rearrange_thumbs: self.grid.rearrange_thumbs,
+            self.rating_menu.filter_thumbs: lambda: (self.grid.filter_thumbs()),
+            self.rating_menu.rearrange_thumbs: lambda: self.grid.rearrange_thumbs(),
 
             # top_bar
             self.top_bar.level_up: self.level_up,

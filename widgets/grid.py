@@ -282,6 +282,7 @@ class Thumb(BaseItem, QFrame):
 class NoItemsLabel(QLabel):
     no_files = "Нет файлов"
     no_conn = "Такой папки не существует. \nВозможно не подключен сетевой диск."
+    no_filter = "Нет файлов с выбранным рейтингом или фильтром."
     def __init__(self, text: str):
         super().__init__(text)
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -482,6 +483,7 @@ class Grid(UScrollArea):
         но не удалены.  
         Необходимо затем вызвать метод rearrange
         """
+        visible_thumbs = 0
         for wid in self.url_to_wid.values():
             show_widget = True
             if Dynamic.rating_filter > 0 and wid.rating != Dynamic.rating_filter:
@@ -491,9 +493,14 @@ class Grid(UScrollArea):
             if show_widget:
                 wid.must_hidden = False
                 wid.show()
+                visible_thumbs += 1
             else:
                 wid.must_hidden = True
                 wid.hide()
+        if visible_thumbs == 0:
+            self.create_no_items_label(NoItemsLabel.no_filter)
+        else:
+            self.remove_no_items_label()
 
     def resize_thumbs(self):
         """

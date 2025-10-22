@@ -145,7 +145,6 @@ class GridStandart(Grid):
         # которая скроет из сетки не подходящие под фильтр виджеты
         if Dynamic.rating_filter > 0 or Dynamic.word_filter:
             self.filter_thumbs()
-
         self.rearrange_thumbs()
         QTimer.singleShot(100, self.load_visible_thumbs_images)
 
