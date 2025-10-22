@@ -371,6 +371,10 @@ class Grid(UScrollArea):
                 wid = self.url_to_wid[e.src_path]
                 wid.set_properties()
                 wid.blue_text_wid.set_text(wid.rating, wid.type_, wid.mod, wid.size)
+        if not self.url_to_wid:
+            self.create_no_items_label(NoItemsLabel.no_files)
+        else:
+            self.remove_no_items_label()
         self.sort_thumbs()
         self.rearrange_thumbs()
 
