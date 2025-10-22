@@ -501,7 +501,7 @@ class TopBar(QWidget):
             Dynamic.word_filter = text
             self.filter_clicked.emit()
 
-        self.filter_win = RenameWin("")
+        self.filter_win = RenameWin(Dynamic.word_filter)
         self.filter_win.setWindowTitle("Фильтр")
         self.filter_win.finished_.connect(lambda text: fin(text))
         self.filter_win.center(self.window())

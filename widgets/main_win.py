@@ -231,6 +231,7 @@ class MainWin(WinBase):
             self.top_bar.open_in_new_win: lambda d: self.open_in_new_win((d, None)),
             self.top_bar.open_settings: self.open_settings,
             self.top_bar.new_folder: self.new_folder,
+            self.top_bar.filter_clicked: lambda: self.grid.filter_thumbs(),
 
             # search_bar
             self.search_bar.on_filter_clicked: self.load_search_grid,

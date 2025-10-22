@@ -487,6 +487,9 @@ class Grid(UScrollArea):
             if Dynamic.rating_filter > 0:
                 if wid.rating != Dynamic.rating_filter:
                     show_widget = False
+            if Dynamic.word_filter:
+                if Dynamic.word_filter not in wid.filename:
+                    show_widget = False
             if show_widget:
                 wid.must_hidden = False
                 wid.show()
