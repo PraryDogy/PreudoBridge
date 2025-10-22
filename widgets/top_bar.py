@@ -31,12 +31,12 @@ class BarTopBtn(QWidget):
         self.v_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setLayout(self.v_lay)
 
-        svg_frame = UFrame()
-        svg_frame.setFixedSize(self.width_, self.height_)
+        self.svg_frame = UFrame()
+        self.svg_frame.setFixedSize(self.width_, self.height_)
         svg_lay = QHBoxLayout()
         svg_lay.setContentsMargins(0, 0, 0, 0)
-        svg_frame.setLayout(svg_lay)
-        self.v_lay.addWidget(svg_frame, alignment=Qt.AlignmentFlag.AlignCenter)
+        self.svg_frame.setLayout(svg_lay)
+        self.v_lay.addWidget(self.svg_frame, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.svg_btn = USvgSqareWidget(None, BarTopBtn.svg_size)
         svg_lay.addWidget(self.svg_btn)
@@ -48,6 +48,9 @@ class BarTopBtn(QWidget):
 
     def load(self, path: str):
         self.svg_btn.load(path)
+
+    def set_pressed(self, value: bool):
+        self.svg_frame.pressed = value
 
     def mouseReleaseEvent(self, a0):
         if a0.button() == Qt.MouseButton.LeftButton:
@@ -499,6 +502,12 @@ class TopBar(QWidget):
 
         def fin(text: str):
             Dynamic.word_filter = text
+            if text:
+                self.filter_btn.svg_frame.setStyleSheet(self.filter_btn.svg_frame.solid_style())
+                self.filter_btn.svg_frame.pressed = True
+            else:
+                self.filter_btn.svg_frame.setStyleSheet(self.filter_btn.svg_frame.normal_style())
+                self.filter_btn.svg_frame.pressed = False
             self.filter_clicked.emit()
 
         self.filter_win = RenameWin(Dynamic.word_filter)

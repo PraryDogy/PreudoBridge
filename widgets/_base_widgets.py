@@ -236,6 +236,7 @@ class UFrame(QFrame):
         При наведении курсора мыши на виджет, он принимает выделенный стиль
         """
         super().__init__()
+        self.pressed = False
         self.setObjectName(UFrame.object_name)
         self.setStyleSheet(self.normal_style())
 
@@ -258,7 +259,8 @@ class UFrame(QFrame):
         self.setStyleSheet(self.solid_style())
 
     def leaveEvent(self, a0):
-        self.setStyleSheet(self.normal_style())
+        if not self.pressed:
+            self.setStyleSheet(self.normal_style())
 
 
 class WinBase(QWidget):
