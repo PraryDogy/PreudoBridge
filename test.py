@@ -1,6 +1,7 @@
-test = [1, 2, 3, 4, 5, 6]
-abc = 234
+from system.utils import Utils
 
-is_selected = any(i for i in test if i==abc)
 
-print(is_selected)
+
+src = "/Users/Loshkarev/Documents/Разное/Progs/PreudoBridge.app"
+hash_ = Utils.get_app_icns(src)
+print(hash_)

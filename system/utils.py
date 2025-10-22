@@ -51,10 +51,6 @@ class Utils:
             if os.path.exists(new_path):
                 return new_path
         return None
-
-    @classmethod
-    def get_hash_filename(cls, filename: str):
-        return hashlib.md5(filename.encode('utf-8')).hexdigest()
     
     @classmethod
     def get_icon_path(cls, ext: str, icons_dir: str):
@@ -166,16 +162,22 @@ class Utils:
                 img = thumb_array
             elif thumb_array.shape[2] == 3:  # BGR
                 img = cv2.cvtColor(thumb_array, cv2.COLOR_BGR2RGB)
-            elif thumb_array.shape[2] == 4:  # BGRA
-                img = cv2.cvtColor(thumb_array, cv2.COLOR_BGRA2RGB)
+            elif thumb_array.shape[2] == 4:  # BGRA (с альфой)
+                img = cv2.cvtColor(thumb_array, cv2.COLOR_BGRA2RGBA)  # сохраняем альфу
             else:
                 print(f"write_thumb: неподдерживаемое число каналов {thumb_array.shape}")
-                return None
+                return False
+
             os.makedirs(os.path.dirname(thumb_path), exist_ok=True)
-            return cv2.imwrite(thumb_path, img)
+            ext = os.path.splitext(thumb_path)[1].lower()
+            if ext == ".png":
+                return cv2.imwrite(thumb_path, img, [cv2.IMWRITE_PNG_COMPRESSION, 3])
+            else:
+                return cv2.imwrite(thumb_path, img)
         except Exception as e:
             print(f"write_thumb: ошибка записи thumb на диск: {e}")
-            return None
+            return False
+
 
     @classmethod
     def read_thumb(cls, thumb_path: str) -> np.ndarray | None:
@@ -213,14 +215,13 @@ class Utils:
         return {"total": total, "count": count}
 
     @classmethod
-    def load_icns_qimage(cls, path: str, size: int = 128) -> QImage | None:
+    def img_to_qimg(cls, image: Image.Image) -> QImage | None:
         try:
-            im = Image.open(path).convert("RGBA")
             qimage = QImage(
-                im.tobytes(),
-                im.width,
-                im.height,
-                im.width * 4,
+                image.tobytes(),
+                image.width,
+                image.height,
+                image.width * 4,
                 QImage.Format_RGBA8888
             )
             return qimage.copy()
