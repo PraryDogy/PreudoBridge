@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
 
 from ._base_widgets import MinMaxDisabledWin, ULineEdit
-
+import os
 
 class RenameWin(MinMaxDisabledWin):
     finished_ = pyqtSignal(str)
@@ -32,7 +32,6 @@ class RenameWin(MinMaxDisabledWin):
         self.input_wid.setFixedWidth(RenameWin.input_width)
         self.input_wid.setPlaceholderText(RenameWin.placeholder_text)
         self.input_wid.setText(text)
-        self.input_wid.selectAll()
         v_lay.addWidget(self.input_wid)
 
         h_wid = QWidget()
@@ -55,8 +54,10 @@ class RenameWin(MinMaxDisabledWin):
         h_lay.addWidget(cancel_btn)
 
         h_lay.addStretch()
-
         self.adjustSize()
+
+        text, ext = os.path.splitext(text)
+        self.input_wid.setSelection(0, len(text))
 
     def finish_rename(self):
         self.finished_.emit(self.input_wid.text())
