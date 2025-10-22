@@ -1408,6 +1408,12 @@ class DirWatcher(URunnable):
             # print(e.event_type)
 
     def task(self):
+        try:
+            self._task()
+        except Exception as e:
+            print("tasks > DirWatcher error", e)
+
+    def _task(self):
         observer = Observer()
         handler = _DirChangedHandler(lambda e: self.sigs.changed.emit(e.src_path))
         handler = _DirChangedHandler(lambda e: self.on_dirs_changed(e))
