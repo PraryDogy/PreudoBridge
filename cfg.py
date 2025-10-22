@@ -7,7 +7,7 @@ from collections import defaultdict
 
 class Static:
     APP_NAME = "PreudoBridge"
-    APP_VER = 3.50
+    APP_VER = 3.52
 
     APP_SUPPORT = os.path.join(os.path.expanduser('~/Library/Application Support'), APP_NAME)
     EXTERNAL_ICONS = os.path.join(APP_SUPPORT, "icons")
