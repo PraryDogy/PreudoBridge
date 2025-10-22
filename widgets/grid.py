@@ -484,12 +484,10 @@ class Grid(UScrollArea):
         """
         for wid in self.url_to_wid.values():
             show_widget = True
-            if Dynamic.rating_filter > 0:
-                if wid.rating != Dynamic.rating_filter:
-                    show_widget = False
-            if Dynamic.word_filter:
-                if Dynamic.word_filter not in wid.filename:
-                    show_widget = False
+            if Dynamic.rating_filter > 0 and wid.rating != Dynamic.rating_filter:
+                show_widget = False
+            if Dynamic.word_filter and Dynamic.word_filter not in wid.filename:
+                show_widget = False
             if show_widget:
                 wid.must_hidden = False
                 wid.show()
