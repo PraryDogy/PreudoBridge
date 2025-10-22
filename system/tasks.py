@@ -587,9 +587,9 @@ class DbItemsLoader(URunnable):
         self.sigs = DbItemsLoader.Sigs()
         self.main_win_item = main_win_item
         self.base_items = base_items
-        key_ = lambda x: x.size
-        self.base_items.sort(key=key_)
+        self.base_items.sort(key=lambda x: x.size)
         self.conn = Dbase.get_conn(Dbase.engine)
+        self.corrupted_items: list[BaseItem] = []
 
     def task(self):
         """
@@ -653,6 +653,7 @@ class DbItemsLoader(URunnable):
         self.execute_exist_images(exist_images)
         self.execute_new_images(new_images)
         self.execute_stmt_list(stmt_list)
+        self.execute_corrupted_images()
     
     def execute_stmt_list(self, stmt_list: list):
         for i in stmt_list:
@@ -711,33 +712,47 @@ class DbItemsLoader(URunnable):
         for i in new_images:
             if not self.is_should_run():
                 break
-            try:
-                self.sigs.set_loading.emit(i)
-            except RuntimeError as e:
-                print("tasks, LoadImagesTask update_thumb.emit error", e)
-                self.set_should_run(False)
-                break
-            img = self.read_image(i.src)
-            img = SharedUtils.fit_image(img, ThumbData.DB_IMAGE_SIZE)
-            qimage = Utils.qimage_from_array(img)
-            i.qimage = qimage
-            Utils.write_thumb(i.thumb_path, img)
-            try:
-                self.sigs.update_thumb.emit(i)
-            except RuntimeError as e:
-                self.set_should_run(False)
-                print("tasks, LoadImagesTask update_thumb.emit error", e)
-                break
-
-    def read_image(self, src: str, count: int = 3, sleep_: int = 3):
-        for i in range(0, count):
-            img = ReadImage.read_image(src)
-            if img is None:
-                print("wait img", src)
-                sleep(sleep_)
+            self.set_loading_thumb(i)
+            img = ReadImage.read_image(i.src)
+            if not img:
+                self.corrupted_items.append(i)
             else:
-                return img
-        return None
+                img = SharedUtils.fit_image(img, ThumbData.DB_IMAGE_SIZE)
+                qimage = Utils.qimage_from_array(img)
+                i.qimage = qimage
+                Utils.write_thumb(i.thumb_path, img)
+            self.update_thumb(i)
+    
+    def execute_corrupted_images(self):
+        for _ in range(3):
+            new_corrupted = []
+            for i in self.corrupted_items:
+                img = ReadImage.read_image(i.src)
+                if not img:
+                    new_corrupted.append(i)
+                    continue
+                img = SharedUtils.fit_image(img, ThumbData.DB_IMAGE_SIZE)
+                i.qimage = Utils.qimage_from_array(img)
+                Utils.write_thumb(i.thumb_path, img)
+                self.update_thumb(i)
+            if not new_corrupted:
+                break
+            self.corrupted_items = new_corrupted
+            sleep(3)
+
+    def update_thumb(self, thumb: BaseItem):
+        try:
+            self.sigs.update_thumb.emit(thumb)
+        except RuntimeError as e:
+            self.set_should_run(False)
+            print("tasks, LoadImagesTask update_thumb.emit error", e)
+    
+    def set_loading_thumb(self, thumb: BaseItem):
+        try:
+            self.sigs.set_loading.emit(BaseItem)
+        except RuntimeError as e:
+            self.set_should_run(False)
+            print("tasks, LoadImagesTask set_loading.emit error", e)
 
     def get_item_rating(self, base_item: BaseItem) -> bool:
         stmt = sqlalchemy.select(Clmns.rating)
