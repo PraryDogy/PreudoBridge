@@ -57,6 +57,9 @@ class RenameWin(MinMaxDisabledWin):
         text, ext = os.path.splitext(text)
         self.input_wid.setSelection(0, len(text))
         self.input_wid.move_clear_btn()
+        if text:
+            self.input_wid.clear_btn.show()
+        # self.input_wid.clear_btn.move(self.input_wid.width() - 20, 5)
 
     def finish_rename(self):
         self.finished_.emit(self.input_wid.text())
