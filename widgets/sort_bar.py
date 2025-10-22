@@ -22,11 +22,12 @@ class GoToBtn(UFrame):
         super().__init__()
 
         h_lay = QHBoxLayout()
-        h_lay.setContentsMargins(2, 2, 2, 2)
+        # h_lay.setContentsMargins(2, 2, 2, 2)
+        h_lay.setContentsMargins(0, 0, 0, 0)
         h_lay.setAlignment(
             Qt.AlignmentFlag.AlignVCenter | Qt.AlignmentFlag.AlignLeft
         )
-        h_lay.setSpacing(5)
+        h_lay.setSpacing(4)
         self.setLayout(h_lay)
 
         self.go_btn = USvgSqareWidget(Static.INTERNAL_ICONS.get("go_to.svg"), GoToBtn.svg_size)
