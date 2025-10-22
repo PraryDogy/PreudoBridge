@@ -29,6 +29,7 @@ class RenameWin(MinMaxDisabledWin):
         self.input_wid.setFixedWidth(RenameWin.input_width)
         self.input_wid.setPlaceholderText(RenameWin.placeholder_text)
         self.input_wid.setText(text)
+        self.input_wid.textChanged.connect(self.text_changed)
         v_lay.addWidget(self.input_wid)
 
         h_wid = QWidget()
@@ -55,10 +56,21 @@ class RenameWin(MinMaxDisabledWin):
 
         text, ext = os.path.splitext(text)
         self.input_wid.setSelection(0, len(text))
+        self.input_wid.move_clear_btn()
 
     def finish_rename(self):
         self.finished_.emit(self.input_wid.text())
         self.deleteLater()
+
+    def text_changed(self, text: str):
+        if text:
+            self.input_wid.clear_btn.show()
+        else:
+            self.input_wid.clear_btn.hide()
+
+    def clear_text(self, *args):
+        self.input_wid.clear_btn.hide()
+        self.input_wid.clear()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() == Qt.Key.Key_Escape:
