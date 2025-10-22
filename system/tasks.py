@@ -716,8 +716,8 @@ class DbItemsLoader(URunnable):
                 Utils.write_thumb(i.thumb_path, img)
             self.update_thumb(i)
     
-    def execute_corrupted_images(self):
-        for _ in range(3):
+    def execute_corrupted_images(self, range_: int = 3, sleep_: int = 3):
+        for _ in range(range_):
             new_corrupted = []
             for i in self.corrupted_items:
                 if not self.is_should_run():
@@ -733,7 +733,7 @@ class DbItemsLoader(URunnable):
             if not new_corrupted:
                 break
             self.corrupted_items = new_corrupted
-            sleep(3)
+            sleep(sleep_)
 
     def update_thumb(self, thumb: BaseItem):
         try:
