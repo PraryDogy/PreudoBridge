@@ -25,11 +25,12 @@ class GoToWin(MinMaxDisabledWin):
         self.set_modality()
         self.setWindowTitle(GoToWin.title_text)
         v_lay = QVBoxLayout()
-        v_lay.setContentsMargins(10, 10, 10, 10)
-        v_lay.setSpacing(10)
+        v_lay.setContentsMargins(10, 10, 10, 5)
+        v_lay.setSpacing(5)
         self.setLayout(v_lay)
 
         self.input_wid = ULineEdit()
+        self.input_wid.textChanged.connect(self.text_changed)
         self.input_wid.setPlaceholderText(GoToWin.placeholder_text)
         self.input_wid.setFixedWidth(GoToWin.input_width)
 
@@ -57,6 +58,13 @@ class GoToWin(MinMaxDisabledWin):
 
         h_lay.addStretch()
         self.adjustSize()
+        self.input_wid.move_clear_btn()
+
+    def text_changed(self, text: str):
+        if text:
+            self.input_wid.clear_btn.show()
+        else:
+            self.input_wid.clear_btn.hide()
 
     def inner_clicked(self):
         data = 0, self.input_wid.text()

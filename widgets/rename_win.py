@@ -59,7 +59,6 @@ class RenameWin(MinMaxDisabledWin):
         self.input_wid.move_clear_btn()
         if text:
             self.input_wid.clear_btn.show()
-        # self.input_wid.clear_btn.move(self.input_wid.width() - 20, 5)
 
     def finish_rename(self):
         self.finished_.emit(self.input_wid.text())
@@ -70,10 +69,6 @@ class RenameWin(MinMaxDisabledWin):
             self.input_wid.clear_btn.show()
         else:
             self.input_wid.clear_btn.hide()
-
-    def clear_text(self, *args):
-        self.input_wid.clear_btn.hide()
-        self.input_wid.clear()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() == Qt.Key.Key_Escape:
