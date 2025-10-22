@@ -663,29 +663,20 @@ class DbItemsLoader(URunnable):
     def execute_app_files(self, app_files: list[BaseItem], size: int = 512):
         app_folder = os.path.join(Static.THUMBNAILS, "app_icons")
         os.makedirs(app_folder, exist_ok=True)
-
         for i in app_files:
             if not self.is_should_run():
                 break
-
             icns_path = Utils.get_app_icns(i.src)
             partial_hash = Utils.get_partial_hash(icns_path)
             new_icns_path = os.path.join(app_folder, partial_hash + ".icns")
-
             if os.path.exists(new_icns_path):
                 img = Image.open(new_icns_path).convert("RGBA")
             else:
                 img = Image.open(icns_path).convert("RGBA").resize((size, size))
                 img.save(new_icns_path, format="PNG")
-
             img_array = np.array(img)
             i.qimage = Utils.qimage_from_array(img_array)
-
-            try:
-                self.sigs.update_thumb.emit(i)
-            except RuntimeError as e:
-                print("tasks, LoadImagesTask, update_thumb.emit error:", e)
-                self.set_should_run(False)
+            self.update_thumb(i)
 
     def execute_svg_files(self, svg_files: list[BaseItem]):
         for i in svg_files:
@@ -694,21 +685,13 @@ class DbItemsLoader(URunnable):
             qimage  = QImage()
             qimage.load(i.src)
             i.qimage = qimage
-            try:
-                self.sigs.update_thumb.emit(i)
-            except RuntimeError as e:
-                print("tasks, LoadImagesTask, update_thumb.emit error", e)
-                self.set_should_run(False)
+            self.update_thumb(i)
 
     def execute_ratings(self, exist_ratings: list[BaseItem]):
         for i in exist_ratings:
             if not self.is_should_run():
                 break
-            try:
-                self.sigs.update_thumb.emit(i)
-            except RuntimeError as e:
-                print("tasks, LoadImagesTask update_thumb.emit error", e)
-                self.set_should_run(False)
+            self.update_thumb(i)
 
     def execute_exist_images(self, exist_images: list[BaseItem]):
         for i in exist_images:
@@ -716,11 +699,7 @@ class DbItemsLoader(URunnable):
                 break
             qimage = Utils.qimage_from_array(Utils.read_thumb(i.thumb_path))
             i.qimage = qimage
-            try:
-                self.sigs.update_thumb.emit(i)
-            except RuntimeError as e:
-                print("tasks, LoadImagesTask update_thumb.emit error", e)
-                self.set_should_run(False)
+            self.update_thumb(i)
 
     def execute_new_images(self, new_images: list[BaseItem]):
         for i in new_images:
