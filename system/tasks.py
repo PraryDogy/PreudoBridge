@@ -707,7 +707,7 @@ class DbItemsLoader(URunnable):
                 break
             self.set_loading_thumb(i)
             img = ReadImage.read_image(i.src)
-            if not img:
+            if img is None:
                 self.corrupted_items.append(i)
             else:
                 img = SharedUtils.fit_image(img, ThumbData.DB_IMAGE_SIZE)
