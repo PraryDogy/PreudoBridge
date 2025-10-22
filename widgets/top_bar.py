@@ -5,11 +5,12 @@ from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import (QAction, QGroupBox, QHBoxLayout, QLabel,
                              QPushButton, QSpacerItem, QVBoxLayout, QWidget)
 
-from cfg import JsonData, Static
+from cfg import Dynamic, JsonData, Static
 from system.items import MainWinItem, SearchItem
 
 from ._base_widgets import (MinMaxDisabledWin, UFrame, ULineEdit, UMenu,
                             USvgSqareWidget, UTextEdit)
+from .rename_win import RenameWin
 
 
 class BarTopBtn(QWidget):
@@ -299,6 +300,7 @@ class TopBar(QWidget):
     open_in_new_win = pyqtSignal(str)
     open_settings = pyqtSignal()
     new_folder = pyqtSignal()
+    filter_clicked = pyqtSignal()
 
     height_ = 46
     history_items_limit = 100
@@ -309,6 +311,7 @@ class TopBar(QWidget):
         "Наверх",
         "Обновить",
         "Новая папка",
+        "Фильтр",
         "Список",
         "Настройки"
     ]
@@ -368,6 +371,11 @@ class TopBar(QWidget):
         self.new_folder_btn.mouseReleaseEvent = cmd
         self.new_folder_btn.load(Static.INTERNAL_ICONS.get("new_folder.svg"))
         self.main_lay.addWidget(self.new_folder_btn)
+
+        self.filter_btn = BarTopBtn()
+        self.filter_btn.clicked.connect(self.filter_btn_cmd)
+        self.filter_btn.load(Static.INTERNAL_ICONS.get("filters.svg"))
+        self.main_lay.addWidget(self.filter_btn)
 
         self.change_view_btn = BarTopBtn()
         self.change_view_btn.mouseReleaseEvent = lambda e: self.change_view.emit()
@@ -486,6 +494,18 @@ class TopBar(QWidget):
             new_main_dir = self.history_items[self.current_index]
             self.main_win_item.main_dir = new_main_dir
             self.load_st_grid.emit()
+
+    def filter_btn_cmd(self):
+
+        def fin(text: str):
+            Dynamic.word_filter = text
+            self.filter_clicked.emit()
+
+        self.filter_win = RenameWin("")
+        self.filter_win.setWindowTitle("Фильтр")
+        self.filter_win.finished_.connect(lambda text: fin(text))
+        self.filter_win.center(self.window())
+        self.filter_win.show()
 
     def resizeEvent(self, a0):
         return super().resizeEvent(a0)

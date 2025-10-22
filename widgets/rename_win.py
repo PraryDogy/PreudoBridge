@@ -25,9 +25,6 @@ class RenameWin(MinMaxDisabledWin):
         v_lay.setSpacing(10)
         self.setLayout(v_lay)
 
-        descr = QLabel(RenameWin.descr_text)
-        v_lay.addWidget(descr)
-
         self.input_wid = ULineEdit() 
         self.input_wid.setFixedWidth(RenameWin.input_width)
         self.input_wid.setPlaceholderText(RenameWin.placeholder_text)
