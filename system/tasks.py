@@ -660,7 +660,7 @@ class DbItemsLoader(URunnable):
             Dbase.execute(self.conn, i)
         Dbase.commit(self.conn)
 
-    def execute_app_files(self, app_files: list[BaseItem]):
+    def execute_app_files(self, app_files: list[BaseItem], size: int = 512):
         app_folder = os.path.join(Static.THUMBNAILS, "app_icons")
         os.makedirs(app_folder, exist_ok=True)
 
@@ -675,7 +675,7 @@ class DbItemsLoader(URunnable):
             if os.path.exists(new_icns_path):
                 img = Image.open(new_icns_path).convert("RGBA")
             else:
-                img = Image.open(icns_path).convert("RGBA").resize((350, 350))
+                img = Image.open(icns_path).convert("RGBA").resize((size, size))
                 img.save(new_icns_path, format="PNG")
 
             img_array = np.array(img)
