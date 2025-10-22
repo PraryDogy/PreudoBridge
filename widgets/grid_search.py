@@ -15,6 +15,10 @@ from ._base_widgets import (MinMaxDisabledWin, NotifyWid, USvgSqareWidget,
 from .grid import Grid, Thumb
 
 
+class DirsWatched:
+    def set_should_run(self): ...
+
+
 class WinMissedFiles(MinMaxDisabledWin):
     title_text = "Внимание!"
     descr_text = "Не найдены файлы:"

@@ -341,6 +341,8 @@ class Grid(UScrollArea):
 
         if not self.is_grid_search:
             self.dirs_watcher_start()
+        else:
+            self.dirs_wacher = DirWatcher("")
 
     def dirs_watcher_start(self):
         self.dirs_wacher = DirWatcher(self.main_win_item.main_dir)

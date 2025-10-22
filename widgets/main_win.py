@@ -234,7 +234,7 @@ class MainWin(WinBase):
 
             # search_bar
             self.search_bar.on_filter_clicked: self.load_search_grid,
-            self.search_bar.on_pause_clicked: self.grid.toggle_pause,
+            self.search_bar.on_pause_clicked: lambda v:self.grid.toggle_pause(v),
             self.search_bar.on_edit_clicked: self.top_bar.on_search_bar_clicked,
             self.search_bar.on_exit_clicked: self.load_st_grid,
 

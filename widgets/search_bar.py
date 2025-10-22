@@ -52,7 +52,7 @@ class SearchBar(QFrame):
     edit_text = "Изменить"
     exit_text = "Выход"
 
-    def __init__(self, search_item: SearchItem):
+    def __init__(self, search_item: SearchItem, btn_w: int = 100):
         super().__init__()
         self.setFixedHeight(SearchBar.height_)
         self.search_item: SearchItem = search_item
@@ -82,17 +82,17 @@ class SearchBar(QFrame):
             menu.addAction(act)
 
         self.edit_btn = QPushButton(text=self.edit_text)
-        self.edit_btn.setFixedWidth(90)
+        self.edit_btn.setFixedWidth(btn_w)
         self.edit_btn.clicked.connect(lambda e: self.on_edit_clicked.emit())
         h_lay.addWidget(self.edit_btn)
 
         self.pause_btn = QPushButton()
-        self.pause_btn.setFixedWidth(90)
+        self.pause_btn.setFixedWidth(btn_w)
         self.pause_btn.clicked.connect(self.pause_btn_cmd)
         h_lay.addWidget(self.pause_btn)
 
         self.stop_btn = QPushButton(text=self.exit_text)
-        self.stop_btn.setFixedWidth(90)
+        self.stop_btn.setFixedWidth(btn_w)
         self.stop_btn.clicked.connect(self.on_exit_clicked.emit)
         h_lay.addWidget(self.stop_btn)
 
