@@ -4,7 +4,7 @@ from PyQt5.QtCore import QMimeData, Qt, QTimer, QUrl, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QDrag, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import QApplication, QHBoxLayout, QLabel, QWidget
 
-from cfg import Static
+from cfg import JsonData, Static
 from system.items import BaseItem, MainWinItem
 from system.utils import Utils
 
@@ -19,6 +19,8 @@ class PathItem(QWidget):
     arrow_right = " \U0000203A" # ›
     height_ = 15
     info_win = pyqtSignal(list)
+    add_fav = pyqtSignal(str)
+    del_fav = pyqtSignal(str)
 
     def __init__(self, dir: str, name: str, main_win_item: MainWinItem):
         """
@@ -102,6 +104,9 @@ class PathItem(QWidget):
         base_item.set_properties()
         self.info_win.emit([base_item, ])
 
+    def fav_cmd(self, offset: int, src: str):
+        (self.add_fav if offset == 1 else self.del_fav).emit(src)
+
     def enterEvent(self, a0):
         """
         Раскрывает виджет на всю его длину при наведении мыши
@@ -119,25 +124,36 @@ class PathItem(QWidget):
         names = [os.path.basename(i) for i in urls]
         total = len(urls)
 
-        menu = UMenu(parent=self)
+        menu_ = UMenu(parent=self)
 
-        info = ItemActions.Info(menu)
+        if self.dir in JsonData.favs:
+            cmd_ = lambda: self.fav_cmd(offset=-1, src=self.dir)
+            fav_action = ItemActions.FavRemove(menu_)
+            fav_action.triggered.connect(cmd_)
+            menu_.addAction(fav_action)
+        else:
+            cmd_ = lambda: self.fav_cmd(offset=1, src=self.dir)
+            fav_action = ItemActions.FavAdd(menu_)
+            fav_action.triggered.connect(cmd_)
+            menu_.addAction(fav_action)
+
+        info = ItemActions.Info(menu_)
         info.triggered.connect(self.open_info_win)
-        menu.addAction(info)
+        menu_.addAction(info)
 
-        menu.addSeparator()
+        menu_.addSeparator()
 
-        show_in_finder_action = ItemActions.RevealInFinder(menu, urls)
-        menu.addAction(show_in_finder_action)
+        show_in_finder_action = ItemActions.RevealInFinder(menu_, urls)
+        menu_.addAction(show_in_finder_action)
 
-        copy_path = ItemActions.CopyPath(menu, urls)
-        menu.addAction(copy_path)
+        copy_path = ItemActions.CopyPath(menu_, urls)
+        menu_.addAction(copy_path)
 
-        copy_name = ItemActions.CopyName(menu, names)
-        menu.addAction(copy_name)
+        copy_name = ItemActions.CopyName(menu_, names)
+        menu_.addAction(copy_name)
 
         self.solid_style()
-        menu.show_under_cursor()
+        menu_.show_under_cursor()
         self.default_style()
 
     def mouseReleaseEvent(self, a0):
