@@ -1,10 +1,12 @@
+import os
+
 from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QKeyEvent
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
 
 from ._base_widgets import MinMaxDisabledWin, ULineEdit
-import os
+
 
 class RenameWin(MinMaxDisabledWin):
     finished_ = pyqtSignal(str)

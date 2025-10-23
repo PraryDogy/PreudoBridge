@@ -307,18 +307,23 @@ class TopBar(QWidget):
 
     height_ = 46
     history_items_limit = 100
-
+    filters_title = "Фильтры"
     topbar_btn_texts = [
         "Назад",
         "Вперед",
         "Наверх",
         "Обновить",
         "Новая папка",
-        "Фильтр",
+        filters_title,
         "Список",
         "Настройки"
     ]
-
+    filters_placeholder = "Фильтр 1, фильтр 2, ..."
+    filters_descr = (
+        "Введите фильтры через запятую.\n"
+        "Отображает файлы по фильтрам.\n"
+        "Пример: «.jpg» — покажет jpg файлы."
+    )
     sym_only_text = "Только значок"
     sym_text_text = "Значок и текст"
 
@@ -501,17 +506,24 @@ class TopBar(QWidget):
     def filter_btn_cmd(self):
 
         def fin(text: str):
-            Dynamic.word_filter = text
+            Dynamic.word_filters = [i.strip() for i in text.split(",")]
             if text:
                 self.filter_btn.svg_frame.setStyleSheet(self.filter_btn.svg_frame.solid_style())
                 self.filter_btn.svg_frame.pressed = True
             else:
+                Dynamic.word_filters.clear()
                 self.filter_btn.svg_frame.setStyleSheet(self.filter_btn.svg_frame.normal_style())
                 self.filter_btn.svg_frame.pressed = False
             self.filter_clicked.emit()
 
-        self.filter_win = RenameWin(Dynamic.word_filter)
-        self.filter_win.setWindowTitle("Фильтр")
+        self.filter_win = RenameWin(", ".join(Dynamic.word_filters))
+        self.filter_win.setWindowTitle(self.filters_title)
+        self.filter_win.input_wid.setPlaceholderText(self.filters_placeholder)
+        self.filter_win.input_wid.deselect()
+        filters_descr = QLabel(self.filters_descr)
+        self.filter_win.layout().insertWidget(0, filters_descr)
+        self.filter_win.input_wid.adjustSize()
+        self.filter_win.adjustSize()
         self.filter_win.finished_.connect(lambda text: fin(text))
         self.filter_win.center(self.window())
         self.filter_win.show()

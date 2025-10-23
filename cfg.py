@@ -252,6 +252,6 @@ class JsonData:
 
 class Dynamic:
     rating_filter: int = 0
-    word_filter: str = ""
+    word_filters: list[str] = []
     pixmap_size_ind = 0
     image_apps: dict[str, str] = {}
