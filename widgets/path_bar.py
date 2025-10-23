@@ -114,45 +114,6 @@ class PathItem(QWidget):
         """
         QTimer.singleShot(500, self.collapse)
 
-    def mousePressEvent(self, a0: QMouseEvent | None) -> None:
-        """
-        Начать перемещение виджета
-        """
-        if a0.button() == Qt.MouseButton.LeftButton:
-            self.drag_start_position = a0.pos()
-
-    def mouseMoveEvent(self, a0: QMouseEvent | None) -> None:
-        """
-        Можно перетащить виджет:        
-        На меню избранного в приложении, в случае если это директория,
-        будет добавлено новое избранное     
-        На сетку - ничего не будет      
-        Вне приложения, будет скопирована папка / файл в место назначения
-        """
-        if a0.button() == Qt.MouseButton.RightButton:
-            return
-        
-        try:
-            distance = (a0.pos() - self.drag_start_position).manhattanLength()
-        except AttributeError:
-            return
-
-        if distance < QApplication.startDragDistance():
-            return
-
-        self.solid_style()
-        self.drag = QDrag(self)
-        self.mime_data = QMimeData()
-
-        self.drag.setPixmap(QPixmap(Static.INTERNAL_ICONS.get("files.svg")))
-        
-        url = [QUrl.fromLocalFile(self.dir)]
-        self.mime_data.setUrls(url)
-
-        self.drag.setMimeData(self.mime_data)
-        self.drag.exec_(Qt.DropAction.CopyAction)
-        self.default_style()
-
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
         urls = [self.main_win_item.main_dir]
         names = [os.path.basename(i) for i in urls]
@@ -179,10 +140,11 @@ class PathItem(QWidget):
         menu.show_under_cursor()
         self.default_style()
 
-    def mouseDoubleClickEvent(self, a0):
+    def mouseReleaseEvent(self, a0):
         if a0.button() == Qt.MouseButton.LeftButton:
-            if os.path.isdir(self.dir):
+            if os.path.isdir(self.dir) and self.dir != self.main_win_item.main_dir:
                 self.main_win_item.main_dir = self.dir
+                self.new_history_item.emit(self.dir)
                 self.load_st_grid.emit()
         return super().mouseReleaseEvent(a0)
 
