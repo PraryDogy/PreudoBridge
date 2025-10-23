@@ -303,27 +303,18 @@ class TopBar(QWidget):
     open_in_new_win = pyqtSignal(str)
     open_settings = pyqtSignal()
     new_folder = pyqtSignal()
-    filter_clicked = pyqtSignal()
 
     height_ = 46
     history_items_limit = 100
-    filters_title = "Фильтры"
     topbar_btn_texts = [
         "Назад",
         "Вперед",
         "Наверх",
         "Обновить",
         "Новая папка",
-        filters_title,
         "Список",
         "Настройки"
     ]
-    filters_placeholder = "Фильтр 1, фильтр 2, ..."
-    filters_descr = (
-        "Введите фильтры через запятую.\n"
-        "Отображает файлы по фильтрам.\n"
-        "Пример: «.jpg» — покажет jpg файлы."
-    )
     sym_only_text = "Только значок"
     sym_text_text = "Значок и текст"
 
@@ -379,11 +370,6 @@ class TopBar(QWidget):
         self.new_folder_btn.mouseReleaseEvent = cmd
         self.new_folder_btn.load(Static.INTERNAL_ICONS.get("new_folder.svg"))
         self.main_lay.addWidget(self.new_folder_btn)
-
-        self.filter_btn = BarTopBtn()
-        self.filter_btn.clicked.connect(self.filter_btn_cmd)
-        self.filter_btn.load(Static.INTERNAL_ICONS.get("filters.svg"))
-        self.main_lay.addWidget(self.filter_btn)
 
         self.change_view_btn = BarTopBtn()
         self.change_view_btn.mouseReleaseEvent = lambda e: self.change_view.emit()
@@ -502,31 +488,6 @@ class TopBar(QWidget):
             new_main_dir = self.history_items[self.current_index]
             self.main_win_item.main_dir = new_main_dir
             self.load_st_grid.emit()
-
-    def filter_btn_cmd(self):
-
-        def fin(text: str):
-            Dynamic.word_filters = [i.strip() for i in text.split(",")]
-            if text:
-                self.filter_btn.svg_frame.setStyleSheet(self.filter_btn.svg_frame.solid_style())
-                self.filter_btn.svg_frame.pressed = True
-            else:
-                Dynamic.word_filters.clear()
-                self.filter_btn.svg_frame.setStyleSheet(self.filter_btn.svg_frame.normal_style())
-                self.filter_btn.svg_frame.pressed = False
-            self.filter_clicked.emit()
-
-        self.filter_win = RenameWin(", ".join(Dynamic.word_filters))
-        self.filter_win.setWindowTitle(self.filters_title)
-        self.filter_win.input_wid.setPlaceholderText(self.filters_placeholder)
-        self.filter_win.input_wid.deselect()
-        filters_descr = QLabel(self.filters_descr)
-        self.filter_win.layout().insertWidget(0, filters_descr)
-        self.filter_win.input_wid.adjustSize()
-        self.filter_win.adjustSize()
-        self.filter_win.finished_.connect(lambda text: fin(text))
-        self.filter_win.center(self.window())
-        self.filter_win.show()
 
     def resizeEvent(self, a0):
         return super().resizeEvent(a0)

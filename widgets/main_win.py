@@ -30,7 +30,7 @@ from .path_bar import PathBar
 from .search_bar import SearchBar
 from .settings_win import SettingsWin
 from .sort_bar import SortBar
-from .tags_menu import TagsMenu
+from .tags_menu import FiltersMenu
 from .top_bar import TopBar
 from .tree_menu import TreeMenu
 from .warn_win import WinQuestion
@@ -141,10 +141,10 @@ class MainWin(WinBase):
         self.favs_menu = FavsMenu(self.main_win_item)
         self.tabs_widget.addTab(self.favs_menu, MainWin.favs_text)
 
-        self.rating_menu = TagsMenu()
-        self.left_wid.addWidget(self.rating_menu)
+        self.filters_menu = FiltersMenu()
+        self.left_wid.addWidget(self.filters_menu)
         
-        self.left_wid.setSizes([1, 0]) 
+        self.left_wid.setSizes([999, 1])
 
         right_wid = QWidget()
         self.r_lay = QVBoxLayout()
@@ -219,8 +219,8 @@ class MainWin(WinBase):
             self.favs_menu.open_in_new_win: lambda d: self.open_in_new_win((d, None)),
 
             # rating_menu
-            self.rating_menu.filter_thumbs: lambda: (self.grid.filter_thumbs()),
-            self.rating_menu.rearrange_thumbs: lambda: self.grid.rearrange_thumbs(),
+            self.filters_menu.filter_thumbs: lambda: (self.grid.filter_thumbs()),
+            self.filters_menu.rearrange_thumbs: lambda: self.grid.rearrange_thumbs(),
 
             # top_bar
             self.top_bar.level_up: self.level_up,
@@ -231,7 +231,6 @@ class MainWin(WinBase):
             self.top_bar.open_in_new_win: lambda d: self.open_in_new_win((d, None)),
             self.top_bar.open_settings: self.open_settings,
             self.top_bar.new_folder: self.new_folder,
-            self.top_bar.filter_clicked: lambda: (self.grid.filter_thumbs(), self.grid.rearrange_thumbs()),
 
             # search_bar
             self.search_bar.on_filter_clicked: self.load_search_grid,
@@ -411,7 +410,7 @@ class MainWin(WinBase):
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
         self.search_bar.show()
         self.search_bar_sep.show()
-        self.rating_menu.reset()
+        self.filters_menu.reset()
         self.scroll_up.hide()
         self.setup_grid_signals()
         QTimer.singleShot(100, self.grid.setFocus)
@@ -445,7 +444,7 @@ class MainWin(WinBase):
     def disable_wids(self, value: bool):
         self.sort_bar.sort_frame.setDisabled(value)
         self.sort_bar.slider.setDisabled(value)
-        self.rating_menu.setDisabled(value)
+        self.filters_menu.setDisabled(value)
 
     def load_st_grid(self):
         self.grid_spacer.resize(0, self.height())
