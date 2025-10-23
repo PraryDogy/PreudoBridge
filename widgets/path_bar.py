@@ -169,6 +169,8 @@ class PathBar(QWidget):
     new_history_item = pyqtSignal(str)
     load_st_grid = pyqtSignal()
     info_win = pyqtSignal(list)
+    add_fav = pyqtSignal(str)
+    del_fav = pyqtSignal(str)
     last_item_limit = 40
     height_ = 25
 
@@ -209,6 +211,8 @@ class PathBar(QWidget):
             path_item.new_history_item.connect(cmd_)
             path_item.load_st_grid.connect(self.load_st_grid.emit)
             path_item.info_win.connect(lambda lst: self.info_win.emit(lst))
+            path_item.add_fav.connect(self.add_fav.emit)
+            path_item.del_fav.connect(self.del_fav.emit)
             path_item.img_wid.load(Static.INTERNAL_ICONS.get("folder.svg"))
             path_item.add_arrow()
             path_items[x] = path_item

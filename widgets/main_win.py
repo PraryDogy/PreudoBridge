@@ -242,6 +242,8 @@ class MainWin(WinBase):
             self.path_bar.new_history_item: self.top_bar.new_history_item,
             self.path_bar.load_st_grid: self.load_st_grid,
             self.path_bar.info_win: self.open_info_win,
+            self.path_bar.add_fav: self.favs_menu.add_fav,
+            self.path_bar.del_fav: self.favs_menu.del_fav,
 
             # sort_bar
             self.sort_bar.resize_thumbs: lambda: self.grid.resize_thumbs(),
