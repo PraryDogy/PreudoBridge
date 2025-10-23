@@ -667,6 +667,8 @@ class DbItemsLoader(URunnable):
             if not self.is_should_run():
                 break
             icns_path = Utils.get_app_icns(i.src)
+            if not os.path.exists(icns_path):
+                continue
             partial_hash = Utils.get_partial_hash(icns_path)
             new_icns_path = os.path.join(app_folder, partial_hash + ".icns")
             if os.path.exists(new_icns_path):
