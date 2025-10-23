@@ -1,29 +1,17 @@
 from PyQt5.QtCore import QSize, Qt, pyqtSignal
-from PyQt5.QtWidgets import (QAction, QListWidget, QListWidgetItem,
+from PyQt5.QtWidgets import (QAction, QHBoxLayout, QListWidget,
+                             QListWidgetItem, QPushButton, QTabWidget,
                              QVBoxLayout, QWidget)
 
 from cfg import Dynamic, Static
 
-from ._base_widgets import ULineEdit, UMenu
+from ._base_widgets import UMenu, UTextEdit
 
 
 class UItem(QListWidgetItem):
     def __init__(self):
         super().__init__()
         self.rating: int
-
-
-class UULineEdit(ULineEdit):
-    key_press = pyqtSignal()
-
-    def __init__(self):
-        super().__init__()
-
-    def keyPressEvent(self, a0):
-        if a0.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
-            self.key_press.emit()
-            self.clearFocus()
-        return super().keyPressEvent(a0)
 
 
 class FiltersMenu(QWidget):
@@ -37,15 +25,21 @@ class FiltersMenu(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.layout = QVBoxLayout(self)
-        self.layout.setContentsMargins(0, 0, 0, 10)
-        self.layout.setSpacing(5)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 5)
+        layout.setSpacing(5)
 
-        # Список
+        self.tabs = QTabWidget()
+        layout.addWidget(self.tabs)
+
+        # --- вкладка 1: список ---
+        self.tab_list = QWidget()
+        tab1_layout = QVBoxLayout(self.tab_list)
+        tab1_layout.setContentsMargins(0, 0, 0, 0)
         self.list = QListWidget()
         self.list.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.list.setFixedHeight(FiltersMenu.height_)
-        item_size = QSize(self.list.width(), FiltersMenu.item_width)
+        self.list.setFixedHeight(self.height_)
+        item_size = QSize(self.list.width(), self.item_width)
 
         zero_item = UItem()
         zero_item.rating = 0
@@ -63,49 +57,72 @@ class FiltersMenu(QWidget):
         self.list.setContextMenuPolicy(Qt.CustomContextMenu)
         self.list.customContextMenuRequested.connect(self.show_context_menu)
         self.list.itemClicked.connect(self.handle_item_click)
+        tab1_layout.addWidget(self.list)
+        self.tabs.addTab(self.tab_list, "Рейтинг")
 
-        # QLineEdit под списком
-        self.line_edit = UULineEdit()
+        # --- вкладка 2: фильтр текста ---
+        self.tab_filter = QWidget()
+        tab2_layout = QVBoxLayout(self.tab_filter)
+        tab2_layout.setSpacing(5)
+        tab2_layout.setContentsMargins(0, 0, 0, 0)
+        self.line_edit = UTextEdit()
         self.line_edit.setPlaceholderText(self.filter_placeholder)
         self.line_edit.textChanged.connect(self.on_text_changed)
-        self.line_edit.key_press.connect(
-            lambda: (self.filter_thumbs.emit(), self.rearrange_thumbs.emit())
+        tab2_layout.addWidget(self.line_edit)
+
+        # Кнопки
+        btn_layout = QHBoxLayout()
+        btn_layout.setContentsMargins(0, 0, 0, 0)
+        btn_layout.setSpacing(10)
+        self.apply_btn = QPushButton("Применить")
+        self.apply_btn.setFixedWidth(95)
+        self.clear_btn = QPushButton("Очистить")
+        self.clear_btn.setFixedWidth(95)
+        self.apply_btn.clicked.connect(
+            lambda: (
+                self.line_edit.clearFocus(),
+                self.filter_thumbs.emit(),
+                self.rearrange_thumbs.emit()
+            )
         )
+        self.clear_btn.clicked.connect(
+            lambda: (
+                self.line_edit.clear(),
+                self.line_edit.clearFocus(),
+                self.filter_thumbs.emit(),
+                self.rearrange_thumbs.emit(),
+            )
+        )
+        btn_layout.addStretch()
+        btn_layout.addWidget(self.apply_btn)
+        btn_layout.addWidget(self.clear_btn)
+        btn_layout.addStretch()
+        tab2_layout.addLayout(btn_layout)
 
-        # Добавляем виджеты в layout
-        self.layout.addWidget(self.list)
-        self.layout.addWidget(self.line_edit)
+        self.tabs.addTab(self.tab_filter, "Фильтры")
 
-    def on_text_changed(self, text: str):
-        self.line_edit.move_clear_btn()
+    def on_text_changed(self):
+        text = self.line_edit.toPlainText()
         if text:
-            self.line_edit.clear_btn.show()
-            Dynamic.word_filters = [i.strip() for i in self.line_edit.text().split(",")]
+            Dynamic.word_filters = [i.strip() for i in text.split(",")]
         else:
-            self.line_edit.clear_btn.hide()
             Dynamic.word_filters.clear()
-            self.filter_thumbs.emit()
-            self.rearrange_thumbs.emit()
-            self.line_edit.clearFocus()
 
-    # Контекстное меню
     def show_context_menu(self, position):
         item: UItem = self.list.itemAt(position)
         if not item:
             return
         menu = UMenu(parent=self)
-        enable_action = QAction(FiltersMenu.enable_text, menu)
+        enable_action = QAction(self.enable_text, menu)
         if Dynamic.rating_filter == item.rating:
             enable_action.setDisabled(True)
         enable_action.triggered.connect(lambda: self.item_cmd(item.rating))
         menu.addAction(enable_action)
         menu.show_under_cursor()
 
-    # Клик по элементу
     def handle_item_click(self, item: 'UItem'):
         self.item_cmd(item.rating)
 
-    # Обновление фильтра
     def item_cmd(self, rating: int):
         Dynamic.rating_filter = rating
         self.filter_thumbs.emit()
