@@ -275,18 +275,6 @@ class TableView(QTableView):
     def toggle_is_cut(self, value: bool):
         Dynamic.is_cut = value
 
-    def rearrange_thumbs(self, *args, **kwargs):
-        ...
-
-    def sort_thumbs(self, *args, **kwargs):
-        ...
-
-    def filter_thumbs(self, *args, **kwargs):
-        ...
-
-    def resize_thumbs(self, *args, **kwargs):
-        ...
-
     def open_win_info(self, src_list: list[str]):
         """
         Открыть окно информации о файле / папке
