@@ -354,10 +354,13 @@ class Grid(UScrollArea):
         is_selected = any(i for i in self.selected_thumbs if i.src==e.src_path)
         new_thumb = None
         if e.event_type == "deleted":
+            print("deleted", e.src_path)
             if is_selected:
+                print("is selected")
                 self.removed_urls.append(e.src_path)
             self.del_thumb(e.src_path)
         elif e.event_type == "created":
+            print("created", e.src_path)
             new_thumb = self.new_thumb(e.src_path)
             self.load_thumbs_images([new_thumb, ])
             if e.src_path in self.removed_urls:
