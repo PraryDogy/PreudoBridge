@@ -21,15 +21,16 @@ from .cache_download_win import CacheDownloadWin
 from .favs_menu import FavsMenu
 from .go_win import GoToWin
 from .grid import Grid
-from .table_view import TableView
 from .grid_search import GridSearch
 from .grid_standart import GridStandart
 from .img_view_win import ImgViewWin
 from .info_win import InfoWin
 from .path_bar import PathBar
 from .search_bar import SearchBar
+from .servers_win import ServersWin
 from .settings_win import SettingsWin
 from .sort_bar import SortBar
+from .table_view import TableView
 from .tags_menu import FiltersMenu
 from .top_bar import TopBar
 from .tree_menu import TreeMenu
@@ -509,6 +510,11 @@ class MainWin(WinBase):
 
         self.load_st_grid()
 
+    def open_servers_win(self):
+        self.servers_win = ServersWin()
+        self.servers_win.center(self)
+        self.servers_win.show()
+
     def scroll_up_toggle(self, value: int):
         if value == 0:
             self.scroll_up.hide()
@@ -551,6 +557,9 @@ class MainWin(WinBase):
 
             elif a0.key() == Qt.Key.Key_N:
                 self.open_in_new_win((self.main_win_item.main_dir, None))
+            
+            elif a0.key() == Qt.Key.Key_K:
+                self.open_servers_win()
         
         elif a0.key() == Qt.Key.Key_Escape:
             if self.isFullScreen():
