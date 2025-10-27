@@ -16,11 +16,35 @@ from ._base_widgets import MinMaxDisabledWin, ULineEdit, UMenu
 from .actions import CopyText, RevealInFinder
 
 
+class ServerLoginWidget(QWidget):
+    def __init__(self, server: str, login: str, pass_: str):
+        super().__init__()
+
+        main_lay = QHBoxLayout(self)
+        main_lay.setContentsMargins(0, 0, 0, 0)
+        main_lay.setSpacing(0)
+
+        server_wid = ULineEdit()
+        login_wid = ULineEdit()
+        pass_wid = ULineEdit()
+
+        server_wid.setText(server)
+        login_wid.setText(login)
+        pass_wid.setText(pass_)
+
+        main_lay.addWidget(server_wid)
+        main_lay.addWidget(login_wid)
+        main_lay.addWidget(pass_wid)
+
+    def get_data(self):
+        return (
+            i.text()
+            for i in self.findChildren(ULineEdit)
+        )
+
+
 class ServersWin(MinMaxDisabledWin):
     title_text = "Подключение к серверу"
-    key_server = "server"
-    key_login = "login"
-    key_pass = "pass"
 
     def __init__(self):
         super().__init__()
@@ -30,10 +54,12 @@ class ServersWin(MinMaxDisabledWin):
         self.central_layout.setContentsMargins(5, 5, 5, 5)
         self.central_layout.setSpacing(0)
         self.setLayout(self.central_layout)
-
-        self.data: list[dict] = {}
+        self.data: list[tuple] = {}
+        self.empty_data = ("", "", "")
         self.init_data()
-        self.init_ui({})
+        for i in self.data:
+            self.init_ui(i)
+        self.init_ui(self.empty_data)
         self.adjustSize()
 
     def init_data(self):
@@ -42,23 +68,7 @@ class ServersWin(MinMaxDisabledWin):
             with open(json_file, "r", encoding="utf-8") as file:
                 self.data = json.load(file.read())
 
-    def init_ui(self, data_dict: dict):
-        main_wid = QWidget()
-        main_lay = QHBoxLayout()
-        main_lay.setContentsMargins(0, 0, 0, 0)
-        main_lay.setSpacing(0)
-        main_wid.setLayout(main_lay)
+    def init_ui(self, server_data: tuple):
+        server, login, pass_ = server_data
+        main_wid = ServerLoginWidget(server, login, pass_)
         self.central_layout.addWidget(main_wid)
-
-        self.server_wid = ULineEdit()
-        main_lay.addWidget(self.server_wid)
-
-        self.login_wid = ULineEdit()
-        main_lay.addWidget(self.login_wid)
-
-        self.pass_wid = ULineEdit()
-        main_lay.addWidget(self.pass_wid)
-
-        # server
-        # login
-        # pass
