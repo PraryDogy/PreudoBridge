@@ -18,24 +18,23 @@ from ._base_widgets import MinMaxDisabledWin, ULineEdit, UMenu
 from .actions import CopyText, RevealInFinder
 
 
-class ServersWidget(QWidget):
+from PyQt5.QtWidgets import QListWidget, QListWidgetItem, QMenu, QAction
+from PyQt5.QtCore import Qt, QPoint, QSize
+
+
+class ServersWidget(QListWidget):
     def __init__(self, data: list[list[str]]):
         super().__init__()
-
-        layout = QVBoxLayout(self)
-        self.list_widget = QListWidget()
-        self.list_widget.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.list_widget.customContextMenuRequested.connect(self.open_menu)
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.open_menu)
 
         for server, login, password in data:
             item = QListWidgetItem(f"{server}, {login}, {password}")
-            item.setSizeHint(item.sizeHint().expandedTo(QSize(0, 25)))
-            self.list_widget.addItem(item)
-
-        layout.addWidget(self.list_widget)
+            item.setSizeHint(QSize(0, 25))
+            self.addItem(item)
 
     def open_menu(self, pos: QPoint):
-        item = self.list_widget.itemAt(pos)
+        item = self.itemAt(pos)
         if not item:
             return
 
@@ -43,11 +42,12 @@ class ServersWidget(QWidget):
         delete_action = QAction("Удалить", self)
         delete_action.triggered.connect(lambda: self.delete_item(item))
         menu.addAction(delete_action)
-        menu.exec_(self.list_widget.mapToGlobal(pos))
+        menu.exec_(self.mapToGlobal(pos))
 
     def delete_item(self, item: QListWidgetItem):
-        row = self.list_widget.row(item)
-        self.list_widget.takeItem(row)
+        row = self.row(item)
+        self.takeItem(row)
+
 
 
 class ServersWin(MinMaxDisabledWin):
@@ -120,8 +120,8 @@ class ServersWin(MinMaxDisabledWin):
         all_data = []
 
         # Получаем все элементы из QListWidget
-        for i in range(self.servers_widget.list_widget.count()):
-            item = self.servers_widget.list_widget.item(i)
+        for i in range(self.servers_widget.count()):
+            item = self.servers_widget.item(i)
             parts = [p.strip() for p in item.text().split(",")]
             all_data.append(parts)
 
