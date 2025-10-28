@@ -44,6 +44,7 @@ class ServersWin(MinMaxDisabledWin):
     title_text = "Подключение к серверу"
     connect_text = "Подкл."
     cancel_text = "Отмена"
+    json_file = os.path.join(Static.APP_SUPPORT, "servers.json")
 
     def __init__(self):
         super().__init__()
@@ -67,7 +68,9 @@ class ServersWin(MinMaxDisabledWin):
         btn_connect = QPushButton(self.connect_text)
         btn_cancel = QPushButton(self.cancel_text)
         btn_connect.clicked.connect(self.connect_cmd)
-        btn_cancel.clicked.connect(self.deleteLater)
+        btn_cancel.clicked.connect(
+            lambda: (self.save_cmd(), self.deleteLater())
+        )
         btn_connect.setFixedWidth(90)
         btn_cancel.setFixedWidth(90)
         btn_layout.addStretch()
@@ -81,10 +84,9 @@ class ServersWin(MinMaxDisabledWin):
         self.setFocus()
 
     def init_data(self):
-        json_file = os.path.join(Static.APP_SUPPORT, "servers.json")
-        if os.path.exists(json_file):
-            with open(json_file, "r", encoding="utf-8") as file:
-                self.data = json.load(file.read())
+        if os.path.exists(self.json_file):
+            with open(self.json_file, "r", encoding="utf-8") as file:
+                self.data = json.load(file)
 
     def init_servers(self, server_data: tuple):
         server, login, pass_ = server_data
@@ -102,6 +104,15 @@ class ServersWin(MinMaxDisabledWin):
 
         for i in self.findChildren(ServerLoginWidget):
             open_smb(i.get_data())
+
+    def save_cmd(self):
+        all_data = []
+        for i in self.findChildren(ServerLoginWidget):
+            data = i.get_data()
+            if data and len(data) == 3:
+                all_data.append(data)
+        with open(self.json_file, "w", encoding="utf-8") as file:
+            json.dump(all_data, file, indent=4, ensure_ascii=False)
 
     def mouseReleaseEvent(self, a0):
         self.setFocus()
