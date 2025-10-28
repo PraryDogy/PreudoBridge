@@ -2,11 +2,12 @@ import json
 import os
 import subprocess
 
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtCore import QPoint, QSize, Qt, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import (QAction, QGraphicsOpacityEffect, QGridLayout,
-                             QHBoxLayout, QLabel, QPushButton, QSpacerItem,
-                             QVBoxLayout, QWidget)
+                             QHBoxLayout, QLabel, QListWidget, QListWidgetItem,
+                             QMenu, QPushButton, QSpacerItem, QVBoxLayout,
+                             QWidget)
 
 from cfg import Static
 from system.items import BaseItem
@@ -17,33 +18,43 @@ from ._base_widgets import MinMaxDisabledWin, ULineEdit, UMenu
 from .actions import CopyText, RevealInFinder
 
 
-class ServerLoginWidget(QWidget):
-    placeholder_text = "Сервер, логин, пароль"
-
-    def __init__(self, server: str, login: str, pass_: str):
+class ServersWidget(QWidget):
+    def __init__(self, data: list[list[str]]):
         super().__init__()
 
-        main_lay = QHBoxLayout(self)
-        main_lay.setContentsMargins(0, 0, 0, 0)
+        layout = QVBoxLayout(self)
+        self.list_widget = QListWidget()
+        self.list_widget.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.list_widget.customContextMenuRequested.connect(self.open_menu)
 
-        combo_wid = ULineEdit()
-        if server:
-            combo_wid.setText(f"{server}, {login}, {pass_}")
-        combo_wid.setPlaceholderText(self.placeholder_text)
+        for server, login, password in data:
+            item = QListWidgetItem(f"{server}, {login}, {password}")
+            item.setSizeHint(item.sizeHint().expandedTo(QSize(0, 25)))
+            self.list_widget.addItem(item)
 
-        main_lay.addWidget(combo_wid)
+        layout.addWidget(self.list_widget)
 
-    def get_data(self):
-        return [
-            i.strip()
-            for i in self.findChild(ULineEdit).text().split(",")
-        ]
+    def open_menu(self, pos: QPoint):
+        item = self.list_widget.itemAt(pos)
+        if not item:
+            return
+
+        menu = QMenu(self)
+        delete_action = QAction("Удалить", self)
+        delete_action.triggered.connect(lambda: self.delete_item(item))
+        menu.addAction(delete_action)
+        menu.exec_(self.list_widget.mapToGlobal(pos))
+
+    def delete_item(self, item: QListWidgetItem):
+        row = self.list_widget.row(item)
+        self.list_widget.takeItem(row)
 
 
 class ServersWin(MinMaxDisabledWin):
     title_text = "Подключение к серверу"
     connect_text = "Подкл."
     cancel_text = "Отмена"
+    new_server_text = "Сервер, логин, пароль"
     json_file = os.path.join(Static.APP_SUPPORT, "servers.json")
 
     def __init__(self):
@@ -51,16 +62,20 @@ class ServersWin(MinMaxDisabledWin):
         self.setWindowTitle(self.title_text)
         self.set_modality()
         self.setFixedWidth(300)
+        self.data: list[tuple] = []
+        self.init_data()
+
         self.central_layout = QVBoxLayout()
         self.central_layout.setContentsMargins(5, 5, 5, 5)
         self.central_layout.setSpacing(10)
         self.setLayout(self.central_layout)
-        self.data: list[tuple] = {}
-        self.empty_data = ("", "", "")
-        self.init_data()
-        for i in self.data:
-            self.init_servers(i)
-        self.init_servers(self.empty_data)
+
+        self.new_server = ULineEdit()
+        self.new_server.setPlaceholderText(self.new_server_text)
+        self.central_layout.addWidget(self.new_server)
+
+        self.servers_widget = ServersWidget(self.data)
+        self.central_layout.addWidget(self.servers_widget)
 
         btn_layout = QHBoxLayout()
         btn_layout.setContentsMargins(0, 0, 0, 0)
@@ -88,12 +103,8 @@ class ServersWin(MinMaxDisabledWin):
             with open(self.json_file, "r", encoding="utf-8") as file:
                 self.data = json.load(file)
 
-    def init_servers(self, server_data: tuple):
-        server, login, pass_ = server_data
-        main_wid = ServerLoginWidget(server, login, pass_)
-        self.central_layout.addWidget(main_wid)
-
     def connect_cmd(self):
+        return
 
         def open_smb(data: list[str]):
             if data and len(data) == 3:
@@ -107,13 +118,22 @@ class ServersWin(MinMaxDisabledWin):
 
     def save_cmd(self):
         all_data = []
-        for i in self.findChildren(ServerLoginWidget):
-            data = i.get_data()
-            if data and len(data) == 3:
-                all_data.append(data)
+
+        # Получаем все элементы из QListWidget
+        for i in range(self.servers_widget.list_widget.count()):
+            item = self.servers_widget.list_widget.item(i)
+            parts = [p.strip() for p in item.text().split(",")]
+            all_data.append(parts)
+
+        # Сохраняем в JSON
         with open(self.json_file, "w", encoding="utf-8") as file:
             json.dump(all_data, file, indent=4, ensure_ascii=False)
 
     def mouseReleaseEvent(self, a0):
         self.setFocus()
         return super().mouseReleaseEvent(a0)
+    
+    def keyPressEvent(self, a0):
+        self.save_cmd()
+        self.deleteLater()
+        return super().keyPressEvent(a0)
