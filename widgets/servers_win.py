@@ -4,10 +4,10 @@ import subprocess
 
 from PyQt5.QtCore import QPoint, QSize, Qt, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
-from PyQt5.QtWidgets import (QAction, QGraphicsOpacityEffect, QGridLayout,
-                             QHBoxLayout, QLabel, QListWidget, QListWidgetItem,
-                             QMenu, QPushButton, QSpacerItem, QVBoxLayout,
-                             QWidget)
+from PyQt5.QtWidgets import (QAction, QButtonGroup, QGraphicsOpacityEffect,
+                             QGridLayout, QHBoxLayout, QLabel, QListWidget,
+                             QListWidgetItem, QMenu, QPushButton, QSpacerItem,
+                             QVBoxLayout, QWidget)
 
 from cfg import Static
 from system.items import BaseItem
@@ -18,42 +18,18 @@ from ._base_widgets import MinMaxDisabledWin, ULineEdit, UMenu
 from .actions import CopyText, RevealInFinder
 
 
-from PyQt5.QtWidgets import QListWidget, QListWidgetItem, QMenu, QAction
-from PyQt5.QtCore import Qt, QPoint, QSize
-
-
 class ServersWidget(QListWidget):
     def __init__(self, data: list[list[str]]):
         super().__init__()
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.open_menu)
-
         for server, login, password in data:
             item = QListWidgetItem(f"{server}, {login}, {password}")
             item.setSizeHint(QSize(0, 25))
             self.addItem(item)
 
-    def open_menu(self, pos: QPoint):
-        item = self.itemAt(pos)
-        if not item:
-            return
-
-        menu = QMenu(self)
-        delete_action = QAction("Удалить", self)
-        delete_action.triggered.connect(lambda: self.delete_item(item))
-        menu.addAction(delete_action)
-        menu.exec_(self.mapToGlobal(pos))
-
-    def delete_item(self, item: QListWidgetItem):
-        row = self.row(item)
-        self.takeItem(row)
-
-
 
 class ServersWin(MinMaxDisabledWin):
     title_text = "Подключение к серверу"
     connect_text = "Подкл."
-    cancel_text = "Отмена"
     new_server_text = "Сервер, логин, пароль"
     json_file = os.path.join(Static.APP_SUPPORT, "servers.json")
 
@@ -62,78 +38,116 @@ class ServersWin(MinMaxDisabledWin):
         self.setWindowTitle(self.title_text)
         self.set_modality()
         self.setFixedWidth(300)
-        self.data: list[tuple] = []
+
+        # Загрузка данных
+        self.data: list[list[str]] = []
         self.init_data()
 
+        # Layout
         self.central_layout = QVBoxLayout()
         self.central_layout.setContentsMargins(5, 5, 5, 5)
         self.central_layout.setSpacing(10)
         self.setLayout(self.central_layout)
 
+        # QLineEdit для нового сервера
         self.new_server = ULineEdit()
         self.new_server.setPlaceholderText(self.new_server_text)
         self.central_layout.addWidget(self.new_server)
 
+        # QListWidget
         self.servers_widget = ServersWidget(self.data)
         self.central_layout.addWidget(self.servers_widget)
 
-        btn_layout = QHBoxLayout()
+        # Кнопки
+        btn_widget = QWidget()
+        btn_layout = QHBoxLayout(btn_widget)
         btn_layout.setContentsMargins(0, 0, 0, 0)
-        btn_layout.setSpacing(10)
+        btn_layout.setSpacing(0)
+
+        # + и - слева
+        btn_add = QPushButton("+")
+        btn_add.setFixedWidth(50)
+        btn_add.clicked.connect(self.add_server)
+
+        btn_remove = QPushButton("–")
+        btn_remove.setFixedWidth(50)
+        btn_remove.clicked.connect(self.remove_server)
+
+        # Connect справа
         btn_connect = QPushButton(self.connect_text)
-        btn_cancel = QPushButton(self.cancel_text)
-        btn_connect.clicked.connect(self.connect_cmd)
-        btn_cancel.clicked.connect(
-            lambda: (self.save_cmd(), self.deleteLater())
-        )
         btn_connect.setFixedWidth(90)
-        btn_cancel.setFixedWidth(90)
+        btn_connect.clicked.connect(self.connect_cmd)
+
+        btn_layout.addWidget(btn_add)
+        btn_layout.addWidget(btn_remove)
         btn_layout.addStretch()
         btn_layout.addWidget(btn_connect)
-        btn_layout.addWidget(btn_cancel)
-        btn_layout.addStretch()
 
-        self.central_layout.addLayout(btn_layout)
+        self.central_layout.addWidget(btn_widget)
 
         self.adjustSize()
         self.setFocus()
 
+    # Загрузка данных из JSON
     def init_data(self):
         if os.path.exists(self.json_file):
-            with open(self.json_file, "r", encoding="utf-8") as file:
-                self.data = json.load(file)
+            with open(self.json_file, "r", encoding="utf-8") as f:
+                self.data = json.load(f)
 
-    def connect_cmd(self):
-        return
+    def add_server(self):
+        text = self.new_server.text().strip()
+        if not text:
+            return
 
-        def open_smb(data: list[str]):
-            if data and len(data) == 3:
-                server, login, pass_ = data
-                cmd = f"smb://{login}:{pass_}@{server}"
-                subprocess.run(["open", cmd])
-                return cmd
+        parts = [p.strip() for p in text.split(",")]
+        if len(parts) != 3:
+            return  # неправильный формат
 
-        for i in self.findChildren(ServerLoginWidget):
-            open_smb(i.get_data())
+        server, login, password = parts
+
+        # Добавляем в QListWidget
+        item_text = f"{server}, {login}, {password}"
+        item = QListWidgetItem(item_text)
+        item.setSizeHint(QSize(0, 25))
+        self.servers_widget.addItem(item)
+
+        # Добавляем в self.data
+        self.data.append(parts)
+
+        # Очищаем QLineEdit
+        self.new_server.clear()
+
+        # Сохраняем
+        self.save_cmd()
+
+    def remove_server(self):
+        item = self.servers_widget.currentItem()
+        if not item:
+            return
+
+        parts = [p.strip() for p in item.text().split(",")]
+
+        # Удаляем из QListWidget
+        row = self.servers_widget.row(item)
+        self.servers_widget.takeItem(row)
+
+        # Удаляем из self.data
+        if parts in self.data:
+            self.data.remove(parts)
+
+        # Сохраняем
+        self.save_cmd()
 
     def save_cmd(self):
         all_data = []
-
-        # Получаем все элементы из QListWidget
         for i in range(self.servers_widget.count()):
             item = self.servers_widget.item(i)
             parts = [p.strip() for p in item.text().split(",")]
             all_data.append(parts)
 
-        # Сохраняем в JSON
         with open(self.json_file, "w", encoding="utf-8") as file:
             json.dump(all_data, file, indent=4, ensure_ascii=False)
 
-    def mouseReleaseEvent(self, a0):
-        self.setFocus()
-        return super().mouseReleaseEvent(a0)
-    
-    def keyPressEvent(self, a0):
-        self.save_cmd()
-        self.deleteLater()
-        return super().keyPressEvent(a0)
+    def connect_cmd(self):
+        # Здесь можно вставить код подключения
+        print("Подключение к серверу...")
