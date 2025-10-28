@@ -2,20 +2,13 @@ import json
 import os
 import subprocess
 
-from PyQt5.QtCore import QPoint, QSize, Qt, pyqtSignal
-from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
-from PyQt5.QtWidgets import (QAction, QButtonGroup, QGraphicsOpacityEffect,
-                             QGridLayout, QHBoxLayout, QLabel, QListWidget,
-                             QListWidgetItem, QMenu, QPushButton, QSpacerItem,
-                             QVBoxLayout, QWidget)
+from PyQt5.QtCore import QSize, Qt, QTimer
+from PyQt5.QtWidgets import (QHBoxLayout, QListWidget, QListWidgetItem,
+                             QPushButton, QVBoxLayout, QWidget)
 
 from cfg import Static
-from system.items import BaseItem
-from system.shared_utils import SharedUtils
-from system.tasks import ImgRes, MultipleItemsInfo, UThreadPool
 
-from ._base_widgets import MinMaxDisabledWin, ULineEdit, UMenu
-from .actions import CopyText, RevealInFinder
+from ._base_widgets import MinMaxDisabledWin, ULineEdit
 
 
 class ServersWidget(QListWidget):
@@ -149,10 +142,15 @@ class ServersWin(MinMaxDisabledWin):
             json.dump(all_data, file, indent=4, ensure_ascii=False)
 
     def connect_cmd(self):
+        delay = 0
+
         for server, login, password in self.data:
             cmd = f"smb://{login}:{password}@{server}"
-            subprocess.run(["open", cmd])
-        self.deleteLater()
+            QTimer.singleShot(delay, lambda c=cmd: subprocess.run(["open", c]))
+            delay += 200  # задержка 200 мс между подключениями
+
+        # Закрыть окно через общее время + небольшой запас
+        QTimer.singleShot(delay + 100, self.deleteLater)
 
     def keyPressEvent(self, a0):
         if a0.key() == Qt.Key.Key_Escape:
