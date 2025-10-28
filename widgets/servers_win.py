@@ -62,7 +62,7 @@ class ServersWin(MinMaxDisabledWin):
         btn_widget = QWidget()
         btn_layout = QHBoxLayout(btn_widget)
         btn_layout.setContentsMargins(0, 0, 0, 0)
-        btn_layout.setSpacing(0)
+        btn_layout.setSpacing(5)
 
         # + и - слева
         btn_add = QPushButton("+")
@@ -149,5 +149,12 @@ class ServersWin(MinMaxDisabledWin):
             json.dump(all_data, file, indent=4, ensure_ascii=False)
 
     def connect_cmd(self):
-        # Здесь можно вставить код подключения
-        print("Подключение к серверу...")
+        for server, login, password in self.data:
+            cmd = f"smb://{login}:{password}@{server}"
+            subprocess.run(["open", cmd])
+        self.deleteLater()
+
+    def keyPressEvent(self, a0):
+        if a0.key() == Qt.Key.Key_Escape:
+            self.deleteLater()
+        return super().keyPressEvent(a0)
