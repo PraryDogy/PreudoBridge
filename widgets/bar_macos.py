@@ -82,11 +82,11 @@ class AboutWin(MinMaxDisabledWin):
 
         # --- Настройка окна ---
         self.setWindowTitle(Static.APP_NAME)
-        self.setFixedSize(self.ww, self.hh)
 
         self.central_layout = QVBoxLayout()
-        self.central_layout.setContentsMargins(0, 0, 0, 0)
+        self.central_layout.setContentsMargins(10, 0, 10, 10)
         self.central_layout.setSpacing(0)
+        self.centralWidget().setLayout(self.central_layout)
 
         # --- Иконка приложения ---
         icon = QSvgWidget()
@@ -95,12 +95,12 @@ class AboutWin(MinMaxDisabledWin):
         icon.setFixedSize(self.svg_ww, self.svg_hh)
         self.central_layout.addWidget(icon, alignment=Qt.AlignmentFlag.AlignCenter)
 
-        # --- Разделитель ---
-        self.central_layout.addSpacerItem(QSpacerItem(0, 20))
-
         # --- Информационный текст ---
         lbl = SelectableLabel(self)
         self.central_layout.addWidget(lbl)
+
+        self.adjustSize()
+        self.setFixedWidth(self.ww)
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         """Закрывает окно по Escape или Enter."""
