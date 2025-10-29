@@ -10,6 +10,8 @@ from cfg import Static
 from system.utils import Utils
 
 from ._base_widgets import MinMaxDisabledWin, UMenu
+from .servers_win import ServersWin
+from .settings_win import SettingsWin
 
 
 class SelectableLabel(QLabel):
@@ -120,16 +122,23 @@ class BarMacos(QMenuBar):
     """
     
     menu_text = "Меню"
-    about_text = "Информация"
+    about_text = "Об авторе"
+    settings_text = "Настройки"
+    servers_text = "Подключение (Cmd + K)"
 
     def __init__(self):
         super().__init__()
         self.mainMenu = QMenu(self.menu_text, self)
 
-        # --- Пункт "Открыть настройки" ---
-        # actionSettings = QAction(Lng.open_settings_window[cfg.lng], self)
-        # actionSettings.triggered.connect(self.open_settings_window)
-        # self.mainMenu.addAction(actionSettings)
+        actionServer = QAction(self.servers_text, self)
+        actionServer.triggered.connect(self.open_servers_window)
+        self.mainMenu.addAction(actionServer)
+
+        actionSettings = QAction(self.settings_text, self)
+        actionSettings.triggered.connect(self.open_settings_window)
+        self.mainMenu.addAction(actionSettings)
+
+        self.mainMenu.addSeparator()
 
         # --- Пункт "О приложении" ---
         actionAbout = QAction(self.about_text, self)
@@ -145,3 +154,13 @@ class BarMacos(QMenuBar):
         self.about_win = AboutWin()
         self.about_win.center(self.window())
         self.about_win.show()
+
+    def open_settings_window(self):
+        self.sett_win = SettingsWin()
+        self.sett_win.center(self.window())
+        self.sett_win.show()
+
+    def open_servers_window(self):
+        self.serv_win = ServersWin()
+        self.serv_win.center(self.window())
+        self.serv_win.show()
