@@ -1,14 +1,12 @@
 import os
 
-from PyQt5.QtCore import QEvent, QPoint, QPointF, QSize, Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import (QColor, QContextMenuEvent, QCursor, QIcon, QImage,
-                         QKeyEvent, QMouseEvent, QPainter, QPaintEvent,
-                         QPixmap, QResizeEvent, QWheelEvent)
+from PyQt5.QtCore import QEvent, QPointF, QSize, Qt, QTimer, pyqtSignal
+from PyQt5.QtGui import (QContextMenuEvent, QCursor, QImage, QKeyEvent,
+                         QMouseEvent, QPixmap, QResizeEvent)
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsPixmapItem,
                              QGraphicsScene, QGraphicsView, QHBoxLayout,
-                             QLabel, QScrollBar, QSpacerItem, QVBoxLayout,
-                             QWidget)
+                             QLabel, QSpacerItem, QVBoxLayout, QWidget)
 
 from cfg import Static
 from system.tasks import ReadImg, UThreadPool
@@ -200,7 +198,7 @@ class ImgViewWin(WinBase):
 
         self.v_layout = QVBoxLayout()
         self.v_layout.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(self.v_layout)
+        self.centralWidget().setLayout(self.v_layout)
 
         self.img_wid = ImgWid(QPixmap())
         self.img_wid.mouse_moved.connect(self.show_btns)

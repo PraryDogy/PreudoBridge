@@ -81,7 +81,7 @@ class AboutWin(MinMaxDisabledWin):
         super().__init__()
 
         # --- Настройка окна ---
-        self.setWindowTitle(Static.app_name)
+        self.setWindowTitle(Static.APP_NAME)
         self.setFixedSize(self.ww, self.hh)
 
         self.central_layout = QVBoxLayout()
@@ -143,5 +143,5 @@ class BarMacos(QMenuBar):
     def open_about_window(self):
         """Открывает окно 'О программе'."""
         self.about_win = AboutWin()
-        self.about_win.center_to_parent(self.window())
+        self.about_win.center(self.window())
         self.about_win.show()

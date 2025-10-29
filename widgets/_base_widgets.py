@@ -6,9 +6,8 @@ from PyQt5.QtGui import (QColor, QContextMenuEvent, QCursor, QMouseEvent,
                          QPalette, QWheelEvent)
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsDropShadowEffect,
-                             QHBoxLayout, QLabel, QLineEdit, QMenu,
-                             QScrollArea, QSlider, QTextEdit,
-                             QWidget)
+                             QHBoxLayout, QLabel, QLineEdit, QMainWindow,
+                             QMenu, QScrollArea, QSlider, QTextEdit, QWidget)
 
 from cfg import Static
 
@@ -263,7 +262,7 @@ class UFrame(QFrame):
             self.setStyleSheet(self.normal_style())
 
 
-class WinBase(QWidget):
+class WinBase(QMainWindow):
     wins: list["WinBase"] = []
 
     def __init__(self):
@@ -272,8 +271,8 @@ class WinBase(QWidget):
         относительно родительского.
         """
         super().__init__()
+        self.setCentralWidget(QWidget())
         self.add_to_list()
-        # self.setWindowModality(Qt.WindowModality.ApplicationModal)
 
     def add_to_list(self):
         WinBase.wins.append(self)

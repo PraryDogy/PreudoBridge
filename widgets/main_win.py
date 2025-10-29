@@ -127,7 +127,7 @@ class MainWin(WinBase):
         main_lay = QHBoxLayout()
         main_lay.setContentsMargins(5, 0, 5, 0)
         main_lay.setSpacing(0)
-        self.setLayout(main_lay)
+        self.centralWidget().setLayout(main_lay)
 
         self.splitter = QSplitter()
         self.splitter.setHandleWidth(MainWin.splitter_handle_width)
