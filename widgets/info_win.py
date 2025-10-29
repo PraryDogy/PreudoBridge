@@ -88,7 +88,7 @@ class InfoWin(MinMaxDisabledWin):
         self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.grid_layout.setContentsMargins(10, 10, 10, 10)
         self.grid_layout.setSpacing(5)
-        self.setLayout(self.grid_layout)
+        self.centralWidget().setLayout(self.grid_layout)
 
         self.init_ui()
         self.set_transparent()

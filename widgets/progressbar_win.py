@@ -31,7 +31,7 @@ class ProgressbarWin(MinMaxDisabledWin):
         main_lay = QHBoxLayout()
         main_lay.setContentsMargins(10, 10, 10, 10)
         main_lay.setSpacing(5)
-        self.setLayout(main_lay)
+        self.centralWidget().setLayout(main_lay)
 
         left_side_icon = USvgSqareWidget(svg_icon, self.icon_size)
         main_lay.addWidget(left_side_icon)

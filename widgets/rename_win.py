@@ -25,7 +25,7 @@ class RenameWin(MinMaxDisabledWin):
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(10, 10, 10, 5)
         v_lay.setSpacing(5)
-        self.setLayout(v_lay)
+        self.centralWidget().setLayout(v_lay)
 
         self.input_wid = ULineEdit() 
         self.input_wid.setFixedWidth(RenameWin.input_width)

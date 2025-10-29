@@ -40,7 +40,7 @@ class ServersWin(MinMaxDisabledWin):
         self.central_layout = QVBoxLayout()
         self.central_layout.setContentsMargins(5, 5, 5, 5)
         self.central_layout.setSpacing(10)
-        self.setLayout(self.central_layout)
+        self.centralWidget().setLayout(self.central_layout)
 
         # QLineEdit для нового сервера
         self.new_server = ULineEdit()

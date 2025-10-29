@@ -32,7 +32,7 @@ class WinMissedFiles(MinMaxDisabledWin):
 
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(10, 5, 10, 5)
-        self.setLayout(v_lay)
+        self.centralWidget().setLayout(v_lay)
 
         self.first_row_wid = QWidget()
         v_lay.addWidget(self.first_row_wid)

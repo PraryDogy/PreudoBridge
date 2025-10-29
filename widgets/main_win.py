@@ -104,6 +104,7 @@ class MainWin(WinBase):
         self.search_item: SearchItem = SearchItem()
         self.main_win_item: MainWinItem = MainWinItem()
         self.sort_item: SortItem = SortItem()
+        self.img_view_win = None
 
         self.setMinimumSize(MainWin.min_width_, MainWin.min_height_)
         self.resize(MainWin.width_, MainWin.height_)

@@ -138,7 +138,7 @@ class WaitWin(MinMaxDisabledWin):
         v_lay = QVBoxLayout()
         v_lay.setContentsMargins(10, 10, 10, 10)
         v_lay.setSpacing(10)
-        self.setLayout(v_lay)
+        self.centralWidget().setLayout(v_lay)
 
         # Лейбл с описанием
         descr_lbl = QLabel(self.descr)
@@ -189,7 +189,7 @@ class ClearCacheWin(MinMaxDisabledWin):
         self.v_lay = QVBoxLayout()
         self.v_lay.setContentsMargins(10, 10, 10, 5)
         self.v_lay.setSpacing(10)
-        self.setLayout(self.v_lay)
+        self.centralWidget().setLayout(self.v_lay)
 
         # GroupBox для содержимого (кроме кнопок)
         content_group = QGroupBox()
@@ -527,7 +527,7 @@ class SettingsWin(MinMaxDisabledWin):
         main_lay = QVBoxLayout()
         main_lay.setContentsMargins(10, 0, 10, 10)
         main_lay.setAlignment(Qt.AlignmentFlag.AlignTop)
-        self.setLayout(main_lay)
+        self.centralWidget().setLayout(main_lay)
 
         h_wid = QWidget()
         main_lay.addWidget(h_wid)

@@ -30,7 +30,7 @@ class ReplaceFilesWin(MinMaxDisabledWin):
         main_lay = QVBoxLayout(self)
         main_lay.setContentsMargins(10, 5, 10, 10)
         main_lay.setSpacing(10)
-        self.setLayout(main_lay)
+        self.centralWidget().setLayout(main_lay)
 
         h_wid = QWidget()
         main_lay.addWidget(h_wid)
@@ -96,7 +96,7 @@ class ErrorWin(MinMaxDisabledWin):
         main_lay = QVBoxLayout(self)
         main_lay.setContentsMargins(10, 5, 10, 10)
         main_lay.setSpacing(0)
-        self.setLayout(main_lay)
+        self.centralWidget().setLayout(main_lay)
 
         h_wid = QWidget()
         main_lay.addWidget(h_wid)

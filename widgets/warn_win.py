@@ -21,7 +21,7 @@ class BaseWinWarn(MinMaxDisabledWin):
         self.central_layout = QVBoxLayout()
         self.central_layout.setContentsMargins(10, 10, 10, 10)
         self.central_layout.setSpacing(10)
-        self.setLayout(self.central_layout)
+        self.centralWidget().setLayout(self.central_layout)
 
         h_wid = QWidget()
         self.central_layout.addWidget(h_wid)

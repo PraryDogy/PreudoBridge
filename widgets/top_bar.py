@@ -73,7 +73,7 @@ class ListWin(MinMaxDisabledWin):
         self.main_win_item = main_win_item
         self.search_item = search_item
 
-        self.setLayout(self.create_main_layout())
+        self.centralWidget().setLayout(self.create_main_layout())
 
         if isinstance(self.search_item.get_content(), list):
             self.input_.setText("\n".join(self.search_item.get_content()))
