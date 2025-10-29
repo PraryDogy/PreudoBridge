@@ -87,12 +87,8 @@ from widgets._base_widgets import WinBase
 from widgets.main_win import MainWin
 
 
-class CustomApp(QApplication):
+class App(QApplication):
     def __init__(self, argv: list[str]) -> None:
-
-        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
-        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
-
         super().__init__(argv)
 
         JsonData.init()
@@ -118,5 +114,5 @@ class CustomApp(QApplication):
         JsonData.write_config()
 
 
-app = CustomApp(argv=sys.argv)
+app = App(argv=sys.argv)
 app.exec()

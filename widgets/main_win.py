@@ -17,6 +17,7 @@ from system.tasks import (AutoCacheCleaner, PathFinderTask, RatingTask,
 from system.utils import Utils
 
 from ._base_widgets import USep, WinBase
+from .bar_macos import BarMacos
 from .cache_download_win import CacheDownloadWin
 from .favs_menu import FavsMenu
 from .go_win import GoToWin
@@ -106,6 +107,7 @@ class MainWin(WinBase):
 
         self.setMinimumSize(MainWin.min_width_, MainWin.min_height_)
         self.resize(MainWin.width_, MainWin.height_)
+        self.setMenuBar(BarMacos())
 
         if MainWin.first_load:
             self.change_theme()
