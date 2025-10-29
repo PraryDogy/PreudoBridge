@@ -29,7 +29,7 @@ class ProgressbarWin(MinMaxDisabledWin):
         self.setWindowTitle(title)
 
         main_lay = QHBoxLayout()
-        main_lay.setContentsMargins(10, 10, 10, 10)
+        main_lay.setContentsMargins(10, 5, 10, 5)
         main_lay.setSpacing(5)
         self.centralWidget().setLayout(main_lay)
 
@@ -42,6 +42,7 @@ class ProgressbarWin(MinMaxDisabledWin):
         right_side_lay.setSpacing(0)
         right_side_wid.setLayout(right_side_lay)
         main_lay.addWidget(right_side_wid)
+        # right_side_wid.setStyleSheet("background: red;")
 
         self.above_label = QLabel()
         right_side_lay.addWidget(self.above_label)
@@ -59,6 +60,8 @@ class ProgressbarWin(MinMaxDisabledWin):
         self.progressbar.setFixedWidth(self.progressbar_width)
         progressbar_lay.addWidget(self.progressbar)
 
+        # self.progressbar.setStyleSheet("background: red;")
+
         self.cancel_btn = CancelBtn()
         self.cancel_btn.clicked.connect(self.deleteLater)
         progressbar_lay.addWidget(self.cancel_btn, alignment=Qt.AlignmentFlag.AlignCenter)
@@ -66,5 +69,5 @@ class ProgressbarWin(MinMaxDisabledWin):
         self.below_label = QLabel()
         right_side_lay.addWidget(self.below_label)
 
-        self.adjustSize()
+        self.setFixedSize(400, 80)
 
