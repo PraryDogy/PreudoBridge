@@ -2,22 +2,42 @@ import json
 import os
 import subprocess
 
-from PyQt5.QtCore import QSize, Qt, QTimer
+from PyQt5.QtCore import QSize, Qt, QTimer, pyqtSignal
 from PyQt5.QtWidgets import (QHBoxLayout, QListWidget, QListWidgetItem,
-                             QPushButton, QVBoxLayout, QWidget)
+                             QPushButton, QVBoxLayout, QWidget, QApplication)
 
 from cfg import Static
 
-from ._base_widgets import MinMaxDisabledWin, ULineEdit
+from ._base_widgets import MinMaxDisabledWin, ULineEdit, UMenu
 
 
 class ServersWidget(QListWidget):
+    remove = pyqtSignal(object)
+
     def __init__(self, data: list[list[str]]):
         super().__init__()
         for server, login, password in data:
             item = QListWidgetItem(f"{server}, {login}, {password}")
             item.setSizeHint(QSize(0, 25))
             self.addItem(item)
+
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_context_menu)
+
+    def show_context_menu(self, pos):
+        item = self.itemAt(pos)
+        if not item:
+            return
+
+        menu = UMenu("", self)
+        copy_action = menu.addAction("Скопировать текст")
+        delete_action = menu.addAction("Удалить")
+        action = menu.exec_(self.mapToGlobal(pos))
+
+        if action == copy_action:
+            QApplication.clipboard().setText(item.text())
+        elif action == delete_action:
+            self.remove.emit(item)
 
 
 class ServersWin(MinMaxDisabledWin):
@@ -49,6 +69,7 @@ class ServersWin(MinMaxDisabledWin):
 
         # QListWidget
         self.servers_widget = ServersWidget(self.data)
+        self.servers_widget.remove.connect(lambda item: self.remove_server(item))
         self.central_layout.addWidget(self.servers_widget)
 
         # Кнопки
@@ -64,7 +85,7 @@ class ServersWin(MinMaxDisabledWin):
 
         btn_remove = QPushButton("–")
         btn_remove.setFixedWidth(50)
-        btn_remove.clicked.connect(self.remove_server)
+        btn_remove.clicked.connect(lambda: self.remove_server(self.servers_widget.currentItem()))
 
         # Connect справа
         btn_connect = QPushButton(self.connect_text)
@@ -113,8 +134,7 @@ class ServersWin(MinMaxDisabledWin):
         # Сохраняем
         self.save_cmd()
 
-    def remove_server(self):
-        item = self.servers_widget.currentItem()
+    def remove_server(self, item: QListWidgetItem):
         if not item:
             return
 
