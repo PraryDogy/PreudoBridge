@@ -88,10 +88,11 @@ from widgets.main_win import MainWin
 
 class App(QApplication):
     def __init__(self, argv: list[str]) -> None:
-        super().__init__(argv)
 
-        self.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
-        self.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
+        QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
+        QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
+
+        super().__init__(argv)
 
         JsonData.init()
         UThreadPool.init()
