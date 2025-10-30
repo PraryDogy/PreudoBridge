@@ -74,8 +74,7 @@ else:
 
 
 
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import QEvent, QObject
+from PyQt5.QtCore import QEvent, QObject, Qt
 from PyQt5.QtWidgets import QApplication
 
 from cfg import Dynamic, JsonData
@@ -90,6 +89,9 @@ from widgets.main_win import MainWin
 class App(QApplication):
     def __init__(self, argv: list[str]) -> None:
         super().__init__(argv)
+
+        self.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
+        self.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
 
         JsonData.init()
         UThreadPool.init()
