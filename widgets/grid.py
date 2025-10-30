@@ -204,7 +204,6 @@ class Thumb(BaseItem, QFrame):
     def set_image(self, img: QImage | QIcon):
         self.base_pixmap = QPixmap.fromImage(img)
         local_pixmap = Utils.qiconed_resize(self.base_pixmap, Thumb.pixmap_size)
-        # local_pixmap = Utils.pixmap_scale(self.base_pixmap, Thumb.pixmap_size)
         self.img_wid.deleteLater()
         self.img_wid = QLabel()
         self.img_wid.setPixmap(local_pixmap)
