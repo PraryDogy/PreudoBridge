@@ -1,8 +1,5 @@
 import json
 import os
-import re
-import shutil
-from collections import defaultdict
 
 
 class Static:
@@ -113,16 +110,18 @@ class Static:
     # app, dmg, pkg
 
     preloaded_icons = {
-        **{ext: os.path.join(Static.app_icons_dir, "excel.svg") for ext in excel_ext},
-        **{ext: os.path.join(Static.app_icons_dir, "word.svg") for ext in word_ext},
-        **{ext: os.path.join(Static.app_icons_dir, "ppt.svg") for ext in ppt_ext},
-        **{ext: os.path.join(Static.app_icons_dir, "pdf.svg") for ext in pdf_ext},
-        **{ext: os.path.join(Static.app_icons_dir, "archive.svg") for ext in archive_ext},
-        **{ext: os.path.join(Static.app_icons_dir, "audio.svg") for ext in audio_ext},
-        **{ext: os.path.join(Static.app_icons_dir, "ai.svg") for ext in ai_ext},
-        **{ext: os.path.join(Static.app_icons_dir, "indd.svg") for ext in indd_ext},
-        **{ext: os.path.join(Static.app_icons_dir, "db.svg") for ext in db_ext},
+        **{ext: os.path.join("icons", "excel.svg") for ext in excel_ext},
+        **{ext: os.path.join("icons", "word.svg") for ext in word_ext},
+        **{ext: os.path.join("icons", "ppt.svg") for ext in ppt_ext},
+        **{ext: os.path.join("icons", "pdf.svg") for ext in pdf_ext},
+        **{ext: os.path.join("icons", "archive.svg") for ext in archive_ext},
+        **{ext: os.path.join("icons", "audio.svg") for ext in audio_ext},
+        **{ext: os.path.join("icons", "ai.svg") for ext in ai_ext},
+        **{ext: os.path.join("icons", "indd.svg") for ext in indd_ext},
+        **{ext: os.path.join("icons", "db.svg") for ext in db_ext},
     }
+
+    print(preloaded_icons)
 
     limit_mappings = {
         0: {"bytes": 200 * 1024 * 1024, "text": "200 МБ"},
