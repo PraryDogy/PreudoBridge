@@ -984,7 +984,7 @@ class AutoCacheCleaner(URunnable):
         """
         super().__init__()
         self.sigs = AutoCacheCleaner.Sigs()
-        self.limit = Static.DATA_LIMITS[JsonData.data_limit]["bytes"] * 0.9
+        self.limit = Static.limit_mappings[JsonData.data_limit]["bytes"] * 0.9
         self.conn = Dbase.get_conn(Dbase.engine)
         self.stmt_limit = 200
 

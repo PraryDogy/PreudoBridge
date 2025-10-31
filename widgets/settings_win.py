@@ -78,7 +78,7 @@ class DataLimitWid(QGroupBox):
         hor_lay.setContentsMargins(0, 0, 0, 0)
         hor_wid.setLayout(hor_lay)
 
-        self.slider = DataLimitSlider(Static.DATA_LIMITS, JsonData.data_limit)
+        self.slider = DataLimitSlider(Static.limit_mappings, JsonData.data_limit)
         self.slider.value_changed.connect(lambda v: self.snap_to_step(v))
         v_lay.addWidget(self.slider, alignment=Qt.AlignmentFlag.AlignCenter)
         
@@ -205,7 +205,7 @@ class ClearCacheWin(MinMaxDisabledWin):
         content_lay.addWidget(descr_lbl)
 
         # Слайдер DataLimit
-        slider_widget = DataLimitSlider(Static.DATA_LIMITS, 0, 50)
+        slider_widget = DataLimitSlider(Static.limit_mappings, 0, 50)
         slider_widget.value_changed.connect(lambda v: self.value_changed(v))
         content_lay.addWidget(slider_widget)
 
@@ -232,7 +232,7 @@ class ClearCacheWin(MinMaxDisabledWin):
         self.adjustSize()
 
     def start_task(self):
-        bytes = Static.DATA_LIMITS[self.value]["bytes"]
+        bytes = Static.limit_mappings[self.value]["bytes"]
         self.tks = CustomSizeCacheCleaner(bytes)
         self.wait_win = WaitWin()
 

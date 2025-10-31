@@ -193,8 +193,8 @@ class Thumb(BaseItem, QFrame):
                 icon_path = os.path.join(Static.app_icons_dir, "hdd.svg")
             else:
                 icon_path = os.path.join(Static.app_icons_dir, "folder.svg")
-        elif self.type_.lower() in Static.PRELOADED_ICONS:
-            icon_path = Static.PRELOADED_ICONS.get(self.type_.lower())
+        elif self.type_.lower() in Static.preloaded_icons:
+            icon_path = Static.preloaded_icons.get(self.type_.lower())
         else:
             icon_path = Utils.get_icon_path(self.type_, Static.ext_icons_dir)
 

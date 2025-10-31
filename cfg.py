@@ -112,19 +112,19 @@ class Static:
     indd_ext = [".indd"]
     # app, dmg, pkg
 
-    PRELOADED_ICONS = {
-        **{ext: "icons/excel.svg"   for ext in excel_ext},
-        **{ext: "icons/word.svg"    for ext in word_ext},
-        **{ext: "icons/ppt.svg"     for ext in ppt_ext},
-        **{ext: "icons/pdf.svg"     for ext in pdf_ext},
-        **{ext: "icons/archive.svg" for ext in archive_ext},
-        **{ext: "icons/audio.svg"   for ext in audio_ext},
-        **{ext: "icons/ai.svg"      for ext in ai_ext},
-        **{ext: "icons/indd.svg"    for ext in indd_ext},
-        **{ext: "icons/db.svg"      for ext in db_ext},
+    preloaded_icons = {
+        **{ext: os.path.join(Static.app_icons_dir, "excel.svg") for ext in excel_ext},
+        **{ext: os.path.join(Static.app_icons_dir, "word.svg") for ext in word_ext},
+        **{ext: os.path.join(Static.app_icons_dir, "ppt.svg") for ext in ppt_ext},
+        **{ext: os.path.join(Static.app_icons_dir, "pdf.svg") for ext in pdf_ext},
+        **{ext: os.path.join(Static.app_icons_dir, "archive.svg") for ext in archive_ext},
+        **{ext: os.path.join(Static.app_icons_dir, "audio.svg") for ext in audio_ext},
+        **{ext: os.path.join(Static.app_icons_dir, "ai.svg") for ext in ai_ext},
+        **{ext: os.path.join(Static.app_icons_dir, "indd.svg") for ext in indd_ext},
+        **{ext: os.path.join(Static.app_icons_dir, "db.svg") for ext in db_ext},
     }
 
-    DATA_LIMITS = {
+    limit_mappings = {
         0: {"bytes": 200 * 1024 * 1024, "text": "200 МБ"},
         1: {"bytes": 500 * 1024 * 1024, "text": "500 МБ"},
         2: {"bytes": 1000 * 1024 * 1024, "text": "1 ГБ"},
@@ -163,7 +163,7 @@ class JsonData:
     go_to_now = False
     dark_mode = None    
     show_text = False
-    data_limit = len(Static.DATA_LIMITS) -1
+    data_limit = len(Static.limit_mappings) -1
     app_names = [
         "preview",
         "photos",
