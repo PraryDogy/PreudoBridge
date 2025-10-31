@@ -485,7 +485,7 @@ class SearchTask(URunnable):
                 img_array = Utils.read_thumb(base_item.thumb_path)
             else:
                 img_array = ReadImage.read_image(entry.path)
-                img_array = SharedUtils.fit_image(img_array, ThumbData.DB_IMAGE_SIZE)
+                img_array = SharedUtils.fit_image(img_array, Static.max_thumb_size)
                 insert(base_item, img_array)
             qimage = Utils.qimage_from_array(img_array)
             base_item.qimage = qimage
@@ -712,7 +712,7 @@ class DbItemsLoader(URunnable):
             if img is None:
                 self.corrupted_items.append(i)
             else:
-                img = SharedUtils.fit_image(img, ThumbData.DB_IMAGE_SIZE)
+                img = SharedUtils.fit_image(img, Static.max_thumb_size)
                 qimage = Utils.qimage_from_array(img)
                 i.qimage = qimage
                 Utils.write_thumb(i.thumb_path, img)
@@ -728,7 +728,7 @@ class DbItemsLoader(URunnable):
                 if not img:
                     new_corrupted.append(i)
                     continue
-                img = SharedUtils.fit_image(img, ThumbData.DB_IMAGE_SIZE)
+                img = SharedUtils.fit_image(img, Static.max_thumb_size)
                 i.qimage = Utils.qimage_from_array(img)
                 Utils.write_thumb(i.thumb_path, img)
                 self.update_thumb(i)
@@ -1227,7 +1227,7 @@ class CacheDownloader(URunnable):
 
     def write_thumb(self, base_item: BaseItem):
         img = ReadImage.read_image(base_item.src)
-        img = SharedUtils.fit_image(img, ThumbData.DB_IMAGE_SIZE)
+        img = SharedUtils.fit_image(img, Static.max_thumb_size)
         return Utils.write_thumb(base_item.thumb_path, img)
     
 
