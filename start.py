@@ -97,7 +97,6 @@ class App(QApplication):
         JsonData.init()
         UThreadPool.init()
         Dbase.init()
-        Dynamic.image_apps = SharedUtils.get_apps(JsonData.app_names)
         BaseItem.check_sortitem_attrs()
 
         self.main_win = MainWin()

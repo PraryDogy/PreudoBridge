@@ -130,6 +130,31 @@ class Static:
         5: {"bytes": 10000 * 1024 * 1024, "text": "10 ГБ"},
     }
 
+    image_apps = [
+        "/Applications/Adobe Photoshop 2025/Adobe Photoshop 2025.app",
+        "/Applications/Adobe Photoshop 2024/Adobe Photoshop 2024.app",
+        "/Applications/Adobe Photoshop 2023/Adobe Photoshop 2023.app",
+        "/Applications/Adobe Photoshop 2022/Adobe Photoshop 2022.app",
+        "/Applications/Adobe Photoshop 2021/Adobe Photoshop 2021.app",
+        "/Applications/Adobe Photoshop 2020/Adobe Photoshop 2020.app",
+        "/Applications/Adobe Photoshop CC 2019/Adobe Photoshop CC 2019.app",
+        "/Applications/Adobe Photoshop CC 2018/Adobe Photoshop CC 2018.app",
+        "/Applications/Adobe Photoshop CC 2017/Adobe Photoshop CC 2017.app",
+        "/Applications/Adobe Photoshop.app",
+        "/Applications/Capture One 25.app",
+        "/Applications/Capture One 24.app",
+        "/Applications/Capture One 23.app",
+        "/Applications/Capture One 22.app",
+        "/Applications/Capture One 21.app",
+        "/Applications/Capture One 20.app",
+        "/Applications/Capture One 12.app",
+        "/Applications/Capture One 11.app",
+        "/Applications/Capture One.app",
+        "/Applications/ImageOptim.app",
+        "/System/Applications/Preview.app",
+        "/System/Applications/Photos.app"
+    ]
+
     max_thumb_size = 210
     thumb_heights = [130, 150, 185, 270]
     thumb_widths = [145, 145, 180, 230]
@@ -147,25 +172,6 @@ class JsonData:
     dark_mode = None    
     show_text = False
     data_limit = len(Static.limit_mappings) -1
-    app_names = [
-        "preview",
-        "photos",
-        "photoshop",
-        "lightroom",
-        "affinity photo",
-        "pixelmator",
-        "gimp",
-        "capture one",
-        "dxo photolab",
-        "luminar neo",
-        "sketch",
-        "graphicconverter",
-        "imageoptim",
-        "snapheal",
-        "photoscape",
-        "preview",
-        "просмотр"
-        ]
 
     @classmethod
     def get_data(cls):
@@ -233,4 +239,3 @@ class Dynamic:
     rating_filter: int = 0
     word_filters: list[str] = []
     pixmap_size_ind = 0
-    image_apps: dict[str, str] = {}
