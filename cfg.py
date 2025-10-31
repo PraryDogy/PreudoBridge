@@ -173,6 +173,7 @@ class JsonData:
     dark_mode = None    
     show_text = False
     data_limit = len(Static.limit_mappings) -1
+    write_errors = True
 
     @classmethod
     def get_data(cls):
