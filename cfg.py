@@ -19,7 +19,6 @@ class Static:
     INTERNAL_ICONS = {entry.name: entry.path for entry in os.scandir("icons")}
 
     FOLDER_TYPE: str = "folder"
-    VOLUMES: str = "Volumes"
 
     GRAY_GLOBAL = "rgba(128, 128, 128, 0.95)"
     BLUE_GLOBAL = "rgb(70, 130, 240)"

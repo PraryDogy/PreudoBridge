@@ -26,9 +26,9 @@ class TreeMenu(QTreeView):
 
         self.c_model = QFileSystemModel()
         self.c_model.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot)
-        self.c_model.setRootPath(os.sep + Static.VOLUMES)
+        self.c_model.setRootPath(os.sep + "Volumes")
         self.setModel(self.c_model)
-        self.setRootIndex(self.c_model.index(os.sep + Static.VOLUMES))
+        self.setRootIndex(self.c_model.index(os.sep + "Volumes"))
 
         self.setHeaderHidden(True)
         for i in range(1, self.c_model.columnCount()):
