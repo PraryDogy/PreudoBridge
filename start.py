@@ -25,6 +25,7 @@ class Tools:
         from cfg import Static
         log_file = os.path.join(Static.app_support, "log.txt")
         with open(log_file, "w") as file:
+            print("write error to log file")
             file.write(SUMMARY_MSG)
 
         d = QDialog()
