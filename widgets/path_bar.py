@@ -213,15 +213,15 @@ class PathBar(QWidget):
             path_item.info_win.connect(lambda lst: self.info_win.emit(lst))
             path_item.add_fav.connect(self.add_fav.emit)
             path_item.del_fav.connect(self.del_fav.emit)
-            path_item.img_wid.load(Static.app_icons_dir.get("folder.svg"))
+            path_item.img_wid.load(os.path.join(Static.app_icons_dir, "folder.svg"))
             path_item.add_arrow()
             path_items[x] = path_item
             self.main_lay.addWidget(path_item)
 
-        path_items.get(1).img_wid.load(Static.app_icons_dir.get("computer.svg"))
+        path_items.get(1).img_wid.load(os.path.join(Static.app_icons_dir, "computer.svg"))
 
         if path_items.get(2):
-            path_items.get(2).img_wid.load(Static.app_icons_dir.get("hdd.svg"))
+            path_items.get(2).img_wid.load(os.path.join(Static.app_icons_dir, "hdd.svg"))
 
         last_item = path_items.get(len(root))
 
@@ -229,9 +229,9 @@ class PathBar(QWidget):
             
             if len(root) > 2:
                 if not os.path.exists(last_item.dir):
-                    icon = Static.app_icons_dir.get("question.svg")
+                    icon = os.path.join(Static.app_icons_dir, "question.svg")
                 elif os.path.isdir(last_item.dir):
-                    icon = Static.app_icons_dir.get("folder.svg")
+                    icon = os.path.join(Static.app_icons_dir, "folder.svg")
                 else:
                     _, ext = os.path.splitext(last_item.dir)
                     icon = Utils.get_icon_path(ext, Static.ext_icons_dir)

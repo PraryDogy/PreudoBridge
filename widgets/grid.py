@@ -190,9 +190,9 @@ class Thumb(BaseItem, QFrame):
     def set_svg_icon(self):
         if self.type_ == Static.FOLDER_TYPE:
             if self.src.count(os.sep) == 2:
-                icon_path = Static.app_icons_dir.get("hdd.svg")
+                icon_path = os.path.join(Static.app_icons_dir, "hdd.svg")
             else:
-                icon_path = Static.app_icons_dir.get("folder.svg")
+                icon_path = os.path.join(Static.app_icons_dir, "folder.svg")
         elif self.type_.lower() in Static.PRELOADED_ICONS:
             icon_path = Static.PRELOADED_ICONS.get(self.type_.lower())
         else:
@@ -691,7 +691,7 @@ class Grid(UScrollArea):
         _, ext = os.path.splitext(url)
         icon_path = Utils.get_icon_path(ext, Static.ext_icons_dir)
         if not os.path.exists(icon_path):
-            Utils.create_icon(ext, icon_path, Static.app_icons_dir.get("file.svg"))
+            Utils.create_icon(ext, icon_path, os.path.join(Static.app_icons_dir, "file.svg"))
 
         thumb = Thumb(url)
         thumb.set_properties()
@@ -1142,7 +1142,7 @@ class Grid(UScrollArea):
             self.select_single_thumb(self.wid_under_mouse)
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
-        img_ = QPixmap(Static.app_icons_dir.get("files.svg"))
+        img_ = QPixmap(os.path.join(Static.app_icons_dir, "files.svg"))
         self.drag.setPixmap(img_)
         urls = [QUrl.fromLocalFile(i.src) for i in self.selected_thumbs]        
         if urls:

@@ -87,7 +87,7 @@ class GridStandart(Grid):
             for i in exts:
                 icon_path = Utils.get_icon_path(i, Static.ext_icons_dir)
                 if not os.path.exists(icon_path):
-                    Utils.create_icon(i, icon_path, Static.app_icons_dir.get("file.svg"))
+                    Utils.create_icon(i, icon_path, os.path.join(Static.app_icons_dir, "file.svg"))
 
         def add_batch():
             count = 0

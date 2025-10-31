@@ -1,3 +1,5 @@
+import os
+
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
@@ -34,7 +36,7 @@ class RemoveFilesWin(MinMaxDisabledWin):
         first_row_lay.setContentsMargins(0, 0, 0, 0)
         first_row_wid.setLayout(first_row_lay)
 
-        warn = USvgSqareWidget(Static.app_icons_dir.get("warning.svg"), RemoveFilesWin.svg_size)
+        warn = USvgSqareWidget(os.path.join(Static.app_icons_dir, "warning.svg"), RemoveFilesWin.svg_size)
         first_row_lay.addWidget(warn)
 
         t = f"{RemoveFilesWin.descr_text} ({len(urls)})?"
