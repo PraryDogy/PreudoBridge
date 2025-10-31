@@ -201,6 +201,10 @@ class MainWin(WinBase):
         if not JsonData.favs:
             self.tabs_widget.setCurrentIndex(0)
 
+        QTimer.singleShot(1000, lambda: self.test())
+    def test(self):
+        raise Exception ("test")
+
     def on_start(self):
         self.clear_data = AutoCacheCleaner()
         UThreadPool.start(self.clear_data)

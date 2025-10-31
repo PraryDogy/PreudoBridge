@@ -2,13 +2,14 @@ import os
 import sys
 import traceback
 
+from PyQt5.QtCore import QEvent, QObject, Qt
 from PyQt5.QtWidgets import (QApplication, QDialog, QPushButton, QTextEdit,
                              QVBoxLayout)
 
 
-class System_:
+class Tools:
     @classmethod
-    def catch_error_in_app(cls, exctype, value, tb) -> None:
+    def app_error_handler(cls, exctype, value, tb) -> None:
         if exctype == RuntimeError:
             # в приложении мы игнорируем эту ошибку
             return
@@ -40,7 +41,7 @@ class System_:
         d.setFocus()
         d.exec_()
 
-    def catch_error_in_proj(exctype, value, tb):
+    def proj_error_handler(exctype, value, tb):
         if exctype == RuntimeError:
             try:
                 frame = traceback.extract_tb(tb)[0]
@@ -63,24 +64,11 @@ class System_:
             return False
 
 
-if System_.set_plugin_path():
-    sys.excepthook = System_.catch_error_in_app
+if Tools.set_plugin_path():
+    sys.excepthook = Tools.app_error_handler
 else:
-    sys.excepthook = System_.catch_error_in_proj
+    sys.excepthook = Tools.proj_error_handler
 
-# def trace_all_exceptions(frame, event, arg):
-#     if event == "exception":
-#         exc_type, exc_value, tb = arg
-#         print(f"Перехвачено исключение: {exc_type.__name__}: {exc_value}")
-#         traceback.print_tb(tb)
-#     return trace_all_exceptions  # чтобы ловить дальше
-
-# sys.settrace(trace_all_exceptions)
-
-
-
-from PyQt5.QtCore import QEvent, QObject, Qt
-from PyQt5.QtWidgets import QApplication
 
 from cfg import JsonData
 from system.database import Dbase
@@ -92,16 +80,7 @@ from widgets.main_win import MainWin
 
 class App(QApplication):
     def __init__(self, argv: list[str]) -> None:
-
-        QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
-        QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
-
         super().__init__(argv)
-
-        JsonData.init()
-        UThreadPool.init()
-        Dbase.init()
-        BaseItem.check_sortitem_attrs()
 
         self.main_win = MainWin()
         self.main_win.show()
@@ -119,6 +98,11 @@ class App(QApplication):
     def on_exit(self):
         JsonData.write_config()
 
-
+QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
+QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
+JsonData.init()
+UThreadPool.init()
+Dbase.init()
+BaseItem.check_sortitem_attrs()
 app = App(argv=sys.argv)
 app.exec()
