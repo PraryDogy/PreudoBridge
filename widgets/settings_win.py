@@ -288,7 +288,7 @@ class JsonFile(QGroupBox):
         btn1 = QPushButton(JsonFile.json_text)
         btn1.setFixedWidth(self.btn_w)
         btn1.clicked.connect(
-            lambda: subprocess.call(["open", Static.APP_SUPPORT])
+            lambda: subprocess.call(["open", Static.app_support])
         )
         h_lay1.addWidget(btn1)
 
@@ -323,7 +323,7 @@ class About(QGroupBox):
     svg_size = 70
     text_ = "\n".join(
         [
-            f"{Static.APP_NAME} {Static.APP_VER}",
+            f"{Static.app_name} {Static.app_ver}",
             f"{datetime.now().year} Evgeny Loshakev"
         ]
     )

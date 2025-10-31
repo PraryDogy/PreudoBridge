@@ -149,7 +149,7 @@ class Utils:
     @classmethod
     def get_abs_thumb_path(cls, partial_hash: str) -> str:
         base = os.path.join(
-            Static.THUMBNAILS,
+            Static.thumbnails_dir,
             partial_hash[:2],
             partial_hash[2:] + ".jpg"
         )
@@ -203,7 +203,7 @@ class Utils:
         """
         total = 0
         count = 0
-        stack = [Static.THUMBNAILS]
+        stack = [Static.thumbnails_dir]
         while stack:
             current = stack.pop()
             for i in os.scandir(current):

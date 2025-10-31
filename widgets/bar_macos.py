@@ -24,7 +24,7 @@ class SelectableLabel(QLabel):
     """
 
     INFO_TEXT = "\n".join([
-        f"Version {Static.APP_VER}",
+        f"Version {Static.app_ver}",
         "Developed by Evlosh",
         "email: evlosh@gmail.com",
         "telegram: evlosh",
@@ -83,7 +83,7 @@ class AboutWin(MinMaxDisabledWin):
         super().__init__()
 
         # --- Настройка окна ---
-        self.setWindowTitle(Static.APP_NAME)
+        self.setWindowTitle(Static.app_name)
 
         self.central_layout = QVBoxLayout()
         self.central_layout.setContentsMargins(10, 0, 10, 10)

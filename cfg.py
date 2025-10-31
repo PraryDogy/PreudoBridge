@@ -6,16 +6,18 @@ from collections import defaultdict
 
 
 class Static:
-    APP_NAME = "PreudoBridge"
-    APP_VER = 3.60
+    app_name = "PreudoBridge"
+    app_ver = 3.60
 
-    APP_SUPPORT = os.path.join(os.path.expanduser('~/Library/Application Support'), APP_NAME)
-    EXTERNAL_ICONS = os.path.join(APP_SUPPORT, "icons")
-    JSON_FILE = os.path.join(APP_SUPPORT, 'cfg.json')
-    DB_FILE = os.path.join(APP_SUPPORT, 'db.db')
-    THUMBNAILS = os.path.join(APP_SUPPORT, 'thumbnails')
+    app_support = os.path.join(os.path.expanduser('~/Library/Application Support'), app_name)
+    icons_dir = os.path.join(app_support, "icons")
+    thumbnails_dir = os.path.join(app_support, 'thumbnails')
+    cfg_file = os.path.join(app_support, 'cfg.json')
+    db_file = os.path.join(app_support, 'db.db')
 
-    APPLE_SCRIPTS = {entry.name: entry.path for entry in os.scandir("scripts")}
+    scripts_dir = "./scripts"
+
+
     INTERNAL_ICONS = {entry.name: entry.path for entry in os.scandir("icons")}
 
     FOLDER_TYPE: str = "folder"
@@ -198,8 +200,8 @@ class JsonData:
 
     @classmethod
     def read_json_data(cls) -> dict:
-        if os.path.exists(Static.JSON_FILE):
-            with open(Static.JSON_FILE, 'r', encoding="utf-8") as f:
+        if os.path.exists(Static.cfg_file):
+            with open(Static.cfg_file, 'r', encoding="utf-8") as f:
                 try:
                     json_data: dict = json.load(f)
                 
@@ -221,7 +223,7 @@ class JsonData:
         }
 
         try:
-            with open(Static.JSON_FILE, 'w', encoding="utf-8") as f:
+            with open(Static.cfg_file, 'w', encoding="utf-8") as f:
                 json.dump(new_data, f, indent=4, ensure_ascii=False)
             return True
         
@@ -231,7 +233,7 @@ class JsonData:
 
     @classmethod
     def setup_icons(cls):
-        os.makedirs(Static.EXTERNAL_ICONS, exist_ok=True)
+        os.makedirs(Static.icons_dir, exist_ok=True)
 
     @classmethod
     def do_before_start(cls):
@@ -239,7 +241,7 @@ class JsonData:
 
     @classmethod
     def init(cls):
-        os.makedirs(Static.APP_SUPPORT, exist_ok=True)
+        os.makedirs(Static.app_support, exist_ok=True)
         cls.read_json_data()
         cls.write_config()
         try:

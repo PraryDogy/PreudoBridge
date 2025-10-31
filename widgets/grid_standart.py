@@ -85,7 +85,7 @@ class GridStandart(Grid):
         def create_icons():
             exts = {i.type_ for i in self._thumb_items}
             for i in exts:
-                icon_path = Utils.get_icon_path(i, Static.EXTERNAL_ICONS)
+                icon_path = Utils.get_icon_path(i, Static.icons_dir)
                 if not os.path.exists(icon_path):
                     Utils.create_icon(i, icon_path, Static.INTERNAL_ICONS.get("file.svg"))
 

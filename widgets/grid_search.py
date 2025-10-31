@@ -118,7 +118,7 @@ class GridSearch(Grid):
             if base_item.qimage:
                 thumb.set_image(base_item.qimage)
             else:
-                icon_path = Utils.get_icon_path(base_item.type_, Static.EXTERNAL_ICONS)
+                icon_path = Utils.get_icon_path(base_item.type_, Static.icons_dir)
                 if not os.path.exists(icon_path):
                     Utils.create_icon(base_item.type_, icon_path, Static.INTERNAL_ICONS.get("file.svg"))
                 thumb.set_svg_icon()

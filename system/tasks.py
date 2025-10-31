@@ -661,7 +661,7 @@ class DbItemsLoader(URunnable):
         Dbase.commit(self.conn)
 
     def execute_app_files(self, app_files: list[BaseItem], size: int = 512):
-        app_folder = os.path.join(Static.THUMBNAILS, "app_icons")
+        app_folder = os.path.join(Static.thumbnails_dir, "app_icons")
         os.makedirs(app_folder, exist_ok=True)
         for i in app_files:
             if not self.is_should_run():

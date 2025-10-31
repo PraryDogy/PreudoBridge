@@ -196,7 +196,7 @@ class Thumb(BaseItem, QFrame):
         elif self.type_.lower() in Static.PRELOADED_ICONS:
             icon_path = Static.PRELOADED_ICONS.get(self.type_.lower())
         else:
-            icon_path = Utils.get_icon_path(self.type_, Static.EXTERNAL_ICONS)
+            icon_path = Utils.get_icon_path(self.type_, Static.icons_dir)
 
         self.img_wid.load(icon_path)
         self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
@@ -689,7 +689,7 @@ class Grid(UScrollArea):
 
     def new_thumb(self, url: str):
         _, ext = os.path.splitext(url)
-        icon_path = Utils.get_icon_path(ext, Static.EXTERNAL_ICONS)
+        icon_path = Utils.get_icon_path(ext, Static.icons_dir)
         if not os.path.exists(icon_path):
             Utils.create_icon(ext, icon_path, Static.INTERNAL_ICONS.get("file.svg"))
 

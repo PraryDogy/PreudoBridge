@@ -44,7 +44,7 @@ class ServersWin(MinMaxDisabledWin):
     title_text = "Подключение к серверу"
     connect_text = "Подкл."
     new_server_text = "Сервер, логин, пароль"
-    json_file = os.path.join(Static.APP_SUPPORT, "servers.json")
+    json_file = os.path.join(Static.app_support, "servers.json")
 
     def __init__(self):
         super().__init__()
