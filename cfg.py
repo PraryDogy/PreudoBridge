@@ -154,6 +154,7 @@ class Static:
         "/System/Applications/Preview.app",
         "/System/Applications/Photos.app"
     ]
+    image_apps = [i for i in image_apps if os.path.exists(i)]
 
     max_thumb_size = 210
     thumb_heights = [130, 150, 185, 270]
