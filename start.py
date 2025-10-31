@@ -98,6 +98,7 @@ class App(QApplication):
     def on_exit(self):
         JsonData.write_config()
 
+
 QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
 QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
 JsonData.init()
