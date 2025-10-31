@@ -19,3 +19,5 @@ OPTIONS = {
     "packages": ['numpy', 'cv2'],
 }
 
+find . -name ".DS_Store" -delete
+find . -type l -name ".DS_Store" -exec rm {} \;
