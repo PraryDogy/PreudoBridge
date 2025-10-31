@@ -21,6 +21,11 @@ class System_:
         STARS = "*" * 40
         SUMMARY_MSG = "\n".join([ERROR, STARS, ABOUT])
 
+        from cfg import Static
+        log_file = os.path.join(Static.app_support, "log.txt")
+        with open(log_file, "w") as file:
+            file.write(SUMMARY_MSG)
+
         d = QDialog()
         d.setWindowTitle("Ошибка")
         l = QVBoxLayout(d)
@@ -77,10 +82,9 @@ else:
 from PyQt5.QtCore import QEvent, QObject, Qt
 from PyQt5.QtWidgets import QApplication
 
-from cfg import Dynamic, JsonData
+from cfg import JsonData
 from system.database import Dbase
 from system.items import BaseItem
-from system.shared_utils import SharedUtils
 from system.tasks import UThreadPool
 from widgets._base_widgets import WinBase
 from widgets.main_win import MainWin
