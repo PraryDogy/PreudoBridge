@@ -16,7 +16,7 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers.polling import PollingObserver as Observer
 
-from cfg import JsonData, Static, ThumbData
+from cfg import JsonData, Static
 from system.shared_utils import PathFinder, ReadImage, SharedUtils
 
 from .database import CACHE, Clmns, Dbase

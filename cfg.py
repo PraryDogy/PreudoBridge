@@ -140,30 +140,6 @@ class Static:
     OFFSET = 15
 
 
-class ThumbData:
-
-    # размер в пикселях по длинной стороне изображения для базы данных
-    DB_IMAGE_SIZE: int = 210
-
-    # ширина и высота grid.py > Thumb
-    THUMB_H = [130, 150, 185, 270]
-    THUMB_W = [145, 145, 180, 230]
-
-    # максимальный размер изображения в пикселях для grid.py > Thumb
-    PIXMAP_SIZE: list = [50, 70, 100, 170]
-
-    # максимальное количество символов на строку для grid.py > Thumb
-    MAX_ROW: list = [20, 20, 25, 32]
-
-    CORNER: list = [4, 8, 14, 16]
-
-    # растояние между изображением и текстом для grid.py > Thumb
-    SPACING = 2
-
-    # дополнительное пространство вокруг изображения для grid.py > Thumb
-    OFFSET = 15
-
-
 class JsonData:
     favs = {}
     show_hidden = False

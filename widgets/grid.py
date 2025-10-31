@@ -1,5 +1,4 @@
 import gc
-import inspect
 import os
 
 from PyQt5.QtCore import (QMimeData, QPoint, QRect, QSize, Qt, QTimer, QUrl,
@@ -12,11 +11,10 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
                              QVBoxLayout, QWidget)
 from watchdog.events import FileSystemEvent
 
-from cfg import Dynamic, JsonData, Static, ThumbData
+from cfg import Dynamic, JsonData, Static
 from system.items import BaseItem, CopyItem, MainWinItem, SortItem
 from system.shared_utils import SharedUtils
-from system.tasks import (DbItemsLoader, DirWatcher, FinderUrlsLoader,
-                          RatingTask, UThreadPool)
+from system.tasks import DbItemsLoader, DirWatcher, RatingTask, UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import UMenu, UScrollArea
@@ -70,7 +68,7 @@ class FileNameWidget(QLabel):
 
     def set_text(self, name: str) -> list[str]:
         name: str | list = name
-        max_row = ThumbData.MAX_ROW[Dynamic.pixmap_size_ind]
+        max_row = Static.row_limits[Dynamic.pixmap_size_ind]
         lines: list[str] = []
         if len(name) > max_row:
             first_line = name[:max_row]
@@ -155,7 +153,7 @@ class Thumb(BaseItem, QFrame):
 
         self.v_lay = QVBoxLayout()
         self.v_lay.setContentsMargins(0, 0, 0, 0)
-        self.v_lay.setSpacing(ThumbData.SPACING)
+        self.v_lay.setSpacing(2)
         self.v_lay.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.setLayout(self.v_lay)
 
@@ -181,11 +179,11 @@ class Thumb(BaseItem, QFrame):
     @classmethod
     def calc_size(cls):
         ind = Dynamic.pixmap_size_ind
-        cls.pixmap_size = ThumbData.PIXMAP_SIZE[ind]
-        cls.img_frame_size = Thumb.pixmap_size + ThumbData.OFFSET
-        cls.thumb_w = ThumbData.THUMB_W[ind]
-        cls.thumb_h = ThumbData.THUMB_H[ind]
-        cls.corner = ThumbData.CORNER[ind]
+        cls.pixmap_size = Static.pixmap_sizes[ind]
+        cls.img_frame_size = Thumb.pixmap_size + 15
+        cls.thumb_w = Static.thumb_widths[ind]
+        cls.thumb_h = Static.thumb_heights[ind]
+        cls.corner = Static.corner_sizes[ind]
 
     def set_svg_icon(self):
         if self.type_ == Static.folder_type:
@@ -1193,7 +1191,7 @@ class Grid(UScrollArea):
 
             elif a0.key() == Qt.Key.Key_Equal:
                 new_value = Dynamic.pixmap_size_ind + 1
-                if new_value <= len(ThumbData.PIXMAP_SIZE) - 1:
+                if new_value <= len(Static.pixmap_sizes) - 1:
                     self.move_slider.emit(new_value)
 
             elif a0.key() == Qt.Key.Key_Minus:

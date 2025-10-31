@@ -1,10 +1,10 @@
 import os
 
-from PyQt5.QtCore import QPoint, Qt, QTimer, pyqtSignal
+from PyQt5.QtCore import QPoint, Qt, pyqtSignal
 from PyQt5.QtGui import QMouseEvent
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QWidget
 
-from cfg import Dynamic, Static, ThumbData
+from cfg import Dynamic, Static
 from system.items import MainWinItem, SortItem
 
 from ._base_widgets import UFrame, USlider, USvgSqareWidget
@@ -141,7 +141,7 @@ class CustomSlider(USlider):
         super().__init__(
             orientation=Qt.Orientation.Horizontal,
             minimum=0,
-            maximum=len(ThumbData.PIXMAP_SIZE) - 1
+            maximum=len(Static.pixmap_sizes) - 1
         )
         self.setFixedSize(CustomSlider.width_, CustomSlider.height_)
         self.setValue(Dynamic.pixmap_size_ind)
