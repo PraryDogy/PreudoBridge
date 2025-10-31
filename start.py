@@ -24,10 +24,10 @@ class Tools:
 
         from cfg import Static
         log_file = os.path.join(Static.app_support, "log.txt")
-        with open(log_file, "w") as file:
-            print("write error to log file")
-            file.write(SUMMARY_MSG)
-
+        with open(log_file, "w", encoding="utf-8") as f:
+            f.write(SUMMARY_MSG)
+            f.flush()
+            os.fsync(f.fileno())
         d = QDialog()
         d.setWindowTitle("Ошибка")
         l = QVBoxLayout(d)

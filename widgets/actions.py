@@ -39,7 +39,7 @@ class RevealInFinder(QAction):
     def dir_cmd(self):
         subprocess.Popen(["open", self.urls[0]])
 
-    def files_cmd(self):        
+    def files_cmd(self):
         self.task_ = ActionsTask(
             lambda: subprocess.run(
                 [
