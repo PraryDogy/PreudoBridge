@@ -130,6 +130,16 @@ class Static:
         5: {"bytes": 10000 * 1024 * 1024, "text": "10 ГБ"},
     }
 
+    max_thumb_size = 210
+    thumb_heights = [130, 150, 185, 270]
+    thumb_widths = [145, 145, 180, 230]
+    pixmap_sizes = [50, 70, 100, 170]
+    row_limits = [20, 20, 25, 32]
+    corner_sizes = [4, 8, 14, 16]
+    SPACING = 2
+    OFFSET = 15
+
+
 class ThumbData:
 
     # размер в пикселях по длинной стороне изображения для базы данных
