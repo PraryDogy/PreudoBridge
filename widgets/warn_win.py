@@ -7,10 +7,11 @@ from PyQt5.QtWidgets import (QLabel, QPushButton, QSizePolicy, QSpacerItem,
 from system.shared_utils import SharedUtils
 
 from ._base_widgets import MinMaxDisabledWin
-
+import os
+from cfg import Static
 
 class BaseWinWarn(MinMaxDisabledWin):
-    svg_warning = "./icons/warning.svg"
+    svg_warning = os.path.join(Static.app_icons_dir, "warning.svg")
     svg_size = 40
 
     def __init__(self, title: str, text: str, char_limit: int):

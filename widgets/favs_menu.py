@@ -4,7 +4,7 @@ from PyQt5.QtCore import QSize, Qt, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QDropEvent, QIcon, QMouseEvent
 from PyQt5.QtWidgets import QAction, QLabel, QListWidget, QListWidgetItem
 
-from cfg import JsonData
+from cfg import JsonData, Static
 from system.items import MainWinItem
 from system.shared_utils import SharedUtils
 from system.utils import Utils
@@ -125,7 +125,7 @@ class FavsMenu(QListWidget):
     new_history_item = pyqtSignal(str)
     load_st_grid = pyqtSignal()
     open_in_new_win = pyqtSignal(str)
-    svg_folder = "./icons/folder.svg"
+    svg_folder = os.path.join(Static.app_icons_dir, "folder.svg")
     svg_size = 16
 
     def __init__(self, main_win_item: MainWinItem):

@@ -77,7 +77,7 @@ class GridSearch(Grid):
     finished_ = pyqtSignal()
     no_result_text = "Ничего не найдено"
     noti_text = "Завершите поиск, затем перетащите файлы"
-    warning_svg = "./icons/warning.svg"
+    warning_svg = os.path.join(Static.app_icons_dir, "warning.svg")
     pause_time_ms = 700
 
     def __init__(
