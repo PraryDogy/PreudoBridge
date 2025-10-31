@@ -40,7 +40,7 @@ class WinMissedFiles(MinMaxDisabledWin):
         self.first_row_lay.setContentsMargins(0, 0, 0, 0)
         self.first_row_wid.setLayout(self.first_row_lay)
 
-        warn = USvgSqareWidget(Static.INTERNAL_ICONS.get("warning.svg"), WinMissedFiles.svg_size)
+        warn = USvgSqareWidget(Static.app_icons_dir.get("warning.svg"), WinMissedFiles.svg_size)
         self.first_row_lay.addWidget(warn)
 
         label_ = QLabel(WinMissedFiles.descr_text)
@@ -118,9 +118,9 @@ class GridSearch(Grid):
             if base_item.qimage:
                 thumb.set_image(base_item.qimage)
             else:
-                icon_path = Utils.get_icon_path(base_item.type_, Static.icons_dir)
+                icon_path = Utils.get_icon_path(base_item.type_, Static.ext_icons_dir)
                 if not os.path.exists(icon_path):
-                    Utils.create_icon(base_item.type_, icon_path, Static.INTERNAL_ICONS.get("file.svg"))
+                    Utils.create_icon(base_item.type_, icon_path, Static.app_icons_dir.get("file.svg"))
                 thumb.set_svg_icon()
             self.add_widget_data(thumb, self.row, self.col)
             self.grid_layout.addWidget(thumb, self.row, self.col)

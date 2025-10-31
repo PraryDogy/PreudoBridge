@@ -10,15 +10,13 @@ class Static:
     app_ver = 3.60
 
     app_support = os.path.join(os.path.expanduser('~/Library/Application Support'), app_name)
-    icons_dir = os.path.join(app_support, "icons")
+    ext_icons_dir = os.path.join(app_support, "icons")
     thumbnails_dir = os.path.join(app_support, 'thumbnails')
     cfg_file = os.path.join(app_support, 'cfg.json')
     db_file = os.path.join(app_support, 'db.db')
 
     scripts_dir = "./scripts"
-
-
-    INTERNAL_ICONS = {entry.name: entry.path for entry in os.scandir("icons")}
+    app_icons_dir = "./icons"
 
     FOLDER_TYPE: str = "folder"
 
@@ -233,7 +231,7 @@ class JsonData:
 
     @classmethod
     def setup_icons(cls):
-        os.makedirs(Static.icons_dir, exist_ok=True)
+        os.makedirs(Static.ext_icons_dir, exist_ok=True)
 
     @classmethod
     def do_before_start(cls):

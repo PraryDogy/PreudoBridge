@@ -676,7 +676,7 @@ class TableView(QTableView):
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
 
-        img_ = QPixmap(Static.INTERNAL_ICONS.get("files.svg"))
+        img_ = QPixmap(Static.app_icons_dir.get("files.svg"))
         self.drag.setPixmap(img_)
         
         urls = [

@@ -34,7 +34,7 @@ class RemoveFilesWin(MinMaxDisabledWin):
         first_row_lay.setContentsMargins(0, 0, 0, 0)
         first_row_wid.setLayout(first_row_lay)
 
-        warn = USvgSqareWidget(Static.INTERNAL_ICONS.get("warning.svg"), RemoveFilesWin.svg_size)
+        warn = USvgSqareWidget(Static.app_icons_dir.get("warning.svg"), RemoveFilesWin.svg_size)
         first_row_lay.addWidget(warn)
 
         t = f"{RemoveFilesWin.descr_text} ({len(urls)})?"
