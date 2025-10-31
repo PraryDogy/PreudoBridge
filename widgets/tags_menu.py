@@ -43,14 +43,14 @@ class FiltersMenu(QWidget):
 
         zero_item = UItem()
         zero_item.rating = 0
-        zero_item.setText(Static.LINE_LONG_SYM)
+        zero_item.setText(Static.long_line_symbol)
         zero_item.setSizeHint(item_size)
         self.list.addItem(zero_item)
 
         for i in range(1, 6):
             item = UItem()
             item.rating = i
-            item.setText(Static.STAR_SYM * i)
+            item.setText(Static.star_symbol * i)
             item.setSizeHint(item_size)
             self.list.addItem(item)
 

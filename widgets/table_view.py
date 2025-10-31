@@ -214,11 +214,11 @@ class TableView(QTableView):
 
     def open_thumb(self, urls: list[str]):
         if len(urls) == 1:
-            if urls[0].endswith(Static.ext_all):
+            if urls[0].endswith(Static.img_exts):
                 url_to_wid = {
                     url: Thumb(url)
                     for url, v in self.url_to_index.items()
-                    if url.endswith(Static.ext_all)
+                    if url.endswith(Static.img_exts)
                 }
                 start_url = urls[0]
                 is_selection = False
@@ -233,7 +233,7 @@ class TableView(QTableView):
             url_to_wid = {
                 url: Thumb(url)
                 for url in urls
-                if url.endswith(Static.ext_all)
+                if url.endswith(Static.img_exts)
             }
             if url_to_wid:
                 start_url = list(url_to_wid)[0]
@@ -252,7 +252,7 @@ class TableView(QTableView):
             files = [
                 i
                 for i in urls
-                if not i.endswith(Static.ext_all)
+                if not i.endswith(Static.img_exts)
                 and
                 os.path.isfile(i)
             ]
@@ -301,7 +301,7 @@ class TableView(QTableView):
             QTimer.singleShot(300, lambda: self.select_path(urls[-1]))
             self.convert_win.deleteLater()
 
-        urls = [i for i in urls if i.endswith(Static.ext_all)]
+        urls = [i for i in urls if i.endswith(Static.img_exts)]
         self.convert_win = ImgConvertWin(urls)
         self.convert_win.center(self.window())
         self.convert_win.finished_.connect(lambda urls: finished_(urls))
@@ -395,7 +395,7 @@ class TableView(QTableView):
 
         menu_.addSeparator()
 
-        if selected_path.endswith(Static.ext_all):
+        if selected_path.endswith(Static.img_exts):
             convert_action = ItemActions.ImgConvert(menu_)
             convert_action.triggered.connect(lambda: self.open_img_convert_win(urls))
             menu_.addAction(convert_action)

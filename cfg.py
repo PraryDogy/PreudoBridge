@@ -18,21 +18,18 @@ class Static:
     scripts_dir = "./scripts"
     app_icons_dir = "./icons"
 
-    FOLDER_TYPE: str = "folder"
+    folder_type = "folder"
+    rgba_gray = "rgba(128, 128, 128, 0.95)"
+    rgba_blue = "rgb(70, 130, 240)"
+    star_symbol = "\U00002605" # ★
+    long_line_symbol = "\U00002014" # —
+    paragraph_symbol = "\u2029" # символ PyQt5, который равен новой строке
+    line_feed_symbol  = "\u000a" # символ PyQt5, который равен новой строке
+    hidden_symbols = (".", "~$", "$")
 
-    GRAY_GLOBAL = "rgba(128, 128, 128, 0.95)"
-    BLUE_GLOBAL = "rgb(70, 130, 240)"
+    app_exts = (".app", ".APP")
 
-    STAR_SYM = "\U00002605" # ★
-    LINE_LONG_SYM = "\U00002014" # —
-    PARAGRAPH_SEP = "\u2029" # символ PyQt5, который равен новой строке
-    LINE_FEED  = "\u000a" # символ PyQt5, который равен новой строке
-
-    hidden_file_syms: tuple[str] = (".", "~$", "$")
-
-    ext_app = (".app", ".APP")
-
-    ext_jpeg = (
+    jpg_exts = (
         ".jpg", ".JPG",
         ".jpeg", ".JPEG",
         ".jpe", ".JPE",
@@ -48,21 +45,21 @@ class Static:
         ".ico", ".ICO",
     )
 
-    ext_tiff = (
+    tiff_exts = (
         ".tif", ".TIF",
         ".tiff", ".TIFF",
     )
 
-    ext_psd = (
+    psd_exts = (
         ".psd", ".PSD",
         ".psb", ".PSB",
     )
 
-    ext_png = (
+    png_exts = (
         ".png", ".PNG",
     )
 
-    ext_raw = (
+    raw_exts = (
         ".nef", ".NEF",
         ".cr2", ".CR2",
         ".cr3", ".CR3",
@@ -80,7 +77,7 @@ class Static:
         ".x3f", ".X3F",
     )
 
-    ext_video = (
+    movie_exts = (
         ".avi", ".AVI",
         ".mp4", ".MP4",
         ".mov", ".MOV",
@@ -90,18 +87,18 @@ class Static:
         ".webm", ".WEBM",
     )
 
-    ext_icns = (
+    icns_exts = (
         ".icns", ".ICNS",
     )
 
-    ext_all = (
-        *ext_jpeg,
-        *ext_tiff,
-        *ext_psd,
-        *ext_png,
-        *ext_raw,
-        *ext_video,
-        *ext_icns,
+    img_exts = (
+        *jpg_exts,
+        *tiff_exts,
+        *psd_exts,
+        *png_exts,
+        *raw_exts,
+        *movie_exts,
+        *icns_exts,
     )
 
     excel_ext = [".xls", ".xlsx", ".xlsm", ".xlt", ".xltx", ".xltm", ".xlsb", ".xlw"]

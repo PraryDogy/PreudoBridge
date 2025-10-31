@@ -248,7 +248,7 @@ class UFrame(QFrame):
 
     def solid_style(self):
         return f"""#{UFrame.object_name} {{
-                        background: {Static.GRAY_GLOBAL}; 
+                        background: {Static.rgba_gray}; 
                         border-radius: 7px;
                         padding-left: 2px;
                         padding-right: 2px;
@@ -331,7 +331,7 @@ class NotifyWid(QFrame):
         self.setStyleSheet(
             f"""
             #notifyWidget {{
-                background: {Static.BLUE_GLOBAL};
+                background: {Static.rgba_blue};
                 border-radius: 10px;
                 font-size: 16px;
             }}

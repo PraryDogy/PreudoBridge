@@ -49,11 +49,11 @@ KEY_NAVI = {
 
 RATINGS = {
     0: "",
-    1: Static.STAR_SYM,
-    2: Static.STAR_SYM * 2,
-    3: Static.STAR_SYM * 3,
-    4: Static.STAR_SYM * 4,
-    5: Static.STAR_SYM * 5,
+    1: Static.star_symbol,
+    2: Static.star_symbol * 2,
+    3: Static.star_symbol * 3,
+    4: Static.star_symbol * 4,
+    5: Static.star_symbol * 5,
 }
 
 
@@ -111,7 +111,7 @@ class BlueTextWid(QLabel):
             mod_row = RATINGS.get(rating, "").strip()
         else:
             mod_row = self.text_mod + SharedUtils.get_f_date(mod)
-            if type_ == Static.FOLDER_TYPE:
+            if type_ == Static.folder_type:
                 sec_row = str("")
             else:
                 sec_row = self.text_size + SharedUtils.get_f_size(size, 0)
@@ -188,7 +188,7 @@ class Thumb(BaseItem, QFrame):
         cls.corner = ThumbData.CORNER[ind]
 
     def set_svg_icon(self):
-        if self.type_ == Static.FOLDER_TYPE:
+        if self.type_ == Static.folder_type:
             if self.src.count(os.sep) == 2:
                 icon_path = os.path.join(Static.app_icons_dir, "hdd.svg")
             else:
@@ -242,13 +242,13 @@ class Thumb(BaseItem, QFrame):
         self.setStyleSheet(
             f"""
             #{Thumb.text_obj_name} {{
-                background: {Static.BLUE_GLOBAL};
+                background: {Static.rgba_blue};
                 font-size: {FONT_SIZE}px;
                 border-radius: {BORDER_RADIUS}px;
                 padding: 2px;
             }}
             #{Thumb.img_obj_name} {{
-                background: {Static.GRAY_GLOBAL};
+                background: {Static.rgba_gray};
                 font-size: {FONT_SIZE}px;
                 border-radius: {self.corner}px;
             }}
@@ -548,15 +548,15 @@ class Grid(UScrollArea):
     def open_thumb(self):
         if len(self.selected_thumbs) == 1:
             wid = self.selected_thumbs[0]
-            if wid.src.endswith(Static.ext_all):
+            if wid.src.endswith(Static.img_exts):
                 url_to_wid = {
                     url: wid
                     for url, wid in self.url_to_wid.items()
-                    if url.endswith(Static.ext_all)
+                    if url.endswith(Static.img_exts)
                 }
                 is_selection = False
                 self.open_img_view(wid.src, url_to_wid, is_selection)
-            elif wid.type_ == Static.FOLDER_TYPE:
+            elif wid.type_ == Static.folder_type:
                 self.new_history_item.emit(wid.src)
                 self.main_win_item.main_dir = wid.src
                 self.load_st_grid.emit()
@@ -566,7 +566,7 @@ class Grid(UScrollArea):
             url_to_wid = {
                 i.src: i
                 for i in self.selected_thumbs
-                if i.src.endswith(Static.ext_all)
+                if i.src.endswith(Static.img_exts)
             }
             if url_to_wid:
                 is_selection = True
@@ -576,7 +576,7 @@ class Grid(UScrollArea):
             folders = [
                 i.src
                 for i in self.selected_thumbs
-                if i.type_ == Static.FOLDER_TYPE
+                if i.type_ == Static.folder_type
             ]
 
             for i in folders:
@@ -585,9 +585,9 @@ class Grid(UScrollArea):
             files = [
                 i.src
                 for i in self.selected_thumbs
-                if not i.src.endswith(Static.ext_all)
+                if not i.src.endswith(Static.img_exts)
                 and
-                i.type_ != Static.FOLDER_TYPE
+                i.type_ != Static.folder_type
             ]
 
             for i in files:
@@ -852,15 +852,15 @@ class Grid(UScrollArea):
     def context_thumb(self, menu_: UMenu, wid: Thumb):
         # собираем пути к файлам / папкам у выделенных виджетов
         urls = [i.src for i in self.selected_thumbs]
-        urls_img = [i.src for i in self.selected_thumbs if i.src.endswith(Static.ext_all)]
-        dirs = [i.src for i in self.selected_thumbs if i.type_ == Static.FOLDER_TYPE]
+        urls_img = [i.src for i in self.selected_thumbs if i.src.endswith(Static.img_exts)]
+        dirs = [i.src for i in self.selected_thumbs if i.type_ == Static.folder_type]
         self.path_bar_update_delayed(wid.src)
 
         view_action = ItemActions.OpenThumb(menu_)
         view_action.triggered.connect(lambda: self.open_thumb())
         menu_.addAction(view_action)
 
-        if wid.type_ != Static.FOLDER_TYPE:
+        if wid.type_ != Static.folder_type:
             open_in_app = ItemActions.OpenInApp(menu_, urls)
             menu_.addMenu(open_in_app)
         else:
@@ -891,12 +891,12 @@ class Grid(UScrollArea):
 
         menu_.addSeparator()
 
-        if wid.type_ in Static.ext_all and not self.is_grid_search:
+        if wid.type_ in Static.img_exts and not self.is_grid_search:
             convert_action = ItemActions.ImgConvert(menu_)
             convert_action.triggered.connect(lambda: self.open_img_convert_win(urls_img))
             menu_.addAction(convert_action)
 
-        if wid.type_ == Static.FOLDER_TYPE:
+        if wid.type_ == Static.folder_type:
             download_cache = ItemActions.DownloadCache(menu_)
             download_cache.triggered.connect(
                 lambda: self.download_cache.emit(dirs)

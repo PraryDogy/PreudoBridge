@@ -38,8 +38,8 @@ class SelectableLabel(ULabel):
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
 
-        src = self.text().replace(Static.PARAGRAPH_SEP, "")
-        src = src.replace(Static.LINE_FEED, "")
+        src = self.text().replace(Static.paragraph_symbol, "")
+        src = src.replace(Static.line_feed_symbol, "")
 
         menu = UMenu(parent=self)
 
@@ -103,9 +103,9 @@ class InfoWin(MinMaxDisabledWin):
 
     def init_ui(self):
         if len(self.items) == 1:
-            if self.items[0].type_ in Static.ext_all:
+            if self.items[0].type_ in Static.img_exts:
                 self.single_img()
-            elif self.items[0].type_ == Static.FOLDER_TYPE:
+            elif self.items[0].type_ == Static.folder_type:
                 self.single_folder()
             else:
                 self.single_file()

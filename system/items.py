@@ -77,7 +77,7 @@ class BaseItem:
     def set_partial_hash(self):
         try:
             self.partial_hash = Utils.get_partial_hash(self.src)
-            if self.type_ in Static.ext_all:
+            if self.type_ in Static.img_exts:
                 self.thumb_path = Utils.get_abs_thumb_path(self.partial_hash)
         except Exception as e:
             print("items, BaseItem set partial hash error", e)
@@ -91,7 +91,7 @@ class BaseItem:
         self.filename = os.path.basename(self.src)
 
         if os.path.isdir(self.src):
-            self.type_ = Static.FOLDER_TYPE
+            self.type_ = Static.folder_type
         else:
             _, self.type_ = os.path.splitext(self.src)
 
@@ -216,13 +216,13 @@ class BaseItem:
 class SearchItem:
     SEARCH_LIST_TEXT = "Найти по списку"
     SEARCH_EXTENSIONS = {
-        "Найти jpg": Static.ext_jpeg,
-        "Найти png": Static.ext_png,
-        "Найти tiff": Static.ext_tiff,
-        "Найти psd/psb": Static.ext_psd,
-        "Найти raw": Static.ext_raw,
-        "Найти видео": Static.ext_video,
-        "Найти любые фото": Static.ext_all
+        "Найти jpg": Static.jpg_exts,
+        "Найти png": Static.png_exts,
+        "Найти tiff": Static.tiff_exts,
+        "Найти psd/psb": Static.psd_exts,
+        "Найти raw": Static.raw_exts,
+        "Найти видео": Static.movie_exts,
+        "Найти любые фото": Static.img_exts
     }
 
     def __init__(self):

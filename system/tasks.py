@@ -270,7 +270,7 @@ class RatingTask(URunnable):
     def task(self):        
         conn = Dbase.get_conn(Dbase.engine)
         stmt = sqlalchemy.update(CACHE)
-        if self.base_item.type_ == Static.FOLDER_TYPE:
+        if self.base_item.type_ == Static.folder_type:
             stmt = stmt.where(*BaseItem.get_folder_conds(self.base_item))
         else:
             stmt = stmt.where(Clmns.partial_hash==self.base_item.partial_hash)
@@ -451,7 +451,7 @@ class SearchTask(URunnable):
                     return
             if not self.is_should_run():
                 return
-            if entry.name.startswith(Static.hidden_file_syms):
+            if entry.name.startswith(Static.hidden_symbols):
                 continue
             if entry.is_dir():
                 dirs_list.append(entry.path)
@@ -478,9 +478,9 @@ class SearchTask(URunnable):
 
         base_item = BaseItem(entry.path)
         base_item.set_properties()
-        if base_item.type_ != Static.FOLDER_TYPE:
+        if base_item.type_ != Static.folder_type:
             base_item.set_partial_hash()
-        if entry.name.endswith(Static.ext_all):
+        if entry.name.endswith(Static.img_exts):
             if os.path.exists(base_item.thumb_path):
                 img_array = Utils.read_thumb(base_item.thumb_path)
             else:
@@ -512,7 +512,7 @@ class FinderItemsLoader(URunnable):
         self.conn = Dbase.get_conn(Dbase.engine)
 
         if not JsonData.show_hidden:
-            self.hidden_syms = Static.hidden_file_syms
+            self.hidden_syms = Static.hidden_symbols
 
     def task(self):
         try:
@@ -562,7 +562,7 @@ class FinderUrlsLoader(URunnable):
             # print(traceback.format_exc())
 
     def _task(self):
-        hidden_syms = () if JsonData.show_hidden else Static.hidden_file_syms
+        hidden_syms = () if JsonData.show_hidden else Static.hidden_symbols
         return [
             i.path
             for i in os.scandir(self.main_win_item.main_dir)
@@ -619,9 +619,9 @@ class DbItemsLoader(URunnable):
                 return
             if base_item.filename.endswith((".svg", ".SVG")):
                 svg_files.append(base_item)
-            if base_item.filename.endswith(Static.ext_app):
+            if base_item.filename.endswith(Static.app_exts):
                 app_files.append(base_item)
-            elif base_item.type_ == Static.FOLDER_TYPE:
+            elif base_item.type_ == Static.folder_type:
                 rating = self.get_item_rating(base_item)
                 if rating is None:
                     stmt_list.append(BaseItem.insert_folder_stmt(base_item))
@@ -634,12 +634,12 @@ class DbItemsLoader(URunnable):
                 rating = self.get_item_rating(base_item)
                 if rating is None:
                     stmt_list.append(BaseItem.insert_file_stmt(base_item))
-                    if base_item.type_ in Static.ext_all:
+                    if base_item.type_ in Static.img_exts:
                         new_images.append(base_item)
                 else:
                     base_item.rating = rating
                     stmt_list.append(BaseItem.update_file_stmt(base_item))
-                    if base_item.type_ in Static.ext_all:
+                    if base_item.type_ in Static.img_exts:
                         if base_item.thumb_path and os.path.exists(base_item.thumb_path):
                             exist_images.append(base_item)
                         else:
@@ -753,7 +753,7 @@ class DbItemsLoader(URunnable):
 
     def get_item_rating(self, base_item: BaseItem) -> bool:
         stmt = sqlalchemy.select(Clmns.rating)
-        if base_item.type_ == Static.FOLDER_TYPE:
+        if base_item.type_ == Static.folder_type:
             stmt = stmt.where(*BaseItem.get_folder_conds(base_item))
         else:
             stmt = stmt.where(Clmns.partial_hash==base_item.partial_hash)
@@ -852,7 +852,7 @@ class ToJpegConverter(URunnable):
         self.sigs = ToJpegConverter.Sigs()
 
     def task(self):
-        urls = [i for i in self.urls if i.endswith(Static.ext_all)]
+        urls = [i for i in self.urls if i.endswith(Static.img_exts)]
         urls.sort(key=lambda p: os.path.getsize(p))
         self.sigs.set_progress_len.emit(len(urls))
         for x, url in enumerate(urls, start=1):
@@ -1200,7 +1200,7 @@ class CacheDownloader(URunnable):
                     return new_images
                 if i.is_dir():
                     stack.append(i.path)
-                elif i.name.endswith(Static.ext_all):
+                elif i.name.endswith(Static.img_exts):
                     # print("prepare base item", i.path)
                     self.sigs.filename.emit(self.cut_filename(i.name))
                     base_item = BaseItem(i.path)
@@ -1288,7 +1288,7 @@ class MultipleItemsInfo(URunnable):
 
     def _task(self):
         for i in self.items:
-            if i.type_ == Static.FOLDER_TYPE:
+            if i.type_ == Static.folder_type:
                 self.get_folder_size(i)
                 self.total_folders += 1
             else:
@@ -1343,7 +1343,7 @@ class FileInfo(URunnable):
         self.signals = FileInfo.Sigs()
 
     def task(self) -> dict[str, str| int]:
-        if self.base_item.type_ == Static.FOLDER_TYPE:
+        if self.base_item.type_ == Static.folder_type:
             size_ = self.calculating
             type_ = self.ru_folder
         else:
@@ -1362,7 +1362,7 @@ class FileInfo(URunnable):
             FileInfo.size_text: size_,
             }
         
-        if self.base_item.type_ != Static.FOLDER_TYPE:
+        if self.base_item.type_ != Static.folder_type:
             data.update({FileInfo.resol_text: self.calculating})
 
         self.signals.finished_info.emit(data)

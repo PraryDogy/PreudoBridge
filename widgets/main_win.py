@@ -65,7 +65,7 @@ class ScrollUpBtn(QLabel):
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setStyleSheet(
             f"""
-            background-color: {Static.GRAY_GLOBAL};
+            background-color: {Static.rgba_gray};
             border-radius: {ScrollUpBtn.border_radius}px;
             """
             )

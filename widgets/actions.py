@@ -21,7 +21,7 @@ class RevealInFinder(QAction):
         if len(urls) == 1:
             if os.path.isdir(urls[0]):
                 self.cmd = self.app_cmd
-            elif urls[0].endswith(Static.ext_app):
+            elif urls[0].endswith(Static.app_exts):
                 self.cmd = self.app_cmd
             else:
                 self.cmd = self.files_cmd
@@ -150,7 +150,7 @@ class RatingMenu(UMenu):
         # и подгружается при создании сетки
         rating = current_rating
 
-        cancel_ = QAction(Static.LINE_LONG_SYM, self)
+        cancel_ = QAction(Static.long_line_symbol, self)
         cancel_.triggered.connect(lambda: self.new_rating.emit(0))
         self.addAction(cancel_)
 
@@ -160,7 +160,7 @@ class RatingMenu(UMenu):
         # если есть, то отмечается setChecked
         # 0 возвращает False
         for current_rating in range(1, 6):
-            wid = QAction(Static.STAR_SYM * current_rating, self)
+            wid = QAction(Static.star_symbol * current_rating, self)
             wid.setCheckable(True)
 
             if rating == current_rating:
@@ -217,8 +217,8 @@ class CopyText(QAction):
         # символами параграфа и новой строки
         # при копировании мы удаляем их, делая копируемый текст
         # однострочным
-        selection = selection.replace(Static.PARAGRAPH_SEP, "")
-        selection = selection.replace(Static.LINE_FEED, "")
+        selection = selection.replace(Static.paragraph_symbol, "")
+        selection = selection.replace(Static.line_feed_symbol, "")
         Utils.write_to_clipboard(selection)
 
 

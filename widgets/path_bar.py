@@ -77,7 +77,7 @@ class PathItem(QWidget):
         """
         self.text_wid.setStyleSheet(
             f"""
-                background: {Static.BLUE_GLOBAL};
+                background: {Static.rgba_blue};
                 border-radius: 2px;
             """
         )

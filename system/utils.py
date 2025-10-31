@@ -209,7 +209,7 @@ class Utils:
             for i in os.scandir(current):
                 if i.is_dir():
                     stack.append(i.path)
-                elif i.name.endswith(Static.ext_all):
+                elif i.name.endswith(Static.img_exts):
                     total += os.path.getsize(i.path)
                     count += 1
         return {"total": total, "count": count}
