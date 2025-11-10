@@ -14,31 +14,44 @@ from ._base_widgets import MinMaxDisabledWin, ULineEdit, UMenu
 
 
 class ServersWidget(QTableView):
-    remove = pyqtSignal(str)
+    remove = pyqtSignal(object)
 
     def __init__(self, data: list[list[str]]):
         super().__init__()
 
-        self.model_ = QStandardItemModel(0, 3, self)
-        self.model_.setHorizontalHeaderLabels(["Сервер", "Логин", "Пароль"])
-        self.setModel(self.model_)
+        self.model = QStandardItemModel(0, 3, self)
+        self.model.setHorizontalHeaderLabels(["Сервер", "Логин", "Пароль"])
+        self.setModel(self.model)
 
         for row in data:
             items = [QStandardItem(str(val)) for val in row]
             for item in items:
                 item.setEditable(False)
-            self.model_.appendRow(items)
+            self.model.appendRow(items)
 
-        # Визуальные настройки
-        self.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        # Настройки таблицы
+        header = self.horizontalHeader()
+
+        # Сначала выставляем авто-ширину по содержимому
+        header.setSectionResizeMode(QHeaderView.ResizeToContents)
+
+        # Потом немного увеличиваем, чтобы не было сжатия
+        self.resizeColumnsToContents()
+        self.horizontalHeader().setStretchLastSection(True)
+
+        # После этого включаем ручной ресайз
+        header.setSectionResizeMode(QHeaderView.Interactive)
+
         self.verticalHeader().setVisible(False)
         self.setSelectionBehavior(QTableView.SelectRows)
         self.setSelectionMode(QTableView.SingleSelection)
         self.setShowGrid(False)
-        self.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.customContextMenuRequested.connect(self.show_context_menu)
         self.setAlternatingRowColors(True)
         self.verticalHeader().setDefaultSectionSize(25)
+
+        # Контекстное меню
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_context_menu)
 
     def add_row(self, data: list[str]):
         items = [QStandardItem(str(val)) for val in data]
