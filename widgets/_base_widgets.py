@@ -316,9 +316,10 @@ class MinMaxDisabledWin(WinBase):
         Оставлена только кнопка закрытия.
         """
         super().__init__()
-        fl = Qt.WindowType.Window | Qt.WindowType.CustomizeWindowHint
-        fl = fl  | Qt.WindowType.WindowCloseButtonHint
-        self.setWindowFlags(fl)
+        self.setWindowFlags(
+            Qt.WindowType.CustomizeWindowHint |
+            Qt.WindowType.WindowCloseButtonHint
+        )
 
 
 class NotifyWid(QFrame):
