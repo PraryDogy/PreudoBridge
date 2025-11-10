@@ -87,6 +87,12 @@ class ImgWid(QGraphicsView):
             self.fitInView(self.pixmap_item, Qt.KeepAspectRatio)
 
 
+class UserSvg(USvgSqareWidget):
+    def __init__(self, src, size):
+        super().__init__(src, size)
+        self.value = None
+
+
 class ZoomBtns(QFrame):
     zoom_close = pyqtSignal()
     zoom_in = pyqtSignal()
@@ -95,41 +101,74 @@ class ZoomBtns(QFrame):
 
     def __init__(self, parent: QWidget = None) -> None:
         super().__init__(parent)
-        self.setStyleSheet(
-            f"""
+        self.setStyleSheet("""
             background-color: rgba(128, 128, 128, 0.5);
             border-radius: 15px;
-            """
-            )
+        """)
 
-        h_layout = QHBoxLayout()
+        h_layout = QHBoxLayout(self)
         h_layout.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(h_layout)
+
+        def add_btn(name, val):
+            btn = UserSvg(os.path.join(Static.app_icons_dir, name), 45)
+            btn.value = val
+            h_layout.addWidget(btn)
+            return btn
 
         h_layout.addSpacerItem(QSpacerItem(5, 0))
-
-        zoom_out = USvgSqareWidget(os.path.join(Static.app_icons_dir, "zoom_out.svg"), 45)
-        zoom_out.mouseReleaseEvent = lambda e: self.zoom_out.emit()
-        h_layout.addWidget(zoom_out)
+        add_btn("zoom_out.svg", -1)
         h_layout.addSpacerItem(QSpacerItem(10, 0))
-
-        zoom_in = USvgSqareWidget(os.path.join(Static.app_icons_dir, "zoom_in.svg"), 45)
-        zoom_in.mouseReleaseEvent = lambda e: self.zoom_in.emit()
-        h_layout.addWidget(zoom_in)
+        add_btn("zoom_in.svg", 1)
         h_layout.addSpacerItem(QSpacerItem(10, 0))
-
-        zoom_fit = USvgSqareWidget(os.path.join(Static.app_icons_dir, "zoom_fit.svg"), 45)
-        zoom_fit.mouseReleaseEvent = lambda e: self.zoom_fit.emit()
-        h_layout.addWidget(zoom_fit)
+        add_btn("zoom_fit.svg", 0)
         h_layout.addSpacerItem(QSpacerItem(10, 0))
-
-        zoom_close = USvgSqareWidget(os.path.join(Static.app_icons_dir, "zoom_close.svg"), 45)
-        zoom_close.mouseReleaseEvent = lambda e: self.zoom_close.emit()
-        h_layout.addWidget(zoom_close)
-
+        add_btn("zoom_close.svg", 9999)
         h_layout.addSpacerItem(QSpacerItem(5, 0))
-        
+
+        self.mappings = {
+            -1: self.zoom_out.emit,
+            1: self.zoom_in.emit,
+            0: self.zoom_fit.emit,
+            9999: self.zoom_close.emit
+        }
+
+        self.start_pos = None
+        self.is_move = False
         self.adjustSize()
+
+    def mousePressEvent(self, e):
+        self.start_pos = e.pos()
+        self.is_move = False
+        super().mousePressEvent(e)
+
+    def mouseMoveEvent(self, e):
+        if not self.start_pos:
+            return
+
+        dx = e.x() - self.start_pos.x()
+        if abs(dx) > 30:  # горизонтальное движение
+            self.is_move = True
+            if dx > 0:
+                print("zoom in")
+                self.zoom_in.emit()
+            else:
+                print("zoom out")
+                self.zoom_out.emit()
+            self.start_pos = e.pos()
+        super().mouseMoveEvent(e)
+
+    def mouseReleaseEvent(self, e):
+        if self.is_move:
+            self.is_move = False
+            return  # не считаем клик, если двигали мышь
+
+        pos = e.globalPos()
+        wid = QApplication.widgetAt(pos)
+        if isinstance(wid, UserSvg):
+            func = self.mappings.get(wid.value)
+            if func:
+                func()
+        super().mouseReleaseEvent(e)
 
 
 class SwitchImgBtn(QFrame):
