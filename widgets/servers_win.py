@@ -19,15 +19,15 @@ class ServersWidget(QTableView):
     def __init__(self, data: list[list[str]]):
         super().__init__()
 
-        self.model = QStandardItemModel(0, 3, self)
-        self.model.setHorizontalHeaderLabels(["Сервер", "Логин", "Пароль"])
-        self.setModel(self.model)
+        self.model_ = QStandardItemModel(0, 3, self)
+        self.model_.setHorizontalHeaderLabels(["Сервер", "Логин", "Пароль"])
+        self.setModel(self.model_)
 
         for row in data:
             items = [QStandardItem(str(val)) for val in row]
             for item in items:
                 item.setEditable(False)
-            self.model.appendRow(items)
+            self.model_.appendRow(items)
 
         # Настройки таблицы
         header = self.horizontalHeader()
