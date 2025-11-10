@@ -149,10 +149,8 @@ class ZoomBtns(QFrame):
         if abs(dx) > 30:  # горизонтальное движение
             self.is_move = True
             if dx > 0:
-                print("zoom in")
                 self.zoom_in.emit()
             else:
-                print("zoom out")
                 self.zoom_out.emit()
             self.start_pos = e.pos()
         super().mouseMoveEvent(e)
