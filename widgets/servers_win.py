@@ -70,6 +70,12 @@ class ServersWidget(QTableView):
             self.remove.emit(row_text)
             self.model_.removeRow(index.row())
 
+    def mouseReleaseEvent(self, e):
+        index = self.indexAt(e.pos())
+        if not index.isValid():
+            self.clearSelection()
+        return super().mouseReleaseEvent(e)
+
 
 class ServersWin(MinMaxDisabledWin):
     title_text = "Подключение к серверу"
@@ -194,3 +200,4 @@ class ServersWin(MinMaxDisabledWin):
         if a0.key() == Qt.Key.Key_Escape:
             self.deleteLater()
         return super().keyPressEvent(a0)
+    
