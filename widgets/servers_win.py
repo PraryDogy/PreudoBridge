@@ -87,6 +87,7 @@ class ServersWidget(QTableView):
         index = self.indexAt(e.pos())
         if not index.isValid():
             self.clearSelection()
+            self.setCurrentIndex(QModelIndex())
         return super().mouseReleaseEvent(e)
 
 
@@ -186,9 +187,10 @@ class ServersWin(MinMaxDisabledWin):
 
     def remove_btn_cmd(self):
         ind = self.servers_widget.currentIndex()
-        text = self.servers_widget.get_row_text(ind)
-        self.servers_widget.model_.removeRow(ind.row())
-        self.remove_server(text)
+        if ind.isValid():
+            text = self.servers_widget.get_row_text(ind)
+            self.servers_widget.model_.removeRow(ind.row())
+            self.remove_server(text)
 
     def remove_server(self, text: str):
         self.data.remove(text.split(", "))
