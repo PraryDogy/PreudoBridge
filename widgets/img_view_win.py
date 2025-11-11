@@ -107,7 +107,8 @@ class ZoomBtns(QFrame):
         """)
 
         h_layout = QHBoxLayout(self)
-        h_layout.setContentsMargins(0, 0, 0, 0)
+        h_layout.setSpacing(10)
+        h_layout.setContentsMargins(5, 0, 5, 0)
 
         def add_btn(name, val):
             btn = UserSvg(os.path.join(Static.app_icons_dir, name), 45)
@@ -115,15 +116,10 @@ class ZoomBtns(QFrame):
             h_layout.addWidget(btn)
             return btn
 
-        h_layout.addSpacerItem(QSpacerItem(5, 0))
         add_btn("zoom_out.svg", -1)
-        h_layout.addSpacerItem(QSpacerItem(10, 0))
         add_btn("zoom_in.svg", 1)
-        h_layout.addSpacerItem(QSpacerItem(10, 0))
         add_btn("zoom_fit.svg", 0)
-        h_layout.addSpacerItem(QSpacerItem(10, 0))
         add_btn("zoom_close.svg", 9999)
-        h_layout.addSpacerItem(QSpacerItem(5, 0))
 
         self.mappings = {
             -1: self.zoom_out.emit,
@@ -211,6 +207,7 @@ class ImgViewWin(WinBase):
     object_name = "win_img_view"
     loading_text = "Загрузка"
     error_text = "Ошибка чтения изображения."
+    swipe_text = "\u2039 Проведите мышкой \u203A"
 
     def __init__(self, start_url: str, url_to_wid: dict[str, Thumb], is_selection: bool):
         super().__init__()
@@ -257,11 +254,24 @@ class ImgViewWin(WinBase):
         self.text_label.setStyleSheet("background: black;")
         self.text_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.hide_btns()
         self.resize(ImgViewWin.width_ + 1, ImgViewWin.height_ + 1)
-        self.load_thumbnail()
+        self.first_load()
 
 # SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM
+
+    def first_load(self):
+        def on_finish():
+            temp_label.deleteLater()
+            for i in self.zoom_btns.findChildren(QWidget):
+                i.show()
+        self.load_thumbnail()
+        for i in self.zoom_btns.findChildren(QWidget):
+            i.hide()
+        temp_label = QLabel(self.swipe_text)
+        temp_label.setStyleSheet("font: 18pt; font-weight: bold; background: none;")
+        self.zoom_btns.layout().addWidget(temp_label, alignment=Qt.AlignmentFlag.AlignCenter)
+        QTimer.singleShot(1400, on_finish)
+        QTimer.singleShot(1400, self.hide_btns)
 
     def zoom_cmd(self, flag: str):
         actions = {
