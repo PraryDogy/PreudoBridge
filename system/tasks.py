@@ -2,6 +2,7 @@ import difflib
 import gc
 import os
 import shutil
+import subprocess
 import time
 import zipfile
 from time import sleep
@@ -954,6 +955,34 @@ class ArchiveMaker(URunnable):
             print("archive maker task error:", e)
         finally:
             self.sigs.finished_.emit()
+
+
+class ArchiveMaker(URunnable):
+
+    class Sigs(QObject):
+        set_max = pyqtSignal(int)
+        set_value = pyqtSignal(int)
+        finished_ = pyqtSignal()
+
+    def __init__(self, files: list[str], zip_path: str):
+        super().__init__()
+        self.sigs = ArchiveMaker.Sigs()
+        self.files = files
+        self.zip_path = zip_path
+
+    def task(self):
+        try:
+            self._task()
+        except Exception as e:
+            print("ArchiveMaker error:", e)
+        finally:
+            self.sigs.finished_.emit()
+
+    def _task(self):
+        p = subprocess.run(
+            ["zip", self.zip_path, *self.files]
+        )
+        p.wait()
 
 
 class DataSizeCounter(URunnable):

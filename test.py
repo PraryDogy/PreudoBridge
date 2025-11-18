@@ -1,7 +1,4 @@
-from system.utils import Utils
+import subprocess
 
-
-
-src = "/Users/Loshkarev/Documents/Разное/Progs/PreudoBridge.app"
-hash_ = Utils.get_app_icns(src)
-print(hash_)
+app_path = ['/Volumes/Macintosh HD/Users/Loshkarev/Downloads/E01-MLN0909.tif', '/Volumes/Macintosh HD/Users/Loshkarev/Downloads/IMG_6232.jpg']
+zip_path = "/Users/Loshkarev/Documents/Разное/Progs/test.zip"
