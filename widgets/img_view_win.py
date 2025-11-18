@@ -32,6 +32,7 @@ class ImgWid(QGraphicsView):
 
         self.pixmap_item: QGraphicsPixmapItem = None
         self._last_mouse_pos: QPointF = None
+        self.is_zoomed = False
 
         if pixmap:
             self.pixmap_item = QGraphicsPixmapItem(pixmap)
@@ -42,14 +43,20 @@ class ImgWid(QGraphicsView):
 
     def zoom_in(self):
         self.scale(1.1, 1.1)
+        self.setCursor(Qt.CursorShape.OpenHandCursor)
+        self.is_zoomed = True
 
     def zoom_out(self):
         self.scale(0.9, 0.9)
+        self.setCursor(Qt.CursorShape.OpenHandCursor)
+        self.is_zoomed = True
 
     def zoom_fit(self):
         if self.pixmap_item:
             self.resetTransform()
             self.fitInView(self.pixmap_item, Qt.KeepAspectRatio)
+            self.is_zoomed = False
+            self.setCursor(Qt.CursorShape.ArrowCursor)
 
     # ---------------------- Drag через мышь ----------------------
     def mousePressEvent(self, event: QMouseEvent):
@@ -69,7 +76,10 @@ class ImgWid(QGraphicsView):
         super().mouseMoveEvent(event)
 
     def mouseReleaseEvent(self, event: QMouseEvent):
-        self.setCursor(Qt.ArrowCursor)
+        if self.is_zoomed:
+            self.setCursor(Qt.CursorShape.OpenHandCursor)
+        else:
+            self.setCursor(Qt.CursorShape.ArrowCursor)
         self._last_mouse_pos = None
         super().mouseReleaseEvent(event)
 
@@ -144,6 +154,7 @@ class ZoomBtns(QFrame):
         dx = e.x() - self.start_pos.x()
         if abs(dx) > 30:  # горизонтальное движение
             self.is_move = True
+            self.setCursor(Qt.CursorShape.SizeHorCursor)
             if dx > 0:
                 self.zoom_in.emit()
             else:
@@ -152,10 +163,10 @@ class ZoomBtns(QFrame):
         super().mouseMoveEvent(e)
 
     def mouseReleaseEvent(self, e):
+        self.setCursor(Qt.CursorShape.ArrowCursor)
         if self.is_move:
             self.is_move = False
             return  # не считаем клик, если двигали мышь
-
         pos = e.globalPos()
         wid = QApplication.widgetAt(pos)
         if isinstance(wid, UserSvg):
@@ -260,18 +271,7 @@ class ImgViewWin(WinBase):
 # SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM
 
     def first_load(self):
-        def on_finish():
-            temp_label.deleteLater()
-            for i in self.zoom_btns.findChildren(QWidget):
-                i.show()
         self.load_thumbnail()
-        for i in self.zoom_btns.findChildren(QWidget):
-            i.hide()
-        temp_label = QLabel(self.swipe_text)
-        temp_label.setStyleSheet("font: 18pt; font-weight: bold; background: none;")
-        self.zoom_btns.layout().addWidget(temp_label, alignment=Qt.AlignmentFlag.AlignCenter)
-        QTimer.singleShot(1400, on_finish)
-        QTimer.singleShot(1400, self.hide_btns)
 
     def zoom_cmd(self, flag: str):
         actions = {
@@ -360,7 +360,6 @@ class ImgViewWin(WinBase):
             if not self.is_selection:
                 self.move_to_wid.emit(self.current_thumb)
                 self.move_to_url.emit(self.current_path)
-            self.img_wid.setCursor(Qt.CursorShape.ArrowCursor)
             self.load_thumbnail()
         except Exception as e:
             print("widgets ImgViewWin error", e)
