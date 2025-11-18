@@ -1038,6 +1038,88 @@ class ArchiveMaker(URunnable):
         return files
 
 
+import os
+import subprocess
+from PyQt5.QtCore import QObject, pyqtSignal
+
+class ArchiveMaker(URunnable):
+    class Sigs(QObject):
+        set_max = pyqtSignal(int)
+        set_value = pyqtSignal(int)
+        finished_ = pyqtSignal()
+
+    def __init__(self, files: list[str], zip_path: str):
+        super().__init__()
+        self.sigs = ArchiveMaker.Sigs()
+        self.files = files
+        self.zip_path = zip_path
+
+    def task(self):
+        try:
+            self._task()
+        except Exception as e:
+            print("ArchiveMaker error:", e)
+        finally:
+            self.sigs.finished_.emit()
+
+    def _task(self):
+        # разделяем .app и обычные файлы/папки
+        apps = [f for f in self.files if f.lower().endswith(".app")]
+        others = [f for f in self.files if not f.lower().endswith(".app")]
+
+        # временный каталог для объединения всех файлов
+        import tempfile
+        import shutil
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_files = []
+            self.sigs.set_max.emit(0)
+
+            # упаковываем каждое .app через ditto в tmp каталог
+            for app in apps:
+                app_name = os.path.basename(app)
+                tmp_app_zip = os.path.join(tmp, app_name)
+                subprocess.run(["ditto", "-c", "-k", "--keepParent", app, tmp_app_zip], check=True)
+                tmp_files.append(tmp_app_zip)
+
+            # копируем обычные файлы/папки в tmp
+            for f in others:
+                dest = os.path.join(tmp, os.path.basename(f))
+                if os.path.isfile(f):
+                    shutil.copy(f, dest)
+                elif os.path.isdir(f):
+                    shutil.copytree(f, dest)
+                tmp_files.append(dest)
+
+            # создаём финальный архив через zip
+            base_dir = tmp
+            rel_paths = [os.path.relpath(f, base_dir) for f in tmp_files]
+
+            if rel_paths:
+                if len(rel_paths) > 1:
+                    self.sigs.set_max.emit(len(rel_paths))
+                else:
+                    self.sigs.set_max.emit(0)
+                count = 0
+
+                p = subprocess.Popen(
+                    ["zip", "-r", self.zip_path, *rel_paths],
+                    cwd=base_dir,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                    bufsize=1
+                )
+
+                for line in p.stdout:
+                    line = line.strip()
+                    if "adding" in line and len(rel_paths) > 1:
+                        count += 1
+                        self.sigs.set_value.emit(count)
+
+                p.wait()
+
+
 class DataSizeCounter(URunnable):
     
     class Sigs(QObject):

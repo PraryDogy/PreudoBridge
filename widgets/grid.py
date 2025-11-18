@@ -901,9 +901,9 @@ class Grid(UScrollArea):
             )
             menu_.addAction(download_cache)
 
-        archive = ItemActions.MakeArchive(menu_)
-        archive.triggered.connect(self.make_archive)
-        menu_.addAction(archive)
+        # archive = ItemActions.MakeArchive(menu_)
+        # archive.triggered.connect(self.make_archive)
+        # menu_.addAction(archive)
 
         menu_.addSeparator()
 

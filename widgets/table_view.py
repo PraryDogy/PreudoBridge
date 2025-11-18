@@ -407,9 +407,9 @@ class TableView(QTableView):
             )
             menu_.addAction(download_cache)
 
-        archive = ItemActions.MakeArchive(menu_)
-        archive.triggered.connect(lambda: self.make_archive(urls))
-        menu_.addAction(archive)
+        # archive = ItemActions.MakeArchive(menu_)
+        # archive.triggered.connect(lambda: self.make_archive(urls))
+        # menu_.addAction(archive)
 
         menu_.addSeparator()
 
