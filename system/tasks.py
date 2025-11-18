@@ -969,6 +969,8 @@ class ArchiveMaker(URunnable):
         self.sigs = ArchiveMaker.Sigs()
         self.files = files
         self.zip_path = zip_path
+        print(self.files)
+        print(self.zip_path)
 
     def task(self):
         try:
@@ -979,10 +981,61 @@ class ArchiveMaker(URunnable):
             self.sigs.finished_.emit()
 
     def _task(self):
-        p = subprocess.run(
-            ["zip", self.zip_path, *self.files]
+        # собираем все файлы
+        all_files = []
+
+        for i in self.files:
+            if os.path.isfile(i):
+                all_files.append(i)
+            elif i.endswith((".app", ".APP")):
+                all_files.append(i)
+            elif os.path.isdir(i):
+                all_files.extend(self.scan_dir(i))
+
+        if not all_files:
+            return
+
+        # базовый каталог
+        base_dir = os.path.commonpath(all_files)
+        if os.path.isfile(base_dir):
+            base_dir = os.path.dirname(base_dir)
+
+        # относительные пути
+        names = [os.path.relpath(f, base_dir) for f in all_files]
+        if len(all_files) > 1:
+            self.sigs.set_max.emit(len(all_files))
+        else:
+            self.sigs.set_max.emit(0)
+        # zip с чтением stdout
+        p = subprocess.Popen(
+            ["zip", "-r", self.zip_path, *names],
+            cwd=base_dir,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1
         )
+
+        count = 0
+        for line in p.stdout:
+            line = line.strip()
+            if "adding" in line and len(all_files) > 1:
+                count += 1
+                self.sigs.set_value.emit(count)
+
         p.wait()
+
+    def scan_dir(self, dir: str):
+        stack: list[str] = [dir]
+        files: list[str] = []
+        while stack:
+            current_dir = stack.pop()
+            for i in os.scandir(current_dir):
+                if i.is_file():
+                    files.append(i.path)
+                elif i.is_dir():
+                    stack.append(i.path)
+        return files
 
 
 class DataSizeCounter(URunnable):
