@@ -222,11 +222,11 @@ class ImgViewWin(WinBase):
 
     def __init__(self, start_url: str, url_to_wid: dict[str, Thumb], is_selection: bool):
         super().__init__()
-        self.setMinimumSize(QSize(ImgViewWin.min_width_, ImgViewWin.min_height_))
-        self.resize(ImgViewWin.width_, ImgViewWin.height_)
-        self.setObjectName(ImgViewWin.object_name)
+        self.setMinimumSize(QSize(self.min_width_, self.min_height_))
+        self.resize(self.width_, self.height_)
+        self.setObjectName(self.object_name)
         self.setStyleSheet(
-            f"""#{ImgViewWin.object_name} {{background: black}}"""
+            f"""#{self.object_name} {{background: black}}"""
         )
 
         self.is_selection = is_selection
@@ -265,7 +265,7 @@ class ImgViewWin(WinBase):
         self.text_label.setStyleSheet("background: black;")
         self.text_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.resize(ImgViewWin.width_ + 1, ImgViewWin.height_ + 1)
+        self.resize(self.width_ + 1, self.height_ + 1)
         self.first_load()
 
 # SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM
@@ -429,8 +429,8 @@ class ImgViewWin(WinBase):
         bottom_window_side = a0.size().height() - self.zoom_btns.height()
         self.zoom_btns.move(horizontal_center, bottom_window_side - 30)
 
-        ImgViewWin.width_ = self.width()
-        ImgViewWin.height_ = self.height()
+        ImgViewWin.width_ = a0.size().width()
+        ImgViewWin.height_ = a0.size().height()
 
         self.text_label.resize(self.size())
         self.setFocus()
