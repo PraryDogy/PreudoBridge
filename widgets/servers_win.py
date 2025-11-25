@@ -214,5 +214,7 @@ class ServersWin(MinMaxDisabledWin):
     def keyPressEvent(self, a0):
         if a0.key() == Qt.Key.Key_Escape:
             self.deleteLater()
+        elif a0.key() in (Qt.Key.Key_Return, Qt.Key.Key_Enter):
+            self.connect_cmd()
         return super().keyPressEvent(a0)
     
