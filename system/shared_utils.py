@@ -1,6 +1,7 @@
 import io
 import logging
 import os
+import subprocess
 import traceback
 from datetime import datetime, timedelta
 
@@ -15,6 +16,11 @@ from PIL import Image, ImageOps
 
 
 class SharedUtils:
+
+    @classmethod
+    def is_mounted(cls, server: str):
+        output = subprocess.check_output(["mount"]).decode()
+        return server in output
 
     @classmethod
     def get_sys_vol(cls):

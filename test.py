@@ -1,4 +1,14 @@
+import os
 import subprocess
 
-app_path = ['/Volumes/Macintosh HD/Users/Loshkarev/Downloads/E01-MLN0909.tif', '/Volumes/Macintosh HD/Users/Loshkarev/Downloads/IMG_6232.jpg']
-zip_path = "/Users/Loshkarev/Documents/Разное/Progs/test.zip"
+def is_mounted(server):
+    output = subprocess.check_output(["mount"]).decode()
+    return server in output
+
+
+server = "sbc01/shares"
+server_two = "sb06/shares"
+
+
+for i in (server, server_two):
+    print(is_mounted(i))
