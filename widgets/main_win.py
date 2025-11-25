@@ -312,7 +312,12 @@ class MainWin(WinBase):
         for signal, slot in signal_map.items():
             signal.connect(slot)
 
-        self.img_view_win.center(self.window())
+        if ImgViewWin.ww == 0:
+            self.img_view_win.resize(ImgViewWin.base_w, ImgViewWin.base_h)
+            self.img_view_win.center(self.window())
+        else:
+            self.img_view_win.resize(ImgViewWin.ww, ImgViewWin.hh)
+            self.img_view_win.move(ImgViewWin.xx, ImgViewWin.yy)
         self.img_view_win.show()
 
     def open_go_win(self):

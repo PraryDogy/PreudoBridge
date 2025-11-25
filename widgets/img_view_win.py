@@ -213,17 +213,17 @@ class ImgViewWin(WinBase):
     new_rating = pyqtSignal(tuple)
     closed = pyqtSignal()
     info_win = pyqtSignal(list)
-    width_, height_ = 700, 500
-    min_width_, min_height_ = 400, 300
     object_name = "win_img_view"
     loading_text = "Загрузка"
     error_text = "Ошибка чтения изображения."
-    swipe_text = "\u2039 Проведите мышкой \u203A"
+    base_w, base_h = 700, 500
+    min_w, min_h = 400, 300
+    ww, hh = 0, 0
+    xx, yy = 0, 0
 
     def __init__(self, start_url: str, url_to_wid: dict[str, Thumb], is_selection: bool):
         super().__init__()
-        self.setMinimumSize(QSize(self.min_width_, self.min_height_))
-        self.resize(self.width_, self.height_)
+        self.setMinimumSize(QSize(self.min_w, self.min_h))
         self.setObjectName(self.object_name)
         self.setStyleSheet(
             f"""#{self.object_name} {{background: black}}"""
@@ -265,7 +265,7 @@ class ImgViewWin(WinBase):
         self.text_label.setStyleSheet("background: black;")
         self.text_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.resize(self.width_ + 1, self.height_ + 1)
+        self.resize(self.base_w + 1, self.base_h + 1)
         self.first_load()
 
 # SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM
@@ -429,8 +429,10 @@ class ImgViewWin(WinBase):
         bottom_window_side = a0.size().height() - self.zoom_btns.height()
         self.zoom_btns.move(horizontal_center, bottom_window_side - 30)
 
-        ImgViewWin.width_ = a0.size().width()
-        ImgViewWin.height_ = a0.size().height()
+        ImgViewWin.ww = a0.size().width()
+        ImgViewWin.hh = a0.size().height()
+        ImgViewWin.xx = self.x()
+        ImgViewWin.yy = self.y()
 
         self.text_label.resize(self.size())
         self.setFocus()
