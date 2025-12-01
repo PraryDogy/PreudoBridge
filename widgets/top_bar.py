@@ -304,7 +304,10 @@ class TopBar(QWidget):
     open_settings = pyqtSignal()
     new_folder = pyqtSignal()
 
-    height_ = 46
+    non_text_height = 46
+    non_text_spacing = 0
+    text_height = 53
+    text_spacing = 15
     history_items_limit = 100
     topbar_btn_texts = [
         "Назад",
@@ -330,7 +333,7 @@ class TopBar(QWidget):
         - Поле ввода для поиска
         """
         super().__init__()
-        self.setFixedHeight(self.height_)
+        self.setFixedHeight(self.non_text_height)
         self.main_win_item = main_win_item
         self.search_item = search_item
         self.history_items: list[str] = []
@@ -399,13 +402,13 @@ class TopBar(QWidget):
 
     def toggle_texts(self):
         if JsonData.show_text:
-            self.main_lay.setSpacing(15)
-            self.setFixedHeight(self.height_ + 7)
+            self.main_lay.setSpacing(self.text_spacing)
+            self.setFixedHeight(self.text_height)
             for btn in self.findChildren(BarTopBtn):
                 btn.lbl.show()
         else:
-            self.main_lay.setSpacing(0)
-            self.setFixedHeight(self.height_)
+            self.main_lay.setSpacing(self.non_text_spacing)
+            self.setFixedHeight(self.non_text_height)
             for btn in self.findChildren(BarTopBtn):
                 btn.lbl.hide()
 
