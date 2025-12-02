@@ -462,13 +462,14 @@ class MainWin(WinBase):
         QTimer.singleShot(100, self._load_st_grid)
 
     def _load_st_grid(self):
+        # фикс сетевых дисков
         if not os.path.exists(self.main_win_item.main_dir):
+            self.favs_menu.select_fav(self.main_win_item.main_dir)
             slashed = self.main_win_item.main_dir.rstrip(os.sep)
             fixed_path = Utils.fix_path_prefix(slashed)
             if fixed_path:
                 self.main_win_item.main_dir = fixed_path
 
-        self.favs_menu.select_fav(self.main_win_item.main_dir)
         self.top_bar.search_wid.clear_search()
         self.search_bar.hide()
         self.search_bar_sep.hide()
