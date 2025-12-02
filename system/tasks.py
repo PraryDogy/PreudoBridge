@@ -1038,10 +1038,6 @@ class ArchiveMaker(URunnable):
         return files
 
 
-import os
-import subprocess
-from PyQt5.QtCore import QObject, pyqtSignal
-
 class ArchiveMaker(URunnable):
     class Sigs(QObject):
         set_max = pyqtSignal(int)
@@ -1118,6 +1114,35 @@ class ArchiveMaker(URunnable):
                         self.sigs.set_value.emit(count)
 
                 p.wait()
+
+
+class ArchiveMaker(URunnable):
+    class Sigs(QObject):
+        set_max = pyqtSignal(int)
+        set_value = pyqtSignal(int)
+        finished_ = pyqtSignal()
+
+    def __init__(self, files: list[str], zip_path: str):
+        super().__init__()
+        self.sigs = ArchiveMaker.Sigs()
+        self.files = files
+        self.zip_path = zip_path
+
+    def task(self):
+        try:
+            self._task()
+        except Exception as e:
+            print("ArchiveMaker error:", e)
+        finally:
+            self.sigs.finished_.emit()
+
+    def _task(self):
+        script = os.path.join(Static.scripts_dir, "zip_files.scpt")
+        root, ext = os.path.splitext(self.zip_path)
+        # subprocess.run(["osascript", script, root] + self.files)
+        
+        cmd = ["open", "-a", "/System/Library/CoreServices/Applications/Archive Utility.app"] + self.files
+        subprocess.run(cmd)
 
 
 class DataSizeCounter(URunnable):
