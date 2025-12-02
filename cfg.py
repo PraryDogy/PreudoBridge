@@ -26,6 +26,8 @@ class Static:
 
     app_exts = (".app", ".APP")
 
+    ww, hh = 1120, 760
+
     jpg_exts = (
         ".jpg", ".JPG",
         ".jpeg", ".JPEG",
@@ -239,4 +241,4 @@ class JsonData:
 class Dynamic:
     rating_filter: int = 0
     word_filters: list[str] = []
-    pixmap_size_ind = 0
+    pixmap_size_ind = 2

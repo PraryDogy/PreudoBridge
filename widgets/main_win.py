@@ -79,8 +79,6 @@ class ScrollUpBtn(QLabel):
 class MainWin(WinBase):
     resize_ms = 100
     grid_insert_num = 4
-    width_ = 1050
-    height_ = 700
     min_width_ = 800
     min_height_ = 500
     left_menu_w = 240
@@ -107,7 +105,7 @@ class MainWin(WinBase):
         self.img_view_win = None
 
         self.setMinimumSize(MainWin.min_width_, MainWin.min_height_)
-        self.resize(MainWin.width_, MainWin.height_)
+        self.resize(Static.ww, Static.hh)
         self.setMenuBar(BarMacos())
 
         if MainWin.first_load:
@@ -313,7 +311,7 @@ class MainWin(WinBase):
             signal.connect(slot)
 
         if ImgViewWin.ww == 0:
-            self.img_view_win.resize(ImgViewWin.base_w, ImgViewWin.base_h)
+            self.img_view_win.resize(Static.ww, Static.hh)
             self.img_view_win.center(self.window())
         else:
             self.img_view_win.resize(ImgViewWin.ww, ImgViewWin.hh)
@@ -534,8 +532,6 @@ class MainWin(WinBase):
         os._exit(0)
     
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
-        MainWin.width_ = self.geometry().width()
-        MainWin.height_ = self.geometry().height()
         self.scroll_up.move(
             self.width() - MainWin.scroll_up_width_offset,
             self.height() - MainWin.scroll_up_height_offset

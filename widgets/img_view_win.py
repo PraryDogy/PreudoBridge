@@ -216,7 +216,6 @@ class ImgViewWin(WinBase):
     object_name = "win_img_view"
     loading_text = "Загрузка"
     error_text = "Ошибка чтения изображения."
-    base_w, base_h = 700, 500
     min_w, min_h = 400, 300
     ww, hh = 0, 0
     xx, yy = 0, 0
@@ -265,7 +264,6 @@ class ImgViewWin(WinBase):
         self.text_label.setStyleSheet("background: black;")
         self.text_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
-        self.resize(self.base_w + 1, self.base_h + 1)
         self.first_load()
 
 # SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM SYSTEM
