@@ -463,12 +463,23 @@ class MainWin(WinBase):
 
     def _load_st_grid(self):
         # фикс сетевых дисков
-        self.favs_menu.select_fav(self.main_win_item.main_dir)
         if not os.path.exists(self.main_win_item.main_dir):
             slashed = self.main_win_item.main_dir.rstrip(os.sep)
             fixed_path = Utils.fix_path_prefix(slashed)
+            old_path = self.main_win_item.main_dir
             if fixed_path:
                 self.main_win_item.main_dir = fixed_path
+            if old_path in JsonData.favs:
+                favs = list(JsonData.favs.items())
+                old_data = (old_path, JsonData.favs.get(old_path))
+                new_data = (fixed_path, JsonData.favs.get(old_path))
+                old_ind = favs.index(old_data)
+                favs.pop(old_ind)
+                favs.insert(old_ind, new_data)
+                JsonData.favs = dict(favs)
+                self.favs_menu.init_ui()
+
+        self.favs_menu.select_fav(self.main_win_item.main_dir)
 
         self.top_bar.search_wid.clear_search()
         self.search_bar.hide()
