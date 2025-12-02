@@ -463,8 +463,8 @@ class MainWin(WinBase):
 
     def _load_st_grid(self):
         # фикс сетевых дисков
+        self.favs_menu.select_fav(self.main_win_item.main_dir)
         if not os.path.exists(self.main_win_item.main_dir):
-            self.favs_menu.select_fav(self.main_win_item.main_dir)
             slashed = self.main_win_item.main_dir.rstrip(os.sep)
             fixed_path = Utils.fix_path_prefix(slashed)
             if fixed_path:
