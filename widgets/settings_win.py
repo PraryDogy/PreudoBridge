@@ -13,7 +13,7 @@ from cfg import JsonData, Static
 from system.shared_utils import SharedUtils
 from system.tasks import CustomSizeCacheCleaner, DataSizeCounter, UThreadPool
 
-from ._base_widgets import MinMaxDisabledWin, USlider, USvgSqareWidget
+from ._base_widgets import MinMaxDisabledWin, ULabel, USlider, USvgSqareWidget
 # возможно в main win
 from .warn_win import WinWarn
 
@@ -126,7 +126,7 @@ class DataSizeWid(QGroupBox):
 
 class WaitWin(MinMaxDisabledWin):
     canceled = pyqtSignal()
-    title = "Внимание"
+    title = "Очистка данных"
     descr = "Подождите, идет очистка данных."
     cancel = "Отмена"
 
@@ -163,7 +163,7 @@ class WaitWin(MinMaxDisabledWin):
 
 
 class ClearCacheFinishWin(WinWarn):
-    title = "Внимание"
+    title = "Очистка данных"
     label_text = "Очищенно данных: "
 
     def __init__(self, bytes: int):
@@ -177,7 +177,7 @@ class ClearCacheWin(MinMaxDisabledWin):
     descr_text = "Выберите, сколько данных нужно очистить."
     ok_text = "Ок"
     cancel_text = "Отмена"
-    title = "Внимание"
+    title = "Очистка данных"
     btn_w = 90
     bytes_cleaned = pyqtSignal(int)
 
@@ -267,7 +267,7 @@ class JsonFile(QGroupBox):
     json_text = "Показать"
     json_descr_text = "Системные файлы приложения."
     show_text = "Открыть"
-    show_descr = "Окно очистки кэша."
+    show_descr = "Очистка данных."
     bytes_cleaned = pyqtSignal(int)
     btn_w = 110
 
@@ -280,35 +280,16 @@ class JsonFile(QGroupBox):
         v_lay.setSpacing(0)
         self.setLayout(v_lay)
 
-        # первый горизонтальный лейаут
-        h_lay1 = QHBoxLayout()
-        h_lay1.setContentsMargins(0, 0, 0, 0)
-        h_lay1.setSpacing(15)
-        v_lay.addLayout(h_lay1)
 
-        btn1 = QPushButton(JsonFile.json_text)
-        btn1.setFixedWidth(self.btn_w)
-        btn1.clicked.connect(
-            lambda: subprocess.call(["open", Static.app_support])
-        )
-        h_lay1.addWidget(btn1)
+        label_one = ULabel(self.json_descr_text)
+        label_one.clicked.connect(lambda: subprocess.call(["open", Static.app_support]))
+        label_one.setFixedHeight(25)
+        v_lay.addWidget(label_one, alignment=Qt.AlignmentFlag.AlignLeft)
 
-        descr1 = QLabel(JsonFile.json_descr_text)
-        h_lay1.addWidget(descr1)
-
-        # второй горизонтальный лейаут
-        h_lay2 = QHBoxLayout()
-        h_lay2.setContentsMargins(0, 0, 0, 0)
-        h_lay2.setSpacing(15)
-        v_lay.addLayout(h_lay2)
-
-        btn2 = QPushButton(self.show_text)
-        btn2.clicked.connect(self.open_clear_win)
-        btn2.setFixedWidth(self.btn_w)
-        h_lay2.addWidget(btn2)
-
-        descr2 = QLabel(self.show_descr)
-        h_lay2.addWidget(descr2)
+        label_two = ULabel(self.show_descr)
+        label_two.clicked.connect(self.open_clear_win)
+        label_two.setFixedHeight(25)
+        v_lay.addWidget(label_two, alignment=Qt.AlignmentFlag.AlignLeft)
 
     def open_clear_win(self):
         self.clear_win = ClearCacheWin()

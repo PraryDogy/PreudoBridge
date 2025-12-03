@@ -262,6 +262,45 @@ class UFrame(QFrame):
             self.setStyleSheet(self.normal_style())
 
 
+class ULabel(QLabel):
+    object_name = "u_label"
+    clicked = pyqtSignal()
+
+    def __init__(self, text: str):
+        """
+        Стандартный ULabel с пользовательским стилем:   
+        При наведении курсора мыши на виджет, он принимает выделенный стиль
+        """
+        super().__init__(text)
+        self.setObjectName(self.object_name)
+        self.setStyleSheet(self.normal_style())
+
+    def normal_style(self):
+        return f"""#{self.object_name} {{
+                        background: transparent;
+                        padding-left: 2px;
+                        padding-right: 2px;
+                }}"""
+
+    def solid_style(self):
+        return f"""#{self.object_name} {{
+                        background: {Static.rgba_gray}; 
+                        border-radius: 7px;
+                        padding-left: 2px;
+                        padding-right: 2px;
+                }}"""
+
+    def enterEvent(self, a0):
+        self.setStyleSheet(self.solid_style())
+
+    def leaveEvent(self, a0):
+        self.setStyleSheet(self.normal_style())
+
+    def mouseReleaseEvent(self, ev):
+        self.clicked.emit()
+        return super().mouseReleaseEvent(ev)
+
+
 class WinBase(QMainWindow):
     wins: list["WinBase"] = []
 
