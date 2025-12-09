@@ -69,7 +69,6 @@ class RemoveFilesWin(MinMaxDisabledWin):
         QTimer.singleShot(100, lambda: UThreadPool.start(runnable=self.task_))
 
     def finalize(self, *args):
-        self.finished_.emit(self.urls)
         del self.task_
         self.deleteLater()
 

@@ -547,7 +547,6 @@ class TableView(QTableView):
 
     def remove_files_cmd(self, urls: list[str]):
         self.rem_win = RemoveFilesWin(self.main_win_item, urls)
-        self.rem_win.finished_.connect(lambda urls: self.load_st_grid.emit())
         self.rem_win.center(self.window())
         self.rem_win.show()
 

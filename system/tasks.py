@@ -803,20 +803,27 @@ class FileRemover(URunnable):
         self.main_dir = main_dir
         self.urls = urls
 
-    def task(self):
-        try:
-            for i in self.urls:
-                try:
-                    if os.path.isdir(i):
-                        shutil.rmtree(i)
-                    else:
-                        os.remove(i)
-                except Exception as e:
-                    Utils.print_error()
-        except Exception as e:
-            Utils.print_error()
-        self.sigs.finished_.emit()
+    # def task(self):
+    #     try:
+    #         for i in self.urls:
+    #             try:
+    #                 if os.path.isdir(i):
+    #                     shutil.rmtree(i)
+    #                 else:
+    #                     os.remove(i)
+    #             except Exception as e:
+    #                 Utils.print_error()
+    #     except Exception as e:
+    #         Utils.print_error()
+    #     self.sigs.finished_.emit()
 
+    def task(self):
+        subprocess.run(
+            [
+                "osascript",
+                os.path.join(Static.scripts_dir, "remove_files.scpt")
+            ] + self.urls)
+        self.sigs.finished_.emit()
 
 class PathFinderTask(URunnable):
 
