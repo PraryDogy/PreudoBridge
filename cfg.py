@@ -1,3 +1,4 @@
+import glob
 import json
 import os
 
@@ -132,32 +133,7 @@ class Static:
         5: {"bytes": 10000 * 1024 * 1024, "text": "10 ГБ"},
     }
 
-    image_apps = [
-        "/Applications/Adobe Photoshop 2026/Adobe Photoshop 2026.app",
-        "/Applications/Adobe Photoshop 2025/Adobe Photoshop 2025.app",
-        "/Applications/Adobe Photoshop 2024/Adobe Photoshop 2024.app",
-        "/Applications/Adobe Photoshop 2023/Adobe Photoshop 2023.app",
-        "/Applications/Adobe Photoshop 2022/Adobe Photoshop 2022.app",
-        "/Applications/Adobe Photoshop 2021/Adobe Photoshop 2021.app",
-        "/Applications/Adobe Photoshop 2020/Adobe Photoshop 2020.app",
-        "/Applications/Adobe Photoshop CC 2019/Adobe Photoshop CC 2019.app",
-        "/Applications/Adobe Photoshop CC 2018/Adobe Photoshop CC 2018.app",
-        "/Applications/Adobe Photoshop CC 2017/Adobe Photoshop CC 2017.app",
-        "/Applications/Adobe Photoshop.app",
-        "/Applications/Capture One 25.app",
-        "/Applications/Capture One 24.app",
-        "/Applications/Capture One 23.app",
-        "/Applications/Capture One 22.app",
-        "/Applications/Capture One 21.app",
-        "/Applications/Capture One 20.app",
-        "/Applications/Capture One 12.app",
-        "/Applications/Capture One 11.app",
-        "/Applications/Capture One.app",
-        "/Applications/ImageOptim.app",
-        "/System/Applications/Preview.app",
-        "/System/Applications/Photos.app"
-    ]
-    image_apps = [i for i in image_apps if os.path.exists(i)]
+    image_apps = []
 
     max_thumb_size = 210
     thumb_heights = [130, 150, 185, 270]
@@ -167,6 +143,28 @@ class Static:
     corner_sizes = [4, 8, 14, 16]
     SPACING = 2
     OFFSET = 15
+
+    @classmethod
+    def get_image_apps(cls):
+        patterns = [
+            "/Applications/Adobe Photoshop*/*.app",
+            "/Applications/Adobe Photoshop*.app",
+            "/Applications/Capture One*/*.app",
+            "/Applications/Capture One*.app",
+            "/Applications/ImageOptim.app",
+            "/System/Applications/Preview.app",
+            "/System/Applications/Photos.app",
+        ]
+
+        apps = []
+        for pat in patterns:
+            for path in glob.glob(pat):
+                if path not in apps:
+                    apps.append(path)
+
+        apps.sort(key=os.path.basename)
+        return apps
+
 
 
 class JsonData:
@@ -229,6 +227,7 @@ class JsonData:
 
     @classmethod
     def init(cls):
+        Static.image_apps = Static.get_image_apps()
         os.makedirs(Static.app_support, exist_ok=True)
         cls.read_json_data()
         cls.write_config()
@@ -236,7 +235,6 @@ class JsonData:
             cls.do_before_start()
         except Exception as e:
             print("do before start", e)
-
         cls.setup_icons()
 
 class Dynamic:

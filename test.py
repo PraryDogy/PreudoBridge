@@ -1,14 +1,24 @@
+import glob
 import os
-import subprocess
 
-def is_mounted(server):
-    output = subprocess.check_output(["mount"]).decode()
-    return server in output
+patterns = [
+    "/Applications/Adobe Photoshop*/*.app",
+    "/Applications/Adobe Photoshop*.app",
+    "/Applications/Capture One*/*.app",
+    "/Applications/Capture One*.app",
+    "/Applications/ImageOptim.app",
+    "/System/Applications/Preview.app",
+    "/System/Applications/Photos.app",
+]
 
+image_apps = []
 
-server = "sbc01/shares"
-server_two = "sb06/shares"
+for pat in patterns:
+    for path in glob.glob(pat):
+        if path not in image_apps:
+            image_apps.append(path)
 
+# сортируем по имени
+image_apps.sort(key=os.path.basename)
 
-for i in (server, server_two):
-    print(is_mounted(i))
+print(image_apps)
