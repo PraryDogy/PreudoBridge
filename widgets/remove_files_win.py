@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
 
 from cfg import Static
 from system.items import MainWinItem
+from system.shared_utils import SharedUtils
 from system.tasks import FileRemover, UThreadPool
 
 from ._base_widgets import MinMaxDisabledWin, USvgSqareWidget
@@ -13,7 +14,8 @@ from ._base_widgets import MinMaxDisabledWin, USvgSqareWidget
 
 class RemoveFilesWin(MinMaxDisabledWin):
     finished_ = pyqtSignal(list)
-    descr_text = "Удалить безвозвратно"
+    remove_perm = "Удалить безвозвратно"
+    move_to_trash = "Переместить в корзину"
     ok_text = "Ок"
     cancel_text = "Отмена"
     title_text = "Внимание!"
@@ -39,7 +41,10 @@ class RemoveFilesWin(MinMaxDisabledWin):
         warn = USvgSqareWidget(os.path.join(Static.app_icons_dir, "warning.svg"), RemoveFilesWin.svg_size)
         first_row_lay.addWidget(warn)
 
-        t = f"{RemoveFilesWin.descr_text} ({len(urls)})?"
+        if SharedUtils.get_sys_vol() in urls[0]:
+            t = f"{RemoveFilesWin.move_to_trash} ({len(urls)})?"
+        else:
+            t = f"{RemoveFilesWin.remove_perm} ({len(urls)})?"
         question = QLabel(text=t)
         first_row_lay.addWidget(question)
 
