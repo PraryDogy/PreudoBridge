@@ -858,10 +858,10 @@ class Grid(UScrollArea):
         view_action.triggered.connect(lambda: self.open_thumb())
         menu_.addAction(view_action)
 
-        if wid.type_ != Static.folder_type:
+        if wid.type_ in Static.img_exts:
             open_in_app = ItemActions.OpenInApp(menu_, urls)
             menu_.addMenu(open_in_app)
-        else:
+        elif wid.type_ == Static.folder_type:
             new_win = ItemActions.OpenInNewWindow(menu_)
             new_win.triggered.connect(lambda: self.open_in_new_win.emit((wid.src, None)))
             menu_.addAction(new_win)
@@ -880,6 +880,8 @@ class Grid(UScrollArea):
             rating_menu = ItemActions.RatingMenu(menu_, wid.rating)
             rating_menu.new_rating.connect(self.new_rating_multiple_start)
             menu_.addMenu(rating_menu)
+        else:
+            menu_.setMinimumWidth(215)
 
         info = ItemActions.Info(menu_)
         info.triggered.connect(
