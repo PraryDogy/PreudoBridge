@@ -107,7 +107,7 @@ class GridSearch(Grid):
     def start_search(self):
 
         def upd_bottom_bars():
-            self.total_count_update.emit((len(self.selected_thumbs), 0))
+            self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
             self.path_bar_update.emit(self.main_win_item.main_dir)
 
         def new_search_thumb(base_item: BaseItem):
@@ -129,7 +129,7 @@ class GridSearch(Grid):
             if self.col >= self.col_count:
                 self.col = 0
                 self.row += 1
-            upd_bottom_bars()
+            QTimer.singleShot(100, upd_bottom_bars)
 
         def fin(missed_files_list: list[str]):
             if not self.cell_to_wid:
