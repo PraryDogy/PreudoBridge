@@ -133,6 +133,7 @@ class Static:
     }
 
     image_apps = [
+        "/Applications/Adobe Photoshop 2026/Adobe Photoshop 2026.app",
         "/Applications/Adobe Photoshop 2025/Adobe Photoshop 2025.app",
         "/Applications/Adobe Photoshop 2024/Adobe Photoshop 2024.app",
         "/Applications/Adobe Photoshop 2023/Adobe Photoshop 2023.app",
