@@ -1214,7 +1214,8 @@ class Grid(UScrollArea):
             if self.selected_thumbs:
                 self.wid_under_mouse = self.selected_thumbs[-1]
                 if self.wid_under_mouse:
-                    self.open_thumb()
+                    if not a0.isAutoRepeat():
+                        self.open_thumb()
 
         elif a0.key() in KEY_NAVI:
             offset = KEY_NAVI.get(a0.key())

@@ -402,6 +402,8 @@ class ImgViewWin(WinBase):
                     self.raise_()
                 else:
                     self.deleteLater()
+            elif ev.key() == Qt.Key.Key_Space:
+                self.deleteLater()
 
             elif ev.key() in KEY_RATING:
                 rating = KEY_RATING.get(ev.key())

@@ -618,8 +618,9 @@ class TableView(QTableView):
                     self.paste_files()
 
         elif a0.key() in (Qt.Key.Key_Return, Qt.Key.Key_Space):
-            index = self.currentIndex()
-            self.double_clicked(index)
+            if not a0.isAutoRepeat():
+                index = self.currentIndex()
+                self.double_clicked(index)
             # return
 
         return super().keyPressEvent(a0)
