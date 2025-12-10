@@ -359,7 +359,7 @@ class MainWin(WinBase):
         self.sett_win = SettingsWin()
         self.sett_win.show_texts_sig.connect(lambda: self.top_bar.toggle_texts())
         self.sett_win.load_st_grid.connect(self.load_st_grid)
-        self.sett_win.theme_changed.connect(self.change_theme)
+        self.sett_win.theme_changed.connect(lambda: QTimer.singleShot(100, self.change_theme))
         self.sett_win.center(self)
         self.sett_win.show()
 
