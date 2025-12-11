@@ -362,12 +362,10 @@ class CopyFilesTask(URunnable):
         for count, (src, dest) in enumerate(self.src_dest_list, start=1):
             if not self.is_should_run():
                 break
-            data = (count, len(self.src_dest_list))
-            self.sigs.set_counter.emit(data)
             os.makedirs(os.path.dirname(dest), exist_ok=True)
             try:
-                shutil.copy2(src, dest)
                 self.sigs.current_value.emit(count)
+                shutil.copy2(src, dest)
             except Exception as e:
                 Utils.print_error()
                 self.sigs.error_win.emit()

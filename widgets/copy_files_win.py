@@ -162,7 +162,6 @@ class CopyFilesWin(ProgressbarWin):
         self.tsk.sigs.finished_.connect(lambda urls: self.on_finished(urls))
         self.tsk.sigs.error_win.connect(lambda: self.error_win.emit())
         self.tsk.sigs.replace_files_win.connect(lambda: self.open_replace_files_win())
-        self.tsk.sigs.set_counter.connect(lambda data: self.set_counter(*data))
         QTimer.singleShot(1000, lambda: UThreadPool.start(self.tsk))
 
     def open_replace_files_win(self):
@@ -186,13 +185,11 @@ class CopyFilesWin(ProgressbarWin):
 
     def set_value(self, value):
         self.progressbar.setValue(value)
-
-    def set_counter(self, current: int, total: int):
         if CopyItem.get_is_cut():
             copy = "Перемещаю файлы"
         else:
             copy = "Копирую файлы"
-        self.below_label.setText(f"{copy} {current} из {total}")
+        self.below_label.setText(f"{copy} {value} из {self.progressbar.maximum()}")
 
     def cancel_cmd(self, *args):
         self.tsk.pause_flag = False
