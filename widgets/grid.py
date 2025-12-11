@@ -916,8 +916,6 @@ class Grid(UScrollArea):
             show_in_folder.triggered.connect(cmd_)
             menu_.addAction(show_in_folder)
 
-        menu_.addSeparator()
-
         show_in_finder_action = ItemActions.RevealInFinder(menu_, urls)
         menu_.addAction(show_in_finder_action)
 
@@ -925,9 +923,9 @@ class Grid(UScrollArea):
         copy_path.triggered.connect(lambda: CopyItem.reset())
         menu_.addAction(copy_path)
 
-        copy_name = ItemActions.CopyName(menu_, urls)
-        copy_name.triggered.connect(lambda: CopyItem.reset())
-        menu_.addAction(copy_name)
+        # copy_name = ItemActions.CopyName(menu_, urls)
+        # copy_name.triggered.connect(lambda: CopyItem.reset())
+        # menu_.addAction(copy_name)
 
         menu_.addSeparator()
 
