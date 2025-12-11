@@ -585,7 +585,7 @@ class MainWin(WinBase):
                 self.change_view_cmd()
 
             elif a0.key() == Qt.Key.Key_N:
-                self.open_in_new_win((self.main_win_item.main_dir, None))
+                self.open_in_new_win((None, None))
             
             elif a0.key() == Qt.Key.Key_K:
                 self.open_servers_win()
