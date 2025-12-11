@@ -157,8 +157,8 @@ class CopyFilesWin(ProgressbarWin):
         self.adjustSize()
 
         self.tsk = CopyFilesTask()
-        self.tsk.sigs.set_total_kb.connect(lambda value: self.set_max(value))
-        self.tsk.sigs.set_copied_kb.connect(lambda value: self.set_value(value))
+        self.tsk.sigs.total_value.connect(lambda value: self.set_max(value))
+        self.tsk.sigs.current_value.connect(lambda value: self.set_value(value))
         self.tsk.sigs.finished_.connect(lambda urls: self.on_finished(urls))
         self.tsk.sigs.error_win.connect(lambda: self.error_win.emit())
         self.tsk.sigs.replace_files_win.connect(lambda: self.open_replace_files_win())
