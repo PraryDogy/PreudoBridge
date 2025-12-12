@@ -203,10 +203,13 @@ class CopyFilesTask(URunnable):
                 self.sigs.error_win.emit()
                 break
             if CopyItem.get_is_cut() and not CopyItem.get_is_search():
-                if os.path.isdir(src):
-                    shutil.rmtree(src)
-                else:
-                    os.remove(src)
+                os.remove(src)
+
+        if CopyItem.get_is_cut() and not CopyItem.get_is_search():
+            for i in CopyItem.urls:
+                if os.path.isdir(i):
+                    shutil.rmtree(i)
+
         self.sigs.finished_.emit(self.paths)
 
     def add_copy_to_name(self, url: str):
