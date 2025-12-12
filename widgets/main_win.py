@@ -106,7 +106,11 @@ class MainWin(WinBase):
 
         self.setMinimumSize(MainWin.min_width_, MainWin.min_height_)
         self.resize(Static.ww, Static.hh)
-        self.setMenuBar(BarMacos())
+        self.bar_macos = BarMacos()
+        self.bar_macos.new_win.connect(lambda: self.open_in_new_win((None, None)))
+        self.bar_macos.servers_win.connect(self.open_servers_win)
+        self.bar_macos.settings_win.connect(self.open_settings)
+        self.setMenuBar(self.bar_macos)
 
         if MainWin.first_load:
             self.change_theme()

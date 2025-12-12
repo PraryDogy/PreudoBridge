@@ -1,6 +1,6 @@
 import os
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QAction, QHBoxLayout, QLabel, QMenu, QMenuBar,
@@ -125,17 +125,25 @@ class BarMacos(QMenuBar):
     about_text = "Об авторе"
     settings_text = "Настройки"
     servers_text = "Подключение (Cmd + K)"
+    new_win_text = "Новое окно (Cmd + N)"
+    new_win = pyqtSignal()
+    servers_win = pyqtSignal()
+    settings_win = pyqtSignal()
 
     def __init__(self):
         super().__init__()
         self.mainMenu = QMenu(self.menu_text, self)
 
         actionServer = QAction(self.servers_text, self)
-        actionServer.triggered.connect(self.open_servers_window)
+        actionServer.triggered.connect(self.servers_win.emit)
         self.mainMenu.addAction(actionServer)
 
+        actionNewWin = QAction(self.new_win_text, self)
+        actionNewWin.triggered.connect(self.new_win.emit)
+        self.mainMenu.addAction(actionNewWin)
+
         actionSettings = QAction(self.settings_text, self)
-        actionSettings.triggered.connect(self.open_settings_window)
+        actionSettings.triggered.connect(self.settings_win.emit)
         self.mainMenu.addAction(actionSettings)
 
         self.mainMenu.addSeparator()
@@ -154,13 +162,3 @@ class BarMacos(QMenuBar):
         self.about_win = AboutWin()
         self.about_win.center(self.window())
         self.about_win.show()
-
-    def open_settings_window(self):
-        self.sett_win = SettingsWin()
-        self.sett_win.center(self.window())
-        self.sett_win.show()
-
-    def open_servers_window(self):
-        self.serv_win = ServersWin()
-        self.serv_win.center(self.window())
-        self.serv_win.show()
