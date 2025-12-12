@@ -681,7 +681,15 @@ class Grid(UScrollArea):
         QTimer.singleShot(300, self.win_copy.raise_)
 
     def remove_files(self, urls: list[str]):
+
+        def update_search_grid(urls):
+            if self.is_grid_search:
+                for i in urls:
+                    self.del_thumb(i)
+                self.rearrange_thumbs()
+
         self.rem_win = RemoveFilesWin(self.main_win_item, urls)
+        self.rem_win.finished_.connect(update_search_grid)
         self.rem_win.center(self.window())
         self.rem_win.show()
 
