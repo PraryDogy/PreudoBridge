@@ -86,183 +86,13 @@ class ActionsTask(URunnable):
         self.cmd_()
 
 
-# class CopyFilesTask(URunnable):
-
-#     class Sigs(QObject):
-#         finished_ = pyqtSignal(list)
-#         set_copied_kb = pyqtSignal(int)
-#         set_total_kb = pyqtSignal(int)
-#         set_counter = pyqtSignal(tuple)
-#         error_win = pyqtSignal()
-#         replace_files_win = pyqtSignal()
-
-#     def __init__(self):
-#         super().__init__()
-#         self.sigs = CopyFilesTask.Sigs()
-#         self.pause_flag = False
-#         self.copied_kb = 0
-#         self.thumb_paths: list[str] = []
-#         self.src_dest_list: list[tuple[str, str]] = []
-
-#         self.copied_timer = QTimer()
-#         self.copied_timer.timeout.connect(self.send_copied_kb)
-#         self.copied_timer.start(1500)
-
-#     def prepare_same_dir(self):
-#         """
-#         Если файлы и папки скопированы в одной директории и будут вставлены туда же,
-#         то они будут вставлены с припиской "копия"
-#         """
-#         for src_url in CopyItem.urls:
-#             if os.path.isfile(src_url):
-#                 new_filename = self.add_copy_to_name(src_url)
-#                 self.src_dest_list.append((src_url, new_filename))
-#                 self.thumb_paths.append(new_filename)
-#             else:
-#                 new_dir_name = self.add_copy_to_name(src_url)
-#                 # получаем все url файлов для папки
-#                 # заменяем имя старой папки на имя новой папки
-#                 nested_urls = [
-#                     (x, x.replace(src_url, new_dir_name))
-#                     for x in self.get_nested_urls(src_url)
-#                 ]
-#                 self.src_dest_list.extend(nested_urls)
-#                 self.thumb_paths.append(new_dir_name)
-    
-#     def prepare_another_dir(self):
-#         """
-#         Подготовка к простому копированию из одного места в другое.
-#         При этом может выскочить окно о замене файлов, и если 
-#         пользователь не согласится заменить файлы, задача копирования будет
-#         отменена.
-#         """
-#         for src_url in CopyItem.urls:
-#             if os.path.isfile(src_url):
-#                 new_filename = src_url.replace(CopyItem.get_src(), CopyItem.get_dest())
-#                 self.src_dest_list.append((src_url, new_filename))
-#                 self.thumb_paths.append(new_filename)
-#             else:
-#                 new_dir_name = src_url.replace(CopyItem.get_src(), CopyItem.get_dest())
-#                 # получаем все url файлов для папки
-#                 # заменяем имя старой папки на имя новой папки
-#                 nested_urls = [
-#                     (x, x.replace(CopyItem.get_src(), CopyItem.get_dest()))
-#                     for x in self.get_nested_urls(src_url)
-#                 ]
-#                 self.src_dest_list.extend(nested_urls)
-#                 self.thumb_paths.append(new_dir_name)
-
-#         for src, dest in self.src_dest_list:
-#             if os.path.exists(dest):
-#                 self.sigs.replace_files_win.emit()
-#                 self.pause_flag = True
-#                 while self.pause_flag:
-#                     time.sleep(1)
-#                 break
-
-#     def prepare_search_dir(self):
-#         existing_paths = set()
-
-#         for url in CopyItem.urls:
-#             filename = os.path.basename(url)
-#             dest_dir = CopyItem.get_dest()
-#             base_name, ext = os.path.splitext(filename)
-
-#             new_name = filename
-#             count = 2
-#             full_path = os.path.join(dest_dir, new_name)
-
-#             while full_path in existing_paths:
-#                 new_name = f"{base_name} {count}{ext}"
-#                 full_path = os.path.join(dest_dir, new_name)
-#                 count += 1
-
-#             existing_paths.add(full_path)
-#             self.src_dest_list.append((url, full_path))
-#             self.thumb_paths.append(full_path)
-
-#     def task(self):
-#         if CopyItem.get_is_search():
-#             self.prepare_search_dir()
-#         elif CopyItem.get_src() == CopyItem.get_dest():
-#             self.prepare_same_dir()
-#         else:
-#             self.prepare_another_dir()
-
-#         # for i in self.src_dest_list:
-#         #     print(i)
-
-#         total_bytes = 0
-#         for src, dest in self.src_dest_list:
-#             total_bytes += os.path.getsize(src)
-#         self.sigs.total_value.emit(self.bytes_to_kb(total_bytes))
-
-#         for count, (src, dest) in enumerate(self.src_dest_list, start=1):
-#             if not self.is_should_run():
-#                 break
-#             data = (count, len(self.src_dest_list))
-#             self.sigs.set_counter.emit(data)
-#             os.makedirs(os.path.dirname(dest), exist_ok=True)
-#             try:
-#                 self.copy_by_bytes(src, dest)
-#             except Exception as e:
-#                 Utils.print_error()
-#                 self.sigs.error_win.emit()
-#                 break
-#             if CopyItem.get_is_cut() and not CopyItem.get_is_search():
-#                 if os.path.isdir(src):
-#                     shutil.rmtree(src)
-#                 else:
-#                     os.remove(src)
-#         self.sigs.finished_.emit(self.thumb_paths)
-
-#     def bytes_to_kb(self, bytes: int):
-#         return int(bytes / (1024 * 1024))
-
-#     def add_copy_to_name(self, url: str):
-#         dir_name, file_name = os.path.split(url)
-#         name, ext = os.path.splitext(file_name)
-#         new_name = f"{name} копия{ext}"
-#         return os.path.join(dir_name, new_name)
-
-#     def get_nested_urls(self, src_dir: str):
-#         stack = [src_dir]
-#         nested_paths: list[str] = []
-#         while stack:
-#             current_dir = stack.pop()
-#             for dir_entry in os.scandir(current_dir):
-#                 if dir_entry.is_dir():
-#                     stack.append(dir_entry.path)
-#                 else:
-#                     nested_paths.append(dir_entry.path)
-#         return nested_paths
-
-#     def copy_by_bytes(self, src: str, dest: str):
-#         tmp = True
-#         buffer_size = 256 * 1024
-#         with open(src, 'rb') as fsrc, open(dest, 'wb') as fdest:
-#             while tmp:
-#                 buf = fsrc.read(buffer_size)
-#                 if not buf:
-#                     break
-#                 if not self.is_should_run():
-#                     return
-#                 fdest.write(buf)
-#                 # прибавляем в байтах сколько уже скопировано
-#                 buf = self.bytes_to_kb(len(buf))
-#                 self.copied_kb += buf
-    
-#     def send_copied_kb(self):
-#         self.sigs.current_value.emit(self.copied_kb)
-
-
-
 class CopyFilesTask(URunnable):
 
     class Sigs(QObject):
         finished_ = pyqtSignal(list)
-        current_value = pyqtSignal(int)
-        total_value = pyqtSignal(int)
+        file_count = pyqtSignal(tuple)
+        copied_size = pyqtSignal(int)
+        total_size = pyqtSignal(int)
         error_win = pyqtSignal()
         replace_files_win = pyqtSignal()
 
@@ -270,8 +100,9 @@ class CopyFilesTask(URunnable):
         super().__init__()
         self.sigs = CopyFilesTask.Sigs()
         self.pause_flag = False
-        self.thumb_paths: list[str] = []
+        self.paths: list[str] = []
         self.src_dest_list: list[tuple[str, str]] = []
+        self.copied_size = 0
 
     def prepare_same_dir(self):
         """
@@ -282,7 +113,7 @@ class CopyFilesTask(URunnable):
             if os.path.isfile(src_url):
                 new_filename = self.add_copy_to_name(src_url)
                 self.src_dest_list.append((src_url, new_filename))
-                self.thumb_paths.append(new_filename)
+                self.paths.append(new_filename)
             else:
                 new_dir_name = self.add_copy_to_name(src_url)
                 # получаем все url файлов для папки
@@ -292,7 +123,7 @@ class CopyFilesTask(URunnable):
                     for x in self.get_nested_urls(src_url)
                 ]
                 self.src_dest_list.extend(nested_urls)
-                self.thumb_paths.append(new_dir_name)
+                self.paths.append(new_dir_name)
     
     def prepare_another_dir(self):
         """
@@ -305,7 +136,7 @@ class CopyFilesTask(URunnable):
             if os.path.isfile(src_url):
                 new_filename = src_url.replace(CopyItem.get_src(), CopyItem.get_dest())
                 self.src_dest_list.append((src_url, new_filename))
-                self.thumb_paths.append(new_filename)
+                self.paths.append(new_filename)
             else:
                 new_dir_name = src_url.replace(CopyItem.get_src(), CopyItem.get_dest())
                 # получаем все url файлов для папки
@@ -315,7 +146,7 @@ class CopyFilesTask(URunnable):
                     for x in self.get_nested_urls(src_url)
                 ]
                 self.src_dest_list.extend(nested_urls)
-                self.thumb_paths.append(new_dir_name)
+                self.paths.append(new_dir_name)
 
         for src, dest in self.src_dest_list:
             if os.path.exists(dest):
@@ -344,7 +175,7 @@ class CopyFilesTask(URunnable):
 
             existing_paths.add(full_path)
             self.src_dest_list.append((url, full_path))
-            self.thumb_paths.append(full_path)
+            self.paths.append(full_path)
 
     def task(self):
         if CopyItem.get_is_search():
@@ -354,18 +185,19 @@ class CopyFilesTask(URunnable):
         else:
             self.prepare_another_dir()
 
-        total_files = 0
+        total_size = 0
         for src, dest in self.src_dest_list:
-            total_files += 1
-        self.sigs.total_value.emit(total_files)
+            total_size += os.path.getsize(src)
+
+        self.sigs.total_size.emit(total_size)
 
         for count, (src, dest) in enumerate(self.src_dest_list, start=1):
             if not self.is_should_run():
                 break
             os.makedirs(os.path.dirname(dest), exist_ok=True)
+            self.sigs.file_count.emit((count, len(self.src_dest_list)))
             try:
-                self.sigs.current_value.emit(count)
-                shutil.copy2(src, dest)
+                self.copy_file_with_progress(src, dest)
             except Exception as e:
                 Utils.print_error()
                 self.sigs.error_win.emit()
@@ -375,7 +207,7 @@ class CopyFilesTask(URunnable):
                     shutil.rmtree(src)
                 else:
                     os.remove(src)
-        self.sigs.finished_.emit(self.thumb_paths)
+        self.sigs.finished_.emit(self.paths)
 
     def add_copy_to_name(self, url: str):
         dir_name, file_name = os.path.split(url)
@@ -394,6 +226,19 @@ class CopyFilesTask(URunnable):
                 else:
                     nested_paths.append(dir_entry.path)
         return nested_paths
+    
+    def copy_file_with_progress(self, src, dest):
+        block = 4 * 1024 * 1024  # 4 MB
+        with open(src, "rb") as fsrc, open(dest, "wb") as fdst:
+            shutil.copystat(src, dest, follow_symlinks=True)  # если нужны метаданные
+            while True:
+                buf = fsrc.read(block)
+                if not buf:
+                    break
+                fdst.write(buf)
+                self.copied_size += len(buf)
+                self.sigs.copied_size.emit(self.copied_size)
+        shutil.copystat(src, dest, follow_symlinks=True)
 
 
 class RatingTask(URunnable):

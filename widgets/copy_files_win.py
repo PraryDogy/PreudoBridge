@@ -157,8 +157,10 @@ class CopyFilesWin(ProgressbarWin):
         self.adjustSize()
 
         self.tsk = CopyFilesTask()
-        self.tsk.sigs.total_value.connect(lambda value: self.set_max(value))
-        self.tsk.sigs.current_value.connect(lambda value: self.set_value(value))
+        self.tsk.sigs.total_size.connect(self.progressbar.setMaximum)
+        self.tsk.sigs.copied_size.connect(self.progressbar.setValue)
+        self.tsk.sigs.file_count.connect(self.set_value)
+        
         self.tsk.sigs.finished_.connect(lambda urls: self.on_finished(urls))
         self.tsk.sigs.error_win.connect(lambda: self.error_win.emit())
         self.tsk.sigs.replace_files_win.connect(lambda: self.open_replace_files_win())
@@ -180,16 +182,13 @@ class CopyFilesWin(ProgressbarWin):
             return text[:limit] + "..."
         return text
 
-    def set_max(self, value):
-        self.progressbar.setMaximum(abs(value))
-
-    def set_value(self, value):
-        self.progressbar.setValue(value)
+    def set_value(self, data: tuple[int, int]):
+        current, total = data
         if CopyItem.get_is_cut():
             copy = "Перемещаю файлы"
         else:
             copy = "Копирую файлы"
-        self.below_label.setText(f"{copy} {value} из {self.progressbar.maximum()}")
+        self.below_label.setText(f"{copy} {current} из {total}")
 
     def cancel_cmd(self, *args):
         self.tsk.pause_flag = False
