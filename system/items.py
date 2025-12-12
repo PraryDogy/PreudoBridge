@@ -225,7 +225,7 @@ class SearchItem:
         super().__init__()
         self._filter: int = 0
         self._content: str | list[str] = None
-        self.set_filter(1)
+        self.set_filter(2)
 
     def get_content(self):
         """
