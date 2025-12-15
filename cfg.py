@@ -101,29 +101,6 @@ class Static:
         *icns_exts,
     )
 
-    excel_ext = [".xls", ".xlsx", ".xlsm", ".xlt", ".xltx", ".xltm", ".xlsb", ".xlw"]
-    word_ext  = [".doc", ".docx", ".dot", ".dotx", ".docm", ".dotm"]
-    ppt_ext   = [".ppt", ".pptx", ".pptm", ".pot", ".potx", ".potm", ".pps", ".ppsx", ".ppsm"]
-    pdf_ext   = [".pdf"]
-    archive_ext = [".zip", ".rar", ".7z", ".tar", ".gz", ".bz2", ".xz", ".iso", ".cab", ".tgz", ".z"]
-    db_ext    = [".db", ".sqlite", ".sqlite3", ".mdb", ".accdb"]
-    audio_ext = [".mp3", ".wav", ".ogg", ".flac", ".aac", ".m4a", ".wma"]
-    ai_ext = [".ai"]
-    indd_ext = [".indd"]
-    # app, dmg, pkg
-
-    preloaded_icons = {
-        **{ext: os.path.join("icons", "excel.svg") for ext in excel_ext},
-        **{ext: os.path.join("icons", "word.svg") for ext in word_ext},
-        **{ext: os.path.join("icons", "ppt.svg") for ext in ppt_ext},
-        **{ext: os.path.join("icons", "pdf.svg") for ext in pdf_ext},
-        **{ext: os.path.join("icons", "archive.svg") for ext in archive_ext},
-        **{ext: os.path.join("icons", "audio.svg") for ext in audio_ext},
-        **{ext: os.path.join("icons", "ai.svg") for ext in ai_ext},
-        **{ext: os.path.join("icons", "indd.svg") for ext in indd_ext},
-        **{ext: os.path.join("icons", "db.svg") for ext in db_ext},
-    }
-
     limit_mappings = {
         0: {"bytes": 200 * 1024 * 1024, "text": "200 МБ"},
         1: {"bytes": 500 * 1024 * 1024, "text": "500 МБ"},
