@@ -19,7 +19,6 @@ from cfg import Static, Dynamic
 
 
 class Utils:
-
     _ws = NSWorkspace.sharedWorkspace()
 
     @classmethod
