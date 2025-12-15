@@ -104,6 +104,7 @@ class MainWin(WinBase):
         self.main_win_item: MainWinItem = MainWinItem()
         self.sort_item: SortItem = SortItem()
         self.img_view_win = None
+        self.win_copy = None
 
         self.setMinimumSize(MainWin.min_width_, MainWin.min_height_)
         self.resize(Static.ww, Static.hh)
@@ -526,15 +527,9 @@ class MainWin(WinBase):
                         JsonData.favs = dict(favs)
                         self.favs_menu.init_ui()
 
-        if hasattr(self, "win_copy") and self.win_copy.isVisible():
-            self.win_copy.tsk.toggle_pause_flag(True)
-            QTimer.singleShot(2500, lambda: self.win_copy.tsk.toggle_pause_flag(False))
-
-        # try:
+        # if self.win_copy is not None:
         #     self.win_copy.tsk.toggle_pause_flag(True)
         #     QTimer.singleShot(2500, lambda: self.win_copy.tsk.toggle_pause_flag(False))
-        # except Exception as e:
-        #     print("load st grid, pause copy task error", e)
 
         fix_path()
         self.favs_menu.select_fav(self.main_win_item.main_dir)
