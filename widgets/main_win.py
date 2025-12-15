@@ -473,9 +473,9 @@ class MainWin(WinBase):
 
         def show_error_win():
             self.win_copy.deleteLater()
-            self.error_win = ErrorWin()
-            self.error_win.center(self.window())
-            self.error_win.show()
+            error_win = ErrorWin()
+            error_win.center(self.window())
+            error_win.show()
 
         CopyItem.set_dest(self.main_win_item.main_dir)
         self.win_copy = CopyFilesWin()
