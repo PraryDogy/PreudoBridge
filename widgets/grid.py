@@ -165,6 +165,7 @@ class Thumb(BaseItem, QFrame):
         self.img_frame.setLayout(self.img_frame_lay)
 
         self.img_wid = QLabel()
+        self.img_wid.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.img_frame_lay.addWidget(self.img_wid)
 
         self.text_wid = FileNameWidget()

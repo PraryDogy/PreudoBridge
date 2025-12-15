@@ -55,7 +55,7 @@ class PathItem(QWidget):
 
     def set_icon(self):
         pixmap = QPixmap.fromImage(Utils.uti_generator(self.dir))
-        pixmap = Utils.qiconed_resize(pixmap, 20)
+        pixmap = Utils.qiconed_resize(pixmap, 15)
         self.img_wid.setPixmap(pixmap)
 
     def add_arrow(self):
@@ -224,11 +224,16 @@ class PathBar(QWidget):
             path_items[x] = path_item
             self.main_lay.addWidget(path_item)
 
-        # computer = os.path.join(Static.in_app_icons_dir, "computer.svg")
-        # path_items.get(1).img_wid.setPixmap(QPixmap.fromImage(computer))
+        computer = os.path.join(Static.in_app_icons_dir, "computer.png")
+        pixmap = QPixmap(computer)
+        pixmap = Utils.qiconed_resize(pixmap, 15)
+        path_items.get(1).img_wid.setPixmap(pixmap)
 
-        # if path_items.get(2):
-        #     path_items.get(2).img_wid.load(os.path.join(Static.in_app_icons_dir, "hdd.svg"))
+        if path_items.get(2):
+            computer = os.path.join(Static.in_app_icons_dir, "hdd.png")
+            pixmap = QPixmap(computer)
+            pixmap = Utils.qiconed_resize(pixmap, 15)
+            path_items.get(2).img_wid.setPixmap(pixmap)
 
         last_item = path_items.get(len(root))
 
