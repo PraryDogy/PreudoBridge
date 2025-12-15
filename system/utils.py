@@ -277,20 +277,11 @@ class Utils:
             tiff = icon.TIFFRepresentation()
             rep = NSBitmapImageRep.imageRepWithData_(tiff)
             png_data = rep.representationUsingType_properties_(NSPNGFileType, None)
-
-            # Сохраняем PNG на диск
             with open(uti_png_icon_path, "wb") as f:
                 f.write(png_data)
 
-            # Создаём QImage напрямую из NSData
-            qimage = QImage.fromData(QByteArray(png_data))
-        else:
-            # Если PNG уже есть, создаём QImage из файла
-            qimage = QImage(uti_png_icon_path)
-
-        # Кэшируем в памяти
+        qimage = QImage(uti_png_icon_path)
         Dynamic.uti_filetype_qimage[uti_filetype] = qimage
-
         return qimage
     
     @classmethod
