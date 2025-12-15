@@ -104,6 +104,7 @@ class CopyFilesTask(URunnable):
         self.paths: list[str] = []
         self.src_dest_list: list[tuple[str, str]] = []
         self.copied_size = 0
+        self.total_size = 0
 
     def prepare_same_dir(self):
         """
@@ -186,11 +187,10 @@ class CopyFilesTask(URunnable):
         else:
             self.prepare_another_dir()
 
-        total_size = 0
         for src, dest in self.src_dest_list:
-            total_size += os.path.getsize(src)
+            self.total_size += os.path.getsize(src)
 
-        self.sigs.total_size.emit(total_size)
+        self.sigs.total_size.emit(self.total_size // 1024)
 
         for count, (src, dest) in enumerate(self.src_dest_list, start=1):
             if not self.is_should_run():
@@ -241,7 +241,9 @@ class CopyFilesTask(URunnable):
                     break
                 fdst.write(buf)
                 self.copied_size += len(buf)
-                self.sigs.copied_size.emit(self.copied_size)
+                self.sigs.copied_size.emit(self.copied_size // 1024)
+
+                print(self.copied_size, self.total_size)
 
                 while self.pause_flag:
                     print("wait copy files")
