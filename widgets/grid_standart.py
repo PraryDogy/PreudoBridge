@@ -1,7 +1,7 @@
 import os
 
 from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtWidgets import QLabel
+from PyQt5.QtWidgets import QLabel, QApplication
 
 from cfg import Dynamic, Static
 from system.items import BaseItem, MainWinItem
@@ -79,38 +79,43 @@ class GridStandart(Grid):
     def create_thumbs(self, base_items: list[BaseItem]):
         self.col_count = self.get_clmn_count()
         self._thumb_index = 0
-        self._batch_limit = 50
         self._thumb_items = base_items
+        self.row = 0
+        self.col = 0
 
-        def add_batch():
-            count = 0
-            while self._thumb_index < len(self._thumb_items) and count < self._batch_limit:
-                base_item = self._thumb_items[self._thumb_index]
-                thumb = Thumb(base_item.src, base_item.rating)
-                thumb.migrate_from_base_item(base_item)
-                thumb.set_widget_size()
-                thumb.set_no_frame()
-                thumb.set_uti_icon()
-                self.add_widget_data(thumb, self.row, self.col)
-                self.grid_layout.addWidget(thumb, self.row, self.col)
-
-                self.col += 1
-                if self.col >= self.col_count:
-                    self.col = 0
-                    self.row += 1
-
-                self._thumb_index += 1
-                count += 1
-
-            if self._thumb_index < len(self._thumb_items):
-                QTimer.singleShot(50, add_batch)
-            else:
+        def add_one_thumb():
+            if self._thumb_index >= len(self._thumb_items):
+                # Все виджеты добавлены
                 self._thumb_items = None
                 self._thumb_index = 0
                 self.show()
                 self._post_grid_selection()
+                return
 
-        add_batch()
+            # Создание и настройка виджета
+            base_item = self._thumb_items[self._thumb_index]
+            thumb = Thumb(base_item.src, base_item.rating)
+            thumb.migrate_from_base_item(base_item)
+            thumb.set_widget_size()
+            thumb.set_no_frame()
+            thumb.set_uti_icon()
+
+            # Добавление в layout и внутренние структуры
+            self.add_widget_data(thumb, self.row, self.col)
+            self.grid_layout.addWidget(thumb, self.row, self.col)
+
+            # Обновление позиции в сетке
+            self.col += 1
+            if self.col >= self.col_count:
+                self.col = 0
+                self.row += 1
+
+            self._thumb_index += 1
+
+            # Планируем добавление следующего виджета
+            QTimer.singleShot(0, add_one_thumb)
+
+        add_one_thumb()
 
     def _post_grid_selection(self):
         def select_delayed(wid: Thumb):
