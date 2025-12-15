@@ -1,6 +1,7 @@
+import gc
 import os
 
-from PyQt5.QtCore import Qt, pyqtSignal, QTimer
+from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QPushButton,
                              QVBoxLayout, QWidget)
 
@@ -192,5 +193,7 @@ class CopyFilesWin(ProgressbarWin):
         self.deleteLater()
 
     def on_finished(self, urls: list[str]):
+        del self.tsk
         self.finished_.emit(urls)
+        gc.collect()
         self.deleteLater()
