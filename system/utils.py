@@ -263,7 +263,7 @@ class Utils:
                 setattr(to_cls, name, lambda *a, **kw: None)
 
     @classmethod
-    def uti_generator(cls, filepath: str) -> QImage:
+    def uti_generator(cls, filepath: str, size: int = 512) -> QImage:
         uti_filetype, _ = Utils._ws.typeOfFile_error_(filepath, None)
 
         if uti_filetype == "public.symlink":
@@ -296,7 +296,7 @@ class Utils:
 
             # Конвертация в QImage и ресайз до 256x256
             qimage = QImage.fromData(bytes(png_data))
-            qimage = qimage.scaled(512, 512, Qt.KeepAspectRatio)
+            qimage = qimage.scaled(size, size, Qt.KeepAspectRatio)
             qimage.save(uti_png_icon_path, "PNG")
 
         qimage = QImage(uti_png_icon_path)
