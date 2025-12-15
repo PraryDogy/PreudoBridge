@@ -210,6 +210,8 @@ class MainWin(WinBase):
         self.clear_data = AutoCacheCleaner()
         UThreadPool.start(self.clear_data)
 
+        Utils.load_uti()
+
     def setup_signals(self):
         signal_map = {
             # splitter
