@@ -234,7 +234,6 @@ class CopyFilesTask(URunnable):
     def copy_file_with_progress(self, src, dest):
         block = 4 * 1024 * 1024  # 4 MB
         with open(src, "rb") as fsrc, open(dest, "wb") as fdst:
-            shutil.copystat(src, dest, follow_symlinks=True)  # если нужны метаданные
             while True:
                 buf = fsrc.read(block)
                 if not buf:
@@ -243,10 +242,7 @@ class CopyFilesTask(URunnable):
                 self.copied_size += len(buf)
                 self.sigs.copied_size.emit(self.copied_size // 1024)
 
-                # print(self.copied_size // 1024, self.total_size // 1024)
-
                 while self.pause_flag:
-                    print("wait copy files")
                     QThread.msleep(100)
 
         shutil.copystat(src, dest, follow_symlinks=True)
