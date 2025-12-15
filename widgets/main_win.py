@@ -325,28 +325,28 @@ class MainWin(WinBase):
 
     def open_go_to_win(self):
         self.go_win = GoToWin()
-        self.go_win.closed.connect(self.go_to_win_closed)
+        self.go_win.closed.connect(self.path_finder_start)
         self.go_win.center(self)
         self.go_win.show()
 
     def go_to_cmd(self):
         if JsonData.go_to_now:
             data = (0, Utils.read_from_clipboard())
-            self.go_to_win_closed(data)
+            self.path_finder_start(data)
         else:
             self.open_go_to_win()
 
-    def go_to_win_closed(self, data: tuple[int, str]):
+    def path_finder_start(self, data: tuple[int, str]):
         """
         value: 0 = открыть путь в приложении, 1 = открыть путь к Finder
         """
         value, path = data
         self.path_finder_task = PathFinderTask(path)
-        cmd = lambda path: self.path_finder_finished(value, path)
+        cmd = lambda path: self.path_finder_fin(value, path)
         self.path_finder_task.sigs.finished_.connect(cmd)
         UThreadPool.start(self.path_finder_task)
 
-    def path_finder_finished(self, value: int, path: str):
+    def path_finder_fin(self, value: int, path: str):
         # 0 загрузить сетку, 1 показать через finder
         if path:
             if value == 0:
@@ -417,8 +417,8 @@ class MainWin(WinBase):
 
     def load_search_grid(self):
         QTimer.singleShot(1500, lambda: self.top_bar.search_wid.setDisabled(False))
-        self.grid.deleteLater()
         self.top_bar.search_wid.setDisabled(True)
+        self.grid.deleteLater()
         self.grid = GridSearch(
             self.main_win_item, self.sort_item, self.search_item, self, True
         )
