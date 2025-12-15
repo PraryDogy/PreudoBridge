@@ -270,7 +270,8 @@ class Utils:
                 setattr(to_cls, name, lambda *a, **kw: None)
 
     @classmethod
-    def uti_generator(cls, ws: NSWorkspace.sharedWorkspace, filepath: str) -> QImage:
+    def uti_generator(cls, filepath: str) -> QImage:
+        ws = NSWorkspace.sharedWorkspace
         uti_filetype, _ = ws.typeOfFile_error_(filepath, None)
         uti_png_icon_path = os.path.join(Static.uti_icons, f"{uti_filetype}.png")
         if not os.path.exists(uti_png_icon_path):

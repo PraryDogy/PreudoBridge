@@ -680,16 +680,14 @@ class Grid(UScrollArea):
         self.rem_win.show()
 
     def new_thumb(self, url: str):
-        _, ext = os.path.splitext(url)
-        icon_path = Utils.get_icon_path(ext, Static.uti_icons)
-        if not os.path.exists(icon_path):
-            Utils.create_icon(ext, icon_path, os.path.join(Static.app_icons_dir, "file.svg"))
-
         thumb = Thumb(url)
         thumb.set_properties()
         thumb.set_widget_size()
         thumb.set_no_frame()
+
+        thumb.uti_image = Utils.uti_generator(thumb.src)
         thumb.set_uti_icon()
+
         self.add_widget_data(thumb, self.row, self.col)
         self.grid_layout.addWidget(thumb, self.row, self.col)
 

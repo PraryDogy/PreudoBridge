@@ -526,8 +526,6 @@ class FinderItemsLoader(URunnable):
         self.sigs.finished_.emit(finder_items)
 
     def get_finder_base_items(self):
-        ws = NSWorkspace.sharedWorkspace()
-
         files: list[BaseItem] = []
         for entry in os.scandir(self.main_win_item.main_dir):
             if entry.name.startswith(self.hidden_syms):
@@ -535,8 +533,7 @@ class FinderItemsLoader(URunnable):
             base_item = BaseItem(entry.path)
             base_item.set_properties()
             files.append(base_item)
-
-            base_item.uti_image = Utils.uti_generator(ws, entry.path)
+            base_item.uti_image = Utils.uti_generator(entry.path)
             
         return files
 
