@@ -94,6 +94,7 @@ class TableView(QTableView):
     download_cache = pyqtSignal(list)
     info_win = pyqtSignal(list)
     img_view_win = pyqtSignal(dict)
+    paste_files = pyqtSignal()
 
     not_exists_text = "Такой папки не существует. \nВозможно не подключен сетевой диск."
     empty_text = "Нет файлов"
@@ -427,7 +428,7 @@ class TableView(QTableView):
 
         if CopyItem.urls:
             paste_files = GridActions.PasteObjects(menu_)
-            paste_files.triggered.connect(self.paste_files)
+            paste_files.triggered.connect(self.paste_files.emit)
             menu_.addAction(paste_files)
 
             menu_.addSeparator()
@@ -491,7 +492,7 @@ class TableView(QTableView):
 
         if CopyItem.urls:
             paste_files = GridActions.PasteObjects(menu_)
-            paste_files.triggered.connect(self.paste_files)
+            paste_files.triggered.connect(self.paste_files.emit)
             menu_.addAction(paste_files)
             menu_.addSeparator()
 
@@ -502,31 +503,6 @@ class TableView(QTableView):
         change_view = GridActions.ChangeViewMenu(menu_, self.main_win_item.get_view_mode())
         change_view.triggered.connect(lambda: self.change_view.emit())
         menu_.addMenu(change_view)
-
-    # def paste_files(self):
-
-    #     def finalize(urls: list[str]):
-    #         self.main_win_item.set_urls_to_select(urls)
-    #         if CopyItem.get_is_cut():
-    #             CopyItem.reset()
-    #         self.load_st_grid.emit()
-
-    #     CopyItem.set_dest(self.main_win_item.main_dir)
-    #     self.win_copy = CopyFilesWin()
-    #     self.win_copy.finished_.connect(finalize)
-    #     self.win_copy.error_win.connect(self.show_error_win)
-    #     self.win_copy.center(self.window())
-    #     self.win_copy.show()
-    #     QTimer.singleShot(300, self.win_copy.raise_)
-
-    # def show_error_win(self):
-    #     """
-    #     Открывает окно ошибки копирования файлов
-    #     """
-    #     self.win_copy.deleteLater()
-    #     self.error_win = ErrorWin()
-    #     self.error_win.center(self.window())
-    #     self.error_win.show()
 
     def flags(self, index: QModelIndex):
         return Qt.ItemIsEnabled  # отключаем выбор/редактирование
@@ -614,7 +590,7 @@ class TableView(QTableView):
 
             elif a0.key() == Qt.Key.Key_V:
                 if CopyItem.urls:
-                    self.paste_files()
+                    self.paste_files.emit()
 
         elif a0.key() in (Qt.Key.Key_Return, Qt.Key.Key_Space):
             if not a0.isAutoRepeat():
@@ -651,7 +627,7 @@ class TableView(QTableView):
         else:
             CopyItem.set_src(src)
             CopyItem.urls = urls
-            self.paste_files()
+            self.paste_files.emit()
         return super().dropEvent(a0)
     
     def mousePressEvent(self, e):

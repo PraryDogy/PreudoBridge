@@ -468,6 +468,9 @@ class MainWin(WinBase):
             if CopyItem.get_is_cut():
                 CopyItem.reset()
 
+            if isinstance(self.grid, TableView):
+                self.load_st_grid()
+
         def show_error_win():
             self.win_copy.deleteLater()
             self.error_win = ErrorWin()
