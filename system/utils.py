@@ -19,6 +19,9 @@ from cfg import Static, Dynamic
 
 
 class Utils:
+
+    _ws = NSWorkspace.sharedWorkspace()
+
     @classmethod
     def write_to_clipboard(cls, text: str):
         clipboard = QApplication.clipboard()
@@ -262,8 +265,22 @@ class Utils:
 
     @classmethod
     def uti_generator(cls, filepath: str) -> QImage:
-        ws = NSWorkspace.sharedWorkspace()
-        uti_filetype, _ = ws.typeOfFile_error_(filepath, None)
+        uti_filetype, _ = Utils._ws.typeOfFile_error_(filepath, None)
+
+        if uti_filetype == "public.symlink":
+            cache_key = f"__symlink__:{filepath}"
+
+            if cache_key in Dynamic.uti_filetype_qimage:
+                return Dynamic.uti_filetype_qimage[cache_key]
+
+            icon = Utils._ws.iconForFile_(filepath)  # важно
+            tiff = icon.TIFFRepresentation()
+            rep = NSBitmapImageRep.imageRepWithData_(tiff)
+            png = rep.representationUsingType_properties_(NSPNGFileType, None)
+
+            qimage = QImage.fromData(bytes(png))
+            Dynamic.uti_filetype_qimage[cache_key] = qimage
+            return qimage
 
         # Проверка кэша в памяти
         if uti_filetype in Dynamic.uti_filetype_qimage:
@@ -273,7 +290,7 @@ class Utils:
 
         if not os.path.exists(uti_png_icon_path):
             # Генерация иконки
-            icon = ws.iconForFileType_(uti_filetype)
+            icon = Utils._ws.iconForFileType_(uti_filetype)
             tiff = icon.TIFFRepresentation()
             rep = NSBitmapImageRep.imageRepWithData_(tiff)
             png_data = rep.representationUsingType_properties_(NSPNGFileType, None)
