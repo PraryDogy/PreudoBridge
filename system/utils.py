@@ -15,7 +15,7 @@ from PyQt5.QtGui import QColor, QFont, QIcon, QImage, QPainter, QPixmap
 from PyQt5.QtSvg import QSvgGenerator, QSvgRenderer
 from PyQt5.QtWidgets import QApplication
 
-from cfg import Static
+from cfg import Static, Dynamic
 
 
 class Utils:
@@ -265,6 +265,10 @@ class Utils:
         ws = NSWorkspace.sharedWorkspace()
         uti_filetype, _ = ws.typeOfFile_error_(filepath, None)
         uti_png_icon_path = os.path.join(Static.uti_icons, f"{uti_filetype}.png")
+
+        if uti_png_icon_path in Dynamic.uti_qimage:
+            return Dynamic.uti_qimage[uti_png_icon_path]
+
         if not os.path.exists(uti_png_icon_path):
             icon = ws.iconForFileType_(uti_filetype)
             tiff = icon.TIFFRepresentation()
@@ -273,4 +277,5 @@ class Utils:
             with open(uti_png_icon_path, "wb") as f:
                 f.write(png)
 
-        return QImage(uti_png_icon_path)
+        qimage = Dynamic.uti_qimage[uti_png_icon_path] = QImage(uti_png_icon_path)
+        return qimage
