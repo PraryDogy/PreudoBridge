@@ -72,7 +72,7 @@ class FiltersMenu(QWidget):
 
         # Кнопки
         btn_layout = QHBoxLayout()
-        btn_layout.setContentsMargins(0, 0, 0, 0)
+        btn_layout.setContentsMargins(0, 0, 0, 3)
         btn_layout.setSpacing(10)
         self.apply_btn = QPushButton("Применить")
         self.apply_btn.setFixedWidth(95)
