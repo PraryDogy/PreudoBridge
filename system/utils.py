@@ -1,6 +1,5 @@
 import hashlib
 import inspect
-import io
 import os
 import plistlib
 import subprocess
@@ -9,6 +8,7 @@ from datetime import datetime
 
 import cv2
 import numpy as np
+from AppKit import NSBitmapImageRep, NSPNGFileType, NSWorkspace
 from PIL import Image
 from PyQt5.QtCore import QRect, QRectF, QSize, Qt
 from PyQt5.QtGui import QColor, QFont, QIcon, QImage, QPainter, QPixmap
@@ -268,3 +268,17 @@ class Utils:
         for name, func in inspect.getmembers(from_cls, inspect.isfunction):
             if not hasattr(to_cls, name):
                 setattr(to_cls, name, lambda *a, **kw: None)
+
+    @classmethod
+    def uti_generator(cls, ws: NSWorkspace.sharedWorkspace, filepath: str) -> QImage:
+        uti_filetype, _ = ws.typeOfFile_error_(filepath, None)
+        uti_png_icon_path = os.path.join(Static.uti_icons, f"{uti_filetype}.png")
+        if not os.path.exists(uti_png_icon_path):
+            icon = ws.iconForFileType_(uti_filetype)
+            tiff = icon.TIFFRepresentation()
+            rep = NSBitmapImageRep.imageRepWithData_(tiff)
+            png = rep.representationUsingType_properties_(NSPNGFileType, None)
+            with open(uti_png_icon_path, "wb") as f:
+                f.write(png)
+
+        return QImage(uti_png_icon_path)

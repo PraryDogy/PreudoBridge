@@ -11,29 +11,10 @@ import psd_tools
 import rawpy
 import rawpy._rawpy
 import tifffile
-from AppKit import NSBitmapImageRep, NSPNGFileType, NSWorkspace
-from imagecodecs.imagecodecs import DelayedImportError
 from PIL import Image, ImageOps
-from PyQt5.QtGui import QImage
-
-from cfg import Static
 
 
 class SharedUtils:
-
-    @classmethod
-    def uti_generator(cls, ws: NSWorkspace.sharedWorkspace, filepath: str) -> QImage:
-        uti_filetype, _ = ws.typeOfFile_error_(filepath, None)
-        uti_png_icon_path = os.path.join(Static.uti_icons, f"{uti_filetype}.png")
-        if not os.path.exists(uti_png_icon_path):
-            icon = ws.iconForFileType_(uti_filetype)
-            tiff = icon.TIFFRepresentation()
-            rep = NSBitmapImageRep.imageRepWithData_(tiff)
-            png = rep.representationUsingType_properties_(NSPNGFileType, None)
-            with open(uti_png_icon_path, "wb") as f:
-                f.write(png)
-
-        return QImage(uti_png_icon_path)
 
     @classmethod
     def is_mounted(cls, server: str):

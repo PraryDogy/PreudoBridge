@@ -536,7 +536,7 @@ class FinderItemsLoader(URunnable):
             base_item.set_properties()
             files.append(base_item)
 
-            base_item.uti_image = SharedUtils.uti_generator(ws, entry.path)
+            base_item.uti_image = Utils.uti_generator(ws, entry.path)
             
         return files
 
