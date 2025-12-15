@@ -243,7 +243,7 @@ class CopyFilesTask(URunnable):
                 self.copied_size += len(buf)
                 self.sigs.copied_size.emit(self.copied_size // 1024)
 
-                print(self.copied_size, self.total_size)
+                # print(self.copied_size // 1024, self.total_size // 1024)
 
                 while self.pause_flag:
                     print("wait copy files")

@@ -170,7 +170,7 @@ class CopyFilesWin(ProgressbarWin):
     def open_replace_files_win(self):
         replace_win = ReplaceFilesWin()
         replace_win.center(self)
-        replace_win.ok_pressed.connect(self.tsk.toggle_pause_flag(False))
+        replace_win.ok_pressed.connect(lambda: self.tsk.toggle_pause_flag(False))
         replace_win.cancel_pressed.connect(self.cancel_cmd)
         replace_win.show()
 
