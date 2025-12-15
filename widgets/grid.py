@@ -21,7 +21,6 @@ from ._base_widgets import UMenu, UScrollArea
 from .actions import GridActions, ItemActions
 # в main win
 from .archive_win import ArchiveWin
-from .copy_files_win import CopyFilesWin, ErrorWin
 from .img_convert_win import ImgConvertWin
 from .remove_files_win import RemoveFilesWin
 from .rename_win import RenameWin
@@ -305,6 +304,7 @@ class Grid(UScrollArea):
     download_cache = pyqtSignal(list)
     info_win = pyqtSignal(list)
     img_view_win = pyqtSignal(dict)
+    paste_files = pyqtSignal()
 
     def __init__(self, main_win_item: MainWinItem, is_grid_search: bool):
         super().__init__()
@@ -650,35 +650,35 @@ class Grid(UScrollArea):
         self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.grid_layout.addWidget(no_images, 0, 0)
 
-    def paste_files(self):
-        """
-        Для cmd v, вставить, dropEvent
-        """
+    # def paste_files(self):
+    #     """
+    #     Для cmd v, вставить, dropEvent
+    #     """
 
-        def select_urls(urls: list[str]):
-            self.clear_selected_widgets()
-            for i in urls:
-                if i in self.url_to_wid:
-                    self.select_multiple_thumb(self.url_to_wid[i])
+    #     def select_urls(urls: list[str]):
+    #         self.clear_selected_widgets()
+    #         for i in urls:
+    #             if i in self.url_to_wid:
+    #                 self.select_multiple_thumb(self.url_to_wid[i])
 
-        def paste_final(urls: list[str]):
-            if CopyItem.get_is_cut():
-                CopyItem.reset()
-            QTimer.singleShot(1050, lambda: select_urls(urls))
+    #     def paste_final(urls: list[str]):
+    #         if CopyItem.get_is_cut():
+    #             CopyItem.reset()
+    #         QTimer.singleShot(1050, lambda: select_urls(urls))
 
-        def show_error_win():
-            self.win_copy.deleteLater()
-            self.error_win = ErrorWin()
-            self.error_win.center(self.window())
-            self.error_win.show()
+    #     def show_error_win():
+    #         self.win_copy.deleteLater()
+    #         self.error_win = ErrorWin()
+    #         self.error_win.center(self.window())
+    #         self.error_win.show()
 
-        CopyItem.set_dest(self.main_win_item.main_dir)
-        self.win_copy = CopyFilesWin()
-        self.win_copy.finished_.connect(paste_final)
-        self.win_copy.error_win.connect(show_error_win)
-        self.win_copy.center(self.window())
-        self.win_copy.show()
-        QTimer.singleShot(300, self.win_copy.raise_)
+    #     CopyItem.set_dest(self.main_win_item.main_dir)
+    #     self.win_copy = CopyFilesWin()
+    #     self.win_copy.finished_.connect(paste_final)
+    #     self.win_copy.error_win.connect(show_error_win)
+    #     self.win_copy.center(self.window())
+    #     self.win_copy.show()
+    #     QTimer.singleShot(300, self.win_copy.raise_)
 
     def remove_files(self, urls: list[str]):
 
@@ -1023,7 +1023,7 @@ class Grid(UScrollArea):
 
         if CopyItem.urls and not self.is_grid_search:
             paste_files = GridActions.PasteObjects(menu_)
-            paste_files.triggered.connect(self.paste_files)
+            paste_files.triggered.connect(self.paste_files.emit)
             menu_.addAction(paste_files)
 
             menu_.addSeparator()
@@ -1175,7 +1175,7 @@ class Grid(UScrollArea):
 
             elif a0.key() == Qt.Key.Key_V:
                 if CopyItem.urls and not self.is_grid_search:
-                    self.paste_files()
+                    self.paste_files.emit()
 
             elif a0.key() == Qt.Key.Key_Up:
                 self.level_up.emit()
@@ -1319,7 +1319,7 @@ class Grid(UScrollArea):
         else:
             CopyItem.set_src(src)
             CopyItem.urls = urls
-            self.paste_files()
+            self.paste_files.emit()
         return super().dropEvent(a0)
 
     def deleteLater(self):

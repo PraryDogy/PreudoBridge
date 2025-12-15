@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import JsonData, Static
-from system.items import BaseItem, MainWinItem, SearchItem, SortItem
+from system.items import BaseItem, CopyItem, MainWinItem, SearchItem, SortItem
 from system.paletes import UPallete
 from system.shared_utils import SharedUtils
 from system.tasks import (AutoCacheCleaner, PathFinderTask, RatingTask,
@@ -19,6 +19,7 @@ from system.utils import Utils
 from ._base_widgets import USep, WinBase
 from .bar_macos import BarMacos
 from .cache_download_win import CacheDownloadWin
+from .copy_files_win import CopyFilesWin, ErrorWin
 from .favs_menu import FavsMenu
 from .go_win import GoToWin
 from .grid import Grid
@@ -410,6 +411,7 @@ class MainWin(WinBase):
             self.grid.change_view: self.change_view_cmd,
             self.grid.info_win: self.open_info_win,
             self.grid.img_view_win: self.open_img_view,
+            self.grid.paste_files: self.paste_files,
         }
         for signal, slot in signal_map.items():
             signal.connect(slot)
@@ -458,6 +460,28 @@ class MainWin(WinBase):
         )
         self.question_win.show()
 
+    def paste_files(self):
+        """
+        Для cmd v, вставить, dropEvent
+        """
+        def paste_final(urls: list[str]):
+            if CopyItem.get_is_cut():
+                CopyItem.reset()
+
+        def show_error_win():
+            self.win_copy.deleteLater()
+            self.error_win = ErrorWin()
+            self.error_win.center(self.window())
+            self.error_win.show()
+
+        CopyItem.set_dest(self.main_win_item.main_dir)
+        self.win_copy = CopyFilesWin()
+        self.win_copy.finished_.connect(paste_final)
+        self.win_copy.error_win.connect(show_error_win)
+        self.win_copy.center(self.window())
+        self.win_copy.show()
+        QTimer.singleShot(300, self.win_copy.raise_)
+
     def disable_wids(self, value: bool):
         self.sort_bar.sort_frame.setDisabled(value)
         self.sort_bar.slider.setDisabled(value)
@@ -499,10 +523,9 @@ class MainWin(WinBase):
                         JsonData.favs = dict(favs)
                         self.favs_menu.init_ui()
 
-        if hasattr(self.grid, "win_copy"):
-            task = self.grid.win_copy.tsk
-            task.toggle_pause_flag(True)
-            QTimer.singleShot(1500, lambda: task.toggle_pause_flag(False))
+        if hasattr(self, "win_copy"):
+            self.win_copy.tsk.toggle_pause_flag(True)
+            QTimer.singleShot(2500, lambda: self.win_copy.tsk.toggle_pause_flag(False))
 
         fix_path()
         self.favs_menu.select_fav(self.main_win_item.main_dir)

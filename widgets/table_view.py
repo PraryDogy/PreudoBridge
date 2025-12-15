@@ -19,7 +19,6 @@ from ._base_widgets import UMenu
 from .actions import GridActions, ItemActions
 # main win
 from .archive_win import ArchiveWin
-from .copy_files_win import CopyFilesWin, ErrorWin
 from .grid import Thumb
 from .img_convert_win import ImgConvertWin
 from .remove_files_win import RemoveFilesWin
@@ -504,30 +503,30 @@ class TableView(QTableView):
         change_view.triggered.connect(lambda: self.change_view.emit())
         menu_.addMenu(change_view)
 
-    def paste_files(self):
+    # def paste_files(self):
 
-        def finalize(urls: list[str]):
-            self.main_win_item.set_urls_to_select(urls)
-            if CopyItem.get_is_cut():
-                CopyItem.reset()
-            self.load_st_grid.emit()
+    #     def finalize(urls: list[str]):
+    #         self.main_win_item.set_urls_to_select(urls)
+    #         if CopyItem.get_is_cut():
+    #             CopyItem.reset()
+    #         self.load_st_grid.emit()
 
-        CopyItem.set_dest(self.main_win_item.main_dir)
-        self.win_copy = CopyFilesWin()
-        self.win_copy.finished_.connect(finalize)
-        self.win_copy.error_win.connect(self.show_error_win)
-        self.win_copy.center(self.window())
-        self.win_copy.show()
-        QTimer.singleShot(300, self.win_copy.raise_)
+    #     CopyItem.set_dest(self.main_win_item.main_dir)
+    #     self.win_copy = CopyFilesWin()
+    #     self.win_copy.finished_.connect(finalize)
+    #     self.win_copy.error_win.connect(self.show_error_win)
+    #     self.win_copy.center(self.window())
+    #     self.win_copy.show()
+    #     QTimer.singleShot(300, self.win_copy.raise_)
 
-    def show_error_win(self):
-        """
-        Открывает окно ошибки копирования файлов
-        """
-        self.win_copy.deleteLater()
-        self.error_win = ErrorWin()
-        self.error_win.center(self.window())
-        self.error_win.show()
+    # def show_error_win(self):
+    #     """
+    #     Открывает окно ошибки копирования файлов
+    #     """
+    #     self.win_copy.deleteLater()
+    #     self.error_win = ErrorWin()
+    #     self.error_win.center(self.window())
+    #     self.error_win.show()
 
     def flags(self, index: QModelIndex):
         return Qt.ItemIsEnabled  # отключаем выбор/редактирование
