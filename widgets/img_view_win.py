@@ -429,11 +429,6 @@ class ImgViewWin(WinBase):
         bottom_window_side = a0.size().height() - self.zoom_btns.height()
         self.zoom_btns.move(horizontal_center, bottom_window_side - 30)
 
-        ImgViewWin.ww = a0.size().width()
-        ImgViewWin.hh = a0.size().height()
-        ImgViewWin.xx = self.x()
-        ImgViewWin.yy = self.y()
-
         self.text_label.resize(self.size())
         self.setFocus()
 
@@ -443,11 +438,23 @@ class ImgViewWin(WinBase):
         self.hide_btns()
 
     def deleteLater(self):
+
+        ImgViewWin.ww = self.size().width()
+        ImgViewWin.hh = self.size().height()
+        ImgViewWin.xx = self.x()
+        ImgViewWin.yy = self.y()
+    
         ReadImg.cached_images.clear()
         self.closed.emit()
         return super().deleteLater()
 
     def closeEvent(self, a0):
+
+        ImgViewWin.ww = self.size().width()
+        ImgViewWin.hh = self.size().height()
+        ImgViewWin.xx = self.x()
+        ImgViewWin.yy = self.y()
+
         ReadImg.cached_images.clear()
         self.closed.emit()
         return super().closeEvent(a0)

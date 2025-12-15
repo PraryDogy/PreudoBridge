@@ -320,9 +320,11 @@ class MainWin(WinBase):
         if ImgViewWin.ww == 0:
             self.img_view_win.resize(Static.ww, Static.hh)
             self.img_view_win.center(self.window())
+            
         else:
             self.img_view_win.resize(ImgViewWin.ww, ImgViewWin.hh)
             self.img_view_win.move(ImgViewWin.xx, ImgViewWin.yy)
+
         self.img_view_win.show()
 
     def open_go_to_win(self):
