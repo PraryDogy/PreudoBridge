@@ -265,6 +265,7 @@ class Utils:
         ws = NSWorkspace.sharedWorkspace()
         uti_filetype, _ = ws.typeOfFile_error_(filepath, None)
         uti_png_icon_path = os.path.join(Static.uti_icons, f"{uti_filetype}.png")
+        print(uti_png_icon_path)
         if not os.path.exists(uti_png_icon_path):
             icon = ws.iconForFileType_(uti_filetype)
             tiff = icon.TIFFRepresentation()
