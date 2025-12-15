@@ -22,6 +22,8 @@ class PathItem(QWidget):
     add_fav = pyqtSignal(str)
     del_fav = pyqtSignal(str)
 
+    type_pixmap: dict = {}
+
     def __init__(self, dir: str, name: str, main_win_item: MainWinItem):
         """
         Этот виджет - часть группы виджетов PathItem, которые в сумме отображают
@@ -37,7 +39,7 @@ class PathItem(QWidget):
         super().__init__()
         self.main_win_item = main_win_item
         self.setFixedHeight(PathItem.height_)
-        self.dir = dir
+        self.item_dir = dir
 
         item_layout = QHBoxLayout()
         item_layout.setContentsMargins(0, 0, 0, 0)
@@ -54,8 +56,14 @@ class PathItem(QWidget):
         self.set_icon()
 
     def set_icon(self):
-        pixmap = QPixmap.fromImage(Utils.uti_generator(self.dir))
-        pixmap = Utils.qiconed_resize(pixmap, 15)
+        type_ = Utils.get_uti_type(self.item_dir)
+        if type_ in self.type_pixmap:
+            pixmap = self.type_pixmap[type_]
+        else:
+            pixmap = QPixmap.fromImage(Utils.uti_generator(self.item_dir))
+            pixmap = Utils.qiconed_resize(pixmap, 15)
+            self.type_pixmap[type_] = pixmap
+
         self.img_wid.setPixmap(pixmap)
 
     def add_arrow(self):
@@ -107,7 +115,7 @@ class PathItem(QWidget):
         """
         Открыть окно информации о файле / папке
         """
-        base_item = BaseItem(self.dir)
+        base_item = BaseItem(self.item_dir)
         base_item.set_properties()
         self.info_win.emit([base_item, ])
 
@@ -133,13 +141,13 @@ class PathItem(QWidget):
 
         menu_ = UMenu(parent=self)
 
-        if self.dir in JsonData.favs:
-            cmd_ = lambda: self.fav_cmd(offset=-1, src=self.dir)
+        if self.item_dir in JsonData.favs:
+            cmd_ = lambda: self.fav_cmd(offset=-1, src=self.item_dir)
             fav_action = ItemActions.FavRemove(menu_)
             fav_action.triggered.connect(cmd_)
             menu_.addAction(fav_action)
         else:
-            cmd_ = lambda: self.fav_cmd(offset=1, src=self.dir)
+            cmd_ = lambda: self.fav_cmd(offset=1, src=self.item_dir)
             fav_action = ItemActions.FavAdd(menu_)
             fav_action.triggered.connect(cmd_)
             menu_.addAction(fav_action)
@@ -165,9 +173,9 @@ class PathItem(QWidget):
 
     def mouseReleaseEvent(self, a0):
         if a0.button() == Qt.MouseButton.LeftButton:
-            if os.path.isdir(self.dir) and self.dir != self.main_win_item.main_dir:
-                self.main_win_item.main_dir = self.dir
-                self.new_history_item.emit(self.dir)
+            if os.path.isdir(self.item_dir) and self.item_dir != self.main_win_item.main_dir:
+                self.main_win_item.main_dir = self.item_dir
+                self.new_history_item.emit(self.item_dir)
                 self.load_st_grid.emit()
         return super().mouseReleaseEvent(a0)
 

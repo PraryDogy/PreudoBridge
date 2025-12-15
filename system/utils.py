@@ -310,3 +310,8 @@ class Utils:
                 uti_filetype = entry.name.rsplit(".png", 1)[0]
                 qimage = QImage(entry.path)
                 Dynamic.uti_filetype_qimage[uti_filetype] = qimage
+
+    @classmethod
+    def get_uti_type(cls, filepath: str):
+        uti_filetype, _ = Utils._ws.typeOfFile_error_(filepath, None)
+        return uti_filetype
