@@ -126,9 +126,11 @@ class BarMacos(QMenuBar):
     settings_text = "Настройки"
     servers_text = "Подключение (Cmd + K)"
     new_win_text = "Новое окно (Cmd + N)"
+    go_to_text = "Перейти к директории"
     new_win = pyqtSignal()
     servers_win = pyqtSignal()
     settings_win = pyqtSignal()
+    go_to_win = pyqtSignal()
 
     def __init__(self):
         super().__init__()
@@ -141,6 +143,10 @@ class BarMacos(QMenuBar):
         actionNewWin = QAction(self.new_win_text, self)
         actionNewWin.triggered.connect(self.new_win.emit)
         self.mainMenu.addAction(actionNewWin)
+
+        actionGoTo = QAction(self.go_to_text, self)
+        actionGoTo.triggered.connect(self.go_to_win.emit)
+        self.mainMenu.addAction(actionGoTo)
 
         actionSettings = QAction(self.settings_text, self)
         actionSettings.triggered.connect(self.settings_win.emit)

@@ -110,6 +110,7 @@ class MainWin(WinBase):
         self.bar_macos.new_win.connect(lambda: self.open_in_new_win((None, None)))
         self.bar_macos.servers_win.connect(self.open_servers_win)
         self.bar_macos.settings_win.connect(self.open_settings)
+        self.bar_macos.go_to_win.connect(self.open_go_to_win)
         self.setMenuBar(self.bar_macos)
 
         if MainWin.first_load:
@@ -256,7 +257,7 @@ class MainWin(WinBase):
             self.sort_bar.rearrange_thumbs: lambda: self.grid.rearrange_thumbs(),
             self.sort_bar.sort_thumbs: lambda: self.grid.sort_thumbs(),
             self.sort_bar.load_st_grid: lambda: self.load_st_grid(),
-            self.sort_bar.open_go_win: lambda: self.open_go_win(),
+            self.sort_bar.open_go_win: lambda: self.go_to_cmd(),
         }
 
         for signal, slot in signal_map.items():
@@ -322,17 +323,20 @@ class MainWin(WinBase):
             self.img_view_win.move(ImgViewWin.xx, ImgViewWin.yy)
         self.img_view_win.show()
 
-    def open_go_win(self):
+    def open_go_to_win(self):
+        self.go_win = GoToWin()
+        self.go_win.closed.connect(self.go_to_win_closed)
+        self.go_win.center(self)
+        self.go_win.show()
+
+    def go_to_cmd(self):
         if JsonData.go_to_now:
             data = (0, Utils.read_from_clipboard())
-            self.go_win_closed(data)
+            self.go_to_win_closed(data)
         else:
-            self.go_win = GoToWin()
-            self.go_win.closed.connect(self.go_win_closed)
-            self.go_win.center(self)
-            self.go_win.show()
+            self.open_go_to_win()
 
-    def go_win_closed(self, data: tuple[int, str]):
+    def go_to_win_closed(self, data: tuple[int, str]):
         """
         value: 0 = открыть путь в приложении, 1 = открыть путь к Finder
         """
