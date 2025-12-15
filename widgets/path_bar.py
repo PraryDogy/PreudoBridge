@@ -227,15 +227,16 @@ class PathBar(QWidget):
 
         if last_item:
             
-            if len(root) > 2:
-                if not os.path.exists(last_item.dir):
-                    icon = os.path.join(Static.app_icons_dir, "question.svg")
-                elif os.path.isdir(last_item.dir):
-                    icon = os.path.join(Static.app_icons_dir, "folder.svg")
-                else:
-                    _, ext = os.path.splitext(last_item.dir)
-                    icon = Utils.get_icon_path(ext, Static.uti_icons)
-                last_item.img_wid.load(icon)
+            # if len(root) > 2:
+            #     if not os.path.exists(last_item.dir):
+            #         icon = os.path.join(Static.app_icons_dir, "question.svg")
+            #     elif os.path.isdir(last_item.dir):
+            #         icon = os.path.join(Static.app_icons_dir, "folder.svg")
+            #     else:
+            #         _, ext = os.path.splitext(last_item.dir)
+            #         icon = Utils.get_icon_path(ext, Static.uti_icons)
+                
+            #     last_item.img_wid.load(icon)
 
             text_ = last_item.text_wid.text()
             if len(text_) > PathBar.last_item_limit:
