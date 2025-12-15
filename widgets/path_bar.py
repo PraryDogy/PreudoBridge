@@ -182,7 +182,6 @@ class PathBar(QWidget):
     del_fav = pyqtSignal(str)
     last_item_limit = 40
     height_ = 25
-    computer: QPixmap = None
 
     def __init__(self, main_win_item: MainWinItem):
         """
@@ -190,6 +189,7 @@ class PathBar(QWidget):
         - Группа виджетов PathItem (читай описание PathItem)  
         """
         super().__init__()
+        self.computer: QPixmap = self.create_computer_icon()
         self.main_win_item = main_win_item
         self.setFixedHeight(PathBar.height_)
         self.setAcceptDrops(True)
@@ -200,6 +200,10 @@ class PathBar(QWidget):
         self.main_lay.setSpacing(5)
         self.main_lay.setAlignment(Qt.AlignmentFlag.AlignLeft)
         self.setLayout(self.main_lay)
+
+    def create_computer_icon(self):
+        pixmap = QPixmap(os.path.join(Static.in_app_icons_dir, "computer.png"))
+        return Utils.qiconed_resize(pixmap, 15)
 
     def update(self, dir: str):
         """
@@ -227,14 +231,7 @@ class PathBar(QWidget):
             path_items[x] = path_item
             self.main_lay.addWidget(path_item)
 
-        if self.computer is not None:
-            pixmap = self.computer
-        else:
-            pixmap = QPixmap(os.path.join(Static.in_app_icons_dir, "computer.png"))
-            pixmap = Utils.qiconed_resize(pixmap, 15)
-            self.computer = pixmap
-
-        path_items.get(1).img_wid.setPixmap(pixmap)
+        path_items.get(1).img_wid.setPixmap(self.computer)
         last_item = path_items.get(len(root))
 
         if last_item:
