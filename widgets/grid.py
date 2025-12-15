@@ -124,7 +124,7 @@ class Thumb(BaseItem, QFrame):
     # Сигнал нужен, чтобы менялся заголовок в просмотрщике изображений
     # При изменении рейтинга или меток
     text_changed = pyqtSignal()
-    pixmap_size: int = 0
+    current_pixmap_size: int = 0
     thumb_w: int = 0
     thumb_h: int = 0
     corner: int = 0
@@ -178,8 +178,8 @@ class Thumb(BaseItem, QFrame):
     @classmethod
     def calc_size(cls):
         ind = Dynamic.pixmap_size_ind
-        cls.pixmap_size = Static.pixmap_sizes[ind]
-        cls.img_frame_size = Thumb.pixmap_size + 15
+        cls.current_pixmap_size = Static.pixmap_sizes[ind]
+        cls.img_frame_size = Thumb.current_pixmap_size + 15
         cls.thumb_w = Static.thumb_widths[ind]
         cls.thumb_h = Static.thumb_heights[ind]
         cls.corner = Static.corner_sizes[ind]
@@ -189,7 +189,7 @@ class Thumb(BaseItem, QFrame):
 
     def set_image(self, img: QImage | QIcon):
         self.base_pixmap = QPixmap.fromImage(img)
-        local_pixmap = Utils.qiconed_resize(self.base_pixmap, Thumb.pixmap_size)
+        local_pixmap = Utils.qiconed_resize(self.base_pixmap, Thumb.current_pixmap_size)
         self.img_wid.setPixmap(local_pixmap)
         self.img_frame_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
@@ -210,11 +210,11 @@ class Thumb(BaseItem, QFrame):
         self.blue_text_wid.set_text(self.rating, self.type_, self.mod, self.size)
 
         self.setFixedSize(Thumb.thumb_w, Thumb.thumb_h)
-        self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
+        self.img_wid.setFixedSize(Thumb.current_pixmap_size, Thumb.current_pixmap_size)
         self.img_frame.setFixedSize(Thumb.img_frame_size, Thumb.img_frame_size)
 
         if self.base_pixmap:
-            local_pixmap = Utils.qiconed_resize(self.base_pixmap, Thumb.pixmap_size)
+            local_pixmap = Utils.qiconed_resize(self.base_pixmap, Thumb.current_pixmap_size)
             # local_pixmap = Utils.pixmap_scale(self.base_pixmap, Thumb.pixmap_size)
             try:
                 self.img_wid.setAlignment(Qt.AlignmentFlag.AlignCenter)
