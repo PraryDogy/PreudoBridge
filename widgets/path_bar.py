@@ -136,9 +136,6 @@ class PathItem(QWidget):
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
         urls = [self.main_win_item.main_dir]
-        names = [os.path.basename(i) for i in urls]
-        total = len(urls)
-
         menu_ = UMenu(parent=self)
 
         if self.item_dir in JsonData.favs:
@@ -163,9 +160,6 @@ class PathItem(QWidget):
 
         copy_path = ItemActions.CopyPath(menu_, urls)
         menu_.addAction(copy_path)
-
-        copy_name = ItemActions.CopyName(menu_, names)
-        menu_.addAction(copy_name)
 
         self.solid_style()
         menu_.show_under_cursor()
