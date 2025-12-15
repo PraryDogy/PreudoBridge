@@ -294,7 +294,6 @@ class Utils:
             rep = NSBitmapImageRep.imageRepWithData_(tiff)
             png_data = rep.representationUsingType_properties_(NSPNGFileType, None)
 
-            # Конвертация в QImage и ресайз до 256x256
             qimage = QImage.fromData(bytes(png_data))
             qimage = qimage.scaled(size, size, Qt.KeepAspectRatio)
             qimage.save(uti_png_icon_path, "PNG")
