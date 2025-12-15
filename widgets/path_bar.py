@@ -234,13 +234,12 @@ class PathBar(QWidget):
         path_items.get(1).img_wid.setPixmap(self.computer)
         last_item = path_items.get(len(root))
 
-        if last_item:
-            text_ = last_item.text_wid.text()
-            if len(text_) > PathBar.last_item_limit:
-                path_item.text_wid.setText(text_[:PathBar.last_item_limit] + "...")
+        text_ = last_item.text_wid.text()
+        if len(text_) > PathBar.last_item_limit:
+            path_item.text_wid.setText(text_[:PathBar.last_item_limit] + "...")
 
-            last_item.del_arrow()
-            last_item.expand()
-            last_item.enterEvent = lambda *args, **kwargs: None
-            last_item.leaveEvent = lambda *args, **kwargs: None
+        last_item.del_arrow()
+        last_item.expand()
+        last_item.enterEvent = lambda *args, **kwargs: None
+        last_item.leaveEvent = lambda *args, **kwargs: None
 
