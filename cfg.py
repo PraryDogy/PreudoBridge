@@ -218,4 +218,4 @@ class Dynamic:
     rating_filter: int = 0
     word_filters: list[str] = []
     pixmap_size_ind = 2
-    uti_qimage: dict = {}
+    uti_filetype_qimage: dict = {}

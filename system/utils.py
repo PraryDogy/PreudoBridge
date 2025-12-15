@@ -10,7 +10,7 @@ import cv2
 import numpy as np
 from AppKit import NSBitmapImageRep, NSPNGFileType, NSWorkspace
 from PIL import Image
-from PyQt5.QtCore import QRect, QRectF, QSize, Qt
+from PyQt5.QtCore import QRect, QRectF, QSize, Qt, QByteArray
 from PyQt5.QtGui import QColor, QFont, QIcon, QImage, QPainter, QPixmap
 from PyQt5.QtSvg import QSvgGenerator, QSvgRenderer
 from PyQt5.QtWidgets import QApplication
@@ -264,18 +264,30 @@ class Utils:
     def uti_generator(cls, filepath: str) -> QImage:
         ws = NSWorkspace.sharedWorkspace()
         uti_filetype, _ = ws.typeOfFile_error_(filepath, None)
+
+        # Проверка кэша в памяти
+        if uti_filetype in Dynamic.uti_filetype_qimage:
+            return Dynamic.uti_filetype_qimage[uti_filetype]
+
         uti_png_icon_path = os.path.join(Static.uti_icons, f"{uti_filetype}.png")
 
-        if uti_png_icon_path in Dynamic.uti_qimage:
-            return Dynamic.uti_qimage[uti_png_icon_path]
-
         if not os.path.exists(uti_png_icon_path):
+            # Генерация иконки
             icon = ws.iconForFileType_(uti_filetype)
             tiff = icon.TIFFRepresentation()
             rep = NSBitmapImageRep.imageRepWithData_(tiff)
-            png = rep.representationUsingType_properties_(NSPNGFileType, None)
-            with open(uti_png_icon_path, "wb") as f:
-                f.write(png)
+            png_data = rep.representationUsingType_properties_(NSPNGFileType, None)
 
-        qimage = Dynamic.uti_qimage[uti_png_icon_path] = QImage(uti_png_icon_path)
+            # Сохраняем PNG на диск
+            with open(uti_png_icon_path, "wb") as f:
+                f.write(png_data)
+
+            # Создаём QImage напрямую из NSData
+            qimage = QImage.fromData(QByteArray(png_data))
+        else:
+            # Если PNG уже есть, создаём QImage из файла
+            qimage = QImage(uti_png_icon_path)
+
+        # Кэшируем в памяти
+        Dynamic.uti_filetype_qimage[uti_filetype] = qimage
         return qimage
