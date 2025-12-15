@@ -499,8 +499,10 @@ class MainWin(WinBase):
                         JsonData.favs = dict(favs)
                         self.favs_menu.init_ui()
 
-        self.grid.win_copy.pause_task(True)
-        QTimer.singleShot(1500, lambda: self.grid.win_copy.pause_task(False))
+        if hasattr(self.grid, "win_copy"):
+            task = self.grid.win_copy.tsk
+            task.toggle_pause_flag(True)
+            QTimer.singleShot(1500, lambda: task.toggle_pause_flag(False))
 
         fix_path()
         self.favs_menu.select_fav(self.main_win_item.main_dir)

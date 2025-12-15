@@ -152,7 +152,7 @@ class CopyFilesTask(URunnable):
         for src, dest in self.src_dest_list:
             if os.path.exists(dest):
                 self.sigs.replace_files_win.emit()
-                self.pause_flag = True
+                self.toggle_pause_flag(True)
                 while self.pause_flag:
                     QThread.msleep(100)
                 break
@@ -244,9 +244,13 @@ class CopyFilesTask(URunnable):
                 self.sigs.copied_size.emit(self.copied_size)
 
                 while self.pause_flag:
+                    print("wait copy files")
                     QThread.msleep(100)
 
         shutil.copystat(src, dest, follow_symlinks=True)
+
+    def toggle_pause_flag(self, value: bool):
+        self.pause_flag = value
 
 
 class RatingTask(URunnable):

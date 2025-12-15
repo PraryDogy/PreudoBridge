@@ -167,13 +167,9 @@ class CopyFilesWin(ProgressbarWin):
         QTimer.singleShot(1000, lambda: UThreadPool.start(self.tsk))
 
     def open_replace_files_win(self):
-
-        def continue_copy():
-            self.tsk.pause_flag = False
-
         replace_win = ReplaceFilesWin()
         replace_win.center(self)
-        replace_win.ok_pressed.connect(continue_copy)
+        replace_win.ok_pressed.connect(self.tsk.toggle_pause_flag(False))
         replace_win.cancel_pressed.connect(self.cancel_cmd)
         replace_win.show()
 
@@ -191,13 +187,10 @@ class CopyFilesWin(ProgressbarWin):
         self.below_label.setText(f"{copy} {current} из {total}")
 
     def cancel_cmd(self, *args):
-        self.tsk.pause_flag = False
+        self.tsk.toggle_pause_flag(False)
         self.tsk.set_should_run(False)
         self.deleteLater()
 
     def on_finished(self, urls: list[str]):
         self.finished_.emit(urls)
         self.deleteLater()
-
-    def pause_task(self, value: bool):
-        self.tsk.pause_flag = value
