@@ -185,18 +185,21 @@ class Thumb(BaseItem, QFrame):
         cls.corner = Static.corner_sizes[ind]
 
     def set_svg_icon(self):
-        if self.type_ == Static.folder_type:
-            if self.src.count(os.sep) == 2:
-                icon_path = os.path.join(Static.app_icons_dir, "hdd.svg")
-            else:
-                icon_path = os.path.join(Static.app_icons_dir, "folder.svg")
-        elif self.type_.lower() in Static.preloaded_icons:
-            icon_path = Static.preloaded_icons.get(self.type_.lower())
-        else:
-            icon_path = Utils.get_icon_path(self.type_, Static.ext_icons_dir)
+        qimage = SharedUtils.get_filetype_icon_qimage(self.src)
+        self.set_image(qimage)
+        ...
+        # if self.type_ == Static.folder_type:
+        #     if self.src.count(os.sep) == 2:
+        #         icon_path = os.path.join(Static.app_icons_dir, "hdd.svg")
+        #     else:
+        #         icon_path = os.path.join(Static.app_icons_dir, "folder.svg")
+        # elif self.type_.lower() in Static.preloaded_icons:
+        #     icon_path = Static.preloaded_icons.get(self.type_.lower())
+        # else:
+        #     icon_path = Utils.get_icon_path(self.type_, Static.ext_icons_dir)
 
-        self.img_wid.load(icon_path)
-        self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
+        # self.img_wid.load(icon_path)
+        # self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
 
     def set_image(self, img: QImage | QIcon):
         self.base_pixmap = QPixmap.fromImage(img)

@@ -11,11 +11,42 @@ import psd_tools
 import rawpy
 import rawpy._rawpy
 import tifffile
+from AppKit import NSBitmapImageRep, NSPNGFileType, NSWorkspace
 from imagecodecs.imagecodecs import DelayedImportError
 from PIL import Image, ImageOps
+from PyQt5.QtGui import QImage
 
 
 class SharedUtils:
+
+    @classmethod
+    def get_filetype_icon_qimage(cls, file_path: str):
+        ws = NSWorkspace.sharedWorkspace()
+
+        # UTI
+        uti, _ = ws.typeOfFile_error_(file_path, None)
+
+        # NSImage
+        icon = ws.iconForFileType_(uti)
+
+        # NSImage -> raw RGBA
+        tiff = icon.TIFFRepresentation()
+        rep = NSBitmapImageRep.imageRepWithData_(tiff)
+
+        width = rep.pixelsWide()
+        height = rep.pixelsHigh()
+        data = rep.bitmapData()
+
+        # QImage (RGBA8888)
+        img = QImage(
+            data,
+            width,
+            height,
+            QImage.Format_RGBA8888
+        ).copy()  # обязательно copy()
+
+        return img
+
 
     @classmethod
     def is_mounted(cls, server: str):
@@ -107,6 +138,9 @@ class SharedUtils:
                 row = row + "-"
             new_text.append(row)
         return "\n".join(new_text).rstrip("-")
+    
+
+
 
 
 class ReadImage:
