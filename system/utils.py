@@ -293,8 +293,11 @@ class Utils:
             tiff = icon.TIFFRepresentation()
             rep = NSBitmapImageRep.imageRepWithData_(tiff)
             png_data = rep.representationUsingType_properties_(NSPNGFileType, None)
-            with open(uti_png_icon_path, "wb") as f:
-                f.write(png_data)
+
+            # Конвертация в QImage и ресайз до 256x256
+            qimage = QImage.fromData(bytes(png_data))
+            qimage = qimage.scaled(512, 512, Qt.KeepAspectRatio)
+            qimage.save(uti_png_icon_path, "PNG")
 
         qimage = QImage(uti_png_icon_path)
         Dynamic.uti_filetype_qimage[uti_filetype] = qimage
