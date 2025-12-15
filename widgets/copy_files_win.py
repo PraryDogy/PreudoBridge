@@ -198,3 +198,6 @@ class CopyFilesWin(ProgressbarWin):
     def on_finished(self, urls: list[str]):
         self.finished_.emit(urls)
         self.deleteLater()
+
+    def pause_task(self, value: bool):
+        self.tsk.pause_flag = value
