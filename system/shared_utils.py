@@ -20,33 +20,24 @@ from PyQt5.QtGui import QImage
 class SharedUtils:
 
     @classmethod
-    def get_filetype_icon_qimage(cls, file_path: str):
-        ws = NSWorkspace.sharedWorkspace()
-
-        # UTI
+    def get_uti_filetype(cls, ws: NSWorkspace.sharedWorkspace, file_path: str):
         uti, _ = ws.typeOfFile_error_(file_path, None)
-
-        # NSImage
+        return uti
+    
+    @classmethod
+    def create_png_uti_file(cls, ws, uti: str, filepath: str):
         icon = ws.iconForFileType_(uti)
 
-        # NSImage -> raw RGBA
         tiff = icon.TIFFRepresentation()
         rep = NSBitmapImageRep.imageRepWithData_(tiff)
 
-        width = rep.pixelsWide()
-        height = rep.pixelsHigh()
-        data = rep.bitmapData()
+        png = rep.representationUsingType_properties_(
+            NSPNGFileType,
+            None
+        )
 
-        # QImage (RGBA8888)
-        img = QImage(
-            data,
-            width,
-            height,
-            QImage.Format_RGBA8888
-        ).copy()  # обязательно copy()
-
-        return img
-
+        with open(filepath, "wb") as f:
+            f.write(png)
 
     @classmethod
     def is_mounted(cls, server: str):

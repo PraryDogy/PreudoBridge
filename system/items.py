@@ -66,6 +66,7 @@ class BaseItem:
         self.size: int = None
         self.base_pixmap: QPixmap = None
         self.qimage: QImage = None
+        self.uti_image: QImage = None
 
         self.partial_hash: str = None
         self.thumb_path: str = None

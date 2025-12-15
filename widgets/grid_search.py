@@ -114,10 +114,10 @@ class GridSearch(Grid):
             if base_item.qimage:
                 thumb.set_image(base_item.qimage)
             else:
-                icon_path = Utils.get_icon_path(base_item.type_, Static.ext_icons_dir)
+                icon_path = Utils.get_icon_path(base_item.type_, Static.uti_icons)
                 if not os.path.exists(icon_path):
                     Utils.create_icon(base_item.type_, icon_path, os.path.join(Static.app_icons_dir, "file.svg"))
-                thumb.set_svg_icon()
+                thumb.set_uti_icon()
             self.add_widget_data(thumb, self.row, self.col)
             self.grid_layout.addWidget(thumb, self.row, self.col)
             self.total += 1

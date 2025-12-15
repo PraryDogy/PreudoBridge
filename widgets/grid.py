@@ -5,7 +5,6 @@ from PyQt5.QtCore import (QMimeData, QPoint, QRect, QSize, Qt, QTimer, QUrl,
                           pyqtSignal)
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QIcon, QImage, QKeyEvent,
                          QMouseEvent, QPixmap)
-from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
                              QGridLayout, QLabel, QRubberBand, QSplitter,
                              QVBoxLayout, QWidget)
@@ -165,7 +164,7 @@ class Thumb(BaseItem, QFrame):
         self.img_frame_lay.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.img_frame.setLayout(self.img_frame_lay)
 
-        self.img_wid = QSvgWidget()
+        self.img_wid = QLabel()
         self.img_frame_lay.addWidget(self.img_wid)
 
         self.text_wid = FileNameWidget()
@@ -184,28 +183,12 @@ class Thumb(BaseItem, QFrame):
         cls.thumb_h = Static.thumb_heights[ind]
         cls.corner = Static.corner_sizes[ind]
 
-    def set_svg_icon(self):
-        qimage = SharedUtils.get_filetype_icon_qimage(self.src)
-        self.set_image(qimage)
-        ...
-        # if self.type_ == Static.folder_type:
-        #     if self.src.count(os.sep) == 2:
-        #         icon_path = os.path.join(Static.app_icons_dir, "hdd.svg")
-        #     else:
-        #         icon_path = os.path.join(Static.app_icons_dir, "folder.svg")
-        # elif self.type_.lower() in Static.preloaded_icons:
-        #     icon_path = Static.preloaded_icons.get(self.type_.lower())
-        # else:
-        #     icon_path = Utils.get_icon_path(self.type_, Static.ext_icons_dir)
-
-        # self.img_wid.load(icon_path)
-        # self.img_wid.setFixedSize(Thumb.pixmap_size, Thumb.pixmap_size)
+    def set_uti_icon(self):
+        self.set_image(self.uti_image)
 
     def set_image(self, img: QImage | QIcon):
         self.base_pixmap = QPixmap.fromImage(img)
         local_pixmap = Utils.qiconed_resize(self.base_pixmap, Thumb.pixmap_size)
-        self.img_wid.deleteLater()
-        self.img_wid = QLabel()
         self.img_wid.setPixmap(local_pixmap)
         self.img_frame_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
@@ -698,7 +681,7 @@ class Grid(UScrollArea):
 
     def new_thumb(self, url: str):
         _, ext = os.path.splitext(url)
-        icon_path = Utils.get_icon_path(ext, Static.ext_icons_dir)
+        icon_path = Utils.get_icon_path(ext, Static.uti_icons)
         if not os.path.exists(icon_path):
             Utils.create_icon(ext, icon_path, os.path.join(Static.app_icons_dir, "file.svg"))
 
@@ -706,7 +689,7 @@ class Grid(UScrollArea):
         thumb.set_properties()
         thumb.set_widget_size()
         thumb.set_no_frame()
-        thumb.set_svg_icon()
+        thumb.set_uti_icon()
         self.add_widget_data(thumb, self.row, self.col)
         self.grid_layout.addWidget(thumb, self.row, self.col)
 
@@ -786,7 +769,7 @@ class Grid(UScrollArea):
 
         if isinstance(wid, (FileNameWidget, BlueTextWid, ImgFrameWidget)):
             return wid.parent()
-        elif isinstance(wid, (QLabel, QSvgWidget)):
+        elif isinstance(wid, QLabel):
             return wid.parent().parent()
         else:
             return None

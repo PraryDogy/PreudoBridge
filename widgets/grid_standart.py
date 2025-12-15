@@ -85,7 +85,7 @@ class GridStandart(Grid):
         def create_icons():
             exts = {i.type_ for i in self._thumb_items}
             for i in exts:
-                icon_path = Utils.get_icon_path(i, Static.ext_icons_dir)
+                icon_path = Utils.get_icon_path(i, Static.uti_icons)
                 if not os.path.exists(icon_path):
                     Utils.create_icon(i, icon_path, os.path.join(Static.app_icons_dir, "file.svg"))
 
@@ -97,7 +97,7 @@ class GridStandart(Grid):
                 thumb.migrate_from_base_item(base_item)
                 thumb.set_widget_size()
                 thumb.set_no_frame()
-                thumb.set_svg_icon()
+                thumb.set_uti_icon()
                 self.add_widget_data(thumb, self.row, self.col)
                 self.grid_layout.addWidget(thumb, self.row, self.col)
 
