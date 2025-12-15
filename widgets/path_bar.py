@@ -229,12 +229,6 @@ class PathBar(QWidget):
         pixmap = Utils.qiconed_resize(pixmap, 15)
         path_items.get(1).img_wid.setPixmap(pixmap)
 
-        if path_items.get(2):
-            computer = os.path.join(Static.in_app_icons_dir, "hdd.png")
-            pixmap = QPixmap(computer)
-            pixmap = Utils.qiconed_resize(pixmap, 15)
-            path_items.get(2).img_wid.setPixmap(pixmap)
-
         last_item = path_items.get(len(root))
 
         if last_item:
