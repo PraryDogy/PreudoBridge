@@ -5,12 +5,13 @@ import shutil
 import subprocess
 import time
 import zipfile
-from time import sleep
+# from time import sleep
 
 import numpy as np
 import sqlalchemy
 from PIL import Image
-from PyQt5.QtCore import QObject, QRunnable, QThreadPool, QTimer, pyqtSignal
+from PyQt5.QtCore import (QObject, QRunnable, QThread, QThreadPool, QTimer,
+                          pyqtSignal)
 from PyQt5.QtGui import QImage
 from PyQt5.QtTest import QTest
 from sqlalchemy.exc import IntegrityError, OperationalError
@@ -153,7 +154,7 @@ class CopyFilesTask(URunnable):
                 self.sigs.replace_files_win.emit()
                 self.pause_flag = True
                 while self.pause_flag:
-                    time.sleep(1)
+                    QThread.msleep(100)
                 break
 
     def prepare_search_dir(self):
@@ -241,6 +242,10 @@ class CopyFilesTask(URunnable):
                 fdst.write(buf)
                 self.copied_size += len(buf)
                 self.sigs.copied_size.emit(self.copied_size)
+
+                while self.pause_flag:
+                    QThread.msleep(100)
+
         shutil.copystat(src, dest, follow_symlinks=True)
 
 
@@ -707,7 +712,7 @@ class DbItemsLoader(URunnable):
                 Utils.write_thumb(i.thumb_path, img)
             self.update_thumb(i)
     
-    def execute_corrupted_images(self, range_: int = 3, sleep_: int = 3):
+    def execute_corrupted_images(self, range_: int = 3, ms: int = 3000):
         for _ in range(range_):
             new_corrupted = []
             for i in self.corrupted_items:
@@ -724,7 +729,7 @@ class DbItemsLoader(URunnable):
             if not new_corrupted:
                 break
             self.corrupted_items = new_corrupted
-            sleep(sleep_)
+            QThread.msleep(ms)
 
     def update_thumb(self, thumb: BaseItem):
         try:
@@ -1059,8 +1064,8 @@ class ArchiveMaker(URunnable):
         others = [f for f in self.files if not f.lower().endswith(".app")]
 
         # временный каталог для объединения всех файлов
-        import tempfile
         import shutil
+        import tempfile
 
         with tempfile.TemporaryDirectory() as tmp:
             tmp_files = []
@@ -1600,7 +1605,7 @@ class DirWatcher(URunnable):
         observer.start()
         try:
             while self.is_should_run():
-                time.sleep(1)
+                QThread.msleep(1000)
         finally:
             observer.stop()
             observer.join()
