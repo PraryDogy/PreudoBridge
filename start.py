@@ -50,6 +50,7 @@ class Tools:
             except Exception:
                 frame = ""
             print("Обработан RuntimeError:", frame)
+            print(traceback.format_exc())
         else:
             sys.__excepthook__(exctype, value, tb)
 

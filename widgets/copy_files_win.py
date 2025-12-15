@@ -28,7 +28,7 @@ class ReplaceFilesWin(MinMaxDisabledWin):
         self.set_modality()
         self.setWindowTitle(self.title_text)
 
-        main_lay = QVBoxLayout(self)
+        main_lay = QVBoxLayout()
         main_lay.setContentsMargins(10, 5, 10, 10)
         main_lay.setSpacing(10)
         self.centralWidget().setLayout(main_lay)
@@ -80,6 +80,7 @@ class ReplaceFilesWin(MinMaxDisabledWin):
         self.deleteLater()
 
     def closeEvent(self, a0):
+        self.deleteLater()
         a0.ignore()        
     
 
@@ -94,7 +95,7 @@ class ErrorWin(MinMaxDisabledWin):
         self.set_modality()
         self.setWindowTitle(ErrorWin.title_text)
 
-        main_lay = QVBoxLayout(self)
+        main_lay = QVBoxLayout()
         main_lay.setContentsMargins(10, 5, 10, 10)
         main_lay.setSpacing(0)
         self.centralWidget().setLayout(main_lay)
