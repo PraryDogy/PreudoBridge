@@ -572,12 +572,12 @@ class MainWin(WinBase):
 
     def change_view_cmd(self):
         if self.main_win_item.get_view_mode() == 0:
-            self.top_bar.change_view_btn.load(os.path.join(Static.app_icons_dir, "grid.svg"))
+            self.top_bar.change_view_btn.load(os.path.join(Static.in_app_icons_dir, "grid.svg"))
             self.top_bar.change_view_btn.lbl.setText(self.grid_text)
             self.main_win_item.set_view_mode(1)
 
         else:
-            self.top_bar.change_view_btn.load(os.path.join(Static.app_icons_dir, "list.svg"))
+            self.top_bar.change_view_btn.load(os.path.join(Static.in_app_icons_dir, "list.svg"))
             self.top_bar.change_view_btn.lbl.setText(self.list_text)
             self.main_win_item.set_view_mode(0)
 

@@ -44,12 +44,19 @@ class PathItem(QWidget):
         item_layout.setSpacing(5)
         self.setLayout(item_layout)
 
-        self.img_wid = USvgSqareWidget(None, PathItem.height_)
+        self.img_wid = QLabel()
         item_layout.addWidget(self.img_wid)
         
         self.text_wid = QLabel(text=name)
         self.collapse()
         item_layout.addWidget(self.text_wid)
+
+        self.set_icon()
+
+    def set_icon(self):
+        pixmap = QPixmap.fromImage(Utils.uti_generator(self.dir))
+        pixmap = Utils.qiconed_resize(pixmap, 20)
+        self.img_wid.setPixmap(pixmap)
 
     def add_arrow(self):
         """
@@ -213,31 +220,19 @@ class PathBar(QWidget):
             path_item.info_win.connect(lambda lst: self.info_win.emit(lst))
             path_item.add_fav.connect(self.add_fav.emit)
             path_item.del_fav.connect(self.del_fav.emit)
-            path_item.img_wid.load(os.path.join(Static.app_icons_dir, "folder.svg"))
             path_item.add_arrow()
             path_items[x] = path_item
             self.main_lay.addWidget(path_item)
 
-        path_items.get(1).img_wid.load(os.path.join(Static.app_icons_dir, "computer.svg"))
+        # computer = os.path.join(Static.in_app_icons_dir, "computer.svg")
+        # path_items.get(1).img_wid.setPixmap(QPixmap.fromImage(computer))
 
-        if path_items.get(2):
-            path_items.get(2).img_wid.load(os.path.join(Static.app_icons_dir, "hdd.svg"))
+        # if path_items.get(2):
+        #     path_items.get(2).img_wid.load(os.path.join(Static.in_app_icons_dir, "hdd.svg"))
 
         last_item = path_items.get(len(root))
 
         if last_item:
-            
-            # if len(root) > 2:
-            #     if not os.path.exists(last_item.dir):
-            #         icon = os.path.join(Static.app_icons_dir, "question.svg")
-            #     elif os.path.isdir(last_item.dir):
-            #         icon = os.path.join(Static.app_icons_dir, "folder.svg")
-            #     else:
-            #         _, ext = os.path.splitext(last_item.dir)
-            #         icon = Utils.get_icon_path(ext, Static.uti_icons)
-                
-            #     last_item.img_wid.load(icon)
-
             text_ = last_item.text_wid.text()
             if len(text_) > PathBar.last_item_limit:
                 path_item.text_wid.setText(text_[:PathBar.last_item_limit] + "...")

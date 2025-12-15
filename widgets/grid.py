@@ -1132,7 +1132,7 @@ class Grid(UScrollArea):
             self.select_single_thumb(self.wid_under_mouse)
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
-        img_ = QPixmap(os.path.join(Static.app_icons_dir, "files.svg"))
+        img_ = QPixmap(os.path.join(Static.in_app_icons_dir, "files.svg"))
         self.drag.setPixmap(img_)
         urls = [QUrl.fromLocalFile(i.src) for i in self.selected_thumbs]        
         if urls:

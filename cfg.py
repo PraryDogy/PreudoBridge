@@ -14,7 +14,7 @@ class Static:
     db_file = os.path.join(app_support, 'db.db')
 
     scripts_dir = "./scripts"
-    app_icons_dir = "./icons"
+    in_app_icons_dir = "./icons"
 
     folder_type = "folder"
     rgba_gray = "rgba(128, 128, 128, 0.95)"

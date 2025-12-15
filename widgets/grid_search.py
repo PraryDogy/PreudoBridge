@@ -40,7 +40,7 @@ class WinMissedFiles(MinMaxDisabledWin):
         self.first_row_lay.setContentsMargins(0, 0, 0, 0)
         self.first_row_wid.setLayout(self.first_row_lay)
 
-        warn = USvgSqareWidget(os.path.join(Static.app_icons_dir, "warning.svg"), WinMissedFiles.svg_size)
+        warn = USvgSqareWidget(os.path.join(Static.in_app_icons_dir, "warning.svg"), WinMissedFiles.svg_size)
         self.first_row_lay.addWidget(warn)
 
         label_ = QLabel(WinMissedFiles.descr_text)
@@ -77,7 +77,7 @@ class GridSearch(Grid):
     finished_ = pyqtSignal()
     no_result_text = "Ничего не найдено"
     noti_text = "Завершите поиск, затем перетащите файлы"
-    warning_svg = os.path.join(Static.app_icons_dir, "warning.svg")
+    warning_svg = os.path.join(Static.in_app_icons_dir, "warning.svg")
     pause_time_ms = 700
 
     def __init__(

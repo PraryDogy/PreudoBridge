@@ -125,7 +125,7 @@ class FavsMenu(QListWidget):
     new_history_item = pyqtSignal(str)
     load_st_grid = pyqtSignal()
     open_in_new_win = pyqtSignal(str)
-    svg_folder = os.path.join(Static.app_icons_dir, "folder.svg")
+    svg_folder = os.path.join(Static.in_app_icons_dir, "folder.svg")
     svg_size = 16
 
     def __init__(self, main_win_item: MainWinItem):

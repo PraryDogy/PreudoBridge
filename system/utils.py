@@ -253,15 +253,6 @@ class Utils:
             new_w = int(w * max_side / h)
         icon = QIcon(pixmap)
         return icon.pixmap(QSize(new_w, new_h))
-
-    @classmethod
-    def pixmap_scale(cls, pixmap: QPixmap, size: int) -> QPixmap:
-        return pixmap.scaled(
-            size,
-            size,
-            aspectRatioMode=Qt.AspectRatioMode.KeepAspectRatio,
-            transformMode=Qt.TransformationMode.SmoothTransformation
-        )
     
     @classmethod
     def fill_missing_methods(cls, from_cls: callable, to_cls: callable):
