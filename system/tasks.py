@@ -536,12 +536,7 @@ class FinderItemsLoader(URunnable):
             base_item.set_properties()
             files.append(base_item)
 
-            uti_filetype = SharedUtils.get_uti_filetype(ws, entry.path)
-            uti_png_icon_path = os.path.join(Static.uti_icons, f"{uti_filetype}.png")
-            if not os.path.exists(uti_png_icon_path):
-                SharedUtils.create_png_uti_file(ws, uti_filetype, uti_png_icon_path)
-            
-            base_item.uti_image = QImage(uti_png_icon_path)
+            base_item.uti_image = SharedUtils.uti_generator(ws, entry.path)
             
         return files
 
