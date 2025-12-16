@@ -191,7 +191,6 @@ class Thumb(BaseItem, QFrame):
         self.base_pixmap = QPixmap.fromImage(img)
         local_pixmap = Utils.qiconed_resize(self.base_pixmap, Thumb.current_pixmap_size)
         self.img_wid.setPixmap(local_pixmap)
-        self.img_frame_lay.addWidget(self.img_wid, alignment=Qt.AlignmentFlag.AlignCenter)
 
     def migrate_from_base_item(self, base_item: BaseItem):
         """
