@@ -192,6 +192,7 @@ class Thumb(BaseItem, QFrame):
     def set_uti_image(self):
         if self.uti_type in Thumb.uti_type_data:
             uti_pixmap = Thumb.uti_type_data[self.uti_type][Thumb.current_pixmap_size]
+            print(uti_pixmap.width())
         else:
             Thumb.uti_type_data[self.uti_type] = {}
             uti_pixmap = QPixmap(self.uti_image)
