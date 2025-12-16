@@ -1,6 +1,7 @@
 import glob
 import json
 import os
+import shutil
 
 
 class Static:
@@ -200,7 +201,24 @@ class JsonData:
 
     @classmethod
     def do_before_start(cls):
-        ...
+        files = (
+            "cfg.json",
+            "db.db",
+            "uti_icons",
+            "log.txt",
+            "servers.json",
+            "thumbnails"
+        )
+
+        for i in os.scandir(Static.app_support):
+            if i.name not in files:
+                try:
+                    if i.is_file():
+                        os.remove(i.path)
+                    else:
+                        shutil.rmtree(i.path)
+                except Exception as e:
+                    print("cfg, do before start, error remove dir", e)
 
     @classmethod
     def init(cls):
@@ -208,10 +226,7 @@ class JsonData:
         os.makedirs(Static.app_support, exist_ok=True)
         cls.read_json_data()
         cls.write_config()
-        try:
-            cls.do_before_start()
-        except Exception as e:
-            print("do before start", e)
+        cls.do_before_start()
         cls.setup_icons()
 
 class Dynamic:
