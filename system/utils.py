@@ -279,6 +279,10 @@ class Utils:
         if not uti_filetype:
             return "none", {i: QPixmap() for i in Static.pixmap_sizes}
 
+        # --- cache ---
+        if uti_filetype in Dynamic.uti_data:
+            return uti_filetype, Dynamic.uti_data[uti_filetype]
+
         # --- symlink ---
         if uti_filetype == "public.symlink":
             cache_key = f"__symlink__:{filepath}"
@@ -297,10 +301,6 @@ class Utils:
                 small_pixmap = cls.qiconed_resize(pixmap, i)
                 Dynamic.uti_data[uti_filetype][i] = small_pixmap
 
-            return uti_filetype, Dynamic.uti_data[uti_filetype]
-
-        # --- cache ---
-        if uti_filetype in Dynamic.uti_data:
             return uti_filetype, Dynamic.uti_data[uti_filetype]
 
         uti_png_icon_path = os.path.join(Static.external_uti_dir, f"{uti_filetype}.png")
