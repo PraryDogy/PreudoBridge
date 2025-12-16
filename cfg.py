@@ -1,9 +1,6 @@
-import glob
 import json
 import os
 import shutil
-
-from PyQt5.QtGui import QImage
 
 
 class Static:
