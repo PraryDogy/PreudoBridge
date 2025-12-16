@@ -538,7 +538,7 @@ class FinderItemsLoader(URunnable):
             base_item = BaseItem(entry.path)
             base_item.set_properties()
             files.append(base_item)
-            base_item.uti_data = Utils.uti_generator(entry.path)
+            _, base_item.uti_data = Utils.uti_generator(entry.path)
             
         return files
 

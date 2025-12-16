@@ -190,16 +190,10 @@ class Thumb(BaseItem, QFrame):
         cls.corner = Static.corner_sizes[ind]
 
     def set_uti_image(self):
-        # if self.uti_type in Thumb.uti_type_data:
-        #     uti_pixmap = Thumb.uti_type_data[self.uti_type][Thumb.current_pixmap_size]
-        # else:
-        #     Thumb.uti_type_data[self.uti_type] = {}
-        #     uti_pixmap = QPixmap(self.uti_data)
-        #     for i in Static.pixmap_sizes:
-        #         temp = Utils.qiconed_resize(uti_pixmap, i)
-        #         Thumb.uti_type_data[self.uti_type][i] = temp
-        #     uti_pixmap = Thumb.uti_type_data[self.uti_type][Thumb.current_pixmap_size]
-        self.img_wid.setPixmap(self.uti_data[Thumb.current_pixmap_size])
+        try:
+            self.img_wid.setPixmap(self.uti_data[Thumb.current_pixmap_size])
+        except Exception:
+            ...
 
     def set_image(self, img: QImage | QIcon):
         self.big_pixmap = QPixmap.fromImage(img)
@@ -700,7 +694,7 @@ class Grid(UScrollArea):
         thumb.set_widget_size()
         thumb.set_no_frame()
 
-        thumb.uti_data = Utils.uti_generator(thumb.src)
+        _, thumb.uti_data = Utils.uti_generator(thumb.src)
         thumb.set_uti_image()
 
         self.add_widget_data(thumb, self.row, self.col)

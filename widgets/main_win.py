@@ -4,11 +4,11 @@ import subprocess
 
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import (QCloseEvent, QKeyEvent, QMouseEvent, QPalette,
-                         QResizeEvent)
+                         QPixmap, QResizeEvent)
 from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
 
-from cfg import JsonData, Static
+from cfg import Dynamic, JsonData, Static
 from system.items import BaseItem, CopyItem, MainWinItem, SearchItem, SortItem
 from system.paletes import UPallete
 from system.shared_utils import SharedUtils
