@@ -67,6 +67,7 @@ class BaseItem:
         self.big_pixmap: QPixmap = None
         self.qimage: QImage = None
         self.uti_image: QImage = None
+        self.uti_type: str = None
 
         self.partial_hash: str = None
         self.thumb_path: str = None
@@ -97,6 +98,9 @@ class BaseItem:
             self.mod = int(stat.st_mtime)
             self.birth = int(stat.st_birthtime)
             self.size = int(stat.st_size)
+
+            self.uti_type = Utils.get_uti_type(self.src)
+
         except Exception as e:
             print("items, BaseItem set properties error", e)
             self.mod = 0

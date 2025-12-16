@@ -59,7 +59,8 @@ class PathItem(QWidget):
         if type_ in self.type_pixmap:
             pixmap = self.type_pixmap[type_]
         else:
-            pixmap = QPixmap.fromImage(Utils.uti_generator(self.item_dir))
+            _, qimage = Utils.uti_generator(self.item_dir)
+            pixmap = QPixmap.fromImage(qimage)
             pixmap = Utils.qiconed_resize(pixmap, PathItem.item_height)
             self.type_pixmap[type_] = pixmap
 

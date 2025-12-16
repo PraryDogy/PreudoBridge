@@ -263,7 +263,10 @@ class Utils:
                 setattr(to_cls, name, lambda *a, **kw: None)
 
     @classmethod
-    def uti_generator(cls, filepath: str, size: int = 512) -> QImage:
+    def uti_generator(cls, filepath: str, size: int = 512) -> tuple[str, QImage]:
+        """
+        Возвращает uti type и qimage
+        """
         uti_filetype, _ = Utils._ws.typeOfFile_error_(filepath, None)
 
         if not uti_filetype:
@@ -289,11 +292,11 @@ class Utils:
             )
 
             Dynamic.uti_filetype_qimage[cache_key] = qimage
-            return qimage
+            return (uti_filetype, qimage)
 
         # --- cache ---
         if uti_filetype in Dynamic.uti_filetype_qimage:
-            return Dynamic.uti_filetype_qimage[uti_filetype]
+            return (uti_filetype, Dynamic.uti_filetype_qimage[uti_filetype])
 
         uti_png_icon_path = os.path.join(Static.uti_icons, f"{uti_filetype}.png")
 
@@ -314,10 +317,10 @@ class Utils:
 
         qimage = QImage(uti_png_icon_path)
         if qimage.isNull():
-            return QImage()
+            return (uti_filetype, QImage())
 
         Dynamic.uti_filetype_qimage[uti_filetype] = qimage
-        return qimage
+        return (uti_filetype, qimage)
 
     
     @classmethod

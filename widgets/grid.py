@@ -688,7 +688,7 @@ class Grid(UScrollArea):
         thumb.set_widget_size()
         thumb.set_no_frame()
 
-        thumb.uti_image = Utils.uti_generator(thumb.src)
+        thumb.uti_type, thumb.uti_image = Utils.uti_generator(thumb.src)
         thumb.set_uti_icon()
 
         self.add_widget_data(thumb, self.row, self.col)
