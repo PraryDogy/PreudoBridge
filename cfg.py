@@ -193,8 +193,8 @@ class JsonData:
 
     @classmethod
     def init(cls):
-        os.makedirs(Static.app_support, exist_ok=True)
-        os.makedirs(Static.uti_icons, exist_ok=True)
+        for i in (Static.app_support, Static.uti_icons):
+            os.makedirs(i, exist_ok=True)
         cls.read_json_data()
         cls.write_json_data()
         cls.remove_files()
