@@ -288,20 +288,20 @@ class Utils:
             cache_key = f"s:{filepath}"
 
             if cache_key in Dynamic.uti_data:
-                return uti_filetype, Dynamic.uti_data[cache_key]
+                return cache_key, Dynamic.uti_data[cache_key]
 
             icon = Utils._ws.iconForFile_(filepath)
             tiff = icon.TIFFRepresentation()
             rep = NSBitmapImageRep.imageRepWithData_(tiff)
             png = rep.representationUsingType_properties_(NSPNGFileType, None)
 
-            Dynamic.uti_data[uti_filetype] = {}
+            Dynamic.uti_data[cache_key] = {}
             pixmap = QPixmap(QImage.fromData(bytes(png)))
             for i in Static.pixmap_sizes:
                 small_pixmap = cls.qiconed_resize(pixmap, i)
-                Dynamic.uti_data[uti_filetype][i] = small_pixmap
+                Dynamic.uti_data[cache_key][i] = small_pixmap
 
-            return uti_filetype, Dynamic.uti_data[uti_filetype]
+            return cache_key, Dynamic.uti_data[cache_key]
 
         uti_png_icon_path = os.path.join(Static.external_uti_dir, f"{uti_filetype}.png")
 
