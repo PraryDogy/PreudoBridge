@@ -303,17 +303,6 @@ class Utils:
         return qimage
     
     @classmethod
-    def load_uti(cls):
-        Dynamic.uti_filetype_qimage = {}  # очистка кэша перед загрузкой
-
-        for entry in os.scandir(Static.uti_icons):
-            if entry.is_file() and entry.name.endswith(".png"):
-                # Получаем UTI из имени файла (убираем .png)
-                uti_filetype = entry.name.rsplit(".png", 1)[0]
-                qimage = QImage(entry.path)
-                Dynamic.uti_filetype_qimage[uti_filetype] = qimage
-
-    @classmethod
     def get_uti_type(cls, filepath: str):
         uti_filetype, _ = Utils._ws.typeOfFile_error_(filepath, None)
         return uti_filetype

@@ -42,7 +42,7 @@ class FavItem(QLabel):
     def rename_finished_cmd(self, text: str):
         self.setText(text)
         self.renamed.emit(text)
-        JsonData.write_config()
+        JsonData.write_json_data()
 
     def view_fav(self):
         self.new_history_item.emit(self.src)
@@ -66,7 +66,7 @@ class FavItem(QLabel):
                     JsonData.favs = dict(fav_items)
 
                     self.src = fixed_path
-                    JsonData.write_config()
+                    JsonData.write_json_data()
                     # подаем сигнал в родительский виджет для обновления ui
                     self.path_fixed.emit()
 
@@ -171,7 +171,7 @@ class FavsMenu(QListWidget):
     def on_finished_rename(self, src: str, name: str):
         JsonData.favs[src] = name
         self.add_fav_item(name, src)
-        JsonData.write_config()
+        JsonData.write_json_data()
 
     def add_fav_item(self, name: str, src: str) -> dict:
         fav_item = FavItem(name, src, self.main_win_item)
@@ -199,7 +199,7 @@ class FavsMenu(QListWidget):
 
     def del_fav(self, src: str):
         JsonData.favs.pop(src)
-        JsonData.write_config()
+        JsonData.write_json_data()
         self.init_ui()
 
     def dragEnterEvent(self, e):

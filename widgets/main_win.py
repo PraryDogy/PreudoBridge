@@ -210,8 +210,6 @@ class MainWin(WinBase):
         self.clear_data = AutoCacheCleaner()
         UThreadPool.start(self.clear_data)
 
-        Utils.load_uti()
-
     def setup_signals(self):
         signal_map = {
             # splitter
@@ -597,7 +595,7 @@ class MainWin(WinBase):
             self.scroll_up.show()
 
     def on_exit(self):
-        JsonData.write_config()
+        JsonData.write_json_data()
         os._exit(0)
     
     def resizeEvent(self, a0: QResizeEvent | None) -> None:

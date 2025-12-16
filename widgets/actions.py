@@ -121,7 +121,7 @@ class OpenInApp(UMenu):
         self.addAction(default)
         self.addSeparator()
 
-        for app_path in Static.image_apps:
+        for app_path in Dynamic.image_apps:
             wid = QAction(os.path.basename(app_path), self)
             cmd_ = lambda e, app_path=app_path: self.open_in_app_cmd(app_path)
             wid.triggered.connect(cmd_)

@@ -549,5 +549,5 @@ class SettingsWin(MinMaxDisabledWin):
             self.deleteLater()
 
     def deleteLater(self):
-        JsonData.write_config()
+        JsonData.write_json_data()
         super().deleteLater()

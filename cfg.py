@@ -3,6 +3,8 @@ import json
 import os
 import shutil
 
+from PyQt5.QtGui import QImage
+
 
 class Static:
     app_name = "PreudoBridge"
@@ -111,8 +113,6 @@ class Static:
         5: {"bytes": 10000 * 1024 * 1024, "text": "10 ГБ"},
     }
 
-    image_apps = []
-
     max_thumb_size = 210
     thumb_heights = [130, 150, 185, 270]
     thumb_widths = [145, 145, 180, 230]
@@ -121,28 +121,6 @@ class Static:
     corner_sizes = [4, 8, 14, 16]
     SPACING = 2
     OFFSET = 15
-
-    @classmethod
-    def get_image_apps(cls):
-        patterns = [
-            "/Applications/Adobe Photoshop*/*.app",
-            "/Applications/Adobe Photoshop*.app",
-            "/Applications/Capture One*/*.app",
-            "/Applications/Capture One*.app",
-            "/Applications/ImageOptim.app",
-            "/System/Applications/Preview.app",
-            "/System/Applications/Photos.app",
-        ]
-
-        apps = []
-        for pat in patterns:
-            for path in glob.glob(pat):
-                if path not in apps:
-                    apps.append(path)
-
-        apps.sort(key=os.path.basename)
-        return apps
-
 
 
 class JsonData:
@@ -174,13 +152,13 @@ class JsonData:
                             setattr(cls, k, v)
                 except json.JSONDecodeError:
                     print("Ошибка чтения json")
-                    cls.write_config()
+                    cls.write_json_data()
         else:
             print("файла cfg.json не существует")
-            cls.write_config()
+            cls.write_json_data()
 
     @classmethod
-    def write_config(cls):
+    def write_json_data(cls):
         new_data: dict = {
             attr: getattr(cls, attr)
             for attr in cls.get_data()
@@ -196,11 +174,7 @@ class JsonData:
             return False
 
     @classmethod
-    def setup_icons(cls):
-        os.makedirs(Static.uti_icons, exist_ok=True)
-
-    @classmethod
-    def do_before_start(cls):
+    def remove_files(cls):
         files = (
             "cfg.json",
             "db.db",
@@ -222,15 +196,53 @@ class JsonData:
 
     @classmethod
     def init(cls):
-        Static.image_apps = Static.get_image_apps()
         os.makedirs(Static.app_support, exist_ok=True)
+        os.makedirs(Static.uti_icons, exist_ok=True)
         cls.read_json_data()
-        cls.write_config()
-        cls.do_before_start()
-        cls.setup_icons()
+        cls.write_json_data()
+        cls.remove_files()
+
 
 class Dynamic:
     rating_filter: int = 0
     word_filters: list[str] = []
     pixmap_size_ind = 2
     uti_filetype_qimage: dict = {}
+    image_apps = []
+
+    @classmethod
+    def load_image_apps(cls):
+        patterns = [
+            "/Applications/Adobe Photoshop*/*.app",
+            "/Applications/Adobe Photoshop*.app",
+            "/Applications/Capture One*/*.app",
+            "/Applications/Capture One*.app",
+            "/Applications/ImageOptim.app",
+            "/System/Applications/Preview.app",
+            "/System/Applications/Photos.app",
+        ]
+
+        apps = []
+        for pat in patterns:
+            for path in glob.glob(pat):
+                if path not in apps:
+                    apps.append(path)
+
+        apps.sort(key=os.path.basename)
+        cls.image_apps = apps
+
+    @classmethod
+    def load_uti(cls):
+        Dynamic.uti_filetype_qimage = {}  # очистка кэша перед загрузкой
+
+        for entry in os.scandir(Static.uti_icons):
+            if entry.is_file() and entry.name.endswith(".png"):
+                # Получаем UTI из имени файла (убираем .png)
+                uti_filetype = entry.name.rsplit(".png", 1)[0]
+                qimage = QImage(entry.path)
+                Dynamic.uti_filetype_qimage[uti_filetype] = qimage
+
+    @classmethod
+    def init(cls):
+        cls.load_image_apps()
+        cls.load_uti()
