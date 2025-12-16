@@ -266,41 +266,59 @@ class Utils:
     def uti_generator(cls, filepath: str, size: int = 512) -> QImage:
         uti_filetype, _ = Utils._ws.typeOfFile_error_(filepath, None)
 
+        if not uti_filetype:
+            return QImage()
+
+        # --- symlink ---
         if uti_filetype == "public.symlink":
             cache_key = f"__symlink__:{filepath}"
 
             if cache_key in Dynamic.uti_filetype_qimage:
                 return Dynamic.uti_filetype_qimage[cache_key]
 
-            icon = Utils._ws.iconForFile_(filepath)  # важно
+            icon = Utils._ws.iconForFile_(filepath)
             tiff = icon.TIFFRepresentation()
             rep = NSBitmapImageRep.imageRepWithData_(tiff)
             png = rep.representationUsingType_properties_(NSPNGFileType, None)
 
             qimage = QImage.fromData(bytes(png))
+            qimage = qimage.scaled(
+                size, size,
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation
+            )
+
             Dynamic.uti_filetype_qimage[cache_key] = qimage
             return qimage
 
-        # Проверка кэша в памяти
+        # --- cache ---
         if uti_filetype in Dynamic.uti_filetype_qimage:
             return Dynamic.uti_filetype_qimage[uti_filetype]
 
         uti_png_icon_path = os.path.join(Static.uti_icons, f"{uti_filetype}.png")
 
+        # --- generate png if needed ---
         if not os.path.exists(uti_png_icon_path):
-            # Генерация иконки
             icon = Utils._ws.iconForFileType_(uti_filetype)
             tiff = icon.TIFFRepresentation()
             rep = NSBitmapImageRep.imageRepWithData_(tiff)
             png_data = rep.representationUsingType_properties_(NSPNGFileType, None)
 
             qimage = QImage.fromData(bytes(png_data))
-            qimage = qimage.scaled(512, 512, Qt.AspectRatioMode.KeepAspectRatio)
+            qimage = qimage.scaled(
+                size, size,
+                Qt.AspectRatioMode.KeepAspectRatio,
+                Qt.TransformationMode.SmoothTransformation
+            )
             qimage.save(uti_png_icon_path, "PNG")
 
         qimage = QImage(uti_png_icon_path)
+        if qimage.isNull():
+            return QImage()
+
         Dynamic.uti_filetype_qimage[uti_filetype] = qimage
         return qimage
+
     
     @classmethod
     def get_uti_type(cls, filepath: str):
