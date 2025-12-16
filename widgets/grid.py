@@ -305,6 +305,7 @@ class Grid(UScrollArea):
     info_win = pyqtSignal(list)
     img_view_win = pyqtSignal(dict)
     paste_files = pyqtSignal()
+    load_finished = pyqtSignal()
 
     def __init__(self, main_win_item: MainWinItem, is_grid_search: bool):
         super().__init__()

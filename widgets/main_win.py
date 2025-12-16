@@ -568,9 +568,9 @@ class MainWin(WinBase):
             self.disable_wids(True)
 
         self.setup_grid_signals()
+        self.grid.load_finished.connect(self.grid.setFocus)
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
         self.grid_spacer.resize(0, 0)
-        QTimer.singleShot(100, lambda: self.grid.setFocus())
 
     def change_view_cmd(self):
         if self.main_win_item.get_view_mode() == 0:

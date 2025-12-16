@@ -95,6 +95,7 @@ class TableView(QTableView):
     info_win = pyqtSignal(list)
     img_view_win = pyqtSignal(dict)
     paste_files = pyqtSignal()
+    load_finished = pyqtSignal()
 
     not_exists_text = "Такой папки не существует. \nВозможно не подключен сетевой диск."
     empty_text = "Нет файлов"

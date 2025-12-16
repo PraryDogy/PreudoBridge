@@ -42,6 +42,7 @@ class GridStandart(Grid):
         if not os.path.exists(self.main_win_item.main_dir):
             self.create_no_items_label(NoItemsLabel.no_conn)
             self.mouseMoveEvent = lambda args: None
+            self.load_finished.emit()
             return
 
         finder_items_task = FinderItemsLoader(self.main_win_item, self.sort_item)
@@ -66,6 +67,7 @@ class GridStandart(Grid):
 
         if not base_items:
             self.create_no_items_label(NoItemsLabel.no_files)
+            self.load_finished.emit()
             return
 
         # испускаем сигнал в MainWin для обновления нижнего бара
@@ -74,6 +76,7 @@ class GridStandart(Grid):
 
         self.hide()
         # создаем сетку на основе элементов из FinderItems
+        self.load_finished.emit()
         self.create_thumbs(base_items)
 
     def create_thumbs(self, base_items: list[BaseItem]):
