@@ -1,7 +1,8 @@
 import os
 
 from PyQt5.QtCore import QSize, Qt, pyqtSignal
-from PyQt5.QtGui import QContextMenuEvent, QDropEvent, QIcon, QMouseEvent
+from PyQt5.QtGui import (QContextMenuEvent, QDropEvent, QIcon, QMouseEvent,
+                         QPixmap)
 from PyQt5.QtWidgets import QAction, QLabel, QListWidget, QListWidgetItem
 
 from cfg import JsonData, Static
@@ -23,14 +24,14 @@ class FavItem(QLabel):
     load_st_grid = pyqtSignal()
     open_in_new_win = pyqtSignal(str)
     rename_text = "Переименовать"
-    height_ = 25
+    item_height = 25
 
     def __init__(self, name: str, src: str, main_win_item: MainWinItem):
         super().__init__(text=name)
         self.main_win_item = main_win_item
         self.name = name
         self.src = src
-        self.setFixedHeight(FavItem.height_)
+        self.setFixedHeight(FavItem.item_height)
         self.setContentsMargins(10, 0, 10, 0)
 
     def rename_cmd(self):
@@ -125,12 +126,12 @@ class FavsMenu(QListWidget):
     new_history_item = pyqtSignal(str)
     load_st_grid = pyqtSignal()
     open_in_new_win = pyqtSignal(str)
-    svg_folder = os.path.join(Static.icons_rel_dir, "folder.svg")
     svg_size = 16
 
     def __init__(self, main_win_item: MainWinItem):
         super().__init__()
         self.main_win_item = main_win_item
+        self.folder_icon = self.create_folder_icon()
         self.horizontalScrollBar().setDisabled(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
@@ -138,7 +139,13 @@ class FavsMenu(QListWidget):
         self.setDragDropMode(QListWidget.DragDropMode.InternalMove)
         self.setAcceptDrops(True)
         self.init_ui()
-        self.setIconSize(QSize(self.svg_size, self.svg_size))
+        # self.setIconSize(QSize(self.svg_size, self.svg_size))
+
+    def create_folder_icon(self):
+        dir = self.main_win_item.main_dir
+        qimage = Utils.uti_generator(dir)
+        qimage = qimage.scaled(self.svg_size, self.svg_size, Qt.AspectRatioMode.KeepAspectRatio)
+        return QIcon(QPixmap(qimage))
 
     def init_ui(self):
         self.clear()
@@ -183,7 +190,7 @@ class FavsMenu(QListWidget):
         fav_item.path_fixed.connect(lambda: self.init_ui())
 
         list_item = QListWidgetItem(parent=self)
-        list_item.setIcon(QIcon(self.svg_folder))
+        list_item.setIcon(self.folder_icon)
         list_item.setSizeHint(fav_item.sizeHint())
 
         self.addItem(list_item)
