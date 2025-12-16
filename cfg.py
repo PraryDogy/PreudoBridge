@@ -210,4 +210,5 @@ class Dynamic:
     word_filters: list[str] = []
     pixmap_size_ind = 2
     uti_filetype_qimage: dict = {}
-    image_apps = []
+    image_apps: list[str] = []
+    uti_data: dict = {}

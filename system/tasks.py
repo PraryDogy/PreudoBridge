@@ -13,7 +13,7 @@ from AppKit import NSWorkspace
 from PIL import Image
 from PyQt5.QtCore import (QObject, QRunnable, QThread, QThreadPool, QTimer,
                           pyqtSignal)
-from PyQt5.QtGui import QImage
+from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtTest import QTest
 from sqlalchemy.exc import IntegrityError, OperationalError
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
@@ -538,7 +538,7 @@ class FinderItemsLoader(URunnable):
             base_item = BaseItem(entry.path)
             base_item.set_properties()
             files.append(base_item)
-            base_item.uti_type, base_item.uti_image = Utils.uti_generator(entry.path)
+            base_item.uti_data = Utils.uti_generator(entry.path)
             
         return files
 
@@ -1650,10 +1650,11 @@ class OnStartLoader(URunnable):
         Dynamic.image_apps = apps
 
     def load_uti(self):
-        Dynamic.uti_filetype_qimage = {}  # очистка кэша перед загрузкой
-
         for entry in os.scandir(Static.uti_icons):
             if entry.is_file() and entry.name.endswith(".png"):
                 uti_filetype = entry.name.rsplit(".png", 1)[0]
-                qimage = QImage(entry.path)
-                Dynamic.uti_filetype_qimage[uti_filetype] = qimage
+                pixmap = QPixmap(QImage(entry.path))
+                Dynamic.uti_data[uti_filetype] = {}
+                for i in Static.pixmap_sizes:
+                    small_pixmap = Utils.qiconed_resize(pixmap, i)
+                    Dynamic.uti_data[uti_filetype][i] = small_pixmap

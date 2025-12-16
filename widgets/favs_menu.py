@@ -142,9 +142,10 @@ class FavsMenu(QListWidget):
 
     def create_folder_icon(self):
         dir = self.main_win_item.main_dir
-        _, qimage = Utils.uti_generator(dir)
-        qimage = qimage.scaled(self.svg_size, self.svg_size, Qt.AspectRatioMode.KeepAspectRatio)
-        return QIcon(QPixmap(qimage))
+        _, uti_data = Utils.uti_generator(dir)
+        pixmap = uti_data[Static.pixmap_sizes[0]]
+        pixmap = Utils.qiconed_resize(pixmap, self.svg_size)
+        return QIcon(pixmap)
 
     def init_ui(self):
         self.clear()

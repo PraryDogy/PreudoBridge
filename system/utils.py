@@ -262,41 +262,107 @@ class Utils:
             if not hasattr(to_cls, name):
                 setattr(to_cls, name, lambda *a, **kw: None)
 
+    # @classmethod
+    # def uti_generator(cls, filepath: str, size: int = 512) -> tuple[str, QImage]:
+    #     """
+    #     Возвращает uti type и qimage
+    #     """
+    #     uti_filetype, _ = Utils._ws.typeOfFile_error_(filepath, None)
+
+    #     if not uti_filetype:
+    #         return QImage()
+
+    #     # --- symlink ---
+    #     if uti_filetype == "public.symlink":
+    #         cache_key = f"__symlink__:{filepath}"
+
+    #         if cache_key in Dynamic.uti_filetype_qimage:
+    #             return Dynamic.uti_filetype_qimage[cache_key]
+
+    #         icon = Utils._ws.iconForFile_(filepath)
+    #         tiff = icon.TIFFRepresentation()
+    #         rep = NSBitmapImageRep.imageRepWithData_(tiff)
+    #         png = rep.representationUsingType_properties_(NSPNGFileType, None)
+
+    #         qimage = QImage.fromData(bytes(png))
+    #         qimage = qimage.scaled(
+    #             size, size,
+    #             Qt.AspectRatioMode.KeepAspectRatio,
+    #             Qt.TransformationMode.SmoothTransformation
+    #         )
+
+    #         Dynamic.uti_filetype_qimage[cache_key] = qimage
+    #         return (uti_filetype, qimage)
+
+    #     # --- cache ---
+    #     if uti_filetype in Dynamic.uti_filetype_qimage:
+    #         return (uti_filetype, Dynamic.uti_filetype_qimage[uti_filetype])
+
+    #     uti_png_icon_path = os.path.join(Static.uti_icons, f"{uti_filetype}.png")
+
+    #     # --- generate png if needed ---
+    #     if not os.path.exists(uti_png_icon_path):
+    #         icon = Utils._ws.iconForFileType_(uti_filetype)
+    #         tiff = icon.TIFFRepresentation()
+    #         rep = NSBitmapImageRep.imageRepWithData_(tiff)
+    #         png_data = rep.representationUsingType_properties_(NSPNGFileType, None)
+
+    #         qimage = QImage.fromData(bytes(png_data))
+    #         qimage = qimage.scaled(
+    #             size, size,
+    #             Qt.AspectRatioMode.KeepAspectRatio,
+    #             Qt.TransformationMode.SmoothTransformation
+    #         )
+    #         qimage.save(uti_png_icon_path, "PNG")
+
+    #     qimage = QImage(uti_png_icon_path)
+    #     if qimage.isNull():
+    #         return (uti_filetype, QImage())
+
+    #     Dynamic.uti_filetype_qimage[uti_filetype] = qimage
+    #     return (uti_filetype, qimage)
+
+    
     @classmethod
-    def uti_generator(cls, filepath: str, size: int = 512) -> tuple[str, QImage]:
+    def get_uti_type(cls, filepath: str):
+        uti_filetype, _ = Utils._ws.typeOfFile_error_(filepath, None)
+        return uti_filetype
+    
+    @classmethod
+    def uti_generator(cls, filepath: str, size: int = 512):
         """
-        Возвращает uti type и qimage
+        Возвращает uti filetype, {pixmap_size: QPixmap, pixmap_size: QPixmap, }
+        pixmap_size ссылается на Static.pixmap_sizes, то есть будет возвращен
+        словарик с QPixmap, соответвующий всем размерам из Static.pixmap_sizes
         """
         uti_filetype, _ = Utils._ws.typeOfFile_error_(filepath, None)
 
         if not uti_filetype:
-            return QImage()
+            return "none", {i: QPixmap() for i in Static.pixmap_sizes}
 
         # --- symlink ---
         if uti_filetype == "public.symlink":
             cache_key = f"__symlink__:{filepath}"
 
-            if cache_key in Dynamic.uti_filetype_qimage:
-                return Dynamic.uti_filetype_qimage[cache_key]
+            if cache_key in Dynamic.uti_data:
+                return uti_filetype, Dynamic.uti_data[cache_key]
 
             icon = Utils._ws.iconForFile_(filepath)
             tiff = icon.TIFFRepresentation()
             rep = NSBitmapImageRep.imageRepWithData_(tiff)
             png = rep.representationUsingType_properties_(NSPNGFileType, None)
 
-            qimage = QImage.fromData(bytes(png))
-            qimage = qimage.scaled(
-                size, size,
-                Qt.AspectRatioMode.KeepAspectRatio,
-                Qt.TransformationMode.SmoothTransformation
-            )
+            Dynamic.uti_data[uti_filetype] = {}
+            pixmap = QPixmap(QImage.fromData(bytes(png)))
+            for i in Static.pixmap_sizes:
+                small_pixmap = cls.qiconed_resize(pixmap, i)
+                Dynamic.uti_data[uti_filetype][i] = small_pixmap
 
-            Dynamic.uti_filetype_qimage[cache_key] = qimage
-            return (uti_filetype, qimage)
+            return uti_filetype, Dynamic.uti_data[uti_filetype]
 
         # --- cache ---
-        if uti_filetype in Dynamic.uti_filetype_qimage:
-            return (uti_filetype, Dynamic.uti_filetype_qimage[uti_filetype])
+        if uti_filetype in Dynamic.uti_data:
+            return uti_filetype, Dynamic.uti_data[uti_filetype]
 
         uti_png_icon_path = os.path.join(Static.uti_icons, f"{uti_filetype}.png")
 
@@ -315,15 +381,12 @@ class Utils:
             )
             qimage.save(uti_png_icon_path, "PNG")
 
-        qimage = QImage(uti_png_icon_path)
-        if qimage.isNull():
-            return (uti_filetype, QImage())
+        pixmap = QPixmap(uti_png_icon_path)
+        if pixmap.isNull():
+            return uti_filetype, {i: QPixmap() for i in Static.pixmap_sizes}
+        Dynamic.uti_data[uti_filetype] = {}
+        for i in Static.pixmap_sizes:
+            small_pixmap = cls.qiconed_resize(pixmap, i)
+            Dynamic.uti_data[uti_filetype][i] = small_pixmap
 
-        Dynamic.uti_filetype_qimage[uti_filetype] = qimage
-        return (uti_filetype, qimage)
-
-    
-    @classmethod
-    def get_uti_type(cls, filepath: str):
-        uti_filetype, _ = Utils._ws.typeOfFile_error_(filepath, None)
-        return uti_filetype
+        return uti_filetype, Dynamic.uti_data[uti_filetype]
