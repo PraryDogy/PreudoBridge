@@ -64,7 +64,7 @@ class BaseItem:
         self.mod: float = None
         self.birth: int = None
         self.size: int = None
-        self.base_pixmap: QPixmap = None
+        self.big_pixmap: QPixmap = None
         self.qimage: QImage = None
         self.uti_image: QImage = None
 

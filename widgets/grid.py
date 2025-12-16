@@ -124,12 +124,14 @@ class Thumb(BaseItem, QFrame):
     # Сигнал нужен, чтобы менялся заголовок в просмотрщике изображений
     # При изменении рейтинга или меток
     text_changed = pyqtSignal()
+    img_obj_name: str = "img_frame"
+    text_obj_name: str = "text_frame_"
+
     current_pixmap_size: int = 0
+    current_img_frame_size: int = 0
     thumb_w: int = 0
     thumb_h: int = 0
     corner: int = 0
-    img_obj_name: str = "img_frame"
-    text_obj_name: str = "text_frame_"
 
     def __init__(self, src: str, rating: int = 0):
         """
@@ -179,7 +181,7 @@ class Thumb(BaseItem, QFrame):
     def calc_size(cls):
         ind = Dynamic.pixmap_size_ind
         cls.current_pixmap_size = Static.pixmap_sizes[ind]
-        cls.img_frame_size = Thumb.current_pixmap_size + 15
+        cls.current_img_frame_size = Thumb.current_pixmap_size + 15
         cls.thumb_w = Static.thumb_widths[ind]
         cls.thumb_h = Static.thumb_heights[ind]
         cls.corner = Static.corner_sizes[ind]
@@ -188,9 +190,9 @@ class Thumb(BaseItem, QFrame):
         self.set_image(self.uti_image)
 
     def set_image(self, img: QImage | QIcon):
-        self.base_pixmap = QPixmap.fromImage(img)
-        local_pixmap = Utils.qiconed_resize(self.base_pixmap, Thumb.current_pixmap_size)
-        self.img_wid.setPixmap(local_pixmap)
+        self.big_pixmap = QPixmap.fromImage(img)
+        small_pixmap = Utils.qiconed_resize(self.big_pixmap, Thumb.current_pixmap_size)
+        self.img_wid.setPixmap(small_pixmap)
 
     def migrate_from_base_item(self, base_item: BaseItem):
         """
@@ -210,10 +212,10 @@ class Thumb(BaseItem, QFrame):
 
         self.setFixedSize(Thumb.thumb_w, Thumb.thumb_h)
         self.img_wid.setFixedSize(Thumb.current_pixmap_size, Thumb.current_pixmap_size)
-        self.img_frame.setFixedSize(Thumb.img_frame_size, Thumb.img_frame_size)
+        self.img_frame.setFixedSize(Thumb.current_img_frame_size, Thumb.current_img_frame_size)
 
-        if self.base_pixmap:
-            local_pixmap = Utils.qiconed_resize(self.base_pixmap, Thumb.current_pixmap_size)
+        if self.big_pixmap:
+            local_pixmap = Utils.qiconed_resize(self.big_pixmap, Thumb.current_pixmap_size)
             # local_pixmap = Utils.pixmap_scale(self.base_pixmap, Thumb.pixmap_size)
             try:
                 self.img_wid.setAlignment(Qt.AlignmentFlag.AlignCenter)

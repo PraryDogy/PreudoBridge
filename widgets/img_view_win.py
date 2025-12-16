@@ -288,7 +288,7 @@ class ImgViewWin(WinBase):
     def load_thumbnail(self):
         self.set_title()
         self.text_label.hide()
-        pixmap = self.current_thumb.base_pixmap
+        pixmap = self.current_thumb.big_pixmap
         if pixmap:
             self.restart_img_wid(pixmap)
         else:
