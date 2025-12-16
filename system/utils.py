@@ -151,7 +151,7 @@ class Utils:
     @classmethod
     def get_abs_thumb_path(cls, partial_hash: str) -> str:
         base = os.path.join(
-            Static.thumbnails_dir,
+            Static.external_thumbs_dir,
             partial_hash[:2],
             partial_hash[2:] + ".jpg"
         )
@@ -205,7 +205,7 @@ class Utils:
         """
         total = 0
         count = 0
-        stack = [Static.thumbnails_dir]
+        stack = [Static.external_thumbs_dir]
         while stack:
             current = stack.pop()
             for i in os.scandir(current):
@@ -303,7 +303,7 @@ class Utils:
         if uti_filetype in Dynamic.uti_data:
             return uti_filetype, Dynamic.uti_data[uti_filetype]
 
-        uti_png_icon_path = os.path.join(Static.uti_icons, f"{uti_filetype}.png")
+        uti_png_icon_path = os.path.join(Static.external_uti_dir, f"{uti_filetype}.png")
 
         # --- generate png if needed ---
         if not os.path.exists(uti_png_icon_path):

@@ -130,7 +130,7 @@ class ULineEdit(QLineEdit):
         self.setFixedHeight(30)
 
         self.clear_btn = QSvgWidget(parent=self)
-        self.clear_btn.load(os.path.join(Static.icons_rel_dir, "clear.svg"))
+        self.clear_btn.load(os.path.join(Static.internal_icons_dir, "clear.svg"))
         self.clear_btn.setFixedSize(14, 14)
         self.clear_btn.mouseReleaseEvent = lambda e: self.clear()
         self.clear_btn.enterEvent = (

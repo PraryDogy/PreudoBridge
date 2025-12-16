@@ -12,7 +12,7 @@ class CacheDownloadWin(ProgressbarWin):
     title = "Кэширование папки"
     preparing_text = "Ищу изображения"
     caching_text = "Кэширование"
-    svg_path = os.path.join(Static.icons_rel_dir, "warning.svg")
+    svg_path = os.path.join(Static.internal_icons_dir, "warning.svg")
 
     def __init__(self, dirs: list[str]):
         super().__init__(self.title, self.svg_path)

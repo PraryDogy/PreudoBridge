@@ -7,14 +7,14 @@ class Static:
     app_name = "PreudoBridge"
     app_ver = 4.1
 
-    app_support = os.path.join(os.path.expanduser('~/Library/Application Support'), app_name)
-    uti_icons = os.path.join(app_support, "uti_icons")
-    thumbnails_dir = os.path.join(app_support, 'thumbnails')
-    cfg_file = os.path.join(app_support, 'cfg.json')
-    db_file = os.path.join(app_support, 'db.db')
+    app_dir = os.path.join(os.path.expanduser('~/Library/Application Support'), app_name)
+    external_uti_dir = os.path.join(app_dir, "uti_icons")
+    external_thumbs_dir = os.path.join(app_dir, 'thumbnails')
+    external_json = os.path.join(app_dir, 'cfg.json')
+    external_db = os.path.join(app_dir, 'db.db')
 
-    scripts_rel_dir = "./scripts"
-    icons_rel_dir = "./icons"
+    internal_scpt_dir = "./scripts"
+    internal_icons_dir = "./icons"
 
     folder_type = "folder"
     rgba_gray = "rgba(128, 128, 128, 0.95)"
@@ -139,8 +139,8 @@ class JsonData:
 
     @classmethod
     def read_json_data(cls) -> dict:
-        if os.path.exists(Static.cfg_file):
-            with open(Static.cfg_file, 'r', encoding="utf-8") as f:
+        if os.path.exists(Static.external_json):
+            with open(Static.external_json, 'r', encoding="utf-8") as f:
                 try:
                     json_data: dict = json.load(f)
                 
@@ -162,7 +162,7 @@ class JsonData:
         }
 
         try:
-            with open(Static.cfg_file, 'w', encoding="utf-8") as f:
+            with open(Static.external_json, 'w', encoding="utf-8") as f:
                 json.dump(new_data, f, indent=4, ensure_ascii=False)
             return True
         
@@ -181,7 +181,7 @@ class JsonData:
             "thumbnails"
         )
 
-        for i in os.scandir(Static.app_support):
+        for i in os.scandir(Static.app_dir):
             if i.name not in files:
                 try:
                     if i.is_file():
@@ -192,27 +192,37 @@ class JsonData:
                     print("cfg, do before start, error remove dir", e)
 
     @classmethod
+    def load_uti_icons(cls):
+        uti_folder = "./uti_icons"
+        uti_json = os.path.join(uti_folder, "uti_icons.json")
+        uti_zip = os.path.join(uti_folder, "uti_icons.zip")
+
+        with open(uti_json) as file:
+            internal_uti_icons = json.load(file)
+        external_uti_icons = [i for i in os.listdir(Static.external_uti_dir)]
+        for i in internal_uti_icons:
+            if i not in external_uti_icons:
+                external_zip = shutil.copy2(uti_zip, Static.app_dir)
+                shutil.rmtree(Static.external_uti_dir)
+                with zipfile.ZipFile(external_zip, "r") as zip_ref:
+                    zip_ref.extractall(Static.app_dir)
+                break
+
+    @classmethod
     def init(cls):
         dirs = (
-            Static.app_support,
-            Static.thumbnails_dir,
-            # Static.uti_icons
+            Static.app_dir,
+            Static.external_thumbs_dir,
+            Static.external_uti_dir
         )
         for i in dirs:
             os.makedirs(i, exist_ok=True)
 
-        if not os.path.exists(Static.uti_icons):
-            os.makedirs(Static.uti_icons, exist_ok=True)
-            src_zip = "./uti_icons.zip"
-            target_dir = Static.app_support
-            shutil.copy(src_zip, target_dir)
-            # copied_zip = os.path.join(target_dir, "uti_icons.zip")
-            # with zipfile.ZipFile(copied_zip, 'r') as zip_ref:
-                # zip_ref.extractall(target_dir)  # создаст папку uti_icons, если она была в архиве
-            
+        cls.load_uti_icons()
+        cls.remove_files()
+
         cls.read_json_data()
         cls.write_json_data()
-        cls.remove_files()
 
 
 class Dynamic:

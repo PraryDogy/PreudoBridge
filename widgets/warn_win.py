@@ -11,7 +11,7 @@ import os
 from cfg import Static
 
 class BaseWinWarn(MinMaxDisabledWin):
-    svg_warning = os.path.join(Static.icons_rel_dir, "warning.svg")
+    svg_warning = os.path.join(Static.internal_icons_dir, "warning.svg")
     svg_size = 40
 
     def __init__(self, title: str, text: str, char_limit: int):

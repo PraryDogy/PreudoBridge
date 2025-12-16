@@ -121,7 +121,7 @@ class ZoomBtns(QFrame):
         h_layout.setContentsMargins(5, 0, 5, 0)
 
         def add_btn(name, val):
-            btn = UserSvg(os.path.join(Static.icons_rel_dir, name), 45)
+            btn = UserSvg(os.path.join(Static.internal_icons_dir, name), 45)
             btn.value = val
             h_layout.addWidget(btn)
             return btn
@@ -198,12 +198,12 @@ class SwitchImgBtn(QFrame):
 
 class PrevImgBtn(SwitchImgBtn):
     def __init__(self, parent: QWidget = None) -> None:
-        super().__init__(os.path.join(Static.icons_rel_dir, "prev.svg"), parent)
+        super().__init__(os.path.join(Static.internal_icons_dir, "prev.svg"), parent)
 
 
 class NextImgBtn(SwitchImgBtn):
     def __init__(self, parent: QWidget = None) -> None:
-        super().__init__(os.path.join(Static.icons_rel_dir, "next.svg"), parent)
+        super().__init__(os.path.join(Static.internal_icons_dir, "next.svg"), parent)
 
 
 class ImgViewWin(WinBase):

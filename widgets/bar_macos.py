@@ -77,7 +77,7 @@ class AboutWin(MinMaxDisabledWin):
     """
     ww, hh = 280, 240
     svg_ww, svg_hh = 150, 130
-    svg_icon = os.path.join(Static.icons_rel_dir, "icon.svg")
+    svg_icon = os.path.join(Static.internal_icons_dir, "icon.svg")
 
     def __init__(self):
         super().__init__()

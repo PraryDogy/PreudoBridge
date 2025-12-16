@@ -665,7 +665,7 @@ class DbItemsLoader(URunnable):
         Dbase.commit(self.conn)
 
     def execute_app_files(self, app_files: list[BaseItem], size: int = 512):
-        app_folder = os.path.join(Static.thumbnails_dir, "app_icons")
+        app_folder = os.path.join(Static.external_thumbs_dir, "app_icons")
         os.makedirs(app_folder, exist_ok=True)
         for i in app_files:
             if not self.is_should_run():
@@ -824,7 +824,7 @@ class FileRemover(URunnable):
         subprocess.run(
             [
                 "osascript",
-                os.path.join(Static.scripts_rel_dir, "remove_files.scpt")
+                os.path.join(Static.internal_scpt_dir, "remove_files.scpt")
             ] + self.urls)
         self.sigs.finished_.emit()
 
@@ -1147,7 +1147,7 @@ class ArchiveMaker(URunnable):
             self.sigs.finished_.emit()
 
     def _task(self):
-        script = os.path.join(Static.scripts_rel_dir, "zip_files.scpt")
+        script = os.path.join(Static.internal_scpt_dir, "zip_files.scpt")
         root, ext = os.path.splitext(self.zip_path)
         # subprocess.run(["osascript", script, root] + self.files)
         
@@ -1651,7 +1651,7 @@ class OnStartLoader(URunnable):
         Dynamic.image_apps = apps
 
     def load_uti(self):
-        for entry in os.scandir(Static.uti_icons):
+        for entry in os.scandir(Static.external_uti_dir):
             if entry.is_file() and entry.name.endswith(".png"):
                 uti_filetype = entry.name.rsplit(".png", 1)[0]
                 pixmap = QPixmap(QImage(entry.path))

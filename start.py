@@ -23,7 +23,7 @@ class Tools:
         SUMMARY_MSG = "\n".join([ERROR, STARS, ABOUT])
 
         from cfg import Static
-        log_file = os.path.join(Static.app_support, "log.txt")
+        log_file = os.path.join(Static.app_dir, "log.txt")
         with open(log_file, "w", encoding="utf-8") as f:
             f.write(SUMMARY_MSG)
             f.flush()

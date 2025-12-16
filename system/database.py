@@ -44,7 +44,7 @@ class Dbase:
     @classmethod
     def init(cls):
         engine = sqlalchemy.create_engine(
-            f"sqlite:///{Static.db_file}",
+            f"sqlite:///{Static.external_db}",
             echo=False,
             connect_args={"check_same_thread": False, "timeout": 30}
         )
@@ -63,7 +63,7 @@ class Dbase:
                 METADATA.drop_all(engine)
                 METADATA.create_all(engine)
             else:
-                tb_file = os.path.join(Static.app_support, "traceback.txt")
+                tb_file = os.path.join(Static.app_dir, "traceback.txt")
                 with open(tb_file, "w", encoding="utf-8") as f:
                     f.write(
                         "ОТПРАВЬТЕ ЭТО РАЗРАБОТЧИКУ:\n"
