@@ -14,8 +14,8 @@ class Static:
     cfg_file = os.path.join(app_support, 'cfg.json')
     db_file = os.path.join(app_support, 'db.db')
 
-    scripts_dir = "./scripts"
-    in_app_icons_dir = "./icons"
+    scripts_rel_dir = "./scripts"
+    icons_rel_dir = "./icons"
 
     folder_type = "folder"
     rgba_gray = "rgba(128, 128, 128, 0.95)"
@@ -26,9 +26,9 @@ class Static:
     line_feed_symbol  = "\u000a" # символ PyQt5, который равен новой строке
     hidden_symbols = (".", "~$", "$")
 
-    app_exts = (".app", ".APP")
+    base_ww, base_hh = 1120, 760
 
-    ww, hh = 1120, 760
+    app_exts = (".app", ".APP")
 
     jpg_exts = (
         ".jpg", ".JPG",

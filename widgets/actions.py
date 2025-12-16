@@ -44,7 +44,7 @@ class RevealInFinder(QAction):
             lambda: subprocess.run(
                 [
                     "osascript",
-                    os.path.join(Static.scripts_dir, "reveal_files.scpt")
+                    os.path.join(Static.scripts_rel_dir, "reveal_files.scpt")
                 ] + self.urls)
         )
         UThreadPool.start(self.task_)

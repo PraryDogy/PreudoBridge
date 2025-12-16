@@ -818,7 +818,7 @@ class FileRemover(URunnable):
         subprocess.run(
             [
                 "osascript",
-                os.path.join(Static.scripts_dir, "remove_files.scpt")
+                os.path.join(Static.scripts_rel_dir, "remove_files.scpt")
             ] + self.urls)
         self.sigs.finished_.emit()
 
@@ -1141,7 +1141,7 @@ class ArchiveMaker(URunnable):
             self.sigs.finished_.emit()
 
     def _task(self):
-        script = os.path.join(Static.scripts_dir, "zip_files.scpt")
+        script = os.path.join(Static.scripts_rel_dir, "zip_files.scpt")
         root, ext = os.path.splitext(self.zip_path)
         # subprocess.run(["osascript", script, root] + self.files)
         

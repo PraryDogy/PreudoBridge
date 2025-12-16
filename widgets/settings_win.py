@@ -317,7 +317,7 @@ class About(QGroupBox):
         h_lay.setContentsMargins(0, 0, 0, 0)
         self.setLayout(h_lay)
 
-        svg_ = USvgSqareWidget(os.path.join(Static.in_app_icons_dir, "icon.svg"), About.svg_size)
+        svg_ = USvgSqareWidget(os.path.join(Static.icons_rel_dir, "icon.svg"), About.svg_size)
         h_lay.addWidget(svg_)
 
         descr = QLabel(About.text_)
@@ -460,9 +460,9 @@ class Themes(QGroupBox):
 
         self.frames = []
 
-        self.system_theme = SvgFrame(os.path.join(Static.in_app_icons_dir, "theme_sys.svg"), self.system_text)
-        self.dark_theme = SvgFrame(os.path.join(Static.in_app_icons_dir, "theme_dark.svg"), self.dark_text)
-        self.light_theme = SvgFrame(os.path.join(Static.in_app_icons_dir, "theme_light.svg"), self.light_text)
+        self.system_theme = SvgFrame(os.path.join(Static.icons_rel_dir, "theme_sys.svg"), self.system_text)
+        self.dark_theme = SvgFrame(os.path.join(Static.icons_rel_dir, "theme_dark.svg"), self.dark_text)
+        self.light_theme = SvgFrame(os.path.join(Static.icons_rel_dir, "theme_light.svg"), self.light_text)
 
         for f in (self.system_theme, self.dark_theme, self.light_theme):
             h_lay.addWidget(f)

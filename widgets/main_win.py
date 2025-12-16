@@ -107,7 +107,7 @@ class MainWin(WinBase):
         self.win_copy = None
 
         self.setMinimumSize(MainWin.min_width_, MainWin.min_height_)
-        self.resize(Static.ww, Static.hh)
+        self.resize(Static.base_ww, Static.base_hh)
         self.bar_macos = BarMacos()
         self.bar_macos.new_win.connect(lambda: self.open_in_new_win((None, None)))
         self.bar_macos.servers_win.connect(self.open_servers_win)
@@ -320,7 +320,7 @@ class MainWin(WinBase):
             signal.connect(slot)
 
         if ImgViewWin.ww == 0:
-            self.img_view_win.resize(Static.ww, Static.hh)
+            self.img_view_win.resize(Static.base_ww, Static.base_hh)
             self.img_view_win.center(self.window())
             
         else:
@@ -574,12 +574,12 @@ class MainWin(WinBase):
 
     def change_view_cmd(self):
         if self.main_win_item.get_view_mode() == 0:
-            self.top_bar.change_view_btn.load(os.path.join(Static.in_app_icons_dir, "grid.svg"))
+            self.top_bar.change_view_btn.load(os.path.join(Static.icons_rel_dir, "grid.svg"))
             self.top_bar.change_view_btn.lbl.setText(self.grid_text)
             self.main_win_item.set_view_mode(1)
 
         else:
-            self.top_bar.change_view_btn.load(os.path.join(Static.in_app_icons_dir, "list.svg"))
+            self.top_bar.change_view_btn.load(os.path.join(Static.icons_rel_dir, "list.svg"))
             self.top_bar.change_view_btn.lbl.setText(self.list_text)
             self.main_win_item.set_view_mode(0)
 
