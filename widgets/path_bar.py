@@ -17,7 +17,7 @@ class PathItem(QWidget):
     new_history_item = pyqtSignal(str)
     load_st_grid = pyqtSignal()
     arrow_right = " \U0000203A" # ›
-    height_ = 15
+    item_height = 15
     info_win = pyqtSignal(list)
     add_fav = pyqtSignal(str)
     del_fav = pyqtSignal(str)
@@ -37,7 +37,7 @@ class PathItem(QWidget):
         """
         super().__init__()
         self.main_win_item = main_win_item
-        self.setFixedHeight(PathItem.height_)
+        self.setFixedHeight(PathItem.item_height)
         self.item_dir = dir
 
         item_layout = QHBoxLayout()
@@ -60,7 +60,7 @@ class PathItem(QWidget):
             pixmap = self.type_pixmap[type_]
         else:
             pixmap = QPixmap.fromImage(Utils.uti_generator(self.item_dir))
-            pixmap = Utils.qiconed_resize(pixmap, 15)
+            pixmap = Utils.qiconed_resize(pixmap, PathItem.item_height)
             self.type_pixmap[type_] = pixmap
 
         self.img_wid.setPixmap(pixmap)
@@ -180,7 +180,7 @@ class PathBar(QWidget):
     add_fav = pyqtSignal(str)
     del_fav = pyqtSignal(str)
     last_item_limit = 40
-    height_ = 25
+    bar_height = 25
 
     def __init__(self, main_win_item: MainWinItem):
         """
@@ -190,7 +190,7 @@ class PathBar(QWidget):
         super().__init__()
         self.computer: QPixmap = self.create_computer_icon()
         self.main_win_item = main_win_item
-        self.setFixedHeight(PathBar.height_)
+        self.setFixedHeight(PathBar.bar_height)
         self.setAcceptDrops(True)
         self.current_path: str = None
 
@@ -202,7 +202,7 @@ class PathBar(QWidget):
 
     def create_computer_icon(self):
         pixmap = QPixmap(os.path.join(Static.icons_rel_dir, "computer.png"))
-        return Utils.qiconed_resize(pixmap, 15)
+        return Utils.qiconed_resize(pixmap, PathItem.item_height)
 
     def update(self, dir: str):
         """
