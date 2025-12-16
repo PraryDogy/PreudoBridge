@@ -1,14 +1,15 @@
 import difflib
 import gc
+import glob
 import os
 import shutil
 import subprocess
 import time
 import zipfile
-# from time import sleep
 
 import numpy as np
 import sqlalchemy
+from AppKit import NSWorkspace
 from PIL import Image
 from PyQt5.QtCore import (QObject, QRunnable, QThread, QThreadPool, QTimer,
                           pyqtSignal)
@@ -18,13 +19,17 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
 from watchdog.observers.polling import PollingObserver as Observer
 
-from cfg import JsonData, Static
+from cfg import Dynamic, JsonData, Static
 from system.shared_utils import PathFinder, ReadImage, SharedUtils
 
 from .database import CACHE, Clmns, Dbase
 from .items import BaseItem, CopyItem, MainWinItem, SearchItem, SortItem
 from .utils import Utils
-from AppKit import NSWorkspace
+
+# from time import sleep
+
+
+
 
 class URunnable(QRunnable):
     def __init__(self):
@@ -1613,3 +1618,43 @@ class DirWatcher(URunnable):
         finally:
             observer.stop()
             observer.join()
+
+
+class OnStartLoader(URunnable):
+
+    def __init__(self):
+        super().__init__()
+
+    def task(self):
+        self.load_image_apps()
+        self.load_uti()
+
+    def load_image_apps(self):
+        patterns = [
+            "/Applications/Adobe Photoshop*/*.app",
+            "/Applications/Adobe Photoshop*.app",
+            "/Applications/Capture One*/*.app",
+            "/Applications/Capture One*.app",
+            "/Applications/ImageOptim.app",
+            "/System/Applications/Preview.app",
+            "/System/Applications/Photos.app",
+        ]
+
+        apps = []
+        for pat in patterns:
+            for path in glob.glob(pat):
+                if path not in apps:
+                    apps.append(path)
+
+        apps.sort(key=os.path.basename)
+        Dynamic.image_apps = apps
+
+    def load_uti(self):
+        Dynamic.uti_filetype_qimage = {}  # очистка кэша перед загрузкой
+
+        for entry in os.scandir(Static.uti_icons):
+            if entry.is_file() and entry.name.endswith(".png"):
+                # Получаем UTI из имени файла (убираем .png)
+                uti_filetype = entry.name.rsplit(".png", 1)[0]
+                qimage = QImage(entry.path)
+                Dynamic.uti_filetype_qimage[uti_filetype] = qimage

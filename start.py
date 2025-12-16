@@ -72,7 +72,7 @@ else:
     sys.excepthook = Tools.proj_error_handler
 
 
-from cfg import Dynamic, JsonData
+from cfg import JsonData
 from system.database import Dbase
 from system.items import BaseItem
 from system.tasks import UThreadPool
@@ -104,7 +104,6 @@ class App(QApplication):
 QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
 QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
 JsonData.init()
-Dynamic.init()
 UThreadPool.init()
 Dbase.init()
 BaseItem.check_sortitem_attrs()

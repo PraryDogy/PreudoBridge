@@ -12,8 +12,8 @@ from cfg import JsonData, Static
 from system.items import BaseItem, CopyItem, MainWinItem, SearchItem, SortItem
 from system.paletes import UPallete
 from system.shared_utils import SharedUtils
-from system.tasks import (AutoCacheCleaner, PathFinderTask, RatingTask,
-                          UThreadPool)
+from system.tasks import (AutoCacheCleaner, OnStartLoader, PathFinderTask,
+                          RatingTask, UThreadPool)
 from system.utils import Utils
 
 from ._base_widgets import USep, WinBase
@@ -207,8 +207,10 @@ class MainWin(WinBase):
             self.tabs_widget.setCurrentIndex(0)
 
     def on_start(self):
-        self.clear_data = AutoCacheCleaner()
-        UThreadPool.start(self.clear_data)
+        self.cache_cleaner = AutoCacheCleaner()
+        self.on_start_loader = OnStartLoader()
+        UThreadPool.start(self.cache_cleaner)
+        UThreadPool.start(self.on_start_loader)
 
     def setup_signals(self):
         signal_map = {
