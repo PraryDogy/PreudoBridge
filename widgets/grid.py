@@ -191,8 +191,9 @@ class Thumb(BaseItem, QFrame):
 
     def set_uti_image(self):
         try:
-            self.img_wid.setPixmap(self.uti_data[Thumb.current_pixmap_size])
-        except Exception:
+            pixmap = Dynamic.uti_data[self.uti_type][Thumb.current_pixmap_size]
+            self.img_wid.setPixmap(pixmap)
+        except Exception as e:
             ...
 
     def set_image(self, img: QImage | QIcon):
@@ -694,7 +695,7 @@ class Grid(UScrollArea):
         thumb.set_widget_size()
         thumb.set_no_frame()
 
-        _, thumb.uti_data = Utils.uti_generator(thumb.src)
+        thumb.uti_type = Utils.get_uti_type(thumb.src)
         thumb.set_uti_image()
 
         self.add_widget_data(thumb, self.row, self.col)
