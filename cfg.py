@@ -5,7 +5,7 @@ import shutil
 
 class Static:
     app_name = "PreudoBridge"
-    app_ver = 4.05
+    app_ver = 4.1
 
     app_support = os.path.join(os.path.expanduser('~/Library/Application Support'), app_name)
     uti_icons = os.path.join(app_support, "uti_icons")
