@@ -139,7 +139,6 @@ class FavsMenu(QListWidget):
         self.setDragDropMode(QListWidget.DragDropMode.InternalMove)
         self.setAcceptDrops(True)
         self.init_ui()
-        # self.setIconSize(QSize(self.svg_size, self.svg_size))
 
     def create_folder_icon(self):
         dir = self.main_win_item.main_dir
