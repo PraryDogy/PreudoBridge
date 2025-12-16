@@ -285,7 +285,7 @@ class Utils:
 
         # --- symlink ---
         if uti_filetype == "public.symlink":
-            cache_key = f"__symlink__:{filepath}"
+            cache_key = f"s:{filepath}"
 
             if cache_key in Dynamic.uti_data:
                 return uti_filetype, Dynamic.uti_data[cache_key]
