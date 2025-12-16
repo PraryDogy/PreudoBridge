@@ -115,7 +115,7 @@ class GridSearch(Grid):
                 thumb.set_image(base_item.qimage)
             else:
                 thumb.uti_type, thumb.uti_image = Utils.uti_generator(thumb.src)
-                thumb.set_uti_icon()
+                thumb.set_uti_image()
             self.add_widget_data(thumb, self.row, self.col)
             self.grid_layout.addWidget(thumb, self.row, self.col)
             self.total += 1

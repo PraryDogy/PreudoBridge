@@ -98,7 +98,7 @@ class GridStandart(Grid):
             thumb.migrate_from_base_item(base_item)
             thumb.set_widget_size()
             thumb.set_no_frame()
-            thumb.set_uti_icon()
+            thumb.set_uti_image()
 
             # Добавление в layout и внутренние структуры
             self.add_widget_data(thumb, self.row, self.col)

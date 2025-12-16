@@ -126,7 +126,9 @@ class Thumb(BaseItem, QFrame):
     text_changed = pyqtSignal()
     img_obj_name: str = "img_frame"
     text_obj_name: str = "text_frame_"
-    
+    uti_type_data = {
+        "uti_type": {"128": QImage},
+    }
 
     current_pixmap_size: int = 0
     current_img_frame_size: int = 0
@@ -187,8 +189,17 @@ class Thumb(BaseItem, QFrame):
         cls.thumb_h = Static.thumb_heights[ind]
         cls.corner = Static.corner_sizes[ind]
 
-    def set_uti_icon(self):
-        self.set_image(self.uti_image)
+    def set_uti_image(self):
+        if self.uti_type in Thumb.uti_type_data:
+            uti_pixmap = Thumb.uti_type_data[self.uti_type][Thumb.current_pixmap_size]
+        else:
+            Thumb.uti_type_data[self.uti_type] = {}
+            uti_pixmap = QPixmap(self.uti_image)
+            for i in Static.pixmap_sizes:
+                temp = Utils.qiconed_resize(uti_pixmap, i)
+                Thumb.uti_type_data[self.uti_type][i] = temp
+            uti_pixmap = Thumb.uti_type_data[self.uti_type][Thumb.current_pixmap_size]
+        self.img_wid.setPixmap(uti_pixmap)
 
     def set_image(self, img: QImage | QIcon):
         self.big_pixmap = QPixmap.fromImage(img)
@@ -217,12 +228,12 @@ class Thumb(BaseItem, QFrame):
 
         if self.big_pixmap:
             local_pixmap = Utils.qiconed_resize(self.big_pixmap, Thumb.current_pixmap_size)
-            # local_pixmap = Utils.pixmap_scale(self.base_pixmap, Thumb.pixmap_size)
             try:
-                self.img_wid.setAlignment(Qt.AlignmentFlag.AlignCenter)
                 self.img_wid.setPixmap(local_pixmap)
             except AttributeError:
                 print("OK, grid > thumb > set widget size > set alignment attribute error")
+        else:
+            self.set_uti_image()
 
     def set_frame(self):
         self.setStyleSheet(
@@ -689,7 +700,7 @@ class Grid(UScrollArea):
         thumb.set_no_frame()
 
         thumb.uti_type, thumb.uti_image = Utils.uti_generator(thumb.src)
-        thumb.set_uti_icon()
+        thumb.set_uti_image()
 
         self.add_widget_data(thumb, self.row, self.col)
         self.grid_layout.addWidget(thumb, self.row, self.col)
