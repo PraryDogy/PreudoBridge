@@ -21,7 +21,6 @@ class PathItem(QWidget):
     info_win = pyqtSignal(list)
     add_fav = pyqtSignal(str)
     del_fav = pyqtSignal(str)
-
     type_pixmap: dict = {}
 
     def __init__(self, dir: str, name: str, main_win_item: MainWinItem):
