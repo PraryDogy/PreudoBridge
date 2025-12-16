@@ -295,8 +295,8 @@ class Utils:
             png_data = rep.representationUsingType_properties_(NSPNGFileType, None)
 
             qimage = QImage.fromData(bytes(png_data))
-            resized_pixmap = cls.qiconed_resize(QPixmap(qimage), Static.pixmap_sizes[-1])
-            resized_pixmap.save(uti_png_icon_path, "PNG")
+            qimage = qimage.scaled(512, 512, Qt.AspectRatioMode.KeepAspectRatio)
+            qimage.save(uti_png_icon_path, "PNG")
 
         qimage = QImage(uti_png_icon_path)
         Dynamic.uti_filetype_qimage[uti_filetype] = qimage
