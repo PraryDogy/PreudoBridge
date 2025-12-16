@@ -1,7 +1,7 @@
 import json
 import os
 import shutil
-
+import zipfile
 
 class Static:
     app_name = "PreudoBridge"
@@ -196,10 +196,20 @@ class JsonData:
         dirs = (
             Static.app_support,
             Static.thumbnails_dir,
-            Static.uti_icons
+            # Static.uti_icons
         )
         for i in dirs:
             os.makedirs(i, exist_ok=True)
+
+        if not os.path.exists(Static.uti_icons):
+            os.makedirs(Static.uti_icons, exist_ok=True)
+            src_zip = "./uti_icons.zip"
+            target_dir = Static.app_support
+            shutil.copy(src_zip, target_dir)
+            # copied_zip = os.path.join(target_dir, "uti_icons.zip")
+            # with zipfile.ZipFile(copied_zip, 'r') as zip_ref:
+                # zip_ref.extractall(target_dir)  # создаст папку uti_icons, если она была в архиве
+            
         cls.read_json_data()
         cls.write_json_data()
         cls.remove_files()
