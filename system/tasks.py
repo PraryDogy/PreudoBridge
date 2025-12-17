@@ -1,6 +1,5 @@
 import difflib
 import gc
-import glob
 import os
 import shutil
 import subprocess
@@ -9,11 +8,10 @@ import zipfile
 
 import numpy as np
 import sqlalchemy
-from AppKit import NSWorkspace
 from PIL import Image
 from PyQt5.QtCore import (QObject, QRunnable, QThread, QThreadPool, QTimer,
                           pyqtSignal)
-from PyQt5.QtGui import QImage, QPixmap
+from PyQt5.QtGui import QImage
 from PyQt5.QtTest import QTest
 from sqlalchemy.exc import IntegrityError, OperationalError
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
@@ -25,10 +23,6 @@ from system.shared_utils import PathFinder, ReadImage, SharedUtils
 from .database import CACHE, Clmns, Dbase
 from .items import BaseItem, CopyItem, MainWinItem, SearchItem, SortItem
 from .utils import Utils
-
-# from time import sleep
-
-
 
 
 class URunnable(QRunnable):
@@ -1620,42 +1614,3 @@ class DirWatcher(URunnable):
             observer.stop()
             observer.join()
 
-
-class OnStartLoader(URunnable):
-
-    def __init__(self):
-        super().__init__()
-
-    def task(self):
-        self.load_image_apps()
-        self.load_uti()
-
-    def load_image_apps(self):
-        patterns = [
-            "/Applications/Adobe Photoshop*/*.app",
-            "/Applications/Adobe Photoshop*.app",
-            "/Applications/Capture One*/*.app",
-            "/Applications/Capture One*.app",
-            "/Applications/ImageOptim.app",
-            "/System/Applications/Preview.app",
-            "/System/Applications/Photos.app",
-        ]
-
-        apps = []
-        for pat in patterns:
-            for path in glob.glob(pat):
-                if path not in apps:
-                    apps.append(path)
-
-        apps.sort(key=os.path.basename)
-        Dynamic.image_apps = apps
-
-    def load_uti(self):
-        for entry in os.scandir(Static.external_uti_dir):
-            if entry.is_file() and entry.name.endswith(".png"):
-                uti_filetype = entry.name.rsplit(".png", 1)[0]
-                pixmap = QPixmap(QImage(entry.path))
-                Dynamic.uti_data[uti_filetype] = {}
-                for i in Static.pixmap_sizes:
-                    small_pixmap = Utils.qiconed_resize(pixmap, i)
-                    Dynamic.uti_data[uti_filetype][i] = small_pixmap

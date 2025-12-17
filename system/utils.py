@@ -1,3 +1,4 @@
+import glob
 import hashlib
 import inspect
 import os
@@ -10,12 +11,12 @@ import cv2
 import numpy as np
 from AppKit import NSBitmapImageRep, NSPNGFileType, NSWorkspace
 from PIL import Image
-from PyQt5.QtCore import QRect, QRectF, QSize, Qt, QByteArray
+from PyQt5.QtCore import QByteArray, QRect, QRectF, QSize, Qt
 from PyQt5.QtGui import QColor, QFont, QIcon, QImage, QPainter, QPixmap
 from PyQt5.QtSvg import QSvgGenerator, QSvgRenderer
 from PyQt5.QtWidgets import QApplication
 
-from cfg import Static, Dynamic
+from cfg import Dynamic, Static
 
 
 class Utils:
@@ -274,10 +275,22 @@ class Utils:
         pixmap_size ссылается на Static.pixmap_sizes, то есть будет возвращен
         словарик с QPixmap, соответвующий всем размерам из Static.pixmap_sizes
         """
+
+        def get_png_icon(filepath: str):
+            icon = Utils._ws.iconForFile_(filepath)
+            tiff = icon.TIFFRepresentation()
+            rep = NSBitmapImageRep.imageRepWithData_(tiff)
+            png = rep.representationUsingType_properties_(NSPNGFileType, None)
+            return png
+
         uti_filetype, _ = Utils._ws.typeOfFile_error_(filepath, None)
 
         if not uti_filetype:
             return "none", {i: QPixmap() for i in Static.pixmap_sizes}
+
+        if Dynamic.uti_data:
+            print(Dynamic.uti_data)
+            os._exit(1)
 
         # --- cache ---
         if uti_filetype in Dynamic.uti_data:
@@ -290,29 +303,21 @@ class Utils:
             if cache_key in Dynamic.uti_data:
                 return cache_key, Dynamic.uti_data[cache_key]
 
-            icon = Utils._ws.iconForFile_(filepath)
-            tiff = icon.TIFFRepresentation()
-            rep = NSBitmapImageRep.imageRepWithData_(tiff)
-            png = rep.representationUsingType_properties_(NSPNGFileType, None)
-
+            png = get_png_icon(filepath)
             Dynamic.uti_data[cache_key] = {}
             pixmap = QPixmap(QImage.fromData(bytes(png)))
             for i in Static.pixmap_sizes:
                 small_pixmap = cls.qiconed_resize(pixmap, i)
                 Dynamic.uti_data[cache_key][i] = small_pixmap
-
             return cache_key, Dynamic.uti_data[cache_key]
 
         uti_png_icon_path = os.path.join(Static.external_uti_dir, f"{uti_filetype}.png")
 
         # --- generate png if needed ---
         if not os.path.exists(uti_png_icon_path):
-            icon = Utils._ws.iconForFileType_(uti_filetype)
-            tiff = icon.TIFFRepresentation()
-            rep = NSBitmapImageRep.imageRepWithData_(tiff)
-            png_data = rep.representationUsingType_properties_(NSPNGFileType, None)
+            png_icon = get_png_icon(filepath)
 
-            qimage = QImage.fromData(bytes(png_data))
+            qimage = QImage.fromData(bytes(png_icon))
             qimage = qimage.scaled(
                 size, size,
                 Qt.AspectRatioMode.KeepAspectRatio,
@@ -329,3 +334,35 @@ class Utils:
             Dynamic.uti_data[uti_filetype][i] = small_pixmap
 
         return uti_filetype, Dynamic.uti_data[uti_filetype]
+    
+    @classmethod
+    def cache_external_uti(cls):
+        for entry in os.scandir(Static.external_uti_dir):
+            if entry.is_file() and entry.name.endswith(".png"):
+                uti_filetype = entry.name.rsplit(".png", 1)[0]
+                pixmap = QPixmap(QImage(entry.path))
+                Dynamic.uti_data[uti_filetype] = {}
+                for i in Static.pixmap_sizes:
+                    small_pixmap = Utils.qiconed_resize(pixmap, i)
+                    Dynamic.uti_data[uti_filetype][i] = small_pixmap
+
+    @classmethod
+    def load_image_apps(cls):
+        patterns = [
+            "/Applications/Adobe Photoshop*/*.app",
+            "/Applications/Adobe Photoshop*.app",
+            "/Applications/Capture One*/*.app",
+            "/Applications/Capture One*.app",
+            "/Applications/ImageOptim.app",
+            "/System/Applications/Preview.app",
+            "/System/Applications/Photos.app",
+        ]
+
+        apps = []
+        for pat in patterns:
+            for path in glob.glob(pat):
+                if path not in apps:
+                    apps.append(path)
+
+        apps.sort(key=os.path.basename)
+        Dynamic.image_apps = apps

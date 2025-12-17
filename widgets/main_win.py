@@ -12,7 +12,7 @@ from cfg import Dynamic, JsonData, Static
 from system.items import BaseItem, CopyItem, MainWinItem, SearchItem, SortItem
 from system.paletes import UPallete
 from system.shared_utils import SharedUtils
-from system.tasks import (AutoCacheCleaner, OnStartLoader, PathFinderTask,
+from system.tasks import (AutoCacheCleaner, PathFinderTask,
                           RatingTask, UThreadPool)
 from system.utils import Utils
 
@@ -99,6 +99,7 @@ class MainWin(WinBase):
 
     def __init__(self, dir: str = None):
         super().__init__()
+
         self.main_win_list: list[MainWin] = []
         self.search_item: SearchItem = SearchItem()
         self.main_win_item: MainWinItem = MainWinItem()
@@ -208,9 +209,7 @@ class MainWin(WinBase):
 
     def on_start(self):
         self.cache_cleaner = AutoCacheCleaner()
-        self.on_start_loader = OnStartLoader()
         UThreadPool.start(self.cache_cleaner)
-        UThreadPool.start(self.on_start_loader)
 
     def setup_signals(self):
         signal_map = {

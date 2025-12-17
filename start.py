@@ -76,6 +76,7 @@ from cfg import JsonData
 from system.database import Dbase
 from system.items import BaseItem
 from system.tasks import UThreadPool
+from system.utils import Utils
 from widgets._base_widgets import WinBase
 from widgets.main_win import MainWin
 
@@ -83,6 +84,9 @@ from widgets.main_win import MainWin
 class App(QApplication):
     def __init__(self, argv: list[str]) -> None:
         super().__init__(argv)
+
+        Utils.cache_external_uti()
+        Utils.load_image_apps()
 
         self.main_win = MainWin()
         self.main_win.show()
