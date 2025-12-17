@@ -276,30 +276,30 @@ class Utils:
         словарик с QPixmap, соответвующий всем размерам из Static.pixmap_sizes
         """
 
-        def get_png_icon(filepath: str):
+        def get_bytes_icon(filepath: str):
             icon = Utils._ws.iconForFile_(filepath)
             tiff = icon.TIFFRepresentation()
             rep = NSBitmapImageRep.imageRepWithData_(tiff)
             png = rep.representationUsingType_properties_(NSPNGFileType, None)
-            return png
+            return bytes(png)
 
         uti_filetype, _ = Utils._ws.typeOfFile_error_(filepath, None)
 
         # --- symlink ---
         if uti_filetype == "public.symlink":
-
-            # тут мы считаем байты файла и это будет ключом для uti data
-            # чтобы не хранить путь к кажлому symlink
-
+            png = get_bytes_icon(filepath)
+            print("symlink", filepath)
+            # with open(png, "r") as file:
+            #     data = file.read()
+            #     print(data)
 
             cache_key = f"s:{filepath}"
 
-            if cache_key in Dynamic.uti_data:
-                return cache_key, Dynamic.uti_data[cache_key]
+            # if cache_key in Dynamic.uti_data:
+            #     return cache_key, Dynamic.uti_data[cache_key]
 
-            png = get_png_icon(filepath)
             Dynamic.uti_data[cache_key] = {}
-            pixmap = QPixmap(QImage.fromData(bytes(png)))
+            pixmap = QPixmap(QImage.fromData(png))
             for i in Static.pixmap_sizes:
                 small_pixmap = cls.qiconed_resize(pixmap, i)
                 Dynamic.uti_data[cache_key][i] = small_pixmap
@@ -309,16 +309,16 @@ class Utils:
             return "none", {i: QPixmap() for i in Static.pixmap_sizes}
 
         # --- cache ---
-        if uti_filetype in Dynamic.uti_data:
-            return uti_filetype, Dynamic.uti_data[uti_filetype]
+        # if uti_filetype in Dynamic.uti_data:
+        #     return uti_filetype, Dynamic.uti_data[uti_filetype]
 
         uti_png_icon_path = os.path.join(Static.external_uti_dir, f"{uti_filetype}.png")
 
         # --- generate png if needed ---
         if not os.path.exists(uti_png_icon_path):
-            png_icon = get_png_icon(filepath)
+            png_icon = get_bytes_icon(filepath)
 
-            qimage = QImage.fromData(bytes(png_icon))
+            qimage = QImage.fromData(png_icon)
             qimage = qimage.scaled(
                 size, size,
                 Qt.AspectRatioMode.KeepAspectRatio,
