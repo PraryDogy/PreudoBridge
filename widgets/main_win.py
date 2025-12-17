@@ -469,6 +469,10 @@ class MainWin(WinBase):
         Для cmd v, вставить, dropEvent
         """
         def paste_final(urls: list[str]):
+
+            del self.win_copy
+            gc.collect()
+
             if CopyItem.get_is_cut():
                 CopyItem.reset()
 
