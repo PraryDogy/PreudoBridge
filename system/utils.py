@@ -296,11 +296,12 @@ class Utils:
         uti_filetype, _ = Utils._ws.typeOfFile_error_(filepath, None)
 
         if uti_filetype == "public.symlink":
-            png = get_bytes_icon(filepath)
-            uti_filetype_cached = "symlink:" + hashlib.blake2b(png, digest_size=16).hexdigest()
+            bytes_icon = get_bytes_icon(filepath)
+            uti_filetype_cached = "symlink:" + hashlib.blake2b(bytes_icon, digest_size=16).hexdigest()
             if uti_filetype_cached in Dynamic.uti_data:
                 return uti_filetype_cached, Dynamic.uti_data[uti_filetype_cached]
-            pixmap = QPixmap(QImage.fromData(png))
+            pixmap = QPixmap()
+            pixmap.loadFromData(bytes_icon)
             set_uti_data(uti_filetype_cached, pixmap)
             return uti_filetype_cached, Dynamic.uti_data[uti_filetype_cached]
 
@@ -313,9 +314,9 @@ class Utils:
         uti_png_icon_path = os.path.join(Static.external_uti_dir, f"{uti_filetype}.png")
 
         if not os.path.exists(uti_png_icon_path):
-            png_icon = get_bytes_icon(filepath)
+            bytes_icon = get_bytes_icon(filepath)
 
-            qimage = QImage.fromData(png_icon)
+            qimage = QImage.fromData(bytes_icon)
             qimage = qimage.scaled(
                 size, size,
                 Qt.AspectRatioMode.KeepAspectRatio,
