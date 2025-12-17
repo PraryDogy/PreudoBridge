@@ -287,12 +287,9 @@ class Utils:
 
         if uti_filetype == "public.symlink":
             png = get_bytes_icon(filepath)
-
             cache_key = "symlink:" + hashlib.blake2b(png, digest_size=16).hexdigest()
-
             if cache_key in Dynamic.uti_data:
                 return cache_key, Dynamic.uti_data[cache_key]
-
             Dynamic.uti_data[cache_key] = {}
             pixmap = QPixmap(QImage.fromData(png))
             for i in Static.pixmap_sizes:
@@ -308,7 +305,6 @@ class Utils:
 
         uti_png_icon_path = os.path.join(Static.external_uti_dir, f"{uti_filetype}.png")
 
-        # --- generate png if needed ---
         if not os.path.exists(uti_png_icon_path):
             png_icon = get_bytes_icon(filepath)
 
