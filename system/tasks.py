@@ -240,7 +240,8 @@ class CopyFilesTask(URunnable):
                 fdst.write(buf)
                 self.copied_size += len(buf)
                 self.sigs.copied_size.emit(self.copied_size // 1024)
-
+                if not self.is_should_run():
+                    return
                 while self.pause_flag:
                     QThread.msleep(100)
 
