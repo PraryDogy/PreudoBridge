@@ -332,7 +332,7 @@ class Utils:
         return uti_filetype, Dynamic.uti_data[uti_filetype]
     
     @classmethod
-    def cache_external_uti(cls):
+    def load_uti_icons_to_ram(cls):
         for entry in os.scandir(Static.external_uti_dir):
             if entry.is_file() and entry.name.endswith(".png"):
                 uti_filetype = entry.name.rsplit(".png", 1)[0]

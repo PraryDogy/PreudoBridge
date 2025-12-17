@@ -85,7 +85,7 @@ class App(QApplication):
     def __init__(self, argv: list[str]) -> None:
         super().__init__(argv)
 
-        Utils.cache_external_uti()
+        Utils.load_uti_icons_to_ram()
         Utils.load_image_apps()
 
         self.main_win = MainWin()
