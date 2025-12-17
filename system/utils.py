@@ -282,23 +282,27 @@ class Utils:
             rep = NSBitmapImageRep.imageRepWithData_(tiff)
             png = rep.representationUsingType_properties_(NSPNGFileType, None)
             return bytes(png)
+        
+        def get_errored_icon():
+            uti_filetype_ = "public.data"
+            return uti_filetype_, Dynamic.uti_data[uti_filetype_]
 
         uti_filetype, _ = Utils._ws.typeOfFile_error_(filepath, None)
 
         if uti_filetype == "public.symlink":
             png = get_bytes_icon(filepath)
-            cache_key = "symlink:" + hashlib.blake2b(png, digest_size=16).hexdigest()
-            if cache_key in Dynamic.uti_data:
-                return cache_key, Dynamic.uti_data[cache_key]
-            Dynamic.uti_data[cache_key] = {}
+            uti_filetype_cached = "symlink:" + hashlib.blake2b(png, digest_size=16).hexdigest()
+            if uti_filetype_cached in Dynamic.uti_data:
+                return uti_filetype_cached, Dynamic.uti_data[uti_filetype_cached]
+            Dynamic.uti_data[uti_filetype_cached] = {}
             pixmap = QPixmap(QImage.fromData(png))
             for i in Static.pixmap_sizes:
                 small_pixmap = cls.qiconed_resize(pixmap, i)
-                Dynamic.uti_data[cache_key][i] = small_pixmap
-            return cache_key, Dynamic.uti_data[cache_key]
+                Dynamic.uti_data[uti_filetype_cached][i] = small_pixmap
+            return uti_filetype_cached, Dynamic.uti_data[uti_filetype_cached]
 
         if not uti_filetype:
-            return "none", {i: QPixmap() for i in Static.pixmap_sizes}
+            return get_errored_icon()
 
         if uti_filetype in Dynamic.uti_data:
             return uti_filetype, Dynamic.uti_data[uti_filetype]
@@ -318,7 +322,8 @@ class Utils:
 
         pixmap = QPixmap(uti_png_icon_path)
         if pixmap.isNull():
-            return uti_filetype, {i: QPixmap() for i in Static.pixmap_sizes}
+            return get_errored_icon()
+
         Dynamic.uti_data[uti_filetype] = {}
         for i in Static.pixmap_sizes:
             small_pixmap = cls.qiconed_resize(pixmap, i)
