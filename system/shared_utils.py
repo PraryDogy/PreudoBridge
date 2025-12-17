@@ -235,8 +235,9 @@ class ReadImage:
             im = Image.open(path).convert("RGBA")  # конвертируем в RGBA
             arr = np.array(im)  # превращаем в ndarray (H, W, 4)
             return arr
-        except Exception:
-            print(traceback.format_exc())
+        except Exception as e:
+            # print(traceback.format_exc())
+            print("read icns error", e)
             return None
 
     @classmethod
