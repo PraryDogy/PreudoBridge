@@ -1,7 +1,15 @@
+import subprocess
 import os
 
 
-src = '/Volumes/Macintosh HD/.file'
-b = os.access(src, 4)
+scpt = "./scripts/copy_files.scpt"
+dest = "/Volumes/shares-1/Studio/MIUZ/Photo/Art/Raw/2025/12 - Декабрь/test"
+files_dir = "/Volumes/Macintosh HD/Users/Loshkarev/Desktop/DIGEST/test"
+files = [i.path for i in os.scandir(files_dir)]
 
-print(b)
+subprocess.run([
+    "osascript",
+    scpt,
+    dest,
+    *files
+])
