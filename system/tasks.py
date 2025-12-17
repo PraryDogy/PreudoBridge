@@ -629,7 +629,7 @@ class DbItemsLoader(URunnable):
                     exist_ratings.append(base_item)
             else:
                 if not os.access(base_item.src, 4):
-                    print("access deined", base_item.src)
+                    print("tasks, db items loader, process thumbs, access deined", base_item.src)
                     continue
                 base_item.set_partial_hash()
                 rating = self.get_item_rating(base_item)
