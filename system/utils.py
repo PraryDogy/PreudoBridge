@@ -270,6 +270,9 @@ class Utils:
     
     @classmethod
     def uti_generator(cls, filepath: str, size: int = 512):
+
+        # print(len(list(Dynamic.uti_data)))
+
         """
         Возвращает uti filetype, {pixmap_size: QPixmap, pixmap_size: QPixmap, }
         pixmap_size ссылается на Static.pixmap_sizes, то есть будет возвращен
