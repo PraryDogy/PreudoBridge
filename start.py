@@ -85,8 +85,11 @@ class App(QApplication):
     def __init__(self, argv: list[str]) -> None:
         super().__init__(argv)
 
-        Utils.load_uti_icons_to_ram()
-        Utils.load_image_apps()
+        try:
+            Utils.load_uti_icons_to_ram()
+            Utils.load_image_apps()
+        except Exception as e:
+            print("start, init app load uti / load apps error", e)
 
         self.main_win = MainWin()
         self.main_win.show()
