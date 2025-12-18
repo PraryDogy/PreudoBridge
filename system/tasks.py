@@ -1597,7 +1597,13 @@ class DirWatcher(URunnable):
     def on_dirs_changed(self, e: FileSystemEvent):
         if e.src_path != self.path:
             self.sigs.changed.emit(e)
-            # print(e.event_type)
+
+    def wait_dir(self):
+        if not os.path.exists(self.path):
+            QThread.msleep(1000)
+            self.wait_dir()
+        else:
+            self._task()
 
     def task(self):
         try:
@@ -1614,6 +1620,11 @@ class DirWatcher(URunnable):
         try:
             while self.is_should_run():
                 QThread.msleep(1000)
+
+                if not os.path.exists(self.path):
+                    observer.stop()
+                    self.wait_dir()
+                    break
         finally:
             observer.stop()
             observer.join()
