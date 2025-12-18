@@ -1599,33 +1599,35 @@ class DirWatcher(URunnable):
             self.sigs.changed.emit(e)
 
     def wait_dir(self):
-        if not os.path.exists(self.path):
+        while self.is_should_run():
+            if os.path.exists(self.path):
+                return
             QThread.msleep(1000)
-            self.wait_dir()
-        else:
-            self._task()
-
-    def task(self):
-        try:
-            self._task()
-        except Exception as e:
-            print("tasks > DirWatcher error", e)
 
     def _task(self):
+        self.wait_dir()
+        if not self.is_should_run():
+            return
+
         observer = Observer()
-        handler = _DirChangedHandler(lambda e: self.sigs.changed.emit(e.src_path))
-        handler = _DirChangedHandler(lambda e: self.on_dirs_changed(e))
+        handler = _DirChangedHandler(self.on_dirs_changed)
         observer.schedule(handler, self.path, recursive=False)
         observer.start()
+
         try:
             while self.is_should_run():
                 QThread.msleep(1000)
-
                 if not os.path.exists(self.path):
                     observer.stop()
+                    observer.join()
                     self.wait_dir()
-                    break
+                    if not self.is_should_run():
+                        return
+                    observer = Observer()
+                    observer.schedule(handler, self.path, recursive=False)
+                    observer.start()
         finally:
             observer.stop()
             observer.join()
+
 
