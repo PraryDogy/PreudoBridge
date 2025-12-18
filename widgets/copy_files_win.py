@@ -160,13 +160,23 @@ class CopyFilesWin(ProgressbarWin):
 
         self.tsk = CopyFilesTask()
         self.tsk.sigs.total_size.connect(self.progressbar.setMaximum)
-        self.tsk.sigs.copied_size.connect(self.progressbar.setValue)
-        self.tsk.sigs.file_count.connect(self.set_value)
-        
         self.tsk.sigs.finished_.connect(lambda urls: self.on_finished(urls))
         self.tsk.sigs.error_win.connect(lambda: self.error_win.emit())
         self.tsk.sigs.replace_files_win.connect(lambda: self.open_replace_files_win())
-        QTimer.singleShot(1000, lambda: UThreadPool.start(self.tsk))
+
+        UThreadPool.start(self.tsk)
+
+        self.timer_ = QTimer(self)
+        self.timer_.timeout.connect(self.update_gui)
+        self.timer_.start(1000)
+
+    def update_gui(self):
+        self.progressbar.setValue(self.tsk.copied_size)
+        if CopyItem.get_is_cut():
+            copy = "Перемещаю файлы"
+        else:
+            copy = "Копирую файлы"
+        self.below_label.setText(f"{copy} {self.tsk.copied_count} из {self.tsk.total_count}")
 
     def open_replace_files_win(self):
         replace_win = ReplaceFilesWin()
@@ -180,21 +190,11 @@ class CopyFilesWin(ProgressbarWin):
             return text[:limit] + "..."
         return text
 
-    def set_value(self, data: tuple[int, int]):
-        current, total = data
-        if CopyItem.get_is_cut():
-            copy = "Перемещаю файлы"
-        else:
-            copy = "Копирую файлы"
-        self.below_label.setText(f"{copy} {current} из {total}")
-
     def cancel_cmd(self, *args):
         self.tsk.toggle_pause_flag(False)
         self.tsk.set_should_run(False)
         self.deleteLater()
 
     def on_finished(self, urls: list[str]):
-        del self.tsk
         self.finished_.emit(urls)
-        gc.collect()
         self.deleteLater()

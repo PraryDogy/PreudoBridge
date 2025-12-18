@@ -91,7 +91,6 @@ class CopyFilesTask(URunnable):
     class Sigs(QObject):
         finished_ = pyqtSignal(list)
         file_count = pyqtSignal(tuple)
-        copied_size = pyqtSignal(int)
         total_size = pyqtSignal(int)
         error_win = pyqtSignal()
         replace_files_win = pyqtSignal()
@@ -102,8 +101,11 @@ class CopyFilesTask(URunnable):
         self.pause_flag = False
         self.paths: list[str] = []
         self.src_dest_list: list[tuple[str, str]] = []
+
         self.copied_size = 0
         self.total_size = 0
+        self.copied_count = 0
+        self.total_count = 0
 
     def prepare_same_dir(self):
         """
@@ -188,6 +190,7 @@ class CopyFilesTask(URunnable):
 
         for src, dest in self.src_dest_list:
             self.total_size += os.path.getsize(src)
+        self.total_count = len(self.src_dest_list)
 
         self.sigs.total_size.emit(self.total_size // 1024)
 
@@ -195,7 +198,7 @@ class CopyFilesTask(URunnable):
             if not self.is_should_run():
                 break
             os.makedirs(os.path.dirname(dest), exist_ok=True)
-            self.sigs.file_count.emit((count, len(self.src_dest_list)))
+            self.copied_count = count
             try:
                 self.copy_file_with_progress(src, dest)
             except Exception as e:
@@ -238,8 +241,7 @@ class CopyFilesTask(URunnable):
                 if not buf:
                     break
                 fdst.write(buf)
-                self.copied_size += len(buf)
-                self.sigs.copied_size.emit(self.copied_size // 1024)
+                self.copied_size += len(buf) // 1024
                 if not self.is_should_run():
                     return
                 while self.pause_flag:
@@ -1603,6 +1605,12 @@ class DirWatcher(URunnable):
             if os.path.exists(self.path):
                 return
             QThread.msleep(1000)
+
+    def task(self):
+        try:
+            self._task()
+        except Exception as e:
+            print("tasks, DirWatcher error", e)
 
     def _task(self):
         self.wait_dir()
