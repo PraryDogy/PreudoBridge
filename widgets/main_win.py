@@ -556,8 +556,8 @@ class MainWin(WinBase):
             Utils.fill_missing_methods(TableView, Grid)
             self.grid.setParent(self)
             self.grid.sort_item = self.sort_item
-            self.grid.load_finder_items()
             self.disable_wids(False)
+            QTimer.singleShot(0, self.grid.load_finder_items)
 
         elif self.main_win_item.get_view_mode() == 1:
             self.grid = TableView(self.main_win_item)
