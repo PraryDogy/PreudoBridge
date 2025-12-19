@@ -501,8 +501,8 @@ class MainWin(WinBase):
     def load_st_grid(self):
         self.grid_spacer.resize(0, self.height())
         self.grid_spacer.setFocus()
-        self.grid.hide()
-        QTimer.singleShot(100, self._load_st_grid)
+        QTimer.singleShot(1, self.grid.hide)
+        QTimer.singleShot(2, self._load_st_grid)
     
     def _load_st_grid(self):
 
@@ -533,10 +533,6 @@ class MainWin(WinBase):
                         favs.insert(old_ind, new_data)
                         JsonData.favs = dict(favs)
                         self.favs_menu.init_ui()
-
-        # if self.win_copy is not None:
-        #     self.win_copy.tsk.toggle_pause_flag(True)
-        #     QTimer.singleShot(2500, lambda: self.win_copy.tsk.toggle_pause_flag(False))
 
         fix_path()
         self.favs_menu.select_fav(self.main_win_item.main_dir)
