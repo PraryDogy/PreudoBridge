@@ -20,6 +20,7 @@ from cfg import Dynamic, Static
 
 
 class Utils:
+    _ws = NSWorkspace.sharedWorkspace()
 
     @classmethod
     def write_to_clipboard(cls, text: str):
@@ -264,8 +265,7 @@ class Utils:
     
     @classmethod
     def get_uti_type(cls, filepath: str):
-        _ws = NSWorkspace.sharedWorkspace()
-        uti_filetype, _ = _ws.typeOfFile_error_(filepath, None)
+        uti_filetype, _ = Utils._ws.typeOfFile_error_(filepath, None)
         return uti_filetype
     
     @classmethod
@@ -280,7 +280,7 @@ class Utils:
         """
 
         def get_bytes_icon(filepath: str):
-            icon = _ws.iconForFile_(filepath)
+            icon = Utils._ws.iconForFile_(filepath)
             tiff = icon.TIFFRepresentation()
             rep = NSBitmapImageRep.imageRepWithData_(tiff)
             png = rep.representationUsingType_properties_(NSPNGFileType, None)
@@ -296,8 +296,7 @@ class Utils:
                 small_pixmap = cls.qiconed_resize(pixmap, i)
                 Dynamic.uti_data[uti_filetype][i] = small_pixmap
 
-        _ws = NSWorkspace.sharedWorkspace()
-        uti_filetype, _ = _ws.typeOfFile_error_(filepath, None)
+        uti_filetype, _ = Utils._ws.typeOfFile_error_(filepath, None)
 
         if uti_filetype == "public.symlink":
             bytes_icon = get_bytes_icon(filepath)
