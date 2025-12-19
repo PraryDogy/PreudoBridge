@@ -31,7 +31,7 @@ class ImgConvertWin(ProgressbarWin):
             self.timer_.timeout.connect(self.update_gui)
             self.timer_.start(500)
 
-    def update_gui(self, limit: int = 25):
+    def update_gui(self, limit: int = 35):
         if len(self.tsk_.current_filename) > limit:
             filename = self.tsk_.current_filename[:limit] + "..."
         else:
@@ -42,11 +42,10 @@ class ImgConvertWin(ProgressbarWin):
         self.progressbar.setValue(self.tsk_.current_count)
 
     def finished_cmd(self, urls: list[str]):
-        # self.timer_.stop()
-        # self.deleteLater()
-        ...
+        self.timer_.stop()
+        self.deleteLater()
 
     def cancel_cmd(self):
         self.tsk_.set_should_run(False)
-        # self.timer_.stop()
-        # self.deleteLater()
+        self.timer_.stop()
+        self.deleteLater()
