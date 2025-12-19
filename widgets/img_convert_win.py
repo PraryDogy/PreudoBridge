@@ -32,12 +32,7 @@ class ImgConvertWin(ProgressbarWin):
             self.timer_.start(500)
 
     def update_gui(self, limit: int = 30):
-        if len(self.tsk_.current_filename) > limit:
-            filename = self.tsk_.current_filename[:limit] + "..."
-        else:
-            filename = self.tsk_.current_filename
-        self.above_label.setText(filename)
-
+        self.above_label.setText(self.tsk_.current_filename)
         self.below_label.setText(f"{self.tsk_.current_count} из {self.tsk_.total_count}")
         self.progressbar.setValue(self.tsk_.current_count)
 
