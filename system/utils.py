@@ -299,6 +299,11 @@ class Utils:
         uti_filetype, _ = Utils._ws.typeOfFile_error_(filepath, None)
 
         if uti_filetype == "public.symlink":
+            bundle = NSBundle.bundleWithPath_(filepath).bundleIdentifier()
+
+            
+
+
             bytes_icon = get_bytes_icon(filepath)
             uti_filetype_cached = "symlink:" + hashlib.blake2b(bytes_icon, digest_size=16).hexdigest()
             if uti_filetype_cached in Dynamic.uti_data:
