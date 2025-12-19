@@ -7,6 +7,8 @@ class Static:
     app_name = "PreudoBridge"
     app_ver = 4.2
 
+    uti_icons_web = "https://disk.yandex.ru/d/RNqZ9xCFHiDONQ"
+
     app_dir = os.path.join(os.path.expanduser('~/Library/Application Support'), app_name)
     external_uti_dir = os.path.join(app_dir, "uti_icons")
     external_thumbs_dir = os.path.join(app_dir, 'thumbnails')
@@ -196,6 +198,10 @@ class JsonData:
         uti_folder = "./uti_icons"
         uti_json = os.path.join(uti_folder, "uti_icons.json")
         uti_zip = os.path.join(uti_folder, "uti_icons.zip")
+
+        print("Пожалуйста, скачайте актуальный zip архив с иконками")
+        print("и положите в папку \"uti_icons\"")
+        print(Static.uti_icons_web)
 
         with open(uti_json) as file:
             internal_uti_icons = json.load(file)
