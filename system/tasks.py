@@ -521,24 +521,26 @@ class FinderItemsLoader(URunnable):
             print(traceback.format_exc())
 
     def _task(self):
-        finder_items = BaseItem.sort_items(
-            self.get_finder_base_items(),
-            self.sort_item
-        )
-        self.sigs.finished_.emit(finder_items)
+        items: list[BaseItem] = []
 
-    def get_finder_base_items(self):
-        files: list[BaseItem] = []
+        for i, path in enumerate(self._get_paths()):
+            item = BaseItem(path)
+            item.set_properties()
+            item.uti_type, _ = Utils.uti_generator(path)
+            items.append(item)
+
+            if i % 20 == 0:
+                QThread.msleep(1)
+
+        items = BaseItem.sort_items(items, self.sort_item)
+        self.sigs.finished_.emit(items)
+
+
+    def _get_paths(self):
         for entry in os.scandir(self.main_win_item.main_dir):
             if entry.name.startswith(self.hidden_syms):
                 continue
-            base_item = BaseItem(entry.path)
-            base_item.set_properties()
-            files.append(base_item)
-            uti_type, _ = Utils.uti_generator(entry.path)
-            base_item.uti_type = uti_type
-            
-        return files
+            yield entry.path
 
 
 class FinderUrlsLoader(URunnable):
