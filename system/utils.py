@@ -9,7 +9,7 @@ from datetime import datetime
 
 import cv2
 import numpy as np
-from AppKit import NSBitmapImageRep, NSPNGFileType, NSWorkspace
+from AppKit import NSBitmapImageRep, NSBundle, NSPNGFileType, NSWorkspace
 from PIL import Image
 from PyQt5.QtCore import QByteArray, QRect, QRectF, QSize, Qt
 from PyQt5.QtGui import QColor, QFont, QIcon, QImage, QPainter, QPixmap
@@ -311,14 +311,15 @@ class Utils:
         
         if uti_filetype == "com.apple.application-bundle":
             bytes_icon = get_bytes_icon(filepath)
-            appname, _ = os.path.splitext(os.path.basename(filepath))
-            if appname in Dynamic.uti_data:
-                return appname, Dynamic.uti_data[appname]
+            bundle = NSBundle.bundleWithPath_(filepath).bundleIdentifier()
+
+            if bundle in Dynamic.uti_data:
+                return bundle, Dynamic.uti_data[bundle]
             pixmap = QPixmap()
             pixmap.loadFromData(bytes_icon)
-            set_uti_data(appname, pixmap)
+            set_uti_data(bundle, pixmap)
 
-            uti_png_icon_path = os.path.join(Static.external_uti_dir, f"{appname}.png")
+            uti_png_icon_path = os.path.join(Static.external_uti_dir, f"{bundle}.png")
             if not os.path.exists(uti_png_icon_path):
                 qimage = QImage.fromData(bytes_icon)
                 qimage = qimage.scaled(
@@ -328,7 +329,7 @@ class Utils:
                 )
                 qimage.save(uti_png_icon_path, "PNG")
 
-            return appname, Dynamic.uti_data[appname]
+            return bundle, Dynamic.uti_data[bundle]
 
         if not uti_filetype:
             return get_errored_icon()
