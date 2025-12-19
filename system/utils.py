@@ -309,11 +309,12 @@ class Utils:
             return uti_filetype_cached, Dynamic.uti_data[uti_filetype_cached]
         
         if uti_filetype == "com.apple.application-bundle":
-            bytes_icon = get_bytes_icon(filepath)
             bundle = NSBundle.bundleWithPath_(filepath).bundleIdentifier()
 
             if bundle in Dynamic.uti_data:
                 return bundle, Dynamic.uti_data[bundle]
+
+            bytes_icon = get_bytes_icon(filepath)
             pixmap = QPixmap()
             pixmap.loadFromData(bytes_icon)
             set_uti_data(bundle, pixmap)
