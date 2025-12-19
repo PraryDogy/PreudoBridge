@@ -1359,7 +1359,6 @@ class CacheDownloader(URunnable):
         stmt_limit = 10
 
         self.sigs.total_count.emit(len(new_images))
-        self.sigs.caching.emit()
         for x, data in enumerate(new_images, start=1):
             if not self.is_should_run():
                 if stmt_list:
@@ -1393,7 +1392,6 @@ class CacheDownloader(URunnable):
                 if i.is_dir():
                     stack.append(i.path)
                 elif i.name.endswith(Static.img_exts):
-                    self.sigs.filename.emit(self.cut_filename(i.name))
                     base_item = BaseItem(i.path)
                     base_item.set_properties()
                     base_item.set_partial_hash()
