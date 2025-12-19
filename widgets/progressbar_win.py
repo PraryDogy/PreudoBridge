@@ -67,7 +67,6 @@ class ProgressbarWin(MinMaxDisabledWin):
         # self.progressbar.setStyleSheet("background: red;")
 
         self.cancel_btn = CancelBtn()
-        self.cancel_btn.clicked.connect(self.deleteLater)
         progressbar_lay.addWidget(self.cancel_btn, alignment=Qt.AlignmentFlag.AlignCenter)
 
         self.below_label = QLabel()

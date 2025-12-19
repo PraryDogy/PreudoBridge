@@ -155,7 +155,7 @@ class CopyFilesWin(ProgressbarWin):
         src_dest_text = f"Из \"{src_txt}\" в \"{dest_txt}\""
         self.above_label.setText(src_dest_text)
         self.below_label.setText(self.preparing_text)
-        self.cancel_btn.mouseReleaseEvent = self.cancel_cmd
+        self.cancel_btn.clicked.connect(self.cancel_cmd)
         self.adjustSize()
 
         self.tsk = CopyFilesTask()
