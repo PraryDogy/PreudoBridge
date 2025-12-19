@@ -29,9 +29,9 @@ class ImgConvertWin(ProgressbarWin):
 
             self.timer_ = QTimer(self)
             self.timer_.timeout.connect(self.update_gui)
-            self.timer_.start(500)
+            self.timer_.start(1000)
 
-    def update_gui(self, limit: int = 30):
+    def update_gui(self):
         self.above_label.setText(self.tsk_.current_filename)
         self.below_label.setText(f"{self.tsk_.current_count} из {self.tsk_.total_count}")
         self.progressbar.setValue(self.tsk_.current_count)
