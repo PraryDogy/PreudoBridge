@@ -530,8 +530,8 @@ class FinderItemsLoader(URunnable):
             item.uti_type, _ = Utils.uti_generator(path)
             items.append(item)
 
-            if i % 20 == 0:
-                QThread.msleep(1)
+            # if i % 20 == 0:
+                # QThread.msleep(1)
 
         items = BaseItem.sort_items(items, self.sort_item)
         self.sigs.finished_.emit(items)
