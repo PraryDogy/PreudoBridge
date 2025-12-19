@@ -285,19 +285,34 @@ class Utils:
                 small_pixmap = cls.qiconed_resize(pixmap, i)
                 Dynamic.uti_data[uti_filetype][i] = small_pixmap
 
+        def get_symlink_bytes(filepath: str):
+            icon = Utils._ws.iconForFile_(filepath)
+            tiff_bytes = icon.TIFFRepresentation()[:-1].tobytes()
+            return hashlib.md5(tiff_bytes).hexdigest()
+
         uti_filetype, _ = Utils._ws.typeOfFile_error_(filepath, None)
 
         if uti_filetype == "public.symlink":
-            bundle = NSBundle.bundleWithPath_(filepath).bundleIdentifier()
-
+            symlink_bytes = get_symlink_bytes(filepath)
+            if symlink_bytes in Dynamic.uti_data:
+                return symlink_bytes, Dynamic.uti_data[symlink_bytes]
+            
             bytes_icon = get_bytes_icon(filepath)
-            uti_filetype_cached = "symlink:" + hashlib.blake2b(bytes_icon, digest_size=16).hexdigest()
-            if uti_filetype_cached in Dynamic.uti_data:
-                return uti_filetype_cached, Dynamic.uti_data[uti_filetype_cached]
             pixmap = QPixmap()
             pixmap.loadFromData(bytes_icon)
-            set_uti_data(uti_filetype_cached, pixmap)
-            return uti_filetype_cached, Dynamic.uti_data[uti_filetype_cached]
+            set_uti_data(symlink_bytes, pixmap)
+
+            uti_png_icon_path = os.path.join(Static.external_uti_dir, f"{symlink_bytes}.png")
+            if not os.path.exists(uti_png_icon_path):
+                qimage = QImage.fromData(bytes_icon)
+                qimage = qimage.scaled(
+                    size, size,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation
+                )
+                qimage.save(uti_png_icon_path, "PNG")
+                print("save symlink", filepath)
+            return symlink_bytes, Dynamic.uti_data[symlink_bytes]
         
         if uti_filetype == "com.apple.application-bundle":
             bundle = NSBundle.bundleWithPath_(filepath).bundleIdentifier()
@@ -319,6 +334,7 @@ class Utils:
                     Qt.TransformationMode.SmoothTransformation
                 )
                 qimage.save(uti_png_icon_path, "PNG")
+                print("save bundle", filepath)
 
             return bundle, Dynamic.uti_data[bundle]
 
@@ -340,6 +356,7 @@ class Utils:
                 Qt.TransformationMode.SmoothTransformation
             )
             qimage.save(uti_png_icon_path, "PNG")
+            print("save any", filepath)
 
         pixmap = QPixmap(uti_png_icon_path)
         if pixmap.isNull():
