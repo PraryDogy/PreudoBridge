@@ -16,3 +16,6 @@ if uti_filetype == "com.apple.application-bundle":
     png = rep.representationUsingType_properties_(NSPNGFileType, None)
     img = Image.open(io.BytesIO(bytes(png)))
     img.show()
+
+
+1
