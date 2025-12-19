@@ -105,6 +105,10 @@ class FiltersMenu(QWidget):
         text = self.line_edit.toPlainText()
         if text:
             Dynamic.word_filters = [i.strip() for i in text.split(",")]
+
+            if text[-1] == ",":
+                self.filter_thumbs.emit()
+                self.rearrange_thumbs.emit()
         else:
             Dynamic.word_filters.clear()
 
