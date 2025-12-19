@@ -546,7 +546,7 @@ class Grid(UScrollArea):
                 url_to_wid = {
                     url: wid
                     for url, wid in self.url_to_wid.items()
-                    if url.endswith(Static.img_exts)
+                    if url.endswith(Static.img_exts) and not wid.must_hidden
                 }
                 is_selection = False
                 self.open_img_view(wid.src, url_to_wid, is_selection)
@@ -560,8 +560,9 @@ class Grid(UScrollArea):
             url_to_wid = {
                 i.src: i
                 for i in self.selected_thumbs
-                if i.src.endswith(Static.img_exts)
+                if i.src.endswith(Static.img_exts) and not i.must_hidden
             }
+
             if url_to_wid:
                 is_selection = True
                 start_url = list(url_to_wid)[0]
