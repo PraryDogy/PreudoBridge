@@ -297,15 +297,9 @@ class TableView(QTableView):
         return urls
 
     def open_img_convert_win(self, urls: list[str]):
-
-        def finished_(urls: list[str]):
-            QTimer.singleShot(300, lambda: self.select_path(urls[-1]))
-            self.convert_win.deleteLater()
-
         urls = [i for i in urls if i.endswith(Static.img_exts)]
         self.convert_win = ImgConvertWin(urls)
         self.convert_win.center(self.window())
-        self.convert_win.finished_.connect(lambda urls: finished_(urls))
         self.convert_win.show()
 
     def make_archive(self, urls: list[str]):

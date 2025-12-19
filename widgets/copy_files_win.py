@@ -192,7 +192,6 @@ class CopyFilesWin(ProgressbarWin):
 
     def cancel_cmd(self, *args):
         self.timer_.stop()
-        self.tsk.toggle_pause_flag(False)
         self.tsk.set_should_run(False)
         self.deleteLater()
 

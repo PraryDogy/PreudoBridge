@@ -783,13 +783,7 @@ class Grid(UScrollArea):
             return None
 
     def open_img_convert_win(self, urls: list[str]):
-        def fin():
-            try:
-                self.convert_win.deleteLater()
-            except RuntimeError:
-                ...
         self.convert_win = ImgConvertWin(urls)
-        self.convert_win.finished_.connect(fin)
         self.convert_win.center(self.window())
         self.convert_win.show()
 
