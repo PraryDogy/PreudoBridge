@@ -5,7 +5,7 @@ import zipfile
 
 class Static:
     app_name = "PreudoBridge"
-    app_ver = 4.2
+    app_ver = 4.3
 
     uti_icons_web = "https://disk.yandex.ru/d/RNqZ9xCFHiDONQ"
 
