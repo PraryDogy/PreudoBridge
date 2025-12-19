@@ -311,7 +311,7 @@ class Utils:
                     Qt.TransformationMode.SmoothTransformation
                 )
                 qimage.save(uti_png_icon_path, "PNG")
-                print("save symlink", filepath)
+                # print("save symlink", filepath)
             return symlink_bytes, Dynamic.uti_data[symlink_bytes]
         
         if uti_filetype == "com.apple.application-bundle":
@@ -334,7 +334,7 @@ class Utils:
                     Qt.TransformationMode.SmoothTransformation
                 )
                 qimage.save(uti_png_icon_path, "PNG")
-                print("save bundle", filepath)
+                # print("save bundle", filepath)
 
             return bundle, Dynamic.uti_data[bundle]
 
@@ -356,7 +356,7 @@ class Utils:
                 Qt.TransformationMode.SmoothTransformation
             )
             qimage.save(uti_png_icon_path, "PNG")
-            print("save any", filepath)
+            # print("save any", filepath)
 
         pixmap = QPixmap(uti_png_icon_path)
         if pixmap.isNull():
