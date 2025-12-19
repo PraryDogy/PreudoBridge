@@ -11,7 +11,7 @@ import sqlalchemy
 from PIL import Image
 from PyQt5.QtCore import (QObject, QRunnable, QThread, QThreadPool, QTimer,
                           pyqtSignal)
-from PyQt5.QtGui import QImage
+from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtTest import QTest
 from sqlalchemy.exc import IntegrityError, OperationalError
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
@@ -668,9 +668,7 @@ class DbItemsLoader(URunnable):
         for i in svg_files:
             if not self.is_should_run():
                 break
-            qimage  = QImage()
-            qimage.load(i.src)
-            i.qimage = qimage
+            i.qimage = Utils.render_svg(i.src, 512)
             self.update_thumb(i)
 
     def execute_ratings(self, exist_ratings: list[BaseItem]):

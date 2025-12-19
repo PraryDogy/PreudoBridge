@@ -379,3 +379,22 @@ class Utils:
 
         apps.sort(key=os.path.basename)
         Dynamic.image_apps = apps
+    
+    @classmethod
+    def render_svg(cls, path: str, size: int) -> QImage:
+        size = QSize(size, size)
+        renderer = QSvgRenderer(path)
+
+        image = QImage(
+            size,
+            QImage.Format_ARGB32_Premultiplied
+        )
+        image.fill(Qt.transparent)
+
+        painter = QPainter(image)
+        painter.setRenderHint(QPainter.Antialiasing)
+        painter.setRenderHint(QPainter.SmoothPixmapTransform)
+        renderer.render(painter)
+        painter.end()
+
+        return image
