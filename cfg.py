@@ -199,15 +199,18 @@ class JsonData:
         uti_json = os.path.join(uti_folder, "uti_icons.json")
         uti_zip = os.path.join(uti_folder, "uti_icons.zip")
 
-        print("Пожалуйста, скачайте актуальный zip архив с иконками")
-        print("и положите в папку \"uti_icons\"")
-        print(Static.uti_icons_web)
-
         with open(uti_json) as file:
             internal_uti_icons = json.load(file)
         external_uti_icons = [i for i in os.listdir(Static.external_uti_dir)]
         for i in internal_uti_icons:
             if i not in external_uti_icons:
+                print("Пожалуйста, скачайте актуальный zip архив с иконками")
+                print("и положите в папку \"uti_icons\"")
+                print(Static.uti_icons_web)
+                print("1: я скачал")
+                user = input()
+                if user != "1":
+                    os._exit(1)
                 external_zip = shutil.copy2(uti_zip, Static.app_dir)
                 shutil.rmtree(Static.external_uti_dir)
                 with zipfile.ZipFile(external_zip, "r") as zip_ref:
