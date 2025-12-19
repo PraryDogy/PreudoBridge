@@ -70,6 +70,7 @@ class UThreadPool:
     @classmethod
     def init(cls):
         cls.pool = QThreadPool.globalInstance()
+        # cls.pool.setMaxThreadCount(5)
 
     @classmethod
     def start(cls, runnable: QRunnable):
