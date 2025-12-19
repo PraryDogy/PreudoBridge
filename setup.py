@@ -109,6 +109,7 @@ sys.argv.append(PY2APP)
 
 try:
 
+    print("создаю актуальный zip архив uti_icons")
     src = Static.external_uti_dir
     root = os.path.basename(Static.external_uti_dir)
     app_sup = Static.app_dir
@@ -120,16 +121,10 @@ try:
     )
     uti_icons_zip = shutil.copy2(new_zip, "./uti_icons")
     os.remove(new_zip)
+    print("готово")
 
     remove_trash()
 
-    print("Пожалуйста, скачайте актуальный zip архив с иконками")
-    print("и положите в папку \"uti_icons\"")
-    print(Static.uti_icons_web)
-    print("1: скачал и положил")
-    user = input()
-    if user != "1":
-        os._exit(1)
     setup(
         app=MAIN_FILES,
         name=APP_NAME,
@@ -140,6 +135,7 @@ try:
 
     move_app_to_desktop(APP_NAME)
     remove_trash()
+
     os.remove(uti_icons_zip)
     with open(uti_icons_zip, "w"):
         pass
