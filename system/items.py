@@ -67,9 +67,9 @@ class BaseItem:
         self.big_pixmap: QPixmap = None
         self.qimage: QImage = None
         self.uti_type: str = None
-
         self.partial_hash: str = None
         self.thumb_path: str = None
+        self.loaded: bool = False
 
     def set_partial_hash(self):
         try:

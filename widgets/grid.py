@@ -200,6 +200,7 @@ class Thumb(BaseItem, QFrame):
         self.big_pixmap = QPixmap.fromImage(img)
         small_pixmap = Utils.qiconed_resize(self.big_pixmap, Thumb.current_pixmap_size)
         self.img_wid.setPixmap(small_pixmap)
+        self.loaded = True
 
     def migrate_from_base_item(self, base_item: BaseItem):
         """
