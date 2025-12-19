@@ -110,6 +110,13 @@ sys.argv.append(PY2APP)
 try:
     remove_trash()
 
+    print("Пожалуйста, скачайте актуальный zip архив с иконками")
+    print("и положите в папку \"uti_icons\"")
+    print(Static.uti_icons_web)
+    print("1: скачал и положил")
+    user = input()
+    if user != "1":
+        os._exit(1)
     setup(
         app=MAIN_FILES,
         name=APP_NAME,
