@@ -7,8 +7,6 @@ class Static:
     app_name = "PreudoBridge"
     app_ver = 4.3
 
-    uti_icons_web = "https://disk.yandex.ru/d/RNqZ9xCFHiDONQ"
-
     app_dir = os.path.join(os.path.expanduser('~/Library/Application Support'), app_name)
     external_uti_dir = os.path.join(app_dir, "uti_icons")
     external_thumbs_dir = os.path.join(app_dir, 'thumbnails')
@@ -204,13 +202,6 @@ class JsonData:
         external_uti_icons = [i for i in os.listdir(Static.external_uti_dir)]
         for i in internal_uti_icons:
             if i not in external_uti_icons:
-                print("Пожалуйста, скачайте актуальный zip архив с иконками")
-                print("и положите в папку \"uti_icons\"")
-                print(Static.uti_icons_web)
-                print("1: я скачал")
-                user = input()
-                if user != "1":
-                    os._exit(1)
                 external_zip = shutil.copy2(uti_zip, Static.app_dir)
                 shutil.rmtree(Static.external_uti_dir)
                 with zipfile.ZipFile(external_zip, "r") as zip_ref:

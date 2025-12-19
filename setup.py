@@ -108,6 +108,19 @@ OPTIONS = {
 sys.argv.append(PY2APP)
 
 try:
+
+    src = Static.external_uti_dir
+    root = os.path.basename(Static.external_uti_dir)
+    app_sup = Static.app_dir
+    new_zip = shutil.make_archive(
+        Static.external_uti_dir,
+        "zip",
+        Static.app_dir,
+        os.path.basename(Static.external_uti_dir)
+    )
+    uti_icons_zip = shutil.copy2(new_zip, "./uti_icons")
+    os.remove(new_zip)
+
     remove_trash()
 
     print("Пожалуйста, скачайте актуальный zip архив с иконками")
@@ -127,6 +140,9 @@ try:
 
     move_app_to_desktop(APP_NAME)
     remove_trash()
+    os.remove(uti_icons_zip)
+    with open(uti_icons_zip, "w"):
+        pass
 
 except Exception as e:
     print(e)
