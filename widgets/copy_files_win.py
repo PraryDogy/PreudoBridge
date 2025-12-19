@@ -185,7 +185,7 @@ class CopyFilesWin(ProgressbarWin):
         replace_win.cancel_pressed.connect(self.cancel_cmd)
         replace_win.show()
 
-    def limit_string(self, text: str, limit: int = 15):
+    def limit_string(self, text: str, limit: int = 30):
         if len(text) > limit:
             return text[:limit] + "..."
         return text

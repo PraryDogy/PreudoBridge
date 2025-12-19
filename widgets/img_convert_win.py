@@ -31,7 +31,7 @@ class ImgConvertWin(ProgressbarWin):
             self.timer_.timeout.connect(self.update_gui)
             self.timer_.start(500)
 
-    def update_gui(self, limit: int = 35):
+    def update_gui(self, limit: int = 30):
         if len(self.tsk_.current_filename) > limit:
             filename = self.tsk_.current_filename[:limit] + "..."
         else:

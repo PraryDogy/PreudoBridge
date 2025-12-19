@@ -1332,54 +1332,47 @@ class CustomSizeCacheCleaner(URunnable):
 class CacheDownloader(URunnable):
 
     class Sigs(QObject):
-        progress = pyqtSignal(int)
-        progress_txt = pyqtSignal(str)
-        prorgess_max = pyqtSignal(int)
-        filename = pyqtSignal(str)
-        caching = pyqtSignal()
+        total_count = pyqtSignal(int)
         finished_ = pyqtSignal()
-
-    from_text = "из"
 
     def __init__(self, dirs: list[str]):
         super().__init__()
         self.dirs = dirs
         self.sigs = CacheDownloader.Sigs()
         self.conn = Dbase.get_conn(Dbase.engine)
+        self.current_filename = ""
+        self.current_count = 0
 
     def task(self):
         try:
             self._task()
         except Exception as e:
-            # print("tasks CacheDownloader error", e)
             import traceback
             print(traceback.format_exc())
 
         self.sigs.finished_.emit()
         Dbase.close_conn(self.conn)
-        print("cache downloader finished")
 
     def _task(self):
         new_images = self.prepare_images()
         stmt_list = []
         stmt_limit = 10
 
-        self.sigs.prorgess_max.emit(len(new_images))
+        self.sigs.total_count.emit(len(new_images))
         self.sigs.caching.emit()
         for x, data in enumerate(new_images, start=1):
             if not self.is_should_run():
                 if stmt_list:
                     self.execute_stmt_list(stmt_list)
                 return
-            self.sigs.progress.emit(x)
-            self.sigs.progress_txt.emit(f"{x} {self.from_text} {len(new_images)}")
             base_item: BaseItem = data["base_item"]
+            self.current_count = x
+            self.current_filename = base_item.filename
             if self.write_thumb(base_item):
                 stmt_list.append(data["stmt"])
                 if len(stmt_list) == stmt_limit:
                     self.execute_stmt_list(stmt_list)
                     stmt_list.clear()
-
         if stmt_list:
             self.execute_stmt_list(stmt_list)
 
@@ -1400,7 +1393,6 @@ class CacheDownloader(URunnable):
                 if i.is_dir():
                     stack.append(i.path)
                 elif i.name.endswith(Static.img_exts):
-                    # print("prepare base item", i.path)
                     self.sigs.filename.emit(self.cut_filename(i.name))
                     base_item = BaseItem(i.path)
                     base_item.set_properties()

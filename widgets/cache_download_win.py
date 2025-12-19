@@ -1,6 +1,6 @@
 import os
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import QTimer
 
 from cfg import Static
 from system.tasks import CacheDownloader, UThreadPool
@@ -16,57 +16,35 @@ class CacheDownloadWin(ProgressbarWin):
 
     def __init__(self, dirs: list[str]):
         super().__init__(self.title, self.svg_path)
-        # self.setWindowModality(Qt.WindowModality.ApplicationModal)
         self.dirs = dirs
-        self.start_task()
-
-    def start_task(self):
-        # алгоритм действий
-        # прогрессбар стоит на месте, верхний лейбл Подготовка
-        # нижний лейбл - имена файлов при обходе директорий
-        # верхний лейбл Кэширование
-        # нижний лейбл 1 из 100 
-        self.tsk = CacheDownloader(self.dirs)
-
-        # этап подготовки (обход директорий)
         self.above_label.setText(self.preparing_text)
-        self.tsk.sigs.filename.connect(
-            lambda filename: self.below_label.setText(filename)
-        )
+        self.below_label.setText("0 из ...")
+        self.cancel_btn.clicked.connect(self.on_cancel)
 
-        # этап кэширования
-        self.tsk.sigs.caching.connect(
-            lambda: self.above_label.setText(self.caching_text)
-        )
-        self.tsk.sigs.prorgess_max.connect(
-            lambda v: self.progressbar.setMaximum(v)
-        )
-        self.tsk.sigs.progress.connect(
-            lambda v: self.progressbar.setValue(v)
-        )
-        self.tsk.sigs.progress_txt.connect(
-            lambda text: self.below_label.setText(text)
-        )
-        self.tsk.sigs.finished_.connect(
-            lambda: self.deleteLater()
-        )
+        self.tsk_ = CacheDownloader(self.dirs)
+        self.tsk_.sigs.total_count.connect(lambda v: self.progressbar.setMaximum(v))
+        self.tsk_.sigs.finished_.connect(self.on_finished)
+        UThreadPool.start(self.tsk_)
 
-        # text = "".join((str(i) for i in range(1, 100)))
-        # self.below_label.setText(self.tsk.cut_filename(text))
-        UThreadPool.start(self.tsk)
+        self.timer_ = QTimer(self)
+        self.timer_.timeout.connect(self.update_gui)
+        self.timer_.start(1000)
 
-    def deleteLater(self):
-        # Кнопка cancel запускает deleteLater, здесь мы его и перехватываем
-        try:
-            self.tsk.set_should_run(False)
-        except Exception as e:
-            print("CacheDownloadWin error", e)
-        return super().deleteLater()
-    
-    def closeEvent(self, a0):
-        try:
-            self.tsk.sigs.finished_.disconnect()
-            self.tsk.set_should_run(False)
-        except Exception as e:
-            print("CacheDownloadWin error", e)
-        return super().closeEvent(a0)
+    def update_gui(self):
+        if self.progressbar.maximum() > 0:
+            self.above_label.setText(self.limit_string(self.tsk_.current_filename))
+            self.below_label.setText(f"{self.tsk_.current_count} из {self.progressbar.maximum()}")
+
+    def limit_string(self, text: str, limit: int = 30):
+        if len(text) > limit:
+            return text[:limit] + "..."
+        return text
+
+    def on_finished(self, *args):
+        self.timer_.stop()
+        self.deleteLater()
+
+    def on_cancel(self, *args):
+        self.tsk_.set_should_run(False)
+        self.timer_.stop()
+        self.deleteLater()
