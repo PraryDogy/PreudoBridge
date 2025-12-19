@@ -623,8 +623,6 @@ class DbItemsLoader(URunnable):
                 return
             if base_item.filename.endswith((".svg", ".SVG")):
                 svg_files.append(base_item)
-            if base_item.filename.endswith(Static.app_exts):
-                app_files.append(base_item)
             elif base_item.type_ == Static.folder_type:
                 rating = self.get_item_rating(base_item)
                 if rating is None:
@@ -655,7 +653,6 @@ class DbItemsLoader(URunnable):
                         exist_ratings.append(base_item)
 
         self.execute_ratings(exist_ratings)
-        self.execute_app_files(app_files)
         self.execute_svg_files(svg_files)
         self.execute_exist_images(exist_images)
         self.execute_new_images(new_images)
@@ -666,26 +663,6 @@ class DbItemsLoader(URunnable):
         for i in stmt_list:
             Dbase.execute(self.conn, i)
         Dbase.commit(self.conn)
-
-    def execute_app_files(self, app_files: list[BaseItem], size: int = 512):
-        app_folder = os.path.join(Static.external_thumbs_dir, "app_icons")
-        os.makedirs(app_folder, exist_ok=True)
-        for i in app_files:
-            if not self.is_should_run():
-                break
-            icns_path = Utils.get_app_icns(i.src)
-            if not os.path.exists(icns_path):
-                continue
-            partial_hash = Utils.get_partial_hash(icns_path)
-            new_icns_path = os.path.join(app_folder, partial_hash + ".icns")
-            if os.path.exists(new_icns_path):
-                img = Image.open(new_icns_path).convert("RGBA")
-            else:
-                img = Image.open(icns_path).convert("RGBA").resize((size, size))
-                img.save(new_icns_path, format="PNG")
-            img_array = np.array(img)
-            i.qimage = Utils.qimage_from_array(img_array)
-            self.update_thumb(i)
 
     def execute_svg_files(self, svg_files: list[BaseItem]):
         for i in svg_files:

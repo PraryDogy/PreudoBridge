@@ -308,6 +308,27 @@ class Utils:
             pixmap.loadFromData(bytes_icon)
             set_uti_data(uti_filetype_cached, pixmap)
             return uti_filetype_cached, Dynamic.uti_data[uti_filetype_cached]
+        
+        if uti_filetype == "com.apple.application-bundle":
+            bytes_icon = get_bytes_icon(filepath)
+            appname, _ = os.path.splitext(os.path.basename(filepath))
+            if appname in Dynamic.uti_data:
+                return appname, Dynamic.uti_data[appname]
+            pixmap = QPixmap()
+            pixmap.loadFromData(bytes_icon)
+            set_uti_data(appname, pixmap)
+
+            uti_png_icon_path = os.path.join(Static.external_uti_dir, f"{appname}.png")
+            if not os.path.exists(uti_png_icon_path):
+                qimage = QImage.fromData(bytes_icon)
+                qimage = qimage.scaled(
+                    size, size,
+                    Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation
+                )
+                qimage.save(uti_png_icon_path, "PNG")
+
+            return appname, Dynamic.uti_data[appname]
 
         if not uti_filetype:
             return get_errored_icon()
