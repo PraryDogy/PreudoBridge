@@ -204,8 +204,12 @@ class JsonData:
             if i not in external_uti_icons:
                 external_zip = shutil.copy2(uti_zip, Static.app_dir)
                 shutil.rmtree(Static.external_uti_dir)
-                with zipfile.ZipFile(external_zip, "r") as zip_ref:
-                    zip_ref.extractall(Static.app_dir)
+                try:
+                    with zipfile.ZipFile(external_zip, "r") as zip_ref:
+                        zip_ref.extractall(Static.app_dir)
+                except zipfile.BadZipFile:
+                    print("download uti_icons.zip and place to ./uti_icons")
+                    print("https://disk.yandex.ru/d/RNqZ9xCFHiDONQ")
                 break
 
     @classmethod
