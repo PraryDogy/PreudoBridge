@@ -181,7 +181,7 @@ class Utils:
 
             os.makedirs(os.path.dirname(thumb_path), exist_ok=True)
             ext = os.path.splitext(thumb_path)[1].lower()
-            if ext == ".png":
+            if ext in (".png", ".icns"):
                 return cv2.imwrite(thumb_path, img, [cv2.IMWRITE_PNG_COMPRESSION, 3])
             else:
                 return cv2.imwrite(thumb_path, img)
@@ -189,19 +189,26 @@ class Utils:
             print(f"write_thumb: ошибка записи thumb на диск: {e}")
             return False
 
-
     @classmethod
     def read_thumb(cls, thumb_path: str) -> np.ndarray | None:
         try:
             if os.path.exists(thumb_path):
                 img = cv2.imread(thumb_path, cv2.IMREAD_UNCHANGED)
-                return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            else:
-                # print(f"read_thumb: файл не существует {thumb_path}")
-                return None
+                if img is None:
+                    return None
+                if len(img.shape) == 2:  # grayscale
+                    return img
+                elif img.shape[2] == 3:  # BGR → RGB
+                    return cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                elif img.shape[2] == 4:  # BGRA → RGBA
+                    return cv2.cvtColor(img, cv2.COLOR_BGRA2RGBA)
+                else:
+                    return img
+            return None
         except Exception as e:
             print(f"read_thumb: ошибка чтения thumb: {e}")
             return None
+
         
     @classmethod
     def get_now(cls):

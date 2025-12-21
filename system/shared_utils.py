@@ -253,6 +253,8 @@ class ReadImage:
 
     @classmethod
     def _read_icns(cls, path: str):
+        return cls._read_png(path)
+        # return cls._read_quicklook(path)
         try:
             im = Image.open(path).convert("RGBA")  # конвертируем в RGBA
             arr = np.array(im)  # превращаем в ndarray (H, W, 4)
@@ -266,16 +268,30 @@ class ReadImage:
     def _read_png(cls, path: str) -> np.ndarray | None:
         try:
             img = Image.open(path)
-            if img.mode == "RGBA":
-                white_background = Image.new("RGBA", img.size, (255, 255, 255))
-                img = Image.alpha_composite(white_background, img)
-            img = img.convert("RGB")
+            if img.mode != "RGBA":
+                img = img.convert("RGBA")  # сохраняем альфа-канал
             array_img = np.array(img)
             img.close()
             return array_img
         except Exception as e:
             print("read png, PIL error", e)
             return None
+
+
+    # @classmethod
+    # def _read_png(cls, path: str) -> np.ndarray | None:
+    #     try:
+    #         img = Image.open(path)
+    #         if img.mode == "RGBA":
+    #             white_background = Image.new("RGBA", img.size, (255, 255, 255))
+    #             img = Image.alpha_composite(white_background, img)
+    #         img = img.convert("RGB")
+    #         array_img = np.array(img)
+    #         img.close()
+    #         return array_img
+    #     except Exception as e:
+    #         print("read png, PIL error", e)
+    #         return None
 
     @classmethod
     def _read_jpg(cls, path: str) -> np.ndarray | None:
