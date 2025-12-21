@@ -354,8 +354,8 @@ class ChangeViewMenu(UMenu):
 class RotateMenu(UMenu):
     rotate_sig = pyqtSignal(int)
     text_menu = "Повернуть"
-    clockwise = "Повернуть по ч.с."
-    counter_clockwise = "Повернуть против ч.с."
+    clockwise = "Повернуть по ч.с. (⌘ + →)"
+    counter_clockwise = "Повернуть против ч.с. (⌘ + ←)"
 
     def __init__(self, parent: UMenu):
         super().__init__(self.text_menu, parent)

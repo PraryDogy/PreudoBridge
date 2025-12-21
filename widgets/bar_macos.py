@@ -124,8 +124,8 @@ class BarMacos(QMenuBar):
     menu_text = "Меню"
     about_text = "Об авторе"
     settings_text = "Настройки"
-    servers_text = "Подключение (Cmd + K)"
-    new_win_text = "Новое окно (Cmd + N)"
+    servers_text = "Подключение (⌘ + K)"
+    new_win_text = "Новое окно (⌘ + N)"
     go_to_text = "Перейти к директории"
     new_win = pyqtSignal()
     servers_win = pyqtSignal()
