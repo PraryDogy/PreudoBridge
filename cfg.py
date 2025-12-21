@@ -210,6 +210,7 @@ class JsonData:
                 except zipfile.BadZipFile:
                     print("download uti_icons.zip and place to ./uti_icons")
                     print("https://disk.yandex.ru/d/RNqZ9xCFHiDONQ")
+                    os._exit(1)
                 break
 
     @classmethod
