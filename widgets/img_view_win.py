@@ -326,7 +326,7 @@ class ImgViewWin(WinBase):
             elif src == self.current_path:
                 self.restart_img_wid(QPixmap.fromImage(qimage))
         self.task_count += 1
-        task_ = ReadImg(self.current_path)
+        task_ = ReadImg(self.current_path, True)
         task_.sigs.finished_.connect(fin)
         UThreadPool.start(task_)
 

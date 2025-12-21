@@ -751,15 +751,17 @@ class ReadImg(URunnable):
     cache_limit = 15
     cached_images: dict[str, QImage] = {}
 
-    def __init__(self, src: str):
+    def __init__(self, src: str, desaturate: bool = True):
         super().__init__()
+        self.desaturate = desaturate
         self.sigs = ReadImg.Sigs()
         self.src: str = src
 
     def task(self):
         if self.src not in self.cached_images:
             img_array = ReadImage.read_image(self.src)
-            img_array = Utils.desaturate_image(img_array, 0.2)
+            if self.desaturate:
+                img_array = Utils.desaturate_image(img_array, 0.2)
             if img_array is None:
                 qimage = None
             else:

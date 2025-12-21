@@ -237,7 +237,7 @@ class ReadImage:
     def _read_psb(cls, psd_path: str, size: int = 5000) -> np.ndarray:
         tmp_dir = Path(tempfile.gettempdir())
         subprocess.run([
-            "qlmanage", "-t", "-s", size, "-o", str(tmp_dir), psd_path
+            "qlmanage", "-t", "-s", str(size), "-o", str(tmp_dir), psd_path
         ], check=True)
         generated_files = list(tmp_dir.glob(Path(psd_path).stem + "*.png"))
         if not generated_files:
