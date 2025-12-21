@@ -180,8 +180,9 @@ class Utils:
                 return False
 
             os.makedirs(os.path.dirname(thumb_path), exist_ok=True)
-            ext = os.path.splitext(thumb_path)[1].lower()
-            if ext in (".png", ".icns"):
+            if thumb_array.shape[2] == 4:
+                path, ext = os.path.splitext(thumb_path)
+                thumb_path = path + ".png"
                 return cv2.imwrite(thumb_path, img, [cv2.IMWRITE_PNG_COMPRESSION, 3])
             else:
                 return cv2.imwrite(thumb_path, img)
