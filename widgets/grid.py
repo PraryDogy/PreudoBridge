@@ -530,6 +530,7 @@ class Grid(UScrollArea):
                 self.col = 0
                 self.row += 1
         self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
+        self.load_visible_thumbs_images()
 
     def add_widget_data(self, wid: Thumb, row: int, col: int):
         """
