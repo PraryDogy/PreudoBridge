@@ -70,6 +70,8 @@ class BaseItem:
         self.partial_hash: str = None
         self.thumb_path: str = None
         self.loaded: bool = False
+        self.must_hidden: bool = False
+        self.row, self.col = 0, 0
 
     def set_partial_hash(self):
         try:

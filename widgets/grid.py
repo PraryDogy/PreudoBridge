@@ -136,10 +136,6 @@ class Thumb(BaseItem, QFrame):
     def __init__(self, src: str, rating: int = 0):    
         QFrame.__init__(self, parent=None)
         BaseItem.__init__(self, src, rating)
-
-        self.must_hidden: bool = False
-        self.row, self.col = 0, 0
-
         self.v_lay = QVBoxLayout()
         self.v_lay.setContentsMargins(0, 0, 0, 0)
         self.v_lay.setSpacing(2)
