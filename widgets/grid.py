@@ -126,9 +126,6 @@ class Thumb(BaseItem, QFrame):
     text_changed = pyqtSignal()
     img_obj_name: str = "img_frame"
     text_obj_name: str = "text_frame_"
-    uti_type_data = {
-        "uti_type": {"128": QImage},
-    }
 
     current_pixmap_size: int = 0
     current_img_frame_size: int = 0
