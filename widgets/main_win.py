@@ -33,7 +33,7 @@ from .servers_win import ServersWin
 from .settings_win import SettingsWin
 from .sort_bar import SortBar
 from .table_view import TableView
-from .tags_menu import FiltersMenu
+from .rating_menu import FiltersMenu
 from .top_bar import TopBar
 from .tree_menu import TreeMenu
 from .warn_win import WinQuestion

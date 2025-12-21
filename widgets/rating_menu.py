@@ -85,14 +85,7 @@ class FiltersMenu(QWidget):
                 self.rearrange_thumbs.emit()
             )
         )
-        self.clear_btn.clicked.connect(
-            lambda: (
-                self.line_edit.clear(),
-                self.line_edit.clearFocus(),
-                self.filter_thumbs.emit(),
-                self.rearrange_thumbs.emit(),
-            )
-        )
+        self.clear_btn.clicked.connect(self.clear_btn_cmd)
         btn_layout.addStretch()
         btn_layout.addWidget(self.apply_btn)
         btn_layout.addWidget(self.clear_btn)
@@ -101,16 +94,23 @@ class FiltersMenu(QWidget):
 
         self.tabs.addTab(self.tab_filter, "Фильтры")
 
+    def clear_btn_cmd(self):
+        self.line_edit.clear()
+        self.line_edit.clearFocus()
+        # self.filter_thumbs.emit()
+        # self.rearrange_thumbs.emit()
+
     def on_text_changed(self):
         text = self.line_edit.toPlainText()
         if text:
             Dynamic.word_filters = [i.strip() for i in text.split(",")]
-
             if text[-1] == ",":
                 self.filter_thumbs.emit()
                 self.rearrange_thumbs.emit()
-        else:
+        elif text == "":
             Dynamic.word_filters.clear()
+            self.filter_thumbs.emit()
+            self.rearrange_thumbs.emit()
 
     def show_context_menu(self, position):
         item: UItem = self.list.itemAt(position)
