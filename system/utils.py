@@ -162,7 +162,7 @@ class Utils:
         base = os.path.join(
             Static.external_thumbs_dir,
             partial_hash[:2],
-            partial_hash[2:] + ".jpg"
+            partial_hash[2:]
         )
         return base
 

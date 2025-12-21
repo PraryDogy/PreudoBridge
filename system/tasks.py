@@ -536,7 +536,6 @@ class FinderItemsLoader(URunnable):
         items = BaseItem.sort_items(items, self.sort_item)
         self.sigs.finished_.emit(items)
 
-
     def _get_paths(self):
         for entry in os.scandir(self.main_win_item.main_dir):
             if entry.name.startswith(self.hidden_syms):

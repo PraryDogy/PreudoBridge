@@ -75,7 +75,11 @@ class BaseItem:
         try:
             self.partial_hash = Utils.get_partial_hash(self.src)
             if self.type_ in Static.img_exts:
-                self.thumb_path = Utils.get_abs_thumb_path(self.partial_hash)
+                thumb_path = Utils.get_abs_thumb_path(self.partial_hash)
+                if self.type_ in (".png", ".icns"):
+                    self.thumb_path = thumb_path + ".png"
+                else:
+                    self.thumb_path = thumb_path + ".jpg"
         except Exception as e:
             print("items, BaseItem set partial hash error", e)
         
