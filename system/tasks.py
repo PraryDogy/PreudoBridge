@@ -488,7 +488,7 @@ class SearchTask(URunnable):
                 insert(base_item, img_array)
             qimage = Utils.qimage_from_array(img_array)
             base_item.qimage = qimage
-            base_item.uti_type = Utils.get_uti_type(entry.path)
+        base_item.uti_type = Utils.get_uti_type(entry.path)
         self.sigs.new_widget.emit(base_item)
         QTest.qSleep(SearchTask.new_wid_sleep_ms)
 
