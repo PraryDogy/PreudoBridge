@@ -394,6 +394,12 @@ class ImgViewWin(WinBase):
             elif ev.key() == Qt.Key.Key_Minus:
                 self.img_wid.zoom_out()
 
+            elif ev.key() == Qt.Key.Key_Left:
+                self.rotate_image(-90)
+
+            elif ev.key() == Qt.Key.Key_Right:
+                self.rotate_image(90)
+
         else:
             if ev.key() == Qt.Key.Key_Left:
                 self.switch_img(-1)
