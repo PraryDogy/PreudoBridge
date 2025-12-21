@@ -34,6 +34,7 @@ class CacheDownloadWin(ProgressbarWin):
         if self.progressbar.maximum() > 0:
             self.above_label.setText(self.tsk_.current_filename)
             self.below_label.setText(f"{self.tsk_.current_count} из {self.progressbar.maximum()}")
+            self.progressbar.setValue(self.tsk_.current_count)
 
     def on_finished(self, *args):
         self.timer_.stop()
