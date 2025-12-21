@@ -2,7 +2,7 @@ import os
 
 from PyQt5.QtCore import QEvent, QPointF, QSize, Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import (QContextMenuEvent, QCursor, QImage, QKeyEvent,
-                         QMouseEvent, QPixmap, QResizeEvent)
+                         QMouseEvent, QPixmap, QResizeEvent, QTransform)
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsPixmapItem,
                              QGraphicsScene, QGraphicsView, QHBoxLayout,
@@ -330,6 +330,11 @@ class ImgViewWin(WinBase):
         task_.sigs.finished_.connect(fin)
         UThreadPool.start(task_)
 
+    def rotate_image(self, value: int):
+        pixmap = self.img_wid.pixmap_item.pixmap()
+        transform = QTransform().rotate(value)
+        rotated = pixmap.transformed(transform)
+        self.restart_img_wid(rotated)
 
 # GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI GUI
 
@@ -488,5 +493,9 @@ class ImgViewWin(WinBase):
         rating_menu = ItemActions.RatingMenu(menu, self.current_thumb.rating)
         rating_menu.new_rating.connect(lambda value: self.new_rating.emit((value, self.current_path)))
         menu.addMenu(rating_menu)
+
+        rotate = ItemActions.RotateMenu(menu)
+        rotate.rotate_sig.connect(self.rotate_image)
+        menu.addMenu(rotate)
 
         menu.show_under_cursor()

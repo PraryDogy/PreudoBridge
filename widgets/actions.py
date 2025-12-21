@@ -350,6 +350,27 @@ class ChangeViewMenu(UMenu):
         elif view_index == 1:
             list_.setChecked(True)
 
+
+class RotateMenu(UMenu):
+    rotate_sig = pyqtSignal(int)
+    text_menu = "Повернуть"
+    clockwise = "Повернуть по ч.с."
+    counter_clockwise = "Повернуть против ч.с."
+
+    def __init__(self, parent: UMenu):
+        super().__init__(self.text_menu, parent)
+
+        # отобразить сеткой
+        grid_ = QAction(self.clockwise, self)
+        grid_.triggered.connect(lambda: self.rotate_sig.emit(90))
+        self.addAction(grid_)
+
+        # отобразить списком
+        list_ = QAction(self.counter_clockwise, self)
+        list_.triggered.connect(lambda: self.rotate_sig.emit(-90))
+        self.addAction(list_)
+
+
 class OpenInNewWindow(QAction):
     text_ = "Открыть в новом окне"
     def __init__(self, parent: UMenu):
@@ -450,6 +471,7 @@ class ItemActions:
     class Rename(Rename): ...
     class MakeArchive(MakeArchive): ...
     class DownloadCache(DownloadCache): ...
+    class RotateMenu(RotateMenu): ...
 
 
 class GridActions:
