@@ -233,15 +233,16 @@ class ReadImage:
             return None
         
     @classmethod
-    def _read_quicklook(cls, psd_path: str, size: int = 5000) -> np.ndarray:
+    def _read_quicklook(cls, path: str, size: int = 5000) -> np.ndarray:
+        print("load img by quicklook", path)
         tmp_dir = Path(tempfile.gettempdir())
         subprocess.run(
-            ["qlmanage", "-t", "-s", str(size), "-o", str(tmp_dir), psd_path],
+            ["qlmanage", "-t", "-s", str(size), "-o", str(tmp_dir), path],
             check=True,
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL  # отключаем вывод ошибок
         )
-        generated_files = list(tmp_dir.glob(Path(psd_path).stem + "*.png"))
+        generated_files = list(tmp_dir.glob(Path(path).stem + "*.png"))
         if not generated_files:
             raise FileNotFoundError("QuickLook не создал PNG")
         generated = generated_files[0]
