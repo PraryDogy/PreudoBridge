@@ -12,7 +12,11 @@ import rawpy
 import rawpy._rawpy
 import tifffile
 from PIL import Image, ImageOps
-
+import subprocess
+import tempfile
+from pathlib import Path
+import numpy as np
+from PIL import Image
 
 class SharedUtils:
 
@@ -217,17 +221,32 @@ class ReadImage:
                 print(f"read tiff error with {loader.__name__}: {e}")
         return None
 
+    # @classmethod
+    # def _read_psb(cls, path: str):
+    #     try:
+    #         img = psd_tools.PSDImage.open(path)
+    #         img = img.composite()
+    #         img = img.convert("RGB")
+    #         array_img = np.array(img)
+    #         return array_img
+    #     except Exception as e:
+    #         print("read psb, psd tools error", e)
+    #         return None
+        
     @classmethod
-    def _read_psb(cls, path: str):
-        try:
-            img = psd_tools.PSDImage.open(path)
-            img = img.composite()
-            img = img.convert("RGB")
-            array_img = np.array(img)
-            return array_img
-        except Exception as e:
-            print("read psb, psd tools error", e)
-            return None
+    def _read_psb(cls, psd_path: str, size: int = 5000) -> np.ndarray:
+        tmp_dir = Path(tempfile.gettempdir())
+        subprocess.run([
+            "qlmanage", "-t", "-s", size, "-o", str(tmp_dir), psd_path
+        ], check=True)
+        generated_files = list(tmp_dir.glob(Path(psd_path).stem + "*.png"))
+        if not generated_files:
+            raise FileNotFoundError("QuickLook не создал PNG")
+        generated = generated_files[0]
+        with Image.open(generated) as img:
+            arr = np.array(img)
+        generated.unlink()
+        return arr
 
     @classmethod
     def _read_icns(cls, path: str):
