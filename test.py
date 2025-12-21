@@ -1,34 +1,23 @@
-import subprocess
-import tempfile
-from pathlib import Path
-import numpy as np
-from PIL import Image
+import time
+from system.shared_utils import ReadImage
 
-class PSDLoader:
-    @staticmethod
-    def load_as_array(psd_path: str) -> np.ndarray:
-        tmp_dir = Path(tempfile.gettempdir())
-
-        # запускаем QuickLook
-        subprocess.run([
-            "qlmanage", "-t", "-s", "5000", "-o", str(tmp_dir), psd_path
-        ], check=True)
-
-        # ищем созданный PNG
-        generated_files = list(tmp_dir.glob(Path(psd_path).stem + "*.png"))
-        if not generated_files:
-            raise FileNotFoundError("QuickLook не создал PNG")
-        generated = generated_files[0]
-
-        # читаем в numpy и удаляем файл
-        with Image.open(generated) as img:
-            arr = np.array(img)
-        generated.unlink()  # удаляем временный файл
-
-        return arr
+src = "/Users/evlosh/Downloads/Пленка летняя/R1-09909-0027.TIF"
+src = "/Users/evlosh/Downloads/Canon-eos-r-raw-00012.cr3"
 
 
-# пример использования
-psd_path = "/Users/evlosh/Desktop/IMG_6201.psd"
-arr = PSDLoader.load_as_array(psd_path)
-print(arr.shape, arr.dtype)
+start = time.time()
+a = ReadImage._read_raw(src)
+tiff_time = time.time() - start
+print("TIFF read time:", tiff_time, "seconds")
+
+start = time.time()
+b = ReadImage._read_quicklook(src)
+ql_time = time.time() - start
+print("QuickLook read time:", ql_time, "seconds")
+
+if tiff_time < ql_time:
+    print("TIFF чтение быстрее")
+elif ql_time < tiff_time:
+    print("QuickLook чтение быстрее")
+else:
+    print("Оба метода работают примерно с одинаковой скоростью")
