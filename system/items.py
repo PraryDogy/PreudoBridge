@@ -64,8 +64,7 @@ class BaseItem:
         self.mod: float = None
         self.birth: int = None
         self.size: int = None
-        self.big_pixmap: QPixmap = None
-        self.qimage: QImage = None
+        self.qimages: dict[int, QImage] = None
         self.uti_type: str = None
         self.partial_hash: str = None
         self.thumb_path: str = None

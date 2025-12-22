@@ -179,7 +179,6 @@ class Thumb(BaseItem, QFrame):
         self.img_wid.setPixmap(pixmap)
 
     def set_image(self, img: QImage):
-        self.big_pixmap = QPixmap.fromImage(img)
         small_pixmap = Utils.qiconed_resize(self.big_pixmap, Thumb.current_pixmap_size)
         self.img_wid.setPixmap(small_pixmap)
         self.loaded = True
@@ -385,8 +384,8 @@ class Grid(UScrollArea):
 
         def update_thumb(thumb: Thumb):
             try:
-                if thumb.qimage:
-                    thumb.set_image(thumb.qimage)
+                if thumb.qimages:
+                    thumb.set_image(thumb.qimages)
                 thumb.set_transparent_frame(1.0)
                 thumb.blue_text_wid.set_text(thumb.rating, thumb.type_, thumb.mod, thumb.size)
             except RuntimeError as e:

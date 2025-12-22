@@ -487,7 +487,7 @@ class SearchTask(URunnable):
                 img_array = SharedUtils.fit_image(img_array, Static.max_thumb_size)
                 insert(base_item, img_array)
             qimage = Utils.qimage_from_array(img_array)
-            base_item.qimage = qimage
+            base_item.qimages = qimage
         base_item.uti_type = Utils.get_uti_type(entry.path)
         self.sigs.new_widget.emit(base_item)
         QTest.qSleep(SearchTask.new_wid_sleep_ms)
@@ -668,7 +668,7 @@ class DbItemsLoader(URunnable):
         for i in svg_files:
             if not self.is_should_run():
                 break
-            i.qimage = Utils.render_svg(i.src, 512)
+            i.qimages = Utils.render_svg(i.src, 512)
             self.update_thumb(i)
 
     def execute_ratings(self, exist_ratings: list[BaseItem]):
@@ -682,7 +682,7 @@ class DbItemsLoader(URunnable):
             if not self.is_should_run():
                 break
             qimage = Utils.qimage_from_array(Utils.read_thumb(i.thumb_path))
-            i.qimage = qimage
+            i.qimages = qimage
             self.update_thumb(i)
 
     def execute_new_images(self, new_images: list[BaseItem]):
@@ -696,7 +696,7 @@ class DbItemsLoader(URunnable):
             else:
                 img = SharedUtils.fit_image(img, Static.max_thumb_size)
                 qimage = Utils.qimage_from_array(img)
-                i.qimage = qimage
+                i.qimages = qimage
                 Utils.write_thumb(i.thumb_path, img)
             self.update_thumb(i)
     
@@ -711,7 +711,7 @@ class DbItemsLoader(URunnable):
                     new_corrupted.append(i)
                     continue
                 img = SharedUtils.fit_image(img, Static.max_thumb_size)
-                i.qimage = Utils.qimage_from_array(img)
+                i.qimages = Utils.qimage_from_array(img)
                 Utils.write_thumb(i.thumb_path, img)
                 self.update_thumb(i)
             if not new_corrupted:
