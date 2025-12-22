@@ -288,7 +288,8 @@ class ImgViewWin(WinBase):
     def load_thumbnail(self):
         self.set_title()
         self.text_label.hide()
-        pixmap = self.current_thumb.big_pixmap
+        qimage = self.current_thumb.qimages[Static.image_sizes[-1]]
+        pixmap = QPixmap.fromImage(qimage)
         if self.current_thumb.loaded:
             QTimer.singleShot(0, lambda: self.restart_img_wid(pixmap))
         else:
