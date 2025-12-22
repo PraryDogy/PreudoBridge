@@ -204,11 +204,8 @@ class Thumb(BaseItem, QFrame):
         self.img_frame.setFixedSize(Thumb.current_img_frame_size, Thumb.current_img_frame_size)
 
         if self.qimages:
-            try:
-                pixmap = QPixmap(self.qimages[Thumb.current_pixmap_size])
-                self.img_wid.setPixmap(pixmap)
-            except AttributeError:
-                print("OK, grid > thumb > set widget size > set alignment attribute error")
+            pixmap = QPixmap(self.qimages[Thumb.current_pixmap_size])
+            self.img_wid.setPixmap(pixmap)
         else:
             self.set_uti_image()
 
