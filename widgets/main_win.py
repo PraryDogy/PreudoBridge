@@ -118,22 +118,15 @@ class MainWin(WinBase):
 
     def __init__(self, dir: str = None):
         super().__init__()
-
+        self.setMinimumSize(MainWin.min_width_, MainWin.min_height_)
+        self.resize(Static.base_ww, Static.base_hh)
+    
         self.main_win_list: list[MainWin] = []
         self.search_item: SearchItem = SearchItem()
         self.main_win_item: MainWinItem = MainWinItem()
         self.sort_item: SortItem = SortItem()
         self.img_view_win = None
         self.win_copy = None
-
-        self.setMinimumSize(MainWin.min_width_, MainWin.min_height_)
-        self.resize(Static.base_ww, Static.base_hh)
-        self.bar_macos = BarMacos()
-        self.bar_macos.new_win.connect(lambda: self.open_in_new_win((None, None)))
-        self.bar_macos.servers_win.connect(self.open_servers_win)
-        self.bar_macos.settings_win.connect(self.open_settings)
-        self.bar_macos.go_to_win.connect(self.open_go_to_win)
-        self.setMenuBar(self.bar_macos)
 
         if MainWin.first_load:
             self.change_theme()
@@ -149,6 +142,14 @@ class MainWin(WinBase):
         self.resize_timer = QTimer(self)
         self.resize_timer.setSingleShot(True)
         self.resize_timer.timeout.connect(self.resize_timer_timeout)
+
+        self.bar_macos = BarMacos()
+        self.bar_macos.new_win.connect(lambda: self.open_in_new_win((None, None)))
+        self.bar_macos.servers_win.connect(self.open_servers_win)
+        self.bar_macos.settings_win.connect(self.open_settings)
+        self.bar_macos.go_to_win.connect(self.open_go_to_win)
+        self.setMenuBar(self.bar_macos)
+
 
         main_lay = QHBoxLayout()
         main_lay.setContentsMargins(5, 0, 5, 0)
