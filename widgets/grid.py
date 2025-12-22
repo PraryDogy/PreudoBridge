@@ -642,8 +642,9 @@ class Grid(UScrollArea):
         self.rem_win.show()
 
     def new_thumb(self, url: str):
-        thumb = Thumb(url)
-        thumb.set_properties()
+        base_item = BaseItem(url)
+        base_item.set_properties()
+        thumb = Thumb(base_item)
         thumb.resize_()
         thumb.set_no_frame()
 
