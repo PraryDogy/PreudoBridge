@@ -74,7 +74,6 @@ else:
 
 from cfg import JsonData
 from system.database import Dbase
-from system.items import DataItem
 from system.tasks import UThreadPool
 from system.utils import Utils
 from widgets._base_widgets import WinBase
@@ -113,6 +112,5 @@ QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
 JsonData.init()
 UThreadPool.init()
 Dbase.init()
-DataItem.check_sortitem_attrs()
 app = App(argv=sys.argv)
 app.exec()

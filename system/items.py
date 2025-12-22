@@ -51,11 +51,6 @@ class SortItem:
 
 class DataItem:
     def __init__(self, src: str, rating: int = 0):
-        """
-        Запустите set_properties, чтобы обновить данные.
-        set_properties нельзя делать автозапуском, т.к. тогда Thumb, наследуемый
-        от BaseItem, так же повторно будет запускать set_properties
-        """
         super().__init__()
         self.src: str = src
         self.filename: str = None
@@ -112,14 +107,6 @@ class DataItem:
             self.mod = 0
             self.birth = 0
             self.size = 0
-    
-    @staticmethod
-    def check_sortitem_attrs():
-        sort_attrs = SortItem().get_attrs()
-        base_item = DataItem("/Volumes")
-        missing = [attr for attr in sort_attrs if not hasattr(base_item, attr)]
-        if missing:
-            raise AttributeError(f"\n\nВ Thumb отсутствуют атрибуты сортировки: {missing}\n\n")
 
     @classmethod
     def sort_items(cls, base_items: list["DataItem"], sort_item: SortItem) -> list["DataItem"]:
