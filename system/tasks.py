@@ -259,9 +259,9 @@ class RatingTask(URunnable):
     class Sigs(QObject):
         finished_ = pyqtSignal()
 
-    def __init__(self, main_dir: str, base_item: DataItem, new_rating: int):
+    def __init__(self, main_dir: str, data_item: DataItem, new_rating: int):
         super().__init__()
-        self.base_item = base_item
+        self.data_item = data_item
         self.new_rating = new_rating
         self.main_dir = main_dir
         self.sigs = RatingTask.Sigs()
@@ -269,10 +269,10 @@ class RatingTask(URunnable):
     def task(self):        
         conn = Dbase.get_conn(Dbase.engine)
         stmt = sqlalchemy.update(CACHE)
-        if self.base_item.type_ == Static.folder_type:
-            stmt = stmt.where(*DataItem.get_folder_conds(self.base_item))
+        if self.data_item.type_ == Static.folder_type:
+            stmt = stmt.where(*DataItem.get_folder_conds(self.data_item))
         else:
-            stmt = stmt.where(Clmns.partial_hash==self.base_item.partial_hash)
+            stmt = stmt.where(Clmns.partial_hash==self.data_item.partial_hash)
         stmt = stmt.values(rating=self.new_rating)
         Dbase.execute(conn, stmt)
         Dbase.commit(conn)
@@ -468,9 +468,9 @@ class SearchTask(URunnable):
                 Dbase.execute(self.conn, i)
             Dbase.commit(self.conn)
 
-        def insert(base_item: DataItem, img_array: np.ndarray):
-            if Utils.write_thumb(base_item.thumb_path, img_array):
-                stmt_list.append(DataItem.insert_file_stmt(base_item))
+        def insert(data_item: DataItem, img_array: np.ndarray):
+            if Utils.write_thumb(data_item.thumb_path, img_array):
+                stmt_list.append(DataItem.insert_file_stmt(data_item))
                 if len(stmt_list) == stmt_limit:
                     execute_stmt_list(stmt_list)
                     stmt_list.clear()
@@ -478,27 +478,27 @@ class SearchTask(URunnable):
         stmt_list: list = []
         stmt_limit = 10
 
-        base_item = DataItem(entry.path)
-        base_item.set_properties()
-        if base_item.type_ != Static.folder_type:
-            base_item.set_partial_hash()
+        data_item = DataItem(entry.path)
+        data_item.set_properties()
+        if data_item.type_ != Static.folder_type:
+            data_item.set_partial_hash()
         if entry.name.endswith(Static.img_exts):
-            if os.path.exists(base_item.thumb_path):
-                img_array = Utils.read_thumb(base_item.thumb_path)
+            if os.path.exists(data_item.thumb_path):
+                img_array = Utils.read_thumb(data_item.thumb_path)
             else:
                 img_array = ReadImage.read_image(entry.path)
                 img_array = SharedUtils.fit_image(img_array, Static.max_thumb_size)
-                insert(base_item, img_array)
+                insert(data_item, img_array)
             qimage = Utils.qimage_from_array(img_array)
-            base_item.qimages = {
+            data_item.qimages = {
                 i: Utils.scaled(qimage, i)
                 for i in Static.image_sizes
             }
-            base_item.qimages.update({"src": qimage})
+            data_item.qimages.update({"src": qimage})
         # мы используем для получения типа именно генератор, чтобы
         # скачать новые иконки, если их нет
-        base_item.uti_type, _ = Utils.uti_generator(entry.path)
-        self.sigs.new_widget.emit(base_item)
+        data_item.uti_type, _ = Utils.uti_generator(entry.path)
+        self.sigs.new_widget.emit(data_item)
         QTest.qSleep(SearchTask.new_wid_sleep_ms)
 
 
@@ -626,41 +626,41 @@ class DbItemsLoader(URunnable):
         svg_files: list[DataItem] = []
         exist_ratings: list[DataItem] = []
 
-        for base_item in self.data_items:
+        for data_item in self.data_items:
             if not self.is_should_run():
                 return
-            if base_item.image_is_loaded:
+            if data_item.image_is_loaded:
                 continue
-            if base_item.filename.endswith((".svg", ".SVG")):
-                svg_files.append(base_item)
-            elif base_item.type_ == Static.folder_type:
-                rating = self.get_item_rating(base_item)
+            if data_item.filename.endswith((".svg", ".SVG")):
+                svg_files.append(data_item)
+            elif data_item.type_ == Static.folder_type:
+                rating = self.get_item_rating(data_item)
                 if rating is None:
-                    stmt_list.append(DataItem.insert_folder_stmt(base_item))
+                    stmt_list.append(DataItem.insert_folder_stmt(data_item))
                 else:
-                    base_item.rating = rating
-                    stmt_list.append(DataItem.update_folder_stmt(base_item))
-                    exist_ratings.append(base_item)
+                    data_item.rating = rating
+                    stmt_list.append(DataItem.update_folder_stmt(data_item))
+                    exist_ratings.append(data_item)
             else:
-                if not os.access(base_item.src, 4):
-                    print("tasks, db items loader, process thumbs, access deined", base_item.src)
+                if not os.access(data_item.src, 4):
+                    print("tasks, db items loader, process thumbs, access deined", data_item.src)
                     continue
-                base_item.set_partial_hash()
-                rating = self.get_item_rating(base_item)
+                data_item.set_partial_hash()
+                rating = self.get_item_rating(data_item)
                 if rating is None:
-                    stmt_list.append(DataItem.insert_file_stmt(base_item))
-                    if base_item.type_ in Static.img_exts:
-                        new_images.append(base_item)
+                    stmt_list.append(DataItem.insert_file_stmt(data_item))
+                    if data_item.type_ in Static.img_exts:
+                        new_images.append(data_item)
                 else:
-                    base_item.rating = rating
-                    stmt_list.append(DataItem.update_file_stmt(base_item))
-                    if base_item.type_ in Static.img_exts:
-                        if base_item.thumb_path and os.path.exists(base_item.thumb_path):
-                            exist_images.append(base_item)
+                    data_item.rating = rating
+                    stmt_list.append(DataItem.update_file_stmt(data_item))
+                    if data_item.type_ in Static.img_exts:
+                        if data_item.thumb_path and os.path.exists(data_item.thumb_path):
+                            exist_images.append(data_item)
                         else:
-                            new_images.append(base_item)
+                            new_images.append(data_item)
                     else:
-                        exist_ratings.append(base_item)
+                        exist_ratings.append(data_item)
 
         self.execute_ratings(exist_ratings)
         self.execute_svg_files(svg_files)
@@ -761,12 +761,12 @@ class DbItemsLoader(URunnable):
             self.set_should_run(False)
             print("tasks, LoadImagesTask set_loading.emit error", e)
 
-    def get_item_rating(self, base_item: DataItem) -> bool:
+    def get_item_rating(self, data_item: DataItem) -> bool:
         stmt = sqlalchemy.select(Clmns.rating)
-        if base_item.type_ == Static.folder_type:
-            stmt = stmt.where(*DataItem.get_folder_conds(base_item))
+        if data_item.type_ == Static.folder_type:
+            stmt = stmt.where(*DataItem.get_folder_conds(data_item))
         else:
-            stmt = stmt.where(Clmns.partial_hash==base_item.partial_hash)
+            stmt = stmt.where(Clmns.partial_hash==data_item.partial_hash)
         res = Dbase.execute(self.conn, stmt).scalar()
         return res
     
@@ -1372,10 +1372,10 @@ class CacheDownloader(URunnable):
                 if stmt_list:
                     self.execute_stmt_list(stmt_list)
                 return
-            base_item: DataItem = data["base_item"]
+            data_item: DataItem = data["data_item"]
             self.current_count = x
-            self.current_filename = base_item.filename
-            if self.write_thumb(base_item):
+            self.current_filename = data_item.filename
+            if self.write_thumb(data_item):
                 stmt_list.append(data["stmt"])
                 if len(stmt_list) == stmt_limit:
                     self.execute_stmt_list(stmt_list)
@@ -1400,20 +1400,20 @@ class CacheDownloader(URunnable):
                 if i.is_dir():
                     stack.append(i.path)
                 elif i.name.endswith(Static.img_exts):
-                    base_item = DataItem(i.path)
-                    base_item.set_properties()
-                    base_item.set_partial_hash()
-                    if self.exists_check(base_item) is None:
+                    data_item = DataItem(i.path)
+                    data_item.set_properties()
+                    data_item.set_partial_hash()
+                    if self.exists_check(data_item) is None:
                         new_images.append({
-                            "base_item": base_item,
-                            "stmt": DataItem.insert_file_stmt(base_item)
+                            "data_item": data_item,
+                            "stmt": DataItem.insert_file_stmt(data_item)
                         })
         return new_images
 
-    def exists_check(self, base_item: DataItem):
+    def exists_check(self, data_item: DataItem):
         stmt = (
             sqlalchemy.select(Clmns.id)
-            .where(Clmns.partial_hash == base_item.partial_hash)
+            .where(Clmns.partial_hash == data_item.partial_hash)
         )
         return Dbase.execute(self.conn, stmt).scalar() or None
     
@@ -1422,10 +1422,10 @@ class CacheDownloader(URunnable):
             return text[:limit] + "..."
         return text
 
-    def write_thumb(self, base_item: DataItem):
-        img = ReadImage.read_image(base_item.src)
+    def write_thumb(self, data_item: DataItem):
+        img = ReadImage.read_image(data_item.src)
         img = SharedUtils.fit_image(img, Static.max_thumb_size)
-        return Utils.write_thumb(base_item.thumb_path, img)
+        return Utils.write_thumb(data_item.thumb_path, img)
     
 
 
@@ -1492,8 +1492,8 @@ class MultipleItemsInfo(URunnable):
                 self.total_size += i.size
                 self.total_files += 1
 
-    def get_folder_size(self, base_item: DataItem):
-        stack = [base_item.src]
+    def get_folder_size(self, data_item: DataItem):
+        stack = [data_item.src]
         while stack:
             current_dir = stack.pop()
             try:
@@ -1534,22 +1534,22 @@ class FileInfo(URunnable):
     resol_text = "Разрешение: "
     row_limit = 50
 
-    def __init__(self, base_item: DataItem):
+    def __init__(self, data_item: DataItem):
         super().__init__()
-        self.base_item = base_item
+        self.data_item = data_item
         self.signals = FileInfo.Sigs()
 
     def task(self) -> dict[str, str| int]:
-        if self.base_item.type_ == Static.folder_type:
+        if self.data_item.type_ == Static.folder_type:
             size_ = self.calculating
             type_ = self.ru_folder
         else:
-            size_ = SharedUtils.get_f_size(self.base_item.size)
-            type_ = self.base_item.type_
+            size_ = SharedUtils.get_f_size(self.data_item.size)
+            type_ = self.data_item.type_
         
-        name = self.lined_text(self.base_item.filename)
-        src = self.lined_text(self.base_item.src)
-        mod = SharedUtils.get_f_date(self.base_item.mod)
+        name = self.lined_text(self.data_item.filename)
+        src = self.lined_text(self.data_item.src)
+        mod = SharedUtils.get_f_date(self.data_item.mod)
 
         data = {
             FileInfo.name_text: name,
@@ -1559,7 +1559,7 @@ class FileInfo(URunnable):
             FileInfo.size_text: size_,
             }
         
-        if self.base_item.type_ != Static.folder_type:
+        if self.data_item.type_ != Static.folder_type:
             data.update({FileInfo.resol_text: self.calculating})
 
         self.signals.finished_info.emit(data)
