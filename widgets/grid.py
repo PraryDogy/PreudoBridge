@@ -247,6 +247,11 @@ class Thumb(QFrame):
         effect = QGraphicsOpacityEffect(self)
         effect.setOpacity(value)
         self.setGraphicsEffect(effect)
+        return
+
+        effect = QGraphicsOpacityEffect(self.blue_text_wid)
+        effect.setOpacity(value)
+        self.blue_text_wid.setGraphicsEffect(effect)
 
 
 class NoItemsLabel(QLabel):
@@ -618,7 +623,6 @@ class Grid(UScrollArea):
         CopyItem.urls.clear()
         for i in self.selected_thumbs:
             CopyItem.urls.append(i.data.src)
-        self.rearrange_thumbs()
 
     def remove_no_items_label(self):
         wid = self.main_wid.findChild(NoItemsLabel)
