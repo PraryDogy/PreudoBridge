@@ -6,7 +6,7 @@ from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import (QCloseEvent, QKeyEvent, QMouseEvent, QPalette,
                          QResizeEvent)
 from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
-                             QTabWidget, QVBoxLayout, QWidget)
+                             QTabWidget, QVBoxLayout, QWidget, QFrame)
 
 from cfg import Dynamic, JsonData, Static
 from system.items import DataItem, CopyItem, MainWinItem, SearchItem, SortItem
@@ -75,6 +75,25 @@ class ScrollUpBtn(QLabel):
         if ev.button() == Qt.MouseButton.LeftButton:
             self.clicked.emit()
         return super().mouseReleaseEvent(ev)
+
+
+class LoadingWidget(QFrame):
+    def __init__(self):
+        super().__init__()
+        self.setFixedSize(80, 25)
+
+        label = QLabel("Загрузка…")
+        label.setAlignment(Qt.AlignCenter)
+
+        lay = QVBoxLayout(self)
+        lay.setContentsMargins(8, 4, 8, 4)
+        lay.addWidget(label)
+
+        self.setFrameShape(QFrame.StyledPanel)
+        self.setStyleSheet(f"""
+            background: {Static.rgba_gray};
+            border-radius: 7px;
+        """)
 
 
 class MainWin(WinBase):
@@ -504,13 +523,18 @@ class MainWin(WinBase):
             if is_avaiable:
                 self._load_st_grid()
 
-        self.grid_spacer.resize(0, self.height())
-        self.grid_spacer.setFocus()
-        QTimer.singleShot(1, self.grid.hide)
+        # self.grid_spacer.resize(0, self.height())
+        # self.grid_spacer.setFocus()
+        # QTimer.singleShot(1, self.grid.hide)
 
         self.avaiability_task = DiskChecker(self.main_win_item.main_dir)
         self.avaiability_task.sigs.available.connect(fin)
         UThreadPool.start(self.avaiability_task)
+
+        self.loading_wid = LoadingWidget()
+        self.loading_wid.setParent(self.grid)
+        self.loading_wid.move(self.grid.width() // 2, self.grid.height() // 2)
+        self.loading_wid.show()
     
     def _load_st_grid(self):
 
@@ -575,6 +599,7 @@ class MainWin(WinBase):
             self.disable_wids(True)
 
         self.setup_grid_signals()
+        self.grid.load_finished.connect(self.loading_wid.deleteLater)
         self.grid.load_finished.connect(self.grid.setFocus)
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
         self.grid_spacer.resize(0, 0)
