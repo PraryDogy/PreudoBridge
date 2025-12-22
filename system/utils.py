@@ -309,9 +309,9 @@ class Utils:
                 return symlink_bytes, Dynamic.uti_data[symlink_bytes]
             
             bytes_icon = get_bytes_icon(filepath)
-            pixmap = QPixmap()
-            pixmap.loadFromData(bytes_icon)
-            set_uti_data(symlink_bytes, pixmap)
+            qimage = QImage()
+            qimage.loadFromData(bytes_icon)
+            set_uti_data(symlink_bytes, qimage)
 
             uti_png_icon_path = os.path.join(Static.external_uti_dir, f"{symlink_bytes}.png")
             if not os.path.exists(uti_png_icon_path):
@@ -331,8 +331,8 @@ class Utils:
                 return bundle, Dynamic.uti_data[bundle]
 
             bytes_icon = get_bytes_icon(filepath)
-            pixmap = QPixmap()
-            pixmap.loadFromData(bytes_icon)
+            qimage = QImage()
+            qimage.loadFromData(bytes_icon)
             set_uti_data(bundle, pixmap)
 
             uti_png_icon_path = os.path.join(Static.external_uti_dir, f"{bundle}.png")
@@ -368,7 +368,7 @@ class Utils:
             qimage.save(uti_png_icon_path, "PNG")
             # print("save any", filepath)
 
-        pixmap = QPixmap(uti_png_icon_path)
+        pixmap = QImage(uti_png_icon_path)
         if pixmap.isNull():
             return get_errored_icon()
 
@@ -377,14 +377,17 @@ class Utils:
     
     @classmethod
     def load_uti_icons_to_ram(cls):
+        flags = Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
         for entry in os.scandir(Static.external_uti_dir):
             if entry.is_file() and entry.name.endswith(".png"):
                 uti_filetype = entry.name.rsplit(".png", 1)[0]
-                pixmap = QPixmap(QImage(entry.path))
+                qimage = QImage(entry.path)
                 Dynamic.uti_data[uti_filetype] = {}
                 for i in Static.pixmap_sizes:
-                    small_pixmap = Utils.qiconed_resize(pixmap, i)
-                    Dynamic.uti_data[uti_filetype][i] = small_pixmap
+                    resized_qimage = qimage.scaled(i, i, *flags)
+                    Dynamic.uti_data[uti_filetype][i] = resized_qimage
+
+        print(Dynamic.uti_data)
 
     @classmethod
     def load_image_apps(cls):
