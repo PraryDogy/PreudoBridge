@@ -103,7 +103,7 @@ class FiltersMenu(QWidget):
     def on_text_changed(self):
         text = self.line_edit.toPlainText()
         if text:
-            Dynamic.word_filters = [i.strip() for i in text.split(",")]
+            Dynamic.word_filters = [i.strip() for i in text.split(",") if i]
             if text[-1] == ",":
                 self.filter_thumbs.emit()
                 self.rearrange_thumbs.emit()
