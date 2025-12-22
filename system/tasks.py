@@ -626,6 +626,8 @@ class DbItemsLoader(URunnable):
         for base_item in self.base_items:
             if not self.is_should_run():
                 return
+            if base_item.image_is_loaded:
+                continue
             if base_item.filename.endswith((".svg", ".SVG")):
                 svg_files.append(base_item)
             elif base_item.type_ == Static.folder_type:

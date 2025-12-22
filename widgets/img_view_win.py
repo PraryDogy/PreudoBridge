@@ -291,7 +291,7 @@ class ImgViewWin(WinBase):
         self.text_label.hide()
         qimage = self.current_thumb.qimages["src"]
         pixmap = QPixmap.fromImage(qimage)
-        if self.current_thumb.loaded:
+        if self.current_thumb.image_is_loaded:
             QTimer.singleShot(0, lambda: self.restart_img_wid(pixmap))
         else:
             t = f"{os.path.basename(self.current_path)}\n{self.loading_text}"

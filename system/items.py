@@ -67,7 +67,7 @@ class BaseItem:
         self.uti_type: str = None
         self.partial_hash: str = None
         self.thumb_path: str = None
-        self.loaded: bool = False
+        self.image_is_loaded: bool = False
         self.must_hidden: bool = False
         self.row, self.col = 0, 0
 

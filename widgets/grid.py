@@ -183,7 +183,7 @@ class Thumb(BaseItem, QFrame):
         qimage = self.qimages[Thumb.current_image_size]
         pixmap = QPixmap.fromImage(qimage)
         self.img_wid.setPixmap(pixmap)
-        self.loaded = True
+        self.image_is_loaded = True
 
     def migrate_from_base_item(self, base_item: BaseItem):
         """
