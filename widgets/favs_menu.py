@@ -7,7 +7,6 @@ from PyQt5.QtWidgets import QAction, QLabel, QListWidget, QListWidgetItem
 
 from cfg import JsonData, Static
 from system.items import MainWinItem
-from system.shared_utils import SharedUtils
 from system.utils import Utils
 
 from ._base_widgets import UMenu
@@ -145,7 +144,7 @@ class FavsMenu(QListWidget):
         _, uti_data = Utils.uti_generator(dir)
         qimage: QImage = uti_data[Static.image_sizes[0]]
         qimage = Utils.scaled(qimage, self.svg_size)
-        return QIcon(QPixmap(qimage))
+        return QIcon(QPixmap.fromImage(qimage))
 
     def init_ui(self):
         self.clear()

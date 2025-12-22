@@ -11,8 +11,8 @@ import cv2
 import numpy as np
 from AppKit import NSBitmapImageRep, NSBundle, NSPNGFileType, NSWorkspace
 from PIL import Image
-from PyQt5.QtCore import QByteArray, QRect, QRectF, QSize, Qt
-from PyQt5.QtGui import QColor, QFont, QIcon, QImage, QPainter, QPixmap
+from PyQt5.QtCore import QRect, QRectF, QSize, Qt
+from PyQt5.QtGui import QColor, QFont, QIcon, QImage, QPainter
 from PyQt5.QtSvg import QSvgGenerator, QSvgRenderer
 from PyQt5.QtWidgets import QApplication
 
@@ -256,20 +256,6 @@ class Utils:
         )
         scaled.setDevicePixelRatio(dpr)
         return scaled
-
-    @classmethod
-    def qiconed_resize(cls, pixmap: QPixmap, max_side: int) -> QPixmap:
-        if pixmap.isNull():
-            return QPixmap()
-        w, h = pixmap.width(), pixmap.height()
-        if w > h:
-            new_w = max_side
-            new_h = int(h * max_side / w)
-        else:
-            new_h = max_side
-            new_w = int(w * max_side / h)
-        icon = QIcon(pixmap)
-        return icon.pixmap(QSize(new_w, new_h))
     
     @classmethod
     def fill_missing_methods(cls, from_cls: callable, to_cls: callable):
@@ -285,9 +271,9 @@ class Utils:
     @classmethod
     def uti_generator(cls, filepath: str, size: int = 512):
         """
-        Возвращает uti filetype, {pixmap_size: QPixmap, pixmap_size: QPixmap, }
-        pixmap_size ссылается на Static.pixmap_sizes, то есть будет возвращен
-        словарик с QPixmap, соответвующий всем размерам из Static.pixmap_sizes
+        Возвращает uti filetype, {image_size: QImage, image_size: QImage, }
+        image_size ссылается на Static.image_sizes, то есть будет возвращен
+        словарик с QImage, соответвующий всем размерам из Static.image_sizes
         """
 
         def get_bytes_icon(filepath: str):

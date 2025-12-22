@@ -3,7 +3,7 @@ import os
 import re
 
 import sqlalchemy
-from PyQt5.QtGui import QImage, QPixmap
+from PyQt5.QtGui import QImage
 
 from cfg import Static
 

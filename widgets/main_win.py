@@ -4,7 +4,7 @@ import subprocess
 
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import (QCloseEvent, QKeyEvent, QMouseEvent, QPalette,
-                         QPixmap, QResizeEvent)
+                         QResizeEvent)
 from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
 
@@ -12,8 +12,8 @@ from cfg import Dynamic, JsonData, Static
 from system.items import BaseItem, CopyItem, MainWinItem, SearchItem, SortItem
 from system.paletes import UPallete
 from system.shared_utils import SharedUtils
-from system.tasks import (AutoCacheCleaner, PathFinderTask,
-                          RatingTask, UThreadPool)
+from system.tasks import (AutoCacheCleaner, PathFinderTask, RatingTask,
+                          UThreadPool)
 from system.utils import Utils
 
 from ._base_widgets import USep, WinBase
@@ -28,12 +28,12 @@ from .grid_standart import GridStandart
 from .img_view_win import ImgViewWin
 from .info_win import InfoWin
 from .path_bar import PathBar
+from .rating_menu import FiltersMenu
 from .search_bar import SearchBar
 from .servers_win import ServersWin
 from .settings_win import SettingsWin
 from .sort_bar import SortBar
 from .table_view import TableView
-from .rating_menu import FiltersMenu
 from .top_bar import TopBar
 from .tree_menu import TreeMenu
 from .warn_win import WinQuestion

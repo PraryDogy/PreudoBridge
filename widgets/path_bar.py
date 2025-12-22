@@ -1,8 +1,8 @@
 import os
 
-from PyQt5.QtCore import QMimeData, Qt, QTimer, QUrl, pyqtSignal
-from PyQt5.QtGui import QContextMenuEvent, QDrag, QImage, QMouseEvent, QPixmap
-from PyQt5.QtWidgets import QApplication, QHBoxLayout, QLabel, QWidget
+from PyQt5.QtCore import Qt, QTimer, pyqtSignal
+from PyQt5.QtGui import QContextMenuEvent, QImage, QPixmap
+from PyQt5.QtWidgets import QHBoxLayout, QLabel, QWidget
 
 from cfg import JsonData, Static
 from system.items import BaseItem, MainWinItem

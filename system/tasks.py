@@ -11,7 +11,7 @@ import sqlalchemy
 from PIL import Image
 from PyQt5.QtCore import (QObject, QRunnable, QThread, QThreadPool, QTimer,
                           pyqtSignal)
-from PyQt5.QtGui import QImage, QPixmap
+from PyQt5.QtGui import QImage
 from PyQt5.QtTest import QTest
 from sqlalchemy.exc import IntegrityError, OperationalError
 from watchdog.events import FileSystemEvent, FileSystemEventHandler
