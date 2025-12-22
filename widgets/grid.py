@@ -134,7 +134,7 @@ class Thumb(QFrame):
 
     def __init__(self, base_item: BaseItem):
         super().__init__()
-        self.base_item = base_item
+        self.data = base_item
 
         self.v_lay = QVBoxLayout()
         self.v_lay.setContentsMargins(0, 0, 0, 0)
@@ -172,18 +172,18 @@ class Thumb(QFrame):
         Thumb.corner = Static.corner_sizes[ind]
 
     def set_uti_image(self):
-        if self.base_item.uti_type not in Dynamic.uti_data:
+        if self.data.uti_type not in Dynamic.uti_data:
             print("Thumb, set uti image, uti type not in uti data", self.uti_type, self.src)
             return
-        qimage = Dynamic.uti_data[self.base_item.uti_type][Thumb.current_image_size]
+        qimage = Dynamic.uti_data[self.data.uti_type][Thumb.current_image_size]
         pixmap = QPixmap.fromImage(qimage)
         self.img_wid.setPixmap(pixmap)
 
     def set_image(self):
-        qimage = self.base_item.qimages[Thumb.current_image_size]
+        qimage = self.data.qimages[Thumb.current_image_size]
         pixmap = QPixmap.fromImage(qimage)
         self.img_wid.setPixmap(pixmap)
-        self.base_item.image_is_loaded = True
+        self.data.image_is_loaded = True
 
     def resize_(self):
         """
@@ -191,14 +191,14 @@ class Thumb(QFrame):
         Устанавливает текст в дочерних виджетах в соответствии с размерами  
         Устанавливает изображение в дочерних виджетах в соответствии в размерами
         """
-        self.text_wid.set_text(self.base_item)
-        self.blue_text_wid.set_text(self.base_item)
+        self.text_wid.set_text(self.data)
+        self.blue_text_wid.set_text(self.data)
 
         self.setFixedSize(Thumb.thumb_w, Thumb.thumb_h)
         self.img_wid.setFixedSize(Thumb.current_image_size, Thumb.current_image_size)
         self.img_frame.setFixedSize(Thumb.current_img_frame_size, Thumb.current_img_frame_size)
 
-        if self.base_item.qimages:
+        if self.data.qimages:
             self.set_image()
         else:
             self.set_uti_image()
@@ -323,7 +323,7 @@ class Grid(UScrollArea):
         UThreadPool.start(self.dirs_wacher)
 
     def apply_changes(self, e: FileSystemEvent):
-        is_selected = any(i for i in self.selected_thumbs if i.src==e.src_path)
+        is_selected = any(i for i in self.selected_thumbs if i.data.src==e.src_path)
         new_thumb = None
         if e.event_type == "deleted":
             if is_selected:
@@ -344,8 +344,8 @@ class Grid(UScrollArea):
         elif e.event_type == "modified":
             if e.src_path in self.url_to_wid:
                 wid = self.url_to_wid[e.src_path]
-                wid.set_properties()
-                wid.blue_text_wid.set_text(wid.rating, wid.type_, wid.mod, wid.size)
+                wid.data.set_properties()
+                wid.blue_text_wid.set_text(wid.data)
         if not self.url_to_wid:
             self.create_no_items_label(NoItemsLabel.no_files)
         else:
@@ -458,18 +458,18 @@ class Grid(UScrollArea):
         visible_thumbs = 0
         for wid in self.url_to_wid.values():
             show_widget = True
-            if Dynamic.rating_filter > 0 and wid.rating != Dynamic.rating_filter:
+            if Dynamic.rating_filter > 0 and wid.data.rating != Dynamic.rating_filter:
                 show_widget = False
             if Dynamic.word_filters:
                 for i in Dynamic.word_filters:
-                    if i.lower() not in wid.filename.lower():
+                    if i.lower() not in wid.data.filename.lower():
                         show_widget = False
             if show_widget:
-                wid.must_hidden = False
+                wid.data.must_hidden = False
                 wid.show()
                 visible_thumbs += 1
             else:
-                wid.must_hidden = True
+                wid.data.must_hidden = True
                 wid.hide()
         if visible_thumbs == 0:
             self.create_no_items_label(NoItemsLabel.no_filter)
@@ -500,7 +500,7 @@ class Grid(UScrollArea):
         self.row, self.col = 0, 0
         self.col_count = self.get_clmn_count()
         for wid in self.url_to_wid.values():
-            if wid.must_hidden:
+            if wid.data.must_hidden:
                 continue
             self.grid_layout.addWidget(wid, self.row, self.col)
             self.add_widget_data(wid, self.row, self.col)
@@ -516,9 +516,9 @@ class Grid(UScrollArea):
         Устанавливает thumb.row, thumb.col
         Добавляет thumb в cell to wid, url to wid
         """
-        wid.row, wid.col = row, col
+        wid.data.row, wid.data.col = row, col
         self.cell_to_wid[row, col] = wid
-        self.url_to_wid[wid.src] = wid
+        self.url_to_wid[wid.data.src] = wid
 
     def open_thumb(self):
         if len(self.selected_thumbs) == 1:
