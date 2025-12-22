@@ -248,7 +248,8 @@ class ReadImage:
         generated = generated_files[0]
         with Image.open(generated) as img:
             arr = np.array(img)
-        generated.unlink()
+        if os.path.exists(generated):
+            generated.unlink()
         return arr
 
     @classmethod
