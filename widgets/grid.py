@@ -185,7 +185,7 @@ class Thumb(QFrame):
         self.img_wid.setPixmap(pixmap)
         self.base_item.image_is_loaded = True
 
-    def set_widget_size(self):
+    def resize_(self):
         """
         Устанавливает фиксированные размеры для дочерних виджетов Thumb     
         Устанавливает текст в дочерних виджетах в соответствии с размерами  
@@ -484,7 +484,7 @@ class Grid(UScrollArea):
         """
         Thumb.calc_size()
         for wid in self.url_to_wid.values():
-            wid.set_widget_size()
+            wid.resize_()
         for i in self.selected_thumbs:
             i.set_frame()
 
@@ -644,7 +644,7 @@ class Grid(UScrollArea):
     def new_thumb(self, url: str):
         thumb = Thumb(url)
         thumb.set_properties()
-        thumb.set_widget_size()
+        thumb.resize_()
         thumb.set_no_frame()
 
         thumb.uti_type = Utils.get_uti_type(thumb.src)
