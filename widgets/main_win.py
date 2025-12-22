@@ -159,7 +159,6 @@ class MainWin(WinBase):
         self.splitter.setHandleWidth(MainWin.splitter_handle_width)
         main_lay.addWidget(self.splitter)
 
-
         self.left_wid = QSplitter()
         self.left_wid.setHandleWidth(MainWin.splitter_handle_width)
         self.left_wid.setOrientation(Qt.Orientation.Vertical)
