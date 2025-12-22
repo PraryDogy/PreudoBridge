@@ -449,7 +449,7 @@ class Grid(UScrollArea):
     
     def sort_thumbs(self):
         print("сортирвока не придумана")
-        os.exit(1)
+        os._exit(1)
         return
         """
         Сортирует виджеты по аттрибуту BaseItem / Thumb
@@ -1286,7 +1286,7 @@ class Grid(UScrollArea):
         self.dirs_wacher.set_should_run(False)
         for i in self.load_images_tasks:
             i.set_should_run(False)
-        urls = [i.src for i in self.selected_thumbs]
+        urls = [i.data.src for i in self.selected_thumbs]
         self.main_win_item.set_urls_to_select(urls)
         for i in self.cell_to_wid.values():
             i.setParent(None)
