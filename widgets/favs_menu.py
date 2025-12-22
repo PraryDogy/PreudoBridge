@@ -144,7 +144,7 @@ class FavsMenu(QListWidget):
         dir = self.main_win_item.main_dir
         _, uti_data = Utils.uti_generator(dir)
         qimage: QImage = uti_data[Static.image_sizes[0]]
-        qimage = qimage.scaled(self.svg_size, self.svg_size, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation)
+        qimage = Utils.scaled(qimage, self.svg_size)
         return QIcon(QPixmap(qimage))
 
     def init_ui(self):

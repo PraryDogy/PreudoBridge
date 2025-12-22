@@ -305,7 +305,7 @@ class Utils:
             flags = Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
             Dynamic.uti_data[uti_filetype] = {}
             for i in Static.image_sizes:
-                resized_qimage = qimage.scaled(i*1.2, i*1.2, *flags)
+                resized_qimage = Utils.scaled(qimage, i)
                 Dynamic.uti_data[uti_filetype][i] = resized_qimage
 
         def get_symlink_bytes(filepath: str):
@@ -328,11 +328,7 @@ class Utils:
             uti_png_icon_path = os.path.join(Static.external_uti_dir, f"{symlink_bytes}.png")
             if not os.path.exists(uti_png_icon_path):
                 qimage = QImage.fromData(bytes_icon)
-                qimage = qimage.scaled(
-                    size, size,
-                    Qt.AspectRatioMode.KeepAspectRatio,
-                    Qt.TransformationMode.SmoothTransformation
-                )
+                qimage = Utils.scaled(qimage, size)
                 qimage.save(uti_png_icon_path, "PNG")
             return symlink_bytes, Dynamic.uti_data[symlink_bytes]
         
@@ -350,13 +346,8 @@ class Utils:
             uti_png_icon_path = os.path.join(Static.external_uti_dir, f"{bundle}.png")
             if not os.path.exists(uti_png_icon_path):
                 qimage = QImage.fromData(bytes_icon)
-                qimage = qimage.scaled(
-                    size, size,
-                    Qt.AspectRatioMode.KeepAspectRatio,
-                    Qt.TransformationMode.SmoothTransformation
-                )
+                qimage = Utils.scaled(qimage, size)
                 qimage.save(uti_png_icon_path, "PNG")
-                # print("save bundle", filepath)
 
             return bundle, Dynamic.uti_data[bundle]
 
@@ -372,13 +363,8 @@ class Utils:
             bytes_icon = get_bytes_icon(filepath)
 
             qimage = QImage.fromData(bytes_icon)
-            qimage = qimage.scaled(
-                size, size,
-                Qt.AspectRatioMode.KeepAspectRatio,
-                Qt.TransformationMode.SmoothTransformation
-            )
+            qimage = Utils.scaled(qimage, size)
             qimage.save(uti_png_icon_path, "PNG")
-            # print("save any", filepath)
 
         pixmap = QImage(uti_png_icon_path)
         if pixmap.isNull():

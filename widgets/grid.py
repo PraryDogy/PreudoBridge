@@ -178,7 +178,7 @@ class Thumb(BaseItem, QFrame):
         pixmap = QPixmap(Dynamic.uti_data[self.uti_type][Thumb.current_pixmap_size])
         self.img_wid.setPixmap(pixmap)
 
-    def set_image(self, img: QImage | QIcon):
+    def set_image(self, img: QImage):
         self.big_pixmap = QPixmap.fromImage(img)
         small_pixmap = Utils.qiconed_resize(self.big_pixmap, Thumb.current_pixmap_size)
         self.img_wid.setPixmap(small_pixmap)
