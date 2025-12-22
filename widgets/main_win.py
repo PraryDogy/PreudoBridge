@@ -227,7 +227,6 @@ class MainWin(WinBase):
         self.scroll_up = ScrollUpBtn(self)
         self.scroll_up.clicked.connect(lambda: self.grid.verticalScrollBar().setValue(0))
 
-
         self.setup_signals()
         self.load_st_grid()
         self.on_start()
