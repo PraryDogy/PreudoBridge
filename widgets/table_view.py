@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QFileSystemModel,
                              QLabel, QSplitter, QTableView)
 
 from cfg import Dynamic, JsonData, Static
-from system.items import BaseItem, CopyItem, MainWinItem
+from system.items import DataItem, CopyItem, MainWinItem
 from system.shared_utils import SharedUtils
 from system.utils import Utils
 
@@ -289,7 +289,7 @@ class TableView(QTableView):
         """
         base_items = []
         for i in src_list:
-            base_item = BaseItem(i)
+            base_item = DataItem(i)
             base_item.set_properties()
             base_items.append(base_item)
         self.info_win.emit(base_items)

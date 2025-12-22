@@ -5,7 +5,7 @@ from PyQt5.QtGui import QContextMenuEvent, QImage, QPixmap
 from PyQt5.QtWidgets import QHBoxLayout, QLabel, QWidget
 
 from cfg import JsonData, Static
-from system.items import BaseItem, MainWinItem
+from system.items import DataItem, MainWinItem
 from system.utils import Utils
 
 from ._base_widgets import UMenu, USvgSqareWidget
@@ -116,7 +116,7 @@ class PathItem(QWidget):
         """
         Открыть окно информации о файле / папке
         """
-        base_item = BaseItem(self.item_dir)
+        base_item = DataItem(self.item_dir)
         base_item.set_properties()
         self.info_win.emit([base_item, ])
 

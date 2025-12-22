@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
 from watchdog.events import FileSystemEvent
 
 from cfg import Dynamic, JsonData, Static
-from system.items import BaseItem, CopyItem, MainWinItem, SortItem
+from system.items import DataItem, CopyItem, MainWinItem, SortItem
 from system.shared_utils import SharedUtils
 from system.tasks import DbItemsLoader, DirWatcher, RatingTask, UThreadPool
 from system.utils import Utils
@@ -64,7 +64,7 @@ class FileNameWidget(QLabel):
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setStyleSheet(f"""font-size: {FONT_SIZE}px;""")
 
-    def set_text(self, base_item: BaseItem) -> list[str]:
+    def set_text(self, base_item: DataItem) -> list[str]:
         name: str | list = base_item.filename
         max_row = Static.row_limits[Dynamic.pixmap_size_ind]
         lines: list[str] = []
@@ -95,7 +95,7 @@ class BlueTextWid(QLabel):
         self.gray_color = "#7C7C7C"
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
     
-    def set_text(self, base_item: BaseItem):
+    def set_text(self, base_item: DataItem):
         self.setStyleSheet(
             f"""
             font-size: {FONT_SIZE}px;
@@ -132,7 +132,7 @@ class Thumb(QFrame):
     thumb_h: int = 0
     corner: int = 0
 
-    def __init__(self, base_item: BaseItem):
+    def __init__(self, base_item: DataItem):
         super().__init__()
         self.data = base_item
 
@@ -440,7 +440,7 @@ class Grid(UScrollArea):
         Сортирует виджеты по аттрибуту BaseItem / Thumb
         """
         thumb_list = list(self.url_to_wid.values())
-        thumb_list = BaseItem.sort_items(thumb_list, self.sort_item)
+        thumb_list = DataItem.sort_items(thumb_list, self.sort_item)
         wid_to_url = {v: k for k, v in self.url_to_wid.items()}
         self.url_to_wid = {
             wid_to_url[thumb]: thumb
@@ -584,7 +584,7 @@ class Grid(UScrollArea):
         """
         (self.add_fav if offset == 1 else self.del_fav).emit(src)
 
-    def open_win_info(self, items: list[BaseItem]):
+    def open_win_info(self, items: list[DataItem]):
         """
         Открыть окно информации о файле / папке
         """
@@ -642,7 +642,7 @@ class Grid(UScrollArea):
         self.rem_win.show()
 
     def new_thumb(self, url: str):
-        base_item = BaseItem(url)
+        base_item = DataItem(url)
         base_item.set_properties()
         thumb = Thumb(base_item)
         thumb.resize_()
@@ -697,7 +697,7 @@ class Grid(UScrollArea):
             i.set_no_frame()
         self.selected_thumbs.clear()
 
-    def select_single_thumb(self, wid: BaseItem | Thumb):
+    def select_single_thumb(self, wid: DataItem | Thumb):
         """
         Очищает визуальное выделение с выделенных виджетов и очищает список.  
         Выделяет виджет, добавляет его в список выделенных виджетов.
@@ -920,7 +920,7 @@ class Grid(UScrollArea):
         self.path_bar_update_delayed(self.main_win_item.main_dir)
         names = [os.path.basename(self.main_win_item.main_dir)]
         urls = [self.main_win_item.main_dir]
-        base_item = BaseItem(self.main_win_item.main_dir)
+        base_item = DataItem(self.main_win_item.main_dir)
         base_item.set_properties()
 
         if not self.is_grid_search and not Dynamic.rating_filter != 0:
@@ -1134,7 +1134,7 @@ class Grid(UScrollArea):
                     self.wid_under_mouse = self.selected_thumbs[-1]
                     self.open_win_info(self.selected_thumbs)
                 else:
-                    base_item = BaseItem(self.main_win_item.main_dir)
+                    base_item = DataItem(self.main_win_item.main_dir)
                     base_item.set_properties()
                     self.open_win_info([base_item, ])
 
@@ -1228,7 +1228,7 @@ class Grid(UScrollArea):
                 self.clear_selected_widgets()
                 self.select_multiple_thumb(self.wid_under_mouse)
             
-            if isinstance(self.wid_under_mouse, (BaseItem, Thumb)):
+            if isinstance(self.wid_under_mouse, (DataItem, Thumb)):
                 self.context_thumb(menu_, self.wid_under_mouse)
             else:
                 self.context_grid(menu_)

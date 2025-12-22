@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
 
 from cfg import Dynamic, Static
-from system.items import BaseItem, MainWinItem, SearchItem, SortItem
+from system.items import DataItem, MainWinItem, SearchItem, SortItem
 from system.tasks import SearchTask, UThreadPool
 from system.utils import Utils
 
@@ -106,7 +106,7 @@ class GridSearch(Grid):
 
     def start_search(self):
 
-        def new_search_thumb(base_item: BaseItem):
+        def new_search_thumb(base_item: DataItem):
             thumb = Thumb(base_item)
             thumb.resize_()
             thumb.set_no_frame()

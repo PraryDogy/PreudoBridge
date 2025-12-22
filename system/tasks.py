@@ -21,7 +21,7 @@ from cfg import Dynamic, JsonData, Static
 from system.shared_utils import PathFinder, ReadImage, SharedUtils
 
 from .database import CACHE, Clmns, Dbase
-from .items import BaseItem, CopyItem, MainWinItem, SearchItem, SortItem
+from .items import DataItem, CopyItem, MainWinItem, SearchItem, SortItem
 from .utils import Utils
 
 
@@ -259,7 +259,7 @@ class RatingTask(URunnable):
     class Sigs(QObject):
         finished_ = pyqtSignal()
 
-    def __init__(self, main_dir: str, base_item: BaseItem, new_rating: int):
+    def __init__(self, main_dir: str, base_item: DataItem, new_rating: int):
         super().__init__()
         self.base_item = base_item
         self.new_rating = new_rating
@@ -270,7 +270,7 @@ class RatingTask(URunnable):
         conn = Dbase.get_conn(Dbase.engine)
         stmt = sqlalchemy.update(CACHE)
         if self.base_item.type_ == Static.folder_type:
-            stmt = stmt.where(*BaseItem.get_folder_conds(self.base_item))
+            stmt = stmt.where(*DataItem.get_folder_conds(self.base_item))
         else:
             stmt = stmt.where(Clmns.partial_hash==self.base_item.partial_hash)
         stmt = stmt.values(rating=self.new_rating)
@@ -283,7 +283,7 @@ class RatingTask(URunnable):
 class SearchTask(URunnable):
 
     class Sigs(QObject):
-        new_widget = pyqtSignal(BaseItem)
+        new_widget = pyqtSignal(DataItem)
         finished_ = pyqtSignal(list)
 
     sleep_ms = 1000
@@ -468,9 +468,9 @@ class SearchTask(URunnable):
                 Dbase.execute(self.conn, i)
             Dbase.commit(self.conn)
 
-        def insert(base_item: BaseItem, img_array: np.ndarray):
+        def insert(base_item: DataItem, img_array: np.ndarray):
             if Utils.write_thumb(base_item.thumb_path, img_array):
-                stmt_list.append(BaseItem.insert_file_stmt(base_item))
+                stmt_list.append(DataItem.insert_file_stmt(base_item))
                 if len(stmt_list) == stmt_limit:
                     execute_stmt_list(stmt_list)
                     stmt_list.clear()
@@ -478,7 +478,7 @@ class SearchTask(URunnable):
         stmt_list: list = []
         stmt_limit = 10
 
-        base_item = BaseItem(entry.path)
+        base_item = DataItem(entry.path)
         base_item.set_properties()
         if base_item.type_ != Static.folder_type:
             base_item.set_partial_hash()
@@ -516,7 +516,7 @@ class FinderItemsLoader(URunnable):
         self.sort_item = sort_item
         self.main_win_item = main_win_item
 
-        self.finder_items: dict[str, BaseItem] = {}
+        self.finder_items: dict[str, DataItem] = {}
         self.db_items: dict[str, int] = {}
         self.conn = Dbase.get_conn(Dbase.engine)
 
@@ -532,10 +532,10 @@ class FinderItemsLoader(URunnable):
             print(traceback.format_exc())
 
     def _task(self):
-        items: list[BaseItem] = []
+        items: list[DataItem] = []
 
         for i, path in enumerate(self._get_paths()):
-            item = BaseItem(path)
+            item = DataItem(path)
             item.set_properties()
             item.uti_type, _ = Utils.uti_generator(path)
             items.append(item)
@@ -543,7 +543,7 @@ class FinderItemsLoader(URunnable):
             # if i % 20 == 0:
                 # QThread.msleep(1)
 
-        items = BaseItem.sort_items(items, self.sort_item)
+        items = DataItem.sort_items(items, self.sort_item)
         self.sigs.finished_.emit(items)
 
     def _get_paths(self):
@@ -586,11 +586,11 @@ class FinderUrlsLoader(URunnable):
 class DbItemsLoader(URunnable):
 
     class Sigs(QObject):
-        update_thumb = pyqtSignal(BaseItem) # на самом деле Thumb
-        set_loading = pyqtSignal(BaseItem)
+        update_thumb = pyqtSignal(DataItem) # на самом деле Thumb
+        set_loading = pyqtSignal(DataItem)
         finished_ = pyqtSignal()
 
-    def __init__(self, main_win_item: MainWinItem, base_items: list[BaseItem]):
+    def __init__(self, main_win_item: MainWinItem, base_items: list[DataItem]):
         """
         URunnable   
         Сортирует список Thumb по размеру по возрастанию для ускорения загрузки
@@ -602,7 +602,7 @@ class DbItemsLoader(URunnable):
         self.base_items = base_items
         self.base_items.sort(key=lambda x: x.size)
         self.conn = Dbase.get_conn(Dbase.engine)
-        self.corrupted_items: list[BaseItem] = []
+        self.corrupted_items: list[DataItem] = []
 
     def task(self):
         """
@@ -621,10 +621,10 @@ class DbItemsLoader(URunnable):
         чтобы передать его в Thumb
         """
         stmt_list: list = []
-        new_images: list[BaseItem] = []
-        exist_images: list[BaseItem] = []
-        svg_files: list[BaseItem] = []
-        exist_ratings: list[BaseItem] = []
+        new_images: list[DataItem] = []
+        exist_images: list[DataItem] = []
+        svg_files: list[DataItem] = []
+        exist_ratings: list[DataItem] = []
 
         for base_item in self.base_items:
             if not self.is_should_run():
@@ -636,10 +636,10 @@ class DbItemsLoader(URunnable):
             elif base_item.type_ == Static.folder_type:
                 rating = self.get_item_rating(base_item)
                 if rating is None:
-                    stmt_list.append(BaseItem.insert_folder_stmt(base_item))
+                    stmt_list.append(DataItem.insert_folder_stmt(base_item))
                 else:
                     base_item.rating = rating
-                    stmt_list.append(BaseItem.update_folder_stmt(base_item))
+                    stmt_list.append(DataItem.update_folder_stmt(base_item))
                     exist_ratings.append(base_item)
             else:
                 if not os.access(base_item.src, 4):
@@ -648,12 +648,12 @@ class DbItemsLoader(URunnable):
                 base_item.set_partial_hash()
                 rating = self.get_item_rating(base_item)
                 if rating is None:
-                    stmt_list.append(BaseItem.insert_file_stmt(base_item))
+                    stmt_list.append(DataItem.insert_file_stmt(base_item))
                     if base_item.type_ in Static.img_exts:
                         new_images.append(base_item)
                 else:
                     base_item.rating = rating
-                    stmt_list.append(BaseItem.update_file_stmt(base_item))
+                    stmt_list.append(DataItem.update_file_stmt(base_item))
                     if base_item.type_ in Static.img_exts:
                         if base_item.thumb_path and os.path.exists(base_item.thumb_path):
                             exist_images.append(base_item)
@@ -674,7 +674,7 @@ class DbItemsLoader(URunnable):
             Dbase.execute(self.conn, i)
         Dbase.commit(self.conn)
 
-    def execute_svg_files(self, svg_files: list[BaseItem]):
+    def execute_svg_files(self, svg_files: list[DataItem]):
         for i in svg_files:
             if not self.is_should_run():
                 break
@@ -686,13 +686,13 @@ class DbItemsLoader(URunnable):
             i.qimages.update({"src": qimage})
             self.update_thumb(i)
 
-    def execute_ratings(self, exist_ratings: list[BaseItem]):
+    def execute_ratings(self, exist_ratings: list[DataItem]):
         for i in exist_ratings:
             if not self.is_should_run():
                 break
             self.update_thumb(i)
 
-    def execute_exist_images(self, exist_images: list[BaseItem]):
+    def execute_exist_images(self, exist_images: list[DataItem]):
         for i in exist_images:
             if not self.is_should_run():
                 break
@@ -704,7 +704,7 @@ class DbItemsLoader(URunnable):
             i.qimages.update({"src": qimage})
             self.update_thumb(i)
 
-    def execute_new_images(self, new_images: list[BaseItem]):
+    def execute_new_images(self, new_images: list[DataItem]):
         for i in new_images:
             if not self.is_should_run():
                 break
@@ -747,24 +747,24 @@ class DbItemsLoader(URunnable):
             self.corrupted_items = new_corrupted
             QThread.msleep(ms)
 
-    def update_thumb(self, thumb: BaseItem):
+    def update_thumb(self, thumb: DataItem):
         try:
             self.sigs.update_thumb.emit(thumb)
         except RuntimeError as e:
             self.set_should_run(False)
             print("tasks, LoadImagesTask update_thumb.emit error", e)
     
-    def set_loading_thumb(self, thumb: BaseItem):
+    def set_loading_thumb(self, thumb: DataItem):
         try:
             self.sigs.set_loading.emit(thumb)
         except RuntimeError as e:
             self.set_should_run(False)
             print("tasks, LoadImagesTask set_loading.emit error", e)
 
-    def get_item_rating(self, base_item: BaseItem) -> bool:
+    def get_item_rating(self, base_item: DataItem) -> bool:
         stmt = sqlalchemy.select(Clmns.rating)
         if base_item.type_ == Static.folder_type:
-            stmt = stmt.where(*BaseItem.get_folder_conds(base_item))
+            stmt = stmt.where(*DataItem.get_folder_conds(base_item))
         else:
             stmt = stmt.where(Clmns.partial_hash==base_item.partial_hash)
         res = Dbase.execute(self.conn, stmt).scalar()
@@ -1372,7 +1372,7 @@ class CacheDownloader(URunnable):
                 if stmt_list:
                     self.execute_stmt_list(stmt_list)
                 return
-            base_item: BaseItem = data["base_item"]
+            base_item: DataItem = data["base_item"]
             self.current_count = x
             self.current_filename = base_item.filename
             if self.write_thumb(base_item):
@@ -1389,7 +1389,7 @@ class CacheDownloader(URunnable):
         Dbase.commit(self.conn)
 
     def prepare_images(self):
-        new_images: list[dict[BaseItem, str]] = []
+        new_images: list[dict[DataItem, str]] = []
         stack = [*self.dirs]
 
         while stack:
@@ -1400,17 +1400,17 @@ class CacheDownloader(URunnable):
                 if i.is_dir():
                     stack.append(i.path)
                 elif i.name.endswith(Static.img_exts):
-                    base_item = BaseItem(i.path)
+                    base_item = DataItem(i.path)
                     base_item.set_properties()
                     base_item.set_partial_hash()
                     if self.exists_check(base_item) is None:
                         new_images.append({
                             "base_item": base_item,
-                            "stmt": BaseItem.insert_file_stmt(base_item)
+                            "stmt": DataItem.insert_file_stmt(base_item)
                         })
         return new_images
 
-    def exists_check(self, base_item: BaseItem):
+    def exists_check(self, base_item: DataItem):
         stmt = (
             sqlalchemy.select(Clmns.id)
             .where(Clmns.partial_hash == base_item.partial_hash)
@@ -1422,7 +1422,7 @@ class CacheDownloader(URunnable):
             return text[:limit] + "..."
         return text
 
-    def write_thumb(self, base_item: BaseItem):
+    def write_thumb(self, base_item: DataItem):
         img = ReadImage.read_image(base_item.src)
         img = SharedUtils.fit_image(img, Static.max_thumb_size)
         return Utils.write_thumb(base_item.thumb_path, img)
@@ -1458,7 +1458,7 @@ class MultipleItemsInfo(URunnable):
 
     err = " Произошла ошибка"
 
-    def __init__(self, items: list[BaseItem]):
+    def __init__(self, items: list[DataItem]):
         super().__init__()
         self.items = items
         self.sigs = MultipleItemsInfo.Sigs()
@@ -1492,7 +1492,7 @@ class MultipleItemsInfo(URunnable):
                 self.total_size += i.size
                 self.total_files += 1
 
-    def get_folder_size(self, base_item: BaseItem):
+    def get_folder_size(self, base_item: DataItem):
         stack = [base_item.src]
         while stack:
             current_dir = stack.pop()
@@ -1534,7 +1534,7 @@ class FileInfo(URunnable):
     resol_text = "Разрешение: "
     row_limit = 50
 
-    def __init__(self, base_item: BaseItem):
+    def __init__(self, base_item: DataItem):
         super().__init__()
         self.base_item = base_item
         self.signals = FileInfo.Sigs()

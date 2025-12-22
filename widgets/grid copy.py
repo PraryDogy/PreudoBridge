@@ -11,7 +11,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
 from watchdog.events import FileSystemEvent
 
 from cfg import Dynamic, JsonData, Static
-from system.items import BaseItem, CopyItem, MainWinItem, SortItem
+from system.items import DataItem, CopyItem, MainWinItem, SortItem
 from system.shared_utils import SharedUtils
 from system.tasks import DbItemsLoader, DirWatcher, RatingTask, UThreadPool
 from system.utils import Utils
@@ -120,7 +120,7 @@ class BlueTextWid(QLabel):
         self.setText(text)
 
 
-class Thumb(BaseItem, QFrame):
+class Thumb(DataItem, QFrame):
     # Сигнал нужен, чтобы менялся заголовок в просмотрщике изображений
     # При изменении рейтинга или меток
     text_changed = pyqtSignal()
@@ -135,7 +135,7 @@ class Thumb(BaseItem, QFrame):
 
     def __init__(self, src: str, rating: int = 0):    
         QFrame.__init__(self, parent=None)
-        BaseItem.__init__(self, src, rating)
+        DataItem.__init__(self, src, rating)
         self.v_lay = QVBoxLayout()
         self.v_lay.setContentsMargins(0, 0, 0, 0)
         self.v_lay.setSpacing(2)
@@ -185,7 +185,7 @@ class Thumb(BaseItem, QFrame):
         self.img_wid.setPixmap(pixmap)
         self.image_is_loaded = True
 
-    def migrate_from_base_item(self, base_item: BaseItem):
+    def migrate_from_base_item(self, base_item: DataItem):
         """
         Позволяет перенести данные из BaseItem в Thumb без set_properties
         """
@@ -447,7 +447,7 @@ class Grid(UScrollArea):
         Сортирует виджеты по аттрибуту BaseItem / Thumb
         """
         thumb_list = list(self.url_to_wid.values())
-        thumb_list = BaseItem.sort_items(thumb_list, self.sort_item)
+        thumb_list = DataItem.sort_items(thumb_list, self.sort_item)
         wid_to_url = {v: k for k, v in self.url_to_wid.items()}
         self.url_to_wid = {
             wid_to_url[thumb]: thumb
@@ -591,7 +591,7 @@ class Grid(UScrollArea):
         """
         (self.add_fav if offset == 1 else self.del_fav).emit(src)
 
-    def open_win_info(self, items: list[BaseItem]):
+    def open_win_info(self, items: list[DataItem]):
         """
         Открыть окно информации о файле / папке
         """
@@ -703,7 +703,7 @@ class Grid(UScrollArea):
             i.set_no_frame()
         self.selected_thumbs.clear()
 
-    def select_single_thumb(self, wid: BaseItem | Thumb):
+    def select_single_thumb(self, wid: DataItem | Thumb):
         """
         Очищает визуальное выделение с выделенных виджетов и очищает список.  
         Выделяет виджет, добавляет его в список выделенных виджетов.
@@ -926,7 +926,7 @@ class Grid(UScrollArea):
         self.path_bar_update_delayed(self.main_win_item.main_dir)
         names = [os.path.basename(self.main_win_item.main_dir)]
         urls = [self.main_win_item.main_dir]
-        base_item = BaseItem(self.main_win_item.main_dir)
+        base_item = DataItem(self.main_win_item.main_dir)
         base_item.set_properties()
 
         if not self.is_grid_search and not Dynamic.rating_filter != 0:
@@ -1140,7 +1140,7 @@ class Grid(UScrollArea):
                     self.wid_under_mouse = self.selected_thumbs[-1]
                     self.open_win_info(self.selected_thumbs)
                 else:
-                    base_item = BaseItem(self.main_win_item.main_dir)
+                    base_item = DataItem(self.main_win_item.main_dir)
                     base_item.set_properties()
                     self.open_win_info([base_item, ])
 
@@ -1234,7 +1234,7 @@ class Grid(UScrollArea):
                 self.clear_selected_widgets()
                 self.select_multiple_thumb(self.wid_under_mouse)
             
-            if isinstance(self.wid_under_mouse, (BaseItem, Thumb)):
+            if isinstance(self.wid_under_mouse, (DataItem, Thumb)):
                 self.context_thumb(menu_, self.wid_under_mouse)
             else:
                 self.context_grid(menu_)

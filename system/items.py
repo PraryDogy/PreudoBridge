@@ -49,7 +49,7 @@ class SortItem:
         return self._sort_type
 
 
-class BaseItem:
+class DataItem:
     def __init__(self, src: str, rating: int = 0):
         """
         Запустите set_properties, чтобы обновить данные.
@@ -116,13 +116,13 @@ class BaseItem:
     @staticmethod
     def check_sortitem_attrs():
         sort_attrs = SortItem().get_attrs()
-        base_item = BaseItem("/Volumes")
+        base_item = DataItem("/Volumes")
         missing = [attr for attr in sort_attrs if not hasattr(base_item, attr)]
         if missing:
             raise AttributeError(f"\n\nВ Thumb отсутствуют атрибуты сортировки: {missing}\n\n")
 
     @classmethod
-    def sort_items(cls, base_items: list["BaseItem"], sort_item: SortItem) -> list["BaseItem"]:
+    def sort_items(cls, base_items: list["DataItem"], sort_item: SortItem) -> list["DataItem"]:
 
         def get_nums(filename: str):
             """
@@ -132,8 +132,8 @@ class BaseItem:
             return int(re.match(r'^\d+', filename).group())
         
         if sort_item.get_sort_type() == sort_item.filename:
-            num_base_items: list[BaseItem] = []
-            abc_base_items: list[BaseItem] = []
+            num_base_items: list[DataItem] = []
+            abc_base_items: list[DataItem] = []
             for i in base_items:
                 if i.filename[0].isdigit():
                     num_base_items.append(i)
@@ -150,7 +150,7 @@ class BaseItem:
             return base_items
         
     @classmethod
-    def get_folder_conds(cls, base_item: "BaseItem"):
+    def get_folder_conds(cls, base_item: "DataItem"):
         """
         Возвращает условия для поиска папки в базе данных
         """
@@ -164,19 +164,19 @@ class BaseItem:
         return sqlalchemy.and_(*conds)
 
     @classmethod
-    def update_folder_stmt(cls, base_item: "BaseItem"):
+    def update_folder_stmt(cls, base_item: "DataItem"):
         """
         Обновляет last_read
         """
         stmt = sqlalchemy.update(CACHE)
-        stmt = stmt.where(*BaseItem.get_folder_conds(base_item))
+        stmt = stmt.where(*DataItem.get_folder_conds(base_item))
         stmt = stmt.values(**{
             Clmns.last_read.name: Utils.get_now()
         })
         return stmt
     
     @classmethod
-    def update_file_stmt(cls, base_item: "BaseItem"):
+    def update_file_stmt(cls, base_item: "DataItem"):
         """
         Обновляет last_read
         """
@@ -190,7 +190,7 @@ class BaseItem:
         return stmt
     
     @classmethod
-    def insert_folder_stmt(cls, base_item: "BaseItem"):
+    def insert_folder_stmt(cls, base_item: "DataItem"):
         stmt = sqlalchemy.insert(CACHE)
         stmt = stmt.values(**{
             Clmns.name.name: base_item.filename,
@@ -204,7 +204,7 @@ class BaseItem:
         return stmt
     
     @classmethod
-    def insert_file_stmt(cls, base_item: "BaseItem"):
+    def insert_file_stmt(cls, base_item: "DataItem"):
         stmt = sqlalchemy.insert(CACHE)
         stmt = stmt.values(**{
             Clmns.name.name: base_item.filename,

@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import (QAction, QGraphicsOpacityEffect, QGridLayout,
                              QLabel, QSpacerItem)
 
 from cfg import Static
-from system.items import BaseItem
+from system.items import DataItem
 from system.shared_utils import SharedUtils
 from system.tasks import ImgRes, MultipleItemsInfo, UThreadPool
 
@@ -74,7 +74,7 @@ class InfoWin(MinMaxDisabledWin):
     files_text = "Количество файлов:"
     folders_text = "Количество папок:"
 
-    def __init__(self, items: list[BaseItem]):
+    def __init__(self, items: list[DataItem]):
         super().__init__()
         self.setWindowTitle(InfoWin.title_text)
         self.set_modality()

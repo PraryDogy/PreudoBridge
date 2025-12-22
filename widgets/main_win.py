@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
                              QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static
-from system.items import BaseItem, CopyItem, MainWinItem, SearchItem, SortItem
+from system.items import DataItem, CopyItem, MainWinItem, SearchItem, SortItem
 from system.paletes import UPallete
 from system.shared_utils import SharedUtils
 from system.tasks import (AutoCacheCleaner, PathFinderTask, RatingTask,
@@ -438,7 +438,7 @@ class MainWin(WinBase):
         self.setup_grid_signals()
         QTimer.singleShot(100, self.grid.setFocus)
 
-    def open_info_win(self, lst: list[BaseItem]):
+    def open_info_win(self, lst: list[DataItem]):
         self.info_win = InfoWin(lst)
         self.info_win.center(self.img_view_win if self.img_view_win else self)
         self.info_win.show()

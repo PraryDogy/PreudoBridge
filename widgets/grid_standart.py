@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import QLabel, QApplication
 
 from cfg import Dynamic, Static
-from system.items import BaseItem, MainWinItem
+from system.items import DataItem, MainWinItem
 from system.tasks import FinderItemsLoader, UThreadPool
 from system.utils import Utils
 
@@ -51,7 +51,7 @@ class GridStandart(Grid):
         )
         UThreadPool.start(finder_items_task)
 
-    def finalize_finder_items(self, base_items: list[BaseItem]):
+    def finalize_finder_items(self, base_items: list[DataItem]):
         """
         Обходит список BaseItem, формируя сетку виджетов Thumb.     
         Делает текст зеленым, если BaseItem есть в списке new_items
@@ -79,7 +79,7 @@ class GridStandart(Grid):
         self.load_finished.emit()
         self.create_thumbs(base_items)
 
-    def create_thumbs(self, base_items: list[BaseItem]):
+    def create_thumbs(self, base_items: list[DataItem]):
         self.col_count = self.get_clmn_count()
         self._thumb_index = 0
         self._thumb_items = base_items
