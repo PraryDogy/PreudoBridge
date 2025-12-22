@@ -634,36 +634,6 @@ class Grid(UScrollArea):
         self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.grid_layout.addWidget(no_images, 0, 0)
 
-    # def paste_files(self):
-    #     """
-    #     Для cmd v, вставить, dropEvent
-    #     """
-
-    #     def select_urls(urls: list[str]):
-    #         self.clear_selected_widgets()
-    #         for i in urls:
-    #             if i in self.url_to_wid:
-    #                 self.select_multiple_thumb(self.url_to_wid[i])
-
-    #     def paste_final(urls: list[str]):
-    #         if CopyItem.get_is_cut():
-    #             CopyItem.reset()
-    #         QTimer.singleShot(1050, lambda: select_urls(urls))
-
-    #     def show_error_win():
-    #         self.win_copy.deleteLater()
-    #         self.error_win = ErrorWin()
-    #         self.error_win.center(self.window())
-    #         self.error_win.show()
-
-    #     CopyItem.set_dest(self.main_win_item.main_dir)
-    #     self.win_copy = CopyFilesWin()
-    #     self.win_copy.finished_.connect(paste_final)
-    #     self.win_copy.error_win.connect(show_error_win)
-    #     self.win_copy.center(self.window())
-    #     self.win_copy.show()
-    #     QTimer.singleShot(300, self.win_copy.raise_)
-
     def remove_files(self, urls: list[str]):
 
         def update_search_grid(urls):
