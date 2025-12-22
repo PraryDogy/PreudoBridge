@@ -64,13 +64,17 @@ class BaseItem:
         self.mod: float = None
         self.birth: int = None
         self.size: int = None
-        self.qimages: dict[int, QImage] = None
         self.uti_type: str = None
         self.partial_hash: str = None
         self.thumb_path: str = None
         self.loaded: bool = False
         self.must_hidden: bool = False
         self.row, self.col = 0, 0
+
+        # {"src": QImage(), 100: Qimage(), 200: QImage, ...}
+        # словарь заполняется на основе Static.image_sizes
+        # так же дополняется ключом "src" с исходным qimage
+        self.qimages: dict = None
 
     def set_partial_hash(self):
         try:
