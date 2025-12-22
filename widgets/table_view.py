@@ -221,13 +221,16 @@ class TableView(QTableView):
         self.rename_win.show()
 
     def open_thumb(self, urls: list[str]):
+        url_to_wid = {}
+        for url, _ in self.url_to_index.items():
+            if url.endswith(Static.img_exts):
+                data = DataItem(url)
+                data.set_properties()
+                thumb = Thumb(data)
+                url_to_wid[url] = thumb
+
         if len(urls) == 1:
             if urls[0].endswith(Static.img_exts):
-                url_to_wid = {
-                    url: Thumb(DataItem(url))
-                    for url, v in self.url_to_index.items()
-                    if url.endswith(Static.img_exts)
-                }
                 start_url = urls[0]
                 is_selection = False
                 self.open_img_view(start_url, url_to_wid, is_selection)
@@ -238,15 +241,9 @@ class TableView(QTableView):
             else:
                 Utils.open_in_def_app(urls[0])
         else:
-            url_to_wid = {
-                url: Thumb(url)
-                for url in urls
-                if url.endswith(Static.img_exts)
-            }
-            if url_to_wid:
-                start_url = list(url_to_wid)[0]
-                is_selection = True
-                self.open_img_view(start_url, url_to_wid, is_selection)
+            start_url = list(url_to_wid)[0]
+            is_selection = True
+            self.open_img_view(start_url, url_to_wid, is_selection)
 
             folders = [
                 i

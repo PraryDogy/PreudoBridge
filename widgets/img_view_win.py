@@ -289,9 +289,9 @@ class ImgViewWin(WinBase):
     def load_thumbnail(self):
         self.set_title()
         self.text_label.hide()
-        qimage = self.thumb.data.qimages["src"]
-        pixmap = QPixmap.fromImage(qimage)
         if self.thumb.data.image_is_loaded:
+            qimage = self.thumb.data.qimages["src"]
+            pixmap = QPixmap.fromImage(qimage)
             QTimer.singleShot(0, lambda: self.restart_img_wid(pixmap))
         else:
             t = f"{os.path.basename(self.current_path)}\n{self.loading_text}"
