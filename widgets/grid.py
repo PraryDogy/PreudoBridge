@@ -185,6 +185,9 @@ class Thumb(QFrame):
         self.img_wid.setPixmap(pixmap)
         self.data.image_is_loaded = True
 
+    def set_blue_text(self):
+        self.blue_text_wid.set_text(self.data)
+
     def resize_(self):
         """
         Устанавливает фиксированные размеры для дочерних виджетов Thumb     
@@ -192,7 +195,7 @@ class Thumb(QFrame):
         Устанавливает изображение в дочерних виджетах в соответствии в размерами
         """
         self.text_wid.set_text(self.data)
-        self.blue_text_wid.set_text(self.data)
+        self.set_blue_text()
 
         self.setFixedSize(Thumb.thumb_w, Thumb.thumb_h)
         self.img_wid.setFixedSize(Thumb.current_image_size, Thumb.current_image_size)
@@ -323,7 +326,11 @@ class Grid(UScrollArea):
         UThreadPool.start(self.dirs_wacher)
 
     def apply_changes(self, e: FileSystemEvent):
-        is_selected = any(i for i in self.selected_thumbs if i.data.src==e.src_path)
+        is_selected = any(
+            i
+            for i in self.selected_thumbs
+            if i.data.src==e.src_path
+        )
         new_thumb = None
         if e.event_type == "deleted":
             if is_selected:
@@ -345,7 +352,7 @@ class Grid(UScrollArea):
             if e.src_path in self.url_to_wid:
                 wid = self.url_to_wid[e.src_path]
                 wid.data.set_properties()
-                wid.blue_text_wid.set_text(wid.data)
+                wid.set_blue_text()
         if not self.url_to_wid:
             self.create_no_items_label(NoItemsLabel.no_files)
         else:
@@ -381,10 +388,10 @@ class Grid(UScrollArea):
 
         def update_thumb(thumb: Thumb):
             try:
-                if thumb.qimages:
+                if thumb.data.qimages:
                     thumb.set_image()
                 thumb.set_transparent_frame(1.0)
-                thumb.blue_text_wid.set_text(thumb.rating, thumb.type_, thumb.mod, thumb.size)
+                thumb.set_blue_text()
             except RuntimeError as e:
                 print("grid > set_thumb_image runtime err")
                 for i in self.load_images_tasks:
@@ -673,7 +680,7 @@ class Grid(UScrollArea):
 
     def set_thumb_rating(self, wid: Thumb, new_rating: int):
         wid.rating = new_rating
-        wid.blue_text_wid.set_text(wid.rating, wid.type_, wid.mod, wid.size)
+        wid.set_blue_text()
         wid.text_changed.emit()
 
     def new_rating_multiple_start(self, rating: int):
@@ -762,7 +769,7 @@ class Grid(UScrollArea):
             if url in self.url_to_wid:
                 wid = self.url_to_wid[url]
                 wid.set_properties()
-                wid.blue_text_wid.set_text(wid.rating, wid.type_, wid.mod, wid.size)
+                wid.set_blue_text()
                 self.select_single_thumb(wid)
 
         def archive_fin(url):
