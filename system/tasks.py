@@ -1619,3 +1619,36 @@ class DirWatcher(URunnable):
             observer.join()
 
 
+import os
+import threading
+from PyQt5.QtCore import QRunnable, QObject, pyqtSignal
+
+
+
+
+class DiskChecker(QRunnable):
+
+    class Sigs(QObject):
+        available = pyqtSignal(bool)
+
+    def __init__(self, path: str, timeout: float = 60.0):
+        super().__init__()
+        self.path = path
+        self.timeout = timeout
+        self.sigs = DiskChecker.Sigs()
+
+    def task(self):
+        result = {"ok": False}
+
+        def check():
+            try:
+                os.listdir(self.path)
+                result["ok"] = True
+            except Exception:
+                result["ok"] = False
+
+        t = threading.Thread(target=check, daemon=True)
+        t.start()
+        t.join(self.timeout)
+
+        self.sigs.available.emit(result["ok"] if not t.is_alive() else False)
