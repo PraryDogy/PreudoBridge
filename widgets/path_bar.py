@@ -1,7 +1,7 @@
 import os
 
 from PyQt5.QtCore import QMimeData, Qt, QTimer, QUrl, pyqtSignal
-from PyQt5.QtGui import QContextMenuEvent, QDrag, QMouseEvent, QPixmap
+from PyQt5.QtGui import QContextMenuEvent, QDrag, QImage, QMouseEvent, QPixmap
 from PyQt5.QtWidgets import QApplication, QHBoxLayout, QLabel, QWidget
 
 from cfg import JsonData, Static
@@ -60,8 +60,9 @@ class PathItem(QWidget):
             pixmap = self.type_pixmap[type_]
         else:
             _, uti_data = Utils.uti_generator(self.item_dir)
-            pixmap = QPixmap(uti_data[Static.image_sizes[0]])
-            pixmap = Utils.qiconed_resize(pixmap, PathItem.item_height)
+            qimage = uti_data[Static.image_sizes[0]]
+            qimage = Utils.scaled(qimage, PathItem.item_height)
+            pixmap = QPixmap.fromImage(qimage)
             self.type_pixmap[type_] = pixmap
 
         self.img_wid.setPixmap(pixmap)
@@ -202,8 +203,9 @@ class PathBar(QWidget):
         self.setLayout(self.main_lay)
 
     def create_computer_icon(self):
-        pixmap = QPixmap(os.path.join(Static.internal_icons_dir, "computer.png"))
-        return Utils.qiconed_resize(pixmap, PathItem.item_height)
+        qimage = QImage(os.path.join(Static.internal_icons_dir, "computer.png"))
+        qimage = Utils.scaled(qimage, PathItem.item_height)
+        return QPixmap.fromImage(qimage)
 
     def update(self, dir: str):
         """
