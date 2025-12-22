@@ -301,6 +301,7 @@ class Grid(UScrollArea):
         self.load_images_tasks: list[DbItemsLoader] = []
         self.removed_urls: list[Thumb] = []
         self.wid_under_mouse: Thumb = None
+        self.copy_files_icon: QImage = self.set_files_icon()
 
         self.main_wid = QWidget()
         self.setWidget(self.main_wid)
@@ -317,6 +318,11 @@ class Grid(UScrollArea):
             self.dirs_watcher_start()
         else:
             self.dirs_wacher = DirWatcher("")
+
+    def set_files_icon(self, size: int = 64):
+        path = os.path.join(Static.internal_icons_dir, "files.svg")
+        qimage = Utils.render_svg(path, 512)
+        return Utils.scaled(qimage, size)
 
     def dirs_watcher_start(self):
         self.dirs_wacher = DirWatcher(self.main_win_item.main_dir)
@@ -1118,7 +1124,7 @@ class Grid(UScrollArea):
             self.select_single_thumb(self.wid_under_mouse)
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
-        img_ = QPixmap(os.path.join(Static.internal_icons_dir, "files.svg"))
+        img_ = QPixmap.fromImage(self.copy_files_icon)
         self.drag.setPixmap(img_)
         urls = [QUrl.fromLocalFile(i.src) for i in self.selected_thumbs]        
         if urls:

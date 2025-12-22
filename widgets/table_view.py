@@ -6,7 +6,8 @@ import sys
 from PyQt5.QtCore import (QDateTime, QDir, QItemSelectionModel, QMimeData,
                           QModelIndex, Qt, QTimer, QUrl, pyqtSignal)
 from PyQt5.QtGui import (QContextMenuEvent, QDrag, QDragEnterEvent,
-                         QDragMoveEvent, QDropEvent, QKeyEvent, QPixmap)
+                         QDragMoveEvent, QDropEvent, QImage, QKeyEvent,
+                         QPixmap)
 from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QFileSystemModel,
                              QLabel, QSplitter, QTableView)
 
@@ -112,6 +113,7 @@ class TableView(QTableView):
         self.main_win_item = main_win_item
         self.url_to_index: dict[str, QModelIndex] = {}
         self.main_win_item = main_win_item
+        self.copy_files_icon: QImage = self.set_files_icon()
 
         self.setSelectionBehavior(QTableView.SelectRows)
         self.setSortingEnabled(True)
@@ -144,6 +146,11 @@ class TableView(QTableView):
             self.setColumnWidth(i, TableView.sizes[i])
 
         self._model.directoryLoaded.connect(self.set_url_to_index_)
+
+    def set_files_icon(self, size: int = 64):
+        path = os.path.join(Static.internal_icons_dir, "files.svg")
+        qimage = Utils.render_svg(path, 512)
+        return Utils.scaled(qimage, size)
 
     def set_url_to_index_(self):
         self.hide()
@@ -646,7 +653,7 @@ class TableView(QTableView):
         self.drag = QDrag(self)
         self.mime_data = QMimeData()
 
-        img_ = QPixmap(os.path.join(Static.internal_icons_dir, "files.svg"))
+        img_ = QPixmap.fromImage(self.copy_files_icon)
         self.drag.setPixmap(img_)
         
         urls = [

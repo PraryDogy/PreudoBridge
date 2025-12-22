@@ -288,7 +288,6 @@ class Utils:
             return uti_filetype_, Dynamic.uti_data[uti_filetype_]
         
         def set_uti_data(uti_filetype: str, qimage: QImage):
-            flags = Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
             Dynamic.uti_data[uti_filetype] = {}
             for i in Static.image_sizes:
                 resized_qimage = Utils.scaled(qimage, i)
