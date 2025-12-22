@@ -487,7 +487,10 @@ class SearchTask(URunnable):
                 img_array = SharedUtils.fit_image(img_array, Static.max_thumb_size)
                 insert(base_item, img_array)
             qimage = Utils.qimage_from_array(img_array)
-            base_item.qimages = qimage
+            base_item.qimages = {
+                i: Utils.scaled(qimage, i)
+                for i in Static.image_sizes
+            }
         base_item.uti_type = Utils.get_uti_type(entry.path)
         self.sigs.new_widget.emit(base_item)
         QTest.qSleep(SearchTask.new_wid_sleep_ms)
@@ -682,7 +685,10 @@ class DbItemsLoader(URunnable):
             if not self.is_should_run():
                 break
             qimage = Utils.qimage_from_array(Utils.read_thumb(i.thumb_path))
-            i.qimages = qimage
+            i.qimages = {
+                i: Utils.scaled(qimage, i)
+                for i in Static.image_sizes
+            }
             self.update_thumb(i)
 
     def execute_new_images(self, new_images: list[BaseItem]):
@@ -696,7 +702,10 @@ class DbItemsLoader(URunnable):
             else:
                 img = SharedUtils.fit_image(img, Static.max_thumb_size)
                 qimage = Utils.qimage_from_array(img)
-                i.qimages = qimage
+                i.qimages = {
+                    i: Utils.scaled(qimage, i)
+                    for i in Static.image_sizes
+                }
                 Utils.write_thumb(i.thumb_path, img)
             self.update_thumb(i)
     
@@ -711,7 +720,11 @@ class DbItemsLoader(URunnable):
                     new_corrupted.append(i)
                     continue
                 img = SharedUtils.fit_image(img, Static.max_thumb_size)
-                i.qimages = Utils.qimage_from_array(img)
+                qimage = Utils.qimage_from_array(img)
+                i.qimages = {
+                    i: Utils.scaled(qimage, i)
+                    for i in Static.image_sizes
+                }
                 Utils.write_thumb(i.thumb_path, img)
                 self.update_thumb(i)
             if not new_corrupted:

@@ -178,9 +178,9 @@ class Thumb(BaseItem, QFrame):
         pixmap = QPixmap(Dynamic.uti_data[self.uti_type][Thumb.current_pixmap_size])
         self.img_wid.setPixmap(pixmap)
 
-    def set_image(self, img: QImage):
-        small_pixmap = Utils.qiconed_resize(self.big_pixmap, Thumb.current_pixmap_size)
-        self.img_wid.setPixmap(small_pixmap)
+    def set_image(self):
+        pixmap = QPixmap(self.qimages[Thumb.current_pixmap_size])
+        self.img_wid.setPixmap(pixmap)
         self.loaded = True
 
     def migrate_from_base_item(self, base_item: BaseItem):
@@ -203,10 +203,10 @@ class Thumb(BaseItem, QFrame):
         self.img_wid.setFixedSize(Thumb.current_pixmap_size, Thumb.current_pixmap_size)
         self.img_frame.setFixedSize(Thumb.current_img_frame_size, Thumb.current_img_frame_size)
 
-        if self.big_pixmap:
-            local_pixmap = Utils.qiconed_resize(self.big_pixmap, Thumb.current_pixmap_size)
+        if self.qimages:
             try:
-                self.img_wid.setPixmap(local_pixmap)
+                pixmap = QPixmap(self.qimages[Thumb.current_pixmap_size])
+                self.img_wid.setPixmap(pixmap)
             except AttributeError:
                 print("OK, grid > thumb > set widget size > set alignment attribute error")
         else:
@@ -385,7 +385,7 @@ class Grid(UScrollArea):
         def update_thumb(thumb: Thumb):
             try:
                 if thumb.qimages:
-                    thumb.set_image(thumb.qimages)
+                    thumb.set_image()
                 thumb.set_transparent_frame(1.0)
                 thumb.blue_text_wid.set_text(thumb.rating, thumb.type_, thumb.mod, thumb.size)
             except RuntimeError as e:
