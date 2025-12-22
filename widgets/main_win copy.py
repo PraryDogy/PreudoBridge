@@ -525,7 +525,7 @@ class MainWin(WinBase):
 
         self.grid_spacer.resize(0, self.height())
         self.grid_spacer.setFocus()
-        self.grid.hide()
+        QTimer.singleShot(1, self.grid.hide)
 
         self.avaiability_task = DiskChecker(self.main_win_item.main_dir)
         self.avaiability_task.sigs.available.connect(fin)
@@ -562,12 +562,12 @@ class MainWin(WinBase):
                         self.favs_menu.init_ui()
 
         fix_path()
-        self.tree_menu.expand_path(self.main_win_item.main_dir)
-
         self.favs_menu.select_fav(self.main_win_item.main_dir)
+
         self.top_bar.search_wid.clear_search()
         self.search_bar.hide()
         self.search_bar_sep.hide()
+        self.tree_menu.expand_path(self.main_win_item.main_dir)
         self.search_item.set_content(None)
         self.scroll_up.hide()
         self.grid.deleteLater()
