@@ -672,7 +672,12 @@ class DbItemsLoader(URunnable):
         for i in svg_files:
             if not self.is_should_run():
                 break
-            i.qimages = Utils.render_svg(i.src, 512)
+            qimage = Utils.render_svg(i.src, 512)
+            i.qimages = {
+                x: Utils.scaled(qimage, x)
+                for x in Static.image_sizes
+            }
+            i.qimages.update({"src": qimage})
             self.update_thumb(i)
 
     def execute_ratings(self, exist_ratings: list[BaseItem]):
