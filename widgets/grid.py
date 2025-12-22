@@ -823,6 +823,8 @@ class Grid(UScrollArea):
         ]
         self.path_bar_update_delayed(wid.data.src)
 
+        menu_.setMinimumWidth(215)
+
         view_action = ItemActions.OpenThumb(menu_)
         view_action.triggered.connect(lambda: self.open_thumb())
         menu_.addAction(view_action)
@@ -846,11 +848,9 @@ class Grid(UScrollArea):
                 fav_action.triggered.connect(cmd_)
                 menu_.addAction(fav_action)
 
-            rating_menu = ItemActions.RatingMenu(menu_, wid.data.rating)
-            rating_menu.new_rating.connect(self.new_rating_multiple_start)
-            menu_.addMenu(rating_menu)
-        else:
-            menu_.setMinimumWidth(215)
+        rating_menu = ItemActions.RatingMenu(menu_, wid.data.rating)
+        rating_menu.new_rating.connect(self.new_rating_multiple_start)
+        menu_.addMenu(rating_menu)
 
         info = ItemActions.Info(menu_)
         info.triggered.connect(
