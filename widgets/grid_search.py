@@ -110,7 +110,7 @@ class GridSearch(Grid):
             thumb = Thumb(data_item)
             thumb.resize_()
             thumb.set_no_frame()
-            if thumb.qimages:
+            if thumb.data.qimages:
                 thumb.set_image()
             else:
                 thumb.set_uti_image()
