@@ -412,8 +412,7 @@ class Grid(UScrollArea):
                     i.set_should_run(False)
 
         if thumbs:
-            data_items = (i.data for i in thumbs)
-            task_ = DbItemsLoader(self.main_win_item, data_items)
+            task_ = DbItemsLoader(self.main_win_item, [i.data for i in thumbs])
             task_.sigs.update_thumb.connect(lambda data_item: update_thumb(data_item))
             task_.sigs.set_loading.connect(lambda data_item: set_loading(data_item))
             task_.sigs.finished_.connect(lambda: finalize(task_))

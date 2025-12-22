@@ -234,8 +234,8 @@ class ImgViewWin(WinBase):
         self.urls: list = [i for i in self.url_to_wid]
         self.task_count: int = 0
         self.current_path: str = start_url
-        self.current_thumb: Thumb = self.url_to_wid.get(start_url)
-        self.current_thumb.text_changed.connect(self.set_title)
+        self.thumb: Thumb = self.url_to_wid.get(start_url)
+        self.thumb.text_changed.connect(self.set_title)
 
         self.mouse_move_timer = QTimer(self)
         self.mouse_move_timer.setSingleShot(True)
@@ -282,16 +282,16 @@ class ImgViewWin(WinBase):
 
     def set_title(self):
         text_ = os.path.basename(self.current_path)
-        if self.current_thumb.rating > 0:
-            text_ = f"{RATINGS[self.current_thumb.rating]} | {text_}"
+        if self.thumb.data.rating > 0:
+            text_ = f"{RATINGS[self.thumb.rating]} | {text_}"
         self.setWindowTitle(text_)
 
     def load_thumbnail(self):
         self.set_title()
         self.text_label.hide()
-        qimage = self.current_thumb.qimages["src"]
+        qimage = self.thumb.data.qimages["src"]
         pixmap = QPixmap.fromImage(qimage)
-        if self.current_thumb.image_is_loaded:
+        if self.thumb.data.image_is_loaded:
             QTimer.singleShot(0, lambda: self.restart_img_wid(pixmap))
         else:
             t = f"{os.path.basename(self.current_path)}\n{self.loading_text}"
@@ -359,11 +359,11 @@ class ImgViewWin(WinBase):
         new_index = (current_index + offset) % total_images
         self.current_path = self.urls[new_index]
         try:
-            self.current_thumb.text_changed.disconnect()
-            self.current_thumb = self.url_to_wid[self.current_path]
-            self.current_thumb.text_changed.connect(self.set_title)
+            self.thumb.text_changed.disconnect()
+            self.thumb = self.url_to_wid[self.current_path]
+            self.thumb.text_changed.connect(self.set_title)
             if not self.is_selection:
-                self.move_to_wid.emit(self.current_thumb)
+                self.move_to_wid.emit(self.thumb)
                 self.move_to_url.emit(self.current_path)
             self.load_thumbnail()
         except Exception as e:
@@ -377,7 +377,7 @@ class ImgViewWin(WinBase):
         self.mouse_move_timer.start(2000)
 
     def win_info_cmd(self, src: str):
-        self.info_win.emit([self.current_thumb, ])
+        self.info_win.emit([self.thumb, ])
 
 
 # EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS EVENTS 
@@ -498,7 +498,7 @@ class ImgViewWin(WinBase):
 
         menu.addSeparator()
 
-        rating_menu = ItemActions.RatingMenu(menu, self.current_thumb.rating)
+        rating_menu = ItemActions.RatingMenu(menu, self.thumb.data.rating)
         rating_menu.new_rating.connect(lambda value: self.new_rating.emit((value, self.current_path)))
         menu.addMenu(rating_menu)
 
