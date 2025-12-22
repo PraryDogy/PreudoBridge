@@ -111,7 +111,10 @@ class GridSearch(Grid):
             thumb.migrate_from_base_item(base_item)
             thumb.set_widget_size()
             thumb.set_no_frame()
-            thumb.set_uti_image()
+            if thumb.qimages:
+                thumb.set_image()
+            else:
+                thumb.set_uti_image()
             self.add_widget_data(thumb, self.row, self.col)
             self.grid_layout.addWidget(thumb, self.row, self.col)
             self.total += 1
