@@ -679,7 +679,8 @@ class Grid(UScrollArea):
         self.url_to_wid.pop(url)
         wid.deleteLater()
 
-    def set_thumb_rating(self, wid: Thumb, new_rating: int):
+    def set_thumb_rating(self, data_item: DataItem, new_rating: int):
+        wid = self.url_to_wid.get(data_item.src)
         wid.data.rating = new_rating
         wid.set_blue_text()
         wid.text_changed.emit()
@@ -692,8 +693,8 @@ class Grid(UScrollArea):
         """
 
         for wid in self.selected_thumbs:
-            self.rating_task = RatingTask(self.main_win_item.main_dir, wid, rating)
-            cmd_ = lambda w=wid: self.set_thumb_rating(w, rating)
+            self.rating_task = RatingTask(self.main_win_item.main_dir, wid.data, rating)
+            cmd_ = lambda d=wid.data: self.set_thumb_rating(d, rating)
             self.rating_task.sigs.finished_.connect(cmd_)
             UThreadPool.start(self.rating_task)
         

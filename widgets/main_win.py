@@ -298,7 +298,7 @@ class MainWin(WinBase):
             self.rating_task = RatingTask(self.main_win_item.main_dir, wid.data, rating)
             assert isinstance(self.rating_task, RatingTask)
             self.rating_task.sigs.finished_.connect(
-                lambda: self.grid.set_thumb_rating(wid, rating)
+                lambda: self.grid.set_thumb_rating(wid.data, rating)
             )
             UThreadPool.start(self.rating_task)
 
