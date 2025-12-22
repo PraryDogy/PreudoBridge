@@ -446,6 +446,9 @@ class Grid(UScrollArea):
         QTimer.singleShot(0, path_bar_update_delayed)
     
     def sort_thumbs(self):
+        print("сортирвока не придумана")
+        os.exit(1)
+        return
         """
         Сортирует виджеты по аттрибуту BaseItem / Thumb
         """
@@ -533,25 +536,25 @@ class Grid(UScrollArea):
     def open_thumb(self):
         if len(self.selected_thumbs) == 1:
             wid = self.selected_thumbs[0]
-            if wid.src.endswith(Static.img_exts):
+            if wid.data.src.endswith(Static.img_exts):
                 url_to_wid = {
                     url: wid
                     for url, wid in self.url_to_wid.items()
-                    if url.endswith(Static.img_exts) and not wid.must_hidden
+                    if url.endswith(Static.img_exts) and not wid.data.must_hidden
                 }
                 is_selection = False
-                self.open_img_view(wid.src, url_to_wid, is_selection)
-            elif wid.type_ == Static.folder_type:
-                self.new_history_item.emit(wid.src)
-                self.main_win_item.main_dir = wid.src
+                self.open_img_view(wid.data.src, url_to_wid, is_selection)
+            elif wid.data.type_ == Static.folder_type:
+                self.new_history_item.emit(wid.data.src)
+                self.main_win_item.main_dir = wid.data.src
                 self.load_st_grid.emit()
             else:
-                Utils.open_in_def_app(wid.src)
+                Utils.open_in_def_app(wid.data.src)
         else:
             url_to_wid = {
-                i.src: i
+                i.data.src: i
                 for i in self.selected_thumbs
-                if i.src.endswith(Static.img_exts) and not i.must_hidden
+                if i.data.src.endswith(Static.img_exts) and not i.data.must_hidden
             }
 
             if url_to_wid:
@@ -560,20 +563,20 @@ class Grid(UScrollArea):
                 self.open_img_view(start_url, url_to_wid, is_selection)
 
             folders = [
-                i.src
+                i.data.src
                 for i in self.selected_thumbs
-                if i.type_ == Static.folder_type
+                if i.data.type_ == Static.folder_type
             ]
 
             for i in folders:
                 self.open_in_new_win.emit((i, None))
 
             files = [
-                i.src
+                i.data.src
                 for i in self.selected_thumbs
-                if not i.src.endswith(Static.img_exts)
+                if not i.data.src.endswith(Static.img_exts)
                 and
-                i.type_ != Static.folder_type
+                i.data.type_ != Static.folder_type
             ]
 
             for i in files:
