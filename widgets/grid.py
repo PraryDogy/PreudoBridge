@@ -1171,7 +1171,7 @@ class Grid(UScrollArea):
                     self.select_multiple_thumb(wid)
 
             elif a0.key() == Qt.Key.Key_Backspace:
-                urls = [i.src for i in self.selected_thumbs]
+                urls = [i.data.src for i in self.selected_thumbs]
                 self.remove_files(urls)
 
         elif a0.key() in (Qt.Key.Key_Space, Qt.Key.Key_Return):
