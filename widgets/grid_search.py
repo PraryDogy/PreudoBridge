@@ -106,8 +106,8 @@ class GridSearch(Grid):
 
     def start_search(self):
 
-        def new_search_thumb(base_item: DataItem):
-            thumb = Thumb(base_item)
+        def new_search_thumb(data_item: DataItem):
+            thumb = Thumb(data_item)
             thumb.resize_()
             thumb.set_no_frame()
             if thumb.qimages:

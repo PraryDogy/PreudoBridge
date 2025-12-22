@@ -79,25 +79,25 @@ class GridStandart(Grid):
         self.load_finished.emit()
         self.create_thumbs(base_items)
 
-    def create_thumbs(self, base_items: list[DataItem]):
+    def create_thumbs(self, data_items: list[DataItem]):
         self.col_count = self.get_clmn_count()
         self._thumb_index = 0
-        self._thumb_items = base_items
+        self.data_items = data_items
         self.row = 0
         self.col = 0
 
         def add_one_thumb():
-            if self._thumb_index >= len(self._thumb_items):
+            if self._thumb_index >= len(self.data_items):
                 # Все виджеты добавлены
-                self._thumb_items = None
+                self.data_items = None
                 self._thumb_index = 0
                 self.show()
                 self._post_grid_selection()
                 return
 
             # Создание и настройка виджета
-            base_item = self._thumb_items[self._thumb_index]
-            thumb = Thumb(base_item)
+            data_item = self.data_items[self._thumb_index]
+            thumb = Thumb(data_item)
             thumb.resize_()
             thumb.set_no_frame()
             thumb.set_uti_image()

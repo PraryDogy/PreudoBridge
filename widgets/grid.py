@@ -719,7 +719,7 @@ class Grid(UScrollArea):
         Выделяет виджет, добавляет его в список выделенных виджетов.
         """
         if isinstance(wid, Thumb):
-            self.path_bar_update_delayed(wid.src)
+            self.path_bar_update_delayed(wid.data.src)
             self.clear_selected_widgets()
             wid.set_frame()
             self.selected_thumbs.append(wid)

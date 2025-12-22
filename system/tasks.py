@@ -591,11 +591,6 @@ class DbItemsLoader(URunnable):
         finished_ = pyqtSignal()
 
     def __init__(self, main_win_item: MainWinItem, data_items: list[DataItem]):
-        """
-        URunnable   
-        Сортирует список Thumb по размеру по возрастанию для ускорения загрузки
-        Загружает изображения из базы данных или создает новые
-        """
         super().__init__()
         self.sigs = DbItemsLoader.Sigs()
         self.main_win_item = main_win_item
@@ -605,21 +600,11 @@ class DbItemsLoader(URunnable):
         self.corrupted_items: list[DataItem] = []
 
     def task(self):
-        """
-        Создает подключение к базе данных   
-        Запускает обход списка Thumb для загрузки изображений   
-        Испускает сигнал finished_
-        """
         self.process_thumbs()
         Dbase.close_conn(self.conn)
         self.sigs.finished_.emit()
 
     def process_thumbs(self):
-        """
-        Обходит циклом список Thumb     
-        Пытается загрузить изображение из базы данных или создает новое,
-        чтобы передать его в Thumb
-        """
         stmt_list: list = []
         new_images: list[DataItem] = []
         exist_images: list[DataItem] = []

@@ -224,7 +224,7 @@ class TableView(QTableView):
         if len(urls) == 1:
             if urls[0].endswith(Static.img_exts):
                 url_to_wid = {
-                    url: Thumb(url)
+                    url: Thumb(DataItem(url))
                     for url, v in self.url_to_index.items()
                     if url.endswith(Static.img_exts)
                 }
