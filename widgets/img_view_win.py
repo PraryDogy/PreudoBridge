@@ -10,6 +10,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsPixmapItem,
 
 from cfg import Static
 from system.tasks import ReadImg, UThreadPool
+from system.utils import Utils
 
 from ._base_widgets import UMenu, USvgSqareWidget, WinBase
 from .actions import ItemActions
@@ -288,7 +289,7 @@ class ImgViewWin(WinBase):
     def load_thumbnail(self):
         self.set_title()
         self.text_label.hide()
-        qimage = self.current_thumb.qimages[Static.image_sizes[-1]]
+        qimage = self.current_thumb.qimages["src"]
         pixmap = QPixmap.fromImage(qimage)
         if self.current_thumb.loaded:
             QTimer.singleShot(0, lambda: self.restart_img_wid(pixmap))

@@ -491,6 +491,7 @@ class SearchTask(URunnable):
                 i: Utils.scaled(qimage, i)
                 for i in Static.image_sizes
             }
+            base_item.qimages.update({"src": qimage})
         base_item.uti_type = Utils.get_uti_type(entry.path)
         self.sigs.new_widget.emit(base_item)
         QTest.qSleep(SearchTask.new_wid_sleep_ms)
@@ -689,6 +690,7 @@ class DbItemsLoader(URunnable):
                 i: Utils.scaled(qimage, i)
                 for i in Static.image_sizes
             }
+            i.qimages.update({"src": qimage})
             self.update_thumb(i)
 
     def execute_new_images(self, new_images: list[BaseItem]):
@@ -706,6 +708,7 @@ class DbItemsLoader(URunnable):
                     i: Utils.scaled(qimage, i)
                     for i in Static.image_sizes
                 }
+                i.qimages.update({"src": qimage})
                 Utils.write_thumb(i.thumb_path, img)
             self.update_thumb(i)
     
@@ -725,6 +728,7 @@ class DbItemsLoader(URunnable):
                     i: Utils.scaled(qimage, i)
                     for i in Static.image_sizes
                 }
+                i.qimages.update({"src": qimage})
                 Utils.write_thumb(i.thumb_path, img)
                 self.update_thumb(i)
             if not new_corrupted:

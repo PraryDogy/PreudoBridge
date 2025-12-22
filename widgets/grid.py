@@ -127,7 +127,7 @@ class Thumb(BaseItem, QFrame):
     img_obj_name: str = "img_frame"
     text_obj_name: str = "text_frame_"
 
-    current_pixmap_size: int = 0
+    current_image_size: int = 0
     current_img_frame_size: int = 0
     thumb_w: int = 0
     thumb_h: int = 0
@@ -165,8 +165,8 @@ class Thumb(BaseItem, QFrame):
     @classmethod
     def calc_size(cls):
         ind = Dynamic.pixmap_size_ind
-        cls.current_pixmap_size = Static.image_sizes[ind]
-        cls.current_img_frame_size = Thumb.current_pixmap_size + 15
+        cls.current_image_size = Static.image_sizes[ind]
+        cls.current_img_frame_size = Thumb.current_image_size + 15
         cls.thumb_w = Static.thumb_widths[ind]
         cls.thumb_h = Static.thumb_heights[ind]
         cls.corner = Static.corner_sizes[ind]
@@ -175,12 +175,12 @@ class Thumb(BaseItem, QFrame):
         if self.uti_type not in Dynamic.uti_data:
             print("Thumb, set uti image, uti type not in uti data", self.uti_type, self.src)
             return
-        qimage = Dynamic.uti_data[self.uti_type][Thumb.current_pixmap_size]
+        qimage = Dynamic.uti_data[self.uti_type][Thumb.current_image_size]
         pixmap = QPixmap.fromImage(qimage)
         self.img_wid.setPixmap(pixmap)
 
     def set_image(self):
-        qimage = self.qimages[Thumb.current_pixmap_size]
+        qimage = self.qimages[Thumb.current_image_size]
         pixmap = QPixmap.fromImage(qimage)
         self.img_wid.setPixmap(pixmap)
         self.loaded = True
@@ -202,7 +202,7 @@ class Thumb(BaseItem, QFrame):
         self.blue_text_wid.set_text(self.rating, self.type_, self.mod, self.size)
 
         self.setFixedSize(Thumb.thumb_w, Thumb.thumb_h)
-        self.img_wid.setFixedSize(Thumb.current_pixmap_size, Thumb.current_pixmap_size)
+        self.img_wid.setFixedSize(Thumb.current_image_size, Thumb.current_image_size)
         self.img_frame.setFixedSize(Thumb.current_img_frame_size, Thumb.current_img_frame_size)
 
         if self.qimages:
