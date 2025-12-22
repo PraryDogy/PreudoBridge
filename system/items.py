@@ -113,63 +113,63 @@ class DataItem:
 
         def get_nums(filename: str):
             """
-            Извлекает начальные числа из имени base_item для числовой сортировки.
+            Извлекает начальные числа из имени data_item для числовой сортировки.
             Например: "123 Te99st33" → 123
             """
             return int(re.match(r'^\d+', filename).group())
         
         if sort_item.get_sort_type() == sort_item.filename:
-            num_base_items: list[DataItem] = []
-            abc_base_items: list[DataItem] = []
+            num_data_items: list[DataItem] = []
+            abc_data_items: list[DataItem] = []
             for i in data_items:
                 if i.filename[0].isdigit():
-                    num_base_items.append(i)
+                    num_data_items.append(i)
                 else:
-                    abc_base_items.append(i)
-            key_num = lambda base_item: get_nums(base_item.filename)
-            key_abc = lambda base_item: getattr(base_item, sort_item.get_sort_type())
-            num_base_items.sort(key=key_num, reverse=sort_item.get_reversed())
-            abc_base_items.sort(key=key_abc, reverse=sort_item.get_reversed())
-            return [*num_base_items, *abc_base_items]
+                    abc_data_items.append(i)
+            key_num = lambda data_item: get_nums(data_item.filename)
+            key_abc = lambda data_item: getattr(data_item, sort_item.get_sort_type())
+            num_data_items.sort(key=key_num, reverse=sort_item.get_reversed())
+            abc_data_items.sort(key=key_abc, reverse=sort_item.get_reversed())
+            return [*num_data_items, *abc_data_items]
         else:
-            key = lambda base_item: getattr(base_item, sort_item.get_sort_type())
+            key = lambda data_otem: getattr(data_otem, sort_item.get_sort_type())
             data_items.sort(key=key, reverse=sort_item.get_reversed())
             return data_items
         
     @classmethod
-    def get_folder_conds(cls, base_item: "DataItem"):
+    def get_folder_conds(cls, data_item: "DataItem"):
         """
         Возвращает условия для поиска папки в базе данных
         """
         conds = [
-            Clmns.name == base_item.filename,
-            Clmns.type == base_item.type_,
-            Clmns.size == base_item.size,
-            Clmns.birth == base_item.birth,
-            Clmns.mod == base_item.mod,
+            Clmns.name == data_item.filename,
+            Clmns.type == data_item.type_,
+            Clmns.size == data_item.size,
+            Clmns.birth == data_item.birth,
+            Clmns.mod == data_item.mod,
         ]
         return sqlalchemy.and_(*conds)
 
     @classmethod
-    def update_folder_stmt(cls, base_item: "DataItem"):
+    def update_folder_stmt(cls, data_item: "DataItem"):
         """
         Обновляет last_read
         """
         stmt = sqlalchemy.update(CACHE)
-        stmt = stmt.where(*DataItem.get_folder_conds(base_item))
+        stmt = stmt.where(*DataItem.get_folder_conds(data_item))
         stmt = stmt.values(**{
             Clmns.last_read.name: Utils.get_now()
         })
         return stmt
     
     @classmethod
-    def update_file_stmt(cls, base_item: "DataItem"):
+    def update_file_stmt(cls, data_item: "DataItem"):
         """
         Обновляет last_read
         """
         stmt = sqlalchemy.update(CACHE)
         stmt = stmt.where(
-            Clmns.partial_hash == base_item.partial_hash
+            Clmns.partial_hash == data_item.partial_hash
         )
         stmt = stmt.values(**{
             Clmns.last_read.name: Utils.get_now()
@@ -177,32 +177,32 @@ class DataItem:
         return stmt
     
     @classmethod
-    def insert_folder_stmt(cls, base_item: "DataItem"):
+    def insert_folder_stmt(cls, data_item: "DataItem"):
         stmt = sqlalchemy.insert(CACHE)
         stmt = stmt.values(**{
-            Clmns.name.name: base_item.filename,
-            Clmns.type.name: base_item.type_,
-            Clmns.size.name: base_item.size,
-            Clmns.birth.name: base_item.birth,
-            Clmns.mod.name: base_item.mod,
+            Clmns.name.name: data_item.filename,
+            Clmns.type.name: data_item.type_,
+            Clmns.size.name: data_item.size,
+            Clmns.birth.name: data_item.birth,
+            Clmns.mod.name: data_item.mod,
             Clmns.last_read.name: Utils.get_now(),
             Clmns.rating.name: 0,
         })
         return stmt
     
     @classmethod
-    def insert_file_stmt(cls, base_item: "DataItem"):
+    def insert_file_stmt(cls, data_item: "DataItem"):
         stmt = sqlalchemy.insert(CACHE)
         stmt = stmt.values(**{
-            Clmns.name.name: base_item.filename,
-            Clmns.type.name: base_item.type_,
-            Clmns.size.name: base_item.size,
-            Clmns.birth.name: base_item.birth,
-            Clmns.mod.name: base_item.mod,
+            Clmns.name.name: data_item.filename,
+            Clmns.type.name: data_item.type_,
+            Clmns.size.name: data_item.size,
+            Clmns.birth.name: data_item.birth,
+            Clmns.mod.name: data_item.mod,
             Clmns.last_read.name: Utils.get_now(),
             Clmns.rating.name: 0,
-            Clmns.partial_hash.name: base_item.partial_hash,
-            Clmns.thumb_path.name: base_item.thumb_path
+            Clmns.partial_hash.name: data_item.partial_hash,
+            Clmns.thumb_path.name: data_item.thumb_path
         })
         return stmt
 

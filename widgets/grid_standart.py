@@ -47,11 +47,11 @@ class GridStandart(Grid):
 
         finder_items_task = FinderItemsLoader(self.main_win_item, self.sort_item)
         finder_items_task.sigs.finished_.connect(
-            lambda base_items: self.finalize_finder_items(base_items)
+            lambda data_items: self.finalize_finder_items(data_items)
         )
         UThreadPool.start(finder_items_task)
 
-    def finalize_finder_items(self, base_items: list[DataItem]):
+    def finalize_finder_items(self, data_items: list[DataItem]):
         """
         Обходит список BaseItem, формируя сетку виджетов Thumb.     
         Делает текст зеленым, если BaseItem есть в списке new_items
@@ -65,19 +65,19 @@ class GridStandart(Grid):
         # высчитываем размер Thumb
         Thumb.calc_size()
 
-        if not base_items:
+        if not data_items:
             self.create_no_items_label(NoItemsLabel.no_files)
             self.load_finished.emit()
             return
 
         # испускаем сигнал в MainWin для обновления нижнего бара
         # для отображения "всего элементов"
-        self.total_count_update.emit((len(self.selected_thumbs), len(base_items)))
+        self.total_count_update.emit((len(self.selected_thumbs), len(data_items)))
 
         self.hide()
         # создаем сетку на основе элементов из FinderItems
         self.load_finished.emit()
-        self.create_thumbs(base_items)
+        self.create_thumbs(data_items)
 
     def create_thumbs(self, data_items: list[DataItem]):
         self.col_count = self.get_clmn_count()

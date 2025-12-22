@@ -116,9 +116,9 @@ class PathItem(QWidget):
         """
         Открыть окно информации о файле / папке
         """
-        base_item = DataItem(self.item_dir)
-        base_item.set_properties()
-        self.info_win.emit([base_item, ])
+        data_item = DataItem(self.item_dir)
+        data_item.set_properties()
+        self.info_win.emit([data_item, ])
 
     def fav_cmd(self, offset: int, src: str):
         (self.add_fav if offset == 1 else self.del_fav).emit(src)
