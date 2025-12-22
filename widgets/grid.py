@@ -389,9 +389,10 @@ class Grid(UScrollArea):
             if task in self.load_images_tasks:
                 self.load_images_tasks.remove(task)
 
-        def update_thumb(thumb: Thumb):
+        def update_thumb(data_item: DataItem):
             try:
-                if thumb.data.qimages:
+                thumb = self.url_to_wid.get(data_item.src)
+                if data_item.qimages:
                     thumb.set_image()
                 thumb.set_transparent_frame(1.0)
                 thumb.set_blue_text()
@@ -400,8 +401,9 @@ class Grid(UScrollArea):
                 for i in self.load_images_tasks:
                     i.set_should_run(False)
 
-        def set_loading(thumb: Thumb):
+        def set_loading(data_item: DataItem):
             try:
+                thumb = self.url_to_wid.get(data_item.src)
                 thumb.set_blue_text_loading()
                 thumb.set_transparent_frame(0.5)
             except RuntimeError:
@@ -410,10 +412,11 @@ class Grid(UScrollArea):
                     i.set_should_run(False)
 
         if thumbs:
-            task_ = DbItemsLoader(self.main_win_item, thumbs)
-            task_.sigs.update_thumb.connect(update_thumb)
+            data_items = (i.data for i in thumbs)
+            task_ = DbItemsLoader(self.main_win_item, data_items)
+            task_.sigs.update_thumb.connect(lambda data_item: update_thumb(data_item))
+            task_.sigs.set_loading.connect(lambda data_item: set_loading(data_item))
             task_.sigs.finished_.connect(lambda: finalize(task_))
-            task_.sigs.set_loading.connect(lambda thumb: set_loading(thumb))
             self.load_images_tasks.append(task_)
             UThreadPool.start(task_)
     

@@ -586,11 +586,11 @@ class FinderUrlsLoader(URunnable):
 class DbItemsLoader(URunnable):
 
     class Sigs(QObject):
-        update_thumb = pyqtSignal(DataItem) # на самом деле Thumb
+        update_thumb = pyqtSignal(DataItem)
         set_loading = pyqtSignal(DataItem)
         finished_ = pyqtSignal()
 
-    def __init__(self, main_win_item: MainWinItem, base_items: list[DataItem]):
+    def __init__(self, main_win_item: MainWinItem, data_items: list[DataItem]):
         """
         URunnable   
         Сортирует список Thumb по размеру по возрастанию для ускорения загрузки
@@ -599,8 +599,8 @@ class DbItemsLoader(URunnable):
         super().__init__()
         self.sigs = DbItemsLoader.Sigs()
         self.main_win_item = main_win_item
-        self.base_items = base_items
-        self.base_items.sort(key=lambda x: x.size)
+        self.data_items = data_items
+        self.data_items.sort(key=lambda x: x.size)
         self.conn = Dbase.get_conn(Dbase.engine)
         self.corrupted_items: list[DataItem] = []
 
@@ -626,7 +626,7 @@ class DbItemsLoader(URunnable):
         svg_files: list[DataItem] = []
         exist_ratings: list[DataItem] = []
 
-        for base_item in self.base_items:
+        for base_item in self.data_items:
             if not self.is_should_run():
                 return
             if base_item.image_is_loaded:
