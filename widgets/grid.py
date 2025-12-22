@@ -64,8 +64,8 @@ class FileNameWidget(QLabel):
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setStyleSheet(f"""font-size: {FONT_SIZE}px;""")
 
-    def set_text(self, base_item: DataItem) -> list[str]:
-        name: str | list = base_item.filename
+    def set_text(self, data: DataItem) -> list[str]:
+        name: str | list = data.filename
         max_row = Static.row_limits[Dynamic.pixmap_size_ind]
         lines: list[str] = []
         if len(name) > max_row:
@@ -95,7 +95,7 @@ class BlueTextWid(QLabel):
         self.gray_color = "#7C7C7C"
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
     
-    def set_text(self, base_item: DataItem):
+    def set_text(self, data: DataItem):
         self.setStyleSheet(
             f"""
             font-size: {FONT_SIZE}px;
@@ -103,19 +103,19 @@ class BlueTextWid(QLabel):
             """
         )
 
-        if base_item.rating > 0:
-            mod_row = RATINGS.get(base_item.rating, "").strip()
+        if data.rating > 0:
+            mod_row = RATINGS.get(data.rating, "").strip()
         else:
-            mod_row = self.text_mod + SharedUtils.get_f_date(base_item.mod)
-            if base_item.type_ == Static.folder_type:
+            mod_row = self.text_mod + SharedUtils.get_f_date(data.mod)
+            if data.type_ == Static.folder_type:
                 sec_row = str("")
             else:
-                sec_row = self.text_size + SharedUtils.get_f_size(base_item.size, 0)
+                sec_row = self.text_size + SharedUtils.get_f_size(data.size, 0)
             mod_row = "\n".join((mod_row, sec_row))
         self.setText(mod_row)
 
-    def set_loading(self, size: int):
-        first_row = self.text_size + SharedUtils.get_f_size(size, 0)
+    def set_loading(self, data: DataItem):
+        first_row = self.text_size + SharedUtils.get_f_size(data.size, 0)
         text = f"{first_row}\n{self.text_loading}"
         self.setText(text)
 
@@ -132,9 +132,9 @@ class Thumb(QFrame):
     thumb_h: int = 0
     corner: int = 0
 
-    def __init__(self, base_item: DataItem):
+    def __init__(self, data: DataItem):
         super().__init__()
-        self.data = base_item
+        self.data = data
 
         self.v_lay = QVBoxLayout()
         self.v_lay.setContentsMargins(0, 0, 0, 0)
@@ -187,6 +187,9 @@ class Thumb(QFrame):
 
     def set_blue_text(self):
         self.blue_text_wid.set_text(self.data)
+
+    def set_blue_text_loading(self):
+        self.blue_text_wid.set_loading(self.data)
 
     def resize_(self):
         """
@@ -399,7 +402,7 @@ class Grid(UScrollArea):
 
         def set_loading(thumb: Thumb):
             try:
-                thumb.blue_text_wid.set_loading(thumb.size)
+                thumb.set_blue_text_loading()
                 thumb.set_transparent_frame(0.5)
             except RuntimeError:
                 print("grid > set_loading runtime err")
@@ -649,9 +652,9 @@ class Grid(UScrollArea):
         self.rem_win.show()
 
     def new_thumb(self, url: str):
-        base_item = DataItem(url)
-        base_item.set_properties()
-        thumb = Thumb(base_item)
+        data = DataItem(url)
+        data.set_properties()
+        thumb = Thumb(data)
         thumb.resize_()
         thumb.set_no_frame()
 
@@ -927,8 +930,8 @@ class Grid(UScrollArea):
         self.path_bar_update_delayed(self.main_win_item.main_dir)
         names = [os.path.basename(self.main_win_item.main_dir)]
         urls = [self.main_win_item.main_dir]
-        base_item = DataItem(self.main_win_item.main_dir)
-        base_item.set_properties()
+        data = DataItem(self.main_win_item.main_dir)
+        data.set_properties()
 
         if not self.is_grid_search and not Dynamic.rating_filter != 0:
             new_folder = GridActions.NewFolder(menu_)
@@ -938,7 +941,7 @@ class Grid(UScrollArea):
         if not self.is_grid_search:
             info = GridActions.Info(menu_)
             info.triggered.connect(
-                lambda: self.open_win_info([base_item, ])
+                lambda: self.open_win_info([data, ])
             )
             menu_.addAction(info)
 
@@ -1141,9 +1144,9 @@ class Grid(UScrollArea):
                     self.wid_under_mouse = self.selected_thumbs[-1]
                     self.open_win_info(self.selected_thumbs)
                 else:
-                    base_item = DataItem(self.main_win_item.main_dir)
-                    base_item.set_properties()
-                    self.open_win_info([base_item, ])
+                    data = DataItem(self.main_win_item.main_dir)
+                    data.set_properties()
+                    self.open_win_info([data, ])
 
             elif a0.key() == Qt.Key.Key_Equal:
                 new_value = Dynamic.pixmap_size_ind + 1
