@@ -530,12 +530,7 @@ class MainWin(WinBase):
         self.avaiability_task = DiskChecker(self.main_win_item.main_dir)
         self.avaiability_task.sigs.available.connect(fin)
         UThreadPool.start(self.avaiability_task)
-
-        self.loading_wid = LoadingWidget()
-        self.loading_wid.setParent(self.grid)
-        self.loading_wid.move(self.grid.width() // 2, self.grid.height() // 2)
-        self.loading_wid.show()
-    
+   
     def _load_st_grid(self):
 
         def fix_path():
@@ -599,7 +594,6 @@ class MainWin(WinBase):
             self.disable_wids(True)
 
         self.setup_grid_signals()
-        self.grid.load_finished.connect(self.loading_wid.deleteLater)
         self.grid.load_finished.connect(self.grid.setFocus)
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
         self.grid_spacer.resize(0, 0)
