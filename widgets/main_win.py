@@ -143,6 +143,7 @@ class MainWin(WinBase):
         self.resize_timer.setSingleShot(True)
         self.resize_timer.timeout.connect(self.resize_timer_timeout)
 
+        # --- Меню и панель ---
         self.bar_macos = BarMacos()
         self.bar_macos.new_win.connect(lambda: self.open_in_new_win((None, None)))
         self.bar_macos.servers_win.connect(self.open_servers_win)
@@ -150,63 +151,51 @@ class MainWin(WinBase):
         self.bar_macos.go_to_win.connect(self.open_go_to_win)
         self.setMenuBar(self.bar_macos)
 
+        # --- Основной layout ---
         main_lay = QHBoxLayout()
         main_lay.setContentsMargins(5, 0, 5, 0)
         main_lay.setSpacing(0)
         self.centralWidget().setLayout(main_lay)
 
-        self.splitter = QSplitter()
-        self.splitter.setHandleWidth(MainWin.splitter_handle_width)
-        main_lay.addWidget(self.splitter)
-
+        # --- Левый виджет ---
         self.left_wid = QSplitter()
         self.left_wid.setHandleWidth(MainWin.splitter_handle_width)
         self.left_wid.setOrientation(Qt.Orientation.Vertical)
+
         self.tabs_widget = TabsWidget()
-        self.left_wid.addWidget(self.tabs_widget)
         self.tree_menu = TreeMenu(self.main_win_item)
-        self.tabs_widget.addTab(self.tree_menu, MainWin.folders_text)
         self.favs_menu = FavsMenu(self.main_win_item)
+        self.tabs_widget.addTab(self.tree_menu, MainWin.folders_text)
         self.tabs_widget.addTab(self.favs_menu, MainWin.favs_text)
 
         self.filters_menu = FiltersMenu()
+
+        self.left_wid.addWidget(self.tabs_widget)
         self.left_wid.addWidget(self.filters_menu)
-        
         self.left_wid.setSizes([999, 1])
 
+        # --- Правый виджет ---
         right_wid = QWidget()
         self.r_lay = QVBoxLayout()
         self.r_lay.setContentsMargins(0, 0, 0, 0)
         self.r_lay.setSpacing(0)
         right_wid.setLayout(self.r_lay)
-        self.top_bar = TopBar(self.main_win_item, self.search_item)
-        sep_one = USep()
-        self.search_bar = SearchBar(self.search_item)
-        self.search_bar_sep = USep()
 
+        self.top_bar = TopBar(self.main_win_item, self.search_item)
+        self.search_bar = SearchBar(self.search_item)
         self.grid = Grid(self.main_win_item, False)
         Utils.fill_missing_methods(GridSearch, Grid)
         self.grid_spacer = QWidget()
-
-        sep_two = USep()
         self.path_bar = PathBar(self.main_win_item)
-        sep = USep()
         self.sort_bar = SortBar(self.sort_item, self.main_win_item)
 
-        self.splitter.addWidget(self.left_wid)
-        self.splitter.addWidget(right_wid)
-        self.splitter.setStretchFactor(0, 0)
-        self.splitter.setStretchFactor(1, 1)
-        self.splitter.setSizes([MainWin.left_menu_w, self.width() - MainWin.left_menu_w])
+        # Разделители
+        sep_one = USep()
+        self.search_bar_sep = USep()
+        sep_two = USep()
+        sep = USep()
 
-        self.top_bar.new_history_item(self.main_win_item.main_dir)
-        self.path_bar.update(self.main_win_item.main_dir)
-        self.sort_bar.sort_menu_update()
-        self.tabs_widget.setCurrentIndex(1)
-
-        self.scroll_up = ScrollUpBtn(self)
-        self.scroll_up.clicked.connect(lambda: self.grid.verticalScrollBar().setValue(0))
-
+        # --- Добавление в layout ---
         self.r_lay.insertWidget(0, self.top_bar)
         self.r_lay.insertWidget(1, sep_one)
         self.r_lay.insertWidget(2, self.search_bar)
@@ -217,6 +206,27 @@ class MainWin(WinBase):
         self.r_lay.insertWidget(7, self.path_bar)
         self.r_lay.insertWidget(8, sep)
         self.r_lay.insertWidget(9, self.sort_bar)
+
+        # --- Настройка Splitter ---
+        self.splitter = QSplitter()
+        self.splitter.setHandleWidth(MainWin.splitter_handle_width)
+        self.splitter.addWidget(self.left_wid)
+        self.splitter.addWidget(right_wid)
+        self.splitter.setStretchFactor(0, 0)
+        self.splitter.setStretchFactor(1, 1)
+        self.splitter.setSizes([MainWin.left_menu_w, self.width() - MainWin.left_menu_w])
+        main_lay.addWidget(self.splitter)
+
+        # --- Инициализация элементов ---
+        self.top_bar.new_history_item(self.main_win_item.main_dir)
+        self.path_bar.update(self.main_win_item.main_dir)
+        self.sort_bar.sort_menu_update()
+        self.tabs_widget.setCurrentIndex(1)
+
+        # --- ScrollUp кнопка ---
+        self.scroll_up = ScrollUpBtn(self)
+        self.scroll_up.clicked.connect(lambda: self.grid.verticalScrollBar().setValue(0))
+
 
         self.setup_signals()
         self.load_st_grid()
