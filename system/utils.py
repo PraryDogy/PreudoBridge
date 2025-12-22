@@ -290,11 +290,12 @@ class Utils:
             uti_filetype_ = "public.data"
             return uti_filetype_, Dynamic.uti_data[uti_filetype_]
         
-        def set_uti_data(uti_filetype: str, pixmap: QPixmap):
+        def set_uti_data(uti_filetype: str, qimage: QImage):
+            flags = Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
             Dynamic.uti_data[uti_filetype] = {}
-            for i in Static.pixmap_sizes:
-                small_pixmap = cls.qiconed_resize(pixmap, i)
-                Dynamic.uti_data[uti_filetype][i] = small_pixmap
+            for i in Static.image_sizes:
+                resized_qimage = qimage.scaled(i, i, *flags)
+                Dynamic.uti_data[uti_filetype][i] = resized_qimage
 
         def get_symlink_bytes(filepath: str):
             icon = Utils._ws.iconForFile_(filepath)
@@ -383,7 +384,7 @@ class Utils:
                 uti_filetype = entry.name.rsplit(".png", 1)[0]
                 qimage = QImage(entry.path)
                 Dynamic.uti_data[uti_filetype] = {}
-                for i in Static.pixmap_sizes:
+                for i in Static.image_sizes:
                     resized_qimage = qimage.scaled(i, i, *flags)
                     Dynamic.uti_data[uti_filetype][i] = resized_qimage
 

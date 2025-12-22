@@ -165,7 +165,7 @@ class Thumb(BaseItem, QFrame):
     @classmethod
     def calc_size(cls):
         ind = Dynamic.pixmap_size_ind
-        cls.current_pixmap_size = Static.pixmap_sizes[ind]
+        cls.current_pixmap_size = Static.image_sizes[ind]
         cls.current_img_frame_size = Thumb.current_pixmap_size + 15
         cls.thumb_w = Static.thumb_widths[ind]
         cls.thumb_h = Static.thumb_heights[ind]
@@ -1172,7 +1172,7 @@ class Grid(UScrollArea):
 
             elif a0.key() == Qt.Key.Key_Equal:
                 new_value = Dynamic.pixmap_size_ind + 1
-                if new_value <= len(Static.pixmap_sizes) - 1:
+                if new_value <= len(Static.image_sizes) - 1:
                     self.move_slider.emit(new_value)
 
             elif a0.key() == Qt.Key.Key_Minus:

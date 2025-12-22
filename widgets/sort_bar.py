@@ -141,7 +141,7 @@ class CustomSlider(USlider):
         super().__init__(
             orientation=Qt.Orientation.Horizontal,
             minimum=0,
-            maximum=len(Static.pixmap_sizes) - 1
+            maximum=len(Static.image_sizes) - 1
         )
         self.setFixedSize(CustomSlider.width_, CustomSlider.height_)
         self.setValue(Dynamic.pixmap_size_ind)
