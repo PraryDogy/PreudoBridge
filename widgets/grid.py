@@ -448,19 +448,12 @@ class Grid(UScrollArea):
         QTimer.singleShot(0, path_bar_update_delayed)
     
     def sort_thumbs(self):
-        print("сортирвока не придумана")
-        os._exit(1)
-        return
-        """
-        Сортирует виджеты по аттрибуту BaseItem / Thumb
-        """
-        thumb_list = list(self.url_to_wid.values())
-        thumb_list = DataItem.sort_items(thumb_list, self.sort_item)
-        wid_to_url = {v: k for k, v in self.url_to_wid.items()}
-        self.url_to_wid = {
-            wid_to_url[thumb]: thumb
-            for thumb in thumb_list
-        }
+        data_items = [i.data for i in self.url_to_wid.values()]
+        sorted_data_items = DataItem.sort_(data_items, self.sort_item)
+        new_url_to_wid = {}
+        for i in sorted_data_items:
+            new_url_to_wid[i.src] = self.url_to_wid.get(i.src)
+        self.url_to_wid = new_url_to_wid
                 
     def filter_thumbs(self):
         """
@@ -663,7 +656,7 @@ class Grid(UScrollArea):
         thumb.resize_()
         thumb.set_no_frame()
 
-        thumb.data.uti_type = Utils.get_uti_type(thumb.src)
+        thumb.data.uti_type = Utils.get_uti_type(thumb.data.src)
         thumb.set_uti_image()
 
         self.add_widget_data(thumb, self.row, self.col)

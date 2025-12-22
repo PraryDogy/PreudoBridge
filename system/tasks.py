@@ -543,7 +543,7 @@ class FinderItemsLoader(URunnable):
             # if i % 20 == 0:
                 # QThread.msleep(1)
 
-        items = DataItem.sort_items(items, self.sort_item)
+        items = DataItem.sort_(items, self.sort_item)
         self.sigs.finished_.emit(items)
 
     def _get_paths(self):

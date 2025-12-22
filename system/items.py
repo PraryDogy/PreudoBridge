@@ -109,7 +109,7 @@ class DataItem:
             self.size = 0
 
     @classmethod
-    def sort_items(cls, base_items: list["DataItem"], sort_item: SortItem) -> list["DataItem"]:
+    def sort_(cls, data_items: list["DataItem"], sort_item: SortItem) -> list["DataItem"]:
 
         def get_nums(filename: str):
             """
@@ -121,7 +121,7 @@ class DataItem:
         if sort_item.get_sort_type() == sort_item.filename:
             num_base_items: list[DataItem] = []
             abc_base_items: list[DataItem] = []
-            for i in base_items:
+            for i in data_items:
                 if i.filename[0].isdigit():
                     num_base_items.append(i)
                 else:
@@ -133,8 +133,8 @@ class DataItem:
             return [*num_base_items, *abc_base_items]
         else:
             key = lambda base_item: getattr(base_item, sort_item.get_sort_type())
-            base_items.sort(key=key, reverse=sort_item.get_reversed())
-            return base_items
+            data_items.sort(key=key, reverse=sort_item.get_reversed())
+            return data_items
         
     @classmethod
     def get_folder_conds(cls, base_item: "DataItem"):
