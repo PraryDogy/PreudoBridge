@@ -523,9 +523,9 @@ class MainWin(WinBase):
             if is_avaiable:
                 self._load_st_grid()
 
-        # self.grid_spacer.resize(0, self.height())
-        # self.grid_spacer.setFocus()
-        # QTimer.singleShot(1, self.grid.hide)
+        self.grid_spacer.resize(0, self.height())
+        self.grid_spacer.setFocus()
+        QTimer.singleShot(1, self.grid.hide)
 
         self.avaiability_task = DiskChecker(self.main_win_item.main_dir)
         self.avaiability_task.sigs.available.connect(fin)
