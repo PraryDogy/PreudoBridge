@@ -622,7 +622,6 @@ class DbItemsLoader(URunnable):
         exist_images: list[BaseItem] = []
         svg_files: list[BaseItem] = []
         exist_ratings: list[BaseItem] = []
-        app_files: list[BaseItem] = []
 
         for base_item in self.base_items:
             if not self.is_should_run():
