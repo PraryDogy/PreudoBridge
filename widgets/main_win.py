@@ -150,7 +150,6 @@ class MainWin(WinBase):
         self.bar_macos.go_to_win.connect(self.open_go_to_win)
         self.setMenuBar(self.bar_macos)
 
-
         main_lay = QHBoxLayout()
         main_lay.setContentsMargins(5, 0, 5, 0)
         main_lay.setSpacing(0)
