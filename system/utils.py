@@ -247,6 +247,17 @@ class Utils:
             return None
     
     @classmethod
+    def scaled(cls, qimage: QImage, size: int, dpr: int = 2):
+        scaled = qimage.scaled(
+            int(size * dpr),
+            int(size * dpr),
+            Qt.AspectRatioMode.KeepAspectRatio,
+            Qt.TransformationMode.SmoothTransformation
+        )
+        scaled.setDevicePixelRatio(dpr)
+        return scaled
+
+    @classmethod
     def qiconed_resize(cls, pixmap: QPixmap, max_side: int) -> QPixmap:
         if pixmap.isNull():
             return QPixmap()
@@ -294,7 +305,7 @@ class Utils:
             flags = Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
             Dynamic.uti_data[uti_filetype] = {}
             for i in Static.image_sizes:
-                resized_qimage = qimage.scaled(i, i, *flags)
+                resized_qimage = qimage.scaled(i*1.2, i*1.2, *flags)
                 Dynamic.uti_data[uti_filetype][i] = resized_qimage
 
         def get_symlink_bytes(filepath: str):
@@ -385,10 +396,8 @@ class Utils:
                 qimage = QImage(entry.path)
                 Dynamic.uti_data[uti_filetype] = {}
                 for i in Static.image_sizes:
-                    resized_qimage = qimage.scaled(i, i, *flags)
+                    resized_qimage = Utils.scaled(qimage, i)
                     Dynamic.uti_data[uti_filetype][i] = resized_qimage
-
-        print(Dynamic.uti_data)
 
     @classmethod
     def load_image_apps(cls):
