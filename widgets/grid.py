@@ -1108,7 +1108,7 @@ class Grid(UScrollArea):
         self.mime_data = QMimeData()
         img_ = QPixmap.fromImage(self.copy_files_icon)
         self.drag.setPixmap(img_)
-        urls = [QUrl.fromLocalFile(i.src) for i in self.selected_thumbs]        
+        urls = [QUrl.fromLocalFile(i.data.src) for i in self.selected_thumbs]        
         if urls:
             self.mime_data.setUrls(urls)
         if self.wid_under_mouse:
