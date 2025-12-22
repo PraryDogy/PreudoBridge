@@ -438,8 +438,8 @@ class MainWin(WinBase):
         self.setup_grid_signals()
         QTimer.singleShot(100, self.grid.setFocus)
 
-    def open_info_win(self, lst: list[DataItem]):
-        self.info_win = InfoWin(lst)
+    def open_info_win(self, data_items: list[DataItem]):
+        self.info_win = InfoWin(data_items)
         self.info_win.center(self.img_view_win if self.img_view_win else self)
         self.info_win.show()
         
