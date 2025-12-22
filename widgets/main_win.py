@@ -13,7 +13,7 @@ from system.items import DataItem, CopyItem, MainWinItem, SearchItem, SortItem
 from system.paletes import UPallete
 from system.shared_utils import SharedUtils
 from system.tasks import (AutoCacheCleaner, PathFinderTask, RatingTask,
-                          UThreadPool)
+                          UThreadPool, DiskChecker)
 from system.utils import Utils
 
 from ._base_widgets import USep, WinBase
@@ -499,10 +499,18 @@ class MainWin(WinBase):
         self.filters_menu.setDisabled(value)
 
     def load_st_grid(self):
+
+        def fin(is_avaiable: bool):
+            if is_avaiable:
+                self._load_st_grid()
+
         self.grid_spacer.resize(0, self.height())
         self.grid_spacer.setFocus()
         QTimer.singleShot(1, self.grid.hide)
-        QTimer.singleShot(2, self._load_st_grid)
+
+        self.avaiability_task = DiskChecker(self.main_win_item.main_dir)
+        self.avaiability_task.sigs.available.connect(fin)
+        UThreadPool.start(self.avaiability_task)
     
     def _load_st_grid(self):
 

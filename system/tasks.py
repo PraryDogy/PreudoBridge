@@ -3,6 +3,7 @@ import gc
 import os
 import shutil
 import subprocess
+import threading
 import time
 import zipfile
 
@@ -21,7 +22,7 @@ from cfg import Dynamic, JsonData, Static
 from system.shared_utils import PathFinder, ReadImage, SharedUtils
 
 from .database import CACHE, Clmns, Dbase
-from .items import DataItem, CopyItem, MainWinItem, SearchItem, SortItem
+from .items import CopyItem, DataItem, MainWinItem, SearchItem, SortItem
 from .utils import Utils
 
 
@@ -1619,14 +1620,9 @@ class DirWatcher(URunnable):
             observer.join()
 
 
-import os
-import threading
-from PyQt5.QtCore import QRunnable, QObject, pyqtSignal
 
 
-
-
-class DiskChecker(QRunnable):
+class DiskChecker(URunnable):
 
     class Sigs(QObject):
         available = pyqtSignal(bool)
