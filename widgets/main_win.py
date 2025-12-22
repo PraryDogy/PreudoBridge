@@ -325,17 +325,11 @@ class MainWin(WinBase):
             data["start_url"], data["url_to_wid"], data["is_selection"]
         )
 
-        # mapping сигнал → слот
-        signal_map = {
-            self.img_view_win.move_to_wid: self.grid.select_single_thumb,
-            self.img_view_win.new_rating: set_db_rating,
-            self.img_view_win.move_to_url: self.grid.select_path,
-            self.img_view_win.closed: closed,
-            self.img_view_win.info_win: self.open_info_win,
-        }
-
-        for signal, slot in signal_map.items():
-            signal.connect(slot)
+        self.img_view_win.move_to_wid.connect(self.grid.select_single_thumb)
+        self.img_view_win.new_rating.connect(set_db_rating)
+        self.img_view_win.move_to_url.connect(self.grid.select_path)
+        self.img_view_win.closed.connect(closed)
+        self.img_view_win.info_win.connect(self.open_info_win)
 
         if ImgViewWin.ww == 0:
             self.img_view_win.resize(Static.base_ww, Static.base_hh)
@@ -419,25 +413,22 @@ class MainWin(WinBase):
         new_win.show()
 
     def setup_grid_signals(self):
-        signal_map = {
-            self.grid.download_cache: self.download_cache_task,
-            self.grid.sort_menu_update: self.sort_bar.sort_menu_update,
-            self.grid.total_count_update: self.sort_bar.sort_frame.set_total_text,
-            self.grid.path_bar_update: self.path_bar.update,
-            self.grid.add_fav: self.favs_menu.add_fav,
-            self.grid.del_fav: self.favs_menu.del_fav,
-            self.grid.move_slider: self.sort_bar.move_slider,
-            self.grid.load_st_grid: self.load_st_grid,
-            self.grid.open_in_new_win: self.open_in_new_win,
-            self.grid.level_up: self.level_up,
-            self.grid.new_history_item: self.top_bar.new_history_item,
-            self.grid.change_view: self.change_view_cmd,
-            self.grid.info_win: self.open_info_win,
-            self.grid.img_view_win: self.open_img_view,
-            self.grid.paste_files: self.paste_files,
-        }
-        for signal, slot in signal_map.items():
-            signal.connect(slot)
+        self.grid.download_cache.connect(self.download_cache_task)
+        self.grid.sort_menu_update.connect(self.sort_bar.sort_menu_update)
+        self.grid.total_count_update.connect(self.sort_bar.sort_frame.set_total_text)
+        self.grid.path_bar_update.connect(self.path_bar.update)
+        self.grid.add_fav.connect(self.favs_menu.add_fav)
+        self.grid.del_fav.connect(self.favs_menu.del_fav)
+        self.grid.move_slider.connect(self.sort_bar.move_slider)
+        self.grid.load_st_grid.connect(self.load_st_grid)
+        self.grid.open_in_new_win.connect(self.open_in_new_win)
+        self.grid.level_up.connect(self.level_up)
+        self.grid.new_history_item.connect(self.top_bar.new_history_item)
+        self.grid.change_view.connect(self.change_view_cmd)
+        self.grid.info_win.connect(self.open_info_win)
+        self.grid.img_view_win.connect(self.open_img_view)
+        self.grid.paste_files.connect(self.paste_files)
+        
         self.grid.verticalScrollBar().valueChanged.connect(self.scroll_up_toggle)
 
     def load_search_grid(self):
