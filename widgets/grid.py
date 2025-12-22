@@ -860,7 +860,7 @@ class Grid(UScrollArea):
 
         info = ItemActions.Info(menu_)
         info.triggered.connect(
-            lambda: self.open_win_info(self.selected_thumbs)
+            lambda: self.open_win_info([i.data for i in self.selected_thumbs])
         )
         menu_.addAction(info)
 
@@ -1151,7 +1151,7 @@ class Grid(UScrollArea):
             elif a0.key() == Qt.Key.Key_I:
                 if self.selected_thumbs:
                     self.wid_under_mouse = self.selected_thumbs[-1]
-                    self.open_win_info(self.selected_thumbs)
+                    self.open_win_info([i.data for i in self.selected_thumbs])
                 else:
                     data = DataItem(self.main_win_item.main_dir)
                     data.set_properties()
