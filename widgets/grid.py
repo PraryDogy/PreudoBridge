@@ -173,7 +173,7 @@ class Thumb(QFrame):
 
     def set_uti_image(self):
         if self.data.uti_type not in Dynamic.uti_data:
-            print("Thumb, set uti image, uti type not in uti data", self.uti_type, self.src)
+            print("Thumb, set uti image, uti type not in uti data", self.data.uti_type, self.data.src)
             return
         qimage = Dynamic.uti_data[self.data.uti_type][Thumb.current_image_size]
         pixmap = QPixmap.fromImage(qimage)

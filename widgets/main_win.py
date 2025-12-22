@@ -295,7 +295,7 @@ class MainWin(WinBase):
             wid = self.grid.url_to_wid.get(url)
             if not wid:
                 return
-            self.rating_task = RatingTask(self.main_win_item.main_dir, wid, rating)
+            self.rating_task = RatingTask(self.main_win_item.main_dir, wid.data, rating)
             assert isinstance(self.rating_task, RatingTask)
             self.rating_task.sigs.finished_.connect(
                 lambda: self.grid.set_thumb_rating(wid, rating)

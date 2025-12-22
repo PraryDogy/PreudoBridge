@@ -871,6 +871,7 @@ class ToJpegConverter(URunnable):
         try:
             img_array = ReadImage.read_image(src)
             img = Image.fromarray(img_array.astype(np.uint8))
+            img = img.convert("RGB")
             save_path = os.path.splitext(src)[0] + ".jpg"
             img.save(save_path, format="JPEG", quality=99)
             return save_path
