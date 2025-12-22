@@ -326,7 +326,7 @@ class Utils:
             bytes_icon = get_bytes_icon(filepath)
             qimage = QImage()
             qimage.loadFromData(bytes_icon)
-            set_uti_data(bundle, pixmap)
+            set_uti_data(bundle, qimage)
 
             uti_png_icon_path = os.path.join(Static.external_uti_dir, f"{bundle}.png")
             if not os.path.exists(uti_png_icon_path):
@@ -351,11 +351,11 @@ class Utils:
             qimage = Utils.scaled(qimage, size)
             qimage.save(uti_png_icon_path, "PNG")
 
-        pixmap = QImage(uti_png_icon_path)
-        if pixmap.isNull():
+        qimage = QImage(uti_png_icon_path)
+        if qimage.isNull():
             return get_errored_icon()
 
-        set_uti_data(uti_filetype, pixmap)
+        set_uti_data(uti_filetype, qimage)
         return uti_filetype, Dynamic.uti_data[uti_filetype]
     
     @classmethod
