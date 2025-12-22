@@ -64,8 +64,8 @@ class FileNameWidget(QLabel):
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setStyleSheet(f"""font-size: {FONT_SIZE}px;""")
 
-    def set_text(self, base_item: BaseItem) -> list[str]:
-        name: str | list = base_item.filename
+    def set_text(self, name: str) -> list[str]:
+        name: str | list = name
         max_row = Static.row_limits[Dynamic.pixmap_size_ind]
         lines: list[str] = []
         if len(name) > max_row:
@@ -95,7 +95,7 @@ class BlueTextWid(QLabel):
         self.gray_color = "#7C7C7C"
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
     
-    def set_text(self, base_item: BaseItem):
+    def set_text(self, rating: int, type_: str, mod: int, size: int):
         self.setStyleSheet(
             f"""
             font-size: {FONT_SIZE}px;
@@ -103,14 +103,14 @@ class BlueTextWid(QLabel):
             """
         )
 
-        if base_item.rating > 0:
-            mod_row = RATINGS.get(base_item.rating, "").strip()
+        if rating > 0:
+            mod_row = RATINGS.get(rating, "").strip()
         else:
-            mod_row = self.text_mod + SharedUtils.get_f_date(base_item.mod)
-            if base_item.type_ == Static.folder_type:
+            mod_row = self.text_mod + SharedUtils.get_f_date(mod)
+            if type_ == Static.folder_type:
                 sec_row = str("")
             else:
-                sec_row = self.text_size + SharedUtils.get_f_size(base_item.size, 0)
+                sec_row = self.text_size + SharedUtils.get_f_size(size, 0)
             mod_row = "\n".join((mod_row, sec_row))
         self.setText(mod_row)
 
@@ -119,7 +119,8 @@ class BlueTextWid(QLabel):
         text = f"{first_row}\n{self.text_loading}"
         self.setText(text)
 
-class Thumb(QFrame):
+
+class Thumb(BaseItem, QFrame):
     # Сигнал нужен, чтобы менялся заголовок в просмотрщике изображений
     # При изменении рейтинга или меток
     text_changed = pyqtSignal()
@@ -132,10 +133,9 @@ class Thumb(QFrame):
     thumb_h: int = 0
     corner: int = 0
 
-    def __init__(self, base_item: BaseItem):
-        super().__init__()
-        self.base_item = base_item
-
+    def __init__(self, src: str, rating: int = 0):    
+        QFrame.__init__(self, parent=None)
+        BaseItem.__init__(self, src, rating)
         self.v_lay = QVBoxLayout()
         self.v_lay.setContentsMargins(0, 0, 0, 0)
         self.v_lay.setSpacing(2)
@@ -165,25 +165,32 @@ class Thumb(QFrame):
     @classmethod
     def calc_size(cls):
         ind = Dynamic.pixmap_size_ind
-        Thumb.current_image_size = Static.image_sizes[ind]
-        Thumb.current_img_frame_size = Thumb.current_image_size + 15
-        Thumb.thumb_w = Static.thumb_widths[ind]
-        Thumb.thumb_h = Static.thumb_heights[ind]
-        Thumb.corner = Static.corner_sizes[ind]
+        cls.current_image_size = Static.image_sizes[ind]
+        cls.current_img_frame_size = Thumb.current_image_size + 15
+        cls.thumb_w = Static.thumb_widths[ind]
+        cls.thumb_h = Static.thumb_heights[ind]
+        cls.corner = Static.corner_sizes[ind]
 
     def set_uti_image(self):
-        if self.base_item.uti_type not in Dynamic.uti_data:
+        if self.uti_type not in Dynamic.uti_data:
             print("Thumb, set uti image, uti type not in uti data", self.uti_type, self.src)
             return
-        qimage = Dynamic.uti_data[self.base_item.uti_type][Thumb.current_image_size]
+        qimage = Dynamic.uti_data[self.uti_type][Thumb.current_image_size]
         pixmap = QPixmap.fromImage(qimage)
         self.img_wid.setPixmap(pixmap)
 
     def set_image(self):
-        qimage = self.base_item.qimages[Thumb.current_image_size]
+        qimage = self.qimages[Thumb.current_image_size]
         pixmap = QPixmap.fromImage(qimage)
         self.img_wid.setPixmap(pixmap)
-        self.base_item.image_is_loaded = True
+        self.image_is_loaded = True
+
+    def migrate_from_base_item(self, base_item: BaseItem):
+        """
+        Позволяет перенести данные из BaseItem в Thumb без set_properties
+        """
+        for k, v in vars(base_item).items():
+            setattr(self, k, v)
 
     def set_widget_size(self):
         """
@@ -191,14 +198,14 @@ class Thumb(QFrame):
         Устанавливает текст в дочерних виджетах в соответствии с размерами  
         Устанавливает изображение в дочерних виджетах в соответствии в размерами
         """
-        self.text_wid.set_text(self.base_item)
-        self.blue_text_wid.set_text(self.base_item)
+        self.text_wid.set_text(self.filename)
+        self.blue_text_wid.set_text(self.rating, self.type_, self.mod, self.size)
 
         self.setFixedSize(Thumb.thumb_w, Thumb.thumb_h)
         self.img_wid.setFixedSize(Thumb.current_image_size, Thumb.current_image_size)
         self.img_frame.setFixedSize(Thumb.current_img_frame_size, Thumb.current_img_frame_size)
 
-        if self.base_item.qimages:
+        if self.qimages:
             self.set_image()
         else:
             self.set_uti_image()
@@ -215,7 +222,7 @@ class Thumb(QFrame):
             #{Thumb.img_obj_name} {{
                 background: {Static.rgba_gray};
                 font-size: {FONT_SIZE}px;
-                border-radius: {Thumb.corner}px;
+                border-radius: {self.corner}px;
             }}
             """
         )
@@ -232,7 +239,7 @@ class Thumb(QFrame):
             #{Thumb.img_obj_name} {{
                 background: transparent;
                 font-size: {FONT_SIZE}px;
-                border-radius: {Thumb.corner}px;
+                border-radius: {self.corner}px;
             }}
             """
         )

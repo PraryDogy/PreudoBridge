@@ -98,7 +98,6 @@ class GridStandart(Grid):
             # Создание и настройка виджета
             base_item = self._thumb_items[self._thumb_index]
             thumb = Thumb(base_item.src, base_item.rating)
-            thumb.migrate_from_base_item(base_item)
             thumb.set_widget_size()
             thumb.set_no_frame()
             thumb.set_uti_image()
