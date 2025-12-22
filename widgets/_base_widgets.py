@@ -34,7 +34,7 @@ class UMenu(QMenu):
             "#ffffff": "#5A5A5A",
         }
 
-        sep_color = color_data.get(text_color)  # дефолт если нет ключа
+        sep_color = color_data[text_color]
 
         self.setStyleSheet(f"""
             QMenu::separator {{

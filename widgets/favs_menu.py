@@ -159,11 +159,11 @@ class FavsMenu(QListWidget):
                 self.setCurrentItem(item)
 
     def select_fav(self, src: str):
-        wid = self.wids.get(src)
-        if wid:
-            self.setCurrentItem(wid)
-        else:
+        wid = self.wids.get(src, None)
+        if wid is None:
             self.clearSelection()
+        else:
+            self.setCurrentItem(wid)
 
     def add_fav(self, src: str):
         if src not in JsonData.favs:
