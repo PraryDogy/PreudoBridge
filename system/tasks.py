@@ -383,12 +383,9 @@ class SearchTask(URunnable):
 
     def process_text_contains(self, entry: os.DirEntry):
         filename, _ = self.remove_extension(entry.name)
-        filename: str = filename.lower()
-
-        if self.text_lower in entry.name:
+        filename_lower = filename.lower()
+        if self.text_lower in filename_lower:
             return True
-        # elif ...:
-            # return True
         else:
             return False
 
