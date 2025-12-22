@@ -492,7 +492,9 @@ class SearchTask(URunnable):
                 for i in Static.image_sizes
             }
             base_item.qimages.update({"src": qimage})
-        base_item.uti_type = Utils.get_uti_type(entry.path)
+        # мы используем для получения типа именно генератор, чтобы
+        # скачать новые иконки, если их нет
+        base_item.uti_type, _ = Utils.uti_generator(entry.path)
         self.sigs.new_widget.emit(base_item)
         QTest.qSleep(SearchTask.new_wid_sleep_ms)
 
