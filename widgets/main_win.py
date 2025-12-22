@@ -583,6 +583,7 @@ class MainWin(WinBase):
             Utils.fill_missing_methods(TableView, Grid)
             self.grid.setParent(self)
             self.grid.sort_item = self.sort_item
+            self.grid.dirs_watcher_start()
             self.disable_wids(False)
             QTimer.singleShot(0, self.grid.load_finder_items)
 

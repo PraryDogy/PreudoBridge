@@ -318,11 +318,6 @@ class Grid(UScrollArea):
         self.grid_layout.setAlignment(flags)
         self.main_wid.setLayout(self.grid_layout)
 
-        if not self.is_grid_search:
-            self.dirs_watcher_start()
-        else:
-            self.dirs_wacher = DirWatcher("")
-
     def set_files_icon(self, size: int = 64):
         path = os.path.join(Static.internal_icons_dir, "files.svg")
         qimage = Utils.render_svg(path, 512)
