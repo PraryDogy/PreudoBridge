@@ -609,9 +609,9 @@ class Grid(UScrollArea):
         Загружает сетку GridStandart с указанным путем к файлу / папке
         """
         def cmd(main_dir: str):
-            self.open_in_new_win.emit((main_dir, wid.src, ))
+            self.open_in_new_win.emit((main_dir, wid.data.src, ))
 
-        new_main_dir = os.path.dirname(wid.src)
+        new_main_dir = os.path.dirname(wid.data.src)
         QTimer.singleShot(100, lambda: cmd(new_main_dir))
 
     def setup_urls_to_copy(self):
@@ -622,7 +622,7 @@ class Grid(UScrollArea):
         CopyItem.set_is_search(self.is_grid_search)
         CopyItem.urls.clear()
         for i in self.selected_thumbs:
-            CopyItem.urls.append(i.src)
+            CopyItem.urls.append(i.data.src)
         self.rearrange_thumbs()
 
     def remove_no_items_label(self):
@@ -661,7 +661,7 @@ class Grid(UScrollArea):
         thumb.resize_()
         thumb.set_no_frame()
 
-        thumb.uti_type = Utils.get_uti_type(thumb.src)
+        thumb.data.uti_type = Utils.get_uti_type(thumb.src)
         thumb.set_uti_image()
 
         self.add_widget_data(thumb, self.row, self.col)
@@ -680,12 +680,12 @@ class Grid(UScrollArea):
             return
         if wid in self.selected_thumbs:
             self.selected_thumbs.remove(wid)
-        self.cell_to_wid.pop((wid.row, wid.col))
+        self.cell_to_wid.pop((wid.data.row, wid.data.col))
         self.url_to_wid.pop(url)
         wid.deleteLater()
 
     def set_thumb_rating(self, wid: Thumb, new_rating: int):
-        wid.rating = new_rating
+        wid.data.rating = new_rating
         wid.set_blue_text()
         wid.text_changed.emit()
 
@@ -760,11 +760,11 @@ class Grid(UScrollArea):
     def rename_thumb(self, thumb: Thumb):
         
         def finished(text: str):
-            root = os.path.dirname(thumb.src)
+            root = os.path.dirname(thumb.data.src)
             new_url = os.path.join(root, text)
-            os.rename(thumb.src, new_url)
+            os.rename(thumb.data.src, new_url)
 
-        self.rename_win = RenameWin(thumb.filename)
+        self.rename_win = RenameWin(thumb.data.filename)
         self.rename_win.finished_.connect(lambda text: finished(text))
         self.rename_win.center(self.window())
         self.rename_win.show()
@@ -774,7 +774,7 @@ class Grid(UScrollArea):
         def select(url):
             if url in self.url_to_wid:
                 wid = self.url_to_wid[url]
-                wid.set_properties()
+                wid.data.set_properties()
                 wid.set_blue_text()
                 self.select_single_thumb(wid)
 
@@ -787,7 +787,7 @@ class Grid(UScrollArea):
                 ...
 
         def rename_fin(text: str):
-            files = [i.src for i in self.selected_thumbs]
+            files = [i.data.src for i in self.selected_thumbs]
             zip_path = os.path.join(self.main_win_item.main_dir, text)
 
             self.archive_win = ArchiveWin(files, zip_path)
@@ -798,7 +798,7 @@ class Grid(UScrollArea):
             QTimer.singleShot(100, lambda: self.archive_win.raise_())
 
         if len(self.selected_thumbs) == 1:
-            text = self.selected_thumbs[0].filename
+            text = self.selected_thumbs[0].data.filename
             text, ext = os.path.splitext(text)
             text = f"{text}.zip"
         else:
@@ -811,35 +811,46 @@ class Grid(UScrollArea):
 
     def context_thumb(self, menu_: UMenu, wid: Thumb):
         # собираем пути к файлам / папкам у выделенных виджетов
-        urls = [i.src for i in self.selected_thumbs]
-        urls_img = [i.src for i in self.selected_thumbs if i.src.endswith(Static.img_exts)]
-        dirs = [i.src for i in self.selected_thumbs if i.type_ == Static.folder_type]
-        self.path_bar_update_delayed(wid.src)
+        urls = [
+            i.data.src
+            for i in self.selected_thumbs
+        ]
+        urls_img = [
+            i.data.src
+            for i in self.selected_thumbs
+            if i.data.src.endswith(Static.img_exts)
+        ]
+        dirs = [
+            i.data.src
+            for i in self.selected_thumbs
+            if i.data.type_ == Static.folder_type
+        ]
+        self.path_bar_update_delayed(wid.data.src)
 
         view_action = ItemActions.OpenThumb(menu_)
         view_action.triggered.connect(lambda: self.open_thumb())
         menu_.addAction(view_action)
 
-        if wid.type_ in Static.img_exts:
+        if wid.data.type_ in Static.img_exts:
             open_in_app = ItemActions.OpenInApp(menu_, urls)
             menu_.addMenu(open_in_app)
-        elif wid.type_ == Static.folder_type:
+        elif wid.data.type_ == Static.folder_type:
             new_win = ItemActions.OpenInNewWindow(menu_)
-            new_win.triggered.connect(lambda: self.open_in_new_win.emit((wid.src, None)))
+            new_win.triggered.connect(lambda: self.open_in_new_win.emit((wid.data.src, None)))
             menu_.addAction(new_win)
 
-            if wid.src in JsonData.favs:
-                cmd_ = lambda: self.fav_cmd(offset=-1, src=wid.src)
+            if wid.data.src in JsonData.favs:
+                cmd_ = lambda: self.fav_cmd(offset=-1, src=wid.data.src)
                 fav_action = ItemActions.FavRemove(menu_)
                 fav_action.triggered.connect(cmd_)
                 menu_.addAction(fav_action)
             else:
-                cmd_ = lambda: self.fav_cmd(offset=1, src=wid.src)
+                cmd_ = lambda: self.fav_cmd(offset=1, src=wid.data.src)
                 fav_action = ItemActions.FavAdd(menu_)
                 fav_action.triggered.connect(cmd_)
                 menu_.addAction(fav_action)
 
-            rating_menu = ItemActions.RatingMenu(menu_, wid.rating)
+            rating_menu = ItemActions.RatingMenu(menu_, wid.data.rating)
             rating_menu.new_rating.connect(self.new_rating_multiple_start)
             menu_.addMenu(rating_menu)
         else:
@@ -853,21 +864,17 @@ class Grid(UScrollArea):
 
         menu_.addSeparator()
 
-        if wid.type_ in Static.img_exts and not self.is_grid_search:
+        if wid.data.type_ in Static.img_exts and not self.is_grid_search:
             convert_action = ItemActions.ImgConvert(menu_)
             convert_action.triggered.connect(lambda: self.open_img_convert_win(urls_img))
             menu_.addAction(convert_action)
 
-        if wid.type_ == Static.folder_type:
+        if wid.data.type_ == Static.folder_type:
             download_cache = ItemActions.DownloadCache(menu_)
             download_cache.triggered.connect(
                 lambda: self.download_cache.emit(dirs)
             )
             menu_.addAction(download_cache)
-
-        # archive = ItemActions.MakeArchive(menu_)
-        # archive.triggered.connect(self.make_archive)
-        # menu_.addAction(archive)
 
         menu_.addSeparator()
 
@@ -885,9 +892,6 @@ class Grid(UScrollArea):
         copy_path.triggered.connect(lambda: CopyItem.reset())
         menu_.addAction(copy_path)
 
-        # copy_name = ItemActions.CopyName(menu_, urls)
-        # copy_name.triggered.connect(lambda: CopyItem.reset())
-        # menu_.addAction(copy_name)
 
         menu_.addSeparator()
 
@@ -1040,15 +1044,15 @@ class Grid(UScrollArea):
             # шифт клик: если уже был выделен один / несколько виджетов
             else:
                 coords = list(self.cell_to_wid)
-                start_pos = (self.selected_thumbs[-1].row, self.selected_thumbs[-1].col)
+                start_pos = (self.selected_thumbs[-1].data.row, self.selected_thumbs[-1].data.col)
                 # шифт клик: слева направо (по возрастанию)
-                if coords.index((self.wid_under_mouse.row, self.wid_under_mouse.col)) > coords.index(start_pos):
+                if coords.index((self.wid_under_mouse.data.row, self.wid_under_mouse.data.col)) > coords.index(start_pos):
                     start = coords.index(start_pos)
-                    end = coords.index((self.wid_under_mouse.row, self.wid_under_mouse.col))
+                    end = coords.index((self.wid_under_mouse.data.row, self.wid_under_mouse.data.col))
                     coords = coords[start : end + 1]
                 # шифт клик: справа налево (по убыванию)
                 else:
-                    start = coords.index((self.wid_under_mouse.row, self.wid_under_mouse.col))
+                    start = coords.index((self.wid_under_mouse.data.row, self.wid_under_mouse.data.col))
                     end = coords.index(start_pos)
                     coords = coords[start : end]
                 # выделяем виджеты по срезу координат coords
@@ -1065,7 +1069,7 @@ class Grid(UScrollArea):
             # комманд клик: виджет не был виделен, выделить
             else:
                 self.select_multiple_thumb(self.wid_under_mouse)
-                self.path_bar_update_delayed(self.wid_under_mouse.src)
+                self.path_bar_update_delayed(self.wid_under_mouse.data.src)
         else:
             self.select_single_thumb(self.wid_under_mouse)
 
@@ -1108,7 +1112,7 @@ class Grid(UScrollArea):
         if urls:
             self.mime_data.setUrls(urls)
         if self.wid_under_mouse:
-            self.path_bar_update_delayed(self.wid_under_mouse.src)
+            self.path_bar_update_delayed(self.wid_under_mouse.data.src)
         self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
         self.drag.setMimeData(self.mime_data)
         self.setup_urls_to_copy()
@@ -1194,19 +1198,19 @@ class Grid(UScrollArea):
             if not self.wid_under_mouse:
                 return
             coords = (
-                self.wid_under_mouse.row + offset[0], 
-                self.wid_under_mouse.col + offset[1]
+                self.wid_under_mouse.data.row + offset[0], 
+                self.wid_under_mouse.data.col + offset[1]
             )
             next_wid = self.cell_to_wid.get(coords)
             if next_wid is None:
                 if a0.key() == Qt.Key.Key_Right:
                     coords = (
-                        self.wid_under_mouse.row + 1, 
+                        self.wid_under_mouse.data.row + 1, 
                         0
                     )
                 elif a0.key() == Qt.Key.Key_Left:
                     coords = (
-                        self.wid_under_mouse.row - 1,
+                        self.wid_under_mouse.data.row - 1,
                         self.col_count - 1
                     )
                 next_wid = self.cell_to_wid.get(coords)
