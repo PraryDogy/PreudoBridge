@@ -287,12 +287,12 @@ class TableView(QTableView):
         """
         Открыть окно информации о файле / папке
         """
-        base_items = []
+        data_items = []
         for i in src_list:
-            base_item = DataItem(i)
-            base_item.set_properties()
-            base_items.append(base_item)
-        self.info_win.emit(base_items)
+            data_item = DataItem(i)
+            data_item.set_properties()
+            data_items.append(data_item)
+        self.info_win.emit(data_items)
 
     def get_selected_urls(self):
         urls = []
