@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QHBoxLayout, QLabel, QWidget
 from cfg import JsonData, Static
 from system.items import DataItem, MainWinItem
 from system.utils import Utils
+from system.appkit_icon import AppKitIcon
 
 from ._base_widgets import UMenu, USvgSqareWidget
 from .actions import ItemActions
@@ -55,16 +56,15 @@ class PathItem(QWidget):
         self.set_icon()
 
     def set_icon(self):
-        print("pathitem set_icon")
-        return self.img_wid.setPixmap(QPixmap())
-        if type_ in self.type_to_pixmap:
-            pixmap = self.type_to_pixmap[type_]
+        appkit_icon = AppKitIcon(self.item_dir)
+        if appkit_icon.uti_filetype in self.type_to_pixmap:
+            pixmap = self.type_to_pixmap[appkit_icon.uti_filetype]
         else:
-            _, uti_data = Utils.uti_generator(self.item_dir)
-            qimage = uti_data[Static.image_sizes[0]]
+            qimages = appkit_icon.get_qimages()
+            qimage = qimages[Static.image_sizes[0]]
             qimage = Utils.scaled(qimage, PathItem.item_height)
             pixmap = QPixmap.fromImage(qimage)
-            self.type_to_pixmap[type_] = pixmap
+            self.type_to_pixmap[appkit_icon.uti_filetype] = pixmap
 
         self.img_wid.setPixmap(pixmap)
 
