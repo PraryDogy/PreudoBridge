@@ -107,21 +107,30 @@ class FavsMenu(QListWidget):
     def __init__(self, main_win_item: MainWinItem):
         super().__init__()
         self.main_win_item = main_win_item
-        self.folder_icon = self.create_folder_icon()
+        self.folder_icon: QIcon = None
         self.horizontalScrollBar().setDisabled(True)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
 
         self.wids: dict[str, QListWidgetItem] = {}
         self.setDragDropMode(QListWidget.DragDropMode.InternalMove)
         self.setAcceptDrops(True)
+        self.create_folder_icon(lambda icon: self.set_folder_icon(icon))
         self.init_ui()
 
-    def create_folder_icon(self):
+    def create_folder_icon(self, callback):
+
+        def fin(qimages: dict[int | str, QImage]):
+            qimage = qimages[Static.image_sizes[0]]
+            qimage = Utils.scaled(qimage, self.svg_size)
+            icon = QIcon(QPixmap.fromImage(qimage))
+            callback(icon)
+
         appkit_icon = AppKitIcon(Static.app_dir)
-        qimages = appkit_icon.get_qimages()
-        qimage= qimages[Static.image_sizes[0]]
-        qimage = Utils.scaled(qimage, self.svg_size)
-        return QIcon(QPixmap.fromImage(qimage))
+        appkit_icon.finished_.connect(fin)
+        appkit_icon.get_qimages()
+
+    def set_folder_icon(self, icon: QIcon):
+        self.folder_icon = icon
 
     def init_ui(self):
         self.clear()
