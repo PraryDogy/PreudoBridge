@@ -75,8 +75,8 @@ class AppKitIcon(QObject):
         need_new_img = False
 
         if all(conds):
-            # return Dynamic.uti_data[self.uti_filetype]
             self.finish_qimages()
+            return
 
         if self.uti_filetype == type_symlink:
             self.uti_filetype = self.get_uti_bytes_hash()
