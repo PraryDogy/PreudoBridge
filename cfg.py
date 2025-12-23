@@ -1,7 +1,5 @@
 import json
 import os
-import shutil
-import zipfile
 
 class Static:
     app_name = "PreudoBridge"
