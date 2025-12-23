@@ -395,17 +395,16 @@ class PathFinder:
     def __init__(self, input_path: str):
         super().__init__()
         self.input_path: str = input_path
-        self.result: str = ""
         self.mounted_disks: list[str] = self.get_mounted_disks()
         self.Macintosh_HD: str = self.get_Macintosh_HD()
         self.mounted_disks.remove(self.Macintosh_HD)
 
-        self.bad_paths: list[str] = (
+    def get_result(self):
+        bad_paths: list[str] = (
             os.path.join(self.Macintosh_HD, "Volumes"),
             os.path.join(self.Macintosh_HD, "System", "Volumes")
         )
 
-    def get_result(self):
         fixed_path = self.fix_slashes(self.input_path)
 
         if fixed_path.startswith("/Users"):
@@ -414,7 +413,7 @@ class PathFinder:
         elif fixed_path.startswith(self.Macintosh_HD):
             return None
 
-        if fixed_path in self.bad_paths:
+        if fixed_path in bad_paths:
             return None
         
         if not self.mounted_disks:
