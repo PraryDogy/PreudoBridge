@@ -347,8 +347,8 @@ class Grid(UScrollArea):
 
     def dirs_watcher_start(self):
         self.dirs_wacher = DirWatcher(self.main_win_item.main_dir)
-        self.dirs_wacher.sigs.changed.connect(self.apply_changes)
-        UThreadPool.start(self.dirs_wacher)
+        self.dirs_wacher.changed.connect(self.apply_changes)
+        self.dirs_wacher.start()
 
     def apply_changes(self, e: FileSystemEvent):
         is_selected = any(
@@ -1297,7 +1297,7 @@ class Grid(UScrollArea):
         return super().dropEvent(a0)
 
     def deleteLater(self):
-        self.dirs_wacher.set_should_run(False)
+        self.dirs_wacher.stop()
         for i in self.load_images_tasks:
             i.set_should_run(False)
         urls = [i.data.src for i in self.selected_thumbs]
@@ -1308,7 +1308,7 @@ class Grid(UScrollArea):
         return super().deleteLater()
     
     def closeEvent(self, a0):
-        self.dirs_wacher.set_should_run(False)
+        self.dirs_wacher.stop()
         for i in self.load_images_tasks:
             i.set_should_run(False)
         urls = [i.src for i in self.selected_thumbs]
