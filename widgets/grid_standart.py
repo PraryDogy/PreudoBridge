@@ -14,8 +14,6 @@ from .grid import Grid, NoItemsLabel, Thumb
 class LoadingWidget(QFrame):
     def __init__(self):
         super().__init__()
-        self.setFixedSize(80, 25)
-
         label = QLabel("Загрузка…")
         label.setAlignment(Qt.AlignCenter)
 
@@ -27,7 +25,10 @@ class LoadingWidget(QFrame):
         self.setStyleSheet(f"""
             background: {Static.rgba_gray};
             border-radius: 7px;
+            font-size: 16px;
         """)
+
+        self.adjustSize()
 
 
 class GridStandart(Grid):
@@ -47,7 +48,7 @@ class GridStandart(Grid):
         self.loading_timer = QTimer(self)
         self.loading_timer.setSingleShot(True)
         self.loading_timer.timeout.connect(self.show_loading_label)
-        self.loading_timer.start(3000)
+        self.loading_timer.start(2000)
 
     def show_loading_label(self):
         self.loading_wid.setParent(self)
