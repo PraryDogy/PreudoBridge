@@ -60,6 +60,9 @@ class AppKitIcon:
         if self.uti_filetype in Dynamic.uti_data:
             return Dynamic.uti_data[self.uti_filetype]
 
+        elif self.uti_filetype is None:
+            self.uti_filetype = empty_icon
+
         elif self.uti_filetype == type_symlink:
             self.uti_filetype = self.get_uti_bytes_hash()
             if self.uti_filetype not in Dynamic.uti_data:
@@ -72,9 +75,6 @@ class AppKitIcon:
 
         elif self.uti_filetype not in Dynamic.uti_data:
             self.set_uti_data(self.get_uti_bytes_img())
-
-        elif self.uti_filetype is None:
-            self.uti_filetype = empty_icon
 
         try:
             qimage = Dynamic.uti_data[self.uti_filetype]
