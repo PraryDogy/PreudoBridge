@@ -426,7 +426,7 @@ class PathFinder:
             if os.path.exists(i):
                 return i
 
-        paths = {p for base in paths for p in self.del_from_end(base)}
+        paths = [p for base in paths for p in self.del_from_end(base)]
         paths = sorted(paths, key=len, reverse=True)
 
         if "/Volumes" in paths:
