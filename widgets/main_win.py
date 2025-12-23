@@ -542,21 +542,23 @@ class MainWin(WinBase):
 
         if self.main_win_item.get_view_mode() == 0:
             self.grid = GridStandart(self.main_win_item, False)
-            Utils.fill_missing_methods(TableView, Grid)
+            self.grid.load_finished.connect(grid_finished)
+            classes = (TableView, Grid)
             self.grid.sort_item = self.sort_item
             self.grid.dirs_watcher_start()
             self.disable_wids(False)
-            QTimer.singleShot(0, self.grid.load_finder_items)
+            self.grid.load_finder_items()
 
         elif self.main_win_item.get_view_mode() == 1:
             self.grid = TableView(self.main_win_item)
-            Utils.fill_missing_methods(Grid, TableView)
+            self.grid.load_finished.connect(grid_finished)
+            classes = (Grid, TableView)
             self.grid.set_first_col_width()
             self.disable_wids(True)
 
+        Utils.fill_missing_methods(*classes)
         self.grid.setParent(self)
         self.setup_grid_signals()
-        self.grid.load_finished.connect(grid_finished)
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
         self.grid_spacer.resize(0, 0)
 
