@@ -25,7 +25,7 @@ class LoadingWidget(QFrame):
         self.setStyleSheet(f"""
             background: {Static.rgba_gray};
             border-radius: 7px;
-            font-size: 16px;
+            font-size: 14px;
         """)
 
         self.adjustSize()
