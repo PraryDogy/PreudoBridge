@@ -11,7 +11,8 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
 from watchdog.events import FileSystemEvent
 
 from cfg import Dynamic, JsonData, Static
-from system.items import DataItem, CopyItem, MainWinItem, SortItem
+from system.appkit_icon import AppKitIcon
+from system.items import CopyItem, DataItem, MainWinItem, SortItem
 from system.shared_utils import SharedUtils
 from system.tasks import DbItemsLoader, DirWatcher, RatingTask, UThreadPool
 from system.utils import Utils
@@ -174,63 +175,9 @@ class Thumb(QFrame):
     def set_uti_data(self, size: int = 512):
         self.data.uti_type = Utils.get_uti_type(self.data.src)
 
-        type_symlink = "public.symlink"
-        type_application = "com.apple.application-bundle"
-        empty_file = "public.data"
-
-        if self.data.uti_type in Dynamic.uti_data:
-            qimage = Dynamic.uti_data[self.data.uti_type][Thumb.current_image_size]
-            pixmap = QPixmap.fromImage(qimage)
-            self.img_wid.setPixmap(pixmap)
-            return
-
-        if self.data.uti_type == type_symlink:
-            # получаем хеш сумму байтов
-            appkit_hash = Utils.get_uti_bytes_hash(self.data.src)
-            # если иконка еще не закэширована
-            if appkit_hash not in Dynamic.uti_data:
-                bytes_icon = Utils.get_uti_bytes_img(self.data.src)
-                qimage = QImage()
-                qimage.loadFromData(bytes_icon)
-                # добавляем в хэш все размеры иконки по списку Static.image_sizes
-                # а так же хэш размера 512 на 512 по ключу "src"
-                Utils.set_uti_data(appkit_hash, qimage)
-                # сохраняем иконку
-                uti_png_icon_path = os.path.join(Static.external_uti_dir, f"{appkit_hash}.png")
-                qimage_for_save: QImage = Dynamic.uti_data[appkit_hash]["src"]
-                qimage_for_save.save(uti_png_icon_path, "PNG")
-        
-        elif self.data.uti_type == type_application:
-            bundle = Utils.get_uti_bundle(self.data.src)
-            if bundle not in Dynamic.uti_data:
-                bytes_icon = Utils.get_uti_bytes_img(self.data.src)
-                qimage = QImage()
-                qimage.loadFromData(bytes_icon)
-                Utils.set_uti_data(bundle, qimage)
-                uti_png_icon_path = os.path.join(Static.external_uti_dir, f"{bundle}.png")
-                qimage_for_save: QImage = Dynamic.uti_data[bundle]["src"]
-                qimage_for_save.save(uti_png_icon_path, "PNG")
-                qimage.save(uti_png_icon_path, "PNG")
-
-        elif self.data.uti_type is None:
-            self.data.uti_type = empty_file
-
-        elif self.data.uti_type not in Dynamic.uti_data:
-            bytes_icon = Utils.get_uti_bytes_img(self.data.src)
-            qimage = QImage()
-            qimage.loadFromData(bytes_icon)
-            Utils.set_uti_data(self.data.uti_type, qimage)
-            uti_png_icon_path = os.path.join(Static.external_uti_dir, f"{self.data.uti_type}.png")
-            qimage_for_save: QImage = Dynamic.uti_data[self.data.uti_type]["src"]
-            qimage_for_save.save(uti_png_icon_path, "PNG")
-            qimage.save(uti_png_icon_path, "PNG")
-
-        try:
-            qimage = Dynamic.uti_data[self.data.uti_type][Thumb.current_image_size]
-        except KeyError:
-            print("set uti data key error", self.data.uti_type)
-            qimage = QImage()
-        pixmap = QPixmap.fromImage(qimage)
+        appkit_icon = AppKitIcon(self.data.src)
+        qimages = appkit_icon.get_qimages()
+        pixmap = QPixmap.fromImage(qimages[Thumb.current_image_size])
         self.img_wid.setPixmap(pixmap)
 
     def set_image(self):

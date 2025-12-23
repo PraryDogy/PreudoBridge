@@ -52,7 +52,7 @@ class AppKitIcon:
     def get_uti_bundle(self):
         return NSBundle.bundleWithPath_(self.path).bundleIdentifier()
     
-    def worker(self) -> dict[int | str, QImage]:
+    def get_qimages(self) -> dict[int | str, QImage]:
         type_symlink = "public.symlink"
         type_application = "com.apple.application-bundle"
         empty_icon = "public.data"
