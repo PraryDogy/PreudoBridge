@@ -1772,3 +1772,22 @@ class OnStartTask(URunnable):
                         shutil.rmtree(i.path)
                 except Exception as e:
                     print("cfg, do before start, error remove dir", e)
+
+
+class AnyTaskLoader(URunnable):
+    
+    class Sigs(QObject):
+        finished_ = pyqtSignal(bool)
+
+    def __init__(self, cmd: callable):
+        super().__init__()
+        self.sigs = AnyTaskLoader.Sigs()
+        self.cmd = cmd
+
+    def task(self):
+        try:
+            self.cmd()
+            self.sigs.finished_.emit(1)
+        except Exception as e:
+            print("Any task loader error", e)
+            self.sigs.finished_.emit(0)
