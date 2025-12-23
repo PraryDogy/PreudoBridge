@@ -392,130 +392,71 @@ class ReadImage:
 
 
 class PathFinder:
-    _volumes_dir: str = "/Volumes"
-    _users_dir: str = "/Users"
-
     def __init__(self, input_path: str):
         super().__init__()
-        self._input_path: str = input_path
-        self._result: str | None = None
-
-        self._volumes_list: list[str] = self._get_volumes()
-        self._volumes_list.extend(self._get_deep_level())
-
-        self._macintosh_hd: str = self._get_sys_volume()
-        self._volumes_list.remove(self._macintosh_hd)
+        self.input_path: str = input_path
+        self.result: str = ""
+        self.mounted_disks: list[str] = self.get_mounted_disks()
+        self.Macintosh_HD: str = self.get_Macintosh_HD()
+        self.mounted_disks.remove(self.Macintosh_HD)
 
         self.bad_paths: list[str] = (
-            os.path.join(self._macintosh_hd, "Volumes"),
-            os.path.join(self._macintosh_hd, "System", "Volumes")
+            os.path.join(self.Macintosh_HD, "Volumes"),
+            os.path.join(self.Macintosh_HD, "System", "Volumes")
         )
 
     def get_result(self):
-        input_path = self._prepare_path(self._input_path)
+        fixed_path = self.fix_slashes(self.input_path)
 
-        if input_path.startswith((self._users_dir, self._macintosh_hd)):
-            if input_path.startswith(self._users_dir):
-                input_path = self._macintosh_hd + input_path
-            input_path = self._replace_username(input_path)
+        if fixed_path.startswith("/Users"):
+            return None
 
-            if input_path in self.bad_paths:
-                return self._input_path
-            else:
-                return input_path
+        elif fixed_path.startswith(self.Macintosh_HD):
+            return None
 
-        paths = self._add_to_start(input_path)
-
+        if fixed_path in self.bad_paths:
+            return None
+        
+        if not self.mounted_disks:
+            return None
+        
+        paths = self.add_to_start(fixed_path)
         paths.sort(key=len, reverse=True)
-        result = self._check_for_exists(paths)
 
-        if not result:
-            paths = {
-                p
-                for base in paths
-                for p in self._del_from_end(base)
-            }
-            paths = sorted(paths, key=len, reverse=True)
+        for i in paths:
+            if os.path.exists(i):
+                return i
 
-            if self._volumes_dir in paths:
-                paths.remove(self._volumes_dir)
-            result = self._check_for_exists(paths)
+        paths = {p for base in paths for p in self.del_from_end(base)}
+        paths = sorted(paths, key=len, reverse=True)
 
-        if result in self.bad_paths:
-            return self._input_path
-        else:
-            return result
-
-    def _replace_username(self, path: str) -> str:
-        home = os.path.expanduser("~")  # например: /Users/actual_user
-        user = home.split(os.sep)[-1]   # извлекаем имя пользователя
-
-        parts = path.split(os.sep)
-        try:
-            users_index = parts.index("Users")
-            parts[users_index + 1] = user
-            return os.sep.join(parts)
-        except (ValueError, IndexError):
-            return path
-
-    def _check_for_exists(self, path_list: list[str]) -> str | None:
-        for path in path_list:
-            if not os.path.exists(path):
-                continue
-            # if path in self._volumes_list:
-            #     continue
-            # if path in self.bad_paths:
-            #     continue
-            return path
+        if "/Volumes" in paths:
+            paths.remove("/Volumes")
+        
+        for i in paths:
+            if os.path.exists(i):
+                return i
+            
         return None
             
-    def _get_volumes(self) -> list[str]:
+    def get_mounted_disks(self) -> list[str]:
         return [
             entry.path
-            for entry in os.scandir(self._volumes_dir)
+            for entry in os.scandir("/Volumes")
             if entry.is_dir()
         ]
-    
-    def _get_deep_level(self):
-        """
-            Расширяет список корневых путей для поиска, добавляя промежуточные  
-            уровни вложенности, чтобы учесть случаи, когда сетевой диск     
-            подключён не с самого верхнего уровня.  
-            Ожидаемый путь:     
-            '\Studio\MIUZ\Video\Digital\Ready\2025\6. Июнь'.    
-            Входящий путь:      
-            '\MIUZ\Video\Digital\Ready\2025\6. Июнь'    
-            Было:   
-                [
-                    /Volumes/Shares,
-                    /Volumes/Shares-1
-                ]   
-            Стало:  
-                [
-                    /Volumes/Shares,
-                    /Volumes/Shares/Studio,
-                    /Volumes/Shares-1,
-                    /Volumes/Shares-1/Studio
-                ]
-        """
-        paths: list[str] = []
-        for vol in self._volumes_list:
-            for first_level in os.scandir(vol):
-                if first_level.is_dir():
-                    paths.append(first_level.path)
-        return paths
 
-    def _get_sys_volume(self):
+    def get_Macintosh_HD(self):
         user = os.path.expanduser("~")
         app_support = f"{user}/Library/Application Support"
 
-        for i in self._volumes_list:
+        for i in self.mounted_disks:
             full_path = f"{i}{app_support}"
             if os.path.exists(full_path):
                 return i
         return None
 
-    def _prepare_path(self, path: str):
+    def fix_slashes(self, path: str):
         path = path.strip("'")
         path = path.strip("\"")
         path = path.strip()
@@ -524,7 +465,7 @@ class PathFinder:
         path = path.replace("\\", "/")
         return "/" + path
 
-    def _add_to_start(self, path: str) -> list[str]:
+    def add_to_start(self, path: str) -> list[str]:
         """
         Пример:
         >>> splited_path = ["Volumes", "Shares-1", "Studio", "MIUZ", "Photo", "Art", "Raw", "2025"]
@@ -542,12 +483,8 @@ class PathFinder:
         ]
         """
         new_paths = []
-        chunk_list = [
-            i
-            for i in path.split(os.sep)
-            if i
-        ]
-        for vol in self._volumes_list:
+        chunk_list = [i for i in path.split(os.sep) if i]
+        for vol in self.mounted_disks:
             chunk_list_copy = chunk_list.copy()
             while len(chunk_list_copy) > 0:
                 new = vol + os.sep + os.path.join(*chunk_list_copy)
@@ -555,7 +492,7 @@ class PathFinder:
                 chunk_list_copy.pop(0)
         return new_paths
         
-    def _del_from_end(self, path: str) -> list[str]:
+    def del_from_end(self, path: str) -> list[str]:
         """
         Пример:
         >>> path: "/sbc01/Shares/Studio/MIUZ/Photo/Art/Raw/2025"

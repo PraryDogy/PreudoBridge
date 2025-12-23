@@ -838,10 +838,11 @@ class PathFixer(URunnable):
             result = (self.path, os.path.isdir(self.path))
         else:
             fixed_path = self.path_finder.get_result()
-            result = (fixed_path, os.path.isdir(fixed_path))
+            if fixed_path is not None:
+                result = (fixed_path, os.path.isdir(fixed_path))
+            else:
+                result = (None, None)
         self.sigs.finished_.emit(result)
-
-        print(result)
 
 
 class ToJpegConverter(URunnable):
