@@ -64,7 +64,12 @@ class AppKitIcon(QObject):
         type_application = "com.apple.application-bundle"
         empty_icon = "public.data"
 
-        if self.uti_filetype is None:
+        conds = (
+            self.uti_filetype is None,
+            "dyn." in self.uti_filetype
+        )
+
+        if any(conds):
             self.uti_filetype = empty_icon
 
         conds = (
