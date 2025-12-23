@@ -215,7 +215,7 @@ class Thumb(QFrame):
         elif not self.data.uti_type:
             self.data.uti_type = empty_file
 
-        else:
+        elif self.data.uti_type not in Dynamic.uti_data:
             bytes_icon = Utils.get_uti_bytes_img(self.data.src)
             qimage = QImage()
             qimage.loadFromData(bytes_icon)
@@ -224,7 +224,6 @@ class Thumb(QFrame):
             qimage_for_save: QImage = Dynamic.uti_data[self.data.uti_type]["src"]
             qimage_for_save.save(uti_png_icon_path, "PNG")
             qimage.save(uti_png_icon_path, "PNG")
-
 
         qimage = Dynamic.uti_data[self.data.uti_type][Thumb.current_image_size]
         pixmap = QPixmap.fromImage(qimage)
