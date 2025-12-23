@@ -426,16 +426,6 @@ class PathFinder:
             if os.path.exists(i):
                 return i
 
-        paths = [p for base in paths for p in self.del_from_end(base)]
-        paths = sorted(paths, key=len, reverse=True)
-
-        if "/Volumes" in paths:
-            paths.remove("/Volumes")
-        
-        for i in paths:
-            if os.path.exists(i):
-                return i
-            
         return None
             
     def get_mounted_disks(self) -> list[str]:
@@ -490,21 +480,4 @@ class PathFinder:
                 new_paths.append(new)
                 chunk_list_copy.pop(0)
         return new_paths
-        
-    def del_from_end(self, path: str) -> list[str]:
-        """
-        Пример:
-        >>> path: "/sbc01/Shares/Studio/MIUZ/Photo/Art/Raw/2025"
-        [
-            "/sbc01/Shares/Studio/MIUZ/Photo/Art/Raw/2025",
-            "/sbc01/Shares/Studio/MIUZ/Photo/Art/Raw",
-            "/sbc01/Shares/Studio/MIUZ/Photo/Art",
-            ...
-            "/sbc01",
-        ]
-        """
-        new_paths = []
-        while path != os.sep:
-            new_paths.append(path)
-            path, _ = os.path.split(path)
-        return new_paths
+
