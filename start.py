@@ -87,11 +87,11 @@ class App(QApplication):
         super().__init__(argv)
         JsonData.init()
         UThreadPool.init()
+        Dbase.init()
         self.load_data()
 
     def load_data(self):
         def fin():
-            Dbase.init()
             self.main_win = MainWin()
             self.main_win.show()
             self.aboutToQuit.connect(lambda: self.main_win.on_exit())

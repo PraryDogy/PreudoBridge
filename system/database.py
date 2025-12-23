@@ -51,6 +51,7 @@ class Dbase:
         Dbase.engine = engine
 
         try:
+            os.makedirs(Static.app_dir, exist_ok=True)
             METADATA.create_all(engine)
             conn = Dbase.engine.connect()
             q = sqlalchemy.select(CACHE)
@@ -63,8 +64,8 @@ class Dbase:
                 METADATA.drop_all(engine)
                 METADATA.create_all(engine)
             else:
-                tb_file = os.path.join(Static.app_dir, "log.txt")
-                with open(tb_file, "w", encoding="utf-8") as f:
+                log_file = os.path.join(Static.app_dir, "log.txt")
+                with open(log_file, "w", encoding="utf-8") as f:
                     f.write(
                         "ОТПРАВЬТЕ ЭТО РАЗРАБОТЧИКУ:\n"
                         "tg: evlosh\n"
@@ -75,7 +76,7 @@ class Dbase:
                         "***************************************\n"
                     )
                 try:
-                    subprocess.Popen(["open", tb_file])
+                    subprocess.Popen(["open", log_file])
                 except Exception:
                     pass
                 os._exit(0)
