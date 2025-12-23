@@ -327,43 +327,43 @@ class MainWin(WinBase):
 
     def open_go_to_win(self):
         self.go_win = GoToWin()
-        self.go_win.closed.connect(self.path_finder_start)
+        self.go_win.closed.connect(self.path_finder_cmd)
         self.go_win.center(self)
         self.go_win.show()
 
     def go_to_cmd(self):
         if JsonData.go_to_now:
             data = (0, Utils.read_from_clipboard())
-            self.path_finder_start(data)
+            self.path_finder_cmd(data)
         else:
             self.open_go_to_win()
 
-    def path_finder_start(self, data: tuple[int, str]):
+    def path_finder_cmd(self, data: tuple[int, str]):
+
+        def fin(value: int, path: str):
+            # 0 загрузить сетку, 1 показать через finder
+            if path:
+                if value == 0:
+                    if os.path.isdir(path):
+                        self.main_win_item.main_dir = path
+                    else:
+                        self.main_win_item.main_dir = os.path.dirname(path)
+                        self.main_win_item.set_go_to(path)
+                    self.top_bar.new_history_item(self.main_win_item.main_dir)
+                    self.load_st_grid()
+                elif value == 1:
+                    if os.path.isdir(path):
+                        subprocess.Popen(["open", path])
+                    else:
+                        subprocess.Popen(["open", "-R", path])
         """
         value: 0 = открыть путь в приложении, 1 = открыть путь к Finder
         """
         value, path = data
         self.path_finder_task = PathFixer(path)
-        cmd = lambda path: self.path_finder_fin(value, path)
+        cmd = lambda path: fin(value, path)
         self.path_finder_task.sigs.finished_.connect(cmd)
         UThreadPool.start(self.path_finder_task)
-
-    def path_finder_fin(self, value: int, path: str):
-        # 0 загрузить сетку, 1 показать через finder
-        if path:
-            if value == 0:
-                if os.path.isdir(path):
-                    self.main_win_item.main_dir = path
-                else:
-                    self.main_win_item.main_dir = os.path.dirname(path)
-                    self.main_win_item.set_go_to(path)
-                self.top_bar.new_history_item(self.main_win_item.main_dir)
-                self.load_st_grid()
-            elif value == 1:
-                if os.path.isdir(path):
-                    subprocess.Popen(["open", path])
-                else:
-                    subprocess.Popen(["open", "-R", path])
 
     def open_settings(self, *args):
         self.sett_win = SettingsWin()

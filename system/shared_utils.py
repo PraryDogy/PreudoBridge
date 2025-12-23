@@ -438,10 +438,8 @@ class PathFinder:
                 paths.remove(self._volumes_dir)
             result = self._check_for_exists(paths)
 
-        # для threading
-        self._result = result or None
-
-        return result or None
+        self._result = result or ""
+        return result or ""
 
     def _replace_username(self, path: str) -> str:
         home = os.path.expanduser("~")  # например: /Users/actual_user
