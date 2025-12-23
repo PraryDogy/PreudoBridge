@@ -34,7 +34,7 @@ class AppKitIcon:
     def set_uti_data(self, uti_bytes_img: bytes, size: int = 512):
         """
         
-        вынести в тред потом
+        вынести в QRunnable потом
 
         """
 
