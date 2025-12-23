@@ -494,9 +494,6 @@ class SearchTask(URunnable):
                 for i in Static.image_sizes
             }
             data_item.qimages.update({"src": qimage})
-        # мы используем для получения типа именно генератор, чтобы
-        # скачать новые иконки, если их нет
-        data_item.uti_type, _ = Utils.uti_generator(entry.path)
         self.sigs.new_widget.emit(data_item)
         QTest.qSleep(SearchTask.new_wid_sleep_ms)
 
@@ -537,9 +534,6 @@ class FinderItemsLoader(URunnable):
             item = DataItem(path)
             item.set_properties()
             items.append(item)
-
-            # if i % 20 == 0:
-                # QThread.msleep(1)
 
         items = DataItem.sort_(items, self.sort_item)
         self.sigs.finished_.emit(items)

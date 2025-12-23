@@ -249,19 +249,19 @@ class Utils:
         uti_filetype, _ = Utils._ws.typeOfFile_error_(filepath, None)
         return uti_filetype
     
-    @classmethod
-    def get_appkit_bytes_icon(cls, filepath: str):
-        icon = Utils._ws.iconForFile_(filepath)
-        tiff = icon.TIFFRepresentation()
-        rep = NSBitmapImageRep.imageRepWithData_(tiff)
-        png = rep.representationUsingType_properties_(NSPNGFileType, None)
-        return bytes(png)
+    # @classmethod
+    # def get_appkit_bytes_icon(cls, filepath: str):
+    #     icon = Utils._ws.iconForFile_(filepath)
+    #     tiff = icon.TIFFRepresentation()
+    #     rep = NSBitmapImageRep.imageRepWithData_(tiff)
+    #     png = rep.representationUsingType_properties_(NSPNGFileType, None)
+    #     return bytes(png)
     
-    @classmethod
-    def get_appkit_icon_hash(cls, filepath: str):
-        icon = Utils._ws.iconForFile_(filepath)
-        tiff_bytes = icon.TIFFRepresentation()[:-1].tobytes()
-        return hashlib.md5(tiff_bytes).hexdigest()
+    # @classmethod
+    # def get_appkit_icon_hash(cls, filepath: str):
+    #     icon = Utils._ws.iconForFile_(filepath)
+    #     tiff_bytes = icon.TIFFRepresentation()[:-1].tobytes()
+    #     return hashlib.md5(tiff_bytes).hexdigest()
 
     @classmethod
     def uti_generator(cls, filepath: str, size: int = 512):
