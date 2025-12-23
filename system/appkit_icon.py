@@ -93,3 +93,11 @@ class AppKitIcon:
             for size in Static.image_sizes:
                 qimages[size] = QImage()
         return qimages
+    
+
+# в QRunnable
+# QImage.loadFromData
+# Utils.scaled
+# цикл ресайзов
+# qimage.save
+# hashlib.md5
