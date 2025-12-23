@@ -90,7 +90,10 @@ class AppKitIcon:
         if need_new_img:
             uti_bytes_png = self.get_uti_bytes_img()
             self.set_uti_data(uti_bytes_png)
+        else:
+            return self.get_qimages()
 
+    def get_qimages_(self):
         try:
             qimages = Dynamic.uti_data[self.uti_filetype]
         except KeyError:
@@ -99,7 +102,7 @@ class AppKitIcon:
             for size in Static.image_sizes:
                 qimages[size] = QImage()
         return qimages
-    
+
 
 # в QRunnable
 # QImage.loadFromData
