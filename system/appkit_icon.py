@@ -89,7 +89,9 @@ class AppKitIcon:
 
         if need_new_img:
             uti_bytes_png = self.get_uti_bytes_img()
-            self.set_uti_data(uti_bytes_png)
+            self.any_task = AnyTaskLoader(cmd = lambda: self.set_uti_data(uti_bytes_png))
+            self.any_task.sigs.finished_.connect(self.get_qimages_)
+            UThreadPool.start(self.any_task)
         else:
             return self.get_qimages()
 
