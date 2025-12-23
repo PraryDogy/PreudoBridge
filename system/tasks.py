@@ -536,7 +536,6 @@ class FinderItemsLoader(URunnable):
         for i, path in enumerate(self._get_paths()):
             item = DataItem(path)
             item.set_properties()
-            item.uti_type, _ = Utils.uti_generator(path)
             items.append(item)
 
             # if i % 20 == 0:

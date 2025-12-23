@@ -677,7 +677,7 @@ class Grid(UScrollArea):
         thumb.resize_()
         thumb.set_no_frame()
 
-        thumb.data.uti_type = Utils.get_uti_type(thumb.data.src)
+        thumb.data.uti_type = Utils.get_appkit_uti_type(thumb.data.src)
         thumb.set_uti_image()
 
         self.add_widget_data(thumb, self.row, self.col)

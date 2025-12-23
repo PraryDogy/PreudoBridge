@@ -1,104 +1,92 @@
-class URunnable(QRunnable):
-    def __init__(self):
+from AppKit import NSBitmapImageRep, NSBundle, NSPNGFileType, NSWorkspace
+
+
+@classmethod
+    def uti_generator(cls, filepath: str, size: int = 512):
         """
-        Переопределите метод task().
-        Не переопределяйте run().
+        Возвращает uti filetype, {image_size: QImage, image_size: QImage, }
+        image_size ссылается на Static.image_sizes, то есть будет возвращен
+        словарик с QImage, соответвующий всем размерам из Static.image_sizes
         """
-        super().__init__()
-        self.should_run__ = True
-        self.finished__ = False
 
-    def is_should_run(self):
-        return self.should_run__
-    
-    def set_should_run(self, value: bool):
-        self.should_run__ = value
+        def get_bytes_icon(filepath: str):
+            icon = Utils._ws.iconForFile_(filepath)
+            tiff = icon.TIFFRepresentation()
+            rep = NSBitmapImageRep.imageRepWithData_(tiff)
+            png = rep.representationUsingType_properties_(NSPNGFileType, None)
+            return bytes(png)
+        
+        def get_errored_icon():
+            uti_filetype_ = "public.data"
+            return uti_filetype_, Dynamic.uti_data[uti_filetype_]
+        
+        def set_uti_data(uti_filetype: str, qimage: QImage):
+            Dynamic.uti_data[uti_filetype] = {}
+            for i in Static.image_sizes:
+                resized_qimage = Utils.scaled(qimage, i)
+                Dynamic.uti_data[uti_filetype][i] = resized_qimage
 
-    def set_finished(self, value: bool):
-        self.finished__ = value
+        def get_symlink_bytes(filepath: str):
+            icon = Utils._ws.iconForFile_(filepath)
+            tiff_bytes = icon.TIFFRepresentation()[:-1].tobytes()
+            return hashlib.md5(tiff_bytes).hexdigest()
 
-    def is_finished(self):
-        return self.finished__
-    
-    def run(self):
-        try:
-            self.task()
-        finally:
-            self.set_finished(True)
-            if self in UThreadPool.tasks:
-                QTimer.singleShot(5000, lambda: self.task_fin())
+        uti_filetype, _ = Utils._ws.typeOfFile_error_(filepath, None)
 
-    def task(self):
-        raise NotImplementedError("Переопредели метод task() в подклассе.")
-    
-    def task_fin(self):
-        UThreadPool.tasks.remove(self)
-        gc.collect()
+        if uti_filetype == "public.symlink":
+            symlink_bytes = get_symlink_bytes(filepath)
+            if symlink_bytes in Dynamic.uti_data:
+                return symlink_bytes, Dynamic.uti_data[symlink_bytes]
+            
+            bytes_icon = get_bytes_icon(filepath)
+            qimage = QImage()
+            qimage.loadFromData(bytes_icon)
+            set_uti_data(symlink_bytes, qimage)
 
+            uti_png_icon_path = os.path.join(Static.external_uti_dir, f"{symlink_bytes}.png")
+            if not os.path.exists(uti_png_icon_path):
+                qimage = QImage.fromData(bytes_icon)
+                qimage = Utils.scaled(qimage, size)
+                qimage.save(uti_png_icon_path, "PNG")
+            return symlink_bytes, Dynamic.uti_data[symlink_bytes]
+        
+        if uti_filetype == "com.apple.application-bundle":
+            bundle = NSBundle.bundleWithPath_(filepath).bundleIdentifier()
 
-class UThreadPool:
-    pool: QThreadPool = None
-    tasks: list[URunnable] = []
+            if bundle in Dynamic.uti_data:
+                return bundle, Dynamic.uti_data[bundle]
 
-    @classmethod
-    def init(cls):
-        cls.pool = QThreadPool.globalInstance()
-        # cls.pool.setMaxThreadCount(5)
+            bytes_icon = get_bytes_icon(filepath)
+            qimage = QImage()
+            qimage.loadFromData(bytes_icon)
+            set_uti_data(bundle, qimage)
 
-    @classmethod
-    def start(cls, runnable: QRunnable):
-        # cls.tasks.append(runnable)
-        cls.pool.start(runnable)
+            uti_png_icon_path = os.path.join(Static.external_uti_dir, f"{bundle}.png")
+            if not os.path.exists(uti_png_icon_path):
+                qimage = QImage.fromData(bytes_icon)
+                qimage = Utils.scaled(qimage, size)
+                qimage.save(uti_png_icon_path, "PNG")
 
+            return bundle, Dynamic.uti_data[bundle]
 
-class DirWatcher(URunnable):
+        if not uti_filetype:
+            return get_errored_icon()
 
-    class Sigs(QObject):
-        changed = pyqtSignal(object)
+        if uti_filetype in Dynamic.uti_data:
+            return uti_filetype, Dynamic.uti_data[uti_filetype]
 
-    def __init__(self, path: str):
-        super().__init__()
-        self.path = path
-        self.sigs = DirWatcher.Sigs()
+        uti_png_icon_path = os.path.join(Static.external_uti_dir, f"{uti_filetype}.png")
 
-    def on_dirs_changed(self, e: FileSystemEvent):
-        if e.src_path != self.path:
-            self.sigs.changed.emit(e)
+        if not os.path.exists(uti_png_icon_path):
+            bytes_icon = get_bytes_icon(filepath)
 
-    def wait_dir(self):
-        while self.is_should_run():
-            if os.path.exists(self.path):
-                return
-            QThread.msleep(1000)
+            qimage = QImage.fromData(bytes_icon)
+            qimage = Utils.scaled(qimage, size)
+            qimage.save(uti_png_icon_path, "PNG")
 
-    def task(self):
-        try:
-            self._task()
-        except Exception as e:
-            print("tasks, DirWatcher error", e)
+        qimage = QImage(uti_png_icon_path)
+        if qimage.isNull():
+            return get_errored_icon()
 
-    def _task(self):
-        self.wait_dir()
-        if not self.is_should_run():
-            return
-
-        observer = Observer()
-        handler = _DirChangedHandler(self.on_dirs_changed)
-        observer.schedule(handler, self.path, recursive=False)
-        observer.start()
-
-        try:
-            while self.is_should_run():
-                QThread.msleep(1000)
-                if not os.path.exists(self.path):
-                    observer.stop()
-                    observer.join()
-                    self.wait_dir()
-                    if not self.is_should_run():
-                        return
-                    observer = Observer()
-                    observer.schedule(handler, self.path, recursive=False)
-                    observer.start()
-        finally:
-            observer.stop()
-            observer.join()
+        set_uti_data(uti_filetype, qimage)
+        return uti_filetype, Dynamic.uti_data[uti_filetype]
