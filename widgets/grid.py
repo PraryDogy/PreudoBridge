@@ -263,6 +263,26 @@ class NoItemsLabel(QLabel):
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
 
 
+
+class LoadingWidget(QFrame):
+    def __init__(self):
+        super().__init__()
+        self.setFixedSize(80, 25)
+
+        label = QLabel("Загрузка…")
+        label.setAlignment(Qt.AlignCenter)
+
+        lay = QVBoxLayout(self)
+        lay.setContentsMargins(8, 4, 8, 4)
+        lay.addWidget(label)
+
+        self.setFrameShape(QFrame.StyledPanel)
+        self.setStyleSheet(f"""
+            background: {Static.rgba_gray};
+            border-radius: 7px;
+        """)
+
+
 class Grid(UScrollArea):
     spacing_value = 5
     new_files_key = "new_files"

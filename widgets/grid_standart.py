@@ -1,7 +1,7 @@
 import os
 
 from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtWidgets import QLabel, QApplication
+from PyQt5.QtWidgets import QFrame, QLabel, QVBoxLayout
 
 from cfg import Dynamic, Static
 from system.items import DataItem, MainWinItem
@@ -9,6 +9,25 @@ from system.tasks import FinderItemsLoader, UThreadPool
 from system.utils import Utils
 
 from .grid import Grid, NoItemsLabel, Thumb
+
+
+class LoadingWidget(QFrame):
+    def __init__(self):
+        super().__init__()
+        self.setFixedSize(80, 25)
+
+        label = QLabel("Загрузка…")
+        label.setAlignment(Qt.AlignCenter)
+
+        lay = QVBoxLayout(self)
+        lay.setContentsMargins(8, 4, 8, 4)
+        lay.addWidget(label)
+
+        self.setFrameShape(QFrame.StyledPanel)
+        self.setStyleSheet(f"""
+            background: {Static.rgba_gray};
+            border-radius: 7px;
+        """)
 
 
 class GridStandart(Grid):
@@ -23,6 +42,19 @@ class GridStandart(Grid):
         self.load_vis_images_timer.timeout.connect(self.load_visible_thumbs_images)
         self.load_vis_images_timer.setSingleShot(True)
         self.verticalScrollBar().valueChanged.connect(self.on_scroll)
+
+        self.loading_wid = LoadingWidget()
+        self.loading_timer = QTimer(self)
+        self.loading_timer.setSingleShot(True)
+        self.loading_timer.timeout.connect(self.show_loading_label)
+        self.loading_timer.start(3000)
+
+    def show_loading_label(self):
+        self.loading_wid.setParent(self)
+        x = (self.width() - self.loading_wid.width()) // 2
+        y = (self.height() - self.loading_wid.height()) // 2
+        self.loading_wid.move(x, y)
+        self.loading_wid.show()
     
     def on_scroll(self):
         self.load_vis_images_timer.stop()
@@ -70,12 +102,9 @@ class GridStandart(Grid):
             self.load_finished.emit()
             return
 
-        # испускаем сигнал в MainWin для обновления нижнего бара
-        # для отображения "всего элементов"
         self.total_count_update.emit((len(self.selected_thumbs), len(data_items)))
-
-        self.hide()
-        # создаем сетку на основе элементов из FinderItems
+        self.loading_timer.stop()
+        self.loading_wid.deleteLater()
         self.load_finished.emit()
         self.create_thumbs(data_items)
 
@@ -92,7 +121,7 @@ class GridStandart(Grid):
                 self.data_items = None
                 self._thumb_index = 0
                 self.show()
-                self._post_grid_selection()
+                self.create_thumbs_fin()
                 return
 
             # Создание и настройка виджета
@@ -117,13 +146,16 @@ class GridStandart(Grid):
             # Планируем добавление следующего виджета
             QTimer.singleShot(0, add_one_thumb)
 
+        self.hide()
         add_one_thumb()
 
-    def _post_grid_selection(self):
+    def create_thumbs_fin(self):
+
         def select_delayed(wid: Thumb):
             self.select_single_thumb(wid)
             self.ensureWidgetVisible(wid)
 
+        self.show()
         if self.main_win_item.get_go_to() in self.url_to_wid:
             wid = self.url_to_wid.get(self.main_win_item.get_go_to())
             self.main_win_item.clear_go_to()
@@ -137,9 +169,7 @@ class GridStandart(Grid):
                     wid.set_frame()
             if self.selected_thumbs:
                 wid = self.selected_thumbs[-1]
-                # QTimer.singleShot(30, lambda: self.ensureWidgetVisible(wid))
             self.main_win_item.clear_urls_to_select()
-
         # если установлен фильтр по рейтингу, запускаем функцию фильтрации,
         # которая скроет из сетки не подходящие под фильтр виджеты
         if Dynamic.rating_filter > 0 or Dynamic.word_filters:
