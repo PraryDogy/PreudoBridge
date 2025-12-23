@@ -12,7 +12,7 @@ from cfg import Dynamic, JsonData, Static
 from system.items import CopyItem, DataItem, MainWinItem, SearchItem, SortItem
 from system.paletes import UPallete
 from system.shared_utils import SharedUtils
-from system.tasks import (AutoCacheCleaner, PathFinderTask, RatingTask,
+from system.tasks import (AutoCacheCleaner, PathFixer, RatingTask,
                           UThreadPool)
 from system.utils import Utils
 
@@ -343,7 +343,7 @@ class MainWin(WinBase):
         value: 0 = открыть путь в приложении, 1 = открыть путь к Finder
         """
         value, path = data
-        self.path_finder_task = PathFinderTask(path)
+        self.path_finder_task = PathFixer(path)
         cmd = lambda path: self.path_finder_fin(value, path)
         self.path_finder_task.sigs.finished_.connect(cmd)
         UThreadPool.start(self.path_finder_task)
@@ -553,7 +553,7 @@ class MainWin(WinBase):
             self.setWindowTitle(t)
 
             self.grid.setFocus()
-            self.path_finder_task = PathFinderTask(self.main_win_item.main_dir)
+            self.path_finder_task = PathFixer(self.main_win_item.main_dir)
             self.path_finder_task.sigs.finished_.connect(fix_path_finished)
             UThreadPool.start(self.path_finder_task)
 

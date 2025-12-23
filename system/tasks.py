@@ -818,17 +818,16 @@ class FileRemover(URunnable):
             ] + self.urls)
         self.sigs.finished_.emit()
 
-class PathFinderTask(URunnable):
+class PathFixer(URunnable):
 
     class Sigs(QObject):
         finished_ = pyqtSignal(str)
-
 
     def __init__(self, path: str):
         super().__init__()
         self.path = path
         self.path_finder = PathFinder(path)
-        self.sigs = PathFinderTask.Sigs()
+        self.sigs = PathFixer.Sigs()
 
     def task(self):
         if os.path.exists(self.path):

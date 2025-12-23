@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QAction, QLabel, QListWidget, QListWidgetItem
 
 from cfg import JsonData, Static
 from system.items import MainWinItem
-from system.tasks import PathFinderTask, UThreadPool
+from system.tasks import PathFixer, UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import UMenu
