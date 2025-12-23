@@ -406,8 +406,10 @@ class PathFinder:
         self._macintosh_hd: str = self._get_sys_volume()
         self._volumes_list.remove(self._macintosh_hd)
 
-        # /Volumes/Macintosh HD/Volumes
-        self._invalid_volume_path: str = self._macintosh_hd + self._volumes_dir
+        self.bad_paths: list[str] = (
+            os.path.join(self._macintosh_hd, "Volumes"),
+            os.path.join(self._macintosh_hd, "System", "Volumes")
+        )
 
     def get_result(self):
         input_path = self._prepare_path(self._input_path)
@@ -417,9 +419,10 @@ class PathFinder:
                 input_path = self._macintosh_hd + input_path
             input_path = self._replace_username(input_path)
 
-            # для threading
-            self._result = input_path
-            return input_path
+            if input_path in self.bad_paths:
+                return self._input_path
+            else:
+                return input_path
 
         paths = self._add_to_start(input_path)
 
@@ -438,8 +441,10 @@ class PathFinder:
                 paths.remove(self._volumes_dir)
             result = self._check_for_exists(paths)
 
-        self._result = result or ""
-        return result or ""
+        if result in self.bad_paths:
+            return self._input_path
+        else:
+            return result
 
     def _replace_username(self, path: str) -> str:
         home = os.path.expanduser("~")  # например: /Users/actual_user
@@ -459,9 +464,7 @@ class PathFinder:
                 continue
             if path in self._volumes_list:
                 continue
-            if path in self._invalid_volume_path:
-                continue
-            if self._invalid_volume_path in path:
+            if path in self.bad_paths:
                 continue
             return path
         return None
