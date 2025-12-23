@@ -15,8 +15,8 @@ class AppKitIcon:
         self._ws = NSWorkspace.sharedWorkspace()
         self.uti_filetype = self.get_uti_filetype()
 
-    def get_uti_filetype(self, filepath: str):
-        uti_filetype, _ = self._ws.typeOfFile_error_(filepath, None)
+    def get_uti_filetype(self):
+        uti_filetype, _ = self._ws.typeOfFile_error_(self.path, None)
         return uti_filetype
     
     def get_uti_bytes_img(self):
@@ -46,7 +46,7 @@ class AppKitIcon:
         for i in Static.image_sizes:
             resized_qimage = Utils.scaled(qimage, i)
             Dynamic.uti_data[self.uti_filetype][i] = resized_qimage
-        save_path = os.path.join(Static.external_uti_dir, f"{self.data.uti_type}.png")
+        save_path = os.path.join(Static.external_uti_dir, f"{self.uti_filetype}.png")
         qimage.save(save_path, "PNG")
 
     def get_uti_bundle(self):
