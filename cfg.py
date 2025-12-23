@@ -236,3 +236,4 @@ class Dynamic:
     pixmap_size_ind = 2
     image_apps: list[str] = []
     uti_data: dict = {}
+    sys_vol: str = None

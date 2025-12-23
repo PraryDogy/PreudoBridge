@@ -613,13 +613,12 @@ class TableView(QTableView):
     def dropEvent(self, a0: QDropEvent):
         if not a0.mimeData().urls():
             return
-        sys_vol = SharedUtils.get_sys_vol()
         urls = [
             i.toLocalFile().rstrip(os.sep)
             for i in a0.mimeData().urls()
         ]
         urls = [
-            SharedUtils.add_sys_vol(i, sys_vol)
+            SharedUtils.add_sys_vol(i, Dynamic.sys_vol)
             for i in urls
         ]
         src = os.path.dirname(urls[0])

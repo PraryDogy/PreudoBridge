@@ -19,17 +19,6 @@ class SharedUtils:
     def is_mounted(cls, server: str):
         output = subprocess.check_output(["mount"]).decode()
         return server in output
-
-    @classmethod
-    def get_sys_vol(cls):
-        """
-        Возвращает путь к системному диску /Volumes/Macintosh HD (или иное имя)
-        """
-        app_support = os.path.expanduser('~/Library/Application Support')
-        volumes = "/Volumes"
-        for i in os.scandir(volumes):
-            if os.path.exists(i.path + app_support):
-                return i.path
             
     @classmethod
     def add_sys_vol(cls, path: str, sys_vol: str):

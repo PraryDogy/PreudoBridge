@@ -116,8 +116,7 @@ class MainWin(WinBase):
         if dir:
             self.main_win_item.main_dir = dir
         else:
-            sys_vol = SharedUtils.get_sys_vol()
-            dir = SharedUtils.add_sys_vol(MainWin.base_dir, sys_vol)
+            dir = SharedUtils.add_sys_vol(MainWin.base_dir, Dynamic.sys_vol)
             self.main_win_item.main_dir = dir
 
         self.resize_timer = QTimer(self)

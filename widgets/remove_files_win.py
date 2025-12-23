@@ -4,7 +4,7 @@ from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
 
-from cfg import Static
+from cfg import Dynamic, Static
 from system.items import MainWinItem
 from system.shared_utils import SharedUtils
 from system.tasks import FileRemover, UThreadPool
@@ -41,7 +41,7 @@ class RemoveFilesWin(MinMaxDisabledWin):
         warn = USvgSqareWidget(os.path.join(Static.internal_icons_dir, "warning.svg"), RemoveFilesWin.svg_size)
         first_row_lay.addWidget(warn)
 
-        if SharedUtils.get_sys_vol() in urls[0]:
+        if Dynamic.sys_vol in urls[0]:
             t = f"{RemoveFilesWin.move_to_trash} ({len(urls)})?"
         else:
             t = f"{RemoveFilesWin.remove_perm} ({len(urls)})?"

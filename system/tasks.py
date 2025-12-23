@@ -1671,3 +1671,13 @@ class OnStartTask(URunnable):
 
         apps.sort(key=os.path.basename)
         Dynamic.image_apps = apps
+
+    def get_sys_vol(self):
+        """
+        Возвращает путь к системному диску /Volumes/Macintosh HD (или иное имя)
+        """
+        app_support = os.path.expanduser('~/Library/Application Support')
+        volumes = "/Volumes"
+        for i in os.scandir(volumes):
+            if os.path.exists(i.path + app_support):
+                Dynamic.sys_vol = i.path
