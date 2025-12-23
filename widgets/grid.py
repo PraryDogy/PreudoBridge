@@ -174,15 +174,15 @@ class Thumb(QFrame):
     def set_uti_data(self, size: int = 512):
         self.data.uti_type = Utils.get_uti_type(self.data.src)
 
+        type_symlink = "public.symlink"
+        type_application = "com.apple.application-bundle"
+        empty_file = "public.data"
+
         if self.data.uti_type in Dynamic.uti_data:
             qimage = Dynamic.uti_data[self.data.uti_type][Thumb.current_image_size]
             pixmap = QPixmap.fromImage(qimage)
             self.img_wid.setPixmap(pixmap)
             return
-
-        type_symlink = "public.symlink"
-        type_application = "com.apple.application-bundle"
-        empty_file = "public.data"
 
         if self.data.uti_type == type_symlink:
             # получаем хеш сумму байтов
@@ -214,6 +214,17 @@ class Thumb(QFrame):
 
         elif not self.data.uti_type:
             self.data.uti_type = empty_file
+
+        else:
+            bytes_icon = Utils.get_uti_bytes_img(self.data.src)
+            qimage = QImage()
+            qimage.loadFromData(bytes_icon)
+            Utils.set_uti_data(self.data.uti_type, qimage)
+            uti_png_icon_path = os.path.join(Static.external_uti_dir, f"{self.data.uti_type}.png")
+            qimage_for_save: QImage = Dynamic.uti_data[self.data.uti_type]["src"]
+            qimage_for_save.save(uti_png_icon_path, "PNG")
+            qimage.save(uti_png_icon_path, "PNG")
+
 
         qimage = Dynamic.uti_data[self.data.uti_type][Thumb.current_image_size]
         pixmap = QPixmap.fromImage(qimage)
