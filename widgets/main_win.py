@@ -514,6 +514,7 @@ class MainWin(WinBase):
                 fav_items.insert(index, new_item)
                 JsonData.favs = dict(fav_items)
                 JsonData.write_json_data()
+                self.favs_menu.init_ui()
 
             self.favs_menu.select_fav(fixed_path)
 
