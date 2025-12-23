@@ -1640,6 +1640,7 @@ class OnStartTask(URunnable):
     def task(self):
         self.load_uti_icons_to_ram()
         self.load_image_apps()
+        self.sigs.finished_.emit()
 
     def load_uti_icons_to_ram(self):
         for entry in os.scandir(Static.external_uti_dir):
