@@ -174,7 +174,13 @@ class Thumb(QFrame):
 
     def set_uti_data(self):
         def fin(qimages: dict[str | int, QImage]):
-            qimage = qimages[Thumb.current_image_size]
+            try:
+                qimage = qimages[Thumb.current_image_size]
+            except KeyError as e:
+                print("Thumb set uti data key error, key:", e)
+                svg = os.path.join(Static.internal_icons_dir, "warning.svg")
+                qimage = Utils.render_svg(svg, 512)
+                qimage = Utils.scaled(qimage, Thumb.current_image_size)
             pixmap = QPixmap.fromImage(qimage)
             self.img_wid.setPixmap(pixmap)
 
