@@ -182,6 +182,7 @@ rawpy==0.21.0
 referencing==0.36.2
 rpds-py==0.25.1
 SQLAlchemy==2.0.41
+tifffile==2025.12.20
 toml==0.10.2
 typing-inspection==0.4.1
 typing_extensions==4.14.0

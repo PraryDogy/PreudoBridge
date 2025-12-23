@@ -513,17 +513,18 @@ class MainWin(WinBase):
 
     def load_st_grid(self):
 
-        def fin(is_avaiable: bool):
-            if is_avaiable:
-                self._load_st_grid()
+        # def fin(is_avaiable: bool):
+        #     if is_avaiable:
+        #         self._load_st_grid()
 
         self.grid_spacer.resize(0, self.height())
         self.grid_spacer.setFocus()
         self.grid.hide()
+        self._load_st_grid()
 
-        self.avaiability_task = DiskChecker(self.main_win_item.main_dir)
-        self.avaiability_task.sigs.available.connect(fin)
-        UThreadPool.start(self.avaiability_task)
+        # self.avaiability_task = DiskChecker(self.main_win_item.main_dir)
+        # self.avaiability_task.sigs.available.connect(fin)
+        # UThreadPool.start(self.avaiability_task)
    
     def _load_st_grid(self):
 
