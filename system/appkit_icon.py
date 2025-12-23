@@ -19,7 +19,7 @@ class AppKitIcon(QObject):
         self._ws = NSWorkspace.sharedWorkspace()
         self.uti_filetype = self.get_uti_filetype()
 
-    def get_uti_filetype(self):
+    def get_uti_filetype(self) -> str:
         uti_filetype, _ = self._ws.typeOfFile_error_(self.path, None)
         return uti_filetype
     
