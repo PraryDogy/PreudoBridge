@@ -56,6 +56,10 @@ class GridStandart(Grid):
         y = (self.height() - self.loading_wid.height()) // 2
         self.loading_wid.move(x, y)
         self.loading_wid.show()
+
+    def stop_loading_label(self):
+        self.loading_timer.stop()
+        self.loading_wid.deleteLater()
     
     def on_scroll(self):
         self.load_vis_images_timer.stop()
@@ -73,6 +77,7 @@ class GridStandart(Grid):
         - список новых BaseItem, которых не было в базе данных
         """
         if not os.path.exists(self.main_win_item.main_dir):
+            self.stop_loading_label()
             self.create_no_items_label(NoItemsLabel.no_conn)
             self.mouseMoveEvent = lambda args: None
             self.load_finished.emit()
@@ -99,13 +104,13 @@ class GridStandart(Grid):
         Thumb.calc_size()
 
         if not data_items:
+            self.stop_loading_label()
             self.create_no_items_label(NoItemsLabel.no_files)
             self.load_finished.emit()
             return
 
+        self.stop_loading_label()
         self.total_count_update.emit((len(self.selected_thumbs), len(data_items)))
-        self.loading_timer.stop()
-        self.loading_wid.deleteLater()
         self.load_finished.emit()
         self.create_thumbs(data_items)
 
