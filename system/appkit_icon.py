@@ -31,17 +31,21 @@ class AppKitIcon:
         tiff_bytes = icon.TIFFRepresentation()[:-1].tobytes()
         return hashlib.md5(tiff_bytes).hexdigest()
     
-    def set_uti_data(self, uti_filetype: str, qimage: QImage, size: int = 512):
+    def set_uti_data(self, uti_bytes_img: bytes, size: int = 512):
         """
         
         вынести в тред потом
 
         """
+
+        qimage = QImage()
+        qimage.loadFromData(uti_bytes_img)
         qimage = Utils.scaled(qimage, size)
-        Dynamic.uti_data[uti_filetype] = {"src": qimage}
+
+        Dynamic.uti_data[self.uti_filetype] = {"src": qimage}
         for i in Static.image_sizes:
             resized_qimage = Utils.scaled(qimage, i)
-            Dynamic.uti_data[uti_filetype][i] = resized_qimage
+            Dynamic.uti_data[self.uti_filetype][i] = resized_qimage
         save_path = os.path.join(Static.external_uti_dir, f"{self.data.uti_type}.png")
         qimage.save(save_path, "PNG")
 
@@ -59,32 +63,22 @@ class AppKitIcon:
         elif self.uti_filetype == type_symlink:
             self.uti_filetype = self.get_uti_bytes_hash()
             if self.uti_filetype not in Dynamic.uti_data:
-                bytes_icon = self.get_uti_bytes_img()
-                qimage = QImage()
-                qimage.loadFromData(bytes_icon)
-                self.set_uti_data(self.uti_filetype, qimage)
+                self.set_uti_data(self.get_uti_bytes_img())
         
         elif self.uti_filetype == type_application:
             self.uti_filetype = self.get_uti_bundle()
             if self.uti_filetype not in Dynamic.uti_data:
-                bytes_icon = self.get_uti_bytes_img()
-                qimage = QImage()
-                qimage.loadFromData(bytes_icon)
-                self.set_uti_data(self.uti_filetype, qimage)
+                self.set_uti_data(self.get_uti_bytes_img())
 
         elif self.uti_filetype not in Dynamic.uti_data:
-            bytes_icon = self.get_uti_bytes_img()
-            qimage = QImage()
-            qimage.loadFromData(bytes_icon)
-            self.set_uti_data(self.data.uti_type, qimage)
+            self.set_uti_data(self.get_uti_bytes_img())
 
         elif self.uti_filetype is None:
             self.uti_filetype = empty_icon
 
         try:
-            qimage = Dynamic.uti_data[self.data.uti_type][Thumb.current_image_size]
+            qimage = Dynamic.uti_data[self.uti_filetype]
         except KeyError:
             print("set uti data key error", self.data.uti_type)
             qimage = QImage()
-        pixmap = QPixmap.fromImage(qimage)
-        self.img_wid.setPixmap(pixmap)
+        return qimage
