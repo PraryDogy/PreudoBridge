@@ -212,7 +212,7 @@ class Thumb(QFrame):
                 qimage_for_save.save(uti_png_icon_path, "PNG")
                 qimage.save(uti_png_icon_path, "PNG")
 
-        elif not self.data.uti_type:
+        elif self.data.uti_type is None:
             self.data.uti_type = empty_file
 
         elif self.data.uti_type not in Dynamic.uti_data:
@@ -225,10 +225,13 @@ class Thumb(QFrame):
             qimage_for_save.save(uti_png_icon_path, "PNG")
             qimage.save(uti_png_icon_path, "PNG")
 
-        qimage = Dynamic.uti_data[self.data.uti_type][Thumb.current_image_size]
+        try:
+            qimage = Dynamic.uti_data[self.data.uti_type][Thumb.current_image_size]
+        except KeyError:
+            print("set uti data key error", self.data.uti_type)
+            qimage = QImage()
         pixmap = QPixmap.fromImage(qimage)
         self.img_wid.setPixmap(pixmap)
-
 
     def set_image(self):
         qimage = self.data.qimages[Thumb.current_image_size]
