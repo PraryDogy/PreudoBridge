@@ -93,6 +93,7 @@ class App(QApplication):
             self.installEventFilter(self)
         self.on_start_task = OnStartTask()
         self.on_start_task.sigs.finished_.connect(fin)
+        UThreadPool.start(self.on_start_task)
 
     def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
         if a1.type() == QEvent.Type.ApplicationActivate:
