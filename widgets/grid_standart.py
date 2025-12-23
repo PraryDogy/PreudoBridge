@@ -123,12 +123,10 @@ class GridStandart(Grid):
 
             # Создание и настройка виджета
             data_item = self.data_items[self._thumb_index]
-            # appkit только в основном потоке
-            data_item.uti_type = Utils.get_appkit_uti_type(data_item.src)
             thumb = Thumb(data_item)
             thumb.resize_()
             thumb.set_no_frame()
-            thumb.set_uti_image()
+            thumb.set_uti_data()
 
             # Добавление в layout и внутренние структуры
             self.add_widget_data(thumb, self.row, self.col)

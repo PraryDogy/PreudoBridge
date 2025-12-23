@@ -55,7 +55,7 @@ class PathItem(QWidget):
         self.set_icon()
 
     def set_icon(self):
-        type_ = Utils.get_appkit_uti_type(self.item_dir)
+        type_ = Utils.get_uti_type(self.item_dir)
         if type_ in self.type_pixmap:
             pixmap = self.type_pixmap[type_]
         else:

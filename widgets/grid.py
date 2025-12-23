@@ -171,13 +171,39 @@ class Thumb(QFrame):
         Thumb.thumb_h = Static.thumb_heights[ind]
         Thumb.corner = Static.corner_sizes[ind]
 
-    def set_uti_image(self):
-        if self.data.uti_type not in Dynamic.uti_data:
-            print("Thumb, set uti image, uti type not in uti data", self.data.uti_type, self.data.src)
+    def set_uti_data(self, size: int = 512):
+        self.data.uti_type = Utils.get_uti_type(self.data.src)
+
+        if self.data.uti_type in Dynamic.uti_data:
+            qimage = Dynamic.uti_data[self.data.uti_type][Thumb.current_image_size]
+            pixmap = QPixmap.fromImage(qimage)
+            self.img_wid.setPixmap(pixmap)
             return
-        qimage = Dynamic.uti_data[self.data.uti_type][Thumb.current_image_size]
-        pixmap = QPixmap.fromImage(qimage)
-        self.img_wid.setPixmap(pixmap)
+
+        type_symlink = "public.symlink"
+        type_application = "com.apple.application-bundle"
+
+        if self.data.uti_type == type_symlink:
+            # получаем хеш сумму байтов
+            appkit_hash = Utils.get_uti_bytes_hash(self.data.src)
+            # если иконка еще не закэширована
+            if appkit_hash not in Dynamic.uti_data:
+                bytes_icon = Utils.get_uti_bytes_img(self.data.src)
+                qimage = QImage()
+                qimage.loadFromData(bytes_icon)
+                # добавляем в хэш все размеры иконки по списку Static.image_sizes
+                # а так же хэш размера 512 на 512 по ключу "src"
+                Utils.set_uti_data(appkit_hash, qimage)
+                # сохраняем иконку
+                uti_png_icon_path = os.path.join(Static.external_uti_dir, f"{appkit_hash}.png")
+                qimage_for_save: QImage = Dynamic.uti_data[appkit_hash]["src"]
+                qimage_for_save.save(uti_png_icon_path, "PNG")
+            # получем иконку нужного размера и устанавливаем
+            qimage = Dynamic.uti_data[self.data.uti_type][Thumb.current_image_size]
+            pixmap = QPixmap.fromImage(qimage)
+            self.img_wid.setPixmap(pixmap)
+            return
+
 
     def set_image(self):
         qimage = self.data.qimages[Thumb.current_image_size]
@@ -207,7 +233,7 @@ class Thumb(QFrame):
         if self.data.qimages:
             self.set_image()
         else:
-            self.set_uti_image()
+            self.set_uti_data()
 
     def set_frame(self):
         self.setStyleSheet(
@@ -673,11 +699,10 @@ class Grid(UScrollArea):
     def new_thumb(self, url: str):
         data = DataItem(url)
         data.set_properties()
-        data.uti_type = Utils.get_appkit_uti_type(data.src)
         thumb = Thumb(data)
         thumb.resize_()
         thumb.set_no_frame()
-        thumb.set_uti_image()
+        thumb.set_uti_data()
 
         self.add_widget_data(thumb, self.row, self.col)
         self.grid_layout.addWidget(thumb, self.row, self.col)
