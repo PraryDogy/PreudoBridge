@@ -264,11 +264,6 @@ class Utils:
         return hashlib.md5(tiff_bytes).hexdigest()
     
     @classmethod
-    def get_uti_error_icon(cls):
-        uti_filetype_ = "public.data"
-        return "public.data", Dynamic.uti_data[uti_filetype_]
-
-    @classmethod
     def set_uti_data(cls, uti_filetype: str, qimage: QImage, size: int = 512):
         Dynamic.uti_data[uti_filetype] = {}
         for i in Static.image_sizes:
@@ -277,74 +272,9 @@ class Utils:
         Dynamic.uti_data[uti_filetype]["src"] = Utils.scaled(qimage, size)
 
     @classmethod
-    def uti_generator(cls, filepath: str, size: int = 512):
-        """
-        Возвращает uti filetype, {image_size: QImage, image_size: QImage, }
-        image_size ссылается на Static.image_sizes, то есть будет возвращен
-        словарик с QImage, соответвующий всем размерам из Static.image_sizes
-        """
+    def get_uti_bundle(cls, filepath: str):
+        return NSBundle.bundleWithPath_(filepath).bundleIdentifier()
 
-
-        uti_filetype = cls.get_uti_type(filepath)
-
-        # if uti_filetype == "public.symlink":
-        #     appkit_hash = cls.get_uti_bytes_hash(filepath)
-        #     if appkit_hash in Dynamic.uti_data:
-        #         return appkit_hash, Dynamic.uti_data[appkit_hash]
-            
-        #     bytes_icon = cls.get_uti_bytes_img(filepath)
-        #     qimage = QImage()
-        #     qimage.loadFromData(bytes_icon)
-        #     cls.set_uti_data(appkit_hash, qimage)
-
-        #     uti_png_icon_path = os.path.join(Static.external_uti_dir, f"{appkit_hash}.png")
-        #     if not os.path.exists(uti_png_icon_path):
-        #         qimage = QImage.fromData(bytes_icon)
-        #         qimage = Utils.scaled(qimage, size)
-        #         qimage.save(uti_png_icon_path, "PNG")
-        #     return appkit_hash, Dynamic.uti_data[appkit_hash]
-        
-        if uti_filetype == "com.apple.application-bundle":
-            bundle = NSBundle.bundleWithPath_(filepath).bundleIdentifier()
-
-            if bundle in Dynamic.uti_data:
-                return bundle, Dynamic.uti_data[bundle]
-
-            bytes_icon = cls.get_uti_bytes_img(filepath)
-            qimage = QImage()
-            qimage.loadFromData(bytes_icon)
-            cls.set_uti_data(bundle, qimage)
-
-            uti_png_icon_path = os.path.join(Static.external_uti_dir, f"{bundle}.png")
-            if not os.path.exists(uti_png_icon_path):
-                qimage = QImage.fromData(bytes_icon)
-                qimage = Utils.scaled(qimage, size)
-                qimage.save(uti_png_icon_path, "PNG")
-
-            return bundle, Dynamic.uti_data[bundle]
-
-        if not uti_filetype:
-            return cls.get_uti_error_icon()
-
-        if uti_filetype in Dynamic.uti_data:
-            return uti_filetype, Dynamic.uti_data[uti_filetype]
-
-        uti_png_icon_path = os.path.join(Static.external_uti_dir, f"{uti_filetype}.png")
-
-        if not os.path.exists(uti_png_icon_path):
-            bytes_icon = cls.get_uti_bytes_img(filepath)
-
-            qimage = QImage.fromData(bytes_icon)
-            qimage = Utils.scaled(qimage, size)
-            qimage.save(uti_png_icon_path, "PNG")
-
-        qimage = QImage(uti_png_icon_path)
-        if qimage.isNull():
-            return cls.get_uti_error_icon()
-
-        set_uti_data(uti_filetype, qimage)
-        return uti_filetype, Dynamic.uti_data[uti_filetype]
-        
     @classmethod
     def render_svg(cls, path: str, size: int) -> QImage:
         size = QSize(size, size)

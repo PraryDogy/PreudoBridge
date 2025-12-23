@@ -182,6 +182,7 @@ class Thumb(QFrame):
 
         type_symlink = "public.symlink"
         type_application = "com.apple.application-bundle"
+        empty_file = "public.data"
 
         if self.data.uti_type == type_symlink:
             # получаем хеш сумму байтов
@@ -198,11 +199,25 @@ class Thumb(QFrame):
                 uti_png_icon_path = os.path.join(Static.external_uti_dir, f"{appkit_hash}.png")
                 qimage_for_save: QImage = Dynamic.uti_data[appkit_hash]["src"]
                 qimage_for_save.save(uti_png_icon_path, "PNG")
-            # получем иконку нужного размера и устанавливаем
-            qimage = Dynamic.uti_data[self.data.uti_type][Thumb.current_image_size]
-            pixmap = QPixmap.fromImage(qimage)
-            self.img_wid.setPixmap(pixmap)
-            return
+        
+        elif self.data.uti_type == type_application:
+            bundle = Utils.get_uti_bundle(self.data.src)
+            if bundle not in Dynamic.uti_data:
+                bytes_icon = Utils.get_uti_bytes_img(self.data.src)
+                qimage = QImage()
+                qimage.loadFromData(bytes_icon)
+                Utils.set_uti_data(bundle, qimage)
+                uti_png_icon_path = os.path.join(Static.external_uti_dir, f"{bundle}.png")
+                qimage_for_save: QImage = Dynamic.uti_data[bundle]["src"]
+                qimage_for_save.save(uti_png_icon_path, "PNG")
+                qimage.save(uti_png_icon_path, "PNG")
+
+        elif not self.data.uti_type:
+            self.data.uti_type = empty_file
+
+        qimage = Dynamic.uti_data[self.data.uti_type][Thumb.current_image_size]
+        pixmap = QPixmap.fromImage(qimage)
+        self.img_wid.setPixmap(pixmap)
 
 
     def set_image(self):
