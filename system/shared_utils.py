@@ -1,15 +1,12 @@
 import io
-import logging
 import os
 import subprocess
 import tempfile
-import traceback
 from datetime import datetime, timedelta
 from pathlib import Path
 
 import cv2
 import numpy as np
-import psd_tools
 import rawpy
 import rawpy._rawpy
 import tifffile
@@ -114,9 +111,9 @@ class SharedUtils:
 
 
 class ReadImage:
-    psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
-    psd_logger = logging.getLogger("psd_tools")
-    psd_logger.setLevel(logging.CRITICAL)
+    # psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
+    # psd_logger = logging.getLogger("psd_tools")
+    # psd_logger.setLevel(logging.CRITICAL)
     Image.MAX_IMAGE_PIXELS = None
 
     ext_jpeg = (
@@ -222,15 +219,15 @@ class ReadImage:
     @classmethod
     def _read_psb(cls, path: str):
         return cls._read_quicklook(path)
-        try:
-            img = psd_tools.PSDImage.open(path)
-            img = img.composite()
-            img = img.convert("RGB")
-            array_img = np.array(img)
-            return array_img
-        except Exception as e:
-            print("read psb, psd tools error", e)
-            return None
+        # try:
+        #     img = psd_tools.PSDImage.open(path)
+        #     img = img.composite()
+        #     img = img.convert("RGB")
+        #     array_img = np.array(img)
+        #     return array_img
+        # except Exception as e:
+        #     print("read psb, psd tools error", e)
+        #     return None
         
     @classmethod
     def _read_quicklook(cls, path: str, size: int = 5000) -> np.ndarray:
