@@ -21,7 +21,7 @@ class PathItem(QWidget):
     info_win = pyqtSignal(list)
     add_fav = pyqtSignal(str)
     del_fav = pyqtSignal(str)
-    type_pixmap: dict = {}
+    type_to_pixmap: dict = {}
 
     def __init__(self, dir: str, name: str, main_win_item: MainWinItem):
         """
@@ -55,15 +55,17 @@ class PathItem(QWidget):
         self.set_icon()
 
     def set_icon(self):
+        print("pathitem set_icon")
+        return self.img_wid.setPixmap(QPixmap())
         type_ = Utils.get_uti_type(self.item_dir)
-        if type_ in self.type_pixmap:
-            pixmap = self.type_pixmap[type_]
+        if type_ in self.type_to_pixmap:
+            pixmap = self.type_to_pixmap[type_]
         else:
             _, uti_data = Utils.uti_generator(self.item_dir)
             qimage = uti_data[Static.image_sizes[0]]
             qimage = Utils.scaled(qimage, PathItem.item_height)
             pixmap = QPixmap.fromImage(qimage)
-            self.type_pixmap[type_] = pixmap
+            self.type_to_pixmap[type_] = pixmap
 
         self.img_wid.setPixmap(pixmap)
 
