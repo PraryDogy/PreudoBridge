@@ -500,17 +500,37 @@ class MainWin(WinBase):
 
     def _load_st_grid(self):
 
-        def grid_finished():
+        def path_finder_fin(fixed_path: str):
+            conds = (
+                fixed_path != self.main_win_item.main_dir,
+                self.main_win_item.main_dir in JsonData.favs
+                )
+            if all(conds):
+                fav_items = list(JsonData.favs.items())
+                fav_name = JsonData.favs[self.main_win_item.main_dir]
+                index = fav_items.index((self.main_win_item.main_dir, fav_name))
+                new_item = (fixed_path, fav_name)
+                fav_items.pop(index)
+                fav_items.insert(index, new_item)
+                JsonData.favs = dict(fav_items)
+                JsonData.write_json_data()
 
+            self.favs_menu.select_fav(fixed_path)
+
+
+        def grid_finished():
             t = os.path.basename(self.main_win_item.main_dir)
             fav = JsonData.favs.get(self.main_win_item.main_dir, "")
             if fav and fav != t:
                 t = f"{t} ({fav})"
             self.setWindowTitle(t)
 
-            # self.tree_menu.expand_path(self.main_win_item.main_dir)
-            # self.favs_menu.select_fav(self.main_win_item.main_dir)
+            self.tree_menu.expand_path(self.main_win_item.main_dir)
             self.grid.setFocus()
+
+            self.path_finder_task = PathFinderTask(self.main_win_item.main_dir)
+            self.path_finder_task.sigs.finished_.connect(path_finder_fin)
+            UThreadPool.start(self.path_finder_task)
 
         self.top_bar.search_wid.clear_search()
         self.search_bar.hide()
