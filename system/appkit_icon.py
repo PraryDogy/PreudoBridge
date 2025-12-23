@@ -64,7 +64,12 @@ class AppKitIcon:
         if self.uti_filetype is None:
             self.uti_filetype = empty_icon
 
-        if self.uti_filetype in Dynamic.uti_data:
+        conds = (
+           self.uti_filetype in Dynamic.uti_data,
+           self.uti_filetype != type_application 
+        )
+
+        if all(conds):
             return Dynamic.uti_data[self.uti_filetype]
 
         if self.uti_filetype == type_symlink:
@@ -75,7 +80,6 @@ class AppKitIcon:
         elif self.uti_filetype == type_application:
             self.uti_filetype = self.get_uti_bundle()
             if self.uti_filetype not in Dynamic.uti_data:
-                # print(self.uti_filetype)
                 self.set_uti_data(self.get_uti_bytes_img())
 
         elif self.uti_filetype not in Dynamic.uti_data:
