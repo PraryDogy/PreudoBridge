@@ -82,11 +82,16 @@ from widgets.main_win import MainWin
 
 class App(QApplication):
     def __init__(self, argv: list[str]) -> None:
+        QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
+        QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
         super().__init__(argv)
+        JsonData.init()
+        UThreadPool.init()
         self.load_data()
 
     def load_data(self):
         def fin():
+            Dbase.init()
             self.main_win = MainWin()
             self.main_win.show()
             self.aboutToQuit.connect(lambda: self.main_win.on_exit())
@@ -105,11 +110,5 @@ class App(QApplication):
     def on_exit(self):
         JsonData.write_json_data()
 
-
-QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
-QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
-JsonData.init()
-UThreadPool.init()
-Dbase.init()
 app = App(argv=sys.argv)
 app.exec()

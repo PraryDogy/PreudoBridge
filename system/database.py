@@ -63,7 +63,7 @@ class Dbase:
                 METADATA.drop_all(engine)
                 METADATA.create_all(engine)
             else:
-                tb_file = os.path.join(Static.app_dir, "traceback.txt")
+                tb_file = os.path.join(Static.app_dir, "log.txt")
                 with open(tb_file, "w", encoding="utf-8") as f:
                     f.write(
                         "ОТПРАВЬТЕ ЭТО РАЗРАБОТЧИКУ:\n"
