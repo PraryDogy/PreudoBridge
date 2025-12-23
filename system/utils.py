@@ -335,40 +335,7 @@ class Utils:
 
         set_uti_data(uti_filetype, qimage)
         return uti_filetype, Dynamic.uti_data[uti_filetype]
-    
-    @classmethod
-    def load_uti_icons_to_ram(cls):
-        flags = Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
-        for entry in os.scandir(Static.external_uti_dir):
-            if entry.is_file() and entry.name.endswith(".png"):
-                uti_filetype = entry.name.rsplit(".png", 1)[0]
-                qimage = QImage(entry.path)
-                Dynamic.uti_data[uti_filetype] = {}
-                for i in Static.image_sizes:
-                    resized_qimage = Utils.scaled(qimage, i)
-                    Dynamic.uti_data[uti_filetype][i] = resized_qimage
-
-    @classmethod
-    def load_image_apps(cls):
-        patterns = [
-            "/Applications/Adobe Photoshop*/*.app",
-            "/Applications/Adobe Photoshop*.app",
-            "/Applications/Capture One*/*.app",
-            "/Applications/Capture One*.app",
-            "/Applications/ImageOptim.app",
-            "/System/Applications/Preview.app",
-            "/System/Applications/Photos.app",
-        ]
-
-        apps = []
-        for pat in patterns:
-            for path in glob.glob(pat):
-                if path not in apps:
-                    apps.append(path)
-
-        apps.sort(key=os.path.basename)
-        Dynamic.image_apps = apps
-    
+        
     @classmethod
     def render_svg(cls, path: str, size: int) -> QImage:
         size = QSize(size, size)

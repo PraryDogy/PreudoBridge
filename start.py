@@ -74,7 +74,7 @@ else:
 
 from cfg import JsonData
 from system.database import Dbase
-from system.tasks import UThreadPool
+from system.tasks import OnStartTask, UThreadPool
 from system.utils import Utils
 from widgets._base_widgets import WinBase
 from widgets.main_win import MainWin
@@ -83,18 +83,16 @@ from widgets.main_win import MainWin
 class App(QApplication):
     def __init__(self, argv: list[str]) -> None:
         super().__init__(argv)
+        self.load_data()
 
-        try:
-            Utils.load_uti_icons_to_ram()
-            Utils.load_image_apps()
-        except Exception as e:
-            print("start, init app load uti / load apps error", e)
-
-        self.main_win = MainWin()
-        self.main_win.show()
-
-        self.aboutToQuit.connect(lambda: self.main_win.on_exit())
-        self.installEventFilter(self)
+    def load_data(self):
+        def fin():
+            self.main_win = MainWin()
+            self.main_win.show()
+            self.aboutToQuit.connect(lambda: self.main_win.on_exit())
+            self.installEventFilter(self)
+        self.on_start_task = OnStartTask()
+        self.on_start_task.sigs.finished_.connect(fin)
 
     def eventFilter(self, a0: QObject | None, a1: QEvent | None) -> bool:
         if a1.type() == QEvent.Type.ApplicationActivate:

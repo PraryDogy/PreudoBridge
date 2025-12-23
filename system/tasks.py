@@ -1,5 +1,6 @@
 import difflib
 import gc
+import glob
 import os
 import shutil
 import subprocess
@@ -10,7 +11,7 @@ import zipfile
 import numpy as np
 import sqlalchemy
 from PIL import Image
-from PyQt5.QtCore import (QObject, QRunnable, QThread, QThreadPool, QTimer,
+from PyQt5.QtCore import (QObject, QRunnable, Qt, QThread, QThreadPool, QTimer,
                           pyqtSignal)
 from PyQt5.QtGui import QImage
 from PyQt5.QtTest import QTest
@@ -1625,3 +1626,47 @@ class DirWatcher(URunnable):
         finally:
             observer.stop()
             observer.join()
+
+
+class OnStartTask(URunnable):
+
+    class Sigs(QObject):
+        finished_ = pyqtSignal()
+
+    def __init__(self):
+        super().__init__()
+        self.sigs = OnStartTask.Sigs()
+
+    def task(self):
+        self.load_uti_icons_to_ram()
+        self.load_image_apps()
+
+    def load_uti_icons_to_ram(self):
+        for entry in os.scandir(Static.external_uti_dir):
+            if entry.is_file() and entry.name.endswith(".png"):
+                uti_filetype = entry.name.rsplit(".png", 1)[0]
+                qimage = QImage(entry.path)
+                Dynamic.uti_data[uti_filetype] = {}
+                for i in Static.image_sizes:
+                    resized_qimage = Utils.scaled(qimage, i)
+                    Dynamic.uti_data[uti_filetype][i] = resized_qimage
+
+    def load_image_apps(self):
+        patterns = [
+            "/Applications/Adobe Photoshop*/*.app",
+            "/Applications/Adobe Photoshop*.app",
+            "/Applications/Capture One*/*.app",
+            "/Applications/Capture One*.app",
+            "/Applications/ImageOptim.app",
+            "/System/Applications/Preview.app",
+            "/System/Applications/Photos.app",
+        ]
+
+        apps = []
+        for pat in patterns:
+            for path in glob.glob(pat):
+                if path not in apps:
+                    apps.append(path)
+
+        apps.sort(key=os.path.basename)
+        Dynamic.image_apps = apps
