@@ -1,26 +1,15 @@
 python 3.11
 
-!!! Нампи должен быть этой версии, иначе будут ошибки импорта
+Numpy должен быть этой версии, иначе будут ошибки импорта
 в собранном py2app приложении
-pip install numpy==1.25.2 (в req он уже такой)
+pip install numpy==1.25.2 (в req.txt он уже такой)
 
 !!! Установи перед тем, как устанавливать остальное
 pip install aggdraw --prefer-binary
 
-pip install -r requirements.txt
-
-в setup.py добавь:
-OPTIONS = {
-    это обязательно
-    "excludes": ["setuptools"],
-
-    на всякий случай это тоже
-    'includes': ['numpy', 'cv2'],
-    "packages": ['numpy', 'cv2'],
-}
-
 find . -name ".DS_Store" -delete
 find . -type l -name ".DS_Store" -exec rm {} \;
 
-pip-autoremove
+установка и пример использования pip autoremove
+pip install pip-autoremove
 pip-autoremove psd-tools -y
