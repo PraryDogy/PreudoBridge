@@ -194,6 +194,9 @@ class Utils:
     @classmethod
     def get_hashdir_size(self):
         """
+        !!!
+        Только для QRunnable
+        !!!
         Возвращает {"total": размер в байтах, "count": количество файлов}
         """
         total = 0
