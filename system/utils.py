@@ -1,18 +1,15 @@
-import glob
 import hashlib
 import inspect
 import os
-import plistlib
 import subprocess
 import traceback
 from datetime import datetime
 
 import cv2
 import numpy as np
-from AppKit import NSBitmapImageRep, NSBundle, NSPNGFileType, NSWorkspace
 from PIL import Image
 from PyQt5.QtCore import QRect, QRectF, QSize, Qt
-from PyQt5.QtGui import QColor, QFont, QIcon, QImage, QPainter
+from PyQt5.QtGui import QColor, QFont, QImage, QPainter
 from PyQt5.QtSvg import QSvgGenerator, QSvgRenderer
 from PyQt5.QtWidgets import QApplication
 
@@ -20,7 +17,6 @@ from cfg import Dynamic, Static
 
 
 class Utils:
-    _ws = NSWorkspace.sharedWorkspace()
 
     @classmethod
     def write_to_clipboard(cls, text: str):
@@ -244,37 +240,6 @@ class Utils:
             if not hasattr(to_cls, name):
                 setattr(to_cls, name, lambda *a, **kw: None)
     
-    @classmethod
-    def get_uti_type(cls, filepath: str):
-        uti_filetype, _ = Utils._ws.typeOfFile_error_(filepath, None)
-        return uti_filetype
-    
-    @classmethod
-    def get_uti_bytes_img(cls, filepath: str):
-        icon = Utils._ws.iconForFile_(filepath)
-        tiff = icon.TIFFRepresentation()
-        rep = NSBitmapImageRep.imageRepWithData_(tiff)
-        png = rep.representationUsingType_properties_(NSPNGFileType, None)
-        return bytes(png)
-        
-    @classmethod
-    def get_uti_bytes_hash(cls, filepath: str):
-        icon = Utils._ws.iconForFile_(filepath)
-        tiff_bytes = icon.TIFFRepresentation()[:-1].tobytes()
-        return hashlib.md5(tiff_bytes).hexdigest()
-    
-    @classmethod
-    def set_uti_data(cls, uti_filetype: str, qimage: QImage, size: int = 512):
-        Dynamic.uti_data[uti_filetype] = {}
-        for i in Static.image_sizes:
-            resized_qimage = Utils.scaled(qimage, i)
-            Dynamic.uti_data[uti_filetype][i] = resized_qimage
-        Dynamic.uti_data[uti_filetype]["src"] = Utils.scaled(qimage, size)
-
-    @classmethod
-    def get_uti_bundle(cls, filepath: str):
-        return NSBundle.bundleWithPath_(filepath).bundleIdentifier()
-
     @classmethod
     def render_svg(cls, path: str, size: int) -> QImage:
         size = QSize(size, size)

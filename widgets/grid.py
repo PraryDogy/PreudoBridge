@@ -173,8 +173,6 @@ class Thumb(QFrame):
         Thumb.corner = Static.corner_sizes[ind]
 
     def set_uti_data(self, size: int = 512):
-        self.data.uti_type = Utils.get_uti_type(self.data.src)
-
         appkit_icon = AppKitIcon(self.data.src)
         qimages = appkit_icon.get_qimages()
         pixmap = QPixmap.fromImage(qimages[Thumb.current_image_size])
