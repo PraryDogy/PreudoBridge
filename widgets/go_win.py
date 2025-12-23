@@ -6,7 +6,7 @@ from ._base_widgets import MinMaxDisabledWin, ULineEdit
 
 
 class GoToWin(MinMaxDisabledWin):
-    closed = pyqtSignal(tuple)
+    closed = pyqtSignal(str)
     placeholder_text = "Вставьте путь к файлу/папке"
     title_text = "Перейти к ..."
     input_width = 270
@@ -51,11 +51,6 @@ class GoToWin(MinMaxDisabledWin):
         go_btn.clicked.connect(self.inner_clicked)
         h_lay.addWidget(go_btn)
 
-        go_finder_btn = QPushButton(GoToWin.finder)
-        go_finder_btn.setFixedWidth(100)
-        go_finder_btn.clicked.connect(self.finder_clicked)
-        h_lay.addWidget(go_finder_btn)
-
         h_lay.addStretch()
         self.adjustSize()
         self.input_wid.move_clear_btn()
@@ -67,13 +62,7 @@ class GoToWin(MinMaxDisabledWin):
             self.input_wid.clear_btn.hide()
 
     def inner_clicked(self):
-        data = 0, self.input_wid.text()
-        self.closed.emit(data)
-        self.deleteLater()
-
-    def finder_clicked(self):
-        data = 1, self.input_wid.text()
-        self.closed.emit(data)
+        self.closed.emit(self.input_wid.text())
         self.deleteLater()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
