@@ -65,18 +65,9 @@ class GridStandart(Grid):
         self.load_vis_images_timer.stop()
         self.load_vis_images_timer.start(1000)
 
-    def load_finder_items(self):
-        """
-        URunnable   
-        Обходит заданную директорию os scandir.      
-        Генерирует на основе содержимого директории список BaseItem.    
-        Проверяет на наличие BaseItem в базе данных.          
-        Загружает рейтинг BaseItem из базы данных, если имеется.     
-        Испускает сигнал finished_, который содержит кортеж:
-        - список всех BaseItem
-        - список новых BaseItem, которых не было в базе данных
-        """
-        if not os.path.exists(self.main_win_item.main_dir):
+    def load_finder_items(self, path: str):
+
+        if path is None:
             self.stop_loading_label()
             self.create_no_items_label(NoItemsLabel.no_conn)
             self.mouseMoveEvent = lambda args: None
