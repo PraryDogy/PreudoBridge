@@ -518,11 +518,11 @@ class MainWin(WinBase):
             elif self.main_win_item.get_view_mode() == 1:
                 self.grid = TableView(self.main_win_item)
                 classes = (Grid, TableView)
-                self.grid.set_first_col_width()
                 self.disable_wids(True)
 
             Utils.fill_missing_methods(*classes)
             self.grid.setParent(self)
+            self.grid.set_first_col_width()
             self.setup_grid_signals()
             self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
             self.grid_spacer.resize(0, 0)
