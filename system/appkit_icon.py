@@ -5,6 +5,7 @@ from AppKit import NSBitmapImageRep, NSBundle, NSPNGFileType, NSWorkspace
 from PyQt5.QtGui import QImage
 
 from cfg import Dynamic, Static
+from system.tasks import AnyTaskLoader, UThreadPool
 from system.utils import Utils
 
 
@@ -32,12 +33,6 @@ class AppKitIcon:
         return hashlib.md5(tiff_bytes).hexdigest()
     
     def set_uti_data(self, uti_bytes_img: bytes, size: int = 512):
-        """
-        
-        вынести в QRunnable потом
-
-        """
-
         qimage = QImage()
         qimage.loadFromData(uti_bytes_img)
         qimage = Utils.scaled(qimage, size)
