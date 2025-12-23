@@ -1680,8 +1680,8 @@ class OnStartTask(URunnable):
         self.make_all_dirs()
         self.set_Macintosh_HD()
         self.remove_old_files()
-        # self.copy_uti_icons()
-        # self.load_uti_icons_to_ram()
+        self.copy_uti_icons()
+        self.load_uti_icons_to_ram()
         self.load_image_apps()
 
         self.sigs.finished_.emit()
