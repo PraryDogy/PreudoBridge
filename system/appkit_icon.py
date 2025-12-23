@@ -69,21 +69,27 @@ class AppKitIcon:
            self.uti_filetype != type_application 
         )
 
+        need_new_img = False
+
         if all(conds):
             return Dynamic.uti_data[self.uti_filetype]
 
         if self.uti_filetype == type_symlink:
             self.uti_filetype = self.get_uti_bytes_hash()
             if self.uti_filetype not in Dynamic.uti_data:
-                self.set_uti_data(self.get_uti_bytes_img())
+                need_new_img = True
         
         elif self.uti_filetype == type_application:
             self.uti_filetype = self.get_uti_bundle()
             if self.uti_filetype not in Dynamic.uti_data:
-                self.set_uti_data(self.get_uti_bytes_img())
+                need_new_img = True
 
         elif self.uti_filetype not in Dynamic.uti_data:
-            self.set_uti_data(self.get_uti_bytes_img())
+            need_new_img = True
+
+        if need_new_img:
+            uti_bytes_png = self.get_uti_bytes_img()
+            self.set_uti_data(uti_bytes_png)
 
         try:
             qimages = Dynamic.uti_data[self.uti_filetype]
