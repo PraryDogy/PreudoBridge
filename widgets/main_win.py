@@ -489,20 +489,21 @@ class MainWin(WinBase):
         def fix_path_finished(data: tuple[str, bool]):
             fixed_path, is_dir = data
 
-            # conds = (
-            #     fixed_path != self.main_win_item.main_dir,
-            #     self.main_win_item.main_dir in JsonData.favs
-            #     )
+            conds = (
+                fixed_path is not None,
+                fixed_path != self.main_win_item.main_dir,
+                self.main_win_item.main_dir in JsonData.favs
+                )
 
-            # if all(conds):
-            #     fav_name = JsonData.favs[self.main_win_item.main_dir]
-            #     inverted_favs = {v: k for k, v in JsonData.favs.items()}
-            #     inverted_favs[fav_name] = fixed_path
-                # JsonData.favs = {v: k for k, v in inverted_favs.items()}
-                # JsonData.write_json_data()
-                # self.favs_menu.init_ui()
+            if all(conds):
+                fav_name = JsonData.favs[self.main_win_item.main_dir]
+                inverted_favs = {v: k for k, v in JsonData.favs.items()}
+                inverted_favs[fav_name] = fixed_path
+                JsonData.favs = {v: k for k, v in inverted_favs.items()}
+                JsonData.write_json_data()
+                self.favs_menu.init_ui()
 
-            if fixed_path is not None:
+            if conds[0]:
                 self.favs_menu.select_fav(fixed_path)
                 self.main_win_item.main_dir = fixed_path
                 self.tree_menu.expand_path(self.main_win_item.main_dir)
