@@ -409,7 +409,7 @@ class PathFinder:
         # /Volumes/Macintosh HD/Volumes
         self._invalid_volume_path: str = self._macintosh_hd + self._volumes_dir
 
-    def get_result(self) -> str | None:
+    def get_result(self):
         input_path = self._prepare_path(self._input_path)
 
         if input_path.startswith((self._users_dir, self._macintosh_hd)):

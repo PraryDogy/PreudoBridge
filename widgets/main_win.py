@@ -333,35 +333,27 @@ class MainWin(WinBase):
 
     def go_to_cmd(self):
         if JsonData.go_to_now:
-            data = (0, Utils.read_from_clipboard())
-            self.path_finder_cmd(data)
+            self.path_finder_cmd(Utils.read_from_clipboard())
         else:
             self.open_go_to_win()
 
-    def path_finder_cmd(self, data: tuple[int, str]):
+    def path_finder_cmd(self, clipboard_path: str):
 
-        def fin(value: int, path: str):
-            # 0 загрузить сетку, 1 показать через finder
-            if path:
-                if value == 0:
-                    if os.path.isdir(path):
-                        self.main_win_item.main_dir = path
-                    else:
-                        self.main_win_item.main_dir = os.path.dirname(path)
-                        self.main_win_item.set_go_to(path)
-                    self.top_bar.new_history_item(self.main_win_item.main_dir)
-                    self.load_st_grid()
-                elif value == 1:
-                    if os.path.isdir(path):
-                        subprocess.Popen(["open", path])
-                    else:
-                        subprocess.Popen(["open", "-R", path])
-        """
-        value: 0 = открыть путь в приложении, 1 = открыть путь к Finder
-        """
-        value, path = data
-        self.path_finder_task = PathFixer(path)
-        cmd = lambda path: fin(value, path)
+        def fin(result: tuple[str, bool]):
+            fixed_path, is_dir = result
+            if not fixed_path:
+                return
+            if is_dir:
+                self.main_win_item.main_dir = fixed_path
+            else:
+                self.main_win_item.main_dir = os.path.dirname(fixed_path)
+                self.main_win_item.set_go_to(fixed_path)
+
+            self.top_bar.new_history_item(self.main_win_item.main_dir)
+            self.load_st_grid()
+
+        self.path_finder_task = PathFixer(clipboard_path)
+        cmd = lambda result: fin(result)
         self.path_finder_task.sigs.finished_.connect(cmd)
         UThreadPool.start(self.path_finder_task)
 
@@ -494,7 +486,9 @@ class MainWin(WinBase):
 
     def load_st_grid(self):
 
-        def fix_path_finished(fixed_path: str):
+        def fix_path_finished(data: tuple[str, bool]):
+            fixed_path, is_dir = data
+
             conds = (
                 fixed_path != self.main_win_item.main_dir,
                 self.main_win_item.main_dir in JsonData.favs

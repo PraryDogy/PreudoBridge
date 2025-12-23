@@ -821,9 +821,13 @@ class FileRemover(URunnable):
 class PathFixer(URunnable):
 
     class Sigs(QObject):
-        finished_ = pyqtSignal(str)
+        finished_ = pyqtSignal(tuple)
 
     def __init__(self, path: str):
+        """
+        PathFixed.sigs.finished_ -> (fixed path, bool os.path.isdir)
+        """
+
         super().__init__()
         self.path = path
         self.path_finder = PathFinder(path)
@@ -831,11 +835,11 @@ class PathFixer(URunnable):
 
     def task(self):
         if os.path.exists(self.path):
-            result = self.path
+            fixed_path = self.path
+            result = (fixed_path, os.path.isdir(fixed_path))
         else:
-            result = self.path_finder.get_result()
-            if result is None:
-                result = ""
+            fixed_path = self.path_finder.get_result()
+            result = (fixed_path, os.path.isdir(fixed_path))
         self.sigs.finished_.emit(result)
 
 
