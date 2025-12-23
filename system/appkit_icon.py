@@ -66,7 +66,7 @@ class AppKitIcon(QObject):
 
         conds = (
             self.uti_filetype is None,
-            "dyn." in self.uti_filetype
+            self.uti_filetype is not None and "dyn." in self.uti_filetype
         )
 
         if any(conds):

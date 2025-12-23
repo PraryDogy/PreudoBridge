@@ -510,6 +510,7 @@ class MainWin(WinBase):
 
             if self.main_win_item.get_view_mode() == 0:
                 self.grid = GridStandart(self.main_win_item, False)
+                self.grid.load_finished.connect(self.grid.setFocus)
                 classes = (TableView, Grid)
                 self.grid.sort_item = self.sort_item
                 self.grid.dirs_watcher_start()
@@ -518,6 +519,7 @@ class MainWin(WinBase):
 
             elif self.main_win_item.get_view_mode() == 1:
                 self.grid = TableView(self.main_win_item)
+                self.grid.load_finished.connect(self.grid.setFocus)
                 classes = (Grid, TableView)
                 self.disable_wids(True)
 

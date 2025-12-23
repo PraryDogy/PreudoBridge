@@ -91,7 +91,6 @@ class TableView(QTableView):
     level_up = pyqtSignal()
     sort_menu_update = pyqtSignal()
     total_count_update = pyqtSignal(tuple)
-    finished_ = pyqtSignal()
     download_cache = pyqtSignal(list)
     info_win = pyqtSignal(list)
     img_view_win = pyqtSignal(dict)
@@ -182,7 +181,7 @@ class TableView(QTableView):
         self.path_bar_update.emit(self.main_win_item.main_dir)
         self.total_count_update.emit((0, row_count))
         self.show()
-        self.finished_.emit()
+        self.load_finished.emit()
 
         if row_count == 0:
             self.no_files = QLabel(self.empty_text, parent=self)
