@@ -505,7 +505,6 @@ class MainWin(WinBase):
                 inverted_favs = {v: k for k, v in JsonData.favs.items()}
                 inverted_favs[fav_name] = fixed_path
                 JsonData.favs = {v: k for k, v in inverted_favs.items()}
-
                 JsonData.write_json_data()
                 self.favs_menu.init_ui()
 
