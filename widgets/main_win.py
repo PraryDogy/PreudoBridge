@@ -512,31 +512,26 @@ class MainWin(WinBase):
         self.filters_menu.setDisabled(value)
 
     def load_st_grid(self):
-
-        # def fin(is_avaiable: bool):
-        #     if is_avaiable:
-        #         self._load_st_grid()
-
         self.grid_spacer.resize(0, self.height())
         self.grid_spacer.setFocus()
         self.grid.hide()
-        self._load_st_grid()
+        QTimer.singleShot(100, self._load_st_grid)
 
-        # self.avaiability_task = DiskChecker(self.main_win_item.main_dir)
-        # self.avaiability_task.sigs.available.connect(fin)
-        # UThreadPool.start(self.avaiability_task)
-   
     def _load_st_grid(self):
 
         def grid_finished():
-            self.tree_menu.expand_path(self.main_win_item.main_dir)
-            self.grid.setFocus()
 
-        # t = os.path.basename(self.main_win_item.main_dir)
-        # fav = JsonData.favs.get(self.main_win_item.main_dir, "")
-        # if fav and fav != t:
-        #     t = f"{t} ({fav})"
-        # self.setWindowTitle(t)
+            t = os.path.basename(self.main_win_item.main_dir)
+            fav = JsonData.favs.get(self.main_win_item.main_dir, "")
+            if fav and fav != t:
+                t = f"{t} ({fav})"
+            self.setWindowTitle(t)
+
+            # self.tree_menu.expand_path(self.main_win_item.main_dir)
+
+            # вешает систему
+            # self.favs_menu.select_fav(self.main_win_item.main_dir)
+            self.grid.setFocus()
 
         self.top_bar.search_wid.clear_search()
         self.search_bar.hide()
@@ -544,12 +539,10 @@ class MainWin(WinBase):
         self.search_item.set_content(None)
         self.scroll_up.hide()
         self.grid.deleteLater()
-        self.favs_menu.select_fav(self.main_win_item.main_dir)
 
         if self.main_win_item.get_view_mode() == 0:
             self.grid = GridStandart(self.main_win_item, False)
             Utils.fill_missing_methods(TableView, Grid)
-            self.grid.setParent(self)
             self.grid.sort_item = self.sort_item
             self.grid.dirs_watcher_start()
             self.disable_wids(False)
@@ -558,12 +551,12 @@ class MainWin(WinBase):
         elif self.main_win_item.get_view_mode() == 1:
             self.grid = TableView(self.main_win_item)
             Utils.fill_missing_methods(Grid, TableView)
-            self.grid.setParent(self)
             self.grid.set_first_col_width()
             self.disable_wids(True)
 
+        self.grid.setParent(self)
         self.setup_grid_signals()
-        self.grid.load_finished.connect(self.grid.setFocus)
+        self.grid.load_finished.connect(grid_finished)
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
         self.grid_spacer.resize(0, 0)
 
