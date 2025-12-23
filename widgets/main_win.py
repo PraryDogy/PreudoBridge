@@ -501,13 +501,11 @@ class MainWin(WinBase):
                 )
 
             if all(conds):
-                fav_items = list(JsonData.favs.items())
                 fav_name = JsonData.favs[self.main_win_item.main_dir]
-                index = fav_items.index((self.main_win_item.main_dir, fav_name))
-                new_item = (fixed_path, fav_name)
-                fav_items.pop(index)
-                fav_items.insert(index, new_item)
-                JsonData.favs = dict(fav_items)
+                inverted_favs = {v: k for k, v in JsonData.favs.items()}
+                inverted_favs[fav_name] = fixed_path
+                JsonData.favs = {v: k for k, v in inverted_favs.items()}
+
                 JsonData.write_json_data()
                 self.favs_menu.init_ui()
 
