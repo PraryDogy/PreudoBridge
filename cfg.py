@@ -171,61 +171,7 @@ class JsonData:
             return False
 
     @classmethod
-    def remove_files(cls):
-        files = (
-            "cfg.json",
-            "db.db",
-            "uti_icons",
-            "log.txt",
-            "servers.json",
-            "thumbnails"
-        )
-
-        for i in os.scandir(Static.app_dir):
-            if i.name not in files:
-                try:
-                    if i.is_file():
-                        os.remove(i.path)
-                    else:
-                        shutil.rmtree(i.path)
-                except Exception as e:
-                    print("cfg, do before start, error remove dir", e)
-
-    @classmethod
-    def load_uti_icons(cls):
-        uti_folder = "./uti_icons"
-        uti_json = os.path.join(uti_folder, "uti_icons.json")
-        uti_zip = os.path.join(uti_folder, "uti_icons.zip")
-
-        with open(uti_json) as file:
-            internal_uti_icons = json.load(file)
-        external_uti_icons = [i for i in os.listdir(Static.external_uti_dir)]
-        for i in internal_uti_icons:
-            if i not in external_uti_icons:
-                external_zip = shutil.copy2(uti_zip, Static.app_dir)
-                shutil.rmtree(Static.external_uti_dir)
-                try:
-                    with zipfile.ZipFile(external_zip, "r") as zip_ref:
-                        zip_ref.extractall(Static.app_dir)
-                except zipfile.BadZipFile:
-                    print("download uti_icons.zip and place to ./uti_icons")
-                    print("https://disk.yandex.ru/d/RNqZ9xCFHiDONQ")
-                    os._exit(1)
-                break
-
-    @classmethod
     def init(cls):
-        dirs = (
-            Static.app_dir,
-            Static.external_thumbs_dir,
-            Static.external_uti_dir
-        )
-        for i in dirs:
-            os.makedirs(i, exist_ok=True)
-
-        cls.load_uti_icons()
-        cls.remove_files()
-
         cls.read_json_data()
         cls.write_json_data()
 

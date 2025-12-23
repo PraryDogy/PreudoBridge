@@ -1,6 +1,7 @@
 import difflib
 import gc
 import glob
+import json
 import os
 import shutil
 import subprocess
@@ -1638,9 +1639,44 @@ class OnStartTask(URunnable):
         self.sigs = OnStartTask.Sigs()
 
     def task(self):
+        self.make_all_dirs()
+        self.set_Macintosh_HD()
+        self.remove_old_files()
+        self.copy_uti_icons()
         self.load_uti_icons_to_ram()
         self.load_image_apps()
+
         self.sigs.finished_.emit()
+
+    def make_all_dirs(self):
+        dirs = (
+            Static.app_dir,
+            Static.external_thumbs_dir,
+            Static.external_uti_dir
+        )
+        for i in dirs:
+            os.makedirs(i, exist_ok=True)
+
+    def copy_uti_icons(self):
+        uti_folder = "./uti_icons"
+        uti_json = os.path.join(uti_folder, "uti_icons.json")
+        uti_zip = os.path.join(uti_folder, "uti_icons.zip")
+
+        with open(uti_json) as file:
+            internal_uti_icons = json.load(file)
+        external_uti_icons = [i for i in os.listdir(Static.external_uti_dir)]
+        for i in internal_uti_icons:
+            if i not in external_uti_icons:
+                external_zip = shutil.copy2(uti_zip, Static.app_dir)
+                shutil.rmtree(Static.external_uti_dir)
+                try:
+                    with zipfile.ZipFile(external_zip, "r") as zip_ref:
+                        zip_ref.extractall(Static.app_dir)
+                except zipfile.BadZipFile:
+                    print("download uti_icons.zip and place to ./uti_icons")
+                    print("https://disk.yandex.ru/d/RNqZ9xCFHiDONQ")
+                    os._exit(1)
+                break
 
     def load_uti_icons_to_ram(self):
         for entry in os.scandir(Static.external_uti_dir):
@@ -1672,12 +1708,29 @@ class OnStartTask(URunnable):
         apps.sort(key=os.path.basename)
         Dynamic.image_apps = apps
 
-    def get_sys_vol(self):
-        """
-        Возвращает путь к системному диску /Volumes/Macintosh HD (или иное имя)
-        """
+    def set_Macintosh_HD(self):
         app_support = os.path.expanduser('~/Library/Application Support')
         volumes = "/Volumes"
         for i in os.scandir(volumes):
             if os.path.exists(i.path + app_support):
                 Dynamic.sys_vol = i.path
+
+    def remove_old_files(self):
+        files = (
+            "cfg.json",
+            "db.db",
+            "uti_icons",
+            "log.txt",
+            "servers.json",
+            "thumbnails"
+        )
+
+        for i in os.scandir(Static.app_dir):
+            if i.name not in files:
+                try:
+                    if i.is_file():
+                        os.remove(i.path)
+                    else:
+                        shutil.rmtree(i.path)
+                except Exception as e:
+                    print("cfg, do before start, error remove dir", e)
