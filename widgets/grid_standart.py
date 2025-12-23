@@ -48,13 +48,16 @@ class GridStandart(Grid):
         self.loading_timer = QTimer(self)
         self.loading_timer.setSingleShot(True)
         self.loading_timer.timeout.connect(self.show_loading_label)
-        self.loading_timer.start(1500)
+        self.loading_timer.start(500)
 
     def show_loading_label(self):
-        self.loading_wid.setParent(self)
-        x = (self.width() - self.loading_wid.width()) // 2
-        y = (self.height() - self.loading_wid.height()) // 2
-        self.loading_wid.move(x, y)
+        win = self.window()
+        self.loading_wid.setParent(win)
+
+        grid_center = self.mapTo(win, self.rect().center())
+        loading_center = self.loading_wid.rect().center()
+
+        self.loading_wid.move(grid_center - loading_center)
         self.loading_wid.show()
 
     def stop_loading_label(self):
@@ -100,7 +103,6 @@ class GridStandart(Grid):
             self.load_finished.emit()
             return
 
-        self.stop_loading_label()
         self.total_count_update.emit((len(self.selected_thumbs), len(data_items)))
         self.load_finished.emit()
         self.create_thumbs(data_items)
@@ -152,6 +154,7 @@ class GridStandart(Grid):
             self.select_single_thumb(wid)
             self.ensureWidgetVisible(wid)
 
+        self.stop_loading_label()
         self.show()
         if self.main_win_item.get_go_to() in self.url_to_wid:
             wid = self.url_to_wid.get(self.main_win_item.get_go_to())
