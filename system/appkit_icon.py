@@ -52,15 +52,21 @@ class AppKitIcon:
     def get_uti_bundle(self):
         return NSBundle.bundleWithPath_(self.path).bundleIdentifier()
     
-    def get_qimages(self) -> dict[int | str, QImage]:
+    def get_qimages(self):
+        """
+        Вернет словарик:
+        {"src": QImage, int: QImage, int: QImage, ...}
+        значения наполняются из Static.image_sizes
+        Например
+        Static.image_sizes = [50, 70, 100, 170]
+        {"src": QImage, 50: QImage, 70: QImage, 100: QImage, 170: QImage}
+        """
+        
         type_symlink = "public.symlink"
         type_application = "com.apple.application-bundle"
         empty_icon = "public.data"
 
-        if self.uti_filetype in Dynamic.uti_data:
-            return Dynamic.uti_data[self.uti_filetype]
-
-        elif self.uti_filetype is None:
+        if self.uti_filetype is None:
             self.uti_filetype = empty_icon
 
         elif self.uti_filetype == type_symlink:
@@ -79,6 +85,6 @@ class AppKitIcon:
         try:
             qimage = Dynamic.uti_data[self.uti_filetype]
         except KeyError:
-            print("set uti data key error", self.data.uti_type)
+            print("set uti data key error", self.uti_filetype)
             qimage = QImage()
         return qimage
