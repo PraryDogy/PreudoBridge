@@ -462,10 +462,10 @@ class PathFinder:
         for path in path_list:
             if not os.path.exists(path):
                 continue
-            if path in self._volumes_list:
-                continue
-            if path in self.bad_paths:
-                continue
+            # if path in self._volumes_list:
+            #     continue
+            # if path in self.bad_paths:
+            #     continue
             return path
         return None
             
