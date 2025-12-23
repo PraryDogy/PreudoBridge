@@ -3,13 +3,16 @@ import os
 
 from AppKit import NSBitmapImageRep, NSBundle, NSPNGFileType, NSWorkspace
 from PyQt5.QtGui import QImage
+from PyQt5.QtCore import QObject, pyqtSignal
 
 from cfg import Dynamic, Static
 from system.tasks import AnyTaskLoader, UThreadPool
 from system.utils import Utils
 
 
-class AppKitIcon:
+class AppKitIcon(QObject):
+    finished_ = pyqtSignal(dict)
+
     def __init__(self, path: str):
         super().__init__()
         self.path = path
@@ -93,7 +96,7 @@ class AppKitIcon:
             self.any_task.sigs.finished_.connect(self.get_qimages_)
             UThreadPool.start(self.any_task)
         else:
-            return self.get_qimages()
+            self.get_qimages_()
 
     def get_qimages_(self):
         try:
@@ -103,12 +106,4 @@ class AppKitIcon:
             qimages = {"src": QImage()}
             for size in Static.image_sizes:
                 qimages[size] = QImage()
-        return qimages
-
-
-# в QRunnable
-# QImage.loadFromData
-# Utils.scaled
-# цикл ресайзов
-# qimage.save
-# hashlib.md5
+        self.finished_.emit(qimages)
