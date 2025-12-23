@@ -6,6 +6,7 @@ from PyQt5.QtGui import (QContextMenuEvent, QDropEvent, QIcon, QImage,
 from PyQt5.QtWidgets import QAction, QLabel, QListWidget, QListWidgetItem
 
 from cfg import JsonData, Static
+from system.appkit_icon import AppKitIcon
 from system.items import MainWinItem
 from system.utils import Utils
 
@@ -116,11 +117,9 @@ class FavsMenu(QListWidget):
         self.init_ui()
 
     def create_folder_icon(self):
-        print("favs create icon")
-        return QIcon(QPixmap())
-        dir = self.main_win_item.main_dir
-        _, uti_data = Utils.uti_generator(dir)
-        qimage: QImage = uti_data[Static.image_sizes[0]]
+        appkit_icon = AppKitIcon(Static.app_dir)
+        qimages = appkit_icon.get_qimages()
+        qimage= qimages[Static.image_sizes[0]]
         qimage = Utils.scaled(qimage, self.svg_size)
         return QIcon(QPixmap.fromImage(qimage))
 

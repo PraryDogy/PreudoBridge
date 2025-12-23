@@ -48,7 +48,7 @@ class GridStandart(Grid):
         self.loading_timer = QTimer(self)
         self.loading_timer.setSingleShot(True)
         self.loading_timer.timeout.connect(self.show_loading_label)
-        self.loading_timer.start(2000)
+        self.loading_timer.start(1500)
 
     def show_loading_label(self):
         self.loading_wid.setParent(self)
