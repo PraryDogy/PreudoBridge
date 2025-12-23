@@ -528,8 +528,6 @@ class MainWin(WinBase):
             self.setWindowTitle(t)
 
             # self.tree_menu.expand_path(self.main_win_item.main_dir)
-
-            # вешает систему
             # self.favs_menu.select_fav(self.main_win_item.main_dir)
             self.grid.setFocus()
 
