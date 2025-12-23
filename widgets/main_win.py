@@ -341,7 +341,7 @@ class MainWin(WinBase):
 
         def fin(result: tuple[str, bool]):
             fixed_path, is_dir = result
-            if not fixed_path:
+            if fixed_path is None:
                 return
             if is_dir:
                 self.main_win_item.main_dir = fixed_path
@@ -353,8 +353,7 @@ class MainWin(WinBase):
             self.load_st_grid()
 
         self.path_finder_task = PathFixer(clipboard_path)
-        cmd = lambda result: fin(result)
-        self.path_finder_task.sigs.finished_.connect(cmd)
+        self.path_finder_task.sigs.finished_.connect(lambda result: fin(result))
         UThreadPool.start(self.path_finder_task)
 
     def open_settings(self, *args):
