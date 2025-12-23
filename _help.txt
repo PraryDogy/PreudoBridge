@@ -13,3 +13,6 @@ find . -type l -name ".DS_Store" -exec rm {} \;
 установка и пример использования pip autoremove
 pip install pip-autoremove
 pip-autoremove psd-tools -y
+
+если возникает ошибка ModuleNotFoundError imp
+обнови pyobjc и py2app
