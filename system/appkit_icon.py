@@ -69,7 +69,7 @@ class AppKitIcon:
         if self.uti_filetype is None:
             self.uti_filetype = empty_icon
 
-        elif self.uti_filetype == type_symlink:
+        if self.uti_filetype == type_symlink:
             self.uti_filetype = self.get_uti_bytes_hash()
             if self.uti_filetype not in Dynamic.uti_data:
                 self.set_uti_data(self.get_uti_bytes_img())
@@ -83,8 +83,10 @@ class AppKitIcon:
             self.set_uti_data(self.get_uti_bytes_img())
 
         try:
-            qimage = Dynamic.uti_data[self.uti_filetype]
+            qimages = Dynamic.uti_data[self.uti_filetype]
         except KeyError:
-            print("set uti data key error", self.uti_filetype)
-            qimage = QImage()
-        return qimage
+            print("set uti data key error", self.uti_filetype, self.path)
+            qimages = {"src": QImage()}
+            for size in Static.image_sizes:
+                qimages[size] = QImage()
+        return qimages
