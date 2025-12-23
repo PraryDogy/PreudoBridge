@@ -32,28 +32,6 @@ class Utils:
     def read_from_clipboard(cls):
         clipboard = QApplication.clipboard()
         return clipboard.text()
-
-    @classmethod
-    def fix_path_prefix(cls, path: str, volumes="Volumes"):
-        """
-        Устраняет проблему с изменяющимся префиксом пути к сетевому диску,
-        например:   
-        /Volumes/Shares/Studio/MIUZ/file.txt    
-        /Volumes/Shares-1/Studio/MIUZ/file.txt  
-        Приводит путь к универсальному виду и ищет актуальный том, в котором существует файл.
-        path: Путь обязан со слешем в начале и без слеша в конца
-        """
-        if not path.startswith(os.sep) or path.endswith(os.sep):
-            raise Exception ("путь должен начинаться со слеша и в конце быть без слеша")
-
-        splited = path.split(os.sep)[3:]
-        path = os.path.join(os.sep, *splited)
-
-        for entry in os.scandir(os.sep + volumes):
-            new_path = entry.path + path
-            if os.path.exists(new_path):
-                return new_path
-        return None
     
     @classmethod
     def get_icon_path(cls, ext: str, icons_dir: str):

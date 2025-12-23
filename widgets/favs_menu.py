@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QAction, QLabel, QListWidget, QListWidgetItem
 
 from cfg import JsonData, Static
 from system.items import MainWinItem
+from system.tasks import PathFinderTask, UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import UMenu
@@ -50,27 +51,57 @@ class FavItem(QLabel):
         self.load_st_grid.emit()
 
     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
-        if ev.button() == Qt.MouseButton.LeftButton:
-            if not os.path.exists(self.src):
-                slashed = self.src.rstrip(os.sep)
-                fixed_path = Utils.fix_path_prefix(slashed)
-                if fixed_path:
-                    # удаляем из избранного старый айтем с неверной директорией
-                    # добавляем новый айтем на то же место
 
-                    fav_items = list(JsonData.favs.items())
-                    index = fav_items.index((self.src, self.name))
-                    new_item = (fixed_path, self.name)
-                    fav_items.pop(index)
-                    fav_items.insert(index, new_item)
-                    JsonData.favs = dict(fav_items)
+        def base_fin(path: str):
+            if path != self.src:
+                print(1)
+            else:
+                print(2)
 
-                    self.src = fixed_path
-                    JsonData.write_json_data()
-                    # подаем сигнал в родительский виджет для обновления ui
-                    self.path_fixed.emit()
+        def control_fin(path: str):
+            ...
 
-            self.view_fav()
+        if ev.button() != Qt.MouseButton.LeftButton:
+            return
+    
+        self.pathfinder_task = PathFinderTask(self.src)
+        if ev.modifiers() & Qt.KeyboardModifier.ControlModifier:
+            self.pathfinder_task.sigs.finished_.connect(control_fin)
+        else:
+            self.pathfinder_task.sigs.finished_.connect(base_fin)
+        UThreadPool.start(self.pathfinder_task)
+
+
+            # для поиска пути мы используем pathfinder
+            
+            # if not os.path.exists(self.src):
+            #     ...
+            #     slashed = self.src.rstrip(os.sep)
+            #     fixed_path = Utils.fix_path_prefix(slashed)
+            #     if fixed_path:
+            #         # удаляем из избранного старый айтем с неверной директорией
+            #         # добавляем новый айтем на то же место
+
+            #         fav_items = list(JsonData.favs.items())
+            #         index = fav_items.index((self.src, self.name))
+            #         new_item = (fixed_path, self.name)
+            #         fav_items.pop(index)
+            #         fav_items.insert(index, new_item)
+            #         JsonData.favs = dict(fav_items)
+
+            #         self.src = fixed_path
+            #         JsonData.write_json_data()
+            #         # подаем сигнал в родительский виджет для обновления ui
+            #         self.path_fixed.emit()
+
+            # self.view_fav()
+
+        # if e.modifiers() & Qt.KeyboardModifier.ControlModifier:
+        #     self.open_in_new_win.emit(self.src)
+        # elif self.src != self.main_win_item.main_dir:
+        #     self.view_fav()
+        # return super().mouseReleaseEvent(e)
+
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
         urls = [self.src]
@@ -110,14 +141,6 @@ class FavItem(QLabel):
         menu_.addAction(fav_action)
 
         menu_.show_under_cursor()
-
-    def mouseReleaseEvent(self, e):
-        if e.modifiers() & Qt.KeyboardModifier.ControlModifier:
-            self.open_in_new_win.emit(self.src)
-        elif self.src != self.main_win_item.main_dir:
-            self.view_fav()
-        return super().mouseReleaseEvent(e)
-
 
 class FavsMenu(QListWidget):
     LIST_ITEM = "list_item"

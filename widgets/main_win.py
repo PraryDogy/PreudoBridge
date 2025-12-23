@@ -5,15 +5,15 @@ import subprocess
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import (QCloseEvent, QKeyEvent, QMouseEvent, QPalette,
                          QResizeEvent)
-from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QLabel, QSplitter,
-                             QTabWidget, QVBoxLayout, QWidget, QFrame)
+from PyQt5.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
+                             QSplitter, QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static
-from system.items import DataItem, CopyItem, MainWinItem, SearchItem, SortItem
+from system.items import CopyItem, DataItem, MainWinItem, SearchItem, SortItem
 from system.paletes import UPallete
 from system.shared_utils import SharedUtils
 from system.tasks import (AutoCacheCleaner, PathFinderTask, RatingTask,
-                          UThreadPool, DiskChecker)
+                          UThreadPool)
 from system.utils import Utils
 
 from ._base_widgets import USep, WinBase
