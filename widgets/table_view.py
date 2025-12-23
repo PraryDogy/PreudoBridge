@@ -126,7 +126,7 @@ class TableView(QTableView):
         if JsonData.show_hidden:
             self._model.setFilter(self._model.filter() | QDir.Hidden)
 
-        if os.path.exists(self.main_win_item.main_dir):
+        if main_win_item.main_dir is not None:
             self.setModel(self._model)
             self._model.setRootPath(self.main_win_item.main_dir)
             self.setRootIndex(self._model.index(self.main_win_item.main_dir))

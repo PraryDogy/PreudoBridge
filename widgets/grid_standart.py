@@ -65,9 +65,9 @@ class GridStandart(Grid):
         self.load_vis_images_timer.stop()
         self.load_vis_images_timer.start(1000)
 
-    def load_finder_items(self, path: str):
+    def load_finder_items(self):
 
-        if path is None:
+        if self.main_win_item.main_dir is None:
             self.stop_loading_label()
             self.create_no_items_label(NoItemsLabel.no_conn)
             self.mouseMoveEvent = lambda args: None

@@ -486,7 +486,7 @@ class MainWin(WinBase):
     def load_st_grid(self):
 
         def fix_path_finished(data: tuple[str, bool]):
-            fixed_path, is_dir = data
+            fixed_path, _ = data
 
             conds = (
                 fixed_path is not None,
@@ -507,13 +507,15 @@ class MainWin(WinBase):
                 self.main_win_item.main_dir = fixed_path
                 self.tree_menu.expand_path(self.main_win_item.main_dir)
 
+            self.main_win_item.main_dir = fixed_path
+
             if self.main_win_item.get_view_mode() == 0:
                 self.grid = GridStandart(self.main_win_item, False)
                 classes = (TableView, Grid)
                 self.grid.sort_item = self.sort_item
                 self.grid.dirs_watcher_start()
                 self.disable_wids(False)
-                self.grid.load_finder_items(fixed_path)
+                self.grid.load_finder_items()
 
             elif self.main_win_item.get_view_mode() == 1:
                 self.grid = TableView(self.main_win_item)
