@@ -831,10 +831,12 @@ class PathFinderTask(URunnable):
         self.sigs = PathFinderTask.Sigs()
 
     def task(self):
-        result = self.path_finder.get_result()
-        if result is None:
-            result = ""
-        
+        if os.path.exists(self.path):
+            result = self.path
+        else:
+            result = self.path_finder.get_result()
+            if result is None:
+                result = ""
         self.sigs.finished_.emit(result)
 
 

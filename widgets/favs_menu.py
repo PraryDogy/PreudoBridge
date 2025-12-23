@@ -51,25 +51,32 @@ class FavItem(QLabel):
         self.load_st_grid.emit()
 
     def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
-
-        def base_fin(path: str):
-            if path != self.src:
-                print(1)
-            else:
-                print(2)
-
-        def control_fin(path: str):
-            ...
-
-        if ev.button() != Qt.MouseButton.LeftButton:
-            return
-    
-        self.pathfinder_task = PathFinderTask(self.src)
         if ev.modifiers() & Qt.KeyboardModifier.ControlModifier:
-            self.pathfinder_task.sigs.finished_.connect(control_fin)
-        else:
-            self.pathfinder_task.sigs.finished_.connect(base_fin)
-        UThreadPool.start(self.pathfinder_task)
+            self.open_in_new_win.emit(self.src)
+        elif self.src != self.main_win_item.main_dir:
+            self.view_fav()
+        return super().mouseReleaseEvent(ev)
+
+    # def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
+
+    #     def base_fin(path: str):
+    #         if path != self.src:
+    #             print(1)
+    #         else:
+    #             print(2)
+
+    #     def control_fin(path: str):
+    #         ...
+
+    #     if ev.button() != Qt.MouseButton.LeftButton:
+    #         return
+    
+    #     self.pathfinder_task = PathFinderTask(self.src)
+    #     if ev.modifiers() & Qt.KeyboardModifier.ControlModifier:
+    #         self.pathfinder_task.sigs.finished_.connect(control_fin)
+    #     else:
+    #         self.pathfinder_task.sigs.finished_.connect(base_fin)
+    #     UThreadPool.start(self.pathfinder_task)
 
 
             # для поиска пути мы используем pathfinder
@@ -96,11 +103,6 @@ class FavItem(QLabel):
 
             # self.view_fav()
 
-        # if e.modifiers() & Qt.KeyboardModifier.ControlModifier:
-        #     self.open_in_new_win.emit(self.src)
-        # elif self.src != self.main_win_item.main_dir:
-        #     self.view_fav()
-        # return super().mouseReleaseEvent(e)
 
 
     def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
