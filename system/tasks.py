@@ -1620,31 +1620,47 @@ class DirWatcher(URunnable):
             observer.join()
 
 
+class FavFixer(URunnable):
+    ...
+
 
 
 class DiskChecker(URunnable):
 
     class Sigs(QObject):
-        available = pyqtSignal(bool)
+        finished = pyqtSignal()
 
-    def __init__(self, path: str, timeout: float = 60.0):
+    def __init__(self, main_win_item: MainWinItem):
         super().__init__()
-        self.path = path
-        self.timeout = timeout
+        self.main_win_item = main_win_item
         self.sigs = DiskChecker.Sigs()
 
     def task(self):
-        result = {"ok": False}
+        self.fix_fav_path()
 
-        def check():
-            try:
-                os.listdir(self.path)
-                result["ok"] = True
-            except Exception:
-                result["ok"] = False
-
-        t = threading.Thread(target=check, daemon=True)
-        t.start()
-        t.join(self.timeout)
-
-        self.sigs.available.emit(result["ok"] if not t.is_alive() else False)
+    def fix_fav_path(self):
+        """
+        Если основной путь не существует
+        (например, сетевой диск был переподключен с другим именем),
+        функция пытается найти актуальный путь,
+        перебирая доступные тома.
+        Если путь найден:
+        - обновляется self.main_win_item.main_dir
+        Если путь найден и старый путь в избранном :
+        - обновляется меню "избранного" через `init_ui()`.
+        - обновляется JsonData.favs с учетом нового пути
+        """
+        if not os.path.exists(self.main_win_item.main_dir):
+            slashed = self.main_win_item.main_dir.rstrip(os.sep)
+            fixed_path = Utils.fix_path_prefix(slashed)
+            old_path = self.main_win_item.main_dir
+            if fixed_path:
+                self.main_win_item.main_dir = fixed_path
+                if old_path in JsonData.favs:
+                    favs = list(JsonData.favs.items())
+                    old_data = (old_path, JsonData.favs.get(old_path))
+                    new_data = (fixed_path, JsonData.favs.get(old_path))
+                    old_ind = favs.index(old_data)
+                    favs.pop(old_ind)
+                    favs.insert(old_ind, new_data)
+                    JsonData.favs = dict(favs)

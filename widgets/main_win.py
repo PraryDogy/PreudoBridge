@@ -527,50 +527,23 @@ class MainWin(WinBase):
    
     def _load_st_grid(self):
 
-        def fix_path():
-            """
-            Если основной путь не существует
-            (например, сетевой диск был переподключен с другим именем),
-            функция пытается найти актуальный путь,
-            перебирая доступные тома.
-            Если путь найден:
-            - обновляется self.main_win_item.main_dir
-            Если путь найден и старый путь в избранном :
-            - обновляется меню "избранного" через `init_ui()`.
-            - обновляется JsonData.favs с учетом нового пути
-            """
-            if not os.path.exists(self.main_win_item.main_dir):
-                slashed = self.main_win_item.main_dir.rstrip(os.sep)
-                fixed_path = Utils.fix_path_prefix(slashed)
-                old_path = self.main_win_item.main_dir
-                if fixed_path:
-                    self.main_win_item.main_dir = fixed_path
-                    if old_path in JsonData.favs:
-                        favs = list(JsonData.favs.items())
-                        old_data = (old_path, JsonData.favs.get(old_path))
-                        new_data = (fixed_path, JsonData.favs.get(old_path))
-                        old_ind = favs.index(old_data)
-                        favs.pop(old_ind)
-                        favs.insert(old_ind, new_data)
-                        JsonData.favs = dict(favs)
-                        self.favs_menu.init_ui()
+        def grid_finished():
+            self.tree_menu.expand_path(self.main_win_item.main_dir)
+            self.grid.setFocus()
 
-        fix_path()
-        self.tree_menu.expand_path(self.main_win_item.main_dir)
+        # t = os.path.basename(self.main_win_item.main_dir)
+        # fav = JsonData.favs.get(self.main_win_item.main_dir, "")
+        # if fav and fav != t:
+        #     t = f"{t} ({fav})"
+        # self.setWindowTitle(t)
 
-        self.favs_menu.select_fav(self.main_win_item.main_dir)
         self.top_bar.search_wid.clear_search()
         self.search_bar.hide()
         self.search_bar_sep.hide()
         self.search_item.set_content(None)
         self.scroll_up.hide()
         self.grid.deleteLater()
-
-        t = os.path.basename(self.main_win_item.main_dir)
-        fav = JsonData.favs.get(self.main_win_item.main_dir, "")
-        if fav and fav != t:
-            t = f"{t} ({fav})"
-        self.setWindowTitle(t)
+        self.favs_menu.select_fav(self.main_win_item.main_dir)
 
         if self.main_win_item.get_view_mode() == 0:
             self.grid = GridStandart(self.main_win_item, False)
