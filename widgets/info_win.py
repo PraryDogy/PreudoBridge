@@ -50,11 +50,10 @@ class SelectableLabel(ULabel):
         select_all_act.triggered.connect(self.select_all_cmd)
         menu.addAction(select_all_act)
 
-        if os.path.exists(src):
-            menu.addSeparator()
+        menu.addSeparator()
 
-            reveal_action = RevealInFinder(menu, [src, ])
-            menu.addAction(reveal_action)
+        reveal_action = RevealInFinder(menu, [src, ])
+        menu.addAction(reveal_action)
 
         menu.show_under_cursor()
 
