@@ -51,13 +51,11 @@ class GridStandart(Grid):
         self.loading_timer.start(500)
 
     def show_loading_label(self):
-        win = self.window()
-        self.loading_wid.setParent(win)
+        vp = self.viewport()
+        self.loading_wid.setParent(vp)
 
-        grid_center = self.mapTo(win, self.rect().center())
-        loading_center = self.loading_wid.rect().center()
-
-        self.loading_wid.move(grid_center - loading_center)
+        center = vp.rect().center()
+        self.loading_wid.move(center - self.loading_wid.rect().center())
         self.loading_wid.show()
 
     def stop_loading_label(self):
@@ -145,7 +143,7 @@ class GridStandart(Grid):
             # Планируем добавление следующего виджета
             QTimer.singleShot(0, add_one_thumb)
 
-        self.hide()
+        self.grid_wid.hide()
         add_one_thumb()
 
     def create_thumbs_fin(self):
@@ -155,7 +153,7 @@ class GridStandart(Grid):
             self.ensureWidgetVisible(wid)
 
         self.stop_loading_label()
-        self.show()
+        self.grid_wid.show()
         if self.main_win_item.get_go_to() in self.url_to_wid:
             wid = self.url_to_wid.get(self.main_win_item.get_go_to())
             self.main_win_item.clear_go_to()

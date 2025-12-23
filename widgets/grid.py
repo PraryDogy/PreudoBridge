@@ -326,16 +326,16 @@ class Grid(UScrollArea):
         self.wid_under_mouse: Thumb = None
         self.copy_files_icon: QImage = self.set_files_icon()
 
-        self.main_wid = QWidget()
-        self.setWidget(self.main_wid)
+        self.grid_wid = QWidget()
+        self.setWidget(self.grid_wid)
         self.origin_pos = QPoint()
-        self.rubberBand = QRubberBand(QRubberBand.Rectangle, self.main_wid)
+        self.rubberBand = QRubberBand(QRubberBand.Rectangle, self.grid_wid)
 
         flags = Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
         self.grid_layout = QGridLayout()
         self.grid_layout.setSpacing(self.spacing_value)
         self.grid_layout.setAlignment(flags)
-        self.main_wid.setLayout(self.grid_layout)
+        self.grid_wid.setLayout(self.grid_layout)
 
         self.dirs_wacher = DirWatcher("")
 
@@ -386,7 +386,7 @@ class Grid(UScrollArea):
 
     def load_visible_thumbs_images(self):
         thumbs = []
-        self.main_wid.layout().activate() 
+        self.grid_wid.layout().activate() 
         visible_rect = self.viewport().rect()  # область видимой части
         for thumb in self.url_to_wid.values():
             widget_rect = self.viewport().mapFromGlobal(
@@ -442,7 +442,7 @@ class Grid(UScrollArea):
     
     def reload_rubber(self):
         self.rubberBand.deleteLater()
-        self.rubberBand = QRubberBand(QRubberBand.Rectangle, self.main_wid)
+        self.rubberBand = QRubberBand(QRubberBand.Rectangle, self.grid_wid)
     
     def get_clmn_count(self):
         """
@@ -641,7 +641,7 @@ class Grid(UScrollArea):
             CopyItem.urls.append(i.data.src)
 
     def remove_no_items_label(self):
-        wid = self.main_wid.findChild(NoItemsLabel)
+        wid = self.grid_wid.findChild(NoItemsLabel)
         if wid:
             wid.deleteLater()
             flags = Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft
@@ -1019,7 +1019,7 @@ class Grid(UScrollArea):
             return
         
         elif self.rubberBand.isVisible():
-            release_pos = self.main_wid.mapFrom(self, a0.pos())
+            release_pos = self.grid_wid.mapFrom(self, a0.pos())
             rect = QRect(self.origin_pos, release_pos).normalized()
             self.rubberBand.hide()
             ctrl = a0.modifiers() in (Qt.KeyboardModifier.ControlModifier, Qt.KeyboardModifier.ShiftModifier)
@@ -1027,7 +1027,7 @@ class Grid(UScrollArea):
                 intersects = False
                 inner_widgets = wid.findChildren((FileNameWidget, ImgFrameWidget))
                 for w in inner_widgets:
-                    top_left = w.mapTo(self.main_wid, QPoint(0, 0))
+                    top_left = w.mapTo(self.grid_wid, QPoint(0, 0))
                     w_rect = QRect(top_left, w.size())
                     if rect.intersects(w_rect):
                         intersects = True
@@ -1096,13 +1096,13 @@ class Grid(UScrollArea):
 
     def mousePressEvent(self, a0):
         if a0.button() == Qt.MouseButton.LeftButton:
-            self.origin_pos = self.main_wid.mapFrom(self, a0.pos())
+            self.origin_pos = self.grid_wid.mapFrom(self, a0.pos())
             self.wid_under_mouse = self.get_wid_under_mouse(a0)
         return super().mousePressEvent(a0)
 
     def mouseMoveEvent(self, a0):
         try:
-            current_pos = self.main_wid.mapFrom(self, a0.pos())
+            current_pos = self.grid_wid.mapFrom(self, a0.pos())
             distance = (current_pos - self.origin_pos).manhattanLength()
         except AttributeError as e:
             Utils.print_error()
