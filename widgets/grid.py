@@ -395,7 +395,16 @@ class Grid(UScrollArea):
         self.rearrange_thumbs()
 
     def load_visible_thumbs_images(self):
-        thumbs = []
+
+        print("этот метод под вопросом")
+
+        if len(self.load_images_tasks) > 0:
+            for task in self.load_images_tasks:
+                task.set_should_run(False)
+            QTimer.singleShot(300, self.load_visible_thumbs_images)
+            return
+        
+        thumbs: list[Thumb] = []
         self.grid_wid.layout().activate() 
         visible_rect = self.viewport().rect()  # область видимой части
         for thumb in self.url_to_wid.values():
@@ -407,8 +416,8 @@ class Grid(UScrollArea):
             if visible_rect.intersects(widget_rect):
                 thumbs.append(thumb)
         if thumbs:
-            for task in self.load_images_tasks:
-                task.set_should_run(False)
+            # for task in self.load_images_tasks:
+                # task.set_should_run(False)
             self.load_thumbs_images(thumbs)
 
     def load_thumbs_images(self, thumbs: list[Thumb]):
@@ -418,7 +427,7 @@ class Grid(UScrollArea):
         """
         def finalize(task: DbItemsLoader):
             if task in self.load_images_tasks:
-                self.load_images_tasks.remove(task)
+                QTimer.singleShot(100, lambda: self.load_images_tasks.remove(task))
 
         def update_thumb(data_item: DataItem):
             try:
