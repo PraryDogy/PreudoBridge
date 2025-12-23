@@ -115,7 +115,6 @@ class FavsMenu(QListWidget):
         self.setDragDropMode(QListWidget.DragDropMode.InternalMove)
         self.setAcceptDrops(True)
         self.create_folder_icon(lambda icon: self.set_folder_icon(icon))
-        self.init_ui()
 
     def create_folder_icon(self, callback):
 
@@ -130,7 +129,9 @@ class FavsMenu(QListWidget):
         appkit_icon.get_qimages()
 
     def set_folder_icon(self, icon: QIcon):
+        # инициация ui только после получения иконки
         self.folder_icon = icon
+        self.init_ui()
 
     def init_ui(self):
         self.clear()
