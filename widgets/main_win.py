@@ -493,18 +493,13 @@ class MainWin(WinBase):
         self.filters_menu.setDisabled(value)
 
     def load_st_grid(self):
-        self.grid_spacer.resize(0, self.height())
-        self.grid_spacer.setFocus()
-        self.grid.hide()
-        QTimer.singleShot(100, self._load_st_grid)
 
-    def _load_st_grid(self):
-
-        def path_finder_fin(fixed_path: str):
+        def fix_path_finished(fixed_path: str):
             conds = (
                 fixed_path != self.main_win_item.main_dir,
                 self.main_win_item.main_dir in JsonData.favs
                 )
+
             if all(conds):
                 fav_items = list(JsonData.favs.items())
                 fav_name = JsonData.favs[self.main_win_item.main_dir]
@@ -516,51 +511,56 @@ class MainWin(WinBase):
                 JsonData.write_json_data()
                 self.favs_menu.init_ui()
 
+            # работаем с исправленной версией пути
             self.favs_menu.select_fav(fixed_path)
+            self.main_win_item.main_dir = fixed_path
+            self.tree_menu.expand_path(self.main_win_item.main_dir)
 
+            if self.main_win_item.get_view_mode() == 0:
+                self.grid = GridStandart(self.main_win_item, False)
+                # self.grid.load_finished.connect(load_grid_finished)
+                classes = (TableView, Grid)
+                self.grid.sort_item = self.sort_item
+                self.grid.dirs_watcher_start()
+                self.disable_wids(False)
+                self.grid.load_finder_items()
 
-        def grid_finished():
+            elif self.main_win_item.get_view_mode() == 1:
+                self.grid = TableView(self.main_win_item)
+                # self.grid.load_finished.connect(load_grid_finished)
+                classes = (Grid, TableView)
+                self.grid.set_first_col_width()
+                self.disable_wids(True)
+
+            Utils.fill_missing_methods(*classes)
+            self.grid.setParent(self)
+            self.setup_grid_signals()
+            self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
+            self.grid_spacer.resize(0, 0)
+
+        def start_load_grid():
+            self.top_bar.search_wid.clear_search()
+            self.search_bar.hide()
+            self.search_bar_sep.hide()
+            self.search_item.set_content(None)
+            self.scroll_up.hide()
+            self.grid.deleteLater()
+
             t = os.path.basename(self.main_win_item.main_dir)
             fav = JsonData.favs.get(self.main_win_item.main_dir, "")
             if fav and fav != t:
                 t = f"{t} ({fav})"
             self.setWindowTitle(t)
 
-            self.tree_menu.expand_path(self.main_win_item.main_dir)
             self.grid.setFocus()
-
             self.path_finder_task = PathFinderTask(self.main_win_item.main_dir)
-            self.path_finder_task.sigs.finished_.connect(path_finder_fin)
+            self.path_finder_task.sigs.finished_.connect(fix_path_finished)
             UThreadPool.start(self.path_finder_task)
 
-        self.top_bar.search_wid.clear_search()
-        self.search_bar.hide()
-        self.search_bar_sep.hide()
-        self.search_item.set_content(None)
-        self.scroll_up.hide()
-        self.grid.deleteLater()
-
-        if self.main_win_item.get_view_mode() == 0:
-            self.grid = GridStandart(self.main_win_item, False)
-            self.grid.load_finished.connect(grid_finished)
-            classes = (TableView, Grid)
-            self.grid.sort_item = self.sort_item
-            self.grid.dirs_watcher_start()
-            self.disable_wids(False)
-            self.grid.load_finder_items()
-
-        elif self.main_win_item.get_view_mode() == 1:
-            self.grid = TableView(self.main_win_item)
-            self.grid.load_finished.connect(grid_finished)
-            classes = (Grid, TableView)
-            self.grid.set_first_col_width()
-            self.disable_wids(True)
-
-        Utils.fill_missing_methods(*classes)
-        self.grid.setParent(self)
-        self.setup_grid_signals()
-        self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
-        self.grid_spacer.resize(0, 0)
+        self.grid_spacer.resize(0, self.height())
+        self.grid_spacer.setFocus()
+        self.grid.hide()
+        QTimer.singleShot(100, start_load_grid)
 
     def change_view_cmd(self):
         if self.main_win_item.get_view_mode() == 0:
