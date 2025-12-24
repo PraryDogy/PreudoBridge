@@ -501,7 +501,7 @@ class SearchTask(URunnable):
 class FinderItemsLoader(URunnable):
 
     class Sigs(QObject):
-        finished_ = pyqtSignal(list)
+        finished_ = pyqtSignal(dict)
 
     hidden_syms: tuple[str] = ()
     sql_errors = (IntegrityError, OperationalError)
