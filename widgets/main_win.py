@@ -494,6 +494,8 @@ class MainWin(WinBase):
                 self.main_win_item.main_dir in JsonData.favs
                 )
 
+            print("rewrite favs")
+
             if all(conds):
                 fav_name = JsonData.favs[self.main_win_item.main_dir]
                 inverted_favs = {v: k for k, v in JsonData.favs.items()}
@@ -501,6 +503,8 @@ class MainWin(WinBase):
                 JsonData.favs = {v: k for k, v in inverted_favs.items()}
                 JsonData.write_json_data()
                 self.favs_menu.init_ui()
+
+            print("select fav")
 
             if conds[0]:
                 self.favs_menu.select_fav(fixed_path)
@@ -512,10 +516,14 @@ class MainWin(WinBase):
             else:
                 self.main_win_item.exists = True
 
+            print("del grid")
+
             try:
                 self.grid.deleteLater()
             except RuntimeError:
                 print("grid delete error")
+
+            print("create grid")
 
             if self.main_win_item.get_view_mode() == 0:
                 self.grid = GridStandart(self.main_win_item, False)
@@ -533,7 +541,7 @@ class MainWin(WinBase):
                 classes = (Grid, TableView)
                 self.disable_wids(True)
 
-            print("fix path finished start")
+            print("fix path finished END")
 
             Utils.fill_missing_methods(*classes)
             self.grid.setParent(self)
