@@ -17,7 +17,7 @@ from PyQt5.QtCore import (QObject, QRunnable, Qt, QThread, QThreadPool, QTimer,
 from PyQt5.QtGui import QImage
 from PyQt5.QtTest import QTest
 from sqlalchemy.exc import IntegrityError, OperationalError
-from watchdog.events import FileSystemEvent, FileSystemEventHandler
+from watchdog.events import FileSystemEventHandler
 from watchdog.observers.polling import PollingObserver as Observer
 
 from cfg import Dynamic, JsonData, Static
