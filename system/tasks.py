@@ -1585,7 +1585,8 @@ class DirWatcher(QThread):
             self.msleep(1000)
 
     def run(self):
-        from watchdog.observers import Observer
+        if self.path is None:
+            return
 
         self.wait_dir()
         if not self._running:
