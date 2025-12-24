@@ -172,7 +172,7 @@ class Thumb(QFrame):
         Thumb.corner = Static.corner_sizes[ind]
 
     def set_uti_data(self):
-        return
+
         def fin(qimages: dict[str | int, QImage]):
             try:
                 qimage = qimages[Thumb.current_image_size]
