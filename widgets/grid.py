@@ -334,6 +334,7 @@ class Grid(UScrollArea):
         self.removed_urls: list[Thumb] = []
         self.wid_under_mouse: Thumb = None
         self.copy_files_icon: QImage = self.set_files_icon()
+        self.db_items_loader = DbItemsLoader(self.main_win_item, [])
 
         self.grid_wid = QWidget()
         self.setWidget(self.grid_wid)

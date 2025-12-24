@@ -592,7 +592,6 @@ class DbItemsLoader(URunnable):
         self.sigs = DbItemsLoader.Sigs()
         self.main_win_item = main_win_item
         self.data_items = data_items
-        self.data_items.sort(key=lambda x: x.size)
         self.conn = Dbase.get_conn(Dbase.engine)
         self.corrupted_items: list[DataItem] = []
 
@@ -602,6 +601,7 @@ class DbItemsLoader(URunnable):
         self.sigs.finished_.emit()
 
     def process_thumbs(self):
+        self.data_items.sort(key=lambda x: x.size)
         stmt_list: list = []
         new_images: list[DataItem] = []
         exist_images: list[DataItem] = []
