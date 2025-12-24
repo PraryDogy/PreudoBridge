@@ -1,5 +1,6 @@
 import io
 import os
+import signal
 import subprocess
 import tempfile
 from datetime import datetime, timedelta
@@ -84,25 +85,17 @@ class SharedUtils:
             print("fit image error", e)
             return None
         
-    def insert_linebreaks(text: str, n: int = 35) -> str:
-        new_text = []
-        for i in range(0, len(text), n):
-            row = text[i:i+n]
-            if row[-1] == " ":
-                row = row.rstrip()
-            else:
-                row = row + "-"
-            new_text.append(row)
-        return "\n".join(new_text).rstrip("-")
+
     
+    import os
+    import signal
 
-
+    @classmethod
+    def exit_force(cls):
+        os.kill(os.getpid(), signal.SIGKILL)
 
 
 class ReadImage:
-    # psd_tools.psd.tagged_blocks.warn = lambda *args, **kwargs: None
-    # psd_logger = logging.getLogger("psd_tools")
-    # psd_logger.setLevel(logging.CRITICAL)
     Image.MAX_IMAGE_PIXELS = None
 
     ext_jpeg = (

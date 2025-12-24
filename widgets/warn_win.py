@@ -46,9 +46,20 @@ class BaseWinWarn(MinMaxDisabledWin):
         self.right_layout.setAlignment(Qt.AlignmentFlag.AlignVCenter)
         self.right_wid.setLayout(self.right_layout)
 
-        text = SharedUtils.insert_linebreaks(text, char_limit)
+        text = self.insert_linebreaks(text, char_limit)
         self.text_label = QLabel(text)
         self.right_layout.addWidget(self.text_label)
+
+    def insert_linebreaks(self, text: str, n: int = 35) -> str:
+        new_text = []
+        for i in range(0, len(text), n):
+            row = text[i:i+n]
+            if row[-1] == " ":
+                row = row.rstrip()
+            else:
+                row = row + "-"
+            new_text.append(row)
+        return "\n".join(new_text).rstrip("-")
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() in (Qt.Key.Key_Return, Qt.Key.Key_Escape):
