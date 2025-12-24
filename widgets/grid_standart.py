@@ -64,6 +64,7 @@ class GridStandart(Grid):
         self.timeout_timer = QTimer(self)
         self.timeout_timer.setSingleShot(True)
         self.timeout_timer.timeout.connect(self.check_load_finder_time)
+        self.finder_start_time = time.time()
 
     def show_loading_label(self):
         vp = self.viewport()
@@ -83,7 +84,7 @@ class GridStandart(Grid):
 
     def check_load_finder_time(self, limit: int = 60 * 3):
         current = time.time()
-        if current - self.finder_items_task.start_time > limit:
+        if current - self.finder_start_time > limit:
             self.timeout_win = TimeoutWin()
             self.timeout_win.center(self.window())
             self.timeout_win.show()
