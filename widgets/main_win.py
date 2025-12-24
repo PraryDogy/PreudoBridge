@@ -602,7 +602,7 @@ class MainWin(WinBase):
 
     def on_exit(self):
         JsonData.write_json_data()
-        os._exit(0)
+        SharedUtils.exit_force()
     
     def resizeEvent(self, a0: QResizeEvent | None) -> None:
         self.scroll_up.move(

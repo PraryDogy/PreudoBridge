@@ -84,12 +84,7 @@ class SharedUtils:
         except Exception as e:
             print("fit image error", e)
             return None
-        
-
     
-    import os
-    import signal
-
     @classmethod
     def exit_force(cls):
         os.kill(os.getpid(), signal.SIGKILL)

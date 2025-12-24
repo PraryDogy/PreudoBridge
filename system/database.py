@@ -5,6 +5,7 @@ import traceback
 import sqlalchemy
 
 from cfg import Static
+from system.shared_utils import SharedUtils
 from system.utils import Utils
 
 METADATA = sqlalchemy.MetaData()
@@ -79,7 +80,7 @@ class Dbase:
                     subprocess.Popen(["open", log_file])
                 except Exception:
                     pass
-                os._exit(0)
+                SharedUtils.exit_force()
 
     @classmethod
     def commit(cls, conn: sqlalchemy.Connection) -> None:
