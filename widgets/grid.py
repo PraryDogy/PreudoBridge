@@ -452,12 +452,12 @@ class Grid(UScrollArea):
                     i.set_should_run(False)
 
         if thumbs:
-            task_ = DbItemsLoader(self.main_win_item, [i.data for i in thumbs])
-            task_.sigs.update_thumb.connect(lambda data_item: update_thumb(data_item))
-            task_.sigs.set_loading.connect(lambda data_item: set_loading(data_item))
-            task_.sigs.finished_.connect(lambda: finalize(task_))
-            self.load_images_tasks.append(task_)
-            UThreadPool.start(task_)
+            self.db_items_loader = DbItemsLoader(self.main_win_item, [i.data for i in thumbs])
+            self.db_items_loader.sigs.update_thumb.connect(lambda data_item: update_thumb(data_item))
+            self.db_items_loader.sigs.set_loading.connect(lambda data_item: set_loading(data_item))
+            self.db_items_loader.sigs.finished_.connect(lambda: finalize(self.db_items_loader))
+            self.load_images_tasks.append(self.db_items_loader)
+            UThreadPool.start(self.db_items_loader)
     
     def reload_rubber(self):
         self.rubberBand.deleteLater()
@@ -1277,6 +1277,7 @@ class Grid(UScrollArea):
         self.dirs_wacher.stop()
         for i in self.load_images_tasks:
             i.set_should_run(False)
+        self.db_items_loader.set_should_run(False)
         urls = [i.data.src for i in self.selected_thumbs]
         self.main_win_item.set_urls_to_select(urls)
         for i in self.cell_to_wid.values():
@@ -1288,6 +1289,7 @@ class Grid(UScrollArea):
         self.dirs_wacher.stop()
         for i in self.load_images_tasks:
             i.set_should_run(False)
+        self.db_items_loader.set_should_run(False)
         urls = [i.src for i in self.selected_thumbs]
         self.main_win_item.set_urls_to_select(urls)
         for i in self.cell_to_wid.values():
