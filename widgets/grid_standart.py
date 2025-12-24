@@ -8,7 +8,7 @@ from cfg import Dynamic, Static
 from system.items import DataItem, MainWinItem
 from system.tasks import FinderItemsLoader, UThreadPool
 from system.utils import Utils
-
+from .warn_win import WinWarn
 from .grid import Grid, NoItemsLabel, Thumb
 
 
@@ -30,6 +30,16 @@ class LoadingWidget(QFrame):
         """)
 
         self.adjustSize()
+
+
+class TimeoutWin(WinWarn):
+    title = "Нет подключения"
+    text = (
+        "Каталог не отвечает.",
+    )
+
+    def __init__(self):
+        super().__init__(TimeoutWin.title, "\n".join(TimeoutWin.text))
 
 
 class GridStandart(Grid):
@@ -71,10 +81,12 @@ class GridStandart(Grid):
         self.load_vis_images_timer.stop()
         self.load_vis_images_timer.start(1000)
 
-    def check_load_finder_time(self, limit: int = 1 * 60):
+    def check_load_finder_time(self, limit: int = 60 * 3):
         current = time.time()
         if current - self.finder_items_task.start_time > limit:
-            print("задача зависла")
+            self.timeout_win = TimeoutWin()
+            self.timeout_win.center(self.window())
+            self.timeout_win.show()
         else:
             self.timeout_timer.start(1000)
 
