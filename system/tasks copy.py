@@ -531,7 +531,6 @@ class FinderItemsLoader(URunnable):
         items: list[DataItem] = []
 
         for i, path in enumerate(self._get_paths()):
-            print(__class__.__name__, "_task")
             item = DataItem(path)
             item.set_properties()
             items.append(item)
@@ -546,7 +545,6 @@ class FinderItemsLoader(URunnable):
             if not os.access(entry.path, 4):
                 print("tasks, finder items loader, get paths, access deined", entry.path)
                 continue
-            print(__class__.__name__, "_get_paths")
             yield entry.path
 
 
@@ -609,9 +607,6 @@ class DbItemsLoader(URunnable):
         exist_ratings: list[DataItem] = []
 
         for data_item in self.data_items:
-
-            print(__class__.__name__, "process_thumbs")
-
             if not self.is_should_run():
                 return
             if data_item.image_is_loaded:
@@ -796,6 +791,20 @@ class FileRemover(URunnable):
         self.main_dir = main_dir
         self.urls = urls
 
+    # def task(self):
+    #     try:
+    #         for i in self.urls:
+    #             try:
+    #                 if os.path.isdir(i):
+    #                     shutil.rmtree(i)
+    #                 else:
+    #                     os.remove(i)
+    #             except Exception as e:
+    #                 Utils.print_error()
+    #     except Exception as e:
+    #         Utils.print_error()
+    #     self.sigs.finished_.emit()
+
     def task(self):
         subprocess.run(
             [
@@ -803,7 +812,6 @@ class FileRemover(URunnable):
                 os.path.join(Static.internal_scpt_dir, "remove_files.scpt")
             ] + self.urls)
         self.sigs.finished_.emit()
-
 
 class PathFixer(URunnable):
 
@@ -814,6 +822,7 @@ class PathFixer(URunnable):
         """
         PathFixed.sigs.finished_ -> (fixed path, bool os.path.isdir)
         """
+
         super().__init__()
         self.path = path
         self.path_finder = PathFinder(path)
@@ -868,6 +877,275 @@ class ToJpegConverter(URunnable):
         except Exception:
             Utils.print_error()
             return None
+
+
+class ArchiveMaker(URunnable):
+
+    class Sigs(QObject):
+        set_max = pyqtSignal(int)
+        set_value = pyqtSignal(int)
+        finished_ = pyqtSignal()
+
+    def __init__(self, files: list[str], zip_path: str):
+        super().__init__()
+        self.sigs = ArchiveMaker.Sigs()
+        self.files = files
+        self.zip_path = zip_path
+        self.progress = 0
+        self.all_files = self._collect_all_files()
+        self.chunk_size = 8 * 1024 * 1024
+        self.threshold = 100 * 1024 * 1024
+        self._last_emit = 0.0  # чтобы не спамить сигналами
+
+    def _collect_all_files(self):
+        collected = []
+        for item in self.files:
+            if os.path.isfile(item):
+                collected.append((item, os.path.basename(item)))
+            elif os.path.isdir(item):
+                base_dir = os.path.dirname(item)
+                for root, _, files in os.walk(item):
+                    for f in files:
+                        full_path = os.path.join(root, f)
+                        rel_path = os.path.relpath(full_path, start=base_dir)
+                        collected.append((full_path, rel_path))
+        return collected
+
+    def _calc_total_chunks(self):
+        total = 0
+        for full_path, _ in self.all_files:
+            size = os.path.getsize(full_path)
+            total += (size + self.chunk_size - 1) // self.chunk_size
+        return total
+
+    def _emit_progress(self):
+        now = time.monotonic()
+        # обновляем максимум 5 раз в секунду
+        if now - self._last_emit > 0.2:
+            self._last_emit = now
+            self.sigs.set_value.emit(self.progress)
+
+    def _add_file_chunked(self, zf, full_path, arc_path):
+        file_size = os.path.getsize(full_path)
+        zi = zipfile.ZipInfo(arc_path)
+        zi.compress_type = (
+            zipfile.ZIP_STORED if file_size > self.threshold else zipfile.ZIP_DEFLATED
+        )
+
+        with zf.open(zi, "w") as dest, open(full_path, "rb", buffering=0) as src:
+            while True:
+                buf = src.read(self.chunk_size)
+                if not buf:
+                    break
+                dest.write(buf)
+                self.progress += 1
+                self._emit_progress()
+
+    def zip_items(self):
+        total_chunks = self._calc_total_chunks()
+        self.sigs.set_max.emit(total_chunks)
+        self.progress = 0
+        with zipfile.ZipFile(self.zip_path, "w", allowZip64=True) as zf:
+            for full_path, arc_path in self.all_files:
+                if not self.is_should_run():
+                    break
+                self._add_file_chunked(zf, full_path, arc_path)
+
+    def task(self):
+        try:
+            self.zip_items()
+        except Exception as e:
+            print("archive maker task error:", e)
+        finally:
+            self.sigs.finished_.emit()
+
+
+class ArchiveMaker(URunnable):
+
+    class Sigs(QObject):
+        set_max = pyqtSignal(int)
+        set_value = pyqtSignal(int)
+        finished_ = pyqtSignal()
+
+    def __init__(self, files: list[str], zip_path: str):
+        super().__init__()
+        self.sigs = ArchiveMaker.Sigs()
+        self.files = files
+        self.zip_path = zip_path
+        print(self.files)
+        print(self.zip_path)
+
+    def task(self):
+        try:
+            self._task()
+        except Exception as e:
+            print("ArchiveMaker error:", e)
+        finally:
+            self.sigs.finished_.emit()
+
+    def _task(self):
+        # собираем все файлы
+        all_files = []
+
+        for i in self.files:
+            if os.path.isfile(i):
+                all_files.append(i)
+            elif i.endswith((".app", ".APP")):
+                all_files.append(i)
+            elif os.path.isdir(i):
+                all_files.extend(self.scan_dir(i))
+
+        if not all_files:
+            return
+
+        # базовый каталог
+        base_dir = os.path.commonpath(all_files)
+        if os.path.isfile(base_dir):
+            base_dir = os.path.dirname(base_dir)
+
+        # относительные пути
+        names = [os.path.relpath(f, base_dir) for f in all_files]
+        if len(all_files) > 1:
+            self.sigs.set_max.emit(len(all_files))
+        else:
+            self.sigs.set_max.emit(0)
+        # zip с чтением stdout
+        p = subprocess.Popen(
+            ["zip", "-r", self.zip_path, *names],
+            cwd=base_dir,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1
+        )
+
+        count = 0
+        for line in p.stdout:
+            line = line.strip()
+            if "adding" in line and len(all_files) > 1:
+                count += 1
+                self.sigs.set_value.emit(count)
+
+        p.wait()
+
+    def scan_dir(self, dir: str):
+        stack: list[str] = [dir]
+        files: list[str] = []
+        while stack:
+            current_dir = stack.pop()
+            for i in os.scandir(current_dir):
+                if i.is_file():
+                    files.append(i.path)
+                elif i.is_dir():
+                    stack.append(i.path)
+        return files
+
+
+class ArchiveMaker(URunnable):
+    class Sigs(QObject):
+        set_max = pyqtSignal(int)
+        set_value = pyqtSignal(int)
+        finished_ = pyqtSignal()
+
+    def __init__(self, files: list[str], zip_path: str):
+        super().__init__()
+        self.sigs = ArchiveMaker.Sigs()
+        self.files = files
+        self.zip_path = zip_path
+
+    def task(self):
+        try:
+            self._task()
+        except Exception as e:
+            print("ArchiveMaker error:", e)
+        finally:
+            self.sigs.finished_.emit()
+
+    def _task(self):
+        # разделяем .app и обычные файлы/папки
+        apps = [f for f in self.files if f.lower().endswith(".app")]
+        others = [f for f in self.files if not f.lower().endswith(".app")]
+
+        # временный каталог для объединения всех файлов
+        import shutil
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_files = []
+            self.sigs.set_max.emit(0)
+
+            # упаковываем каждое .app через ditto в tmp каталог
+            for app in apps:
+                app_name = os.path.basename(app)
+                tmp_app_zip = os.path.join(tmp, app_name)
+                subprocess.run(["ditto", "-c", "-k", "--keepParent", app, tmp_app_zip], check=True)
+                tmp_files.append(tmp_app_zip)
+
+            # копируем обычные файлы/папки в tmp
+            for f in others:
+                dest = os.path.join(tmp, os.path.basename(f))
+                if os.path.isfile(f):
+                    shutil.copy(f, dest)
+                elif os.path.isdir(f):
+                    shutil.copytree(f, dest)
+                tmp_files.append(dest)
+
+            # создаём финальный архив через zip
+            base_dir = tmp
+            rel_paths = [os.path.relpath(f, base_dir) for f in tmp_files]
+
+            if rel_paths:
+                if len(rel_paths) > 1:
+                    self.sigs.set_max.emit(len(rel_paths))
+                else:
+                    self.sigs.set_max.emit(0)
+                count = 0
+
+                p = subprocess.Popen(
+                    ["zip", "-r", self.zip_path, *rel_paths],
+                    cwd=base_dir,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                    bufsize=1
+                )
+
+                for line in p.stdout:
+                    line = line.strip()
+                    if "adding" in line and len(rel_paths) > 1:
+                        count += 1
+                        self.sigs.set_value.emit(count)
+
+                p.wait()
+
+
+class ArchiveMaker(URunnable):
+    class Sigs(QObject):
+        set_max = pyqtSignal(int)
+        set_value = pyqtSignal(int)
+        finished_ = pyqtSignal()
+
+    def __init__(self, files: list[str], zip_path: str):
+        super().__init__()
+        self.sigs = ArchiveMaker.Sigs()
+        self.files = files
+        self.zip_path = zip_path
+
+    def task(self):
+        try:
+            self._task()
+        except Exception as e:
+            print("ArchiveMaker error:", e)
+        finally:
+            self.sigs.finished_.emit()
+
+    def _task(self):
+        script = os.path.join(Static.internal_scpt_dir, "zip_files.scpt")
+        root, ext = os.path.splitext(self.zip_path)
+        # subprocess.run(["osascript", script, root] + self.files)
+        
+        cmd = ["open", "-a", "/System/Library/CoreServices/Applications/Archive Utility.app"] + self.files
+        subprocess.run(cmd)
 
 
 class DataSizeCounter(URunnable):
