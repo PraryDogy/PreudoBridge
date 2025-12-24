@@ -561,10 +561,12 @@ class MainWin(WinBase):
                 t = f"{t} ({fav})"
             self.setWindowTitle(t)
 
-            self.path_finder_task = PathFixer(self.main_win_item.main_dir)
-            self.path_finder_task.sigs.finished_.connect(fix_path_finished)
-            UThreadPool.start(self.path_finder_task)
+            # self.path_finder_task = PathFixer(self.main_win_item.main_dir)
+            # self.path_finder_task.sigs.finished_.connect(fix_path_finished)
+            # UThreadPool.start(self.path_finder_task)
             print("end load grid")
+            data = self.main_win_item.main_dir, True
+            fix_path_finished(data)
 
         self.grid_spacer.resize(0, self.height())
         self.grid_spacer.setFocus()
