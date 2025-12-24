@@ -1,4 +1,5 @@
 import os
+import time
 
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import QFrame, QLabel, QVBoxLayout
@@ -65,6 +66,13 @@ class GridStandart(Grid):
     def on_scroll(self):
         self.load_vis_images_timer.stop()
         self.load_vis_images_timer.start(1000)
+
+    def check_load_finder_time(self, limit: int = 1 * 60):
+        current = time.time()
+        if current - self.finder_items_task.start_time > limit:
+            print("задача зависла")
+        else:
+            QTimer.singleShot(1000, self.check_load_finder_time)
 
     def start_load_finder_items(self):
         self.finder_items_task = FinderItemsLoader(self.main_win_item, self.sort_item)

@@ -5,7 +5,6 @@ import json
 import os
 import shutil
 import subprocess
-import threading
 import time
 import zipfile
 
@@ -514,6 +513,7 @@ class FinderItemsLoader(URunnable):
 
         super().__init__()
         self.sigs = FinderItemsLoader.Sigs()
+        self.start_time = time.time()
         self.sort_item = sort_item
         self.main_win_item = main_win_item
 
