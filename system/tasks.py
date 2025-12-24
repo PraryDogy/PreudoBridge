@@ -530,6 +530,12 @@ class FinderItemsLoader(URunnable):
     def _task(self):
         items: list[DataItem] = []
 
+        fixed_path = PathFinder(self.main_win_item.main_dir)
+        if fixed_path is None:
+            return items
+        else:
+            self.main_win_item.main_dir = fixed_path
+
         for i, path in enumerate(self._get_paths()):
             item = DataItem(path)
             item.set_properties()

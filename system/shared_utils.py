@@ -377,6 +377,7 @@ class PathFinder:
         self.mounted_disks.remove(self.Macintosh_HD)
 
     def get_result(self):
+
         bad_paths: list[str] = (
             os.path.join(self.Macintosh_HD, "Volumes"),
             os.path.join(self.Macintosh_HD, "System", "Volumes")
@@ -384,18 +385,18 @@ class PathFinder:
 
         fixed_path = self.fix_slashes(self.input_path)
 
-        if fixed_path.startswith("/Users"):
-            return None
+        conds = (
+            os.path.exists(self.input_path),
+            fixed_path.startswith("/Users"),
+            fixed_path.startswith(self.Macintosh_HD)
+        )
 
-        elif fixed_path.startswith(self.Macintosh_HD):
-            return None
+        if any(conds):
+            return fixed_path
 
         if fixed_path in bad_paths:
             return None
-        
-        if not self.mounted_disks:
-            return None
-        
+       
         paths = self.add_to_start(fixed_path)
         paths.sort(key=len, reverse=True)
 
