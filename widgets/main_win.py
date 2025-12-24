@@ -485,6 +485,7 @@ class MainWin(WinBase):
     def load_st_grid(self):
 
         def fix_path_finished(data: tuple[str, bool]):
+            print("fix path finished start")
             fixed_path, _ = data
 
             conds = (
@@ -523,6 +524,8 @@ class MainWin(WinBase):
                 classes = (Grid, TableView)
                 self.disable_wids(True)
 
+            print("fix path finished start")
+
             Utils.fill_missing_methods(*classes)
             self.grid.setParent(self)
             self.grid.set_first_col_width()
@@ -531,6 +534,7 @@ class MainWin(WinBase):
             self.grid_spacer.resize(0, 0)
 
         def start_load_grid():
+            print("start load grid")
             self.top_bar.search_wid.clear_search()
             self.search_bar.hide()
             self.search_bar_sep.hide()
@@ -548,10 +552,14 @@ class MainWin(WinBase):
             self.path_finder_task = PathFixer(self.main_win_item.main_dir)
             self.path_finder_task.sigs.finished_.connect(fix_path_finished)
             UThreadPool.start(self.path_finder_task)
+            print("end load grid")
 
         self.grid_spacer.resize(0, self.height())
         self.grid_spacer.setFocus()
-        self.grid.hide()
+        try:
+            self.grid.hide()
+        except RuntimeError:
+            print("MainWin grid hide runtime error")
         QTimer.singleShot(100, start_load_grid)
 
     def change_view_cmd(self):

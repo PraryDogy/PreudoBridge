@@ -1350,11 +1350,17 @@ class OnStartTask(URunnable):
         self.sigs = OnStartTask.Sigs()
 
     def task(self):
+        print(__class__.__name__, "make all dirs")
         self.make_all_dirs()
+        print(__class__.__name__, "set macHD")
         self.set_Macintosh_HD()
+        print(__class__.__name__, "remove old files")
         self.remove_old_files()
+        print(__class__.__name__, "copy uti icons")
         self.copy_uti_icons()
+        print(__class__.__name__, "uti to ram")
         self.load_uti_icons_to_ram()
+        print(__class__.__name__, "load image apps")
         self.load_image_apps()
 
         self.sigs.finished_.emit()
@@ -1423,6 +1429,8 @@ class OnStartTask(URunnable):
         app_support = os.path.expanduser('~/Library/Application Support')
         volumes = "/Volumes"
         for i in os.scandir(volumes):
+            if os.path.ismount(i):
+                continue
             if os.path.exists(i.path + app_support):
                 Dynamic.sys_vol = i.path
 

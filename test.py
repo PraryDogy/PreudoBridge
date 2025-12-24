@@ -1,13 +1,6 @@
-class Test:
-
-    def __init__(self):
-        super().__init__()
-
-    def test(self):
-
-        print(__class__.__name__)
+import os
 
 
-
-a  = Test()
-a.test()
+print(
+    os.path.exists("/Users/Loshkarev/Documents/_Projects/PreudoBridge/uti_icons")
+)

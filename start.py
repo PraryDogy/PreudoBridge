@@ -82,6 +82,7 @@ from widgets.main_win import MainWin
 
 class App(QApplication):
     def __init__(self, argv: list[str]) -> None:
+        print("start app")
         QApplication.setAttribute(Qt.ApplicationAttribute.AA_EnableHighDpiScaling, True)
         QApplication.setAttribute(Qt.ApplicationAttribute.AA_UseHighDpiPixmaps, True)
         super().__init__(argv)
@@ -96,6 +97,9 @@ class App(QApplication):
             self.main_win.show()
             self.aboutToQuit.connect(lambda: self.main_win.on_exit())
             self.installEventFilter(self)
+            print("end load data")
+
+        print("start load data")
         self.on_start_task = OnStartTask()
         self.on_start_task.sigs.finished_.connect(fin)
         UThreadPool.start(self.on_start_task)
