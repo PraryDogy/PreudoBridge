@@ -484,46 +484,12 @@ class MainWin(WinBase):
 
     def load_st_grid(self):
 
-        def fix_path_finished(data: tuple[str, bool]):
-            print("fix path finished start")
-            fixed_path, _ = data
+        def end_load_grid():
+            self.favs_menu.select_fav(self.main_win_item.main_dir)
+            # это лочит главный гуи когда СМБ не отвечает
+            # self.tree_menu.expand_path(self.main_win_item.main_dir)
 
-            conds = (
-                fixed_path is not None,
-                fixed_path != self.main_win_item.main_dir,
-                self.main_win_item.main_dir in JsonData.favs
-                )
-
-            print("rewrite favs")
-
-            if all(conds):
-                fav_name = JsonData.favs[self.main_win_item.main_dir]
-                inverted_favs = {v: k for k, v in JsonData.favs.items()}
-                inverted_favs[fav_name] = fixed_path
-                JsonData.favs = {v: k for k, v in inverted_favs.items()}
-                JsonData.write_json_data()
-                self.favs_menu.init_ui()
-
-            print("select fav")
-
-            if conds[0]:
-                self.favs_menu.select_fav(fixed_path)
-                self.main_win_item.main_dir = fixed_path
-                self.tree_menu.expand_path(self.main_win_item.main_dir)
-
-            if fixed_path is None:
-                self.main_win_item.exists = False
-            else:
-                self.main_win_item.exists = True
-
-            print("del grid")
-
-            try:
-                self.grid.deleteLater()
-            except RuntimeError:
-                print("grid delete error")
-
-            print("create grid")
+            self.grid.deleteLater()
 
             if self.main_win_item.get_view_mode() == 0:
                 self.grid = GridStandart(self.main_win_item, False)
@@ -532,16 +498,13 @@ class MainWin(WinBase):
                 self.grid.sort_item = self.sort_item
                 self.disable_wids(False)
                 self.grid.load_finder_items()
-                # if self.main_win_item.exists:
-                    # self.grid.dirs_watcher_start()
+                self.grid.dirs_watcher_start()
 
             elif self.main_win_item.get_view_mode() == 1:
                 self.grid = TableView(self.main_win_item)
                 self.grid.load_finished.connect(self.grid.setFocus)
                 classes = (Grid, TableView)
                 self.disable_wids(True)
-
-            print("fix path finished END")
 
             Utils.fill_missing_methods(*classes)
             self.grid.setParent(self)
@@ -551,37 +514,23 @@ class MainWin(WinBase):
             self.grid_spacer.resize(0, 0)
 
         def start_load_grid():
-            print("start load grid")
             self.top_bar.search_wid.clear_search()
             self.search_bar.hide()
             self.search_bar_sep.hide()
             self.search_item.set_content(None)
             self.scroll_up.hide()
-
-            try:
-                self.grid.deleteLater()
-            except RuntimeError:
-                print("grid deleteLater error")
+            self.grid.deleteLater()
 
             t = os.path.basename(self.main_win_item.main_dir)
             fav = JsonData.favs.get(self.main_win_item.main_dir, "")
             if fav and fav != t:
                 t = f"{t} ({fav})"
             self.setWindowTitle(t)
-
-            # self.path_finder_task = PathFixer(self.main_win_item.main_dir)
-            # self.path_finder_task.sigs.finished_.connect(fix_path_finished)
-            # UThreadPool.start(self.path_finder_task)
-            print("end load grid")
-            data = self.main_win_item.main_dir, True
-            fix_path_finished(data)
+            end_load_grid()
 
         self.grid_spacer.resize(0, self.height())
         self.grid_spacer.setFocus()
-        try:
-            self.grid.hide()
-        except RuntimeError:
-            print("drid hide error")
+        self.grid.hide()
         QTimer.singleShot(100, start_load_grid)
 
     def change_view_cmd(self):
