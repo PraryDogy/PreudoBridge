@@ -424,7 +424,10 @@ class Grid(UScrollArea):
         """
         def finalize(task: DbItemsLoader):
             if task in self.load_images_tasks:
-                QTimer.singleShot(100, lambda: self.load_images_tasks.remove(task))
+                try:
+                    self.load_images_tasks.remove(task)
+                except ValueError as e:
+                    print("load image task remove error", e)
 
         def update_thumb(data_item: DataItem):
             try:

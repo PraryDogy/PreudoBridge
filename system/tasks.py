@@ -537,6 +537,9 @@ class FinderItemsLoader(URunnable):
         path_finder = PathFinder(self.main_win_item.main_dir)
         fixed_path = path_finder.get_result()
 
+        print(fixed_path)
+        return
+
         if fixed_path is None:
             self.sigs.finished_.emit({"path": None, "data_items": items})
             return
