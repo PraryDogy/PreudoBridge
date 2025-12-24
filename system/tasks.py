@@ -507,6 +507,11 @@ class FinderItemsLoader(URunnable):
     sql_errors = (IntegrityError, OperationalError)
 
     def __init__(self, main_win_item: MainWinItem, sort_item: SortItem):
+        """
+        Вернет словарик
+        {"path": str путь,  "data_items": [DataItem, DataItem, ...]
+        """
+
         super().__init__()
         self.sigs = FinderItemsLoader.Sigs()
         self.sort_item = sort_item
@@ -529,23 +534,23 @@ class FinderItemsLoader(URunnable):
 
     def _task(self):
         items: list[DataItem] = []
+        path_finder = PathFinder(self.main_win_item.main_dir)
+        fixed_path = path_finder.get_result()
 
-        fixed_path = PathFinder(self.main_win_item.main_dir)
         if fixed_path is None:
-            return items
-        else:
-            self.main_win_item.main_dir = fixed_path
+            self.sigs.finished_.emit({"path": None, "data_items": items})
+            return
 
-        for i, path in enumerate(self._get_paths()):
+        for i, path in enumerate(self._get_paths(fixed_path)):
             item = DataItem(path)
             item.set_properties()
             items.append(item)
 
         items = DataItem.sort_(items, self.sort_item)
-        self.sigs.finished_.emit(items)
+        self.sigs.finished_.emit({"path": fixed_path, "data_items": items})
 
-    def _get_paths(self):
-        for entry in os.scandir(self.main_win_item.main_dir):
+    def _get_paths(self, fixed_path: str):
+        for entry in os.scandir(fixed_path):
             if entry.name.startswith(self.hidden_syms):
                 continue
             if not os.access(entry.path, 4):

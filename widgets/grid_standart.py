@@ -66,45 +66,34 @@ class GridStandart(Grid):
         self.load_vis_images_timer.stop()
         self.load_vis_images_timer.start(1000)
 
-    def load_finder_items(self):
-
-
-        # !!!!!!!!!
-        # ноу айтемс лейбл после таска файндер таск
-        # !!!!!!!!!!
-        # if not self.main_win_item.exists:
-        #     self.stop_loading_label()
-        #     self.create_no_items_label(NoItemsLabel.no_conn)
-        #     self.mouseMoveEvent = lambda args: None
-        #     self.load_finished.emit()
-        #     return
-
+    def start_load_finder_items(self):
         finder_items_task = FinderItemsLoader(self.main_win_item, self.sort_item)
         finder_items_task.sigs.finished_.connect(
-            lambda data_items: self.finalize_finder_items(data_items)
+            lambda result: self.fin_load_finder_items(result)
         )
         UThreadPool.start(finder_items_task)
 
-    def finalize_finder_items(self, data_items: list[DataItem]):
-        """
-        Обходит список BaseItem, формируя сетку виджетов Thumb.     
-        Делает текст зеленым, если BaseItem есть в списке new_items
-        (читай load finder items).    
-        Запускает таймер для load visible images
-        """
-        # испускаем сигнал в MainWin, чтобы нижний бар с отображением пути
-        # обновился на актуальный путь
-        self.path_bar_update.emit(self.main_win_item.main_dir)
+    def fin_load_finder_items(self, result):
+        fixed_path = result["path"]
+        data_items = result["data_items"]
 
-        # высчитываем размер Thumb
+        if fixed_path:
+            self.main_win_item.main_dir = fixed_path
+        else:
+            self.stop_loading_label()
+            self.create_no_items_label(NoItemsLabel.no_conn)
+            self.mouseMoveEvent = lambda args: None
+            self.load_finished.emit()
+            return
+
         Thumb.calc_size()
-
-        if not data_items:
+        if len(data_items) == 0:
             self.stop_loading_label()
             self.create_no_items_label(NoItemsLabel.no_files)
             self.load_finished.emit()
             return
 
+        self.path_bar_update.emit(self.main_win_item.main_dir)
         self.total_count_update.emit((len(self.selected_thumbs), len(data_items)))
         self.load_finished.emit()
         self.create_thumbs(data_items)
