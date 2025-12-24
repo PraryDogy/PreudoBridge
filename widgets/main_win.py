@@ -486,10 +486,10 @@ class MainWin(WinBase):
 
         def end_load_grid():
             self.favs_menu.select_fav(self.main_win_item.main_dir)
+            self.grid.deleteLater()
+
             # это лочит главный гуи когда СМБ не отвечает
             # self.tree_menu.expand_path(self.main_win_item.main_dir)
-
-            self.grid.deleteLater()
 
             if self.main_win_item.get_view_mode() == 0:
                 self.grid = GridStandart(self.main_win_item, False)
