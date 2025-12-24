@@ -398,13 +398,10 @@ class Grid(UScrollArea):
     def load_visible_thumbs_images(self):
 
         if len(self.load_images_tasks) > 0:
-            print("жду завершения load images tasks")
             for task in self.load_images_tasks:
                 task.set_should_run(False)
             QTimer.singleShot(300, self.load_visible_thumbs_images)
             return
-        
-        print("стартую load images tasks")
         
         thumbs: list[Thumb] = []
         self.grid_wid.layout().activate() 
@@ -418,8 +415,6 @@ class Grid(UScrollArea):
             if visible_rect.intersects(widget_rect):
                 thumbs.append(thumb)
         if thumbs:
-            # for task in self.load_images_tasks:
-                # task.set_should_run(False)
             self.load_thumbs_images(thumbs)
 
     def load_thumbs_images(self, thumbs: list[Thumb]):

@@ -531,7 +531,6 @@ class FinderItemsLoader(URunnable):
         items: list[DataItem] = []
 
         for i, path in enumerate(self._get_paths()):
-            print(__class__.__name__, "_task")
             item = DataItem(path)
             item.set_properties()
             items.append(item)
@@ -546,7 +545,6 @@ class FinderItemsLoader(URunnable):
             if not os.access(entry.path, 4):
                 print("tasks, finder items loader, get paths, access deined", entry.path)
                 continue
-            print(__class__.__name__, "_get_paths")
             yield entry.path
 
 
@@ -609,9 +607,6 @@ class DbItemsLoader(URunnable):
         exist_ratings: list[DataItem] = []
 
         for data_item in self.data_items:
-
-            print(__class__.__name__, "process_thumbs")
-
             if not self.is_should_run():
                 return
             if data_item.image_is_loaded:
@@ -1305,7 +1300,6 @@ class DirWatcher(QThread):
     def wait_dir(self):
         while self._running and not os.path.exists(self.path):
             self.msleep(1000)
-            print(__class__.__name__, "wait_dir")
 
     def run(self):
         if self.path is None:
@@ -1324,7 +1318,6 @@ class DirWatcher(QThread):
 
         try:
             while self._running:
-                print(__class__.__name__, "run")
                 self.msleep(1000)
                 if not os.path.exists(self.path):
                     observer.stop()
@@ -1350,19 +1343,12 @@ class OnStartTask(URunnable):
         self.sigs = OnStartTask.Sigs()
 
     def task(self):
-        print(__class__.__name__, "make all dirs")
         self.make_all_dirs()
-        print(__class__.__name__, "set macHD")
         self.set_Macintosh_HD()
-        print(__class__.__name__, "remove old files")
         self.remove_old_files()
-        print(__class__.__name__, "copy uti icons")
         self.copy_uti_icons()
-        print(__class__.__name__, "uti to ram")
         self.load_uti_icons_to_ram()
-        print(__class__.__name__, "load image apps")
         self.load_image_apps()
-
         self.sigs.finished_.emit()
 
     def make_all_dirs(self):
