@@ -542,6 +542,9 @@ class FinderItemsLoader(URunnable):
         for entry in os.scandir(self.main_win_item.main_dir):
             if entry.name.startswith(self.hidden_syms):
                 continue
+            if not os.access(entry.path, 4):
+                print("tasks, finder items loader, get paths, access deined", entry.path)
+                continue
             yield entry.path
 
 
@@ -619,9 +622,6 @@ class DbItemsLoader(URunnable):
                     stmt_list.append(DataItem.update_folder_stmt(data_item))
                     exist_ratings.append(data_item)
             else:
-                if not os.access(data_item.src, 4):
-                    print("tasks, db items loader, process thumbs, access deined", data_item.src)
-                    continue
                 data_item.set_partial_hash()
                 rating = self.get_item_rating(data_item)
                 if rating is None:
