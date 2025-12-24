@@ -51,6 +51,10 @@ class GridStandart(Grid):
         self.loading_timer.timeout.connect(self.show_loading_label)
         self.loading_timer.start(500)
 
+        self.timeout_timer = QTimer(self)
+        self.timeout_timer.setSingleShot(True)
+        self.timeout_timer.timeout.connect(self.check_load_finder_time)
+
     def show_loading_label(self):
         vp = self.viewport()
         self.loading_wid.setParent(vp)
@@ -72,7 +76,7 @@ class GridStandart(Grid):
         if current - self.finder_items_task.start_time > limit:
             print("задача зависла")
         else:
-            QTimer.singleShot(1000, self.check_load_finder_time)
+            self.timeout_timer.start(1000)
 
     def start_load_finder_items(self):
         self.finder_items_task = FinderItemsLoader(self.main_win_item, self.sort_item)
@@ -80,9 +84,10 @@ class GridStandart(Grid):
             lambda result: self.fin_load_finder_items(result)
         )
         UThreadPool.start(self.finder_items_task)
-        self.check_load_finder_time()
+        self.timeout_timer.start(1000)
 
     def fin_load_finder_items(self, result):
+        self.timeout_timer.stop()
         fixed_path = result["path"]
         data_items = result["data_items"]
 
