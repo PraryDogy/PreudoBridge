@@ -2,6 +2,7 @@ import io
 import os
 import signal
 import subprocess
+import sys
 import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -87,7 +88,14 @@ class SharedUtils:
     
     @classmethod
     def exit_force(cls):
-        os.kill(os.getpid(), signal.SIGKILL)
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        script = os.path.join(base_dir, "force_exit.py")
+
+        subprocess.Popen([
+            sys.executable,
+            script,
+            str(os.getpid())
+        ])
 
 
 class ReadImage:
