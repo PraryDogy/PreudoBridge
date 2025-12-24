@@ -512,6 +512,11 @@ class MainWin(WinBase):
             else:
                 self.main_win_item.exists = True
 
+            try:
+                self.grid.deleteLater()
+            except RuntimeError:
+                print("grid delete error")
+
             if self.main_win_item.get_view_mode() == 0:
                 self.grid = GridStandart(self.main_win_item, False)
                 self.grid.load_finished.connect(self.grid.setFocus)
@@ -519,8 +524,8 @@ class MainWin(WinBase):
                 self.grid.sort_item = self.sort_item
                 self.disable_wids(False)
                 self.grid.load_finder_items()
-                if self.main_win_item.exists:
-                    self.grid.dirs_watcher_start()
+                # if self.main_win_item.exists:
+                    # self.grid.dirs_watcher_start()
 
             elif self.main_win_item.get_view_mode() == 1:
                 self.grid = TableView(self.main_win_item)
@@ -556,7 +561,6 @@ class MainWin(WinBase):
                 t = f"{t} ({fav})"
             self.setWindowTitle(t)
 
-            self.grid.setFocus()
             self.path_finder_task = PathFixer(self.main_win_item.main_dir)
             self.path_finder_task.sigs.finished_.connect(fix_path_finished)
             UThreadPool.start(self.path_finder_task)
