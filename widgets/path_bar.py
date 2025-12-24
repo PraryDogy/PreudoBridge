@@ -53,27 +53,27 @@ class PathItem(QWidget):
         self.collapse()
         item_layout.addWidget(self.text_wid)
 
-        self.set_icon(lambda appkit_icon, pixmap: self.set_type_to_pixmap(appkit_icon, pixmap))
+        # self.set_icon(lambda appkit_icon, pixmap: self.set_type_to_pixmap(appkit_icon, pixmap))
 
-    def set_type_to_pixmap(self, appkit_icon: AppKitIcon, pixmap: QPixmap):
-        self.type_to_pixmap[appkit_icon.uti_filetype] = pixmap
-        self.img_wid.setPixmap(pixmap)
+    # def set_type_to_pixmap(self, appkit_icon: AppKitIcon, pixmap: QPixmap):
+    #     self.type_to_pixmap[appkit_icon.uti_filetype] = pixmap
+    #     self.img_wid.setPixmap(pixmap)
 
-    def set_icon(self, callback):
+    # def set_icon(self, callback):
         
-        def fin(appkit_icon: AppKitIcon, qimages: dict):
-            qimage = qimages[Static.image_sizes[0]]
-            qimage = Utils.scaled(qimage, PathItem.item_height)
-            pixmap = QPixmap.fromImage(qimage)
-            callback(appkit_icon, pixmap)
+    #     def fin(appkit_icon: AppKitIcon, qimages: dict):
+    #         qimage = qimages[Static.image_sizes[0]]
+    #         qimage = Utils.scaled(qimage, PathItem.item_height)
+    #         pixmap = QPixmap.fromImage(qimage)
+    #         callback(appkit_icon, pixmap)
 
-        appkit_icon = AppKitIcon(self.item_dir)
-        if appkit_icon.uti_filetype in self.type_to_pixmap:
-            pixmap = self.type_to_pixmap[appkit_icon.uti_filetype]
-            callback(appkit_icon, pixmap)
-        else:
-            appkit_icon.finished_.connect(lambda qimages: fin(appkit_icon, qimages))
-            appkit_icon.get_qimages()
+    #     appkit_icon = AppKitIcon(self.item_dir)
+    #     if appkit_icon.uti_filetype in self.type_to_pixmap:
+    #         pixmap = self.type_to_pixmap[appkit_icon.uti_filetype]
+    #         callback(appkit_icon, pixmap)
+    #     else:
+    #         appkit_icon.finished_.connect(lambda qimages: fin(appkit_icon, qimages))
+    #         appkit_icon.get_qimages()
 
     def add_arrow(self):
         """

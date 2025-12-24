@@ -118,15 +118,17 @@ class FavsMenu(QListWidget):
 
     def create_folder_icon(self, callback):
 
-        def fin(qimages: dict[int | str, QImage]):
-            qimage = qimages[Static.image_sizes[0]]
-            qimage = Utils.scaled(qimage, self.svg_size)
-            icon = QIcon(QPixmap.fromImage(qimage))
-            callback(icon)
+        # def fin(qimages: dict[int | str, QImage]):
+        #     qimage = qimages[Static.image_sizes[0]]
+        #     qimage = Utils.scaled(qimage, self.svg_size)
+        #     icon = QIcon(QPixmap.fromImage(qimage))
+        #     callback(icon)
 
-        appkit_icon = AppKitIcon(Static.app_dir)
-        appkit_icon.finished_.connect(fin)
-        appkit_icon.get_qimages()
+        # appkit_icon = AppKitIcon(Static.app_dir)
+        # appkit_icon.finished_.connect(fin)
+        # appkit_icon.get_qimages()
+
+        callback(QIcon())
 
     def set_folder_icon(self, icon: QIcon):
         # инициация ui только после получения иконки

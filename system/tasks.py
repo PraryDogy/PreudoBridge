@@ -1429,10 +1429,9 @@ class OnStartTask(URunnable):
         app_support = os.path.expanduser('~/Library/Application Support')
         volumes = "/Volumes"
         for i in os.scandir(volumes):
-            if os.path.ismount(i):
-                continue
-            if os.path.exists(i.path + app_support):
-                Dynamic.sys_vol = i.path
+            if not os.path.ismount(i.path):
+                if os.path.exists(i.path + app_support):
+                    Dynamic.sys_vol = i.path
 
     def remove_old_files(self):
         files = (
