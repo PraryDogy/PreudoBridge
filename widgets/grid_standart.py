@@ -68,7 +68,7 @@ class GridStandart(Grid):
 
     def load_finder_items(self):
 
-        if self.main_win_item.main_dir is None:
+        if not self.main_win_item.exists:
             self.stop_loading_label()
             self.create_no_items_label(NoItemsLabel.no_conn)
             self.mouseMoveEvent = lambda args: None

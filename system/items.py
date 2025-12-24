@@ -267,6 +267,7 @@ class MainWinItem:
         self.main_dir: str = None
         self.scroll_value: int = None
         self.view_mode: int = 0
+        self.exists: bool = True
 
     def set_view_mode(self, value: int):
         self.view_mode = value
