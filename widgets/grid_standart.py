@@ -80,6 +80,7 @@ class GridStandart(Grid):
             lambda result: self.fin_load_finder_items(result)
         )
         UThreadPool.start(self.finder_items_task)
+        self.check_load_finder_time()
 
     def fin_load_finder_items(self, result):
         fixed_path = result["path"]
