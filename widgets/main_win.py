@@ -544,7 +544,11 @@ class MainWin(WinBase):
             self.search_bar_sep.hide()
             self.search_item.set_content(None)
             self.scroll_up.hide()
-            self.grid.deleteLater()
+
+            try:
+                self.grid.deleteLater()
+            except RuntimeError:
+                print("grid deleteLater error")
 
             t = os.path.basename(self.main_win_item.main_dir)
             fav = JsonData.favs.get(self.main_win_item.main_dir, "")
@@ -560,7 +564,10 @@ class MainWin(WinBase):
 
         self.grid_spacer.resize(0, self.height())
         self.grid_spacer.setFocus()
-        self.grid.hide()
+        try:
+            self.grid.hide()
+        except RuntimeError:
+            print("drid hide error")
         QTimer.singleShot(100, start_load_grid)
 
     def change_view_cmd(self):
