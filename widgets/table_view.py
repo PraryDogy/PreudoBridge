@@ -19,7 +19,6 @@ from system.utils import Utils
 from ._base_widgets import UMenu
 from .actions import GridActions, ItemActions
 # main win
-from .archive_win import ArchiveWin
 from .grid import Thumb
 from .img_convert_win import ImgConvertWin
 from .remove_files_win import RemoveFilesWin
@@ -312,49 +311,6 @@ class TableView(QTableView):
         self.convert_win.center(self.window())
         self.convert_win.show()
 
-    def make_archive(self, urls: list[str]):
-
-        def archive_fin(url: str):
-            try:
-                self.archive_win = None
-                gc.collect()
-                QTimer.singleShot(300, lambda: self.select_path(url))
-            except RuntimeError as e:
-                ...
-
-        def rename_fin(text: str):
-            zip_path = os.path.join(self.main_win_item.main_dir, text)
-            self.archive_win = ArchiveWin(urls, zip_path)
-            assert isinstance(self.archive_win, ArchiveWin)
-            self.archive_win.center(self.window())
-            self.archive_win.finished_.connect(lambda: archive_fin(zip_path))
-            self.archive_win.show()
-            QTimer.singleShot(100, lambda: self.archive_win.raise_())
-
-        selected_urls = self.get_selected_urls()
-        if len(selected_urls) == 1:
-            text = os.path.basename(selected_urls[0])
-            text, ext = os.path.splitext(text)
-            text = f"{text}.zip"
-        else:
-            text = "Архив.zip"
-
-        self.rename_win = RenameWin(text)
-        self.rename_win.center(self.window())
-        self.rename_win.finished_.connect(rename_fin)
-        self.rename_win.show()
-
-    # def make_archive(self, urls: list[str]):
-
-    #     def finished(*args):
-    #         QTimer.singleShot(300, lambda: self.select_path(zip_path))
-
-    #     zip_path = os.path.join(self.main_win_item.main_dir, "Архив.zip")
-    #     self.archive_win = ArchiveWin(urls, zip_path)
-    #     self.archive_win.finished_.connect(finished)
-    #     self.archive_win.center(self.window())
-    #     self.archive_win.show()
-
     def rename_row(self, url: str):
         
         def finished(text: str):
@@ -411,10 +367,6 @@ class TableView(QTableView):
                 lambda: self.download_cache.emit(dirs)
             )
             menu_.addAction(download_cache)
-
-        # archive = ItemActions.MakeArchive(menu_)
-        # archive.triggered.connect(lambda: self.make_archive(urls))
-        # menu_.addAction(archive)
 
         menu_.addSeparator()
 

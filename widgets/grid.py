@@ -20,7 +20,6 @@ from system.utils import Utils
 from ._base_widgets import UMenu, UScrollArea
 from .actions import GridActions, ItemActions
 # в main win
-from .archive_win import ArchiveWin
 from .img_convert_win import ImgConvertWin
 from .remove_files_win import RemoveFilesWin
 from .rename_win import RenameWin
@@ -803,45 +802,6 @@ class Grid(UScrollArea):
         self.rename_win.center(self.window())
         self.rename_win.show()
 
-    def make_archive(self):
-
-        def select(url):
-            if url in self.url_to_wid:
-                wid = self.url_to_wid[url]
-                wid.data.set_properties()
-                wid.set_blue_text()
-                self.select_single_thumb(wid)
-
-        def archive_fin(url):
-            try:
-                self.archive_win = None
-                gc.collect()
-                QTimer.singleShot(1050, lambda: select(url))
-            except RuntimeError as e:
-                ...
-
-        def rename_fin(text: str):
-            files = [i.data.src for i in self.selected_thumbs]
-            zip_path = os.path.join(self.main_win_item.main_dir, text)
-
-            self.archive_win = ArchiveWin(files, zip_path)
-            assert isinstance(self.archive_win, ArchiveWin)
-            self.archive_win.center(self.window())
-            self.archive_win.finished_.connect(lambda: archive_fin(zip_path))
-            self.archive_win.show()
-            QTimer.singleShot(100, lambda: self.archive_win.raise_())
-
-        if len(self.selected_thumbs) == 1:
-            text = self.selected_thumbs[0].data.filename
-            text, ext = os.path.splitext(text)
-            text = f"{text}.zip"
-        else:
-            text = "Архив.zip"
-
-        self.rename_win = RenameWin(text)
-        self.rename_win.center(self.window())
-        self.rename_win.finished_.connect(rename_fin)
-        self.rename_win.show()
 
     def context_thumb(self, menu_: UMenu, wid: Thumb):
         # собираем пути к файлам / папкам у выделенных виджетов

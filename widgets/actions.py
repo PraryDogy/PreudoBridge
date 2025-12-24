@@ -437,12 +437,6 @@ class Rename(QAction):
         super().__init__(self.text_, parent)
 
 
-class MakeArchive(QAction):
-    text_ = "Создать архив zip"
-    def __init__(self, parent: UMenu):
-        super().__init__(self.text_, parent)
-
-
 class DownloadCache(QAction):
     text_ = "Кэшировать файлы"
     def __init__(self, parent: UMenu):
@@ -469,7 +463,6 @@ class ItemActions:
     class RemoveObjects(RemoveObjects): ...
     class ImgConvert(ImgConvert): ...
     class Rename(Rename): ...
-    class MakeArchive(MakeArchive): ...
     class DownloadCache(DownloadCache): ...
     class RotateMenu(RotateMenu): ...
 
