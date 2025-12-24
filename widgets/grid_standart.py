@@ -67,11 +67,11 @@ class GridStandart(Grid):
         self.load_vis_images_timer.start(1000)
 
     def start_load_finder_items(self):
-        finder_items_task = FinderItemsLoader(self.main_win_item, self.sort_item)
-        finder_items_task.sigs.finished_.connect(
+        self.finder_items_task = FinderItemsLoader(self.main_win_item, self.sort_item)
+        self.finder_items_task.sigs.finished_.connect(
             lambda result: self.fin_load_finder_items(result)
         )
-        UThreadPool.start(finder_items_task)
+        UThreadPool.start(self.finder_items_task)
 
     def fin_load_finder_items(self, result):
         fixed_path = result["path"]
@@ -170,3 +170,9 @@ class GridStandart(Grid):
 
     def resizeEvent(self, a0):
         return super().resizeEvent(a0)
+    
+    def deleteLater(self):
+        return super().deleteLater()
+    
+    def closeEvent(self, a0):
+        return super().closeEvent(a0)
