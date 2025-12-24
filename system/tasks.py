@@ -1423,6 +1423,9 @@ class OnStartTask(URunnable):
         Dynamic.image_apps = apps
 
     def set_Macintosh_HD(self):
+        print("set_Macintosh_HD on start disabled")
+        Dynamic.sys_vol = "/Volumes/Macintosh HD"
+        return
         app_support = os.path.expanduser('~/Library/Application Support')
         volumes = "/Volumes"
         for i in os.scandir(volumes):
