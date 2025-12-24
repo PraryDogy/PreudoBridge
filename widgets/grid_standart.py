@@ -68,12 +68,16 @@ class GridStandart(Grid):
 
     def load_finder_items(self):
 
-        if not self.main_win_item.exists:
-            self.stop_loading_label()
-            self.create_no_items_label(NoItemsLabel.no_conn)
-            self.mouseMoveEvent = lambda args: None
-            self.load_finished.emit()
-            return
+
+        # !!!!!!!!!
+        # ноу айтемс лейбл после таска файндер таск
+        # !!!!!!!!!!
+        # if not self.main_win_item.exists:
+        #     self.stop_loading_label()
+        #     self.create_no_items_label(NoItemsLabel.no_conn)
+        #     self.mouseMoveEvent = lambda args: None
+        #     self.load_finished.emit()
+        #     return
 
         finder_items_task = FinderItemsLoader(self.main_win_item, self.sort_item)
         finder_items_task.sigs.finished_.connect(
