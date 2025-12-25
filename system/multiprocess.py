@@ -1,15 +1,28 @@
 from multiprocessing import Process, Queue
 import os
 from system.shared_utils import PathFinder
-from system.items import DataItem
-from cfg import Static
+from system.items import DataItem, MainWinItem, SortItem
+from cfg import Static, JsonData
+
+
+
+class MultiprocessRunner:
+    def __init__(self, target: object, args: tuple):
+        super().__init__()
+        self.mp_queue = Queue()
+        self.target = target
+        self.args = args
+
+    def start(self):
+        self.proc = Process(target=self.target, args=self.args)
+        self.proc.start()
 
 
 class FinderItemsLoader:
     def __init__(self):
         super().__init__()
 
-    def start(self, main_dir, sort_item, show_hidden, out_q: Queue):
+    def start(self, main_dir: MainWinItem, sort_item: SortItem, show_hidden: bool, out_q: Queue):
         items = []
         hidden_syms = () if show_hidden else Static.hidden_symbols
 
