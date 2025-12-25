@@ -57,7 +57,6 @@ class GridStandart(Grid):
         self.load_vis_images_timer.setSingleShot(True)
         self.verticalScrollBar().valueChanged.connect(self.on_scroll)
 
-        self.grid_wid.hide()
 
     def on_scroll(self):
         self.load_vis_images_timer.stop()
@@ -181,7 +180,7 @@ class GridStandart(Grid):
             self.filter_thumbs()
         self.rearrange_thumbs()
         self.load_finished.emit()
-        self.grid_wid.show()
+        QTimer.singleShot(10, self.grid_wid.show)
         QTimer.singleShot(100, self.load_visible_thumbs_images)
 
     def resizeEvent(self, a0):
