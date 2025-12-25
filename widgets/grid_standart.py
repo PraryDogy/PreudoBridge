@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QFrame, QLabel, QVBoxLayout
 
 from cfg import Dynamic, Static
 from system.items import DataItem, MainWinItem
-from system.multiprocess import Tasker, FinderItemsLoader
+from system.multiprocess import ProcessWorker, FinderItemsLoader
 from system.tasks import FinderItemsLoader, UThreadPool
 
 from .grid import Grid, NoItemsLabel, Thumb
@@ -96,7 +96,7 @@ class GridStandart(Grid):
         def on_items_loaded(result: dict):
             self.fin_load_finder_items(result)
 
-        def poll_task(tasker: Tasker, timer: QTimer):
+        def poll_task(tasker: ProcessWorker, timer: QTimer):
             q = tasker.get_queue()
 
             # 1. забираем все сообщения
@@ -108,7 +108,7 @@ class GridStandart(Grid):
                 timer.stop()
                 tasker.close()
 
-        tasker = Tasker(
+        tasker = ProcessWorker(
             target=FinderItemsLoader.load_finder_items,
             args=(self.main_win_item, self.sort_item)
         )

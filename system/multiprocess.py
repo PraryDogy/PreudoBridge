@@ -5,7 +5,7 @@ from system.items import DataItem, MainWinItem, SortItem
 from cfg import Static, JsonData
 
 
-class Tasker:
+class ProcessWorker:
     def __init__(self, target: callable, args: tuple):
         self.queue = Queue()
         self.proc = Process(
