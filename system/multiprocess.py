@@ -2,14 +2,13 @@ import os
 from multiprocessing import Process, Queue
 
 import numpy as np
-from database import Clmns, Dbase
-from shared_utils import ReadImage, SharedUtils
 from sqlalchemy import Connection as Conn
-from sqlalchemy import select
+from sqlalchemy import Engine, select
 
 from cfg import JsonData, Static
+from system.database import Clmns, Dbase
 from system.items import DataItem, MainWinItem, SortItem
-from system.shared_utils import PathFinder
+from system.shared_utils import PathFinder, ReadImage, SharedUtils
 from system.tasks import Utils
 
 
@@ -95,9 +94,10 @@ class DbItemsLoader:
         Отправляет в Queue DataItem или {"DataItem": DataItem}
         """
 
-        data_items.sort(key=lambda x: x.size)
+        engine = Dbase.create_engine()
+        conn = Dbase.get_conn(engine)
 
-        conn = Dbase.get_conn(Dbase.engine)
+        data_items.sort(key=lambda x: x.size)
         stmt_list: list = []
         new_images: list[DataItem] = []
         exist_images: list[DataItem] = []
@@ -110,7 +110,7 @@ class DbItemsLoader:
             if data_item.filename.endswith((".svg", ".SVG")):
                 svg_files.append(data_item)
             elif data_item.type_ == Static.folder_type:
-                rating = DbItemsLoader.get_item_rating(data_item)
+                rating = DbItemsLoader.get_item_rating(data_item, conn)
                 if rating is None:
                     stmt_list.append(DataItem.insert_folder_stmt(data_item))
                 else:
@@ -119,7 +119,7 @@ class DbItemsLoader:
                     exist_ratings.append(data_item)
             else:
                 data_item.set_partial_hash()
-                rating = DbItemsLoader.get_item_rating(data_item)
+                rating = DbItemsLoader.get_item_rating(data_item, conn)
                 if rating is None:
                     stmt_list.append(DataItem.insert_file_stmt(data_item))
                     if data_item.type_ in Static.img_exts:
@@ -135,11 +135,11 @@ class DbItemsLoader:
                     else:
                         exist_ratings.append(data_item)
 
-        DbItemsLoader.execute_ratings(exist_ratings)
+        DbItemsLoader.execute_ratings(exist_ratings, q)
         # DbItemsLoader.execute_svg_files(svg_files)
-        DbItemsLoader.execute_exist_images(exist_images)
-        DbItemsLoader.execute_new_images(new_images)
-        DbItemsLoader.execute_stmt_list(stmt_list)
+        DbItemsLoader.execute_exist_images(exist_images, q)
+        DbItemsLoader.execute_new_images(new_images, q)
+        DbItemsLoader.execute_stmt_list(stmt_list, conn)
     
     @staticmethod
     def execute_stmt_list(stmt_list: list, conn: Conn):
@@ -152,7 +152,7 @@ class DbItemsLoader:
         for i in data_items:
             img_array = "загружаем свг как аррай"
             i.arrays = {
-                sz: {img_array, SharedUtils.fit_image(img_array, sz)}
+                sz: SharedUtils.fit_image(img_array, sz)
                 for sz in Static.image_sizes
             }
             i.arrays.update(
@@ -170,7 +170,7 @@ class DbItemsLoader:
         for i in data_items:
             img_array = Utils.read_thumb(i.thumb_path)
             i.arrays = {
-                sz: {img_array, SharedUtils.fit_image(img_array, sz)}
+                sz: SharedUtils.fit_image(img_array, sz)
                 for sz in Static.image_sizes
             }
             i.arrays.update(
@@ -189,7 +189,7 @@ class DbItemsLoader:
             img_array = ReadImage.read_image(i.src)
             img_array = SharedUtils.fit_image(img_array, Static.max_thumb_size)
             i.arrays = {
-                sz: {img_array, SharedUtils.fit_image(img_array, sz)}
+                sz: SharedUtils.fit_image(img_array, sz)
                 for sz in Static.image_sizes
             }
             i.arrays.update(

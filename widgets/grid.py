@@ -12,6 +12,7 @@ from watchdog.events import FileSystemEvent
 
 from cfg import Dynamic, JsonData, Static
 from system.appkit_icon import AppKitIcon
+from system.database import Dbase
 from system.items import CopyItem, DataItem, MainWinItem, SortItem
 from system.multiprocess import DbItemsLoader, ProcessWorker
 from system.shared_utils import SharedUtils
@@ -399,7 +400,7 @@ class Grid(UScrollArea):
 
         if len(self.load_images_tasks) > 0:
             for task in self.load_images_tasks:
-                task.set_should_run(False)
+                task.force_stop()
             QTimer.singleShot(300, self.load_visible_thumbs_images)
             return
         
@@ -456,6 +457,8 @@ class Grid(UScrollArea):
             # 1. забираем все сообщения
             while not q.empty():
                 result = q.get()
+                print(result)
+                continue
                 if isinstance(result, DataItem):
                     update_thumb(result)
                 else:
@@ -463,20 +466,22 @@ class Grid(UScrollArea):
                     set_loading(data_item)
 
             if not proc_worker.proc.is_alive() and q.empty():
+                self.load_images_tasks.remove(proc_worker)
                 proc_timer.stop()
                 proc_worker.close()
                 proc_worker = None
-                self.load_images_tasks.remove(proc_worker)
 
         if not thumbs:
             return
 
-        data_items = [i.data for i in thumbs]
         proc_worker = ProcessWorker(
         target=DbItemsLoader.start,
-        args=(data_items)
+        args=(
+            [i.data for i in thumbs], 
+        )
             
             )
+        self.load_images_tasks.append(proc_worker)
         proc_worker.start()
         proc_timer = QTimer(self)
         proc_timer.timeout.connect(
@@ -1301,7 +1306,7 @@ class Grid(UScrollArea):
     def deleteLater(self):
         self.dirs_wacher.stop()
         for i in self.load_images_tasks:
-            i.force_stop(False)
+            i.force_stop()
         urls = [i.data.src for i in self.selected_thumbs]
         self.main_win_item.set_urls_to_select(urls)
         for i in self.cell_to_wid.values():

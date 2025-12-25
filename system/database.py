@@ -41,6 +41,14 @@ class Clmns:
 
 class Dbase:
     engine: sqlalchemy.Engine
+    
+    @classmethod
+    def create_engine(cls):
+        return sqlalchemy.create_engine(
+            f"sqlite:///{Static.external_db}",
+            echo=False,
+            connect_args={"check_same_thread": False, "timeout": 30}
+        )
 
     @classmethod
     def init(cls):
