@@ -206,7 +206,6 @@ class GridStandart(Grid):
         return super().resizeEvent(a0)
     
     def deleteLater(self):
-        print(123)
         if self.process_worker is not None:
             self.process_worker.force_stop()
         return super().deleteLater()
