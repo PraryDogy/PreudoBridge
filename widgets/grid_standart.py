@@ -89,7 +89,7 @@ class GridStandart(Grid):
         
         self.proc_worker_timer = QTimer(self)
         self.proc_worker_timer.timeout.connect(poll_task)
-        self.proc_worker_timer.start(500)
+        self.proc_worker_timer.start(200)
 
     def fin_load_finder_items(self, result):
         fixed_path = result["path"]
