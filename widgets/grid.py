@@ -457,8 +457,8 @@ class Grid(UScrollArea):
             # 1. забираем все сообщения
             while not q.empty():
                 result = q.get()
-                print(result)
-                continue
+                if result is None:
+                    continue
                 if isinstance(result, DataItem):
                     update_thumb(result)
                 else:
