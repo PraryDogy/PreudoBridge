@@ -16,6 +16,10 @@ class Tasker:
     def start(self):
         self.proc.start()
 
+    def stop(self):
+        if self.proc.is_alive():
+            self.proc.terminate()
+
     def get_queue(self):
         return self.queue
 
