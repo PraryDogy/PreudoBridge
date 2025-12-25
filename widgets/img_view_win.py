@@ -6,7 +6,7 @@ from PyQt5.QtGui import (QContextMenuEvent, QCursor, QImage, QKeyEvent,
 from PyQt5.QtSvg import QSvgWidget
 from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsPixmapItem,
                              QGraphicsScene, QGraphicsView, QHBoxLayout,
-                             QLabel, QSpacerItem, QVBoxLayout, QWidget)
+                             QLabel, QVBoxLayout, QWidget)
 
 from cfg import Static
 from system.multiprocess import ProcessWorker, ReadImg
