@@ -420,6 +420,7 @@ class Grid(UScrollArea):
             widget_rect = QRect(widget_rect, qsize)
             if visible_rect.intersects(widget_rect):
                 thumbs.append(thumb)
+                thumb.data.qimages = None
 
         if thumbs:
             self.start_load_images_task(thumbs)
