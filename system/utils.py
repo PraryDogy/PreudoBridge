@@ -28,45 +28,7 @@ class Utils:
     def read_from_clipboard(cls):
         clipboard = QApplication.clipboard()
         return clipboard.text()
-    
-    @classmethod
-    def get_icon_path(cls, ext: str, icons_dir: str):
-        return os.path.join(icons_dir, ext.lower().lstrip('.') + '.svg')
-
-    @classmethod
-    def create_icon(cls, ext: str, icon_path: str, file_svg: str):
-        """
-        icon_path: куда будет сохранена svg иконка
-        file_svg: пустой svg, на который будет нанесен текст
-        """
-        renderer = QSvgRenderer(file_svg)
-        width = 133
-        height = 133
-
-        # удаляем точку, делаем максимум 4 символа и капс
-        # для размещения текста на иконку
-        new_text = ext.replace(".", "")[:4].upper()
-
-        # Создаем генератор SVG
-        generator = QSvgGenerator()
-
-        # Задаем имя файла по последней секции пути к svg
-        generator.setFileName(icon_path)
-        generator.setSize(QSize(width, height))
-        generator.setViewBox(QRect(0, 0, width, height))
-
-        # Рисуем на новом SVG с добавлением текста
-        painter = QPainter(generator)
-        renderer.render(painter)  # Рисуем исходный SVG
         
-        # Добавляем текст
-        painter.setPen(QColor(71, 84, 103))  # Цвет текста
-        painter.setFont(QFont("Arial", 29, QFont.Bold))
-        painter.drawText(QRectF(0, 75, width, 30), Qt.AlignCenter, new_text)
-        painter.end()
-
-        return icon_path
-    
     @classmethod
     def open_in_def_app(cls, path: str):
         subprocess.Popen(["open", path])
