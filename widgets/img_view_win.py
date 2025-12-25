@@ -323,20 +323,28 @@ class ImgViewWin(WinBase):
     def load_image(self):
 
         def poling():
-            q = self.read_img_task.get_queue()
+            task = self.read_img_task
+            if not task:
+                return
+
+            q = task.get_queue()
+
             while not q.empty():
                 src, img_array = q.get()
+
                 if img_array is None:
                     self.show_text_label(self.error_text)
-                elif src == self.current_path:    
+                elif src == self.current_path:
                     qimage = Utils.qimage_from_array(img_array)
                     ImgViewWin.cached_images[src] = qimage
                     self.restart_img_wid(QPixmap.fromImage(qimage))
 
-            if not self.read_img_task.proc.is_alive() and q.empty():
-                self.read_img_timer.stop()
-                self.read_img_task.force_stop()
+            if not task.proc.is_alive() and q.empty():
+                task.force_stop()
                 self.read_img_task = None
+                return
+
+            QTimer.singleShot(100, poling)
 
         if self.current_path in ImgViewWin.cached_images:
             qimage = ImgViewWin.cached_images[self.current_path]
@@ -351,9 +359,7 @@ class ImgViewWin(WinBase):
             args=(self.current_path, True)
         )
         self.read_img_task.start()
-        self.read_img_timer = QTimer()
-        self.read_img_timer.timeout.connect(poling)
-        self.read_img_timer.start(500)
+        QTimer.singleShot(100, poling)
 
     def rotate_image(self, value: int):
         pixmap = self.img_wid.pixmap_item.pixmap()
