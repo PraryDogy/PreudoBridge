@@ -57,6 +57,23 @@ class GridStandart(Grid):
         self.load_vis_images_timer.setSingleShot(True)
         self.verticalScrollBar().valueChanged.connect(self.on_scroll)
 
+        self.loading_label = LoadingWidget()
+        self.loading_timer = QTimer(self)
+        self.loading_timer.setSingleShot(True)
+        self.loading_timer.timeout.connect(self.show_loading_label)
+        self.loading_timer.start(800)
+
+    def show_loading_label(self):
+        self.loading_label.setParent(self.viewport())
+        vp = self.viewport().rect()
+        lbl = self.loading_label.rect()
+
+        self.loading_label.move(
+            (vp.width() - lbl.width()) // 2,
+            (vp.height() - lbl.height()) // 2
+        )
+
+        self.loading_label.show()
 
     def on_scroll(self):
         self.load_vis_images_timer.stop()
@@ -100,12 +117,14 @@ class GridStandart(Grid):
             self.create_no_items_label(NoItemsLabel.no_conn)
             self.mouseMoveEvent = lambda args: None
             self.load_finished.emit()
+            self.loading_label.deleteLater()
             return
 
         Thumb.calc_size()
         if len(data_items) == 0:
             self.create_no_items_label(NoItemsLabel.no_files)
             self.load_finished.emit()
+            self.loading_label.deleteLater()
             return
 
         self.path_bar_update.emit(self.main_win_item.main_dir)
@@ -177,6 +196,7 @@ class GridStandart(Grid):
             self.filter_thumbs()
         self.rearrange_thumbs()
         self.load_finished.emit()
+        self.loading_label.deleteLater()
         QTimer.singleShot(100, self.load_visible_thumbs_images)
 
     def resizeEvent(self, a0):

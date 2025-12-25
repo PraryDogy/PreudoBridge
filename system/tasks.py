@@ -1128,8 +1128,9 @@ class OnStartTask(URunnable):
         Dynamic.image_apps = apps
 
     def set_Macintosh_HD(self):
-        volumes = [i.path for i in os.scandir("/Volumes")]
-        Dynamic.sys_vol = volumes[0]
+        # volumes = [i.path for i in os.scandir("/Volumes")]
+        # Dynamic.sys_vol = volumes[0]
+        Dynamic.sys_vol = "/Volumes/Macintosh HD"
 
     def remove_old_files(self):
         files = (
