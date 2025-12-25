@@ -1,8 +1,6 @@
 import io
 import os
-import signal
 import subprocess
-import sys
 import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -16,6 +14,8 @@ from PIL import Image, ImageOps
 
 
 class SharedUtils:
+    _watchdog_queue = None
+    _watchdog_process = None
 
     @classmethod
     def is_mounted(cls, server: str):
@@ -85,17 +85,10 @@ class SharedUtils:
         except Exception as e:
             print("fit image error", e)
             return None
-    
+        
     @classmethod
     def exit_force(cls):
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        script = os.path.join(base_dir, "force_exit.py")
-
-        subprocess.Popen([
-            sys.executable,
-            script,
-            str(os.getpid())
-        ])
+        os._exit(1)
 
 
 class ReadImage:
