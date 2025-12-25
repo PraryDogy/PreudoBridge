@@ -413,6 +413,8 @@ class Grid(UScrollArea):
         self.grid_wid.layout().activate() 
         visible_rect = self.viewport().rect()  # область видимой части
         for thumb in self.url_to_wid.values():
+            if thumb.data.qimages:
+                continue
             widget_rect = self.viewport().mapFromGlobal(
                 thumb.mapToGlobal(thumb.rect().topLeft())
             )
@@ -420,7 +422,6 @@ class Grid(UScrollArea):
             widget_rect = QRect(widget_rect, qsize)
             if visible_rect.intersects(widget_rect):
                 thumbs.append(thumb)
-                thumb.data.qimages = None
 
         if thumbs:
             self.start_load_images_task(thumbs)
