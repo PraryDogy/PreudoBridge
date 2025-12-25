@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QFrame, QLabel, QVBoxLayout
 
 from cfg import Dynamic, Static
 from system.items import DataItem, MainWinItem
-from system.multiprocess import Tasker, Tasks
+from system.multiprocess import Tasker, FinderItemsLoader
 from system.tasks import FinderItemsLoader, UThreadPool
 
 from .grid import Grid, NoItemsLabel, Thumb
@@ -109,7 +109,7 @@ class GridStandart(Grid):
                 tasker.close()
 
         tasker = Tasker(
-            target=Tasks.load_finder_items,
+            target=FinderItemsLoader.load_finder_items,
             args=(self.main_win_item, self.sort_item)
         )
         tasker.start()

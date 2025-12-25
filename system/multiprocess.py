@@ -33,10 +33,9 @@ class Tasker:
             self.proc.join()
 
 
-class Tasks:
-
+class FinderItemsLoader:
     @staticmethod
-    def load_finder_items(main_win_item: MainWinItem, sort_item: SortItem, out_q: Queue):
+    def start(main_win_item: MainWinItem, sort_item: SortItem, out_q: Queue):
         items = []
         hidden_syms = () if JsonData.show_hidden else Static.hidden_symbols
 
