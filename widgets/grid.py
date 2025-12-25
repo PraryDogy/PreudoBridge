@@ -456,12 +456,16 @@ class Grid(UScrollArea):
 
             # 1. забираем все сообщения
             while not q.empty():
-                result = q.get()
-                if result is None:
-                    continue
-                if isinstance(result, DataItem):
-                    update_thumb(result)
-                else:
+                result: DataItem = q.get()
+                # print(proc_worker, type(result.arrays))
+                # continue
+                # if isinstance(result, DataItem):
+                #     update_thumb(result)
+                # else:
+                #     data_item = result["DataItem"]
+                #     set_loading(data_item)
+
+                if isinstance(result, dict):
                     data_item = result["DataItem"]
                     set_loading(data_item)
 

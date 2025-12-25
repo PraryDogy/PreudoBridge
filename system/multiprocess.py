@@ -81,12 +81,6 @@ class FinderItemsLoader:
 
 
 class DbItemsLoader:
-    """
-    Короче тебе надо на лету во время циклов обновлять очередь Queue
-    И в гуишке написать метод, который будет принимать очередь
-    и раскидывать че делать: устанавливать ли рейтинг или устанавливать картинку
-    """
-
     @staticmethod
     def start(data_items: list[DataItem], q: Queue):
         """
