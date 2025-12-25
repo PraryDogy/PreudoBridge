@@ -497,38 +497,6 @@ class SearchTask(URunnable):
         QTest.qSleep(SearchTask.new_wid_sleep_ms)
 
 
-class ReadImg(URunnable):
-
-    class Sigs(QObject):
-        finished_ = pyqtSignal(tuple)
-
-    cache_limit = 15
-    cached_images: dict[str, QImage] = {}
-
-    def __init__(self, src: str, desaturate: bool = True):
-        super().__init__()
-        self.desaturate = desaturate
-        self.sigs = ReadImg.Sigs()
-        self.src: str = src
-
-    def task(self):
-        if self.src not in self.cached_images:
-            img_array = ReadImage.read_image(self.src)
-            if self.desaturate:
-                img_array = Utils.desaturate_image(img_array, 0.2)
-            if img_array is None:
-                qimage = None
-            else:
-                qimage = Utils.qimage_from_array(img_array)
-                self.cached_images[self.src] = qimage
-        else:
-            qimage = self.cached_images.get(self.src)
-        if len(self.cached_images) > self.cache_limit:
-            self.cached_images.pop(list(self.cached_images)[0])
-        image_data = (self.src, qimage)
-        self.sigs.finished_.emit(image_data)
-
-
 class FileRemover(URunnable):
 
     class Sigs(QObject):
@@ -1160,15 +1128,8 @@ class OnStartTask(URunnable):
         Dynamic.image_apps = apps
 
     def set_Macintosh_HD(self):
-        print("set_Macintosh_HD on start disabled")
-        Dynamic.sys_vol = "/Volumes/Macintosh HD"
-        return
-        app_support = os.path.expanduser('~/Library/Application Support')
-        volumes = "/Volumes"
-        for i in os.scandir(volumes):
-            if not os.path.ismount(i.path):
-                if os.path.exists(i.path + app_support):
-                    Dynamic.sys_vol = i.path
+        volumes = [i.path for i in os.scandir("/Volumes")]
+        Dynamic.sys_vol = volumes[0]
 
     def remove_old_files(self):
         files = (
