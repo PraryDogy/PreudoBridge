@@ -124,7 +124,6 @@ class GridStandart(Grid):
                 # Все виджеты добавлены
                 self.data_items = None
                 self._thumb_index = 0
-                self.show()
                 self.create_thumbs_fin()
                 return
 
@@ -180,7 +179,6 @@ class GridStandart(Grid):
             self.filter_thumbs()
         self.rearrange_thumbs()
         self.load_finished.emit()
-        QTimer.singleShot(10, self.grid_wid.show)
         QTimer.singleShot(100, self.load_visible_thumbs_images)
 
     def resizeEvent(self, a0):
