@@ -106,7 +106,7 @@ class GridStandart(Grid):
 
             if not tasker.proc.is_alive() and q.empty():
                 timer.stop()
-                tasker.queue.close()
+                tasker.close()
 
         tasker = Tasker(
             target=Tasks.load_finder_items,
