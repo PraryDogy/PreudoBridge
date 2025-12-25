@@ -16,3 +16,5 @@ pip-autoremove psd-tools -y
 
 если возникает ошибка ModuleNotFoundError imp
 обнови pyobjc и py2app
+
+ресайз иконок сейчас плохой в мультитреде, иконки нечеткие
