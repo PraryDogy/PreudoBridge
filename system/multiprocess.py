@@ -23,6 +23,14 @@ class Tasker:
     def get_queue(self):
         return self.queue
 
+    def close(self):
+        if self.queue:
+            self.queue.close()
+            self.queue.join_thread()
+
+        if self.proc.is_alive():
+            self.proc.join()
+
 
 class Tasks:
 

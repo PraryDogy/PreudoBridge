@@ -93,8 +93,8 @@ class GridStandart(Grid):
             self.timeout_timer.start(1000)
 
     def start_load_finder_items(self):
-        def on_items_loaded(items: dict):
-            print(items)
+        def on_items_loaded(result: dict):
+            self.fin_load_finder_items(result)
 
         def poll_task(tasker: Tasker, timer: QTimer):
             q = tasker.get_queue()
@@ -106,7 +106,7 @@ class GridStandart(Grid):
 
             if not tasker.proc.is_alive() and q.empty():
                 timer.stop()
-                tasker.proc.join()
+                tasker.queue.close()
 
         tasker = Tasker(
             target=Tasks.load_finder_items,

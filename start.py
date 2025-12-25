@@ -110,5 +110,6 @@ class App(QApplication):
     def on_exit(self):
         JsonData.write_json_data()
 
-app = App(argv=sys.argv)
-app.exec()
+if __name__ == "__main__":
+    app = App(argv=sys.argv)
+    app.exec()
