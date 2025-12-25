@@ -333,7 +333,7 @@ class Grid(UScrollArea):
         self.url_to_wid: dict[str, Thumb] = {}
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.selected_thumbs: list[Thumb] = []
-        self.load_images_tasks: list[ProcessWorker] = []
+        self.tasks: list[tuple[QTimer, ProcessWorker]] = []
         self.removed_urls: list[Thumb] = []
         self.wid_under_mouse: Thumb = None
         self.copy_files_icon: QImage = self.set_files_icon()
@@ -398,11 +398,12 @@ class Grid(UScrollArea):
 
     def load_visible_thumbs_images(self):
 
-        if len(self.load_images_tasks) > 0:
-            for task in self.load_images_tasks:
-                task.force_stop()
-            QTimer.singleShot(300, self.load_visible_thumbs_images)
-            return
+        # if len(self.tasks) > 0:
+        #     for timer, task in self.tasks:
+        #         timer.stop()
+        #         task.force_stop()
+        #     QTimer.singleShot(300, self.load_visible_thumbs_images)
+        #     return
         
         thumbs: list[Thumb] = []
         self.grid_wid.layout().activate() 
@@ -425,10 +426,11 @@ class Grid(UScrollArea):
         Изображения загружаются из базы данных или из директории, если в БД нет.
         """
 
-        def update_thumb(thumb: Thumb):
+        def update_thumb(data_item: DataItem):
             try:
+                thumb = self.url_to_wid[data_item.src]
                 qimages = {}
-                for k, v in thumb.data.arrays.items():
+                for k, v in data_item.arrays.items():
                     qimage = Utils.qimage_from_array(v)
                     qimages[k] = qimage
                 thumb.data.qimages = qimages
@@ -438,8 +440,9 @@ class Grid(UScrollArea):
                 thumb.set_blue_text()
             except RuntimeError as e:
                 print("grid > set_thumb_image runtime err")
-                for i in self.load_images_tasks:
-                    i.force_stop()
+                for timer, task in self.tasks:
+                    timer.stop()
+                    task.force_stop()
 
         def set_loading(data_item: DataItem):
             try:
@@ -448,9 +451,9 @@ class Grid(UScrollArea):
                 thumb.set_transparent_frame(0.5)
             except RuntimeError:
                 print("grid > set_loading runtime err")
-                for i in self.load_images_tasks:
-                    for i in self.load_images_tasks:
-                        i.force_stop()
+                for timer, task in self.tasks:
+                    timer.stop()
+                    task.force_stop()
 
         def poll_task(proc_worker: ProcessWorker, proc_timer: QTimer):
             q = proc_worker.get_queue()
@@ -462,32 +465,31 @@ class Grid(UScrollArea):
                 if isinstance(result, dict):
                     src = result["src"]
                     arrays = result["arrays"]
-                    thumb = self.url_to_wid[src]
-                    thumb.data.arrays = arrays
-                    update_thumb(thumb)
+                    data_item = self.url_to_wid[src].data
+                    data_item.arrays = arrays
+                    if data_item.arrays is None:
+                        set_loading(data_item)
+                    else:
+                        update_thumb(data_item)
 
             if not proc_worker.proc.is_alive() and q.empty():
-                self.load_images_tasks.remove(proc_worker)
                 proc_timer.stop()
-                proc_worker.close()
+                proc_worker.force_stop()
+                self.tasks.remove((proc_timer, proc_worker))
                 proc_worker = None
 
         if not thumbs:
             return
 
         proc_worker = ProcessWorker(
-        target=DbItemsLoader.start,
-        args=(
-            [i.data for i in thumbs], 
+            target=DbItemsLoader.start,
+            args=([i.data for i in thumbs], )
         )
-            
-            )
-        self.load_images_tasks.append(proc_worker)
-        proc_worker.start()
         proc_timer = QTimer(self)
-        proc_timer.timeout.connect(
-            lambda: poll_task(proc_worker, proc_timer)
-        )
+
+        self.tasks.append((proc_timer, proc_worker))
+        proc_worker.start()
+        proc_timer.timeout.connect(lambda: poll_task(proc_worker, proc_timer))
         proc_timer.start(500)
 
     def reload_rubber(self):
@@ -1306,8 +1308,9 @@ class Grid(UScrollArea):
 
     def deleteLater(self):
         self.dirs_wacher.stop()
-        for i in self.load_images_tasks:
-            i.force_stop()
+        for timer, task in self.tasks:
+            timer.stop()
+            task.close()
         urls = [i.data.src for i in self.selected_thumbs]
         self.main_win_item.set_urls_to_select(urls)
         for i in self.cell_to_wid.values():
@@ -1317,8 +1320,9 @@ class Grid(UScrollArea):
     
     def closeEvent(self, a0):
         self.dirs_wacher.stop()
-        for i in self.load_images_tasks:
-            i.force_stop()
+        for timer, task in self.tasks:
+            timer.stop()
+            task.close()
         urls = [i.src for i in self.selected_thumbs]
         self.main_win_item.set_urls_to_select(urls)
         for i in self.cell_to_wid.values():

@@ -26,30 +26,29 @@ class ProcessWorker:
         # Запускаем процесс
         self.proc.start()
 
-    def force_stop(self):
-        # Принудительно останавливаем процесс, если он ещё жив
-        if self.proc.is_alive():
-            self.proc.terminate()  # посылаем сигнал terminate
-            self.proc.join()       # ждём завершения процесса
-
-        # Закрываем очередь и дожидаемся завершения её внутреннего потока
-        if self.queue:
-            self.queue.close()
-            self.queue.join_thread()
-
     def get_queue(self):
         # Возвращает очередь для чтения данных из процесса
         return self.queue
 
+    def force_stop(self):
+        if self.proc.is_alive():
+            self.proc.terminate()
+            self.proc.join()
+        # очередь закрываем только один раз
+        self._close_queue()
+
     def close(self):
-        # Корректно закрываем очередь
+        self._close_queue()
+        if self.proc and not self.proc.is_alive():
+            self.proc.join()
+
+    def _close_queue(self):
+        if hasattr(self, "_queue_closed"):
+            return
         if self.queue:
             self.queue.close()
             self.queue.join_thread()
-
-        # Если процесс уже завершён, выполняем join для очистки ресурсов
-        if self.proc and not self.proc.is_alive():
-            self.proc.join()
+        self._queue_closed = True
 
 
 class FinderItemsLoader:
@@ -180,21 +179,26 @@ class DbItemsLoader:
     def execute_new_images(data_items: list[DataItem], q: Queue):
         for i in data_items:
 
-            "ПОСЫЛАЕМ СИГНАЛ, ЧТОБЫ THUMB В СЕТКЕ СТАЛ ПОЛУПРОЗРАЧНЫМ"
-            "например обработчик будет считывать флаг set_loading"
-            q.put({"DataItem": i})
+            data = {
+                "src": i.src,
+                "arrays": None
+            }
+            q.put(data)
 
             img_array = ReadImage.read_image(i.src)
             img_array = SharedUtils.fit_image(img_array, Static.max_thumb_size)
-            i.arrays = {
+            arrays = {
                 sz: SharedUtils.fit_image(img_array, sz)
                 for sz in Static.image_sizes
             }
-            i.arrays.update(
+            arrays.update(
                 {"src": img_array}
             )
-            Utils.write_thumb(i.thumb_path, img_array)
-            q.put(i)
+            data = {
+                "src": i.src,
+                "arrays": arrays
+            }
+            q.put(data)
 
     @staticmethod
     def get_item_rating(data_item: DataItem, conn: Conn) -> bool:
