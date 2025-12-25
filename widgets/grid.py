@@ -440,8 +440,18 @@ class Grid(UScrollArea):
                     qimage = Utils.qimage_from_array(v)
                     qimages[k] = qimage
                 thumb.data.qimages = qimages
-                if thumb.data.qimages:
+
+                if thumb.data.qimages["src"] is None:
+                    thumb.data.qimages = {
+                        i: QImage()
+                        for i in Static.image_sizes
+                    }
+                    thumb.data.qimages.update(
+                        {"src": QImage()}
+                    )
+                else:
                     thumb.set_image()
+
                 thumb.set_transparent_frame(1.0)
                 thumb.set_blue_text()
             except RuntimeError as e:
