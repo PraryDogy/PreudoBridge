@@ -492,7 +492,10 @@ class MainWin(WinBase):
 
             if self.main_win_item.get_view_mode() == 0:
                 self.grid = GridStandart(self.main_win_item, False)
+                # скрываем новый виджет
+                self.grid.grid_wid.hide()
                 self.grid.load_finished.connect(self.grid.setFocus)
+                self.grid.load_finished.connect(self.grid.grid_wid.show)
                 classes = (TableView, Grid)
                 self.grid.sort_item = self.sort_item
                 self.disable_wids(False)
@@ -527,6 +530,7 @@ class MainWin(WinBase):
             self.setWindowTitle(t)
             end_load_grid()
 
+        # скрываем старый виджет
         self.grid.grid_wid.hide()
         self.grid_spacer.resize(0, self.height())
         self.grid_spacer.setFocus()

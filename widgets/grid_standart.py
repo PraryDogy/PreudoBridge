@@ -149,7 +149,6 @@ class GridStandart(Grid):
             # Планируем добавление следующего виджета
             QTimer.singleShot(0, add_one_thumb)
 
-        # self.grid_wid.hide()
         add_one_thumb()
 
     def create_thumbs_fin(self):
@@ -158,7 +157,6 @@ class GridStandart(Grid):
             self.select_single_thumb(wid)
             self.ensureWidgetVisible(wid)
 
-        # self.grid_wid.show()
         if self.main_win_item.get_go_to() in self.url_to_wid:
             wid = self.url_to_wid.get(self.main_win_item.get_go_to())
             self.main_win_item.clear_go_to()
