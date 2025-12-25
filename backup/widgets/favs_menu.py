@@ -1,0 +1,223 @@
+import os
+
+from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtGui import (QContextMenuEvent, QDropEvent, QIcon, QImage,
+                         QMouseEvent, QPixmap)
+from PyQt5.QtWidgets import QAction, QLabel, QListWidget, QListWidgetItem
+
+from cfg import JsonData, Static
+from system.appkit_icon import AppKitIcon
+from system.items import MainWinItem
+from system.utils import Utils
+
+from ._base_widgets import UMenu
+from .actions import ItemActions
+# в main_win
+from .rename_win import RenameWin
+
+
+class FavItem(QLabel):
+    remove_fav_item = pyqtSignal()
+    renamed = pyqtSignal(str)
+    path_fixed = pyqtSignal()
+    new_history_item = pyqtSignal(str)
+    load_st_grid = pyqtSignal()
+    open_in_new_win = pyqtSignal(str)
+    rename_text = "Переименовать"
+    item_height = 25
+
+    def __init__(self, name: str, src: str, main_win_item: MainWinItem):
+        super().__init__(text=name)
+        self.main_win_item = main_win_item
+        self.name = name
+        self.src = src
+        self.setFixedHeight(FavItem.item_height)
+        self.setContentsMargins(10, 0, 10, 0)
+
+    def rename_cmd(self):
+        self.win_rename = RenameWin(self.name)
+        self.win_rename.finished_.connect(self.rename_finished_cmd)
+        self.win_rename.center(self.window())
+        self.win_rename.show()
+
+    def rename_finished_cmd(self, text: str):
+        self.setText(text)
+        self.renamed.emit(text)
+        JsonData.write_json_data()
+
+    def view_fav(self):
+        self.new_history_item.emit(self.src)
+        self.main_win_item.main_dir = self.src
+        self.load_st_grid.emit()
+
+    def mouseReleaseEvent(self, ev: QMouseEvent | None) -> None:
+        if ev.modifiers() & Qt.KeyboardModifier.ControlModifier:
+            self.open_in_new_win.emit(self.src)
+        elif self.src != self.main_win_item.main_dir:
+            self.view_fav()
+        return super().mouseReleaseEvent(ev)
+
+    def contextMenuEvent(self, ev: QContextMenuEvent | None) -> None:
+        urls = [self.src]
+        names = [os.path.basename(i) for i in urls]
+        total = 1
+
+        menu_ = UMenu(parent=self)
+
+        view_ac = ItemActions.OpenSingle(menu_)
+        view_ac.triggered.connect(self.view_fav)
+        menu_.addAction(view_ac)
+
+        open_new_win = ItemActions.OpenInNewWindow(menu_)
+        open_new_win.triggered.connect(lambda: self.open_in_new_win.emit(self.src))
+        menu_.addAction(open_new_win)
+
+        menu_.addSeparator()
+
+        open_finder_action = ItemActions.RevealInFinder(menu_, urls)
+        menu_.addAction(open_finder_action)
+
+        copy_path_action = ItemActions.CopyPath(menu_, urls)
+        menu_.addAction(copy_path_action)
+
+        copy_name = ItemActions.CopyName(menu_, names)
+        menu_.addAction(copy_name)
+
+        menu_.addSeparator()
+
+        rename_action = QAction(FavItem.rename_text, menu_)
+        rename_action.triggered.connect(self.rename_cmd)
+        menu_.addAction(rename_action)
+
+        cmd_ = lambda: self.remove_fav_item.emit()
+        fav_action = ItemActions.FavRemove(menu_)
+        fav_action.triggered.connect(cmd_)
+        menu_.addAction(fav_action)
+
+        menu_.show_under_cursor()
+
+class FavsMenu(QListWidget):
+    LIST_ITEM = "list_item"
+    FAV_ITEM = "fav_item"
+    new_history_item = pyqtSignal(str)
+    load_st_grid = pyqtSignal()
+    open_in_new_win = pyqtSignal(str)
+    svg_size = 16
+
+    def __init__(self, main_win_item: MainWinItem):
+        super().__init__()
+        self.main_win_item = main_win_item
+        self.folder_icon: QIcon = None
+        self.horizontalScrollBar().setDisabled(True)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+
+        self.wids: dict[str, QListWidgetItem] = {}
+        self.setDragDropMode(QListWidget.DragDropMode.InternalMove)
+        self.setAcceptDrops(True)
+        self.create_folder_icon(lambda icon: self.set_folder_icon(icon))
+
+    def create_folder_icon(self, callback):
+
+        def fin(qimages: dict[int | str, QImage]):
+            qimage = qimages[Static.image_sizes[0]]
+            qimage = Utils.scaled(qimage, self.svg_size)
+            icon = QIcon(QPixmap.fromImage(qimage))
+            callback(icon)
+
+        appkit_icon = AppKitIcon(Static.app_dir)
+        appkit_icon.finished_.connect(fin)
+        appkit_icon.get_qimages()
+
+    def set_folder_icon(self, icon: QIcon):
+        # инициация ui только после получения иконки
+        self.folder_icon = icon
+        self.init_ui()
+
+    def init_ui(self):
+        self.clear()
+        self.wids.clear()
+
+        for src, name in JsonData.favs.items():
+            result = self.add_fav_item(name, src)
+            item: QListWidgetItem = result[self.LIST_ITEM]
+            self.wids[src] = item
+
+            if self.main_win_item.main_dir == src:
+                self.setCurrentItem(item)
+
+    def select_fav(self, src: str):
+        wid = self.wids.get(src, None)
+        if wid is None:
+            self.clearSelection()
+        else:
+            self.setCurrentItem(wid)
+
+    def add_fav(self, src: str):
+        if src not in JsonData.favs:
+            cmd_ = lambda name: self.on_finished_rename(src, name)
+            name = os.path.basename(src)
+            self.win_set_name = RenameWin(name)
+            self.win_set_name.finished_.connect(cmd_)
+            self.win_set_name.center(self.window())
+            self.win_set_name.show()
+
+    def on_finished_rename(self, src: str, name: str):
+        JsonData.favs[src] = name
+        self.add_fav_item(name, src)
+        JsonData.write_json_data()
+
+    def add_fav_item(self, name: str, src: str) -> dict:
+        fav_item = FavItem(name, src, self.main_win_item)
+        fav_item.new_history_item.connect(self.new_history_item)
+        fav_item.load_st_grid.connect(self.load_st_grid.emit)
+        fav_item.remove_fav_item.connect(lambda: self.del_fav(src))
+        fav_item.open_in_new_win.connect(lambda dir: self.open_in_new_win.emit(dir))
+        fav_item.renamed.connect(lambda name: self.update_name(src, name))
+        fav_item.path_fixed.connect(lambda: self.init_ui())
+
+        list_item = QListWidgetItem(parent=self)
+        list_item.setIcon(self.folder_icon)
+        list_item.setSizeHint(fav_item.sizeHint())
+
+        self.addItem(list_item)
+        self.setItemWidget(list_item, fav_item)
+
+        self.wids[src] = list_item
+
+        return {self.LIST_ITEM: list_item, self.FAV_ITEM: fav_item}
+
+    def update_name(self, src: str, new_name: str):
+        if src in JsonData.favs:
+            JsonData.favs[src] = new_name
+
+    def del_fav(self, src: str):
+        JsonData.favs.pop(src)
+        JsonData.write_json_data()
+        self.init_ui()
+
+    def dragEnterEvent(self, e):
+        e.acceptProposedAction()
+    
+    def dropEvent(self, a0: QDropEvent | None) -> None:
+
+        urls = a0.mimeData().urls()
+
+        if not urls:
+            super().dropEvent(a0)
+            new_order = {}
+
+            for i in range(self.count()):
+                item = self.item(i)
+                fav_widget: FavItem = self.itemWidget(item)
+                if isinstance(fav_widget, FavItem):
+                    new_order[fav_widget.src] = fav_widget.name
+
+            if new_order:
+                JsonData.favs = new_order
+
+        else:
+            url_ = urls[-1].toLocalFile()
+            url_ = url_.rstrip(os.sep)
+            
+            if url_ not in JsonData.favs and os.path.isdir(url_):
+                self.add_fav(src=url_)
