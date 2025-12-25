@@ -1,39 +1,47 @@
-from multiprocessing import Process, Queue
 import os
-from system.shared_utils import PathFinder
+from multiprocessing import Process, Queue
+
+from cfg import JsonData, Static
 from system.items import DataItem, MainWinItem, SortItem
-from cfg import Static, JsonData
+from system.shared_utils import PathFinder
 
 
 class ProcessWorker:
     def __init__(self, target: callable, args: tuple):
+        # Создаём очередь для передачи данных из процесса в GUI
         self.queue = Queue()
+        # Создаём процесс, который будет выполнять target(*args, queue)
         self.proc = Process(
             target=target,
             args=(*args, self.queue)
         )
 
     def start(self):
+        # Запускаем процесс
         self.proc.start()
 
     def force_stop(self):
+        # Принудительно останавливаем процесс, если он ещё жив
         if self.proc.is_alive():
-            self.proc.terminate()
-            self.proc.join()
+            self.proc.terminate()  # посылаем сигнал terminate
+            self.proc.join()       # ждём завершения процесса
 
-        # Очистить очередь
+        # Закрываем очередь и дожидаемся завершения её внутреннего потока
         if self.queue:
             self.queue.close()
             self.queue.join_thread()
 
     def get_queue(self):
+        # Возвращает очередь для чтения данных из процесса
         return self.queue
 
     def close(self):
+        # Корректно закрываем очередь
         if self.queue:
             self.queue.close()
             self.queue.join_thread()
 
+        # Если процесс уже завершён, выполняем join для очистки ресурсов
         if self.proc and not self.proc.is_alive():
             self.proc.join()
 
