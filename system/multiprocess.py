@@ -163,14 +163,18 @@ class DbItemsLoader:
     def execute_exist_images(data_items: list[DataItem], q: Queue):
         for i in data_items:
             img_array = Utils.read_thumb(i.thumb_path)
-            i.arrays = {
+            arrays = {
                 sz: SharedUtils.fit_image(img_array, sz)
                 for sz in Static.image_sizes
             }
-            i.arrays.update(
+            arrays.update(
                 {"src": img_array}
             )
-            q.put(i)
+            data = {
+                "src": i.src,
+                "arrays": arrays
+            }
+            q.put(data)
 
     @staticmethod
     def execute_new_images(data_items: list[DataItem], q: Queue):

@@ -414,7 +414,8 @@ class Grid(UScrollArea):
             qsize = QSize(thumb.width(), thumb.height())
             widget_rect = QRect(widget_rect, qsize)
             if visible_rect.intersects(widget_rect):
-                thumbs.append(thumb)
+                if not thumb.data.image_is_loaded:
+                    thumbs.append(thumb)
         if thumbs:
             self.load_thumbs_images(thumbs)
 
@@ -424,21 +425,21 @@ class Grid(UScrollArea):
         Изображения загружаются из базы данных или из директории, если в БД нет.
         """
 
-        def update_thumb(data_item: DataItem):
+        def update_thumb(thumb: Thumb):
             try:
                 qimages = {}
-                for k, v in data_item.arrays.items():
+                for k, v in thumb.data.arrays.items():
                     qimage = Utils.qimage_from_array(v)
                     qimages[k] = qimage
-                thumb = self.url_to_wid.get(data_item.src)
-                if data_item.qimages:
+                thumb.data.qimages = qimages
+                if thumb.data.qimages:
                     thumb.set_image()
                 thumb.set_transparent_frame(1.0)
                 thumb.set_blue_text()
             except RuntimeError as e:
                 print("grid > set_thumb_image runtime err")
                 for i in self.load_images_tasks:
-                    i.set_should_run(False)
+                    i.force_stop()
 
         def set_loading(data_item: DataItem):
             try:
@@ -456,18 +457,14 @@ class Grid(UScrollArea):
 
             # 1. забираем все сообщения
             while not q.empty():
-                result: DataItem = q.get()
-                # print(proc_worker, type(result.arrays))
-                # continue
-                # if isinstance(result, DataItem):
-                #     update_thumb(result)
-                # else:
-                #     data_item = result["DataItem"]
-                #     set_loading(data_item)
+                result: dict = q.get()
 
                 if isinstance(result, dict):
-                    data_item = result["DataItem"]
-                    set_loading(data_item)
+                    src = result["src"]
+                    arrays = result["arrays"]
+                    thumb = self.url_to_wid[src]
+                    thumb.data.arrays = arrays
+                    update_thumb(thumb)
 
             if not proc_worker.proc.is_alive() and q.empty():
                 self.load_images_tasks.remove(proc_worker)
