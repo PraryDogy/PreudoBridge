@@ -529,7 +529,6 @@ class MainWin(WinBase):
 
         self.grid_spacer.resize(0, self.height())
         self.grid_spacer.setFocus()
-        self.grid.hide()
         QTimer.singleShot(100, start_load_grid)
 
     def change_view_cmd(self):

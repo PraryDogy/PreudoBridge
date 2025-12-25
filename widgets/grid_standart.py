@@ -57,24 +57,8 @@ class GridStandart(Grid):
         self.load_vis_images_timer.setSingleShot(True)
         self.verticalScrollBar().valueChanged.connect(self.on_scroll)
 
-        self.loading_wid = LoadingWidget()
-        self.loading_timer = QTimer(self)
-        self.loading_timer.setSingleShot(True)
-        self.loading_timer.timeout.connect(self.show_loading_label)
-        self.loading_timer.start(500)
+        self.grid_wid.hide()
 
-    def show_loading_label(self):
-        vp = self.viewport()
-        self.loading_wid.setParent(vp)
-
-        center = vp.rect().center()
-        self.loading_wid.move(center - self.loading_wid.rect().center())
-        self.loading_wid.show()
-
-    def stop_loading_label(self):
-        self.loading_timer.stop()
-        self.loading_wid.deleteLater()
-    
     def on_scroll(self):
         self.load_vis_images_timer.stop()
         self.load_vis_images_timer.start(1000)
@@ -114,7 +98,6 @@ class GridStandart(Grid):
         if fixed_path:
             self.main_win_item.main_dir = fixed_path
         else:
-            self.stop_loading_label()
             self.create_no_items_label(NoItemsLabel.no_conn)
             self.mouseMoveEvent = lambda args: None
             self.load_finished.emit()
@@ -122,14 +105,12 @@ class GridStandart(Grid):
 
         Thumb.calc_size()
         if len(data_items) == 0:
-            self.stop_loading_label()
             self.create_no_items_label(NoItemsLabel.no_files)
             self.load_finished.emit()
             return
 
         self.path_bar_update.emit(self.main_win_item.main_dir)
         self.total_count_update.emit((len(self.selected_thumbs), len(data_items)))
-        self.load_finished.emit()
         self.create_thumbs(data_items)
 
     def create_thumbs(self, data_items: list[DataItem]):
@@ -170,7 +151,7 @@ class GridStandart(Grid):
             # Планируем добавление следующего виджета
             QTimer.singleShot(0, add_one_thumb)
 
-        self.grid_wid.hide()
+        # self.grid_wid.hide()
         add_one_thumb()
 
     def create_thumbs_fin(self):
@@ -179,8 +160,7 @@ class GridStandart(Grid):
             self.select_single_thumb(wid)
             self.ensureWidgetVisible(wid)
 
-        self.stop_loading_label()
-        self.grid_wid.show()
+        # self.grid_wid.show()
         if self.main_win_item.get_go_to() in self.url_to_wid:
             wid = self.url_to_wid.get(self.main_win_item.get_go_to())
             self.main_win_item.clear_go_to()
@@ -200,6 +180,8 @@ class GridStandart(Grid):
         if Dynamic.rating_filter > 0 or Dynamic.word_filters:
             self.filter_thumbs()
         self.rearrange_thumbs()
+        self.load_finished.emit()
+        self.grid_wid.show()
         QTimer.singleShot(100, self.load_visible_thumbs_images)
 
     def resizeEvent(self, a0):

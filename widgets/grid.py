@@ -398,6 +398,9 @@ class Grid(UScrollArea):
 
     def load_visible_thumbs_images(self):
 
+        if not self.grid_wid.isVisible():
+            return
+
         if len(self.tasks) > 1:
             for timer, task in self.tasks:
                 timer.stop()
@@ -417,6 +420,7 @@ class Grid(UScrollArea):
             widget_rect = QRect(widget_rect, qsize)
             if visible_rect.intersects(widget_rect):
                 thumbs.append(thumb)
+
         if thumbs:
             self.start_load_images_task(thumbs)
 
