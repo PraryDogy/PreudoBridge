@@ -374,14 +374,14 @@ class Grid(UScrollArea):
             self.del_thumb(e.src_path)
         elif e.event_type == "created":
             new_thumb = self.new_thumb(e.src_path)
-            self.load_thumbs_images([new_thumb, ])
+            self.start_load_images_task([new_thumb, ])
             if e.src_path in self.removed_urls:
                 self.select_multiple_thumb(new_thumb)
                 self.removed_urls.remove(e.src_path)
         elif e.event_type == "moved":
             self.del_thumb(e.src_path)
             new_thumb = self.new_thumb(e.dest_path)
-            self.load_thumbs_images([new_thumb, ])
+            self.start_load_images_task([new_thumb, ])
             if is_selected:
                 self.select_multiple_thumb(new_thumb)
         elif e.event_type == "modified":
@@ -398,12 +398,12 @@ class Grid(UScrollArea):
 
     def load_visible_thumbs_images(self):
 
-        # if len(self.tasks) > 0:
-        #     for timer, task in self.tasks:
-        #         timer.stop()
-        #         task.force_stop()
-        #     QTimer.singleShot(300, self.load_visible_thumbs_images)
-        #     return
+        if len(self.tasks) > 1:
+            for timer, task in self.tasks:
+                timer.stop()
+                task.force_stop()
+            QTimer.singleShot(300, self.load_visible_thumbs_images)
+            return
         
         thumbs: list[Thumb] = []
         self.grid_wid.layout().activate() 
@@ -415,12 +415,11 @@ class Grid(UScrollArea):
             qsize = QSize(thumb.width(), thumb.height())
             widget_rect = QRect(widget_rect, qsize)
             if visible_rect.intersects(widget_rect):
-                if not thumb.data.image_is_loaded:
-                    thumbs.append(thumb)
+                thumbs.append(thumb)
         if thumbs:
-            self.load_thumbs_images(thumbs)
+            self.start_load_images_task(thumbs)
 
-    def load_thumbs_images(self, thumbs: list[Thumb]):
+    def start_load_images_task(self, thumbs: list[Thumb]):
         """
         Запускает фоновую задачу загрузки изображений для списка Thumb.
         Изображения загружаются из базы данных или из директории, если в БД нет.
@@ -478,8 +477,12 @@ class Grid(UScrollArea):
                 self.tasks.remove((proc_timer, proc_worker))
                 proc_worker = None
 
+            print("end task")
+
         if not thumbs:
             return
+        
+        print(len(thumbs))
 
         proc_worker = ProcessWorker(
             target=DbItemsLoader.start,
