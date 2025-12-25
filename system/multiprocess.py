@@ -55,13 +55,16 @@ class ProcessWorker:
 
 class FinderItemsLoader:
     @staticmethod
-    def start(main_win_item: MainWinItem, sort_item: SortItem, out_q: Queue):
+    def start(main_win_item: MainWinItem, sort_item: SortItem, q: Queue):
+        """
+        q передается автоматически из ProcessWorker
+        """
         items = []
         hidden_syms = () if JsonData.show_hidden else Static.hidden_symbols
 
         fixed_path = PathFinder(main_win_item.main_dir).get_result()
         if fixed_path is None:
-            out_q.put({"path": None, "data_items": []})
+            q.put({"path": None, "data_items": []})
             return
 
         for entry in os.scandir(fixed_path):
@@ -75,7 +78,7 @@ class FinderItemsLoader:
             items.append(item)
 
         items = DataItem.sort_(items, sort_item)
-        out_q.put({"path": fixed_path, "data_items": items})
+        q.put({"path": fixed_path, "data_items": items})
 
 
 class DbItemsLoader:
@@ -87,6 +90,11 @@ class DbItemsLoader:
 
     @staticmethod
     def start(data_items: list[DataItem], q: Queue):
+        """
+        q передается автоматически из ProcessWorker
+        Отправляет в Queue DataItem или {"DataItem": DataItem}
+        """
+
         data_items.sort(key=lambda x: x.size)
 
         conn = Dbase.get_conn(Dbase.engine)
@@ -128,7 +136,7 @@ class DbItemsLoader:
                         exist_ratings.append(data_item)
 
         DbItemsLoader.execute_ratings(exist_ratings)
-        DbItemsLoader.execute_svg_files(svg_files)
+        # DbItemsLoader.execute_svg_files(svg_files)
         DbItemsLoader.execute_exist_images(exist_images)
         DbItemsLoader.execute_new_images(new_images)
         DbItemsLoader.execute_stmt_list(stmt_list)
@@ -176,7 +184,7 @@ class DbItemsLoader:
 
             "ПОСЫЛАЕМ СИГНАЛ, ЧТОБЫ THUMB В СЕТКЕ СТАЛ ПОЛУПРОЗРАЧНЫМ"
             "например обработчик будет считывать флаг set_loading"
-            q.put({"set_loading": i})
+            q.put({"DataItem": i})
 
             img_array = ReadImage.read_image(i.src)
             img_array = SharedUtils.fit_image(img_array, Static.max_thumb_size)

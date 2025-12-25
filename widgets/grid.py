@@ -13,8 +13,9 @@ from watchdog.events import FileSystemEvent
 from cfg import Dynamic, JsonData, Static
 from system.appkit_icon import AppKitIcon
 from system.items import CopyItem, DataItem, MainWinItem, SortItem
+from system.multiprocess import DbItemsLoader, ProcessWorker
 from system.shared_utils import SharedUtils
-from system.tasks import DbItemsLoader, DirWatcher, RatingTask, UThreadPool
+from system.tasks import DirWatcher, RatingTask, UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import UMenu, UScrollArea
@@ -331,11 +332,10 @@ class Grid(UScrollArea):
         self.url_to_wid: dict[str, Thumb] = {}
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.selected_thumbs: list[Thumb] = []
-        self.load_images_tasks: list[DbItemsLoader] = []
+        self.load_images_tasks: list[ProcessWorker] = []
         self.removed_urls: list[Thumb] = []
         self.wid_under_mouse: Thumb = None
         self.copy_files_icon: QImage = self.set_files_icon()
-        self.db_items_loader = DbItemsLoader(self.main_win_item, [])
 
         self.grid_wid = QWidget()
         self.setWidget(self.grid_wid)
@@ -422,15 +422,13 @@ class Grid(UScrollArea):
         Запускает фоновую задачу загрузки изображений для списка Thumb.
         Изображения загружаются из базы данных или из директории, если в БД нет.
         """
-        def finalize(task: DbItemsLoader):
-            if task in self.load_images_tasks:
-                try:
-                    self.load_images_tasks.remove(task)
-                except ValueError as e:
-                    print("load image task remove error", e)
 
         def update_thumb(data_item: DataItem):
             try:
+                qimages = {}
+                for k, v in data_item.arrays.items():
+                    qimage = Utils.qimage_from_array(v)
+                    qimages[k] = qimage
                 thumb = self.url_to_wid.get(data_item.src)
                 if data_item.qimages:
                     thumb.set_image()
@@ -449,16 +447,43 @@ class Grid(UScrollArea):
             except RuntimeError:
                 print("grid > set_loading runtime err")
                 for i in self.load_images_tasks:
-                    i.set_should_run(False)
+                    for i in self.load_images_tasks:
+                        i.force_stop()
 
-        if thumbs:
-            self.db_items_loader = DbItemsLoader(self.main_win_item, [i.data for i in thumbs])
-            self.db_items_loader.sigs.update_thumb.connect(lambda data_item: update_thumb(data_item))
-            self.db_items_loader.sigs.set_loading.connect(lambda data_item: set_loading(data_item))
-            self.db_items_loader.sigs.finished_.connect(lambda: finalize(self.db_items_loader))
-            self.load_images_tasks.append(self.db_items_loader)
-            UThreadPool.start(self.db_items_loader)
-    
+        def poll_task(proc_worker: ProcessWorker, proc_timer: QTimer):
+            q = proc_worker.get_queue()
+
+            # 1. забираем все сообщения
+            while not q.empty():
+                result = q.get()
+                if isinstance(result, DataItem):
+                    update_thumb(result)
+                else:
+                    data_item = result["DataItem"]
+                    set_loading(data_item)
+
+            if not proc_worker.proc.is_alive() and q.empty():
+                proc_timer.stop()
+                proc_worker.close()
+                proc_worker = None
+                self.load_images_tasks.remove(proc_worker)
+
+        if not thumbs:
+            return
+
+        data_items = [i.data for i in thumbs]
+        proc_worker = ProcessWorker(
+        target=DbItemsLoader.start,
+        args=(data_items)
+            
+            )
+        proc_worker.start()
+        proc_timer = QTimer(self)
+        proc_timer.timeout.connect(
+            lambda: poll_task(proc_worker, proc_timer)
+        )
+        proc_timer.start(500)
+
     def reload_rubber(self):
         self.rubberBand.deleteLater()
         self.rubberBand = QRubberBand(QRubberBand.Rectangle, self.grid_wid)
@@ -1276,8 +1301,7 @@ class Grid(UScrollArea):
     def deleteLater(self):
         self.dirs_wacher.stop()
         for i in self.load_images_tasks:
-            i.set_should_run(False)
-        self.db_items_loader.set_should_run(False)
+            i.force_stop(False)
         urls = [i.data.src for i in self.selected_thumbs]
         self.main_win_item.set_urls_to_select(urls)
         for i in self.cell_to_wid.values():
@@ -1288,8 +1312,7 @@ class Grid(UScrollArea):
     def closeEvent(self, a0):
         self.dirs_wacher.stop()
         for i in self.load_images_tasks:
-            i.set_should_run(False)
-        self.db_items_loader.set_should_run(False)
+            i.force_stop()
         urls = [i.src for i in self.selected_thumbs]
         self.main_win_item.set_urls_to_select(urls)
         for i in self.cell_to_wid.values():
