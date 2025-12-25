@@ -19,6 +19,7 @@ class Tasker:
     def stop(self):
         if self.proc.is_alive():
             self.proc.terminate()
+            self.proc.join()
 
     def get_queue(self):
         return self.queue
@@ -28,7 +29,7 @@ class Tasker:
             self.queue.close()
             self.queue.join_thread()
 
-        if self.proc.is_alive():
+        if self.proc and not self.proc.is_alive():
             self.proc.join()
 
 
