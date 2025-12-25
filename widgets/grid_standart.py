@@ -6,10 +6,11 @@ from PyQt5.QtWidgets import QFrame, QLabel, QVBoxLayout
 
 from cfg import Dynamic, Static
 from system.items import DataItem, MainWinItem
+from system.multiprocess import Tasker, Tasks
 from system.tasks import FinderItemsLoader, UThreadPool
-from system.utils import Utils
-from .warn_win import WinWarn
+
 from .grid import Grid, NoItemsLabel, Thumb
+from .warn_win import WinWarn
 
 
 class LoadingWidget(QFrame):
@@ -92,12 +93,30 @@ class GridStandart(Grid):
             self.timeout_timer.start(1000)
 
     def start_load_finder_items(self):
-        self.finder_items_task = FinderItemsLoader(self.main_win_item, self.sort_item)
-        self.finder_items_task.sigs.finished_.connect(
-            lambda result: self.fin_load_finder_items(result)
+        def on_items_loaded(items: dict):
+            print(items)
+
+        def poll_task(tasker: Tasker, timer: QTimer):
+            q = tasker.get_queue()
+
+            # 1. забираем все сообщения
+            while not q.empty():
+                result = q.get()
+                on_items_loaded(result)
+
+            if not tasker.proc.is_alive() and q.empty():
+                timer.stop()
+                tasker.proc.join()
+
+        tasker = Tasker(
+            target=Tasks.load_finder_items,
+            args=(self.main_win_item, self.sort_item)
         )
-        UThreadPool.start(self.finder_items_task)
-        self.timeout_timer.start(1000)
+        tasker.start()
+        
+        timer = QTimer(self)
+        timer.timeout.connect(lambda: poll_task(tasker, timer))
+        timer.start(500)
 
     def fin_load_finder_items(self, result):
         self.timeout_timer.stop()

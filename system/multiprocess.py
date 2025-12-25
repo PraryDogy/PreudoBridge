@@ -6,7 +6,7 @@ from cfg import Static, JsonData
 
 
 class Tasker:
-    def __init__(self, target, args):
+    def __init__(self, target: callable, args: tuple):
         self.queue = Queue()
         self.proc = Process(
             target=target,
