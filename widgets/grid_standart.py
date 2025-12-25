@@ -51,6 +51,8 @@ class GridStandart(Grid):
         """
         super().__init__(main_win_item, is_grid_search)
 
+        self.tasker = None
+
         self.load_vis_images_timer = QTimer(self)
         self.load_vis_images_timer.timeout.connect(self.load_visible_thumbs_images)
         self.load_vis_images_timer.setSingleShot(True)
@@ -61,11 +63,6 @@ class GridStandart(Grid):
         self.loading_timer.setSingleShot(True)
         self.loading_timer.timeout.connect(self.show_loading_label)
         self.loading_timer.start(500)
-
-        self.timeout_timer = QTimer(self)
-        self.timeout_timer.setSingleShot(True)
-        self.timeout_timer.timeout.connect(self.check_load_finder_time)
-        self.finder_start_time = time.time()
 
     def show_loading_label(self):
         vp = self.viewport()
@@ -83,16 +80,8 @@ class GridStandart(Grid):
         self.load_vis_images_timer.stop()
         self.load_vis_images_timer.start(1000)
 
-    def check_load_finder_time(self, limit: int = 60 * 3):
-        current = time.time()
-        if current - self.finder_start_time > limit:
-            self.timeout_win = TimeoutWin()
-            self.timeout_win.center(self.window())
-            self.timeout_win.show()
-        else:
-            self.timeout_timer.start(1000)
-
     def start_load_finder_items(self):
+
         def on_items_loaded(result: dict):
             self.fin_load_finder_items(result)
 
@@ -108,18 +97,17 @@ class GridStandart(Grid):
                 timer.stop()
                 tasker.close()
 
-        tasker = ProcessWorker(
+        self.process_worker = ProcessWorker(
             target=FinderItemsLoader.load_finder_items,
             args=(self.main_win_item, self.sort_item)
         )
-        tasker.start()
+        self.process_worker.start()
         
         timer = QTimer(self)
-        timer.timeout.connect(lambda: poll_task(tasker, timer))
+        timer.timeout.connect(lambda: poll_task(self.process_worker, timer))
         timer.start(500)
 
     def fin_load_finder_items(self, result):
-        self.timeout_timer.stop()
         fixed_path = result["path"]
         data_items = result["data_items"]
 
@@ -218,7 +206,11 @@ class GridStandart(Grid):
         return super().resizeEvent(a0)
     
     def deleteLater(self):
+        if self.process_worker is not None:
+            self.process_worker.force_stop()
         return super().deleteLater()
     
     def closeEvent(self, a0):
+        if self.process_worker is not None:
+            self.process_worker.force_stop()
         return super().closeEvent(a0)

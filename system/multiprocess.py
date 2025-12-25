@@ -16,10 +16,15 @@ class ProcessWorker:
     def start(self):
         self.proc.start()
 
-    def stop(self):
+    def force_stop(self):
         if self.proc.is_alive():
             self.proc.terminate()
             self.proc.join()
+
+        # Очистить очередь
+        if self.queue:
+            self.queue.close()
+            self.queue.join_thread()
 
     def get_queue(self):
         return self.queue
