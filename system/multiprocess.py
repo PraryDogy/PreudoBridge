@@ -213,3 +213,18 @@ class DbItemsLoader:
             stmt = stmt.where(Clmns.partial_hash==data_item.partial_hash)
         res = Dbase.execute(conn, stmt).scalar()
         return res
+    
+
+class ReadImg:
+
+    cache_limit = 15
+
+    @staticmethod
+    def start(src: str, q: Queue, desaturate: bool = True):
+        """
+        nd array or none
+        """
+        img_array = ReadImage.read_image(src)
+        if desaturate:
+            img_array = Utils.desaturate_image(img_array, 0.2)
+        q.put(img_array)
