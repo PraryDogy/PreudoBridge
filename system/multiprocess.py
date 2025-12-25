@@ -144,7 +144,7 @@ class DbItemsLoader:
         for i in data_items:
             img_array = "загружаем свг как аррай"
             i.arrays = {
-                sz: {img_array, "МЕТОД ДЛЯ РЕСАЙЗА"}
+                sz: {img_array, SharedUtils.fit_image(img_array, sz)}
                 for sz in Static.image_sizes
             }
             i.arrays.update(
@@ -162,7 +162,7 @@ class DbItemsLoader:
         for i in data_items:
             img_array = Utils.read_thumb(i.thumb_path)
             i.arrays = {
-                sz: {img_array, "МЕТОД ДЛЯ РЕСАЙЗА"}
+                sz: {img_array, SharedUtils.fit_image(img_array, sz)}
                 for sz in Static.image_sizes
             }
             i.arrays.update(
@@ -181,7 +181,7 @@ class DbItemsLoader:
             img_array = ReadImage.read_image(i.src)
             img_array = SharedUtils.fit_image(img_array, Static.max_thumb_size)
             i.arrays = {
-                sz: {img_array, "МЕТОД ДЛЯ РЕСАЙЗА"}
+                sz: {img_array, SharedUtils.fit_image(img_array, sz)}
                 for sz in Static.image_sizes
             }
             i.arrays.update(
