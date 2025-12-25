@@ -7,7 +7,6 @@ from PyQt5.QtWidgets import QFrame, QLabel, QVBoxLayout
 from cfg import Dynamic, Static
 from system.items import DataItem, MainWinItem
 from system.multiprocess import ProcessWorker, FinderItemsLoader
-from system.tasks import FinderItemsLoader, UThreadPool
 
 from .grid import Grid, NoItemsLabel, Thumb
 from .warn_win import WinWarn
@@ -98,7 +97,7 @@ class GridStandart(Grid):
                 tasker.close()
 
         self.process_worker = ProcessWorker(
-            target=FinderItemsLoader.load_finder_items,
+            target=FinderItemsLoader.start,
             args=(self.main_win_item, self.sort_item)
         )
         self.process_worker.start()
