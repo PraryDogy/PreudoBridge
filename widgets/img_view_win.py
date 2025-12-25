@@ -10,7 +10,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsPixmapItem,
 
 from cfg import Static
 from system.multiprocess import ProcessWorker, ReadImg
-from system.tasks import UThreadPool
+from system.utils import Utils
 
 from ._base_widgets import UMenu, USvgSqareWidget, WinBase
 from .actions import ItemActions
@@ -208,7 +208,7 @@ class NextImgBtn(SwitchImgBtn):
 
 
 class ImgViewWin(WinBase):
-    task_count_limit = 10
+    cached_images: dict[str, QImage] = {}
     move_to_wid = pyqtSignal(object)
     move_to_url = pyqtSignal(str)
     new_rating = pyqtSignal(tuple)
@@ -232,7 +232,6 @@ class ImgViewWin(WinBase):
         self.is_selection = is_selection
         self.url_to_wid: dict[str, Thumb] = url_to_wid
         self.urls: list = [i for i in self.url_to_wid]
-        self.task_count: int = 0
         self.current_path: str = start_url
         self.thumb: Thumb = self.url_to_wid.get(start_url)
         self.thumb.text_changed.connect(self.set_title)
@@ -240,6 +239,8 @@ class ImgViewWin(WinBase):
         self.mouse_move_timer = QTimer(self)
         self.mouse_move_timer.setSingleShot(True)
         self.mouse_move_timer.timeout.connect(self.hide_btns)
+
+        self.read_img_task: ProcessWorker = None
 
         self.v_layout = QVBoxLayout()
         self.v_layout.setContentsMargins(0, 0, 0, 0)
@@ -320,17 +321,39 @@ class ImgViewWin(WinBase):
             i.raise_()
 
     def load_image(self):
-        def fin(image_data: tuple[str, QImage]):
-            src, qimage = image_data
-            self.task_count -= 1
-            if qimage is None:
-                self.show_text_label(self.error_text)
-            elif src == self.current_path:
-                self.restart_img_wid(QPixmap.fromImage(qimage))
-        self.task_count += 1
-        task_ = ReadImg(self.current_path, True)
-        task_.sigs.finished_.connect(fin)
-        UThreadPool.start(task_)
+
+        def poling():
+            q = self.read_img_task.get_queue()
+            while not q.empty():
+                src, img_array = q.get()
+                if img_array is None:
+                    self.show_text_label(self.error_text)
+                elif src == self.current_path:    
+                    qimage = Utils.qimage_from_array(img_array)
+                    ImgViewWin.cached_images[src] = qimage
+                    self.restart_img_wid(QPixmap.fromImage(qimage))
+
+            if not self.read_img_task.proc.is_alive() and q.empty():
+                self.read_img_timer.stop()
+                self.read_img_task.force_stop()
+                self.read_img_task = None
+
+        if self.current_path in ImgViewWin.cached_images:
+            qimage = ImgViewWin.cached_images[self.current_path]
+            self.restart_img_wid(QPixmap.fromImage(qimage))
+            return
+        
+        if self.read_img_task:
+            self.read_img_task.force_stop()
+
+        self.read_img_task = ProcessWorker(
+            target=ReadImg.start,
+            args=(self.current_path, True)
+        )
+        self.read_img_task.start()
+        self.read_img_timer = QTimer()
+        self.read_img_timer.timeout.connect(poling)
+        self.read_img_timer.start(500)
 
     def rotate_image(self, value: int):
         pixmap = self.img_wid.pixmap_item.pixmap()
@@ -349,8 +372,6 @@ class ImgViewWin(WinBase):
             i.hide()
 
     def switch_img(self, offset: int):
-        if self.task_count == self.task_count_limit:
-            return
         if self.current_path in self.urls:
             current_index = self.urls.index(self.current_path)
         else:
@@ -457,7 +478,6 @@ class ImgViewWin(WinBase):
         ImgViewWin.xx = self.x()
         ImgViewWin.yy = self.y()
     
-        ReadImg.cached_images.clear()
         self.closed.emit()
         return super().deleteLater()
 
@@ -468,7 +488,6 @@ class ImgViewWin(WinBase):
         ImgViewWin.xx = self.x()
         ImgViewWin.yy = self.y()
 
-        ReadImg.cached_images.clear()
         self.closed.emit()
         return super().closeEvent(a0)
 
