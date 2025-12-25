@@ -402,6 +402,7 @@ class Grid(UScrollArea):
             for timer, task in self.tasks:
                 timer.stop()
                 task.force_stop()
+                self.tasks.remove((timer, task))
             QTimer.singleShot(300, self.load_visible_thumbs_images)
             return
         
@@ -442,6 +443,7 @@ class Grid(UScrollArea):
                 for timer, task in self.tasks:
                     timer.stop()
                     task.force_stop()
+                    self.tasks.remove((timer, task))
 
         def set_loading(data_item: DataItem):
             try:
@@ -452,7 +454,7 @@ class Grid(UScrollArea):
                 print("grid > set_loading runtime err")
                 for timer, task in self.tasks:
                     timer.stop()
-                    task.force_stop()
+                    self.tasks.remove((timer, task))
 
         def poll_task(proc_worker: ProcessWorker, proc_timer: QTimer):
             q = proc_worker.get_queue()
@@ -477,13 +479,9 @@ class Grid(UScrollArea):
                 self.tasks.remove((proc_timer, proc_worker))
                 proc_worker = None
 
-            print("end task")
-
         if not thumbs:
             return
         
-        print(len(thumbs))
-
         proc_worker = ProcessWorker(
             target=DbItemsLoader.start,
             args=([i.data for i in thumbs], )

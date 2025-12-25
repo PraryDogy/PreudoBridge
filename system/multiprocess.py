@@ -23,8 +23,10 @@ class ProcessWorker:
         )
 
     def start(self):
-        # Запускаем процесс
-        self.proc.start()
+        try:
+            self.proc.start()
+        except Exception as e:
+            print("process worker error", e)
 
     def get_queue(self):
         # Возвращает очередь для чтения данных из процесса
@@ -45,7 +47,7 @@ class ProcessWorker:
     def _close_queue(self):
         if hasattr(self, "_queue_closed"):
             return
-        if self.queue:
+        if self.queue is not None:
             self.queue.close()
             self.queue.join_thread()
         self._queue_closed = True
