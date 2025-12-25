@@ -290,14 +290,21 @@ class ImgViewWin(WinBase):
     def load_thumbnail(self):
         self.set_title()
         self.text_label.hide()
-        if self.thumb.data.image_is_loaded:
+
+        if self.current_path in ImgViewWin.cached_images:
+            qimage = ImgViewWin.cached_images[self.current_path]
+            pixmap = QPixmap.fromImage(qimage)
+            self.restart_img_wid(pixmap)
+
+        elif self.thumb.data.image_is_loaded:
             qimage = self.thumb.data.qimages["src"]
             pixmap = QPixmap.fromImage(qimage)
-            QTimer.singleShot(0, lambda: self.restart_img_wid(pixmap))
+            self.restart_img_wid(pixmap)
+            self.load_image()
         else:
             t = f"{os.path.basename(self.current_path)}\n{self.loading_text}"
             self.show_text_label(t)
-        self.load_image()
+            self.load_image()
 
     def show_text_label(self, text: str):
         self.text_label.setText(text)
@@ -345,11 +352,6 @@ class ImgViewWin(WinBase):
                 return
 
             QTimer.singleShot(100, poling)
-
-        if self.current_path in ImgViewWin.cached_images:
-            qimage = ImgViewWin.cached_images[self.current_path]
-            self.restart_img_wid(QPixmap.fromImage(qimage))
-            return
         
         if self.read_img_task:
             self.read_img_task.force_stop()
@@ -483,6 +485,8 @@ class ImgViewWin(WinBase):
         ImgViewWin.hh = self.size().height()
         ImgViewWin.xx = self.x()
         ImgViewWin.yy = self.y()
+
+        ImgViewWin.cached_images.clear()
     
         self.closed.emit()
         return super().deleteLater()
@@ -493,6 +497,8 @@ class ImgViewWin(WinBase):
         ImgViewWin.hh = self.size().height()
         ImgViewWin.xx = self.x()
         ImgViewWin.yy = self.y()
+
+        ImgViewWin.cached_images.clear()
 
         self.closed.emit()
         return super().closeEvent(a0)
