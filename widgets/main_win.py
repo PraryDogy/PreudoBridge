@@ -12,8 +12,7 @@ from cfg import Dynamic, JsonData, Static
 from system.items import CopyItem, DataItem, MainWinItem, SearchItem, SortItem
 from system.paletes import UPallete
 from system.shared_utils import SharedUtils
-from system.tasks import (AutoCacheCleaner, PathFixer, RatingTask,
-                          UThreadPool)
+from system.tasks import AutoCacheCleaner, PathFixer, RatingTask, UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import USep, WinBase
@@ -558,6 +557,7 @@ class MainWin(WinBase):
             self.scroll_up.show()
 
     def on_exit(self):
+        self.grid.deleteLater()
         JsonData.write_json_data()
         SharedUtils.exit_force()
     

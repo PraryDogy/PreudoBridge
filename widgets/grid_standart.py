@@ -84,17 +84,18 @@ class GridStandart(Grid):
         def on_items_loaded(result: dict):
             self.fin_load_finder_items(result)
 
-        def poll_task(tasker: ProcessWorker, timer: QTimer):
-            q = tasker.get_queue()
+        def poll_task():
+            q = self.process_worker.get_queue()
 
             # 1. забираем все сообщения
             while not q.empty():
                 result = q.get()
                 on_items_loaded(result)
 
-            if not tasker.proc.is_alive() and q.empty():
-                timer.stop()
-                tasker.close()
+            if not self.process_worker.proc.is_alive() and q.empty():
+                self.proc_worker_timer.stop()
+                self.process_worker.close()
+                self.process_worker = None
 
         self.process_worker = ProcessWorker(
             target=FinderItemsLoader.start,
@@ -102,9 +103,9 @@ class GridStandart(Grid):
         )
         self.process_worker.start()
         
-        timer = QTimer(self)
-        timer.timeout.connect(lambda: poll_task(self.process_worker, timer))
-        timer.start(500)
+        self.proc_worker_timer = QTimer(self)
+        self.proc_worker_timer.timeout.connect(poll_task)
+        self.proc_worker_timer.start(500)
 
     def fin_load_finder_items(self, result):
         fixed_path = result["path"]
@@ -205,6 +206,7 @@ class GridStandart(Grid):
         return super().resizeEvent(a0)
     
     def deleteLater(self):
+        print(123)
         if self.process_worker is not None:
             self.process_worker.force_stop()
         return super().deleteLater()
