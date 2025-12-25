@@ -518,7 +518,6 @@ class FinderItemsLoader(URunnable):
 
         self.finder_items: dict[str, DataItem] = {}
         self.db_items: dict[str, int] = {}
-        self.conn = Dbase.get_conn(Dbase.engine)
 
         if not JsonData.show_hidden:
             self.hidden_syms = Static.hidden_symbols
