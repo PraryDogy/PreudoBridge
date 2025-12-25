@@ -86,7 +86,7 @@ class DbItemsLoader:
     """
 
     @staticmethod
-    def start(self, data_items: list[DataItem], q: Queue):
+    def start(data_items: list[DataItem], q: Queue):
         data_items.sort(key=lambda x: x.size)
 
         conn = Dbase.get_conn(Dbase.engine)
@@ -111,7 +111,7 @@ class DbItemsLoader:
                     exist_ratings.append(data_item)
             else:
                 data_item.set_partial_hash()
-                rating = self.get_item_rating(data_item)
+                rating = DbItemsLoader.get_item_rating(data_item)
                 if rating is None:
                     stmt_list.append(DataItem.insert_file_stmt(data_item))
                     if data_item.type_ in Static.img_exts:
@@ -128,12 +128,10 @@ class DbItemsLoader:
                         exist_ratings.append(data_item)
 
         DbItemsLoader.execute_ratings(exist_ratings)
-
-        svg_files = DbItemsLoader.execute_svg_files(svg_files)
+        DbItemsLoader.execute_svg_files(svg_files)
         DbItemsLoader.execute_exist_images(exist_images)
         DbItemsLoader.execute_new_images(new_images)
         DbItemsLoader.execute_stmt_list(stmt_list)
-        DbItemsLoader.execute_corrupted_images()
     
     @staticmethod
     def execute_stmt_list(stmt_list: list, conn: Conn):
