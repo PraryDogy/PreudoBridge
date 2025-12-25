@@ -200,6 +200,8 @@ class DbItemsLoader:
             }
             q.put(data)
 
+            Utils.write_thumb(i.thumb_path, img_array)
+
     @staticmethod
     def get_item_rating(data_item: DataItem, conn: Conn) -> bool:
         stmt = select(Clmns.rating)

@@ -1107,7 +1107,6 @@ class CacheDownloader(URunnable):
         img = ReadImage.read_image(data_item.src)
         img = SharedUtils.fit_image(img, Static.max_thumb_size)
         return Utils.write_thumb(data_item.thumb_path, img)
-    
 
 
 class ImgRes(URunnable):
