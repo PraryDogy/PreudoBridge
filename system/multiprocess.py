@@ -5,30 +5,35 @@ from system.items import DataItem, MainWinItem, SortItem
 from cfg import Static, JsonData
 
 
-
 class MultiprocessRunner:
-    def __init__(self, target: object, args: tuple):
-        super().__init__()
-        self.mp_queue = Queue()
-        self.target = target
-        self.args = args
+    def __init__(self, target, args):
+        self.queue = Queue()
+        self.proc = Process(
+            target=target,
+            args=(*args, self.queue)
+        )
 
     def start(self):
-        self.proc = Process(target=self.target, args=self.args)
         self.proc.start()
+
+    def get_queue(self):
+        return self.queue
 
 
 class FinderItemsLoader:
-    def __init__(self):
+    def __init__(self, main_win_item: MainWinItem, sort_item: SortItem, out_q: Queue):
         super().__init__()
+        self.main_win_item = main_win_item
+        self.sort_item = sort_item
+        self.out_q = out_q
 
-    def start(self, main_dir: MainWinItem, sort_item: SortItem, show_hidden: bool, out_q: Queue):
+    def start(self):
         items = []
-        hidden_syms = () if show_hidden else Static.hidden_symbols
+        hidden_syms = () if JsonData.show_hidden else Static.hidden_symbols
 
-        fixed_path = PathFinder(main_dir).get_result()
+        fixed_path = PathFinder(self.main_win_item.main_dir).get_result()
         if fixed_path is None:
-            out_q.put({"path": None, "data_items": []})
+            self.out_q.put({"path": None, "data_items": []})
             return
 
         for entry in os.scandir(fixed_path):
@@ -41,5 +46,5 @@ class FinderItemsLoader:
             item.set_properties()
             items.append(item)
 
-        items = DataItem.sort_(items, sort_item)
-        out_q.put({"path": fixed_path, "data_items": items})
+        items = DataItem.sort_(items, self.sort_item)
+        self.out_q.put({"path": fixed_path, "data_items": items})
