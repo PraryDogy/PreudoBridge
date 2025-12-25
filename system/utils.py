@@ -169,21 +169,6 @@ class Utils:
                     total += os.path.getsize(i.path)
                     count += 1
         return {"total": total, "count": count}
-
-    @classmethod
-    def img_to_qimg(cls, image: Image.Image) -> QImage | None:
-        try:
-            qimage = QImage(
-                image.tobytes(),
-                image.width,
-                image.height,
-                image.width * 4,
-                QImage.Format_RGBA8888
-            )
-            return qimage.copy()
-        except Exception:
-            print(traceback.format_exc())
-            return None
     
     @classmethod
     def scaled(cls, qimage: QImage, size: int, dpr: int = 2):
