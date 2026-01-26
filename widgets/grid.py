@@ -437,11 +437,11 @@ class Grid(UScrollArea):
                 thumb = self.url_to_wid[data_item.src]
 
                 qimages = {}
+                original_qimage = Utils.qimage_from_array(data_item.img_array)
+                qimages["src"] = original_qimage
                 for size in Static.image_sizes:
-                    qimage = Utils.qimage_from_array(data_item.img_array)
-                    qimage = Utils.scaled(qimage, size)
-                    qimages[size] = qimage
-                qimages["src"] = Utils.qimage_from_array(data_item.img_array)
+                    resized_qimage = Utils.scaled(original_qimage, size)
+                    qimages[size] = resized_qimage
 
                 thumb.data.qimages = qimages
 
