@@ -92,13 +92,13 @@ class DataItem:
         self.src = self.src.rstrip(os.sep)
         self.filename = os.path.basename(self.src)
 
-        # if os.path.isdir(self.src):
-        #     self.type_ = Static.folder_type
-        # else:
-        #     _, self.type_ = os.path.splitext(self.src)
+        if os.path.isdir(self.src):
+            self.type_ = Static.folder_type
+        else:
+            _, self.type_ = os.path.splitext(self.src)
 
-        _, ext = os.path.splitext(self.src)
-        self.type_ = ext if ext else Static.folder_type
+        # _, ext = os.path.splitext(self.src)
+        # self.type_ = ext if ext else Static.folder_type
 
         try:
             stat = os.stat(self.src)
