@@ -14,9 +14,9 @@ from cfg import Dynamic, JsonData, Static
 from system.appkit_icon import AppKitIcon
 from system.database import Dbase
 from system.items import CopyItem, DataItem, MainWinItem, SortItem
-from system.multiprocess import DbItemsLoader, ProcessWorker
+from system.multiprocess import DbItemsLoader, DirWatcher, ProcessWorker
 from system.shared_utils import SharedUtils
-from system.tasks import DirWatcher, RatingTask, UThreadPool
+from system.tasks import RatingTask, UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import UMenu, UScrollArea
@@ -336,7 +336,7 @@ class Grid(UScrollArea):
         self.grid_layout.setAlignment(flags)
         self.grid_wid.setLayout(self.grid_layout)
 
-        self.dirs_wacher = DirWatcher("")
+        self.dirs_watcher_start()
 
     def set_files_icon(self, size: int = 64):
         path = os.path.join(Static.internal_icons_dir, "files.svg")
@@ -344,9 +344,24 @@ class Grid(UScrollArea):
         return Utils.scaled(qimage, size)
 
     def dirs_watcher_start(self):
-        self.dirs_wacher = DirWatcher(self.main_win_item.main_dir)
-        self.dirs_wacher.changed.connect(self.apply_changes)
-        self.dirs_wacher.start()
+
+        def poll_task(proc_worker: ProcessWorker):
+            q = proc_worker.get_queue()
+            try:
+                e = q.get_nowait()
+            except Exception:
+                return
+            self.apply_changes(e)
+
+        self.dir_watcher = ProcessWorker(
+            target=DirWatcher.start,
+            args=(self.main_win_item.main_dir, )
+        )
+
+        self.dir_watcher_timer = QTimer(self)
+        self.dir_watcher_timer.timeout.connect(lambda: poll_task(self.dir_watcher))
+        self.dir_watcher_timer.start(1000)
+        self.dir_watcher.start()
 
     def apply_changes(self, e: FileSystemEvent):
         is_selected = any(
@@ -1295,7 +1310,7 @@ class Grid(UScrollArea):
         return super().dropEvent(a0)
 
     def deleteLater(self):
-        self.dirs_wacher.stop()
+        self.dir_watcher.proc.terminate()
         for timer, task in self.tasks:
             timer.stop()
             task.proc.terminate()
@@ -1307,7 +1322,7 @@ class Grid(UScrollArea):
         return super().deleteLater()
     
     def closeEvent(self, a0):
-        self.dirs_wacher.stop()
+        self.dir_watcher.proc.terminate()
         for timer, task in self.tasks:
             timer.stop()
             task.proc.terminate()

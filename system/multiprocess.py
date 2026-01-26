@@ -1,9 +1,12 @@
 import os
 from multiprocessing import Process, Queue
+from time import sleep
 
 import numpy as np
 from sqlalchemy import Connection as Conn
 from sqlalchemy import Engine, select
+from watchdog.events import FileSystemEventHandler
+from watchdog.observers.polling import PollingObserver as Observer
 
 from cfg import JsonData, Static
 from system.database import Clmns, Dbase
@@ -185,3 +188,35 @@ class ReadImg:
         if desaturate:
             img_array = Utils.desaturate_image(img_array, 0.2)
         q.put((src, img_array))
+
+
+class _DirChangedHandler(FileSystemEventHandler):
+    def __init__(self, callback):
+        super().__init__()
+        self.callback = callback
+
+    def on_any_event(self, event):
+        self.callback(event)
+
+
+class DirWatcher:
+
+    @staticmethod
+    def start(path: str, q: Queue):
+        if not path:
+            return
+
+        observer = Observer()
+        handler = _DirChangedHandler(lambda e: q.put(e))
+        observer.schedule(handler, path, recursive=False)
+        observer.start()
+
+        try:
+            while True:
+                sleep(1)
+                print(123)
+                if not os.path.exists(path):
+                    break  # просто выходим из цикла, observer будет остановлен
+        finally:
+            observer.stop()
+            observer.join()
