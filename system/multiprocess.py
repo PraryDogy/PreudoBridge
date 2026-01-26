@@ -84,7 +84,7 @@ class FinderItemsLoader:
 class DbItemsLoader:
 
     """
-    {"src": filepath , "arrays": list numpy ndarray}
+    {"src": filepath , "img_array": numpy ndarray with Static.max_thumb_size}
     """
     
     @staticmethod
