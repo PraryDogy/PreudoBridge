@@ -1291,7 +1291,8 @@ class Grid(UScrollArea):
         return super().dropEvent(a0)
 
     def deleteLater(self):
-        self.dir_watcher.proc.terminate()
+        if not self.is_grid_search:
+            self.dir_watcher.proc.terminate()
         for timer, task in self.tasks:
             timer.stop()
             task.proc.terminate()
@@ -1303,7 +1304,8 @@ class Grid(UScrollArea):
         return super().deleteLater()
     
     def closeEvent(self, a0):
-        self.dir_watcher.proc.terminate()
+        if not self.is_grid_search:
+            self.dir_watcher.proc.terminate()
         for timer, task in self.tasks:
             timer.stop()
             task.proc.terminate()
