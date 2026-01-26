@@ -64,7 +64,10 @@ class GridStandart(Grid):
         self.loading_timer.start(800)
 
     def show_loading_label(self):
-        self.loading_label.setParent(self.viewport())
+        try:
+            self.loading_label.setParent(self.viewport())
+        except RuntimeError:
+            return
         vp = self.viewport().rect()
         lbl = self.loading_label.rect()
 

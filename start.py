@@ -91,11 +91,14 @@ class App(QApplication):
 
     def load_data(self):
         def fin():
+            print("fin")
             self.main_win = MainWin()
             self.main_win.show()
             self.aboutToQuit.connect(lambda: self.main_win.on_exit())
             self.installEventFilter(self)
+            print("fin 2")
 
+        print("start")
         self.on_start_task = OnStartTask()
         self.on_start_task.sigs.finished_.connect(fin)
         UThreadPool.start(self.on_start_task)

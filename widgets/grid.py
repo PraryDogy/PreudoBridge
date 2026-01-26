@@ -89,7 +89,6 @@ class FileNameWidget(QLabel):
 class BlueTextWid(QLabel):
     text_mod = "Изм: "
     text_size = "Размер: "
-    text_loading = "Загрузка..."
 
     def __init__(self):
         super().__init__()
@@ -116,10 +115,6 @@ class BlueTextWid(QLabel):
             mod_row = "\n".join((mod_row, sec_row))
         self.setText(mod_row)
 
-    def set_loading(self, data: DataItem):
-        first_row = self.text_size + SharedUtils.get_f_size(data.size, 0)
-        text = f"{first_row}\n{self.text_loading}"
-        self.setText(text)
 
 class Thumb(QFrame):
     # Сигнал нужен, чтобы менялся заголовок в просмотрщике изображений
@@ -199,9 +194,6 @@ class Thumb(QFrame):
     def set_blue_text(self):
         self.blue_text_wid.set_text(self.data)
 
-    def set_blue_text_loading(self):
-        self.blue_text_wid.set_loading(self.data)
-
     def resize_(self):
         """
         Устанавливает фиксированные размеры для дочерних виджетов Thumb     
@@ -258,11 +250,6 @@ class Thumb(QFrame):
         effect = QGraphicsOpacityEffect(self)
         effect.setOpacity(value)
         self.setGraphicsEffect(effect)
-        return
-
-        effect = QGraphicsOpacityEffect(self.blue_text_wid)
-        effect.setOpacity(value)
-        self.blue_text_wid.setGraphicsEffect(effect)
 
 
 class NoItemsLabel(QLabel):
@@ -453,24 +440,11 @@ class Grid(UScrollArea):
                 else:
                     thumb.set_image()
 
-                thumb.set_transparent_frame(1.0)
-                thumb.set_blue_text()
             except RuntimeError as e:
                 print("grid > set_thumb_image runtime err")
                 for timer, task in self.tasks:
                     timer.stop()
                     task.proc.terminate()
-                    self.tasks.remove((timer, task))
-
-        def set_loading(data_item: DataItem):
-            try:
-                thumb = self.url_to_wid.get(data_item.src)
-                thumb.set_blue_text_loading()
-                thumb.set_transparent_frame(0.5)
-            except RuntimeError:
-                print("grid > set_loading runtime err")
-                for timer, task in self.tasks:
-                    timer.stop()
                     self.tasks.remove((timer, task))
 
         def poll_task(proc_worker: ProcessWorker, proc_timer: QTimer):
@@ -483,9 +457,7 @@ class Grid(UScrollArea):
                 if isinstance(result, dict):
                     data_item = self.url_to_wid[result["src"]].data
                     data_item.img_array = result["img_array"]
-                    if data_item.img_array is None:
-                        set_loading(data_item)
-                    else:
+                    if data_item.img_array is not None:
                         update_thumb(data_item)
 
             if not proc_worker.proc.is_alive() and q.empty():
