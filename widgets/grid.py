@@ -404,7 +404,8 @@ class Grid(UScrollArea):
         if len(self.tasks) > 1:
             for timer, task in self.tasks:
                 timer.stop()
-                task.force_stop()
+                # task.force_stop()
+                task.proc.terminate()
                 self.tasks.remove((timer, task))
             QTimer.singleShot(300, self.load_visible_thumbs_images)
             return
@@ -461,7 +462,8 @@ class Grid(UScrollArea):
                 print("grid > set_thumb_image runtime err")
                 for timer, task in self.tasks:
                     timer.stop()
-                    task.force_stop()
+                    # task.force_stop()
+                    task.proc.terminate()
                     self.tasks.remove((timer, task))
 
         def set_loading(data_item: DataItem):
@@ -492,7 +494,8 @@ class Grid(UScrollArea):
 
             if not proc_worker.proc.is_alive() and q.empty():
                 proc_timer.stop()
-                proc_worker.force_stop()
+                # proc_worker.force_stop()
+                proc_worker.proc.terminate()
                 self.tasks.remove((proc_timer, proc_worker))
                 proc_worker = None
 
