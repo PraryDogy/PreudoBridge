@@ -483,11 +483,9 @@ class Grid(UScrollArea):
                 if isinstance(result, dict):
                     data_item = self.url_to_wid[result["src"]].data
                     data_item.img_array = result["img_array"]
-                    set_loading(data_item)
-                    # if data_item.img_array is None:
-                        # print("loading", data_item.src)
-                        # set_loading(data_item)
-                    if data_item.img_array is not None:
+                    if data_item.img_array is None:
+                        set_loading(data_item)
+                    else:
                         update_thumb(data_item)
 
             if not proc_worker.proc.is_alive() and q.empty():
