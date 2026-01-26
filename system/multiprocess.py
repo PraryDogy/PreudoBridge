@@ -214,7 +214,6 @@ class DirWatcher:
         try:
             while True:
                 sleep(1)
-                print("dirs watcer", path)
         finally:
             observer.stop()
             observer.join()
