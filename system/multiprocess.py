@@ -203,7 +203,7 @@ class DirWatcher:
 
     @staticmethod
     def start(path: str, q: Queue):
-        if not path:
+        if not path or not os.path.exists(path):
             return
 
         observer = Observer()
