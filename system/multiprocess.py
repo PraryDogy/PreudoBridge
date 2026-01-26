@@ -214,6 +214,8 @@ class DirWatcher:
         try:
             while True:
                 sleep(1)
+                if not os.path.exists(path):
+                    break
         finally:
             observer.stop()
             observer.join()
