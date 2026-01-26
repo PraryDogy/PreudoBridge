@@ -442,7 +442,6 @@ class Grid(UScrollArea):
                 for size in Static.image_sizes:
                     resized_qimage = Utils.scaled(original_qimage, size)
                     qimages[size] = resized_qimage
-
                 thumb.data.qimages = qimages
 
                 if thumb.data.qimages["src"] is None:
