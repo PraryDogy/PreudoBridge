@@ -70,7 +70,7 @@ class DataItem:
         # словарь заполняется на основе Static.image_sizes
         # так же дополняется ключом "src" с исходным qimage
         self.qimages: dict = None
-        self.arrays: dict = None
+        self.img_array: dict = None
 
     def set_partial_hash(self):
         try:

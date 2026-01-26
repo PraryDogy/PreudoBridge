@@ -435,10 +435,14 @@ class Grid(UScrollArea):
         def update_thumb(data_item: DataItem):
             try:
                 thumb = self.url_to_wid[data_item.src]
+
                 qimages = {}
-                for k, v in data_item.arrays.items():
-                    qimage = Utils.qimage_from_array(v)
-                    qimages[k] = qimage
+                for size in Static.image_sizes:
+                    qimage = Utils.qimage_from_array(data_item.img_array)
+                    qimage = Utils.scaled(qimage, size)
+                    qimages[size] = qimage
+                qimages["src"] = Utils.qimage_from_array(data_item.img_array)
+
                 thumb.data.qimages = qimages
 
                 if thumb.data.qimages["src"] is None:
@@ -480,11 +484,9 @@ class Grid(UScrollArea):
                 result: dict = q.get()
 
                 if isinstance(result, dict):
-                    src = result["src"]
-                    arrays = result["arrays"]
-                    data_item = self.url_to_wid[src].data
-                    data_item.arrays = arrays
-                    if data_item.arrays is None:
+                    data_item = self.url_to_wid[result["src"]].data
+                    data_item.img_array = result["img_array"]
+                    if data_item.img_array is None:
                         set_loading(data_item)
                     else:
                         update_thumb(data_item)

@@ -82,6 +82,11 @@ class FinderItemsLoader:
 
 
 class DbItemsLoader:
+
+    """
+    {"src": filepath , "arrays": list numpy ndarray}
+    """
+    
     @staticmethod
     def start(data_items: list[DataItem], q: Queue):
         """
@@ -146,11 +151,11 @@ class DbItemsLoader:
     def execute_svg_files(data_items: list[DataItem], q: Queue):
         for i in data_items:
             img_array = "загружаем свг как аррай"
-            i.arrays = {
+            i.img_array = {
                 sz: SharedUtils.fit_image(img_array, sz)
                 for sz in Static.image_sizes
             }
-            i.arrays.update(
+            i.img_array.update(
                 {"src": img_array}
             )
             q.put(i)
@@ -164,45 +169,17 @@ class DbItemsLoader:
     def execute_exist_images(data_items: list[DataItem], q: Queue):
         for i in data_items:
             img_array = Utils.read_thumb(i.thumb_path)
-            arrays = {
-                sz: SharedUtils.fit_image(img_array, sz)
-                for sz in Static.image_sizes
-            }
-            arrays.update(
-                {"src": img_array}
-            )
-            data = {
-                "src": i.src,
-                "arrays": arrays
-            }
+            data = {"src": i.src, "img_array": img_array}
             q.put(data)
 
     @staticmethod
     def execute_new_images(data_items: list[DataItem], q: Queue):
         for i in data_items:
-
-            data = {
-                "src": i.src,
-                "arrays": None
-            }
-            q.put(data)
-
             img_array = ReadImage.read_image(i.src)
             img_array = SharedUtils.fit_image(img_array, Static.max_thumb_size)
-            arrays = {
-                sz: SharedUtils.fit_image(img_array, sz)
-                for sz in Static.image_sizes
-            }
-            arrays.update(
-                {"src": img_array}
-            )
-            data = {
-                "src": i.src,
-                "arrays": arrays
-            }
-            q.put(data)
-
             Utils.write_thumb(i.thumb_path, img_array)
+            data = {"src": i.src, "img_array": img_array}
+            q.put(data)
 
     @staticmethod
     def get_item_rating(data_item: DataItem, conn: Conn) -> bool:
