@@ -32,26 +32,6 @@ class ProcessWorker:
         # Возвращает очередь для чтения данных из процесса
         return self.queue
 
-    def force_stop(self):
-        if self.proc.is_alive():
-            self.proc.terminate()
-            self.proc.join()
-        # очередь закрываем только один раз
-        self._close_queue()
-
-    def close(self):
-        self._close_queue()
-        if self.proc and not self.proc.is_alive():
-            self.proc.join()
-
-    def _close_queue(self):
-        if hasattr(self, "_queue_closed"):
-            return
-        if self.queue is not None:
-            self.queue.close()
-            self.queue.join_thread()
-        self._queue_closed = True
-
 
 class FinderItemsLoader:
     @staticmethod

@@ -94,7 +94,7 @@ class GridStandart(Grid):
 
             if not self.process_worker.proc.is_alive() and q.empty():
                 self.proc_worker_timer.stop()
-                self.process_worker.close()
+                self.process_worker.proc.terminate()
                 self.process_worker = None
 
         self.process_worker = ProcessWorker(
@@ -205,13 +205,11 @@ class GridStandart(Grid):
     def deleteLater(self):
         self.proc_worker_timer.stop()
         if self.process_worker is not None:
-            # self.process_worker.force_stop()
             self.process_worker.proc.terminate()
         return super().deleteLater()
     
     def closeEvent(self, a0):
         self.proc_worker_timer.stop()
         if self.process_worker is not None:
-            # self.process_worker.force_stop()
             self.process_worker.proc.terminate()
         return super().closeEvent(a0)

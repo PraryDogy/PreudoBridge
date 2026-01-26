@@ -347,7 +347,6 @@ class ImgViewWin(WinBase):
                     self.restart_img_wid(QPixmap.fromImage(qimage))
 
             if not task.proc.is_alive() and q.empty():
-                # task.force_stop()
                 task.proc.terminate()
                 self.read_img_task = None
                 return
@@ -355,7 +354,6 @@ class ImgViewWin(WinBase):
             QTimer.singleShot(100, poling)
         
         if self.read_img_task:
-            # self.read_img_task.force_stop()
             self.read_img_task.proc.terminate()
 
         self.read_img_task = ProcessWorker(

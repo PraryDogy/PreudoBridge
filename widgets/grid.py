@@ -404,7 +404,6 @@ class Grid(UScrollArea):
         if len(self.tasks) > 1:
             for timer, task in self.tasks:
                 timer.stop()
-                # task.force_stop()
                 task.proc.terminate()
                 self.tasks.remove((timer, task))
             QTimer.singleShot(300, self.load_visible_thumbs_images)
@@ -462,7 +461,6 @@ class Grid(UScrollArea):
                 print("grid > set_thumb_image runtime err")
                 for timer, task in self.tasks:
                     timer.stop()
-                    # task.force_stop()
                     task.proc.terminate()
                     self.tasks.remove((timer, task))
 
@@ -494,7 +492,6 @@ class Grid(UScrollArea):
 
             if not proc_worker.proc.is_alive() and q.empty():
                 proc_timer.stop()
-                # proc_worker.force_stop()
                 proc_worker.proc.terminate()
                 self.tasks.remove((proc_timer, proc_worker))
                 proc_worker = None
@@ -1331,7 +1328,7 @@ class Grid(UScrollArea):
         self.dirs_wacher.stop()
         for timer, task in self.tasks:
             timer.stop()
-            task.close()
+            task.proc.terminate()
         urls = [i.data.src for i in self.selected_thumbs]
         self.main_win_item.set_urls_to_select(urls)
         for i in self.cell_to_wid.values():
@@ -1343,7 +1340,7 @@ class Grid(UScrollArea):
         self.dirs_wacher.stop()
         for timer, task in self.tasks:
             timer.stop()
-            task.close()
+            task.proc.terminate()
         urls = [i.src for i in self.selected_thumbs]
         self.main_win_item.set_urls_to_select(urls)
         for i in self.cell_to_wid.values():
