@@ -317,7 +317,7 @@ class Grid(UScrollArea):
         self.grid_wid.setLayout(self.grid_layout)
 
         if not is_grid_search:
-            QTimer.singleShot(3000, self.dirs_watcher_start)
+            QTimer.singleShot(100, self.dirs_watcher_start)
 
     def set_files_icon(self, size: int = 64):
         path = os.path.join(Static.internal_icons_dir, "files.svg")
@@ -343,8 +343,6 @@ class Grid(UScrollArea):
         self.dir_watcher_timer.timeout.connect(lambda: poll_task(self.dir_watcher))
         self.dir_watcher_timer.start(1000)
         self.dir_watcher.start()
-
-        print("start")
 
     def apply_changes(self, e: FileSystemEvent):
         is_selected = any(
