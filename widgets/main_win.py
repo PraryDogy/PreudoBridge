@@ -483,6 +483,10 @@ class MainWin(WinBase):
 
     def load_st_grid(self):
 
+        def load_grid_finished():
+            self.grid.setFocus()
+            self.grid.grid_wid.show()
+
         def end_load_grid():
             self.favs_menu.select_fav(self.main_win_item.main_dir)
             self.grid.deleteLater()
@@ -494,12 +498,10 @@ class MainWin(WinBase):
                 self.grid = GridStandart(self.main_win_item, False)
                 # скрываем новый виджет
                 self.grid.grid_wid.hide()
-                self.grid.load_finished.connect(self.grid.setFocus)
-                self.grid.load_finished.connect(self.grid.grid_wid.show)
+                self.grid.load_finished.connect(load_grid_finished)
                 classes = (TableView, Grid)
                 self.grid.sort_item = self.sort_item
                 self.disable_wids(False)
-                # self.grid.fake_grid()
                 self.grid.start_load_finder_items()
 
             elif self.main_win_item.get_view_mode() == 1:
