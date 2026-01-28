@@ -83,19 +83,26 @@ class GridStandart(Grid):
 
     def start_load_finder_items(self):
 
-        def on_items_loaded(result: dict):
+        def timeout_task():
+            self.finder_timer.stop()
+            self.finder_task.terminate()
+            poll_task_fin(
+                {"path": "", "data_items": []}
+            )
+
+        def poll_task_fin(result: dict):
             self.fin_load_finder_items(result)
 
         def poll_task():
             q = self.finder_task.get_queue()
 
-            # 1. забираем все сообщения
-            while not q.empty():
+            if not q.empty():
                 result = q.get()
-                on_items_loaded(result)
+                poll_task_fin(result)
 
-            if not self.finder_task.proc.is_alive():
+            elif not self.finder_task.proc.is_alive():
                 self.finder_timer.stop()
+                self.timeout_timer.stop()
                 self.finder_task.terminate()
 
         self.finder_task = ProcessWorker(
@@ -103,9 +110,14 @@ class GridStandart(Grid):
             args=(self.main_win_item, self.sort_item)
         )
         self.finder_task.start()
+
         self.finder_timer = QTimer(self)
         self.finder_timer.timeout.connect(poll_task)
         self.finder_timer.start(200)
+
+        self.timeout_timer = QTimer(self)
+        self.timeout_timer.timeout.connect(timeout_task)
+        self.timeout_timer.start(15000)
 
     def fin_load_finder_items(self, result):
         fixed_path = result["path"]
