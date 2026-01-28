@@ -485,8 +485,10 @@ class Grid(UScrollArea):
         Получает количество столбцов для сетки по формуле:  
         Ширина окна минус ширина левого виджета в сплиттере (левое меню)
         """
-
-        return self.viewport().width() // Thumb.thumb_w
+        try:
+            return self.viewport().width() // Thumb.thumb_w
+        except ZeroDivisionError:
+            return 1
         
         win_ww = self.window().width()
         splitter = self.window().findChild(QSplitter)
