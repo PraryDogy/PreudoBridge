@@ -388,3 +388,85 @@ class ImgRes:
         else:
             resol = ImgRes.undef_text
         q.put(resol)
+
+
+class _MultipleInfoItem:
+    def __init__(self):
+        super().__init__()
+        self.total_files: int = 0
+        self.total_folders: int = 0
+        self.total_size: int = 0
+
+
+class MultipleInfo:
+    err = " Произошла ошибка"
+
+
+    @staticmethod
+    def start(data_items: list[DataItem], q: Queue):
+        """
+        Принимает [
+            "src": str,
+            "type_": str,
+            "size": int
+        ]
+        Возвращает {
+            "total_size": str,
+            "total_files": str,
+            "total_folders": str
+        }
+        """
+
+        info_item = _MultipleInfoItem()
+        try:
+            MultipleInfo._task(data_items, info_item)
+            q.put({
+                "total_size": SharedUtils.get_f_size(info_item.total_size),
+                "total_files": format(info_item.total_files, ",").replace(",", " "),
+                "total_folders": format(info_item.total_folders, ",").replace(",", " ")
+            })
+        except Exception as e:
+            import traceback
+            print(traceback.format_exc())
+            print("tasks, MultipleInfoFiles error", e)
+            q.put({
+                "total_size": MultipleInfo.err,
+                "total_files": MultipleInfo.err,
+                "total_folders": MultipleInfo.err
+            })
+
+    @staticmethod
+    def _task(items: list[dict], info_item: _MultipleInfoItem):
+        for i in items:
+            if i["type_"] == Static.folder_type:
+                MultipleInfo.get_folder_size(i, info_item)
+                info_item.total_folders += 1
+            else:
+                info_item.total_size += i["size"]
+                info_item.total_files += 1
+
+    @staticmethod
+    def get_folder_size(item: dict, info_item: _MultipleInfoItem):
+        stack = [item["src"]]
+        while stack:
+            current_dir = stack.pop()
+            try:
+                os.listdir(current_dir)
+            except Exception as e:
+                print("tasks, MultipleItemsInfo error", e)
+                continue
+            with os.scandir(current_dir) as entries:
+                for entry in entries:
+                    try:
+                        if entry.is_dir():
+                            info_item.total_folders += 1
+                            stack.append(entry.path)
+                    except Exception as e:
+                        print("tasks, MultipleItemsInfo error", e)
+                    else:
+                        try:
+                            info_item.total_size += entry.stat().st_size
+                            info_item.total_files += 1
+                        except Exception as e:
+                            print("tasks, MultipleItemsInfo error", e)
+                            continue

@@ -7,9 +7,8 @@ from PyQt5.QtWidgets import (QAction, QGraphicsOpacityEffect, QGridLayout,
 
 from cfg import Static
 from system.items import DataItem
-from system.multiprocess import ImgRes, ProcessWorker
+from system.multiprocess import ImgRes, ProcessWorker, MultipleInfo
 from system.shared_utils import SharedUtils
-from system.tasks import MultipleItemsInfo, UThreadPool
 
 from ._base_widgets import MinMaxDisabledWin, UMenu
 from .actions import CopyText, RevealInFinder
@@ -74,7 +73,7 @@ class InfoWin(MinMaxDisabledWin):
     files_text = "Количество файлов:"
     folders_text = "Количество папок:"
 
-    def __init__(self, items: list[DataItem]):
+    def __init__(self, data_items: list[DataItem]):
         super().__init__()
         self.setWindowTitle(InfoWin.title_text)
         self.set_modality()
@@ -82,7 +81,7 @@ class InfoWin(MinMaxDisabledWin):
         self.left = Qt.AlignmentFlag.AlignLeft
         self.right = Qt.AlignmentFlag.AlignRight
         self.top = Qt.AlignmentFlag.AlignTop
-        self.items = items
+        self.data_items = data_items
 
         self.grid_layout = QGridLayout()
         self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
@@ -102,10 +101,10 @@ class InfoWin(MinMaxDisabledWin):
                 i.set_transparent_frame(1)
 
     def init_ui(self):
-        if len(self.items) == 1:
-            if self.items[0].type_ in Static.img_exts:
+        if len(self.data_items) == 1:
+            if self.data_items[0].type_ in Static.img_exts:
                 self.single_img()
-            elif self.items[0].type_ == Static.folder_type:
+            elif self.data_items[0].type_ == Static.folder_type:
                 self.single_folder()
             else:
                 self.single_file()
@@ -128,7 +127,7 @@ class InfoWin(MinMaxDisabledWin):
                 QTimer.singleShot(100, lambda: poll_task(resol_label))
 
         row = 0
-        item = self.items[0]
+        item = self.data_items[0]
         labels = {
             self.name_text: self.lined_text(item.filename),
             self.type_text: item.type_,
@@ -158,7 +157,7 @@ class InfoWin(MinMaxDisabledWin):
 
     def single_file(self):
         row = 0
-        item = self.items[0]
+        item = self.data_items[0]
         labels = {
             self.name_text: self.lined_text(item.filename),
             self.type_text: item.type_,
@@ -176,8 +175,26 @@ class InfoWin(MinMaxDisabledWin):
             row += 1
 
     def multiple_items(self):
+
+        def poll_task():
+            q = self.info_task.get_queue()
+            if not q.empty():
+                res = q.get()
+                total_size = self.findChildren(SelectableLabel)[3]
+                total_files = self.findChildren(SelectableLabel)[5]
+                total_folders = self.findChildren(SelectableLabel)[7]
+                total_size.setText(res["total_size"])
+                total_files.setText(res["total_files"])
+                total_folders.setText(res["total_folders"])
+                self.set_transparent()
+            
+            if not self.info_task.proc.is_alive():
+                self.info_task.terminate()
+            else:
+                QTimer.singleShot(100, poll_task)
+
         row = 0
-        root = os.path.dirname(self.items[0].src)
+        root = os.path.dirname(self.data_items[0].src)
         labels = {
             self.src_text: self.lined_text(root),
             self.size_text: self.calc_text,
@@ -192,32 +209,44 @@ class InfoWin(MinMaxDisabledWin):
             self.grid_layout.addWidget(right, row, 2, alignment=self.left | self.top)
             row += 1
 
-        total_size = self.findChildren(SelectableLabel)[3]
-        total_files = self.findChildren(SelectableLabel)[5]
-        total_folders = self.findChildren(SelectableLabel)[7]
-        self.info_task = MultipleItemsInfo(self.items)
-        self.info_task.sigs.finished_.connect(
-            lambda data: total_size.setText(data["total_size"])
+        items = [
+            {"src": i.src, "type_": i.type_, "size": i.size}
+            for i in self.data_items
+        ]
+
+        self.info_task = ProcessWorker(
+            target=MultipleInfo.start,
+            args=(items, )
         )
-        self.info_task.sigs.finished_.connect(
-            lambda data: total_files.setText(data["total_files"])
-        )
-        self.info_task.sigs.finished_.connect(
-            lambda data: total_folders.setText(data["total_folders"])
-        )
-        self.info_task.sigs.finished_.connect(
-            lambda: self.set_transparent()
-        )
-        UThreadPool.start(self.info_task)
+        self.info_task.start()
+        QTimer.singleShot(100, poll_task)
 
     def single_folder(self):
+
+        def poll_task():
+            q = self.info_task.get_queue()
+            if not q.empty():
+                res = q.get()
+                total_size = self.findChildren(SelectableLabel)[3]
+                total_files = self.findChildren(SelectableLabel)[5]
+                total_folders = self.findChildren(SelectableLabel)[7]
+                total_size.setText(res["total_size"])
+                total_files.setText(res["total_files"])
+                total_folders.setText(res["total_folders"])
+                self.set_transparent()
+            
+            if not self.info_task.proc.is_alive():
+                self.info_task.terminate()
+            else:
+                QTimer.singleShot(100, poll_task)
+
         row = 0
-        item = self.items[0]
+        item = self.data_items[0]
         labels = {
             self.name_text: self.lined_text(item.filename),
             self.type_text: self.ru_folder,
             self.size_text: self.calc_text,
-            self.src_text: self.lined_text(self.items[0].src),
+            self.src_text: self.lined_text(self.data_items[0].src),
             self.birth_text: SharedUtils.get_f_date(item.birth),
             self.mod_text: SharedUtils.get_f_date(item.mod),
             self.files_text: self.calc_text,
@@ -231,23 +260,17 @@ class InfoWin(MinMaxDisabledWin):
             self.grid_layout.addWidget(right, row, 2, alignment=self.left | self.top)
             row += 1
 
-        total_size = self.findChildren(SelectableLabel)[5]
-        total_files = self.findChildren(SelectableLabel)[13]
-        total_folders = self.findChildren(SelectableLabel)[15]
-        self.info_task = MultipleItemsInfo(self.items)
-        self.info_task.sigs.finished_.connect(
-            lambda data: total_size.setText(data["total_size"])
+        items = [
+            {"src": i.src, "type_": i.type_, "size": i.size}
+            for i in self.data_items
+        ]
+
+        self.info_task = ProcessWorker(
+            target=MultipleInfo.start,
+            args=(items, )
         )
-        self.info_task.sigs.finished_.connect(
-            lambda data: total_files.setText(data["total_files"])
-        )
-        self.info_task.sigs.finished_.connect(
-            lambda data: total_folders.setText(data["total_folders"])
-        )
-        self.info_task.sigs.finished_.connect(
-            lambda: self.set_transparent()
-        )
-        UThreadPool.start(self.info_task)
+        self.info_task.start()
+        QTimer.singleShot(100, poll_task)
 
     def lined_text(self, text: str, limit: int = 50):
         if len(text) > limit:
@@ -260,7 +283,11 @@ class InfoWin(MinMaxDisabledWin):
             return text
         
     def deleteLater(self):
-        self.img_res_task.terminate()
+        try:
+            self.img_res_task.terminate()
+            self.info_task.terminate()
+        except AttributeError:
+            ...
         return super().deleteLater()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
