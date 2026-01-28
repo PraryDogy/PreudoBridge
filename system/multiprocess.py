@@ -1,4 +1,5 @@
 import os
+import shutil
 from multiprocessing import Process, Queue
 from time import sleep
 
@@ -12,7 +13,7 @@ from watchdog.observers.polling import PollingObserver as Observer
 
 from cfg import JsonData, Static
 from system.database import Clmns, Dbase
-from system.items import DataItem, MainWinItem, SortItem
+from system.items import CopyItem, DataItem, MainWinItem, SortItem
 from system.shared_utils import PathFinder, ReadImage, SharedUtils
 from system.tasks import Utils
 
@@ -468,3 +469,152 @@ class MultipleInfo:
                     if not entry.name.startswith(Static.hidden_symbols):
                         info_item.total_size += entry.stat().st_size
                         info_item.files_set.add(entry.path)
+
+
+class CopyFilesTask:
+
+    @staticmethod
+    def start(self):
+        if CopyItem.get_is_search():
+            self.prepare_search_dir()
+        elif CopyItem.get_src() == CopyItem.get_dest():
+            self.prepare_same_dir()
+        else:
+            self.prepare_another_dir()
+
+        for src, dest in self.src_dest_list:
+            self.total_size += os.path.getsize(src)
+        self.total_count = len(self.src_dest_list)
+
+        self.sigs.total_size.emit(self.total_size // 1024)
+
+        for count, (src, dest) in enumerate(self.src_dest_list, start=1):
+            if not self.is_should_run():
+                break
+            os.makedirs(os.path.dirname(dest), exist_ok=True)
+            self.copied_count = count
+            try:
+                self.copy_file_with_progress(src, dest)
+            except Exception as e:
+                Utils.print_error()
+                self.sigs.error_win.emit()
+                break
+            if CopyItem.get_is_cut() and not CopyItem.get_is_search():
+                os.remove(src)
+
+        if CopyItem.get_is_cut() and not CopyItem.get_is_search():
+            for i in CopyItem.urls:
+                if os.path.isdir(i):
+                    shutil.rmtree(i)
+
+        self.sigs.finished_.emit(self.paths)
+
+    def prepare_same_dir(self):
+        """
+        Если файлы и папки скопированы в одной директории и будут вставлены туда же,
+        то они будут вставлены с припиской "копия"
+        """
+        for src_url in CopyItem.urls:
+            if os.path.isfile(src_url):
+                new_filename = self.add_copy_to_name(src_url)
+                self.src_dest_list.append((src_url, new_filename))
+                self.paths.append(new_filename)
+            else:
+                new_dir_name = self.add_copy_to_name(src_url)
+                # получаем все url файлов для папки
+                # заменяем имя старой папки на имя новой папки
+                nested_urls = [
+                    (x, x.replace(src_url, new_dir_name))
+                    for x in self.get_nested_urls(src_url)
+                ]
+                self.src_dest_list.extend(nested_urls)
+                self.paths.append(new_dir_name)
+    
+    def prepare_another_dir(self):
+        """
+        Подготовка к простому копированию из одного места в другое.
+        При этом может выскочить окно о замене файлов, и если 
+        пользователь не согласится заменить файлы, задача копирования будет
+        отменена.
+        """
+        for src_url in CopyItem.urls:
+            if os.path.isfile(src_url):
+                new_filename = src_url.replace(CopyItem.get_src(), CopyItem.get_dest())
+                self.src_dest_list.append((src_url, new_filename))
+                self.paths.append(new_filename)
+            else:
+                new_dir_name = src_url.replace(CopyItem.get_src(), CopyItem.get_dest())
+                # получаем все url файлов для папки
+                # заменяем имя старой папки на имя новой папки
+                nested_urls = [
+                    (x, x.replace(CopyItem.get_src(), CopyItem.get_dest()))
+                    for x in self.get_nested_urls(src_url)
+                ]
+                self.src_dest_list.extend(nested_urls)
+                self.paths.append(new_dir_name)
+
+        for src, dest in self.src_dest_list:
+            if os.path.exists(dest):
+                self.sigs.replace_files_win.emit()
+                self.toggle_pause_flag(True)
+                while self.pause_flag:
+                    sleep(0.1)
+                break
+
+    def prepare_search_dir(self):
+        existing_paths = set()
+
+        for url in CopyItem.urls:
+            filename = os.path.basename(url)
+            dest_dir = CopyItem.get_dest()
+            base_name, ext = os.path.splitext(filename)
+
+            new_name = filename
+            count = 2
+            full_path = os.path.join(dest_dir, new_name)
+
+            while full_path in existing_paths:
+                new_name = f"{base_name} {count}{ext}"
+                full_path = os.path.join(dest_dir, new_name)
+                count += 1
+
+            existing_paths.add(full_path)
+            self.src_dest_list.append((url, full_path))
+            self.paths.append(full_path)
+
+    def add_copy_to_name(self, url: str):
+        dir_name, file_name = os.path.split(url)
+        name, ext = os.path.splitext(file_name)
+        new_name = f"{name} копия{ext}"
+        return os.path.join(dir_name, new_name)
+
+    def get_nested_urls(self, src_dir: str):
+        stack = [src_dir]
+        nested_paths: list[str] = []
+        while stack:
+            current_dir = stack.pop()
+            for dir_entry in os.scandir(current_dir):
+                if dir_entry.is_dir():
+                    stack.append(dir_entry.path)
+                else:
+                    nested_paths.append(dir_entry.path)
+        return nested_paths
+    
+    def copy_file_with_progress(self, src, dest):
+        block = 4 * 1024 * 1024  # 4 MB
+        with open(src, "rb") as fsrc, open(dest, "wb") as fdst:
+            while True:
+                buf = fsrc.read(block)
+                if not buf:
+                    break
+                fdst.write(buf)
+                self.copied_size += len(buf) // 1024
+                if not self.is_should_run():
+                    return
+                while self.pause_flag:
+                    sleep(0.1)
+
+        shutil.copystat(src, dest, follow_symlinks=True)
+
+    def toggle_pause_flag(self, value: bool):
+        self.pause_flag = value
