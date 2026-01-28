@@ -372,7 +372,7 @@ class ReadImage:
 class PathFinder:
     def __init__(self, input_path: str):
         super().__init__()
-        self.input_path: str = input_path
+        self.input_path: str = rf"{input_path}"
         self.mounted_disks: list[str] = self.get_mounted_disks()
         self.Macintosh_HD: str = self.get_Macintosh_HD()
         self.mounted_disks.remove(self.Macintosh_HD)
@@ -382,7 +382,7 @@ class PathFinder:
             os.path.join(self.Macintosh_HD, "Volumes"),
             os.path.join(self.Macintosh_HD, "System", "Volumes")
         )
-        fixed_path = self.fix_slashes(self.input_path)
+        fixed_path = os.sep + self.input_path.strip(os.sep)
 
         if fixed_path.startswith("/Users"):
             fixed_path = os.path.join(os.sep, "Volumes", self.Macintosh_HD, fixed_path)
@@ -418,15 +418,6 @@ class PathFinder:
             if os.path.exists(full_path):
                 return i
         return None
-
-    def fix_slashes(self, path: str):
-        path = path.strip("'")
-        path = path.strip("\"")
-        path = path.strip()
-        path = path.strip("/")
-        path = path.strip("\\")
-        path = path.replace("\\", "/")
-        return "/" + path
 
     def add_to_start(self, path: str) -> list[str]:
         """
