@@ -546,8 +546,11 @@ class MainWin(WinBase):
             self.setWindowTitle(t)
             end_load_grid()
 
+        try:
         # скрываем старый виджет
-        self.grid.grid_wid.hide()
+            self.grid.grid_wid.hide()
+        except AttributeError:
+            ...
         self.grid_spacer.resize(0, self.height())
         self.grid_spacer.setFocus()
         QTimer.singleShot(100, start_load_grid)

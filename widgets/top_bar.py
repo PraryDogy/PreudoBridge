@@ -46,17 +46,30 @@ class BarTopBtn(QWidget):
         self.v_lay.addWidget(self.lbl, alignment=Qt.AlignmentFlag.AlignCenter)
         self.lbl.hide()
 
+        self._click_blocked = False
+        self._click_timer = QTimer(self)
+        self._click_timer.setSingleShot(True)
+        self._click_timer.timeout.connect(self._unlock_click)
+
     def load(self, path: str):
         self.svg_btn.load(path)
 
     def set_pressed(self, value: bool):
         self.svg_frame.pressed = value
 
-    def mouseReleaseEvent(self, a0):
-        if a0.button() == Qt.MouseButton.LeftButton:
-            self.clicked.emit()
-        super().mouseReleaseEvent(a0)  # Можно оставить, если родительский класс этого требует
+    def _unlock_click(self):
+        self._click_blocked = False
 
+    def mouseReleaseEvent(self, e):
+        if e.button() == Qt.MouseButton.LeftButton:
+            if self._click_blocked:
+                return
+            self._click_blocked = True
+            self._click_timer.stop()
+            self._click_timer.start(500)  # мс
+            self.clicked.emit()
+            print("cicked")
+        super().mouseReleaseEvent(e)
 
 class ListWin(MinMaxDisabledWin):
     search_place_text = "Место поиска:"
