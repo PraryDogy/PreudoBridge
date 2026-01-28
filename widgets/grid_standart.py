@@ -97,7 +97,6 @@ class GridStandart(Grid):
             if not self.finder_task.proc.is_alive():
                 self.finder_timer.stop()
                 self.finder_task.terminate()
-                self.finder_task = None
 
         self.finder_task = ProcessWorker(
             target=FinderItemsLoader.start,
