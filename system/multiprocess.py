@@ -371,3 +371,20 @@ class CacheDownloader:
         img = ReadImage.read_image(data_item.src)
         img = SharedUtils.fit_image(img, Static.max_thumb_size)
         return Utils.write_thumb(data_item.thumb_path, img)
+    
+
+class ImgRes:
+
+    undef_text = "Неизвестно"
+
+    def start(path: str, q: Queue):
+        """
+        Возвращает str "ширина изображения x высота изображения
+        """
+        img_ = ReadImage.read_image(path)
+        if img_ is not None and len(img_.shape) > 1:
+            h, w = img_.shape[0], img_.shape[1]
+            resol= f"{w}x{h}"
+        else:
+            resol = ImgRes.undef_text
+        q.put(resol)

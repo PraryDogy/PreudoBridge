@@ -1,14 +1,15 @@
 import os
 
-from PyQt5.QtCore import Qt, pyqtSignal
+from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import (QAction, QGraphicsOpacityEffect, QGridLayout,
                              QLabel, QSpacerItem)
 
 from cfg import Static
 from system.items import DataItem
+from system.multiprocess import ImgRes, ProcessWorker
 from system.shared_utils import SharedUtils
-from system.tasks import ImgRes, MultipleItemsInfo, UThreadPool
+from system.tasks import MultipleItemsInfo, UThreadPool
 
 from ._base_widgets import MinMaxDisabledWin, UMenu
 from .actions import CopyText, RevealInFinder
@@ -112,6 +113,20 @@ class InfoWin(MinMaxDisabledWin):
             self.multiple_items()
 
     def single_img(self):
+
+        def poll_task(resol_label: SelectableLabel):
+            q = self.img_res.get_queue()
+
+            if not q.empty():
+                resol = q.get()
+                resol_label.setText(resol)
+                self.set_transparent()
+
+            if not self.img_res.proc.is_alive():
+                self.img_res.terminate()
+            else:
+                QTimer.singleShot(100, lambda: poll_task(resol_label))
+
         row = 0
         item = self.items[0]
         labels = {
@@ -132,15 +147,14 @@ class InfoWin(MinMaxDisabledWin):
             row += 1
 
         resol_label = self.findChildren(SelectableLabel)[-1]
+
         if resol_label:
-            self.img_res = ImgRes(item.src)
-            self.img_res.sigs.finished_.connect(
-                lambda text: resol_label.setText(text)
+            self.img_res = ProcessWorker(
+                target=ImgRes.start,
+                args=(item.src, )
             )
-            self.img_res.sigs.finished_.connect(
-                lambda: self.set_transparent()
-            )
-            UThreadPool.start(self.img_res)
+            self.img_res.start()
+            QTimer.singleShot(100, lambda: poll_task(resol_label))
 
     def single_file(self):
         row = 0
