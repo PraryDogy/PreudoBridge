@@ -48,14 +48,19 @@ class GridStandart(Grid):
         col_count = self.get_clmn_count()
 
         for i in range(0, 23):
-            wid = QLabel("Fake wid")
-            wid.setFixedSize(100, 100)
-            wid.setStyleSheet("background: red")
+            data_item = DataItem("/Users/Loshkarev/Desktop/neuro")
+            data_item.set_properties()
+            wid = Thumb(data_item)
+            wid.resize_()
+            wid.set_no_frame()
+            wid.set_uti_data()
+            self.add_widget_data(wid, row, col)
             self.grid_layout.addWidget(wid, row, col)
             col += 1
             if col >= col_count:
                 row += 1
                 col = 0
+        self.rearrange_thumbs()
 
     def show_loading_label(self):
         try:
