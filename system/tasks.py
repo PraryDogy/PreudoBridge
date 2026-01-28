@@ -691,28 +691,6 @@ class CustomSizeCacheCleaner(URunnable):
         Dbase.commit(self.conn)
 
 
-class ImgRes(URunnable):
-
-    class Sigs(QObject):
-        finished_ = pyqtSignal(str)
-
-    undef_text = "Неизвестно"
-
-    def __init__(self, src: str):
-        super().__init__()
-        self.src = src
-        self.sigs = ImgRes.Sigs()
-
-    def task(self):
-        img_ = ReadImage.read_image(self.src)
-        if img_ is not None and len(img_.shape) > 1:
-            h, w = img_.shape[0], img_.shape[1]
-            resol= f"{w}x{h}"
-        else:
-            resol = self.undef_text
-        self.sigs.finished_.emit(resol)
-
-
 class MultipleItemsInfo(URunnable):
 
     class Sigs(QObject):
