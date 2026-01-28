@@ -270,14 +270,14 @@ class ToJpegConverter:
             save_path = ToJpegConverter._save_jpg(url)
             if save_path:
                 new_urls.append(save_path)
-            count = x
-            filename = os.path.basename(url)
+                count = x
+                filename = os.path.basename(url)
 
-            q.put({
-                "total_count": len(urls),
-                "count": count,
-                "filename": filename
-            })
+                q.put({
+                    "total_count": len(urls),
+                    "count": count,
+                    "filename": filename
+                })
 
     @staticmethod
     def _save_jpg(path: str) -> None:
