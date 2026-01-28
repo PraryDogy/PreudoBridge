@@ -72,11 +72,6 @@ class DbItemsLoader:
     
     @staticmethod
     def start(data_items: list[DataItem], q: Queue):
-        """
-        q передается автоматически из ProcessWorker
-        Отправляет в Queue DataItem или {"DataItem": DataItem}
-        """
-
         engine = Dbase.create_engine()
         conn = Dbase.get_conn(engine)
 
