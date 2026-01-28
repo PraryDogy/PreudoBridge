@@ -129,14 +129,14 @@ class GridStandart(Grid):
             self.create_no_items_label(NoItemsLabel.no_conn)
             self.mouseMoveEvent = lambda args: None
             self.load_finished.emit()
-            self.loading_label.deleteLater()
+            self.loading_label.hide()
             return
 
         Thumb.calc_size()
         if len(data_items) == 0:
             self.create_no_items_label(NoItemsLabel.no_files)
             self.load_finished.emit()
-            self.loading_label.deleteLater()
+            self.loading_label.hide()
             return
 
         self.path_bar_update.emit(self.main_win_item.main_dir)
@@ -208,11 +208,28 @@ class GridStandart(Grid):
             self.filter_thumbs()
         self.rearrange_thumbs()
         self.load_finished.emit()
-        self.loading_label.deleteLater()
+        self.loading_label.hide()
         QTimer.singleShot(100, self.load_visible_thumbs_images)
 
-    def resizeEvent(self, a0):
-        return super().resizeEvent(a0)
+    def mousePressEvent(self, a0):
+        if self.loading_label.isVisible():
+            return    
+        return super().mousePressEvent(a0)
+
+    def keyPressEvent(self, a0):
+        if self.loading_label.isVisible():
+            return    
+        return super().keyPressEvent(a0)
+
+    def contextMenuEvent(self, a0):
+        if self.loading_label.isVisible():
+            return    
+        return super().contextMenuEvent(a0)
+
+    def mouseMoveEvent(self, a0):
+        if self.loading_label.isVisible():
+            return  
+        return super().mouseMoveEvent(a0)
     
     def deleteLater(self):
         try:
