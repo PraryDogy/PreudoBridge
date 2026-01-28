@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QAction, QLabel, QLineEdit, QTextEdit
 
 from cfg import Dynamic, Static
 from system.items import SortItem
-from system.tasks import ActionsTask, UThreadPool
+from system.tasks import RevealFiles, UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import UMenu
@@ -40,13 +40,7 @@ class RevealInFinder(QAction):
         subprocess.Popen(["open", self.urls[0]])
 
     def files_cmd(self):
-        self.task_ = ActionsTask(
-            lambda: subprocess.run(
-                [
-                    "osascript",
-                    os.path.join(Static.internal_scpt_dir, "reveal_files.scpt")
-                ] + self.urls)
-        )
+        self.task_ = RevealFiles(self.urls)
         UThreadPool.start(self.task_)
 
 

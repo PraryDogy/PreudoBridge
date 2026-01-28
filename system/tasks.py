@@ -80,15 +80,6 @@ class UThreadPool:
         cls.pool.start(runnable)
 
 
-class ActionsTask(URunnable):
-    def __init__(self,  cmd_: callable):
-        super().__init__()
-        self.cmd_ = cmd_
-
-    def task(self):
-        self.cmd_()
-
-
 class CopyFilesTask(URunnable):
 
     class Sigs(QObject):
@@ -515,6 +506,19 @@ class FileRemover(URunnable):
                 os.path.join(Static.internal_scpt_dir, "remove_files.scpt")
             ] + self.urls)
         self.sigs.finished_.emit()
+
+
+class RevealFiles(URunnable):
+    def __init__(self,  urls: list[str]):
+        super().__init__()
+        self.urls = urls
+
+    def task(self):
+        subprocess.run(
+            [
+                "osascript",
+                os.path.join(Static.internal_scpt_dir, "reveal_files.scpt")
+            ] + self.urls)
 
 
 class DataSizeCounter(URunnable):
