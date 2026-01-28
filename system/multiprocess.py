@@ -34,6 +34,13 @@ class ProcessWorker:
     def get_queue(self):
         # Возвращает очередь для чтения данных из процесса
         return self.queue
+    
+    def terminate(self):
+        self.proc.terminate()
+        self.proc.join(timeout=0.2)
+
+        self.queue.close()
+        self.queue.join_thread()
 
 
 class FinderItemsLoader:

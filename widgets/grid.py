@@ -387,7 +387,7 @@ class Grid(UScrollArea):
         if len(self.tasks) > 1:
             for timer, task in self.tasks:
                 timer.stop()
-                task.proc.terminate()
+                task.terminate()
                 self.tasks.remove((timer, task))
             QTimer.singleShot(300, self.load_visible_thumbs_images)
             return
@@ -440,7 +440,7 @@ class Grid(UScrollArea):
                 print("grid > set_thumb_image runtime err")
                 for timer, task in self.tasks:
                     timer.stop()
-                    task.proc.terminate()
+                    task.terminate()
                     self.tasks.remove((timer, task))
 
         def poll_task(proc_worker: ProcessWorker, proc_timer: QTimer):
@@ -458,7 +458,7 @@ class Grid(UScrollArea):
 
             if not proc_worker.proc.is_alive() and q.empty():
                 proc_timer.stop()
-                proc_worker.proc.terminate()
+                proc_worker.terminate()
                 self.tasks.remove((proc_timer, proc_worker))
                 proc_worker = None
 
@@ -1292,12 +1292,12 @@ class Grid(UScrollArea):
 
     def deleteLater(self):
         try:
-            self.dir_watcher.proc.terminate()
+            self.dir_watcher.terminate()
         except AttributeError:
             ...
         for timer, task in self.tasks:
             timer.stop()
-            task.proc.terminate()
+            task.terminate()
         urls = [i.data.src for i in self.selected_thumbs]
         self.main_win_item.set_urls_to_select(urls)
         for i in self.cell_to_wid.values():
@@ -1307,12 +1307,12 @@ class Grid(UScrollArea):
     
     def closeEvent(self, a0):
         try:
-            self.dir_watcher.proc.terminate()
+            self.dir_watcher.terminate()
         except AttributeError:
             ...
         for timer, task in self.tasks:
             timer.stop()
-            task.proc.terminate()
+            task.terminate()
         urls = [i.src for i in self.selected_thumbs]
         self.main_win_item.set_urls_to_select(urls)
         for i in self.cell_to_wid.values():
