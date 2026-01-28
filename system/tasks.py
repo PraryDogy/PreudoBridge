@@ -517,32 +517,6 @@ class FileRemover(URunnable):
         self.sigs.finished_.emit()
 
 
-class PathFixer(URunnable):
-
-    class Sigs(QObject):
-        finished_ = pyqtSignal(tuple)
-
-    def __init__(self, path: str):
-        """
-        PathFixed.sigs.finished_ -> (fixed path, bool os.path.isdir)
-        """
-        super().__init__()
-        self.path = path
-        self.path_finder = PathFinder(path)
-        self.sigs = PathFixer.Sigs()
-
-    def task(self):
-        if os.path.exists(self.path):
-            result = (self.path, os.path.isdir(self.path))
-        else:
-            fixed_path = self.path_finder.get_result()
-            if fixed_path is not None:
-                result = (fixed_path, os.path.isdir(fixed_path))
-            else:
-                result = (None, None)
-        self.sigs.finished_.emit(result)
-
-
 class ToJpegConverter(URunnable):
 
     class Sigs(QObject):

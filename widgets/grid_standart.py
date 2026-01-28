@@ -206,7 +206,6 @@ class GridStandart(Grid):
     
     def deleteLater(self):
         try:
-            self.finder_timer.stop()
             self.finder_task.terminate()
         except AttributeError:
             ...
@@ -214,7 +213,6 @@ class GridStandart(Grid):
     
     def closeEvent(self, a0):
         try:
-            self.finder_timer.stop()
             self.finder_task.terminate()
         except AttributeError:
             ...
