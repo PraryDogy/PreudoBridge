@@ -227,9 +227,9 @@ class InfoWin(MinMaxDisabledWin):
             q = self.info_task.get_queue()
             if not q.empty():
                 res = q.get()
-                total_size = self.findChildren(SelectableLabel)[3]
-                total_files = self.findChildren(SelectableLabel)[5]
-                total_folders = self.findChildren(SelectableLabel)[7]
+                total_size = self.findChildren(SelectableLabel)[5]
+                total_files = self.findChildren(SelectableLabel)[13]
+                total_folders = self.findChildren(SelectableLabel)[15]
                 total_size.setText(res["total_size"])
                 total_files.setText(res["total_files"])
                 total_folders.setText(res["total_folders"])
