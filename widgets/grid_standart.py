@@ -94,7 +94,7 @@ class GridStandart(Grid):
                 result = q.get()
                 on_items_loaded(result)
 
-            if not self.finder_task.proc.is_alive() and q.empty():
+            if not self.finder_task.proc.is_alive():
                 self.finder_timer.stop()
                 self.finder_task.terminate()
                 self.finder_task = None
