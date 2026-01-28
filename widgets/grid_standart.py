@@ -12,23 +12,16 @@ from .grid import Grid, NoItemsLabel, Thumb
 from .warn_win import WinWarn
 
 
-class LoadingWidget(QFrame):
-    def __init__(self):
-        super().__init__()
-        label = QLabel("Загрузка…")
-        label.setAlignment(Qt.AlignCenter)
-
-        lay = QVBoxLayout(self)
-        lay.setContentsMargins(8, 4, 8, 4)
-        lay.addWidget(label)
-
-        self.setFrameShape(QFrame.StyledPanel)
+class LoadingWidget(QLabel):
+    def __init__(self, text="Загрузка…", parent=None):
+        super().__init__(text, parent)
+        self.setAlignment(Qt.AlignCenter)
         self.setStyleSheet(f"""
             background: {Static.rgba_gray};
             border-radius: 7px;
             font-size: 14px;
+            padding: 4px 8px;
         """)
-
         self.adjustSize()
 
 
