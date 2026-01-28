@@ -1,9 +1,9 @@
 import os
 
-from PyQt5.QtCore import pyqtSignal, QTimer
+from PyQt5.QtCore import QTimer
 
 from cfg import Static
-from system.tasks import ToJpegConverter, UThreadPool
+from system.multiprocess import ProcessWorker, ToJpegConverter
 
 from .progressbar_win import ProgressbarWin
 
@@ -22,25 +22,29 @@ class ImgConvertWin(ProgressbarWin):
         self.below_label.setText(f"0 из {len(urls)}")
 
         if urls:
-            self.tsk_ = ToJpegConverter(urls)
-            self.tsk_.sigs.finished_.connect(lambda urls:self.finished_cmd(urls))
             self.progressbar.setMaximum(len(urls))
-            UThreadPool.start(self.tsk_)
 
-            self.timer_ = QTimer(self)
-            self.timer_.timeout.connect(self.update_gui)
-            self.timer_.start(1000)
+            self.tsk_ = ProcessWorker(
+                target=ToJpegConverter.start,
+                args=(urls, )
+            )
+            self.tsk_.start()
+            QTimer.singleShot(100, self.poll_task)
 
-    def update_gui(self):
-        self.above_label.setText(self.tsk_.current_filename)
-        self.below_label.setText(f"{self.tsk_.current_count} из {self.tsk_.total_count}")
-        self.progressbar.setValue(self.tsk_.current_count)
+    def poll_task(self):
+        q = self.tsk_.get_queue()
+        if not q.empty():
+            result = q.get()
+            self.above_label.setText(result["filename"])
+            self.below_label.setText(f'{result["count"]} из {result["total_count"]}')
+            self.progressbar.setValue(result["count"])
 
-    def finished_cmd(self, urls: list[str]):
-        self.timer_.stop()
-        self.deleteLater()
+        if not self.tsk_.proc.is_alive():
+            self.tsk_.terminate()
+            self.deleteLater()
+        else:
+            QTimer.singleShot(400, self.poll_task)
 
     def cancel_cmd(self):
-        self.tsk_.set_should_run(False)
-        self.timer_.stop()
+        self.tsk_.terminate()
         self.deleteLater()

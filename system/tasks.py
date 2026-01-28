@@ -517,45 +517,6 @@ class FileRemover(URunnable):
         self.sigs.finished_.emit()
 
 
-class ToJpegConverter(URunnable):
-
-    class Sigs(QObject):
-        finished_ = pyqtSignal(list)
-
-    def __init__(self, urls: list[str]):
-        super().__init__()
-        self.urls = urls
-        self.new_urls: list[str] = []
-        self.sigs = ToJpegConverter.Sigs()
-        self.total_count = 0
-        self.current_count = 0
-        self.current_filename = ""
-
-    def task(self):
-        urls = [i for i in self.urls if i.endswith(Static.img_exts)]
-        urls.sort(key=lambda p: os.path.getsize(p))
-        self.total_count = len(urls)
-        for x, url in enumerate(urls, start=1):
-            save_path = self._save_jpg(url)
-            if save_path:
-                self.new_urls.append(save_path)
-            self.current_count = x
-            self.current_filename = os.path.basename(url)
-        self.sigs.finished_.emit(self.new_urls)
-
-    def _save_jpg(self, src: str) -> None:
-        try:
-            img_array = ReadImage.read_image(src)
-            img = Image.fromarray(img_array.astype(np.uint8))
-            img = img.convert("RGB")
-            save_path = os.path.splitext(src)[0] + ".jpg"
-            img.save(save_path, format="JPEG", quality=99)
-            return save_path
-        except Exception:
-            Utils.print_error()
-            return None
-
-
 class DataSizeCounter(URunnable):
     
     class Sigs(QObject):

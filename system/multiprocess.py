@@ -3,6 +3,7 @@ from multiprocessing import Process, Queue
 from time import sleep
 
 import numpy as np
+from PIL import Image
 from sqlalchemy import Connection as Conn
 from sqlalchemy import Engine, select
 from watchdog.events import FileSystemEventHandler
@@ -235,3 +236,58 @@ class PathFixer:
             else:
                 result = (None, None)
         q.put(result)
+
+
+class ToJpegConverter:
+
+    def __init__(self, urls: list[str]):
+        super().__init__()
+        self.urls = urls
+        self.new_urls: list[str] = []
+        self.sigs = ToJpegConverter.Sigs()
+        self.total_count = 0
+        self.current_count = 0
+        self.current_filename = ""
+
+    @staticmethod
+    def start(urls: list[str], q: Queue):
+        """
+        Возвращает {
+            "total_coint": int,
+            "count": int,
+            "filename": str
+        }
+        """
+
+        urls = [i for i in urls if i.endswith(Static.img_exts)]
+        urls.sort(key=lambda p: os.path.getsize(p))
+
+        count = 0
+        filename = ""
+        new_urls: list[str] = []
+
+        for x, url in enumerate(urls, start=1):
+            save_path = ToJpegConverter._save_jpg(url)
+            if save_path:
+                new_urls.append(save_path)
+            count = x
+            filename = os.path.basename(url)
+
+            q.put({
+                "total_count": len(urls),
+                "count": count,
+                "filename": filename
+            })
+
+    @staticmethod
+    def _save_jpg(path: str) -> None:
+        try:
+            img_array = ReadImage.read_image(path)
+            img = Image.fromarray(img_array.astype(np.uint8))
+            img = img.convert("RGB")
+            save_path = os.path.splitext(path)[0] + ".jpg"
+            img.save(save_path, format="JPEG", quality=99)
+            return save_path
+        except Exception:
+            Utils.print_error()
+            return None
