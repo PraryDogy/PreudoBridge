@@ -41,7 +41,7 @@ class GridStandart(Grid):
         self.verticalScrollBar().valueChanged.connect(self.on_scroll)
 
         self.loading_label = LoadingWidget()
-        QTimer.singleShot(10, self.show_loading_label)
+        QTimer.singleShot(1, self.show_loading_label)
 
     def show_loading_label(self):
         try:
@@ -190,7 +190,7 @@ class GridStandart(Grid):
         self.rearrange_thumbs()
         self.load_finished.emit()
         self.loading_label.hide()
-        QTimer.singleShot(100, self.load_visible_thumbs_images)
+        QTimer.singleShot(10, self.load_visible_thumbs_images)
 
     def mousePressEvent(self, a0):
         if self.loading_label.isVisible():
