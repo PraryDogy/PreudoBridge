@@ -43,25 +43,6 @@ class GridStandart(Grid):
         self.loading_label = LoadingWidget()
         QTimer.singleShot(10, self.show_loading_label)
 
-    def fake_grid(self):
-        row, col = 0, 0
-        col_count = self.get_clmn_count()
-
-        for i in range(0, 23):
-            data_item = DataItem("/Users/Loshkarev/Desktop/neuro")
-            data_item.set_properties()
-            wid = Thumb(data_item)
-            wid.resize_()
-            wid.set_no_frame()
-            wid.set_uti_data()
-            self.add_widget_data(wid, row, col)
-            self.grid_layout.addWidget(wid, row, col)
-            col += 1
-            if col >= col_count:
-                row += 1
-                col = 0
-        self.rearrange_thumbs()
-
     def show_loading_label(self):
         try:
             self.loading_label.setParent(self.viewport())
