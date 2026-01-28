@@ -426,8 +426,6 @@ class MultipleInfo:
                 "total_folders": format(info_item.total_folders, ",").replace(",", " ")
             })
         except Exception as e:
-            import traceback
-            print(traceback.format_exc())
             print("tasks, MultipleInfoFiles error", e)
             q.put({
                 "total_size": MultipleInfo.err,
