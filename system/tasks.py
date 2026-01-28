@@ -691,62 +691,6 @@ class CustomSizeCacheCleaner(URunnable):
         Dbase.commit(self.conn)
 
 
-class _DirChangedHandler(FileSystemEventHandler):
-    def __init__(self, callback):
-        super().__init__()
-        self.callback = callback
-
-    def on_any_event(self, event):
-        self.callback(event)
-
-
-class DirWatcher(QThread):
-    changed = pyqtSignal(object)
-
-    def __init__(self, path: str):
-        super().__init__()
-        self.path = path
-        self._running = True
-
-    def stop(self):
-        self._running = False
-
-    def wait_dir(self):
-        while self._running and not os.path.exists(self.path):
-            self.msleep(1000)
-
-    def run(self):
-        if self.path is None:
-            return
-
-        self.wait_dir()
-        if not self._running:
-            return
-
-        observer = Observer()
-        handler = _DirChangedHandler(
-            lambda e: self.changed.emit(e)
-        )
-        observer.schedule(handler, self.path, recursive=False)
-        observer.start()
-
-        try:
-            while self._running:
-                self.msleep(1000)
-                if not os.path.exists(self.path):
-                    observer.stop()
-                    observer.join()
-                    self.wait_dir()
-                    if not self._running:
-                        return
-                    observer = Observer()
-                    observer.schedule(handler, self.path, recursive=False)
-                    observer.start()
-        finally:
-            observer.stop()
-            observer.join()
-
-
 class OnStartTask(URunnable):
 
     class Sigs(QObject):
