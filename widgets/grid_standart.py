@@ -25,16 +25,6 @@ class LoadingWidget(QLabel):
         self.adjustSize()
 
 
-class TimeoutWin(WinWarn):
-    title = "Нет подключения"
-    text = (
-        "Каталог не отвечает.",
-    )
-
-    def __init__(self):
-        super().__init__(TimeoutWin.title, "\n".join(TimeoutWin.text))
-
-
 class GridStandart(Grid):
 
     def __init__(self, main_win_item: MainWinItem, is_grid_search: bool):
