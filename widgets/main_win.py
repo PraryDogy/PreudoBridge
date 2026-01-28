@@ -10,9 +10,10 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
 
 from cfg import Dynamic, JsonData, Static
 from system.items import CopyItem, DataItem, MainWinItem, SearchItem, SortItem
+from system.multiprocess import PathFixer, ProcessWorker
 from system.paletes import UPallete
 from system.shared_utils import SharedUtils
-from system.tasks import AutoCacheCleaner, PathFixer, RatingTask, UThreadPool
+from system.tasks import AutoCacheCleaner, RatingTask, UThreadPool
 from system.utils import Utils
 
 from ._base_widgets import USep, WinBase
@@ -337,22 +338,36 @@ class MainWin(WinBase):
 
     def path_finder_cmd(self, clipboard_path: str):
 
-        def fin(result: tuple[str, bool]):
-            fixed_path, is_dir = result
-            if fixed_path is None:
-                return
-            if is_dir:
-                self.main_win_item.main_dir = fixed_path
+        def poll_task():
+
+            q = self.path_finder_task.get_queue()
+
+            if not q.empty():
+                fixed_path, is_dir = q.get()
+
+                if fixed_path is None:
+                    return
+
+                if is_dir:
+                    self.main_win_item.main_dir = fixed_path
+                else:
+                    self.main_win_item.main_dir = os.path.dirname(fixed_path)
+                    self.main_win_item.set_go_to(fixed_path)
+
+                self.top_bar.new_history_item(self.main_win_item.main_dir)
+                self.load_st_grid()
+
+            if not self.path_finder_task.proc.is_alive():
+                self.path_finder_task.terminate()
             else:
-                self.main_win_item.main_dir = os.path.dirname(fixed_path)
-                self.main_win_item.set_go_to(fixed_path)
+                QTimer.singleShot(100, poll_task)
 
-            self.top_bar.new_history_item(self.main_win_item.main_dir)
-            self.load_st_grid()
-
-        self.path_finder_task = PathFixer(clipboard_path)
-        self.path_finder_task.sigs.finished_.connect(lambda result: fin(result))
-        UThreadPool.start(self.path_finder_task)
+        self.path_finder_task = ProcessWorker(
+            target=PathFixer.start,
+            args=(clipboard_path, )
+        )
+        self.path_finder_task.start()
+        QTimer.singleShot(100, poll_task)
 
     def open_settings(self, *args):
         self.sett_win = SettingsWin()

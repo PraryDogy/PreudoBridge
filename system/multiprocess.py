@@ -222,8 +222,10 @@ class DirWatcher:
 class PathFixer:
 
     @staticmethod
-    def task(path: str, q: Queue):
-        if os.path.exists(path):
+    def start(path: str, q: Queue):
+        if not path:
+            result = (None, None)
+        elif os.path.exists(path):
             result = (path, os.path.isdir(path))
         else:
             path_finder = PathFinder(path)
