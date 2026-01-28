@@ -1,7 +1,7 @@
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import QLabel
 
-from cfg import Dynamic
+from cfg import Dynamic, JsonData
 from system.items import DataItem, MainWinItem
 from system.multiprocess import FinderItemsLoader, ProcessWorker
 
@@ -80,7 +80,7 @@ class GridStandart(Grid):
 
         self.finder_task = ProcessWorker(
             target=FinderItemsLoader.start,
-            args=(self.main_win_item, self.sort_item)
+            args=(self.main_win_item, self.sort_item, JsonData.show_hidden)
         )
         self.finder_task.start()
 

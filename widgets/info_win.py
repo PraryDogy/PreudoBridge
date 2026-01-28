@@ -5,9 +5,9 @@ from PyQt5.QtGui import QContextMenuEvent, QKeyEvent
 from PyQt5.QtWidgets import (QAction, QGraphicsOpacityEffect, QGridLayout,
                              QLabel, QSpacerItem)
 
-from cfg import Static
+from cfg import JsonData, Static
 from system.items import DataItem
-from system.multiprocess import ImgRes, ProcessWorker, MultipleInfo
+from system.multiprocess import ImgRes, MultipleInfo, ProcessWorker
 from system.shared_utils import SharedUtils
 
 from ._base_widgets import MinMaxDisabledWin, UMenu
@@ -216,7 +216,7 @@ class InfoWin(MinMaxDisabledWin):
 
         self.info_task = ProcessWorker(
             target=MultipleInfo.start,
-            args=(items, )
+            args=(items, JsonData.show_hidden, )
         )
         self.info_task.start()
         QTimer.singleShot(100, poll_task)
@@ -267,7 +267,7 @@ class InfoWin(MinMaxDisabledWin):
 
         self.info_task = ProcessWorker(
             target=MultipleInfo.start,
-            args=(items, )
+            args=(items, JsonData.show_hidden, )
         )
         self.info_task.start()
         QTimer.singleShot(100, poll_task)

@@ -6,7 +6,7 @@ import numpy as np
 import sqlalchemy
 from PIL import Image
 from sqlalchemy import Connection as Conn
-from sqlalchemy import Engine, select
+from sqlalchemy import select
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers.polling import PollingObserver as Observer
 
@@ -47,12 +47,12 @@ class ProcessWorker:
 
 class FinderItemsLoader:
     @staticmethod
-    def start(main_win_item: MainWinItem, sort_item: SortItem, q: Queue):
+    def start(main_win_item: MainWinItem, sort_item: SortItem, show_hidden: bool, q: Queue):
         """
         Добавляет в очередь {"path": str filepath, "data_items": list DataItem}
         """
         items = []
-        hidden_syms = () if JsonData.show_hidden else Static.hidden_symbols
+        hidden_syms = () if show_hidden else Static.hidden_symbols
 
         fixed_path = PathFinder(main_win_item.main_dir).get_result()
         if fixed_path is None:
@@ -393,17 +393,16 @@ class ImgRes:
 class _MultipleInfoItem:
     def __init__(self):
         super().__init__()
-        self.total_files: int = 0
-        self.total_folders: int = 0
         self.total_size: int = 0
+        self.folders_set = set()
+        self.files_set = set()
 
 
 class MultipleInfo:
     err = " Произошла ошибка"
 
-
     @staticmethod
-    def start(data_items: list[DataItem], q: Queue):
+    def start(data_items: list[DataItem], show_hidden: bool, q: Queue):
         """
         Принимает [
             "src": str,
@@ -419,14 +418,19 @@ class MultipleInfo:
 
         info_item = _MultipleInfoItem()
         try:
-            MultipleInfo._task(data_items, info_item)
+            MultipleInfo._task(data_items, info_item, show_hidden)
+            total_files = len(list(info_item.files_set))
+            total_folders = len(list(info_item.folders_set))
+            
             q.put({
                 "total_size": SharedUtils.get_f_size(info_item.total_size),
-                "total_files": format(info_item.total_files, ",").replace(",", " "),
-                "total_folders": format(info_item.total_folders, ",").replace(",", " ")
+                "total_files": format(total_files, ",").replace(",", " "),
+                "total_folders": format(total_folders, ",").replace(",", " ")
             })
         except Exception as e:
             print("tasks, MultipleInfoFiles error", e)
+            import traceback
+            print(traceback.format_exc())
             q.put({
                 "total_size": MultipleInfo.err,
                 "total_files": MultipleInfo.err,
@@ -434,17 +438,17 @@ class MultipleInfo:
             })
 
     @staticmethod
-    def _task(items: list[dict], info_item: _MultipleInfoItem):
+    def _task(items: list[dict], info_item: _MultipleInfoItem, show_hidden: bool):
         for i in items:
             if i["type_"] == Static.folder_type:
-                MultipleInfo.get_folder_size(i, info_item)
-                info_item.total_folders += 1
+                MultipleInfo.get_folder_size(i, info_item, show_hidden)
+                info_item.folders_set.add(i["src"])
             else:
                 info_item.total_size += i["size"]
-                info_item.total_files += 1
+                info_item.files_set.add(i["src"])
 
     @staticmethod
-    def get_folder_size(item: dict, info_item: _MultipleInfoItem):
+    def get_folder_size(item: dict, info_item: _MultipleInfoItem, show_hidden: bool):
         stack = [item["src"]]
         while stack:
             current_dir = stack.pop()
@@ -453,11 +457,18 @@ class MultipleInfo:
             except Exception as e:
                 print("tasks, MultipleItemsInfo error", e)
                 continue
-            with os.scandir(current_dir) as entries:
-                for entry in entries:
-                    if entry.is_dir():
-                        info_item.total_folders += 1
-                        stack.append(entry.path)
-                    else:
+            for entry in os.scandir(current_dir):
+                if entry.is_dir():
+                    info_item.folders_set.add(item["src"])
+                    stack.append(entry.path)
+                else:
+                    if show_hidden:
                         info_item.total_size += entry.stat().st_size
-                        info_item.total_files += 1
+                        info_item.files_set.add(entry.path)
+                    if not entry.name.startswith(Static.hidden_symbols):
+                        info_item.total_size += entry.stat().st_size
+                        info_item.files_set.add(entry.path)
+                
+            # print(JsonData.show_hidden)
+            # for i in info_item.files_set:
+            #     print(i)
