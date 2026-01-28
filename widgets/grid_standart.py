@@ -11,10 +11,9 @@ from .grid import Grid, NoItemsLabel, Thumb
 class LoadingWidget(QLabel):
     def __init__(self, text="Загрузка…", parent=None):
         super().__init__(text, parent)
-        self.setAlignment(Qt.AlignCenter)
-        self.setStyleSheet(f"""
-            font-size: 15px;
-        """)
+        # self.setStyleSheet(f"""
+        #     font-size: 15px;
+        # """)
         self.adjustSize()
 
 
