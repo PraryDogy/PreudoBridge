@@ -468,7 +468,3 @@ class MultipleInfo:
                     if not entry.name.startswith(Static.hidden_symbols):
                         info_item.total_size += entry.stat().st_size
                         info_item.files_set.add(entry.path)
-                
-            # print(JsonData.show_hidden)
-            # for i in info_item.files_set:
-            #     print(i)
