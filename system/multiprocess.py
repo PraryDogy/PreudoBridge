@@ -47,7 +47,7 @@ class FinderItemsLoader:
     @staticmethod
     def start(main_win_item: MainWinItem, sort_item: SortItem, q: Queue):
         """
-        q передается автоматически из ProcessWorker
+        Добавляет в очередь {"path": str filepath, "data_items": list DataItem}
         """
         items = []
         hidden_syms = () if JsonData.show_hidden else Static.hidden_symbols
