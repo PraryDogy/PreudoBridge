@@ -115,15 +115,15 @@ class InfoWin(MinMaxDisabledWin):
     def single_img(self):
 
         def poll_task(resol_label: SelectableLabel):
-            q = self.img_res.get_queue()
+            q = self.img_res_task.get_queue()
 
             if not q.empty():
                 resol = q.get()
                 resol_label.setText(resol)
                 self.set_transparent()
 
-            if not self.img_res.proc.is_alive():
-                self.img_res.terminate()
+            if not self.img_res_task.proc.is_alive():
+                self.img_res_task.terminate()
             else:
                 QTimer.singleShot(100, lambda: poll_task(resol_label))
 
@@ -149,11 +149,11 @@ class InfoWin(MinMaxDisabledWin):
         resol_label = self.findChildren(SelectableLabel)[-1]
 
         if resol_label:
-            self.img_res = ProcessWorker(
+            self.img_res_task = ProcessWorker(
                 target=ImgRes.start,
                 args=(item.src, )
             )
-            self.img_res.start()
+            self.img_res_task.start()
             QTimer.singleShot(100, lambda: poll_task(resol_label))
 
     def single_file(self):
@@ -258,6 +258,10 @@ class InfoWin(MinMaxDisabledWin):
             return "\n".join(text)
         else:
             return text
+        
+    def deleteLater(self):
+        self.img_res_task.terminate()
+        return super().deleteLater()
 
     def keyPressEvent(self, a0: QKeyEvent | None) -> None:
         if a0.key() in (Qt.Key.Key_Escape, Qt.Key.Key_Return):
