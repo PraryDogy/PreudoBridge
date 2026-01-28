@@ -58,10 +58,21 @@ class GridStandart(Grid):
         self.verticalScrollBar().valueChanged.connect(self.on_scroll)
 
         self.loading_label = LoadingWidget()
-        self.loading_timer = QTimer(self)
-        self.loading_timer.setSingleShot(True)
-        self.loading_timer.timeout.connect(self.show_loading_label)
-        self.loading_timer.start(1500)
+        QTimer.singleShot(10, self.show_loading_label)
+
+    def fake_grid(self):
+        row, col = 0, 0
+        col_count = self.get_clmn_count()
+
+        for i in range(0, 23):
+            wid = QLabel("Fake wid")
+            wid.setFixedSize(100, 100)
+            wid.setStyleSheet("background: red")
+            self.grid_layout.addWidget(wid, row, col)
+            col += 1
+            if col >= col_count:
+                row += 1
+                col = 0
 
     def show_loading_label(self):
         try:
@@ -206,13 +217,17 @@ class GridStandart(Grid):
         return super().resizeEvent(a0)
     
     def deleteLater(self):
-        self.proc_worker_timer.stop()
-        if self.process_worker is not None:
+        try:
+            self.proc_worker_timer.stop()
             self.process_worker.terminate()
+        except AttributeError:
+            ...
         return super().deleteLater()
     
     def closeEvent(self, a0):
-        self.proc_worker_timer.stop()
-        if self.process_worker is not None:
+        try:
+            self.proc_worker_timer.stop()
             self.process_worker.terminate()
+        except AttributeError:
+            ...
         return super().closeEvent(a0)
