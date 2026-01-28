@@ -68,7 +68,6 @@ class BarTopBtn(QWidget):
             self._click_timer.stop()
             self._click_timer.start(500)  # мс
             self.clicked.emit()
-            print("cicked")
         super().mouseReleaseEvent(e)
 
 class ListWin(MinMaxDisabledWin):
