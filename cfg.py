@@ -3,7 +3,7 @@ import os
 
 class Static:
     app_name = "PreudoBridge"
-    app_ver = 4.77
+    app_ver = 4.8
 
     app_dir = os.path.join(os.path.expanduser('~/Library/Application Support'), app_name)
     external_uti_dir = os.path.join(app_dir, "uti_icons")
