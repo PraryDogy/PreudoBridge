@@ -457,16 +457,9 @@ class MultipleInfo:
                 continue
             with os.scandir(current_dir) as entries:
                 for entry in entries:
-                    try:
-                        if entry.is_dir():
-                            info_item.total_folders += 1
-                            stack.append(entry.path)
-                    except Exception as e:
-                        print("tasks, MultipleItemsInfo error", e)
+                    if entry.is_dir():
+                        info_item.total_folders += 1
+                        stack.append(entry.path)
                     else:
-                        try:
-                            info_item.total_size += entry.stat().st_size
-                            info_item.total_files += 1
-                        except Exception as e:
-                            print("tasks, MultipleItemsInfo error", e)
-                            continue
+                        info_item.total_size += entry.stat().st_size
+                        info_item.total_files += 1
