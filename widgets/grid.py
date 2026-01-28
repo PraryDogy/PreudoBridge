@@ -300,7 +300,6 @@ class Grid(UScrollArea):
         self.url_to_wid: dict[str, Thumb] = {}
         self.cell_to_wid: dict[tuple, Thumb] = {}
         self.selected_thumbs: list[Thumb] = []
-        self.tasks: list[tuple[QTimer, ProcessWorker]] = []
         self.removed_urls: list[Thumb] = []
         self.wid_under_mouse: Thumb = None
         self.copy_files_icon: QImage = self.set_files_icon()
@@ -384,13 +383,10 @@ class Grid(UScrollArea):
         if not self.grid_wid.isVisible():
             return
 
-        if len(self.tasks) > 1:
-            for timer, task in self.tasks:
-                timer.stop()
-                task.terminate()
-                self.tasks.remove((timer, task))
-            QTimer.singleShot(300, self.load_visible_thumbs_images)
-            return
+        try:
+            self.img_task.terminate()
+        except AttributeError:
+            ...
         
         thumbs: list[Thumb] = []
         self.grid_wid.layout().activate() 
@@ -438,13 +434,10 @@ class Grid(UScrollArea):
 
             except RuntimeError as e:
                 print("grid > set_thumb_image runtime err")
-                for timer, task in self.tasks:
-                    timer.stop()
-                    task.terminate()
-                    self.tasks.remove((timer, task))
+                self.img_task.terminate()
 
-        def poll_task(proc_worker: ProcessWorker, proc_timer: QTimer):
-            q = proc_worker.get_queue()
+        def poll_task():
+            q = self.img_task.get_queue()
 
             # 1. забираем все сообщения
             while not q.empty():
@@ -456,25 +449,21 @@ class Grid(UScrollArea):
                     if data_item.img_array is not None:
                         update_thumb(data_item)
 
-            if not proc_worker.proc.is_alive() and q.empty():
-                proc_timer.stop()
-                proc_worker.terminate()
-                self.tasks.remove((proc_timer, proc_worker))
-                proc_worker = None
+            if not self.img_task.proc.is_alive():
+                self.img_task.terminate()
 
         if not thumbs:
             return
         
-        proc_worker = ProcessWorker(
+        self.img_task = ProcessWorker(
             target=DbItemsLoader.start,
             args=([i.data for i in thumbs], )
         )
-        proc_timer = QTimer(self)
+        self.img_task.start()
 
-        self.tasks.append((proc_timer, proc_worker))
-        proc_worker.start()
-        proc_timer.timeout.connect(lambda: poll_task(proc_worker, proc_timer))
-        proc_timer.start(500)
+        self.img_timer = QTimer(self)
+        self.img_timer.timeout.connect(poll_task)
+        self.img_timer.start(500)
 
     def reload_rubber(self):
         self.rubberBand.deleteLater()
@@ -1289,11 +1278,9 @@ class Grid(UScrollArea):
     def deleteLater(self):
         try:
             self.dir_watcher.terminate()
+            self.img_task.terminate()
         except AttributeError:
             ...
-        for timer, task in self.tasks:
-            timer.stop()
-            task.terminate()
         urls = [i.data.src for i in self.selected_thumbs]
         self.main_win_item.set_urls_to_select(urls)
         for i in self.cell_to_wid.values():
@@ -1304,11 +1291,9 @@ class Grid(UScrollArea):
     def closeEvent(self, a0):
         try:
             self.dir_watcher.terminate()
+            self.img_task.terminate()
         except AttributeError:
             ...
-        for timer, task in self.tasks:
-            timer.stop()
-            task.terminate()
         urls = [i.src for i in self.selected_thumbs]
         self.main_win_item.set_urls_to_select(urls)
         for i in self.cell_to_wid.values():
