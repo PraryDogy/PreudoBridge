@@ -17,10 +17,7 @@ class LoadingWidget(QLabel):
         super().__init__(text, parent)
         self.setAlignment(Qt.AlignCenter)
         self.setStyleSheet(f"""
-            background: {Static.rgba_gray};
-            border-radius: 7px;
-            font-size: 14px;
-            padding: 4px 8px;
+            font-size: 15px;
         """)
         self.adjustSize()
 
