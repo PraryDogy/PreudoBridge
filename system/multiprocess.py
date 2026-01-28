@@ -216,3 +216,20 @@ class DirWatcher:
         finally:
             observer.stop()
             observer.join()
+
+
+
+class PathFixer:
+
+    @staticmethod
+    def task(path: str, q: Queue):
+        if os.path.exists(path):
+            result = (path, os.path.isdir(path))
+        else:
+            path_finder = PathFinder(path)
+            fixed_path = path_finder.get_result()
+            if fixed_path is not None:
+                result = (fixed_path, os.path.isdir(fixed_path))
+            else:
+                result = (None, None)
+        q.put(result)
