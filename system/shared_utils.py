@@ -5,6 +5,7 @@ import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
 
+import cairosvg
 import cv2
 import numpy as np
 import rawpy
@@ -156,6 +157,10 @@ class ReadImage:
         ".icns", ".ICNS",
     )
 
+    ext_svg = (
+        ".svg", ".SVG"
+    )
+
     ext_all = (
         *ext_jpeg,
         *ext_tiff,
@@ -164,6 +169,7 @@ class ReadImage:
         *ext_raw,
         *ext_video,
         *ext_icns,
+        *ext_svg,
     )
 
     @classmethod
@@ -230,15 +236,12 @@ class ReadImage:
     @classmethod
     def _read_icns(cls, path: str):
         return cls._read_png(path)
-        # return cls._read_quicklook(path)
-        try:
-            im = Image.open(path).convert("RGBA")  # конвертируем в RGBA
-            arr = np.array(im)  # превращаем в ndarray (H, W, 4)
-            return arr
-        except Exception as e:
-            # print(traceback.format_exc())
-            print("read icns error", e)
-            return None
+        
+    @classmethod
+    def _read_svg(cls, path: str):
+        png_data = cairosvg.svg2png(url=path)
+        nparr = np.frombuffer(png_data, np.uint8)
+        return cv2.imdecode(nparr, cv2.IMREAD_UNCHANGED)
 
     @classmethod
     def _read_png(cls, path: str) -> np.ndarray | None:
@@ -253,21 +256,6 @@ class ReadImage:
             print("read png, PIL error", e)
             return None
 
-
-    # @classmethod
-    # def _read_png(cls, path: str) -> np.ndarray | None:
-    #     try:
-    #         img = Image.open(path)
-    #         if img.mode == "RGBA":
-    #             white_background = Image.new("RGBA", img.size, (255, 255, 255))
-    #             img = Image.alpha_composite(white_background, img)
-    #         img = img.convert("RGB")
-    #         array_img = np.array(img)
-    #         img.close()
-    #         return array_img
-    #     except Exception as e:
-    #         print("read png, PIL error", e)
-    #         return None
 
     @classmethod
     def _read_jpg(cls, path: str) -> np.ndarray | None:
@@ -361,6 +349,8 @@ class ReadImage:
             read_any_dict[i] = cls._read_movie
         for i in cls.ext_icns:
             read_any_dict[i] = cls._read_icns
+        for i in cls.ext_svg:
+            read_any_dict[i] = cls._read_svg
         fn = read_any_dict.get(ext)
         if fn:
             cls._read_any = fn

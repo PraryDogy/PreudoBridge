@@ -121,7 +121,7 @@ class DbItemsLoader:
                         exist_ratings.append(data_item)
 
         DbItemsLoader.execute_ratings(exist_ratings, q)
-        # DbItemsLoader.execute_svg_files(svg_files)
+        DbItemsLoader.execute_svg_files(svg_files, q)
         DbItemsLoader.execute_exist_images(exist_images, q)
         DbItemsLoader.execute_new_images(new_images, q)
         DbItemsLoader.execute_stmt_list(stmt_list, conn)
@@ -135,15 +135,10 @@ class DbItemsLoader:
     @staticmethod
     def execute_svg_files(data_items: list[DataItem], q: Queue):
         for i in data_items:
-            img_array = "загружаем свг как аррай"
-            i.img_array = {
-                sz: SharedUtils.fit_image(img_array, sz)
-                for sz in Static.image_sizes
-            }
-            i.img_array.update(
-                {"src": img_array}
-            )
-            q.put(i)
+            img_array = ReadImage.read_image(i.src)
+            img_array = SharedUtils.fit_image(img_array, 512)
+            data = {"src": i.src, "img_array": img_array}
+            q.put(data)
 
     @staticmethod
     def execute_ratings(data_items: list[DataItem], q: Queue):
