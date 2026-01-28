@@ -290,10 +290,19 @@ class CacheDownloader:
 
     @staticmethod
     def start(dirs: list[str], q: Queue):
-        stmt_limit = 10
-        conn = Dbase.engine.connect()
+        """
+        Возвращает {
+            "total_count": int,
+            "count": int,
+            "filename": str
+        }
+        """
+
+        engine = Dbase.create_engine()
+        conn = Dbase.get_conn(engine)
         new_images = CacheDownloader.prepare_images(conn, dirs)
         total_count = len(new_images)
+        stmt_limit = 10
         count = 0
         filename = ""
         stmt_list = []
