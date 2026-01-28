@@ -489,15 +489,6 @@ class Grid(UScrollArea):
             return self.viewport().width() // Thumb.thumb_w
         except ZeroDivisionError:
             return 1
-        
-        win_ww = self.window().width()
-        splitter = self.window().findChild(QSplitter)
-        if splitter:
-            left_menu: QWidget = splitter.children()[1]
-            left_menu_ww = left_menu.width()
-            return (win_ww - left_menu_ww) // Thumb.thumb_w
-        else:
-            return 1
 
     def path_bar_update_delayed(self, src: str):
         """

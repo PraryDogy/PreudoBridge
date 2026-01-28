@@ -87,27 +87,26 @@ class GridStandart(Grid):
             self.fin_load_finder_items(result)
 
         def poll_task():
-            q = self.process_worker.get_queue()
+            q = self.finder_task.get_queue()
 
             # 1. забираем все сообщения
             while not q.empty():
                 result = q.get()
                 on_items_loaded(result)
 
-            if not self.process_worker.proc.is_alive() and q.empty():
-                self.proc_worker_timer.stop()
-                self.process_worker.terminate()
-                self.process_worker = None
+            if not self.finder_task.proc.is_alive() and q.empty():
+                self.finder_timer.stop()
+                self.finder_task.terminate()
+                self.finder_task = None
 
-        self.process_worker = ProcessWorker(
+        self.finder_task = ProcessWorker(
             target=FinderItemsLoader.start,
             args=(self.main_win_item, self.sort_item)
         )
-        self.process_worker.start()
-        
-        self.proc_worker_timer = QTimer(self)
-        self.proc_worker_timer.timeout.connect(poll_task)
-        self.proc_worker_timer.start(200)
+        self.finder_task.start()
+        self.finder_timer = QTimer(self)
+        self.finder_timer.timeout.connect(poll_task)
+        self.finder_timer.start(200)
 
     def fin_load_finder_items(self, result):
         fixed_path = result["path"]
@@ -206,16 +205,16 @@ class GridStandart(Grid):
     
     def deleteLater(self):
         try:
-            self.proc_worker_timer.stop()
-            self.process_worker.terminate()
+            self.finder_timer.stop()
+            self.finder_task.terminate()
         except AttributeError:
             ...
         return super().deleteLater()
     
     def closeEvent(self, a0):
         try:
-            self.proc_worker_timer.stop()
-            self.process_worker.terminate()
+            self.finder_timer.stop()
+            self.finder_task.terminate()
         except AttributeError:
             ...
         return super().closeEvent(a0)
