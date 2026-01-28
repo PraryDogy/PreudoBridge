@@ -5,7 +5,6 @@ import tempfile
 from datetime import datetime, timedelta
 from pathlib import Path
 
-import cairosvg
 import cv2
 import numpy as np
 import rawpy
@@ -239,6 +238,8 @@ class ReadImage:
         
     @classmethod
     def _read_svg(cls, path: str):
+        # ленивый импорт происходит здесь, чтобы через py2app не падало приложение
+        import cairosvg
         png_data = cairosvg.svg2png(url=path)
         nparr = np.frombuffer(png_data, np.uint8)
         return cv2.imdecode(nparr, cv2.IMREAD_UNCHANGED)
