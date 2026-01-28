@@ -340,7 +340,7 @@ class MainWin(WinBase):
 
         def poll_task():
 
-            q = self.path_finder_task.get_queue()
+            q = self.path_fixer_task.get_queue()
 
             if not q.empty():
                 fixed_path, is_dir = q.get()
@@ -357,16 +357,16 @@ class MainWin(WinBase):
                 self.top_bar.new_history_item(self.main_win_item.main_dir)
                 self.load_st_grid()
 
-            if not self.path_finder_task.proc.is_alive():
-                self.path_finder_task.terminate()
+            if not self.path_fixer_task.proc.is_alive():
+                self.path_fixer_task.terminate()
             else:
                 QTimer.singleShot(100, poll_task)
 
-        self.path_finder_task = ProcessWorker(
+        self.path_fixer_task = ProcessWorker(
             target=PathFixer.start,
             args=(clipboard_path, )
         )
-        self.path_finder_task.start()
+        self.path_fixer_task.start()
         QTimer.singleShot(100, poll_task)
 
     def open_settings(self, *args):

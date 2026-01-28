@@ -17,15 +17,15 @@ class CacheDownloadWin(ProgressbarWin):
         self.above_label.setText(self.preparing_text)
         self.cancel_btn.clicked.connect(self.on_cancel)
 
-        self.tsk_ = ProcessWorker(
+        self.cache_download_task = ProcessWorker(
             target=CacheDownloader.start,
             args=(dirs, )
         )
-        self.tsk_.start()
+        self.cache_download_task.start()
         QTimer.singleShot(100, self.poll_task)
 
     def poll_task(self):
-        q = self.tsk_.get_queue()
+        q = self.cache_download_task.get_queue()
         maximum = 0
         if not q.empty():
             res = q.get()
@@ -37,12 +37,16 @@ class CacheDownloadWin(ProgressbarWin):
             self.below_label.setText(f'{res["count"]} из {res["total_count"]}')
             self.progressbar.setValue(res["count"])
 
-        if not self.tsk_.proc.is_alive():
-            self.tsk_.terminate()
+        if not self.cache_download_task.proc.is_alive():
+            self.cache_download_task.terminate()
             self.deleteLater()
         else:
             QTimer.singleShot(100, self.poll_task)
 
     def on_cancel(self, *args):
-        self.tsk_.terminate()
+        self.cache_download_task.terminate()
         self.deleteLater()
+
+    def deleteLater(self):
+        self.cache_download_task.terminate()
+        return super().deleteLater()

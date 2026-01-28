@@ -24,27 +24,31 @@ class ImgConvertWin(ProgressbarWin):
         if urls:
             self.progressbar.setMaximum(len(urls))
 
-            self.tsk_ = ProcessWorker(
+            self.jpg_convert_task = ProcessWorker(
                 target=ToJpegConverter.start,
                 args=(urls, )
             )
-            self.tsk_.start()
+            self.jpg_convert_task.start()
             QTimer.singleShot(100, self.poll_task)
 
     def poll_task(self):
-        q = self.tsk_.get_queue()
+        q = self.jpg_convert_task.get_queue()
         if not q.empty():
             result = q.get()
             self.above_label.setText(result["filename"])
             self.below_label.setText(f'{result["count"]} из {result["total_count"]}')
             self.progressbar.setValue(result["count"])
 
-        if not self.tsk_.proc.is_alive():
-            self.tsk_.terminate()
+        if not self.jpg_convert_task.proc.is_alive():
+            self.jpg_convert_task.terminate()
             self.deleteLater()
         else:
             QTimer.singleShot(400, self.poll_task)
 
     def cancel_cmd(self):
-        self.tsk_.terminate()
+        self.jpg_convert_task.terminate()
         self.deleteLater()
+
+    def deleteLater(self):
+        self.jpg_convert_task.terminate()
+        return super().deleteLater()
