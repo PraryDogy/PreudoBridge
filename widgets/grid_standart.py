@@ -1,15 +1,11 @@
-import os
-import time
-
 from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtWidgets import QFrame, QLabel, QVBoxLayout
+from PyQt5.QtWidgets import QLabel
 
-from cfg import Dynamic, Static
+from cfg import Dynamic
 from system.items import DataItem, MainWinItem
-from system.multiprocess import ProcessWorker, FinderItemsLoader
+from system.multiprocess import FinderItemsLoader, ProcessWorker
 
 from .grid import Grid, NoItemsLabel, Thumb
-from .warn_win import WinWarn
 
 
 class LoadingWidget(QLabel):
