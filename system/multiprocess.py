@@ -3,6 +3,7 @@ from multiprocessing import Process, Queue
 from time import sleep
 
 import numpy as np
+import sqlalchemy
 from PIL import Image
 from sqlalchemy import Connection as Conn
 from sqlalchemy import Engine, select
@@ -240,20 +241,11 @@ class PathFixer:
 
 class ToJpegConverter:
 
-    def __init__(self, urls: list[str]):
-        super().__init__()
-        self.urls = urls
-        self.new_urls: list[str] = []
-        self.sigs = ToJpegConverter.Sigs()
-        self.total_count = 0
-        self.current_count = 0
-        self.current_filename = ""
-
     @staticmethod
     def start(urls: list[str], q: Queue):
         """
         Возвращает {
-            "total_coint": int,
+            "total_count": int,
             "count": int,
             "filename": str
         }
@@ -294,79 +286,79 @@ class ToJpegConverter:
         
 
 
-# class CacheDownloader:
+class CacheDownloader:
 
-#     def __init__(self, dirs: list[str]):
-#         super().__init__()
-#         self.dirs = dirs
-#         self.sigs = CacheDownloader.Sigs()
-#         self.conn = Dbase.get_conn(Dbase.engine)
-#         self.current_filename = ""
-#         self.current_count = 0
+    @staticmethod
+    def start(dirs: list[str], q: Queue):
+        stmt_limit = 10
+        conn = Dbase.engine.connect()
+        new_images = CacheDownloader.prepare_images(conn, dirs)
+        total_count = len(new_images)
+        count = 0
+        filename = ""
+        stmt_list = []
 
-#     @staticmethod
-#     def _task(self):
-#         new_images = self.prepare_images()
-#         stmt_list = []
-#         stmt_limit = 10
+        for x, data in enumerate(new_images, start=1):
+            data_item: DataItem = data["data_item"]
+            count = x
+            filename = data_item.filename
+            if CacheDownloader.write_thumb(data_item):
+                stmt_list.append(data["stmt"])
+                q.put({
+                    "total_count": total_count,
+                    "count": count,
+                    "filename": filename
+                })
+                if len(stmt_list) == stmt_limit:
+                    CacheDownloader.execute_stmt_list(conn, stmt_list)
+                    stmt_list.clear()
 
-#         self.sigs.total_count.emit(len(new_images))
-#         for x, data in enumerate(new_images, start=1):
-#             if not self.is_should_run():
-#                 if stmt_list:
-#                     self.execute_stmt_list(stmt_list)
-#                 return
-#             data_item: DataItem = data["data_item"]
-#             self.current_count = x
-#             self.current_filename = data_item.filename
-#             if self.write_thumb(data_item):
-#                 stmt_list.append(data["stmt"])
-#                 if len(stmt_list) == stmt_limit:
-#                     self.execute_stmt_list(stmt_list)
-#                     stmt_list.clear()
-#         if stmt_list:
-#             self.execute_stmt_list(stmt_list)
+        if stmt_list:
+            CacheDownloader.execute_stmt_list(conn, stmt_list)
 
-#     def execute_stmt_list(self, stmt_list: list):
-#         for i in stmt_list:
-#             Dbase.execute(self.conn, i)
-#         Dbase.commit(self.conn)
+    @staticmethod
+    def execute_stmt_list(conn: sqlalchemy.Connection, stmt_list: list):
+        for i in stmt_list:
+            Dbase.execute(conn, i)
+        Dbase.commit(conn)
 
-#     def prepare_images(self):
-#         new_images: list[dict[DataItem, str]] = []
-#         stack = [*self.dirs]
+    @staticmethod
+    def prepare_images(conn: sqlalchemy.Connection, dirs: list[str]):
+        new_images: list[dict[DataItem, str]] = []
+        stack = [*dirs]
 
-#         while stack:
-#             last_dir = stack.pop()
-#             for i in os.scandir(last_dir):
-#                 if not self.is_should_run():
-#                     return new_images
-#                 if i.is_dir():
-#                     stack.append(i.path)
-#                 elif i.name.endswith(Static.img_exts):
-#                     data_item = DataItem(i.path)
-#                     data_item.set_properties()
-#                     data_item.set_partial_hash()
-#                     if self.exists_check(data_item) is None:
-#                         new_images.append({
-#                             "data_item": data_item,
-#                             "stmt": DataItem.insert_file_stmt(data_item)
-#                         })
-#         return new_images
+        while stack:
+            last_dir = stack.pop()
+            for i in os.scandir(last_dir):
+                if i.is_dir():
+                    stack.append(i.path)
+                elif i.name.endswith(Static.img_exts):
+                    data_item = DataItem(i.path)
+                    data_item.set_properties()
+                    data_item.set_partial_hash()
+                    if CacheDownloader.exists_check(conn, data_item) is None:
+                        new_images.append({
+                            "data_item": data_item,
+                            "stmt": DataItem.insert_file_stmt(data_item)
+                        })
+        return new_images
 
-#     def exists_check(self, data_item: DataItem):
-#         stmt = (
-#             sqlalchemy.select(Clmns.id)
-#             .where(Clmns.partial_hash == data_item.partial_hash)
-#         )
-#         return Dbase.execute(self.conn, stmt).scalar() or None
+    @staticmethod
+    def exists_check(conn: sqlalchemy.Connection, data_item: DataItem):
+        stmt = (
+            sqlalchemy.select(Clmns.id)
+            .where(Clmns.partial_hash == data_item.partial_hash)
+        )
+        return Dbase.execute(conn, stmt).scalar() or None
     
-#     def cut_filename(self, text: str, limit: int = 25):
-#         if len(text) > limit:
-#             return text[:limit] + "..."
-#         return text
+    @staticmethod
+    def cut_filename(text: str, limit: int = 25):
+        if len(text) > limit:
+            return text[:limit] + "..."
+        return text
 
-#     def write_thumb(self, data_item: DataItem):
-#         img = ReadImage.read_image(data_item.src)
-#         img = SharedUtils.fit_image(img, Static.max_thumb_size)
-#         return Utils.write_thumb(data_item.thumb_path, img)
+    @staticmethod
+    def write_thumb(data_item: DataItem):
+        img = ReadImage.read_image(data_item.src)
+        img = SharedUtils.fit_image(img, Static.max_thumb_size)
+        return Utils.write_thumb(data_item.thumb_path, img)
