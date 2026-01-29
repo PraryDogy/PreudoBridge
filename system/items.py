@@ -314,7 +314,7 @@ class CopyItem:
     current_size: int = 0
     total_count: int = 0
     current_count: int = 0
-    system_msg: Literal["error", "cancel", "single", "all"] = ""
+    system_msg: Literal["err", "repl", "repl_cancel", "repl_one", "repl_all"] = ""
 
 
     @classmethod
@@ -351,14 +351,14 @@ class CopyItem:
 
     @classmethod
     def reset(cls):
-        CopyItem.urls: list[str] = []
-        CopyItem.is_cut: bool = False
-        CopyItem.is_search: bool = False
-        CopyItem.src_dir: str = ""
-        CopyItem.dst_dir: str = ""
+        CopyItem.urls = []
+        CopyItem.is_cut = False
+        CopyItem.is_search = False
+        CopyItem.src_dir = ""
+        CopyItem.dst_dir = ""
 
-        CopyItem.total_size: int = 0
-        CopyItem.current_size: int = 0
-        CopyItem.total_count: int = 0
-        CopyItem.current_count: int = 0
-        CopyItem.system_msg: Literal["error", "cancel", "single", "all"] = ""
+        CopyItem.total_size = 0
+        CopyItem.current_size = 0
+        CopyItem.total_count = 0
+        CopyItem.current_count = 0
+        CopyItem.system_msg = ""

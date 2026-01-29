@@ -170,6 +170,13 @@ class CopyFilesWin(ProgressbarWin):
         q = self.copy_task.get_queue()
         if not q.empty():
             copy_item: CopyItem = q.get()
+
+            if copy_item.system_msg == "err":
+                self.error_win = ErrorWin()
+                self.error_win.center(self.window())
+                self.error_win.show()
+                return
+
             if self.progressbar.maximum() == 0:
                 self.progressbar.setMaximum(copy_item.total_size)
             self.progressbar.setValue(copy_item.current_size)
