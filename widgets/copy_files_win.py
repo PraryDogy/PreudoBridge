@@ -1,17 +1,16 @@
-import gc
 import os
 
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
-from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QProgressBar, QPushButton,
-                             QVBoxLayout, QWidget)
+from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
+                             QWidget)
 
 from cfg import Static
 from system.items import CopyItem
-from system.tasks import CopyFilesTask, UThreadPool
+from system.multiprocess import CopyFilesTask, CopyFilesWorker
 
 from ._base_widgets import MinMaxDisabledWin, USvgSqareWidget
 from .progressbar_win import ProgressbarWin
-from system.multiprocess import ProcessWorker, CopyFilesTask
+
 
 class ReplaceFilesWin(MinMaxDisabledWin):
     descr_text = "Заменить существующие файлы?"
@@ -145,7 +144,7 @@ class ErrorWin(MinMaxDisabledWin):
 
 
 class CopyFilesWin(ProgressbarWin):
-    finished_ = pyqtSignal(list)
+    finished_ = pyqtSignal()
     error_win = pyqtSignal()
 
     preparing_text = "Подготовка"
@@ -170,7 +169,7 @@ class CopyFilesWin(ProgressbarWin):
         self.cancel_btn.clicked.connect(self.deleteLater)
         self.adjustSize()
 
-        self.copy_item_data = {
+        data = {
             "src_dir": CopyItem.src_dir,
             "dst_dir": CopyItem.dst_dir,
             "urls": CopyItem.urls,
@@ -179,17 +178,16 @@ class CopyFilesWin(ProgressbarWin):
             "msg": ""
             }
 
-        self.copy_task = ProcessWorker(
+        self.copy_task = CopyFilesWorker(
             target=CopyFilesTask.start,
-            args=(self.copy_item_data, )
+            args=(data, )
         )
         self.copy_task.start()
         QTimer.singleShot(100, self.poll_task)
 
     def poll_task(self):
-        q = self.copy_task.get_queue()
-        if not q.empty():
-            result: dict = q.get()
+        if not self.copy_task.proc_q.empty():
+            result: dict = self.copy_task.proc_q.get()
 
             if result["msg"] == "error":
                 self.error_win = ErrorWin()
@@ -205,9 +203,8 @@ class CopyFilesWin(ProgressbarWin):
                 self.replace_win.replace_one_press.connect(self.replace_one)
                 self.replace_win.stop_pressed.connect(self.deleteLater)
                 self.replace_win.show()
-                QTimer.singleShot(300, self.poll_task)
                 return
-
+            
             if self.progressbar.maximum() == 0:
                 self.progressbar.setMaximum(result["total_size"])
             self.progressbar.setValue(result["current_size"])
@@ -220,6 +217,7 @@ class CopyFilesWin(ProgressbarWin):
             )
 
         if not self.copy_task.proc.is_alive():
+            self.finished_.emit()
             self.deleteLater()
         else:
             QTimer.singleShot(100, self.poll_task)
@@ -230,13 +228,16 @@ class CopyFilesWin(ProgressbarWin):
         return text
     
     def replace_one(self):
-        self.copy_item_data["msg"] = "replace_one"
-        self.copy_task.get_queue().put(self.copy_item_data)
+        data = {"msg": "replace_one"}
+        self.copy_task.gui_q.put(data)
         self.replace_win.deleteLater()
+        QTimer.singleShot(100, self.poll_task)
 
     def replace_all(self):
-        self.copy_item_data["msg"] = "replace_one"
-        self.copy_task.get_queue().put(data)
+        data = {"msg": "replace_all"}
+        self.copy_task.gui_q.put(data)
+        self.replace_win.deleteLater()
+        QTimer.singleShot(100, self.poll_task)
 
     def deleteLater(self):
         try:

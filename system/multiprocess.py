@@ -480,10 +480,51 @@ class MultipleInfo:
                         info_item.files_set.add(entry.path)
 
 
+class CopyFilesWorker:
+    def __init__(self, target: callable, args: tuple):
+        """
+        gui_q: очередь, в которую данные помещает приложение
+        proc_q: очередь, в которую данные помещает процесс CopyFilesTask
+        """
+
+        try:
+            # Создаём очередь для передачи данных из процесса в GUI
+            self.gui_q = Queue()
+            self.proc_q = Queue()
+            # Создаём процесс, который будет выполнять target(*args, queue)
+            self.proc = Process(
+                target=target,
+                args=(*args, self.gui_q, self.proc_q)
+            )
+        except FileNotFoundError as e:
+            print("Error creating process or queue:", e)
+            self.proc = None
+            self.gui_q = None
+            self.proc_q = None
+
+    def start(self):
+        if self.proc is None:
+            return
+        try:
+            self.proc.start()
+        except Exception as e:
+            print("Error starting process:", e)
+    
+    def terminate(self):
+        self.proc.terminate()
+        self.proc.join(timeout=0.2)
+
+        self.gui_q.close()
+        self.gui_q.join_thread()
+
+        self.proc_q.close()
+        self.proc_q.join_thread()
+
+
 class CopyFilesTask:
 
     @staticmethod
-    def start(input_data: dict, q: Queue):
+    def start(input_data: dict, gui_q: Queue, proc_q: Queue):
         """
         Принимает {
             "src_dir": str откуда копировать,
@@ -526,14 +567,13 @@ class CopyFilesTask:
 
         for count, (src, dest) in enumerate(src_dst_urls, start=1):
 
-            if not replace_all and src.name == dest.name:
+            if not replace_all and dest.exists() and src.name == dest.name:
                 result["msg"] = "replace"
-                q.put(result)
-
+                proc_q.put(result)
                 while True:
                     sleep(1)
-                    if not q.empty():
-                        data = q.get()
+                    if not gui_q.empty():
+                        data = gui_q.get()
                         if data["msg"] == "replace_one":
                             break
                         elif data["msg"] == "replace_all":
@@ -542,12 +582,13 @@ class CopyFilesTask:
 
             os.makedirs(dest.parent, exist_ok=True)
             result["current_count"] = count
+            result["msg"] = ""
             try:
-                CopyFilesTask.copy_file_with_progress(q, result, src, dest)
+                CopyFilesTask.copy_file_with_progress(proc_q, result, src, dest)
             except Exception as e:
                 print("CopyTask copy error", e)
                 result["msg"] = "error"
-                q.put(result)
+                proc_q.put(result)
                 return
             if input_data["is_cut"] and not input_data["is_search"]:
                 os.remove(src)
@@ -603,7 +644,7 @@ class CopyFilesTask:
         return src_dst_urls
     
     @staticmethod
-    def copy_file_with_progress(q: Queue, result: dict, src: Path, dest: Path):
+    def copy_file_with_progress(proc_q: Queue, result: dict, src: Path, dest: Path):
         block = 4 * 1024 * 1024  # 4 MB
         with open(src, "rb") as fsrc, open(dest, "wb") as fdst:
             while True:
@@ -612,5 +653,5 @@ class CopyFilesTask:
                     break
                 fdst.write(buf)
                 result["current_size"] += len(buf) // 1024
-                q.put(result)
+                proc_q.put(result)
         shutil.copystat(src, dest, follow_symlinks=True)
