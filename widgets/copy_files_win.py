@@ -211,7 +211,7 @@ class CopyFilesWin(ProgressbarWin):
                 f'{copy} {result["current_count"]} из {result["total_count"]}'
             )
 
-        if not self.copy_task.proc.is_alive():
+        if not self.copy_task.proc.is_alive() and self.copy_task.proc_q.empty():
             self.finished_.emit()
             self.deleteLater()
         else:
@@ -237,4 +237,4 @@ class CopyFilesWin(ProgressbarWin):
     def deleteLater(self):
         self.copy_task.terminate()
         CopyItem.reset()
-        # super().deleteLater()
+        super().deleteLater()
