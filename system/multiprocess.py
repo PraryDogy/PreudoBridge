@@ -509,13 +509,11 @@ class CopyFilesTask:
         total_size = 0
         for src, dest in src_dst_urls:
             total_size += os.path.getsize(src)
-            
+
         result["total_size"] = total_size // 1024
         result["total_count"] = len(src_dst_urls)
-        remove_dirs: set[Path] = set()
 
         for count, (src, dest) in enumerate(src_dst_urls, start=1):
-            remove_dirs.add(src.parent)
             os.makedirs(dest.parent, exist_ok=True)
             result["current_count"] = count
             try:
@@ -529,11 +527,10 @@ class CopyFilesTask:
                 "удаляем файлы чтобы очистить директории"
 
         if input_data["is_cut"] and not input_data["is_search"]:
-            remove_dirs.remove(Path(input_data["src_dir"]))
-            for url in remove_dirs:
-                if url.is_dir() and url.exists():
+            for src, dst in src_dst_urls:
+                if src.parent.is_dir() and src.parent.exists():
                     try:
-                        shutil.rmtree(src)
+                        shutil.rmtree(src.parent)
                     except Exception as e:
                         print("copy task error dir remove", e)
 
