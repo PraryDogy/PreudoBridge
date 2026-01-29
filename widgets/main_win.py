@@ -1,5 +1,6 @@
 import gc
 import os
+from pathlib import Path
 
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import (QCloseEvent, QKeyEvent, QMouseEvent, QPalette,
@@ -465,15 +466,16 @@ class MainWin(WinBase):
         """
         Для cmd v, вставить, dropEvent
         """
-        def paste_final():
-            return
-            self.load_st_grid()
-            return
+        def paste_final(dst_urls: list[Path]):
             if isinstance(self.grid, TableView):
                 self.load_st_grid()
             else:
-                print("load vis images")
-                self.grid.load_visible_thumbs_images()
+                thumbs = []
+                for i in dst_urls:
+                    i = str(i)
+                    if i in self.grid.url_to_wid:
+                        thumbs.append(self.grid.url_to_wid[i])
+                self.grid.start_load_images_task(thumbs)
 
         CopyItem.set_dest(self.main_win_item.main_dir)
         self.win_copy = CopyFilesWin()

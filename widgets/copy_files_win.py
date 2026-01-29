@@ -10,7 +10,7 @@ from system.multiprocess import CopyFilesTask, CopyFilesWorker
 
 from ._base_widgets import MinMaxDisabledWin, USvgSqareWidget
 from .progressbar_win import ProgressbarWin
-
+from pathlib import Path
 
 class ReplaceFilesWin(MinMaxDisabledWin):
     descr_text = "Заменить существующие файлы?"
@@ -141,7 +141,7 @@ class ErrorWin(MinMaxDisabledWin):
 
 
 class CopyFilesWin(ProgressbarWin):
-    finished_ = pyqtSignal()
+    finished_ = pyqtSignal(list)
     preparing_text = "Подготовка"
     progressbar_width = 300
     icon_size = 50
@@ -154,6 +154,8 @@ class CopyFilesWin(ProgressbarWin):
             title_text = "Копирую файлы"
 
         super().__init__(title_text, os.path.join(Static.internal_icons_dir, "files.svg"))
+
+        self.dst_urls = []
 
         src_txt = self.limit_string(os.path.basename(CopyItem.src_dir))
         dest_txt = self.limit_string(os.path.basename(CopyItem.dst_dir))
@@ -181,16 +183,16 @@ class CopyFilesWin(ProgressbarWin):
 
     def poll_task(self):
         if not self.copy_task.proc_q.empty():
-            result: dict = self.copy_task.proc_q.get()
+            to_gui: dict = self.copy_task.proc_q.get()
 
-            if result["msg"] == "error":
+            if to_gui["msg"] == "error":
                 self.error_win = ErrorWin()
                 self.error_win.center(self.window())
                 self.error_win.show()
                 self.deleteLater()
                 return
             
-            elif result["msg"] == "replace":
+            elif to_gui["msg"] == "replace":
                 self.replace_win = ReplaceFilesWin()
                 self.replace_win.center(self)
                 self.replace_win.replace_all_press.connect(self.replace_all)
@@ -200,18 +202,22 @@ class CopyFilesWin(ProgressbarWin):
                 return
             
             if self.progressbar.maximum() == 0:
-                self.progressbar.setMaximum(result["total_size"])
-            self.progressbar.setValue(result["current_size"])
+                self.progressbar.setMaximum(to_gui["total_size"])
+
+            if len(self.dst_urls) == 0 and to_gui["dst_urls"]:
+                self.dst_urls.extend(to_gui["dst_urls"])
+
+            self.progressbar.setValue(to_gui["current_size"])
             if CopyItem.is_cut:
                 copy = "Перемещаю файлы"
             else:
                 copy = "Копирую файлы"
             self.below_label.setText(
-                f'{copy} {result["current_count"]} из {result["total_count"]}'
+                f'{copy} {to_gui["current_count"]} из {to_gui["total_count"]}'
             )
 
         if not self.copy_task.proc.is_alive() and self.copy_task.proc_q.empty():
-            self.finished_.emit()
+            self.finished_.emit(self.dst_urls)
             self.deleteLater()
         else:
             QTimer.singleShot(100, self.poll_task)

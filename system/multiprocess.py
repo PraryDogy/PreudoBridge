@@ -539,6 +539,7 @@ class CopyFilesTask:
             "total_count": int общее число копируемых файлов,
             "current_size": int килобайты для прогрессбара,
             "current_count": int текущее число скопированных файлов,
+            "dst_urls": list[str] список путей к файлам, куда они будут скопированы
             "msg": str "error" показать окно ошибки, "replace" показать окно замены
         }
         """
@@ -548,6 +549,7 @@ class CopyFilesTask:
             "total_count": 0,
             "current_size": 0,
             "current_count": 0,
+            "dst_urls": [],
             "msg": "",
         }
 
@@ -555,6 +557,8 @@ class CopyFilesTask:
             src_dst_urls = CopyFilesTask.get_another_dir_urls(input_data)
         else:
             src_dst_urls = CopyFilesTask.get_same_dir_urls(input_data)
+
+        to_gui["dst_urls"] = [dst for src, dst in src_dst_urls]
 
         total_size = 0
         for src, dest in src_dst_urls:
@@ -643,7 +647,7 @@ class CopyFilesTask:
         return src_dst_urls
     
     @staticmethod
-    def copy_file_with_progress(proc_q: Queue, result: dict, src: Path, dest: Path):
+    def copy_file_with_progress(proc_q: Queue, to_gui: dict, src: Path, dest: Path):
         block = 4 * 1024 * 1024  # 4 MB
         with open(src, "rb") as fsrc, open(dest, "wb") as fdst:
             while True:
@@ -651,6 +655,6 @@ class CopyFilesTask:
                 if not buf:
                     break
                 fdst.write(buf)
-                result["current_size"] += len(buf) // 1024
-                proc_q.put(result)
+                to_gui["current_size"] += len(buf) // 1024
+                proc_q.put(to_gui)
         shutil.copystat(src, dest, follow_symlinks=True)

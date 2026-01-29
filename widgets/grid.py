@@ -454,7 +454,7 @@ class Grid(UScrollArea):
 
         if not thumbs:
             return
-        
+                
         self.img_task = ProcessWorker(
             target=DbItemsLoader.start,
             args=([i.data for i in thumbs], )
