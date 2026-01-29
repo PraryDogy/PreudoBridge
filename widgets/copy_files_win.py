@@ -162,12 +162,15 @@ class CopyFilesWin(ProgressbarWin):
         data = {
             "src_dir": CopyItem.src_dir,
             "dst_dir": CopyItem.dst_dir,
-            "urls": CopyItem.urls
-        }
+            "urls": CopyItem.urls,
+            "is_search": CopyItem.is_search,
+            "is_cut": CopyItem.is_cut
+
+            }
 
         self.copy_task = ProcessWorker(
             target=CopyFilesTask.start,
-            args=(CopyItem, )
+            args=(data, )
         )
         self.copy_task.start()
         QTimer.singleShot(100, self.poll_task)
@@ -175,23 +178,23 @@ class CopyFilesWin(ProgressbarWin):
     def poll_task(self):
         q = self.copy_task.get_queue()
         if not q.empty():
-            copy_item: CopyItem = q.get()
+            result: dict = q.get()
 
-            if copy_item.system_msg == "err":
-                self.error_win = ErrorWin()
-                self.error_win.center(self.window())
-                self.error_win.show()
-                return
+            # if copy_item.system_msg == "err":
+            #     self.error_win = ErrorWin()
+            #     self.error_win.center(self.window())
+            #     self.error_win.show()
+            #     return
 
             if self.progressbar.maximum() == 0:
-                self.progressbar.setMaximum(copy_item.total_size)
-            self.progressbar.setValue(copy_item.current_size)
-            if copy_item.is_cut:
+                self.progressbar.setMaximum(result["total_size"])
+            self.progressbar.setValue(result["current_size"])
+            if CopyItem.is_cut:
                 copy = "Перемещаю файлы"
             else:
                 copy = "Копирую файлы"
             self.below_label.setText(
-                f"{copy} {copy_item.current_count} из {copy_item.total_count}"
+                f'{copy} {result["current_count"]} из {result["total_count"]}'
             )
 
         if not self.copy_task.proc.is_alive():

@@ -356,9 +356,3 @@ class CopyItem:
         CopyItem.is_search = False
         CopyItem.src_dir = ""
         CopyItem.dst_dir = ""
-
-        CopyItem.total_size = 0
-        CopyItem.current_size = 0
-        CopyItem.total_count = 0
-        CopyItem.current_count = 0
-        CopyItem.system_msg = ""
