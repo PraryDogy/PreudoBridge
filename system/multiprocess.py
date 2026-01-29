@@ -588,9 +588,6 @@ class CopyFilesTask:
     
     @staticmethod
     def copy_file_with_progress(q: Queue, result: dict, src: Path, dest: Path):
-
-        raise Exception
-
         block = 4 * 1024 * 1024  # 4 MB
         with open(src, "rb") as fsrc, open(dest, "wb") as fdst:
             while True:
