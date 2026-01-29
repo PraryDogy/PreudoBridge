@@ -156,7 +156,7 @@ class CopyFilesWin(ProgressbarWin):
         self.above_label.setText(src_dest_text)
         self.below_label.setText(self.preparing_text)
         self.progressbar.setMaximum(0)
-        self.cancel_btn.clicked.connect(self.cancel_cmd)
+        self.cancel_btn.clicked.connect(self.deleteLater)
         self.adjustSize()
 
         data = {
@@ -184,6 +184,7 @@ class CopyFilesWin(ProgressbarWin):
                 self.error_win = ErrorWin()
                 self.error_win.center(self.window())
                 self.error_win.show()
+                self.deleteLater()
                 return
 
             if self.progressbar.maximum() == 0:
@@ -198,7 +199,6 @@ class CopyFilesWin(ProgressbarWin):
             )
 
         if not self.copy_task.proc.is_alive():
-            self.copy_task.terminate()
             self.deleteLater()
         else:
             QTimer.singleShot(100, self.poll_task)
@@ -215,15 +215,9 @@ class CopyFilesWin(ProgressbarWin):
             return text[:limit] + "..."
         return text
 
-    def cancel_cmd(self, *args):
-        self.copy_task.terminate()
-        self.deleteLater()
-
-
     def deleteLater(self):
         try:
-            "terminate"
-            CopyItem.urls.clear()
+            self.copy_task.terminate()
             CopyItem.reset()
         except AttributeError:
             ...
