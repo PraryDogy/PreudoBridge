@@ -180,11 +180,11 @@ class CopyFilesWin(ProgressbarWin):
         if not q.empty():
             result: dict = q.get()
 
-            # if copy_item.system_msg == "err":
-            #     self.error_win = ErrorWin()
-            #     self.error_win.center(self.window())
-            #     self.error_win.show()
-            #     return
+            if result["msg"] == "error":
+                self.error_win = ErrorWin()
+                self.error_win.center(self.window())
+                self.error_win.show()
+                return
 
             if self.progressbar.maximum() == 0:
                 self.progressbar.setMaximum(result["total_size"])
