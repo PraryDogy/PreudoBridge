@@ -159,11 +159,17 @@ class CopyFilesWin(ProgressbarWin):
         self.cancel_btn.clicked.connect(self.cancel_cmd)
         self.adjustSize()
 
+        data = {
+            "src_dir": CopyItem.src_dir,
+            "dst_dir": CopyItem.dst_dir,
+            "urls": CopyItem.urls
+        }
+
         self.copy_task = ProcessWorker(
             target=CopyFilesTask.start,
             args=(CopyItem, )
         )
-        CopyFilesTask.start(CopyItem)
+        self.copy_task.start()
         QTimer.singleShot(100, self.poll_task)
 
     def poll_task(self):
