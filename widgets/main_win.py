@@ -466,19 +466,17 @@ class MainWin(WinBase):
         Для cmd v, вставить, dropEvent
         """
         def paste_final():
+            self.load_st_grid()
+            return
             if isinstance(self.grid, TableView):
                 self.load_st_grid()
-
-        def show_error_win():
-            self.win_copy.deleteLater()
-            error_win = ErrorWin()
-            error_win.center(self.window())
-            error_win.show()
+            else:
+                print("load vis images")
+                self.grid.load_visible_thumbs_images()
 
         CopyItem.set_dest(self.main_win_item.main_dir)
         self.win_copy = CopyFilesWin()
         self.win_copy.finished_.connect(paste_final)
-        self.win_copy.error_win.connect(show_error_win)
         self.win_copy.center(self.window())
         self.win_copy.show()
         QTimer.singleShot(300, self.win_copy.raise_)

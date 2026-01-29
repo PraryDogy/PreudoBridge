@@ -80,15 +80,12 @@ class ReplaceFilesWin(MinMaxDisabledWin):
 
     def replace_one_cmd(self):
         self.replace_one_press.emit()
-        self.deleteLater()
 
     def replace_all_cmd(self):
         self.replace_all_press.emit()
-        self.deleteLater()
 
     def stop_cmd(self):
         self.stop_pressed.emit()
-        self.deleteLater()
 
     def closeEvent(self, a0):
         a0.ignore()
@@ -238,9 +235,6 @@ class CopyFilesWin(ProgressbarWin):
         QTimer.singleShot(100, self.poll_task)
 
     def deleteLater(self):
-        try:
-            self.copy_task.terminate()
-            CopyItem.reset()
-        except AttributeError:
-            ...
-        return super().deleteLater()
+        self.copy_task.terminate()
+        CopyItem.reset()
+        # super().deleteLater()
