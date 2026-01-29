@@ -491,6 +491,7 @@ class CopyFilesTask:
             "urls": list[str] список файлов и папок для копирования,
             "is_search": bool если файлы копируются из grid_search.py > GridSearch,
             "is_cut": bool если True, то удалить исходные файлы и папки
+            "msg": str "replace_none", "replace_all", "replace_one" замена файла
         }
 
         Передает в Queue {
@@ -498,6 +499,7 @@ class CopyFilesTask:
             "total_count": int общее число копируемых файлов,
             "current_size": int килобайты для прогрессбара,
             "current_count": int текущее число скопированных файлов,
+            "msg": str "error" показать окно ошибки, "replace" показать окно замены
         }
         """
 
@@ -505,7 +507,8 @@ class CopyFilesTask:
             "total_size": 0,
             "total_count": 0,
             "current_size": 0,
-            "current_count": 0
+            "current_count": 0,
+            "msg": "",
         }
 
         if input_data["is_search"] or input_data["src_dir"] != input_data["dst_dir"]:
@@ -526,7 +529,8 @@ class CopyFilesTask:
             try:
                 CopyFilesTask.copy_file_with_progress(q, result, src, dest)
             except Exception as e:
-                Utils.print_error()
+                print("CopyTask copy error", e)
+                result["msg"] = "error"
                 q.put(result)
                 return
             if input_data["is_cut"] and not input_data["is_search"]:
