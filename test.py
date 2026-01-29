@@ -1,10 +1,16 @@
-import cv2
-import cairosvg
-import numpy as np
+from pathlib import Path
 
-png_data = cairosvg.svg2png(url="file.svg")
-nparr = np.frombuffer(png_data, np.uint8)
-image = cv2.imdecode(nparr, cv2.IMREAD_UNCHANGED)
-cv2.imshow("SVG", image)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+
+src = "/Users/Loshkarev/Desktop"
+dst = "/Users/Loshkarev/Downloads"
+file = '/Users/Loshkarev/Desktop/test/Колье каркасное.jpg'
+
+
+src = Path(src)
+dst = Path(dst)
+file = Path(file)
+
+res = file.relative_to(src)
+res = dst.joinpath(res)
+
+print(res)

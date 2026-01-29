@@ -9,7 +9,7 @@ from cfg import Static
 
 from .database import CACHE, Clmns
 from .utils import Utils
-
+from typing import Literal
 
 class SortItem:
     filename = "filename"
@@ -303,47 +303,51 @@ class MainWinItem:
 
 class CopyItem:
     urls: list[str] = []
-    _is_cut: bool = False
-    _is_search: bool = False
-    _src: str = None
-    _dest: str = None
+    is_cut: bool = False
+    is_search: bool = False
+    src_dir: str = ""
+    dst_dir: str = ""
+    dst_urls: list[str] = []
+    replace: Literal["none", "single", "all"] = ""
 
     @classmethod
     def set_src(cls, src: str):
-        cls._src = src
+        cls.src_dir = src
 
     @classmethod
     def get_src(cls):
-        return cls._src
+        return cls.src_dir
     
     @classmethod
     def set_is_cut(cls, value: bool):
-        cls._is_cut = value
+        cls.is_cut = value
 
     @classmethod
     def get_is_cut(cls):
-        return cls._is_cut
+        return cls.is_cut
     
     @classmethod
     def set_dest(cls, dest: str):
-        cls._dest = dest
+        cls.dst_dir = dest
 
     @classmethod
     def get_dest(cls):
-        return cls._dest
+        return cls.dst_dir
     
     @classmethod
     def set_is_search(cls, value: bool):
-        cls._is_search = value
+        cls.is_search = value
 
     @classmethod
     def get_is_search(cls):
-        return cls._is_search
+        return cls.is_search
 
     @classmethod
     def reset(cls):
-        cls.urls.clear()
-        cls._is_cut = False
-        cls._is_search = False
-        cls._src = None
-        cls._dest = None
+        CopyItem.urls: list[str] = []
+        CopyItem.is_cut: bool = False
+        CopyItem.is_search: bool = False
+        CopyItem.src_dir: str = ""
+        CopyItem.dst_dir: str = ""
+        CopyItem.dst_urls: list[str] = []
+        CopyItem.replace: Literal["none", "single", "all"] = ""

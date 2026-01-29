@@ -158,17 +158,21 @@ class CopyFilesWin(ProgressbarWin):
         self.cancel_btn.clicked.connect(self.cancel_cmd)
         self.adjustSize()
 
-        self.tsk = CopyFilesTask()
-        self.tsk.sigs.total_size.connect(self.progressbar.setMaximum)
-        self.tsk.sigs.finished_.connect(lambda urls: self.on_finished(urls))
-        self.tsk.sigs.error_win.connect(lambda: self.error_win.emit())
-        self.tsk.sigs.replace_files_win.connect(lambda: self.open_replace_files_win())
+        from system.multiprocess import CopyFilesTask
+        CopyFilesTask.start(CopyItem)
+        QTimer.singleShot(10, lambda: self.finished_.emit([]))
 
-        UThreadPool.start(self.tsk)
+        # self.tsk = CopyFilesTask()
+        # self.tsk.sigs.total_size.connect(self.progressbar.setMaximum)
+        # self.tsk.sigs.finished_.connect(lambda urls: self.on_finished(urls))
+        # self.tsk.sigs.error_win.connect(lambda: self.error_win.emit())
+        # self.tsk.sigs.replace_files_win.connect(lambda: self.open_replace_files_win())
 
-        self.timer_ = QTimer(self)
-        self.timer_.timeout.connect(self.update_gui)
-        self.timer_.start(1000)
+        # UThreadPool.start(self.tsk)
+
+        # self.timer_ = QTimer(self)
+        # self.timer_.timeout.connect(self.update_gui)
+        # self.timer_.start(1000)
 
     def update_gui(self):
         self.progressbar.setValue(self.tsk.copied_size)
@@ -199,3 +203,13 @@ class CopyFilesWin(ProgressbarWin):
         self.timer_.stop()
         self.finished_.emit(urls)
         self.deleteLater()
+
+
+    def deleteLater(self):
+        try:
+            "terminate"
+            CopyItem.urls.clear()
+            CopyItem.reset()
+        except AttributeError:
+            ...
+        return super().deleteLater()
