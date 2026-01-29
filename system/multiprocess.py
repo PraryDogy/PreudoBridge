@@ -535,7 +535,7 @@ class CopyFilesTask:
         return src_dst_urls
     
     @staticmethod
-    def get_same_dir_urls(copy_item: CopyItem):
+    def get_same_dir_urls(copy_item: CopyItem, copy_name: str = "— копия"):
         src_dst_urls: list[tuple[Path, Path]] = []
         dst_dir = Path(copy_item.dst_dir)
         for url in copy_item.urls:
@@ -544,7 +544,7 @@ class CopyFilesTask:
             counter = 1
             while url_with_copy.exists():
                 name, ext = os.path.splitext(url.name)
-                new_name = f"{name} — копия {counter}{ext}"
+                new_name = f"{name} {copy_name} {counter}{ext}"
                 url_with_copy = dst_dir.joinpath(new_name)
                 counter += 1
             if url.is_file():
