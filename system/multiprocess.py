@@ -524,6 +524,16 @@ class CopyFilesTask:
         result["total_count"] = len(src_dst_urls)
 
         for count, (src, dest) in enumerate(src_dst_urls, start=1):
+
+            if src.name == dest.name:
+                result["msg"] = "replace"
+                q.put(result)
+
+                while True:
+                    "replace_all", "replace_one"
+                    print("wait replace win")
+                    sleep(1)
+
             os.makedirs(dest.parent, exist_ok=True)
             result["current_count"] = count
             try:

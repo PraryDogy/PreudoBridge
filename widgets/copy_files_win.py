@@ -16,17 +16,20 @@ from system.multiprocess import ProcessWorker, CopyFilesTask
 class ReplaceFilesWin(MinMaxDisabledWin):
     descr_text = "Заменить существующие файлы?"
     title_text = "Замена"
-    ok_text = "Ок"
-    cancel_text = "Отмена"
+    replace_one_text = "Заменить"
+    replace_all_text = "Заменить все"
+    stop_text = "Стоп"
     icon_size = 50
 
-    ok_pressed = pyqtSignal()
-    cancel_pressed = pyqtSignal()
+    replace_one_press = pyqtSignal()
+    replace_all_press = pyqtSignal()
+    stop_pressed = pyqtSignal()
 
     def __init__(self):
         super().__init__()
         self.set_modality()
         self.setWindowTitle(self.title_text)
+        self.setFixedSize(400, 100)
 
         main_lay = QVBoxLayout()
         main_lay.setContentsMargins(10, 5, 10, 10)
@@ -49,7 +52,7 @@ class ReplaceFilesWin(MinMaxDisabledWin):
         h_lay.addWidget(test_two)
 
         btn_wid = QWidget()
-        main_lay.addWidget(btn_wid)
+        main_lay.addWidget(btn_wid, alignment=Qt.AlignmentFlag.AlignRight)
 
         btn_lay = QHBoxLayout()
         btn_lay.setContentsMargins(0, 0, 0, 0)
@@ -58,30 +61,38 @@ class ReplaceFilesWin(MinMaxDisabledWin):
 
         btn_lay.addStretch()
 
-        ok_btn = QPushButton(self.ok_text)
-        ok_btn.setFixedWidth(90)
-        ok_btn.clicked.connect(lambda: self.ok_cmd())
-        btn_lay.addWidget(ok_btn)
+        replace_all_btn = QPushButton(self.replace_all_text)
+        replace_all_btn.setFixedWidth(95)
+        replace_all_btn.clicked.connect(lambda: self.replace_all_cmd())
+        btn_lay.addWidget(replace_all_btn)
 
-        cancel_btn = QPushButton(self.cancel_text)
-        cancel_btn.setFixedWidth(90)
-        cancel_btn.clicked.connect(lambda: self.cancel_cmd())
-        btn_lay.addWidget(cancel_btn)
+        replace_one_btn = QPushButton(self.replace_one_text)
+        replace_one_btn.setFixedWidth(95)
+        replace_one_btn.clicked.connect(lambda: self.replace_one_cmd())
+        btn_lay.addWidget(replace_one_btn)
+
+        stop_btn = QPushButton(self.stop_text)
+        stop_btn.setFixedWidth(95)
+        stop_btn.clicked.connect(lambda: self.stop_cmd())
+        btn_lay.addWidget(stop_btn)
         
         btn_lay.addStretch()
         self.adjustSize()
 
-    def ok_cmd(self):
-        self.ok_pressed.emit()
+    def replace_one_cmd(self):
+        self.replace_one_press.emit()
         self.deleteLater()
 
-    def cancel_cmd(self):
-        self.cancel_pressed.emit()
+    def replace_all_cmd(self):
+        self.replace_all_press.emit()
+        self.deleteLater()
+
+    def stop_cmd(self):
+        self.stop_pressed.emit()
         self.deleteLater()
 
     def closeEvent(self, a0):
-        self.deleteLater()
-        a0.ignore()        
+        a0.ignore()
     
 
 class ErrorWin(MinMaxDisabledWin):
@@ -186,6 +197,12 @@ class CopyFilesWin(ProgressbarWin):
                 self.error_win.show()
                 self.deleteLater()
                 return
+            
+            elif result["msg"] == "replace":
+                replace_win = ReplaceFilesWin()
+                replace_win.center(self)
+                replace_win.stop_pressed.connect(self.deleteLater)
+                replace_win.show()
 
             if self.progressbar.maximum() == 0:
                 self.progressbar.setMaximum(result["total_size"])
@@ -202,13 +219,6 @@ class CopyFilesWin(ProgressbarWin):
             self.deleteLater()
         else:
             QTimer.singleShot(100, self.poll_task)
-
-    def open_replace_files_win(self):
-        replace_win = ReplaceFilesWin()
-        replace_win.center(self)
-        replace_win.ok_pressed.connect(lambda: self.tsk.toggle_pause_flag(False))
-        replace_win.cancel_pressed.connect(self.cancel_cmd)
-        replace_win.show()
 
     def limit_string(self, text: str, limit: int = 30):
         if len(text) > limit:
