@@ -310,13 +310,6 @@ class CopyItem:
     src_dir: str = ""
     dst_dir: str = ""
 
-    total_size: int = 0
-    current_size: int = 0
-    total_count: int = 0
-    current_count: int = 0
-    system_msg: Literal["err", "repl", "repl_cancel", "repl_one", "repl_all"] = ""
-
-
     @classmethod
     def set_src(cls, src: str):
         cls.src_dir = src
