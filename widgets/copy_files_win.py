@@ -170,7 +170,6 @@ class CopyFilesWin(ProgressbarWin):
             "urls": CopyItem.urls,
             "is_search": CopyItem.is_search,
             "is_cut": CopyItem.is_cut,
-            "msg": ""
             }
 
         self.copy_task = CopyFilesWorker(

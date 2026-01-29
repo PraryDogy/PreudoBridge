@@ -532,7 +532,6 @@ class CopyFilesTask:
             "urls": list[str] список файлов и папок для копирования,
             "is_search": bool если файлы копируются из grid_search.py > GridSearch,
             "is_cut": bool если True, то удалить исходные файлы и папки
-            "msg": str "replace_all", "replace_one" замена файла
         }
 
         Передает в Queue {
@@ -544,7 +543,7 @@ class CopyFilesTask:
         }
         """
 
-        result = {
+        to_gui = {
             "total_size": 0,
             "total_count": 0,
             "current_size": 0,
@@ -561,15 +560,15 @@ class CopyFilesTask:
         for src, dest in src_dst_urls:
             total_size += os.path.getsize(src)
 
-        result["total_size"] = total_size // 1024
-        result["total_count"] = len(src_dst_urls)
+        to_gui["total_size"] = total_size // 1024
+        to_gui["total_count"] = len(src_dst_urls)
         replace_all = False
 
         for count, (src, dest) in enumerate(src_dst_urls, start=1):
 
             if not replace_all and dest.exists() and src.name == dest.name:
-                result["msg"] = "replace"
-                proc_q.put(result)
+                to_gui["msg"] = "replace"
+                proc_q.put(to_gui)
                 while True:
                     sleep(1)
                     if not gui_q.empty():
@@ -581,14 +580,14 @@ class CopyFilesTask:
                             break
 
             os.makedirs(dest.parent, exist_ok=True)
-            result["current_count"] = count
-            result["msg"] = ""
+            to_gui["current_count"] = count
+            to_gui["msg"] = ""
             try:
-                CopyFilesTask.copy_file_with_progress(proc_q, result, src, dest)
+                CopyFilesTask.copy_file_with_progress(proc_q, to_gui, src, dest)
             except Exception as e:
                 print("CopyTask copy error", e)
-                result["msg"] = "error"
-                proc_q.put(result)
+                to_gui["msg"] = "error"
+                proc_q.put(to_gui)
                 return
             if input_data["is_cut"] and not input_data["is_search"]:
                 os.remove(src)
