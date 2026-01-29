@@ -145,8 +145,6 @@ class ErrorWin(MinMaxDisabledWin):
 
 class CopyFilesWin(ProgressbarWin):
     finished_ = pyqtSignal()
-    error_win = pyqtSignal()
-
     preparing_text = "Подготовка"
     progressbar_width = 300
     icon_size = 50
