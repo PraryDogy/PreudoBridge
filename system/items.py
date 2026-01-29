@@ -311,6 +311,7 @@ class CopyItem:
     dst_dir: str = ""
     replace: Literal["none", "single", "all"] = ""
     total_size: int = 0
+    current_size: int = 0
     total_count: int = 0
     current_count: int = 0
 
@@ -355,5 +356,6 @@ class CopyItem:
         CopyItem.dst_dir: str = ""
         CopyItem.replace: Literal["none", "single", "all"] = ""
         CopyItem.total_size: int = 0
+        CopyItem.current_size: int = 0
         CopyItem.total_count: int = 0
         CopyItem.current_count: int = 0

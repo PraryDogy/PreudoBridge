@@ -475,39 +475,29 @@ class MultipleInfo:
 class CopyFilesTask:
 
     @staticmethod
-    def start(copy_item: CopyItem):
-        src_dst_urls: list[tuple[Path, Path]] = []
+    def start(copy_item: CopyItem, q: Queue):
         if copy_item.is_search or copy_item.dst_dir != copy_item.src_dir:
-            src_dst_urls.extend(CopyFilesTask.get_another_dir_urls(copy_item))
+            src_dst_urls = CopyFilesTask.get_another_dir_urls(copy_item)
         else:
-            src_dst_urls.extend(CopyFilesTask.get_same_dir_urls(copy_item))
+            src_dst_urls = CopyFilesTask.get_same_dir_urls(copy_item)
 
-        for src, dst in src_dst_urls:
-            # if src.is_dir() or dst.is_dir():
-                print(dst)
-
+        total_size = 0
         for src, dest in src_dst_urls:
-            copy_item.total_size += os.path.getsize(src)
+            total_size += os.path.getsize(src)
+        copy_item.total_size = total_size // 1024
         copy_item.total_count = len(src_dst_urls)
 
-        # for i in copy_item.src_dst_urls:
-        #     print(i)
-
-        # self.sigs.total_size.emit(self.total_size // 1024)
-
-        # for count, (src, dest) in enumerate(self.src_dest_list, start=1):
-        #     if not self.is_should_run():
-        #         break
-        #     os.makedirs(os.path.dirname(dest), exist_ok=True)
-        #     self.copied_count = count
-        #     try:
-        #         self.copy_file_with_progress(src, dest)
-        #     except Exception as e:
-        #         Utils.print_error()
-        #         self.sigs.error_win.emit()
-        #         break
-        #     if CopyItem.get_is_cut() and not CopyItem.get_is_search():
-        #         os.remove(src)
+        for count, (src, dest) in enumerate(src_dst_urls, start=1):
+            os.makedirs(dest.parent, exist_ok=True)
+            copy_item.current_count = count
+            try:
+                CopyFilesTask.copy_file_with_progress(copy_item, src, dest)
+            except Exception as e:
+                Utils.print_error()
+                # self.sigs.error_win.emit()
+                break
+            if CopyItem.get_is_cut() and not CopyItem.get_is_search():
+                os.remove(src)
 
         # if CopyItem.get_is_cut() and not CopyItem.get_is_search():
         #     for i in CopyItem.urls:
@@ -557,7 +547,8 @@ class CopyFilesTask:
                         src_dst_urls.append((filepath, new_url))
         return src_dst_urls
     
-    def copy_file_with_progress(self, src, dest):
+    @staticmethod
+    def copy_file_with_progress(copy_item: CopyItem, src: Path, dest: Path):
         block = 4 * 1024 * 1024  # 4 MB
         with open(src, "rb") as fsrc, open(dest, "wb") as fdst:
             while True:
@@ -565,6 +556,6 @@ class CopyFilesTask:
                 if not buf:
                     break
                 fdst.write(buf)
-                self.copied_size += len(buf) // 1024
+                copy_item.current_size += len(buf) // 1024
 
         shutil.copystat(src, dest, follow_symlinks=True)
