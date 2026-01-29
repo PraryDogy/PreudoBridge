@@ -476,6 +476,16 @@ class CopyFilesTask:
 
     @staticmethod
     def start(copy_item: CopyItem, q: Queue):
+        """
+        Возвращает {
+            "total_size": int килобайты для макс. прогрессбара
+            "current_size": int килобайты для прогрессбара
+            "total_count": int общее число копируемых файлов
+            "current_count": int текущее число скопированных файлов
+            "current_filename": str имя копируемого файла
+        }
+        """
+
         if copy_item.is_search or copy_item.dst_dir != copy_item.src_dir:
             src_dst_urls = CopyFilesTask.get_another_dir_urls(copy_item)
         else:
