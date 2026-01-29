@@ -340,7 +340,7 @@ class Grid(UScrollArea):
 
         self.dir_watcher_timer = QTimer(self)
         self.dir_watcher_timer.timeout.connect(lambda: poll_task(self.dir_watcher))
-        self.dir_watcher_timer.start(1000)
+        self.dir_watcher_timer.start(300)
         self.dir_watcher.start()
 
     def apply_changes(self, e: FileSystemEvent):
