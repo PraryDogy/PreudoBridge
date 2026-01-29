@@ -476,198 +476,92 @@ class CopyFilesTask:
 
     @staticmethod
     def start(copy_item: CopyItem):
-        if copy_item.is_search:
+        if copy_item.is_search or copy_item.dst_dir != copy_item.src_dir:
             dst_urls = CopyFilesTask.get_another_dir_urls(copy_item)
-        if copy_item.dst_dir == copy_item.src_dir:
-            dst_urls = CopyFilesTask.get_same_dir_urls(copy_item)
         else:
-            dst_urls = CopyFilesTask.get_another_dir_urls(copy_item)
-        copy_item.dst_urls.extend(dst_urls)
+            dst_urls = CopyFilesTask.get_same_dir_urls(copy_item)
+        copy_item.src_dst_urls.extend(dst_urls)
 
-        for i in copy_item.dst_urls:
+        for i in copy_item.src_dst_urls:
             print(i)
 
-        return
-        if copy_item.is_search:
-            self.prepare_search_dir()
-        elif copy_item.src_dir == copy_item.dst_dir:
-            self.prepare_same_dir()
-        else:
-            self.prepare_another_dir()
+        for src, dest in copy_item.src_dst_urls:
+            copy_item.total_size += os.path.getsize(src)
+        copy_item.total_count = len(copy_item.src_dst_urls)
 
-        for src, dest in self.src_dest_list:
-            self.total_size += os.path.getsize(src)
-        self.total_count = len(self.src_dest_list)
+        # for i in copy_item.src_dst_urls:
+        #     print(i)
 
-        self.sigs.total_size.emit(self.total_size // 1024)
+        # self.sigs.total_size.emit(self.total_size // 1024)
 
-        for count, (src, dest) in enumerate(self.src_dest_list, start=1):
-            if not self.is_should_run():
-                break
-            os.makedirs(os.path.dirname(dest), exist_ok=True)
-            self.copied_count = count
-            try:
-                self.copy_file_with_progress(src, dest)
-            except Exception as e:
-                Utils.print_error()
-                self.sigs.error_win.emit()
-                break
-            if CopyItem.get_is_cut() and not CopyItem.get_is_search():
-                os.remove(src)
+        # for count, (src, dest) in enumerate(self.src_dest_list, start=1):
+        #     if not self.is_should_run():
+        #         break
+        #     os.makedirs(os.path.dirname(dest), exist_ok=True)
+        #     self.copied_count = count
+        #     try:
+        #         self.copy_file_with_progress(src, dest)
+        #     except Exception as e:
+        #         Utils.print_error()
+        #         self.sigs.error_win.emit()
+        #         break
+        #     if CopyItem.get_is_cut() and not CopyItem.get_is_search():
+        #         os.remove(src)
 
-        if CopyItem.get_is_cut() and not CopyItem.get_is_search():
-            for i in CopyItem.urls:
-                if os.path.isdir(i):
-                    shutil.rmtree(i)
+        # if CopyItem.get_is_cut() and not CopyItem.get_is_search():
+        #     for i in CopyItem.urls:
+        #         if os.path.isdir(i):
+        #             shutil.rmtree(i)
 
-        self.sigs.finished_.emit(self.paths)
+        # self.sigs.finished_.emit(self.paths)
 
     @staticmethod
     def get_another_dir_urls(copy_item: CopyItem):
-        dst_urls: list[Path] = []
+        src_dst_urls: list[tuple[Path, Path]] = []
         src_dir = Path(copy_item.src_dir)
         dst_dir = Path(copy_item.dst_dir)
         for url in copy_item.urls:
             url = Path(url)
             if url.is_dir():
-                for p in url.rglob("*"):
-                    rel_path = p.relative_to(src_dir)
+                for filepath in url.rglob("*"):
+                    rel_path = filepath.relative_to(src_dir)
                     new_path = dst_dir.joinpath(rel_path)
-                    dst_urls.append(new_path)
+                    src_dst_urls.append((filepath, new_path))
             else:
                 new_path = dst_dir.joinpath(url.name)
-                dst_urls.append(new_path)
-        return dst_urls
+                src_dst_urls.append((url, new_path))
+        return src_dst_urls
     
     @staticmethod
     def get_same_dir_urls(copy_item: CopyItem):
-        dst_urls: list[Path] = []
+        src_dst_urls: list[tuple[Path, Path]] = []
         dst_dir = Path(copy_item.dst_dir)
         for url in copy_item.urls:
             url = Path(url)
-            new_url = dst_dir.joinpath(url.name)
+            url_with_copy = dst_dir.joinpath(url.name)
             counter = 1
-            while new_url.exists():
+            while url_with_copy.exists():
                 name, ext = os.path.splitext(url.name)
                 new_name = f"{name} — копия {counter}{ext}"
-                new_url = dst_dir.joinpath(new_name)
+                url_with_copy = dst_dir.joinpath(new_name)
                 counter += 1
-            dst_urls.append(new_url)
-        return dst_urls
+            if url.is_file():
+                src_dst_urls.append((url, url_with_copy))
+            else:
+                for filepath in url.rglob("*"):
+                    rel_path = filepath.relative_to(url)
+                    new_url = url_with_copy.joinpath(rel_path)
+                    src_dst_urls.append((filepath, new_url))
+        return src_dst_urls
     
-    @staticmethod
-    def get_urls_from_search(copy_item):
-        ...
+    def copy_file_with_progress(self, src, dest):
+        block = 4 * 1024 * 1024  # 4 MB
+        with open(src, "rb") as fsrc, open(dest, "wb") as fdst:
+            while True:
+                buf = fsrc.read(block)
+                if not buf:
+                    break
+                fdst.write(buf)
+                self.copied_size += len(buf) // 1024
 
-    # @staticmethod
-    # def prepare_same_dir(copy_item: CopyItem):
-    #     """
-    #     Если файлы и папки скопированы в одной директории и будут вставлены туда же,
-    #     то они будут вставлены с припиской "копия"
-    #     """
-    #     for src_url in copy_item.urls:
-    #         if os.path.isfile(src_url):
-    #             new_filename = self.add_copy_to_name(src_url)
-    #             self.src_dest_list.append((src_url, new_filename))
-    #             self.paths.append(new_filename)
-    #         else:
-    #             new_dir_name = self.add_copy_to_name(src_url)
-    #             # получаем все url файлов для папки
-    #             # заменяем имя старой папки на имя новой папки
-    #             nested_urls = [
-    #                 (x, x.replace(src_url, new_dir_name))
-    #                 for x in self.get_nested_urls(src_url)
-    #             ]
-    #             self.src_dest_list.extend(nested_urls)
-    #             self.paths.append(new_dir_name)
-    
-    # def prepare_another_dir(self):
-    #     """
-    #     Подготовка к простому копированию из одного места в другое.
-    #     При этом может выскочить окно о замене файлов, и если 
-    #     пользователь не согласится заменить файлы, задача копирования будет
-    #     отменена.
-    #     """
-    #     for src_url in CopyItem.urls:
-    #         if os.path.isfile(src_url):
-    #             new_filename = src_url.replace(CopyItem.get_src(), CopyItem.get_dest())
-    #             self.src_dest_list.append((src_url, new_filename))
-    #             self.paths.append(new_filename)
-    #         else:
-    #             new_dir_name = src_url.replace(CopyItem.get_src(), CopyItem.get_dest())
-    #             # получаем все url файлов для папки
-    #             # заменяем имя старой папки на имя новой папки
-    #             nested_urls = [
-    #                 (x, x.replace(CopyItem.get_src(), CopyItem.get_dest()))
-    #                 for x in self.get_nested_urls(src_url)
-    #             ]
-    #             self.src_dest_list.extend(nested_urls)
-    #             self.paths.append(new_dir_name)
-
-    #     for src, dest in self.src_dest_list:
-    #         if os.path.exists(dest):
-    #             self.sigs.replace_files_win.emit()
-    #             self.toggle_pause_flag(True)
-    #             while self.pause_flag:
-    #                 sleep(0.1)
-    #             break
-
-    # @classmethod
-    # def prepare_search_dir(copy_item: CopyItem):
-    #     existing_paths = set()
-
-    #     for url in copy_item.urls:
-    #         filename = os.path.basename(url)
-    #         dest_dir = copy_item.get_dest()
-    #         base_name, ext = os.path.splitext(filename)
-
-    #         new_name = filename
-    #         count = 2
-    #         full_path = os.path.join(dest_dir, new_name)
-
-    #         while full_path in existing_paths:
-    #             new_name = f"{base_name} {count}{ext}"
-    #             full_path = os.path.join(dest_dir, new_name)
-    #             count += 1
-
-    #         existing_paths.add(full_path)
-    #         self.src_dest_list.append((url, full_path))
-    #         self.paths.append(full_path)
-
-    # @staticmethod
-    # def add_copy_to_name(url: str):
-    #     dir_name, file_name = os.path.split(url)
-    #     name, ext = os.path.splitext(file_name)
-    #     new_name = f"{name} копия{ext}"
-    #     return os.path.join(dir_name, new_name)
-
-    # def get_nested_urls(self, src_dir: str):
-    #     stack = [src_dir]
-    #     nested_paths: list[str] = []
-    #     while stack:
-    #         current_dir = stack.pop()
-    #         for dir_entry in os.scandir(current_dir):
-    #             if dir_entry.is_dir():
-    #                 stack.append(dir_entry.path)
-    #             else:
-    #                 nested_paths.append(dir_entry.path)
-    #     return nested_paths
-    
-    # def copy_file_with_progress(self, src, dest):
-    #     block = 4 * 1024 * 1024  # 4 MB
-    #     with open(src, "rb") as fsrc, open(dest, "wb") as fdst:
-    #         while True:
-    #             buf = fsrc.read(block)
-    #             if not buf:
-    #                 break
-    #             fdst.write(buf)
-    #             self.copied_size += len(buf) // 1024
-    #             if not self.is_should_run():
-    #                 return
-    #             while self.pause_flag:
-    #                 sleep(0.1)
-
-    #     shutil.copystat(src, dest, follow_symlinks=True)
-
-    # def toggle_pause_flag(self, value: bool):
-    #     self.pause_flag = value
+        shutil.copystat(src, dest, follow_symlinks=True)

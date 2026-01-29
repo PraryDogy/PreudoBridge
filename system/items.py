@@ -307,8 +307,11 @@ class CopyItem:
     is_search: bool = False
     src_dir: str = ""
     dst_dir: str = ""
-    dst_urls: list[str] = []
+    src_dst_urls: list[str] = []
     replace: Literal["none", "single", "all"] = ""
+    total_size: int = 0
+    total_count: int = 0
+    current_count: int = 0
 
     @classmethod
     def set_src(cls, src: str):
@@ -349,5 +352,8 @@ class CopyItem:
         CopyItem.is_search: bool = False
         CopyItem.src_dir: str = ""
         CopyItem.dst_dir: str = ""
-        CopyItem.dst_urls: list[str] = []
+        CopyItem.src_dst_urls: list[str] = []
         CopyItem.replace: Literal["none", "single", "all"] = ""
+        CopyItem.total_size: int = 0
+        CopyItem.total_count: int = 0
+        CopyItem.current_count: int = 0
