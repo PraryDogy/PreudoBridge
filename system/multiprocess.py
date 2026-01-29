@@ -476,18 +476,19 @@ class CopyFilesTask:
 
     @staticmethod
     def start(copy_item: CopyItem):
+        src_dst_urls: list[tuple[Path, Path]] = []
         if copy_item.is_search or copy_item.dst_dir != copy_item.src_dir:
-            dst_urls = CopyFilesTask.get_another_dir_urls(copy_item)
+            src_dst_urls.extend(CopyFilesTask.get_another_dir_urls(copy_item))
         else:
-            dst_urls = CopyFilesTask.get_same_dir_urls(copy_item)
-        copy_item.src_dst_urls.extend(dst_urls)
+            src_dst_urls.extend(CopyFilesTask.get_same_dir_urls(copy_item))
 
-        for i in copy_item.src_dst_urls:
-            print(i)
+        for src, dst in src_dst_urls:
+            # if src.is_dir() or dst.is_dir():
+                print(dst)
 
-        for src, dest in copy_item.src_dst_urls:
+        for src, dest in src_dst_urls:
             copy_item.total_size += os.path.getsize(src)
-        copy_item.total_count = len(copy_item.src_dst_urls)
+        copy_item.total_count = len(src_dst_urls)
 
         # for i in copy_item.src_dst_urls:
         #     print(i)
@@ -524,9 +525,10 @@ class CopyFilesTask:
             url = Path(url)
             if url.is_dir():
                 for filepath in url.rglob("*"):
-                    rel_path = filepath.relative_to(src_dir)
-                    new_path = dst_dir.joinpath(rel_path)
-                    src_dst_urls.append((filepath, new_path))
+                    if filepath.is_file():
+                        rel_path = filepath.relative_to(src_dir)
+                        new_path = dst_dir.joinpath(rel_path)
+                        src_dst_urls.append((filepath, new_path))
             else:
                 new_path = dst_dir.joinpath(url.name)
                 src_dst_urls.append((url, new_path))
@@ -549,9 +551,10 @@ class CopyFilesTask:
                 src_dst_urls.append((url, url_with_copy))
             else:
                 for filepath in url.rglob("*"):
-                    rel_path = filepath.relative_to(url)
-                    new_url = url_with_copy.joinpath(rel_path)
-                    src_dst_urls.append((filepath, new_url))
+                    if filepath.is_file():
+                        rel_path = filepath.relative_to(url)
+                        new_url = url_with_copy.joinpath(rel_path)
+                        src_dst_urls.append((filepath, new_url))
         return src_dst_urls
     
     def copy_file_with_progress(self, src, dest):

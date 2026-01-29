@@ -1,6 +1,8 @@
 
 import os
 import re
+from pathlib import Path
+from typing import Literal
 
 import sqlalchemy
 from PyQt5.QtGui import QImage
@@ -9,7 +11,7 @@ from cfg import Static
 
 from .database import CACHE, Clmns
 from .utils import Utils
-from typing import Literal
+
 
 class SortItem:
     filename = "filename"
@@ -307,7 +309,6 @@ class CopyItem:
     is_search: bool = False
     src_dir: str = ""
     dst_dir: str = ""
-    src_dst_urls: list[str] = []
     replace: Literal["none", "single", "all"] = ""
     total_size: int = 0
     total_count: int = 0
@@ -352,7 +353,6 @@ class CopyItem:
         CopyItem.is_search: bool = False
         CopyItem.src_dir: str = ""
         CopyItem.dst_dir: str = ""
-        CopyItem.src_dst_urls: list[str] = []
         CopyItem.replace: Literal["none", "single", "all"] = ""
         CopyItem.total_size: int = 0
         CopyItem.total_count: int = 0
