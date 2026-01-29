@@ -170,7 +170,7 @@ class CopyFilesWin(ProgressbarWin):
         self.cancel_btn.clicked.connect(self.deleteLater)
         self.adjustSize()
 
-        data = {
+        self.copy_item_data = {
             "src_dir": CopyItem.src_dir,
             "dst_dir": CopyItem.dst_dir,
             "urls": CopyItem.urls,
@@ -181,7 +181,7 @@ class CopyFilesWin(ProgressbarWin):
 
         self.copy_task = ProcessWorker(
             target=CopyFilesTask.start,
-            args=(data, )
+            args=(self.copy_item_data, )
         )
         self.copy_task.start()
         QTimer.singleShot(100, self.poll_task)
@@ -230,18 +230,12 @@ class CopyFilesWin(ProgressbarWin):
         return text
     
     def replace_one(self):
-        # хотя CopyFilesTask ожидает полноценный словарь из нескольких элементов
-        # см. CopyFilesTask.start,
-        # во время ожидания отклика пользователя в ReplaceWin
-        # достаточно передавать в Queue только "msg",
-        # так как в CopyFilesTask в это время запущен цикл while,
-        # который ожидает только "msg"
-        data = {"msg": "replace_one"}
-        self.copy_task.get_queue().put(data)
+        self.copy_item_data["msg"] = "replace_one"
+        self.copy_task.get_queue().put(self.copy_item_data)
         self.replace_win.deleteLater()
 
     def replace_all(self):
-        data = {"msg": "replace_one"}
+        self.copy_item_data["msg"] = "replace_one"
         self.copy_task.get_queue().put(data)
 
     def deleteLater(self):
