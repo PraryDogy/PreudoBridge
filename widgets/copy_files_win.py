@@ -175,8 +175,8 @@ class CopyFilesWin(ProgressbarWin):
             "dst_dir": CopyItem.dst_dir,
             "urls": CopyItem.urls,
             "is_search": CopyItem.is_search,
-            "is_cut": CopyItem.is_cut
-
+            "is_cut": CopyItem.is_cut,
+            "msg": ""
             }
 
         self.copy_task = ProcessWorker(
@@ -199,10 +199,14 @@ class CopyFilesWin(ProgressbarWin):
                 return
             
             elif result["msg"] == "replace":
-                replace_win = ReplaceFilesWin()
-                replace_win.center(self)
-                replace_win.stop_pressed.connect(self.deleteLater)
-                replace_win.show()
+                self.replace_win = ReplaceFilesWin()
+                self.replace_win.center(self)
+                self.replace_win.replace_all_press.connect(self.replace_all)
+                self.replace_win.replace_one_press.connect(self.replace_one)
+                self.replace_win.stop_pressed.connect(self.deleteLater)
+                self.replace_win.show()
+                QTimer.singleShot(300, self.poll_task)
+                return
 
             if self.progressbar.maximum() == 0:
                 self.progressbar.setMaximum(result["total_size"])
@@ -224,6 +228,21 @@ class CopyFilesWin(ProgressbarWin):
         if len(text) > limit:
             return text[:limit] + "..."
         return text
+    
+    def replace_one(self):
+        # хотя CopyFilesTask ожидает полноценный словарь из нескольких элементов
+        # см. CopyFilesTask.start,
+        # во время ожидания отклика пользователя в ReplaceWin
+        # достаточно передавать в Queue только "msg",
+        # так как в CopyFilesTask в это время запущен цикл while,
+        # который ожидает только "msg"
+        data = {"msg": "replace_one"}
+        self.copy_task.get_queue().put(data)
+        self.replace_win.deleteLater()
+
+    def replace_all(self):
+        data = {"msg": "replace_one"}
+        self.copy_task.get_queue().put(data)
 
     def deleteLater(self):
         try:
