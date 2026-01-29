@@ -203,14 +203,6 @@ class CopyFilesWin(ProgressbarWin):
         else:
             QTimer.singleShot(100, self.poll_task)
 
-    def update_gui(self):
-        self.progressbar.setValue(self.tsk.copied_size)
-        if CopyItem.get_is_cut():
-            copy = "Перемещаю файлы"
-        else:
-            copy = "Копирую файлы"
-        self.below_label.setText(f"{copy} {self.tsk.copied_count} из {self.tsk.total_count}")
-
     def open_replace_files_win(self):
         replace_win = ReplaceFilesWin()
         replace_win.center(self)
