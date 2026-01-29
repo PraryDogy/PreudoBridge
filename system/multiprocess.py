@@ -22,19 +22,26 @@ from system.tasks import Utils
 
 class ProcessWorker:
     def __init__(self, target: callable, args: tuple):
-        # Создаём очередь для передачи данных из процесса в GUI
-        self.queue = Queue()
-        # Создаём процесс, который будет выполнять target(*args, queue)
-        self.proc = Process(
-            target=target,
-            args=(*args, self.queue)
-        )
+        try:
+            # Создаём очередь для передачи данных из процесса в GUI
+            self.queue = Queue()
+            # Создаём процесс, который будет выполнять target(*args, queue)
+            self.proc = Process(
+                target=target,
+                args=(*args, self.queue)
+            )
+        except FileNotFoundError as e:
+            print("Error creating process or queue:", e)
+            self.proc = None
+            self.queue = None
 
     def start(self):
+        if self.proc is None:
+            return
         try:
             self.proc.start()
         except Exception as e:
-            print("process worker error", e)
+            print("Error starting process:", e)
 
     def get_queue(self):
         # Возвращает очередь для чтения данных из процесса
