@@ -466,6 +466,7 @@ class MainWin(WinBase):
         Для cmd v, вставить, dropEvent
         """
         def paste_final():
+            return
             self.load_st_grid()
             return
             if isinstance(self.grid, TableView):
