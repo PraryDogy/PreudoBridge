@@ -477,14 +477,22 @@ class CopyFilesTask:
     @staticmethod
     def start(copy_item: CopyItem, q: Queue):
         """
-        Возвращает {
-            "total_size": int килобайты для макс. прогрессбара
-            "current_size": int килобайты для прогрессбара
-            "total_count": int общее число копируемых файлов
-            "current_count": int текущее число скопированных файлов
-            "current_filename": str имя копируемого файла
-        }
+        Передает в Queue: CopyItem
+        Принимает в Queue: CopyItem
         """
+        # """
+        # Передает в Queue {
+        #     "total_size": int килобайты для макс. прогрессбара,
+        #     "current_size": int килобайты для прогрессбара,
+        #     "total_count": int общее число копируемых файлов,
+        #     "current_count": int текущее число скопированных файлов,
+        #     "current_filename": str имя копируемого файла,
+        #     "system": str error / replace
+        # }
+        # Принимает из Queue {
+        # "replace": str one / all / cancel
+        # }
+        # """
 
         if copy_item.is_search or copy_item.dst_dir != copy_item.src_dir:
             src_dst_urls = CopyFilesTask.get_another_dir_urls(copy_item)
@@ -497,24 +505,36 @@ class CopyFilesTask:
         copy_item.total_size = total_size // 1024
         copy_item.total_count = len(src_dst_urls)
 
+
+        dirs = {
+            src.parent
+            for src, dst in src_dst_urls
+        }
+
+        print(dirs)
+
+        return
+
         for count, (src, dest) in enumerate(src_dst_urls, start=1):
             os.makedirs(dest.parent, exist_ok=True)
+
             copy_item.current_count = count
+
             try:
-                CopyFilesTask.copy_file_with_progress(copy_item, src, dest)
+                CopyFilesTask.copy_file_with_progress(q, copy_item, src, dest)
             except Exception as e:
                 Utils.print_error()
-                # self.sigs.error_win.emit()
                 break
-            if CopyItem.get_is_cut() and not CopyItem.get_is_search():
+            if CopyItem.is_cut and not CopyItem.is_search:
                 os.remove(src)
+                "удаляем файлы чтобы очистить директории"
 
-        # if CopyItem.get_is_cut() and not CopyItem.get_is_search():
-        #     for i in CopyItem.urls:
-        #         if os.path.isdir(i):
-        #             shutil.rmtree(i)
-
-        # self.sigs.finished_.emit(self.paths)
+        if copy_item.is_cut and not copy_item.is_search:
+            for src, dst in src_dst_urls:
+                if src.is_dir():
+                    shutil.rmtree(src)
+                else:
+                    os.remove(src)
 
     @staticmethod
     def get_another_dir_urls(copy_item: CopyItem):
@@ -558,7 +578,7 @@ class CopyFilesTask:
         return src_dst_urls
     
     @staticmethod
-    def copy_file_with_progress(copy_item: CopyItem, src: Path, dest: Path):
+    def copy_file_with_progress(q: Queue, copy_item: CopyItem, src: Path, dest: Path):
         block = 4 * 1024 * 1024  # 4 MB
         with open(src, "rb") as fsrc, open(dest, "wb") as fdst:
             while True:
@@ -567,5 +587,5 @@ class CopyFilesTask:
                     break
                 fdst.write(buf)
                 copy_item.current_size += len(buf) // 1024
-
+                q.put(copy_item)
         shutil.copystat(src, dest, follow_symlinks=True)

@@ -11,7 +11,7 @@ from system.tasks import CopyFilesTask, UThreadPool
 
 from ._base_widgets import MinMaxDisabledWin, USvgSqareWidget
 from .progressbar_win import ProgressbarWin
-
+from system.multiprocess import ProcessWorker, CopyFilesTask
 
 class ReplaceFilesWin(MinMaxDisabledWin):
     descr_text = "Заменить существующие файлы?"
@@ -143,36 +143,49 @@ class CopyFilesWin(ProgressbarWin):
 
     def __init__(self):
 
-        if CopyItem.get_is_cut():
+        if CopyItem.is_cut:
             title_text = "Перемещаю файлы"
         else:
             title_text = "Копирую файлы"
 
         super().__init__(title_text, os.path.join(Static.internal_icons_dir, "files.svg"))
 
-        src_txt = self.limit_string(os.path.basename(CopyItem.get_src()))
-        dest_txt = self.limit_string(os.path.basename(CopyItem.get_dest()))
+        src_txt = self.limit_string(os.path.basename(CopyItem.src_dir))
+        dest_txt = self.limit_string(os.path.basename(CopyItem.dst_dir))
         src_dest_text = f"Из \"{src_txt}\" в \"{dest_txt}\""
         self.above_label.setText(src_dest_text)
         self.below_label.setText(self.preparing_text)
+        self.progressbar.setMaximum(0)
         self.cancel_btn.clicked.connect(self.cancel_cmd)
         self.adjustSize()
 
-        from system.multiprocess import CopyFilesTask
+        self.copy_task = ProcessWorker(
+            target=CopyFilesTask.start,
+            args=(CopyItem, )
+        )
         CopyFilesTask.start(CopyItem)
-        QTimer.singleShot(10, lambda: self.finished_.emit([]))
+        QTimer.singleShot(100, self.poll_task)
 
-        # self.tsk = CopyFilesTask()
-        # self.tsk.sigs.total_size.connect(self.progressbar.setMaximum)
-        # self.tsk.sigs.finished_.connect(lambda urls: self.on_finished(urls))
-        # self.tsk.sigs.error_win.connect(lambda: self.error_win.emit())
-        # self.tsk.sigs.replace_files_win.connect(lambda: self.open_replace_files_win())
+    def poll_task(self):
+        q = self.copy_task.get_queue()
+        if not q.empty():
+            copy_item: CopyItem = q.get()
+            if self.progressbar.maximum() == 0:
+                self.progressbar.setMaximum(copy_item.total_size)
+            self.progressbar.setValue(copy_item.current_size)
+            if copy_item.is_cut:
+                copy = "Перемещаю файлы"
+            else:
+                copy = "Копирую файлы"
+            self.below_label.setText(
+                f"{copy} {copy_item.current_count} из {copy_item.total_count}"
+            )
 
-        # UThreadPool.start(self.tsk)
-
-        # self.timer_ = QTimer(self)
-        # self.timer_.timeout.connect(self.update_gui)
-        # self.timer_.start(1000)
+        if not self.copy_task.proc.is_alive():
+            self.copy_task.terminate()
+            self.deleteLater()
+        else:
+            QTimer.singleShot(100, self.poll_task)
 
     def update_gui(self):
         self.progressbar.setValue(self.tsk.copied_size)
@@ -195,13 +208,7 @@ class CopyFilesWin(ProgressbarWin):
         return text
 
     def cancel_cmd(self, *args):
-        self.timer_.stop()
-        self.tsk.set_should_run(False)
-        self.deleteLater()
-
-    def on_finished(self, urls: list[str]):
-        self.timer_.stop()
-        self.finished_.emit(urls)
+        self.copy_task.terminate()
         self.deleteLater()
 
 
