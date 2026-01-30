@@ -41,8 +41,11 @@ class BaseProcessWorker:
             i.close()
             i.join_thread()
 
-        self.proc.terminate()
-        self.proc.join(timeout=0.2)
+        try:
+            self.proc.terminate()
+            self.proc.join(timeout=0.2)
+        except AttributeError as e:
+            print("BaseProcessWorker, error process terminate", e)
 
 
 class ProcessWorker(BaseProcessWorker):
@@ -476,15 +479,11 @@ class MultipleInfo:
                         info_item.files_set.add(entry.path)
 
 
-class CopyFilesWorker(ProcessWorker):
+class CopyFilesWorker(BaseProcessWorker):
     def __init__(self, target, args):
-        super().__init__(target, args)
+        self.proc_q = Queue()
         self.gui_q = Queue()
-
-    def terminate(self):
-        self.gui_q.close()
-        self.gui_q.join_thread()
-        return super().terminate()
+        super().__init__(target, (*args, self.proc_q, self.gui_q))
 
 
 class CopyFilesTask:
@@ -507,7 +506,7 @@ class CopyFilesTask:
         }
     """
     @staticmethod
-    def start(input_data: dict, gui_q: Queue, proc_q: Queue):
+    def start(input_data: dict, proc_q: Queue, gui_q: Queue):
         to_gui = {
             "total_size": 0,
             "total_count": 0,
