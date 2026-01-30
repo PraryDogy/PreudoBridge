@@ -470,8 +470,6 @@ class Grid(UScrollArea):
         img_task.start()
         img_timer.start(self.img_timer_ms)
 
-        print("img task start", len(thumbs), self.sender())
-
     def reload_rubber(self):
         self.rubberBand.deleteLater()
         self.rubberBand = QRubberBand(QRubberBand.Rectangle, self.grid_wid)
@@ -566,7 +564,6 @@ class Grid(UScrollArea):
                 self.col = 0
                 self.row += 1
         self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
-        print("rearrange")
         self.load_visible_thumbs_images()
 
     def add_widget_data(self, wid: Thumb, row: int, col: int):
