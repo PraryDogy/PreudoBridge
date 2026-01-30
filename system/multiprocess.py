@@ -22,18 +22,12 @@ from system.tasks import Utils
 
 class ProcessWorker:
     def __init__(self, target: callable, args: tuple):
-        try:
-            # Создаём очередь для передачи данных из процесса в GUI
-            self.main_q = Queue()
-            # Создаём процесс, который будет выполнять target(*args, queue)
-            self.proc = Process(
-                target=target,
-                args=(*args, self.main_q)
-            )
-        except FileNotFoundError as e:
-            print("Error creating process or queue:", e)
-            self.proc = None
-            self.main_q = None
+        super().__init__()
+        self.main_q = Queue()
+        self.proc = Process(
+            target=target,
+            args=(*args, self.main_q)
+        )
 
     def start(self):
         if self.proc is None:
@@ -479,48 +473,18 @@ class MultipleInfo:
                         info_item.files_set.add(entry.path)
 
 
-# class CopyFilesWorker:
-#     def __init__(self, target: callable, args: tuple):
-#         """
-#         gui_q: очередь, в которую данные помещает приложение
-#         proc_q: очередь, в которую данные помещает процесс CopyFilesTask
-#         """
-
-#         # Создаём очередь для передачи данных из процесса в GUI
-#         self.gui_q = Queue()
-#         self.proc_q = Queue()
-#         # Создаём процесс, который будет выполнять target(*args, queue)
-#         self.proc = Process(
-#             target=target,
-#             args=(*args, self.gui_q, self.proc_q)
-#         )
- 
-#     def start(self):
-#         if self.proc is None:
-#             return
-#         try:
-#             self.proc.start()
-#         except Exception as e:
-#             print("Error starting process:", e)
-    
-#     def terminate(self):
-#         self.proc.terminate()
-#         self.proc.join(timeout=0.2)
-
-#         self.gui_q.close()
-#         self.gui_q.join_thread()
-
-#         self.proc_q.close()
-#         self.proc_q.join_thread()
-
 class CopyFilesWorker(ProcessWorker):
     def __init__(self, target, args):
         super().__init__(target, args)
+        self.gui_q = Queue()
 
+    def terminate(self):
+        self.gui_q.close()
+        self.gui_q.join_thread()
+        return super().terminate()
 
 
 class CopyFilesTask:
-
     """
         Принимает {
             "src_dir": str откуда копировать,
@@ -539,7 +503,6 @@ class CopyFilesTask:
             "msg": str "error" показать окно ошибки, "replace" показать окно замены
         }
     """
-
     @staticmethod
     def start(input_data: dict, gui_q: Queue, proc_q: Queue):
         to_gui = {
