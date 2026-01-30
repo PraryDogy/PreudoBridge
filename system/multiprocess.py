@@ -659,7 +659,7 @@ class SearchTaskItem:
 
 
 class SearchTask:
-    sleep_s = 1
+    sleep_s = 0.5
     new_wid_sleep_ms = 200
     ratio = 0.85
 
