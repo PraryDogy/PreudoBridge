@@ -19,6 +19,8 @@ class LoadingWidget(QLabel):
 
 class GridStandart(Grid):
     scroll_timer_ms = 500
+    finder_timer_ms = 200
+    timeout_timer_ms = 15000
 
     def __init__(self, main_win_item: MainWinItem, is_grid_search: bool):
         """
@@ -71,30 +73,35 @@ class GridStandart(Grid):
             self.fin_load_finder_items(result)
 
         def poll_task():
+            self.finder_timer.stop()
             q = self.finder_task.proc_q
 
-            if not q.empty():
+            while not q.empty():
                 result = q.get()
                 poll_task_fin(result)
 
-            elif not self.finder_task.is_alive():
-                self.finder_timer.stop()
+            if not self.finder_task.is_alive():
                 self.timeout_timer.stop()
                 self.finder_task.terminate()
+            else:
+                self.finder_timer.start(self.finder_timer_ms)
 
         self.finder_task = ProcessWorker(
             target=FinderItemsLoader.start,
             args=(self.main_win_item, self.sort_item, JsonData.show_hidden)
         )
-        self.finder_task.start()
 
         self.finder_timer = QTimer(self)
+        self.finder_timer.setSingleShot(True)
         self.finder_timer.timeout.connect(poll_task)
-        self.finder_timer.start(200)
 
         self.timeout_timer = QTimer(self)
+        self.timeout_timer.setSingleShot(True)
         self.timeout_timer.timeout.connect(timeout_task)
-        self.timeout_timer.start(15000)
+
+        self.finder_task.start()
+        self.finder_timer.start(self.finder_timer_ms)
+        self.timeout_timer.start(self.timeout_timer_ms)
 
     def fin_load_finder_items(self, result):
         fixed_path = result["path"]

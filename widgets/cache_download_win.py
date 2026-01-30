@@ -8,6 +8,7 @@ from .progressbar_win import ProgressbarWin
 
 
 class CacheDownloadWin(ProgressbarWin):
+    cache_timer_ms = 300
     title = "Загрузка изображений"
     preparing_text = "Подготовка..."
     svg_path = os.path.join(Static.internal_icons_dir, "warning.svg")
@@ -17,17 +18,23 @@ class CacheDownloadWin(ProgressbarWin):
         self.above_label.setText(self.preparing_text)
         self.cancel_btn.clicked.connect(self.on_cancel)
 
-        self.cache_download_task = ProcessWorker(
+        self.cache_task = ProcessWorker(
             target=CacheDownloader.start,
             args=(dirs, )
         )
-        self.cache_download_task.start()
-        QTimer.singleShot(100, self.poll_task)
+
+        self.cache_timer = QTimer(self)
+        self.cache_timer.timeout.connect(self.poll_task)
+        self.cache_timer.setSingleShot(True)
+
+        self.cache_task.start()
+        self.cache_timer.start(self.cache_timer_ms)
 
     def poll_task(self):
-        q = self.cache_download_task.proc_q
+        self.cache_timer.stop()
+        q = self.cache_task.proc_q
         maximum = 0
-        if not q.empty():
+        while not q.empty():
             res = q.get()
 
             if maximum == 0:
@@ -37,16 +44,16 @@ class CacheDownloadWin(ProgressbarWin):
             self.below_label.setText(f'{res["count"]} из {res["total_count"]}')
             self.progressbar.setValue(res["count"])
 
-        if not self.cache_download_task.is_alive():
-            self.cache_download_task.terminate()
+        if not self.cache_task.is_alive():
+            self.cache_task.terminate()
             self.deleteLater()
         else:
-            QTimer.singleShot(100, self.poll_task)
+            self.cache_timer.start(self.cache_timer_ms)
 
     def on_cancel(self, *args):
-        self.cache_download_task.terminate()
         self.deleteLater()
 
     def deleteLater(self):
-        self.cache_download_task.terminate()
+        self.cache_timer.stop()
+        self.cache_task.terminate()
         return super().deleteLater()
