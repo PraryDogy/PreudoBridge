@@ -229,6 +229,7 @@ class ImgViewWin(WinBase):
             f"""#{self.object_name} {{background: black}}"""
         )
 
+        self.read_img_task = None
         self.is_selection = is_selection
         self.url_to_wid: dict[str, Thumb] = url_to_wid
         self.urls: list = [i for i in self.url_to_wid]
