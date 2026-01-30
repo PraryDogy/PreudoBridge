@@ -36,9 +36,6 @@ class ProcessWorker:
             self.proc.start()
         except Exception as e:
             print("Error starting process:", e)
-
-    def get_main_q(self):
-        return self.proc_q
     
     def terminate(self):
         self.proc_q.close()
