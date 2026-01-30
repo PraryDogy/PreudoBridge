@@ -523,9 +523,7 @@ class CopyFilesWorker:
 
 class CopyFilesTask:
 
-    @staticmethod
-    def start(input_data: dict, gui_q: Queue, proc_q: Queue):
-        """
+    """
         Принимает {
             "src_dir": str откуда копировать,
             "dst_dir": str куда копировать,
@@ -542,8 +540,10 @@ class CopyFilesTask:
             "dst_urls": list[str] список путей к файлам, куда они будут скопированы
             "msg": str "error" показать окно ошибки, "replace" показать окно замены
         }
-        """
+    """
 
+    @staticmethod
+    def start(input_data: dict, gui_q: Queue, proc_q: Queue):
         to_gui = {
             "total_size": 0,
             "total_count": 0,

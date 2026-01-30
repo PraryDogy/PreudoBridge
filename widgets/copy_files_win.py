@@ -145,6 +145,7 @@ class CopyFilesWin(ProgressbarWin):
     preparing_text = "Подготовка"
     progressbar_width = 300
     icon_size = 50
+    copy_timer_ms = 100
 
     def __init__(self):
 
@@ -178,10 +179,17 @@ class CopyFilesWin(ProgressbarWin):
             target=CopyFilesTask.start,
             args=(data, )
         )
-        self.copy_task.start()
-        QTimer.singleShot(100, self.poll_task)
+
+        self.copy_timer = QTimer(self)
+        self.copy_timer.timeout.connect(self.poll_task)
+        self.copy_timer.setSingleShot(True)
+
+        self.copy_task.start()  
+        self.copy_timer.start(self.copy_timer_ms)
 
     def poll_task(self):
+        self.copy_timer.stop()
+
         if not self.copy_task.proc_q.empty():
             to_gui: dict = self.copy_task.proc_q.get()
 
@@ -197,7 +205,7 @@ class CopyFilesWin(ProgressbarWin):
                 self.replace_win.center(self)
                 self.replace_win.replace_all_press.connect(self.replace_all)
                 self.replace_win.replace_one_press.connect(self.replace_one)
-                self.replace_win.stop_pressed.connect(self.deleteLater)
+                self.replace_win.stop_pressed.connect(self.stop_pressed)
                 self.replace_win.show()
                 return
             
@@ -220,26 +228,33 @@ class CopyFilesWin(ProgressbarWin):
             self.finished_.emit(self.dst_urls)
             self.deleteLater()
         else:
-            QTimer.singleShot(100, self.poll_task)
+            self.copy_timer.start(self.copy_timer_ms)
 
     def limit_string(self, text: str, limit: int = 30):
         if len(text) > limit:
             return text[:limit] + "..."
         return text
     
+    def stop_pressed(self):
+        self.replace_win.deleteLater()
+        self.deleteLater()
+    
     def replace_one(self):
+        self.copy_timer.stop()
         data = {"msg": "replace_one"}
         self.copy_task.gui_q.put(data)
         self.replace_win.deleteLater()
-        QTimer.singleShot(100, self.poll_task)
+        self.copy_timer.start(self.copy_timer_ms)
 
     def replace_all(self):
+        self.copy_timer.stop()
         data = {"msg": "replace_all"}
         self.copy_task.gui_q.put(data)
         self.replace_win.deleteLater()
-        QTimer.singleShot(100, self.poll_task)
+        self.copy_timer.start(self.copy_timer_ms)
 
     def deleteLater(self):
+        self.copy_timer.stop()
         self.copy_task.terminate()
         CopyItem.reset()
         super().deleteLater()
