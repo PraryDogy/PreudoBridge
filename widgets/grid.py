@@ -262,6 +262,7 @@ class NoItemsLabel(QLabel):
 
 
 class Grid(UScrollArea):
+    test = []
     spacing_value = 5
     img_timer_ms = 500
     dir_watcher_ms = 300
@@ -307,8 +308,8 @@ class Grid(UScrollArea):
         self.copy_files_icon: QImage = self.set_files_icon()
 
         self.dir_watcher_task = None
-        self.img_task_list: list[ProcessWorker] = []
-        self.img_task = None
+        self.proc_timer_dict: dict[ProcessWorker, QTimer] = {}
+        self.loaded_thumbs: list[Thumb] = []
 
         self.grid_wid = QWidget()
         self.setWidget(self.grid_wid)
@@ -391,7 +392,12 @@ class Grid(UScrollArea):
         self.grid_wid.layout().activate() 
         visible_rect = self.viewport().rect()  # область видимой части
         for thumb in self.url_to_wid.values():
-            if thumb.data.qimages or thumb.data.type_ not in (Static.img_exts):
+            stmt = (
+                thumb.data.qimages,
+                thumb.data.type_ not in Static.img_exts,
+                thumb in self.loaded_thumbs
+            )
+            if any(stmt):
                 continue
             widget_rect = self.viewport().mapFromGlobal(
                 thumb.mapToGlobal(thumb.rect().topLeft())
@@ -402,6 +408,7 @@ class Grid(UScrollArea):
                 thumbs.append(thumb)
 
         if thumbs:
+            self.loaded_thumbs.extend(thumbs)
             self._start_load_images_task(thumbs)
 
     def _start_load_images_task(self, thumbs: list[Thumb]):
@@ -450,14 +457,6 @@ class Grid(UScrollArea):
             else:
                 img_timer.start(self.img_timer_ms)
 
-        for i in self.img_task_list:
-            i.terminate()
-            self.img_task_list.remove(i)
-
-        if self.img_task_list:
-            QTimer.singleShot(100, lambda: self._start_load_images_task(thumbs))
-            return
-        
         img_task = ProcessWorker(
             target=DbItemsLoader.start,
             args=([i.data for i in thumbs], )
@@ -466,7 +465,7 @@ class Grid(UScrollArea):
         img_timer = QTimer(self)
         img_timer.setSingleShot(True)
         img_timer.timeout.connect(lambda: poll_task(img_task, img_timer))
-        self.img_task_list.append(img_task)
+        self.proc_timer_dict[img_task] = img_timer
         img_task.start()
         img_timer.start(self.img_timer_ms)
 
@@ -1281,17 +1280,19 @@ class Grid(UScrollArea):
         return super().dropEvent(a0)
 
     def deleteLater(self):
-        for i in (self.dir_watcher_task, *self.img_task_list):
-            if i.is_alive():
-                i.terminate()
+        self.dir_watcher_task.terminate()
+        for proc, timer in self.proc_timer_dict.items():
+            timer.stop()
+            proc.terminate()
         urls = [i.data.src for i in self.selected_thumbs]
         self.main_win_item.set_urls_to_select(urls)
         return super().deleteLater()
     
     def closeEvent(self, a0):
-        for i in (self.dir_watcher_task, *self.img_task_list):
-            if i.is_alive():
-                i.terminate()
+        self.dir_watcher_task.terminate()
+        for proc, timer in self.proc_timer_dict.items():
+            timer.stop()
+            proc.terminate()
         urls = [i.src for i in self.selected_thumbs]
         self.main_win_item.set_urls_to_select(urls)
         return super().closeEvent(a0)
