@@ -164,6 +164,7 @@ class CopyFilesWin(ProgressbarWin):
         self.above_label.setText(src_dest_text)
         self.below_label.setText(self.preparing_text)
         self.progressbar.setMaximum(0)
+        self.cancel_btn.clicked.connect(self.stop_task)
         self.cancel_btn.clicked.connect(self.deleteLater)
         self.adjustSize()
 
@@ -197,6 +198,7 @@ class CopyFilesWin(ProgressbarWin):
                 self.error_win = ErrorWin()
                 self.error_win.center(self.window())
                 self.error_win.show()
+                self.stop_task()
                 self.deleteLater()
                 return
             
@@ -226,6 +228,7 @@ class CopyFilesWin(ProgressbarWin):
 
         if not self.copy_task.is_alive() and self.copy_task.proc_q.empty():
             self.finished_.emit(self.dst_urls)
+            self.stop_task()
             self.deleteLater()
         else:
             self.copy_timer.start(self.copy_timer_ms)
@@ -237,6 +240,7 @@ class CopyFilesWin(ProgressbarWin):
     
     def stop_pressed(self):
         self.replace_win.deleteLater()
+        self.stop_task()
         self.deleteLater()
     
     def replace_one(self):
@@ -253,8 +257,10 @@ class CopyFilesWin(ProgressbarWin):
         self.replace_win.deleteLater()
         self.copy_timer.start(self.copy_timer_ms)
 
-    def deleteLater(self):
-        self.copy_task.terminate()
+    def stop_task(self):
         self.copy_timer.stop()
+        self.copy_task.terminate()
+
+    def deleteLater(self):
         CopyItem.reset()
         super().deleteLater()
