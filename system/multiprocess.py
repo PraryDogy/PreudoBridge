@@ -36,16 +36,12 @@ class BaseProcessWorker:
         return self.proc.is_alive()
     
     def terminate(self):
+        self.proc.terminate()
+        self.proc.join(timeout=0.2)
         queues: tuple[Queue] = (i for i in dir(self) if hasattr(i, "put"))
         for i in queues:
-            i.close()
-            i.join_thread()
-
-        try:
-            self.proc.terminate()
-            self.proc.join(timeout=0.2)
-        except AttributeError as e:
-            print("BaseProcessWorker, error process terminate", e)
+                i.close()
+                i.join_thread()
 
 
 class ProcessWorker(BaseProcessWorker):

@@ -263,6 +263,7 @@ class NoItemsLabel(QLabel):
 
 class Grid(UScrollArea):
     spacing_value = 5
+    img_timer_ms = 500
     new_files_key = "new_files"
     del_files_key = "del files"
     new_folder_text = "Новая папка"
@@ -385,6 +386,7 @@ class Grid(UScrollArea):
         if not self.grid_wid.isVisible():
             return
         if self.img_task is not None:
+            self.img_timer.stop()
             self.img_task.terminate()
         
         thumbs: list[Thumb] = []
@@ -434,9 +436,11 @@ class Grid(UScrollArea):
             except RuntimeError as e:
                 print("grid > set_thumb_image runtime err")
                 if self.img_task is not None:
+                    self.img_timer.stop()
                     self.img_task.terminate()
 
         def poll_task():
+            self.img_timer.stop()
             q = self.img_task.proc_q
 
             # 1. забираем все сообщения
@@ -450,7 +454,11 @@ class Grid(UScrollArea):
                         update_thumb(data_item)
 
             if self.img_task is not None and not self.img_task.is_alive():
+                print("kill*****")
+                self.img_timer.stop()
                 self.img_task.terminate()
+            else:
+                self.img_timer.start(self.img_timer_ms)
 
         if not thumbs:
             return
@@ -462,8 +470,9 @@ class Grid(UScrollArea):
         self.img_task.start()
 
         self.img_timer = QTimer(self)
+        self.img_timer.setSingleShot(True)
         self.img_timer.timeout.connect(poll_task)
-        self.img_timer.start(500)
+        self.img_timer.start(self.img_timer_ms)
 
     def reload_rubber(self):
         self.rubberBand.deleteLater()
