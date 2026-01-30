@@ -701,10 +701,7 @@ class SearchTask:
             for i in no_ext_list:
                 if i not in item.found_files:
                     missed_files_list.append(i)
-        data = {
-            "missed_files_list": missed_files_list
-        }
-        proc_q.put(data)
+        proc_q.put(missed_files_list)
         Dbase.close_conn(conn)
 
     @staticmethod

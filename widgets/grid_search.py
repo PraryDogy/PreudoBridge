@@ -135,27 +135,28 @@ class GridSearch(Grid):
             
             self.update_gui()
 
-        # def fin(missed_files_list: list[str]):
-        #     if not self.cell_to_wid:
-        #         no_images = QLabel(GridSearch.no_result_text)
-        #         no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        #         self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        #         self.grid_layout.addWidget(no_images, 0, 0)
+        def fin(missed_files_list: list[str]):
+            if not self.cell_to_wid:
+                no_images = QLabel(GridSearch.no_result_text)
+                no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+                self.grid_layout.addWidget(no_images, 0, 0)
 
-        #     elif missed_files_list:
-        #         self.win_missed_files = WinMissedFiles(missed_files_list)
-        #         self.win_missed_files.center(self.window())
-        #         self.win_missed_files.show()
-
-        #     if self.search_task.is_should_run():
-        #         self.finished_.emit()
+            elif missed_files_list:
+                self.win_missed_files = WinMissedFiles(missed_files_list)
+                self.win_missed_files.center(self.window())
+                self.win_missed_files.show()
         
         def poll_task():
             self.search_timer.stop()
             q = self.search_task.proc_q
             if not q.empty():
-                data_item: DataItem = q.get()
-                new_search_thumb(data_item)
+                res = q.get()
+                if isinstance(res, DataItem):
+                    new_search_thumb(res)
+                else:
+                    fin(res)
+                    self.finished_.emit()
 
             if not self.search_task.is_alive():
                 self.search_task.terminate()
