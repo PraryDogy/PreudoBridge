@@ -254,10 +254,7 @@ class CopyFilesWin(ProgressbarWin):
         self.copy_timer.start(self.copy_timer_ms)
 
     def deleteLater(self):
-        try:
-            self.copy_task.terminate()
-        except AttributeError:
-            ...
+        self.copy_task.terminate()
         self.copy_timer.stop()
         CopyItem.reset()
         super().deleteLater()

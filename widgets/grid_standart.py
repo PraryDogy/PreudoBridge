@@ -67,7 +67,7 @@ class GridStandart(Grid):
             self.fin_load_finder_items(result)
 
         def poll_task():
-            q = self.finder_task.get_main_q()
+            q = self.finder_task.proc_q
 
             if not q.empty():
                 result = q.get()

@@ -25,7 +25,7 @@ class CacheDownloadWin(ProgressbarWin):
         QTimer.singleShot(100, self.poll_task)
 
     def poll_task(self):
-        q = self.cache_download_task.get_main_q()
+        q = self.cache_download_task.proc_q
         maximum = 0
         if not q.empty():
             res = q.get()

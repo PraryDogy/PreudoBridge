@@ -340,7 +340,7 @@ class MainWin(WinBase):
 
         def poll_task():
 
-            q = self.path_fixer_task.get_main_q()
+            q = self.path_fixer_task.proc_q
 
             if not q.empty():
                 fixed_path, is_dir = q.get()

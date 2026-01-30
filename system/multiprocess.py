@@ -23,10 +23,10 @@ from system.tasks import Utils
 class ProcessWorker:
     def __init__(self, target: callable, args: tuple):
         super().__init__()
-        self.main_q = Queue()
+        self.proc_q = Queue()
         self.proc = Process(
             target=target,
-            args=(*args, self.main_q)
+            args=(*args, self.proc_q)
         )
 
     def start(self):
@@ -38,11 +38,11 @@ class ProcessWorker:
             print("Error starting process:", e)
 
     def get_main_q(self):
-        return self.main_q
+        return self.proc_q
     
     def terminate(self):
-        self.main_q.close()
-        self.main_q.join_thread()
+        self.proc_q.close()
+        self.proc_q.join_thread()
 
         self.proc.terminate()
         self.proc.join(timeout=0.2)
