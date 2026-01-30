@@ -39,7 +39,7 @@ class ImgConvertWin(ProgressbarWin):
             self.below_label.setText(f'{result["count"]} из {result["total_count"]}')
             self.progressbar.setValue(result["count"])
 
-        if not self.jpg_convert_task.proc.is_alive():
+        if not self.jpg_convert_task.is_alive():
             self.jpg_convert_task.terminate()
             self.deleteLater()
         else:

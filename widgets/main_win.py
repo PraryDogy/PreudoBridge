@@ -357,7 +357,7 @@ class MainWin(WinBase):
                 self.top_bar.new_history_item(self.main_win_item.main_dir)
                 self.load_st_grid()
 
-            if not self.path_fixer_task.proc.is_alive():
+            if not self.path_fixer_task.is_alive():
                 self.path_fixer_task.terminate()
             else:
                 QTimer.singleShot(100, poll_task)

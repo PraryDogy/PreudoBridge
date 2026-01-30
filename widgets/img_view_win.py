@@ -346,7 +346,7 @@ class ImgViewWin(WinBase):
                     ImgViewWin.cached_images[src] = qimage
                     self.restart_img_wid(QPixmap.fromImage(qimage))
 
-            if not task.proc.is_alive() and q.empty():
+            if not task.is_alive() and q.empty():
                 task.terminate()
                 self.read_img_task = None
                 return

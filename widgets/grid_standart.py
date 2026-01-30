@@ -73,7 +73,7 @@ class GridStandart(Grid):
                 result = q.get()
                 poll_task_fin(result)
 
-            elif not self.finder_task.proc.is_alive():
+            elif not self.finder_task.is_alive():
                 self.finder_timer.stop()
                 self.timeout_timer.stop()
                 self.finder_task.terminate()

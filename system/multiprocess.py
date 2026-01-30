@@ -24,22 +24,24 @@ class ProcessWorker:
     def __init__(self, target: callable, args: tuple):
         super().__init__()
         self.proc_q = Queue()
+
         self.proc = Process(
             target=target,
             args=(*args, self.proc_q)
         )
 
     def start(self):
-        if self.proc is None:
-            return
-        try:
-            self.proc.start()
-        except Exception as e:
-            print("Error starting process:", e)
+        self.proc.start()
+
+    def is_alive(self):
+        return self.is_alive()
     
     def terminate(self):
-        self.proc_q.close()
-        self.proc_q.join_thread()
+        for k, v in self.__dict__.items():
+            if hasattr(v, "put"):
+                v: Queue
+                v.close()
+                v.join_thread()
 
         self.proc.terminate()
         self.proc.join(timeout=0.2)

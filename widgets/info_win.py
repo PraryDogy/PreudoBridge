@@ -121,7 +121,7 @@ class InfoWin(MinMaxDisabledWin):
                 resol_label.setText(resol)
                 self.set_transparent()
 
-            if not self.img_res_task.proc.is_alive():
+            if not self.img_res_task.is_alive():
                 self.img_res_task.terminate()
             else:
                 QTimer.singleShot(100, lambda: poll_task(resol_label))
@@ -188,7 +188,7 @@ class InfoWin(MinMaxDisabledWin):
                 total_folders.setText(res["total_folders"])
                 self.set_transparent()
             
-            if not self.info_task.proc.is_alive():
+            if not self.info_task.is_alive():
                 self.info_task.terminate()
             else:
                 QTimer.singleShot(100, poll_task)
@@ -235,7 +235,7 @@ class InfoWin(MinMaxDisabledWin):
                 total_folders.setText(res["total_folders"])
                 self.set_transparent()
             
-            if not self.info_task.proc.is_alive():
+            if not self.info_task.is_alive():
                 self.info_task.terminate()
             else:
                 QTimer.singleShot(100, poll_task)

@@ -449,7 +449,7 @@ class Grid(UScrollArea):
                     if data_item.img_array is not None:
                         update_thumb(data_item)
 
-            if not self.img_task.proc.is_alive():
+            if not self.img_task.is_alive():
                 self.img_task.terminate()
 
         if not thumbs:

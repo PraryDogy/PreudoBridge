@@ -37,7 +37,7 @@ class CacheDownloadWin(ProgressbarWin):
             self.below_label.setText(f'{res["count"]} из {res["total_count"]}')
             self.progressbar.setValue(res["count"])
 
-        if not self.cache_download_task.proc.is_alive():
+        if not self.cache_download_task.is_alive():
             self.cache_download_task.terminate()
             self.deleteLater()
         else:
