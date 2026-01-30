@@ -49,6 +49,9 @@ class BaseProcessWorker:
 
 
 class ProcessWorker(BaseProcessWorker):
+    """
+        Передает в BaseProcessWorker args + self.proc (Queue)
+    """
     def __init__(self, target: callable, args: tuple):
         self.proc_q = Queue()
         super().__init__(target, (*args, self.proc_q))
