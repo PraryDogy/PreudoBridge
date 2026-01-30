@@ -630,6 +630,10 @@ class CopyFilesTask:
 
 
 class SearchTaskWorker(BaseProcessWorker):
+    """
+    - args: любые аргументы
+    - proq_q, gui_q: передаются автоматически
+    """
     def __init__(self, target, args):
         self.proc_q = Queue()
         self.gui_q = Queue()
@@ -656,33 +660,32 @@ class SearchTaskItem:
 
 
 class SearchTask:
-    """
-        external_data - это представление в виде словаря класса SearchItem.     
-        Описание класса читай в system > items.py > SearchItem
-
-        Принимает:  
-        - external_data {
-            "root_dir": str,
-            "content": Any,
-            "filter_type": int,
-        }
-        - proc_q: Queue из процесса в gui
-        - gui_q: Queue из gui в процесс
-    """
-
     sleep_ms = 1000
     new_wid_sleep_ms = 200
     ratio = 0.85
 
     @staticmethod
     def start(external_data: dict, proc_q: Queue, gui_q: Queue):
+        """
+            external_data - это представление в виде словаря класса SearchItem.     
+            Описание класса читай в system > items.py > SearchItem
+
+            Принимает:  
+            - external_data {
+                "root_dir": str,
+                "content": Any,
+                "search_type": int,
+            }
+            - proc_q: Queue из процесса в gui
+            - gui_q: Queue из gui в процесс
+        """
         engine = Dbase.create_engine()
         conn = Dbase.get_conn(engine)
 
         item = SearchTaskItem()
         item.root_dir = external_data["root_dir"]
         item.content = external_data["content"]
-        item.filter_type = external_data["filter_type"]
+        item.filter_type = external_data["search_type"]
         item.proc_q = proc_q
         item.gui_q = gui_q
         item.conn = conn
@@ -850,7 +853,7 @@ class SearchTask:
             if entry.is_dir():
                 dirs_list.append(entry.path)
                 # continue
-            if SearchTask.process_entry(entry):
+            if SearchTask.process_entry(entry, item):
                 SearchTask.process_img(entry, item)
 
     @staticmethod
@@ -895,5 +898,6 @@ class SearchTask:
         data = {
 
         }
-        item.proc_q.put()
+        # item.proc_q.put()
+        item.proc_q.put(f"found: {entry.path}")
         sleep(SearchTask.new_wid_sleep_ms)

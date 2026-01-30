@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
 
 from cfg import Dynamic, Static
 from system.items import DataItem, MainWinItem, SearchItem, SortItem
-from system.tasks import SearchTask, UThreadPool
+from system.multiprocess import SearchTask, SearchTaskWorker
 from system.utils import Utils
 
 from ._base_widgets import (MinMaxDisabledWin, NotifyWid, USvgSqareWidget,
@@ -79,6 +79,7 @@ class GridSearch(Grid):
     noti_text = "Завершите поиск, затем перетащите файлы"
     warning_svg = os.path.join(Static.internal_icons_dir, "warning.svg")
     pause_time_ms = 700
+    search_timer_ms = 400
 
     def __init__(
             self,
@@ -138,15 +139,42 @@ class GridSearch(Grid):
 
             if self.search_task.is_should_run():
                 self.finished_.emit()
+        
+        def poll_task():
+            self.search_timer.stop()
+            q = self.search_task.proc_q
+            if not q.empty():
+                res = q.get()
+                print(res)
+            if not self.search_task.is_alive():
+                self.search_task.terminate()
+            else:
+                self.search_timer.start(self.search_timer_ms)
 
-        QTimer.singleShot(100, lambda: self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid))))
-        QTimer.singleShot(100, lambda: self.path_bar_update.emit(self.main_win_item.main_dir))
+        QTimer.singleShot(100, self.update_gui)
         self.is_grid_search = True
         Thumb.calc_size()
-        self.search_task = SearchTask(self.main_win_item, self.search_item)
-        self.search_task.sigs.new_widget.connect(new_search_thumb)
-        self.search_task.sigs.finished_.connect(lambda lst: fin(lst))
-        UThreadPool.start(self.search_task)
+
+        external_data = {
+            "root_dir": self.main_win_item.main_dir,
+            "content": self.search_item.content,
+            "search_type": self.search_item.search_type
+        }
+
+        self.search_task = SearchTaskWorker(
+            target=SearchTask.start,
+            args=(external_data, )
+        )
+        self.search_timer = QTimer(self)
+        self.search_timer.setSingleShot(True)
+        self.search_timer.timeout.connect(poll_task)
+
+        self.search_task.start()
+        self.search_timer.start(self.search_timer_ms)
+
+    def update_gui(self):
+        self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
+        self.path_bar_update.emit(self.main_win_item.main_dir)
 
     def sort_thumbs(self):
         self.search_task.pause = True
@@ -186,17 +214,13 @@ class GridSearch(Grid):
         return super().resizeEvent(a0)
     
     def closeEvent(self, a0):
-        self.search_task.set_should_run(False)
-        for i in self.cell_to_wid.values():
-            i.setParent(None)
-            i.deleteLater()
+        if self.search_task and self.search_task.is_alive():
+            self.search_task.terminate()
         return super().closeEvent(a0)
 
     def deleteLater(self):
-        self.search_task.set_should_run(False)
-        for i in self.cell_to_wid.values():
-            i.setParent(None)
-            i.deleteLater()
+        if self.search_task and self.search_task.is_alive():
+            self.search_task.terminate()
         return super().deleteLater()
     
     def dragEnterEvent(self, a0: QDragEnterEvent):

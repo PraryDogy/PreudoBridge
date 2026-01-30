@@ -1280,7 +1280,8 @@ class Grid(UScrollArea):
         return super().dropEvent(a0)
 
     def deleteLater(self):
-        self.dir_watcher_task.terminate()
+        if self.dir_watcher_task:
+            self.dir_watcher_task.terminate()
         for proc, timer in self.proc_timer_dict.items():
             timer.stop()
             proc.terminate()
@@ -1289,7 +1290,8 @@ class Grid(UScrollArea):
         return super().deleteLater()
     
     def closeEvent(self, a0):
-        self.dir_watcher_task.terminate()
+        if self.dir_watcher_task:
+            self.dir_watcher_task.terminate()
         for proc, timer in self.proc_timer_dict.items():
             timer.stop()
             proc.terminate()
