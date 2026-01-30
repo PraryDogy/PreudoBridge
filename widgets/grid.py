@@ -304,6 +304,9 @@ class Grid(UScrollArea):
         self.wid_under_mouse: Thumb = None
         self.copy_files_icon: QImage = self.set_files_icon()
 
+        self.dir_watcher = None
+        self.img_task = None
+
         self.grid_wid = QWidget()
         self.setWidget(self.grid_wid)
         self.origin_pos = QPoint()
@@ -379,14 +382,10 @@ class Grid(UScrollArea):
         self.rearrange_thumbs()
 
     def load_visible_thumbs_images(self):
-
         if not self.grid_wid.isVisible():
             return
-
-        try:
+        if self.img_task is not None:
             self.img_task.terminate()
-        except AttributeError:
-            ...
         
         thumbs: list[Thumb] = []
         self.grid_wid.layout().activate() 
@@ -434,7 +433,8 @@ class Grid(UScrollArea):
 
             except RuntimeError as e:
                 print("grid > set_thumb_image runtime err")
-                self.img_task.terminate()
+                if self.img_task is not None:
+                    self.img_task.terminate()
 
         def poll_task():
             q = self.img_task.proc_q
@@ -449,7 +449,7 @@ class Grid(UScrollArea):
                     if data_item.img_array is not None:
                         update_thumb(data_item)
 
-            if not self.img_task.is_alive():
+            if self.img_task is not None and not self.img_task.is_alive():
                 self.img_task.terminate()
 
         if not thumbs:
@@ -1276,27 +1276,17 @@ class Grid(UScrollArea):
         return super().dropEvent(a0)
 
     def deleteLater(self):
-        try:
-            self.dir_watcher.terminate()
-            self.img_task.terminate()
-        except AttributeError:
-            ...
+        for i in (self.dir_watcher, self.img_task):
+            if i is not None:
+                i.terminate()
         urls = [i.data.src for i in self.selected_thumbs]
         self.main_win_item.set_urls_to_select(urls)
-        for i in self.cell_to_wid.values():
-            i.setParent(None)
-            i.deleteLater()
         return super().deleteLater()
     
     def closeEvent(self, a0):
-        try:
-            self.dir_watcher.terminate()
-            self.img_task.terminate()
-        except AttributeError:
-            ...
+        for i in (self.dir_watcher, self.img_task):
+            if i is not None:
+                i.terminate()
         urls = [i.src for i in self.selected_thumbs]
         self.main_win_item.set_urls_to_select(urls)
-        for i in self.cell_to_wid.values():
-            i.setParent(None)
-            i.deleteLater()
         return super().closeEvent(a0)
