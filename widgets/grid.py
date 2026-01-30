@@ -451,6 +451,14 @@ class Grid(UScrollArea):
                 img_task.terminate()
             else:
                 img_timer.start(self.img_timer_ms)
+
+        for i in self.img_task_list:
+            i.terminate()
+            self.img_task_list.remove(i)
+
+        if self.img_task_list:
+            QTimer.singleShot(100, lambda: self._start_load_images_task(thumbs))
+            return
         
         img_task = ProcessWorker(
             target=DbItemsLoader.start,
@@ -464,7 +472,7 @@ class Grid(UScrollArea):
         img_task.start()
         img_timer.start(self.img_timer_ms)
 
-        print("img task start", len(thumbs))
+        print("img task start", len(thumbs), self.sender())
 
     def reload_rubber(self):
         self.rubberBand.deleteLater()

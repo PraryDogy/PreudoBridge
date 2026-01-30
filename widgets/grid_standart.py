@@ -183,7 +183,6 @@ class GridStandart(Grid):
         QTimer.singleShot(0, self.rearrange_thumbs)
         self.load_finished.emit()
         self.loading_label.hide()
-        QTimer.singleShot(10, self.load_visible_thumbs_images)
 
     def mousePressEvent(self, a0):
         if self.loading_label.isVisible():
