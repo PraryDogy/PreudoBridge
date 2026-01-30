@@ -20,31 +20,35 @@ from system.shared_utils import PathFinder, ReadImage, SharedUtils
 from system.tasks import Utils
 
 
-class ProcessWorker:
+class BaseProcessWorker:
     def __init__(self, target: callable, args: tuple):
         super().__init__()
-        self.proc_q = Queue()
 
         self.proc = Process(
             target=target,
-            args=(*args, self.proc_q)
+            args=(*args, )
         )
 
     def start(self):
         self.proc.start()
 
     def is_alive(self):
-        return self.is_alive()
+        return self.proc.is_alive()
     
     def terminate(self):
-        for k, v in self.__dict__.items():
-            if hasattr(v, "put"):
-                v: Queue
-                v.close()
-                v.join_thread()
+        queues: tuple[Queue] = (i for i in dir(self) if hasattr(i, "put"))
+        for i in queues:
+            i.close()
+            i.join_thread()
 
         self.proc.terminate()
         self.proc.join(timeout=0.2)
+
+
+class ProcessWorker(BaseProcessWorker):
+    def __init__(self, target: callable, args: tuple):
+        self.proc_q = Queue()
+        super().__init__(target, (*args, self.proc_q))
 
 
 class FinderItemsLoader:
