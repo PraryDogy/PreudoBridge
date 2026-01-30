@@ -24,16 +24,16 @@ class ProcessWorker:
     def __init__(self, target: callable, args: tuple):
         try:
             # Создаём очередь для передачи данных из процесса в GUI
-            self.queue = Queue()
+            self.main_q = Queue()
             # Создаём процесс, который будет выполнять target(*args, queue)
             self.proc = Process(
                 target=target,
-                args=(*args, self.queue)
+                args=(*args, self.main_q)
             )
         except FileNotFoundError as e:
             print("Error creating process or queue:", e)
             self.proc = None
-            self.queue = None
+            self.main_q = None
 
     def start(self):
         if self.proc is None:
@@ -45,14 +45,14 @@ class ProcessWorker:
 
     def get_queue(self):
         # Возвращает очередь для чтения данных из процесса
-        return self.queue
+        return self.main_q
     
     def terminate(self):
         self.proc.terminate()
         self.proc.join(timeout=0.2)
 
-        self.queue.close()
-        self.queue.join_thread()
+        self.main_q.close()
+        self.main_q.join_thread()
 
 
 class FinderItemsLoader:
@@ -480,45 +480,44 @@ class MultipleInfo:
                         info_item.files_set.add(entry.path)
 
 
-class CopyFilesWorker:
-    def __init__(self, target: callable, args: tuple):
-        """
-        gui_q: очередь, в которую данные помещает приложение
-        proc_q: очередь, в которую данные помещает процесс CopyFilesTask
-        """
+# class CopyFilesWorker:
+#     def __init__(self, target: callable, args: tuple):
+#         """
+#         gui_q: очередь, в которую данные помещает приложение
+#         proc_q: очередь, в которую данные помещает процесс CopyFilesTask
+#         """
 
-        try:
-            # Создаём очередь для передачи данных из процесса в GUI
-            self.gui_q = Queue()
-            self.proc_q = Queue()
-            # Создаём процесс, который будет выполнять target(*args, queue)
-            self.proc = Process(
-                target=target,
-                args=(*args, self.gui_q, self.proc_q)
-            )
-        except FileNotFoundError as e:
-            print("Error creating process or queue:", e)
-            self.proc = None
-            self.gui_q = None
-            self.proc_q = None
-
-    def start(self):
-        if self.proc is None:
-            return
-        try:
-            self.proc.start()
-        except Exception as e:
-            print("Error starting process:", e)
+#         # Создаём очередь для передачи данных из процесса в GUI
+#         self.gui_q = Queue()
+#         self.proc_q = Queue()
+#         # Создаём процесс, который будет выполнять target(*args, queue)
+#         self.proc = Process(
+#             target=target,
+#             args=(*args, self.gui_q, self.proc_q)
+#         )
+ 
+#     def start(self):
+#         if self.proc is None:
+#             return
+#         try:
+#             self.proc.start()
+#         except Exception as e:
+#             print("Error starting process:", e)
     
-    def terminate(self):
-        self.proc.terminate()
-        self.proc.join(timeout=0.2)
+#     def terminate(self):
+#         self.proc.terminate()
+#         self.proc.join(timeout=0.2)
 
-        self.gui_q.close()
-        self.gui_q.join_thread()
+#         self.gui_q.close()
+#         self.gui_q.join_thread()
 
-        self.proc_q.close()
-        self.proc_q.join_thread()
+#         self.proc_q.close()
+#         self.proc_q.join_thread()
+
+class CopyFilesWorker(ProcessWorker):
+    def __init__(self, target, args):
+        super().__init__(target, args)
+
 
 
 class CopyFilesTask:
