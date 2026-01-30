@@ -1,6 +1,18 @@
-from pathlib import Path
 
-p = Path("/Users/Loshkarev/Downloads/test/file.txt")
 
-folder_name = p.parent
-print(folder_name)  # test
+
+
+class Test:
+
+    def one():
+        data = {
+            "txt": "Hello",
+        }
+        Test.two(data)
+        print(data)
+
+    def two(data: dict):
+        data["txt"] = "world"
+
+
+Test.one()
