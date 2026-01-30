@@ -52,7 +52,6 @@ class GridStandart(Grid):
         self.loading_label.show()
 
     def scroll_timer_cmd(self):
-        print("scroll timer")
         self.load_visible_thumbs_images()
 
     def on_scroll(self):
