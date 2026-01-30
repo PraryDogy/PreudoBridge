@@ -264,6 +264,7 @@ class NoItemsLabel(QLabel):
 class Grid(UScrollArea):
     spacing_value = 5
     img_timer_ms = 500
+    dir_watcher_ms = 300
     new_files_key = "new_files"
     del_files_key = "del files"
     new_folder_text = "Новая папка"
@@ -305,7 +306,7 @@ class Grid(UScrollArea):
         self.wid_under_mouse: Thumb = None
         self.copy_files_icon: QImage = self.set_files_icon()
 
-        self.dir_watcher = None
+        self.dir_watcher_task = None
         self.img_task = None
 
         self.grid_wid = QWidget()
@@ -329,23 +330,24 @@ class Grid(UScrollArea):
 
     def dirs_watcher_start(self):
 
-        def poll_task(proc_worker: ProcessWorker):
-            q = proc_worker.proc_q
-            try:
-                e = q.get_nowait()
-            except Exception:
-                return
-            self.apply_changes(e)
+        def poll_task():
+            self.dir_watcher_timer.stop()
+            q = self.dir_watcher_task.proc_q
+            while not q.empty():
+                res = q.get()
+                self.apply_changes(res)
+            self.dir_watcher_timer.start(self.dir_watcher_ms)
 
-        self.dir_watcher = ProcessWorker(
+        self.dir_watcher_task = ProcessWorker(
             target=DirWatcher.start,
             args=(self.main_win_item.main_dir, )
         )
-
         self.dir_watcher_timer = QTimer(self)
-        self.dir_watcher_timer.timeout.connect(lambda: poll_task(self.dir_watcher))
-        self.dir_watcher_timer.start(300)
-        self.dir_watcher.start()
+        self.dir_watcher_timer.timeout.connect(poll_task)
+        self.dir_watcher_timer.setSingleShot(True)
+
+        self.dir_watcher_timer.start(self.dir_watcher_ms)
+        self.dir_watcher_task.start()
 
     def apply_changes(self, e: FileSystemEvent):
         is_selected = any(
@@ -385,9 +387,6 @@ class Grid(UScrollArea):
     def load_visible_thumbs_images(self):
         if not self.grid_wid.isVisible():
             return
-        if self.img_task is not None:
-            self.img_timer.stop()
-            self.img_task.terminate()
         
         thumbs: list[Thumb] = []
         self.grid_wid.layout().activate() 
@@ -459,8 +458,11 @@ class Grid(UScrollArea):
                 self.img_task.terminate()
             else:
                 self.img_timer.start(self.img_timer_ms)
-
-        if not thumbs:
+        
+        if self.img_task is not None:
+            self.img_task.terminate()
+            self.img_task = None
+            QTimer.singleShot(100, lambda: self.start_load_images_task(thumbs))
             return
                 
         self.img_task = ProcessWorker(
@@ -473,6 +475,8 @@ class Grid(UScrollArea):
         self.img_timer.setSingleShot(True)
         self.img_timer.timeout.connect(poll_task)
         self.img_timer.start(self.img_timer_ms)
+
+        print("img task start *********")
 
     def reload_rubber(self):
         self.rubberBand.deleteLater()
@@ -1285,7 +1289,7 @@ class Grid(UScrollArea):
         return super().dropEvent(a0)
 
     def deleteLater(self):
-        for i in (self.dir_watcher, self.img_task):
+        for i in (self.dir_watcher_task, self.img_task):
             if i is not None:
                 i.terminate()
         urls = [i.data.src for i in self.selected_thumbs]
@@ -1293,7 +1297,7 @@ class Grid(UScrollArea):
         return super().deleteLater()
     
     def closeEvent(self, a0):
-        for i in (self.dir_watcher, self.img_task):
+        for i in (self.dir_watcher_task, self.img_task):
             if i is not None:
                 i.terminate()
         urls = [i.src for i in self.selected_thumbs]
