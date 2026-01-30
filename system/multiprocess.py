@@ -43,16 +43,15 @@ class ProcessWorker:
         except Exception as e:
             print("Error starting process:", e)
 
-    def get_queue(self):
-        # Возвращает очередь для чтения данных из процесса
+    def get_main_q(self):
         return self.main_q
     
     def terminate(self):
-        self.proc.terminate()
-        self.proc.join(timeout=0.2)
-
         self.main_q.close()
         self.main_q.join_thread()
+
+        self.proc.terminate()
+        self.proc.join(timeout=0.2)
 
 
 class FinderItemsLoader:

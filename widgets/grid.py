@@ -326,7 +326,7 @@ class Grid(UScrollArea):
     def dirs_watcher_start(self):
 
         def poll_task(proc_worker: ProcessWorker):
-            q = proc_worker.get_queue()
+            q = proc_worker.get_main_q()
             try:
                 e = q.get_nowait()
             except Exception:
@@ -437,7 +437,7 @@ class Grid(UScrollArea):
                 self.img_task.terminate()
 
         def poll_task():
-            q = self.img_task.get_queue()
+            q = self.img_task.get_main_q()
 
             # 1. забираем все сообщения
             while not q.empty():

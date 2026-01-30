@@ -32,7 +32,7 @@ class ImgConvertWin(ProgressbarWin):
             QTimer.singleShot(100, self.poll_task)
 
     def poll_task(self):
-        q = self.jpg_convert_task.get_queue()
+        q = self.jpg_convert_task.get_main_q()
         if not q.empty():
             result = q.get()
             self.above_label.setText(result["filename"])

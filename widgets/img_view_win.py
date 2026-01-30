@@ -334,7 +334,7 @@ class ImgViewWin(WinBase):
             if not task:
                 return
 
-            q = task.get_queue()
+            q = task.get_main_q()
 
             while not q.empty():
                 src, img_array = q.get()
