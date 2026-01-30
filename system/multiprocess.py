@@ -660,7 +660,7 @@ class SearchTaskItem:
 
 
 class SearchTask:
-    sleep_ms = 1000
+    sleep_s = 1
     new_wid_sleep_ms = 200
     ratio = 0.85
 
@@ -732,6 +732,7 @@ class SearchTask:
             for i in item.content:
                 i: str
                 item.exts_lower.append(i.lower())
+            item.exts_lower = tuple(item.exts_lower)
 
         # простой поиск по тексту
         elif isinstance(item.content, str):
@@ -818,8 +819,8 @@ class SearchTask:
     def process_list_contains(entry: os.DirEntry, item: SearchTaskItem):
         true_filename, _ = SearchTask.remove_extension(entry.name)
         filename: str = true_filename.lower()
-        for item in item.files_lower:
-            if item in filename:
+        for i in item.files_lower:
+            if i in filename:
                 item.found_files.append(true_filename)
                 return True
         return False
@@ -844,8 +845,8 @@ class SearchTask:
                 continue
     
     @staticmethod
-    def scan_current_dir(dir: str, dirs_list: list, item: SearchTaskItem):
-        for entry in os.scandir(dir):
+    def scan_current_dir(current_dir: str, dirs_list: list, item: SearchTaskItem):
+        for entry in os.scandir(current_dir):
             # while self.pause:
             #     QTest.qSleep(SearchTask.sleep_ms)
             if entry.name.startswith(Static.hidden_symbols):
@@ -874,30 +875,25 @@ class SearchTask:
         stmt_list: list = []
         stmt_limit = 10
 
-        # data_item = DataItem(entry.path)
-        # data_item.set_properties()
-        # if data_item.type_ != Static.folder_type:
-        #     data_item.set_partial_hash()
-        # if entry.name.endswith(Static.img_exts):
-        #     if os.path.exists(data_item.thumb_path):
-        #         img_array = Utils.read_thumb(data_item.thumb_path)
-        #     else:
-        #         img_array = ReadImage.read_image(entry.path)
-        #         img_array = SharedUtils.fit_image(img_array, Static.max_thumb_size)
-        #         insert(data_item, img_array)
-        #     qimage = Utils.qimage_from_array(img_array)
-        #     data_item.qimages = {
-        #         i: Utils.scaled(qimage, i)
-        #         for i in Static.image_sizes
-        #     }
-        #     data_item.qimages.update({"src": qimage})
+        data_item = DataItem(entry.path)
+        data_item.set_properties()
+        if data_item.type_ != Static.folder_type:
+            data_item.set_partial_hash()
+        if entry.name.endswith(Static.img_exts):
+            if os.path.exists(data_item.thumb_path):
+                img_array = Utils.read_thumb(data_item.thumb_path)
+            else:
+                img_array = ReadImage.read_image(entry.path)
+                img_array = SharedUtils.fit_image(img_array, Static.max_thumb_size)
+                insert(data_item, img_array)
+            # qimage = Utils.qimage_from_array(img_array)
+            # data_item.qimages = {
+            #     i: Utils.scaled(qimage, i)
+            #     for i in Static.image_sizes
+            # }
+            # data_item.qimages.update({"src": qimage})
 
         # мы не можем передать DataItem, это перейдет в GridSearch
         # надо понять что передавать, скорее всего 
-        # {"src": str path, "img_array": np.ndarray}
-        data = {
-
-        }
-        # item.proc_q.put()
         item.proc_q.put(f"found: {entry.path}")
-        sleep(SearchTask.new_wid_sleep_ms)
+        sleep(SearchTask.sleep_s)
