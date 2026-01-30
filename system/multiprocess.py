@@ -553,6 +553,9 @@ class CopyFilesTask:
             to_gui["current_count"] = count
             to_gui["msg"] = ""
             try:
+                if os.path.exists(dest) and dest.is_file():
+                    print("remove dest чтобы не заменять")
+                    os.remove(dest)
                 CopyFilesTask.copy_file_with_progress(proc_q, to_gui, src, dest)
             except Exception as e:
                 print("CopyTask copy error", e)
