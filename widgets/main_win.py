@@ -339,21 +339,17 @@ class MainWin(WinBase):
     def path_finder_cmd(self, clipboard_path: str):
 
         def poll_task():
-
             q = self.path_fixer_task.proc_q
 
             if not q.empty():
                 fixed_path, is_dir = q.get()
-
                 if fixed_path is None:
                     return
-
                 if is_dir:
                     self.main_win_item.main_dir = fixed_path
                 else:
                     self.main_win_item.main_dir = os.path.dirname(fixed_path)
                     self.main_win_item.set_go_to(fixed_path)
-
                 self.top_bar.new_history_item(self.main_win_item.main_dir)
                 self.load_st_grid()
 

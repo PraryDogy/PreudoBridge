@@ -115,12 +115,10 @@ class InfoWin(MinMaxDisabledWin):
 
         def poll_task(resol_label: SelectableLabel):
             q = self.img_res_task.proc_q
-
             if not q.empty():
                 resol = q.get()
                 resol_label.setText(resol)
                 self.set_transparent()
-
             if not self.img_res_task.is_alive():
                 self.img_res_task.terminate()
             else:
