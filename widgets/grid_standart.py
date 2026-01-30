@@ -18,6 +18,7 @@ class LoadingWidget(QLabel):
 
 
 class GridStandart(Grid):
+    scroll_timer_ms = 500
 
     def __init__(self, main_win_item: MainWinItem, is_grid_search: bool):
         """
@@ -27,9 +28,9 @@ class GridStandart(Grid):
 
         self.tasker = None
 
-        self.load_vis_images_timer = QTimer(self)
-        self.load_vis_images_timer.timeout.connect(self.load_visible_thumbs_images)
-        self.load_vis_images_timer.setSingleShot(True)
+        self.scroll_timer = QTimer(self)
+        self.scroll_timer.timeout.connect(self.scroll_timer_cmd)
+        self.scroll_timer.setSingleShot(True)
         self.verticalScrollBar().valueChanged.connect(self.on_scroll)
 
         self.loading_label = LoadingWidget()
@@ -50,9 +51,13 @@ class GridStandart(Grid):
 
         self.loading_label.show()
 
+    def scroll_timer_cmd(self):
+        print("scroll timer")
+        self.load_visible_thumbs_images()
+
     def on_scroll(self):
-        self.load_vis_images_timer.stop()
-        self.load_vis_images_timer.start(1000)
+        self.scroll_timer.stop()
+        self.scroll_timer.start(self.scroll_timer_ms)
 
     def start_load_finder_items(self):
 

@@ -363,14 +363,12 @@ class Grid(UScrollArea):
             self.del_thumb(e.src_path)
         elif e.event_type == "created":
             new_thumb = self.new_thumb(e.src_path)
-            self.load_visible_thumbs_images()
             if e.src_path in self.removed_urls:
                 self.select_multiple_thumb(new_thumb)
                 self.removed_urls.remove(e.src_path)
         elif e.event_type == "moved":
             self.del_thumb(e.src_path)
             new_thumb = self.new_thumb(e.dest_path)
-            self.load_visible_thumbs_images()
             if is_selected:
                 self.select_multiple_thumb(new_thumb)
         elif e.event_type == "modified":
@@ -568,6 +566,7 @@ class Grid(UScrollArea):
                 self.col = 0
                 self.row += 1
         self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid)))
+        print("rearrange")
         self.load_visible_thumbs_images()
 
     def add_widget_data(self, wid: Thumb, row: int, col: int):
