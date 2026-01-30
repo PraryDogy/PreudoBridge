@@ -885,6 +885,7 @@ class SearchTask:
                 img_array = ReadImage.read_image(entry.path)
                 img_array = SharedUtils.fit_image(img_array, Static.max_thumb_size)
                 insert(data_item, img_array)
+            data_item.img_array = img_array
             # qimage = Utils.qimage_from_array(img_array)
             # data_item.qimages = {
             #     i: Utils.scaled(qimage, i)
@@ -894,5 +895,5 @@ class SearchTask:
 
         # мы не можем передать DataItem, это перейдет в GridSearch
         # надо понять что передавать, скорее всего 
-        item.proc_q.put(f"found: {entry.path}")
+        item.proc_q.put(data_item)
         sleep(SearchTask.sleep_s)

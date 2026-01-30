@@ -1,7 +1,7 @@
 import os
 
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import QDragEnterEvent, QDropEvent
+from PyQt5.QtGui import QDragEnterEvent, QDropEvent, QImage
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
 
@@ -111,10 +111,20 @@ class GridSearch(Grid):
             thumb = Thumb(data_item)
             thumb.resize_()
             thumb.set_no_frame()
-            if thumb.data.qimages:
-                thumb.set_image()
-            else:
+
+            qimages = {}
+            original_qimage = Utils.qimage_from_array(data_item.img_array)
+            qimages["src"] = original_qimage
+            for size in Static.image_sizes:
+                resized_qimage = Utils.scaled(original_qimage, size)
+                qimages[size] = resized_qimage
+            thumb.data.qimages = qimages
+
+            if thumb.data.qimages["src"] is None:
                 thumb.set_uti_data()
+            else:
+                thumb.set_image()
+
             self.add_widget_data(thumb, self.row, self.col)
             self.grid_layout.addWidget(thumb, self.row, self.col)
             self.total += 1
@@ -123,29 +133,30 @@ class GridSearch(Grid):
                 self.col = 0
                 self.row += 1
             
-            QTimer.singleShot(100, lambda: self.total_count_update.emit((len(self.selected_thumbs), len(self.cell_to_wid))))
+            self.update_gui()
 
-        def fin(missed_files_list: list[str]):
-            if not self.cell_to_wid:
-                no_images = QLabel(GridSearch.no_result_text)
-                no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
-                self.grid_layout.addWidget(no_images, 0, 0)
+        # def fin(missed_files_list: list[str]):
+        #     if not self.cell_to_wid:
+        #         no_images = QLabel(GridSearch.no_result_text)
+        #         no_images.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        #         self.grid_layout.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        #         self.grid_layout.addWidget(no_images, 0, 0)
 
-            elif missed_files_list:
-                self.win_missed_files = WinMissedFiles(missed_files_list)
-                self.win_missed_files.center(self.window())
-                self.win_missed_files.show()
+        #     elif missed_files_list:
+        #         self.win_missed_files = WinMissedFiles(missed_files_list)
+        #         self.win_missed_files.center(self.window())
+        #         self.win_missed_files.show()
 
-            if self.search_task.is_should_run():
-                self.finished_.emit()
+        #     if self.search_task.is_should_run():
+        #         self.finished_.emit()
         
         def poll_task():
             self.search_timer.stop()
             q = self.search_task.proc_q
             if not q.empty():
-                res = q.get()
-                print(res)
+                data_item: DataItem = q.get()
+                new_search_thumb(data_item)
+
             if not self.search_task.is_alive():
                 self.search_task.terminate()
             else:
