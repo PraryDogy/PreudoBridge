@@ -656,26 +656,26 @@ class SearchTaskItem:
 
 
 class SearchTask:
+    """
+        external_data - это представление в виде словаря класса SearchItem.     
+        Описание класса читай в system > items.py > SearchItem
+
+        Принимает:  
+        - external_data {
+            "root_dir": str,
+            "content": Any,
+            "filter_type": int,
+        }
+        - proc_q: Queue из процесса в gui
+        - gui_q: Queue из gui в процесс
+    """
+
     sleep_ms = 1000
     new_wid_sleep_ms = 200
     ratio = 0.85
 
     @staticmethod
     def start(external_data: dict, proc_q: Queue, gui_q: Queue):
-        """
-            external_data - это представление в виде словаря класса SearchItem.     
-            Описание класса читай в system > items.py > SearchItem
-
-            Принимает:  
-            - external_data {
-                "root_dir": str,
-                "content": Any,
-                "filter_type": int,
-            }
-            - proc_q: Queue из процесса в gui
-            - gui_q: Queue из gui в процесс
-        """
-
         engine = Dbase.create_engine()
         conn = Dbase.get_conn(engine)
 
@@ -691,17 +691,19 @@ class SearchTask:
         SearchTask.scandir_recursive(item)
 
         missed_files_list: list[str] = []
-        if isinstance(self.search_item.get_content(), list):
-            if self.is_should_run():
-                no_ext_list = [
-                    os.path.splitext(i)[0]
-                    for i in self.search_item.get_content()
-                ]
-                for i in no_ext_list:
-                    if i not in self.found_files_list:
-                        missed_files_list.append(i)
-        self.sigs.finished_.emit(missed_files_list)
-        Dbase.close_conn(self.conn)
+        if isinstance(item.content, list):
+            no_ext_list = [
+                os.path.splitext(i)[0]
+                for i in item.content
+            ]
+            for i in no_ext_list:
+                if i not in item.found_files:
+                    missed_files_list.append(i)
+        data = {
+            "missed_files_list": missed_files_list
+        }
+        proc_q.put(data)
+        Dbase.close_conn(conn)
 
     @staticmethod
     def setup(item: SearchTaskItem):
