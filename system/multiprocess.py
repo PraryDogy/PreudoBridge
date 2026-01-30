@@ -87,13 +87,12 @@ class FinderItemsLoader:
 
 
 class DbItemsLoader:
-
-    """
-    {"src": filepath , "img_array": numpy ndarray with Static.max_thumb_size}
-    """
-    
     @staticmethod
     def start(data_items: list[DataItem], q: Queue):
+        """
+        Посылает в Queue:
+        - {"src": filepath , "img_array": numpy ndarray with Static.max_thumb_size}
+        """
         engine = Dbase.create_engine()
         conn = Dbase.get_conn(engine)
 
