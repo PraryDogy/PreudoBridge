@@ -431,11 +431,6 @@ class Grid(UScrollArea):
 
                 if thumb.data.qimages["src"] is None:
                     thumb.set_uti_data()
-                    # thumb.data.qimages = {
-                    #     i: QImage()
-                    #     for i in Static.image_sizes
-                    # }
-                    # thumb.data.qimages["src"] = QImage()
                 else:
                     thumb.set_image()
 
