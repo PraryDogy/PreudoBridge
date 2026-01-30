@@ -639,12 +639,20 @@ class SearchTaskWorker(BaseProcessWorker):
 class SearchTaskItem:
     def __init__(self):
         super().__init__()
-        self.root_dir: str = ""
-        self.content_type: str = ""
+        self.root_dir: str = None
         self.content: Any = None
-        self.filter_type: int = 0
-        self.files_list_lower = []
+        self.filter_type: int = None
 
+        self.files_lower: list[str] = []
+        self.exts_lower: list[str] = []
+        self.text_lower: str = None
+
+        self.conn: sqlalchemy.Connection = None
+        self.insert_count: int = None
+        self.found_files: list[str] = []
+
+        self.proc_q: Queue = None
+        self.gui_q: Queue = None
 
 
 class SearchTask:
@@ -652,57 +660,35 @@ class SearchTask:
     new_wid_sleep_ms = 200
     ratio = 0.85
 
-    def __init__(self, main_win_item: MainWinItem, search_item: SearchItem):
-        super().__init__()
-        self.sigs = SearchTask.Sigs()
-        self.main_win_item = main_win_item
-        self.found_files_list: list[str] = []
-
-        self.search_item = search_item
-        self.files_list_lower: list[str] = []
-        self.text_lower: str = None
-        self.exts_lower: tuple[str] = None
-
-        self.db_path: str = None
-        self.pause = False
-        self.insert_count = 0
-
-        self.conn = Dbase.get_conn(Dbase.engine)
-
     @staticmethod
-    def start(external_data: dict, proc_gui: Queue, gui_q: Queue):
+    def start(external_data: dict, proc_q: Queue, gui_q: Queue):
         """
+            external_data - это представление в виде словаря класса SearchItem.     
+            Описание класса читай в system > items.py > SearchItem
+
             Принимает:  
             - external_data {
-                "root_dir": str директория для поиска,
-                "content": 
-                    None | 
-                    str (будет искать по тексту) | 
-                    tuple[str] (будет искать по расширениям) | 
-                    list[str] (будет искать по списку),
-                "filter_type":
-                    0: int поиск без фильтра |
-                    1: int точное соответствие по имени |
-                    2: int текст содержится в имени или наоборот,
-                "": ...
-            },
-            - proc_q: Queue из процесса в gui,
+                "root_dir": str,
+                "content": Any,
+                "filter_type": int,
+            }
+            - proc_q: Queue из процесса в gui
             - gui_q: Queue из gui в процесс
         """
-
-        internal_data = {
-            "root_dir": external_data["root_dir"],
-            "found_files": [],
-            "files_lower": [],
-            "exts_lower": [],
-            "text_lower": "",
-        }
 
         engine = Dbase.create_engine()
         conn = Dbase.get_conn(engine)
 
-        SearchTask.setup(external_data, internal_data)
-        SearchTask.scandir_recursive(internal_data)
+        item = SearchTaskItem()
+        item.root_dir = external_data["root_dir"]
+        item.content = external_data["content"]
+        item.filter_type = external_data["filter_type"]
+        item.proc_q = proc_q
+        item.gui_q = gui_q
+        item.conn = conn
+
+        SearchTask.setup(item)
+        SearchTask.scandir_recursive(item)
 
         missed_files_list: list[str] = []
         if isinstance(self.search_item.get_content(), list):
@@ -718,42 +704,42 @@ class SearchTask:
         Dbase.close_conn(self.conn)
 
     @staticmethod
-    def setup(external_data: dict, internal_data: dict):
+    def setup(item: SearchTaskItem):
         # поиск по списку
-        if isinstance(external_data["content"], list):
+        if isinstance(item.content, list):
             # без фильтров, ищет схожий текст на основе difflib
-            if external_data["filter_type"] == 0:
+            if item.filter_type == 0:
                 SearchTask.process_entry = SearchTask.process_list_difflib
             # точное соответствие
-            elif external_data["filter_type"] == 1:
+            elif item.filter_type == 1:
                 SearchTask.process_entry = SearchTask.process_list_exactly
             # содержится в имени
-            elif external_data["filter_type"] == 2:
+            elif item.filter_type == 2:
                 SearchTask.process_entry = SearchTask.process_list_contains
 
-            for i in external_data["content"]:
+            for i in item.content:
                 filename, _ = SearchTask.remove_extension(i)
-                internal_data["files_lower"].append(filename.lower())
+                item.files_lower.append(filename.lower())
 
         # поиск по расширениям
-        elif isinstance(external_data["content"], tuple):
+        elif isinstance(item.content, tuple):
             SearchTask.process_entry = SearchTask.process_extensions
-            for i in external_data["content"]:
+            for i in item.content:
                 i: str
-                internal_data["exts_lower"].append(i.lower())
+                item.exts_lower.append(i.lower())
 
         # простой поиск по тексту
-        elif isinstance(external_data["content"], str):
+        elif isinstance(item.content, str):
             # без фильтров, ищет схожий текст на основе difflib
-            if external_data["filter_type"] == 0:
+            if item.filter_type == 0:
                 SearchTask.process_entry = SearchTask.process_text_difflib
             # точное соответствие
-            elif external_data["filter_type"] == 1:
+            elif item.filter_type == 1:
                 SearchTask.process_entry = SearchTask.process_text_exactly
             # текст содержится в имени файла или наоборот
-            elif external_data["filter_type"] == 2:
+            elif item.filter_type == 2:
                 SearchTask.process_entry = SearchTask.process_text_contains
-            internal_data["text_lower"] = external_data["content"].lower()
+            item.text_lower = item.content.lower()
     
     @staticmethod
     def remove_extension(filename: str):
@@ -765,106 +751,77 @@ class SearchTask:
 
     # базовый метод обработки os.DirEntry
     @staticmethod
-    def process_entry(entry: os.DirEntry, internal_data: dict):
-        """
-        Принимает:
-        - entry: os.DirEntry,
-        - internal_data: {
-            "root_dir": str,
-            "files_lower": list[str],
-            "exts_lower": list[str],
-            "text_lower": str,
-            "files_found": list[str],
-        }
-        """
+    def process_entry(entry: os.DirEntry, item: SearchTaskItem):
+        ...
 
     @staticmethod
-    def process_extensions(entry: os.DirEntry, internal_data: dict):
-        """
-        Ищет файлы по списку пользовательских расширений
-        """
+    def process_extensions(entry: os.DirEntry, item: SearchTaskItem):
         path = entry.path
         path: str = path.lower()
-        if path.endswith(internal_data["exts_lower"]):
+        if path.endswith(item.exts_lower):
             return True
         else:
             return False
 
     @staticmethod
-    def process_text_difflib(entry: os.DirEntry, internal_data: dict):
-        """
-        Ищет похожие файлы на основе difflib.
-        """
+    def process_text_difflib(entry: os.DirEntry, item: SearchTaskItem):
         filename, _ = SearchTask.remove_extension(entry.name)
         filename: str = filename.lower()
-        if SearchTask.similarity_ratio(internal_data["text_lower"], filename) > SearchTask.ratio:
+        if SearchTask.similarity_ratio(item.text_lower, filename) > SearchTask.ratio:
             return True
         else:
             return False
         
     @staticmethod
-    def process_text_exactly(entry: os.DirEntry, internal_data: dict):
-        """
-        Ищет файлы по точному совпадению. 
-        """
+    def process_text_exactly(entry: os.DirEntry, item: SearchTaskItem):
         filename, _ = SearchTask.remove_extension(entry.name)
         filename: str = filename.lower()
-        if filename == internal_data["text_lower"]:
+        if filename == item.text_lower:
             return True
         else:
             return False
 
     @staticmethod
-    def process_text_contains(entry: os.DirEntry, internal_data: dict):
-        """
-        Ищет файлы, который содержится в имени файла и наоборот.    
-        """
+    def process_text_contains(entry: os.DirEntry, item: SearchTaskItem):
         filename_lower = entry.name.lower()
-        if internal_data["text_lower"] in filename_lower:
+        if item.text_lower in filename_lower:
             return True
         else:
             return False
 
     @staticmethod
-    def process_list_exactly(entry: os.DirEntry, internal_data: dict):
-        """
-        Ищет файлы по пользовательскому списку с точным совпадением.
-        """
-
-        # короче надо переделать
-        # этот метод наполняет ГЛОБАЛЬНЫЙ список найденных файлов
-
-        found_files: list[str] = []
+    def process_list_exactly(entry: os.DirEntry, item: SearchTaskItem):
         true_filename, _ = SearchTask.remove_extension(entry.name)
         filename: str = true_filename.lower()
-        for item in kwargs["files_list_lower"]:
+        for item in item.files_lower:
             if filename == item:
-                found_files.append(true_filename)
-                return found_files
-        return found_files
-    
-    def process_list_difflib(self, entry: os.DirEntry):
-        true_filename, _ = self.remove_extension(entry.name)
-        filename: str = true_filename.lower()
-        for item in self.files_list_lower:
-            if self.similarity_ratio(item, filename) > SearchTask.ratio:
-                self.found_files_list.append(true_filename)
+                item.found_files.append(true_filename)
                 return True
         return False
-
-    def process_list_contains(self, entry: os.DirEntry):
-        true_filename, _ = self.remove_extension(entry.name)
+    
+    @staticmethod
+    def process_list_difflib(entry: os.DirEntry, item: SearchTaskItem):
+        true_filename, _ = SearchTask.remove_extension(entry.name)
         filename: str = true_filename.lower()
-        for item in self.files_list_lower:
-            if item in filename:
-                self.found_files_list.append(true_filename)
+        for item in item.files_lower:
+            if SearchTask.similarity_ratio(item, filename) > SearchTask.ratio:
+                item.found_files.append(true_filename)
                 return True
         return False
 
     @staticmethod
-    def scandir_recursive(root_dir: str, conn: sqlalchemy.Connection):
-        # Инициализируем список с корневым каталогом
-        dirs_list = [root_dir, ]
+    def process_list_contains(entry: os.DirEntry, item: SearchTaskItem):
+        true_filename, _ = SearchTask.remove_extension(entry.name)
+        filename: str = true_filename.lower()
+        for item in item.files_lower:
+            if item in filename:
+                item.found_files.append(true_filename)
+                return True
+        return False
+
+    @staticmethod
+    def scandir_recursive(item: SearchTaskItem):
+        dirs_list = [item.root_dir, ]
         while dirs_list:
             current_dir = dirs_list.pop()
             # while self.pause:
@@ -873,7 +830,7 @@ class SearchTask:
                 continue
             try:
                 # Сканируем текущий каталог и добавляем новые пути в стек
-                SearchTask.scan_current_dir(current_dir, dirs_list, conn)
+                SearchTask.scan_current_dir(current_dir, dirs_list, item)
             except OSError as e:
                 Utils.print_error()
                 continue
@@ -882,7 +839,7 @@ class SearchTask:
                 continue
     
     @staticmethod
-    def scan_current_dir(dir: str, dirs_list: list, conn: sqlalchemy.Connection):
+    def scan_current_dir(dir: str, dirs_list: list, item: SearchTaskItem):
         for entry in os.scandir(dir):
             # while self.pause:
             #     QTest.qSleep(SearchTask.sleep_ms)
@@ -892,15 +849,15 @@ class SearchTask:
                 dirs_list.append(entry.path)
                 # continue
             if SearchTask.process_entry(entry):
-                SearchTask.process_img(entry, conn)
+                SearchTask.process_img(entry, item)
 
     @staticmethod
-    def process_img(entry: os.DirEntry, conn: sqlalchemy.Connection, proc_q: Queue):
+    def process_img(entry: os.DirEntry, item: SearchTaskItem):
 
         def execute_stmt_list(stmt_list: list):
             for i in stmt_list:
-                Dbase.execute(conn, i)
-            Dbase.commit(conn)
+                Dbase.execute(item.conn, i)
+            Dbase.commit(item.conn)
 
         def insert(data_item: DataItem, img_array: np.ndarray):
             if Utils.write_thumb(data_item.thumb_path, img_array):
@@ -912,25 +869,29 @@ class SearchTask:
         stmt_list: list = []
         stmt_limit = 10
 
-        data_item = DataItem(entry.path)
-        data_item.set_properties()
-        if data_item.type_ != Static.folder_type:
-            data_item.set_partial_hash()
-        if entry.name.endswith(Static.img_exts):
-            if os.path.exists(data_item.thumb_path):
-                img_array = Utils.read_thumb(data_item.thumb_path)
-            else:
-                img_array = ReadImage.read_image(entry.path)
-                img_array = SharedUtils.fit_image(img_array, Static.max_thumb_size)
-                insert(data_item, img_array)
-            qimage = Utils.qimage_from_array(img_array)
-            data_item.qimages = {
-                i: Utils.scaled(qimage, i)
-                for i in Static.image_sizes
-            }
-            data_item.qimages.update({"src": qimage})
+        # data_item = DataItem(entry.path)
+        # data_item.set_properties()
+        # if data_item.type_ != Static.folder_type:
+        #     data_item.set_partial_hash()
+        # if entry.name.endswith(Static.img_exts):
+        #     if os.path.exists(data_item.thumb_path):
+        #         img_array = Utils.read_thumb(data_item.thumb_path)
+        #     else:
+        #         img_array = ReadImage.read_image(entry.path)
+        #         img_array = SharedUtils.fit_image(img_array, Static.max_thumb_size)
+        #         insert(data_item, img_array)
+        #     qimage = Utils.qimage_from_array(img_array)
+        #     data_item.qimages = {
+        #         i: Utils.scaled(qimage, i)
+        #         for i in Static.image_sizes
+        #     }
+        #     data_item.qimages.update({"src": qimage})
 
+        # мы не можем передать DataItem, это перейдет в GridSearch
         # надо понять что передавать, скорее всего 
         # {"src": str path, "img_array": np.ndarray}
-        proc_q.put()
+        data = {
+
+        }
+        item.proc_q.put()
         sleep(SearchTask.new_wid_sleep_ms)

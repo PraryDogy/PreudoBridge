@@ -129,7 +129,6 @@ class SearchTask(URunnable):
 
         self.db_path: str = None
         self.pause = False
-        self.insert_count = 0
 
         self.conn = Dbase.get_conn(Dbase.engine)
 

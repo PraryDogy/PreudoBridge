@@ -2,7 +2,7 @@
 import os
 import re
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 import sqlalchemy
 from PyQt5.QtGui import QImage
@@ -225,45 +225,34 @@ class SearchItem:
         "Найти любые фото": Static.img_exts
     }
 
-    def __init__(self):
+    def __init__(self, search_type: int = 2, content: Any = None):
+        """
+            search_type (по умолчанию 2)
+            - 0: искать совпадения с difflib
+            - 1: искать по точному соответствию
+            - 2: контент содержится в имени файла
+
+            content:
+            - str: простой поиск по тексту
+            - tuple[str]: поиск файлов по заданным расширениям
+            - list[str]: поиск всех файлов по списку
+
+        """
         super().__init__()
-        self._filter: int = 0
-        self._content: str | list[str] = None
-        self.set_filter(2)
+        self.search_type: int = search_type
+        self.content: Any = content
 
     def get_content(self):
-        """
-        none    
-        str: искать текст   
-        tuple[str]: искать по расширениям   
-        list[str]: искать по списку 
-        """
-        return self._content
+        return self.content
 
     def set_content(self, value: str | tuple[str] | list[str]):
-        """
-        none    
-        str: искать текст   
-        tuple: искать по расширениям    
-        list[str]: искать по списку     
-        """
-        self._content = value
+        self.content = value
     
-    def set_filter(self, value: int):
-        """
-        0: нет фильтра      
-        1: точное соответствие  
-        2: искомый текст содержится в имени и наоборот  
-        """
-        self._filter = value
+    def set_search_type(self, value: int):
+        self.search_type = value
 
     def get_filter(self):
-        """
-        0: нет фильтра  
-        1: точное соответствие  
-        2: искомый текст содержится в имени и наоборот  
-        """
-        return self._filter
+        return self.search_type
     
 
 class MainWinItem:

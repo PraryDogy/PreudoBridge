@@ -109,7 +109,7 @@ class SearchBar(QFrame):
             self.containts_text: 2
         }
         
-        self.search_item.set_filter(data.get(act.text()))
+        self.search_item.set_search_type(data.get(act.text()))
         self.on_filter_clicked.emit()
 
     def pause_btn_cmd(self):
