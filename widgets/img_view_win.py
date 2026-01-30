@@ -240,8 +240,6 @@ class ImgViewWin(WinBase):
         self.mouse_move_timer.setSingleShot(True)
         self.mouse_move_timer.timeout.connect(self.hide_btns)
 
-        self.read_img_task: ProcessWorker = None
-
         self.v_layout = QVBoxLayout()
         self.v_layout.setContentsMargins(0, 0, 0, 0)
         self.centralWidget().setLayout(self.v_layout)
@@ -329,16 +327,10 @@ class ImgViewWin(WinBase):
 
     def load_image(self):
 
-        def poling():
-            task = self.read_img_task
-            if not task:
-                return
-
-            q = task.proc_q
-
-            while not q.empty():
+        def poll_task():
+            q = self.read_img_task.proc_q
+            if not q.empty():
                 src, img_array = q.get()
-
                 if img_array is None:
                     self.show_text_label(self.error_text)
                 elif src == self.current_path:
@@ -346,22 +338,20 @@ class ImgViewWin(WinBase):
                     ImgViewWin.cached_images[src] = qimage
                     self.restart_img_wid(QPixmap.fromImage(qimage))
 
-            if not task.is_alive() and q.empty():
-                task.terminate()
-                self.read_img_task = None
-                return
-
-            QTimer.singleShot(100, poling)
+            if not self.read_img_task.is_alive():
+                self.read_img_task.terminate()
+            else:
+                QTimer.singleShot(100, poll_task)
         
         if self.read_img_task:
             self.read_img_task.terminate()
 
         self.read_img_task = ProcessWorker(
             target=ReadImg.start,
-            args=(self.current_path, True)
+            args=(self.current_path, True, )
         )
         self.read_img_task.start()
-        QTimer.singleShot(100, poling)
+        QTimer.singleShot(100, poll_task)
 
     def rotate_image(self, value: int):
         pixmap = self.img_wid.pixmap_item.pixmap()

@@ -34,7 +34,9 @@ class CacheDownloadWin(ProgressbarWin):
         self.cache_timer.stop()
         q = self.cache_task.proc_q
         maximum = 0
-        while not q.empty():
+
+        # мы используем if а не while, чтобы gui обновлялся равномерно по таймеру
+        if not q.empty():
             res = q.get()
 
             if maximum == 0:

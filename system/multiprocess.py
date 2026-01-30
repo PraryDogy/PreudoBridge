@@ -36,6 +36,10 @@ class BaseProcessWorker:
         return self.proc.is_alive()
     
     def terminate(self):
+        """
+        Корректно terminate с join
+        Завершает все очереди Queue
+        """
         self.proc.terminate()
         self.proc.join(timeout=0.2)
         queues: tuple[Queue] = (i for i in dir(self) if hasattr(i, "put"))
