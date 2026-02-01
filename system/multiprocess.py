@@ -149,8 +149,8 @@ class DbItemsLoader:
     @staticmethod
     def execute_svg_files(data_items: list[DataItem], q: Queue):
         for i in data_items:
-            img_array = ImgUtils.read_image(i.src)
-            img_array = SharedUtils.fit_image(img_array, 512)
+            img_array = ImgUtils.read_img(i.src)
+            img_array = ImgUtils.resize(img_array, 512)
             data = {"src": i.src, "img_array": img_array}
             q.put(data)
 
@@ -169,8 +169,8 @@ class DbItemsLoader:
     @staticmethod
     def execute_new_images(data_items: list[DataItem], q: Queue):
         for i in data_items:
-            img_array = ImgUtils.read_image(i.src)
-            img_array = SharedUtils.fit_image(img_array, Static.max_thumb_size)
+            img_array = ImgUtils.read_img(i.src)
+            img_array = ImgUtils.resize(img_array, Static.max_thumb_size)
             Utils.write_thumb(i.thumb_path, img_array)
             data = {"src": i.src, "img_array": img_array}
             q.put(data)
@@ -195,7 +195,7 @@ class ReadImg:
         """
         nd array or none
         """
-        img_array = ImgUtils.read_image(src)
+        img_array = ImgUtils.read_img(src)
         if desaturate:
             img_array = Utils.desaturate_image(img_array, 0.2)
         q.put((src, img_array))
@@ -286,7 +286,7 @@ class ToJpegConverter:
     @staticmethod
     def _save_jpg(path: str) -> None:
         try:
-            img_array = ImgUtils.read_image(path)
+            img_array = ImgUtils.read_img(path)
             img = Image.fromarray(img_array.astype(np.uint8))
             img = img.convert("RGB")
             save_path = os.path.splitext(path)[0] + ".jpg"
@@ -380,8 +380,8 @@ class CacheDownloader:
 
     @staticmethod
     def write_thumb(data_item: DataItem):
-        img = ImgUtils.read_image(data_item.src)
-        img = SharedUtils.fit_image(img, Static.max_thumb_size)
+        img = ImgUtils.read_img(data_item.src)
+        img = ImgUtils.resize(img, Static.max_thumb_size)
         return Utils.write_thumb(data_item.thumb_path, img)
     
 
@@ -393,7 +393,7 @@ class ImgRes:
         """
         Возвращает str "ширина изображения x высота изображения
         """
-        img_ = ImgUtils.read_image(path)
+        img_ = ImgUtils.read_img(path)
         if img_ is not None and len(img_.shape) > 1:
             h, w = img_.shape[0], img_.shape[1]
             resol= f"{w}x{h}"
@@ -879,8 +879,8 @@ class SearchTask:
             if os.path.exists(data_item.thumb_path):
                 img_array = Utils.read_thumb(data_item.thumb_path)
             else:
-                img_array = ImgUtils.read_image(entry.path)
-                img_array = SharedUtils.fit_image(img_array, Static.max_thumb_size)
+                img_array = ImgUtils.read_img(entry.path)
+                img_array = ImgUtils.resize(img_array, Static.max_thumb_size)
                 insert(data_item, img_array)
             data_item.img_array = img_array
 
