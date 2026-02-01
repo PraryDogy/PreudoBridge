@@ -29,7 +29,6 @@ packaging==25.0
 PhotoshopAPI==0.7.0
 pillow==11.2.1
 pillow_heif==1.2.0
-psd-tools==1.10.8
 py2app==0.28.8
 pycparser==3.0
 pydantic==2.11.5
@@ -195,7 +194,6 @@ PyQt5==5.15.11
 PyQt5-Qt5==5.15.17
 PyQt5_sip==12.17.0
 python-dateutil==2.9.0.post0
-pytoshop @ git+https://github.com/mdboom/pytoshop.git@1d83f3f066558acd6cbb1915b48db3ebf2b2cb90
 rawpy==0.21.0
 referencing==0.36.2
 rpds-py==0.25.1
