@@ -261,6 +261,10 @@ class CopyFilesWin(ProgressbarWin):
         self.copy_timer.stop()
         self.copy_task.terminate()
 
+    def closeEvent(self, a0):
+        CopyItem.reset()
+        return super().closeEvent(a0)
+
     def deleteLater(self):
         CopyItem.reset()
         super().deleteLater()

@@ -58,6 +58,11 @@ class ImgConvertWin(ProgressbarWin):
     def cancel_cmd(self):
         self.deleteLater()
 
+    def closeEvent(self, a0):
+        self.jpg_timer.stop()
+        self.jpg_task.terminate()
+        return super().closeEvent(a0)
+
     def deleteLater(self):
         self.jpg_timer.stop()
         self.jpg_task.terminate()

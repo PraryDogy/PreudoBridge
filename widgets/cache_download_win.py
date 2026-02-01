@@ -55,6 +55,11 @@ class CacheDownloadWin(ProgressbarWin):
     def on_cancel(self, *args):
         self.deleteLater()
 
+    def closeEvent(self, a0):
+        self.cache_timer.stop()
+        self.cache_task.terminate()
+        return super().closeEvent(a0)
+
     def deleteLater(self):
         self.cache_timer.stop()
         self.cache_task.terminate()
