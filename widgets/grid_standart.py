@@ -32,12 +32,14 @@ class GridStandart(Grid):
         self.scroll_timer.setSingleShot(True)
         self.verticalScrollBar().valueChanged.connect(self.on_scroll)
 
-        self.loading_label = LoadingWidget()
-
         if os.path.expanduser("~"):
             self.start_load_finder_items = self.start_load_finder_items_s
+            ms = 1000
         else:
-            QTimer.singleShot(1, self.show_loading_label)
+            ms = 1
+
+        self.loading_label = LoadingWidget()
+        QTimer.singleShot(ms, self.show_loading_label)
 
     def show_loading_label(self):
         try:
@@ -226,11 +228,13 @@ class GridStandart(Grid):
         return super().mouseMoveEvent(a0)
     
     def deleteLater(self):
+        self.loading_label.hide()
         if isinstance(self.finder_task, FinderItemsLoader):
             self.finder_task.terminate()
         return super().deleteLater()
     
     def closeEvent(self, a0):
+        self.loading_label.hide()
         if isinstance(self.finder_task, FinderItemsLoader):
             self.finder_task.terminate()
         return super().closeEvent(a0)
