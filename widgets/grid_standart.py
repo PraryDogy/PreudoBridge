@@ -34,7 +34,7 @@ class GridStandart(Grid):
 
         if os.path.expanduser("~"):
             self.start_load_finder_items = self.start_load_finder_items_s
-            ms = 1000
+            ms = 1
         else:
             ms = 1
 
