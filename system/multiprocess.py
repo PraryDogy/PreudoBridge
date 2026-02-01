@@ -58,7 +58,7 @@ class ProcessWorker(BaseProcessWorker):
         super().__init__(target, (*args, self.proc_q))
 
 
-class FinderItemsLoader:
+class DirScaner:
     @staticmethod
     def start(main_win_item: MainWinItem, sort_item: SortItem, show_hidden: bool, q: Queue):
         """

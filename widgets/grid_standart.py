@@ -3,8 +3,8 @@ from PyQt5.QtWidgets import QLabel
 
 from cfg import Dynamic, JsonData
 from system.items import DataItem, MainWinItem
-from system.multiprocess import FinderItemsLoader, ProcessWorker
-from system.tasks import UThreadPool, FinderItemsLoader as FinderItemsLoaderS
+from system.multiprocess import DirScaner, ProcessWorker
+from system.tasks import UThreadPool, DirScaner as DirScanerS
 from .grid import Grid, NoItemsLabel, Thumb
 import os
 
@@ -35,7 +35,7 @@ class GridStandart(Grid):
         self.loading_label = LoadingWidget()
 
         if os.path.expanduser("~"):
-            self.start_load_finder_items = self.start_load_finder_items_s
+            self.start_dir_scaner = self.start_dir_scaner_s
         else:
             QTimer.singleShot(1, self.show_loading_label)
 
@@ -61,16 +61,16 @@ class GridStandart(Grid):
         self.scroll_timer.stop()
         self.scroll_timer.start(self.scroll_timer_ms)
 
-    def start_load_finder_items_s(self):
-        self.finder_task = FinderItemsLoaderS(
+    def start_dir_scaner_s(self):
+        self.finder_task = DirScanerS(
             self.main_win_item, self.sort_item, JsonData.show_hidden
         )
         self.finder_task.sigs.finished_.connect(
-            self.fin_load_finder_items
+            self.finalize_dir_scaner
         )
         UThreadPool.start(self.finder_task)
 
-    def start_load_finder_items(self):
+    def start_dir_scaner(self):
 
         def timeout_task():
             self.finder_timer.stop()
@@ -80,7 +80,7 @@ class GridStandart(Grid):
             )
 
         def poll_task_fin(result: dict):
-            self.fin_load_finder_items(result)
+            self.finalize_dir_scaner(result)
 
         def poll_task():
             self.finder_timer.stop()
@@ -97,7 +97,7 @@ class GridStandart(Grid):
                 self.finder_timer.start(self.finder_timer_ms)
 
         self.finder_task = ProcessWorker(
-            target=FinderItemsLoader.start,
+            target=DirScaner.start,
             args=(self.main_win_item, self.sort_item, JsonData.show_hidden)
         )
 
@@ -113,7 +113,7 @@ class GridStandart(Grid):
         self.finder_timer.start(self.finder_timer_ms)
         self.timeout_timer.start(self.timeout_timer_ms)
 
-    def fin_load_finder_items(self, result: dict):
+    def finalize_dir_scaner(self, result: dict):
         """
         {
             "path": путь к сканируемой директории,
@@ -155,7 +155,7 @@ class GridStandart(Grid):
                 # Все виджеты добавлены
                 self.data_items = None
                 self._thumb_index = 0
-                self.create_thumbs_fin()
+                self.post_process()
                 return
 
             # Создание и настройка виджета
@@ -182,7 +182,7 @@ class GridStandart(Grid):
 
         add_one_thumb()
 
-    def create_thumbs_fin(self):
+    def post_process(self):
 
         def select_delayed(wid: Thumb):
             self.select_single_thumb(wid)

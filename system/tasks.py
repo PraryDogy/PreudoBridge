@@ -435,7 +435,7 @@ class AnyTaskLoader(URunnable):
             self.sigs.finished_.emit(0)
 
 
-class FinderItemsLoader(URunnable):
+class DirScaner(URunnable):
 
     class Sigs(QObject):
         finished_ = pyqtSignal(dict)
@@ -447,7 +447,7 @@ class FinderItemsLoader(URunnable):
         """
 
         super().__init__()
-        self.sigs = FinderItemsLoader.Sigs()
+        self.sigs = DirScaner.Sigs()
         self.main_win_item = main_win_item
         self.sort_item = sort_item
         self.show_hidden = show_hidden

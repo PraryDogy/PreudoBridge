@@ -499,7 +499,7 @@ class MainWin(WinBase):
                 classes = (TableView, Grid)
                 self.grid.sort_item = self.sort_item
                 self.disable_wids(False)
-                self.grid.start_load_finder_items()
+                self.grid.start_dir_scaner()
 
             elif self.main_win_item.get_view_mode() == 1:
                 self.grid = TableView(self.main_win_item)
