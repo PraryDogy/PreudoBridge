@@ -7,6 +7,7 @@ from pathlib import Path
 
 import cv2
 import numpy as np
+import pillow_heif
 import rawpy
 import rawpy._rawpy
 import tifffile
@@ -93,6 +94,7 @@ class SharedUtils:
 
 class ReadImage:
     Image.MAX_IMAGE_PIXELS = None
+    pillow_heif.register_heif_opener()
 
     ext_jpeg = (
             ".jpg", ".JPG",
@@ -268,8 +270,14 @@ class ReadImage:
             img.close()
             return array_img
         except Exception as e:
-            print("read jpg, PIL error", e)
-            return None
+            print("read jpg, PIL error, try cv2 read", e)
+            try:
+                img = cv2.imread(path, cv2.IMREAD_UNCHANGED)
+                # img = np.array(img)
+                return img
+            except Exception as e:
+                print("read jpg, cv2 error, try cv2 read", e)
+                return None
 
     @classmethod
     def _read_raw(cls, path: str) -> np.ndarray | None:
