@@ -227,12 +227,10 @@ class GridStandart(Grid):
     
     def deleteLater(self):
         self.loading_label.hide()
-        if isinstance(self.finder_task, FinderItemsLoader):
-            self.finder_task.terminate()
+        self.finder_task.terminate()
         return super().deleteLater()
     
     def closeEvent(self, a0):
         self.loading_label.hide()
-        if isinstance(self.finder_task, FinderItemsLoader):
-            self.finder_task.terminate()
+        self.finder_task.terminate()
         return super().closeEvent(a0)

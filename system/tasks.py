@@ -479,3 +479,9 @@ class FinderItemsLoader(URunnable):
 
         items = DataItem.sort_(items, self.sort_item)
         self.sigs.finished_.emit({"path": fixed_path, "data_items": items})
+
+    def terminate(self):
+        """
+        Метод заглушка аналогично multiprocessing.Process.terminate()
+        """
+        ...
