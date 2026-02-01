@@ -433,3 +433,49 @@ class AnyTaskLoader(URunnable):
         except Exception as e:
             print("Any task loader error", e)
             self.sigs.finished_.emit(0)
+
+
+class FinderItemsLoader:
+
+    class Sigs(QObject):
+        finished_ = pyqtSignal()
+
+    def __init__(self, main_win_item: MainWinItem, sort_item: SortItem, show_hidden: bool):
+        """
+        Возвращает через сигнал:
+        - {"path": путь директории, "data_items": список DataItem}
+        """
+
+        super().__init__()
+        self.sigs = FinderItemsLoader.Sigs()
+        self.main_win_item = main_win_item
+        self.sort_item = sort_item
+        self.show_hidden = show_hidden
+
+    def task(self):
+        try:
+            self.task_()
+        except Exception as e:
+            self.sigs.finished_.emit({"path": None, "data_items": []})
+
+    def task_(self):
+        items = []
+        hidden_syms = () if self.show_hidden else Static.hidden_symbols
+
+        fixed_path = PathFinder(self.main_win_item.main_dir).get_result()
+        if fixed_path is None:
+            self.sigs.finished_.emit({"path": None, "data_items": []})
+            return
+
+        for entry in os.scandir(fixed_path):
+            if entry.name.startswith(hidden_syms):
+                continue
+            if not os.access(entry.path, 4):
+                continue
+
+            item = DataItem(entry.path)
+            item.set_properties()
+            items.append(item)
+
+        items = DataItem.sort_(items, self.sort_item)
+        self.sigs.finished_.emit({"path": fixed_path, "data_items": items})
