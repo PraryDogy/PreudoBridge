@@ -32,14 +32,12 @@ class GridStandart(Grid):
         self.scroll_timer.setSingleShot(True)
         self.verticalScrollBar().valueChanged.connect(self.on_scroll)
 
+        self.loading_label = LoadingWidget()
+
         if os.path.expanduser("~"):
             self.start_load_finder_items = self.start_load_finder_items_s
-            ms = 1
         else:
-            ms = 1
-
-        self.loading_label = LoadingWidget()
-        QTimer.singleShot(ms, self.show_loading_label)
+            QTimer.singleShot(1, self.show_loading_label)
 
     def show_loading_label(self):
         try:
