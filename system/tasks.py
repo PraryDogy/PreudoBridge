@@ -435,10 +435,10 @@ class AnyTaskLoader(URunnable):
             self.sigs.finished_.emit(0)
 
 
-class FinderItemsLoader:
+class FinderItemsLoader(URunnable):
 
     class Sigs(QObject):
-        finished_ = pyqtSignal()
+        finished_ = pyqtSignal(dict)
 
     def __init__(self, main_win_item: MainWinItem, sort_item: SortItem, show_hidden: bool):
         """

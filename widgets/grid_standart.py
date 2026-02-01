@@ -6,7 +6,7 @@ from system.items import DataItem, MainWinItem
 from system.multiprocess import FinderItemsLoader, ProcessWorker
 from system.tasks import UThreadPool, FinderItemsLoader as FinderItemsLoaderS
 from .grid import Grid, NoItemsLabel, Thumb
-
+import os
 
 class LoadingWidget(QLabel):
     def __init__(self, text="Загрузка…", parent=None):
@@ -33,7 +33,11 @@ class GridStandart(Grid):
         self.verticalScrollBar().valueChanged.connect(self.on_scroll)
 
         self.loading_label = LoadingWidget()
-        QTimer.singleShot(1, self.show_loading_label)
+
+        if os.path.expanduser("~"):
+            self.start_load_finder_items = self.start_load_finder_items_s
+        else:
+            QTimer.singleShot(1, self.show_loading_label)
 
     def show_loading_label(self):
         try:
@@ -56,6 +60,15 @@ class GridStandart(Grid):
     def on_scroll(self):
         self.scroll_timer.stop()
         self.scroll_timer.start(self.scroll_timer_ms)
+
+    def start_load_finder_items_s(self):
+        self.finder_task = FinderItemsLoaderS(
+            self.main_win_item, self.sort_item, JsonData.show_hidden
+        )
+        self.finder_task.sigs.finished_.connect(
+            self.fin_load_finder_items
+        )
+        UThreadPool.start(self.finder_task)
 
     def start_load_finder_items(self):
 
@@ -213,15 +226,11 @@ class GridStandart(Grid):
         return super().mouseMoveEvent(a0)
     
     def deleteLater(self):
-        try:
+        if isinstance(self.finder_task, FinderItemsLoader):
             self.finder_task.terminate()
-        except AttributeError:
-            ...
         return super().deleteLater()
     
     def closeEvent(self, a0):
-        try:
+        if isinstance(self.finder_task, FinderItemsLoader):
             self.finder_task.terminate()
-        except AttributeError:
-            ...
         return super().closeEvent(a0)
