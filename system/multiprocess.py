@@ -389,16 +389,35 @@ class ImgRes:
 
     undef_text = "Неизвестно"
 
-    def start(path: str, q: Queue):
-        """
-        Возвращает str "ширина изображения x высота изображения
-        """
+    @staticmethod
+    def psd_read(path: str):
+        try:
+            w, h = ImgUtils.get_psd_size(path)
+            resol= f"{w}x{h}"
+        except Exception as e:
+            print("multiprocess > ImgRes psd error", e)
+            resol = ImgRes.undef_text
+        return resol
+
+    @staticmethod
+    def read(path: str):
         img_ = ImgUtils.read_img(path)
         if img_ is not None and len(img_.shape) > 1:
             h, w = img_.shape[0], img_.shape[1]
             resol= f"{w}x{h}"
         else:
             resol = ImgRes.undef_text
+        return resol
+
+    @staticmethod
+    def start(path: str, q: Queue):
+        """
+        Возвращает str "ширина изображения x высота изображения
+        """
+        if path.endswith(ImgUtils.ext_psd):
+            resol = ImgRes.psd_read(path)
+        else:
+            resol = ImgRes.read(path)
         q.put(resol)
 
 
