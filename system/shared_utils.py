@@ -10,13 +10,12 @@ import numpy as np
 import pillow_heif
 import rawpy
 import rawpy._rawpy
+import struct
 import tifffile
 from PIL import Image, ImageOps
 
 
 class SharedUtils:
-    _watchdog_queue = None
-    _watchdog_process = None
 
     @classmethod
     def is_mounted(cls, server: str):
@@ -92,7 +91,7 @@ class SharedUtils:
         os._exit(1)
 
 
-class ReadImage:
+class ImgUtils:
     Image.MAX_IMAGE_PIXELS = None
     pillow_heif.register_heif_opener()
 
@@ -337,6 +336,38 @@ class ReadImage:
     @classmethod
     def _read_any(cls, path: str) -> np.ndarray | None:
         ...
+
+    @classmethod
+    def get_psd_size(cls, path):
+        with open(path, "rb") as f:
+            header = f.read(26)
+
+        if header[:4] != b"8BPS":
+            raise ValueError("Не PSD")
+
+        height, width = struct.unpack(">II", header[14:22])
+        return width, height
+
+    @classmethod
+    def resize(cls, image: np.ndarray, size: int) -> np.ndarray:
+
+        def cmd():
+            h, w = image.shape[:2]
+            if w > h:  # Горизонтальное изображение
+                new_w = size
+                new_h = int(h * (size / w))
+            elif h > w:  # Вертикальное изображение
+                new_h = size
+                new_w = int(w * (size / h))
+            else:  # Квадратное изображение
+                new_w, new_h = size, size
+            return cv2.resize(image, (new_w, new_h), interpolation=cv2.INTER_AREA)
+        
+        try:
+            return cmd()
+        except Exception as e:
+            print("fit image error", e)
+            return None
 
     @classmethod
     def read_image(cls, path: str) -> np.ndarray | None:

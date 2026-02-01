@@ -20,7 +20,7 @@ from watchdog.events import FileSystemEventHandler
 from watchdog.observers.polling import PollingObserver as Observer
 
 from cfg import Dynamic, JsonData, Static
-from system.shared_utils import PathFinder, ReadImage, SharedUtils
+from system.shared_utils import PathFinder, ImgUtils, SharedUtils
 
 from .database import CACHE, Clmns, Dbase
 from .items import CopyItem, DataItem, MainWinItem, SearchItem, SortItem

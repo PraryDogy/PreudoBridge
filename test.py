@@ -1,9 +1,15 @@
-from system.shared_utils import ReadImage
-import cv2
-import pillow_heif
-pillow_heif.register_heif_opener()
 from PIL import Image
+import struct
 
-img = "/Users/evlosh/Desktop/IMG_7285.jpeg"
-a = Image.open(img)
-a.show()
+def get_psd_size(path):
+    with open(path, "rb") as f:
+        header = f.read(26)
+
+    if header[:4] != b"8BPS":
+        raise ValueError("Не PSD")
+
+    height, width = struct.unpack(">II", header[14:22])
+    return width, height
+
+img = "/Users/evlosh/Desktop/IMG_6201.psd"
+print(psd_size(img))
