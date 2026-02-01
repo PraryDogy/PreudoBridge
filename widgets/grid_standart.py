@@ -4,16 +4,13 @@ from PyQt5.QtWidgets import QLabel
 from cfg import Dynamic, JsonData
 from system.items import DataItem, MainWinItem
 from system.multiprocess import FinderItemsLoader, ProcessWorker
-
+from system.tasks import UThreadPool, FinderItemsLoader as FinderItemsLoaderS
 from .grid import Grid, NoItemsLabel, Thumb
 
 
 class LoadingWidget(QLabel):
     def __init__(self, text="Загрузка…", parent=None):
         super().__init__(text, parent)
-        # self.setStyleSheet(f"""
-        #     font-size: 15px;
-        # """)
         self.adjustSize()
 
 
