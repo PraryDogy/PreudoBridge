@@ -113,7 +113,13 @@ class GridStandart(Grid):
         self.finder_timer.start(self.finder_timer_ms)
         self.timeout_timer.start(self.timeout_timer_ms)
 
-    def fin_load_finder_items(self, result):
+    def fin_load_finder_items(self, result: dict):
+        """
+        {
+            "path": путь к сканируемой директории,
+            "data_items": список DataItem,
+        }
+        """
         fixed_path = result["path"]
         data_items = result["data_items"]
 
