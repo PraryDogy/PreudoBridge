@@ -421,18 +421,18 @@ class Grid(UScrollArea):
             try:
                 thumb = self.url_to_wid[data_item.src]
 
-                qimages = {}
-                original_qimage = Utils.qimage_from_array(data_item.img_array)
-                qimages["src"] = original_qimage
-                for size in Static.image_sizes:
-                    resized_qimage = Utils.scaled(original_qimage, size)
-                    qimages[size] = resized_qimage
-                thumb.data.qimages = qimages
-
-                if thumb.data.qimages["src"] is None:
-                    thumb.set_uti_data()
+                if data_item.img_array is not None:
+                    qimages = {}
+                    original_qimage = Utils.qimage_from_array(data_item.img_array)
+                    if original_qimage is not None:
+                        qimages["src"] = original_qimage
+                        for size in Static.image_sizes:
+                            resized_qimage = Utils.scaled(original_qimage, size)
+                            qimages[size] = resized_qimage
+                        thumb.data.qimages = qimages
+                        thumb.set_image()
                 else:
-                    thumb.set_image()
+                    thumb.set_uti_data()
 
             except RuntimeError as e:
                 print("grid > set_thumb_image runtime err")

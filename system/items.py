@@ -3,6 +3,7 @@ import os
 import re
 from typing import Literal
 
+import numpy as np
 import sqlalchemy
 from PyQt5.QtGui import QImage
 
@@ -71,7 +72,7 @@ class DataItem:
         # словарь заполняется на основе Static.image_sizes
         # так же дополняется ключом "src" с исходным qimage
         self.qimages: dict[Literal["src"] | int, QImage] = {}
-        self.img_array: dict = None
+        self.img_array: np.ndarray = None
 
     def set_partial_hash(self):
         try:
