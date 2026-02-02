@@ -297,7 +297,6 @@ class ToJpegConverter:
             return None
         
 
-
 class CacheDownloader:
 
     @staticmethod
