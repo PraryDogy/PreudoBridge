@@ -160,7 +160,9 @@ class GridSearch(Grid):
                     self.finished_.emit()
             for i in data_items:
                 create_thumb(i)
-            self.update_gui()
+
+            self.rearrange_thumbs()
+            # self.update_gui()
 
             if not self.search_task.is_alive():
                 self.search_task.terminate()
