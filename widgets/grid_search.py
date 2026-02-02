@@ -141,17 +141,14 @@ class GridSearch(Grid):
             while not q.empty():
                 res = q.get()
                 if isinstance(res, DataItem):
-                    # new_search_thumb(res)
                     data_items.append(res)
                 else:
                     fin(res)
                     self.finished_.emit()
-            for i in data_items:
-                create_thumb(i)
-
-            # новые виджеты в начало
-            # self.url_to_wid = dict(reversed(self.url_to_wid.items()))
-            self.rearrange_thumbs()
+            if data_items:
+                for i in data_items:
+                    create_thumb(i)
+                self.rearrange_thumbs()
 
             if not self.search_task.is_alive():
                 self.search_task.terminate()
