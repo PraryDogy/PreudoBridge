@@ -706,14 +706,13 @@ class SearchTask:
         SearchTask.scandir_recursive(item)
 
         missed_files_list: list[str] = []
-        if isinstance(item.search_list, list):
-            no_ext_list = [
-                os.path.splitext(i)[0]
-                for i in item.search_list
-            ]
-            for i in no_ext_list:
-                if i not in item.found_files:
-                    missed_files_list.append(i)
+        no_ext_list = [
+            os.path.splitext(i)[0]
+            for i in item.search_list
+        ]
+        for i in no_ext_list:
+            if i not in item.found_files:
+                missed_files_list.append(i)
         proc_q.put(missed_files_list)
         Dbase.close_conn(conn)
 
