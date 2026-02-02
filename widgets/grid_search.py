@@ -78,7 +78,7 @@ class GridSearch(Grid):
     no_result_text = "Ничего не найдено"
     noti_text = "Завершите поиск, затем перетащите файлы"
     warning_svg = os.path.join(Static.internal_icons_dir, "warning.svg")
-    pause_time_ms = 700
+    pause_time_ms = 1000
     search_timer_ms = 500
 
     def __init__(
@@ -161,15 +161,16 @@ class GridSearch(Grid):
             for i in data_items:
                 create_thumb(i)
 
+            # новые виджеты в начало
+            self.url_to_wid = dict(reversed(self.url_to_wid.items()))
             self.rearrange_thumbs()
-            # self.update_gui()
 
             if not self.search_task.is_alive():
                 self.search_task.terminate()
             else:
                 self.search_timer.start(self.search_timer_ms)
 
-        QTimer.singleShot(100, self.update_gui)
+        # QTimer.singleShot(100, self.update_gui)
         self.is_grid_search = True
         Thumb.calc_size()
 
