@@ -230,13 +230,13 @@ class SearchItem:
         """
         super().__init__()
         self.search_type: int = search_type
-        self.content: Any = content
+        self.search_list: list[str] = content
 
     def get_content(self):
-        return self.content
+        return self.search_list
 
     def set_content(self, value: str | tuple[str] | list[str]):
-        self.content = value
+        self.search_list = value
     
     def set_search_type(self, value: int):
         self.search_type = value

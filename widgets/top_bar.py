@@ -179,29 +179,12 @@ class SearchWidget(ULineEdit):
         self.setPlaceholderText(self.placeholder_text)
         self.setFixedWidth(self.width_)
         self.textChanged.connect(self.on_text_changed)
+        self.clear_btn.mouseReleaseEvent = self.clear_btn_cmd
 
         self.search_item = search_item
         self.main_win_item = main_win_item
         self.stop_flag: bool = False
-        self.search_text: str = None
-        self.search_list_local: list[str] = []
-
-        self.templates_menu = UMenu(parent=self)
-
-        for text, _ in SearchItem.SEARCH_EXTENSIONS.items():
-            def cmd(e, text: str):
-                self.setText(text)
-                self.start_search()
-                QTimer.singleShot(0, self.deselect)
-            action = QAction(text, self)
-            action.triggered.connect(lambda e, text=text: cmd(e, text))
-            self.templates_menu.addAction(action)
-
-        search_list = QAction(SearchItem.SEARCH_LIST_TEXT, self)
-        search_list.triggered.connect(self.open_search_list_win)
-        self.templates_menu.addAction(search_list)
-
-        self.clear_btn.mouseReleaseEvent = self.clear_btn_cmd
+        self.search_list: list[str] = []
 
     def clear_btn_cmd(self, e):
         self.clear_all()
@@ -235,7 +218,11 @@ class SearchWidget(ULineEdit):
             return
         self.move_clear_btn()
         self.clear_btn.show()
-        self.search_text = text
+        self.search_list = [
+            i.strip()
+            for i in text.split(",")
+            if i.strip()
+        ]
 
     def clear_all(self):
         self.clear()
@@ -253,37 +240,16 @@ class SearchWidget(ULineEdit):
             - Иначе — устанавливает текст поиска.
         - Испускает сигнал начала поиска.
         """
-        self.search_text = self.search_text.strip()
-        self.setText(self.search_text)
-        self.search_item.set_content(None)
+        text = ", ".join(self.search_list)
+        self.setText(text)
+        self.search_item.search_list = self.search_list
+        print(self.search_item.search_list)
 
-        if self.search_text in SearchItem.SEARCH_EXTENSIONS:
-            extensions: tuple[str] = SearchItem.SEARCH_EXTENSIONS.get(self.search_text)
-            self.search_item.set_content(extensions)
-
-        elif self.search_text == SearchItem.SEARCH_LIST_TEXT:
-            self.search_item.set_content(self.search_list_local)
-
-        else:
-            self.search_item.set_content(self.search_text)
-
-        self.load_search_grid.emit()
-
-    def show_templates(self, a0: QMouseEvent | None) -> None:
-        """
-        Смотри формирование меню в инициаторе   
-        Открывает меню на основе SearchItem.SEARCH_EXTENSIONS   
-        При клике на пункт меню устанавливает:  
-        - в окно поиска текст ключа из SearchItem.SEARCH_EXTENSIONS
-        - в SearchItem.search_extensions значение соответствующего ключа    
-        """
-        self.templates_menu.exec(self.mapToGlobal(self.rect().bottomLeft()))
+        # self.load_search_grid.emit()
 
     def open_search_list_win(self):
         def fin(search_list: list[str]):
             self.search_list_local = search_list
-            self.setText("")
-            self.setText(SearchItem.SEARCH_LIST_TEXT)
             QTimer.singleShot(1000, self.start_search)
 
         self.list_win = ListWin(self.main_win_item, self.search_item)
@@ -293,13 +259,14 @@ class SearchWidget(ULineEdit):
         QTimer.singleShot(0, self.deselect)
 
     def mouseDoubleClickEvent(self, a0):
-        self.show_templates(a0)
+        self.open_search_list_win()
         return super().mouseDoubleClickEvent(a0)
 
     def keyPressEvent(self, a0):
         if a0.key() in (Qt.Key.Key_Enter, Qt.Key.Key_Return):
             self.start_search()
         return super().keyPressEvent(a0)
+
 
 class TopBar(QWidget):
     level_up = pyqtSignal()
