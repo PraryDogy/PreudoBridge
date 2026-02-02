@@ -480,10 +480,6 @@ class MainWin(WinBase):
 
     def load_st_grid(self):
 
-        def load_grid_finished():
-            self.grid.setFocus()
-            self.grid.grid_wid.show()
-
         def end_load_grid():
             self.favs_menu.select_fav(self.main_win_item.main_dir)
             self.grid.deleteLater()
@@ -495,7 +491,8 @@ class MainWin(WinBase):
                 self.grid = GridStandart(self.main_win_item, False)
                 # скрываем новый виджет
                 self.grid.grid_wid.hide()
-                self.grid.load_finished.connect(load_grid_finished)
+                self.grid.load_finished.connect(self.grid.grid_wid.show)
+                self.grid.load_finished.connect(self.grid.setFocus)
                 classes = (TableView, Grid)
                 self.grid.sort_item = self.sort_item
                 self.disable_wids(False)
@@ -503,6 +500,7 @@ class MainWin(WinBase):
 
             elif self.main_win_item.get_view_mode() == 1:
                 self.grid = TableView(self.main_win_item)
+                self.grid.load_finished.connect(self.grid.show)
                 self.grid.load_finished.connect(self.grid.setFocus)
                 classes = (Grid, TableView)
                 self.disable_wids(True)
@@ -529,11 +527,6 @@ class MainWin(WinBase):
             self.setWindowTitle(t)
             end_load_grid()
 
-        try:
-        # скрываем старый виджет
-            self.grid.grid_wid.hide()
-        except AttributeError:
-            ...
         self.grid_spacer.resize(0, self.height())
         self.grid_spacer.setFocus()
         QTimer.singleShot(100, start_load_grid)
