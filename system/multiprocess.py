@@ -663,9 +663,8 @@ class SearchTaskItem:
         self.search_list: list[str] = None
         self.search_type: Literal["difflib", "contains", "exactly"] = "contains"
         self.root_dir: str = None
-        self.search_list_low: list[tuple[str, str, str]] = {}
+        self.search_list_low: list[str] = []
         self.conn: sqlalchemy.Connection = None
-        self.found_files: list[os.DirEntry] = []
         self.proc_q: Queue = None
         self.gui_q: Queue = None
 
@@ -697,17 +696,8 @@ class SearchTask:
         item.conn = conn
 
         SearchTask.setup(item)
-        SearchTask.scandir_recursive(item)
 
-        # missed_files_list: list[str] = []
-        # no_ext_list = [
-        #     os.path.splitext(i)[0]
-        #     for i in item.search_list
-        # ]
-        # for i in no_ext_list:
-        #     if i not in item.found_files:
-        #         missed_files_list.append(i)
-        # proc_q.put(missed_files_list)
+        SearchTask.scandir_recursive(item)
         Dbase.close_conn(conn)
 
     @staticmethod
@@ -723,9 +713,7 @@ class SearchTask:
             SearchTask.process_entry = SearchTask.process_list_exactly
 
         for i in item.search_list:
-            name, ext = os.path.splitext(i)
-            data = (i.lower(), name.lower(), ext.lower())
-            item.search_list_low.append(data)
+            item.search_list_low.append(i.lower())
 
     # базовый метод обработки os.DirEntry
     @staticmethod
@@ -738,18 +726,13 @@ class SearchTask:
         entry_name: str = entry_name.lower()
         for filename, name, ext in item.search_list_low:
             if difflib.SequenceMatcher(None, name, entry_name).ratio() > SearchTask.ratio:
-                item.found_files.append(entry)
                 return True
         return False
 
     @staticmethod
     def process_list_contains(entry: os.DirEntry, item: SearchTaskItem):
-        entry_name, entry_ext = os.path.splitext(entry.name)
-        entry_name: str = entry_name.lower()
-        entry_ext: str = entry_ext.lower()
-        for filename, name, ext in item.search_list_low:
-            if name in entry_name or ext in entry_ext:
-                item.found_files.append(entry)
+        for i in item.search_list_low:
+            if i in entry.name.lower():
                 return True
         return False
 
@@ -759,7 +742,6 @@ class SearchTask:
         filename: str = true_filename.lower()
         for item in item.search_list_low:
             if filename == item:
-                item.found_files.append(entry)
                 return True
         return False
     
