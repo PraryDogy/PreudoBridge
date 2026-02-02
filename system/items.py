@@ -215,7 +215,7 @@ class DataItem:
 
 class SearchItem:
 
-    def __init__(self, search_type: int = 2, content: Any = None):
+    def __init__(self):
         """
             search_type (по умолчанию 2)
             - 0: искать совпадения с difflib
@@ -229,13 +229,13 @@ class SearchItem:
 
         """
         super().__init__()
-        self.search_type: int = search_type
-        self.search_list: list[str] = content
+        self.search_type: Literal["difflib", "contains", "exactly"] = "contains"
+        self.search_list: list[str] = []
 
     def get_content(self):
         return self.search_list
 
-    def set_content(self, value: str | tuple[str] | list[str]):
+    def set_content(self, value: list[str]):
         self.search_list = value
     
     def set_search_type(self, value: int):

@@ -662,7 +662,7 @@ class SearchTaskItem:
         super().__init__()
         self.root_dir: str = None
         self.search_list: Any = None
-        self.search_type: int = None
+        self.search_type: Literal["difflib", "contains", "exactly"] = "contains"
 
         self.files_lower: list[str] = []
         self.exts_lower: list[str] = []
@@ -720,13 +720,13 @@ class SearchTask:
     @staticmethod
     def setup(item: SearchTaskItem):
         # без фильтров, ищет схожий текст на основе difflib
-        if item.search_type == 0:
+        if item.search_type == "difflib":
             SearchTask.process_entry = SearchTask.process_list_difflib
         # точное соответствие
-        elif item.search_type == 1:
+        elif item.search_type == "exactly":
             SearchTask.process_entry = SearchTask.process_list_exactly
         # содержится в имени
-        elif item.search_type == 2:
+        elif item.search_type == "containts":
             SearchTask.process_entry = SearchTask.process_list_contains
 
         for i in item.search_list:
