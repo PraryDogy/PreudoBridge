@@ -745,42 +745,7 @@ class SearchTask:
     @staticmethod
     def process_entry(entry: os.DirEntry, item: SearchTaskItem):
         ...
-
-    @staticmethod
-    def process_extensions(entry: os.DirEntry, item: SearchTaskItem):
-        path = entry.path
-        path: str = path.lower()
-        if path.endswith(item.exts_lower):
-            return True
-        else:
-            return False
-
-    @staticmethod
-    def process_text_difflib(entry: os.DirEntry, item: SearchTaskItem):
-        filename, _ = SearchTask.remove_extension(entry.name)
-        filename: str = filename.lower()
-        if SearchTask.similarity_ratio(item.text_lower, filename) > SearchTask.ratio:
-            return True
-        else:
-            return False
         
-    @staticmethod
-    def process_text_exactly(entry: os.DirEntry, item: SearchTaskItem):
-        filename, _ = SearchTask.remove_extension(entry.name)
-        filename: str = filename.lower()
-        if filename == item.text_lower:
-            return True
-        else:
-            return False
-
-    @staticmethod
-    def process_text_contains(entry: os.DirEntry, item: SearchTaskItem):
-        filename_lower = entry.name.lower()
-        if item.text_lower in filename_lower:
-            return True
-        else:
-            return False
-
     @staticmethod
     def process_list_exactly(entry: os.DirEntry, item: SearchTaskItem):
         true_filename, _ = SearchTask.remove_extension(entry.name)
