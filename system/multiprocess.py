@@ -722,12 +722,12 @@ class SearchTask:
         # без фильтров, ищет схожий текст на основе difflib
         if item.search_type == "difflib":
             SearchTask.process_entry = SearchTask.process_list_difflib
-        # точное соответствие
-        elif item.search_type == "exactly":
-            SearchTask.process_entry = SearchTask.process_list_exactly
         # содержится в имени
         elif item.search_type == "containts":
             SearchTask.process_entry = SearchTask.process_list_contains
+        # точное соответствие
+        elif item.search_type == "exactly":
+            SearchTask.process_entry = SearchTask.process_list_exactly
 
         for i in item.search_list:
             filename, _ = os.path.splitext(i)
