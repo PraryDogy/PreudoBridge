@@ -79,7 +79,7 @@ class GridSearch(Grid):
     noti_text = "Завершите поиск, затем перетащите файлы"
     warning_svg = os.path.join(Static.internal_icons_dir, "warning.svg")
     pause_time_ms = 700
-    search_timer_ms = 400
+    search_timer_ms = 500
 
     def __init__(
             self,
