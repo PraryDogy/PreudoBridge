@@ -1,29 +1,23 @@
-import difflib
 import gc
 import glob
 import json
 import os
 import shutil
 import subprocess
-import time
 import zipfile
 
-import numpy as np
 import sqlalchemy
-from PIL import Image
 from PyQt5.QtCore import (QObject, QRunnable, Qt, QThread, QThreadPool, QTimer,
                           pyqtSignal)
 from PyQt5.QtGui import QImage
 from PyQt5.QtTest import QTest
-from sqlalchemy.exc import IntegrityError, OperationalError
-from watchdog.events import FileSystemEventHandler
 from watchdog.observers.polling import PollingObserver as Observer
 
 from cfg import Dynamic, JsonData, Static
-from system.shared_utils import PathFinder, ImgUtils, SharedUtils
+from system.shared_utils import PathFinder, SharedUtils
 
 from .database import CACHE, Clmns, Dbase
-from .items import CopyItem, DataItem, MainWinItem, SearchItem, SortItem
+from .items import DataItem, MainWinItem, SearchItem, SortItem
 from .utils import Utils
 
 

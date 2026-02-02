@@ -214,16 +214,6 @@ class DataItem:
 
 
 class SearchItem:
-    SEARCH_LIST_TEXT = "Найти по списку"
-    SEARCH_EXTENSIONS = {
-        "Найти jpg": Static.jpg_exts,
-        "Найти png": Static.png_exts,
-        "Найти tiff": Static.tiff_exts,
-        "Найти psd/psb": Static.psd_exts,
-        "Найти raw": Static.raw_exts,
-        "Найти видео": Static.movie_exts,
-        "Найти любые фото": Static.img_exts
-    }
 
     def __init__(self, search_type: int = 2, content: Any = None):
         """
