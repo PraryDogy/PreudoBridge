@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
 
 from cfg import Dynamic, Static
 from system.items import DataItem, MainWinItem, SearchItem, SortItem
-from system.multiprocess import SearchTask, SearchTaskWorker
+from system.multiprocess import SearchTask, SearchTaskItem, SearchTaskWorker
 from system.utils import Utils
 
 from ._base_widgets import (MinMaxDisabledWin, NotifyWid, USvgSqareWidget,
@@ -171,15 +171,14 @@ class GridSearch(Grid):
         self.is_grid_search = True
         Thumb.calc_size()
 
-        external_data = {
-            "root_dir": self.main_win_item.main_dir,
-            "content": self.search_item.content,
-            "search_type": self.search_item.search_type
-        }
+        search_item = SearchTaskItem()
+        search_item.root_dir = self.main_win_item.main_dir
+        search_item.content = self.search_item.content
+        search_item.search_type = self.search_item.search_type
 
         self.search_task = SearchTaskWorker(
             target=SearchTask.start,
-            args=(external_data, )
+            args=(search_item, )
         )
         self.search_timer = QTimer(self)
         self.search_timer.setSingleShot(True)

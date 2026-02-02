@@ -662,7 +662,7 @@ class SearchTaskItem:
         super().__init__()
         self.root_dir: str = None
         self.content: Any = None
-        self.filter_type: int = None
+        self.search_type: int = None
 
         self.files_lower: list[str] = []
         self.exts_lower: list[str] = []
@@ -681,7 +681,7 @@ class SearchTask:
     ratio = 0.85
 
     @staticmethod
-    def start(external_data: dict, proc_q: Queue, gui_q: Queue):
+    def start(item: SearchTaskItem, proc_q: Queue, gui_q: Queue):
         """
             external_data - это представление в виде словаря класса SearchItem.     
             Описание класса читай в system > items.py > SearchItem
@@ -698,10 +698,6 @@ class SearchTask:
         engine = Dbase.create_engine()
         conn = Dbase.get_conn(engine)
 
-        item = SearchTaskItem()
-        item.root_dir = external_data["root_dir"]
-        item.content = external_data["content"]
-        item.filter_type = external_data["search_type"]
         item.proc_q = proc_q
         item.gui_q = gui_q
         item.conn = conn
@@ -726,13 +722,13 @@ class SearchTask:
         # поиск по списку
         if isinstance(item.content, list):
             # без фильтров, ищет схожий текст на основе difflib
-            if item.filter_type == 0:
+            if item.search_type == 0:
                 SearchTask.process_entry = SearchTask.process_list_difflib
             # точное соответствие
-            elif item.filter_type == 1:
+            elif item.search_type == 1:
                 SearchTask.process_entry = SearchTask.process_list_exactly
             # содержится в имени
-            elif item.filter_type == 2:
+            elif item.search_type == 2:
                 SearchTask.process_entry = SearchTask.process_list_contains
 
             for i in item.content:
@@ -750,13 +746,13 @@ class SearchTask:
         # простой поиск по тексту
         elif isinstance(item.content, str):
             # без фильтров, ищет схожий текст на основе difflib
-            if item.filter_type == 0:
+            if item.search_type == 0:
                 SearchTask.process_entry = SearchTask.process_text_difflib
             # точное соответствие
-            elif item.filter_type == 1:
+            elif item.search_type == 1:
                 SearchTask.process_entry = SearchTask.process_text_exactly
             # текст содержится в имени файла или наоборот
-            elif item.filter_type == 2:
+            elif item.search_type == 2:
                 SearchTask.process_entry = SearchTask.process_text_contains
             item.text_lower = item.content.lower()
     
