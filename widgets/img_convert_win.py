@@ -42,6 +42,7 @@ class ImgConvertWin(ProgressbarWin):
     def poll_task(self):
         self.jpg_timer.stop()
         q = self.jpg_task.proc_q
+        finished = False
         # мы используем if а не while, чтобы gui обновлялся равномерно по таймеру
         if not q.empty():
             result = q.get()
@@ -49,7 +50,12 @@ class ImgConvertWin(ProgressbarWin):
             self.below_label.setText(f'{result["count"]} из {result["total_count"]}')
             self.progressbar.setValue(result["count"])
 
-        if not self.jpg_task.is_alive():
+            if result["msg"] == "finished":
+                finished = True
+
+        if not self.jpg_task.is_alive() or finished:
+            self.progressbar.setValue(self.progressbar.maximum())
+            self.below_label.setText(f'{result["total_count"]} из {result["total_count"]}')
             self.jpg_task.terminate()
             self.deleteLater()
         else:

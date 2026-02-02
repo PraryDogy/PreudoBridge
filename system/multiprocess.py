@@ -259,7 +259,8 @@ class JpgConverter:
         Возвращает {
             "total_count": int,
             "count": int,
-            "filename": str
+            "filename": str,
+            "msg": str,
         }
         """
 
@@ -280,8 +281,16 @@ class JpgConverter:
                 q.put({
                     "total_count": len(urls),
                     "count": count,
-                    "filename": filename
+                    "filename": filename,
+                    "msg": ""
                 })
+
+        q.put({
+            "total_count": len(urls),
+            "count": count,
+            "filename": filename,
+            "msg": "finished",
+        })
 
     @staticmethod
     def _save_jpg(path: str) -> None:
