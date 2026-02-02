@@ -431,8 +431,6 @@ class Grid(UScrollArea):
                             qimages[size] = resized_qimage
                         thumb.data.qimages = qimages
                         thumb.set_image()
-                else:
-                    thumb.set_uti_data()
 
             except RuntimeError as e:
                 print("grid > set_thumb_image runtime err")
