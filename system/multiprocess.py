@@ -677,8 +677,7 @@ class SearchTaskItem:
 
 
 class SearchTask:
-    sleep_s = 0.1
-    new_wid_sleep_ms = 200
+    sleep_s = 0
     ratio = 0.85
 
     @staticmethod
