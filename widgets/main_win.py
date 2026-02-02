@@ -518,7 +518,7 @@ class MainWin(WinBase):
             self.top_bar.search_wid.clear_search()
             self.search_bar.hide()
             self.search_bar_sep.hide()
-            self.search_item.set_content(None)
+            self.search_item.search_list.clear()
             self.scroll_up.hide()
             self.grid.deleteLater()
 

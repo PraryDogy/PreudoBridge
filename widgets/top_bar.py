@@ -84,12 +84,8 @@ class ListWin(MinMaxDisabledWin):
         self.set_modality()
         self.main_win_item = main_win_item
         self.search_item = search_item
-
         self.centralWidget().setLayout(self.create_main_layout())
-
-        if isinstance(self.search_item.get_content(), list):
-            self.input_.setText("\n".join(self.search_item.get_content()))
-
+        self.input_.setText("\n".join(self.search_item.search_list))
         self.adjustSize()
 
     def create_main_layout(self):
@@ -226,7 +222,7 @@ class SearchWidget(ULineEdit):
 
     def clear_all(self):
         self.clear()
-        self.search_item.set_content(None)
+        self.search_item.search_list.clear()
 
     def start_search(self):
         """
@@ -393,12 +389,7 @@ class TopBar(QWidget):
         JsonData.show_text = value
 
     def on_search_bar_clicked(self):
-        if isinstance(self.search_item.get_content(), str):
-            self.search_wid.setFocus()
-        elif isinstance(self.search_item.get_content(), tuple):
-            self.search_wid.show_templates(None)
-        else:
-            self.search_wid.open_search_list_win()
+        self.search_wid.open_search_list_win()
 
     def new_history_item(self, dir: str):
         """

@@ -1,11 +1,9 @@
 
 import os
 import re
-from pathlib import Path
-from typing import Any, Literal
+from typing import Literal
 
 import sqlalchemy
-from PyQt5.QtGui import QImage
 
 from cfg import Static
 
@@ -216,31 +214,10 @@ class DataItem:
 class SearchItem:
 
     def __init__(self):
-        """
-            search_type (по умолчанию 2)
-            - 0: искать совпадения с difflib
-            - 1: искать по точному соответствию
-            - 2: контент содержится в имени файла
-
-            content:
-            - str: простой поиск по тексту
-            - tuple[str]: поиск файлов по заданным расширениям
-            - list[str]: поиск всех файлов по списку
-
-        """
         super().__init__()
         self.search_type: Literal["difflib", "contains", "exactly"] = "contains"
         self.search_list: list[str] = []
-
-    def get_content(self):
-        return self.search_list
-
-    def set_content(self, value: list[str]):
-        self.search_list = value
     
-    def set_search_type(self, value: int):
-        self.search_type = value
-
     def get_filter(self):
         return self.search_type
     

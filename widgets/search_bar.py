@@ -103,13 +103,15 @@ class SearchBar(QFrame):
     def menu_clicked(self, act: QAction):
         self.filter_bt.setText(act.text())
 
+        # data формируется на основе search_item.search_type
+        self.search_item.search_type
+
         data = {
-            self.no_filter_text: 0,
-            self.exactly_text: 1,
-            self.containts_text: 2
+            self.no_filter_text: "difflib",
+            self.containts_text: "contains",
+            self.exactly_text: "exactly",
         }
-        
-        self.search_item.set_search_type(data.get(act.text()))
+        self.search_item.search_type = data[act.text()]
         self.on_filter_clicked.emit()
 
     def pause_btn_cmd(self):
@@ -138,13 +140,6 @@ class SearchBar(QFrame):
 
         filter_value = self.search_item.get_filter()
         self.filter_bt.setText(data.get(filter_value, self.no_filter_text))
-
-        if isinstance(self.search_item.get_content(), tuple):
-            self.filter_bt.setDisabled(True)
-            self.filter_bt.hide()
-        else:
-            self.filter_bt.setDisabled(False)
-            self.filter_bt.show()
 
         self.pause_btn.setDisabled(False)
         self.pause_btn.setText(SearchBar.pause_text)
