@@ -730,16 +730,8 @@ class SearchTask:
             SearchTask.process_entry = SearchTask.process_list_contains
 
         for i in item.search_list:
-            filename, _ = SearchTask.remove_extension(i)
+            filename, _ = os.path.splitext(i)
             item.files_lower.append(filename.lower())
-    
-    @staticmethod
-    def remove_extension(filename: str):
-        return os.path.splitext(filename)
-
-    @staticmethod
-    def similarity_ratio(a: str, b: str) -> float:
-        return difflib.SequenceMatcher(None, a, b).ratio()
 
     # базовый метод обработки os.DirEntry
     @staticmethod
@@ -748,7 +740,7 @@ class SearchTask:
         
     @staticmethod
     def process_list_exactly(entry: os.DirEntry, item: SearchTaskItem):
-        true_filename, _ = SearchTask.remove_extension(entry.name)
+        true_filename, _ = os.path.splitext(entry.name)
         filename: str = true_filename.lower()
         for item in item.files_lower:
             if filename == item:
@@ -758,17 +750,17 @@ class SearchTask:
     
     @staticmethod
     def process_list_difflib(entry: os.DirEntry, item: SearchTaskItem):
-        true_filename, _ = SearchTask.remove_extension(entry.name)
+        true_filename, _ = os.path.splitext(entry.name)
         filename: str = true_filename.lower()
         for item in item.files_lower:
-            if SearchTask.similarity_ratio(item, filename) > SearchTask.ratio:
+            if difflib.SequenceMatcher(None, item, filename).ratio() > SearchTask.ratio:
                 item.found_files.append(true_filename)
                 return True
         return False
 
     @staticmethod
     def process_list_contains(entry: os.DirEntry, item: SearchTaskItem):
-        true_filename, _ = SearchTask.remove_extension(entry.name)
+        true_filename, _ = os.path.splitext(entry.name)
         filename: str = true_filename.lower()
         for i in item.files_lower:
             if i in filename:
