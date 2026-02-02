@@ -71,6 +71,7 @@ class BarTopBtn(QWidget):
         super().mouseReleaseEvent(e)
 
 class ListWin(MinMaxDisabledWin):
+    title_text = "Поиск"
     search_place_text = "Место поиска:"
     descr_text = "Список файлов (по одному в строке):"
     ok_text = "Ок"
@@ -82,6 +83,7 @@ class ListWin(MinMaxDisabledWin):
     def __init__(self, main_win_item: MainWinItem, search_item: SearchItem):
         super().__init__()
         self.set_modality()
+        self.setWindowTitle(self.title_text)
         self.main_win_item = main_win_item
         self.search_item = search_item
         self.centralWidget().setLayout(self.create_main_layout())
