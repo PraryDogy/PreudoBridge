@@ -305,7 +305,8 @@ class CacheDownloader:
         Возвращает {
             "total_count": int,
             "count": int,
-            "filename": str
+            "filename": str,
+            "msg": str,
         }
         """
 
@@ -327,7 +328,8 @@ class CacheDownloader:
                 q.put({
                     "total_count": total_count,
                     "count": count,
-                    "filename": filename
+                    "filename": filename,
+                    "msg": ""
                 })
                 if len(stmt_list) == stmt_limit:
                     CacheDownloader.execute_stmt_list(conn, stmt_list)
@@ -335,6 +337,13 @@ class CacheDownloader:
 
         if stmt_list:
             CacheDownloader.execute_stmt_list(conn, stmt_list)
+
+        q.put({
+            "total_count": total_count,
+            "count": count,
+            "filename": filename,
+            "msg": "finished"
+        })   
 
     @staticmethod
     def execute_stmt_list(conn: sqlalchemy.Connection, stmt_list: list):

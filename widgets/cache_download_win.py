@@ -34,10 +34,14 @@ class CacheDownloadWin(ProgressbarWin):
         self.cache_timer.stop()
         q = self.cache_task.proc_q
         maximum = 0
+        finished = False
 
         # мы используем if а не while, чтобы gui обновлялся равномерно по таймеру
         if not q.empty():
             res = q.get()
+
+            if res["msg"] == "finished":
+                finished = True
 
             if maximum == 0:
                 self.progressbar.setMaximum(res["total_count"])
@@ -46,7 +50,9 @@ class CacheDownloadWin(ProgressbarWin):
             self.below_label.setText(f'{res["count"]} из {res["total_count"]}')
             self.progressbar.setValue(res["count"])
 
-        if not self.cache_task.is_alive():
+        if not self.cache_task.is_alive() or finished:
+            self.progressbar.setValue(self.progressbar.maximum())
+            self.below_label.setText(f'{res["total_count"]} из {res["total_count"]}')
             self.cache_task.terminate()
             self.deleteLater()
         else:
