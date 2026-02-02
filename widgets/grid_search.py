@@ -1,4 +1,5 @@
 import os
+from typing import Literal
 
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtGui import QDragEnterEvent, QDropEvent, QImage
@@ -111,19 +112,6 @@ class GridSearch(Grid):
             thumb = Thumb(data_item)
             thumb.resize_()
             thumb.set_no_frame()
-
-            qimages = {}
-            original_qimage = Utils.qimage_from_array(data_item.img_array)
-            qimages["src"] = original_qimage
-            for size in Static.image_sizes:
-                resized_qimage = Utils.scaled(original_qimage, size)
-                qimages[size] = resized_qimage
-            thumb.data.qimages = qimages
-
-            if thumb.data.qimages["src"] is None:
-                thumb.set_uti_data()
-            else:
-                thumb.set_image()
 
             self.add_widget_data(thumb, self.row, self.col)
             self.grid_layout.addWidget(thumb, self.row, self.col)
