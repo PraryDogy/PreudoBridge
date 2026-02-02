@@ -86,12 +86,12 @@ class DirScaner:
         q.put({"path": fixed_path, "data_items": items})
 
 
-class DbItemsLoader:
+class ImgLoader:
     @staticmethod
     def start(data_items: list[DataItem], q: Queue):
         """
         Посылает в Queue:
-        - {"src": filepath , "img_array": numpy ndarray with Static.max_thumb_size}
+        - {"src": filepath , "img_array": numpy ndarray размера Static.max_thumb_size}
         """
         engine = Dbase.create_engine()
         conn = Dbase.get_conn(engine)
@@ -109,7 +109,7 @@ class DbItemsLoader:
             if data_item.filename.endswith((".svg", ".SVG")):
                 svg_files.append(data_item)
             elif data_item.type_ == Static.folder_type:
-                rating = DbItemsLoader.get_item_rating(data_item, conn)
+                rating = ImgLoader.get_item_rating(data_item, conn)
                 if rating is None:
                     stmt_list.append(DataItem.insert_folder_stmt(data_item))
                 else:
@@ -118,7 +118,7 @@ class DbItemsLoader:
                     exist_ratings.append(data_item)
             else:
                 data_item.set_partial_hash()
-                rating = DbItemsLoader.get_item_rating(data_item, conn)
+                rating = ImgLoader.get_item_rating(data_item, conn)
                 if rating is None:
                     stmt_list.append(DataItem.insert_file_stmt(data_item))
                     if data_item.type_ in Static.img_exts:
@@ -134,11 +134,11 @@ class DbItemsLoader:
                     else:
                         exist_ratings.append(data_item)
 
-        DbItemsLoader.execute_ratings(exist_ratings, q)
-        DbItemsLoader.execute_svg_files(svg_files, q)
-        DbItemsLoader.execute_exist_images(exist_images, q)
-        DbItemsLoader.execute_new_images(new_images, q)
-        DbItemsLoader.execute_stmt_list(stmt_list, conn)
+        ImgLoader.execute_ratings(exist_ratings, q)
+        ImgLoader.execute_svg_files(svg_files, q)
+        ImgLoader.execute_exist_images(exist_images, q)
+        ImgLoader.execute_new_images(new_images, q)
+        ImgLoader.execute_stmt_list(stmt_list, conn)
     
     @staticmethod
     def execute_stmt_list(stmt_list: list, conn: Conn):

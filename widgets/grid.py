@@ -14,7 +14,7 @@ from cfg import Dynamic, JsonData, Static
 from system.appkit_icon import AppKitIcon
 from system.database import Dbase
 from system.items import CopyItem, DataItem, MainWinItem, SortItem
-from system.multiprocess import DbItemsLoader, DirWatcher, ProcessWorker
+from system.multiprocess import ImgLoader, DirWatcher, ProcessWorker
 from system.shared_utils import SharedUtils
 from system.tasks import RatingTask, UThreadPool
 from system.utils import Utils
@@ -454,7 +454,7 @@ class Grid(UScrollArea):
                 img_timer.start(self.img_timer_ms)
 
         img_task = ProcessWorker(
-            target=DbItemsLoader.start,
+            target=ImgLoader.start,
             args=([i.data for i in thumbs], )
         )
 
