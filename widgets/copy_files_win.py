@@ -190,6 +190,7 @@ class CopyFilesWin(ProgressbarWin):
 
     def poll_task(self):
         self.copy_timer.stop()
+        finished = False
 
         if not self.copy_task.proc_q.empty():
             to_gui: dict = self.copy_task.proc_q.get()
@@ -211,6 +212,9 @@ class CopyFilesWin(ProgressbarWin):
                 self.replace_win.show()
                 return
             
+            elif to_gui["msg"] == "finished":
+                finished = True
+            
             if self.progressbar.maximum() == 0:
                 self.progressbar.setMaximum(to_gui["total_size"])
 
@@ -226,8 +230,12 @@ class CopyFilesWin(ProgressbarWin):
                 f'{copy} {to_gui["current_count"]} из {to_gui["total_count"]}'
             )
 
-        if not self.copy_task.is_alive(): # and self.copy_task.proc_q.empty():
+        # if not self.copy_task.is_alive(): # and self.copy_task.proc_q.empty():
+        if not self.copy_task.is_alive() or finished:
             self.progressbar.setValue(self.progressbar.maximum())
+            self.below_label.setText(
+                f'{copy} {to_gui["total_count"]} из {to_gui["total_count"]}'
+            )     
             self.finished_.emit(self.dst_urls)
             self.stop_task()
             self.deleteLater()

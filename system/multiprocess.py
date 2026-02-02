@@ -590,6 +590,9 @@ class CopyFilesTask:
                         shutil.rmtree(src.parent)
                     except Exception as e:
                         print("copy task error dir remove", e)
+        
+        to_gui["msg"] = "finished"
+        proc_q.put(to_gui)
 
     @staticmethod
     def get_another_dir_urls(input_data: dict):
