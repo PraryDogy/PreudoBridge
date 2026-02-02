@@ -107,7 +107,7 @@ class GridSearch(Grid):
 
     def start_search(self):
 
-        def new_search_thumb(data_item: DataItem):
+        def create_thumb(data_item: DataItem):
             thumb = Thumb(data_item)
             thumb.resize_()
             thumb.set_no_frame()
@@ -132,8 +132,6 @@ class GridSearch(Grid):
             if self.col >= self.col_count:
                 self.col = 0
                 self.row += 1
-            
-            self.update_gui()
 
         def fin(missed_files_list: list[str]):
             
@@ -151,13 +149,18 @@ class GridSearch(Grid):
         def poll_task():
             self.search_timer.stop()
             q = self.search_task.proc_q
-            if not q.empty():
+            data_items = []
+            while not q.empty():
                 res = q.get()
                 if isinstance(res, DataItem):
-                    new_search_thumb(res)
+                    # new_search_thumb(res)
+                    data_items.append(res)
                 else:
                     fin(res)
                     self.finished_.emit()
+            for i in data_items:
+                create_thumb(i)
+            self.update_gui()
 
             if not self.search_task.is_alive():
                 self.search_task.terminate()
