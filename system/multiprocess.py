@@ -716,7 +716,7 @@ class SearchTask:
         if item.search_type == "difflib":
             SearchTask.process_entry = SearchTask.process_list_difflib
         # содержится в имени
-        elif item.search_type == "containts":
+        elif item.search_type == "contains":
             SearchTask.process_entry = SearchTask.process_list_contains
         # точное соответствие
         elif item.search_type == "exactly":
@@ -753,11 +753,12 @@ class SearchTask:
 
     @staticmethod
     def process_list_contains(entry: os.DirEntry, item: SearchTaskItem):
-        true_filename, _ = os.path.splitext(entry.name)
-        filename: str = true_filename.lower()
+        entry_name, entry_ext = os.path.splitext(entry.name)
+        entry_name: str = entry_name.lower()
+        entry_ext: str = entry_ext.lower()
         for i in item.search_list_low:
-            if i in filename:
-                item.found_files.append(true_filename)
+            if i in (entry_name, entry_ext):
+                item.found_files.append(entry_name)
                 return True
         return False
 
