@@ -3,7 +3,7 @@ import os
 from PyQt5.QtCore import QTimer
 
 from cfg import Static
-from system.multiprocess import ProcessWorker, ToJpegConverter
+from system.multiprocess import ProcessWorker, JpgConverter
 
 from .progressbar_win import ProgressbarWin
 
@@ -28,7 +28,7 @@ class ImgConvertWin(ProgressbarWin):
         self.progressbar.setMaximum(len(urls))
 
         self.jpg_task = ProcessWorker(
-            target=ToJpegConverter.start,
+            target=JpgConverter.start,
             args=(urls, )
         )
 

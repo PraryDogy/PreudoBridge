@@ -251,7 +251,7 @@ class PathFixer:
         q.put(result)
 
 
-class ToJpegConverter:
+class JpgConverter:
 
     @staticmethod
     def start(urls: list[str], q: Queue):
@@ -271,7 +271,7 @@ class ToJpegConverter:
         new_urls: list[str] = []
 
         for x, url in enumerate(urls, start=1):
-            save_path = ToJpegConverter._save_jpg(url)
+            save_path = JpgConverter._save_jpg(url)
             if save_path:
                 new_urls.append(save_path)
                 count = x
