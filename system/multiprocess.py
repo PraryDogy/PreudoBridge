@@ -610,7 +610,7 @@ class CopyFilesTask:
         return src_dst_urls
     
     @staticmethod
-    def get_same_dir_urls(input_data: dict, copy_name: str = "— копия"):
+    def get_same_dir_urls(input_data: dict, copy_name: str = ""):
         src_dst_urls: list[tuple[Path, Path]] = []
         dst_dir = Path(input_data["dst_dir"])
         for url in input_data["urls"]:

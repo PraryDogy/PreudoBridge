@@ -226,7 +226,8 @@ class CopyFilesWin(ProgressbarWin):
                 f'{copy} {to_gui["current_count"]} из {to_gui["total_count"]}'
             )
 
-        if not self.copy_task.is_alive() and self.copy_task.proc_q.empty():
+        if not self.copy_task.is_alive(): # and self.copy_task.proc_q.empty():
+            self.progressbar.setValue(self.progressbar.maximum())
             self.finished_.emit(self.dst_urls)
             self.stop_task()
             self.deleteLater()
