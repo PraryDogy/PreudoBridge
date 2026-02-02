@@ -218,9 +218,6 @@ class SearchItem:
         self.search_type: Literal["difflib", "contains", "exactly"] = "contains"
         self.search_list: list[str] = []
     
-    def get_filter(self):
-        return self.search_type
-    
 
 class MainWinItem:
     def __init__(self):

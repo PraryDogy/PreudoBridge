@@ -103,7 +103,7 @@ class SearchBar(QFrame):
     def menu_clicked(self, act: QAction):
         self.filter_bt.setText(act.text())
 
-        # data формируется на основе search_item.search_type
+        # data формируется на основе SearchItem.search_type
         self.search_item.search_type
 
         data = {
@@ -132,14 +132,14 @@ class SearchBar(QFrame):
         - Отключает чекбокс, если установлен поиск по расширениям (в этом случае точность неактуальна).
         - Отключает стоп-флаг и отображает SearchBar.
         """
+        # data фомируется на основе SearchItem.search_type
+        self.search_item.search_type
         data = {
-            0: self.no_filter_text,
-            1: self.exactly_text,
-            2: self.containts_text
+            "difflib": self.no_filter_text,
+            "contains": self.containts_text,
+            "exactly": self.exactly_text,
         }
-
-        filter_value = self.search_item.get_filter()
-        self.filter_bt.setText(data.get(filter_value, self.no_filter_text))
+        self.filter_bt.setText(data[self.search_item.search_type])
 
         self.pause_btn.setDisabled(False)
         self.pause_btn.setText(SearchBar.pause_text)
