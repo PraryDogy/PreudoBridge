@@ -150,7 +150,7 @@ class GridSearch(Grid):
                 create_thumb(i)
 
             # новые виджеты в начало
-            self.url_to_wid = dict(reversed(self.url_to_wid.items()))
+            # self.url_to_wid = dict(reversed(self.url_to_wid.items()))
             self.rearrange_thumbs()
 
             if not self.search_task.is_alive():
