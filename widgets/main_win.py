@@ -29,7 +29,6 @@ from .img_view_win import ImgViewWin
 from .info_win import InfoWin
 from .path_bar import PathBar
 from .rating_menu import FiltersMenu
-from .search_bar import SearchBar
 from .servers_win import ServersWin
 from .settings_win import SettingsWin
 from .sort_bar import SortBar
@@ -79,7 +78,7 @@ class ScrollUpBtn(QLabel):
 
 class MainWin(WinBase):
     resize_ms = 100
-    grid_insert_num = 4
+    grid_insert_num = 3
     min_width_ = 800
     min_height_ = 500
     left_menu_w = 240
@@ -162,7 +161,6 @@ class MainWin(WinBase):
         right_wid.setLayout(self.r_lay)
 
         self.top_bar = TopBar(self.main_win_item, self.search_item)
-        self.search_bar = SearchBar(self.search_item)
         self.grid = Grid(self.main_win_item, False)
         Utils.fill_missing_methods(GridSearch, Grid)
         self.grid_spacer = QWidget()
@@ -170,21 +168,18 @@ class MainWin(WinBase):
         self.sort_bar = SortBar(self.sort_item, self.main_win_item)
 
         # Разделители
-        sep_one = USep()
-        self.search_bar_sep = USep()
-        sep_two = USep()
-        sep = USep()
+        top_bar_sep = USep()
+        grid_sep = USep()
+        path_bar_sep = USep()
 
         # --- Добавление в layout ---
         self.r_lay.insertWidget(0, self.top_bar)
-        self.r_lay.insertWidget(1, sep_one)
-        self.r_lay.insertWidget(2, self.search_bar)
-        self.r_lay.insertWidget(3, self.search_bar_sep)
+        self.r_lay.insertWidget(1, top_bar_sep)
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
-        self.r_lay.insertWidget(5, self.grid_spacer)
-        self.r_lay.insertWidget(6, sep_two)
-        self.r_lay.insertWidget(7, self.path_bar)
-        self.r_lay.insertWidget(8, sep)
+        self.r_lay.insertWidget(4, self.grid_spacer)
+        self.r_lay.insertWidget(5, grid_sep)
+        self.r_lay.insertWidget(6, self.path_bar)
+        self.r_lay.insertWidget(7, path_bar_sep)
         self.r_lay.insertWidget(9, self.sort_bar)
 
         # --- Настройка Splitter ---
@@ -247,12 +242,6 @@ class MainWin(WinBase):
         self.top_bar.open_in_new_win.connect(lambda d: self.open_in_new_win((d, None)))
         self.top_bar.open_settings.connect(self.open_settings)
         self.top_bar.new_folder.connect(self.new_folder)
-
-        # search_bar
-        self.search_bar.on_filter_clicked.connect(self.load_search_grid)
-        self.search_bar.on_pause_clicked.connect(lambda v: self.grid.toggle_pause(v))
-        self.search_bar.on_edit_clicked.connect(self.top_bar.on_search_bar_clicked)
-        self.search_bar.on_exit_clicked.connect(self.load_st_grid)
 
         # path_bar
         self.path_bar.new_history_item.connect(self.top_bar.new_history_item)
@@ -423,10 +412,7 @@ class MainWin(WinBase):
             self.main_win_item, self.sort_item, self.search_item, self, True
         )
         Utils.fill_missing_methods(TableView, Grid)
-        self.grid.finished_.connect(self.search_bar.search_bar_search_fin)
         self.r_lay.insertWidget(MainWin.grid_insert_num, self.grid)
-        self.search_bar.show()
-        self.search_bar_sep.show()
         self.filters_menu.reset()
         self.scroll_up.hide()
         self.setup_grid_signals()
@@ -514,8 +500,6 @@ class MainWin(WinBase):
 
         def start_load_grid():
             self.top_bar.search_wid.clear_search()
-            self.search_bar.hide()
-            self.search_bar_sep.hide()
             self.search_item.search_list.clear()
             self.scroll_up.hide()
             self.grid.deleteLater()

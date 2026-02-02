@@ -388,9 +388,6 @@ class TopBar(QWidget):
     def set_show_text(self, value: bool):
         JsonData.show_text = value
 
-    def on_search_bar_clicked(self):
-        self.search_wid.open_search_list_win()
-
     def new_history_item(self, dir: str):
         """
         Добавляет новый путь в историю навигации:
