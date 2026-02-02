@@ -17,7 +17,7 @@ from cfg import Dynamic, JsonData, Static
 from system.shared_utils import PathFinder, SharedUtils
 
 from .database import CACHE, Clmns, Dbase
-from .items import DataItem, MainWinItem, SearchItem, SortItem
+from .items import DataItem, MainWinItem, SortItem
 from .utils import Utils
 
 

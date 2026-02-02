@@ -55,7 +55,7 @@ class SearchBar(QFrame):
     def __init__(self, search_item: SearchItem, btn_w: int = 100):
         super().__init__()
         self.setFixedHeight(SearchBar.height_)
-        self.search_item: SearchItem = search_item
+        self.search_item = search_item
         self.stop_flag: bool = False
         self.pause_flag: bool = False
 

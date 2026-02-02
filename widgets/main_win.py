@@ -103,7 +103,7 @@ class MainWin(WinBase):
         self.resize(Static.base_ww, Static.base_hh)
     
         self.main_win_list: list[MainWin] = []
-        self.search_item: SearchItem = SearchItem()
+        self.search_item = SearchItem()
         self.main_win_item: MainWinItem = MainWinItem()
         self.sort_item: SortItem = SortItem()
         self.img_view_win = None
