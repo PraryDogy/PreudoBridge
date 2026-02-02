@@ -661,7 +661,7 @@ class SearchTaskItem:
     def __init__(self):
         super().__init__()
         self.root_dir: str = None
-        self.content: Any = None
+        self.search_list: Any = None
         self.search_type: int = None
 
         self.files_lower: list[str] = []
@@ -706,10 +706,10 @@ class SearchTask:
         SearchTask.scandir_recursive(item)
 
         missed_files_list: list[str] = []
-        if isinstance(item.content, list):
+        if isinstance(item.search_list, list):
             no_ext_list = [
                 os.path.splitext(i)[0]
-                for i in item.content
+                for i in item.search_list
             ]
             for i in no_ext_list:
                 if i not in item.found_files:
@@ -720,7 +720,7 @@ class SearchTask:
     @staticmethod
     def setup(item: SearchTaskItem):
         # поиск по списку
-        if isinstance(item.content, list):
+        if isinstance(item.search_list, list):
             # без фильтров, ищет схожий текст на основе difflib
             if item.search_type == 0:
                 SearchTask.process_entry = SearchTask.process_list_difflib
@@ -731,20 +731,20 @@ class SearchTask:
             elif item.search_type == 2:
                 SearchTask.process_entry = SearchTask.process_list_contains
 
-            for i in item.content:
+            for i in item.search_list:
                 filename, _ = SearchTask.remove_extension(i)
                 item.files_lower.append(filename.lower())
 
         # поиск по расширениям
-        elif isinstance(item.content, tuple):
+        elif isinstance(item.search_list, tuple):
             SearchTask.process_entry = SearchTask.process_extensions
-            for i in item.content:
+            for i in item.search_list:
                 i: str
                 item.exts_lower.append(i.lower())
             item.exts_lower = tuple(item.exts_lower)
 
         # простой поиск по тексту
-        elif isinstance(item.content, str):
+        elif isinstance(item.search_list, str):
             # без фильтров, ищет схожий текст на основе difflib
             if item.search_type == 0:
                 SearchTask.process_entry = SearchTask.process_text_difflib
@@ -754,7 +754,7 @@ class SearchTask:
             # текст содержится в имени файла или наоборот
             elif item.search_type == 2:
                 SearchTask.process_entry = SearchTask.process_text_contains
-            item.text_lower = item.content.lower()
+            item.text_lower = item.search_list.lower()
     
     @staticmethod
     def remove_extension(filename: str):

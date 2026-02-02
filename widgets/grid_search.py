@@ -176,7 +176,7 @@ class GridSearch(Grid):
 
         search_item = SearchTaskItem()
         search_item.root_dir = self.main_win_item.main_dir
-        search_item.content = self.search_item.search_list
+        search_item.search_list = self.search_item.search_list
         search_item.search_type = self.search_item.search_type
 
         self.search_task = SearchTaskWorker(
