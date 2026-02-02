@@ -719,42 +719,19 @@ class SearchTask:
 
     @staticmethod
     def setup(item: SearchTaskItem):
-        # поиск по списку
-        if isinstance(item.search_list, list):
-            # без фильтров, ищет схожий текст на основе difflib
-            if item.search_type == 0:
-                SearchTask.process_entry = SearchTask.process_list_difflib
-            # точное соответствие
-            elif item.search_type == 1:
-                SearchTask.process_entry = SearchTask.process_list_exactly
-            # содержится в имени
-            elif item.search_type == 2:
-                SearchTask.process_entry = SearchTask.process_list_contains
+        # без фильтров, ищет схожий текст на основе difflib
+        if item.search_type == 0:
+            SearchTask.process_entry = SearchTask.process_list_difflib
+        # точное соответствие
+        elif item.search_type == 1:
+            SearchTask.process_entry = SearchTask.process_list_exactly
+        # содержится в имени
+        elif item.search_type == 2:
+            SearchTask.process_entry = SearchTask.process_list_contains
 
-            for i in item.search_list:
-                filename, _ = SearchTask.remove_extension(i)
-                item.files_lower.append(filename.lower())
-
-        # поиск по расширениям
-        elif isinstance(item.search_list, tuple):
-            SearchTask.process_entry = SearchTask.process_extensions
-            for i in item.search_list:
-                i: str
-                item.exts_lower.append(i.lower())
-            item.exts_lower = tuple(item.exts_lower)
-
-        # простой поиск по тексту
-        elif isinstance(item.search_list, str):
-            # без фильтров, ищет схожий текст на основе difflib
-            if item.search_type == 0:
-                SearchTask.process_entry = SearchTask.process_text_difflib
-            # точное соответствие
-            elif item.search_type == 1:
-                SearchTask.process_entry = SearchTask.process_text_exactly
-            # текст содержится в имени файла или наоборот
-            elif item.search_type == 2:
-                SearchTask.process_entry = SearchTask.process_text_contains
-            item.text_lower = item.search_list.lower()
+        for i in item.search_list:
+            filename, _ = SearchTask.remove_extension(i)
+            item.files_lower.append(filename.lower())
     
     @staticmethod
     def remove_extension(filename: str):
