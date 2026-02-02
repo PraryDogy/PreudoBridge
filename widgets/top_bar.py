@@ -245,11 +245,11 @@ class SearchWidget(ULineEdit):
         self.search_item.search_list = self.search_list
         print(self.search_item.search_list)
 
-        # self.load_search_grid.emit()
+        self.load_search_grid.emit()
 
     def open_search_list_win(self):
         def fin(search_list: list[str]):
-            self.search_list_local = search_list
+            self.search_list = search_list
             QTimer.singleShot(1000, self.start_search)
 
         self.list_win = ListWin(self.main_win_item, self.search_item)
