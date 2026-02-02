@@ -660,18 +660,12 @@ class SearchTaskWorker(BaseProcessWorker):
 class SearchTaskItem:
     def __init__(self):
         super().__init__()
-        self.root_dir: str = None
-        self.search_list: Any = None
+        self.search_list: list[str] = None
         self.search_type: Literal["difflib", "contains", "exactly"] = "contains"
-
-        self.files_lower: list[str] = []
-        self.exts_lower: list[str] = []
-        self.text_lower: str = None
-
+        self.root_dir: str = None
+        self.search_list_low: list[str] = []
         self.conn: sqlalchemy.Connection = None
-        self.insert_count: int = None
         self.found_files: list[str] = []
-
         self.proc_q: Queue = None
         self.gui_q: Queue = None
 
@@ -730,7 +724,7 @@ class SearchTask:
 
         for i in item.search_list:
             filename, _ = os.path.splitext(i)
-            item.files_lower.append(filename.lower())
+            item.search_list_low.append(filename.lower())
 
     # базовый метод обработки os.DirEntry
     @staticmethod
@@ -741,7 +735,7 @@ class SearchTask:
     def process_list_exactly(entry: os.DirEntry, item: SearchTaskItem):
         true_filename, _ = os.path.splitext(entry.name)
         filename: str = true_filename.lower()
-        for item in item.files_lower:
+        for item in item.search_list_low:
             if filename == item:
                 item.found_files.append(true_filename)
                 return True
@@ -751,7 +745,7 @@ class SearchTask:
     def process_list_difflib(entry: os.DirEntry, item: SearchTaskItem):
         true_filename, _ = os.path.splitext(entry.name)
         filename: str = true_filename.lower()
-        for item in item.files_lower:
+        for item in item.search_list_low:
             if difflib.SequenceMatcher(None, item, filename).ratio() > SearchTask.ratio:
                 item.found_files.append(true_filename)
                 return True
@@ -761,7 +755,7 @@ class SearchTask:
     def process_list_contains(entry: os.DirEntry, item: SearchTaskItem):
         true_filename, _ = os.path.splitext(entry.name)
         filename: str = true_filename.lower()
-        for i in item.files_lower:
+        for i in item.search_list_low:
             if i in filename:
                 item.found_files.append(true_filename)
                 return True
