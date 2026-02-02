@@ -677,7 +677,7 @@ class SearchTaskItem:
 
 
 class SearchTask:
-    sleep_s = 0.5
+    sleep_s = 0.1
     new_wid_sleep_ms = 200
     ratio = 0.85
 
@@ -859,14 +859,14 @@ class SearchTask:
                 continue
     
     @staticmethod
-    def scan_current_dir(current_dir: str, dirs_list: list, item: SearchTaskItem):
+    def scan_current_dir(current_dir: str, dir_list: list, item: SearchTaskItem):
         for entry in os.scandir(current_dir):
             # while self.pause:
             #     QTest.qSleep(SearchTask.sleep_ms)
             if entry.name.startswith(Static.hidden_symbols):
                 continue
             if entry.is_dir():
-                dirs_list.append(entry.path)
+                dir_list.append(entry.path)
                 # continue
             if SearchTask.process_entry(entry, item):
                 SearchTask.process_img(entry, item)
