@@ -216,7 +216,6 @@ class DataItem:
 class SearchItem:
     def __init__(self):
         super().__init__()
-        self.search_type: Literal["difflib", "contains", "exactly"] = "contains"
         self.search_list: list[str] = []
     
 

@@ -661,7 +661,6 @@ class SearchTaskItem:
     def __init__(self):
         super().__init__()
         self.search_list: list[str] = None
-        self.search_type: Literal["difflib", "contains", "exactly"] = "contains"
         self.root_dir: str = None
         self.search_list_low: list[str] = []
         self.conn: sqlalchemy.Connection = None
@@ -680,11 +679,7 @@ class SearchTask:
             Описание класса читай в system > items.py > SearchItem
 
             Принимает:  
-            - external_data {
-                "root_dir": str,
-                "content": Any,
-                "search_type": int,
-            }
+            - SearchTaskItem
             - proc_q: Queue из процесса в gui
             - gui_q: Queue из gui в процесс
         """
@@ -702,46 +697,14 @@ class SearchTask:
 
     @staticmethod
     def setup(item: SearchTaskItem):
-        # без фильтров, ищет схожий текст на основе difflib
-        if item.search_type == "difflib":
-            SearchTask.process_entry = SearchTask.process_list_difflib
-        # содержится в имени
-        elif item.search_type == "contains":
-            SearchTask.process_entry = SearchTask.process_list_contains
-        # точное соответствие
-        elif item.search_type == "exactly":
-            SearchTask.process_entry = SearchTask.process_list_exactly
-
         for i in item.search_list:
             item.search_list_low.append(i.lower())
 
     # базовый метод обработки os.DirEntry
     @staticmethod
     def process_entry(entry: os.DirEntry, item: SearchTaskItem):
-        ...
-
-    @staticmethod
-    def process_list_difflib(entry: os.DirEntry, item: SearchTaskItem):
-        entry_name, _ = os.path.splitext(entry.name)
-        entry_name: str = entry_name.lower()
-        for filename, name, ext in item.search_list_low:
-            if difflib.SequenceMatcher(None, name, entry_name).ratio() > SearchTask.ratio:
-                return True
-        return False
-
-    @staticmethod
-    def process_list_contains(entry: os.DirEntry, item: SearchTaskItem):
         for i in item.search_list_low:
             if i in entry.name.lower():
-                return True
-        return False
-
-    @staticmethod
-    def process_list_exactly(entry: os.DirEntry, item: SearchTaskItem):
-        true_filename, _ = os.path.splitext(entry.name)
-        filename: str = true_filename.lower()
-        for item in item.search_list_low:
-            if filename == item:
                 return True
         return False
     
