@@ -5,7 +5,7 @@ from PyQt5.QtGui import QDragEnterEvent, QDropEvent
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
 
-from cfg import Dynamic, Static
+from cfg import Static
 from system.items import DataItem, MainWinItem, SearchItem, SortItem
 from system.multiprocess import SearchTask, SearchTaskWorker
 
