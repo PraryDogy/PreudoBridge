@@ -230,7 +230,6 @@ class DirWatcher:
             observer.join()
 
 
-
 class PathFixer:
 
     @staticmethod
