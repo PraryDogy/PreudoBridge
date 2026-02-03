@@ -88,6 +88,8 @@ class ImgUtils:
             ".pnm", ".PNM",
             ".gif", ".GIF",
             ".ico", ".ICO",
+            ".heic", ".HEIC",
+            ".heif", "HEIF"
         )
 
     ext_tiff = (
