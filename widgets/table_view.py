@@ -12,7 +12,7 @@ from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QFileSystemModel,
                              QLabel, QSplitter, QTableView)
 
 from cfg import Dynamic, JsonData, Static
-from system.items import CopyItem, DataItem, MainWinItem
+from system.items import ClipboardItem, DataItem, MainWinItem
 from system.shared_utils import ImgUtils, SharedUtils
 from system.utils import Utils
 
@@ -373,12 +373,12 @@ class TableView(QTableView):
         menu_.addAction(open_finder_action)
 
         copy_path_action = ItemActions.CopyPath(menu_, urls)
-        copy_path_action.triggered.connect(CopyItem.reset)
+        copy_path_action.triggered.connect(ClipboardItem.reset)
         menu_.addAction(copy_path_action)
 
         menu_.addSeparator()
 
-        if CopyItem.urls:
+        if ClipboardItem.urls:
             paste_files = GridActions.PasteObjects(menu_)
             paste_files.triggered.connect(self.paste_files.emit)
             menu_.addAction(paste_files)
@@ -390,12 +390,12 @@ class TableView(QTableView):
         menu_.addAction(rename)
 
         cut_objects = ItemActions.CutObjects(menu_)
-        cut_objects.triggered.connect(lambda e: CopyItem.set_is_cut(True))
+        cut_objects.triggered.connect(lambda e: ClipboardItem.set_is_cut(True))
         cut_objects.triggered.connect(lambda e: self.setup_urls_to_copy(urls))
         menu_.addAction(cut_objects)
 
         copy_files = ItemActions.CopyObjects(menu_)
-        copy_files.triggered.connect(lambda e: CopyItem.set_is_cut(False))
+        copy_files.triggered.connect(lambda e: ClipboardItem.set_is_cut(False))
         copy_files.triggered.connect(lambda e: self.setup_urls_to_copy(urls))
         menu_.addAction(copy_files)
 
@@ -433,16 +433,16 @@ class TableView(QTableView):
         menu_.addAction(open_finder_action)
 
         copy_path_action = GridActions.CopyPath(menu_, urls)
-        copy_path_action.triggered.connect(CopyItem.reset)
+        copy_path_action.triggered.connect(ClipboardItem.reset)
         menu_.addAction(copy_path_action)
 
         copy_name = GridActions.CopyName(menu_, names)
-        copy_name.triggered.connect(CopyItem.reset)
+        copy_name.triggered.connect(ClipboardItem.reset)
         menu_.addAction(copy_name)
 
         menu_.addSeparator()
 
-        if CopyItem.urls:
+        if ClipboardItem.urls:
             paste_files = GridActions.PasteObjects(menu_)
             paste_files.triggered.connect(self.paste_files.emit)
             menu_.addAction(paste_files)
@@ -460,13 +460,13 @@ class TableView(QTableView):
         return Qt.ItemIsEnabled  # отключаем выбор/редактирование
 
     def setup_urls_to_copy(self, urls: list[str]):
-        CopyItem.set_src(self.main_win_item.main_dir)
-        CopyItem.set_is_search(False)
-        CopyItem.urls.clear()
+        ClipboardItem.set_src(self.main_win_item.main_dir)
+        ClipboardItem.set_is_search(False)
+        ClipboardItem.urls.clear()
         # if CopyItem._is_cut:
         #     self.clearSelection()
         for i in urls:
-            CopyItem.urls.append(i)
+            ClipboardItem.urls.append(i)
             # if CopyItem._is_cut:
             #     ind = self.url_to_index[i]
             #     self._model.cut_rows.add(i)
@@ -531,17 +531,17 @@ class TableView(QTableView):
             elif a0.key() == Qt.Key.Key_X:
                 urls = self.get_selected_urls()
                 if urls:
-                    CopyItem.set_is_cut(True)
+                    ClipboardItem.set_is_cut(True)
                     self.setup_urls_to_copy(urls)
 
             elif a0.key() == Qt.Key.Key_C:
                 urls = self.get_selected_urls()
                 if urls:
-                    CopyItem.set_is_cut(False)
+                    ClipboardItem.set_is_cut(False)
                     self.setup_urls_to_copy(urls)
 
             elif a0.key() == Qt.Key.Key_V:
-                if CopyItem.urls:
+                if ClipboardItem.urls:
                     self.paste_files.emit()
 
         elif a0.key() in (Qt.Key.Key_Return, Qt.Key.Key_Space):
@@ -576,8 +576,8 @@ class TableView(QTableView):
             print("нельзя копировать в себя через DropEvent")
             return
         else:
-            CopyItem.set_src(src)
-            CopyItem.urls = urls
+            ClipboardItem.set_src(src)
+            ClipboardItem.urls = urls
             self.paste_files.emit()
         return super().dropEvent(a0)
     

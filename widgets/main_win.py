@@ -9,7 +9,7 @@ from PyQt5.QtWidgets import (QApplication, QFrame, QHBoxLayout, QLabel,
                              QSplitter, QTabWidget, QVBoxLayout, QWidget)
 
 from cfg import Dynamic, JsonData, Static
-from system.items import CopyItem, DataItem, MainWinItem, SearchItem, SortItem
+from system.items import ClipboardItem, DataItem, MainWinItem, SearchItem, SortItem
 from system.multiprocess import PathFixer, ProcessWorker
 from system.paletes import UPallete
 from system.shared_utils import SharedUtils
@@ -429,7 +429,7 @@ class MainWin(WinBase):
             if isinstance(self.grid, TableView):
                 self.load_st_grid()
 
-        CopyItem.set_dest(self.main_win_item.main_dir)
+        ClipboardItem.set_dest(self.main_win_item.main_dir)
         self.win_copy = CopyFilesWin()
         self.win_copy.finished_.connect(paste_final)
         self.win_copy.center(self.window())

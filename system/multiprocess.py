@@ -5,16 +5,16 @@ from pathlib import Path
 from time import sleep
 
 import numpy as np
-import sqlalchemy
 from PIL import Image
 from sqlalchemy import Connection as Conn
 from sqlalchemy import select
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers.polling import PollingObserver as Observer
 
-from cfg import JsonData, Static
+from cfg import Static
 from system.database import Clmns, Dbase
-from system.items import DataItem, DirItem, JpgConvertItem, MultipleInfoItem
+from system.items import (DataItem, DirItem, JpgConvertItem, MultipleInfoItem,
+                          SearchItem)
 from system.shared_utils import ImgUtils, PathFinder, SharedUtils
 from system.tasks import Utils
 
@@ -524,17 +524,6 @@ class SearchTaskWorker(BaseProcessWorker):
         self.proc_q = Queue()
         self.gui_q = Queue()
         super().__init__(target, (*args, self.proc_q, self.gui_q))
-
-
-class SearchTaskItem:
-    def __init__(self):
-        super().__init__()
-        self.search_list: list[str] = None
-        self.root_dir: str = None
-        self.search_list_low: list[str] = []
-        self.conn: sqlalchemy.Connection = None
-        self.proc_q: Queue = None
-        self.gui_q: Queue = None
 
 
 class SearchTask:

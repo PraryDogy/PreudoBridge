@@ -5,6 +5,7 @@ from typing import Literal
 
 import numpy as np
 import sqlalchemy
+from multiprocess import Queue
 from PyQt5.QtGui import QImage
 
 from cfg import Static
@@ -214,12 +215,6 @@ class DataItem:
         return stmt
 
 
-class SearchItem:
-    def __init__(self):
-        super().__init__()
-        self.search_list: list[str] = []
-    
-
 class MainWinItem:
     def __init__(self):
         self._urls_to_select: list[str] = []
@@ -257,7 +252,7 @@ class MainWinItem:
         self._go_to = None
 
 
-class CopyItem:
+class ClipboardItem:
     urls: list[str] = []
     is_cut: bool = False
     is_search: bool = False
@@ -298,11 +293,11 @@ class CopyItem:
 
     @classmethod
     def reset(cls):
-        CopyItem.urls = []
-        CopyItem.is_cut = False
-        CopyItem.is_search = False
-        CopyItem.src_dir = ""
-        CopyItem.dst_dir = ""
+        ClipboardItem.urls = []
+        ClipboardItem.is_cut = False
+        ClipboardItem.is_search = False
+        ClipboardItem.src_dir = ""
+        ClipboardItem.dst_dir = ""
 
 
 class DirItem:
@@ -331,3 +326,14 @@ class MultipleInfoItem:
         self.total_folders = 0
         self._folders_set = set()
         self._files_set = set()
+
+
+class SearchItem:
+    def __init__(self):
+        super().__init__()
+        self.search_list: list[str]
+        self.root_dir: str
+        self.search_list_low: list[str] = []
+        self.conn: sqlalchemy.Connection
+        self.proc_q: Queue
+        self.gui_q: Queue

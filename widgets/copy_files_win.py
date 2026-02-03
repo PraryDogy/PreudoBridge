@@ -5,7 +5,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
 
 from cfg import Static
-from system.items import CopyItem
+from system.items import ClipboardItem
 from system.multiprocess import CopyFilesTask, CopyFilesWorker
 
 from ._base_widgets import MinMaxDisabledWin, USvgSqareWidget
@@ -149,7 +149,7 @@ class CopyFilesWin(ProgressbarWin):
 
     def __init__(self):
 
-        if CopyItem.is_cut:
+        if ClipboardItem.is_cut:
             title_text = "Перемещаю файлы"
         else:
             title_text = "Копирую файлы"
@@ -158,8 +158,8 @@ class CopyFilesWin(ProgressbarWin):
 
         self.dst_urls = []
 
-        src_txt = self.limit_string(os.path.basename(CopyItem.src_dir))
-        dest_txt = self.limit_string(os.path.basename(CopyItem.dst_dir))
+        src_txt = self.limit_string(os.path.basename(ClipboardItem.src_dir))
+        dest_txt = self.limit_string(os.path.basename(ClipboardItem.dst_dir))
         src_dest_text = f"Из \"{src_txt}\" в \"{dest_txt}\""
         self.above_label.setText(src_dest_text)
         self.below_label.setText(self.preparing_text)
@@ -169,11 +169,11 @@ class CopyFilesWin(ProgressbarWin):
         self.adjustSize()
 
         data = {
-            "src_dir": CopyItem.src_dir,
-            "dst_dir": CopyItem.dst_dir,
-            "urls": CopyItem.urls,
-            "is_search": CopyItem.is_search,
-            "is_cut": CopyItem.is_cut,
+            "src_dir": ClipboardItem.src_dir,
+            "dst_dir": ClipboardItem.dst_dir,
+            "urls": ClipboardItem.urls,
+            "is_search": ClipboardItem.is_search,
+            "is_cut": ClipboardItem.is_cut,
             }
 
         self.copy_task = CopyFilesWorker(
@@ -222,7 +222,7 @@ class CopyFilesWin(ProgressbarWin):
                 self.dst_urls.extend(to_gui["dst_urls"])
 
             self.progressbar.setValue(to_gui["current_size"])
-            if CopyItem.is_cut:
+            if ClipboardItem.is_cut:
                 copy = "Перемещаю файлы"
             else:
                 copy = "Копирую файлы"
@@ -271,9 +271,9 @@ class CopyFilesWin(ProgressbarWin):
         self.copy_task.terminate()
 
     def closeEvent(self, a0):
-        CopyItem.reset()
+        ClipboardItem.reset()
         return super().closeEvent(a0)
 
     def deleteLater(self):
-        CopyItem.reset()
+        ClipboardItem.reset()
         super().deleteLater()
