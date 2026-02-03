@@ -306,21 +306,21 @@ class CopyItem:
 
 
 class DirItem:
-    def __init__(self, main_win_item: MainWinItem, sort_item: SortItem, show_hidden: bool):
+    def __init__(self, _main_win_item: MainWinItem, _sort_item: SortItem, _show_hidden: bool):
         super().__init__()
-        self.main_win_item = main_win_item
-        self.sort_item = sort_item
-        self.show_hidden = show_hidden
         self.data_items: list[DataItem] = []
+        self._main_win_item = _main_win_item
+        self._sort_item = _sort_item
+        self._show_hidden = _show_hidden
 
 
 class JpgConvertItem:
-    def __init__(self, urls: list[str]):
+    def __init__(self, _urls: list[str]):
         super().__init__()
-        self.urls = urls
         self.current_count: int
         self.current_filename: str
         self.msg: Literal["", "finished"]
+        self._urls = _urls
 
 
 class MultipleInfoItem:

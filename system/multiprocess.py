@@ -68,9 +68,9 @@ class DirScaner:
 
     @staticmethod
     def _start(dir_item: DirItem, q: Queue):
-        hidden_syms = () if dir_item.show_hidden else Static.hidden_symbols
+        hidden_syms = () if dir_item._show_hidden else Static.hidden_symbols
 
-        for entry in os.scandir(dir_item.main_win_item.main_dir):
+        for entry in os.scandir(dir_item._main_win_item.main_dir):
             if entry.name.startswith(hidden_syms):
                 continue
             if not os.access(entry.path, 4):
@@ -80,7 +80,7 @@ class DirScaner:
             data_item.set_properties()
             dir_item.data_items.append(data_item)
 
-        dir_item.data_items = DataItem.sort_(dir_item.data_items, dir_item.sort_item)
+        dir_item.data_items = DataItem.sort_(dir_item.data_items, dir_item._sort_item)
         q.put(dir_item)
 
 
@@ -237,13 +237,13 @@ class PathFixer:
 class JpgConverter:
     @staticmethod
     def start(jpg_item: JpgConvertItem, q: Queue):
-        jpg_item.urls = [i for i in jpg_item.urls if i.endswith(ImgUtils.ext_all)]
-        jpg_item.urls.sort(key=lambda p: os.path.getsize(p))
+        jpg_item._urls = [i for i in jpg_item._urls if i.endswith(ImgUtils.ext_all)]
+        jpg_item._urls.sort(key=lambda p: os.path.getsize(p))
 
         filename = ""
         new_urls: list[str] = []
 
-        for count, url in enumerate(jpg_item.urls, start=1):
+        for count, url in enumerate(jpg_item._urls, start=1):
             save_path = JpgConverter._save_jpg(url)
             if save_path:
                 new_urls.append(save_path)
