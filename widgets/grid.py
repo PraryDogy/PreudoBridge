@@ -335,7 +335,7 @@ class Grid(UScrollArea):
         def poll_task():
             self.dir_watcher_timer.stop()
             q = self.dir_watcher_task.proc_q
-            while not q.empty():
+            if not q.empty():
                 res = q.get()
                 self.apply_changes(res)
             self.dir_watcher_timer.start(self.dir_watcher_ms)
@@ -438,7 +438,7 @@ class Grid(UScrollArea):
         def poll_task(img_task: ProcessWorker, img_timer: QTimer):
             img_timer.stop()
             q = img_task.proc_q
-            while not q.empty():
+            if not q.empty():
                 data_item: DataItem = q.get()
                 if data_item.img_array is not None:
                     update_thumb(data_item)
