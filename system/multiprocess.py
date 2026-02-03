@@ -532,15 +532,6 @@ class SearchTask:
 
     @staticmethod
     def start(search_item: SearchItem, proc_q: Queue, gui_q: Queue):
-        """
-            external_data - это представление в виде словаря класса SearchItem.     
-            Описание класса читай в system > items.py > SearchItem
-
-            Принимает:  
-            - SearchTaskItem
-            - proc_q: Queue из процесса в gui
-            - gui_q: Queue из gui в процесс
-        """
         engine = Dbase.create_engine()
         conn = Dbase.get_conn(engine)
 

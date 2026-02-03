@@ -1,11 +1,11 @@
 
 import os
 import re
+from multiprocessing import Queue
 from typing import Literal
 
 import numpy as np
 import sqlalchemy
-from multiprocess import Queue
 from PyQt5.QtGui import QImage
 
 from cfg import Static
@@ -331,9 +331,10 @@ class MultipleInfoItem:
 class SearchItem:
     def __init__(self):
         super().__init__()
-        self.search_list: list[str]
-        self.root_dir: str
+        self.search_list: list[str] = []
         self.search_list_low: list[str] = []
+
+        self.root_dir: str
         self.conn: sqlalchemy.Connection
         self.proc_q: Queue
         self.gui_q: Queue

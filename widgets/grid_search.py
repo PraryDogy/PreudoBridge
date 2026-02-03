@@ -1,15 +1,13 @@
 import os
-from typing import Literal
 
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
-from PyQt5.QtGui import QDragEnterEvent, QDropEvent, QImage
+from PyQt5.QtGui import QDragEnterEvent, QDropEvent
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
 
 from cfg import Dynamic, Static
 from system.items import DataItem, MainWinItem, SearchItem, SortItem
-from system.multiprocess import SearchTask, SearchTaskItem, SearchTaskWorker
-from system.utils import Utils
+from system.multiprocess import SearchTask, SearchTaskWorker
 
 from ._base_widgets import (MinMaxDisabledWin, NotifyWid, USvgSqareWidget,
                             UTextEdit)
