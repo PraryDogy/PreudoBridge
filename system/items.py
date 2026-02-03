@@ -312,3 +312,12 @@ class DirItem:
         self.sort_item = sort_item
         self.show_hidden = show_hidden
         self.data_items: list[DataItem] = []
+
+
+class JpgConvertItem:
+    def __init__(self, urls: list[str]):
+        super().__init__()
+        self.urls = urls
+        self.current_count: int
+        self.current_filename: str
+        self.msg: Literal["", "finished"]

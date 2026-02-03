@@ -3,7 +3,8 @@ import os
 from PyQt5.QtCore import QTimer
 
 from cfg import Static
-from system.multiprocess import ProcessWorker, JpgConverter
+from system.items import JpgConvertItem
+from system.multiprocess import JpgConverter, ProcessWorker
 
 from .progressbar_win import ProgressbarWin
 
@@ -20,17 +21,14 @@ class ImgConvertWin(ProgressbarWin):
 
         self.cancel_btn.clicked.connect(self.cancel_cmd)
         self.above_label.setText(self.prepairing)
-        self.below_label.setText(f"0 из {len(urls)}")
+        self.below_label.setText(f"0 из {len(self.urls)}")
 
         if not urls:
             return
 
-        self.progressbar.setMaximum(len(urls))
-
-        self.jpg_task = ProcessWorker(
-            target=JpgConverter.start,
-            args=(urls, )
-        )
+        self.progressbar.setMaximum(len(self.urls))
+        jpg_item = JpgConvertItem(self.urls)
+        self.jpg_task = ProcessWorker(target=JpgConverter.start, args=(jpg_item, ))
 
         self.jpg_timer = QTimer(self)
         self.jpg_timer.setSingleShot(True)
@@ -45,17 +43,17 @@ class ImgConvertWin(ProgressbarWin):
         finished = False
         # мы используем if а не while, чтобы gui обновлялся равномерно по таймеру
         if not q.empty():
-            result = q.get()
-            self.above_label.setText(result["filename"])
-            self.below_label.setText(f'{result["count"]} из {result["total_count"]}')
-            self.progressbar.setValue(result["count"])
+            jpg_item: JpgConvertItem = q.get()
+            self.above_label.setText(jpg_item.current_filename)
+            self.below_label.setText(f'{jpg_item.current_count} из {len(self.urls)}')
+            self.progressbar.setValue(jpg_item.current_count)
 
-            if result["msg"] == "finished":
+            if jpg_item.msg == "finished":
                 finished = True
 
         if not self.jpg_task.is_alive() or finished:
             self.progressbar.setValue(self.progressbar.maximum())
-            self.below_label.setText(f'{result["total_count"]} из {result["total_count"]}')
+            self.below_label.setText(f'{len(self.urls)} из {len(self.urls)}')
             self.jpg_task.terminate()
             self.deleteLater()
         else:

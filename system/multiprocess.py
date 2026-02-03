@@ -14,7 +14,7 @@ from watchdog.observers.polling import PollingObserver as Observer
 
 from cfg import JsonData, Static
 from system.database import Clmns, Dbase
-from system.items import DataItem, DirItem
+from system.items import DataItem, DirItem, JpgConvertItem
 from system.shared_utils import ImgUtils, PathFinder, SharedUtils
 from system.tasks import Utils
 
@@ -199,17 +199,14 @@ class _DirChangedHandler(FileSystemEventHandler):
 
 
 class DirWatcher:
-
     @staticmethod
     def start(path: str, q: Queue):
         if not path or not os.path.exists(path):
             return
-
         observer = Observer()
         handler = _DirChangedHandler(lambda e: q.put(e))
         observer.schedule(handler, path, recursive=False)
         observer.start()
-
         try:
             while True:
                 sleep(1)
@@ -221,7 +218,6 @@ class DirWatcher:
 
 
 class PathFixer:
-
     @staticmethod
     def start(path: str, q: Queue):
         if not path:
@@ -239,45 +235,26 @@ class PathFixer:
 
 
 class JpgConverter:
-
     @staticmethod
-    def start(urls: list[str], q: Queue):
-        """
-        Возвращает {
-            "total_count": int,
-            "count": int,
-            "filename": str,
-            "msg": str,
-        }
-        """
+    def start(jpg_item: JpgConvertItem, q: Queue):
+        jpg_item.urls = [i for i in jpg_item.urls if i.endswith(ImgUtils.ext_all)]
+        jpg_item.urls.sort(key=lambda p: os.path.getsize(p))
 
-        urls = [i for i in urls if i.endswith(ImgUtils.ext_all)]
-        urls.sort(key=lambda p: os.path.getsize(p))
-
-        count = 0
         filename = ""
         new_urls: list[str] = []
 
-        for x, url in enumerate(urls, start=1):
+        for count, url in enumerate(jpg_item.urls, start=1):
             save_path = JpgConverter._save_jpg(url)
             if save_path:
                 new_urls.append(save_path)
-                count = x
                 filename = os.path.basename(url)
+                jpg_item.current_count = count
+                jpg_item.current_filename = filename
+                jpg_item.msg = ""
+                q.put(jpg_item)
 
-                q.put({
-                    "total_count": len(urls),
-                    "count": count,
-                    "filename": filename,
-                    "msg": ""
-                })
-
-        q.put({
-            "total_count": len(urls),
-            "count": count,
-            "filename": filename,
-            "msg": "finished",
-        })
+        jpg_item.msg = "finished"
+        q.put(jpg_item)
 
     @staticmethod
     def _save_jpg(path: str) -> None:
