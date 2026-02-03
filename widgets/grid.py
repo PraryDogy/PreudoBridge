@@ -439,12 +439,9 @@ class Grid(UScrollArea):
             img_timer.stop()
             q = img_task.proc_q
             while not q.empty():
-                result: dict = q.get()
-                if isinstance(result, dict):
-                    data_item = self.url_to_wid[result["src"]].data
-                    data_item.img_array = result["img_array"]
-                    if data_item.img_array is not None:
-                        update_thumb(data_item)
+                data_item: DataItem = q.get()
+                if data_item.img_array is not None:
+                    update_thumb(data_item)
 
             if not img_task.is_alive() and q.empty():
                 img_task.terminate()

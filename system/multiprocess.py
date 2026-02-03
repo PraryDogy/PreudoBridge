@@ -87,10 +87,6 @@ class DirScaner:
 class ImgLoader:
     @staticmethod
     def start(data_items: list[DataItem], q: Queue):
-        """
-        Посылает в Queue:
-        - {"src": filepath , "img_array": numpy ndarray размера Static.max_thumb_size}
-        """
         engine = Dbase.create_engine()
         conn = Dbase.get_conn(engine)
 
@@ -149,8 +145,8 @@ class ImgLoader:
         for i in data_items:
             img_array = ImgUtils.read_img(i.src)
             img_array = ImgUtils.resize(img_array, 512)
-            data = {"src": i.src, "img_array": img_array}
-            q.put(data)
+            i.img_array = img_array
+            q.put(i)
 
     @staticmethod
     def execute_ratings(data_items: list[DataItem], q: Queue):
@@ -161,8 +157,8 @@ class ImgLoader:
     def execute_exist_images(data_items: list[DataItem], q: Queue):
         for i in data_items:
             img_array = Utils.read_thumb(i.thumb_path)
-            data = {"src": i.src, "img_array": img_array}
-            q.put(data)
+            i.img_array = img_array
+            q.put(i)
 
     @staticmethod
     def execute_new_images(data_items: list[DataItem], q: Queue):
@@ -170,8 +166,8 @@ class ImgLoader:
             img_array = ImgUtils.read_img(i.src)
             img_array = ImgUtils.resize(img_array, Static.max_thumb_size)
             Utils.write_thumb(i.thumb_path, img_array)
-            data = {"src": i.src, "img_array": img_array}
-            q.put(data)
+            i.img_array = img_array
+            q.put(i)
 
     @staticmethod
     def get_item_rating(data_item: DataItem, conn: Conn) -> bool:
