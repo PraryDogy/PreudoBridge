@@ -39,6 +39,7 @@ class GridStandart(Grid):
         self.loading_label = LoadingWidget()
 
         if os.path.expanduser("~"):
+            print("expand user")
             self.start_dir_scaner = self.start_dir_scaner_s
         else:
             QTimer.singleShot(1, self.show_loading_label)
