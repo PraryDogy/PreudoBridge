@@ -1,10 +1,8 @@
-import difflib
 import os
 import shutil
 from multiprocessing import Process, Queue
 from pathlib import Path
 from time import sleep
-from typing import Any, Literal
 
 import numpy as np
 import sqlalchemy
@@ -121,12 +119,12 @@ class ImgLoader:
                 rating = ImgLoader.get_item_rating(data_item, conn)
                 if rating is None:
                     stmt_list.append(DataItem.insert_file_stmt(data_item))
-                    if data_item.type_ in Static.img_exts:
+                    if data_item.type_ in ImgUtils.ext_all:
                         new_images.append(data_item)
                 else:
                     data_item.rating = rating
                     stmt_list.append(DataItem.update_file_stmt(data_item))
-                    if data_item.type_ in Static.img_exts:
+                    if data_item.type_ in ImgUtils.ext_all:
                         if data_item.thumb_path and os.path.exists(data_item.thumb_path):
                             exist_images.append(data_item)
                         else:
@@ -264,7 +262,7 @@ class JpgConverter:
         }
         """
 
-        urls = [i for i in urls if i.endswith(Static.img_exts)]
+        urls = [i for i in urls if i.endswith(ImgUtils.ext_all)]
         urls.sort(key=lambda p: os.path.getsize(p))
 
         count = 0
@@ -370,7 +368,7 @@ class CacheDownloader:
             for i in os.scandir(last_dir):
                 if i.is_dir():
                     stack.append(i.path)
-                elif i.name.endswith(Static.img_exts):
+                elif i.name.endswith(ImgUtils.ext_all):
                     data_item = DataItem(i.path)
                     data_item.set_properties()
                     data_item.set_partial_hash()
@@ -783,7 +781,7 @@ class SearchTask:
         data_item.set_properties()
         if data_item.type_ != Static.folder_type:
             data_item.set_partial_hash()
-        if entry.name.endswith(Static.img_exts):
+        if entry.name.endswith(ImgUtils.ext_all):
             if os.path.exists(data_item.thumb_path):
                 img_array = Utils.read_thumb(data_item.thumb_path)
             else:

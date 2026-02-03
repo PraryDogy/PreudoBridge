@@ -14,8 +14,8 @@ from cfg import Dynamic, JsonData, Static
 from system.appkit_icon import AppKitIcon
 from system.database import Dbase
 from system.items import CopyItem, DataItem, MainWinItem, SortItem
-from system.multiprocess import ImgLoader, DirWatcher, ProcessWorker
-from system.shared_utils import SharedUtils
+from system.multiprocess import DirWatcher, ImgLoader, ProcessWorker
+from system.shared_utils import ImgUtils, SharedUtils
 from system.tasks import RatingTask, UThreadPool
 from system.utils import Utils
 
@@ -394,7 +394,7 @@ class Grid(UScrollArea):
         for thumb in self.url_to_wid.values():
             stmt = (
                 thumb.data.qimages,
-                thumb.data.type_ not in Static.img_exts,
+                thumb.data.type_ not in ImgUtils.ext_all,
                 thumb in self.loaded_thumbs
             )
             if any(stmt):
@@ -571,11 +571,11 @@ class Grid(UScrollArea):
     def open_thumb(self):
         if len(self.selected_thumbs) == 1:
             wid = self.selected_thumbs[0]
-            if wid.data.src.endswith(Static.img_exts):
+            if wid.data.src.endswith(ImgUtils.ext_all):
                 url_to_wid = {
                     url: wid
                     for url, wid in self.url_to_wid.items()
-                    if url.endswith(Static.img_exts) and not wid.data.must_hidden
+                    if url.endswith(ImgUtils.ext_all) and not wid.data.must_hidden
                 }
                 is_selection = False
                 self.open_img_view(wid.data.src, url_to_wid, is_selection)
@@ -589,7 +589,7 @@ class Grid(UScrollArea):
             url_to_wid = {
                 i.data.src: i
                 for i in self.selected_thumbs
-                if i.data.src.endswith(Static.img_exts) and not i.data.must_hidden
+                if i.data.src.endswith(ImgUtils.ext_all) and not i.data.must_hidden
             }
 
             if url_to_wid:
@@ -609,7 +609,7 @@ class Grid(UScrollArea):
             files = [
                 i.data.src
                 for i in self.selected_thumbs
-                if not i.data.src.endswith(Static.img_exts)
+                if not i.data.src.endswith(ImgUtils.ext_all)
                 and
                 i.data.type_ != Static.folder_type
             ]
@@ -812,7 +812,7 @@ class Grid(UScrollArea):
         urls_img = [
             i.data.src
             for i in self.selected_thumbs
-            if i.data.src.endswith(Static.img_exts)
+            if i.data.src.endswith(ImgUtils.ext_all)
         ]
         dirs = [
             i.data.src
@@ -827,7 +827,7 @@ class Grid(UScrollArea):
         view_action.triggered.connect(lambda: self.open_thumb())
         menu_.addAction(view_action)
 
-        if wid.data.type_ in Static.img_exts:
+        if wid.data.type_ in ImgUtils.ext_all:
             open_in_app = ItemActions.OpenInApp(menu_, urls)
             menu_.addMenu(open_in_app)
         elif wid.data.type_ == Static.folder_type:
@@ -858,7 +858,7 @@ class Grid(UScrollArea):
 
         menu_.addSeparator()
 
-        if wid.data.type_ in Static.img_exts and not self.is_grid_search:
+        if wid.data.type_ in ImgUtils.ext_all and not self.is_grid_search:
             convert_action = ItemActions.ImgConvert(menu_)
             convert_action.triggered.connect(lambda: self.open_img_convert_win(urls_img))
             menu_.addAction(convert_action)

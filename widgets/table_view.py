@@ -12,8 +12,8 @@ from PyQt5.QtWidgets import (QAbstractItemView, QApplication, QFileSystemModel,
                              QLabel, QSplitter, QTableView)
 
 from cfg import Dynamic, JsonData, Static
-from system.items import DataItem, CopyItem, MainWinItem
-from system.shared_utils import SharedUtils
+from system.items import CopyItem, DataItem, MainWinItem
+from system.shared_utils import ImgUtils, SharedUtils
 from system.utils import Utils
 
 from ._base_widgets import UMenu
@@ -219,10 +219,10 @@ class TableView(QTableView):
 
     def open_thumb(self, urls: list[str]):
         if len(urls) == 1:
-            if urls[0].endswith(Static.img_exts):
+            if urls[0].endswith(ImgUtils.ext_all):
                 url_to_wid = {}
                 for url, _ in self.url_to_index.items():
-                    if url.endswith(Static.img_exts):
+                    if url.endswith(ImgUtils.ext_all):
                         data = DataItem(url)
                         data.set_properties()
                         thumb = Thumb(data)
@@ -240,7 +240,7 @@ class TableView(QTableView):
         else:
             url_to_wid = {}
             for url in self.get_selected_urls():
-                if url.endswith(Static.img_exts):
+                if url.endswith(ImgUtils.ext_all):
                     data = DataItem(url)
                     data.set_properties()
                     thumb = Thumb(data)
@@ -261,7 +261,7 @@ class TableView(QTableView):
             files = [
                 i
                 for i in urls
-                if not i.endswith(Static.img_exts)
+                if not i.endswith(ImgUtils.ext_all)
                 and
                 os.path.isfile(i)
             ]
@@ -305,7 +305,7 @@ class TableView(QTableView):
         return urls
 
     def open_img_convert_win(self, urls: list[str]):
-        urls = [i for i in urls if i.endswith(Static.img_exts)]
+        urls = [i for i in urls if i.endswith(ImgUtils.ext_all)]
         self.convert_win = ImgConvertWin(urls)
         self.convert_win.center(self.window())
         self.convert_win.show()
@@ -355,7 +355,7 @@ class TableView(QTableView):
 
         menu_.addSeparator()
 
-        if selected_path.endswith(Static.img_exts):
+        if selected_path.endswith(ImgUtils.ext_all):
             convert_action = ItemActions.ImgConvert(menu_)
             convert_action.triggered.connect(lambda: self.open_img_convert_win(urls))
             menu_.addAction(convert_action)

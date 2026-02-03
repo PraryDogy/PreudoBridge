@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import (QAction, QGraphicsOpacityEffect, QGridLayout,
 from cfg import JsonData, Static
 from system.items import DataItem
 from system.multiprocess import ImgRes, MultipleInfo, ProcessWorker
-from system.shared_utils import SharedUtils
+from system.shared_utils import ImgUtils, SharedUtils
 
 from ._base_widgets import MinMaxDisabledWin, UMenu
 from .actions import CopyText, RevealInFinder
@@ -102,7 +102,7 @@ class InfoWin(MinMaxDisabledWin):
 
     def init_ui(self):
         if len(self.data_items) == 1:
-            if self.data_items[0].type_ in Static.img_exts:
+            if self.data_items[0].type_ in ImgUtils.ext_all:
                 self.single_img()
             elif self.data_items[0].type_ == Static.folder_type:
                 self.single_folder()

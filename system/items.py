@@ -8,6 +8,7 @@ import sqlalchemy
 from PyQt5.QtGui import QImage
 
 from cfg import Static
+from system.shared_utils import ImgUtils
 
 from .database import CACHE, Clmns
 from .utils import Utils
@@ -77,7 +78,7 @@ class DataItem:
     def set_partial_hash(self):
         try:
             self.partial_hash = Utils.get_partial_hash(self.src)
-            if self.type_ in Static.img_exts:
+            if self.type_ in ImgUtils.ext_all:
                 thumb_path = Utils.get_abs_thumb_path(self.partial_hash)
                 if self.type_ in (".png", ".icns"):
                     self.thumb_path = thumb_path + ".png"

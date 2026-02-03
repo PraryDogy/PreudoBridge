@@ -14,6 +14,7 @@ from PyQt5.QtSvg import QSvgGenerator, QSvgRenderer
 from PyQt5.QtWidgets import QApplication
 
 from cfg import Dynamic, Static
+from system.shared_utils import ImgUtils
 
 
 class Utils:
@@ -165,7 +166,7 @@ class Utils:
             for i in os.scandir(current):
                 if i.is_dir():
                     stack.append(i.path)
-                elif i.name.endswith(Static.img_exts):
+                elif i.name.endswith(ImgUtils.ext_all):
                     total += os.path.getsize(i.path)
                     count += 1
         return {"total": total, "count": count}
