@@ -366,9 +366,24 @@ class CopyWorker(BaseProcessWorker):
         self.gui_q = Queue()
         super().__init__(target, (*args, self.proc_q, self.gui_q))
 
+from typing_extensions import Literal
+
 
 class CopyTaskItem:
-    ...
+    def __init__(self, src_dir: str, dst_dir: str, urls: list[str], is_search: bool, is_cut: bool):
+        super().__init__()
+        self.src_dir = src_dir
+        self.dst_dir = dst_dir
+        self.urls = urls
+        self.is_search = is_search
+        self.is_cut = is_cut
+
+        self.current_size: int = 0
+        self.total_size: int = 0
+        self.current_size: int = 0
+        self.total_count: int = 0
+        self.dst_urls: list[str] = []
+        self.msg: Literal["", "error", "need_replace", "replace_one", "replace_all"]
 
 
 class CopyTask:
@@ -392,6 +407,7 @@ class CopyTask:
     """
     @staticmethod
     def start(input_data: dict, proc_q: Queue, gui_q: Queue):
+
         to_gui = {
             "total_size": 0,
             "total_count": 0,
