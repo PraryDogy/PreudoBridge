@@ -360,14 +360,18 @@ class MultipleInfo:
                         info_item._files_set.add(entry.path)
 
 
-class CopyFilesWorker(BaseProcessWorker):
+class CopyWorker(BaseProcessWorker):
     def __init__(self, target, args):
         self.proc_q = Queue()
         self.gui_q = Queue()
         super().__init__(target, (*args, self.proc_q, self.gui_q))
 
 
-class CopyFilesTask:
+class CopyTaskItem:
+    ...
+
+
+class CopyTask:
     """
         Принимает {
             "src_dir": str откуда копировать,
@@ -398,9 +402,9 @@ class CopyFilesTask:
         }
 
         if input_data["is_search"] or input_data["src_dir"] != input_data["dst_dir"]:
-            src_dst_urls = CopyFilesTask.get_another_dir_urls(input_data)
+            src_dst_urls = CopyTask.get_another_dir_urls(input_data)
         else:
-            src_dst_urls = CopyFilesTask.get_same_dir_urls(input_data)
+            src_dst_urls = CopyTask.get_same_dir_urls(input_data)
 
         to_gui["dst_urls"] = [dst for src, dst in src_dst_urls]
 
@@ -436,7 +440,7 @@ class CopyFilesTask:
             try:
                 if os.path.exists(dest) and dest.is_file():
                     os.remove(dest)
-                CopyFilesTask.copy_file_with_progress(proc_q, to_gui, src, dest)
+                CopyTask.copy_file_with_progress(proc_q, to_gui, src, dest)
             except Exception as e:
                 print("CopyTask copy error", e)
                 to_gui["msg"] = "error"

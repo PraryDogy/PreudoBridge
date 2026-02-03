@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
 
 from cfg import Static
 from system.items import ClipboardItem
-from system.multiprocess import CopyFilesTask, CopyFilesWorker
+from system.multiprocess import CopyTask, CopyWorker
 
 from ._base_widgets import MinMaxDisabledWin, USvgSqareWidget
 from .progressbar_win import ProgressbarWin
@@ -176,8 +176,8 @@ class CopyFilesWin(ProgressbarWin):
             "is_cut": ClipboardItem.is_cut,
             }
 
-        self.copy_task = CopyFilesWorker(
-            target=CopyFilesTask.start,
+        self.copy_task = CopyWorker(
+            target=CopyTask.start,
             args=(data, )
         )
 
