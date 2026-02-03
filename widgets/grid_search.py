@@ -159,14 +159,7 @@ class GridSearch(Grid):
         self.is_grid_search = True
         Thumb.calc_size()
 
-        search_item = SearchTaskItem()
-        search_item.root_dir = self.main_win_item.main_dir
-        search_item.search_list = self.search_item.search_list
-
-        self.search_task = SearchTaskWorker(
-            target=SearchTask.start,
-            args=(search_item, )
-        )
+        self.search_task = SearchTaskWorker(target=SearchTask.start, args=(self.search_item, ))
         self.search_timer = QTimer(self)
         self.search_timer.setSingleShot(True)
         self.search_timer.timeout.connect(poll_task)

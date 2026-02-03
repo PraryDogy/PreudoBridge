@@ -531,7 +531,7 @@ class SearchTask:
     ratio = 0.85
 
     @staticmethod
-    def start(item: SearchTaskItem, proc_q: Queue, gui_q: Queue):
+    def start(search_item: SearchItem, proc_q: Queue, gui_q: Queue):
         """
             external_data - это представление в виде словаря класса SearchItem.     
             Описание класса читай в system > items.py > SearchItem
@@ -544,40 +544,38 @@ class SearchTask:
         engine = Dbase.create_engine()
         conn = Dbase.get_conn(engine)
 
-        item.proc_q = proc_q
-        item.gui_q = gui_q
-        item.conn = conn
+        search_item.proc_q = proc_q
+        search_item.gui_q = gui_q
+        search_item.conn = conn
 
-        SearchTask.setup(item)
+        SearchTask.setup(search_item)
 
-        SearchTask.scandir_recursive(item)
+        SearchTask.scandir_recursive(search_item)
         Dbase.close_conn(conn)
 
     @staticmethod
-    def setup(item: SearchTaskItem):
-        for i in item.search_list:
-            item.search_list_low.append(i.lower())
+    def setup(search_item: SearchItem):
+        for i in search_item.search_list:
+            search_item.search_list_low.append(i.lower())
 
     # базовый метод обработки os.DirEntry
     @staticmethod
-    def process_entry(entry: os.DirEntry, item: SearchTaskItem):
-        for i in item.search_list_low:
+    def process_entry(entry: os.DirEntry, search_item: SearchItem):
+        for i in search_item.search_list_low:
             if i in entry.name.lower():
                 return True
         return False
     
     @staticmethod
-    def scandir_recursive(item: SearchTaskItem):
-        dirs_list = [item.root_dir, ]
+    def scandir_recursive(search_item: SearchItem):
+        dirs_list = [search_item.root_dir, ]
         while dirs_list:
             current_dir = dirs_list.pop()
-            # while self.pause:
-            #     QTest.qSleep(SearchTask.sleep_ms)
             if not os.path.exists(current_dir):
                 continue
             try:
                 # Сканируем текущий каталог и добавляем новые пути в стек
-                SearchTask.scan_current_dir(current_dir, dirs_list, item)
+                SearchTask.scan_current_dir(current_dir, dirs_list, search_item)
             except OSError as e:
                 Utils.print_error()
                 continue
@@ -586,25 +584,22 @@ class SearchTask:
                 continue
     
     @staticmethod
-    def scan_current_dir(current_dir: str, dir_list: list, item: SearchTaskItem):
+    def scan_current_dir(current_dir: str, dir_list: list, search_item: SearchItem):
         for entry in os.scandir(current_dir):
-            # while self.pause:
-            #     QTest.qSleep(SearchTask.sleep_ms)
             if entry.name.startswith(Static.hidden_symbols):
                 continue
             if entry.is_dir():
                 dir_list.append(entry.path)
-                # continue
-            if SearchTask.process_entry(entry, item):
-                SearchTask.process_img(entry, item)
+            if SearchTask.process_entry(entry, search_item):
+                SearchTask.process_img(entry, search_item)
 
     @staticmethod
-    def process_img(entry: os.DirEntry, item: SearchTaskItem):
+    def process_img(entry: os.DirEntry, search_item: SearchItem):
 
         def execute_stmt_list(stmt_list: list):
             for i in stmt_list:
-                Dbase.execute(item.conn, i)
-            Dbase.commit(item.conn)
+                Dbase.execute(search_item.conn, i)
+            Dbase.commit(search_item.conn)
 
         def insert(data_item: DataItem, img_array: np.ndarray):
             if Utils.write_thumb(data_item.thumb_path, img_array):
@@ -629,5 +624,5 @@ class SearchTask:
                 insert(data_item, img_array)
             data_item.img_array = img_array
 
-        item.proc_q.put(data_item)
+        search_item.proc_q.put(data_item)
         sleep(SearchTask.sleep_s)

@@ -240,7 +240,8 @@ class SearchWidget(ULineEdit):
         """
         text = ", ".join(self.search_list)
         self.setText(text)
-        self.search_item.search_list = self.search_list
+        self.search_item.search_list.clear()
+        self.search_item.search_list.extend(self.search_list)
         self.load_search_grid.emit()
 
     def open_search_list_win(self):
