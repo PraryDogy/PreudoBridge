@@ -533,16 +533,14 @@ class SearchTask:
     @staticmethod
     def start(search_item: SearchItem, proc_q: Queue, gui_q: Queue):
         engine = Dbase.create_engine()
-        conn = Dbase.get_conn(engine)
-
         search_item.proc_q = proc_q
         search_item.gui_q = gui_q
-        search_item.conn = conn
+        search_item.conn = Dbase.get_conn(engine)
 
         SearchTask.setup(search_item)
 
         SearchTask.scandir_recursive(search_item)
-        Dbase.close_conn(conn)
+        Dbase.close_conn(search_item.conn)
 
     @staticmethod
     def setup(search_item: SearchItem):
