@@ -335,10 +335,15 @@ class Grid(UScrollArea):
         def poll_task():
             self.dir_watcher_timer.stop()
             q = self.dir_watcher_task.proc_q
+            events: list[FileSystemEvent] = []
             while not q.empty():
-                res = q.get()
-                self.apply_changes(res)
+                events.append(q.get())
+            for i in events:
+                self.apply_changes(i)
             self.dir_watcher_timer.start(self.dir_watcher_ms)
+
+            self.sort_thumbs()
+            self.rearrange_thumbs()
 
         self.dir_watcher_task = ProcessWorker(
             target=DirWatcher.start,
@@ -381,8 +386,7 @@ class Grid(UScrollArea):
             self.create_no_items_label(NoItemsLabel.no_files)
         else:
             self.remove_no_items_label()
-        self.sort_thumbs()
-        self.rearrange_thumbs()
+
 
     def load_visible_thumbs_images(self):
         if not self.grid_wid.isVisible():
@@ -412,6 +416,7 @@ class Grid(UScrollArea):
             self._start_load_images_task(thumbs)
 
     def _start_load_images_task(self, thumbs: list[Thumb]):
+        return
         """
         Запускает фоновую задачу загрузки изображений для списка Thumb.
         Изображения загружаются из базы данных или из директории, если в БД нет.
