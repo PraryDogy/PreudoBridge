@@ -569,6 +569,9 @@ class CopyFilesTask:
 
         for count, (src, dest) in enumerate(src_dst_urls, start=1):
 
+            if src.is_dir():
+                continue
+
             if not replace_all and dest.exists() and src.name == dest.name:
                 to_gui["msg"] = "replace"
                 proc_q.put(to_gui)
@@ -600,9 +603,9 @@ class CopyFilesTask:
 
         if input_data["is_cut"] and not input_data["is_search"]:
             for src, dst in src_dst_urls:
-                if src.parent.is_dir() and src.parent.exists():
+                if src.is_dir() and src.exists():
                     try:
-                        shutil.rmtree(src.parent)
+                        shutil.rmtree(src)
                     except Exception as e:
                         print("copy task error dir remove", e)
         
@@ -617,6 +620,9 @@ class CopyFilesTask:
         for url in input_data["urls"]:
             url = Path(url)
             if url.is_dir():
+                # мы добавляем директорию в список копирования
+                # чтобы потом можно было удалить ее при вырезании
+                src_dst_urls.append((url, url))
                 for filepath in url.rglob("*"):
                     if filepath.is_file():
                         rel_path = filepath.relative_to(src_dir)
