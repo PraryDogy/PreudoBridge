@@ -505,7 +505,7 @@ class CopyTask:
         for url in copy_item.src_urls:
             url = Path(url)
             url_with_copy = dst_dir.joinpath(url.name)
-            counter = 1
+            counter = 2
             while url_with_copy.exists():
                 name, ext = os.path.splitext(url.name)
                 new_name = f"{name} {copy_name} {counter}{ext}"
