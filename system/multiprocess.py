@@ -408,28 +408,28 @@ class CopyTask:
     @staticmethod
     def start(copy_item: CopyItem, proc_q: Queue, gui_q: Queue):
 
-        to_gui = {
-            "total_size": 0,
-            "total_count": 0,
-            "current_size": 0,
-            "current_count": 0,
-            "dst_urls": [],
-            "msg": "",
-        }
+        # to_gui = {
+        #     "total_size": 0,
+        #     "total_count": 0,
+        #     "current_size": 0,
+        #     "current_count": 0,
+        #     "dst_urls": [],
+        #     "msg": "",
+        # }
 
         if copy_item.is_search or copy_item.src_dir != copy_item.dst_dir:
             src_dst_urls = CopyTask.get_another_dir_urls(copy_item)
         else:
             src_dst_urls = CopyTask.get_same_dir_urls(copy_item)
 
-        to_gui["dst_urls"] = [dst for src, dst in src_dst_urls]
+        copy_item.dst_urls = [dst for src, dst in src_dst_urls]
 
         total_size = 0
         for src, dest in src_dst_urls:
             total_size += os.path.getsize(src)
 
-        to_gui["total_size"] = total_size // 1024
-        to_gui["total_count"] = len(src_dst_urls)
+        copy_item.total_size = total_size // 1024
+        copy_item.total_count = len(src_dst_urls)
         replace_all = False
 
         for count, (src, dest) in enumerate(src_dst_urls, start=1):
@@ -438,29 +438,29 @@ class CopyTask:
                 continue
 
             if not replace_all and dest.exists() and src.name == dest.name:
-                to_gui["msg"] = "replace"
-                proc_q.put(to_gui)
+                copy_item.msg = "need_replace"
+                proc_q.put(copy_item)
                 while True:
                     sleep(1)
                     if not gui_q.empty():
-                        data = gui_q.get()
-                        if data["msg"] == "replace_one":
+                        new_copy_item: CopyItem = gui_q.get()
+                        if new_copy_item.msg == "replace_one":
                             break
-                        elif data["msg"] == "replace_all":
+                        elif new_copy_item.msg == "replace_all":
                             replace_all = True
                             break
 
             os.makedirs(dest.parent, exist_ok=True)
-            to_gui["current_count"] = count
-            to_gui["msg"] = ""
+            copy_item.current_count = count
+            copy_item.msg = ""
             try:
                 if os.path.exists(dest) and dest.is_file():
                     os.remove(dest)
-                CopyTask.copy_file_with_progress(proc_q, to_gui, src, dest)
+                CopyTask.copy_file_with_progress(proc_q, copy_item, src, dest)
             except Exception as e:
                 print("CopyTask copy error", e)
-                to_gui["msg"] = "error"
-                proc_q.put(to_gui)
+                copy_item.msg = "error"
+                proc_q.put(copy_item)
                 return
             if copy_item.is_cut and not copy_item.is_search:
                 os.remove(src)
@@ -474,8 +474,8 @@ class CopyTask:
                     except Exception as e:
                         print("copy task error dir remove", e)
         
-        to_gui["msg"] = "finished"
-        proc_q.put(to_gui)
+        copy_item.msg = "finished"
+        proc_q.put(copy_item)
 
     @staticmethod
     def get_another_dir_urls(copy_item: CopyItem):
@@ -522,7 +522,7 @@ class CopyTask:
         return src_dst_urls
     
     @staticmethod
-    def copy_file_with_progress(proc_q: Queue, to_gui: dict, src: Path, dest: Path):
+    def copy_file_with_progress(proc_q: Queue, copy_item: CopyItem, src: Path, dest: Path):
         block = 4 * 1024 * 1024  # 4 MB
         with open(src, "rb") as fsrc, open(dest, "wb") as fdst:
             while True:
@@ -530,8 +530,8 @@ class CopyTask:
                 if not buf:
                     break
                 fdst.write(buf)
-                to_gui["current_size"] += len(buf) // 1024
-                proc_q.put(to_gui)
+                copy_item.current_size += len(buf) // 1024
+                proc_q.put(copy_item)
         shutil.copystat(src, dest, follow_symlinks=True)
 
 
