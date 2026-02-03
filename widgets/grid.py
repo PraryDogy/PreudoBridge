@@ -8,6 +8,7 @@ from PyQt5.QtGui import (QContextMenuEvent, QDrag, QIcon, QImage, QKeyEvent,
 from PyQt5.QtWidgets import (QApplication, QFrame, QGraphicsOpacityEffect,
                              QGridLayout, QLabel, QRubberBand, QSplitter,
                              QVBoxLayout, QWidget)
+from typing_extensions import Literal
 from watchdog.events import FileSystemEvent
 
 from cfg import Dynamic, JsonData, Static
@@ -363,21 +364,22 @@ class Grid(UScrollArea):
             if i.data.src==e.src_path
         )
         new_thumb = None
-        if e.event_type == "deleted":
+        event: Literal["deleted", "created", "moved", "modified"] = e.event_type
+        if event == "deleted":
             if is_selected:
                 self.removed_urls.append(e.src_path)
             self.del_thumb(e.src_path)
-        elif e.event_type == "created":
+        elif event == "created":
             new_thumb = self.new_thumb(e.src_path)
             if e.src_path in self.removed_urls:
                 self.select_multiple_thumb(new_thumb)
                 self.removed_urls.remove(e.src_path)
-        elif e.event_type == "moved":
+        elif event == "moved":
             self.del_thumb(e.src_path)
             new_thumb = self.new_thumb(e.dest_path)
             if is_selected:
                 self.select_multiple_thumb(new_thumb)
-        elif e.event_type == "modified":
+        elif event == "modified":
             if e.src_path in self.url_to_wid:
                 wid = self.url_to_wid[e.src_path]
                 wid.data.set_properties()
