@@ -369,12 +369,12 @@ class CopyWorker(BaseProcessWorker):
 from typing_extensions import Literal
 
 
-class CopyTaskItem:
+class CopyItem:
     def __init__(self, src_dir: str, dst_dir: str, urls: list[str], is_search: bool, is_cut: bool):
         super().__init__()
         self.src_dir = src_dir
         self.dst_dir = dst_dir
-        self.urls = urls
+        self.src_urls = urls
         self.is_search = is_search
         self.is_cut = is_cut
 
@@ -406,7 +406,7 @@ class CopyTask:
         }
     """
     @staticmethod
-    def start(input_data: dict, proc_q: Queue, gui_q: Queue):
+    def start(copy_item: CopyItem, proc_q: Queue, gui_q: Queue):
 
         to_gui = {
             "total_size": 0,
@@ -417,10 +417,10 @@ class CopyTask:
             "msg": "",
         }
 
-        if input_data["is_search"] or input_data["src_dir"] != input_data["dst_dir"]:
-            src_dst_urls = CopyTask.get_another_dir_urls(input_data)
+        if copy_item.is_search or copy_item.src_dir != copy_item.dst_dir:
+            src_dst_urls = CopyTask.get_another_dir_urls(copy_item)
         else:
-            src_dst_urls = CopyTask.get_same_dir_urls(input_data)
+            src_dst_urls = CopyTask.get_same_dir_urls(copy_item)
 
         to_gui["dst_urls"] = [dst for src, dst in src_dst_urls]
 
@@ -462,11 +462,11 @@ class CopyTask:
                 to_gui["msg"] = "error"
                 proc_q.put(to_gui)
                 return
-            if input_data["is_cut"] and not input_data["is_search"]:
+            if copy_item.is_cut and not copy_item.is_search:
                 os.remove(src)
                 "удаляем файлы чтобы очистить директории"
 
-        if input_data["is_cut"] and not input_data["is_search"]:
+        if copy_item.is_cut and not copy_item.is_search:
             for src, dst in src_dst_urls:
                 if src.is_dir() and src.exists():
                     try:
@@ -478,11 +478,11 @@ class CopyTask:
         proc_q.put(to_gui)
 
     @staticmethod
-    def get_another_dir_urls(input_data: dict):
+    def get_another_dir_urls(copy_item: CopyItem):
         src_dst_urls: list[tuple[Path, Path]] = []
-        src_dir = Path(input_data["src_dir"])
-        dst_dir = Path(input_data["dst_dir"])
-        for url in input_data["urls"]:
+        src_dir = Path(copy_item.src_dir)
+        dst_dir = Path(copy_item.dst_dir)
+        for url in copy_item.src_urls:
             url = Path(url)
             if url.is_dir():
                 # мы добавляем директорию в список копирования
@@ -499,10 +499,10 @@ class CopyTask:
         return src_dst_urls
     
     @staticmethod
-    def get_same_dir_urls(input_data: dict, copy_name: str = ""):
+    def get_same_dir_urls(copy_item: CopyItem, copy_name: str = ""):
         src_dst_urls: list[tuple[Path, Path]] = []
-        dst_dir = Path(input_data["dst_dir"])
-        for url in input_data["urls"]:
+        dst_dir = Path(copy_item.dst_dir)
+        for url in copy_item.src_urls:
             url = Path(url)
             url_with_copy = dst_dir.joinpath(url.name)
             counter = 1
