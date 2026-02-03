@@ -418,7 +418,6 @@ class Grid(UScrollArea):
             self._start_load_images_task(thumbs)
 
     def _start_load_images_task(self, thumbs: list[Thumb]):
-        return
         """
         Запускает фоновую задачу загрузки изображений для списка Thumb.
         Изображения загружаются из базы данных или из директории, если в БД нет.
