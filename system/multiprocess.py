@@ -181,14 +181,8 @@ class ImgLoader:
     
 
 class ReadImg:
-
-    cache_limit = 15
-
     @staticmethod
     def start(src: str, desaturate: bool, q: Queue):
-        """
-        nd array or none
-        """
         img_array = ImgUtils.read_img(src)
         if desaturate:
             img_array = Utils.desaturate_image(img_array, 0.2)
