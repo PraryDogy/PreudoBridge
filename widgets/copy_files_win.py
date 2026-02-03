@@ -168,7 +168,7 @@ class CopyFilesWin(ProgressbarWin):
         self.cancel_btn.clicked.connect(self.deleteLater)
         self.adjustSize()
         
-        copy_item = CopyItem(
+        self.copy_item = CopyItem(
             src_dir=ClipboardItem.src_dir,
             dst_dir=ClipboardItem.dst_dir,
             src_urls=ClipboardItem.src_urls,
@@ -176,7 +176,7 @@ class CopyFilesWin(ProgressbarWin):
             is_cut=ClipboardItem.is_cut
         )
 
-        self.copy_task = CopyWorker(target=CopyTask.start, args=(copy_item, ))
+        self.copy_task = CopyWorker(target=CopyTask.start, args=(self.copy_item, ))
 
         self.copy_timer = QTimer(self)
         self.copy_timer.timeout.connect(self.poll_task)
@@ -219,18 +219,14 @@ class CopyFilesWin(ProgressbarWin):
                 self.dst_urls.extend(copy_item.dst_urls)
 
             self.progressbar.setValue(copy_item.current_size)
-            if ClipboardItem.is_cut:
-                copy = "Перемещаю файлы"
-            else:
-                copy = "Копирую файлы"
             self.below_label.setText(
-                f'{copy} {copy_item.current_count} из {copy_item.total_count}'
+                f'{self.windowTitle()} {copy_item.current_count} из {copy_item.total_count}'
             )
 
         if not self.copy_task.is_alive() or finished:
             self.progressbar.setValue(self.progressbar.maximum())
             self.below_label.setText(
-                f'{copy} {copy_item.total_count} из {copy_item.total_count}'
+                f'{self.windowTitle()} {self.copy_item.total_count} из {self.copy_item.total_count}'
             )     
             self.finished_.emit(self.dst_urls)
             self.stop_task()
@@ -250,15 +246,15 @@ class CopyFilesWin(ProgressbarWin):
     
     def replace_one(self):
         self.copy_timer.stop()
-        data = {"msg": "replace_one"}
-        self.copy_task.gui_q.put(data)
+        self.copy_item.msg = "replace_one"
+        self.copy_task.gui_q.put(self.copy_item)
         self.replace_win.deleteLater()
         self.copy_timer.start(self.copy_timer_ms)
 
     def replace_all(self):
         self.copy_timer.stop()
-        data = {"msg": "replace_all"}
-        self.copy_task.gui_q.put(data)
+        self.copy_item.msg = "replace_all"
+        self.copy_task.gui_q.put(self.copy_item)
         self.replace_win.deleteLater()
         self.copy_timer.start(self.copy_timer_ms)
 
