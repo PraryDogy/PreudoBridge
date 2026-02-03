@@ -321,3 +321,11 @@ class JpgConvertItem:
         self.current_count: int
         self.current_filename: str
         self.msg: Literal["", "finished"]
+
+
+class MultipleInfoItem:
+    def __init__(self):
+        super().__init__()
+        self.total_size: int = 0
+        self.folders_set = set()
+        self.files_set = set()

@@ -14,7 +14,7 @@ from watchdog.observers.polling import PollingObserver as Observer
 
 from cfg import JsonData, Static
 from system.database import Clmns, Dbase
-from system.items import DataItem, DirItem, JpgConvertItem
+from system.items import DataItem, DirItem, JpgConvertItem, MultipleInfoItem
 from system.shared_utils import ImgUtils, PathFinder, SharedUtils
 from system.tasks import Utils
 
@@ -304,25 +304,12 @@ class ImgRes:
         q.put(resol)
 
 
-class _MultipleInfoItem:
-    def __init__(self):
-        super().__init__()
-        self.total_size: int = 0
-        self.folders_set = set()
-        self.files_set = set()
-
-
 class MultipleInfo:
     err = " Произошла ошибка"
 
     @staticmethod
     def start(data_items: list[DataItem], show_hidden: bool, q: Queue):
         """
-        Принимает [
-            "src": str,
-            "type_": str,
-            "size": int
-        ]
         Возвращает {
             "total_size": str,
             "total_files": str,
@@ -330,7 +317,7 @@ class MultipleInfo:
         }
         """
 
-        info_item = _MultipleInfoItem()
+        info_item = MultipleInfoItem()
         try:
             MultipleInfo._task(data_items, info_item, show_hidden)
             total_files = len(list(info_item.files_set))
@@ -352,7 +339,7 @@ class MultipleInfo:
             })
 
     @staticmethod
-    def _task(items: list[dict], info_item: _MultipleInfoItem, show_hidden: bool):
+    def _task(items: list[dict], info_item: MultipleInfoItem, show_hidden: bool):
         for i in items:
             if i["type_"] == Static.folder_type:
                 MultipleInfo.get_folder_size(i, info_item, show_hidden)
@@ -362,7 +349,7 @@ class MultipleInfo:
                 info_item.files_set.add(i["src"])
 
     @staticmethod
-    def get_folder_size(item: dict, info_item: _MultipleInfoItem, show_hidden: bool):
+    def get_folder_size(item: dict, info_item: MultipleInfoItem, show_hidden: bool):
         stack = [item["src"]]
         while stack:
             current_dir = stack.pop()
