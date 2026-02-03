@@ -387,35 +387,8 @@ class CopyItem:
 
 
 class CopyTask:
-    """
-        Принимает {
-            "src_dir": str откуда копировать,
-            "dst_dir": str куда копировать,
-            "urls": list[str] список файлов и папок для копирования,
-            "is_search": bool если файлы копируются из grid_search.py > GridSearch,
-            "is_cut": bool если True, то удалить исходные файлы и папки
-        }
-
-        Передает в Queue {
-            "total_size": int килобайты для макс. прогрессбара,
-            "total_count": int общее число копируемых файлов,
-            "current_size": int килобайты для прогрессбара,
-            "current_count": int текущее число скопированных файлов,
-            "dst_urls": list[str] список путей к файлам, куда они будут скопированы
-            "msg": str "error" показать окно ошибки, "replace" показать окно замены
-        }
-    """
     @staticmethod
     def start(copy_item: CopyItem, proc_q: Queue, gui_q: Queue):
-
-        # to_gui = {
-        #     "total_size": 0,
-        #     "total_count": 0,
-        #     "current_size": 0,
-        #     "current_count": 0,
-        #     "dst_urls": [],
-        #     "msg": "",
-        # }
 
         if copy_item.is_search or copy_item.src_dir != copy_item.dst_dir:
             src_dst_urls = CopyTask.get_another_dir_urls(copy_item)
