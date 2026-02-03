@@ -18,7 +18,6 @@ from system.utils import Utils
 
 from ._base_widgets import USep, WinBase
 from .bar_macos import BarMacos
-from .cache_download_win import CacheDownloadWin
 from .copy_files_win import CopyFilesWin, ErrorWin
 from .favs_menu import FavsMenu
 from .go_win import GoToWin
@@ -386,7 +385,6 @@ class MainWin(WinBase):
         new_win.show()
 
     def setup_grid_signals(self):
-        self.grid.download_cache.connect(self.download_cache_task)
         self.grid.sort_menu_update.connect(self.sort_bar.sort_menu_update)
         self.grid.total_count_update.connect(self.sort_bar.sort_frame.set_total_text)
         self.grid.path_bar_update.connect(self.path_bar.update)
@@ -423,27 +421,6 @@ class MainWin(WinBase):
         self.info_win.center(self.img_view_win if self.img_view_win else self)
         self.info_win.show()
         
-    def download_cache_task(self, dirs: list[str]):
-
-        def open_win():
-            self.cache_download_win = CacheDownloadWin(dirs)
-            assert isinstance(self.cache_download_win, CacheDownloadWin)
-            self.cache_download_win.center(self.window())
-            QTimer.singleShot(10, self.cache_download_win.show)
-
-        self.question_win = WinQuestion(
-            self.attention,
-            self.cache_download_descr
-        )
-        self.question_win.center(self.window())
-        self.question_win.ok_clicked.connect(
-            lambda: open_win()
-        )
-        self.question_win.ok_clicked.connect(
-            lambda: self.question_win.deleteLater()
-        )
-        self.question_win.show()
-
     def paste_files(self):
         """
         Для cmd v, вставить, dropEvent

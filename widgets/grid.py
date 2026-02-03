@@ -863,13 +863,6 @@ class Grid(UScrollArea):
             convert_action.triggered.connect(lambda: self.open_img_convert_win(urls_img))
             menu_.addAction(convert_action)
 
-        if wid.data.type_ == Static.folder_type:
-            download_cache = ItemActions.DownloadCache(menu_)
-            download_cache.triggered.connect(
-                lambda: self.download_cache.emit(dirs)
-            )
-            menu_.addAction(download_cache)
-
         menu_.addSeparator()
 
         # is grid search устанавливается на True при инициации GridSearch
