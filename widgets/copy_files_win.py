@@ -1,13 +1,12 @@
 import os
-from pathlib import Path
 
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
                              QWidget)
 
 from cfg import Static
-from system.items import ClipboardItem
-from system.multiprocess import CopyItem, CopyTask, CopyWorker
+from system.items import ClipboardItem, CopyItem
+from system.multiprocess import CopyTask, CopyWorker
 
 from ._base_widgets import MinMaxDisabledWin, USvgSqareWidget
 from .progressbar_win import ProgressbarWin
