@@ -191,9 +191,9 @@ class CopyFilesWin(ProgressbarWin):
         finished = False
 
         if not self.copy_task.proc_q.empty():
-            to_gui: dict = self.copy_task.proc_q.get()
+            copy_item: CopyItem = self.copy_task.proc_q.get()
 
-            if to_gui["msg"] == "error":
+            if copy_item.msg == "error":
                 self.error_win = ErrorWin()
                 self.error_win.center(self.window())
                 self.error_win.show()
@@ -201,7 +201,7 @@ class CopyFilesWin(ProgressbarWin):
                 self.deleteLater()
                 return
             
-            elif to_gui["msg"] == "replace":
+            elif copy_item.msg == "need_replace":
                 self.replace_win = ReplaceFilesWin()
                 self.replace_win.center(self)
                 self.replace_win.replace_all_press.connect(self.replace_all)
@@ -210,29 +210,28 @@ class CopyFilesWin(ProgressbarWin):
                 self.replace_win.show()
                 return
             
-            elif to_gui["msg"] == "finished":
+            elif copy_item.msg == "finished":
                 finished = True
             
             if self.progressbar.maximum() == 0:
-                self.progressbar.setMaximum(to_gui["total_size"])
+                self.progressbar.setMaximum(copy_item.total_size)
 
-            if len(self.dst_urls) == 0 and to_gui["dst_urls"]:
-                self.dst_urls.extend(to_gui["dst_urls"])
+            if len(self.dst_urls) == 0 and copy_item.dst_urls:
+                self.dst_urls.extend(copy_item.dst_urls)
 
-            self.progressbar.setValue(to_gui["current_size"])
+            self.progressbar.setValue(copy_item.current_size)
             if ClipboardItem.is_cut:
                 copy = "Перемещаю файлы"
             else:
                 copy = "Копирую файлы"
             self.below_label.setText(
-                f'{copy} {to_gui["current_count"]} из {to_gui["total_count"]}'
+                f'{copy} {copy_item.current_count} из {copy_item.total_count}'
             )
 
-        # if not self.copy_task.is_alive(): # and self.copy_task.proc_q.empty():
         if not self.copy_task.is_alive() or finished:
             self.progressbar.setValue(self.progressbar.maximum())
             self.below_label.setText(
-                f'{copy} {to_gui["total_count"]} из {to_gui["total_count"]}'
+                f'{copy} {copy_item.total_count} из {copy_item.total_count}'
             )     
             self.finished_.emit(self.dst_urls)
             self.stop_task()

@@ -380,10 +380,10 @@ class CopyItem:
 
         self.current_size: int = 0
         self.total_size: int = 0
-        self.current_size: int = 0
+        self.current_count: int = 0
         self.total_count: int = 0
         self.dst_urls: list[str] = []
-        self.msg: Literal["", "error", "need_replace", "replace_one", "replace_all"]
+        self.msg: Literal["", "error", "need_replace", "replace_one", "replace_all", "finished"]
 
 
 class CopyTask:
