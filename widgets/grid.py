@@ -652,9 +652,9 @@ class Grid(UScrollArea):
         """
         ClipboardItem.set_src(self.main_win_item.main_dir)
         ClipboardItem.set_is_search(self.is_grid_search)
-        ClipboardItem.urls.clear()
+        ClipboardItem.src_urls.clear()
         for i in self.selected_thumbs:
-            ClipboardItem.urls.append(i.data.src)
+            ClipboardItem.src_urls.append(i.data.src)
 
     def remove_no_items_label(self):
         wid = self.grid_wid.findChild(NoItemsLabel)
@@ -963,7 +963,7 @@ class Grid(UScrollArea):
 
         menu_.addSeparator()
 
-        if ClipboardItem.urls and not self.is_grid_search:
+        if ClipboardItem.src_urls and not self.is_grid_search:
             paste_files = GridActions.PasteObjects(menu_)
             paste_files.triggered.connect(self.paste_files.emit)
             menu_.addAction(paste_files)
@@ -1116,7 +1116,7 @@ class Grid(UScrollArea):
                 self.setup_urls_to_copy()
 
             elif a0.key() == Qt.Key.Key_V:
-                if ClipboardItem.urls and not self.is_grid_search:
+                if ClipboardItem.src_urls and not self.is_grid_search:
                     self.paste_files.emit()
 
             elif a0.key() == Qt.Key.Key_Up:
@@ -1259,7 +1259,7 @@ class Grid(UScrollArea):
             return
         else:
             ClipboardItem.set_src(src)
-            ClipboardItem.urls = urls
+            ClipboardItem.src_urls = urls
             self.paste_files.emit()
         return super().dropEvent(a0)
 

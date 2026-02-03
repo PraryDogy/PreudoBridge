@@ -253,7 +253,7 @@ class MainWinItem:
 
 
 class ClipboardItem:
-    urls: list[str] = []
+    src_urls: list[str] = []
     is_cut: bool = False
     is_search: bool = False
     src_dir: str = ""
@@ -293,7 +293,7 @@ class ClipboardItem:
 
     @classmethod
     def reset(cls):
-        ClipboardItem.urls = []
+        ClipboardItem.src_urls = []
         ClipboardItem.is_cut = False
         ClipboardItem.is_search = False
         ClipboardItem.src_dir = ""

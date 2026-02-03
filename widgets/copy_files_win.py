@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
@@ -6,11 +7,11 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QPushButton, QVBoxLayout,
 
 from cfg import Static
 from system.items import ClipboardItem
-from system.multiprocess import CopyTask, CopyWorker
+from system.multiprocess import CopyItem, CopyTask, CopyWorker
 
 from ._base_widgets import MinMaxDisabledWin, USvgSqareWidget
 from .progressbar_win import ProgressbarWin
-from pathlib import Path
+
 
 class ReplaceFilesWin(MinMaxDisabledWin):
     descr_text = "Заменить существующие файлы?"
@@ -167,19 +168,16 @@ class CopyFilesWin(ProgressbarWin):
         self.cancel_btn.clicked.connect(self.stop_task)
         self.cancel_btn.clicked.connect(self.deleteLater)
         self.adjustSize()
-
-        data = {
-            "src_dir": ClipboardItem.src_dir,
-            "dst_dir": ClipboardItem.dst_dir,
-            "urls": ClipboardItem.urls,
-            "is_search": ClipboardItem.is_search,
-            "is_cut": ClipboardItem.is_cut,
-            }
-
-        self.copy_task = CopyWorker(
-            target=CopyTask.start,
-            args=(data, )
+        
+        copy_item = CopyItem(
+            src_dir=ClipboardItem.src_dir,
+            dst_dir=ClipboardItem.dst_dir,
+            src_urls=ClipboardItem.src_urls,
+            is_search=ClipboardItem.is_search,
+            is_cut=ClipboardItem.is_cut
         )
+
+        self.copy_task = CopyWorker(target=CopyTask.start, args=(copy_item, ))
 
         self.copy_timer = QTimer(self)
         self.copy_timer.timeout.connect(self.poll_task)

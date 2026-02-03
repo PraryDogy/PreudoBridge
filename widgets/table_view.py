@@ -378,7 +378,7 @@ class TableView(QTableView):
 
         menu_.addSeparator()
 
-        if ClipboardItem.urls:
+        if ClipboardItem.src_urls:
             paste_files = GridActions.PasteObjects(menu_)
             paste_files.triggered.connect(self.paste_files.emit)
             menu_.addAction(paste_files)
@@ -442,7 +442,7 @@ class TableView(QTableView):
 
         menu_.addSeparator()
 
-        if ClipboardItem.urls:
+        if ClipboardItem.src_urls:
             paste_files = GridActions.PasteObjects(menu_)
             paste_files.triggered.connect(self.paste_files.emit)
             menu_.addAction(paste_files)
@@ -462,11 +462,11 @@ class TableView(QTableView):
     def setup_urls_to_copy(self, urls: list[str]):
         ClipboardItem.set_src(self.main_win_item.main_dir)
         ClipboardItem.set_is_search(False)
-        ClipboardItem.urls.clear()
+        ClipboardItem.src_urls.clear()
         # if CopyItem._is_cut:
         #     self.clearSelection()
         for i in urls:
-            ClipboardItem.urls.append(i)
+            ClipboardItem.src_urls.append(i)
             # if CopyItem._is_cut:
             #     ind = self.url_to_index[i]
             #     self._model.cut_rows.add(i)
@@ -541,7 +541,7 @@ class TableView(QTableView):
                     self.setup_urls_to_copy(urls)
 
             elif a0.key() == Qt.Key.Key_V:
-                if ClipboardItem.urls:
+                if ClipboardItem.src_urls:
                     self.paste_files.emit()
 
         elif a0.key() in (Qt.Key.Key_Return, Qt.Key.Key_Space):
@@ -577,7 +577,7 @@ class TableView(QTableView):
             return
         else:
             ClipboardItem.set_src(src)
-            ClipboardItem.urls = urls
+            ClipboardItem.src_urls = urls
             self.paste_files.emit()
         return super().dropEvent(a0)
     
