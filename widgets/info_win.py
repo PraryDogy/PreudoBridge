@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import (QAction, QGraphicsOpacityEffect, QGridLayout,
                              QLabel, QSpacerItem)
 
 from cfg import JsonData, Static
-from system.items import DataItem
+from system.items import DataItem, MultipleInfoItem
 from system.multiprocess import ImgRes, MultipleInfo, ProcessWorker
 from system.shared_utils import ImgUtils, SharedUtils
 
@@ -177,13 +177,13 @@ class InfoWin(MinMaxDisabledWin):
         def poll_task():
             q = self.info_task.proc_q
             if not q.empty():
-                res = q.get()
+                info_item: MultipleInfoItem = q.get()
                 total_size = self.findChildren(SelectableLabel)[3]
                 total_files = self.findChildren(SelectableLabel)[5]
                 total_folders = self.findChildren(SelectableLabel)[7]
-                total_size.setText(res["total_size"])
-                total_files.setText(res["total_files"])
-                total_folders.setText(res["total_folders"])
+                total_size.setText(info_item.total_size)
+                total_files.setText(info_item.total_files)
+                total_folders.setText(info_item.total_folders)
                 self.set_transparent()
             
             if not self.info_task.is_alive():
@@ -212,10 +212,7 @@ class InfoWin(MinMaxDisabledWin):
             for i in self.data_items
         ]
 
-        self.info_task = ProcessWorker(
-            target=MultipleInfo.start,
-            args=(items, JsonData.show_hidden, )
-        )
+        self.info_task = ProcessWorker(target=MultipleInfo.start, args=(items, JsonData.show_hidden, ))
         self.info_task.start()
         QTimer.singleShot(100, poll_task)
 
@@ -224,13 +221,13 @@ class InfoWin(MinMaxDisabledWin):
         def poll_task():
             q = self.info_task.proc_q
             if not q.empty():
-                res = q.get()
+                info_item: MultipleInfoItem = q.get()
                 total_size = self.findChildren(SelectableLabel)[5]
                 total_files = self.findChildren(SelectableLabel)[13]
                 total_folders = self.findChildren(SelectableLabel)[15]
-                total_size.setText(res["total_size"])
-                total_files.setText(res["total_files"])
-                total_folders.setText(res["total_folders"])
+                total_size.setText(info_item.total_size)
+                total_files.setText(info_item.total_files)
+                total_folders.setText(info_item.total_folders)
                 self.set_transparent()
             
             if not self.info_task.is_alive():
@@ -263,10 +260,7 @@ class InfoWin(MinMaxDisabledWin):
             for i in self.data_items
         ]
 
-        self.info_task = ProcessWorker(
-            target=MultipleInfo.start,
-            args=(items, JsonData.show_hidden, )
-        )
+        self.info_task = ProcessWorker(target=MultipleInfo.start, args=(items, JsonData.show_hidden, ))
         self.info_task.start()
         QTimer.singleShot(100, poll_task)
 

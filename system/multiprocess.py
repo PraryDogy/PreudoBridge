@@ -309,44 +309,33 @@ class MultipleInfo:
 
     @staticmethod
     def start(data_items: list[DataItem], show_hidden: bool, q: Queue):
-        """
-        Возвращает {
-            "total_size": str,
-            "total_files": str,
-            "total_folders": str
-        }
-        """
-
         info_item = MultipleInfoItem()
+
         try:
             MultipleInfo._task(data_items, info_item, show_hidden)
-            total_files = len(list(info_item.files_set))
-            total_folders = len(list(info_item.folders_set))
-            
-            q.put({
-                "total_size": SharedUtils.get_f_size(info_item.total_size),
-                "total_files": format(total_files, ",").replace(",", " "),
-                "total_folders": format(total_folders, ",").replace(",", " ")
-            })
+            info_item.total_size = SharedUtils.get_f_size(info_item.total_size),
+            info_item.total_files = len(list(info_item._files_set))
+            info_item.total_files = format(info_item.total_files, ",").replace(",", " ")
+            info_item.total_folders = len(list(info_item._folders_set))
+            info_item.total_folders = format(info_item.total_folders, ",").replace(",", " ")
+            q.put(info_item)
+
         except Exception as e:
             print("tasks, MultipleInfoFiles error", e)
-            import traceback
-            print(traceback.format_exc())
-            q.put({
-                "total_size": MultipleInfo.err,
-                "total_files": MultipleInfo.err,
-                "total_folders": MultipleInfo.err
-            })
+            info_item.total_size = MultipleInfo.err
+            info_item.total_files = MultipleInfo.err
+            info_item.total_folders = MultipleInfo.err
+            q.put(info_item)
 
     @staticmethod
     def _task(items: list[dict], info_item: MultipleInfoItem, show_hidden: bool):
         for i in items:
             if i["type_"] == Static.folder_type:
                 MultipleInfo.get_folder_size(i, info_item, show_hidden)
-                info_item.folders_set.add(i["src"])
+                info_item._folders_set.add(i["src"])
             else:
                 info_item.total_size += i["size"]
-                info_item.files_set.add(i["src"])
+                info_item._files_set.add(i["src"])
 
     @staticmethod
     def get_folder_size(item: dict, info_item: MultipleInfoItem, show_hidden: bool):
@@ -360,15 +349,15 @@ class MultipleInfo:
                 continue
             for entry in os.scandir(current_dir):
                 if entry.is_dir():
-                    info_item.folders_set.add(item["src"])
+                    info_item._folders_set.add(item["src"])
                     stack.append(entry.path)
                 else:
                     if show_hidden:
                         info_item.total_size += entry.stat().st_size
-                        info_item.files_set.add(entry.path)
+                        info_item._files_set.add(entry.path)
                     if not entry.name.startswith(Static.hidden_symbols):
                         info_item.total_size += entry.stat().st_size
-                        info_item.files_set.add(entry.path)
+                        info_item._files_set.add(entry.path)
 
 
 class CopyFilesWorker(BaseProcessWorker):

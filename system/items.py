@@ -326,6 +326,8 @@ class JpgConvertItem:
 class MultipleInfoItem:
     def __init__(self):
         super().__init__()
-        self.total_size: int = 0
-        self.folders_set = set()
-        self.files_set = set()
+        self.total_size = 0
+        self.total_files = 0
+        self.total_folders = 0
+        self._folders_set = set()
+        self._files_set = set()
