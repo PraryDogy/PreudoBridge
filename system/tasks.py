@@ -7,14 +7,11 @@ import subprocess
 import zipfile
 
 import sqlalchemy
-from PyQt5.QtCore import (QObject, QRunnable, Qt, QThread, QThreadPool, QTimer,
-                          pyqtSignal)
+from PyQt5.QtCore import QObject, QRunnable, QThreadPool, QTimer, pyqtSignal
 from PyQt5.QtGui import QImage
-from PyQt5.QtTest import QTest
-from watchdog.observers.polling import PollingObserver as Observer
 
 from cfg import Dynamic, JsonData, Static
-from system.shared_utils import PathFinder, SharedUtils
+from system.shared_utils import ImgUtils, SharedUtils
 
 from .database import CACHE, Clmns, Dbase
 from .items import DataItem, DirItem
@@ -143,9 +140,23 @@ class DataSizeCounter(URunnable):
 
     def task(self):
         try:
-            self.sigs.finished_.emit(Utils.get_hashdir_size())
+            self.sigs.finished_.emit(self.get_hashdir_size())
         except Exception as e:
             print("tasks, DataSize error", e)
+
+    def get_hashdir_size(self):
+        total = 0
+        count = 0
+        stack = [Static.external_thumbs_dir]
+        while stack:
+            current = stack.pop()
+            for i in os.scandir(current):
+                if i.is_dir():
+                    stack.append(i.path)
+                elif i.name.endswith(ImgUtils.ext_all):
+                    total += os.path.getsize(i.path)
+                    count += 1
+        return {"total": total, "count": count}
 
 
 class AutoCacheCleaner(URunnable):
@@ -172,7 +183,7 @@ class AutoCacheCleaner(URunnable):
             print("tasks, ClearData error", e)
 
     def _task(self):
-        data = Utils.get_hashdir_size()
+        data = self.get_hashdir_size()
         total_size = data["total"]
         while total_size > self.limit:
             limited_select = self.get_limited_select()
@@ -192,6 +203,20 @@ class AutoCacheCleaner(URunnable):
                 break
             self.remove_from_db(thumb_path_list)
 
+    def get_hashdir_size(self):
+        total = 0
+        count = 0
+        stack = [Static.external_thumbs_dir]
+        while stack:
+            current = stack.pop()
+            for i in os.scandir(current):
+                if i.is_dir():
+                    stack.append(i.path)
+                elif i.name.endswith(ImgUtils.ext_all):
+                    total += os.path.getsize(i.path)
+                    count += 1
+        return {"total": total, "count": count}
+    
     def get_limited_select(self):
         conds = sqlalchemy.and_(
             Clmns.rating == 0,

@@ -41,7 +41,6 @@ class ImgConvertWin(ProgressbarWin):
         self.jpg_timer.stop()
         q = self.jpg_task.proc_q
         finished = False
-        # мы используем if а не while, чтобы gui обновлялся равномерно по таймеру
         if not q.empty():
             jpg_item: JpgConvertItem = q.get()
             self.above_label.setText(jpg_item.current_filename)

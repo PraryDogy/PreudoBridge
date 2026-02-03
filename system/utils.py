@@ -149,28 +149,7 @@ class Utils:
     @classmethod
     def get_now(cls):
         return int(datetime.now().replace(microsecond=0).timestamp())
-    
-    @classmethod
-    def get_hashdir_size(self):
-        """
-        !!!
-        Только для QRunnable
-        !!!
-        Возвращает {"total": размер в байтах, "count": количество файлов}
-        """
-        total = 0
-        count = 0
-        stack = [Static.external_thumbs_dir]
-        while stack:
-            current = stack.pop()
-            for i in os.scandir(current):
-                if i.is_dir():
-                    stack.append(i.path)
-                elif i.name.endswith(ImgUtils.ext_all):
-                    total += os.path.getsize(i.path)
-                    count += 1
-        return {"total": total, "count": count}
-    
+        
     @classmethod
     def scaled(cls, qimage: QImage, size: int, dpr: int = 2):
         scaled = qimage.scaled(
